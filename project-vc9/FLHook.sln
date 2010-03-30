@@ -1,0 +1,22 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLHook", "FLHook.vcproj", "{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		ReleaseVersion|Win32 = ReleaseVersion|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.Debug|Win32.Build.0 = Debug|Win32
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.Release|Win32.ActiveCfg = Release|Win32
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.Release|Win32.Build.0 = Release|Win32
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623}.ReleaseVersion|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
