@@ -548,6 +548,20 @@ enum CCMDS_RIGHTS
 	RIGHT_SPECIAL3		= (1 << 13),
 };
 
+class CTimer
+{
+public:
+	IMPORT CTimer(string sFunction, uint iWarning);
+    IMPORT void start();
+	IMPORT uint stop();
+
+private:
+	mstime tmStart;
+	uint iMax;
+	string sFunction;
+	uint iWarning;
+};
+
 // admin stuff
 class CCmds
 {

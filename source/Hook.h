@@ -100,9 +100,9 @@ struct PLUGIN_HOOKDATA
 class CTimer
 {
 public:
-	CTimer(string sFunction, uint iWarning);
-    void start();
-	void stop();
+	EXPORT CTimer(string sFunction, uint iWarning);
+    EXPORT void start();
+	EXPORT uint stop();
 
 private:
 	mstime tmStart;

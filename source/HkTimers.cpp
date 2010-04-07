@@ -15,17 +15,19 @@ void CTimer::start()
 	tmStart = timeInMS();
 }
 
-void CTimer::stop()
+uint CTimer::stop()
 {
 	uint iDelta = abs((int)(timeInMS() - tmStart));
 
-	if(iMax && iDelta > iMax && iDelta > iWarning) {
+	if(iDelta > iMax && iDelta > iWarning) {
 
 		// log
 		if(set_bPerfTimer)
 			HkAddPerfTimerLog("Spent %d ms in %s, longest so far.", iDelta, sFunction.c_str());
 		iMax = iDelta;
 	}
+
+	return iDelta;
 
 }
 

@@ -391,7 +391,6 @@ namespace Archetype
 		uint iDunno2;
 		uint iGunType;
 		uint iArray5[50];
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 	struct IMPORT Explosion
@@ -726,7 +725,6 @@ namespace Archetype
 		uint	iDunno5[6];
 		uint	iMaxNanobots;
 		uint	iMaxShieldBats;
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 
@@ -1312,7 +1310,6 @@ namespace CmnAsteroid
 	public:
 		long x00, x04, x08, x0C, x10, x14, x18, x1C, x20, x24; 
 		struct FP* saved_fp; 
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 	class IMPORT CAsteroidSystem
@@ -1651,7 +1648,6 @@ public:
 	uint iSpaceID;
 	uint iDunno5[11];
 	uint iType;
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT CBeam
@@ -4528,7 +4524,6 @@ public:
 	int iUnknown3;
 	int iUnknown4;
 	float fRep;
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 class IMPORT MarshalBuffer
