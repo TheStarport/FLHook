@@ -1,3 +1,6 @@
+#ifndef __PLUGIN_H__
+#define __PLUGIN_H__ 1
+
 enum PLUGIN_RETURNCODE
 {
 	DEFAULT_RETURNCODE = 0,
@@ -52,3 +55,4 @@ struct	TEMPBAN_BAN_STRUCT // in
 __declspec(dllimport) void Plugin_Communication(PLUGIN_MESSAGE msgtype, void* msg);
 extern __declspec(dllimport) bool g_bPlugin_nofunctioncall;
 
+#endif
