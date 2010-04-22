@@ -1112,6 +1112,8 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
+struct ISpatialPartition;
+
 namespace Universe
 {
 	struct IBase
@@ -1126,7 +1128,26 @@ namespace Universe
 		ulong lSpaceObjID;
 		uint iDunno5[10];
 	};
+	struct IMPORT ISystem
+	{
+		LPVOID pvtable;
+		LPVOID pvftable;		// CommReferrable
+		size_t msgidprefix_len;	// TString<64>
+		char   msgidprefix_str[64];
 
+		UINT   id;				// ID_String
+		LPCSTR nickname;		// CacheString
+		LPVOID connections[4];	// std::vector
+		BYTE   visit;
+		UINT   strid_name;
+		UINT   ids_info;
+		LPCSTR file;			// CacheString
+		class Vector NavMapPos;
+		LPVOID zones[3];		// std::list
+		ISpatialPartition* spatial;
+		float  NavMapScale;
+		UINT   spacemusic;
+	};
 	IMPORT  struct ISystem *  GetFirstSystem(void);
 	IMPORT  struct IBase *  GetNextBase(void);
 	IMPORT  struct ISystem *  GetNextSystem(void);
@@ -3613,12 +3634,15 @@ struct IMPORT GoodInfo
 public:
 	uint i1;
 	uint iLen;
-	char szBuf[64];
+	uint iDunno1[16];
 	uint ArchID;
-	uint type; // == 0 when commodity
+	uint type; // 0=commodity, 2=hull, 3=ship
 	uint i3;
-	char szBuf2[13*4];
+	uint ShipGoodID; // if type = 2
+	uint iDunno2[12];
 	uint iIDS;
+	uint iDunno3[1];
+	uint HullGoodID; // if type = 3
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
@@ -4290,7 +4314,7 @@ public:
 	double value_num(unsigned int);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE*4];
+	unsigned char data[5480];
 };
 
 struct IMPORT IObjInspectImpl
