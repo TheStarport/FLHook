@@ -3717,18 +3717,12 @@ public:
 
 struct IMPORT GoodInfo
 {
+public:
 	#define GOODINFO_TYPE_COMMODITY 0
 	#define GOODINFO_TYPE_EQUIPMENT 1
 	#define GOODINFO_TYPE_HULL 2
 	#define GOODINFO_TYPE_SHIP 3
 
-	GoodInfo(struct GoodInfo const &);
-	GoodInfo(void);
-	~GoodInfo(void);
-	struct GoodInfo & operator=(struct GoodInfo const &);
-	bool has_visual_attachment(void)const ;
-
-public:
 	uint i1;
 	uint iLen;
 	uint iDunno1[16];
