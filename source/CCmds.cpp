@@ -1,5 +1,5 @@
 #include "global.h"
-#include "./include/FLCoreServer.h"
+#include "../sdk/headers/FLCoreServer.h"
 #include "CCmds.h"
 
 #define RIGHT_CHECK(a) if(!(this->rights & a)) { Print(L"ERR No permission\n"); return; }
