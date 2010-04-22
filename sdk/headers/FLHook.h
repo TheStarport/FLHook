@@ -483,11 +483,7 @@ IMPORT HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet)
 IMPORT HK_ERROR HkFLIniWrite(wstring wscCharname, wstring wscKey, wstring wscValue);
 
 IMPORT wstring HkErrGetText(HK_ERROR hkErr);
-IMPORT void ClearClientInfo(uint iClientID);
-IMPORT void LoadUserSettings(uint iClientID);
 
-// HkCbUserCmd
-IMPORT bool UserCmd_Process(uint iClientID, wstring wscCmd);
 IMPORT void UserCmd_SetDieMsg(uint iClientID, wstring wscParam);
 IMPORT void UserCmd_SetChatFont(uint iClientID, wstring wscParam);
 
@@ -546,20 +542,6 @@ enum CCMDS_RIGHTS
 	RIGHT_SPECIAL1		= (1 << 11),
 	RIGHT_SPECIAL2		= (1 << 12),
 	RIGHT_SPECIAL3		= (1 << 13),
-};
-
-class CTimer
-{
-public:
-	IMPORT CTimer(string sFunction, uint iWarning);
-    IMPORT void start();
-	IMPORT uint stop();
-
-private:
-	mstime tmStart;
-	uint iMax;
-	string sFunction;
-	uint iWarning;
 };
 
 // admin stuff
