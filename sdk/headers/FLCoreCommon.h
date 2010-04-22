@@ -1114,6 +1114,11 @@ public:
 
 struct ISpatialPartition;
 
+namespace CmnAsteroid
+{
+	class LootableZone;
+}
+
 namespace Universe
 {
 	struct IBase
@@ -1148,6 +1153,16 @@ namespace Universe
 		float  NavMapScale;
 		UINT   spacemusic;
 	};
+	struct IMPORT IZone
+	{
+		uint iDunno1[1];
+		uint iZoneID;
+		uint iSystemID;
+		uint iDunno2[30];
+		CmnAsteroid::LootableZone *lootableZone;
+		uint iDunno3[10];
+	};
+
 	IMPORT  struct ISystem *  GetFirstSystem(void);
 	IMPORT  struct IBase *  GetNextBase(void);
 	IMPORT  struct ISystem *  GetNextSystem(void);
