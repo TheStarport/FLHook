@@ -158,6 +158,8 @@ public:
 	 void InitFromFolder(char const *);
 
 public:
+	uint iDunno[11];
+	uint iNumberOfCharacters;
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
