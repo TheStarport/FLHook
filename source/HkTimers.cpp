@@ -50,10 +50,12 @@ void HkTimerCheckKick()
 			uint iClientID = HkGetClientIdFromPD(pPD);
 
 			if(ClientInfo[iClientID].tmKickTime)
-			{	
-				if(timeInMS() >= ClientInfo[iClientID].tmKickTime) 
+			{
+				if(timeInMS() >= ClientInfo[iClientID].tmKickTime)
+				{
 					HkKick(ARG_CLIENTID(iClientID)); // kick time expired
-
+					ClientInfo[iClientID].tmKickTime = 0;
+				}
 				continue; // player will be kicked anyway
 			}
 
@@ -67,6 +69,7 @@ void HkTimerCheckKick()
 					{
 						HkAddKickLog(iClientID, L"Base idling");
 						HkMsgAndKick(iClientID, L"Base idling", set_iKickMsgPeriod);
+						ClientInfo[iClientID].iBaseEnterTime = 0;
 					}
 				}
 			}
@@ -79,6 +82,7 @@ void HkTimerCheckKick()
 					else if((time(0) - ClientInfo[iClientID].iCharMenuEnterTime) >= set_iAntiCharMenuIdle) {
 						HkAddKickLog(iClientID, L"Charmenu idling");
 						HkKick(ARG_CLIENTID(iClientID));
+						ClientInfo[iClientID].iCharMenuEnterTime = 0;
 						continue;
 					}
 				} else
