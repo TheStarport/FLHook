@@ -7,10 +7,10 @@
 #endif
 #include "global.h"
 #include "flcodec.h"
-#include "./include/FLCoreServer.h"
-#include "./include/FLCoreCommon.h"
-#include "./include/FLCoreRemoteClient.h"
-#include "./include/FLCoreDALib.h"
+#include "../sdk/headers/FLCoreServer.h"
+#include "../sdk/headers/FLCoreCommon.h"
+#include "../sdk/headers/FLCoreRemoteClient.h"
+#include "../sdk/headers/FLCoreDALib.h"
 
 #include "./include/plugin.h"
 
@@ -701,11 +701,11 @@ EXPORT HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet)
 EXPORT HK_ERROR HkFLIniWrite(wstring wscCharname, wstring wscKey, wstring wscValue);
 
 EXPORT wstring HkErrGetText(HK_ERROR hkErr);
-EXPORT void ClearClientInfo(uint iClientID);
-EXPORT void LoadUserSettings(uint iClientID);
+void ClearClientInfo(uint iClientID);
+void LoadUserSettings(uint iClientID);
 
 // HkCbUserCmd
-EXPORT bool UserCmd_Process(uint iClientID, wstring wscCmd);
+bool UserCmd_Process(uint iClientID, wstring wscCmd);
 EXPORT void UserCmd_SetDieMsg(uint iClientID, wstring wscParam);
 EXPORT void UserCmd_SetChatFont(uint iClientID, wstring wscParam);
 EXPORT void PrintUserCmdText(uint iClientID, wstring wscText, ...);
