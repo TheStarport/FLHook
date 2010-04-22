@@ -3,11 +3,11 @@
 #define CALL_CLIENT_METHOD(Method) \
 	void* vRet; \
 	char *tmp; \
-	WriteProcMem(&tmp, &Client, 4); \
-	WriteProcMem(&Client, &OldClient, 4); \
+	memcpy(&tmp, &Client, 4); \
+	memcpy(&Client, &OldClient, 4); \
 	HookClient->Method; \
 	__asm { mov [vRet], eax } \
-	WriteProcMem(&Client, &tmp, 4); \
+	memcpy(&Client, &tmp, 4); \
 
 
 /**************************************************************************************************************

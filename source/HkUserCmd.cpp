@@ -555,7 +555,7 @@ void UserCmd_InviteID(uint iClientID, wstring wscParam)
 
 void UserCmd_Credits(uint iClientID, wstring wscParam)
 {
-	PrintUserCmdText(iClientID, L"This server is running FLHook (v" VERSION L") by mc_horst & w0dk4");
+	PrintUserCmdText(iClientID, L"This server is running FLHook (v" VERSION);
 	PrintUserCmdText(iClientID, L"Running plugins:");
 
 	bool bRunning = false;
