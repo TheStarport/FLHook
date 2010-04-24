@@ -36,3 +36,13 @@ extern "C" __declspec(dllexport) const wchar_t* GetWCString(wstring *wscStr)
 {
 	return wscStr->c_str();
 }
+
+extern "C" __declspec(dllexport) void WStringAssign(wstring *wscStr, const wchar_t *wszCStr)
+{
+	wscStr->assign(wszCStr);
+}
+
+extern "C" __declspec(dllexport) void WStringAppend(wstring *wscStr, const wchar_t *wszCStr)
+{
+	wscStr->append(wszCStr);
+}
