@@ -104,6 +104,7 @@ HK_ERROR HkAddCash(wstring wscCharname, int iAmount)
 				{
 					(*i).iAmount += iAmount;
 					bFound = true;
+					break;
 				}
 			}
 
