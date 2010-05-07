@@ -123,59 +123,55 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 				while(ini.is_header("Settings") && ini.read_value()) {
 					if(ini.is_value("dllname")) {
 						plugin.sDLL = ini.get_value_string(0);
-						string sPathToDLL = "./flhook_plugins/dlls/";
-						sPathToDLL += plugin.sDLL;
-						plugin.hDLL = LoadLibrary(sPathToDLL.c_str());
-						if(!plugin.hDLL)
-							break;
 					}
 
-					if(ini.is_value("shortname")) 
+					else if(ini.is_value("shortname")) 
 						plugin.sShortName = (string)ini.get_value_string(0);
 					
-					if(ini.is_value("name")) 
+					else if(ini.is_value("name")) 
 						plugin.sName = (string)ini.get_value_string(0);
 					
-					if(ini.is_value("maypause")) {
+					else if(ini.is_value("maypause")) {
 						if(!((string)ini.get_value_string(0)).find("yes") || !((string)ini.get_value_string(0)).find("true"))
 							plugin.bMayPause = true;
 						else
 							plugin.bMayPause = false;
 					}
 
-					if(ini.is_value("mayunload")) {
+					else if(ini.is_value("mayunload")) {
 						if(!((string)ini.get_value_string(0)).find("yes") || !((string)ini.get_value_string(0)).find("true"))
 							plugin.bMayUnload = true;
 						else
 							plugin.bMayUnload = false;
-					}				
-
-				}
-
-				bool bLoaded = false;
-				if(!bStartup) {
-					foreach(lstPlugins,PLUGIN_DATA,it) {
-						if(it->sDLL == plugin.sDLL) {
-							adminInterface->Print(L"Plugin already loaded, skipping: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
-							bLoaded = true;
-							break;
-						}
 					}
-					if(bLoaded)
-						throw "";
 				}
+			}
 
-				if(!plugin.hDLL) {
-					adminInterface->Print(L"Error, could not load plugin: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
-					throw "";
-				} 
-				if(!plugin.bMayUnload && !bStartup) {
-					adminInterface->Print(L"Error, could not load plugin (unloadable): %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
+			foreach(lstPlugins,PLUGIN_DATA,it) {
+				if(it->sDLL == plugin.sDLL) {
+					adminInterface->Print(L"Plugin already loaded, skipping: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
 					throw "";
 				}
+			}
 
-				plugin.bPaused = false;
+			if(!plugin.bMayUnload && !bStartup) {
+				adminInterface->Print(L"Error, could not load plugin (unloadable): %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
+				throw "";
+			}
 
+			string sPathToDLL = "./flhook_plugins/dlls/";
+			sPathToDLL += plugin.sDLL;
+			plugin.hDLL = LoadLibrary(sPathToDLL.c_str());
+			if(!plugin.hDLL) {
+				adminInterface->Print(L"Error, could not load plugin: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
+				throw "";
+			} 
+
+			plugin.bPaused = false;
+
+			ini.reset();
+
+			while(ini.read_header()){
 				while(ini.is_header("Hooks") && ini.read_value()) {
 					if(ini.is_value("hook")) {
 						string sFunction = ini.get_value_string(0);
