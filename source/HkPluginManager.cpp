@@ -171,16 +171,21 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 
 			ini.reset();
 
+			FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ"); \
+
 			while(ini.read_header()){
 				while(ini.is_header("Hooks") && ini.read_value()) {
 					if(ini.is_value("hook")) {
 						string sFunction = ini.get_value_string(0);
 						PLUGIN_HOOKDATA hook;
 						hook.sName = plugin.sShortName;
+						hook.sPluginFunction = hook.sName + "-" + sFunction;
 						hook.bPaused = false;
 						hook.hDLL = plugin.hDLL;
 						hook.iPriority = atoi(ini.get_value_string(1));
-
+						hook.pFunc = 0;
+						hook.pPluginReturnCode = pPluginReturnCode;
+						
 						std::map<string, list<PLUGIN_HOOKDATA>*>::iterator iter;
 						iter = mpPluginHooks.find(sFunction);
 						if(iter != mpPluginHooks.end()) 

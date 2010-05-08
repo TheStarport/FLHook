@@ -92,9 +92,12 @@ class CCmds;
 struct PLUGIN_HOOKDATA
 {
 	string sName;
+	string sPluginFunction;
 	HMODULE hDLL;
 	int iPriority;
 	bool bPaused;
+	FARPROC pFunc;
+	FARPROC pPluginReturnCode;			
 };
 
 class CTimer
@@ -111,26 +114,6 @@ private:
 	uint iWarning;
 };
 
-#define CALL_PLUGIN_FUNCTION(hPluginDLL,sPluginName,func_proto,args) \
-	void* vPluginRetTemp = NULL; \
-	if(hPluginDLL) { \
-		func_proto fpDLLCall = (func_proto)GetProcAddress(hPluginDLL, __FUNCDNAME__); \
-		if(fpDLLCall) { \
-			string sPluginFunction = sPluginName; \
-			sPluginFunction += " - "; \
-			sPluginFunction += __FUNCTION__; \
-			static CTimer timer(sPluginFunction,set_iTimerThreshold); \
-			timer.start(); \
-			try { \
-				fpDLLCall args; \
-				__asm { mov [vPluginRetTemp], eax } \
-			} catch(...) { AddLog("Exception in plugin %s", sPluginFunction.c_str()); } \
-			timer.stop(); \
-		} else  \
-			AddLog("Error: Plugin '%s' does not export %s", sPluginName.c_str(), __FUNCTION__); \
-	}\
-
-
 #define CALL_PLUGINS(func_proto,args) \
 	void* vPluginRet; \
 	bool bPluginReturn = false; \
@@ -139,11 +122,24 @@ private:
 		iter = mpPluginHooks.find((string)__FUNCTION__); \
 		if(iter != mpPluginHooks.end()) { \
 			foreach((*(iter->second)),PLUGIN_HOOKDATA, itplugin) { \
+				void* vPluginRetTemp; \
 				if(itplugin->bPaused) \
 					continue; \
-				CALL_PLUGIN_FUNCTION(itplugin->hDLL,itplugin->sName,func_proto,args); \
-				PLUGIN_Get_PluginReturnCode Plugin_ReturnCode = (PLUGIN_Get_PluginReturnCode)GetProcAddress(itplugin->hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ"); \
-				if(Plugin_ReturnCode) { \
+				if (!itplugin->pFunc) \
+					itplugin->pFunc = GetProcAddress(itplugin->hDLL, __FUNCDNAME__); \
+				if (itplugin->pFunc) { \
+					func_proto fpDLLCall = (func_proto)itplugin->pFunc; \
+					static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+					timer.start(); \
+					try { \
+						fpDLLCall args; \
+						__asm { mov [vPluginRetTemp], eax } \
+					} catch(...) { AddLog("Error: Exception in plugin %s", itplugin->sPluginFunction.c_str()); } \
+					timer.stop(); \
+				} else  \
+					AddLog("Error: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
+				if (itplugin->pPluginReturnCode) { \
+					PLUGIN_Get_PluginReturnCode Plugin_ReturnCode = (PLUGIN_Get_PluginReturnCode)itplugin->pPluginReturnCode; \
 					PLUGIN_RETURNCODE plugin_returncode = Plugin_ReturnCode(); \
 					g_bPlugin_nofunctioncall = false; \
 					if(plugin_returncode == SKIPPLUGINS_NOFUNCTIONCALL) { \
@@ -160,7 +156,6 @@ private:
 			} \
 		}\
 	} catch(...) { AddLog("Exception in PluginCalls @ %s", __FUNCTION__); } \
-
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef void (*PLUGIN_Plugin_Communication)(PLUGIN_MESSAGE msg, void* data);

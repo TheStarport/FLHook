@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="FLHook"
 	ProjectGUID="{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
 	RootNamespace="FLHook"
