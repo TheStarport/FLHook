@@ -379,8 +379,9 @@ EQ_TYPE HkGetEqType(Archetype::Equipment *eq)
 	uint iVFTableNanoBot = (uint)hModCommon + ADDR_COMMON_VFTABLE_NANOBOT;
 	uint iVFTableMunition = (uint)hModCommon + ADDR_COMMON_VFTABLE_MUNITION;
 	uint iVFTableEngine = (uint)hModCommon + ADDR_COMMON_VFTABLE_ENGINE;
-
-	if(eq->iVFTable == iVFTableGun) {
+	
+	uint iVFTable = *((uint*)eq);
+	if(iVFTable == iVFTableGun) {
 		Archetype::Gun *gun = (Archetype::Gun *)eq;
 		Archetype::Equipment *eqAmmo = Archetype::GetEquipment(eq->iAmmoArchID);
 		int iMissile;
@@ -394,21 +395,21 @@ EQ_TYPE HkGetEqType(Archetype::Equipment *eq)
 			return ET_MISSILE;
 		else
 			return ET_GUN;
-	} else if(eq->iVFTable == iVFTableCM)
+	} else if(iVFTable == iVFTableCM)
 		return ET_CM;
-	else if(eq->iVFTable == iVFTableShieldGen)
+	else if(iVFTable == iVFTableShieldGen)
 		return ET_SHIELDGEN;
-	else if(eq->iVFTable == iVFTableThruster)
+	else if(iVFTable == iVFTableThruster)
 		return ET_THRUSTER;
-	else if(eq->iVFTable == iVFTableShieldBat)
+	else if(iVFTable == iVFTableShieldBat)
 		return ET_SHIELDBAT;
-	else if(eq->iVFTable == iVFTableNanoBot)
+	else if(iVFTable == iVFTableNanoBot)
 		return ET_NANOBOT;
-	else if(eq->iVFTable == iVFTableMunition)
+	else if(iVFTable == iVFTableMunition)
 		return ET_MUNITION;
-	else if(eq->iVFTable == iVFTableMine)
+	else if(iVFTable == iVFTableMine)
 		return ET_MINE;
-	else if(eq->iVFTable == iVFTableEngine)
+	else if(iVFTable == iVFTableEngine)
 		return ET_ENGINE;
 	else
 		return ET_OTHER;

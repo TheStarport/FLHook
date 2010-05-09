@@ -800,34 +800,32 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 		{
 			uint i = (*it2).iArchID;
 			AUTOBUY_CARTITEM aci;
-			Archetype::Equipment *eq = Archetype::GetEquipment((*it2).iArchID);
-
-			if(eq->iVFTable == iVFTableMines)
+			Archetype::Equipment *eq = Archetype::GetEquipment(it2->iArchID);
+			EQ_TYPE eq_type = HkGetEqType(eq);
+			if(eq_type == ET_MINE)
 			{
 				if(ClientInfo[iClientID].bAutoBuyMines)
 					ADD_EQUIP_TO_CART(L"Mines")
-				continue;
 			}
-
-			if(eq->iVFTable == iVFTableCM)
+			else if(eq_type == ET_CM)
 			{
 				if(ClientInfo[iClientID].bAutoBuyCM)
 					ADD_EQUIP_TO_CART(L"Countermeasures")
-				continue;
 			} 
-
-			if(eq->iVFTable == iVFTableGun)
+			else if(eq_type == ET_TORPEDO)
 			{
-				Archetype::Gun *gun = (Archetype::Gun *)eq;
-				uint iGunType = gun->get_hp_type_by_index(0);
-				if((iGunType == 36) && ClientInfo[iClientID].bAutoBuyTorps)
+				if(ClientInfo[iClientID].bAutoBuyTorps)
 					ADD_EQUIP_TO_CART(L"Torpedos")
-				else if((iGunType == 35) && ClientInfo[iClientID].bAutoBuyCD)
+			}
+			else if(eq_type == ET_CD)
+			{
+				if(ClientInfo[iClientID].bAutoBuyCD)
 					ADD_EQUIP_TO_CART(L"Cruise Disruptors")
-				else if(ClientInfo[iClientID].bAutoBuyMissiles)
+			}
+			else if(eq_type == ET_MISSILE)
+			{
+				if(ClientInfo[iClientID].bAutoBuyMissiles)
 					ADD_EQUIP_TO_CART(L"Missiles")
-
-				continue;
 			}
 		}
 	}
@@ -892,6 +890,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 		Archetype::Equipment *eq = Archetype::GetEquipment((*it4).iArchID);
 		if(iRemHoldSize < (eq->fVolume * (*it4).iCount))
 		{
+			ConPrint(L"eq->fVolume=%f\n", eq->fVolume);
 			uint iNewCount = iRemHoldSize / (uint)eq->fVolume;
 			if(!iNewCount) {
 //				PrintUserCmdText(iClientID, L"Auto-Buy(%s): FAILED! Insufficient cargo space", (*it4).wscDescription.c_str());
