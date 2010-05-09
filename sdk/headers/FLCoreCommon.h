@@ -739,9 +739,9 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint	iDunno1[2];
+		uint	iDunno1[1];
 		uint	iShipArchID;
-		uint	iDunno2;
+		char	*szName;
 		uint	iType;
 		uint	iIDSName;
 		uint	iIDSInfo;
@@ -761,7 +761,8 @@ namespace Archetype
 		float	fSteeringTorque[3];
 		float	fNudgeForce;
 		float	fStrafeForce;
-		uint	iDunno5[6];
+		float   fStrafePowerUsage;
+		uint	iDunno5[5];
 		uint	iMaxNanobots;
 		uint	iMaxShieldBats;
 		unsigned char data[OBJECT_DATA_SIZE];
