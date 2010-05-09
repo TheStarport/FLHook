@@ -12,6 +12,15 @@
 #define ISERVER_LOGARG_V(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %f %f %f", (float)a.x, (float)a.y, (float)a.z);
 
 
+#define EXECUTE_SERVER_CALL(args) \
+	{ \
+	static CTimer timer(__FUNCTION__,set_iTimerThreshold); \
+	timer.start(); \
+	try { \
+		args; \
+	} catch(...) { AddLog("Exception in function %s", __FUNCTION__); } \
+	timer.stop(); \
+	}
 
 namespace HkIServerImpl
 {
@@ -66,7 +75,9 @@ int __stdcall Update(void)
 	if(bPluginReturn) 
 		return reinterpret_cast<int>(vPluginRet);
 
-	return Server.Update();
+	int result = 0;
+	EXECUTE_SERVER_CALL(result = Server.Update());
+	return result;
 }
 
 /**************************************************************************************************************
@@ -196,9 +207,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 
 	// send
 	g_bInSubmitChat = true;
-	try { 
-		Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2);
-	} catch(...) { AddLog("Exception in Server.SubmitChat"); }
+	EXECUTE_SERVER_CALL(Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2));
 	g_bInSubmitChat = false;
 
 	SubmitChat_AFTER(cId, lP1, rdlReader, cIdTo, iP2);
@@ -244,7 +253,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.PlayerLaunch(iShip, iClientID);
+	EXECUTE_SERVER_CALL(Server.PlayerLaunch(iShip, iClientID));
 
 	try {
 		if(!ClientInfo[iClientID].iLastExitedBaseID)
@@ -280,7 +289,7 @@ void __stdcall FireWeapon(unsigned int iClientID, struct XFireWeaponInfo const &
 	if(bPluginReturn)
 		return;
 
-	Server.FireWeapon(iClientID, wpn);
+	EXECUTE_SERVER_CALL(Server.FireWeapon(iClientID, wpn));
 	FireWeapon_AFTER(iClientID, wpn);
 }
 
@@ -315,7 +324,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 	if(bPluginReturn)
 		return;
 
-	Server.SPMunitionCollision(ci, iClientID);
+	EXECUTE_SERVER_CALL(Server.SPMunitionCollision(ci, iClientID));
 	SPMunitionCollision_AFTER(ci, iClientID);
 }
 
@@ -337,7 +346,7 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClie
 	if(bPluginReturn)
 		return;
 
-	Server.SPObjUpdate(ui, iClientID);
+	EXECUTE_SERVER_CALL(Server.SPObjUpdate(ui, iClientID));
 	SPObjUpdate_AFTER(ui, iClientID);
 
 }
@@ -366,7 +375,7 @@ void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int
 	if(bPluginReturn)
 		return;
 
-	Server.SPObjCollision(ci, iClientID);
+	EXECUTE_SERVER_CALL(Server.SPObjCollision(ci, iClientID));
 	SPObjCollision_AFTER(ci, iClientID);
 }
 
@@ -408,7 +417,7 @@ void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 	if(bPluginReturn)
 		return;
 
-	Server.LaunchComplete(iBaseID, iShip);
+	EXECUTE_SERVER_CALL(Server.LaunchComplete(iBaseID, iShip));
 
 	LaunchComplete_AFTER(iBaseID, iShip);
 }
@@ -514,7 +523,7 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 			HkPlayerAutoBuy(iClientID, iBaseID);
 	} catch(...) { AddLog("Exception in Autobuy"); }
 
-	Server.BaseEnter(iBaseID, iClientID);
+	EXECUTE_SERVER_CALL(Server.BaseEnter(iBaseID, iClientID));
 
 	try {
 		// adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
@@ -567,7 +576,7 @@ void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.BaseExit(iBaseID, iClientID);
+	EXECUTE_SERVER_CALL(Server.BaseExit(iBaseID, iClientID));
 
 	try {
 		const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -617,7 +626,7 @@ void __stdcall OnConnect(unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.OnConnect(iClientID);
+	EXECUTE_SERVER_CALL(Server.OnConnect(iClientID));
 
 	try {
 		// event
@@ -664,8 +673,8 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_DisConnect,(iClientID,p2));
 	if(bPluginReturn)
 		return;
-
-	Server.DisConnect(iClientID, p2);
+	
+	EXECUTE_SERVER_CALL(Server.DisConnect(iClientID, p2));
 	DisConnect_AFTER(iClientID, p2);
 }
 
@@ -688,7 +697,7 @@ void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 	if(bPluginReturn)
 		return;
 
-	Server.TerminateTrade(iClientID, iAccepted);
+	EXECUTE_SERVER_CALL(Server.TerminateTrade(iClientID, iAccepted));
 
 	try {
 		if(iAccepted)
@@ -727,7 +736,7 @@ void __stdcall InitiateTrade(unsigned int iClientID1, unsigned int iClientID2)
 	if(bPluginReturn)
 		return;
 
-	Server.InitiateTrade(iClientID1, iClientID2);
+	EXECUTE_SERVER_CALL(Server.InitiateTrade(iClientID1, iClientID2));
 	InitiateTrade_AFTER(iClientID1, iClientID2);
 }
 
@@ -771,7 +780,7 @@ void __stdcall ActivateEquip(unsigned int iClientID, struct XActivateEquip const
 	if(bPluginReturn)
 		return;
 
-	Server.ActivateEquip(iClientID, aq);
+	EXECUTE_SERVER_CALL(Server.ActivateEquip(iClientID, aq));
 	ActivateEquip_AFTER(iClientID, aq);
 }
 
@@ -797,7 +806,7 @@ void __stdcall ActivateCruise(unsigned int iClientID, struct XActivateCruise con
 	if(bPluginReturn)
 		return;
 
-	Server.ActivateCruise(iClientID, ac);
+	EXECUTE_SERVER_CALL(Server.ActivateCruise(iClientID, ac));
 	ActivateCruise_AFTER(iClientID, ac);
 }
 
@@ -823,7 +832,7 @@ void __stdcall ActivateThrusters(unsigned int iClientID, struct XActivateThruste
 	if(bPluginReturn)
 		return;
 
-	Server.ActivateThrusters(iClientID, at);
+	EXECUTE_SERVER_CALL(Server.ActivateThrusters(iClientID, at));
 	ActivateThrusters_AFTER(iClientID, at);
 }
 
@@ -876,7 +885,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 	if(bPluginReturn)
 		return;
 
-	Server.GFGoodSell(gsi, iClientID);
+	EXECUTE_SERVER_CALL(Server.GFGoodSell(gsi, iClientID));
 	GFGoodSell_AFTER(gsi, iClientID);
 }
 
@@ -941,7 +950,7 @@ void __stdcall JumpInComplete(unsigned int iSystemID, unsigned int iShip)
 	if(bPluginReturn)
 		return;
 
-	Server.JumpInComplete(iSystemID, iShip);
+	EXECUTE_SERVER_CALL(Server.JumpInComplete(iSystemID, iShip));
 
 	try {
 		uint iClientID = HkGetClientIDByShip(iShip);
@@ -977,7 +986,7 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 	if(bPluginReturn)
 		return;
 
-	Server.SystemSwitchOutComplete(iShip, iClientID);
+	EXECUTE_SERVER_CALL(Server.SystemSwitchOutComplete(iShip, iClientID));
 
 	try {
 		// event
@@ -1005,9 +1014,8 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 	ISERVER_LOGARG_WS(&li);
 	ISERVER_LOGARG_UI(iClientID);
 
-	Server.Login(li, iClientID);
-
 	try {
+		Server.Login(li, iClientID);
 
 		if(!HkIsValidClientID(iClientID))
 			return; // player was kicked
@@ -1098,7 +1106,7 @@ void __stdcall MineAsteroid(unsigned int p1, class Vector const &vPos, unsigned 
 	if(bPluginReturn)
 		return;
 
-	Server.MineAsteroid(p1, vPos, iLookID, iGoodID, iCount, iClientID);
+	EXECUTE_SERVER_CALL(Server.MineAsteroid(p1, vPos, iLookID, iGoodID, iCount, iClientID));
 	MineAsteroid_AFTER(p1, vPos, iLookID, iGoodID, iCount, iClientID);
 }
 
@@ -1123,7 +1131,7 @@ void __stdcall GoTradelane(unsigned int iClientID, struct XGoTradelane const &gt
 	if(bPluginReturn)
 		return;
 
-	Server.GoTradelane(iClientID, gtl);
+	EXECUTE_SERVER_CALL(Server.GoTradelane(iClientID, gtl));
 	GoTradelane_AFTER(iClientID, gtl);
 }
 
@@ -1151,7 +1159,7 @@ void __stdcall StopTradelane(unsigned int iClientID, unsigned int p2, unsigned i
 	if(bPluginReturn)
 		return;
 
-	Server.StopTradelane(iClientID, p2, p3, p4);
+	EXECUTE_SERVER_CALL(Server.StopTradelane(iClientID, p2, p3, p4));
 	StopTradelane_AFTER(iClientID, p2, p3, p4);
 }
 
@@ -1173,7 +1181,7 @@ void __stdcall AbortMission(unsigned int p1, unsigned int p2)
 	if(bPluginReturn)
 		return;
 
-	Server.AbortMission(p1, p2);
+	EXECUTE_SERVER_CALL(Server.AbortMission(p1, p2));
 	AbortMission_AFTER(p1, p2);
 }
 
@@ -1195,7 +1203,7 @@ void __stdcall AcceptTrade(unsigned int iClientID, bool p2)
 	if(bPluginReturn)
 		return;
 
-	Server.AcceptTrade(iClientID, p2);
+	EXECUTE_SERVER_CALL(Server.AcceptTrade(iClientID, p2));
 	AcceptTrade_AFTER(iClientID, p2);
 }
 
@@ -1216,7 +1224,7 @@ void __stdcall AddTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
 	if(bPluginReturn)
 		return;
 
-	Server.AddTradeEquip(iClientID, ed);
+	EXECUTE_SERVER_CALL(Server.AddTradeEquip(iClientID, ed));
 	AddTradeEquip_AFTER(iClientID, ed);
 }
 
@@ -1239,7 +1247,7 @@ void __stdcall BaseInfoRequest(unsigned int p1, unsigned int p2, bool p3)
 	if(bPluginReturn)
 		return;
 
-	Server.BaseInfoRequest(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.BaseInfoRequest(p1, p2, p3));
 	BaseInfoRequest_AFTER(p1, p2, p3);
 }
 
@@ -1253,7 +1261,7 @@ void __stdcall CharacterSkipAutosave(unsigned int iClientID)
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	Server.CharacterSkipAutosave(iClientID);
+	EXECUTE_SERVER_CALL(Server.CharacterSkipAutosave(iClientID));
 }
 
 /**************************************************************************************************************
@@ -1269,7 +1277,7 @@ void __stdcall CommComplete(unsigned int p1, unsigned int p2, unsigned int p3,en
 	ISERVER_LOGARG_UI(p3);
 	ISERVER_LOGARG_UI(cr);
 
-	Server.CommComplete(p1, p2, p3, cr);
+	EXECUTE_SERVER_CALL(Server.CommComplete(p1, p2, p3, cr));
 
 }
 
@@ -1290,7 +1298,7 @@ void __stdcall CreateNewCharacter(struct SCreateCharacterInfo const & scci, unsi
 	if(bPluginReturn)
 		return;
 
-	Server.CreateNewCharacter(scci, iClientID);
+	EXECUTE_SERVER_CALL(Server.CreateNewCharacter(scci, iClientID));
 	CreateNewCharacter_AFTER(scci, iClientID);
 }
 
@@ -1311,7 +1319,7 @@ void __stdcall DelTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
 	if(bPluginReturn)
 		return;
 
-	Server.DelTradeEquip(iClientID, ed);
+	EXECUTE_SERVER_CALL(Server.DelTradeEquip(iClientID, ed));
 	DelTradeEquip_AFTER(iClientID, ed);
 }
 
@@ -1333,7 +1341,7 @@ void __stdcall DestroyCharacter(struct CHARACTER_ID const &cId, unsigned int iCl
 	if(bPluginReturn)
 		return;
 
-	Server.DestroyCharacter(cId, iClientID);
+	EXECUTE_SERVER_CALL(Server.DestroyCharacter(cId, iClientID));
 	DestroyCharacter_AFTER(cId, iClientID);
 }
 
@@ -1355,7 +1363,7 @@ void __stdcall DumpPacketStats(char const *p1)
 
 	ISERVER_LOG();
 
-	Server.DumpPacketStats(p1);
+	EXECUTE_SERVER_CALL(Server.DumpPacketStats(p1));
 }
 
 /**************************************************************************************************************
@@ -1368,7 +1376,7 @@ void __stdcall ElapseTime(float p1)
 	ISERVER_LOG();
 	ISERVER_LOGARG_F(p1);
 
-	Server.ElapseTime(p1);
+	EXECUTE_SERVER_CALL(Server.ElapseTime(p1));
 }
 
 /**************************************************************************************************************
@@ -1388,7 +1396,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int iClientI
 	if(bPluginReturn)
 		return;
 
-	Server.GFGoodBuy(gbi, iClientID);
+	EXECUTE_SERVER_CALL(Server.GFGoodBuy(gbi, iClientID));
 	GFGoodBuy_AFTER(gbi, iClientID);
 }
 
@@ -1409,7 +1417,7 @@ void __stdcall GFGoodVaporized(struct SGFGoodVaporizedInfo const &gvi, unsigned 
 	if(bPluginReturn)
 		return;
 
-	Server.GFGoodVaporized(gvi, iClientID);
+	EXECUTE_SERVER_CALL(Server.GFGoodVaporized(gvi, iClientID));
 	GFGoodVaporized_AFTER(gvi, iClientID);
 }
 
@@ -1431,7 +1439,7 @@ void __stdcall GFObjSelect(unsigned int p1, unsigned int p2)
 	if(bPluginReturn)
 		return;
 
-	Server.GFObjSelect(p1, p2);
+	EXECUTE_SERVER_CALL(Server.GFObjSelect(p1, p2));
 	GFObjSelect_AFTER(p1, p2);
 }
 
@@ -1484,7 +1492,7 @@ void __stdcall Hail(unsigned int p1, unsigned int p2, unsigned int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.Hail(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.Hail(p1, p2, p3));
 	Hail_AFTER(p1, p2, p3);
 }
 
@@ -1506,7 +1514,7 @@ void __stdcall InterfaceItemUsed(unsigned int p1, unsigned int p2)
 	if(bPluginReturn)
 		return;
 
-	Server.InterfaceItemUsed(p1, p2);
+	EXECUTE_SERVER_CALL(Server.InterfaceItemUsed(p1, p2));
 	InterfaceItemUsed_AFTER(p1, p2);
 }
 
@@ -1527,7 +1535,7 @@ void __stdcall JettisonCargo(unsigned int iClientID, struct XJettisonCargo const
 	if(bPluginReturn)
 		return;
 
-	Server.JettisonCargo(iClientID, jc);
+	EXECUTE_SERVER_CALL(Server.JettisonCargo(iClientID, jc));
 	JettisonCargo_AFTER(iClientID, jc);
 }
 
@@ -1549,7 +1557,7 @@ void __stdcall LocationEnter(unsigned int p1, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.LocationEnter(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.LocationEnter(p1, iClientID));
 	LocationEnter_AFTER(p1, iClientID);
 }
 
@@ -1571,7 +1579,7 @@ void __stdcall LocationExit(unsigned int p1, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.LocationExit(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.LocationExit(p1, iClientID));
 	LocationExit_AFTER(p1, iClientID);
 }
 
@@ -1594,7 +1602,7 @@ void __stdcall LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
 	if(bPluginReturn)
 		return;
 
-	Server.LocationInfoRequest(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.LocationInfoRequest(p1, p2, p3));
 	LocationInfoRequest_AFTER(p1, p2, p3);
 }
 
@@ -1618,7 +1626,7 @@ void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsig
 	if(bPluginReturn)
 		return;
 
-	Server.MissionResponse(p1, p2, p3, p4);
+	EXECUTE_SERVER_CALL(Server.MissionResponse(p1, p2, p3, p4));
 	MissionResponse_AFTER(p1, p2, p3, p4);
 }
 
@@ -1634,7 +1642,7 @@ void __stdcall MissionSaveB(unsigned int iClientID, unsigned long p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	Server.MissionSaveB(iClientID, p2);
+	EXECUTE_SERVER_CALL(Server.MissionSaveB(iClientID, p2));
 }
 
 /**************************************************************************************************************
@@ -1648,7 +1656,7 @@ void __stdcall PopUpDialog(unsigned int p1, unsigned int p2)
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 
-	Server.PopUpDialog(p1, p2);
+	EXECUTE_SERVER_CALL(Server.PopUpDialog(p1, p2));
 }
 
 /**************************************************************************************************************
@@ -1662,7 +1670,7 @@ void __stdcall RTCDone(unsigned int p1, unsigned int p2)
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 
-	Server.RTCDone(p1, p2);
+	EXECUTE_SERVER_CALL(Server.RTCDone(p1, p2));
 }
 
 /**************************************************************************************************************
@@ -1687,7 +1695,7 @@ void __stdcall ReqAddItem(unsigned int p1, char const *p2, int p3, float p4, boo
 	if(bPluginReturn)
 		return;
 
-	Server.ReqAddItem(p1, p2, p3, p4, p5, p6);
+	EXECUTE_SERVER_CALL(Server.ReqAddItem(p1, p2, p3, p4, p5, p6));
 	ReqAddItem_AFTER(p1, p2, p3, p4, p5, p6);
 }
 
@@ -1709,7 +1717,7 @@ void __stdcall ReqChangeCash(int p1, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.ReqChangeCash(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqChangeCash(p1, iClientID));
 	ReqChangeCash_AFTER(p1, iClientID);
 }
 
@@ -1730,7 +1738,7 @@ void __stdcall ReqCollisionGroups(class std::list<struct CollisionGroupDesc,clas
 	if(bPluginReturn)
 		return;
 
-	Server.ReqCollisionGroups(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqCollisionGroups(p1, iClientID));
 	ReqCollisionGroups_AFTER(p1, iClientID);
 }
 
@@ -1745,7 +1753,7 @@ void __stdcall ReqDifficultyScale(float p1, unsigned int iClientID)
 	ISERVER_LOGARG_F(p1);
 	ISERVER_LOGARG_UI(iClientID);
 
-	Server.ReqDifficultyScale(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqDifficultyScale(p1, iClientID));
 }
 
 /**************************************************************************************************************
@@ -1765,7 +1773,7 @@ void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int iClient
 	if(bPluginReturn)
 		return;
 
-	Server.ReqEquipment(edl, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqEquipment(edl, iClientID));
 	ReqEquipment_AFTER(edl, iClientID);
 }
 
@@ -1787,7 +1795,7 @@ void __stdcall ReqHullStatus(float p1, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.ReqHullStatus(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqHullStatus(p1, iClientID));
 	ReqHullStatus_AFTER(p1, iClientID);
 }
 
@@ -1813,7 +1821,7 @@ void __stdcall ReqModifyItem(unsigned short p1, char const *p2, int p3, float p4
 	if(bPluginReturn)
 		return;
 
-	Server.ReqModifyItem(p1, p2, p3, p4, p5, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqModifyItem(p1, p2, p3, p4, p5, iClientID));
 	ReqModifyItem_AFTER(p1, p2, p3, p4, p5, iClientID);
 }
 
@@ -1836,7 +1844,7 @@ void __stdcall ReqRemoveItem(unsigned short p1, int p2, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.ReqRemoveItem(p1, p2, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqRemoveItem(p1, p2, iClientID));
 	ReqRemoveItem_AFTER(p1, p2, iClientID);
 }
 
@@ -1858,7 +1866,7 @@ void __stdcall ReqSetCash(int p1, unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.ReqSetCash(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.ReqSetCash(p1, iClientID));
 	ReqSetCash_AFTER(p1, iClientID);
 }
 
@@ -1880,7 +1888,7 @@ void __stdcall ReqShipArch(unsigned int p1, unsigned int p2)
 	if(bPluginReturn)
 		return;
 
-	Server.ReqShipArch(p1, p2);
+	EXECUTE_SERVER_CALL(Server.ReqShipArch(p1, p2));
 	ReqShipArch_AFTER(p1, p2);
 }
 
@@ -1903,7 +1911,7 @@ void __stdcall RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestBestPath(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.RequestBestPath(p1, p2, p3));
 	RequestBestPath_AFTER(p1, p2, p3);
 }
 
@@ -1928,7 +1936,7 @@ void __stdcall RequestCancel(int p1, unsigned int p2, unsigned int p3, unsigned 
 	if(bPluginReturn)
 		return;
 
-	Server.RequestCancel(p1, p2, p3, p4, p5);
+	EXECUTE_SERVER_CALL(Server.RequestCancel(p1, p2, p3, p4, p5));
 	RequestCancel_AFTER(p1, p2, p3, p4, p5);
 }
 
@@ -1949,7 +1957,7 @@ void __stdcall RequestCreateShip(unsigned int iClientID)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestCreateShip(iClientID);
+	EXECUTE_SERVER_CALL(Server.RequestCreateShip(iClientID));
 	RequestCreateShip_AFTER(iClientID);
 }
 
@@ -1975,7 +1983,7 @@ void __stdcall RequestEvent(int p1, unsigned int p2, unsigned int p3, unsigned i
 	if(bPluginReturn)
 		return;
 
-	Server.RequestEvent(p1, p2, p3, p4, p5, p6);
+	EXECUTE_SERVER_CALL(Server.RequestEvent(p1, p2, p3, p4, p5, p6));
 	RequestEvent_AFTER(p1, p2, p3, p4, p5, p6);
 }
 
@@ -1998,7 +2006,7 @@ void __stdcall RequestGroupPositions(unsigned int p1, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestGroupPositions(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.RequestGroupPositions(p1, p2, p3));
 	RequestGroupPositions_AFTER(p1, p2, p3);
 }
 
@@ -2021,7 +2029,7 @@ void __stdcall RequestPlayerStats(unsigned int p1, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestPlayerStats(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.RequestPlayerStats(p1, p2, p3));
 	RequestPlayerStats_AFTER(p1, p2, p3);
 }
 
@@ -2044,7 +2052,7 @@ void __stdcall RequestRankLevel(unsigned int p1, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestRankLevel(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.RequestRankLevel(p1, p2, p3));
 	RequestRankLevel_AFTER(p1, p2, p3);
 }
 
@@ -2066,7 +2074,7 @@ void __stdcall RequestTrade(unsigned int p1, unsigned int p2)
 	if(bPluginReturn)
 		return;
 
-	Server.RequestTrade(p1, p2);
+	EXECUTE_SERVER_CALL(Server.RequestTrade(p1, p2));
 	RequestTrade_AFTER(p1, p2);
 }
 
@@ -2080,7 +2088,7 @@ void __stdcall SPBadLandsObjCollision(struct SSPBadLandsObjCollisionInfo const &
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	Server.SPBadLandsObjCollision(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.SPBadLandsObjCollision(p1, iClientID));
 }
 
 /**************************************************************************************************************
@@ -2103,7 +2111,7 @@ void __stdcall SPRequestInvincibility(unsigned int p1, bool p2, enum Invincibili
 	if(bPluginReturn)
 		return;
 
-	Server.SPRequestInvincibility(p1, p2, p3, p4);
+	EXECUTE_SERVER_CALL(Server.SPRequestInvincibility(p1, p2, p3, p4));
 	SPRequestInvincibility_AFTER(p1, p2, p3, p4);
 }
 
@@ -2124,7 +2132,7 @@ void __stdcall SPRequestUseItem(struct SSPUseItem const &p1, unsigned int iClien
 	if(bPluginReturn)
 		return;
 
-	Server.SPRequestUseItem(p1, iClientID);
+	EXECUTE_SERVER_CALL(Server.SPRequestUseItem(p1, iClientID));
 	SPRequestUseItem_AFTER(p1, iClientID);
 }
 
@@ -2147,7 +2155,7 @@ void __stdcall SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsig
 	if(bPluginReturn)
 		return;
 
-	Server.SPScanCargo(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.SPScanCargo(p1, p2, p3));
 	SPScanCargo_AFTER(p1, p2, p3);
 }
 
@@ -2185,7 +2193,7 @@ void __stdcall SetInterfaceState(unsigned int p1, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.SetInterfaceState(p1, p2, p3);
+	EXECUTE_SERVER_CALL(Server.SetInterfaceState(p1, p2, p3));
 	SetInterfaceState_AFTER(p1, p2, p3);
 }
 
@@ -2206,7 +2214,7 @@ void __stdcall SetManeuver(unsigned int iClientID, struct XSetManeuver const &p2
 	if(bPluginReturn)
 		return;
 
-	Server.SetManeuver(iClientID, p2);
+	EXECUTE_SERVER_CALL(Server.SetManeuver(iClientID, p2));
 	SetManeuver_AFTER(iClientID, p2);
 }
 
@@ -2242,7 +2250,7 @@ void __stdcall SetTarget(unsigned int iClientID, struct XSetTarget const &p2)
 	if(bPluginReturn)
 		return;
 
-	Server.SetTarget(iClientID, p2);
+	EXECUTE_SERVER_CALL(Server.SetTarget(iClientID, p2));
 	SetTarget_AFTER(iClientID, p2);
 }
 
@@ -2264,7 +2272,7 @@ void __stdcall SetTradeMoney(unsigned int iClientID, unsigned long p2)
 	if(bPluginReturn)
 		return;
 
-	Server.SetTradeMoney(iClientID, p2);
+	EXECUTE_SERVER_CALL(Server.SetTradeMoney(iClientID, p2));
 	SetTradeMoney_AFTER(iClientID, p2);
 }
 
@@ -2287,7 +2295,7 @@ void __stdcall SetVisitedState(unsigned int iClientID, unsigned char *p2, int p3
 	if(bPluginReturn)
 		return;
 
-	Server.SetVisitedState(iClientID, p2, p3);
+	EXECUTE_SERVER_CALL(Server.SetVisitedState(iClientID, p2, p3));
 	SetVisitedState_AFTER(iClientID, p2, p3);
 }
 
@@ -2310,7 +2318,7 @@ void __stdcall SetWeaponGroup(unsigned int iClientID, unsigned char *p2, int p3)
 	if(bPluginReturn)
 		return;
 
-	Server.SetWeaponGroup(iClientID, p2, p3);
+	EXECUTE_SERVER_CALL(Server.SetWeaponGroup(iClientID, p2, p3));
 	SetWeaponGroup_AFTER(iClientID, p2, p3);
 }
 
