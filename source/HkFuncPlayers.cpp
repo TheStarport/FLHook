@@ -890,7 +890,6 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 		Archetype::Equipment *eq = Archetype::GetEquipment((*it4).iArchID);
 		if(iRemHoldSize < (eq->fVolume * (*it4).iCount))
 		{
-			ConPrint(L"eq->fVolume=%f\n", eq->fVolume);
 			uint iNewCount = iRemHoldSize / (uint)eq->fVolume;
 			if(!iNewCount) {
 //				PrintUserCmdText(iClientID, L"Auto-Buy(%s): FAILED! Insufficient cargo space", (*it4).wscDescription.c_str());
