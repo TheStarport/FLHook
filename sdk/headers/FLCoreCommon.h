@@ -3711,7 +3711,7 @@ public:
 };
 
 
-struct IMPORT GoodInfo
+struct GoodInfo
 {
 public:
 	#define GOODINFO_TYPE_COMMODITY 0
@@ -3722,20 +3722,19 @@ public:
 	uint i1;
 	uint iLen;
 	uint iDunno1[16];
-	uint ArchID;
-	uint type; // 0=commodity, 2=hull, 3=ship
+	uint iArchID;
+	uint iType; // 0=commodity, 2=hull, 3=ship
 	uint i3;
-	uint ShipGoodID; // if type = GOODINFO_TYPE_HULL
+	uint iShipGoodID; // if type = GOODINFO_TYPE_HULL
 	float fPrice;
 	float fGoodSellPrice;
 	float fBadBuyPrice;
 	float fBadSellPrice;
 	float fGoodBuyPrice;
 	uint iJumpDist;
-	uint i5;
-	float szBuf3[5];
+	float iDunno2[7];
 	uint iIDS;
-	uint HullGoodID; // if type = GOODINFO_TYPE_SHIP
+	uint iHullGoodID; // if type = GOODINFO_TYPE_SHIP
 };
 
 class IMPORT GoodInfoList
