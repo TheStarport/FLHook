@@ -205,6 +205,7 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 
 		} catch(char*) {};
 		
+		ini.close();
 
 	} while (FindNextFile(hfindplugins,&finddata));
 
