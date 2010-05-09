@@ -329,9 +329,8 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint iVFTable;
 		uint i2;
-		uint i3;
+		uint iArchID;
 		char *szName;
 		uint iDunno[24];
 		float fMaxForce;
@@ -378,7 +377,6 @@ namespace Archetype
 
 	public:
 		uint iVFTable;
-		uint i2;
 		uint iEquipID;
 		char *szName;
 		uint i5;
@@ -433,9 +431,8 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint iVFTable;
 		uint i2;
-		uint i3;
+		uint iArchID;
 		char *szName;
 		uint i5;
 		uint iIDSName;
@@ -571,9 +568,8 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint iVFTable;
 		uint i2;
-		uint i3;
+		uint iArchID;
 		char *szName;
 		uint iDunno[24];
 		float fCapacity;
@@ -795,9 +791,8 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint iVFTable;
 		uint i2;
-		uint i3;
+		uint iArchID;
 		char *szName;
 		uint iDunno[30];
 		float fPowerUsage;
