@@ -376,7 +376,7 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		uint iVFTable;
+		uint i2;
 		uint iEquipID;
 		char *szName;
 		uint i5;
