@@ -519,6 +519,7 @@ HK_ERROR HkRename(wstring wscCharname, wstring wscNewCharname, bool bOnlyDelete)
 
 	SCreateCharacterInfo newcharinfo;
 	wcsncpy(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
+	newcharinfo.wszCharname[23] = 0;
 
 	newcharinfo.iNickName = 0;
 	newcharinfo.iBase = 0;
