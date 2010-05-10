@@ -158,7 +158,7 @@ public:
 	 void InitFromFolder(char const *);
 
 public:
-	uint iDunno[11];
+	uint iDunno[10];
 	uint iNumberOfCharacters;
 	unsigned char data[OBJECT_DATA_SIZE];
 };
@@ -378,7 +378,7 @@ struct PlayerData {
 
 struct SCreateCharacterInfo
 {
-	wchar_t wszCharname[23];
+	wchar_t wszCharname[24];
 	uint iNickName; // From [Faction] section of newcharacter.ini
 	uint iBase;     // From [Faction] section of newcharacter.ini
 	uint iPackage;  // From [Faction] section of newcharacter.ini
