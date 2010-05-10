@@ -127,6 +127,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-D_SCL_SECURE_NO_WARNINGS"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
