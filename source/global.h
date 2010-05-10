@@ -157,6 +157,7 @@ extern EXPORT uint	set_iMaxGroupSize;
 extern EXPORT list<wstring> set_lstBans;
 extern EXPORT bool	set_bBanAccountOnMatch;
 extern EXPORT uint set_iTimerThreshold;
+extern EXPORT uint set_iTimerDebugThreshold;
 extern EXPORT uint set_iDebugMaxSize;
 extern EXPORT bool	set_bLogAdminCmds;
 extern EXPORT bool	set_bLogUserCmds;

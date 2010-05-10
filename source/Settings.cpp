@@ -26,6 +26,7 @@ bool			set_bLogAdminCmds;
 bool			set_bLogUserCmds;
 bool			set_bPerfTimer;
 uint			set_iTimerThreshold;
+uint			set_iTimerDebugThreshold;
 
 // Kick
 uint			set_iAntiBaseIdle;
@@ -109,6 +110,7 @@ void LoadSettings()
 	set_bLogUserCmds = IniGetB(set_scCfgFile, "Log", "LogUserCommands", false);
 	set_bPerfTimer = IniGetB(set_scCfgFile, "Log", "LogPerformanceTimers", false);
 	set_iTimerThreshold = IniGetI(set_scCfgFile, "Log", "TimerThreshold", 100);
+	set_iTimerDebugThreshold = IniGetI(set_scCfgFile, "Log", "TimerDebugThreshold", 0);
 
 // Kick
 	set_iAntiBaseIdle = IniGetI(set_scCfgFile, "Kick", "AntiBaseIdle", 0);
