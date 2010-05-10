@@ -639,3 +639,38 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 	}
 	return; 
 }
+
+
+#define IS_CMD(a) !wscCmd.compare(L##a)
+
+EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmd)
+{
+	returncode = DEFAULT_RETURNCODE;
+	
+	if (IS_CMD("getstats"))
+	{
+		struct PlayerData *pPD = 0;
+		while(pPD = Players.traverse_active(pPD))
+		{
+			uint iClientID = HkGetClientIdFromPD(pPD);
+			if (HkIsInCharSelectMenu(iClientID))
+				continue;
+
+			CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
+			if (!cdpClient)
+				continue;
+			
+			int saturation = (int)(cdpClient->GetLinkSaturation() * 100);
+			int txqueue = cdpClient->GetSendQSize();
+			classptr->Print(L"charname=%s clientid=%u loss=%u lag=%u pingfluct=%u saturation=%u txqueue=%u\n",
+				Players.GetActiveCharacterName(iClientID), iClientID,
+				ConData[iClientID].iAverageLoss, ConData[iClientID].iLags, ConData[iClientID].iPingFluctuation,
+				saturation, txqueue);
+		}
+		classptr->Print(L"OK\n");
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		return true;
+	}
+
+	return false;
+}
