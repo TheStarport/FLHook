@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring stows(string scText)
+wstring stows(const string &scText)
 {
 	int iSize = MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, 0, 0);
 	wchar_t *wszText = new wchar_t[iSize];
@@ -15,7 +15,7 @@ wstring stows(string scText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string wstos(wstring wscText)
+string wstos(const wstring &wscText)
 {
 	uint iLen = (uint)wscText.length() + 1;
 	char *szBuf = new char[iLen];
@@ -36,34 +36,36 @@ string itos(int i)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring ToLower(wstring wscStr)
+wstring ToLower(const wstring &wscStr)
 {
+	wstring wscResult;
 	for(uint i = 0; (i < wscStr.length()); i++)
-		wscStr[i] = towlower(wscStr[i]);
+		wscResult += towlower(wscStr[i]);
 
-	return wscStr;
+	return wscResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string ToLower(string scStr)
+string ToLower(const string &scStr)
 {
+	string scResult;
 	for(uint i = 0; (i < scStr.length()); i++)
-		scStr[i] = tolower(scStr[i]);
+		scResult += tolower(scStr[i]);
 
-	return scStr;
+	return scResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int ToInt(wstring wscStr)
+int ToInt(const wstring &wscStr)
 {
 	return _wtoi(wscStr.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float ToFloat(wstring wscStr)
+float ToFloat(const wstring &wscStr)
 {
 	return (float)atof(wstos(wscStr).c_str());
 }
@@ -90,7 +92,7 @@ wstring ToMoneyStr(int iCash)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string IniGetS(string scFile, string scApp, string scKey, string scDefault)
+string IniGetS(const string &scFile, const string &scApp, const string &scKey, const string &scDefault)
 {
 	char szRet[2048];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), scDefault.c_str(), szRet, sizeof(szRet), scFile.c_str());
@@ -99,14 +101,14 @@ string IniGetS(string scFile, string scApp, string scKey, string scDefault)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int IniGetI(string scFile, string scApp, string scKey, int iDefault)
+int IniGetI(const string &scFile, const string &scApp, const string &scKey, int iDefault)
 {
 	return GetPrivateProfileInt(scApp.c_str(), scKey.c_str(), iDefault, scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float IniGetF(string scFile, string scApp, string scKey, float fDefault)
+float IniGetF(const string &scFile, const string &scApp, const string &scKey, float fDefault)
 {
 	char szRet[2048];
 	char szDefault[16];
@@ -117,21 +119,21 @@ float IniGetF(string scFile, string scApp, string scKey, float fDefault)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool IniGetB(string scFile, string scApp, string scKey, bool bDefault)
+bool IniGetB(const string &scFile, const string &scApp, const string &scKey, bool bDefault)
 {
 	return ToLower(IniGetS(scFile, scApp, scKey, bDefault ? "yes" : "no")).compare("yes") == 0 ? true : false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWrite(string scFile, string scApp, string scKey, string scValue)
+void IniWrite(const string &scFile, const string &scApp, const string &scKey, const string &scValue)
 {
 	WritePrivateProfileString(scApp.c_str(), scKey.c_str(), scValue.c_str(), scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWriteW(string scFile, string scApp, string scKey, wstring wscValue)
+void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue)
 {
 	string scValue = "";
 	for(uint i = 0; (i < wscValue.length()); i++)
@@ -147,7 +149,7 @@ void IniWriteW(string scFile, string scApp, string scKey, wstring wscValue)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring IniGetWS(string scFile, string scApp, string scKey, wstring wscDefault)
+wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault)
 {
 	char szRet[2048];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet, sizeof(szRet), scFile.c_str());
@@ -170,14 +172,14 @@ wstring IniGetWS(string scFile, string scApp, string scKey, wstring wscDefault)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniDelSection(string scFile, string scApp)
+void IniDelSection(const string &scFile, const string &scApp)
 {
 	WritePrivateProfileSection(scApp.c_str(), "", scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniGetSection(string scFile, string scApp, list<INISECTIONVALUE> &lstValues)
+void IniGetSection(const string &scFile, const string &scApp, list<INISECTIONVALUE> &lstValues)
 {
 	lstValues.clear();
 	char szBuf[0xFFFF];
@@ -199,7 +201,7 @@ void IniGetSection(string scFile, string scApp, list<INISECTIONVALUE> &lstValues
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring XMLText(wstring wscText)
+wstring XMLText(const wstring &wscText)
 {
 	wstring wscRet;
 	for(uint i = 0; (i < wscText.length()); i++)
@@ -241,7 +243,7 @@ void ReadProcMem(void *pAddress, void *pMem, int iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring GetParam(wstring wscLine, wchar_t wcSplitChar, uint iPos)
+wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos)
 {
 	uint i = 0, j = 0;
  
@@ -266,17 +268,18 @@ wstring GetParam(wstring wscLine, wchar_t wcSplitChar, uint iPos)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring ReplaceStr(wstring wscSource, wstring wscSearchFor, wstring wscReplaceWith)
+wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith)
 {
 	uint lPos, sPos = 0;
 
-	while((lPos = (uint)wscSource.find(wscSearchFor, sPos)) != -1)
+	wstring wscResult = wscSource;
+	while((lPos = (uint)wscResult.find(wscSearchFor, sPos)) != -1)
 	{
-		wscSource.replace(lPos, wscSearchFor.length(), wscReplaceWith);
+		wscResult.replace(lPos, wscSearchFor.length(), wscReplaceWith);
 		sPos = lPos + wscReplaceWith.length();
 	}
 
-	return wscSource;
+	return wscResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

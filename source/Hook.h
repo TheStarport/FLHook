@@ -244,10 +244,10 @@ typedef void (__stdcall *PLUGIN_HkIServerImpl_SetWeaponGroup)(unsigned int iClie
 typedef void (__stdcall *PLUGIN_HkIServerImpl_StopTradeRequest)(unsigned int iClientID);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_TractorObjects)(unsigned int iClientID, struct XTractorObjects const &p2);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_TradeResponse)(unsigned char const *p1, int p2, unsigned int iClientID);
-typedef bool (*PLUGIN_UserCmd_Process)(uint iClientID, wstring wscCmd);
-typedef void (*PLUGIN_UserCmd_Help)(uint iClientID, wstring wscParam);
+typedef bool (*PLUGIN_UserCmd_Process)(uint iClientID, const wstring &wscCmd);
+typedef void (*PLUGIN_UserCmd_Help)(uint iClientID, const wstring &wscParam);
 typedef void (__stdcall *PLUGIN_ShipDestroyed)(DamageList *_dmg, char *szECX, uint iKill);
-typedef void (*PLUGIN_SendDeathMsg)(wstring wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller);
+typedef void (*PLUGIN_SendDeathMsg)(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller);
 typedef int (__stdcall *PLUGIN_HkCB_MissileTorpHit)(char *ECX, char *p1, DamageList *dmg);
 typedef void (__stdcall *PLUGIN_HkCb_AddDmgEntry)(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3);
 typedef void (__stdcall *PLUGIN_HkCb_GeneralDmg)(char *szECX);
@@ -255,7 +255,7 @@ typedef bool (*PLUGIN_AllowPlayerDamage)(uint iClientID, uint iClientIDTarget);
 typedef void (__stdcall *PLUGIN_HkCb_SendChat)(uint iClientID, uint iTo, uint iSize, void *pRDL);
 typedef void (*PLUGIN_ClearClientInfo)(uint iClientID);
 typedef void (*PLUGIN_LoadSettings)();
-typedef bool (*PLUGIN_ExecuteCommandString_Callback)(CCmds* classptr, wstring wscCmdStr);
+typedef bool (*PLUGIN_ExecuteCommandString_Callback)(CCmds* classptr, const wstring &wscCmdStr);
 typedef void (*PLUGIN_CmdHelp_Callback)(CCmds* classptr);
 typedef bool (__stdcall *PLUGIN_LaunchPosHook)(uint iSpaceID, struct CEqObj &p1, Vector &p2, Matrix &p3, int iDock);
 typedef int (__cdecl *PLUGIN_HkCb_Dock_Call)(unsigned int const &uShipID,unsigned int const &uSpaceID,int p3,enum DOCK_HOST_RESPONSE p4);
@@ -592,8 +592,8 @@ struct PLUGIN_SORTCRIT {
 // HkPluginManager
 namespace PluginManager {
 	EXPORT void LoadPlugins(bool, CCmds*);
-	EXPORT HK_ERROR PausePlugin(string sShortName, bool bPause);
-	EXPORT HK_ERROR UnloadPlugin(string sShortName);
+	EXPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
+	EXPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	EXPORT void UnloadPlugins();
 }
 
@@ -607,19 +607,19 @@ void LoadUserCharSettings(uint iClientID);
 // HkFuncTools
 EXPORT uint HkGetClientIdFromAccount(CAccount *acc);
 EXPORT uint HkGetClientIdFromPD(struct PlayerData *pPD);
-EXPORT CAccount* HkGetAccountByCharname(wstring wscCharname);
-EXPORT uint HkGetClientIdFromCharname(wstring wscCharname);
+EXPORT CAccount* HkGetAccountByCharname(const wstring &wscCharname);
+EXPORT uint HkGetClientIdFromCharname(const wstring &wscCharname);
 EXPORT wstring HkGetAccountID(CAccount *acc);
-EXPORT bool HkIsEncoded(string scFilename);
-EXPORT bool HkIsInCharSelectMenu(wstring wscCharname);
+EXPORT bool HkIsEncoded(const string &scFilename);
+EXPORT bool HkIsInCharSelectMenu(const wstring &wscCharname);
 EXPORT bool HkIsInCharSelectMenu(uint iClientID);
 EXPORT bool HkIsValidClientID(uint iClientID);
-EXPORT HK_ERROR HkResolveId(wstring wscCharname, uint &iClientID);
-EXPORT HK_ERROR HkResolveShortCut(wstring wscShortcut, uint &iClientID);
+EXPORT HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID);
+EXPORT HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &iClientID);
 EXPORT uint HkGetClientIDByShip(uint iShip);
 EXPORT HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir);
-EXPORT HK_ERROR HkGetAccountDirName(wstring wscCharname, wstring &wscDir);
-EXPORT HK_ERROR HkGetCharFileName(wstring wscCharname, wstring &wscFilename);
+EXPORT HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir);
+EXPORT HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename);
 EXPORT wstring HkGetBaseNickByID(uint iBaseID);
 EXPORT wstring HkGetPlayerSystem(uint iClientID);
 EXPORT wstring HkGetSystemNickByID(uint iSystemID);
@@ -631,48 +631,48 @@ EXPORT ENGINE_STATE HkGetEngineState(uint iClientID);
 EXPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
 
 // HkFuncMsg
-EXPORT HK_ERROR HkMsg(int iClientID, wstring wscMessage);
-EXPORT HK_ERROR HkMsg(wstring wscCharname, wstring wscMessage);
-EXPORT HK_ERROR HkMsgS(wstring wscSystemname, wstring wscMessage);
-EXPORT HK_ERROR HkMsgU(wstring wscMessage);
-EXPORT HK_ERROR HkFMsgEncodeXML(wstring wscXML, char *szBuf, uint iSize, uint &iRet);
+EXPORT HK_ERROR HkMsg(int iClientID, const wstring &wscMessage);
+EXPORT HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage);
+EXPORT HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage);
+EXPORT HK_ERROR HkMsgU(const wstring &wscMessage);
+EXPORT HK_ERROR HkFMsgEncodeXML(const wstring &wscXML, char *szBuf, uint iSize, uint &iRet);
 EXPORT HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize);
-EXPORT HK_ERROR HkFMsg(uint iClientID, wstring wscXML);
-EXPORT HK_ERROR HkFMsg(wstring wscCharname, wstring wscXML);
-EXPORT HK_ERROR HkFMsgS(wstring wscSystemname, wstring wscXML);
-EXPORT HK_ERROR HkFMsgU(wstring wscXML);
+EXPORT HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML);
+EXPORT HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML);
+EXPORT HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML);
+EXPORT HK_ERROR HkFMsgU(const wstring &wscXML);
 
 // HkFuncPlayers
-EXPORT HK_ERROR HkGetCash(wstring wscCharname, int &iCash);
-EXPORT HK_ERROR HkAddCash(wstring wscCharname, int iAmount);
+EXPORT HK_ERROR HkGetCash(const wstring &wscCharname, int &iCash);
+EXPORT HK_ERROR HkAddCash(const wstring &wscCharname, int iAmount);
 EXPORT HK_ERROR HkKick(CAccount *acc);
-EXPORT HK_ERROR HkKick(wstring wscCharname);
-EXPORT HK_ERROR HkKickReason(wstring wscCharname, wstring wscReason);
-EXPORT HK_ERROR HkBan(wstring wscCharname, bool bBan);
-EXPORT HK_ERROR HkBeam(wstring wscCharname, wstring wscBasename);
-EXPORT HK_ERROR HkSaveChar(wstring wscCharname);
-EXPORT HK_ERROR HkEnumCargo(wstring wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
-EXPORT HK_ERROR HkRemoveCargo(wstring wscCharname, uint iID, int iCount);
-EXPORT HK_ERROR HkAddCargo(wstring wscCharname, uint iGoodID, int iCount, bool bMission);
-EXPORT HK_ERROR HkAddCargo(wstring wscCharname, wstring wscGood, int iCount, bool bMission);
-EXPORT HK_ERROR HkRename(wstring wscCharname, wstring wscNewCharname, bool bOnlyDelete);
-EXPORT HK_ERROR HkMsgAndKick(uint iClientID, wstring wscReason, uint iIntervall);
-EXPORT HK_ERROR HkKill(wstring wscCharname);
-EXPORT HK_ERROR HkGetReservedSlot(wstring wscCharname, bool &bResult);
-EXPORT HK_ERROR HkSetReservedSlot(wstring wscCharname, bool bReservedSlot);
+EXPORT HK_ERROR HkKick(const wstring &wscCharname);
+EXPORT HK_ERROR HkKickReason(const wstring &wscCharname, const wstring &wscReason);
+EXPORT HK_ERROR HkBan(const wstring &wscCharname, bool bBan);
+EXPORT HK_ERROR HkBeam(const wstring &wscCharname, const wstring &wscBasename);
+EXPORT HK_ERROR HkSaveChar(const wstring &wscCharname);
+EXPORT HK_ERROR HkEnumCargo(const wstring &wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
+EXPORT HK_ERROR HkRemoveCargo(const wstring &wscCharname, uint iID, int iCount);
+EXPORT HK_ERROR HkAddCargo(const wstring &wscCharname, uint iGoodID, int iCount, bool bMission);
+EXPORT HK_ERROR HkAddCargo(const wstring &wscCharname, const wstring &wscGood, int iCount, bool bMission);
+EXPORT HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, bool bOnlyDelete);
+EXPORT HK_ERROR HkMsgAndKick(uint iClientID, const wstring &wscReason, uint iIntervall);
+EXPORT HK_ERROR HkKill(const wstring &wscCharname);
+EXPORT HK_ERROR HkGetReservedSlot(const wstring &wscCharname, bool &bResult);
+EXPORT HK_ERROR HkSetReservedSlot(const wstring &wscCharname, bool bReservedSlot);
 EXPORT void HkPlayerAutoBuy(uint iClientID, uint iBaseID);
-EXPORT HK_ERROR HkResetRep(wstring wscCharname);
-EXPORT HK_ERROR HkGetGroupMembers(wstring wscCharname, list<GROUP_MEMBER> &lstMembers);
-EXPORT HK_ERROR HkSetRep(wstring wscCharname, wstring wscRepGroup, float fValue);
-EXPORT HK_ERROR HkGetRep(wstring wscCharname, wstring wscRepGroup, float &fValue);
-EXPORT HK_ERROR HkReadCharFile(wstring wscCharname, list<wstring> &lstOutput);
-EXPORT HK_ERROR HkWriteCharFile(wstring wscCharname, wstring wscData);
+EXPORT HK_ERROR HkResetRep(const wstring &wscCharname);
+EXPORT HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers);
+EXPORT HK_ERROR HkSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue);
+EXPORT HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float &fValue);
+EXPORT HK_ERROR HkReadCharFile(const wstring &wscCharname, list<wstring> &lstOutput);
+EXPORT HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData);
 
 // HkFuncLog
-EXPORT void AddLog(FILE* fLog, const char *szString, ...);
+EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);
-EXPORT bool HkAddCheaterLog(wstring wscCharname, wstring wscReason);
+EXPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason);
 EXPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
 EXPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
 EXPORT void HkAddAdminCmdLog(const char *szString, ...);
@@ -681,28 +681,28 @@ EXPORT void HkAddPerfTimerLog(const char *szString, ...);
 
 // HkFuncOther
 EXPORT void HkGetPlayerIP(uint iClientID, wstring &wscIP);
-EXPORT HK_ERROR HkGetPlayerInfo(wstring wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
+EXPORT HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
 EXPORT list<HKPLAYERINFO> HkGetPlayers();
 EXPORT HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci);
-EXPORT HK_ERROR HkSetAdmin(wstring wscCharname, wstring wscRights);
-EXPORT HK_ERROR HkGetAdmin(wstring wscCharname, wstring &wscRights);
-EXPORT HK_ERROR HkDelAdmin(wstring wscCharname);
+EXPORT HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights);
+EXPORT HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights);
+EXPORT HK_ERROR HkDelAdmin(const wstring &wscCharname);
 EXPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
-EXPORT HK_ERROR HkGetBaseStatus(wstring wscBasename, float &fHealth, float &fMaxHealth);
+EXPORT HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth);
 void HkTest(int iArg, int iArg2, int iArg3);
 
 // HkFLIni
-EXPORT HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet);
-EXPORT HK_ERROR HkFLIniWrite(wstring wscCharname, wstring wscKey, wstring wscValue);
+EXPORT HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &wscRet);
+EXPORT HK_ERROR HkFLIniWrite(const wstring &wscCharname, const wstring &wscKey, wstring wscValue);
 
 EXPORT wstring HkErrGetText(HK_ERROR hkErr);
 void ClearClientInfo(uint iClientID);
 void LoadUserSettings(uint iClientID);
 
 // HkCbUserCmd
-bool UserCmd_Process(uint iClientID, wstring wscCmd);
-EXPORT void UserCmd_SetDieMsg(uint iClientID, wstring wscParam);
-EXPORT void UserCmd_SetChatFont(uint iClientID, wstring wscParam);
+bool UserCmd_Process(uint iClientID, const wstring &wscCmd);
+EXPORT void UserCmd_SetDieMsg(uint iClientID, wstring &wscParam);
+EXPORT void UserCmd_SetChatFont(uint iClientID, wstring &wscParam);
 EXPORT void PrintUserCmdText(uint iClientID, wstring wscText, ...);
 
 // HkDeath

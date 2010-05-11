@@ -377,10 +377,10 @@ bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
 void SendDeathMsg(wstring wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 - alter the way death messages are sent here
 
-bool UserCmd_Process(uint iClientID, wstring wscCmd)
+bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 - you can insert your own usercommands here without messing with SubmitChat (true return indicates a handled usercommand)
 
-void UserCmd_Help(uint iClientID, wstring wscParam)
+void UserCmd_Help(uint iClientID, const wstring &wscParam)
 - called on the help command, insert here your own implemented commands (with PrintUserCmdText)
 
 void ClearClientInfo(uint iClientID)

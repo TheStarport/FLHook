@@ -37,73 +37,73 @@ public:
 	EXPORT void PrintError();
 
 // commands
-	void CmdGetCash(wstring wscCharname);
-	void CmdSetCash(wstring wscCharname, int iAmount);
-	void CmdSetCashSec(wstring wscCharname, int iAmountCheck, int iAmount);
-	void CmdAddCash(wstring wscCharname, int iAmount);
-	void CmdAddCashSec(wstring wscCharname, int iAmountCheck, int iAmount);
+	void CmdGetCash(const wstring &wscCharname);
+	void CmdSetCash(const wstring &wscCharname, int iAmount);
+	void CmdSetCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount);
+	void CmdAddCash(const wstring &wscCharname, int iAmount);
+	void CmdAddCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount);
 
-	void CmdKick(wstring wscCharname, wstring wscReason);
-	void CmdBan(wstring wscCharname);
-	void CmdUnban(wstring wscCharname);
-	void CmdKickBan(wstring wscCharname, wstring wscReason);
+	void CmdKick(const wstring &wscCharname, const wstring &wscReason);
+	void CmdBan(const wstring &wscCharname);
+	void CmdUnban(const wstring &wscCharname);
+	void CmdKickBan(const wstring &wscCharname, const wstring &wscReason);
 
-	void CmdBeam(wstring wscCharname, wstring wscBasename);
-	void CmdKill(wstring wscCharname);
-	void CmdResetRep(wstring wscCharname);
-	void CmdSetRep(wstring wscCharname, wstring wscRepGroup, float fValue);
-	void CmdGetRep(wstring wscCharname, wstring wscRepGroup);
+	void CmdBeam(const wstring &wscCharname, const wstring &wscBasename);
+	void CmdKill(const wstring &wscCharname);
+	void CmdResetRep(const wstring &wscCharname);
+	void CmdSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue);
+	void CmdGetRep(const wstring &wscCharname, const wstring &wscRepGroup);
 
-	void CmdMsg(wstring wscCharname, wstring wscText);
-	void CmdMsgS(wstring wscSystemname, wstring wscText);
-	void CmdMsgU(wstring wscText);
-	void CmdFMsg(wstring wscCharname, wstring wscXML);
-	void CmdFMsgS(wstring wscSystemname, wstring wscXML);
-	void CmdFMsgU(wstring wscXML);
+	void CmdMsg(const wstring &wscCharname, const wstring &wscText);
+	void CmdMsgS(const wstring &wscSystemname, const wstring &wscText);
+	void CmdMsgU(const wstring &wscText);
+	void CmdFMsg(const wstring &wscCharname, const wstring &wscXML);
+	void CmdFMsgS(const wstring &wscSystemname, const wstring &wscXML);
+	void CmdFMsgU(const wstring &wscXML);
 
-	void CmdEnumCargo(wstring wscCharname);
-	void CmdRemoveCargo(wstring wscCharname, uint iID, uint iCount);
-	void CmdAddCargo(wstring wscCharname, wstring wscGood, uint iCount, uint iMission);
+	void CmdEnumCargo(const wstring &wscCharname);
+	void CmdRemoveCargo(const wstring &wscCharname, uint iID, uint iCount);
+	void CmdAddCargo(const wstring &wscCharname, const wstring &wscGood, uint iCount, uint iMission);
 
-	void CmdRename(wstring wscCharname, wstring wscNewCharname);
-	void CmdDeleteChar(wstring wscCharname);
+	void CmdRename(const wstring &wscCharname, const wstring &wscNewCharname);
+	void CmdDeleteChar(const wstring &wscCharname);
 
-	void CmdReadCharFile(wstring wscCharname);
-	void CmdWriteCharFile(wstring wscCharname, wstring wscData);
+	void CmdReadCharFile(const wstring &wscCharname);
+	void CmdWriteCharFile(const wstring &wscCharname, const wstring &wscData);
 
-	void CmdGetBaseStatus(wstring wscBasename);
-	void CmdGetClientId(wstring wscCharname);
+	void CmdGetBaseStatus(const wstring &wscBasename);
+	void CmdGetClientId(const wstring &wscCharname);
 	void PrintPlayerInfo(HKPLAYERINFO pi);
-	void CmdGetPlayerInfo(wstring wscCharname);
+	void CmdGetPlayerInfo(const wstring &wscCharname);
 	void CmdGetPlayers();
 	void XPrintPlayerInfo(HKPLAYERINFO pi);
-	void CmdXGetPlayerInfo(wstring wscCharname);
+	void CmdXGetPlayerInfo(const wstring &wscCharname);
 	void CmdXGetPlayers();
 	void CmdGetPlayerIDs();
 	void CmdHelp();
-	void CmdGetAccountDirName(wstring wscCharname);
-	void CmdGetCharFileName(wstring wscCharname);
-	void CmdIsOnServer(wstring wscCharname);
-	void CmdIsLoggedIn(wstring wscCharname);
+	void CmdGetAccountDirName(const wstring &wscCharname);
+	void CmdGetCharFileName(const wstring &wscCharname);
+	void CmdIsOnServer(const wstring &wscCharname);
+	void CmdIsLoggedIn(const wstring &wscCharname);
 	void CmdMoneyFixList();
 	void CmdServerInfo();
-	void CmdGetGroupMembers(wstring wscCharname);
+	void CmdGetGroupMembers(const wstring &wscCharname);
 
-	void CmdSaveChar(wstring wscCharname);
+	void CmdSaveChar(const wstring &wscCharname);
 
-	void CmdGetReservedSlot(wstring wscCharname);
-	void CmdSetReservedSlot(wstring wscCharname, int iReservedSlot);
-	void CmdSetAdmin(wstring wscCharname, wstring wscRights);
-	void CmdGetAdmin(wstring wscCharname);
-	void CmdDelAdmin(wstring wscCharname);
+	void CmdGetReservedSlot(const wstring &wscCharname);
+	void CmdSetReservedSlot(const wstring &wscCharname, int iReservedSlot);
+	void CmdSetAdmin(const wstring &wscCharname, const wstring &wscRights);
+	void CmdGetAdmin(const wstring &wscCharname);
+	void CmdDelAdmin(const wstring &wscCharname);
 	void CmdRehash();
-	void CmdUnload(wstring wscParam);
+	void CmdUnload(const wstring &wscParam);
 
 	void CmdLoadPlugins();
 	void CmdListPlugins();
-	void CmdUnloadPlugin(wstring wscPlugin);
-	void CmdPausePlugin(wstring wscPlugin);
-	void CmdUnpausePlugin(wstring wscPlugin);
+	void CmdUnloadPlugin(const wstring &wscPlugin);
+	void CmdPausePlugin(const wstring &wscPlugin);
+	void CmdUnpausePlugin(const wstring &wscPlugin);
 
 	void CmdTest(int iArg, int iArg2, int iArg3);
 //
@@ -112,11 +112,11 @@ public:
 	EXPORT float ArgFloat(uint iArg);
 	EXPORT wstring ArgStr(uint iArg);
 	EXPORT wstring ArgStrToEnd(uint iArg);
-	void ExecuteCommandString(wstring wscCmd);
+	void ExecuteCommandString(const wstring &wscCmd);
 
-	void SetRightsByString(string scRightStr);
+	void SetRightsByString(const string &scRightStr);
 	EXPORT void Print(wstring wscText, ...);
-	virtual void DoPrint(wstring wscText) {};
+	virtual void DoPrint(const wstring &wscText) = 0;
 	EXPORT virtual wstring GetAdminName() { return L""; };
 
 	wstring wscCurCmdString;

@@ -2,8 +2,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSocket::DoPrint(wstring wscText)
+void CSocket::DoPrint(const wstring &wscTextIn)
 {
+	wstring wscText(wscTextIn);
 	for(uint i = 0; (i < wscText.length()); i++)
 	{
 		if(wscText[i] == '\n')

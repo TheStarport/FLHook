@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCash(wstring wscCharname)
+void CCmds::CmdGetCash(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -20,7 +20,7 @@ void CCmds::CmdGetCash(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetCash(wstring wscCharname, int iAmount)
+void CCmds::CmdSetCash(const wstring &wscCharname, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -32,7 +32,7 @@ void CCmds::CmdSetCash(wstring wscCharname, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdSetCashSec(wstring wscCharname, int iAmountCheck, int iAmount)
+void CCmds::CmdSetCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -49,7 +49,7 @@ void CCmds::CmdSetCashSec(wstring wscCharname, int iAmountCheck, int iAmount)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCash(wstring wscCharname, int iAmount)
+void CCmds::CmdAddCash(const wstring &wscCharname, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -59,7 +59,7 @@ void CCmds::CmdAddCash(wstring wscCharname, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdAddCashSec(wstring wscCharname, int iAmountCheck, int iAmount)
+void CCmds::CmdAddCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -76,7 +76,7 @@ void CCmds::CmdAddCashSec(wstring wscCharname, int iAmountCheck, int iAmount)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKick(wstring wscCharname, wstring wscReason)
+void CCmds::CmdKick(const wstring &wscCharname, const wstring &wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -88,7 +88,7 @@ void CCmds::CmdKick(wstring wscCharname, wstring wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBan(wstring wscCharname)
+void CCmds::CmdBan(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -100,7 +100,7 @@ void CCmds::CmdBan(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnban(wstring wscCharname)
+void CCmds::CmdUnban(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -112,7 +112,7 @@ void CCmds::CmdUnban(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKickBan(wstring wscCharname, wstring wscReason)
+void CCmds::CmdKickBan(const wstring &wscCharname, const wstring &wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -133,7 +133,7 @@ void CCmds::CmdKickBan(wstring wscCharname, wstring wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetBaseStatus(wstring wscBasename)
+void CCmds::CmdGetBaseStatus(const wstring &wscBasename)
 {
 
 	RIGHT_CHECK(RIGHT_OTHER);
@@ -149,7 +149,7 @@ void CCmds::CmdGetBaseStatus(wstring wscBasename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetClientId(wstring wscCharname)
+void CCmds::CmdGetClientId(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -166,7 +166,7 @@ void CCmds::CmdGetClientId(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBeam(wstring wscCharname, wstring wscBasename)
+void CCmds::CmdBeam(const wstring &wscCharname, const wstring &wscBasename)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -183,7 +183,7 @@ void CCmds::CmdBeam(wstring wscCharname, wstring wscBasename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKill(wstring wscCharname)
+void CCmds::CmdKill(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -195,7 +195,7 @@ void CCmds::CmdKill(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdResetRep(wstring wscCharname)
+void CCmds::CmdResetRep(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -207,7 +207,7 @@ void CCmds::CmdResetRep(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetRep(wstring wscCharname, wstring wscRepGroup, float fValue)
+void CCmds::CmdSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -219,7 +219,7 @@ void CCmds::CmdSetRep(wstring wscCharname, wstring wscRepGroup, float fValue)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetRep(wstring wscCharname, wstring wscRepGroup)
+void CCmds::CmdGetRep(const wstring &wscCharname, const wstring &wscRepGroup)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 	
@@ -234,7 +234,7 @@ void CCmds::CmdGetRep(wstring wscCharname, wstring wscRepGroup)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsg(wstring wscCharname, wstring wscText)
+void CCmds::CmdMsg(const wstring &wscCharname, const wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -246,7 +246,7 @@ void CCmds::CmdMsg(wstring wscCharname, wstring wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgS(wstring wscSystemname, wstring wscText)
+void CCmds::CmdMsgS(const wstring &wscSystemname, const wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -258,7 +258,7 @@ void CCmds::CmdMsgS(wstring wscSystemname, wstring wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgU(wstring wscText)
+void CCmds::CmdMsgU(const wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -270,7 +270,7 @@ void CCmds::CmdMsgU(wstring wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsg(wstring wscCharname, wstring wscXML)
+void CCmds::CmdFMsg(const wstring &wscCharname, const wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -282,7 +282,7 @@ void CCmds::CmdFMsg(wstring wscCharname, wstring wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgS(wstring wscSystemname, wstring wscXML)
+void CCmds::CmdFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -294,7 +294,7 @@ void CCmds::CmdFMsgS(wstring wscSystemname, wstring wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgU(wstring wscXML)
+void CCmds::CmdFMsgU(const wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -306,7 +306,7 @@ void CCmds::CmdFMsgU(wstring wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdEnumCargo(wstring wscCharname)
+void CCmds::CmdEnumCargo(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -327,7 +327,7 @@ void CCmds::CmdEnumCargo(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(wstring wscCharname, uint iID, uint iCount)
+void CCmds::CmdRemoveCargo(const wstring &wscCharname, uint iID, uint iCount)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -339,7 +339,7 @@ void CCmds::CmdRemoveCargo(wstring wscCharname, uint iID, uint iCount)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCargo(wstring wscCharname, wstring wscGood, uint iCount, uint iMission)
+void CCmds::CmdAddCargo(const wstring &wscCharname, const wstring &wscGood, uint iCount, uint iMission)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -351,7 +351,7 @@ void CCmds::CmdAddCargo(wstring wscCharname, wstring wscGood, uint iCount, uint 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRename(wstring wscCharname, wstring wscNewCharname)
+void CCmds::CmdRename(const wstring &wscCharname, const wstring &wscNewCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -363,7 +363,7 @@ void CCmds::CmdRename(wstring wscCharname, wstring wscNewCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDeleteChar(wstring wscCharname)
+void CCmds::CmdDeleteChar(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -375,7 +375,7 @@ void CCmds::CmdDeleteChar(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdReadCharFile(wstring wscCharname)
+void CCmds::CmdReadCharFile(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -390,7 +390,7 @@ void CCmds::CmdReadCharFile(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdWriteCharFile(wstring wscCharname, wstring wscData)
+void CCmds::CmdWriteCharFile(const wstring &wscCharname, const wstring &wscData)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -409,7 +409,7 @@ void CCmds::PrintPlayerInfo(HKPLAYERINFO pi)
 	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s\n", pi.wscCharname.c_str(), pi.iClientID, pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdGetPlayerInfo(wstring wscCharname)
+void CCmds::CmdGetPlayerInfo(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -442,7 +442,7 @@ void CCmds::XPrintPlayerInfo(HKPLAYERINFO pi)
 	Print(L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.wscCharname.c_str(), pi.iClientID, pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdXGetPlayerInfo(wstring wscCharname)
+void CCmds::CmdXGetPlayerInfo(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -492,7 +492,7 @@ void CCmds::CmdGetPlayerIDs()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAccountDirName(wstring wscCharname)
+void CCmds::CmdGetAccountDirName(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -505,7 +505,7 @@ void CCmds::CmdGetAccountDirName(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCharFileName(wstring wscCharname)
+void CCmds::CmdGetCharFileName(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -518,7 +518,7 @@ void CCmds::CmdGetCharFileName(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdIsOnServer(wstring wscCharname)
+void CCmds::CmdIsOnServer(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -539,7 +539,7 @@ void CCmds::CmdIsOnServer(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdIsLoggedIn(wstring wscCharname)
+void CCmds::CmdIsLoggedIn(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -604,7 +604,7 @@ void CCmds::CmdServerInfo()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetGroupMembers(wstring wscCharname)
+void CCmds::CmdGetGroupMembers(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -620,7 +620,7 @@ void CCmds::CmdGetGroupMembers(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSaveChar(wstring wscCharname)
+void CCmds::CmdSaveChar(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -632,7 +632,7 @@ void CCmds::CmdSaveChar(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetReservedSlot(wstring wscCharname)
+void CCmds::CmdGetReservedSlot(const wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -645,7 +645,7 @@ void CCmds::CmdGetReservedSlot(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetReservedSlot(wstring wscCharname, int iReservedSlot)
+void CCmds::CmdSetReservedSlot(const wstring &wscCharname, int iReservedSlot)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -657,7 +657,7 @@ void CCmds::CmdSetReservedSlot(wstring wscCharname, int iReservedSlot)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetAdmin(wstring wscCharname, wstring wscRights)
+void CCmds::CmdSetAdmin(const wstring &wscCharname, const wstring &wscRights)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -669,7 +669,7 @@ void CCmds::CmdSetAdmin(wstring wscCharname, wstring wscRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAdmin(wstring wscCharname)
+void CCmds::CmdGetAdmin(const wstring &wscCharname)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -682,7 +682,7 @@ void CCmds::CmdGetAdmin(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDelAdmin(wstring wscCharname)
+void CCmds::CmdDelAdmin(const wstring &wscCharname)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -717,7 +717,7 @@ void CCmds::CmdListPlugins()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnloadPlugin(wstring wscPlugin)
+void CCmds::CmdUnloadPlugin(const wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -729,7 +729,7 @@ void CCmds::CmdUnloadPlugin(wstring wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdPausePlugin(wstring wscPlugin)
+void CCmds::CmdPausePlugin(const wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -741,7 +741,7 @@ void CCmds::CmdPausePlugin(wstring wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnpausePlugin(wstring wscPlugin)
+void CCmds::CmdUnpausePlugin(const wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -913,7 +913,7 @@ wstring CCmds::ArgStrToEnd(uint iArg)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmdStr)
+bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmdStr)
 {
 
     CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback,(classptr,wscCmdStr));
@@ -923,7 +923,7 @@ bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmdStr)
 		return false;
 }
 
-void CCmds::ExecuteCommandString(wstring wscCmdStr)
+void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 {
 	try {
 		if(set_bLogAdminCmds)
@@ -1078,10 +1078,10 @@ void CCmds::ExecuteCommandString(wstring wscCmdStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::SetRightsByString(string scRightStr)
+void CCmds::SetRightsByString(const string &scRights)
 {
 	rights = RIGHT_NOTHING;
-	scRightStr = ToLower(scRightStr);
+	string scRightStr = ToLower(scRights);
 	if(scRightStr.find("superadmin") != -1)
 		rights |= RIGHT_SUPERADMIN;
 	if(scRightStr.find("cash") != -1)

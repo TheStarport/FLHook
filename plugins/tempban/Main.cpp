@@ -56,7 +56,7 @@ EXPORT void HkTimerCheckKick()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HK_ERROR HkTempBan(wstring wscCharname, uint _duration)
+HK_ERROR HkTempBan(const wstring &wscCharname, uint _duration)
 {
 
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -141,7 +141,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CmdTempBan(CCmds* classptr, wstring wscCharname, uint iDuration)
+void CmdTempBan(CCmds* classptr, const wstring &wscCharname, uint iDuration)
 {
 
 	// right check
@@ -155,7 +155,7 @@ void CmdTempBan(CCmds* classptr, wstring wscCharname, uint iDuration)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmd)
+EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd)
 {
 	returncode = NOFUNCTIONCALL;  // flhook needs to care about our return code
 

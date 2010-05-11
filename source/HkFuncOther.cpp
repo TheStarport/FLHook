@@ -58,7 +58,7 @@ some_error:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetPlayerInfo(wstring wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu)
+HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -139,7 +139,7 @@ HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetAdmin(wstring wscCharname, wstring wscRights)
+HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -162,7 +162,7 @@ HK_ERROR HkSetAdmin(wstring wscCharname, wstring wscRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAdmin(wstring wscCharname, wstring &wscRights)
+HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights)
 {
 	wscRights = L"";
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -194,7 +194,7 @@ HK_ERROR HkGetAdmin(wstring wscCharname, wstring &wscRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkDelAdmin(wstring wscCharname)
+HK_ERROR HkDelAdmin(const wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -246,7 +246,7 @@ HK_ERROR HkChangeNPCSpawn(bool bDisable)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetBaseStatus(wstring wscBasename, float &fHealth, float &fMaxHealth)
+HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth)
 {
 	uint iBaseID = 0;
 	pub::GetBaseID(iBaseID, wstos(wscBasename).c_str());

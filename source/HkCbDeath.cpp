@@ -3,7 +3,7 @@
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-wstring SetSizeToSmall(wstring wscDataFormat)
+wstring SetSizeToSmall(const wstring &wscDataFormat)
 {
 	uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
 	wchar_t wszStyleSmall[32];
@@ -16,7 +16,7 @@ wstring SetSizeToSmall(wstring wscDataFormat)
 Send "Death: ..." chat-message
 **************************************************************************************************************/
 
-void SendDeathMsg(wstring wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
+void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 {
 	CALL_PLUGINS(PLUGIN_SendDeathMsg,(wscMsg,iSystemID,iClientIDVictim,iClientIDKiller));
 	if(bPluginReturn)

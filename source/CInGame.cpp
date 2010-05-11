@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::DoPrint(wstring wscText)
+void CInGame::DoPrint(const wstring &wscText)
 {
 	wchar_t wszBufSend[1024] = L"";
 	for(uint i = 0; (i <= wscText.length()); i++)
@@ -22,7 +22,7 @@ void CInGame::DoPrint(wstring wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::ReadRights(string scAdminFile)
+void CInGame::ReadRights(const string &scAdminFile)
 {
 	rights = RIGHT_NOTHING;
 	string scRights = IniGetS(scAdminFile, "admin", "rights", "");

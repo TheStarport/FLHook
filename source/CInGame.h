@@ -8,8 +8,8 @@ class CInGame : public CCmds
 public:
 	uint iClientID;
 	wstring wscAdminName;
-	void DoPrint(wstring wscText);
-	void ReadRights(string scIniFile);
+	void DoPrint(const wstring &wscText);
+	void ReadRights(const string &scIniFile);
 	wstring GetAdminName();
 };
 

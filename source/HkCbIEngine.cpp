@@ -1,11 +1,11 @@
 #include "hook.h"
 
-#define ISERVER_LOG() if(set_bDebug) AddLog(fLogDebug,__FUNCSIG__);
-#define ISERVER_LOGARG_F(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %f", (float)a);
-#define ISERVER_LOGARG_UI(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %u", (uint)a);
-#define ISERVER_LOGARG_D(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %f", (double)a);
-#define ISERVER_LOGARG_I(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %d", (int)a);
-#define ISERVER_LOGARG_V(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %f %f %f", (float)a.x, (float)a.y, (float)a.z);
+#define ISERVER_LOG() if(set_bDebug) AddDebugLog(__FUNCSIG__);
+#define ISERVER_LOGARG_F(a) if(set_bDebug) AddDebugLog("     " #a ": %f", (float)a);
+#define ISERVER_LOGARG_UI(a) if(set_bDebug) AddDebugLog("     " #a ": %u", (uint)a);
+#define ISERVER_LOGARG_D(a) if(set_bDebug) AddDebugLog("     " #a ": %f", (double)a);
+#define ISERVER_LOGARG_I(a) if(set_bDebug) AddDebugLog("     " #a ": %d", (int)a);
+#define ISERVER_LOGARG_V(a) if(set_bDebug) AddDebugLog("     " #a ": %f %f %f", (float)a.x, (float)a.y, (float)a.z);
 
 
 /**************************************************************************************************************

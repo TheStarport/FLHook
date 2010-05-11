@@ -1,7 +1,7 @@
 #include "CConsole.h"
 #include <wchar.h>
 
-void CConsole::DoPrint(wstring wscText)
+void CConsole::DoPrint(const wstring &wscText)
 {
 	ConPrint(wscText);
 }

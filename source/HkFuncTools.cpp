@@ -31,7 +31,7 @@ uint HkGetClientIdFromPD(struct PlayerData *pPD)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CAccount* HkGetAccountByCharname(wstring wscCharname)
+CAccount* HkGetAccountByCharname(const wstring &wscCharname)
 {
 
 	flstr *flStr = CreateWString(wscCharname.c_str());
@@ -43,7 +43,7 @@ CAccount* HkGetAccountByCharname(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint HkGetClientIdFromCharname(wstring wscCharname)
+uint HkGetClientIdFromCharname(const wstring &wscCharname)
 {
 	CAccount *acc = HkGetAccountByCharname(wscCharname);
 	if(!acc)
@@ -77,7 +77,7 @@ wstring HkGetAccountID(CAccount *acc)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkIsEncoded(string scFilename)
+bool HkIsEncoded(const string &scFilename)
 {
 	bool bRet = false;
 	FILE *f = fopen(scFilename.c_str(), "r");
@@ -96,7 +96,7 @@ bool HkIsEncoded(string scFilename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkIsInCharSelectMenu(wstring wscCharname)
+bool HkIsInCharSelectMenu(const wstring &wscCharname)
 {
 	CAccount *acc = HkGetAccountByCharname(wscCharname);
 	if(!acc)
@@ -149,13 +149,13 @@ bool HkIsValidClientID(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResolveId(wstring wscCharname, uint &iClientID)
+HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID)
 {
-	wscCharname = ToLower(wscCharname);
-	if(wscCharname.find(L"id ") == 0)
+	wstring wscCharnameLower = ToLower(wscCharname);
+	if(wscCharnameLower.find(L"id ") == 0)
 	{
 		uint iID = 0;
-		swscanf(wscCharname.c_str(), L"id %u", &iID);
+		swscanf(wscCharnameLower.c_str(), L"id %u", &iID);
 		if(!HkIsValidClientID(iID))
 			return HKE_INVALID_CLIENT_ID;
 		iClientID = iID;
@@ -167,13 +167,13 @@ HK_ERROR HkResolveId(wstring wscCharname, uint &iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResolveShortCut(wstring wscShortcut, uint &_iClientID)
+HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &_iClientID)
 {
-	wscShortcut = ToLower(wscShortcut);
-	if(wscShortcut.find(L"sc ") != 0)
+	wstring wscShortcutLower = ToLower(wscShortcut);
+	if(wscShortcutLower.find(L"sc ") != 0)
 		return HKE_INVALID_SHORTCUT_STRING;
 
-	wscShortcut = wscShortcut.substr(3);
+	wscShortcutLower = wscShortcutLower.substr(3);
 
 	uint iClientIDFound = -1;
 	struct PlayerData *pPD = 0;
@@ -186,7 +186,7 @@ HK_ERROR HkResolveShortCut(wstring wscShortcut, uint &_iClientID)
 			continue;
 
 		wstring wscCharname = wszCharname;
-		if(ToLower(wscCharname).find(wscShortcut) != -1)
+		if(ToLower(wscCharname).find(wscShortcutLower) != -1)
 		{
 			if(iClientIDFound == -1)
 				iClientIDFound = iClientID;
@@ -231,7 +231,7 @@ HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAccountDirName(wstring wscCharname, wstring &wscDir)
+HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -247,17 +247,23 @@ HK_ERROR HkGetAccountDirName(wstring wscCharname, wstring &wscDir)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCharFileName(wstring wscCharname, wstring &wscFilename)
+HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename)
 {
-	HK_GET_CLIENTID(iClientID, wscCharname);
-	// getchafilename from clientid
-	if(iClientID != -1)
-		wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-	_GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
+	static _GetFLName GetFLName = 0;
+	if (!GetFLName)
+		GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 
 	char szBuf[1024] = "";
-	GetFLName(szBuf, wscCharname.c_str());
+
+	uint iClientID = HkGetClientIdFromCharname(wscCharname);
+	if(iClientID != -1)
+	{
+		GetFLName(szBuf, Players.GetActiveCharacterName(iClientID));
+	}
+	else
+	{
+		GetFLName(szBuf, wscCharname.c_str());
+	}
 
 	wscFilename = stows(szBuf);
 	return HKE_OK;

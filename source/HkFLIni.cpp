@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet)
+HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &wscRet)
 {
 	wscRet = L"";
 	wstring wscDir;
@@ -30,7 +30,7 @@ HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniWrite(wstring wscCharname, wstring wscKey, wstring wscValue)
+HK_ERROR HkFLIniWrite(const wstring &wscCharname, const wstring &wscKey, const wstring &wscValue)
 {
 	wstring wscDir;
 	if(!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))

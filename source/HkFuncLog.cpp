@@ -2,15 +2,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AddLog(FILE* fLog, const char *szString, ...)
+void AddDebugLog(const char *szString, ...)
 {
-	if(set_bDebug) {
-		// debug log size check
-		if(ftell(fLogDebug) > ((int)set_iDebugMaxSize<<10)){
-			fclose(fLogDebug);
-			_unlink(sDebugLog.c_str());
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
-		}
+	if(!set_bDebug)
+		return;
+	
+	if(ftell(fLogDebug) > ((int)set_iDebugMaxSize<<10)){
+		fclose(fLogDebug);
+		_unlink(sDebugLog.c_str());
+		fLogDebug = fopen(sDebugLog.c_str(), "at");
 	}
 
 	char szBufString[1024];
@@ -22,23 +22,15 @@ void AddLog(FILE* fLog, const char *szString, ...)
 	time_t tNow = time(0);
 	struct tm *t = localtime(&tNow);
 	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
-	fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
-	fflush(fLog);
+	fprintf(fLogDebug, "[%s] %s\n", szBuf, szBufString);
+	fflush(fLogDebug);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AddLog(const char *szString, ...)
 {
-	if(set_bDebug) {
-		// debug log size check
-		if(ftell(fLogDebug) > ((int)set_iDebugMaxSize<<10)){
-			fclose(fLogDebug);
-			_unlink(sDebugLog.c_str());
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
-		}
-	}
-
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
@@ -80,7 +72,7 @@ void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(wstring wscCharname, wstring wscReason)
+bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
 {
 	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
 	if(!f)
@@ -168,6 +160,24 @@ bool HkAddConnectLog(uint iClientID, wstring wscReason, ...)
 	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Connect (%s): %s(%s)(%s)\n", stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wszBuf).c_str(), wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(HkGetAccountID(acc)).c_str());
 	fclose(f);
 	return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void AddLog(FILE* fLog, const char *szString, ...)
+{
+	char szBufString[1024];
+	va_list marker;
+	va_start(marker, szString);
+	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+
+	char szBuf[64];
+	time_t tNow = time(0);
+	struct tm *t = localtime(&tNow);
+	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+	fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
+	fflush(fLog);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

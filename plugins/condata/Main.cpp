@@ -92,7 +92,7 @@ EXPORT void ClearClientInfo(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void UserCmd_Help(uint iClientID, wstring wscParam)
+EXPORT void UserCmd_Help(uint iClientID, const wstring &wscParam)
 {
 
 	if(set_bPingCmd) {
@@ -410,7 +410,7 @@ namespace HkIServerImpl
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ping(uint iClientID, wstring wscParam) 
+void UserCmd_Ping(uint iClientID, const wstring &wscParam) 
 { 
 	if(!set_bPingCmd) {
 		PRINT_DISABLED();
@@ -477,7 +477,7 @@ void UserCmd_Ping(uint iClientID, wstring wscParam)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_PingTarget(uint iClientID, wstring wscParam) 
+void UserCmd_PingTarget(uint iClientID, const wstring &wscParam) 
 { 
 	if(!set_bPingCmd) {
 		PRINT_DISABLED();
@@ -569,7 +569,7 @@ void UserCmd_PingTarget(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef void (*_UserCmdProc)(uint, wstring);
+typedef void (*_UserCmdProc)(uint, const wstring &);
 
 struct USERCMD
 {
@@ -583,7 +583,7 @@ USERCMD UserCmds[] =
 	{ L"/pingtarget",			UserCmd_PingTarget},
 };
 
-EXPORT bool UserCmd_Process(uint iClientID, wstring wscCmd)
+EXPORT bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 {
 
 	wstring wscCmdLower = ToLower(wscCmd);
@@ -643,7 +643,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmd)
+EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 	

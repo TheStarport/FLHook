@@ -23,7 +23,7 @@ namespace PluginManager
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR PausePlugin(string sShortName, bool bPause) 
+HK_ERROR PausePlugin(const string &sShortName, bool bPause) 
 {
 
 	foreach(lstPlugins, PLUGIN_DATA, it) {
@@ -49,7 +49,7 @@ HK_ERROR PausePlugin(string sShortName, bool bPause)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR UnloadPlugin(string sShortName) 
+HK_ERROR UnloadPlugin(const string &sShortName) 
 {
 
 	foreach(lstPlugins, PLUGIN_DATA, it) {

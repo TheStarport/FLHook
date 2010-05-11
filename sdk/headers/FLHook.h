@@ -195,7 +195,7 @@ struct MONEY_FIX
 // ignore
 struct IGNORE_INFO
 {
-	wstring wscCharname;
+	const wstring &wscCharname;
 	wstring wscFlags;
 };
 
@@ -395,19 +395,19 @@ struct PLUGIN_DATA
 // HkFuncTools
 IMPORT uint HkGetClientIdFromAccount(CAccount *acc);
 IMPORT uint HkGetClientIdFromPD(struct PlayerData *pPD);
-IMPORT CAccount* HkGetAccountByCharname(wstring wscCharname);
-IMPORT uint HkGetClientIdFromCharname(wstring wscCharname);
+IMPORT CAccount* HkGetAccountByCharname(const wstring &wscCharname);
+IMPORT uint HkGetClientIdFromCharname(const wstring &wscCharname);
 IMPORT wstring HkGetAccountID(CAccount *acc);
-IMPORT bool HkIsEncoded(string scFilename);
-IMPORT bool HkIsInCharSelectMenu(wstring wscCharname);
+IMPORT bool HkIsEncoded(const string &scFilename);
+IMPORT bool HkIsInCharSelectMenu(const wstring &wscCharname);
 IMPORT bool HkIsInCharSelectMenu(uint iClientID);
 IMPORT bool HkIsValidClientID(uint iClientID);
-IMPORT HK_ERROR HkResolveId(wstring wscCharname, uint &iClientID);
-IMPORT HK_ERROR HkResolveShortCut(wstring wscShortcut, uint &iClientID);
+IMPORT HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID);
+IMPORT HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &iClientID);
 IMPORT uint HkGetClientIDByShip(uint iShip);
 IMPORT HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir);
-IMPORT HK_ERROR HkGetAccountDirName(wstring wscCharname, wstring &wscDir);
-IMPORT HK_ERROR HkGetCharFileName(wstring wscCharname, wstring &wscFilename);
+IMPORT HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir);
+IMPORT HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename);
 IMPORT wstring HkGetBaseNickByID(uint iBaseID);
 IMPORT wstring HkGetPlayerSystem(uint iClientID);
 IMPORT wstring HkGetSystemNickByID(uint iSystemID);
@@ -419,48 +419,48 @@ IMPORT ENGINE_STATE HkGetEngineState(uint iClientID);
 IMPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
 
 // HkFuncMsg
-IMPORT HK_ERROR HkMsg(int iClientID, wstring wscMessage);
-IMPORT HK_ERROR HkMsg(wstring wscCharname, wstring wscMessage);
-IMPORT HK_ERROR HkMsgS(wstring wscSystemname, wstring wscMessage);
-IMPORT HK_ERROR HkMsgU(wstring wscMessage);
-IMPORT HK_ERROR HkFMsgEncodeXML(wstring wscXML, char *szBuf, uint iSize, uint &iRet);
+IMPORT HK_ERROR HkMsg(int iClientID, const wstring &wscMessage);
+IMPORT HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage);
+IMPORT HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage);
+IMPORT HK_ERROR HkMsgU(const wstring &wscMessage);
+IMPORT HK_ERROR HkFMsgEncodeXML(const wstring &wscXML, char *szBuf, uint iSize, uint &iRet);
 IMPORT HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize);
-IMPORT HK_ERROR HkFMsg(uint iClientID, wstring wscXML);
-IMPORT HK_ERROR HkFMsg(wstring wscCharname, wstring wscXML);
-IMPORT HK_ERROR HkFMsgS(wstring wscSystemname, wstring wscXML);
-IMPORT HK_ERROR HkFMsgU(wstring wscXML);
+IMPORT HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML);
+IMPORT HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML);
+IMPORT HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML);
+IMPORT HK_ERROR HkFMsgU(const wstring &wscXML);
 
 // HkFuncPlayers
-IMPORT HK_ERROR HkGetCash(wstring wscCharname, int &iCash);
-IMPORT HK_ERROR HkAddCash(wstring wscCharname, int iAmount);
+IMPORT HK_ERROR HkGetCash(const wstring &wscCharname, int &iCash);
+IMPORT HK_ERROR HkAddCash(const wstring &wscCharname, int iAmount);
 IMPORT HK_ERROR HkKick(CAccount *acc);
-IMPORT HK_ERROR HkKick(wstring wscCharname);
-IMPORT HK_ERROR HkKickReason(wstring wscCharname, wstring wscReason);
-IMPORT HK_ERROR HkBan(wstring wscCharname, bool bBan);
-IMPORT HK_ERROR HkBeam(wstring wscCharname, wstring wscBasename);
-IMPORT HK_ERROR HkSaveChar(wstring wscCharname);
-IMPORT HK_ERROR HkEnumCargo(wstring wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
-IMPORT HK_ERROR HkRemoveCargo(wstring wscCharname, uint iID, int iCount);
-IMPORT HK_ERROR HkAddCargo(wstring wscCharname, uint iGoodID, int iCount, bool bMission);
-IMPORT HK_ERROR HkAddCargo(wstring wscCharname, wstring wscGood, int iCount, bool bMission);
-IMPORT HK_ERROR HkRename(wstring wscCharname, wstring wscNewCharname, bool bOnlyDelete);
-IMPORT HK_ERROR HkMsgAndKick(uint iClientID, wstring wscReason, uint iIntervall);
-IMPORT HK_ERROR HkKill(wstring wscCharname);
-IMPORT HK_ERROR HkGetReservedSlot(wstring wscCharname, bool &bResult);
-IMPORT HK_ERROR HkSetReservedSlot(wstring wscCharname, bool bReservedSlot);
+IMPORT HK_ERROR HkKick(const wstring &wscCharname);
+IMPORT HK_ERROR HkKickReason(const wstring &wscCharname, const wstring &wscReason);
+IMPORT HK_ERROR HkBan(const wstring &wscCharname, bool bBan);
+IMPORT HK_ERROR HkBeam(const wstring &wscCharname, const wstring &wscBasename);
+IMPORT HK_ERROR HkSaveChar(const wstring &wscCharname);
+IMPORT HK_ERROR HkEnumCargo(const wstring &wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
+IMPORT HK_ERROR HkRemoveCargo(const wstring &wscCharname, uint iID, int iCount);
+IMPORT HK_ERROR HkAddCargo(const wstring &wscCharname, uint iGoodID, int iCount, bool bMission);
+IMPORT HK_ERROR HkAddCargo(const wstring &wscCharname, const wstring &wscGood, int iCount, bool bMission);
+IMPORT HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, bool bOnlyDelete);
+IMPORT HK_ERROR HkMsgAndKick(uint iClientID, const wstring &wscReason, uint iIntervall);
+IMPORT HK_ERROR HkKill(const wstring &wscCharname);
+IMPORT HK_ERROR HkGetReservedSlot(const wstring &wscCharname, bool &bResult);
+IMPORT HK_ERROR HkSetReservedSlot(const wstring &wscCharname, bool bReservedSlot);
 IMPORT void HkPlayerAutoBuy(uint iClientID, uint iBaseID);
-IMPORT HK_ERROR HkResetRep(wstring wscCharname);
-IMPORT HK_ERROR HkGetGroupMembers(wstring wscCharname, list<GROUP_MEMBER> &lstMembers);
-IMPORT HK_ERROR HkSetRep(wstring wscCharname, wstring wscRepGroup, float fValue);
-IMPORT HK_ERROR HkGetRep(wstring wscCharname, wstring wscRepGroup, float &fValue);
-IMPORT HK_ERROR HkReadCharFile(wstring wscCharname, list<wstring> &lstOutput);
-IMPORT HK_ERROR HkWriteCharFile(wstring wscCharname, wstring wscData);
+IMPORT HK_ERROR HkResetRep(const wstring &wscCharname);
+IMPORT HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers);
+IMPORT HK_ERROR HkSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue);
+IMPORT HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float &fValue);
+IMPORT HK_ERROR HkReadCharFile(const wstring &wscCharname, list<wstring> &lstOutput);
+IMPORT HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData);
 
 // HkFuncLog
-IMPORT void AddLog(FILE* fLog, const char *szString, ...);
+IMPORT void AddDebugLog(const char *szString, ...);
 IMPORT void AddLog(const char *szString, ...);
 IMPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);
-IMPORT bool HkAddCheaterLog(wstring wscCharname, wstring wscReason);
+IMPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason);
 IMPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
 IMPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
 IMPORT void HkAddAdminCmdLog(const char *szString, ...);
@@ -469,52 +469,52 @@ IMPORT void HkAddPerfTimerLog(const char *szString, ...);
 
 // HkFuncOther
 IMPORT void HkGetPlayerIP(uint iClientID, wstring &wscIP);
-IMPORT HK_ERROR HkGetPlayerInfo(wstring wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
+IMPORT HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
 IMPORT list<HKPLAYERINFO> HkGetPlayers();
 IMPORT HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci);
-IMPORT HK_ERROR HkSetAdmin(wstring wscCharname, wstring wscRights);
-IMPORT HK_ERROR HkGetAdmin(wstring wscCharname, wstring &wscRights);
-IMPORT HK_ERROR HkDelAdmin(wstring wscCharname);
+IMPORT HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights);
+IMPORT HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights);
+IMPORT HK_ERROR HkDelAdmin(const wstring &wscCharname);
 IMPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
-IMPORT HK_ERROR HkGetBaseStatus(wstring wscBasename, float &fHealth, float &fMaxHealth);
+IMPORT HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth);
 
 // HkFLIni
-IMPORT HK_ERROR HkFLIniGet(wstring wscCharname, wstring wscKey, wstring &wscRet);
-IMPORT HK_ERROR HkFLIniWrite(wstring wscCharname, wstring wscKey, wstring wscValue);
+IMPORT HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &wscRet);
+IMPORT HK_ERROR HkFLIniWrite(const wstring &wscCharname, const wstring &wscKey, const wstring &wscValue);
 
 IMPORT wstring HkErrGetText(HK_ERROR hkErr);
 
-IMPORT void UserCmd_SetDieMsg(uint iClientID, wstring wscParam);
-IMPORT void UserCmd_SetChatFont(uint iClientID, wstring wscParam);
+IMPORT void UserCmd_SetDieMsg(uint iClientID, const wstring &wscParam);
+IMPORT void UserCmd_SetChatFont(uint iClientID, const wstring &wscParam);
 
 IMPORT void ProcessEvent(wstring wscText, ...);
 
 IMPORT void PrintUserCmdText(uint iClientID, wstring wscText, ...);
 
 // tools
-IMPORT wstring stows(string scText);
-IMPORT string wstos(wstring wscText);
+IMPORT wstring stows(const string &scText);
+IMPORT string wstos(const wstring &wscText);
 IMPORT string itos(int i);
-IMPORT string IniGetS(string scFile, string scApp, string scKey, string scDefault);
-IMPORT int IniGetI(string scFile, string scApp, string scKey, int iDefault);
-IMPORT bool IniGetB(string scFile, string scApp, string scKey, bool bDefault);
-IMPORT void IniWrite(string scFile, string scApp, string scKey, string scValue);
+IMPORT string IniGetS(const string &scFile, const string &scApp, const string &scKey, const string &scDefault);
+IMPORT int IniGetI(const string &scFile, const string &scApp, const string &scKey, int iDefault);
+IMPORT bool IniGetB(const string &scFile, const string &scApp, const string &scKey, bool bDefault);
+IMPORT void IniWrite(const string &scFile, const string &scApp, const string &scKey, const string &scValue);
 IMPORT void WriteProcMem(void *pAddress, void *pMem, int iSize);
 IMPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
-IMPORT wstring ToLower(wstring wscStr);
-IMPORT string ToLower(string scStr);
-IMPORT int ToInt(wstring wscStr);
+IMPORT wstring ToLower(const wstring &wscStr);
+IMPORT string ToLower(const string &scStr);
+IMPORT int ToInt(const wstring &wscStr);
 IMPORT void ConPrint(wstring wscText, ...);
-IMPORT wstring XMLText(wstring wscText);
-IMPORT wstring GetParam(wstring wscLine, wchar_t wcSplitChar, uint iPos);
-IMPORT wstring ReplaceStr(wstring wscSource, wstring wscSearchFor, wstring wscReplaceWith);
-IMPORT void IniDelSection(string scFile, string scApp);
-IMPORT void IniWriteW(string scFile, string scApp, string scKey, wstring wscValue);
-IMPORT wstring IniGetWS(string scFile, string scApp, string scKey, wstring wscDefault);
+IMPORT wstring XMLText(const wstring &wscText);
+IMPORT wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos);
+IMPORT wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith);
+IMPORT void IniDelSection(const string &scFile, const string &scApp);
+IMPORT void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue);
+IMPORT wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault);
 IMPORT wstring ToMoneyStr(int iCash);
-IMPORT float IniGetF(string scFile, string scApp, string scKey, float fDefault);
-IMPORT void IniGetSection(string scFile, string scApp, list<INISECTIONVALUE> &lstValues);
-IMPORT float ToFloat(wstring wscStr);
+IMPORT float IniGetF(const string &scFile, const string &scApp, const string &scKey, float fDefault);
+IMPORT void IniGetSection(const string &scFile, const string &scApp, list<INISECTIONVALUE> &lstValues);
+IMPORT float ToFloat(const wstring &wscStr);
 IMPORT mstime timeInMS();
 
 // flcodec
@@ -571,73 +571,73 @@ public:
 	IMPORT void PrintError();
 
 // commands
-	void CmdGetCash(wstring wscCharname);
-	void CmdSetCash(wstring wscCharname, int iAmount);
-	void CmdSetCashSec(wstring wscCharname, int iAmountCheck, int iAmount);
-	void CmdAddCash(wstring wscCharname, int iAmount);
-	void CmdAddCashSec(wstring wscCharname, int iAmountCheck, int iAmount);
+	void CmdGetCash(const wstring &wscCharname);
+	void CmdSetCash(const wstring &wscCharname, int iAmount);
+	void CmdSetCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount);
+	void CmdAddCash(const wstring &wscCharname, int iAmount);
+	void CmdAddCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount);
 
-	void CmdKick(wstring wscCharname, wstring wscReason);
-	void CmdBan(wstring wscCharname);
-	void CmdUnban(wstring wscCharname);
-	void CmdKickBan(wstring wscCharname, wstring wscReason);
+	void CmdKick(const wstring &wscCharname, const wstring &wscReason);
+	void CmdBan(const wstring &wscCharname);
+	void CmdUnban(const wstring &wscCharname);
+	void CmdKickBan(const wstring &wscCharname, const wstring &wscReason);
 
-	void CmdBeam(wstring wscCharname, wstring wscBasename);
-	void CmdKill(wstring wscCharname);
-	void CmdResetRep(wstring wscCharname);
-	void CmdSetRep(wstring wscCharname, wstring wscRepGroup, float fValue);
-	void CmdGetRep(wstring wscCharname, wstring wscRepGroup);
+	void CmdBeam(const wstring &wscCharname, const wstring &wscBasename);
+	void CmdKill(const wstring &wscCharname);
+	void CmdResetRep(const wstring &wscCharname);
+	void CmdSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue);
+	void CmdGetRep(const wstring &wscCharname, const wstring &wscRepGroup);
 
-	void CmdMsg(wstring wscCharname, wstring wscText);
-	void CmdMsgS(wstring wscSystemname, wstring wscText);
-	void CmdMsgU(wstring wscText);
-	void CmdFMsg(wstring wscCharname, wstring wscXML);
-	void CmdFMsgS(wstring wscSystemname, wstring wscXML);
-	void CmdFMsgU(wstring wscXML);
+	void CmdMsg(const wstring &wscCharname, const wstring &wscText);
+	void CmdMsgS(const wstring &wscSystemname, const wstring &wscText);
+	void CmdMsgU(const wstring &wscText);
+	void CmdFMsg(const wstring &wscCharname, const wstring &wscXML);
+	void CmdFMsgS(const wstring &wscSystemname, const wstring &wscXML);
+	void CmdFMsgU(const wstring &wscXML);
 
-	void CmdEnumCargo(wstring wscCharname);
-	void CmdRemoveCargo(wstring wscCharname, uint iID, uint iCount);
-	void CmdAddCargo(wstring wscCharname, wstring wscGood, uint iCount, uint iMission);
+	void CmdEnumCargo(const wstring &wscCharname);
+	void CmdRemoveCargo(const wstring &wscCharname, uint iID, uint iCount);
+	void CmdAddCargo(const wstring &wscCharname, const wstring &wscGood, uint iCount, uint iMission);
 
-	void CmdRename(wstring wscCharname, wstring wscNewCharname);
-	void CmdDeleteChar(wstring wscCharname);
+	void CmdRename(const wstring &wscCharname, const wstring &wscNewCharname);
+	void CmdDeleteChar(const wstring &wscCharname);
 
-	void CmdReadCharFile(wstring wscCharname);
-	void CmdWriteCharFile(wstring wscCharname, wstring wscData);
+	void CmdReadCharFile(const wstring &wscCharname);
+	void CmdWriteCharFile(const wstring &wscCharname, const wstring &wscData);
 
-	void CmdGetBaseStatus(wstring wscBasename);
-	void CmdGetClientId(wstring wscCharname);
+	void CmdGetBaseStatus(const wstring &wscBasename);
+	void CmdGetClientId(const wstring &wscCharname);
 	void PrintPlayerInfo(HKPLAYERINFO pi);
-	void CmdGetPlayerInfo(wstring wscCharname);
+	void CmdGetPlayerInfo(const wstring &wscCharname);
 	void CmdGetPlayers();
 	void XPrintPlayerInfo(HKPLAYERINFO pi);
-	void CmdXGetPlayerInfo(wstring wscCharname);
+	void CmdXGetPlayerInfo(const wstring &wscCharname);
 	void CmdXGetPlayers();
 	void CmdGetPlayerIDs();
 	void CmdHelp();
-	void CmdGetAccountDirName(wstring wscCharname);
-	void CmdGetCharFileName(wstring wscCharname);
-	void CmdIsOnServer(wstring wscCharname);
-	void CmdIsLoggedIn(wstring wscCharname);
+	void CmdGetAccountDirName(const wstring &wscCharname);
+	void CmdGetCharFileName(const wstring &wscCharname);
+	void CmdIsOnServer(const wstring &wscCharname);
+	void CmdIsLoggedIn(const wstring &wscCharname);
 	void CmdMoneyFixList();
 	void CmdServerInfo();
-	void CmdGetGroupMembers(wstring wscCharname);
+	void CmdGetGroupMembers(const wstring &wscCharname);
 
-	void CmdSaveChar(wstring wscCharname);
+	void CmdSaveChar(const wstring &wscCharname);
 
-	void CmdGetReservedSlot(wstring wscCharname);
-	void CmdSetReservedSlot(wstring wscCharname, int iReservedSlot);
-	void CmdSetAdmin(wstring wscCharname, wstring wscRights);
-	void CmdGetAdmin(wstring wscCharname);
-	void CmdDelAdmin(wstring wscCharname);
+	void CmdGetReservedSlot(const wstring &wscCharname);
+	void CmdSetReservedSlot(const wstring &wscCharname, int iReservedSlot);
+	void CmdSetAdmin(const wstring &wscCharname, wstring wscRights);
+	void CmdGetAdmin(const wstring &wscCharname);
+	void CmdDelAdmin(const wstring &wscCharname);
 	void CmdRehash();
-	void CmdUnload(wstring wscParam);
+	void CmdUnload(const wstring &wscParam);
 
 	void CmdLoadPlugins();
 	void CmdListPlugins();
-	void CmdUnloadPlugin(wstring wscPlugin);
-	void CmdPausePlugin(wstring wscPlugin);
-	void CmdUnpausePlugin(wstring wscPlugin);
+	void CmdUnloadPlugin(const wstring &wscPlugin);
+	void CmdPausePlugin(const wstring &wscPlugin);
+	void CmdUnpausePlugin(const wstring &wscPlugin);
 
 	void CmdTest(int iArg, int iArg2, int iArg3);
 //
@@ -646,7 +646,7 @@ public:
 	IMPORT float ArgFloat(uint iArg);
 	IMPORT wstring ArgStr(uint iArg);
 	IMPORT wstring ArgStrToEnd(uint iArg);
-	void ExecuteCommandString(wstring wscCmd);
+	void ExecuteCommandString(const wstring &wscCmd);
 
 	void SetRightsByString(string scRightStr);
 	IMPORT void Print(wstring wscText, ...);
@@ -665,8 +665,8 @@ namespace HkIServerImpl
 }
 namespace PluginManager {
 	IMPORT void LoadPlugins(bool, CCmds*);
-	IMPORT HK_ERROR PausePlugin(string sShortName, bool bPause);
-	IMPORT HK_ERROR UnloadPlugin(string sShortName);
+	IMPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
+	IMPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	IMPORT void UnloadPlugins();
 }
 

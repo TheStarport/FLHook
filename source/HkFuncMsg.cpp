@@ -4,7 +4,7 @@
 
 EXPORT bool g_bMsg = false;
 
-HK_ERROR HkMsg(int iClientID, wstring wscMessage)
+HK_ERROR HkMsg(int iClientID, const wstring &wscMessage)
 {
 	struct CHAT_ID ci = {0};
 	struct CHAT_ID ciClient = {iClientID};
@@ -20,7 +20,7 @@ HK_ERROR HkMsg(int iClientID, wstring wscMessage)
 	return HKE_OK;
 }
 
-HK_ERROR HkMsg(wstring wscCharname, wstring wscMessage)
+HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -34,7 +34,7 @@ HK_ERROR HkMsg(wstring wscCharname, wstring wscMessage)
 
 bool g_bMsgS = false;
 
-HK_ERROR HkMsgS(wstring wscSystemname, wstring wscMessage)
+HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage)
 {
 	uint iSystemID = 0;
 	if(!(iSystemID = _wtoi(wscSystemname.c_str())))
@@ -75,7 +75,7 @@ HK_ERROR HkMsgS(wstring wscSystemname, wstring wscMessage)
 
 bool g_bMsgU = false;
 
-HK_ERROR HkMsgU(wstring wscMessage)
+HK_ERROR HkMsgU(const wstring &wscMessage)
 {
 	struct CHAT_ID ci = {0};
 	struct CHAT_ID ciClient = {0x00010000};
@@ -93,7 +93,7 @@ HK_ERROR HkMsgU(wstring wscMessage)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgEncodeXML(wstring wscXML, char *szBuf, uint iSize, uint &iRet)
+HK_ERROR HkFMsgEncodeXML(const wstring &wscXML, char *szBuf, uint iSize, uint &iRet)
 {
 	XMLReader rdr;
 	RenderDisplayList rdl;
@@ -136,7 +136,7 @@ HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsg(uint iClientID, wstring wscXML)
+HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML)
 {
 	char szBuf[0xFFFF];
 	uint iRet;
@@ -147,7 +147,7 @@ HK_ERROR HkFMsg(uint iClientID, wstring wscXML)
 	return HKE_OK;
 }
 
-HK_ERROR HkFMsg(wstring wscCharname, wstring wscXML)
+HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -159,7 +159,7 @@ HK_ERROR HkFMsg(wstring wscCharname, wstring wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgS(wstring wscSystemname, wstring wscXML)
+HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 {
 	// get system id
 	uint iSystemID = 0;
@@ -193,7 +193,7 @@ HK_ERROR HkFMsgS(wstring wscSystemname, wstring wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgU(wstring wscXML)
+HK_ERROR HkFMsgU(const wstring &wscXML)
 {
 	// encode xml string
 	char szBuf[0xFFFF];

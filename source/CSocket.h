@@ -16,7 +16,7 @@ public:
 	ushort iPort;
 
 	CSocket() { bAuthed = false; bEventMode = false; bUnicode = false; }
-	void DoPrint(wstring wscText);
+	void DoPrint(const wstring &wscText);
 	wstring GetAdminName();
 };
 

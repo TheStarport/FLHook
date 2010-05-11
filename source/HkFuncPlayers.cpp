@@ -3,7 +3,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCash(wstring wscCharname, int &iCash)
+HK_ERROR HkGetCash(const wstring &wscCharname, int &iCash)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -44,7 +44,7 @@ HK_ERROR HkGetCash(wstring wscCharname, int &iCash)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCash(wstring wscCharname, int iAmount)
+HK_ERROR HkAddCash(const wstring &wscCharname, int iAmount)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -97,10 +97,10 @@ HK_ERROR HkAddCash(wstring wscCharname, int iAmount)
 		if(HkIsInCharSelectMenu(wscCharname) || (iClientIDAcc != -1))
 		{ // money fix in case player logs in with this account
 			bool bFound = false;
-			wscCharname = ToLower(wscCharname);
+			wstring wscCharnameLower = ToLower(wscCharname);
 			foreach(ClientInfo[iClientIDAcc].lstMoneyFix, MONEY_FIX, i)
 			{
-				if((*i).wscCharname == wscCharname)
+				if((*i).wscCharname == wscCharnameLower)
 				{
 					(*i).iAmount += iAmount;
 					bFound = true;
@@ -111,7 +111,7 @@ HK_ERROR HkAddCash(wstring wscCharname, int iAmount)
 			if(!bFound)
 			{
 				MONEY_FIX mf;
-				mf.wscCharname = wscCharname;
+				mf.wscCharname = wscCharnameLower;
 				mf.iAmount = iAmount;
 				ClientInfo[iClientIDAcc].lstMoneyFix.push_back(mf);
 			}
@@ -129,7 +129,7 @@ HK_ERROR HkKick(CAccount *acc)
 	return HKE_OK;
 }
 
-HK_ERROR HkKick(wstring wscCharname)
+HK_ERROR HkKick(const wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -141,7 +141,7 @@ HK_ERROR HkKick(wstring wscCharname)
 	return HKE_OK;
 }
 
-HK_ERROR HkKickReason(wstring wscCharname, wstring wscReason)
+HK_ERROR HkKickReason(const wstring &wscCharname, const wstring &wscReason)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -158,7 +158,7 @@ HK_ERROR HkKickReason(wstring wscCharname, wstring wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBan(wstring wscCharname, bool bBan)
+HK_ERROR HkBan(const wstring &wscCharname, bool bBan)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -179,7 +179,7 @@ HK_ERROR HkBan(wstring wscCharname, bool bBan)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBeam(wstring wscCharname, wstring wscBasename)
+HK_ERROR HkBeam(const wstring &wscCharname, const wstring &wscBasename)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -230,7 +230,7 @@ HK_ERROR HkBeam(wstring wscCharname, wstring wscBasename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSaveChar(wstring wscCharname)
+HK_ERROR HkSaveChar(const wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -264,7 +264,7 @@ struct EQ_ITEM
 	bool bMission;
 };
 
-HK_ERROR HkEnumCargo(wstring wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize)
+HK_ERROR HkEnumCargo(const wstring &wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -297,7 +297,7 @@ HK_ERROR HkEnumCargo(wstring wscCharname, list<CARGO_INFO> &lstCargo, int &iRema
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRemoveCargo(wstring wscCharname, uint iID, int iCount)
+HK_ERROR HkRemoveCargo(const wstring &wscCharname, uint iID, int iCount)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -333,7 +333,7 @@ HK_ERROR HkRemoveCargo(wstring wscCharname, uint iID, int iCount)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCargo(wstring wscCharname, uint iGoodID, int iCount, bool bMission)
+HK_ERROR HkAddCargo(const wstring &wscCharname, uint iGoodID, int iCount, bool bMission)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -435,7 +435,7 @@ HK_ERROR HkAddCargo(wstring wscCharname, uint iGoodID, int iCount, bool bMission
 	return HKE_OK;
 }
 
-HK_ERROR HkAddCargo(wstring wscCharname, wstring wscGood, int iCount, bool bMission)
+HK_ERROR HkAddCargo(const wstring &wscCharname, const wstring &wscGood, int iCount, bool bMission)
 {
 	uint iGoodID = ToInt(wscGood.c_str());
 	if(!iGoodID)
@@ -448,7 +448,7 @@ HK_ERROR HkAddCargo(wstring wscCharname, wstring wscGood, int iCount, bool bMiss
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRename(wstring wscCharname, wstring wscNewCharname, bool bOnlyDelete)
+HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, bool bOnlyDelete)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -604,7 +604,7 @@ HK_ERROR HkRename(wstring wscCharname, wstring wscNewCharname, bool bOnlyDelete)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkMsgAndKick(uint iClientID, wstring wscReason, uint iIntervall)
+HK_ERROR HkMsgAndKick(uint iClientID, const wstring &wscReason, uint iIntervall)
 {
 	if(!ClientInfo[iClientID].tmKickTime)
 	{
@@ -618,7 +618,7 @@ HK_ERROR HkMsgAndKick(uint iClientID, wstring wscReason, uint iIntervall)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkKill(wstring wscCharname)
+HK_ERROR HkKill(const wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -637,7 +637,7 @@ HK_ERROR HkKill(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetReservedSlot(wstring wscCharname, bool &bResult)
+HK_ERROR HkGetReservedSlot(const wstring &wscCharname, bool &bResult)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -660,7 +660,7 @@ HK_ERROR HkGetReservedSlot(wstring wscCharname, bool &bResult)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetReservedSlot(wstring wscCharname, bool bReservedSlot)
+HK_ERROR HkSetReservedSlot(const wstring &wscCharname, bool bReservedSlot)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -920,7 +920,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResetRep(wstring wscCharname)
+HK_ERROR HkResetRep(const wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -960,7 +960,7 @@ HK_ERROR HkResetRep(wstring wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetRep(wstring wscCharname, wstring wscRepGroup, float fValue)
+HK_ERROR HkSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	// check if logged in
@@ -980,7 +980,7 @@ HK_ERROR HkSetRep(wstring wscCharname, wstring wscRepGroup, float fValue)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetRep(wstring wscCharname, wstring wscRepGroup, float &fValue) 
+HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float &fValue) 
 { 
    HK_GET_CLIENTID(iClientID, wscCharname); 
    if(iClientID == -1) 
@@ -999,7 +999,7 @@ HK_ERROR HkGetRep(wstring wscCharname, wstring wscRepGroup, float &fValue)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetGroupMembers(wstring wscCharname, list<GROUP_MEMBER> &lstMembers)
+HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers)
 {
 	lstMembers.clear();
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -1027,7 +1027,7 @@ HK_ERROR HkGetGroupMembers(wstring wscCharname, list<GROUP_MEMBER> &lstMembers)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkReadCharFile(wstring wscCharname, list<wstring> &lstOutput)
+HK_ERROR HkReadCharFile(const wstring &wscCharname, list<wstring> &lstOutput)
 {
 	lstOutput.clear();
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -1079,7 +1079,7 @@ HK_ERROR HkReadCharFile(wstring wscCharname, list<wstring> &lstOutput)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkWriteCharFile(wstring wscCharname, wstring wscData)
+HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 

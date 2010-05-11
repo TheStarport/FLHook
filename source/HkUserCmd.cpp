@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef void (*_UserCmdProc)(uint, wstring);
+typedef void (*_UserCmdProc)(uint, const wstring &);
 
 struct USERCMD
 {
@@ -30,7 +30,7 @@ void PrintUserCmdText(uint iClientID, wstring wscText, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsg(uint iClientID, wstring wscParam)
+void UserCmd_SetDieMsg(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdSetDieMsg)
 	{
@@ -72,7 +72,7 @@ void UserCmd_SetDieMsg(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsgSize(uint iClientID, wstring wscParam)
+void UserCmd_SetDieMsgSize(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdSetDieMsgSize)
 	{
@@ -125,7 +125,7 @@ void UserCmd_SetDieMsgSize(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetChatFont(uint iClientID, wstring wscParam)
+void UserCmd_SetChatFont(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdSetChatFont)
 	{
@@ -181,7 +181,7 @@ void UserCmd_SetChatFont(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ignore(uint iClientID, wstring wscParam)
+void UserCmd_Ignore(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdIgnore)
 	{
@@ -241,7 +241,7 @@ void UserCmd_Ignore(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreID(uint iClientID, wstring wscParam)
+void UserCmd_IgnoreID(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdIgnore)
 	{
@@ -297,7 +297,7 @@ void UserCmd_IgnoreID(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(uint iClientID, wstring wscParam)
+void UserCmd_IgnoreList(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdIgnore)
 	{
@@ -319,7 +319,7 @@ void UserCmd_IgnoreList(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_DelIgnore(uint iClientID, wstring wscParam)
+void UserCmd_DelIgnore(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdIgnore)
 	{
@@ -394,7 +394,7 @@ void UserCmd_DelIgnore(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(uint iClientID, wstring wscParam)
+void UserCmd_AutoBuy(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bAutoBuy)
 	{
@@ -484,7 +484,7 @@ void UserCmd_AutoBuy(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IDs(uint iClientID, wstring wscParam)
+void UserCmd_IDs(uint iClientID, const wstring &wscParam)
 {
 	wchar_t wszLine[128] = L"";
 	list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
@@ -506,14 +506,14 @@ void UserCmd_IDs(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ID(uint iClientID, wstring wscParam)
+void UserCmd_ID(uint iClientID, const wstring &wscParam)
 {
 	PrintUserCmdText(iClientID, L"Your client-id: %u", iClientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_InviteID(uint iClientID, wstring wscParam)
+void UserCmd_InviteID(uint iClientID, const wstring &wscParam)
 {
 	wstring wscError[] = 
 	{
@@ -553,9 +553,9 @@ void UserCmd_InviteID(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(uint iClientID, wstring wscParam)
+void UserCmd_Credits(uint iClientID, const wstring &wscParam)
 {
-	PrintUserCmdText(iClientID, L"This server is running FLHook (v" VERSION);
+	PrintUserCmdText(iClientID, L"This server is running FLHook v" VERSION);
 	PrintUserCmdText(iClientID, L"Running plugins:");
 
 	bool bRunning = false;
@@ -572,7 +572,7 @@ void UserCmd_Credits(uint iClientID, wstring wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(uint iClientID, wstring wscParam)
+void UserCmd_Help(uint iClientID, const wstring &wscParam)
 {
 	if(!set_bUserCmdHelp)
 	{
@@ -628,7 +628,7 @@ USERCMD UserCmds[] =
 	{ L"/help",					UserCmd_Help},
 };
 
-bool UserCmd_Process(uint iClientID, wstring wscCmd)
+bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 {
 
 	CALL_PLUGINS(PLUGIN_UserCmd_Process,(iClientID,wscCmd));
@@ -640,7 +640,7 @@ bool UserCmd_Process(uint iClientID, wstring wscCmd)
 
 	for(uint i = 0; (i < sizeof(UserCmds)/sizeof(USERCMD)); i++)
 	{
-		if(wscCmdLower.find(ToLower(UserCmds[i].wszCmd)) == 0)
+		if(wscCmdLower.find(UserCmds[i].wszCmd) == 0)
 		{
 			wstring wscParam = L"";
 			if(wscCmd.length() > wcslen(UserCmds[i].wszCmd))
