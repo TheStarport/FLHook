@@ -158,7 +158,9 @@ public:
 	 void InitFromFolder(char const *);
 
 public:
-	uint iDunno[10];
+	uint iDunno1;
+	wchar_t *wszAccID;
+	uint iDunno2[8];
 	uint iNumberOfCharacters;
 	unsigned char data[OBJECT_DATA_SIZE];
 };
