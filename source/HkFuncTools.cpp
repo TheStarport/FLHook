@@ -69,10 +69,9 @@ uint HkGetClientIdFromCharname(const wstring &wscCharname)
 
 wstring HkGetAccountID(CAccount *acc)
 {
-	wchar_t *wszID;
-	memcpy(&wszID, (char*)acc+8, sizeof(wszID));
-
-	return wszID;
+	if (acc->wszAccID)
+		return acc->wszAccID;
+	return L"";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,10 +220,8 @@ HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir)
 {
 	_GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 
-	wstring wscID = HkGetAccountID(acc);
 	char szDir[1024] = "";
-	GetFLName(szDir, wscID.c_str());
-
+	GetFLName(szDir, acc->wszAccID);
 	wscDir = stows(szDir);
 	return HKE_OK;
 }
