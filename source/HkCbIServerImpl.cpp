@@ -1020,6 +1020,15 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 		if(!HkIsValidClientID(iClientID))
 			return; // player was kicked
 
+		// Kick the player if the account ID doesn't exist. This is caused
+		// by a duplicate log on.
+		CAccount *acc = Players.FindAccountFromClientID(iClientID);
+		if (acc && !acc->wszAccID)
+		{
+			acc->ForceLogout();
+			return;
+		}
+
 		CALL_PLUGINS(PLUGIN_HkIServerImpl_Login,(li,iClientID));
 		if(bPluginReturn)
 			return;	
@@ -1077,7 +1086,16 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 		if(set_bLogConnects)
 			HkAddConnectLog(iClientID, wscIP);
 
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	}
+	catch(...)
+	{
+		AddLog("Exception in %s", __FUNCTION__);
+		CAccount *acc = Players.FindAccountFromClientID(iClientID);
+		if (acc)
+		{
+			acc->ForceLogout();
+		}
+	}
 
 	Login_AFTER(li, iClientID);
 }
