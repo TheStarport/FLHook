@@ -98,6 +98,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy dll to Freelancer"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib ..\sdk\libs\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration

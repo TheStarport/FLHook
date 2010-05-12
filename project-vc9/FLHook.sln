@@ -3,8 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLHook", "FLHook.vcproj", "{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tempban Plugin", "..\plugins\tempban\Tempban Plugin.vcproj", "{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623} = {FE6EB3C9-DA22-4492-AEC3-068C9553A623}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Condata Plugin", "..\plugins\condata\FLHook Example Plugin.vcproj", "{2CA8178B-9C91-4478-A955-21ABEC99E453}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE6EB3C9-DA22-4492-AEC3-068C9553A623} = {FE6EB3C9-DA22-4492-AEC3-068C9553A623}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

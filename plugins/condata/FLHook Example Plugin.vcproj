@@ -96,6 +96,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy condata dll to freelancer"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\dlls\condata.dll&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
