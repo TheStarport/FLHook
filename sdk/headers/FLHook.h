@@ -195,7 +195,7 @@ struct MONEY_FIX
 // ignore
 struct IGNORE_INFO
 {
-	const wstring &wscCharname;
+	wstring wscCharname;
 	wstring wscFlags;
 };
 
