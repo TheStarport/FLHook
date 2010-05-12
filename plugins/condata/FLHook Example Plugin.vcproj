@@ -114,6 +114,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\dlls\"
+				Outputs="Copy to bin"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
