@@ -60,8 +60,8 @@ typedef void (*_FreeString)(flstrs *scStr);
 typedef char* (*_GetCString)(flstrs *scStr);
 typedef wchar_t* (*_GetWCString)(flstr *wscStr);
 
-#include "FLCoreServer.h"
 #include "FLCoreCommon.h"
+#include "FLCoreServer.h"
 #include "FLCoreRemoteClient.h"
 #include "FLCoreDALib.h"
 
