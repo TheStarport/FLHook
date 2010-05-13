@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\dlls\"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\dlls\&#x0D;&#x0A;"
 				Outputs="Copy to bin"
 			/>
 			<Tool
@@ -198,6 +198,12 @@
 				RelativePath=".\Main.cpp"
 				>
 			</File>
+			<Filter
+				Name="Resource Files"
+				Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
+				UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -216,12 +222,6 @@
 				RelativePath=".\headers\plugin.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>

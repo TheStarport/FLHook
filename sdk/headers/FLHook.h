@@ -271,11 +271,7 @@ struct CLIENT_INFO
 
 // other
 	wstring		wscHostname;
-};
 
-// extended client info
-struct CLIENT_INFO_EXT01
-{
 	bool		bSpawnProtected;
 	byte		unused_data[128];
 };
