@@ -478,11 +478,7 @@ struct CLIENT_INFO
 
 // other
 	wstring		wscHostname;
-};
 
-// extended client info
-struct CLIENT_INFO_EXT01
-{
 	bool		bSpawnProtected;
 	byte		unused_data[128];
 };
@@ -800,7 +796,6 @@ extern EXPORT _CreateChar CreateChar;
 extern EXPORT string scAcctPath;
 
 extern EXPORT CLIENT_INFO ClientInfo[201];
-extern EXPORT CLIENT_INFO_EXT01 ClientInfoExt01[201];
 extern EXPORT CDPServer *cdpSrv;
 extern EXPORT uint g_iServerLoad;
 extern EXPORT bool g_bNPCDisabled;

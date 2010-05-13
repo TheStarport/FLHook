@@ -286,7 +286,13 @@ void TimerUpdateLossData()
          //Fill new ClientInfo-variables with current values 
          ConData[iClientID].iLastPacketsSent = ci.dwPacketsSentGuaranteed + ci.dwPacketsSentNonGuaranteed; 
          ConData[iClientID].iLastPacketsDropped = ci.dwPacketsRetried + ci.dwPacketsDropped; 
-          
+        
+		 CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
+		 if (!cdpClient)
+			continue;
+			
+		 int saturation = (int)(cdpClient->GetLinkSaturation() * 100);
+		 int txqueue = cdpClient->GetSendQSize();
       } 
 }
 
@@ -656,12 +662,6 @@ EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd
 			if (HkIsInCharSelectMenu(iClientID))
 				continue;
 
-			CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
-			if (!cdpClient)
-				continue;
-			
-			int saturation = (int)(cdpClient->GetLinkSaturation() * 100);
-			int txqueue = cdpClient->GetSendQSize();
 			classptr->Print(L"charname=%s clientid=%u loss=%u lag=%u pingfluct=%u saturation=%u txqueue=%u\n",
 				Players.GetActiveCharacterName(iClientID), iClientID,
 				ConData[iClientID].iAverageLoss, ConData[iClientID].iLags, ConData[iClientID].iPingFluctuation,

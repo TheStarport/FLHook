@@ -129,9 +129,6 @@ bool RestorePatch(PATCH_INFO &pi)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FARPROC fpOldDmgList;
-FARPROC fpOldWSASendTo;
-char *szRCSendChatHook;
 CDPClientProxy **g_cClientProxyArray;
 
 CDPServer *cdpSrv;
@@ -146,7 +143,6 @@ _CreateChar CreateChar;
 string scAcctPath;
 
 CLIENT_INFO ClientInfo[201];
-CLIENT_INFO_EXT01 ClientInfoExt01[201];
 
 uint g_iServerLoad = 0;
 
@@ -201,8 +197,7 @@ void ClearClientInfo(uint iClientID)
 	ClientInfo[iClientID].bThrusterActivated = false;
 	ClientInfo[iClientID].bTradelane = false;
 
-	// also clear extended clientinfo
-	ClientInfoExt01[iClientID].bSpawnProtected = false;
+	ClientInfo[iClientID].bSpawnProtected = false;
 
 	CALL_PLUGINS(PLUGIN_ClearClientInfo,(iClientID));
 }

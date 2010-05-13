@@ -400,9 +400,9 @@ void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 			ClientInfo[iClientID].tmSpawnTime = timeInMS(); // save for anti-dockkill
 			// is there spawnprotection?
 			if(set_iAntiDockKill > 0)
-				ClientInfoExt01[iClientID].bSpawnProtected = true; 
+				ClientInfo[iClientID].bSpawnProtected = true; 
 			else
-				ClientInfoExt01[iClientID].bSpawnProtected = false; 
+				ClientInfo[iClientID].bSpawnProtected = false; 
 		}
 
 		// event
