@@ -516,8 +516,9 @@ void ConPrint(wstring wscText, ...)
 
 	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
+	DWORD iCharsWritten;
 	string scText = wstos(wszBuf);
-	WriteConsole(hConsoleOut, scText.c_str(), (DWORD)scText.length(), 0, 0);
+	WriteConsole(hConsoleOut, scText.c_str(), (DWORD)scText.length(), &iCharsWritten, 0);
 }
 
 /**************************************************************************************************************
