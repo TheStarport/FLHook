@@ -407,7 +407,7 @@ struct CHARACTER_ID
 	bool is_valid(void)const ;
 
 public:
-	char szCharFilename[14];
+	char szCharFilename[15];
 };
 
 class IMPORT PlayerDB
