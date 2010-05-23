@@ -252,7 +252,7 @@ HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename)
 
 	char szBuf[1024] = "";
 
-	uint iClientID = HkGetClientIdFromCharname(wscCharname);
+	HK_GET_CLIENTID(iClientID, wscCharname);
 	if(iClientID != -1)
 	{
 		GetFLName(szBuf, Players.GetActiveCharacterName(iClientID));
