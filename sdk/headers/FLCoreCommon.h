@@ -3429,7 +3429,6 @@ public:
 	long count; //14h
 	bool temporary; //18h
 	ulong owner; //01Ch
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 class IMPORT EquipDescList
@@ -3453,7 +3452,10 @@ public:
 	struct EquipDesc const * traverse_equipment_type(unsigned int,struct EquipDesc const *)const ;
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	// std::list<EquipDesc> equip; // FIXME: std::list is not compatible with VC9 libs
+	EquipDesc *pIter;
+	EquipDesc *pFirst;
+	UINT iCount;
 };
 
 struct IMPORT EquipDescVector
@@ -4410,7 +4412,7 @@ public:
 
 struct IMPORT IObjInspectImpl
 {
-virtual class Vector const & get_position(void)const ;
+	virtual class Vector const & get_position(void)const ;
 	virtual class Vector  get_velocity(void)const ;
 	virtual class Vector  get_angular_velocity(void)const ;
 	virtual class Matrix const & get_orientation(void)const ;
@@ -4498,6 +4500,11 @@ virtual class Vector const & get_position(void)const ;
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+struct IObjRW // : public IObjInspectImpl
+{
+	IObjInspectImpl *ship;
 };
 
 class IMPORT ImageNode

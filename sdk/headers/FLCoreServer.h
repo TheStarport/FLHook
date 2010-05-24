@@ -19,6 +19,7 @@
 #include <map>
 
 #include "FLCoreDefs.h"
+#include "FLCoreCommon.h"
 
 #pragma comment( lib, "FLCoreServer.lib" )
 
@@ -314,6 +315,22 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
+struct CollisionGroupDescList
+{
+	// std::list<CollisionGroupDesc> data; // FIXME: std::list is not compatible with VC9 libs
+	CollisionGroupDesc *iter;
+	CollisionGroupDesc *first;
+	UINT count;
+};	
+
+struct FLString
+{
+	// std::string
+	UINT iDunno1;
+	char *value;
+	UINT iDunno2[14];
+};
+
 struct PlayerData {
   long x000, x004, x008, x00C, x010, x014, x018, x01C, x020, x024, x028, x02C, x030, x034, x038, x03C;
   long x040, x044, x048, x04C, x050, x054, x058, x05C, x060, x064, x068, x06C, x070, x074, x078, x07C;
@@ -327,12 +344,8 @@ struct PlayerData {
   long x240, x244, x248, x24C, x250, x254, x258, x25C, x260;
   uint iShipArchetype;
   float fRelativeHealth;
-  void* lstCollisionGroupList;
-  void* lstCollisionGroupList2;
-  void* lstCollisionGroupList3;
-  long lEquipmentList;
-  struct EquipDescrListItem* DummyEquipDescrItem;
-  long x280;
+  CollisionGroupDescList collisionGroupDesc;
+  EquipDescList equipDescList;
   int iRank;
   int iMoneyNeededToNextRank;
   long x28C, x290, x294, x298, x29C, x2A0, x2A4, x2A8, x2AC, x2B0, x2B4, x2B8, x2BC;
@@ -347,8 +360,7 @@ struct PlayerData {
   int iInspectCash;
   int iCyclicRedundancyCheck;
   long x324;
-  long lShadowEquipDescList;
-  long x32C, x330;
+  EquipDescList lShadowEquipDescList;
   int iNumKills;
   int iNumMissionSuccesses;
   int iNumMissionFailures;
@@ -357,7 +369,7 @@ struct PlayerData {
   long x34C;
   Vector vPosition;
   Matrix mOrientation;
-  long x380, x384, x388, x38C, x390, x394, x398, x39C, x3A0, x3A4, x3A8, x3AC, x3B0, x3B4, x3B8, x3BC;
+  FLString weaponGroup; // 0x10 bytes
   long x3C0, x3C4;
   ushort LastEquipID;
   ushort x3CA;
