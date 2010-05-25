@@ -121,140 +121,141 @@ void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
 		return;
 
 	try {
-		DamageList dmg;
-		try { dmg = *_dmg; } catch(...) { return; }
-		// get client id
-		char *szP;
-		memcpy(&szP, szECX + 0x10, 4);
-		uint iClientID;
-		memcpy(&iClientID, szP + 0xB4, 4);
+		if(iKill==1)
+		{
+			// get client id
+			char *szP;
+			memcpy(&szP, szECX + 0x10, 4);
+			uint iClientID;
+			memcpy(&iClientID, szP + 0xB4, 4);
 
-		if(iClientID && iKill) { // a player was killed
-			wstring wscEvent;
-			wscEvent.reserve(256);
-			wscEvent = L"kill";
+			if(iClientID) { // a player was killed
+				DamageList dmg;
+				try { dmg = *_dmg; } catch(...) { return; }
 
-			uint iSystemID;
-			pub::Player::GetSystem(iClientID, iSystemID);
-			wchar_t wszSystem[64];
-			swprintf(wszSystem, L"%u", iSystemID);
+				wstring wscEvent;
+				wscEvent.reserve(256);
+				wscEvent = L"kill";
 
-			if(!dmg.get_cause())
-				dmg = ClientInfo[iClientID].dmgLast;
+				uint iSystemID;
+				pub::Player::GetSystem(iClientID, iSystemID);
+				wchar_t wszSystem[64];
+				swprintf(wszSystem, L"%u", iSystemID);
 
-			uint iCause = dmg.get_cause();
-			uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
+				if(!dmg.get_cause())
+					dmg = ClientInfo[iClientID].dmgLast;
 
-			wstring wscVictim = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			wscEvent += L" victim=" + wscVictim;
-			if(iClientIDKiller) {
-				wstring wscType = L"";
-				if(iCause == 0x05)
-					wscType = L"Missile/Torpedo";
-				else if(iCause == 0x07)
-					wscType = L"Mine";
-				else if((iCause == 0x06) || (iCause == 0xC0) || (iCause == 0x15))
-					wscType = L"Wasp/Hornet";
-				else if(iCause == 0x01)
-					wscType = L"Collision";
-				else if(iCause == 0x02)
-					wscType = L"Gun";
-				else {
-					wscType = L"Gun"; //0x02
-//					AddLog("get_cause() returned %X", iCause);
-				}
+				uint iCause = dmg.get_cause();
+				uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
 
-				wstring wscMsg;
-				if(iClientID == iClientIDKiller) {
-					wscEvent += L" type=selfkill";
-					wscMsg = ReplaceStr(set_wscDeathMsgTextSelfKill, L"%victim", wscVictim);
-				} else {
-					wscEvent += L" type=player";
-					wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
-					wscEvent += L" by=" + wscKiller;
+				wstring wscVictim = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+				wscEvent += L" victim=" + wscVictim;
+				if(iClientIDKiller) {
+					wstring wscType = L"";
+					if(iCause == 0x05)
+						wscType = L"Missile/Torpedo";
+					else if(iCause == 0x07)
+						wscType = L"Mine";
+					else if((iCause == 0x06) || (iCause == 0xC0) || (iCause == 0x15))
+						wscType = L"Wasp/Hornet";
+					else if(iCause == 0x01)
+						wscType = L"Collision";
+					else if(iCause == 0x02)
+						wscType = L"Gun";
+					else {
+						wscType = L"Gun"; //0x02
+	//					AddLog("get_cause() returned %X", iCause);
+					}
 
-					wscMsg = ReplaceStr(set_wscDeathMsgTextPlayerKill, L"%victim", wscVictim);
-					wscMsg = ReplaceStr(wscMsg, L"%killer", wscKiller);
-				}
+					wstring wscMsg;
+					if(iClientID == iClientIDKiller) {
+						wscEvent += L" type=selfkill";
+						wscMsg = ReplaceStr(set_wscDeathMsgTextSelfKill, L"%victim", wscVictim);
+					} else {
+						wscEvent += L" type=player";
+						wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
+						wscEvent += L" by=" + wscKiller;
 
-				wscMsg = ReplaceStr(wscMsg, L"%type", wscType);
-				if(set_bDieMsg && wscMsg.length())
-					SendDeathMsg(wscMsg, iSystemID, iClientID, iClientIDKiller);
-				ProcessEvent(L"%s", wscEvent.c_str());
+						wscMsg = ReplaceStr(set_wscDeathMsgTextPlayerKill, L"%victim", wscVictim);
+						wscMsg = ReplaceStr(wscMsg, L"%killer", wscKiller);
+					}
 
-				// MultiKillMessages
-				if((set_MKM_bActivated) && (iClientID != iClientIDKiller))
-				{
-					wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
+					wscMsg = ReplaceStr(wscMsg, L"%type", wscType);
+					if(set_bDieMsg && wscMsg.length())
+						SendDeathMsg(wscMsg, iSystemID, iClientID, iClientIDKiller);
+					ProcessEvent(L"%s", wscEvent.c_str());
 
-					ClientInfo[iClientIDKiller].iKillsInARow++;
-					foreach(set_MKM_lstMessages, MULTIKILLMESSAGE, it)
+					// MultiKillMessages
+					if((set_MKM_bActivated) && (iClientID != iClientIDKiller))
 					{
-						if(it->iKillsInARow == ClientInfo[iClientIDKiller].iKillsInARow)
-						{
-							wstring wscXMLMsg = L"<TRA data=\"" + set_MKM_wscStyle + L"\" mask=\"-1\"/> <TEXT>";
-							wscXMLMsg += XMLText(ReplaceStr(it->wscMessage, L"%player", wscKiller));
-							wscXMLMsg += L"</TEXT>";
-							
-							char szBuf[0xFFFF];
-							uint iRet;
-							if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
-								break;
+						wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
 
-							// for all players in system...
-							struct PlayerData *pPD = 0;
-							while(pPD = Players.traverse_active(pPD))
+						ClientInfo[iClientIDKiller].iKillsInARow++;
+						foreach(set_MKM_lstMessages, MULTIKILLMESSAGE, it)
+						{
+							if(it->iKillsInARow == ClientInfo[iClientIDKiller].iKillsInARow)
 							{
-								uint iClientID = HkGetClientIdFromPD(pPD);
-								uint iClientSystemID = 0;
-								pub::Player::GetSystem(iClientID, iClientSystemID);
-								if((iClientID == iClientIDKiller) || ((iSystemID == iClientSystemID) && (((ClientInfo[iClientID].dieMsg == DIEMSG_ALL) || (ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM)) || !set_bUserCmdSetDieMsg)))
-									HkFMsgSendChat(iClientID, szBuf, iRet);
+								wstring wscXMLMsg = L"<TRA data=\"" + set_MKM_wscStyle + L"\" mask=\"-1\"/> <TEXT>";
+								wscXMLMsg += XMLText(ReplaceStr(it->wscMessage, L"%player", wscKiller));
+								wscXMLMsg += L"</TEXT>";
+								
+								char szBuf[0xFFFF];
+								uint iRet;
+								if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
+									break;
+
+								// for all players in system...
+								struct PlayerData *pPD = 0;
+								while(pPD = Players.traverse_active(pPD))
+								{
+									uint iClientID = HkGetClientIdFromPD(pPD);
+									uint iClientSystemID = 0;
+									pub::Player::GetSystem(iClientID, iClientSystemID);
+									if((iClientID == iClientIDKiller) || ((iSystemID == iClientSystemID) && (((ClientInfo[iClientID].dieMsg == DIEMSG_ALL) || (ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM)) || !set_bUserCmdSetDieMsg)))
+										HkFMsgSendChat(iClientID, szBuf, iRet);
+								}
 							}
 						}
 					}
+				} else if(dmg.get_inflictor_id()) {
+					wstring wscType = L"";
+					if(iCause == 0x05)
+						wscType = L"Missile/Torpedo";
+					else if(iCause == 0x07)
+						wscType = L"Mine";
+					else if((iCause == 0x06) || (iCause == 0xC0) || (iCause == 0x15))
+						wscType = L"Wasp/Hornet";
+					else if(iCause == 0x01)
+						wscType = L"Collision";
+					else
+						wscType = L"Gun"; //0x02
+
+					wscEvent += L" type=npc";
+					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextNPC, L"%victim", wscVictim);
+					wscMsg = ReplaceStr(wscMsg, L"%type", wscType);
+
+					if(set_bDieMsg && wscMsg.length())
+						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
+					ProcessEvent(L"%s", wscEvent.c_str());
+				} else if(iCause == 0x08) {
+					wscEvent += L" type=suicide";
+					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextSuicide, L"%victim", wscVictim);
+
+					if(set_bDieMsg && wscMsg.length())
+						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
+					ProcessEvent(L"%s", wscEvent.c_str());
+				} else if(iCause == 0x18) {
+					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextAdminKill, L"%victim", wscVictim);
+
+					if(set_bDieMsg && wscMsg.length())
+						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
+				} else {
+					wstring wscMsg = L"Death: " + wscVictim + L" has died";
+					if(set_bDieMsg && wscMsg.length())
+						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
 				}
-			} else if(dmg.get_inflictor_id()) {
-				wstring wscType = L"";
-				if(iCause == 0x05)
-					wscType = L"Missile/Torpedo";
-				else if(iCause == 0x07)
-					wscType = L"Mine";
-				else if((iCause == 0x06) || (iCause == 0xC0) || (iCause == 0x15))
-					wscType = L"Wasp/Hornet";
-				else if(iCause == 0x01)
-					wscType = L"Collision";
-				else
-					wscType = L"Gun"; //0x02
+			} 
 
-				wscEvent += L" type=npc";
-				wstring wscMsg = ReplaceStr(set_wscDeathMsgTextNPC, L"%victim", wscVictim);
-				wscMsg = ReplaceStr(wscMsg, L"%type", wscType);
-
-				if(set_bDieMsg && wscMsg.length())
-					SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
-				ProcessEvent(L"%s", wscEvent.c_str());
-			} else if(iCause == 0x08) {
-				wscEvent += L" type=suicide";
-				wstring wscMsg = ReplaceStr(set_wscDeathMsgTextSuicide, L"%victim", wscVictim);
-
-				if(set_bDieMsg && wscMsg.length())
-					SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
-				ProcessEvent(L"%s", wscEvent.c_str());
-			} else if(iCause == 0x18) {
-				wstring wscMsg = ReplaceStr(set_wscDeathMsgTextAdminKill, L"%victim", wscVictim);
-
-				if(set_bDieMsg && wscMsg.length())
-					SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
-			} else {
-				wstring wscMsg = L"Death: " + wscVictim + L" has died";
-				if(set_bDieMsg && wscMsg.length())
-					SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
-			}
-		} 
-
-		if(iClientID)
-		{
 			ClientInfo[iClientID].iShipOld = ClientInfo[iClientID].iShip;
 			ClientInfo[iClientID].iShip = 0;
 		}
