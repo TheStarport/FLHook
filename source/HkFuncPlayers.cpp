@@ -999,14 +999,6 @@ HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct VC6IntVector
-{
-	uint iDunno1;
-	uint *start;
-	uint *end;
-	uint iDunno2;
-};
-
 HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers)
 {
 	lstMembers.clear();
@@ -1016,11 +1008,11 @@ HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMe
 	if(iClientID == -1)
 		return HKE_PLAYER_NOT_LOGGED_IN;
 
-	// hey, at least it works!
-	VC6IntVector vMembers;
+	// hey, at least it works! beware of the VC optimiser.
+	uint* vMembers[100] = { 0 };
 	pub::Player::GetGroupMembers(iClientID, (vector<uint>&)vMembers);
 
-	for(uint *i = vMembers.start ; i != vMembers.end; i++)
+	for(uint *i = vMembers[1] ; i != vMembers[2]; i++)
 	{
 		GROUP_MEMBER gm;
 		gm.iClientID = *i;
