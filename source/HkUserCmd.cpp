@@ -352,7 +352,7 @@ void UserCmd_DelIgnore(uint iClientID, const wstring &wscParam)
 	list<uint> lstDelete;
 	for(uint j = 1; wscID.length(); j++)
 	{
-		uint iID = _wtoi(wscID.c_str());
+		uint iID = ToInt(wscID.c_str());
 		if(!iID || (iID > ClientInfo[iClientID].lstIgnore.size()))
 		{
 			PrintUserCmdText(iClientID, L"Error: Invalid ID");

@@ -37,7 +37,7 @@ bool g_bMsgS = false;
 HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage)
 {
 	uint iSystemID = 0;
-	if(!(iSystemID = _wtoi(wscSystemname.c_str())))
+	if(!(iSystemID = ToInt(wscSystemname.c_str())))
 	{
 		pub::GetSystemID(iSystemID, wstos(wscSystemname).c_str());
 		if(!iSystemID)
@@ -163,7 +163,7 @@ HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 {
 	// get system id
 	uint iSystemID = 0;
-	if(!(iSystemID = _wtoi(wscSystemname.c_str())))
+	if(!(iSystemID = ToInt(wscSystemname.c_str())))
 	{
 		pub::GetSystemID(iSystemID, wstos(wscSystemname).c_str());
 		if(!iSystemID)

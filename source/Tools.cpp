@@ -60,7 +60,7 @@ string ToLower(const string &scStr)
 
 int ToInt(const wstring &wscStr)
 {
-	return _wtoi(wscStr.c_str());
+	return wcstoul(wscStr.c_str(), 0, 10);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
