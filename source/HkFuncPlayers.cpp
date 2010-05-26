@@ -999,6 +999,14 @@ HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct VC6IntVector
+{
+	uint iDunno1;
+	uint *start;
+	uint *end;
+	uint iDunno2;
+};
+
 HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers)
 {
 	lstMembers.clear();
@@ -1009,16 +1017,14 @@ HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMe
 		return HKE_PLAYER_NOT_LOGGED_IN;
 
 	// hey, at least it works!
-	vector<uint> vMembers;
-	char szBuf[1024] = "";
-	pub::Player::GetGroupMembers(iClientID, *((vector<uint>*)szBuf));
-	vMembers = *((vector<uint>*)szBuf);
+	VC6IntVector vMembers;
+	pub::Player::GetGroupMembers(iClientID, (vector<uint>&)vMembers);
 
-	for(uint i = 0 ; (i < vMembers.size()); i++)
+	for(uint *i = vMembers.start ; i != vMembers.end; i++)
 	{
 		GROUP_MEMBER gm;
-		gm.iClientID = vMembers[i];
-		gm.wscCharname = (wchar_t*)Players.GetActiveCharacterName(vMembers[i]);
+		gm.iClientID = *i;
+		gm.wscCharname = (wchar_t*)Players.GetActiveCharacterName(*i);
 		lstMembers.push_back(gm);
 	}
 
