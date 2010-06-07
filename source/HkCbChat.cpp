@@ -14,7 +14,7 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 		return;
 
 	try {
-		if(HkIServerImpl::g_bInSubmitChat && (iTo != 0x10004) && set_bUserCmdSetChatFont) {
+		if(HkIServerImpl::g_bInSubmitChat && (iTo != 0x10004)) {
 			wchar_t wszBuf[1024] = L"";
 			// extract text from rdlReader
 			BinaryRDLReader rdl;
@@ -38,41 +38,43 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 				}
 			}
 
-			uchar cFormat;
-			// adjust chatsize
-			switch(ClientInfo[iClientID].chatSize)
-			{
-			case CS_SMALL:
-				cFormat = 0x90;
-				break;
+			uchar cFormat = 0x00;
+			if(set_bUserCmdSetChatFont) {
+				// adjust chatsize
+				switch(ClientInfo[iClientID].chatSize)
+				{
+				case CS_SMALL:
+					cFormat = 0x90;
+					break;
 
-			case CS_BIG:
-				cFormat = 0x10;
-				break;
+				case CS_BIG:
+					cFormat = 0x10;
+					break;
 
-			default:
-				cFormat = 0x00;
-				break;
-			}
+				default:
+					cFormat = 0x00;
+					break;
+				}
 
-			// adjust chatstyle
-			switch(ClientInfo[iClientID].chatStyle)
-			{
-			case CST_BOLD:
-				cFormat += 0x01;
-				break;
+				// adjust chatstyle
+				switch(ClientInfo[iClientID].chatStyle)
+				{
+				case CST_BOLD:
+					cFormat += 0x01;
+					break;
 
-			case CST_ITALIC:
-				cFormat += 0x02;
-				break;
+				case CST_ITALIC:
+					cFormat += 0x02;
+					break;
 
-			case CST_UNDERLINE:
-				cFormat += 0x04;
-				break;
+				case CST_UNDERLINE:
+					cFormat += 0x04;
+					break;
 
-			default:
-				cFormat += 0x00;
-				break;
+				default:
+					cFormat += 0x00;
+					break;
+				}
 			}
 
 			wchar_t wszFormatBuf[8];
