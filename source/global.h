@@ -79,6 +79,7 @@ EXPORT wstring XMLText(const wstring &wscText);
 EXPORT wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos);
 EXPORT wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith);
 EXPORT void IniDelSection(const string &scFile, const string &scApp);
+EXPORT void IniDelete(const string &scFile, const string &scApp, const string &scKey);
 EXPORT void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue);
 EXPORT wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault);
 EXPORT wstring ToMoneyStr(int iCash);

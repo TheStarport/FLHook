@@ -505,6 +505,7 @@ IMPORT wstring XMLText(const wstring &wscText);
 IMPORT wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos);
 IMPORT wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith);
 IMPORT void IniDelSection(const string &scFile, const string &scApp);
+IMPORT void IniDelete(const string &scFile, const string &scApp, const string &scKey);
 IMPORT void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue);
 IMPORT wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault);
 IMPORT wstring ToMoneyStr(int iCash);
