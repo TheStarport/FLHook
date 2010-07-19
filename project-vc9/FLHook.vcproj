@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\source\HkHelp.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\source\HkInit.cpp"
 				>
 			</File>

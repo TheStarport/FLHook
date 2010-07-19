@@ -505,7 +505,6 @@ IMPORT wstring XMLText(const wstring &wscText);
 IMPORT wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos);
 IMPORT wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith);
 IMPORT void IniDelSection(const string &scFile, const string &scApp);
-IMPORT void IniDelete(const string &scFile, const string &scApp, const string &scKey);
 IMPORT void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue);
 IMPORT wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault);
 IMPORT wstring ToMoneyStr(int iCash);
@@ -768,5 +767,12 @@ extern IMPORT CDPServer *cdpSrv;
 extern IMPORT uint g_iServerLoad;
 extern IMPORT bool g_bNPCDisabled;
 extern IMPORT char *g_FLServerDataPtr;
+
+// help
+
+typedef bool (*_HelpEntryDisplayed)(uint);
+extern IMPORT void HkAddHelpEntry(const wstring &c, const wstring &t, const wstring &shelp, const wstring &lhelp, _HelpEntryDisplayed check);
+extern IMPORT void HkRemoveHelpEntry(const wstring &c, const wstring &t);
+extern IMPORT bool get_bTrue(uint iClientID);
 
 #endif

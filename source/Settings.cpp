@@ -80,6 +80,14 @@ list<MULTIKILLMESSAGE> set_MKM_lstMessages;
 bool			set_bBanAccountOnMatch;
 list<wstring>	set_lstBans;
 
+// help
+
+bool get_bUserCmdSetDieMsg(uint iClientID) { return set_bUserCmdSetDieMsg; }
+bool get_bUserCmdSetDieMsgSize(uint iClientID) { return set_bUserCmdSetDieMsgSize; }
+bool get_bUserCmdSetChatFont(uint iClientID) { return set_bUserCmdSetChatFont; }
+bool get_bUserCmdIgnore(uint iClientID) { return set_bUserCmdIgnore; }
+bool get_bAutoBuy(uint iClientID) { return set_bAutoBuy; }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void LoadSettings()
@@ -213,5 +221,21 @@ void LoadSettings()
 			set_lstBans.push_back(stows(itisv->scKey));
 	}
 
+// help
+	HkAddHelpEntry( L"/set diemsg", L"<visibility>", L"Sets your death message's visibility. Options: all, system, self, none.", L"", get_bUserCmdSetDieMsg );
+	HkAddHelpEntry( L"/set diemsgsize", L"<size>", L"Sets your death message's text size. Options: small, default.", L"", get_bUserCmdSetDieMsgSize );
+	HkAddHelpEntry( L"/set chatfont", L"<size> <style>", L"Sets your chat messages' font. Options are small, default or big for <size> and default, bold, italic or underline for <style>.", L"", get_bUserCmdSetChatFont );
+	HkAddHelpEntry( L"/ignore", L"<charname> [<flags>]", L"Ignores all messages from the given character.", L"The possible flags are:\n p - only affect private chat\n i - <charname> may match partially\nExamples:\n\"/ignore SomeDude\" ignores all chatmessages from SomeDude\n\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX\n\"/ignore idiot i\" ignores all chatmessages from players whose charname contain \"idiot\" (e.g. \"[XYZ]IDIOT\", \"MrIdiot\", etc)\n\"/ignore Fool pi\" ignores all private-chatmessages from players whose charname contain \"fool\"", get_bUserCmdIgnore );
+	HkAddHelpEntry( L"/ignoreid", L"<client-id> [<flags>]", L"Ignores all messages from the character with the associated client ID (see /id). Use the p flag to only affect private chat.", L"", get_bUserCmdIgnore );
+	HkAddHelpEntry( L"/ignorelist", L"", L"Displays all currently ignored characters.", L"", get_bUserCmdIgnore );
+	HkAddHelpEntry( L"/delignore", L"<id> [<id2> <id3> ...]", L"Removes the characters with the associated ignore ID (see /ignorelist) from the ignore list. * deletes all.", L"", get_bUserCmdIgnore );
+	HkAddHelpEntry( L"/autobuy", L"<param> [<on/off>]", L"Auomatically buys the given elements upon docking. See detailed help for more information.", L"<param> can take one of the following values:\tinfo - display current autobuy-settings\n\tmissiles - enable/disable autobuy for missiles\n\ttorps - enable/disable autobuy for torpedos\n\tmines - enable/disable autobuy for mines\n\tcd - enable/disable autobuy for cruise disruptors\n\tcm - enable/disable autobuy for countermeasures\n\treload - enable/disable autobuy for nanobots/shield batteries\n\tall - enable/disable autobuy for all of the above\nExamples:\n\"/autobuy missiles on\" enable autobuy for missiles\n\"/autobuy all off\" completely disable autobuy\n\"/autobuy info\" show autobuy info", get_bAutoBuy );
+	HkAddHelpEntry( L"/ids", L"", L"Lists all characters with their respective client IDs.", L"", get_bTrue );
+	HkAddHelpEntry( L"/id", L"", L"Gives your own client ID.", L"", get_bTrue );
+	HkAddHelpEntry( L"/i$", L"<client-id>", L"Invites the given client ID.", L"", get_bTrue );
+	HkAddHelpEntry( L"/invite$", L"<client-id>", L"Invites the given client ID.", L"", get_bTrue );
+	HkAddHelpEntry( L"/credits", L"", L"Displays FLHook's credits.", L"", get_bTrue );
+	HkAddHelpEntry( L"/help", L"[<command>]", L"Displays the help screen. Giving a <command> gives detailed info for that command.", L"", get_bTrue );
+	
 	CALL_PLUGINS(PLUGIN_LoadSettings,());
 }

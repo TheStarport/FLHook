@@ -527,6 +527,15 @@ namespace Controller
 	struct TimerExpired;
 }
 
+template <class T> class IMPORT OwnerList
+{
+public:
+	OwnerList<T>();
+	~OwnerList<T>();
+	class OwnerList<T> & operator=(class OwnerList<T> const &);
+	void free();
+};
+
 namespace pub
 {
 	struct CargoEnumerator;
@@ -770,55 +779,46 @@ namespace pub
 
 	namespace SpaceObj
 	{
-		struct ShipInfo
+		struct IMPORT CargoDesc;
+		
+		struct IMPORT ShipInfo
 		{
 			uint iFlag; // 4
-			uint iSystem; //u System
-			uint iShipArchetype; //u ship f.e. "Titan"
-			Vector vPos; //u position
-			Vector vUnknown4; //u all 0
-			Vector vUnknown7; //u all 0
-			// struct start?!
-			uint iUnknown10; //u identical for formation followers?!
-			uint iUnknown11; // identical for formation followers?! / 0
-			float fLookDirection; // identical for formation followers?!
-			uint iUnknown13; // 0
-			float fUnknown14; // 1.0
-			uint iUnknown15; // unknown id, or float pos // 0
-			uint iUnknown16; // pos?
-			uint iUnknown17; // unknown id, or float pos // 0
-			uint iUnknown18; // pos?
-			uint iUnknown19; //u 0
-			uint iLoadout; //u fc_c_co_elite2_loadout01
-			uint iUnknown20; //u 063A0880 mem address? to eq?!
-			uint iUnknown21; // 0
-			uint iUnknown22; // 0
-			uint iUnknown23; // 0
-			uint iUnknown24; // 0
-
-			// struct start
-			uint iLook1; //u li_newscaster_head_gen_hat
-			uint iLook2; //u pl_female1_journeyman_body
-			uint iUnknown25; //u 0
-			uint iUnknown26; //u 0
-			uint iComm; // comm_br_darcy_female
-			uint iUnknown27; // unknown id
-			uint iUnknown28; // unknown id
-			uint iFlag2; // 4
-			uint iUnknown29; // 00860000
-			uint iUnknown30; // 1/00000018
-			uint iUnknown31; // 00860000/00000010
-			uint iUnknown32; // 00860000/008601B8
-			uint iUnknown33; //u 1
-			// struct end
-
-			uint iPilotInfo; //u 2/3/4/F
-			uint iPilotVoice; //u pilot_f_leg_f01a
-			uint iUnknown35; //u 0
-			uint iUnknown36; //u -1
-			uint iUnknown37; //u 0
-			uint iUnknown38; // 0
-			uint iLevel; //u 
+			uint iSystem;
+			uint iShipArchetype;
+			Vector vPos;
+			Vector vUnk1; // all 0
+			Vector vUnk2; // all 0
+			Matrix mOrientation;
+			uint iUnk1; // 0
+			uint iLoadout;
+			OwnerList<pub::SpaceObj::CargoDesc>* cargoDesc;
+			
+			uint unk1; // 0
+			uint unk2; // 0
+			float fUnk1;
+			uint unk3; // 0
+			uint iLook1;
+			uint iLook2;
+			uint unk4; // 0
+			uint unk5; // 0
+			uint iComm;
+			float fUnk2;
+			float fUnk3;
+			float fUnk4;
+			float fUnk5;
+			float fUnk6;
+			float fUnk7;
+			float fUnk8;
+			uint iUnk2;
+			
+			uint iRep; // increases for each NPC spawned, starts at 0 or 1
+			uint iPilotVoice;
+			uint unk6; // 0
+			int iHealth; // -1 = max health
+			uint unk7; // 0
+			uint unk8; // 0
+			uint iLevel;
 		};
 
 		struct TerminalInfo {

@@ -270,7 +270,6 @@ typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_init)(CShip* ship);
 typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_destroy)(CShip* ship);
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedefs
 typedef void (__stdcall *_RCSendChatMsg)(uint iId, uint iTo, uint iSize, void *pRDL);
@@ -802,5 +801,21 @@ extern EXPORT bool g_bNPCDisabled;
 extern EXPORT char *g_FLServerDataPtr;
 
 extern EXPORT bool g_bPlugin_nofunctioncall;
+
+// help
+
+typedef bool (*_HelpEntryDisplayed)(uint);
+struct stHelpEntry {
+	wstring wszCommand;
+	wstring wszArguments;
+	wstring wszShortHelp;
+	wstring wszLongHelp;
+	_HelpEntryDisplayed fnIsDisplayed;
+};
+
+extern list<stHelpEntry> lstHelpEntries;
+extern EXPORT bool get_bTrue(uint iClientID);
+extern EXPORT void HkAddHelpEntry(const wstring &wscCommand, const wstring &wscArguments, const wstring & wscShortHelp, const wstring &wscLongHelp, _HelpEntryDisplayed fnIsDisplayed);
+extern EXPORT void HkRemoveHelpEntry(const wstring &wscCommand, const wstring &wscArguments);
 
 #endif

@@ -391,6 +391,9 @@ void UnloadHookExports()
 
 	// plugins
 	PluginManager::UnloadPlugins();
+	
+	// help
+	lstHelpEntries.clear();
 }
 
 /**************************************************************************************************************
