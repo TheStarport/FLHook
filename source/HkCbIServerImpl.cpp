@@ -675,7 +675,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 					(wszCharname ? wszCharname : L""), 
 					iClientID);
 		}
-	} catch(...) { AddLog("Exception in %s(a) iClientID=%u p2=%u isValid=%u", __FUNCTION__, iClientID, p2, isValid); }
+	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_DisConnect,(iClientID,p2));
 	if(bPluginReturn)
