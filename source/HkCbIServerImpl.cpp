@@ -868,21 +868,34 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 			if((*it).iArchID == gsi.iArchID)
 			{
 				bLegalSell = true;
-				if(abs(gsi.iCount) > (*it).iCount) {
-					bLegalSell = false;
+				if(abs(gsi.iCount) > it->iCount)
+				{
+					wchar_t wszBuf[1000];
+					
+					const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+					swprintf(wszBuf, L"Sold more good than possible item=%08x count=%u", gsi.iArchID, gsi.iCount);
+					HkAddCheaterLog(wszCharname, wszBuf);
+
+					swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);
+					HkMsgU(wszBuf);
+					HkBan(ARG_CLIENTID(iClientID), true);
+					HkKick(ARG_CLIENTID(iClientID));
+					return;
 				}
 				break;
 			}
 		}
 		if(!bLegalSell)
 		{
+			wchar_t wszBuf[1000];
 			const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			HkAddCheaterLog(wszCharname, L"Sold more good than possible");
+			swprintf(wszBuf, L"Sold good player does not have (buggy test), item=%08x", gsi.iArchID);
+			HkAddCheaterLog(wszCharname, wszBuf);
 
-			wchar_t wszBuf[256];
-			swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);
-			HkMsgU(wszBuf);
-			HkBan(ARG_CLIENTID(iClientID), true);
+			//swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);
+			//HkMsgU(wszBuf);
+			//HkBan(ARG_CLIENTID(iClientID), true);
+			//HkKick(ARG_CLIENTID(iClientID));
 			return;
 		}
 	} catch(...) { AddLog("Exception in %s (iClientID=%u (%x))", __FUNCTION__, iClientID, Players.GetActiveCharacterName(iClientID)); }
