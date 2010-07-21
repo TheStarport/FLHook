@@ -12,7 +12,7 @@
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-CONNECTION_DATA ConData[201];
+CONNECTION_DATA ConData[250];
 bool set_bPingCmd;
 
 

@@ -142,7 +142,7 @@ _CreateChar CreateChar;
 
 string scAcctPath;
 
-CLIENT_INFO ClientInfo[201];
+CLIENT_INFO ClientInfo[250];
 
 uint g_iServerLoad = 0;
 

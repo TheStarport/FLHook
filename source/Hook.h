@@ -794,7 +794,7 @@ extern EXPORT _CreateChar CreateChar;
 
 extern EXPORT string scAcctPath;
 
-extern EXPORT CLIENT_INFO ClientInfo[201];
+extern EXPORT CLIENT_INFO ClientInfo[250];
 extern EXPORT CDPServer *cdpSrv;
 extern EXPORT uint g_iServerLoad;
 extern EXPORT bool g_bNPCDisabled;
