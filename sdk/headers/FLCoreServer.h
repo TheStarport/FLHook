@@ -146,6 +146,15 @@ struct XGoTradelane
 	uint iArchTradelane2;
 };
 
+struct CAccountListNode
+{
+	CAccountListNode *next;
+	CAccountListNode *prev;
+	uint iDunno1;
+	wchar_t *wszCharname;
+	uint iDunno2[32];
+};
+
 class IMPORT CAccount
 {
 public:
@@ -161,9 +170,10 @@ public:
 public:
 	uint iDunno1;
 	wchar_t *wszAccID;
-	uint iDunno2[8];
+	uint iDunno2;
+	CAccountListNode *pFirstListNode;
 	uint iNumberOfCharacters;
-	unsigned char data[OBJECT_DATA_SIZE];
+	uint iDunno3[32];
 };
 
 namespace BaseGroupMessage
@@ -422,6 +432,22 @@ public:
 	char szCharFilename[15];
 };
 
+struct PlayerDBTreeNode
+{
+	PlayerDBTreeNode *pLeft;
+	PlayerDBTreeNode *pParent;
+	PlayerDBTreeNode *pRight;
+	ulong l1;
+	// File name of character
+	char *szFLName;
+	// Length of file name
+	uint iLength;
+	// Always seems to be 0x1F. Possibly max length of szFLName
+	uint iDunno;
+	// Account for this player
+	CAccount *acc;
+};
+
 class IMPORT PlayerDB
 {
 public:
@@ -477,7 +503,11 @@ private:
 	 unsigned int to_index(unsigned int);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	uint iDunno1[13];
+	PlayerDBTreeNode *pFirstNode;
+	PlayerDBTreeNode *pLastNode;
+	uint iDunno2;
+	uint iNumAccounts;
 };
 
 
