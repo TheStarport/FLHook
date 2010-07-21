@@ -110,6 +110,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 	wchar_t wszBuf[1024] = L"";
 
 	try {
+		// Group join/leave commands
 		if(cIdTo.iID == 0x10004)
 		{
 			g_bInSubmitChat = true;
@@ -167,10 +168,13 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		wscEvent.reserve(256);
 		wscEvent = L"chat";
 		wscEvent += L" from=";
+		const wchar_t *wszFrom = Players.GetActiveCharacterName(cId.iID);
 		if(!cId.iID)
 			wscEvent += L"console";
+		else if (!wszFrom)
+			wscEvent += L"unknown";
 		else
-			wscEvent += (wchar_t*)Players.GetActiveCharacterName(cId.iID);
+			wscEvent += wszFrom;
 
 		wscEvent += L" id=";
 		wscEvent += stows(itos(cId.iID));
@@ -184,10 +188,13 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 			wscEvent += L"player";
 			wscEvent += L" to=";
 
+			const wchar_t *wszTo = Players.GetActiveCharacterName(cIdTo.iID);
 			if(!cIdTo.iID)
 				wscEvent += L"console";
+			else if (!wszTo)
+				wscEvent += L"unknown";
 			else
-				wscEvent += (wchar_t*)Players.GetActiveCharacterName(cIdTo.iID);
+				wscEvent += wszTo;
 
 			wscEvent += L" idto=";
 			wscEvent += stows(itos(cIdTo.iID));
@@ -668,7 +675,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 					(wszCharname ? wszCharname : L""), 
 					iClientID);
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { AddLog("Exception in %s(a) iClientID=%u p2=%u isValid=%u", __FUNCTION__, iClientID, p2, isValid); }
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_DisConnect,(iClientID,p2));
 	if(bPluginReturn)
@@ -876,10 +883,9 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 			swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);
 			HkMsgU(wszBuf);
 			HkBan(ARG_CLIENTID(iClientID), true);
-			HkKick(ARG_CLIENTID(iClientID));
 			return;
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { AddLog("Exception in %s (iClientID=%u (%x))", __FUNCTION__, iClientID, Players.GetActiveCharacterName(iClientID)); }
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodSell,(gsi,iClientID));
 	if(bPluginReturn)
@@ -1016,6 +1022,9 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 
 	try {
 		Server.Login(li, iClientID);
+
+		if(iClientID > Players.GetMaxPlayerCount())
+			return; // lalala DisconnectDelay bug
 
 		if(!HkIsValidClientID(iClientID))
 			return; // player was kicked
@@ -1632,20 +1641,20 @@ void __stdcall MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3,
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, p4));
 }
 
-void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
+void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
-	ISERVER_LOGARG_UI(p4);
+	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, p4));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, iClientID));
 	if(bPluginReturn)
 		return;
 
-	EXECUTE_SERVER_CALL(Server.MissionResponse(p1, p2, p3, p4));
-	MissionResponse_AFTER(p1, p2, p3, p4);
+	EXECUTE_SERVER_CALL(Server.MissionResponse(p1, p2, p3, iClientID));
+	MissionResponse_AFTER(p1, p2, p3, iClientID);
 }
 
 /**************************************************************************************************************
@@ -1936,26 +1945,38 @@ void __stdcall RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall RequestCancel_AFTER(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
+void __stdcall RequestCancel_AFTER(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID)
 {
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(p1, p2, p3, p4, p5));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(iType, iShip, p3, p4, iClientID));
 }
 
-void __stdcall RequestCancel(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
+// Cancel a ship maneuver (goto, dock, formation).
+// p1 = iType? ==0 if docking, ==1 if formation
+void __stdcall RequestCancel(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_I(p1);
-	ISERVER_LOGARG_UI(p2);
+	ISERVER_LOGARG_I(iType);
+	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(p3);
 	ISERVER_LOGARG_UI(p4);
-	ISERVER_LOGARG_UI(p5);
+	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(p1, p2, p3, p4, p5));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(iType, iShip, p3, p4, iClientID));
 	if(bPluginReturn)
 		return;
 
-	EXECUTE_SERVER_CALL(Server.RequestCancel(p1, p2, p3, p4, p5));
-	RequestCancel_AFTER(p1, p2, p3, p4, p5);
+	try
+	{
+		Server.RequestCancel(iType, iShip, p3, p4, iClientID);
+	}
+	catch(...)
+	{
+		AddLog("Exception in %s(a) iType=%u iShip=%u p3=%u p4=%u iClientID=%u",
+			__FUNCTION__, iType, iShip, p3, p4, iClientID);
+	}
+
+	//EXECUTE_SERVER_CALL(Server.RequestCancel(iType, iShip, p3, p4, p5iClientID);
+	RequestCancel_AFTER(iType, iShip, p3, p4, iClientID);
 }
 
 /**************************************************************************************************************
@@ -1987,22 +2008,29 @@ void __stdcall RequestEvent_AFTER(int p1, unsigned int p2, unsigned int p3, unsi
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestEvent,(p1, p2, p3, p4, p5, p6));
 }
 
-void __stdcall RequestEvent(int p1, unsigned int p2, unsigned int p3, unsigned int p4, unsigned long p5, unsigned int p6)
+/// Called upon flight maneuver (goto, dock, formation).
+/// p1 = iType? ==0 if docking, ==1 if formation
+/// p2 = iShip of person docking
+/// p3 = iShip of dock/formation target
+/// p4 seems to be 0 all the time
+/// p5 seems to be 0 all the time
+/// p6 = iClientID
+void __stdcall RequestEvent(int iType, unsigned int iShip, unsigned int iShipTarget, unsigned int p4, unsigned long p5, unsigned int iClientID)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_I(p1);
-	ISERVER_LOGARG_UI(p2);
-	ISERVER_LOGARG_UI(p3);
+	ISERVER_LOGARG_I(iType);
+	ISERVER_LOGARG_UI(iShip);
+	ISERVER_LOGARG_UI(iShipTarget);
 	ISERVER_LOGARG_UI(p4);
 	ISERVER_LOGARG_UI(p5);
-	ISERVER_LOGARG_UI(p6);
+	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestEvent,(p1, p2, p3, p4, p5, p6));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestEvent,(iType, iShip, iShipTarget, p4, p5, iClientID));
 	if(bPluginReturn)
 		return;
 
-	EXECUTE_SERVER_CALL(Server.RequestEvent(p1, p2, p3, p4, p5, p6));
-	RequestEvent_AFTER(p1, p2, p3, p4, p5, p6);
+	EXECUTE_SERVER_CALL(Server.RequestEvent(iType, iShip, iShipTarget, p4, p5, iClientID));
+	RequestEvent_AFTER(iType, iShip, iShipTarget, p4, p5, iClientID);
 }
 
 /**************************************************************************************************************
@@ -2112,25 +2140,26 @@ void __stdcall SPBadLandsObjCollision(struct SSPBadLandsObjCollisionInfo const &
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall SPRequestInvincibility_AFTER(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
+void __stdcall SPRequestInvincibility_AFTER(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
 {
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(p1, p2, p3, p4));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(iShip, p2, p3, iClientID));
 }
 
-void __stdcall SPRequestInvincibility(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
+/// Called when ship starts jump gate/hole acceleration but before system switch out.
+void __stdcall SPRequestInvincibility(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_UI(p1);
+	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
-	ISERVER_LOGARG_UI(p4);
+	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(p1, p2, p3, p4));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(iShip, p2, p3, iClientID));
 	if(bPluginReturn)
 		return;
 
-	EXECUTE_SERVER_CALL(Server.SPRequestInvincibility(p1, p2, p3, p4));
-	SPRequestInvincibility_AFTER(p1, p2, p3, p4);
+	EXECUTE_SERVER_CALL(Server.SPRequestInvincibility(iShip, p2, p3, iClientID));
+	SPRequestInvincibility_AFTER(iShip, p2, p3, iClientID);
 }
 
 /**************************************************************************************************************
