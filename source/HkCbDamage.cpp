@@ -94,6 +94,19 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 	if(bPluginReturn)
 		return;
 
+	//check if we've got dmged by a cd with changed behaviour
+	if (dmgList->get_cause() == 0xC0)
+	{
+		//check if player should be protected (f.e. in a docking cut scene)
+		bool bUnk1 = false;
+		bool bUnk2 = false;
+		float fUnk;
+		pub::SpaceObj::GetInvincible(ClientInfo[iDmgTo].iShip,bUnk1,bUnk2,fUnk);
+		//if so, suspress the dmg
+		if(bUnk1 && bUnk2)
+			return;
+	}
+
 	if(g_gNonGunHitsBase && (dmgList->get_cause() == 5))
 	{
 		float fDamage = g_LastHitPts - p2;
