@@ -100,6 +100,7 @@ public:
 	void CmdUnload(const wstring &wscParam);
 
 	void CmdLoadPlugins();
+	void CmdLoadPlugin(const wstring &wscPlugin);
 	void CmdListPlugins();
 	void CmdUnloadPlugin(const wstring &wscPlugin);
 	void CmdPausePlugin(const wstring &wscPlugin);

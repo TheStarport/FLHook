@@ -704,6 +704,16 @@ void CCmds::CmdLoadPlugins()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void CCmds::CmdLoadPlugin(const wstring &wscPlugin)
+{
+	RIGHT_CHECK(RIGHT_PLUGINS);
+
+	PluginManager::LoadPlugin(wstos(wscPlugin), this);
+	Print(L"OK\n");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CCmds::CmdListPlugins()
 {
 
@@ -827,6 +837,7 @@ void CCmds::CmdHelp()
 		L"getreservedslot <charname>\n"
 		L"setreservedslot <charname> <value>\n"
 		L"loadplugins\n"
+		L"loadplugin <plugin filename>\n"
 		L"listplugins\n"
 		L"unloadplugin <plugin shortname>\n"
 		L"pauseplugin <plugin shortname>\n"
@@ -1049,6 +1060,8 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 				CmdUnloadPlugin(ArgStrToEnd(1));
 			} else if(IS_CMD("loadplugins")) {
 				CmdLoadPlugins();
+			} else if(IS_CMD("loadplugin")) {
+				CmdLoadPlugin(ArgStrToEnd(1));
 			} else if(IS_CMD("listplugins")) {
 				CmdListPlugins();
 			} else if(IS_CMD("pauseplugin")) {

@@ -195,7 +195,28 @@ void FLHookInit_Pre()
 		mpPluginHooks.clear();
 		lstPlugins.clear();
 
-		PluginManager::LoadPlugins(true, &AdminConsole);
+		//check what plugins should be loaded; we need to read out the settings ourselves cause LoadSettings() wasn't called yet
+		char szCurDir[MAX_PATH];
+		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+		string scCfgFile = string(szCurDir) + "\\FLHook.ini";
+																	
+		
+		//ConPrint(L"loadall: %i, path: %s\n", bLoadAllPlugins, stows(scCfgFile).c_str());
+		
+		if(IniGetB(scCfgFile, "Plugins", "LoadAllPlugins", true))
+			PluginManager::LoadPlugins(true, &AdminConsole);
+		else
+		{
+			//LoadAllPlugins = false, check what plugins should be loaded
+			list<INISECTIONVALUE> lstIniPlugins;
+			IniGetSection(scCfgFile, "Plugins", lstIniPlugins);
+			foreach(lstIniPlugins, INISECTIONVALUE, it)
+			{
+				if(it->scKey != "plugin")
+					continue;
+				PluginManager::LoadPlugin(it->scValue, &AdminConsole);
+			}
+		}
 
 		PatchClientImpl();
 

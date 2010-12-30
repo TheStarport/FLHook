@@ -100,6 +100,16 @@ struct PLUGIN_HOOKDATA
 	FARPROC pPluginReturnCode;			
 };
 
+
+struct PLUGIN_INFO
+{
+	string sName;
+	string sShortName;
+	bool bMayPause;
+	bool bMayUnload;
+	std::map<string, int> mapHooks;
+};
+
 class CTimer
 {
 public:
@@ -158,6 +168,7 @@ private:
 	} catch(...) { AddLog("Exception in PluginCalls @ %s", __FUNCTION__); } \
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
+typedef list<PLUGIN_INFO>* (*PLUGIN_Get_PluginInfo)();
 typedef void (*PLUGIN_Plugin_Communication)(PLUGIN_MESSAGE msg, void* data);
 
 // plugin callback hooks
@@ -587,6 +598,7 @@ struct PLUGIN_SORTCRIT {
 // HkPluginManager
 namespace PluginManager {
 	EXPORT void LoadPlugins(bool, CCmds*);
+	EXPORT void LoadPlugin(const string &sFileName, CCmds*);
 	EXPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
 	EXPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	EXPORT void UnloadPlugins();

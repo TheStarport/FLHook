@@ -661,6 +661,7 @@ namespace HkIServerImpl
 }
 namespace PluginManager {
 	IMPORT void LoadPlugins(bool, CCmds*);
+	IMPORT void LoadPlugin(const string &sFileName, CCmds*);
 	IMPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
 	IMPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	IMPORT void UnloadPlugins();

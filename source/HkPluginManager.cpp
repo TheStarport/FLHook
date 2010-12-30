@@ -92,6 +92,100 @@ void UnloadPlugins()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void LoadPlugin(const string &sFileName, CCmds* adminInterface) 
+{
+
+	string sDLLName = sFileName;
+	if(sDLLName.find(".dll") == string::npos)
+		sDLLName.append(".dll");
+
+	foreach(lstPlugins,PLUGIN_DATA,it) 
+	{
+		if(it->sDLL == sDLLName) 
+			return adminInterface->Print(L"Plugin already loaded (%s)\n", stows(it->sDLL).c_str());
+	}
+
+	string sPathToDLL = "./flhook_plugins/";
+	sPathToDLL += sDLLName;
+
+	FILE* fp = fopen(sPathToDLL.c_str(), "r");
+	if (!fp)
+		return adminInterface->Print(L"Error, Plugin not found (%s)\n", stows(sDLLName).c_str());
+	fclose(fp);
+
+	PLUGIN_DATA plugin;
+	plugin.bMayPause = false;
+	plugin.bMayUnload = false;
+	plugin.hDLL = NULL;
+	plugin.sDLL = "";
+	plugin.sName = "";
+	plugin.sShortName = "";
+	
+	plugin.sDLL = sDLLName;
+
+	plugin.hDLL = LoadLibrary(sPathToDLL.c_str());
+
+	if(!plugin.hDLL) 
+		return adminInterface->Print(L"Error, can't load plugin (%s)\n", stows(sDLLName).c_str());
+
+	plugin.bPaused = false;
+
+	FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAV?$list@UPLUGIN_INFO@@V?$allocator@UPLUGIN_INFO@@@std@@@std@@XZ");
+
+	if(!pPluginInfo)
+	{
+		adminInterface->Print(L"Error, could not read plugin info (Get_PluginInfo not exported?): %s\n", stows(sDLLName).c_str());
+		FreeLibrary(plugin.hDLL);
+		return;
+	}
+
+	PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
+	list<PLUGIN_INFO>* p_PI = Plugin_Info();
+	if(p_PI->size() != 1)
+	{
+		adminInterface->Print(L"Error, invalid plugin info: %s\n", stows(sDLLName).c_str());
+		FreeLibrary(plugin.hDLL);
+		return;
+	}
+
+	plugin.bMayPause = p_PI->front().bMayPause;
+	plugin.bMayUnload = p_PI->front().bMayUnload;
+	plugin.sName = p_PI->front().sName;
+	plugin.sShortName = p_PI->front().sShortName;
+					
+	FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ");
+
+	for ( std::map<string, int>::const_iterator iter = p_PI->front().mapHooks.begin(); iter != p_PI->front().mapHooks.end(); ++iter )
+	{
+		PLUGIN_HOOKDATA hook;
+		hook.sName = plugin.sShortName;
+		hook.sPluginFunction = hook.sName + "-" + iter->first;
+		hook.bPaused = false;
+		hook.hDLL = plugin.hDLL;
+		hook.iPriority = iter->second;
+		hook.pFunc = 0;
+		hook.pPluginReturnCode = pPluginReturnCode;
+
+		std::map<string, list<PLUGIN_HOOKDATA>*>::iterator iterPH;
+		iterPH = mpPluginHooks.find(iter->first);
+		if(iterPH != mpPluginHooks.end()) 
+			iterPH->second->push_back(hook);
+		else {
+			mpPluginHooks[iter->first] = new list<PLUGIN_HOOKDATA>;
+			mpPluginHooks[iter->first]->push_back(hook);
+		}
+		mpPluginHooks[iter->first]->sort(PLUGIN_SORTCRIT());
+	}
+
+	adminInterface->Print(L"Plugin loaded: %s (%s)\n", stows(plugin.sShortName).c_str(), stows(sDLLName).c_str());
+
+	lstPlugins.push_back(plugin);
+
+	return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void LoadPlugins(bool bStartup, CCmds* adminInterface)
 {
 
@@ -99,104 +193,97 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 
 	WIN32_FIND_DATAA finddata;
 
-	HANDLE hfindplugins = FindFirstFileA("./flhook_plugins/*.ini",&finddata);
-	do {
-
+	HANDLE hfindplugins = FindFirstFileA("./flhook_plugins/*.dll",&finddata);
+	do 
+	{
 		if(hfindplugins == INVALID_HANDLE_VALUE)
 			break;
 
-		INI_Reader ini;
-		string sPluginFile = "./flhook_plugins/";
-		sPluginFile += finddata.cFileName;
-		ini.open(sPluginFile.c_str(), false);
-		PLUGIN_DATA plugin;
-		plugin.bMayPause = false;
-		plugin.bMayUnload = false;
-		plugin.hDLL = NULL;
-		plugin.sDLL = "";
-		plugin.sName = "";
-		plugin.sShortName = "";
+		try
+		{
+			PLUGIN_DATA plugin;
+			plugin.bMayPause = false;
+			plugin.bMayUnload = false;
+			plugin.hDLL = NULL;
+			plugin.sDLL = "";
+			plugin.sName = "";
+			plugin.sShortName = "";
 
-		try {
+			string sPathToDLL = "./flhook_plugins/";
+			sPathToDLL += finddata.cFileName;
+			plugin.sDLL = finddata.cFileName;
 
-			while(ini.read_header()){
-				while(ini.is_header("Settings") && ini.read_value()) {
-					if(ini.is_value("dllname")) {
-						plugin.sDLL = ini.get_value_string(0);
-					}
-
-					else if(ini.is_value("shortname")) 
-						plugin.sShortName = (string)ini.get_value_string(0);
-					
-					else if(ini.is_value("name")) 
-						plugin.sName = (string)ini.get_value_string(0);
-					
-					else if(ini.is_value("maypause")) {
-						if(!((string)ini.get_value_string(0)).find("yes") || !((string)ini.get_value_string(0)).find("true"))
-							plugin.bMayPause = true;
-						else
-							plugin.bMayPause = false;
-					}
-
-					else if(ini.is_value("mayunload")) {
-						if(!((string)ini.get_value_string(0)).find("yes") || !((string)ini.get_value_string(0)).find("true"))
-							plugin.bMayUnload = true;
-						else
-							plugin.bMayUnload = false;
-					}
-				}
-			}
-
-			foreach(lstPlugins,PLUGIN_DATA,it) {
-				if(it->sDLL == plugin.sDLL) {
-					adminInterface->Print(L"Plugin already loaded, skipping: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
+			foreach(lstPlugins,PLUGIN_DATA,it) 
+			{
+				if(it->sDLL == plugin.sDLL) 
+				{
+					adminInterface->Print(L"Plugin already loaded, skipping: %s\n", stows(plugin.sDLL).c_str());
 					throw "";
 				}
 			}
-
-			if(!plugin.bMayUnload && !bStartup) {
-				adminInterface->Print(L"Error, could not load plugin (unloadable): %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
-				throw "";
-			}
-
-			string sPathToDLL = "./flhook_plugins/dlls/";
-			sPathToDLL += plugin.sDLL;
 			plugin.hDLL = LoadLibrary(sPathToDLL.c_str());
-			if(!plugin.hDLL) {
-				adminInterface->Print(L"Error, could not load plugin: %s (%s)\n", stows(plugin.sDLL).c_str(), stows((string)finddata.cFileName).c_str());
-				throw "";
+
+			if(!plugin.hDLL) 
+			{
+					adminInterface->Print(L"Error, could not load plugin: %s\n", stows(plugin.sDLL).c_str());
+					throw "";
 			} 
 
 			plugin.bPaused = false;
 
-			ini.reset();
+			FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAV?$list@UPLUGIN_INFO@@V?$allocator@UPLUGIN_INFO@@@std@@@std@@XZ");
 
-			FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ"); \
+			if(!pPluginInfo)
+			{
+				adminInterface->Print(L"Error, could not read plugin info (Get_PluginInfo not exported?): %s\n", stows(plugin.sDLL).c_str());
+				FreeLibrary(plugin.hDLL);
+				throw "";
+			}
 
-			while(ini.read_header()){
-				while(ini.is_header("Hooks") && ini.read_value()) {
-					if(ini.is_value("hook")) {
-						string sFunction = ini.get_value_string(0);
-						PLUGIN_HOOKDATA hook;
-						hook.sName = plugin.sShortName;
-						hook.sPluginFunction = hook.sName + "-" + sFunction;
-						hook.bPaused = false;
-						hook.hDLL = plugin.hDLL;
-						hook.iPriority = atoi(ini.get_value_string(1));
-						hook.pFunc = 0;
-						hook.pPluginReturnCode = pPluginReturnCode;
-						
-						std::map<string, list<PLUGIN_HOOKDATA>*>::iterator iter;
-						iter = mpPluginHooks.find(sFunction);
-						if(iter != mpPluginHooks.end()) 
-							iter->second->push_back(hook);
-						else {
-							mpPluginHooks[sFunction] = new list<PLUGIN_HOOKDATA>;
-							mpPluginHooks[sFunction]->push_back(hook);
-						}
-						mpPluginHooks[sFunction]->sort(PLUGIN_SORTCRIT());
-					}
+			PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
+			list<PLUGIN_INFO>* p_PI = Plugin_Info();
+			if(p_PI->size() != 1)
+			{
+				adminInterface->Print(L"Error, invalid plugin info: %s\n", stows(plugin.sDLL).c_str());
+				FreeLibrary(plugin.hDLL);
+				throw "";
+			}
+
+			plugin.bMayPause = p_PI->front().bMayPause;
+			plugin.bMayUnload = p_PI->front().bMayUnload;
+			plugin.sName = p_PI->front().sName;
+			plugin.sShortName = p_PI->front().sShortName;
+
+			/* 
+			// shouldn't be needed cause the plugin wasn't loaded before...
+			if(!plugin.bMayUnload && !bStartup) {
+				adminInterface->Print(L"Error, could not load plugin (unloadable): %s\n", stows(plugin.sDLL).c_str());
+				throw "";
+			}
+			*/
+					
+			FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ");
+
+			for ( std::map<string, int>::const_iterator iter = p_PI->front().mapHooks.begin(); iter != p_PI->front().mapHooks.end(); ++iter )
+			{
+				PLUGIN_HOOKDATA hook;
+				hook.sName = plugin.sShortName;
+				hook.sPluginFunction = hook.sName + "-" + iter->first;
+				hook.bPaused = false;
+				hook.hDLL = plugin.hDLL;
+				hook.iPriority = iter->second;
+				hook.pFunc = 0;
+				hook.pPluginReturnCode = pPluginReturnCode;
+
+				std::map<string, list<PLUGIN_HOOKDATA>*>::iterator iterPH;
+				iterPH = mpPluginHooks.find(iter->first);
+				if(iterPH != mpPluginHooks.end()) 
+					iterPH->second->push_back(hook);
+				else {
+					mpPluginHooks[iter->first] = new list<PLUGIN_HOOKDATA>;
+					mpPluginHooks[iter->first]->push_back(hook);
 				}
+				mpPluginHooks[iter->first]->sort(PLUGIN_SORTCRIT());
 			}
 
 			adminInterface->Print(L"Plugin loaded: %s (%s)\n", stows(plugin.sShortName).c_str(), stows(plugin.sDLL).c_str());
@@ -205,8 +292,6 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 
 		} catch(char*) {};
 		
-		ini.close();
-
 	} while (FindNextFile(hfindplugins,&finddata));
 
 }
