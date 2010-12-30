@@ -9,6 +9,15 @@ enum PLUGIN_RETURNCODE
 	NOFUNCTIONCALL = 3,
 };
 
+struct PLUGIN_INFO
+{
+	string sName;
+	string sShortName;
+	bool bMayPause;
+	bool bMayUnload;
+	std::map<string, int> mapHooks;
+};
+
 enum PLUGIN_MESSAGE
 {
 	DEFAULT_MESSAGE = 0,

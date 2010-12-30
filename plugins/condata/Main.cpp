@@ -17,12 +17,39 @@ bool set_bPingCmd;
 
 
 PLUGIN_RETURNCODE returncode;
+list<PLUGIN_INFO> *lstPluginInfo = new list<PLUGIN_INFO>();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
 {
 	return returncode;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EXPORT list<PLUGIN_INFO>* Get_PluginInfo()
+{
+	lstPluginInfo->clear();
+	PLUGIN_INFO pi;
+	pi.sName = "Advanced Connection Data Plugin by w0dk4";
+	pi.sShortName = "condata";
+	pi.bMayPause = false;
+	pi.bMayUnload = true;
+	pi.mapHooks.insert(pair<string, int>("ClearClientInfo", 0));
+	pi.mapHooks.insert(pair<string, int>("LoadSettings", 0));
+	pi.mapHooks.insert(pair<string, int>("HkTimerCheckKick", 0));
+	pi.mapHooks.insert(pair<string, int>("HkIServerImpl::Update", 0));
+	pi.mapHooks.insert(pair<string, int>("HkIServerImpl::SPObjUpdate", 0));
+	pi.mapHooks.insert(pair<string, int>("HkIServerImpl::PlayerLaunch", 0));
+	pi.mapHooks.insert(pair<string, int>("UserCmd_Process", 0));
+	pi.mapHooks.insert(pair<string, int>("UserCmd_Help", 0));
+	pi.mapHooks.insert(pair<string, int>("Plugin_Communication_CallBack", 0));
+	pi.mapHooks.insert(pair<string, int>("ExecuteCommandString_Callback", 0));
+	
+	lstPluginInfo->push_back(pi);
+
+	return lstPluginInfo;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
