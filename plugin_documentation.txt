@@ -1,0 +1,399 @@
+================================================================================ 
+Introduction: 
+================================================================================ 
+First, I'll give a brief explanation about how it actually works. Every plugin 
+is a DLL that exports certain functions. Those functions are called by FLHook. 
+For example, if someone sends a chat message, SubmitChat is called withing 
+FLHook. FLHook will then check the plugins and if a plugin exports the same 
+function, that function within that plugin is called. So, basically, FLHook 
+hooks the flserver and then calls the plugins.
+
+PLEASE NOTE: The source files for the advanced connection and tempban plugins are
+included in the "./src/" folder. They are commented and should give you a good
+idea of how to write plugins.
+
+For development help, please refer to http://www.the-starport.net
+(check out the FLHook development forums)
+
+================================================================================ 
+Plugin Config File: 
+================================================================================ 
+FLHook loads plugins based on config files (.ini files). Those config files need
+to be in the "./EXE/flhook_plugins/" folder. 
+Example with explanations:
+
+[Settings]
+dllname = example_plugin.dll ;;; name of the plugin DLL, has to be in "./EXE/flhook_plugins/dlls/"
+name = Example Plugin by w0dk4 ;;; name of the plugin, this name is also shown when a player types "/credits" in the chat
+shortname = example_plugin ;;; shortname of the plguin, used for managing the plugin with admin commands
+maypause = true ;;; sets if the plugin may be paused
+mayunload = true ;;; sets if the plugin may be unloaded
+
+[Hooks]
+hook = HkIServerImpl::OnConnect, 0
+hook = SendDeathMsg, 0
+
+The [Hooks] section needs further explanation: This is where you tell FLHook 
+which functions you want to have hooked into your plugin. You must export all 
+the functions you list here. You can see a complete list of all available hooks 
+along with a short description of what they do (if available) at the bottom of this 
+documenation. The second parameter is a priority setting. This defines the order 
+in which multiple plugins are called on the same function. For example, if an 
+anticheat plugin hooks a function with a priority of 3 and a simple logging 
+plugin hooks the same function with a priority of 0, the anticheat plugin will 
+receive the callback before the logging plugin.
+
+================================================================================ 
+Plugin How-To 
+================================================================================ 
+So, this is where the fun (or drama) starts. First the very basics: Taking the 
+example from above, you have a hook on HkIServerImpl::OnConnect. Taking a look 
+at the documentation about that hook gives us "void __stdcall 
+HkIServerImpl::OnConnect(unsigned int)". This is what the function prototype 
+must look like. You now need to define that function with a dll export, like 
+this:
+
+namespace HkIServerImpl
+{    
+	__declspec(dllexport) void __stdcall OnConnect(unsigned int iClientID)
+	{
+		// do something here
+		return;
+	}
+}
+
+Thats it, your done. Now, if you want to do some advanced stuff, like returning 
+a function without letting FLHook call the original function, things get a 
+little more complicated. To tell FLHook what to do after your plugin was called, 
+you need to export a function that reports the desired behaviour. This function 
+is called "Get_PluginReturnCode". Here is an example of how to use it:
+
+PLUGIN_RETURNCODE returncode;
+
+__declspec(dllexport) PLUGIN_RETURNCODE Get_PluginReturnCode()
+{
+	return returncode;
+}
+
+__declspec(dllexport) int __stdcall A_Hooked_Function(unsigned int iSomething)
+{
+	// do something here
+	// now we dont want FLHook to call the original function and we dont want other plugins to be called either, we change the return code
+	returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+	return 0; 
+}
+
+You may wonder about the PLUGIN_RETURNCODE. It is an enum defined in the 
+plugin.h header file (located in the "sdk/headers" folder), just take a look at it. In 
+the example above, FLHook will skip any plugin and return the current hooked 
+function. If the return value is not void, it will return what you return (in 
+the example, its "0"). On the coding side, FLHook calls the 
+"Get_PluginReturnCode" function directly after your hooked function. You should 
+now see the use of the priority setting in the plugin config file. This way, 
+high priority plugins can force FLHook to skip other plugins.
+
+Some important notes on the returncode function: If it is not exported by your 
+DLL, FLHook always assumes standard procedure (call every plugin and original 
+function). Also, if you define the function, remember to always set the 
+returncode in every hooked function.
+
+Some words about
+extern __declspec(dllimport) bool g_bPlugin_nofunctioncall;
+(in plugin.h in the sdk/headers folder)
+g_bPlugin_nofunctioncall==true indicates to your plugin that the original function 
+should not be called because either it has been called by a previous plugin, or 
+a previous plugin wants to prevent the function from being called. This adds a 
+layer of compatability for plugin functions that need to be executed after 
+certain server methods, like IServerImpl::PlayerLaunch.
+
+
+================================================================================ 
+The SDK Files & Inter-Plugin Communication 
+================================================================================ 
+There are several header and library files located in the "src/sdk" folder. They 
+form the interface with which you can call original FLServer functions or 
+functions exported by FLHook. Dont forget to include the library files to your 
+linker dependencies. The plugin.h header file defines the return code enum and 
+the inter-plugin communication interface. You can "talk" with other plugins by 
+using the plugin communication function which is exported by FLHook. Here is an 
+example:
+
+__declspec(dllexport) void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
+{
+	// this is the hooked plugin communication function
+	
+	// we now check, if the message is for us
+	if(msg == DO_SOMETHING) {
+		// the message is for us, now we know what the actual data is, so we do a reinterpret cast
+		CUSTOM_STRUCT* incoming_data = reinterpret_cast<CUSTOM_STRUCT*>(data);
+		
+		// do something here with the received data & instruction
+	}
+	return; 
+}
+
+In the example, CUSTOM_STRUCT can be any struct of any size. Please note: The 
+Plugin_Communication_CallBack function must be defined in the [Hooks] section of 
+the plugin config file, otherwise the function will not be called. The calling 
+plugin (origin of the message) would call the communication function like this:
+
+CUSTOM_STRUCT outgoing_data;
+Plugin_Communication(DO_SOMETHING, &outgoing_data);
+
+
+================================================================================ 
+Troubleshooting
+================================================================================ 
+To spot bugs in your plugins, you should always have a look at the flhook.log in
+"./EXE/flhook_logs/". If one of your callback functions throws an exception to 
+FLHook, it is logged in this log file. Feel free to implement your own exception
+handling for more detailed error reporting.
+
+IMPORTANT NOTE: If you want to debug your plugins and you are using STL classes 
+that are being shared with FLHook (i.e. FLHook allocates a string and your 
+plugin deallocates it) you NEED to make sure you set the compiler to use the 
+"Multi-threaded DLL (/MD)" runtime library (in VC C++ project settings under 
+"Code Generation"), otherwise you will get debug assertion crashes! You can also 
+compile FLHook in debug mode and then also compile your plugin with "Multi-
+threaded Debug DLL (/MDd)". Just make sure, whatever runtime library setting you 
+use, it must match the one of FLHook.
+
+A special feature is the performance timer. The performance timer measures the
+time that is being spent in the different plugins. If the time is longer than a
+specified setting, it will be logged. You can alter that setting in flhook.ini
+(TimerThreshold=)
+
+================================================================================ 
+Available Hooks 
+================================================================================ 
+If you would like to see a specific FLServer function hooked, please post at the 
+FLHook Plugin Version board on www.the-starport.net 
+The following is a list of all available hooks in the current version along with 
+short descriptions (if available). If a calling convention is not included, it is
+__cdecl
+
+
+PLUGIN_RETURNCODE *Get_PluginReturnCode()
+- controlling the return behaviour after your plugin has been called - THIS FUNCTION DOES NOT HAVE TO BE LISTED IN THE PLUGIN CONFIG FILE
+
+void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
+- callback function for inter plugin communication
+
+========================
+FLServer Hooks:
+========================
+
+void __stdcall HkIServerImpl::Shutdown(void)
+- called when flserver shuts down
+
+bool __stdcall HkIServerImpl::Startup(struct SStartupInfo const &p1)
+- called when flserver starts up, prior to loading chars and FL data
+bool __stdcall HkIServerImpl::Startup_AFTER(struct SStartupInfo const &p1)
+- here, everything should be loaded
+
+int __stdcall HkIServerImpl::Update()
+- called on every flserver "tick" (install your timers here if you have any)
+
+void __stdcall HkIServerImpl::SubmitChat(CHAT_ID, unsigned long, void const *,CHAT_ID,int)
+void __stdcall HkIServerImpl::SubmitChat_AFTER(CHAT_ID, unsigned long, void const *,CHAT_ID,int)
+void __stdcall HkIServerImpl::PlayerLaunch(unsigned int iShip, unsigned int iClientID)
+void __stdcall HkIServerImpl::PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
+void __stdcall HkIServerImpl::FireWeapon(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
+void __stdcall HkIServerImpl::FireWeapon_AFTER(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
+void __stdcall HkIServerImpl::SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPMunitionCollision_AFTER(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPObjUpdate_AFTER(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPObjCollision_AFTER(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
+void __stdcall HkIServerImpl::LaunchComplete(unsigned int iBaseID, unsigned int iShip)
+void __stdcall HkIServerImpl::LaunchComplete_AFTER(unsigned int iBaseID, unsigned int iShip)
+void __stdcall HkIServerImpl::CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iClientID)
+void __stdcall HkIServerImpl::CharacterSelect_AFTER(struct CHARACTER_ID const & cId, unsigned int iClientID)
+void __stdcall HkIServerImpl::BaseEnter(unsigned int iBaseID, unsigned int iClientID)
+void __stdcall HkIServerImpl::BaseEnter_AFTER(unsigned int iBaseID, unsigned int iClientID)
+void __stdcall HkIServerImpl::BaseExit(unsigned int iBaseID, unsigned int iClientID)
+void __stdcall HkIServerImpl::BaseExit_AFTER(unsigned int iBaseID, unsigned int iClientID)
+void __stdcall HkIServerImpl::OnConnect(unsigned int)
+void __stdcall HkIServerImpl::OnConnect_AFTER(unsigned int)
+void __stdcall HkIServerImpl::DisConnect(unsigned int iClientID, enum EFLConnection p2)	
+void __stdcall HkIServerImpl::DisConnect_AFTER(unsigned int iClientID, enum EFLConnection p2)	
+void __stdcall HkIServerImpl::TerminateTrade(unsigned int iClientID, int iAccepted)	
+void __stdcall HkIServerImpl::TerminateTrade_AFTER(unsigned int iClientID, int iAccepted)	
+void __stdcall HkIServerImpl::InitiateTrade(unsigned int iClientID1, unsigned int iClientID2)	
+void __stdcall HkIServerImpl::InitiateTrade_AFTER(unsigned int iClientID1, unsigned int iClientID2)	
+void __stdcall HkIServerImpl::ActivateEquip(unsigned int iClientID, struct XActivateEquip const &aq)
+void __stdcall HkIServerImpl::ActivateEquip_AFTER(unsigned int iClientID, struct XActivateEquip const &aq)
+void __stdcall HkIServerImpl::ActivateCruise(unsigned int iClientID, struct XActivateCruise const &ac)
+void __stdcall HkIServerImpl::ActivateCruise_AFTER(unsigned int iClientID, struct XActivateCruise const &ac)
+void __stdcall HkIServerImpl::ActivateThrusters(unsigned int iClientID, struct XActivateThrusters const &at)
+void __stdcall HkIServerImpl::ActivateThrusters_AFTER(unsigned int iClientID, struct XActivateThrusters const &at)
+void __stdcall HkIServerImpl::GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFGoodSell_AFTER(struct SGFGoodSellInfo const &gsi, unsigned int iClientID)
+void __stdcall HkIServerImpl::CharacterInfoReq(unsigned int iClientID, bool p2)
+void __stdcall HkIServerImpl::CharacterInfoReq_AFTER(unsigned int iClientID, bool p2)
+void __stdcall HkIServerImpl::JumpInComplete(unsigned int iSystemID, unsigned int iShip)
+void __stdcall HkIServerImpl::JumpInComplete_AFTER(unsigned int iSystemID, unsigned int iShip)
+void __stdcall HkIServerImpl::SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientID)
+void __stdcall HkIServerImpl::SystemSwitchOutComplete_AFTER(unsigned int iShip, unsigned int iClientID)
+
+void __stdcall HkIServerImpl::Login(struct SLoginInfo const &li, unsigned int iClientID)
+- plugins are called after this function! if you need handling before this function, use OnConnect (HkKick and other player related commands dont work without login)
+void __stdcall HkIServerImpl::Login_AFTER(struct SLoginInfo const &li, unsigned int iClientID)
+- this is called after LoadUserSettings, so char-settings are loaded with this hook
+
+void __stdcall HkIServerImpl::MineAsteroid(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID)
+void __stdcall HkIServerImpl::MineAsteroid_AFTER(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID)
+void __stdcall HkIServerImpl::GoTradelane(unsigned int iClientID, struct XGoTradelane const &gtl)
+void __stdcall HkIServerImpl::GoTradelane_AFTER(unsigned int iClientID, struct XGoTradelane const &gtl)
+void __stdcall HkIServerImpl::StopTradelane(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4)
+void __stdcall HkIServerImpl::StopTradelane_AFTER(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4)
+void __stdcall HkIServerImpl::AbortMission(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::AbortMission_AFTER(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::AcceptTrade(unsigned int iClientID, bool p2)
+void __stdcall HkIServerImpl::AcceptTrade_AFTER(unsigned int iClientID, bool p2)
+void __stdcall HkIServerImpl::AddTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
+void __stdcall HkIServerImpl::AddTradeEquip_AFTER(unsigned int iClientID, struct EquipDesc const &ed)
+void __stdcall HkIServerImpl::BaseInfoRequest(unsigned int p1, unsigned int p2, bool p3)
+void __stdcall HkIServerImpl::BaseInfoRequest_AFTER(unsigned int p1, unsigned int p2, bool p3)
+void __stdcall HkIServerImpl::CreateNewCharacter(struct SCreateCharacterInfo const & scci, unsigned int iClientID)
+void __stdcall HkIServerImpl::CreateNewCharacter_AFTER(struct SCreateCharacterInfo const & scci, unsigned int iClientID)
+void __stdcall HkIServerImpl::DelTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
+void __stdcall HkIServerImpl::DelTradeEquip_AFTER(unsigned int iClientID, struct EquipDesc const &ed)
+void __stdcall HkIServerImpl::DestroyCharacter(struct CHARACTER_ID const &cId, unsigned int iClientID)
+void __stdcall HkIServerImpl::DestroyCharacter_AFTER(struct CHARACTER_ID const &cId, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFGoodBuy_AFTER(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFGoodVaporized(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFGoodVaporized_AFTER(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID)
+void __stdcall HkIServerImpl::GFObjSelect(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::GFObjSelect_AFTER(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::Hail(unsigned int p1, unsigned int p2, unsigned int p3)
+void __stdcall HkIServerImpl::Hail_AFTER(unsigned int p1, unsigned int p2, unsigned int p3)
+void __stdcall HkIServerImpl::InterfaceItemUsed(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::InterfaceItemUsed_AFTER(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::JettisonCargo(unsigned int iClientID, struct XJettisonCargo const &jc)
+void __stdcall HkIServerImpl::JettisonCargo_AFTER(unsigned int iClientID, struct XJettisonCargo const &jc)
+void __stdcall HkIServerImpl::LocationEnter(unsigned int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::LocationEnter_AFTER(unsigned int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::LocationExit(unsigned int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::LocationExit_AFTER(unsigned int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
+void __stdcall HkIServerImpl::LocationInfoRequest_AFTER(unsigned int p1,unsigned int p2, bool p3)
+void __stdcall HkIServerImpl::MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
+void __stdcall HkIServerImpl::MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
+void __stdcall HkIServerImpl::ReqAddItem(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
+void __stdcall HkIServerImpl::ReqAddItem_AFTER(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
+void __stdcall HkIServerImpl::ReqChangeCash(int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqChangeCash_AFTER(int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqCollisionGroups(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqCollisionGroups_AFTER(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqEquipment(class EquipDescList const &edl, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqEquipment_AFTER(class EquipDescList const &edl, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqHullStatus(float p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqHullStatus_AFTER(float p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqModifyItem(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqModifyItem_AFTER(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqRemoveItem(unsigned short p1, int p2, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqRemoveItem_AFTER(unsigned short p1, int p2, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqSetCash(int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqSetCash_AFTER(int p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::ReqShipArch(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::ReqShipArch_AFTER(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestBestPath_AFTER(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestCancel(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
+void __stdcall HkIServerImpl::RequestCancel_AFTER(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
+void __stdcall HkIServerImpl::RequestCreateShip(unsigned int iClientID)
+void __stdcall HkIServerImpl::RequestCreateShip_AFTER(unsigned int iClientID)
+void __stdcall HkIServerImpl::RequestEvent(int p1, unsigned int p2, unsigned int p3, unsigned int p4, unsigned long p5, unsigned int p6)
+void __stdcall HkIServerImpl::RequestEvent_AFTER(int p1, unsigned int p2, unsigned int p3, unsigned int p4, unsigned long p5, unsigned int p6)
+void __stdcall HkIServerImpl::RequestGroupPositions(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestGroupPositions_AFTER(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestPlayerStats(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestPlayerStats_AFTER(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestRankLevel(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestRankLevel_AFTER(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::RequestTrade(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::RequestTrade_AFTER(unsigned int p1, unsigned int p2)
+void __stdcall HkIServerImpl::SPRequestInvincibility(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
+void __stdcall HkIServerImpl::SPRequestInvincibility_AFTER(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
+void __stdcall HkIServerImpl::SPRequestUseItem(struct SSPUseItem const &p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPRequestUseItem_AFTER(struct SSPUseItem const &p1, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsigned int p3)
+void __stdcall HkIServerImpl::SPScanCargo_AFTER(unsigned int const &p1, unsigned int const &p2, unsigned int p3)
+void __stdcall HkIServerImpl::SetInterfaceState(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::SetInterfaceState_AFTER(unsigned int p1, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::SetManeuver(unsigned int iClientID, struct XSetManeuver const &p2)
+void __stdcall HkIServerImpl::SetManeuver_AFTER(unsigned int iClientID, struct XSetManeuver const &p2)
+void __stdcall HkIServerImpl::SetTarget(unsigned int iClientID, struct XSetTarget const &p2)
+void __stdcall HkIServerImpl::SetTarget_AFTER(unsigned int iClientID, struct XSetTarget const &p2)
+void __stdcall HkIServerImpl::SetTradeMoney(unsigned int iClientID, unsigned long p2)
+void __stdcall HkIServerImpl::SetTradeMoney_AFTER(unsigned int iClientID, unsigned long p2)
+void __stdcall HkIServerImpl::SetVisitedState(unsigned int iClientID, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::SetVisitedState_AFTER(unsigned int iClientID, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::SetWeaponGroup(unsigned int iClientID, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::SetWeaponGroup_AFTER(unsigned int iClientID, unsigned char *p2, int p3)
+void __stdcall HkIServerImpl::StopTradeRequest(unsigned int iClientID)
+void __stdcall HkIServerImpl::StopTradeRequest_AFTER(unsigned int iClientID)
+void __stdcall HkIServerImpl::TractorObjects(unsigned int iClientID, struct XTractorObjects const &p2)
+void __stdcall HkIServerImpl::TractorObjects_AFTER(unsigned int iClientID, struct XTractorObjects const &p2)
+void __stdcall HkIServerImpl::TradeResponse(unsigned char const *p1, int p2, unsigned int iClientID)
+void __stdcall HkIServerImpl::TradeResponse_AFTER(unsigned char const *p1, int p2, unsigned int iClientID)
+
+void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
+int __stdcall HkCB_MissileTorpHit(char *ECX, char *p1, DamageList *dmg)
+void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
+void __stdcall HkCb_AddDmgEntry_AFTER(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
+void __stdcall HkCb_GeneralDmg(char *szECX)
+void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
+
+void __cdecl HkCb_Update_Time(double dInterval)
+void __cdecl HkCb_Update_Time_AFTER(double dInterval)
+- update timing hook, original function call: Timing::UpdateGlobalTime(dInterval)
+
+void __stdcall HkCb_Elapse_Time(float p1)
+void __stdcall HkCb_Elapse_Time_AFTER(float p1)
+- main worker function for npcs, physics engine, etc; original function call: Server.ElapseTime(p1)
+
+int __cdecl HkCb_Dock_Call(unsigned int const &uShipID,unsigned int const &uSpaceID,int p3,enum DOCK_HOST_RESPONSE p4)
+- called on every docking behaviour (entering queue, etc..) of players and npcs
+  original function call: pub::SpaceObj::Dock(uShipID,uSpaceID,p3,p4)
+  
+bool __stdcall LaunchPosHook(uint iSpaceID, struct CEqObj &p1, Vector &p2, Matrix &p3, int iDock)
+- called when any ship launches from an object to determine the launch position
+  original function call: p1.launch_pos(p2,p3,iDock)
+
+========================
+FLHook Callbacks:
+========================
+
+void HkTimerCheckKick()
+- executed every second
+
+bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
+- control player damage here without messing with the other damage functions
+
+void SendDeathMsg(wstring wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
+- alter the way death messages are sent here
+
+bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
+- you can insert your own usercommands here without messing with SubmitChat (true return indicates a handled usercommand)
+
+void UserCmd_Help(uint iClientID, const wstring &wscParam)
+- called on the help command, insert here your own implemented commands (with PrintUserCmdText)
+
+void ClearClientInfo(uint iClientID)
+- called when a new player connects to the server, reset any player specific data here
+
+void LoadSettings()
+- called on FLHook/FLServer startup and everytime the rehash command is used, load/reload your settings here
+
+bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmdStr)
+- insert your own admin commands here, use NOFUNCTIONCALL returncode and a true return value to indicate a handled command
+
+void CmdHelp_Callback(CCmds* classptr)
+- admin help command callback (print your added admin commands here), returncode doesnt matter
+
+void BaseDestroyed(uint iObject, uint iClientIDBy)
+- called when a dockable base is destroyed (iObject is SpaceID)
