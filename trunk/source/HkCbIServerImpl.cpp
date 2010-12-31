@@ -182,6 +182,12 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		wscEvent += L" type=";
 		if(cIdTo.iID == 0x00010000)
 			wscEvent += L"universe";
+		else if(cIdTo.iID == 0x10003)
+		{
+			wscEvent += L"group";
+			wscEvent += L" grpidto=";
+			wscEvent += stows(itos(Players.GetGroupID(cId.iID)));
+		}
 		else if(cIdTo.iID & 0x00010000)
 			wscEvent += L"system";
 		else {
