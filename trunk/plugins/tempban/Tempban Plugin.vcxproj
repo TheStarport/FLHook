@@ -81,7 +81,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Copy tempban dll to Freelancer</Message>
-      <Command>copy $(OutDir)tempban.dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\dlls\tempban.dll"
+      <Command>copy $(OutDir)tempban.dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\tempban.dll"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
