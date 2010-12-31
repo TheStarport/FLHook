@@ -191,7 +191,10 @@ __cdecl
 
 
 PLUGIN_RETURNCODE *Get_PluginReturnCode()
-- controlling the return behaviour after your plugin has been called - THIS FUNCTION DOES NOT HAVE TO BE LISTED IN THE PLUGIN CONFIG FILE
+- controlling the return behaviour after your plugin has been called - THIS FUNCTION DOES NOT HAVE TO BE LISTED AS HOOK
+
+list<PLUGIN_INFO>* Get_PluginInfo()
+- replacing plugin inis; is returning needed plugin info - THIS FUNCTION DOES NOT HAVE TO BE LISTED AS HOOK
 
 void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 - callback function for inter plugin communication
@@ -297,8 +300,8 @@ void __stdcall HkIServerImpl::LocationExit(unsigned int p1, unsigned int iClient
 void __stdcall HkIServerImpl::LocationExit_AFTER(unsigned int p1, unsigned int iClientID)
 void __stdcall HkIServerImpl::LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
 void __stdcall HkIServerImpl::LocationInfoRequest_AFTER(unsigned int p1,unsigned int p2, bool p3)
-void __stdcall HkIServerImpl::MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
-void __stdcall HkIServerImpl::MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
+void __stdcall HkIServerImpl::MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
+void __stdcall HkIServerImpl::MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
 void __stdcall HkIServerImpl::ReqAddItem(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
 void __stdcall HkIServerImpl::ReqAddItem_AFTER(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
 void __stdcall HkIServerImpl::ReqChangeCash(int p1, unsigned int iClientID)
@@ -319,8 +322,8 @@ void __stdcall HkIServerImpl::ReqShipArch(unsigned int p1, unsigned int p2)
 void __stdcall HkIServerImpl::ReqShipArch_AFTER(unsigned int p1, unsigned int p2)
 void __stdcall HkIServerImpl::RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
 void __stdcall HkIServerImpl::RequestBestPath_AFTER(unsigned int p1, unsigned char *p2, int p3)
-void __stdcall HkIServerImpl::RequestCancel(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
-void __stdcall HkIServerImpl::RequestCancel_AFTER(int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5)
+void __stdcall HkIServerImpl::RequestCancel(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID)
+void __stdcall HkIServerImpl::RequestCancel_AFTER(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID)
 void __stdcall HkIServerImpl::RequestCreateShip(unsigned int iClientID)
 void __stdcall HkIServerImpl::RequestCreateShip_AFTER(unsigned int iClientID)
 void __stdcall HkIServerImpl::RequestEvent(int p1, unsigned int p2, unsigned int p3, unsigned int p4, unsigned long p5, unsigned int p6)
@@ -333,8 +336,8 @@ void __stdcall HkIServerImpl::RequestRankLevel(unsigned int p1, unsigned char *p
 void __stdcall HkIServerImpl::RequestRankLevel_AFTER(unsigned int p1, unsigned char *p2, int p3)
 void __stdcall HkIServerImpl::RequestTrade(unsigned int p1, unsigned int p2)
 void __stdcall HkIServerImpl::RequestTrade_AFTER(unsigned int p1, unsigned int p2)
-void __stdcall HkIServerImpl::SPRequestInvincibility(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
-void __stdcall HkIServerImpl::SPRequestInvincibility_AFTER(unsigned int p1, bool p2, enum InvincibilityReason p3, unsigned int p4)
+void __stdcall HkIServerImpl::SPRequestInvincibility(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
+void __stdcall HkIServerImpl::SPRequestInvincibility_AFTER(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
 void __stdcall HkIServerImpl::SPRequestUseItem(struct SSPUseItem const &p1, unsigned int iClientID)
 void __stdcall HkIServerImpl::SPRequestUseItem_AFTER(struct SSPUseItem const &p1, unsigned int iClientID)
 void __stdcall HkIServerImpl::SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsigned int p3)
@@ -391,7 +394,7 @@ void HkTimerCheckKick()
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
 - control player damage here without messing with the other damage functions
 
-void SendDeathMsg(wstring wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
+void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 - alter the way death messages are sent here
 
 bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
@@ -406,7 +409,7 @@ void ClearClientInfo(uint iClientID)
 void LoadSettings()
 - called on FLHook/FLServer startup and everytime the rehash command is used, load/reload your settings here
 
-bool ExecuteCommandString_Callback(CCmds* classptr, wstring wscCmdStr)
+bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmdStr)
 - insert your own admin commands here, use NOFUNCTIONCALL returncode and a true return value to indicate a handled command
 
 void CmdHelp_Callback(CCmds* classptr)

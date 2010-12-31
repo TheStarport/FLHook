@@ -1649,9 +1649,9 @@ void __stdcall LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int p4)
+void __stdcall MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
 {
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, p4));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, iClientID));
 }
 
 void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
