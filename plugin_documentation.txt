@@ -16,24 +16,41 @@ For development help, please refer to http://www.the-starport.net
 (check out the FLHook development forums)
 
 ================================================================================ 
-Plugin Config File: 
+Plugin Info: 
 ================================================================================ 
-FLHook loads plugins based on config files (.ini files). Those config files need
-to be in the "./EXE/flhook_plugins/" folder. 
-Example with explanations:
+Since FLHook 1.6.1 plugin your plugin don't need an ini file anymore.
+Your plugin DLL needs to be located directly in the "flhook_plugins" folder.
 
-[Settings]
-dllname = example_plugin.dll ;;; name of the plugin DLL, has to be in "./EXE/flhook_plugins/dlls/"
-name = Example Plugin by w0dk4 ;;; name of the plugin, this name is also shown when a player types "/credits" in the chat
-shortname = example_plugin ;;; shortname of the plguin, used for managing the plugin with admin commands
-maypause = true ;;; sets if the plugin may be paused
-mayunload = true ;;; sets if the plugin may be unloaded
+It needs to export "Get_PluginInfo" which replaces the old plugin ini file.
 
-[Hooks]
-hook = HkIServerImpl::OnConnect, 0
-hook = SendDeathMsg, 0
+Normally the function "Get_PluginInfo" should look like this (using tempban.dll as example):
 
-The [Hooks] section needs further explanation: This is where you tell FLHook 
+list<PLUGIN_INFO> *lstPluginInfo = new list<PLUGIN_INFO>();
+
+(...)
+
+EXPORT list<PLUGIN_INFO>* Get_PluginInfo()
+{
+	lstPluginInfo->clear();
+	PLUGIN_INFO pi;
+	pi.sName = "TempBan Plugin by w0dk4";
+	pi.sShortName = "tempban";
+	pi.bMayPause = true;
+	pi.bMayUnload = true;
+	pi.mapHooks.insert(pair<string, int>("HkTimerCheckKick", 0));
+	pi.mapHooks.insert(pair<string, int>("HkIServerImpl::Login", 0));
+	pi.mapHooks.insert(pair<string, int>("Plugin_Communication_CallBack", 0));
+	pi.mapHooks.insert(pair<string, int>("ExecuteCommandString_Callback", 0));
+	pi.mapHooks.insert(pair<string, int>("CmdHelp_Callback", 0));
+
+	lstPluginInfo->push_back(pi);
+
+	return lstPluginInfo;
+}
+
+You should check the example plugins in order to get used to the new plugin info function.
+
+The pi.mapHooks part needs further explanation: This is where you tell FLHook 
 which functions you want to have hooked into your plugin. You must export all 
 the functions you list here. You can see a complete list of all available hooks 
 along with a short description of what they do (if available) at the bottom of this 
@@ -397,3 +414,12 @@ void CmdHelp_Callback(CCmds* classptr)
 
 void BaseDestroyed(uint iObject, uint iClientIDBy)
 - called when a dockable base is destroyed (iObject is SpaceID)
+
+========================
+Upgrading from FLHook 1.6.0 plugin:
+========================
+FLHook 1.6.1 is not backward compatible. You'll have to modify your plugin in order to use it with FLHook 1.6.1 (check the section before; some function names and parameters have changed).
+- the PlayerInfo array size has changed from 201 to 250
+- plugins are not using an ini file anymore. Instead they're exporting their plugin info by exporting the function "Get_PluginInfo" (see "Plugin Info" for further info).
+- plugins are now located directly in the "flhook_plugins" folder
+- you should compile your plugins using VC 10 in order to keep compabitlity between plugins and FLHook 1.6.1 plugin.

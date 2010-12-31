@@ -17,9 +17,8 @@ then open dacomsrv.ini in "...\freelancer\exe" and append FLHook.dll to the
 ================================================================================
 in a typical case plugins are distributed in an archive with a folder structure
 that you just need to copy to the "Freelancer/EXE/" folder.
-every plugin needs a configuration file within the "./EXE/flhook_plugins/" main folder,
-the plugin DLL needs to be in ".EXE/flhook_plugins/dlls/".
-please read any readme file that may be delivered with the plugin you want to
+The plugin DLL needs to be in ".EXE/flhook_plugins/".
+Please read any readme file that may be delivered with the plugin you want to
 install!
 
 ================================================================================
@@ -143,6 +142,8 @@ rehash
 - PLUGINS -
 loadplugins
 	loads all plugins in the plugin folder, reloads any unloaded plugins
+loadplugin <plugin filename>
+	loads a certain plugin
 listplugins
 	lists all loaded plugins
 unloadplugin <plugin shortname>
@@ -398,19 +399,20 @@ in "flhook_logs/debug/"
 ================================================================================
 == SOURCE CODE =================================================================
 ================================================================================
-FLHook compiles on both vc7 and vc6
+Since version 1.6.1 plugin we've dropped support for all MSVC versions but VC10.
+
 Note:
 flserver uses string-class arguments in some of its functions(f. e. 
 PlayerDB::FindAccountFromCharacterName(...)). when you compile since FLHook with 
-vc7, which uses a different stl, you can't simply pass strings. that's why
+vc10, which uses a different stl, you can't simply pass strings. that's why
 i created the FLHookWString.dll which was compiled with vc6 and just exports
-two functions to create/delete flserver compatible strings. if you don't have
+two functions to create/delete flserver compatible strings. If you don't have
 vc6 installed then use the FLHookWString.dll from bin and thats it.
 
-if you want the full header files/libs of all of the relevant flserver dlls then 
-take a look at FLCoreSDK(www.skif.be). it contains everything you need.
+If you want the full header files/libs of all of the relevant flserver dlls then 
+take a look at FLCoreSDK(www.skif.be). It contains everything you need.
 
-please note:
+Please note:
 I WILL NOT TEACH YOU HOW TO CODE, I WILL NOT TELL YOU HOW TO REVERSE FLSERVER 
 AND I WILL NOT REPLY TO "STUPID" QUESTIONS REGARDING THE SOURCE
 
@@ -452,6 +454,11 @@ FLHook uses a slighty modified version of flcodec.c
 
 1.6.1 plugin
 =====
+- possibility to choose which plugins should be load on startup (Crazy)
+- removed plugin ini file; plugin info is now read out of the dll (Crazy)
+- added "loadplugin <plugin filename> command (Crazy)1
+- dropped support for all VC versions but VC 10 (Crazy)
+- fixed dock protection/cut scene vulnerability bug (Crazy)
 - fixed critical bug in built-in anticheat detection (w0dk4)
 - fixed autobuy bug (w0dk4)
 - fixed remaining bug with the rename command (Cannon)
