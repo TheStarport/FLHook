@@ -82,14 +82,13 @@
     </Link>
     <PostBuildEvent>
       <Message>Copy condata dll to freelancer</Message>
-      <Command>copy $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\dlls\condata.dll"
+      <Command>copy $(OutDir)condata.dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\condata.dll"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\..\bin\flhook_plugins\dlls\
-</Command>
+      <Command>copy $(OutDir)condata.dll  ..\..\bin\flhook_plugins\</Command>
       <Outputs>Copy to bin;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
@@ -129,7 +128,7 @@
     <ClInclude Include="headers\plugin.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\project-vc9\FLHook.vcxproj">
+    <ProjectReference Include="..\..\project-vc10\FLHook.vcxproj">
       <Project>{fe6eb3c9-da22-4492-aec3-068c9553a623}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
