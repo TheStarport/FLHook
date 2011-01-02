@@ -168,7 +168,7 @@ private:
 	} catch(...) { AddLog("Exception in PluginCalls @ %s", __FUNCTION__); } \
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
-typedef list<PLUGIN_INFO>* (*PLUGIN_Get_PluginInfo)();
+typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();
 typedef void (*PLUGIN_Plugin_Communication)(PLUGIN_MESSAGE msg, void* data);
 
 // plugin callback hooks

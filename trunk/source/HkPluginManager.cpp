@@ -130,7 +130,7 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface)
 
 	plugin.bPaused = false;
 
-	FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAV?$list@UPLUGIN_INFO@@V?$allocator@UPLUGIN_INFO@@@std@@@std@@XZ");
+	FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAUPLUGIN_INFO@@XZ");
 
 	if(!pPluginInfo)
 	{
@@ -140,22 +140,22 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface)
 	}
 
 	PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
-	list<PLUGIN_INFO>* p_PI = Plugin_Info();
-	if(p_PI->size() != 1)
+	PLUGIN_INFO* p_PI = Plugin_Info();
+	if(!p_PI->sShortName.length() || !p_PI->sName.length())
 	{
 		adminInterface->Print(L"Error, invalid plugin info: %s\n", stows(sDLLName).c_str());
 		FreeLibrary(plugin.hDLL);
 		return;
 	}
 
-	plugin.bMayPause = p_PI->front().bMayPause;
-	plugin.bMayUnload = p_PI->front().bMayUnload;
-	plugin.sName = p_PI->front().sName;
-	plugin.sShortName = p_PI->front().sShortName;
+	plugin.bMayPause = p_PI->bMayPause;
+	plugin.bMayUnload = p_PI->bMayUnload;
+	plugin.sName = p_PI->sName;
+	plugin.sShortName = p_PI->sShortName;
 					
 	FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ");
 
-	for ( std::map<string, int>::const_iterator iter = p_PI->front().mapHooks.begin(); iter != p_PI->front().mapHooks.end(); ++iter )
+	for ( std::map<string, int>::const_iterator iter = p_PI->mapHooks.begin(); iter != p_PI->mapHooks.end(); ++iter )
 	{
 		PLUGIN_HOOKDATA hook;
 		hook.sName = plugin.sShortName;
@@ -231,7 +231,7 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 
 			plugin.bPaused = false;
 
-			FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAV?$list@UPLUGIN_INFO@@V?$allocator@UPLUGIN_INFO@@@std@@@std@@XZ");
+			FARPROC pPluginInfo = GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAUPLUGIN_INFO@@XZ");
 
 			if(!pPluginInfo)
 			{
@@ -241,18 +241,19 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 			}
 
 			PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
-			list<PLUGIN_INFO>* p_PI = Plugin_Info();
-			if(p_PI->size() != 1)
+			PLUGIN_INFO* p_PI = Plugin_Info();
+
+			if(!p_PI || !p_PI->sShortName.length() || !p_PI->sName.length())
 			{
 				adminInterface->Print(L"Error, invalid plugin info: %s\n", stows(plugin.sDLL).c_str());
 				FreeLibrary(plugin.hDLL);
 				throw "";
 			}
 
-			plugin.bMayPause = p_PI->front().bMayPause;
-			plugin.bMayUnload = p_PI->front().bMayUnload;
-			plugin.sName = p_PI->front().sName;
-			plugin.sShortName = p_PI->front().sShortName;
+			plugin.bMayPause = p_PI->bMayPause;
+			plugin.bMayUnload = p_PI->bMayUnload;
+			plugin.sName = p_PI->sName;
+			plugin.sShortName = p_PI->sShortName;
 
 			/* 
 			// shouldn't be needed cause the plugin wasn't loaded before...
@@ -264,7 +265,7 @@ void LoadPlugins(bool bStartup, CCmds* adminInterface)
 					
 			FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ");
 
-			for ( std::map<string, int>::const_iterator iter = p_PI->front().mapHooks.begin(); iter != p_PI->front().mapHooks.end(); ++iter )
+			for ( std::map<string, int>::const_iterator iter = p_PI->mapHooks.begin(); iter != p_PI->mapHooks.end(); ++iter )
 			{
 				PLUGIN_HOOKDATA hook;
 				hook.sName = plugin.sShortName;
