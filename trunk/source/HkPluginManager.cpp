@@ -141,7 +141,7 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface)
 
 	PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
 	PLUGIN_INFO* p_PI = Plugin_Info();
-	if(!p_PI->sShortName.length() || !p_PI->sName.length())
+	if(!p_PI || !p_PI->sShortName.length() || !p_PI->sName.length())
 	{
 		adminInterface->Print(L"Error, invalid plugin info: %s\n", stows(sDLLName).c_str());
 		FreeLibrary(plugin.hDLL);
