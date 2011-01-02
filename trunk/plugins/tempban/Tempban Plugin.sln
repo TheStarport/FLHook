@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tempban Plugin", "Tempban Plugin.vcproj", "{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tempban Plugin", "Tempban Plugin.vcxproj", "{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
