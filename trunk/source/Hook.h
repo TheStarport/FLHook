@@ -268,6 +268,7 @@ typedef void (*PLUGIN_ClearClientInfo)(uint iClientID);
 typedef void (*PLUGIN_LoadSettings)();
 typedef bool (*PLUGIN_ExecuteCommandString_Callback)(CCmds* classptr, const wstring &wscCmdStr);
 typedef void (*PLUGIN_CmdHelp_Callback)(CCmds* classptr);
+typedef void (*PLUGIN_LoadUserCharSettings)(uint iClientID);
 typedef bool (__stdcall *PLUGIN_LaunchPosHook)(uint iSpaceID, struct CEqObj &p1, Vector &p2, Matrix &p3, int iDock);
 typedef int (__cdecl *PLUGIN_HkCb_Dock_Call)(unsigned int const &uShipID,unsigned int const &uSpaceID,int p3,enum DOCK_HOST_RESPONSE p4);
 typedef void (__stdcall *PLUGIN_HkCb_Elapse_Time)(float p1);

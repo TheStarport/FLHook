@@ -259,6 +259,8 @@ void LoadUserCharSettings(uint iClientID)
 	ClientInfo[iClientID].bAutoBuyCD = IniGetB(scUserFile, scSection, "cd", false);
 	ClientInfo[iClientID].bAutoBuyCM = IniGetB(scUserFile, scSection, "cm", false);
 	ClientInfo[iClientID].bAutoBuyReload = IniGetB(scUserFile, scSection, "reload", false);
+
+	CALL_PLUGINS(PLUGIN_LoadUserCharSettings,(iClientID));
 }
 
 /**************************************************************************************************************
