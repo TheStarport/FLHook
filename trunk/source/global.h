@@ -11,7 +11,7 @@
 using namespace std;
 
 // defines
-#define VERSION L"1.6.1 plugin"
+#define VERSION L"1.6.1-RC1 plugin"
 
 #define TIME_UPDATE 50
 #define IMPORT __declspec(dllimport)

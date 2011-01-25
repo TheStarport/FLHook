@@ -209,7 +209,7 @@ public:
 	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint iClientID, uint iDunno, uint iDunno2);
 	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE(uint iClientID, FLPACKET_UNKNOWN& pDunno);
 	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iDunno, uint iDunno2);
+	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iTargetID, uint iRank);
 	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint iClientID, uint iDunno, uint iDunno2);
 	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iDunno, uint iDunno2);
 	virtual void unknown_121(uint iClientID, uint iDunno);  // formation sth?
