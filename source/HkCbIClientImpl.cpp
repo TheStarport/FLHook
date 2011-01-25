@@ -726,12 +726,24 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iD
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iDunno, uint iDunno2)
+void HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER(uint iClientID, uint iTargetID, uint iRank)
+{
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER,(iClientID, iTargetID, iRank));
+}
+
+bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iTargetID, uint iRank)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,(iClientID, iTargetID, iRank));
+	if(bPluginReturn)
+		return reinterpret_cast<bool>(vPluginRet);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_3(iClientID, iDunno, iDunno2));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_3(iClientID, iTargetID, iRank));
+
+	HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER(iClientID, iTargetID, iRank);
+
 	return reinterpret_cast<bool>(vRet);
 }
 

@@ -1011,6 +1011,8 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 	if(bPluginReturn)
 		return;
 
+	wstring wscSystem = HkGetPlayerSystem(iClientID);
+
 	EXECUTE_SERVER_CALL(Server.SystemSwitchOutComplete(iShip, iClientID));
 
 	try {
@@ -1018,7 +1020,7 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 		ProcessEvent(L"switchout char=%s id=%d system=%s", 
 				(wchar_t*)Players.GetActiveCharacterName(iClientID), 
 				iClientID,
-				HkGetPlayerSystem(iClientID).c_str());
+				wscSystem.c_str());
 	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
 
 	SystemSwitchOutComplete_AFTER(iShip, iClientID);

@@ -278,6 +278,8 @@ typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP)(u
 typedef void (__cdecl *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER)(uint iClientID, FLPACKET_CREATESHIP& pShip);
 typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP)(uint iClientID, bool bResponse, uint iShipID);
 typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH)(uint iClientID, FLPACKET_LAUNCH& pLaunch);
+typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3)(uint iClientID, uint iTargetID, uint iRank);
+typedef void (__cdecl *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER)(uint iClientID, uint iTargetID, uint iRank);
 typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_init)(CShip* ship);
 typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_destroy)(CShip* ship);
 

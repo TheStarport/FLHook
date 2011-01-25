@@ -94,7 +94,7 @@ wstring ToMoneyStr(int iCash)
 
 string IniGetS(const string &scFile, const string &scApp, const string &scKey, const string &scDefault)
 {
-	char szRet[2048];
+	char szRet[2048*2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), scDefault.c_str(), szRet, sizeof(szRet), scFile.c_str());
 	return szRet;
 }
@@ -110,7 +110,7 @@ int IniGetI(const string &scFile, const string &scApp, const string &scKey, int 
 
 float IniGetF(const string &scFile, const string &scApp, const string &scKey, float fDefault)
 {
-	char szRet[2048];
+	char szRet[2048*2];
 	char szDefault[16];
 	sprintf(szDefault, "%f", fDefault);
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), szDefault, szRet, sizeof(szRet), scFile.c_str());
@@ -151,7 +151,7 @@ void IniWriteW(const string &scFile, const string &scApp, const string &scKey, c
 
 wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault)
 {
-	char szRet[2048];
+	char szRet[2048*2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet, sizeof(szRet), scFile.c_str());
 	string scValue = szRet;
 	if(!scValue.length())
