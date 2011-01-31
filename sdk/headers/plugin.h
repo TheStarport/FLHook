@@ -25,6 +25,8 @@ enum PLUGIN_MESSAGE
 	CONDATA_DATA = 11,
 	TEMPBAN_BAN = 20,
 	ANTICHEAT_TELEPORT = 30,
+	DSACE_CHANGE_INFOCARD = 40,
+	DSACE_SPEED_EXCEPTION = 41
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +61,17 @@ struct	TEMPBAN_BAN_STRUCT // in
     uint iDuration;
 };
 
+struct DSACE_CHANGE_INFOCARD_STRUCT
+{
+	uint iClientID;
+	uint ids;
+	wstring text;
+};
+
+struct DSACE_SPEED_EXCEPTION_STRUCT
+{
+	uint iClientID;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 __declspec(dllimport) void Plugin_Communication(PLUGIN_MESSAGE msgtype, void* msg);
