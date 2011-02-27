@@ -44,8 +44,8 @@ void HkTimerCheckKick()
 {
 	
 	CALL_PLUGINS(PLUGIN_HkTimerCheckKick,());
-		if(bPluginReturn)
-			return;
+	if(bPluginReturn)
+		return;
 
 	try {
 		// for all players
@@ -104,6 +104,10 @@ Check if NPC spawns should be disabled
 
 void HkTimerNPCAndF1Check()
 {
+	CALL_PLUGINS(PLUGIN_HkTimerNPCAndF1Check,());
+	if(bPluginReturn)
+		return;
+
 	try {
 		struct PlayerData *pPD = 0;
 		while(pPD = Players.traverse_active(pPD))

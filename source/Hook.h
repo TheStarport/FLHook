@@ -175,6 +175,7 @@ typedef void (*PLUGIN_Plugin_Communication)(PLUGIN_MESSAGE msg, void* data);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_Shutdown)(void);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_Startup)(struct SStartupInfo const &p1);
 typedef void (*PLUGIN_HkTimerCheckKick)();
+typedef void (*PLUGIN_HkTimerNPCAndF1Check)();
 typedef int (__stdcall *PLUGIN_HkIServerImpl_Update)();
 typedef void (__stdcall *PLUGIN_HkIServerImpl_SubmitChat)(CHAT_ID, unsigned long, void const *,CHAT_ID,int);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_PlayerLaunch)(unsigned int iShip, unsigned int iClientID);
@@ -699,6 +700,9 @@ EXPORT HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights);
 EXPORT HK_ERROR HkDelAdmin(const wstring &wscCharname);
 EXPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
 EXPORT HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth);
+EXPORT Fuse* HkGetFuseFromID(uint iFuseID);
+EXPORT bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay=0, float fLifetime=0, float fSkip=-1.0f);
+EXPORT bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno=0.0f);
 void HkTest(int iArg, int iArg2, int iArg3);
 
 // HkFLIni
