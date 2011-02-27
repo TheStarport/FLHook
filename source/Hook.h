@@ -816,6 +816,7 @@ extern EXPORT string scAcctPath;
 extern EXPORT CLIENT_INFO ClientInfo[250];
 extern EXPORT CDPServer *cdpSrv;
 extern EXPORT uint g_iServerLoad;
+extern EXPORT uint g_iPlayerCount;
 extern EXPORT bool g_bNPCDisabled;
 extern EXPORT char *g_FLServerDataPtr;
 

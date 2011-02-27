@@ -145,6 +145,7 @@ string scAcctPath;
 CLIENT_INFO ClientInfo[250];
 
 uint g_iServerLoad = 0;
+uint g_iPlayerCount = 0;
 
 char *g_FLServerDataPtr;
 

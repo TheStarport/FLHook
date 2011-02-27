@@ -766,6 +766,7 @@ extern IMPORT string scAcctPath;
 extern IMPORT CLIENT_INFO ClientInfo[250];
 extern IMPORT CDPServer *cdpSrv;
 extern IMPORT uint g_iServerLoad;
+extern IMPORT uint g_iPlayerCount;
 extern IMPORT bool g_bNPCDisabled;
 extern IMPORT char *g_FLServerDataPtr;
 
