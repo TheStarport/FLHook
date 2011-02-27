@@ -70,6 +70,7 @@ int __stdcall Update(void)
 	char *pData;
 	memcpy(&pData, g_FLServerDataPtr + 0x40, 4);
 	memcpy(&g_iServerLoad, pData + 0x204, 4);
+	memcpy(&g_iPlayerCount, pData + 0x208, 4);
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_Update,());
 	if(bPluginReturn) 
