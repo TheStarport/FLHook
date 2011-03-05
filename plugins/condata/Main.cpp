@@ -142,6 +142,7 @@ EXPORT void HkTimerCheckKick()
 		{ // check if loss is too high
 			if(ConData[iClientID].iAverageLoss > (set_iLossKick))
 			{
+				ConData[iClientID].lstLoss.clear();
 				HkAddKickLog(iClientID, L"High loss");
 				HkMsgAndKick(iClientID, L"High loss", set_iKickMsgPeriod);
 				// call tempban plugin
@@ -156,6 +157,7 @@ EXPORT void HkTimerCheckKick()
 		{ // check if ping is too high
 			if(ConData[iClientID].iAveragePing > (set_iPingKick))
 			{
+				ConData[iClientID].lstPing.clear();
 				HkAddKickLog(iClientID, L"High ping");
 				HkMsgAndKick(iClientID, L"High ping", set_iKickMsgPeriod);
 				// call tempban plugin
@@ -170,6 +172,7 @@ EXPORT void HkTimerCheckKick()
 		{ // check if ping fluct is too high
 			if(ConData[iClientID].iPingFluctuation > (set_iFluctKick))
 			{
+				ConData[iClientID].lstPing.clear();
 				HkAddKickLog(iClientID, L"High fluct");
 				HkMsgAndKick(iClientID, L"High ping fluctuation", set_iKickMsgPeriod);
 				// call tempban plugin
@@ -184,6 +187,8 @@ EXPORT void HkTimerCheckKick()
 		{ // check if lag is too high
 			if(ConData[iClientID].iLags > (set_iLagKick))
 			{
+				ConData[iClientID].lstObjUpdateIntervalls.clear();
+
 				HkAddKickLog(iClientID, L"High Lag");
 				HkMsgAndKick(iClientID, L"High Lag", set_iKickMsgPeriod);
 				// call tempban plugin
