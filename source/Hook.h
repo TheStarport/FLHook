@@ -326,6 +326,16 @@ enum HK_ERROR
 	HKE_PLUGIN_UNPAUSABLE,
 	HKE_PLUGIN_NOT_FOUND,
 	HKE_UNKNOWN_ERROR,
+	HKE_CUSTOM_1,
+	HKE_CUSTOM_2,
+	HKE_CUSTOM_3,
+	HKE_CUSTOM_4,
+	HKE_CUSTOM_5,
+	HKE_CUSTOM_6,
+	HKE_CUSTOM_7,
+	HKE_CUSTOM_8,
+	HKE_CUSTOM_9,
+	HKE_CUSTOM_10,
 };
 
 enum DIEMSGTYPE
@@ -730,7 +740,8 @@ void _HkCb_GeneralDmg();
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 void _HkCb_NonGunWeaponHitsBase();
 extern FARPROC fpOldNonGunWeaponHitsBase;
-extern bool g_gNonGunHitsBase;
+EXPORT extern bool g_gNonGunHitsBase;
+EXPORT extern float g_LastHitPts;
 
 // HkCbCallbacks
 void _SendMessageHook();
