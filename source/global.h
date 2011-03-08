@@ -129,6 +129,7 @@ extern EXPORT bool	set_bUserCmdSetDieMsg;
 extern EXPORT bool	set_bUserCmdSetChatFont;
 extern EXPORT bool	set_bUserCmdIgnore;
 extern EXPORT bool	set_bUserCmdHelp;
+extern EXPORT bool  set_bDefaultLocalChat;
 extern EXPORT uint	set_iDisableNPCSpawns;
 extern EXPORT int	set_iPort;
 extern EXPORT int	set_iWPort;

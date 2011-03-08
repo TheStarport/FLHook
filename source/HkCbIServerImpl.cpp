@@ -103,42 +103,85 @@ void __stdcall SubmitChat_AFTER(struct CHAT_ID cId, unsigned long lP1, void cons
 void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2)
 {
 	ISERVER_LOG();
+	ISERVER_LOGARG_I(cId.iID);
+	ISERVER_LOGARG_I(cIdTo.iID);
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_SubmitChat,(cId,lP1,rdlReader,cIdTo,iP2));
 	if(bPluginReturn)
 		return;
-
-	wchar_t wszBuf[1024] = L"";
-
+	
 	try {
+
 		// Group join/leave commands
 		if(cIdTo.iID == 0x10004)
 		{
 			g_bInSubmitChat = true;
-			Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2);
+			EXECUTE_SERVER_CALL(Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2));
 			g_bInSubmitChat = false;
 			return;
 		}
 
 		// extract text from rdlReader
 		BinaryRDLReader rdl;
+		wchar_t wszBuf[1024] = L"";
 		uint iRet1;
 		rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader, lP1);
 		wstring wscBuf = wszBuf;
 		uint iClientID = cId.iID;
 
-		// fix flserver commands
+		// if this is a message in system chat then convert it to local unless
+		// explicitly overriden by the player using /s.
+		if (set_bDefaultLocalChat && cIdTo.iID == 0x10001)
+		{
+			cIdTo.iID = 0x10002;
+		}
+		
+		// fix flserver commands and change chat to id so that event logging is
+		// accurate.
 		g_iTextLen = (uint)wscBuf.length();
-		if(!wscBuf.find(L"/u ") || !wscBuf.find(L"/s ") || !wscBuf.find(L"/g ") || !wscBuf.find(L"/l ")) {
+		if (!wscBuf.find(L"/g "))
+		{
+			cIdTo.iID = 0x10003;
 			g_iTextLen -= 3;
 		}
-		if(!wscBuf.find(L"/system ")) {
+		else if (!wscBuf.find(L"/l "))
+		{
+			cIdTo.iID = 0x10002;
+			g_iTextLen -= 3;
+		}
+		else if (!wscBuf.find(L"/s "))
+		{
+			cIdTo.iID = 0x10001;
+			g_iTextLen -= 3;
+		}
+		else if(!wscBuf.find(L"/u "))
+		{
+			cIdTo.iID = 0x10000;
+			g_iTextLen -= 3;
+		}
+		else if(!wscBuf.find(L"/group "))
+		{
+			cIdTo.iID = 0x10003;
+			g_iTextLen -= 7;
+		}
+		else if (!wscBuf.find(L"/local "))
+		{
+			cIdTo.iID = 0x10002;
+			g_iTextLen -= 7;
+		}
+		else if(!wscBuf.find(L"/system "))
+		{
+			cIdTo.iID = 0x10001;
 			g_iTextLen -= 8;
 		}
-		if(!wscBuf.find(L"/group ") || !wscBuf.find(L"/local "))
-			g_iTextLen -= 7;
-		if(!wscBuf.find(L"/universe "))
-			g_iTextLen -= 9;
+		else if(!wscBuf.find(L"/universe "))
+		{
+			cIdTo.iID = 0x10000;
+			g_iTextLen -= 10;
+		}
+
+		ISERVER_LOGARG_WS(wszBuf);
+		ISERVER_LOGARG_I(g_iTextLen);
 
 		// check for user cmds
 		if(UserCmd_Process(iClientID, wscBuf))
