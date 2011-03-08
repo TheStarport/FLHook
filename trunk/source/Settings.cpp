@@ -64,6 +64,7 @@ bool			set_bUserCmdIgnore;
 uint			set_iUserCmdMaxIgnoreList;
 bool			set_bAutoBuy;
 bool			set_bUserCmdHelp;
+bool			set_bDefaultLocalChat;
 
 // NoPVP
 list<uint>		set_lstNoPVPSystems;
@@ -161,6 +162,7 @@ void LoadSettings()
 	set_iUserCmdMaxIgnoreList = IniGetI(set_scCfgFile, "UserCommands", "MaxIgnoreListEntries", 30);
 	set_bAutoBuy = IniGetB(set_scCfgFile, "UserCommands", "AutoBuy", false);
 	set_bUserCmdHelp = IniGetB(set_scCfgFile, "UserCommands", "Help", false);
+	set_bDefaultLocalChat = IniGetB(set_scCfgFile, "UserCommands", "DefaultLocalChat", false);
 
 // NoPVP
 	set_lstNoPVPSystems.clear();
