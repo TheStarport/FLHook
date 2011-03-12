@@ -259,7 +259,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
 			ClientInfo[iClientID].iShipOld = ClientInfo[iClientID].iShip;
 			ClientInfo[iClientID].iShip = 0;
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 FARPROC fpOldShipDestroyed;

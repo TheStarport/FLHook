@@ -50,7 +50,7 @@ int __stdcall HkCB_MissileTorpHit(char *ECX, char *p1, DamageList *dmg)
 					dmg->set_cause((enum DamageCause)0xC0); // change to sth else, so client won't recognize it as a disruptor
 			}
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 	return 0;
 }
 
@@ -139,7 +139,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 		}
 
 
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 
 	HkCb_AddDmgEntry_AFTER(dmgList, p1, p2, p3);
 }
@@ -182,7 +182,7 @@ void __stdcall HkCb_GeneralDmg(char *szECX)
 
 		iDmgTo = iClientID;
 		iDmgToSpaceID = iSpaceID;
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 __declspec(naked) void _HkCb_GeneralDmg()
