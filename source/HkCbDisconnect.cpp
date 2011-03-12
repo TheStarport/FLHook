@@ -12,7 +12,7 @@ int __stdcall DisconnectPacketSent(uint iClientID)
 			ClientInfo[iClientID].tmF1TimeDisconnect = timeInMS() + set_iDisconnectDelay;
 			return 0; // don't pass on
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 	return 1; // pass on
 }
 

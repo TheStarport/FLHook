@@ -150,7 +150,7 @@ int __cdecl Dock_Call(unsigned int const &uShipID,unsigned int const &uSpaceID,i
 
 	try {
 		return pub::SpaceObj::Dock(uShipID,uSpaceID,p3,p4);
-	} catch(...) { AddLog("Exception in SpaceObj::Dock(uShipID=%08x,uSpaceID=%08x,p3=%d,p4=%d)", uShipID,uSpaceID,p3,p4); }
+	} catch(...) { LOG_EXCEPTION }
 	return 0;
 }
 

@@ -121,5 +121,5 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 				popad
 			}
 		}
-	}  catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	}  catch(...) { LOG_EXCEPTION }
 }

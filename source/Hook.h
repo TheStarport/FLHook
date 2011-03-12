@@ -83,6 +83,18 @@
 		} \
 	} \
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#define EXTENDED_EXCEPTION_LOGGING
+#ifdef EXTENDED_EXCEPTION_LOGGING
+void AddExceptionInfoLog();
+#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); void AddExceptionInfoLog(); }
+#else
+#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); }
+#endif
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // plugin functionality & hook prototypes
@@ -165,7 +177,7 @@ private:
 				} \
 			} \
 		}\
-	} catch(...) { AddLog("Exception in PluginCalls @ %s", __FUNCTION__); } \
+	} catch(...) { LOG_EXCEPTION } \
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();

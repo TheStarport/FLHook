@@ -775,7 +775,7 @@ void ProcessPendingCommands()
 
 		lstDelete.clear();
 	} catch(...) { 
-		AddLog("Exception in %s", __FUNCTION__); 
+		LOG_EXCEPTION
 		throw "exception"; 
 	}
 }

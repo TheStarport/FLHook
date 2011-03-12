@@ -165,5 +165,4 @@ extern EXPORT bool	set_bLogAdminCmds;
 extern EXPORT bool	set_bLogUserCmds;
 extern EXPORT bool	set_bPerfTimer;
 
-
 #endif

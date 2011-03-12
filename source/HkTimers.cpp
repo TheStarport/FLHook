@@ -95,7 +95,7 @@ void HkTimerCheckKick()
 			}
 
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 /**************************************************************************************************************
@@ -140,7 +140,7 @@ void HkTimerNPCAndF1Check()
 			HkChangeNPCSpawn(true); // serverload too high, disable npcs
 		else
 			HkChangeNPCSpawn(false);
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 /**************************************************************************************************************
@@ -179,7 +179,7 @@ void HkThreadResolver()
 
 			Sleep(50);
 		}
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 /**************************************************************************************************************
@@ -210,7 +210,7 @@ void HkTimerCheckResolveResults()
 
 		g_lstResolveIPsResult.clear();
 		LeaveCriticalSection(&csIPResolve);
-	} catch(...) { AddLog("Exception in %s", __FUNCTION__); }
+	} catch(...) { LOG_EXCEPTION }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
