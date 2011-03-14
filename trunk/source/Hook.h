@@ -88,8 +88,8 @@
 
 #define EXTENDED_EXCEPTION_LOGGING
 #ifdef EXTENDED_EXCEPTION_LOGGING
-void AddExceptionInfoLog();
-#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); void AddExceptionInfoLog(); }
+extern void AddExceptionInfoLog();
+#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); AddExceptionInfoLog(); }
 #else
 #define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); }
 #endif
