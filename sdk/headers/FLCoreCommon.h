@@ -133,6 +133,45 @@ namespace Archetype
 {
 	class FuseIgnitionList;
 
+	enum AClassType
+	{
+		ROOT = 0,
+		EQ_OBJ = 1,
+		SOLAR = 2,
+		SHIP = 3,
+		ASTEROID = 4,
+		DYNAMIC_ASTEROID = 5,
+		EQUIPMENT = 6,
+		ATTACHED_EQUIPMENT = 7,
+		LOOT_CRATE = 8,
+		CARGO_POD = 9,
+		COMMODITY = 10,
+		POWER = 11,
+		ENGINE = 12,
+		SHIELD = 13,
+		SHIELD_GENERATOR = 14,
+		THRUSTER = 15,
+		LAUNCHER = 16,
+		GUN = 17,
+		MINE_DROPPER = 18,
+		COUNTER_MEASURE_DROPPER = 19,
+		SCANNER = 20,
+		LIGHT = 21,
+		TRACTOR = 22,
+		ATTACHED_FX_EQUIP = 23,
+		INTERNAL_FX_EQUIP = 24,
+		REPAIR_DROID = 25,
+		REPAIR_KIT = 26,
+		SHIELD_BATTERY = 27,
+		CLOAKING_DEVICE = 28,
+		TRADE_LANE_EQUIP = 29,
+		PROJECTILE = 30,
+		MUNITION = 31,
+		MINE = 32,
+		COUNTER_MEASURE = 33,
+		ARMOR = 34,
+	}; 
+
 	struct IMPORT Armor
 	{
 		Armor(struct Armor const &);
@@ -3420,15 +3459,22 @@ struct IMPORT EquipDesc
 	void set_temporary(bool);
 
 public:
-	ushort dunno; // 00
-	ushort id; // 02
-	ulong archid; // 04
-	CacheString hardpoint; // 08
-	bool equipped; //0Ch
-	float status; //10h
-	long count; //14h
-	bool temporary; //18h
-	ulong owner; //01Ch
+	USHORT iDunno;
+	USHORT sID;
+	UINT iArchID;
+	CacheString szHardPoint;
+	bool bMounted;
+	float fHealth;
+	UINT iCount;
+	bool bMission;
+	int iOwner;
+};
+
+struct EquipDescListItem
+{
+	EquipDescListItem *next;
+	UINT iDunno;
+	EquipDesc equip;
 };
 
 class IMPORT EquipDescList
@@ -3453,8 +3499,8 @@ public:
 
 public:
 	// std::list<EquipDesc> equip; // FIXME: std::list is not compatible with VC9 libs
-	EquipDesc *pIter;
-	EquipDesc *pFirst;
+	EquipDescListItem *pIter;
+	EquipDescListItem *pFirst;
 	UINT iCount;
 };
 
@@ -3473,7 +3519,6 @@ public:
 	uint iDunno;
 	EquipDesc *start;
 	EquipDesc *end;
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 namespace ErrorHandler
@@ -3616,7 +3661,22 @@ struct IMPORT FmtStr
 	int unflatten(void *,unsigned int);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	UINT something;
+	UINT strid;		// resource containing text
+	BYTE tnav_marker;	// counters for each type
+	BYTE tsystem;
+	BYTE tbase;
+	BYTE tstring;
+	BYTE tgood;
+	BYTE tunused;
+	BYTE tint;
+	BYTE trep_instance;
+	BYTE trep_group;
+	BYTE tzone_id;
+	BYTE tspace_obj_id;
+	BYTE tfmt_str;
+	BYTE tinstallation;
+	BYTE tloot;
 };
 
 class IMPORT Fuse
@@ -3832,16 +3892,41 @@ public:
 
 struct IStateGraph;
 
-
 namespace pub
 {
 	namespace AI
 	{
 		enum ScanResponse;
 		enum OP_RTYPE;
-		enum OP_TYPE;
 		enum DirectivePriority;
 		struct DirectiveCallback;
+
+		enum OP_TYPE
+		{
+			M_NONE = -1,
+			M_NULL = 0,
+			M_BUZZ = 1,
+			M_DUNNO = 2,
+			M_GOTO = 3,
+			M_FOLLOW = 4,
+			M_TRAIL = 5,
+			M_STRAFE = 6,
+			M_FACE = 7,
+			M_RAM = 8,
+			M_TRACTOR = 9,
+			M_EVADE = 10,
+			M_DRASTICEVADE = 11,
+			M_DELAY = 12,
+			M_DOCK = 13,
+			M_LAUNCH = 14,
+			M_TRADELANE = 15,
+			M_INSTANTTRADELANE = 16,
+			M_GUIDE = 17,
+			M_WAITFORSHIP = 18,
+			M_FREEFLIGHT = 19,
+			M_IDLE = 20,
+			M_CANCEL = 21,
+		};
 
 		class IMPORT BaseOp
 		{
@@ -3924,7 +4009,7 @@ namespace pub
 			virtual bool validate(void);
 
 		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint iShip;
 		};
 
 		class IMPORT DirectiveFaceOp : public pub::AI::BaseOp
@@ -3946,7 +4031,10 @@ namespace pub
 			virtual bool validate(void);
 
 		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			UINT   leader;       // 0
+			float  max_distance; // 150
+			Vector ofs;          // 0, 0, 0; copy constructor indicates Vector
+			float  unknown;      // 400
 		};
 
 		class IMPORT DirectiveFormationOp : public pub::AI::BaseOp
@@ -3968,19 +4056,32 @@ namespace pub
 			virtual bool validate(void);
 
 		public:
-			int x00;
-			int iGotoType; // 1 = Vec, 0 = Ship
-			Vector vPos; // pos
-			int iTargetID; // id
-			Vector vSpline1; // ?
-			Vector vSpline2; // ?
-			Vector vSpline3; // ?
-			Vector vSpline4; // ?
+			int iGotoType; // 1 = Vec, 0 = Ship, 2 = spline, 3 = undefined
+			// The target position if iGotoType is 1.
+			Vector vPos;
+			// If iGotoType is 0 then move to this spaceobj. Do not set a vPos if you
+			// set this.
+			int iTargetID;
+			// The 1st point to fly to if iGotoType is 2
+			Vector vSpline1; 
+			// The 2nd point to fly to if iGotoType is 2
+			Vector vSpline2;
+			// The 3rd point to fly to if iGotoType is 2
+			Vector vSpline3;
+			// The 4th point to fly to if iGotoType is 2
+			Vector vSpline4;
+			// This specifies how close the NPC will attempt to get to the position
 			float fRange;
+			// This specifies the thrust in the range from 0-100. Use -1 for maximum.
 			float fThrust;
-			bool x58; // in INIs, don't know what it does
-			bool x59; // Always true?
-			short iFlag; // 0 = goto, 1 = goto_cruise, 256 = goto_no_cruise
+			// This specifies if the ship should move (always set to true)
+			bool x58;
+			// This specifies if the ship should move (always set to true)
+			bool x59;
+			// Set the follow to control if the ship will cruise or not. Do not set
+			// both to true.
+			bool goto_cruise;
+			bool goto_no_cruise; 
 			int x5C;
 			float x60; // 200
 			float x64; // 500
@@ -4310,6 +4411,8 @@ namespace pub
 				float fire_missiles_damage_trigger_time;		// 0.5
 				float fire_guns_damage_trigger_percent; 		// 1
 				float fire_guns_damage_trigger_time;			// 1
+				int   _03C; 									// not initialised
+				int   _040; 									// not initialised
 			};
 
 			struct IMPORT MissileReactionStruct
@@ -4451,7 +4554,7 @@ namespace pub
 				bool  flee_when_leader_flees_style; 	// true
 				bool  flee_no_weapons_style;			// true
 				bool  allow_player_targeting;			// true
-				int   _130; 							// -1
+				float _130; 							// -1
 				bool  force_attack_formation;			// false
 				bool  force_attack_formation_used;		// false (true when above is set)
 			};
@@ -4491,15 +4594,14 @@ namespace pub
 			unsigned char data[OBJECT_DATA_SIZE];
 		};
 
-		struct IMPORT SetPersonalityParams
+		struct IMPORT SetPersonalityParams : public BaseOp
 		{
 		  SetPersonalityParams();
 		  SetPersonalityParams( const SetPersonalityParams& );
 
 		  virtual bool validate();
 
-		  BaseOp baseop; // 0
-		  int state_graph; // -1, used by validate
+		  int state_graph;
 		  void* x10; // -1
 		  void* x14; // -1
 		  bool state_id; // true - state_graph_id, false - state_graph

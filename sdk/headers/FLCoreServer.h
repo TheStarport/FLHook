@@ -561,7 +561,7 @@ template <class T> class IMPORT OwnerList
 {
 public:
 	OwnerList<T>();
-	~OwnerList<T>();
+	virtual ~OwnerList<T>();
 	class OwnerList<T> & operator=(class OwnerList<T> const &);
 	void free();
 };
@@ -809,11 +809,18 @@ namespace pub
 
 	namespace SpaceObj
 	{
-		struct IMPORT CargoDesc;
-		
-		struct IMPORT ShipInfo
+		struct CargoDesc
 		{
-			uint iFlag; // 4
+			int vTbl;
+			int iUnk1;
+			int iUnk2;
+			int iUnk3;
+			int iUnk4;
+		};
+
+		struct ShipInfo
+		{
+			uint iFlag;
 			uint iSystem;
 			uint iShipArchetype;
 			Vector vPos;
@@ -822,8 +829,7 @@ namespace pub
 			Matrix mOrientation;
 			uint iUnk1; // 0
 			uint iLoadout;
-			OwnerList<pub::SpaceObj::CargoDesc>* cargoDesc;
-			
+			OwnerList<pub::SpaceObj::CargoDesc> cargoDesc;
 			uint unk1; // 0
 			uint unk2; // 0
 			float fUnk1;
@@ -842,13 +848,40 @@ namespace pub
 			float fUnk8;
 			uint iUnk2;
 			
-			uint iRep; // increases for each NPC spawned, starts at 0 or 1
+			int iRep; // increases for each NPC spawned, starts at 0 or 1
 			uint iPilotVoice;
 			uint unk6; // 0
 			int iHealth; // -1 = max health
 			uint unk7; // 0
 			uint unk8; // 0
 			uint iLevel;
+		};
+
+		struct SolarInfo{
+			int iFlag; //0x290; ShipInfo has this too, no clue whether actually a flag
+			uint iArchID;
+			uint iSystemID;
+			Vector vPos;
+			Matrix mOrientation;
+			uint iLoadoutID;
+			struct structCostume
+			{
+			  UINT head;
+			  UINT body;
+			  UINT lefthand;
+			  UINT righthand;
+			  UINT accessory[8];
+			  int  accessories;
+			};
+			structCostume Costume;
+			int iRep;
+			int iUnk7; //0
+			int iUnk8; //0
+			int iUnk9; //Boolean, only last byte is used
+			int iHitPointsLeft;
+			char cNickName[64]; //Has to be unique
+			int iUnk11; //0
+			int iUnk12; //0
 		};
 
 		struct TerminalInfo {
