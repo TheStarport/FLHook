@@ -69,7 +69,7 @@ uint HkGetClientIdFromCharname(const wstring &wscCharname)
 
 wstring HkGetAccountID(CAccount *acc)
 {
-	if (acc->wszAccID)
+	if (acc && acc->wszAccID)
 		return acc->wszAccID;
 	return L"";
 }
