@@ -144,7 +144,7 @@ private:
 		iter = mpPluginHooks.find((string)__FUNCTION__); \
 		if(iter != mpPluginHooks.end()) { \
 			foreach((*(iter->second)),PLUGIN_HOOKDATA, itplugin) { \
-				void* vPluginRetTemp; \
+				void* vPluginRetTemp = 0; \
 				if(itplugin->bPaused) \
 					continue; \
 				if (!itplugin->pFunc) \
@@ -156,7 +156,7 @@ private:
 					try { \
 						fpDLLCall args; \
 						__asm { mov [vPluginRetTemp], eax } \
-					} catch(...) { AddLog("Error: Exception in plugin %s", itplugin->sPluginFunction.c_str()); } \
+					} catch(...) { AddLog("Error: Exception in plugin %s", itplugin->sPluginFunction.c_str()); LOG_EXCEPTION } \
 					timer.stop(); \
 				} else  \
 					AddLog("Error: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
