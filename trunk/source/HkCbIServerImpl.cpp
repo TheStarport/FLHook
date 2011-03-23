@@ -1263,18 +1263,18 @@ void __stdcall AbortMission_AFTER(unsigned int p1, unsigned int p2)
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_AbortMission,(p1,p2));
 }
 
-void __stdcall AbortMission(unsigned int p1, unsigned int p2)
+void __stdcall AbortMission(unsigned int iClientID, unsigned int p2)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_UI(p1);
+	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AbortMission,(p1,p2));
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_AbortMission,(iClientID,p2));
 	if(bPluginReturn)
 		return;
 
-	EXECUTE_SERVER_CALL(Server.AbortMission(p1, p2));
-	AbortMission_AFTER(p1, p2);
+	EXECUTE_SERVER_CALL(Server.AbortMission(iClientID, p2));
+	AbortMission_AFTER(iClientID, p2);
 }
 
 /**************************************************************************************************************
