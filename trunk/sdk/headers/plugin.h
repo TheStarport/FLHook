@@ -25,6 +25,7 @@ enum PLUGIN_MESSAGE
 	CONDATA_DATA = 11,
 	TEMPBAN_BAN = 20,
 	ANTICHEAT_TELEPORT = 30,
+	ANTICHEAT_CHEATER = 31,
 	DSACE_CHANGE_INFOCARD = 40,
 	DSACE_SPEED_EXCEPTION = 41
 };
@@ -37,6 +38,23 @@ struct ANTICHEAT_TELEPORT_STRUCT // in
 	uint iClientID; 
 	Vector vNewPos; 
 	Matrix mNewOrient; 
+};
+
+enum ANTICHEAT_CHEAT_CODE
+{
+	AC_CODE_POWER,
+	AC_CODE_TIMER,
+	AC_CODE_SPEED,
+	AC_CODE_MINING,
+};
+
+struct ANTICHEAT_CHEATER_STRUCT
+{
+	uint iClientID; 
+	wstring wscCharname;
+	ANTICHEAT_CHEAT_CODE CheatCode;
+	wstring wscLog;
+	bool bKilled;
 };
 
 struct CONDATA_DATA_STRUCT

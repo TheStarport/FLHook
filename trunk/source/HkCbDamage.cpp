@@ -115,7 +115,18 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 			p2 = 0;
 	}
 
-	dmgList->add_damage_entry(p1, p2, p3);
+	if(!dmgList->is_inflictor_a_player()) // npcs always do damage
+		dmgList->add_damage_entry(p1, p2, p3);
+	else if (iDmgTo)
+	{ 
+		// lets see if player should do damage to other player
+		uint iDmgFrom = HkGetClientIDByShip(dmgList->get_inflictor_id());
+		if(iDmgFrom && AllowPlayerDamage(iDmgFrom, iDmgTo))
+			dmgList->add_damage_entry(p1, p2, p3);
+	} 
+	else
+		dmgList->add_damage_entry(p1, p2, p3);
+
 	try {
 		LastDmgList = *dmgList; // save
 
