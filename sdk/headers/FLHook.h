@@ -283,7 +283,8 @@ struct CLIENT_INFO
 	wstring		wscHostname;
 
 	bool		bSpawnProtected;
-	byte		unused_data[128];
+	bool		bUseServersideHitDetection; //used by AC Plugin
+	byte		unused_data[127];
 };
 
 struct INISECTIONVALUE
@@ -395,7 +396,6 @@ struct PLUGIN_DATA
 	bool bMayUnload;
 	bool bPaused;
 };
-
 
 
 // HkFuncTools
@@ -678,7 +678,6 @@ namespace PluginManager {
 }
 
 // variables
-
 extern IMPORT std::map<string, list<PLUGIN_HOOKDATA>*> mpPluginHooks;
 extern IMPORT list<PLUGIN_DATA> lstPlugins;
 

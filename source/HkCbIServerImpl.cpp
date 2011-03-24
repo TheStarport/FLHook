@@ -370,8 +370,6 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 
 	try {
 		iClientIDTarget = HkGetClientIDByShip(ci.dwTargetShip);
-		if(iClientIDTarget && !AllowPlayerDamage(iClientID, iClientIDTarget))
-			return;
 
 	} catch(...) { LOG_EXCEPTION }
 
@@ -420,13 +418,6 @@ void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	try {
-		uint iClientIDTarget = HkGetClientIDByShip(ci.dwTargetShip);
-		if(iClientIDTarget && !AllowPlayerDamage(iClientID, iClientIDTarget))
-			return;
-
-	} catch(...) { LOG_EXCEPTION }
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjCollision,(ci,iClientID));
 	if(bPluginReturn)
