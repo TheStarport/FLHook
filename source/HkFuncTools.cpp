@@ -382,6 +382,9 @@ EQ_TYPE HkGetEqType(Archetype::Equipment *eq)
 	uint iVFTableNanoBot = (uint)hModCommon + ADDR_COMMON_VFTABLE_NANOBOT;
 	uint iVFTableMunition = (uint)hModCommon + ADDR_COMMON_VFTABLE_MUNITION;
 	uint iVFTableEngine = (uint)hModCommon + ADDR_COMMON_VFTABLE_ENGINE;
+	uint iVFTableScanner = (uint)hModCommon + ADDR_COMMON_VFTABLE_SCANNER;
+	uint iVFTableTractor = (uint)hModCommon + ADDR_COMMON_VFTABLE_TRACTOR;
+	uint iVFTableLight = (uint)hModCommon + ADDR_COMMON_VFTABLE_LIGHT;
 	
 	uint iVFTable = *((uint*)eq);
 	if(iVFTable == iVFTableGun) {
@@ -414,6 +417,12 @@ EQ_TYPE HkGetEqType(Archetype::Equipment *eq)
 		return ET_MINE;
 	else if(iVFTable == iVFTableEngine)
 		return ET_ENGINE;
+	else if(iVFTable == iVFTableLight)
+		return ET_LIGHT;
+	else if(iVFTable == iVFTableScanner)
+		return ET_SCANNER;
+	else if(iVFTable == iVFTableTractor)
+		return ET_TRACTOR;
 	else
 		return ET_OTHER;
 }
