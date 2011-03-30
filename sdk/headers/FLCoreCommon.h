@@ -405,14 +405,15 @@ namespace Archetype
 		Equipment(struct Equipment const &);
 		Equipment(struct ICliObj *);
 		virtual ~Equipment(void);
-		struct Equipment & operator=(struct Equipment const &);
+		virtual bool read(class INI_Reader &);
+		virtual void redefine(Archetype::Root const &);
+		virtual bool load(void);
 		virtual enum AClassType  get_class_type(void)const ;
+		virtual void free_resources(void);
 		virtual enum HpAttachmentType  get_hp_type(void)const ;
 		virtual struct Equipment * get_loot_appearance(void);
 		virtual struct CargoPod * get_pod_appearance(void);
-		virtual bool is_attached(void)const ;
-		virtual bool read(class INI_Reader &);
-		virtual void redefine(struct Root const &);
+		virtual bool dunno(void);
 
 	public:
 		uint i2;
@@ -439,7 +440,6 @@ namespace Archetype
 		uint iDunno2;
 		uint iGunType;
 		uint iArray5[50];
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 	struct IMPORT Explosion
@@ -688,7 +688,12 @@ namespace Archetype
 		bool init_physical_representation(void);
 
 	public:
-		unsigned char data[OBJECT_DATA_SIZE];
+		uint	iDunno1[2];
+		uint	iShipArchID;
+		uint	iDunno2;
+		uint	iType;
+		uint	iIDSName;
+		uint	iIDSInfo;
 	};
 
 	struct IMPORT Scanner
@@ -800,7 +805,6 @@ namespace Archetype
 		uint	iDunno5[5];
 		uint	iMaxNanobots;
 		uint	iMaxShieldBats;
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 
@@ -815,7 +819,12 @@ namespace Archetype
 		virtual void redefine(struct Root const &);
 
 	public:
-		unsigned char data[OBJECT_DATA_SIZE];
+		uint	iDunno1[2];
+		uint	iShipArchID;
+		uint	iDunno2;
+		uint	iType;
+		uint	iIDSName;
+		uint	iIDSInfo;
 	};
 
 	struct IMPORT Thruster
