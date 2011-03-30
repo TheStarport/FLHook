@@ -170,10 +170,11 @@ public:
 public:
 	uint iDunno1;
 	wchar_t *wszAccID;
-	uint iDunno2;
+	uint iDunno2[7];
+	//uint iDunno3[5];
 	CAccountListNode *pFirstListNode;
 	uint iNumberOfCharacters;
-	uint iDunno3[32];
+	uint iDunno4[32];
 };
 
 namespace BaseGroupMessage
