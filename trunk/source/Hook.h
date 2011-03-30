@@ -53,6 +53,10 @@
 #define ADDR_SRV_PLAYERDBMAXPLAYERSPATCH 0x64BC3
 #define ADDR_SRV_PLAYERDBMAXPLAYERS 0xB0264
 #define ADDR_SRV_REPARRAYFREE 0x7F3F0
+#define ADDR_COMMON_VFTABLE_POWER 0x1398F4
+#define ADDR_COMMON_VFTABLE_SCANNER 0x139920
+#define ADDR_COMMON_VFTABLE_LIGHT 0x13994C
+#define ADDR_COMMON_VFTABLE_TRACTOR 0x139978
 #define ADDR_COMMON_VFTABLE_MINE 0x139C64
 #define ADDR_COMMON_VFTABLE_CM 0x139C90
 #define ADDR_COMMON_VFTABLE_GUN 0x139C38
@@ -156,7 +160,7 @@ private:
 					try { \
 						fpDLLCall args; \
 						__asm { mov [vPluginRetTemp], eax } \
-					} catch(...) { AddLog("Error: Exception in plugin %s", itplugin->sPluginFunction.c_str()); LOG_EXCEPTION } \
+					} catch(...) { LOG_EXCEPTION } \
 					timer.stop(); \
 				} else  \
 					AddLog("Error: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
@@ -396,7 +400,10 @@ enum EQ_TYPE
 	ET_NANOBOT,
 	ET_MUNITION,
 	ET_ENGINE,
-	ET_OTHER
+	ET_OTHER,
+	ET_SCANNER,
+	ET_TRACTOR,
+	ET_LIGHT
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
