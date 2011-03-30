@@ -30,7 +30,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
 				Outputs="..\bin\$(TargetName).dll;&quot;C:\Program Files\Microsoft Games\Freelancer\EXE\$(TargetName).dll&quot;;..\sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
@@ -100,7 +100,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
@@ -118,8 +117,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Discovery\FreelancerSDK\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\"
-				Outputs="..\bin\$(TargetName).dll;&quot;C:\Discovery\FreelancerSDK\EXE\$(TargetName).dll&quot;;..\sdk\libs\$(TargetName).lib"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
+				Outputs="..\bin\$(TargetName).dll;..\sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -158,7 +157,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib psapi.lib wsock32.lib ws2_32.lib ../sdk/libs/FLCoreFLServerEXE.lib ../sdk/libs/FLCoreCommon.lib ../sdk/libs/FLCoreDALib.lib ../sdk/libs/FLCoreDACom.lib ../sdk/libs/FLCoreRemoteClient.lib ../sdk/libs/FLCoreServer.lib"
+				AdditionalDependencies="winmm.lib psapi.lib wsock32.lib ws2_32.lib Advapi32.lib ../sdk/libs/FLCoreFLServerEXE.lib ../sdk/libs/FLCoreCommon.lib ../sdk/libs/FLCoreDALib.lib ../sdk/libs/FLCoreDACom.lib ../sdk/libs/FLCoreRemoteClient.lib ../sdk/libs/FLCoreServer.lib"
 				OutputFile="$(OutDir)/FLHook.dll"
 				LinkIncremental="1"
 				GenerateManifest="true"
@@ -191,7 +190,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
@@ -489,6 +487,14 @@
 		</File>
 		<File
 			RelativePath="..\source\Settings.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\source\StackWalker.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\source\StackWalker.h"
 			>
 		</File>
 		<File
