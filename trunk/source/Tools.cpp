@@ -352,6 +352,11 @@ HMODULE GetModuleAddr(uint iAddr)
 	return 0;
 }
 
+//Uncomment the following line to print the stack when an exception is throw
+//I suspect this sometimes crashes and so I've commented it out for now.
+//#define __PRINT_STACK_ON_EXCEPTION__
+#ifdef __PRINT_STACK_ON_EXCEPTION__
+
 #include "StackWalker.h"
 
 class StackWalkerToLog : public StackWalker
@@ -385,6 +390,7 @@ protected:
 		// suppress this
 	}
 };
+#endif
 
 void AddExceptionInfoLog()
 {
@@ -416,8 +422,11 @@ void AddExceptionInfoLog()
 			AddLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
 				reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
 
+			
+#ifdef __PRINT_STACK_ON_EXCEPTION__
 			StackWalkerToLog sw;
 			sw.ShowCallstack(GetCurrentThread(), reg);
+#endif
 		}
 		else
 		{

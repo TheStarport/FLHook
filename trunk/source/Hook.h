@@ -160,10 +160,10 @@ private:
 					try { \
 						fpDLLCall args; \
 						__asm { mov [vPluginRetTemp], eax } \
-					} catch(...) { LOG_EXCEPTION } \
+					} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
 					timer.stop(); \
 				} else  \
-					AddLog("Error: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
+					AddLog("ERROR: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
 				if (itplugin->pPluginReturnCode) { \
 					PLUGIN_Get_PluginReturnCode Plugin_ReturnCode = (PLUGIN_Get_PluginReturnCode)itplugin->pPluginReturnCode; \
 					PLUGIN_RETURNCODE plugin_returncode = Plugin_ReturnCode(); \
@@ -181,7 +181,7 @@ private:
 				} \
 			} \
 		}\
-	} catch(...) { LOG_EXCEPTION } \
+	} catch(...) { AddLog("ERROR: Exception %s", __FUNCTION__); LOG_EXCEPTION } \
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();
