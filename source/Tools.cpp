@@ -361,17 +361,18 @@ protected:
 	{
 		if (entry.offset)
 		{
+			uint offset = (uint)(entry.offset - entry.baseOfImage);
 			if (entry.lineFileName[0])
 			{
-				AddLog("Offset=%x Module=\"%s\" File=\"%s:%d\" Func=\"%s\"", (uint)entry.offset, entry.moduleName, entry.lineFileName, entry.lineNumber, entry.name);
+				AddLog("Offset=%x Module=\"%s\" File=\"%s:%d\" Func=\"%s\"", offset, entry.moduleName, entry.lineFileName, entry.lineNumber, entry.name);
 			}
 			else if (entry.name)
 			{
-				AddLog("Offset=%x Module=\"%s\" Func=\"%s\"", (uint)entry.offset, entry.moduleName, entry.name);
+				AddLog("Offset=%x Module=\"%s\" Func=\"%s\"", offset, entry.moduleName, entry.name);
 			}
 			else
 			{
-				AddLog("Offset=%x Module=\"%s\"", (uint)entry.offset, entry.moduleName);
+				AddLog("Offset=%x Module=\"%s\"", offset, entry.moduleName);
 			}
 		}
 	}
