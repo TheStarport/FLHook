@@ -102,6 +102,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 /**************************************************************************************************************
+Replace FLServer's exception handler with our own.
+**************************************************************************************************************/
+#ifdef EXTENDED_EXCEPTION_LOGGING
+LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
+{
+	WriteMiniDump(pExceptionInfo);
+	return EXCEPTION_EXECUTE_HANDLER; 	// EXCEPTION_CONTINUE_SEARCH;
+}
+#endif
+
+/**************************************************************************************************************
 thread that reads console input
 **************************************************************************************************************/
 
@@ -216,6 +227,11 @@ void FLHookInit_Pre()
 		}
 
 		PatchClientImpl();
+
+#ifdef EXTENDED_EXCEPTION_LOGGING
+		// Install our own exception handler to automatically log minidumps.
+		::SetUnhandledExceptionFilter(FLHookTopLevelFilter);
+#endif
 
 	} catch(char *szError) {
 		ConPrint(L"ERROR: %s\n", stows(szError).c_str());

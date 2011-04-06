@@ -352,51 +352,74 @@ HMODULE GetModuleAddr(uint iAddr)
 	return 0;
 }
 
-//Uncomment the following line to print the stack when an exception is throw
-//I suspect this sometimes crashes and so I've commented it out for now.
-//#define __PRINT_STACK_ON_EXCEPTION__
-#ifdef __PRINT_STACK_ON_EXCEPTION__
+#include <string.h>
+#include "dbghelp.h"
 
-#include "StackWalker.h"
+// based on dbghelp.h
+typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
+									CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+									CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+									CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
+									);
 
-class StackWalkerToLog : public StackWalker
+void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
-protected:
-	virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry &entry)
+	HMODULE hDll = ::LoadLibrary( "DBGHELP.DLL" );
+	if (hDll)
 	{
-		if (entry.offset)
+		MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress( hDll, "MiniDumpWriteDump" );
+		if (pDump)
 		{
-			uint offset = (uint)(entry.offset - entry.baseOfImage);
-			if (entry.lineFileName[0])
+			// put the dump file in the flhook logs/debug directory
+			char szDumpPath[_MAX_PATH];
+
+			time_t tNow = time(0);
+			struct tm *t = localtime(&tNow);
+			strftime(szDumpPath, sizeof(szDumpPath), "./flhook_logs/debug/flserver_%d.%m.%Y_%H.%M.dmp", t);
+
+			// create the file
+			HANDLE hFile = ::CreateFile( szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+				FILE_ATTRIBUTE_NORMAL, NULL );
+
+			if (hFile!=INVALID_HANDLE_VALUE)
 			{
-				AddLog("Offset=%x Module=\"%s\" File=\"%s:%d\" Func=\"%s\"", offset, entry.moduleName, entry.lineFileName, entry.lineNumber, entry.name);
-			}
-			else if (entry.name)
-			{
-				AddLog("Offset=%x Module=\"%s\" Func=\"%s\"", offset, entry.moduleName, entry.name);
-			}
-			else
-			{
-				AddLog("Offset=%x Module=\"%s\"", offset, entry.moduleName);
+				_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
+
+				if (pExceptionInfo)
+				{
+					ExInfo.ThreadId = ::GetCurrentThreadId();
+					ExInfo.ExceptionPointers = pExceptionInfo;
+					ExInfo.ClientPointers = NULL;
+					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
+				}
+				else
+				{
+					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, NULL, NULL, NULL );
+				}
+				::CloseHandle(hFile);
 			}
 		}
 	}
-	virtual void OnDbgHelpErr(LPCSTR szFuncName, DWORD gle, DWORD64 addr)
-	{
-		// suppress this
-	}
-	virtual void OnOutput(LPCSTR szText)
-	{
-		// suppress this
-	}
-};
-#endif
+}
 
-void AddExceptionInfoLog()
+void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 {
-	try{
-		EXCEPTION_RECORD const *exception = GetCurrentExceptionRecord();
-		_CONTEXT const *reg = GetCurrentExceptionContext();
+	try
+	{
+		_EXCEPTION_RECORD *exception;
+		_CONTEXT *reg;
+		if (!pep)
+		{
+			exception = (_EXCEPTION_RECORD*)GetCurrentExceptionRecord();
+			reg = (_CONTEXT*)GetCurrentExceptionContext();
+		}
+		else
+		{
+			exception = pep->ExceptionRecord;
+			reg = pep->ContextRecord;
+		}
+
+		WriteMiniDump(pep);
 
 		if (exception)
 		{
@@ -421,17 +444,12 @@ void AddExceptionInfoLog()
 		{
 			AddLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
 				reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
-
-			
-#ifdef __PRINT_STACK_ON_EXCEPTION__
-			StackWalkerToLog sw;
-			sw.ShowCallstack(GetCurrentThread(), reg);
-#endif
 		}
 		else
 		{
 			AddLog("No register information available");
 		}
+
 	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
 }
 
