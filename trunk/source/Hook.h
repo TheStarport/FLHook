@@ -92,8 +92,9 @@
 
 #define EXTENDED_EXCEPTION_LOGGING
 #ifdef EXTENDED_EXCEPTION_LOGGING
-extern void AddExceptionInfoLog();
-#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); AddExceptionInfoLog(); }
+extern void WriteMiniDump(LPEXCEPTION_POINTERS pep);
+extern void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep);
+#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
 #else
 #define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); }
 #endif
