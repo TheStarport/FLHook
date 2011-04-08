@@ -89,17 +89,18 @@ bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
 
 	uint iClientID = HkGetClientIdFromCharname(wscCharname);
 	wstring wscHostName = L"???";
-	if(iClientID) 
+	wstring wscIp = L"???";
+	if(iClientID != -1) 
+	{
 		wscHostName = ClientInfo[iClientID].wscHostname;
-
-	if(wscHostName == L"") 
-		HkGetPlayerIP(iClientID,wscHostName);
-	
+		HkGetPlayerIP(iClientID,wscIp);
+	}
 	
 
 	time_t tNow = time(0);
 	struct tm *stNow = localtime(&tNow);
-	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by %s(%s)(%s) [%s]\n", stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str());
+	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by %s(%s)(%s) [%s %s]\n",
+		stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
 	fclose(f);
 	return true;
 }
