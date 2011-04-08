@@ -419,8 +419,6 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 			reg = pep->ContextRecord;
 		}
 
-		WriteMiniDump(pep);
-
 		if (exception)
 		{
 			DWORD iCode = exception->ExceptionCode;
@@ -449,6 +447,8 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 		{
 			AddLog("No register information available");
 		}
+
+		WriteMiniDump(pep);
 
 	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
 }
