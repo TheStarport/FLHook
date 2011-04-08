@@ -110,6 +110,11 @@ LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
 	WriteMiniDump(pExceptionInfo);
 	return EXCEPTION_EXECUTE_HANDLER; 	// EXCEPTION_CONTINUE_SEARCH;
 }
+
+LPTOP_LEVEL_EXCEPTION_FILTER WINAPI HkCb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
+{
+	return NULL;
+}
 #endif
 
 /**************************************************************************************************************
@@ -231,6 +236,26 @@ void FLHookInit_Pre()
 #ifdef EXTENDED_EXCEPTION_LOGGING
 		// Install our own exception handler to automatically log minidumps.
 		::SetUnhandledExceptionFilter(FLHookTopLevelFilter);
+
+		// Hook the kernel SetUnhandledExceptionFilter function to prevent
+		// newer versions of the crt disabling our filter function if a buffer
+		// overrun is detected.
+		HMODULE hKernel32 = LoadLibrary("kernel32.dll");
+		if (hKernel32)
+		{
+			void *dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
+			if (dwOrgEntry)
+			{
+				void *HookFunc = &HkCb_SetUnhandledExceptionFilter;
+
+				DWORD dwRelativeAddr = (DWORD)HookFunc;
+				dwRelativeAddr -= (DWORD)dwOrgEntry;
+				dwRelativeAddr -= 5;
+				BYTE patch[] = { 0xE9, 0x00, 0x00, 0x00, 0x00 };
+				memcpy(patch + 1, &dwRelativeAddr, 4);
+				WriteProcMem(dwOrgEntry, patch, 5);
+			}
+		}
 #endif
 
 	} catch(char *szError) {
