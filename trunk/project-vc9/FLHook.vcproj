@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
 				Outputs="..\bin\$(TargetName).dll;..\sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
@@ -487,14 +487,6 @@
 		</File>
 		<File
 			RelativePath="..\source\Settings.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\source\StackWalker.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\source\StackWalker.h"
 			>
 		</File>
 		<File
