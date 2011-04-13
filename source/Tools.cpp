@@ -321,6 +321,17 @@ void SwapBytes(void *ptr, uint iLen)
 	}
 }
 
+FARPROC PatchCallAddr(char *hMod, DWORD dwInstallAddress, char *dwHookFunction)
+{
+	DWORD dwRelAddr;
+	ReadProcMem(hMod + dwInstallAddress + 1, &dwRelAddr, 4);
+
+	DWORD dwOffset = (DWORD)dwHookFunction - (DWORD)(hMod + dwInstallAddress + 5);
+	WriteProcMem(hMod + dwInstallAddress + 1, &dwOffset, 4);
+
+	return (FARPROC)(hMod + dwRelAddr + dwInstallAddress + 5);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef EXTENDED_EXCEPTION_LOGGING

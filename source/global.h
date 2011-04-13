@@ -39,6 +39,8 @@ typedef flstrs* (*_CreateString)(const char *szStr);
 typedef void (*_FreeString)(flstrs *scStr);
 typedef char* (*_GetCString)(flstrs *scStr);
 typedef wchar_t* (*_GetWCString)(flstr *wscStr);
+typedef wchar_t* (*_WStringAssign)(flstr *wscStr, const wchar_t *wszStr);
+typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
 
 // structures
 struct INISECTIONVALUE
@@ -88,8 +90,7 @@ EXPORT void IniGetSection(const string &scFile, const string &scApp, list<INISEC
 EXPORT float ToFloat(const wstring &wscStr);
 EXPORT mstime timeInMS();
 EXPORT void SwapBytes(void *ptr, uint iLen);
-
-
+EXPORT FARPROC PatchCallAddr(char *hMod, DWORD dwInstallAddress, char *dwHookFunction);
 
 // variables
 extern EXPORT HANDLE hProcFL;
@@ -105,6 +106,8 @@ extern EXPORT _CreateString CreateString;
 extern EXPORT _FreeString FreeString;
 extern EXPORT _GetCString GetCString;
 extern EXPORT _GetWCString GetWCString;
+extern EXPORT _WStringAssign WStringAssign;
+extern EXPORT _WStringAppend WStringAppend;
 extern EXPORT FILE *fLog;
 extern EXPORT FILE *fLogDebug;
 extern EXPORT FARPROC fpOldUpdate;
