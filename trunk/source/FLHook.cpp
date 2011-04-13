@@ -54,6 +54,8 @@ _CreateString CreateString;
 _FreeString FreeString;
 _GetCString GetCString;
 _GetWCString GetWCString;
+_WStringAssign WStringAssign;
+_WStringAppend WStringAppend;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -105,6 +107,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 Replace FLServer's exception handler with our own.
 **************************************************************************************************************/
 #ifdef EXTENDED_EXCEPTION_LOGGING
+BYTE oldSetUnhandledExceptionFilter[5];
+
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
 	WriteMiniDump(pExceptionInfo);
@@ -180,6 +184,25 @@ void FLHookInit_Pre()
 		if(!(hModServer = GetModuleHandle("server")))
 			throw "server.dll not loaded";
 
+		if(!(hWString = LoadLibrary("FLHookVC6Strings.dll")))
+			throw "FLHookVC6Strings.dll not found";
+		if(!(CreateWString = (_CreateWString)GetProcAddress(hWString, "CreateWString")))
+			throw "FLHookVC6Strings.dll: CreateWString not found";
+		if(!(FreeWString = (_FreeWString)GetProcAddress(hWString, "FreeWString")))
+			throw "FLHookVC6Strings.dll: FreeWString not found";
+		if(!(CreateString = (_CreateString)GetProcAddress(hWString, "CreateString")))
+			throw "FLHookVC6Strings.dll: CreateString not found";
+		if(!(FreeString = (_FreeString)GetProcAddress(hWString, "FreeString")))
+			throw "FLHookVC6Strings.dll: FreeString not found";
+		if(!(GetCString = (_GetCString)GetProcAddress(hWString, "GetCString")))
+			throw "FLHookVC6Strings.dll: GetCString not found";
+		if(!(GetWCString = (_GetWCString)GetProcAddress(hWString, "GetWCString")))
+			throw "FLHookVC6Strings.dll: GetWCString not found";
+		if(!(WStringAssign = (_WStringAssign)GetProcAddress(hWString, "WStringAssign")))
+			throw "FLHookVC6Strings.dll: WStringAssign not found";
+		if(!(WStringAppend = (_WStringAppend)GetProcAddress(hWString, "WStringAppend")))
+			throw "FLHookVC6Strings.dll: WStringAppend not found";
+
 		// create log dirs
 		CreateDirectoryA("./flhook_logs/",NULL);
 		CreateDirectoryA("./flhook_logs/debug",NULL);
@@ -246,14 +269,13 @@ void FLHookInit_Pre()
 			void *dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
 			if (dwOrgEntry)
 			{
-				void *HookFunc = &HkCb_SetUnhandledExceptionFilter;
+				DWORD offset = (char*)dwOrgEntry - (char*)hKernel32;
 
-				DWORD dwRelativeAddr = (DWORD)HookFunc;
-				dwRelativeAddr -= (DWORD)dwOrgEntry;
-				dwRelativeAddr -= 5;
-				BYTE patch[] = { 0xE9, 0x00, 0x00, 0x00, 0x00 };
-				memcpy(patch + 1, &dwRelativeAddr, 4);
-				WriteProcMem(dwOrgEntry, patch, 5);
+				ReadProcMem((char*)hKernel32 + offset, oldSetUnhandledExceptionFilter, 5);
+
+				BYTE patch[] = { 0xE9 };
+				WriteProcMem((char*)hKernel32 + offset, patch, 1);
+				PatchCallAddr((char*)hKernel32, offset, (char*)HkCb_SetUnhandledExceptionFilter);
 			}
 		}
 #endif
@@ -285,22 +307,7 @@ bool FLHookInit()
 			throw "content.dll not loaded";
 		if(!(hMe = GetModuleHandle("FLHook")))
 			throw "FLHook.dll not loaded";
-		if(!(hWString = LoadLibrary("FLHookVC6Strings.dll")))
-			throw "FLHookVC6Strings.dll not found";
-		if(!(CreateWString = (_CreateWString)GetProcAddress(hWString, "CreateWString")))
-			throw "FLHookVC6Strings.dll: CreateWString not found";
-		if(!(FreeWString = (_FreeWString)GetProcAddress(hWString, "FreeWString")))
-			throw "FLHookVC6Strings.dll: FreeWString not found";
-		if(!(CreateString = (_CreateString)GetProcAddress(hWString, "CreateString")))
-			throw "FLHookVC6Strings.dll: CreateString not found";
-		if(!(FreeString = (_FreeString)GetProcAddress(hWString, "FreeString")))
-			throw "FLHookVC6Strings.dll: FreeString not found";
-		if(!(GetCString = (_GetCString)GetProcAddress(hWString, "GetCString")))
-			throw "FLHookVC6Strings.dll: GetCString not found";
-		if(!(GetWCString = (_GetWCString)GetProcAddress(hWString, "GetWCString")))
-			throw "FLHookVC6Strings.dll: GetWCString not found";
-
-
+		
 		// load settings
 		LoadSettings();
 
@@ -475,6 +482,22 @@ void FLHookShutdown()
 
 	// unload hooks
 	UnloadHookExports();
+
+#ifdef EXTENDED_EXCEPTION_LOGGING
+	// If extended exception logging is in use, restore patched functions
+	HMODULE hKernel32 = LoadLibrary("kernel32.dll");
+	if (hKernel32)
+	{
+		void *dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
+		if (dwOrgEntry)
+		{
+			DWORD offset = (char*)dwOrgEntry - (char*)hKernel32;
+			WriteProcMem((char*)hKernel32 + offset, oldSetUnhandledExceptionFilter, 5);
+		}
+	}
+	// And restore the default exception filter.
+	SetUnhandledExceptionFilter(0);
+#endif
 
 	// close log
 	fclose(fLog);
