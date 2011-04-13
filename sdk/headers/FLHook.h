@@ -59,6 +59,8 @@ typedef flstrs* (*_CreateString)(const char *szStr);
 typedef void (*_FreeString)(flstrs *scStr);
 typedef char* (*_GetCString)(flstrs *scStr);
 typedef wchar_t* (*_GetWCString)(flstr *wscStr);
+typedef wchar_t* (*_WStringAssign)(flstr *wscStr, const wchar_t *wszStr);
+typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
 
 #include "FLCoreCommon.h"
 #include "FLCoreServer.h"
@@ -525,6 +527,8 @@ IMPORT float IniGetF(const string &scFile, const string &scApp, const string &sc
 IMPORT void IniGetSection(const string &scFile, const string &scApp, list<INISECTIONVALUE> &lstValues);
 IMPORT float ToFloat(const wstring &wscStr);
 IMPORT mstime timeInMS();
+IMPORT void SwapBytes(void *ptr, uint iLen);
+IMPORT FARPROC PatchCallAddr(char *hMod, DWORD dwInstallAddress, char *dwHookFunction);
 
 // flcodec
 IMPORT bool flc_decode(const char *ifile, const char *ofile);
@@ -708,6 +712,8 @@ extern IMPORT _CreateString CreateString;
 extern IMPORT _FreeString FreeString;
 extern IMPORT _GetCString GetCString;
 extern IMPORT _GetWCString GetWCString;
+extern IMPORT _WStringAssign WStringAssign;
+extern IMPORT _WStringAppend WStringAppend;
 extern IMPORT FILE *fLog;
 extern IMPORT FILE *fLogDebug;
 extern IMPORT FARPROC fpOldUpdate;
