@@ -475,6 +475,7 @@ void FLHookUnload()
 
 void FLHookShutdown()
 {
+	TerminateThread(hThreadResolver, 0);
 
 	// unload update hook
 	void *pAddress = (void*)((char*)hProcFL + ADDR_UPDATE);
@@ -485,7 +486,7 @@ void FLHookShutdown()
 
 #ifdef EXTENDED_EXCEPTION_LOGGING
 	// If extended exception logging is in use, restore patched functions
-	HMODULE hKernel32 = LoadLibrary("kernel32.dll");
+	HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
 	if (hKernel32)
 	{
 		void *dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
