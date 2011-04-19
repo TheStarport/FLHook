@@ -300,6 +300,8 @@ typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE
 typedef void (__cdecl *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER)(uint iClientID, uint iTargetID, uint iRank);
 typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_init)(CShip* ship);
 typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_destroy)(CShip* ship);
+typedef bool (*PLUGIN_ProcessEvent_BEFORE)(wstring &wscText);
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -852,6 +854,7 @@ extern EXPORT bool g_bNPCDisabled;
 extern EXPORT char *g_FLServerDataPtr;
 
 extern EXPORT bool g_bPlugin_nofunctioncall;
+
 
 // help
 
