@@ -607,6 +607,11 @@ void ConPrint(wstring wscText, ...)
 /**************************************************************************************************************
 send event to all sockets which are in eventmode
 **************************************************************************************************************/
+bool ProcessEvent_BEFORE(wstring &wscText)
+{
+	CALL_PLUGINS(PLUGIN_ProcessEvent_BEFORE,(wscText));
+	return !bPluginReturn;
+}
 
 void ProcessEvent(wstring wscText, ...)
 {
@@ -615,10 +620,14 @@ void ProcessEvent(wstring wscText, ...)
 	va_start(marker, wscText);
 	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
+	wscText = wszBuf;
+	if(!ProcessEvent_BEFORE(wscText))
+		return;
+
 	foreach(lstSockets, SOCKET_CONNECTION*, i)
 	{
 		if((*i)->csock.bEventMode)
-			(*i)->csock.Print(L"%s\n", wszBuf);
+			(*i)->csock.Print(L"%s\n", wscText.c_str());
 	}
 }
 
