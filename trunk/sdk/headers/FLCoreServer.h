@@ -124,8 +124,7 @@ struct XSetTarget
 struct SSPObjUpdateInfo
 {
 	uint iShip;
-	Vector vDir;
-	float fDunno1;
+	Quaternion vDir;
 	Vector vPos;
 	double dTimestamp;
 	uint iDunno4;
@@ -875,7 +874,7 @@ namespace pub
 			};
 			structCostume Costume;
 			int iRep;
-			int iUnk7; //0
+			int iVoiceID;
 			int iUnk8; //0
 			int iUnk9; //Boolean, only last byte is used
 			int iHitPointsLeft;
