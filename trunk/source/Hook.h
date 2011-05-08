@@ -164,7 +164,7 @@ private:
 					} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
 					timer.stop(); \
 				} else  \
-					AddLog("ERROR: Plugin '%s' does not export %s", itplugin->sName.c_str(), __FUNCTION__); \
+					AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
 				if (itplugin->pPluginReturnCode) { \
 					PLUGIN_Get_PluginReturnCode Plugin_ReturnCode = (PLUGIN_Get_PluginReturnCode)itplugin->pPluginReturnCode; \
 					PLUGIN_RETURNCODE plugin_returncode = Plugin_ReturnCode(); \
