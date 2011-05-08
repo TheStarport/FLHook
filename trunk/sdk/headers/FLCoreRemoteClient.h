@@ -44,7 +44,8 @@ struct FLPACKET_UNKNOWN
 struct FLPACKET_LAUNCH
 {
 	uint iShip;
-	uint iDunno[2];
+	uint iBase;
+	uint iState;
 	float fRotate[4];
 	float fPos[3];
 };
@@ -151,7 +152,7 @@ public:
 	virtual bool Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint iClientID, FLPACKET_UNKNOWN& pDunno);
 	virtual bool Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint iClientID, FLPACKET_UNKNOWN& pDunno);
 	virtual bool Send_FLPACKET_SERVER_LAND(uint iClientID, FLPACKET_LAND& pLand);
-	virtual bool Send_FLPACKET_SERVER_LAUNCH(uint iClientID, FLPACKET_LAUNCH& pLaunch);
+	EXPORT virtual bool Send_FLPACKET_SERVER_LAUNCH(uint iClientID, FLPACKET_LAUNCH& pLaunch);
 	virtual bool Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint iClientID, bool bResponse, uint iShipID);
 	virtual void unknown_63(uint iClientID, FLPACKET_UNKNOWN& pDunno);
 	virtual bool Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iDunno, uint iDunno2);
