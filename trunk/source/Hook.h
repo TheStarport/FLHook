@@ -719,6 +719,7 @@ EXPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason
 EXPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
 EXPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
 EXPORT void HkAddAdminCmdLog(const char *szString, ...);
+EXPORT void HkAddSocketCmdLog(const char *szString, ...);
 EXPORT void HkAddUserCmdLog(const char *szString, ...);
 EXPORT void HkAddPerfTimerLog(const char *szString, ...);
 

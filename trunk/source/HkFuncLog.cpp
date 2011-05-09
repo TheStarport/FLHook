@@ -202,6 +202,25 @@ void HkAddAdminCmdLog(const char *szString, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void HkAddSocketCmdLog(const char *szString, ...)
+{
+	char szBufString[1024];
+	va_list marker;
+	va_start(marker, szString);
+	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+
+	FILE *f = fopen(("./flhook_logs/flhook_socketcmds.log"), "at");
+	if(!f)
+		return;
+
+    AddLog(f, "%s", szBufString);
+
+	fclose(f);
+	return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void HkAddUserCmdLog(const char *szString, ...)
 {
 	char szBufString[1024];

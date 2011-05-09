@@ -23,6 +23,8 @@ bool			set_bDebug;
 uint			set_iDebugMaxSize;
 bool			set_bLogConnects;
 bool			set_bLogAdminCmds;
+bool			set_bLogSocketCmds;
+bool			set_bLogLocalSocketCmds;
 bool			set_bLogUserCmds;
 bool			set_bPerfTimer;
 uint			set_iTimerThreshold;
@@ -116,6 +118,8 @@ void LoadSettings()
 	set_iDebugMaxSize *= 1000;
 	set_bLogConnects = IniGetB(set_scCfgFile, "Log", "LogConnects", false);
 	set_bLogAdminCmds = IniGetB(set_scCfgFile, "Log", "LogAdminCommands", false);
+	set_bLogSocketCmds = IniGetB(set_scCfgFile, "Log", "LogSocketCommands", false);
+	set_bLogLocalSocketCmds = IniGetB(set_scCfgFile, "Log", "LogLocalSocketCommands", false);
 	set_bLogUserCmds = IniGetB(set_scCfgFile, "Log", "LogUserCommands", false);
 	set_bPerfTimer = IniGetB(set_scCfgFile, "Log", "LogPerformanceTimers", false);
 	set_iTimerThreshold = IniGetI(set_scCfgFile, "Log", "TimerThreshold", 100);

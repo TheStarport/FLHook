@@ -384,6 +384,8 @@ flhook_usercmds.log:
   every user command if activated in FLHook.ini
 flhook_admincmds.log:
   every admin command if activated in FLHook.ini
+ flhook_socketcmds.log:
+  every socket-admin command if activated in FLHook.ini
 flhook_perftimers.log:
   performance timer reports if activated in FLHook.ini
   
