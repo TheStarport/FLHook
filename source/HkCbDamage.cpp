@@ -146,13 +146,14 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 		if(iDmgTo && p1 == 1) // only save hits on the hull (p1=1)
 		{
 			ClientInfo[iDmgTo].dmgLast = *dmgList;
-			iDmgTo = 0;
 		}
 
 
 	} catch(...) { LOG_EXCEPTION }
 
 	HkCb_AddDmgEntry_AFTER(dmgList, p1, p2, p3);
+
+	iDmgTo = 0;
 }
 
 __declspec(naked) void _HkCb_AddDmgEntry()

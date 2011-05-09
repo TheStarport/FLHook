@@ -165,6 +165,8 @@ extern EXPORT uint set_iTimerThreshold;
 extern EXPORT uint set_iTimerDebugThreshold;
 extern EXPORT uint set_iDebugMaxSize;
 extern EXPORT bool	set_bLogAdminCmds;
+extern EXPORT bool	set_bLogSocketCmds;
+extern EXPORT bool	set_bLogLocalSocketCmds;
 extern EXPORT bool	set_bLogUserCmds;
 extern EXPORT bool	set_bPerfTimer;
 

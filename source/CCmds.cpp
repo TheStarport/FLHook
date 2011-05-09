@@ -936,9 +936,38 @@ bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmdStr)
 
 void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 {
-	try {
-		if(set_bLogAdminCmds)
-			HkAddAdminCmdLog("%s: %s", wstos(GetAdminName()).c_str(), wstos(wscCmdStr).c_str());
+	//check if command was sent by a socket connection
+	bool bSocket = false;
+	bool bLocalSocket = false;
+	wstring wscAdminName = GetAdminName();
+
+	if (wscAdminName.find(L"Socket connection") == 0)
+	{
+		bSocket = true;
+		if(wscAdminName.find(L"127.0.0.1") != wstring::npos)
+			bLocalSocket = true;
+	}
+
+	try 
+	{
+		if(bSocket)
+		{
+			if(bLocalSocket)
+			{
+				if(set_bLogLocalSocketCmds)
+					HkAddSocketCmdLog("%s: %s", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str());
+			}
+			else
+			{
+				if(set_bLogSocketCmds)
+					HkAddSocketCmdLog("%s: %s", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str());
+			}	
+		}
+		else
+		{
+			if(set_bLogAdminCmds)
+				HkAddAdminCmdLog("%s: %s", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str());
+		}
 
 		bID = false;
 		bShortCut = false;
@@ -1079,12 +1108,43 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 			}
 			
 		}
-
-		if(set_bLogAdminCmds)
-			HkAddAdminCmdLog("finished");
+		if(bSocket)
+		{
+			if(bLocalSocket)
+			{
+				if(set_bLogLocalSocketCmds)
+					HkAddSocketCmdLog("finnished");
+			}
+			else
+			{
+				if(set_bLogSocketCmds)
+					HkAddSocketCmdLog("finnished");
+			}	
+		}
+		else
+		{
+			if(set_bLogAdminCmds)
+				HkAddAdminCmdLog("finnished");
+		}
 	} catch(...) {
-		if(set_bLogAdminCmds)
-			HkAddAdminCmdLog("exception");
+		if(bSocket)
+		{
+			if(bLocalSocket)
+			{
+				if(set_bLogLocalSocketCmds)
+					HkAddSocketCmdLog("exception");
+			}
+			else
+			{
+				if(set_bLogSocketCmds)
+					HkAddSocketCmdLog("exception");
+			}	
+		}
+		else
+		{
+			if(set_bLogAdminCmds)
+				HkAddAdminCmdLog("exception");
+		}
 		Print(L"ERR exception occured\n");
 	}
 }

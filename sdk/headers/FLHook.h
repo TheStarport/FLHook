@@ -766,6 +766,8 @@ extern IMPORT bool	set_bBanAccountOnMatch;
 extern IMPORT uint set_iTimerThreshold;
 extern IMPORT uint set_iDebugMaxSize;
 extern IMPORT bool	set_bLogAdminCmds;
+extern IMPORT bool	set_bLogSocketCmds;
+extern IMPORT bool	set_bLogLocalSocketCmds;
 extern IMPORT bool	set_bLogUserCmds;
 extern IMPORT bool	set_bPerfTimer;
 
