@@ -54,6 +54,14 @@
 #define OBJ_ASTEROID			(1 << 29)
 
 
+struct IMPORT CacheString
+{
+	void clear(void);
+
+public:
+	char* value;
+};
+
 struct IMPORT ActionDB
 {
 	ActionDB(void);
@@ -265,7 +273,9 @@ namespace Archetype
 		struct CollisionGroup & operator=(struct CollisionGroup const &);
 
 	public:
-		unsigned char data[OBJECT_DATA_SIZE];
+		CollisionGroup* next;
+		USHORT	id;
+		CacheString name;
 	};
 
 	struct IMPORT Commodity
@@ -1213,9 +1223,9 @@ namespace Universe
 	{
 		uint iDunno1;
 		uint iBaseID;
-		uint iDunno2;
+		char *scNickname;
 		uint iBaseIDS;
-		uint iDunno3;
+		char *scFile;
 		uint iSystemID;
 		uint iDunno4[4];
 		ulong lSpaceObjID;
@@ -3114,13 +3124,6 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CacheString
-{
-	void clear(void);
-
-public:
-	char* value;
-};
 
 struct IMPORT CharPlaceInfo
 {
@@ -3803,7 +3806,8 @@ public:
 	float fBadSellPrice;
 	float fGoodBuyPrice;
 	uint iJumpDist;
-	float iDunno2[7];
+	float iDunno2[6];
+	uint iIDSName;
 	uint iIDS;
 	uint iHullGoodID; // if type = GOODINFO_TYPE_SHIP
 };
@@ -4998,12 +5002,13 @@ struct IMPORT MarketGoodInfo
 public:
 	uint iGoodID;
 	float fPrice;
-	int iUnknown1;
-	int iUnknown2;
+	int iMin;
+	int iStock;
 	TransactionType iTransType;
-	float fUnknown4;
+	float fRank;
 	float fRep;
-	unsigned char data[OBJECT_DATA_SIZE];
+	int iQuantity;
+	float fScale;
 };
 
 class IMPORT MarshalBuffer
