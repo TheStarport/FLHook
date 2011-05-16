@@ -155,7 +155,7 @@ public:
 	EXPORT virtual bool Send_FLPACKET_SERVER_LAUNCH(uint iClientID, FLPACKET_LAUNCH& pLaunch);
 	virtual bool Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint iClientID, bool bResponse, uint iShipID);
 	virtual void unknown_63(uint iClientID, FLPACKET_UNKNOWN& pDunno);
-	virtual bool Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, float iDamage);
 	virtual bool Send_FLPACKET_SERVER_ITEMTRACTORED(uint iClientID, uint iDunno);
 	virtual bool Send_FLPACKET_SERVER_USE_ITEM(uint iClientID, uint iDunno);
 	virtual bool Send_FLPACKET_SERVER_SETREPUTATION(uint iClientID, FLPACKET_UNKNOWN& pDunno);
@@ -202,17 +202,17 @@ public:
 	virtual void unknown_107(uint iClientID, uint iDunno, uint iDunno2);
 	virtual bool Send_FLPACKET_COMMON_PLAYER_TRADE(uint iClientID, uint iDunno);
 	virtual void unknown_109(uint iClientID, uint iDunno);
-	virtual bool Send_FLPACKET_SERVER_SCANNOTIFY(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_PLAYERLIST(uint iClientID, wchar_t*, uint, char);
-	virtual void unknown_112(uint iClientID, uint iDunno);
-	virtual bool Send_FLPACKET_SERVER_PLAYERLIST_2(uint iClientID);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE(uint iClientID, FLPACKET_UNKNOWN& pDunno);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iTargetID, uint iRank);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint iClientID, uint iDunno, uint iDunno2);
-	virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_SCANNOTIFY(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_PLAYERLIST(uint iClientID, wchar_t*, uint, char);
+	EXPORT virtual void unknown_112(uint iClientID, uint iDunno);
+	EXPORT virtual bool Send_FLPACKET_SERVER_PLAYERLIST_2(uint iClientID);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE(uint iClientID, FLPACKET_UNKNOWN& pDunno);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iTargetID, uint iRank);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint iClientID, uint iDunno, uint iDunno2);
+	EXPORT virtual bool Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iDunno, uint iDunno2);
 	virtual void unknown_121(uint iClientID, uint iDunno);  // formation sth?
 	virtual bool Send_FLPACKET_SERVER_FORMATION_UPDATE(uint iClientID, uint iShipID, Vector& vFormationOffset);
 	virtual void unknown_123(uint iClientID, uint iDunno, uint iDunno2, uint iDunno3, uint iDunno4, uint iDunno5, uint iDunno6);
