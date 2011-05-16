@@ -421,12 +421,14 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint iClientID, FLPACKET_UN
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iDunno, uint iDunno2)
+bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, float fHitPoints)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iObj);
+	ISERVER_LOGARG_UI(fHitPoints);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iDunno, iDunno2));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iObj, fHitPoints));
 	return reinterpret_cast<bool>(vRet);
 }
 
@@ -457,24 +459,26 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint iClientID, uint i
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint iClientID, uint iDunno)
+bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint iClientID, uint iRoom)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iRoom);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(iClientID, iDunno));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(iClientID, iRoom));
 	return reinterpret_cast<bool>(vRet);
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint iClientID, uint iDunno)
+bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint iClientID, uint iRoom)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iRoom);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(iClientID, iDunno));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(iClientID, iRoom));
 	return reinterpret_cast<bool>(vRet);
 }
 
@@ -505,12 +509,13 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint iClien
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint iClientID, uint iDunno)
+bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint iClientID, uint iRoom)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iRoom);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(iClientID, iDunno));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(iClientID, iRoom));
 	return reinterpret_cast<bool>(vRet);
 }
 
@@ -682,6 +687,8 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint iClientID, uint iD
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iDunno);
+	ISERVER_LOGARG_UI(iDunno2);
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_6(iClientID, iDunno, iDunno2));
 	return reinterpret_cast<bool>(vRet);
@@ -694,6 +701,8 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint iClientID, uint iD
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iDunno);
+	ISERVER_LOGARG_UI(iDunno2);
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_7(iClientID, iDunno, iDunno2));
 	return reinterpret_cast<bool>(vRet);
@@ -714,12 +723,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint iClientID, FLPACKET_
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iDunno, uint iDunno2)
+bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iObject, uint iFaction)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	// TODO: Missing a flag here?
+	ISERVER_LOGARG_UI(iObject);
+	ISERVER_LOGARG_UI(iFaction);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_2(iClientID, iDunno, iDunno2));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_2(iClientID, iObject, iFaction));
 	return reinterpret_cast<bool>(vRet);
 }
 
@@ -735,6 +747,8 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iT
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iTargetID);
+	ISERVER_LOGARG_UI(iRank);
 	
 	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,(iClientID, iTargetID, iRank));
 	if(bPluginReturn)
@@ -762,12 +776,18 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint iClientID, uint iD
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iDunno, uint iDunno2)
+bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iClientID2, uint iSystemID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iClientID2);
+	ISERVER_LOGARG_UI(iSystemID);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_5(iClientID, iDunno, iDunno2));
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_5,(iClientID, iClientID2, iSystemID));
+	if(bPluginReturn)
+		return reinterpret_cast<bool>(vPluginRet);
+
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_5(iClientID, iClientID2, iSystemID));
 	return reinterpret_cast<bool>(vRet);
 }
 
