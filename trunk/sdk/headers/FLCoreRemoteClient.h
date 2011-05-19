@@ -41,6 +41,14 @@ struct FLPACKET_UNKNOWN
 	uint iDunno[20];
 };
 
+struct FLPACKET_SETREPUTATION
+{
+	uint iSpaceID;
+	float fRep;
+	uint iRepGroup; // not sure
+	// there is more (FMTStr? - object name?)
+}:
+
 struct FLPACKET_LAUNCH
 {
 	uint iShip;
