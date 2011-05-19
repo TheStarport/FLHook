@@ -47,7 +47,7 @@ struct FLPACKET_SETREPUTATION
 	float fRep;
 	uint iRepGroup; // not sure
 	// there is more (FMTStr? - object name?)
-}:
+};
 
 struct FLPACKET_LAUNCH
 {
