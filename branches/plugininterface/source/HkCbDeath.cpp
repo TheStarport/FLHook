@@ -18,9 +18,7 @@ Send "Death: ..." chat-message
 
 void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 {
-	CALL_PLUGINS(PLUGIN_SendDeathMsg,(wscMsg,iSystemID,iClientIDVictim,iClientIDKiller));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_SendDeathMsg,,(const wstring&,uint,uint,uint),(wscMsg,iSystemID,iClientIDVictim,iClientIDKiller));
 
 	// encode xml string(default and small)
 	// non-sys
@@ -116,9 +114,7 @@ Called when ship was destroyed
 void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
 {
 
-	CALL_PLUGINS(PLUGIN_ShipDestroyed,(_dmg,szECX,iKill));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_ShipDestroyed,__stdcall,(DamageList *_dmg, char *szECX, uint iKill),(_dmg,szECX,iKill));
 
 	try {
 		if(iKill==1)
@@ -287,9 +283,7 @@ Called when base was destroyed
 void BaseDestroyed(uint iObject, uint iClientIDBy)
 {
 
-	CALL_PLUGINS(PLUGIN_BaseDestroyed,(iObject,iClientIDBy));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_BaseDestroyed,,(uint,uint),(iObject,iClientIDBy));
 
 	uint iID;
 	pub::SpaceObj::GetDockingTarget(iObject, iID);

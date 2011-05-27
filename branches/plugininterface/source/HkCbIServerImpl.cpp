@@ -72,9 +72,7 @@ int __stdcall Update(void)
 	memcpy(&g_iServerLoad, pData + 0x204, 4);
 	memcpy(&g_iPlayerCount, pData + 0x208, 4);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Update,());
-	if(bPluginReturn) 
-		return reinterpret_cast<int>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_Update,int,__stdcall,(),());
 
 	int result = 0;
 	EXECUTE_SERVER_CALL(result = Server.Update());
@@ -95,21 +93,14 @@ CInGame admin;
 bool g_bInSubmitChat = false;
 uint g_iTextLen = 0;
 
-void __stdcall SubmitChat_AFTER(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SubmitChat,(cId,lP1,rdlReader,cIdTo,iP2));
-}
-
 void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_I(cId.iID);
 	ISERVER_LOGARG_I(cIdTo.iID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SubmitChat,(cId,lP1,rdlReader,cIdTo,iP2));
-	if(bPluginReturn)
-		return;
-	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat,__stdcall,(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2),(cId,lP1,rdlReader,cIdTo,iP2));
+
 	try {
 
 		// Group join/leave commands
@@ -267,7 +258,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 	EXECUTE_SERVER_CALL(Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2));
 	g_bInSubmitChat = false;
 
-	SubmitChat_AFTER(cId, lP1, rdlReader, cIdTo, iP2);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat_AFTER,__stdcall,(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2),(cId,lP1,rdlReader,cIdTo,iP2));
 }
 
 /**************************************************************************************************************

@@ -238,6 +238,8 @@ void FLHookInit_Pre()
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 		string scCfgFile = string(szCurDir) + "\\FLHook.ini";
+
+		PluginManager::Init();
 		
 		if(IniGetB(scCfgFile, "Plugins", "LoadAllPlugins", true))
 			PluginManager::LoadPlugins(true, &AdminConsole);
@@ -250,7 +252,7 @@ void FLHookInit_Pre()
 			{
 				if(it->scKey != "plugin")
 					continue;
-				PluginManager::LoadPlugin(it->scValue, &AdminConsole);
+				PluginManager::LoadPlugin(it->scValue, &AdminConsole, true);
 			}
 		}
 

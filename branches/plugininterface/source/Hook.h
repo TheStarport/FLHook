@@ -106,27 +106,6 @@ extern void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep);
 
 class CCmds;
 
-struct PLUGIN_HOOKDATA
-{
-	string sName;
-	string sPluginFunction;
-	HMODULE hDLL;
-	int iPriority;
-	bool bPaused;
-	FARPROC pFunc;
-	FARPROC pPluginReturnCode;			
-};
-
-
-struct PLUGIN_INFO
-{
-	string sName;
-	string sShortName;
-	bool bMayPause;
-	bool bMayUnload;
-	std::map<string, int> mapHooks;
-};
-
 class CTimer
 {
 public:
@@ -141,48 +120,119 @@ private:
 	uint iWarning;
 };
 
-#define CALL_PLUGINS(func_proto,args) \
-	void* vPluginRet; \
+struct PLUGIN_HOOKDATA
+{
+	string sName;
+	string sPluginFunction;
+	HMODULE hDLL;
+	int iPriority;
+	bool bPaused;
+	FARPROC pFunc;	
+	PLUGIN_RETURNCODE* ePluginReturnCode;
+};
+
+struct PLUGIN_HOOKINFO
+{
+	FARPROC* pFunc;
+	PLUGIN_CALLBACKS eCallbackID;
+	int iPriority;
+};
+
+struct PLUGIN_INFO
+{
+	string sName;
+	string sShortName;
+	bool bMayPause;
+	bool bMayUnload;
+	PLUGIN_RETURNCODE* ePluginReturnCode;
+	list<PLUGIN_HOOKINFO> lstHooks;
+};
+
+struct PLUGIN_DATA
+{
+	string sName;
+	string sShortName;
+	HMODULE hDLL;
+	string sDLL;
+	bool bMayPause;
+	bool bMayUnload;
+	bool bPaused;
+};
+
+struct PLUGIN_SORTCRIT {
+  bool operator()(const PLUGIN_HOOKDATA& lhs, const PLUGIN_HOOKDATA& rhs) const {
+	  if(lhs.iPriority > rhs.iPriority)
+		  return true;
+	  else
+		  return false;
+  }
+};
+
+
+
+#define CALL_PLUGINS(callback_id,ret_type,calling_convention,arg_types,args) \
+{ \
+	ret_type vPluginRet; \
 	bool bPluginReturn = false; \
+	g_bPlugin_nofunctioncall = false; \
 	try { \
-		std::map<string, list<PLUGIN_HOOKDATA>*>::iterator iter; \
-		iter = mpPluginHooks.find((string)__FUNCTION__); \
-		if(iter != mpPluginHooks.end()) { \
-			foreach((*(iter->second)),PLUGIN_HOOKDATA, itplugin) { \
-				void* vPluginRetTemp = 0; \
-				if(itplugin->bPaused) \
-					continue; \
-				if (!itplugin->pFunc) \
-					itplugin->pFunc = GetProcAddress(itplugin->hDLL, __FUNCDNAME__); \
-				if (itplugin->pFunc) { \
-					func_proto fpDLLCall = (func_proto)itplugin->pFunc; \
-					static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
-					timer.start(); \
-					try { \
-						fpDLLCall args; \
-						__asm { mov [vPluginRetTemp], eax } \
-					} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
-					timer.stop(); \
-				} else  \
-					AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-				if (itplugin->pPluginReturnCode) { \
-					PLUGIN_Get_PluginReturnCode Plugin_ReturnCode = (PLUGIN_Get_PluginReturnCode)itplugin->pPluginReturnCode; \
-					PLUGIN_RETURNCODE plugin_returncode = Plugin_ReturnCode(); \
-					g_bPlugin_nofunctioncall = false; \
-					if(plugin_returncode == SKIPPLUGINS_NOFUNCTIONCALL) { \
-						bPluginReturn = true; \
-						vPluginRet = vPluginRetTemp; \
-						break; \
-					} else if(plugin_returncode == NOFUNCTIONCALL) { \
-						bPluginReturn = true; \
-						g_bPlugin_nofunctioncall = true; \
-						vPluginRet = vPluginRetTemp; \
-					} else if (plugin_returncode == SKIPPLUGINS) \
-						break; \
-				} \
-			} \
-		}\
+		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
+			if(itplugin->bPaused) \
+				continue; \
+			if(itplugin->pFunc) { \
+				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				timer.start(); \
+				try { \
+					vPluginRet = ((ret_type (calling_convention*) arg_types )itplugin->pFunc) args; \
+				} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
+				timer.stop(); \
+			} else  \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				bPluginReturn = true; \
+				break; \
+			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
+				bPluginReturn = true; \
+				g_bPlugin_nofunctioncall = true; \
+			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+				break; \
+		} \
 	} catch(...) { AddLog("ERROR: Exception %s", __FUNCTION__); LOG_EXCEPTION } \
+	if(bPluginReturn) \
+		return vPluginRet; \
+} \
+
+// same for void types, not really seeing a way to integrate it in 1st macro :(
+#define CALL_PLUGINS_V(callback_id,calling_convention,arg_types,args) \
+{ \
+	bool bPluginReturn = false; \
+	g_bPlugin_nofunctioncall = false; \
+	try { \
+		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
+			if(itplugin->bPaused) \
+				continue; \
+			if(itplugin->pFunc) { \
+				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				timer.start(); \
+				try { \
+					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
+				} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
+				timer.stop(); \
+			} else  \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				bPluginReturn = true; \
+				break; \
+			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
+				bPluginReturn = true; \
+				g_bPlugin_nofunctioncall = true; \
+			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+				break; \
+		} \
+	} catch(...) { AddLog("ERROR: Exception %s", __FUNCTION__); LOG_EXCEPTION } \
+	if(bPluginReturn) \
+		return; \
+} \
 
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();
@@ -193,8 +243,6 @@ typedef void (__stdcall *PLUGIN_HkIServerImpl_Shutdown)(void);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_Startup)(struct SStartupInfo const &p1);
 typedef void (*PLUGIN_HkTimerCheckKick)();
 typedef void (*PLUGIN_HkTimerNPCAndF1Check)();
-typedef int (__stdcall *PLUGIN_HkIServerImpl_Update)();
-typedef void (__stdcall *PLUGIN_HkIServerImpl_SubmitChat)(CHAT_ID, unsigned long, void const *,CHAT_ID,int);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_PlayerLaunch)(unsigned int iShip, unsigned int iClientID);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_FireWeapon)(unsigned int iClientID, struct XFireWeaponInfo const &wpn);
 typedef void (__stdcall *PLUGIN_HkIServerImpl_SPMunitionCollision)(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID);
@@ -275,32 +323,9 @@ typedef void (__stdcall *PLUGIN_HkIServerImpl_TractorObjects)(unsigned int iClie
 typedef void (__stdcall *PLUGIN_HkIServerImpl_TradeResponse)(unsigned char const *p1, int p2, unsigned int iClientID);
 typedef bool (*PLUGIN_UserCmd_Process)(uint iClientID, const wstring &wscCmd);
 typedef void (*PLUGIN_UserCmd_Help)(uint iClientID, const wstring &wscParam);
-typedef void (__stdcall *PLUGIN_ShipDestroyed)(DamageList *_dmg, char *szECX, uint iKill);
-typedef void (*PLUGIN_SendDeathMsg)(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller);
-typedef int (__stdcall *PLUGIN_HkCB_MissileTorpHit)(char *ECX, char *p1, DamageList *dmg);
-typedef void (__stdcall *PLUGIN_HkCb_AddDmgEntry)(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3);
-typedef void (__stdcall *PLUGIN_HkCb_GeneralDmg)(char *szECX);
-typedef bool (*PLUGIN_AllowPlayerDamage)(uint iClientID, uint iClientIDTarget);
-typedef void (__stdcall *PLUGIN_HkCb_SendChat)(uint iClientID, uint iTo, uint iSize, void *pRDL);
-typedef void (*PLUGIN_ClearClientInfo)(uint iClientID);
 typedef void (*PLUGIN_LoadSettings)();
 typedef bool (*PLUGIN_ExecuteCommandString_Callback)(CCmds* classptr, const wstring &wscCmdStr);
 typedef void (*PLUGIN_CmdHelp_Callback)(CCmds* classptr);
-typedef void (*PLUGIN_LoadUserCharSettings)(uint iClientID);
-typedef bool (__stdcall *PLUGIN_LaunchPosHook)(uint iSpaceID, struct CEqObj &p1, Vector &p2, Matrix &p3, int iDock);
-typedef int (__cdecl *PLUGIN_HkCb_Dock_Call)(unsigned int const &uShipID,unsigned int const &uSpaceID,int p3,enum DOCK_HOST_RESPONSE p4);
-typedef void (__stdcall *PLUGIN_HkCb_Elapse_Time)(float p1);
-typedef void (__cdecl *PLUGIN_HkCb_Update_Time)(double dInterval);
-typedef void (__cdecl *PLUGIN_BaseDestroyed)(uint iObject, uint iClientIDBy);
-typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP)(uint iClientID, FLPACKET_CREATESHIP& pShip);
-typedef void (__cdecl *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER)(uint iClientID, FLPACKET_CREATESHIP& pShip);
-typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP)(uint iClientID, bool bResponse, uint iShipID);
-typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH)(uint iClientID, FLPACKET_LAUNCH& pLaunch);
-typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3)(uint iClientID, uint iTargetID, uint iRank);
-typedef void (__cdecl *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER)(uint iClientID, uint iTargetID, uint iRank);
-typedef bool (__stdcall *PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_5)(uint iClientID, uint iClientID2, uint iSystemID);
-typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_init)(CShip* ship);
-typedef bool (__stdcall *PLUGIN_HkIEngine_CShip_destroy)(CShip* ship);
 typedef bool (*PLUGIN_ProcessEvent_BEFORE)(wstring &wscText);
 
 
@@ -609,33 +634,15 @@ struct GROUP_MEMBER
 	wstring wscCharname;
 };
 
-struct PLUGIN_DATA
-{
-	string sName;
-	string sShortName;
-	HMODULE hDLL;
-	string sDLL;
-	bool bMayPause;
-	bool bMayUnload;
-	bool bPaused;
-};
-
-struct PLUGIN_SORTCRIT {
-  bool operator()(const PLUGIN_HOOKDATA& lhs, const PLUGIN_HOOKDATA& rhs) const {
-	  if(lhs.iPriority > rhs.iPriority)
-		  return true;
-	  else
-		  return false;
-  }
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // prototypes
 
 // HkPluginManager
 namespace PluginManager {
+	void Init();
+	void Destroy();
 	EXPORT void LoadPlugins(bool, CCmds*);
-	EXPORT void LoadPlugin(const string &sFileName, CCmds*);
+	EXPORT void LoadPlugin(const string &sFileName, CCmds*, bool);
 	EXPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
 	EXPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	EXPORT void UnloadPlugins();
@@ -821,14 +828,14 @@ bool HkLoadBaseMarket();
 
 // variables
 
-extern EXPORT std::map<string, list<PLUGIN_HOOKDATA>*> mpPluginHooks;
+extern EXPORT list<PLUGIN_HOOKDATA>* pPluginHooks;
 extern EXPORT list<PLUGIN_DATA> lstPlugins;
 
 extern EXPORT HkIClientImpl* FakeClient;
 extern EXPORT HkIClientImpl* HookClient;
 extern EXPORT char* OldClient;
 
-extern EXPORT uint	iDmgTo;
+extern EXPORT uint iDmgTo;
 extern EXPORT uint iDmgToSpaceID;
 
 extern EXPORT bool g_bMsg;

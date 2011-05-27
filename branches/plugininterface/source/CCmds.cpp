@@ -708,7 +708,7 @@ void CCmds::CmdLoadPlugin(const wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
-	PluginManager::LoadPlugin(wstos(wscPlugin), this);
+	PluginManager::LoadPlugin(wstos(wscPlugin), this, false);
 	Print(L"OK\n");
 }
 
