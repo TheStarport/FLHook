@@ -265,11 +265,6 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 Called when player ship was created in space (after undock or login)
 **************************************************************************************************************/
 
-void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_PlayerLaunch,(iShip,iClientID));
-}
-
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 {
 	ISERVER_LOG();
@@ -297,9 +292,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_PlayerLaunch,(iShip,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.PlayerLaunch(iShip, iClientID));
 
@@ -316,29 +309,23 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	PlayerLaunch_AFTER(iShip, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch_AFTER,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player fires a weapon
 **************************************************************************************************************/
 
-void __stdcall FireWeapon_AFTER(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_FireWeapon,(iClientID,wpn));
-}
-
 void __stdcall FireWeapon(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_FireWeapon,(iClientID,wpn));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon,__stdcall,(unsigned int iClientID, struct XFireWeaponInfo const &wpn),(iClientID,wpn));
 
 	EXECUTE_SERVER_CALL(Server.FireWeapon(iClientID, wpn));
-	FireWeapon_AFTER(iClientID, wpn);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon_AFTER,__stdcall,(unsigned int iClientID, struct XFireWeaponInfo const &wpn),(iClientID,wpn));
 }
 
 /**************************************************************************************************************
@@ -346,11 +333,6 @@ Called when one player hits a target with a gun
 <Parameters>
 ci:  only figured out where dwTargetShip is ...
 **************************************************************************************************************/
-
-void __stdcall SPMunitionCollision_AFTER(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPMunitionCollision,(ci,iClientID));
-}
 
 void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
 {
@@ -365,67 +347,50 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 	} catch(...) { LOG_EXCEPTION }
 
 	iDmgTo = iClientIDTarget;
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPMunitionCollision,(ci,iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPMunitionCollision,__stdcall,(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPMunitionCollision(ci, iClientID));
-	SPMunitionCollision_AFTER(ci, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPMunitionCollision_AFTER,__stdcall,(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID),(ci,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player moves his ship
 **************************************************************************************************************/
 
-void __stdcall SPObjUpdate_AFTER(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjUpdate,(ui,iClientID));
-}
 
 void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iClientID);	
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjUpdate,(ui,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate,__stdcall,(struct SSPObjUpdateInfo const &ui, unsigned int iClientID),(ui,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjUpdate(ui, iClientID));
-	SPObjUpdate_AFTER(ui, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate_AFTER,__stdcall,(struct SSPObjUpdateInfo const &ui, unsigned int iClientID),(ui,iClientID));
 
 }
 /**************************************************************************************************************
 Called when one player collides with a space object
 **************************************************************************************************************/
 
-void __stdcall SPObjCollision_AFTER(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjCollision,(ci,iClientID));
-}
-
 void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjCollision,(ci,iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjCollision(ci, iClientID));
-	SPObjCollision_AFTER(ci, iClientID);
+
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision_AFTER,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player has undocked and is now ready to fly
 **************************************************************************************************************/
-
-void __stdcall LaunchComplete_AFTER(unsigned int iBaseID, unsigned int iShip)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LaunchComplete,(iBaseID,iShip));
-}
 
 void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 {
@@ -453,8 +418,8 @@ void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 	} catch(...) { LOG_EXCEPTION }
 
 	CALL_PLUGINS(PLUGIN_HkIServerImpl_LaunchComplete,(iBaseID,iShip));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.LaunchComplete(iBaseID, iShip));
 
