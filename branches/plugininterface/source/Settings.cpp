@@ -243,5 +243,5 @@ void LoadSettings()
 	HkAddHelpEntry( L"/credits", L"", L"Displays FLHook's credits.", L"", get_bTrue );
 	HkAddHelpEntry( L"/help", L"[<command>]", L"Displays the help screen. Giving a <command> gives detailed info for that command.", L"", get_bTrue );
 	
-	CALL_PLUGINS(PLUGIN_LoadSettings,());
+	CALL_PLUGINS_NORET(PLUGIN_LoadSettings,,(),());
 }

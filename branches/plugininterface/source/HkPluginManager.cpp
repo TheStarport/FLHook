@@ -12,7 +12,7 @@ enum PLUGIN_MESSAGE;
 
 void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 {
-	CALL_PLUGINS(PLUGIN_Plugin_Communication,(msg,data));
+	CALL_PLUGINS_NORET(PLUGIN_Plugin_Communication,,(PLUGIN_MESSAGE msg, void* data),(msg,data));
 }
 
 __declspec(dllexport) void Plugin_Communication(PLUGIN_MESSAGE msg, void* data)
@@ -30,13 +30,17 @@ void Init()
 {
 	// create array of callback-function plugin-data lists
 	pPluginHooks = new list<PLUGIN_HOOKDATA>[(int)PLUGIN_CALLBACKS_AMOUNT];
+
+	lstPlugins.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Destroy()
 {
-	delete pPluginHooks[];
+	delete[] pPluginHooks;
+
+	lstPlugins.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +187,7 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup)
 	{
 		PLUGIN_HOOKDATA hook;
 		hook.sName = plugin.sShortName;
-		hook.sPluginFunction = hook.sName + "-" + iter->first;
+		hook.sPluginFunction = hook.sName + "-" + itos((int)it->eCallbackID);
 		hook.bPaused = false;
 		hook.hDLL = plugin.hDLL;
 		hook.iPriority = it->iPriority;

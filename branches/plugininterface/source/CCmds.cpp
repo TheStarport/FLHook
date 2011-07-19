@@ -774,11 +774,6 @@ void CCmds::CmdRehash()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CmdHelp_Callback(CCmds* classptr)
-{
-	CALL_PLUGINS(PLUGIN_CmdHelp_Callback,(classptr));
-}
-
 void CCmds::CmdHelp()
 {
 	wchar_t wszHelpMsg[] = 
@@ -847,7 +842,8 @@ void CCmds::CmdHelp()
 
 	Print(L"%s", wszHelpMsg);
 
-	CmdHelp_Callback(this);
+	CALL_PLUGINS_NORET(PLUGIN_CmdHelp_Callback,,(CCmds* classptr),(this));
+
 	Print(L"OK\n");
 }
 
@@ -926,12 +922,9 @@ wstring CCmds::ArgStrToEnd(uint iArg)
 
 bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmdStr)
 {
-
-    CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback,(classptr,wscCmdStr));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
-	else
-		return false;
+    CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback,bool,,(CCmds* classptr, const wstring &wscCmdStr),(classptr,wscCmdStr));
+	
+	return false;
 }
 
 void CCmds::ExecuteCommandString(const wstring &wscCmdStr)

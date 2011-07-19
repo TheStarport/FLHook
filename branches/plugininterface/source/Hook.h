@@ -127,7 +127,7 @@ struct PLUGIN_HOOKDATA
 	HMODULE hDLL;
 	int iPriority;
 	bool bPaused;
-	FARPROC pFunc;	
+	FARPROC* pFunc;	
 	PLUGIN_RETURNCODE* ePluginReturnCode;
 };
 
@@ -234,22 +234,37 @@ struct PLUGIN_SORTCRIT {
 		return; \
 } \
 
+// extra macro for plugin calls where we dont care about or dont allow returning
+#define CALL_PLUGINS_NORET(callback_id,calling_convention,arg_types,args) \
+{ \
+	g_bPlugin_nofunctioncall = false; \
+	try { \
+		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
+			if(itplugin->bPaused) \
+				continue; \
+			if(itplugin->pFunc) { \
+				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				timer.start(); \
+				try { \
+					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
+				} catch(...) { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); LOG_EXCEPTION } \
+				timer.stop(); \
+			} else  \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+				break; \
+			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+				g_bPlugin_nofunctioncall = true; \
+			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+				break; \
+		} \
+	} catch(...) { AddLog("ERROR: Exception %s", __FUNCTION__); LOG_EXCEPTION } \
+} \
+
 typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();
-typedef void (*PLUGIN_Plugin_Communication)(PLUGIN_MESSAGE msg, void* data);
-
-// plugin callback hooks
-typedef void (__stdcall *PLUGIN_HkIServerImpl_Shutdown)(void);
-typedef void (__stdcall *PLUGIN_HkIServerImpl_Startup)(struct SStartupInfo const &p1);
-typedef void (*PLUGIN_HkTimerCheckKick)();
-typedef void (*PLUGIN_HkTimerNPCAndF1Check)();
-typedef bool (*PLUGIN_UserCmd_Process)(uint iClientID, const wstring &wscCmd);
-typedef void (*PLUGIN_UserCmd_Help)(uint iClientID, const wstring &wscParam);
-typedef void (*PLUGIN_LoadSettings)();
-typedef bool (*PLUGIN_ExecuteCommandString_Callback)(CCmds* classptr, const wstring &wscCmdStr);
-typedef void (*PLUGIN_CmdHelp_Callback)(CCmds* classptr);
-typedef bool (*PLUGIN_ProcessEvent_BEFORE)(wstring &wscText);
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

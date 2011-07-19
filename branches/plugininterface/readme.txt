@@ -454,7 +454,7 @@ FLHook uses a slighty modified version of flcodec.c
 == CHANGELOG ===================================================================
 ================================================================================
 
-1.6.2 plugin
+2.0.0 plugin
 =====
 - reworked plugin interface for performance and less complexity (w0dk4)
 
