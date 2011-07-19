@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="flcodec">
+      <UniqueIdentifier>{e82d9db8-1ad7-4d27-bb4c-d1324413d8af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hook">
+      <UniqueIdentifier>{32c2582d-764d-436b-af66-2ea8fceaeaa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hook\callbacks">
+      <UniqueIdentifier>{afa4ad84-3cd8-4235-9b9e-9dc5b9043236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hook\functions">
+      <UniqueIdentifier>{e9e45607-a71e-4335-9b27-7c18572589e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hook\data">
+      <UniqueIdentifier>{b55387f5-49c0-475a-b5fc-179cd02f693c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wildcards">
+      <UniqueIdentifier>{71fc6d14-c9b0-47ed-be15-f694f8771b4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="documentation">
+      <UniqueIdentifier>{80a96a42-89a1-487e-bdb0-55aa290d0cb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ini">
+      <UniqueIdentifier>{3649e610-8f26-4041-b60e-943682e1b888}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk">
+      <UniqueIdentifier>{f635468e-2456-4336-a5f3-6ef6c9ec6f3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AdminCommands">
+      <UniqueIdentifier>{102a5d75-2230-4abb-bace-417d85ecd3f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blowfish">
+      <UniqueIdentifier>{8f05c6f1-23e5-48af-b718-14dad21bcc5f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\flcodec.cpp">
+      <Filter>flcodec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkError.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFLIni.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkHelp.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkInit.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbChat.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbDamage.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbDeath.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbDisconnect.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbIClientImpl.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbIEngine.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkCbIServerImpl.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkTimers.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkUserCmd.cpp">
+      <Filter>Hook\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFuncLog.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFuncMsg.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFuncOther.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFuncPlayers.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkFuncTools.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkPluginManager.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkDataBaseMarket.cpp">
+      <Filter>Hook\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\wildcards.cpp">
+      <Filter>wildcards</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\CCmds.cpp">
+      <Filter>AdminCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\CConsole.cpp">
+      <Filter>AdminCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\CInGame.cpp">
+      <Filter>AdminCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\CSocket.cpp">
+      <Filter>AdminCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\blowfish.cpp">
+      <Filter>blowfish</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\FLHook.cpp" />
+    <ClCompile Include="..\source\Settings.cpp" />
+    <ClCompile Include="..\source\Tools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\flcodec.h">
+      <Filter>flcodec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Hook.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreCommon.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreDACom.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreDALib.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreDefs.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreFLServerEXE.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreRemoteClient.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdk\headers\FLCoreServer.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\CCmds.h">
+      <Filter>AdminCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\CConsole.h">
+      <Filter>AdminCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\CInGame.h">
+      <Filter>AdminCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\CSocket.h">
+      <Filter>AdminCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\blowfish.h">
+      <Filter>blowfish</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\global.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\source\wildcards.hh">
+      <Filter>wildcards</Filter>
+    </None>
+    <None Include="..\plugin_documentation.txt">
+      <Filter>documentation</Filter>
+    </None>
+    <None Include="..\readme.txt">
+      <Filter>documentation</Filter>
+    </None>
+    <None Include="..\bin\FLHook.ini">
+      <Filter>ini</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="..\sdk\headers\FLHook.h">
+      <Filter>sdk</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\sdk\headers\plugin.h">
+      <Filter>sdk</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+</Project>
