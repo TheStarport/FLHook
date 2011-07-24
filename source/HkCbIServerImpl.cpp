@@ -72,9 +72,7 @@ int __stdcall Update(void)
 	memcpy(&g_iServerLoad, pData + 0x204, 4);
 	memcpy(&g_iPlayerCount, pData + 0x208, 4);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Update,());
-	if(bPluginReturn) 
-		return reinterpret_cast<int>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIServerImpl_Update,int,__stdcall,(),());
 
 	int result = 0;
 	EXECUTE_SERVER_CALL(result = Server.Update());
@@ -95,21 +93,14 @@ CInGame admin;
 bool g_bInSubmitChat = false;
 uint g_iTextLen = 0;
 
-void __stdcall SubmitChat_AFTER(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SubmitChat,(cId,lP1,rdlReader,cIdTo,iP2));
-}
-
 void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_I(cId.iID);
 	ISERVER_LOGARG_I(cIdTo.iID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SubmitChat,(cId,lP1,rdlReader,cIdTo,iP2));
-	if(bPluginReturn)
-		return;
-	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat,__stdcall,(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2),(cId,lP1,rdlReader,cIdTo,iP2));
+
 	try {
 
 		// Group join/leave commands
@@ -267,17 +258,12 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 	EXECUTE_SERVER_CALL(Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2));
 	g_bInSubmitChat = false;
 
-	SubmitChat_AFTER(cId, lP1, rdlReader, cIdTo, iP2);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat_AFTER,__stdcall,(struct CHAT_ID cId, unsigned long lP1, void const *rdlReader, struct CHAT_ID cIdTo, int iP2),(cId,lP1,rdlReader,cIdTo,iP2));
 }
 
 /**************************************************************************************************************
 Called when player ship was created in space (after undock or login)
 **************************************************************************************************************/
-
-void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_PlayerLaunch,(iShip,iClientID));
-}
 
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 {
@@ -306,9 +292,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_PlayerLaunch,(iShip,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.PlayerLaunch(iShip, iClientID));
 
@@ -325,29 +309,23 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	PlayerLaunch_AFTER(iShip, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch_AFTER,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player fires a weapon
 **************************************************************************************************************/
 
-void __stdcall FireWeapon_AFTER(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_FireWeapon,(iClientID,wpn));
-}
-
 void __stdcall FireWeapon(unsigned int iClientID, struct XFireWeaponInfo const &wpn)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_FireWeapon,(iClientID,wpn));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon,__stdcall,(unsigned int iClientID, struct XFireWeaponInfo const &wpn),(iClientID,wpn));
 
 	EXECUTE_SERVER_CALL(Server.FireWeapon(iClientID, wpn));
-	FireWeapon_AFTER(iClientID, wpn);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon_AFTER,__stdcall,(unsigned int iClientID, struct XFireWeaponInfo const &wpn),(iClientID,wpn));
 }
 
 /**************************************************************************************************************
@@ -355,11 +333,6 @@ Called when one player hits a target with a gun
 <Parameters>
 ci:  only figured out where dwTargetShip is ...
 **************************************************************************************************************/
-
-void __stdcall SPMunitionCollision_AFTER(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPMunitionCollision,(ci,iClientID));
-}
 
 void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
 {
@@ -374,67 +347,50 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 	} catch(...) { LOG_EXCEPTION }
 
 	iDmgTo = iClientIDTarget;
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPMunitionCollision,(ci,iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPMunitionCollision,__stdcall,(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPMunitionCollision(ci, iClientID));
-	SPMunitionCollision_AFTER(ci, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPMunitionCollision_AFTER,__stdcall,(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID),(ci,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player moves his ship
 **************************************************************************************************************/
 
-void __stdcall SPObjUpdate_AFTER(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjUpdate,(ui,iClientID));
-}
 
 void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
 {
 	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iClientID);	
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjUpdate,(ui,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate,__stdcall,(struct SSPObjUpdateInfo const &ui, unsigned int iClientID),(ui,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjUpdate(ui, iClientID));
-	SPObjUpdate_AFTER(ui, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate_AFTER,__stdcall,(struct SSPObjUpdateInfo const &ui, unsigned int iClientID),(ui,iClientID));
 
 }
 /**************************************************************************************************************
 Called when one player collides with a space object
 **************************************************************************************************************/
 
-void __stdcall SPObjCollision_AFTER(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjCollision,(ci,iClientID));
-}
-
 void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPObjCollision,(ci,iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjCollision(ci, iClientID));
-	SPObjCollision_AFTER(ci, iClientID);
+
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision_AFTER,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player has undocked and is now ready to fly
 **************************************************************************************************************/
-
-void __stdcall LaunchComplete_AFTER(unsigned int iBaseID, unsigned int iShip)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LaunchComplete,(iBaseID,iShip));
-}
 
 void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 {
@@ -461,23 +417,16 @@ void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip)
 				HkGetPlayerSystem(iClientID).c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LaunchComplete,(iBaseID,iShip));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LaunchComplete,__stdcall,(unsigned int iBaseID, unsigned int iShip),(iBaseID, iShip));
 
 	EXECUTE_SERVER_CALL(Server.LaunchComplete(iBaseID, iShip));
 
-	LaunchComplete_AFTER(iBaseID, iShip);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LaunchComplete_AFTER,__stdcall,(unsigned int iBaseID, unsigned int iShip),(iBaseID, iShip));
 }
 
 /**************************************************************************************************************
 Called when player selects a character
 **************************************************************************************************************/
-
-void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const & cId, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CharacterSelect,(cId,iClientID));
-}
 
 void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iClientID)
 {
@@ -485,9 +434,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 	ISERVER_LOGARG_S(&cId);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CharacterSelect,(cId,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect,__stdcall,(struct CHARACTER_ID const & cId, unsigned int iClientID),(cId,iClientID));
 
 	wstring wscCharBefore;
 	try {
@@ -543,17 +490,12 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	CharacterSelect_AFTER(cId, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect_AFTER,__stdcall,(struct CHARACTER_ID const & cId, unsigned int iClientID),(cId,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player enters base
 **************************************************************************************************************/
-
-void __stdcall BaseEnter_AFTER(unsigned int iBaseID, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseEnter,(iBaseID,iClientID));
-}
 
 void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 {
@@ -561,9 +503,7 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 	ISERVER_LOGARG_UI(iBaseID);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseEnter,(iBaseID,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseEnter,__stdcall,(unsigned int iBaseID, unsigned int iClientID),(iBaseID,iClientID));
 
 	try {
 		// autobuy
@@ -597,17 +537,12 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 				HkGetPlayerSystem(iClientID).c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	BaseEnter_AFTER(iBaseID, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseEnter_AFTER,__stdcall,(unsigned int iBaseID, unsigned int iClientID),(iBaseID,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player exits base
 **************************************************************************************************************/
-
-void __stdcall BaseExit_AFTER(unsigned int iBaseID, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseExit,(iBaseID,iClientID));
-}
 
 void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID)
 {
@@ -620,9 +555,7 @@ void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID)
 		ClientInfo[iClientID].iLastExitedBaseID = iBaseID;
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseExit,(iBaseID,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseExit,__stdcall,(unsigned int iBaseID, unsigned int iClientID),(iBaseID,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.BaseExit(iBaseID, iClientID));
 
@@ -637,16 +570,11 @@ void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID)
 				HkGetPlayerSystem(iClientID).c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	BaseExit_AFTER(iBaseID, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseExit_AFTER,__stdcall,(unsigned int iBaseID, unsigned int iClientID),(iBaseID,iClientID));
 }
 /**************************************************************************************************************
 Called when player connects
 **************************************************************************************************************/
-
-void __stdcall OnConnect_AFTER(unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_OnConnect,(iClientID));
-}
 
 void __stdcall OnConnect(unsigned int iClientID)
 {
@@ -670,9 +598,7 @@ void __stdcall OnConnect(unsigned int iClientID)
 	} catch(...) { LOG_EXCEPTION }
 
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_OnConnect,(iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_OnConnect,__stdcall,(unsigned int iClientID),(iClientID));
 
 	EXECUTE_SERVER_CALL(Server.OnConnect(iClientID));
 
@@ -685,17 +611,12 @@ void __stdcall OnConnect(unsigned int iClientID)
 				wscIP.c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	OnConnect_AFTER(iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_OnConnect_AFTER,__stdcall,(unsigned int iClientID),(iClientID));
 }
 
 /**************************************************************************************************************
 Called when player disconnects
 **************************************************************************************************************/
-
-void __stdcall DisConnect_AFTER(unsigned int iClientID, enum EFLConnection p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DisConnect,(iClientID,p2));
-}
 
 void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 {
@@ -718,22 +639,16 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DisConnect,(iClientID,p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
 	
 	EXECUTE_SERVER_CALL(Server.DisConnect(iClientID, p2));
-	DisConnect_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect_AFTER,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
 }
 
 /**************************************************************************************************************
 Called when trade is being terminated
 **************************************************************************************************************/
-
-void __stdcall TerminateTrade_AFTER(unsigned int iClientID, int iAccepted)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TerminateTrade,(iClientID,iAccepted));
-}
 
 void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 {
@@ -741,9 +656,7 @@ void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_I(iAccepted);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TerminateTrade,(iClientID,iAccepted));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TerminateTrade,__stdcall,(unsigned int iClientID, int iAccepted),(iClientID,iAccepted));
 
 	EXECUTE_SERVER_CALL(Server.TerminateTrade(iClientID, iAccepted));
 
@@ -756,17 +669,12 @@ void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 		}
 	} catch(...) { LOG_EXCEPTION }
 
-	TerminateTrade_AFTER(iClientID, iAccepted);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TerminateTrade_AFTER,__stdcall,(unsigned int iClientID, int iAccepted),(iClientID,iAccepted));
 }
 
 /**************************************************************************************************************
 Called when new trade request
 **************************************************************************************************************/
-
-void __stdcall InitiateTrade_AFTER(unsigned int iClientID1, unsigned int iClientID2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_InitiateTrade,(iClientID1,iClientID2));
-}
 
 void __stdcall InitiateTrade(unsigned int iClientID1, unsigned int iClientID2)
 {
@@ -780,22 +688,16 @@ void __stdcall InitiateTrade(unsigned int iClientID1, unsigned int iClientID2)
 		ClientInfo[iClientID2].iTradePartner = iClientID1;
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_InitiateTrade,(iClientID1,iClientID2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_InitiateTrade,__stdcall,(unsigned int iClientID1, unsigned int iClientID2),(iClientID1,iClientID2));
 
 	EXECUTE_SERVER_CALL(Server.InitiateTrade(iClientID1, iClientID2));
-	InitiateTrade_AFTER(iClientID1, iClientID2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_InitiateTrade_AFTER,__stdcall,(unsigned int iClientID1, unsigned int iClientID2),(iClientID1,iClientID2));
 }
 
 /**************************************************************************************************************
 Called when equipment is being activated/disabled
 **************************************************************************************************************/
-
-void __stdcall ActivateEquip_AFTER(unsigned int iClientID, struct XActivateEquip const &aq)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateEquip,(iClientID,aq));
-}
 
 void __stdcall ActivateEquip(unsigned int iClientID, struct XActivateEquip const &aq)
 {
@@ -823,23 +725,17 @@ void __stdcall ActivateEquip(unsigned int iClientID, struct XActivateEquip const
 		}
 
 	} catch(...) { LOG_EXCEPTION }
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateEquip,(iClientID,aq));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateEquip,__stdcall,(unsigned int iClientID, struct XActivateEquip const &aq),(iClientID,aq));
 
 	EXECUTE_SERVER_CALL(Server.ActivateEquip(iClientID, aq));
-	ActivateEquip_AFTER(iClientID, aq);
+
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateEquip_AFTER,__stdcall,(unsigned int iClientID, struct XActivateEquip const &aq),(iClientID,aq));
 }
 
 /**************************************************************************************************************
 Called when cruise engine is being activated/disabled
 **************************************************************************************************************/
-
-void __stdcall ActivateCruise_AFTER(unsigned int iClientID, struct XActivateCruise const &ac)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateCruise,(iClientID,ac));
-}
 
 void __stdcall ActivateCruise(unsigned int iClientID, struct XActivateCruise const &ac)
 {
@@ -850,22 +746,16 @@ void __stdcall ActivateCruise(unsigned int iClientID, struct XActivateCruise con
 		ClientInfo[iClientID].bCruiseActivated = ac.bActivate;
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateCruise,(iClientID,ac));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateCruise,__stdcall,(unsigned int iClientID, struct XActivateCruise const &ac),(iClientID,ac));
 
 	EXECUTE_SERVER_CALL(Server.ActivateCruise(iClientID, ac));
-	ActivateCruise_AFTER(iClientID, ac);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateCruise_AFTER,__stdcall,(unsigned int iClientID, struct XActivateCruise const &ac),(iClientID,ac));
 }
 
 /**************************************************************************************************************
 Called when thruster is being activated/disabled
 **************************************************************************************************************/
-
-void __stdcall ActivateThrusters_AFTER(unsigned int iClientID, struct XActivateThrusters const &at)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateThrusters,(iClientID,at));
-}
 
 void __stdcall ActivateThrusters(unsigned int iClientID, struct XActivateThrusters const &at)
 {
@@ -875,23 +765,18 @@ void __stdcall ActivateThrusters(unsigned int iClientID, struct XActivateThruste
 	try {
 		ClientInfo[iClientID].bThrusterActivated = at.bActivate;
 	} catch(...) { LOG_EXCEPTION }
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ActivateThrusters,(iClientID,at));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateThrusters,__stdcall,(unsigned int iClientID, struct XActivateThrusters const &at),(iClientID,at));
 
 	EXECUTE_SERVER_CALL(Server.ActivateThrusters(iClientID, at));
-	ActivateThrusters_AFTER(iClientID, at);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ActivateThrusters_AFTER,__stdcall,(unsigned int iClientID, struct XActivateThrusters const &at),(iClientID,at));
+
 }
 
 /**************************************************************************************************************
 Called when player sells good on a base
 **************************************************************************************************************/
-
-void __stdcall GFGoodSell_AFTER(struct SGFGoodSellInfo const &gsi, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodSell,(gsi,iClientID));
-}
 
 void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClientID)
 {
@@ -940,23 +825,17 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 			return;
 		}
 	} catch(...) { AddLog("Exception in %s (iClientID=%u (%x))", __FUNCTION__, iClientID, Players.GetActiveCharacterName(iClientID)); }
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodSell,(gsi,iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodSell,__stdcall,(struct SGFGoodSellInfo const &gsi, unsigned int iClientID),(gsi,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.GFGoodSell(gsi, iClientID));
-	GFGoodSell_AFTER(gsi, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodSell_AFTER,__stdcall,(struct SGFGoodSellInfo const &gsi, unsigned int iClientID),(gsi,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player connects or pushes f1
 **************************************************************************************************************/
-
-void __stdcall CharacterInfoReq_AFTER(unsigned int iClientID, bool p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CharacterInfoReq,(iClientID,p2));
-}
 
 void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2)
 {
@@ -964,9 +843,7 @@ void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CharacterInfoReq,(iClientID,p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterInfoReq,__stdcall,(unsigned int iClientID, bool p2),(iClientID,p2));
 
 	try {
 		if(!ClientInfo[iClientID].bCharSelected)
@@ -988,17 +865,12 @@ void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2)
 		return;
 	}
 
-	CharacterInfoReq_AFTER(iClientID, p2);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterInfoReq_AFTER,__stdcall,(unsigned int iClientID, bool p2),(iClientID,p2));
 }
 
 /**************************************************************************************************************
 Called when player jumps in system
 **************************************************************************************************************/
-
-void __stdcall JumpInComplete_AFTER(unsigned int iSystemID, unsigned int iShip)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_JumpInComplete,(iSystemID,iShip));
-}
 
 void __stdcall JumpInComplete(unsigned int iSystemID, unsigned int iShip)
 {
@@ -1006,9 +878,7 @@ void __stdcall JumpInComplete(unsigned int iSystemID, unsigned int iShip)
 	ISERVER_LOGARG_UI(iSystemID);
 	ISERVER_LOGARG_UI(iShip);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_JumpInComplete,(iSystemID,iShip));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_JumpInComplete,__stdcall,(unsigned int iSystemID, unsigned int iShip),(iSystemID,iShip));
 
 	EXECUTE_SERVER_CALL(Server.JumpInComplete(iSystemID, iShip));
 
@@ -1024,17 +894,12 @@ void __stdcall JumpInComplete(unsigned int iSystemID, unsigned int iShip)
 				HkGetSystemNickByID(iSystemID).c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	JumpInComplete_AFTER(iSystemID, iShip);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_JumpInComplete_AFTER,__stdcall,(unsigned int iSystemID, unsigned int iShip),(iSystemID,iShip));
 }
 
 /**************************************************************************************************************
 Called when player jumps out of system
 **************************************************************************************************************/
-
-void __stdcall SystemSwitchOutComplete_AFTER(unsigned int iShip, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SystemSwitchOutComplete,(iShip,iClientID));
-}
 
 void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientID)
 {
@@ -1042,9 +907,7 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SystemSwitchOutComplete,(iShip,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SystemSwitchOutComplete,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 
 	wstring wscSystem = HkGetPlayerSystem(iClientID);
 
@@ -1058,17 +921,12 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 				wscSystem.c_str());
 	} catch(...) { LOG_EXCEPTION }
 
-	SystemSwitchOutComplete_AFTER(iShip, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SystemSwitchOutComplete_AFTER,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 }
 
 /**************************************************************************************************************
 Called when player logs in
 **************************************************************************************************************/
-
-void __stdcall Login_AFTER(struct SLoginInfo const &li, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Login,(li,iClientID));
-}
 
 void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 {
@@ -1094,9 +952,7 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 			return;
 		}
 
-		CALL_PLUGINS(PLUGIN_HkIServerImpl_Login,(li,iClientID));
-		if(bPluginReturn)
-			return;	
+		CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Login,__stdcall,(struct SLoginInfo const &li, unsigned int iClientID),(li,iClientID));
 
 
 		// check for ip ban
@@ -1162,17 +1018,13 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 		}
 	}
 
-	Login_AFTER(li, iClientID);
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Login_AFTER,__stdcall,(struct SLoginInfo const &li, unsigned int iClientID),(li,iClientID));
 }
 
 /**************************************************************************************************************
 Called on item spawn
 **************************************************************************************************************/
 
-void __stdcall MineAsteroid_AFTER(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MineAsteroid,(p1,vPos,iLookID,iGoodID,iCount,iClientID));
-}
 
 void __stdcall MineAsteroid(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID)
 {
@@ -1185,21 +1037,15 @@ void __stdcall MineAsteroid(unsigned int p1, class Vector const &vPos, unsigned 
 	ISERVER_LOGARG_UI(iClientID);
 
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MineAsteroid,(p1,vPos,iLookID,iGoodID,iCount,iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_MineAsteroid,__stdcall,(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID),(p1,vPos,iLookID,iGoodID,iCount,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.MineAsteroid(p1, vPos, iLookID, iGoodID, iCount, iClientID));
-	MineAsteroid_AFTER(p1, vPos, iLookID, iGoodID, iCount, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_MineAsteroid_AFTER,__stdcall,(unsigned int p1, class Vector const &vPos, unsigned int iLookID, unsigned int iGoodID, unsigned int iCount, unsigned int iClientID),(p1,vPos,iLookID,iGoodID,iCount,iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall GoTradelane_AFTER(unsigned int iClientID, struct XGoTradelane const &gtl)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GoTradelane,(iClientID,gtl));
-}
 
 void __stdcall GoTradelane(unsigned int iClientID, struct XGoTradelane const &gtl)
 {
@@ -1210,21 +1056,15 @@ void __stdcall GoTradelane(unsigned int iClientID, struct XGoTradelane const &gt
 		ClientInfo[iClientID].bTradelane = true;
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GoTradelane,(iClientID,gtl));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GoTradelane,__stdcall,(unsigned int iClientID, struct XGoTradelane const &gtl),(iClientID,gtl));
 
 	EXECUTE_SERVER_CALL(Server.GoTradelane(iClientID, gtl));
-	GoTradelane_AFTER(iClientID, gtl);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GoTradelane_AFTER,__stdcall,(unsigned int iClientID, struct XGoTradelane const &gtl),(iClientID,gtl));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall StopTradelane_AFTER(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_StopTradelane,(iClientID,p2,p3,p4));
-}
 
 void __stdcall StopTradelane(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4)
 {
@@ -1238,21 +1078,15 @@ void __stdcall StopTradelane(unsigned int iClientID, unsigned int p2, unsigned i
 		ClientInfo[iClientID].bTradelane = false;
 	} catch(...) { LOG_EXCEPTION }
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_StopTradelane,(iClientID,p2,p3,p4));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_StopTradelane,__stdcall,(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4),(iClientID,p2,p3,p4));
 
 	EXECUTE_SERVER_CALL(Server.StopTradelane(iClientID, p2, p3, p4));
-	StopTradelane_AFTER(iClientID, p2, p3, p4);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_StopTradelane_AFTER,__stdcall,(unsigned int iClientID, unsigned int p2, unsigned int p3, unsigned int p4),(iClientID,p2,p3,p4));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall AbortMission_AFTER(unsigned int p1, unsigned int p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AbortMission,(p1,p2));
-}
 
 void __stdcall AbortMission(unsigned int iClientID, unsigned int p2)
 {
@@ -1260,64 +1094,46 @@ void __stdcall AbortMission(unsigned int iClientID, unsigned int p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AbortMission,(iClientID,p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AbortMission,__stdcall,(unsigned int iClientID, unsigned int p2),(iClientID, p2));
 
 	EXECUTE_SERVER_CALL(Server.AbortMission(iClientID, p2));
-	AbortMission_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AbortMission_AFTER,__stdcall,(unsigned int iClientID, unsigned int p2),(iClientID, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall AcceptTrade_AFTER(unsigned int iClientID, bool p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AcceptTrade,(iClientID,p2));
-}
 
 void __stdcall AcceptTrade(unsigned int iClientID, bool p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AcceptTrade,(iClientID,p2));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AcceptTrade,__stdcall,(unsigned int iClientID, bool p2),(iClientID,p2));
 
 	EXECUTE_SERVER_CALL(Server.AcceptTrade(iClientID, p2));
-	AcceptTrade_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AcceptTrade_AFTER,__stdcall,(unsigned int iClientID, bool p2),(iClientID,p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall AddTradeEquip_AFTER(unsigned int iClientID, struct EquipDesc const &ed)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AddTradeEquip,(iClientID,ed));
-}
 
 void __stdcall AddTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_AddTradeEquip,(iClientID,ed));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AddTradeEquip,__stdcall,(unsigned int iClientID, struct EquipDesc const &ed),(iClientID, ed));
 
 	EXECUTE_SERVER_CALL(Server.AddTradeEquip(iClientID, ed));
-	AddTradeEquip_AFTER(iClientID, ed);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_AddTradeEquip_AFTER,__stdcall,(unsigned int iClientID, struct EquipDesc const &ed),(iClientID, ed));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall BaseInfoRequest_AFTER(unsigned int p1, unsigned int p2, bool p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseInfoRequest,(p1, p2, p3));
-}
 
 void __stdcall BaseInfoRequest(unsigned int p1, unsigned int p2, bool p3)
 {
@@ -1326,12 +1142,11 @@ void __stdcall BaseInfoRequest(unsigned int p1, unsigned int p2, bool p3)
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_BaseInfoRequest,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseInfoRequest,__stdcall,(unsigned int p1, unsigned int p2, bool p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.BaseInfoRequest(p1, p2, p3));
-	BaseInfoRequest_AFTER(p1, p2, p3);
+
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseInfoRequest_AFTER,__stdcall,(unsigned int p1, unsigned int p2, bool p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
@@ -1340,11 +1155,6 @@ void __stdcall BaseInfoRequest(unsigned int p1, unsigned int p2, bool p3)
 void __stdcall CharacterSkipAutosave(unsigned int iClientID)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
-
-	EXECUTE_SERVER_CALL(Server.CharacterSkipAutosave(iClientID));
 }
 
 /**************************************************************************************************************
@@ -1353,66 +1163,40 @@ void __stdcall CharacterSkipAutosave(unsigned int iClientID)
 void __stdcall CommComplete(unsigned int p1, unsigned int p2, unsigned int p3,enum CommResult cr)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(p1);
-	ISERVER_LOGARG_UI(p2);
-	ISERVER_LOGARG_UI(p3);
-	ISERVER_LOGARG_UI(cr);
-
-	EXECUTE_SERVER_CALL(Server.CommComplete(p1, p2, p3, cr));
-
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall CreateNewCharacter_AFTER(struct SCreateCharacterInfo const & scci, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CreateNewCharacter,(scci, iClientID));
-}
 
 void __stdcall CreateNewCharacter(struct SCreateCharacterInfo const & scci, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_CreateNewCharacter,(scci, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CreateNewCharacter,__stdcall,(struct SCreateCharacterInfo const & scci, unsigned int iClientID),(scci, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.CreateNewCharacter(scci, iClientID));
-	CreateNewCharacter_AFTER(scci, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CreateNewCharacter_AFTER,__stdcall,(struct SCreateCharacterInfo const & scci, unsigned int iClientID),(scci, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall DelTradeEquip_AFTER(unsigned int iClientID, struct EquipDesc const &ed)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DelTradeEquip,(iClientID, ed));
-}
 
 void __stdcall DelTradeEquip(unsigned int iClientID, struct EquipDesc const &ed)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DelTradeEquip,(iClientID, ed));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DelTradeEquip,__stdcall,(unsigned int iClientID, struct EquipDesc const &ed),(iClientID, ed));
 
 	EXECUTE_SERVER_CALL(Server.DelTradeEquip(iClientID, ed));
-	DelTradeEquip_AFTER(iClientID, ed);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DelTradeEquip_AFTER,__stdcall,(unsigned int iClientID, struct EquipDesc const &ed),(iClientID, ed));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall DestroyCharacter_AFTER(struct CHARACTER_ID const &cId, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DestroyCharacter,(cId, iClientID));
-}
 
 void __stdcall DestroyCharacter(struct CHARACTER_ID const &cId, unsigned int iClientID)
 {
@@ -1420,12 +1204,11 @@ void __stdcall DestroyCharacter(struct CHARACTER_ID const &cId, unsigned int iCl
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_S(&cId);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_DestroyCharacter,(cId, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DestroyCharacter,__stdcall,(struct CHARACTER_ID const &cId, unsigned int iClientID),(cId, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.DestroyCharacter(cId, iClientID));
-	DestroyCharacter_AFTER(cId, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DestroyCharacter_AFTER,__stdcall,(struct CHARACTER_ID const &cId, unsigned int iClientID),(cId, iClientID));
 }
 
 /**************************************************************************************************************
@@ -1443,10 +1226,6 @@ void __stdcall Dock(unsigned int const &p1, unsigned int const &p2)
 void __stdcall DumpPacketStats(char const *p1)
 {
 	return; // not used
-
-	ISERVER_LOG();
-
-	EXECUTE_SERVER_CALL(Server.DumpPacketStats(p1));
 }
 
 /**************************************************************************************************************
@@ -1455,62 +1234,40 @@ void __stdcall DumpPacketStats(char const *p1)
 void __stdcall ElapseTime(float p1)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_F(p1);
-
-	EXECUTE_SERVER_CALL(Server.ElapseTime(p1));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall GFGoodBuy_AFTER(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodBuy,(gbi, iClientID));
-}
 
 void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodBuy,(gbi, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodBuy,__stdcall,(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID),(gbi, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.GFGoodBuy(gbi, iClientID));
-	GFGoodBuy_AFTER(gbi, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodBuy_AFTER,__stdcall,(struct SGFGoodBuyInfo const &gbi, unsigned int iClientID),(gbi, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall GFGoodVaporized_AFTER(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodVaporized,(gvi, iClientID));
-}
 
 void __stdcall GFGoodVaporized(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFGoodVaporized,(gvi, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodVaporized,__stdcall,(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID),(gvi, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.GFGoodVaporized(gvi, iClientID));
-	GFGoodVaporized_AFTER(gvi, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFGoodVaporized_AFTER,__stdcall,(struct SGFGoodVaporizedInfo const &gvi, unsigned int iClientID),(gvi, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall GFObjSelect_AFTER(unsigned int p1, unsigned int p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFObjSelect,(p1, p2));
-}
 
 void __stdcall GFObjSelect(unsigned int p1, unsigned int p2)
 {
@@ -1518,12 +1275,11 @@ void __stdcall GFObjSelect(unsigned int p1, unsigned int p2)
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_GFObjSelect,(p1, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFObjSelect,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 
 	EXECUTE_SERVER_CALL(Server.GFObjSelect(p1, p2));
-	GFObjSelect_AFTER(p1, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GFObjSelect_AFTER,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 }
 
 /**************************************************************************************************************
@@ -1559,120 +1315,85 @@ void __stdcall GetServerStats(struct ServerStats &ss)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall Hail_AFTER(unsigned int p1, unsigned int p2, unsigned int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Hail,(p1, p2, p3));
-}
-
 void __stdcall Hail(unsigned int p1, unsigned int p2, unsigned int p3)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Hail,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Hail,__stdcall,(unsigned int p1, unsigned int p2, unsigned int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.Hail(p1, p2, p3));
-	Hail_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Hail_AFTER,__stdcall,(unsigned int p1, unsigned int p2, unsigned int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall InterfaceItemUsed_AFTER(unsigned int p1, unsigned int p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_InterfaceItemUsed,(p1, p2));
-}
 
 void __stdcall InterfaceItemUsed(unsigned int p1, unsigned int p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_InterfaceItemUsed,(p1, p2));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_InterfaceItemUsed,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 
 	EXECUTE_SERVER_CALL(Server.InterfaceItemUsed(p1, p2));
-	InterfaceItemUsed_AFTER(p1, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_InterfaceItemUsed_AFTER,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall JettisonCargo_AFTER(unsigned int iClientID, struct XJettisonCargo const &jc)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_JettisonCargo,(iClientID, jc));
-}
 
 void __stdcall JettisonCargo(unsigned int iClientID, struct XJettisonCargo const &jc)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_JettisonCargo,(iClientID, jc));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_JettisonCargo,__stdcall,(unsigned int iClientID, struct XJettisonCargo const &jc),(iClientID, jc));
 
 	EXECUTE_SERVER_CALL(Server.JettisonCargo(iClientID, jc));
-	JettisonCargo_AFTER(iClientID, jc);
+
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_JettisonCargo_AFTER,__stdcall,(unsigned int iClientID, struct XJettisonCargo const &jc),(iClientID, jc));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall LocationEnter_AFTER(unsigned int p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationEnter,(p1, iClientID));
-}
 
 void __stdcall LocationEnter(unsigned int p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationEnter,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationEnter,__stdcall,(unsigned int p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.LocationEnter(p1, iClientID));
-	LocationEnter_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationEnter_AFTER,__stdcall,(unsigned int p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall LocationExit_AFTER(unsigned int p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationExit,(p1, iClientID));
-}
 
 void __stdcall LocationExit(unsigned int p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationExit,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationExit,__stdcall,(unsigned int p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.LocationExit(p1, iClientID));
-	LocationExit_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationExit_AFTER,__stdcall,(unsigned int p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall LocationInfoRequest_AFTER(unsigned int p1,unsigned int p2, bool p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationInfoRequest,(p1, p2, p3));
-}
 
 void __stdcall LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
 {
@@ -1680,22 +1401,16 @@ void __stdcall LocationInfoRequest(unsigned int p1,unsigned int p2, bool p3)
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_LocationInfoRequest,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationInfoRequest,__stdcall,(unsigned int p1,unsigned int p2, bool p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.LocationInfoRequest(p1, p2, p3));
-	LocationInfoRequest_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LocationInfoRequest_AFTER,__stdcall,(unsigned int p1,unsigned int p2, bool p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall MissionResponse_AFTER(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, iClientID));
-}
 
 void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID)
 {
@@ -1705,12 +1420,11 @@ void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsig
 	ISERVER_LOGARG_UI(p3);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_MissionResponse,(p1, p2, p3, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_MissionResponse,__stdcall,(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID),(p1, p2, p3, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.MissionResponse(p1, p2, p3, iClientID));
-	MissionResponse_AFTER(p1, p2, p3, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_MissionResponse_AFTER,__stdcall,(unsigned int p1, unsigned long p2, bool p3, unsigned int iClientID),(p1, p2, p3, iClientID));
 }
 
 /**************************************************************************************************************
@@ -1720,12 +1434,6 @@ void __stdcall MissionResponse(unsigned int p1, unsigned long p2, bool p3, unsig
 void __stdcall MissionSaveB(unsigned int iClientID, unsigned long p2)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
-	ISERVER_LOGARG_UI(p2);
-
-	EXECUTE_SERVER_CALL(Server.MissionSaveB(iClientID, p2));
 }
 
 /**************************************************************************************************************
@@ -1734,12 +1442,6 @@ void __stdcall MissionSaveB(unsigned int iClientID, unsigned long p2)
 void __stdcall PopUpDialog(unsigned int p1, unsigned int p2)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(p1);
-	ISERVER_LOGARG_UI(p2);
-
-	EXECUTE_SERVER_CALL(Server.PopUpDialog(p1, p2));
 }
 
 /**************************************************************************************************************
@@ -1748,21 +1450,10 @@ void __stdcall PopUpDialog(unsigned int p1, unsigned int p2)
 void __stdcall RTCDone(unsigned int p1, unsigned int p2)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(p1);
-	ISERVER_LOGARG_UI(p2);
-
-	EXECUTE_SERVER_CALL(Server.RTCDone(p1, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqAddItem_AFTER(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqAddItem,(p1, p2, p3, p4, p5, p6));
-}
 
 void __stdcall ReqAddItem(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6)
 {
@@ -1774,55 +1465,42 @@ void __stdcall ReqAddItem(unsigned int p1, char const *p2, int p3, float p4, boo
 	ISERVER_LOGARG_UI(p5);
 	ISERVER_LOGARG_UI(p6);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqAddItem,(p1, p2, p3, p4, p5, p6));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqAddItem,__stdcall,(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6),(p1, p2, p3, p4, p5, p6));
 
 	EXECUTE_SERVER_CALL(Server.ReqAddItem(p1, p2, p3, p4, p5, p6));
-	ReqAddItem_AFTER(p1, p2, p3, p4, p5, p6);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqAddItem_AFTER,__stdcall,(unsigned int p1, char const *p2, int p3, float p4, bool p5, unsigned int p6),(p1, p2, p3, p4, p5, p6));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqChangeCash_AFTER(int p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqChangeCash,(p1, iClientID));
-}
 
 void __stdcall ReqChangeCash(int p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqChangeCash,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqChangeCash,__stdcall,(int p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqChangeCash(p1, iClientID));
-	ReqChangeCash_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqChangeCash_AFTER,__stdcall,(int p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall ReqCollisionGroups_AFTER(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqCollisionGroups,(p1, iClientID));
-}
-
 void __stdcall ReqCollisionGroups(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqCollisionGroups,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups,__stdcall,(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqCollisionGroups(p1, iClientID));
-	ReqCollisionGroups_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups_AFTER,__stdcall,(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
@@ -1831,42 +1509,25 @@ void __stdcall ReqCollisionGroups(class std::list<struct CollisionGroupDesc,clas
 void __stdcall ReqDifficultyScale(float p1, unsigned int iClientID)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_F(p1);
-	ISERVER_LOGARG_UI(iClientID);
-
-	EXECUTE_SERVER_CALL(Server.ReqDifficultyScale(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqEquipment_AFTER(class EquipDescList const &edl, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqEquipment,(edl, iClientID));
-}
 
 void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqEquipment,(edl, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqEquipment,__stdcall,(class EquipDescList const &edl, unsigned int iClientID),(edl, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqEquipment(edl, iClientID));
-	ReqEquipment_AFTER(edl, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqEquipment_AFTER,__stdcall,(class EquipDescList const &edl, unsigned int iClientID),(edl, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqHullStatus_AFTER(float p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqHullStatus,(p1, iClientID));
-}
 
 void __stdcall ReqHullStatus(float p1, unsigned int iClientID)
 {
@@ -1874,21 +1535,16 @@ void __stdcall ReqHullStatus(float p1, unsigned int iClientID)
 	ISERVER_LOGARG_F(p1);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqHullStatus,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqHullStatus,__stdcall,(float p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqHullStatus(p1, iClientID));
-	ReqHullStatus_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqHullStatus_AFTER,__stdcall,(float p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall ReqModifyItem_AFTER(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqModifyItem,(p1, p2, p3, p4, p5, iClientID));
-}
 
 void __stdcall ReqModifyItem(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID)
 {
@@ -1900,21 +1556,15 @@ void __stdcall ReqModifyItem(unsigned short p1, char const *p2, int p3, float p4
 	ISERVER_LOGARG_UI(p5);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqModifyItem,(p1, p2, p3, p4, p5, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqModifyItem,__stdcall,(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID),(p1, p2, p3, p4, p5, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqModifyItem(p1, p2, p3, p4, p5, iClientID));
-	ReqModifyItem_AFTER(p1, p2, p3, p4, p5, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqModifyItem_AFTER,__stdcall,(unsigned short p1, char const *p2, int p3, float p4, bool p5, unsigned int iClientID),(p1, p2, p3, p4, p5, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqRemoveItem_AFTER(unsigned short p1, int p2, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqRemoveItem,(p1, p2, iClientID));
-}
 
 void __stdcall ReqRemoveItem(unsigned short p1, int p2, unsigned int iClientID)
 {
@@ -1923,21 +1573,15 @@ void __stdcall ReqRemoveItem(unsigned short p1, int p2, unsigned int iClientID)
 	ISERVER_LOGARG_I(p2);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqRemoveItem,(p1, p2, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqRemoveItem,__stdcall,(unsigned short p1, int p2, unsigned int iClientID),(p1, p2, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqRemoveItem(p1, p2, iClientID));
-	ReqRemoveItem_AFTER(p1, p2, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqRemoveItem_AFTER,__stdcall,(unsigned short p1, int p2, unsigned int iClientID),(p1, p2, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqSetCash_AFTER(int p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqSetCash,(p1, iClientID));
-}
 
 void __stdcall ReqSetCash(int p1, unsigned int iClientID)
 {
@@ -1945,21 +1589,15 @@ void __stdcall ReqSetCash(int p1, unsigned int iClientID)
 	ISERVER_LOGARG_I(p1);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqSetCash,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqSetCash,__stdcall,(int p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqSetCash(p1, iClientID));
-	ReqSetCash_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqSetCash_AFTER,__stdcall,(int p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall ReqShipArch_AFTER(unsigned int p1, unsigned int p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqShipArch,(p1, p2));
-}
 
 void __stdcall ReqShipArch(unsigned int p1, unsigned int p2)
 {
@@ -1967,21 +1605,15 @@ void __stdcall ReqShipArch(unsigned int p1, unsigned int p2)
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_ReqShipArch,(p1, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqShipArch,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 
 	EXECUTE_SERVER_CALL(Server.ReqShipArch(p1, p2));
-	ReqShipArch_AFTER(p1, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqShipArch_AFTER,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestBestPath_AFTER(unsigned int p1, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestBestPath,(p1, p2, p3));
-}
 
 void __stdcall RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
 {
@@ -1990,21 +1622,16 @@ void __stdcall RequestBestPath(unsigned int p1, unsigned char *p2, int p3)
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestBestPath,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestBestPath,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.RequestBestPath(p1, p2, p3));
-	RequestBestPath_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestBestPath_AFTER,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall RequestCancel_AFTER(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(iType, iShip, p3, p4, iClientID));
-}
 
 // Cancel a ship maneuver (goto, dock, formation).
 // p1 = iType? ==0 if docking, ==1 if formation
@@ -2017,42 +1644,31 @@ void __stdcall RequestCancel(int iType, unsigned int iShip, unsigned int p3, uns
 	ISERVER_LOGARG_UI(p4);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCancel,(iType, iShip, p3, p4, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestCancel,__stdcall,(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID),(iType, iShip, p3, p4, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.RequestCancel(iType, iShip, p3, p4, iClientID));
-	RequestCancel_AFTER(iType, iShip, p3, p4, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestCancel_AFTER,__stdcall,(int iType, unsigned int iShip, unsigned int p3, unsigned long p4, unsigned int iClientID),(iType, iShip, p3, p4, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestCreateShip_AFTER(unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCreateShip,(iClientID));
-}
 
 void __stdcall RequestCreateShip(unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestCreateShip,(iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestCreateShip,__stdcall,(unsigned int iClientID),(iClientID));
 
 	EXECUTE_SERVER_CALL(Server.RequestCreateShip(iClientID));
-	RequestCreateShip_AFTER(iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestCreateShip_AFTER,__stdcall,(unsigned int iClientID),(iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall RequestEvent_AFTER(int p1, unsigned int p2, unsigned int p3, unsigned int p4, unsigned long p5, unsigned int p6)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestEvent,(p1, p2, p3, p4, p5, p6));
-}
 
 /// Called upon flight maneuver (goto, dock, formation).
 /// p1 = iType? ==0 if docking, ==1 if formation
@@ -2071,21 +1687,15 @@ void __stdcall RequestEvent(int iType, unsigned int iShip, unsigned int iShipTar
 	ISERVER_LOGARG_UI(p5);
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestEvent,(iType, iShip, iShipTarget, p4, p5, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestEvent,__stdcall,(int iType, unsigned int iShip, unsigned int iShipTarget, unsigned int p4, unsigned long p5, unsigned int iClientID),(iType, iShip, iShipTarget, p4, p5, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.RequestEvent(iType, iShip, iShipTarget, p4, p5, iClientID));
-	RequestEvent_AFTER(iType, iShip, iShipTarget, p4, p5, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestEvent_AFTER,__stdcall,(int iType, unsigned int iShip, unsigned int iShipTarget, unsigned int p4, unsigned long p5, unsigned int iClientID),(iType, iShip, iShipTarget, p4, p5, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestGroupPositions_AFTER(unsigned int p1, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestGroupPositions,(p1, p2, p3));
-}
 
 void __stdcall RequestGroupPositions(unsigned int p1, unsigned char *p2, int p3)
 {
@@ -2094,21 +1704,16 @@ void __stdcall RequestGroupPositions(unsigned int p1, unsigned char *p2, int p3)
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestGroupPositions,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestGroupPositions,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.RequestGroupPositions(p1, p2, p3));
-	RequestGroupPositions_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestGroupPositions_AFTER,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
+
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestPlayerStats_AFTER(unsigned int p1, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestPlayerStats,(p1, p2, p3));
-}
 
 void __stdcall RequestPlayerStats(unsigned int p1, unsigned char *p2, int p3)
 {
@@ -2117,21 +1722,15 @@ void __stdcall RequestPlayerStats(unsigned int p1, unsigned char *p2, int p3)
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestPlayerStats,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestPlayerStats,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.RequestPlayerStats(p1, p2, p3));
-	RequestPlayerStats_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestPlayerStats_AFTER,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestRankLevel_AFTER(unsigned int p1, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestRankLevel,(p1, p2, p3));
-}
 
 void __stdcall RequestRankLevel(unsigned int p1, unsigned char *p2, int p3)
 {
@@ -2139,35 +1738,28 @@ void __stdcall RequestRankLevel(unsigned int p1, unsigned char *p2, int p3)
 	ISERVER_LOGARG_UI(p1);
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestRankLevel,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestRankLevel,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.RequestRankLevel(p1, p2, p3));
-	RequestRankLevel_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestRankLevel_AFTER,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall RequestTrade_AFTER(unsigned int p1, unsigned int p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestTrade,(p1, p2));
-}
 
 void __stdcall RequestTrade(unsigned int p1, unsigned int p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(p1);
 	ISERVER_LOGARG_UI(p2);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_RequestTrade,(p1, p2));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestTrade,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 
 	EXECUTE_SERVER_CALL(Server.RequestTrade(p1, p2));
-	RequestTrade_AFTER(p1, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_RequestTrade_AFTER,__stdcall,(unsigned int p1, unsigned int p2),(p1, p2));
 }
 
 /**************************************************************************************************************
@@ -2176,20 +1768,10 @@ void __stdcall RequestTrade(unsigned int p1, unsigned int p2)
 void __stdcall SPBadLandsObjCollision(struct SSPBadLandsObjCollisionInfo const &p1, unsigned int iClientID)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
-
-	EXECUTE_SERVER_CALL(Server.SPBadLandsObjCollision(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SPRequestInvincibility_AFTER(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(iShip, p2, p3, iClientID));
-}
 
 /// Called when ship starts jump gate/hole acceleration but before system switch out.
 void __stdcall SPRequestInvincibility(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID)
@@ -2198,44 +1780,32 @@ void __stdcall SPRequestInvincibility(unsigned int iShip, bool p2, enum Invincib
 	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
-	ISERVER_LOGARG_UI(iClientID);
+	ISERVER_LOGARG_UI(iClientID);	
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestInvincibility,(iShip, p2, p3, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPRequestInvincibility,__stdcall,(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID),(iShip, p2, p3, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPRequestInvincibility(iShip, p2, p3, iClientID));
-	SPRequestInvincibility_AFTER(iShip, p2, p3, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPRequestInvincibility_AFTER,__stdcall,(unsigned int iShip, bool p2, enum InvincibilityReason p3, unsigned int iClientID),(iShip, p2, p3, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SPRequestUseItem_AFTER(struct SSPUseItem const &p1, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestUseItem,(p1, iClientID));
-}
 
 void __stdcall SPRequestUseItem(struct SSPUseItem const &p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPRequestUseItem,(p1, iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPRequestUseItem,__stdcall,(struct SSPUseItem const &p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPRequestUseItem(p1, iClientID));
-	SPRequestUseItem_AFTER(p1, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPRequestUseItem_AFTER,__stdcall,(struct SSPUseItem const &p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SPScanCargo_AFTER(unsigned int const &p1, unsigned int const &p2, unsigned int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPScanCargo,(p1, p2, p3));
-}
 
 void __stdcall SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsigned int p3)
 {
@@ -2244,12 +1814,11 @@ void __stdcall SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsig
 	ISERVER_LOGARG_UI(p2);
 	ISERVER_LOGARG_UI(p3);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SPScanCargo,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPScanCargo,__stdcall,(unsigned int const &p1, unsigned int const &p2, unsigned int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.SPScanCargo(p1, p2, p3));
-	SPScanCargo_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPScanCargo_AFTER,__stdcall,(unsigned int const &p1, unsigned int const &p2, unsigned int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
@@ -2258,22 +1827,10 @@ void __stdcall SPScanCargo(unsigned int const &p1, unsigned int const &p2, unsig
 void __stdcall SaveGame(struct CHARACTER_ID const &cId, unsigned short const *p2, unsigned int p3)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_S(&cId);
-//	ISERVER_LOGARG_S(p2);
-	ISERVER_LOGARG_UI(p3);
-
-	Server.SaveGame(cId, p2, p3);
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetInterfaceState_AFTER(unsigned int p1, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetInterfaceState,(p1, p2, p3));
-}
 
 void __stdcall SetInterfaceState(unsigned int p1, unsigned char *p2, int p3)
 {
@@ -2281,34 +1838,27 @@ void __stdcall SetInterfaceState(unsigned int p1, unsigned char *p2, int p3)
 	ISERVER_LOGARG_UI(p1);
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetInterfaceState,(p1, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetInterfaceState,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.SetInterfaceState(p1, p2, p3));
-	SetInterfaceState_AFTER(p1, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetInterfaceState_AFTER,__stdcall,(unsigned int p1, unsigned char *p2, int p3),(p1, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetManeuver_AFTER(unsigned int iClientID, struct XSetManeuver const &p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetManeuver,(iClientID, p2));
-}
 
 void __stdcall SetManeuver(unsigned int iClientID, struct XSetManeuver const &p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetManeuver,(iClientID, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetManeuver,__stdcall,(unsigned int iClientID, struct XSetManeuver const &p2),(iClientID, p2));
 
 	EXECUTE_SERVER_CALL(Server.SetManeuver(iClientID, p2));
-	SetManeuver_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetManeuver_AFTER,__stdcall,(unsigned int iClientID, struct XSetManeuver const &p2),(iClientID, p2));
 }
 
 /**************************************************************************************************************
@@ -2317,43 +1867,25 @@ void __stdcall SetManeuver(unsigned int iClientID, struct XSetManeuver const &p2
 void __stdcall SetMissionLog(unsigned int iClientID, unsigned char *p2, int p3)
 {
 	return; // not used
-
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
-//	ISERVER_LOGARG_S(p2);
-	ISERVER_LOGARG_I(p3);
-
-	Server.SetMissionLog(iClientID, p2, p3);
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetTarget_AFTER(unsigned int iClientID, struct XSetTarget const &p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetTarget,(iClientID, p2));
-}
 
 void __stdcall SetTarget(unsigned int iClientID, struct XSetTarget const &p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetTarget,(iClientID, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetTarget,__stdcall,(unsigned int iClientID, struct XSetTarget const &p2),(iClientID, p2));
 
 	EXECUTE_SERVER_CALL(Server.SetTarget(iClientID, p2));
-	SetTarget_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetTarget_AFTER,__stdcall,(unsigned int iClientID, struct XSetTarget const &p2),(iClientID, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetTradeMoney_AFTER(unsigned int iClientID, unsigned long p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetTradeMoney,(iClientID, p2));
-}
 
 void __stdcall SetTradeMoney(unsigned int iClientID, unsigned long p2)
 {
@@ -2361,21 +1893,16 @@ void __stdcall SetTradeMoney(unsigned int iClientID, unsigned long p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetTradeMoney,(iClientID, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetTradeMoney,__stdcall,(unsigned int iClientID, unsigned long p2),(iClientID, p2));
 
 	EXECUTE_SERVER_CALL(Server.SetTradeMoney(iClientID, p2));
-	SetTradeMoney_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetTradeMoney_AFTER,__stdcall,(unsigned int iClientID, unsigned long p2),(iClientID, p2));
+
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetVisitedState_AFTER(unsigned int iClientID, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetVisitedState,(iClientID, p2, p3));
-}
 
 void __stdcall SetVisitedState(unsigned int iClientID, unsigned char *p2, int p3)
 {
@@ -2383,22 +1910,16 @@ void __stdcall SetVisitedState(unsigned int iClientID, unsigned char *p2, int p3
 	ISERVER_LOGARG_UI(iClientID);
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetVisitedState,(iClientID, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetVisitedState,__stdcall,(unsigned int iClientID, unsigned char *p2, int p3),(iClientID, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.SetVisitedState(iClientID, p2, p3));
-	SetVisitedState_AFTER(iClientID, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetVisitedState_AFTER,__stdcall,(unsigned int iClientID, unsigned char *p2, int p3),(iClientID, p2, p3));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall SetWeaponGroup_AFTER(unsigned int iClientID, unsigned char *p2, int p3)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetWeaponGroup,(iClientID, p2, p3));
-}
 
 void __stdcall SetWeaponGroup(unsigned int iClientID, unsigned char *p2, int p3)
 {
@@ -2406,13 +1927,12 @@ void __stdcall SetWeaponGroup(unsigned int iClientID, unsigned char *p2, int p3)
 	ISERVER_LOGARG_UI(iClientID);
 //	ISERVER_LOGARG_S(p2);
 	ISERVER_LOGARG_I(p3);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_SetWeaponGroup,(iClientID, p2, p3));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetWeaponGroup,__stdcall,(unsigned int iClientID, unsigned char *p2, int p3),(iClientID, p2, p3));
 
 	EXECUTE_SERVER_CALL(Server.SetWeaponGroup(iClientID, p2, p3));
-	SetWeaponGroup_AFTER(iClientID, p2, p3);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SetWeaponGroup_AFTER,__stdcall,(unsigned int iClientID, unsigned char *p2, int p3),(iClientID, p2, p3));
 }
 
 /**************************************************************************************************************
@@ -2422,7 +1942,7 @@ void __stdcall Shutdown(void)
 {
 	ISERVER_LOG();
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Shutdown,());
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Shutdown,__stdcall,(),());
 
 	Server.Shutdown();
 
@@ -2431,12 +1951,6 @@ void __stdcall Shutdown(void)
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-bool __stdcall Startup_AFTER(struct SStartupInfo const &p1)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Startup,(p1));
-	return true;
-}
 
 bool __stdcall Startup(struct SStartupInfo const &p1)
 {
@@ -2452,12 +1966,10 @@ bool __stdcall Startup(struct SStartupInfo const &p1)
 	WriteProcMem(pAddress+5, szNOP, sizeof(szNOP));
 
 	// plugins & functioncall
-	bool bRet;
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_Startup,(p1));
-	if(bPluginReturn)
-		bRet = reinterpret_cast<bool>(vPluginRet);
-	else
-		bRet = Server.Startup(p1);
+
+	CALL_PLUGINS_NORET(PLUGIN_HkIServerImpl_Startup,__stdcall,(struct SStartupInfo const &p1),(p1));
+
+	bool bRet = Server.Startup(p1);
 
 	// patch PlayerDB array (for rename feature)
 	iMaxPlayers = p1.iMaxPlayers;
@@ -2469,7 +1981,7 @@ bool __stdcall Startup(struct SStartupInfo const &p1)
 
 	ISERVER_LOG();
 
-	Startup_AFTER(p1);
+	CALL_PLUGINS_NORET(PLUGIN_HkIServerImpl_Startup_AFTER,__stdcall,(struct SStartupInfo const &p1),(p1));
 
 	return bRet;
 }
@@ -2477,52 +1989,35 @@ bool __stdcall Startup(struct SStartupInfo const &p1)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall StopTradeRequest_AFTER(unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_StopTradeRequest,(iClientID));
-}
-
 void __stdcall StopTradeRequest(unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_StopTradeRequest,(iClientID));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_StopTradeRequest,__stdcall,(unsigned int iClientID),(iClientID));
 
 	Server.StopTradeRequest(iClientID);
-	StopTradeRequest_AFTER(iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_StopTradeRequest_AFTER,__stdcall,(unsigned int iClientID),(iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall TractorObjects_AFTER(unsigned int iClientID, struct XTractorObjects const &p2)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TractorObjects,(iClientID, p2));
-}
 
 void __stdcall TractorObjects(unsigned int iClientID, struct XTractorObjects const &p2)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TractorObjects,(iClientID, p2));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TractorObjects,__stdcall,(unsigned int iClientID, struct XTractorObjects const &p2),(iClientID, p2));
 
 	Server.TractorObjects(iClientID, p2);
-	TractorObjects_AFTER(iClientID, p2);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TractorObjects_AFTER,__stdcall,(unsigned int iClientID, struct XTractorObjects const &p2),(iClientID, p2));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall TradeResponse_AFTER(unsigned char const *p1, int p2, unsigned int iClientID)
-{
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TradeResponse,(p1, p2, iClientID));
-}
 
 void __stdcall TradeResponse(unsigned char const *p1, int p2, unsigned int iClientID)
 {
@@ -2530,13 +2025,12 @@ void __stdcall TradeResponse(unsigned char const *p1, int p2, unsigned int iClie
 ///	ISERVER_LOGARG_S(p1);
 	ISERVER_LOGARG_I(p2);
 	ISERVER_LOGARG_UI(iClientID);
-
-	CALL_PLUGINS(PLUGIN_HkIServerImpl_TradeResponse,(p1, p2, iClientID));
-	if(bPluginReturn)
-		return;
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TradeResponse,__stdcall,(unsigned char const *p1, int p2, unsigned int iClientID),(p1, p2, iClientID));
 
 	Server.TradeResponse(p1, p2, iClientID);
-	TradeResponse_AFTER(p1, p2, iClientID);
+	
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TradeResponse_AFTER,__stdcall,(unsigned char const *p1, int p2, unsigned int iClientID),(p1, p2, iClientID));
 }
 
 /**************************************************************************************************************

@@ -385,23 +385,17 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint iClientID, FLPACKET_UNK
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER(uint iClientID, FLPACKET_CREATESHIP& pShip)
-{
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER,(iClientID, pShip));
-}
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint iClientID, FLPACKET_CREATESHIP& pShip)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP,(iClientID, pShip));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP,bool,__stdcall,(uint, FLPACKET_CREATESHIP&),(iClientID, pShip));
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESHIP(iClientID, pShip));
 
-	HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER(iClientID, pShip);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER,bool,,(uint, FLPACKET_CREATESHIP&),(iClientID, pShip));
 
 	return reinterpret_cast<bool>(vRet);
 }
@@ -647,9 +641,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint iClientID, FLPACKET_LAUNCH&
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH,(iClientID, pLaunch));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH,bool,__stdcall,(uint, FLPACKET_LAUNCH&),(iClientID, pLaunch));
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_LAUNCH(iClientID, pLaunch));
 	return reinterpret_cast<bool>(vRet);
@@ -738,11 +730,6 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint iClientID, uint iO
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER(uint iClientID, uint iTargetID, uint iRank)
-{
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER,(iClientID, iTargetID, iRank));
-}
-
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iTargetID, uint iRank)
 {
 	ISERVER_LOG();
@@ -750,13 +737,11 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID, uint iT
 	ISERVER_LOGARG_UI(iTargetID);
 	ISERVER_LOGARG_UI(iRank);
 	
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,(iClientID, iTargetID, iRank));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,bool,__stdcall,(uint,uint,uint),(iClientID, iTargetID, iRank));
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_3(iClientID, iTargetID, iRank));
 
-	HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER(iClientID, iTargetID, iRank);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER,bool,,(uint,uint,uint),(iClientID, iTargetID, iRank));
 
 	return reinterpret_cast<bool>(vRet);
 }
@@ -783,9 +768,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID, uint iC
 	ISERVER_LOGARG_UI(iClientID2);
 	ISERVER_LOGARG_UI(iSystemID);
 
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_5,(iClientID, iClientID2, iSystemID));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_5,bool,__stdcall,(uint,uint,uint),(iClientID, iClientID2, iSystemID));
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_MISCOBJUPDATE_5(iClientID, iClientID2, iSystemID));
 	return reinterpret_cast<bool>(vRet);
@@ -847,9 +830,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint iClientID, b
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP,(iClientID, bResponse, iShipID));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP,bool,__stdcall,(uint,bool,uint),(iClientID, bResponse, iShipID));
 
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(iClientID, bResponse, iShipID));
 	return reinterpret_cast<bool>(vRet);

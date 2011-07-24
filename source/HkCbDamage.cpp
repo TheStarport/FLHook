@@ -18,9 +18,7 @@ FARPROC fpOldMissileTorpHit;
 int __stdcall HkCB_MissileTorpHit(char *ECX, char *p1, DamageList *dmg)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCB_MissileTorpHit,(ECX,p1,dmg));
-	if(bPluginReturn)
-		return reinterpret_cast<int>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkCB_MissileTorpHit,int,__stdcall,(char*,char*,DamageList*),(ECX,p1,dmg));
 
 	try {
 		// get client id
@@ -82,17 +80,11 @@ Called when ship was damaged
 however you can't figure out here, which ship is being damaged, that's why i use the iDmgTo variable...
 **************************************************************************************************************/
 
-void __stdcall HkCb_AddDmgEntry_AFTER(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
-{
-	CALL_PLUGINS(PLUGIN_HkCb_AddDmgEntry,(dmgList,p1,p2,p3));
-}
 
 void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCb_AddDmgEntry,(dmgList,p1,p2,p3));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkCb_AddDmgEntry,__stdcall,(DamageList *,unsigned short,float, DamageEntry::SubObjFate),(dmgList,p1,p2,p3));
 
 	//check if we've got dmged by a cd with changed behaviour
 	if (dmgList->get_cause() == 0xC0)
@@ -151,7 +143,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 
 	} catch(...) { LOG_EXCEPTION }
 
-	HkCb_AddDmgEntry_AFTER(dmgList, p1, p2, p3);
+	CALL_PLUGINS_V(PLUGIN_HkCb_AddDmgEntry_AFTER,__stdcall,(DamageList *,unsigned short,float, DamageEntry::SubObjFate),(dmgList,p1,p2,p3));
 
 	iDmgTo = 0;
 }
@@ -180,9 +172,7 @@ FARPROC fpOldGeneralDmg;
 void __stdcall HkCb_GeneralDmg(char *szECX)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCb_GeneralDmg,(szECX));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkCb_GeneralDmg,__stdcall,(char*),(szECX));
 
 	try {
 		char *szP;
@@ -215,9 +205,7 @@ Called when ship was damaged
 
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
 {
-	CALL_PLUGINS(PLUGIN_AllowPlayerDamage,(iClientID,iClientIDTarget));
-	if(bPluginReturn)
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_AllowPlayerDamage,bool,,(uint,uint),(iClientID,iClientIDTarget));
 
 	if(iClientIDTarget)
 	{

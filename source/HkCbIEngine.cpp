@@ -24,7 +24,7 @@ FARPROC fpOldDestroyCShip;
 
 void __stdcall CShip_init(CShip* ship)
 {
-	CALL_PLUGINS(PLUGIN_HkIEngine_CShip_init,(ship));
+	CALL_PLUGINS_V(PLUGIN_HkIEngine_CShip_init,__stdcall,(CShip*),(ship));
 }
 
 
@@ -42,7 +42,7 @@ __declspec(naked) void _CShip_init()
 
 void __stdcall CShip_destroy(CShip* ship)
 {
-	CALL_PLUGINS(PLUGIN_HkIEngine_CShip_destroy,(ship));
+	CALL_PLUGINS_V(PLUGIN_HkIEngine_CShip_destroy,__stdcall,(CShip*),(ship));
 }
 
 __declspec(naked) void _CShip_destroy()
@@ -83,29 +83,18 @@ int __cdecl FreeReputationVibe(int const &p1)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __cdecl Update_Time_AFTER(double dInterval)
-{
-	CALL_PLUGINS(PLUGIN_HkCb_Update_Time,(dInterval));
-}
-
 void __cdecl Update_Time(double dInterval)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCb_Update_Time,(dInterval));
-	if(bPluginReturn) 
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkCb_Update_Time,,(double),(dInterval));
 
 	Timing::UpdateGlobalTime(dInterval);
-	Update_Time_AFTER(dInterval);
+	
+	CALL_PLUGINS_V(PLUGIN_HkCb_Update_Time_AFTER,,(double),(dInterval));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
-
-void __stdcall Elapse_Time_AFTER(float p1)
-{
-	CALL_PLUGINS(PLUGIN_HkCb_Elapse_Time,(p1));
-}
 
 
 uint iLastTicks = 0;
@@ -113,13 +102,11 @@ uint iLastTicks = 0;
 void __stdcall Elapse_Time(float p1)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCb_Elapse_Time,(p1));
-	if(bPluginReturn) 
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkCb_Elapse_Time,__stdcall,(float),(p1));
 
 	Server.ElapseTime(p1);
-	Elapse_Time_AFTER(p1);
 
+	CALL_PLUGINS_V(PLUGIN_HkCb_Elapse_Time_AFTER,__stdcall,(float),(p1));
 
 	// low serverload missile jitter bugfix
 	uint iCurLoad = GetTickCount() - iLastTicks;
@@ -142,11 +129,7 @@ int __cdecl Dock_Call(unsigned int const &uShipID,unsigned int const &uSpaceID,i
 	//	p3 != -1, p4 -> 4 --> Dock ok, proceed (p3 Dock Port?)
 	//	p3 == -1, p4 -> 5 --> now DOCK!
 
-
-
-	CALL_PLUGINS(PLUGIN_HkCb_Dock_Call,(uShipID,uSpaceID,p3,p4));
-	if(bPluginReturn) 
-		return reinterpret_cast<int>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_HkCb_Dock_Call,int,,(unsigned int const &,unsigned int const &,int,DOCK_HOST_RESPONSE),(uShipID,uSpaceID,p3,p4));
 
 	try {
 		return pub::SpaceObj::Dock(uShipID,uSpaceID,p3,p4);
@@ -163,9 +146,7 @@ FARPROC fpOldLaunchPos;
 bool __stdcall LaunchPos(uint iSpaceID, struct CEqObj &p1, Vector &p2, Matrix &p3, int iDock)
 {
 	
-	CALL_PLUGINS(PLUGIN_LaunchPosHook,(iSpaceID,p1,p2,p3,iDock));
-	if(bPluginReturn) 
-		return reinterpret_cast<bool>(vPluginRet);
+	CALL_PLUGINS(PLUGIN_LaunchPosHook,bool,__stdcall,(uint,CEqObj &,Vector &,Matrix &,int),(iSpaceID,p1,p2,p3,iDock));
 
 	return p1.launch_pos(p2,p3,iDock);
 	

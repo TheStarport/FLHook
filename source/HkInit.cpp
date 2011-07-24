@@ -200,7 +200,7 @@ void ClearClientInfo(uint iClientID)
 
 	ClientInfo[iClientID].bSpawnProtected = false;
 
-	CALL_PLUGINS(PLUGIN_ClearClientInfo,(iClientID));
+	CALL_PLUGINS_V(PLUGIN_ClearClientInfo,,(uint),(iClientID));			
 }
 
 /**************************************************************************************************************
@@ -261,7 +261,7 @@ void LoadUserCharSettings(uint iClientID)
 	ClientInfo[iClientID].bAutoBuyCM = IniGetB(scUserFile, scSection, "cm", false);
 	ClientInfo[iClientID].bAutoBuyReload = IniGetB(scUserFile, scSection, "reload", false);
 
-	CALL_PLUGINS(PLUGIN_LoadUserCharSettings,(iClientID));
+	CALL_PLUGINS_V(PLUGIN_LoadUserCharSettings,,(uint),(iClientID));
 }
 
 /**************************************************************************************************************
@@ -394,6 +394,7 @@ void UnloadHookExports()
 
 	// plugins
 	PluginManager::UnloadPlugins();
+	PluginManager::Destroy();
 	
 	// help
 	lstHelpEntries.clear();

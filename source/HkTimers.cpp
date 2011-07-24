@@ -43,9 +43,8 @@ check if players should be kicked
 void HkTimerCheckKick()
 {
 	
-	CALL_PLUGINS(PLUGIN_HkTimerCheckKick,());
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkTimerCheckKick,,(),());
+
 
 	try {
 		// for all players
@@ -104,9 +103,7 @@ Check if NPC spawns should be disabled
 
 void HkTimerNPCAndF1Check()
 {
-	CALL_PLUGINS(PLUGIN_HkTimerNPCAndF1Check,());
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkTimerNPCAndF1Check,,(),());
 
 	try {
 		struct PlayerData *pPD = 0;

@@ -26,24 +26,6 @@ EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
-	p_PI->sName = "TempBan Plugin by w0dk4";
-	p_PI->sShortName = "tempban";
-	p_PI->bMayPause = true;
-	p_PI->bMayUnload = true;
-	p_PI->mapHooks.insert(pair<string, int>("HkTimerCheckKick", 0));
-	p_PI->mapHooks.insert(pair<string, int>("HkIServerImpl::Login", 0));
-	p_PI->mapHooks.insert(pair<string, int>("Plugin_Communication_CallBack", 0));
-	p_PI->mapHooks.insert(pair<string, int>("ExecuteCommandString_Callback", 0));
-	p_PI->mapHooks.insert(pair<string, int>("CmdHelp_Callback", 0));
-
-	return p_PI;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	// clear tempban list
@@ -194,4 +176,24 @@ EXPORT void CmdHelp_Callback(CCmds* classptr)
 	returncode = DEFAULT_RETURNCODE;
 
 	classptr->Print(L"tempban <charname>\n");
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EXPORT PLUGIN_INFO* Get_PluginInfo()
+{
+	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
+	p_PI->sName = "TempBan Plugin by w0dk4";
+	p_PI->sShortName = "tempban";
+	p_PI->bMayPause = true;
+	p_PI->bMayUnload = true;
+	p_PI->ePluginReturnCode = &returncode;
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::Login, PLUGIN_HkIServerImpl_Login, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&Plugin_Communication_CallBack, PLUGIN_Plugin_Communication, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
+	return p_PI;
 }

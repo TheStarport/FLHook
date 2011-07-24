@@ -230,14 +230,12 @@ void FLHookInit_Pre()
 		sDebugLog = "./flhook_logs/debug/FLHookDebug_"+(string)szDate;
 		sDebugLog += ".log";
 
-		// plugins
-		mpPluginHooks.clear();
-		lstPlugins.clear();
-
 		//check what plugins should be loaded; we need to read out the settings ourselves cause LoadSettings() wasn't called yet
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 		string scCfgFile = string(szCurDir) + "\\FLHook.ini";
+
+		PluginManager::Init();
 		
 		if(IniGetB(scCfgFile, "Plugins", "LoadAllPlugins", true))
 			PluginManager::LoadPlugins(true, &AdminConsole);
@@ -250,7 +248,7 @@ void FLHookInit_Pre()
 			{
 				if(it->scKey != "plugin")
 					continue;
-				PluginManager::LoadPlugin(it->scValue, &AdminConsole);
+				PluginManager::LoadPlugin(it->scValue, &AdminConsole, true);
 			}
 		}
 
@@ -607,11 +605,6 @@ void ConPrint(wstring wscText, ...)
 /**************************************************************************************************************
 send event to all sockets which are in eventmode
 **************************************************************************************************************/
-bool ProcessEvent_BEFORE(wstring &wscText)
-{
-	CALL_PLUGINS(PLUGIN_ProcessEvent_BEFORE,(wscText));
-	return !bPluginReturn;
-}
 
 void ProcessEvent(wstring wscText, ...)
 {
@@ -621,8 +614,8 @@ void ProcessEvent(wstring wscText, ...)
 	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	wscText = wszBuf;
-	if(!ProcessEvent_BEFORE(wscText))
-		return;
+
+	CALL_PLUGINS_V(PLUGIN_ProcessEvent_BEFORE,,(wstring &wscText),(wscText));
 
 	foreach(lstSockets, SOCKET_CONNECTION*, i)
 	{
