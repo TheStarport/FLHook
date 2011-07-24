@@ -27,27 +27,6 @@ EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-	p_PI->sName = "Advanced Connection Data Plugin by w0dk4";
-	p_PI->sShortName = "condata";
-	p_PI->bMayPause = false;
-	p_PI->bMayUnload = true;
-	p_PI->mapHooks.insert(pair<string, int>("ClearClientInfo", 0));
-	p_PI->mapHooks.insert(pair<string, int>("LoadSettings", 0));
-	p_PI->mapHooks.insert(pair<string, int>("HkTimerCheckKick", 0));
-	p_PI->mapHooks.insert(pair<string, int>("HkIServerImpl::Update", 0));
-	p_PI->mapHooks.insert(pair<string, int>("HkIServerImpl::SPObjUpdate", 0));
-	p_PI->mapHooks.insert(pair<string, int>("HkIServerImpl::PlayerLaunch", 0));
-	p_PI->mapHooks.insert(pair<string, int>("UserCmd_Process", 0));
-	p_PI->mapHooks.insert(pair<string, int>("UserCmd_Help", 0));
-	p_PI->mapHooks.insert(pair<string, int>("Plugin_Communication_CallBack", 0));
-	p_PI->mapHooks.insert(pair<string, int>("ExecuteCommandString_Callback", 0));
-
-	return p_PI;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void LoadSettings()
@@ -701,4 +680,26 @@ EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd
 	}
 
 	return false;
+}
+
+
+EXPORT PLUGIN_INFO* Get_PluginInfo()
+{
+	PLUGIN_INFO *p_PI = new PLUGIN_INFO();
+	p_PI->sName = "Advanced Connection Data Plugin by w0dk4";
+	p_PI->sShortName = "condata";
+	p_PI->bMayPause = false;
+	p_PI->bMayUnload = true;
+	p_PI->ePluginReturnCode = &returncode;
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ClearClientInfo, PLUGIN_ClearClientInfo, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::Update, PLUGIN_HkIServerImpl_Update, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::SPObjUpdate, PLUGIN_HkIServerImpl_SPObjUpdate, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&Plugin_Communication_CallBack, PLUGIN_Plugin_Communication, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
+	return p_PI;
 }

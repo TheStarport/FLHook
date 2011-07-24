@@ -193,6 +193,8 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup)
 		hook.iPriority = it->iPriority;
 		hook.pFunc = it->pFunc;
 		hook.ePluginReturnCode = p_PI->ePluginReturnCode;
+		if (!p_PI->ePluginReturnCode)
+			throw "plugin return code pointer not defined";
 
 		pPluginHooks[(int)it->eCallbackID].push_back(hook);
 		pPluginHooks[(int)it->eCallbackID].sort(PLUGIN_SORTCRIT());
