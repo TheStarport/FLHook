@@ -9,9 +9,8 @@ called when chat-text is being sent to a player, we reformat it(/set chatfont)
 void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 {
 
-	CALL_PLUGINS(PLUGIN_HkCb_SendChat,(iClientID,iTo,iSize,pRDL));
-	if(bPluginReturn)
-		return;
+	CALL_PLUGINS_V(PLUGIN_HkCb_SendChat,__stdcall,(uint,uint,uint,void*),(iClientID,iTo,iSize,pRDL));
+
 
 	try {
 		if(HkIServerImpl::g_bInSubmitChat && (iTo != 0x10004)) {
