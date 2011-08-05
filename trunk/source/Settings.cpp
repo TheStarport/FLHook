@@ -1,5 +1,6 @@
 #include "global.h"
 #include "hook.h"
+#include <io.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setting variables
@@ -98,7 +99,15 @@ void LoadSettings()
 // init cfg filename
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	set_scCfgFile = string(szCurDir) + "\\FLHook.ini";
+	set_scCfgFile = szCurDir;
+	
+	// Use flhook.cfg if it is available. It is used in some installations (okay just cannon's)
+	// to avoid FLErrorChecker whining retardly about ini entries it does not understand.
+	if (_access(string(set_scCfgFile + "\\FLHook.cfg").c_str(), 0) != -1)
+		set_scCfgFile += "\\FLHook.cfg";
+	else
+		set_scCfgFile += "\\FLHook.ini";
+
 
 // General
 	set_iAntiDockKill = IniGetI(set_scCfgFile, "General", "AntiDockKill", 0);
