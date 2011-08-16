@@ -1058,7 +1058,17 @@ void __stdcall GoTradelane(unsigned int iClientID, struct XGoTradelane const &gt
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GoTradelane,__stdcall,(unsigned int iClientID, struct XGoTradelane const &gtl),(iClientID,gtl));
 
-	EXECUTE_SERVER_CALL(Server.GoTradelane(iClientID, gtl));
+	try
+	{
+		Server.GoTradelane(iClientID, gtl);
+	}
+	catch (...)
+	{
+		uint iSystem;
+		pub::Player::GetSystem(iClientID, iSystem);
+		AddLog("ERROR: Exception in HkIServerImpl::GoTradelane charname=%s sys=%08x arch=%08x arch2=%08x",
+			wstos(Players.GetActiveCharacterName(iClientID)).c_str(), iSystem, gtl.iArchTradelane1, gtl.iArchTradelane2);
+	}
 	
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GoTradelane_AFTER,__stdcall,(unsigned int iClientID, struct XGoTradelane const &gtl),(iClientID,gtl));
 }
