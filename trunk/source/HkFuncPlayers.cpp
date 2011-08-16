@@ -704,7 +704,7 @@ int HkPlayerAutoBuyGetCount(list<CARGO_INFO> &lstCargo, uint iItemArchID)
 	return 0;
 }
 
-#define ADD_EQUIP_TO_CART(desc)	{ aci.iArchID = eq->iAmmoArchID; \
+#define ADD_EQUIP_TO_CART(desc)	{ aci.iArchID = ((Archetype::Launcher*)eq)->iProjectileArchID; \
 								aci.iCount = MAX_PLAYER_AMMO - HkPlayerAutoBuyGetCount(lstCargo, aci.iArchID); \
 								aci.wscDescription = desc; \
 								lstCart.push_back(aci); }
