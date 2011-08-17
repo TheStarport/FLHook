@@ -1297,9 +1297,14 @@ namespace Universe
 		uint iDunno1[1];
 		uint iZoneID;
 		uint iSystemID;
-		uint iDunno2[30];
+		Matrix mRot;
+		Vector vPos;
+		uint iDunno2;
+		uint iDunno3;
+		Vector vSize;
+		uint iDunno4[13];
 		CmnAsteroid::LootableZone *lootableZone;
-		uint iDunno3[10];
+		uint iDunno5[10];
 	};
 
 	IMPORT  struct ISystem *  GetFirstSystem(void);
