@@ -15,8 +15,7 @@
 
 #pragma warning(disable: 4251 4002 4099)
 
-#include <vector>
-#include <map>
+
 
 #define OBJECT_DATA_SIZE	2048
 

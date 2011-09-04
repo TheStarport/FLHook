@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Condata Plugin"
 	ProjectGUID="{2CA8178B-9C91-4478-A955-21ABEC99E453}"
 	RootNamespace="FLHook Example Plugin"
@@ -213,15 +213,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\headers\FLHook.h"
-				>
-			</File>
-			<File
 				RelativePath=".\header.h"
-				>
-			</File>
-			<File
-				RelativePath=".\headers\plugin.h"
 				>
 			</File>
 		</Filter>

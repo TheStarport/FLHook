@@ -17,7 +17,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <map>
+#include "mapvc7.h"
 
 #pragma comment( lib, "FLCoreCommon.lib" )
 
