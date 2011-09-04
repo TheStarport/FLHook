@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Tempban Plugin"
 	ProjectGUID="{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
 	RootNamespace="Tempban Plugin"
@@ -202,14 +202,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\headers\FLHook.h"
-				>
-			</File>
-			<File
-				RelativePath=".\headers\plugin.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
