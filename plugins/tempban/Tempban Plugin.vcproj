@@ -148,7 +148,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../sdk/libs/FLHook.lib ../../sdk/libs/FLCoreServer.lib ../../sdk/libs/FLCoreCommon.lib ../../sdk/libs/FLCoreRemoteClient.lib ../../sdk/libs/FLCoreDALib.lib"
 				OutputFile="$(OutDir)/tempban.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
