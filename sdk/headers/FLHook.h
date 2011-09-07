@@ -3,6 +3,15 @@
 
 #pragma warning(disable: 4311 4786)
 
+// include library files
+#pragma comment(lib,"./sdk/libs/FLCoreDALib.lib")
+#pragma comment(lib,"./sdk/libs/FLCoreCommon.lib")
+#pragma comment(lib,"./sdk/libs/FLCoreDACom.lib")
+#pragma comment(lib,"./sdk/libs/FLCoreFLServerEXE.lib")
+#pragma comment(lib,"./sdk/libs/FLCoreRemoteClient.lib")
+#pragma comment(lib,"./sdk/libs/FLCoreServer.lib")
+#pragma comment(lib,"./sdk/libs/FLHook.lib")
+
 #include <windows.h>
 #include <stdio.h>
 #include <string>
