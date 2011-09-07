@@ -2,8 +2,8 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string>
-#include "../../sdk/headers/FLHook.h"
-#include "../../sdk/headers/plugin.h"
+#include "../flhookplugin_sdk/headers/FLHook.h"
+#include "../flhookplugin_sdk/headers/plugin.h"
 
 
 struct TEMPBAN_INFO
