@@ -185,6 +185,31 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
+struct IAlchemy;
+struct IAnimation2;
+struct IChannel;
+struct ICOManager;
+struct IFileSystem;
+struct IDeformable;
+struct IEngine2;
+struct IEngine;
+struct IFxEffectLibrary;
+struct IFxRuntime;
+struct IHardpoint;
+struct IMatAnimLibrary;
+struct IMaterialBatcher2;
+struct IMaterialLibrary;
+struct IRenderPipeline;
+struct IRPDraw;
+struct IRPIndexBuffer;
+struct IRPVertexBuffer;
+struct IRenderer2;
+struct ISoundManager;
+struct IStreamer2;
+struct ITextureLibrary2;
+struct IVMeshLibrary;
+struct IVertexBufferManager;
+
 namespace DALib
 {
 	IMPORT  struct IAlchemy *  Alchemy;
