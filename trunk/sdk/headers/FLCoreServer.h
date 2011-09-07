@@ -212,7 +212,7 @@ public:
 	 void StoreMemberList(std::vector<unsigned int> &);
 
 protected:
-	 static class std::map<unsigned int const ,CPlayerGroup*>  s_GroupIDToGroupPtrMap;
+	 static class std::map<unsigned int const, class CPlayerGroup *, struct std::less<unsigned int const>, class std::allocator<class CPlayerGroup *>>  s_GroupIDToGroupPtrMap;
 	 static unsigned int  s_uiGroupID;
 
 public:
@@ -548,7 +548,7 @@ public:
 
 namespace SysDB
 {
-	IMPORT  std::map<unsigned int,class StarSystem> SysMap;
+	IMPORT  std::map<unsigned int, class StarSystem, struct std::less<unsigned int>, class std::allocator<class StarSystem>> SysMap;
 };
 
 namespace Controller
