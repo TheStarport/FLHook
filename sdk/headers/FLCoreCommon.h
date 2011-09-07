@@ -131,7 +131,7 @@ namespace PhyArch
 	};
 
 	IMPORT  struct Part const *  GetDefaultPart(void);
-	IMPORT  bool  LoadSurfaces(char const *,class std::map<unsigned int,struct Part> &);
+	IMPORT  bool  LoadSurfaces(char const *,class std::map<unsigned int, struct PhyArch::Part, struct std::less<unsigned int>, class std::allocator<struct PhyArch::Part>> &);
 };
 
 enum HpAttachmentType;
@@ -1021,7 +1021,7 @@ public:
 	class BaseData & operator=(class BaseData const &);
 	unsigned int get_base_id(void)const ;
 	std::list<class RoomData *> const * get_const_room_data_list(void)const ;
-	std::map<unsigned int,struct MarketGoodInfo> const * get_market(void)const ;
+	std::map<unsigned int, struct MarketGoodInfo, struct std::less<unsigned int>, class std::allocator<struct MarketGoodInfo>> const * get_market(void)const ;
 	float get_price_variance(void)const ;
 	std::list<class RoomData *> * get_room_data_list(void);
 	float get_ship_repair_cost(void)const ;
@@ -5470,7 +5470,7 @@ namespace Reputation
 	};
 
 	IMPORT  void  FreeFeelings(void);
-	IMPORT  std::map<unsigned int,unsigned int> *  GetChangedAffiliationClientMap(void);
+	IMPORT  std::map<unsigned int, unsigned int, struct std::less<unsigned int>, class std::allocator<unsigned int>> *  GetChangedAffiliationClientMap(void);
 	IMPORT  bool  IsStoryFaction(unsigned int);
 	IMPORT  void  LoadFeelings(class INI_Reader &);
 	IMPORT  void  Save(struct ISave *);
@@ -5824,14 +5824,16 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class Style
-{
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
+
 
 class IMPORT StyleCollection
 {
+	class Style
+	{
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
 public:
 	class StyleCollection & operator=(class StyleCollection const &);
 	static class RenderDisplayList &  get_style(unsigned short);
@@ -5840,7 +5842,7 @@ public:
 	static void  set_style(unsigned short,class RenderDisplayList const &);
 
 protected:
-	static std::map<unsigned short,class Style>  mStyles;
+	static std::map<unsigned short, class StyleCollection::Style, struct std::less<unsigned short>, class std::allocator<class StyleCollection::Style>>  mStyles;
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
