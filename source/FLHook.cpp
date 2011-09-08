@@ -178,6 +178,16 @@ void FLHookInit_Pre()
 	InitializeCriticalSection(&cs);
 	hProcFL = GetModuleHandle(0);
 
+	// start console
+	AllocConsole();
+	SetConsoleTitle("FLHook");
+	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
+	hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+	hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
+
+	ConPrint(L"Welcome to FLHook Console (" VERSION L")\n");
+
 	try {
 
 		// get module handles
@@ -207,15 +217,7 @@ void FLHookInit_Pre()
 		CreateDirectoryA("./flhook_logs/",NULL);
 		CreateDirectoryA("./flhook_logs/debug",NULL);
 
-		// start console
-		AllocConsole();
-		SetConsoleTitle("FLHook");
-		SetConsoleCtrlHandler(ConsoleHandler, TRUE);
-		hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
-		hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
-
-		ConPrint(L"Welcome to FLHook Console (" VERSION L")\n");
+		
 
 		DWORD id;
 		DWORD dwParam;
@@ -279,7 +281,8 @@ void FLHookInit_Pre()
 #endif
 
 	} catch(char *szError) {
-		ConPrint(L"ERROR: %s\n", stows(szError).c_str());
+		ConPrint(L"CRITICAL ERROR: %s\n", stows(szError).c_str());
+		exit(EXIT_FAILURE);
 	}
 }
 

@@ -2,6 +2,15 @@
 #define _GLOBAL_
 #pragma warning(disable: 4311 4786)
 
+// include library files
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreDALib.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreCommon.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreDACom.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreFLServerEXE.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreRemoteClient.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreServer.lib")
+#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLHook.lib")
+
 // includes 
 #include "blowfish.h"
 #include <windows.h>
@@ -41,6 +50,11 @@ typedef char* (*_GetCString)(flstrs *scStr);
 typedef wchar_t* (*_GetWCString)(flstr *wscStr);
 typedef wchar_t* (*_WStringAssign)(flstr *wscStr, const wchar_t *wszStr);
 typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
+
+#include "../plugins/flhookplugin_sdk/headers/FLCoreServer.h"
+#include "../plugins/flhookplugin_sdk/headers/FLCoreCommon.h"
+#include "../plugins/flhookplugin_sdk/headers/FLCoreRemoteClient.h"
+#include "../plugins/flhookplugin_sdk/headers/FLCoreDALib.h"
 
 // structures
 struct INISECTIONVALUE

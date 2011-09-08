@@ -7,10 +7,6 @@
 #endif
 #include "global.h"
 #include "flcodec.h"
-#include "../sdk/headers/FLCoreServer.h"
-#include "../sdk/headers/FLCoreCommon.h"
-#include "../sdk/headers/FLCoreRemoteClient.h"
-#include "../sdk/headers/FLCoreDALib.h"
 
 #include "./include/plugin.h"
 
