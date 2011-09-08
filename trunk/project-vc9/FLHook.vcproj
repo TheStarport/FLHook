@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib psapi.lib wsock32.lib ws2_32.lib ../sdk/libs/FLCoreFLServerEXE.lib ../sdk/libs/FLCoreCommon.lib ../sdk/libs/FLCoreDALib.lib ../sdk/libs/FLCoreDACom.lib ../sdk/libs/FLCoreRemoteClient.lib ../sdk/libs/FLCoreServer.lib"
+				AdditionalDependencies="Ws2_32.lib psapi.lib"
 				OutputFile="$(OutDir)/FLHook.dll"
 				LinkIncremental="2"
 				GenerateManifest="true"
@@ -157,7 +157,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib psapi.lib wsock32.lib ws2_32.lib Advapi32.lib ../sdk/libs/FLCoreFLServerEXE.lib ../sdk/libs/FLCoreCommon.lib ../sdk/libs/FLCoreDALib.lib ../sdk/libs/FLCoreDACom.lib ../sdk/libs/FLCoreRemoteClient.lib ../sdk/libs/FLCoreServer.lib"
+				AdditionalDependencies="Ws2_32.lib psapi.lib"
 				OutputFile="$(OutDir)/FLHook.dll"
 				LinkIncremental="1"
 				GenerateManifest="true"
