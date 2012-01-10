@@ -667,6 +667,11 @@ void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 			if(ClientInfo[iClientID].iTradePartner)
 				HkSaveChar(ARG_CLIENTID(ClientInfo[iClientID].iTradePartner));
 		}
+      
+      if (ClientInfo[iClientID].iTradePartner)
+         ClientInfo[ClientInfo[iClientID].iTradePartner].iTradePartner = 0;
+      ClientInfo[iClientID].iTradePartner = 0;
+      
 	} catch(...) { LOG_EXCEPTION }
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TerminateTrade_AFTER,__stdcall,(unsigned int iClientID, int iAccepted),(iClientID,iAccepted));
