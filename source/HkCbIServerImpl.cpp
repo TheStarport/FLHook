@@ -18,8 +18,14 @@
 	timer.start(); \
 	try { \
 		args; \
-	} catch(...) { LOG_EXCEPTION } \
+	} catch(...) { AddLog("ERROR: Exception in "__FUNCTION__" on server call"); LOG_EXCEPTION; } \
 	timer.stop(); \
+	}
+
+#define CHECK_FOR_DISCONNECT \
+	{ \
+		if (ClientInfo[iClientID].bDisconnected) \
+		{ AddLog("ERROR: Ignoring disconnected client in "__FUNCTION__" id=%u", iClientID); return; }; \
 	}
 
 namespace HkIServerImpl
@@ -271,6 +277,8 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	try {
 		ClientInfo[iClientID].iShip = iShip;
 		ClientInfo[iClientID].iKillsInARow = 0;
@@ -321,6 +329,8 @@ void __stdcall FireWeapon(unsigned int iClientID, struct XFireWeaponInfo const &
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon,__stdcall,(unsigned int iClientID, struct XFireWeaponInfo const &wpn),(iClientID,wpn));
 
 	EXECUTE_SERVER_CALL(Server.FireWeapon(iClientID, wpn));
@@ -340,6 +350,8 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 	ISERVER_LOGARG_UI(iClientID);
 
 	uint iClientIDTarget;
+
+	CHECK_FOR_DISCONNECT
 
 	try {
 		iClientIDTarget = HkGetClientIDByShip(ci.dwTargetShip);
@@ -365,6 +377,8 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClie
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);	
 
+	CHECK_FOR_DISCONNECT
+
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate,__stdcall,(struct SSPObjUpdateInfo const &ui, unsigned int iClientID),(ui,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjUpdate(ui, iClientID));
@@ -381,6 +395,9 @@ void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci, unsigned int
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	
+	CHECK_FOR_DISCONNECT
+
+
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjCollision,__stdcall,(struct SSPObjCollisionInfo const &ci, unsigned int iClientID),(ci,iClientID));
 
 	EXECUTE_SERVER_CALL(Server.SPObjCollision(ci, iClientID));
@@ -434,6 +451,8 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 	ISERVER_LOGARG_S(&cId);
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect,__stdcall,(struct CHARACTER_ID const & cId, unsigned int iClientID),(cId,iClientID));
 
 	wstring wscCharBefore;
@@ -441,6 +460,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 		const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 		wscCharBefore = wszCharname ? (wchar_t*)Players.GetActiveCharacterName(iClientID) : L"";
 		ClientInfo[iClientID].iLastExitedBaseID = 0;
+		ClientInfo[iClientID].iTradePartner = 0;
 		Server.CharacterSelect(cId, iClientID);
 	} catch(...) {
 		HkAddKickLog(iClientID, L"Corrupt charfile?");
@@ -503,13 +523,15 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 	ISERVER_LOGARG_UI(iBaseID);
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseEnter,__stdcall,(unsigned int iBaseID, unsigned int iClientID),(iBaseID,iClientID));
 
 	try {
 		// autobuy
 		if(set_bAutoBuy)
 			HkPlayerAutoBuy(iClientID, iBaseID);
-	} catch(...) { AddLog("Exception in Autobuy"); }
+	} catch(...) { AddLog("Exception in "__FUNCTION__" on autobuy"); LOG_EXCEPTION }
 
 	EXECUTE_SERVER_CALL(Server.BaseEnter(iBaseID, iClientID));
 
@@ -550,6 +572,8 @@ void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID)
 	ISERVER_LOGARG_UI(iBaseID);
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	try {
 		ClientInfo[iClientID].iBaseEnterTime = 0;
 		ClientInfo[iClientID].iLastExitedBaseID = iBaseID;
@@ -582,9 +606,20 @@ void __stdcall OnConnect(unsigned int iClientID)
 	ISERVER_LOGARG_UI(iClientID);
 
 	try {
-		// also check for too high id due to disconnect buffer time
-		if((ClientInfo[iClientID].tmF1TimeDisconnect > timeInMS()) || (iClientID > Players.GetMaxPlayerCount())) {
-			
+		// If ID is too high  due to disconnect buffer time then manually drop the connection.
+		if(iClientID > MAX_CLIENT_ID)
+		{			
+			AddLog("INFO: Blocking connect in "__FUNCTION__" due to invalid id, id=%u", iClientID);
+			CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
+			if(!cdpClient)
+				return;
+			cdpClient->Disconnect();
+			return;
+		}
+
+		// If this client is in the anti-F1 timeout then force the disconnect.
+		if (ClientInfo[iClientID].tmF1TimeDisconnect > timeInMS())
+		{
 			// manual disconnect
 			CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
 			if(!cdpClient)
@@ -624,26 +659,31 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	try {
-		ClientInfo[iClientID].lstMoneyFix.clear();
-
+	wstring wscCharname;
+	try
+	{
 		if(!ClientInfo[iClientID].bDisconnected)
 		{
 			ClientInfo[iClientID].bDisconnected = true;
+			ClientInfo[iClientID].lstMoneyFix.clear();
+			ClientInfo[iClientID].iTradePartner = 0;
 
 			// event
-			const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			ProcessEvent(L"disconnect char=%s id=%d", 
-					(wszCharname ? wszCharname : L""), 
-					iClientID);
-		}
-	} catch(...) { LOG_EXCEPTION }
+			const wchar_t* wszCharname = Players.GetActiveCharacterName(iClientID);
+			if (wszCharname)
+				wscCharname = wszCharname;
+			ProcessEvent(L"disconnect char=%s id=%d", wscCharname.c_str(), iClientID);
 
-	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
-	
-	EXECUTE_SERVER_CALL(Server.DisConnect(iClientID, p2));
-	
-	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect_AFTER,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
+			CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
+			EXECUTE_SERVER_CALL(Server.DisConnect(iClientID, p2));
+			CALL_PLUGINS_V(PLUGIN_HkIServerImpl_DisConnect_AFTER,__stdcall,(unsigned int iClientID, enum EFLConnection p2),(iClientID,p2));
+		}
+	}
+	catch (...)
+	{
+		AddLog("ERROR: Exception in " __FUNCTION__ "@loc2 charname=%s iClientID=%u", wstos(wscCharname).c_str(), iClientID);
+		LOG_EXCEPTION;
+	}
 }
 
 /**************************************************************************************************************
@@ -655,6 +695,8 @@ void __stdcall TerminateTrade(unsigned int iClientID, int iAccepted)
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_I(iAccepted);
+
+	CHECK_FOR_DISCONNECT
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_TerminateTrade,__stdcall,(unsigned int iClientID, int iAccepted),(iClientID,iAccepted));
 
@@ -709,6 +751,8 @@ void __stdcall ActivateEquip(unsigned int iClientID, struct XActivateEquip const
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	try {
 
 		list<CARGO_INFO> lstCargo;
@@ -747,6 +791,8 @@ void __stdcall ActivateCruise(unsigned int iClientID, struct XActivateCruise con
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
+	CHECK_FOR_DISCONNECT
+
 	try {
 		ClientInfo[iClientID].bCruiseActivated = ac.bActivate;
 	} catch(...) { LOG_EXCEPTION }
@@ -766,6 +812,8 @@ void __stdcall ActivateThrusters(unsigned int iClientID, struct XActivateThruste
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+
+	CHECK_FOR_DISCONNECT
 
 	try {
 		ClientInfo[iClientID].bThrusterActivated = at.bActivate;
@@ -787,6 +835,8 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
+
+	CHECK_FOR_DISCONNECT
 
 	try {
 		// anti-cheat check
@@ -847,6 +897,8 @@ void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2)
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
+
+	CHECK_FOR_DISCONNECT
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterInfoReq,__stdcall,(unsigned int iClientID, bool p2),(iClientID,p2));
 
@@ -911,6 +963,8 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iShip);
 	ISERVER_LOGARG_UI(iClientID);
+	
+	CHECK_FOR_DISCONNECT
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SystemSwitchOutComplete,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 
