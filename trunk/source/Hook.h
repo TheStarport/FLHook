@@ -788,7 +788,8 @@ extern EXPORT _CreateChar CreateChar;
 
 extern EXPORT string scAcctPath;
 
-extern EXPORT CLIENT_INFO ClientInfo[250];
+#define MAX_CLIENT_ID 249
+extern EXPORT CLIENT_INFO ClientInfo[MAX_CLIENT_ID+1];
 extern EXPORT CDPServer *cdpSrv;
 extern EXPORT uint g_iServerLoad;
 extern EXPORT uint g_iPlayerCount;

@@ -9,7 +9,6 @@
 #pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreFLServerEXE.lib")
 #pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreRemoteClient.lib")
 #pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreServer.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLHook.lib")
 
 // includes 
 #include "blowfish.h"
