@@ -154,6 +154,11 @@ struct CAccountListNode
 	uint iDunno2[32];
 };
 
+enum ConnectionType
+{
+	JUMPHOLE
+};
+
 class IMPORT CAccount
 {
 public:
@@ -948,7 +953,40 @@ namespace pub
 
 	namespace System
 	{
-		IMPORT  int EnumerateConnections(unsigned int const &,struct ConnectionEnumerator &,enum ConnectionType);
+		struct SysObj
+		{
+			char   nick[32];		// NOT NUL-terminated if longer
+			Vector pos;
+			UINT   archid;
+			UINT   ids_name;
+			UINT   ids_info;
+			char   reputation[32];
+			UINT   dock_with;
+			UINT   goto_system;
+			UINT   system;
+			// -------------------
+			// Some nicknames are longer than 32 characters, so take advantage of the
+			// fact that where it gets the nickname from immediately follows.
+			size_t len;		// TString<64>
+			char   nickname[64];
+		};
+	
+		struct SysObjEnumerator
+		{
+			virtual bool operator()( const SysObj& ) = 0;
+		};
+		
+		struct Connection
+		{
+			UINT   stuff[10];
+		};
+		
+		struct ConnectionEnumerator
+		{
+			virtual bool operator()( const Connection& ) = 0;
+		};
+	
+		IMPORT  int EnumerateConnections(unsigned int const &,struct pub::System::ConnectionEnumerator &,enum ConnectionType);
 		IMPORT  int EnumerateObjects(unsigned int const &,struct SysObjEnumerator &);
 		IMPORT  int EnumerateZones(unsigned int const &,struct ZoneEnumerator &);
 		IMPORT  int Find(unsigned int const &,char const *,unsigned int &);
