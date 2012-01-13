@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Condata Plugin"
 	ProjectGUID="{2CA8178B-9C91-4478-A955-21ABEC99E453}"
 	RootNamespace="FLHook Example Plugin"
@@ -30,8 +30,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;rem copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  C:\Discovery\FreelancerSDK\EXE\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;"
-				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll;C:\Discovery\FreelancerSDK\EXE\flhook_plugins\$(TargetName).dll"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll&quot;&#x0D;&#x0A;"
+				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLHOOKEXAMPLEPLUGIN_EXPORTS"
+				AdditionalIncludeDirectories="../"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
@@ -66,7 +66,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../sdk/libs/FLHook.lib ../../sdk/libs/FLCoreServer.lib ../../sdk/libs/FLCoreCommon.lib ../../sdk/libs/FLCoreRemoteClient.lib ../../sdk/libs/FLCoreDALib.lib"
 				OutputFile="$(OutDir)/condata.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -97,8 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy condata dll to freelancer"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  &quot;..\..\..\bin\flhook_plugins\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\&quot;&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -115,7 +113,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\..\bin\flhook_plugins\&#x0D;&#x0A;"
 				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll"
 			/>
 			<Tool
@@ -133,7 +131,6 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLHOOKEXAMPLEPLUGIN_EXPORTS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="false"

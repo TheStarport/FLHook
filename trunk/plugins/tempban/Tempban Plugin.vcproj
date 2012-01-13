@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Tempban Plugin"
 	ProjectGUID="{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
 	RootNamespace="Tempban Plugin"
@@ -30,7 +30,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll&quot;&#x0D;&#x0A;"
 				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll"
 			/>
 			<Tool
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TEMPBANPLUGIN_EXPORTS"
+				AdditionalIncludeDirectories="C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
@@ -96,8 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy tempban dll to Freelancer"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\..\bin\flhook_plugins\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\&quot;&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -114,7 +113,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\..\bin\flhook_plugins\&#x0D;&#x0A;"
 				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll"
 			/>
 			<Tool
@@ -128,7 +127,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TEMPBANPLUGIN_EXPORTS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="false"

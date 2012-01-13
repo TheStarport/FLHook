@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="FLHook"
 	ProjectGUID="{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
 	RootNamespace="FLHook"
@@ -30,8 +30,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
-				Outputs="..\bin\$(TargetName).dll;&quot;C:\Program Files\Microsoft Games\Freelancer\EXE\$(TargetName).dll&quot;;..\sdk\libs\$(TargetName).lib"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\&#x0D;&#x0A;&#x0D;&#x0A;"
+				Outputs="..\bin\$(TargetName).dll;&quot;C:\Program Files\Microsoft Games\Freelancer\EXE\$(TargetName).dll&quot;;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -117,8 +117,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\sdk\libs\&#x0D;&#x0A;"
-				Outputs="..\bin\$(TargetName).dll;..\sdk\libs\$(TargetName).lib"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\&#x0D;&#x0A;"
+				Outputs="..\bin\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -389,44 +389,12 @@
 				>
 			</File>
 			<File
-				RelativePath="..\sdk\headers\FLHook.h"
+				RelativePath="..\plugins\flhookplugin_sdk\headers\FLHook.h"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\sdk\headers\plugin.h"
+				RelativePath="..\plugins\flhookplugin_sdk\headers\plugin.h"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<Filter
 				Name="vc7stl"
