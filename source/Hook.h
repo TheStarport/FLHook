@@ -657,6 +657,7 @@ EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);
 EXPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason);
+EXPORT bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason);
 EXPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
 EXPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
 EXPORT void HkAddAdminCmdLog(const char *szString, ...);

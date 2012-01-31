@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 See blowfish.c for more information about this file.
 */
+#define EXPORT __declspec(dllexport)
 
   
 typedef struct {
@@ -25,9 +26,9 @@ typedef struct {
   unsigned long S[4][256];
 } BLOWFISH_CTX;
 
-void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
-char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
-char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
+EXPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
+EXPORT char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
+EXPORT char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
 
 
 

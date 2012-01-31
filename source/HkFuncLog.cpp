@@ -53,12 +53,13 @@ void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
 	va_start(marker, wscReason);
 
 	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+	
+	HkAddCheaterLog(iClientID, wszBuf);
 
 	if(!Players.GetActiveCharacterName(iClientID))
 		return;
 
 	wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-	HkAddCheaterLog(wscCharname, wszBuf);
 
 	wchar_t wszBuf2[500];
 	swprintf(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
@@ -96,6 +97,43 @@ bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
 		HkGetPlayerIP(iClientID,wscIp);
 	}
 	
+
+	time_t tNow = time(0);
+	struct tm *stNow = localtime(&tNow);
+	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by %s(%s)(%s) [%s %s]\n",
+		stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
+	fclose(f);
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason)
+{
+	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
+	if(!f)
+		return false;
+
+	CAccount *acc = Players.FindAccountFromClientID(iClientID);
+	wstring wscAccountDir = L"???";
+	wstring wscAccountID = L"???";
+	if(acc)
+	{
+		HkGetAccountDirName(acc, wscAccountDir);
+		wscAccountID = HkGetAccountID(acc);
+	}
+
+	wstring wscHostName = L"???";
+	wstring wscIp = L"???";
+
+	wscHostName = ClientInfo[iClientID].wscHostname;
+	HkGetPlayerIP(iClientID,wscIp);
+
+	wstring wscCharname = L"? ? ?"; //spaces to make clear it's not a player name
+	if(Players.GetActiveCharacterName(iClientID))
+	{
+		wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+	}
 
 	time_t tNow = time(0);
 	struct tm *stNow = localtime(&tNow);
