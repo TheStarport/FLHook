@@ -808,7 +808,8 @@ namespace Archetype
 		/* 38 */ float fConstantPowerDraw;
 		/* 39 */ float fRebuildPowerDraw;
 		/* 40 */ float fOfflineThreshold;
-		/* 41 */ uint stdVectorHpShieldType[4];
+				 float fOfflineRebuildTime;
+		/* 41 */ uint stdVectorHpShieldType[3];
 	};
 
 	struct IMPORT ShieldLink
@@ -2412,7 +2413,10 @@ protected:
 	void RemGen(class CEShieldGenerator *);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	int iDunno[28];
+	float fOfflineThreshold;
+	float fOfflineRebuildTime;
+	float fMaxCapacity;
 };
 
 class IMPORT CEShieldGenerator
