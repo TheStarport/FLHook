@@ -483,6 +483,7 @@ IMPORT void AddDebugLog(const char *szString, ...);
 IMPORT void AddLog(const char *szString, ...);
 IMPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);
 IMPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason);
+IMPORT bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason);
 IMPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
 IMPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
 IMPORT void HkAddAdminCmdLog(const char *szString, ...);
@@ -809,5 +810,17 @@ typedef bool (*_HelpEntryDisplayed)(uint);
 extern IMPORT void HkAddHelpEntry(const wstring &c, const wstring &t, const wstring &shelp, const wstring &lhelp, _HelpEntryDisplayed check);
 extern IMPORT void HkRemoveHelpEntry(const wstring &c, const wstring &t);
 extern IMPORT bool get_bTrue(uint iClientID);
+
+//blowfish
+
+typedef struct {
+  unsigned long P[16 + 2];
+  unsigned long S[4][256];
+} BLOWFISH_CTX;
+
+IMPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
+IMPORT char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
+IMPORT char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
+
 
 #endif
