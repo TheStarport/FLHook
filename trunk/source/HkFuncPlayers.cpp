@@ -515,7 +515,7 @@ HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, boo
 	// Emulate char create
 	SLoginInfo logindata;
 	wcsncpy(logindata.wszAccount, HkGetAccountID(acc).c_str(), 36);
-	Players.login(logindata, Players.GetMaxPlayerCount()+1);
+	Players.login(logindata, MAX_CLIENT_ID + 1);
 
 	SCreateCharacterInfo newcharinfo;
 	wcsncpy(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
@@ -568,9 +568,9 @@ HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, boo
 	newcharinfo.iDunno[13] = 65540;
 	newcharinfo.iDunno[14] = 65536;
 	newcharinfo.iDunno[15] = 65538;
-	Server.CreateNewCharacter(newcharinfo, Players.GetMaxPlayerCount()+1);
+	Server.CreateNewCharacter(newcharinfo, MAX_CLIENT_ID + 1);
 	HkSaveChar(wscNewCharname);
-	Players.logout(Players.GetMaxPlayerCount()+1);
+	Players.logout(MAX_CLIENT_ID + 1);
 
 	// Decode the backup of the old char and overwrite the new char file
 	if(!flc_decode(scTmpPath.c_str(), scNewCharfilePath.c_str()))

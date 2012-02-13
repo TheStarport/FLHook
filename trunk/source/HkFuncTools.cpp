@@ -7,12 +7,9 @@ uint HkGetClientIdFromAccount(CAccount *acc)
 	struct PlayerData *pPD = 0;
 	while(pPD = Players.traverse_active(pPD))
 	{
-		CAccount *cur;
-		memcpy(&cur, (char*)pPD + 0x400, 4);
-		if(cur == acc)
+		if(pPD->Account == acc)
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
-			return iClientID;
+			return pPD->iOnlineID;
 		}
 	}
 
@@ -23,10 +20,7 @@ uint HkGetClientIdFromAccount(CAccount *acc)
 
 uint HkGetClientIdFromPD(struct PlayerData *pPD)
 {
-	char *p1 = (char*)pPD;
-	char *p2 = (char*)&Players;
-	memcpy(&p2, p2, 4);
-	return (uint)(((p1 - p2) / 0x418) + 1);
+	return pPD->iOnlineID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,8 +132,7 @@ bool HkIsValidClientID(uint iClientID)
 	struct PlayerData *pPD = 0;
 	while(pPD = Players.traverse_active(pPD))
 	{
-		uint iID = HkGetClientIdFromPD(pPD);
-		if(iID == iClientID)
+		if(pPD->iOnlineID == iClientID)
 			return true;
 	}
 
@@ -205,7 +198,7 @@ HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &_iClientID)
 
 uint HkGetClientIDByShip(uint iShip)
 {
-	for(uint i = 0; (i <= Players.GetMaxPlayerCount()); i++)
+	for(uint i = 0; i <= MAX_CLIENT_ID; i++)
 	{
 		if(ClientInfo[i].iShip == iShip || ClientInfo[i].iShipOld == iShip)
 			return i;

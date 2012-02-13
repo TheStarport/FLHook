@@ -12,7 +12,7 @@
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-CONNECTION_DATA ConData[250];
+CONNECTION_DATA ConData[MAX_CLIENT_ID+1];
 bool set_bPingCmd;
 
 
@@ -177,8 +177,23 @@ EXPORT void HkTimerCheckKick()
 				Plugin_Communication(TEMPBAN_BAN,&tempban);
 			}				
 		}
+	}
 
-
+	// Are there accounts connected with client IDs greater than max player count?
+	// If so, kick them as FLServer is buggy and will use high client IDs but 
+	// will not allow character selection on them.
+	for (int iClientID = Players.GetMaxPlayerCount() + 1; iClientID <= MAX_CLIENT_ID; iClientID++)
+	{
+		if (Players[iClientID].iOnlineID)
+		{
+			CAccount *acc = Players.FindAccountFromClientID(iClientID);
+			if (acc)
+			{
+				//ConPrint(L"Kicking lag bug account iClientID=%u %u\n", iClientID,Players[iClientID].iOnlineID);
+				acc->ForceLogout();
+				Players.logout(iClientID);
+			}
+		}
 	}
 }
 
@@ -676,6 +691,27 @@ EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd
 		}
 		classptr->Print(L"OK\n");
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		return true;
+	}
+	else if (IS_CMD("kick"))
+	{
+		// Find by charname. If this fails, fall through to default behaviour.
+		CAccount *acc = HkGetAccountByCharname(classptr->ArgCharname(1));
+		if(!acc)
+			return false;
+
+		// Logout.
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		acc->ForceLogout();
+		classptr->Print(L"OK\n");
+
+		// If the client is still active then force the disconnect.
+		uint iClientID = HkGetClientIdFromAccount(acc);
+		if (iClientID != -1)
+		{
+			classptr->Print(L"Forcing logout on iClientID=%d\n", iClientID);
+			Players.logout(iClientID);
+		}
 		return true;
 	}
 
