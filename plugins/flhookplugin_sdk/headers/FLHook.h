@@ -795,7 +795,8 @@ extern IMPORT _CreateChar CreateChar;
 
 extern IMPORT string scAcctPath;
 
-extern IMPORT CLIENT_INFO ClientInfo[250];
+#define MAX_CLIENT_ID 249
+extern IMPORT CLIENT_INFO ClientInfo[MAX_CLIENT_ID+1];
 extern IMPORT CDPServer *cdpSrv;
 extern IMPORT uint g_iServerLoad;
 extern IMPORT uint g_iPlayerCount;

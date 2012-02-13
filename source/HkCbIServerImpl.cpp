@@ -606,7 +606,7 @@ void __stdcall OnConnect(unsigned int iClientID)
 	ISERVER_LOGARG_UI(iClientID);
 
 	try {
-		// If ID is too high  due to disconnect buffer time then manually drop the connection.
+		// If ID is too high due to disconnect buffer time then manually drop the connection.
 		if(iClientID > MAX_CLIENT_ID)
 		{			
 			AddLog("INFO: Blocking connect in "__FUNCTION__" due to invalid id, id=%u", iClientID);
@@ -996,7 +996,7 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 	try {
 		Server.Login(li, iClientID);
 
-		if(iClientID > Players.GetMaxPlayerCount())
+		if(iClientID > MAX_CLIENT_ID)
 			return; // lalala DisconnectDelay bug
 
 		if(!HkIsValidClientID(iClientID))
@@ -1055,7 +1055,7 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 			bool bReserved = IniGetB(scUserFile, "Settings", "ReservedSlot", false);
 			if(!bReserved)
 			{
-				HkKick(ARG_CLIENTID(iClientID));
+				HkKick(acc);
 				return;
 			}
 		}
@@ -2025,25 +2025,26 @@ bool __stdcall Startup(struct SStartupInfo const &p1)
 {
 	FLHookInit_Pre();
 
-	// patch PlayerDB array (for rename feature)
+	// The maximum number of players we can support is MAX_CLIENT_ID
+	// Add one to the maximum number to allow renames
+	int iMaxPlayers	= MAX_CLIENT_ID + 1;
+
+	// Startup the server with this number of players.
 	char* pAddress = ((char*)hModServer + ADDR_SRV_PLAYERDBMAXPLAYERSPATCH);
 	char szNOP[] = { '\x90'};
 	char szMOVECX[] = { '\xB9'};
 	WriteProcMem(pAddress, szMOVECX, sizeof(szMOVECX));
-	int iMaxPlayers = p1.iMaxPlayers+1; // max + 1
 	WriteProcMem(pAddress+1, &iMaxPlayers, sizeof(iMaxPlayers));
 	WriteProcMem(pAddress+5, szNOP, sizeof(szNOP));
-
-	// plugins & functioncall
 
 	CALL_PLUGINS_NORET(PLUGIN_HkIServerImpl_Startup,__stdcall,(struct SStartupInfo const &p1),(p1));
 
 	bool bRet = Server.Startup(p1);
 
-	// patch PlayerDB array (for rename feature)
-	iMaxPlayers = p1.iMaxPlayers;
+	// Patch to set maximum number of players to connect. This is normally 
+	// less than MAX_CLIENT_ID
 	pAddress = ((char*)hModServer + ADDR_SRV_PLAYERDBMAXPLAYERS);
-	WriteProcMem(pAddress, &iMaxPlayers, sizeof(iMaxPlayers));
+	WriteProcMem(pAddress, (void*)&p1.iMaxPlayers, sizeof(iMaxPlayers));
 
 	// read base market data from ini
 	HkLoadBaseMarket();
