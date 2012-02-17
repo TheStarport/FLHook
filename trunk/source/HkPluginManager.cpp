@@ -106,7 +106,10 @@ void UnloadPlugins()
 		pPluginHooks[i].clear();
 
 	foreach(lstPlugins, PLUGIN_DATA, it)
-		FreeLibrary(it->hDLL);
+	{
+		if(it->bMayUnload)
+			FreeLibrary(it->hDLL);
+	}
 
 	lstPlugins.clear();
 
