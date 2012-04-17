@@ -31,3 +31,7 @@ uint			set_iLossKick;
 uint			set_iLagDetectionFrame;
 uint			set_iLagDetectionMinimum;
 uint			set_iLagKick;
+
+// Kick high lag and loss players only if the server load 
+// exceeds this threshold.
+uint			set_iKickThreshold;

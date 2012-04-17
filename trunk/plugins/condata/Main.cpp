@@ -45,6 +45,7 @@ EXPORT void LoadSettings()
 	set_iLagDetectionFrame = IniGetI(set_scCfgFile, "Kick", "LagDetectionFrame", 50);
 	set_iLagDetectionMinimum = IniGetI(set_scCfgFile, "Kick", "LagDetectionMinimum", 200);
 	set_iLagKick = IniGetI(set_scCfgFile, "Kick", "LagKick", 0);
+	set_iKickThreshold = IniGetI(set_scCfgFile, "Kick", "KickThreshold", 0);
 
 	set_bPingCmd = IniGetB(set_scCfgFile, "UserCommands", "Ping", false);
 }
@@ -110,72 +111,75 @@ EXPORT void HkTimerCheckKick()
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	// for all players
-	struct PlayerData *pPD = 0;
-	while(pPD = Players.traverse_active(pPD))
+	if (g_iServerLoad > set_iKickThreshold)
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		// for all players
+		struct PlayerData *pPD = 0;
+		while(pPD = Players.traverse_active(pPD))
+		{
+			uint iClientID = HkGetClientIdFromPD(pPD);
 
-		
-		if(set_iLossKick)
-		{ // check if loss is too high
-			if(ConData[iClientID].iAverageLoss > (set_iLossKick))
-			{
-				ConData[iClientID].lstLoss.clear();
-				HkAddKickLog(iClientID, L"High loss");
-				HkMsgAndKick(iClientID, L"High loss", set_iKickMsgPeriod);
-				// call tempban plugin
-				TEMPBAN_BAN_STRUCT tempban;
-				tempban.iClientID = iClientID;
-				tempban.iDuration = 1; // 1 minute
-				Plugin_Communication(TEMPBAN_BAN,&tempban);
+			
+			if(set_iLossKick)
+			{ // check if loss is too high
+				if(ConData[iClientID].iAverageLoss > (set_iLossKick))
+				{
+					ConData[iClientID].lstLoss.clear();
+					HkAddKickLog(iClientID, L"High loss");
+					HkMsgAndKick(iClientID, L"High loss", set_iKickMsgPeriod);
+					// call tempban plugin
+					TEMPBAN_BAN_STRUCT tempban;
+					tempban.iClientID = iClientID;
+					tempban.iDuration = 1; // 1 minute
+					Plugin_Communication(TEMPBAN_BAN,&tempban);
+				}
 			}
-		}
 
-		if(set_iPingKick)
-		{ // check if ping is too high
-			if(ConData[iClientID].iAveragePing > (set_iPingKick))
-			{
-				ConData[iClientID].lstPing.clear();
-				HkAddKickLog(iClientID, L"High ping");
-				HkMsgAndKick(iClientID, L"High ping", set_iKickMsgPeriod);
-				// call tempban plugin
-				TEMPBAN_BAN_STRUCT tempban;
-				tempban.iClientID = iClientID;
-				tempban.iDuration = 1; // 1 minute
-				Plugin_Communication(TEMPBAN_BAN,&tempban);
+			if(set_iPingKick)
+			{ // check if ping is too high
+				if(ConData[iClientID].iAveragePing > (set_iPingKick))
+				{
+					ConData[iClientID].lstPing.clear();
+					HkAddKickLog(iClientID, L"High ping");
+					HkMsgAndKick(iClientID, L"High ping", set_iKickMsgPeriod);
+					// call tempban plugin
+					TEMPBAN_BAN_STRUCT tempban;
+					tempban.iClientID = iClientID;
+					tempban.iDuration = 1; // 1 minute
+					Plugin_Communication(TEMPBAN_BAN,&tempban);
+				}
 			}
-		}
 
-		if(set_iFluctKick)
-		{ // check if ping fluct is too high
-			if(ConData[iClientID].iPingFluctuation > (set_iFluctKick))
-			{
-				ConData[iClientID].lstPing.clear();
-				HkAddKickLog(iClientID, L"High fluct");
-				HkMsgAndKick(iClientID, L"High ping fluctuation", set_iKickMsgPeriod);
-				// call tempban plugin
-				TEMPBAN_BAN_STRUCT tempban;
-				tempban.iClientID = iClientID;
-				tempban.iDuration = 1; // 1 minute
-				Plugin_Communication(TEMPBAN_BAN,&tempban);
+			if(set_iFluctKick)
+			{ // check if ping fluct is too high
+				if(ConData[iClientID].iPingFluctuation > (set_iFluctKick))
+				{
+					ConData[iClientID].lstPing.clear();
+					HkAddKickLog(iClientID, L"High fluct");
+					HkMsgAndKick(iClientID, L"High ping fluctuation", set_iKickMsgPeriod);
+					// call tempban plugin
+					TEMPBAN_BAN_STRUCT tempban;
+					tempban.iClientID = iClientID;
+					tempban.iDuration = 1; // 1 minute
+					Plugin_Communication(TEMPBAN_BAN,&tempban);
+				}
 			}
-		}
 
-		if(set_iLagKick)
-		{ // check if lag is too high
-			if(ConData[iClientID].iLags > (set_iLagKick))
-			{
-				ConData[iClientID].lstObjUpdateIntervalls.clear();
+			if(set_iLagKick)
+			{ // check if lag is too high
+				if(ConData[iClientID].iLags > (set_iLagKick))
+				{
+					ConData[iClientID].lstObjUpdateIntervalls.clear();
 
-				HkAddKickLog(iClientID, L"High Lag");
-				HkMsgAndKick(iClientID, L"High Lag", set_iKickMsgPeriod);
-				// call tempban plugin
-				TEMPBAN_BAN_STRUCT tempban;
-				tempban.iClientID = iClientID;
-				tempban.iDuration = 1; // 1 minute
-				Plugin_Communication(TEMPBAN_BAN,&tempban);
-			}				
+					HkAddKickLog(iClientID, L"High Lag");
+					HkMsgAndKick(iClientID, L"High Lag", set_iKickMsgPeriod);
+					// call tempban plugin
+					TEMPBAN_BAN_STRUCT tempban;
+					tempban.iClientID = iClientID;
+					tempban.iDuration = 1; // 1 minute
+					Plugin_Communication(TEMPBAN_BAN,&tempban);
+				}				
+			}
 		}
 	}
 
