@@ -56,15 +56,15 @@ void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
 	
 	HkAddCheaterLog(iClientID, wszBuf);
 
-	if(!Players.GetActiveCharacterName(iClientID))
-		return;
+	if(wscReason[0] != '#' && Players.GetActiveCharacterName(iClientID))
+	{
+		wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-	wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-	wchar_t wszBuf2[500];
-	swprintf(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
-	if(wscReason[0] != '#')
+		wchar_t wszBuf2[500];
+		swprintf(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
 		HkMsgU(wszBuf2);
+	}
+
 	if(bBan)
 		HkBan(ARG_CLIENTID(iClientID), true);
 	if(wscReason[0] != '#')
