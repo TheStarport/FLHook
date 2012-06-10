@@ -230,7 +230,9 @@ enum PLUGIN_MESSAGE
 	ANTICHEAT_TELEPORT = 30,
 	ANTICHEAT_CHEATER = 31,
 	DSACE_CHANGE_INFOCARD = 40,
-	DSACE_SPEED_EXCEPTION = 41
+	DSACE_SPEED_EXCEPTION = 41,
+	CUSTOM_BASE_BEAM = 42,
+	CUSTOM_BASE_IS_DOCKED = 43
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,6 +294,19 @@ struct DSACE_CHANGE_INFOCARD_STRUCT
 struct DSACE_SPEED_EXCEPTION_STRUCT
 {
 	uint iClientID;
+};
+
+struct CUSTOM_BASE_BEAM_STRUCT
+{
+	uint iClientID;
+	uint iTargetBaseID;
+	bool bBeamed;
+};
+
+struct CUSTOM_BASE_IS_DOCKED_STRUCT
+{
+	uint iClientID;
+	uint iDockedBaseID;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
