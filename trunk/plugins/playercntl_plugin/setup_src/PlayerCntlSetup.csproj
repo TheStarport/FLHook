@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F1F9336E-D02E-484E-AEB0-4DF9EB0208EA}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PlayerCntlSetup</RootNamespace>
+    <AssemblyName>PlayerCntlSetup</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkSubset>Client</TargetFrameworkSubset>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddShipPimperItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddShipPimperItemWindow.designer.cs">
+      <DependentUpon>AddShipPimperItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AppServiceInteface.cs" />
+    <Compile Include="AddShipPimperBaseWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddShipPimperBaseWindow.designer.cs">
+      <DependentUpon>AddShipPimperBaseWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddRepFixerItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddRepFixerItemWindow.designer.cs">
+      <DependentUpon>AddRepFixerItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddNoBuyItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddNoBuyItemWindow.designer.cs">
+      <DependentUpon>AddNoBuyItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEquipPurchaseRestrictionItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEquipPurchaseRestrictionItemWindow.designer.cs">
+      <DependentUpon>AddEquipPurchaseRestrictionItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddSysSensorItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddSysSensorItemWindow.designer.cs">
+      <DependentUpon>AddSysSensorItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditSysSensorItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditSysSensorItemWindow.designer.cs">
+      <DependentUpon>EditSysSensorItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditEquipPurchaseRestrictionControlItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditEquipPurchaseRestrictionControlItemWindow.designer.cs">
+      <DependentUpon>EditEquipPurchaseRestrictionControlItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CsvStream.cs" />
+    <Compile Include="EditNoBuyItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditNoBuyItemWindow.designer.cs">
+      <DependentUpon>EditNoBuyItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditBannerWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditBannerWindow.Designer.cs">
+      <DependentUpon>EditBannerWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditPurchaseRestrictionControlItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditPurchaseRestrictionControlItemWindow.designer.cs">
+      <DependentUpon>EditPurchaseRestrictionControlItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditReps.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditReps.Designer.cs">
+      <DependentUpon>EditReps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddPurchaseRestrictionItemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddPurchaseRestrictionItemWindow.designer.cs">
+      <DependentUpon>AddPurchaseRestrictionItemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GameDataSet.cs">
+      <DependentUpon>GameDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SetBlockedSystemWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SetBlockedSystemWindow.designer.cs">
+      <DependentUpon>SetBlockedSystemWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FLDataFile.cs" />
+    <Compile Include="FLDataFileException.cs" />
+    <Compile Include="FLGameData.cs" />
+    <Compile Include="FLUtility.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GameDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GameDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="LogRecorderInterface.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddShipPimperItemWindow.resx">
+      <DependentUpon>AddShipPimperItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddShipPimperBaseWindow.resx">
+      <DependentUpon>AddShipPimperBaseWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddRepFixerItemWindow.resx">
+      <DependentUpon>AddRepFixerItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddNoBuyItemWindow.resx">
+      <DependentUpon>AddNoBuyItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEquipPurchaseRestrictionItemWindow.resx">
+      <DependentUpon>AddEquipPurchaseRestrictionItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddSysSensorItemWindow.resx">
+      <DependentUpon>AddSysSensorItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditSysSensorItemWindow.resx">
+      <DependentUpon>EditSysSensorItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditEquipPurchaseRestrictionControlItemWindow.resx">
+      <DependentUpon>EditEquipPurchaseRestrictionControlItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditNoBuyItemWindow.resx">
+      <DependentUpon>EditNoBuyItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditBannerWindow.resx">
+      <DependentUpon>EditBannerWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditPurchaseRestrictionControlItemWindow.resx">
+      <DependentUpon>EditPurchaseRestrictionControlItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditReps.resx">
+      <DependentUpon>EditReps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddPurchaseRestrictionItemWindow.resx">
+      <DependentUpon>AddPurchaseRestrictionItemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SetBlockedSystemWindow.resx">
+      <DependentUpon>SetBlockedSystemWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="GameDataSet.xsc">
+      <DependentUpon>GameDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="GameDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GameDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="GameDataSet.xss">
+      <DependentUpon>GameDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="UIDataSet.xsc">
+      <DependentUpon>UIDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="UIDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>UIDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="UIDataSet.xss">
+      <DependentUpon>UIDataSet.xsd</DependentUpon>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="UIDataSet.cs">
+      <DependentUpon>UIDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UIDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UIDataSet.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
