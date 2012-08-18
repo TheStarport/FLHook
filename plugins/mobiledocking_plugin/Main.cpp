@@ -448,8 +448,8 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client)
 		uint carrier_client = HkGetClientIdFromCharname(clients[client].wscDockedWithCharname);
 		if (carrier_client != -1)
 		{
-			clients[carrier_client].mapDockedShips.erase(Players.GetActiveCharacterName(client));
 			UpdateDockedShips(carrier_client);
+			clients[carrier_client].mapDockedShips.erase(Players.GetActiveCharacterName(client));
 		}
 
 		// Jump the ship to the last location of the carrier and allow
