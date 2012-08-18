@@ -30,7 +30,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\$(TargetName).dll&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll&quot;&#x0D;&#x0A;"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\..\bin\flhook_plugins\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).pdb  ..\..\bin\flhook_plugins\&#x0D;&#x0A;"
 				Outputs="..\..\bin\flhook_plugins\$(TargetName).dll"
 			/>
 			<Tool
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\"
+				AdditionalIncludeDirectories="..\flhookplugin_sdk\"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
