@@ -111,7 +111,7 @@ namespace HyperJump
 	};
 	static map<uint, JUMPDRIVE> mapJumpDrives;
 
-
+#define HCOORD_SIZE 28
 	struct HYPERSPACE_COORDS
 	{
 		WORD parity;
@@ -121,6 +121,7 @@ namespace HyperJump
 		float y;
 		float z;
 		DWORD time;
+		float accuracy;
 	};
 
 	static string set_scEncryptKey = "secretcode";
@@ -131,7 +132,7 @@ namespace HyperJump
 	{
 		wstring sbuf;
 		wchar_t buf[100];
-		for (int i=0; i<24; i++)
+		for (int i=0; i<HCOORD_SIZE; i++)
 		{
 			if (i!=0 && (i%4)==0) sbuf += L"-";
 			_snwprintf(buf, sizeof(buf), L"%02X", (byte)ibuf[i]);
@@ -144,7 +145,7 @@ namespace HyperJump
 	{
 		obuf[0] = ibuf[0];
 		obuf[1] = ibuf[1];
-		for (uint i=2, p=ibuf[0]%set_scEncryptKey.length(); i<24; i++, p++)
+		for (uint i=2, p=ibuf[0]%set_scEncryptKey.length(); i<HCOORD_SIZE; i++, p++)
 		{
 			if (p > set_scEncryptKey.length())
 				p = 0;
@@ -176,6 +177,8 @@ namespace HyperJump
 		WriteProcMem((char*)0x62F944E, &patch1, 2);
 		WriteProcMem((char*)0x62F123E, &patch1, 2);
 
+		set_scEncryptKey = Players.GetServerSig();
+
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 		string scCfgFile = string(szCurDir) + "\\flhook_plugins\\jump.cfg";
@@ -194,8 +197,7 @@ namespace HyperJump
 						{
 							set_death_systems[CreateID(ini.get_value_string(0))] = true;
 						}
-					}
-				}
+					}				}
 				else if (ini.is_header("jumpdrive"))
 				{
 					JUMPDRIVE_ARCH jd;
@@ -405,16 +407,17 @@ namespace HyperJump
 						coords.x = v.x;
 						coords.y = v.y;
 						coords.z = v.z;
-						coords.time = (uint)timeInMS() + (7 * 24 * 3600);
+						coords.time = (uint)time(0) + (10 * 24 * 3600);
+						coords.accuracy = sm.arch.coord_accuracy;
 
 						// Calculate a simple parity check
 						WORD parity = 0;
-						for (int i=2; i<24; i++)
+						for (int i=2; i<HCOORD_SIZE; i++)
 							parity += ibuf[i];
 						coords.parity = parity;
 
 						// Encrypt it
-						char obuf[24];
+						char obuf[HCOORD_SIZE];
 						EncryptDecrypt(ibuf, obuf);
 						PrintUserCmdText(iClientID, L"Hyperspace survey complete");
 						//PrintUserCmdText(iClientID, L"Raw: %s", FormatCoords(ibuf).c_str());		
@@ -1206,14 +1209,14 @@ namespace HyperJump
 		jd.iTargetSystem = 0;
 
 		string sbuf = wstos(ReplaceStr(GetParam(wscParam, L' ', 0), L"-", L""));
-		if (sbuf.size() != 48)
+		if (sbuf.size() != 56)
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid coordinates, format error");
 			return true;
 		}
 
-		char ibuf[24];
-		for (uint i=0, p=0; i<24 && (p+1)<sbuf.size(); i++, p+=2)
+		char ibuf[HCOORD_SIZE];
+		for (uint i=0, p=0; i<HCOORD_SIZE && (p+1)<sbuf.size(); i++, p+=2)
 		{
 			char buf[3];
 			buf[0] = sbuf[p];
@@ -1230,7 +1233,7 @@ namespace HyperJump
 
 		// Calculate a simple parity check
 		WORD parity = 0;
-		for (int i=2; i<24; i++)
+		for (int i=2; i<HCOORD_SIZE; i++)
 			parity += obuf[i];
 
 		if (coords.parity != parity)
@@ -1239,10 +1242,10 @@ namespace HyperJump
 			return true;
 		}
 	
-		if (coords.time < mstime())
+		if (coords.time < time(0))
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid coordinates, time error");
-			return true;
+			PrintUserCmdText(iClientID, L"Warning old coordinates detected. Jump not recommended");
+			coords.accuracy *= rand()%7;
 		}
 		
 		jd.iTargetSystem = coords.system;
@@ -1257,9 +1260,10 @@ namespace HyperJump
 			*(float*)&jd.vTargetPosition.y,
 			*(float*)&jd.vTargetPosition.z);
 
-		jd.vTargetPosition.x = ((rand()*10) % 80000) - 40000.0f;
-		jd.vTargetPosition.y = ((rand()*10) % 80000) - 40000.0f;
-		jd.vTargetPosition.z = ((rand()*10) % 80000) - 40000.0f;
+		int wiggle_factor = (int)coords.accuracy;
+		jd.vTargetPosition.x += ((rand()*10) % wiggle_factor) - (wiggle_factor/2);
+		jd.vTargetPosition.y += ((rand()*10) % wiggle_factor) - (wiggle_factor/2);
+		jd.vTargetPosition.z += ((rand()*10) % wiggle_factor) - (wiggle_factor/2);
 
 		return true;
 	}
