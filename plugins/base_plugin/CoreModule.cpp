@@ -63,10 +63,10 @@ void CoreModule::Spawn()
 		base->solar_ids = solar_ids;
 
 		wstring basename = base->basename;
-		if (base->affiliation)
-		{
-			basename = HkGetWStringFromIDS(Reputation::get_name(base->affiliation)) + L" - " + base->basename;
-		}
+		//if (base->affiliation)
+		//{
+		//	basename = HkGetWStringFromIDS(Reputation::get_name(base->affiliation)) + L" - " + base->basename;
+		//}
 
 		struct PlayerData *pd = 0;
 		while (pd = Players.traverse_active(pd))
