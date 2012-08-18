@@ -4,7 +4,7 @@
 	Version="9.00"
 	Name="Base Plugin"
 	ProjectGUID="{81D35B95-1CDD-4F58-A24C-E2EC47D43DD0}"
-	RootNamespace="FLHook Example Plugin"
+	RootNamespace="Player Owned Base Plugin"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -27,8 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Get Latest SDK"
-				CommandLine="copy C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\libs\*.lib libs\&#x0D;&#x0A;copy C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\headers\*.h headers\&#x0D;&#x0A;"
+				CommandLine=""
 				ExcludedFromBuild="false"
 			/>
 			<Tool
@@ -69,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="./libs/FLHook.lib ./libs/FLCoreDACom.lib ./libs/FLCoreDALib.lib ./libs/FLCoreCommon.lib ./libs/FLCoreServer.lib ./libs/FLCoreRemoteClient.lib shlwapi.lib psapi.lib"
+				AdditionalDependencies="..\hookext_plugin\Release\ahookext.lib"
 				OutputFile="$(OutDir)/base.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
