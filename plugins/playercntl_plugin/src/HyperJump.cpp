@@ -407,7 +407,7 @@ namespace HyperJump
 						coords.x = v.x;
 						coords.y = v.y;
 						coords.z = v.z;
-						coords.time = (uint)time(0) + (10 * 24 * 3600);
+						coords.time = (uint)time(0) + (35 * 24 * 3600);
 						coords.accuracy = sm.arch.coord_accuracy;
 
 						// Calculate a simple parity check
