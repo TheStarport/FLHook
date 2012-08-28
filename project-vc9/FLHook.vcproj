@@ -361,34 +361,6 @@
 			Name="sdk"
 			>
 			<File
-				RelativePath="..\sdk\headers\FLCoreCommon.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreDACom.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreDALib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreDefs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreFLServerEXE.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreRemoteClient.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sdk\headers\FLCoreServer.h"
-				>
-			</File>
-			<File
 				RelativePath="..\plugins\flhookplugin_sdk\headers\FLHook.h"
 				>
 			</File>

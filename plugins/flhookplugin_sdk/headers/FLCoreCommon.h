@@ -3879,20 +3879,30 @@ public:
 	uint i1;
 	uint iLen;
 	uint iDunno1[16];
-	uint iArchID;
-	uint iType; // 0=commodity, 2=hull, 3=ship
-	uint i3;
-	uint iShipGoodID; // if type = GOODINFO_TYPE_HULL
-	float fPrice;
-	float fGoodSellPrice;
-	float fBadBuyPrice;
-	float fBadSellPrice;
-	float fGoodBuyPrice;
-	uint iJumpDist;
-	float iDunno2[6];
-	uint iIDSName;
-	uint iIDS;
-	uint iHullGoodID; // if type = GOODINFO_TYPE_SHIP
+	/* 72 */ uint iArchID;
+	/* 76 */ uint iType; // 0=commodity, 2=hull, 3=ship
+	/* 80 */ uint i3;
+	/* 84 */ uint iShipGoodID; // if type = GOODINFO_TYPE_HULL
+	/* 88 */ float fPrice;
+	/* 92 */ float fGoodSellPrice;
+	/* 96 */ float fBadBuyPrice;
+	/* 100 */ float fBadSellPrice;
+	/* 104 */ float fGoodBuyPrice;
+	/* 108 */ uint iJumpDist;
+	/* 112 */ float iDunno2;
+	/* 116 */ float iDunno3;
+	/* 120 */ float iDunno4;
+	/* 124 */ float iDunno5;
+	/* 128 */ float iDunno6;
+	/* 132 */ float iDunno7;
+	/* 136 */ uint iIDSName;
+	/* 140 */ uint iIDS;
+	/* 144 */ uint iHullGoodID; // if type = GOODINFO_TYPE_SHIP
+	/* 148 */ EquipDescList edl;
+	/* 160 */ EquipDescList edl2;
+	/* 172 */ EquipDescList edl3;
+	/* 184 */ uint iFreeAmmoArchID;
+	/* 188 */ uint iFreeAmmoCount;
 };
 
 class IMPORT GoodInfoList

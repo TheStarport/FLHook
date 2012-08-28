@@ -558,6 +558,8 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int client
 
 	if (clients[client].mobile_docked)
 	{
+		returncode = SKIPPLUGINS;
+
 		PrintUserCmdText(client, L"ERR: Ship will not accept goods");
 		clients[client].reverse_sell = true;
 		return;
@@ -572,6 +574,8 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count, unsigned int client
 
 	if (clients[client].mobile_docked)
 	{
+		returncode = SKIPPLUGINS;
+		
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
@@ -588,6 +592,8 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 
 	if (clients[client].mobile_docked)
 	{
+		returncode = SKIPPLUGINS;
+
 		if (clients[client].reverse_sell)
 		{
 			clients[client].reverse_sell = false;
@@ -613,8 +619,6 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int client)
 	// If the client is in a player controlled base
 	if (clients[client].mobile_docked)
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-
 		PrintUserCmdText(client, L"ERR Base will not sell goods");
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		clients[client].stop_buy = true;
@@ -627,10 +631,15 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int client)
 void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count, float fStatus, bool bMounted, unsigned int client)
 {
 	returncode = DEFAULT_RETURNCODE;
-	if (clients[client].stop_buy)
+	if (clients[client].mobile_docked)
 	{
-		clients[client].stop_buy = false;
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		returncode = SKIPPLUGINS;
+
+		if (clients[client].stop_buy)
+		{
+			clients[client].stop_buy = false;
+			returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		}
 	}
 }
 
@@ -652,6 +661,15 @@ void __stdcall ReqSetCash(int cash, unsigned int client)
 	returncode = DEFAULT_RETURNCODE;
 	if (clients[client].mobile_docked)
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int client)
+{
+	returncode = DEFAULT_RETURNCODE;
+	if (clients[client].mobile_docked)
+		returncode = SKIPPLUGINS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -734,6 +752,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqAddItem, PLUGIN_HkIServerImpl_ReqAddItem, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
-
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
+	
 	return p_PI;
 }
