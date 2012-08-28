@@ -1044,6 +1044,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count, unsigned int client
 
 	if (clients[client].player_base)
 	{
+		returncode = SKIPPLUGINS;
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
@@ -1059,6 +1060,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 	uint player_base = clients[client].player_base;
 	if (player_base)
 	{
+		returncode = SKIPPLUGINS;
 		if (clients[client].reverse_sell)
 		{
 			clients[client].reverse_sell = false;
@@ -1135,11 +1137,16 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int client)
 void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count, float fStatus, bool bMounted, unsigned int client)
 {
 	returncode = DEFAULT_RETURNCODE;
-	if (clients[client].stop_buy)
+	PlayerBase *base = GetPlayerBaseForClient(client);
+	if (base)
 	{
+		returncode = SKIPPLUGINS;
 		if (clients[client].stop_buy)
-			clients[client].stop_buy = false;
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		{
+			if (clients[client].stop_buy)
+				clients[client].stop_buy = false;
+			returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		}
 	}
 }
 
@@ -1151,6 +1158,7 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint, int co
 	PlayerBase *base = GetPlayerBaseForClient(client);
 	if (base)
 	{
+		returncode = SKIPPLUGINS;
 		PlayerData *pd = &Players[client];			
 	
 		// Update the player CRC so that the player is not kicked for 'ship related' kick
@@ -1189,6 +1197,14 @@ void __stdcall ReqSetCash(int cash, unsigned int client)
 	returncode = DEFAULT_RETURNCODE;
 	if (clients[client].player_base)
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+}
+
+
+void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int client)
+{
+	returncode = DEFAULT_RETURNCODE;
+	if (clients[client].player_base)
+		returncode = SKIPPLUGINS;
 }
 
 void __stdcall CShip_destroy(CShip* ship)
@@ -1510,6 +1526,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqAddItem_AFTER, PLUGIN_HkIServerImpl_ReqAddItem_AFTER, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
 	
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
