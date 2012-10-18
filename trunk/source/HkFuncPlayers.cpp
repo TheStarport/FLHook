@@ -201,9 +201,29 @@ HK_ERROR HkBeam(const wstring &wscCharname, const wstring &wscBasename)
 	{
 		string scBaseShortcut = IniGetS(set_scCfgFile, "names", wstos(wscBasename), "");
 		if(!scBaseShortcut.length())
-			return HKE_INVALID_BASENAME;
-
-		if(pub::GetBaseID(iBaseID, scBaseShortcut.c_str()) == -4)
+		{
+			typedef int (*_GetString)(LPVOID, uint, wchar_t*, uint);
+			_GetString GetString = (_GetString)0x4176b0;
+			Universe::IBase *pBase = Universe::GetFirstBase();
+			while (pBase)
+			{
+				wchar_t buf[1024];
+				GetString(NULL, pBase->iBaseIDS, buf, 1024);
+				if (wcsstr(buf, wscBasename.c_str()))
+				{
+					// Ignore the intro bases.
+					if (_strnicmp("intro", (char*)pBase->iDunno2, 5) != 0)
+					{
+						iBaseID = pBase->iBaseID;
+						break;
+					}
+				}
+				pBase = Universe::GetNextBase();
+			}
+			if (iBaseID == 0)
+				return HKE_INVALID_BASENAME;
+		}
+		else if(pub::GetBaseID(iBaseID, scBaseShortcut.c_str()) == -4)
 			return HKE_INVALID_BASENAME;
 	}
 
