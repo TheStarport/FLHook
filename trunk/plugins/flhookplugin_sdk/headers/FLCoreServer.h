@@ -880,12 +880,12 @@ namespace pub
 			structCostume Costume;
 			int iRep;
 			int iVoiceID;
-			int iUnk8; //0
-			int iUnk9; //Boolean, only last byte is used
+			uint iUnk8; //0
+			uint iUnk9; //Boolean, only last byte is used
 			int iHitPointsLeft;
 			char cNickName[64]; //Has to be unique
-			int iUnk11; //0
-			int iUnk12; //0
+			uint iUnk11; //0 unused?
+			uint iUnk12; // 1 = flagged as mission solar, 0 = normal
 		};
 
 		struct TerminalInfo {

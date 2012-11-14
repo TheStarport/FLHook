@@ -134,7 +134,10 @@ namespace PhyArch
 	IMPORT  bool  LoadSurfaces(char const *,class std::map<unsigned int, struct PhyArch::Part, struct std::less<unsigned int>, class std::allocator<struct PhyArch::Part>> &);
 };
 
-enum HpAttachmentType;
+enum HpAttachmentType
+{
+	WEAPON = 3
+};
 
 namespace Archetype
 {
@@ -1094,6 +1097,8 @@ namespace BehaviorTypes
 
 class IMPORT BinaryRDLReader
 {
+	char szBuf[1024];
+
 public:
 	BinaryRDLReader(class BinaryRDLReader const &);
 	BinaryRDLReader(void);
@@ -1101,22 +1106,18 @@ public:
 	virtual bool extract_text_from_buffer(unsigned short *,unsigned int,unsigned int &,char const *,unsigned int);
 	virtual bool read_buffer(class RenderDisplayList &,char const *,unsigned int);
 	virtual bool read_file(class RenderDisplayList &,char const *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 class IMPORT BinaryRDLWriter
 {
+	char szBuf[1024];
+
 public:
 	BinaryRDLWriter(class BinaryRDLWriter const &);
 	BinaryRDLWriter(void);
 	class BinaryRDLWriter & operator=(class BinaryRDLWriter const &);
 	virtual bool write_buffer(class RenderDisplayList const &,char *,unsigned int,unsigned int &);
 	virtual bool write_file(class RenderDisplayList const &,char const *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT DamageEntry
@@ -1256,7 +1257,7 @@ struct ISpatialPartition;
 
 namespace CmnAsteroid
 {
-	class LootableZone;
+	struct LootableZone;
 }
 
 namespace Universe
@@ -1533,6 +1534,16 @@ namespace CmnAsteroid
 
 struct IMPORT CAsteroid
 {
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
 	CAsteroid(struct CAsteroid const &);
 	CAsteroid(void);
 	virtual ~CAsteroid(void);
@@ -1540,7 +1551,7 @@ struct IMPORT CAsteroid
 	unsigned long get_asteroid_id(void);
 	class CmnAsteroid::CAsteroidField const * get_owner_field(void);
 	virtual class Vector  get_velocity(void)const ;
-	void init(struct CreateParms const &);
+	void init(CAsteroid::CreateParms const &);
 	bool is_instant_kill(void);
 	bool is_mine(void);
 	void set_system(unsigned int);
@@ -1553,65 +1564,17 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CAttachedEquip
+struct INotify
 {
-public:
-	CAttachedEquip(class CAttachedEquip const &);
-	CAttachedEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
-	virtual ~CAttachedEquip(void);
-	struct Archetype::AttachedEquipment const * AttachedEquipArch(void)const ;
-	virtual bool Connect(char const *);
-	virtual bool GetCenterOfMass(class Vector &)const ;
-	virtual float GetHitPoints(void)const ;
-	struct CObject * GetPhysicsOwner(void)const ;
-	virtual bool GetRadius(float &)const ;
-	virtual long GetRootIndex(void)const ;
-	virtual int GetToughness(void)const ;
-	virtual bool GetVelocity(class Vector &)const ;
-	virtual bool IsConnected(void)const ;
-	virtual bool IsInstOnEquip(long)const ;
-	struct CObject * RetrieveDebrisObject(void);
-	virtual void SetFate(enum DamageEntry::SubObjFate);
-	virtual void SetHitPoints(float);
-	virtual bool Update(float,unsigned int);
-	static class CAttachedEquip *  cast(class CEquip *);
-	static class CAttachedEquip const *  cast(class CEquip const *);
-
-protected:
-	virtual void ComputeBoundingSphere(float &,class Vector &)const ;
-	virtual void Disconnect(void);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	enum Event;
 };
 
-class IMPORT CAttachmentObj
-{
-public:
-	CAttachmentObj(class CAttachmentObj const &);
-	CAttachmentObj(void);
-	virtual ~CAttachmentObj(void);
-	class CAttachmentObj & operator=(class CAttachmentObj const &);
+class IMPORT IVP_Core;
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
+class IMPORT IVP_Event_Sim;
 
-struct IMPORT CBase
-{
-	CBase(struct CBase const &);
-	CBase(void);
-	virtual ~CBase(void);
-	struct CBase & operator=(struct CBase const &);
-	void advise(bool);
-	void cobject(struct CObject *);
-	struct CObject * cobject(void)const ;
-	long get_index(void)const ;
-	void notify_of_destruction(void *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
+template <class T>
+class IMPORT IVP_U_Vector;
 
 namespace PhySys
 {
@@ -1619,22 +1582,25 @@ namespace PhySys
 
 	struct IMPORT Controller
 	{
-		Controller(struct Controller const &);
-		Controller(void);
+	public:
+		virtual void core_is_going_to_be_deleted_event(class IVP_Core *);
+		virtual float dunno_retn_1f(void); //??
+		virtual class IVP_U_Vector<class IVP_Core> * get_associated_controlled_cores(void);
+		virtual void create_instance(long); //??
+		virtual void do_simulation_controller(class IVP_Event_Sim *, class IVP_U_Vector<class IVP_Core> *);
+		virtual enum IVP_CONTROLLER_PRIORITY  get_controller_priority(void);
 		virtual ~Controller(void);
-		struct Controller & operator=(struct Controller const &);
+		
 		static void  Register(struct Controller *,struct CObject *);
 		static void  UnRegister(struct Controller *);
+
+		Controller(struct Controller const &);
+		Controller(void);
+		struct Controller & operator=(struct Controller const &);
 		void push(class Vector const &,float);
 		void rotate(class Vector const &,float);
-
-	protected:
-		virtual void core_is_going_to_be_deleted_event(class IVP_Core *);
-		//@@@ virtual class IVP_U_Vector<class IVP_Core> * get_associated_controlled_cores(void);
-		virtual enum IVP_CONTROLLER_PRIORITY  get_controller_priority(void);
 		void wakeup(void);
 
-	public:
 		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
@@ -1751,68 +1717,43 @@ namespace PhySys
 	IMPORT  enum IVP_BOOL  (* m_pCollisionFilter)(class IVP_Real_Object *,class IVP_Real_Object *);
 };
 
-struct IMPORT CObject
+struct IMPORT EngineObject
 {
-	enum Class
-	{
-		CSOLAR_OBJECT = 0x303,
-		CSHIP_OBJECT = 0x503,
-	};
-
-	CObject(struct CObject const &);
-	unsigned int AddRef(void);
-	static struct CObject *  Alloc(enum Class);
-	static int  Count(enum Class);
-	static struct CObject *  Find(unsigned int const &,enum Class);
-	static struct CObject *  Find(long,enum Class);
-	static struct CObject *  FindFirst(enum Class);
-	static struct CObject *  FindNext(void);
-	static unsigned int const  NO_ACTIONS;
-	static unsigned int const  NO_BEHAVIOR;
-	static unsigned int const  NO_COUNTERMEASURE_AI;
-	static unsigned int const  NO_DYNAMICS;
-	static unsigned int const  NO_SCANNER;
-	unsigned int Release(void);
-	static void  ReleaseAll(void);
-	static unsigned int const  UPDATE_DEFAULT;
-	static unsigned int const  UPDATE_DUMB;
-	void add_impulse(class Vector const &,class Vector const &);
-	void add_impulse(class Vector const &);
-	void advise(struct CBase *,bool);
-	virtual void beam_object(class Vector const &,class Matrix const &,bool);
-	virtual void __stdcall destroy_instance(long);
-	virtual void disable_controllers(void);
-	void enable_collisions_r(bool);
-	virtual void enable_controllers(void);
-	bool flag_part_as_shield(unsigned int);
-	virtual class Vector  get_angular_velocity(void)const ;
-	struct Archetype::Root * get_archetype(void)const ;
-	virtual class Vector  get_center_of_mass(void)const ;
-	//void get_intruder_set_r(struct CheapSet<struct CObject *,struct std::less<struct CObject *> > &);
-	virtual float get_mass(void)const ;
-	class Vector  get_moment_of_inertia(void)const ;
-	virtual float get_physical_radius_r(class Vector &)const ;
-	virtual bool get_surface_extents(class Vector &,class Vector &)const ;
-	virtual class Vector  get_velocity(void)const ;
-	float hierarchy_radius(class Vector &)const ;
-	float hierarchy_radius(void)const ;
-	unsigned int inst_to_part(long)const ;
-	bool is_shield_part(unsigned int)const ;
-	virtual void open(struct Archetype::Root *);
-	long part_to_inst(unsigned int)const ;
-	virtual void remake_physical(struct PhySys::CreateParms const &,float);
-	virtual void unmake_physical(void);
-	virtual int update(float,unsigned int);
-
-	static void * operator new(unsigned int);
-	static void operator delete(void *);
-
-
-protected:
-	CObject(enum Class);
-	virtual ~CObject(void);
 
 public:
+	virtual void __stdcall initialize_instance(long);
+	virtual void __stdcall create_instance(long);
+	virtual void __stdcall destroy_instance(long);
+	virtual void __stdcall set_position(long,class Vector const &);
+	virtual class Vector const & __stdcall get_position(long)const ;
+	virtual void __stdcall set_orientation(long,class Matrix const &);
+	virtual class Matrix const & __stdcall get_orientation(long)const ;
+	virtual void __stdcall set_transform(long,class Transform const &);
+	virtual class Transform const & __stdcall get_transform(long)const ;
+	virtual void __stdcall get_centered_radius(long,float *,class Vector *)const ;
+	virtual void __stdcall set_centered_radius(long,float,class Vector const &);
+	virtual void __stdcall set_instance_flags(long,unsigned long);
+	virtual unsigned long __stdcall get_instance_flags(long)const ;
+	virtual bool __stdcall joint_changed(long);
+	virtual ~EngineObject(void);
+	virtual class Vector const & __stdcall get_velocity(long)const ;
+	virtual void __stdcall set_velocity(long,class Vector const &);
+	virtual class Vector const & __stdcall get_angular_velocity(long)const ;
+	virtual void __stdcall set_angular_velocity(long,class Vector const &);
+
+	EngineObject(struct EngineObject const &);
+	EngineObject(void);
+	struct EngineObject & operator=(struct EngineObject const &);
+	class Matrix const & get_orientation(void)const ;
+	class Vector const & get_position(void)const ;
+	float const  get_radius(void)const ;
+	class Transform const & get_transform(void)const ;
+	void set_centered_radius(float,class Vector const &);
+	void set_orientation(class Matrix const &);
+	void set_position(class Vector const &);
+	void set_transform(class Transform const &);
+	void update_tree(void)const ;
+
 	void* classvftable;
 	float fRotMatrix00;
 	float fRotMatrix01;
@@ -1826,59 +1767,252 @@ public:
 	float fPosX;
 	float fPosY;
 	float fPosZ;
-	float fDunno;
+	float fRadius;
 	uint iDunno1;
 	uint iDunno2;
 	uint iDunno3;
 	uint iDunno4;
+};
+
+class IMPORT CSteering : public PhySys::Controller
+{
+public:
+	CSteering(class CSteering const &);
+	CSteering(void);
+	virtual ~CSteering(void);
+	class CSteering & operator=(class CSteering const &);
+	bool Activate(bool);
+	virtual bool EnableController(void);
+	float GetAxisSteeringTorque(unsigned int,float)const ;
+	class Vector const & GetAxisThrottle(void)const ;
+	bool IsActive(void)const ;
+	void SetAxisThrottle(class Vector const &);
+	void SetOwner(struct CShip *);
+
+protected:
+	static float const  AXIS_CHANGE_THRESHOLD;
+	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+class IMPORT CStrafeEngine : public PhySys::Controller
+{
+public:
+	CStrafeEngine(class CStrafeEngine const &);
+	CStrafeEngine(void);
+	virtual ~CStrafeEngine(void);
+	class CStrafeEngine & operator=(class CStrafeEngine const &);
+	virtual bool EnableController(void);
+	enum StrafeDir  GetStrafe(void)const ;
+	void SetOwner(struct CShip *);
+	void SetStrafe(enum StrafeDir);
+
+protected:
+	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+class IMPORT CPhysControllerEquip : public PhySys::Controller
+{
+public:
+	virtual ~CPhysControllerEquip(void);
+	virtual bool EnableController(void);
+	virtual bool DisableController(void);
+	virtual bool IsControllerEnabled(void)const ;
+	virtual bool ControlObject(struct CObject *);
+
+	CPhysControllerEquip(class CPhysControllerEquip const &);
+	CPhysControllerEquip(void);
+	class CPhysControllerEquip & operator=(class CPhysControllerEquip const &);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+class IMPORT CAttachmentObj
+{
+public:
+	virtual ~CAttachmentObj(void);
+
+	CAttachmentObj(class CAttachmentObj const &);
+	CAttachmentObj(void);
+	class CAttachmentObj & operator=(class CAttachmentObj const &);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+struct IMPORT CBase
+{
+	virtual ~CBase(void);
+
+	CBase(struct CBase const &);
+	CBase(void);
+	struct CBase & operator=(struct CBase const &);
+	void advise(bool);
+	void cobject(struct CObject *);
+	struct CObject * cobject(void)const ;
+	long get_index(void)const ;
+	void notify_of_destruction(void *);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+struct IMPORT CObject : public EngineObject
+{
+public:
+	virtual void __stdcall destroy_instance(long);
+	virtual ~CObject(void);
+	virtual void open(struct Archetype::Root *);
+	virtual int update(float,unsigned int);
+	virtual class Vector  get_velocity(void)const ;
+	virtual class Vector  get_angular_velocity(void)const ;
+	virtual void disable_controllers(void);
+	virtual void enable_controllers(void);
+	virtual float get_physical_radius_r(class Vector &)const ;
+	virtual class Vector  get_center_of_mass(void)const ;
+	virtual float get_mass(void)const ;
+	virtual bool get_surface_extents(class Vector &,class Vector &)const ;
+	virtual void unmake_physical(void);
+	virtual void remake_physical(struct PhySys::CreateParms const &,float);
+	virtual void beam_object(class Vector const &,class Matrix const &,bool);
+
+	enum Class
+	{
+		CSOLAR_OBJECT = 0x303,
+		CSHIP_OBJECT = 0x503,
+	};
+
+	static struct CObject *  Alloc(enum Class);
+	static struct CObject *  Find(unsigned int const &,enum Class);
+	static struct CObject *  Find(long,enum Class);
+	static struct CObject *  FindFirst(enum Class);
+	static struct CObject *  FindNext(void);
+	static int  Count(enum Class);
+	static void  ReleaseAll(void);
+	static unsigned int const  NO_ACTIONS;
+	static unsigned int const  NO_BEHAVIOR;
+	static unsigned int const  NO_COUNTERMEASURE_AI;
+	static unsigned int const  NO_DYNAMICS;
+	static unsigned int const  NO_SCANNER;
+	static unsigned int const  UPDATE_DEFAULT;
+	static unsigned int const  UPDATE_DUMB;
+
+	static void * operator new(unsigned int);
+	static void operator delete(void *);
+
+	CObject(struct CObject const &);
+	CObject(enum Class);
+	unsigned int AddRef(void);
+	unsigned int Release(void);
+	void add_impulse(class Vector const &,class Vector const &);
+	void add_impulse(class Vector const &);
+	void advise(struct CBase *,bool);
+	void enable_collisions_r(bool);
+	bool flag_part_as_shield(unsigned int);
+	struct Archetype::Root * get_archetype(void)const ;
+	class Vector  get_moment_of_inertia(void)const ;
+	float hierarchy_radius(class Vector &)const ;
+	float hierarchy_radius(void)const ;
+	unsigned int inst_to_part(long)const ;
+	bool is_shield_part(unsigned int)const ;
+	long part_to_inst(unsigned int)const ;
+
+	void* classvftable;
 	Class enum_classid;
 	uint iSystem;
 	uint iDunno[23];
 	uint iSpaceID;
 	uint iDunno5[11];
 	uint iType;
+	uint data[256];
 };
 
-struct IMPORT CBeam
+struct IMPORT CSimple : public CObject
 {
-	CBeam(struct CBeam const &);
-	CBeam(enum CObject::Class);
-	virtual ~CBeam(void);
-	char const * get_collision_group(void)const ;
-	class Vector const & get_last_pos(void)const ;
-	virtual float get_mass(void)const ;
-	virtual class Vector  get_velocity(void)const ;
-	void move(float);
-	struct Archetype::Munition const * munitionarch(void)const ;
-	void set_velocity(class Vector const &);
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
 
-protected:
-	virtual void expire_safe_time(void);
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	virtual ~CSimple(void);
+	virtual void open(struct Archetype::Root *);
+	virtual float get_physical_radius_r(class Vector &)const ;
+	virtual void unmake_physical(void);
+	virtual void beam_object(class Vector const &,class Matrix const &,bool);
+	virtual void init(struct CSimple::CreateParms const &);
+	virtual void cache_physical_props(void);
+	virtual unsigned int get_name(void)const ;
+	virtual bool is_targetable(void)const ;
+	virtual void connect(struct IObjDB *);
+	virtual void disconnect(struct IObjDB *);
+	virtual void set_hit_pts(float);
 	virtual void init_physics(class Vector const &,class Vector const &);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CSimple(struct CSimple const &);
+	CSimple(enum CObject::Class);
+	unsigned int GetOwnerPlayer(void)const ;
+	void SetOwnerPlayer(unsigned int);
+	float get_hit_pts(void)const ;
+	unsigned int const & get_id(void)const ;
+	float get_max_hit_pts(void)const ;
+	struct IObjDB * get_object_database(void)const ;
+	float get_relative_health(void)const ;
+	float get_scanner_interference(void)const ;
+	unsigned int get_type(void)const ;
+	void update_zones(float,unsigned int);
 };
 
-struct INotify
+struct IMPORT CProjectile : public CSimple
 {
-	enum Event;
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	virtual ~CProjectile(void);
+	virtual int update(float,unsigned int);
+	virtual void init(struct CProjectile::CreateParms const &);
+	virtual void set_dead(void);
+	virtual void expire_safe_time(void);
+
+	
+	CProjectile(struct CProjectile const &);
+	CProjectile(enum CObject::Class);
+	unsigned int const & get_owner(void)const ;
+	bool is_alive(void)const ;
+	bool is_owner_safe(void)const ;
+	struct Archetype::Projectile const * projarch(void)const ;
+
+	Archetype::Projectile* archetype;
 };
 
 class IMPORT CEquip
 {
 public:
-	CEquip(class CEquip const &);
-	CEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
 	virtual ~CEquip(void);
-
-	virtual bool IsControllerEnabled(void)const ;
+	virtual bool IsActive(void)const ;
 	virtual bool IsDestroyed(void)const ;
 	virtual bool IsFunctioning(void)const ;
-	virtual bool is_dying();
+	virtual bool IsDisabled()const ;
 	virtual bool IsTemporary(void)const ;
 	virtual bool CanDelete(void)const ;
-	virtual bool Null1();
+	virtual void NotifyArchGroupDestroyed(unsigned short);
 	virtual bool IsLootable(void)const ;
 	virtual bool Update(float,unsigned int);
 	virtual bool GetEquipDesc(struct EquipDesc &)const ;
@@ -1887,83 +2021,172 @@ public:
 	virtual void Destroy(void);
 	virtual float GetMaxHitPoints(void)const ;
 	virtual float GetHitPoints(void)const ;
-	virtual void Null2();
-	virtual float GetRelativeHealth(void)const ;
-
-	// Dunno where these go
-	virtual bool IsActive(void)const ;
-	virtual bool IsDisabled(void)const ;
-	virtual bool DisableController(void);
-	virtual bool EnableController(void);
-	virtual bool GetConnectionPosition(class Vector *,class Matrix *)const ;
-	virtual void NotifyArchGroupDestroyed(unsigned short);
 	virtual void SetHitPoints(float);
+	virtual float GetRelativeHealth(void)const ;
+	virtual bool GetConnectionPosition(class Vector*, class Matrix*)const ;
+	virtual bool IsControllerEnabled(void);
+	virtual bool EnableController(void);
+	virtual bool DisableController(void);
 
+	static void * operator new(unsigned int);
+	static void operator delete(void *);
+
+	CEquip(void);
+	CEquip(class CEquip const &);
+	CEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
 
 	void ConnectClientEquip(struct INotify *);
 	void ConnectServerEquip(struct INotify *);
 	struct Archetype::Equipment const * EquipArch(void)const ;
-
 	unsigned short GetID(void)const ;
 	struct CEqObj * GetOwner(void)const ;
-
 	unsigned int GetType(void)const ;
 	char const * IdentifyEquipment(void)const ;
-	
 	void Notify(enum INotify::Event,void *);
 	void NotifyDisconnecting(struct INotify *);
 
-	static void * operator new(unsigned int);
-	static void operator delete(void *);
-private:
-	CEquip(void);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEqObj* owner;
+	unsigned int iSubObjId;
+	Archetype::Equipment* archetype;
+	unsigned char data2[16];
 };
 
-class IMPORT CExternalEquip : CEquip
+class IMPORT CInternalEquip : public CEquip
 {
 public:
-	CExternalEquip(class CExternalEquip const &);
-	CExternalEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
-	virtual ~CExternalEquip(void);
-	virtual bool Connect(char const *);
-	virtual void Destroy(void);
-	virtual bool GetCenterOfMass(class Vector &)const ;
-	virtual bool GetConnectionPosition(class Vector *,class Matrix *)const ;
+	virtual ~CInternalEquip(void);
 	virtual bool GetEquipDesc(struct EquipDesc &)const ;
-	virtual bool GetHardPointInfo(struct HardpointInfo &)const ;
-	virtual long GetParentConnector(bool)const ;
-	virtual struct CacheString  GetParentHPName(void)const ;
-	virtual bool GetVelocity(class Vector &)const ;
-	virtual bool IsConnected(void)const ;
+
+	static class CInternalEquip *  cast(class CEquip *);
+	static class CInternalEquip const *  cast(class CEquip const *);
+
+	CInternalEquip(class CInternalEquip const &);
+	CInternalEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
+};
+
+class IMPORT CExternalEquip : public CEquip
+{
+public:
+	virtual ~CExternalEquip(void);
 	virtual bool IsDestroyed(void)const ;
 	virtual bool Update(float,unsigned int);
+	virtual bool GetEquipDesc(struct EquipDesc &)const ;
+	virtual void Destroy(void);
+	virtual bool GetConnectionPosition(class Vector *,class Matrix *)const ;
+	virtual bool IsConnected(void)const ;
+	virtual bool Connect(char const *);
+	virtual struct CacheString  GetParentHPName(void)const ;
+	virtual long GetParentConnector(bool)const ;
+	virtual bool GetHardPointInfo(struct HardpointInfo &)const ;
+	virtual bool GetVelocity(class Vector &)const ;
+	virtual bool GetCenterOfMass(class Vector &)const ;
+	virtual void Disconnect(void);
+	
 	static class CExternalEquip *  cast(class CEquip *);
 	static class CExternalEquip const *  cast(class CEquip const *);
 
-protected:
+	CExternalEquip(class CExternalEquip const &);
+	CExternalEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
+};
+
+class IMPORT CAttachedEquip : public CExternalEquip
+{
+public:
+	virtual ~CAttachedEquip(void);
+	virtual bool Update(float,unsigned int);
+	virtual float GetHitPoints(void)const ;
+	virtual void SetHitPoints(float);
+	virtual bool IsConnected(void)const ;
+	virtual bool Connect(char const *);
+	virtual bool GetVelocity(class Vector &)const ;
+	virtual bool GetCenterOfMass(class Vector &)const ;
 	virtual void Disconnect(void);
+	virtual int GetToughness(void)const ;
+	virtual bool GetRadius(float &)const ;
+	virtual bool IsInstOnEquip(long)const ;
+	virtual long GetRootIndex(void)const ;
+	virtual void SetFate(enum DamageEntry::SubObjFate);
+	virtual void ComputeBoundingSphere(float &,class Vector &)const ;
+	
+	static class CAttachedEquip *  cast(class CEquip *);
+	static class CAttachedEquip const *  cast(class CEquip const *);
+
+	CAttachedEquip(class CAttachedEquip const &);
+	CAttachedEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
+	struct Archetype::AttachedEquipment const * AttachedEquipArch(void)const ;
+	struct CObject * GetPhysicsOwner(void)const ;
+	struct CObject * RetrieveDebrisObject(void);
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CCounterMeasure
+class IMPORT CELauncher : public CAttachedEquip
 {
+public:
+	virtual ~CELauncher(void);
+	virtual bool IsDisabled(void)const ;
+	virtual bool Update(float,unsigned int);
+	virtual void GetStatus(struct EquipStatus &)const ;
+	virtual bool Connect(char const *);
+	virtual void Disconnect(void);
+	virtual enum FireResult  Fire(class Vector const &);
+	virtual void ConsumeFireResources(void);
+	virtual void ComputeLaunchInfo(class std::vector<struct ProjLaunchInfo> &,class Vector const &)const ;
+	virtual float GetPowerDrawPerFire(void)const ;
+	virtual int GetAmmoCount(void)const ;
+	virtual bool AmmoNeedsMet(void)const ;
+	virtual void ComputeLaunchInfo_OneBarrel(struct ProjLaunchInfo &,int,class Vector const &)const ;
+	virtual enum FireResult  CanFire(class Vector const &)const ;
+	virtual bool PowerNeedsMet(void)const ;
+	virtual void DrawPower(int);
+	virtual void DrawAmmoFromCargo(int);
+	virtual bool RefireDelayElapsed(void)const ;
+
+	CELauncher(class CELauncher const &);
+	CELauncher(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Launcher const *,bool);
+	void ComputeProjectilePosAndVelocity_OneBarrel(class Vector &,class Vector &,int,class Vector const &)const ;
+	class Vector  GetAvgBarrelDirWS(void)const ;
+	class Vector  GetAvgBarrelPosWS(void)const ;
+	class Vector  GetBarrelDirWS(unsigned int)const ;
+	struct Barrel const * GetBarrelInfo(unsigned int)const ;
+	class Vector  GetBarrelPosWS(unsigned int)const ;
+	unsigned int GetProjectilesPerFire(void)const ;
+	struct Archetype::Launcher const * LauncherArch(void)const ;
+	struct Archetype::Projectile const * ProjectileArch(void)const ;
+	static class CELauncher *  cast(class CEquip *);
+	static class CELauncher const *  cast(class CEquip const *);
+};
+
+struct IMPORT CBeam : public CProjectile
+{
+public:
+	virtual ~CBeam(void);
+	virtual class Vector  get_velocity(void)const ;
+	virtual float get_mass(void)const ;
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void expire_safe_time(void);
+
+	CBeam(struct CBeam const &);
+	CBeam(enum CObject::Class);
+	char const * get_collision_group(void)const ;
+	class Vector const & get_last_pos(void)const ;
+	void move(float);
+	struct Archetype::Munition const * munitionarch(void)const ;
+	void set_velocity(class Vector const &);
+};
+
+struct IMPORT CCounterMeasure : public CProjectile
+{
+public:
+	virtual ~CCounterMeasure(void);
+	virtual int update(float,unsigned int);
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void expire_safe_time(void);
+
 	CCounterMeasure(struct CCounterMeasure const &);
 	CCounterMeasure(enum CObject::Class);
-	virtual ~CCounterMeasure(void);
 	struct Archetype::CounterMeasure const * countermeasure_arch(void);
-	virtual int update(float,unsigned int);
-
-protected:
-	virtual void expire_safe_time(void);
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 class IMPORT CDeadReckonedVector
@@ -1989,137 +2212,153 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CDynamicAsteroid
+struct IMPORT CDynamicAsteroid : public CObject
 {
-	CDynamicAsteroid(struct CDynamicAsteroid const &);
-	CDynamicAsteroid(void);
+public:
 	virtual ~CDynamicAsteroid(void);
-	struct Archetype::DynamicAsteroid const * dynamicAsteroidArch(void)const ;
-	void init(struct CreateParms const &);
 	virtual int update(float,unsigned int);
-
-protected:
 	virtual void init_physics(class Vector const &,class Vector const &,unsigned int);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	CDynamicAsteroid(struct CDynamicAsteroid const &);
+	CDynamicAsteroid(void);
+	struct Archetype::DynamicAsteroid const * dynamicAsteroidArch(void)const ;
+	void init(struct CDynamicAsteroid::CreateParms const &);
 };
 
-class IMPORT CEArmor
+class IMPORT CEArmor : public CInternalEquip
 {
 public:
-	CEArmor(class CEArmor const &);
-	CEArmor(struct CEqObj *,unsigned short,struct Archetype::Armor const *,bool);
 	virtual ~CEArmor(void);
-	struct Archetype::Armor const * ArmorArch(void)const ;
+	
 	static class CEArmor *  cast(class CEquip *);
 	static class CEArmor const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEArmor(class CEArmor const &);
+	CEArmor(struct CEqObj *,unsigned short,struct Archetype::Armor const *,bool);
+	struct Archetype::Armor const * ArmorArch(void)const ;
 };
 
-class IMPORT CEAttachedFX
+class IMPORT CEAttachedFX : public CExternalEquip
 {
 public:
-	CEAttachedFX(class CEAttachedFX const &);
-	CEAttachedFX(struct CEqObj *,unsigned short,struct Archetype::AttachedFXEquip const *,bool);
 	virtual ~CEAttachedFX(void);
-	struct Archetype::AttachedFXEquip const * FXArch(void)const ;
 	virtual void NotifyArchGroupDestroyed(unsigned short);
+	
 	static class CEAttachedFX *  cast(class CEquip *);
 	static class CEAttachedFX const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEAttachedFX(class CEAttachedFX const &);
+	CEAttachedFX(struct CEqObj *,unsigned short,struct Archetype::AttachedFXEquip const *,bool);
+	struct Archetype::AttachedFXEquip const * FXArch(void)const ;
 };
 
-class IMPORT CECargo
+class IMPORT CECargo : public CInternalEquip
 {
 public:
-	CECargo(class CECargo const &);
-	CECargo(struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
 	virtual ~CECargo(void);
-	void AddToStack(unsigned int,float);
-	virtual void Destroy(void);
-	class CECargoPod const * GetContainer(void)const ;
-	unsigned int GetCount(void)const ;
-	float GetDecayDamagePerSecond(void)const ;
+	virtual bool IsDestroyed(void)const ;
 	virtual bool GetEquipDesc(struct EquipDesc &)const ;
+	virtual void Destroy(void);
 	virtual float GetHitPoints(void)const ;
+	virtual void SetHitPoints(float);
 	virtual unsigned int GetType(void)const ;
 	virtual void Init(float,unsigned int,struct CacheString const &);
-	virtual bool IsDestroyed(void)const ;
-	void RemoveFromStack(unsigned int);
-	void SetCount(unsigned int);
-	virtual void SetHitPoints(float);
+	
 	static class CECargo *  cast(class CEquip *);
 	static class CECargo const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CECargo(class CECargo const &);
+	CECargo(struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
+	void AddToStack(unsigned int,float);
+	class CECargoPod const * GetContainer(void)const ;
+	unsigned int GetCount(void)const ;
+	float GetDecayDamagePerSecond(void)const ;
+	void RemoveFromStack(unsigned int);
+	void SetCount(unsigned int);
 };
 
-class IMPORT CECargoPod
+class IMPORT CECargoPod : public CAttachedEquip
 {
 public:
-	CECargoPod(class CECargoPod const &);
-	CECargoPod(struct CEqObj *,unsigned short,struct Archetype::CargoPod const *,bool);
 	virtual ~CECargoPod(void);
-	virtual void Destroy(void);
-	void EmptyPod(void);
-	void FillPod(class CECargo *);
-	class CECargo const * GetContents(void)const ;
 	virtual bool IsLootable(void)const ;
+	virtual void Destroy(void);
+	
 	static class CECargoPod *  cast(class CEquip *);
 	static class CECargoPod const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CECargoPod(class CECargoPod const &);
+	CECargoPod(struct CEqObj *,unsigned short,struct Archetype::CargoPod const *,bool);
+	void EmptyPod(void);
+	void FillPod(class CECargo *);
+	class CECargo const * GetContents(void)const ;
 };
 
-class IMPORT CECloakingDevice
+class IMPORT CECloakingDevice : public CExternalEquip
 {
 public:
-	CECloakingDevice(class CECloakingDevice const &);
-	CECloakingDevice(struct CEqObj *,unsigned short,struct Archetype::CloakingDevice const *,bool);
 	virtual ~CECloakingDevice(void);
-	virtual bool Activate(bool);
-	struct Archetype::CloakingDevice const * CloakArch(void)const ;
 	virtual bool Update(float,unsigned int);
+	virtual bool Activate(bool);
+
 	static class CECloakingDevice *  cast(class CEquip *);
 	static class CECloakingDevice const *  cast(class CEquip const *);
-	float cloak_percent(void)const ;
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CECloakingDevice(class CECloakingDevice const &);
+	CECloakingDevice(struct CEqObj *,unsigned short,struct Archetype::CloakingDevice const *,bool);
+	struct Archetype::CloakingDevice const * CloakArch(void)const ;
+	float cloak_percent(void)const ;
 };
 
-class IMPORT CECounterMeasureDropper
+class IMPORT CECounterMeasureDropper : public CELauncher
 {
 public:
-	CECounterMeasureDropper(class CECounterMeasureDropper const &);
-	CECounterMeasureDropper(struct CEqObj *,unsigned short,struct Archetype::CounterMeasureDropper const *,bool);
 	virtual ~CECounterMeasureDropper(void);
-	struct Archetype::CounterMeasure const * CounterMeasureArch(void);
-	struct Archetype::CounterMeasureDropper const * CounterMeasureDropperArch(void);
 	virtual bool Update(float,unsigned int);
+	
 	static class CECounterMeasureDropper *  cast(class CEquip *);
 	static class CECounterMeasureDropper const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CECounterMeasureDropper(class CECounterMeasureDropper const &);
+	CECounterMeasureDropper(struct CEqObj *,unsigned short,struct Archetype::CounterMeasureDropper const *,bool);
+	struct Archetype::CounterMeasure const * CounterMeasureArch(void);
+	struct Archetype::CounterMeasureDropper const * CounterMeasureDropperArch(void);
 };
 
-class IMPORT CEEngine
+class IMPORT CEEngine : public CInternalEquip, public CPhysControllerEquip
 {
 public:
+	virtual void do_simulation_controller(class IVP_Event_Sim *, class IVP_U_Vector<class IVP_Core> *);
+
+	virtual ~CEEngine(void);
+
+	virtual bool EnableController(void);
+	virtual bool DisableController(void);
+	virtual bool IsControllerEnabled(void)const ;
+
+	virtual bool IsFunctioning(void)const ;
+	virtual void NotifyArchGroupDestroyed(unsigned short);
+	virtual bool Update(float,unsigned int);
+	virtual bool Activate(bool);
+	
+	static void  BuildNozzleHPName(int,struct CacheString &);
+	static class CEEngine *  cast(class CEquip *);
+	static class CEEngine const *  cast(class CEquip const *);
+
 	CEEngine(class CEEngine const &);
 	CEEngine(struct CShip *,unsigned short,struct Archetype::Engine const *,bool);
-	static void  BuildNozzleHPName(int,struct CacheString &);
-
 	bool EngageCruise(bool,bool);
 	struct Archetype::Engine const * EngineArch(void)const ;
+	std::vector<struct ExhaustNozzleInfo> const & NozzleInfos(void)const ;
 	float GetCruiseChargeTime(void)const ;
 	float GetCruiseChargeTimeElapsed(void)const ;
 	float GetCruiseDrag(void)const ;
@@ -2128,347 +2367,238 @@ public:
 	float GetLinearDrag(void)const ;
 	float GetPowerDraw(float)const ;
 	float GetThrust(float)const ;
-	
-	virtual ~CEEngine(void);
-	virtual bool IsActive(void)const;
-	virtual bool IsDestroyed(void)const ;
-	virtual bool IsFunctioning(void)const ;
-	virtual void DisableController(void);
-	virtual bool IsTemporary(void);
-	virtual bool CanDelete(void);
-	virtual void NotifyArchGroupDestroyed(unsigned short);
-	virtual bool IsLootable(void);
-	virtual bool Update(float,unsigned int);
-	virtual void GetEquipDesc(struct EquipDesc &);
-	virtual void GetStatus(struct EquipStatus &);
-
-
-	//virtual bool Activate(bool);
-	//virtual bool EnableController(void);
-	//virtual bool IsControllerEnabled(void)const ;
-
 	bool IsCruiseEngaged(void)const ;
-	std::vector<struct ExhaustNozzleInfo> const & NozzleInfos(void)const ;
-	static class CEEngine *  cast(class CEquip *);
-	static class CEEngine const *  cast(class CEquip const *);
-
-protected:
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
-
-public:
-	CEqObj* owner;
-	unsigned int iSubObjId;
-	Archetype::Power* archetype;
-	unsigned char data2[16];
 };
 
-class IMPORT CEGun
+class IMPORT CEGun : public CELauncher
 {
 public:
+	virtual ~CEGun(void);
+	virtual bool Update(float,unsigned int);
+	virtual bool Activate(bool);
+	virtual bool Connect(char const *);
+	virtual void Disconnect(void);
+	virtual enum FireResult  Fire(class Vector const &);
+	virtual void ConsumeFireResources(void);
+	virtual void ComputeLaunchInfo_OneBarrel(struct ProjLaunchInfo &,int,class Vector const &)const ;
+	virtual enum FireResult  CanFire(class Vector const &)const ;
+	
+	static float const  TARGET_POINT_VALID_TIME;
+	static class CEGun *  cast(class CEquip *);
+	static class CEGun const *  cast(class CEquip const *);
+	static bool  ComputeTimeToTgt(class Vector const &,class Vector const &,float,float &);
+
 	CEGun(class CEGun const &);
 	CEGun(struct CEqObj *,unsigned short,struct Archetype::Gun const *,bool);
-	virtual ~CEGun(void);
-	virtual bool Activate(bool);
+	struct Archetype::Gun const * GunArch(void)const ;
+	struct Archetype::Munition const * MunitionArch(void)const ;
 	bool CanPointAt(class Vector const &,float)const ;
 	bool CanSeeTargetObject(float)const ;
 	bool CanSeeTargetPoint(class Vector const &,float)const ;
 	bool ComputeTgtLeadPosition(class Vector &)const ;
-	static bool  ComputeTimeToTgt(class Vector const &,class Vector const &,float,float &);
-	virtual bool Connect(char const *);
-	virtual void ConsumeFireResources(void);
-	virtual enum FireResult  Fire(class Vector const &);
 	float GetMunitionRange(void)const ;
 	float GetSecondsTillLock(void)const ;
 	void GetTarget(struct CSimple * &,unsigned short &)const ;
 	class Vector  GetTurretOrigin(void)const ;
-	struct Archetype::Gun const * GunArch(void)const ;
 	bool IsJointInMotion(void)const ;
-	struct Archetype::Munition const * MunitionArch(void)const ;
 	bool SetTarget(struct CSimple *,unsigned short);
 	void SetTargetPoint(class Vector const &);
-	virtual bool Update(float,unsigned int);
-	static class CEGun *  cast(class CEquip *);
-	static class CEGun const *  cast(class CEquip const *);
 	bool is_guided(void)const ;
-
-protected:
-	virtual enum FireResult  CanFire(class Vector const &)const ;
-	virtual void ComputeLaunchInfo_OneBarrel(struct ProjLaunchInfo &,int,class Vector const &)const ;
 	void ComputeTurretFrame(void);
 	void DecomposeJointMotion(class Vector const &,float &,float &)const ;
-	virtual void Disconnect(void);
 	bool GetTargetObjectPos(class Vector &)const ;
 	bool IsMovable(void)const ;
 	void LocateJoints(void);
 	void LoseJoints(void);
-	static float const  TARGET_POINT_VALID_TIME;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CEInternalFX
+class IMPORT CEInternalFX : public CEquip
 {
 public:
-	CEInternalFX(class CEInternalFX const &);
-	CEInternalFX(struct CEqObj *,unsigned short,struct Archetype::InternalFXEquip const *,bool);
 	virtual ~CEInternalFX(void);
 	virtual void Destroy(void);
-	struct Archetype::InternalFXEquip const * InternalFXArch(void)const ;
+	
 	static class CEInternalFX *  cast(class CEquip *);
 	static class CEInternalFX const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT CELauncher
-{
-public:
-	CELauncher(class CELauncher const &);
-	virtual ~CELauncher(void);
-	virtual bool AmmoNeedsMet(void)const ;
-	virtual void ComputeLaunchInfo(class std::vector<struct ProjLaunchInfo> &,class Vector const &)const ;
-	void ComputeProjectilePosAndVelocity_OneBarrel(class Vector &,class Vector &,int,class Vector const &)const ;
-	virtual bool Connect(char const *);
-	virtual void ConsumeFireResources(void);
-	virtual enum FireResult  Fire(class Vector const &);
-	virtual int GetAmmoCount(void)const ;
-	class Vector  GetAvgBarrelDirWS(void)const ;
-	class Vector  GetAvgBarrelPosWS(void)const ;
-	class Vector  GetBarrelDirWS(unsigned int)const ;
-	struct Barrel const * GetBarrelInfo(unsigned int)const ;
-	class Vector  GetBarrelPosWS(unsigned int)const ;
-	virtual float GetPowerDrawPerFire(void)const ;
-	unsigned int GetProjectilesPerFire(void)const ;
-	virtual void GetStatus(struct EquipStatus &)const ;
-	virtual bool IsDisabled(void)const ;
-	struct Archetype::Launcher const * LauncherArch(void)const ;
-	struct Archetype::Projectile const * ProjectileArch(void)const ;
-	virtual bool Update(float,unsigned int);
-	static class CELauncher *  cast(class CEquip *);
-	static class CELauncher const *  cast(class CEquip const *);
-
-protected:
-	CELauncher(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Launcher const *,bool);
-	virtual enum FireResult  CanFire(class Vector const &)const ;
-	virtual void ComputeLaunchInfo_OneBarrel(struct ProjLaunchInfo &,int,class Vector const &)const ;
-	virtual void Disconnect(void);
-	virtual void DrawAmmoFromCargo(int);
-	virtual void DrawPower(int);
-	virtual bool PowerNeedsMet(void)const ;
-	virtual bool RefireDelayElapsed(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEInternalFX(class CEInternalFX const &);
+	CEInternalFX(struct CEqObj *,unsigned short,struct Archetype::InternalFXEquip const *,bool);
+	struct Archetype::InternalFXEquip const * InternalFXArch(void)const ;
 };
 
 class IMPORT CELightEquip : CEquip
 {
 public:
-	CELightEquip(class CELightEquip const &);
-	CELightEquip(struct CEqObj *,unsigned short,struct Archetype::Light const *,bool);
 	virtual ~CELightEquip(void);
-	struct Archetype::Light const * LightArch(void)const ;
 	virtual void NotifyArchGroupDestroyed(unsigned short);
+	
 	static class CELightEquip *  cast(class CEquip *);
 	static class CELightEquip const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CELightEquip(class CELightEquip const &);
+	CELightEquip(struct CEqObj *,unsigned short,struct Archetype::Light const *,bool);
+	struct Archetype::Light const * LightArch(void)const ;
 };
 
-class IMPORT CEMineDropper
+class IMPORT CEMineDropper : public CELauncher
 {
 public:
-	CEMineDropper(class CEMineDropper const &);
-	CEMineDropper(struct CEqObj *,unsigned short,struct Archetype::MineDropper const *,bool);
 	virtual ~CEMineDropper(void);
-	struct Archetype::Mine const * MineArch(void);
-	struct Archetype::MineDropper const * MineDropperArch(void);
+	virtual enum FireResult  CanFire(class Vector const &)const ;
+	
 	static class CEMineDropper *  cast(class CEquip *);
 	static class CEMineDropper const *  cast(class CEquip const *);
 
-protected:
-	virtual enum FireResult  CanFire(class Vector const &)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEMineDropper(class CEMineDropper const &);
+	CEMineDropper(struct CEqObj *,unsigned short,struct Archetype::MineDropper const *,bool);
+	struct Archetype::Mine const * MineArch(void);
+	struct Archetype::MineDropper const * MineDropperArch(void);
 };
 
-class IMPORT CEPower
+class IMPORT CEPower : public CEquip
 {
 public:
-	CEPower(class CEPower const &);
-	CEPower(struct CEqObj *,unsigned short,struct Archetype::Power const *,bool);
 	virtual ~CEPower(void);
-
-	virtual bool IsControllerEnabled(void)const ;
-	virtual bool IsDestroyed(void)const ;
-	virtual bool IsFunctioning(void)const ;
-	virtual bool null1(void)const ;
-	virtual bool IsTemporary(void)const ;
-	virtual bool CanDelete(void)const ;
-	virtual void NotifyArchGroupDestroyed(unsigned short);
-	virtual bool IsLootable(void)const ;
 	virtual bool Update(float,unsigned int);
-	virtual bool GetEquipDesc(struct EquipDesc &)const ;
-	virtual void GetStatus(struct EquipStatus &)const ;
-	virtual bool Activate(bool);
-	virtual void Destroy(void);
-	virtual float GetMaxHitPoints(void)const ;
-	virtual float GetHitPoints(void)const ;
-	virtual bool null2(float)const ;
-	virtual float GetRelativeHealth(void)const ;
-	virtual bool null3(class RenderDisplayList const &, char const *)const ;
-	virtual bool EnableController(void);
-	virtual bool DisableController(void);
 
 	static class CEPower *  cast(class CEquip *);
 	static class CEPower const *  cast(class CEquip const *);
+
+	CEPower(class CEPower const &);
+	CEPower(struct CEqObj *,unsigned short,struct Archetype::Power const *,bool);
 
 	float GetCapacity(void)const ;
 	float GetChargeRate(void)const ;
 	float GetThrustCapacity(void)const ;
 	float GetThrustChargeRate(void)const ;
-
-	CEqObj* owner;
-	unsigned int iSubObjId;
-	Archetype::Power* archetype;
-	unsigned char data2[16];
 };
 
-class IMPORT CERepairDroid
+class IMPORT CERepairDroid : public CEquip
 {
 public:
-	CERepairDroid(class CERepairDroid const &);
-	CERepairDroid(struct CEqObj *,unsigned short,struct Archetype::RepairDroid const *,bool);
 	virtual ~CERepairDroid(void);
 	virtual float GetHitPoints(void)const ;
-	struct Archetype::RepairDroid const * RepairDroidArch(void)const ;
 	virtual void SetHitPoints(float);
+
 	static class CERepairDroid *  cast(class CEquip *);
 	static class CERepairDroid const *  cast(class CEquip const *);
 
+	CERepairDroid(class CERepairDroid const &);
+	CERepairDroid(struct CEqObj *,unsigned short,struct Archetype::RepairDroid const *,bool);
+	struct Archetype::RepairDroid const * RepairDroidArch(void)const ;
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	Archetype::RepairDroid* archetype;
 };
 
-class IMPORT CEScanner
+class IMPORT CEScanner : public CInternalEquip
 {
 public:
+	virtual ~CEScanner(void);
+	//virtual bool add_obj(struct IObjRW*);
+	virtual bool Update(float,unsigned int);
+	
+	static class CEScanner *  cast(class CEquip *);
+	static class CEScanner const *  cast(class CEquip const *);
+
 	CEScanner(class CEScanner const &);
 	CEScanner(struct CEqObj *,unsigned short,struct Archetype::Scanner const *,bool);
-	virtual ~CEScanner(void);
 	float GetCargoScanRange(void)const ;
 	float GetRadarRange(void)const ;
 	enum ScanResult  ScanCargo(struct CEqObj *);
 	struct Archetype::Scanner const * ScannerArch(void)const ;
-	virtual bool Update(float,unsigned int);
-	static class CEScanner *  cast(class CEquip *);
-	static class CEScanner const *  cast(class CEquip const *);
 	void clear_cache(void);
 	void scan_for_types(unsigned int);
-
-protected:
-	virtual bool add_obj(struct IObjRW *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CEShield
+class IMPORT CEShield : public CAttachedEquip
 {
 public:
-	CEShield(class CEShield const &);
-	CEShield(struct CEqObj *,unsigned short,struct Archetype::Shield const *,bool);
 	virtual ~CEShield(void);
-	virtual bool Activate(bool);
-	void AttachIntruderChecker(void);
-	virtual bool Connect(char const *);
-	virtual void Destroy(void);
-	void DestroyIntruderChecker(void);
-	virtual bool GetEquipDesc(struct EquipDesc &)const ;
-	virtual float GetHitPoints(void)const ;
-	virtual float GetMaxHitPoints(void)const ;
-	float GetOfflineRebuildTime(void)const ;
-	float GetOfflineThreshold(void)const ;
-	float GetWeaponModifier(struct ID_String const &)const ;
 	virtual bool IsFunctioning(void)const ;
-	virtual bool IsLootable(void)const ;
-	virtual void SetFate(enum DamageEntry::SubObjFate);
-	virtual void SetHitPoints(float);
-	struct Archetype::Shield const * ShieldArch(void)const ;
-	void ShieldBatteryBoost(float);
-	struct Archetype::ShieldGenerator const * ShieldGenArch(void)const ;
 	virtual bool Update(float,unsigned int);
+	virtual bool GetEquipDesc(struct EquipDesc &)const ;
+	virtual bool Activate(bool);
+	virtual void Destroy(void);
+	virtual float GetMaxHitPoints(void)const ;
+	virtual float GetHitPoints(void)const ;
+	virtual void SetHitPoints(float);
+	virtual bool Connect(char const *);
+	virtual void Disconnect(void);
+	
 	static class CEShield *  cast(class CEquip *);
 	static class CEShield const *  cast(class CEquip const *);
 
-protected:
+	CEShield(class CEShield const &);
+	CEShield(struct CEqObj *,unsigned short,struct Archetype::Shield const *,bool);
+	struct Archetype::ShieldGenerator const * ShieldGenArch(void)const ;
+	struct Archetype::Shield const * ShieldArch(void)const ;
+	void AttachIntruderChecker(void);
+	void DestroyIntruderChecker(void);
+	float GetOfflineRebuildTime(void)const ;
+	float GetOfflineThreshold(void)const ;
+	float GetWeaponModifier(struct ID_String const &)const ;
+	void ShieldBatteryBoost(float);
 	bool Activate_Internal(bool);
 	void AddGen(class CEShieldGenerator *);
 	bool CanActivate(void)const ;
-	virtual void Disconnect(void);
 	void RemGen(class CEShieldGenerator *);
-
-public:
-	int iDunno[28];
-	float fOfflineThreshold;
-	float fOfflineRebuildTime;
-	float fMaxCapacity;
 };
 
-class IMPORT CEShieldGenerator
+class IMPORT CEShieldGenerator : public CAttachedEquip
 {
 public:
-	CEShieldGenerator(class CEShieldGenerator const &);
-	CEShieldGenerator(struct CEqObj *,unsigned short,struct Archetype::ShieldGenerator const *,bool);
 	virtual ~CEShieldGenerator(void);
-	virtual void Destroy(void);
 	virtual bool IsFunctioning(void)const ;
-	bool IsLinked(void)const ;
-	void LinkShield(class CEShield *);
-	struct Archetype::ShieldGenerator const * ShieldGenArch(void)const ;
-	void UnLinkShield(void);
 	virtual bool Update(float,unsigned int);
+	virtual void Destroy(void);
+	
 	static class CEShieldGenerator *  cast(class CEquip *);
 	static class CEShieldGenerator const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEShieldGenerator(class CEShieldGenerator const &);
+	CEShieldGenerator(struct CEqObj *,unsigned short,struct Archetype::ShieldGenerator const *,bool);
+	struct Archetype::ShieldGenerator const * ShieldGenArch(void)const ;
+	bool IsLinked(void)const ;
+	void LinkShield(class CEShield *);
+	void UnLinkShield(void);
 };
 
-class IMPORT CEThruster
+class IMPORT CEThruster : public CAttachedEquip, public CPhysControllerEquip
 {
 public:
-	CEThruster(class CEThruster const &);
-	CEThruster(struct CEqObj *,unsigned short,struct Archetype::Thruster const *,bool);
+	virtual void do_simulation_controller(class IVP_Event_Sim *, class IVP_U_Vector<class IVP_Core> *);
+
 	virtual ~CEThruster(void);
-	virtual bool Activate(bool);
-	bool CouldThrust(void)const ;
-	virtual bool DisableController(void);
+
 	virtual bool EnableController(void);
-	float GetPowerDraw(void)const ;
-	float GetThrust(void)const ;
+	virtual bool DisableController(void);
 	virtual bool IsControllerEnabled(void)const ;
-	struct Archetype::Thruster const * ThrusterArch(void)const ;
+
+	virtual bool Activate(bool);
+	
 	static class CEThruster *  cast(class CEquip *);
 	static class CEThruster const *  cast(class CEquip const *);
 
-protected:
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CEThruster(class CEThruster const &);
+	CEThruster(struct CEqObj *,unsigned short,struct Archetype::Thruster const *,bool);
+	struct Archetype::Thruster const * ThrusterArch(void)const ;
+	bool CouldThrust(void)const ;
+	float GetPowerDraw(void)const ;
+	float GetThrust(void)const ;
 };
 
-class IMPORT CETractor
+class IMPORT CETractor : public CInternalEquip
 {
 public:
+	virtual ~CETractor(void);
+	virtual bool Update(float,unsigned int);
+	
+	static class CETractor *  cast(class CEquip *);
+	static class CETractor const *  cast(class CEquip const *);
+
 	CETractor(class CETractor const &);
 	CETractor(struct CShip *,unsigned short,struct Archetype::Tractor const *,bool);
-	virtual ~CETractor(void);
+	struct Archetype::Tractor const * TractorArch(void)const ;
 	enum TractorFailureCode  AddTarget(struct CLoot *);
 	int CountActiveArms(void)const ;
 	float GetRange(void)const ;
@@ -2476,31 +2606,23 @@ public:
 	class TractorArm const * GetTractorArm(unsigned int)const ;
 	class std::vector<class TractorArm> const & GetTractorArms(void)const ;
 	void RemoveTarget(unsigned int);
-	struct Archetype::Tractor const * TractorArch(void)const ;
-	virtual bool Update(float,unsigned int);
 	enum TractorFailureCode  VerifyTarget(struct CLoot const *)const ;
-	static class CETractor *  cast(class CEquip *);
-	static class CETractor const *  cast(class CEquip const *);
-
-protected:
 	bool CanSeeTarget(struct CLoot const *)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CETradeLaneEquip
+class IMPORT CETradeLaneEquip : public CInternalEquip
 {
 public:
-	CETradeLaneEquip(class CETradeLaneEquip const &);
-	CETradeLaneEquip(struct CEqObj *,unsigned short,struct Archetype::TradeLaneEquip const *,bool);
 	virtual ~CETradeLaneEquip(void);
-	struct Archetype::TradeLaneEquip const * TradeLaneArch(void)const ;
+	
 	static class CETradeLaneEquip *  cast(class CEquip *);
 	static class CETradeLaneEquip const *  cast(class CEquip const *);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	CETradeLaneEquip(class CETradeLaneEquip const &);
+	CETradeLaneEquip(struct CEqObj *,unsigned short,struct Archetype::TradeLaneEquip const *,bool);
+	struct Archetype::TradeLaneEquip const * TradeLaneArch(void)const ;
+
+	Archetype::TradeLaneEquip* archetype;
 };
 
 class IMPORT CEquipManager
@@ -2550,8 +2672,56 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CEqObj
+struct IMPORT CEqObj : public CSimple
 {
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	virtual ~CEqObj(void);
+	virtual int update(float,unsigned int);
+	virtual void disable_controllers(void);
+	virtual void enable_controllers(void);
+	virtual void unmake_physical(void);
+	virtual void remake_physical(struct PhySys::CreateParms const &,float);
+	virtual unsigned int get_name(void)const ;
+	virtual bool is_targetable(void)const ;
+	virtual void init(CEqObj::CreateParms const &);
+	virtual void load_equip_and_cargo(struct EquipDescVector const &,bool);
+	virtual void clear_equip_and_cargo(void);
+	virtual void get_equip_desc_list(struct EquipDescVector &)const ;
+	virtual bool add_item(struct EquipDesc const &);
+	virtual enum ObjActivateResult  activate(bool,unsigned int);
+	virtual bool get_activate_state(class std::vector<bool,class std::allocator<bool> > &);
+	virtual void disconnect(struct IObjDB *);
+	virtual void disconnect(struct INotify *);
+	virtual void disconnect(struct IObjRW *);
+	virtual void connect(struct IObjDB *);
+	virtual void connect(struct INotify *);
+	virtual void notify(enum INotify::Event,void *);
+	virtual void flush_animations(void);
+	virtual float get_total_hit_pts(void)const ;
+	virtual float get_total_max_hit_pts(void)const ;
+	virtual float get_total_relative_health(void)const ;
+	virtual bool get_sub_obj_velocity(unsigned short,class Vector &)const ;
+	virtual bool get_sub_obj_center_of_mass(unsigned short,class Vector &)const ;
+	virtual bool get_sub_obj_hit_pts(unsigned short,float &)const ;
+	virtual bool set_sub_obj_hit_pts(unsigned short,float);
+	virtual bool get_sub_obj_max_hit_pts(unsigned short,float &)const ;
+	virtual bool get_sub_obj_relative_health(unsigned short,float &)const ;
+	virtual unsigned short inst_to_subobj_id(long)const ;
+	virtual long sub_obj_id_to_inst(unsigned short)const ;
+	virtual void destroy_sub_objs(struct DamageList const &,bool);
+	virtual int enumerate_sub_objs(void)const ;
+	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
+	virtual void link_shields(void);
+
 	struct IMPORT DockAnimInfo
 	{
 		DockAnimInfo(void);
@@ -2562,100 +2732,59 @@ struct IMPORT CEqObj
 	};
 
 	CEqObj(struct CEqObj const &);
-	virtual enum ObjActivateResult  activate(bool,unsigned int);
-	virtual bool add_item(struct EquipDesc const &);
+	CEqObj(enum CObject::Class);
 	void attaching_damaged_obj(struct CacheString const &);
 	float attitude_towards(struct CEqObj const *)const ;
 	void attitude_towards_symmetrical(float &,struct CEqObj const *,float &)const ;
 	void clear_arch_groups(void);
-	virtual void clear_equip_and_cargo(void);
-	virtual void connect(struct INotify *);
-	virtual void connect(struct IObjDB *);
 	class IBehaviorManager * create_behavior_interface(struct IObjRW *,int);
-	virtual void destroy_sub_objs(struct DamageList const &,bool);
-	virtual void disable_controllers(void);
-	virtual void disconnect(struct INotify *);
-	virtual void disconnect(struct IObjDB *);
-	virtual void disconnect(struct IObjRW *);
-	virtual void enable_controllers(void);
-	virtual int enumerate_sub_objs(void)const ;
 	struct Archetype::EqObj * eqobjarch(void)const ;
-	virtual void flush_animations(void);
-	virtual bool get_activate_state(class std::vector<bool,class std::allocator<bool> > &);
 	unsigned int get_base(void)const ;
 	unsigned int get_base_name(void)const ;
 	class IBehaviorManager * get_behavior_interface(void);
 	float get_cloak_percentage(void)const ;
 	void get_collision_group_description(class std::list<struct CollisionGroupDesc> &)const ;
 	unsigned int const & get_dock_target(void)const ;
-	virtual void get_equip_desc_list(struct EquipDescVector &)const ;
 	bool get_explosion_dmg_bounding_sphere(float &,class Vector &)const ;
 	float get_max_power(void)const ;
-	virtual unsigned int get_name(void)const ;
 	float get_power(void)const ;
 	float get_power_ratio(void)const ;
-	virtual bool get_sub_obj_center_of_mass(unsigned short,class Vector &)const ;
-	virtual bool get_sub_obj_hit_pts(unsigned short,float &)const ;
-	virtual bool get_sub_obj_max_hit_pts(unsigned short,float &)const ;
-	virtual bool get_sub_obj_relative_health(unsigned short,float &)const ;
-	virtual bool get_sub_obj_velocity(unsigned short,class Vector &)const ;
-	virtual float get_total_hit_pts(void)const ;
-	virtual float get_total_max_hit_pts(void)const ;
-	virtual float get_total_relative_health(void)const ;
 	int get_vibe(void)const ;
-	virtual unsigned short inst_to_subobj_id(long)const ;
 	bool is_base(void)const ;
 	int is_cloaked(void)const ;
 	bool is_control_excluded(unsigned int)const ;
 	bool is_damaged_obj_attached(struct CacheString const &)const ;
 	bool is_dock(void)const ;
-	virtual bool is_targetable(void)const ;
 	bool launch_pos(class Vector &,class Matrix &,int)const ;
 	void load_arch_groups(class std::list<struct CollisionGroupDesc> const &);
-	virtual void load_equip_and_cargo(struct EquipDescVector const &,bool);
-	virtual void notify(enum INotify::Event,void *);
-	virtual void remake_physical(struct PhySys::CreateParms const &,float);
 	void set_control_exclusion(unsigned int);
 	void set_power(float);
-	virtual bool set_sub_obj_hit_pts(unsigned short,float);
-	virtual long sub_obj_id_to_inst(unsigned short)const ;
 	bool sync_cargo(class EquipDescList const &);
-	virtual void unmake_physical(void);
-	virtual int update(float,unsigned int);
-
-protected:
-	CEqObj(enum CObject::Class);
-	virtual ~CEqObj(void);
 	bool add_cargo_item(struct EquipDesc const &);
 	bool add_equipped_item(struct EquipDesc const &);
-	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
 	void compute_explosion_dmg_bounding_sphere(float &,class Vector &)const ;
-	virtual void init(struct CreateParms const &);
 	void init_docking_points(unsigned int);
-	virtual void link_shields(void);
-
-private:
 	void destroy_equipment(struct DamageList const &,bool);
 	void update_docking_animations(float);
 
-public:
-	/* 0x000 */ LPVOID obj;
-	/* 0x004 */ UINT dunno2[0x20];
-	/* 0x088 */ Archetype::Ship* ship_arch;
-	/* 0x08c */ UINT dunno3[0x16];
-	/* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
-	/* 0x194 */ float  fPower;
-	/* 0x198 */ float  fMaxPower;
+	///* 0x000 */ LPVOID obj;
+	///* 0x004 */ UINT dunno2[0x20];
+	///* 0x088 */ Archetype::Ship* ship_arch;
+	///* 0x08c */ UINT dunno3[0x16];
+	///* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
+	///* 0x194 */ float  fPower;
+	///* 0x198 */ float  fMaxPower;
 
 };
 
 
-class IMPORT CEquipmentObj
+class IMPORT CEquipmentObj : public CObject
 {
 public:
+	virtual ~CEquipmentObj(void);
+
 	CEquipmentObj(class CEquipmentObj const &);
 	CEquipmentObj(enum CObject::Class);
-	virtual ~CEquipmentObj(void);
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
@@ -2680,8 +2809,9 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CGuided
+struct IMPORT CGuided : public CProjectile
 {
+public:
 	struct IMPORT CreateParms
 	{
 		CreateParms(void);
@@ -2691,122 +2821,126 @@ struct IMPORT CGuided
 		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
+	virtual ~CGuided(void);
+	virtual int update(float,unsigned int);
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void expire_safe_time(void);
+
+	static bool seeker_can_see(class Vector const &,class Vector const &,class Vector const &,struct Archetype::Munition const *);
+
 	CGuided(struct CGuided const &);
 	CGuided(enum CObject::Class);
-	virtual ~CGuided(void);
 	struct Archetype::MotorData const * get_motor_arch(void)const ;
 	unsigned short get_sub_target(void)const ;
 	struct IObjRW * get_target(void)const ;
-	void init(struct CreateParms const &);
+	void init(struct CGuided::CreateParms const &);
 	bool motor_on(void)const ;
 	bool seeker_can_see(class Vector const &)const ;
-	static bool  seeker_can_see(class Vector const &,class Vector const &,class Vector const &,struct Archetype::Munition const *);
 	void set_sub_target(unsigned short);
 	void set_target(struct IObjRW *);
-	virtual int update(float,unsigned int);
 
-protected:
-	virtual void expire_safe_time(void);
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CInternalEquip
+struct IMPORT CLoot : public CSimple
 {
 public:
-	CInternalEquip(class CInternalEquip const &);
-	CInternalEquip(unsigned int,struct CEqObj *,unsigned short,struct Archetype::Equipment const *,bool);
-	virtual ~CInternalEquip(void);
-	virtual bool GetEquipDesc(struct EquipDesc &)const ;
-	static class CInternalEquip *  cast(class CEquip *);
-	static class CInternalEquip const *  cast(class CEquip const *);
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
 
-struct IMPORT CLoot
-{
-	CLoot(struct CLoot const &);
-	CLoot(enum CObject::Class);
 	virtual ~CLoot(void);
-	bool can_ai_tractor(void)const ;
+	virtual int update(float,unsigned int);
+	virtual unsigned int get_name(void)const ;
+	virtual void set_hit_pts(float);
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void init(struct CLoot::CreateParms const &);
+	
 	struct Archetype::Equipment * container_arch(void)const ;
 	struct Archetype::Equipment * contents_arch(void)const ;
+
+	CLoot(struct CLoot const &);
+	CLoot(enum CObject::Class);
+	bool can_ai_tractor(void)const ;
 	float get_contents_hit_pts(void)const ;
-	virtual unsigned int get_name(void)const ;
 	unsigned int get_owner(void)const ;
 	unsigned int get_units(void)const ;
 	float get_volume(void)const ;
-	virtual void init(struct CreateParms const &);
 	bool is_loot_temporary(void)const ;
 	void set_contents_hit_pts(float);
-	virtual void set_hit_pts(float);
 	void set_units(unsigned int);
-	virtual int update(float,unsigned int);
 
-protected:
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CMine
+struct IMPORT CMine : public CProjectile
 {
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	virtual ~CMine(void);
+	virtual int update(float,unsigned int);
+	virtual unsigned int get_name(void)const ;
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void init(CreateParms const &);
+	virtual void expire_safe_time(void);
+
 	CMine(struct CMine const &);
 	CMine(enum CObject::Class);
-	virtual ~CMine(void);
 	struct Archetype::Mine const * minearch(void);
-	virtual int update(float,unsigned int);
-
-protected:
-	virtual void expire_safe_time(void);
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CMunition
+struct IMPORT CMunition : public CProjectile
 {
+public:
+	virtual ~CMunition(void);
+
 	CMunition(struct CMunition const &);
 	CMunition(enum CObject::Class);
-	virtual ~CMunition(void);
 	struct Archetype::Munition const * munitionarch(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 class IMPORT CNonPhysAttachment
 {
 public:
-	CNonPhysAttachment(class CNonPhysAttachment const &);
-	CNonPhysAttachment(void);
 	virtual ~CNonPhysAttachment(void);
-	class CNonPhysAttachment & operator=(class CNonPhysAttachment const &);
+	virtual long GetRootIndex(void)const ;
+	virtual struct CObject * GetPhysicsOwner(void)const ;
+	virtual void EnableCollisions(bool);
 	virtual bool Connect(class CAttachedEquip *);
 	virtual struct CObject * Disconnect(class CAttachedEquip *,bool);
-	virtual void EnableCollisions(bool);
-	virtual struct CObject * GetPhysicsOwner(void)const ;
-	virtual long GetRootIndex(void)const ;
+
+	CNonPhysAttachment(class CNonPhysAttachment const &);
+	CNonPhysAttachment(void);
+	class CNonPhysAttachment & operator=(class CNonPhysAttachment const &);
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT CNudgeEngine
+class IMPORT CNudgeEngine : public CPhysControllerEquip
 {
 public:
+	virtual ~CNudgeEngine(void);
+	virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+	virtual bool EnableController(void);
+
 	CNudgeEngine(class CNudgeEngine const &);
 	CNudgeEngine(void);
-	virtual ~CNudgeEngine(void);
 	class CNudgeEngine & operator=(class CNudgeEngine const &);
 	bool Activate(bool);
-	virtual bool EnableController(void);
 	class Vector  GetNudgeVec(void)const ;
 	bool IsActive(void)const ;
 	void SetNudgeVec(class Vector const &);
@@ -2814,7 +2948,7 @@ public:
 
 protected:
 	static float const  NUDGE_CHANGE_THRESHOLD;
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+	//@@@ 
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
@@ -2823,32 +2957,16 @@ public:
 class IMPORT CPhysAttachment
 {
 public:
-	CPhysAttachment(class CPhysAttachment const &);
-	CPhysAttachment(void);
 	virtual ~CPhysAttachment(void);
-	class CPhysAttachment & operator=(class CPhysAttachment const &);
+	virtual long GetRootIndex(void)const ;
+	virtual struct CObject * GetPhysicsOwner(void)const ;
+	virtual void EnableCollisions(bool);
 	virtual bool Connect(class CAttachedEquip *);
 	virtual struct CObject * Disconnect(class CAttachedEquip *,bool);
-	virtual void EnableCollisions(bool);
-	virtual struct CObject * GetPhysicsOwner(void)const ;
-	virtual long GetRootIndex(void)const ;
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT CPhysControllerEquip
-{
-public:
-	CPhysControllerEquip(class CPhysControllerEquip const &);
-	CPhysControllerEquip(void);
-	virtual ~CPhysControllerEquip(void);
-	class CPhysControllerEquip & operator=(class CPhysControllerEquip const &);
-	virtual bool DisableController(void);
-	virtual bool IsControllerEnabled(void)const ;
-
-protected:
-	virtual bool ControlObject(struct CObject *);
+	CPhysAttachment(class CPhysAttachment const &);
+	CPhysAttachment(void);
+	class CPhysAttachment & operator=(class CPhysAttachment const &);
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
@@ -2906,22 +3024,7 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-struct IMPORT CProjectile
-{
-	CProjectile(struct CProjectile const &);
-	CProjectile(enum CObject::Class);
-	virtual ~CProjectile(void);
-	unsigned int const & get_owner(void)const ;
-	virtual void init(struct CreateParms const &);
-	bool is_alive(void)const ;
-	bool is_owner_safe(void)const ;
-	struct Archetype::Projectile const * projarch(void)const ;
-	virtual void set_dead(void);
-	virtual int update(float,unsigned int);
 
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
 
 class IMPORT CRemotePhysicsSimulation
 {
@@ -2964,12 +3067,36 @@ struct IObjInspect
 };
 
 
-struct IMPORT CShip : public CEqObj
+struct IMPORT CShip : public CEqObj, public PhySys::Controller
 {
+public:
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
+	
+	static float const  JETTISON_CLEARANCE_TIME;
+	
+	virtual ~CShip(void);
+
+	virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+
+	virtual int update(float,unsigned int);
+	virtual void disable_controllers(void);
+	virtual void enable_controllers(void);
+	virtual unsigned int get_name(void)const ;
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual void flush_animations(void);
+	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
+	virtual void init(struct CShip::CreateParms const &);
+
 	CShip(struct CShip const &);
 	CShip(void);
-	virtual ~CShip(void);
-	static float const  JETTISON_CLEARANCE_TIME;
+	struct Archetype::Ship const * shiparch(void)const ;
 	void VerifyTarget(void);
 	enum FORMATION_RTYPE  add_follow_follower(struct IObjRW *);
 	enum FORMATION_RTYPE  add_formation_follower(struct IObjRW *);
@@ -2977,9 +3104,6 @@ struct IMPORT CShip : public CEqObj
 	bool any_thrusters_on(void)const ;
 	bool check_formation_follower_status(float);
 	float close_bay(void);
-	virtual void disable_controllers(void);
-	virtual void enable_controllers(void);
-	virtual void flush_animations(void);
 	bool generate_follow_offset(struct IObjInspect const *,class Transform &)const ;
 	int get_ammo_capacity_remaining(unsigned int)const ;
 	int get_ammo_capacity_remaining(struct Archetype::Equipment const *)const ;
@@ -3003,7 +3127,6 @@ struct IMPORT CShip : public CEqObj
 	float get_linear_drag(void)const ;
 	float get_max_bank_angle(void)const ;
 	float get_max_thrust_power(void)const ;
-	virtual unsigned int get_name(void)const ;
 	class Vector  get_nudge_vec(void)const ;
 	unsigned short const * get_pilot_name(void)const ;
 	float get_projected_axis_throttle_XY(float)const ;
@@ -3031,7 +3154,6 @@ struct IMPORT CShip : public CEqObj
 	unsigned int get_tradelane_exit_ring(void);
 	float get_tradelane_speed(void);
 	int go_tradelane(struct IObjInspect const *,struct IObjInspect const *,struct IObjRW *,bool,float);
-	virtual void init(struct CreateParms const &);
 	bool is_cruise_active(void)const ;
 	bool is_enemy(struct IObjInspect *);
 	bool is_jumping(void)const ;
@@ -3061,25 +3183,15 @@ struct IMPORT CShip : public CEqObj
 	void set_throttle(float);
 	void set_thrust_power(float);
 	void set_tradelane_speed(float);
-	struct Archetype::Ship const * shiparch(void)const ;
 	void stop_tradelane(void);
-	virtual int update(float,unsigned int);
 	void use_tradelane(bool);
-
-protected:
-	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-private:
 	void collect_angular_force_components(unsigned int,float,float &,float &)const ;
 	void collect_force_components(float,enum IObject::ThrustEquipType,float &,float &)const ;
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
 	float get_distance_travelled(float,float,float,float,float)const ;
 	float get_initial_speed_to_coast_distance(float,float,float)const ;
 	float get_time_to_accelerate(float,float,float,float,float)const ;
 	void recalculate_formation_speed(void);
 
-public:
 	/* 105 */ DWORD vtable;
 	          DWORD iDunno5[34];
 	/* 139 */ DWORD iBayAnim;
@@ -3088,124 +3200,100 @@ public:
 	/* 174 */ DWORD iBayState2;
 };
 
-struct IMPORT CSimple
+struct IMPORT CSolar : public CEqObj
 {
-	CSimple(struct CSimple const &);
-	CSimple(enum CObject::Class);
-	virtual ~CSimple(void);
-	unsigned int GetOwnerPlayer(void)const ;
-	void SetOwnerPlayer(unsigned int);
-	virtual void beam_object(class Vector const &,class Matrix const &,bool);
-	virtual void cache_physical_props(void);
-	virtual void connect(struct IObjDB *);
-	virtual void disconnect(struct IObjDB *);
-	float get_hit_pts(void)const ;
-	unsigned int const & get_id(void)const ;
-	float get_max_hit_pts(void)const ;
-	virtual unsigned int get_name(void)const ;
-	struct IObjDB * get_object_database(void)const ;
-	virtual float get_physical_radius_r(class Vector &)const ;
-	float get_relative_health(void)const ;
-	float get_scanner_interference(void)const ;
-	unsigned int get_type(void)const ;
-	virtual void init(struct CreateParms const &);
-	virtual bool is_targetable(void)const ;
-	virtual void open(struct Archetype::Root *);
-	virtual void set_hit_pts(float);
-	virtual void unmake_physical(void);
-
-protected:
-	void update_zones(float,unsigned int);
-
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
+	struct IMPORT CreateParms
+	{
+		CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
 
-struct IMPORT CSolar
-{
+	public:
+		uint iHash;
+		float fDunno[3]; // (~0, 0, -1) in float consistently
+		Vector vPos;
+		Matrix mOrientation;
+		int iDunno1[3];
+		Vector vSpin;
+		int iDunno2;
+
+		uint iBase;
+		uint iHash2; // rep group? (otherwise it's the hash)
+		struct structCostume
+		{
+		  UINT head;
+		  UINT body;
+		  UINT lefthand;
+		  UINT righthand;
+		  UINT accessory[8];
+		  int  accessories;
+		};
+		structCostume Costume;
+		int iVoiceID;
+		int iDunnoLoadout[4];
+		//class std::list<struct CollisionGroupDesc> collision;
+		int iDunno3[3];
+		uint id_string;
+		uint iVisit;
+		uint iParent;
+		uint iDestructible;
+		// 1, 2, 3 = related to loadouts
+		// 4 = class std::list<struct CollisionGroupDesc> &
+		// 7 = ID_String of solar (same as iHash)
+		// 8 = visit (only last byte used)
+		// 9 = id of parent
+		// 10 = destructible (only last byte used)
+		uint iDestSystem;
+		uint iDestGate;
+		uint iPrevRing;
+		uint iNextRing;
+		uint iTradelaneSpaceName;
+		float fAtmosphereRange;
+		uint iDockWith;
+
+		int iDunnoAnim[3];
+		// 1, 2 = something to do with animations
+	};
+	
+	virtual ~CSolar(void);
+	virtual void __stdcall set_velocity(long,class Vector const &);
+	virtual void __stdcall set_angular_velocity(long,class Vector const &);
+	virtual int update(float,unsigned int);
+	virtual class Vector  get_velocity(void)const ;
+	virtual class Vector get_angular_velocity(void)const ;
+	virtual float get_mass(void)const ;
+	virtual void cache_physical_props(void);
+	virtual void init_physics(class Vector const &,class Vector const &);
+	virtual enum ObjActivateResult  activate(bool,unsigned int);
+	virtual bool get_activate_state(class std::vector<bool,class std::allocator<bool> > &);
+	virtual void flush_animations(void);
+	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
+
 	CSolar(struct CSolar const &);
 	CSolar(enum CObject::Class);
-	virtual ~CSolar(void);
+	struct Archetype::Solar const * solararch(void)const ;
 	struct ID_String const & GetParentNickname(void)const ;
 	unsigned char GetVisitValue(void)const ;
 	static bool  ReadObj(class INI_Reader &,struct Archetype::Solar * &,struct CreateParms &);
 	void SetVisitValue(unsigned char);
-	virtual enum ObjActivateResult  activate(bool,unsigned int);
-	virtual void cache_physical_props(void);
-	virtual void flush_animations(void);
-	virtual bool get_activate_state(class std::vector<bool,class std::allocator<bool> > &);
-	virtual class Vector  get_angular_velocity(void)const ;
 	float get_atmosphere_immersion(class Vector const &)const ;
 	float get_atmosphere_range(void)const ;
 	struct ID_String const & get_dest_gate(void)const ;
 	unsigned int get_dest_system(void)const ;
 	struct ID_String const & get_loadout(void)const ;
-	virtual float get_mass(void)const ;
 	unsigned int get_next_trade_ring(void)const ;
 	unsigned int get_prev_trade_ring(void)const ;
 	unsigned int get_tradelane_space_name(void)const ;
-	virtual class Vector  get_velocity(void)const ;
-	void init(struct CreateParms const &);
+	void init(struct CSolar::CreateParms const &);
 	bool is_destructible(void)const ;
 	bool is_dynamic(void)const ;
 	bool is_lane_ring(void)const ;
 	bool is_planetary(void)const ;
 	bool is_system_gate(void)const ;
 	bool is_waypoint(void)const ;
-	struct Archetype::Solar const * solararch(void)const ;
-	virtual int update(float,unsigned int);
-
-protected:
-	virtual class CEquip * alloc_equip(unsigned short,struct Archetype::Equipment *,bool);
 	void configure_system_gate(char const *);
 	void init_continual_anim(char const *);
-	virtual void init_physics(class Vector const &,class Vector const &);
 	void update_system_gate(float);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT CSteering
-{
-public:
-	CSteering(class CSteering const &);
-	CSteering(void);
-	virtual ~CSteering(void);
-	class CSteering & operator=(class CSteering const &);
-	bool Activate(bool);
-	virtual bool EnableController(void);
-	float GetAxisSteeringTorque(unsigned int,float)const ;
-	class Vector const & GetAxisThrottle(void)const ;
-	bool IsActive(void)const ;
-	void SetAxisThrottle(class Vector const &);
-	void SetOwner(struct CShip *);
-
-protected:
-	static float const  AXIS_CHANGE_THRESHOLD;
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT CStrafeEngine
-{
-public:
-	CStrafeEngine(class CStrafeEngine const &);
-	CStrafeEngine(void);
-	virtual ~CStrafeEngine(void);
-	class CStrafeEngine & operator=(class CStrafeEngine const &);
-	virtual bool EnableController(void);
-	enum StrafeDir  GetStrafe(void)const ;
-	void SetOwner(struct CShip *);
-	void SetStrafe(enum StrafeDir);
-
-protected:
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT CharPlaceInfo
@@ -3479,47 +3567,6 @@ namespace EngineEquipConsts
 	IMPORT  float  MAX_ENGINE_FX_THROTTLE;
 	IMPORT  float  THROTTLE_ATTEN_MOD_RANGE;
 	IMPORT  float  THROTTLE_STEADY_TIME;
-};
-
-struct IMPORT EngineObject
-{
-	EngineObject(struct EngineObject const &);
-	EngineObject(void);
-	virtual ~EngineObject(void);
-	struct EngineObject & operator=(struct EngineObject const &);
-	long get_index(void)const ;
-	class Matrix const & get_orientation(void)const ;
-	class Vector const & get_position(void)const ;
-	float const  get_radius(void)const ;
-	class Transform const & get_transform(void)const ;
-	void set_orientation(class Matrix const &);
-	void set_position(class Vector const &);
-	void set_transform(class Transform const &);
-	void update_tree(void)const ;
-
-private:
-	virtual void __stdcall create_instance(long);
-	virtual void __stdcall destroy_instance(long);
-	virtual class Vector const & __stdcall get_angular_velocity(long)const ;
-	virtual void __stdcall get_centered_radius(long,float *,class Vector *)const ;
-	virtual unsigned long __stdcall get_instance_flags(long)const ;
-	virtual class Matrix const & __stdcall get_orientation(long)const ;
-	virtual class Vector const & __stdcall get_position(long)const ;
-	virtual class Transform const & __stdcall get_transform(long)const ;
-	virtual class Vector const & __stdcall get_velocity(long)const ;
-	virtual void __stdcall initialize_instance(long);
-	virtual bool __stdcall joint_changed(long);
-	virtual void __stdcall set_angular_velocity(long,class Vector const &);
-	void set_centered_radius(float,class Vector const &);
-	virtual void __stdcall set_centered_radius(long,float,class Vector const &);
-	virtual void __stdcall set_instance_flags(long,unsigned long);
-	virtual void __stdcall set_orientation(long,class Matrix const &);
-	virtual void __stdcall set_position(long,class Vector const &);
-	virtual void __stdcall set_transform(long,class Transform const &);
-	virtual void __stdcall set_velocity(long,class Vector const &);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT EquipDesc
@@ -4820,7 +4867,8 @@ struct IMPORT ID_String
 	char const * get_string(void)const ;
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	uint id;
+	unsigned char data[128];
 };
 
 class IMPORT INI_Reader
@@ -4887,10 +4935,10 @@ struct IMPORT IObjInspectImpl
 	virtual float get_mass(void)const ;
 	virtual bool is_targetable(void)const ;
 	virtual bool is_dying(void)const ;
-	virtual int get_status(float &,float &)const ;
 	virtual int get_status(float &)const ;
+	virtual int get_status(float &,float &)const ;
+	virtual int get_shield_status(float &,bool &)const ; // why in different order ?! msvc i hate you!
 	virtual int get_shield_status(float &,float &,bool &)const ;
-	virtual int get_shield_status(float &,bool &)const ;
 	virtual int get_throttle(float &)const ;
 	virtual int get_axis_throttle(class Vector &)const ;
 	virtual int get_nudge_vec(class Vector &)const ;
@@ -4987,30 +5035,6 @@ public:
 
 	virtual operator class ImageNode *(void);
 	virtual operator class ImageNode const *(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT JustifyNode
-{
-public:
-	JustifyNode(class JustifyNode const &);
-	JustifyNode(enum TextJustify);
-	virtual ~JustifyNode(void);
-	class JustifyNode & operator=(class JustifyNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-	enum TextJustify  get_justify(void);
-	void set_justify(enum TextJustify);
-
-	virtual operator class JustifyNode *(void);
-	virtual operator class JustifyNode const *(void)const ;
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
@@ -5246,50 +5270,6 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT NullNode
-{
-public:
-	NullNode(class NullNode const &);
-	NullNode(void);
-	virtual ~NullNode(void);
-	class NullNode & operator=(class NullNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-
-	virtual operator class NullNode *(void);
-	virtual operator class NullNode const *(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT ParagraphNode
-{
-public:
-	ParagraphNode(class ParagraphNode const &);
-	ParagraphNode(void);
-	virtual ~ParagraphNode(void);
-	class ParagraphNode & operator=(class ParagraphNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-
-	virtual operator class ParagraphNode *(void);
-	virtual operator class ParagraphNode const *(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
 struct IMPORT PathfindManager
 {
 	void clear_user_zone(void);
@@ -5317,6 +5297,191 @@ private:
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+/*class IMPORT TextNode
+{
+	char szBuf[1024];
+public:
+	TextNode(unsigned short const *,int);
+	TextNode();
+};*/
+
+/*class IMPORT StyleNode
+{
+public:
+	StyleNode(unsigned short);
+
+public:
+	unsigned char data[1024];
+};*/
+
+/*class IMPORT ParagraphNode
+{
+public:
+	ParagraphNode(void);
+};*/
+
+/*class IMPORT RDLRefNode
+{
+public:
+	RDLRefNode(class RDLRefNode const &);
+
+public:
+	unsigned char data[1024];
+};*/
+
+/*class IMPORT JustifyNode
+{
+public:
+	JustifyNode(enum TextJustify);
+
+public:
+	unsigned char data[1024];
+};*/
+
+class IMPORT NullNode
+{
+public:
+	NullNode(class NullNode const &);
+	NullNode(void);
+	virtual ~NullNode(void);
+	class NullNode & operator=(class NullNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+
+	virtual operator class NullNode *(void);
+	virtual operator class NullNode const *(void)const ;
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+class IMPORT StyleNode
+{
+public:
+	StyleNode(class StyleNode const &);
+	StyleNode(unsigned short);
+	StyleNode(void);
+	/*virtual ~StyleNode(void);
+	class StyleNode & operator=(class StyleNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+	unsigned short get_style_id(void);
+	void set_style_id(unsigned short);
+
+	virtual operator class StyleNode *(void);
+	virtual operator class StyleNode const *(void)const ;*/
+
+public:
+	unsigned char data[1024];
+};
+
+class IMPORT ParagraphNode
+{
+public:
+	ParagraphNode(class ParagraphNode const &);
+	ParagraphNode(void);
+	/*virtual ~ParagraphNode(void);
+	class ParagraphNode & operator=(class ParagraphNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+
+	virtual operator class ParagraphNode *(void);
+	virtual operator class ParagraphNode const *(void)const ;*/
+};
+
+class IMPORT TextNode
+{
+	char szBuf[1024];
+
+public:
+	TextNode(class TextNode const &);
+	TextNode(std::wstring const &,int);
+	TextNode(unsigned short const *,int);
+	TextNode(void);
+	/*virtual ~TextNode(void);
+	class TextNode & operator=(class TextNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+	void append_text(std::wstring const &,int);
+	void append_text(unsigned short const *,int);
+	std::wstring const & get_text(void)const ;
+	void set_text(std::wstring const &,int);
+	void set_text(unsigned short const *,int);
+
+	virtual operator class TextNode *(void);
+	virtual operator class TextNode const *(void)const ;*/
+};
+
+class IMPORT TextPtrNode
+{
+public:
+	TextPtrNode(class TextPtrNode const &);
+	TextPtrNode(unsigned short const *,int);
+	TextPtrNode(void);
+	virtual ~TextPtrNode(void);
+	class TextPtrNode & operator=(class TextPtrNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+	unsigned short const * get_text(void)const ;
+	int get_text_length(void)const ;
+	void set_text(unsigned short const *,int);
+
+	virtual operator class TextPtrNode *(void);
+	virtual operator class TextPtrNode const *(void)const ;
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+class IMPORT JustifyNode
+{
+public:
+	JustifyNode(class JustifyNode const &);
+	JustifyNode(enum TextJustify);
+	virtual ~JustifyNode(void);
+	class JustifyNode & operator=(class JustifyNode const &);
+	virtual class RDLNode * Clone(void)const ;
+	virtual void Execute(class TextRenderContext &,bool);
+	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
+	virtual void GetElementSize(int &)const ;
+	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
+	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
+	virtual void Update(float);
+	enum TextJustify  get_justify(void);
+	void set_justify(enum TextJustify);
+
+	virtual operator class JustifyNode *(void);
+	virtual operator class JustifyNode const *(void)const ;
+
+public:
+	unsigned char data[1024];
 };
 
 class IMPORT PositionNode
@@ -5406,7 +5571,7 @@ public:
 	virtual operator class RDLRefNode const *(void)const ;
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	unsigned char data[1024];
 };
 
 struct IMPORT Rect
@@ -5650,6 +5815,7 @@ public:
 
 struct IMPORT ScanList
 {
+public:
 	ScanList(struct ScanList const &);
 	ScanList(void);
 	~ScanList(void);
@@ -5862,31 +6028,6 @@ public:
 	unsigned char data[OBJECT_DATA_SIZE];
 };
 
-class IMPORT StyleNode
-{
-public:
-	StyleNode(class StyleNode const &);
-	StyleNode(unsigned short);
-	StyleNode(void);
-	virtual ~StyleNode(void);
-	class StyleNode & operator=(class StyleNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-	unsigned short get_style_id(void);
-	void set_style_id(unsigned short);
-
-	virtual operator class StyleNode *(void);
-	virtual operator class StyleNode const *(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
 namespace SubObjectID
 {
 	class IMPORT CollGroupIdMaker
@@ -5977,61 +6118,6 @@ struct IMPORT TextFile32
 	struct TextFile32 & operator=(struct TextFile32 const &);
 	unsigned int get_line_num(void)const ;
 	bool read_line(struct LineParser32 &);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT TextNode
-{
-public:
-	TextNode(class TextNode const &);
-	TextNode(std::wstring const &,int);
-	TextNode(unsigned short const *,int);
-	TextNode(void);
-	virtual ~TextNode(void);
-	class TextNode & operator=(class TextNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-	void append_text(std::wstring const &,int);
-	void append_text(unsigned short const *,int);
-	std::wstring const & get_text(void)const ;
-	void set_text(std::wstring const &,int);
-	void set_text(unsigned short const *,int);
-
-	virtual operator class TextNode *(void);
-	virtual operator class TextNode const *(void)const ;
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-class IMPORT TextPtrNode
-{
-public:
-	TextPtrNode(class TextPtrNode const &);
-	TextPtrNode(unsigned short const *,int);
-	TextPtrNode(void);
-	virtual ~TextPtrNode(void);
-	class TextPtrNode & operator=(class TextPtrNode const &);
-	virtual class RDLNode * Clone(void)const ;
-	virtual void Execute(class TextRenderContext &,bool);
-	virtual void GetElementPos(int,class TextRenderContext &,int &)const ;
-	virtual void GetElementSize(int &)const ;
-	virtual void GetVisualSize(class TextRenderContext const &,struct VisualSize &)const ;
-	virtual bool SplitAtSize(class TextRenderContext const &,int,unsigned int,class RDLNode * &,class RDLNode * &)const ;
-	virtual void Update(float);
-	unsigned short const * get_text(void)const ;
-	int get_text_length(void)const ;
-	void set_text(unsigned short const *,int);
-
-	virtual operator class TextPtrNode *(void);
-	virtual operator class TextPtrNode const *(void)const ;
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
