@@ -8,7 +8,7 @@
 #include "global.h"
 #include "flcodec.h"
 
-#include "./include/plugin.h"
+#include "../plugins/flhookplugin_sdk/headers/plugin.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // defines
@@ -125,23 +125,6 @@ struct PLUGIN_HOOKDATA
 	bool bPaused;
 	FARPROC* pFunc;	
 	PLUGIN_RETURNCODE* ePluginReturnCode;
-};
-
-struct PLUGIN_HOOKINFO
-{
-	FARPROC* pFunc;
-	PLUGIN_CALLBACKS eCallbackID;
-	int iPriority;
-};
-
-struct PLUGIN_INFO
-{
-	string sName;
-	string sShortName;
-	bool bMayPause;
-	bool bMayUnload;
-	PLUGIN_RETURNCODE* ePluginReturnCode;
-	list<PLUGIN_HOOKINFO> lstHooks;
 };
 
 struct PLUGIN_DATA
@@ -580,6 +563,8 @@ namespace PluginManager {
 	EXPORT HK_ERROR UnloadPlugin(const string &sShortName);
 	EXPORT void UnloadPlugins();
 }
+
+EXPORT void Plugin_Communication(PLUGIN_MESSAGE msgtype, void* msg);
 
 // HkInit
 void PatchClientImpl();

@@ -172,6 +172,7 @@ enum PLUGIN_CALLBACKS
 	PLUGIN_BaseDestroyed,
 	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP,
 	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER,
+	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESOLAR,
 	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH,
 	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,
 	PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER,
@@ -310,7 +311,5 @@ struct CUSTOM_BASE_IS_DOCKED_STRUCT
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-__declspec(dllimport) void Plugin_Communication(PLUGIN_MESSAGE msgtype, void* msg);
-extern __declspec(dllimport) bool g_bPlugin_nofunctioncall;
 
 #endif
