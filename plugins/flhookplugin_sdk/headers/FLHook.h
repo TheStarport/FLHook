@@ -78,6 +78,8 @@ typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
 #include "FLCoreRemoteClient.h"
 #include "FLCoreDALib.h"
 
+#include "plugin.h"
+
 typedef void (__stdcall *_RCSendChatMsg)(uint iId, uint iTo, uint iSize, void *pRDL);
 typedef void (__stdcall *_CRCAntiCheat)();
 typedef void (__stdcall *_CreateChar)(const wchar_t *wszName);
