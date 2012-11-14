@@ -26,6 +26,7 @@ using namespace std;
 // defines
 
 #define HKHKSUCCESS(a) ((a) == HKE_OK)
+#define HKSUCCESS(a) ((hkLastErr = (a)) == HKE_OK)
 #define HKFAILED(a) !HKSUCCESS(a)
 #define ARG_CLIENTID(a) (wstring(L"id ") + stows(itos(a)))
 #define HK_GET_CLIENTID(a, b) \

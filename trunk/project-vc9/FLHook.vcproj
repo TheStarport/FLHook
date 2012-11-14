@@ -381,7 +381,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="fl_header"
+				Name="fl_headers"
 				>
 				<File
 					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreCommon.h"
