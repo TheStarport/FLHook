@@ -413,6 +413,8 @@ struct PLUGIN_DATA
 	bool bPaused;
 };
 
+// plugin
+IMPORT void Plugin_Communication(PLUGIN_MESSAGE msgtype, void* msg);
 
 // HkFuncTools
 IMPORT uint HkGetClientIdFromAccount(CAccount *acc);
@@ -697,6 +699,8 @@ namespace PluginManager {
 }
 
 // variables
+extern IMPORT bool g_bPlugin_nofunctioncall;
+
 extern IMPORT std::map<string, list<PLUGIN_HOOKDATA>*> mpPluginHooks;
 extern IMPORT list<PLUGIN_DATA> lstPlugins;
 

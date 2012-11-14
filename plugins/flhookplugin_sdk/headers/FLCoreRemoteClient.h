@@ -88,6 +88,19 @@ struct FLPACKET_CREATESHIP
 	float fDunno2[13];
 };
 
+struct FLPACKET_CREATESOLAR
+{
+	char* pAddress; // ??
+	uint iSpaceID;
+	uint iSolarArch;
+	uint iDunno[2];
+	float fDunno[14];
+	float fPosX;
+	float fPosY;
+	float fPosZ;
+	float fDunno2[13];
+};
+
 struct FLPACKET_LAND
 {
 	uint iShip;
@@ -146,7 +159,7 @@ public:
 	virtual void unknown_44(uint iClientID, uint iDunno, uint iDunno2);
 	virtual bool Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint iClientID, uint iDunno, uint iDunno2);
 	virtual bool Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint iClientID, uint iDunno);
-	virtual bool Send_FLPACKET_SERVER_CREATESOLAR(uint iClientID, FLPACKET_UNKNOWN& pDunno);
+	virtual bool Send_FLPACKET_SERVER_CREATESOLAR(uint iClientID, FLPACKET_CREATESOLAR& pSolar);
 	virtual bool Send_FLPACKET_SERVER_CREATESHIP(uint iClientID, FLPACKET_CREATESHIP& pShip);
 	virtual bool Send_FLPACKET_SERVER_CREATELOOT(uint iClientID, FLPACKET_UNKNOWN& pDunno);
 	virtual bool Send_FLPACKET_SERVER_CREATEMINE(uint iClientID, FLPACKET_UNKNOWN& pDunno);
