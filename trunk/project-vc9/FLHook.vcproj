@@ -380,6 +380,38 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="fl_header"
+				>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreCommon.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreDACom.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreDALib.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreDefs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreFLServerEXE.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreRemoteClient.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreServer.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="AdminCommands"
