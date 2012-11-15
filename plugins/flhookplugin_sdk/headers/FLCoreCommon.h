@@ -2124,6 +2124,11 @@ public:
 class IMPORT CELauncher : public CAttachedEquip
 {
 public:
+	int iDunno[28];
+	float fOfflineThreshold;
+	float fOfflineRebuildTime;
+	float fMaxCapacity;
+
 	virtual ~CELauncher(void);
 	virtual bool IsDisabled(void)const ;
 	virtual bool Update(float,unsigned int);
@@ -2767,13 +2772,13 @@ public:
 	void destroy_equipment(struct DamageList const &,bool);
 	void update_docking_animations(float);
 
-	///* 0x000 */ LPVOID obj;
-	///* 0x004 */ UINT dunno2[0x20];
-	///* 0x088 */ Archetype::Ship* ship_arch;
-	///* 0x08c */ UINT dunno3[0x16];
-	///* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
-	///* 0x194 */ float  fPower;
-	///* 0x198 */ float  fMaxPower;
+	/* 0x000 */ LPVOID obj;
+	/* 0x004 */ UINT dunno2[0x20];
+	/* 0x088 */ Archetype::Ship* ship_arch;
+	/* 0x08c */ UINT dunno3[0x16];
+	/* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
+	/* 0x194 */ float  fPower;
+	/* 0x198 */ float  fMaxPower;
 
 };
 

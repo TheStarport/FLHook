@@ -27,8 +27,13 @@ using namespace std;
 
 #define HKHKSUCCESS(a) ((a) == HKE_OK)
 #define HKSUCCESS(a) ((hkLastErr = (a)) == HKE_OK)
-#define HKFAILED(a) !HKSUCCESS(a)
+
+#define SRV_ADDR(a) ((char*)hModServer + a)
+#define DALIB_ADDR(a) ((char*)hModDaLib + a)
+#define FLSERVER_ADDR(a) ((char*)hProcFL + a)
+#define CONTENT_ADDR(a) ((char*)hModContent + a)
 #define ARG_CLIENTID(a) (wstring(L"id ") + stows(itos(a)))
+
 #define HK_GET_CLIENTID(a, b) \
 	bool bIdString = false; \
 	if(b.find(L"id ") == 0) bIdString = true; \
