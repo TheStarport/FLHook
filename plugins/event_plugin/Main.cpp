@@ -213,25 +213,25 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 
 	if (iKill)
 	{
-		CObject *obj = (CObject*)ecx[4];
+		CShip *cship = (CShip*)ecx[4];
 
 		int iRep;
-		pub::SpaceObj::GetRep(obj->iSpaceID, iRep);
+		pub::SpaceObj::GetRep(cship->get_id(), iRep);
 		
 		uint iAff;
 		pub::Reputation::GetAffiliation(iRep, iAff);
 
 		Vector vPos;
-		vPos.x = obj->fPosX;
-		vPos.y = obj->fPosY;
-		vPos.z = obj->fPosZ;
-		string scSector = VectorToSectorCoord(obj->iSystem, vPos);
+		vPos.x = cship->fPosX;
+		vPos.y = cship->fPosY;
+		vPos.z = cship->fPosZ;
+		string scSector = VectorToSectorCoord(cship->system, vPos);
 
 		multimap<uint, NPC_MISSION>::iterator start = set_mapNpcMissions.lower_bound(iAff);
 		multimap<uint, NPC_MISSION>::iterator end = set_mapNpcMissions.upper_bound(iAff);
 		for (; start != end; ++start)
 		{
-			if (start->second.system == obj->iSystem)
+			if (start->second.system == cship->system)
 			{
 				if (start->second.sector.length() && start->second.sector != scSector)
 					continue;

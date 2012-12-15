@@ -353,7 +353,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID, in
 
 		// Check that the requesting ship is of the appropriate size to dock.
 		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)HkGetInspect(client));
-		if (cship->ship_arch->fHoldSize > 275)
+		if (cship->shiparch()->fHoldSize > 275)
 		{
 			PrintUserCmdText(client, L"Target ship is too small");
 			return 0;

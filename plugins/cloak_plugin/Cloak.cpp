@@ -357,7 +357,7 @@ bool UserCmd_Cloak(uint iClientID, const wstring &wscCmd, const wstring &wscPara
 		if (cship)
 		{
 			if (mapClientsCloak[iClientID].arch.iHoldSizeLimit != 0
-				&& mapClientsCloak[iClientID].arch.iHoldSizeLimit < cship->ship_arch->fHoldSize)
+				&& mapClientsCloak[iClientID].arch.iHoldSizeLimit < cship->shiparch()->fHoldSize)
 			{
 				PrintUserCmdText(iClientID, L"Cloaking device will not function on this ship type");
 				mapClientsCloak[iClientID].iState = STATE_CLOAK_INVALID;
