@@ -1112,6 +1112,28 @@ namespace PlayerCommands
 			return;
 		}
 
+		wstring password = GetParam(args, ' ', 2);
+		if (!password.length())
+		{
+			PrintUserCmdText(client, L"ERR No password");
+			PrintUserCmdText(client, L"Usage: /base deploy <password> <name>");
+			return;
+		}
+		wstring basename = GetParamToEnd(args, ' ', 3);
+		if (!basename.length())
+		{
+			PrintUserCmdText(client, L"ERR No base name");
+			PrintUserCmdText(client, L"Usage: /base deploy <password> <name>");
+			return;
+		}
+
+		// Check for conflicting base name
+		if (GetPlayerBase(CreateID(PlayerBase::CreateBaseNickname(wstos(basename)).c_str())))
+		{
+			PrintUserCmdText(client, L"ERR Base name already exists");
+			return;
+		}
+
 		// Check that the ship has the requires commodities.
 		int hold_size;
 		list<CARGO_INFO> cargo;
@@ -1142,28 +1164,6 @@ namespace PlayerCommands
 				}
 				return;
 			}
-		}
-
-		wstring password = GetParam(args, ' ', 2);
-		if (!password.length())
-		{
-			PrintUserCmdText(client, L"ERR No password");
-			PrintUserCmdText(client, L"Usage: /base deploy <password> <name>");
-			return;
-		}
-		wstring basename = GetParamToEnd(args, ' ', 3);
-		if (!basename.length())
-		{
-			PrintUserCmdText(client, L"ERR No base name");
-			PrintUserCmdText(client, L"Usage: /base deploy <password> <name>");
-			return;
-		}
-
-		// Check for conflicting base name
-		if (GetPlayerBase(CreateID(PlayerBase::CreateBaseNickname(wstos(basename)).c_str())))
-		{
-			PrintUserCmdText(client, L"ERR Base name already exists");
-			return;
 		}
 
 		wstring charname = Players.GetActiveCharacterName(client);
