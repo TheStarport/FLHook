@@ -71,6 +71,9 @@ uint set_tick_time = 16;
 /// If the shield is up then damage to the base is changed by this multiplier.
 float set_shield_damage_multiplier = 0.01f;
 
+/// True if the settings should be reloaded
+bool load_settings_required = true;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PlayerBase *GetPlayerBase(uint base)
@@ -167,72 +170,8 @@ wstring HtmlEncode(wstring text)
     }
     return sb;
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void HkTimerCheckKick()
-{
-	returncode = DEFAULT_RETURNCODE;
-
-	uint curr_time = (uint)time(0);
-	map<uint, PlayerBase*>::iterator iter = player_bases.begin();
-	while (iter != player_bases.end())
-	{
-		PlayerBase *base = iter->second;
-		// Advance to next base in case base is deleted in timer dispatcher
-		++iter;
-		// Dispatch timer but we can safely ignore the return
-		base->Timer(curr_time);
-	}
-
-	// Write status to a json formatted page every 13 seconds
-	if ((curr_time % 13) == 0 && set_status_path_html.size()>0)
-	{
-		FILE *file = fopen(set_status_path_html.c_str(), "w");
-		if (file)
-		{
-			fprintf(file, "<html>\n<head><title>Player Base Status</title><style type=text/css>\n");
-			fprintf(file, ".ColumnH {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #ECE9D8;}\n");
-			fprintf(file, ".Column0 {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #FFFFFF;}\n");
-			fprintf(file, "</style></head><body>\n\n");
-                
-			fprintf(file, "<table width=\"90%%\" border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-			
-			fprintf(file, "<tr>");
-			fprintf(file, "<th class=\"ColumnH\">Base Name</th>");
-			fprintf(file, "<th class=\"ColumnH\">Health (%%)</th>");
-			fprintf(file, "<th class=\"ColumnH\">Shield Status</th>");
-			fprintf(file, "<th class=\"ColumnH\">Money</th>");
-			fprintf(file, "<th class=\"ColumnH\">Description</th>");
-			fprintf(file, "</tr>\n\n");
-			
-			map<uint, PlayerBase*>::iterator iter = player_bases.begin();
-			while (iter != player_bases.end())
-			{
-				PlayerBase *base = iter->second;
-				fprintf(file, "<tr>");
-				fprintf(file, "<td class=\"column0\">%s</td>", wstos(HtmlEncode(base->basename)).c_str());
-				fprintf(file, "<td class=\"column0\">%0.0f</td>", 100 * (base->base_health/base->max_base_health));
-				fprintf(file, "<td class=\"column0\">%s</td>", base->shield_state==PlayerBase::SHIELD_STATE_ACTIVE ? "On" : "Off");
-				fprintf(file, "<td class=\"column0\">%I64d</td>", base->money);
-
-				string desc;
-				for (int i=1; i<=MAX_PARAGRAPHS; i++)
-				{
-					desc += "<p>";
-					desc += wstos(HtmlEncode(base->infocard_para[i]));
-					desc += "</p>";
-				}
-				fprintf(file, "<td class=\"column0\">%s</td>", desc.c_str());
-				fprintf(file, "</tr>\n");   
-				++iter;
-			}
-
-			fprintf(file, "</table>\n\n</body><html>\n");
-            fclose(file);
-		}
-	}
-
-}
 
 /// Clear client info when a client connects.
 void ClearClientInfo(uint client)
@@ -240,9 +179,18 @@ void ClearClientInfo(uint client)
 	clients.erase(client);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void LoadSettings()
+{
+	returncode = DEFAULT_RETURNCODE;
+	load_settings_required = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Load the configuration
-void LoadSettings()
+void LoadSettingsActual()
 {
 	returncode = DEFAULT_RETURNCODE;
 
@@ -250,7 +198,6 @@ void LoadSettings()
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 	string cfg_file = string(szCurDir) + "\\flhook_plugins\\base.cfg";
-
 
 	map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
@@ -429,6 +376,79 @@ void LoadSettings()
 	}
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void HkTimerCheckKick()
+{
+	returncode = DEFAULT_RETURNCODE;
+
+	if (load_settings_required)
+	{
+		load_settings_required = false;
+		LoadSettingsActual();
+	}
+
+	uint curr_time = (uint)time(0);
+	map<uint, PlayerBase*>::iterator iter = player_bases.begin();
+	while (iter != player_bases.end())
+	{
+		PlayerBase *base = iter->second;
+		// Advance to next base in case base is deleted in timer dispatcher
+		++iter;
+		// Dispatch timer but we can safely ignore the return
+		base->Timer(curr_time);
+	}
+
+	// Write status to a json formatted page every 13 seconds
+	if ((curr_time % 13) == 0 && set_status_path_html.size()>0)
+	{
+		FILE *file = fopen(set_status_path_html.c_str(), "w");
+		if (file)
+		{
+			fprintf(file, "<html>\n<head><title>Player Base Status</title><style type=text/css>\n");
+			fprintf(file, ".ColumnH {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #ECE9D8;}\n");
+			fprintf(file, ".Column0 {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #FFFFFF;}\n");
+			fprintf(file, "</style></head><body>\n\n");
+                
+			fprintf(file, "<table width=\"90%%\" border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
+			
+			fprintf(file, "<tr>");
+			fprintf(file, "<th class=\"ColumnH\">Base Name</th>");
+			fprintf(file, "<th class=\"ColumnH\">Health (%%)</th>");
+			fprintf(file, "<th class=\"ColumnH\">Shield Status</th>");
+			fprintf(file, "<th class=\"ColumnH\">Money</th>");
+			fprintf(file, "<th class=\"ColumnH\">Description</th>");
+			fprintf(file, "</tr>\n\n");
+			
+			map<uint, PlayerBase*>::iterator iter = player_bases.begin();
+			while (iter != player_bases.end())
+			{
+				PlayerBase *base = iter->second;
+				fprintf(file, "<tr>");
+				fprintf(file, "<td class=\"column0\">%s</td>", wstos(HtmlEncode(base->basename)).c_str());
+				fprintf(file, "<td class=\"column0\">%0.0f</td>", 100 * (base->base_health/base->max_base_health));
+				fprintf(file, "<td class=\"column0\">%s</td>", base->shield_state==PlayerBase::SHIELD_STATE_ACTIVE ? "On" : "Off");
+				fprintf(file, "<td class=\"column0\">%I64d</td>", base->money);
+
+				string desc;
+				for (int i=1; i<=MAX_PARAGRAPHS; i++)
+				{
+					desc += "<p>";
+					desc += wstos(HtmlEncode(base->infocard_para[i]));
+					desc += "</p>";
+				}
+				fprintf(file, "<td class=\"column0\">%s</td>", desc.c_str());
+				fprintf(file, "</tr>\n");   
+				++iter;
+			}
+
+			fprintf(file, "</table>\n\n</body><html>\n");
+            fclose(file);
+		}
+	}
+}
+
 bool __stdcall HkCb_IsDockableError(uint dock_with, uint base)
 {
 	if (GetPlayerBase(base))
@@ -558,10 +578,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		}
 
 		HkLoadStringDLLs();
-
-		if (set_scCfgFile.length()>0)
-			LoadSettings();
-
 	}
 	else if (fdwReason == DLL_PROCESS_DETACH)
 	{
@@ -1212,7 +1228,7 @@ void __stdcall CShip_destroy(CShip* ship)
 	returncode = DEFAULT_RETURNCODE;
 
 	// Dispatch the destroy event to the appropriate module.
-	uint space_obj = ((CObject*)ship)->iSpaceID;
+	uint space_obj = ship->get_id();
 	map<uint, Module*>::iterator i = spaceobj_modules.find(space_obj);
 	if (i != spaceobj_modules.end())
 	{
