@@ -674,15 +674,13 @@ void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
+void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill)
 {
 	returncode = DEFAULT_RETURNCODE;
 	
-	char *szP;
-	memcpy(&szP, szECX + 0x10, 4);
-	uint client;
-	memcpy(&client, szP + 0xB4, 4);
-	if (iKill)
+	CShip *cship = (CShip*)ecx[4];
+	uint client = cship->GetOwnerPlayer();
+	if (kill)
 	{
 		if (client)
 		{
