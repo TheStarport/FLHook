@@ -247,6 +247,122 @@ static uint CreateWPlatformNPC(uint iSystem, Vector position, Matrix rotation, u
 	return space_obj;
 }
 
+
+static void SpawnSolar(unsigned int & spaceID, pub::SpaceObj::SolarInfo const & solarInfo)
+{
+	// hack server.dll so it does not call create solar packet send
+	char* serverHackAddress = (char*)hModServer + 0x2A62A;
+	char serverHack[] = {'\xEB'};
+	WriteProcMem(serverHackAddress, &serverHack, 1);
+
+	pub::SpaceObj::CreateSolar(spaceID, solarInfo);
+
+	uint dunno;
+	IObjInspectImpl* inspect;
+	if (GetShipInspect(spaceID, inspect, dunno))
+	{
+		CSolar* solar = (CSolar*)inspect->cobject();
+
+		// for every player in the same system, send solar creation packet
+		struct SOLAR_STRUCT
+		{
+			byte dunno[0x100];
+		};
+
+		SOLAR_STRUCT packetSolar;
+
+		char* address1 = (char*)hModServer + 0x163F0;
+		char* address2 = (char*)hModServer + 0x27950;
+
+		// fill struct
+		__asm
+		{
+			lea ecx, packetSolar
+			mov eax, address1
+			call eax
+			push solar
+			lea ecx, packetSolar
+			push ecx
+			mov eax, address2
+			call eax
+		}
+
+		struct PlayerData *pPD = 0;
+		while(pPD = Players.traverse_active(pPD))
+		{
+			if(pPD->iSystemID == solarInfo.iSystemID)
+				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
+		}
+	}
+
+	// undo the server.dll hack
+	char serverUnHack[] = {'\x74'};
+	WriteProcMem(serverHackAddress, &serverUnHack, 1);
+}
+
+
+static uint CreateWPlatformSolar(PlayerBase *base, uint iSystem, Vector position, Matrix rotation, uint solar_ids, uint type)
+{
+	pub::SpaceObj::SolarInfo si;
+	memset(&si, 0, sizeof(si));
+	si.iFlag = 4;
+	si.iSystemID = iSystem;
+	si.vPos = position;
+	si.mOrientation = rotation;
+
+	switch (type)
+	{
+	case Module::TYPE_DEFENSE_3:
+		si.iArchID = CreateID("wplatform_pbase_01");
+		si.iLoadoutID = CreateID("wplatform_pbase_loadout03");
+		break;
+	case Module::TYPE_DEFENSE_2:
+		si.iArchID = CreateID("wplatform_pbase_01");
+		si.iLoadoutID = CreateID("wplatform_pbase_loadout02");
+		break;
+	case Module::TYPE_DEFENSE_1:
+	default:
+		si.iArchID = CreateID("wplatform_pbase_01");
+		si.iLoadoutID = CreateID("wplatform_pbase_loadout01");
+		break;
+	}
+
+	si.Costume.head = CreateID("pi_pirate2_head");
+	si.Costume.body = CreateID("pi_pirate8_body");
+	si.Costume.lefthand = 0;
+	si.Costume.righthand = 0;
+	si.Costume.accessories = 0;
+	si.iVoiceID = CreateID("atc_leg_m01");
+
+	string wplatform_nickname = base->nickname + itos(rand());
+
+	strncpy_s(si.cNickName, sizeof(si.cNickName),wplatform_nickname.c_str(), wplatform_nickname.size());
+
+	si.iHitPointsLeft = -1;
+
+	// Set the base name
+	FmtStr infoname(solar_ids, 0);
+	infoname.begin_mad_lib(solar_ids); // scanner name
+	infoname.end_mad_lib();
+
+	FmtStr infocard(solar_ids, 0);
+	infocard.begin_mad_lib(solar_ids); // infocard
+	infocard.end_mad_lib();
+	pub::Reputation::Alloc(si.iRep, infoname, infocard);
+
+	//infocard.begin_mad_lib(16162); //  = ids of "%s0 %s1"
+	//infocard.append_string(solar_ids);  // ids that replaces %s0
+	//infocard.append_string(261164); // ids that replaces %s1
+			
+	uint space_obj;
+	SpawnSolar(space_obj, si);
+	
+	pub::AI::SetPersonalityParams pers = MakePersonality();
+	pub::AI::SubmitState(space_obj, &pers);
+
+	return space_obj;
+}
+
 DefenseModule::DefenseModule(PlayerBase *the_base)
 	: Module(Module::TYPE_DEFENSE_1), base(the_base), space_obj(0)
 {
@@ -338,7 +454,7 @@ bool DefenseModule::Timer(uint time)
 
 	if (!space_obj)
 	{
-		space_obj = CreateWPlatformNPC(base->system, pos, EulerMatrix(rot), base->solar_ids, type);
+		space_obj = CreateWPlatformSolar(base, base->system, pos, EulerMatrix(rot), base->solar_ids, type);
 		spaceobj_modules[space_obj] = this;
 		if (set_plugin_debug>1)
 			ConPrint(L"DefenseModule::created space_obj=%u\n", space_obj);

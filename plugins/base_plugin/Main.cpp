@@ -531,8 +531,24 @@ __declspec(naked) void HkCb_LandNaked()
 		push edi // objinspect
 		call HkCb_Land
 		test al, al
+		jz done
 
 not_in_dock:
+		// Copied from moor.dll to support mooring.
+		mov	al, [ebx+0x1c]
+		test	al, al
+		jnz	done
+		// It's false, so a safe bet that it's a moor.  Is it the player?
+		mov	eax, [edi]
+		mov	ecx, edi
+		call	[eax+0xbc] // is_player
+		test	al, al
+		jnz done
+
+
+
+
+done:
 		push 0x6D0C251
 		ret
 	}
