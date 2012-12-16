@@ -90,6 +90,12 @@ public:
 	// The space ID of this base
 	uint space_obj;
 
+	// If true, do not use food and commodities
+	bool dont_eat;
+
+	// If true, do not take damage
+	bool dont_rust;
+
 	// The list of goods and usage of goods per minute for the autosys effect
 	map<uint, uint> mapAutosysGood;
 
