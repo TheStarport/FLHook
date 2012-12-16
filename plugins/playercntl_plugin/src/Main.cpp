@@ -159,9 +159,16 @@ void HkTimer()
 /// Drop a percentage of cargo + some loot representing ship bits.
 void SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
-	returncode = DEFAULT_RETURNCODE;
+	returncode = NOFUNCTIONCALL;
+	
 	HyperJump::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 	CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
+	Message::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
+
+	AddLog("NOTICE: Death charname=%s killername=%s system=%08x", 
+		wstos(Players.GetActiveCharacterName(iClientIDVictim)).c_str(),
+		wstos(Players.GetActiveCharacterName(iClientIDKiller)).c_str(),
+		iSystem);
 }
 
 void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
@@ -211,7 +218,7 @@ namespace HkIEngine
 			{
 				if (!IsDockingAllowed(iShip, iDockTarget, iClientID))
 				{
-					AddLog("INFO: Docking suppressed docktarget=%u charname=%s", iDockTarget, wstos(Players.GetActiveCharacterName(iClientID)).c_str());
+					//AddLog("INFO: Docking suppressed docktarget=%u charname=%s", iDockTarget, wstos(Players.GetActiveCharacterName(iClientID)).c_str());
 					returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 					return 0;
 				}
@@ -304,7 +311,7 @@ namespace HkIServerImpl
 				{
 					if (!IsDockingAllowed(iShip, iDockTarget, iClientID))
 					{
-						AddLog("INFO: Docking suppressed docktarget=%u charname=%s", iDockTarget, wstos(Players.GetActiveCharacterName(iClientID)).c_str());
+						//AddLog("INFO: Docking suppressed docktarget=%u charname=%s", iDockTarget, wstos(Players.GetActiveCharacterName(iClientID)).c_str());
 						returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 						return;
 					}

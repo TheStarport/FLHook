@@ -217,6 +217,8 @@ namespace Message
 	void UserCmd_Process(uint iClientID, const wstring &wscCmd);
 
 	void AdminCmd_SendMail(CCmds *cmds, const wstring &wscCharname, const wstring &wscMsg);
+
+	void SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller);
 }
 
 namespace PlayerInfo
