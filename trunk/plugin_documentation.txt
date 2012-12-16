@@ -354,7 +354,7 @@ void __stdcall HkIServerImpl::TractorObjects_AFTER(unsigned int iClientID, struc
 void __stdcall HkIServerImpl::TradeResponse(unsigned char const *p1, int p2, unsigned int iClientID)
 void __stdcall HkIServerImpl::TradeResponse_AFTER(unsigned char const *p1, int p2, unsigned int iClientID)
 
-void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
+void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *exs, uint iKill)
 int __stdcall HkCB_MissileTorpHit(char *ECX, char *p1, DamageList *dmg)
 void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
 void __stdcall HkCb_AddDmgEntry_AFTER(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
