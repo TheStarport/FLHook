@@ -111,19 +111,16 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, u
 Called when ship was destroyed
 **************************************************************************************************************/
 
-void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill)
+void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 {
 
-	CALL_PLUGINS_V(PLUGIN_ShipDestroyed,__stdcall,(DamageList *_dmg, char *szECX, uint iKill),(_dmg,szECX,iKill));
+	CALL_PLUGINS_V(PLUGIN_ShipDestroyed,__stdcall,(DamageList *_dmg, DWORD *ecx, uint iKill),(_dmg,ecx,iKill));
 
 	try {
 		if(iKill==1)
 		{
-			// get client id
-			char *szP;
-			memcpy(&szP, szECX + 0x10, 4);
-			uint iClientID;
-			memcpy(&iClientID, szP + 0xB4, 4);
+			CShip *cship = (CShip*)ecx[4];
+			uint iClientID = cship->GetOwnerPlayer();
 
 			if(iClientID) { // a player was killed
 				DamageList dmg;
