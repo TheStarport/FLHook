@@ -23,8 +23,8 @@ Connecticut Plugin by MadHunter
 
 int transferFlags[MAX_CLIENT_ID+1];
 
-const std::wstring STR_INFO1		= L"Please dock at nearest base.";
-const std::wstring STR_INFO2		= L"Cargo hold is not empty.";
+const std::wstring STR_INFO1		= L"Please dock at nearest base";
+const std::wstring STR_INFO2		= L"Cargo hold is not empty";
 
 int set_iPluginDebug = 0;
 // Base to beam to.
@@ -224,15 +224,21 @@ bool UserCmd_Process(uint client, const wstring &cmd)
 	}
 	else if (!cmd.compare(L"/return"))
 	{
+		if (!ReadReturnPointForClient(client))
+		{
+			PrintUserCmdText(client, L"No return possible");
+			return true;
+		}
+
 		if (!IsDockedClient(client))
 		{
-			if (!CheckReturnDock(client, set_iTargetBaseID))
-			{
-				PrintUserCmdText(client, L"Please dock at valid return base.");
-				return true;
-			}
-
 			PrintUserCmdText(client, STR_INFO1);
+			return true;
+		}
+
+		if (!CheckReturnDock(client, set_iTargetBaseID))
+		{
+			PrintUserCmdText(client, L"Not in correct base");
 			return true;
 		}
 
@@ -242,7 +248,7 @@ bool UserCmd_Process(uint client, const wstring &cmd)
 			return true;
 		}
 
-		PrintUserCmdText(client, L"Redirecting undock to previous base.");
+		PrintUserCmdText(client, L"Redirecting undock to previous base");
 		transferFlags[client] = CLIENT_STATE_RETURN;
 
 		return true;
@@ -289,6 +295,7 @@ void __stdcall PlayerLaunch_AFTER(unsigned int ship, unsigned int client)
 			return;
 
 		MoveClient(client, returnPoint);
+		HookExt::IniSetI(client, "conn.retbase", 0);
 		return;
 	}
 }
