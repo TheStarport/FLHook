@@ -10,6 +10,7 @@
 #define ISERVER_LOGARG_H(a) if(set_bDebug) AddDebugLog("     " #a ": 0x%08X", (int)a);
 #define ISERVER_LOGARG_F(a) if(set_bDebug) AddDebugLog("     " #a ": %f", (float)a);
 #define ISERVER_LOGARG_V(a) if(set_bDebug) AddDebugLog("     " #a ": %f %f %f", (float)a.x, (float)a.y, (float)a.z);
+#define ISERVER_LOGARG_Q(a) if(set_bDebug) AddDebugLog("     " #a ": %f %f %f %f", (float)a.x, (float)a.y, (float)a.z, (float)a.w);
 
 
 #define EXECUTE_SERVER_CALL(args) \
@@ -376,6 +377,10 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClie
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);	
+	ISERVER_LOGARG_UI(ui.iShip);	
+	ISERVER_LOGARG_V(ui.vPos);
+	ISERVER_LOGARG_Q(ui.vDir);
+	ISERVER_LOGARG_F(ui.throttle);
 
 	CHECK_FOR_DISCONNECT
 
