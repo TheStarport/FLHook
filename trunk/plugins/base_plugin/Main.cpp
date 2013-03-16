@@ -71,6 +71,9 @@ uint set_tick_time = 16;
 /// If the shield is up then damage to the base is changed by this multiplier.
 float set_shield_damage_multiplier = 0.01f;
 
+/// If true, use the new solar based defense platform spawn
+bool set_new_spawn = false;
+
 /// True if the settings should be reloaded
 bool load_settings_required = true;
 
@@ -307,6 +310,10 @@ void LoadSettingsActual()
 						uint good = CreateID(ini.get_value_string(0));
 						uint quantity = ini.get_value_int(1);
 						shield_power_items[good] = quantity;
+					}
+					else if (ini.is_value("set_new_spawn"))
+					{
+						set_new_spawn = true;
 					}
 				}
 			}
