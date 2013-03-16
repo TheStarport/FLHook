@@ -485,7 +485,23 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const wstring &wscCmd)
 	return false;
 }
 
-
+void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate fate)
+{
+	returncode = DEFAULT_RETURNCODE;
+	if (iDmgToSpaceID && dmg->get_inflictor_id())
+	{
+		float curr, max;
+		pub::SpaceObj::GetHealth(iDmgToSpaceID, curr, max);
+		uint client = HkGetClientIDByShip(iDmgToSpaceID);
+		if (client)
+		{
+			if (mapClientsCloak[client].bCanCloak)
+			{
+				SetState(client, iDmgToSpaceID, STATE_CLOAK_OFF);
+			}
+		}
+	}
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Functions to hook */
@@ -505,7 +521,8 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-		
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkCb_AddDmgEntry, PLUGIN_HkCb_AddDmgEntry, 0));
+	
 	
 	return p_PI;
 }
