@@ -1,5 +1,7 @@
 #include "Main.h"
 
+extern bool set_new_spawn;
+
 static pub::AI::SetPersonalityParams MakePersonality()
 {
 	pub::AI::SetPersonalityParams p;
@@ -454,7 +456,11 @@ bool DefenseModule::Timer(uint time)
 
 	if (!space_obj)
 	{
-		space_obj = CreateWPlatformSolar(base, base->system, pos, EulerMatrix(rot), base->solar_ids, type);
+		if (set_new_spawn)
+			space_obj = CreateWPlatformSolar(base, base->system, pos, EulerMatrix(rot), base->solar_ids, type);
+		else
+			space_obj = CreateWPlatformNPC(base->system, pos, EulerMatrix(rot), base->solar_ids, type);
+
 		spaceobj_modules[space_obj] = this;
 		if (set_plugin_debug>1)
 			ConPrint(L"DefenseModule::created space_obj=%u\n", space_obj);
