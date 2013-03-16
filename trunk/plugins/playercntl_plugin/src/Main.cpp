@@ -165,10 +165,13 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uin
 	CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 	Message::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 
-	AddLog("NOTICE: Death charname=%s killername=%s system=%08x", 
-		wstos(Players.GetActiveCharacterName(iClientIDVictim)).c_str(),
-		wstos(Players.GetActiveCharacterName(iClientIDKiller)).c_str(),
-		iSystem);
+	const wchar_t *victim = Players.GetActiveCharacterName(iClientIDVictim);
+	const wchar_t *killer = Players.GetActiveCharacterName(iClientIDKiller);
+	if (victim && killer)
+	{
+		AddLog("NOTICE: Death charname=%s killername=%s system=%08x", 
+			wstos(victim).c_str(), wstos(killer).c_str(), iSystem);
+	}
 }
 
 void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2, enum DamageEntry::SubObjFate p3)
