@@ -276,6 +276,9 @@ void BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 void HkTimerCheckKick()
 {
 	mstime now = timeInMS();
+
+	
+
 	for (map<uint, CLOAK_INFO>::iterator ci = mapClientsCloak.begin(); ci != mapClientsCloak.end(); ++ci)
 	{
 		uint iClientID = ci->first;
@@ -424,14 +427,14 @@ bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 				wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd)+1);
 			}
 
-				// Dispatch the command to the appropriate processing function.
-				if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
-				{
-					// We handled the command tell FL hook to stop processing this
-					// chat string.
-					returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
-					return true;
-				}
+			// Dispatch the command to the appropriate processing function.
+			if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
+			{
+				// We handled the command tell FL hook to stop processing this
+				// chat string.
+				returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
+				return true;
+			}
 		}
 	}
 	return false;
@@ -490,14 +493,19 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1, float damage
 	returncode = DEFAULT_RETURNCODE;
 	if (iDmgToSpaceID && dmg->get_inflictor_id())
 	{
-		float curr, max;
-		pub::SpaceObj::GetHealth(iDmgToSpaceID, curr, max);
-		uint client = HkGetClientIDByShip(iDmgToSpaceID);
-		if (client)
+		if (dmg->get_cause() == 0x06)
 		{
-			if (mapClientsCloak[client].bCanCloak)
+			float curr, max;
+			pub::SpaceObj::GetHealth(iDmgToSpaceID, curr, max);
+			uint client = HkGetClientIDByShip(iDmgToSpaceID);
+			if (client)
 			{
-				SetState(client, iDmgToSpaceID, STATE_CLOAK_OFF);
+				if (mapClientsCloak[client].bCanCloak
+					&& !mapClientsCloak[client].bAdmin
+					&& mapClientsCloak[client].iState == STATE_CLOAK_CHARGING)
+				{
+					SetState(client, iDmgToSpaceID, STATE_CLOAK_OFF);
+				}
 			}
 		}
 	}
