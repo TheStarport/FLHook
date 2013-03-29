@@ -159,7 +159,7 @@ struct PLUGIN_SORTCRIT {
 			if(itplugin->bPaused) \
 				continue; \
 			if(itplugin->pFunc) { \
-				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				try { \
 					vPluginRet = ((ret_type (calling_convention*) arg_types )itplugin->pFunc) args; \
@@ -191,7 +191,7 @@ struct PLUGIN_SORTCRIT {
 			if(itplugin->bPaused) \
 				continue; \
 			if(itplugin->pFunc) { \
-				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				try { \
 					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
@@ -222,7 +222,7 @@ struct PLUGIN_SORTCRIT {
 			if(itplugin->bPaused) \
 				continue; \
 			if(itplugin->pFunc) { \
-				static CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				try { \
 					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
