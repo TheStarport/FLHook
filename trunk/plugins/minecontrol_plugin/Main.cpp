@@ -707,7 +707,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 /// Called when an asteriod is mined. We ignore all of the parameters from the client.
 void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos, uint iCrateID, uint iLootID, uint iCount, uint iClientID)
 {
-	mapClients[iClientID].iPendingMineAsteroidEvents++;
+	mapClients[iClientID].iPendingMineAsteroidEvents+=4;
 //	ConPrint(L"mine_asteroid %d %d %d\n", iCrateID, iLootID, iCount);
 	returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 	return;
