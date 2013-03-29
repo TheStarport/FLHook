@@ -408,7 +408,7 @@ namespace Rename
 	void Timer()
 	{
 		// Every 100 seconds expire unused tags and save the tag database
-		uint curr_time = (uint)time(0);
+		/* uint curr_time = (uint)time(0);
 		if (curr_time % 100)
 		{
 			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
@@ -420,7 +420,7 @@ namespace Rename
 				}
 			}
 			SaveSettings();
-		}
+		} */
 
 		// Check for pending renames and execute them. We do this on a timer so that the
 		// player is definitely not online when we do the rename.
