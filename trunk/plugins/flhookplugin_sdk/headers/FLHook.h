@@ -788,6 +788,7 @@ extern IMPORT uint	set_iMaxGroupSize;
 extern IMPORT list<wstring> set_lstBans;
 extern IMPORT bool	set_bBanAccountOnMatch;
 extern IMPORT uint set_iTimerThreshold;
+extern IMPORT uint set_iTimerDebugThreshold;
 extern IMPORT uint set_iDebugMaxSize;
 extern IMPORT bool	set_bLogAdminCmds;
 extern IMPORT bool	set_bLogSocketCmds;
