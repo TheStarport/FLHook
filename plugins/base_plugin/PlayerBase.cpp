@@ -28,6 +28,8 @@ PlayerBase::PlayerBase(uint client, const wstring &password, const wstring &the_
 
 	// Setup derived fields
 	SetupDefaults();
+
+	save_timer = rand() % 60;
 }
 
 PlayerBase::PlayerBase(const string &the_path)
@@ -40,6 +42,8 @@ PlayerBase::PlayerBase(const string &the_path)
 
 	// Setup derived fields
 	SetupDefaults();
+
+	save_timer = rand() % 60;
 }
 
 PlayerBase::~PlayerBase()
@@ -82,8 +86,11 @@ bool PlayerBase::Timer(uint curr_time)
 	}
 
 	// Save base status every 60 seconds.
-	if (curr_time%60 == 0)
+	if (save_timer-- < 0)
+	{
+		save_timer = 60;
 		Save();
+	}
 
 	return false;
 }

@@ -339,7 +339,8 @@ public:
 	// The number of seconds that shield will be active
 	int shield_active_time;
 
-
+	// When this timer drops to less than 0 the base is saved
+	int save_timer;
 };
 
 PlayerBase *GetPlayerBase(uint base);
