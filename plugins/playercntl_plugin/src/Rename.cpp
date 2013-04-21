@@ -769,6 +769,13 @@ namespace Rename
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
 		}
+
+		// Prevent ships from banned accounts from being moved.
+		if (GetUserFilePath(scFile, wscMovingCharname, "banned"))
+		{
+			PrintUserCmdText(iClientID, L"ERR not permitted");
+			return true;
+		}
 		
 		// Check the move char code.
 		wstring wscCode = Trim(GetParam(wscParam, L' ', 1));
