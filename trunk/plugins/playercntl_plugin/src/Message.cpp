@@ -95,6 +95,9 @@ namespace Message
 	/** true if we don't echo mistyped user and admin commands to other players. */
 	static bool set_bCmdHide;
 
+	/** if true support the /showmsg and /setmsg commands */
+	static bool set_bSetMsg;
+
 	/** color of echoed commands */
 	static wstring set_wscCmdEchoStyle;
 
@@ -236,6 +239,7 @@ namespace Message
 		set_iSpecialBannerTimeout = IniGetI(scPluginCfgFile, "Message", "SpecialBannerDelay", 60);
 		set_wscDisconnectSwearingInSpaceMsg = stows(IniGetS(scPluginCfgFile, "Message", "DisconnectSwearingInSpaceMsg", "%player has been kicked for swearing"));
 		set_fDisconnectSwearingInSpaceRange = IniGetF(scPluginCfgFile, "Message", "DisconnectSwearingInSpaceRange", 5000.0f);
+		set_bSetMsg = IniGetB(scPluginCfgFile, "Message", "SetMsg", false);
 
 		// For every active player load their msg settings.
 		list<HKPLAYERINFO> players = HkGetPlayers();
@@ -484,6 +488,9 @@ namespace Message
 	/** Set an preset message */
 	bool Message::UserCmd_SetMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
 	{
+		if (!set_bSetMsg)
+			return false;
+
 		int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
 		wstring wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
@@ -505,6 +512,9 @@ namespace Message
 	/** Show preset messages */
 	bool Message::UserCmd_ShowMsgs(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
 	{
+		if (!set_bSetMsg)
+			return false;
+
 		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
 		{
@@ -523,6 +533,9 @@ namespace Message
 	/** Send an preset message to the system chat */
 	bool Message::UserCmd_SMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
 	{
+		if (!set_bSetMsg)
+			return false;
+
 		int iMsgSlot = ToInt(wscCmd.substr(1,1));
 		if (iMsgSlot<0 || iMsgSlot>9)
 		{
@@ -551,6 +564,9 @@ namespace Message
 	/** Send an preset message to the local system chat */
 	bool Message::UserCmd_LMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
 	{
+		if (!set_bSetMsg)
+			return false;
+
 		int iMsgSlot = ToInt(wscCmd.substr(2,1));
 		if (iMsgSlot<0 || iMsgSlot>9)
 		{
@@ -576,11 +592,12 @@ namespace Message
 		return true;
 	}
 
-
-
 	/** Send an preset message to the group chat */
 	bool Message::UserCmd_GMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
 	{
+		if (!set_bSetMsg)
+			return false;
+
 		int iMsgSlot = ToInt(wscCmd.substr(2,1));
 		if (iMsgSlot<0 || iMsgSlot>9)
 		{
@@ -619,7 +636,7 @@ namespace Message
 		wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		// If this is a /rN command then setup the preset message
-		if (wscCmd.size()==3 && wscMsg.size()==0)
+		if (set_bSetMsg && wscCmd.size()==3 && wscMsg.size()==0)
 		{
 			int iMsgSlot = ToInt(wscCmd.substr(2,1));
 			if (iMsgSlot<0 || iMsgSlot>9)
@@ -670,7 +687,7 @@ namespace Message
 		wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		// If this is a /tN command then setup the preset message
-		if (wscCmd.size()==3 && wscMsg.size()==0)
+		if (set_bSetMsg && wscCmd.size()==3 && wscMsg.size()==0)
 		{
 			int iMsgSlot = ToInt(wscCmd.substr(2,1));
 			if (iMsgSlot<0 || iMsgSlot>9)
