@@ -769,13 +769,6 @@ namespace Rename
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
 		}
-
-		// Prevent ships from banned accounts from being moved.
-		if (GetUserFilePath(scFile, wscMovingCharname, "banned"))
-		{
-			PrintUserCmdText(iClientID, L"ERR not permitted");
-			return true;
-		}
 		
 		// Check the move char code.
 		wstring wscCode = Trim(GetParam(wscParam, L' ', 1));
@@ -784,6 +777,19 @@ namespace Rename
 		{
 			PrintUserCmdText(iClientID, L"ERR Move character access denied");
 			return true;
+		}
+
+
+		// Prevent ships from banned accounts from being moved.
+		if (GetUserFilePath(scFile, L"banned", ""))
+		{
+			FILE *f = fopen(scFile.c_str(), "r");
+			if (f)
+			{
+				fclose(f);
+				PrintUserCmdText(iClientID, L"ERR not permitted");
+				return true;
+			}
 		}
 
 		wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
