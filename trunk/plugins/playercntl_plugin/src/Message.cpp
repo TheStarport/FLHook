@@ -114,6 +114,9 @@ namespace Message
 	/** Load the msgs for specified client ID into memory. */
 	static void LoadMsgs(uint iClientID)
 	{
+		if (!set_bSetMsg)
+			return;
+
 		// Load from disk the messages.
 		for (int iMsgSlot=0; iMsgSlot<INFO::NUMBER_OF_SLOTS; iMsgSlot++)
 		{
