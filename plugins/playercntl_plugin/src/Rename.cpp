@@ -733,6 +733,26 @@ namespace Rename
 		return true;
 	}
 
+	static bool IsBanned(wstring charname)
+	{
+		char datapath[MAX_PATH];
+		GetUserDataPath(datapath);
+
+		wstring dir;
+		HkGetAccountDirName(charname, dir);
+
+		string banfile = string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
+
+		// Prevent ships from banned accounts from being moved.
+		FILE *f = fopen(banfile.c_str(), "r");
+		if (f)
+		{
+			fclose(f);
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 Move a character from a remote account into this one.
 	*/
@@ -779,17 +799,11 @@ namespace Rename
 			return true;
 		}
 
-
 		// Prevent ships from banned accounts from being moved.
-		if (GetUserFilePath(scFile, L"banned", ""))
+		if (IsBanned(wscMovingCharname))
 		{
-			FILE *f = fopen(scFile.c_str(), "r");
-			if (f)
-			{
-				fclose(f);
-				PrintUserCmdText(iClientID, L"ERR not permitted");
-				return true;
-			}
+			PrintUserCmdText(iClientID, L"ERR not permitted");
+			return true;
 		}
 
 		wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);

@@ -44,7 +44,6 @@ namespace IPBans
 		foreach (set_lstIPBans, string, iter)
 			if (Wildcard::wildcardfit(iter->c_str(), scIP.c_str()))
 				return true;
-
 		// To avoid plugin comms with DSAce because I ran out of time to make this
 		// work, I use something of a trick to get the login ID.
 		// Read all login ID files in the account and look for the one with a matching
@@ -58,7 +57,7 @@ namespace IPBans
 			wstring wscDir;
 			HkGetAccountDirName(acc, wscDir);
 
-			WIN32_FIND_DATA findFileData; 
+			WIN32_FIND_DATA findFileData;
 
 			string scFileSearchPath = scAcctPath + "\\" + wstos(wscDir) + "\\login_*.ini";
 			HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData);
@@ -68,24 +67,34 @@ namespace IPBans
 				{
 					// Read the login ID and IP from the login ID record.
 					string scLoginID = "";
+					string scLoginID2 = "";
 					string scThisIP = "";
 					string scFilePath = scAcctPath +  wstos(wscDir) + "\\" + findFileData.cFileName;
 					FILE *f = fopen(scFilePath.c_str(), "r");
 					if (f)
 					{
-						char szBuf[100];
+						char szBuf[200];
 						if (fgets(szBuf, sizeof(szBuf), f)!=NULL)
 						{
-							scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, string::npos));
-							scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, string::npos));
+							try
+							{
+								scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, string::npos));
+								scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, string::npos));
+								if (GetParam(szBuf, '\t', 3).length() > 4)
+									scLoginID2 = Trim(GetParam(szBuf, '\t', 3).substr(4, string::npos));
+							}
+							catch (...)
+							{
+								ConPrint(L"ERR Corrupt loginid file $0\n", stows(scFilePath).c_str());
+							}
 						}
 						fclose(f);
 					}
 
 					if (set_iPluginDebug>2)
 					{
-						ConPrint(L"NOTICE: Checking for ban on IP %s Login ID %s Client %d\n",
-							stows(scThisIP).c_str(), stows(scLoginID).c_str(), iClientID);
+						ConPrint(L"NOTICE: Checking for ban on IP %s Login ID1 %s ID2 %s Client %d\n",
+							stows(scThisIP).c_str(), stows(scLoginID).c_str(), stows(scLoginID2).c_str(),iClientID);
 					}
 
 					// If the login ID has been read then check it to see if it has been banned
@@ -93,8 +102,11 @@ namespace IPBans
 					{
 						foreach (set_lstLoginIDBans, string, iter)
 						{
-							if (*iter == scLoginID)
+							if (*iter == scLoginID
+								|| *iter == scLoginID2)
 							{
+								ConPrint(L"* Kicking player on ID ban: ip=%s id1=%s id2=%s\n",
+									stows(scThisIP).c_str(), stows(scLoginID).c_str(), stows(scLoginID2).c_str());
 								bBannedLoginID = true;
 								break;
 							}

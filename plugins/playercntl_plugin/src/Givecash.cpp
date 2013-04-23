@@ -243,7 +243,7 @@ namespace GiveCash
 		int iExpectedCash = 0;
 		if ((err = HkGetCash(wscTargetCharname, iExpectedCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
+			PrintUserCmdText(iClientID, L"ERR Get cash failed err="+HkErrGetText(err));
 			return true;
 		}
 		iExpectedCash += cash;
@@ -282,7 +282,7 @@ namespace GiveCash
 		// save completes before allowing the cash to be added to the target ship.
 		if ((err = HkAddCash(wscCharname, 0-cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
+			PrintUserCmdText(iClientID, L"ERR Remove cash failed err="+HkErrGetText(err));
 			return true;
 		}
 
@@ -300,7 +300,7 @@ namespace GiveCash
 		// Add cash to target character
 		if ((err = HkAddCash(wscTargetCharname, cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
+			PrintUserCmdText(iClientID, L"ERR Add cash failed err="+HkErrGetText(err));
 			return true;
 		}
 
