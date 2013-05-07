@@ -237,6 +237,7 @@ static void SpawnSolar(unsigned int & spaceID, pub::SpaceObj::SolarInfo const & 
 		// fill struct
 		__asm
 		{
+			pushad
 			lea ecx, packetSolar
 			mov eax, address1
 			call eax
@@ -245,6 +246,8 @@ static void SpawnSolar(unsigned int & spaceID, pub::SpaceObj::SolarInfo const & 
 			push ecx
 			mov eax, address2
 			call eax
+			add esp, 8
+			popad
 		}
 
 		struct PlayerData *pPD = 0;
