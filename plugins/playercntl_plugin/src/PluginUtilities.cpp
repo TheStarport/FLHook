@@ -644,7 +644,7 @@ void FormatSendChat(uint iToClientID, const wstring &wscSender, const wstring &w
 	}
 
 	wchar_t wszFormatBuf[8];
-	swprintf(wszFormatBuf, sizeof(wszFormatBuf), L"%02X", (long)cFormat);
+	swprintf(wszFormatBuf, _countof(wszFormatBuf), L"%02X", (long)cFormat);
 	wstring wscTRADataFormat = wszFormatBuf;
 	const wstring wscTRADataSenderColor = L"FFFFFF"; // white
 
