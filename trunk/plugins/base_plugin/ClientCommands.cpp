@@ -102,7 +102,7 @@ void SendMarketGoodSync(PlayerBase *base, uint client)
 static wstring Int64ToPrettyStr(INT64 iValue)
 {
 	wchar_t buf[1000];
-	swprintf(buf, sizeof(buf), L"%I64d", iValue);
+	swprintf(buf, _countof(buf), L"%I64d", iValue);
 	int len = wcslen(buf);
 
 	wstring wscBuf;
@@ -121,7 +121,7 @@ static wstring Int64ToPrettyStr(INT64 iValue)
 static wstring IntToStr(uint iValue)
 {
 	wchar_t buf[1000];
-	swprintf(buf, sizeof(buf), L"%u", iValue);
+	swprintf(buf, _countof(buf), L"%u", iValue);
 	return	buf;
 }
 
