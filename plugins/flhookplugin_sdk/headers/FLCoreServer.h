@@ -659,6 +659,14 @@ namespace pub
 
 	namespace Controller
 	{
+		struct CreateParms
+		{
+			void* pFreeFunc;
+			uint iClientID;
+		};
+
+		enum PRIORITY;
+
 		IMPORT  unsigned int Create(char const *,char const *,struct CreateParms const *,enum PRIORITY);
 		IMPORT  void Destroy(unsigned int);
 		IMPORT  int SetHeartbeatInterval(unsigned int const &,float);
