@@ -39,7 +39,9 @@ struct ACTION_DEBUGMSG_DATA
 
 void __stdcall HkActTrigger(TRIGGER_ARG* trigger)
 {
-	ConPrint(L"Mission trigger activated with hash id: " + stows(itos(trigger->iTriggerHash)) + L")\n");
+	wstring msg = L"Mission trigger activated with hash id: " + stows(itos(trigger->iTriggerHash)) + L"\n";
+	ConPrint(msg);
+	HkMsgU(msg);
 }
 
 char* pAddressTriggerAct;
@@ -65,7 +67,9 @@ __declspec(naked) void _HkActTrigger()
 
 int __stdcall HkActDebugMsg(ACTION_DEBUGMSG_DATA* action_dbgMsg)
 {
-	ConPrint(L"Mission trigger (" + stows(itos(action_dbgMsg->iTriggerHash)) + L") sent debug msg: " + stows(string(action_dbgMsg->szMessage)) + L"\n");
+	wstring msg = L"Mission trigger (" + stows(itos(action_dbgMsg->iTriggerHash)) + L") sent debug msg: " + stows(string(action_dbgMsg->szMessage)) + L"\n";
+	ConPrint(msg);
+	HkMsgU(msg);
 
 	return 1;
 }
@@ -81,6 +85,69 @@ __declspec(naked) void _HkActDebugMsg()
 	}
 }
 
+int __cdecl HkCreateSolar(uint &iSpaceID, pub::SpaceObj::SolarInfo &solarInfo)
+{
+	// hack server.dll so it does not call create solar packet send
+
+    char* serverHackAddress = (char*)hModServer + 0x2A62A;
+    char serverHack[] = {'\xEB'};
+    WriteProcMem(serverHackAddress, &serverHack, 1);
+
+	// create it
+	int returnVal = pub::SpaceObj::CreateSolar(iSpaceID, solarInfo);
+
+	uint dunno;
+	IObjInspectImpl* inspect;
+	if(GetShipInspect(iSpaceID, inspect, dunno))
+	{
+		CSolar* solar = (CSolar*)inspect->cobject();
+
+		// for every player in the same system, send solar creation packet
+
+		struct SOLAR_STRUCT
+		{
+			byte dunno[0x100];
+		};
+
+		SOLAR_STRUCT packetSolar;
+
+		char* address1 = (char*)hModServer + 0x163F0;
+		char* address2 = (char*)hModServer + 0x27950;
+
+		// fill struct
+		__asm
+		{
+			lea ecx, packetSolar
+			mov eax, address1
+			call eax
+			push solar
+			lea ecx, packetSolar
+			push ecx
+			mov eax, address2
+			call eax
+			add esp, 8
+		}
+
+		struct PlayerData *pPD = 0;
+		while(pPD = Players.traverse_active(pPD))
+		{
+			if(pPD->iSystemID == solarInfo.iSystemID)
+				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
+		}
+
+	}
+
+	 // undo the server.dll hack
+    char serverUnHack[] = {'\x74'};	
+    WriteProcMem(serverHackAddress, &serverUnHack, 1);
+
+	return returnVal;
+}
+
+bool HkSinglePlayer()
+{
+	return true;
+}
 
 EXPORT void LoadSettings()
 {
@@ -116,6 +183,18 @@ EXPORT void LoadSettings()
 	char* pAddressActDebugMsg = ((char*)GetModuleHandle("content.dll") + 0x115BC4);
 	FARPROC fpADbg = (FARPROC)_HkActDebugMsg;
 	WriteProcMem(pAddressActDebugMsg, &fpADbg, 4);
+
+	// hook solar creation to fix fl-bug in MP where loadout is not sent
+	char* pAddressCreateSolar = ((char*)GetModuleHandle("content.dll") + 0x1134D4);
+	FARPROC fpHkCreateSolar = (FARPROC)HkCreateSolar;
+	WriteProcMem(pAddressCreateSolar, &fpHkCreateSolar, 4);
+
+	/*
+	// hook singleplayer check
+	char* pAddressSP = ((char*)GetModuleHandle("content.dll") + 0x1136A0);
+	FARPROC fpHkSP = (FARPROC)HkSinglePlayer;
+	WriteProcMem(pAddressSP, &fpHkSP, 4);
+	*/
 }
 
 namespace HkIEngine
