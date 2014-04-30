@@ -305,6 +305,29 @@ bool InitHookExports()
 	ReadProcMem(pAddress, szRepFreeFixOld, 5);
 	WriteProcMem(pAddress, szNOPs, 5);
 
+	// patch flserver so it can better handle faulty house entries in char files
+
+	// divert call to house load/save func
+	pAddress = SRV_ADDR(0x679C6);
+	char szDivertJump[] = { '\x6F' };
+
+	WriteProcMem(pAddress, szDivertJump, 1);
+
+	// install hook at new address
+	pAddress = SRV_ADDR(0x78B39);
+
+	char szMovEAX[] = { '\xB8' };
+	char szJMPEAX[] = { '\xFF', '\xE0' };
+
+	FARPROC fpHkLoadRepFromCharFile = (FARPROC)HkIEngine::_HkLoadRepFromCharFile;
+
+	WriteProcMem(pAddress, szMovEAX, 1);
+	WriteProcMem(pAddress + 1, &fpHkLoadRepFromCharFile, 4);
+	WriteProcMem(pAddress + 5, szJMPEAX, 2);
+
+	HkIEngine::fpOldLoadRepCharFile = (FARPROC)SRV_ADDR(0x78B40);
+
+
 	// crc anti-cheat
 	CRCAntiCheat = (_CRCAntiCheat) ((char*)hModServer + ADDR_CRCANTICHEAT);
 
@@ -386,6 +409,12 @@ void UnloadHookExports()
 	// unpatch rep array free
 	pAddress = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
 	WriteProcMem(pAddress, szRepFreeFixOld, 5);
+
+	// unpatch flserver so it can better handle faulty house entries in char files
+
+	// undivert call to house load/save func
+	pAddress = SRV_ADDR(0x679C6);
+	char szDivertJump[] = { '\x76' };
 
 	// anti-death-msg
 	char szOld[] = { '\x74' };
