@@ -21,6 +21,7 @@ namespace HkIEngine
 
 FARPROC fpOldInitCShip;
 FARPROC fpOldDestroyCShip;
+FARPROC fpOldLoadRepCharFile;
 
 void __stdcall CShip_init(CShip* ship)
 {
@@ -169,6 +170,61 @@ __declspec(naked) void _LaunchPos()
 	}
 
 }
+
+/**************************************************************************************************************
+**************************************************************************************************************/
+
+struct LOAD_REP_DATA
+{
+	uint iRepID;
+	float fAttitude;
+};
+
+struct REP_DATA_LIST
+{
+	uint iDunno;
+	LOAD_REP_DATA* begin;
+	LOAD_REP_DATA* end;
+};
+
+bool __stdcall HkLoadRepFromCharFile(REP_DATA_LIST* savedReps, LOAD_REP_DATA* repToSave)
+{
+	// check of the rep id is valid
+	if(repToSave->iRepID == 0xFFFFFFFF)
+		return false; // rep id not valid!
+
+	LOAD_REP_DATA* repIt = savedReps->begin;
+
+	while(repIt != savedReps->end)
+	{
+		if(repIt->iRepID == repToSave->iRepID)
+			return false; // we already saved this rep!
+
+		repIt++;
+	}
+
+	// everything seems fine, add
+	return true;
+}
+
+__declspec(naked) void _HkLoadRepFromCharFile()
+{
+	__asm
+	{ 
+		push ecx // save ecx because thiscall
+		push [esp+4+4+8] // rep data
+		push ecx // rep data list
+		call HkLoadRepFromCharFile
+		pop ecx // recover ecx
+		test al, al
+		jz abort_lbl
+		jmp [fpOldLoadRepCharFile]
+abort_lbl:
+		ret 0x0C
+	}
+
+}
+
 
 /**************************************************************************************************************
 **************************************************************************************************************/
