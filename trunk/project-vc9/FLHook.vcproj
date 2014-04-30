@@ -30,8 +30,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).dll  &quot;C:\Program Files\Microsoft Games\Freelancer\EXE\&quot;&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\&#x0D;&#x0A;&#x0D;&#x0A;"
-				Outputs="..\bin\$(TargetName).dll;&quot;C:\Program Files\Microsoft Games\Freelancer\EXE\$(TargetName).dll&quot;;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib"
+				CommandLine="copy $(OutDir)\$(TargetName).dll  ..\bin\&#x0D;&#x0A;copy $(OutDir)\$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\&#x0D;&#x0A;&#x0D;&#x0A;"
+				Outputs="..\bin\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
