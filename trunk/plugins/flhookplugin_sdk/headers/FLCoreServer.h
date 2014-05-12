@@ -16,7 +16,8 @@
 #include <string>
 #include <list>
 #include <vector>
-#include "mapvc7.h"
+#include <map>
+#include "flmap.h"
 
 #include "FLCoreDefs.h"
 #include "FLCoreCommon.h"

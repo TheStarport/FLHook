@@ -17,7 +17,8 @@
 #include <string>
 #include <list>
 #include <vector>
-#include "mapvc7.h"
+#include <map>
+#include "flmap.h"
 
 #pragma comment( lib, "FLCoreCommon.lib" )
 
@@ -1042,7 +1043,7 @@ public:
 	float start_room;
 	float price_variance;
 	float ship_repair_cost;
-	std::map<unsigned int,struct MarketGoodInfo> market_map;
+	flmap<struct MarketGoodInfo> market_map;
 };
 
 class IMPORT BaseDataList
