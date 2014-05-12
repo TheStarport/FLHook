@@ -369,18 +369,6 @@
 				>
 			</File>
 			<Filter
-				Name="vc7stl"
-				>
-				<File
-					RelativePath="..\sdk\headers\mapvc7.h"
-					>
-				</File>
-				<File
-					RelativePath="..\sdk\headers\xtreevc7.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="fl_headers"
 				>
 				<File
@@ -409,6 +397,10 @@
 				</File>
 				<File
 					RelativePath="..\plugins\flhookplugin_sdk\headers\FLCoreServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\plugins\flhookplugin_sdk\headers\flmap.h"
 					>
 				</File>
 			</Filter>
