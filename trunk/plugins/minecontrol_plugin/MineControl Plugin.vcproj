@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="MiningControl Plugin"
 	ProjectGUID="{367D5EDC-F360-49E0-B652-587B9E22CF6C}"
 	RootNamespace="FLHook Example Plugin"
@@ -27,7 +27,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -112,7 +111,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -135,7 +133,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\flhookplugin_sdk\"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\plugins\flhookplugin_sdk\headers\&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"

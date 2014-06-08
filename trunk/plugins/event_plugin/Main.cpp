@@ -14,8 +14,8 @@
 #include <list>
 #include <map>
 #include <algorithm>
-#include "./headers/FLHook.h"
-#include "./headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 
 static int set_iPluginDebug = 0;
 

@@ -11,8 +11,8 @@
 #include <time.h>
 #include <math.h>
 #include <float.h>
-#include "headers/FLHook.h"
-#include "headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include <math.h>
 #include <list>
 #include <set>
@@ -20,8 +20,8 @@
 #include "PluginUtilities.h"
 #include "Main.h"
 
-#include "./headers/FLCoreServer.h"
-#include "./headers/FLCoreCommon.h"
+#include <FLCoreServer.h>
+#include <FLCoreCommon.h>
 
 
 namespace GiveCash

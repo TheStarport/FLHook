@@ -334,7 +334,7 @@ bool FLHookInit()
 					memset(&adr, 0, sizeof(adr));
 					adr.sin_family = AF_INET;
 					adr.sin_port = htons(set_iPort);
-					if(bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					if (::bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 						throw "ascii: socket-bind failed, port already in use?";
 
 					if(listen(sListen, SOMAXCONN) != 0)
@@ -350,7 +350,7 @@ bool FLHookInit()
 					memset(&adr, 0, sizeof(adr));
 					adr.sin_family = AF_INET;
 					adr.sin_port = htons(set_iWPort);
-					if(bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 						throw "unicode: socket-bind failed, port already in use?";
 
 					if(listen(sWListen, SOMAXCONN) != 0)
@@ -366,7 +366,7 @@ bool FLHookInit()
 					memset(&adr, 0, sizeof(adr));
 					adr.sin_family = AF_INET;
 					adr.sin_port = htons(set_iEPort);
-					if(bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 						throw "encrypted: socket-bind failed, port already in use?";
 
 					if(listen(sEListen, SOMAXCONN) != 0)
@@ -382,7 +382,7 @@ bool FLHookInit()
 					memset(&adr, 0, sizeof(adr));
 					adr.sin_family = AF_INET;
 					adr.sin_port = htons(set_iEWPort);
-					if(bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 						throw "encrypted-unicode: socket-bind failed, port already in use?";
 
 					if(listen(sEWListen, SOMAXCONN) != 0)

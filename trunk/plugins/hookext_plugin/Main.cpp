@@ -12,8 +12,8 @@ HookExtension Plugin by Cannon
 #include <list>
 #include <map>
 #include <algorithm>
-#include "./headers/FLHook.h"
-#include "./headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include <math.h>
 
 struct FLHOOK_PLAYER_DATA

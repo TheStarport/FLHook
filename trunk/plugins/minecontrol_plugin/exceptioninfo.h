@@ -29,7 +29,7 @@ extern "C"
 		LCID lcidLanguage;
 		LCID lcidCountry;
 		/* expand_locale static variables */
-		LC_ID       _cacheid;
+		LCID        _cacheid;
 		UINT        _cachecp;
 		char        _cachein[MAX_LC_LEN];
 		char        _cacheout[MAX_LC_LEN];

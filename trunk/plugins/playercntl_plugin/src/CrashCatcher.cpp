@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-#include "headers/FLHook.h"
-#include "headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include "Main.h"
 #include "CrashCatcher.h"
 #include "PluginUtilities.h"

@@ -6,8 +6,8 @@
 // being notified and/or mentioned somewhere.
 
 #include "Main.h"
-#include "headers/FLHook.h"
-#include "headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include "PluginUtilities.h"
 
 /// A map of hashcode and their associated nicknames.

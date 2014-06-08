@@ -12,8 +12,8 @@
 #include <math.h>
 #include <float.h>
 #include <list>
-#include "./headers/FLHook.h"
-#include "./headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include "PluginUtilities.h"
 #include "./headers/FLCoreRemoteClient.h"
 

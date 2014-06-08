@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Base Plugin"
 	ProjectGUID="{81D35B95-1CDD-4F58-A24C-E2EC47D43DD0}"
 	RootNamespace="Player Owned Base Plugin"
@@ -47,6 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\plugins\flhookplugin_sdk\headers\&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -134,7 +135,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\flhookplugin_sdk\"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\plugins\flhookplugin_sdk\headers\&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
