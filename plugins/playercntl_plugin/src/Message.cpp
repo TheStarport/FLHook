@@ -17,10 +17,10 @@
 #include <string>
 #include <time.h>
 
-#include "headers/FLHook.h"
-#include "headers/plugin.h"
-#include "./headers/FLCoreServer.h"
-#include "./headers/FLCoreCommon.h"
+#include <FLHook.h>
+#include <plugin.h>
+#include <FLCoreServer.h>
+#include <FLCoreCommon.h>
 #include "PluginUtilities.h"
 #include "Mail.h"
 #include "ZoneUtilities.h"

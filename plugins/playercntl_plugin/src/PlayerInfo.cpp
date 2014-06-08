@@ -15,8 +15,8 @@
 #include <list>
 #include <set>
 
-#include "headers/FLHook.h"
-#include "headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include "PluginUtilities.h"
 
 enum MissionMessageType

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Player Control"
 	ProjectGUID="{9E084A9E-A8B9-4F64-8048-F3357839683E}"
 	RootNamespace="FLHook Example Plugin"
@@ -129,7 +129,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\flhookplugin_sdk\"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\plugins\flhookplugin_sdk\headers\&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;__NOINCFLHOOKLIBS__"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"

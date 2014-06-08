@@ -12,8 +12,8 @@ Connecticut Plugin by MadHunter
 #include <list>
 #include <map>
 #include <algorithm>
-#include "./headers/FLHook.h"
-#include "./headers/plugin.h"
+#include <FLHook.h>
+#include <plugin.h>
 #include "../hookext_plugin/hookext_exports.h"
 #include <math.h>
 

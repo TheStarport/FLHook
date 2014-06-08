@@ -20,13 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="headers\FLHook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

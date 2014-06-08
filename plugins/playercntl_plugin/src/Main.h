@@ -9,7 +9,7 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__ 1
 
-#include "headers\flhook.h"
+#include <FLHook.h>
 
 int extern set_iPluginDebug;
 bool extern set_bEnablePimpShip;
