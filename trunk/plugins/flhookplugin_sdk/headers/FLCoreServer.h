@@ -142,8 +142,8 @@ struct XJettisonCargo
 struct XGoTradelane
 {
 	uint iShip;
-	uint iArchTradelane1;
-	uint iArchTradelane2;
+	uint iTradelaneSpaceObj1;
+	uint iTradelaneSpaceObj2;
 };
 
 struct CAccountListNode
