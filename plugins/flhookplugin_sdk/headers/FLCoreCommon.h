@@ -142,7 +142,11 @@ enum HpAttachmentType
 
 namespace Archetype
 {
-	class FuseIgnitionList;
+	class IMPORT FuseIgnitionList
+	{
+	public:
+		unsigned char data[OBJECT_DATA_SIZE];
+	};
 
 
 	enum AClassType
@@ -1297,17 +1301,17 @@ namespace Universe
 	};
 	struct IMPORT IZone
 	{
-		uint iDunno1[1];
+		float iDunno1[1];
 		uint iZoneID;
 		uint iSystemID;
 		Matrix mRot;
 		Vector vPos;
 		uint iDunno2;
-		uint iDunno3;
+		uint iPropertyFlags;
 		Vector vSize;
-		uint iDunno4[13];
+		float iDunno4[13];
 		CmnAsteroid::LootableZone *lootableZone;
-		uint iDunno5[10];
+		float iDunno5[10];
 	};
 
 	IMPORT  struct ISystem *  GetFirstSystem(void);
@@ -1601,8 +1605,6 @@ namespace PhySys
 		void push(class Vector const &,float);
 		void rotate(class Vector const &,float);
 		void wakeup(void);
-
-		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
 	class IMPORT PhyCollisionStateManager
@@ -1887,6 +1889,15 @@ public:
 	{
 		CSOLAR_OBJECT = 0x303,
 		CSHIP_OBJECT = 0x503,
+		CLOOT_OBJECT = 0x803,
+		CASTEROID_OBJECT = 0x1003,
+		MOUNTED_OBJECT = 0x2001,
+		CDYNAMICASTEROID_OBJECT = 0x4001,
+		CBEAM_OBJECT = 0x67,
+		CGUIDED_OBJECT = 0xA7,
+		UNK8 = 15,
+		UNK9 = 23,
+		WEAPON_PLATFORM_OBJECT = 0x1,
 	};
 
 	static struct CObject *  Alloc(enum Class);
@@ -1924,26 +1935,12 @@ public:
 	bool is_shield_part(unsigned int)const ;
 	long part_to_inst(unsigned int)const ;
 
-	/* 4c */ uint object_class;
-	/* 50 */ uint system;
-	/* 54 */ uint dunno1;
-	/* 58 */ uint dunno2;
-	/* 5c */ uint dunno3;
-	/* 60 */ uint dunno4;
-	/* 64 */ uint dunno5;
-	/* 68 */ uint dunno6;
-	/* 6c */ uint dunno7;
-	/* 70 */ uint dunno8;
-	/* 74 */ uint dunno9;
-	/* 78 */ uint dunno10;
-	/* 7C */ uint dunno11;
-	/* 80 */ uint dunno12;
-	/* 84 */ uint dunno13;
-	/* 88 */ Archetype::Root* archetype;
-	/* 8c */ uint dunno14;
-	/* 90 */ uint dunno15;
-	/* 94 */ uint dunno16;
-	/* 98 */ uint dunno17;
+	Class enum_classid;
+	uint iSystem;
+	uint iDunno[23];
+	uint iSpaceID;
+	uint iDunno5[11];
+	uint iType;
 };
 
 struct IMPORT CSimple : public CObject
@@ -1984,25 +1981,6 @@ public:
 	float get_scanner_interference(void)const ;
 	unsigned int get_type(void)const ;
 	void update_zones(float,unsigned int);
-
-	/* 9c */ uint dunno1;	
-	/* a0 */ bool is_targettable;
-	/* a4 */ uint dunno2;
-	/* a8 */ uint dunno3;
-	/* ac */ IObjDB *obj_database;
-	/* b0 */ uint space_id;
-    /* b4 */ uint owner_player;
-	/* b8 */ uint dunno4;
-	/* bc */ float hit_pts;
-	/* c0 */ uint dunno5;
-	/* c4 */ uint dunno6;
-	/* c8 */ uint dunno7;
-	/* cc */ uint dunno8;
-	/* d0 */ uint dunno9;
-	/* d4 */ uint dunno10;
-	/* d8 */ uint dunno11;
-	/* dc */ uint dunno12;
-	/* e0 */ uint dunno13;
 };
 
 struct IMPORT CProjectile : public CSimple
@@ -2804,6 +2782,8 @@ public:
 	void destroy_equipment(struct DamageList const &,bool);
 	void update_docking_animations(float);
 
+	/* 0x088 */ Archetype::Ship* ship_arch;
+	/* 0x08c */ UINT dunno3[0x16];
 	/* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
 	/* 0x194 */ float  fPower;
 	/* 0x198 */ float  fMaxPower;

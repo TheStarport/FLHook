@@ -94,11 +94,19 @@ struct FLPACKET_CREATESOLAR
 	uint iSpaceID;
 	uint iSolarArch;
 	uint iDunno[2];
-	float fDunno[14];
+	struct {
+		uint head;
+		uint body;
+		uint lefthand;
+		uint righthand;
+		uint accessory[8];
+		int  accessories;
+	} costume;
+	int iVoiceID;
 	float fPosX;
 	float fPosY;
 	float fPosZ;
-	float fDunno2[13];
+	float fDunno[13];
 };
 
 struct FLPACKET_LAND

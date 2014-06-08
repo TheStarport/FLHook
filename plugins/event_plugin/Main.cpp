@@ -225,13 +225,13 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 		vPos.x = cship->fPosX;
 		vPos.y = cship->fPosY;
 		vPos.z = cship->fPosZ;
-		string scSector = VectorToSectorCoord(cship->system, vPos);
+		string scSector = VectorToSectorCoord(cship->iSystem, vPos);
 
 		multimap<uint, NPC_MISSION>::iterator start = set_mapNpcMissions.lower_bound(iAff);
 		multimap<uint, NPC_MISSION>::iterator end = set_mapNpcMissions.upper_bound(iAff);
 		for (; start != end; ++start)
 		{
-			if (start->second.system == cship->system)
+			if (start->second.system == cship->iSystem)
 			{
 				if (start->second.sector.length() && start->second.sector != scSector)
 					continue;
