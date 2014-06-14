@@ -61,13 +61,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
       <Message>Get Latest SDK</Message>
-      <Command>copy C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\libs\*.lib libs\
-copy C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\headers\*.h headers\
+      <Command>copy /Y C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\libs\*.lib libs\
+copy /Y C:\Development\flhookplugin\trunk\plugins\flhookplugin_sdk\headers\*.h headers\
 </Command>
     </PreBuildEvent>
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  C:\Development\flhookplugin\trunk\bin-vc12\flhook_plugins\
-copy $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
+      <Command>copy /Y $(OutDir)$(TargetName).dll  C:\Development\flhookplugin\trunk\bin-vc12\flhook_plugins\
+copy /Y $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
 </Command>
       <Outputs>C:\Development\flhookplugin\trunk\bin-vc12\flhook_plugins\$(TargetName).dll;C:\Discovery\FreelancerSDK\EXE\flhook_plugins\$(TargetName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
@@ -102,8 +102,8 @@ copy $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
       <Command />
     </PreBuildEvent>
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
-copy $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
+      <Command>copy /Y $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
+copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
 </Command>
       <Outputs>..\..\bin-vc12\flhook_plugins\$(TargetName).dll;..\..\bin-vc12\flhook_plugins\$(TargetName).pdb;%(Outputs)</Outputs>
     </CustomBuildStep>

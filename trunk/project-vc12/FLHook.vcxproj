@@ -58,8 +58,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\bin-vc12\
-copy $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\
+      <Command>copy /Y $(OutDir)$(TargetName).dll  ..\bin-vc12\
+copy /Y $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\
 
 </Command>
       <Outputs>..\bin-vc12\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib;%(Outputs)</Outputs>
@@ -94,9 +94,9 @@ copy $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\bin-vc12\
-copy $(OutDir)$(TargetName).pdb  ..\bin-vc12\
-copy $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\$(TargetName)-vc12.lib
+      <Command>copy /Y  $(OutDir)$(TargetName).dll  ..\bin-vc12\
+copy /Y  $(OutDir)$(TargetName).pdb  ..\bin-vc12\
+copy /Y  $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\$(TargetName)-vc12.lib
 </Command>
       <Outputs>..\bin-vc12\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib;%(Outputs)</Outputs>
     </CustomBuildStep>

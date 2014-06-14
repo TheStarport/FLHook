@@ -84,8 +84,8 @@
     </Link>
     <PostBuildEvent>
       <Message>Copy dll to Freelancer</Message>
-      <Command>copy $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\"
-copy $(OutDir)$(TargetName).lib ..\sdk\libs\
+      <Command>copy /Y $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\"
+copy /Y $(OutDir)$(TargetName).lib ..\sdk\libs\
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -121,8 +121,8 @@ copy $(OutDir)$(TargetName).lib ..\sdk\libs\
     </Link>
     <PostBuildEvent>
       <Message>Copy lib/dll to sdk/bin directory</Message>
-      <Command>copy $(OutDir)$(TargetName).dll ..\bin\
-copy $(OutDir)$(TargetName).lib ..\sdk\libs\
+      <Command>copy /Y $(OutDir)$(TargetName).dll ..\bin\
+copy /Y $(OutDir)$(TargetName).lib ..\sdk\libs\
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

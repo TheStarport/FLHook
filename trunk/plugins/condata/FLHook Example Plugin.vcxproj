@@ -58,8 +58,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\$(TargetName).dll
-copy $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll"
+      <Command>copy /Y $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\$(TargetName).dll
+copy /Y $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EXE\flhook_plugins\$(TargetName).dll"
 </Command>
       <Outputs>..\..\bin-vc12\flhook_plugins\$(TargetName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
@@ -91,8 +91,8 @@ copy $(OutDir)$(TargetName).dll  "C:\Program Files\Microsoft Games\Freelancer\EX
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
-copy $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
+      <Command>copy /Y $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
+copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
 </Command>
       <Outputs>..\..\bin-vc12\flhook_plugins\$(TargetName).dll;..\..\bin-vc12\flhook_plugins\$(TargetName).pdb;%(Outputs)</Outputs>
     </CustomBuildStep>

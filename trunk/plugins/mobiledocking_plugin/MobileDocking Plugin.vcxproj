@@ -63,8 +63,8 @@
       <Command />
     </PreBuildEvent>
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll ..\..\bin-vc12\flhook_plugins\
-copy $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
+      <Command>copy /Y $(OutDir)$(TargetName).dll ..\..\bin-vc12\flhook_plugins\
+copy /Y $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
 </Command>
       <Outputs>..\..\bin-vc12\flhook_plugins\$(TargetName).dll;C:\Discovery\FreelancerSDK\EXE\flhook_plugins\$(TargetName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
@@ -100,8 +100,8 @@ copy $(OutDir)$(TargetName).dll C:\Discovery\FreelancerSDK\EXE\flhook_plugins
       <Command />
     </PreBuildEvent>
     <CustomBuildStep>
-      <Command>copy $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
-copy $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
+      <Command>copy /Y $(OutDir)$(TargetName).dll  ..\..\bin-vc12\flhook_plugins\
+copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc12\flhook_plugins\
 </Command>
       <Outputs>..\..\bin-vc12\flhook_plugins\$(TargetName).dll;..\..\bin-vc12\flhook_plugins\$(TargetName).pdb;%(Outputs)</Outputs>
     </CustomBuildStep>
