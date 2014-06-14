@@ -135,6 +135,9 @@ int __cdecl Dock_Call(unsigned int const &uShipID,unsigned int const &uSpaceID,i
 	try {
 		return pub::SpaceObj::Dock(uShipID,uSpaceID,p3,p4);
 	} catch(...) { LOG_EXCEPTION }
+
+	CALL_PLUGINS(PLUGIN_HkCb_Dock_Call_AFTER, int, , (unsigned int const &, unsigned int const &, int, DOCK_HOST_RESPONSE), (uShipID, uSpaceID, p3, p4));
+
 	return 0;
 }
 

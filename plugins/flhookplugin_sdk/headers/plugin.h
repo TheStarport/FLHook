@@ -192,6 +192,7 @@ enum PLUGIN_CALLBACKS
 	PLUGIN_HkCb_Update_Time,
 	PLUGIN_HkCb_Update_Time_AFTER,
 	PLUGIN_HkCb_Dock_Call,
+	PLUGIN_HkCb_Dock_Call_AFTER,
 	PLUGIN_HkCb_Elapse_Time,
 	PLUGIN_HkCb_Elapse_Time_AFTER,
 	PLUGIN_LaunchPosHook,
