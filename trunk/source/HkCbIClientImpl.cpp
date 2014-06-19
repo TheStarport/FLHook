@@ -429,14 +429,14 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint iClientID, FLPACKET_CR
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, float fHitPoints)
+bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, list<DamageEntry>& damageentries)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(iObj);
-	ISERVER_LOGARG_UI(fHitPoints);
+	//ISERVER_LOGARG_UI(damageentries);
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iObj, fHitPoints));
+	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iObj, damageentries));
 	return reinterpret_cast<bool>(vRet);
 }
 
