@@ -1138,11 +1138,16 @@ struct IMPORT DamageEntry
 	static char const *  FateToString(enum SubObjFate);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	USHORT subobj;
+	float health;
+	SubObjFate fate;
 };
+
+enum DamageCause;
 
 struct IMPORT DamageList
 {
+
 	DamageList(struct DamageList const &);
 	DamageList(void);
 	~DamageList(void);
@@ -1161,7 +1166,12 @@ struct IMPORT DamageList
 	void set_inflictor_owner_player(unsigned int);
 
 public:
-	unsigned char data[OBJECT_DATA_SIZE];
+	uint iDunno1; // 0
+	list<DamageEntry> damageentries; // 4
+	bool bDestroyed; // 12
+	uint iDunno2; // 16
+	uint iInflictorID; // 20
+	uint iInflictorPlayerID; // 24
 };
 
 class IMPORT CArchGroup
