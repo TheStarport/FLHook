@@ -130,6 +130,9 @@ list<HKPLAYERINFO> HkGetPlayers()
 
 HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci)
 {
+	if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+		return HKE_INVALID_CLIENT_ID;
+
 	CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
 
 	if(!cdpClient || !cdpClient->GetConnectionStats(&ci))

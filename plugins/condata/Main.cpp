@@ -118,7 +118,8 @@ EXPORT void HkTimerCheckKick()
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
-
+			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				continue;
 			
 			if(set_iLossKick)
 			{ // check if loss is too high
@@ -217,6 +218,9 @@ void TimerUpdatePingData()
 	while(pPD = Players.traverse_active(pPD))
 	{
 		uint iClientID = HkGetClientIdFromPD(pPD);
+		if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+			continue;
+
 		if(ClientInfo[iClientID].tmF1TimeDisconnect)
 			continue;
 
@@ -268,6 +272,9 @@ void TimerUpdateLossData()
       while(pPD = Players.traverse_active(pPD)) 
       { 
          uint iClientID = HkGetClientIdFromPD(pPD); 
+		 if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+			 continue;
+
          if(ClientInfo[iClientID].tmF1TimeDisconnect) 
             continue; 
 
@@ -351,8 +358,14 @@ namespace HkIServerImpl
 			bFirstTime = false;
 			// check for logged in players and reset their connection data
 			struct PlayerData *pPD = 0; 
-			while(pPD = Players.traverse_active(pPD)) 
+			while (pPD = Players.traverse_active(pPD))
+			{
+				uint iClientID = pPD->iOnlineID;
+				if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+					continue;
+
 				ClearConData(HkGetClientIdFromPD(pPD));
+			}
 		}
 
 		// call timers

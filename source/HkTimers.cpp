@@ -52,6 +52,8 @@ void HkTimerCheckKick()
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
+			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				continue;
 
 			if(ClientInfo[iClientID].tmKickTime)
 			{
@@ -110,6 +112,8 @@ void HkTimerNPCAndF1Check()
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
+			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				continue;
 
 			if(ClientInfo[iClientID].tmF1Time && (timeInMS() >= ClientInfo[iClientID].tmF1Time)) { // f1
 				Server.CharacterInfoReq(iClientID, false);
