@@ -85,10 +85,10 @@ void LoadDockInfo(uint client)
 	cd.iDockingModules = 0;
 	cd.mapDockedShips.clear();
 
-	for (EquipDescListItem *item = Players[client].equipDescList.pFirst->next;
-		item != Players[client].equipDescList.pFirst; item = item->next)
+	for (list<EquipDesc>::iterator item = Players[client].equipDescList.equip.begin();
+		item != Players[client].equipDescList.equip.end(); item++)
 	{
-		if (item->equip.bMounted && item->equip.iArchID == 0xB85AB480)
+		if (item->bMounted && item->iArchID == 0xB85AB480)
 		{
 			cd.iDockingModules++;
 		}

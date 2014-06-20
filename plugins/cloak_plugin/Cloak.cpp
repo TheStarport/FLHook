@@ -207,14 +207,14 @@ static bool ProcessFuel(uint iClientID, CLOAK_INFO &info)
 	if (info.bAdmin)
 		return true;
 
-	for (EquipDescListItem *item = Players[iClientID].equipDescList.pFirst->next; item != Players[iClientID].equipDescList.pFirst; item = item->next)
+	for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 	{
-		if (info.arch.mapFuelToUsage.find(item->equip.iArchID) != info.arch.mapFuelToUsage.end())
+		if (info.arch.mapFuelToUsage.find(item->iArchID) != info.arch.mapFuelToUsage.end())
 		{
-			uint fuel_usage = info.arch.mapFuelToUsage[item->equip.iArchID];
-			if (item->equip.iCount >= fuel_usage)
+			uint fuel_usage = info.arch.mapFuelToUsage[item->iArchID];
+			if (item->iCount >= fuel_usage)
 			{
-				pub::Player::RemoveCargo(iClientID, item->equip.sID, fuel_usage);
+				pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
 				return true;
 			}
 		}
