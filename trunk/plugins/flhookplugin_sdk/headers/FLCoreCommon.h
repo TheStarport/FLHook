@@ -2789,7 +2789,6 @@ public:
 	bool add_equipped_item(struct EquipDesc const &);
 	void compute_explosion_dmg_bounding_sphere(float &,class Vector &)const ;
 	void init_docking_points(unsigned int);
-	void destroy_equipment(struct DamageList const &,bool);
 	void update_docking_animations(float);
 
 	/* 0x088 */ Archetype::Ship* ship_arch;
@@ -2798,6 +2797,8 @@ public:
 	/* 0x194 */ float  fPower;
 	/* 0x198 */ float  fMaxPower;
 
+private:
+	void destroy_equipment(DamageList const &, bool);
 };
 
 
@@ -3632,7 +3633,7 @@ public:
 	float fHealth;
 	UINT iCount;
 	bool bMission;
-	int iOwner;
+	uint iOwner;
 };
 
 struct EquipDescListItem
@@ -3663,7 +3664,8 @@ public:
 	struct EquipDesc const * traverse_equipment_type(unsigned int,struct EquipDesc const *)const ;
 
 public:
-	// std::list<EquipDesc> equip; // FIXME: std::list is not compatible with VC9 libs
+	//std::list<EquipDesc> equip; // Using this works, but causes a crash on add_equipment_item???
+	//uint iDunno[2];
 	EquipDescListItem *pIter;
 	EquipDescListItem *pFirst;
 	UINT iCount;
@@ -3681,7 +3683,8 @@ struct IMPORT EquipDescVector
 	struct EquipDesc * traverse_equipment_type(unsigned int,struct EquipDesc const *);
 
 public:
-	uint iDunno;
+	//uint iDunno;
+	//vector<EquipDesc> equip; // Using this works, but might cause issues (see EquipDescList)
 	EquipDesc *start;
 	EquipDesc *end;
 };
