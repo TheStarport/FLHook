@@ -3636,13 +3636,6 @@ public:
 	uint iOwner;
 };
 
-struct EquipDescListItem
-{
-	EquipDescListItem *next;
-	UINT iDunno;
-	EquipDesc equip;
-};
-
 class IMPORT EquipDescList
 {
 public:
@@ -3664,11 +3657,8 @@ public:
 	struct EquipDesc const * traverse_equipment_type(unsigned int,struct EquipDesc const *)const ;
 
 public:
-	//std::list<EquipDesc> equip; // Using this works, but causes a crash on add_equipment_item???
-	//uint iDunno[2];
-	EquipDescListItem *pIter;
-	EquipDescListItem *pFirst;
-	UINT iCount;
+	uint iDunno;
+	std::list<EquipDesc> equip;
 };
 
 struct IMPORT EquipDescVector
@@ -3683,10 +3673,8 @@ struct IMPORT EquipDescVector
 	struct EquipDesc * traverse_equipment_type(unsigned int,struct EquipDesc const *);
 
 public:
-	//uint iDunno;
-	//vector<EquipDesc> equip; // Using this works, but might cause issues (see EquipDescList)
-	EquipDesc *start;
-	EquipDesc *end;
+	uint iDunno;
+	std::vector<EquipDesc> equip;
 };
 
 namespace ErrorHandler

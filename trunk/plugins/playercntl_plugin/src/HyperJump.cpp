@@ -359,14 +359,14 @@ namespace HyperJump
 					// Use fuel to charge the jump drive's storage capacitors
 					sm.charging_on = false;
 
-					for (EquipDescListItem *item = Players[iClientID].equipDescList.pFirst->next; item != Players[iClientID].equipDescList.pFirst; item = item->next)
+					for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 					{
-						if (sm.arch.mapFuelToUsage.find(item->equip.iArchID) != sm.arch.mapFuelToUsage.end())
+						if (sm.arch.mapFuelToUsage.find(item->iArchID) != sm.arch.mapFuelToUsage.end())
 						{
-							uint fuel_usage = sm.arch.mapFuelToUsage[item->equip.iArchID];
-							if (item->equip.iCount >= fuel_usage)
+							uint fuel_usage = sm.arch.mapFuelToUsage[item->iArchID];
+							if (item->iCount >= fuel_usage)
 							{
-								pub::Player::RemoveCargo(iClientID, item->equip.sID, fuel_usage);
+								pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
 								sm.curr_charge += sm.arch.charge_rate;
 								sm.charging_on = true;
 								break;
@@ -555,14 +555,14 @@ namespace HyperJump
 					// Use fuel to charge the jump drive's storage capacitors
 					jd.charging_on = false;
 
-					for (EquipDescListItem *item = Players[iClientID].equipDescList.pFirst->next; item != Players[iClientID].equipDescList.pFirst; item = item->next)
+					for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 					{
-						if (jd.arch.mapFuelToUsage.find(item->equip.iArchID) != jd.arch.mapFuelToUsage.end())
+						if (jd.arch.mapFuelToUsage.find(item->iArchID) != jd.arch.mapFuelToUsage.end())
 						{
-							uint fuel_usage = jd.arch.mapFuelToUsage[item->equip.iArchID];
-							if (item->equip.iCount >= fuel_usage)
+							uint fuel_usage = jd.arch.mapFuelToUsage[item->iArchID];
+							if (item->iCount >= fuel_usage)
 							{
-								pub::Player::RemoveCargo(iClientID, item->equip.sID, fuel_usage);
+								pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
 								jd.curr_charge += jd.arch.charge_rate;
 								jd.charging_on = true;
 								break;
@@ -1106,13 +1106,13 @@ namespace HyperJump
 
 			// Check that the player has a jump drive and initialise the infomation
 			// about it - otherwise return false.
-			for (EquipDescListItem *item = Players[iClientID].equipDescList.pFirst->next; item != Players[iClientID].equipDescList.pFirst; item = item->next)
+			for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 			{
-				if (mapJumpDriveArch.find(item->equip.iArchID) != mapJumpDriveArch.end())
+				if (mapJumpDriveArch.find(item->iArchID) != mapJumpDriveArch.end())
 				{
-					if (item->equip.bMounted)
+					if (item->bMounted)
 					{
-						mapJumpDrives[iClientID].arch = mapJumpDriveArch[item->equip.iArchID];
+						mapJumpDrives[iClientID].arch = mapJumpDriveArch[item->iArchID];
 						return true;
 					}
 				}
@@ -1141,11 +1141,11 @@ namespace HyperJump
 			
 			// Check that the player has a jump drive and initialise the infomation
 			// about it - otherwise return false.
-			for (EquipDescListItem *item = Players[iClientID].equipDescList.pFirst->next; item != Players[iClientID].equipDescList.pFirst; item = item->next)
+			for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 			{
-				if (mapSurveyArch.find(item->equip.iArchID) != mapSurveyArch.end())
+				if (mapSurveyArch.find(item->iArchID) != mapSurveyArch.end())
 				{
-					mapSurvey[iClientID].arch = mapSurveyArch[item->equip.iArchID];
+					mapSurvey[iClientID].arch = mapSurveyArch[item->iArchID];
 					return true;
 				}
 			}

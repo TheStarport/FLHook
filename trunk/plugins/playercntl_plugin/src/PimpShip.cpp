@@ -231,15 +231,15 @@ namespace PimpShip
 		// Build the equipment list.
 		int iSlotID = 1;
 
-		EquipDescListItem *eqLst = Players[iClientID].equipDescList.pFirst;
-		for (EquipDescListItem *eq = eqLst->next; eq != eqLst; eq = eq->next)
+		list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
+		for (list<EquipDesc>::iterator eq = eqLst.begin(); eq != eqLst.end(); eq++)
 		{
-			if (IsItemArchIDAvailable(eq->equip.iArchID))
+			if (IsItemArchIDAvailable(eq->iArchID))
 			{
-				mapInfo[iClientID].mapCurrEquip[iSlotID].sID = eq->equip.sID;
-				mapInfo[iClientID].mapCurrEquip[iSlotID].iArchID = eq->equip.iArchID;
-				mapInfo[iClientID].mapCurrEquip[iSlotID].iOrigArchID = eq->equip.iArchID;
-				mapInfo[iClientID].mapCurrEquip[iSlotID].wscHardPoint = stows(eq->equip.szHardPoint.value);
+				mapInfo[iClientID].mapCurrEquip[iSlotID].sID = eq->sID;
+				mapInfo[iClientID].mapCurrEquip[iSlotID].iArchID = eq->iArchID;
+				mapInfo[iClientID].mapCurrEquip[iSlotID].iOrigArchID = eq->iArchID;
+				mapInfo[iClientID].mapCurrEquip[iSlotID].wscHardPoint = stows(eq->szHardPoint.value);
 				iSlotID++;
 			}
 		}
