@@ -602,6 +602,8 @@ class CCmds
 {
 	bool bID;
 	bool bShortCut;
+	bool bSelf;
+	bool bTarget;
 
 public:
 	DWORD rights;
