@@ -861,11 +861,56 @@ wstring CCmds::ArgCharname(uint iArg)
 	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
 	if(bID)
-		return wscArg.replace((int) 0,(int) 0, L"id ");
-	else if(bShortCut)
-		return wscArg.replace((int) 0,(int) 0, L"sc ");
+		return wscArg.replace((int)0, (int)0, L"id ");
+	else if (bShortCut)
+		return wscArg.replace((int)0, (int)0, L"sc ");
+	else if (bSelf)
+		return this->GetAdminName();
+	else if (bTarget)
+	{
+		uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
+		if (!iClientID)
+			return L"";
+		uint iShip;
+		pub::Player::GetShip(iClientID, iShip);
+		if (!iShip)
+			return L"";
+		uint iTarget;
+		pub::SpaceObj::GetTarget(iShip, iTarget);
+		if (!iTarget)
+			return L"";
+		iClientID = HkGetClientIDByShip(iTarget);
+		if (!iClientID)
+			return L"";
+		return L"id " + stows(itos(iClientID));
+	}
 	else
-		return wscArg;
+	{
+		if (wscArg == L">s")
+			return this->GetAdminName();
+		else if (wscArg.find(L">i") == 0)
+			return L"id " + wscArg.substr(2);
+		else if (wscArg == L">t")
+		{
+			uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
+			if (!iClientID)
+				return L"";
+			uint iShip;
+			pub::Player::GetShip(iClientID, iShip);
+			if (!iShip)
+				return L"";
+			uint iTarget;
+			pub::SpaceObj::GetTarget(iShip, iTarget);
+			if (!iTarget)
+				return L"";
+			iClientID = HkGetClientIDByShip(iTarget);
+			if (!iClientID)
+				return L"";
+			return L"id " + stows(itos(iClientID));
+		}
+		else
+			return wscArg;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -963,6 +1008,8 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 
 		bID = false;
 		bShortCut = false;
+		bSelf = false;
+		bTarget = false;
 		wscCurCmdString = wscCmdStr;
 
 		wstring wscCmd = ToLower(GetParam(wscCmdStr, ' ', 0));
@@ -972,12 +1019,25 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 			return;
 		}
 
+		size_t wscCmd_pos = wscCmdStr.find(wscCmd);
+
 		if(wscCmd[wscCmd.length()-1] == '$') {
 			bID = true;
-			wscCmd.erase(wscCmd.length()-1, 1);
-		} else if(wscCmd[wscCmd.length()-1] == '&') {
+			wscCmd.erase(wscCmd.length() - 1, 1);
+		}
+		else if (wscCmd[wscCmd.length() - 1] == '&') {
 			bShortCut = true;
-			wscCmd.erase(wscCmd.length()-1, 1);
+			wscCmd.erase(wscCmd.length() - 1, 1);
+		}
+		else if (wscCmd[wscCmd.length() - 1] == '!') {
+			bSelf = true;
+			wscCurCmdString.insert(wscCmd_pos + wscCmd.length() - 1, L" ");
+			wscCmd.erase(wscCmd.length() - 1, 1);
+		}
+		else if (wscCmd[wscCmd.length() - 1] == '?') {
+			bTarget = true;
+			wscCurCmdString.insert(wscCmd_pos + wscCmd.length() - 1, L" ");
+			wscCmd.erase(wscCmd.length() - 1, 1);
 		}
 
 		if(!ExecuteCommandString_Callback(this, wscCmd))
