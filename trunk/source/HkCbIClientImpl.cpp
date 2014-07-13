@@ -287,8 +287,8 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint iClientID, uint iShi
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint iClientID, SSPObjUpdateInfo& pUpdate)
 {
-	ISERVER_LOG();
-	ISERVER_LOGARG_UI(iClientID);
+	//ISERVER_LOG();
+	//ISERVER_LOGARG_UI(iClientID);
 
 	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_UPDATEOBJECT,bool,__stdcall,(uint,SSPObjUpdateInfo&),(iClientID, pUpdate));
 
@@ -378,7 +378,12 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint iClientID, FLPACKET_UNK
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATELOOT, bool, __stdcall, (uint, FLPACKET_UNKNOWN&), (iClientID, pDunno));
+
 	CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATELOOT(iClientID, pDunno));
+
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATELOOT_AFTER, bool, __stdcall, (uint, FLPACKET_UNKNOWN&), (iClientID, pDunno));
+
 	return reinterpret_cast<bool>(vRet);
 }
 

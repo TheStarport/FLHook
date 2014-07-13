@@ -375,12 +375,12 @@ Called when player moves his ship
 
 void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
 {
-	ISERVER_LOG();
+	/*ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);	
 	ISERVER_LOGARG_UI(ui.iShip);	
 	ISERVER_LOGARG_V(ui.vPos);
 	ISERVER_LOGARG_Q(ui.vDir);
-	ISERVER_LOGARG_F(ui.throttle);
+	ISERVER_LOGARG_F(ui.throttle);*/
 
 	CHECK_FOR_DISCONNECT
 
