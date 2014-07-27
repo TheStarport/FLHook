@@ -111,6 +111,7 @@ BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
+	AddLog("!!TOP LEVEL EXCEPTION!!");
 	WriteMiniDump(pExceptionInfo);
 	return EXCEPTION_EXECUTE_HANDLER; 	// EXCEPTION_CONTINUE_SEARCH;
 }
@@ -500,6 +501,8 @@ void FLHookShutdown()
 	// And restore the default exception filter.
 	SetUnhandledExceptionFilter(0);
 #endif
+
+	AddLog("-------------------");
 
 	// close log
 	fclose(fLog);

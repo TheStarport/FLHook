@@ -334,6 +334,16 @@ FARPROC PatchCallAddr(char *hMod, DWORD dwInstallAddress, char *dwHookFunction)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+BOOL FileExists(LPCTSTR szPath)
+{
+	DWORD dwAttrib = GetFileAttributes(szPath);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef EXTENDED_EXCEPTION_LOGGING
 #include <psapi.h>
 #include "exceptioninfo.h"
@@ -375,6 +385,7 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
 
 void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
+	AddLog("Attempting to write minidump...");
 	HMODULE hDll = ::LoadLibrary( "DBGHELP.DLL" );
 	if (hDll)
 	{
@@ -383,10 +394,18 @@ void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 		{
 			// put the dump file in the flhook logs/debug directory
 			char szDumpPath[_MAX_PATH];
+			char szDumpPathFirst[_MAX_PATH];
 
 			time_t tNow = time(0);
 			struct tm *t = localtime(&tNow);
-			strftime(szDumpPath, sizeof(szDumpPath), "./flhook_logs/debug/flserver_%d.%m.%Y_%H.%M.dmp", t);
+			strftime(szDumpPathFirst, sizeof(szDumpPathFirst), "./flhook_logs/debug/flserver_%d.%m.%Y_%H.%M.%S", t);
+
+			int n = 1;
+			do
+			{
+				sprintf(szDumpPath, "%s-%d.dmp", szDumpPathFirst, n);
+				n++;
+			} while (FileExists(szDumpPath));
 
 			// create the file
 			HANDLE hFile = ::CreateFile( szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
@@ -408,6 +427,8 @@ void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, NULL, NULL, NULL );
 				}
 				::CloseHandle(hFile);
+
+				AddLog("Minidump '%s' written.", szDumpPath);
 			}
 		}
 	}
@@ -417,12 +438,17 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 {
 	try
 	{
+		bool make_pep = !pep;
 		_EXCEPTION_RECORD *exception;
 		_CONTEXT *reg;
-		if (!pep)
+		if (make_pep)
 		{
 			exception = (_EXCEPTION_RECORD*)GetCurrentExceptionRecord();
 			reg = (_CONTEXT*)GetCurrentExceptionContext();
+
+			pep = new EXCEPTION_POINTERS();
+			pep->ContextRecord = reg;
+			pep->ExceptionRecord = exception;
 		}
 		else
 		{
@@ -460,6 +486,9 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 		}
 
 		WriteMiniDump(pep);
+
+		if (make_pep)
+			delete pep;
 
 	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
 }
