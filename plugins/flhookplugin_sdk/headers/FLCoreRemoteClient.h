@@ -93,20 +93,21 @@ struct FLPACKET_CREATESOLAR
 	char* pAddress; // ??
 	uint iSpaceID;
 	uint iSolarArch;
-	uint iDunno[2];
+	uint iDunno;
+	uint iPilot;
 	struct {
-		uint head;
 		uint body;
+		uint head;
 		uint lefthand;
 		uint righthand;
 		uint accessory[8];
 		int  accessories;
 	} costume;
 	int iVoiceID;
-	float fPosX;
-	float fPosY;
-	float fPosZ;
-	float fDunno[13];
+	Vector vPos;
+	float fOrientation[4];
+	float fHealth;
+
 };
 
 struct FLPACKET_LAND

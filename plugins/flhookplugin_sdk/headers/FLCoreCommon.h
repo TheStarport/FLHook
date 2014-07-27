@@ -1638,6 +1638,7 @@ namespace PhySys
 		struct CObject * mindist_to_cobject(class IVP_Mindist_Base *);
 
 	public:
+		CObject* cobject;
 		unsigned char data[OBJECT_DATA_SIZE];
 	};
 
