@@ -860,29 +860,32 @@ wstring CCmds::ArgCharname(uint iArg)
 {
 	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
-	if(bID)
-		return wscArg.replace((int)0, (int)0, L"id ");
-	else if (bShortCut)
-		return wscArg.replace((int)0, (int)0, L"sc ");
-	else if (bSelf)
-		return this->GetAdminName();
-	else if (bTarget)
+	if (iArg == 1)
 	{
-		uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
-		if (!iClientID)
-			return L"";
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		if (!iShip)
-			return L"";
-		uint iTarget;
-		pub::SpaceObj::GetTarget(iShip, iTarget);
-		if (!iTarget)
-			return L"";
-		iClientID = HkGetClientIDByShip(iTarget);
-		if (!iClientID)
-			return L"";
-		return L"id " + stows(itos(iClientID));
+		if (bID)
+			return wscArg.replace((int)0, (int)0, L"id ");
+		else if (bShortCut)
+			return wscArg.replace((int)0, (int)0, L"sc ");
+		else if (bSelf)
+			return this->GetAdminName();
+		else if (bTarget)
+		{
+			uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
+			if (!iClientID)
+				return L"";
+			uint iShip;
+			pub::Player::GetShip(iClientID, iShip);
+			if (!iShip)
+				return L"";
+			uint iTarget;
+			pub::SpaceObj::GetTarget(iShip, iTarget);
+			if (!iTarget)
+				return L"";
+			iClientID = HkGetClientIDByShip(iTarget);
+			if (!iClientID)
+				return L"";
+			return L"id " + stows(itos(iClientID));
+		}
 	}
 	else
 	{
