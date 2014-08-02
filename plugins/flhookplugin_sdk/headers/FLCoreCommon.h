@@ -4155,7 +4155,13 @@ namespace pub
 			virtual bool validate(void);
 
 		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint dock_spaceobj;
+			uint zero1;
+			uint zero2;
+			int minusone;
+			uint zero3;
+			float twohundred;
+			float fivehundred;
 		};
 
 		class IMPORT DirectiveDrasticEvadeOp : public pub::AI::BaseOp
@@ -4229,15 +4235,9 @@ namespace pub
 			Vector vPos;
 			// If iGotoType is 0 then move to this spaceobj. Do not set a vPos if you
 			// set this.
-			int iTargetID;
-			// The 1st point to fly to if iGotoType is 2
-			Vector vSpline1; 
-			// The 2nd point to fly to if iGotoType is 2
-			Vector vSpline2;
-			// The 3rd point to fly to if iGotoType is 2
-			Vector vSpline3;
-			// The 4th point to fly to if iGotoType is 2
-			Vector vSpline4;
+			uint iTargetID;
+			// The 4 points to fly to if iGotoType is 2
+			Vector vSpline[4];
 			// This specifies how close the NPC will attempt to get to the position
 			float fRange;
 			// This specifies the thrust in the range from 0-100. Use -1 for maximum.
