@@ -887,7 +887,7 @@ wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + stows(itos(iClientID));
 		}
 	}
-	else
+	
 	{
 		if (wscArg == L">s")
 			return this->GetAdminName();
