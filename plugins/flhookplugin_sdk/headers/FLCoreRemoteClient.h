@@ -185,7 +185,7 @@ public:
 	EXPORT virtual bool Send_FLPACKET_SERVER_LAUNCH(uint iClientID, FLPACKET_LAUNCH& pLaunch);
 	virtual bool Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint iClientID, bool bResponse, uint iShipID);
 	virtual void unknown_63(uint iClientID, FLPACKET_UNKNOWN& pDunno);
-	EXPORT virtual bool Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, list<DamageEntry> &damageentries);
+	EXPORT virtual bool Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj, DamageList& dmlist);
 	virtual bool Send_FLPACKET_SERVER_ITEMTRACTORED(uint iClientID, uint iDunno);
 	virtual bool Send_FLPACKET_SERVER_USE_ITEM(uint iClientID, uint iDunno);
 	virtual bool Send_FLPACKET_SERVER_SETREPUTATION(uint iClientID, FLPACKET_SETREPUTATION& pDunno);
