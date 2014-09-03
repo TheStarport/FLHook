@@ -210,7 +210,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		wscEvent.reserve(256);
 		wscEvent = L"chat";
 		wscEvent += L" from=";
-		const wchar_t *wszFrom = Players.GetActiveCharacterName(cId.iID);
+		const wchar_t *wszFrom = (const wchar_t*)Players.GetActiveCharacterName(cId.iID);
 		if(!cId.iID)
 			wscEvent += L"console";
 		else if (!wszFrom)
@@ -236,7 +236,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 			wscEvent += L"player";
 			wscEvent += L" to=";
 
-			const wchar_t *wszTo = Players.GetActiveCharacterName(cIdTo.iID);
+			const wchar_t *wszTo = (const wchar_t*)Players.GetActiveCharacterName(cIdTo.iID);
 			if(!cIdTo.iID)
 				wscEvent += L"console";
 			else if (!wszTo)
@@ -692,7 +692,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 			ClientInfo[iClientID].iTradePartner = 0;
 
 			// event
-			const wchar_t* wszCharname = Players.GetActiveCharacterName(iClientID);
+			const wchar_t* wszCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			if (wszCharname)
 				wscCharname = wszCharname;
 			ProcessEvent(L"disconnect char=%s id=%d", wscCharname.c_str(), iClientID);
@@ -1149,7 +1149,7 @@ void __stdcall GoTradelane(unsigned int iClientID, struct XGoTradelane const &gt
 		uint iSystem;
 		pub::Player::GetSystem(iClientID, iSystem);
 		AddLog("ERROR: Exception in HkIServerImpl::GoTradelane charname=%s sys=%08x arch=%08x arch2=%08x",
-			wstos(Players.GetActiveCharacterName(iClientID)).c_str(), iSystem, gtl.iTradelaneSpaceObj1, gtl.iTradelaneSpaceObj2);
+			wstos((const wchar_t*)Players.GetActiveCharacterName(iClientID)).c_str(), iSystem, gtl.iTradelaneSpaceObj1, gtl.iTradelaneSpaceObj2);
 	}
 	
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_GoTradelane_AFTER,__stdcall,(unsigned int iClientID, struct XGoTradelane const &gtl),(iClientID,gtl));

@@ -201,7 +201,7 @@ namespace SystemSensor
 		// Retrieve the location and cargo list.
 		int iHoldSize;
 		list<CARGO_INFO> lstCargo;
-		HkEnumCargo(Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
+		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
 
 		unsigned int iSystemID;
 		pub::Player::GetSystem(iClientID, iSystemID);
@@ -260,7 +260,7 @@ namespace SystemSensor
 
 		// Record the ship's cargo.
 		int iHoldSize;
-		HkEnumCargo(Players.GetActiveCharacterName(iClientID), mapInfo[iClientID].lstLastScan, iHoldSize);
+		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), mapInfo[iClientID].lstLastScan, iHoldSize);
 		mapInfo[iClientID].iLastScanNetworkID = siter->second.iNetworkID;
 
 		// Notify any players connected to the the sensor network that this ship is in 

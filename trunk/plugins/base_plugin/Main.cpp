@@ -753,7 +753,7 @@ bool UserCmd_Process(uint client, const wstring &args)
 static bool IsDockingAllowed(PlayerBase *base, uint client)
 {	
 	// Allies can always dock.
-	wstring charname = Players.GetActiveCharacterName(client);
+	wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 	for (list<wstring>::iterator i = base->ally_tags.begin(); i != base->ally_tags.end(); ++i)
 	{
 		if (charname.find(*i)==0)
@@ -1087,7 +1087,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count, unsigned int client
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
-			HkEnumCargo(Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
+			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
 		}
 	}
 }
@@ -1348,7 +1348,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 		Server.BaseEnter(proxy_base_id,client);
 		Server.BaseExit(proxy_base_id,client);
 
-		wstring charname = Players.GetActiveCharacterName(client);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		wstring charfilename;
 		HkGetCharFileName(charname, charfilename);
 		charfilename += L".fl";

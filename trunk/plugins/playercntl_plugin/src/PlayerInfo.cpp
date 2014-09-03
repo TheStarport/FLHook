@@ -69,7 +69,7 @@ namespace PlayerInfo
 		const wstring &wscCommand = GetParam(wscParam, ' ', 0);
 		if (wscCommand == L"me")
 		{
-			wszTargetName = Players.GetActiveCharacterName(iClientID);
+			wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 		}
 		else
 		{
@@ -81,7 +81,7 @@ namespace PlayerInfo
 
 			uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
 			if (HkIsValidClientID(iTargetClientID))
-				wszTargetName = Players.GetActiveCharacterName(iTargetClientID);
+				wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
 		}
 
 		if (!wszTargetName)
@@ -140,7 +140,7 @@ namespace PlayerInfo
 		const wstring &wscCommand = GetParam(wscParam, ' ', 1);
 		const wstring &wscMsg = GetParamToEnd(wscParam, ' ', 2);
 
-		string scFilePath = GetUserFilePath(Players.GetActiveCharacterName(iClientID), "-info.ini");
+		string scFilePath = GetUserFilePath((const wchar_t*)Players.GetActiveCharacterName(iClientID), "-info.ini");
 		if (scFilePath.length()==0)
 			return false;
 

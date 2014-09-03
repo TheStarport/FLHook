@@ -147,7 +147,7 @@ void LoadSettings()
 	while(pPD = Players.traverse_active(pPD))
 	{
 		uint client = HkGetClientIdFromPD(pPD);
-		wstring charname = Players.GetActiveCharacterName(client);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		string filename = GetCharfilename(charname) + ".fl";
 		CHARACTER_ID charid;
 		strcpy(charid.szCharFilename, filename.c_str());

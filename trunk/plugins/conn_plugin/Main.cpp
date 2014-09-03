@@ -96,7 +96,7 @@ bool IsDockedClient(unsigned int client)
 
 bool ValidateCargo(unsigned int client)
 {
-	std::wstring playerName = Players.GetActiveCharacterName(client);
+	std::wstring playerName = (const wchar_t*)Players.GetActiveCharacterName(client);
 	std::list<CARGO_INFO> cargo;
 	int holdSize = 0;
 

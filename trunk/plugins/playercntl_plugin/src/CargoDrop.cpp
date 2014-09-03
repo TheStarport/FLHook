@@ -112,7 +112,7 @@ namespace CargoDrop
 				// Simulate an obj update to stop the ship in space.
 				SSPObjUpdateInfo ui;
 				iter->second.dLastTimestamp += 1.0;
-				ui.dTimestamp = iter->second.dLastTimestamp;
+				ui.fTimestamp = (float)iter->second.dLastTimestamp;
 				ui.cState = 0;
 				ui.throttle = 0;
 				ui.vPos = iter->second.vLastPosition;
@@ -220,7 +220,7 @@ namespace CargoDrop
 
 	void CargoDrop::SPObjUpdate(struct SSPObjUpdateInfo const &ui, unsigned int iClientID)
 	{
-		mapInfo[iClientID].dLastTimestamp = ui.dTimestamp;
+		mapInfo[iClientID].dLastTimestamp = ui.fTimestamp;
 		mapInfo[iClientID].vLastPosition = ui.vPos;
 		mapInfo[iClientID].vLastDir = ui.vDir;
 	}

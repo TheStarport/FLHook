@@ -137,7 +137,61 @@ namespace PhyArch
 
 enum HpAttachmentType
 {
-	WEAPON = 3
+	WEAPON = 3,
+	hp_countermeasure_dropper = 9,
+	hp_mine_dropper = 12,
+	hp_gun_special_1 = 15,
+	hp_gun_special_2 = 16,
+	hp_gun_special_3 = 17,
+	hp_gun_special_4 = 18,
+	hp_gun_special_5 = 19,
+	hp_gun_special_6 = 20,
+	hp_gun_special_7 = 21,
+	hp_gun_special_8 = 22,
+	hp_gun_special_9 = 23,
+	hp_turret_special_1 = 24,
+	hp_turret_special_2 = 25,
+	hp_turret_special_3 = 26,
+	hp_turret_special_4 = 27,
+	hp_turret_special_5 = 28,
+	hp_turret_special_6 = 29,
+	hp_turret_special_7 = 30,
+	hp_turret_special_8 = 31,
+	hp_turret_special_9 = 32,
+	hp_turret_special_10 = 33,
+	hp_fighter_shield_special_1 = 34,
+	hp_thruster = 35,
+	hp_torpedo_special_2 = 36,
+	hp_fighter_shield_special_2 = 37,
+	hp_fighter_shield_special_3 = 38,
+	hp_fighter_shield_special_4 = 39,
+	hp_fighter_shield_special_5 = 40,
+	hp_fighter_shield_special_6 = 41,
+	hp_fighter_shield_special_7 = 42,
+	hp_fighter_shield_special_8 = 43,
+	hp_fighter_shield_special_9 = 44,
+	hp_fighter_shield_special_10 = 45,
+	hp_elite_shield_special_1 = 46,
+	hp_elite_shield_special_2 = 47,
+	hp_elite_shield_special_3 = 48,
+	hp_elite_shield_special_4 = 49,
+	hp_elite_shield_special_5 = 50,
+	hp_elite_shield_special_6 = 51,
+	hp_elite_shield_special_7 = 52,
+	hp_elite_shield_special_8 = 53,
+	hp_elite_shield_special_9 = 54,
+	hp_elite_shield_special_10 = 55,
+	hp_freighter_shield_special_1 = 56,
+	hp_freighter_shield_special_2 = 57,
+	hp_freighter_shield_special_3 = 58,
+	hp_freighter_shield_special_4 = 59,
+	hp_freighter_shield_special_5 = 60,
+	hp_freighter_shield_special_6 = 61,
+	hp_freighter_shield_special_7 = 62,
+	hp_freighter_shield_special_8 = 63,
+	hp_freighter_shield_special_9 = 64,
+	hp_freighter_shield_special_10 = 65,
+	hp_torpedo_special_1 = 66,
 };
 
 namespace Archetype
@@ -3006,14 +3060,14 @@ public:
 	class CPlayerAccount & operator=(class CPlayerAccount const &);
 	void GenerateAccount(char const *);
 	static bool  GenerateTextKey(char *);
-	std::wstring GetAccountName(void);
+	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetAccountName(void);
 	char const * GetAccountNameChar(void);
-	std::wstring GetAccountNameSig(void);
+	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetAccountNameSig(void);
 	char const * GetAccountNameSigChar(void);
-	std::wstring GetServerSignature(char const *);
+	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetServerSignature(char const *);
 	static bool  GetTextKey(char *);
 	bool LoadAccount(void);
-	bool LoadAccountFromStrings(char const *,char const *);
+	bool LoadAccountFromStrings(char const *, char const *);
 	static void  SetAcctIndex(unsigned long);
 	static bool  SetTextKey(char *);
 	bool VerifyAccount(void);

@@ -220,7 +220,7 @@ void CheckClientSetup(uint iClientID)
 		// Get the ship cargo so that we can check ids, guns, etc.
 		list<CARGO_INFO> lstCargo;
 		int remainingHoldSize = 0;
-		HkEnumCargo(Players.GetActiveCharacterName(iClientID), lstCargo, remainingHoldSize);	
+		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, remainingHoldSize);
 		if (set_iPluginDebug>1)
 		{
 			ConPrint(L"NOTICE: iClientID=%d iRepGroupID=%u iShipID=%u lstCargo=", iClientID, iRepGroupID, iShipID);
@@ -253,7 +253,7 @@ void CheckClientSetup(uint iClientID)
 		}
 		
 		wstring wscRights;
-		HkGetAdmin(Players.GetActiveCharacterName(iClientID), wscRights);
+		HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 		if (wscRights.size())
 			mapClients[iClientID].iDebug = set_iPluginDebug;
 	}
@@ -673,7 +673,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 						if (average > 2.0f)
 						{
 							AddLog("NOTICE: high mining rate charname=%s rate=%0.1f/sec location=%0.0f,%0.0f,%0.0f system=%08x zone=%08x",
-								wstos(Players.GetActiveCharacterName(iClientID)).c_str(),
+								wstos((const wchar_t*)Players.GetActiveCharacterName(iClientID)).c_str(),
 								average, vPos.x, vPos.y, vPos.z, zone->iSystemID, zone->iZoneID);
 						}
 
