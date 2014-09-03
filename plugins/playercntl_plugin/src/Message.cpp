@@ -408,7 +408,7 @@ namespace Message
 					mapInfo[iClientID].iSwearWordWarnings++;
 					if (mapInfo[iClientID].iSwearWordWarnings > 2)
 					{
-						wstring wscCharname = Players.GetActiveCharacterName(iClientID);
+						wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 						AddLog("NOTICE: Swearing tempban on %s (%s) reason='%s'",
 							wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
 							wstos(wscChatMsg).c_str());		

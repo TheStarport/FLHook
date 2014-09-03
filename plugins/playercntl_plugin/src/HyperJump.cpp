@@ -687,7 +687,7 @@ namespace HyperJump
 							Server.BaseEnter(baseinfo->iBaseID,iClientID);
 							Server.BaseExit(baseinfo->iBaseID,iClientID);
 							wstring wscCharFileName;
-							HkGetCharFileName(Players.GetActiveCharacterName(iClientID),wscCharFileName);
+							HkGetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
 							wscCharFileName += L".fl";
 							CHARACTER_ID cID;
 							strcpy(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
@@ -1419,7 +1419,7 @@ namespace HyperJump
 
 		// Find the time this ship was last online.
 		wstring wscTimeStamp = L"";
-		if (HkFLIniGet(Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
+		if (HkFLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
 			return;
 
 		FILETIME ft; 
@@ -1436,7 +1436,7 @@ namespace HyperJump
 		// Calculate the expected drift.
 		float drift = (float)(currTime - lastTime);
 		wstring wscRights;
-		HkGetAdmin(Players.GetActiveCharacterName(iClientID), wscRights);
+		HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 		if (drift > MAX_DRIFT)
 			drift = MAX_DRIFT;
 

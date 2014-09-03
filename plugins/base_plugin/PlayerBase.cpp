@@ -11,7 +11,7 @@ PlayerBase::PlayerBase(uint client, const wstring &password, const wstring &the_
 	
 	// The creating ship is an ally by default.
 	passwords.push_back(password);
-	ally_tags.push_back(Players.GetActiveCharacterName(client));
+	ally_tags.push_back((const wchar_t*)Players.GetActiveCharacterName(client));
 
 	// Setup the base in the current system and at the location 
 	// of the player. Rotate the base so that the docking ports
@@ -429,7 +429,7 @@ float PlayerBase::GetAttitudeTowardsClient(uint client)
 	}
 
 	// Make base friendly if player is on the friendly list.
-	wstring charname = Players.GetActiveCharacterName(client);
+	wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 	for (std::list<wstring>::const_iterator i = ally_tags.begin(); i != ally_tags.end(); ++i)
 	{
 		if (charname.find(*i)==0)
@@ -504,7 +504,7 @@ float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj, floa
 	uint client = HkGetClientIDByShip(attacking_space_obj);
 	if (client)
 	{
-		const wstring &charname = Players.GetActiveCharacterName(client);
+		const wstring &charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		// Allies are allowed to shoot at the base without the base becoming hostile. We do the ally search
 		// after checking to see if this player is on the hostile list because allies don't normally
 		// shoot at bases and so this is more efficient than searching the ally list first.

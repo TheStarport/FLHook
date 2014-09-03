@@ -165,8 +165,8 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uin
 	CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 	Message::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 
-	const wchar_t *victim = Players.GetActiveCharacterName(iClientIDVictim);
-	const wchar_t *killer = Players.GetActiveCharacterName(iClientIDKiller);
+	const wchar_t *victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
+	const wchar_t *killer = (const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
 	if (victim && killer)
 	{
 		AddLog("NOTICE: Death charname=%s killername=%s system=%08x", 
@@ -228,7 +228,7 @@ namespace HkIEngine
 
 				// Print out a message when a player ship docks.
 				wstring wscMsg = L"Traffic control alert: %player has requested to dock";
-				wscMsg = ReplaceStr(wscMsg, L"%player", Players.GetActiveCharacterName(iClientID));
+				wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(iClientID));
 				PrintLocalUserCmdText(iClientID, wscMsg, 15000);			
 			}
 		}
@@ -356,11 +356,11 @@ namespace HkIServerImpl
 	void __stdcall BaseEnter_AFTER(unsigned int iBaseID, unsigned int iClientID)
 	{
 		float fValue;
-		if (HKGetShipValue(Players.GetActiveCharacterName(iClientID), fValue) == HKE_OK)
+		if (HKGetShipValue((const wchar_t*)Players.GetActiveCharacterName(iClientID), fValue) == HKE_OK)
 		{
 			if (fValue > 2100000000.0f)
 			{
-				AddLog("ERROR: Possible corrupt ship charname=%s asset_value=%0.0f", wstos(Players.GetActiveCharacterName(iClientID)).c_str(), fValue);
+				AddLog("ERROR: Possible corrupt ship charname=%s asset_value=%0.0f", wstos((const wchar_t*)Players.GetActiveCharacterName(iClientID)).c_str(), fValue);
 			}
 		}
 	}

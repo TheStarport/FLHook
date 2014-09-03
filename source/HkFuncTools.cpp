@@ -248,7 +248,7 @@ HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename)
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	if(iClientID != -1)
 	{
-		GetFLName(szBuf, Players.GetActiveCharacterName(iClientID));
+		GetFLName(szBuf, (const wchar_t*)Players.GetActiveCharacterName(iClientID));
 	}
 	else
 	{

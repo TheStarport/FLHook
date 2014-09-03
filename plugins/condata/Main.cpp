@@ -402,7 +402,7 @@ namespace HkIServerImpl
 			return; // ??? 8[
 
 		mstime tmNow = timeInMS();
-		mstime tmTimestamp = (mstime)(ui.dTimestamp*1000);
+		mstime tmTimestamp = (mstime)(ui.fTimestamp*1000);
 
 		if(set_iLagDetectionFrame && ConData[iClientID].tmLastObjUpdate && (HkGetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
 		{

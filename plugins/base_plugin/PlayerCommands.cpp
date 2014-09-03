@@ -876,7 +876,7 @@ namespace PlayerCommands
 		const wstring &cmd = GetParam(args, ' ', 1);
 		int money = ToInt(GetParam(args, ' ', 2));
 
-		wstring charname = Players.GetActiveCharacterName(client);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		if (cmd == L"withdraw")
 		{
@@ -1137,7 +1137,7 @@ namespace PlayerCommands
 		// Check that the ship has the requires commodities.
 		int hold_size;
 		list<CARGO_INFO> cargo;
-		HkEnumCargo(Players.GetActiveCharacterName(client), cargo, hold_size);
+		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), cargo, hold_size);
 		for (map<uint, uint>::iterator i = construction_items.begin(); i != construction_items.end(); ++i)
 		{
 			bool material_available = false;
@@ -1166,7 +1166,7 @@ namespace PlayerCommands
 			}
 		}
 
-		wstring charname = Players.GetActiveCharacterName(client);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		AddLog("NOTICE: Base created %s by %s (%s)",
 			wstos(basename).c_str(),
 			wstos(charname).c_str(),

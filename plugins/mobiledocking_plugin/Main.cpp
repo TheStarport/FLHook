@@ -296,13 +296,13 @@ bool UserCmd_Process(uint client, const wstring &wscCmd)
 		}
 
 		// Save the carrier info
-		wstring charname = Players.GetActiveCharacterName(iTargetClientID);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
 		clients[client].mapDockedShips[charname] = charname;
 		SaveDockInfo(client);
 		
 		// Save the docking ship info
 		clients[iTargetClientID].mobile_docked = true;
-		clients[iTargetClientID].wscDockedWithCharname = Players.GetActiveCharacterName(client);
+		clients[iTargetClientID].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		if (clients[iTargetClientID].iLastBaseID != 0)
 			clients[iTargetClientID].iLastBaseID = Players[iTargetClientID].iLastBaseID;
 		pub::SpaceObj::GetSystem(iShip, clients[iTargetClientID].iCarrierSystem);
@@ -413,7 +413,7 @@ void __stdcall BaseEnter(uint iBaseID, uint client)
 
 		// Check to see that the carrier thinks this ship is docked to it.
 		// If it isn't then eject the ship to space.
-		wstring charname = Players.GetActiveCharacterName(client);
+		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		if (!IsShipDockedOnCarrier(clients[client].wscDockedWithCharname, charname))
 		{
 			JumpToLocation(client,
@@ -449,7 +449,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client)
 		if (carrier_client != -1)
 		{
 			UpdateDockedShips(carrier_client);
-			clients[carrier_client].mapDockedShips.erase(Players.GetActiveCharacterName(client));
+			clients[carrier_client].mapDockedShips.erase((const wchar_t*)Players.GetActiveCharacterName(client));
 		}
 
 		// Jump the ship to the last location of the carrier and allow
@@ -579,7 +579,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count, unsigned int client
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
-			HkEnumCargo(Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
+			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
 		}
 	}
 }

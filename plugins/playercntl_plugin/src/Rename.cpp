@@ -209,7 +209,7 @@ namespace Rename
 	{
 		if (set_bCharnameTags)
 		{
-			wstring wscCharname = Players.GetActiveCharacterName(iClientID);
+			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (wscCharname.find(i->second.tag)==0)
@@ -277,7 +277,7 @@ namespace Rename
 			}
 
 			// Save character and exit if kicked on save.
-			wstring wscCharname = Players.GetActiveCharacterName(iClientID);
+			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			HkSaveChar(wscCharname);
 			if (HkGetClientIdFromCharname(wscCharname)==-1)
 				return false;
@@ -325,7 +325,7 @@ namespace Rename
 				return true;
 			}
 
-			wstring wscCharname = Players.GetActiveCharacterName(iClientID);
+			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			wstring tag = GetParam(wscParam, ' ', 0);
 			wstring pass = GetParam(wscParam, ' ', 1);
 
