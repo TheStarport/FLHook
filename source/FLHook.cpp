@@ -56,6 +56,7 @@ _GetCString GetCString;
 _GetWCString GetWCString;
 _WStringAssign WStringAssign;
 _WStringAppend WStringAppend;
+_CPlayerAccount_GetServerSignature CPlayerAccount_GetServerSignature;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -211,8 +212,10 @@ void FLHookInit_Pre()
 			throw "FLHookVC6Strings.dll: GetWCString not found";
 		if(!(WStringAssign = (_WStringAssign)GetProcAddress(hWString, "WStringAssign")))
 			throw "FLHookVC6Strings.dll: WStringAssign not found";
-		if(!(WStringAppend = (_WStringAppend)GetProcAddress(hWString, "WStringAppend")))
+		if (!(WStringAppend = (_WStringAppend)GetProcAddress(hWString, "WStringAppend")))
 			throw "FLHookVC6Strings.dll: WStringAppend not found";
+		if (!(CPlayerAccount_GetServerSignature = (_CPlayerAccount_GetServerSignature)GetProcAddress(hWString, "CPlayerAccount_GetServerSignature")))
+			throw "FLHookVC6Strings.dll: CPlayerAccount_GetServerSignature not found";
 
 		// create log dirs
 		CreateDirectoryA("./flhook_logs/",NULL);

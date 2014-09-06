@@ -3060,11 +3060,11 @@ public:
 	class CPlayerAccount & operator=(class CPlayerAccount const &);
 	void GenerateAccount(char const *);
 	static bool  GenerateTextKey(char *);
-	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetAccountName(void);
+	std::basic_string<unsigned short, struct ci_wchar_traits> GetAccountName(void);
 	char const * GetAccountNameChar(void);
-	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetAccountNameSig(void);
+	std::basic_string<unsigned short, struct ci_wchar_traits> GetAccountNameSig(void);
 	char const * GetAccountNameSigChar(void);
-	std::basic_string<unsigned short, std::char_traits<unsigned short>, std::allocator<unsigned short>> GetServerSignature(char const *);
+	std::basic_string<unsigned short, struct ci_wchar_traits> GetServerSignature(char const *);
 	static bool  GetTextKey(char *);
 	bool LoadAccount(void);
 	bool LoadAccountFromStrings(char const *, char const *);
