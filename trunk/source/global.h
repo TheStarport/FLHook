@@ -51,6 +51,8 @@ typedef wchar_t* (*_GetWCString)(flstr *wscStr);
 typedef wchar_t* (*_WStringAssign)(flstr *wscStr, const wchar_t *wszStr);
 typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
 
+typedef flstr* (*_CPlayerAccount_GetServerSignature)(class CPlayerAccount* cpa, const char* sig);
+
 #include <FLCoreServer.h>
 #include <FLCoreCommon.h>
 #include <FLCoreRemoteClient.h>
@@ -122,6 +124,7 @@ extern EXPORT _GetCString GetCString;
 extern EXPORT _GetWCString GetWCString;
 extern EXPORT _WStringAssign WStringAssign;
 extern EXPORT _WStringAppend WStringAppend;
+extern EXPORT _CPlayerAccount_GetServerSignature CPlayerAccount_GetServerSignature;
 extern EXPORT FILE *fLog;
 extern EXPORT FILE *fLogDebug;
 extern EXPORT FARPROC fpOldUpdate;
