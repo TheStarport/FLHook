@@ -57,6 +57,7 @@ enum PLUGIN_CALLBACKS
 	PLUGIN_HkIServerImpl_SystemSwitchOutComplete,
 	PLUGIN_HkIServerImpl_SystemSwitchOutComplete_AFTER,
 	PLUGIN_HkIServerImpl_Login,
+	PLUGIN_HkIServerImpl_Login_BEFORE,
 	PLUGIN_HkIServerImpl_Login_AFTER,
 	PLUGIN_HkIServerImpl_MineAsteroid,
 	PLUGIN_HkIServerImpl_MineAsteroid_AFTER,

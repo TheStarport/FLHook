@@ -925,6 +925,13 @@ int CCmds::ArgInt(uint iArg)
 	return ToInt(wscArg);
 }
 
+uint CCmds::ArgUInt(uint iArg)
+{
+	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+
+	return ToUInt(wscArg);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 float CCmds::ArgFloat(uint iArg)

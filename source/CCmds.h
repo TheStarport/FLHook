@@ -112,6 +112,7 @@ public:
 //
 	EXPORT wstring ArgCharname(uint iArg);
 	EXPORT int ArgInt(uint iArg);
+	EXPORT uint ArgUInt(uint iArg);
 	EXPORT float ArgFloat(uint iArg);
 	EXPORT wstring ArgStr(uint iArg);
 	EXPORT wstring ArgStrToEnd(uint iArg);
