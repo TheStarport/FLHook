@@ -175,15 +175,14 @@ void __stdcall HkCb_GeneralDmg(char *szECX)
 	CALL_PLUGINS_V(PLUGIN_HkCb_GeneralDmg,__stdcall,(char*),(szECX));
 
 	try {
-		char *szP;
-		memcpy(&szP, szECX + 0x10, 4);
-		uint iClientID;
-		memcpy(&iClientID, szP + 0xB4, 4);
-		uint iSpaceID;
-		memcpy(&iSpaceID, szP + 0xB0, 4);
+		CSimple *damaged_simple = (CSimple*)*(szECX + 0x10);
 
-		iDmgTo = iClientID;
-		iDmgToSpaceID = iSpaceID;
+		if (damaged_simple)
+		{
+			iDmgTo = damaged_simple->GetOwnerPlayer();
+			iDmgToSpaceID = damaged_simple->get_id();
+		}
+
 	} catch(...) { LOG_EXCEPTION }
 }
 

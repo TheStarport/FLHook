@@ -1017,6 +1017,8 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 	ISERVER_LOGARG_UI(iClientID);
 
 	try {
+		CALL_PLUGINS_V(PLUGIN_HkIServerImpl_Login_BEFORE, __stdcall, (struct SLoginInfo const &li, unsigned int iClientID), (li, iClientID));
+
 		Server.Login(li, iClientID);
 
 		if(iClientID > MAX_CLIENT_ID)

@@ -686,6 +686,7 @@ public:
 //
 	IMPORT wstring ArgCharname(uint iArg);
 	IMPORT int ArgInt(uint iArg);
+	IMPORT uint ArgUInt(uint iArg);
 	IMPORT float ArgFloat(uint iArg);
 	IMPORT wstring ArgStr(uint iArg);
 	IMPORT wstring ArgStrToEnd(uint iArg);

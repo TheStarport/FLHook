@@ -62,6 +62,17 @@ public:
 	char* value;
 };
 
+struct IMPORT ID_String
+{
+	bool IsEmpty(void)const;
+	void clear(void);
+	char const * get_string(void)const;
+
+public:
+	uint id;
+	unsigned char data[128];
+};
+
 struct IMPORT ActionDB
 {
 	ActionDB(void);
@@ -544,6 +555,7 @@ namespace Archetype
 		void reset(void);
 
 	public:
+		/*  0 */ uint iID;
 		/*  1 */ float fRadius;
 		/*  2 */ float fImpulse;
 		/*  3 */ float fHullDamage;
@@ -994,27 +1006,27 @@ namespace Archetype
 	IMPORT  void  FreeExplosions(void);
 	IMPORT  int  GetArchMaxHitPts(unsigned int);
 	IMPORT  struct Asteroid *  GetAsteroid(unsigned int);
-	IMPORT  struct Asteroid *  GetAsteroidByName(struct ID_String const &);
-	IMPORT  unsigned int  GetAsteroidID(struct ID_String const &);
+	IMPORT  struct Asteroid *  GetAsteroidByName(ID_String const &);
+	IMPORT  unsigned int  GetAsteroidID(ID_String const &);
 	IMPORT  struct DynamicAsteroid *  GetDynamicAsteroid(unsigned int);
-	IMPORT  struct DynamicAsteroid *  GetDynamicAsteroidByName(struct ID_String const &);
-	IMPORT  unsigned int  GetDynamicAsteroidID(struct ID_String const &);
+	IMPORT  struct DynamicAsteroid *  GetDynamicAsteroidByName(ID_String const &);
+	IMPORT  unsigned int  GetDynamicAsteroidID(ID_String const &);
 	IMPORT  struct Equipment *  GetEquipment(unsigned int);
-	IMPORT  struct Equipment *  GetEquipmentByName(struct ID_String const &);
-	IMPORT  unsigned int  GetEquipmentID(struct ID_String const &);
-	IMPORT  struct Explosion *  GetExplosion(struct ID_String const &);
+	IMPORT  struct Equipment *  GetEquipmentByName(ID_String const &);
+	IMPORT  unsigned int  GetEquipmentID(ID_String const &);
+	IMPORT  struct Explosion *  GetExplosion(ID_String const &);
 	IMPORT  unsigned int  GetId(enum AClassType,unsigned int);
 	IMPORT  unsigned int  GetIdCount(enum AClassType);
 	IMPORT  struct MotorData const *  GetMotor(unsigned int);
 	IMPORT  struct Ship *  GetShip(unsigned int);
-	IMPORT  struct Ship *  GetShipByName(struct ID_String const &);
-	IMPORT  unsigned int  GetShipID(struct ID_String const &);
+	IMPORT  struct Ship *  GetShipByName(ID_String const &);
+	IMPORT  unsigned int  GetShipID(ID_String const &);
 	IMPORT  struct Root *  GetSimple(unsigned int);
-	IMPORT  struct Root *  GetSimpleByName(struct ID_String const &);
-	IMPORT  unsigned int  GetSimpleID(struct ID_String const &);
+	IMPORT  struct Root *  GetSimpleByName(ID_String const &);
+	IMPORT  unsigned int  GetSimpleID(ID_String const &);
 	IMPORT  struct Solar *  GetSolar(unsigned int);
-	IMPORT  struct Solar *  GetSolarByName(struct ID_String const &);
-	IMPORT  unsigned int  GetSolarID(struct ID_String const &);
+	IMPORT  struct Solar *  GetSolarByName(ID_String const &);
+	IMPORT  unsigned int  GetSolarID(ID_String const &);
 	IMPORT  unsigned short  LargeIDToSmallID(unsigned int);
 	IMPORT  bool  Load(struct IFileSystem *,long *,int *);
 	IMPORT  bool  Load(char const *,long *,int *);
@@ -4927,17 +4939,6 @@ struct IMPORT ICRSplineSegment
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
-};
-
-struct IMPORT ID_String
-{
-	bool IsEmpty(void)const ;
-	void clear(void);
-	char const * get_string(void)const ;
-
-public:
-	uint id;
-	unsigned char data[128];
 };
 
 class IMPORT INI_Reader

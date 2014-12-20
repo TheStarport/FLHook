@@ -92,6 +92,7 @@ EXPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
 EXPORT wstring ToLower(const wstring &wscStr);
 EXPORT string ToLower(const string &scStr);
 EXPORT int ToInt(const wstring &wscStr);
+EXPORT uint ToUInt(const wstring &wscStr);
 EXPORT void ConPrint(wstring wscText, ...);
 EXPORT wstring XMLText(const wstring &wscText);
 EXPORT wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos);
