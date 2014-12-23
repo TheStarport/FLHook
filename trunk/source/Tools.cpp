@@ -393,6 +393,7 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
 void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
 	AddLog("Attempting to write minidump...");
+	AddDebugLog("Attempting to write minidump...");
 	HMODULE hDll = ::LoadLibrary( "DBGHELP.DLL" );
 	if (hDll)
 	{
