@@ -132,6 +132,7 @@ extern EXPORT FARPROC fpOldUpdate;
 extern EXPORT string sDebugLog;
 
 // setting variables
+extern EXPORT bool set_bLoadedSettings;
 extern EXPORT string set_scCfgFile;
 extern EXPORT uint set_iAntiDockKill;
 extern EXPORT list<uint> set_lstNoPVPSystems;
