@@ -316,14 +316,16 @@ bool FLHookInit()
 		// load settings
 		LoadSettings();
 
+		if (set_bDebug && !fLogDebug)
+			fLogDebug = fopen(sDebugLog.c_str(), "at");
+
+		CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
+
 		// init hooks
 		if(!InitHookExports())
 			throw "InitHookExports failed";
 
 		bInitHookExports = true;
-
-		if(set_bDebug && !fLogDebug)
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
 
 		if(set_bSocketActivated)
 		{ // listen to socket

@@ -1377,17 +1377,17 @@ namespace Universe
 	};
 	struct IMPORT IZone
 	{
-		float iDunno1[1];
+		uint iDunno1[1];
 		uint iZoneID;
 		uint iSystemID;
 		Matrix mRot;
 		Vector vPos;
-		uint iDunno2;
+		uint iShapeType; // 1 = sphere, 5 = ring
 		uint iPropertyFlags;
 		Vector vSize;
-		float iDunno4[13];
+		uint iDunno4[13];
 		CmnAsteroid::LootableZone *lootableZone;
-		float iDunno5[10];
+		uint iDunno5[10];
 	};
 
 	IMPORT  struct ISystem *  GetFirstSystem(void);

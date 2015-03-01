@@ -8,6 +8,7 @@
 string			set_scCfgFile;
 
 // General
+bool			set_bLoadedSettings = false;
 uint			set_iAntiDockKill;
 bool			set_bDieMsg;
 bool			set_bDisableCharfileEncryption;
@@ -251,6 +252,6 @@ void LoadSettings()
 	HkAddHelpEntry( L"/invite$", L"<client-id>", L"Invites the given client ID.", L"", get_bTrue );
 	HkAddHelpEntry( L"/credits", L"", L"Displays FLHook's credits.", L"", get_bTrue );
 	HkAddHelpEntry( L"/help", L"[<command>]", L"Displays the help screen. Giving a <command> gives detailed info for that command.", L"", get_bTrue );
-	
-	CALL_PLUGINS_NORET(PLUGIN_LoadSettings,,(),());
+
+	set_bLoadedSettings = true;
 }

@@ -754,6 +754,7 @@ extern IMPORT FARPROC fpOldUpdate;
 extern IMPORT string sDebugLog;
 
 // setting variables
+extern IMPORT bool set_bLoadedSettings;
 extern IMPORT string set_scCfgFile;
 extern IMPORT uint set_iAntiDockKill;
 extern IMPORT list<uint> set_lstNoPVPSystems;
