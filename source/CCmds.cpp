@@ -767,6 +767,8 @@ void CCmds::CmdRehash()
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
 	LoadSettings();
+	CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
+
 	HookRehashed();
 	Print(L"OK\n");
 }
