@@ -686,6 +686,7 @@ void BaseDestroyed(uint iObject, uint iClientIDBy);
 void _HookMissileTorpHit();
 void _HkCb_AddDmgEntry();
 void _HkCb_GeneralDmg();
+void _HkCb_GeneralDmg2();
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 void _HkCb_NonGunWeaponHitsBase();
 extern FARPROC fpOldNonGunWeaponHitsBase;
@@ -764,7 +765,7 @@ extern EXPORT bool g_bMsgU;
 
 extern FARPROC fpOldShipDestroyed;
 extern FARPROC fpOldMissileTorpHit;
-extern FARPROC fpOldGeneralDmg;
+extern FARPROC fpOldGeneralDmg, fpOldGeneralDmg2;
 
 extern EXPORT CDPClientProxy **g_cClientProxyArray;
 extern EXPORT void *pClient;

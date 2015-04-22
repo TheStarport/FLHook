@@ -146,6 +146,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 	CALL_PLUGINS_V(PLUGIN_HkCb_AddDmgEntry_AFTER,__stdcall,(DamageList *,unsigned short,float, DamageEntry::SubObjFate),(dmgList,p1,p2,p3));
 
 	iDmgTo = 0;
+	iDmgToSpaceID = 0;
 }
 
 __declspec(naked) void _HkCb_AddDmgEntry()
@@ -167,7 +168,7 @@ __declspec(naked) void _HkCb_AddDmgEntry()
 Called when ship was damaged
 **************************************************************************************************************/
 
-FARPROC fpOldGeneralDmg;
+FARPROC fpOldGeneralDmg, fpOldGeneralDmg2;
 
 void __stdcall HkCb_GeneralDmg(char *szECX)
 {
@@ -197,6 +198,18 @@ __declspec(naked) void _HkCb_GeneralDmg()
 		call HkCb_GeneralDmg
 		pop ecx
 		jmp [fpOldGeneralDmg]
+	}
+}
+
+__declspec(naked) void _HkCb_GeneralDmg2()
+{
+	__asm
+	{
+		push ecx
+		push ecx
+		call HkCb_GeneralDmg
+		pop ecx
+		jmp [fpOldGeneralDmg2]
 	}
 }
 
@@ -293,3 +306,6 @@ return_here:
 		jmp [lRetAddress]
 	}
 }
+
+///////////////////////////
+

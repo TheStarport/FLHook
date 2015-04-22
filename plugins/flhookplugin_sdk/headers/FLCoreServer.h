@@ -930,7 +930,7 @@ namespace pub
 		IMPORT  int GetEmptyPos(unsigned int const &,class Transform const &,float const &,float const &,enum PosSelectionType const &,class Vector &);
 		IMPORT  int GetGoodID(unsigned int const &,unsigned int &);
 		IMPORT  int GetHardpoint(unsigned int const &,char const *,class Vector *,class Matrix *);
-		IMPORT  int GetHealth(unsigned int const &,float &,float &);
+		IMPORT  int GetHealth(unsigned int const &iSpaceObj,float &fCurrentHealth,float &fMaxHealth);
 		IMPORT  int GetInvincible(unsigned int,bool &,bool &,float &);
 		IMPORT  int GetJumpTarget(unsigned int const &,unsigned int &,unsigned int &);
 		IMPORT  int GetLocation(unsigned int,class Vector &,class Matrix &);
@@ -940,7 +940,7 @@ namespace pub
 		IMPORT  int GetRelativeHealth(unsigned int const &,float &);
 		IMPORT  int GetRep(unsigned int,int &);
 		IMPORT  int GetScannerRange(unsigned int,int &,int &);
-		IMPORT  int GetShieldHealth(unsigned int const &,float &,float &,bool &);
+		IMPORT  int GetShieldHealth(unsigned int const &iSpaceObj,float &fCurrentShields,float &fMaxShields,bool &bShieldsUp);
 		IMPORT  int GetSolarArchetypeID(unsigned int,unsigned int &);
 		IMPORT  int GetSolarArchetypeNickname(char *,int,unsigned int);
 		IMPORT  int GetSolarParent(unsigned int const &,unsigned int &);
