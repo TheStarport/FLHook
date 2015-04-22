@@ -1377,6 +1377,12 @@ namespace Universe
 	};
 	struct IMPORT IZone
 	{
+		struct FactionSpawn
+		{
+			uint iFaction; // Faction ID, obtainable with e.g. pub::Reputation::GetReputationGroup()
+			float fChance; // Spawn chance
+		};
+
 		uint iDunno1[1];
 		uint iZoneID;
 		uint iSystemID;
@@ -1387,7 +1393,12 @@ namespace Universe
 		Vector vSize;
 		uint iDunno4[13];
 		CmnAsteroid::LootableZone *lootableZone;
-		uint iDunno5[10];
+		uint iStartFaction; // & 0xFF, always zero
+		uint iCountMaxFaction; // & 0xFF, appears related to the max number of factions in a given encounter line
+		FactionSpawn* startFactionArray;
+		FactionSpawn* endFactionArray;
+		FactionSpawn* endFactionArray2;
+		uint iDunno5[5];
 	};
 
 	IMPORT  struct ISystem *  GetFirstSystem(void);
@@ -4842,7 +4853,7 @@ namespace pub
 		  Personality personality;
 		};
 
-		struct IMPORT SetZoneBehaviorParams
+		struct IMPORT SetZoneBehaviorParams : public BaseOp
 		{
 			SetZoneBehaviorParams(struct SetZoneBehaviorParams const &);
 			SetZoneBehaviorParams(void);
