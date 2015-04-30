@@ -305,7 +305,7 @@ mstime timeInMS()
 	QueryPerformanceCounter((LARGE_INTEGER*)&iCount);
 	mstime iFreq;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&iFreq);
-	return iCount / (iFreq / 1000);
+	return 1000 * iCount / iFreq;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
