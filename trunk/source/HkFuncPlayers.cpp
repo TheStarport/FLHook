@@ -303,7 +303,7 @@ HK_ERROR HkEnumCargo(const wstring &wscCharname, list<CARGO_INFO> &lstCargo, int
 	eq = eqLst->next;
 	while(eq != eqLst)
 	{
-		CARGO_INFO ci = {eq->sID, eq->iCount, eq->iGoodID, eq->fStatus, eq->bMission, eq->bMounted, eq->hardpoint};
+		CARGO_INFO ci = {eq->sID, (int)eq->iCount, eq->iGoodID, eq->fStatus, eq->bMission, eq->bMounted, eq->hardpoint};
 		lstCargo.push_back(ci);
 
 		eq = eq->next;

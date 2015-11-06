@@ -19,14 +19,14 @@
 	timer.start(); \
 	try { \
 		args; \
-	} catch(...) { AddLog("ERROR: Exception in "__FUNCTION__" on server call"); LOG_EXCEPTION; } \
+	} catch(...) { AddLog("ERROR: Exception in " __FUNCTION__ " on server call"); LOG_EXCEPTION; } \
 	timer.stop(); \
 	}
 
 #define CHECK_FOR_DISCONNECT \
 	{ \
 		if (ClientInfo[iClientID].bDisconnected) \
-		{ AddLog("ERROR: Ignoring disconnected client in "__FUNCTION__" id=%u", iClientID); return; }; \
+		{ AddLog("ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%u", iClientID); return; }; \
 	}
 
 namespace HkIServerImpl
@@ -554,7 +554,7 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 		// autobuy
 		if(set_bAutoBuy)
 			HkPlayerAutoBuy(iClientID, iBaseID);
-	} catch(...) { AddLog("Exception in "__FUNCTION__" on autobuy"); LOG_EXCEPTION }
+	} catch(...) { AddLog("Exception in " __FUNCTION__ " on autobuy"); LOG_EXCEPTION }
 
 	EXECUTE_SERVER_CALL(Server.BaseEnter(iBaseID, iClientID));
 
@@ -632,7 +632,7 @@ void __stdcall OnConnect(unsigned int iClientID)
 		// If ID is too high due to disconnect buffer time then manually drop the connection.
 		if(iClientID > MAX_CLIENT_ID)
 		{			
-			AddLog("INFO: Blocking connect in "__FUNCTION__" due to invalid id, id=%u", iClientID);
+			AddLog("INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", iClientID);
 			CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
 			if(!cdpClient)
 				return;

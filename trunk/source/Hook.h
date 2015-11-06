@@ -87,8 +87,8 @@
 
 #define EXTENDED_EXCEPTION_LOGGING
 #ifdef EXTENDED_EXCEPTION_LOGGING
-extern void WriteMiniDump(LPEXCEPTION_POINTERS pep);
-extern void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep);
+EXPORT extern void WriteMiniDump(LPEXCEPTION_POINTERS pep);
+EXPORT extern void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep);
 #define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
 #else
 #define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); }
@@ -599,7 +599,7 @@ EXPORT ENGINE_STATE HkGetEngineState(uint iClientID);
 EXPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
 
 // HkFuncMsg
-EXPORT HK_ERROR HkMsg(int iClientID, const wstring &wscMessage);
+EXPORT HK_ERROR HkMsg(uint iClientID, const wstring &wscMessage);
 EXPORT HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage);
 EXPORT HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage);
 EXPORT HK_ERROR HkMsgU(const wstring &wscMessage);

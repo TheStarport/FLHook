@@ -4,7 +4,7 @@
 
 EXPORT bool g_bMsg = false;
 
-HK_ERROR HkMsg(int iClientID, const wstring &wscMessage)
+HK_ERROR HkMsg(uint iClientID, const wstring &wscMessage)
 {
 	struct CHAT_ID ci = {0};
 	struct CHAT_ID ciClient = {iClientID};
