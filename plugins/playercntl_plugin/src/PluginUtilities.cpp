@@ -21,8 +21,6 @@
 #include <io.h>
 #include <shlwapi.h>
 
-#include "exceptioninfo.h"
-
 #include <Psapi.h>
 
 #define ADDR_RMCLIENT_LAUNCH 0x5B40
@@ -1042,57 +1040,6 @@ void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 	}
 }
 
-void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
-{
-	try
-	{
-		_EXCEPTION_RECORD *exception;
-		_CONTEXT *reg;
-		if (!pep)
-		{
-			exception = (_EXCEPTION_RECORD*)GetCurrentExceptionRecord();
-			reg = (_CONTEXT*)GetCurrentExceptionContext();
-		}
-		else
-		{
-			exception = pep->ExceptionRecord;
-			reg = pep->ContextRecord;
-		}
-
-		if (exception)
-		{
-			DWORD iCode = exception->ExceptionCode;
-			uint iAddr = (uint)exception->ExceptionAddress;
-			uint iOffset = 0;
-			HMODULE hModExc = GetModuleAddr(iAddr);
-			char szModName[MAX_PATH] = "";
-			if (hModExc)
-			{
-				iOffset = iAddr - (uint)hModExc;
-				GetModuleFileName(hModExc, szModName, sizeof(szModName));
-			}
-			AddLog("Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
-		}
-		else
-		{
-			AddLog("No exception information available");
-		}
-
-		if (reg)
-		{
-			AddLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
-				reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
-		}
-		else
-		{
-			AddLog("No register information available");
-		}
-
-		WriteMiniDump(pep);
-
-	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
-}
-
 
 
 CAccount* HkGetAccountByClientID(uint iClientID)
@@ -1231,7 +1178,7 @@ HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
 
 void HkSaveChar(uint iClientID)
 {
-	BYTE patch[] = { '\x90', '\x90' };
+	BYTE patch[] = { (BYTE)'\x90', (BYTE)'\x90' };
 	WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
 	pub::Save(iClientID, 1);
 }

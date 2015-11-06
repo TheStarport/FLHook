@@ -13,9 +13,7 @@
 #ifndef _FLCOREDEFS_H_
 #define _FLCOREDEFS_H_
 
-#pragma warning(disable: 4251 4002 4099)
-
-
+#pragma warning(disable: 4251 4002 4099 4302)
 
 #define OBJECT_DATA_SIZE	2048
 

@@ -32,7 +32,7 @@
 
 struct CHAT_ID
 {
-	int iID;
+	uint iID;
 };
 
 enum DOCK_HOST_RESPONSE

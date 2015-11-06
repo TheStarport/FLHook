@@ -353,7 +353,6 @@ BOOL FileExists(LPCTSTR szPath)
 
 #ifdef EXTENDED_EXCEPTION_LOGGING
 #include <psapi.h>
-#include "exceptioninfo.h"
 
 HMODULE GetModuleAddr(uint iAddr)
 {
@@ -446,19 +445,9 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 {
 	try
 	{
-		bool make_pep = !pep;
-		_EXCEPTION_RECORD *exception;
-		_CONTEXT *reg;
-		if (make_pep)
-		{
-			exception = (_EXCEPTION_RECORD*)GetCurrentExceptionRecord();
-			reg = (_CONTEXT*)GetCurrentExceptionContext();
-
-			pep = new EXCEPTION_POINTERS();
-			pep->ContextRecord = reg;
-			pep->ExceptionRecord = exception;
-		}
-		else
+		_EXCEPTION_RECORD *exception = NULL;
+		_CONTEXT *reg = NULL;
+		if (pep)
 		{
 			exception = pep->ExceptionRecord;
 			reg = pep->ContextRecord;
@@ -494,9 +483,6 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 		}
 
 		WriteMiniDump(pep);
-
-		if (make_pep)
-			delete pep;
 
 	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
 }
