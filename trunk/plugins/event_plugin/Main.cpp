@@ -221,17 +221,17 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 		uint iAff;
 		pub::Reputation::GetAffiliation(iRep, iAff);
 
-		Vector vPos;
-		vPos.x = cship->fPosX;
-		vPos.y = cship->fPosY;
-		vPos.z = cship->fPosZ;
-		string scSector = VectorToSectorCoord(cship->iSystem, vPos);
+		uint iSystem;
+		pub::SpaceObj::GetSystem(cship->get_id(), iSystem);
+
+		Vector vPos = cship->get_position();
+		string scSector = VectorToSectorCoord(iSystem, vPos);
 
 		multimap<uint, NPC_MISSION>::iterator start = set_mapNpcMissions.lower_bound(iAff);
 		multimap<uint, NPC_MISSION>::iterator end = set_mapNpcMissions.upper_bound(iAff);
 		for (; start != end; ++start)
 		{
-			if (start->second.system == cship->iSystem)
+			if (start->second.system == iSystem)
 			{
 				if (start->second.sector.length() && start->second.sector != scSector)
 					continue;

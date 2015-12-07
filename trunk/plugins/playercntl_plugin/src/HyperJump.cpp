@@ -1175,7 +1175,7 @@ namespace HyperJump
 		SURVEY &sm = mapSurvey[iClientID];
 
 		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
-		if (cship->fMaxPower < sm.arch.power)
+		if (cship->get_max_power() < sm.arch.power)
 		{
 			PrintUserCmdText(iClientID, L"Insufficient power to start survey module");			
 			return true;
@@ -1289,7 +1289,7 @@ namespace HyperJump
 		JUMPDRIVE &jd = mapJumpDrives[iClientID];
 
 		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
-		if (cship->fMaxPower < jd.arch.power)
+		if (cship->get_max_power() < jd.arch.power)
 		{
 			PrintUserCmdText(iClientID, L"Insufficient power to charge jumpdrive");			
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
