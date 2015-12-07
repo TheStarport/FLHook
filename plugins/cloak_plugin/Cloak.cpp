@@ -235,8 +235,8 @@ void PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
 
 		CEquipTraverser tr;
 
-		for (CEquip *equip = cship->equip_manager.Traverse(tr);
-			equip; equip = cship->equip_manager.Traverse(tr))
+		for (CEquip *equip = GetEquipManager(cship)->Traverse(tr);
+			equip; equip = GetEquipManager(cship)->Traverse(tr))
 		{
 			if (CECloakingDevice::cast(equip))
 			{		

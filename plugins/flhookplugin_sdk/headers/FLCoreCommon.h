@@ -1845,6 +1845,7 @@ public:
 	void set_transform(class Transform const &);
 	void update_tree(void)const ;
 
+#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
 	void* classvftable;
 	float fRotMatrix00;
 	float fRotMatrix01;
@@ -1862,6 +1863,8 @@ public:
 	uint iDunno1;
 	uint iDunno2;
 	uint iDunno3;
+#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
+
 	uint iDunno4;
 };
 
@@ -2023,12 +2026,15 @@ public:
 	bool is_shield_part(unsigned int)const ;
 	long part_to_inst(unsigned int)const ;
 
+#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
 	Class enum_classid;
 	uint iSystem;
 	uint iDunno[23];
 	uint iSpaceID;
 	uint iDunno5[11];
 	uint iType;
+#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
+
 };
 
 struct IMPORT CSimple : public CObject
@@ -2097,7 +2103,10 @@ public:
 	bool is_owner_safe(void)const ;
 	struct Archetype::Projectile const * projarch(void)const ;
 
+#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
 	Archetype::Projectile* archetype;
+#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
+
 };
 
 class IMPORT CEquip
@@ -2869,15 +2878,22 @@ public:
 	void init_docking_points(unsigned int);
 	void update_docking_animations(float);
 
+#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
 	/* 0x088 */ Archetype::Ship* ship_arch;
 	/* 0x08c */ UINT dunno3[0x16];
 	/* 0x0e0 */ CEquipManager equip_manager; // 180 bytes
 	/* 0x194 */ float  fPower;
 	/* 0x198 */ float  fMaxPower;
+#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
 
 private:
 	void destroy_equipment(DamageList const &, bool);
 };
+
+inline CEquipManager* GetEquipManager(CEqObj* ceq)
+{
+	return (CEquipManager*)((char*)ceq + 0xE4);
+}
 
 
 class IMPORT CEquipmentObj : public CObject
@@ -2940,8 +2956,6 @@ public:
 	bool seeker_can_see(class Vector const &)const ;
 	void set_sub_target(unsigned short);
 	void set_target(struct IObjRW *);
-
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT CLoot : public CSimple
@@ -2976,8 +2990,6 @@ public:
 	bool is_loot_temporary(void)const ;
 	void set_contents_hit_pts(float);
 	void set_units(unsigned int);
-
-	unsigned char data[OBJECT_DATA_SIZE];
 };
 
 struct IMPORT CMine : public CProjectile
@@ -3294,12 +3306,15 @@ public:
 	float get_time_to_accelerate(float,float,float,float,float)const ;
 	void recalculate_formation_speed(void);
 
+#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
 	/* 105 */ DWORD vtable;
-	          DWORD iDunno5[34];
+	DWORD iDunno5[34];
 	/* 139 */ DWORD iBayAnim;
-	          DWORD iDunno6[31];
+	DWORD iDunno6[31];
 	/* 170 */ DWORD iBayState;
 	/* 174 */ DWORD iBayState2;
+#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
+
 };
 
 struct IMPORT CSolar : public CEqObj
