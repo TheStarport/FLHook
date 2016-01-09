@@ -903,6 +903,10 @@ namespace pub
 			uint iUnk12; // 1 = flagged as mission solar, 0 = normal
 		};
 
+		struct LootInfo {
+			uint iDunno[64];
+		};
+
 		struct TerminalInfo {
 			char szHardPoint[0x20];
 			uint iType; // 1=berth 4=moor? 7=jump?

@@ -80,12 +80,37 @@ struct FLPACKET_CREATESHIP
 	char* pAddress; // ??
 	uint iSpaceID;
 	uint iShipArch;
-	uint iDunno[2];
-	float fDunno[14];
+	uint iDunno1;
+	uint iPilot;
+	struct {
+		uint body;
+		uint head;
+		uint lefthand;
+		uint righthand;
+		uint accessory[8];
+		int  accessories;
+	} costume;
+	uint iVoiceID;
 	float fPosX;
 	float fPosY;
 	float fPosZ;
-	float fDunno2[13];
+	float fOrientation[4];
+	int iHealth;
+	uint iDunno3;
+	uint iSize1;
+	EquipDesc* equipBegin;
+	EquipDesc* equipEnd;
+	void* equipPointer3;
+	uint iSize2;
+	void* cargoPointer1;
+	void* cargoPointer2;
+	uint iSize3;
+	void *dunnoPointer1;
+	void *dunnoPointer2;
+	uint iDunno4[5];
+	uint iClientID;
+	uint iDunno5;
+	uint iLevel;
 };
 
 struct FLPACKET_CREATESOLAR
