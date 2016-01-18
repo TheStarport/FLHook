@@ -129,7 +129,8 @@ float IniGetF(const string &scFile, const string &scApp, const string &scKey, fl
 
 bool IniGetB(const string &scFile, const string &scApp, const string &scKey, bool bDefault)
 {
-	return ToLower(IniGetS(scFile, scApp, scKey, bDefault ? "yes" : "no")).compare("yes") == 0 ? true : false;
+	string val = ToLower(IniGetS(scFile, scApp, scKey, bDefault ? "true" : "false"));
+	return val.compare("yes") == 0 || val.compare("true") == 0 ? true : false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

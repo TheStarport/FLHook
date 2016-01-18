@@ -63,6 +63,7 @@ copy /Y $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\
 
 </Command>
       <Outputs>..\bin-vc14\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib;%(Outputs)</Outputs>
+      <Inputs>$(OutDir)$(TargetName).dll</Inputs>
     </CustomBuildStep>
     <ClCompile>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -98,6 +99,7 @@ copy /Y  $(OutDir)$(TargetName).pdb  ..\bin-vc14\
 copy /Y  $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\$(TargetName)-vc14.lib
 </Command>
       <Outputs>..\bin-vc14\$(TargetName).dll;..\plugins\flhookplugin_sdk\libs\$(TargetName).lib;%(Outputs)</Outputs>
+      <Inputs>$(OutDir)$(TargetName).dll</Inputs>
     </CustomBuildStep>
     <ClCompile>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
