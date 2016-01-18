@@ -284,6 +284,14 @@ void FLHookInit_Pre()
 		}
 #endif
 
+		// load settings
+		LoadSettings();
+
+		if (set_bDebug && !fLogDebug)
+			fLogDebug = fopen(sDebugLog.c_str(), "at");
+
+		CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
+
 	} catch(char *szError) {
 		ConPrint(L"CRITICAL ERROR: %s\n", stows(szError).c_str());
 		exit(EXIT_FAILURE);
@@ -312,14 +320,6 @@ bool FLHookInit()
 			throw "content.dll not loaded";
 		if(!(hMe = GetModuleHandle("FLHook")))
 			throw "FLHook.dll not loaded";
-		
-		// load settings
-		LoadSettings();
-
-		if (set_bDebug && !fLogDebug)
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
-
-		CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
 
 		// init hooks
 		if(!InitHookExports())

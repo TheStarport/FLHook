@@ -190,6 +190,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin-vc12\FLHook.ini" />
+    <None Include="..\bin-vc14\FLHook.ini" />
   </ItemGroup>
 </Project>

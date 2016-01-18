@@ -62,6 +62,7 @@
 copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc14\flhook_plugins\
 </Command>
       <Outputs>..\..\bin-vc14\flhook_plugins\$(TargetName).dll;%(Outputs)</Outputs>
+      <Inputs>$(OutDir)$(TargetName).dll</Inputs>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -94,6 +95,7 @@ copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc14\flhook_plugins\
 copy /Y $(OutDir)$(TargetName).pdb  ..\..\bin-vc14\flhook_plugins\
 </Command>
       <Outputs>..\..\bin-vc14\flhook_plugins\$(TargetName).dll;..\..\bin-vc14\flhook_plugins\$(TargetName).pdb;%(Outputs)</Outputs>
+      <Inputs>$(OutDir)$(TargetName).dll</Inputs>
     </CustomBuildStep>
     <ClCompile>
       <ExceptionHandling>Async</ExceptionHandling>
