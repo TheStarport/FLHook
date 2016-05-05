@@ -113,7 +113,8 @@ BYTE oldSetUnhandledExceptionFilter[5];
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
 {
 	AddLog("!!TOP LEVEL EXCEPTION!!");
-	WriteMiniDump(pExceptionInfo);
+	SEHException ex(0, pExceptionInfo);
+	WriteMiniDump(&ex);
 	return EXCEPTION_EXECUTE_HANDLER; 	// EXCEPTION_CONTINUE_SEARCH;
 }
 
@@ -643,7 +644,7 @@ struct timeval tv = {0, 0};
 
 void ProcessPendingCommands()
 {
-	try {
+	TRY_HOOK {
 		// check for new console commands
 		EnterCriticalSection(&cs);
 		while(lstConsoleCmds.size())
@@ -852,8 +853,5 @@ void ProcessPendingCommands()
 		}
 
 		lstDelete.clear();
-	} catch(...) { 
-		LOG_EXCEPTION
-		throw "exception"; 
-	}
+	} CATCH_HOOK({})
 }

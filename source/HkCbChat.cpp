@@ -12,7 +12,7 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 	CALL_PLUGINS_V(PLUGIN_HkCb_SendChat,__stdcall,(uint,uint,uint,void*),(iClientID,iTo,iSize,pRDL));
 
 
-	try {
+	TRY_HOOK {
 		if(HkIServerImpl::g_bInSubmitChat && (iTo != 0x10004)) {
 			wchar_t wszBuf[1024] = L"";
 			// extract text from rdlReader
@@ -120,5 +120,5 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 				popad
 			}
 		}
-	}  catch(...) { LOG_EXCEPTION }
+	}  CATCH_HOOK({})
 }
