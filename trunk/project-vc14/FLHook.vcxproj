@@ -116,7 +116,7 @@ copy /Y  $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\$(TargetNa
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -127,7 +127,8 @@ copy /Y  $(OutDir)$(TargetName).lib  ..\plugins\flhookplugin_sdk\libs\$(TargetNa
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command />
+      <Command>copy /Y  $(OutDir)$(TargetName).dll  C:\FWDev\Freeworlds-public\exe\
+copy /Y  $(OutDir)$(TargetName).pdb C:\FWDev\Freeworlds-public\exe\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

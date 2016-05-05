@@ -390,10 +390,9 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
 									CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
 									);
 
-void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
+void WriteMiniDump(SEHException* ex)
 {
-	AddLog("Attempting to write minidump...");
-	AddDebugLog("Attempting to write minidump...");
+	AddBothLog("Attempting to write minidump...");
 	HMODULE hDll = ::LoadLibrary( "DBGHELP.DLL" );
 	if (hDll)
 	{
@@ -423,10 +422,13 @@ void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 			{
 				_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
 
-				if (pExceptionInfo)
+				if (ex)
 				{
 					ExInfo.ThreadId = ::GetCurrentThreadId();
-					ExInfo.ExceptionPointers = pExceptionInfo;
+					EXCEPTION_POINTERS ep;
+					ep.ContextRecord = &ex->context;
+					ep.ExceptionRecord = &ex->record;
+					ExInfo.ExceptionPointers = &ep;
 					ExInfo.ClientPointers = NULL;
 					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
 				}
@@ -436,22 +438,22 @@ void WriteMiniDump(struct _EXCEPTION_POINTERS *pExceptionInfo)
 				}
 				::CloseHandle(hFile);
 
-				AddLog("Minidump '%s' written.", szDumpPath);
+				AddBothLog("Minidump '%s' written.", szDumpPath);
 			}
 		}
 	}
 }
 
-void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
+void AddExceptionInfoLog(SEHException* ex)
 {
 	try
 	{
-		_EXCEPTION_RECORD *exception = NULL;
-		_CONTEXT *reg = NULL;
-		if (pep)
+		EXCEPTION_RECORD *exception = NULL;
+		CONTEXT *context = NULL;
+		if (ex)
 		{
-			exception = pep->ExceptionRecord;
-			reg = pep->ContextRecord;
+			exception = &ex->record;
+			context = &ex->context;
 		}
 
 		if (exception)
@@ -466,26 +468,26 @@ void AddExceptionInfoLog(LPEXCEPTION_POINTERS pep)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
-			AddLog("Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
+			AddBothLog("Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
 		}
 		else
 		{
-			AddLog("No exception information available");
+			AddBothLog("No exception information available");
 		}
 
-		if (reg)
+		if (context)
 		{
-			AddLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
-				reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+			AddBothLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
+				context->Eax, context->Ebx, context->Ecx, context->Edx, context->Edi, context->Esi, context->Ebp, context->Eip, context->Esp);
 		}
 		else
 		{
-			AddLog("No register information available");
+			AddBothLog("No register information available");
 		}
 
-		WriteMiniDump(pep);
+		WriteMiniDump(ex);
 
-	} catch(...) { AddLog("Exception in AddExceptionInfoLog!"); }
+	} catch(...) { AddBothLog("Exception in AddExceptionInfoLog (minidump/exception)!"); }
 }
 
 #endif
