@@ -56,7 +56,11 @@ struct SSPMunitionCollisionInfo
 
 struct SSPObjCollisionInfo
 {
-	DWORD dwTargetShip;
+	uint iColliderObjectID;
+	uint iColliderSubObjID;
+	uint iDamagedObjectID;
+	uint iDamagedSubObjID;
+	float fDamage;
 };
 
 struct XActivateEquip

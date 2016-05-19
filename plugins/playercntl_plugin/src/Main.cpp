@@ -423,7 +423,7 @@ namespace HkIServerImpl
 		//	return;
 
 		float target_mass;
-		pub::SpaceObj::GetMass(ci.dwTargetShip, target_mass);
+		pub::SpaceObj::GetMass(ci.iColliderObjectID, target_mass);
 
 		uint client_ship;
 		pub::Player::GetShip(iClientID, client_ship);
@@ -440,14 +440,14 @@ namespace HkIServerImpl
 			return;
 
 		Vector V1, V2;
-		pub::SpaceObj::GetMotion(ci.dwTargetShip, V1, V2);
+		pub::SpaceObj::GetMotion(ci.iColliderObjectID, V1, V2);
 		V1.x *= set_fSpinImpulseMultiplier * client_mass;
 		V1.y *= set_fSpinImpulseMultiplier * client_mass;
 		V1.z *= set_fSpinImpulseMultiplier * client_mass;
 		V2.x *= set_fSpinImpulseMultiplier * client_mass;
 		V2.y *= set_fSpinImpulseMultiplier * client_mass;
 		V2.z *= set_fSpinImpulseMultiplier * client_mass;
-		pub::SpaceObj::AddImpulse(ci.dwTargetShip, V1, V2);
+		pub::SpaceObj::AddImpulse(ci.iColliderObjectID, V1, V2);
 
 	}
 
