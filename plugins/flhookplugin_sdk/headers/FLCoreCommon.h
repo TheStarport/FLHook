@@ -1672,6 +1672,23 @@ namespace PhySys
 {
 	struct CreateParms;
 
+	struct CollisionEvent
+	{
+		CObject* a;
+		CObject* b;
+		uint iDunno1[2];
+		Vector position;
+		Vector normal;
+		Vector velocity;
+	};
+
+	struct IMPORT RayHit
+	{
+		CObject* collision_object;
+		Vector collision_position;
+		uint iDunno[3];
+	};
+
 	struct IMPORT Controller
 	{
 	public:

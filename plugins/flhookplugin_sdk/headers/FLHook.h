@@ -72,6 +72,43 @@ typedef unsigned short ushort;
 typedef unsigned long ulong;
 typedef unsigned __int64 mstime;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// exception logging
+
+#define EXTENDED_EXCEPTION_LOGGING
+#ifdef EXTENDED_EXCEPTION_LOGGING
+#pragma warning(disable : 4091)
+#include <dbghelp.h>
+
+struct SEHException
+{
+	SEHException(uint code, EXCEPTION_POINTERS* ep)
+		: code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord)
+	{ }
+
+	uint code;
+	EXCEPTION_RECORD record;
+	CONTEXT context;
+
+	static void Translator(uint code, EXCEPTION_POINTERS* ep)
+	{
+		throw SEHException(code, ep);
+	}
+};
+
+EXPORT extern void WriteMiniDump(SEHException* ex);
+EXPORT extern void AddExceptionInfoLog(SEHException* ex);
+#define TRY_HOOK try { _set_se_translator(SEHException::Translator);
+#define CATCH_HOOK(e) } \
+catch(SEHException& ex) { e; AddBothLog("ERROR: SEH Exception in %s on line %d; minidump may contain more information.", __FUNCTION__, __LINE__); AddExceptionInfoLog(&ex); } \
+catch(std::exception& ex) { e; AddBothLog("ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__, __LINE__, ex.what()); AddExceptionInfoLog(0); } \
+catch (...) { e; AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__, __LINE__); AddExceptionInfoLog(0); }
+#else
+#define TRY_HOOK try
+#define CATCH_HOOK(e) catch(...) { e; AddLog("ERROR: Exception in %s", __FUNCTION__); }
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // custom fl wstring (vc6 strings)
 typedef class std::basic_string<unsigned short,struct ci_wchar_traits> flstr;
 typedef class std::basic_string<char,struct ci_char_traits> flstrs;
@@ -497,6 +534,7 @@ IMPORT HK_ERROR HkReadCharFile(const wstring &wscCharname, list<wstring> &lstOut
 IMPORT HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData);
 
 // HkFuncLog
+#define AddBothLog(s, ...) { AddLog(s, __VA_ARGS__); AddDebugLog(s, __VA_ARGS__);  }
 IMPORT void AddDebugLog(const char *szString, ...);
 IMPORT void AddLog(const char *szString, ...);
 IMPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);

@@ -156,7 +156,7 @@ public:
 	virtual bool Send_FLPACKET_COMMON_GOTRADELANE(uint iClientID, XGoTradelane& tl);
 	virtual bool Send_FLPACKET_COMMON_STOPTRADELANE(uint iClientID, uint iShip, uint iArchTradelane1, uint iArchTradelane2);
 	virtual bool Send_FLPACKET_COMMON_JETTISONCARGO(uint iClientID, XJettisonCargo& jc);
-	virtual bool SendPacket(void*, void*);
+	virtual bool SendPacket(uint iClientID, void*);
 	virtual bool Startup(uint, uint);
 	virtual void nullsub(uint);
 	virtual bool Send_FLPACKET_SERVER_LOGINRESPONSE(uint iClientID, FLPACKET_UNKNOWN& pDunno);

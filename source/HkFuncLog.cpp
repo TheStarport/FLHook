@@ -4,7 +4,7 @@
 
 void AddDebugLog(const char *szString, ...)
 {
-	if(!set_bDebug)
+	if(!set_bDebug || !fLogDebug)
 		return;
 	
 	if(ftell(fLogDebug) > ((int)set_iDebugMaxSize<<10)){
@@ -31,6 +31,9 @@ void AddDebugLog(const char *szString, ...)
 
 void AddLog(const char *szString, ...)
 {
+	if (!fLog)
+		return;
+
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
