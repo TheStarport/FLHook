@@ -83,7 +83,7 @@
 	} \
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// exception logging
 
 #define EXTENDED_EXCEPTION_LOGGING
 #ifdef EXTENDED_EXCEPTION_LOGGING
@@ -106,7 +106,6 @@ struct SEHException
 
 EXPORT extern void WriteMiniDump(SEHException* ex);
 EXPORT extern void AddExceptionInfoLog(SEHException* ex);
-//#define LOG_EXCEPTION { AddLog("ERROR: Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
 #define TRY_HOOK try { _set_se_translator(SEHException::Translator);
 #define CATCH_HOOK(e) } \
 catch(SEHException& ex) { e; AddBothLog("ERROR: SEH Exception in %s on line %d; minidump may contain more information.", __FUNCTION__, __LINE__); AddExceptionInfoLog(&ex); } \
@@ -116,8 +115,6 @@ catch (...) { e; AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__, 
 #define TRY_HOOK try
 #define CATCH_HOOK(e) catch(...) { e; AddLog("ERROR: Exception in %s", __FUNCTION__); }
 #endif
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // plugin functionality & hook prototypes

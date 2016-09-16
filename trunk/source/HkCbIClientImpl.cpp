@@ -1059,9 +1059,11 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint iClientID, uint iDunno)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::SendPacket(void* pDunno1, void* pDunno2)
+bool HkIClientImpl::SendPacket(uint iClientID, void* pData)
 {
-	CALL_CLIENT_METHOD(SendPacket(pDunno1, pDunno2));
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_SendPacket, bool, __stdcall, (uint, void*), (iClientID, pData));
+
+	CALL_CLIENT_METHOD(SendPacket(iClientID, pData));
 	return reinterpret_cast<bool>(vRet);
 }
 

@@ -512,8 +512,10 @@ void FLHookShutdown()
 
 	// close log
 	fclose(fLog);
+	fLog = nullptr;
 	if(set_bDebug)
 		fclose(fLogDebug);
+	fLogDebug = nullptr;
 
 	// unload rest
 	DWORD id;
