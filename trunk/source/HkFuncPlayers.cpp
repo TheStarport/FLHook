@@ -1153,3 +1153,29 @@ HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData)
 	}
 	return HKE_OK;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+HK_ERROR HkPlayerRecalculateCRC(uint iClientID)
+{
+	try
+	{
+		PlayerData *pd = &Players[iClientID];
+		char *ACCalcCRC = (char*)hModServer + 0x6FAF0;
+		__asm
+		{
+			pushad
+			mov ecx, [pd]
+			call[ACCalcCRC]
+			mov ecx, [pd]
+			mov[ecx + 320h], eax
+			popad
+		}
+	}
+	catch (...)
+	{
+		return HKE_INVALID_CLIENT_ID;
+	}
+
+	return HKE_OK;
+}

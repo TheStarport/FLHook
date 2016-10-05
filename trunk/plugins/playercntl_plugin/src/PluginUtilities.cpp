@@ -779,12 +779,11 @@ HK_ERROR HkAddEquip(const wstring &wscCharname, uint iGoodID, const string &scHa
 	if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
 		return HKE_NO_CHAR_SELECTED;
 	
-	if (!Players[iClientID].x3F4)
+	if (!Players[iClientID].iEnteredBase)
 	{
-		ConPrint(L"1: %u %u\n", Players[iClientID].x3F4, Players[iClientID].iBaseRoomID);
-		Players[iClientID].x3F4 = 1;
+		Players[iClientID].iEnteredBase = Players[iClientID].iBaseID;
 		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, iClientID);
-		Players[iClientID].x3F4 = 0;
+		Players[iClientID].iEnteredBase = 0;
 	}
 	else
 	{
@@ -794,7 +793,7 @@ HK_ERROR HkAddEquip(const wstring &wscCharname, uint iGoodID, const string &scHa
 	// Add to check-list which is being compared to the users equip-list when saving
 	// char to fix "Ship or Equipment not sold on base" kick
 	EquipDesc ed;
-	ed.sID = Players[iClientID].LastEquipID;
+	ed.sID = Players[iClientID].sLastEquipID;
 	ed.iCount = 1;
 	ed.iArchID = iGoodID;
 	Players[iClientID].lShadowEquipDescList.add_equipment_item(ed, false);

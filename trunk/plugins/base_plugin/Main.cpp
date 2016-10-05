@@ -1116,17 +1116,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 		else
 		{
 			// Update the player CRC so that the player is not kicked for 'ship related' kick
-			PlayerData *pd = &Players[client];			
-			char *ACCalcCRC = (char*)hModServer + 0x6FAF0;
-			__asm
-			{
-				pushad
-				mov ecx, [pd]
-				call [ACCalcCRC]
-				mov ecx, [pd]
-				mov [ecx+320h], eax
-				popad
-			}
+			HkPlayerRecalculateCRC(client);
 		}
 	}
 }
@@ -1201,21 +1191,12 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint, int co
 		PlayerData *pd = &Players[client];			
 	
 		// Update the player CRC so that the player is not kicked for 'ship related' kick
-		char *ACCalcCRC = (char*)hModServer + 0x6FAF0;
-		__asm
-		{
-			pushad
-			mov ecx, [pd]
-			call [ACCalcCRC]
-			mov ecx, [pd]
-			mov [ecx+320h], eax
-			popad
-		}
+		HkPlayerRecalculateCRC(client);
 
 		// Add to check-list which is being compared to the users equip-list when saving
 		// char to fix "Ship or Equipment not sold on base" kick
 		EquipDesc ed;
-		ed.sID = pd->LastEquipID;
+		ed.sID = pd->sLastEquipID;
 		ed.iCount = 1;
 		ed.iArchID = good;
 		pd->lShadowEquipDescList.add_equipment_item(ed, false);
