@@ -137,8 +137,12 @@ struct SSPObjUpdateInfo
 	Quaternion vDir;
 	Vector vPos;
 	float fTimestamp;
-	float fDunno;
-	float throttle;
+	float fThrottle;
+	union
+	{
+		float fStateValue;
+		uint iStateValue;
+	};
 	char cState;
 };
 
