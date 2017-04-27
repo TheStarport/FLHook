@@ -880,8 +880,8 @@ namespace pub
 			
 			int iRep; // increases for each NPC spawned, starts at 0 or 1
 			uint iPilotVoice;
-			int iHealth; // -1 = max health
 			uint unk6; // 0
+			uint iHealth; // -1 = max health
 			uint unk7; // 0
 			uint unk8; // 0
 			uint iLevel;
