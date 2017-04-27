@@ -114,7 +114,7 @@ namespace CargoDrop
 				iter->second.dLastTimestamp += 1.0;
 				ui.fTimestamp = (float)iter->second.dLastTimestamp;
 				ui.cState = 0;
-				ui.throttle = 0;
+				ui.fThrottle = 0;
 				ui.vPos = iter->second.vLastPosition;
 				ui.vDir = iter->second.vLastDir;
 				Server.SPObjUpdate(ui, iClientID);
