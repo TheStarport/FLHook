@@ -588,6 +588,8 @@ public:
 	virtual ~OwnerList<T>();
 	class OwnerList<T> & operator=(class OwnerList<T> const &);
 	void free();
+protected:
+	unsigned char data[16];
 };
 
 namespace pub
@@ -862,10 +864,6 @@ namespace pub
 			uint iUnk1; // 0
 			uint iLoadout;
 			OwnerList<pub::SpaceObj::CargoDesc> cargoDesc;
-			uint unk1; // 0
-			uint unk2; // 0
-			float fUnk1;
-			uint unk3; // 0
 			uint iLook1;
 			uint iLook2;
 			uint unk4; // 0
@@ -882,8 +880,8 @@ namespace pub
 			
 			int iRep; // increases for each NPC spawned, starts at 0 or 1
 			uint iPilotVoice;
-			uint unk6; // 0
 			int iHealth; // -1 = max health
+			uint unk6; // 0
 			uint unk7; // 0
 			uint unk8; // 0
 			uint iLevel;
