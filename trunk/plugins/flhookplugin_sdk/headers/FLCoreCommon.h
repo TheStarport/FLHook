@@ -4615,9 +4615,6 @@ namespace pub
 			DirectiveCancelOp(class DirectiveCancelOp const &);
 			DirectiveCancelOp(void);
 			virtual bool validate(void);
-
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
 		};
 
 		class IMPORT DirectiveDelayOp : public pub::AI::BaseOp
@@ -4627,8 +4624,7 @@ namespace pub
 			DirectiveDelayOp(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			float fDelayTime;
 		};
 
 		class IMPORT DirectiveDockOp : public pub::AI::BaseOp
@@ -4638,14 +4634,15 @@ namespace pub
 			DirectiveDockOp(void);
 			virtual bool validate(void);
 
-		public:
-			uint dock_spaceobj;
-			uint zero1;
-			uint zero2;
-			int minusone;
-			uint zero3;
-			float twohundred;
-			float fivehundred;
+			uint iDockSpaceObj;
+			uint x10; // 0
+			ushort x12; // 0
+			ushort x14; // 0xbb, 0x83 ??
+			int x18; // -1
+			uint x1C; // 0
+			float x20; // 200
+			float x24; // 500
+			uint x28; // 0
 		};
 
 		class IMPORT DirectiveDrasticEvadeOp : public pub::AI::BaseOp
@@ -4666,8 +4663,8 @@ namespace pub
 			DirectiveEvadeOp(void);
 			virtual bool validate(void);
 
-		public:
-			uint iShip;
+			uint iEvadeSpaceObj;
+			unsigned char data[OBJECT_DATA_SIZE];
 		};
 
 		class IMPORT DirectiveFaceOp : public pub::AI::BaseOp
@@ -4688,11 +4685,10 @@ namespace pub
 			DirectiveFollowOp(void);
 			virtual bool validate(void);
 
-		public:
-			UINT   leader;       // 0
-			float  max_distance; // 150
-			Vector ofs;          // 0, 0, 0; copy constructor indicates Vector
-			float  unknown;      // 400
+			UINT   iFollowSpaceObj;
+			float  fMaxDistance;
+			Vector vOffset;
+			float  fDunno; // 400
 		};
 
 		class IMPORT DirectiveFormationOp : public pub::AI::BaseOp
@@ -4713,7 +4709,6 @@ namespace pub
 			DirectiveGotoOp(void);
 			virtual bool validate(void);
 
-		public:
 			int iGotoType; // 1 = Vec, 0 = Ship, 2 = spline, 3 = undefined
 			// The target position if iGotoType is 1.
 			Vector vPos;
@@ -4726,10 +4721,10 @@ namespace pub
 			float fRange;
 			// This specifies the thrust in the range from 0-100. Use -1 for maximum.
 			float fThrust;
+			// This specifies if the ship should move (*not* always set to true)
+			bool ship_moves1;
 			// This specifies if the ship should move (always set to true)
-			bool x58;
-			// This specifies if the ship should move (always set to true)
-			bool x59;
+			bool ship_moves2;
 			// Set the follow to control if the ship will cruise or not. Do not set
 			// both to true.
 			bool goto_cruise;
@@ -4738,7 +4733,7 @@ namespace pub
 			float x60; // 200
 			float x64; // 500
 			int x68;
-			int x6C;
+			float x6C;
 		};
 
 		class IMPORT DirectiveGuideOp : public pub::AI::BaseOp
@@ -4758,9 +4753,6 @@ namespace pub
 			DirectiveIdleOp(class DirectiveIdleOp const &);
 			DirectiveIdleOp(void);
 			virtual bool validate(void);
-
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
 		};
 
 		class IMPORT DirectiveInstantTradelaneOp : public pub::AI::BaseOp
@@ -4770,8 +4762,9 @@ namespace pub
 			DirectiveInstantTradelaneOp(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint iTradelaneRingFrom;
+			uint iTradelaneRingTo;
+			float fDunno; // 3750
 		};
 
 		class IMPORT DirectiveLaunchOp : public pub::AI::BaseOp
@@ -4781,8 +4774,9 @@ namespace pub
 			DirectiveLaunchOp(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint iLaunchFromObject;
+			uint x10; // 2, cannot be -1, defaults to -1
+			uint x14; // 1, cannot be 0, defaults to 0
 		};
 
 		class IMPORT DirectiveRamOp : public pub::AI::BaseOp
@@ -4825,8 +4819,10 @@ namespace pub
 			DirectiveTrailOp(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint x0C; // 10
+			float x10; // 500
+			uint x14; // 0
+			uint x18; // 0
 		};
 
 		class IMPORT DirectiveWaitForPlayerManeuverOp : public pub::AI::BaseOp
@@ -4866,8 +4862,9 @@ namespace pub
 			SetFlagParams(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint x0C; // 0
+			float x10; // ??
+			float x14; // ??
 		};
 
 		struct IMPORT SetPersonalityParams : public BaseOp
@@ -4890,8 +4887,17 @@ namespace pub
 			SetZoneBehaviorParams(void);
 			virtual bool validate(void);
 
-		public:
-			unsigned char data[OBJECT_DATA_SIZE];
+			uint iZoneType; // 0 = position, 2 = spaceobj
+			uint x10; // 0
+			Vector vPosition;
+			uint iSpaceObj;
+			uint x24; // ??
+			uint x28; // ??
+			uint x2C; // ??
+			uint x30; // ??
+			uint x34; // ??
+			uint x38; // ??
+			float fRange;
 		};
 
 	};
