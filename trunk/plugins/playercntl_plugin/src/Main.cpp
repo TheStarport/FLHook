@@ -875,8 +875,8 @@ void UserCmd_Help(uint iClientID, const wstring &wscParam)
 pub::AI::SetPersonalityParams HkMakePersonality() {
 
 	pub::AI::SetPersonalityParams p;
-	p.state_graph = pub::StateGraph::get_state_graph("FIGHTER", pub::StateGraph::TYPE_STANDARD);
-	p.state_id = true;
+	p.iStateGraph = pub::StateGraph::get_state_graph("FIGHTER", pub::StateGraph::TYPE_STANDARD);
+	p.bStateID = true;
 	
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[0] = 0.4f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[1] = 0.0f;
