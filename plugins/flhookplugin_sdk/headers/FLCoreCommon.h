@@ -280,18 +280,18 @@ namespace Archetype
 		bool init_physical_representation(void);
 
 	public:
-		/*  1x4 */ uint vtable;
-		/*  2x4 */ uint iArchID;
-		/*  3x4 */ char* szName;
-		/*  4x4 */ uint iArchType;
-		/*  5x4 */ uint iIdsName;
-		/*  6x4 */ uint iIdsInfo;
-		/*  7x4 */ float fHitPoints;
-		/*  8x4 */ float fMass;
-		/*  9x4 */ int iExplosionArchID;
-		/* 10x4 */ float fExplosionResistance;
-		/* 11x4 */ float fRotationInertia[3];
-		/* 14x4 */ bool bHasRotationInertia;
+		/*  1 */ uint vtable;
+		/*  2 */ uint iArchID;
+		/*  3 */ char* szName;
+		/*  4 */ uint iArchType;
+		/*  5 */ uint iIdsName;
+		/*  6 */ uint iIdsInfo;
+		/*  7 */ float fHitPoints;
+		/*  8 */ float fMass;
+		/*  9 */ int iExplosionArchID;
+		/* 10 */ float fExplosionResistance;
+		/* 11 */ float fRotationInertia[3];
+		/* 14 */ bool bHasRotationInertia;
 		           bool bPhantomPhysics;
 		/* 15 */ uint iDunno1;
 		/* 16 */ uint iDunno2;
@@ -317,11 +317,11 @@ namespace Archetype
 		virtual bool is_attached(void)const ;
 		
 	public:
-		/* 23x4 */ float fVolume;
-		/* 24x4 */ uint bUseCount;
-		/* 25x4 */ uint iUnitsPerContainer;
-		/* 26x4 */ uint iTractoredExplosionID;
-		/* 27x4 */ uint bLootable;
+		/* 23 */ float fVolume;
+		/* 24 */ uint bUseCount;
+		/* 25 */ uint iUnitsPerContainer;
+		/* 26 */ uint iTractoredExplosionID;
+		/* 27 */ uint bLootable;
 	};
 
 	struct IMPORT EqObj : Root
@@ -4606,7 +4606,7 @@ namespace pub
 			virtual bool validate();
 
 			OP_TYPE op_type;
-			int iDunno;
+			int iFireWeapons; // Probably a bool, anything non-zero turns it on
 		};
 
 		class IMPORT DirectiveCancelOp : public pub::AI::BaseOp
@@ -4688,7 +4688,7 @@ namespace pub
 			UINT   iFollowSpaceObj;
 			float  fMaxDistance;
 			Vector vOffset;
-			float  fDunno; // 400
+			float  fDunno2; // 400
 		};
 
 		class IMPORT DirectiveFormationOp : public pub::AI::BaseOp
@@ -5195,7 +5195,11 @@ namespace Loadout
 		struct Map & operator=(struct Map const &);
 
 	public:
-		unsigned char data[OBJECT_DATA_SIZE];
+		uint id;
+		char cDunno; // -1
+		EquipDesc* first;
+		EquipDesc* last;
+		EquipDesc* end;
 	};
 
 	IMPORT  void  Free(void);
