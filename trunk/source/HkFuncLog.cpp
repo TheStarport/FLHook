@@ -4,26 +4,33 @@
 
 void AddDebugLog(const char *szString, ...)
 {
-	if(!set_bDebug || !fLogDebug)
+	if(!set_bDebug || (!fLogDebug && !IsDebuggerPresent()))
 		return;
 	
-	if(ftell(fLogDebug) > ((int)set_iDebugMaxSize<<10)){
-		fclose(fLogDebug);
-		_unlink(sDebugLog.c_str());
-		fLogDebug = fopen(sDebugLog.c_str(), "at");
-	}
-
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
 	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	char szBuf[64];
-	time_t tNow = time(0);
-	struct tm *t = localtime(&tNow);
-	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
-	fprintf(fLogDebug, "[%s] %s\n", szBuf, szBufString);
-	fflush(fLogDebug);
+	if (fLogDebug)
+	{
+		if (ftell(fLogDebug) > ((int)set_iDebugMaxSize << 10)) {
+			fclose(fLogDebug);
+			_unlink(sDebugLog.c_str());
+			fLogDebug = fopen(sDebugLog.c_str(), "at");
+		}
+
+		char szBuf[64];
+		time_t tNow = time(0);
+		struct tm *t = localtime(&tNow);
+		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+		fprintf(fLogDebug, "[%s] %s\n", szBuf, szBufString);
+		fflush(fLogDebug);
+	}
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(("[DEBUG] " + std::string(szBufString) + "\n").c_str());
+	}
 }
 
 
@@ -31,7 +38,7 @@ void AddDebugLog(const char *szString, ...)
 
 void AddLog(const char *szString, ...)
 {
-	if (!fLog)
+	if (!fLog && !IsDebuggerPresent())
 		return;
 
 	char szBufString[1024];
@@ -39,12 +46,19 @@ void AddLog(const char *szString, ...)
 	va_start(marker, szString);
 	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	char szBuf[64];
-	time_t tNow = time(0);
-	struct tm *t = localtime(&tNow);
-	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
-	fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
-	fflush(fLog);
+	if (fLog)
+	{
+		char szBuf[64];
+		time_t tNow = time(0);
+		struct tm *t = localtime(&tNow);
+		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+		fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
+		fflush(fLog);
+	}
+	if (IsDebuggerPresent())
+	{
+		OutputDebugString(("[LOG] " + std::string(szBufString) + "\n").c_str());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
