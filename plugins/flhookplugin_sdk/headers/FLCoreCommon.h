@@ -205,6 +205,8 @@ enum HpAttachmentType
 	hp_torpedo_special_1 = 66,
 };
 
+struct IEngineInstance;
+
 namespace Archetype
 {
 	class IMPORT FuseIgnitionList
@@ -290,7 +292,11 @@ namespace Archetype
 		/*  8 */ float fMass;
 		/*  9 */ int iExplosionArchID;
 		/* 10 */ float fExplosionResistance;
-		/* 11 */ float fRotationInertia[3];
+		/* 11x4 */ union
+		{
+			float fRotationInertia[3];
+			Vector vRotationInertia;
+		};
 		/* 14 */ bool bHasRotationInertia;
 		           bool bPhantomPhysics;
 		/* 15 */ uint iDunno1;
@@ -922,8 +928,16 @@ namespace Archetype
 		/* 63 */ uint	iNumExhaustNozzles;
 		/* 64 */ float	fHoldSize;
 		/* 65 */ float	fLinearDrag;
-		/* 66 */ float	fAngularDrag[3];
-		/* 69 */ float	fSteeringTorque[3];
+		/* 66 */ union
+		{
+			float	fAngularDrag[3];
+			Vector vAngularDrag;
+		};
+		/* 69 */ union
+		{
+			float	fSteeringTorque[3];
+			Vector vSteeringTorque;
+		};
 		/* 72 */ float	fNudgeForce;
 		/* 73 */ float	fStrafeForce;
 		/* 74 */ float  fStrafePowerUsage;
@@ -1624,38 +1638,6 @@ namespace CmnAsteroid
 	IMPORT  bool  compute_cube_orientation(unsigned long,class Matrix *,struct AxisRotations const &,float);
 };
 
-struct IMPORT CAsteroid
-{
-public:
-	struct IMPORT CreateParms
-	{
-		CreateParms(void);
-		struct CreateParms & operator=(struct CreateParms const &);
-
-	public:
-		unsigned char data[OBJECT_DATA_SIZE];
-	};
-
-	CAsteroid(struct CAsteroid const &);
-	CAsteroid(void);
-	virtual ~CAsteroid(void);
-	struct Archetype::Asteroid const * asteroidarch(void)const ;
-	unsigned long get_asteroid_id(void);
-	class CmnAsteroid::CAsteroidField const * get_owner_field(void);
-	virtual class Vector  get_velocity(void)const ;
-	void init(CAsteroid::CreateParms const &);
-	bool is_instant_kill(void);
-	bool is_mine(void);
-	void set_system(unsigned int);
-	virtual int update(float,unsigned int);
-
-protected:
-	virtual void init_physics(class Vector const &,class Vector const &);
-
-public:
-	unsigned char data[OBJECT_DATA_SIZE];
-};
-
 struct INotify
 {
 	enum Event;
@@ -1667,6 +1649,10 @@ class IMPORT IVP_Event_Sim;
 
 template <class T>
 class IMPORT IVP_U_Vector;
+
+enum IVP_CONTROLLER_PRIORITY;
+
+struct CObject;
 
 namespace PhySys
 {
@@ -1692,12 +1678,6 @@ namespace PhySys
 	struct IMPORT Controller
 	{
 	public:
-		virtual void core_is_going_to_be_deleted_event(class IVP_Core *);
-		virtual float dunno_retn_1f(void); //??
-		virtual class IVP_U_Vector<class IVP_Core> * get_associated_controlled_cores(void);
-		virtual void create_instance(long); //??
-		virtual void do_simulation_controller(class IVP_Event_Sim *, class IVP_U_Vector<class IVP_Core> *);
-		virtual enum IVP_CONTROLLER_PRIORITY  get_controller_priority(void);
 		virtual ~Controller(void);
 		
 		static void  Register(struct Controller *,struct CObject *);
@@ -1709,6 +1689,14 @@ namespace PhySys
 		void push(class Vector const &,float);
 		void rotate(class Vector const &,float);
 		void wakeup(void);
+
+	protected:
+		virtual void core_is_going_to_be_deleted_event(IVP_Core *);
+		//virtual float dunno_retn_1f(void); //??
+		virtual IVP_U_Vector<IVP_Core> * get_associated_controlled_cores(void);
+		//virtual void create_instance(long); //??
+		virtual void do_simulation_controller(IVP_Event_Sim *, IVP_U_Vector<IVP_Core> *);
+		virtual enum IVP_CONTROLLER_PRIORITY  get_controller_priority(void);
 	};
 
 	class IMPORT PhyCollisionStateManager
@@ -1902,7 +1890,7 @@ public:
 
 protected:
 	static float const  AXIS_CHANGE_THRESHOLD;
-	//@@@ virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
+	virtual void do_simulation_controller(class IVP_Event_Sim *,class IVP_U_Vector<class IVP_Core> *);
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
@@ -1995,17 +1983,28 @@ public:
 
 	enum Class
 	{
-		CSOLAR_OBJECT = 0x303,
-		CSHIP_OBJECT = 0x503,
-		CLOOT_OBJECT = 0x803,
-		CASTEROID_OBJECT = 0x1003,
-		MOUNTED_OBJECT = 0x2001,
-		CDYNAMICASTEROID_OBJECT = 0x4001,
-		CBEAM_OBJECT = 0x67,
-		CGUIDED_OBJECT = 0xA7,
-		UNK8 = 15,
-		UNK9 = 23,
-		WEAPON_PLATFORM_OBJECT = 0x1,
+		COBJECT_MASK = 0x1,
+		CSIMPLE_MASK = 0x2 | COBJECT_MASK,
+		CPROJECTILE_MASK = 0x4 | CSIMPLE_MASK,
+		CEQOBJ_MASK = 0x100 | CSIMPLE_MASK,
+
+		// CObject children
+		CEQUIPMENT_OBJECT = 0x2000 | COBJECT_MASK,
+		CDYNAMICASTEROID_OBJECT = 0x4000 | COBJECT_MASK,
+
+		// CSimple children
+		CLOOT_OBJECT = 0x800 | CSIMPLE_MASK,
+		CASTEROID_OBJECT = 0x1000 | CSIMPLE_MASK,
+
+		// CProjectile children
+		CMINE_OBJECT = 0x8 | CPROJECTILE_MASK,
+		CCOUNTERMEASURE_OBJECT = 0x10 | CPROJECTILE_MASK,
+		CBEAM_OBJECT = 0x60 | CPROJECTILE_MASK,
+		CGUIDED_OBJECT = 0xA0 | CPROJECTILE_MASK,
+
+		// CEqObj children
+		CSOLAR_OBJECT = 0x200 | CEQOBJ_MASK,
+		CSHIP_OBJECT = 0x400 | CEQOBJ_MASK,
 	};
 
 	static struct CObject *  Alloc(enum Class);
@@ -2054,6 +2053,11 @@ public:
 
 };
 
+inline CObject::Class get_class(const CObject* c)
+{
+	return *(CObject::Class*)(((char*)c) + 0x4C);
+}
+
 struct IMPORT CSimple : public CObject
 {
 public:
@@ -2094,7 +2098,7 @@ public:
 	void update_zones(float,unsigned int);
 };
 
-struct IMPORT CProjectile : public CSimple
+struct IMPORT CAsteroid : public CSimple
 {
 public:
 	struct IMPORT CreateParms
@@ -2104,6 +2108,45 @@ public:
 
 	public:
 		unsigned char data[OBJECT_DATA_SIZE];
+	};
+
+	CAsteroid(struct CAsteroid const &);
+	CAsteroid(void);
+	virtual ~CAsteroid(void);
+	struct Archetype::Asteroid const * asteroidarch(void)const;
+	unsigned long get_asteroid_id(void);
+	class CmnAsteroid::CAsteroidField const * get_owner_field(void);
+	virtual class Vector  get_velocity(void)const;
+	void init(CAsteroid::CreateParms const &);
+	bool is_instant_kill(void);
+	bool is_mine(void);
+	void set_system(unsigned int);
+	virtual int update(float, unsigned int);
+
+protected:
+	virtual void init_physics(class Vector const &, class Vector const &);
+
+public:
+	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+struct IMPORT CProjectile : public CSimple
+{
+public:
+	struct IMPORT CreateParms
+	{
+		//CreateParms(void);
+		struct CreateParms & operator=(struct CreateParms const &);
+
+		uint hash;
+		Archetype::Projectile* archetype;
+		float dunno2;
+		float start_health; // -1 = max health
+		Vector position;
+		Matrix orientation;
+		Vector velocity;
+		float dunno3[4]; // always 0
+		uint owner;
 	};
 
 	virtual ~CProjectile(void);
@@ -2172,7 +2215,10 @@ public:
 	CEqObj* owner;
 	unsigned int iSubObjId;
 	Archetype::Equipment* archetype;
-	unsigned char data2[16];
+	void* data2[2]; //0x10 - 0x14
+	void* custom_wrapper_class;
+	void* custom_wrapper_class2;
+	char* mounted_hardpoint;
 };
 
 class IMPORT CInternalEquip : public CEquip
@@ -2243,6 +2289,12 @@ public:
 
 public:
 	unsigned char data[OBJECT_DATA_SIZE];
+};
+
+enum FireResult
+{
+	FR_SUCCESS = 9,
+	FR_FAILURE = 5
 };
 
 class IMPORT CELauncher : public CAttachedEquip
@@ -2535,10 +2587,12 @@ public:
 	bool is_guided(void)const ;
 	void ComputeTurretFrame(void);
 	void DecomposeJointMotion(class Vector const &,float &,float &)const ;
-	bool GetTargetObjectPos(class Vector &)const ;
 	bool IsMovable(void)const ;
 	void LocateJoints(void);
 	void LoseJoints(void);
+
+protected:
+	bool GetTargetObjectPos(class Vector &) const;
 };
 
 class IMPORT CEInternalFX : public CEquip

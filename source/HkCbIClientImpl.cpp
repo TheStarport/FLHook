@@ -127,14 +127,14 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint iClientID, XActi
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID, FLPACKET_UNKNOWN& pDunno)
+bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID, XFireWeaponInfo& fwi)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 
-	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_FIREWEAPON,bool,__stdcall,(uint,FLPACKET_UNKNOWN&),(iClientID, pDunno));
+	CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_FIREWEAPON,bool,__stdcall,(uint, XFireWeaponInfo&),(iClientID, fwi));
 
-	CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_FIREWEAPON(iClientID, pDunno));
+	CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_FIREWEAPON(iClientID, fwi));
 	return reinterpret_cast<bool>(vRet);
 }
 
