@@ -108,12 +108,12 @@ struct SGFGoodBuyInfo
 
 struct XFireWeaponInfo
 {
-	uint iDunno1;
-	Vector vDirection;
-	uint iDunno2;
-	short *sArray1;
-	short *sArray2;
-	short *s3;
+	uint iObject;
+	Vector vTarget;
+	uint iDunno;
+	ushort* sHpIdsBegin;
+	ushort* sHpIdsEnd;
+	ushort* sHpIdsLast;
 };
 
 struct XSetManeuver

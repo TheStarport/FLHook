@@ -147,7 +147,7 @@ struct HkIClientImpl
 public:
 	void* pDunno[2];
 	CDPServer* cdpserver;
-	virtual bool Send_FLPACKET_COMMON_FIREWEAPON(uint iDunno, FLPACKET_UNKNOWN& pDunno);
+	virtual bool Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID, XFireWeaponInfo& fwi);
 	virtual bool Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint iClientID, struct XActivateEquip& aq);
 	virtual bool Send_FLPACKET_COMMON_ACTIVATECRUISE(uint iClientID, XActivateCruise& aq);
 	virtual bool Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint iClientID, XActivateThrusters& aq);
