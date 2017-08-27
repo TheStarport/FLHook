@@ -1672,7 +1672,7 @@ namespace PhySys
 	{
 		CObject* collision_object;
 		Vector collision_position;
-		uint iDunno[3];
+		uint iDunno[4];
 	};
 
 	struct IMPORT Controller
@@ -1748,7 +1748,7 @@ namespace PhySys
 	IMPORT  void  DestroyPhantom(void *);
 	IMPORT  void  Detach(struct CObject *,struct DetachParms const &);
 	IMPORT  int  DetachPhantom(void *);
-	IMPORT  int  FindRayCollisions(unsigned int,class Vector const &,class Vector const &,struct RayHit *,int);
+	IMPORT  int  FindRayCollisions(unsigned int system, class Vector const &origin, class Vector const &end, struct RayHit *rh, int rh_count);
 	IMPORT  int  FindRayIntersect(struct CObject *,class Vector const &,class Vector const &,struct RayHit *,int);
 	IMPORT  int  FindSphereCollisions(unsigned int,class Vector const &,float,struct CObject * *,int);
 	IMPORT  float  GOLEM_ANGULAR_DAMP_FACTOR;
@@ -3249,6 +3249,15 @@ struct IObjInspect
 {
 	struct CargoEnumerator;
 	struct SubtargetEnumerator;
+};
+
+enum StrafeDir
+{
+	SD_NONE = 0,
+	SD_LEFT = 1,
+	SD_RIGHT = 2,
+	SD_UP = 3,
+	SD_DOWN = 4,
 };
 
 
