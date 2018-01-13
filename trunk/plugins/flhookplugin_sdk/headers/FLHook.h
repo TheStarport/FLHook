@@ -11,7 +11,7 @@
 #pragma comment(lib,"../flhookplugin_sdk/libs/FLCoreFLServerEXE.lib")
 #pragma comment(lib,"../flhookplugin_sdk/libs/FLCoreRemoteClient.lib")
 #pragma comment(lib,"../flhookplugin_sdk/libs/FLCoreServer.lib")
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1900
 #pragma comment(lib,"../flhookplugin_sdk/libs/FLHook-vc14.lib")
 #elif _MSC_VER == 1800
 #pragma comment(lib,"../flhookplugin_sdk/libs/FLHook-vc12.lib")

@@ -388,7 +388,7 @@ DefenseModule::~DefenseModule()
 {
 	if (space_obj)
 	{
-		pub::SpaceObj::Destroy(space_obj, (pub::SpaceObj::DestroyType)0); // use type 1 for fuses
+		pub::SpaceObj::Destroy(space_obj, DestroyType::VANISH);
 		spaceobj_modules.erase(space_obj);
 		space_obj = 0;
 	}
@@ -398,7 +398,7 @@ void DefenseModule::Reset()
 {
 	if (space_obj)
 	{
-		pub::SpaceObj::Destroy(space_obj, (pub::SpaceObj::DestroyType)0); // use type 1 for fuses
+		pub::SpaceObj::Destroy(space_obj, DestroyType::VANISH);
 		spaceobj_modules.erase(space_obj);
 		space_obj = 0;
 	}
