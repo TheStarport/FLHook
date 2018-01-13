@@ -44,6 +44,12 @@ enum DOCK_HOST_RESPONSE
 	DOCK = 5,
 };
 
+enum DestroyType
+{
+	VANISH = 0,
+	FUSE = 1,
+};
+
 
 struct SSPMunitionCollisionInfo
 {

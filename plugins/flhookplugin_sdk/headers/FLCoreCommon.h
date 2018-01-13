@@ -1672,7 +1672,7 @@ namespace PhySys
 	{
 		CObject* collision_object;
 		Vector collision_position;
-		uint iDunno[4];
+		Vector collision_velocity;
 	};
 
 	struct IMPORT Controller
@@ -1850,27 +1850,12 @@ public:
 	void set_transform(class Transform const &);
 	void update_tree(void)const ;
 
-#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
-	void* classvftable;
-	float fRotMatrix00;
-	float fRotMatrix01;
-	float fRotMatrix02;
-	float fRotMatrix10;
-	float fRotMatrix11;
-	float fRotMatrix12;
-	float fRotMatrix20;
-	float fRotMatrix21;
-	float fRotMatrix22;
-	float fPosX;
-	float fPosY;
-	float fPosZ;
-	float fRadius;
-	uint iDunno1;
-	uint iDunno2;
-	uint iDunno3;
-#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
-
-	uint iDunno4;
+	uint iDunnoEngineObject1;
+	Matrix mOrientation; // 0x8
+	Vector vPosition; // 0x2C
+	float fRadius; // 0x38
+	Vector vCenterOfMass; // 0x3C
+	uint iInstanceFlags; // 0x48
 };
 
 class IMPORT CSteering : public PhySys::Controller
@@ -2042,15 +2027,15 @@ public:
 	bool is_shield_part(unsigned int)const ;
 	long part_to_inst(unsigned int)const ;
 
-#ifdef _USE_DEPRECATED_COBJECT_VARIABLES_
-	Class enum_classid;
-	uint iSystem;
-	uint iDunno[23];
-	uint iSpaceID;
-	uint iDunno5[11];
-	uint iType;
-#endif // _USE_DEPRECATED_COBJECT_VARIABLES_
-
+	CObject::Class objectClass; // 0x4C
+	uint iSystem; // 0x50
+	uint iDunnoCObject; // 0x54, relates to all PhySys calls
+	struct SurfaceExtents
+	{
+		uint iDunno[2];
+		Vector vMin, vMax;
+	};
+	SurfaceExtents* surf; // 0x58
 };
 
 inline CObject::Class get_class(const CObject* c)
@@ -2096,6 +2081,21 @@ public:
 	float get_scanner_interference(void)const ;
 	unsigned int get_type(void)const ;
 	void update_zones(float,unsigned int);
+
+	uint iDunnoCSimple1[0xB];
+	Archetype::Root* archetype; // 0x88
+	uint iDunnoCSimple2[0x5];
+	uint iDunnoTargetable; // 0xA0
+	uint iDunnoScanner; // 0xA4
+	uint iDunnoCSimple3; // 0xA8
+	IObjDB* objDB; // 0xAC
+	uint iID; // 0xB0
+	uint iOwnerPlayer; // 0xB4
+	float fHitPoints; // 0xB8
+	uint iDunnoCSimple4[0x5];
+	Vector vRadiusCenter; // 0xD0
+	float fRadiusCentered; // 0xDC
+	uint iType; // 0xE0
 };
 
 struct IMPORT CAsteroid : public CSimple
