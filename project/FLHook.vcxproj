@@ -56,9 +56,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
-      <Command>xcopy /y  $(OutDir)$(TargetName).lib $(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib
-xcopy /y  $(OutDir)$(TargetName).dll $(DistDir)</Command>
-      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;%(Outputs)</Outputs>
+      <Command>xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
+xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
+      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -82,9 +84,11 @@ xcopy /y  $(OutDir)$(TargetName).dll $(DistDir)</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
-      <Command>xcopy /y  $(OutDir)$(TargetName).lib $(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib
-xcopy /y  $(OutDir)$(TargetName).dll $(DistDir)</Command>
-      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;%(Outputs)</Outputs>
+      <Command>xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
+xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
+      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -170,11 +174,11 @@ xcopy /y  $(OutDir)$(TargetName).dll $(DistDir)</Command>
     <Text Include="..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\misc\FLHook.ini">
+    <CopyFileToFolders Include="..\misc\FLHook.ini">
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-    </None>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

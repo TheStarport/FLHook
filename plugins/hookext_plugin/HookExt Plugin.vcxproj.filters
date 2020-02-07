@@ -18,39 +18,4 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreCommon.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreDACom.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreDALib.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreDefs.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreFLServerEXE.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreRemoteClient.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLCoreServer.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\FLHook.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\mapvc7.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\plugin.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\flhookplugin_sdk\headers\xtreevc7.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>

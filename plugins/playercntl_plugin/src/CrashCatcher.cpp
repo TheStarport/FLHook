@@ -349,7 +349,7 @@ void CrashCatcher::Init()
 				// reputed not coinciding with reputation on the client-side.
 				{
 					// alternative: 0C458F, 8B0482->33C090
-					byte patch[] = { 0x74, 0x11, 0xeb, 0x05 };
+					uchar patch[] = { 0x74, 0x11, 0xeb, 0x05 };
 					WriteProcMem((char*)hModContentAC + 0xC457F, patch, 4);
 				}
 
@@ -358,7 +358,7 @@ void CrashCatcher::Init()
 				// missing contains the from, to and cargo entries (amongst other stuff).
 				// Original Bytes: 8B F8 8B 17 8B CF
 				{
-					byte patch[] = { 0x90, 0xe8 }; // nop call
+					uchar patch[] = { 0x90, 0xe8 }; // nop call
 					WriteProcMem((char*)hModContentAC + 0x47bc2, patch, 2);
 					PatchCallAddr((char*)hModContentAC, 0x47bc2 + 1, (char*)HkCb_47bc4Naked); 
 				}
@@ -366,7 +366,7 @@ void CrashCatcher::Init()
 				// Patch for crash at engbase.dll + 0x0124BD ~ adoxa (thanks man)
 				// This is caused by a bad cmp.	
 				{
-					byte patch[] = { 0xe8 };
+					uchar patch[] = { 0xe8 };
 					WriteProcMem((char*)hEngBase + 0x0124BD, patch, 1);
 					PatchCallAddr((char*)hEngBase, 0x0124BD, (char*)HkCb_EngBase124BDNaked);
 				}
@@ -374,7 +374,7 @@ void CrashCatcher::Init()
 				// Patch for crash at engbase.dll + 0x011a6d
 				// This is caused by a bad cmp I suspect
 				{
-					byte patch[] = { 0x90, 0xe9 }; // nop jmpr
+					uchar patch[] = { 0x90, 0xe9 }; // nop jmpr
 					WriteProcMem((char*)hEngBase + 0x011a6d, patch, 2);
 					PatchCallAddr((char*)hEngBase, 0x011a6d + 1, (char*)HkCb_EngBase11a6dNaked);
 				}
@@ -447,22 +447,22 @@ void CrashCatcher::Shutdown()
 				ConPrint(L"NOTICE: Uninstalling patches from content.dll\n");
 
 			{
-				byte patch[] = { 0xe8, 0x6e, 0xe7, 0xff, 0xff };
+				uchar patch[] = { 0xe8, 0x6e, 0xe7, 0xff, 0xff };
 				WriteProcMem((char*)hModContentAC + 0xC608D, patch, 5);
 			}
 
 			{
-				byte patch[] = { 0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF };
+				uchar patch[] = { 0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF };
 				WriteProcMem((char*)hModContentAC + 0x47bc2, patch, 6);
 			}
 
 			{
-				byte patch[] = { 0x8B, 0x40, 0x10, 0x85, 0xc0 };
+				uchar patch[] = { 0x8B, 0x40, 0x10, 0x85, 0xc0 };
 				WriteProcMem((char*)hEngBase + 0x0124BD, patch, 5);
 			}
 		
 			{
-				byte patch[] = { 0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00 };
+				uchar patch[] = { 0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00 };
 				WriteProcMem((char*)hEngBase + 0x011a6d, patch, 6);
 			}
 

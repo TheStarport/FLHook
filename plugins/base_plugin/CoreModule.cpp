@@ -226,7 +226,7 @@ static void SpawnSolar(unsigned int & spaceID, pub::SpaceObj::SolarInfo const & 
 		// for every player in the same system, send solar creation packet
 		struct SOLAR_STRUCT
 		{
-			byte dunno[0x100];
+			uchar dunno[0x100];
 		};
 
 		SOLAR_STRUCT packetSolar;

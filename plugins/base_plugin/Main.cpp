@@ -579,7 +579,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			{
 
 				// Call our function on landing
-				byte patch[] = { 0xe9 }; // jmpr
+				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModServer + 0x2c24c, patch, sizeof(patch));
 				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)HkCb_LandNaked);
 			}
@@ -587,14 +587,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			hModCommon = GetModuleHandleA("common.dll");
 			{
 				// Suppress "is dockable " error message
-				byte patch[] = { 0xe9 }; // jmpr
+				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModCommon + 0x576cb, patch, sizeof(patch));
 				PatchCallAddr((char*)hModCommon, 0x576cb, (char*)HkCb_IsDockableErrorNaked);
 			}
 
 			{
 				// Suppress GetArch() error on max hit points call
-				byte patch[] = { 0x90, 0x90 }; // nop nop
+				uchar patch[] = { 0x90, 0x90 }; // nop nop
 				WriteProcMem((char*)hModCommon + 0x995b6, patch, sizeof(patch));
 				WriteProcMem((char*)hModCommon + 0x995fc, patch, sizeof(patch));
 			}
@@ -608,13 +608,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		{
 			{
 				// Unpatch the landing hook
-				byte patch[] = { 0x8A, 0x43, 0x1C, 0x84, 0xC0 };
+				uchar patch[] = { 0x8A, 0x43, 0x1C, 0x84, 0xC0 };
 				WriteProcMem((char*)hModServer + 0x2c24c, patch, sizeof(patch));
 			}
 
 			{
 				// Unpatch the Suppress "is dockable " error message
-				byte patch[] = { 0x85, 0x86, 0xb4, 0x01, 0x00 };
+				uchar patch[] = { 0x85, 0x86, 0xb4, 0x01, 0x00 };
 				WriteProcMem((char*)hModCommon + 0x576cb, patch, sizeof(patch));
 			}
 		}

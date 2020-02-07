@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-#include "../flhookplugin_sdk/headers/FLHook.h"
-#include "../flhookplugin_sdk/headers/plugin.h"
+#include "FLHook.h"
+#include "plugin.h"
 #include "header.h"
 #include <math.h>
 

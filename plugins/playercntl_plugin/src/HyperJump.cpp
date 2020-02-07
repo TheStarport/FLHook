@@ -135,7 +135,7 @@ namespace HyperJump
 		for (int i=0; i<HCOORD_SIZE; i++)
 		{
 			if (i!=0 && (i%4)==0) sbuf += L"-";
-			_snwprintf(buf, sizeof(buf), L"%02X", (byte)ibuf[i]);
+			_snwprintf(buf, sizeof(buf), L"%02X", (uchar)ibuf[i]);
 			sbuf += buf;
 		}
 		return sbuf;
