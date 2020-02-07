@@ -397,7 +397,7 @@ struct MONEY_FIX
 	wstring		wscCharname;
 	int			iAmount;
 
-	bool operator==(MONEY_FIX mf1)
+	bool operator==(MONEY_FIX mf1) const
 	{
 		if(!wscCharname.compare(mf1.wscCharname))
 			return true;
@@ -487,7 +487,7 @@ struct CLIENT_INFO
 	wstring		wscHostname;
 
 	bool		bSpawnProtected;
-	byte		unused_data[128];
+	uchar		unused_data[128];
 };
 
 // taken from directplay

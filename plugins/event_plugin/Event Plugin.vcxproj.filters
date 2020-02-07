@@ -16,7 +16,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin-vc12\event.cfg" />
+    <None Include="..\bin-vc14\event.cfg" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />

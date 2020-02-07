@@ -2,14 +2,6 @@
 #define _GLOBAL_
 #pragma warning(disable: 4311 4786)
 
-// include library files
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreDALib.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreCommon.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreDACom.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreFLServerEXE.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreRemoteClient.lib")
-#pragma comment(lib,"../plugins/flhookplugin_sdk/libs/FLCoreServer.lib")
-
 // includes 
 #include "blowfish.h"
 #include <windows.h>

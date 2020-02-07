@@ -1,0 +1,8 @@
+int
+bin
+dist
+.vs
+Debug
+Release
+*.vcxproj.user
+*.log
