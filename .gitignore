@@ -6,3 +6,5 @@ Debug
 Release
 *.vcxproj.user
 *.log
+
+!misc/acctpath_patch/bin/*.cfg
