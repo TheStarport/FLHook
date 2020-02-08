@@ -13,7 +13,12 @@
     <PostBuildEvent>
       <Command>xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)flhook_plugins\"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)flhook_plugins\"
-xcopy /y  "$(OutDir)*.ini" "$(DistDir)flhook_plugins\"</Command>
+xcopy /y  "$(OutDir)*.ini" "$(DistDir)flhook_plugins\"
+
+if "$(FLHOOK_COPY_PATH)" NEQ "" (
+xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\flhook_plugins\"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\flhook_plugins\"
+)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
