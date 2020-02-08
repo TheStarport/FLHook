@@ -359,7 +359,7 @@ namespace HyperJump
 					// Use fuel to charge the jump drive's storage capacitors
 					sm.charging_on = false;
 
-					for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+					for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 					{
 						if (sm.arch.mapFuelToUsage.find(item->iArchID) != sm.arch.mapFuelToUsage.end())
 						{
@@ -555,7 +555,7 @@ namespace HyperJump
 					// Use fuel to charge the jump drive's storage capacitors
 					jd.charging_on = false;
 
-					for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+					for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 					{
 						if (jd.arch.mapFuelToUsage.find(item->iArchID) != jd.arch.mapFuelToUsage.end())
 						{
@@ -1106,7 +1106,7 @@ namespace HyperJump
 
 			// Check that the player has a jump drive and initialise the infomation
 			// about it - otherwise return false.
-			for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+			for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 			{
 				if (mapJumpDriveArch.find(item->iArchID) != mapJumpDriveArch.end())
 				{
@@ -1141,7 +1141,7 @@ namespace HyperJump
 			
 			// Check that the player has a jump drive and initialise the infomation
 			// about it - otherwise return false.
-			for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+			for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 			{
 				if (mapSurveyArch.find(item->iArchID) != mapSurveyArch.end())
 				{

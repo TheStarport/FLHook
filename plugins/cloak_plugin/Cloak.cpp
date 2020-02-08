@@ -207,7 +207,7 @@ static bool ProcessFuel(uint iClientID, CLOAK_INFO &info)
 	if (info.bAdmin)
 		return true;
 
-	for (list<EquipDesc>::iterator item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+	for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
 	{
 		if (info.arch.mapFuelToUsage.find(item->iArchID) != info.arch.mapFuelToUsage.end())
 		{

@@ -333,8 +333,8 @@ namespace MiscCmds
 		}
 
 		bool bLights = false;
-		list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
-		for (list<EquipDesc>::iterator eq = eqLst.begin(); eq != eqLst.end(); eq++)
+		st6::list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
+		for (auto eq = eqLst.begin(); eq != eqLst.end(); eq++)
 		{
 			string hp = ToLower(eq->szHardPoint.value);
 			if (hp.find("dock")!=string::npos)

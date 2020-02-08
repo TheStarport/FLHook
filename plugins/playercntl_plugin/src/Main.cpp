@@ -278,9 +278,8 @@ namespace HkIServerImpl
 				fclose(file);
 			
 				// Ban the player
-				flstr *flStr = CreateWString(acc->wszAccID);
-				Players.BanAccount(*flStr, true);
-				FreeWString(flStr);
+				st6::wstring flStr((ushort*)acc->wszAccID);
+				Players.BanAccount(flStr, true);
 
 				// Kick them
 				acc->ForceLogout();

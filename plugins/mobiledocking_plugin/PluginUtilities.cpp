@@ -400,9 +400,8 @@ Delete a character.
 HK_ERROR HkDeleteCharacter(CAccount *acc, wstring &wscCharname)
 {
 	HkLockAccountAccess(acc, true);
-	flstr *str = CreateWString(wscCharname.c_str());
-	Players.DeleteCharacterFromName(*str);
-	FreeWString(str);
+	st6::wstring str((ushort*)wscCharname.c_str());
+	Players.DeleteCharacterFromName(str);
 	HkUnlockAccountAccess(acc);
 	return HKE_OK; 
 }

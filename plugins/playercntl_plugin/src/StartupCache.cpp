@@ -29,7 +29,7 @@ namespace StartupCache
 	static int chars_loaded = 0;
 	
 	// The original function read charname function
-	typedef int (__stdcall *_ReadCharacterName)(const char *filename, flstr *str);
+	typedef int (__stdcall *_ReadCharacterName)(const char *filename, st6::wstring *str);
 	_ReadCharacterName ReadCharName;
 
 	// map of acc_char_path to char name
@@ -42,24 +42,24 @@ namespace StartupCache
 	static int acc_path_prefix_length = 0;
 
 	// A fast alternative to the built in read character name function in server.dll
-	static int __stdcall HkCb_ReadCharacterName(const char *filename, flstr* str)
+	static int __stdcall HkCb_ReadCharacterName(const char *filename, st6::wstring* str)
 	{
 		ConPrint(L"\rRead %d\r", ++chars_loaded);
 
 		// If this account/charfile can be found in the character return
 		// then name immediately.
 		string acc_path(&filename[acc_path_prefix_length]);
-		map<string, wstring>::iterator i = cache.find(acc_path);
+		auto i = cache.find(acc_path);
 		if (i != cache.end())
 		{
-			WStringAssign(str, i->second.c_str());
+			*str = st6::wstring((ushort*)i->second.c_str());
 			return 1;
 		}
 
 		// Otherwise use the original FL function to load the char name
 		// and cache the result and report that this is an uncached file
 		ReadCharName(filename, str);	
-		cache[acc_path] = GetWCString(str);
+		cache[acc_path] = std::wstring((wchar_t*)str->c_str());
 		return 1;
 	}
 

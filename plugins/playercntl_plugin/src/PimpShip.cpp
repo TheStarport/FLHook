@@ -231,8 +231,8 @@ namespace PimpShip
 		// Build the equipment list.
 		int iSlotID = 1;
 
-		list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
-		for (list<EquipDesc>::iterator eq = eqLst.begin(); eq != eqLst.end(); eq++)
+		st6::list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
+		for (auto eq = eqLst.begin(); eq != eqLst.end(); eq++)
 		{
 			if (IsItemArchIDAvailable(eq->iArchID))
 			{
