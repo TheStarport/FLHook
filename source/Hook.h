@@ -241,7 +241,6 @@ struct PLUGIN_SORTCRIT {
 	} CATCH_HOOK( { AddLog("ERROR: Exception %s", __FUNCTION__); } ) \
 } \
 
-typedef PLUGIN_RETURNCODE (*PLUGIN_Get_PluginReturnCode)();
 typedef PLUGIN_INFO* (*PLUGIN_Get_PluginInfo)();
 
 
@@ -805,24 +804,10 @@ extern EXPORT bool get_bTrue(uint iClientID);
 extern EXPORT void HkAddHelpEntry(const wstring &wscCommand, const wstring &wscArguments, const wstring & wscShortHelp, const wstring &wscLongHelp, _HelpEntryDisplayed fnIsDisplayed);
 extern EXPORT void HkRemoveHelpEntry(const wstring &wscCommand, const wstring &wscArguments);
 
-inline HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname) {
-	bIdString = wscCharname.find(L"id ") == 0;
-
-	HK_ERROR hkErr = HkResolveId(wscCharname, iClientID);
-	if(hkErr != HKE_OK) {
-	    if(hkErr == HKE_INVALID_ID_STRING) {
-			hkErr = HkResolveShortCut(wscCharname, iClientID);
-			if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER))
-				return hkErr;
-			if(hkErr == HKE_INVALID_SHORTCUT_STRING)
-				iClientID = HkGetClientIdFromCharname(wscCharname);
-		} else
-			return hkErr;
-	}
-}
+extern EXPORT HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname);
 
 #define HK_GET_CLIENTID(a, b) \
 	bool bIdString = false; uint a = uint(-1); \
-    HkGetClientID(bIdString, a, b);
+    if(auto err = HkGetClientID(bIdString, a, b); err != HKE_OK) return err;
 
 #endif

@@ -170,15 +170,14 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
     <ClInclude Include="..\source\global.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\plugin_documentation.txt" />
-    <Text Include="..\readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini">
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\FLHookSDK\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

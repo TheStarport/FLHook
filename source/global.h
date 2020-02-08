@@ -10,6 +10,13 @@
 #include <list>
 #include <functional>
 
+typedef void*(*st6_malloc_t)(size_t);
+typedef void(*st6_free_t)(void*);
+
+extern EXPORT st6_malloc_t st6_malloc;
+extern EXPORT st6_free_t st6_free;
+#define ST6_ALLOCATION_DEFINED
+
 #include <FLCoreServer.h>
 #include <FLCoreCommon.h>
 #include <FLCoreRemoteClient.h>

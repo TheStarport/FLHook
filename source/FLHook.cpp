@@ -45,6 +45,9 @@ bool bExecuted = false;
 
 CConsole AdminConsole;
 
+st6_malloc_t st6_malloc;
+st6_free_t st6_free;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Init();
@@ -167,6 +170,13 @@ void FLHookInit_Pre()
 
 	InitializeCriticalSection(&cs);
 	hProcFL = GetModuleHandle(0);
+
+	// Get direct pointers to malloc and free for st6 to prevent debug heap issues
+	{
+	    auto msvcrt = GetModuleHandle(TEXT("msvcrt.dll"));
+	    st6_malloc = (st6_malloc_t)GetProcAddress(msvcrt, "malloc");
+	    st6_free = (st6_free_t)GetProcAddress(msvcrt, "free");
+	}
 
 	// start console
 	AllocConsole();

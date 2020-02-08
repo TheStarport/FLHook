@@ -1,4 +1,22 @@
-#include "hook.h"
+#include "Hook.h"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname) {
+	bIdString = wscCharname.find(L"id ") == 0;
+
+	HK_ERROR hkErr = HkResolveId(wscCharname, iClientID);
+	if(hkErr != HKE_OK) {
+	    if(hkErr == HKE_INVALID_ID_STRING) {
+			hkErr = HkResolveShortCut(wscCharname, iClientID);
+			if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER))
+				return hkErr;
+			if(hkErr == HKE_INVALID_SHORTCUT_STRING)
+				iClientID = HkGetClientIdFromCharname(wscCharname);
+		}
+	}
+	return hkErr;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

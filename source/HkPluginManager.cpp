@@ -182,9 +182,6 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup)
 		adminInterface->Print(L"Error, could not load plugin (unloadable, need server restart to load): %s\n", stows(plugin.sDLL).c_str());
 		throw "";
 	}
-	
-					
-	FARPROC pPluginReturnCode = GetProcAddress(plugin.hDLL, "?Get_PluginReturnCode@@YA?AW4PLUGIN_RETURNCODE@@XZ");
 
 	foreach(p_PI->lstHooks, PLUGIN_HOOKINFO, it)
 	{

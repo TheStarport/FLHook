@@ -19,9 +19,6 @@
     <Filter Include="wildcards">
       <UniqueIdentifier>{5ab78678-a596-40ba-bff8-456eed8e3646}</UniqueIdentifier>
     </Filter>
-    <Filter Include="documentation">
-      <UniqueIdentifier>{edd600f4-e70d-46f9-93f2-1f5918ba4f12}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ini">
       <UniqueIdentifier>{6ad144b2-5c2e-4c6d-82e2-b0a3f1b5dd64}</UniqueIdentifier>
     </Filter>
@@ -182,14 +179,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\plugin_documentation.txt">
-      <Filter>documentation</Filter>
-    </Text>
-    <Text Include="..\readme.txt">
-      <Filter>documentation</Filter>
-    </Text>
+    <CopyFileToFolders Include="..\misc\FLHook.ini" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\misc\FLHook.ini" />
+    <None Include="..\FLHookSDK\README.md">
+      <Filter>sdk</Filter>
+    </None>
   </ItemGroup>
 </Project>
