@@ -62,26 +62,6 @@
 #define ADDR_COMMON_VFTABLE_MUNITION 0x139CE8
 #define ADDR_COMMON_VFTABLE_ENGINE 0x139AAC
 
-
-#define HK_GET_CLIENTID(a, b) \
-	bool bIdString = false; \
-	if(b.find(L"id ") == 0) bIdString = true; \
-	uint a; \
-	{ \
-		HK_ERROR hkErr = HkResolveId(b, a); \
-		if(hkErr != HKE_OK) \
-		{ \
-			if(hkErr == HKE_INVALID_ID_STRING) { \
-				hkErr = HkResolveShortCut(b, a); \
-				if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER)) \
-					return hkErr; \
-				else if(hkErr == HKE_INVALID_SHORTCUT_STRING) \
-					a = HkGetClientIdFromCharname(b); \
-			} else \
-				return hkErr; \
-		} \
-	} \
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // exception logging
 
@@ -824,5 +804,25 @@ extern list<stHelpEntry> lstHelpEntries;
 extern EXPORT bool get_bTrue(uint iClientID);
 extern EXPORT void HkAddHelpEntry(const wstring &wscCommand, const wstring &wscArguments, const wstring & wscShortHelp, const wstring &wscLongHelp, _HelpEntryDisplayed fnIsDisplayed);
 extern EXPORT void HkRemoveHelpEntry(const wstring &wscCommand, const wstring &wscArguments);
+
+inline HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname) {
+	bIdString = wscCharname.find(L"id ") == 0;
+
+	HK_ERROR hkErr = HkResolveId(wscCharname, iClientID);
+	if(hkErr != HKE_OK) {
+	    if(hkErr == HKE_INVALID_ID_STRING) {
+			hkErr = HkResolveShortCut(wscCharname, iClientID);
+			if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER))
+				return hkErr;
+			if(hkErr == HKE_INVALID_SHORTCUT_STRING)
+				iClientID = HkGetClientIdFromCharname(wscCharname);
+		} else
+			return hkErr;
+	}
+}
+
+#define HK_GET_CLIENTID(a, b) \
+	bool bIdString = false; uint a = uint(-1); \
+    HkGetClientID(bIdString, a, b);
 
 #endif

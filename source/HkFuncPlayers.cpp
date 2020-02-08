@@ -171,9 +171,8 @@ HK_ERROR HkBan(const wstring &wscCharname, bool bBan)
 	}
 
 	wstring wscID = HkGetAccountID(acc);
-	flstr *flStr = CreateWString(wscID.c_str());
-	Players.BanAccount(*flStr, bBan);
-	FreeWString(flStr);
+	st6::wstring flStr((ushort*)wscID.c_str());
+	Players.BanAccount(flStr, bBan);
 	return HKE_OK;
 }
 
@@ -510,10 +509,9 @@ HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, boo
 
 	if(bOnlyDelete) {
 		// delete character
-		flstr *str = CreateWString(wscOldCharname.c_str());
+		st6::wstring str((ushort*)wscOldCharname.c_str());
 		HkLockAccountAccess(acc, true); // also kicks player on this account
-		Players.DeleteCharacterFromName(*str);
-		FreeWString(str);
+		Players.DeleteCharacterFromName(str);
 		HkUnlockAccountAccess(acc);
 		return HKE_OK; 
 	}
@@ -528,9 +526,8 @@ HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, boo
 	CopyFile(scOldCharfilePath.c_str(), scTmpPath.c_str(), FALSE);
 
 	// Delete existing char otherwise a rename of the char in slot 5 fails.
-	flstr *str = CreateWString(wscOldCharname.c_str());
-	Players.DeleteCharacterFromName(*str);
-	FreeWString(str);
+	st6::wstring str((ushort*)wscOldCharname.c_str());
+	Players.DeleteCharacterFromName(str);
 
 	// Emulate char create
 	SLoginInfo logindata;
@@ -1029,14 +1026,14 @@ HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMe
 		return HKE_PLAYER_NOT_LOGGED_IN;
 
 	// hey, at least it works! beware of the VC optimiser.
-	uint* vMembers[100] = { 0 };
-	pub::Player::GetGroupMembers(iClientID, (vector<uint>&)vMembers);
+	st6::vector<uint> vMembers;
+	pub::Player::GetGroupMembers(iClientID, vMembers);
 
-	for(uint *i = vMembers[1] ; i != vMembers[2]; i++)
+	for(uint i : vMembers)
 	{
 		GROUP_MEMBER gm;
-		gm.iClientID = *i;
-		gm.wscCharname = (wchar_t*)Players.GetActiveCharacterName(*i);
+		gm.iClientID = i;
+		gm.wscCharname = (wchar_t*)Players.GetActiveCharacterName(i);
 		lstMembers.push_back(gm);
 	}
 

@@ -22,7 +22,6 @@ HMODULE hModDPNet = 0;
 HMODULE hModDaLib = 0;
 HMODULE hModContent = 0;
 HANDLE hConsoleThread;
-HMODULE hWString;
 
 HANDLE hConsoleIn;
 HANDLE hConsoleOut;
@@ -45,18 +44,6 @@ FILE *fLogDebug = 0;
 bool bExecuted = false;
 
 CConsole AdminConsole;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-_CreateWString CreateWString;
-_FreeWString FreeWString;
-_CreateString CreateString;
-_FreeString FreeString;
-_GetCString GetCString;
-_GetWCString GetWCString;
-_WStringAssign WStringAssign;
-_WStringAppend WStringAppend;
-_CPlayerAccount_GetServerSignature CPlayerAccount_GetServerSignature;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -196,27 +183,6 @@ void FLHookInit_Pre()
 		// get module handles
 		if(!(hModServer = GetModuleHandle("server")))
 			throw "server.dll not loaded";
-
-		if(!(hWString = LoadLibrary("FLHookVC6Strings.dll")))
-			throw "FLHookVC6Strings.dll not found";
-		if(!(CreateWString = (_CreateWString)GetProcAddress(hWString, "CreateWString")))
-			throw "FLHookVC6Strings.dll: CreateWString not found";
-		if(!(FreeWString = (_FreeWString)GetProcAddress(hWString, "FreeWString")))
-			throw "FLHookVC6Strings.dll: FreeWString not found";
-		if(!(CreateString = (_CreateString)GetProcAddress(hWString, "CreateString")))
-			throw "FLHookVC6Strings.dll: CreateString not found";
-		if(!(FreeString = (_FreeString)GetProcAddress(hWString, "FreeString")))
-			throw "FLHookVC6Strings.dll: FreeString not found";
-		if(!(GetCString = (_GetCString)GetProcAddress(hWString, "GetCString")))
-			throw "FLHookVC6Strings.dll: GetCString not found";
-		if(!(GetWCString = (_GetWCString)GetProcAddress(hWString, "GetWCString")))
-			throw "FLHookVC6Strings.dll: GetWCString not found";
-		if(!(WStringAssign = (_WStringAssign)GetProcAddress(hWString, "WStringAssign")))
-			throw "FLHookVC6Strings.dll: WStringAssign not found";
-		if (!(WStringAppend = (_WStringAppend)GetProcAddress(hWString, "WStringAppend")))
-			throw "FLHookVC6Strings.dll: WStringAppend not found";
-		if (!(CPlayerAccount_GetServerSignature = (_CPlayerAccount_GetServerSignature)GetProcAddress(hWString, "CPlayerAccount_GetServerSignature")))
-			throw "FLHookVC6Strings.dll: CPlayerAccount_GetServerSignature not found";
 
 		// create log dirs
 		CreateDirectoryA("./flhook_logs/",NULL);
@@ -477,7 +443,6 @@ void FLHookUnload()
 	DeleteCriticalSection(&cs);
 
 	// finish
-	FreeLibrary(hWString);
 	FreeLibraryAndExitThread(hMe, 0); 
 }
 

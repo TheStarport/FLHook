@@ -147,9 +147,8 @@ HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights)
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
 	if(iClientID == -1) {
-		flstr *str = CreateWString(wscCharname.c_str());
-		acc = Players.FindAccountFromCharacterName(*str);
-		FreeWString(str);
+		st6::wstring str((ushort*)wscCharname.c_str());
+		acc = Players.FindAccountFromCharacterName(str);
 		if(!acc)
 			return HKE_CHAR_DOES_NOT_EXIST;;
 	} else {
@@ -171,9 +170,8 @@ HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights)
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
 	if(iClientID == -1) {
-		flstr *str = CreateWString(wscCharname.c_str());
-		acc = Players.FindAccountFromCharacterName(*str);
-		FreeWString(str);
+		st6::wstring str((ushort*)wscCharname.c_str());
+		acc = Players.FindAccountFromCharacterName(str);
 		if(!acc)
 			return HKE_CHAR_DOES_NOT_EXIST;;
 	} else {
@@ -202,9 +200,8 @@ HK_ERROR HkDelAdmin(const wstring &wscCharname)
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
 	if(iClientID == -1) {
-		flstr *str = CreateWString(wscCharname.c_str());
-		acc = Players.FindAccountFromCharacterName(*str);
-		FreeWString(str);
+		st6::wstring str((ushort*)wscCharname.c_str());
+		acc = Players.FindAccountFromCharacterName(str);
 		if(!acc)
 			return HKE_CHAR_DOES_NOT_EXIST;;
 	} else {

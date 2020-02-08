@@ -254,7 +254,7 @@ void LoadUserCharSettings(uint iClientID)
 
 	// read autobuy
 	wstring wscFilename;
-	HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
+	HkGetCharFileName((wchar_t*)Players.GetActiveCharacterName(iClientID), wscFilename);
 	string scSection = "autobuy_" + wstos(wscFilename);
 
 	ClientInfo[iClientID].bAutoBuyMissiles = IniGetB(scUserFile, scSection, "missiles", false);

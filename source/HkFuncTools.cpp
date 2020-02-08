@@ -28,9 +28,8 @@ uint HkGetClientIdFromPD(struct PlayerData *pPD)
 CAccount* HkGetAccountByCharname(const wstring &wscCharname)
 {
 
-	flstr *flStr = CreateWString(wscCharname.c_str());
-	CAccount *acc = Players.FindAccountFromCharacterName(*flStr);
-	FreeWString(flStr);
+	st6::wstring flStr((ushort*)wscCharname.c_str());
+	CAccount *acc = Players.FindAccountFromCharacterName(flStr);
 
 	return acc;
 }
@@ -295,25 +294,22 @@ void HkLockAccountAccess(CAccount *acc, bool bKick)
 	char szJMP[] = { '\xEB' };
 	char szJBE[] = { '\x76' };
 
-	flstr *flStr = CreateWString(HkGetAccountID(acc).c_str());
+	st6::wstring flStr((ushort*)HkGetAccountID(acc).c_str());
 
 	if(!bKick)
 		WriteProcMem((void*)0x06D52A6A, &szJMP, 1);
 
-	Players.LockAccountAccess(*flStr); // also kicks player on this account
+	Players.LockAccountAccess(flStr); // also kicks player on this account
 	if(!bKick)
 		WriteProcMem((void*)0x06D52A6A, &szJBE, 1);
-
-	FreeWString(flStr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void HkUnlockAccountAccess(CAccount *acc)
 {
-	flstr *flStr = CreateWString(HkGetAccountID(acc).c_str());
-	Players.UnlockAccountAccess(*flStr);
-	FreeWString(flStr);
+	st6::wstring flStr((ushort*)HkGetAccountID(acc).c_str());
+	Players.UnlockAccountAccess(flStr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

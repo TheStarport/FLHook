@@ -9,6 +9,11 @@
 #include <string>
 #include <list>
 #include <functional>
+
+#include <FLCoreServer.h>
+#include <FLCoreCommon.h>
+#include <FLCoreRemoteClient.h>
+#include <FLCoreDALib.h>
 using namespace std;
 
 // defines
@@ -29,26 +34,6 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned long ulong;
 typedef unsigned __int64 mstime;
-
-// custom fl wstring (vc6 strings)
-typedef class std::basic_string<unsigned short,struct ci_wchar_traits> flstr;
-typedef class std::basic_string<char,struct ci_char_traits> flstrs;
-
-typedef flstr* (*_CreateWString)(const wchar_t *wszStr);
-typedef void (*_FreeWString)(flstr *wscStr);
-typedef flstrs* (*_CreateString)(const char *szStr);
-typedef void (*_FreeString)(flstrs *scStr);
-typedef char* (*_GetCString)(flstrs *scStr);
-typedef wchar_t* (*_GetWCString)(flstr *wscStr);
-typedef wchar_t* (*_WStringAssign)(flstr *wscStr, const wchar_t *wszStr);
-typedef wchar_t* (*_WStringAppend)(flstr *wscStr, const wchar_t *wszStr);
-
-typedef flstr* (*_CPlayerAccount_GetServerSignature)(class CPlayerAccount* cpa, const char* sig);
-
-#include <FLCoreServer.h>
-#include <FLCoreCommon.h>
-#include <FLCoreRemoteClient.h>
-#include <FLCoreDALib.h>
 
 // structures
 struct INISECTIONVALUE
@@ -109,15 +94,6 @@ extern EXPORT HMODULE hModRemoteClient;
 extern EXPORT HMODULE hModDPNet;
 extern EXPORT HMODULE hModDaLib;
 extern EXPORT HMODULE hModContent;
-extern EXPORT _CreateWString CreateWString;
-extern EXPORT _FreeWString FreeWString;
-extern EXPORT _CreateString CreateString;
-extern EXPORT _FreeString FreeString;
-extern EXPORT _GetCString GetCString;
-extern EXPORT _GetWCString GetWCString;
-extern EXPORT _WStringAssign WStringAssign;
-extern EXPORT _WStringAppend WStringAppend;
-extern EXPORT _CPlayerAccount_GetServerSignature CPlayerAccount_GetServerSignature;
 extern EXPORT FILE *fLog;
 extern EXPORT FILE *fLogDebug;
 extern EXPORT FARPROC fpOldUpdate;

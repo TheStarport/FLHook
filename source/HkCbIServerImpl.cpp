@@ -1585,16 +1585,16 @@ void __stdcall ReqChangeCash(int p1, unsigned int iClientID)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void __stdcall ReqCollisionGroups(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
+void __stdcall ReqCollisionGroups(class st6::list<struct CollisionGroupDesc,class st6::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID)
 {
 	ISERVER_LOG();
 	ISERVER_LOGARG_UI(iClientID);
 	
-	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups,__stdcall,(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups,__stdcall,(class st6::list<struct CollisionGroupDesc,class st6::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
 
 	EXECUTE_SERVER_CALL(Server.ReqCollisionGroups(p1, iClientID));
 	
-	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups_AFTER,__stdcall,(class std::list<struct CollisionGroupDesc,class std::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
+	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_ReqCollisionGroups_AFTER,__stdcall,(class st6::list<struct CollisionGroupDesc,class st6::allocator<struct CollisionGroupDesc> > const &p1, unsigned int iClientID),(p1, iClientID));
 }
 
 /**************************************************************************************************************

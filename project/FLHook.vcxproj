@@ -18,16 +18,16 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -75,7 +75,7 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
+      <DataExecutionPrevention>false</DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
@@ -108,7 +108,7 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
+      <DataExecutionPrevention>false</DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent />
@@ -149,19 +149,19 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"</Command>
     <ClCompile Include="..\source\Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDALib.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDefs.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreFLServerEXE.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
+    <ClInclude Include="..\FLHookSDK\include\st6.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\wildcards.hh" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLHook.h" />
     <ClInclude Include="..\plugins\flhookplugin_sdk\headers\plugin.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreCommon.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDACom.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDALib.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDefs.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreFLServerEXE.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreRemoteClient.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreServer.h" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\flmap.h" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CInGame.h" />

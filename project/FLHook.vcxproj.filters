@@ -28,14 +28,14 @@
     <Filter Include="sdk">
       <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\fl_headers">
-      <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AdminCommands">
       <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
     </Filter>
     <Filter Include="blowfish">
       <UniqueIdentifier>{0f3adb60-b17c-438e-b2d0-28b05cfd230d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\Header Files">
+      <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -134,35 +134,8 @@
     <ClInclude Include="..\source\wildcards.hh">
       <Filter>wildcards</Filter>
     </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLHook.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\plugins\flhookplugin_sdk\headers\plugin.h">
       <Filter>sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreCommon.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDACom.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDALib.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreDefs.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreFLServerEXE.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreRemoteClient.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\FLCoreServer.h">
-      <Filter>sdk\fl_headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\flmap.h">
-      <Filter>sdk\fl_headers</Filter>
     </ClInclude>
     <ClInclude Include="..\source\CCmds.h">
       <Filter>AdminCommands</Filter>
@@ -180,6 +153,33 @@
       <Filter>blowfish</Filter>
     </ClInclude>
     <ClInclude Include="..\source\global.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDefs.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreFLServerEXE.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCoreDALib.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\st6.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLHook.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\plugin_documentation.txt">
