@@ -28,7 +28,7 @@ namespace AntiJumpDisconnect
 	{
 		bool bInWrapGate;
 	};
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	void AntiJumpDisconnect::ClearClientInfo(unsigned int iClientID)
 	{

@@ -24,14 +24,14 @@
 namespace IPBans
 {
 	/// list of bans
-	static list<string> set_lstIPBans;
-	static list<string> set_lstLoginIDBans;
+	static std::list<std::string> set_lstIPBans;
+	static std::list<std::string> set_lstLoginIDBans;
 
 	struct INFO
 	{
 		bool bIPChecked;
 	};
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	/// Return true if this client is on a banned IP range.
 	static bool IsBanned(uint iClientID)
@@ -41,8 +41,8 @@ namespace IPBans
 		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
-		foreach (set_lstIPBans, std::string, iter)
-			if (Wildcard::wildcardfit(iter->c_str(), scIP.c_str()))
+		for(auto& ban : set_lstIPBans)
+			if (Wildcard::wildcardfit(ban.c_str(), scIP.c_str()))
 				return true;
 		// To avoid plugin comms with DSAce because I ran out of time to make this
 		// work, I use something of a trick to get the login ID.
@@ -100,10 +100,10 @@ namespace IPBans
 					// If the login ID has been read then check it to see if it has been banned
 					if (scThisIP == scIP && scLoginID.length())
 					{
-						foreach (set_lstLoginIDBans, std::string, iter)
+						for(auto& ban : set_lstLoginIDBans)
 						{
-							if (*iter == scLoginID
-								|| *iter == scLoginID2)
+							if (ban == scLoginID
+								|| ban == scLoginID2)
 							{
 								ConPrint(L"* Kicking player on ID ban: ip=%s id1=%s id2=%s\n",
 									stows(scThisIP).c_str(), stows(scLoginID).c_str(), stows(scLoginID2).c_str());

@@ -37,7 +37,7 @@ namespace PimpShip
 	static int set_iCost = 0;
 
 	// List of dealer rooms
-	static map<uint, std::wstring> set_mapDealers;
+	static std::map<uint, std::wstring> set_mapDealers;
 
 	// Item of equipment for a single client.
 	struct EQ_HARDPOINT
@@ -56,11 +56,11 @@ namespace PimpShip
 		INFO() : bInPimpDealer(false) {}
 
 		// Map of hard point ID to equip.
-		map<uint, EQ_HARDPOINT> mapCurrEquip;
+		std::map<uint, EQ_HARDPOINT> mapCurrEquip;
 
 		bool bInPimpDealer;
 	};
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	// Map of item id to ITEM INFO
 	struct ITEM_INFO
@@ -71,11 +71,11 @@ namespace PimpShip
 		std::wstring wscNickname;
 		std::wstring wscDescription;
 	};
-	map<uint, ITEM_INFO> mapAvailableItems;
+	std::map<uint, ITEM_INFO> mapAvailableItems;
 
 	bool IsItemArchIDAvailable(uint iArchID)
 	{
-		for (map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
+		for (std::map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
 			iter != mapAvailableItems.end();
 			iter++)
 		{
@@ -87,7 +87,7 @@ namespace PimpShip
 
 	std::wstring GetItemDescription(uint iArchID)
 	{
-		for (map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
+		for (std::map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
 			iter != mapAvailableItems.end();
 			iter++)
 		{
@@ -253,7 +253,7 @@ namespace PimpShip
 			return false;
 
 		PrintUserCmdText(iClientID, L"Current ship setup: %d", mapInfo[iClientID].mapCurrEquip.size());
-		for (map<uint, EQ_HARDPOINT>::iterator iter = mapInfo[iClientID].mapCurrEquip.begin();
+		for (auto iter = mapInfo[iClientID].mapCurrEquip.begin();
 			iter != mapInfo[iClientID].mapCurrEquip.end();
 			iter++)
 		{
@@ -271,7 +271,7 @@ namespace PimpShip
 			return false;
 
 		PrintUserCmdText(iClientID, L"Available items: %d", mapAvailableItems.size());
-		for (map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin(); iter != mapAvailableItems.end(); iter++)
+		for (auto iter = mapAvailableItems.begin(); iter != mapAvailableItems.end(); iter++)
 		{
 			PrintUserCmdText(iClientID, L"|     %.2d:  %s", iter->first, iter->second.wscDescription.c_str());
 		}
@@ -334,14 +334,14 @@ namespace PimpShip
 		}
 
 		// Remove all lights.
-		for (map<uint, EQ_HARDPOINT>::iterator i = mapInfo[iClientID].mapCurrEquip.begin();
+		for (auto i = mapInfo[iClientID].mapCurrEquip.begin();
 			i != mapInfo[iClientID].mapCurrEquip.end(); ++i)
 		{
 			pub::Player::RemoveCargo(iClientID, i->second.sID, 1);
 		}
 
 		// Re-add all lights so that the order is kept the same
-		for (map<uint, EQ_HARDPOINT>::iterator i = mapInfo[iClientID].mapCurrEquip.begin();
+		for (auto i = mapInfo[iClientID].mapCurrEquip.begin();
 			i != mapInfo[iClientID].mapCurrEquip.end(); ++i)
 		{
 			HkAddEquip(wscCharName, i->second.iArchID, wstos(i->second.wscHardPoint));

@@ -41,9 +41,9 @@ namespace MiscCmds
 	};
 
 	/** A list of clients that are being smited */
-	map<uint, INFO> mapInfo;
-	typedef map<uint, INFO, less<uint> >::value_type mapInfo_map_pair_t;
-	typedef map<uint, INFO, less<uint> >::iterator mapInfo_map_iter_t;
+	std::map<uint, INFO> mapInfo;
+	typedef std::map<uint, INFO, std::less<uint> >::value_type mapInfo_map_pair_t;
+	typedef std::map<uint, INFO, std::less<uint> >::iterator mapInfo_map_iter_t;
 
 	std::wstring set_wscStuckMsg = L"Attention! Stand clear. Towing %player";
 	std::wstring set_wscDiceMsg = L"%player rolled %number";

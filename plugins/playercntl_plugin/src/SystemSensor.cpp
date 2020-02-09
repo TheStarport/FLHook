@@ -46,15 +46,15 @@ namespace SystemSensor
 	};
 
 	/// Map of equipment and systems that have sensor networks
-	static multimap<unsigned int, SENSOR> set_mmapSensorEquip;
-	static multimap<unsigned int, SENSOR> set_mmapSensorSystem;
+	static std::multimap<unsigned int, SENSOR> set_mmapSensorEquip;
+	static std::multimap<unsigned int, SENSOR> set_mmapSensorSystem;
 
 	struct INFO
 	{
 		INFO() : iAvailableNetworkID(0), iLastScanNetworkID(0), bInJumpGate(false), iMode(MODE_OFF) {}
 		uint iAvailableNetworkID;
 
-		list<CARGO_INFO> lstLastScan;
+		std::list<CARGO_INFO> lstLastScan;
 		uint iLastScanNetworkID;
 
 		bool bInJumpGate;
@@ -62,7 +62,7 @@ namespace SystemSensor
 		uint iMode;
 	};
 
-	static map<UINT, INFO> mapInfo;
+	static std::map<UINT, INFO> mapInfo;
 
 	void LoadSettings(const std::string &scPluginCfgFile)
 	{	
@@ -79,8 +79,8 @@ namespace SystemSensor
 						sensor.iSystemID = CreateID(ini.get_name_ptr());
 						sensor.iEquipID = CreateID(ini.get_value_string(0));
 						sensor.iNetworkID = ini.get_value_int(1);
-						set_mmapSensorEquip.insert(multimap<uint, SENSOR>::value_type(sensor.iEquipID, sensor));
-						set_mmapSensorSystem.insert(multimap<uint, SENSOR>::value_type(sensor.iSystemID, sensor));
+						set_mmapSensorEquip.insert(std::multimap<uint, SENSOR>::value_type(sensor.iEquipID, sensor));
+						set_mmapSensorSystem.insert(std::multimap<uint, SENSOR>::value_type(sensor.iSystemID, sensor));
 					}
 				}
 			}
@@ -147,7 +147,7 @@ namespace SystemSensor
 			return true;
 		}
 
-		map<uint, INFO>::iterator iterTargetClientID = mapInfo.find(iTargetClientID);
+		auto iterTargetClientID = mapInfo.find(iTargetClientID);
 		if (iterTargetClientID == mapInfo.end()
 			|| !mapInfo[iClientID].iAvailableNetworkID
 			|| !iterTargetClientID->second.iLastScanNetworkID
@@ -158,12 +158,12 @@ namespace SystemSensor
 		}
 
 		std::wstring wscEqList;
-		foreach (iterTargetClientID->second.lstLastScan, CARGO_INFO, ci)
+		for(auto& ci : iterTargetClientID->second.lstLastScan)
 		{
-			std::string scHardpoint = ci->hardpoint.value;
+			std::string scHardpoint = ci.hardpoint.value;
 			if (scHardpoint.length())
 			{
-				Archetype::Equipment *eq = Archetype::GetEquipment(ci->iArchID);
+				Archetype::Equipment *eq = Archetype::GetEquipment(ci.iArchID);
 				if (eq && eq->iIdsName)
 				{
 					std::wstring wscResult;
@@ -200,7 +200,7 @@ namespace SystemSensor
 	{
 		// Retrieve the location and cargo list.
 		int iHoldSize;
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
 
 		unsigned int iSystemID;
@@ -209,12 +209,12 @@ namespace SystemSensor
 		// If this is ship has the right equipment and is in the right system then
 		// enable access.
 		uint iAvailableNetworkID = 0;
-		foreach (lstCargo, CARGO_INFO, i)
+		for(auto& ci : lstCargo)
 		{
-			if (i->bMounted)
+			if (ci.bMounted)
 			{
-				multimap<UINT, SENSOR>::iterator start = set_mmapSensorEquip.lower_bound(i->iArchID);
-				multimap<UINT, SENSOR>::iterator end = set_mmapSensorEquip.upper_bound(i->iArchID);
+				auto start = set_mmapSensorEquip.lower_bound(ci.iArchID);
+				auto end = set_mmapSensorEquip.upper_bound(ci.iArchID);
 				while (start != end)
 				{
 					if (start->second.iSystemID == iSystemID)
@@ -248,8 +248,8 @@ namespace SystemSensor
 		pub::Player::GetSystem(iClientID, iSystemID);
 
 		// Find the sensor network for this system.
-		multimap<UINT, SENSOR>::iterator siter = set_mmapSensorSystem.lower_bound(iSystemID);
-		multimap<UINT, SENSOR>::iterator send = set_mmapSensorSystem.upper_bound(iSystemID);
+		auto siter = set_mmapSensorSystem.lower_bound(iSystemID);
+		auto send = set_mmapSensorSystem.upper_bound(iSystemID);
 		if (siter == send)
 			return;
 
@@ -264,8 +264,8 @@ namespace SystemSensor
 		mapInfo[iClientID].iLastScanNetworkID = siter->second.iNetworkID;
 
 		// Notify any players connected to the the sensor network that this ship is in 
-		map<UINT, INFO>::iterator piter = mapInfo.begin();
-		map<UINT, INFO>::iterator pend = mapInfo.end();
+		auto piter = mapInfo.begin();
+		auto pend = mapInfo.end();
 		while (piter != pend)
 		{
 			if (piter->second.iAvailableNetworkID == siter->second.iNetworkID)

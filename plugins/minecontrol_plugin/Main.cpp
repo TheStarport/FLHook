@@ -62,15 +62,15 @@ struct PLAYER_BONUS
 	uint iRep;
 
 	// The list of ships that this bonus applies to
-	list<uint> lstShips;
+	std::list<uint> lstShips;
 
 	// The list of equipment items that the ship must carry
-	list<uint> lstItems;
+	std::list<uint> lstItems;
 
 	// The list of ammo arch ids for mining guns
-	list<uint> lstAmmo;
+	std::list<uint> lstAmmo;
 };
-multimap<uint, PLAYER_BONUS> set_mmapPlayerBonus;
+std::multimap<uint, PLAYER_BONUS> set_mmapPlayerBonus;
 
 struct ZONE_BONUS
 {
@@ -98,7 +98,7 @@ struct ZONE_BONUS
 	// The amount of ore that has been mined.
 	float fMined;
 };
-map<uint, ZONE_BONUS> set_mapZoneBonus;
+std::map<uint, ZONE_BONUS> set_mapZoneBonus;
 
 
 struct CLIENT_DATA
@@ -107,16 +107,16 @@ struct CLIENT_DATA
 		iPendingMineAsteroidEvents(0), iMineAsteroidEvents(0) {}
 
 	bool bSetup;
-	map<uint, float> mapLootBonus;
-	map<uint, list<uint> > mapLootAmmoLst;
-	map<uint, list<uint> > mapLootShipLst;
+	std::map<uint, float> mapLootBonus;
+	std::map<uint, std::list<uint> > mapLootAmmoLst;
+	std::map<uint, std::list<uint> > mapLootShipLst;
 	int iDebug;
 
 	int iPendingMineAsteroidEvents;
 	int iMineAsteroidEvents;
 	time_t tmMineAsteroidSampleStart;
 };
-map<uint, CLIENT_DATA> mapClients;
+std::map<uint, CLIENT_DATA> mapClients;
 
 
 
@@ -153,23 +153,23 @@ static std::string GetTrimParam(const std::string &scLine, uint iPos)
 }
 
 /// Return true if the cargo list contains the specified good.
-static bool ContainsEquipment(list<CARGO_INFO> &lstCargo, uint iArchID)
+static bool ContainsEquipment(std::list<CARGO_INFO> &lstCargo, uint iArchID)
 {
-	foreach (lstCargo, CARGO_INFO, c)
-		if (c->bMounted && c->iArchID==iArchID)
+	for(auto& c : lstCargo)
+		if (c.bMounted && c.iArchID==iArchID)
 			return true;
 	return false;
 }
 
 /// Return the factor to modify a mining loot drop by.
-static float GetBonus(uint iRep, uint iShipID, list<CARGO_INFO> lstCargo, uint iLootID)
+static float GetBonus(uint iRep, uint iShipID, std::list<CARGO_INFO> lstCargo, uint iLootID)
 {
 	if (!set_mmapPlayerBonus.size())
 		return 0.0f;
 
 	// Get all player bonuses for this commodity.
-	multimap<uint, PLAYER_BONUS>::iterator start = set_mmapPlayerBonus.lower_bound(iLootID);
-	multimap<uint, PLAYER_BONUS>::iterator end = set_mmapPlayerBonus.upper_bound(iLootID);
+	auto start = set_mmapPlayerBonus.lower_bound(iLootID);
+	auto end = set_mmapPlayerBonus.upper_bound(iLootID);
 	for (; start!=end; start++)
 	{
 		// Check for matching reputation if reputation is required.
@@ -182,9 +182,9 @@ static float GetBonus(uint iRep, uint iShipID, list<CARGO_INFO> lstCargo, uint i
 		
 		// Check that every simple item in the equipment list is present and mounted.
 		bool bEquipMatch = true;
-		for (list<uint>::iterator item = start->second.lstItems.begin(); item != start->second.lstItems.end(); item++)
+		for (auto item : start->second.lstItems)
 		{
-			if (!ContainsEquipment(lstCargo, *item))
+			if (!ContainsEquipment(lstCargo, item))
 			{
 				bEquipMatch = false;
 				break;
@@ -218,15 +218,15 @@ void CheckClientSetup(uint iClientID)
 		pub::Player::GetShipID(iClientID, iShipID);
 
 		// Get the ship cargo so that we can check ids, guns, etc.
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		int remainingHoldSize = 0;
 		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, remainingHoldSize);
 		if (set_iPluginDebug>1)
 		{
 			ConPrint(L"NOTICE: iClientID=%d iRepGroupID=%u iShipID=%u lstCargo=", iClientID, iRepGroupID, iShipID);
-			foreach(lstCargo, CARGO_INFO, ci)
+			for(auto& ci : lstCargo)
 			{
-				ConPrint(L"%u ", ci->iArchID);
+				ConPrint(L"%u ", ci.iArchID);
 			}
 			ConPrint(L"\n");
 		}
@@ -236,15 +236,15 @@ void CheckClientSetup(uint iClientID)
 		mapClients[iClientID].mapLootBonus.clear();
 		mapClients[iClientID].mapLootAmmoLst.clear();
 		mapClients[iClientID].mapLootShipLst.clear();
-		for (multimap<uint, PLAYER_BONUS>::iterator i = set_mmapPlayerBonus.begin(); i != set_mmapPlayerBonus.end(); i++)
+		for(auto& i : set_mmapPlayerBonus)
 		{
-			uint iLootID = i->first;
+			uint iLootID = i.first;
 			float fBonus = GetBonus(iRepGroupID, iShipID, lstCargo, iLootID);
 			if (fBonus > 0.0f)
 			{
 				mapClients[iClientID].mapLootBonus[iLootID] = fBonus;
-				mapClients[iClientID].mapLootAmmoLst[iLootID] = i->second.lstAmmo;
-				mapClients[iClientID].mapLootShipLst[iLootID] = i->second.lstShips;
+				mapClients[iClientID].mapLootAmmoLst[iLootID] = i.second.lstAmmo;
+				mapClients[iClientID].mapLootShipLst[iLootID] = i.second.lstShips;
 				if (set_iPluginDebug>1)
 				{
 					ConPrint(L"NOTICE: iClientID=%d iLootID=%08x fBonus=%2.2f\n", iClientID, iLootID, fBonus);
@@ -267,11 +267,11 @@ EXPORT void HkTimerCheckKick()
 	if ((time(0) % 60) == 0)
 	{
 		// Recharge the fields
-		for (map<uint, ZONE_BONUS>::iterator i = set_mapZoneBonus.begin(); i != set_mapZoneBonus.end(); i++)
+		for(auto& i : set_mapZoneBonus)
 		{
-			i->second.fCurrReserve += i->second.fRechargeRate;
-			if (i->second.fCurrReserve > i->second.fMaxReserve)
-				i->second.fCurrReserve = i->second.fMaxReserve;
+			i.second.fCurrReserve += i.second.fRechargeRate;
+			if (i.second.fCurrReserve > i.second.fMaxReserve)
+				i.second.fCurrReserve = i.second.fMaxReserve;
 		}
 
 		// Save the zone status to disk
@@ -282,11 +282,11 @@ EXPORT void HkTimerCheckKick()
 		if (file)
 		{
 			fprintf(file, "[Zones]\n");
-			for (map<uint, ZONE_BONUS>::iterator i = set_mapZoneBonus.begin(); i != set_mapZoneBonus.end(); i++)
+		for(auto& i : set_mapZoneBonus)
 			{
-				if (i->second.scZone.size())
+				if (i.second.scZone.size())
 				{
-					fprintf(file, "%s, %0.0f, %0.0f\n", i->second.scZone.c_str(), i->second.fCurrReserve, i->second.fMined);
+					fprintf(file, "%s, %0.0f, %0.0f\n", i.second.scZone.c_str(), i.second.fCurrReserve, i.second.fMined);
 				}
 			}
 			fclose(file);
@@ -415,7 +415,7 @@ EXPORT void LoadSettings()
 						scShipOrEquip = GetTrimParam(scLine, i++);
 					}
 
-					set_mmapPlayerBonus.insert(multimap<uint, PLAYER_BONUS>::value_type(pb.iLootID,pb));										
+					set_mmapPlayerBonus.insert(std::multimap<uint, PLAYER_BONUS>::value_type(pb.iLootID,pb));										
 					if (set_iPluginDebug)
 					{
 						ConPrint(L"NOTICE: mining player bonus %s(%u) %2.2f %s(%u)\n",
@@ -601,7 +601,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 					
 					
 					// If no mining bonus entry for this commodity is found, flag as no bonus
-					map<uint, list<uint> >::iterator ammolst = cd.mapLootAmmoLst.find(iLootID);
+					auto ammolst = cd.mapLootAmmoLst.find(iLootID);
 					bool bNoMiningCombo = false;
 					if (ammolst == cd.mapLootAmmoLst.end())
 					{

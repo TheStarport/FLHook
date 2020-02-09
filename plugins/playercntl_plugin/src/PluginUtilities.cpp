@@ -317,7 +317,7 @@ void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg, float fDi
 /// Return true if this player is within the specified distance of any other player.
 bool IsInRange(uint iClientID, float fDistance)
 {
-	list<GROUP_MEMBER> lstMembers;
+	std::list<GROUP_MEMBER> lstMembers;
 	HkGetGroupMembers((const wchar_t*) Players.GetActiveCharacterName(iClientID), lstMembers);
 
 	uint iShip;
@@ -350,9 +350,9 @@ bool IsInRange(uint iClientID, float fDistance)
 
 		// Ignore players who are in your group.
 		bool bGrouped = false;
-		foreach (lstMembers, GROUP_MEMBER, gm)
+		for(auto& gm : lstMembers)
 		{
-			if (gm->iClientID==iClientID2)
+			if (gm.iClientID==iClientID2)
 			{
 				bGrouped = true;
 				break;
@@ -613,11 +613,11 @@ void FormatSendChat(uint iToClientID, const std::wstring &wscSender, const std::
 
 	if (set_bUserCmdIgnore)
 	{
-		foreach (ClientInfo[iToClientID].lstIgnore, IGNORE_INFO, it)
+		for(auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
-			if(!HAS_FLAG(*it, L"i") && !(ToLower(wscSender).compare(ToLower((*it).wscCharname))))
+			if(!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.wscCharname))))
 				return; // ignored
-			else if(HAS_FLAG(*it, L"i") && (ToLower(wscSender).find(ToLower((*it).wscCharname)) != -1))
+			else if(HAS_FLAG(ignore, L"i") && (ToLower(wscSender).find(ToLower(ignore.wscCharname)) != -1))
 				return; // ignored
 		}
 	}
@@ -658,9 +658,9 @@ void SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring &w
 
 	if (set_bUserCmdIgnore)
 	{
-		foreach(ClientInfo[iToClientID].lstIgnore, IGNORE_INFO, it)
+		for(auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
-			if (HAS_FLAG(*it, L"p"))
+			if (HAS_FLAG(ignore, L"p"))
 				return;
 		}
 	}
@@ -746,11 +746,11 @@ void SendGroupChat(uint iFromClientID, const std::wstring &wscText)
 {
 	const wchar_t *wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 	// Format and send the message a player in this group.
-	list<GROUP_MEMBER> lstMembers;
+	std::list<GROUP_MEMBER> lstMembers;
 	HkGetGroupMembers(wscSender, lstMembers);
-	foreach (lstMembers, GROUP_MEMBER, g)
+	for(auto& gm : lstMembers)
 	{
-		FormatSendChat(g->iClientID, wscSender, wscText, L"FF7BFF");
+		FormatSendChat(gm.iClientID, wscSender, wscText, L"FF7BFF");
 	}
 }
 
@@ -912,7 +912,7 @@ __declspec(naked) void __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float
 }
 
 
-vector<HINSTANCE> vDLLs;
+std::vector<HINSTANCE> vDLLs;
 
 void HkLoadStringDLLs()
 {
@@ -988,7 +988,7 @@ HMODULE GetModuleAddr(uint iAddr)
 }
 
 
-#include <std::string.h>
+#include <string.h>
 #include "dbghelp.h"
 
 // based on dbghelp.h
@@ -1084,49 +1084,49 @@ HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue)
 
 	uint iBaseID = 0;
 
-	list<std::wstring> lstCharFile;
+	std::list<std::wstring> lstCharFile;
 	HK_ERROR err = HkReadCharFile(wscCharname, lstCharFile);
 	if (err != HKE_OK)
 		return err;
 
-	foreach(lstCharFile, std::wstring, line)
+	for(auto& line : lstCharFile)
 	{
-		std::wstring wscKey = Trim(line->substr(0,line->find(L"=")));		
+		std::wstring wscKey = Trim(line.substr(0,line.find(L"=")));		
 		if(wscKey == L"base" || wscKey == L"last_base")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}
 			
-			if ((iFindEqual+1) >= (int)line->size())
+			if ((iFindEqual+1) >= (int)line.size())
 			{
 				continue;
 			}
 			
-			iBaseID = CreateID(wstos(Trim(line->substr(iFindEqual+1))).c_str());
+			iBaseID = CreateID(wstos(Trim(line.substr(iFindEqual+1))).c_str());
 			break;
 		}
 	}
-
-	foreach(lstCharFile, std::wstring, line)
+	
+	for(auto& line : lstCharFile)
 	{
-		std::wstring wscKey = Trim(line->substr(0,line->find(L"=")));
+		std::wstring wscKey = Trim(line.substr(0,line.find(L"=")));
 		if(wscKey == L"cargo" || wscKey == L"equip")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}
-			int iFindComma = line->find(L",", iFindEqual);
+			int iFindComma = line.find(L",", iFindEqual);
 			if(iFindComma == -1)
 			{
 				continue;
 			}
-			uint iGoodID = ToUInt(Trim(line->substr(iFindEqual+1,iFindComma)));
-			uint iGoodCount = ToUInt(Trim(line->substr(iFindComma+1,line->find(L",",iFindComma+1))));
+			uint iGoodID = ToUInt(Trim(line.substr(iFindEqual+1,iFindComma)));
+			uint iGoodCount = ToUInt(Trim(line.substr(iFindComma+1,line.find(L",",iFindComma+1))));
 
 			float fItemValue;
 			if (pub::Market::GetPrice(iBaseID, Arch2Good(iGoodID), fItemValue)==0)
@@ -1146,17 +1146,17 @@ HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue)
 		}
 		else if(wscKey == L"money")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}			
-			uint fItemValue = ToUInt(Trim(line->substr(iFindEqual+1)));
+			uint fItemValue = ToUInt(Trim(line.substr(iFindEqual+1)));
 			fValue += fItemValue;		
 		}
 		else if(wscKey == L"ship_archetype")
 		{
-			uint iShipArchID = ToUInt(Trim(line->substr(line->find(L"=")+1, line->length())));			
+			uint iShipArchID = ToUInt(Trim(line.substr(line.find(L"=")+1, line.length())));			
 			const GoodInfo *gi = GoodList_get()->find_by_ship_arch(iShipArchID);
 			if (gi)
 			{

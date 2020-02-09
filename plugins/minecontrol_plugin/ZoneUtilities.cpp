@@ -40,9 +40,9 @@ struct LOOTABLE_ZONE
 	/** The lootable zone position */
 	Vector pos;
 };
-typedef multimap<uint, LOOTABLE_ZONE, less<uint> >::value_type zone_map_pair_t;
-typedef multimap<uint, LOOTABLE_ZONE, less<uint> >::iterator zone_map_iter_t;
-typedef multimap<uint, LOOTABLE_ZONE, less<uint> > zone_map_t;
+typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> >::value_type zone_map_pair_t;
+typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> >::iterator zone_map_iter_t;
+typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> > zone_map_t;
 
 
 /**

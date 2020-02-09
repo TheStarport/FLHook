@@ -99,6 +99,12 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Mail.h" />
+    <ClInclude Include="src\Main.h" />
+    <ClInclude Include="src\PluginUtilities.h" />
+    <ClInclude Include="src\ZoneUtilities.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

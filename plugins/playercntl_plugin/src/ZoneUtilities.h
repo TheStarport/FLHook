@@ -18,7 +18,7 @@
 struct SYSTEMINFO
 {
 	/** The system nickname */
-	string sysNick;
+	std::string sysNick;
 
 	/** The system id */
 	uint systemId;
@@ -35,10 +35,10 @@ struct TransformMatrix
 struct ZONE
 {
 	/** The system nickname */
-	string sysNick;
+	std::string sysNick;
 
 	/** The zone nickname */
-	string zoneNick;
+	std::string zoneNick;
 
 	/** The id of the system for this zone */
 	uint systemId;
@@ -63,13 +63,13 @@ class JUMPPOINT
 {
 public:
 	/** The system nickname */
-	string sysNick;
+	std::string sysNick;
 
 	/** The jump point nickname */
-	string jumpNick;
+	std::string jumpNick;
 
 	/** The jump point destination system nickname */
-	string jumpDestSysNick;
+	std::string jumpDestSysNick;
 
 	/** The id of the system for this jump point. */
 	uint System;
@@ -82,17 +82,17 @@ public:
 };
 
 /** A map of system id to system info */
-extern map<uint, SYSTEMINFO> mapSystems;
+extern std::map<uint, SYSTEMINFO> mapSystems;
 
 /** A map of system id to zones */
-extern multimap<uint, ZONE> zones;
-typedef multimap<uint, ZONE, less<uint> >::value_type zone_map_pair_t;
-typedef multimap<uint, ZONE, less<uint> >::iterator zone_map_iter_t;
+extern std::multimap<uint, ZONE> zones;
+typedef std::multimap<uint, ZONE, std::less<uint> >::value_type zone_map_pair_t;
+typedef std::multimap<uint, ZONE, std::less<uint> >::iterator zone_map_iter_t;
 
 /** A map of system id to jumppoint info */
-extern multimap<uint, JUMPPOINT> jumpPoints;
-typedef multimap<uint, JUMPPOINT, less<uint> >::value_type jumppoint_map_pair_t;
-typedef multimap<uint, JUMPPOINT, less<uint> >::iterator jumppoint_map_iter_t;
+extern std::multimap<uint, JUMPPOINT> jumpPoints;
+typedef std::multimap<uint, JUMPPOINT, std::less<uint> >::value_type jumppoint_map_pair_t;
+typedef std::multimap<uint, JUMPPOINT, std::less<uint> >::iterator jumppoint_map_iter_t;
 
 namespace ZoneUtilities
 {

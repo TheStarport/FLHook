@@ -598,11 +598,11 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 		{
 			clients[client].reverse_sell = false;
 
-			foreach (clients[client].cargo, CARGO_INFO, ci)
+			for(auto& ci : clients[client].cargo)
 			{
-				if (ci->iID == iID)
+				if (ci.iID == iID)
 				{
-					Server.ReqAddItem(ci->iArchID, ci->hardpoint.value, count, ci->fStatus, ci->bMounted, client);						
+					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);						
 					return;
 				}
 			}

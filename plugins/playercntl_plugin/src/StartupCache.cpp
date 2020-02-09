@@ -33,7 +33,7 @@ namespace StartupCache
 	_ReadCharacterName ReadCharName;
 
 	// map of acc_char_path to char name
-	static map<std::string, std::wstring> cache;
+	static std::map<std::string, std::wstring> cache;
 
 	static std::string scBaseAcctPath;
 
@@ -100,7 +100,7 @@ namespace StartupCache
 		if (file)
 		{
 			ConPrint(L"Saving character name cache\n");
-			for (map<std::string, std::wstring>::iterator i = cache.begin(); i != cache.end(); i++)
+			for (auto i = cache.begin(); i != cache.end(); i++)
 			{
 				NAMEINFO ni;
 				memset(&ni, 0, sizeof(ni));

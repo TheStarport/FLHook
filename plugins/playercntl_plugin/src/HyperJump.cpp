@@ -49,9 +49,9 @@ namespace HyperJump
 		int iCheckSystemOrBase;
 		int iCheckZonesTimer;
 		int iCheckTestedZones;
-		list<ZONE> lstCheckZones;
+		std::list<ZONE> lstCheckZones;
 	};
-	static map<uint, TESTBOT> mapTestBots;
+	static std::map<uint, TESTBOT> mapTestBots;
 
 	struct DEFERREDJUMPS
 	{
@@ -59,7 +59,7 @@ namespace HyperJump
 		Vector pos;
 		Matrix ornt;
 	};
-	static map<uint, DEFERREDJUMPS> mapDeferredJumps;
+	static std::map<uint, DEFERREDJUMPS> mapDeferredJumps;
 
 	struct JUMPDRIVE_ARCH
 	{
@@ -67,24 +67,24 @@ namespace HyperJump
 		float can_jump_charge;
 		float charge_rate;
 		float discharge_rate;
-		vector<uint> charge_fuse;
+		std::vector<uint> charge_fuse;
 		uint jump_fuse;
-		map<uint, uint> mapFuelToUsage;
+		std::map<uint, uint> mapFuelToUsage;
 		float power;
 		float field_range;
 	};
-	static map<uint, JUMPDRIVE_ARCH> mapJumpDriveArch;
+	static std::map<uint, JUMPDRIVE_ARCH> mapJumpDriveArch;
 
 	struct SURVEY_ARCH
 	{
 		uint nickname;
 		float survey_complete_charge;
 		float charge_rate;
-		map<uint, uint> mapFuelToUsage;
+		std::map<uint, uint> mapFuelToUsage;
 		float power;
 		float coord_accuracy;
 	};
-	static map<uint, SURVEY_ARCH> mapSurveyArch;
+	static std::map<uint, SURVEY_ARCH> mapSurveyArch;
 
 	struct SURVEY
 	{
@@ -92,7 +92,7 @@ namespace HyperJump
 		float curr_charge;
 		bool charging_on;
 	};
-	static map<uint, SURVEY> mapSurvey;
+	static std::map<uint, SURVEY> mapSurvey;
 
 	struct JUMPDRIVE
 	{
@@ -101,7 +101,7 @@ namespace HyperJump
 		bool charging_on;
 		float curr_charge;
 		uint active_fuse;
-		list<uint> active_charge_fuse;
+		std::list<uint> active_charge_fuse;
 		bool charging_complete;
 		uint charge_status;
 
@@ -109,7 +109,7 @@ namespace HyperJump
 		uint iTargetSystem;
 		Vector vTargetPosition;
 	};
-	static map<uint, JUMPDRIVE> mapJumpDrives;
+	static std::map<uint, JUMPDRIVE> mapJumpDrives;
 
 #define HCOORD_SIZE 28
 	struct HYPERSPACE_COORDS
@@ -126,7 +126,7 @@ namespace HyperJump
 
 	static std::string set_scEncryptKey = "secretcode";
 
-	static map<uint, bool> set_death_systems;
+	static std::map<uint, bool> set_death_systems;
 
 	static std::wstring FormatCoords(char* ibuf)
 	{
@@ -330,20 +330,20 @@ namespace HyperJump
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
 		if (obj)
 		{
-			foreach (mapJumpDrives[iClientID].active_charge_fuse, uint, fuse)
-				HkUnLightFuse((IObjRW*) obj, *fuse, 0);
+			for(auto& fuse : mapJumpDrives[iClientID].active_charge_fuse)
+				HkUnLightFuse((IObjRW*) obj, fuse, 0);
 			mapJumpDrives[iClientID].active_charge_fuse.clear();
 		}
 	}			
 
 	void HyperJump::Timer()
 	{
-		list<uint> lstOldClients;
+		std::list<uint> lstOldClients;
 
 		// Handle survey charging
-		for (map<uint, SURVEY>::iterator iter = mapSurvey.begin(); iter!=mapSurvey.end(); iter++)
+		for(auto& iter : mapSurvey)
 		{
-			uint iClientID = iter->first;
+			uint iClientID = iter.first;
 			
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);
@@ -353,7 +353,7 @@ namespace HyperJump
 			}
 			else
 			{
-				SURVEY &sm = iter->second;
+				SURVEY &sm = iter.second;
 				if (sm.charging_on)
 				{
 					// Use fuel to charge the jump drive's storage capacitors
@@ -433,17 +433,15 @@ namespace HyperJump
 			}
 		}
 
-		foreach (lstOldClients, uint, iClientID)
-		{
-			mapSurvey.erase(*iClientID);
-		}
+		for(auto& iClientID : lstOldClients)
+			mapSurvey.erase(iClientID);
 
 		lstOldClients.clear();
 
 		// Handle jump drive charging
-		for (map<uint, JUMPDRIVE>::iterator iter = mapJumpDrives.begin(); iter!=mapJumpDrives.end(); iter++)
+		for(auto& iter : mapJumpDrives)
 		{
-			uint iClientID = iter->first;
+			uint iClientID = iter.first;
 			
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);
@@ -453,7 +451,7 @@ namespace HyperJump
 			}
 			else
 			{
-				JUMPDRIVE &jd = iter->second;
+				JUMPDRIVE &jd = iter.second;
 				if (jd.jump_timer > 0)
 				{
 					jd.jump_timer--;
@@ -636,17 +634,15 @@ namespace HyperJump
 			}
 		}
 
-		// If the ship has docked or died remove the client.	
-		foreach (lstOldClients, uint, iClientID)
-		{
-			mapJumpDrives.erase(*iClientID);
-		}
+		// If the ship has docked or died remove the client.
+		for(auto& iClientID : lstOldClients)
+			mapJumpDrives.erase(iClientID);
 
 		// Handle testbot jumping.
-		for (map<uint, TESTBOT>::iterator iter = mapTestBots.begin(); iter!=mapTestBots.end(); iter++)
+		for(auto& iter : mapTestBots)
 		{
-			uint iClientID = iter->first;
-			TESTBOT &tb = iter->second;
+			uint iClientID = iter.first;
+			TESTBOT &tb = iter.second;
 
 			if (tb.bBaseTest)
 			{
@@ -699,7 +695,7 @@ namespace HyperJump
 			else
 			{
 				uint iSystem;
-				pub::Player::GetSystem(iter->first, iSystem);
+				pub::Player::GetSystem(iter.first, iSystem);
 				if (tb.iCheckSystemOrBase==iSystem)
 				{
 					if (tb.iCheckZonesTimer>0)
@@ -740,8 +736,8 @@ namespace HyperJump
 	void HyperJump::SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 	{
 		// If someone killed a bot then take revenge
-		map<uint, TESTBOT>::iterator iter = mapTestBots.find(iClientIDVictim);
-		if (iter!=mapTestBots.end())
+		auto iter = mapTestBots.find(iClientIDVictim);
+		if (iter != mapTestBots.end())
 		{
 			PrintUserCmdText(iClientIDKiller, L"Err 0101010001110 Does not compute");
 			HkKill((const wchar_t*) Players.GetActiveCharacterName(iClientIDKiller));
@@ -1359,7 +1355,7 @@ namespace HyperJump
 
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_blind_jump_warning"));
 
-			vector<string> systems;
+			std::vector<std::string> systems;
 			struct Universe::ISystem *sysinfo = Universe::GetFirstSystem();
 			while (sysinfo)
 			{

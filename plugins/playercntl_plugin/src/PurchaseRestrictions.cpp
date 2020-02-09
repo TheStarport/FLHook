@@ -36,22 +36,22 @@ namespace PurchaseRestrictions
 	static std::wstring set_wscGoodPurchaseDenied = L"";
 
 	/// list of items that we log transfers for
-	static map<uint, std::string> set_mapItemsOfInterest;
+	static std::map<uint, std::string> set_mapItemsOfInterest;
 
 	/** A map of baseid to goods that are not allowed to be bought */
-	static multimap<uint, uint> set_mapNoBuy;
-	typedef multimap<uint, uint, less<uint> >::value_type mapnobuy_map_pair_t;
-	typedef multimap<uint, uint, less<uint> >::iterator mapnobuy_map_iter_t;
+	static std::multimap<uint, uint> set_mapNoBuy;
+	typedef std::multimap<uint, uint, std::less<uint> >::value_type mapnobuy_map_pair_t;
+	typedef std::multimap<uint, uint, std::less<uint> >::iterator mapnobuy_map_iter_t;
 
 	/** A map of goods that are not allowed to be bought without the correct item. */
-	static multimap<uint, uint> set_mapGoodItemRestrictions;
-	typedef multimap<uint, uint, less<uint> >::value_type mapGoodItemRestrictions_map_pair_t;
-	typedef multimap<uint, uint, less<uint> >::iterator mapGoodItemRestrictions_map_iter_t;
+	static std::multimap<uint, uint> set_mapGoodItemRestrictions;
+	typedef std::multimap<uint, uint, std::less<uint> >::value_type mapGoodItemRestrictions_map_pair_t;
+	typedef std::multimap<uint, uint, std::less<uint> >::iterator mapGoodItemRestrictions_map_iter_t;
 
 	/** A map of ship that are not allowed to be bought without the correct item. */
-	static multimap<uint, uint> set_mapShipItemRestrictions;
-	typedef multimap<uint, uint, less<uint> >::value_type mapShipItemRestrictions_map_pair_t;
-	typedef multimap<uint, uint, less<uint> >::iterator mapShipItemRestrictions_map_iter_t;
+	static std::multimap<uint, uint> set_mapShipItemRestrictions;
+	typedef std::multimap<uint, uint, std::less<uint> >::value_type mapShipItemRestrictions_map_pair_t;
+	typedef std::multimap<uint, uint, std::less<uint> >::iterator mapShipItemRestrictions_map_iter_t;
 
 	// List of connected clients.
 	struct INFO
@@ -60,12 +60,12 @@ namespace PurchaseRestrictions
 
 		bool bSuppressBuy;
 	};
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	/// Log items of interest so we can see what cargo cheats people are using.
 	static void LogItemsOfInterest(uint iClientID, uint iGoodID, const std::string &details)
 	{
-		map<uint,std::string>::iterator iter = set_mapItemsOfInterest.find(iGoodID);
+		auto iter = set_mapItemsOfInterest.find(iGoodID);
 		if (iter != set_mapItemsOfInterest.end())
 		{
 			std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
@@ -147,28 +147,28 @@ namespace PurchaseRestrictions
 	/// Return true if the equipment is mounted to allow this good.
 	bool CheckIDEquipRestrictions(uint iClientID, uint iGoodID)
 	{
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		int iRemainingHoldSize;
 		HkEnumCargo((const wchar_t*) Players.GetActiveCharacterName(iClientID), lstCargo, iRemainingHoldSize);
-		foreach (lstCargo, CARGO_INFO, iter)
+		for(auto& cargo : lstCargo)
 		{
-			if (iter->bMounted)
+			if (cargo.bMounted)
 			{
-				mapGoodItemRestrictions_map_iter_t start = set_mapGoodItemRestrictions.lower_bound(iGoodID);
-				mapGoodItemRestrictions_map_iter_t end = set_mapGoodItemRestrictions.upper_bound(iGoodID);
-				for (mapGoodItemRestrictions_map_iter_t i = start; i != end; ++i)
+				auto start = set_mapGoodItemRestrictions.lower_bound(iGoodID);
+				auto end = set_mapGoodItemRestrictions.upper_bound(iGoodID);
+				for (auto i = start; i != end; ++i)
 				{
-					if (iter->iArchID==i->second)
+					if (cargo.iArchID==i->second)
 					{
 						return true;
 					}
 				}
 
-				mapShipItemRestrictions_map_iter_t start2 = set_mapShipItemRestrictions.lower_bound(iGoodID);
-				mapShipItemRestrictions_map_iter_t end2 = set_mapShipItemRestrictions.upper_bound(iGoodID);
-				for (mapShipItemRestrictions_map_iter_t i = start2; i != end2; ++i)
+				auto start2 = set_mapShipItemRestrictions.lower_bound(iGoodID);
+				auto end2 = set_mapShipItemRestrictions.upper_bound(iGoodID);
+				for (auto i = start2; i != end2; ++i)
 				{
-					if (iter->iArchID == i->second)
+					if (cargo.iArchID == i->second)
 					{
 						return true;
 					}

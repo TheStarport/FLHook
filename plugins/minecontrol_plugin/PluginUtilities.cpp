@@ -322,7 +322,7 @@ void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg, float fDi
 /// Return true if this player is within the specified distance of any other player.
 bool IsInRange(uint iClientID, float fDistance)
 {
-	list<GROUP_MEMBER> lstMembers;
+	std::list<GROUP_MEMBER> lstMembers;
 	HkGetGroupMembers((const wchar_t*) Players.GetActiveCharacterName(iClientID), lstMembers);
 
 	uint iShip;
@@ -355,9 +355,9 @@ bool IsInRange(uint iClientID, float fDistance)
 
 		// Ignore players who are in your group.
 		bool bGrouped = false;
-		foreach (lstMembers, GROUP_MEMBER, gm)
+		for(auto& gm : lstMembers)
 		{
-			if (gm->iClientID==iClientID2)
+			if (gm.iClientID == iClientID2)
 			{
 				bGrouped = true;
 				break;
@@ -624,11 +624,11 @@ void FormatSendChat(uint iToClientID, const std::wstring &wscSender, const std::
 
 	if (set_bUserCmdIgnore)
 	{
-		foreach (ClientInfo[iToClientID].lstIgnore, IGNORE_INFO, it)
+		for(auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
-			if(!HAS_FLAG(*it, L"i") && !(ToLower(wscSender).compare(ToLower((*it).wscCharname))))
+			if(!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.wscCharname))))
 				return; // ignored
-			else if(HAS_FLAG(*it, L"i") && (ToLower(wscSender).find(ToLower((*it).wscCharname)) != -1))
+			else if(HAS_FLAG(ignore, L"i") && (ToLower(wscSender).find(ToLower(ignore.wscCharname)) != -1))
 				return; // ignored
 		}
 	}
@@ -669,9 +669,9 @@ void SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring &w
 
 	if (set_bUserCmdIgnore)
 	{
-		foreach(ClientInfo[iToClientID].lstIgnore, IGNORE_INFO, it)
+		for(auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
-			if (HAS_FLAG(*it, L"p"))
+			if (HAS_FLAG(ignore, L"p"))
 				return;
 		}
 	}
@@ -758,11 +758,11 @@ void SendGroupChat(uint iFromClientID, const std::wstring &wscText)
 	const wchar_t *wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 	// Format and send the message a player in this group.
-	list<GROUP_MEMBER> lstMembers;
+	std::list<GROUP_MEMBER> lstMembers;
 	HkGetGroupMembers(wscSender, lstMembers);
-	foreach (lstMembers, GROUP_MEMBER, g)
+	for(auto& gm : lstMembers)
 	{
-		FormatSendChat(g->iClientID, wscSender, wscText, L"FF7BFF");
+		FormatSendChat(gm.iClientID, wscSender, wscText, L"FF7BFF");
 	}
 }
 
@@ -940,7 +940,7 @@ __declspec(naked) void __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float
 }
 
 
-vector<HINSTANCE> vDLLs;
+std::vector<HINSTANCE> vDLLs;
 
 void HkLoadStringDLLs()
 {

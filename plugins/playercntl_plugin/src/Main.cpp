@@ -513,19 +513,19 @@ namespace HkIServerImpl
 		}
 	}
 
-	map<uint, mstime> mapSaveTimes;
+	std::map<uint, mstime> mapSaveTimes;
 
 	void Timer()
 	{
 		mstime currTime = GetTimeInMS();
-		for (map<uint, mstime>::iterator iter = mapSaveTimes.begin(); iter != mapSaveTimes.end(); ++iter)
+		for(auto& t : mapSaveTimes)
 		{
-			uint iClientID = iter->first;
-			if (iter->second!=0 && iter->second < currTime)
+			uint iClientID = t.first;
+			if (t.second != 0 && t.second < currTime)
 			{
 				if (HkIsValidClientID(iClientID) && !HkIsInCharSelectMenu(iClientID))
-					HkSaveChar(iter->first);
-				iter->second = 0;
+					HkSaveChar(t.first);
+				t.second = 0;
 			}
 		}
 	}

@@ -8,12 +8,12 @@
 
 namespace Mail
 {
-	int MailCountUnread(const wstring &wscCharname, const string &scExtension);
-	int MailCount(const wstring &wscCharname, const string &scExtension);
-	void MailShow(const wstring &wscCharname, const string &scExtension, int iFirstMsg);
-	bool MailDel(const wstring &wscCharname, const string &scExtension, int iMsg);
-	void MailCheckLog(const wstring &wscCharname, const string &scExtension);
-	bool MailSend(const wstring &wscCharname, const string &scExtension, const wstring &wscMsg);
+	int MailCountUnread(const std::wstring &wscCharname, const std::string &scExtension);
+	int MailCount(const std::wstring &wscCharname, const std::string &scExtension);
+	void MailShow(const std::wstring &wscCharname, const std::string &scExtension, int iFirstMsg);
+	bool MailDel(const std::wstring &wscCharname, const std::string &scExtension, int iMsg);
+	void MailCheckLog(const std::wstring &wscCharname, const std::string &scExtension);
+	bool MailSend(const std::wstring &wscCharname, const std::string &scExtension, const std::wstring &wscMsg);
 }
 
 #endif

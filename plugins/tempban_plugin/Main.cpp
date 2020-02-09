@@ -13,7 +13,7 @@ struct TEMPBAN_INFO
 	mstime banduration;
 };
 
-list<TEMPBAN_INFO> lstTempBans;
+std::list<TEMPBAN_INFO> lstTempBans;
 
 PLUGIN_RETURNCODE returncode;
 
@@ -44,7 +44,7 @@ EXPORT void HkTimerCheckKick()
 
 	returncode = DEFAULT_RETURNCODE;
 
-	foreach (lstTempBans, TEMPBAN_INFO,it) {
+    for(auto it = lstTempBans.begin(); it != lstTempBans.end(); ++it) {
 		if (((*it).banstart + (*it).banduration) < timeInMS()) {
 			lstTempBans.erase(it);
 			break; // fix to not overflow the list
@@ -89,9 +89,8 @@ bool HkTempBannedCheck(uint iClientID)
 	
 	std::wstring wscID = HkGetAccountID(acc);
 
-
-	foreach (lstTempBans, TEMPBAN_INFO,it) {
-		if ((*it).wscID == wscID)
+	for(auto& ban : lstTempBans) {
+		if (ban.wscID == wscID)
 			return true;
 	}
 

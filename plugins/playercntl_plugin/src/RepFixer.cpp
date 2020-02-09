@@ -53,7 +53,7 @@ namespace RepFixer
 	};
 
 	/// Map of faction equipment IDs to reputations list.
-	static map<unsigned int, list<FactionRep> > set_mapFactionReps;
+	static std::map<unsigned int, std::list<FactionRep> > set_mapFactionReps;
 
 	/// If true updates are logged to flhook.log
 	static bool set_bLogUpdates = false;
@@ -69,24 +69,24 @@ namespace RepFixer
 	{
 		uint archID = CreateID(scIDNick.c_str());
 
-		list<FactionRep> lstFactionReps;
+		std::list<FactionRep> lstFactionReps;
 
-		list<INISECTIONVALUE> lstValues;
+		std::list<INISECTIONVALUE> lstValues;
 		IniGetSection(scPluginCfgFile, scIDNick, lstValues);
-		foreach (lstValues, INISECTIONVALUE, var)
+		for(auto& var : lstValues)
 		{
-			if (var->scValue.size()>0)
+			if (var.scValue.size()>0)
 			{
 				FactionRep factionRep;
-				factionRep.scRepGroup = var->scKey;
+				factionRep.scRepGroup = var.scKey;
 
-				factionRep.fRep = ToFloat(GetParam(stows(var->scValue), ',', 0));
+				factionRep.fRep = ToFloat(GetParam(stows(var.scValue), ',', 0));
 				if (factionRep.fRep > 1.0f)
 					factionRep.fRep = 1.0f;
 				else if (factionRep.fRep < -1.0f)
 					factionRep.fRep = -1.0f;
 
-				factionRep.iMode = ToInt(GetParam(stows(var->scValue), ',', 1));
+				factionRep.iMode = ToInt(GetParam(stows(var.scValue), ',', 1));
 				if (factionRep.iMode == FactionRep::MODE_REP_LESSTHAN
 					|| factionRep.iMode == FactionRep::MODE_REP_GREATERTHAN
 					|| factionRep.iMode == FactionRep::MODE_REP_STATIC)
@@ -94,7 +94,7 @@ namespace RepFixer
 					if (set_iPluginDebug>0)
 					{
 						ConPrint(L"NOTICE: Add reputation %s/%s rep=%0.2f mode=%d\n",
-							stows(scIDNick).c_str(), stows(var->scKey).c_str(), factionRep.fRep, factionRep.iMode); 
+							stows(scIDNick).c_str(), stows(var.scKey).c_str(), factionRep.fRep, factionRep.iMode); 
 					}
 					lstFactionReps.push_back(factionRep);
 				}
@@ -113,10 +113,10 @@ namespace RepFixer
 
 		// For each "ID/License" equipment item load the faction reputation list.
 		set_mapFactionReps.clear();
-		list<INISECTIONVALUE> lstValues;
+		std::list<INISECTIONVALUE> lstValues;
 		IniGetSection(scPluginCfgFile, "RepFixerItems", lstValues);
-		foreach (lstValues, INISECTIONVALUE, var)
-			LoadFactionReps(scPluginCfgFile, var->scKey);
+		for(auto& var : lstValues)
+			LoadFactionReps(scPluginCfgFile, var.scKey);
 	}
 
 	/// For the specified client ID check and reset any factions that have reputations
@@ -125,25 +125,25 @@ namespace RepFixer
 	{
 		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		int remainingHoldSize = 0;
 		HkEnumCargo(wscCharName, lstCargo, remainingHoldSize);
 
-		foreach (lstCargo, CARGO_INFO, cargo)
+		for(auto& cargo : lstCargo)
 		{
 			// If the item is not mounted and we are only checking mounted items
 			// then skip to the next one.
-			if (!cargo->bMounted && set_bItemMustBeMounted)
+			if (!cargo.bMounted && set_bItemMustBeMounted)
 				continue;
 
 			// If the item is not an 'ID' then skip to the next one. 
-			map<unsigned int, list<FactionRep> >::iterator iterIDs = set_mapFactionReps.find(cargo->iArchID);
+			auto iterIDs = set_mapFactionReps.find(cargo.iArchID);
 			if (iterIDs==set_mapFactionReps.end())
 				continue;
 
 			// The item is an 'ID'; check and adjust the player reputations
 			// if needed.
-			for (list<FactionRep>::iterator iterReps = iterIDs->second.begin(); iterReps != iterIDs->second.end(); iterReps++)
+			for (auto iterReps = iterIDs->second.begin(); iterReps != iterIDs->second.end(); iterReps++)
 			{
 				const FactionRep &rep = *iterReps;
 

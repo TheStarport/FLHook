@@ -46,7 +46,7 @@ namespace CargoDrop
 	static int set_iHullItem2ID = 0;
 
 	/// list of items that are not dropped when the ship is F1'd looted.
-	static map<uint, uint> set_mapNoLootItems;
+	static std::map<uint, uint> set_mapNoLootItems;
 
 	static float set_fDisconnectingPlayersRange = 5000.0f;
 
@@ -59,7 +59,7 @@ namespace CargoDrop
 		Vector vLastPosition;
 		Quaternion vLastDir;
 	};
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	void CargoDrop::LoadSettings(const std::string &scPluginCfgFile)
 	{
@@ -75,12 +75,12 @@ namespace CargoDrop
 		set_wscDisconnectInSpaceMsg = stows(IniGetS(scPluginCfgFile, "General", "DisconnectMsg", "%player is attempting to engage cloaking device"));
 
 		// Read the no loot items list (item-nick)
-		list<INISECTIONVALUE> lstItems;
+		std::list<INISECTIONVALUE> lstItems;
 		IniGetSection(scPluginCfgFile, "NoLootItems", lstItems);
 		set_mapNoLootItems.clear();
-		foreach (lstItems, INISECTIONVALUE, iter)
+		for(auto& item : lstItems)
 		{
-			uint itemID = CreateID(iter->scKey.c_str());
+			uint itemID = CreateID(item.scKey.c_str());
 			set_mapNoLootItems[itemID] = itemID;
 		}
 	}
@@ -88,9 +88,9 @@ namespace CargoDrop
 	void CargoDrop::Timer()
 	{
 		// Disconnecting while interacting checks.
-		for (map<uint, INFO>::iterator iter = mapInfo.begin(); iter!=mapInfo.end(); iter++)
+		for(auto& iter : mapInfo)
 		{
-			int iClientID = iter->first;
+			int iClientID = iter.first;
 
 			// If selecting a character or invalid, do nothing.
 			if (!HkIsValidClientID(iClientID) || HkIsInCharSelectMenu(iClientID))
@@ -111,17 +111,17 @@ namespace CargoDrop
 
 				// Simulate an obj update to stop the ship in space.
 				SSPObjUpdateInfo ui;
-				iter->second.dLastTimestamp += 1.0;
-				ui.fTimestamp = (float)iter->second.dLastTimestamp;
+				iter.second.dLastTimestamp += 1.0;
+				ui.fTimestamp = (float)iter.second.dLastTimestamp;
 				ui.cState = 0;
 				ui.fThrottle = 0;
-				ui.vPos = iter->second.vLastPosition;
-				ui.vDir = iter->second.vLastDir;
+				ui.vPos = iter.second.vLastPosition;
+				ui.vDir = iter.second.vLastDir;
 				Server.SPObjUpdate(ui, iClientID);
 
-				if (!iter->second.bF1DisconnectProcessed)
+				if (!iter.second.bF1DisconnectProcessed)
 				{
-					iter->second.bF1DisconnectProcessed = true;			
+					iter.second.bF1DisconnectProcessed = true;			
 
 					// Send disconnect report to all ships in scanner range.
 					if (set_bReportDisconnectingPlayers)
@@ -144,16 +144,16 @@ namespace CargoDrop
 						pub::SpaceObj::GetLocation(iShip, vLoc, mRot);
 						vLoc.x += 30.0;
 
-						list<CARGO_INFO> lstCargo;
+						std::list<CARGO_INFO> lstCargo;
 						int iRemainingHoldSize = 0;
 						if (HkEnumCargo(wscCharname, lstCargo, iRemainingHoldSize)==HKE_OK)
 						{
-							foreach (lstCargo, CARGO_INFO, item)
+							for(auto& item : lstCargo)
 							{
-								if (!item->bMounted && set_mapNoLootItems.find(item->iArchID)==set_mapNoLootItems.end())
+								if (!item.bMounted && set_mapNoLootItems.find(item.iArchID)==set_mapNoLootItems.end())
 								{
-									HkRemoveCargo(wscCharname, item->iID, item->iCount);
-									Server.MineAsteroid(iSystem, vLoc, set_iLootCrateID, item->iArchID, item->iCount, iClientID);
+									HkRemoveCargo(wscCharname, item.iID, item.iCount);
+									Server.MineAsteroid(iSystem, vLoc, set_iLootCrateID, item.iArchID, item.iCount, iClientID);
 								}
 							}
 						}
@@ -181,17 +181,17 @@ namespace CargoDrop
 		if (set_fHullFct==0.0f)
 			return;
 
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		int iRemainingHoldSize;
 		if (HkEnumCargo((const wchar_t*) Players.GetActiveCharacterName(iClientIDVictim), lstCargo, iRemainingHoldSize)!=HKE_OK)
 			return;
 
 		int iShipSizeEst = iRemainingHoldSize;
-		foreach (lstCargo, CARGO_INFO, iter)
+		for(auto& item : lstCargo)
 		{
-			if (!(iter->bMounted))
+			if (!(item.bMounted))
 			{
-				iShipSizeEst += iter->iCount;
+				iShipSizeEst += item.iCount;
 			}
 		}
 

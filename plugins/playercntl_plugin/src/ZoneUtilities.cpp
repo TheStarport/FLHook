@@ -21,13 +21,13 @@
 #include "ZoneUtilities.h"
 
 /** A map of system id to system info */
-map<uint, SYSTEMINFO> mapSystems;
+std::map<uint, SYSTEMINFO> mapSystems;
 
 /** A map of system id to zones */
-multimap<uint, ZONE> zones;
+std::multimap<uint, ZONE> zones;
 
 /** A map of system id to jumppoint info */
-multimap<uint, JUMPPOINT> jumpPoints;
+std::multimap<uint, JUMPPOINT> jumpPoints;
 
 /** Multiply mat1 by mat2 and return the result */
 static TransformMatrix MultiplyMatrix(TransformMatrix &mat1, TransformMatrix &mat2)

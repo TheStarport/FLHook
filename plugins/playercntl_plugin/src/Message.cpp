@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <std::string.h>
+#include <string.h>
 #include <errno.h>
 #include <io.h>
 #include <string>
@@ -66,19 +66,19 @@ namespace Message
 	};
 
 	/** cache of preset messages for the online players (by client ID) */
-	static map<uint, INFO> mapInfo;
+	static std::map<uint, INFO> mapInfo;
 
 	/** help text for when user types /help */
-	static list<INISECTIONVALUE> set_lstHelpLines;
+	static std::list<INISECTIONVALUE> set_lstHelpLines;
 
 	/** greetings text for when user types /help */
-	static list<std::wstring> set_lstGreetingBannerLines;
+	static std::list<std::wstring> set_lstGreetingBannerLines;
 
 	/** special banner text for when user types /help */
-	static list<std::wstring> set_lstSpecialBannerLines;
+	static std::list<std::wstring> set_lstSpecialBannerLines;
 
 	/** special banner text for when user types /help */
-	static vector<list<std::wstring> > set_vctStandardBannerLines;
+	static std::vector<std::list<std::wstring>> set_vctStandardBannerLines;
 
 	/** Time in second to repeat display of special banner */
 	static int set_iSpecialBannerTimeout;
@@ -133,12 +133,12 @@ namespace Message
 		if (!mapInfo[iClientID].bGreetingShown)
 		{
 			mapInfo[iClientID].bGreetingShown = true;
-			foreach (set_lstGreetingBannerLines, std::wstring, iter)
+			for(auto& line : set_lstGreetingBannerLines)
 			{
-				if (iter->find(L"<TRA")==0)
-					HkFMsg(iClientID, *iter);
+				if (line.find(L"<TRA") == 0)
+					HkFMsg(iClientID, line);
 				else
-					PrintUserCmdText(iClientID, L"%s", iter->c_str());
+					PrintUserCmdText(iClientID, L"%s", line.c_str());
 			}
 		}
 	}
@@ -150,12 +150,12 @@ namespace Message
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
-			foreach (set_lstSpecialBannerLines, std::wstring, iter)
+			for(auto& line : set_lstSpecialBannerLines)
 			{
-				if (iter->find(L"<TRA")==0)
-					HkFMsg(iClientID, *iter);
+				if (line.find(L"<TRA") == 0)
+					HkFMsg(iClientID, line);
 				else
-					PrintUserCmdText(iClientID,  L"%s", iter->c_str());
+					PrintUserCmdText(iClientID,  L"%s", line.c_str());
 			}
 		}
 	}
@@ -170,19 +170,19 @@ namespace Message
 		if (++iCurStandardBanner >= set_vctStandardBannerLines.size())
 			iCurStandardBanner = 0;
 
-		list<std::wstring> &lstStandardBannerSection = set_vctStandardBannerLines[iCurStandardBanner];
+		auto& lstStandardBannerSection = set_vctStandardBannerLines[iCurStandardBanner];
 
 		struct PlayerData *pPD = 0;
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
 
-			foreach (lstStandardBannerSection, std::wstring, iter)
+			for(auto& sec : lstStandardBannerSection)
 			{
-				if (iter->find(L"<TRA")==0)
-					HkFMsg(iClientID, *iter);
+				if (sec.find(L"<TRA")==0)
+					HkFMsg(iClientID, sec);
 				else
-					PrintUserCmdText(iClientID,  L"%s", iter->c_str());
+					PrintUserCmdText(iClientID,  L"%s", sec.c_str());
 			}
 		}
 	}
@@ -245,9 +245,9 @@ namespace Message
 		set_bSetMsg = IniGetB(scPluginCfgFile, "Message", "SetMsg", false);
 
 		// For every active player load their msg settings.
-		list<HKPLAYERINFO> players = HkGetPlayers();
-		foreach (players, HKPLAYERINFO, p)
-			LoadMsgs(p->iClientID);
+		std::list<HKPLAYERINFO> players = HkGetPlayers();
+		for(auto& p : players)
+			LoadMsgs(p.iClientID);
 
 		// Load the help, getting and banner text
 		IniGetSection(scPluginCfgFile, "Help", set_lstHelpLines);
@@ -277,7 +277,7 @@ namespace Message
 				}
 				else if (ini.is_header("StandardBanner"))
 				{
-					list<std::wstring> lstStandardBannerSection;
+					std::list<std::wstring> lstStandardBannerSection;
 					while (ini.read_value())
 					{
 						lstStandardBannerSection.push_back(Trim(stows(ini.get_value_string())));
@@ -320,7 +320,7 @@ namespace Message
 	/// On client disconnect remove any references to this client.
 	void Message::DisConnect(uint iClientID, enum EFLConnection p2)
 	{
-		map<uint,INFO>::iterator iter=mapInfo.begin();
+		auto iter=mapInfo.begin();
 		while (iter!=mapInfo.end())
 		{
 			if (iter->second.ulastPmClientID==iClientID)
@@ -334,7 +334,7 @@ namespace Message
 	/// On client F1 or entry to char select menu.
 	void  Message::CharacterInfoReq(unsigned int iClientID, bool p2)
 	{
-		map<uint,INFO>::iterator iter=mapInfo.begin();
+		auto iter=mapInfo.begin();
 		while (iter!=mapInfo.end())
 		{
 			if (iter->second.ulastPmClientID==iClientID)
@@ -371,7 +371,7 @@ namespace Message
 		uint uTargetClientID=HkGetClientIDByShip(p2.iSpaceID);
 		if (uTargetClientID)
 		{
-			map<uint,INFO>::iterator iter=mapInfo.find(uClientID);
+			auto iter=mapInfo.find(uClientID);
 			if (iter!=mapInfo.end())
 			{
 				iter->second.uTargetClientID=uTargetClientID;
@@ -398,9 +398,9 @@ namespace Message
 		if (!bIsGroup)
 		{
 			// If a restricted word appears in the message take appropriate action.
-			foreach (set_lstSwearWords, std::wstring, worditer)
+			for(auto& word : set_lstSwearWords)
 			{
-				if (wscChatMsg.find(*worditer) != -1)
+				if (wscChatMsg.find(word) != -1)
 				{
 					PrintUserCmdText(iClientID, L"This is an automated message.");
 					PrintUserCmdText(iClientID, L"Please do not swear or you may be sanctioned.");
@@ -432,7 +432,7 @@ namespace Message
 		/// who sent the message so that the receiver can reply using the /r command */
 		if (iClientID<0x10000 && cIdTo.iID>0 && cIdTo.iID<0x10000)
 		{
-			map<uint,INFO>::iterator iter = mapInfo.find(cIdTo.iID);
+			auto iter = mapInfo.find(cIdTo.iID);
 			if (iter!=mapInfo.end())
 			{
 				iter->second.ulastPmClientID = iClientID;
@@ -518,7 +518,7 @@ namespace Message
 		if (!set_bSetMsg)
 			return false;
 
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
 		{
 			PrintUserCmdText(iClientID, L"ERR No messages");
@@ -547,7 +547,7 @@ namespace Message
 			return true;
 		}
 
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end() || iter->second.slot[iMsgSlot].size()==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR No message defined");
@@ -578,7 +578,7 @@ namespace Message
 			return true;
 		}
 
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end() || iter->second.slot[iMsgSlot].size()==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR No message defined");
@@ -609,7 +609,7 @@ namespace Message
 			return true;
 		}
 
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end() || iter->second.slot[iMsgSlot].size()==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR No message defined");
@@ -628,7 +628,7 @@ namespace Message
 	/** Send an message to the last person that PM'd this client. */
 	bool Message::UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -679,7 +679,7 @@ namespace Message
 	/** Send a message to the last/current target. */
 	bool Message::UserCmd_SendToLastTarget(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -730,7 +730,7 @@ namespace Message
 	/** Shows the sender of the last PM and the last char targetted */
 	bool Message::UserCmd_ShowLastPMSender(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -822,16 +822,15 @@ namespace Message
 
 		bool bSenderReceived = false;
 		bool bMsgSent = false;
-		list<HKPLAYERINFO> lst = HkGetPlayers();
-		foreach (lst, HKPLAYERINFO, iter)
+		for(auto& player : HkGetPlayers())
 		{
-			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
+			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
 				continue;
 
-			if (iter->iClientID==iClientID)
+			if (player.iClientID==iClientID)
 				bSenderReceived=true;
 
-			FormatSendChat(iter->iClientID, wscSender, wscMsg, L"FF7BFF");
+			FormatSendChat(player.iClientID, wscSender, wscMsg, L"FF7BFF");
 			bMsgSent=true;
 		}
 		if (!bSenderReceived)
@@ -855,16 +854,15 @@ namespace Message
 			PrintUserCmdText(iClientID, usage);
 			return true;	
 		}
-
-		list<HKPLAYERINFO> lst = HkGetPlayers();
-		foreach (lst, HKPLAYERINFO, iter)
+		
+		for(auto& player : HkGetPlayers())
 		{
-			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
+			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
 				continue;
-			if (iter->iClientID==iClientID)
+			if (player.iClientID==iClientID)
 				continue;
 
-			std::wstring wscMsg = L"/i " + iter->wscCharname;
+			std::wstring wscMsg = L"/i " + player.wscCharname;
 
 			uint iRet;
 			char szBuf[1024];
@@ -907,7 +905,7 @@ namespace Message
 		HookExt::IniSetB(iClientID, "msg.chat_time", bShowChatTime);
 
 		// Update the client cache.
-		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
+		auto iter=mapInfo.find(iClientID);
 		if (iter != mapInfo.end())
 			iter->second.bShowChatTime = bShowChatTime;
 
@@ -929,13 +927,13 @@ namespace Message
 		if (set_bCustomHelp)
 		{
 			// Print any custom help strings
-			foreach (set_lstHelpLines, INISECTIONVALUE, iter)
+			for(auto& line : set_lstHelpLines)
 			{
-				std::string scHelp=iter->scKey;
-				if (iter->scValue.size()>0)
+				std::string scHelp=line.scKey;
+				if (line.scValue.size()>0)
 				{
 					scHelp+="=";
-					scHelp+=iter->scValue;
+					scHelp+=line.scValue;
 				}
 				PrintUserCmdText(iClientID, stows(scHelp));
 			}
