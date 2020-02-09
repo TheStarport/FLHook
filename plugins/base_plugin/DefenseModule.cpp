@@ -217,7 +217,7 @@ static uint CreateWPlatformNPC(uint iSystem, Vector position, Matrix rotation, u
 	si.iHealth = -1;
 	si.iLevel = 19;
 
-	// Define the string used for the scanner name. Because the
+	// Define the std::string used for the scanner name. Because the
 	// following entry is empty, the pilot_name is used. This
 	// can be overriden to display the ship type instead.
 	FmtStr infoname(0, 0);
@@ -226,7 +226,7 @@ static uint CreateWPlatformNPC(uint iSystem, Vector position, Matrix rotation, u
 	//infoname.append_string(261164); // ids that replaces %s1
 	infoname.end_mad_lib();
 
-	// Define the string used for the pilot name. The example
+	// Define the std::string used for the pilot name. The example
 	// below shows the use of multiple part names.
 	FmtStr infocard(0, 0);
 	infocard.begin_mad_lib(16162); //  = ids of "%s0 %s1"
@@ -339,7 +339,7 @@ static uint CreateWPlatformSolar(PlayerBase *base, uint iSystem, Vector position
 	si.Costume.accessories = 0;
 	si.iVoiceID = CreateID("atc_leg_m01");
 
-	string wplatform_nickname = base->nickname + itos(rand());
+	std::string wplatform_nickname = base->nickname + itos(rand());
 
 	strncpy_s(si.cNickName, sizeof(si.cNickName),wplatform_nickname.c_str(), wplatform_nickname.size());
 
@@ -404,7 +404,7 @@ void DefenseModule::Reset()
 	}
 }
 
-wstring DefenseModule::GetInfo(bool xml)
+std::wstring DefenseModule::GetInfo(bool xml)
 {
 	switch (type)
 	{

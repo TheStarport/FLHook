@@ -8,7 +8,7 @@
 
 struct TEMPBAN_INFO
 {
-	wstring wscID;
+	std::wstring wscID;
 	mstime banstart;
 	mstime banduration;
 };
@@ -56,7 +56,7 @@ EXPORT void HkTimerCheckKick()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HK_ERROR HkTempBan(const wstring &wscCharname, uint _duration)
+HK_ERROR HkTempBan(const std::wstring &wscCharname, uint _duration)
 {
 
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -73,7 +73,7 @@ HK_ERROR HkTempBan(const wstring &wscCharname, uint _duration)
 		if(!(acc = HkGetAccountByCharname(wscCharname)))
 			return HKE_CHAR_DOES_NOT_EXIST;
 	}
-	wstring wscID = HkGetAccountID(acc);
+	std::wstring wscID = HkGetAccountID(acc);
 
 	tempban.wscID = wscID;
 	lstTempBans.push_back(tempban);
@@ -87,7 +87,7 @@ bool HkTempBannedCheck(uint iClientID)
 	CAccount *acc;
 	acc = Players.FindAccountFromClientID(iClientID);
 	
-	wstring wscID = HkGetAccountID(acc);
+	std::wstring wscID = HkGetAccountID(acc);
 
 
 	foreach (lstTempBans, TEMPBAN_INFO,it) {
@@ -141,7 +141,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CmdTempBan(CCmds* classptr, const wstring &wscCharname, uint iDuration)
+void CmdTempBan(CCmds* classptr, const std::wstring &wscCharname, uint iDuration)
 {
 
 	// right check
@@ -155,7 +155,7 @@ void CmdTempBan(CCmds* classptr, const wstring &wscCharname, uint iDuration)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd)
+EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const std::wstring &wscCmd)
 {
 	returncode = NOFUNCTIONCALL;  // flhook needs to care about our return code
 

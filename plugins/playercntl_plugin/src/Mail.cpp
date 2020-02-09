@@ -25,7 +25,7 @@ namespace Mail
 	static const int MAX_MAIL_MSGS = 40;
 
 	/** Show five messages from the specified starting position. */
-	void MailShow(const wstring &wscCharname, const string &scExtension, int iFirstMsg)
+	void MailShow(const std::wstring &wscCharname, const std::string &scExtension, int iFirstMsg)
 	{
 		// Make sure the character is logged in.
 		uint iClientID = HkGetClientIdFromCharname(wscCharname);
@@ -33,14 +33,14 @@ namespace Mail
 			return;
 
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return;
 
 		int iLastMsg = iFirstMsg;
 		for (int iMsgSlot = iFirstMsg, iMsgCount = 0; iMsgSlot<MAX_MAIL_MSGS && iMsgCount<5; iMsgSlot++, iMsgCount++)
 		{
-			wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
 			if (wscTmpMsg.length()==0)
 				break;
 			PrintUserCmdText(iClientID, L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
@@ -51,10 +51,10 @@ namespace Mail
 	}
 
 	/** Return the number of unread messages. */
-	int MailCountUnread(const wstring &wscCharname, const string &scExtension)
+	int MailCountUnread(const std::wstring &wscCharname, const std::string &scExtension)
 	{
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return 0;
 
@@ -70,10 +70,10 @@ namespace Mail
 	}
 
 	/** Return the number of messages. */
-	int MailCount(const wstring &wscCharname, const string &scExtension)
+	int MailCount(const std::wstring &wscCharname, const std::string &scExtension)
 	{
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return 0;
 
@@ -89,7 +89,7 @@ namespace Mail
 
 
 	/** Check for new or unread messages. */
-	void MailCheckLog(const wstring &wscCharname, const string &scExtension)
+	void MailCheckLog(const std::wstring &wscCharname, const std::string &scExtension)
 	{
 		// Make sure the character is logged in.
 		uint iClientID = HkGetClientIdFromCharname(wscCharname);
@@ -97,7 +97,7 @@ namespace Mail
 			return;
 
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return;
 
@@ -113,10 +113,10 @@ namespace Mail
 	 Save a msg to disk so that we can inform the receiving character
 	 when they log in.
 	*/
-	bool MailSend(const wstring &wscCharname, const string &scExtension, const wstring &wscMsg)
+	bool MailSend(const std::wstring &wscCharname, const std::string &scExtension, const std::wstring &wscMsg)
 	{
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return false;
 		
@@ -124,7 +124,7 @@ namespace Mail
 		// discard the oldest messages.
 		for (int iMsgSlot = MAX_MAIL_MSGS-1; iMsgSlot>0; iMsgSlot--)
 		{
-			wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
 			IniWriteW(scFilePath, "Msgs", itos(iMsgSlot+1), wscTmpMsg);
 
 			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", itos(iMsgSlot), false);
@@ -140,17 +140,17 @@ namespace Mail
 	/**
 		Delete a message
 	*/
-	bool MailDel(const wstring &wscCharname, const string &scExtension, int iMsg)
+	bool MailDel(const std::wstring &wscCharname, const std::string &scExtension, int iMsg)
 	{
 		// Get the target player's message file.
-		string scFilePath = GetUserFilePath(wscCharname, scExtension);
+		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return false;
 
 		// Move all mail down one slot starting at the deleted message to overwrite it
 		for (int iMsgSlot = iMsg; iMsgSlot<MAX_MAIL_MSGS; iMsgSlot++)
 		{
-			wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot+1), L"");
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot+1), L"");
 			IniWriteW(scFilePath, "Msgs", itos(iMsgSlot), wscTmpMsg);
 
 			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", itos(iMsgSlot+1), false);

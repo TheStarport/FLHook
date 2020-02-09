@@ -7,7 +7,7 @@
 // structs
 struct SOCKET_CONNECTION
 {
-	wstring wscPending;
+	std::wstring wscPending;
 	CSocket	csock;
 };
 
@@ -32,9 +32,9 @@ SOCKET sWListen = INVALID_SOCKET;
 SOCKET sEListen = INVALID_SOCKET;
 SOCKET sEWListen = INVALID_SOCKET;
 
-list<wstring*> lstConsoleCmds;
-list<SOCKET_CONNECTION*> lstSockets;
-list<SOCKET_CONNECTION*> lstDelete;
+std::list<std::wstring*> lstConsoleCmds;
+std::list<SOCKET_CONNECTION*> lstSockets;
+std::list<SOCKET_CONNECTION*> lstDelete;
 
 CRITICAL_SECTION cs;
 
@@ -65,7 +65,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 	char szFile[MAX_PATH];
 	GetModuleFileName(0, szFile, sizeof(szFile));
-	wstring wscFileName = ToLower(stows(szFile));
+	std::wstring wscFileName = ToLower(stows(szFile));
 
 	if(wscFileName.find(L"flserver.exe") != -1)
 	{ // start FLHook
@@ -127,15 +127,15 @@ void ReadConsoleEvents()
 		memset(szCmd, 0, sizeof(szCmd));
 		if(ReadConsole(hConsoleIn, szCmd, sizeof(szCmd), &dwBytesRead, 0))
 		{
-			string scCmd = szCmd;
+			std::string scCmd = szCmd;
 			if(scCmd[scCmd.length()-1] == '\n')
 				scCmd = scCmd.substr(0, scCmd.length()-1);
 			if(scCmd[scCmd.length()-1] == '\r')
 				scCmd = scCmd.substr(0, scCmd.length()-1);
 
-			wstring wscCmd = stows(scCmd);
+			std::wstring wscCmd = stows(scCmd);
 			EnterCriticalSection(&cs);
-			wstring *pwscCmd = new wstring;
+			std::wstring *pwscCmd = new std::wstring;
 			*pwscCmd = wscCmd;
 			lstConsoleCmds.push_back(pwscCmd);
 			LeaveCriticalSection(&cs);
@@ -163,7 +163,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 /**************************************************************************************************************
 init
 **************************************************************************************************************/
-string sDebugLog;
+std::string sDebugLog;
 
 void FLHookInit_Pre()
 {
@@ -210,13 +210,13 @@ void FLHookInit_Pre()
 		time_t tNow = time(0);
 		struct tm *t = localtime(&tNow);
 		strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", t);
-		sDebugLog = "./flhook_logs/debug/FLHookDebug_"+(string)szDate;
+		sDebugLog = "./flhook_logs/debug/FLHookDebug_"+(std::string)szDate;
 		sDebugLog += ".log";
 
 		//check what plugins should be loaded; we need to read out the settings ourselves cause LoadSettings() wasn't called yet
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		string scCfgFile = string(szCurDir) + "\\FLHook.ini";
+		std::string scCfgFile = std::string(szCurDir) + "\\FLHook.ini";
 
 		PluginManager::Init();
 		
@@ -224,14 +224,14 @@ void FLHookInit_Pre()
 			PluginManager::LoadPlugins(true, &AdminConsole);
 		else
 		{
-			//LoadAllPlugins = false, check what plugins should be loaded
-			list<INISECTIONVALUE> lstIniPlugins;
+			// LoadAllPlugins is false, check what plugins should be loaded
+			std::list<INISECTIONVALUE> lstIniPlugins;
 			IniGetSection(scCfgFile, "Plugins", lstIniPlugins);
-			foreach(lstIniPlugins, INISECTIONVALUE, it)
+			for(auto& val : lstIniPlugins)
 			{
-				if(it->scKey != "plugin")
+				if(val.scKey != "plugin")
 					continue;
-				PluginManager::LoadPlugin(it->scValue, &AdminConsole, true);
+				PluginManager::LoadPlugin(val.scValue, &AdminConsole, true);
 			}
 		}
 
@@ -435,10 +435,10 @@ void FLHookUnload()
 	if(sEWListen != INVALID_SOCKET)
 		closesocket(sEWListen);
 
-	for(list<SOCKET_CONNECTION*>::iterator i = lstSockets.begin(); (i != lstSockets.end()); i++)
+	for(auto i : lstSockets)
 	{
-		closesocket((*i)->csock.s);
-		delete *i;
+		closesocket(i->csock.s);
+		delete i;
 	}
 	lstSockets.clear();
 
@@ -504,14 +504,14 @@ process a socket command
 return true -> close socket connection
 **************************************************************************************************************/
 
-bool ProcessSocketCmd(SOCKET_CONNECTION *sc, wstring wscCmd)
+bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd)
 {
 	if(!ToLower(wscCmd).find(L"quit")) { // quit connection
 		sc->csock.DoPrint(L"Goodbye.\r\n");
 		ConPrint(L"socket: connection closed\n");
 		return true;
 	} else if(!(sc->csock.bAuthed)) { // not authenticated yet
-		wstring wscLwr = ToLower(wscCmd);
+		std::wstring wscLwr = ToLower(wscCmd);
 		if(wscLwr.find(L"pass") != 0)
 		{
 			sc->csock.Print(L"ERR Please authenticate first\n");
@@ -535,9 +535,9 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, wstring wscCmd)
 		{
 			char szBuf[64];
 			sprintf(szBuf, "pass%u", i);
-			string scPass = IniGetS(set_scCfgFile, "Socket", szBuf, "");
+			std::string scPass = IniGetS(set_scCfgFile, "Socket", szBuf, "");
 			sprintf(szBuf, "rights%u", i);
-			string scRights = IniGetS(set_scCfgFile, "Socket", szBuf, "");
+			std::string scRights = IniGetS(set_scCfgFile, "Socket", szBuf, "");
 
 			if(!scPass.length()) {
 				sc->csock.DoPrint(L"ERR Wrong password\n");
@@ -578,7 +578,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, wstring wscCmd)
 write text to console
 **************************************************************************************************************/
 
-void ConPrint(wstring wscText, ...)
+void ConPrint(std::wstring wscText, ...)
 {
 	wchar_t wszBuf[1024*8] = L"";
 	va_list marker;
@@ -587,7 +587,7 @@ void ConPrint(wstring wscText, ...)
 	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	DWORD iCharsWritten;
-	string scText = wstos(wszBuf);
+	std::string scText = wstos(wszBuf);
 	WriteConsole(hConsoleOut, scText.c_str(), (DWORD)scText.length(), &iCharsWritten, 0);
 }
 
@@ -595,7 +595,7 @@ void ConPrint(wstring wscText, ...)
 send event to all sockets which are in eventmode
 **************************************************************************************************************/
 
-void ProcessEvent(wstring wscText, ...)
+void ProcessEvent(std::wstring wscText, ...)
 {
 	wchar_t wszBuf[1024] = L"";
 	va_list marker;
@@ -604,12 +604,12 @@ void ProcessEvent(wstring wscText, ...)
 
 	wscText = wszBuf;
 
-	CALL_PLUGINS_V(PLUGIN_ProcessEvent_BEFORE,,(wstring &wscText),(wscText));
+	CALL_PLUGINS_V(PLUGIN_ProcessEvent_BEFORE,,(std::wstring &wscText),(wscText));
 
-	foreach(lstSockets, SOCKET_CONNECTION*, i)
+	for(auto& socket : lstSockets)
 	{
-		if((*i)->csock.bEventMode)
-			(*i)->csock.Print(L"%s\n", wscText.c_str());
+		if(socket->csock.bEventMode)
+			socket->csock.Print(L"%s\n", wscText.c_str());
 	}
 }
 
@@ -626,7 +626,7 @@ void ProcessPendingCommands()
 		EnterCriticalSection(&cs);
 		while(lstConsoleCmds.size())
 		{
-			wstring *pwscCmd = lstConsoleCmds.front();
+			std::wstring *pwscCmd = lstConsoleCmds.front();
 			lstConsoleCmds.pop_front();
 			AdminConsole.ExecuteCommandString(*pwscCmd);
 			delete pwscCmd;
@@ -648,7 +648,7 @@ void ProcessPendingCommands()
 				ioctlsocket(s, FIONBIO, &lNB);
 				SOCKET_CONNECTION *sc = new SOCKET_CONNECTION;
 				sc->csock.s = s;
-				sc->csock.sIP = (string)inet_ntoa(adr.sin_addr);
+				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
 				sc->csock.iPort = adr.sin_port;
 				sc->csock.bUnicode = false;
 				sc->csock.bEncrypted = false;
@@ -674,7 +674,7 @@ void ProcessPendingCommands()
 				ioctlsocket(s, FIONBIO, &lNB);
 				SOCKET_CONNECTION *sc = new SOCKET_CONNECTION;
 				sc->csock.s = s;
-				sc->csock.sIP = (string)inet_ntoa(adr.sin_addr);
+				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
 				sc->csock.iPort = adr.sin_port;
 				sc->csock.bUnicode = true;
 				sc->wscPending = L"";
@@ -700,7 +700,7 @@ void ProcessPendingCommands()
 				ioctlsocket(s, FIONBIO, &lNB);
 				SOCKET_CONNECTION *sc = new SOCKET_CONNECTION;
 				sc->csock.s = s;
-				sc->csock.sIP = (string)inet_ntoa(adr.sin_addr);
+				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
 				sc->csock.iPort = adr.sin_port;
 				sc->csock.bUnicode = false;
 				sc->wscPending = L"";
@@ -727,7 +727,7 @@ void ProcessPendingCommands()
 				ioctlsocket(s, FIONBIO, &lNB);
 				SOCKET_CONNECTION *sc = new SOCKET_CONNECTION;
 				sc->csock.s = s;
-				sc->csock.sIP = (string)inet_ntoa(adr.sin_addr);
+				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
 				sc->csock.iPort = adr.sin_port;
 				sc->csock.bUnicode = true;
 				sc->wscPending = L"";
@@ -740,10 +740,8 @@ void ProcessPendingCommands()
 		}
 
 		// check for pending socket-commands
-		foreach(lstSockets, SOCKET_CONNECTION*, i)
+		for(auto& sc : lstSockets)
 		{
-			SOCKET_CONNECTION *sc = *i;
-
 			FD_SET fds;
 			FD_ZERO(&fds);
 			FD_SET(sc->csock.s, &fds);
@@ -763,7 +761,7 @@ void ProcessPendingCommands()
 				}
 
 				// enqueue commands (terminated by \n)
-				wstring wscData;
+				std::wstring wscData;
 				if(sc->csock.bEncrypted)
 				{
 					SwapBytes(szData, lSize);
@@ -771,11 +769,11 @@ void ProcessPendingCommands()
 					SwapBytes(szData, lSize);
 				}
 				if(sc->csock.bUnicode)
-					wscData = wstring((wchar_t*)szData,lSize/2);
+					wscData = std::wstring((wchar_t*)szData,lSize/2);
 				else
 					wscData = stows(szData);
 
-				wstring wscTmp = sc->wscPending + wscData;
+				std::wstring wscTmp = sc->wscPending + wscData;
 				wscData = wscTmp;
 
 				// check for memory overflow ddos attack
@@ -790,8 +788,8 @@ void ProcessPendingCommands()
 					continue;
 				}
 
-				list<wstring> lstCmds;
-				wstring wscCmd;
+				std::list<std::wstring> lstCmds;
+				std::wstring wscCmd;
 				for(uint i = 0; (i < wscData.length()); i++)
 				{
 					if(!wscData.substr(i, 2).compare(L"\r\n")) {
@@ -808,9 +806,9 @@ void ProcessPendingCommands()
 				sc->wscPending = wscCmd;
 
 				// process cmds
-				foreach(lstCmds, wstring, it)
+				for(auto& cmd : lstCmds)
 				{
-					if(ProcessSocketCmd(sc, (*it)))
+					if(ProcessSocketCmd(sc, cmd))
 					{
 						lstDelete.push_back(sc);
 						break;
@@ -822,7 +820,7 @@ void ProcessPendingCommands()
 		}
 
 		// delete closed connections
-		foreach(lstDelete, SOCKET_CONNECTION*, it)
+		for(auto it = lstDelete.begin(); it != lstDelete.end(); ++it)
 		{
 			closesocket((*it)->csock.s);
 			lstSockets.remove(*it);

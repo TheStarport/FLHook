@@ -21,7 +21,7 @@ static int set_iPluginDebug = 0;
 
 struct CARGO_MISSION
 {
-	string nickname;
+	std::string nickname;
 	uint base;
 	uint item;
 	int required_amount;
@@ -31,9 +31,9 @@ struct CARGO_MISSION
 
 struct NPC_MISSION
 {
-	string nickname;
+	std::string nickname;
 	uint system;
-	string sector;
+	std::string sector;
 	uint reputation;
 	int required_amount;
 
@@ -49,7 +49,7 @@ std::multimap<UINT, NPC_MISSION> set_mapNpcMissions;
 // A return code to indicate to FLHook if we want the hook processing to continue.
 PLUGIN_RETURNCODE returncode;
 
-string VectorToSectorCoord(uint iSystemID, Vector vPos)
+std::string VectorToSectorCoord(uint iSystemID, Vector vPos)
 {
 	float scale = 1.0;
 	const Universe::ISystem *iSystem = Universe::get_system(iSystemID);
@@ -60,14 +60,14 @@ string VectorToSectorCoord(uint iSystemID, Vector vPos)
 	int gridRefX = (int)((vPos.x + (fGridsize * 5)) / fGridsize) - 1;
 	int gridRefZ = (int)((vPos.z + (fGridsize * 5)) / fGridsize) - 1;
 
-	string scXPos = "X";
+	std::string scXPos = "X";
 	if (gridRefX >= 0 && gridRefX < 8)
 	{
 		char* gridXLabel[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
 		scXPos = gridXLabel[gridRefX];
 	}
 
-	string scZPos = "X";
+	std::string scZPos = "X";
 	if (gridRefZ >= 0 && gridRefZ < 8)
 	{
 		char* gridZLabel[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
@@ -84,7 +84,7 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\event.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\event.cfg";
 
 	INI_Reader ini;
 	set_mapCargoMissions.clear();
@@ -108,7 +108,7 @@ void LoadSettings()
 						mis.base = CreateID(ini.get_value_string(1));
 						mis.item = CreateID(ini.get_value_string(2));
 						mis.required_amount = ini.get_value_int(3);
-						set_mapCargoMissions.insert(multimap<uint, CARGO_MISSION>::value_type(mis.base, mis));
+						set_mapCargoMissions.insert(std::multimap<uint, CARGO_MISSION>::value_type(mis.base, mis));
 					}
 					else if (ini.is_value("npc"))
 					{
@@ -118,7 +118,7 @@ void LoadSettings()
 						mis.sector = ini.get_value_string(2);
 						pub::Reputation::GetReputationGroup(mis.reputation, ini.get_value_string(3));
 						mis.required_amount = ini.get_value_int(4);
-						set_mapNpcMissions.insert(multimap<uint, NPC_MISSION>::value_type(mis.reputation, mis));
+						set_mapNpcMissions.insert(std::multimap<uint, NPC_MISSION>::value_type(mis.reputation, mis));
 					}
 				}
 			}
@@ -136,7 +136,7 @@ void LoadSettings()
 	// Read the last saved event status
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	string scStatsPath = string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
+	std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
 	if (ini.open(scStatsPath.c_str(), false))
 	{
 		while (ini.read_header())
@@ -147,10 +147,10 @@ void LoadSettings()
 				{
 					if (ini.is_value("cargo"))
 					{
-						string nickname = ini.get_value_string(0);
+						std::string nickname = ini.get_value_string(0);
 						int curr_amount = ini.get_value_int(2);
 
-						for (multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin();
+						for (std::multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin();
 							i != set_mapCargoMissions.end(); ++i)
 						{
 							if (i->second.nickname == nickname)
@@ -162,15 +162,14 @@ void LoadSettings()
 					else if (ini.is_value("npc"))
 					{
 						NPC_MISSION mis;
-						string nickname = ini.get_value_string(0);
+						std::string nickname = ini.get_value_string(0);
 						int curr_amount = ini.get_value_int(2);
 
-						for (multimap<uint, NPC_MISSION>::iterator i = set_mapNpcMissions.begin();
-							i != set_mapNpcMissions.end(); ++i)
+						for (auto& i : set_mapNpcMissions)
 						{
-							if (i->second.nickname == nickname)
+							if (i.second.nickname == nickname)
 							{
-								i->second.curr_amount = curr_amount;
+								i.second.curr_amount = curr_amount;
 							}
 						}
 					}
@@ -188,17 +187,17 @@ void HkTimerCheckKick()
 	{
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scStatsPath = string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
+		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
 
 		FILE *file = fopen(scStatsPath.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "[Missions]\n");
-			for (multimap<uint, NPC_MISSION>::iterator i = set_mapNpcMissions.begin(); i != set_mapNpcMissions.end(); ++i)
+			for (std::multimap<uint, NPC_MISSION>::iterator i = set_mapNpcMissions.begin(); i != set_mapNpcMissions.end(); ++i)
 			{
 				fprintf(file, "npc = %s, %d, %d\n", i->second.nickname.c_str(), i->second.required_amount, i->second.curr_amount);
 			}
-			for (multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin(); i != set_mapCargoMissions.end(); ++i)
+			for (std::multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin(); i != set_mapCargoMissions.end(); ++i)
 			{
 				fprintf(file, "cargo = %s, %d, %d\n", i->second.nickname.c_str(), i->second.required_amount, i->second.curr_amount);
 			}
@@ -225,10 +224,10 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 		pub::SpaceObj::GetSystem(cship->get_id(), iSystem);
 
 		Vector vPos = cship->get_position();
-		string scSector = VectorToSectorCoord(iSystem, vPos);
+		std::string scSector = VectorToSectorCoord(iSystem, vPos);
 
-		multimap<uint, NPC_MISSION>::iterator start = set_mapNpcMissions.lower_bound(iAff);
-		multimap<uint, NPC_MISSION>::iterator end = set_mapNpcMissions.upper_bound(iAff);
+		auto start = set_mapNpcMissions.lower_bound(iAff);
+		auto end = set_mapNpcMissions.upper_bound(iAff);
 		for (; start != end; ++start)
 		{
 			if (start->second.system == iSystem)
@@ -251,8 +250,8 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int iClientI
 	uint iBase;
 	pub::Player::GetBase(iClientID, iBase);
 
-	multimap<uint, CARGO_MISSION>::iterator start = set_mapCargoMissions.lower_bound(iBase);
-	multimap<uint, CARGO_MISSION>::iterator end = set_mapCargoMissions.upper_bound(iBase);
+	auto start = set_mapCargoMissions.lower_bound(iBase);
+	auto end = set_mapCargoMissions.upper_bound(iBase);
 	for (; start != end; ++start)
 	{
 		if (start->second.item == gbi.iGoodID)
@@ -273,8 +272,8 @@ void __stdcall GFGoodSell(const struct SGFGoodSellInfo &gsi, unsigned int iClien
 	uint iBase;
 	pub::Player::GetBase(iClientID, iBase);
 
-	multimap<uint, CARGO_MISSION>::iterator start = set_mapCargoMissions.lower_bound(iBase);
-	multimap<uint, CARGO_MISSION>::iterator end = set_mapCargoMissions.upper_bound(iBase);
+	auto start = set_mapCargoMissions.lower_bound(iBase);
+	auto end = set_mapCargoMissions.upper_bound(iBase);
 	for (; start != end; ++start)
 	{
 		if (start->second.item == gsi.iArchID)

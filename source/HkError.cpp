@@ -18,7 +18,7 @@ HK_ERROR_INFO hkErrors[] =
 	{ HKE_INVALID_BASENAME,				L"Invalid basename" },
 	{ HKE_UNKNOWN_ERROR,				L"Unknown error" },
 	{ HKE_INVALID_CLIENT_ID,			L"Invalid client id" },
-	{ HKE_INVALID_ID_STRING,			L"Invalid id string" },
+	{ HKE_INVALID_ID_STRING,			L"Invalid id std::string" },
 	{ HKE_INVALID_SYSTEM,				L"Invalid system" },
 	{ HKE_PLAYER_NOT_IN_SPACE,			L"Player not in space" },
 	{ HKE_PLAYER_NO_ADMIN,				L"Player is no admin" },
@@ -30,7 +30,7 @@ HK_ERROR_INFO hkErrors[] =
 	{ HKE_CHARNAME_TOO_SHORT,			L"Charname is too short" },
 	{ HKE_AMBIGUOUS_SHORTCUT,			L"Ambiguous shortcut" },
 	{ HKE_NO_MATCHING_PLAYER,			L"No matching player" },
-	{ HKE_INVALID_SHORTCUT_STRING,		L"Invalid shortcut string" },
+	{ HKE_INVALID_SHORTCUT_STRING,		L"Invalid shortcut std::string" },
 	{ HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID,	L"mpnewcharacter.fl not found or invalid" },
 	{ HKE_INVALID_REP_GROUP,			L"Invalid reputation group" },
 	{ HKE_PLUGIN_UNLOADABLE,			L"Plugin cannot be unloaded" },
@@ -38,7 +38,7 @@ HK_ERROR_INFO hkErrors[] =
 	{ HKE_PLUGIN_NOT_FOUND,				L"Plugin not found" },
 };
 
-wstring HkErrGetText(HK_ERROR hkErr)
+std::wstring HkErrGetText(HK_ERROR hkErr)
 {
 	for(uint i = 0; (i < (sizeof(hkErrors)/sizeof(HK_ERROR_INFO))); i++)
 	{

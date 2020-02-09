@@ -3,19 +3,19 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &wscRet)
+HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring &wscRet)
 {
 	wscRet = L"";
-	wstring wscDir;
+	std::wstring wscDir;
 	if(!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
 		return HKE_CHAR_DOES_NOT_EXIST;
 
-	wstring wscFile;
+	std::wstring wscFile;
 	HkGetCharFileName(wscCharname, wscFile);
 
-	string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
+	std::string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
 	if(HkIsEncoded(scCharFile)) {
-		string scCharFileNew = scCharFile + ".ini";
+		std::string scCharFileNew = scCharFile + ".ini";
 		if(!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
 			return HKE_COULD_NOT_DECODE_CHARFILE;
 
@@ -30,18 +30,18 @@ HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniWrite(const wstring &wscCharname, const wstring &wscKey, const wstring &wscValue)
+HK_ERROR HkFLIniWrite(const std::wstring &wscCharname, const std::wstring &wscKey, const std::wstring &wscValue)
 {
-	wstring wscDir;
+	std::wstring wscDir;
 	if(!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
 		return HKE_CHAR_DOES_NOT_EXIST;
 
-	wstring wscFile;
+	std::wstring wscFile;
 	HkGetCharFileName(wscCharname, wscFile);
 
-	string scCharFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
+	std::string scCharFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
 	if(HkIsEncoded(scCharFile)) {
-		string scCharFileNew = scCharFile + ".ini";
+		std::string scCharFileNew = scCharFile + ".ini";
 		if(!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
 			return HKE_COULD_NOT_DECODE_CHARFILE;
 

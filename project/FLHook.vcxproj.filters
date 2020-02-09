@@ -19,9 +19,6 @@
     <Filter Include="wildcards">
       <UniqueIdentifier>{5ab78678-a596-40ba-bff8-456eed8e3646}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ini">
-      <UniqueIdentifier>{6ad144b2-5c2e-4c6d-82e2-b0a3f1b5dd64}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk">
       <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
     </Filter>

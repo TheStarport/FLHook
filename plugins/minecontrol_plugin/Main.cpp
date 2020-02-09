@@ -44,7 +44,7 @@
 
 static float set_fGenericFactor = 1.0f;
 static int set_iPluginDebug = 0;
-static string set_scStatsPath;
+static std::string set_scStatsPath;
 
 extern void PrintZones();
 
@@ -76,7 +76,7 @@ struct ZONE_BONUS
 {
 	ZONE_BONUS() : fBonus(0.0f), iReplacementLootID(0), fRechargeRate(0), fCurrReserve(100000), fMaxReserve(50000), fMined(0) {}
 
-	string scZone;
+	std::string scZone;
 	
 	// The loot bonus multiplier.
 	float fBonus;
@@ -125,11 +125,11 @@ PLUGIN_RETURNCODE returncode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Return the string parameter at position iPos from the ini line. The
+/// Return the std::string parameter at position iPos from the ini line. The
 /// delimiter is a ',' character. A chunk of code is from Motah's Flak.
-static string GetTrimParam(const string &scLine, uint iPos)
+static std::string GetTrimParam(const std::string &scLine, uint iPos)
 {
-	string scOut = "";
+	std::string scOut = "";
 	for (uint i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
 	{
 		if (scLine[j] == ',')
@@ -252,7 +252,7 @@ void CheckClientSetup(uint iClientID)
 			}
 		}
 		
-		wstring wscRights;
+		std::wstring wscRights;
 		HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 		if (wscRights.size())
 			mapClients[iClientID].iDebug = set_iPluginDebug;
@@ -277,7 +277,7 @@ EXPORT void HkTimerCheckKick()
 		// Save the zone status to disk
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scStatsPath = string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
+		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
 		FILE *file = fopen(scStatsPath.c_str(), "w");
 		if (file)
 		{
@@ -314,7 +314,7 @@ EXPORT void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\minecontrol.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\minecontrol.cfg";
 
 	// Load generic settings
 	set_fGenericFactor = IniGetF(scPluginCfgFile, "MiningGeneral", "GenericFactor", 1.0);
@@ -349,7 +349,7 @@ EXPORT void LoadSettings()
 			{
 				while (ini.read_value())
 				{
-					string scLine = ini.get_name_ptr();
+					std::string scLine = ini.get_name_ptr();
 
 					PLAYER_BONUS pb;			
 					pb.iLootID = CreateID(GetTrimParam(scLine, 0).c_str());
@@ -379,7 +379,7 @@ EXPORT void LoadSettings()
 					}
 
 					int i = 3;
-					string scShipOrEquip = GetTrimParam(scLine, i++);
+					std::string scShipOrEquip = GetTrimParam(scLine, i++);
 					while (scShipOrEquip.size())
 					{
 						uint iItemID = CreateID(scShipOrEquip.c_str());
@@ -427,9 +427,9 @@ EXPORT void LoadSettings()
 			{
 				while (ini.read_value())
 				{
-					string scLine = ini.get_name_ptr();
+					std::string scLine = ini.get_name_ptr();
 					
-					string scZone = GetTrimParam(scLine, 0);
+					std::string scZone = GetTrimParam(scLine, 0);
 					if (!scZone.size())
 					{
 						ConPrint(L"ERROR: %s:%d: zone not valid\n", stows(ini.get_file_name()).c_str(), ini.get_line_num());
@@ -444,7 +444,7 @@ EXPORT void LoadSettings()
 					}
 
 					uint iReplacementLootID = 0;
-					string scReplacementLoot = GetTrimParam(scLine, 2);
+					std::string scReplacementLoot = GetTrimParam(scLine, 2);
 					if (scReplacementLoot.size())
 					{
 						iReplacementLootID = CreateID(scReplacementLoot.c_str());
@@ -482,7 +482,7 @@ EXPORT void LoadSettings()
 	// Read the last saved zone reserve.
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	string scStatsPath = string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
+	std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
 	if (ini.open(scStatsPath.c_str(), false))
 	{
 		while (ini.read_header())
@@ -491,8 +491,8 @@ EXPORT void LoadSettings()
 			{
 				while (ini.read_value())
 				{
-					string scLine = ini.get_name_ptr();									
-					string scZone = GetTrimParam(scLine, 0);
+					std::string scLine = ini.get_name_ptr();									
+					std::string scZone = GetTrimParam(scLine, 0);
 					float fCurrReserve = (float)atof(GetTrimParam(scLine, 1).c_str());
 					float fMined = (float)atof(GetTrimParam(scLine, 2).c_str());
 					uint iZoneID = CreateID(scZone.c_str());
@@ -715,7 +715,7 @@ void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos, uint
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* cmd, const wstring &wscCmd)
+bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 

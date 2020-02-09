@@ -20,19 +20,19 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 			uint iRet;
 			rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet, (const char*)pRDL, iSize);
 
-			wstring wscBuf = wszBuf;
-			wstring wscSender = wscBuf.substr(0, wscBuf.length() - HkIServerImpl::g_iTextLen - 2);
-			wstring wscText = wscBuf.substr(wscBuf.length() - HkIServerImpl::g_iTextLen);
+			std::wstring wscBuf = wszBuf;
+			std::wstring wscSender = wscBuf.substr(0, wscBuf.length() - HkIServerImpl::g_iTextLen - 2);
+			std::wstring wscText = wscBuf.substr(wscBuf.length() - HkIServerImpl::g_iTextLen);
 
 			if(set_bUserCmdIgnore && ((iTo & 0xFFFF) != 0))
 			{ // check ignores
-				foreach(ClientInfo[iClientID].lstIgnore, IGNORE_INFO, it)
+				for(auto& ci : ClientInfo[iClientID].lstIgnore)
 				{
-					if(HAS_FLAG(*it, L"p") && (iTo & 0x10000))
+					if(HAS_FLAG(ci, L"p") && (iTo & 0x10000))
 						continue; // no privchat
-					else if(!HAS_FLAG(*it, L"i") && !(ToLower(wscSender).compare(ToLower((*it).wscCharname))))
+					else if(!HAS_FLAG(ci, L"i") && !(ToLower(wscSender).compare(ToLower(ci.wscCharname))))
 						return; // ignored
-					else if(HAS_FLAG(*it, L"i") && (ToLower(wscSender).find(ToLower((*it).wscCharname)) != -1))
+					else if(HAS_FLAG(ci, L"i") && (ToLower(wscSender).find(ToLower(ci.wscCharname)) != -1))
 						return; // ignored
 				}
 			}
@@ -78,9 +78,9 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 
 			wchar_t wszFormatBuf[8];
 			swprintf(wszFormatBuf, L"%02X", (long)cFormat);
-			wstring wscTRADataFormat = wszFormatBuf;
-			wstring wscTRADataColor;
-			wstring wscTRADataSenderColor = L"FFFFFF";
+			std::wstring wscTRADataFormat = wszFormatBuf;
+			std::wstring wscTRADataColor;
+			std::wstring wscTRADataSenderColor = L"FFFFFF";
 			if(g_bMsg) {
 //				wscTRADataSenderColor = L"00FF00";
 				wscTRADataColor = L"19BD3A"; // pm chatcolor
@@ -103,7 +103,7 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 			else
 				wscTRADataColor = L"19BD3A"; // pm chatcolor
 
-			wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscSender) + L": </TEXT>" + 
+			std::wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscSender) + L": </TEXT>" + 
 					L"<TRA data=\"0x" + wscTRADataColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscText) + L"</TEXT>";
 			HkFMsg(iClientID, wscXML);
 		} else {

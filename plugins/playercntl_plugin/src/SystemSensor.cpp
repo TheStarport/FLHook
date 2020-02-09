@@ -64,7 +64,7 @@ namespace SystemSensor
 
 	static map<UINT, INFO> mapInfo;
 
-	void LoadSettings(const string &scPluginCfgFile)
+	void LoadSettings(const std::string &scPluginCfgFile)
 	{	
 		INI_Reader ini;
 		if (ini.open(scPluginCfgFile.c_str(), false))
@@ -88,9 +88,9 @@ namespace SystemSensor
 		}
 	}
 
-	bool UserCmd_Net(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_Net(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscMode = ToLower(GetParam(wscParam, ' ', 0));
+		std::wstring wscMode = ToLower(GetParam(wscParam, ' ', 0));
 		if (wscMode.size()==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
@@ -123,9 +123,9 @@ namespace SystemSensor
 		return true;
 	}
 
-	bool UserCmd_ShowScan(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_ShowScan(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
+		std::wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
 		if (wscCmd.find(L"/showscan$ ")==0)
 		{
 			wchar_t *wszTargetCharname = (wchar_t*)Players.GetActiveCharacterName(ToInt(wscTargetCharname));
@@ -157,16 +157,16 @@ namespace SystemSensor
 			return true;
 		}
 
-		wstring wscEqList;
+		std::wstring wscEqList;
 		foreach (iterTargetClientID->second.lstLastScan, CARGO_INFO, ci)
 		{
-			string scHardpoint = ci->hardpoint.value;
+			std::string scHardpoint = ci->hardpoint.value;
 			if (scHardpoint.length())
 			{
 				Archetype::Equipment *eq = Archetype::GetEquipment(ci->iArchID);
 				if (eq && eq->iIdsName)
 				{
-					wstring wscResult;
+					std::wstring wscResult;
 					switch (HkGetEqType(eq))
 					{
 					case ET_GUN:
@@ -242,7 +242,7 @@ namespace SystemSensor
 		EnableSensorAccess(iClientID);
 	}
 
-	static void DumpSensorAccess(uint iClientID, const wstring &wscType, uint iType)
+	static void DumpSensorAccess(uint iClientID, const std::wstring &wscType, uint iType)
 	{	
 		unsigned int iSystemID;
 		pub::Player::GetSystem(iClientID, iSystemID);
@@ -275,7 +275,7 @@ namespace SystemSensor
 				{
 					if (piter->second.iMode & iType)
 					{
-						wstring wscSysName = HkGetWStringFromIDS(iSys->strid_name);
+						std::wstring wscSysName = HkGetWStringFromIDS(iSys->strid_name);
 						PrintUserCmdText(piter->first, L"%s[$%u] %s at %s %s",
 							Players.GetActiveCharacterName(iClientID), iClientID,
 							wscType.c_str(), wscSysName.c_str(), GetLocation(iClientID).c_str());

@@ -7,10 +7,10 @@ class CInGame : public CCmds
 {
 public:
 	uint iClientID;
-	wstring wscAdminName;
-	void DoPrint(const wstring &wscText);
-	void ReadRights(const string &scIniFile);
-	wstring GetAdminName();
+	std::wstring wscAdminName;
+	void DoPrint(const std::wstring &wscText);
+	void ReadRights(const std::string &scIniFile);
+	std::wstring GetAdminName();
 };
 
 #endif

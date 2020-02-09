@@ -1,6 +1,6 @@
 #include "Main.h"
 
-PlayerBase::PlayerBase(uint client, const wstring &password, const wstring &the_basename)
+PlayerBase::PlayerBase(uint client, const std::wstring &password, const std::wstring &the_basename)
 	: basename(the_basename),
 	base(0), money(0), base_health(0),
 	base_level(1), defense_mode(0), proxy_base(0), affiliation(0),
@@ -32,7 +32,7 @@ PlayerBase::PlayerBase(uint client, const wstring &password, const wstring &the_
 	save_timer = rand() % 60;
 }
 
-PlayerBase::PlayerBase(const string &the_path)
+PlayerBase::PlayerBase(const std::string &the_path)
 	: path(the_path), base(0), money(0),
 	base_health(0), base_level(0), defense_mode(0), proxy_base(0), affiliation(0),
 	repairing(false), shield_active_time(0), shield_state(PlayerBase::SHIELD_STATE_OFFLINE)
@@ -127,7 +127,7 @@ void PlayerBase::SetupDefaults()
 	infocard.clear();
 	for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 	{
-		wstring wscXML = infocard_para[i];
+		std::wstring wscXML = infocard_para[i];
 		if (wscXML.length())
 			infocard += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 	}
@@ -221,19 +221,19 @@ void PlayerBase::Load()
 					}
 					else if (ini.is_value("ally_tag"))
 					{
-						wstring tag;
+						std::wstring tag;
 						ini_get_wstring(ini, tag);
 						ally_tags.push_back(tag);
 					}
 					else if (ini.is_value("hostile_tag"))
 					{
-						wstring tag;
+						std::wstring tag;
 						ini_get_wstring(ini, tag);
 						// TODO: enable this to load hostile tags hostile_tags[tag] = tag;
 					}
 					else if (ini.is_value("passwd"))
 					{
-						wstring passwd;
+						std::wstring passwd;
 						ini_get_wstring(ini, passwd);
 						passwords.push_back(passwd);
 					}
@@ -311,26 +311,22 @@ void PlayerBase::Save()
 		}
 
 		fprintf(file, "defensemode = %u\n", defense_mode);
-		foreach (ally_tags, wstring, i)
-		{
-			ini_write_wstring(file, "ally_tag", *i);
-		}
-		for (map<wstring, wstring>::iterator i = hostile_tags.begin() ;
-			i != hostile_tags.end(); ++i)
-		{
-			ini_write_wstring(file, "hostile_tag", (wstring&)i->first);
-		}
-		foreach (passwords, wstring, i)
-		{
-			ini_write_wstring(file, "passwd", *i);
-		}
+		for(auto& i : ally_tags)
+			ini_write_wstring(file, "ally_tag", i);
+
+		for (auto& i : hostile_tags)
+			ini_write_wstring(file, "hostile_tag", i.first);
+
+		for(auto& i : passwords)
+			ini_write_wstring(file, "passwd", i);
+
 		fprintf(file, "health = %0.0f\n", base_health);
 		
-		for (vector<Module*>::iterator i=modules.begin(); i!=modules.end(); ++i)
+		for(auto& i : modules)
 		{
-			if (*i)
+			if (i)
 			{
-				(*i)->SaveState(file);
+				i->SaveState(file);
 			}
 		}
 
@@ -402,9 +398,9 @@ uint PlayerBase::GetMaxCargoSpace()
 	return max_capacity;
 }
 
-string PlayerBase::CreateBaseNickname(const string &basename)
+std::string PlayerBase::CreateBaseNickname(const std::string &basename)
 {
-	return string("pb_") + basename;
+	return std::string("pb_") + basename;
 }
 
 uint PlayerBase::HasMarketItem(uint good)
@@ -429,8 +425,8 @@ float PlayerBase::GetAttitudeTowardsClient(uint client)
 	}
 
 	// Make base friendly if player is on the friendly list.
-	wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-	for (std::list<wstring>::const_iterator i = ally_tags.begin(); i != ally_tags.end(); ++i)
+	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+	for (std::list<std::wstring>::const_iterator i = ally_tags.begin(); i != ally_tags.end(); ++i)
 	{
 		if (charname.find(*i)==0)
 		{
@@ -504,14 +500,14 @@ float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj, floa
 	uint client = HkGetClientIDByShip(attacking_space_obj);
 	if (client)
 	{
-		const wstring &charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		const std::wstring &charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		// Allies are allowed to shoot at the base without the base becoming hostile. We do the ally search
 		// after checking to see if this player is on the hostile list because allies don't normally
 		// shoot at bases and so this is more efficient than searching the ally list first.
 		if (hostile_tags.find(charname) == hostile_tags.end())
 		{
 			bool is_ally = false;
-			for (list<wstring>::iterator i = ally_tags.begin(); i != ally_tags.end(); ++i)
+			for (list<std::wstring>::iterator i = ally_tags.begin(); i != ally_tags.end(); ++i)
 			{
 				if (charname.find(*i)==0)
 				{

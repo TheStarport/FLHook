@@ -2,7 +2,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkGetPlayerIP(uint iClientID, wstring &wscIP)
+void HkGetPlayerIP(uint iClientID, std::wstring &wscIP)
 {
 	wscIP = L"";
 	CDPClientProxy *cdpClient = g_cClientProxyArray[iClientID - 1];
@@ -58,7 +58,7 @@ some_error:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu)
+HK_ERROR HkGetPlayerInfo(const std::wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -105,10 +105,10 @@ HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAls
 	return HKE_OK;
 }
 
-list<HKPLAYERINFO> HkGetPlayers()
+std::list<HKPLAYERINFO> HkGetPlayers()
 {
-	list<HKPLAYERINFO> lstRet;
-	wstring wscRet;
+	std::list<HKPLAYERINFO> lstRet;
+	std::wstring wscRet;
 
 	struct PlayerData *pPD = 0;
 	while(pPD = Players.traverse_active(pPD))
@@ -142,7 +142,7 @@ HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights)
+HK_ERROR HkSetAdmin(const std::wstring &wscCharname, const std::wstring &wscRights)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -155,16 +155,16 @@ HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights)
 		acc = Players.FindAccountFromClientID(iClientID);
 	}
 
-	wstring wscDir;
+	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
-	string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
+	std::string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
 	IniWrite(scAdminFile, "admin", "rights", wstos(wscRights));
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights)
+HK_ERROR HkGetAdmin(const std::wstring &wscCharname, std::wstring &wscRights)
 {
 	wscRights = L"";
 	HK_GET_CLIENTID(iClientID, wscCharname);
@@ -178,9 +178,9 @@ HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights)
 		acc = Players.FindAccountFromClientID(iClientID);
 	}
 
-	wstring wscDir;
+	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
-	string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
+	std::string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
@@ -195,7 +195,7 @@ HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkDelAdmin(const wstring &wscCharname)
+HK_ERROR HkDelAdmin(const std::wstring &wscCharname)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -208,9 +208,9 @@ HK_ERROR HkDelAdmin(const wstring &wscCharname)
 		acc = Players.FindAccountFromClientID(iClientID);
 	}
 
-	wstring wscDir;
+	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
-	string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
+	std::string scAdminFile = scAcctPath + wstos(wscDir) + "\\flhookadmin.ini";
 	DeleteFile(scAdminFile.c_str());
 	return HKE_OK;
 }
@@ -246,13 +246,13 @@ HK_ERROR HkChangeNPCSpawn(bool bDisable)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth)
+HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth, float &fMaxHealth)
 {
 	uint iBaseID = 0;
 	pub::GetBaseID(iBaseID, wstos(wscBasename).c_str());
 	if(!iBaseID)
 	{
-		string scBaseShortcut = IniGetS(set_scCfgFile, "names", wstos(wscBasename), "");
+		std::string scBaseShortcut = IniGetS(set_scCfgFile, "names", wstos(wscBasename), "");
 		if(!scBaseShortcut.length())
 			return HKE_INVALID_BASENAME;
 

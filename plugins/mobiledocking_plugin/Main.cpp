@@ -24,9 +24,9 @@
 
 void LoadDockInfo(uint client);
 void SaveDockInfo(uint client);
-void UpdateDockInfo(const wstring &charname, uint iSystem, Vector pos, Matrix rot);
+void UpdateDockInfo(const std::wstring &charname, uint iSystem, Vector pos, Matrix rot);
 
-void SendSetBaseInfoText2(UINT client, const wstring &message);
+void SendSetBaseInfoText2(UINT client, const std::wstring &message);
 void SendResetMarketOverride(UINT client);
 
 map<uint, CLIENT_DATA> clients;
@@ -114,7 +114,7 @@ void UpdateDockedShips(uint client)
 	// For each docked ship, update it's last location to reflect that of the carrier
 	if (clients[client].mapDockedShips.size())
 	{
-		for (map<wstring, wstring>::iterator i = clients[client].mapDockedShips.begin();
+		for (map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 					i != clients[client].mapDockedShips.end(); ++i)
 		{
 			uint iDockedClientID = HkGetClientIdFromCharname(i->first);
@@ -154,7 +154,7 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\mobiledocking.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\mobiledocking.cfg";
 
 	// Load generic settings
 	set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
@@ -185,7 +185,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return true;
 }
 
-bool UserCmd_Process(uint client, const wstring &wscCmd)
+bool UserCmd_Process(uint client, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 	if (wscCmd.find(L"/listdocked")==0)
@@ -197,7 +197,7 @@ bool UserCmd_Process(uint client, const wstring &wscCmd)
 		else
 		{
 			PrintUserCmdText(client, L"Docked ships:");
-			for (map<wstring, wstring>::iterator i = clients[client].mapDockedShips.begin();
+			for (map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 					i != clients[client].mapDockedShips.end(); ++i)
 			{
 				PrintUserCmdText(client, i->first);
@@ -206,7 +206,7 @@ bool UserCmd_Process(uint client, const wstring &wscCmd)
 	}
 	else if (wscCmd.find(L"/jettisonship")==0)
 	{
-		wstring charname = Trim(GetParam(wscCmd, ' ', 1));
+		std::wstring charname = Trim(GetParam(wscCmd, ' ', 1));
 		if (!charname.size())
 		{
 			PrintUserCmdText(client, L"Usage: /jettisonship <charname>");
@@ -287,7 +287,7 @@ bool UserCmd_Process(uint client, const wstring &wscCmd)
 		// Delete the docking request and dock the player.
 		mapPendingDockingRequests.erase(iTargetClientID);
 
-		string scProxyBase = HkGetPlayerSystemS(client) + "_proxy_base";
+		std::string scProxyBase = HkGetPlayerSystemS(client) + "_proxy_base";
 		uint iBaseID;
 		if (pub::GetBaseID(iBaseID, scProxyBase.c_str()) == -4)
 		{
@@ -296,7 +296,7 @@ bool UserCmd_Process(uint client, const wstring &wscCmd)
 		}
 
 		// Save the carrier info
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
 		clients[client].mapDockedShips[charname] = charname;
 		SaveDockInfo(client);
 		
@@ -377,7 +377,7 @@ void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,unsigned int
 	LoadDockInfo(client);
 }
 
-bool IsShipDockedOnCarrier(wstring &carrier_charname, wstring &docked_charname)
+bool IsShipDockedOnCarrier(std::wstring &carrier_charname, std::wstring &docked_charname)
 {
 	uint client = HkGetClientIdFromCharname(carrier_charname);
 	if (client != -1)
@@ -406,14 +406,14 @@ void __stdcall BaseEnter(uint iBaseID, uint client)
 		SendResetMarketOverride(client);
 
 		// Set the base name
-		wstring status = L"<RDL><PUSH/>";
+		std::wstring status = L"<RDL><PUSH/>";
 		status += L"<TEXT>" + XMLText(clients[client].wscDockedWithCharname) + L"</TEXT><PARA/><PARA/>";
 		status += L"<POP/></RDL>";
 		SendSetBaseInfoText2(client, status);
 
 		// Check to see that the carrier thinks this ship is docked to it.
 		// If it isn't then eject the ship to space.
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		if (!IsShipDockedOnCarrier(clients[client].wscDockedWithCharname, charname))
 		{
 			JumpToLocation(client,
@@ -691,7 +691,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill)
 				UpdateDockedShips(client);
 				
 				// Send a system switch to force the ship to launch
-				for (map<wstring, wstring>::iterator i = clients[client].mapDockedShips.begin();
+				for (map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 					i != clients[client].mapDockedShips.end(); ++i)
 				{
 					uint iDockedClientID = HkGetClientIdFromCharname(i->first);

@@ -143,7 +143,7 @@ char* OldClient;
 _CRCAntiCheat CRCAntiCheat;
 _CreateChar CreateChar;
 
-string scAcctPath;
+std::string scAcctPath;
 
 CLIENT_INFO ClientInfo[MAX_CLIENT_ID+1];
 
@@ -154,7 +154,7 @@ char *g_FLServerDataPtr;
 
 _GetShipInspect GetShipInspect;
 
-list<BASE_INFO> lstBases;
+std::list<BASE_INFO> lstBases;
 
 char szRepFreeFixOld[5];
 
@@ -213,9 +213,9 @@ load settings from flhookhuser.ini
 void LoadUserSettings(uint iClientID)
 {
 	CAccount *acc = Players.FindAccountFromClientID(iClientID);
-	wstring wscDir;
+	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
-	string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
 	// read diemsg settings
 	ClientInfo[iClientID].dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
@@ -229,7 +229,7 @@ void LoadUserSettings(uint iClientID)
 	ClientInfo[iClientID].lstIgnore.clear();
 	for(int i = 1; ; i++)
 	{
-		wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", itos(i), L"");
+		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", itos(i), L"");
 		if(!wscIgnore.length())
 			break;
 
@@ -248,14 +248,14 @@ load settings from flhookhuser.ini (specific to character)
 void LoadUserCharSettings(uint iClientID)
 {
 	CAccount *acc = Players.FindAccountFromClientID(iClientID);
-	wstring wscDir;
+	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
-	string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
 	// read autobuy
-	wstring wscFilename;
+	std::wstring wscFilename;
 	HkGetCharFileName((wchar_t*)Players.GetActiveCharacterName(iClientID), wscFilename);
-	string scSection = "autobuy_" + wstos(wscFilename);
+	std::string scSection = "autobuy_" + wstos(wscFilename);
 
 	ClientInfo[iClientID].bAutoBuyMissiles = IniGetB(scUserFile, scSection, "missiles", false);
 	ClientInfo[iClientID].bAutoBuyMines = IniGetB(scUserFile, scSection, "mines", false);
@@ -355,7 +355,7 @@ bool InitHookExports()
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
 	// clear ClientInfo
 	for(uint i = 0; (i < sizeof(ClientInfo)/sizeof(CLIENT_INFO)); i++)

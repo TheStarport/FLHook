@@ -45,9 +45,9 @@ namespace GiveCash
 	*/
 	static void CheckTransferLog(uint iClientID)
 	{
-		wstring wscCharname = ToLower((const wchar_t*) Players.GetActiveCharacterName(iClientID));
+		std::wstring wscCharname = ToLower((const wchar_t*) Players.GetActiveCharacterName(iClientID));
 
-		string logFile;
+		std::string logFile;
 		if (!GetUserFilePath(logFile, wscCharname, "-givecashlog.txt"))
 			return;
 
@@ -62,8 +62,8 @@ namespace GiveCash
 			char buf[1000];
 			while (fgets(buf, 1000, f)!=NULL)
 			{
-				string scValue = buf;
-				wstring msg = L"";
+				std::string scValue = buf;
+				std::wstring msg = L"";
 				uint lHiByte;
 				uint lLoByte;
 				while(scValue.length()>3 && sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
@@ -84,9 +84,9 @@ namespace GiveCash
 	when they log in. The log is recorded in ascii hex to support wide
 	char sets.
 	*/
-	static void LogTransfer(wstring wscToCharname, wstring msg)
+	static void LogTransfer(std::wstring wscToCharname, std::wstring msg)
 	{
-		string logFile;
+		std::string logFile;
 		if (!GetUserFilePath(logFile, wscToCharname, "-givecashlog.txt"))
 			return;
 		FILE *f = fopen(logFile.c_str(), "at");
@@ -109,7 +109,7 @@ namespace GiveCash
 	}
 
 	/** Return return if this char is in the blocked system */
-	static bool InBlockedSystem(const wstring &wscCharname)
+	static bool InBlockedSystem(const std::wstring &wscCharname)
 	{
 		// An optimisation if we have no blocked systems.
 		if (set_iBlockedSystem==0)
@@ -127,7 +127,7 @@ namespace GiveCash
 		}
 
 		// Have to check the charfile.
-		wstring wscSystemNick;
+		std::wstring wscSystemNick;
 		if (HkFLIniGet(wscCharname, L"system", wscSystemNick)!=HKE_OK)
 			return false;
 
@@ -139,7 +139,7 @@ namespace GiveCash
 	}
 
 
-	void GiveCash::LoadSettings(const string &scPluginCfgFile)
+	void GiveCash::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_iMinTransfer = IniGetI(scPluginCfgFile, "GiveCash", "MinTransfer", 1);
 		set_iMinTime = IniGetI(scPluginCfgFile, "GiveCash", "MinTime", 0);
@@ -162,18 +162,18 @@ namespace GiveCash
 	}
 
 	/** Process a give cash command */
-	bool GiveCash::UserCmd_GiveCash(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
 	{
 		// The last error.
 		HK_ERROR err;
 
 		// Get the current character name
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		// Get the parameters from the user command.
-		wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		wstring wscCash = GetParam(wscParam, L' ', 1);
-		wstring wscAnon = GetParam(wscParam, L' ', 2);
+		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
+		std::wstring wscCash = GetParam(wscParam, L' ', 1);
+		std::wstring wscAnon = GetParam(wscParam, L' ', 2);
 		wscCash = ReplaceStr(wscCash, L".", L"");
 		wscCash = ReplaceStr(wscCash, L",", L"");
 		wscCash = ReplaceStr(wscCash, L"$", L"");
@@ -336,7 +336,7 @@ namespace GiveCash
 
 		// If the target player is online then send them a message saying
 		// telling them that they've received the cash.
-		wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon)?L"anonymous":wscCharname);
+		std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon)?L"anonymous":wscCharname);
 		if (targetClientId!=-1 && !HkIsInCharSelectMenu(targetClientId))
 		{
 			PrintUserCmdText(targetClientId, L"%s", msg.c_str());
@@ -346,7 +346,7 @@ namespace GiveCash
 		// of the transfer. The ini is cleared when ever the character logs in.
 		else
 		{
-			wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon)?L"anonymous":wscCharname);
+			std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon)?L"anonymous":wscCharname);
 			LogTransfer(wscTargetCharname, msg);
 		}
 
@@ -364,14 +364,14 @@ namespace GiveCash
 	}
 
 	/** Process a set cash code command */
-	bool GiveCash::UserCmd_SetCashCode(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_SetCashCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		string scFile;
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::string scFile;
 		if (!GetUserFilePath(scFile, wscCharname, "-givecash.ini"))
 			return true;
 
-		wstring wscCode = GetParam(wscParam, L' ', 0);
+		std::wstring wscCode = GetParam(wscParam, L' ', 0);
 
 		if (!wscCode.size())
 		{
@@ -392,17 +392,17 @@ namespace GiveCash
 	}
 
 	/** Process a show cash command **/
-	bool GiveCash::UserCmd_ShowCash(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_ShowCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
 	{
 		// The last error.
 		HK_ERROR err;
 
 		// Get the current character name
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		// Get the parameters from the user command.
-		wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		wstring wscCode = GetParam(wscParam, L' ', 1);
+		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
+		std::wstring wscCode = GetParam(wscParam, L' ', 1);
 
 		if (!wscTargetCharname.length() || !wscCode.length())
 		{
@@ -418,11 +418,11 @@ namespace GiveCash
 			return true;	
 		}
 
-		string scFile;
+		std::string scFile;
 		if (!GetUserFilePath(scFile, wscTargetCharname, "-givecash.ini"))
 			return true;
 
-		wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
+		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
 		if (!wscTargetCode.length() || wscTargetCode!=wscCode)
 		{
 			PrintUserCmdText(iClientID, L"ERR cash account access denied");
@@ -442,18 +442,18 @@ namespace GiveCash
 
 
 	/** Process a draw cash command **/
-	bool GiveCash::UserCmd_DrawCash(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_DrawCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
 	{
 		// The last error.
 		HK_ERROR err;
 
 		// Get the current character name
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		// Get the parameters from the user command.
-		wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		wstring wscCode = GetParam(wscParam, L' ', 1);
-		wstring wscCash = GetParam(wscParam, L' ', 2);
+		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
+		std::wstring wscCode = GetParam(wscParam, L' ', 1);
+		std::wstring wscCash = GetParam(wscParam, L' ', 2);
 		wscCash = ReplaceStr(wscCash, L".", L"");
 		wscCash = ReplaceStr(wscCash, L",", L"");
 		wscCash = ReplaceStr(wscCash, L"$", L"");
@@ -486,11 +486,11 @@ namespace GiveCash
 			return true;
 		}
 
-		string scFile;
+		std::string scFile;
 		if (!GetUserFilePath(scFile, wscTargetCharname, "-givecash.ini"))
 			return true;
 
-		wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
+		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
 		if (!wscTargetCode.length() || wscTargetCode!=wscCode)
 		{
 			PrintUserCmdText(iClientID, L"ERR cash account access denied");
@@ -619,7 +619,7 @@ namespace GiveCash
 
 		// If the target player is online then send them a message saying
 		// telling them that they've received transfered cash.
-		wstring msg = L"You have transferred " + ToMoneyStr(cash) + L" credits to " + wscCharname;
+		std::wstring msg = L"You have transferred " + ToMoneyStr(cash) + L" credits to " + wscCharname;
 		if (targetClientId!=-1 && !HkIsInCharSelectMenu(targetClientId))
 		{
 			PrintUserCmdText(targetClientId, L"%s", msg.c_str());

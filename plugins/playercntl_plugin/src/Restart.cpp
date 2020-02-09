@@ -37,20 +37,20 @@ namespace Restart
 	// Players with a cash above this value cannot use the restart command.
 	static int set_iMaxCash;
 
-	void Restart::LoadSettings(const string &scPluginCfgFile)
+	void Restart::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_iMaxRank = IniGetI(scPluginCfgFile, "Restart", "MaxRank", 5);
 		set_iMaxCash = IniGetI(scPluginCfgFile, "Restart", "MaxCash", 1000000);
 	}
 
-	bool Restart::UserCmd_ShowRestarts(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Restart::UserCmd_ShowRestarts(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		WIN32_FIND_DATA FileData; 
 		HANDLE hSearch; 
 		
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		string scRestartFiles = string(szCurDir) + "\\flhook_plugins\\restart\\*.fl";
+		std::string scRestartFiles = std::string(szCurDir) + "\\flhook_plugins\\restart\\*.fl";
 
 		// Start searching for .fl files in the current directory. 
 		hSearch = FindFirstFile(scRestartFiles.c_str(), &FileData); 
@@ -60,12 +60,12 @@ namespace Restart
 			return true;
 		} 
 		
-		wstring wscMsg = L"";
+		std::wstring wscMsg = L"";
 
 		do
 		{ 
 			// add filename
-			string scFileName = FileData.cFileName;
+			std::string scFileName = FileData.cFileName;
 			size_t len = scFileName.length();
 			scFileName.erase(len-3,len);
 			if (scFileName[0]!='_')
@@ -83,16 +83,16 @@ namespace Restart
 
 	struct RESTART
 	{
-		wstring wscCharname;
-		string scRestartFile;
-		wstring wscDir;
-		wstring wscCharfile;
+		std::wstring wscCharname;
+		std::string scRestartFile;
+		std::wstring wscDir;
+		std::wstring wscCharfile;
 	};
 	std::list<RESTART> pendingRestarts;
 
-	bool Restart::UserCmd_Restart(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Restart::UserCmd_Restart(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscFaction = GetParam(wscParam, ' ', 0);
+		std::wstring wscFaction = GetParam(wscParam, ' ', 0);
 		if (!wscFaction.length())
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
@@ -107,10 +107,10 @@ namespace Restart
 		// Searching restart
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		restart.scRestartFile = string(szCurDir) + "\\flhook_plugins\\restart\\" + wstos(wscFaction) + ".fl";
+		restart.scRestartFile = std::string(szCurDir) + "\\flhook_plugins\\restart\\" + wstos(wscFaction) + ".fl";
 		if (!::PathFileExistsA(restart.scRestartFile.c_str()))
 		{
-			restart.scRestartFile = string(szCurDir) + "\\flhook_plugins\\restart\\_" + wstos(wscFaction) + ".fl";
+			restart.scRestartFile = std::string(szCurDir) + "\\flhook_plugins\\restart\\_" + wstos(wscFaction) + ".fl";
 			if (!PathFileExistsA(restart.scRestartFile.c_str()))
 			{
 				PrintUserCmdText(iClientID, L"ERR Template does not exist");
@@ -173,9 +173,9 @@ namespace Restart
 			try
 			{
 				// Overwrite the existing character file
-				string scCharFile  = scAcctPath + wstos(restart.wscDir) + "\\" + wstos(restart.wscCharfile) + ".fl";
-				string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
-				string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
+				std::string scCharFile  = scAcctPath + wstos(restart.wscDir) + "\\" + wstos(restart.wscCharfile) + ".fl";
+				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
+				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.scRestartFile.c_str(), scCharFile.c_str(), FALSE))
 					throw ("copy template");
 

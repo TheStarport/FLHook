@@ -45,9 +45,9 @@ namespace MiscCmds
 	typedef map<uint, INFO, less<uint> >::value_type mapInfo_map_pair_t;
 	typedef map<uint, INFO, less<uint> >::iterator mapInfo_map_iter_t;
 
-	wstring set_wscStuckMsg = L"Attention! Stand clear. Towing %player";
-	wstring set_wscDiceMsg = L"%player rolled %number";
-	wstring set_wscCoinMsg = L"%player tossed %result";
+	std::wstring set_wscStuckMsg = L"Attention! Stand clear. Towing %player";
+	std::wstring set_wscDiceMsg = L"%player rolled %number";
+	std::wstring set_wscCoinMsg = L"%player tossed %result";
 
 	/// ID of music to play when smiting players.
 	uint set_iSmiteMusicID = 0;
@@ -56,7 +56,7 @@ namespace MiscCmds
 	int set_iRepdropCost = 0;
 
 	/// Load the configuration
-	void MiscCmds::LoadSettings(const string &scPluginCfgFile)
+	void MiscCmds::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		// Load generic settings
 		set_iRepdropCost = IniGetI(scPluginCfgFile, "General", "RepDropCost", 0);
@@ -108,7 +108,7 @@ namespace MiscCmds
 	}
 
 	/** Print current position */
-	bool MiscCmds::UserCmd_Pos(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Pos(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		HKPLAYERINFO p;
 		if (HkGetPlayerInfo((const wchar_t*) Players.GetActiveCharacterName(iClientID), p, false)!=HKE_OK || p.iShip==0)
@@ -131,9 +131,9 @@ namespace MiscCmds
 	}
 
 	/** Move a ship a little if it is stuck in the base */
-	bool MiscCmds::UserCmd_Stuck(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Stuck(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		HKPLAYERINFO p;
 		if (HkGetPlayerInfo(wscCharname, p, false)!=HKE_OK)
@@ -159,7 +159,7 @@ namespace MiscCmds
 		pos.z += 15;
 		HkRelocateClient(iClientID, pos, rot);
 
-		wstring wscMsg = set_wscStuckMsg;
+		std::wstring wscMsg = set_wscStuckMsg;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 		PrintLocalUserCmdText(iClientID, wscMsg, 6000.0f);
 
@@ -167,13 +167,13 @@ namespace MiscCmds
 	}
 
 	/** A command to help remove any affiliation that you might have */
-	bool MiscCmds::UserCmd_DropRep(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_DropRep(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		HK_ERROR err; 
 
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
-		wstring wscRepGroupNick;
+		std::wstring wscRepGroupNick;
 		if (HkFLIniGet(wscCharname, L"rep_group", wscRepGroupNick)!=HKE_OK || wscRepGroupNick.length()==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR No affiliation");
@@ -214,16 +214,16 @@ namespace MiscCmds
 	}
 
 	/** Throw the dice and tell all players within 6 km */
-	bool MiscCmds::UserCmd_Dice(uint iFromClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Dice(uint iFromClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 		int max = ToInt(GetParam(wscParam, ' ', 0));
 		if (max<=1)
 			max = 6;
 
 		uint number = (rand()%max)+1;
-		wstring wscMsg = set_wscDiceMsg;
+		std::wstring wscMsg = set_wscDiceMsg;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 		wscMsg = ReplaceStr(wscMsg, L"%number", stows(itos(number)));
 		wscMsg = ReplaceStr(wscMsg, L"%max", stows(itos(max)));
@@ -232,12 +232,12 @@ namespace MiscCmds
 	}
 
 	/** Throw the dice and tell all players within 6 km */
-	bool MiscCmds::UserCmd_Coin(uint iFromClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Coin(uint iFromClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 		uint number = (rand()%2);
-		wstring wscMsg = set_wscCoinMsg;
+		std::wstring wscMsg = set_wscCoinMsg;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 		wscMsg = ReplaceStr(wscMsg, L"%result", (number==1)?L"heads":L"tails");
 		PrintLocalUserCmdText(iFromClientID, wscMsg, 6000.0f);
@@ -336,8 +336,8 @@ namespace MiscCmds
 		st6::list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
 		for (auto eq = eqLst.begin(); eq != eqLst.end(); eq++)
 		{
-			string hp = ToLower(eq->szHardPoint.value);
-			if (hp.find("dock")!=string::npos)
+			std::string hp = ToLower(eq->szHardPoint.value);
+			if (hp.find("dock")!=std::string::npos)
 			{
 				XActivateEquip ActivateEq;
 				ActivateEq.bActivate = bOn;
@@ -354,7 +354,7 @@ namespace MiscCmds
 			PrintUserCmdText(iClientID, L"Light control not available");
 	}
 
-	bool MiscCmds::UserCmd_Lights(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Lights(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		mapInfo[iClientID].bLightsOn = !mapInfo[iClientID].bLightsOn;
 		SetLights(iClientID, mapInfo[iClientID].bLightsOn);
@@ -365,7 +365,7 @@ namespace MiscCmds
 	{
 	}
 
-	bool MiscCmds::UserCmd_SelfDestruct(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_SelfDestruct(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
 		if (!obj)
@@ -390,14 +390,14 @@ namespace MiscCmds
 		return true;
 	}
 
-	bool MiscCmds::UserCmd_Screenshot(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Screenshot(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		Message::UserCmd_Time(iClientID, L"", L"", L"");
 		PrintUserCmdText(iClientID, L" SS ");
 		return true;
 	}
 
-	bool MiscCmds::UserCmd_Shields(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool MiscCmds::UserCmd_Shields(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		mapInfo[iClientID].bShieldsDown = !mapInfo[iClientID].bShieldsDown;
 		PrintUserCmdText(iClientID, L"Shields %s", mapInfo[iClientID].bShieldsDown ? L"Disabled":L"Enabled");

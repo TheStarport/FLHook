@@ -12,12 +12,12 @@ public:
 	bool bEventMode;
 	bool bUnicode;
 	bool bEncrypted;
-	string sIP;
+	std::string sIP;
 	ushort iPort;
 
 	CSocket() { bAuthed = false; bEventMode = false; bUnicode = false; }
-	void DoPrint(const wstring &wscText);
-	wstring GetAdminName();
+	void DoPrint(const std::wstring &wscText);
+	std::wstring GetAdminName();
 };
 
 

@@ -20,7 +20,7 @@
 #define DALIB_ADDR(a) ((char*)hModDaLib + a)
 #define FLSERVER_ADDR(a) ((char*)hProcFL + a)
 #define CONTENT_ADDR(a) ((char*)hModContent + a)
-#define ARG_CLIENTID(a) (wstring(L"id ") + stows(itos(a)))
+#define ARG_CLIENTID(a) (std::wstring(L"id ") + stows(itos(a)))
 
 
 #define ADDR_UPDATE 0x1BAB4
@@ -104,21 +104,21 @@ class CCmds;
 class CTimer
 {
 public:
-	EXPORT CTimer(string sFunction, uint iWarning);
+	EXPORT CTimer(std::string sFunction, uint iWarning);
     EXPORT void start();
 	EXPORT uint stop();
 
 private:
 	mstime tmStart;
 	uint iMax;
-	string sFunction;
+	std::string sFunction;
 	uint iWarning;
 };
 
 struct PLUGIN_HOOKDATA
 {
-	string sName;
-	string sPluginFunction;
+	std::string sName;
+	std::string sPluginFunction;
 	HMODULE hDLL;
 	int iPriority;
 	bool bPaused;
@@ -128,10 +128,10 @@ struct PLUGIN_HOOKDATA
 
 struct PLUGIN_DATA
 {
-	string sName;
-	string sShortName;
+	std::string sName;
+	std::string sShortName;
 	HMODULE hDLL;
-	string sDLL;
+	std::string sDLL;
 	bool bMayPause;
 	bool bMayUnload;
 	bool bPaused;
@@ -154,25 +154,25 @@ struct PLUGIN_SORTCRIT {
 	bool bPluginReturn = false; \
 	g_bPlugin_nofunctioncall = false; \
 	TRY_HOOK { \
-		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
-			if(itplugin->bPaused) \
+	    for(auto& plugin : pPluginHooks[(int)callback_id]) { \
+			if(plugin.bPaused) \
 				continue; \
-			if(itplugin->pFunc) { \
-				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+			if(plugin.pFunc) { \
+				CTimer timer(plugin.sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				TRY_HOOK { \
-					vPluginRet = ((ret_type (calling_convention*) arg_types )itplugin->pFunc) args; \
-				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); } ) \
+					vPluginRet = ((ret_type (calling_convention*) arg_types )plugin.pFunc) args; \
+				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", plugin.sName.c_str(), __FUNCTION__); } ) \
 				timer.stop(); \
 			} else  \
-				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
 				bPluginReturn = true; \
 				break; \
-			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
+			} else if(*plugin.ePluginReturnCode == NOFUNCTIONCALL) { \
 				bPluginReturn = true; \
 				g_bPlugin_nofunctioncall = true; \
-			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+			} else if(*plugin.ePluginReturnCode == SKIPPLUGINS) \
 				break; \
 		} \
 	} CATCH_HOOK( { AddLog("ERROR: Exception %s", __FUNCTION__); } ) \
@@ -186,25 +186,25 @@ struct PLUGIN_SORTCRIT {
 	bool bPluginReturn = false; \
 	g_bPlugin_nofunctioncall = false; \
 	TRY_HOOK { \
-		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
-			if(itplugin->bPaused) \
+	    for(auto& plugin : pPluginHooks[(int)callback_id]) { \
+			if(plugin.bPaused) \
 				continue; \
-			if(itplugin->pFunc) { \
-				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+			if(plugin.pFunc) { \
+				CTimer timer(plugin.sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				TRY_HOOK { \
-					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
-				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); } ) \
+					((void (calling_convention*) arg_types )plugin.pFunc) args; \
+				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", plugin.sName.c_str(), __FUNCTION__); } ) \
 				timer.stop(); \
 			} else  \
-				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
 				bPluginReturn = true; \
 				break; \
-			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
+			} else if(*plugin.ePluginReturnCode == NOFUNCTIONCALL) { \
 				bPluginReturn = true; \
 				g_bPlugin_nofunctioncall = true; \
-			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+			} else if(*plugin.ePluginReturnCode == SKIPPLUGINS) \
 				break; \
 		} \
 	} CATCH_HOOK( { AddLog("ERROR: Exception %s", __FUNCTION__); } ) \
@@ -217,25 +217,25 @@ struct PLUGIN_SORTCRIT {
 { \
 	g_bPlugin_nofunctioncall = false; \
 	TRY_HOOK { \
-		foreach(pPluginHooks[(int)callback_id],PLUGIN_HOOKDATA, itplugin) { \
-			if(itplugin->bPaused) \
+	    for(auto& plugin : pPluginHooks[(int)callback_id]) { \
+			if(plugin.bPaused) \
 				continue; \
-			if(itplugin->pFunc) { \
-				CTimer timer(itplugin->sPluginFunction,set_iTimerThreshold); \
+			if(plugin.pFunc) { \
+				CTimer timer(plugin.sPluginFunction,set_iTimerThreshold); \
 				timer.start(); \
 				TRY_HOOK { \
-					((void (calling_convention*) arg_types )itplugin->pFunc) args; \
-				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", itplugin->sName.c_str(), __FUNCTION__); } ) \
+					((void (calling_convention*) arg_types )plugin.pFunc) args; \
+				} CATCH_HOOK( { AddLog("ERROR: Exception in plugin '%s' in %s", plugin.sName.c_str(), __FUNCTION__); } ) \
 				timer.stop(); \
 			} else  \
-				AddLog("ERROR: Plugin '%s' does not export %s [%s]", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-			if(*itplugin->ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
-				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+				AddLog("ERROR: Plugin '%s' does not export %s [%s]", plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			if(*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
 				break; \
-			} else if(*itplugin->ePluginReturnCode == NOFUNCTIONCALL) { \
-				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", itplugin->sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+			} else if(*plugin.ePluginReturnCode == NOFUNCTIONCALL) { \
+				AddLog("ERROR: Plugin '%s' wants to suppress function call in %s [%s] - denied!", plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
 				g_bPlugin_nofunctioncall = true; \
-			} else if(*itplugin->ePluginReturnCode == SKIPPLUGINS) \
+			} else if(*plugin.ePluginReturnCode == SKIPPLUGINS) \
 				break; \
 		} \
 	} CATCH_HOOK( { AddLog("ERROR: Exception %s", __FUNCTION__); } ) \
@@ -373,7 +373,7 @@ struct CARGO_INFO
 // money stuff
 struct MONEY_FIX
 {
-	wstring		wscCharname;
+	std::wstring		wscCharname;
 	int			iAmount;
 
 	bool operator==(MONEY_FIX mf1) const
@@ -388,8 +388,8 @@ struct MONEY_FIX
 // ignore
 struct IGNORE_INFO
 {
-	wstring wscCharname;
-	wstring wscFlags;
+	std::wstring wscCharname;
+	std::wstring wscFlags;
 };
 
 // resolver
@@ -397,8 +397,8 @@ struct RESOLVE_IP
 {
 	uint iClientID;
 	uint iConnects;
-	wstring wscIP;
-	wstring wscHostname;
+	std::wstring wscIP;
+	std::wstring wscHostname;
 };
 
 struct CLIENT_INFO
@@ -411,7 +411,7 @@ struct CLIENT_INFO
 	DamageList	dmgLast;
 
 // money cmd
-	list<MONEY_FIX> lstMoneyFix;
+	std::list<MONEY_FIX> lstMoneyFix;
 
 // anticheat
 	uint		iTradePartner;
@@ -439,7 +439,7 @@ struct CLIENT_INFO
 	mstime		tmF1TimeDisconnect;
 
 // ignore usercommand
-	list<IGNORE_INFO> lstIgnore;
+	std::list<IGNORE_INFO> lstIgnore;
 
 // user settings
 	DIEMSGTYPE	dieMsg;
@@ -463,7 +463,7 @@ struct CLIENT_INFO
 	uint		iConnects; // incremented when player connects
 
 // other
-	wstring		wscHostname;
+	std::wstring		wscHostname;
 
 	bool		bSpawnProtected;
 	uchar		unused_data[128];
@@ -499,14 +499,14 @@ typedef struct _DPN_CONNECTION_INFO{
 struct HKPLAYERINFO
 {
 	uint iClientID;
-	wstring wscCharname;
-	wstring wscBase;
-	wstring wscSystem;
+	std::wstring wscCharname;
+	std::wstring wscBase;
+	std::wstring wscSystem;
 	uint iSystem;
 	uint iShip;
 	DPN_CONNECTION_INFO ci;
-	wstring wscIP;
-	wstring wscHostname;
+	std::wstring wscIP;
+	std::wstring wscHostname;
 };
 
 // patch stuff
@@ -536,16 +536,16 @@ struct DATA_MARKETITEM
 struct BASE_INFO
 {
 	uint	iBaseID;
-	string	scBasename;
+	std::string	scBasename;
 	uint	iObjectID;
 	bool	bDestroyed;
-	list<DATA_MARKETITEM> lstMarketMisc;
+	std::list<DATA_MARKETITEM> lstMarketMisc;
 };
 
 struct GROUP_MEMBER
 {
 	uint iClientID;
-	wstring wscCharname;
+	std::wstring wscCharname;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -556,9 +556,9 @@ namespace PluginManager {
 	void Init();
 	void Destroy();
 	EXPORT void LoadPlugins(bool, CCmds*);
-	EXPORT void LoadPlugin(const string &sFileName, CCmds*, bool);
-	EXPORT HK_ERROR PausePlugin(const string &sShortName, bool bPause);
-	EXPORT HK_ERROR UnloadPlugin(const string &sShortName);
+	EXPORT void LoadPlugin(const std::string &sFileName, CCmds*, bool);
+	EXPORT HK_ERROR PausePlugin(const std::string &sShortName, bool bPause);
+	EXPORT HK_ERROR UnloadPlugin(const std::string &sShortName);
 	EXPORT void UnloadPlugins();
 }
 
@@ -574,110 +574,110 @@ void LoadUserCharSettings(uint iClientID);
 // HkFuncTools
 EXPORT uint HkGetClientIdFromAccount(CAccount *acc);
 EXPORT uint HkGetClientIdFromPD(struct PlayerData *pPD);
-EXPORT CAccount* HkGetAccountByCharname(const wstring &wscCharname);
-EXPORT uint HkGetClientIdFromCharname(const wstring &wscCharname);
-EXPORT wstring HkGetAccountID(CAccount *acc);
-EXPORT bool HkIsEncoded(const string &scFilename);
-EXPORT bool HkIsInCharSelectMenu(const wstring &wscCharname);
+EXPORT CAccount* HkGetAccountByCharname(const std::wstring &wscCharname);
+EXPORT uint HkGetClientIdFromCharname(const std::wstring &wscCharname);
+EXPORT std::wstring HkGetAccountID(CAccount *acc);
+EXPORT bool HkIsEncoded(const std::string &scFilename);
+EXPORT bool HkIsInCharSelectMenu(const std::wstring &wscCharname);
 EXPORT bool HkIsInCharSelectMenu(uint iClientID);
 EXPORT bool HkIsValidClientID(uint iClientID);
-EXPORT HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID);
-EXPORT HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &iClientID);
+EXPORT HK_ERROR HkResolveId(const std::wstring &wscCharname, uint &iClientID);
+EXPORT HK_ERROR HkResolveShortCut(const std::wstring &wscShortcut, uint &iClientID);
 EXPORT uint HkGetClientIDByShip(uint iShip);
-EXPORT HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir);
-EXPORT HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir);
-EXPORT HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename);
-EXPORT wstring HkGetBaseNickByID(uint iBaseID);
-EXPORT wstring HkGetPlayerSystem(uint iClientID);
-EXPORT wstring HkGetSystemNickByID(uint iSystemID);
+EXPORT HK_ERROR HkGetAccountDirName(CAccount *acc, std::wstring &wscDir);
+EXPORT HK_ERROR HkGetAccountDirName(const std::wstring &wscCharname, std::wstring &wscDir);
+EXPORT HK_ERROR HkGetCharFileName(const std::wstring &wscCharname, std::wstring &wscFilename);
+EXPORT std::wstring HkGetBaseNickByID(uint iBaseID);
+EXPORT std::wstring HkGetPlayerSystem(uint iClientID);
+EXPORT std::wstring HkGetSystemNickByID(uint iSystemID);
 EXPORT void HkLockAccountAccess(CAccount *acc, bool bKick);
 EXPORT void HkUnlockAccountAccess(CAccount *acc);
-EXPORT void HkGetItemsForSale(uint iBaseID, list<uint> &lstItems);
+EXPORT void HkGetItemsForSale(uint iBaseID, std::list<uint> &lstItems);
 EXPORT IObjInspectImpl* HkGetInspect(uint iClientID);
 EXPORT ENGINE_STATE HkGetEngineState(uint iClientID);
 EXPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
 
 // HkFuncMsg
-EXPORT HK_ERROR HkMsg(uint iClientID, const wstring &wscMessage);
-EXPORT HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage);
-EXPORT HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage);
-EXPORT HK_ERROR HkMsgU(const wstring &wscMessage);
-EXPORT HK_ERROR HkFMsgEncodeXML(const wstring &wscXML, char *szBuf, uint iSize, uint &iRet);
+EXPORT HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage);
+EXPORT HK_ERROR HkMsg(const std::wstring &wscCharname, const std::wstring &wscMessage);
+EXPORT HK_ERROR HkMsgS(const std::wstring &wscSystemname, const std::wstring &wscMessage);
+EXPORT HK_ERROR HkMsgU(const std::wstring &wscMessage);
+EXPORT HK_ERROR HkFMsgEncodeXML(const std::wstring &wscXML, char *szBuf, uint iSize, uint &iRet);
 EXPORT HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize);
-EXPORT HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML);
-EXPORT HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML);
-EXPORT HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML);
-EXPORT HK_ERROR HkFMsgU(const wstring &wscXML);
+EXPORT HK_ERROR HkFMsg(uint iClientID, const std::wstring &wscXML);
+EXPORT HK_ERROR HkFMsg(const std::wstring &wscCharname, const std::wstring &wscXML);
+EXPORT HK_ERROR HkFMsgS(const std::wstring &wscSystemname, const std::wstring &wscXML);
+EXPORT HK_ERROR HkFMsgU(const std::wstring &wscXML);
 
 // HkFuncPlayers
-EXPORT HK_ERROR HkGetCash(const wstring &wscCharname, int &iCash);
-EXPORT HK_ERROR HkAddCash(const wstring &wscCharname, int iAmount);
+EXPORT HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash);
+EXPORT HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount);
 EXPORT HK_ERROR HkKick(CAccount *acc);
-EXPORT HK_ERROR HkKick(const wstring &wscCharname);
-EXPORT HK_ERROR HkKickReason(const wstring &wscCharname, const wstring &wscReason);
-EXPORT HK_ERROR HkBan(const wstring &wscCharname, bool bBan);
-EXPORT HK_ERROR HkBeam(const wstring &wscCharname, const wstring &wscBasename);
-EXPORT HK_ERROR HkSaveChar(const wstring &wscCharname);
-EXPORT HK_ERROR HkEnumCargo(const wstring &wscCharname, list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
-EXPORT HK_ERROR HkRemoveCargo(const wstring &wscCharname, uint iID, int iCount);
-EXPORT HK_ERROR HkAddCargo(const wstring &wscCharname, uint iGoodID, int iCount, bool bMission);
-EXPORT HK_ERROR HkAddCargo(const wstring &wscCharname, const wstring &wscGood, int iCount, bool bMission);
-EXPORT HK_ERROR HkRename(const wstring &wscCharname, const wstring &wscNewCharname, bool bOnlyDelete);
-EXPORT HK_ERROR HkMsgAndKick(uint iClientID, const wstring &wscReason, uint iIntervall);
-EXPORT HK_ERROR HkKill(const wstring &wscCharname);
-EXPORT HK_ERROR HkGetReservedSlot(const wstring &wscCharname, bool &bResult);
-EXPORT HK_ERROR HkSetReservedSlot(const wstring &wscCharname, bool bReservedSlot);
+EXPORT HK_ERROR HkKick(const std::wstring &wscCharname);
+EXPORT HK_ERROR HkKickReason(const std::wstring &wscCharname, const std::wstring &wscReason);
+EXPORT HK_ERROR HkBan(const std::wstring &wscCharname, bool bBan);
+EXPORT HK_ERROR HkBeam(const std::wstring &wscCharname, const std::wstring &wscBasename);
+EXPORT HK_ERROR HkSaveChar(const std::wstring &wscCharname);
+EXPORT HK_ERROR HkEnumCargo(const std::wstring &wscCharname, std::list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize);
+EXPORT HK_ERROR HkRemoveCargo(const std::wstring &wscCharname, uint iID, int iCount);
+EXPORT HK_ERROR HkAddCargo(const std::wstring &wscCharname, uint iGoodID, int iCount, bool bMission);
+EXPORT HK_ERROR HkAddCargo(const std::wstring &wscCharname, const std::wstring &wscGood, int iCount, bool bMission);
+EXPORT HK_ERROR HkRename(const std::wstring &wscCharname, const std::wstring &wscNewCharname, bool bOnlyDelete);
+EXPORT HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring &wscReason, uint iIntervall);
+EXPORT HK_ERROR HkKill(const std::wstring &wscCharname);
+EXPORT HK_ERROR HkGetReservedSlot(const std::wstring &wscCharname, bool &bResult);
+EXPORT HK_ERROR HkSetReservedSlot(const std::wstring &wscCharname, bool bReservedSlot);
 EXPORT void HkPlayerAutoBuy(uint iClientID, uint iBaseID);
-EXPORT HK_ERROR HkResetRep(const wstring &wscCharname);
-EXPORT HK_ERROR HkGetGroupMembers(const wstring &wscCharname, list<GROUP_MEMBER> &lstMembers);
-EXPORT HK_ERROR HkSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue);
-EXPORT HK_ERROR HkGetRep(const wstring &wscCharname, const wstring &wscRepGroup, float &fValue);
-EXPORT HK_ERROR HkReadCharFile(const wstring &wscCharname, list<wstring> &lstOutput);
-EXPORT HK_ERROR HkWriteCharFile(const wstring &wscCharname, wstring wscData);
+EXPORT HK_ERROR HkResetRep(const std::wstring &wscCharname);
+EXPORT HK_ERROR HkGetGroupMembers(const std::wstring &wscCharname, std::list<GROUP_MEMBER> &lstMembers);
+EXPORT HK_ERROR HkSetRep(const std::wstring &wscCharname, const std::wstring &wscRepGroup, float fValue);
+EXPORT HK_ERROR HkGetRep(const std::wstring &wscCharname, const std::wstring &wscRepGroup, float &fValue);
+EXPORT HK_ERROR HkReadCharFile(const std::wstring &wscCharname, std::list<std::wstring> &lstOutput);
+EXPORT HK_ERROR HkWriteCharFile(const std::wstring &wscCharname, std::wstring wscData);
 EXPORT HK_ERROR HkPlayerRecalculateCRC(uint iClientID);
 
 // HkFuncLog
 #define AddBothLog(s, ...) { AddLog(s, __VA_ARGS__); AddDebugLog(s, __VA_ARGS__);  }
 EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
-EXPORT void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...);
-EXPORT bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason);
-EXPORT bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason);
-EXPORT bool HkAddKickLog(uint iClientID, wstring wscReason, ...);
-EXPORT bool HkAddConnectLog(uint iClientID, wstring wscReason, ...);
+EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...);
+EXPORT bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscReason);
+EXPORT bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason);
+EXPORT bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...);
+EXPORT bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...);
 EXPORT void HkAddAdminCmdLog(const char *szString, ...);
 EXPORT void HkAddSocketCmdLog(const char *szString, ...);
 EXPORT void HkAddUserCmdLog(const char *szString, ...);
 EXPORT void HkAddPerfTimerLog(const char *szString, ...);
 
 // HkFuncOther
-EXPORT void HkGetPlayerIP(uint iClientID, wstring &wscIP);
-EXPORT HK_ERROR HkGetPlayerInfo(const wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
-EXPORT list<HKPLAYERINFO> HkGetPlayers();
+EXPORT void HkGetPlayerIP(uint iClientID, std::wstring &wscIP);
+EXPORT HK_ERROR HkGetPlayerInfo(const std::wstring &wscCharname, HKPLAYERINFO &pi, bool bAlsoCharmenu);
+EXPORT std::list<HKPLAYERINFO> HkGetPlayers();
 EXPORT HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci);
-EXPORT HK_ERROR HkSetAdmin(const wstring &wscCharname, const wstring &wscRights);
-EXPORT HK_ERROR HkGetAdmin(const wstring &wscCharname, wstring &wscRights);
-EXPORT HK_ERROR HkDelAdmin(const wstring &wscCharname);
+EXPORT HK_ERROR HkSetAdmin(const std::wstring &wscCharname, const std::wstring &wscRights);
+EXPORT HK_ERROR HkGetAdmin(const std::wstring &wscCharname, std::wstring &wscRights);
+EXPORT HK_ERROR HkDelAdmin(const std::wstring &wscCharname);
 EXPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
-EXPORT HK_ERROR HkGetBaseStatus(const wstring &wscBasename, float &fHealth, float &fMaxHealth);
+EXPORT HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth, float &fMaxHealth);
 EXPORT Fuse* HkGetFuseFromID(uint iFuseID);
 EXPORT bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay=0, float fLifetime=0, float fSkip=-1.0f);
 EXPORT bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno=0.0f);
 void HkTest(int iArg, int iArg2, int iArg3);
 
 // HkFLIni
-EXPORT HK_ERROR HkFLIniGet(const wstring &wscCharname, const wstring &wscKey, wstring &wscRet);
-EXPORT HK_ERROR HkFLIniWrite(const wstring &wscCharname, const wstring &wscKey, wstring wscValue);
+EXPORT HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring &wscRet);
+EXPORT HK_ERROR HkFLIniWrite(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring wscValue);
 
-EXPORT wstring HkErrGetText(HK_ERROR hkErr);
+EXPORT std::wstring HkErrGetText(HK_ERROR hkErr);
 void ClearClientInfo(uint iClientID);
 void LoadUserSettings(uint iClientID);
 
 // HkCbUserCmd
-bool UserCmd_Process(uint iClientID, const wstring &wscCmd);
-EXPORT void UserCmd_SetDieMsg(uint iClientID, wstring &wscParam);
-EXPORT void UserCmd_SetChatFont(uint iClientID, wstring &wscParam);
-EXPORT void PrintUserCmdText(uint iClientID, wstring wscText, ...);
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd);
+EXPORT void UserCmd_SetDieMsg(uint iClientID, std::wstring &wscParam);
+EXPORT void UserCmd_SetChatFont(uint iClientID, std::wstring &wscParam);
+EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
 
 // HkDeath
 void ShipDestroyedHook();
@@ -726,10 +726,10 @@ void HkTimerNPCAndF1Check();
 void HkThreadResolver();
 void HkTimerCheckResolveResults();
 
-extern EXPORT list<BASE_INFO> lstBases;
+extern EXPORT std::list<BASE_INFO> lstBases;
 extern CRITICAL_SECTION csIPResolve;
-extern list<RESOLVE_IP> g_lstResolveIPs;
-extern list<RESOLVE_IP> g_lstResolveIPsResult;
+extern std::list<RESOLVE_IP> g_lstResolveIPs;
+extern std::list<RESOLVE_IP> g_lstResolveIPsResult;
 extern HANDLE hThreadResolver;
 
 // namespaces
@@ -750,8 +750,8 @@ bool HkLoadBaseMarket();
 
 // variables
 
-extern EXPORT list<PLUGIN_HOOKDATA>* pPluginHooks;
-extern EXPORT list<PLUGIN_DATA> lstPlugins;
+extern EXPORT std::list<PLUGIN_HOOKDATA>* pPluginHooks;
+extern EXPORT std::list<PLUGIN_DATA> lstPlugins;
 
 extern EXPORT HkIClientImpl* FakeClient;
 extern EXPORT HkIClientImpl* HookClient;
@@ -775,7 +775,7 @@ extern EXPORT _RCSendChatMsg RCSendChatMsg;
 extern EXPORT _CRCAntiCheat CRCAntiCheat;
 extern EXPORT _CreateChar CreateChar;
 
-extern EXPORT string scAcctPath;
+extern EXPORT std::string scAcctPath;
 
 #define MAX_CLIENT_ID 249
 extern EXPORT CLIENT_INFO ClientInfo[MAX_CLIENT_ID+1];
@@ -792,19 +792,19 @@ extern EXPORT bool g_bPlugin_nofunctioncall;
 
 typedef bool (*_HelpEntryDisplayed)(uint);
 struct stHelpEntry {
-	wstring wszCommand;
-	wstring wszArguments;
-	wstring wszShortHelp;
-	wstring wszLongHelp;
+	std::wstring wszCommand;
+	std::wstring wszArguments;
+	std::wstring wszShortHelp;
+	std::wstring wszLongHelp;
 	_HelpEntryDisplayed fnIsDisplayed;
 };
 
-extern list<stHelpEntry> lstHelpEntries;
+extern std::list<stHelpEntry> lstHelpEntries;
 extern EXPORT bool get_bTrue(uint iClientID);
-extern EXPORT void HkAddHelpEntry(const wstring &wscCommand, const wstring &wscArguments, const wstring & wscShortHelp, const wstring &wscLongHelp, _HelpEntryDisplayed fnIsDisplayed);
-extern EXPORT void HkRemoveHelpEntry(const wstring &wscCommand, const wstring &wscArguments);
+extern EXPORT void HkAddHelpEntry(const std::wstring &wscCommand, const std::wstring &wscArguments, const std::wstring & wscShortHelp, const std::wstring &wscLongHelp, _HelpEntryDisplayed fnIsDisplayed);
+extern EXPORT void HkRemoveHelpEntry(const std::wstring &wscCommand, const std::wstring &wscArguments);
 
-extern EXPORT HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname);
+extern EXPORT HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring &wscCharname);
 
 #define HK_GET_CLIENTID(a, b) \
 	bool bIdString = false; uint a = uint(-1); \

@@ -50,7 +50,7 @@ void Matrix_to_Vector( const Matrix& mat, Vector& vec )
   }
 }
 
-void ini_write_wstring(FILE *file, const string &parmname, const wstring &in)
+void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
 {
 	fprintf(file, "%s=", parmname.c_str()); 
 	for (int i = 0; i < (int)in.size(); i++)
@@ -63,9 +63,9 @@ void ini_write_wstring(FILE *file, const string &parmname, const wstring &in)
 }
 
 
-void ini_get_wstring(INI_Reader &ini, wstring &wscValue)
+void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
 {
-	string scValue = ini.get_value_string();
+	std::string scValue = ini.get_value_string();
 	wscValue = L"";
 	long lHiByte;
 	long lLoByte;
@@ -100,7 +100,7 @@ void LoadDockInfo(uint client)
 	{
 		char key[100];
 		sprintf(key, "dock.docked_ship.%u", i);
-		wstring charname = HookExt::IniGetWS(client, key);
+		std::wstring charname = HookExt::IniGetWS(client, key);
 		if (charname.length())
 		{
 			if (HkGetAccountByCharname(charname))
@@ -162,7 +162,7 @@ void SaveDockInfo(uint client)
 	if (cd.mapDockedShips.size() > 0)
 	{
 		int index = 1;
-		for (map<wstring, wstring>::iterator i = cd.mapDockedShips.begin();
+		for (map<std::wstring, std::wstring>::iterator i = cd.mapDockedShips.begin();
 			i != cd.mapDockedShips.end(); ++i, ++index)
 		{
 			char key[100];
@@ -177,7 +177,7 @@ void SaveDockInfo(uint client)
 	}
 }
 
-void UpdateDockInfo(const wstring &wscCharname, uint iSystem, Vector pos, Matrix rot)
+void UpdateDockInfo(const std::wstring &wscCharname, uint iSystem, Vector pos, Matrix rot)
 {
 	HookExt::IniSetI(wscCharname, "dock.carrier_system", iSystem);
 	HookExt::IniSetF(wscCharname, "dock.carrier_pos.x", pos.x);

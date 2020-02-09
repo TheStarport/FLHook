@@ -24,9 +24,9 @@ FactoryModule::FactoryModule(PlayerBase *the_base, uint the_type)
 	active_recipe.nickname = 0;
 }
 
-wstring FactoryModule::GetInfo(bool xml)
+std::wstring FactoryModule::GetInfo(bool xml)
 {
-	wstring info;
+	std::wstring info;
 	if (xml)
 	{
 		info += FACTORY_NAMES[type]; 

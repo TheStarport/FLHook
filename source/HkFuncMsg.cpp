@@ -4,12 +4,12 @@
 
 EXPORT bool g_bMsg = false;
 
-HK_ERROR HkMsg(uint iClientID, const wstring &wscMessage)
+HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage)
 {
 	struct CHAT_ID ci = {0};
 	struct CHAT_ID ciClient = {iClientID};
 
-	wstring wscXML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
+	std::wstring wscXML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 	uint iRet;
 	char szBuf[1024];
 	HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet);
@@ -20,7 +20,7 @@ HK_ERROR HkMsg(uint iClientID, const wstring &wscMessage)
 	return HKE_OK;
 }
 
-HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage)
+HK_ERROR HkMsg(const std::wstring &wscCharname, const std::wstring &wscMessage)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -34,7 +34,7 @@ HK_ERROR HkMsg(const wstring &wscCharname, const wstring &wscMessage)
 
 bool g_bMsgS = false;
 
-HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage)
+HK_ERROR HkMsgS(const std::wstring &wscSystemname, const std::wstring &wscMessage)
 {
 	uint iSystemID = 0;
 	if(!(iSystemID = ToInt(wscSystemname.c_str())))
@@ -45,7 +45,7 @@ HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage)
 	}
 
 	// prepare xml
-	wstring wscXML = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
+	std::wstring wscXML = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 	uint iRet;
 	char szBuf[1024];
 	HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet);
@@ -75,12 +75,12 @@ HK_ERROR HkMsgS(const wstring &wscSystemname, const wstring &wscMessage)
 
 bool g_bMsgU = false;
 
-HK_ERROR HkMsgU(const wstring &wscMessage)
+HK_ERROR HkMsgU(const std::wstring &wscMessage)
 {
 	struct CHAT_ID ci = {0};
 	struct CHAT_ID ciClient = {0x00010000};
 
-	wstring wscXML = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
+	std::wstring wscXML = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 	uint iRet;
 	char szBuf[1024];
 	HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet);
@@ -93,11 +93,11 @@ HK_ERROR HkMsgU(const wstring &wscMessage)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgEncodeXML(const wstring &wscXML, char *szBuf, uint iSize, uint &iRet)
+HK_ERROR HkFMsgEncodeXML(const std::wstring &wscXML, char *szBuf, uint iSize, uint &iRet)
 {
 	XMLReader rdr;
 	RenderDisplayList rdl;
-	wstring wscMsg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
+	std::wstring wscMsg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
 	wscMsg += wscXML;
 	wscMsg += L"<PARA/><POP/></RDL>\x000A\x000A";
 	if(!rdr.read_buffer(rdl, (const char*)wscMsg.c_str(), (uint)wscMsg.length() * 2))
@@ -136,7 +136,7 @@ HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML)
+HK_ERROR HkFMsg(uint iClientID, const std::wstring &wscXML)
 {
 	char szBuf[0xFFFF];
 	uint iRet;
@@ -147,7 +147,7 @@ HK_ERROR HkFMsg(uint iClientID, const wstring &wscXML)
 	return HKE_OK;
 }
 
-HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML)
+HK_ERROR HkFMsg(const std::wstring &wscCharname, const std::wstring &wscXML)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -159,7 +159,7 @@ HK_ERROR HkFMsg(const wstring &wscCharname, const wstring &wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML)
+HK_ERROR HkFMsgS(const std::wstring &wscSystemname, const std::wstring &wscXML)
 {
 	// get system id
 	uint iSystemID = 0;
@@ -170,7 +170,7 @@ HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 			return HKE_INVALID_SYSTEM;;
 	}
 	
-	// encode xml string
+	// encode xml std::string
 	char szBuf[0xFFFF];
 	uint iRet;
 	if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet)))
@@ -193,9 +193,9 @@ HK_ERROR HkFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgU(const wstring &wscXML)
+HK_ERROR HkFMsgU(const std::wstring &wscXML)
 {
-	// encode xml string
+	// encode xml std::string
 	char szBuf[0xFFFF];
 	uint iRet;
 	if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet)))

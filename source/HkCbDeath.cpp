@@ -3,7 +3,7 @@
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-wstring SetSizeToSmall(const wstring &wscDataFormat)
+std::wstring SetSizeToSmall(const std::wstring &wscDataFormat)
 {
 	uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
 	wchar_t wszStyleSmall[32];
@@ -16,13 +16,13 @@ wstring SetSizeToSmall(const wstring &wscDataFormat)
 Send "Death: ..." chat-message
 **************************************************************************************************************/
 
-void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
+void SendDeathMsg(const std::wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 {
-	CALL_PLUGINS_V(PLUGIN_SendDeathMsg,,(const wstring&,uint,uint,uint),(wscMsg,iSystemID,iClientIDVictim,iClientIDKiller));
+	CALL_PLUGINS_V(PLUGIN_SendDeathMsg,,(const std::wstring&,uint,uint,uint),(wscMsg,iSystemID,iClientIDVictim,iClientIDKiller));
 
-	// encode xml string(default and small)
+	// encode xml std::string(default and small)
 	// non-sys
-	wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 	wscXMLMsg += XMLText(wscMsg);
 	wscXMLMsg += L"</TEXT>";
 
@@ -31,8 +31,8 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, u
 	if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
 		return;
 
-	wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
-	wstring wscXMLMsgSmall = wstring(L"<TRA data=\"") + wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
+	std::wstring wscXMLMsgSmall = std::wstring(L"<TRA data=\"") + wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
 	wscXMLMsgSmall += XMLText(wscMsg);
 	wscXMLMsgSmall += L"</TEXT>";
 	char szBufSmall[0xFFFF];
@@ -41,7 +41,7 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, u
 		return;
 
 	// sys
-	wstring wscXMLMsgSys = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring wscXMLMsgSys = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
 	wscXMLMsgSys += XMLText(wscMsg);
 	wscXMLMsgSys += L"</TEXT>";
 	char szBufSys[0xFFFF];
@@ -49,8 +49,8 @@ void SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, u
 	if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSys, szBufSys, sizeof(szBufSys), iRetSys)))
 		return;
 
-	wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
-	wstring wscXMLMsgSmallSys = L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
+	std::wstring wscXMLMsgSmallSys = L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
 	wscXMLMsgSmallSys += XMLText(wscMsg);
 	wscXMLMsgSmallSys += L"</TEXT>";
 	char szBufSmallSys[0xFFFF];
@@ -126,7 +126,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 				DamageList dmg;
 				try { dmg = *_dmg; } catch(...) { return; }
 
-				wstring wscEvent;
+				std::wstring wscEvent;
 				wscEvent.reserve(256);
 				wscEvent = L"kill";
 
@@ -141,10 +141,10 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 				uint iCause = dmg.get_cause();
 				uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
 
-				wstring wscVictim = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+				std::wstring wscVictim = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 				wscEvent += L" victim=" + wscVictim;
 				if(iClientIDKiller) {
-					wstring wscType = L"";
+					std::wstring wscType = L"";
 					if(iCause == 0x05)
 						wscType = L"Missile/Torpedo";
 					else if(iCause == 0x07)
@@ -160,13 +160,13 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 	//					AddLog("get_cause() returned %X", iCause);
 					}
 
-					wstring wscMsg;
+					std::wstring wscMsg;
 					if(iClientID == iClientIDKiller) {
 						wscEvent += L" type=selfkill";
 						wscMsg = ReplaceStr(set_wscDeathMsgTextSelfKill, L"%victim", wscVictim);
 					} else {
 						wscEvent += L" type=player";
-						wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
+						std::wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
 						wscEvent += L" by=" + wscKiller;
 
 						wscMsg = ReplaceStr(set_wscDeathMsgTextPlayerKill, L"%victim", wscVictim);
@@ -181,15 +181,15 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 					// MultiKillMessages
 					if((set_MKM_bActivated) && (iClientID != iClientIDKiller))
 					{
-						wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
+						std::wstring wscKiller = (wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
 
 						ClientInfo[iClientIDKiller].iKillsInARow++;
-						foreach(set_MKM_lstMessages, MULTIKILLMESSAGE, it)
+						for(auto& msg : set_MKM_lstMessages)
 						{
-							if(it->iKillsInARow == ClientInfo[iClientIDKiller].iKillsInARow)
+							if(msg.iKillsInARow == ClientInfo[iClientIDKiller].iKillsInARow)
 							{
-								wstring wscXMLMsg = L"<TRA data=\"" + set_MKM_wscStyle + L"\" mask=\"-1\"/> <TEXT>";
-								wscXMLMsg += XMLText(ReplaceStr(it->wscMessage, L"%player", wscKiller));
+								std::wstring wscXMLMsg = L"<TRA data=\"" + set_MKM_wscStyle + L"\" mask=\"-1\"/> <TEXT>";
+								wscXMLMsg += XMLText(ReplaceStr(msg.wscMessage, L"%player", wscKiller));
 								wscXMLMsg += L"</TEXT>";
 								
 								char szBuf[0xFFFF];
@@ -211,7 +211,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 						}
 					}
 				} else if(dmg.get_inflictor_id()) {
-					wstring wscType = L"";
+					std::wstring wscType = L"";
 					if(iCause == 0x05)
 						wscType = L"Missile/Torpedo";
 					else if(iCause == 0x07)
@@ -224,7 +224,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 						wscType = L"Gun"; //0x02
 
 					wscEvent += L" type=npc";
-					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextNPC, L"%victim", wscVictim);
+					std::wstring wscMsg = ReplaceStr(set_wscDeathMsgTextNPC, L"%victim", wscVictim);
 					wscMsg = ReplaceStr(wscMsg, L"%type", wscType);
 
 					if(set_bDieMsg && wscMsg.length())
@@ -232,18 +232,18 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 					ProcessEvent(L"%s", wscEvent.c_str());
 				} else if(iCause == 0x08) {
 					wscEvent += L" type=suicide";
-					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextSuicide, L"%victim", wscVictim);
+					std::wstring wscMsg = ReplaceStr(set_wscDeathMsgTextSuicide, L"%victim", wscVictim);
 
 					if(set_bDieMsg && wscMsg.length())
 						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
 					ProcessEvent(L"%s", wscEvent.c_str());
 				} else if(iCause == 0x18) {
-					wstring wscMsg = ReplaceStr(set_wscDeathMsgTextAdminKill, L"%victim", wscVictim);
+					std::wstring wscMsg = ReplaceStr(set_wscDeathMsgTextAdminKill, L"%victim", wscVictim);
 
 					if(set_bDieMsg && wscMsg.length())
 						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
 				} else {
-					wstring wscMsg = L"Death: " + wscVictim + L" has died";
+					std::wstring wscMsg = L"Death: " + wscVictim + L" has died";
 					if(set_bDieMsg && wscMsg.length())
 						SendDeathMsg(wscMsg, iSystemID, iClientID, 0);
 				}

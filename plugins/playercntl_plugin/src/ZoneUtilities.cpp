@@ -93,9 +93,9 @@ static TransformMatrix SetupTransform(Vector &p, Vector &r)
 
 /** Read the zone size/rotation and position information out of the
  specified file and calcuate the lootable zone transformation matrix */
-static void ReadSystemZones(const string &systemNick, const string &file)
+static void ReadSystemZones(const std::string &systemNick, const std::string &file)
 {
-	string path="..\\data\\universe\\";
+	std::string path="..\\data\\universe\\";
 	path += file;
 
 	INI_Reader ini;
@@ -105,7 +105,7 @@ static void ReadSystemZones(const string &systemNick, const string &file)
 		{
 			if (ini.is_header("zone"))
 			{
-				string zoneNick="";
+				std::string zoneNick="";
 				Vector size={0,0,0};
 				Vector pos={0,0,0};
 				Vector rotation={0,0,0};
@@ -163,8 +163,8 @@ static void ReadSystemZones(const string &systemNick, const string &file)
 			}
 			else if (ini.is_header("Object"))
 			{
-				string nickname = "";
-				string jumpDestSysNick = "";
+				std::string nickname = "";
+				std::string jumpDestSysNick = "";
 				bool bIsJump = false;
 				bool bMissionObject = false;
 				bool bDestructible = false;
@@ -213,8 +213,8 @@ void ZoneUtilities::ReadUniverse()
 		{
 			if (ini.is_header("System"))
 			{
-				string systemNick="";
-				string file="";
+				std::string systemNick="";
+				std::string file="";
 				float scale=1.0f;
 				while (ini.read_value())
 				{

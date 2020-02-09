@@ -33,7 +33,7 @@ namespace Pub
 
 namespace PlayerCommands
 {
-	void BaseHelp(uint client, const wstring &args)
+	void BaseHelp(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -42,7 +42,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring help = L"<RDL><PUSH/>"
+		std::wstring help = L"<RDL><PUSH/>"
 			L"<TRA bold=\"true\"/><TEXT>/base login [password]</TEXT><TRA bold=\"false\"/><PARA/>"
 			L"<TEXT>Login as base administrator. The following commands are only available if you are logged in as a base administrator.</TEXT><PARA/><PARA/>"
 
@@ -109,7 +109,7 @@ namespace PlayerCommands
 	}
 
 
-	void BaseLogin(uint client, const wstring &args)
+	void BaseLogin(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -118,7 +118,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring password = GetParam(args, ' ', 2);
+		std::wstring password = GetParam(args, ' ', 2);
 		if (!password.length())
 		{
 			PrintUserCmdText(client, L"ERR No password");
@@ -138,7 +138,7 @@ namespace PlayerCommands
 		return;
 	}
 
-	void BaseAddPwd(uint client, const wstring &args)
+	void BaseAddPwd(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -153,7 +153,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring password = GetParam(args, ' ', 2);
+		std::wstring password = GetParam(args, ' ', 2);
 		if (!password.length())
 		{
 			PrintUserCmdText(client, L"ERR No password");
@@ -171,7 +171,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseRmPwd(uint client, const wstring &args)
+	void BaseRmPwd(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -186,7 +186,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring password = GetParam(args, ' ', 2);
+		std::wstring password = GetParam(args, ' ', 2);
 		if (!password.length())
 		{
 			PrintUserCmdText(client, L"ERR No password");
@@ -203,7 +203,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseSetMasterPwd(uint client, const wstring &args)
+	void BaseSetMasterPwd(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -218,7 +218,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring old_password = GetParam(args, ' ', 2);
+		std::wstring old_password = GetParam(args, ' ', 2);
 		if (!old_password.length())
 		{
 			PrintUserCmdText(client, L"ERR No old password");
@@ -226,7 +226,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring new_password = GetParam(args, ' ', 3);
+		std::wstring new_password = GetParam(args, ' ', 3);
 		if (!new_password.length())
 		{
 			PrintUserCmdText(client, L"ERR No new password");
@@ -256,7 +256,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK New master password %s", new_password.c_str());
 	}
 
-	void BaseLstPwd(uint client, const wstring &cmd)
+	void BaseLstPwd(uint client, const std::wstring &cmd)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -273,17 +273,17 @@ namespace PlayerCommands
 
 		// Do not display the first password.
 		bool first = true;
-		foreach (base->passwords, wstring, i)
+		for(auto& i : base->passwords)
 		{
 			if (first)
 				first = false;
 			else
-				PrintUserCmdText(client, L"%s", i->c_str());
+				PrintUserCmdText(client, L"%s", i.c_str());
 		}
 		PrintUserCmdText(client, L"OK");		
 	}
 
-	void BaseAddAllyTag(uint client, const wstring &args)
+	void BaseAddAllyTag(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -298,7 +298,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring tag = GetParam(args, ' ', 2);
+		std::wstring tag = GetParam(args, ' ', 2);
 		if (!tag.length())
 		{
 			PrintUserCmdText(client, L"ERR No tag");
@@ -317,7 +317,7 @@ namespace PlayerCommands
 	}
 
 
-	void BaseRmAllyTag(uint client, const wstring &args)
+	void BaseRmAllyTag(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -332,7 +332,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring tag = GetParam(args, ' ', 2);
+		std::wstring tag = GetParam(args, ' ', 2);
 		if (!tag.length())
 		{
 			PrintUserCmdText(client, L"ERR No tag");
@@ -349,7 +349,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseLstAllyTag(uint client, const wstring &cmd)
+	void BaseLstAllyTag(uint client, const std::wstring &cmd)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -364,12 +364,12 @@ namespace PlayerCommands
 			return;
 		}
 
-		foreach (base->ally_tags, wstring, i)
-			PrintUserCmdText(client, L"%s", i->c_str());
+		for(auto& i : base->ally_tags)
+			PrintUserCmdText(client, L"%s", i.c_str());
 		PrintUserCmdText(client, L"OK");		
 	}
 
-	void BaseRep(uint client, const wstring &args)
+	void BaseRep(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -384,7 +384,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring arg= GetParam(args, ' ', 2);
+		std::wstring arg= GetParam(args, ' ', 2);
 		if (arg == L"clear")
 		{
 			base->affiliation = 0;
@@ -410,7 +410,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK Affiliation set to %s", HkGetWStringFromIDS(Reputation::get_name(affiliation)).c_str());
 	}
 
-	void BaseInfo(uint client, const wstring &args)
+	void BaseInfo(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -426,8 +426,8 @@ namespace PlayerCommands
 		}
 
 		uint iPara = ToInt(GetParam(args, ' ', 2));
-		const wstring &cmd = GetParam(args, ' ', 3);
-		const wstring &msg = GetParamToEnd(args, ' ', 4);
+		const std::wstring &cmd = GetParam(args, ' ', 3);
+		const std::wstring &msg = GetParamToEnd(args, ' ', 4);
 
 		if (iPara > 0 && iPara <= MAX_PARAGRAPHS && cmd == L"a")
 		{
@@ -445,7 +445,7 @@ namespace PlayerCommands
 			base->infocard.clear();
 			for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 			{
-				wstring wscXML = base->infocard_para[i];
+				std::wstring wscXML = base->infocard_para[i];
 				if (wscXML.length())
 					base->infocard += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 			}
@@ -461,7 +461,7 @@ namespace PlayerCommands
 			base->infocard.clear();
 			for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 			{
-				wstring wscXML = base->infocard_para[i];
+				std::wstring wscXML = base->infocard_para[i];
 				if (wscXML.length())
 					base->infocard += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 			}
@@ -477,7 +477,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDefenseMode(uint client, const wstring &args)
+	void BaseDefenseMode(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -492,7 +492,7 @@ namespace PlayerCommands
 			return;
 		}
 		
-		wstring wscMode = GetParam(args, ' ', 2);
+		std::wstring wscMode = GetParam(args, ' ', 2);
 		if (wscMode == L"0")
 		{
 			base->defense_mode = 0;
@@ -520,7 +520,7 @@ namespace PlayerCommands
 		base->SyncReputationForBase();
 	}
 
-	void BaseBuildMod(uint client, const wstring &args)
+	void BaseBuildMod(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -535,7 +535,7 @@ namespace PlayerCommands
 			return;
 		}
 		
-		const wstring &cmd = GetParam(args, ' ', 2);
+		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
 			PrintUserCmdText(client, L"Modules:"); 
@@ -616,7 +616,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseFacMod(uint client, const wstring &args)
+	void BaseFacMod(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -631,7 +631,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		const wstring &cmd = GetParam(args, ' ', 2);
+		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
 			PrintUserCmdText(client, L"Factory Modules:"); 
@@ -726,7 +726,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDefMod(uint client, const wstring &args)
+	void BaseDefMod(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -741,7 +741,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		const wstring &cmd = GetParam(args, ' ', 2);
+		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
 			PrintUserCmdText(client, L"Defense Modules:"); 
@@ -817,7 +817,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseShieldMod(uint client, const wstring &args)
+	void BaseShieldMod(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -832,7 +832,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		const wstring &cmd = GetParam(args, ' ', 2);
+		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"on")
 		{
 			base->shield_active_time = 3600 * 24;
@@ -864,7 +864,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK"); 			
 	}
 
-	void Bank(uint client, const wstring &args)
+	void Bank(uint client, const std::wstring &args)
 	{
 		PlayerBase *base = GetPlayerBaseForClient(client);
 		if (!clients[client].admin)
@@ -873,10 +873,10 @@ namespace PlayerCommands
 			return;
 		}
 
-		const wstring &cmd = GetParam(args, ' ', 1);
+		const std::wstring &cmd = GetParam(args, ' ', 1);
 		int money = ToInt(GetParam(args, ' ', 2));
 
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		if (cmd == L"withdraw")
 		{
@@ -954,12 +954,12 @@ namespace PlayerCommands
 
 		wchar_t buf[1000];
 		_snwprintf(buf, sizeof(buf), L"Shop Management : Page %d/%d", page, pages);
-		wstring title = buf;	
+		std::wstring title = buf;	
 
 		int start_item = ((page-1) * 40) + 1;
 		int end_item = page * 40;
 
-		wstring status = L"<RDL><PUSH/>";
+		std::wstring status = L"<RDL><PUSH/>";
 		status += L"<TEXT>Available commands:</TEXT><PARA/>";
 		status += L"<TEXT>  /shop price [item] [price] [min stock] [max stock]</TEXT><PARA/>"; 
 		status += L"<TEXT>  /shop remove [item]</TEXT><PARA/>"; 
@@ -1001,7 +1001,7 @@ namespace PlayerCommands
 		pub::Player::PopUpDialog(client, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 	}
 
-	void Shop(uint client, const wstring &args)
+	void Shop(uint client, const std::wstring &args)
 	{
 		// Check that this player is in a player controlled base
 		PlayerBase *base = GetPlayerBaseForClient(client);
@@ -1017,7 +1017,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		const wstring &cmd = GetParam(args, ' ', 1);
+		const std::wstring &cmd = GetParam(args, ' ', 1);
 		if (cmd == L"price")
 		{
 			int item = ToInt(GetParam(args, ' ', 2));
@@ -1083,7 +1083,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDeploy(uint client, const wstring &args)
+	void BaseDeploy(uint client, const std::wstring &args)
 	{
 		// Abort processing if this is not a "heavy lifter"
 		uint shiparch;
@@ -1112,14 +1112,14 @@ namespace PlayerCommands
 			return;
 		}
 
-		wstring password = GetParam(args, ' ', 2);
+		std::wstring password = GetParam(args, ' ', 2);
 		if (!password.length())
 		{
 			PrintUserCmdText(client, L"ERR No password");
 			PrintUserCmdText(client, L"Usage: /base deploy <password> <name>");
 			return;
 		}
-		wstring basename = GetParamToEnd(args, ' ', 3);
+		std::wstring basename = GetParamToEnd(args, ' ', 3);
 		if (!basename.length())
 		{
 			PrintUserCmdText(client, L"ERR No base name");
@@ -1166,7 +1166,7 @@ namespace PlayerCommands
 			}
 		}
 
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		AddLog("NOTICE: Base created %s by %s (%s)",
 			wstos(basename).c_str(),
 			wstos(charname).c_str(),

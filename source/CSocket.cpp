@@ -2,9 +2,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSocket::DoPrint(const wstring &wscTextIn)
+void CSocket::DoPrint(const std::wstring &wscTextIn)
 {
-	wstring wscText(wscTextIn);
+	std::wstring wscText(wscTextIn);
 	for(uint i = 0; (i < wscText.length()); i++)
 	{
 		if(wscText[i] == '\n')
@@ -42,7 +42,7 @@ void CSocket::DoPrint(const wstring &wscTextIn)
 			if(iRem)
 			{
 				iRem = 8 - iRem;
-				string scText = wstos(wscText);
+				std::string scText = wstos(wscText);
 				scText.resize(scText.length()+iRem,'\x00');
 				tempData = scText.data();
 				iLen = (int)scText.length();
@@ -51,7 +51,7 @@ void CSocket::DoPrint(const wstring &wscTextIn)
 			}
 			else
 			{
-				string scText = wstos(wscText);
+				std::string scText = wstos(wscText);
 				tempData = scText.data();
 				iLen = (int)wscText.length();
 				data = (char*)malloc(iLen);
@@ -79,9 +79,9 @@ void CSocket::DoPrint(const wstring &wscTextIn)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring CSocket::GetAdminName()
+std::wstring CSocket::GetAdminName()
 {
-	wstring wscReturn = L"Socket connection (";
+	std::wstring wscReturn = L"Socket connection (";
 	wscReturn += stows(this->sIP);
 	wscReturn += L":";
 	wscReturn += stows(itos(this->iPort));

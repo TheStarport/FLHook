@@ -42,15 +42,15 @@ namespace PlayerInfo
 	#define MAX_PARAGRAPHS 5
 	#define MAX_CHARACTERS 1000
 
-	static wstring IniGetLongWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault)
+	static std::wstring IniGetLongWS(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::wstring &wscDefault)
 	{
 		char szRet[0x10000];
 		GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet, sizeof(szRet), scFile.c_str());
-		string scValue = szRet;
+		std::string scValue = szRet;
 		if(!scValue.length())
 			return wscDefault;
 
-		wstring wscValue = L"";
+		std::wstring wscValue = L"";
 		long lHiByte;
 		long lLoByte;
 		while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
@@ -63,10 +63,10 @@ namespace PlayerInfo
 		return wscValue;
 	}
 
-	bool PlayerInfo::UserCmd_ShowInfo(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PlayerInfo::UserCmd_ShowInfo(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		const wchar_t *wszTargetName = 0;
-		const wstring &wscCommand = GetParam(wscParam, ' ', 0);
+		const std::wstring &wscCommand = GetParam(wscParam, ' ', 0);
 		if (wscCommand == L"me")
 		{
 			wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -90,15 +90,15 @@ namespace PlayerInfo
 			return true;
 		}
 
-		string scFilePath = GetUserFilePath(wszTargetName, "-info.ini");
-		wstring wscPlayerInfo = L"<RDL><PUSH/>";
+		std::string scFilePath = GetUserFilePath(wszTargetName, "-info.ini");
+		std::wstring wscPlayerInfo = L"<RDL><PUSH/>";
 		for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 		{
-			wstring wscXML = IniGetLongWS(scFilePath, "Info", itos(i), L"");
+			std::wstring wscXML = IniGetLongWS(scFilePath, "Info", itos(i), L"");
 			if (wscXML.length())
 				wscPlayerInfo += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 		}
-		wstring wscXML = IniGetLongWS(scFilePath, "Info", "AdminNote", L"");
+		std::wstring wscXML = IniGetLongWS(scFilePath, "Info", "AdminNote", L"");
 		if (wscXML.length())
 				wscPlayerInfo += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 		wscPlayerInfo += L"<POP/></RDL>";
@@ -124,7 +124,7 @@ namespace PlayerInfo
 		return true;
 	}
 
-	static int CurrLength(const string &scFilePath)
+	static int CurrLength(const std::string &scFilePath)
 	{
 		int iCount = 0;
 		for (int i = 1; i <= MAX_PARAGRAPHS; i++)
@@ -134,13 +134,13 @@ namespace PlayerInfo
 		return iCount;
 	}
 
-	bool PlayerInfo::UserCmd_SetInfo(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PlayerInfo::UserCmd_SetInfo(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		uint iPara = ToInt(GetParam(wscParam, ' ', 0));
-		const wstring &wscCommand = GetParam(wscParam, ' ', 1);
-		const wstring &wscMsg = GetParamToEnd(wscParam, ' ', 2);
+		const std::wstring &wscCommand = GetParam(wscParam, ' ', 1);
+		const std::wstring &wscMsg = GetParamToEnd(wscParam, ' ', 2);
 
-		string scFilePath = GetUserFilePath((const wchar_t*)Players.GetActiveCharacterName(iClientID), "-info.ini");
+		std::string scFilePath = GetUserFilePath((const wchar_t*)Players.GetActiveCharacterName(iClientID), "-info.ini");
 		if (scFilePath.length()==0)
 			return false;
 
@@ -153,7 +153,7 @@ namespace PlayerInfo
 				return false;
 			}
 
-			wstring wscNewMsg = IniGetLongWS(scFilePath, "Info", itos(iPara), L"") + XMLText(wscMsg);
+			std::wstring wscNewMsg = IniGetLongWS(scFilePath, "Info", itos(iPara), L"") + XMLText(wscMsg);
 			IniWriteW(scFilePath, "Info", itos(iPara), wscNewMsg);
 			PrintUserCmdText(iClientID, L"OK %d/%d characters used", length, MAX_CHARACTERS);
 		}

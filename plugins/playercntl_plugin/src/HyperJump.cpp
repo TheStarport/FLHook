@@ -124,13 +124,13 @@ namespace HyperJump
 		float accuracy;
 	};
 
-	static string set_scEncryptKey = "secretcode";
+	static std::string set_scEncryptKey = "secretcode";
 
 	static map<uint, bool> set_death_systems;
 
-	static wstring FormatCoords(char* ibuf)
+	static std::wstring FormatCoords(char* ibuf)
 	{
-		wstring sbuf;
+		std::wstring sbuf;
 		wchar_t buf[100];
 		for (int i=0; i<HCOORD_SIZE; i++)
 		{
@@ -169,7 +169,7 @@ namespace HyperJump
 		PrintUserCmdText(iClientID, L" ChangeSys %u", system);
 	}
 
-	void HyperJump::LoadSettings(const string &scPluginCfgFile)
+	void HyperJump::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		// Patch Archetype::GetEquipment & Archetype::GetShip to suppress annoying warnings flserver-errors.log
 		unsigned char patch1[] = { 0x90, 0x90 };
@@ -181,7 +181,7 @@ namespace HyperJump
 
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		string scCfgFile = string(szCurDir) + "\\flhook_plugins\\jump.cfg";
+		std::string scCfgFile = std::string(szCurDir) + "\\flhook_plugins\\jump.cfg";
 	
 		INI_Reader ini;
 		if (ini.open(scCfgFile.c_str(), false))
@@ -686,7 +686,7 @@ namespace HyperJump
 						{
 							Server.BaseEnter(baseinfo->iBaseID,iClientID);
 							Server.BaseExit(baseinfo->iBaseID,iClientID);
-							wstring wscCharFileName;
+							std::wstring wscCharFileName;
 							HkGetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
 							wscCharFileName += L".fl";
 							CHARACTER_ID cID;
@@ -737,7 +737,7 @@ namespace HyperJump
 	}
 
 
-	void HyperJump::SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
+	void HyperJump::SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 	{
 		// If someone killed a bot then take revenge
 		map<uint, TESTBOT>::iterator iter = mapTestBots.find(iClientIDVictim);
@@ -819,7 +819,7 @@ namespace HyperJump
 	}
 
 	/** Chase a player. Works across systems but needs improvement of the path selection algorithm */
-	void HyperJump::AdminCmd_Chase(CCmds* cmds, const wstring &wscCharname)
+	void HyperJump::AdminCmd_Chase(CCmds* cmds, const std::wstring &wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -852,7 +852,7 @@ namespace HyperJump
 	}
 
 	/** Beam admin to a base. Works across systems but needs improvement of the path selection algorithm */
-	bool HyperJump::AdminCmd_Beam(CCmds* cmds, const wstring &wscCharname, const wstring &wscTargetBaseName)
+	bool HyperJump::AdminCmd_Beam(CCmds* cmds, const std::wstring &wscCharname, const std::wstring &wscTargetBaseName)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -877,7 +877,7 @@ namespace HyperJump
 		struct Universe::IBase *baseinfo = Universe::GetFirstBase();
 		while (baseinfo)
 		{
-			wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+			std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
 			if (ToLower(basename).find(ToLower(wscTargetBaseName))==0)
 			{
 				pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
@@ -885,7 +885,7 @@ namespace HyperJump
 				{
 					Server.BaseEnter(baseinfo->iBaseID,info.iClientID);
 					Server.BaseExit(baseinfo->iBaseID,info.iClientID);
-					wstring wscCharFileName;
+					std::wstring wscCharFileName;
 					HkGetCharFileName(info.wscCharname,wscCharFileName);
 					wscCharFileName += L".fl";
 					CHARACTER_ID cID;
@@ -901,7 +901,7 @@ namespace HyperJump
 		baseinfo = Universe::GetFirstBase();
 		while (baseinfo)
 		{
-			wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+			std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
 			if (ToLower(basename).find(ToLower(wscTargetBaseName))!=-1)
 			{
 				pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
@@ -909,7 +909,7 @@ namespace HyperJump
 				{
 					Server.BaseEnter(baseinfo->iBaseID,info.iClientID);
 					Server.BaseExit(baseinfo->iBaseID,info.iClientID);
-					wstring wscCharFileName;
+					std::wstring wscCharFileName;
 					HkGetCharFileName(info.wscCharname,wscCharFileName);
 					wscCharFileName += L".fl";
 					CHARACTER_ID cID;
@@ -926,7 +926,7 @@ namespace HyperJump
 	}
 
 	/** Pull a player to you. Works across systems but needs improvement of the path selection algorithm */
-	void HyperJump::AdminCmd_Pull(CCmds* cmds, const wstring &wscCharname)
+	void HyperJump::AdminCmd_Pull(CCmds* cmds, const std::wstring &wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -992,7 +992,7 @@ namespace HyperJump
 	}
 
 	/** Start automatic zone checking */
-	void HyperJump::AdminCmd_TestBot(CCmds* cmds, const wstring &wscSystemNick, int iCheckZoneTime)
+	void HyperJump::AdminCmd_TestBot(CCmds* cmds, const std::wstring &wscSystemNick, int iCheckZoneTime)
 	{
 		if(!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -1156,7 +1156,7 @@ namespace HyperJump
 		return true;
 	}
 
-	bool HyperJump::UserCmd_Survey(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool HyperJump::UserCmd_Survey(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// If no ship, report a warning
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
@@ -1197,7 +1197,7 @@ namespace HyperJump
 		}
 	}
 
-	bool HyperJump::UserCmd_SetCoords(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool HyperJump::UserCmd_SetCoords(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!InitJumpDriveInfo(iClientID))
 		{
@@ -1208,7 +1208,7 @@ namespace HyperJump
 		JUMPDRIVE &jd = mapJumpDrives[iClientID];
 		jd.iTargetSystem = 0;
 
-		string sbuf = wstos(ReplaceStr(GetParam(wscParam, L' ', 0), L"-", L""));
+		std::string sbuf = wstos(ReplaceStr(GetParam(wscParam, L' ', 0), L"-", L""));
 		if (sbuf.size() != 56)
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid coordinates, format error");
@@ -1268,7 +1268,7 @@ namespace HyperJump
 		return true;
 	}
 
-	bool HyperJump::UserCmd_ChargeJumpDrive(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool HyperJump::UserCmd_ChargeJumpDrive(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// If no ship, report a warning
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
@@ -1323,7 +1323,7 @@ namespace HyperJump
 		return true;
 	}
 
-	bool HyperJump::UserCmd_ActivateJumpDrive(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool HyperJump::UserCmd_ActivateJumpDrive(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// If no ship, report a warning
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
@@ -1381,7 +1381,7 @@ namespace HyperJump
 	}
 
 	/** Move to location */
-	void HyperJump::AdminCmd_JumpTest(CCmds* cmds, const wstring &sys)
+	void HyperJump::AdminCmd_JumpTest(CCmds* cmds, const std::wstring &sys)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -1418,7 +1418,7 @@ namespace HyperJump
 		static const uint MAX_DRIFT = 50000;
 
 		// Find the time this ship was last online.
-		wstring wscTimeStamp = L"";
+		std::wstring wscTimeStamp = L"";
 		if (HkFLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
 			return;
 
@@ -1435,7 +1435,7 @@ namespace HyperJump
 
 		// Calculate the expected drift.
 		float drift = (float)(currTime - lastTime);
-		wstring wscRights;
+		std::wstring wscRights;
 		HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 		if (drift > MAX_DRIFT)
 			drift = MAX_DRIFT;

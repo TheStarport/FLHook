@@ -36,12 +36,12 @@ namespace IPBans
 	/// Return true if this client is on a banned IP range.
 	static bool IsBanned(uint iClientID)
 	{
-		wstring wscIP;
+		std::wstring wscIP;
 		HkGetPlayerIP(iClientID, wscIP);
-		string scIP = wstos(wscIP);
+		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
-		foreach (set_lstIPBans, string, iter)
+		foreach (set_lstIPBans, std::string, iter)
 			if (Wildcard::wildcardfit(iter->c_str(), scIP.c_str()))
 				return true;
 		// To avoid plugin comms with DSAce because I ran out of time to make this
@@ -54,22 +54,22 @@ namespace IPBans
 		{
 			bool bBannedLoginID = false;
 
-			wstring wscDir;
+			std::wstring wscDir;
 			HkGetAccountDirName(acc, wscDir);
 
 			WIN32_FIND_DATA findFileData;
 
-			string scFileSearchPath = scAcctPath + "\\" + wstos(wscDir) + "\\login_*.ini";
+			std::string scFileSearchPath = scAcctPath + "\\" + wstos(wscDir) + "\\login_*.ini";
 			HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData);
 			if (hFileFind!=INVALID_HANDLE_VALUE)
 			{
 				do
 				{
 					// Read the login ID and IP from the login ID record.
-					string scLoginID = "";
-					string scLoginID2 = "";
-					string scThisIP = "";
-					string scFilePath = scAcctPath +  wstos(wscDir) + "\\" + findFileData.cFileName;
+					std::string scLoginID = "";
+					std::string scLoginID2 = "";
+					std::string scThisIP = "";
+					std::string scFilePath = scAcctPath +  wstos(wscDir) + "\\" + findFileData.cFileName;
 					FILE *f = fopen(scFilePath.c_str(), "r");
 					if (f)
 					{
@@ -78,10 +78,10 @@ namespace IPBans
 						{
 							try
 							{
-								scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, string::npos));
-								scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, string::npos));
+								scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, std::string::npos));
+								scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, std::string::npos));
 								if (GetParam(szBuf, '\t', 3).length() > 4)
-									scLoginID2 = Trim(GetParam(szBuf, '\t', 3).substr(4, string::npos));
+									scLoginID2 = Trim(GetParam(szBuf, '\t', 3).substr(4, std::string::npos));
 							}
 							catch (...)
 							{
@@ -100,7 +100,7 @@ namespace IPBans
 					// If the login ID has been read then check it to see if it has been banned
 					if (scThisIP == scIP && scLoginID.length())
 					{
-						foreach (set_lstLoginIDBans, string, iter)
+						foreach (set_lstLoginIDBans, std::string, iter)
 						{
 							if (*iter == scLoginID
 								|| *iter == scLoginID2)
@@ -132,9 +132,9 @@ namespace IPBans
 		if (!acc)
 			return false;
 
-		wstring wscDir; 
+		std::wstring wscDir; 
 		HkGetAccountDirName(acc, wscDir); 
-		string scUserFile = scAcctPath + wstos(wscDir) + "\\authenticated";
+		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\authenticated";
 		FILE* fTest = fopen(scUserFile.c_str(), "r");
 		if (!fTest)
 			return false;
@@ -149,7 +149,7 @@ namespace IPBans
 		// init variables
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\ipbans.ini";
+		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\ipbans.ini";
 		if (set_iPluginDebug)
 			ConPrint(L"NOTICE: Loading IP bans from %s\n",stows(scAcctPath).c_str());
 
@@ -177,7 +177,7 @@ namespace IPBans
 		// init variables
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\loginidbans.ini";
+		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\loginidbans.ini";
 		if (set_iPluginDebug)
 			ConPrint(L"NOTICE: Loading Login ID bans from %s\n",stows(scAcctPath).c_str());
 
@@ -201,7 +201,7 @@ namespace IPBans
 
 
 	/// Reload the ipbans file.
-	void IPBans::LoadSettings(const string &scPluginCfgFile)
+	void IPBans::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		ReloadIPBans();
 		ReloadLoginIDBans();
@@ -235,7 +235,7 @@ namespace IPBans
 	}
 
 	/** Start automatic zone checking */
-	void IPBans::AdminCmd_AuthenticateChar(CCmds* cmds, const wstring &wscCharname)
+	void IPBans::AdminCmd_AuthenticateChar(CCmds* cmds, const std::wstring &wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -247,14 +247,14 @@ namespace IPBans
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
 
-		wstring wscDir;
+		std::wstring wscDir;
 		if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
 		{
 			cmds->Print(L"ERR Account not found\n");
 			return;
 		}
 
-		string scPath = string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\authenticated";
+		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\authenticated";
 		FILE *fTest = fopen(scPath.c_str(), "w");
 		if (!fTest)
 		{

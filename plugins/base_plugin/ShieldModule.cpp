@@ -13,9 +13,9 @@ ShieldModule::~ShieldModule()
 	base->shield_state = PlayerBase::SHIELD_STATE_OFFLINE;
 }
 
-wstring ShieldModule::GetInfo(bool xml)
+std::wstring ShieldModule::GetInfo(bool xml)
 {
-	wstring info = L"Shield Generator Module Type 1 - ";
+	std::wstring info = L"Shield Generator Module Type 1 - ";
 	switch (base->shield_state)
 	{
 	case PlayerBase::SHIELD_STATE_ACTIVE:

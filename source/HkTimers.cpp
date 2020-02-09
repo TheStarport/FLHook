@@ -3,7 +3,7 @@
 #include "hook.h"
 #include <math.h>
 
-CTimer::CTimer(string sFunc, uint iWarn)
+CTimer::CTimer(std::string sFunc, uint iWarn)
 {
 	iMax = 0;
 	iWarning = iWarn;
@@ -148,8 +148,8 @@ void HkTimerNPCAndF1Check()
 **************************************************************************************************************/
 
 CRITICAL_SECTION csIPResolve;
-list<RESOLVE_IP> g_lstResolveIPs;
-list<RESOLVE_IP> g_lstResolveIPsResult;
+std::list<RESOLVE_IP> g_lstResolveIPs;
+std::list<RESOLVE_IP> g_lstResolveIPsResult;
 HANDLE hThreadResolver;
 
 void HkThreadResolver()
@@ -158,23 +158,23 @@ void HkThreadResolver()
 		while(1)
 		{
 			EnterCriticalSection(&csIPResolve);
-			list<RESOLVE_IP> lstMyResolveIPs = g_lstResolveIPs;
+			std::list<RESOLVE_IP> lstMyResolveIPs = g_lstResolveIPs;
 			g_lstResolveIPs.clear();
 			LeaveCriticalSection(&csIPResolve);
 
-			foreach(lstMyResolveIPs, RESOLVE_IP, it)
+			for(auto& ip : lstMyResolveIPs)
 			{
-				ulong addr = inet_addr(wstos(it->wscIP).c_str());
+				ulong addr = inet_addr(wstos(ip.wscIP).c_str());
 				hostent *host = gethostbyaddr((const char*)&addr, sizeof(addr), AF_INET);
 				if(host)
-					it->wscHostname = stows(host->h_name);
+					ip.wscHostname = stows(host->h_name);
 			}
 
 			EnterCriticalSection(&csIPResolve);
-			foreach(lstMyResolveIPs, RESOLVE_IP, it2)
+			for(auto& ip : lstMyResolveIPs)
 			{
-				if(it2->wscHostname.length())
-					g_lstResolveIPsResult.push_back(*it2);
+				if(ip.wscHostname.length())
+					g_lstResolveIPsResult.push_back(ip);
 			}
 			LeaveCriticalSection(&csIPResolve);
 
@@ -190,23 +190,23 @@ void HkTimerCheckResolveResults()
 {
 	TRY_HOOK {
 		EnterCriticalSection(&csIPResolve);
-		foreach(g_lstResolveIPsResult, RESOLVE_IP, it)
+		for(auto& ip : g_lstResolveIPsResult)
 		{
-			if(it->iConnects != ClientInfo[it->iClientID].iConnects)
+			if(ip.iConnects != ClientInfo[ip.iClientID].iConnects)
 				continue; // outdated
 
 			// check if banned
-			foreach(set_lstBans, wstring, itb)
+			for(auto& ban : set_setBans)
 			{
-				if(Wildcard::wildcardfit(wstos(*itb).c_str(), wstos(it->wscHostname).c_str()))
+				if(Wildcard::wildcardfit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
-					HkAddKickLog(it->iClientID, L"IP/Hostname ban(%s matches %s)", it->wscHostname.c_str(), (*itb).c_str());
+					HkAddKickLog(ip.iClientID, L"IP/Hostname ban(%s matches %s)", ip.wscHostname.c_str(), ban.c_str());
 					if(set_bBanAccountOnMatch)
-						HkBan(ARG_CLIENTID(it->iClientID), true);
-					HkKick(ARG_CLIENTID(it->iClientID));
+						HkBan(ARG_CLIENTID(ip.iClientID), true);
+					HkKick(ARG_CLIENTID(ip.iClientID));
 				}
 			}
-			ClientInfo[it->iClientID].wscHostname = it->wscHostname;
+			ClientInfo[ip.iClientID].wscHostname = ip.wscHostname;
 		}
 
 		g_lstResolveIPsResult.clear();

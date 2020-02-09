@@ -30,13 +30,13 @@ namespace PurchaseRestrictions
 	static bool set_bEnforceIDRestrictions = false;
 
 	/// Message if ship purchase denied
-	static wstring set_wscShipPurchaseDenied = L"";
+	static std::wstring set_wscShipPurchaseDenied = L"";
 
 	/// Message if good purchase denied
-	static wstring set_wscGoodPurchaseDenied = L"";
+	static std::wstring set_wscGoodPurchaseDenied = L"";
 
 	/// list of items that we log transfers for
-	static map<uint, string> set_mapItemsOfInterest;
+	static map<uint, std::string> set_mapItemsOfInterest;
 
 	/** A map of baseid to goods that are not allowed to be bought */
 	static multimap<uint, uint> set_mapNoBuy;
@@ -63,12 +63,12 @@ namespace PurchaseRestrictions
 	static map<uint, INFO> mapInfo;
 
 	/// Log items of interest so we can see what cargo cheats people are using.
-	static void LogItemsOfInterest(uint iClientID, uint iGoodID, const string &details)
+	static void LogItemsOfInterest(uint iClientID, uint iGoodID, const std::string &details)
 	{
-		map<uint,string>::iterator iter = set_mapItemsOfInterest.find(iGoodID);
+		map<uint,std::string>::iterator iter = set_mapItemsOfInterest.find(iGoodID);
 		if (iter != set_mapItemsOfInterest.end())
 		{
-			wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+			std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 			AddLog("NOTICE: Item '%s' found in cargo of %s (%s) %s",
 				iter->second.c_str(), 
 				wstos(wscCharName).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharName))).c_str(),
@@ -78,7 +78,7 @@ namespace PurchaseRestrictions
 
 
 	/// Load the configuration
-	void PurchaseRestrictions::LoadSettings(const string &scPluginCfgFile)
+	void PurchaseRestrictions::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_bCheckIDRestrictions = IniGetB(scPluginCfgFile, "PurchaseRestrictions", "CheckIDRestrictions", false);
 		set_bEnforceIDRestrictions = IniGetB(scPluginCfgFile, "PurchaseRestrictions", "EnforceIDRestrictions", false);
@@ -106,7 +106,7 @@ namespace PurchaseRestrictions
 					while (ini.read_value())
 					{
 						uint itemID = CreateID(ini.get_name_ptr());
-						string itemNick = ini.get_value_string();
+						std::string itemNick = ini.get_value_string();
 						set_mapItemsOfInterest[itemID] = itemNick;
 					}
 				}

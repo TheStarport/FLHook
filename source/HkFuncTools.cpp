@@ -2,7 +2,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const wstring &wscCharname) {
+HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring &wscCharname) {
 	bIdString = wscCharname.find(L"id ") == 0;
 
 	HK_ERROR hkErr = HkResolveId(wscCharname, iClientID);
@@ -43,7 +43,7 @@ uint HkGetClientIdFromPD(struct PlayerData *pPD)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CAccount* HkGetAccountByCharname(const wstring &wscCharname)
+CAccount* HkGetAccountByCharname(const std::wstring &wscCharname)
 {
 
 	st6::wstring flStr((ushort*)wscCharname.c_str());
@@ -54,7 +54,7 @@ CAccount* HkGetAccountByCharname(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint HkGetClientIdFromCharname(const wstring &wscCharname)
+uint HkGetClientIdFromCharname(const std::wstring &wscCharname)
 {
 	CAccount *acc = HkGetAccountByCharname(wscCharname);
 	if(!acc)
@@ -68,7 +68,7 @@ uint HkGetClientIdFromCharname(const wstring &wscCharname)
 	if(!wszActiveCharname)
 		return -1;
 	
-	wstring wscActiveCharname = wszActiveCharname;
+	std::wstring wscActiveCharname = wszActiveCharname;
 	wscActiveCharname = ToLower(wscActiveCharname);
 	if(wscActiveCharname.compare(ToLower(wscCharname)) != 0)
 		return -1;
@@ -78,7 +78,7 @@ uint HkGetClientIdFromCharname(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring HkGetAccountID(CAccount *acc)
+std::wstring HkGetAccountID(CAccount *acc)
 {
 	if (acc && acc->wszAccID)
 		return acc->wszAccID;
@@ -87,7 +87,7 @@ wstring HkGetAccountID(CAccount *acc)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkIsEncoded(const string &scFilename)
+bool HkIsEncoded(const std::string &scFilename)
 {
 	bool bRet = false;
 	FILE *f = fopen(scFilename.c_str(), "r");
@@ -106,7 +106,7 @@ bool HkIsEncoded(const string &scFilename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkIsInCharSelectMenu(const wstring &wscCharname)
+bool HkIsInCharSelectMenu(const std::wstring &wscCharname)
 {
 	CAccount *acc = HkGetAccountByCharname(wscCharname);
 	if(!acc)
@@ -158,9 +158,9 @@ bool HkIsValidClientID(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID)
+HK_ERROR HkResolveId(const std::wstring &wscCharname, uint &iClientID)
 {
-	wstring wscCharnameLower = ToLower(wscCharname);
+	std::wstring wscCharnameLower = ToLower(wscCharname);
 	if(wscCharnameLower.find(L"id ") == 0)
 	{
 		uint iID = 0;
@@ -176,9 +176,9 @@ HK_ERROR HkResolveId(const wstring &wscCharname, uint &iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &_iClientID)
+HK_ERROR HkResolveShortCut(const std::wstring &wscShortcut, uint &_iClientID)
 {
-	wstring wscShortcutLower = ToLower(wscShortcut);
+	std::wstring wscShortcutLower = ToLower(wscShortcut);
 	if(wscShortcutLower.find(L"sc ") != 0)
 		return HKE_INVALID_SHORTCUT_STRING;
 
@@ -194,7 +194,7 @@ HK_ERROR HkResolveShortCut(const wstring &wscShortcut, uint &_iClientID)
 		if(!wszCharname)
 			continue;
 
-		wstring wscCharname = wszCharname;
+		std::wstring wscCharname = wszCharname;
 		if(ToLower(wscCharname).find(wscShortcutLower) != -1)
 		{
 			if(iClientIDFound == -1)
@@ -226,7 +226,7 @@ uint HkGetClientIDByShip(uint iShip)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir)
+HK_ERROR HkGetAccountDirName(CAccount *acc, std::wstring &wscDir)
 {
 	_GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 
@@ -238,7 +238,7 @@ HK_ERROR HkGetAccountDirName(CAccount *acc, wstring &wscDir)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir)
+HK_ERROR HkGetAccountDirName(const std::wstring &wscCharname, std::wstring &wscDir)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);
 	CAccount *acc;
@@ -254,7 +254,7 @@ HK_ERROR HkGetAccountDirName(const wstring &wscCharname, wstring &wscDir)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename)
+HK_ERROR HkGetCharFileName(const std::wstring &wscCharname, std::wstring &wscFilename)
 {
 	static _GetFLName GetFLName = 0;
 	if (!GetFLName)
@@ -278,7 +278,7 @@ HK_ERROR HkGetCharFileName(const wstring &wscCharname, wstring &wscFilename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring HkGetBaseNickByID(uint iBaseID)
+std::wstring HkGetBaseNickByID(uint iBaseID)
 {
 	char szBasename[1024] = "";
 	pub::GetBaseNickname(szBasename, sizeof(szBasename), iBaseID);
@@ -287,7 +287,7 @@ wstring HkGetBaseNickByID(uint iBaseID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring HkGetSystemNickByID(uint iSystemID)
+std::wstring HkGetSystemNickByID(uint iSystemID)
 {
 	char szSystemname[1024] = "";
 	pub::GetSystemNickname(szSystemname, sizeof(szSystemname), iSystemID);
@@ -296,7 +296,7 @@ wstring HkGetSystemNickByID(uint iSystemID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring HkGetPlayerSystem(uint iClientID)
+std::wstring HkGetPlayerSystem(uint iClientID)
 {
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
@@ -332,7 +332,7 @@ void HkUnlockAccountAccess(CAccount *acc)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkGetItemsForSale(uint iBaseID, list<uint> &lstItems)
+void HkGetItemsForSale(uint iBaseID, std::list<uint> &lstItems)
 {
 	lstItems.clear();
 	char szNOP[] = { '\x90', '\x90'};

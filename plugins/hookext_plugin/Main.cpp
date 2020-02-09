@@ -18,16 +18,16 @@ HookExtension Plugin by Cannon
 
 struct FLHOOK_PLAYER_DATA
 {
-	string charfilename;
-	map<string, string> lines;
+	std::string charfilename;
+	std::map<std::string, std::string> lines;
 };
 
-map<uint, FLHOOK_PLAYER_DATA> clients;
+std::map<uint, FLHOOK_PLAYER_DATA> clients;
 
 /// A return code to indicate to FLHook if we want the hook processing to continue.
 PLUGIN_RETURNCODE returncode;
 
-string GetAccountDir(uint client)
+std::string GetAccountDir(uint client)
 {
 	static _GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 	char dirname[1024];
@@ -35,7 +35,7 @@ string GetAccountDir(uint client)
 	return dirname;
 }
 
-string GetCharfilename(const wstring &charname)
+std::string GetCharfilename(const std::wstring &charname)
 {
 	static _GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 	char filename[1024];
@@ -66,14 +66,13 @@ int __stdcall HkCb_UpdateFile(char *filename, wchar_t *savetime, int b)
 	{
 		uint client = CurrPlayer->iOnlineID;
 
-		string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
+		std::string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
 		FILE *file = fopen(path.c_str(), "a");
 		if (file)
 		{
 			fprintf(file, "[flhook]\n");
-			for (map<string, string>::iterator i = clients[client].lines.begin();
-				i != clients[client].lines.end(); ++i)
-				fprintf(file, "%s = %s\n", i->first.c_str(), i->second.c_str());
+			for (auto& i : clients[client].lines)
+				fprintf(file, "%s = %s\n", i.first.c_str(), i.second.c_str());
 			fclose(file);
 		}
 	}
@@ -100,7 +99,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &charid, unsigned int c
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	string path = scAcctPath + GetAccountDir(client) + "\\" + charid.szCharFilename;
+	std::string path = scAcctPath + GetAccountDir(client) + "\\" + charid.szCharFilename;
 
 	//ConPrint(L"CharacterSelect=%s\n", stows(path).c_str());
 
@@ -115,7 +114,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &charid, unsigned int c
 		{
 			if (ini.is_header("flhook"))
 			{
-				wstring tag;
+				std::wstring tag;
 				while (ini.read_value())
 				{
 					clients[client].lines[ini.get_name_ptr()] = ini.get_value_string();
@@ -140,15 +139,15 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\hookext.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\hookext.cfg";
 
 	clients.clear();
 	struct PlayerData *pPD = 0;
 	while(pPD = Players.traverse_active(pPD))
 	{
 		uint client = HkGetClientIdFromPD(pPD);
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		string filename = GetCharfilename(charname) + ".fl";
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::string filename = GetCharfilename(charname) + ".fl";
 		CHARACTER_ID charid;
 		strcpy(charid.szCharFilename, filename.c_str());
 		CharacterSelect(charid,client);
@@ -196,7 +195,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 namespace HookExt
 {
-	EXPORT string IniGetS(uint client, const string &name)
+	EXPORT std::string IniGetS(uint client, const std::string &name)
 	{
 		if (clients.find(client) == clients.end())
 			return "";
@@ -211,11 +210,11 @@ namespace HookExt
 		return clients[client].lines[name];
 	}
 
-	EXPORT wstring IniGetWS(uint client, const string &name)
+	EXPORT std::wstring IniGetWS(uint client, const std::string &name)
 	{
-		string svalue = HookExt::IniGetS(client, name);
+		std::string svalue = HookExt::IniGetS(client, name);
 
-		wstring value;
+		std::wstring value;
 		long lHiByte;
 		long lLoByte;
 		while(sscanf(svalue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
@@ -227,34 +226,34 @@ namespace HookExt
 		return value;
 	}
 
-	EXPORT uint IniGetI(uint client, const string &name)
+	EXPORT uint IniGetI(uint client, const std::string &name)
 	{
-		string svalue = HookExt::IniGetS(client, name);
+		std::string svalue = HookExt::IniGetS(client, name);
 		return strtoul(svalue.c_str(), 0, 10);
 	}
 
-	EXPORT bool IniGetB(uint client, const string &name)
+	EXPORT bool IniGetB(uint client, const std::string &name)
 	{
-		string svalue = HookExt::IniGetS(client, name);
+		std::string svalue = HookExt::IniGetS(client, name);
 		if (svalue == "yes")
 			return true;
 		return false;
 	}
 
-	EXPORT float IniGetF(uint client, const string &name)
+	EXPORT float IniGetF(uint client, const std::string &name)
 	{
-		string svalue = HookExt::IniGetS(client, name);
+		std::string svalue = HookExt::IniGetS(client, name);
 		return (float)atof(svalue.c_str());
 	}
 
-	EXPORT void IniSetS(uint client, const string &name, const string &value)
+	EXPORT void IniSetS(uint client, const std::string &name, const std::string &value)
 	{
 		clients[client].lines[name] = value;
 	}
 
-	EXPORT void IniSetWS(uint client, const string &name, const wstring &value)
+	EXPORT void IniSetWS(uint client, const std::string &name, const std::wstring &value)
 	{
-		string svalue = "";
+		std::string svalue = "";
 		for(uint i = 0; (i < value.length()); i++)
 		{
 			char cHiByte = value[i] >> 8;
@@ -267,35 +266,35 @@ namespace HookExt
 		HookExt::IniSetS(client, name, svalue);
 	}
 
-	EXPORT void IniSetI(uint client, const string &name, uint value)
+	EXPORT void IniSetI(uint client, const std::string &name, uint value)
 	{
 		char svalue[100];
 		sprintf(svalue, "%u", value);
 		HookExt::IniSetS(client, name, svalue);
 	}
 
-	EXPORT void IniSetB(uint client, const string &name, bool value)
+	EXPORT void IniSetB(uint client, const std::string &name, bool value)
 	{
-		string svalue = value ? "yes" : "no";
+		std::string svalue = value ? "yes" : "no";
 		HookExt::IniSetS(client, name, svalue);
 	}
 
-	EXPORT void IniSetF(uint client, const string &name, float value)
+	EXPORT void IniSetF(uint client, const std::string &name, float value)
 	{
 		char svalue[100];
 		sprintf(svalue, "%0.02f", value);
 		HookExt::IniSetS(client, name, svalue);
 	}
 
-	EXPORT void IniSetS(const wstring &charname, const string &name, const string &value)
+	EXPORT void IniSetS(const std::wstring &charname, const std::string &name, const std::string &value)
 	{
 		// If the player is online then update the in memory cache.
-		string charfilename = GetCharfilename(charname) + ".fl";
-		for (map<uint, FLHOOK_PLAYER_DATA>::iterator i = clients.begin(); i != clients.end(); ++i)
+		std::string charfilename = GetCharfilename(charname) + ".fl";
+		for (auto& i : clients)
 		{
-			if (i->second.charfilename == charfilename)
+			if (i.second.charfilename == charfilename)
 			{
-				HookExt::IniSetS(i->first, name, value);
+				HookExt::IniSetS(i.first, name, value);
 				return;
 			}
 		}
@@ -304,14 +303,14 @@ namespace HookExt
 		CAccount *acc = HkGetAccountByCharname(charname);
 		if (acc)
 		{
-			string charpath = scAcctPath + GetCharfilename(acc->wszAccID) + "\\" + charfilename;
+			std::string charpath = scAcctPath + GetCharfilename(acc->wszAccID) + "\\" + charfilename;
 			WritePrivateProfileString("flhook", name.c_str(), value.c_str(), charpath.c_str());
 		}		
 	}
 
-	EXPORT void IniSetWS(const wstring &charname, const string &name, const wstring &value)
+	EXPORT void IniSetWS(const std::wstring &charname, const std::string &name, const std::wstring &value)
 	{
-		string svalue = "";
+		std::string svalue = "";
 		for(uint i = 0; (i < value.length()); i++)
 		{
 			char cHiByte = value[i] >> 8;
@@ -324,20 +323,20 @@ namespace HookExt
 		HookExt::IniSetS(charname, name, svalue);
 	}
 
-	EXPORT void IniSetI(const wstring &charname, const string &name, uint value)
+	EXPORT void IniSetI(const std::wstring &charname, const std::string &name, uint value)
 	{
 		char svalue[100];
 		sprintf(svalue, "%u", value);
 		HookExt::IniSetS(charname, name, svalue);
 	}
 
-	EXPORT void IniSetB(const wstring &charname, const string &name, bool value)
+	EXPORT void IniSetB(const std::wstring &charname, const std::string &name, bool value)
 	{
-		string svalue = value ? "yes" : "no";
+		std::string svalue = value ? "yes" : "no";
 		HookExt::IniSetS(charname, name, svalue);
 	}
 
-	EXPORT void IniSetF(const wstring &charname, const string &name, float value)
+	EXPORT void IniSetF(const std::wstring &charname, const std::string &name, float value)
 	{
 		char svalue[100];
 		sprintf(svalue, "%0.02f", value);

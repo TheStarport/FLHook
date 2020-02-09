@@ -6,7 +6,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCash(const wstring &wscCharname)
+void CCmds::CmdGetCash(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -19,7 +19,7 @@ void CCmds::CmdGetCash(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetCash(const wstring &wscCharname, int iAmount)
+void CCmds::CmdSetCash(const std::wstring &wscCharname, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -31,7 +31,7 @@ void CCmds::CmdSetCash(const wstring &wscCharname, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdSetCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount)
+void CCmds::CmdSetCashSec(const std::wstring &wscCharname, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -48,7 +48,7 @@ void CCmds::CmdSetCashSec(const wstring &wscCharname, int iAmountCheck, int iAmo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCash(const wstring &wscCharname, int iAmount)
+void CCmds::CmdAddCash(const std::wstring &wscCharname, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -58,7 +58,7 @@ void CCmds::CmdAddCash(const wstring &wscCharname, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdAddCashSec(const wstring &wscCharname, int iAmountCheck, int iAmount)
+void CCmds::CmdAddCashSec(const std::wstring &wscCharname, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -75,7 +75,7 @@ void CCmds::CmdAddCashSec(const wstring &wscCharname, int iAmountCheck, int iAmo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKick(const wstring &wscCharname, const wstring &wscReason)
+void CCmds::CmdKick(const std::wstring &wscCharname, const std::wstring &wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -87,7 +87,7 @@ void CCmds::CmdKick(const wstring &wscCharname, const wstring &wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBan(const wstring &wscCharname)
+void CCmds::CmdBan(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -99,7 +99,7 @@ void CCmds::CmdBan(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnban(const wstring &wscCharname)
+void CCmds::CmdUnban(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -111,7 +111,7 @@ void CCmds::CmdUnban(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKickBan(const wstring &wscCharname, const wstring &wscReason)
+void CCmds::CmdKickBan(const std::wstring &wscCharname, const std::wstring &wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -132,7 +132,7 @@ void CCmds::CmdKickBan(const wstring &wscCharname, const wstring &wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetBaseStatus(const wstring &wscBasename)
+void CCmds::CmdGetBaseStatus(const std::wstring &wscBasename)
 {
 
 	RIGHT_CHECK(RIGHT_OTHER);
@@ -148,7 +148,7 @@ void CCmds::CmdGetBaseStatus(const wstring &wscBasename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetClientId(const wstring &wscCharname)
+void CCmds::CmdGetClientId(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -165,7 +165,7 @@ void CCmds::CmdGetClientId(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBeam(const wstring &wscCharname, const wstring &wscBasename)
+void CCmds::CmdBeam(const std::wstring &wscCharname, const std::wstring &wscBasename)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -182,7 +182,7 @@ void CCmds::CmdBeam(const wstring &wscCharname, const wstring &wscBasename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKill(const wstring &wscCharname)
+void CCmds::CmdKill(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -194,7 +194,7 @@ void CCmds::CmdKill(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdResetRep(const wstring &wscCharname)
+void CCmds::CmdResetRep(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -206,7 +206,7 @@ void CCmds::CmdResetRep(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetRep(const wstring &wscCharname, const wstring &wscRepGroup, float fValue)
+void CCmds::CmdSetRep(const std::wstring &wscCharname, const std::wstring &wscRepGroup, float fValue)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -218,7 +218,7 @@ void CCmds::CmdSetRep(const wstring &wscCharname, const wstring &wscRepGroup, fl
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetRep(const wstring &wscCharname, const wstring &wscRepGroup)
+void CCmds::CmdGetRep(const std::wstring &wscCharname, const std::wstring &wscRepGroup)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 	
@@ -233,7 +233,7 @@ void CCmds::CmdGetRep(const wstring &wscCharname, const wstring &wscRepGroup)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsg(const wstring &wscCharname, const wstring &wscText)
+void CCmds::CmdMsg(const std::wstring &wscCharname, const std::wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -245,7 +245,7 @@ void CCmds::CmdMsg(const wstring &wscCharname, const wstring &wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgS(const wstring &wscSystemname, const wstring &wscText)
+void CCmds::CmdMsgS(const std::wstring &wscSystemname, const std::wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -257,7 +257,7 @@ void CCmds::CmdMsgS(const wstring &wscSystemname, const wstring &wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgU(const wstring &wscText)
+void CCmds::CmdMsgU(const std::wstring &wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -269,7 +269,7 @@ void CCmds::CmdMsgU(const wstring &wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsg(const wstring &wscCharname, const wstring &wscXML)
+void CCmds::CmdFMsg(const std::wstring &wscCharname, const std::wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -281,7 +281,7 @@ void CCmds::CmdFMsg(const wstring &wscCharname, const wstring &wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgS(const wstring &wscSystemname, const wstring &wscXML)
+void CCmds::CmdFMsgS(const std::wstring &wscSystemname, const std::wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -293,7 +293,7 @@ void CCmds::CmdFMsgS(const wstring &wscSystemname, const wstring &wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgU(const wstring &wscXML)
+void CCmds::CmdFMsgU(const std::wstring &wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -305,18 +305,18 @@ void CCmds::CmdFMsgU(const wstring &wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdEnumCargo(const wstring &wscCharname)
+void CCmds::CmdEnumCargo(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
-	list<CARGO_INFO> lstCargo;
+	std::list<CARGO_INFO> lstCargo;
 	int iRemainingHoldSize = 0;
 	if(HKSUCCESS(HkEnumCargo(wscCharname, lstCargo, iRemainingHoldSize))) {
 		Print(L"remainingholdsize=%d\n", iRemainingHoldSize);
-		foreach(lstCargo, CARGO_INFO, it)
+		for(auto& cargo : lstCargo)
 		{
-			if(!(*it).bMounted)
-				Print(L"id=%u archid=%u count=%d mission=%u\n", (*it).iID, (*it).iArchID, (*it).iCount, (*it).bMission ? 1 : 0);
+			if(!cargo.bMounted)
+				Print(L"id=%u archid=%u count=%d mission=%u\n", cargo.iID, cargo.iArchID, cargo.iCount, cargo.bMission ? 1 : 0);
 		}
 
 		Print(L"OK\n");
@@ -326,7 +326,7 @@ void CCmds::CmdEnumCargo(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(const wstring &wscCharname, uint iID, uint iCount)
+void CCmds::CmdRemoveCargo(const std::wstring &wscCharname, uint iID, uint iCount)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -338,7 +338,7 @@ void CCmds::CmdRemoveCargo(const wstring &wscCharname, uint iID, uint iCount)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCargo(const wstring &wscCharname, const wstring &wscGood, uint iCount, uint iMission)
+void CCmds::CmdAddCargo(const std::wstring &wscCharname, const std::wstring &wscGood, uint iCount, uint iMission)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -350,7 +350,7 @@ void CCmds::CmdAddCargo(const wstring &wscCharname, const wstring &wscGood, uint
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRename(const wstring &wscCharname, const wstring &wscNewCharname)
+void CCmds::CmdRename(const std::wstring &wscCharname, const std::wstring &wscNewCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -362,7 +362,7 @@ void CCmds::CmdRename(const wstring &wscCharname, const wstring &wscNewCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDeleteChar(const wstring &wscCharname)
+void CCmds::CmdDeleteChar(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -374,14 +374,14 @@ void CCmds::CmdDeleteChar(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdReadCharFile(const wstring &wscCharname)
+void CCmds::CmdReadCharFile(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	list<wstring> lstOut;
+	std::list<std::wstring> lstOut;
 	if(HKSUCCESS(HkReadCharFile(wscCharname, lstOut))) {
-		foreach(lstOut, wstring, it)
-			Print(L"l %s\n", it->c_str());
+		for(auto& l : lstOut)
+			Print(L"l %s\n", l.c_str());
 		Print(L"OK\n");
 	} else
 		PrintError();
@@ -389,7 +389,7 @@ void CCmds::CmdReadCharFile(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdWriteCharFile(const wstring &wscCharname, const wstring &wscData)
+void CCmds::CmdWriteCharFile(const std::wstring &wscCharname, const std::wstring &wscData)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -408,7 +408,7 @@ void CCmds::PrintPlayerInfo(HKPLAYERINFO pi)
 	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s\n", pi.wscCharname.c_str(), pi.iClientID, pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdGetPlayerInfo(const wstring &wscCharname)
+void CCmds::CmdGetPlayerInfo(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -425,9 +425,8 @@ void CCmds::CmdGetPlayers()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
-	foreach(lstPlayers, HKPLAYERINFO, i)
-		PrintPlayerInfo(*i);
+	for(auto& p : HkGetPlayers())
+		PrintPlayerInfo(p);
 
 	Print(L"OK\n");
 }
@@ -441,7 +440,7 @@ void CCmds::XPrintPlayerInfo(HKPLAYERINFO pi)
 	Print(L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.wscCharname.c_str(), pi.iClientID, pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdXGetPlayerInfo(const wstring &wscCharname)
+void CCmds::CmdXGetPlayerInfo(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -458,9 +457,8 @@ void CCmds::CmdXGetPlayers()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
-	foreach(lstPlayers, HKPLAYERINFO, i)
-		XPrintPlayerInfo(*i);
+	for(auto& p : HkGetPlayers())
+		XPrintPlayerInfo(p);
 
 	Print(L"OK\n");
 }
@@ -472,11 +470,10 @@ void CCmds::CmdGetPlayerIDs()
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	wchar_t wszLine[128] = L"";
-	list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
-	foreach(lstPlayers, HKPLAYERINFO, i)
+	for(auto& p : HkGetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf(wszBuf, L"%s = %u | ", (*i).wscCharname.c_str(), (*i).iClientID);
+		swprintf(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
 		if((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine)/2)	{
 			Print(L"%s\n", wszLine);
 			wcscpy(wszLine, wszBuf);
@@ -491,11 +488,11 @@ void CCmds::CmdGetPlayerIDs()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAccountDirName(const wstring &wscCharname)
+void CCmds::CmdGetAccountDirName(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	wstring wscDir;
+	std::wstring wscDir;
 	if(HKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
 		Print(L"dirname=%s\nOK\n", wscDir.c_str());
 	else
@@ -504,11 +501,11 @@ void CCmds::CmdGetAccountDirName(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCharFileName(const wstring &wscCharname)
+void CCmds::CmdGetCharFileName(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	wstring wscFilename;
+	std::wstring wscFilename;
 	if(HKSUCCESS(HkGetCharFileName(wscCharname, wscFilename)))
 		Print(L"charfilename=%s\nOK\n", wscFilename.c_str());
 	else
@@ -517,7 +514,7 @@ void CCmds::CmdGetCharFileName(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdIsOnServer(const wstring &wscCharname)
+void CCmds::CmdIsOnServer(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -538,7 +535,7 @@ void CCmds::CmdIsOnServer(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdIsLoggedIn(const wstring &wscCharname)
+void CCmds::CmdIsLoggedIn(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -603,15 +600,15 @@ void CCmds::CmdServerInfo()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetGroupMembers(const wstring &wscCharname)
+void CCmds::CmdGetGroupMembers(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	list<GROUP_MEMBER> lstMembers;
+	std::list<GROUP_MEMBER> lstMembers;
 	if(HKSUCCESS(HkGetGroupMembers(wscCharname, lstMembers))) {
 		Print(L"groupsize=%d\n", lstMembers.size());
-		foreach(lstMembers, GROUP_MEMBER, it)
-			Print(L"id=%d charname=%s\n", it->iClientID, it->wscCharname.c_str());
+		for(auto& m : lstMembers)
+			Print(L"id=%d charname=%s\n", m.iClientID, m.wscCharname.c_str());
 		Print(L"OK\n");
 	} else
 		PrintError();
@@ -619,7 +616,7 @@ void CCmds::CmdGetGroupMembers(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSaveChar(const wstring &wscCharname)
+void CCmds::CmdSaveChar(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -631,7 +628,7 @@ void CCmds::CmdSaveChar(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetReservedSlot(const wstring &wscCharname)
+void CCmds::CmdGetReservedSlot(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -644,7 +641,7 @@ void CCmds::CmdGetReservedSlot(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetReservedSlot(const wstring &wscCharname, int iReservedSlot)
+void CCmds::CmdSetReservedSlot(const std::wstring &wscCharname, int iReservedSlot)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -656,7 +653,7 @@ void CCmds::CmdSetReservedSlot(const wstring &wscCharname, int iReservedSlot)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetAdmin(const wstring &wscCharname, const wstring &wscRights)
+void CCmds::CmdSetAdmin(const std::wstring &wscCharname, const std::wstring &wscRights)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -668,11 +665,11 @@ void CCmds::CmdSetAdmin(const wstring &wscCharname, const wstring &wscRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAdmin(const wstring &wscCharname)
+void CCmds::CmdGetAdmin(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	wstring wscRights;
+	std::wstring wscRights;
 	if(HKSUCCESS(HkGetAdmin(wscCharname, wscRights)))
         Print(L"rights=%s\nOK\n", wscRights.c_str());
 	else
@@ -681,7 +678,7 @@ void CCmds::CmdGetAdmin(const wstring &wscCharname)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDelAdmin(const wstring &wscCharname)
+void CCmds::CmdDelAdmin(const std::wstring &wscCharname)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -703,7 +700,7 @@ void CCmds::CmdLoadPlugins()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdLoadPlugin(const wstring &wscPlugin)
+void CCmds::CmdLoadPlugin(const std::wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -718,15 +715,15 @@ void CCmds::CmdListPlugins()
 
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
-	foreach(lstPlugins, PLUGIN_DATA, it) 
-		Print(L"%s (%s) - %s\n", stows(it->sName).c_str(), stows(it->sShortName).c_str(), (!it->bPaused ? L"running" : L"paused"));
+	for(auto& data : lstPlugins)
+		Print(L"%s (%s) - %s\n", stows(data.sName).c_str(), stows(data.sShortName).c_str(), (!data.bPaused ? L"running" : L"paused"));
 	
 	Print(L"OK\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnloadPlugin(const wstring &wscPlugin)
+void CCmds::CmdUnloadPlugin(const std::wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -738,7 +735,7 @@ void CCmds::CmdUnloadPlugin(const wstring &wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdPausePlugin(const wstring &wscPlugin)
+void CCmds::CmdPausePlugin(const std::wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -750,7 +747,7 @@ void CCmds::CmdPausePlugin(const wstring &wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnpausePlugin(const wstring &wscPlugin)
+void CCmds::CmdUnpausePlugin(const std::wstring &wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
@@ -858,9 +855,9 @@ void CCmds::CmdTest(int iArg, int iArg2, int iArg3)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring CCmds::ArgCharname(uint iArg)
+std::wstring CCmds::ArgCharname(uint iArg)
 {
-	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
 	if (iArg == 1)
 	{
@@ -922,14 +919,14 @@ wstring CCmds::ArgCharname(uint iArg)
 
 int CCmds::ArgInt(uint iArg)
 {
-	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
 	return ToInt(wscArg);
 }
 
 uint CCmds::ArgUInt(uint iArg)
 {
-	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
 	return ToUInt(wscArg);
 }
@@ -938,22 +935,22 @@ uint CCmds::ArgUInt(uint iArg)
 
 float CCmds::ArgFloat(uint iArg)
 {
-	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 	return ToFloat(wscArg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring CCmds::ArgStr(uint iArg)
+std::wstring CCmds::ArgStr(uint iArg)
 {
-	wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
+	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
 
 	return wscArg;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring CCmds::ArgStrToEnd(uint iArg)
+std::wstring CCmds::ArgStrToEnd(uint iArg)
 {
 	for(uint i = 0, iCurArg = 0; (i < wscCurCmdString.length()); i++)
 	{
@@ -976,24 +973,24 @@ wstring CCmds::ArgStrToEnd(uint iArg)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmdStr)
+bool ExecuteCommandString_Callback(CCmds* classptr, const std::wstring &wscCmdStr)
 {
-    CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback,bool,,(CCmds* classptr, const wstring &wscCmdStr),(classptr,wscCmdStr));
+    CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback,bool,,(CCmds* classptr, const std::wstring &wscCmdStr),(classptr,wscCmdStr));
 	
 	return false;
 }
 
-void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
+void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr)
 {
 	//check if command was sent by a socket connection
 	bool bSocket = false;
 	bool bLocalSocket = false;
-	wstring wscAdminName = GetAdminName();
+	std::wstring wscAdminName = GetAdminName();
 
 	if (wscAdminName.find(L"Socket connection") == 0)
 	{
 		bSocket = true;
-		if(wscAdminName.find(L"127.0.0.1") != wstring::npos)
+		if(wscAdminName.find(L"127.0.0.1") != std::wstring::npos)
 			bLocalSocket = true;
 	}
 
@@ -1024,7 +1021,7 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 		bTarget = false;
 		wscCurCmdString = wscCmdStr;
 
-		wstring wscCmd = ToLower(GetParam(wscCmdStr, ' ', 0));
+		std::wstring wscCmd = ToLower(GetParam(wscCmdStr, ' ', 0));
 		if (wscCmd.length()==0)
 		{
 			Print(L"ERR unknown command\n");
@@ -1215,10 +1212,10 @@ void CCmds::ExecuteCommandString(const wstring &wscCmdStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::SetRightsByString(const string &scRights)
+void CCmds::SetRightsByString(const std::string &scRights)
 {
 	rights = RIGHT_NOTHING;
-	string scRightStr = ToLower(scRights);
+	std::string scRightStr = ToLower(scRights);
 	if(scRightStr.find("superadmin") != -1)
 		rights |= RIGHT_SUPERADMIN;
 	if(scRightStr.find("cash") != -1)
@@ -1260,7 +1257,7 @@ void CCmds::PrintError()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::Print(wstring wscText, ...)
+void CCmds::Print(std::wstring wscText, ...)
 {
 	wchar_t wszBuf[1024*8] = L"";
 	va_list marker;

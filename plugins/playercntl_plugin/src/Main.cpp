@@ -94,7 +94,7 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\playercntl.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\playercntl.cfg";
 
 	set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
 	if (set_iPluginDebug)
@@ -157,7 +157,7 @@ void HkTimer()
 
 /// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 /// Drop a percentage of cargo + some loot representing ship bits.
-void SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
+void SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
 	returncode = NOFUNCTIONCALL;
 	
@@ -194,7 +194,7 @@ static bool IsDockingAllowed(uint iShip, uint iDockTarget, uint iClientID)
 	if (fAttitude <= -0.55f)
 	{
 		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("info_access_denied"));
-		wstring wscMsg[3] = {
+		std::wstring wscMsg[3] = {
 			L"Access Denied! Request to dock denied. We don't want your kind around here.",
 			L"Access Denied! Docking request rejected. Your papers are no good.",
 			L"Access Denied! You can't dock here. Your reputation stinks."
@@ -227,7 +227,7 @@ namespace HkIEngine
 				}
 
 				// Print out a message when a player ship docks.
-				wstring wscMsg = L"Traffic control alert: %player has requested to dock";
+				std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
 				wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(iClientID));
 				PrintLocalUserCmdText(iClientID, wscMsg, 15000);			
 			}
@@ -264,13 +264,13 @@ namespace HkIServerImpl
 		CAccount *acc = Players.FindAccountFromClientID(iClientID);
 		if (acc)
 		{
-			wstring wscDir;
+			std::wstring wscDir;
 			HkGetAccountDirName(acc, wscDir);
 			
 			char szDataPath[MAX_PATH];
 			GetUserDataPath(szDataPath);
 	
-			string path = string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\banned";
+			std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\banned";
 
 			FILE *file = fopen(path.c_str(), "r");
 			if (file)
@@ -640,7 +640,7 @@ void __stdcall RequestBestPath(unsigned int p1, DWORD *p2, int p3)
 	}
 }
 
-typedef bool (*_UserCmdProc)(uint, const wstring &, const wstring &, const wchar_t*);
+typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &, const wchar_t*);
 
 struct USERCMD
 {
@@ -767,29 +767,29 @@ USERCMD UserCmds[] =
 };
 
 /**
-This function is called by FLHook when a user types a chat string. We look at the
-string they've typed and see if it starts with one of the above commands. If it 
+This function is called by FLHook when a user types a chat std::string. We look at the
+std::string they've typed and see if it starts with one of the above commands. If it 
 does we try to process it.
 */
-bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 
 	try
 	{
-		wstring wscCmdLineLower = ToLower(wscCmd);
+		std::wstring wscCmdLineLower = ToLower(wscCmd);
 
 		Message::UserCmd_Process(iClientID, wscCmdLineLower);
 
-		// If the chat string does not match the USER_CMD then we do not handle the
+		// If the chat std::string does not match the USER_CMD then we do not handle the
 		// command, so let other plugins or FLHook kick in. We require an exact match
 		for(uint i = 0; (i < sizeof(UserCmds)/sizeof(USERCMD)); i++)
 		{
 			if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0)
 			{
-				// Extract the parameters string from the chat string. It should
+				// Extract the parameters std::string from the chat std::string. It should
 				// be immediately after the command and a space.
-				wstring wscParam = L"";
+				std::wstring wscParam = L"";
 				if (wscCmd.length() > wcslen(UserCmds[i].wszCmd))
 				{
 					if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
@@ -801,7 +801,7 @@ bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 				if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
 				{
 					// We handled the command tell FL hook to stop processing this
-					// chat string.
+					// chat std::string.
 					returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
 					return true;
 				}
@@ -818,7 +818,7 @@ bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 
 std::list<uint> npcs;
 
-void UserCmd_Help(uint iClientID, const wstring &wscParam)
+void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 {
 	returncode = DEFAULT_RETURNCODE; 
 	PrintUserCmdText(iClientID, L"/pos");
@@ -1055,7 +1055,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* cmds, const wstring &wscCmd)
+bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 
@@ -1121,7 +1121,7 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const wstring &wscCmd)
 		if (fLogDebug)
 		{
 			fclose(fLogDebug);
-			::MoveFileA(sDebugLog.c_str(), string(sDebugLog+".old").c_str());
+			::MoveFileA(sDebugLog.c_str(), std::string(sDebugLog+".old").c_str());
 			_unlink(sDebugLog.c_str());
 			fLogDebug = fopen(sDebugLog.c_str(), "wt");
 		}

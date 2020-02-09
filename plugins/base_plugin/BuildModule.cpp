@@ -18,9 +18,9 @@ BuildModule::BuildModule(PlayerBase *the_base, uint the_build_type)
 	active_recipe = recipes[module_nickname];
 }
 
-wstring BuildModule::GetInfo(bool xml)
+std::wstring BuildModule::GetInfo(bool xml)
 {
-	wstring info;
+	std::wstring info;
 	if (xml)
 	{
 		info = L"<TEXT>Constructing " + active_recipe.infotext + L". Waiting for:</TEXT>";

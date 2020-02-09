@@ -30,14 +30,14 @@ namespace PimpShip
 {
 
 	// Intro messages when entering the room.
-	static wstring set_wscIntroMsg1 = L"Pimp-my-ship facilities are available here.";
-	static wstring set_wscIntroMsg2 = L"Type /pimpship on your console to see options.";
+	static std::wstring set_wscIntroMsg1 = L"Pimp-my-ship facilities are available here.";
+	static std::wstring set_wscIntroMsg2 = L"Type /pimpship on your console to see options.";
 
 	// Cost per changed item.
 	static int set_iCost = 0;
 
 	// List of dealer rooms
-	static map<uint, wstring> set_mapDealers;
+	static map<uint, std::wstring> set_mapDealers;
 
 	// Item of equipment for a single client.
 	struct EQ_HARDPOINT
@@ -47,7 +47,7 @@ namespace PimpShip
 		uint sID;
 		uint iArchID;
 		uint iOrigArchID;
-		wstring wscHardPoint;
+		std::wstring wscHardPoint;
 	};
 
 	// List of connected clients.
@@ -68,8 +68,8 @@ namespace PimpShip
 		ITEM_INFO() : iArchID(0) {}
 
 		uint iArchID;
-		wstring wscNickname;
-		wstring wscDescription;
+		std::wstring wscNickname;
+		std::wstring wscDescription;
 	};
 	map<uint, ITEM_INFO> mapAvailableItems;
 
@@ -85,7 +85,7 @@ namespace PimpShip
 		return false;
 	}
 
-	wstring GetItemDescription(uint iArchID)
+	std::wstring GetItemDescription(uint iArchID)
 	{
 		for (map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
 			iter != mapAvailableItems.end();
@@ -97,7 +97,7 @@ namespace PimpShip
 		return L"";
 	}
 
-	void PimpShip::LoadSettings(const string &scPluginCfgFile)
+	void PimpShip::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_iCost = 0;
 		mapAvailableItems.clear();
@@ -123,8 +123,8 @@ namespace PimpShip
 						}
 						else if (ini.is_value("equip"))
 						{
-							string nickname = ini.get_value_string(0);
-							string description = ini.get_value_string(1);
+							std::string nickname = ini.get_value_string(0);
+							std::string description = ini.get_value_string(1);
 							uint iArchID = CreateID(nickname.c_str());
 							mapAvailableItems[iItemID].iArchID = iArchID;
 							mapAvailableItems[iItemID].wscNickname = stows(nickname);
@@ -135,7 +135,7 @@ namespace PimpShip
 						}
 						else if (ini.is_value("room"))
 						{
-							string nickname = ini.get_value_string(0);
+							std::string nickname = ini.get_value_string(0);
 							uint iLocationID = CreateID(nickname.c_str());
 							if (!BaseDataList_get()->get_room_data(iLocationID))
 							{
@@ -187,7 +187,7 @@ namespace PimpShip
 			PrintUserCmdText(iClientID, L"%s", set_wscIntroMsg2.c_str());
 	}
 
-	bool PimpShip::UserCmd_PimpShip(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PimpShip::UserCmd_PimpShip(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bEnablePimpShip)
 			return false;
@@ -226,7 +226,7 @@ namespace PimpShip
 		PrintUserCmdText(iClientID, L"|     Confirms the changes.");
 		PrintUserCmdText(iClientID, L"This facility costs " + ToMoneyStr(set_iCost) + L" credits to use.");
 
-		wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		// Build the equipment list.
 		int iSlotID = 1;
@@ -247,7 +247,7 @@ namespace PimpShip
 	}
 
 	/// Show the setup of the player's ship.
-	bool PimpShip::UserCmd_ShowSetup(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PimpShip::UserCmd_ShowSetup(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!mapInfo[iClientID].bInPimpDealer || !set_bEnablePimpShip)
 			return false;
@@ -265,7 +265,7 @@ namespace PimpShip
 	}
 
 	/// Show the items that may be changed.
-	bool PimpShip::UserCmd_ShowItems(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PimpShip::UserCmd_ShowItems(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!mapInfo[iClientID].bInPimpDealer || !set_bEnablePimpShip)
 			return false;
@@ -281,7 +281,7 @@ namespace PimpShip
 	}
 
 	/// Change the item on the Slot ID to the specified item.
-	bool PimpShip::UserCmd_ChangeItem(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PimpShip::UserCmd_ChangeItem(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!mapInfo[iClientID].bInPimpDealer || !set_bEnablePimpShip)
 			return false;
@@ -306,11 +306,11 @@ namespace PimpShip
 		return UserCmd_ShowSetup(iClientID, wscCmd, wscParam, usage);
 	}
 
-	bool PimpShip::UserCmd_BuyNow(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool PimpShip::UserCmd_BuyNow(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		HK_ERROR err; 
 
-		wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		// Check the that player is in a ship dealer.
 		if (!mapInfo[iClientID].bInPimpDealer)

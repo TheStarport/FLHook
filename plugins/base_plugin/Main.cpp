@@ -60,7 +60,7 @@ map<uint, uint> shield_power_items;
 map<uint, Module*> spaceobj_modules;
 
 /// Path to shield status html page
-string set_status_path_html;
+std::string set_status_path_html;
 
 /// Damage to the base every tick
 uint set_damage_per_tick = 600;
@@ -136,10 +136,10 @@ void SyncReputationForClientShip(uint ship, uint client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// HTML-encodes a string and returns the encoded string.
-wstring HtmlEncode(wstring text)
+/// HTML-encodes a std::string and returns the encoded std::string.
+std::wstring HtmlEncode(std::wstring text)
 {
-	wstring sb;
+	std::wstring sb;
     int len = text.size();
     for (int i = 0; i < len; i++)
     {
@@ -200,7 +200,7 @@ void LoadSettingsActual()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string cfg_file = string(szCurDir) + "\\flhook_plugins\\base.cfg";
+	std::string cfg_file = std::string(szCurDir) + "\\flhook_plugins\\base.cfg";
 
 	map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
@@ -325,11 +325,11 @@ void LoadSettingsActual()
 	GetUserDataPath(datapath);
 	
 	// Create base account dir if it doesn't exist
-	string basedir = string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\";
+	std::string basedir = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\";
 	CreateDirectoryA(basedir.c_str(), 0);
 
 	// Load and spawn all bases
-	string path = string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\base_*.ini";	
+	std::string path = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\base_*.ini";	
 
 	WIN32_FIND_DATA findfile; 
 	HANDLE h = FindFirstFile(path.c_str(), &findfile);
@@ -337,7 +337,7 @@ void LoadSettingsActual()
 	{
 		do
 		{
-			string filepath = string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\" + findfile.cFileName;
+			std::string filepath = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\" + findfile.cFileName;
 			PlayerBase *base = new PlayerBase(filepath);
 			player_bases[base->base] = base;
 			base->Spawn();
@@ -438,7 +438,7 @@ void HkTimerCheckKick()
 				fprintf(file, "<td class=\"column0\">%s</td>", base->shield_state==PlayerBase::SHIELD_STATE_ACTIVE ? "On" : "Off");
 				fprintf(file, "<td class=\"column0\">%I64d</td>", base->money);
 
-				string desc;
+				std::string desc;
 				for (int i=1; i<=MAX_PARAGRAPHS; i++)
 				{
 					desc += "<p>";
@@ -630,7 +630,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return true;
 }
 
-bool UserCmd_Process(uint client, const wstring &args)
+bool UserCmd_Process(uint client, const std::wstring &args)
 {
 	returncode = DEFAULT_RETURNCODE;
 	if (args.find(L"/base login")==0)
@@ -753,8 +753,8 @@ bool UserCmd_Process(uint client, const wstring &args)
 static bool IsDockingAllowed(PlayerBase *base, uint client)
 {	
 	// Allies can always dock.
-	wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-	for (list<wstring>::iterator i = base->ally_tags.begin(); i != base->ally_tags.end(); ++i)
+	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+	for (list<std::wstring>::iterator i = base->ally_tags.begin(); i != base->ally_tags.end(); ++i)
 	{
 		if (charname.find(*i)==0)
 		{
@@ -924,7 +924,7 @@ void __stdcall BaseExit(uint base, uint client)
 	SendResetMarketOverride(client);
 	SendSetBaseInfoText2(client, L"");
 
-	//wstring base_status = L"<RDL><PUSH/>";
+	//std::wstring base_status = L"<RDL><PUSH/>";
 	//base_status += L"<TEXT>" + XMLText(base->name) + L", " + HkGetWStringFromIDS(sys->strid_name) +  L"</TEXT><PARA/><PARA/>";
 }
 
@@ -1104,11 +1104,11 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 		{
 			clients[client].reverse_sell = false;
 
-			foreach (clients[client].cargo, CARGO_INFO, ci)
+			for(auto& ci : clients[client].cargo)
 			{
-				if (ci->iID == iID)
+				if (ci.iID == iID)
 				{
-					Server.ReqAddItem(ci->iArchID, ci->hardpoint.value, count, ci->fStatus, ci->bMounted, client);						
+					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);						
 					return;
 				}
 			}
@@ -1329,8 +1329,8 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 		Server.BaseEnter(proxy_base_id,client);
 		Server.BaseExit(proxy_base_id,client);
 
-		wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		wstring charfilename;
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::wstring charfilename;
 		HkGetCharFileName(charname, charfilename);
 		charfilename += L".fl";
 		CHARACTER_ID charid;
@@ -1342,7 +1342,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 
 #define IS_CMD(a) !args.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* cmd, const wstring &args)
+bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &args)
 {
 	returncode = DEFAULT_RETURNCODE;
 	/*if (args.find(L"dumpbases")==0)
@@ -1367,7 +1367,7 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const wstring &args)
 		struct Universe::ISystem *sys = Universe::GetFirstSystem();
 		while (sys)
 		{
-			string path = string("..\\DATA\\UNIVERSE\\SYSTEMS\\") + string(sys->nickname) + "\\" + string(sys->nickname) + ".ini";
+			std::string path = std::string("..\\DATA\\UNIVERSE\\SYSTEMS\\") + std::string(sys->nickname) + "\\" + std::string(sys->nickname) + ".ini";
 			FILE *file = fopen(path.c_str(), "a+");
 			if (file)
 			{
@@ -1434,8 +1434,8 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const wstring &args)
 	else if (args.compare(L"beam")==0)
 	{
 		returncode = DEFAULT_RETURNCODE;
-		wstring charname = cmd->ArgCharname(1);
-		wstring basename = cmd->ArgStrToEnd(2);
+		std::wstring charname = cmd->ArgCharname(1);
+		std::wstring basename = cmd->ArgStrToEnd(2);
 
 		// Fall back to default behaviour.
 		if (!(cmd->rights & RIGHT_SUPERADMIN))

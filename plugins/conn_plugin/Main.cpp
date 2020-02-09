@@ -58,7 +58,7 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\conn.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\conn.cfg";
 
 	// Load generic settings
 	set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
@@ -167,7 +167,7 @@ void MoveClient(unsigned int client, unsigned int targetBase)
 	{
 		Server.BaseEnter(targetBase, client);
 		Server.BaseExit(targetBase, client);
-		wstring wscCharFileName;
+		std::wstring wscCharFileName;
 		HkGetCharFileName(ARG_CLIENTID(client), wscCharFileName);
 		wscCharFileName += L".fl";
 		CHARACTER_ID cID;
@@ -187,7 +187,7 @@ bool CheckReturnDock(unsigned int client, unsigned int target)
 	return false;
 }
 
-bool UserCmd_Process(uint client, const wstring &cmd)
+bool UserCmd_Process(uint client, const std::wstring &cmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 	

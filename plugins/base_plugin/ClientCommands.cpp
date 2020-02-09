@@ -1,19 +1,19 @@
 #include "main.h"
 
 /// Send a command to the client at destination ID 0x9999
-void SendCommand(uint client, const wstring &message)
+void SendCommand(uint client, const std::wstring &message)
 {
 	HkFMsg(client, L"<TEXT>" + XMLText(message) + L"</TEXT>");
 }
 
-void SendSetBaseInfoText(uint client, const wstring &message)
+void SendSetBaseInfoText(uint client, const std::wstring &message)
 {
-	SendCommand(client, wstring(L" SetBaseInfoText ") + message);
+	SendCommand(client, std::wstring(L" SetBaseInfoText ") + message);
 }
 
-void SendSetBaseInfoText2(uint client, const wstring &message)
+void SendSetBaseInfoText2(uint client, const std::wstring &message)
 {
-	SendCommand(client, wstring(L" SetBaseInfoText2 ") + message);
+	SendCommand(client, std::wstring(L" SetBaseInfoText2 ") + message);
 }
 
 void SendResetMarketOverride(uint client)
@@ -99,13 +99,13 @@ void SendMarketGoodSync(PlayerBase *base, uint client)
 	}
 }
 
-static wstring Int64ToPrettyStr(INT64 iValue)
+static std::wstring Int64ToPrettyStr(INT64 iValue)
 {
 	wchar_t buf[1000];
 	swprintf(buf, _countof(buf), L"%I64d", iValue);
 	int len = wcslen(buf);
 
-	wstring wscBuf;
+	std::wstring wscBuf;
 	for (int i = len - 1, j=0; i>=0; i--, j++)
 	{
 		if (j == 3)
@@ -113,12 +113,12 @@ static wstring Int64ToPrettyStr(INT64 iValue)
 			j = 0;
 			wscBuf.insert(0, L".");
 		}
-		wscBuf.insert(0, wstring(1,buf[i]));
+		wscBuf.insert(0, std::wstring(1,buf[i]));
 	}
 	return wscBuf;
 }
 
-static wstring IntToStr(uint iValue)
+static std::wstring IntToStr(uint iValue)
 {
 	wchar_t buf[1000];
 	swprintf(buf, _countof(buf), L"%u", iValue);
@@ -129,7 +129,7 @@ void SendBaseStatus(uint client, PlayerBase *base)
 {
 	const Universe::ISystem *sys = Universe::get_system(base->system);
 
-	wstring base_status = L"<RDL><PUSH/>";
+	std::wstring base_status = L"<RDL><PUSH/>";
 	base_status += L"<TEXT>" + XMLText(base->basename) + L", " + HkGetWStringFromIDS(sys->strid_name) +  L"</TEXT><PARA/><PARA/>";
 
 	base_status += base->infocard;

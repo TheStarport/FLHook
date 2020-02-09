@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setting variables
 
-string			set_scCfgFile;
+std::string			set_scCfgFile;
 
 // General
 bool			set_bLoadedSettings = false;
@@ -39,18 +39,18 @@ uint			set_iAntiCharMenuIdle;
 
 
 // Style
-wstring			set_wscDeathMsgStyle;
-wstring			set_wscDeathMsgStyleSys;
-wstring			set_wscDeathMsgTextPlayerKill;
-wstring			set_wscDeathMsgTextSelfKill;
-wstring			set_wscDeathMsgTextNPC;
-wstring			set_wscDeathMsgTextSuicide;
-wstring			set_wscDeathMsgTextAdminKill;
+std::wstring			set_wscDeathMsgStyle;
+std::wstring			set_wscDeathMsgStyleSys;
+std::wstring			set_wscDeathMsgTextPlayerKill;
+std::wstring			set_wscDeathMsgTextSelfKill;
+std::wstring			set_wscDeathMsgTextNPC;
+std::wstring			set_wscDeathMsgTextSuicide;
+std::wstring			set_wscDeathMsgTextAdminKill;
 
 uint			set_iKickMsgPeriod;
-wstring			set_wscKickMsg;
-wstring			set_wscUserCmdStyle;
-wstring			set_wscAdminCmdStyle;
+std::wstring			set_wscKickMsg;
+std::wstring			set_wscUserCmdStyle;
+std::wstring			set_wscAdminCmdStyle;
 
 // Socket
 bool			set_bSocketActivated;
@@ -71,19 +71,19 @@ bool			set_bUserCmdHelp;
 bool			set_bDefaultLocalChat;
 
 // NoPVP
-list<uint>		set_lstNoPVPSystems;
+std::set<uint>	set_setNoPVPSystems;
 
 // Chat
-list<wstring>	set_lstChatSuppress;
+std::set<std::wstring>	set_setChatSuppress;
 
 // MultiKillMessages
 bool			set_MKM_bActivated;
-wstring			set_MKM_wscStyle;
-list<MULTIKILLMESSAGE> set_MKM_lstMessages;
+std::wstring			set_MKM_wscStyle;
+std::list<MULTIKILLMESSAGE> set_MKM_lstMessages;
 
 // bans
 bool			set_bBanAccountOnMatch;
-list<wstring>	set_lstBans;
+std::set<std::wstring>	set_setBans;
 
 // help
 
@@ -104,7 +104,7 @@ void LoadSettings()
 	
 	// Use flhook.cfg if it is available. It is used in some installations (okay just cannon's)
 	// to avoid FLErrorChecker whining retardly about ini entries it does not understand.
-	if (_access(string(set_scCfgFile + "\\FLHook.cfg").c_str(), 0) != -1)
+	if (_access(std::string(set_scCfgFile + "\\FLHook.cfg").c_str(), 0) != -1)
 		set_scCfgFile += "\\FLHook.cfg";
 	else
 		set_scCfgFile += "\\FLHook.ini";
@@ -160,7 +160,7 @@ void LoadSettings()
 	set_iWPort = IniGetI(set_scCfgFile, "Socket", "WPort", 0);
 	set_iEPort = IniGetI(set_scCfgFile, "Socket", "EPort", 0);
 	set_iEWPort = IniGetI(set_scCfgFile, "Socket", "EWPort", 0);
-	string scEncryptKey = IniGetS(set_scCfgFile, "Socket", "Key", "");
+	std::string scEncryptKey = IniGetS(set_scCfgFile, "Socket", "Key", "");
 	if(scEncryptKey.length())
 	{
 		if(!set_BF_CTX)
@@ -179,33 +179,33 @@ void LoadSettings()
 	set_bDefaultLocalChat = IniGetB(set_scCfgFile, "UserCommands", "DefaultLocalChat", false);
 
 // NoPVP
-	set_lstNoPVPSystems.clear();
+	set_setNoPVPSystems.clear();
 	for(uint i = 0;; i++)
 	{
 		char szBuf[64];
 		sprintf(szBuf, "System%u", i);
-		string scSystem = IniGetS(set_scCfgFile, "NoPVP", szBuf, "");
+		std::string scSystem = IniGetS(set_scCfgFile, "NoPVP", szBuf, "");
 
 		if(!scSystem.length())
 			break;
 
 		uint iSystemID;
 		pub::GetSystemID(iSystemID, scSystem.c_str());
-		set_lstNoPVPSystems.push_back(iSystemID);
+		set_setNoPVPSystems.insert(iSystemID);
 	}
 
 // read chat suppress
-	set_lstChatSuppress.clear();
+	set_setChatSuppress.clear();
 	for(uint i = 0;; i++)
 	{
 		char szBuf[64];
 		sprintf(szBuf, "Suppress%u", i);
-		string scSuppress = IniGetS(set_scCfgFile, "Chat", szBuf, "");
+		std::string scSuppress = IniGetS(set_scCfgFile, "Chat", szBuf, "");
 
 		if(!scSuppress.length())
 			break;
 
-		set_lstChatSuppress.push_back(stows(scSuppress));
+		set_setChatSuppress.insert(stows(scSuppress));
 	}
 
 // MultiKillMessages
@@ -213,28 +213,28 @@ void LoadSettings()
 	set_MKM_wscStyle = stows(IniGetS(set_scCfgFile, "MultiKillMessages", "Style", "0x1919BD01"));
 
 	set_MKM_lstMessages.clear();
-	list<INISECTIONVALUE> lstValues;
+	std::list<INISECTIONVALUE> lstValues;
 	IniGetSection(set_scCfgFile, "MultiKillMessages", lstValues);
-	foreach(lstValues, INISECTIONVALUE, it)
+	for(auto& val : lstValues)
 	{
-		if(!atoi(it->scKey.c_str()))
+		if(!atoi(val.scKey.c_str()))
 			continue;
 
 		MULTIKILLMESSAGE mkm;
-		mkm.iKillsInARow = atoi(it->scKey.c_str());
-		mkm.wscMessage = stows(it->scValue);
+		mkm.iKillsInARow = atoi(val.scKey.c_str());
+		mkm.wscMessage = stows(val.scValue);
 		set_MKM_lstMessages.push_back(mkm);
 	}
 
 // bans
 	set_bBanAccountOnMatch = IniGetB(set_scCfgFile, "Bans", "BanAccountOnMatch", false);
-	set_lstBans.clear();
+	set_setBans.clear();
 	IniGetSection(set_scCfgFile, "Bans", lstValues);
 	if(!lstValues.empty())
 	{
 		lstValues.pop_front();
-		foreach(lstValues, INISECTIONVALUE, itisv)
-			set_lstBans.push_back(stows(itisv->scKey));
+		for(auto& val : lstValues)
+			set_setBans.insert(stows(val.scKey));
 	}
 
 // help

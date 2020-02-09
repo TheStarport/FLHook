@@ -1,12 +1,12 @@
 #include "CConsole.h"
 #include <wchar.h>
 
-void CConsole::DoPrint(const wstring &wscText)
+void CConsole::DoPrint(const std::wstring &wscText)
 {
 	ConPrint(wscText);
 }
 
-wstring CConsole::GetAdminName()
+std::wstring CConsole::GetAdminName()
 {
 	return L"Admin console";
 }

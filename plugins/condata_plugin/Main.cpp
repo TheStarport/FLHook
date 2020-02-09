@@ -8,7 +8,7 @@
 #include "header.h"
 #include <math.h>
 
-#define PRINT_ERROR() { for(uint i = 0; (i < sizeof(wscError)/sizeof(wstring)); i++) PrintUserCmdText(iClientID, wscError[i]); return; }
+#define PRINT_ERROR() { for(uint i = 0; (i < sizeof(wscError)/sizeof(std::wstring)); i++) PrintUserCmdText(iClientID, wscError[i]); return; }
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
@@ -95,7 +95,7 @@ EXPORT void ClearClientInfo(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void UserCmd_Help(uint iClientID, const wstring &wscParam)
+EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 {
 
 	if(set_bPingCmd) {
@@ -236,12 +236,12 @@ void TimerUpdatePingData()
 			unsigned int iLastPing = 0;
 			ConData[iClientID].iAveragePing = 0;
 			ConData[iClientID].iPingFluctuation = 0;
-			foreach(ConData[iClientID].lstPing, uint, it) {
-				ConData[iClientID].iAveragePing += (*it);
+			for(auto& ping : ConData[iClientID].lstPing) {
+				ConData[iClientID].iAveragePing += ping;
 				if (iLastPing != 0) {
-					ConData[iClientID].iPingFluctuation +=  (uint)sqrt((double)pow(((float)(*it) - (float)iLastPing),2));
+					ConData[iClientID].iPingFluctuation +=  (uint)sqrt((double)pow(((float)ping - (float)iLastPing),2));
 				}
-				iLastPing = (*it);
+				iLastPing = ping;
 			}
 			
 			
@@ -287,9 +287,9 @@ void TimerUpdateLossData()
          if(ConData[iClientID].lstLoss.size() >= (set_iLossKickFrame / (LOSS_INTERVALL / 1000))) 
          { 
             // calculate average loss 
-            ConData[iClientID].iAverageLoss = 0; 
-            foreach(ConData[iClientID].lstLoss, uint, it) 
-               ConData[iClientID].iAverageLoss += (*it); 
+            ConData[iClientID].iAverageLoss = 0;
+			for(auto& loss : ConData[iClientID].lstLoss)
+               ConData[iClientID].iAverageLoss += loss; 
 
             ConData[iClientID].iAverageLoss /= (uint)ConData[iClientID].lstLoss.size(); 
          } 
@@ -423,9 +423,9 @@ namespace HkIServerImpl
 			if(ConData[iClientID].lstObjUpdateIntervalls.size() >= set_iLagDetectionFrame)
 			{
 				uint iLags = 0;
-				foreach(ConData[iClientID].lstObjUpdateIntervalls, uint, it)
+				for(auto& iv : ConData[iClientID].lstObjUpdateIntervalls)
 				{
-					if((*it) > set_iLagDetectionMinimum)
+					if(iv > set_iLagDetectionMinimum)
 						iLags++;
 				}
 
@@ -448,19 +448,19 @@ namespace HkIServerImpl
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ping(uint iClientID, const wstring &wscParam) 
+void UserCmd_Ping(uint iClientID, const std::wstring &wscParam) 
 { 
 	if(!set_bPingCmd) {
 		PRINT_DISABLED();
 		return;
 	}
 
-	wstring wscTargetPlayer = GetParam(wscParam, ' ', 0);
+	std::wstring wscTargetPlayer = GetParam(wscParam, ' ', 0);
 
 	uint iClientIDTarget;
 	iClientIDTarget = iClientID;
 
-	wstring Response; 
+	std::wstring Response; 
 
 	Response += L"Ping: ";
 	if(ConData[iClientIDTarget].lstPing.size() < set_iPingKickFrame)
@@ -515,7 +515,7 @@ void UserCmd_Ping(uint iClientID, const wstring &wscParam)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_PingTarget(uint iClientID, const wstring &wscParam) 
+void UserCmd_PingTarget(uint iClientID, const std::wstring &wscParam) 
 { 
 	if(!set_bPingCmd) {
 		PRINT_DISABLED();
@@ -545,10 +545,10 @@ void UserCmd_PingTarget(uint iClientID, const wstring &wscParam)
 	}
 
 
-	wstring Response; 
+	std::wstring Response; 
 	
 	if (iClientIDTarget != iClientID) {
-		wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
 		Response += wscCharname.c_str();
 		Response += L" - ";
 	}
@@ -607,7 +607,7 @@ void UserCmd_PingTarget(uint iClientID, const wstring &wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef void (*_UserCmdProc)(uint, const wstring &);
+typedef void (*_UserCmdProc)(uint, const std::wstring &);
 
 struct USERCMD
 {
@@ -621,17 +621,17 @@ USERCMD UserCmds[] =
 	{ L"/pingtarget",			UserCmd_PingTarget},
 };
 
-EXPORT bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
+EXPORT bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
 {
 
-	wstring wscCmdLower = ToLower(wscCmd);
+	std::wstring wscCmdLower = ToLower(wscCmd);
 
 	
 	for(uint i = 0; (i < sizeof(UserCmds)/sizeof(USERCMD)); i++)
 	{
 		if(wscCmdLower.find(ToLower(UserCmds[i].wszCmd)) == 0)
 		{
-			wstring wscParam = L"";
+			std::wstring wscParam = L"";
 			if(wscCmd.length() > wcslen(UserCmds[i].wszCmd))
 			{
 				if(wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
@@ -681,7 +681,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const wstring &wscCmd)
+EXPORT bool ExecuteCommandString_Callback(CCmds* classptr, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 	

@@ -112,10 +112,10 @@ USER-COMMANDS
   delivered when they return
 
 /fm <tag> <message> or /factionmsg
-  send message to all characters containing <tag> string in their names (like [RM]). 
+  send message to all characters containing <tag> std::string in their names (like [RM]). 
 
 /fi <tag> or /factioninvite 
-  send an invite to all characters containing <tag> string in their names (like [RM]).
+  send an invite to all characters containing <tag> std::string in their names (like [RM]).
 
 /set chattime <on|off>
   turn on in chat time stamps.

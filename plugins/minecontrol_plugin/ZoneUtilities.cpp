@@ -13,13 +13,13 @@
 struct LOOTABLE_ZONE
 {
 	/** The zone nickname */
-	string zoneNick;
+	std::string zoneNick;
 
 	/** The id of the system for this lootable zone */
 	uint systemID;
 
 	/** The nickname and arch id of the loot dropped by the asteroids */
-	string lootNick;
+	std::string lootNick;
 	uint iLootID;
 
 	/** The arch id of the crate the loot is dropped in */
@@ -49,9 +49,9 @@ typedef multimap<uint, LOOTABLE_ZONE, less<uint> > zone_map_t;
 Parse the specified ini file (usually in the data/solar/asteriods) and retrieve 
 the lootable zone details. 
 */
-void ReadLootableZone(zone_map_t &set_mmapZones, const string &systemNick, const string &defaultZoneNick, const string &file)
+void ReadLootableZone(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &defaultZoneNick, const std::string &file)
 {
-	string path="..\\data\\";
+	std::string path="..\\data\\";
 	path += file;
 
 	INI_Reader ini;
@@ -61,9 +61,9 @@ void ReadLootableZone(zone_map_t &set_mmapZones, const string &systemNick, const
 		{
 			if (ini.is_header("LootableZone"))
 			{
-				string zoneNick=defaultZoneNick;
-				string crateNick="";
-				string lootNick="";
+				std::string zoneNick=defaultZoneNick;
+				std::string crateNick="";
+				std::string lootNick="";
 				int iMinLoot = 0;
 				int iMaxLoot = 0;
 				uint iLootDifficulty = 0;
@@ -122,9 +122,9 @@ void ReadLootableZone(zone_map_t &set_mmapZones, const string &systemNick, const
 }
 
 /** Read the asteroid sections out of the system ini */
-void ReadSystemLootableZones(zone_map_t &set_mmapZones, const string &systemNick, const string &file)
+void ReadSystemLootableZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
 {
-	string path="..\\data\\universe\\";
+	std::string path="..\\data\\universe\\";
 	path += file;
 
 	INI_Reader ini;
@@ -134,8 +134,8 @@ void ReadSystemLootableZones(zone_map_t &set_mmapZones, const string &systemNick
 		{
 			if (ini.is_header("Asteroids"))
 			{
-				string file="";
-				string zoneNick="";
+				std::string file="";
+				std::string zoneNick="";
 				while (ini.read_value())
 				{
 					if (ini.is_value("zone"))
@@ -152,9 +152,9 @@ void ReadSystemLootableZones(zone_map_t &set_mmapZones, const string &systemNick
 
 /** Read the zone size/rotation and position information out of the
  specified file and calcuate the lootable zone transformation matrix */
-void ReadSystemZones(zone_map_t &set_mmapZones, const string &systemNick, const string &file)
+void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
 {
-	string path="..\\data\\universe\\";
+	std::string path="..\\data\\universe\\";
 	path += file;
 
 	INI_Reader ini;
@@ -164,14 +164,14 @@ void ReadSystemZones(zone_map_t &set_mmapZones, const string &systemNick, const 
 		{
 			if (ini.is_header("zone"))
 			{
-				string zoneNick="";
+				std::string zoneNick="";
 				Vector size={0,0,0};
 				Vector pos={0,0,0};
 				Vector rotation={0,0,0};
 				int idsName = 0;
-				string idsNameTxt = "";
+				std::string idsNameTxt = "";
 				int idsInfo = 0;
-				string idsInfoTxt = "";
+				std::string idsInfoTxt = "";
 
 				while (ini.read_value())
 				{
@@ -238,8 +238,8 @@ void ReadUniverse(zone_map_t &set_mmapZones)
 		{
 			if (ini.is_header("System"))
 			{
-				string systemNick="";
-				string file="";
+				std::string systemNick="";
+				std::string file="";
 				while (ini.read_value())
 				{
 					if (ini.is_value("nickname"))
@@ -261,8 +261,8 @@ void ReadUniverse(zone_map_t &set_mmapZones)
 		{
 			if (ini.is_header("System"))
 			{
-				string systemNick="";
-				string file="";
+				std::string systemNick="";
+				std::string file="";
 				while (ini.read_value())
 				{
 					if (ini.is_value("nickname"))

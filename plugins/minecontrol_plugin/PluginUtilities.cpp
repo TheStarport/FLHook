@@ -62,8 +62,8 @@ void HkTempBan(uint iClientID, uint iDuration)
 	Plugin_Communication(TEMPBAN_BAN,&tempban);
 }
 
-/** Instructs DSAce to change an IDS string */
-void HkChangeIDSString(uint iClientID, uint ids, const wstring &text)
+/** Instructs DSAce to change an IDS std::string */
+void HkChangeIDSString(uint iClientID, uint ids, const std::wstring &text)
 {
 	DSACE_CHANGE_INFOCARD_STRUCT info;
 	info.iClientID = iClientID;
@@ -136,10 +136,10 @@ HK_ERROR HkInstantDock(uint iClientID, uint iDockObj)
 	return HKE_OK;
 }
 
-HK_ERROR HkGetRank(const wstring &wscCharname, int &iRank)
+HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank)
 {
 	HK_ERROR err;
-	wstring wscRet = L"";
+	std::wstring wscRet = L"";
 	if ((err = HkFLIniGet(wscCharname, L"rank", wscRet)) != HKE_OK)
 		return err;
 	if (wscRet.length())
@@ -150,19 +150,19 @@ HK_ERROR HkGetRank(const wstring &wscCharname, int &iRank)
 }
 
 /// Get online time.
-HK_ERROR HkGetOnLineTime(const wstring &wscCharname, int &iSecs)
+HK_ERROR HkGetOnLineTime(const std::wstring &wscCharname, int &iSecs)
 {
-	wstring wscDir;
+	std::wstring wscDir;
 	if(!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
 		return HKE_CHAR_DOES_NOT_EXIST;
 
-	wstring wscFile;
+	std::wstring wscFile;
 	HkGetCharFileName(wscCharname, wscFile);
 
-	string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
+	std::string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
 	if (HkIsEncoded(scCharFile))
 	{
-		string scCharFileNew = scCharFile + ".ini";
+		std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
 			return HKE_COULD_NOT_DECODE_CHARFILE;
 
@@ -181,11 +181,11 @@ HK_ERROR HkGetOnLineTime(const wstring &wscCharname, int &iSecs)
 This function is similar to GetParam but instead returns everything
 from the parameter specified by iPos to the end of wscLine.
 
-wscLine - the string to get parameters from
+wscLine - the std::string to get parameters from
 wcSplitChar - the seperator character
 iPos - the parameter number to start from.
 */
-wstring GetParamToEnd(const wstring &wscLine, wchar_t wcSplitChar, uint iPos)
+std::wstring GetParamToEnd(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPos)
 {
 	for(uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
 	{
@@ -205,11 +205,11 @@ wstring GetParamToEnd(const wstring &wscLine, wchar_t wcSplitChar, uint iPos)
 }
 
 
-string GetParam(string scLine, char cSplitChar, uint iPos)
+std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
 {
 	uint i = 0, j = 0;
 
-	string scResult = "";
+	std::string scResult = "";
 	for(i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
 	{
 		if(scLine[j] == cSplitChar)
@@ -233,15 +233,15 @@ string GetParam(string scLine, char cSplitChar, uint iPos)
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-string GetUserFilePath(const wstring &wscCharname, const string &scExtension)
+std::string GetUserFilePath(const std::wstring &wscCharname, const std::string &scExtension)
 {
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-	wstring wscDir;
-	wstring wscFile;
+	std::wstring wscDir;
+	std::wstring wscFile;
 	if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
 		return "";
 	if (HkGetCharFileName(wscCharname, wscFile)!=HKE_OK)
@@ -251,11 +251,11 @@ string GetUserFilePath(const wstring &wscCharname, const string &scExtension)
 }
 
 /** This function is not exported by FLHook so we include it here */
-HK_ERROR HkFMsgEncodeMsg(const wstring &wscMessage, char *szBuf, uint iSize, uint &iRet)
+HK_ERROR HkFMsgEncodeMsg(const std::wstring &wscMessage, char *szBuf, uint iSize, uint &iRet)
 {
 	XMLReader rdr;
 	RenderDisplayList rdl;
-	wstring wscMsg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
+	std::wstring wscMsg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
 	wscMsg += L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 	wscMsg += L"<PARA/><POP/></RDL>\x000A\x000A";
 	if(!rdr.read_buffer(rdl, (const char*)wscMsg.c_str(), (uint)wscMsg.length() * 2))
@@ -267,12 +267,12 @@ HK_ERROR HkFMsgEncodeMsg(const wstring &wscMessage, char *szBuf, uint iSize, uin
 	return HKE_OK;
 }
 
-int ToInt(const string &scStr)
+int ToInt(const std::string &scStr)
 {
 	return atoi(scStr.c_str());
 }
 
-string itohexs(uint value)
+std::string itohexs(uint value)
 {
 	char buf[16];
 	sprintf_s(buf, "%08X", value);
@@ -280,7 +280,7 @@ string itohexs(uint value)
 }
 
 /// Print message to all ships within the specific number of meters of the player.
-void PrintLocalUserCmdText(uint iClientID, const wstring &wscMsg, float fDistance)
+void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg, float fDistance)
 {
 	uint iShip;
 	pub::Player::GetShip(iClientID, iShip);
@@ -374,9 +374,9 @@ bool IsInRange(uint iClientID, float fDistance)
 }
 
 /**
-Remove leading and trailing spaces from the string ~FlakCommon by Motah.
+Remove leading and trailing spaces from the std::string ~FlakCommon by Motah.
 */
-wstring Trim(wstring wscIn)
+std::wstring Trim(std::wstring wscIn)
 {
 	while(wscIn.length() && (wscIn[0]==L' ' || wscIn[0]==L'	' || wscIn[0]==L'\n' || wscIn[0]==L'\r') )
 	{
@@ -390,9 +390,9 @@ wstring Trim(wstring wscIn)
 }
 
 /**
-Remove leading and trailing spaces from the string  ~FlakCommon by Motah.
+Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
 */
-string Trim(string scIn)
+std::string Trim(std::string scIn)
 {
 	while(scIn.length() && (scIn[0]==' ' || scIn[0]=='	' || scIn[0]=='\n' || scIn[0]=='\r') )
 	{
@@ -408,7 +408,7 @@ string Trim(string scIn)
 /**
 Delete a character.
 */
-HK_ERROR HkDeleteCharacter(CAccount *acc, wstring &wscCharname)
+HK_ERROR HkDeleteCharacter(CAccount *acc, std::wstring &wscCharname)
 {
 	HkLockAccountAccess(acc, true);
 	st6::wstring str((ushort*)wscCharname.c_str());
@@ -421,7 +421,7 @@ HK_ERROR HkDeleteCharacter(CAccount *acc, wstring &wscCharname)
 Create a new character in the specified account by emulating a 
 create character.
 */
-HK_ERROR HkNewCharacter(CAccount *acc, wstring &wscCharname)
+HK_ERROR HkNewCharacter(CAccount *acc, std::wstring &wscCharname)
 {
 	HkLockAccountAccess(acc, true);
 	HkUnlockAccountAccess(acc);
@@ -497,15 +497,15 @@ HK_ERROR HkNewCharacter(CAccount *acc, wstring &wscCharname)
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-bool GetUserFilePath(string &path, const wstring &wscCharname, const string &extension)
+bool GetUserFilePath(std::string &path, const std::wstring &wscCharname, const std::string &extension)
 {
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-	wstring wscDir;
-	wstring wscFile;
+	std::wstring wscDir;
+	std::wstring wscFile;
 	if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
 		return false;
 	if (HkGetCharFileName(wscCharname, wscFile)!=HKE_OK)
@@ -518,7 +518,7 @@ typedef void (__stdcall *_FLAntiCheat)();
 typedef void (__stdcall *_FLPossibleCheatingDetected)(int iReason);
 
 /** Anti cheat checking code by mc_horst */
-HK_ERROR HkAntiCheat(const wstring &wscCharname)
+HK_ERROR HkAntiCheat(const std::wstring &wscCharname)
 {
 #define ADDR_FL_ANTICHEAT_1 0x70120
 #define ADDR_FL_ANTICHEAT_2 0x6FD20
@@ -615,10 +615,10 @@ HK_ERROR HkAntiCheat(const wstring &wscCharname)
 
 
 
-/** Format a chat string in accordance with the receiver's preferences and send it. Will
+/** Format a chat std::string in accordance with the receiver's preferences and send it. Will
 check that the receiver accepts messages from wscSender and refuses to send if
 necessary. */
-void FormatSendChat(uint iToClientID, const wstring &wscSender, const wstring &wscText, const wstring &wscTextColor)
+void FormatSendChat(uint iToClientID, const std::wstring &wscSender, const std::wstring &wscText, const std::wstring &wscTextColor)
 {
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
@@ -653,19 +653,19 @@ void FormatSendChat(uint iToClientID, const wstring &wscSender, const wstring &w
 
 	wchar_t wszFormatBuf[8];
 	swprintf(wszFormatBuf, _countof(wszFormatBuf), L"%02X", (long)cFormat);
-	wstring wscTRADataFormat = wszFormatBuf;
-	const wstring wscTRADataSenderColor = L"FFFFFF"; // white
+	std::wstring wscTRADataFormat = wszFormatBuf;
+	const std::wstring wscTRADataSenderColor = L"FFFFFF"; // white
 
-	wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscSender) + L": </TEXT>" + 
+	std::wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscSender) + L": </TEXT>" + 
 		L"<TRA data=\"0x" + wscTextColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscText) + L"</TEXT>";
 
 	HkFMsg(iToClientID, wscXML);
 }
 
 /** Send a player to player message */
-void SendPrivateChat(uint iFromClientID, uint iToClientID, const wstring &wscText)
+void SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring &wscText)
 {
-	wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
+	std::wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 	if (set_bUserCmdIgnore)
 	{
@@ -682,9 +682,9 @@ void SendPrivateChat(uint iFromClientID, uint iToClientID, const wstring &wscTex
 }
 
 /** Send a player to system message */
-void SendSystemChat(uint iFromClientID, const wstring &wscText)
+void SendSystemChat(uint iFromClientID, const std::wstring &wscText)
 {
-	wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
+	std::wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 	// Get the player's current system.
 	uint iSystemID;
@@ -707,9 +707,9 @@ void SendSystemChat(uint iFromClientID, const wstring &wscText)
 
 
 /** Send a player to local system message */
-void SendLocalSystemChat(uint iFromClientID, const wstring &wscText)
+void SendLocalSystemChat(uint iFromClientID, const std::wstring &wscText)
 {
-	wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
+	std::wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
 	// Get the player's current system and location in the system.
 	uint iSystemID;
@@ -753,7 +753,7 @@ void SendLocalSystemChat(uint iFromClientID, const wstring &wscText)
 }
 
 /** Send a player to group message */
-void SendGroupChat(uint iFromClientID, const wstring &wscText)
+void SendGroupChat(uint iFromClientID, const std::wstring &wscText)
 {
 	const wchar_t *wscSender = (const wchar_t*) Players.GetActiveCharacterName(iFromClientID);
 
@@ -766,7 +766,7 @@ void SendGroupChat(uint iFromClientID, const wstring &wscText)
 	}
 }
 
-wstring GetTimeString()
+std::wstring GetTimeString()
 {
 	SYSTEMTIME st;
 	GetSystemTime(&st);
@@ -780,7 +780,7 @@ wstring GetTimeString()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HK_ERROR HkAddEquip(const wstring &wscCharname, uint iGoodID, const string &scHardpoint, bool bMounted)
+HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint, bool bMounted)
 {
 	typedef bool (__stdcall *_AddCargoDocked)(uint iGoodID, CacheString *&hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
 	static _AddCargoDocked AddCargoDocked = 0;
@@ -833,7 +833,7 @@ HK_ERROR HkAddEquip(const wstring &wscCharname, uint iGoodID, const string &scHa
 	return HKE_OK;
 }
 
-wstring GetLocation(unsigned int iClientID)
+std::wstring GetLocation(unsigned int iClientID)
 {
 	uint iSystemID = 0;
 	uint iShip = 0;
@@ -858,14 +858,14 @@ wstring GetLocation(unsigned int iClientID)
 	int gridRefX = (int)((pos.x + (fGridsize * 5)) / fGridsize) - 1;
 	int gridRefZ = (int)((pos.z + (fGridsize * 5)) / fGridsize) - 1;
 
-	wstring wscXPos = L"X";
+	std::wstring wscXPos = L"X";
 	if (gridRefX >= 0 && gridRefX < 8)
 	{
 		wchar_t* gridXLabel[] = {L"A", L"B", L"C", L"D", L"E", L"F", L"G", L"H"};
 		wscXPos = gridXLabel[gridRefX];
 	}
 
-	wstring wscZPos = L"X";
+	std::wstring wscZPos = L"X";
 	if (gridRefZ >= 0 && gridRefZ < 8)
 	{
 		wchar_t* gridZLabel[] = {L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8"};
@@ -877,7 +877,7 @@ wstring GetLocation(unsigned int iClientID)
 	return wszCurrentLocation;
 }
 
-uint HkGetClientIDFromArg(const wstring &wscArg)
+uint HkGetClientIDFromArg(const std::wstring &wscArg)
 {
 	uint iClientID;
 
@@ -979,7 +979,7 @@ void HkUnloadStringDLLs()
 	vDLLs.clear();
 }
 
-wstring HkGetWStringFromIDS(uint iIDS)
+std::wstring HkGetWStringFromIDS(uint iIDS)
 {
 	wchar_t wszBuf[1024];
 	if (LoadStringW(vDLLs[iIDS >> 16], iIDS & 0xFFFF, wszBuf, 1024))
@@ -1024,7 +1024,7 @@ CAccount* HkGetAccountByClientID(uint iClientID)
 	return Players.FindAccountFromClientID(iClientID);
 }
 
-wstring HkGetAccountIDByClientID(uint iClientID)
+std::wstring HkGetAccountIDByClientID(uint iClientID)
 {
 	if (HkIsValidClientID(iClientID))
 	{

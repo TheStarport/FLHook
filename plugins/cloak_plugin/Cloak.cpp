@@ -37,7 +37,7 @@ enum INFO_STATE
 
 struct CLOAK_ARCH
 {
-	string scNickName;
+	std::string scNickName;
 	int iWarmupTime;
 	int iCooldownTime;
 	int iHoldSizeLimit;
@@ -101,7 +101,7 @@ void LoadSettings()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\cloak.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\cloak.cfg";
 
 	INI_Reader ini;
 	if (ini.open(scPluginCfgFile.c_str(), false))
@@ -131,7 +131,7 @@ void LoadSettings()
 					}
 					else if (ini.is_value("fuel"))
 					{
-						string scNickName = ini.get_value_string(0);
+						std::string scNickName = ini.get_value_string(0);
 						uint usage = ini.get_value_int(1);
 						device.mapFuelToUsage[CreateID(scNickName.c_str())] = usage;
 					}
@@ -334,7 +334,7 @@ void HkTimerCheckKick()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UserCmd_Cloak(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 {		
 	uint iShip;
 	pub::Player::GetShip(iClientID, iShip);
@@ -384,7 +384,7 @@ bool UserCmd_Cloak(uint iClientID, const wstring &wscCmd, const wstring &wscPara
 }
 
 
-typedef bool (*_UserCmdProc)(uint, const wstring &, const wstring &, const wchar_t*);
+typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &, const wchar_t*);
 
 struct USERCMD
 {
@@ -401,25 +401,25 @@ USERCMD UserCmds[] =
 };
 
 /**
-This function is called by FLHook when a user types a chat string. We look at the
-string they've typed and see if it starts with one of the above commands. If it 
+This function is called by FLHook when a user types a chat std::string. We look at the
+std::string they've typed and see if it starts with one of the above commands. If it 
 does we try to process it.
 */
-bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	wstring wscCmdLineLower = ToLower(wscCmd);
+	std::wstring wscCmdLineLower = ToLower(wscCmd);
 
-	// If the chat string does not match the USER_CMD then we do not handle the
+	// If the chat std::string does not match the USER_CMD then we do not handle the
 	// command, so let other plugins or FLHook kick in. We require an exact match
 	for(uint i = 0; (i < sizeof(UserCmds)/sizeof(USERCMD)); i++)
 	{
 		if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0)
         {
-			// Extract the parameters string from the chat string. It should
+			// Extract the parameters std::string from the chat std::string. It should
             // be immediately after the command and a space.
-            wstring wscParam = L"";
+            std::wstring wscParam = L"";
             if (wscCmd.length() > wcslen(UserCmds[i].wszCmd))
 			{
 				if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
@@ -431,7 +431,7 @@ bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 			if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
 			{
 				// We handled the command tell FL hook to stop processing this
-				// chat string.
+				// chat std::string.
 				returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
 				return true;
 			}
@@ -442,7 +442,7 @@ bool UserCmd_Process(uint iClientID, const wstring &wscCmd)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* cmds, const wstring &wscCmd)
+bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring &wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 

@@ -20,12 +20,12 @@ bool HkLoadBaseMarket()
 
 		const char *szBaseName = ini.get_value_string();
 		BASE_INFO *biBase = 0;
-		foreach(lstBases, BASE_INFO, it)
+		for(auto& base : lstBases)
 		{
-			const char *szBN = it->scBasename.c_str();
-			if(!ToLower(it->scBasename).compare(ToLower(szBaseName)))
+			const char *szBN = base.scBasename.c_str();
+			if(!ToLower(base.scBasename).compare(ToLower(szBaseName)))
 			{
-				biBase = &(*it);
+				biBase = &base;
 				break;
 			}
 		}

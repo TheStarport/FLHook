@@ -29,7 +29,7 @@ namespace RepFixer
 	struct FactionRep
 	{
 		// The reputation group nickname to adjust.
-		string scRepGroup;
+		std::string scRepGroup;
 
 		// The adjustment mode. If the player's reputation for scRepGroup
 		// is greater than fRep then make the reputation equal to fRep
@@ -65,7 +65,7 @@ namespace RepFixer
 	static bool set_bEnableRepFixUpdates = true;
 
 	/// Load the reputations for the specified equipment faction ID nickname.
-	static void LoadFactionReps(const string &scPluginCfgFile, const string &scIDNick)
+	static void LoadFactionReps(const std::string &scPluginCfgFile, const std::string &scIDNick)
 	{
 		uint archID = CreateID(scIDNick.c_str());
 
@@ -105,7 +105,7 @@ namespace RepFixer
 	}
 
 	/// Load the plugin settings.
-	void RepFixer::LoadSettings(const string &scPluginCfgFile)
+	void RepFixer::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_bEnableRepFixUpdates = IniGetB(scPluginCfgFile, "RepFixer", "EnableRepFixUpdates", false);
 		set_bLogUpdates = IniGetB(scPluginCfgFile, "RepFixer", "LogRepFixUpdates", false);
@@ -123,7 +123,7 @@ namespace RepFixer
 	/// that are greater than the allowed value.
 	static void CheckReps(unsigned int iClientID)
 	{
-		wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		list<CARGO_INFO> lstCargo;
 		int remainingHoldSize = 0;

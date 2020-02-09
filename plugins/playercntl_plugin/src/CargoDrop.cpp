@@ -22,7 +22,7 @@
 
 namespace CargoDrop
 {
-	wstring set_wscDisconnectInSpaceMsg = L"%player is attempting to engage cloaking device";
+	std::wstring set_wscDisconnectInSpaceMsg = L"%player is attempting to engage cloaking device";
 
 	/// If true report disconnecting players.
 	bool set_bReportDisconnectingPlayers = true;
@@ -61,7 +61,7 @@ namespace CargoDrop
 	};
 	static map<uint, INFO> mapInfo;
 
-	void CargoDrop::LoadSettings(const string &scPluginCfgFile)
+	void CargoDrop::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_bReportDisconnectingPlayers = IniGetB(scPluginCfgFile, "General", "ReportDisconnectingPlayers", true);
 		set_bKillDisconnectingPlayers = IniGetB(scPluginCfgFile, "General", "KillDisconnectingPlayers", false);
@@ -104,7 +104,7 @@ namespace CargoDrop
 
 			if (ClientInfo[iClientID].tmF1Time || ClientInfo[iClientID].tmF1TimeDisconnect)
 			{
-				wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+				std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 				// Drain the ship's shields.
 				pub::SpaceObj::DrainShields(iShip);
@@ -126,7 +126,7 @@ namespace CargoDrop
 					// Send disconnect report to all ships in scanner range.
 					if (set_bReportDisconnectingPlayers)
 					{
-						wstring wscMsg = set_wscDisconnectInSpaceMsg;
+						std::wstring wscMsg = set_wscDisconnectInSpaceMsg;
 						wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
 						wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 						PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectingPlayersRange);
@@ -175,7 +175,7 @@ namespace CargoDrop
 
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 	/// Drop a percentage of cargo + some loot representing ship bits.
-	void CargoDrop::SendDeathMsg(const wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
+	void CargoDrop::SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 	{	
 		// If player ship loot dropping is enabled then check for a loot drop.
 		if (set_fHullFct==0.0f)

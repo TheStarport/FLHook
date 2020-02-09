@@ -4,31 +4,31 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring stows(const string &scText)
+std::wstring stows(const std::string &scText)
 {
 	int iSize = MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, 0, 0);
 	wchar_t *wszText = new wchar_t[iSize];
 	MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, wszText, iSize);
-	wstring wscRet = wszText;
+	std::wstring wscRet = wszText;
 	delete[] wszText;
 	return wscRet;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string wstos(const wstring &wscText)
+std::string wstos(const std::wstring &wscText)
 {
 	uint iLen = (uint)wscText.length() + 1;
 	char *szBuf = new char[iLen];
 	WideCharToMultiByte(CP_ACP, 0, wscText.c_str(), -1, szBuf, iLen, 0, 0);
-	string scRet = szBuf;
+	std::string scRet = szBuf;
 	delete[] szBuf;
 	return scRet;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string itos(int i)
+std::string itos(int i)
 {
 	char szBuf[16];
 	sprintf(szBuf, "%d", i);
@@ -37,9 +37,9 @@ string itos(int i)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring ToLower(const wstring &wscStr)
+std::wstring ToLower(const std::wstring &wscStr)
 {
-	wstring wscResult;
+	std::wstring wscResult;
 	for(uint i = 0; (i < wscStr.length()); i++)
 		wscResult += towlower(wscStr[i]);
 
@@ -48,9 +48,9 @@ wstring ToLower(const wstring &wscStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string ToLower(const string &scStr)
+std::string ToLower(const std::string &scStr)
 {
-	string scResult;
+	std::string scResult;
 	for(uint i = 0; (i < scStr.length()); i++)
 		scResult += tolower(scStr[i]);
 
@@ -59,21 +59,21 @@ string ToLower(const string &scStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int ToInt(const wstring &wscStr)
+int ToInt(const std::wstring &wscStr)
 {
 	return wcstoul(wscStr.c_str(), 0, 10);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint ToUInt(const wstring &wscStr)
+uint ToUInt(const std::wstring &wscStr)
 {
 	return wcstoul(wscStr.c_str(), 0, 10);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float ToFloat(const wstring &wscStr)
+float ToFloat(const std::wstring &wscStr)
 {
 	return (float)atof(wstos(wscStr).c_str());
 }
@@ -81,7 +81,7 @@ float ToFloat(const wstring &wscStr)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 999.999.999
 
-wstring ToMoneyStr(int iCash)
+std::wstring ToMoneyStr(int iCash)
 {
 	int iMillions = iCash / 1000000;
 	int iThousands = (iCash % 1000000) / 1000;
@@ -100,7 +100,7 @@ wstring ToMoneyStr(int iCash)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string IniGetS(const string &scFile, const string &scApp, const string &scKey, const string &scDefault)
+std::string IniGetS(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::string &scDefault)
 {
 	char szRet[2048*2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), scDefault.c_str(), szRet, sizeof(szRet), scFile.c_str());
@@ -109,14 +109,14 @@ string IniGetS(const string &scFile, const string &scApp, const string &scKey, c
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int IniGetI(const string &scFile, const string &scApp, const string &scKey, int iDefault)
+int IniGetI(const std::string &scFile, const std::string &scApp, const std::string &scKey, int iDefault)
 {
 	return GetPrivateProfileInt(scApp.c_str(), scKey.c_str(), iDefault, scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float IniGetF(const string &scFile, const string &scApp, const string &scKey, float fDefault)
+float IniGetF(const std::string &scFile, const std::string &scApp, const std::string &scKey, float fDefault)
 {
 	char szRet[2048*2];
 	char szDefault[16];
@@ -127,24 +127,24 @@ float IniGetF(const string &scFile, const string &scApp, const string &scKey, fl
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool IniGetB(const string &scFile, const string &scApp, const string &scKey, bool bDefault)
+bool IniGetB(const std::string &scFile, const std::string &scApp, const std::string &scKey, bool bDefault)
 {
-	string val = ToLower(IniGetS(scFile, scApp, scKey, bDefault ? "true" : "false"));
+	std::string val = ToLower(IniGetS(scFile, scApp, scKey, bDefault ? "true" : "false"));
 	return val.compare("yes") == 0 || val.compare("true") == 0 ? true : false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWrite(const string &scFile, const string &scApp, const string &scKey, const string &scValue)
+void IniWrite(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::string &scValue)
 {
 	WritePrivateProfileString(scApp.c_str(), scKey.c_str(), scValue.c_str(), scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWriteW(const string &scFile, const string &scApp, const string &scKey, const wstring &wscValue)
+void IniWriteW(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::wstring &wscValue)
 {
-	string scValue = "";
+	std::string scValue = "";
 	for(uint i = 0; (i < wscValue.length()); i++)
 	{
 		char cHiByte = wscValue[i] >> 8;
@@ -158,15 +158,15 @@ void IniWriteW(const string &scFile, const string &scApp, const string &scKey, c
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey, const wstring &wscDefault)
+std::wstring IniGetWS(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::wstring &wscDefault)
 {
 	char szRet[2048*2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet, sizeof(szRet), scFile.c_str());
-	string scValue = szRet;
+	std::string scValue = szRet;
 	if(!scValue.length())
 		return wscDefault;
 
-	wstring wscValue = L"";
+	std::wstring wscValue = L"";
 	long lHiByte;
 	long lLoByte;
 	while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
@@ -181,21 +181,21 @@ wstring IniGetWS(const string &scFile, const string &scApp, const string &scKey,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniDelete(const string &scFile, const string &scApp, const string &scKey)
+void IniDelete(const std::string &scFile, const std::string &scApp, const std::string &scKey)
 {
 	WritePrivateProfileString(scApp.c_str(), scKey.c_str(), NULL, scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniDelSection(const string &scFile, const string &scApp)
+void IniDelSection(const std::string &scFile, const std::string &scApp)
 {
 	WritePrivateProfileString(scApp.c_str(), NULL, NULL, scFile.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniGetSection(const string &scFile, const string &scApp, list<INISECTIONVALUE> &lstValues)
+void IniGetSection(const std::string &scFile, const std::string &scApp, std::list<INISECTIONVALUE> &lstValues)
 {
 	lstValues.clear();
 	char szBuf[0xFFFF];
@@ -217,9 +217,9 @@ void IniGetSection(const string &scFile, const string &scApp, list<INISECTIONVAL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring XMLText(const wstring &wscText)
+std::wstring XMLText(const std::wstring &wscText)
 {
-	wstring wscRet;
+	std::wstring wscRet;
 	for(uint i = 0; (i < wscText.length()); i++)
 	{
 		if(wscText[i] == '<')
@@ -259,11 +259,11 @@ void ReadProcMem(void *pAddress, void *pMem, int iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos)
+std::wstring GetParam(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPos)
 {
 	uint i = 0, j = 0;
 
-	wstring wscResult = L"";
+	std::wstring wscResult = L"";
 	for(i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
 	{
 		if(wscLine[j] == wcSplitChar)
@@ -284,11 +284,11 @@ wstring GetParam(const wstring &wscLine, wchar_t wcSplitChar, uint iPos)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-wstring ReplaceStr(const wstring &wscSource, const wstring &wscSearchFor, const wstring &wscReplaceWith)
+std::wstring ReplaceStr(const std::wstring &wscSource, const std::wstring &wscSearchFor, const std::wstring &wscReplaceWith)
 {
 	uint lPos, sPos = 0;
 
-	wstring wscResult = wscSource;
+	std::wstring wscResult = wscSource;
 	while((lPos = (uint)wscResult.find(wscSearchFor, sPos)) != -1)
 	{
 		wscResult.replace(lPos, wscSearchFor.length(), wscReplaceWith);

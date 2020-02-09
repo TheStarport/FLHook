@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <string.h>
+#include <std::string.h>
 #include <errno.h>
 #include <io.h>
 #include <string>
@@ -38,7 +38,7 @@ namespace Message
 {
 
 	/** The messaging plugin message log for offline players */
-	static string MSG_LOG = "-mail.ini";
+	static std::string MSG_LOG = "-mail.ini";
 
 	/** the data for a single online player */
 	class INFO
@@ -47,7 +47,7 @@ namespace Message
 		INFO() : ulastPmClientID(-1), uTargetClientID(-1), bShowChatTime(false), bGreetingShown(false), iSwearWordWarnings(0) {}
 
 		static const int NUMBER_OF_SLOTS = 10;
-		wstring slot[NUMBER_OF_SLOTS];
+		std::wstring slot[NUMBER_OF_SLOTS];
 
 		// Client ID of last PM.
 		uint ulastPmClientID;
@@ -72,13 +72,13 @@ namespace Message
 	static list<INISECTIONVALUE> set_lstHelpLines;
 
 	/** greetings text for when user types /help */
-	static list<wstring> set_lstGreetingBannerLines;
+	static list<std::wstring> set_lstGreetingBannerLines;
 
 	/** special banner text for when user types /help */
-	static list<wstring> set_lstSpecialBannerLines;
+	static list<std::wstring> set_lstSpecialBannerLines;
 
 	/** special banner text for when user types /help */
-	static vector<list<wstring> > set_vctStandardBannerLines;
+	static vector<list<std::wstring> > set_vctStandardBannerLines;
 
 	/** Time in second to repeat display of special banner */
 	static int set_iSpecialBannerTimeout;
@@ -99,14 +99,14 @@ namespace Message
 	static bool set_bSetMsg;
 
 	/** color of echoed commands */
-	static wstring set_wscCmdEchoStyle;
+	static std::wstring set_wscCmdEchoStyle;
 
-	static wstring set_wscDisconnectSwearingInSpaceMsg;
+	static std::wstring set_wscDisconnectSwearingInSpaceMsg;
 
 	static float set_fDisconnectSwearingInSpaceRange;
 
 	/** list of swear words */
-	static std::list<wstring> set_lstSwearWords;
+	static std::list<std::wstring> set_lstSwearWords;
 
 	/** A random macro to make things easier */
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
@@ -133,7 +133,7 @@ namespace Message
 		if (!mapInfo[iClientID].bGreetingShown)
 		{
 			mapInfo[iClientID].bGreetingShown = true;
-			foreach (set_lstGreetingBannerLines, wstring, iter)
+			foreach (set_lstGreetingBannerLines, std::wstring, iter)
 			{
 				if (iter->find(L"<TRA")==0)
 					HkFMsg(iClientID, *iter);
@@ -150,7 +150,7 @@ namespace Message
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
-			foreach (set_lstSpecialBannerLines, wstring, iter)
+			foreach (set_lstSpecialBannerLines, std::wstring, iter)
 			{
 				if (iter->find(L"<TRA")==0)
 					HkFMsg(iClientID, *iter);
@@ -170,14 +170,14 @@ namespace Message
 		if (++iCurStandardBanner >= set_vctStandardBannerLines.size())
 			iCurStandardBanner = 0;
 
-		list<wstring> &lstStandardBannerSection = set_vctStandardBannerLines[iCurStandardBanner];
+		list<std::wstring> &lstStandardBannerSection = set_vctStandardBannerLines[iCurStandardBanner];
 
 		struct PlayerData *pPD = 0;
 		while(pPD = Players.traverse_active(pPD))
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
 
-			foreach (lstStandardBannerSection, wstring, iter)
+			foreach (lstStandardBannerSection, std::wstring, iter)
 			{
 				if (iter->find(L"<TRA")==0)
 					HkFMsg(iClientID, *iter);
@@ -187,7 +187,7 @@ namespace Message
 		}
 	}
 
-	static wstring SetSizeToSmall(const wstring &wscDataFormat)
+	static std::wstring SetSizeToSmall(const std::wstring &wscDataFormat)
 	{
 		uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
 		wchar_t wszStyleSmall[32];
@@ -198,7 +198,7 @@ namespace Message
 
 	/** Replace #t and #c tags with current target name and current ship location. 
 	Return false if tags cannot be replaced. */
-	static bool ReplaceMessageTags(uint iClientID, INFO &clientData, wstring &wscMsg)
+	static bool ReplaceMessageTags(uint iClientID, INFO &clientData, std::wstring &wscMsg)
 	{
 		if (wscMsg.find(L"#t")!=-1)
 		{
@@ -208,13 +208,13 @@ namespace Message
 				return false;	
 			}
 
-			wstring wscTargetName = (const wchar_t*) Players.GetActiveCharacterName(clientData.uTargetClientID);
+			std::wstring wscTargetName = (const wchar_t*) Players.GetActiveCharacterName(clientData.uTargetClientID);
 			wscMsg = ReplaceStr(wscMsg, L"#t", wscTargetName);
 		}
 
 		if (wscMsg.find(L"#c")!=-1)
 		{
-			wstring wscCurrLocation = GetLocation(iClientID);
+			std::wstring wscCurrLocation = GetLocation(iClientID);
 			wscMsg = ReplaceStr(wscMsg, L"#c", wscCurrLocation.c_str());
 		}
 
@@ -232,7 +232,7 @@ namespace Message
 	This function is called when the admin command rehash is called and when the
 	module is loaded.
 	*/
-	void Message::LoadSettings(const string &scPluginCfgFile)
+	void Message::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_bCustomHelp = IniGetB(scPluginCfgFile, "Message", "CustomHelp", true);
 		set_bCmdEcho = IniGetB(scPluginCfgFile, "Message", "CmdEcho", true);
@@ -277,7 +277,7 @@ namespace Message
 				}
 				else if (ini.is_header("StandardBanner"))
 				{
-					list<wstring> lstStandardBannerSection;
+					list<std::wstring> lstStandardBannerSection;
 					while (ini.read_value())
 					{
 						lstStandardBannerSection.push_back(Trim(stows(ini.get_value_string())));
@@ -288,7 +288,7 @@ namespace Message
 				{
 					while (ini.read_value())
 					{
-						wstring word = Trim(stows(ini.get_value_string()));
+						std::wstring word = Trim(stows(ini.get_value_string()));
 						word = ReplaceStr(word, L"_", L" ");
 						set_lstSwearWords.push_back(word);
 					}
@@ -391,14 +391,14 @@ namespace Message
 		uint iRet1;
 		rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader, iSize);
 
-		wstring wscChatMsg = ToLower(wszBuf);
+		std::wstring wscChatMsg = ToLower(wszBuf);
 		uint iClientID = cId.iID;
 
 		bool bIsGroup = (cIdTo.iID == 0x10003 || !wscChatMsg.find(L"/g ") || !wscChatMsg.find(L"/group "));
 		if (!bIsGroup)
 		{
 			// If a restricted word appears in the message take appropriate action.
-			foreach (set_lstSwearWords, wstring, worditer)
+			foreach (set_lstSwearWords, std::wstring, worditer)
 			{
 				if (wscChatMsg.find(*worditer) != -1)
 				{
@@ -408,7 +408,7 @@ namespace Message
 					mapInfo[iClientID].iSwearWordWarnings++;
 					if (mapInfo[iClientID].iSwearWordWarnings > 2)
 					{
-						wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 						AddLog("NOTICE: Swearing tempban on %s (%s) reason='%s'",
 							wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
 							wstos(wscChatMsg).c_str());		
@@ -417,7 +417,7 @@ namespace Message
 
 						if (set_fDisconnectSwearingInSpaceRange > 0.0f)
 						{
-							wstring wscMsg = set_wscDisconnectSwearingInSpaceMsg;
+							std::wstring wscMsg = set_wscDisconnectSwearingInSpaceMsg;
 							wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
 							wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 							PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectSwearingInSpaceRange);
@@ -464,11 +464,11 @@ namespace Message
 			wchar_t wszBuf[1024];
 			uint iRet1;
 			rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader, iSize);
-			wstring wscChatMsg = wszBuf;
+			std::wstring wscChatMsg = wszBuf;
 
 			// Find the ': ' which indicates the end of the sending player name.
 			size_t iTextStartPos = wscChatMsg.find(L": ");
-			if (iTextStartPos != string::npos)
+			if (iTextStartPos != std::string::npos)
 			{
 				if ((wscChatMsg.find(L": /")==iTextStartPos && wscChatMsg.find(L": //")!=iTextStartPos)
 					|| wscChatMsg.find(L": .")==iTextStartPos)
@@ -489,13 +489,13 @@ namespace Message
 	}
 
 	/** Set an preset message */
-	bool Message::UserCmd_SetMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bSetMsg)
 			return false;
 
 		int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
-		wstring wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		if (iMsgSlot<0 || iMsgSlot>9 || wscParam.size()==0)
 		{
@@ -513,7 +513,7 @@ namespace Message
 	}
 
 	/** Show preset messages */
-	bool Message::UserCmd_ShowMsgs(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bSetMsg)
 			return false;
@@ -534,7 +534,7 @@ namespace Message
 	}
 
 	/** Send an preset message to the system chat */
-	bool Message::UserCmd_SMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bSetMsg)
 			return false;
@@ -555,7 +555,7 @@ namespace Message
 		}
 
 		// Replace the tag #t with name of the targeted player.
-		wstring wscMsg = iter->second.slot[iMsgSlot];
+		std::wstring wscMsg = iter->second.slot[iMsgSlot];
 		if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
 			return true;
 
@@ -565,7 +565,7 @@ namespace Message
 	}
 
 	/** Send an preset message to the local system chat */
-	bool Message::UserCmd_LMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_LMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bSetMsg)
 			return false;
@@ -586,7 +586,7 @@ namespace Message
 		}
 
 		// Replace the tag #t with name of the targeted player.
-		wstring wscMsg = iter->second.slot[iMsgSlot];
+		std::wstring wscMsg = iter->second.slot[iMsgSlot];
 		if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
 			return true;
 
@@ -596,7 +596,7 @@ namespace Message
 	}
 
 	/** Send an preset message to the group chat */
-	bool Message::UserCmd_GMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_GMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (!set_bSetMsg)
 			return false;
@@ -617,7 +617,7 @@ namespace Message
 		}
 
 		// Replace the tag #t with name of the targeted player.
-		wstring wscMsg = iter->second.slot[iMsgSlot];
+		std::wstring wscMsg = iter->second.slot[iMsgSlot];
 		if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
 			return true;
 
@@ -626,7 +626,7 @@ namespace Message
 	}
 
 	/** Send an message to the last person that PM'd this client. */
-	bool Message::UserCmd_ReplyToLastPMSender(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
@@ -636,7 +636,7 @@ namespace Message
 			return true;
 		}
 
-		wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		// If this is a /rN command then setup the preset message
 		if (set_bSetMsg && wscCmd.size()==3 && wscMsg.size()==0)
@@ -677,7 +677,7 @@ namespace Message
 	}
 
 	/** Send a message to the last/current target. */
-	bool Message::UserCmd_SendToLastTarget(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_SendToLastTarget(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
@@ -687,7 +687,7 @@ namespace Message
 			return true;
 		}
 
-		wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		// If this is a /tN command then setup the preset message
 		if (set_bSetMsg && wscCmd.size()==3 && wscMsg.size()==0)
@@ -728,7 +728,7 @@ namespace Message
 	}
 
 	/** Shows the sender of the last PM and the last char targetted */
-	bool Message::UserCmd_ShowLastPMSender(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_ShowLastPMSender(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		map<uint,INFO>::iterator iter=mapInfo.find(iClientID);
 		if (iter==mapInfo.end())
@@ -738,11 +738,11 @@ namespace Message
 			return true;
 		}
 
-		wstring wscSenderCharname=L"<not available>"+stows(itos(iter->second.ulastPmClientID));
+		std::wstring wscSenderCharname=L"<not available>"+stows(itos(iter->second.ulastPmClientID));
 		if (iter->second.ulastPmClientID!=-1 && HkIsValidClientID(iter->second.ulastPmClientID))
 			wscSenderCharname = (const wchar_t*) Players.GetActiveCharacterName(iter->second.ulastPmClientID);
 
-		wstring wscTargetCharname=L"<not available>"+stows(itos(iter->second.uTargetClientID));
+		std::wstring wscTargetCharname=L"<not available>"+stows(itos(iter->second.uTargetClientID));
 		if (iter->second.uTargetClientID!=-1 && HkIsValidClientID(iter->second.uTargetClientID))
 			wscTargetCharname = (const wchar_t*) Players.GetActiveCharacterName(iter->second.uTargetClientID);
 
@@ -752,11 +752,11 @@ namespace Message
 
 	/** Send a private message to the specified charname. If the player is offline the message will
 	be delivery when they next login. */
-	bool Message::UserCmd_PrivateMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		const wstring &wscTargetCharname = GetParam(wscParam, ' ', 0);
-		const wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		const std::wstring &wscTargetCharname = GetParam(wscParam, ' ', 0);
+		const std::wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		if (wscCharname.size()==0 || wscMsg.size()==0)
 		{
@@ -788,11 +788,11 @@ namespace Message
 	}
 
 	/** Send a private message to the specified clientid. */
-	bool Message::UserCmd_PrivateMsgID(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		const wstring &wscClientID = GetParam(wscParam, ' ', 0);
-		const wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		const std::wstring &wscClientID = GetParam(wscParam, ' ', 0);
+		const std::wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		uint iToClientID = ToInt(wscClientID);
 		if(!HkIsValidClientID(iToClientID) || HkIsInCharSelectMenu(iToClientID))
@@ -807,11 +807,11 @@ namespace Message
 	}
 
 	/** Send a message to all players with a particular prefix. */
-	bool Message::UserCmd_FactionMsg(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		const wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
-		const wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		std::wstring wscSender = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		const std::wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
+		const std::wstring &wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		if (wscCharnamePrefix.size()<3 || wscMsg.size()==0)
 		{
@@ -825,7 +825,7 @@ namespace Message
 		list<HKPLAYERINFO> lst = HkGetPlayers();
 		foreach (lst, HKPLAYERINFO, iter)
 		{
-			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==string::npos)
+			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
 				continue;
 
 			if (iter->iClientID==iClientID)
@@ -843,9 +843,9 @@ namespace Message
 	}
 
 	/** Send a faction invite message to all players with a particular prefix. */
-	bool Message::UserCmd_FactionInvite(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		const wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
+		const std::wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
 
 		bool msgSent = false;
 
@@ -859,12 +859,12 @@ namespace Message
 		list<HKPLAYERINFO> lst = HkGetPlayers();
 		foreach (lst, HKPLAYERINFO, iter)
 		{
-			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==string::npos)
+			if (ToLower(iter->wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
 				continue;
 			if (iter->iClientID==iClientID)
 				continue;
 
-			wstring wscMsg = L"/i " + iter->wscCharname;
+			std::wstring wscMsg = L"/i " + iter->wscCharname;
 
 			uint iRet;
 			char szBuf[1024];
@@ -888,9 +888,9 @@ namespace Message
 		return true;
 	}
 
-	bool Message::UserCmd_SetChatTime(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
+		std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
 		bool bShowChatTime = false;
 		if(!wscParam1.compare(L"on"))
 			bShowChatTime = true;
@@ -902,7 +902,7 @@ namespace Message
 			PrintUserCmdText(iClientID, usage);
 		}
 
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
 		HookExt::IniSetB(iClientID, "msg.chat_time", bShowChatTime);
 
@@ -916,7 +916,7 @@ namespace Message
 		return true;
 	}
 
-	bool Message::UserCmd_Time(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_Time(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
 		PrintUserCmdText(iClientID, GetTimeString(set_bLocalTime));
@@ -924,14 +924,14 @@ namespace Message
 	}
 
 	/** Print out custom help overriding flhook built in help */
-	bool Message::UserCmd_CustomHelp(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (set_bCustomHelp)
 		{
 			// Print any custom help strings
 			foreach (set_lstHelpLines, INISECTIONVALUE, iter)
 			{
-				string scHelp=iter->scKey;
+				std::string scHelp=iter->scKey;
 				if (iter->scValue.size()>0)
 				{
 					scHelp+="=";
@@ -945,7 +945,7 @@ namespace Message
 	}
 
 	/** Print out help for built in flhook commands */
-	bool Message::UserCmd_BuiltInCmdHelp(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (wscParam.size()==0)
 		{
@@ -957,7 +957,7 @@ namespace Message
 	}
 
 	/** Show Mail */
-	bool Message::UserCmd_MailShow(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_MailShow(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		int iNumberUnreadMsgs = Mail::MailCountUnread((const wchar_t*) Players.GetActiveCharacterName(iClientID), MSG_LOG);
 		int iNumberMsgs = Mail::MailCount((const wchar_t*) Players.GetActiveCharacterName(iClientID), MSG_LOG);
@@ -989,7 +989,7 @@ namespace Message
 	}
 
 	/** Delete Mail */
-	bool Message::UserCmd_MailDel(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Message::UserCmd_MailDel(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (wscParam.size()==0)
 		{
@@ -1013,14 +1013,14 @@ namespace Message
 		return true;
 	}
 
-	void Message::UserCmd_Process(uint iClientID, const wstring &wscCmd)
+	void Message::UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
 	{
-		wstring wscCmdLineLower = ToLower(wscCmd);
+		std::wstring wscCmdLineLower = ToLower(wscCmd);
 
 		// Echo the command back to the sender's console but only if it starts with / or .
 		if (set_bCmdEcho)
 		{
-			wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
+			std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
 			if (wscCmd.find(L"/")==0 || wscCmd.find(L".")==0)
 			{
 				if (!(wscCmd==L"/l" || wscCmd==L"/local"
@@ -1030,7 +1030,7 @@ namespace Message
 					|| wscCmd==L"/r" || wscCmd==L"/reply"
 					|| wscCmd.find(L"//")==0 || wscCmd.find(L"*")==(wscCmd.length()-1)))
 				{
-					wstring wscXML = L"<TRA data=\"" + set_wscCmdEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmdLineLower) + L"</TEXT>";
+					std::wstring wscXML = L"<TRA data=\"" + set_wscCmdEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmdLineLower) + L"</TEXT>";
 					HkFMsg(iClientID, wscXML);
 				}
 			}
@@ -1038,7 +1038,7 @@ namespace Message
 	}
 
 
-	void Message::AdminCmd_SendMail(CCmds *cmds, const wstring &wscCharname, const wstring &wscMsg)
+	void Message::AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname, const std::wstring &wscMsg)
 	{
 		Mail::MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
 		cmds->Print(L"OK message saved to mailbox\n");
@@ -1046,11 +1046,11 @@ namespace Message
 
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 	/// Drop a percentage of cargo + some loot representing ship bits.
-	void Message::SendDeathMsg(const wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
+	void Message::SendDeathMsg(const std::wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
 	{	
-		// encode xml string(default and small)
+		// encode xml std::string(default and small)
 		// non-sys
-		wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsg += XMLText(wscMsg);
 		wscXMLMsg += L"</TEXT>";
 
@@ -1059,8 +1059,8 @@ namespace Message
 		if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
 			return;
 
-		wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
-		wstring wscXMLMsgSmall = wstring(L"<TRA data=\"") + wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
+		std::wstring wscXMLMsgSmall = std::wstring(L"<TRA data=\"") + wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsgSmall += XMLText(wscMsg);
 		wscXMLMsgSmall += L"</TEXT>";
 		char szBufSmall[0xFFFF];
@@ -1069,7 +1069,7 @@ namespace Message
 			return;
 
 		// sys
-		wstring wscXMLMsgSys = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscXMLMsgSys = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsgSys += XMLText(wscMsg);
 		wscXMLMsgSys += L"</TEXT>";
 		char szBufSys[0xFFFF];
@@ -1077,8 +1077,8 @@ namespace Message
 		if(!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSys, szBufSys, sizeof(szBufSys), iRetSys)))
 			return;
 
-		wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
-		wstring wscXMLMsgSmallSys = L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
+		std::wstring wscXMLMsgSmallSys = L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsgSmallSys += XMLText(wscMsg);
 		wscXMLMsgSmallSys += L"</TEXT>";
 		char szBufSmallSys[0xFFFF];

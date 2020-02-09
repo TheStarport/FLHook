@@ -10,7 +10,7 @@ StorageModule::~StorageModule()
 {
 }
 
-wstring StorageModule::GetInfo(bool xml)
+std::wstring StorageModule::GetInfo(bool xml)
 {
 	return L"Cargo Storage";
 }

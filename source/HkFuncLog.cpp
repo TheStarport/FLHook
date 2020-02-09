@@ -63,7 +63,7 @@ void AddLog(const char *szString, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
+void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024*8] = L"";
 	va_list marker;
@@ -75,7 +75,7 @@ void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
 
 	if(wscReason[0] != '#' && Players.GetActiveCharacterName(iClientID))
 	{
-		wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		wchar_t wszBuf2[500];
 		swprintf(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
@@ -90,15 +90,15 @@ void HkHandleCheater(uint iClientID, bool bBan, wstring wscReason, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
+bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscReason)
 {
 	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
 	if(!f)
 		return false;
 
 	CAccount *acc = HkGetAccountByCharname(wscCharname);
-	wstring wscAccountDir = L"???";
-	wstring wscAccountID = L"???";
+	std::wstring wscAccountDir = L"???";
+	std::wstring wscAccountID = L"???";
 	if(acc)
 	{
 		HkGetAccountDirName(acc, wscAccountDir);
@@ -106,8 +106,8 @@ bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
 	}
 
 	uint iClientID = HkGetClientIdFromCharname(wscCharname);
-	wstring wscHostName = L"???";
-	wstring wscIp = L"???";
+	std::wstring wscHostName = L"???";
+	std::wstring wscIp = L"???";
 	if(iClientID != -1) 
 	{
 		wscHostName = ClientInfo[iClientID].wscHostname;
@@ -125,28 +125,28 @@ bool HkAddCheaterLog(const wstring &wscCharname, const wstring &wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason)
+bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason)
 {
 	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
 	if(!f)
 		return false;
 
 	CAccount *acc = Players.FindAccountFromClientID(iClientID);
-	wstring wscAccountDir = L"???";
-	wstring wscAccountID = L"???";
+	std::wstring wscAccountDir = L"???";
+	std::wstring wscAccountID = L"???";
 	if(acc)
 	{
 		HkGetAccountDirName(acc, wscAccountDir);
 		wscAccountID = HkGetAccountID(acc);
 	}
 
-	wstring wscHostName = L"???";
-	wstring wscIp = L"???";
+	std::wstring wscHostName = L"???";
+	std::wstring wscIp = L"???";
 
 	wscHostName = ClientInfo[iClientID].wscHostname;
 	HkGetPlayerIP(iClientID,wscIp);
 
-	wstring wscCharname = L"? ? ?"; //spaces to make clear it's not a player name
+	std::wstring wscCharname = L"? ? ?"; //spaces to make clear it's not a player name
 	if(Players.GetActiveCharacterName(iClientID))
 	{
 		wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -162,7 +162,7 @@ bool HkAddCheaterLog(const uint &iClientID, const wstring &wscReason)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddKickLog(uint iClientID, wstring wscReason, ...)
+bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024*8] = L"";
 	va_list marker;
@@ -179,7 +179,7 @@ bool HkAddKickLog(uint iClientID, wstring wscReason, ...)
 		wszCharname = L"";
 
 	CAccount *acc = Players.FindAccountFromClientID(iClientID);
-	wstring wscAccountDir;
+	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
 	time_t tNow = time(0);
@@ -191,7 +191,7 @@ bool HkAddKickLog(uint iClientID, wstring wscReason, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddConnectLog(uint iClientID, wstring wscReason, ...)
+bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024*8] = L"";
 	va_list marker;
@@ -208,7 +208,7 @@ bool HkAddConnectLog(uint iClientID, wstring wscReason, ...)
 		wszCharname = L"";
 
 	CAccount *acc = Players.FindAccountFromClientID(iClientID);
-	wstring wscAccountDir;
+	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
 	time_t tNow = time(0);

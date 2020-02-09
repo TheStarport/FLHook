@@ -29,7 +29,7 @@
 
 namespace Rename
 {
-	static void ini_write_wstring(FILE *file, const string &parmname, const wstring &in)
+	static void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
 	{
 		fprintf(file, "%s=", parmname.c_str()); 
 		for (int i = 0; i < (int)in.size(); i++)
@@ -42,9 +42,9 @@ namespace Rename
 	}
 
 
-	static void ini_get_wstring(INI_Reader &ini, wstring &wscValue)
+	static void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
 	{
-		string scValue = ini.get_value_string();
+		std::string scValue = ini.get_value_string();
 		wscValue = L"";
 		long lHiByte;
 		long lLoByte;
@@ -76,16 +76,16 @@ namespace Rename
 
 	struct TAG_DATA
 	{
-		wstring tag;
-		wstring master_password;
-		wstring rename_password;
+		std::wstring tag;
+		std::wstring master_password;
+		std::wstring rename_password;
 		uint last_access;
-		wstring description;
+		std::wstring description;
 	};
 
-	std::map<wstring, TAG_DATA> mapTagToPassword;
+	std::map<std::wstring, TAG_DATA> mapTagToPassword;
 
-	void LoadSettings(const string &scPluginCfgFile)
+	void LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_iRenameCost = IniGetI(scPluginCfgFile, "Rename", "RenameCost", 5000000);
 		set_iRenameTimeLimit = IniGetI(scPluginCfgFile, "Rename", "RenameTimeLimit", 3600);
@@ -96,7 +96,7 @@ namespace Rename
 
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scPath = string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
+		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
 
 		INI_Reader ini;
 		if (ini.open(scPath.c_str(), false))
@@ -105,7 +105,7 @@ namespace Rename
 			{
 				if (ini.is_header("faction"))
 				{
-					wstring tag;
+					std::wstring tag;
 					while (ini.read_value())
 					{
 						if (ini.is_value("tag"))
@@ -115,13 +115,13 @@ namespace Rename
 						}
 						else if (ini.is_value("master_password"))
 						{
-							wstring pass;
+							std::wstring pass;
 							ini_get_wstring(ini, pass);
 							mapTagToPassword[tag].master_password = pass;
 						}
 						else if (ini.is_value("rename_password"))
 						{
-							wstring pass;
+							std::wstring pass;
 							ini_get_wstring(ini, pass);
 							mapTagToPassword[tag].rename_password = pass;
 						}
@@ -131,7 +131,7 @@ namespace Rename
 						}
 						else if (ini.is_value("description"))
 						{
-							wstring description;
+							std::wstring description;
 							ini_get_wstring(ini, description);
 							mapTagToPassword[tag].description = description;
 						}
@@ -146,12 +146,12 @@ namespace Rename
 	{
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scPath = string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
+		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
 
 		FILE *file = fopen(scPath.c_str(), "w");
 		if (file)
 		{
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				fprintf(file, "[faction]\n");
 				ini_write_wstring(file, "tag", i->second.tag);
@@ -170,8 +170,8 @@ namespace Rename
 		{
 			// If this ship name starts with a restricted tag then the ship may only be
 			// created using rename and the faction password
-			wstring wscCharname(si.wszCharname);
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			std::wstring wscCharname(si.wszCharname);
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (wscCharname.find(i->second.tag)==0
 					&& i->second.rename_password.size()!=0)
@@ -191,7 +191,7 @@ namespace Rename
 
 		if (set_bAsciiCharnameOnly)
 		{
-			wstring wscCharname(si.wszCharname);
+			std::wstring wscCharname(si.wszCharname);
 			for (uint i=0; i<wscCharname.size(); i++)
 			{
 				wchar_t ch = wscCharname[i];
@@ -209,8 +209,8 @@ namespace Rename
 	{
 		if (set_bCharnameTags)
 		{
-			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (wscCharname.find(i->second.tag)==0)
 				{
@@ -220,7 +220,7 @@ namespace Rename
 		}
 	}
 
-	bool UserCmd_MakeTag(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_MakeTag(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (set_bCharnameTags)
 		{
@@ -241,9 +241,9 @@ namespace Rename
 				return true;
 			}
 
-			wstring tag = GetParam(wscParam, ' ', 0);
-			wstring pass = GetParam(wscParam, ' ', 1);
-			wstring description = GetParamToEnd(wscParam, ' ', 2);
+			std::wstring tag = GetParam(wscParam, ' ', 0);
+			std::wstring pass = GetParam(wscParam, ' ', 1);
+			std::wstring description = GetParamToEnd(wscParam, ' ', 2);
 
 			if (tag.size() < MIN_CHAR_TAG_LEN)
 			{
@@ -267,7 +267,7 @@ namespace Rename
 			}
 
 			// If this tag is in use then reject the request.
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (tag.find(i->second.tag)==0 || i->second.tag.find(tag)==0)
 				{
@@ -277,7 +277,7 @@ namespace Rename
 			}
 
 			// Save character and exit if kicked on save.
-			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			HkSaveChar(wscCharname);
 			if (HkGetClientIdFromCharname(wscCharname)==-1)
 				return false;
@@ -312,7 +312,7 @@ namespace Rename
 		return false;
 	}
 
-	bool UserCmd_DropTag(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_DropTag(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (set_bCharnameTags)
 		{
@@ -325,12 +325,12 @@ namespace Rename
 				return true;
 			}
 
-			wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			wstring tag = GetParam(wscParam, ' ', 0);
-			wstring pass = GetParam(wscParam, ' ', 1);
+			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			std::wstring tag = GetParam(wscParam, ' ', 0);
+			std::wstring pass = GetParam(wscParam, ' ', 1);
 
 			// If this tag is in use then reject the request.
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (tag == i->second.tag && pass == i->second.master_password)
 				{
@@ -349,7 +349,7 @@ namespace Rename
 	}
 
 	// Make tag password
-	bool UserCmd_SetTagPass(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_SetTagPass(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		if (set_bCharnameTags)
 		{
@@ -362,12 +362,12 @@ namespace Rename
 				return true;
 			}
 
-			wstring tag = GetParam(wscParam, ' ', 0);
-			wstring master_password = GetParam(wscParam, ' ', 1);
-			wstring rename_password = GetParam(wscParam, ' ', 2);
+			std::wstring tag = GetParam(wscParam, ' ', 0);
+			std::wstring master_password = GetParam(wscParam, ' ', 1);
+			std::wstring rename_password = GetParam(wscParam, ' ', 2);
 
 			// If this tag is in use then reject the request.
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (tag == i->second.tag && master_password == i->second.master_password)
 				{
@@ -385,23 +385,23 @@ namespace Rename
 
 	struct RENAME
 	{
-		wstring wscCharname;
-		wstring wscNewCharname;
+		std::wstring wscCharname;
+		std::wstring wscNewCharname;
 
-		string scSourceFile;
-		string scDestFile;
-		string scDestFileTemp;
+		std::string scSourceFile;
+		std::string scDestFile;
+		std::string scDestFileTemp;
 	};
 	std::list<RENAME> pendingRenames;
 
 	struct MOVE
 	{
-		wstring wscDestinationCharname;
-		wstring wscMovingCharname;
+		std::wstring wscDestinationCharname;
+		std::wstring wscMovingCharname;
 
-		string scSourceFile;
-		string scDestFile;
-		string scDestFileTemp;
+		std::string scSourceFile;
+		std::string scDestFile;
+		std::string scDestFileTemp;
 	};
 	std::list<MOVE> pendingMoves;
 
@@ -411,7 +411,7 @@ namespace Rename
 		/* uint curr_time = (uint)time(0);
 		if (curr_time % 100)
 		{
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (i->second.last_access < (curr_time - (3600 * 24 * 30)))
 				{
@@ -539,7 +539,7 @@ namespace Rename
 		}
 	}
 
-	bool UserCmd_RenameMe(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool UserCmd_RenameMe(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		HK_ERROR err;
 
@@ -566,7 +566,7 @@ namespace Rename
 
 		// If the new name contains spaces then flag this as an
 		// error.
-		wstring wscNewCharname = Trim(GetParam(wscParam, L' ', 0));
+		std::wstring wscNewCharname = Trim(GetParam(wscParam, L' ', 0));
 		if (wscNewCharname.find(L" ")!=-1)
 		{
 			PrintUserCmdText(iClientID, L"ERR Space characters not allowed in name");
@@ -593,9 +593,9 @@ namespace Rename
 
 		if (set_bCharnameTags)
 		{
-			wstring wscPassword = Trim(GetParam(wscParam, L' ', 1));
+			std::wstring wscPassword = Trim(GetParam(wscParam, L' ', 1));
 
-			for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 			{
 				if (wscNewCharname.find(i->first)==0
 					&& i->second.rename_password.size() != 0)
@@ -618,7 +618,7 @@ namespace Rename
 		}
 
 		// Get the character name for this connection.
-		wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		// Saving the characters forces an anti-cheat checks and fixes 
 		// up a multitude of other problems.
@@ -641,13 +641,13 @@ namespace Rename
 		}
 
 		// Read the last time a rename was done on this character
-		wstring wscDir;
+		std::wstring wscDir;
 		if ((err = HkGetAccountDirName(wscCharname, wscDir))!=HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
 			return true;
 		}
-		string scRenameFile  = scAcctPath + wstos(wscDir) + "\\" + "rename.ini";
+		std::string scRenameFile  = scAcctPath + wstos(wscDir) + "\\" + "rename.ini";
 		int lastRenameTime = IniGetI(scRenameFile, "General", wstos(wscCharname), 0);
 
 		// If a rename was done recently by this player then reject the request.
@@ -664,15 +664,15 @@ namespace Rename
 
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-		wstring wscSourceFile;
+		std::wstring wscSourceFile;
 		if ((err = HkGetCharFileName(wscCharname, wscSourceFile))!=HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
 			return true;
 		}
-		wstring wscDestFile;
+		std::wstring wscDestFile;
 		if ((err = HkGetCharFileName(wscNewCharname, wscDestFile))!=HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
@@ -698,7 +698,7 @@ namespace Rename
 	}
 
 	/** Process a set the move char code command */
-	bool Rename::UserCmd_SetMoveCharCode(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Rename::UserCmd_SetMoveCharCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// Don't indicate an error if moving is disabled.
 		if (!set_bEnableMoveChar)
@@ -711,15 +711,15 @@ namespace Rename
 			return true;
 		}
 
-		wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		string scFile;
+		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
+		std::string scFile;
 		if (!GetUserFilePath(scFile, wscCharname, "-movechar.ini"))
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
 		}
 
-		wstring wscCode = Trim(GetParam(wscParam, L' ', 0));
+		std::wstring wscCode = Trim(GetParam(wscParam, L' ', 0));
 		if (wscCode==L"none")
 		{
 			IniWriteW(scFile, "Settings", "Code", L"");
@@ -733,15 +733,15 @@ namespace Rename
 		return true;
 	}
 
-	static bool IsBanned(wstring charname)
+	static bool IsBanned(std::wstring charname)
 	{
 		char datapath[MAX_PATH];
 		GetUserDataPath(datapath);
 
-		wstring dir;
+		std::wstring dir;
 		HkGetAccountDirName(charname, dir);
 
-		string banfile = string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
+		std::string banfile = std::string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
 		FILE *f = fopen(banfile.c_str(), "r");
@@ -756,7 +756,7 @@ namespace Rename
 	/**
 	 Move a character from a remote account into this one.
 	*/
-	bool Rename::UserCmd_MoveChar(uint iClientID, const wstring &wscCmd, const wstring &wscParam, const wchar_t *usage)
+	bool Rename::UserCmd_MoveChar(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		HK_ERROR err;
 
@@ -782,8 +782,8 @@ namespace Rename
 		}
 
 		// Get the target account directory.
-		string scFile;
-		wstring wscMovingCharname = Trim(GetParam(wscParam, L' ', 0));
+		std::string scFile;
+		std::wstring wscMovingCharname = Trim(GetParam(wscParam, L' ', 0));
 		if (!GetUserFilePath(scFile, wscMovingCharname, "-movechar.ini"))
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
@@ -791,8 +791,8 @@ namespace Rename
 		}
 		
 		// Check the move char code.
-		wstring wscCode = Trim(GetParam(wscParam, L' ', 1));
-		wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
+		std::wstring wscCode = Trim(GetParam(wscParam, L' ', 1));
+		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
 		if (!wscTargetCode.length() || wscTargetCode!=wscCode)
 		{
 			PrintUserCmdText(iClientID, L"ERR Move character access denied");
@@ -806,7 +806,7 @@ namespace Rename
 			return true;
 		}
 
-		wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		// Saving the characters forces an anti-cheat checks and fixes 
 		// up a multitude of other problems.
@@ -838,11 +838,11 @@ namespace Rename
 		// Copy character file into this account with a temp name.
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scAcctPath = string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-		wstring wscDir;
-		wstring wscSourceDir;
-		wstring wscSourceFile;
+		std::wstring wscDir;
+		std::wstring wscSourceDir;
+		std::wstring wscSourceFile;
 		if ((err = HkGetAccountDirName(wscCharname, wscDir))!=HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
@@ -883,7 +883,7 @@ namespace Rename
 	}
 
 	/// Set the move char code for all characters in the account
-	void Rename::AdminCmd_SetAccMoveCode(CCmds* cmds, const wstring &wscCharname, const wstring &wscCode)
+	void Rename::AdminCmd_SetAccMoveCode(CCmds* cmds, const std::wstring &wscCharname, const std::wstring &wscCode)
 	{
 		// Don't indicate an error if moving is disabled.
 		if (!set_bEnableMoveChar)
@@ -895,7 +895,7 @@ namespace Rename
 			return;
 		}
 
-		wstring wscDir;
+		std::wstring wscDir;
 		if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
 		{
 			cmds->Print(L"ERR Charname not found\n");
@@ -911,7 +911,7 @@ namespace Rename
 		// Get the account path.
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		string scPath = string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\*.fl";
+		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\*.fl";
 
 		// Open the directory iterator.
 		WIN32_FIND_DATA FindFileData; 
@@ -925,8 +925,8 @@ namespace Rename
 		// Iterate it
 		do
 		{
-			string scCharfile = FindFileData.cFileName;
-			string scMoveCodeFile = string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\"
+			std::string scCharfile = FindFileData.cFileName;
+			std::string scMoveCodeFile = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\"
 				+ scCharfile.substr(0,scCharfile.size()-3) + "-movechar.ini";
 			if (wscCode==L"none")
 			{
@@ -955,7 +955,7 @@ namespace Rename
 		}
 
 		uint curr_time = (uint)time(0);
-		for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+		for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 		{
 			int last_access = i->second.last_access;
 			int days = (curr_time - last_access) / (24 * 3600);
@@ -965,7 +965,7 @@ namespace Rename
 		cmds->Print(L"OK\n");
 	}
 
-	void AdminCmd_AddTag(CCmds* cmds, const wstring &tag, const wstring &password, const wstring &description)
+	void AdminCmd_AddTag(CCmds* cmds, const std::wstring &tag, const std::wstring &password, const std::wstring &description)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -992,7 +992,7 @@ namespace Rename
 		}
 
 		// If this tag is in use then reject the request.
-		for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+		for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 		{
 			if (tag.find(i->second.tag)==0 || i->second.tag.find(tag)==0)
 			{
@@ -1010,7 +1010,7 @@ namespace Rename
 		SaveSettings();
 	}
 
-	void AdminCmd_DropTag(CCmds* cmds, const wstring &tag)
+	void AdminCmd_DropTag(CCmds* cmds, const std::wstring &tag)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -1019,7 +1019,7 @@ namespace Rename
 		}
 
 		// If this tag is in use then reject the request.
-		for (std::map<wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
+		for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
 		{
 			if (tag == i->second.tag)
 			{

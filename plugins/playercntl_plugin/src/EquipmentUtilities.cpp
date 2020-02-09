@@ -14,7 +14,7 @@
 static std::map<uint, std::string> mapHashToNickname;
 
 /// Read an ini file for nicknames and save the associated hashcode
-static void ReadIniNicknameFile(const string &filePath)
+static void ReadIniNicknameFile(const std::string &filePath)
 {
 	INI_Reader ini;
 	if (ini.open(filePath.c_str(), false))
@@ -45,7 +45,7 @@ const char *EquipmentUtilities::FindNickname(uint hash)
 /** Read freelancer data to determine mod settings. */
 void EquipmentUtilities::ReadIniNicknames()
 {
-	string dataDirPath = "..\\data";
+	std::string dataDirPath = "..\\data";
 
 	INI_Reader ini;
 	if (ini.open("freelancer.ini", false))
@@ -78,19 +78,19 @@ void EquipmentUtilities::ReadIniNicknames()
 				{
 					if (ini.is_value("equipment"))
 					{
-						ReadIniNicknameFile(dataDirPath+string("\\")+ini.get_value_string());
+						ReadIniNicknameFile(dataDirPath+std::string("\\")+ini.get_value_string());
 					}
 					else if (ini.is_value("ships"))
 					{
-						ReadIniNicknameFile(dataDirPath+string("\\")+ini.get_value_string());
+						ReadIniNicknameFile(dataDirPath+std::string("\\")+ini.get_value_string());
 					}
 					else if (ini.is_value("goods"))
 					{
-						ReadIniNicknameFile(dataDirPath+string("\\")+ini.get_value_string());
+						ReadIniNicknameFile(dataDirPath+std::string("\\")+ini.get_value_string());
 					}
 					else if (ini.is_value("loadouts"))
 					{
-						ReadIniNicknameFile(dataDirPath+string("\\")+ini.get_value_string());
+						ReadIniNicknameFile(dataDirPath+std::string("\\")+ini.get_value_string());
 					}
 				}
 			}

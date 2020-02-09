@@ -124,7 +124,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		wchar_t wszBuf[1024] = L"";
 		uint iRet1;
 		rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader, lP1);
-		wstring wscBuf = wszBuf;
+		std::wstring wscBuf = wszBuf;
 		uint iClientID = cId.iID;
 
 		// if this is a message in system chat then convert it to local unless
@@ -188,10 +188,10 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		if(wszBuf[0] == '.')
 		{ // flhook admin command
 			CAccount *acc = Players.FindAccountFromClientID(iClientID);
-			wstring wscAccDirname;
+			std::wstring wscAccDirname;
 
 			HkGetAccountDirName(acc, wscAccDirname);
-			string scAdminFile = scAcctPath + wstos(wscAccDirname) + "\\flhookadmin.ini";
+			std::string scAdminFile = scAcctPath + wstos(wscAccDirname) + "\\flhookadmin.ini";
 			WIN32_FIND_DATA fd;
 			HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
 			if(hFind != INVALID_HANDLE_VALUE)
@@ -206,7 +206,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		}
 
 		// process chat event
-		wstring wscEvent;
+		std::wstring wscEvent;
 		wscEvent.reserve(256);
 		wscEvent = L"chat";
 		wscEvent += L" from=";
@@ -253,9 +253,9 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		ProcessEvent(L"%s", wscEvent.c_str());
 
 		// check if chat should be suppressed
-		foreach(set_lstChatSuppress, wstring, i)
+		for(auto& chat : set_setChatSuppress)
 		{
-			if((ToLower(wscBuf)).find(ToLower(*i)) == 0)
+			if((ToLower(wscBuf)).find(ToLower(chat)) == 0)
 				return;
 		}
 	} CATCH_HOOK({})
@@ -289,13 +289,13 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 		ClientInfo[iClientID].bTradelane = false;
 
 		// adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-		wstring wscCharname = ToLower((wchar_t*)Players.GetActiveCharacterName(iClientID));
-		foreach(ClientInfo[iClientID].lstMoneyFix, MONEY_FIX, i)
+		std::wstring wscCharname = ToLower((wchar_t*)Players.GetActiveCharacterName(iClientID));
+		for(auto& i : ClientInfo[iClientID].lstMoneyFix)
 		{
-			if(!(*i).wscCharname.compare(wscCharname))
+			if(!i.wscCharname.compare(wscCharname))
 			{
-				HkAddCash(wscCharname, (*i).iAmount);
-				ClientInfo[iClientID].lstMoneyFix.remove(*i);
+				HkAddCash(wscCharname, i.iAmount);
+				ClientInfo[iClientID].lstMoneyFix.remove(i);
 				break;
 			}
 		}
@@ -485,7 +485,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect,__stdcall,(struct CHARACTER_ID const & cId, unsigned int iClientID),(cId,iClientID));
 
-	wstring wscCharBefore;
+	std::wstring wscCharBefore;
 	try {
 		const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 		wscCharBefore = wszCharname ? (wchar_t*)Players.GetActiveCharacterName(iClientID) : L"";
@@ -499,7 +499,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 	}
 
 	TRY_HOOK {
-		wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		if(wscCharBefore.compare(wscCharname) != 0) {
 			LoadUserCharSettings(iClientID);
@@ -508,12 +508,12 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 				PrintUserCmdText(iClientID, L"To get a list of available commands, type \"/help\" in chat.");
 
 			// anti-cheat check
-			list <CARGO_INFO> lstCargo;
+			std::list <CARGO_INFO> lstCargo;
 			int iHold;
 			HkEnumCargo(ARG_CLIENTID(iClientID), lstCargo, iHold);
-			foreach(lstCargo, CARGO_INFO, it)
+			for(auto& cargo : lstCargo)
 			{
-				if((*it).iCount < 0)
+				if(cargo.iCount < 0)
 				{
 					HkAddCheaterLog(wscCharname, L"Negative good-count, likely to have cheated in the past");
 
@@ -528,7 +528,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 
 			// event
 			CAccount *acc = Players.FindAccountFromClientID(iClientID);
-			wstring wscDir;
+			std::wstring wscDir;
 			HkGetAccountDirName(acc, wscDir);
 			HKPLAYERINFO pi;
 			HkGetPlayerInfo(ARG_CLIENTID(iClientID), pi, false);
@@ -567,13 +567,13 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID)
 
 	TRY_HOOK {
 		// adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-		wstring wscCharname = ToLower((wchar_t*)Players.GetActiveCharacterName(iClientID));
-		foreach(ClientInfo[iClientID].lstMoneyFix, MONEY_FIX, i)
+		std::wstring wscCharname = ToLower((wchar_t*)Players.GetActiveCharacterName(iClientID));
+		for(auto& i : ClientInfo[iClientID].lstMoneyFix)
 		{
-			if(!(*i).wscCharname.compare(wscCharname))
+			if(!i.wscCharname.compare(wscCharname))
 			{
-				HkAddCash(wscCharname, (*i).iAmount);
-				ClientInfo[iClientID].lstMoneyFix.remove(*i);
+				HkAddCash(wscCharname, i.iAmount);
+				ClientInfo[iClientID].lstMoneyFix.remove(i);
 				break;
 			}
 		}
@@ -669,7 +669,7 @@ void __stdcall OnConnect(unsigned int iClientID)
 
 	TRY_HOOK {
 		// event
-		wstring wscIP;
+		std::wstring wscIP;
 		HkGetPlayerIP(iClientID, wscIP);
 		ProcessEvent(L"connect id=%d ip=%s", 
 				iClientID,
@@ -689,7 +689,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
 	ISERVER_LOGARG_UI(iClientID);
 	ISERVER_LOGARG_UI(p2);
 
-	wstring wscCharname;
+	std::wstring wscCharname;
 	TRY_HOOK
 	{
 		if(!ClientInfo[iClientID].bDisconnected)
@@ -781,13 +781,13 @@ void __stdcall ActivateEquip(unsigned int iClientID, struct XActivateEquip const
 
 	TRY_HOOK {
 
-		list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> lstCargo;
 		int iRem;
 		HkEnumCargo(ARG_CLIENTID(iClientID),lstCargo,iRem);
 
-		foreach(lstCargo,CARGO_INFO,it) {
-			if(it->iID == aq.sID){
-				Archetype::Equipment *eq = Archetype::GetEquipment(it->iArchID);
+		for(auto& cargo : lstCargo) {
+			if(cargo.iID == aq.sID){
+				Archetype::Equipment *eq = Archetype::GetEquipment(cargo.iArchID);
 				EQ_TYPE eqType = HkGetEqType(eq);
 
 				if(eqType == ET_ENGINE) {
@@ -866,16 +866,16 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 
 	TRY_HOOK {
 		// anti-cheat check
-		list <CARGO_INFO> lstCargo;
+		std::list <CARGO_INFO> lstCargo;
 		int iHold;
 		HkEnumCargo(ARG_CLIENTID(iClientID), lstCargo, iHold);
 		bool bLegalSell = false;
-		foreach(lstCargo, CARGO_INFO, it)
+		for(auto& cargo : lstCargo)
 		{
-			if((*it).iArchID == gsi.iArchID)
+			if(cargo.iArchID == gsi.iArchID)
 			{
 				bLegalSell = true;
-				if(abs(gsi.iCount) > it->iCount)
+				if(abs(gsi.iCount) > cargo.iCount)
 				{
 					wchar_t wszBuf[1000];
 					
@@ -994,7 +994,7 @@ void __stdcall SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientI
 
 	CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SystemSwitchOutComplete,__stdcall,(unsigned int iShip, unsigned int iClientID),(iShip,iClientID));
 
-	wstring wscSystem = HkGetPlayerSystem(iClientID);
+	std::wstring wscSystem = HkGetPlayerSystem(iClientID);
 
 	EXECUTE_SERVER_CALL(Server.SystemSwitchOutComplete(iShip, iClientID));
 
@@ -1043,14 +1043,14 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 
 
 		// check for ip ban
-		wstring wscIP;
+		std::wstring wscIP;
 		HkGetPlayerIP(iClientID, wscIP);
 
-		foreach(set_lstBans, wstring, itb)
+		for(auto& ban : set_setBans)
 		{
-			if(Wildcard::wildcardfit(wstos(*itb).c_str(), wstos(wscIP).c_str()))
+			if(Wildcard::wildcardfit(wstos(ban).c_str(), wstos(wscIP).c_str()))
 			{
-				HkAddKickLog(iClientID, L"IP/Hostname ban(%s matches %s)", wscIP.c_str(), (*itb).c_str());
+				HkAddKickLog(iClientID, L"IP/Hostname ban(%s matches %s)", wscIP.c_str(), ban.c_str());
 				if(set_bBanAccountOnMatch)
 					HkBan(ARG_CLIENTID(iClientID), true);
 				HkKick(ARG_CLIENTID(iClientID));
@@ -1076,9 +1076,9 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 		if(iPlayers > (Players.GetMaxPlayerCount() -  set_iReservedSlots))
 		{ // check if player has a reserved slot
 			CAccount *acc = Players.FindAccountFromClientID(iClientID);
-			wstring wscDir; 
+			std::wstring wscDir; 
 			HkGetAccountDirName(acc, wscDir); 
-			string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+			std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
 			bool bReserved = IniGetB(scUserFile, "Settings", "ReservedSlot", false);
 			if(!bReserved)

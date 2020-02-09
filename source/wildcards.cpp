@@ -10,8 +10,7 @@
 
 #include "wildcards.hh"
 
-int
-Wildcard::wildcardfit(const char *wildcard, const char *test)
+int Wildcard::wildcardfit(const char *wildcard, const char *test)
 {
   int fit = 1;
   
@@ -46,8 +45,7 @@ Wildcard::wildcardfit(const char *wildcard, const char *test)
   return (int) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
 }
 
-int
-Wildcard::set(const char **wildcard, const char **test)
+int Wildcard::set(const char **wildcard, const char **test)
 {
   int fit = 0;
   int negation = 0;
@@ -91,8 +89,7 @@ Wildcard::set(const char **wildcard, const char **test)
   return (fit);
 }
 
-int
-Wildcard::asterisk (const char **wildcard, const char **test)
+int Wildcard::asterisk (const char **wildcard, const char **test)
 {
   /* Warning: uses multiple returns */
   int fit = 1;

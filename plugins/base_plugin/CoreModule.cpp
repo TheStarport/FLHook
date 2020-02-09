@@ -299,7 +299,7 @@ void CoreModule::Spawn()
 		// Send the base name to all players that are online
 		base->solar_ids = solar_ids;
 
-		wstring basename = base->basename;
+		std::wstring basename = base->basename;
 		//if (base->affiliation)
 		//{
 		//	basename = HkGetWStringFromIDS(Reputation::get_name(base->affiliation)) + L" - " + base->basename;
@@ -346,7 +346,7 @@ void CoreModule::Spawn()
 	}
 }
 
-wstring CoreModule::GetInfo(bool xml)
+std::wstring CoreModule::GetInfo(bool xml)
 {
 	return L"Core";
 }
@@ -375,17 +375,17 @@ void CoreModule::SaveState(FILE *file)
 
 void CoreModule::RepairDamage(float max_base_health)
 {
+	if (base->base_health >= max_base_health)
+		return;
+
 	// The bigger the base the more damage can be repaired.
 	for (uint repair_cycles = 0; repair_cycles < base->base_level; ++repair_cycles)
 	{
-		foreach (set_base_repair_items, REPAIR_ITEM, item)
+		for(auto& item : set_base_repair_items)
 		{
-			if (base->base_health >= max_base_health)
-				return;
-
-			if (base->HasMarketItem(item->good) >= item->quantity)
+			if (base->HasMarketItem(item.good) >= item.quantity)
 			{
-				base->RemoveMarketGood(item->good, item->quantity);
+				base->RemoveMarketGood(item.good, item.quantity);
 				base->base_health += 60000;
 				base->repairing = true;
 			}
@@ -426,7 +426,7 @@ bool CoreModule::Timer(uint time)
 			// the crew or kill 10 crew off and repeat this every 8 hours.
 			if (time%28800 == 0)
 			{
-				for (map<uint, uint>::iterator i = set_base_crew_consumption_items.begin();
+				for (auto i = set_base_crew_consumption_items.begin();
 					i != set_base_crew_consumption_items.end(); ++i)
 				{
 					// Use water and oxygen.
@@ -443,7 +443,7 @@ bool CoreModule::Timer(uint time)
 
 				// Humans use food but may eat one of a number of types.
 				uint crew_to_feed = number_of_crew;
-				for (map<uint, uint>::iterator i = set_base_crew_food_items.begin();
+				for (auto i = set_base_crew_food_items.begin();
 					i != set_base_crew_food_items.end(); ++i)
 				{
 					if (!crew_to_feed)

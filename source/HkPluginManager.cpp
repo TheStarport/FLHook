@@ -5,8 +5,8 @@ bool g_bPlugin_nofunctioncall;
 
 void* vPluginRet;
 
-list<PLUGIN_HOOKDATA>* pPluginHooks;
-list<PLUGIN_DATA> lstPlugins;
+std::list<PLUGIN_HOOKDATA>* pPluginHooks;
+std::list<PLUGIN_DATA> lstPlugins;
 
 enum PLUGIN_MESSAGE;
 
@@ -29,7 +29,7 @@ namespace PluginManager
 void Init()
 {
 	// create array of callback-function plugin-data lists
-	pPluginHooks = new list<PLUGIN_HOOKDATA>[(int)PLUGIN_CALLBACKS_AMOUNT];
+	pPluginHooks = new std::list<PLUGIN_HOOKDATA>[(int)PLUGIN_CALLBACKS_AMOUNT];
 
 	lstPlugins.clear();
 }
@@ -45,20 +45,19 @@ void Destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR PausePlugin(const string &sShortName, bool bPause) 
+HK_ERROR PausePlugin(const std::string &sShortName, bool bPause) 
 {
-
-	foreach(lstPlugins, PLUGIN_DATA, it) {
-		if(it->sShortName == sShortName) {
-			if(it->bMayPause == false)
+	for(auto& plugin : lstPlugins) {
+		if(plugin.sShortName == sShortName) {
+			if(plugin.bMayPause == false)
 				return HKE_PLUGIN_UNPAUSABLE;
 
-			it->bPaused = bPause;
+			plugin.bPaused = bPause; 
 
-			for(int i=0; i<(int)PLUGIN_CALLBACKS_AMOUNT; i++) {
-				foreach(pPluginHooks[i], PLUGIN_HOOKDATA, it2) {
-					if(it2->hDLL == it->hDLL) 
-						it2->bPaused = bPause;		
+			for(int i = 0; i < (int)PLUGIN_CALLBACKS_AMOUNT; i++) {
+				for(auto& hooks : pPluginHooks[i]) {
+					if(hooks.hDLL == plugin.hDLL) 
+						hooks.bPaused = bPause;		
 				}
 			}
 			return HKE_OK;
@@ -70,25 +69,24 @@ HK_ERROR PausePlugin(const string &sShortName, bool bPause)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR UnloadPlugin(const string &sShortName) 
+HK_ERROR UnloadPlugin(const std::string &sShortName) 
 {
-
-	foreach(lstPlugins, PLUGIN_DATA, it) {
-		if(it->sShortName == sShortName) {
-			if(it->bMayUnload == false)
+	for(auto plugin = lstPlugins.begin(); plugin != lstPlugins.end(); ++plugin) {
+		if(plugin->sShortName == sShortName) {
+			if(plugin->bMayUnload == false)
 				return HKE_PLUGIN_UNLOADABLE;
 			
-			FreeLibrary(it->hDLL);
-			
-			for(int i=0; i<(int)PLUGIN_CALLBACKS_AMOUNT; i++) {
-				foreach(pPluginHooks[i], PLUGIN_HOOKDATA, it2) {
-					if(it2->hDLL == it->hDLL) {
-						pPluginHooks[i].erase(it2);
+			FreeLibrary(plugin->hDLL);
+
+            for (int i = 0; i < (int)PLUGIN_CALLBACKS_AMOUNT; i++) {
+				for(auto hook = pPluginHooks[i].begin(); hook != pPluginHooks[i].end(); ++hook) {
+					if(hook->hDLL == hook->hDLL) {
+						pPluginHooks[i].erase(hook);
 						break;
 					}
 				}
 			}
-			lstPlugins.erase(it);
+			lstPlugins.erase(plugin);
 			return HKE_OK;
 		}
 	}
@@ -101,36 +99,34 @@ HK_ERROR UnloadPlugin(const string &sShortName)
 
 void UnloadPlugins()
 {
-
 	for(int i=0; i<(int)PLUGIN_CALLBACKS_AMOUNT; i++) 
 		pPluginHooks[i].clear();
 
-	foreach(lstPlugins, PLUGIN_DATA, it)
+	for(auto& plugin : lstPlugins)
 	{
-		if(it->bMayUnload)
-			FreeLibrary(it->hDLL);
+		if(plugin.bMayUnload)
+			FreeLibrary(plugin.hDLL);
 	}
 
 	lstPlugins.clear();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup) 
+void LoadPlugin(const std::string &sFileName, CCmds* adminInterface, bool bStartup) 
 {
 
-	string sDLLName = sFileName;
-	if(sDLLName.find(".dll") == string::npos)
+	std::string sDLLName = sFileName;
+	if(sDLLName.find(".dll") == std::string::npos)
 		sDLLName.append(".dll");
 
-	foreach(lstPlugins,PLUGIN_DATA,it) 
+	for(auto& plugin : lstPlugins)
 	{
-		if(it->sDLL == sDLLName) 
-			return adminInterface->Print(L"Plugin already loaded, skipping: (%s)\n", stows(it->sDLL).c_str());
+		if(plugin.sDLL == sDLLName) 
+			return adminInterface->Print(L"Plugin already loaded, skipping: (%s)\n", stows(plugin.sDLL).c_str());
 	}
 
-	string sPathToDLL = "./flhook_plugins/";
+	std::string sPathToDLL = "./flhook_plugins/";
 	sPathToDLL += sDLLName;
 
 	FILE* fp = fopen(sPathToDLL.c_str(), "r");
@@ -183,21 +179,21 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup)
 		throw "";
 	}
 
-	foreach(p_PI->lstHooks, PLUGIN_HOOKINFO, it)
+	for(auto& hookIn : p_PI->lstHooks)
 	{
 		PLUGIN_HOOKDATA hook;
 		hook.sName = plugin.sShortName;
-		hook.sPluginFunction = hook.sName + "-" + itos((int)it->eCallbackID);
+		hook.sPluginFunction = hook.sName + "-" + itos((int)hookIn.eCallbackID);
 		hook.bPaused = false;
 		hook.hDLL = plugin.hDLL;
-		hook.iPriority = it->iPriority;
-		hook.pFunc = it->pFunc;
+		hook.iPriority = hookIn.iPriority;
+		hook.pFunc = hookIn.pFunc;
 		hook.ePluginReturnCode = p_PI->ePluginReturnCode;
-		if (!p_PI->ePluginReturnCode)
+		if (!hook.ePluginReturnCode)
 			throw "plugin return code pointer not defined";
 
-		pPluginHooks[(int)it->eCallbackID].push_back(hook);
-		pPluginHooks[(int)it->eCallbackID].sort(PLUGIN_SORTCRIT());
+		pPluginHooks[(int)hookIn.eCallbackID].push_back(hook);
+		pPluginHooks[(int)hookIn.eCallbackID].sort(PLUGIN_SORTCRIT());
 	}
 
 	adminInterface->Print(L"Plugin loaded: %s (%s)\n", stows(plugin.sShortName).c_str(), stows(sDLLName).c_str());
@@ -211,9 +207,6 @@ void LoadPlugin(const string &sFileName, CCmds* adminInterface, bool bStartup)
 
 void LoadPlugins(bool bStartup, CCmds* adminInterface)
 {
-
-// plugin loader
-
 	WIN32_FIND_DATAA finddata;
 
 	HANDLE hfindplugins = FindFirstFileA("./flhook_plugins/*.dll",&finddata);
