@@ -64,7 +64,9 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"
 if "$(FLHOOK_COPY_PATH)" NEQ "" (
 xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-)</Command>
+)
+
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
@@ -97,7 +99,9 @@ xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"
 if "$(FLHOOK_COPY_PATH)" NEQ "" (
 xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-)</Command>
+)
+
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
