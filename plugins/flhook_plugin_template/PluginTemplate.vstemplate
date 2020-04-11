@@ -12,6 +12,9 @@
     <LocationField>Enabled</LocationField>
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
     <Icon>Icon.ico</Icon>
+    <LanguageTag>cpp</LanguageTag>
+    <PlatformTag>windows</PlatformTag>
+    <ProjectTypeTag>library</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
     <Project TargetFileName="PluginTemplate.vcxproj" File="PluginTemplate.vcxproj" ReplaceParameters="true">
