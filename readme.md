@@ -219,6 +219,7 @@ For any and all support, please visit https://the-startport.net and look for the
 A visual studio extension is available to ease the plugin creation process. A new project template named "FLHook Plugin Template" will create a ready to use FLHook plugin project for you.
 
 The extension is available on the visual studio marketplace here: https://marketplace.visualstudio.com/items?itemName=Alley.flhook-plugin-templates
+
 You can also build it yourself with the project located in misc/flhook_vsix.
 
 ## Credits
