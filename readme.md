@@ -214,6 +214,14 @@ Merge requests are welcome. The old Forge SVN repositories are no longer tracked
 
 For any and all support, please visit https://the-startport.net and look for the FLHook forums. Github issues are available for bug reports *only*.
 
+## Visual Studio Extension
+
+A visual studio extension is available to ease the plugin creation process. A new project template named "FLHook Plugin Template" will create a ready to use FLHook plugin project for you.
+
+The extension is available on the visual studio marketplace here: https://marketplace.visualstudio.com/items?itemName=Alley.flhook-plugin-templates
+
+You can also build it yourself with the project located in misc/flhook_vsix.
+
 ## Credits
 
 * Initial FLHook development by mc_horst
