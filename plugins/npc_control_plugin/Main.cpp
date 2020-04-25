@@ -66,8 +66,17 @@ struct NPC_FLEETSTRUCT
 	map<wstring, int> fleetmember;
 };
 
+struct NPC
+{
+	wstring name;
+	Vector pos;
+	uint system;
+	Matrix rot;
+};
+
 static map<wstring, NPC_ARCHTYPESSTRUCT> mapNPCArchtypes;
 static map<wstring, NPC_FLEETSTRUCT> mapNPCFleets;
+static map<int, NPC> startupNPCs;
 
 pub::AI::SetPersonalityParams HkMakePersonality(int graphid)
 {
@@ -264,97 +273,6 @@ uint rand_name()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Loading Settings
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void LoadNPCInfo()
-{
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\npc.cfg";
-
-	INI_Reader ini;
-	if (ini.open(scPluginCfgFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{
-			if (ini.is_header("npcs"))
-			{
-				NPC_ARCHTYPESSTRUCT setnpcstruct;
-				while (ini.read_value())
-				{
-					if (ini.is_value("npc"))
-					{
-						string setnpcname = ini.get_value_string(0);
-						wstring thenpcname = stows(setnpcname);
-						setnpcstruct.Shiparch = CreateID(ini.get_value_string(1));
-						setnpcstruct.Loadout = CreateID(ini.get_value_string(2));
-
-						// IFF calc
-						pub::Reputation::GetReputationGroup(setnpcstruct.IFF, ini.get_value_string(3));
-
-						// Selected graph
-						setnpcstruct.Graph = ini.get_value_int(4);
-
-						// Infocard
-						setnpcstruct.Infocard = ini.get_value_int(5);
-						setnpcstruct.Infocard2 = ini.get_value_int(6);
-
-						mapNPCArchtypes[thenpcname] = setnpcstruct;
-					}
-				}
-			}
-			else if (ini.is_header("fleet"))
-			{
-				NPC_FLEETSTRUCT setfleet;
-				wstring thefleetname;
-				while (ini.read_value())
-				{
-					if (ini.is_value("fleetname"))
-					{
-						string setfleetname = ini.get_value_string(0);
-						thefleetname = stows(setfleetname);
-						setfleet.fleetname = stows(setfleetname);
-					}
-					else if (ini.is_value("fleetmember"))
-					{
-						string setmembername = ini.get_value_string(0);
-						wstring membername = stows(setmembername);
-						int amount = ini.get_value_int(1);
-						setfleet.fleetmember[membername] = amount;
-					}
-				}
-				mapNPCFleets[thefleetname] = setfleet;
-			}
-			else if (ini.is_header("names"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("name"))
-					{
-						npcnames.push_back(ini.get_value_int(0));
-					}
-				}
-			}
-		}
-		ini.close();
-	}
-}
-
-void LoadSettings()
-{
-	returncode = DEFAULT_RETURNCODE;
-
-	LoadNPCInfo();
-
-	listgraphs.push_back("FIGHTER"); // 0
-	listgraphs.push_back("TRANSPORT"); // 1
-	listgraphs.push_back("GUNBOAT"); // 2
-	listgraphs.push_back("CRUISER"); // 3, doesn't seem to do anything
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -425,7 +343,7 @@ void __stdcall ShipDestroyed(DamageList* _dmg, DWORD* ecx, uint iKill)
 	}
 }
 
-void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem)
+void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
 {
 	NPC_ARCHTYPESSTRUCT arch = mapNPCArchtypes[name];
 
@@ -434,10 +352,6 @@ void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem)
 	si.iFlag = 1;
 	si.iSystem = iSystem;
 	si.iShipArchetype = arch.Shiparch;
-	si.vPos = pos;
-	si.vPos.x = pos.x + rand_FloatRange(0, 1000);
-	si.vPos.y = pos.y + rand_FloatRange(0, 1000);
-	si.vPos.z = pos.z + rand_FloatRange(0, 2000);
 	si.mOrientation = rot;
 	si.iLoadout = arch.Loadout;
 	si.iLook1 = CreateID("li_newscaster_head_gen_hat");
@@ -446,6 +360,17 @@ void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem)
 	si.iPilotVoice = CreateID("pilot_f_leg_f01a");
 	si.iHealth = -1;
 	si.iLevel = 19;
+
+	if (varyPos) {
+		si.vPos.x = pos.x + rand_FloatRange(0, 1000);
+		si.vPos.y = pos.y + rand_FloatRange(0, 1000);
+		si.vPos.z = pos.z + rand_FloatRange(0, 2000);
+	}
+	else {
+		si.vPos.x = pos.x;
+		si.vPos.y = pos.y;
+		si.vPos.z = pos.z;
+	}
 
 	// Define the string used for the scanner name. Because the
 	// following entry is empty, the pilot_name is used. This
@@ -529,7 +454,7 @@ void AdminCmd_AIMake(CCmds* cmds, int Amount, wstring NpcType)
 	//Creation counter
 	for (int i = 0; i < Amount; i++)
 	{
-		CreateNPC(NpcType, pos, rot, iSystem);
+		CreateNPC(NpcType, pos, rot, iSystem, true);
 		Log_CreateNPC(NpcType);
 	}
 
@@ -768,6 +693,128 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const wstring& wscCmd)
 		return true;
 	}
 	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Loading Settings
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void LoadNPCInfo()
+{
+	// The path to the configuration file.
+	char szCurDir[MAX_PATH];
+	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\npc.cfg";
+
+	INI_Reader ini;
+	if (ini.open(scPluginCfgFile.c_str(), false))
+	{
+		while (ini.read_header())
+		{
+			if (ini.is_header("npcs"))
+			{
+				NPC_ARCHTYPESSTRUCT setnpcstruct;
+				while (ini.read_value())
+				{
+					if (ini.is_value("npc"))
+					{
+						string setnpcname = ini.get_value_string(0);
+						wstring thenpcname = stows(setnpcname);
+						setnpcstruct.Shiparch = CreateID(ini.get_value_string(1));
+						setnpcstruct.Loadout = CreateID(ini.get_value_string(2));
+
+						// IFF calc
+						pub::Reputation::GetReputationGroup(setnpcstruct.IFF, ini.get_value_string(3));
+
+						// Selected graph
+						setnpcstruct.Graph = ini.get_value_int(4);
+
+						// Infocard
+						setnpcstruct.Infocard = ini.get_value_int(5);
+						setnpcstruct.Infocard2 = ini.get_value_int(6);
+
+						mapNPCArchtypes[thenpcname] = setnpcstruct;
+					}
+				}
+			}
+			else if (ini.is_header("fleet"))
+			{
+				NPC_FLEETSTRUCT setfleet;
+				wstring thefleetname;
+				while (ini.read_value())
+				{
+					if (ini.is_value("fleetname"))
+					{
+						string setfleetname = ini.get_value_string(0);
+						thefleetname = stows(setfleetname);
+						setfleet.fleetname = stows(setfleetname);
+					}
+					else if (ini.is_value("fleetmember"))
+					{
+						string setmembername = ini.get_value_string(0);
+						wstring membername = stows(setmembername);
+						int amount = ini.get_value_int(1);
+						setfleet.fleetmember[membername] = amount;
+					}
+				}
+				mapNPCFleets[thefleetname] = setfleet;
+			}
+			else if (ini.is_header("names"))
+			{
+				while (ini.read_value())
+				{
+					if (ini.is_value("name"))
+					{
+						npcnames.push_back(ini.get_value_int(0));
+					}
+				}
+			}
+			else if (ini.is_header("startupnpcs")) {
+				while (ini.read_value())
+				{
+					if (ini.is_value("startupnpc"))
+					{
+						NPC n;
+						n.name = stows(ini.get_value_string(0));
+						n.pos.x = ini.get_value_int(1);
+						n.pos.y = ini.get_value_int(2);
+						n.pos.z = ini.get_value_int(3);
+						n.rot.data[0][0] = ini.get_value_float(4);
+						n.rot.data[0][1] = ini.get_value_float(5);
+						n.rot.data[0][2] = ini.get_value_float(6);
+						n.rot.data[1][0] = ini.get_value_float(7);
+						n.rot.data[1][1] = ini.get_value_float(8);
+						n.rot.data[1][2] = ini.get_value_float(9);
+						n.rot.data[2][0] = ini.get_value_float(10);
+						n.rot.data[2][1] = ini.get_value_float(11);
+						n.rot.data[2][2] = ini.get_value_float(12);
+						n.system = CreateID(ini.get_value_string(13));
+						startupNPCs[startupNPCs.size()] = n;
+					}
+				}
+			}
+		}
+		ini.close();
+	}
+}
+
+void LoadSettings()
+{
+	returncode = DEFAULT_RETURNCODE;
+
+	LoadNPCInfo();
+
+	listgraphs.push_back("FIGHTER"); // 0
+	listgraphs.push_back("TRANSPORT"); // 1
+	listgraphs.push_back("GUNBOAT"); // 2
+	listgraphs.push_back("CRUISER"); // 3, doesn't seem to do anything
+
+	for (map<int, NPC>::iterator i = startupNPCs.begin();
+		i != startupNPCs.end(); ++i)
+	{
+		CreateNPC(i->second.name, i->second.pos, i->second.rot, i->second.system, false);
+		Log_CreateNPC(i->second.name);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
