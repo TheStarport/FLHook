@@ -807,7 +807,22 @@ extern EXPORT void HkRemoveHelpEntry(const std::wstring &wscCommand, const std::
 extern EXPORT HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring &wscCharname);
 
 #define HK_GET_CLIENTID(a, b) \
-	bool bIdString = false; uint a = uint(-1); \
-    if(auto err = HkGetClientID(bIdString, a, b); err != HKE_OK) return err;
+    bool bIdString = false; \
+    if(b.find(L"id ") == 0) bIdString = true; \
+    uint a; \
+    { \
+        HK_ERROR hkErr = HkResolveId(b, a); \
+        if(hkErr != HKE_OK) \
+        { \
+            if(hkErr == HKE_INVALID_ID_STRING) { \
+                hkErr = HkResolveShortCut(b, a); \
+                if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER)) \
+                    return hkErr; \
+                else if(hkErr == HKE_INVALID_SHORTCUT_STRING) \
+                    a = HkGetClientIdFromCharname(b); \
+            } else \
+                return hkErr; \
+        } \
+    } \
 
 #endif
