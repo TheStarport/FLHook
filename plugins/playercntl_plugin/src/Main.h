@@ -214,6 +214,9 @@ namespace Message
 	bool UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_MailShow(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_MailDel(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
+	bool UserCmd_Me(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage);
+	bool UserCmd_Do(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage);
+	bool RedText(std::wstring wscXMLMsg, uint iSystemID);
 	void UserCmd_Process(uint iClientID, const std::wstring &wscCmd);
 
 	void AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname, const std::wstring &wscMsg);
