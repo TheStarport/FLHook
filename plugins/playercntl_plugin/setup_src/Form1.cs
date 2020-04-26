@@ -312,7 +312,8 @@ namespace PlayerCntlSetup
                     }
                 }
 
-                checkBoxEnableLoginSound.Checked = cfgFile.GetSettingBool("General", "EnableLoginSound", true);
+                checkBoxEnableLoginSound.Checked = cfgFile.GetSettingBool("General", "EnableLoginSound", false);
+                richTextBoxSounds.Clear();
                 foreach (FLDataFile.Setting set in cfgFile.GetSettings("Sounds"))
                 {
                     richTextBoxSounds.AppendText(set.Str(0));
