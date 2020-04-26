@@ -39,9 +39,13 @@ bool set_bEnableMoveChar = false;
 bool set_bEnableRestart = false;
 bool set_bEnableGiveCash = false;
 bool set_bLocalTime = false;
+bool set_bEnableLoginSound = false;
 
 float set_fSpinProtectMass;
 float set_fSpinImpulseMultiplier;
+
+// Vector to store sounds
+std::vector<int> sounds;
 
 /** A return code to indicate to FLHook if we want the hook processing to continue. */
 PLUGIN_RETURNCODE returncode;
@@ -106,6 +110,7 @@ void LoadSettings()
 	set_bEnablePimpShip = IniGetB(scPluginCfgFile, "General", "EnablePimpShip", false);
 	set_bEnableRestart = IniGetB(scPluginCfgFile, "General", "EnableRestart", false);
 	set_bEnableGiveCash = IniGetB(scPluginCfgFile, "General", "EnableGiveCash", false);
+	set_bEnableLoginSound = IniGetB(scPluginCfgFile, "General", "EnableLoginSound", false);
 	
 	set_fSpinProtectMass = IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
 	set_fSpinImpulseMultiplier = IniGetF(scPluginCfgFile, "General", "SpinProtectionMultiplier", -1.0f);
@@ -127,6 +132,28 @@ void LoadSettings()
 	Message::LoadSettings(scPluginCfgFile);
 	SystemSensor::LoadSettings(scPluginCfgFile);
 	CrashCatcher::Init();
+
+	// Load sounds from config if enabled
+	if (set_bEnableLoginSound == true) {
+		INI_Reader ini;
+		if (ini.open(scPluginCfgFile.c_str(), false))
+		{
+			while (ini.read_header())
+			{
+				if (ini.is_header("Sounds"))
+				{
+					while (ini.read_value())
+					{
+						if (ini.is_value("sound"))
+						{
+							sounds.push_back(CreateID(ini.get_value_string(0)));
+						}
+					}
+				}
+			}
+			ini.close();
+		}
+	}
 }
 
 /** Clean up when a client disconnects */
@@ -260,6 +287,9 @@ namespace HkIServerImpl
 	void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID)
 	{
 		returncode = DEFAULT_RETURNCODE;
+
+		// Player sound when player logs in (if enabled)
+		pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size]);
 
 		CAccount *acc = Players.FindAccountFromClientID(iClientID);
 		if (acc)
