@@ -43,10 +43,10 @@ EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
 //STRUCTURES AND DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-vector<const char*> listgraphs;
+std::vector<const char*> listgraphs;
 
-vector<uint> npcnames;
-list<uint> npcs;
+std::vector<uint> npcnames;
+std::list<uint> npcs;
 
 int ailoot = 0;
 
@@ -62,21 +62,21 @@ struct NPC_ARCHTYPESSTRUCT
 
 struct NPC_FLEETSTRUCT
 {
-	wstring fleetname;
-	map<wstring, int> fleetmember;
+	std::wstring fleetname;
+	std::map<std::wstring, int> fleetmember;
 };
 
 struct NPC
 {
-	wstring name;
+	std::wstring name;
 	Vector pos;
 	uint system;
 	Matrix rot;
 };
 
-static map<wstring, NPC_ARCHTYPESSTRUCT> mapNPCArchtypes;
-static map<wstring, NPC_FLEETSTRUCT> mapNPCFleets;
-static map<int, NPC> startupNPCs;
+static std::map<std::wstring, NPC_ARCHTYPESSTRUCT> mapNPCArchtypes;
+static std::map<std::wstring, NPC_FLEETSTRUCT> mapNPCFleets;
+static std::map<int, NPC> startupNPCs;
 
 pub::AI::SetPersonalityParams HkMakePersonality(int graphid)
 {
@@ -305,7 +305,7 @@ bool IsFLHookNPC(CShip* ship)
 	}
 
 	// is it an flhook npc
-	list<uint>::iterator iter = npcs.begin();
+	std::list<uint>::iterator iter = npcs.begin();
 	while (iter != npcs.end())
 	{
 		if (*iter == ship->get_id())
@@ -324,12 +324,12 @@ bool IsFLHookNPC(CShip* ship)
 	return false;
 }
 
-void Log_CreateNPC(wstring name)
+void Log_CreateNPC(std::wstring name)
 {
 	//internal log
-	wstring wscMsgLog = L"created <%name>";
+	std::wstring wscMsgLog = L"created <%name>";
 	wscMsgLog = ReplaceStr(wscMsgLog, L"%name", name.c_str());
-	string scText = wstos(wscMsgLog);
+	std::string scText = wstos(wscMsgLog);
 	Logging("%s", scText.c_str());
 }
 
@@ -343,7 +343,7 @@ void __stdcall ShipDestroyed(DamageList* _dmg, DWORD* ecx, uint iKill)
 	}
 }
 
-void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
+void CreateNPC(std::wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
 {
 	NPC_ARCHTYPESSTRUCT arch = mapNPCArchtypes[name];
 
@@ -414,7 +414,7 @@ void CreateNPC(wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
 //Client command processing
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AdminCmd_AIMake(CCmds* cmds, int Amount, wstring NpcType)
+void AdminCmd_AIMake(CCmds* cmds, int Amount, std::wstring NpcType)
 {
 	if (!(cmds->rights & RIGHT_SUPERADMIN))
 	{
@@ -428,7 +428,7 @@ void AdminCmd_AIMake(CCmds* cmds, int Amount, wstring NpcType)
 
 	bool wrongnpcname = 0;
 
-	map<wstring, NPC_ARCHTYPESSTRUCT>::iterator iter = mapNPCArchtypes.find(NpcType);
+	std::map<std::wstring, NPC_ARCHTYPESSTRUCT>::iterator iter = mapNPCArchtypes.find(NpcType);
 	if (iter != mapNPCArchtypes.end())
 	{
 		arch = iter->second;
@@ -472,7 +472,7 @@ void AdminCmd_AIKill(CCmds* cmds, int loot)
 	if (num >= 2)
 		num = 0;
 
-	for(list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+	for(std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
 	{
 		pub::SpaceObj::Destroy(*i, DestroyType::VANISH);
 	}
@@ -499,7 +499,7 @@ void AdminCmd_AICome(CCmds* cmds)
 		Matrix rot;
 		pub::SpaceObj::GetLocation(iShip1, pos, rot);
 
-		for (list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
 		{
 			pub::AI::DirectiveCancelOp cancelOP;
 			pub::AI::SubmitDirective(*i, &cancelOP);
@@ -519,7 +519,7 @@ void AdminCmd_AICome(CCmds* cmds)
 }
 
 /* Make AI follow you until death */
-void AdminCmd_AIFollow(CCmds* cmds, wstring& wscCharname)
+void AdminCmd_AIFollow(CCmds* cmds, std::wstring& wscCharname)
 {
 	if (!(cmds->rights & RIGHT_SUPERADMIN))
 	{
@@ -545,7 +545,7 @@ void AdminCmd_AIFollow(CCmds* cmds, wstring& wscCharname)
 		pub::Player::GetShip(iClientId, iShip1);
 		if (iShip1)
 		{
-			for (list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+			for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
 			{
 				pub::AI::DirectiveCancelOp cancelOP;
 				pub::AI::SubmitDirective(*i, &cancelOP);
@@ -576,7 +576,7 @@ void AdminCmd_AICancel(CCmds* cmds)
 	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
 	if (iShip1)
 	{
-		for (list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
 		{
 			pub::AI::DirectiveCancelOp testOP;
 			pub::AI::SubmitDirective(*i, &testOP);
@@ -596,7 +596,7 @@ void AdminCmd_ListNPCFleets(CCmds* cmds)
 	}
 
 	cmds->Print(L"Available fleets: %d\n", mapNPCFleets.size());
-	for (map<wstring, NPC_FLEETSTRUCT>::iterator i = mapNPCFleets.begin();
+	for (std::map<std::wstring, NPC_FLEETSTRUCT>::iterator i = mapNPCFleets.begin();
 		i != mapNPCFleets.end(); ++i)
 	{
 		cmds->Print(L"|%s\n", i->first.c_str());
@@ -608,7 +608,7 @@ void AdminCmd_ListNPCFleets(CCmds* cmds)
 
 
 /* Spawn a Fleet */
-void AdminCmd_AIFleet(CCmds* cmds, wstring FleetName)
+void AdminCmd_AIFleet(CCmds* cmds, std::wstring FleetName)
 {
 	if (!(cmds->rights & RIGHT_SUPERADMIN))
 	{
@@ -618,13 +618,13 @@ void AdminCmd_AIFleet(CCmds* cmds, wstring FleetName)
 
 	int wrongnpcname = 0;
 
-	map<wstring, NPC_FLEETSTRUCT>::iterator iter = mapNPCFleets.find(FleetName);
+	std::map<std::wstring, NPC_FLEETSTRUCT>::iterator iter = mapNPCFleets.find(FleetName);
 	if (iter != mapNPCFleets.end())
 	{
 		NPC_FLEETSTRUCT& fleetmembers = iter->second;
-		for (map<wstring, int>::iterator i = fleetmembers.fleetmember.begin(); i != fleetmembers.fleetmember.end(); ++i)
+		for (std::map<std::wstring, int>::iterator i = fleetmembers.fleetmember.begin(); i != fleetmembers.fleetmember.end(); ++i)
 		{
-			wstring membername = i->first;
+			std::wstring membername = i->first;
 			int amount = i->second;
 
 			AdminCmd_AIMake(cmds, amount, membername);
@@ -647,7 +647,7 @@ void AdminCmd_AIFleet(CCmds* cmds, wstring FleetName)
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds* cmds, const wstring& wscCmd)
+bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 {
 	returncode = DEFAULT_RETURNCODE;
 	if (IS_CMD("aicreate"))
@@ -704,7 +704,7 @@ void LoadNPCInfo()
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	string scPluginCfgFile = string(szCurDir) + "\\flhook_plugins\\npc.cfg";
+	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\npc.cfg";
 
 	INI_Reader ini;
 	if (ini.open(scPluginCfgFile.c_str(), false))
@@ -718,8 +718,8 @@ void LoadNPCInfo()
 				{
 					if (ini.is_value("npc"))
 					{
-						string setnpcname = ini.get_value_string(0);
-						wstring thenpcname = stows(setnpcname);
+						std::string setnpcname = ini.get_value_string(0);
+						std::wstring thenpcname = stows(setnpcname);
 						setnpcstruct.Shiparch = CreateID(ini.get_value_string(1));
 						setnpcstruct.Loadout = CreateID(ini.get_value_string(2));
 
@@ -740,19 +740,19 @@ void LoadNPCInfo()
 			else if (ini.is_header("fleet"))
 			{
 				NPC_FLEETSTRUCT setfleet;
-				wstring thefleetname;
+				std::wstring thefleetname;
 				while (ini.read_value())
 				{
 					if (ini.is_value("fleetname"))
 					{
-						string setfleetname = ini.get_value_string(0);
+						std::string setfleetname = ini.get_value_string(0);
 						thefleetname = stows(setfleetname);
 						setfleet.fleetname = stows(setfleetname);
 					}
 					else if (ini.is_value("fleetmember"))
 					{
-						string setmembername = ini.get_value_string(0);
-						wstring membername = stows(setmembername);
+						std::string setmembername = ini.get_value_string(0);
+						std::wstring membername = stows(setmembername);
 						int amount = ini.get_value_int(1);
 						setfleet.fleetmember[membername] = amount;
 					}
@@ -809,7 +809,7 @@ void LoadSettings()
 	listgraphs.push_back("GUNBOAT"); // 2
 	listgraphs.push_back("CRUISER"); // 3, doesn't seem to do anything
 
-	for (map<int, NPC>::iterator i = startupNPCs.begin();
+	for (std::map<int, NPC>::iterator i = startupNPCs.begin();
 		i != startupNPCs.end(); ++i)
 	{
 		CreateNPC(i->second.name, i->second.pos, i->second.rot, i->second.system, false);
