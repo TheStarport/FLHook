@@ -12,7 +12,11 @@ HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring &wsc
 			if((hkErr == HKE_AMBIGUOUS_SHORTCUT) || (hkErr == HKE_NO_MATCHING_PLAYER))
 				return hkErr;
 			if(hkErr == HKE_INVALID_SHORTCUT_STRING)
+			{
 				iClientID = HkGetClientIdFromCharname(wscCharname);
+				if (iClientID != INT_MAX)
+					return HKE_OK;
+			}
 		}
 	}
 	return hkErr;
