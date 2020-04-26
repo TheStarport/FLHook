@@ -289,7 +289,7 @@ namespace HkIServerImpl
 		returncode = DEFAULT_RETURNCODE;
 
 		// Player sound when player logs in (if enabled)
-		pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size]);
+		pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
 
 		CAccount *acc = Players.FindAccountFromClientID(iClientID);
 		if (acc)
