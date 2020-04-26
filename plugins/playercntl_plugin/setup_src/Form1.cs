@@ -311,6 +311,13 @@ namespace PlayerCntlSetup
                         uIDataSet.StandardBannerList.AddStandardBannerListRow(sb.ToString());
                     }
                 }
+
+                checkBoxEnableLoginSound.Checked = cfgFile.GetSettingBool("General", "EnableLoginSound", true);
+                foreach (FLDataFile.Setting set in cfgFile.GetSettings("Sounds"))
+                {
+                    richTextBoxSounds.AppendText(set.Str(0));
+                    richTextBoxSounds.AppendText("\n");
+                }
             }
             catch (Exception ex)
             {
@@ -372,6 +379,7 @@ namespace PlayerCntlSetup
             cfgFile.AddSetting("General", "EnableRestart", new object[] { checkBoxEnableRestart.Checked });
             cfgFile.AddSetting("General", "EnableGiveCash", new object[] { checkBoxEnableGiveCash.Checked });
             cfgFile.AddSetting("General", "EnableDropRepAndMisc", new object[] { checkBoxEnableDropRepAndMisc.Checked });
+            cfgFile.AddSetting("General", "EnableLoginSound", new object[] { checkBoxEnableLoginSound.Checked });
 
             cfgFile.AddSetting("General", "RepDropCost", new object[] { textBoxDropRepCost.Text });
             cfgFile.AddSetting("General", "StuckMsg", new object[] { textBoxStuckMsg.Text });
@@ -509,6 +517,13 @@ namespace PlayerCntlSetup
                         sect.settings.Add(new FLDataFile.Setting("StandardBanner", "Text", "", new object[] {line}));
                 }
                 cfgFile.sections.Add(sect);
+            }
+
+            cfgFile.DeleteSection("Sounds");
+            foreach (string line in richTextBoxSounds.Lines)
+            {
+                if (line.Length > 0)
+                    cfgFile.AddSettingNotUnique("Sounds", "sound", new object[] { line });
             }
 
             try

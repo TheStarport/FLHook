@@ -170,7 +170,21 @@ bin      hex  dec  effect
   <metadata name="sysSensorListBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>293, 87</value>
   </metadata>
+  <data name="richTextBoxSounds.Text" xml:space="preserve">
+    <value>dx_s075x_03a03_or_pilot_03
+dx_s032a_01a01_hvis_xtr_1
+dx_s075x_03a01_or_pilot_01
+dx_s075x_03a02_or_pilot_02
+dx_s003x_0801_trent
+dx_s003x_0802_trent
+dx_s004x_1302_juni
+dx_s009d_0101_trent
+dx_s071c_0101_trent</value>
+  </data>
   <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 53</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>30</value>
   </metadata>
 </root>

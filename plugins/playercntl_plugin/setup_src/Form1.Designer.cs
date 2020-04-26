@@ -93,6 +93,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.checkBoxAsciiCharnameOnly = new System.Windows.Forms.CheckBox();
             this.label46 = new System.Windows.Forms.Label();
             this.textBoxCharnameTagCost = new System.Windows.Forms.TextBox();
             this.label45 = new System.Windows.Forms.Label();
@@ -237,7 +238,10 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBoxAsciiCharnameOnly = new System.Windows.Forms.CheckBox();
+            this.tabPage13 = new System.Windows.Forms.TabPage();
+            this.checkBoxEnableLoginSound = new System.Windows.Forms.CheckBox();
+            this.richTextBoxSounds = new System.Windows.Forms.RichTextBox();
+            this.label47 = new System.Windows.Forms.Label();
             gameDataSet = new PlayerCntlSetup.GameDataSet();
             ((System.ComponentModel.ISupportInitialize)(gameDataSet)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -278,6 +282,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.sysSensorListBindingSource)).BeginInit();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            this.tabPage13.SuspendLayout();
             this.SuspendLayout();
             // 
             // gameDataSet
@@ -287,9 +292,9 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -302,6 +307,7 @@
             this.tabControl1.Controls.Add(this.tabPage8);
             this.tabControl1.Controls.Add(this.tabPage9);
             this.tabControl1.Controls.Add(this.tabPage12);
+            this.tabControl1.Controls.Add(this.tabPage13);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -773,8 +779,8 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.checkBoxEnableGiveCash);
             this.groupBox4.Controls.Add(this.button3);
             this.groupBox4.Controls.Add(this.textBoxBlockedSystem);
@@ -880,8 +886,8 @@
             // 
             // groupBox5
             // 
-            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox5.Controls.Add(this.checkBoxAsciiCharnameOnly);
             this.groupBox5.Controls.Add(this.label46);
             this.groupBox5.Controls.Add(this.textBoxCharnameTagCost);
@@ -904,6 +910,16 @@
             this.groupBox5.TabIndex = 18;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Rename commands";
+            // 
+            // checkBoxAsciiCharnameOnly
+            // 
+            this.checkBoxAsciiCharnameOnly.AutoSize = true;
+            this.checkBoxAsciiCharnameOnly.Location = new System.Drawing.Point(330, 68);
+            this.checkBoxAsciiCharnameOnly.Name = "checkBoxAsciiCharnameOnly";
+            this.checkBoxAsciiCharnameOnly.Size = new System.Drawing.Size(157, 17);
+            this.checkBoxAsciiCharnameOnly.TabIndex = 37;
+            this.checkBoxAsciiCharnameOnly.Text = "Prohibit unicode charnames";
+            this.checkBoxAsciiCharnameOnly.UseVisualStyleBackColor = true;
             // 
             // label46
             // 
@@ -1085,9 +1101,9 @@
             this.dataGridViewShipPimperEquipList.AllowUserToAddRows = false;
             this.dataGridViewShipPimperEquipList.AllowUserToDeleteRows = false;
             this.dataGridViewShipPimperEquipList.AllowUserToResizeRows = false;
-            this.dataGridViewShipPimperEquipList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewShipPimperEquipList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewShipPimperEquipList.AutoGenerateColumns = false;
             this.dataGridViewShipPimperEquipList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewShipPimperEquipList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1205,9 +1221,9 @@
             this.dataGridViewShipPimperBases.AllowUserToAddRows = false;
             this.dataGridViewShipPimperBases.AllowUserToDeleteRows = false;
             this.dataGridViewShipPimperBases.AllowUserToResizeRows = false;
-            this.dataGridViewShipPimperBases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewShipPimperBases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewShipPimperBases.AutoGenerateColumns = false;
             this.dataGridViewShipPimperBases.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewShipPimperBases.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1335,9 +1351,9 @@
             this.dataGridViewRepFixerItems.AllowUserToAddRows = false;
             this.dataGridViewRepFixerItems.AllowUserToDeleteRows = false;
             this.dataGridViewRepFixerItems.AllowUserToResizeRows = false;
-            this.dataGridViewRepFixerItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewRepFixerItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewRepFixerItems.AutoGenerateColumns = false;
             this.dataGridViewRepFixerItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewRepFixerItems.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1517,9 +1533,9 @@
             this.dataGridViewPurchaseRestrictions.AllowUserToAddRows = false;
             this.dataGridViewPurchaseRestrictions.AllowUserToDeleteRows = false;
             this.dataGridViewPurchaseRestrictions.AllowUserToResizeRows = false;
-            this.dataGridViewPurchaseRestrictions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewPurchaseRestrictions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewPurchaseRestrictions.AutoGenerateColumns = false;
             this.dataGridViewPurchaseRestrictions.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewPurchaseRestrictions.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1646,9 +1662,9 @@
             this.dataGridViewEquipPurchaseRestriction.AllowUserToAddRows = false;
             this.dataGridViewEquipPurchaseRestriction.AllowUserToDeleteRows = false;
             this.dataGridViewEquipPurchaseRestriction.AllowUserToResizeRows = false;
-            this.dataGridViewEquipPurchaseRestriction.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewEquipPurchaseRestriction.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewEquipPurchaseRestriction.AutoGenerateColumns = false;
             this.dataGridViewEquipPurchaseRestriction.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewEquipPurchaseRestriction.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1764,9 +1780,9 @@
             this.dataGridViewNoBuyList.AllowUserToAddRows = false;
             this.dataGridViewNoBuyList.AllowUserToDeleteRows = false;
             this.dataGridViewNoBuyList.AllowUserToResizeRows = false;
-            this.dataGridViewNoBuyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewNoBuyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewNoBuyList.AutoGenerateColumns = false;
             this.dataGridViewNoBuyList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewNoBuyList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -1842,9 +1858,9 @@
             // 
             // richTextBoxSwearWords
             // 
-            this.richTextBoxSwearWords.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxSwearWords.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxSwearWords.DetectUrls = false;
             this.richTextBoxSwearWords.Location = new System.Drawing.Point(10, 248);
             this.richTextBoxSwearWords.Name = "richTextBoxSwearWords";
@@ -1863,9 +1879,9 @@
             // 
             // richTextBoxHelpLines
             // 
-            this.richTextBoxHelpLines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxHelpLines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxHelpLines.DetectUrls = false;
             this.richTextBoxHelpLines.Location = new System.Drawing.Point(9, 100);
             this.richTextBoxHelpLines.Name = "richTextBoxHelpLines";
@@ -1999,9 +2015,9 @@
             this.dataGridViewStandardBanners.AllowUserToAddRows = false;
             this.dataGridViewStandardBanners.AllowUserToDeleteRows = false;
             this.dataGridViewStandardBanners.AllowUserToResizeRows = false;
-            this.dataGridViewStandardBanners.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewStandardBanners.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewStandardBanners.AutoGenerateColumns = false;
             this.dataGridViewStandardBanners.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewStandardBanners.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -2058,8 +2074,8 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBox1.Location = new System.Drawing.Point(9, 246);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
@@ -2069,9 +2085,9 @@
             // 
             // richTextBoxGreetingBannerLines
             // 
-            this.richTextBoxGreetingBannerLines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxGreetingBannerLines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxGreetingBannerLines.DetectUrls = false;
             this.richTextBoxGreetingBannerLines.Location = new System.Drawing.Point(9, 143);
             this.richTextBoxGreetingBannerLines.Name = "richTextBoxGreetingBannerLines";
@@ -2091,8 +2107,8 @@
             // 
             // richTextBoxSpecialBannerLines
             // 
-            this.richTextBoxSpecialBannerLines.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxSpecialBannerLines.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxSpecialBannerLines.DetectUrls = false;
             this.richTextBoxSpecialBannerLines.Location = new System.Drawing.Point(8, 54);
             this.richTextBoxSpecialBannerLines.Name = "richTextBoxSpecialBannerLines";
@@ -2182,16 +2198,16 @@
             this.label40.Size = new System.Drawing.Size(532, 13);
             this.label40.TabIndex = 28;
             this.label40.Text = "Ships in the specified systems that have the listed equipment receive notificatio" +
-                "ns when people use a tradelane.";
+    "ns when people use a tradelane.";
             // 
             // dataGridViewSysSensor
             // 
             this.dataGridViewSysSensor.AllowUserToAddRows = false;
             this.dataGridViewSysSensor.AllowUserToDeleteRows = false;
             this.dataGridViewSysSensor.AllowUserToResizeRows = false;
-            this.dataGridViewSysSensor.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewSysSensor.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewSysSensor.AutoGenerateColumns = false;
             this.dataGridViewSysSensor.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewSysSensor.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -2283,7 +2299,7 @@
             this.toolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 486);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(732, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(724, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -2342,9 +2358,9 @@
             this.dataGridView2.AllowUserToAddRows = false;
             this.dataGridView2.AllowUserToDeleteRows = false;
             this.dataGridView2.AllowUserToResizeRows = false;
-            this.dataGridView2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView2.AutoGenerateColumns = false;
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -2403,21 +2419,55 @@
             this.checkBox1.Text = "Enforce purchase restrictions";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // checkBoxAsciiCharnameOnly
+            // tabPage13
             // 
-            this.checkBoxAsciiCharnameOnly.AutoSize = true;
-            this.checkBoxAsciiCharnameOnly.Location = new System.Drawing.Point(330, 68);
-            this.checkBoxAsciiCharnameOnly.Name = "checkBoxAsciiCharnameOnly";
-            this.checkBoxAsciiCharnameOnly.Size = new System.Drawing.Size(157, 17);
-            this.checkBoxAsciiCharnameOnly.TabIndex = 37;
-            this.checkBoxAsciiCharnameOnly.Text = "Prohibit unicode charnames";
-            this.checkBoxAsciiCharnameOnly.UseVisualStyleBackColor = true;
+            this.tabPage13.Controls.Add(this.richTextBoxSounds);
+            this.tabPage13.Controls.Add(this.label47);
+            this.tabPage13.Controls.Add(this.checkBoxEnableLoginSound);
+            this.tabPage13.Location = new System.Drawing.Point(4, 22);
+            this.tabPage13.Name = "tabPage13";
+            this.tabPage13.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage13.Size = new System.Drawing.Size(700, 416);
+            this.tabPage13.TabIndex = 13;
+            this.tabPage13.Text = "Login Sounds";
+            this.tabPage13.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxEnableLoginSound
+            // 
+            this.checkBoxEnableLoginSound.AutoSize = true;
+            this.checkBoxEnableLoginSound.Location = new System.Drawing.Point(6, 6);
+            this.checkBoxEnableLoginSound.Name = "checkBoxEnableLoginSound";
+            this.checkBoxEnableLoginSound.Size = new System.Drawing.Size(248, 17);
+            this.checkBoxEnableLoginSound.TabIndex = 4;
+            this.checkBoxEnableLoginSound.Text = "Enable Login Sounds (Play on Server Connect)";
+            this.checkBoxEnableLoginSound.UseVisualStyleBackColor = true;
+            // 
+            // richTextBoxSounds
+            // 
+            this.richTextBoxSounds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxSounds.DetectUrls = false;
+            this.richTextBoxSounds.Location = new System.Drawing.Point(6, 43);
+            this.richTextBoxSounds.Name = "richTextBoxSounds";
+            this.richTextBoxSounds.Size = new System.Drawing.Size(684, 367);
+            this.richTextBoxSounds.TabIndex = 11;
+            this.richTextBoxSounds.Text = resources.GetString("richTextBoxSounds.Text");
+            // 
+            // label47
+            // 
+            this.label47.AutoSize = true;
+            this.label47.Location = new System.Drawing.Point(3, 26);
+            this.label47.Name = "label47";
+            this.label47.Size = new System.Drawing.Size(97, 13);
+            this.label47.TabIndex = 10;
+            this.label47.Text = "List of login sounds";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(732, 508);
+            this.ClientSize = new System.Drawing.Size(724, 508);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.buttonClose);
@@ -2484,6 +2534,8 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            this.tabPage13.ResumeLayout(false);
+            this.tabPage13.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2698,6 +2750,10 @@
         private System.Windows.Forms.TextBox textBoxCharnameTagCost;
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.CheckBox checkBoxAsciiCharnameOnly;
+        private System.Windows.Forms.TabPage tabPage13;
+        private System.Windows.Forms.RichTextBox richTextBoxSounds;
+        private System.Windows.Forms.Label label47;
+        private System.Windows.Forms.CheckBox checkBoxEnableLoginSound;
     }
 }
 
