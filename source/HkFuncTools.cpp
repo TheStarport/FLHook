@@ -14,8 +14,10 @@ HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring &wsc
 			if(hkErr == HKE_INVALID_SHORTCUT_STRING)
 			{
 				iClientID = HkGetClientIdFromCharname(wscCharname);
-				if (iClientID != INT_MAX)
+				if (iClientID != (uint)-1)
 					return HKE_OK;
+				else
+					return HKE_PLAYER_NOT_LOGGED_IN;
 			}
 		}
 	}
