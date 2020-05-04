@@ -1,8 +1,7 @@
-// This is a template with the bare minimum to have a functional plugin.
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+// Mark Plugin
+// Originally by M0tah
+// https://sourceforge.net/projects/kosacid/files/
+
 
 #include "Main.h" 
 
