@@ -1045,31 +1045,45 @@ namespace Message
 	/** Me command allow players to type "/me powers his engines" which would print: "Trent powers his engines" */
 	bool Message::UserCmd_Me(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 	{
-		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-		uint iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
+		if (set_bEnableMe)
+		{
+			std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			uint iSystemID;
+			pub::Player::GetSystem(iClientID, iSystemID);
 
-		// Encode message using the death message style (red text).
-		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
-		wscXMLMsg += charname + L" ";
-		wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
-		wscXMLMsg += L"</TEXT>";
+			// Encode message using the death message style (red text).
+			std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+			wscXMLMsg += charname + L" ";
+			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += L"</TEXT>";
 
-		return RedText(wscXMLMsg, iSystemID);
+			return RedText(wscXMLMsg, iSystemID);
+		}
+		else
+		{
+			PrintUserCmdText(iClientID, L"Command not enabled.");
+		}
 	}
 
 	/** Do command allow players to type "/do Nomad fighters detected" which would print: "Nomad fighters detected" in the standard red text */
 	bool Message::UserCmd_Do(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 	{
-		uint iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
+		if (set_bEnableDo)
+		{
+			uint iSystemID;
+			pub::Player::GetSystem(iClientID, iSystemID);
 
-		// Encode message using the death message style (red text).
-		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
-		wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
-		wscXMLMsg += L"</TEXT>";
+			// Encode message using the death message style (red text).
+			std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += L"</TEXT>";
 
-		return RedText(wscXMLMsg, iSystemID);
+			return RedText(wscXMLMsg, iSystemID);
+		}
+		else 
+		{
+			PrintUserCmdText(iClientID, L"Command not enabled.");
+		}
 	}
 
 	bool Message::RedText(std::wstring wscXMLMsg, uint iSystemID) {

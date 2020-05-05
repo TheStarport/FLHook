@@ -15,6 +15,8 @@ int extern set_iPluginDebug;
 bool extern set_bEnablePimpShip;
 bool extern set_bEnableRenameMe;
 bool extern set_bEnableMoveChar;
+bool extern set_bEnableMe;
+bool extern set_bEnableDo;
 bool extern set_bLocalTime;
 
 // Imports from freelancer libraries.
@@ -57,11 +59,9 @@ namespace Rename
 	void AdminCmd_ShowTags(CCmds* cmds);
 	void AdminCmd_AddTag(CCmds* cmds, const std::wstring &wscTag, const std::wstring &wscPassword, const std::wstring &description);
 	void AdminCmd_DropTag(CCmds* cmds, const std::wstring &wscTag);
-
 	bool UserCmd_DropTag(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_MakeTag(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_SetTagPass(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
-
 	void Timer();
 }
 
@@ -72,18 +72,15 @@ namespace MiscCmds
 	void BaseEnter(unsigned int iBaseID, unsigned int iClientID);
 	void CharacterInfoReq(unsigned int iClientID, bool p2);
 	void Timer();
-
 	bool UserCmd_Pos(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_Stuck(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_Dice(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_DropRep(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_Coin(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
-
 	bool UserCmd_Lights(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_SelfDestruct(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_Shields(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_Screenshot(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
-
 	void AdminCmd_SmiteAll(CCmds* cmds);
 }
 
@@ -121,7 +118,6 @@ namespace HyperJump
 	void ClearClientInfo(unsigned int iClientID);
 	void PlayerLaunch(unsigned int iShip, unsigned int iClientID);
 	void MissileTorpHit(uint iClientID, DamageList *dmg);
-	
 	void AdminCmd_Chase(CCmds* cmds, const std::wstring &wscCharname);
 	bool AdminCmd_Beam(CCmds* cmds, const std::wstring &wscCharname, const std::wstring &wscTargetBaseName);
 	void AdminCmd_Pull(CCmds* cmds, const std::wstring &wscCharname);
@@ -139,7 +135,6 @@ namespace PimpShip
 {
 	void LoadSettings(const std::string &scPluginCfgFile);
 	void LocationEnter(unsigned int locationID, unsigned int iClientID);
-
 	bool UserCmd_PimpShip(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_ShowSetup(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_ShowItems(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
@@ -176,7 +171,6 @@ namespace GiveCash
 	void LoadSettings(const std::string &scPluginCfgFile);
 	void PlayerLaunch(unsigned int iShip, unsigned int iClientID);
 	void BaseEnter(unsigned int iBaseID, unsigned int iClientID);
-
 	bool UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_ShowCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_SetCashCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
@@ -195,7 +189,6 @@ namespace Message
 	void SetTarget(uint uClientID, struct XSetTarget const &p2);
 	bool SubmitChat(CHAT_ID cId, unsigned long p1, const void *rdl, CHAT_ID cIdTo, int p2);
 	bool HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL);
-
 	bool UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
 	bool UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage);
@@ -218,9 +211,7 @@ namespace Message
 	bool UserCmd_Do(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage);
 	bool RedText(std::wstring wscXMLMsg, uint iSystemID);
 	void UserCmd_Process(uint iClientID, const std::wstring &wscCmd);
-
 	void AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname, const std::wstring &wscMsg);
-
 	void SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller);
 }
 

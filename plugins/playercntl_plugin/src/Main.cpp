@@ -40,6 +40,8 @@ bool set_bEnableRestart = false;
 bool set_bEnableGiveCash = false;
 bool set_bLocalTime = false;
 bool set_bEnableLoginSound = false;
+bool set_bEnableMe = false;
+bool set_bEnableDo = false;
 
 float set_fSpinProtectMass;
 float set_fSpinImpulseMultiplier;
@@ -111,6 +113,8 @@ void LoadSettings()
 	set_bEnableRestart = IniGetB(scPluginCfgFile, "General", "EnableRestart", false);
 	set_bEnableGiveCash = IniGetB(scPluginCfgFile, "General", "EnableGiveCash", false);
 	set_bEnableLoginSound = IniGetB(scPluginCfgFile, "General", "EnableLoginSound", false);
+	set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", false);
+	set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", false);
 	
 	set_fSpinProtectMass = IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
 	set_fSpinImpulseMultiplier = IniGetF(scPluginCfgFile, "General", "SpinProtectionMultiplier", -1.0f);
@@ -859,18 +863,18 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 	PrintUserCmdText(iClientID, L"/dice [max]");
 	PrintUserCmdText(iClientID, L"/coin");
 
-	if (!set_bEnableRenameMe)
+	if (set_bEnableRenameMe)
 	{
 		PrintUserCmdText(iClientID, L"/renameme <charname>");
 	}
 
-	if (!set_bEnableMoveChar)
+	if (set_bEnableMoveChar)
 	{
 		PrintUserCmdText(iClientID, L"/movechar <charname> <code>");
 		PrintUserCmdText(iClientID, L"/set movecharcode <code>");
 	}
 
-	if (!set_bEnableRestart)
+	if (set_bEnableRestart)
 	{
 		PrintUserCmdText(iClientID, L"/restart <faction>");
 		PrintUserCmdText(iClientID, L"/showrestarts");
@@ -882,6 +886,16 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 		PrintUserCmdText(iClientID, L"/drawcash <charname> <code> <cash>");
 		PrintUserCmdText(iClientID, L"/showcash <charname> <code>");
 		PrintUserCmdText(iClientID, L"/set cashcode <code>");
+	}
+
+	if (set_bEnableMe)
+	{
+		PrintUserCmdText(iClientID, L"/me <message>");
+	}
+
+	if (set_bEnableDo)
+	{
+		PrintUserCmdText(iClientID, L"/do <message>");
 	}
 
 	PrintUserCmdText(iClientID, L"/showmsgs");

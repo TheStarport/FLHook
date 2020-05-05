@@ -223,6 +223,10 @@
             this.equipNickNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.NetworkID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sysSensorListBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.tabPage13 = new System.Windows.Forms.TabPage();
+            this.richTextBoxSounds = new System.Windows.Forms.RichTextBox();
+            this.label47 = new System.Windows.Forms.Label();
+            this.checkBoxEnableLoginSound = new System.Windows.Forms.CheckBox();
             this.buttonClose = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -238,10 +242,9 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.tabPage13 = new System.Windows.Forms.TabPage();
-            this.checkBoxEnableLoginSound = new System.Windows.Forms.CheckBox();
-            this.richTextBoxSounds = new System.Windows.Forms.RichTextBox();
-            this.label47 = new System.Windows.Forms.Label();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.checkBoxEnableMe = new System.Windows.Forms.CheckBox();
+            this.checkBoxEnableDo = new System.Windows.Forms.CheckBox();
             gameDataSet = new PlayerCntlSetup.GameDataSet();
             ((System.ComponentModel.ISupportInitialize)(gameDataSet)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -280,9 +283,10 @@
             this.tabPage12.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSysSensor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sysSensorListBindingSource)).BeginInit();
+            this.tabPage13.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
-            this.tabPage13.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // gameDataSet
@@ -316,6 +320,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.groupBox7);
             this.tabPage1.Controls.Add(this.groupBox2);
             this.tabPage1.Controls.Add(this.groupBox6);
             this.tabPage1.Controls.Add(this.groupBox3);
@@ -2270,6 +2275,50 @@
             this.sysSensorListBindingSource.DataMember = "SysSensorList";
             this.sysSensorListBindingSource.DataSource = this.uIDataSet;
             // 
+            // tabPage13
+            // 
+            this.tabPage13.Controls.Add(this.richTextBoxSounds);
+            this.tabPage13.Controls.Add(this.label47);
+            this.tabPage13.Controls.Add(this.checkBoxEnableLoginSound);
+            this.tabPage13.Location = new System.Drawing.Point(4, 22);
+            this.tabPage13.Name = "tabPage13";
+            this.tabPage13.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage13.Size = new System.Drawing.Size(700, 416);
+            this.tabPage13.TabIndex = 13;
+            this.tabPage13.Text = "Login Sounds";
+            this.tabPage13.UseVisualStyleBackColor = true;
+            // 
+            // richTextBoxSounds
+            // 
+            this.richTextBoxSounds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxSounds.DetectUrls = false;
+            this.richTextBoxSounds.Location = new System.Drawing.Point(6, 43);
+            this.richTextBoxSounds.Name = "richTextBoxSounds";
+            this.richTextBoxSounds.Size = new System.Drawing.Size(684, 367);
+            this.richTextBoxSounds.TabIndex = 11;
+            this.richTextBoxSounds.Text = resources.GetString("richTextBoxSounds.Text");
+            // 
+            // label47
+            // 
+            this.label47.AutoSize = true;
+            this.label47.Location = new System.Drawing.Point(3, 26);
+            this.label47.Name = "label47";
+            this.label47.Size = new System.Drawing.Size(97, 13);
+            this.label47.TabIndex = 10;
+            this.label47.Text = "List of login sounds";
+            // 
+            // checkBoxEnableLoginSound
+            // 
+            this.checkBoxEnableLoginSound.AutoSize = true;
+            this.checkBoxEnableLoginSound.Location = new System.Drawing.Point(6, 6);
+            this.checkBoxEnableLoginSound.Name = "checkBoxEnableLoginSound";
+            this.checkBoxEnableLoginSound.Size = new System.Drawing.Size(248, 17);
+            this.checkBoxEnableLoginSound.TabIndex = 4;
+            this.checkBoxEnableLoginSound.Text = "Enable Login Sounds (Play on Server Connect)";
+            this.checkBoxEnableLoginSound.UseVisualStyleBackColor = true;
+            // 
             // buttonClose
             // 
             this.buttonClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -2419,49 +2468,36 @@
             this.checkBox1.Text = "Enforce purchase restrictions";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // tabPage13
+            // groupBox7
             // 
-            this.tabPage13.Controls.Add(this.richTextBoxSounds);
-            this.tabPage13.Controls.Add(this.label47);
-            this.tabPage13.Controls.Add(this.checkBoxEnableLoginSound);
-            this.tabPage13.Location = new System.Drawing.Point(4, 22);
-            this.tabPage13.Name = "tabPage13";
-            this.tabPage13.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage13.Size = new System.Drawing.Size(700, 416);
-            this.tabPage13.TabIndex = 13;
-            this.tabPage13.Text = "Login Sounds";
-            this.tabPage13.UseVisualStyleBackColor = true;
+            this.groupBox7.Controls.Add(this.checkBoxEnableDo);
+            this.groupBox7.Controls.Add(this.checkBoxEnableMe);
+            this.groupBox7.Location = new System.Drawing.Point(10, 368);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(340, 42);
+            this.groupBox7.TabIndex = 23;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "/me and /do";
             // 
-            // checkBoxEnableLoginSound
+            // checkBoxEnableMe
             // 
-            this.checkBoxEnableLoginSound.AutoSize = true;
-            this.checkBoxEnableLoginSound.Location = new System.Drawing.Point(6, 6);
-            this.checkBoxEnableLoginSound.Name = "checkBoxEnableLoginSound";
-            this.checkBoxEnableLoginSound.Size = new System.Drawing.Size(248, 17);
-            this.checkBoxEnableLoginSound.TabIndex = 4;
-            this.checkBoxEnableLoginSound.Text = "Enable Login Sounds (Play on Server Connect)";
-            this.checkBoxEnableLoginSound.UseVisualStyleBackColor = true;
+            this.checkBoxEnableMe.AutoSize = true;
+            this.checkBoxEnableMe.Location = new System.Drawing.Point(6, 19);
+            this.checkBoxEnableMe.Name = "checkBoxEnableMe";
+            this.checkBoxEnableMe.Size = new System.Drawing.Size(81, 17);
+            this.checkBoxEnableMe.TabIndex = 11;
+            this.checkBoxEnableMe.Text = "Enable /me";
+            this.checkBoxEnableMe.UseVisualStyleBackColor = true;
             // 
-            // richTextBoxSounds
+            // checkBoxEnableDo
             // 
-            this.richTextBoxSounds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBoxSounds.DetectUrls = false;
-            this.richTextBoxSounds.Location = new System.Drawing.Point(6, 43);
-            this.richTextBoxSounds.Name = "richTextBoxSounds";
-            this.richTextBoxSounds.Size = new System.Drawing.Size(684, 367);
-            this.richTextBoxSounds.TabIndex = 11;
-            this.richTextBoxSounds.Text = resources.GetString("richTextBoxSounds.Text");
-            // 
-            // label47
-            // 
-            this.label47.AutoSize = true;
-            this.label47.Location = new System.Drawing.Point(3, 26);
-            this.label47.Name = "label47";
-            this.label47.Size = new System.Drawing.Size(97, 13);
-            this.label47.TabIndex = 10;
-            this.label47.Text = "List of login sounds";
+            this.checkBoxEnableDo.AutoSize = true;
+            this.checkBoxEnableDo.Location = new System.Drawing.Point(93, 19);
+            this.checkBoxEnableDo.Name = "checkBoxEnableDo";
+            this.checkBoxEnableDo.Size = new System.Drawing.Size(79, 17);
+            this.checkBoxEnableDo.TabIndex = 12;
+            this.checkBoxEnableDo.Text = "Enable /do";
+            this.checkBoxEnableDo.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -2531,11 +2567,13 @@
             this.tabPage12.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSysSensor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sysSensorListBindingSource)).EndInit();
+            this.tabPage13.ResumeLayout(false);
+            this.tabPage13.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
-            this.tabPage13.ResumeLayout(false);
-            this.tabPage13.PerformLayout();
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2754,6 +2792,9 @@
         private System.Windows.Forms.RichTextBox richTextBoxSounds;
         private System.Windows.Forms.Label label47;
         private System.Windows.Forms.CheckBox checkBoxEnableLoginSound;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.CheckBox checkBoxEnableDo;
+        private System.Windows.Forms.CheckBox checkBoxEnableMe;
     }
 }
 
