@@ -212,7 +212,7 @@ Because Blowfish only supports encrypting 8 bytes of data at once, it is necessa
 
 Merge requests are welcome. The old Forge SVN repositories are no longer tracked and will not be merged into this repository unless the commit author also creates a merge request here.
 
-For any and all support, please visit https://the-startport.net and look for the FLHook forums. Github issues are available for bug reports *only*.
+For any and all support, please visit https://the-starport.net and look for the FLHook forums. Github issues are available for bug reports *only*.
 
 ## Visual Studio Extension
 
