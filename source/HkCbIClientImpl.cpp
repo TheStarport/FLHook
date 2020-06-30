@@ -41,10 +41,10 @@ double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint iClientID)
 	// ISERVER_LOGARG_UI(iClientID);
 
 	char *tmp; 
-	WriteProcMem(&tmp, &Client, 4); 
-	WriteProcMem(&Client, &OldClient, 4); 
+	memcpy(&tmp, &Client, 4);
+	memcpy(&Client, &OldClient, 4);
 	double dRet = HookClient->CDPClientProxy__GetLinkSaturation(iClientID); 
-	WriteProcMem(&Client, &tmp, 4); 
+	memcpy(&Client, &tmp, 4);
 
 	return dRet;
 }
