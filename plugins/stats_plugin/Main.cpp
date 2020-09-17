@@ -20,6 +20,7 @@ void LoadSettings()
 
 	HkLoadStringDLLs();
 
+	// Load in shiparch.ini to generate IDs based off the nickname and generate ship names via ids_name
 	std::string shiparchfile = "..\\data\\ships\\shiparch.ini";
 
 	INI_Reader ini;
@@ -50,11 +51,10 @@ void LoadSettings()
 
 void exportJSON() 
 {
-
 	// Add Server Load object
 	std::string output = "{\"serverload\": \"" + itos(g_iServerLoad) + "\"";
 
-	// Being Player array
+	// Begin Player array
 	output += ",\"players\": [";
 
 	std::list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
@@ -80,7 +80,6 @@ void exportJSON()
 		output += ",\"group\": \"" + itos(groupID) + "\"";
 
 		// Add ship
-
 		Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);
 		if (ship)
 		{
@@ -104,7 +103,6 @@ void exportJSON()
 }
 
 // Hooks for updating stats
-
 void __stdcall DisConnect_AFTER(unsigned int iClientID, enum  EFLConnection state)
 {
 	returncode = DEFAULT_RETURNCODE;
