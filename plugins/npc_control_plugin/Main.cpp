@@ -470,8 +470,8 @@ void LoadNPCInfo()
 	}
 }
 
-// Main Load Settings function, calls the one above
-void LoadSettings()
+// Main Load Settings function, calls the one above. Had to use this hook instead of LoadSettings otherwise NPCs wouldnt appear on server startup
+void Startup_AFTER()
 {
 	returncode = DEFAULT_RETURNCODE;
 
@@ -539,16 +539,13 @@ void AdminCmd_AIMake(CCmds* cmds, int Amount, std::wstring NpcType)
 }
 
 // Admin command to destroy the AI
-void AdminCmd_AIKill(CCmds* cmds, int loot)
+void AdminCmd_AIKill(CCmds* cmds)
 {
 	if (!(cmds->rights & RIGHT_SUPERADMIN))
 	{
 		cmds->Print(L"ERR No permission\n");
 		return;
 	}
-	int num = loot;
-	if (num >= 2)
-		num = 0;
 
 	for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
 	{
@@ -736,7 +733,7 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 	else if (IS_CMD("aidestroy"))
 	{
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AIKill(cmds, cmds->ArgInt(1));
+		AdminCmd_AIKill(cmds);
 		return true;
 	}
 	else if (IS_CMD("aicancel"))
@@ -786,7 +783,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	if (fdwReason == DLL_PROCESS_ATTACH)
 	{
 		if (set_scCfgFile.length() > 0)
-			LoadSettings();
+			Startup_AFTER();
 	}
 	else if (fdwReason == DLL_PROCESS_DETACH)
 	{
@@ -803,7 +800,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->bMayPause = true;
 	p_PI->bMayUnload = true;
 	p_PI->ePluginReturnCode = &returncode;
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&Startup_AFTER, PLUGIN_HkIServerImpl_Startup_AFTER, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
 
