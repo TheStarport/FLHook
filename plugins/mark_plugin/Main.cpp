@@ -47,13 +47,13 @@ void UserCmd_MarkObj(uint iClientID, const std::wstring& wscParam)
 		//PRINT_OK()
 		break;
 	case 1:
-		PrintUserCmdText(iClientID, L"Error: you must have something targeted to mark it.");
+		PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
 		break;
 	case 2:
-		PrintUserCmdText(iClientID, L"Error: you cannot mark cloaked ships.");
+		PrintUserCmdText(iClientID, L"Error: You cannot mark cloaked ships.");
 		break;
 	case 3:
-		PrintUserCmdText(iClientID, L"Error: object is already marked.");
+		PrintUserCmdText(iClientID, L"Error: Object is already marked.");
 	default:
 		break;
 	}
@@ -71,10 +71,10 @@ void UserCmd_UnMarkObj(uint iClientID, const std::wstring& wscParam)
 		//PRINT_OK()
 		break;
 	case 1:
-		PrintUserCmdText(iClientID, L"Error: you must have something targeted to unmark it.");
+		PrintUserCmdText(iClientID, L"Error: You must have something targeted to unmark it.");
 		break;
 	case 2:
-		PrintUserCmdText(iClientID, L"Error: object is not marked.");
+		PrintUserCmdText(iClientID, L"Error: Object is not marked.");
 	default:
 		break;
 	}
@@ -93,7 +93,7 @@ void UserCmd_MarkObjGroup(uint iClientID, const std::wstring& wscParam)
 	pub::SpaceObj::GetTarget(iShip, iTargetShip);
 	if (!iTargetShip)
 	{
-		PrintUserCmdText(iClientID, L"Error: you must have something targeted to mark it.");
+		PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
 		return;
 	}
 	std::list<GROUP_MEMBER> lstMembers;
@@ -119,7 +119,7 @@ void UserCmd_UnMarkObjGroup(uint iClientID, const std::wstring& wscParam)
 	pub::SpaceObj::GetTarget(iShip, iTargetShip);
 	if (!iTargetShip)
 	{
-		PrintUserCmdText(iClientID, L"Error: you must have something targeted to mark it.");
+		PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
 		return;
 	}
 	std::list<GROUP_MEMBER> lstMembers;
@@ -681,12 +681,18 @@ EXPORT void LoadUserCharSettings(uint iClientID)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 {
-	PrintUserCmdText(iClientID, L"/mark /m <--- Makes the selected object appear in the important section of the contacts and\n  have an arrow on the side of the screen, as well as have > and < on the sides\n  of the selection box.");
-	PrintUserCmdText(iClientID, L"/unmark /um <--- Unmarks the selected object marked with the /mark (/m) command.");
-	PrintUserCmdText(iClientID, L"/groupmark /gm <--- Marks selected object for the entire group.");
-	PrintUserCmdText(iClientID, L"/groupunmark /gum <--- Unmarks the selected object for the entire group.");
-	PrintUserCmdText(iClientID, L"/ignoregroupmarks <on|off> <--- Ignores marks from others in your group.");
-	PrintUserCmdText(iClientID, L"/automark <on|off> [radius in KM] <--- Automatically marks all ships in KM radius.  Bots are marked automatically in the\n  range specified whether on or off.  If you want to completely disable automarking,\n  set the radius to a number <= 0.");
+	PrintUserCmdText(iClientID, L"/mark /m ");
+	PrintUserCmdText(iClientID, L"Makes the selected object appear in the important section of the contacts and have an arrow on the side of the screen, as well as have > and < on the sides of the selection box.");
+	PrintUserCmdText(iClientID, L"/unmark /um");
+	PrintUserCmdText(iClientID, L"Unmarks the selected object marked with the /mark (/m) command.");
+	PrintUserCmdText(iClientID, L"/groupmark /gm");
+	PrintUserCmdText(iClientID, L"Marks selected object for the entire group.");
+	PrintUserCmdText(iClientID, L"/groupunmark /gum");
+	PrintUserCmdText(iClientID, L"Unmarks the selected object for the entire group.");
+	PrintUserCmdText(iClientID, L"/ignoregroupmarks <on|off>");
+	PrintUserCmdText(iClientID, L"Ignores marks from others in your group.");
+	PrintUserCmdText(iClientID, L"/automark <on|off> [radius in KM]");
+	PrintUserCmdText(iClientID, L"Automatically marks all ships in KM radius.Bots are marked automatically in the\n  range specified whether on or off. If you want to completely disable automarking, set the radius to a number <= 0.");
 }
 
 USERCMD UserCmds[] =
