@@ -61,7 +61,6 @@ void exportJSON()
 
 	for (std::list<HKPLAYERINFO>::iterator player = lstPlayers.begin(); player != lstPlayers.end(); player++) 
 	{
-
 		// Add comma is not the first player
 		if (player != lstPlayers.begin()) {
 			output += ",";
@@ -81,16 +80,7 @@ void exportJSON()
 
 		// Add ship
 		Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);
-		if (ship)
-		{
-			ConPrint(stows(itos(ship->get_id())));
-			ConPrint(mapShips[ship->get_id()]);
-			output += ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"}";
-		}
-		else
-		{
-			output += ",\"ship\": \"Unknown\"}";
-		}
+		output += (ship) ? ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"}" : output += ",\"ship\": \"Unknown\"}";
 	}
 
 	// End Player array and rest of output
@@ -110,6 +100,12 @@ void __stdcall DisConnect_AFTER(unsigned int iClientID, enum  EFLConnection stat
 }
 
 void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client)
+{
+	returncode = DEFAULT_RETURNCODE;
+	exportJSON();
+}
+
+void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const& charId, unsigned int iClientID)
 {
 	returncode = DEFAULT_RETURNCODE;
 	exportJSON();
@@ -145,5 +141,6 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch_AFTER, PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect_AFTER, PLUGIN_HkIServerImpl_DisConnect_AFTER, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect_AFTER, PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
 	return p_PI;
 }
