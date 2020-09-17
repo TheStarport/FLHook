@@ -80,7 +80,13 @@ void exportJSON()
 
 		// Add ship
 		Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);
-		output += (ship) ? ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"}" : output += ",\"ship\": \"Unknown\"}";
+		output += (ship) ? ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"" : output += ",\"ship\": \"Unknown\"";
+
+		// Add system
+		uint iSystemID;
+		pub::Player::GetSystem(player->iClientID, iSystemID);
+		const Universe::ISystem* iSys = Universe::get_system(iSystemID);
+		output += ",\"system\": \"" + wstos(HkGetWStringFromIDS(iSys->strid_name)) + "\"}";
 	}
 
 	// End Player array and rest of output
