@@ -1,54 +1,14 @@
 // NPCs for FLHookPlugin
 // December 2015 by BestDiscoveryHookDevs2015
 //
-// 
-//
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Includes
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Includes
 #include "Main.h"
 
-void LoadSettings();
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		if (set_scCfgFile.length() > 0)
-			LoadSettings();
-	}
-	else if (fdwReason == DLL_PROCESS_DETACH)
-	{
-	}
-	return true;
-}
-
-/// Hook will call this function after calling a plugin function to see if we the
-/// processing to continue
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
-{
-	return returncode;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//STRUCTURES AND DEFINITIONS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::vector<const char*> listgraphs;
-
-std::vector<uint> npcnames;
-std::list<uint> npcs;
-
-int ailoot = 0;
+// Structures and Global Variables
 
 struct NPC_ARCHTYPESSTRUCT
 {
@@ -77,7 +37,11 @@ struct NPC
 static std::map<std::wstring, NPC_ARCHTYPESSTRUCT> mapNPCArchtypes;
 static std::map<std::wstring, NPC_FLEETSTRUCT> mapNPCFleets;
 static std::map<int, NPC> startupNPCs;
+std::vector<const char*> listgraphs;
+std::vector<uint> npcnames;
+std::list<uint> npcs;
 
+// Function to return a Personality. Possible improvements in the future to get this to load from a config file
 pub::AI::SetPersonalityParams HkMakePersonality(int graphid)
 {
 
@@ -261,30 +225,27 @@ pub::AI::SetPersonalityParams HkMakePersonality(int graphid)
 	return p;
 }
 
+// Returns a random float between two
 float rand_FloatRange(float a, float b)
 {
 	return ((b - a) * ((float)rand() / RAND_MAX)) + a;
 }
 
+// Return random infocard ID from list that was loaded in
 uint rand_name()
 {
 	int randomIndex = rand() % npcnames.size();
 	return npcnames.at(randomIndex);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Functions
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-FILE* Logfile = fopen("./flhook_logs/npc_log.log", "at");
-
+// Function to log output (usually NPCs that have been created)
 void Logging(const char* szString, ...)
 {
+	FILE* Logfile = fopen("./flhook_logs/npc_log.log", "at");
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
 	_vsnprintf(szBufString, sizeof(szBufString) - 1, szString, marker);
-
 	char szBuf[64];
 	time_t tNow = time(0);
 	struct tm* t = localtime(&tNow);
@@ -295,35 +256,7 @@ void Logging(const char* szString, ...)
 	Logfile = fopen("./flhook_logs/npc_log.log", "at");
 }
 
-bool IsFLHookNPC(CShip* ship)
-{
-	// if it's a player do nothing
-	if (ship->is_player() == true)
-	{
-		//HkMsgU(L"Death: was a player");
-		return false;
-	}
-
-	// is it an flhook npc
-	std::list<uint>::iterator iter = npcs.begin();
-	while (iter != npcs.end())
-	{
-		if (*iter == ship->get_id())
-		{
-			ship->clear_equip_and_cargo();
-			//ConPrint(L"Death: FLHook NPC\n");
-			npcs.erase(iter);
-
-			return true;
-			break;
-		}
-		iter++;
-	}
-
-	//ConPrint(L"Death: was not an FLHook NPC\n");
-	return false;
-}
-
+// Logs the NPC being created
 void Log_CreateNPC(std::wstring name)
 {
 	//internal log
@@ -333,6 +266,32 @@ void Log_CreateNPC(std::wstring name)
 	Logging("%s", scText.c_str());
 }
 
+// Function called by next function to remove spawned NPCs from our data
+bool IsFLHookNPC(CShip* ship)
+{
+	// If it's a player do nothing
+	if (ship->is_player() == true)
+	{
+		return false;
+	}
+
+	// Is it a FLHook NPC?
+	std::list<uint>::iterator iter = npcs.begin();
+	while (iter != npcs.end())
+	{
+		if (*iter == ship->get_id())
+		{
+			ship->clear_equip_and_cargo();
+			npcs.erase(iter);
+			return true;
+			break;
+		}
+		iter++;
+	}
+	return false;
+}
+
+// Hook on ship destroyed to remove from our data
 void __stdcall ShipDestroyed(DamageList* _dmg, DWORD* ecx, uint iKill)
 {
 	returncode = DEFAULT_RETURNCODE;
@@ -343,6 +302,7 @@ void __stdcall ShipDestroyed(DamageList* _dmg, DWORD* ecx, uint iKill)
 	}
 }
 
+// Function that actually spawns the NPC
 void CreateNPC(std::wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
 {
 	NPC_ARCHTYPESSTRUCT arch = mapNPCArchtypes[name];
@@ -410,295 +370,7 @@ void CreateNPC(std::wstring name, Vector pos, Matrix rot, uint iSystem, bool var
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Client command processing
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void AdminCmd_AIMake(CCmds* cmds, int Amount, std::wstring NpcType)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	if (Amount == 0) { Amount = 1; }
-
-	NPC_ARCHTYPESSTRUCT arch;
-
-	bool wrongnpcname = 0;
-
-	std::map<std::wstring, NPC_ARCHTYPESSTRUCT>::iterator iter = mapNPCArchtypes.find(NpcType);
-	if (iter != mapNPCArchtypes.end())
-	{
-		arch = iter->second;
-	}
-	else
-	{
-		cmds->Print(L"ERR Wrong NPC name\n");
-		return;
-	}
-
-	uint iShip1;
-	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
-	if (!iShip1)
-		return;
-
-	uint iSystem;
-	pub::Player::GetSystem(HkGetClientIdFromCharname(cmds->GetAdminName()), iSystem);
-
-	Vector pos;
-	Matrix rot;
-	pub::SpaceObj::GetLocation(iShip1, pos, rot);
-
-	//Creation counter
-	for (int i = 0; i < Amount; i++)
-	{
-		CreateNPC(NpcType, pos, rot, iSystem, true);
-		Log_CreateNPC(NpcType);
-	}
-
-	return;
-}
-
-void AdminCmd_AIKill(CCmds* cmds, int loot)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-	int num = loot;
-	if (num >= 2)
-		num = 0;
-
-	for(std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
-	{
-		pub::SpaceObj::Destroy(*i, DestroyType::VANISH);
-	}
-	npcs.clear();
-	cmds->Print(L"OK\n");
-
-	return;
-}
-
-/* Make AI come to your position */
-void AdminCmd_AICome(CCmds* cmds)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	uint iShip1;
-	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
-	if (iShip1)
-	{
-		Vector pos;
-		Matrix rot;
-		pub::SpaceObj::GetLocation(iShip1, pos, rot);
-
-		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
-		{
-			pub::AI::DirectiveCancelOp cancelOP;
-			pub::AI::SubmitDirective(*i, &cancelOP);
-
-			pub::AI::DirectiveGotoOp go;
-			go.iGotoType = 1;
-			go.vPos = pos;
-			go.vPos.x = pos.x + rand_FloatRange(0, 500);
-			go.vPos.y = pos.y + rand_FloatRange(0, 500);
-			go.vPos.z = pos.z + rand_FloatRange(0, 500);
-			go.fRange = 0;
-			pub::AI::SubmitDirective(*i, &go);
-		}
-	}
-	cmds->Print(L"OK\n");
-	return;
-}
-
-/* Make AI follow you until death */
-void AdminCmd_AIFollow(CCmds* cmds, std::wstring& wscCharname)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	// If no player specified follow the admin
-	uint iClientId;
-	if (wscCharname == L"") {
-		iClientId = HkGetClientIdFromCharname(cmds->GetAdminName());
-		wscCharname = cmds->GetAdminName();
-	}
-	// Follow the player specified
-	else {
-		iClientId = HkGetClientIdFromCharname(wscCharname);
-	}
-	if (iClientId == -1) {
-		cmds->Print(L"%s is not online\n", wscCharname.c_str());
-	}
-	else {
-		uint iShip1;
-		pub::Player::GetShip(iClientId, iShip1);
-		if (iShip1)
-		{
-			for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
-			{
-				pub::AI::DirectiveCancelOp cancelOP;
-				pub::AI::SubmitDirective(*i, &cancelOP);
-				pub::AI::DirectiveFollowOp testOP;
-				testOP.iFollowSpaceObj = iShip1;
-				testOP.fMaxDistance = 100;
-				pub::AI::SubmitDirective(*i, &testOP);
-			}
-			cmds->Print(L"Following %s\n", wscCharname.c_str());
-		}
-		else {
-			cmds->Print(L"%s is not in space\n", wscCharname.c_str());
-		}
-	}
-	return;
-}
-
-/* Cancel the current operation */
-void AdminCmd_AICancel(CCmds* cmds)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	uint iShip1;
-	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
-	if (iShip1)
-	{
-		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
-		{
-			pub::AI::DirectiveCancelOp testOP;
-			pub::AI::SubmitDirective(*i, &testOP);
-		}
-	}
-	cmds->Print(L"OK\n");
-	return;
-}
-
-/** List npc fleets */
-void AdminCmd_ListNPCFleets(CCmds* cmds)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	cmds->Print(L"Available fleets: %d\n", mapNPCFleets.size());
-	for (std::map<std::wstring, NPC_FLEETSTRUCT>::iterator i = mapNPCFleets.begin();
-		i != mapNPCFleets.end(); ++i)
-	{
-		cmds->Print(L"|%s\n", i->first.c_str());
-	}
-	cmds->Print(L"OK\n");
-
-	return;
-}
-
-
-/* Spawn a Fleet */
-void AdminCmd_AIFleet(CCmds* cmds, std::wstring FleetName)
-{
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	int wrongnpcname = 0;
-
-	std::map<std::wstring, NPC_FLEETSTRUCT>::iterator iter = mapNPCFleets.find(FleetName);
-	if (iter != mapNPCFleets.end())
-	{
-		NPC_FLEETSTRUCT& fleetmembers = iter->second;
-		for (std::map<std::wstring, int>::iterator i = fleetmembers.fleetmember.begin(); i != fleetmembers.fleetmember.end(); ++i)
-		{
-			std::wstring membername = i->first;
-			int amount = i->second;
-
-			AdminCmd_AIMake(cmds, amount, membername);
-		}
-	}
-	else
-	{
-		wrongnpcname = 1;
-	}
-
-	if (wrongnpcname == 1)
-	{
-		cmds->Print(L"ERR Wrong Fleet name\n");
-		return;
-	}
-
-	cmds->Print(L"OK fleet spawned\n");
-	return;
-}
-
-#define IS_CMD(a) !wscCmd.compare(L##a)
-
-bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
-{
-	returncode = DEFAULT_RETURNCODE;
-	if (IS_CMD("aicreate"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
-		return true;
-	}
-	else if (IS_CMD("aidestroy"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AIKill(cmds, cmds->ArgInt(1));
-		return true;
-	}
-	else if (IS_CMD("aicancel"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AICancel(cmds);
-		return true;
-	}
-	else if (IS_CMD("aifollow"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AIFollow(cmds, cmds->ArgCharname(1));
-		return true;
-	}
-	else if (IS_CMD("aicome"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AICome(cmds);
-		return true;
-	}
-	else if (IS_CMD("aifleet"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_AIFleet(cmds, cmds->ArgStr(1));
-		return true;
-	}
-	else if (IS_CMD("fleetlist"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_ListNPCFleets(cmds);
-		return true;
-	}
-	return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Loading Settings
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Load settings
 void LoadNPCInfo()
 {
 	// The path to the configuration file.
@@ -776,9 +448,9 @@ void LoadNPCInfo()
 					{
 						NPC n;
 						n.name = stows(ini.get_value_string(0));
-						n.pos.x = ini.get_value_int(1);
-						n.pos.y = ini.get_value_int(2);
-						n.pos.z = ini.get_value_int(3);
+						n.pos.x = ini.get_value_float(1);
+						n.pos.y = ini.get_value_float(2);
+						n.pos.z = ini.get_value_float(3);
 						n.rot.data[0][0] = ini.get_value_float(4);
 						n.rot.data[0][1] = ini.get_value_float(5);
 						n.rot.data[0][2] = ini.get_value_float(6);
@@ -798,6 +470,7 @@ void LoadNPCInfo()
 	}
 }
 
+// Main Load Settings function, calls the one above
 void LoadSettings()
 {
 	returncode = DEFAULT_RETURNCODE;
@@ -817,10 +490,311 @@ void LoadSettings()
 	}
 }
 
+// Admin command to make NPCs
+void AdminCmd_AIMake(CCmds* cmds, int Amount, std::wstring NpcType)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	if (Amount == 0) { Amount = 1; }
+
+	NPC_ARCHTYPESSTRUCT arch;
+
+	bool wrongnpcname = 0;
+
+	std::map<std::wstring, NPC_ARCHTYPESSTRUCT>::iterator iter = mapNPCArchtypes.find(NpcType);
+	if (iter != mapNPCArchtypes.end())
+	{
+		arch = iter->second;
+	}
+	else
+	{
+		cmds->Print(L"ERR Wrong NPC name\n");
+		return;
+	}
+
+	uint iShip1;
+	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
+	if (!iShip1)
+		return;
+
+	uint iSystem;
+	pub::Player::GetSystem(HkGetClientIdFromCharname(cmds->GetAdminName()), iSystem);
+
+	Vector pos;
+	Matrix rot;
+	pub::SpaceObj::GetLocation(iShip1, pos, rot);
+
+	//Creation counter
+	for (int i = 0; i < Amount; i++)
+	{
+		CreateNPC(NpcType, pos, rot, iSystem, true);
+		Log_CreateNPC(NpcType);
+	}
+
+	return;
+}
+
+// Admin command to destroy the AI
+void AdminCmd_AIKill(CCmds* cmds, int loot)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+	int num = loot;
+	if (num >= 2)
+		num = 0;
+
+	for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+	{
+		pub::SpaceObj::Destroy(*i, DestroyType::VANISH);
+	}
+	npcs.clear();
+	cmds->Print(L"OK\n");
+
+	return;
+}
+
+// Admin command to make AI come to your position
+void AdminCmd_AICome(CCmds* cmds)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	uint iShip1;
+	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
+	if (iShip1)
+	{
+		Vector pos;
+		Matrix rot;
+		pub::SpaceObj::GetLocation(iShip1, pos, rot);
+
+		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		{
+			pub::AI::DirectiveCancelOp cancelOP;
+			pub::AI::SubmitDirective(*i, &cancelOP);
+
+			pub::AI::DirectiveGotoOp go;
+			go.iGotoType = 1;
+			go.vPos = pos;
+			go.vPos.x = pos.x + rand_FloatRange(0, 500);
+			go.vPos.y = pos.y + rand_FloatRange(0, 500);
+			go.vPos.z = pos.z + rand_FloatRange(0, 500);
+			go.fRange = 0;
+			pub::AI::SubmitDirective(*i, &go);
+		}
+	}
+	cmds->Print(L"OK\n");
+	return;
+}
+
+// Admin command to make AI follow target (or admin) until death
+void AdminCmd_AIFollow(CCmds* cmds, std::wstring& wscCharname)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	// If no player specified follow the admin
+	uint iClientId;
+	if (wscCharname == L"") {
+		iClientId = HkGetClientIdFromCharname(cmds->GetAdminName());
+		wscCharname = cmds->GetAdminName();
+	}
+	// Follow the player specified
+	else {
+		iClientId = HkGetClientIdFromCharname(wscCharname);
+	}
+	if (iClientId == -1) {
+		cmds->Print(L"%s is not online\n", wscCharname.c_str());
+	}
+	else {
+		uint iShip1;
+		pub::Player::GetShip(iClientId, iShip1);
+		if (iShip1)
+		{
+			for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+			{
+				pub::AI::DirectiveCancelOp cancelOP;
+				pub::AI::SubmitDirective(*i, &cancelOP);
+				pub::AI::DirectiveFollowOp testOP;
+				testOP.iFollowSpaceObj = iShip1;
+				testOP.fMaxDistance = 100;
+				pub::AI::SubmitDirective(*i, &testOP);
+			}
+			cmds->Print(L"Following %s\n", wscCharname.c_str());
+		}
+		else {
+			cmds->Print(L"%s is not in space\n", wscCharname.c_str());
+		}
+	}
+	return;
+}
+
+// Admin command to cancel the current operation
+void AdminCmd_AICancel(CCmds* cmds)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	uint iShip1;
+	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
+	if (iShip1)
+	{
+		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		{
+			pub::AI::DirectiveCancelOp testOP;
+			pub::AI::SubmitDirective(*i, &testOP);
+		}
+	}
+	cmds->Print(L"OK\n");
+	return;
+}
+
+// Admin command to list NPC fleets
+void AdminCmd_ListNPCFleets(CCmds* cmds)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	cmds->Print(L"Available fleets: %d\n", mapNPCFleets.size());
+	for (std::map<std::wstring, NPC_FLEETSTRUCT>::iterator i = mapNPCFleets.begin();
+		i != mapNPCFleets.end(); ++i)
+	{
+		cmds->Print(L"|%s\n", i->first.c_str());
+	}
+	cmds->Print(L"OK\n");
+
+	return;
+}
+
+
+// Admin command to spawn a Fleet
+void AdminCmd_AIFleet(CCmds* cmds, std::wstring FleetName)
+{
+	if (!(cmds->rights & RIGHT_SUPERADMIN))
+	{
+		cmds->Print(L"ERR No permission\n");
+		return;
+	}
+
+	int wrongnpcname = 0;
+
+	std::map<std::wstring, NPC_FLEETSTRUCT>::iterator iter = mapNPCFleets.find(FleetName);
+	if (iter != mapNPCFleets.end())
+	{
+		NPC_FLEETSTRUCT& fleetmembers = iter->second;
+		for (std::map<std::wstring, int>::iterator i = fleetmembers.fleetmember.begin(); i != fleetmembers.fleetmember.end(); ++i)
+		{
+			std::wstring membername = i->first;
+			int amount = i->second;
+
+			AdminCmd_AIMake(cmds, amount, membername);
+		}
+	}
+	else
+	{
+		wrongnpcname = 1;
+	}
+
+	if (wrongnpcname == 1)
+	{
+		cmds->Print(L"ERR Wrong Fleet name\n");
+		return;
+	}
+
+	cmds->Print(L"OK fleet spawned\n");
+	return;
+}
+
+// Admin command processing
+bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
+{
+	returncode = DEFAULT_RETURNCODE;
+	if (IS_CMD("aicreate"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
+		return true;
+	}
+	else if (IS_CMD("aidestroy"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AIKill(cmds, cmds->ArgInt(1));
+		return true;
+	}
+	else if (IS_CMD("aicancel"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AICancel(cmds);
+		return true;
+	}
+	else if (IS_CMD("aifollow"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AIFollow(cmds, cmds->ArgCharname(1));
+		return true;
+	}
+	else if (IS_CMD("aicome"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AICome(cmds);
+		return true;
+	}
+	else if (IS_CMD("aifleet"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_AIFleet(cmds, cmds->ArgStr(1));
+		return true;
+	}
+	else if (IS_CMD("fleetlist"))
+	{
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		AdminCmd_ListNPCFleets(cmds);
+		return true;
+	}
+	return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Functions to hook
+// FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Do things when the dll is loaded
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+	srand((uint)time(0));
+	// If we're being loaded from the command line while FLHook is running then
+	// set_scCfgFile will not be empty so load the settings as FLHook only
+	// calls load settings on FLHook startup and .rehash.
+	if (fdwReason == DLL_PROCESS_ATTACH)
+	{
+		if (set_scCfgFile.length() > 0)
+			LoadSettings();
+	}
+	else if (fdwReason == DLL_PROCESS_DETACH)
+	{
+	}
+	return true;
+}
+
+// Functions to hook
 EXPORT PLUGIN_INFO* Get_PluginInfo()
 {
 	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
@@ -831,7 +805,6 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->ePluginReturnCode = &returncode;
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	//p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
 
 	return p_PI;
