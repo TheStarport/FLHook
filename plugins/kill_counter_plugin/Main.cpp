@@ -90,42 +90,6 @@ void UserCmd_Kills(uint iClientID, const std::wstring& wscParam)
 	PrintUserCmdText(iClientID, L"Level: %i", rank);
 }
 
-void UserCmd_Kills$(uint iClientID, const std::wstring& wscParam)
-{
-	std::wstring wscClientTarget = GetParam(wscParam, ' ', 0);
-	int iNumKills;
-	std::wstring mainrank;
-	std::list<std::wstring> lstLines;
-	int count;
-	uint iClientIDTarget = ToInt(wscClientTarget);
-	if (!HkIsValidClientID(iClientIDTarget) || HkIsInCharSelectMenu(iClientIDTarget))
-	{
-		PrintUserCmdText(iClientID, L"ERROR player not found");
-		return;
-	}
-	std::wstring wscClientID = (const wchar_t*)(Players.GetActiveCharacterName(iClientIDTarget));
-	HkReadCharFile(wscClientID, lstLines);
-	pub::Player::GetNumKills(iClientIDTarget, iNumKills);
-	PrintUserCmdText(iClientID, L"PvP kills: %i", iNumKills);
-	for (auto& str : lstLines)
-	{
-		if (!ToLower((str)).find(L"ship_type_killed"))
-		{
-			uint iShipArchID = ToInt(GetParam(str, '=', 1));
-			count = ToInt(GetParam(str, ',', 1).c_str());
-			iNumKills += count;
-			Archetype::Ship* ship = Archetype::GetShip(iShipArchID);
-			if (!ship)
-				continue;
-			PrintUserCmdText(iClientID, L"NPC kills:  %s %i", HkGetWStringFromIDS(ship->iIdsName).c_str(), count);
-		}
-	}
-	int rank;
-	pub::Player::GetRank(iClientID, rank);
-	PrintUserCmdText(iClientID, L"Total kills: %i", iNumKills);
-	PrintUserCmdText(iClientID, L"Level: %i", rank);
-}
-
 void __stdcall ShipDestroyed(DamageList* _dmg, char* szECX, uint iKill)
 {
 	returncode = DEFAULT_RETURNCODE;
@@ -152,8 +116,7 @@ void __stdcall ShipDestroyed(DamageList* _dmg, char* szECX, uint iKill)
 
 USERCMD UserCmds[] =
 {
-	{ L"/kills",					UserCmd_Kills},
-	{ L"/kills$",			    UserCmd_Kills$},
+	{ L"/kills", UserCmd_Kills},
 };
 
 EXPORT bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)

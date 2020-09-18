@@ -22,6 +22,5 @@ struct USERCMD
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
 void AddExceptionInfoLog(struct SEHException* pep);
-#define LOG_EXCEPTION { AddLog("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
 
 std::list<INISECTIONVALUE> lstRanks;
