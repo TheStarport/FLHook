@@ -57,19 +57,12 @@ bool UserCmd_AFK(uint iClientID, const std::wstring& wscCmd, const std::wstring&
 // This command is called when a player types /back
 bool UserCmd_Back(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	for (auto iter = afks.begin();iter != afks.end();)
+	if (afks.count(iClientID) > 0)
 	{
-		if (*iter == iClientID) 
-		{
-			afks.erase(iter);
-			std::wstring message = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			RedText(iClientID, L"Welcome back ", L".");
-			return true;
-		}
-		else 
-		{
-			iter++;
-		}
+		afks.erase(iClientID);
+		std::wstring message = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		RedText(iClientID, L"Welcome back ", L".");
+		return true;
 	}
 	PrintUserCmdText(iClientID, L"You are not marked as AFK. To do this, use the /afk command.");
 	return true;
@@ -80,17 +73,8 @@ void DisConnect_AFTER(uint iClientID)
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	for (auto iter = afks.begin();iter != afks.end();)
-	{
-		if (*iter == iClientID) 
-		{
-			afks.erase(iter);
-		}
-		else 
-		{
-			iter++;
-		}
-	}
+	if (afks.count(iClientID) > 0)
+		afks.erase(iClientID);
 }
 
 // Hook on chat being sent
@@ -98,21 +82,8 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void* pRDL)
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	if (HkIsValidClientID(iTo))
-	{
-		for (auto iter = afks.begin(); iter != afks.end();)
-		{
-			if (*iter == iClientID)
-			{
-				PrintUserCmdText(iTo, L"This user is away from keyboard.");
-					iter++;
-			}
-			else
-			{
-				iter++;
-			}
-		}
-	}
+	if (HkIsValidClientID(iTo) && afks.count(iClientID) > 0)
+		PrintUserCmdText(iTo, L"This user is away from keyboard.");
 }
 
 // Client command processing
