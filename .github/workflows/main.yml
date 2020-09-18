@@ -26,5 +26,5 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1.3.0
         
       - name: Build
-        run: msbuild.exe "$GITHUB_WORKSPACE/project/FLHook.sln"
+        run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release;Platform=Win32
           
