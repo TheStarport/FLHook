@@ -44,14 +44,16 @@ std::map<uint, FFA> ffas; // uint is system
 void removeBet(uint iClientID) {
 	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-	for (std::map<std::wstring, BET>::iterator iter = duels.begin();
-		iter != duels.end();
-		iter++)
+	for (std::map<std::wstring, BET>::iterator iter = duels.begin(); iter != duels.end();)
 	{
 		if (iter->second.iClientID == iClientID || iter->second.iClientID2 == iClientID) {
 			PrintUserCmdText(iter->second.iClientID, L"Duel cancelled.");
 			PrintUserCmdText(iter->second.iClientID2, L"Duel cancelled.");
 			duels.erase(iter);
+		}
+		else
+		{
+			iter++;
 		}
 	}
 }
@@ -60,7 +62,7 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 
 	if (ffas.find(iSystem) != ffas.end())
 	{
-		const wchar_t* victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
+		std::wstring victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
 
 		if (ffas[iSystem].contestants[iClientIDVictim].accepted) {
 			if (!ffas[iSystem].contestants[iClientIDVictim].loser) {
@@ -69,13 +71,12 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 
 				if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end()) {
 					ffas[iSystem].contestants[iClientIDVictim].loser = true;
-					std::wstring victim2 = victim;
-					std::wstring msg = victim2 + L" has been knocked out the FFA.";
+					std::wstring msg = victim + L" has been knocked out the FFA.";
 					PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
 				}
 
 				// Is the FFA over?
-				int count;
+				int count = 0;
 				uint contestantid;
 				for (std::map<uint, contestant>::iterator iter = ffas[iSystem].contestants.begin();
 					iter != ffas[iSystem].contestants.end();
@@ -87,19 +88,19 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 					}
 				}
 				// Has the FFA been won?
-				if (count == 1) {
+				if (count == 1) 
+				{
 					// Get winner
-					const wchar_t* winner = (const wchar_t*)Players.GetActiveCharacterName(contestantid);
-					std::wstring winner2 = winner;
+					std::wstring winner = (const wchar_t*)Players.GetActiveCharacterName(contestantid);
 
 					// calculate winning credits
 					uint winnings = ffas[iSystem].buyin * ffas[iSystem].contestants.size();
 
 					// Pay winner
-					HkAddCash(winner2, winnings);
+					HkAddCash(winner, winnings);
 
 					// Announce winner
-					std::wstring msg = winner2 + L" has won the FFA and receives " + std::to_wstring(winnings) + L" credits.";
+					std::wstring msg = winner + L" has won the FFA and receives " + stows(itos(winnings)) + L" credits.";
 					PrintLocalUserCmdText(contestantid, msg, 100000);
 
 					// Delete event
@@ -167,13 +168,14 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 			}
 			else {
 				ffas[iSystemID].contestants[iClientID2].accepted = false;
-				std::wstring msg = (const wchar_t*) + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(amount) + L" credits. Type \"/acceptffa\" to enter.";
+				std::wstring msg = charname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(amount) + L" credits. Type \"/acceptffa\" to enter.";
 				PrintUserCmdText(iClientID2, msg);
 			}
 		}
 		// Are there any other players in this system?
 		if (ffas[iSystemID].contestants.size() > 0) {
 			PrintUserCmdText(iClientID, L"Challenge issued. Waiting for others to accept.");
+			ffas[iSystemID].buyin = amount;
 		}
 		else {
 			ffas.erase(iSystemID);
@@ -224,6 +226,7 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::ws
 		if (ffas[iSystemID].contestants[iClientID].accepted == false) {
 			ffas[iSystemID].contestants[iClientID].accepted = true;
 			ffas[iSystemID].contestants[iClientID].loser = false;
+			PrintUserCmdText(iClientID, stows(itos(ffas[iSystemID].buyin)) + L" has been deducted from your Neural Net account.");
 			std::wstring msg = charname + L" has joined the FFA.";
 			PrintLocalUserCmdText(iClientID, msg, 100000);
 
@@ -440,7 +443,7 @@ int __cdecl Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget
 	uint iClientID = HkGetClientIDByShip(iShip);
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iSystemID);
+	handleFFA(iSystemID, iClientID);
 	removeBet(iClientID);
 	return 0;
 }
@@ -450,7 +453,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 	returncode = DEFAULT_RETURNCODE;
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iSystemID);
+	handleFFA(iSystemID, iClientID);
 	removeBet(iClientID);
 }
 
@@ -459,7 +462,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const& charId, unsigned int i
 	returncode = DEFAULT_RETURNCODE;
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iSystemID);
+	handleFFA(iSystemID, iClientID);
 	removeBet(iClientID);
 }
 
@@ -469,9 +472,7 @@ void SendDeathMsg(const std::wstring& wscMsg, uint iSystem, uint iClientIDVictim
 	returncode = DEFAULT_RETURNCODE;
 
 	// Bets
-	for (std::map<std::wstring, BET>::iterator iter = duels.begin();
-		iter != duels.end();
-		iter++)
+	for (std::map<std::wstring, BET>::iterator iter = duels.begin(); iter != duels.end();)
 	{
 		// If we get a match on the betting map
 		if ((iter->second.iClientID == iClientIDKiller && iter->second.iClientID2 == iClientIDVictim) || (iter->second.iClientID == iClientIDVictim && iter->second.iClientID2 == iClientIDKiller)) {
@@ -488,6 +489,14 @@ void SendDeathMsg(const std::wstring& wscMsg, uint iSystem, uint iClientIDVictim
 				HkAddCash(killer, iter->second.amount);
 				HkAddCash(victim, -(iter->second.amount));
 			}
+			else
+			{
+				iter++;
+			}
+		}
+		else
+		{
+			iter++;
 		}
 	}
 
