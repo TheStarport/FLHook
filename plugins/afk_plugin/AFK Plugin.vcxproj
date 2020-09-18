@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}</ProjectGuid>
-    <RootNamespace>AFK Plugin</RootNamespace>
+    <RootNamespace>afk</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
