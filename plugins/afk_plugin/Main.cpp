@@ -5,7 +5,7 @@
 #include "Main.h" 
 
 // Global variables
-std::vector<uint> afks;
+std::set<uint> afks;
 
 void LoadSettings()
 {
@@ -26,7 +26,7 @@ bool RedText(uint iClientID, std::wstring message, std::wstring message2) {
 	wscXMLMsg += XMLText(message2);
 	wscXMLMsg += L"</TEXT>";
 
-	char szBuf[0xFFFF];
+	char szBuf[0x1000];
 	uint iRet;
 	if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
 		return false;
@@ -39,16 +39,8 @@ bool RedText(uint iClientID, std::wstring message, std::wstring message2) {
 		uint iClientSystemID = 0;
 		pub::Player::GetSystem(iClientID, iClientSystemID);
 
-		char* szXMLBuf;
-		int iXMLBufRet;
-		char* szXMLBufSys;
-		int iXMLBufRetSys;
-
-		szXMLBuf = szBuf;
-		iXMLBufRet = iRet;
-
 		if (iSystemID == iClientSystemID)
-			HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
+			HkFMsgSendChat(iClientID, szBuf, iRet);
 	}
 	return true;
 }
@@ -56,7 +48,7 @@ bool RedText(uint iClientID, std::wstring message, std::wstring message2) {
 // This command is called when a player types /afk
 bool UserCmd_AFK(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	afks.push_back(iClientID);
+	afks.insert(iClientID);
 	RedText(iClientID, L"", L" is now away from keyboard.");
 	PrintUserCmdText(iClientID, L"Use the /back command to stop sending automatic replies to PMs.");
 	return true;
@@ -106,16 +98,19 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void* pRDL)
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	for (auto iter = afks.begin();iter != afks.end();)
+	if (HkIsValidClientID(iTo))
 	{
-		if (*iter == iClientID) 
+		for (auto iter = afks.begin(); iter != afks.end();)
 		{
-			PrintUserCmdText(iTo, L"This user is away from keyboard.");
-			iter++;
-		}
-		else 
-		{
-			iter++;
+			if (*iter == iClientID)
+			{
+				PrintUserCmdText(iTo, L"This user is away from keyboard.");
+					iter++;
+			}
+			else
+			{
+				iter++;
+			}
 		}
 	}
 }
