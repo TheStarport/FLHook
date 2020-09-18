@@ -32,6 +32,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginTemplate", "..\plugin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kill Counter Plugin", "..\plugins\kill_counter_plugin\kill_counter_plugin.vcxproj", "{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AFK Plugin", "..\plugins\afk_plugin\AFK Plugin.vcxproj", "{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -117,6 +119,12 @@ Global
 		{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}.Release|Win32.Build.0 = Release|Win32
 		{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
 		{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}.ReleaseVersion|Win32.Build.0 = Release|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.Debug|Win32.Build.0 = Debug|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.Release|Win32.ActiveCfg = Release|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.Release|Win32.Build.0 = Release|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}.ReleaseVersion|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,6 +142,7 @@ Global
 		{9E084A9E-A8B9-4F64-8048-F3357839683E} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D} = {632FB3BE-F949-4FDF-8EDC-DA5433451E34}
 		{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
