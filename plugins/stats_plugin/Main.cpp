@@ -51,51 +51,47 @@ void LoadSettings()
 
 void exportJSON() 
 {
+	std::ofstream out(jsonFileName);
+
 	// Add Server Load object
-	std::string output = "{\"serverload\": \"" + itos(g_iServerLoad) + "\"";
+	out << "{\"serverload\": \"" + itos(g_iServerLoad) + "\"";
 
 	// Begin Player array
-	output += ",\"players\": [";
+	out << ",\"players\": [";
 
 	std::list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
-
 	for (std::list<HKPLAYERINFO>::iterator player = lstPlayers.begin(); player != lstPlayers.end(); player++) 
 	{
 		// Add comma is not the first player
-		if (player != lstPlayers.begin()) {
-			output += ",";
-		}
+		if (player != lstPlayers.begin())
+			out << ",";
 
 		// Add name
-		output += "{\"name\": \"" + wstos(player->wscCharname) + "\"";
+		out << "{\"name\": \"" + wstos(player->wscCharname) + "\"";
 
 		// Add rank
 		int iRank;
 		pub::Player::GetRank(player->iClientID, iRank);
-		output += ",\"rank\": \"" + itos(iRank) + "\"";
+		out << ",\"rank\": \"" + itos(iRank) + "\"";
 
 		// Add group
 		int groupID = Players.GetGroupID(player->iClientID);
-		output += ",\"group\": \"" + itos(groupID) + "\"";
+		out << ",\"group\": \"" + itos(groupID) + "\"";
 
 		// Add ship
 		Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);
-		output += (ship) ? ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"" : output += ",\"ship\": \"Unknown\"";
+		(ship) ? out << ",\"ship\": \"" + wstos(mapShips[ship->get_id()]) + "\"" : out << ",\"ship\": \"Unknown\"";
 
 		// Add system
 		uint iSystemID;
 		pub::Player::GetSystem(player->iClientID, iSystemID);
 		const Universe::ISystem* iSys = Universe::get_system(iSystemID);
-		output += ",\"system\": \"" + wstos(HkGetWStringFromIDS(iSys->strid_name)) + "\"}";
+		out << ",\"system\": \"" + wstos(HkGetWStringFromIDS(iSys->strid_name)) + "\"}";
 	}
 
 	// End Player array and rest of output
-	output += "]}";
-	std::cin >> output;
-	std::ofstream out(jsonFileName);
-	out << output;
+	out << "]}";
 	out.close();
-
 }
 
 // Hooks for updating stats
