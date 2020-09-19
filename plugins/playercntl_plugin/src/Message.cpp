@@ -1087,7 +1087,7 @@ namespace Message
 	}
 
 	bool Message::RedText(std::wstring wscXMLMsg, uint iSystemID) {
-		char szBuf[0xFFFF];
+		char szBuf[0x1000];
 		uint iRet;
 		if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
 			return false;
@@ -1100,16 +1100,8 @@ namespace Message
 			uint iClientSystemID = 0;
 			pub::Player::GetSystem(iClientID, iClientSystemID);
 
-			char* szXMLBuf;
-			int iXMLBufRet;
-			char* szXMLBufSys;
-			int iXMLBufRetSys;
-
-			szXMLBuf = szBuf;
-			iXMLBufRet = iRet;
-
 			if (iSystemID == iClientSystemID)
-				HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
+				HkFMsgSendChat(iClientID, szBuf, iRet);
 		}
 		return true;
 	}

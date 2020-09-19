@@ -390,7 +390,7 @@ namespace PlayerCntlSetup
             cfgFile.AddSetting("General", "RepDropCost", new object[] { textBoxDropRepCost.Text });
             cfgFile.AddSetting("General", "StuckMsg", new object[] { textBoxStuckMsg.Text });
             cfgFile.AddSetting("General", "DiceMsg", new object[] { textBoxDiceMsg.Text });
-            cfgFile.AddSetting("General", "CoinMsg", new object[] { textBoxCoinMsg.Text s});
+            cfgFile.AddSetting("General", "CoinMsg", new object[] { textBoxCoinMsg.Text });
             cfgFile.AddSetting("General", "SmiteMusic", new object[] { textBoxSmiteMusic.Text });
 
             cfgFile.AddSetting("General", "DisconnectingPlayersRange", new object[] { textBoxDisconnectingPlayersRange.Text });
