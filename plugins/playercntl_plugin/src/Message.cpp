@@ -1042,6 +1042,70 @@ namespace Message
 		cmds->Print(L"OK message saved to mailbox\n");
 	}
 
+	/** Me command allow players to type "/me powers his engines" which would print: "Trent powers his engines" */
+	bool Message::UserCmd_Me(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
+	{
+		if (set_bEnableMe)
+		{
+			std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			uint iSystemID;
+			pub::Player::GetSystem(iClientID, iSystemID);
+
+			// Encode message using the death message style (red text).
+			std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+			wscXMLMsg += charname + L" ";
+			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += L"</TEXT>";
+
+			return RedText(wscXMLMsg, iSystemID);
+		}
+		else
+		{
+			PrintUserCmdText(iClientID, L"Command not enabled.");
+		}
+	}
+
+	/** Do command allow players to type "/do Nomad fighters detected" which would print: "Nomad fighters detected" in the standard red text */
+	bool Message::UserCmd_Do(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
+	{
+		if (set_bEnableDo)
+		{
+			uint iSystemID;
+			pub::Player::GetSystem(iClientID, iSystemID);
+
+			// Encode message using the death message style (red text).
+			std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += L"</TEXT>";
+
+			return RedText(wscXMLMsg, iSystemID);
+		}
+		else 
+		{
+			PrintUserCmdText(iClientID, L"Command not enabled.");
+		}
+	}
+
+	bool Message::RedText(std::wstring wscXMLMsg, uint iSystemID) {
+		char szBuf[0x1000];
+		uint iRet;
+		if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
+			return false;
+
+		// Send to all players in system
+		struct PlayerData* pPD = 0;
+		while (pPD = Players.traverse_active(pPD))
+		{
+			uint iClientID = HkGetClientIdFromPD(pPD);
+			uint iClientSystemID = 0;
+			pub::Player::GetSystem(iClientID, iClientSystemID);
+
+			if (iSystemID == iClientSystemID)
+				HkFMsgSendChat(iClientID, szBuf, iRet);
+		}
+		return true;
+	}
+
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 	/// Drop a percentage of cargo + some loot representing ship bits.
 	void Message::SendDeathMsg(const std::wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)

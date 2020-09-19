@@ -1,6 +1,8 @@
-﻿namespace PlayerCntlSetup {
-    
-    
-    public partial class UIDataSet {
+﻿namespace PlayerCntlSetup
+{
+
+
+    public partial class UIDataSet
+    {
     }
 }
