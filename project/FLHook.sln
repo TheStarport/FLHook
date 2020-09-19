@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AFK Plugin", "..\plugins\af
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stats Plugin", "..\plugins\stats_plugin\stats_plugin.vcxproj", "{DF79DAB8-217F-4828-920D-89B2FDEEFB33}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mark Plugin", "..\plugins\mark_plugin\mark_plugin.vcxproj", "{14C91A47-44A3-4D90-99C3-BFFA10491A56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -133,6 +135,12 @@ Global
 		{DF79DAB8-217F-4828-920D-89B2FDEEFB33}.Release|Win32.Build.0 = Release|Win32
 		{DF79DAB8-217F-4828-920D-89B2FDEEFB33}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
 		{DF79DAB8-217F-4828-920D-89B2FDEEFB33}.ReleaseVersion|Win32.Build.0 = Release|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.Debug|Win32.Build.0 = Debug|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.Release|Win32.ActiveCfg = Release|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.Release|Win32.Build.0 = Release|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56}.ReleaseVersion|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +160,7 @@ Global
 		{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{18322D6B-43B1-49D8-A2FD-8C55EB4524AE} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{DF79DAB8-217F-4828-920D-89B2FDEEFB33} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{14C91A47-44A3-4D90-99C3-BFFA10491A56} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
