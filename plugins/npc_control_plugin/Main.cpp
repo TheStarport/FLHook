@@ -482,11 +482,10 @@ void Startup_AFTER()
 	listgraphs.push_back("GUNBOAT"); // 2
 	listgraphs.push_back("CRUISER"); // 3, doesn't seem to do anything
 
-	for (std::map<int, NPC>::iterator i = startupNPCs.begin();
-		i != startupNPCs.end(); ++i)
+	for (auto& [id, npc]: startupNPCs)
 	{
-		CreateNPC(i->second.name, i->second.pos, i->second.rot, i->second.system, false);
-		Log_CreateNPC(i->second.name);
+		CreateNPC(npc.name, npc.pos, npc.rot, npc.system, false);
+		Log_CreateNPC(npc.name);
 	}
 }
 
@@ -547,10 +546,9 @@ void AdminCmd_AIKill(CCmds* cmds)
 		return;
 	}
 
-	for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
-	{
-		pub::SpaceObj::Destroy(*i, DestroyType::VANISH);
-	}
+	for (auto& npc : npcs)
+		pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
+	
 	npcs.clear();
 	cmds->Print(L"OK\n");
 
@@ -574,10 +572,10 @@ void AdminCmd_AICome(CCmds* cmds)
 		Matrix rot;
 		pub::SpaceObj::GetLocation(iShip1, pos, rot);
 
-		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		for (auto& npc : npcs)
 		{
 			pub::AI::DirectiveCancelOp cancelOP;
-			pub::AI::SubmitDirective(*i, &cancelOP);
+			pub::AI::SubmitDirective(npc, &cancelOP);
 
 			pub::AI::DirectiveGotoOp go;
 			go.iGotoType = 1;
@@ -586,7 +584,7 @@ void AdminCmd_AICome(CCmds* cmds)
 			go.vPos.y = pos.y + rand_FloatRange(0, 500);
 			go.vPos.z = pos.z + rand_FloatRange(0, 500);
 			go.fRange = 0;
-			pub::AI::SubmitDirective(*i, &go);
+			pub::AI::SubmitDirective(npc, &go);
 		}
 	}
 	cmds->Print(L"OK\n");
@@ -620,14 +618,14 @@ void AdminCmd_AIFollow(CCmds* cmds, std::wstring& wscCharname)
 		pub::Player::GetShip(iClientId, iShip1);
 		if (iShip1)
 		{
-			for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+			for (auto& npc : npcs)
 			{
 				pub::AI::DirectiveCancelOp cancelOP;
-				pub::AI::SubmitDirective(*i, &cancelOP);
+				pub::AI::SubmitDirective(npc, &cancelOP);
 				pub::AI::DirectiveFollowOp testOP;
 				testOP.iFollowSpaceObj = iShip1;
 				testOP.fMaxDistance = 100;
-				pub::AI::SubmitDirective(*i, &testOP);
+				pub::AI::SubmitDirective(npc, &testOP);
 			}
 			cmds->Print(L"Following %s\n", wscCharname.c_str());
 		}
@@ -651,10 +649,10 @@ void AdminCmd_AICancel(CCmds* cmds)
 	pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
 	if (iShip1)
 	{
-		for (std::list<uint>::iterator i = npcs.begin(); i != npcs.end(); ++i)
+		for (auto& npc: npcs)
 		{
 			pub::AI::DirectiveCancelOp testOP;
-			pub::AI::SubmitDirective(*i, &testOP);
+			pub::AI::SubmitDirective(npc, &testOP);
 		}
 	}
 	cmds->Print(L"OK\n");
@@ -671,11 +669,9 @@ void AdminCmd_ListNPCFleets(CCmds* cmds)
 	}
 
 	cmds->Print(L"Available fleets: %d\n", mapNPCFleets.size());
-	for (std::map<std::wstring, NPC_FLEETSTRUCT>::iterator i = mapNPCFleets.begin();
-		i != mapNPCFleets.end(); ++i)
-	{
-		cmds->Print(L"|%s\n", i->first.c_str());
-	}
+	for (auto& [name,npcstruct]: mapNPCFleets)
+		cmds->Print(L"|%s\n", name.c_str());
+
 	cmds->Print(L"OK\n");
 
 	return;
@@ -697,13 +693,8 @@ void AdminCmd_AIFleet(CCmds* cmds, std::wstring FleetName)
 	if (iter != mapNPCFleets.end())
 	{
 		NPC_FLEETSTRUCT& fleetmembers = iter->second;
-		for (std::map<std::wstring, int>::iterator i = fleetmembers.fleetmember.begin(); i != fleetmembers.fleetmember.end(); ++i)
-		{
-			std::wstring membername = i->first;
-			int amount = i->second;
-
-			AdminCmd_AIMake(cmds, amount, membername);
-		}
+		for (auto& [name, amount]: fleetmembers.fleetmember)
+			AdminCmd_AIMake(cmds, amount, name);
 	}
 	else
 	{
