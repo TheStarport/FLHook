@@ -68,7 +68,7 @@
     <ClInclude Include="PluginUtilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="mark_plugin.ini" />
+    <None Include="mark.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

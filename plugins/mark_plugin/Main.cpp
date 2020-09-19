@@ -2,7 +2,6 @@
 // Originally by M0tah
 // https://sourceforge.net/projects/kosacid/files/
 
-
 #include "Main.h" 
 
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
@@ -20,7 +19,7 @@ EXPORT void LoadSettings()
 
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	scMarkFile = std::string(szCurDir) + "\\flhook_plugins\\mark.ini";
+	scMarkFile = std::string(szCurDir) + "\\flhook_plugins\\mark.cfg";
 	set_fAutoMarkRadius = IniGetF(scMarkFile, "General", "AutoMarkRadius", 2.0f) * 1000;
 }
 EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
@@ -662,6 +661,12 @@ namespace HkIServerImpl
 		}
 		return 0;
 	}
+
+	EXPORT void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection p2)
+	{
+		returncode = DEFAULT_RETURNCODE;
+		ClearClientMark(iClientID);
+	}
 }
 
 EXPORT void LoadUserCharSettings(uint iClientID)
@@ -748,6 +753,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::LaunchComplete, PLUGIN_HkIServerImpl_LaunchComplete, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::Update, PLUGIN_HkIServerImpl_Update, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadUserCharSettings, PLUGIN_LoadUserCharSettings, 0));
 	return p_PI;
 }
