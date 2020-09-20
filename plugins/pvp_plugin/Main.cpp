@@ -22,69 +22,65 @@ struct contestant
 struct FFA {
 	std::map<uint, contestant> contestants;
 	uint buyin;
+	uint pot;
 };
 
 std::list<BET> bets;
 std::map<uint, FFA> ffas; // uint is iSystemID
 
 // If the player who died is in an FFA, mark them as a loser. Also handles payouts to winner.
-void handleFFA(uint iSystem, uint iClientIDVictim) {
-
-	if (ffas.find(iSystem) != ffas.end() && ffas[iSystem].contestants[iClientIDVictim].bAccepted && !ffas[iSystem].contestants[iClientIDVictim].bLoser)
+void processFFA(uint iClientIDVictim) 
+{
+	for (auto& [iSystem, ffa] : ffas)
 	{
-		if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end())
+		if (ffas[iSystem].contestants[iClientIDVictim].bAccepted && !ffas[iSystem].contestants[iClientIDVictim].bLoser)
 		{
-			ffas[iSystem].contestants[iClientIDVictim].bLoser = true;
-			std::wstring wscVictim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
-			std::wstring msg = wscVictim + L" has been knocked out the FFA.";
-			PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
-		}
-
-		// Is the FFA over?
-		int count = 0;
-		uint iContestantID = 0;
-		for (auto& [id, contestant] : ffas[iSystem].contestants)
-		{
-			if (contestant.bLoser == false && contestant.bAccepted == true) {
-				count++;
-				iContestantID = id;
-			}
-		}
-
-		// Has the FFA been won?
-		if (count <= 1)
-		{
-			if (HkIsValidClientID(iContestantID))
+			if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end())
 			{
-				// Get winner
-				std::wstring winner = (const wchar_t*)Players.GetActiveCharacterName(iContestantID);
-
-				// calculate winning credits
-				uint winnings = ffas[iSystem].buyin * ffas[iSystem].contestants.size();
-
-				// Pay winner
-				HkAddCash(winner, winnings);
-
-				// Announce winner
-				std::wstring msg = winner + L" has won the FFA and receives " + stows(itos(winnings)) + L" credits.";
-				PrintLocalUserCmdText(iContestantID, msg, 100000);
+				ffas[iSystem].contestants[iClientIDVictim].bLoser = true;
+				std::wstring wscVictim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
+				std::wstring msg = wscVictim + L" has been knocked out the FFA.";
+				PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
 			}
-			else
+
+			// Is the FFA over?
+			int count = 0;
+			uint iContestantID = 0;
+			for (auto& [id, contestant] : ffas[iSystem].contestants)
 			{
-				struct PlayerData* pPD = 0;
-				while (pPD = Players.traverse_active(pPD))
-				{
-					uint iClientID = HkGetClientIdFromPD(pPD);
-					uint iClientSystemID = 0;
-					pub::Player::GetSystem(iClientID, iClientSystemID);
-					if (iSystem == iClientSystemID)
-						PrintUserCmdText(iClientID, L"No one has won the FFA.");
+				if (contestant.bLoser == false && contestant.bAccepted == true) {
+					count++;
+					iContestantID = id;
 				}
 			}
 
-			// Delete event
-			ffas.erase(iSystem);
-			return;
+			// Has the FFA been won?
+			if (count <= 1)
+			{
+				if (HkIsValidClientID(iContestantID))
+				{
+					// Announce and pay winner
+					std::wstring wscWinner = (const wchar_t*)Players.GetActiveCharacterName(iContestantID);
+					HkAddCash(wscWinner, ffas[iSystem].pot);
+					std::wstring msg = wscWinner + L" has won the FFA and receives " + std::to_wstring(ffas[iSystem].pot) + L" credits.";
+					PrintLocalUserCmdText(iContestantID, msg, 100000);
+				}
+				else
+				{
+					struct PlayerData* pPD = 0;
+					while (pPD = Players.traverse_active(pPD))
+					{
+						uint iClientID = HkGetClientIdFromPD(pPD);
+						uint iClientSystemID = 0;
+						pub::Player::GetSystem(iClientID, iClientSystemID);
+						if (iSystem == iClientSystemID)
+							PrintUserCmdText(iClientID, L"No one has won the FFA.");
+					}
+				}
+				// Delete event
+				ffas.erase(iSystem);
+				return;
+			}
 		}
 	}
 }
@@ -94,13 +90,22 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 {
 	HK_ERROR err;
 
-	// Get buyin cost
-	int iAmount = ToInt(GetParam(wscParam, ' ', 0));
+	// Get buyin amount
+	std::wstring wscAmount = GetParam(wscParam, ' ', 0);
 
-	// No amount check
+	// Filter out any weird denotion/currency symbols
+	wscAmount = ReplaceStr(wscAmount, L".", L"");
+	wscAmount = ReplaceStr(wscAmount, L",", L"");
+	wscAmount = ReplaceStr(wscAmount, L"$", L"");
+	wscAmount = ReplaceStr(wscAmount, L"$", L"");
+
+	// Convert string to uint
+	uint iAmount = ToInt(wscAmount);
+
+	// Check its a valid amount of cash
 	if (iAmount <= 0)
 	{
-		PrintUserCmdText(iClientID, usage);
+		PrintUserCmdText(iClientID, L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
 		return true;
 	}
 
@@ -156,6 +161,8 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 		{
 			PrintUserCmdText(iClientID, L"Challenge issued. Waiting for others to accept.");
 			ffas[iSystemID].buyin = iAmount;
+			ffas[iSystemID].pot = iAmount;
+			HkAddCash(wscCharname, -(iAmount));
 		}
 		else 
 		{
@@ -163,11 +170,8 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 			PrintUserCmdText(iClientID, L"There are no other players in this system.");
 		}
 	}
-	// Already an FFA
 	else
-	{
 		PrintUserCmdText(iClientID, L"There is an FFA already happening in this system.");
-	}
 	return true;
 }
 
@@ -216,23 +220,22 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::ws
 		{
 			ffas[iSystemID].contestants[iClientID].bAccepted = true;
 			ffas[iSystemID].contestants[iClientID].bLoser = false;
-			PrintUserCmdText(iClientID, stows(itos(ffas[iSystemID].buyin)) + L" has been deducted from your Neural Net account.");
-			std::wstring msg = charname + L" has joined the FFA.";
+			ffas[iSystemID].pot = ffas[iSystemID].pot + ffas[iSystemID].buyin;
+			PrintUserCmdText(iClientID, std::to_wstring(ffas[iSystemID].buyin) + L" credits have been deducted from your Neural Net account.");
+			std::wstring msg = charname + L" has joined the FFA. Pot is now at " + std::to_wstring(ffas[iSystemID].pot) + L" credits.";
 			PrintLocalUserCmdText(iClientID, msg, 100000);
 
 			// Deduct cash
 			HkAddCash(charname, -(ffas[iSystemID].buyin));
-			return true;
 		}
-		else {
+		else
 			PrintUserCmdText(iClientID, L"You have already accepted the FFA.");
-			return true;
-		}
 	}
+	return true;
 }
 
 // Removes any bets with this iClientID and handles payouts.
-void handleDuel(uint iClientID)
+void processDuel(uint iClientID)
 {
 	for (std::list<BET>::iterator iter = bets.begin(); iter != bets.end();)
 	{
@@ -409,10 +412,8 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscCmd, const std::w
 
 bool UserCmd_Cancel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	uint iSystemID;
-	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iClientID);
-	handleDuel(iClientID);
+	processFFA(iClientID);
+	processDuel(iClientID);
 	return true;
 }
 
@@ -479,10 +480,8 @@ int __cdecl Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget
 	uint iClientID = HkGetClientIDByShip(iShip);
 	if (HkIsValidClientID(iClientID))
 	{
-		uint iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
-		handleFFA(iSystemID, iClientID);
-		handleDuel(iClientID);
+		processFFA(iClientID);
+		processDuel(iClientID);
 	}
 	return 0;
 }
@@ -490,26 +489,22 @@ int __cdecl Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget
 void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 {
 	returncode = DEFAULT_RETURNCODE;
-	uint iSystemID;
-	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iClientID);
-	handleDuel(iClientID);
+	processFFA(iClientID);
+	processDuel(iClientID);
 }
 
-void __stdcall PlayerLaunch(struct CHARACTER_ID const& charId, unsigned int iClientID)
+void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2)
 {
 	returncode = DEFAULT_RETURNCODE;
-	uint iSystemID;
-	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iClientID);
-	handleDuel(iClientID);
+	processFFA(iClientID);
+	processDuel(iClientID);
 }
 
 void SendDeathMsg(const std::wstring& wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
 	returncode = DEFAULT_RETURNCODE;
-	handleDuel(iClientIDVictim);
-	handleFFA(iSystem, iClientIDVictim);
+	processDuel(iClientIDVictim);
+	processFFA(iClientIDVictim);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -561,7 +556,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterInfoReq, PLUGIN_HkIServerImpl_CharacterInfoReq, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&Dock_Call, PLUGIN_HkCb_Dock_Call, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
 
