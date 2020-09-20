@@ -45,7 +45,7 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 		uint iContestantID = 0;
 		for (auto& [id, contestant] : ffas[iSystem].contestants)
 		{
-			if (contestant.bLoser == false) {
+			if (contestant.bLoser == false && contestant.bAccepted == true) {
 				count++;
 				iContestantID = id;
 			}
@@ -68,6 +68,18 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 				// Announce winner
 				std::wstring msg = winner + L" has won the FFA and receives " + stows(itos(winnings)) + L" credits.";
 				PrintLocalUserCmdText(iContestantID, msg, 100000);
+			}
+			else
+			{
+				struct PlayerData* pPD = 0;
+				while (pPD = Players.traverse_active(pPD))
+				{
+					uint iClientID = HkGetClientIdFromPD(pPD);
+					uint iClientSystemID = 0;
+					pub::Player::GetSystem(iClientID, iClientSystemID);
+					if (iSystem == iClientSystemID)
+						PrintUserCmdText(iClientID, L"No one has won the FFA.");
+				}
 			}
 
 			// Delete event
@@ -162,6 +174,15 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 // This method is called when a player types /acceptffa
 bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
+	// Is player in space?
+	uint iShip;
+	pub::Player::GetShip(iClientID, iShip);
+	if (!iShip)
+	{
+		PrintUserCmdText(iClientID, L"You must be in space to accept this.");
+		return true;
+	}
+		
 	// Get the player's current system and location in the system.
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
@@ -340,6 +361,15 @@ bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring
 
 bool UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
+	// Is player in space?
+	uint iShip;
+	pub::Player::GetShip(iClientID, iShip);
+	if (!iShip)
+	{
+		PrintUserCmdText(iClientID, L"You must be in space to accept this.");
+		return true;
+	}
+
 	for (auto& bet : bets)
 	{
 		if (bet.iClientID2 == iClientID)
@@ -368,7 +398,7 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscCmd, const std::w
 			}
 
 			bet.bAccepted = true;
-			std::wstring msg = wscCharname + L" has accepted a duel with " + (const wchar_t*)Players.GetActiveCharacterName(bet.iClientID) + L" for " + std::to_wstring(bet.iAmount) + L" credits.";
+			std::wstring msg = wscCharname + L" has accepted the duel with " + (const wchar_t*)Players.GetActiveCharacterName(bet.iClientID) + L" for " + std::to_wstring(bet.iAmount) + L" credits.";
 			PrintLocalUserCmdText(iClientID, msg, 10000);
 			return true;
 		}
@@ -414,7 +444,6 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 	// command, so let other plugins or FLHook kick in. We require an exact match
 	for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++)
 	{
-
 		if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0)
 		{
 			// Extract the parameters string from the chat string. It should
@@ -467,7 +496,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 	handleDuel(iClientID);
 }
 
-void __stdcall CharacterSelect(struct CHARACTER_ID const& charId, unsigned int iClientID)
+void __stdcall PlayerLaunch(struct CHARACTER_ID const& charId, unsigned int iClientID)
 {
 	returncode = DEFAULT_RETURNCODE;
 	uint iSystemID;
@@ -532,7 +561,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&Dock_Call, PLUGIN_HkCb_Dock_Call, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
 
