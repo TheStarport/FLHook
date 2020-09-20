@@ -239,13 +239,11 @@ void handleDuel(uint iClientID)
 			// Change cash
 			HkAddCash(killer, iter->iAmount);
 			HkAddCash(victim, -(iter->iAmount));
-			return;
 		}
 		else
 		{
 			PrintUserCmdText(iter->iClientID, L"Duel cancelled.");
 			PrintUserCmdText(iter->iClientID2, L"Duel cancelled.");
-			bets.erase(iter);
 		}
 		bets.erase(iter);
 		return;
@@ -285,6 +283,13 @@ bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring
 	// Convert string to uint
 	uint iAmount = ToInt(wscAmount);
 
+	// Check its a valid amount of cash
+	if (iAmount <= 0)
+	{
+		PrintUserCmdText(iClientID, L"Must specify a cash amount. Usage: /duel <amount> e.g. /duel 5000");
+		return true;
+	}
+
 	HK_ERROR err;
 	std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
@@ -322,6 +327,7 @@ bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring
 	bet.iClientID2 = iClientIDTarget;
 	bet.iAmount = iAmount;
 	bet.bAccepted = false;
+	bets.push_back(bet);
 
 	// Message players
 	std::wstring wscCharname2 = (const wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
@@ -388,7 +394,7 @@ USERCMD UserCmds[] =
 {
 	{ L"/acceptduel", UserCmd_AcceptDuel, L"Usage: /acceptduel" },
 	{ L"/acceptffa", UserCmd_AcceptFFA, L"Usage: /acceptffa" },
-	{ L"/cancelbet", UserCmd_Cancel, L"Usage: /cancel" },
+	{ L"/cancel", UserCmd_Cancel, L"Usage: /cancel" },
 	{ L"/duel", UserCmd_Duel, L"Usage: /duel <amount>" },
 	{ L"/ffa", UserCmd_StartFFA, L"Usage: /ffa <amount>" },
 };
