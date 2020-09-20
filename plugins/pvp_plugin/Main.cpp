@@ -1,13 +1,10 @@
 // PvP Betting Plugin
 // By Raikkonen
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Includes
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Includes
 #include "Main.h"
 
-// Structure to hold a bet
+// Global variables and structures
 struct BET
 {
 	uint iClientID;
@@ -16,73 +13,66 @@ struct BET
 	bool bAccepted;
 };
 
-std::list<BET> bets;
-
-// Structure to hold a contestant
 struct contestant
 {
 	bool bAccepted;
 	bool bLoser;
 };
 
-// Structure to hold an FFA event
 struct FFA {
 	std::map<uint, contestant> contestants;
 	uint buyin;
 };
 
+std::list<BET> bets;
 std::map<uint, FFA> ffas; // uint is iSystemID
 
 // If the player who died is in an FFA, mark them as a loser. Also handles payouts to winner.
 void handleFFA(uint iSystem, uint iClientIDVictim) {
 
-	if (ffas.find(iSystem) != ffas.end())
+	if (ffas.find(iSystem) != ffas.end() && ffas[iSystem].contestants[iClientIDVictim].bAccepted && !ffas[iSystem].contestants[iClientIDVictim].bLoser)
 	{
-		std::wstring victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
+		if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end())
+		{
+			ffas[iSystem].contestants[iClientIDVictim].bLoser = true;
+			std::wstring wscVictim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
+			std::wstring msg = wscVictim + L" has been knocked out the FFA.";
+			PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
+		}
 
-		if (ffas[iSystem].contestants[iClientIDVictim].bAccepted) {
-			if (!ffas[iSystem].contestants[iClientIDVictim].bLoser) {
-
-
-
-				if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end()) {
-					ffas[iSystem].contestants[iClientIDVictim].bLoser = true;
-					std::wstring msg = victim + L" has been knocked out the FFA.";
-					PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
-				}
-
-				// Is the FFA over?
-				int count = 0;
-				uint contestantid;
-				for (std::map<uint, contestant>::iterator iter = ffas[iSystem].contestants.begin();
-					iter != ffas[iSystem].contestants.end();
-					iter++)
-				{
-					if (iter->second.bLoser == false) {
-						count++;
-						contestantid = iter->first;
-					}
-				}
-				// Has the FFA been won?
-				if (count == 1)
-				{
-					// Get winner
-					std::wstring winner = (const wchar_t*)Players.GetActiveCharacterName(contestantid);
-
-					// calculate winning credits
-					uint winnings = ffas[iSystem].buyin * ffas[iSystem].contestants.size();
-
-					// Pay winner
-					HkAddCash(winner, winnings);
-
-					// Announce winner
-					std::wstring msg = winner + L" has won the FFA and receives " + stows(itos(winnings)) + L" credits.";
-					PrintLocalUserCmdText(contestantid, msg, 100000);
-
-					// Delete event
-					ffas.erase(iSystem);
-				}
+		// Is the FFA over?
+		int count = 0;
+		uint iContestantID = 0;
+		for (auto& [id, contestant] : ffas[iSystem].contestants)
+		{
+			if (contestant.bLoser == false) {
+				count++;
+				iContestantID = id;
 			}
+		}
+
+		// Has the FFA been won?
+		if (count <= 1)
+		{
+			if (HkIsValidClientID(iContestantID))
+			{
+				// Get winner
+				std::wstring winner = (const wchar_t*)Players.GetActiveCharacterName(iContestantID);
+
+				// calculate winning credits
+				uint winnings = ffas[iSystem].buyin * ffas[iSystem].contestants.size();
+
+				// Pay winner
+				HkAddCash(winner, winnings);
+
+				// Announce winner
+				std::wstring msg = winner + L" has won the FFA and receives " + stows(itos(winnings)) + L" credits.";
+				PrintLocalUserCmdText(iContestantID, msg, 100000);
+			}
+
+			// Delete event
+			ffas.erase(iSystem);
+			return;
 		}
 	}
 }
@@ -102,9 +92,8 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 		return true;
 	}
 
-	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-
 	// Check the player can afford it
+	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 	int iCash = 0;
 	if ((err = HkGetCash(charname, iCash)) != HKE_OK)
 	{
@@ -136,23 +125,28 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 			pub::Player::GetSystem(iClientID2, iClientSystemID);
 			if (iSystemID != iClientSystemID)
 				continue;
-			// Add them to the contestants map
+
+			// Add them to the contestants ffas
 			ffas[iSystemID].contestants[iClientID2].bLoser = false;
-			if (iClientID == iClientID2) {
+
+			if (iClientID == iClientID2) 
 				ffas[iSystemID].contestants[iClientID2].bAccepted = true;
-			}
-			else {
+			else 
+			{
 				ffas[iSystemID].contestants[iClientID2].bAccepted = false;
 				std::wstring msg = charname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(iAmount) + L" credits. Type \"/acceptffa\" to enter.";
 				PrintUserCmdText(iClientID2, msg);
 			}
 		}
+
 		// Are there any other players in this system?
-		if (ffas[iSystemID].contestants.size() > 0) {
+		if (ffas[iSystemID].contestants.size() > 0) 
+		{
 			PrintUserCmdText(iClientID, L"Challenge issued. Waiting for others to accept.");
 			ffas[iSystemID].buyin = iAmount;
 		}
-		else {
+		else 
+		{
 			ffas.erase(iSystemID);
 			PrintUserCmdText(iClientID, L"There are no other players in this system.");
 		}
@@ -197,7 +191,8 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::ws
 		}
 
 		// Accept
-		if (ffas[iSystemID].contestants[iClientID].bAccepted == false) {
+		if (ffas[iSystemID].contestants[iClientID].bAccepted == false) 
+		{
 			ffas[iSystemID].contestants[iClientID].bAccepted = true;
 			ffas[iSystemID].contestants[iClientID].bLoser = false;
 			PrintUserCmdText(iClientID, stows(itos(ffas[iSystemID].buyin)) + L" has been deducted from your Neural Net account.");
