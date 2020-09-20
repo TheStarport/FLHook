@@ -9,7 +9,7 @@ struct BET
 {
 	uint iClientID;
 	uint iClientID2;
-	uint iAmount;
+	int iAmount;
 	bool bAccepted;
 };
 
@@ -21,8 +21,8 @@ struct contestant
 
 struct FFA {
 	std::map<uint, contestant> contestants;
-	uint buyin;
-	uint pot;
+	int buyin;
+	int pot;
 };
 
 std::list<BET> bets;
@@ -100,7 +100,7 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 	wscAmount = ReplaceStr(wscAmount, L"$", L"");
 
 	// Convert string to uint
-	uint iAmount = ToInt(wscAmount);
+	int iAmount = ToInt(wscAmount);
 
 	// Check its a valid amount of cash
 	if (iAmount <= 0)
@@ -305,7 +305,7 @@ bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring
 	wscAmount = ReplaceStr(wscAmount, L"$", L"");
 
 	// Convert string to uint
-	uint iAmount = ToInt(wscAmount);
+	int iAmount = ToInt(wscAmount);
 
 	// Check its a valid amount of cash
 	if (iAmount <= 0)
