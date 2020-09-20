@@ -373,18 +373,15 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscCmd, const std::w
 
 bool UserCmd_Cancel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
+	uint iSystemID;
+	pub::Player::GetSystem(iClientID, iSystemID);
+	handleFFA(iSystemID, iClientID);
 	handleDuel(iClientID);
 	return true;
 }
 
-/** Clean up when a client disconnects */
-void ClearClientInfo(uint iClientID)
-{
-	returncode = DEFAULT_RETURNCODE;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Client command processing
+// Client command processing
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 USERCMD UserCmds[] =
@@ -470,7 +467,6 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const& charId, unsigned int i
 	handleDuel(iClientID);
 }
 
-// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 void SendDeathMsg(const std::wstring& wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
 	returncode = DEFAULT_RETURNCODE;
@@ -513,7 +509,7 @@ EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Functions to hook
+// Functions to hook
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT PLUGIN_INFO* Get_PluginInfo()
@@ -524,9 +520,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->bMayPause = true;
 	p_PI->bMayUnload = true;
 	p_PI->ePluginReturnCode = &returncode;
-
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ClearClientInfo, PLUGIN_ClearClientInfo, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
