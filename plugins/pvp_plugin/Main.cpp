@@ -555,7 +555,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
 	p_PI->sName = "PvP";
 	p_PI->sShortName = "pvp";
-	p_PI->bMayPause = true;
+	p_PI->bMayPause = false;
 	p_PI->bMayUnload = true;
 	p_PI->ePluginReturnCode = &returncode;
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
