@@ -93,9 +93,9 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 	}
 
 	// Check the player can afford it
-	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+	std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 	int iCash = 0;
-	if ((err = HkGetCash(charname, iCash)) != HKE_OK)
+	if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK)
 	{
 		PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 		return true;
@@ -134,7 +134,7 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 			else 
 			{
 				ffas[iSystemID].contestants[iClientID2].bAccepted = false;
-				std::wstring msg = charname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(iAmount) + L" credits. Type \"/acceptffa\" to enter.";
+				std::wstring msg = wscCharname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(iAmount) + L" credits. Type \"/acceptffa\" to enter.";
 				PrintUserCmdText(iClientID2, msg);
 			}
 		}
@@ -290,7 +290,7 @@ bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring
 
 	// Check the player can afford it
 	int iCash = 0;
-	if ((err = HkGetCash(wscAmount, iCash)) != HKE_OK)
+	if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK)
 	{
 		PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 		return true;
@@ -389,7 +389,7 @@ USERCMD UserCmds[] =
 	{ L"/acceptduel", UserCmd_AcceptDuel, L"Usage: /acceptduel" },
 	{ L"/acceptffa", UserCmd_AcceptFFA, L"Usage: /acceptffa" },
 	{ L"/cancelbet", UserCmd_Cancel, L"Usage: /cancel" },
-	{ L"/duel", UserCmd_Duel, L"Usage: /duel <charname> <amount>" },
+	{ L"/duel", UserCmd_Duel, L"Usage: /duel <amount>" },
 	{ L"/ffa", UserCmd_StartFFA, L"Usage: /ffa <amount>" },
 };
 
@@ -442,11 +442,14 @@ int __cdecl Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget
 {
 	returncode = DEFAULT_RETURNCODE;
 	uint iClientID = HkGetClientIDByShip(iShip);
-	uint iSystemID;
-	pub::Player::GetSystem(iClientID, iSystemID);
-	handleFFA(iSystemID, iClientID);
-	handleDuel(iClientID);
-	return -1;
+	if (HkIsValidClientID(iClientID))
+	{
+		uint iSystemID;
+		pub::Player::GetSystem(iClientID, iSystemID);
+		handleFFA(iSystemID, iClientID);
+		handleDuel(iClientID);
+	}
+	return 0;
 }
 
 void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
