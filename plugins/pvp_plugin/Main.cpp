@@ -12,65 +12,41 @@ struct BET
 {
 	uint iClientID;
 	uint iClientID2;
-	uint amount;
-	bool accepted;
+	uint iAmount;
+	bool bAccepted;
 };
 
-std::map<std::wstring, BET> duels;
+std::list<BET> bets;
 
 // Structure to hold a contestant
 struct contestant
 {
-	bool accepted;
-	bool loser;
+	bool bAccepted;
+	bool bLoser;
 };
 
 // Structure to hold an FFA event
 struct FFA {
 	std::map<uint, contestant> contestants;
-	uint system;
 	uint buyin;
 };
 
-std::map<uint, FFA> ffas; // uint is system
+std::map<uint, FFA> ffas; // uint is iSystemID
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Functions
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// Removes any bets with this iClientID
-
-void removeBet(uint iClientID) {
-	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-	for (std::map<std::wstring, BET>::iterator iter = duels.begin(); iter != duels.end();)
-	{
-		if (iter->second.iClientID == iClientID || iter->second.iClientID2 == iClientID) {
-			PrintUserCmdText(iter->second.iClientID, L"Duel cancelled.");
-			PrintUserCmdText(iter->second.iClientID2, L"Duel cancelled.");
-			duels.erase(iter);
-		}
-		else
-		{
-			iter++;
-		}
-	}
-}
-
+// If the player who died is in an FFA, mark them as a loser. Also handles payouts to winner.
 void handleFFA(uint iSystem, uint iClientIDVictim) {
 
 	if (ffas.find(iSystem) != ffas.end())
 	{
 		std::wstring victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
 
-		if (ffas[iSystem].contestants[iClientIDVictim].accepted) {
-			if (!ffas[iSystem].contestants[iClientIDVictim].loser) {
+		if (ffas[iSystem].contestants[iClientIDVictim].bAccepted) {
+			if (!ffas[iSystem].contestants[iClientIDVictim].bLoser) {
 
 
 
 				if (ffas[iSystem].contestants.find(iClientIDVictim) != ffas[iSystem].contestants.end()) {
-					ffas[iSystem].contestants[iClientIDVictim].loser = true;
+					ffas[iSystem].contestants[iClientIDVictim].bLoser = true;
 					std::wstring msg = victim + L" has been knocked out the FFA.";
 					PrintLocalUserCmdText(iClientIDVictim, msg, 100000);
 				}
@@ -82,13 +58,13 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 					iter != ffas[iSystem].contestants.end();
 					iter++)
 				{
-					if (iter->second.loser == false) {
+					if (iter->second.bLoser == false) {
 						count++;
 						contestantid = iter->first;
 					}
 				}
 				// Has the FFA been won?
-				if (count == 1) 
+				if (count == 1)
 				{
 					// Get winner
 					std::wstring winner = (const wchar_t*)Players.GetActiveCharacterName(contestantid);
@@ -112,16 +88,15 @@ void handleFFA(uint iSystem, uint iClientIDVictim) {
 }
 
 // This method is called when a player types /ffa in an attempt to start a pvp event
-
 bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
 	HK_ERROR err;
 
 	// Get buyin cost
-	int amount = ToInt(GetParam(wscParam, ' ', 0));
+	int iAmount = ToInt(GetParam(wscParam, ' ', 0));
 
 	// No amount check
-	if (amount <= 0)
+	if (iAmount <= 0)
 	{
 		PrintUserCmdText(iClientID, usage);
 		return true;
@@ -136,7 +111,7 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 		PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 		return true;
 	}
-	if (amount > 0 && iCash < amount)
+	if (iAmount > 0 && iCash < iAmount)
 	{
 		PrintUserCmdText(iClientID, L"You don't have enough credits to create this FFA.");
 		return true;
@@ -162,20 +137,20 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 			if (iSystemID != iClientSystemID)
 				continue;
 			// Add them to the contestants map
-			ffas[iSystemID].contestants[iClientID2].loser = false;
+			ffas[iSystemID].contestants[iClientID2].bLoser = false;
 			if (iClientID == iClientID2) {
-				ffas[iSystemID].contestants[iClientID2].accepted = true;			
+				ffas[iSystemID].contestants[iClientID2].bAccepted = true;
 			}
 			else {
-				ffas[iSystemID].contestants[iClientID2].accepted = false;
-				std::wstring msg = charname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(amount) + L" credits. Type \"/acceptffa\" to enter.";
+				ffas[iSystemID].contestants[iClientID2].bAccepted = false;
+				std::wstring msg = charname + L" has started a Free-For-All tournament. Cost to enter is " + std::to_wstring(iAmount) + L" credits. Type \"/acceptffa\" to enter.";
 				PrintUserCmdText(iClientID2, msg);
 			}
 		}
 		// Are there any other players in this system?
 		if (ffas[iSystemID].contestants.size() > 0) {
 			PrintUserCmdText(iClientID, L"Challenge issued. Waiting for others to accept.");
-			ffas[iSystemID].buyin = amount;
+			ffas[iSystemID].buyin = iAmount;
 		}
 		else {
 			ffas.erase(iSystemID);
@@ -191,7 +166,6 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring& wscCmd, const std::wst
 }
 
 // This method is called when a player types /acceptffa
-
 bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
 	// Get the player's current system and location in the system.
@@ -223,9 +197,9 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::ws
 		}
 
 		// Accept
-		if (ffas[iSystemID].contestants[iClientID].accepted == false) {
-			ffas[iSystemID].contestants[iClientID].accepted = true;
-			ffas[iSystemID].contestants[iClientID].loser = false;
+		if (ffas[iSystemID].contestants[iClientID].bAccepted == false) {
+			ffas[iSystemID].contestants[iClientID].bAccepted = true;
+			ffas[iSystemID].contestants[iClientID].bLoser = false;
 			PrintUserCmdText(iClientID, stows(itos(ffas[iSystemID].buyin)) + L" has been deducted from your Neural Net account.");
 			std::wstring msg = charname + L" has joined the FFA.";
 			PrintLocalUserCmdText(iClientID, msg, 100000);
@@ -241,130 +215,170 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscCmd, const std::ws
 	}
 }
 
-// This method is called when a player types /duel in an attempt to start a duel
+// Removes any bets with this iClientID and handles payouts.
+void handleDuel(uint iClientID)
+{
+	for (std::list<BET>::iterator iter = bets.begin(); iter != bets.end();)
+	{
+		uint iClientIDKiller = 0;
 
+		if (iter->iClientID == iClientID)
+			iClientIDKiller = iter->iClientID2;
+
+		if (iter->iClientID2 == iClientID)
+			iClientIDKiller = iter->iClientID;
+
+		if (iClientIDKiller == 0)
+			return;
+
+		if (iter->bAccepted)
+		{
+			// Get player names
+			std::wstring victim = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			std::wstring killer = (const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
+
+			// Prepare and send message
+			std::wstring msg = killer + L" has won a duel against " + victim + L" for " + std::to_wstring(iter->iAmount) + L" credits.";
+			PrintLocalUserCmdText(iClientIDKiller, msg, 10000);
+
+			// Change cash
+			HkAddCash(killer, iter->iAmount);
+			HkAddCash(victim, -(iter->iAmount));
+			return;
+		}
+		else
+		{
+			PrintUserCmdText(iter->iClientID, L"Duel cancelled.");
+			PrintUserCmdText(iter->iClientID2, L"Duel cancelled.");
+			bets.erase(iter);
+		}
+		bets.erase(iter);
+		return;
+	}
+}
+
+// This method is called when a player types /duel in an attempt to start a duel
 bool UserCmd_Duel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	// Get char name
-	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-	std::wstring targetcharname = GetParam(wscParam, ' ', 0);
-	uint amount = ToInt(GetParam(wscParam, ' ', 1));
-
-	if (!targetcharname.length() || !amount)
+	// Get the object the player is targetting
+	uint iShip, iTargetShip;
+	pub::Player::GetShip(iClientID, iShip);
+	pub::SpaceObj::GetTarget(iShip, iTargetShip);
+	if (!iTargetShip)
 	{
-		PrintUserCmdText(iClientID, usage);
+		PrintUserCmdText(iClientID, L"Target is not a ship.");
 		return true;
 	}
 
-	// Target is player?
-	if (charname == targetcharname) {
-		PrintUserCmdText(iClientID, L"You can't duel yourself.");
-		return true;
-	}
-
-	// Does the target exist?
-	if (!HkGetAccountByCharname(targetcharname))
+	// Check ship is a player
+	uint iClientIDTarget = HkGetClientIDByShip(iTargetShip);
+	if (!iClientIDTarget)
 	{
-		PrintUserCmdText(iClientID, L"Player doesn't exist.");
+		PrintUserCmdText(iClientID, L"Target is not a player.");
 		return true;
 	}
 
-	// Is the target online?
-	uint iToClientID = HkGetClientIdFromCharname(targetcharname);
-	if (iToClientID == -1)
-	{
-		PrintUserCmdText(iClientID, L"Player is offline.");
-		return true;
-	}
+	// Get bet amount
+	std::wstring wscAmount = GetParam(wscParam, ' ', 0);
+
+	// Filter out any weird denotion/currency symbols
+	wscAmount = ReplaceStr(wscAmount, L".", L"");
+	wscAmount = ReplaceStr(wscAmount, L",", L"");
+	wscAmount = ReplaceStr(wscAmount, L"$", L"");
+	wscAmount = ReplaceStr(wscAmount, L"$", L"");
+
+	// Convert string to uint
+	uint iAmount = ToInt(wscAmount);
 
 	HK_ERROR err;
+	std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 	// Check the player can afford it
 	int iCash = 0;
-	if ((err = HkGetCash(charname, iCash)) != HKE_OK)
+	if ((err = HkGetCash(wscAmount, iCash)) != HKE_OK)
 	{
 		PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 		return true;
 	}
-	if (amount > 0 && iCash < amount)
+	if (iAmount > 0 && iCash < iAmount)
 	{
 		PrintUserCmdText(iClientID, L"You don't have enough credits to issue this challenge.");
 		return true;
 	}
 
 	// Do either players already have a duel?
-	for (std::map<std::wstring, BET>::iterator iter = duels.begin();
-		iter != duels.end();
-		iter++)
+	for (auto& bet : bets)
 	{
 		// Target already has a bet
-		if ((iter->second.iClientID == iToClientID || iter->second.iClientID2 == iToClientID)) {
+		if ((bet.iClientID == iClientIDTarget || bet.iClientID2 == iClientIDTarget)) {
 			PrintUserCmdText(iClientID, L"This player already has an ongoing duel.");
 			return true;
 		}
 		// Player already has a bet
-		if ((iter->second.iClientID == iClientID || iter->second.iClientID2 == iClientID)) {
+		if ((bet.iClientID == iClientID || bet.iClientID2 == iClientID)) {
 			PrintUserCmdText(iClientID, L"You already have an ongoing duel. Type /cancel");
 			return true;
 		}
 	}
 
 	// Create duel
-	duels[targetcharname].iClientID = iClientID;
-	duels[targetcharname].iClientID2 = iToClientID;
-	duels[targetcharname].amount = amount;
-	duels[targetcharname].accepted = false;
+	BET bet;
+	bet.iClientID = iClientID;
+	bet.iClientID2 = iClientIDTarget;
+	bet.iAmount = iAmount;
+	bet.bAccepted = false;
 
-	std::wstring msg = charname + L" has challenged " + targetcharname + L" to a duel for " + std::to_wstring(duels[targetcharname].amount) + L" credits.";
+	// Message players
+	std::wstring wscCharname2 = (const wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
+	std::wstring msg = wscCharname + L" has challenged " + wscCharname2 + L" to a duel for " + std::to_wstring(iAmount) + L" credits.";
 	PrintLocalUserCmdText(iClientID, msg, 10000);
-	PrintUserCmdText(iToClientID, L"Type \"/acceptduel\" to accept.");
+	PrintUserCmdText(iClientIDTarget, L"Type \"/acceptduel\" to accept.");
 
 	return true;
 }
 
 bool UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-	// If player doesn't have an ongoing bet
-	if (duels.find(charname) == duels.end())
+	for (auto& bet : bets)
 	{
-		PrintUserCmdText(iClientID, L"You don't have an ongoing duel.");
-	}
-	// Player has a bet
-	else
-	{
-		if (duels[charname].accepted) {
-			PrintUserCmdText(iClientID, L"You have already accepted the challenge.");
-		}
-		else {
-
-			HK_ERROR err;
+		if (bet.iClientID2 == iClientID)
+		{
+			// Has player already accepted the bet?
+			if (bet.bAccepted == true)
+			{
+				PrintUserCmdText(iClientID, L"You have already accepted the challenge.");
+				return true;
+			}
 
 			// Check the player can afford it
+			HK_ERROR err;
+			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 			int iCash = 0;
-			if ((err = HkGetCash(charname, iCash)) != HKE_OK)
+			if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 				return true;
 			}
-			if (duels[charname].amount > 0 && iCash < duels[charname].amount)
+
+			if (iCash < bet.iAmount)
 			{
 				PrintUserCmdText(iClientID, L"You don't have enough credits to accept this challenge");
 				return true;
 			}
 
-			duels[charname].accepted = true;
-			std::wstring msg = charname + L" has accepted a duel with " + (const wchar_t*)Players.GetActiveCharacterName(duels[charname].iClientID2) + L" for " + std::to_wstring(duels[charname].amount) + L" credits.";
+			bet.bAccepted = true;
+			std::wstring msg = wscCharname + L" has accepted a duel with " + (const wchar_t*)Players.GetActiveCharacterName(bet.iClientID) + L" for " + std::to_wstring(bet.iAmount) + L" credits.";
 			PrintLocalUserCmdText(iClientID, msg, 10000);
+			return true;
 		}
 	}
+	PrintUserCmdText(iClientID, L"You have no duel requests. To challenge someone, target them and type /duel <amount>");
 	return true;
 }
 
 bool UserCmd_Cancel(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
 {
-	removeBet(iClientID);
+	handleDuel(iClientID);
 	return true;
 }
 
@@ -381,15 +395,10 @@ void ClearClientInfo(uint iClientID)
 USERCMD UserCmds[] =
 {
 	{ L"/acceptduel", UserCmd_AcceptDuel, L"Usage: /acceptduel" },
-	{ L"/acceptduel*", UserCmd_AcceptDuel, L"Usage: /acceptduel" },
 	{ L"/acceptffa", UserCmd_AcceptFFA, L"Usage: /acceptffa" },
-	{ L"/acceptffa*", UserCmd_AcceptFFA, L"Usage: /acceptffa" },
 	{ L"/cancelbet", UserCmd_Cancel, L"Usage: /cancel" },
-	{ L"/cancelbet*", UserCmd_Cancel, L"Usage: /cancel" },
 	{ L"/duel", UserCmd_Duel, L"Usage: /duel <charname> <amount>" },
-	{ L"/duel*", UserCmd_Duel, L"Usage: /duel <charname> <amount>" },
 	{ L"/ffa", UserCmd_StartFFA, L"Usage: /ffa <amount>" },
-	{ L"/ffa*", UserCmd_StartFFA, L"Usage: /ffa <amount>" }
 };
 
 /**
@@ -444,8 +453,8 @@ int __cdecl Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
 	handleFFA(iSystemID, iClientID);
-	removeBet(iClientID);
-	return 0;
+	handleDuel(iClientID);
+	return -1;
 }
 
 void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
@@ -454,7 +463,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
 	handleFFA(iSystemID, iClientID);
-	removeBet(iClientID);
+	handleDuel(iClientID);
 }
 
 void __stdcall CharacterSelect(struct CHARACTER_ID const& charId, unsigned int iClientID)
@@ -463,44 +472,14 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const& charId, unsigned int i
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
 	handleFFA(iSystemID, iClientID);
-	removeBet(iClientID);
+	handleDuel(iClientID);
 }
 
 // Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 void SendDeathMsg(const std::wstring& wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
 	returncode = DEFAULT_RETURNCODE;
-
-	// Bets
-	for (std::map<std::wstring, BET>::iterator iter = duels.begin(); iter != duels.end();)
-	{
-		// If we get a match on the betting map
-		if ((iter->second.iClientID == iClientIDKiller && iter->second.iClientID2 == iClientIDVictim) || (iter->second.iClientID == iClientIDVictim && iter->second.iClientID2 == iClientIDKiller)) {
-			if (iter->second.accepted) {
-				// Remove the bet
-				duels.erase(iter);
-				// Get player names
-				std::wstring victim = (const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim);
-				std::wstring killer = (const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
-				// Prepare and send message
-				std::wstring msg = killer + L" has won a duel against " + victim + L" for " + std::to_wstring(iter->second.amount) + L" credits.";
-				PrintLocalUserCmdText(iClientIDKiller, msg, 10000);
-				// Change cash
-				HkAddCash(killer, iter->second.amount);
-				HkAddCash(victim, -(iter->second.amount));
-			}
-			else
-			{
-				iter++;
-			}
-		}
-		else
-		{
-			iter++;
-		}
-	}
-
-	//FFA
+	handleDuel(iClientIDVictim);
 	handleFFA(iSystem, iClientIDVictim);
 }
 
