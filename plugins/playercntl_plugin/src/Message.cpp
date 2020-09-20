@@ -1062,6 +1062,7 @@ namespace Message
 		else
 		{
 			PrintUserCmdText(iClientID, L"Command not enabled.");
+			return true;
 		}
 	}
 
@@ -1083,6 +1084,7 @@ namespace Message
 		else 
 		{
 			PrintUserCmdText(iClientID, L"Command not enabled.");
+			return true;
 		}
 	}
 
