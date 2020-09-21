@@ -6,7 +6,7 @@
  Initial release
 */
 
-// includes 
+// includes
 
 #include <windows.h>
 #include <stdio.h>
@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 #include "Cloak.h"
 
@@ -167,7 +166,7 @@ void SetCloak(uint iClientID, uint iShipID, bool bOn)
 }
 
 void SetState(uint iClientID, uint iShipID, int iNewState)
-{	
+{
 	if (mapClientsCloak[iClientID].iState != iNewState)
 	{
 		mapClientsCloak[iClientID].iState = iNewState;
@@ -239,9 +238,9 @@ void PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
 			equip; equip = GetEquipManager(cship)->Traverse(tr))
 		{
 			if (CECloakingDevice::cast(equip))
-			{		
-				mapClientsCloak[iClientID].iCloakSlot = equip->GetID();			
-				
+			{
+				mapClientsCloak[iClientID].iCloakSlot = equip->GetID();
+
 				if (mapCloakingDevices.find(equip->EquipArch()->iArchID)!=mapCloakingDevices.end())
 				{
 					// Otherwise set the fuel usage and warm up time
@@ -277,14 +276,14 @@ void HkTimerCheckKick()
 {
 	mstime now = timeInMS();
 
-	
+
 
 	for (map<uint, CLOAK_INFO>::iterator ci = mapClientsCloak.begin(); ci != mapClientsCloak.end(); ++ci)
 	{
 		uint iClientID = ci->first;
 		uint iShipID = Players[iClientID].iShipID;
 		CLOAK_INFO &info = ci->second;
-	
+
 		if (iShipID && info.bCanCloak)
 		{
 			switch (info.iState)
@@ -302,8 +301,8 @@ void HkTimerCheckKick()
 			case STATE_CLOAK_CHARGING:
 				if (!ProcessFuel(iClientID, info))
 				{
-					PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");	
-					SetState(iClientID, iShipID, STATE_CLOAK_OFF);	
+					PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");
+					SetState(iClientID, iShipID, STATE_CLOAK_OFF);
 				}
 				else if ((info.tmCloakTime + info.arch.iWarmupTime) < now)
 				{
@@ -318,8 +317,8 @@ void HkTimerCheckKick()
 			case STATE_CLOAK_ON:
 				if (!ProcessFuel(iClientID, info))
 				{
-					PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");	
-					SetState(iClientID, iShipID, STATE_CLOAK_OFF);	
+					PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");
+					SetState(iClientID, iShipID, STATE_CLOAK_OFF);
 				}
 				else if (info.arch.bDropShieldsOnUncloak && !info.bAdmin)
 				{
@@ -335,7 +334,7 @@ void HkTimerCheckKick()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
-{		
+{
 	uint iShip;
 	pub::Player::GetShip(iClientID, iShip);
 	if (!iShip)
@@ -350,7 +349,7 @@ bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd, const std::wstrin
 		return true;
 	}
 
-	
+
 	// If this cloaking device requires more power than the ship can provide
 	// no cloaking device is available.
 	IObjInspectImpl *obj = HkGetInspect(iClientID);
@@ -397,12 +396,12 @@ USERCMD UserCmds[] =
 {
 	{ L"/cloak", UserCmd_Cloak, L"Usage: /cloak"},
 	{ L"/cloak*", UserCmd_Cloak, L"Usage: /cloak"},
-	
+
 };
 
 /**
 This function is called by FLHook when a user types a chat std::string. We look at the
-std::string they've typed and see if it starts with one of the above commands. If it 
+std::string they've typed and see if it starts with one of the above commands. If it
 does we try to process it.
 */
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
@@ -455,8 +454,8 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring &wscCmd)
 		{
 			cmds->Print(L"ERR On console");
 			return true;
-		}	
-		
+		}
+
 		uint iShip;
 		pub::Player::GetShip(iClientID, iShip);
 		if (!iShip)
@@ -521,7 +520,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->bMayPause = true;
 	p_PI->bMayUnload = true;
 	p_PI->ePluginReturnCode = &returncode;
-	
+
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ClearClientInfo, PLUGIN_ClearClientInfo, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch_AFTER, PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
@@ -530,7 +529,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkCb_AddDmgEntry, PLUGIN_HkCb_AddDmgEntry, 0));
-	
-	
+
+
 	return p_PI;
 }

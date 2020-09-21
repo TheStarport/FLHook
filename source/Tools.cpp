@@ -79,6 +79,15 @@ float ToFloat(const std::wstring &wscStr)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string itohexs(uint value)
+{
+	char buf[16];
+	sprintf_s(buf, "%08X", value);
+	return buf;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 999.999.999
 
 std::wstring ToMoneyStr(int iCash)
@@ -217,6 +226,29 @@ void IniGetSection(const std::string &scFile, const std::string &scApp, std::lis
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+Determine the path name of a file in the charname account directory with the
+provided extension. The resulting path is returned in the path parameter.
+*/
+std::string GetUserFilePath(const std::wstring &wscCharname, const std::string &scExtension)
+{
+	// init variables
+	char szDataPath[MAX_PATH];
+	GetUserDataPath(szDataPath);
+	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+
+	std::wstring wscDir;
+	std::wstring wscFile;
+	if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
+		return "";
+	if (HkGetCharFileName(wscCharname, wscFile)!=HKE_OK)
+		return "";
+
+	return scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + scExtension;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::wstring XMLText(const std::wstring &wscText)
 {
 	std::wstring wscRet;
@@ -282,6 +314,57 @@ std::wstring GetParam(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPo
 	return wscResult;
 }
 
+
+std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
+{
+	uint i = 0, j = 0;
+
+	std::string scResult = "";
+	for(i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
+	{
+		if(scLine[j] == cSplitChar)
+		{
+			while(((j + 1) < scLine.length()) && (scLine[j+1] == cSplitChar))
+				j++; // skip "whitechar"
+
+			i++;
+			continue;
+		}
+
+		if(i == iPos)
+			scResult += scLine[j];
+	}
+
+	return scResult;
+}
+
+/**
+This function is similar to GetParam but instead returns everything
+from the parameter specified by iPos to the end of wscLine.
+
+wscLine - the std::string to get parameters from
+wcSplitChar - the seperator character
+iPos - the parameter number to start from.
+*/
+std::wstring GetParamToEnd(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPos)
+{
+	for(uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
+	{
+		if(wscLine[j] == wcSplitChar)
+		{
+			while(((j + 1) < wscLine.length()) && (wscLine[j+1] == wcSplitChar))
+				j++; // skip "whitechar"
+			i++;
+			continue;
+		}
+		if	(i == iPos)
+		{
+			return wscLine.substr(j);
+		}
+	}
+	return L"";
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::wstring ReplaceStr(const std::wstring &wscSource, const std::wstring &wscSearchFor, const std::wstring &wscReplaceWith)
@@ -307,6 +390,24 @@ mstime timeInMS()
 	mstime iFreq;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&iFreq);
 	return 1000 * iCount / iFreq;
+}
+
+
+/// Use this function to get the ticks since system startup. The FLHook timeInMS()
+/// function seems to report inaccurate time when the FLServer.exe process freezes
+/// (which happens due to other bugs).
+mstime GetTimeInMS()
+{
+	static mstime msBaseTime = 0;
+	static mstime msLastTickCount = 0;
+
+	mstime msCurTime = GetTickCount();
+	// GetTickCount is 32 bits and so wraps around ever 49.5 days
+	// If a wrap around has occurred then
+	if (msCurTime < msLastTickCount)
+		msBaseTime += (2^32);
+	msLastTickCount = msCurTime;
+	return msBaseTime + msLastTickCount;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,17 +545,19 @@ void WriteMiniDump(SEHException* ex)
 	}
 }
 
-void AddExceptionInfoLog(SEHException* ex)
+#include <string.h>
+#include "dbghelp.h"
+#include "exceptioninfo.h"
+#include <Psapi.h>
+#include <io.h>
+#include <shlwapi.h>
+
+void AddExceptionInfoLog()
 {
 	try
 	{
-		EXCEPTION_RECORD *exception = NULL;
-		CONTEXT *context = NULL;
-		if (ex)
-		{
-			exception = &ex->record;
-			context = &ex->context;
-		}
+		EXCEPTION_RECORD const *exception = GetCurrentExceptionRecord();
+		_CONTEXT const *reg = GetCurrentExceptionContext();
 
 		if (exception)
 		{
@@ -463,31 +566,129 @@ void AddExceptionInfoLog(SEHException* ex)
 			uint iOffset = 0;
 			HMODULE hModExc = GetModuleAddr(iAddr);
 			char szModName[MAX_PATH] = "";
-			if (hModExc)
+			if(hModExc)
 			{
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
 			AddBothLog("Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
+			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) //C++ exception
+			{
+				_s__ThrowInfo *info = (_s__ThrowInfo*)exception->ExceptionInformation[2];
+				const _s__CatchableType *const (*typeArr)[] = &info->pCatchableTypeArray->arrayOfCatchableTypes;
+				std::exception *obj = (std::exception*)exception->ExceptionInformation[1];
+				const char *szName = info && info->pCatchableTypeArray && info->pCatchableTypeArray->nCatchableTypes ? (*typeArr)[0]->pType->name : "";
+				int i = 0;
+				for(; i < info->pCatchableTypeArray->nCatchableTypes; i++)
+				{
+					if(!strcmp(".?AVexception@@", (*typeArr)[i]->pType->name))
+						break;
+				}
+				const char *szMessage = i != info->pCatchableTypeArray->nCatchableTypes ? obj->what() : "";
+				//C++ exceptions are triggered by RaiseException in kernel32, so use ebp to get the return address
+				iOffset = 0;
+				szModName[0] = 0;
+				if(reg)
+				{
+					iAddr = *((*((uint**)reg->Ebp)) + 1);
+					hModExc = GetModuleAddr(iAddr);
+					if(hModExc)
+					{
+						iOffset = iAddr - (uint)hModExc;
+						GetModuleFileName(hModExc, szModName, sizeof(szModName));
+					}
+				}
+				AddBothLog("Name=\"%s\" Message=\"%s\" Offset=%x Module=\"%s\"", szName, szMessage, iOffset, strrchr(szModName, '\\')+1);
+			}
+
+			void* callers[62];
+			int count = CaptureStackBackTrace(0, 62, callers, NULL);
+			for (int i = 0; i < count; i++)
+				AddBothLog("%08x called from %08X", i, callers[i]);
 		}
 		else
-		{
 			AddBothLog("No exception information available");
-		}
-
-		if (context)
-		{
+		if(reg)
 			AddBothLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
-				context->Eax, context->Ebx, context->Ecx, context->Edx, context->Edi, context->Esi, context->Ebp, context->Eip, context->Esp);
-		}
+				reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
 		else
-		{
 			AddBothLog("No register information available");
-		}
-
-		WriteMiniDump(ex);
-
-	} catch(...) { AddBothLog("Exception in AddExceptionInfoLog (minidump/exception)!"); }
+	} catch(...) { AddBothLog("Exception in AddExceptionInfoLog!"); }
 }
 
 #endif
+
+
+/**
+Remove leading and trailing spaces from the std::string ~FlakCommon by Motah.
+*/
+std::wstring Trim(std::wstring wscIn)
+{
+	while(wscIn.length() && (wscIn[0]==L' ' || wscIn[0]==L'	' || wscIn[0]==L'\n' || wscIn[0]==L'\r') )
+	{
+		wscIn = wscIn.substr(1);
+	}
+	while(wscIn.length() && (wscIn[wscIn.length()-1]==L' ' || wscIn[wscIn.length()-1]==L'	' || wscIn[wscIn.length()-1]==L'\n' || wscIn[wscIn.length()-1]==L'\r') )
+	{
+		wscIn = wscIn.substr(0, wscIn.length()-1);
+	}
+	return wscIn;
+}
+
+/**
+Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
+*/
+std::string Trim(std::string scIn)
+{
+	while(scIn.length() && (scIn[0]==' ' || scIn[0]=='	' || scIn[0]=='\n' || scIn[0]=='\r') )
+	{
+		scIn = scIn.substr(1);
+	}
+	while(scIn.length() && (scIn[scIn.length()-1]==L' ' || scIn[scIn.length()-1]=='	' || scIn[scIn.length()-1]=='\n' || scIn[scIn.length()-1]=='\r') )
+	{
+		scIn = scIn.substr(0, scIn.length()-1);
+	}
+	return scIn;
+}
+
+std::wstring GetTimeString(bool bLocalTime)
+{
+	SYSTEMTIME st;
+	if (bLocalTime)
+		GetLocalTime(&st);
+	else
+		GetSystemTime(&st);
+
+	wchar_t wszBuf[100];
+	_snwprintf_s(wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d SMT ", st.wYear, st.wMonth, st.wDay,
+		st.wHour, st.wMinute, st.wSecond);
+	return wszBuf;
+}
+
+
+void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
+{
+	fprintf(file, "%s=", parmname.c_str());
+	for (int i = 0; i < (int)in.size(); i++)
+	{
+		UINT v1 = in[i] >> 8;
+		UINT v2 = in[i] & 0xFF;
+		fprintf(file, "%02x%02x", v1, v2);
+	}
+	fprintf(file, "\n");
+}
+
+
+void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
+{
+	std::string scValue = ini.get_value_string();
+	wscValue = L"";
+	long lHiByte;
+	long lLoByte;
+	while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	{
+		scValue = scValue.substr(4);
+		wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
+		wscValue.append(1, wChar);
+	}
+}

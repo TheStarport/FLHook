@@ -18,7 +18,7 @@
 #include <set>
 
 #include "Main.h"
-#include "PluginUtilities.h"
+
 #include "wildcards.h"
 
 namespace IPBans
@@ -132,8 +132,8 @@ namespace IPBans
 		if (!acc)
 			return false;
 
-		std::wstring wscDir; 
-		HkGetAccountDirName(acc, wscDir); 
+		std::wstring wscDir;
+		HkGetAccountDirName(acc, wscDir);
 		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\authenticated";
 		FILE* fTest = fopen(scUserFile.c_str(), "r");
 		if (!fTest)

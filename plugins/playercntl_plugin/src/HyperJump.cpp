@@ -19,7 +19,7 @@
 #include <algorithm>
 
 #include "ZoneUtilities.h"
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 namespace HyperJump
@@ -38,7 +38,7 @@ namespace HyperJump
 			ConPrint(L"ERROR: item '%s' is not valid\n", stows(nickname).c_str());
 		}
 
-		return item;	
+		return item;
 	}
 
 	/// Zone testing state and lists.
@@ -182,7 +182,7 @@ namespace HyperJump
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 		std::string scCfgFile = std::string(szCurDir) + "\\flhook_plugins\\jump.cfg";
-	
+
 		INI_Reader ini;
 		if (ini.open(scCfgFile.c_str(), false))
 		{
@@ -204,7 +204,7 @@ namespace HyperJump
 					while (ini.read_value())
 					{
 						if (ini.is_value("nickname"))
-						{ 
+						{
 							jd.nickname = CreateValidID(ini.get_value_string(0));
 						}
 						else if (ini.is_value("can_jump_charge"))
@@ -250,7 +250,7 @@ namespace HyperJump
 					while (ini.read_value())
 					{
 						if (ini.is_value("nickname"))
-						{ 
+						{
 							hs.nickname = CreateValidID(ini.get_value_string(0));
 						}
 						else if (ini.is_value("survey_complete_charge"))
@@ -334,7 +334,7 @@ namespace HyperJump
 				HkUnLightFuse((IObjRW*) obj, fuse, 0);
 			mapJumpDrives[iClientID].active_charge_fuse.clear();
 		}
-	}			
+	}
 
 	void HyperJump::Timer()
 	{
@@ -344,7 +344,7 @@ namespace HyperJump
 		for(auto& iter : mapSurvey)
 		{
 			uint iClientID = iter.first;
-			
+
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);
 			if (iShip==0)
@@ -420,14 +420,14 @@ namespace HyperJump
 						char obuf[HCOORD_SIZE];
 						EncryptDecrypt(ibuf, obuf);
 						PrintUserCmdText(iClientID, L"Hyperspace survey complete");
-						//PrintUserCmdText(iClientID, L"Raw: %s", FormatCoords(ibuf).c_str());		
+						//PrintUserCmdText(iClientID, L"Raw: %s", FormatCoords(ibuf).c_str());
 						PrintUserCmdText(iClientID, L"Coords: %s", FormatCoords(obuf).c_str());
 
 						lstOldClients.push_back(iClientID);
 					}
 					else if (time(0) % 10 == 0)
 					{
-						PrintUserCmdText(iClientID, L"Survey %0.0f%% complete", (sm.curr_charge/sm.arch.survey_complete_charge)*100.0f);				
+						PrintUserCmdText(iClientID, L"Survey %0.0f%% complete", (sm.curr_charge/sm.arch.survey_complete_charge)*100.0f);
 					}
 				}
 			}
@@ -442,7 +442,7 @@ namespace HyperJump
 		for(auto& iter : mapJumpDrives)
 		{
 			uint iClientID = iter.first;
-			
+
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);
 			if (iShip==0)
@@ -457,7 +457,7 @@ namespace HyperJump
 					jd.jump_timer--;
 					// Turn on the jumpdrive flash
 					if (jd.jump_timer == 7)
-					{	
+					{
 						jd.charging_complete = false;
 						jd.curr_charge = 0.0;
 						jd.charging_on = false;
@@ -572,7 +572,7 @@ namespace HyperJump
 					// skip to the next player.
 					if (!jd.charging_on)
 					{
-						PrintUserCmdText(iClientID, L"Jump drive charging failed");				
+						PrintUserCmdText(iClientID, L"Jump drive charging failed");
 						pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 						SetFuse(iClientID, 0);
 						StopChargeFuses(iClientID);
@@ -586,7 +586,7 @@ namespace HyperJump
 						jd.curr_charge = jd.arch.can_jump_charge;
 						if (!jd.charging_complete)
 						{
-							PrintUserCmdText(iClientID, L"Jump drive charging complete, ready to jump");				
+							PrintUserCmdText(iClientID, L"Jump drive charging complete, ready to jump");
 							pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_complete"));
 							jd.charging_complete = true;
 						}
@@ -602,7 +602,7 @@ namespace HyperJump
 					{
 						jd.charge_status = expected_charge_status;
 						PrintUserCmdText(iClientID, L"Jump drive charge %0.0f%%", (jd.curr_charge/jd.arch.can_jump_charge)*100.0f);
-						
+
 						// Find the currently expected charge fuse
 						uint charge_fuse_idx = (uint)((jd.curr_charge/jd.arch.can_jump_charge) * (jd.arch.charge_fuse.size() - 1));
 						if (charge_fuse_idx >= jd.arch.charge_fuse.size())
@@ -1035,7 +1035,7 @@ namespace HyperJump
 				tb.lstCheckZones.push_back(i->second);
 			}
 
-			cmds->Print(L"Checking system %s (%x) containing %d zones\n", 
+			cmds->Print(L"Checking system %s (%x) containing %d zones\n",
 				wscSystemNick.c_str(), tb.iCheckSystemOrBase, tb.lstCheckZones.size());
 
 			// If we're not in the right system then jump to it.
@@ -1063,13 +1063,13 @@ namespace HyperJump
 			tb.iCheckTestedZones = 0;
 			tb.iCheckZoneTime = iCheckZoneTime;
 
-			cmds->Print(L"Testing base %s (%x) containing\n", 
+			cmds->Print(L"Testing base %s (%x) containing\n",
 				wscSystemNick.c_str(), tb.iCheckSystemOrBase);
-			
+
 			mapTestBots[adminPlyr.iClientID] = tb;
 			return;
 		}
-		
+
 		cmds->Print(L"ERR System or base not found\n");
 		return;
 	}
@@ -1134,7 +1134,7 @@ namespace HyperJump
 
 			mapSurvey[iClientID].charging_on = false;
 			mapSurvey[iClientID].curr_charge = 0;
-			
+
 			// Check that the player has a jump drive and initialise the infomation
 			// about it - otherwise return false.
 			for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
@@ -1164,7 +1164,7 @@ namespace HyperJump
 
 		if (!InitSurveyInfo(iClientID))
 		{
-			PrintUserCmdText(iClientID, L"Survey module not available");			
+			PrintUserCmdText(iClientID, L"Survey module not available");
 			return true;
 		}
 
@@ -1173,21 +1173,21 @@ namespace HyperJump
 		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
 		if (cship->get_max_power() < sm.arch.power)
 		{
-			PrintUserCmdText(iClientID, L"Insufficient power to start survey module");			
+			PrintUserCmdText(iClientID, L"Insufficient power to start survey module");
 			return true;
 		}
-		
+
 		// Toogle the charge state
 		sm.charging_on = !sm.charging_on;
 		if (sm.charging_on)
 		{
-			PrintUserCmdText(iClientID, L"Survey started");			
+			PrintUserCmdText(iClientID, L"Survey started");
 			sm.curr_charge = 0;
 			return true;
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"Survey aborted");			
+			PrintUserCmdText(iClientID, L"Survey aborted");
 			sm.curr_charge = 0;
 			return true;
 		}
@@ -1197,7 +1197,7 @@ namespace HyperJump
 	{
 		if (!InitJumpDriveInfo(iClientID))
 		{
-			PrintUserCmdText(iClientID, L"Jump drive not available");			
+			PrintUserCmdText(iClientID, L"Jump drive not available");
 			return true;
 		}
 
@@ -1220,7 +1220,7 @@ namespace HyperJump
 			buf[2] = 0;
 			ibuf[i] = (char)strtoul(buf, 0, 16);
 		}
-		
+
 		HYPERSPACE_COORDS coords;
 		char* obuf = (char*)&coords;
 		memset(&coords, 0, sizeof(coords));
@@ -1237,13 +1237,13 @@ namespace HyperJump
 			PrintUserCmdText(iClientID, L"ERR Invalid coordinates, parity error");
 			return true;
 		}
-	
+
 		if (coords.time < time(0))
 		{
 			PrintUserCmdText(iClientID, L"Warning old coordinates detected. Jump not recommended");
 			coords.accuracy *= rand()%7;
 		}
-		
+
 		jd.iTargetSystem = coords.system;
 		jd.vTargetPosition.x = coords.x;
 		jd.vTargetPosition.y = coords.y;
@@ -1270,14 +1270,14 @@ namespace HyperJump
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
 		if (!obj)
 		{
-			PrintUserCmdText(iClientID, L"Jump drive charging failed");			
+			PrintUserCmdText(iClientID, L"Jump drive charging failed");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 			return true;
 		}
 
 		if (!InitJumpDriveInfo(iClientID))
 		{
-			PrintUserCmdText(iClientID, L"Jump drive not available");			
+			PrintUserCmdText(iClientID, L"Jump drive not available");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 			return true;
 		}
@@ -1287,11 +1287,11 @@ namespace HyperJump
 		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
 		if (cship->get_max_power() < jd.arch.power)
 		{
-			PrintUserCmdText(iClientID, L"Insufficient power to charge jumpdrive");			
+			PrintUserCmdText(iClientID, L"Insufficient power to charge jumpdrive");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 			return true;
 		}
-		
+
 		// Toogle the charge state
 		jd.charging_on = !jd.charging_on;
 		jd.charge_status = -1;
@@ -1301,7 +1301,7 @@ namespace HyperJump
 		{
 			if (jd.iTargetSystem == 0)
 			{
-				PrintUserCmdText(iClientID, L"WARNING NO JUMP COORDINATES");			
+				PrintUserCmdText(iClientID, L"WARNING NO JUMP COORDINATES");
 				pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_blind_jump_warning"));
 			}
 
@@ -1325,7 +1325,7 @@ namespace HyperJump
 		IObjInspectImpl *obj = HkGetInspect(iClientID);
 		if (!obj)
 		{
-			PrintUserCmdText(iClientID, L"Jump drive charging failed");			
+			PrintUserCmdText(iClientID, L"Jump drive charging failed");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 			return true;
 		}
@@ -1333,17 +1333,17 @@ namespace HyperJump
 		// If no jumpdrive, report a warning.
 		if (!InitJumpDriveInfo(iClientID))
 		{
-			PrintUserCmdText(iClientID, L"Jump drive not ready");			
+			PrintUserCmdText(iClientID, L"Jump drive not ready");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
 			return true;
 		}
-		
+
 		JUMPDRIVE &jd = mapJumpDrives[iClientID];
 
 		// If insufficient charging, report a warning
 		if (!jd.charging_complete)
 		{
-			PrintUserCmdText(iClientID, L"Jump drive not ready");			
+			PrintUserCmdText(iClientID, L"Jump drive not ready");
 			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_not_ready"));
 			return true;
 		}
@@ -1418,7 +1418,7 @@ namespace HyperJump
 		if (HkFLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
 			return;
 
-		FILETIME ft; 
+		FILETIME ft;
 		ft.dwHighDateTime = strtoul(GetParam(wstos(wscTimeStamp), ',', 0).c_str(), 0, 10);
 		ft.dwLowDateTime = strtoul(GetParam(wstos(wscTimeStamp), ',', 1).c_str(), 0, 10);
 		time_t lastTime = filetime_to_timet(ft);

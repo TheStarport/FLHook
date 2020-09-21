@@ -20,7 +20,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include "Shlwapi.h"
@@ -45,25 +45,25 @@ namespace Restart
 
 	bool Restart::UserCmd_ShowRestarts(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		WIN32_FIND_DATA FileData; 
-		HANDLE hSearch; 
-		
+		WIN32_FIND_DATA FileData;
+		HANDLE hSearch;
+
 		char szCurDir[MAX_PATH];
 		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
 		std::string scRestartFiles = std::string(szCurDir) + "\\flhook_plugins\\restart\\*.fl";
 
-		// Start searching for .fl files in the current directory. 
-		hSearch = FindFirstFile(scRestartFiles.c_str(), &FileData); 
-		if (hSearch == INVALID_HANDLE_VALUE) 
-		{ 
+		// Start searching for .fl files in the current directory.
+		hSearch = FindFirstFile(scRestartFiles.c_str(), &FileData);
+		if (hSearch == INVALID_HANDLE_VALUE)
+		{
 			PrintUserCmdText(iClientID, L"Restart files not found");
 			return true;
-		} 
-		
+		}
+
 		std::wstring wscMsg = L"";
 
 		do
-		{ 
+		{
 			// add filename
 			std::string scFileName = FileData.cFileName;
 			size_t len = scFileName.length();
@@ -99,7 +99,7 @@ namespace Restart
 			PrintUserCmdText(iClientID, usage);
 			return true;
 		}
-		
+
 		// Get the character name for this connection.
 		RESTART restart;
 		restart.wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
@@ -118,12 +118,12 @@ namespace Restart
 			}
 		}
 
-		// Saving the characters forces an anti-cheat checks and fixes 
+		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
 		HkSaveChar(iClientID);
 		if (!HkIsValidClientID(iClientID))
 			return true;
-		
+
 		uint iBaseID;
 		pub::Player::GetBase(iClientID, iBaseID);
 		if (!iBaseID)
@@ -167,7 +167,7 @@ namespace Restart
 			RESTART restart = pendingRestarts.front();
 			if (HkGetClientIdFromCharname(restart.wscCharname)!=-1)
 				return;
-			
+
 			pendingRestarts.pop_front();
 
 			try
@@ -187,7 +187,7 @@ namespace Restart
 					flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
 				AddLog("NOTICE: User restart %s for %s", restart.scRestartFile.c_str(), wstos(restart.wscCharname).c_str());
-			}				
+			}
 			catch (char *err)
 			{
 				AddLog("ERROR: User restart failed (%s) for %s", err, wstos(restart.wscCharname).c_str());

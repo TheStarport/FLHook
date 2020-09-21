@@ -8,7 +8,6 @@
 #include <map>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 
 #include "../hookext_plugin/hookext_exports.h"
 

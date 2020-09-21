@@ -21,7 +21,7 @@
 #include <plugin.h>
 #include <FLCoreServer.h>
 #include <FLCoreCommon.h>
-#include "PluginUtilities.h"
+
 #include "Mail.h"
 #include "ZoneUtilities.h"
 
@@ -196,7 +196,7 @@ namespace Message
 		return wszStyleSmall;
 	}
 
-	/** Replace #t and #c tags with current target name and current ship location. 
+	/** Replace #t and #c tags with current target name and current ship location.
 	Return false if tags cannot be replaced. */
 	static bool ReplaceMessageTags(uint iClientID, INFO &clientData, std::wstring &wscMsg)
 	{
@@ -205,7 +205,7 @@ namespace Message
 			if (clientData.uTargetClientID==-1)
 			{
 				PrintUserCmdText(iClientID, L"ERR Target not available");
-				return false;	
+				return false;
 			}
 
 			std::wstring wscTargetName = (const wchar_t*) Players.GetActiveCharacterName(clientData.uTargetClientID);
@@ -224,7 +224,7 @@ namespace Message
 
 	/** Clean up when a client disconnects */
 	void Message::ClearClientInfo(uint iClientID)
-	{	
+	{
 		mapInfo.erase(iClientID);
 	}
 
@@ -366,7 +366,7 @@ namespace Message
 	void Message::SetTarget(uint uClientID, struct XSetTarget const &p2)
 	{
 		// The iSpaceID *appears* to represent a player ship ID when it is
-		// targeted but this might not be the case. Also note that 
+		// targeted but this might not be the case. Also note that
 		// HkGetClientIDByShip returns 0 on failure not -1.
 		uint uTargetClientID=HkGetClientIDByShip(p2.iSpaceID);
 		if (uTargetClientID)
@@ -376,7 +376,7 @@ namespace Message
 			{
 				iter->second.uTargetClientID=uTargetClientID;
 			}
-		} 
+		}
 	}
 
 	bool Message::SubmitChat(CHAT_ID cId, unsigned long iSize, const void *rdlReader, CHAT_ID cIdTo, int p2)
@@ -411,7 +411,7 @@ namespace Message
 						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 						AddLog("NOTICE: Swearing tempban on %s (%s) reason='%s'",
 							wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-							wstos(wscChatMsg).c_str());		
+							wstos(wscChatMsg).c_str());
 						HkTempBan(iClientID, 10);
 						HkDelayedKick(iClientID, 1);
 
@@ -428,7 +428,7 @@ namespace Message
 			}
 		}
 
-		/// When a private chat message is sent from one client to another record 
+		/// When a private chat message is sent from one client to another record
 		/// who sent the message so that the receiver can reply using the /r command */
 		if (iClientID<0x10000 && cIdTo.iID>0 && cIdTo.iID<0x10000)
 		{
@@ -762,7 +762,7 @@ namespace Message
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
-			return true;	
+			return true;
 		}
 
 		if (!HkGetAccountByCharname(wscTargetCharname))
@@ -817,7 +817,7 @@ namespace Message
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
-			return true;		
+			return true;
 		}
 
 		bool bSenderReceived = false;
@@ -852,9 +852,9 @@ namespace Message
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
-			return true;	
+			return true;
 		}
-		
+
 		for(auto& player : HkGetPlayers())
 		{
 			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix))==std::string::npos)
@@ -894,7 +894,7 @@ namespace Message
 			bShowChatTime = true;
 		else if(!wscParam1.compare(L"off"))
 			bShowChatTime = false;
-		else 
+		else
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
@@ -1081,7 +1081,7 @@ namespace Message
 
 			return RedText(wscXMLMsg, iSystemID);
 		}
-		else 
+		else
 		{
 			PrintUserCmdText(iClientID, L"Command not enabled.");
 			return true;
@@ -1111,7 +1111,7 @@ namespace Message
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 	/// Drop a percentage of cargo + some loot representing ship bits.
 	void Message::SendDeathMsg(const std::wstring &wscMsg, uint iSystemID, uint iClientIDVictim, uint iClientIDKiller)
-	{	
+	{
 		// encode xml std::string(default and small)
 		// non-sys
 		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
@@ -1194,7 +1194,7 @@ namespace Message
 
 			if(ClientInfo[iClientID].dieMsg == DIEMSG_NONE)
 				continue;
-			else if((ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM) && (iSystemID == iClientSystemID))  
+			else if((ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM) && (iSystemID == iClientSystemID))
 				HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
 			else if((ClientInfo[iClientID].dieMsg == DIEMSG_SELF) && ((iClientID == iClientIDVictim) || (iClientID == iClientIDKiller)))
 				HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);

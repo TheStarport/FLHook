@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -55,8 +55,8 @@ namespace GiveCash
 		if (!f)
 			return;
 
-		// A fixed length buffer be a little dangerous, but char name lengths are fixed 
-		// to about 30ish characters so this should be okay, and in the worst case 
+		// A fixed length buffer be a little dangerous, but char name lengths are fixed
+		// to about 30ish characters so this should be okay, and in the worst case
 		// we will catch the exception.
 		try {
 			char buf[1000];
@@ -150,7 +150,7 @@ namespace GiveCash
 	/// Check for cash transfer while this char was offline whenever they
 	/// enter or leave a base.
 	void GiveCash::PlayerLaunch(uint iShip, unsigned int iClientID)
-	{	
+	{
 		CheckTransferLog(iClientID);
 	}
 
@@ -162,7 +162,7 @@ namespace GiveCash
 	}
 
 	/** Process a give cash command */
-	bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// The last error.
 		HK_ERROR err;
@@ -192,7 +192,7 @@ namespace GiveCash
 		if (HkGetAccountByCharname(wscTargetCharname)==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR char does not exist");
-			return true;	
+			return true;
 		}
 
 		int secs = 0;
@@ -206,7 +206,7 @@ namespace GiveCash
 		if (InBlockedSystem(wscCharname) || InBlockedSystem(wscTargetCharname))
 		{
 			PrintUserCmdText(iClientID, L"ERR cash transfer blocked");
-			return true;	
+			return true;
 		}
 
 		// Read the current number of credits for the player
@@ -254,16 +254,16 @@ namespace GiveCash
 		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");			
+				PrintUserCmdText(iClientID, L"ERR Transfer failed");
 				AddLog("NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
 					wstos(ToMoneyStr(cash)).c_str(),
 					wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());		
+					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());
 				return true;
 			}
 			HkSaveChar(targetClientId);
 		}
-		
+
 		if (targetClientId != -1)
 		{
 			if (ClientInfo[iClientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
@@ -288,11 +288,11 @@ namespace GiveCash
 
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");			
+			PrintUserCmdText(iClientID, L"ERR Transfer failed");
 			AddLog("NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
 				wstos(ToMoneyStr(cash)).c_str(),
 				wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-				wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());			
+				wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());
 			return true;
 		}
 		HkSaveChar(iClientID);
@@ -309,17 +309,17 @@ namespace GiveCash
 		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");			
+				PrintUserCmdText(iClientID, L"ERR Transfer failed");
 				AddLog("NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
 					wstos(ToMoneyStr(cash)).c_str(),
 					wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());		
+					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str());
 				return true;
 			}
 			HkSaveChar(targetClientId);
-		}		
+		}
 
-      
+
 		// Check that receiving character has the correct ammount of cash.
 		int iCurrCash;
 		if ((err = HkGetCash(wscTargetCharname, iCurrCash)) != HKE_OK
@@ -364,7 +364,7 @@ namespace GiveCash
 	}
 
 	/** Process a set cash code command */
-	bool GiveCash::UserCmd_SetCashCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_SetCashCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 		std::string scFile;
@@ -392,7 +392,7 @@ namespace GiveCash
 	}
 
 	/** Process a show cash command **/
-	bool GiveCash::UserCmd_ShowCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_ShowCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// The last error.
 		HK_ERROR err;
@@ -415,7 +415,7 @@ namespace GiveCash
 		if (acc==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR char does not exist");
-			return true;	
+			return true;
 		}
 
 		std::string scFile;
@@ -442,7 +442,7 @@ namespace GiveCash
 
 
 	/** Process a draw cash command **/
-	bool GiveCash::UserCmd_DrawCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage) 
+	bool GiveCash::UserCmd_DrawCash(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		// The last error.
 		HK_ERROR err;
@@ -469,7 +469,7 @@ namespace GiveCash
 		if (iTargetAcc==0)
 		{
 			PrintUserCmdText(iClientID, L"ERR char does not exist");
-			return true;	
+			return true;
 		}
 
 		int secs = 0;
@@ -540,11 +540,11 @@ namespace GiveCash
 		// Do an anticheat check on the receiving ship first.
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");							
+			PrintUserCmdText(iClientID, L"ERR Transfer failed");
 			AddLog("NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
 				wstos(ToMoneyStr(cash)).c_str(),
 				wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str(),
-				wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());				
+				wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
 			return true;
 		}
 		HkSaveChar(iClientID);
@@ -560,7 +560,7 @@ namespace GiveCash
 					wstos(ToMoneyStr(cash)).c_str(),
 					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str(),
 					wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-					iClientID, targetClientId);			
+					iClientID, targetClientId);
 				return true;
 			}
 		}
@@ -573,14 +573,14 @@ namespace GiveCash
 		}
 
 		if (targetClientId!=-1 && !HkIsInCharSelectMenu(targetClientId))
-		{		
+		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");						
+				PrintUserCmdText(iClientID, L"ERR Transfer failed");
 				AddLog("NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
 					wstos(ToMoneyStr(cash)).c_str(),
 					wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str(),
-					wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());				
+					wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
 				return true;
 			}
 			HkSaveChar(targetClientId);
@@ -595,15 +595,15 @@ namespace GiveCash
 
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");			
+			PrintUserCmdText(iClientID, L"ERR Transfer failed");
 			AddLog("NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
 				wstos(ToMoneyStr(cash)).c_str(),
 				wstos(wscTargetCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))).c_str(),
-				wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());				
+				wstos(wscCharname).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
 			return true;
 		}
 		HkSaveChar(iClientID);
-		
+
 		// Check that receiving player has the correct ammount of cash.
 		int iCurrCash;
 		if ((err = HkGetCash(wscCharname, iCurrCash)) != HKE_OK

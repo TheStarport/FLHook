@@ -13,7 +13,7 @@
 #include <plugin.h>
 #include "Main.h"
 #include "CrashCatcher.h"
-#include "PluginUtilities.h"
+
 
 static bool bPatchInstalled = false;
 static FARPROC fpOldTimingSeconds = 0;
@@ -95,7 +95,7 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1)
 __declspec(naked) void HkCb_CrashProc6F8B330Naked()
 {
 	__asm mov dwSavedECX, ecx
-	__asm jmp HkCb_CrashProc6F8B330 
+	__asm jmp HkCb_CrashProc6F8B330
 }
 
 
@@ -125,7 +125,7 @@ void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2)
 __declspec(naked) void HkCb_CrashProc6F78DD0Naked()
 {
 	__asm mov dwSavedECX, ecx
-	__asm jmp HkCb_CrashProc6F78DD0 
+	__asm jmp HkCb_CrashProc6F78DD0
 }
 
 static FARPROC fpCrashProc6F671A0Old = 0;
@@ -297,7 +297,7 @@ static double __cdecl HkCb_TimingSeconds(__int64 &ticks_delta)
 	else if (seconds > 1.0)
 	{
 		AddLog("ERROR: Time lag detected seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
-		ConPrint(L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i\n", seconds, ticks_delta);		
+		ConPrint(L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i\n", seconds, ticks_delta);
 	}
 	return seconds;
 }
@@ -316,7 +316,7 @@ void CrashCatcher::Init()
 				// Patch the NPC visibility distance in MP to 6.5km (default is 2.5km)
 				float fDistance = 6500.0f * 6500.0f;
 				WriteProcMem((char*)hModServerAC + 0x86AEC , &fDistance, 4);
-			
+
 				FARPROC fpHook = (FARPROC)HkCb_GetRoot;
 				ReadProcMem((char*)hModServerAC + 0x84018, &fpOldGetRootProc, 4);
 				WriteProcMem((char*)hModServerAC + 0x84018, &fpHook, 4);
@@ -341,11 +341,11 @@ void CrashCatcher::Init()
 				}
 
 				// Patch for crash at content.dll + c458f ~ adoxa (thanks man)
-				// Crash if solar has wrong destructible archetype (NewArk for example 
-				// is fuchu_core with hit_pts = 0 - different from client and server 
+				// Crash if solar has wrong destructible archetype (NewArk for example
+				// is fuchu_core with hit_pts = 0 - different from client and server
 				// in my case) and player taken off from nearest base of this archetype (Manhattan)
 				// This is caused by multiple players dying in the same planet death zone.
-				// Also 000c458f error arises when nearby stations within a zone ) are 
+				// Also 000c458f error arises when nearby stations within a zone ) are
 				// reputed not coinciding with reputation on the client-side.
 				{
 					// alternative: 0C458F, 8B0482->33C090
@@ -354,17 +354,17 @@ void CrashCatcher::Init()
 				}
 
 				// Patch for crash at content.dll + 47bc4
-				// This appears to be related to NPCs and/or their chatter. What's 
+				// This appears to be related to NPCs and/or their chatter. What's
 				// missing contains the from, to and cargo entries (amongst other stuff).
 				// Original Bytes: 8B F8 8B 17 8B CF
 				{
 					uchar patch[] = { 0x90, 0xe8 }; // nop call
 					WriteProcMem((char*)hModContentAC + 0x47bc2, patch, 2);
-					PatchCallAddr((char*)hModContentAC, 0x47bc2 + 1, (char*)HkCb_47bc4Naked); 
+					PatchCallAddr((char*)hModContentAC, 0x47bc2 + 1, (char*)HkCb_47bc4Naked);
 				}
 
 				// Patch for crash at engbase.dll + 0x0124BD ~ adoxa (thanks man)
-				// This is caused by a bad cmp.	
+				// This is caused by a bad cmp.
 				{
 					uchar patch[] = { 0xe8 };
 					WriteProcMem((char*)hEngBase + 0x0124BD, patch, 1);
@@ -381,20 +381,20 @@ void CrashCatcher::Init()
 
 				// Hook for crash at 1b221 in server.dll
 				//{
-				//	FARPROC fpHook = (FARPROC)HkCb_CrashProc1b221; 
+				//	FARPROC fpHook = (FARPROC)HkCb_CrashProc1b221;
 				//	ReadProcMem((char*)hModContentAC + 0x1134f4, &fpCrashProc1b221Old, 4);
 				//	WriteProcMem((char*)hModContentAC + 0x1134f4, &fpHook, 4);
 				//}
 
 				//{
-				//	FARPROC fpHook = (FARPROC)HkCb_PubZoneSystem; 
+				//	FARPROC fpHook = (FARPROC)HkCb_PubZoneSystem;
 				//	ReadProcMem((char*)hModContentAC + 0x113470, &fpCrashProc1b113470Old, 4);
 				//	WriteProcMem((char*)hModContentAC + 0x113470, &fpHook, 4);
 				//}
 
 
 				// Hook for crash at 0xEB4B5 (confirmed)
-				FARPROC fpHook = (FARPROC)HkCb_CrashProc6F8B330Naked; 
+				FARPROC fpHook = (FARPROC)HkCb_CrashProc6F8B330Naked;
 				ReadProcMem((char*)hModContentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
 				WriteProcMem((char*)hModContentAC + 0x11C970, &fpHook, 4);
 				WriteProcMem((char*)hModContentAC + 0x11CA00, &fpHook, 4);
@@ -431,7 +431,7 @@ void CrashCatcher::Init()
 void CrashCatcher::Shutdown()
 {
 	if (bPatchInstalled)
-	{	
+	{
 		// Unhook getroot
 		if (hModServerAC)
 		{
@@ -460,7 +460,7 @@ void CrashCatcher::Shutdown()
 				uchar patch[] = { 0x8B, 0x40, 0x10, 0x85, 0xc0 };
 				WriteProcMem((char*)hEngBase + 0x0124BD, patch, 5);
 			}
-		
+
 			{
 				uchar patch[] = { 0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00 };
 				WriteProcMem((char*)hEngBase + 0x011a6d, patch, 6);

@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -160,7 +160,7 @@ namespace PimpShip
 		WriteProcMem((char*)0x62660F2, &patch1, 2);
 	}
 
-	// On entering a room check to see if we're in a valid ship dealer room (or base if a 
+	// On entering a room check to see if we're in a valid ship dealer room (or base if a
 	// ShipDealer is not defined). If we are then print the intro text otherwise do
 	// nothing.
 	void PimpShip::LocationEnter(unsigned int iLocationID, unsigned int iClientID)
@@ -308,7 +308,7 @@ namespace PimpShip
 
 	bool PimpShip::UserCmd_BuyNow(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		HK_ERROR err; 
+		HK_ERROR err;
 
 		std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 

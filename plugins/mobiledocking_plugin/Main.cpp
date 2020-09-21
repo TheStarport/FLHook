@@ -6,7 +6,7 @@
  Initial release
 */
 
-// includes 
+// includes
 
 #include <windows.h>
 #include <stdio.h>
@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 #include "Main.h"
 
@@ -160,7 +159,7 @@ void LoadSettings()
 	set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
 
 	struct PlayerData *pd = 0;
-	
+
 	while (pd = Players.traverse_active(pd))
 	{
 		if (!HkIsInCharSelectMenu(pd->iOnlineID))
@@ -212,7 +211,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd)
 			PrintUserCmdText(client, L"Usage: /jettisonship <charname>");
 			return true;
 		}
-	
+
 		if (clients[client].mapDockedShips.find(charname)
 			== clients[client].mapDockedShips.end())
 		{
@@ -258,7 +257,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd)
 		pub::SpaceObj::GetTarget(iShip, iTargetShip);
 		if (!iTargetShip)
 			return true;
-		
+
 		// If target is not player ship or ship is too far away then ignore the request.
 		uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
 		if (!iTargetClientID || HkDistance3DByShip(iShip, iTargetShip) > 1000.0f)
@@ -299,7 +298,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd)
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
 		clients[client].mapDockedShips[charname] = charname;
 		SaveDockInfo(client);
-		
+
 		// Save the docking ship info
 		clients[iTargetClientID].mobile_docked = true;
 		clients[iTargetClientID].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
@@ -308,7 +307,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd)
 		pub::SpaceObj::GetSystem(iShip, clients[iTargetClientID].iCarrierSystem);
 		pub::SpaceObj::GetLocation(iShip, clients[iTargetClientID].vCarrierLocation, clients[iTargetClientID].mCarrierLocation);
 		SaveDockInfo(iTargetClientID);
-		
+
 		// Land the ship on the proxy base.
 		pub::Player::ForceLand(iTargetClientID, iBaseID);
 		PrintUserCmdText(client, L"Ship docked");
@@ -507,7 +506,7 @@ void SystemSwitchOutComplete(unsigned int iShip, unsigned int client)
 		*(float*)(SwitchOut+0x308) = mapDeferredJumps[client].ornt.data[0][1];
 		*(PDWORD)(SwitchOut+0x388) = 0x03ebc031;		// ignore entry object
 		mapDeferredJumps.erase(client);
-		
+
 		pub::SpaceObj::SetInvincible(iShip, false, false, 0);
 		Server.SystemSwitchOutComplete(iShip,client);
 
@@ -575,7 +574,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count, unsigned int client
 	if (clients[client].mobile_docked)
 	{
 		returncode = SKIPPLUGINS;
-		
+
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
@@ -602,7 +601,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 			{
 				if (ci.iID == iID)
 				{
-					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);						
+					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
 					return;
 				}
 			}
@@ -677,7 +676,7 @@ void __stdcall ReqEquipment(class EquipDescList const &edl, unsigned int client)
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill)
 {
 	returncode = DEFAULT_RETURNCODE;
-	
+
 	CShip *cship = (CShip*)ecx[4];
 	uint client = cship->GetOwnerPlayer();
 	if (kill)
@@ -689,7 +688,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill)
 			{
 				// Update the coordinates
 				UpdateDockedShips(client);
-				
+
 				// Send a system switch to force the ship to launch
 				for (map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 					i != clients[client].mapDockedShips.end(); ++i)
@@ -715,7 +714,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill)
 				Players[client].iLastBaseID = clients[client].iLastBaseID;
 				clients[client].iLastBaseID = 0;
 			}
-		} 
+		}
 	}
 }
 
@@ -734,7 +733,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch_AFTER, PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&SystemSwitchOutComplete, PLUGIN_HkIServerImpl_SystemSwitchOutComplete, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect_AFTER, PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));	
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect_AFTER, PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect, PLUGIN_HkIServerImpl_DisConnect,0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterInfoReq, PLUGIN_HkIServerImpl_CharacterInfoReq,0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ShipDestroyed, PLUGIN_ShipDestroyed,0));
@@ -751,6 +750,6 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
-	
+
 	return p_PI;
 }

@@ -46,9 +46,6 @@
     <ClCompile Include="src\PlayerInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PluginUtilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\PurchaseRestrictions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -78,9 +75,6 @@
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\PluginUtilities.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Main.h">
       <Filter>Source Files</Filter>
     </ClInclude>

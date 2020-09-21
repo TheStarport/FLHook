@@ -171,11 +171,12 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
+    <ClInclude Include="..\FLHookSDK\include\plugin.h" />
+    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\wildcards.hh" />
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\plugin.h" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CInGame.h" />

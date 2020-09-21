@@ -64,7 +64,6 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PlayerBase.cpp" />
     <ClCompile Include="PlayerCommands.cpp" />
-    <ClCompile Include="PluginUtilities.cpp" />
     <ClCompile Include="SaveFiles.cpp" />
     <ClCompile Include="ShieldModule.cpp" />
     <ClCompile Include="StorageModule.cpp" />
@@ -79,7 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
-    <ClInclude Include="PluginUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

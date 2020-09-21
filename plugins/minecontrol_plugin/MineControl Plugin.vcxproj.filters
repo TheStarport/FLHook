@@ -14,9 +14,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginUtilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ZoneUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,8 +22,5 @@
     <Text Include="..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PluginUtilities.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

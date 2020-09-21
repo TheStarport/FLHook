@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -169,7 +169,7 @@ namespace MiscCmds
 	/** A command to help remove any affiliation that you might have */
 	bool MiscCmds::UserCmd_DropRep(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		HK_ERROR err; 
+		HK_ERROR err;
 
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
@@ -293,12 +293,12 @@ namespace MiscCmds
 			Vector vShipLoc;
 			Matrix mShipDir;
 			pub::SpaceObj::GetLocation(iShip, vShipLoc, mShipDir);
-		
+
 			// Is player within scanner range (15K) of the sending char.
 			float fDistance = HkDistance3D(vShipLoc, vFromShipLoc);
 			if (fDistance>14999)
 				continue;
-		
+
 			pub::Audio::Tryptich music;
 			music.iDunno = 0;
 			music.iDunno2 = 0;
@@ -317,8 +317,8 @@ namespace MiscCmds
 				}
 			}
 		}
-		
-		cmds->Print(L"OK\n"); 
+
+		cmds->Print(L"OK\n");
 		return;
 	}
 

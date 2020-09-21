@@ -11,11 +11,11 @@
 #include <time.h>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
+
 #include <math.h>
 #include <list>
 
-#include "PluginUtilities.h"
+
 #include "Mail.h"
 
 bool extern set_bLocalTime;
@@ -119,7 +119,7 @@ namespace Mail
 		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
 		if (scFilePath.length()==0)
 			return false;
-		
+
 		// Move all mail up one slot starting at the end. We automatically
 		// discard the oldest messages.
 		for (int iMsgSlot = MAX_MAIL_MSGS-1; iMsgSlot>0; iMsgSlot--)

@@ -56,7 +56,6 @@
   <ItemGroup>
     <ClCompile Include="ClientCommands.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PluginUtilities.cpp" />
     <ClCompile Include="SaveFiles.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -69,7 +68,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PluginUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

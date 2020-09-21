@@ -29,7 +29,7 @@
  recharge over time and are depleted as they're mined.
 */
 
-// includes 
+// includes
 #include <windows.h>
 #include <stdio.h>
 #include <string>
@@ -40,7 +40,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 
 static float set_fGenericFactor = 1.0f;
 static int set_iPluginDebug = 0;
@@ -77,11 +76,11 @@ struct ZONE_BONUS
 	ZONE_BONUS() : fBonus(0.0f), iReplacementLootID(0), fRechargeRate(0), fCurrReserve(100000), fMaxReserve(50000), fMined(0) {}
 
 	std::string scZone;
-	
+
 	// The loot bonus multiplier.
 	float fBonus;
 
-	// The hash of the item to replace the dropped 
+	// The hash of the item to replace the dropped
 	uint iReplacementLootID;
 
 	// The recharge rate of the zone. This is the number of units of ore added
@@ -139,7 +138,7 @@ static std::string GetTrimParam(const std::string &scLine, uint iPos)
 		else if (i>iPos)
 			break;
 	}
- 
+
 	while (scOut.size() && (scOut[0]==L' ' || scOut[0]==L'\t' || scOut[0]==L'\n' || scOut[0]==L'\r') )
 	{
 		scOut = scOut.substr(1);
@@ -179,7 +178,7 @@ static float GetBonus(uint iRep, uint iShipID, std::list<CARGO_INFO> lstCargo, u
 		// Check for matching ship.
 		if (find(start->second.lstShips.begin(), start->second.lstShips.end(), iShipID) == start->second.lstShips.end())
 			continue;
-		
+
 		// Check that every simple item in the equipment list is present and mounted.
 		bool bEquipMatch = true;
 		for (auto item : start->second.lstItems)
@@ -212,7 +211,7 @@ void CheckClientSetup(uint iClientID)
 		IObjInspectImpl* oship = HkGetInspect(iClientID);
 		if (oship)
 			oship->get_affiliation(iRepGroupID);
-	
+
 		// Get the ship type
 		uint iShipID;
 		pub::Player::GetShipID(iClientID, iShipID);
@@ -251,7 +250,7 @@ void CheckClientSetup(uint iClientID)
 				}
 			}
 		}
-		
+
 		std::wstring wscRights;
 		HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 		if (wscRights.size())
@@ -262,8 +261,8 @@ void CheckClientSetup(uint iClientID)
 EXPORT void HkTimerCheckKick()
 {
 	returncode = DEFAULT_RETURNCODE;
-	
-	// Perform 60 second tasks. 
+
+	// Perform 60 second tasks.
 	if ((time(0) % 60) == 0)
 	{
 		// Recharge the fields
@@ -277,7 +276,7 @@ EXPORT void HkTimerCheckKick()
 		// Save the zone status to disk
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
+		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";
 		FILE *file = fopen(scStatsPath.c_str(), "w");
 		if (file)
 		{
@@ -331,8 +330,8 @@ EXPORT void LoadSettings()
 	WriteProcMem((char*)0x62F123E, &patch1, 2);
 
 	// Load the player bonus list and the field bonus list.
-	// To receive the bonus for the particular commodity the player has to have 
-	// the affiliation (unless this field is empty), one of the ships and 
+	// To receive the bonus for the particular commodity the player has to have
+	// the affiliation (unless this field is empty), one of the ships and
 	// all of the equipment items.
 	// The [PlayerBonus] section has the following format:
 	// Commodity, Bonus, Affiliation, List of ships, equipment or cargo separated by commas.
@@ -351,7 +350,7 @@ EXPORT void LoadSettings()
 				{
 					std::string scLine = ini.get_name_ptr();
 
-					PLAYER_BONUS pb;			
+					PLAYER_BONUS pb;
 					pb.iLootID = CreateID(GetTrimParam(scLine, 0).c_str());
 					if (!Archetype::GetEquipment(pb.iLootID) && !Archetype::GetSimple(pb.iLootID))
 					{
@@ -364,7 +363,7 @@ EXPORT void LoadSettings()
 					if (pb.fBonus <= 0.0f)
 					{
 						ConPrint(L"ERROR: %s:%d: bonus not valid\n", stows(ini.get_file_name()).c_str(), ini.get_line_num());
-						continue;					
+						continue;
 					}
 
 					pb.iRep = -1;
@@ -374,7 +373,7 @@ EXPORT void LoadSettings()
 						if (pb.iRep==-1)
 						{
 							ConPrint(L"ERROR: %s:%d: reputation not valid\n", stows(ini.get_file_name()).c_str(), ini.get_line_num());
-							continue;					
+							continue;
 						}
 					}
 
@@ -415,7 +414,7 @@ EXPORT void LoadSettings()
 						scShipOrEquip = GetTrimParam(scLine, i++);
 					}
 
-					set_mmapPlayerBonus.insert(std::multimap<uint, PLAYER_BONUS>::value_type(pb.iLootID,pb));										
+					set_mmapPlayerBonus.insert(std::multimap<uint, PLAYER_BONUS>::value_type(pb.iLootID,pb));
 					if (set_iPluginDebug)
 					{
 						ConPrint(L"NOTICE: mining player bonus %s(%u) %2.2f %s(%u)\n",
@@ -428,19 +427,19 @@ EXPORT void LoadSettings()
 				while (ini.read_value())
 				{
 					std::string scLine = ini.get_name_ptr();
-					
+
 					std::string scZone = GetTrimParam(scLine, 0);
 					if (!scZone.size())
 					{
 						ConPrint(L"ERROR: %s:%d: zone not valid\n", stows(ini.get_file_name()).c_str(), ini.get_line_num());
-						continue;					
+						continue;
 					}
 
 					float fBonus = (float)atof(GetTrimParam(scLine, 1).c_str());
 					if (fBonus <= 0.0f)
 					{
 						ConPrint(L"ERROR: %s:%d: bonus not valid\n", stows(ini.get_file_name()).c_str(), ini.get_line_num());
-						continue;					
+						continue;
 					}
 
 					uint iReplacementLootID = 0;
@@ -453,13 +452,13 @@ EXPORT void LoadSettings()
 					float fRechargeRate = (float)atof(GetTrimParam(scLine, 3).c_str());
 					if (fRechargeRate <= 0.0f)
 					{
-						fRechargeRate = 50;					
+						fRechargeRate = 50;
 					}
 
 					float fMaxReserve = (float)atof(GetTrimParam(scLine, 4).c_str());
 					if (fMaxReserve <= 0.0f)
 					{
-						fMaxReserve = 100000;					
+						fMaxReserve = 100000;
 					}
 
 					uint iZoneID = CreateID(scZone.c_str());
@@ -482,7 +481,7 @@ EXPORT void LoadSettings()
 	// Read the last saved zone reserve.
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";	
+	std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";
 	if (ini.open(scStatsPath.c_str(), false))
 	{
 		while (ini.read_header())
@@ -491,22 +490,22 @@ EXPORT void LoadSettings()
 			{
 				while (ini.read_value())
 				{
-					std::string scLine = ini.get_name_ptr();									
+					std::string scLine = ini.get_name_ptr();
 					std::string scZone = GetTrimParam(scLine, 0);
 					float fCurrReserve = (float)atof(GetTrimParam(scLine, 1).c_str());
 					float fMined = (float)atof(GetTrimParam(scLine, 2).c_str());
 					uint iZoneID = CreateID(scZone.c_str());
 					if (set_mapZoneBonus.find(iZoneID) != set_mapZoneBonus.end())
 					{
-						set_mapZoneBonus[iZoneID].fCurrReserve = fCurrReserve;		
-						set_mapZoneBonus[iZoneID].fMined = fMined;		
+						set_mapZoneBonus[iZoneID].fCurrReserve = fCurrReserve;
+						set_mapZoneBonus[iZoneID].fMined = fMined;
 					}
 				}
 			}
 		}
 		ini.close();
 	}
-	
+
 	// Remove patch now that we've finished loading.
 	unsigned char patch2[] = { 0xFF, 0x12 };
 	WriteProcMem((char*)0x62F327E, &patch2, 2);
@@ -542,7 +541,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID)
 void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, unsigned int iClientID)
 {
 	returncode = DEFAULT_RETURNCODE;
-	
+
 	// If this is not a lootable rock, do no other processing.
 	if (ci.dwTargetShip != 0)
 		return;
@@ -561,9 +560,9 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 
 	uint iClientSystemID;
 	pub::Player::GetSystem(iClientID, iClientSystemID);
-	CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemID); 
+	CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemID);
 	if (csys)
-	{ 
+	{
 		// Find asteroid field that matches the best.
 		for (CmnAsteroid::CAsteroidField* cfield = csys->FindFirst(); cfield; cfield = csys->FindNext())
 		{
@@ -590,16 +589,16 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 
 					// If the field is getting mined out, reduce the bonus
 					fZoneBonus *= set_mapZoneBonus[zone->iZoneID].fCurrReserve / set_mapZoneBonus[zone->iZoneID].fMaxReserve;
-					
+
 					uint iLootID = zone->lootableZone->dynamic_loot_commodity;
 					uint iCrateID = zone->lootableZone->dynamic_loot_container;
-					
+
 					// Change the commodity if appropriate.
 					if (set_mapZoneBonus[zone->iZoneID].iReplacementLootID)
 						iLootID = set_mapZoneBonus[zone->iZoneID].iReplacementLootID;
-					
-					
-					
+
+
+
 					// If no mining bonus entry for this commodity is found, flag as no bonus
 					auto ammolst = cd.mapLootAmmoLst.find(iLootID);
 					bool bNoMiningCombo = false;
@@ -617,7 +616,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 							PrintUserCmdText(iClientID, L"* Wrong gun");
 					}
 
-					// If either no mining gun was used in the shot, or the character isn't using a valid mining combo 
+					// If either no mining gun was used in the shot, or the character isn't using a valid mining combo
 					// for this commodity, set bonus to *0.5
 					float fPlayerBonus = 0.5f;
 					if (bNoMiningCombo)
@@ -650,7 +649,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 
 					// Calculate the loot drop and drop it.
 					int iLootCount = (int)(fRand * set_fGenericFactor * fZoneBonus * fPlayerBonus * zone->lootableZone->dynamic_loot_count2);
-					
+
 					// Remove this lootCount from the field
 					set_mapZoneBonus[zone->iZoneID].fCurrReserve -= iLootCount;
 					set_mapZoneBonus[zone->iZoneID].fMined += iLootCount;
@@ -691,7 +690,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const & ci, u
 						}
 						if (iLootCount == 0)
 						{
-							pub::Player::SendNNMessage(iClientID, CreateID("insufficient_cargo_space")); 
+							pub::Player::SendNNMessage(iClientID, CreateID("insufficient_cargo_space"));
 							return;
 						}
 						pub::Player::AddCargo(iSendToClientID, iLootID, iLootCount, 1.0, false);
@@ -743,7 +742,7 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->ePluginReturnCode = &returncode;
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ClearClientInfo, PLUGIN_ClearClientInfo, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));	
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&MineAsteroid, PLUGIN_HkIServerImpl_MineAsteroid, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&SPMunitionCollision, PLUGIN_HkIServerImpl_SPMunitionCollision, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));

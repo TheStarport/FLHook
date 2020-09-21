@@ -1176,3 +1176,594 @@ HK_ERROR HkPlayerRecalculateCRC(uint iClientID)
 
 	return HKE_OK;
 }
+
+/** Move the client to the specified location */
+void HkRelocateClient(uint iClientID, Vector vDestination, Matrix mOrientation)
+{
+	Quaternion qRotation = HkMatrixToQuaternion(mOrientation);
+
+	FLPACKET_LAUNCH pLaunch;
+	pLaunch.iShip = ClientInfo[iClientID].iShip;
+	pLaunch.iBase = 0;
+	pLaunch.iState = 0xFFFFFFFF;
+	pLaunch.fRotate[0] = qRotation.w;
+	pLaunch.fRotate[1] = qRotation.x;
+	pLaunch.fRotate[2] = qRotation.y;
+	pLaunch.fRotate[3] = qRotation.z;
+	pLaunch.fPos[0] = vDestination.x;
+	pLaunch.fPos[1] = vDestination.y;
+	pLaunch.fPos[2] = vDestination.z;
+
+	HookClient->Send_FLPACKET_SERVER_LAUNCH(iClientID, pLaunch);
+
+	uint iSystem;
+	pub::Player::GetSystem(iClientID, iSystem);
+	pub::SpaceObj::Relocate(ClientInfo[iClientID].iShip, iSystem, vDestination, mOrientation);
+}
+
+/** Dock the client immediately */
+HK_ERROR HkInstantDock(uint iClientID, uint iDockObj)
+{
+	// check if logged in
+	if(iClientID == -1)
+		return HKE_PLAYER_NOT_LOGGED_IN;
+
+	uint iShip;
+	pub::Player::GetShip(iClientID, iShip);
+	if(!iShip)
+		return HKE_PLAYER_NOT_IN_SPACE;
+
+	uint iSystem, iSystem2;
+	pub::SpaceObj::GetSystem(iShip, iSystem);
+	pub::SpaceObj::GetSystem(iDockObj, iSystem2);
+	if(iSystem!=iSystem2)
+	{
+		return HKE_PLAYER_NOT_IN_SPACE;
+	}
+
+	try {
+		pub::SpaceObj::InstantDock(iShip, iDockObj, 1);
+	} catch(...) { return HKE_PLAYER_NOT_IN_SPACE; }
+
+	return HKE_OK;
+}
+
+HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank)
+{
+	HK_ERROR err;
+	std::wstring wscRet = L"";
+	if ((err = HkFLIniGet(wscCharname, L"rank", wscRet)) != HKE_OK)
+		return err;
+	if (wscRet.length())
+		iRank = ToInt(wscRet);
+	else
+		iRank = 0;
+	return HKE_OK;
+}
+
+/// Get online time.
+HK_ERROR HkGetOnlineTime(const std::wstring &wscCharname, int &iSecs)
+{
+	std::wstring wscDir;
+	if(!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+		return HKE_CHAR_DOES_NOT_EXIST;
+
+	std::wstring wscFile;
+	HkGetCharFileName(wscCharname, wscFile);
+
+	std::string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
+	if (HkIsEncoded(scCharFile))
+	{
+		std::string scCharFileNew = scCharFile + ".ini";
+		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			return HKE_COULD_NOT_DECODE_CHARFILE;
+
+		iSecs = (int)IniGetF(scCharFileNew, "mPlayer", "total_time_played", 0.0f);
+		DeleteFile(scCharFileNew.c_str());
+	}
+	else
+	{
+		iSecs = (int)IniGetF(scCharFile, "mPlayer", "total_time_played", 0.0f);
+	}
+
+	return HKE_OK;
+}
+
+/// Return true if this player is within the specified distance of any other player.
+bool IsInRange(uint iClientID, float fDistance)
+{
+	std::list<GROUP_MEMBER> lstMembers;
+	HkGetGroupMembers((const wchar_t*) Players.GetActiveCharacterName(iClientID), lstMembers);
+
+	uint iShip;
+	pub::Player::GetShip(iClientID, iShip);
+
+	Vector pos;
+	Matrix rot;
+	pub::SpaceObj::GetLocation(iShip, pos, rot);
+
+	uint iSystem;
+	pub::Player::GetSystem(iClientID, iSystem);
+
+	// For all players in system...
+	struct PlayerData *pPD = 0;
+	while(pPD = Players.traverse_active(pPD))
+	{
+		// Get the this player's current system and location in the system.
+		uint iClientID2 = HkGetClientIdFromPD(pPD);
+		uint iSystem2 = 0;
+		pub::Player::GetSystem(iClientID2, iSystem2);
+		if (iSystem != iSystem2)
+			continue;
+
+		uint iShip2;
+		pub::Player::GetShip(iClientID2, iShip2);
+
+		Vector pos2;
+		Matrix rot2;
+		pub::SpaceObj::GetLocation(iShip2, pos2, rot2);
+
+		// Ignore players who are in your group.
+		bool bGrouped = false;
+		for(auto& gm : lstMembers)
+		{
+			if (gm.iClientID == iClientID2)
+			{
+				bGrouped = true;
+				break;
+			}
+		}
+		if (bGrouped)
+			continue;
+
+		// Is player within the specified range of the sending char.
+		if (HkDistance3D(pos, pos2) < fDistance)
+			return true;
+	}
+	return false;
+}
+
+/**
+Delete a character.
+*/
+HK_ERROR HkDeleteCharacter(CAccount *acc, std::wstring &wscCharname)
+{
+	HkLockAccountAccess(acc, true);
+	st6::wstring str((ushort*)wscCharname.c_str());
+	Players.DeleteCharacterFromName(str);
+	HkUnlockAccountAccess(acc);
+	return HKE_OK;
+}
+
+/**
+Create a new character in the specified account by emulating a
+create character.
+*/
+HK_ERROR HkNewCharacter(CAccount *acc, std::wstring &wscCharname)
+{
+	HkLockAccountAccess(acc, true);
+	HkUnlockAccountAccess(acc);
+
+	INI_Reader ini;
+	if (!ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false))
+		return HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID;
+
+	// Emulate char create by logging in.
+	SLoginInfo logindata;
+	wcsncpy_s(logindata.wszAccount, HkGetAccountID(acc).c_str(), 36);
+	Players.login(logindata, Players.GetMaxPlayerCount()+1);
+
+	SCreateCharacterInfo newcharinfo;
+	wcsncpy_s(newcharinfo.wszCharname, wscCharname.c_str(), 23);
+	newcharinfo.wszCharname[23]=0;
+
+	newcharinfo.iNickName = 0;
+	newcharinfo.iBase = 0;
+	newcharinfo.iPackage = 0;
+	newcharinfo.iPilot = 0;
+
+	while (ini.read_header())
+	{
+		if(ini.is_header("Faction"))
+		{
+			while(ini.read_value())
+			{
+				if(ini.is_value("nickname"))
+					newcharinfo.iNickName = CreateID(ini.get_value_string());
+				else if(ini.is_value("base"))
+					newcharinfo.iBase = CreateID(ini.get_value_string());
+				else if(ini.is_value("package"))
+					newcharinfo.iPackage = CreateID(ini.get_value_string());
+				else if(ini.is_value("pilot"))
+					newcharinfo.iPilot = CreateID(ini.get_value_string());
+			}
+			break;
+		}
+	}
+	ini.close();
+
+	if(newcharinfo.iNickName == 0)
+		newcharinfo.iNickName = CreateID("new_player");
+	if(newcharinfo.iBase == 0)
+		newcharinfo.iBase = CreateID("Li01_01_Base");
+	if(newcharinfo.iPackage == 0)
+		newcharinfo.iPackage = CreateID("ge_fighter");
+	if(newcharinfo.iPilot == 0)
+		newcharinfo.iPilot = CreateID("trent");
+
+	// Fill struct with valid data (though it isnt used it is needed)
+	newcharinfo.iDunno[4] = 65536;
+	newcharinfo.iDunno[5] = 65538;
+	newcharinfo.iDunno[6] = 0;
+	newcharinfo.iDunno[7] = 1058642330;
+	newcharinfo.iDunno[8] = 3206125978;
+	newcharinfo.iDunno[9] = 65537;
+	newcharinfo.iDunno[10] = 0;
+	newcharinfo.iDunno[11] = 3206125978;
+	newcharinfo.iDunno[12] = 65539;
+	newcharinfo.iDunno[13] = 65540;
+	newcharinfo.iDunno[14] = 65536;
+	newcharinfo.iDunno[15] = 65538;
+	Server.CreateNewCharacter(newcharinfo, Players.GetMaxPlayerCount()+1);
+	HkSaveChar(wscCharname);
+	Players.logout(Players.GetMaxPlayerCount()+1);
+	return HKE_OK;
+}
+
+
+typedef void (__stdcall *_FLAntiCheat)();
+typedef void (__stdcall *_FLPossibleCheatingDetected)(int iReason);
+
+/** Anti cheat checking code by mc_horst */
+HK_ERROR HkAntiCheat(uint iClientID)
+{
+#define ADDR_FL_ANTICHEAT_1 0x70120
+#define ADDR_FL_ANTICHEAT_2 0x6FD20
+#define ADDR_FL_ANTICHEAT_3 0x6FAF0
+#define ADDR_FL_ANTICHEAT_4 0x6FAA0
+#define ADDR_FL_POSSIBLE_CHEATING_DETECTED 0x6F570
+
+	_FLAntiCheat FLAntiCheat1 = (_FLAntiCheat) ((char*)hModServer + ADDR_FL_ANTICHEAT_1);
+	_FLAntiCheat FLAntiCheat2 = (_FLAntiCheat) ((char*)hModServer + ADDR_FL_ANTICHEAT_2);
+	_FLAntiCheat FLAntiCheat3 = (_FLAntiCheat) ((char*)hModServer + ADDR_FL_ANTICHEAT_3);
+	_FLAntiCheat FLAntiCheat4 = (_FLAntiCheat) ((char*)hModServer + ADDR_FL_ANTICHEAT_4);
+	_FLPossibleCheatingDetected FLPossibleCheatingDetected = (_FLPossibleCheatingDetected) ((char*)hModServer + ADDR_FL_POSSIBLE_CHEATING_DETECTED);
+
+	// check if ship in space
+	uint iShip = 0;
+	pub::Player::GetShip(iClientID, iShip);
+	if(iShip)
+		return HKE_OK;
+
+	char *szObjPtr;
+	memcpy(&szObjPtr, &Players, 4);
+	szObjPtr += 0x418 * (iClientID - 1);
+
+	char cRes;
+
+	////////////////////////// 1
+	__asm
+	{
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat1]
+		mov [cRes], al
+	}
+
+	if(cRes != 0)
+	{ // kick
+		HkKick(ARG_CLIENTID(iClientID));
+		return HKE_UNKNOWN_ERROR;
+	}
+
+	////////////////////////// 2
+	__asm
+	{
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat2]
+		mov [cRes], al
+	}
+
+	if(cRes != 0)
+	{ // kick
+		HkKick(ARG_CLIENTID(iClientID));
+		return HKE_UNKNOWN_ERROR;
+	}
+
+	////////////////////////// 3
+	ulong lRet;
+	ulong lCompare;
+	__asm
+	{
+		mov ecx, [szObjPtr]
+		mov eax, [ecx+0x320]
+		mov [lCompare], eax
+		call [FLAntiCheat3]
+		mov [lRet], eax
+	}
+
+	if(lRet > lCompare)
+	{ // kick
+		HkKick(ARG_CLIENTID(iClientID));
+		return HKE_UNKNOWN_ERROR;
+	}
+
+	////////////////////////// 4
+	__asm
+	{
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat4]
+		mov [cRes], al
+	}
+
+	if(cRes != 0)
+	{ // kick
+		HkKick(ARG_CLIENTID(iClientID));
+		return HKE_UNKNOWN_ERROR;
+	}
+
+	return HKE_OK;
+}
+
+/** Anti cheat checking code by mc_horst */
+HK_ERROR HkAntiCheat(const std::wstring &wscCharname)
+{
+    HK_GET_CLIENTID(iClientID, wscCharname);
+
+	// check if logged in
+	if(iClientID == -1)
+		return HKE_OK;
+
+    HkAntiCheat(iClientID);
+}
+
+HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint)
+{
+	HK_GET_CLIENTID(iClientID, wscCharname);
+
+	if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
+		return HKE_NO_CHAR_SELECTED;
+
+	if (!Players[iClientID].iEnteredBase)
+	{
+		Players[iClientID].iEnteredBase = Players[iClientID].iBaseID;
+		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, iClientID);
+		Players[iClientID].iEnteredBase = 0;
+	}
+	else
+	{
+		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, iClientID);
+	}
+
+	// Add to check-list which is being compared to the users equip-list when saving
+	// char to fix "Ship or Equipment not sold on base" kick
+	EquipDesc ed;
+	ed.sID = Players[iClientID].sLastEquipID;
+	ed.iCount = 1;
+	ed.iArchID = iGoodID;
+	Players[iClientID].lShadowEquipDescList.add_equipment_item(ed, false);
+
+	return HKE_OK;
+}
+
+HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint, bool bMounted)
+{
+	typedef bool (__stdcall *_AddCargoDocked)(uint iGoodID, CacheString *&hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
+	static _AddCargoDocked AddCargoDocked = 0;
+	if (!AddCargoDocked)
+		AddCargoDocked = (_AddCargoDocked)((char*)hModServer +  0x6EFC0);
+
+	HK_GET_CLIENTID(iClientID, wscCharname);
+	if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
+		return HKE_PLAYER_NOT_LOGGED_IN;
+
+	uint iBase = 0;
+	pub::Player::GetBase(iClientID, iBase);
+	uint iLocation = 0;
+	pub::Player::GetLocation(iClientID, iLocation);
+
+	if (iLocation)
+		Server.LocationExit(iLocation,iClientID);
+	if (iBase)
+		Server.BaseExit(iBase,iClientID);
+	if (!HkIsValidClientID(iClientID))
+		return HKE_PLAYER_NOT_LOGGED_IN;
+
+	PlayerData *pd = &Players[iClientID];
+	const char *p = scHardpoint.c_str();
+	CacheString hardpoint;
+	hardpoint.value = StringAlloc(p, false);
+
+	int iOne = 1;
+	int iMounted = bMounted;
+	float fHealth = 1;
+	CacheString *pHP = &hardpoint;
+	__asm
+	{
+		push iOne
+		push iMounted
+		push iOne
+		push fHealth
+		push iOne
+		push pHP
+		push iGoodID
+		mov ecx, pd
+		call AddCargoDocked
+	}
+
+	if(iBase)
+		Server.BaseEnter(iBase, iClientID);
+	if(iLocation)
+		Server.LocationEnter(iLocation, iClientID);
+
+	return HKE_OK;
+}
+
+std::wstring GetLocation(unsigned int iClientID)
+{
+	uint iSystemID = 0;
+	uint iShip = 0;
+	pub::Player::GetSystem(iClientID, iSystemID);
+	pub::Player::GetShip(iClientID, iShip);
+	if (!iSystemID || !iShip)
+	{
+		PrintUserCmdText(iClientID, L"ERR Not in space");
+		return false;
+	}
+
+	Vector pos;
+	Matrix rot;
+	pub::SpaceObj::GetLocation(iShip, pos, rot);
+
+	return VectorToSectorCoord(iSystemID, pos);
+}
+
+
+CAccount* HkGetAccountByClientID(uint iClientID)
+{
+	if (!HkIsValidClientID(iClientID))
+		return 0;
+
+	return Players.FindAccountFromClientID(iClientID);
+}
+
+std::wstring HkGetAccountIDByClientID(uint iClientID)
+{
+	if (HkIsValidClientID(iClientID))
+	{
+		CAccount *acc = HkGetAccountByClientID(iClientID);
+		if (acc && acc->wszAccID)
+		{
+			return acc->wszAccID;
+		}
+	}
+	return L"";
+}
+
+void HkDelayedKick(uint iClientID, uint secs)
+{
+	mstime kick_time = timeInMS() + (secs * 1000);
+	if (!ClientInfo[iClientID].tmKickTime || ClientInfo[iClientID].tmKickTime > kick_time)
+		ClientInfo[iClientID].tmKickTime = kick_time;
+}
+
+std::string HkGetPlayerSystemS(uint iClientID)
+{
+	uint iSystemID;
+	pub::Player::GetSystem(iClientID, iSystemID);
+	char szSystemname[1024] = "";
+	pub::GetSystemNickname(szSystemname, sizeof(szSystemname), iSystemID);
+	return szSystemname;
+}
+
+HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
+{
+	UINT iClientID = HkGetClientIdFromCharname(wscCharname);
+	if (iClientID != -1 && !HkIsInCharSelectMenu(iClientID))
+	{
+		HkSaveChar(iClientID);
+		if (!HkIsValidClientID(iClientID))
+		{
+			return HKE_UNKNOWN_ERROR;
+		}
+	}
+
+	fValue = 0.0f;
+
+	uint iBaseID = 0;
+
+	list<wstring> lstCharFile;
+	HK_ERROR err = HkReadCharFile(wscCharname, lstCharFile);
+	if (err != HKE_OK)
+		return err;
+
+	foreach(lstCharFile, wstring, line)
+	{
+		wstring wscKey = Trim(line->substr(0,line->find(L"=")));
+		if(wscKey == L"base" || wscKey == L"last_base")
+		{
+			int iFindEqual = line->find(L"=");
+			if(iFindEqual == -1)
+			{
+				continue;
+			}
+
+			if ((iFindEqual+1) >= (int)line->size())
+			{
+				continue;
+			}
+
+			iBaseID = CreateID(wstos(Trim(line->substr(iFindEqual+1))).c_str());
+			break;
+		}
+	}
+
+	foreach(lstCharFile, wstring, line)
+	{
+		wstring wscKey = Trim(line->substr(0,line->find(L"=")));
+		if(wscKey == L"cargo" || wscKey == L"equip")
+		{
+			int iFindEqual = line->find(L"=");
+			if(iFindEqual == -1)
+			{
+				continue;
+			}
+			int iFindComma = line->find(L",", iFindEqual);
+			if(iFindComma == -1)
+			{
+				continue;
+			}
+			uint iGoodID = ToUInt(Trim(line->substr(iFindEqual+1,iFindComma)));
+			uint iGoodCount = ToUInt(Trim(line->substr(iFindComma+1,line->find(L",",iFindComma+1))));
+
+			float fItemValue;
+			if (pub::Market::GetPrice(iBaseID, Arch2Good(iGoodID), fItemValue)==0)
+			{
+				if (arch_is_combinable(iGoodID))
+				{
+					fValue += fItemValue * iGoodCount;
+					//ConPrint(L"market %u %0.2f = %0.2f x %u\n", iGoodID, fItemValue * iGoodCount, fItemValue, iGoodCount);
+				}
+				else
+				{
+					float* fResaleFactor = (float*)((char*)hModServer + 0x8AE7C);
+					fValue += fItemValue * (*fResaleFactor);
+					//ConPrint(L"market %u %0.2f = %0.2f x %0.2f x 1\n", iGoodID, fItemValue  * (*fResaleFactor), fItemValue, (*fResaleFactor));
+				}
+			}
+		}
+		else if(wscKey == L"money")
+		{
+			int iFindEqual = line->find(L"=");
+			if(iFindEqual == -1)
+			{
+				continue;
+			}
+			uint fItemValue = ToUInt(Trim(line->substr(iFindEqual+1)));
+			fValue += fItemValue;
+		}
+		else if(wscKey == L"ship_archetype")
+		{
+			uint iShipArchID = ToUInt(Trim(line->substr(line->find(L"=")+1, line->length())));
+			const GoodInfo *gi = GoodList_get()->find_by_ship_arch(iShipArchID);
+			if (gi)
+			{
+				gi = GoodList::find_by_id(gi->iArchID);
+				if (gi)
+				{
+					float* fResaleFactor = (float*)((char*)hModServer + 0x8AE78);
+					float fItemValue = gi->fPrice * (*fResaleFactor);
+					fValue += fItemValue;
+					//ConPrint(L"ship %u %0.2f = %0.2f x %0.2f\n", iShipArchID, fItemValue, gi->fPrice, *fResaleFactor);
+				}
+			}
+		}
+	}
+	return HKE_OK;
+}
+
+void HkSaveChar(uint iClientID)
+{
+	BYTE patch[] = { '\x90', '\x90' };
+	WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
+	pub::Save(iClientID, 1);
+}

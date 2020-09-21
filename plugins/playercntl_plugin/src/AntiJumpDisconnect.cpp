@@ -19,7 +19,6 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
 #include "Main.h"
 
 namespace AntiJumpDisconnect
@@ -37,7 +36,7 @@ namespace AntiJumpDisconnect
 
 	void AntiJumpDisconnect::DisConnect(unsigned int iClientID, enum  EFLConnection state)
 	{
-		if (mapInfo[iClientID].bInWrapGate)   
+		if (mapInfo[iClientID].bInWrapGate)
 		{
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);
@@ -53,7 +52,7 @@ namespace AntiJumpDisconnect
 
 	void AntiJumpDisconnect::CharacterInfoReq(unsigned int iClientID, bool p2)
 	{
-		if (mapInfo[iClientID].bInWrapGate)   
+		if (mapInfo[iClientID].bInWrapGate)
 		{
 			uint iShip;
 			pub::Player::GetShip(iClientID, iShip);

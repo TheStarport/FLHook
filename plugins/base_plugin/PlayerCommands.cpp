@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 #include "Main.h"
 
@@ -67,13 +66,13 @@ namespace PlayerCommands
 			L" to [max stock] then the item cannot be sold to the base by docked ships.</TEXT><PARA/><PARA/>"
 			L"<TEXT>To prohibit selling to the base of an item by docked ships under all conditions, set [max stock] to 0."
 			L"To prohibit buying from the base of an item by docked ships under all conditions, set [min stock] to 0.</TEXT><PARA/><PARA/>"
-			
-			L"<TRA bold=\"true\"/><TEXT>/shop remove [item]</TEXT><TRA bold=\"false\"/><PARA/>" 
+
+			L"<TRA bold=\"true\"/><TEXT>/shop remove [item]</TEXT><TRA bold=\"false\"/><PARA/>"
 		    L"<TEXT>Remove the item from the stock list. It cannot be sold to the base by docked ships unless they are base administrators.</TEXT><PARA/><PARA/>"
-			
+
 			L"<TRA bold=\"true\"/><TEXT>/shop [page]</TEXT><TRA bold=\"false\"/><PARA/>"
 			L"<TEXT>Show the shop stock list for [page]. There are a maximum of 40 items shown per page.</TEXT><PARA/><PARA/>"
-			
+
 			L"<TRA bold=\"true\"/><TEXT>/base defensemode</TEXT><TRA bold=\"false\"/><PARA/>"
 			L"<TEXT>Control the defense mode for the base.</TEXT><PARA/><PARA/>"
 
@@ -93,7 +92,7 @@ namespace PlayerCommands
 			L"<TEXT>Control the construction and destruction of base modules and upgrades.</TEXT><PARA/><PARA/>"
 
 			L"<POP/></RDL>";
-			
+
 		HkChangeIDSString(client, 500000, L"Base Help");
 		HkChangeIDSString(client, 500001, help);
 
@@ -280,7 +279,7 @@ namespace PlayerCommands
 			else
 				PrintUserCmdText(client, L"%s", i.c_str());
 		}
-		PrintUserCmdText(client, L"OK");		
+		PrintUserCmdText(client, L"OK");
 	}
 
 	void BaseAddAllyTag(uint client, const std::wstring &args)
@@ -366,7 +365,7 @@ namespace PlayerCommands
 
 		for(auto& i : base->ally_tags)
 			PrintUserCmdText(client, L"%s", i.c_str());
-		PrintUserCmdText(client, L"OK");		
+		PrintUserCmdText(client, L"OK");
 	}
 
 	void BaseRep(uint client, const std::wstring &args)
@@ -440,7 +439,7 @@ namespace PlayerCommands
 
 			base->infocard_para[iPara] += XMLText(msg);
 			PrintUserCmdText(client, L"OK %d/%d characters used", length, MAX_CHARACTERS);
-	
+
 			// Update the infocard text.
 			base->infocard.clear();
 			for (int i = 1; i <= MAX_PARAGRAPHS; i++)
@@ -449,13 +448,13 @@ namespace PlayerCommands
 				if (wscXML.length())
 					base->infocard += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 			}
-			
+
 			base->Save();
 		}
 		else if (iPara > 0 && iPara <= MAX_PARAGRAPHS && cmd == L"d")
 		{
 			base->infocard_para[iPara] = L"";
-			PrintUserCmdText(client, L"OK");		
+			PrintUserCmdText(client, L"OK");
 
 			// Update the infocard text.
 			base->infocard.clear();
@@ -491,7 +490,7 @@ namespace PlayerCommands
 			PrintUserCmdText(client, L"ERR Access denied");
 			return;
 		}
-		
+
 		std::wstring wscMode = GetParam(args, ' ', 2);
 		if (wscMode == L"0")
 		{
@@ -534,11 +533,11 @@ namespace PlayerCommands
 			PrintUserCmdText(client, L"ERR Access denied");
 			return;
 		}
-		
+
 		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
-			PrintUserCmdText(client, L"Modules:"); 
+			PrintUserCmdText(client, L"Modules:");
 			for (uint index=1; index<base->modules.size(); index++)
 			{
 				if (base->modules[index])
@@ -547,7 +546,7 @@ namespace PlayerCommands
 					PrintUserCmdText(client, L"%u: %s", index, mod->GetInfo(false).c_str());
 				}
 				else
-				{					
+				{
 					PrintUserCmdText(client, L"%u: Empty - available for new module", index);
 				}
 			}
@@ -591,7 +590,7 @@ namespace PlayerCommands
 					return;
 				}
 			}
-			
+
 			base->modules[index] = new BuildModule(base, type);
 			base->Save();
 			PrintUserCmdText(client, L"OK Module construction started");
@@ -610,9 +609,9 @@ namespace PlayerCommands
 			PrintUserCmdText(client, L"|     <type> = 5 - docking module factory");
 			PrintUserCmdText(client, L"|     <type> = 6 - jumpdrive manufacturing factory");
 			PrintUserCmdText(client, L"|     <type> = 7 - hyperspace survey manufacturing factory");
-			PrintUserCmdText(client, L"|     <type> = 8 - cloaking device manufacturing factory");	
-			PrintUserCmdText(client, L"|     <type> = 9 - defense platform array type 2");	
-			PrintUserCmdText(client, L"|     <type> = 10 - defense platform array type 3");	
+			PrintUserCmdText(client, L"|     <type> = 8 - cloaking device manufacturing factory");
+			PrintUserCmdText(client, L"|     <type> = 9 - defense platform array type 2");
+			PrintUserCmdText(client, L"|     <type> = 10 - defense platform array type 3");
 		}
 	}
 
@@ -634,10 +633,10 @@ namespace PlayerCommands
 		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
-			PrintUserCmdText(client, L"Factory Modules:"); 
+			PrintUserCmdText(client, L"Factory Modules:");
 			for (uint index=1; index<base->modules.size(); index++)
 			{
-				if (base->modules[index] && 
+				if (base->modules[index] &&
 					(base->modules[index]->type == Module::TYPE_M_CLOAK
 					|| base->modules[index]->type == Module::TYPE_M_HYPERSPACE_SCANNER
 					|| base->modules[index]->type == Module::TYPE_M_JUMPDRIVES
@@ -647,7 +646,7 @@ namespace PlayerCommands
 					PrintUserCmdText(client, L"%u: %s", index, mod->GetInfo(false).c_str());
 				}
 			}
-			PrintUserCmdText(client, L"OK"); 
+			PrintUserCmdText(client, L"OK");
 		}
 		else if (cmd==L"clear")
 		{
@@ -658,7 +657,7 @@ namespace PlayerCommands
 				return;
 			}
 
-			if (!base->modules[index] || 
+			if (!base->modules[index] ||
 					(base->modules[index]->type != Module::TYPE_M_CLOAK
 					&& base->modules[index]->type != Module::TYPE_M_HYPERSPACE_SCANNER
 					&& base->modules[index]->type != Module::TYPE_M_JUMPDRIVES
@@ -685,7 +684,7 @@ namespace PlayerCommands
 				return;
 			}
 
-			if (!base->modules[index] || 
+			if (!base->modules[index] ||
 					(base->modules[index]->type != Module::TYPE_M_CLOAK
 					&& base->modules[index]->type != Module::TYPE_M_HYPERSPACE_SCANNER
 					&& base->modules[index]->type != Module::TYPE_M_JUMPDRIVES
@@ -721,8 +720,8 @@ namespace PlayerCommands
 			PrintUserCmdText(client, L"|     <type> = 7 - Hyperspace Survey Module Mk3");
 			PrintUserCmdText(client, L"|     For Cloaking Device Factory");
 			PrintUserCmdText(client, L"|     <type> = 8 - Cloaking Device (small)");
-			PrintUserCmdText(client, L"|     <type> = 9 - Cloaking Device (medium)");	
-			PrintUserCmdText(client, L"|     <type> = 10 - Cloaking Device (large)");	
+			PrintUserCmdText(client, L"|     <type> = 9 - Cloaking Device (medium)");
+			PrintUserCmdText(client, L"|     <type> = 10 - Cloaking Device (large)");
 		}
 	}
 
@@ -744,7 +743,7 @@ namespace PlayerCommands
 		const std::wstring &cmd = GetParam(args, ' ', 2);
 		if (cmd==L"list")
 		{
-			PrintUserCmdText(client, L"Defense Modules:"); 
+			PrintUserCmdText(client, L"Defense Modules:");
 			for (uint index=0; index<base->modules.size(); index++)
 			{
 				if (base->modules[index])
@@ -754,13 +753,13 @@ namespace PlayerCommands
 						|| base->modules[index]->type == Module::TYPE_DEFENSE_3)
 					{
 						DefenseModule *mod = (DefenseModule*)base->modules[index];
-						PrintUserCmdText(client, L"Module %u: Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f", 
+						PrintUserCmdText(client, L"Module %u: Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
 							index, mod->pos.x, mod->pos.y, mod->pos.z,
 							mod->rot.z, mod->rot.y, mod->rot.z);
 					}
 				}
 			}
-			PrintUserCmdText(client, L"OK"); 
+			PrintUserCmdText(client, L"OK");
 		}
 		else if (cmd==L"set")
 		{
@@ -792,7 +791,7 @@ namespace PlayerCommands
 					mod->rot.y = ry;
 					mod->rot.z = rz;
 
-					PrintUserCmdText(client, L"OK Module %u: Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f", 
+					PrintUserCmdText(client, L"OK Module %u: Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
 							index, mod->pos.x, mod->pos.y, mod->pos.z,
 							mod->rot.z, mod->rot.y, mod->rot.z);
 					base->Save();
@@ -839,7 +838,7 @@ namespace PlayerCommands
 		}
 		else if (cmd==L"off")
 		{
-			base->shield_active_time = 0;		
+			base->shield_active_time = 0;
 		}
 		else
 		{
@@ -853,7 +852,7 @@ namespace PlayerCommands
 		// status.
 		for (uint index=0; index<base->modules.size(); index++)
 		{
-			if (base->modules[index] && 
+			if (base->modules[index] &&
 				base->modules[index]->type == Module::TYPE_SHIELDGEN)
 			{
 				ShieldModule *mod = (ShieldModule*)base->modules[index];
@@ -861,7 +860,7 @@ namespace PlayerCommands
 				PrintUserCmdText(client, L"|  * %s", mod->GetInfo(false).c_str());
 			}
 		}
-		PrintUserCmdText(client, L"OK"); 			
+		PrintUserCmdText(client, L"OK");
 	}
 
 	void Bank(uint client, const std::wstring &args)
@@ -897,7 +896,7 @@ namespace PlayerCommands
 				PrintUserCmdText(client, L"ERR Not enough or invalid credits");
 				return;
 			}
-			
+
 			pub::Player::AdjustCash(client, money);
 			base->money -= money;
 			base->Save();
@@ -954,16 +953,16 @@ namespace PlayerCommands
 
 		wchar_t buf[1000];
 		_snwprintf(buf, sizeof(buf), L"Shop Management : Page %d/%d", page, pages);
-		std::wstring title = buf;	
+		std::wstring title = buf;
 
 		int start_item = ((page-1) * 40) + 1;
 		int end_item = page * 40;
 
 		std::wstring status = L"<RDL><PUSH/>";
 		status += L"<TEXT>Available commands:</TEXT><PARA/>";
-		status += L"<TEXT>  /shop price [item] [price] [min stock] [max stock]</TEXT><PARA/>"; 
-		status += L"<TEXT>  /shop remove [item]</TEXT><PARA/>"; 
-		status += L"<TEXT>  /shop [page]</TEXT><PARA/><PARA/>"; 
+		status += L"<TEXT>  /shop price [item] [price] [min stock] [max stock]</TEXT><PARA/>";
+		status += L"<TEXT>  /shop remove [item]</TEXT><PARA/>";
+		status += L"<TEXT>  /shop [page]</TEXT><PARA/><PARA/>";
 
 		status += L"<TEXT>Stock:</TEXT><PARA/>";
 		int item = 1;
@@ -980,7 +979,7 @@ namespace PlayerCommands
 				continue;
 
 			wchar_t buf[1000];
-			_snwprintf(buf, sizeof(buf), L"<TEXT>  %02u:  %ux %s %0.0f credits stock: %u min %u max</TEXT><PARA/>",								
+			_snwprintf(buf, sizeof(buf), L"<TEXT>  %02u:  %ux %s %0.0f credits stock: %u min %u max</TEXT><PARA/>",
 				item, i->second.quantity, HtmlEncode(HkGetWStringFromIDS(gi->iIDSName)).c_str(),
 				i->second.price, i->second.min_stock, i->second.max_stock);
 			status += buf;
@@ -1035,13 +1034,13 @@ namespace PlayerCommands
 			for (map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin(); i!=base->market_items.end(); ++i, curr_item++)
 			{
 				if (curr_item == item)
-				{						
+				{
 					i->second.price = (float)money;
 					i->second.min_stock = min_stock;
 					i->second.max_stock = max_stock;
 					SendMarketGoodUpdated(base, i->first, i->second);
 					base->Save();
-					
+
 					int page = ((curr_item + 39) / 40);
 					ShowShopStatus(client, base, page);
 					PrintUserCmdText(client, L"OK");
@@ -1053,7 +1052,7 @@ namespace PlayerCommands
 		else if (cmd == L"remove")
 		{
 			int item = ToInt(GetParam(args, ' ', 2));
-			
+
 			int curr_item = 1;
 			for (map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin(); i!=base->market_items.end(); ++i, curr_item++)
 			{
@@ -1066,7 +1065,7 @@ namespace PlayerCommands
 					SendMarketGoodUpdated(base, i->first, i->second);
 					base->market_items.erase(i->first);
 					base->Save();
-					
+
 					int page = ((curr_item + 39) / 40);
 					ShowShopStatus(client, base, page);
 					PrintUserCmdText(client, L"OK");

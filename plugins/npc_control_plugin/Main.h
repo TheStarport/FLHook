@@ -12,7 +12,6 @@
 #include <plugin.h>
 #include <sstream>
 #include <iostream>
-#include "PluginUtilities.h"
 
 static int set_iPluginDebug = 0;
 PLUGIN_RETURNCODE returncode;

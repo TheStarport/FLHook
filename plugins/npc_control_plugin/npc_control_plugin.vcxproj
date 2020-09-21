@@ -55,7 +55,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PluginUtilities.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -64,7 +63,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PluginUtilities.h" />
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>

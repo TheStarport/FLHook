@@ -76,7 +76,6 @@
     <ClCompile Include="src\MiscCmds.cpp" />
     <ClCompile Include="src\PimpShip.cpp" />
     <ClCompile Include="src\PlayerInfo.cpp" />
-    <ClCompile Include="src\PluginUtilities.cpp" />
     <ClCompile Include="src\PurchaseRestrictions.cpp" />
     <ClCompile Include="src\Rename.cpp" />
     <ClCompile Include="src\RepFixer.cpp" />
@@ -102,7 +101,6 @@
   <ItemGroup>
     <ClInclude Include="src\Mail.h" />
     <ClInclude Include="src\Main.h" />
-    <ClInclude Include="src\PluginUtilities.h" />
     <ClInclude Include="src\ZoneUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

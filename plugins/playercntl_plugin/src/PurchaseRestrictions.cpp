@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 namespace PurchaseRestrictions
@@ -70,7 +70,7 @@ namespace PurchaseRestrictions
 		{
 			std::wstring wscCharName = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 			AddLog("NOTICE: Item '%s' found in cargo of %s (%s) %s",
-				iter->second.c_str(), 
+				iter->second.c_str(),
 				wstos(wscCharName).c_str(), wstos(HkGetAccountID(HkGetAccountByCharname(wscCharName))).c_str(),
 				details.c_str());
 		}
@@ -259,7 +259,7 @@ namespace PurchaseRestrictions
 								return true;
 							}
 						}
-					} 
+					}
 				}
 			}
 		}

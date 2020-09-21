@@ -128,9 +128,6 @@
     <ClInclude Include="..\source\wildcards.hh">
       <Filter>wildcards</Filter>
     </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\plugin.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\CCmds.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
@@ -172,6 +169,12 @@
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\FLHook.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\plugin.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h">
       <Filter>sdk</Filter>
     </ClInclude>
   </ItemGroup>
