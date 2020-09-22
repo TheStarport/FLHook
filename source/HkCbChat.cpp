@@ -77,7 +77,7 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL)
 			}
 
 			wchar_t wszFormatBuf[8];
-			swprintf(wszFormatBuf, L"%02X", (long)cFormat);
+			swprintf_s(wszFormatBuf, L"%02X", (long)cFormat);
 			std::wstring wscTRADataFormat = wszFormatBuf;
 			std::wstring wscTRADataColor;
 			std::wstring wscTRADataSenderColor = L"FFFFFF";

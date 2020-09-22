@@ -473,12 +473,12 @@ void CCmds::CmdGetPlayerIDs()
 	for(auto& p : HkGetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
+		swprintf_s(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
 		if((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine)/2)	{
 			Print(L"%s\n", wszLine);
-			wcscpy(wszLine, wszBuf);
+			wcscpy_s(wszLine, wszBuf);
 		} else
-			wcscat(wszLine, wszBuf);
+			wcscat_s(wszLine, wszBuf);
 	}
 
 	if(wcslen(wszLine))
@@ -592,7 +592,7 @@ void CCmds::CmdServerInfo()
 	iUptime %= (60);
 	uint iSeconds = iUptime;
 	wchar_t wszUptime[16];
-	swprintf(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
+	swprintf_s(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
 	
 	// print
 	Print(L"serverload=%d npcspawn=%s uptime=%s\nOK\n", g_iServerLoad, g_bNPCDisabled ? L"disabled" : L"enabled", wszUptime);
@@ -1263,7 +1263,7 @@ void CCmds::Print(std::wstring wscText, ...)
 	va_list marker;
 	va_start(marker, wscText);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	DoPrint(wszBuf);
 }

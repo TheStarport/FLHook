@@ -5,11 +5,11 @@
 
 std::wstring SetSizeToSmall(const std::wstring &wscDataFormat)
 {
-	uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
+	uint iFormat = wcstoul(wscDataFormat.c_str() + 2, nullptr, 16);
 	wchar_t wszStyleSmall[32];
-	wcscpy(wszStyleSmall, wscDataFormat.c_str());
-	swprintf(wszStyleSmall + wcslen(wszStyleSmall) - 2, L"%02X", 0x90 | (iFormat & 7));
-	return wszStyleSmall;
+	wcscpy_s(wszStyleSmall, wscDataFormat.c_str());
+	swprintf_s(wszStyleSmall + std::size(wszStyleSmall) - 2, 2, L"%02X", 0x90 | (iFormat & 7));
+	return std::wstring(wszStyleSmall, std::size(wszStyleSmall));
 }
 
 /**************************************************************************************************************
@@ -133,7 +133,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 				uint iSystemID;
 				pub::Player::GetSystem(iClientID, iSystemID);
 				wchar_t wszSystem[64];
-				swprintf(wszSystem, L"%u", iSystemID);
+				swprintf_s(wszSystem, L"%u", iSystemID);
 
 				if(!dmg.get_cause())
 					dmg = ClientInfo[iClientID].dmgLast;

@@ -96,7 +96,8 @@ std::wstring HkGetAccountID(CAccount *acc)
 bool HkIsEncoded(const std::string &scFilename)
 {
 	bool bRet = false;
-	FILE *f = fopen(scFilename.c_str(), "r");
+	FILE *f;
+    fopen_s(&f, scFilename.c_str(), "r");
 	if(!f)
 		return false;
 
@@ -170,7 +171,7 @@ HK_ERROR HkResolveId(const std::wstring &wscCharname, uint &iClientID)
 	if(wscCharnameLower.find(L"id ") == 0)
 	{
 		uint iID = 0;
-		swscanf(wscCharnameLower.c_str(), L"id %u", &iID);
+		swscanf_s(wscCharnameLower.c_str(), L"id %u", &iID);
 		if(!HkIsValidClientID(iID))
 			return HKE_INVALID_CLIENT_ID;
 		iClientID = iID;
@@ -473,66 +474,32 @@ Quaternion HkMatrixToQuaternion(Matrix m)
 	return quaternion;
 }
 
-std::string VectorToSectorCoord(uint iSystemID, Vector vPos)
+template<typename Str = std::string>
+Str VectorToSectorCoord(uint iSystemID, Vector vPos)
 {
 	float scale = 1.0;
 	const Universe::ISystem *iSystem = Universe::get_system(iSystemID);
 	if (iSystem)
 		scale = iSystem->NavMapScale;
 
-	float fGridsize = 34000.0f / scale;
-	int gridRefX = (int)((vPos.x + (fGridsize * 5)) / fGridsize) - 1;
-	int gridRefZ = (int)((vPos.z + (fGridsize * 5)) / fGridsize) - 1;
+	float fGridSize = 34000.0f / scale;
+	int gridRefX = (int)((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
+	int gridRefZ = (int)((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
 
-	std::string scXPos = "X";
-	if (gridRefX >= 0 && gridRefX < 8)
-	{
-		char* gridXLabel[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
-		scXPos = gridXLabel[gridRefX];
-	}
+	gridRefX = min(max(gridRefX, 0), 7);
+	Str scXPos = (std::is_same_v<Str, std::string> ? "A" : L"A") + gridRefX;
+	
+	gridRefZ = min(max(gridRefZ, 0), 7);
+	Str scZPos = (std::is_same_v<Str, std::string> ? "1" : L"1") + gridRefZ;
 
-	std::string scZPos = "X";
-	if (gridRefZ >= 0 && gridRefZ < 8)
-	{
-		char* gridZLabel[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
-		scZPos = gridZLabel[gridRefZ];
-	}
+	typename Str::value_type szCurrentLocation[100];
+	if constexpr(std::is_same_v<Str, std::string>)
+	    _snprintf_s(szCurrentLocation, sizeof(szCurrentLocation), "%s-%s", scXPos.c_str(), scZPos.c_str());
+	else
+	    _snwprintf_s(szCurrentLocation, sizeof(szCurrentLocation), L"%s-%s", scXPos.c_str(), scZPos.c_str());
 
-	char szCurrentLocation[100];
-	_snprintf(szCurrentLocation, sizeof(szCurrentLocation), "%s-%s", scXPos.c_str(), scZPos.c_str());
 	return szCurrentLocation;
 }
-
-std::wstring VectorToSectorCoord(uint iSystemID, Vector vPos)
-{
-	float scale = 1.0;
-	const Universe::ISystem *iSystem = Universe::get_system(iSystemID);
-	if (iSystem)
-		scale = iSystem->NavMapScale;
-
-	float fGridsize = 34000.0f / scale;
-	int gridRefX = (int)((vPos.x + (fGridsize * 5)) / fGridsize) - 1;
-	int gridRefZ = (int)((vPos.z + (fGridsize * 5)) / fGridsize) - 1;
-
-	std::wstring wscXPos = L"X";
-	if (gridRefX >= 0 && gridRefX < 8)
-	{
-		wchar_t* gridXLabel[] = {L"A", L"B", L"C", L"D", L"E", L"F", L"G", L"H"};
-		wscXPos = gridXLabel[gridRefX];
-	}
-
-	std::wstring wscZPos = L"X";
-	if (gridRefZ >= 0 && gridRefZ < 8)
-	{
-		wchar_t* gridZLabel[] = {L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8"};
-		wscZPos = gridZLabel[gridRefZ];
-	}
-
-	wchar_t wszCurrentLocation[100];
-	_snwprintf(wszCurrentLocation, sizeof(wszCurrentLocation), L"%s-%s", wscXPos.c_str(), wscZPos.c_str());
-	return wszCurrentLocation;
-}
-
 
 #define PI 3.14159265f
 

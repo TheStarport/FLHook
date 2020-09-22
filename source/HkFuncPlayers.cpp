@@ -21,7 +21,8 @@ HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash)
 
 		std::string scCharFile  = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
 
-		FILE* fTest = fopen(scCharFile.c_str(), "r");
+		FILE* fTest;
+	    fopen_s(&fTest, scCharFile.c_str(), "r");
 		if(!fTest)
 			return HKE_CHAR_DOES_NOT_EXIST;
 		else
@@ -240,7 +241,7 @@ HK_ERROR HkBeam(const std::wstring &wscCharname, const std::wstring &wscBasename
 		HkGetCharFileName(ARG_CLIENTID(iClientID),wscCharFileName);
 		wscCharFileName += L".fl";
 		CHARACTER_ID cID;
-		strcpy(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
+		strcpy_s(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
 		Server.CharacterSelect(cID, iClientID);
 	}
 
@@ -531,11 +532,11 @@ HK_ERROR HkRename(const std::wstring &wscCharname, const std::wstring &wscNewCha
 
 	// Emulate char create
 	SLoginInfo logindata;
-	wcsncpy(logindata.wszAccount, HkGetAccountID(acc).c_str(), 36);
+	wcsncpy_s(logindata.wszAccount, HkGetAccountID(acc).c_str(), 36);
 	Players.login(logindata, MAX_CLIENT_ID + 1);
 
 	SCreateCharacterInfo newcharinfo;
-	wcsncpy(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
+	wcsncpy_s(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
 	newcharinfo.wszCharname[23] = 0;
 
 	newcharinfo.iNickName = 0;
@@ -606,7 +607,7 @@ HK_ERROR HkRename(const std::wstring &wscCharname, const std::wstring &wscNewCha
 		char cHiByte = wscNewCharname[i] >> 8;
 		char cLoByte = wscNewCharname[i] & 0xFF;
 		char szBuf[8];
-		sprintf(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+		sprintf_s(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
 		scValue += szBuf;
 	}
 	IniWrite(scNewCharfilePath, "Player", "Name", scValue);

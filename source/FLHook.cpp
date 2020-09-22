@@ -205,7 +205,7 @@ void FLHookInit_Pre()
 		hConsoleThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ReadConsoleEvents, &dwParam, 0, &id);
 
 		// logs
-		fLog = fopen("./flhook_logs/FLHook.log", "at");
+		fopen_s(&fLog, "./flhook_logs/FLHook.log", "at");
 		char szDate[64];
 		time_t tNow = time(0);
 		struct tm *t = localtime(&tNow);

@@ -43,7 +43,7 @@ bool flc_decode(const char *ifile, const char *ofile)
   int ifd, ofd, i, l, len, rc;
   char *mem, *buff, c, k, r;
 
-  ifd = _open(ifile,O_RDONLY|_O_BINARY);
+  _sopen_s(&ifd, ifile, O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
 
   if (ifd == -1)
 	return false;
@@ -73,8 +73,8 @@ bool flc_decode(const char *ifile, const char *ofile)
 	  free(mem);
 	  return false;
   }
-
-  ofd = _open(ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, 0640);
+  
+  _sopen_s(&ofd, ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
   if (ofd == -1) 
   {
 	  free(mem);
@@ -114,7 +114,7 @@ bool flc_encode(const char *ifile, const char *ofile)
   int ifd, ofd, i, l, len, rc;
   char *mem, *buff, c, k, r;
 
-  ifd = _open(ifile,O_RDONLY|_O_BINARY);
+  _sopen_s(&ifd, ifile, O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
 
   if (ifd == -1) 
 	return false;
@@ -140,7 +140,7 @@ bool flc_encode(const char *ifile, const char *ofile)
 
   _close(ifd);
 
-  ofd = _open(ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, 0640);
+  _sopen_s(&ofd, ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
   if (ofd == -1)  
   {
 		free(mem);

@@ -484,10 +484,10 @@ void HookRehashed()
 
 	// open debug log if necessary
 	if(set_bDebug && !fLogDebug) {
-		fLogDebug = fopen(sDebugLog.c_str(), "at");
+		fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
 	} else if(!set_bDebug && fLogDebug) {
 		fclose(fLogDebug);
-		fLogDebug = 0;
+		fLogDebug = nullptr;
 	}
 }
 
