@@ -21,6 +21,8 @@
 #include <math.h>
 #include "Main.h"
 
+#include <plugin_comms.h>
+
 // Clients
 map<uint, CLIENT_DATA> clients;
 
@@ -160,7 +162,7 @@ std::wstring HtmlEncode(std::wstring text)
                 if (text[i] > 159)
                 {
                     sb.append(L"&#");
-                    sb.append(stows(itos((int)text[i])));
+                    sb.append(std::to_wstring(text[i]));
                     sb.append(L";");
                 }
                 else
@@ -1492,7 +1494,7 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 
 	if (msg == CUSTOM_BASE_BEAM)
 	{
-		CUSTOM_BASE_BEAM_STRUCT* info = reinterpret_cast<CUSTOM_BASE_BEAM_STRUCT*>(data);\
+        auto* info = static_cast<CUSTOM_BASE_BEAM_STRUCT*>(data);\
 		PlayerBase *base = GetPlayerBase(info->iTargetBaseID);
 		if (base)
 		{
@@ -1503,7 +1505,7 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 	}
 	else if (msg == CUSTOM_BASE_IS_DOCKED)
 	{
-		CUSTOM_BASE_IS_DOCKED_STRUCT* info = reinterpret_cast<CUSTOM_BASE_IS_DOCKED_STRUCT*>(data);
+        auto* info = static_cast<CUSTOM_BASE_IS_DOCKED_STRUCT*>(data);
 		PlayerBase *base = GetPlayerBaseForClient(info->iClientID);
 		if (base)
 		{

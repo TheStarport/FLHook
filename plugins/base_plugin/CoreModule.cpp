@@ -9,6 +9,8 @@
 #include <FLHook.h>
 #include <plugin.h>
 #include <math.h>
+#include <plugin_comms.h>
+
 #include "Main.h"
 
 CoreModule::CoreModule(PlayerBase *the_base) : Module(TYPE_CORE), base(the_base), space_obj(0), dont_eat(false), dont_rust(false)

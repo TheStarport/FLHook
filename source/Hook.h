@@ -625,6 +625,9 @@ EXPORT HK_ERROR HkFMsg(uint iClientID, const std::wstring &wscXML);
 EXPORT HK_ERROR HkFMsg(const std::wstring &wscCharname, const std::wstring &wscXML);
 EXPORT HK_ERROR HkFMsgS(const std::wstring &wscSystemname, const std::wstring &wscXML);
 EXPORT HK_ERROR HkFMsgU(const std::wstring &wscXML);
+EXPORT std::wstring HkGetWStringFromIDS(uint iIDS);
+EXPORT void HkLoadStringDLLs();
+EXPORT void HkUnloadStringDLLs();
 
 // HkFuncPlayers
 EXPORT HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash);
@@ -678,8 +681,9 @@ EXPORT HK_ERROR HkDelAdmin(const std::wstring &wscCharname);
 EXPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
 EXPORT HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth, float &fMaxHealth);
 EXPORT Fuse* HkGetFuseFromID(uint iFuseID);
-EXPORT bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay=0, float fLifetime=0, float fSkip=-1.0f);
-EXPORT bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno=0.0f);
+EXPORT bool HkLightFuse(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip);
+EXPORT bool HkUnLightFuse(IObjRW* ship, uint iFuseID);
+EXPORT CEqObj* HkGetEqObjFromObjRW(struct IObjRW *objRW);
 
 // HkFLIni
 EXPORT HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring &wscRet);

@@ -293,7 +293,7 @@ Fuse* HkGetFuseFromID(uint iFuseID)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Return the CEqObj from the IObjRW
-__declspec(naked) CEqObj * __stdcall HkGetEqObjFromObjRW(struct IObjRW *objRW)
+__declspec(naked) CEqObj * __stdcall HkGetEqObjFromObjRW_(struct IObjRW *objRW)
 {
    __asm
    {
@@ -308,7 +308,11 @@ __declspec(naked) CEqObj * __stdcall HkGetEqObjFromObjRW(struct IObjRW *objRW)
    }
 }
 
-__declspec(naked) bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime, float fSkip)
+CEqObj* HkGetEqObjFromObjRW(struct IObjRW *objRW) {
+    return HkGetEqObjFromObjRW_(objRW);
+}
+
+__declspec(naked) bool __stdcall HkLightFuse_(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime, float fSkip)
 {
 	__asm
 	{
@@ -325,10 +329,14 @@ __declspec(naked) bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float f
 	}
 }
 
+bool HkLightFuse(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip) {
+    return HkLightFuse_(ship, iFuseID, fDelay, fLifetime, fSkip);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Returns true if a fuse was unlit
-__declspec(naked) bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno)
+__declspec(naked) bool __stdcall HkUnLightFuse_(IObjRW *ship, uint iFuseID, float fDunno)
 {
 	__asm
 	{
@@ -341,6 +349,10 @@ __declspec(naked) bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float
 		call [eax+0x1E8]
 		ret 12
 	}
+}
+
+bool HkUnLightFuse(IObjRW* ship, uint iFuseID) {
+    return HkUnLightFuse_(ship, iFuseID, 0.f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,8 @@
 #include <FLHook.h>
 #include <plugin.h>
 #include <math.h>
+#include <plugin_comms.h>
+
 #include "Main.h"
 
 namespace Pub

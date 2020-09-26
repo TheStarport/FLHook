@@ -70,8 +70,6 @@ EXPORT bool IniGetB(const std::string &scFile, const std::string &scApp, const s
 EXPORT void IniWrite(const std::string &scFile, const std::string &scApp, const std::string &scKey, const std::string &scValue);
 EXPORT void WriteProcMem(void *pAddress, void *pMem, int iSize);
 EXPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
-EXPORT std::wstring ToLower(std::wstring wscStr);
-EXPORT std::string ToLower(std::string scStr);
 EXPORT int ToInt(const std::wstring &wscStr);
 EXPORT uint ToUInt(const std::wstring &wscStr);
 EXPORT void ConPrint(std::wstring wscText, ...);
@@ -94,6 +92,11 @@ EXPORT Str Trim(const Str& scIn);
 template std::string Trim(const std::string& scIn);
 template std::wstring Trim(const std::wstring& scIn);
 EXPORT BOOL FileExists(LPCTSTR szPath);
+EXPORT std::wstring ToLower(std::wstring wscStr);
+EXPORT std::string ToLower(std::string wscStr);
+EXPORT std::wstring GetParamToEnd(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPos);
+EXPORT void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in);
+EXPORT void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue);
 
 // variables
 extern EXPORT HANDLE hProcFL;

@@ -161,7 +161,7 @@ void SendBaseStatus(uint client, PlayerBase *base)
 	
 	for (uint i=1; i<base->modules.size(); i++)
 	{
-		base_status += L"<TEXT>  " + stows(itos(i)) + L": ";
+		base_status += L"<TEXT>  " + std::to_wstring(i) + L": ";
 		Module *module = base->modules[i];
 		if (module)
 		{
