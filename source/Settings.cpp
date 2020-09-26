@@ -183,7 +183,7 @@ void LoadSettings()
 	for(uint i = 0;; i++)
 	{
 		char szBuf[64];
-		sprintf(szBuf, "System%u", i);
+		sprintf_s(szBuf, "System%u", i);
 		std::string scSystem = IniGetS(set_scCfgFile, "NoPVP", szBuf, "");
 
 		if(!scSystem.length())
@@ -199,7 +199,7 @@ void LoadSettings()
 	for(uint i = 0;; i++)
 	{
 		char szBuf[64];
-		sprintf(szBuf, "Suppress%u", i);
+		sprintf_s(szBuf, "Suppress%u", i);
 		std::string scSuppress = IniGetS(set_scCfgFile, "Chat", szBuf, "");
 
 		if(!scSuppress.length())

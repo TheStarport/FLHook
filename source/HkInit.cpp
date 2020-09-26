@@ -229,7 +229,7 @@ void LoadUserSettings(uint iClientID)
 	ClientInfo[iClientID].lstIgnore.clear();
 	for(int i = 1; ; i++)
 	{
-		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", itos(i), L"");
+		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
 		if(!wscIgnore.length())
 			break;
 

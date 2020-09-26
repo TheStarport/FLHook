@@ -847,14 +847,6 @@ void CCmds::CmdHelp()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdTest(int iArg, int iArg2, int iArg3)
-{
-	HkTest(iArg, iArg2, iArg3);
-	Print(L"OK\n");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::wstring CCmds::ArgCharname(uint iArg)
 {
 	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
@@ -883,7 +875,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			iClientID = HkGetClientIDByShip(iTarget);
 			if (!iClientID)
 				return L"";
-			return L"id " + stows(itos(iClientID));
+			return L"id " + std::to_wstring(iClientID);
 		}
 	}
 	
@@ -908,7 +900,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			iClientID = HkGetClientIDByShip(iTarget);
 			if (!iClientID)
 				return L"";
-			return L"id " + stows(itos(iClientID));
+			return L"id " + std::to_wstring(iClientID);
 		}
 		else
 			return wscArg;
@@ -1162,8 +1154,6 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr)
 				CmdRehash();
 			} else if(IS_CMD("help")) {
 				CmdHelp();
-			} else if(IS_CMD("test")) {
-				CmdTest(ArgInt(1), ArgInt(2), ArgInt(3));
 			} else {
 				Print(L"ERR unknown command\n");
 			}

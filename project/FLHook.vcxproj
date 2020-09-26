@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -73,12 +73,12 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Optimization>Disabled</Optimization>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -116,7 +116,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -128,6 +128,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />
     <ClCompile Include="..\source\HkFLIni.cpp" />
@@ -174,6 +175,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
     <ClInclude Include="..\FLHookSDK\include\plugin_comms.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
+    <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\wildcards.hh" />

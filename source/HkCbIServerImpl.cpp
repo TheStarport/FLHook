@@ -219,7 +219,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 			wscEvent += wszFrom;
 
 		wscEvent += L" id=";
-		wscEvent += stows(itos(cId.iID));
+		wscEvent += std::to_wstring(cId.iID);
 
 		wscEvent += L" type=";
 		if(cIdTo.iID == 0x00010000)
@@ -228,7 +228,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		{
 			wscEvent += L"group";
 			wscEvent += L" grpidto=";
-			wscEvent += stows(itos(Players.GetGroupID(cId.iID)));
+			wscEvent += std::to_wstring(Players.GetGroupID(cId.iID));
 		}
 		else if(cIdTo.iID & 0x00010000)
 			wscEvent += L"system";
@@ -245,7 +245,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 				wscEvent += wszTo;
 
 			wscEvent += L" idto=";
-			wscEvent += stows(itos(cIdTo.iID));
+			wscEvent += std::to_wstring(cIdTo.iID);
 		}
 
 		wscEvent += L" text=";

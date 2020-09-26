@@ -81,7 +81,7 @@ HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount)
 			iRet = IniGetI(scCharFileNew, "Player", "money", -1);
 			// Add a space to the value so the ini file line looks like "<key> = <value>"
 			// otherwise IFSO can't decode the file correctly
-			IniWrite(scCharFileNew, "Player", "money", " "+itos(iRet + iAmount));
+			IniWrite(scCharFileNew, "Player", "money", " " + std::to_string(iRet + iAmount));
 
 			if (!set_bDisableCharfileEncryption)
 				if(!flc_encode(scCharFileNew.c_str(), scCharFile.c_str()))
@@ -92,7 +92,7 @@ HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount)
 			iRet = IniGetI(scCharFile, "Player", "money", -1);
 			// Add a space to the value so the ini file line looks like "<key> = <value>"
 			// otherwise IFSO can't decode the file correctly
-			IniWrite(scCharFile, "Player", "money", " "+itos(iRet + iAmount));
+			IniWrite(scCharFile, "Player", "money", " " + std::to_string(iRet + iAmount));
 		}
 
 		if(HkIsInCharSelectMenu(wscCharname) || (iClientIDAcc != -1))
@@ -1514,7 +1514,7 @@ HK_ERROR HkAntiCheat(const std::wstring &wscCharname)
 	if(iClientID == -1)
 		return HKE_OK;
 
-    HkAntiCheat(iClientID);
+    return HkAntiCheat(iClientID);
 }
 
 HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint)
@@ -1615,7 +1615,7 @@ std::wstring GetLocation(unsigned int iClientID)
 	Matrix rot;
 	pub::SpaceObj::GetLocation(iShip, pos, rot);
 
-	return VectorToSectorCoord(iSystemID, pos);
+	return VectorToSectorCoord<std::wstring>(iSystemID, pos);
 }
 
 
@@ -1656,12 +1656,12 @@ std::string HkGetPlayerSystemS(uint iClientID)
 	return szSystemname;
 }
 
-HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
+HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue)
 {
 	UINT iClientID = HkGetClientIdFromCharname(wscCharname);
 	if (iClientID != -1 && !HkIsInCharSelectMenu(iClientID))
 	{
-		HkSaveChar(iClientID);
+		HkSaveChar(wscCharname);
 		if (!HkIsValidClientID(iClientID))
 		{
 			return HKE_UNKNOWN_ERROR;
@@ -1672,49 +1672,49 @@ HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
 
 	uint iBaseID = 0;
 
-	list<wstring> lstCharFile;
+	std::list<std::wstring> lstCharFile;
 	HK_ERROR err = HkReadCharFile(wscCharname, lstCharFile);
 	if (err != HKE_OK)
 		return err;
 
-	foreach(lstCharFile, wstring, line)
+	for(const auto& line : lstCharFile)
 	{
-		wstring wscKey = Trim(line->substr(0,line->find(L"=")));
+		std::wstring wscKey = Trim(line.substr(0,line.find(L"=")));
 		if(wscKey == L"base" || wscKey == L"last_base")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}
 
-			if ((iFindEqual+1) >= (int)line->size())
+			if ((iFindEqual+1) >= (int)line.size())
 			{
 				continue;
 			}
 
-			iBaseID = CreateID(wstos(Trim(line->substr(iFindEqual+1))).c_str());
+			iBaseID = CreateID(wstos(Trim(line.substr(iFindEqual+1))).c_str());
 			break;
 		}
 	}
-
-	foreach(lstCharFile, wstring, line)
+	
+	for(const auto& line : lstCharFile)
 	{
-		wstring wscKey = Trim(line->substr(0,line->find(L"=")));
+        std::wstring wscKey = Trim(line.substr(0,line.find(L"=")));
 		if(wscKey == L"cargo" || wscKey == L"equip")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}
-			int iFindComma = line->find(L",", iFindEqual);
+			int iFindComma = line.find(L",", iFindEqual);
 			if(iFindComma == -1)
 			{
 				continue;
 			}
-			uint iGoodID = ToUInt(Trim(line->substr(iFindEqual+1,iFindComma)));
-			uint iGoodCount = ToUInt(Trim(line->substr(iFindComma+1,line->find(L",",iFindComma+1))));
+			uint iGoodID = ToUInt(Trim(line.substr(iFindEqual+1,iFindComma)));
+			uint iGoodCount = ToUInt(Trim(line.substr(iFindComma+1,line.find(L",",iFindComma+1))));
 
 			float fItemValue;
 			if (pub::Market::GetPrice(iBaseID, Arch2Good(iGoodID), fItemValue)==0)
@@ -1734,17 +1734,17 @@ HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
 		}
 		else if(wscKey == L"money")
 		{
-			int iFindEqual = line->find(L"=");
+			int iFindEqual = line.find(L"=");
 			if(iFindEqual == -1)
 			{
 				continue;
 			}
-			uint fItemValue = ToUInt(Trim(line->substr(iFindEqual+1)));
+			uint fItemValue = ToUInt(Trim(line.substr(iFindEqual+1)));
 			fValue += fItemValue;
 		}
 		else if(wscKey == L"ship_archetype")
 		{
-			uint iShipArchID = ToUInt(Trim(line->substr(line->find(L"=")+1, line->length())));
+			uint iShipArchID = ToUInt(Trim(line.substr(line.find(L"=")+1, line.length())));
 			const GoodInfo *gi = GoodList_get()->find_by_ship_arch(iShipArchID);
 			if (gi)
 			{
@@ -1764,7 +1764,7 @@ HK_ERROR HKGetShipValue(const wstring &wscCharname, float &fValue)
 
 void HkSaveChar(uint iClientID)
 {
-	BYTE patch[] = { '\x90', '\x90' };
+	BYTE patch[] = { 0x90, 0x90 };
 	WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
 	pub::Save(iClientID, 1);
 }

@@ -20,7 +20,7 @@
 #define DALIB_ADDR(a) ((char*)hModDaLib + a)
 #define FLSERVER_ADDR(a) ((char*)hProcFL + a)
 #define CONTENT_ADDR(a) ((char*)hModContent + a)
-#define ARG_CLIENTID(a) (std::wstring(L"id ") + stows(itos(a)))
+#define ARG_CLIENTID(a) (std::wstring(L"id ") + std::to_wstring(a))
 
 
 #define ADDR_UPDATE 0x1BAB4
@@ -73,6 +73,8 @@ struct SEHException
 	SEHException(uint code, EXCEPTION_POINTERS* ep)
 		: code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord)
 	{ }
+
+	SEHException() = default;
 
 	uint code;
 	EXCEPTION_RECORD record;
@@ -596,6 +598,21 @@ EXPORT void HkGetItemsForSale(uint iBaseID, std::list<uint> &lstItems);
 EXPORT IObjInspectImpl* HkGetInspect(uint iClientID);
 EXPORT ENGINE_STATE HkGetEngineState(uint iClientID);
 EXPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
+EXPORT float HkDistance3D(Vector v1, Vector v2);
+EXPORT float HkDistance3DByShip(uint iShip1, uint iShip2);
+EXPORT Quaternion HkMatrixToQuaternion(Matrix m);
+template<typename Str = std::string>
+EXPORT Str VectorToSectorCoord(uint iSystemID, Vector vPos);
+template
+std::string VectorToSectorCoord(uint iSystemID, Vector vPos);
+template
+std::wstring VectorToSectorCoord(uint iSystemID, Vector vPos);
+EXPORT float degrees(float rad);
+EXPORT Vector MatrixToEuler(const Matrix& mat);
+EXPORT void Rotate180(Matrix &rot);
+EXPORT void TranslateY(Vector &pos, Matrix &rot, float y);
+EXPORT void TranslateX(Vector &pos, Matrix &rot, float x);
+EXPORT void TranslateZ(Vector &pos, Matrix &rot, float z);
 
 // HkFuncMsg
 EXPORT HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage);
@@ -663,7 +680,6 @@ EXPORT HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth,
 EXPORT Fuse* HkGetFuseFromID(uint iFuseID);
 EXPORT bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay=0, float fLifetime=0, float fSkip=-1.0f);
 EXPORT bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno=0.0f);
-void HkTest(int iArg, int iArg2, int iArg3);
 
 // HkFLIni
 EXPORT HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring &wscRet);

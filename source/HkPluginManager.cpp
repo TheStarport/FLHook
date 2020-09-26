@@ -129,7 +129,8 @@ void LoadPlugin(const std::string &sFileName, CCmds* adminInterface, bool bStart
 	std::string sPathToDLL = "./flhook_plugins/";
 	sPathToDLL += sDLLName;
 
-	FILE* fp = fopen(sPathToDLL.c_str(), "r");
+	FILE* fp;
+    fopen_s(&fp, sPathToDLL.c_str(), "r");
 	if (!fp)
 		return adminInterface->Print(L"Error, Plugin not found (%s)\n", stows(sDLLName).c_str());
 	fclose(fp);
@@ -183,7 +184,7 @@ void LoadPlugin(const std::string &sFileName, CCmds* adminInterface, bool bStart
 	{
 		PLUGIN_HOOKDATA hook;
 		hook.sName = plugin.sShortName;
-		hook.sPluginFunction = hook.sName + "-" + itos((int)hookIn.eCallbackID);
+		hook.sPluginFunction = hook.sName + "-" + std::to_string((int)hookIn.eCallbackID);
 		hook.bPaused = false;
 		hook.hDLL = plugin.hDLL;
 		hook.iPriority = hookIn.iPriority;

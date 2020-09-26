@@ -117,6 +117,7 @@
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
+    <ClCompile Include="..\source\Exceptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -177,6 +178,7 @@
     <ClInclude Include="..\FLHookSDK\include\plugin_comms.h">
       <Filter>sdk</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\ExceptionInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

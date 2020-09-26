@@ -474,7 +474,7 @@ Quaternion HkMatrixToQuaternion(Matrix m)
 	return quaternion;
 }
 
-template<typename Str = std::string>
+template<typename Str>
 Str VectorToSectorCoord(uint iSystemID, Vector vPos)
 {
 	float scale = 1.0;
@@ -487,16 +487,16 @@ Str VectorToSectorCoord(uint iSystemID, Vector vPos)
 	int gridRefZ = (int)((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
 
 	gridRefX = min(max(gridRefX, 0), 7);
-	Str scXPos = (std::is_same_v<Str, std::string> ? "A" : L"A") + gridRefX;
+	char scXPos = 'A' + char(gridRefX);
 	
 	gridRefZ = min(max(gridRefZ, 0), 7);
-	Str scZPos = (std::is_same_v<Str, std::string> ? "1" : L"1") + gridRefZ;
+	char scZPos = '1' + char(gridRefZ);
 
 	typename Str::value_type szCurrentLocation[100];
 	if constexpr(std::is_same_v<Str, std::string>)
-	    _snprintf_s(szCurrentLocation, sizeof(szCurrentLocation), "%s-%s", scXPos.c_str(), scZPos.c_str());
+	    _snprintf_s(szCurrentLocation, sizeof(szCurrentLocation), "%c-%c", scXPos, scZPos);
 	else
-	    _snwprintf_s(szCurrentLocation, sizeof(szCurrentLocation), L"%s-%s", scXPos.c_str(), scZPos.c_str());
+	    _snwprintf_s(szCurrentLocation, sizeof(szCurrentLocation), L"%C-%C", scXPos, scZPos);
 
 	return szCurrentLocation;
 }
@@ -504,7 +504,7 @@ Str VectorToSectorCoord(uint iSystemID, Vector vPos)
 #define PI 3.14159265f
 
 // Convert radians to degrees.
-float degrees( float rad )
+float degrees(float rad)
 {
   rad *= 180 / PI;
 

@@ -84,7 +84,7 @@ std::wstring CSocket::GetAdminName()
 	std::wstring wscReturn = L"Socket connection (";
 	wscReturn += stows(this->sIP);
 	wscReturn += L":";
-	wscReturn += stows(itos(this->iPort));
+	wscReturn += std::to_wstring(this->iPort);
 	wscReturn += L")";
 	return wscReturn;
 }
