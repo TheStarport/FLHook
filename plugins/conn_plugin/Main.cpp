@@ -171,7 +171,7 @@ void MoveClient(unsigned int client, unsigned int targetBase)
 		HkGetCharFileName(ARG_CLIENTID(client), wscCharFileName);
 		wscCharFileName += L".fl";
 		CHARACTER_ID cID;
-		strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+		strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
 		Server.CharacterSelect(cID, client);
 	}
 }

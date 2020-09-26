@@ -69,7 +69,7 @@ void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
 	wscValue = L"";
 	long lHiByte;
 	long lLoByte;
-	while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 	{
 		scValue = scValue.substr(4);
 		wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
@@ -99,7 +99,7 @@ void LoadDockInfo(uint client)
 	for (uint i=1; i<=count && cd.mapDockedShips.size()<=cd.iDockingModules; i++)
 	{
 		char key[100];
-		sprintf(key, "dock.docked_ship.%u", i);
+		sprintf_s(key, "dock.docked_ship.%u", i);
 		std::wstring charname = HookExt::IniGetWS(client, key);
 		if (charname.length())
 		{
@@ -166,7 +166,7 @@ void SaveDockInfo(uint client)
 			i != cd.mapDockedShips.end(); ++i, ++index)
 		{
 			char key[100];
-			sprintf(key, "dock.docked_ship.%u", index);
+			sprintf_s(key, "dock.docked_ship.%u", index);
 			HookExt::IniSetWS(client, key, i->second);
 		}
 		HookExt::IniSetI(client, "dock.docked_ships_count", cd.mapDockedShips.size());

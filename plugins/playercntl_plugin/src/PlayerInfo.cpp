@@ -53,7 +53,7 @@ namespace PlayerInfo
 		std::wstring wscValue = L"";
 		long lHiByte;
 		long lLoByte;
-		while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+		while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 		{
 			scValue = scValue.substr(4);
 			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);

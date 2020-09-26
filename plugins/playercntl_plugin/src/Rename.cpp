@@ -48,7 +48,7 @@ namespace Rename
 		wscValue = L"";
 		long lHiByte;
 		long lLoByte;
-		while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+		while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 		{
 			scValue = scValue.substr(4);
 			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
@@ -148,7 +148,8 @@ namespace Rename
 		GetUserDataPath(szDataPath);
 		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
 
-		FILE *file = fopen(scPath.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "w");
 		if (file)
 		{
 			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
@@ -744,7 +745,8 @@ namespace Rename
 		std::string banfile = std::string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
-		FILE *f = fopen(banfile.c_str(), "r");
+		FILE *f;
+	    fopen_s(&f, banfile.c_str(), "r");
 		if (f)
 		{
 			fclose(f);

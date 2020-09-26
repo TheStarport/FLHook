@@ -409,7 +409,8 @@ void HkTimerCheckKick()
 	// Write status to a json formatted page every 13 seconds
 	if ((curr_time % 13) == 0 && set_status_path_html.size()>0)
 	{
-		FILE *file = fopen(set_status_path_html.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, set_status_path_html.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "<html>\n<head><title>Player Base Status</title><style type=text/css>\n");
@@ -506,7 +507,7 @@ bool __stdcall HkCb_Land(IObjInspectImpl *obj, uint base_dock_id, uint base)
 				pub::GetSystemNickname(szSystem, sizeof(szSystem), Players[client].iSystemID);
 
 				char szProxyBase[1024];
-				sprintf(szProxyBase, "%s_proxy_base", szSystem);
+				sprintf_s(szProxyBase, "%s_proxy_base", szSystem);
 
 				uint iProxyBaseID = CreateID(szProxyBase);
 
@@ -1309,7 +1310,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 	pub::GetSystemNickname(system_nick, sizeof(system_nick), base->system);
 
 	char proxy_base_nick[1024];
-	sprintf(proxy_base_nick, "%s_proxy_base", system_nick);
+	sprintf_s(proxy_base_nick, "%s_proxy_base", system_nick);
 
 	uint proxy_base_id = CreateID(proxy_base_nick);
 
@@ -1333,7 +1334,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 		HkGetCharFileName(charname, charfilename);
 		charfilename += L".fl";
 		CHARACTER_ID charid;
-		strcpy(charid.szCharFilename,wstos(charname.substr(0,14)).c_str());
+		strcpy_s(charid.szCharFilename,wstos(charname.substr(0,14)).c_str());
 
 		Server.CharacterSelect(charid, client);\
 	}

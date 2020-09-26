@@ -159,7 +159,8 @@ void HkTimerCheckKick()
 		GetUserDataPath(szDataPath);
 		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
 
-		FILE *file = fopen(scStatsPath.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, scStatsPath.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "[Missions]\n");

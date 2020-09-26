@@ -7,6 +7,7 @@
 #include "plugin.h"
 #include "header.h"
 #include <math.h>
+#include <plugin_comms.h>
 
 #define PRINT_ERROR() { for(uint i = 0; (i < sizeof(wscError)/sizeof(std::wstring)); i++) PrintUserCmdText(iClientID, wscError[i]); return; }
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");

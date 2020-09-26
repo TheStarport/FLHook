@@ -241,19 +241,21 @@ uint rand_name()
 // Function to log output (usually NPCs that have been created)
 void Logging(const char* szString, ...)
 {
-	FILE* Logfile = fopen("./flhook_logs/npc_log.log", "at");
+	FILE* Logfile;
+    fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString) - 1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
 	char szBuf[64];
 	time_t tNow = time(0);
-	struct tm* t = localtime(&tNow);
-	strftime(szBuf, sizeof(szBuf), "%d/%m/%Y %H:%M:%S", t);
+	tm t;
+    localtime_s(&t, &tNow);
+	strftime(szBuf, sizeof(szBuf), "%d/%m/%Y %H:%M:%S", &t);
 	fprintf(Logfile, "%s %s\n", szBuf, szBufString);
 	fflush(Logfile);
 	fclose(Logfile);
-	Logfile = fopen("./flhook_logs/npc_log.log", "at");
+	fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
 }
 
 // Logs the NPC being created

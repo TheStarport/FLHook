@@ -76,7 +76,8 @@ namespace StartupCache
 		std::string scPath = scBaseAcctPath + "namecache.bin";
 
 		ConPrint(L"Loading character name cache\n");
-		FILE *file = fopen(scPath.c_str(), "rb");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "rb");
 		if (file)
 		{
 			NAMEINFO ni;
@@ -96,7 +97,8 @@ namespace StartupCache
 		// Save the name cache file
 		std::string scPath = scBaseAcctPath + "namecache.bin";
 
-		FILE *file = fopen(scPath.c_str(), "wb");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "wb");
 		if (file)
 		{
 			ConPrint(L"Saving character name cache\n");

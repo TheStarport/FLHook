@@ -952,7 +952,7 @@ namespace PlayerCommands
 			page = 1;
 
 		wchar_t buf[1000];
-		_snwprintf(buf, sizeof(buf), L"Shop Management : Page %d/%d", page, pages);
+		_snwprintf_s(buf, sizeof(buf), L"Shop Management : Page %d/%d", page, pages);
 		std::wstring title = buf;
 
 		int start_item = ((page-1) * 40) + 1;
@@ -979,9 +979,10 @@ namespace PlayerCommands
 				continue;
 
 			wchar_t buf[1000];
-			_snwprintf(buf, sizeof(buf), L"<TEXT>  %02u:  %ux %s %0.0f credits stock: %u min %u max</TEXT><PARA/>",
-				item, i->second.quantity, HtmlEncode(HkGetWStringFromIDS(gi->iIDSName)).c_str(),
-				i->second.price, i->second.min_stock, i->second.max_stock);
+			_snwprintf_s(buf, _TRUNCATE,
+						 L"<TEXT>  %02u:  %u x %s %0.0f credits stock: %u min %u max</TEXT><PARA/>",
+				        uint(item), i->second.quantity, HtmlEncode(HkGetWStringFromIDS(gi->iIDSName)).c_str(),
+				        i->second.price, i->second.min_stock, i->second.max_stock);
 			status += buf;
 		}
 		status += L"<POP/></RDL>";

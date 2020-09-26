@@ -51,7 +51,8 @@ namespace GiveCash
 		if (!GetUserFilePath(logFile, wscCharname, "-givecashlog.txt"))
 			return;
 
-		FILE *f = fopen(logFile.c_str(), "r");
+		FILE *f;
+	    fopen_s(&f, logFile.c_str(), "r");
 		if (!f)
 			return;
 
@@ -66,7 +67,7 @@ namespace GiveCash
 				std::wstring msg = L"";
 				uint lHiByte;
 				uint lLoByte;
-				while(scValue.length()>3 && sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+				while(scValue.length()>3 && sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 				{
 					scValue = scValue.substr(4);
 					msg.append(1, (wchar_t)((lHiByte << 8) | lLoByte));
@@ -89,7 +90,8 @@ namespace GiveCash
 		std::string logFile;
 		if (!GetUserFilePath(logFile, wscToCharname, "-givecashlog.txt"))
 			return;
-		FILE *f = fopen(logFile.c_str(), "at");
+		FILE *f;
+	    fopen_s(&f, logFile.c_str(), "at");
 		if (!f)
 			return;
 

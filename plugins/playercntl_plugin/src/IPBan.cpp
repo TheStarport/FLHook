@@ -70,7 +70,8 @@ namespace IPBans
 					std::string scLoginID2 = "";
 					std::string scThisIP = "";
 					std::string scFilePath = scAcctPath +  wstos(wscDir) + "\\" + findFileData.cFileName;
-					FILE *f = fopen(scFilePath.c_str(), "r");
+					FILE *f;
+				    fopen_s(&f, scFilePath.c_str(), "r");
 					if (f)
 					{
 						char szBuf[200];
@@ -135,7 +136,8 @@ namespace IPBans
 		std::wstring wscDir;
 		HkGetAccountDirName(acc, wscDir);
 		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\authenticated";
-		FILE* fTest = fopen(scUserFile.c_str(), "r");
+		FILE* fTest;
+	    fopen_s(&fTest, scUserFile.c_str(), "r");
 		if (!fTest)
 			return false;
 
@@ -255,7 +257,8 @@ namespace IPBans
 		}
 
 		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\authenticated";
-		FILE *fTest = fopen(scPath.c_str(), "w");
+		FILE *fTest;
+	    fopen_s(&fTest, scPath.c_str(), "w");
 		if (!fTest)
 		{
 			cmds->Print(L"ERR Writing authentication file\n");

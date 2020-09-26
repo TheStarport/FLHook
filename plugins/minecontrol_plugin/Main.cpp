@@ -277,7 +277,8 @@ EXPORT void HkTimerCheckKick()
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
 		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\mining_stats.txt";
-		FILE *file = fopen(scStatsPath.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, scStatsPath.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "[Zones]\n");

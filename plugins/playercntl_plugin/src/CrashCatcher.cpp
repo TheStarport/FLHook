@@ -162,7 +162,7 @@ const BYTE* __stdcall EngBase124BD_Log(const BYTE* data)
 			addr = *(DWORD*)(addr+4);
 		if (addr)
 		{
-			strncpy( cmp, (LPCSTR)addr, sizeof(cmp) );
+			strncpy_s( cmp, (LPCSTR)addr, sizeof(cmp) );
 			cmp[sizeof(cmp)-1] = '\0';
 		}
 		else
@@ -174,7 +174,7 @@ const BYTE* __stdcall EngBase124BD_Log(const BYTE* data)
 			addr = *(DWORD*)(addr+4);
 		if (addr)
 		{
-			strncpy( part, (LPCSTR)addr, sizeof(part) );
+			strncpy_s( part, (LPCSTR)addr, sizeof(part) );
 			part[sizeof(part)-1] = '\0';
 		}
 		else

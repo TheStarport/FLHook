@@ -124,7 +124,7 @@ namespace MiscCmds
 		Vector erot = MatrixToEuler(rot);
 
 		wchar_t buf[100];
-		_snwprintf(buf, sizeof(buf), L"Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
+		_snwprintf_s(buf, sizeof(buf), L"Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
 			pos.x, pos.y, pos.z, erot.x, erot.y, erot.z);
 		PrintUserCmdText(iClientID, buf);
 		return true;

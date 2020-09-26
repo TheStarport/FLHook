@@ -107,7 +107,7 @@ void PlayerBase::SetupDefaults()
 		pub::GetSystemNickname(system_nick, sizeof(system_nick), system);	
 
 		char proxy_base_nick[1024];
-		sprintf(proxy_base_nick, "%s_proxy_base", system_nick);
+		sprintf_s(proxy_base_nick, "%s_proxy_base", system_nick);
 
 		proxy_base = CreateID(proxy_base_nick);
 	}
@@ -119,7 +119,7 @@ void PlayerBase::SetupDefaults()
 		GetUserDataPath(datapath);
 
 		char tpath[1024];
-		sprintf(tpath, "%s\\Accts\\MultiPlayer\\player_bases\\base_%08x.ini", datapath, base);
+		sprintf_s(tpath, "%s\\Accts\\MultiPlayer\\player_bases\\base_%08x.ini", datapath, base);
 		path=tpath;
 	}
 
@@ -199,7 +199,7 @@ void PlayerBase::Load()
 					}
 					else if (ini.is_value("money"))
 					{
-						sscanf(ini.get_value_string(), "%I64d", &money);
+						sscanf_s(ini.get_value_string(), "%I64d", &money);
 					}
 					else if (ini.is_value("commodity"))
 					{
@@ -283,7 +283,8 @@ void PlayerBase::Load()
 
 void PlayerBase::Save()
 {
-	FILE *file = fopen(path.c_str(), "w");
+	FILE *file;
+    fopen_s(&file, path.c_str(), "w");
 	if (file)
 	{
 		fprintf(file, "[Base]\n");
