@@ -40,11 +40,11 @@ namespace Mail
 		int iLastMsg = iFirstMsg;
 		for (int iMsgSlot = iFirstMsg, iMsgCount = 0; iMsgSlot<MAX_MAIL_MSGS && iMsgCount<5; iMsgSlot++, iMsgCount++)
 		{
-			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
 			if (wscTmpMsg.length()==0)
 				break;
 			PrintUserCmdText(iClientID, L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
-			IniWrite(scFilePath, "MsgsRead", itos(iMsgSlot), "yes");
+			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), "yes");
 			iLastMsg = iMsgSlot;
 		}
 		PrintUserCmdText(iClientID, L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
@@ -61,9 +61,9 @@ namespace Mail
 		int iUnreadMsgs = 0;
 		for (int iMsgSlot = 1; iMsgSlot<MAX_MAIL_MSGS; iMsgSlot++)
 		{
-			if (IniGetS(scFilePath, "Msgs", itos(iMsgSlot), "").length()==0)
+			if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "").length()==0)
 				break;
-			if (!IniGetB(scFilePath, "MsgsRead", itos(iMsgSlot), false))
+			if (!IniGetB(scFilePath, "MsgsRead", std::to_string(iMsgSlot), false))
 				iUnreadMsgs++;
 		}
 		return iUnreadMsgs;
@@ -80,7 +80,7 @@ namespace Mail
 		int iMsgs = 0;
 		for (int iMsgSlot = 1; iMsgSlot<MAX_MAIL_MSGS; iMsgSlot++)
 		{
-			if (IniGetS(scFilePath, "Msgs", itos(iMsgSlot), "").length()==0)
+			if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "").length()==0)
 				break;
 			iMsgs++;
 		}
@@ -124,11 +124,11 @@ namespace Mail
 		// discard the oldest messages.
 		for (int iMsgSlot = MAX_MAIL_MSGS-1; iMsgSlot>0; iMsgSlot--)
 		{
-			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot), L"");
-			IniWriteW(scFilePath, "Msgs", itos(iMsgSlot+1), wscTmpMsg);
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
+			IniWriteW(scFilePath, "Msgs", std::to_string(iMsgSlot+1), wscTmpMsg);
 
-			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", itos(iMsgSlot), false);
-			IniWrite(scFilePath, "MsgsRead", itos(iMsgSlot+1), (bTmpRead?"yes":"no"));
+			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", std::to_string(iMsgSlot), false);
+			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot+1), (bTmpRead?"yes":"no"));
 		}
 
 		// Write message into the slot
@@ -150,11 +150,11 @@ namespace Mail
 		// Move all mail down one slot starting at the deleted message to overwrite it
 		for (int iMsgSlot = iMsg; iMsgSlot<MAX_MAIL_MSGS; iMsgSlot++)
 		{
-			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", itos(iMsgSlot+1), L"");
-			IniWriteW(scFilePath, "Msgs", itos(iMsgSlot), wscTmpMsg);
+			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot+1), L"");
+			IniWriteW(scFilePath, "Msgs", std::to_string(iMsgSlot), wscTmpMsg);
 
-			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", itos(iMsgSlot+1), false);
-			IniWrite(scFilePath, "MsgsRead", itos(iMsgSlot), (bTmpRead?"yes":"no"));
+			bool bTmpRead = IniGetB(scFilePath, "MsgsRead", std::to_string(iMsgSlot+1), false);
+			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), (bTmpRead?"yes":"no"));
 		}
 		return true;
 	}

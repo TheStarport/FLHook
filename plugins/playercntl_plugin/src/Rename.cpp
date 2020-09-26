@@ -694,7 +694,7 @@ namespace Rename
 		pendingRenames.push_back(o);
 
 		HkKickReason(o.wscCharname, L"Updating character, please wait 10 seconds before reconnecting");
-		IniWrite(scRenameFile, "General", wstos(o.wscNewCharname), itos((int)time(0)));
+		IniWrite(scRenameFile, "General", wstos(o.wscNewCharname), std::to_string((int)time(0)));
 		return true;
 	}
 

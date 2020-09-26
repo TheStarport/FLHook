@@ -225,8 +225,8 @@ namespace MiscCmds
 		uint number = (rand()%max)+1;
 		std::wstring wscMsg = set_wscDiceMsg;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-		wscMsg = ReplaceStr(wscMsg, L"%number", stows(itos(number)));
-		wscMsg = ReplaceStr(wscMsg, L"%max", stows(itos(max)));
+		wscMsg = ReplaceStr(wscMsg, L"%number", std::to_wstring(number));
+		wscMsg = ReplaceStr(wscMsg, L"%max", std::to_wstring(max));
 		PrintLocalUserCmdText(iFromClientID, wscMsg, 6000.0f);
 		return true;
 	}
