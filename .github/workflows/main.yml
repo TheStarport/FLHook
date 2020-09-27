@@ -7,8 +7,28 @@ on:
     branches: [ master ]
 
 jobs:
-  lint-and-build:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: DoozyX/clang-format-lint-action@0.10
+        with:
+          style: llvm
+          source: 'source plugins misc FLHookSDK/include'
+          clangFormatVersion: 11
+          inplace: True
+      - uses: EndBug/add-and-commit@v4
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@the-starport.net
+          message: 'Committing clang-format changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
     runs-on: windows-latest
+    needs: [format]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -16,15 +36,6 @@ jobs:
       
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.3.0
-        
-      - name: Lint with Clang Format
-        run: |
-              clang-format.exe -style=llvm -i source plugins misc FLHookSDK/include
-              $status = git status --porcelain source plugins misc FLHookSDK/include
-              if($status) {
-                git diff source plugins misc FLHookSDK/include
-                exit 1
-              }
         
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
