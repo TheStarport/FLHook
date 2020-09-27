@@ -20,9 +20,11 @@ jobs:
       - name: Lint with Clang Format
         run: |
               clang-format.exe -style=llvm -i source plugins misc FLHookSDK/include
-              git status --porcelain source plugins misc FLHookSDK/include 1>&2
-              git diff source plugins misc FLHookSDK/include 1>&2
-        shell: cmd
+              $status = git status --porcelain source plugins misc FLHookSDK/include
+              if($status) {
+                git diff source plugins misc FLHookSDK/include
+                exit 1
+              }
         
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
