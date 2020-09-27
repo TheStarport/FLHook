@@ -110,17 +110,16 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
           L"\" mask=\"-1\"/><TEXT>" + XMLText(wscText) + L"</TEXT>";
       HkFMsg(iClientID, wscXML);
     } else {
-      __asm
-      {
-				pushad
-				push [pRDL]
-				push [iSize]
-				push [iTo]
-				push [iClientID]
-				mov ecx, [Client]
-				add ecx, 4
-				call [RCSendChatMsg]
-				popad
+      __asm {
+            pushad
+            push [pRDL]
+            push [iSize]
+            push [iTo]
+            push [iClientID]
+            mov ecx, [Client]
+            add ecx, 4
+            call [RCSendChatMsg]
+            popad
       }
     }
   }

@@ -17,39 +17,39 @@ void HkGetPlayerIP(uint iClientID, std::wstring &wscIP) {
   wchar_t wszIP[1024] = L"";
   long lSize = sizeof(wszIP);
   long lDataType = 1;
-  __asm {
-		push 0			; dwFlags
-		lea edx, szIDirectPlay8Address
-		push edx		; pAddress 
-		mov edx, [cdpClient]
-		mov edx, [edx+8]
-		push edx		; dpnid
-		mov eax, [szP1]
-		push eax
-		mov ecx, [eax]
-		call dword ptr[ecx + 0x28]	; GetClientAddress
-		cmp eax, 0
-		jnz some_error
+    __asm {
+        push 0                          ; dwFlags
+        lea edx, szIDirectPlay8Address
+        push edx                        ; pAddress 
+        mov edx, [cdpClient]
+        mov edx, [edx+8]
+        push edx                        ; dpnid
+        mov eax, [szP1]
+        push eax
+        mov ecx, [eax]
+        call dword ptr[ecx + 0x28]      ; GetClientAddress
+        cmp eax, 0
+        jnz some_error
 
-		lea eax, lDataType
-		push eax
-		lea eax, lSize
-		push eax
-		lea eax, wszIP
-		push eax
-		lea eax, wszHostname
-		push eax
-		mov ecx, [szIDirectPlay8Address]
-		push ecx
-		mov ecx, [ecx]
-		call dword ptr[ecx+0x40] ; GetComponentByName
+        lea eax, lDataType
+        push eax
+        lea eax, lSize
+        push eax
+        lea eax, wszIP
+        push eax
+        lea eax, wszHostname
+        push eax
+        mov ecx, [szIDirectPlay8Address]
+        push ecx
+        mov ecx, [ecx]
+        call dword ptr[ecx+0x40]        ; GetComponentByName
 
-		mov ecx, [szIDirectPlay8Address]
-		push ecx
-		mov ecx, [ecx]
-		call dword ptr[ecx+0x08] ; Release
+        mov ecx, [szIDirectPlay8Address]
+        push ecx
+        mov ecx, [ecx]
+        call dword ptr[ecx+0x08]        ; Release
 some_error:
-  }
+    }
 
   wscIP = wszIP;
 }
@@ -265,22 +265,21 @@ HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth,
 Fuse *HkGetFuseFromID(uint iFuseID) {
   int iDunno;
   Fuse *fuse;
-  __asm
-  {
-		mov edx, 0x6CFD390
-		call edx
+    __asm {
+        mov edx, 0x6CFD390
+        call edx
 
-		lea ecx, iFuseID
-		push ecx
-		lea ecx, iDunno
-		push ecx
-		mov ecx, eax
-		mov edx, 0x6D15D10
-		call edx
-		mov edx, [iDunno]
-		mov edi, [edx+0x10]
-		mov fuse, edi
-  }
+        lea ecx, iFuseID
+        push ecx
+        lea ecx, iDunno
+        push ecx
+        mov ecx, eax
+        mov edx, 0x6D15D10
+        call edx
+        mov edx, [iDunno]
+        mov edi, [edx+0x10]
+        mov fuse, edi
+    }
   return fuse;
 }
 
@@ -288,17 +287,16 @@ Fuse *HkGetFuseFromID(uint iFuseID) {
 
 /// Return the CEqObj from the IObjRW
 __declspec(naked) CEqObj *__stdcall HkGetEqObjFromObjRW_(struct IObjRW *objRW) {
-  __asm
-  {
-      push ecx
-      push edx
-      mov ecx, [esp+12]
-      mov edx, [ecx]
-      call dword ptr[edx+0x150]
-      pop edx
-      pop ecx
-      ret 4
-  }
+    __asm {
+        push ecx
+        push edx
+        mov ecx, [esp+12]
+        mov edx, [ecx]
+        call dword ptr[edx+0x150]
+        pop edx
+        pop ecx
+        ret 4
+    }
 }
 
 CEqObj *HkGetEqObjFromObjRW(struct IObjRW *objRW) {
@@ -308,19 +306,18 @@ CEqObj *HkGetEqObjFromObjRW(struct IObjRW *objRW) {
 __declspec(naked) bool __stdcall HkLightFuse_(IObjRW *ship, uint iFuseID,
                                               float fDelay, float fLifetime,
                                               float fSkip) {
-  __asm
-  {
-		lea eax, [esp+8] // iFuseID
-		push [esp+20] // fSkip
-		push [esp+16] // fDelay
-		push 0 // SUBOBJ_ID_NONE
-		push eax
-		push [esp+32] // fLifetime
-		mov ecx, [esp+24]
-		mov eax, [ecx]
-		call [eax+0x1E4]
-		ret 20
-  }
+    __asm {
+        lea eax, [esp+8] // iFuseID
+        push [esp+20] // fSkip
+        push [esp+16] // fDelay
+        push 0 // SUBOBJ_ID_NONE
+        push eax
+        push [esp+32] // fLifetime
+        mov ecx, [esp+24]
+        mov eax, [ecx]
+        call [eax+0x1E4]
+        ret 20
+    }
 }
 
 bool HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime,
@@ -333,17 +330,16 @@ bool HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime,
 // Returns true if a fuse was unlit
 __declspec(naked) bool __stdcall HkUnLightFuse_(IObjRW *ship, uint iFuseID,
                                                 float fDunno) {
-  __asm
-  {
-		mov ecx, [esp+4]
-		lea eax, [esp+8] // iFuseID
-		push [esp+12] // fDunno
-		push 0 // SUBOBJ_ID_NONE
-		push eax // iFuseID
-		mov eax, [ecx]
-		call [eax+0x1E8]
-		ret 12
-  }
+    __asm {
+        mov ecx, [esp+4]
+        lea eax, [esp+8] // iFuseID
+        push [esp+12] // fDunno
+        push 0 // SUBOBJ_ID_NONE
+        push eax // iFuseID
+        mov eax, [ecx]
+        call [eax+0x1E8]
+        ret 12
+    }
 }
 
 bool HkUnLightFuse(IObjRW *ship, uint iFuseID) {

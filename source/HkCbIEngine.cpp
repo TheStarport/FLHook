@@ -38,14 +38,13 @@ void __stdcall CShip_init(CShip *ship) {
 }
 
 __declspec(naked) void _CShip_init() {
-  __asm
-  {
-		push ecx
-		push [esp+8]
-		call fpOldInitCShip
-		call CShip_init
-		ret 4
-  }
+    __asm {
+        push ecx
+        push [esp+8]
+        call fpOldInitCShip
+        call CShip_init
+        ret 4
+    }
 }
 
 void __stdcall CShip_destroy(CShip *ship) {
@@ -53,14 +52,13 @@ void __stdcall CShip_destroy(CShip *ship) {
 }
 
 __declspec(naked) void _CShip_destroy() {
-  __asm
-  {
-		push ecx
-		push ecx
-		call CShip_destroy
-		pop ecx
-		jmp fpOldDestroyCShip
-  }
+    __asm {
+        push ecx
+        push ecx
+        call CShip_destroy
+        pop ecx
+        jmp fpOldDestroyCShip
+    }
 }
 
 /**************************************************************************************************************
@@ -69,15 +67,14 @@ __declspec(naked) void _CShip_destroy() {
 
 int __cdecl FreeReputationVibe(int const &p1) {
 
-  __asm
-  {
-		mov eax, p1
-		push eax
-		mov eax, [hModServer]
-		add eax, 0x65C20
-		call eax
-		add esp, 4
-  }
+    __asm {
+        mov eax, p1
+        push eax
+        mov eax, [hModServer]
+        add eax, 0x65C20
+        call eax
+        add esp, 4
+    }
 
   return Reputation::Vibe::Free(p1);
 }
@@ -159,18 +156,17 @@ bool __stdcall LaunchPos(uint iSpaceID, struct CEqObj &p1, Vector &p2,
 }
 
 __declspec(naked) void _LaunchPos() {
-  __asm
-  { 
-		push ecx // 4
-		push [esp+8+8] // 8
-		push [esp+12+4] // 12
-		push [esp+16+0] // 16
-		push ecx
-		push [ecx+176]
-		call LaunchPos	
-		pop ecx
-		ret 0x0C
-  }
+    __asm { 
+        push ecx // 4
+        push [esp+8+8] // 8
+        push [esp+12+4] // 12
+        push [esp+16+0] // 16
+        push ecx
+        push [ecx+176]
+        call LaunchPos	
+        pop ecx
+        ret 0x0C
+    }
 }
 
 /**************************************************************************************************************
@@ -207,18 +203,18 @@ bool __stdcall HkLoadRepFromCharFile(REP_DATA_LIST *savedReps,
 }
 
 __declspec(naked) void _HkLoadRepFromCharFile() {
-  __asm { 
-		push ecx // save ecx because thiscall
-		push [esp+4+4+8] // rep data
-		push ecx // rep data list
-		call HkLoadRepFromCharFile
-		pop ecx // recover ecx
-		test al, al
-		jz abort_lbl
-		jmp [fpOldLoadRepCharFile]
+    __asm {
+        push ecx // save ecx because thiscall
+        push [esp+4+4+8] // rep data
+        push ecx // rep data list
+        call HkLoadRepFromCharFile
+        pop ecx // recover ecx
+        test al, al
+        jz abort_lbl
+        jmp [fpOldLoadRepCharFile]
 abort_lbl:
-		ret 0x0C
-  }
+        ret 0x0C
+    }
 }
 
 /**************************************************************************************************************

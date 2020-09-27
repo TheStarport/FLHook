@@ -46,15 +46,15 @@ int __stdcall HkCb_UpdateFile(char *filename, wchar_t *savetime, int b) {
   int retv;
   __asm
   {
-		pushad
-		mov ecx, [CurrPlayer]
-		push b
-		push savetime
-		push filename
-		mov eax, 0x6d4ccd0
-		call eax
-		mov retv, eax
-		popad
+        pushad
+        mov ecx, [CurrPlayer]
+        push b
+        push savetime
+        push filename
+        mov eax, 0x6d4ccd0
+        call eax
+        mov retv, eax
+        popad
   }
 
   // Readd the flhook section.
@@ -76,7 +76,10 @@ int __stdcall HkCb_UpdateFile(char *filename, wchar_t *savetime, int b) {
 }
 
 __declspec(naked) void HkCb_UpdateFileNaked() {
-  __asm mov CurrPlayer, ecx __asm jmp HkCb_UpdateFile
+    __asm {
+        mov CurrPlayer, ecx
+        jmp HkCb_UpdateFile
+    }
 }
 
 /// Clear client info when a client connects.

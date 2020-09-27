@@ -68,14 +68,13 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1) {
   try {
     if (set_iPluginDebug > 2)
       ConPrint(L"HkCb_CrashProc6F8B330(arg1=%08x)\n", arg1);
-    __asm
-    {
-			pushad
-			push arg1
-			mov ecx, dwSavedECX
-			call [fpCrashProc6F8B330Old]
-			mov [res], eax
-			popad
+    __asm {
+        pushad
+        push arg1
+        mov ecx, dwSavedECX
+        call [fpCrashProc6F8B330Old]
+        mov [res], eax
+        popad
     }
   } catch (...) {
     LOG_EXCEPTION
@@ -85,7 +84,10 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1) {
 }
 
 __declspec(naked) void HkCb_CrashProc6F8B330Naked() {
-  __asm mov dwSavedECX, ecx __asm jmp HkCb_CrashProc6F8B330
+    __asm {
+        mov dwSavedECX, ecx
+        jmp HkCb_CrashProc6F8B330
+    }
 }
 
 static FARPROC fpCrashProc6F78DD0Old = 0;
@@ -93,22 +95,23 @@ void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2) {
   try {
     if (set_iPluginDebug > 2)
       ConPrint(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)\n", arg1, arg2);
-    __asm
-    {
-			pushad
-			push arg2
-			push arg1
-			mov ecx, dwSavedECX
-			call [fpCrashProc6F78DD0Old]
-			popad
+    __asm {
+        pushad
+        push arg2
+        push arg1
+        mov ecx, dwSavedECX
+        call [fpCrashProc6F78DD0Old]
+        popad
     }
   } catch (...) {
     LOG_EXCEPTION
   }
 }
-
 __declspec(naked) void HkCb_CrashProc6F78DD0Naked() {
-  __asm mov dwSavedECX, ecx __asm jmp HkCb_CrashProc6F78DD0
+    __asm {
+        mov dwSavedECX, ecx
+        jmp HkCb_CrashProc6F78DD0
+    }
 }
 
 static FARPROC fpCrashProc6F671A0Old = 0;
@@ -116,13 +119,12 @@ void __cdecl HkCb_CrashProc6F671A0(int arg1) {
   try {
     if (set_iPluginDebug > 2)
       ConPrint(L"HkCb_CrashProc6F671A0(arg1=%08x)\n", arg1);
-    __asm
-    {
-			pushad
-			push arg1
-			call [fpCrashProc6F671A0Old]
-			add esp, 4
-			popad
+    __asm {
+        pushad
+        push arg1
+        call [fpCrashProc6F671A0Old]
+        add esp, 4
+        popad
     }
   } catch (...) {
     LOG_EXCEPTION
@@ -162,12 +164,11 @@ const BYTE *__stdcall EngBase124BD_Log(const BYTE *data) {
 }
 
 __declspec(naked) void HkCb_EngBase124BDNaked() {
-  __asm
-  {
-		push	eax
-		call	EngBase124BD_Log
-		test	eax, eax
-		ret
+  __asm {
+        push	eax
+        call	EngBase124BD_Log
+        test	eax, eax
+        ret
   }
 }
 
@@ -181,11 +182,10 @@ const DWORD __stdcall HkCb_EngBase11a6dNaked_Log(const BYTE *data) {
 }
 
 __declspec(naked) void HkCb_EngBase11a6dNaked() {
-  __asm
-  {
-		push eax
-		call HkCb_EngBase11a6dNaked_Log
-		ret 8
+  __asm {
+        push eax
+        call HkCb_EngBase11a6dNaked_Log
+        ret 8
   }
 }
 
@@ -196,39 +196,38 @@ void __stdcall HkCb_47bc4Naked_Log() {
 }
 
 __declspec(naked) void HkCb_47bc4Naked() {
-  __asm {
-		test eax, eax
-		jz will_crash
-		mov edi, eax
-		mov edx, [edi]
-		mov ecx, edi
-		ret
-	will_crash:
-		call HkCb_47bc4Naked_Log
-		xor ecx, ecx
-		ret
-  }
+    __asm {
+        test eax, eax
+        jz will_crash
+        mov edi, eax
+        mov edx, [edi]
+        mov ecx, edi
+        ret
+will_crash:
+        call HkCb_47bc4Naked_Log
+        xor ecx, ecx
+        ret
+    }
 }
 
 int HkCb_C4800Hook(int *a1, int *a2, int *zone, double *a4, int a5, int a6) {
   __try {
     int res;
 
-    __asm
-    {
-			pushad
-			push a6
-			push a5
-			push a4
-			push zone
-			push a2
-			push a1
-			mov eax, [hModContentAC]
-			add eax, 0xC4800
-			call eax
-			add esp, 24
-			mov [res], eax
-			popad
+    __asm {
+        pushad
+        push a6
+        push a5
+        push a4
+        push zone
+        push a2
+        push a1
+        mov eax, [hModContentAC]
+        add eax, 0xC4800
+        call eax
+        add esp, 24
+        mov [res], eax
+        popad
     }
 
     return res;

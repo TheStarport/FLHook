@@ -31,7 +31,7 @@
   memcpy(&tmp, &Client, 4);                                                    \
   memcpy(&Client, &OldClient, 4);                                              \
   HookClient->Method;                                                          \
-  __asm { mov [vRet], eax}                                                       \
+  __asm { mov [vRet], eax }                                                    \
   memcpy(&Client, &tmp, 4);
 
 /**************************************************************************************************************
@@ -1173,16 +1173,15 @@ bool HkIClientImpl::Startup(uint iDunno, uint iDunno2) {
     bi.bDestroyed = false;
     bi.iObjectID = base->lSpaceObjID;
     char *szBaseName = "";
-    __asm
-        {
-			pushad
-			mov ecx, [base]
-			mov eax, [base]
-			mov eax, [eax]
-			call [eax+4]
-			mov [szBaseName], eax
-			popad
-        }
+    __asm {
+	    pushad
+	    mov ecx, [base]
+	    mov eax, [base]
+	    mov eax, [eax]
+	    call [eax+4]
+	    mov [szBaseName], eax
+	    popad
+    }
 
     bi.scBasename = szBaseName;
     bi.iBaseID = CreateID(szBaseName);

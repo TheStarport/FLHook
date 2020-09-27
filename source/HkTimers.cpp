@@ -111,12 +111,12 @@ void HkTimerNPCAndF1Check() {
         lArray[26] = iClientID;
         __asm
         {
-					pushad
-					lea ecx, lArray
-					mov eax, [hModRemoteClient]
-					add eax, ADDR_RC_DISCONNECT
-					call eax ; disconncet
-					popad
+            pushad
+            lea ecx, lArray
+            mov eax, [hModRemoteClient]
+            add eax, ADDR_RC_DISCONNECT
+            call eax ; disconncet
+            popad
         }
 
         ClientInfo[iClientID].tmF1TimeDisconnect = 0;

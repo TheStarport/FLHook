@@ -21,19 +21,19 @@ int __stdcall DisconnectPacketSent(uint iClientID) {
 FARPROC fpOldDiscPacketSent;
 
 __declspec(naked) void _DisconnectPacketSent() {
-  __asm {
-		pushad 
-		mov eax, [esi+0x68]
-		push eax
-		call DisconnectPacketSent
-		cmp eax, 0
-		jz suppress
-		popad
-		jmp [fpOldDiscPacketSent]
+    __asm {
+        pushad 
+        mov eax, [esi+0x68]
+        push eax
+        call DisconnectPacketSent
+        cmp eax, 0
+        jz suppress
+        popad
+        jmp [fpOldDiscPacketSent]
 suppress:
-		popad
-		mov eax, [hModDaLib]
-		add eax, ADDR_DALIB_DISC_SUPPRESS
-		jmp eax
-  }
+        popad
+        mov eax, [hModDaLib]
+        add eax, ADDR_DALIB_DISC_SUPPRESS
+        jmp eax
+    }
 }

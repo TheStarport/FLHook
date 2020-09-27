@@ -122,16 +122,15 @@ HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize) {
   uint p2 = 0x00010000;
   uint p1 = iClientID;
 
-  __asm
-  {
-		push [p4]
-		push [p3]
-		push [p2]
-		push [p1]
-		mov ecx, [Client]
-		add ecx, 4
-		call [RCSendChatMsg]
-  }
+    __asm {
+        push [p4]
+        push [p3]
+        push [p2]
+        push [p1]
+        mov ecx, [Client]
+        add ecx, 4
+        call [RCSendChatMsg]
+    }
 
   return HKE_OK;
   ;

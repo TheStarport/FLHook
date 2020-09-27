@@ -1123,14 +1123,13 @@ HK_ERROR HkPlayerRecalculateCRC(uint iClientID) {
   try {
     PlayerData *pd = &Players[iClientID];
     char *ACCalcCRC = (char *)hModServer + 0x6FAF0;
-    __asm
-    {
-			pushad
-			mov ecx, [pd]
-			call[ACCalcCRC]
-			mov ecx, [pd]
-			mov[ecx + 320h], eax
-			popad
+    __asm {
+        pushad
+        mov ecx, [pd]
+        call[ACCalcCRC]
+        mov ecx, [pd]
+        mov[ecx + 320h], eax
+        popad
     }
   } catch (...) {
     return HKE_INVALID_CLIENT_ID;
@@ -1398,11 +1397,10 @@ HK_ERROR HkAntiCheat(uint iClientID) {
   char cRes;
 
   ////////////////////////// 1
-  __asm
-  {
-		mov ecx, [szObjPtr]
-		call [FLAntiCheat1]
-		mov [cRes], al
+  __asm {
+        mov ecx, [szObjPtr]
+        call [FLAntiCheat1]
+        mov [cRes], al
   }
 
   if (cRes != 0) { // kick
@@ -1411,11 +1409,10 @@ HK_ERROR HkAntiCheat(uint iClientID) {
   }
 
   ////////////////////////// 2
-  __asm
-  {
-		mov ecx, [szObjPtr]
-		call [FLAntiCheat2]
-		mov [cRes], al
+  __asm {
+        mov ecx, [szObjPtr]
+        call [FLAntiCheat2]
+        mov [cRes], al
   }
 
   if (cRes != 0) { // kick
@@ -1426,13 +1423,12 @@ HK_ERROR HkAntiCheat(uint iClientID) {
   ////////////////////////// 3
   ulong lRet;
   ulong lCompare;
-  __asm
-  {
-		mov ecx, [szObjPtr]
-		mov eax, [ecx+0x320]
-		mov [lCompare], eax
-		call [FLAntiCheat3]
-		mov [lRet], eax
+  __asm {
+        mov ecx, [szObjPtr]
+        mov eax, [ecx+0x320]
+        mov [lCompare], eax
+        call [FLAntiCheat3]
+        mov [lRet], eax
   }
 
   if (lRet > lCompare) { // kick
@@ -1441,11 +1437,10 @@ HK_ERROR HkAntiCheat(uint iClientID) {
   }
 
   ////////////////////////// 4
-  __asm
-  {
-		mov ecx, [szObjPtr]
-		call [FLAntiCheat4]
-		mov [cRes], al
+  __asm {
+    mov ecx, [szObjPtr]
+    call [FLAntiCheat4]
+    mov [cRes], al
   }
 
   if (cRes != 0) { // kick
@@ -1516,17 +1511,16 @@ HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
   int iMounted = bMounted;
   float fHealth = 1;
   CacheString *pHP = &hardpoint;
-  __asm
-  {
-		push iOne
-		push iMounted
-		push iOne
-		push fHealth
-		push iOne
-		push pHP
-		push iGoodID
-		mov ecx, pd
-		call AddCargoDocked
+  __asm {
+        push iOne
+        push iMounted
+        push iOne
+        push fHealth
+        push iOne
+        push pHP
+        push iGoodID
+        mov ecx, pd
+        call AddCargoDocked
   }
 
   if (iBase) Server.BaseEnter(iBase, iClientID);

@@ -55,24 +55,23 @@ int __stdcall HkCB_MissileTorpHit(char *ECX, char *p1, DamageList *dmg) {
 }
 
 __declspec(naked) void _HookMissileTorpHit() {
-  __asm {
-		mov eax, [esp+4]
-		mov edx, [esp+8]
-		push ecx
-		push edx
-		push eax
-		push ecx
-		call HkCB_MissileTorpHit
-		pop ecx
-		cmp eax, 1
-		jnz go_ahead
-		mov edx, [esp] ; suppress
-		add esp, 0Ch
-		jmp edx
-
+    __asm {
+        mov eax, [esp+4]
+        mov edx, [esp+8]
+        push ecx
+        push edx
+        push eax
+        push ecx
+        call HkCB_MissileTorpHit
+        pop ecx
+        cmp eax, 1
+        jnz go_ahead
+        mov edx, [esp] ; suppress
+        add esp, 0Ch
+        jmp edx
 go_ahead:
-		jmp [fpOldMissileTorpHit]
-  }
+        jmp [fpOldMissileTorpHit]
+    }
 }
 
 /**************************************************************************************************************
@@ -149,17 +148,16 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1,
 }
 
 __declspec(naked) void _HkCb_AddDmgEntry() {
-  __asm
-  {
-		push [esp+0Ch]
-		push [esp+0Ch]
-		push [esp+0Ch]
-		push ecx
-		call HkCb_AddDmgEntry
-		mov eax, [esp]
-		add esp, 10h
-		jmp eax
-  }
+    __asm {
+        push [esp+0Ch]
+        push [esp+0Ch]
+        push [esp+0Ch]
+        push ecx
+        call HkCb_AddDmgEntry
+        mov eax, [esp]
+        add esp, 10h
+        jmp eax
+    }
 }
 
 /**************************************************************************************************************
@@ -187,25 +185,23 @@ void __stdcall HkCb_GeneralDmg(char *szECX) {
 }
 
 __declspec(naked) void _HkCb_GeneralDmg() {
-  __asm
-  {
-		push ecx
-		push ecx
-		call HkCb_GeneralDmg
-		pop ecx
-		jmp [fpOldGeneralDmg]
-  }
+    __asm {
+        push ecx
+        push ecx
+        call HkCb_GeneralDmg
+        pop ecx
+        jmp [fpOldGeneralDmg]
+    }
 }
 
 __declspec(naked) void _HkCb_GeneralDmg2() {
-  __asm
-  {
-		push ecx
-		push ecx
-		call HkCb_GeneralDmg
-		pop ecx
-		jmp [fpOldGeneralDmg2]
-  }
+    __asm {
+        push ecx
+        push ecx
+        call HkCb_GeneralDmg
+        pop ecx
+        jmp [fpOldGeneralDmg2]
+    }
 }
 
 /**************************************************************************************************************
@@ -266,27 +262,27 @@ void HkCb_NonGunWeaponHitsBaseAfter() { g_gNonGunHitsBase = false; }
 ulong lRetAddress;
 
 __declspec(naked) void _HkCb_NonGunWeaponHitsBase() {
-  __asm {
-		mov eax, [esp+4]
-		mov edx, [esp+8]
-		push ecx
-		push edx
-		push eax
-		push ecx
-		call HkCb_NonGunWeaponHitsBaseBefore
-		pop ecx
+    __asm {
+        mov eax, [esp+4]
+        mov edx, [esp+8]
+        push ecx
+        push edx
+        push eax
+        push ecx
+        call HkCb_NonGunWeaponHitsBaseBefore
+        pop ecx
 
-		mov eax, [esp]
-		mov [lRetAddress], eax
-		lea eax, return_here
-		mov [esp], eax
-		jmp [fpOldNonGunWeaponHitsBase]
+        mov eax, [esp]
+        mov [lRetAddress], eax
+        lea eax, return_here
+        mov [esp], eax
+        jmp [fpOldNonGunWeaponHitsBase]
 return_here:
-		pushad
-		call HkCb_NonGunWeaponHitsBaseAfter
-		popad
-		jmp [lRetAddress]
-  }
+        pushad
+        call HkCb_NonGunWeaponHitsBaseAfter
+        popad
+        jmp [lRetAddress]
+    }
 }
 
 ///////////////////////////

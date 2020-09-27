@@ -286,19 +286,18 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
 FARPROC fpOldShipDestroyed;
 
 __declspec(naked) void ShipDestroyedHook() {
-  __asm
-  {
-		mov eax, [esp+0Ch] ; +4
-		mov edx, [esp+4]
-		push ecx
-		push edx
-		push ecx
-		push eax
-		call ShipDestroyed
-		pop ecx
-		mov eax, [fpOldShipDestroyed]
-		jmp eax
-  }
+    __asm {
+        mov eax, [esp+0Ch] ; +4
+        mov edx, [esp+4]
+        push ecx
+        push edx
+        push ecx
+        push eax
+        call ShipDestroyed
+        pop ecx
+        mov eax, [fpOldShipDestroyed]
+        jmp eax
+    }
 }
 /**************************************************************************************************************
 Called when base was destroyed
@@ -314,16 +313,15 @@ void BaseDestroyed(uint iObject, uint iClientIDBy) {
 
   char *szBaseName = "";
   if (base) {
-    __asm
-    {
-			pushad
-			mov ecx, [base]
-			mov eax, [base]
-			mov eax, [eax]
-			call [eax+4]
-			mov [szBaseName], eax
-			popad
-    }
+        __asm {
+            pushad
+            mov ecx, [base]
+            mov eax, [base]
+            mov eax, [eax]
+            call [eax+4]
+            mov [szBaseName], eax
+            popad
+        }
   }
 
   ProcessEvent(L"basedestroy basename=%s basehash=%u solarhash=%u by=%s",

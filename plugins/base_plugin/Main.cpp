@@ -410,18 +410,18 @@ bool __stdcall HkCb_IsDockableError(uint dock_with, uint base) {
 
 __declspec(naked) void HkCb_IsDockableErrorNaked() {
   __asm {
-		test [esi+0x1b4], eax
-		jnz no_error
-		push [edi+0xB8]
-		push [esi+0x1b4]
-		call HkCb_IsDockableError
-		test al, al
-		jz no_error
-		push 0x62b76d3
-		ret
+        test [esi+0x1b4], eax
+        jnz no_error
+        push [edi+0xB8]
+        push [esi+0x1b4]
+        call HkCb_IsDockableError
+        test al, al
+        jz no_error
+        push 0x62b76d3
+        ret
 no_error:
-		push 0x62b76fc
-		ret
+        push 0x62b76fc
+        ret
   }
 }
 
@@ -466,18 +466,18 @@ bool __stdcall HkCb_Land(IObjInspectImpl *obj, uint base_dock_id, uint base) {
 
 __declspec(naked) void HkCb_LandNaked() {
   __asm {
-		mov al, [ebx+0x1c]
-		test al, al
-		jz not_in_dock
+        mov al, [ebx+0x1c]
+        test al, al
+        jz not_in_dock
 
-		mov eax, [ebx+0x18] // base id
-		push eax
-		mov eax, [esp+0x14] // dock target
-		push eax
-		push edi    // objinspect
-		call HkCb_Land
-		test al, al
-		jz done
+        mov eax, [ebx+0x18] // base id
+        push eax
+        mov eax, [esp+0x14] // dock target
+        push eax
+        push edi    // objinspect
+        call HkCb_Land
+        test al, al
+        jz done
 
 not_in_dock:
                          // Copied from moor.dll to support mooring.
