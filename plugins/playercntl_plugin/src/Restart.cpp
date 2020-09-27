@@ -176,22 +176,16 @@ namespace Restart
 
 		HK_ERROR err;
 		int iCash = 0;
-		HkGetCash(restart.wscCharname, iCash);
 		if ((err = HkGetCash(restart.wscCharname, iCash)) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return true;
 		}
 
-		if (set_iMaxCash != 0)
+		if (set_iMaxCash != 0 && iCash > set_iMaxCash)
 		{
-			int iCash = 0;
-			HkGetCash(restart.wscCharname, iCash);
-			if (iCash > set_iMaxCash)
-			{
-				PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your cash is too high");
-				return true;
-			}
+			PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your cash is too high");
+			return true;
 		}
 
 		if (set_bRestartCost)
