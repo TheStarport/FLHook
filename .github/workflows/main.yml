@@ -7,15 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: cpp-lint
-        uses: ArtificialAmateur/cpp-linter-action@master
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  build:
-    needs: [lint]
+  lint-and-build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,6 +16,12 @@ jobs:
       
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.3.0
+        
+      - name: Lint with Clang Format
+        run: |
+              clang-format.exe -style=llvm -i source plugins misc FLHookSDK/include
+              git status --porcelain source plugins misc FLHookSDK/include 1>&2
+              git diff source plugins misc FLHookSDK/include 1>&2
         
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
