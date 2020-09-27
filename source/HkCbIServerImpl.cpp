@@ -526,6 +526,10 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
                    (struct CHARACTER_ID const &cId, unsigned int iClientID),
                    (cId, iClientID));
 
+    // Get GroupID and store against client
+    if (set_bPersistGroup)
+        HkGetGroupID(iClientID, ClientInfo[iClientID].iGroupID);
+
     std::wstring wscCharBefore;
     try {
         const wchar_t *wszCharname =
@@ -536,6 +540,10 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
         ClientInfo[iClientID].iLastExitedBaseID = 0;
         ClientInfo[iClientID].iTradePartner = 0;
         Server.CharacterSelect(cId, iClientID);
+
+        // Add player back to group
+        if (set_bPersistGroup)
+            HkAddToGroup(iClientID, ClientInfo[iClientID].iGroupID);
     } catch (...) {
         HkAddKickLog(iClientID, L"Corrupt charfile?");
         HkKick(ARG_CLIENTID(iClientID));

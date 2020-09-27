@@ -3,6 +3,33 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+HK_ERROR HkAddToGroup(uint iClientID, uint iGroupID) {
+    // check if logged in
+    if (iClientID == -1)
+        return HKE_PLAYER_NOT_LOGGED_IN;
+
+    uint iCurrentGroupID = Players.GetGroupID(iClientID);
+    if (iCurrentGroupID == iGroupID)
+        return HKE_INVALID_GROUP_ID;
+
+    CPlayerGroup *group = CPlayerGroup::FromGroupID(iGroupID);
+    if (!group)
+        return HKE_INVALID_GROUP_ID;
+    group->AddMember(iClientID);
+    return HKE_OK;
+}
+
+HK_ERROR HkGetGroupID(uint iClientID, uint &iGroupID) {
+    // check if logged in
+    if (iClientID == -1)
+        return HKE_PLAYER_NOT_LOGGED_IN;
+
+    iGroupID = Players.GetGroupID(iClientID);
+    return HKE_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash) {
     HK_GET_CLIENTID(iClientID, wscCharname);
 
