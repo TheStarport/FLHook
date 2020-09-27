@@ -255,6 +255,7 @@ void SendDeathMsg(const std::wstring& wscMsg, uint iSystemID, uint iClientIDVict
 
 void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 {
+	returncode = DEFAULT_RETURNCODE;
 	for (auto& it : lstBountyHunt)
 	{
 		if (it.uiTargetID == iClientID)
@@ -262,6 +263,7 @@ void __stdcall DisConnect(unsigned int iClientID, enum  EFLConnection state)
 			HkMsgU(L"The coward " + it.wscTarget + L" has fled. " + it.wscInitiator + L" has been refunded.");
 			HkAddCash(it.wscInitiator, it.iCash);
 			RemoveBountyHunt(it);
+			return;
 		}
 	}
 }
