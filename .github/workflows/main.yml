@@ -2,31 +2,41 @@
 
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  format:
+    runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
           submodules: true
-      
+      - uses: DoozyX/clang-format-lint-action@v0.10
+        with:
+          style: file
+          source: 'source plugins misc FLHookSDK/include'
+          clangFormatVersion: 11
+          inplace: True
+      - uses: EndBug/add-and-commit@v5
+        with:
+          author_name: Clang Robot
+          author_email: clang-robot@the-starport.net
+          message: 'clang-format changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    runs-on: windows-latest
+    needs: [format]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.3.0
-        
+
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
-          
+

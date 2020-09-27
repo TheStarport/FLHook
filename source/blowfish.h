@@ -1,4 +1,4 @@
-/*
+﻿/*
 blowfish.h:  Header file for blowfish.c
 
 Copyright (C) 1997 by Paul Kocher
@@ -20,15 +20,13 @@ See blowfish.c for more information about this file.
 */
 #define EXPORT __declspec(dllexport)
 
-  
 typedef struct {
-  unsigned long P[16 + 2];
-  unsigned long S[4][256];
+    unsigned long P[16 + 2];
+    unsigned long S[4][256];
 } BLOWFISH_CTX;
 
 EXPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
-EXPORT char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
-EXPORT char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen);
-
-
-
+EXPORT char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr,
+                             unsigned long dataLen);
+EXPORT char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr,
+                             unsigned long dataLen);
