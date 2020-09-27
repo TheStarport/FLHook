@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using System.IO;
 
 namespace PlayerCntlSetup
 {
@@ -69,8 +68,8 @@ namespace PlayerCntlSetup
             bgWkr = new BackgroundWorker();
             bgWkr.DoWork += new DoWorkEventHandler(Loader);
             bgWkr.WorkerReportsProgress = true;
-            bgWkr.ProgressChanged += new ProgressChangedEventHandler(bg_ProgressChanged);
-            bgWkr.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgWkr_RunWorkerCompleted);
+            bgWkr.ProgressChanged += new ProgressChangedEventHandler(Bg_ProgressChanged);
+            bgWkr.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BgWkr_RunWorkerCompleted);
             bgWkr.RunWorkerAsync();
         }
 
@@ -82,7 +81,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        void bg_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        void Bg_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             toolStripStatusLabel.Text = (string)e.UserState;
         }
@@ -95,7 +94,7 @@ namespace PlayerCntlSetup
             bgWkr.ReportProgress(0, "Game data loaded");
         }
         
-        void  bgWkr_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        void  BgWkr_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             bgWkr = null;
 
@@ -319,9 +318,64 @@ namespace PlayerCntlSetup
                     richTextBoxSounds.AppendText(set.Str(0));
                     richTextBoxSounds.AppendText("\n");
                 }
+                if (richTextBoxSounds.TextLength == 0)
+                {
+                    richTextBoxSounds.AppendText(
+                        "dx_s075x_03a03_or_pilot_03\n" +
+                        "dx_s032a_01a01_hvis_xtr_1\n" +
+                        "dx_s075x_03a01_or_pilot_01\n" +
+                        "dx_s075x_03a02_or_pilot_02\n" +
+                        "dx_s003x_0801_trent\n" +
+                        "dx_s003x_0802_trent\n" +
+                        "dx_s004x_1302_juni\n" +
+                        "dx_s009d_0101_trent\n" +
+                        "dx_s071c_0101_trent"
+                       );
+                }
 
-                checkBoxEnableMe.Checked = cfgFile.GetSettingBool("General", "EnableMe", false);;
+                checkBoxEnableWardrobe.Checked = cfgFile.GetSettingBool("General", "EnableWardrobe", false);
+                richTextBoxHeads.Clear();
+                richTextBoxBodies.Clear();
+                foreach (FLDataFile.Setting set in cfgFile.GetSettings("Wardrobe"))
+                {
+                    if (set.settingName == "head")
+                    {
+                        richTextBoxHeads.AppendText(set.Str(0));
+                        richTextBoxHeads.AppendText("\n");
+                    }
+                    else if (set.settingName == "body")
+                    {
+                        richTextBoxBodies.AppendText(set.Str(0));
+                        richTextBoxBodies.AppendText("\n");
+                    }
+                   
+                }
+                if (richTextBoxHeads.TextLength == 0)
+                {
+                    richTextBoxHeads.AppendText("monkey, sh_male5_head");
+                }
+                if (richTextBoxBodies.TextLength == 0)
+                {
+                    richTextBoxBodies.AppendText("orillion, pi_orillion_body");
+                }
+
+                checkBoxEnableMe.Checked = cfgFile.GetSettingBool("General", "EnableMe", false);
                 checkBoxEnableDo.Checked = cfgFile.GetSettingBool("General", "EnableDo", false);
+
+                checkBoxEnableRestartCost.Checked = cfgFile.GetSettingBool("General", "EnableRestartCost", false);
+                richTextBoxRestarts.Clear();
+                foreach (FLDataFile.Setting set in cfgFile.GetSettings("Restart"))
+                {
+                    if (set.settingName == "restart")
+                    {
+                        richTextBoxRestarts.AppendText(set.Str(0));
+                        richTextBoxRestarts.AppendText("\n");
+                    }
+                }
+                if (richTextBoxRestarts.TextLength == 0)
+                {
+                    richTextBoxRestarts.AppendText("zoner, 10000");
+                }
             }
             catch (Exception ex)
             {
@@ -331,12 +385,12 @@ namespace PlayerCntlSetup
             
         }
 
-        private void buttonClose_Click(object sender, EventArgs e)
+        private void ButtonClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void buttonSave_Click(object sender, EventArgs e)
+        private void ButtonSave_Click(object sender, EventArgs e)
         {
             cfgFile.AddSetting("Settings", "dllname", new object[] { "playercntl.dll" });
             cfgFile.AddSetting("Settings", "name", new object[] { "Player Control v1.0 by Cannon" } );
@@ -384,6 +438,8 @@ namespace PlayerCntlSetup
             cfgFile.AddSetting("General", "EnableGiveCash", new object[] { checkBoxEnableGiveCash.Checked });
             cfgFile.AddSetting("General", "EnableDropRepAndMisc", new object[] { checkBoxEnableDropRepAndMisc.Checked });
             cfgFile.AddSetting("General", "EnableLoginSound", new object[] { checkBoxEnableLoginSound.Checked });
+            cfgFile.AddSetting("General", "EnableWardrobe", new object[] { checkBoxEnableWardrobe.Checked });
+            cfgFile.AddSetting("General", "EnableRestartCost", new object[] { checkBoxEnableRestartCost.Checked });
             cfgFile.AddSetting("General", "EnableMe", new object[] { checkBoxEnableMe.Checked });
             cfgFile.AddSetting("General", "EnableDo", new object[] { checkBoxEnableDo.Checked });
 
@@ -410,9 +466,6 @@ namespace PlayerCntlSetup
             cfgFile.AddSetting("General", "EnableEscort", new object[] { checkBoxEnableEscort.Checked });
             cfgFile.AddSetting("General", "EscortedShipMinimumMass", new object[] { textBoxEscortedShipMinimumMass.Text });
             cfgFile.AddSetting("General", "EscortedShipDamageFactor", new object[] { textBoxEscortedShipDamageFactor.Text });
-
-            cfgFile.AddSetting("Restart", "MaxRank", new object[] { textBoxRestartMaxRank.Text });
-            cfgFile.AddSetting("Restart", "MaxCash", new object[] { textBoxRestartMaxCash.Text });
 
             cfgFile.AddSetting("Rename", "RenameCost", new object[] { textBoxRenameCost.Text });
             cfgFile.AddSetting("Rename", "RenameTimeLimit", new object[] { textBoxRenameTimeLimit.Text });
@@ -515,8 +568,10 @@ namespace PlayerCntlSetup
             while (cfgFile.DeleteSection("StandardBanner")) ;
             foreach (UIDataSet.StandardBannerListRow row in uIDataSet.StandardBannerList.Rows)
             {
-                FLDataFile.Section sect = new FLDataFile.Section();
-                sect.sectionName = "StandardBanner";
+                var sect = new FLDataFile.Section()
+                {
+                    sectionName = "StandardBanner"
+                };
                 foreach (string line in row.BannerText.Split(new char[] { '\r', '\n' }))
                 {
                     if (line.Length>0)
@@ -532,6 +587,27 @@ namespace PlayerCntlSetup
                     cfgFile.AddSettingNotUnique("Sounds", "sound", new object[] { line });
             }
 
+            cfgFile.DeleteSection("Wardrobe");
+            foreach (string line in richTextBoxHeads.Lines)
+            {
+                if (line.Length > 0)
+                    cfgFile.AddSettingNotUnique("Wardrobe", "head", new object[] { line });
+            }
+            foreach (string line in richTextBoxBodies.Lines)
+            {
+                if (line.Length > 0)
+                    cfgFile.AddSettingNotUnique("Wardrobe", "body", new object[] { line });
+            }
+
+            cfgFile.DeleteSection("Restart");
+            cfgFile.AddSetting("Restart", "MaxRank", new object[] { textBoxRestartMaxRank.Text });
+            cfgFile.AddSetting("Restart", "MaxCash", new object[] { textBoxRestartMaxCash.Text });
+            foreach (string line in richTextBoxRestarts.Lines)
+            {
+                if (line.Length > 0)
+                    cfgFile.AddSettingNotUnique("Restart", "restart", new object[] { line });
+            }
+
             try
             {
                 cfgFile.SaveSettings(cfgFilePath, false);
@@ -543,12 +619,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonAddItem_Click(object sender, EventArgs e)
+        private void ButtonAddItem_Click(object sender, EventArgs e)
         {
             new AddShipPimperItemWindow(gameData, uIDataSet.ShipPimperItemList).ShowDialog();
         }
 
-        private void buttonDelItem_Click(object sender, EventArgs e)
+        private void ButtonDelItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewShipPimperEquipList.SelectedRows)
             {
@@ -557,12 +633,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonAddBase_Click(object sender, EventArgs e)
+        private void ButtonAddBase_Click(object sender, EventArgs e)
         {
             new AddShipPimperBaseWindow(gameData, uIDataSet.ShipPimperBaseList).ShowDialog();
         }
 
-        private void buttonDelBase_Click(object sender, EventArgs e)
+        private void ButtonDelBase_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewShipPimperBases.SelectedRows)
             {
@@ -571,12 +647,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonAddRepItem_Click(object sender, EventArgs e)
+        private void ButtonAddRepItem_Click(object sender, EventArgs e)
         {
             new AddRepFixerItemWindow(gameData, uIDataSet.RepFixerItemList).ShowDialog();
         }
 
-        private void buttonEditRep_Click(object sender, EventArgs e)
+        private void ButtonEditRep_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewRepFixerItems.SelectedRows)
             {
@@ -585,12 +661,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Button3_Click(object sender, EventArgs e)
         {
             new SetBlockedSystemWindow(gameData, textBoxBlockedSystem).ShowDialog();
         }
 
-        private void buttonRepDelItem_Click(object sender, EventArgs e)
+        private void ButtonRepDelItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewRepFixerItems.SelectedRows)
             {
@@ -599,12 +675,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonPurchaseRestrictionAddItem_Click(object sender, EventArgs e)
+        private void ButtonPurchaseRestrictionAddItem_Click(object sender, EventArgs e)
         {
             new AddPurchaseRestrictionItemWindow(gameData, uIDataSet.ShipPurchaseRestrictionItems).ShowDialog(); 
         }
 
-        private void buttonbuttonPurchaseRestrictionEdittem_Click(object sender, EventArgs e)
+        private void ButtonPurchaseRestrictionEditItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewPurchaseRestrictions.SelectedRows)
             {
@@ -613,7 +689,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonbuttonPurchaseRestrictionDelItem_Click(object sender, EventArgs e)
+        private void ButtonPurchaseRestrictionDelItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewPurchaseRestrictions.SelectedRows)
             {
@@ -622,12 +698,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonBannerAddItem_Click(object sender, EventArgs e)
+        private void ButtonBannerAddItem_Click(object sender, EventArgs e)
         {
             uIDataSet.StandardBannerList.Rows.Add(new object[] { "" });
         }
 
-        private void buttonBannerEditItem_Click(object sender, EventArgs e)
+        private void ButtonBannerEditItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewStandardBanners.SelectedRows)
             {
@@ -636,7 +712,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonBannerDelItem_Click(object sender, EventArgs e)
+        private void ButtonBannerDelItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewStandardBanners.SelectedRows)
             {
@@ -645,30 +721,30 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void dataGridViewStandardBanners_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewStandardBanners_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.StandardBannerListRow item = (UIDataSet.StandardBannerListRow)(((DataRowView)(dataGridViewStandardBanners[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditBannerWindow(item).ShowDialog();
         }
 
-        private void dataGridViewPurchaseRestrictions_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewPurchaseRestrictions_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.ShipPurchaseRestrictionItemsRow item = (UIDataSet.ShipPurchaseRestrictionItemsRow)(((DataRowView)(dataGridViewPurchaseRestrictions[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditPurchaseRestrictionControlItemWindow(gameData, item).ShowDialog();
         }
 
-        private void dataGridViewRepFixerItems_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewRepFixerItems_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.RepFixerItemListRow item = (UIDataSet.RepFixerItemListRow)(((DataRowView)(dataGridViewRepFixerItems[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditReps(gameData, item.ItemNickName, cfgFile).ShowDialog();
         }
 
-        private void buttonAddNoBuyItem_Click(object sender, EventArgs e)
+        private void ButtonAddNoBuyItem_Click(object sender, EventArgs e)
         {
             new AddNoBuyItemWindow(gameData, uIDataSet.BaseGoodNoBuyList).ShowDialog(); 
         }
 
-        private void buttonEditNoBuyItem_Click(object sender, EventArgs e)
+        private void ButtonEditNoBuyItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewNoBuyList.SelectedRows)
             {
@@ -677,7 +753,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonDelNoBuyItem_Click(object sender, EventArgs e)
+        private void ButtonDelNoBuyItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewNoBuyList.SelectedRows)
             {
@@ -686,7 +762,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.BaseGoodNoBuyListRow item = (UIDataSet.BaseGoodNoBuyListRow)(((DataRowView)(dataGridViewNoBuyList[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditNoBuyItemWindow(gameData, item).ShowDialog();
@@ -697,11 +773,14 @@ namespace PlayerCntlSetup
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonImportShipPurchaseRestrictions_Click(object sender, EventArgs e)
+        private void ButtonImportShipPurchaseRestrictions_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "CSV (*.csv)|*.csv|All Files|*.*";
-            dialog.Title = "Open CSV File";
+            OpenFileDialog dialog = new OpenFileDialog()
+            {
+                Filter = "CSV (*.csv)|*.csv|All Files|*.*",
+                Title = "Open CSV File"
+            };
+            
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -780,12 +859,12 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonEquipPurchaseRestrictionAdd_Click(object sender, EventArgs e)
+        private void ButtonEquipPurchaseRestrictionAdd_Click(object sender, EventArgs e)
         {
             new AddEquipPurchaseRestrictionItemWindow(gameData, uIDataSet.EquipPurchaseRestrictionItems).ShowDialog();
         }
 
-        private void buttonEquipPurchaseRestrictionEdit_Click(object sender, EventArgs e)
+        private void ButtonEquipPurchaseRestrictionEdit_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewEquipPurchaseRestriction.SelectedRows)
             {
@@ -794,7 +873,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonEquipPurchaseRestrictionDel_Click(object sender, EventArgs e)
+        private void ButtonEquipPurchaseRestrictionDel_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewEquipPurchaseRestriction.SelectedRows)
             {
@@ -803,18 +882,18 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void dataGridViewEquipPurchaseRestriction_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewEquipPurchaseRestriction_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.EquipPurchaseRestrictionItemsRow item = (UIDataSet.EquipPurchaseRestrictionItemsRow)(((DataRowView)(dataGridViewEquipPurchaseRestriction[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditEquipPurchaseRestrictionControlItemWindow(gameData, item).ShowDialog();
         }
 
-        private void buttonSysSensorAddItem_Click(object sender, EventArgs e)
+        private void ButtonSysSensorAddItem_Click(object sender, EventArgs e)
         {
              new AddSysSensorItemWindow(gameData, uIDataSet.SysSensorList).ShowDialog(); 
         }
 
-        private void buttonSysSensorEditItem_Click(object sender, EventArgs e)
+        private void ButtonSysSensorEditItem_Click(object sender, EventArgs e)
         {
             foreach (DataGridViewRow row in dataGridViewSysSensor.SelectedRows)
             {
@@ -823,7 +902,7 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void buttonSysSensorDelItem_Click(object sender, EventArgs e)
+        private void ButtonSysSensorDelItem_Click(object sender, EventArgs e)
         {
              foreach (DataGridViewRow row in dataGridViewSysSensor.SelectedRows)
             {
@@ -832,10 +911,20 @@ namespace PlayerCntlSetup
             }
         }
 
-        private void dataGridViewSysSensor_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewSysSensor_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             UIDataSet.SysSensorListRow item = (UIDataSet.SysSensorListRow)(((DataRowView)(dataGridViewSysSensor[e.ColumnIndex, e.RowIndex].OwningRow).DataBoundItem)).Row;
             new EditSysSensorItemWindow(gameData, item).ShowDialog();
+        }
+
+        private void RichTextBoxHeads_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RichTextBoxSounds_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

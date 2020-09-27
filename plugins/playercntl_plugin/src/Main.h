@@ -244,4 +244,12 @@ namespace SystemSensor
 	void Dock_Call(unsigned int const &iShip, unsigned int const &iDockTarget, int iCancel, enum DOCK_HOST_RESPONSE response);
 }
 
+namespace Wardrobe
+{
+	void LoadSettings(const std::string& scPluginCfgFile);
+	bool UserCmd_ShowWardrobe(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage);
+	bool UserCmd_ChangeCostume(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage);
+	void Timer();
+}
+
 #endif

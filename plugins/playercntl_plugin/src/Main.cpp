@@ -132,6 +132,7 @@ void LoadSettings()
 	RepFixer::LoadSettings(scPluginCfgFile);
 	Message::LoadSettings(scPluginCfgFile);
 	SystemSensor::LoadSettings(scPluginCfgFile);
+	Wardrobe::LoadSettings(scPluginCfgFile);
 	CrashCatcher::Init();
 
 	// Load sounds from config if enabled
@@ -181,6 +182,7 @@ void HkTimer()
 	Message::Timer();
 	Restart::Timer();
 	Rename::Timer();
+	Wardrobe::Timer();
 }
 
 /// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
@@ -290,7 +292,8 @@ namespace HkIServerImpl
 		returncode = DEFAULT_RETURNCODE;
 
 		// Player sound when player logs in (if enabled)
-		pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
+		if (set_bEnableLoginSound)
+			pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
 
 		CAccount *acc = Players.FindAccountFromClientID(iClientID);
 		if (acc)
@@ -796,7 +799,9 @@ USERCMD UserCmds[] =
 	{ L"/droptag",		Rename::UserCmd_DropTag, L"Usage: /droptag <tag> <master password>"},
 	{ L"/settagpass",	Rename::UserCmd_SetTagPass, L"Usage: /settagpass <tag> <master password> <rename password>"},
 	{ L"/me",			Message::UserCmd_Me, L"Usage: /me <message>" },
-	{ L"/do",			Message::UserCmd_Do, L"Usage: /do <message>" }
+	{ L"/do",			Message::UserCmd_Do, L"Usage: /do <message>" },
+	{ L"/wardrobe", Wardrobe::UserCmd_ShowWardrobe, L"Usage: /showwardrobe" },
+	{ L"/change",       Wardrobe::UserCmd_ChangeCostume, L"Usage: /change [head|body] name" }
 };
 
 /**

@@ -30,6 +30,8 @@
 
 namespace Restart
 {
+	// Should restarts cost money?
+	bool set_bRestartCost = false;
 
 	// Players with a rank above this value cannot use the restart command.
 	static int set_iMaxRank;
@@ -37,10 +39,34 @@ namespace Restart
 	// Players with a cash above this value cannot use the restart command.
 	static int set_iMaxCash;
 
+	// Name of each restart and how much cash they cost
+	static std::map<std::wstring, int> shipPrices;
+
 	void Restart::LoadSettings(const std::string &scPluginCfgFile)
 	{
 		set_iMaxRank = IniGetI(scPluginCfgFile, "Restart", "MaxRank", 5);
 		set_iMaxCash = IniGetI(scPluginCfgFile, "Restart", "MaxCash", 1000000);
+		set_bRestartCost = IniGetB(scPluginCfgFile, "General", "EnableRestartCost", false);
+
+		INI_Reader ini;
+		if (ini.open(scPluginCfgFile.c_str(), false))
+		{
+			while (ini.read_header())
+			{
+				if (ini.is_header("Restart"))
+				{
+					while (ini.read_value())
+					{
+						if (ini.is_value("restart"))
+						{
+							std::wstring name = stows(ini.get_value_string(0));
+							int iCash = ini.get_value_int(1);
+							shipPrices[name] = iCash;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	bool Restart::UserCmd_ShowRestarts(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
@@ -58,26 +84,30 @@ namespace Restart
 		{
 			PrintUserCmdText(iClientID, L"Restart files not found");
 			return true;
-		}
-
-		std::wstring wscMsg = L"";
-
+		} 
+		
+		PrintUserCmdText(iClientID, L"You can use these restarts:");
 		do
 		{
 			// add filename
 			std::string scFileName = FileData.cFileName;
 			size_t len = scFileName.length();
 			scFileName.erase(len-3,len);
-			if (scFileName[0]!='_')
-				wscMsg+=stows(scFileName)+L"  ";
+			if (scFileName[0] != '_')
+			{
+				if (set_bRestartCost)
+				{
+					PrintUserCmdText(iClientID, stows(scFileName) + L" - $" + stows(itos(shipPrices[stows(scFileName)])));
+				}
+				else
+				{
+					PrintUserCmdText(iClientID, stows(scFileName));
+				}
+			}	
 		}
 		while (FindNextFile(hSearch, &FileData));
 
 		FindClose(hSearch);
-
-		PrintUserCmdText(iClientID, L"You can use these restarts:");
-		PrintUserCmdText(iClientID, L"%s", wscMsg.c_str());
-		PrintUserCmdText(iClientID, L"OK");
 		return true;
 	}
 
@@ -87,6 +117,7 @@ namespace Restart
 		std::string scRestartFile;
 		std::wstring wscDir;
 		std::wstring wscCharfile;
+		int iCash;
 	};
 	std::list<RESTART> pendingRestarts;
 
@@ -132,23 +163,49 @@ namespace Restart
 			return true;
 		}
 
-		// Get rank for MaxRank limit
-		int iRank = 0;
-		HkGetRank(restart.wscCharname, iRank);
-		if (iRank == 0 || iRank > set_iMaxRank)
+		if (set_iMaxRank != 0)
 		{
-			PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your rank is too high");
-			return true;
+			int iRank = 0;
+			HkGetRank(restart.wscCharname, iRank);
+			if (iRank == 0 || iRank > set_iMaxRank)
+			{
+				PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your rank is too high");
+				return true;
+			}
 		}
 
+		HK_ERROR err;
 		int iCash = 0;
 		HkGetCash(restart.wscCharname, iCash);
-		if (iCash > set_iMaxCash)
+		if ((err = HkGetCash(restart.wscCharname, iCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your cash is too high");
+			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return true;
 		}
 
+		if (set_iMaxCash != 0)
+		{
+			int iCash = 0;
+			HkGetCash(restart.wscCharname, iCash);
+			if (iCash > set_iMaxCash)
+			{
+				PrintUserCmdText(iClientID, L"ERR You must create a new char to restart. Your cash is too high");
+				return true;
+			}
+		}
+
+		if (set_bRestartCost)
+		{
+			if (iCash < shipPrices[wscFaction])
+			{
+				PrintUserCmdText(iClientID, L"You need $" + stows(itos((shipPrices[wscFaction] - iCash))) + L" more credits to use this template");
+				return true;
+			}
+			restart.iCash = iCash - shipPrices[wscFaction];
+		}
+		else
+			restart.iCash = iCash;
+		
 		CAccount *acc = Players.FindAccountFromClientID(iClientID);
 		if (acc)
 		{
@@ -183,6 +240,8 @@ namespace Restart
 				IniWriteW(scCharFile, "Player", "name", restart.wscCharname);
 				IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
 				IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
+				IniWrite(scCharFile, "Player", "money", itos(restart.iCash));
+
 				if (!set_bDisableCharfileEncryption)
 					flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
