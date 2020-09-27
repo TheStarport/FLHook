@@ -1,0 +1,6 @@
+﻿---
+BasedOnStyle: LLVM
+SortIncludes: 'false'
+UseTab: Never
+
+...

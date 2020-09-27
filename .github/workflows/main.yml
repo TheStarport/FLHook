@@ -15,7 +15,7 @@ jobs:
           submodules: true
       - uses: DoozyX/clang-format-lint-action@v0.10
         with:
-          style: llvm
+          style: file
           source: 'source plugins misc FLHookSDK/include'
           clangFormatVersion: 11
           inplace: True

@@ -1,4 +1,6 @@
-﻿namespace HookExt {
+﻿#include <FLHook.h>
+
+namespace HookExt {
 IMPORT std::wstring IniGetWS(uint client, const std::string &name);
 IMPORT std::wstring IniGetW(uint client, const std::string &name);
 IMPORT uint IniGetI(uint client, const std::string &name);

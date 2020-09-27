@@ -1,13 +1,8 @@
-﻿#ifndef _HOOK_
-#define _HOOK_
+﻿#pragma once
 
 #include <time.h>
-#if _MSC_VER == 1200
-#include "xtrace.h" // __FUNCTION__ macro for vc6
-#endif
-#include "flcodec.h"
 #include "global.h"
-
+#include "flcodec.h"
 #include <plugin.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -920,5 +915,3 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
   uint a = uint(-1);                                                           \
   if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)                \
     return err;
-
-#endif

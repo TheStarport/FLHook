@@ -95,15 +95,6 @@ void WriteMiniDump(SEHException *ex) {
 #include <shlwapi.h>
 #include <string.h>
 
-void AddExceptionInfoLog() {
-  SEHException ex;
-  ex.context = *GetCurrentExceptionContext();
-  ex.record = *GetCurrentExceptionRecord();
-  ex.code = ex.record.ExceptionCode;
-
-  AddExceptionInfoLog(&ex);
-}
-
 void AddExceptionInfoLog(SEHException *ex) {
   if (!ex) {
     AddExceptionInfoLog();
@@ -176,6 +167,15 @@ void AddExceptionInfoLog(SEHException *ex) {
   } catch (...) {
     AddBothLog("Exception in AddExceptionInfoLog!");
   }
+}
+
+void AddExceptionInfoLog() {
+  SEHException ex;
+  ex.context = *GetCurrentExceptionContext();
+  ex.record = *GetCurrentExceptionRecord();
+  ex.code = ex.record.ExceptionCode;
+
+  AddExceptionInfoLog(&ex);
 }
 
 #endif

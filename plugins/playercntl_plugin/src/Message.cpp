@@ -17,9 +17,9 @@
 #include <time.h>
 #include <windows.h>
 
+#include <FLHook.h>
 #include <FLCoreCommon.h>
 #include <FLCoreServer.h>
-#include <FLHook.h>
 #include <plugin.h>
 
 #include "Mail.h"
