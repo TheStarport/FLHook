@@ -874,8 +874,9 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID) {
     if (iRemHoldSize < (eq->fVolume * buy.iCount)) {
       uint iNewCount = (uint)(iRemHoldSize / eq->fVolume);
       if (!iNewCount) {
-        //				PrintUserCmdText(iClientID, L"Auto-Buy(%s):
-        //FAILED! Insufficient cargo space", (*it4).wscDescription.c_str());
+        //				PrintUserCmdText(iClientID,
+        //L"Auto-Buy(%s): FAILED! Insufficient cargo space",
+        // (*it4).wscDescription.c_str());
         continue;
       } else
         buy.iCount = iNewCount;

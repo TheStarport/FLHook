@@ -162,7 +162,7 @@ void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring &wscParam) {
   GET_USERFILE(scUserFile);
   IniWrite(scUserFile, "Settings", "DieMsgSize", std::to_string(dieMsgSize));
   //	IniWrite(scUserFile, "Settings", "DieMsgStyle",
-  //std::to_string(dieMsgStyle));
+  // std::to_string(dieMsgStyle));
 
   // save in ClientInfo
   ClientInfo[iClientID].dieMsgSize = dieMsgSize;

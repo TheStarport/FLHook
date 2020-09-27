@@ -46,7 +46,8 @@ std::string Trim(std::string scIn) {
     scIn = scIn.substr(1);
   }
   while (scIn.length() &&
-         (scIn[scIn.length() - 1] == L' ' || scIn[scIn.length() - 1] == '	' ||
+         (scIn[scIn.length() - 1] == L' ' ||
+          scIn[scIn.length() - 1] == '	' ||
           scIn[scIn.length() - 1] == '\n' || scIn[scIn.length() - 1] == '\r')) {
     scIn = scIn.substr(0, scIn.length() - 1);
   }

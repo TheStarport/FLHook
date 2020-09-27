@@ -127,10 +127,10 @@ bool __stdcall LaunchPosHook(uint iSpaceID, struct CEqObj &p1, Vector &p2,
 __declspec(naked) void _HkCb_LaunchPos() {
   __asm
   { 
-		push ecx              // 4
+		push ecx // 4
 		push [esp+8+8] // 8
-		push [esp+12+4]    // 12
-		push [esp+16+0]    // 16
+		push [esp+12+4] // 12
+		push [esp+16+0] // 16
 		push ecx
 		push [ecx+176]
 		call LaunchPosHook	

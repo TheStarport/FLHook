@@ -339,14 +339,14 @@ void CrashCatcher::Init() {
         //	FARPROC fpHook = (FARPROC)HkCb_CrashProc1b221;
         //	ReadProcMem((char*)hModContentAC + 0x1134f4,
         //&fpCrashProc1b221Old, 4); 	WriteProcMem((char*)hModContentAC +
-        //0x1134f4, &fpHook, 4);
+        // 0x1134f4, &fpHook, 4);
         //}
 
         //{
         //	FARPROC fpHook = (FARPROC)HkCb_PubZoneSystem;
         //	ReadProcMem((char*)hModContentAC + 0x113470,
         //&fpCrashProc1b113470Old, 4); 	WriteProcMem((char*)hModContentAC +
-        //0x113470, &fpHook, 4);
+        // 0x113470, &fpHook, 4);
         //}
 
         // Hook for crash at 0xEB4B5 (confirmed)

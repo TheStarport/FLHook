@@ -771,8 +771,8 @@ void PublicServerClientPatchInstall() {
 
   {
     // common.dll 053048 0000->E31F = include external equipment in cargo size
-    // PART 1 ~adoxa common.dll 05330E 0000->E31F = include external equipment in
-    // cargo size PART 2 ~adoxa
+    // PART 1 ~adoxa common.dll 05330E 0000->E31F = include external equipment
+    // in cargo size PART 2 ~adoxa
     BYTE patch1[] = {0xE3, 0x1F};
     WriteProcMem((char *)hCommon + 0x053048, patch1, sizeof(patch1));
     WriteProcMem((char *)hCommon + 0x05330E, patch1, sizeof(patch1));

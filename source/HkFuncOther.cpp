@@ -310,10 +310,10 @@ __declspec(naked) bool __stdcall HkLightFuse_(IObjRW *ship, uint iFuseID,
                                               float fSkip) {
   __asm
   {
-		lea eax, [esp+8]               // iFuseID
-		push [esp+20]          // fSkip
-		push [esp+16]          // fDelay
-		push 0                  // SUBOBJ_ID_NONE
+		lea eax, [esp+8] // iFuseID
+		push [esp+20] // fSkip
+		push [esp+16] // fDelay
+		push 0 // SUBOBJ_ID_NONE
 		push eax
 		push [esp+32] // fLifetime
 		mov ecx, [esp+24]
@@ -336,10 +336,10 @@ __declspec(naked) bool __stdcall HkUnLightFuse_(IObjRW *ship, uint iFuseID,
   __asm
   {
 		mov ecx, [esp+4]
-		lea eax, [esp+8]      // iFuseID
+		lea eax, [esp+8] // iFuseID
 		push [esp+12] // fDunno
-		push 0         // SUBOBJ_ID_NONE
-		push eax       // iFuseID
+		push 0 // SUBOBJ_ID_NONE
+		push eax // iFuseID
 		mov eax, [ecx]
 		call [eax+0x1E8]
 		ret 12

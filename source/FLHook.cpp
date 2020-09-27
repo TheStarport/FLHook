@@ -510,7 +510,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
       if (!scPass.length()) {
         sc->csock.DoPrint(L"ERR Wrong password\n");
         //				ConPrint(L"socket: socket authentication
-        //failed (invalid pass)\n");
+        // failed (invalid pass)\n");
         sc->csock.DoPrint(L"Goodbye.\r\n");
         ConPrint(L"socket: connection closed (invalid pass)\n");
         AddLog("socket: socket connection from %s:%d closed (invalid pass)",

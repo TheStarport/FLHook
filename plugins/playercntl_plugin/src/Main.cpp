@@ -759,8 +759,8 @@ USERCMD UserCmds[] = {
     {L"/lights", MiscCmds::UserCmd_Lights, L"Usage: /lights"},
     {L"/lights*", MiscCmds::UserCmd_Lights, L"Usage: /lights"},
     //{ L"/selfdestruct",	MiscCmds::UserCmd_SelfDestruct, L"Usage:
-    ///selfdestruct"}, { L"/selfdestruct*",MiscCmds::UserCmd_SelfDestruct,
-    //L"Usage: /selfdestruct"},
+    /// selfdestruct"}, { L"/selfdestruct*",MiscCmds::UserCmd_SelfDestruct,
+    // L"Usage: /selfdestruct"},
     {L"/shields", MiscCmds::UserCmd_Shields, L"Usage: /shields"},
     {L"/shields*", MiscCmds::UserCmd_Shields, L"Usage: /shields"},
     //{ L"/ss",		    MiscCmds::UserCmd_Screenshot, L"Usage: /ss"},

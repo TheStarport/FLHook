@@ -172,8 +172,8 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
             wscType = L"Gun";
           else {
             wscType = L"Gun"; // 0x02
-            //					AddLog("get_cause() returned %X",
-            //iCause);
+            //					AddLog("get_cause() returned
+            //%X", iCause);
           }
 
           std::wstring wscMsg;
