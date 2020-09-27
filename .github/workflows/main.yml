@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cpp-lint
-        uses: ArtificialAmateur/clang-tidy-action@master
+        uses: ArtificialAmateur/cpp-linter-action@master
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build:
+    needs: [lint]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
