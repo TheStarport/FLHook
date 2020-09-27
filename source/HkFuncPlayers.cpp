@@ -1505,18 +1505,6 @@ HK_ERROR HkAntiCheat(uint iClientID)
 	return HKE_OK;
 }
 
-/** Anti cheat checking code by mc_horst */
-HK_ERROR HkAntiCheat(const std::wstring &wscCharname)
-{
-    HK_GET_CLIENTID(iClientID, wscCharname);
-
-	// check if logged in
-	if(iClientID == -1)
-		return HKE_OK;
-
-    return HkAntiCheat(iClientID);
-}
-
 HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint)
 {
 	HK_GET_CLIENTID(iClientID, wscCharname);

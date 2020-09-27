@@ -305,7 +305,7 @@ std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
 {
 	uint i = 0, j = 0;
 
-	std::string scResult = "";
+	std::string scResult;
 	for(i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
 	{
 		if(scLine[j] == cSplitChar)

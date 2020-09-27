@@ -18,8 +18,6 @@
 #include <set>
 #include <algorithm>
 
-#include "ZoneUtilities.h"
-
 #include "Main.h"
 
 namespace HyperJump
@@ -299,7 +297,7 @@ namespace HyperJump
 			IObjInspectImpl *obj = HkGetInspect(iClientID);
 			if (obj)
 			{
-				HkUnLightFuse((IObjRW*)obj, jd.active_fuse, 0.0f);
+				HkUnLightFuse((IObjRW*)obj, jd.active_fuse);
 			}
 			jd.active_fuse = 0;
 		}
@@ -331,7 +329,7 @@ namespace HyperJump
 		if (obj)
 		{
 			for(auto& fuse : mapJumpDrives[iClientID].active_charge_fuse)
-				HkUnLightFuse((IObjRW*) obj, fuse, 0);
+				HkUnLightFuse((IObjRW*) obj, fuse);
 			mapJumpDrives[iClientID].active_charge_fuse.clear();
 		}
 	}
@@ -1023,9 +1021,9 @@ namespace HyperJump
 			tb.iCheckTestedZones = 0;
 			tb.iCheckZoneTime = iCheckZoneTime;
 
-			zone_map_iter_t start = zones.lower_bound(tb.iCheckSystemOrBase);
-			zone_map_iter_t end = zones.upper_bound(tb.iCheckSystemOrBase);
-			for (zone_map_iter_t i=start; i!=end; i++)
+			auto start = zones.lower_bound(tb.iCheckSystemOrBase);
+			auto end = zones.upper_bound(tb.iCheckSystemOrBase);
+			for (auto i=start; i!=end; i++)
 			{
 				ZONE rlz;
 				if (ZoneUtilities::InDeathZone(tb.iCheckSystemOrBase, i->second.pos, rlz))
@@ -1071,7 +1069,6 @@ namespace HyperJump
 		}
 
 		cmds->Print(L"ERR System or base not found\n");
-		return;
 	}
 
 	bool InitJumpDriveInfo(uint iClientID)

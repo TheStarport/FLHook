@@ -56,7 +56,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />

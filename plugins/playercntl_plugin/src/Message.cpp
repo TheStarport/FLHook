@@ -23,11 +23,11 @@
 #include <FLCoreCommon.h>
 
 #include "Mail.h"
-#include "ZoneUtilities.h"
 
 #include <math.h>
 #include <map>
 #include <list>
+#include <plugin_comms.h>
 #include <vector>
 
 #include "Main.h"
@@ -867,7 +867,7 @@ namespace Message
 			uint iRet;
 			char szBuf[1024];
 			HK_ERROR err;
-			if ((err=HkFMsgEncodeMsg(wscMsg, szBuf, sizeof(szBuf), iRet))!=HKE_OK)
+			if ((err=HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet))!=HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR "+HkErrGetText(err));
 				return true;

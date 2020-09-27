@@ -195,7 +195,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 		pub::SpaceObj::GetSystem(cship->get_id(), iSystem);
 
 		Vector vPos = cship->get_position();
-		std::string scSector = VectorToSectorCoord(iSystem, vPos);
+		std::string scSector = VectorToSectorCoord<std::string>(iSystem, vPos);
 
 		auto start = set_mapNpcMissions.lower_bound(iAff);
 		auto end = set_mapNpcMissions.upper_bound(iAff);

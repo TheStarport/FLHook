@@ -118,6 +118,7 @@
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
+    <ClCompile Include="..\source\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">

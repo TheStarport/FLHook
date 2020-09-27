@@ -29,33 +29,6 @@
 
 namespace Rename
 {
-	static void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
-	{
-		fprintf(file, "%s=", parmname.c_str());
-		for (int i = 0; i < (int)in.size(); i++)
-		{
-			UINT v1 = in[i] >> 8;
-			UINT v2 = in[i] & 0xFF;
-			fprintf(file, "%02x%02x", v1, v2);
-		}
-		fprintf(file, "\n");
-	}
-
-
-	static void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
-	{
-		std::string scValue = ini.get_value_string();
-		wscValue = L"";
-		long lHiByte;
-		long lLoByte;
-		while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
-		{
-			scValue = scValue.substr(4);
-			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
-			wscValue.append(1, wChar);
-		}
-	}
-
 	// Cost of the rename in credits
 	int set_iMoveCost = 0;
 
@@ -713,8 +686,8 @@ namespace Rename
 		}
 
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		std::string scFile;
-		if (!GetUserFilePath(scFile, wscCharname, "-movechar.ini"))
+		std::string scFile = GetUserFilePath(wscCharname, "-movechar.ini");
+		if (scFile.empty())
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
@@ -784,9 +757,9 @@ namespace Rename
 		}
 
 		// Get the target account directory.
-		std::string scFile;
 		std::wstring wscMovingCharname = Trim(GetParam(wscParam, L' ', 0));
-		if (!GetUserFilePath(scFile, wscMovingCharname, "-movechar.ini"))
+		std::string scFile = GetUserFilePath(wscMovingCharname, "-movechar.ini");
+		if (scFile.empty())
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;

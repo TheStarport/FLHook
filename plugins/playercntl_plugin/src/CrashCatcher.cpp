@@ -51,7 +51,7 @@ int __cdecl HkCb_CrashProc1b221(unsigned int const& system, struct pub::System::
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{
 		AddLog("ERROR: Crash suppression in pub::System::EnumerateConnections(system=%08x,type=%d)",system, type);
-		LOG_EXCEPTION
+		LOG_EXCEPTION;
 		return -2;
 	}
 }

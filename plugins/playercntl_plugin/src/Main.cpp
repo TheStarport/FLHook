@@ -18,9 +18,6 @@
 #include <list>
 #include <set>
 
-
-
-#include "ZoneUtilities.h"
 #include "CrashCatcher.h"
 #include "Main.h"
 #include "StartupCache.h"
@@ -121,7 +118,7 @@ void LoadSettings()
 
 	set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
 
-	ZoneUtilities::ReadUniverse();
+	ZoneUtilities::ReadUniverse(nullptr);
 	EquipmentUtilities::ReadIniNicknames();
 	Rename::LoadSettings(scPluginCfgFile);
 	GiveCash::LoadSettings(scPluginCfgFile);

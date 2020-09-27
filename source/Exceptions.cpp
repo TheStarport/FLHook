@@ -113,6 +113,10 @@ void AddExceptionInfoLog() {
 
 void AddExceptionInfoLog(SEHException* ex)
 {
+	if(!ex) {
+		AddExceptionInfoLog();
+		return;
+	}
 	try
 	{
 		EXCEPTION_RECORD const *exception = &ex->record;

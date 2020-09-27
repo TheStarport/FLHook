@@ -77,12 +77,13 @@ namespace IPBans
 						char szBuf[200];
 						if (fgets(szBuf, sizeof(szBuf), f)!=NULL)
 						{
+							std::string sz = szBuf;
 							try
 							{
-								scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, std::string::npos));
-								scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, std::string::npos));
-								if (GetParam(szBuf, '\t', 3).length() > 4)
-									scLoginID2 = Trim(GetParam(szBuf, '\t', 3).substr(4, std::string::npos));
+								scLoginID = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
+								scThisIP = Trim(GetParam(sz, '\t', 2).substr(3, std::string::npos));
+								if (GetParam(sz, '\t', 3).length() > 4)
+									scLoginID2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
 							}
 							catch (...)
 							{
@@ -191,7 +192,7 @@ namespace IPBans
 			{
 				while (ini.read_value())
 				{
-					set_lstLoginIDBans.push_back(Trim(ini.get_name_ptr()));
+					set_lstLoginIDBans.push_back(Trim(std::string(ini.get_name_ptr())));
 					if (set_iPluginDebug)
 						ConPrint(L"NOTICE: Adding Login ID ban %s\n", stows(ini.get_name_ptr()).c_str());
 				}

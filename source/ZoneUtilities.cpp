@@ -6,52 +6,19 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <cmath>
 #include <string>
 #include <time.h>
 #include <math.h>
 #include <float.h>
-#include <FLHook.h>
+#include "Hook.h"
 #include <plugin.h>
 #include <math.h>
 #include <list>
 #include <map>
 #include <set>
 #include <algorithm>
-#include "ZoneUtilities.h"
-
-struct LOOTABLE_ZONE
-{
-	/** The zone nickname */
-	std::string zoneNick;
-
-	/** The id of the system for this lootable zone */
-	uint systemID;
-
-	/** The nickname and arch id of the loot dropped by the asteroids */
-	std::string lootNick;
-	uint iLootID;
-
-	/** The arch id of the crate the loot is dropped in */
-	uint iCrateID;
-
-	/** The minimum number of loot items to drop */
-	uint iMinLoot;
-
-	/** The maximum number of loot items to drop */
-	uint iMaxLoot;
-
-	/** The drop difficultly */
-	uint iLootDifficulty;
-
-	/** The lootable zone ellipsoid size */
-	Vector size;
-
-	/** The lootable zone position */
-	Vector pos;
-};
-typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> >::value_type zone_map_pair_t;
-typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> >::iterator zone_map_iter_t;
-typedef std::multimap<uint, LOOTABLE_ZONE, std::less<uint> > zone_map_t;
+#include "global.h"
 
 /** A map of system id to system info */
 std::map<uint, SYSTEMINFO> mapSystems;
@@ -96,21 +63,21 @@ static TransformMatrix SetupTransform(Vector &p, Vector &r)
 	// X-axis rotation matrix
 	TransformMatrix xmat;
 	xmat.d[0][0] = 1;        xmat.d[0][1] = 0;        xmat.d[0][2] = 0;        xmat.d[0][3] = 0;
-	xmat.d[1][0] = 0;        xmat.d[1][1] = cos(ax);  xmat.d[1][2] = sin(ax);  xmat.d[1][3] = 0;
-	xmat.d[2][0] = 0;        xmat.d[2][1] = -sin(ax); xmat.d[2][2] = cos(ax);  xmat.d[2][3] = 0;
+	xmat.d[1][0] = 0;        xmat.d[1][1] = std::cos(ax);  xmat.d[1][2] = std::sin(ax);  xmat.d[1][3] = 0;
+	xmat.d[2][0] = 0;        xmat.d[2][1] = -std::sin(ax); xmat.d[2][2] = std::cos(ax);  xmat.d[2][3] = 0;
 	xmat.d[3][0] = 0;        xmat.d[3][1] = 0;        xmat.d[3][2] = 0;        xmat.d[3][3] = 1;
 
 	// Y-axis rotation matrix
 	TransformMatrix ymat;
-	ymat.d[0][0] = cos(ay);  ymat.d[0][1] = 0;        ymat.d[0][2] = -sin(ay); ymat.d[0][3] = 0;
+	ymat.d[0][0] = std::cos(ay);  ymat.d[0][1] = 0;        ymat.d[0][2] = -std::sin(ay); ymat.d[0][3] = 0;
 	ymat.d[1][0] = 0;        ymat.d[1][1] = 1;        ymat.d[1][2] = 0;        ymat.d[1][3] = 0;
-	ymat.d[2][0] = sin(ay);  ymat.d[2][1] = 0;        ymat.d[2][2] = cos(ay);  ymat.d[2][3] = 0;
+	ymat.d[2][0] = std::sin(ay);  ymat.d[2][1] = 0;        ymat.d[2][2] = std::cos(ay);  ymat.d[2][3] = 0;
 	ymat.d[3][0] = 0;        ymat.d[3][1] = 0;        ymat.d[3][2] = 0;        ymat.d[3][3] = 1;
 
 	// Z-axis rotation matrix
 	TransformMatrix zmat;
-	zmat.d[0][0] = cos(az);  zmat.d[0][1] = sin(az);  zmat.d[0][2] = 0;        zmat.d[0][3] = 0;
-	zmat.d[1][0] = -sin(az); zmat.d[1][1] = cos(az);  zmat.d[1][2] = 0;        zmat.d[1][3] = 0;
+	zmat.d[0][0] = std::cos(az);  zmat.d[0][1] = std::sin(az);  zmat.d[0][2] = 0;        zmat.d[0][3] = 0;
+	zmat.d[1][0] = -std::sin(az); zmat.d[1][1] = std::cos(az);  zmat.d[1][2] = 0;        zmat.d[1][3] = 0;
 	zmat.d[2][0] = 0;        zmat.d[2][1] = 0;        zmat.d[2][2] = 1;        zmat.d[2][3] = 0;
 	zmat.d[3][0] = 0;        zmat.d[3][1] = 0;        zmat.d[3][2] = 0;        zmat.d[3][3] = 1;
 
@@ -128,7 +95,7 @@ static TransformMatrix SetupTransform(Vector &p, Vector &r)
 Parse the specified ini file (usually in the data/solar/asteriods) and retrieve
 the lootable zone details.
 */
-void ReadLootableZone(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &defaultZoneNick, const std::string &file)
+void ZoneUtilities::ReadLootableZone(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &defaultZoneNick, const std::string &file)
 {
 	std::string path="..\\data\\";
 	path += file;
@@ -184,16 +151,16 @@ void ReadLootableZone(zone_map_t &set_mmapZones, const std::string &systemNick, 
 				lz.size.x = lz.size.y = lz.size.z = 0;
 
 				bool exists = false;
-				for (zone_map_iter_t i=set_mmapZones.begin(); i!=set_mmapZones.end(); i++)
+				for (const auto& z : set_mmapZones)
 				{
-					if (i->second.zoneNick==zoneNick)
+					if (z.second.zoneNick == zoneNick)
 					{
 						exists = true;
 						break;
 					}
 				}
 				if (!exists)
-					set_mmapZones.insert(zone_map_pair_t(lz.systemID,lz));
+					set_mmapZones.insert({ lz.systemID, lz });
 			}
 		}
 		ini.close();
@@ -201,7 +168,7 @@ void ReadLootableZone(zone_map_t &set_mmapZones, const std::string &systemNick, 
 }
 
 /** Read the asteroid sections out of the system ini */
-void ReadSystemLootableZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
+void ZoneUtilities::ReadSystemLootableZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
 {
 	std::string path="..\\data\\universe\\";
 	path += file;
@@ -231,7 +198,7 @@ void ReadSystemLootableZones(zone_map_t &set_mmapZones, const std::string &syste
 
 /** Read the zone size/rotation and position information out of the
  specified file and calcuate the lootable zone transformation matrix */
-static void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
+void ZoneUtilities::ReadSystemZones(zone_map_t &set_mmapZones, const std::string &systemNick, const std::string &file)
 {
 	std::string path="..\\data\\universe\\";
 	path += file;
@@ -301,12 +268,12 @@ static void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &system
 					}
 				}
 
-				for (zone_map_iter_t i=set_mmapZones.begin(); i!=set_mmapZones.end(); i++)
+				for (auto& z : set_mmapZones)
 				{
-					if (i->second.zoneNick==zoneNick)
+					if (z.second.zoneNick==zoneNick)
 					{
-						i->second.pos = pos;
-						i->second.size = size;
+						z.second.pos = pos;
+						z.second.size = size;
 						break;
 					}
 				}
@@ -320,12 +287,12 @@ static void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &system
 				lz.damage = damage;
 				lz.encounter = encounter;
 				lz.transform = SetupTransform(pos,rotation);
-				zones.insert(zone_map_pair_t(lz.systemId,lz));
+				zones.insert({ lz.systemId, lz });
 			}
 			else if (ini.is_header("Object"))
 			{
-				std::string nickname = "";
-				std::string jumpDestSysNick = "";
+				std::string nickname;
+				std::string jumpDestSysNick;
 				bool bIsJump = false;
 				bool bMissionObject = false;
 				bool bDestructible = false;
@@ -352,7 +319,7 @@ static void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &system
 					jp.System = CreateID(systemNick.c_str());
 					jp.jumpID = CreateID(nickname.c_str());
 					jp.jumpDestSysID = CreateID(jumpDestSysNick.c_str());
-					jumpPoints.insert(jumppoint_map_pair_t(jp.System,jp));
+					jumpPoints.insert({ jp.System, jp });
 				}
 			}
 		}
@@ -361,7 +328,7 @@ static void ReadSystemZones(zone_map_t &set_mmapZones, const std::string &system
 }
 
 /** Read all systems in the universe ini */
-void ReadUniverse(zone_map_t &set_mmapZones)
+void ZoneUtilities::ReadUniverse(zone_map_t* set_mmapZones)
 {
 	zones.clear();
 
@@ -386,7 +353,8 @@ void ReadUniverse(zone_map_t &set_mmapZones)
 					if (ini.is_value("NavMapScale"))
 						scale = ini.get_value_float(0);
 				}
-				ReadSystemLootableZones(set_mmapZones, systemNick,file);
+				if(set_mmapZones)
+				    ReadSystemLootableZones(*set_mmapZones, systemNick,file);
 
 				SYSTEMINFO sysInfo;
 				sysInfo.sysNick = systemNick;
@@ -415,7 +383,8 @@ void ReadUniverse(zone_map_t &set_mmapZones)
 					if (ini.is_value("file"))
 						file = ini.get_value_string();
 				}
-				ReadSystemZones(set_mmapZones, systemNick,file);
+				if(set_mmapZones)
+				    ReadSystemZones(*set_mmapZones, systemNick,file);
 			}
 		}
 		ini.close();
@@ -425,13 +394,13 @@ void ReadUniverse(zone_map_t &set_mmapZones)
 /**
  Return true if the ship location as specified by the position parameter is in a lootable zone.
 */
-bool InZone(uint system, const Vector &pos, ZONE &rlz)
+bool ZoneUtilities::InZone(uint system, const Vector &pos, ZONE &rlz)
 {
 	// For each zone in the system test that pos is inside the
 	// zone.
-	zone_map_iter_t start = zones.lower_bound(system);
-	zone_map_iter_t end = zones.upper_bound(system);
-	for (zone_map_iter_t i=start; i!=end; i++)
+	auto start = zones.lower_bound(system);
+	auto end = zones.upper_bound(system);
+	for (auto i = start; i != end; ++i)
 	{
 		const ZONE &lz = i->second;
 		/** Transform the point pos onto coordinate system defined by matrix m */
@@ -459,13 +428,13 @@ bool InZone(uint system, const Vector &pos, ZONE &rlz)
 /**
  Return true if the ship location as specified by the position parameter is in a death zone
 */
-bool InDeathZone(uint system, const Vector &pos, ZONE &rlz)
+bool ZoneUtilities::InDeathZone(uint system, const Vector &pos, ZONE &rlz)
 {
 	// For each zone in the system test that pos is inside the
 	// zone.
-	zone_map_iter_t start = zones.lower_bound(system);
-	zone_map_iter_t end = zones.upper_bound(system);
-	for (zone_map_iter_t i=start; i!=end; i++){
+	auto start = zones.lower_bound(system);
+	auto end = zones.upper_bound(system);
+	for (auto i = start; i != end; ++i){
 		const ZONE &lz = i->second;
 
 		/** Transform the point pos onto coordinate system defined by matrix m */
@@ -501,19 +470,19 @@ SYSTEMINFO *ZoneUtilities::GetSystemInfo(uint systemID)
 	return 0;
 }
 
-void PrintZones()
+void ZoneUtilities::PrintZones()
 {
 	zone_map_t set_mmapZones;
-	ReadUniverse(set_mmapZones);
+	ReadUniverse(&set_mmapZones);
 
 	ConPrint(L"Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
-	for (zone_map_iter_t i=set_mmapZones.begin(); i!=set_mmapZones.end(); i++)
+	for (const auto& z : set_mmapZones)
 	{
 		ConPrint(L"%s, %s, %d, %d, %d, %0.0f, %0.0f, %0.0f, %0.0f, %0.0f, %0.0f, %d, %d, %2.2f\n",
-			stows(i->second.zoneNick).c_str(), stows(i->second.lootNick).c_str(),
-			i->second.iMinLoot, i->second.iMaxLoot, i->second.iLootDifficulty,
-			i->second.pos.x,i->second.pos.y,i->second.pos.z,
-			i->second.size.x,i->second.size.y,i->second.size.z);
+			stows(z.second.zoneNick).c_str(), stows(z.second.lootNick).c_str(),
+			z.second.iMinLoot, z.second.iMaxLoot, z.second.iLootDifficulty,
+			z.second.pos.x,z.second.pos.y,z.second.pos.z,
+			z.second.size.x,z.second.size.y,z.second.size.z);
 	}
 	ConPrint(L"Zones=%d\n",set_mmapZones.size());
 }

@@ -47,8 +47,8 @@ namespace GiveCash
 	{
 		std::wstring wscCharname = ToLower((const wchar_t*) Players.GetActiveCharacterName(iClientID));
 
-		std::string logFile;
-		if (!GetUserFilePath(logFile, wscCharname, "-givecashlog.txt"))
+		std::string logFile = GetUserFilePath(wscCharname, "-givecashlog.txt");
+		if (logFile.empty())
 			return;
 
 		FILE *f;
@@ -87,8 +87,8 @@ namespace GiveCash
 	*/
 	static void LogTransfer(std::wstring wscToCharname, std::wstring msg)
 	{
-		std::string logFile;
-		if (!GetUserFilePath(logFile, wscToCharname, "-givecashlog.txt"))
+		std::string logFile = GetUserFilePath(wscToCharname, "-givecashlog.txt");
+		if (logFile.empty())
 			return;
 		FILE *f;
 	    fopen_s(&f, logFile.c_str(), "at");
@@ -198,7 +198,7 @@ namespace GiveCash
 		}
 
 		int secs = 0;
-		HkGetOnLineTime(wscCharname, secs);
+		HkGetOnlineTime(wscCharname, secs);
 		if (secs<set_iMinTime)
 		{
 			PrintUserCmdText(iClientID, L"ERR insufficient time online");
@@ -369,8 +369,8 @@ namespace GiveCash
 	bool GiveCash::UserCmd_SetCashCode(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		std::string scFile;
-		if (!GetUserFilePath(scFile, wscCharname, "-givecash.ini"))
+		std::string scFile = GetUserFilePath(wscCharname, "-givecash.ini");
+		if (scFile.empty())
 			return true;
 
 		std::wstring wscCode = GetParam(wscParam, L' ', 0);
@@ -420,8 +420,8 @@ namespace GiveCash
 			return true;
 		}
 
-		std::string scFile;
-		if (!GetUserFilePath(scFile, wscTargetCharname, "-givecash.ini"))
+		std::string scFile = GetUserFilePath(wscTargetCharname, "-givecash.ini");
+		if (scFile.empty())
 			return true;
 
 		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
@@ -475,7 +475,7 @@ namespace GiveCash
 		}
 
 		int secs = 0;
-		HkGetOnLineTime(wscTargetCharname, secs);
+		HkGetOnlineTime(wscTargetCharname, secs);
 		if (secs<set_iMinTime)
 		{
 			PrintUserCmdText(iClientID, L"ERR insufficient time online");
@@ -488,8 +488,8 @@ namespace GiveCash
 			return true;
 		}
 
-		std::string scFile;
-		if (!GetUserFilePath(scFile, wscTargetCharname, "-givecash.ini"))
+		std::string scFile = GetUserFilePath(wscTargetCharname, "-givecash.ini");
+		if (scFile.empty())
 			return true;
 
 		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");

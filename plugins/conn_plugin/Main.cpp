@@ -16,6 +16,7 @@ Connecticut Plugin by MadHunter
 #include <plugin.h>
 #include "../hookext_plugin/hookext_exports.h"
 #include <math.h>
+#include <plugin_comms.h>
 
 #define CLIENT_STATE_NONE		0
 #define CLIENT_STATE_TRANSFER	1

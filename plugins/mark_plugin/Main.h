@@ -24,8 +24,6 @@ struct USERCMD
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-void AddExceptionInfoLog(struct SEHException* pep);
-
 void ClearClientMark(uint iClientID);
 void HkUnMarkAllObjects(uint iClientID);
 char HkUnMarkObject(uint iClientID, uint iObject);

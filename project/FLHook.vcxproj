@@ -162,6 +162,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
+    <ClCompile Include="..\source\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />

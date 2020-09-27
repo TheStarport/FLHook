@@ -86,13 +86,14 @@ struct SEHException
 	}
 };
 
-EXPORT extern void WriteMiniDump(SEHException* ex);
-EXPORT extern void AddExceptionInfoLog(SEHException* ex);
+EXPORT void WriteMiniDump(SEHException* ex);
+EXPORT void AddExceptionInfoLog();
+EXPORT void AddExceptionInfoLog(SEHException* ex);
 #define TRY_HOOK try { _set_se_translator(SEHException::Translator);
 #define CATCH_HOOK(e) } \
 catch(SEHException& ex) { e; AddBothLog("ERROR: SEH Exception in %s on line %d; minidump may contain more information.", __FUNCTION__, __LINE__); AddExceptionInfoLog(&ex); } \
 catch(std::exception& ex) { e; AddBothLog("ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__, __LINE__, ex.what()); AddExceptionInfoLog(0); } \
-catch (...) { e; AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__, __LINE__); AddExceptionInfoLog(0); }
+catch (...) { e; AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__, __LINE__); AddExceptionInfoLog(); }
 #else
 #define TRY_HOOK try
 #define CATCH_HOOK(e) catch(...) { e; AddLog("ERROR: Exception in %s", __FUNCTION__); }
@@ -601,12 +602,10 @@ EXPORT EQ_TYPE HkGetEqType(Archetype::Equipment *eq);
 EXPORT float HkDistance3D(Vector v1, Vector v2);
 EXPORT float HkDistance3DByShip(uint iShip1, uint iShip2);
 EXPORT Quaternion HkMatrixToQuaternion(Matrix m);
-template<typename Str = std::string>
-EXPORT Str VectorToSectorCoord(uint iSystemID, Vector vPos);
-template
-std::string VectorToSectorCoord(uint iSystemID, Vector vPos);
-template
-std::wstring VectorToSectorCoord(uint iSystemID, Vector vPos);
+template<typename Str>
+Str VectorToSectorCoord(uint iSystemID, Vector vPos);
+template EXPORT std::string VectorToSectorCoord(uint iSystemID, Vector vPos);
+template EXPORT std::wstring VectorToSectorCoord(uint iSystemID, Vector vPos);
 EXPORT float degrees(float rad);
 EXPORT Vector MatrixToEuler(const Matrix& mat);
 EXPORT void Rotate180(Matrix &rot);
@@ -628,6 +627,11 @@ EXPORT HK_ERROR HkFMsgU(const std::wstring &wscXML);
 EXPORT std::wstring HkGetWStringFromIDS(uint iIDS);
 EXPORT void HkLoadStringDLLs();
 EXPORT void HkUnloadStringDLLs();
+EXPORT void FormatSendChat(uint iToClientID, const std::wstring &wscSender, const std::wstring &wscText, const std::wstring &wscTextColor);
+EXPORT void SendGroupChat(uint iFromClientID, const std::wstring &wscText);
+EXPORT void SendLocalSystemChat(uint iFromClientID, const std::wstring &wscText);
+EXPORT void SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring &wscText);
+EXPORT void SendSystemChat(uint iFromClientID, const std::wstring &wscText);
 
 // HkFuncPlayers
 EXPORT HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash);
@@ -655,6 +659,20 @@ EXPORT HK_ERROR HkGetRep(const std::wstring &wscCharname, const std::wstring &ws
 EXPORT HK_ERROR HkReadCharFile(const std::wstring &wscCharname, std::list<std::wstring> &lstOutput);
 EXPORT HK_ERROR HkWriteCharFile(const std::wstring &wscCharname, std::wstring wscData);
 EXPORT HK_ERROR HkPlayerRecalculateCRC(uint iClientID);
+EXPORT std::string HkGetPlayerSystemS(uint iClientID);
+EXPORT bool IsInRange(uint iClientID, float fDistance);
+EXPORT std::wstring GetLocation(unsigned int iClientID);
+EXPORT HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID, const std::string &scHardpoint);
+EXPORT HK_ERROR HkAntiCheat(uint iClientID);
+EXPORT void HkDelayedKick(uint iClientID, uint secs);
+EXPORT HK_ERROR HkDeleteCharacter(CAccount *acc, std::wstring &wscCharname);
+EXPORT HK_ERROR HkNewCharacter(CAccount *acc, std::wstring &wscCharname);
+EXPORT std::wstring HkGetAccountIDByClientID(uint iClientID);
+EXPORT HK_ERROR HkGetOnlineTime(const std::wstring &wscCharname, int &iSecs);
+EXPORT HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank);
+EXPORT HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue);
+EXPORT void HkRelocateClient(uint iClientID, Vector vDestination, Matrix mOrientation);
+EXPORT void HkSaveChar(uint iClientID);
 
 // HkFuncLog
 #define AddBothLog(s, ...) { AddLog(s, __VA_ARGS__); AddDebugLog(s, __VA_ARGS__);  }
@@ -684,6 +702,7 @@ EXPORT Fuse* HkGetFuseFromID(uint iFuseID);
 EXPORT bool HkLightFuse(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip);
 EXPORT bool HkUnLightFuse(IObjRW* ship, uint iFuseID);
 EXPORT CEqObj* HkGetEqObjFromObjRW(struct IObjRW *objRW);
+EXPORT uint HkGetClientIDFromArg(const std::wstring &wscArg);
 
 // HkFLIni
 EXPORT HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey, std::wstring &wscRet);
@@ -698,6 +717,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd);
 EXPORT void UserCmd_SetDieMsg(uint iClientID, std::wstring &wscParam);
 EXPORT void UserCmd_SetChatFont(uint iClientID, std::wstring &wscParam);
 EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
+EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg, float fDistance);
 
 // HkDeath
 void ShipDestroyedHook();

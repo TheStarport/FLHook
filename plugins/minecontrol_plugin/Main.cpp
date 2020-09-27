@@ -45,8 +45,6 @@ static float set_fGenericFactor = 1.0f;
 static int set_iPluginDebug = 0;
 static std::string set_scStatsPath;
 
-extern void PrintZones();
-
 struct PLAYER_BONUS
 {
     PLAYER_BONUS() : iLootID(0), fBonus(0.0f), iRep(-1) {}
@@ -722,7 +720,7 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &wscCmd)
 	if (IS_CMD("printminezones"))
 	{
  		returncode = NOFUNCTIONCALL;
-		PrintZones();
+        ZoneUtilities::PrintZones();
 		return true;
 	}
 

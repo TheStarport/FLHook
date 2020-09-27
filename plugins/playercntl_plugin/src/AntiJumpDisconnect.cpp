@@ -17,6 +17,7 @@
 #include <plugin.h>
 #include <math.h>
 #include <list>
+#include <plugin_comms.h>
 #include <set>
 
 #include "Main.h"

@@ -1,4 +1,6 @@
 #include "Main.h"
+
+#include <plugin_comms.h>
 #include <windows.h>
 #include <stdio.h>
 

@@ -83,7 +83,6 @@
     <ClCompile Include="src\StartupCache.cpp" />
     <ClCompile Include="src\SystemSensor.cpp" />
     <ClCompile Include="src\wildcards.cpp" />
-    <ClCompile Include="src\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -101,7 +100,6 @@
   <ItemGroup>
     <ClInclude Include="src\Mail.h" />
     <ClInclude Include="src\Main.h" />
-    <ClInclude Include="src\ZoneUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
