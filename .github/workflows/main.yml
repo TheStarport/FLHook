@@ -22,6 +22,7 @@ jobs:
               clang-format.exe -style=llvm -i source plugins misc FLHookSDK/include
               git status --porcelain source plugins misc FLHookSDK/include 1>&2
               git diff source plugins misc FLHookSDK/include 1>&2
+        shell: cmd
         
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
