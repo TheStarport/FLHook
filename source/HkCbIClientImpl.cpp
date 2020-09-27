@@ -1187,13 +1187,13 @@ bool HkIClientImpl::Startup(uint iDunno, uint iDunno2) {
         bi.iObjectID = base->lSpaceObjID;
         char *szBaseName = "";
         __asm {
-	    pushad
-	    mov ecx, [base]
-	    mov eax, [base]
-	    mov eax, [eax]
-	    call [eax+4]
-	    mov [szBaseName], eax
-	    popad
+            pushad
+            mov ecx, [base]
+            mov eax, [base]
+            mov eax, [eax]
+            call [eax+4]
+            mov [szBaseName], eax
+            popad
         }
 
         bi.scBasename = szBaseName;

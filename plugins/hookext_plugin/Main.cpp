@@ -44,8 +44,7 @@ static PlayerData *CurrPlayer;
 int __stdcall HkCb_UpdateFile(char *filename, wchar_t *savetime, int b) {
     // Call the original save charfile function
     int retv;
-    __asm
-    {
+    __asm {
         pushad
         mov ecx, [CurrPlayer]
         push b

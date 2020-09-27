@@ -114,15 +114,15 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
             HkFMsg(iClientID, wscXML);
         } else {
             __asm {
-            pushad
-            push [pRDL]
-            push [iSize]
-            push [iTo]
-            push [iClientID]
-            mov ecx, [Client]
-            add ecx, 4
-            call [RCSendChatMsg]
-            popad
+                pushad
+                push [pRDL]
+                push [iSize]
+                push [iTo]
+                push [iClientID]
+                mov ecx, [Client]
+                add ecx, 4
+                call [RCSendChatMsg]
+                popad
             }
         }
     }

@@ -282,17 +282,17 @@ static void SpawnSolar(unsigned int &spaceID,
 
         // fill struct
         __asm {
-        pushad
-        lea ecx, packetSolar
-        mov eax, address1
-        call eax
-        push solar
-        lea ecx, packetSolar
-        push ecx
-        mov eax, address2
-        call eax
-        add esp, 8
-        popad
+            pushad
+            lea ecx, packetSolar
+            mov eax, address1
+            call eax
+            push solar
+            lea ecx, packetSolar
+            push ecx
+            mov eax, address2
+            call eax
+            add esp, 8
+            popad
         }
 
         struct PlayerData *pPD = 0;

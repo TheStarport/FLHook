@@ -69,12 +69,12 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1) {
         if (set_iPluginDebug > 2)
             ConPrint(L"HkCb_CrashProc6F8B330(arg1=%08x)\n", arg1);
         __asm {
-        pushad
-        push arg1
-        mov ecx, dwSavedECX
-        call [fpCrashProc6F8B330Old]
-        mov [res], eax
-        popad
+            pushad
+            push arg1
+            mov ecx, dwSavedECX
+            call [fpCrashProc6F8B330Old]
+            mov [res], eax
+            popad
         }
     } catch (...) {
         LOG_EXCEPTION
@@ -97,12 +97,12 @@ void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2) {
             ConPrint(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)\n", arg1,
                      arg2);
         __asm {
-        pushad
-        push arg2
-        push arg1
-        mov ecx, dwSavedECX
-        call [fpCrashProc6F78DD0Old]
-        popad
+            pushad
+            push arg2
+            push arg1
+            mov ecx, dwSavedECX
+            call [fpCrashProc6F78DD0Old]
+            popad
         }
     } catch (...) {
         LOG_EXCEPTION
@@ -121,11 +121,11 @@ void __cdecl HkCb_CrashProc6F671A0(int arg1) {
         if (set_iPluginDebug > 2)
             ConPrint(L"HkCb_CrashProc6F671A0(arg1=%08x)\n", arg1);
         __asm {
-        pushad
-        push arg1
-        call [fpCrashProc6F671A0Old]
-        add esp, 4
-        popad
+            pushad
+            push arg1
+            call [fpCrashProc6F671A0Old]
+            add esp, 4
+            popad
         }
     } catch (...) {
         LOG_EXCEPTION
@@ -166,9 +166,9 @@ const BYTE *__stdcall EngBase124BD_Log(const BYTE *data) {
 
 __declspec(naked) void HkCb_EngBase124BDNaked() {
     __asm {
-        push	eax
-        call	EngBase124BD_Log
-        test	eax, eax
+        push eax
+        call EngBase124BD_Log
+        test eax, eax
         ret
     }
 }
@@ -216,19 +216,19 @@ int HkCb_C4800Hook(int *a1, int *a2, int *zone, double *a4, int a5, int a6) {
         int res;
 
         __asm {
-        pushad
-        push a6
-        push a5
-        push a4
-        push zone
-        push a2
-        push a1
-        mov eax, [hModContentAC]
-        add eax, 0xC4800
-        call eax
-        add esp, 24
-        mov [res], eax
-        popad
+            pushad
+            push a6
+            push a5
+            push a4
+            push zone
+            push a2
+            push a1
+            mov eax, [hModContentAC]
+            add eax, 0xC4800
+            call eax
+            add esp, 24
+            mov [res], eax
+            popad
         }
 
         return res;

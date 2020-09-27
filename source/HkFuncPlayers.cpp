@@ -1132,12 +1132,12 @@ HK_ERROR HkPlayerRecalculateCRC(uint iClientID) {
         PlayerData *pd = &Players[iClientID];
         char *ACCalcCRC = (char *)hModServer + 0x6FAF0;
         __asm {
-        pushad
-        mov ecx, [pd]
-        call[ACCalcCRC]
-        mov ecx, [pd]
-        mov[ecx + 320h], eax
-        popad
+            pushad
+            mov ecx, [pd]
+            call[ACCalcCRC]
+            mov ecx, [pd]
+            mov[ecx + 320h], eax
+            popad
         }
     } catch (...) {
         return HKE_INVALID_CLIENT_ID;
@@ -1447,9 +1447,9 @@ HK_ERROR HkAntiCheat(uint iClientID) {
 
     ////////////////////////// 4
     __asm {
-    mov ecx, [szObjPtr]
-    call [FLAntiCheat4]
-    mov [cRes], al
+        mov ecx, [szObjPtr]
+        call [FLAntiCheat4]
+        mov [cRes], al
     }
 
     if (cRes != 0) { // kick
