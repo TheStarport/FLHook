@@ -42,6 +42,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPC Control", "..\plugins\n
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvP Plugin", "..\plugins\pvp_plugin\pvp_plugin.vcxproj", "{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BountyHunt Plugin", "..\plugins\bountyhunt_plugin\bountyhunt_plugin.vcxproj", "{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -157,6 +159,12 @@ Global
 		{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}.Release|Win32.Build.0 = Release|Win32
 		{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
 		{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}.ReleaseVersion|Win32.Build.0 = Release|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.Debug|Win32.Build.0 = Debug|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.Release|Win32.ActiveCfg = Release|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.Release|Win32.Build.0 = Release|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}.ReleaseVersion|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,6 +187,7 @@ Global
 		{14C91A47-44A3-4D90-99C3-BFFA10491A56} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{8E6A698F-7CE9-46C8-A21C-ADB5D4862895} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{E7F0886B-C9B4-46CB-AFE4-46ED576C083F} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{9CF41A32-523E-4E7F-B941-0B5F9990E0F5} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
