@@ -191,7 +191,7 @@ namespace Message
 	{
 		uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
 		wchar_t wszStyleSmall[32];
-		wcscpy(wszStyleSmall, wscDataFormat.c_str());
+		wcscpy_s(wszStyleSmall, wscDataFormat.c_str());
 		swprintf(wszStyleSmall + wcslen(wszStyleSmall) - 2, sizeof(wszStyleSmall) / sizeof(wchar_t) + wcslen(wszStyleSmall) - 2, L"%02X", 0x90 | (iFormat & 7));
 		return wszStyleSmall;
 	}

@@ -97,7 +97,7 @@ namespace Restart
 			{
 				if (set_bRestartCost)
 				{
-					PrintUserCmdText(iClientID, stows(scFileName) + L" - $" + stows(itos(shipPrices[stows(scFileName)])));
+					PrintUserCmdText(iClientID, stows(scFileName) + L" - $" + std::to_wstring(shipPrices[stows(scFileName)]));
 				}
 				else
 				{
@@ -198,7 +198,7 @@ namespace Restart
 		{
 			if (iCash < shipPrices[wscFaction])
 			{
-				PrintUserCmdText(iClientID, L"You need $" + stows(itos((shipPrices[wscFaction] - iCash))) + L" more credits to use this template");
+				PrintUserCmdText(iClientID, L"You need $" + std::to_wstring(shipPrices[wscFaction] - iCash) + L" more credits to use this template");
 				return true;
 			}
 			restart.iCash = iCash - shipPrices[wscFaction];
@@ -240,7 +240,7 @@ namespace Restart
 				IniWriteW(scCharFile, "Player", "name", restart.wscCharname);
 				IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
 				IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
-				IniWrite(scCharFile, "Player", "money", itos(restart.iCash));
+				IniWrite(scCharFile, "Player", "money", std::to_string(restart.iCash));
 
 				if (!set_bDisableCharfileEncryption)
 					flc_encode(scCharFile.c_str(), scCharFile.c_str());

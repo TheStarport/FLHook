@@ -306,7 +306,8 @@ namespace HkIServerImpl
 
 			std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\banned";
 
-			FILE *file = fopen(path.c_str(), "r");
+			FILE *file;
+			fopen_s(&file, path.c_str(), "r");
 			if (file)
 			{
 				fclose(file);

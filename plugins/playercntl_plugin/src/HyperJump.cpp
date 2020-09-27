@@ -133,7 +133,7 @@ namespace HyperJump
 		for (int i=0; i<HCOORD_SIZE; i++)
 		{
 			if (i!=0 && (i%4)==0) sbuf += L"-";
-			_snwprintf(buf, sizeof(buf), L"%02X", (uchar)ibuf[i]);
+			_snwprintf_s(buf, sizeof(buf), L"%02X", (uchar)ibuf[i]);
 			sbuf += buf;
 		}
 		return sbuf;
@@ -684,7 +684,7 @@ namespace HyperJump
 							HkGetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
 							wscCharFileName += L".fl";
 							CHARACTER_ID cID;
-							strcpy(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
+							strcpy_s(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
 							Server.CharacterSelect(cID, iClientID);\
 						}
 					}
@@ -883,7 +883,7 @@ namespace HyperJump
 					HkGetCharFileName(info.wscCharname,wscCharFileName);
 					wscCharFileName += L".fl";
 					CHARACTER_ID cID;
-					strcpy(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
+					strcpy_s(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
 					Server.CharacterSelect(cID, info.iClientID);\
 				}
 				return true;
@@ -907,7 +907,7 @@ namespace HyperJump
 					HkGetCharFileName(info.wscCharname,wscCharFileName);
 					wscCharFileName += L".fl";
 					CHARACTER_ID cID;
-					strcpy(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
+					strcpy_s(cID.szCharFilename,wstos(wscCharFileName.substr(0,14)).c_str());
 					Server.CharacterSelect(cID, info.iClientID);\
 				}
 				return true;

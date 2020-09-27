@@ -2,7 +2,6 @@
 // By Raikkonen
 
 #include <FLHook.h>
-#include "PluginUtilities.h"
 #include "Main.h"
 
 namespace Wardrobe
