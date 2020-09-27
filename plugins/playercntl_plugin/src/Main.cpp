@@ -5,7 +5,7 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-// includes 
+// includes
 #include <windows.h>
 #include <stdio.h>
 #include <string>
@@ -18,9 +18,6 @@
 #include <list>
 #include <set>
 
-
-#include "PluginUtilities.h"
-#include "ZoneUtilities.h"
 #include "CrashCatcher.h"
 #include "Main.h"
 #include "StartupCache.h"
@@ -73,7 +70,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	if(fdwReason == DLL_PROCESS_ATTACH)
 	{
 		if (set_scCfgFile.length()>0)
-			LoadSettings();	
+			LoadSettings();
 		HkLoadStringDLLs();
 	}
 	else if (fdwReason == DLL_PROCESS_DETACH)
@@ -115,13 +112,13 @@ void LoadSettings()
 	set_bEnableLoginSound = IniGetB(scPluginCfgFile, "General", "EnableLoginSound", false);
 	set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", false);
 	set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", false);
-	
+
 	set_fSpinProtectMass = IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
 	set_fSpinImpulseMultiplier = IniGetF(scPluginCfgFile, "General", "SpinProtectionMultiplier", -1.0f);
 
 	set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
 
-	ZoneUtilities::ReadUniverse();
+	ZoneUtilities::ReadUniverse(nullptr);
 	EquipmentUtilities::ReadIniNicknames();
 	Rename::LoadSettings(scPluginCfgFile);
 	GiveCash::LoadSettings(scPluginCfgFile);
@@ -191,7 +188,7 @@ void HkTimer()
 void SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
 {
 	returncode = NOFUNCTIONCALL;
-	
+
 	HyperJump::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 	CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
 	Message::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
@@ -200,7 +197,7 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim
 	const wchar_t *killer = (const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller);
 	if (victim && killer)
 	{
-		AddLog("NOTICE: Death charname=%s killername=%s system=%08x", 
+		AddLog("NOTICE: Death charname=%s killername=%s system=%08x",
 			wstos(victim).c_str(), wstos(killer).c_str(), iSystem);
 	}
 }
@@ -211,7 +208,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmgList, unsigned short p1, float p2
 }
 
 static bool IsDockingAllowed(uint iShip, uint iDockTarget, uint iClientID)
-{	
+{
 	// If the player's rep is less/equal -0.55 to the owner of the station
 	// then refuse the docking request
 	int iSolarRep;
@@ -230,7 +227,7 @@ static bool IsDockingAllowed(uint iShip, uint iDockTarget, uint iClientID)
 			L"Access Denied! Docking request rejected. Your papers are no good.",
 			L"Access Denied! You can't dock here. Your reputation stinks."
 		};
-		PrintUserCmdText(iClientID, wscMsg[rand()%3]);			
+		PrintUserCmdText(iClientID, wscMsg[rand()%3]);
 		return false;
 	}
 
@@ -260,7 +257,7 @@ namespace HkIEngine
 				// Print out a message when a player ship docks.
 				std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
 				wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(iClientID));
-				PrintLocalUserCmdText(iClientID, wscMsg, 15000);			
+				PrintLocalUserCmdText(iClientID, wscMsg, 15000);
 			}
 		}
 
@@ -300,17 +297,17 @@ namespace HkIServerImpl
 		{
 			std::wstring wscDir;
 			HkGetAccountDirName(acc, wscDir);
-			
+
 			char szDataPath[MAX_PATH];
 			GetUserDataPath(szDataPath);
-	
+
 			std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\banned";
 
 			FILE *file = fopen(path.c_str(), "r");
 			if (file)
 			{
 				fclose(file);
-			
+
 				// Ban the player
 				st6::wstring flStr((ushort*)acc->wszAccID);
 				Players.BanAccount(flStr, true);
@@ -333,14 +330,14 @@ namespace HkIServerImpl
 			Server.CharacterInfoReq(iClientID, true);
 		}
 	}
-	
+
 	void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip, unsigned int iDockTarget, unsigned int p4, unsigned long p5, unsigned int iClientID)
 	{
 		returncode = DEFAULT_RETURNCODE;
 		if (iClientID)
 		{
 			if (!iIsFormationRequest)
-			{ 
+			{
 				uint iTargetTypeID;
 				pub::SpaceObj::GetType(iDockTarget, iTargetTypeID);
 				if (iTargetTypeID==OBJ_DOCKING_RING || iTargetTypeID==OBJ_STATION)
@@ -371,7 +368,7 @@ namespace HkIServerImpl
 	}
 
 	void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID)
-	{		
+	{
 		returncode = DEFAULT_RETURNCODE;
 	}
 
@@ -416,7 +413,7 @@ namespace HkIServerImpl
 		ClearClientInfo(iClientID);
 		Rename::CharacterSelect_AFTER(charId, iClientID);
 	}
-	
+
 	void __stdcall JumpInComplete_AFTER(unsigned int iSystem, unsigned int iShip)
 	{
 		returncode = DEFAULT_RETURNCODE;
@@ -467,7 +464,7 @@ namespace HkIServerImpl
 		// Don't do spin protect unless the hit ship is big
 		if (target_mass < set_fSpinProtectMass)
 			return;
-		
+
 		// Don't do spin protect unless the hit ship is 2 times larger than the hitter
 		if (target_mass < client_mass*2)
 			return;
@@ -601,7 +598,7 @@ namespace HkIServerImpl
 	{
 		returncode = DEFAULT_RETURNCODE;
 
-		// If we're in a base then reset the base kick time if the 
+		// If we're in a base then reset the base kick time if the
 		// player is chatting to stop the player being kicked.
 		if (ClientInfo[cId.iID].iBaseEnterTime)
 		{
@@ -804,7 +801,7 @@ USERCMD UserCmds[] =
 
 /**
 This function is called by FLHook when a user types a chat std::string. We look at the
-std::string they've typed and see if it starts with one of the above commands. If it 
+std::string they've typed and see if it starts with one of the above commands. If it
 does we try to process it.
 */
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd)
@@ -856,7 +853,7 @@ std::list<uint> npcs;
 
 void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 {
-	returncode = DEFAULT_RETURNCODE; 
+	returncode = DEFAULT_RETURNCODE;
 	PrintUserCmdText(iClientID, L"/pos");
 	PrintUserCmdText(iClientID, L"/stuck");
 	PrintUserCmdText(iClientID, L"/droprep");
@@ -922,7 +919,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	pub::AI::SetPersonalityParams p;
 	p.iStateGraph = pub::StateGraph::get_state_graph("FIGHTER", pub::StateGraph::TYPE_STANDARD);
 	p.bStateID = true;
-	
+
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[0] = 0.4f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[1] = 0.0f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[2] = 0.4f;
@@ -943,7 +940,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[1] = 0.25f;
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[2] = 0.25f;
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[3] = 0.25f;
-	
+
 	p.personality.EvadeBreakUse.evade_break_roll_throttle = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_time = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_interval_time = 10.0f;
@@ -956,7 +953,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.EvadeBreakUse.evade_break_style_weight[0] = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_style_weight[1] = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_style_weight[2] = 1.0f;
-	
+
 	p.personality.BuzzHeadTowardUse.buzz_min_distance_to_head_toward = 500.0f;
 	p.personality.BuzzHeadTowardUse.buzz_min_distance_to_head_toward_variance_percent = 0.25f;
 	p.personality.BuzzHeadTowardUse.buzz_max_time_to_head_away = 1.0f;
@@ -977,7 +974,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[0] = 0.33f;
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[1] = 0.33f;
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[2] = 0.33f;
-	
+
 	p.personality.BuzzPassByUse.buzz_distance_to_pass_by = 1000.0f;
 	p.personality.BuzzPassByUse.buzz_pass_by_time = 1.0f;
 	p.personality.BuzzPassByUse.buzz_break_direction_cone_angle = 1.5708f;
@@ -988,7 +985,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.BuzzPassByUse.buzz_break_direction_weight[2] = 1.0f;
 	p.personality.BuzzPassByUse.buzz_break_direction_weight[3] = 1.0f;
 	p.personality.BuzzPassByUse.buzz_pass_by_style_weight[2] = 1.0f;
-	
+
 	p.personality.TrailUse.trail_lock_cone_angle = 0.0873f;
 	p.personality.TrailUse.trail_break_time = 0.5f;
 	p.personality.TrailUse.trail_min_no_lock_time = 0.1f;
@@ -996,23 +993,23 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.TrailUse.trail_break_afterburner = true;
 	p.personality.TrailUse.trail_max_turn_throttle = 1.0f;
 	p.personality.TrailUse.trail_distance = 100.0f;
-	
+
 	p.personality.StrafeUse.strafe_run_away_distance = 100.0f;
 	p.personality.StrafeUse.strafe_attack_throttle = 1.0f;
-	
+
 	p.personality.EngineKillUse.engine_kill_search_time = 0.0f;
 	p.personality.EngineKillUse.engine_kill_face_time = 1.0f;
 	p.personality.EngineKillUse.engine_kill_use_afterburner = true;
 	p.personality.EngineKillUse.engine_kill_afterburner_time = 2.0f;
 	p.personality.EngineKillUse.engine_kill_max_target_distance = 100.0f;
-	
+
 	p.personality.RepairUse.use_shield_repair_pre_delay = 0.0f;
 	p.personality.RepairUse.use_shield_repair_post_delay = 1.0f;
 	p.personality.RepairUse.use_shield_repair_at_damage_percent = 0.2f;
 	p.personality.RepairUse.use_hull_repair_pre_delay = 0.0f;
 	p.personality.RepairUse.use_hull_repair_post_delay = 1.0f;
 	p.personality.RepairUse.use_hull_repair_at_damage_percent = 0.2f;
-	
+
 	p.personality.GunUse.gun_fire_interval_time = 0.0f;
 	p.personality.GunUse.gun_fire_interval_variance_percent = 0.0f;
 	p.personality.GunUse.gun_fire_burst_interval_time = 2.0f;
@@ -1029,17 +1026,17 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.GunUse.auto_turret_burst_interval_variance_percent = 0.0f;
 	p.personality.GunUse.gun_range_threshold_variance_percent = 0.3f;
 	p.personality.GunUse.gun_fire_accuracy_power_npc = 100.0f;
-	
+
 	p.personality.MineUse.mine_launch_interval = 8.0f;
 	p.personality.MineUse.mine_launch_cone_angle = 0.7854f;
 	p.personality.MineUse.mine_launch_range = 200.0f;
-	
+
 	p.personality.MissileUse.missile_launch_interval_time = 0.0f;
 	p.personality.MissileUse.missile_launch_interval_variance_percent = 0.5f;
 	p.personality.MissileUse.missile_launch_range = 800.0f;
 	p.personality.MissileUse.missile_launch_cone_angle = 0.01745f;
 	p.personality.MissileUse.missile_launch_allow_out_of_range = false;
-	
+
 	p.personality.DamageReaction.evade_break_damage_trigger_percent = 1.0f;
 	p.personality.DamageReaction.evade_dodge_more_damage_trigger_percent = 0.25f;
 	p.personality.DamageReaction.engine_kill_face_damage_trigger_percent = 1.0f;
@@ -1055,15 +1052,15 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.DamageReaction.fire_guns_damage_trigger_time = 1.0f;
 	p.personality.DamageReaction.fire_missiles_damage_trigger_percent = 1.0f;
 	p.personality.DamageReaction.fire_missiles_damage_trigger_time = 1.0f;
-	
+
 	p.personality.MissileReaction.evade_missile_distance = 800.0f;
 	p.personality.MissileReaction.evade_break_missile_reaction_time = 1.0f;
 	p.personality.MissileReaction.evade_slide_missile_reaction_time = 1.0f;
 	p.personality.MissileReaction.evade_afterburn_missile_reaction_time = 1.0f;
-	
+
 	p.personality.CountermeasureUse.countermeasure_active_time = 5.0f;
 	p.personality.CountermeasureUse.countermeasure_unactive_time = 0.0f;
-	
+
 	p.personality.FormationUse.force_attack_formation_active_time = 0.0f;
 	p.personality.FormationUse.force_attack_formation_unactive_time = 0.0f;
 	p.personality.FormationUse.break_formation_damage_trigger_percent = 0.01f;
@@ -1076,7 +1073,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.FormationUse.formation_exit_roll_outrun_throttle = 1.0f;
 	p.personality.FormationUse.formation_exit_max_time = 5.0f;
 	p.personality.FormationUse.formation_exit_mode = 1;
-	
+
 	p.personality.Job.wait_for_leader_target = false;
 	p.personality.Job.maximum_leader_target_distance = 3000;
 	p.personality.Job.flee_when_leader_flees_style = false;
@@ -1095,7 +1092,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 	p.personality.Job.attack_order[0].type = 11;
 	p.personality.Job.attack_order[0].flag = 15;
 	p.personality.Job.attack_order[1].type = 12;
-	
+
 	return p;
 }
 
@@ -1185,41 +1182,41 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring &wscCmd)
 	}
 	else if (IS_CMD("pm") || IS_CMD("privatemsg"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		Message::AdminCmd_SendMail(cmds, cmds->ArgCharname(1), cmds->ArgStrToEnd(2));
 		return true;
 	}
 	else if (IS_CMD("pm") || IS_CMD("privatemsg"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		Message::AdminCmd_SendMail(cmds, cmds->ArgCharname(1), cmds->ArgStrToEnd(2));
 		return true;
 	}
 	else if (IS_CMD("showtags"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		Rename::AdminCmd_ShowTags(cmds);
 		return true;
 	}
 	else if (IS_CMD("addtag"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		Rename::AdminCmd_AddTag(cmds, cmds->ArgStr(1), cmds->ArgStr(2), cmds->ArgStrToEnd(3));
 		return true;
 	}
 	else if (IS_CMD("droptag"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		Rename::AdminCmd_DropTag(cmds, cmds->ArgStr(1));
 		return true;
 	}
 	else if (IS_CMD("jumptest"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL; 
+		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 		HyperJump::AdminCmd_JumpTest(cmds, cmds->ArgStr(1));
 		return true;
 	}
-	
+
 	/*
 	else if (IS_CMD("aievade"))
 	{
@@ -1302,7 +1299,7 @@ void CmdHelp_Callback(CCmds* classptr)
 	classptr->Print(L"setaccmovecode <charname> <code>\n");
 	classptr->Print(L"rotatelogs\n");
 	classptr->Print(L"privatemsg|pm <charname> <message>\n");
-	
+
 	classptr->Print(L"showtags\n");
 	classptr->Print(L"addtag <tag> <password>\n");
 	classptr->Print(L"droptag <tag> <password>\n");

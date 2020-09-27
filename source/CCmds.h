@@ -108,8 +108,6 @@ public:
 	void CmdPausePlugin(const std::wstring &wscPlugin);
 	void CmdUnpausePlugin(const std::wstring &wscPlugin);
 
-	void CmdTest(int iArg, int iArg2, int iArg3);
-//
 	EXPORT std::wstring ArgCharname(uint iArg);
 	EXPORT int ArgInt(uint iArg);
 	EXPORT uint ArgUInt(uint iArg);

@@ -29,7 +29,7 @@ void SendSetBaseInfoText2(UINT client, const std::wstring &message)
 void SendSetOverrideSystem(UINT client, UINT iSystemID, UINT iVirtualBaseID)
 {
 	wchar_t buf[200];
-	_snwprintf(buf, sizeof(buf), L" SetOverrideSystem %u %u", iSystemID, iVirtualBaseID);
+	_snwprintf_s(buf, sizeof(buf), L" SetOverrideSystem %u %u", iSystemID, iVirtualBaseID);
 	SendCommand(client, buf);
 }
 

@@ -473,12 +473,12 @@ void CCmds::CmdGetPlayerIDs()
 	for(auto& p : HkGetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
+		swprintf_s(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
 		if((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine)/2)	{
 			Print(L"%s\n", wszLine);
-			wcscpy(wszLine, wszBuf);
+			wcscpy_s(wszLine, wszBuf);
 		} else
-			wcscat(wszLine, wszBuf);
+			wcscat_s(wszLine, wszBuf);
 	}
 
 	if(wcslen(wszLine))
@@ -592,7 +592,7 @@ void CCmds::CmdServerInfo()
 	iUptime %= (60);
 	uint iSeconds = iUptime;
 	wchar_t wszUptime[16];
-	swprintf(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
+	swprintf_s(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
 	
 	// print
 	Print(L"serverload=%d npcspawn=%s uptime=%s\nOK\n", g_iServerLoad, g_bNPCDisabled ? L"disabled" : L"enabled", wszUptime);
@@ -847,14 +847,6 @@ void CCmds::CmdHelp()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdTest(int iArg, int iArg2, int iArg3)
-{
-	HkTest(iArg, iArg2, iArg3);
-	Print(L"OK\n");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::wstring CCmds::ArgCharname(uint iArg)
 {
 	std::wstring wscArg = GetParam(wscCurCmdString, ' ', iArg);
@@ -883,7 +875,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			iClientID = HkGetClientIDByShip(iTarget);
 			if (!iClientID)
 				return L"";
-			return L"id " + stows(itos(iClientID));
+			return L"id " + std::to_wstring(iClientID);
 		}
 	}
 	
@@ -908,7 +900,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			iClientID = HkGetClientIDByShip(iTarget);
 			if (!iClientID)
 				return L"";
-			return L"id " + stows(itos(iClientID));
+			return L"id " + std::to_wstring(iClientID);
 		}
 		else
 			return wscArg;
@@ -1162,8 +1154,6 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr)
 				CmdRehash();
 			} else if(IS_CMD("help")) {
 				CmdHelp();
-			} else if(IS_CMD("test")) {
-				CmdTest(ArgInt(1), ArgInt(2), ArgInt(3));
 			} else {
 				Print(L"ERR unknown command\n");
 			}
@@ -1263,7 +1253,7 @@ void CCmds::Print(std::wstring wscText, ...)
 	va_list marker;
 	va_start(marker, wscText);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	DoPrint(wszBuf);
 }

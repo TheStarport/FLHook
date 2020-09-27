@@ -16,6 +16,7 @@ Connecticut Plugin by MadHunter
 #include <plugin.h>
 #include "../hookext_plugin/hookext_exports.h"
 #include <math.h>
+#include <plugin_comms.h>
 
 #define CLIENT_STATE_NONE		0
 #define CLIENT_STATE_TRANSFER	1
@@ -171,7 +172,7 @@ void MoveClient(unsigned int client, unsigned int targetBase)
 		HkGetCharFileName(ARG_CLIENTID(client), wscCharFileName);
 		wscCharFileName += L".fl";
 		CHARACTER_ID cID;
-		strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+		strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
 		Server.CharacterSelect(cID, client);
 	}
 }

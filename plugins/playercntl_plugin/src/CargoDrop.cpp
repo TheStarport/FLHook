@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 namespace CargoDrop
@@ -121,7 +121,7 @@ namespace CargoDrop
 
 				if (!iter.second.bF1DisconnectProcessed)
 				{
-					iter.second.bF1DisconnectProcessed = true;			
+					iter.second.bF1DisconnectProcessed = true;
 
 					// Send disconnect report to all ships in scanner range.
 					if (set_bReportDisconnectingPlayers)
@@ -138,7 +138,7 @@ namespace CargoDrop
 						uint iSystem = 0;
 						pub::Player::GetSystem(iClientID, iSystem);
 						uint iShip = 0;
-						pub::Player::GetShip(iClientID, iShip);  
+						pub::Player::GetShip(iClientID, iShip);
 						Vector vLoc = { 0.0f, 0.0f, 0.0f };
 						Matrix mRot = { 0.0f, 0.0f, 0.0f };
 						pub::SpaceObj::GetLocation(iShip, vLoc, mRot);
@@ -176,7 +176,7 @@ namespace CargoDrop
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath one.
 	/// Drop a percentage of cargo + some loot representing ship bits.
 	void CargoDrop::SendDeathMsg(const std::wstring &wscMsg, uint iSystem, uint iClientIDVictim, uint iClientIDKiller)
-	{	
+	{
 		// If player ship loot dropping is enabled then check for a loot drop.
 		if (set_fHullFct==0.0f)
 			return;
@@ -198,8 +198,8 @@ namespace CargoDrop
 		int iHullDrop = (int)(set_fHullFct*(float)iShipSizeEst);
 		if (iHullDrop>0)
 		{
-			uint iShip; 
-			pub::Player::GetShip(iClientIDVictim, iShip);  
+			uint iShip;
+			pub::Player::GetShip(iClientIDVictim, iShip);
 			Vector myLocation;
 			Matrix myRot;
 			pub::SpaceObj::GetLocation(iShip, myLocation, myRot);

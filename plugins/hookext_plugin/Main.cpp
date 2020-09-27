@@ -67,7 +67,8 @@ int __stdcall HkCb_UpdateFile(char *filename, wchar_t *savetime, int b)
 		uint client = CurrPlayer->iOnlineID;
 
 		std::string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
-		FILE *file = fopen(path.c_str(), "a");
+		FILE *file;
+	    fopen_s(&file, path.c_str(), "a");
 		if (file)
 		{
 			fprintf(file, "[flhook]\n");
@@ -149,7 +150,7 @@ void LoadSettings()
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::string filename = GetCharfilename(charname) + ".fl";
 		CHARACTER_ID charid;
-		strcpy(charid.szCharFilename, filename.c_str());
+		strcpy_s(charid.szCharFilename, filename.c_str());
 		CharacterSelect(charid,client);
 	}
 }
@@ -217,7 +218,7 @@ namespace HookExt
 		std::wstring value;
 		long lHiByte;
 		long lLoByte;
-		while(sscanf(svalue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+		while(sscanf_s(svalue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 		{
 			svalue = svalue.substr(4);
 			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
@@ -259,7 +260,7 @@ namespace HookExt
 			char cHiByte = value[i] >> 8;
 			char cLoByte = value[i] & 0xFF;
 			char szBuf[8];
-			sprintf(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+			sprintf_s(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
 			svalue += szBuf;
 		}
 
@@ -269,7 +270,7 @@ namespace HookExt
 	EXPORT void IniSetI(uint client, const std::string &name, uint value)
 	{
 		char svalue[100];
-		sprintf(svalue, "%u", value);
+		sprintf_s(svalue, "%u", value);
 		HookExt::IniSetS(client, name, svalue);
 	}
 
@@ -282,7 +283,7 @@ namespace HookExt
 	EXPORT void IniSetF(uint client, const std::string &name, float value)
 	{
 		char svalue[100];
-		sprintf(svalue, "%0.02f", value);
+		sprintf_s(svalue, "%0.02f", value);
 		HookExt::IniSetS(client, name, svalue);
 	}
 
@@ -316,7 +317,7 @@ namespace HookExt
 			char cHiByte = value[i] >> 8;
 			char cLoByte = value[i] & 0xFF;
 			char szBuf[8];
-			sprintf(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+			sprintf_s(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
 			svalue += szBuf;
 		}
 
@@ -326,7 +327,7 @@ namespace HookExt
 	EXPORT void IniSetI(const std::wstring &charname, const std::string &name, uint value)
 	{
 		char svalue[100];
-		sprintf(svalue, "%u", value);
+		sprintf_s(svalue, "%u", value);
 		HookExt::IniSetS(charname, name, svalue);
 	}
 
@@ -339,7 +340,7 @@ namespace HookExt
 	EXPORT void IniSetF(const std::wstring &charname, const std::string &name, float value)
 	{
 		char svalue[100];
-		sprintf(svalue, "%0.02f", value);
+		sprintf_s(svalue, "%0.02f", value);
 		HookExt::IniSetS(charname, name, svalue);
 	}
 }

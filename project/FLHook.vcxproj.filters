@@ -117,6 +117,8 @@
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
+    <ClCompile Include="..\source\Exceptions.cpp" />
+    <ClCompile Include="..\source\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -127,9 +129,6 @@
     </ClInclude>
     <ClInclude Include="..\source\wildcards.hh">
       <Filter>wildcards</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\flhookplugin_sdk\headers\plugin.h">
-      <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\CCmds.h">
       <Filter>AdminCommands</Filter>
@@ -174,6 +173,13 @@
     <ClInclude Include="..\FLHookSDK\include\FLHook.h">
       <Filter>sdk</Filter>
     </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\plugin.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\ExceptionInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

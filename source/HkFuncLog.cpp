@@ -10,20 +10,21 @@ void AddDebugLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
 	if (fLogDebug)
 	{
 		if (ftell(fLogDebug) > ((int)set_iDebugMaxSize << 10)) {
 			fclose(fLogDebug);
 			_unlink(sDebugLog.c_str());
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
+			fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
 		}
 
 		char szBuf[64];
 		time_t tNow = time(0);
-		struct tm *t = localtime(&tNow);
-		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+		tm t;
+	    localtime_s(&t, &tNow);
+		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
 		fprintf(fLogDebug, "[%s] %s\n", szBuf, szBufString);
 		fflush(fLogDebug);
 	}
@@ -44,14 +45,15 @@ void AddLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
 	if (fLog)
 	{
 		char szBuf[64];
 		time_t tNow = time(0);
-		struct tm *t = localtime(&tNow);
-		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+		tm t;
+	    localtime_s(&t, &tNow);
+		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
 		fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
 		fflush(fLog);
 	}
@@ -69,7 +71,7 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
 	va_list marker;
 	va_start(marker, wscReason);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 	
 	HkAddCheaterLog(iClientID, wszBuf);
 
@@ -78,7 +80,7 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
 		std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		wchar_t wszBuf2[500];
-		swprintf(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
+		swprintf_s(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
 		HkMsgU(wszBuf2);
 	}
 
@@ -92,7 +94,8 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
 
 bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscReason)
 {
-	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_cheaters.log"), "at");
 	if(!f)
 		return false;
 
@@ -115,10 +118,11 @@ bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscRea
 	}
 	
 
-	time_t tNow = time(0);
-	struct tm *stNow = localtime(&tNow);
+	time_t tNow = time(nullptr);
+	tm stNow;
+    localtime_s(&stNow, &tNow);
 	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by %s(%s)(%s) [%s %s]\n",
-		stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
+		stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900, stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
 	fclose(f);
 	return true;
 }
@@ -127,7 +131,8 @@ bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscRea
 
 bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason)
 {
-	FILE *f = fopen(("./flhook_logs/flhook_cheaters.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_cheaters.log"), "at");
 	if(!f)
 		return false;
 
@@ -153,9 +158,10 @@ bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason)
 	}
 
 	time_t tNow = time(0);
-	struct tm *stNow = localtime(&tNow);
+	tm stNow;
+    localtime_s(&stNow, &tNow);
 	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by %s(%s)(%s) [%s %s]\n",
-		stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
+		stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900, stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wscReason).c_str(), wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(), wstos(wscIp).c_str());
 	fclose(f);
 	return true;
 }
@@ -168,9 +174,10 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 	va_list marker;
 	va_start(marker, wscReason);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_kicks.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_kicks.log"), "at");
 	if(!f)
 		return false;
 
@@ -183,8 +190,9 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 	HkGetAccountDirName(acc, wscAccountDir);
 
 	time_t tNow = time(0);
-	struct tm *stNow = localtime(&tNow);
-	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Kick (%s): %s(%s)(%s)\n", stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wszBuf).c_str(), wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(HkGetAccountID(acc)).c_str());
+	tm stNow;
+    localtime_s(&stNow, &tNow);
+	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Kick (%s): %s(%s)(%s)\n", stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900, stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wszBuf).c_str(), wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(HkGetAccountID(acc)).c_str());
 	fclose(f);
 	return true;
 }
@@ -197,9 +205,10 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 	va_list marker;
 	va_start(marker, wscReason);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_connects.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_connects.log"), "at");
 	if(!f)
 		return false;
 
@@ -212,8 +221,9 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 	HkGetAccountDirName(acc, wscAccountDir);
 
 	time_t tNow = time(0);
-	struct tm *stNow = localtime(&tNow);
-	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Connect (%s): %s(%s)(%s)\n", stNow->tm_mon + 1, stNow->tm_mday, stNow->tm_year + 1900, stNow->tm_hour, stNow->tm_min, stNow->tm_sec, wstos(wszBuf).c_str(), wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(HkGetAccountID(acc)).c_str());
+	tm stNow;
+    localtime_s(&stNow, &tNow);
+	fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Connect (%s): %s(%s)(%s)\n", stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900, stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wszBuf).c_str(), wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(), wstos(HkGetAccountID(acc)).c_str());
 	fclose(f);
 	return true;
 }
@@ -226,12 +236,13 @@ static void AddLog(FILE* fLog, const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
 	char szBuf[64];
 	time_t tNow = time(0);
-	struct tm *t = localtime(&tNow);
-	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", t);
+	tm t;
+    localtime_s(&t, &tNow);
+	strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
 	fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
 	fflush(fLog);
 }
@@ -243,9 +254,10 @@ void HkAddAdminCmdLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_admincmds.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_admincmds.log"), "at");
 	if(!f)
 		return;
 
@@ -262,9 +274,10 @@ void HkAddSocketCmdLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_socketcmds.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_socketcmds.log"), "at");
 	if(!f)
 		return;
 
@@ -281,9 +294,10 @@ void HkAddUserCmdLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_usercmds.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_usercmds.log"), "at");
 	if(!f)
 		return;
 
@@ -300,9 +314,10 @@ void HkAddPerfTimerLog(const char *szString, ...)
 	char szBufString[1024];
 	va_list marker;
 	va_start(marker, szString);
-	_vsnprintf(szBufString, sizeof(szBufString)-1, szString, marker);
+	_vsnprintf_s(szBufString, sizeof(szBufString)-1, szString, marker);
 
-	FILE *f = fopen(("./flhook_logs/flhook_perftimers.log"), "at");
+	FILE *f;
+    fopen_s(&f, ("./flhook_logs/flhook_perftimers.log"), "at");
 	if(!f)
 		return;
 

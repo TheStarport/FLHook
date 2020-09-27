@@ -49,36 +49,6 @@ std::multimap<UINT, NPC_MISSION> set_mapNpcMissions;
 // A return code to indicate to FLHook if we want the hook processing to continue.
 PLUGIN_RETURNCODE returncode;
 
-std::string VectorToSectorCoord(uint iSystemID, Vector vPos)
-{
-	float scale = 1.0;
-	const Universe::ISystem *iSystem = Universe::get_system(iSystemID);
-	if (iSystem)
-		scale = iSystem->NavMapScale;
-
-	float fGridsize = 34000.0f / scale;
-	int gridRefX = (int)((vPos.x + (fGridsize * 5)) / fGridsize) - 1;
-	int gridRefZ = (int)((vPos.z + (fGridsize * 5)) / fGridsize) - 1;
-
-	std::string scXPos = "X";
-	if (gridRefX >= 0 && gridRefX < 8)
-	{
-		char* gridXLabel[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
-		scXPos = gridXLabel[gridRefX];
-	}
-
-	std::string scZPos = "X";
-	if (gridRefZ >= 0 && gridRefZ < 8)
-	{
-		char* gridZLabel[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
-		scZPos = gridZLabel[gridRefZ];
-	}
-
-	char szCurrentLocation[100];
-	_snprintf(szCurrentLocation, sizeof(szCurrentLocation), "%s-%s", scXPos.c_str(), scZPos.c_str());
-	return szCurrentLocation;
-}
-
 void LoadSettings()
 {
 	// The path to the configuration file.
@@ -189,7 +159,8 @@ void HkTimerCheckKick()
 		GetUserDataPath(szDataPath);
 		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";	
 
-		FILE *file = fopen(scStatsPath.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, scStatsPath.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "[Missions]\n");
@@ -224,7 +195,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill)
 		pub::SpaceObj::GetSystem(cship->get_id(), iSystem);
 
 		Vector vPos = cship->get_position();
-		std::string scSector = VectorToSectorCoord(iSystem, vPos);
+		std::string scSector = VectorToSectorCoord<std::string>(iSystem, vPos);
 
 		auto start = set_mapNpcMissions.lower_bound(iAff);
 		auto end = set_mapNpcMissions.upper_bound(iAff);

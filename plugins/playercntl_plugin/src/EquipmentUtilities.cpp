@@ -8,7 +8,7 @@
 #include "Main.h"
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
+
 
 /// A map of hashcode and their associated nicknames.
 static std::map<uint, std::string> mapHashToNickname;

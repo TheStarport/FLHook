@@ -12,7 +12,7 @@
 #include <fstream>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
+
 
 static int set_iPluginDebug = 0;
 PLUGIN_RETURNCODE returncode;

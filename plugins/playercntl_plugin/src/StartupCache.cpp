@@ -21,13 +21,13 @@
 #include <set>
 
 #include "Main.h"
-#include "PluginUtilities.h"
+
 
 namespace StartupCache
 {
 	// The number of characters loaded.
 	static int chars_loaded = 0;
-	
+
 	// The original function read charname function
 	typedef int (__stdcall *_ReadCharacterName)(const char *filename, st6::wstring *str);
 	_ReadCharacterName ReadCharName;
@@ -58,7 +58,7 @@ namespace StartupCache
 
 		// Otherwise use the original FL function to load the char name
 		// and cache the result and report that this is an uncached file
-		ReadCharName(filename, str);	
+		ReadCharName(filename, str);
 		cache[acc_path] = std::wstring((wchar_t*)str->c_str());
 		return 1;
 	}
@@ -76,7 +76,8 @@ namespace StartupCache
 		std::string scPath = scBaseAcctPath + "namecache.bin";
 
 		ConPrint(L"Loading character name cache\n");
-		FILE *file = fopen(scPath.c_str(), "rb");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "rb");
 		if (file)
 		{
 			NAMEINFO ni;
@@ -92,11 +93,12 @@ namespace StartupCache
 	}
 
 	static void SaveCache()
-	{	
+	{
 		// Save the name cache file
 		std::string scPath = scBaseAcctPath + "namecache.bin";
 
-		FILE *file = fopen(scPath.c_str(), "wb");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "wb");
 		if (file)
 		{
 			ConPrint(L"Saving character name cache\n");
@@ -107,7 +109,7 @@ namespace StartupCache
 				strncpy_s(ni.acc_path, 27, i->first.c_str(), i->first.size());
 				wcsncpy_s(ni.name, 25, i->second.c_str(), i->second.size());
 				if (!fwrite(&ni, sizeof(NAMEINFO), 1, file))
-				{			
+				{
 					ConPrint(L"ERROR: Saving character name cache failed\n");
 					break;
 				}
@@ -115,7 +117,7 @@ namespace StartupCache
 			fclose(file);
 			ConPrint(L"Saved %d names\n", cache.size());
 		}
-		
+
 		cache.clear();
 	}
 
@@ -129,8 +131,8 @@ namespace StartupCache
 		}
 
 		// Hook the read character name and replace it with the caching version
-		PatchCallAddr((char*)hModServer, 0x717be, (char*)HkCb_ReadCharacterName); 
-	
+		PatchCallAddr((char*)hModServer, 0x717be, (char*)HkCb_ReadCharacterName);
+
 		// Keep a reference to the old read character name function.
 		ReadCharName = (_ReadCharacterName) ((char*)hModServer + 0x72fe0);
 

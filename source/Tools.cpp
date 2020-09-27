@@ -1,6 +1,7 @@
 #include <time.h>
 #include "global.h"
 #include "hook.h"
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,33 +29,18 @@ std::string wstos(const std::wstring &wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string itos(int i)
+std::wstring ToLower(std::wstring wscStr)
 {
-	char szBuf[16];
-	sprintf(szBuf, "%d", i);
-	return szBuf;
+	std::transform(wscStr.begin(), wscStr.end(), wscStr.begin(), towlower);
+	return wscStr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring ToLower(const std::wstring &wscStr)
+std::string ToLower(std::string scStr)
 {
-	std::wstring wscResult;
-	for(uint i = 0; (i < wscStr.length()); i++)
-		wscResult += towlower(wscStr[i]);
-
-	return wscResult;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string ToLower(const std::string &scStr)
-{
-	std::string scResult;
-	for(uint i = 0; (i < scStr.length()); i++)
-		scResult += tolower(scStr[i]);
-
-	return scResult;
+	std::transform(scStr.begin(), scStr.end(), scStr.begin(), tolower);
+	return scStr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,6 +65,15 @@ float ToFloat(const std::wstring &wscStr)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string itohexs(uint value)
+{
+	char buf[16];
+	sprintf_s(buf, "%08X", value);
+	return buf;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 999.999.999
 
 std::wstring ToMoneyStr(int iCash)
@@ -89,11 +84,11 @@ std::wstring ToMoneyStr(int iCash)
 	wchar_t wszBuf[32];
 
 	if(iMillions)
-		swprintf(wszBuf, L"%d.%.3d.%.3d", iMillions, abs(iThousands), abs(iRest));
+		swprintf_s(wszBuf, L"%d.%.3d.%.3d", iMillions, abs(iThousands), abs(iRest));
 	else if(iThousands)
-		swprintf(wszBuf, L"%d.%.3d", iThousands, abs(iRest));
+		swprintf_s(wszBuf, L"%d.%.3d", iThousands, abs(iRest));
 	else
-		swprintf(wszBuf, L"%d", iRest);
+		swprintf_s(wszBuf, L"%d", iRest);
 
 	return wszBuf;
 }
@@ -120,7 +115,7 @@ float IniGetF(const std::string &scFile, const std::string &scApp, const std::st
 {
 	char szRet[2048*2];
 	char szDefault[16];
-	sprintf(szDefault, "%f", fDefault);
+	sprintf_s(szDefault, "%f", fDefault);
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), szDefault, szRet, sizeof(szRet), scFile.c_str());
 	return (float)atof(szRet);
 }
@@ -150,7 +145,7 @@ void IniWriteW(const std::string &scFile, const std::string &scApp, const std::s
 		char cHiByte = wscValue[i] >> 8;
 		char cLoByte = wscValue[i] & 0xFF;
 		char szBuf[8];
-		sprintf(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+		sprintf_s(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
 		scValue += szBuf;
 	}
 	WritePrivateProfileString(scApp.c_str(), scKey.c_str(), scValue.c_str(), scFile.c_str());
@@ -169,7 +164,7 @@ std::wstring IniGetWS(const std::string &scFile, const std::string &scApp, const
 	std::wstring wscValue = L"";
 	long lHiByte;
 	long lLoByte;
-	while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 	{
 		scValue = scValue.substr(4);
 		wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
@@ -206,13 +201,36 @@ void IniGetSection(const std::string &scFile, const std::string &scApp, std::lis
 		INISECTIONVALUE isv;
 		char szKey[0xFFFF] = "";
 		char szValue[0xFFFF] = "";
-		sscanf(szNext, "%[^=]=%[^\n]", szKey, szValue);
+		sscanf_s(szNext, "%[^=]=%[^\n]", szKey, std::size(szKey), szValue, std::size(szValue));
 		isv.scKey = szKey;
 		isv.scValue = szValue;
 		lstValues.push_back(isv);
 
 		szNext += strlen(szNext) + 1;
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+Determine the path name of a file in the charname account directory with the
+provided extension. The resulting path is returned in the path parameter.
+*/
+std::string GetUserFilePath(const std::wstring &wscCharname, const std::string &scExtension)
+{
+	// init variables
+	char szDataPath[MAX_PATH];
+	GetUserDataPath(szDataPath);
+	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+
+	std::wstring wscDir;
+	std::wstring wscFile;
+	if (HkGetAccountDirName(wscCharname, wscDir)!=HKE_OK)
+		return "";
+	if (HkGetCharFileName(wscCharname, wscFile)!=HKE_OK)
+		return "";
+
+	return scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + scExtension;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -282,6 +300,57 @@ std::wstring GetParam(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPo
 	return wscResult;
 }
 
+
+std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
+{
+	uint i = 0, j = 0;
+
+	std::string scResult;
+	for(i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
+	{
+		if(scLine[j] == cSplitChar)
+		{
+			while(((j + 1) < scLine.length()) && (scLine[j+1] == cSplitChar))
+				j++; // skip "whitechar"
+
+			i++;
+			continue;
+		}
+
+		if(i == iPos)
+			scResult += scLine[j];
+	}
+
+	return scResult;
+}
+
+/**
+This function is similar to GetParam but instead returns everything
+from the parameter specified by iPos to the end of wscLine.
+
+wscLine - the std::string to get parameters from
+wcSplitChar - the seperator character
+iPos - the parameter number to start from.
+*/
+std::wstring GetParamToEnd(const std::wstring &wscLine, wchar_t wcSplitChar, uint iPos)
+{
+	for(uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
+	{
+		if(wscLine[j] == wcSplitChar)
+		{
+			while(((j + 1) < wscLine.length()) && (wscLine[j+1] == wcSplitChar))
+				j++; // skip "whitechar"
+			i++;
+			continue;
+		}
+		if	(i == iPos)
+		{
+			return wscLine.substr(j);
+		}
+	}
+	return L"";
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::wstring ReplaceStr(const std::wstring &wscSource, const std::wstring &wscSearchFor, const std::wstring &wscReplaceWith)
@@ -307,6 +376,24 @@ mstime timeInMS()
 	mstime iFreq;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&iFreq);
 	return 1000 * iCount / iFreq;
+}
+
+
+/// Use this function to get the ticks since system startup. The FLHook timeInMS()
+/// function seems to report inaccurate time when the FLServer.exe process freezes
+/// (which happens due to other bugs).
+mstime GetTimeInMS()
+{
+	static mstime msBaseTime = 0;
+	static mstime msLastTickCount = 0;
+
+	mstime msCurTime = GetTickCount();
+	// GetTickCount is 32 bits and so wraps around ever 49.5 days
+	// If a wrap around has occurred then
+	if (msCurTime < msLastTickCount)
+		msBaseTime += (2^32);
+	msLastTickCount = msCurTime;
+	return msBaseTime + msLastTickCount;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,142 +439,64 @@ BOOL FileExists(LPCTSTR szPath)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef EXTENDED_EXCEPTION_LOGGING
-#include <psapi.h>
-
-HMODULE GetModuleAddr(uint iAddr)
+/**
+Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
+*/
+template<typename Str>
+Str Trim(const Str& scIn)
 {
-	HMODULE hModArr[1024];
-	DWORD iArrSizeNeeded;
-	HANDLE hProcess = GetCurrentProcess();
-	if(EnumProcessModules(hProcess, hModArr, sizeof(hModArr), &iArrSizeNeeded))
-	{
-		if(iArrSizeNeeded > sizeof(hModArr))
-			iArrSizeNeeded = sizeof(hModArr);
-		iArrSizeNeeded /= sizeof(HMODULE);
-		for(uint i = 0; i < iArrSizeNeeded; i++)
-		{
-			MODULEINFO mi;
-			if(GetModuleInformation(hProcess, hModArr[i], &mi, sizeof(mi)))
-			{
-				if(((uint)mi.lpBaseOfDll) < iAddr && (uint)mi.lpBaseOfDll + (uint)mi.SizeOfImage > iAddr)
-				{
-					return hModArr[i];
-				}
-			}
-		}
-	}
-	return 0;
+	using Char = typename Str::value_type;
+	constexpr auto trimmable = []() constexpr {
+	    if constexpr(std::is_same_v<Char, char>)
+			return " \t\n\r";
+		else if constexpr(std::is_same_v<Char, wchar_t>)
+	        return L" \t\n\r";
+	}();
+	
+	auto start = scIn.find_first_not_of(trimmable);
+	auto end = scIn.find_last_not_of(trimmable);
+
+	return scIn.substr(start, end - start);
 }
 
-#include <string.h>
-#include "dbghelp.h"
-
-// based on dbghelp.h
-typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
-									CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-									CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-									CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
-									);
-
-void WriteMiniDump(SEHException* ex)
+std::wstring GetTimeString(bool bLocalTime)
 {
-	AddBothLog("Attempting to write minidump...");
-	HMODULE hDll = ::LoadLibrary( "DBGHELP.DLL" );
-	if (hDll)
+	SYSTEMTIME st;
+	if (bLocalTime)
+		GetLocalTime(&st);
+	else
+		GetSystemTime(&st);
+
+	wchar_t wszBuf[100];
+	_snwprintf_s(wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d SMT ", st.wYear, st.wMonth, st.wDay,
+		st.wHour, st.wMinute, st.wSecond);
+	return wszBuf;
+}
+
+
+void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
+{
+	fprintf(file, "%s=", parmname.c_str());
+	for (int i = 0; i < (int)in.size(); i++)
 	{
-		MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress( hDll, "MiniDumpWriteDump" );
-		if (pDump)
-		{
-			// put the dump file in the flhook logs/debug directory
-			char szDumpPath[_MAX_PATH];
-			char szDumpPathFirst[_MAX_PATH];
+		UINT v1 = in[i] >> 8;
+		UINT v2 = in[i] & 0xFF;
+		fprintf(file, "%02x%02x", v1, v2);
+	}
+	fprintf(file, "\n");
+}
 
-			time_t tNow = time(0);
-			struct tm *t = localtime(&tNow);
-			strftime(szDumpPathFirst, sizeof(szDumpPathFirst), "./flhook_logs/debug/flserver_%d.%m.%Y_%H.%M.%S", t);
 
-			int n = 1;
-			do
-			{
-				sprintf(szDumpPath, "%s-%d.dmp", szDumpPathFirst, n);
-				n++;
-			} while (FileExists(szDumpPath));
-
-			// create the file
-			HANDLE hFile = ::CreateFile( szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL, NULL );
-
-			if (hFile!=INVALID_HANDLE_VALUE)
-			{
-				_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
-
-				if (ex)
-				{
-					ExInfo.ThreadId = ::GetCurrentThreadId();
-					EXCEPTION_POINTERS ep;
-					ep.ContextRecord = &ex->context;
-					ep.ExceptionRecord = &ex->record;
-					ExInfo.ExceptionPointers = &ep;
-					ExInfo.ClientPointers = NULL;
-					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
-				}
-				else
-				{
-					pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, NULL, NULL, NULL );
-				}
-				::CloseHandle(hFile);
-
-				AddBothLog("Minidump '%s' written.", szDumpPath);
-			}
-		}
+void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
+{
+	std::string scValue = ini.get_value_string();
+	wscValue = L"";
+	long lHiByte;
+	long lLoByte;
+	while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	{
+		scValue = scValue.substr(4);
+		wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
+		wscValue.append(1, wChar);
 	}
 }
-
-void AddExceptionInfoLog(SEHException* ex)
-{
-	try
-	{
-		EXCEPTION_RECORD *exception = NULL;
-		CONTEXT *context = NULL;
-		if (ex)
-		{
-			exception = &ex->record;
-			context = &ex->context;
-		}
-
-		if (exception)
-		{
-			DWORD iCode = exception->ExceptionCode;
-			uint iAddr = (uint)exception->ExceptionAddress;
-			uint iOffset = 0;
-			HMODULE hModExc = GetModuleAddr(iAddr);
-			char szModName[MAX_PATH] = "";
-			if (hModExc)
-			{
-				iOffset = iAddr - (uint)hModExc;
-				GetModuleFileName(hModExc, szModName, sizeof(szModName));
-			}
-			AddBothLog("Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
-		}
-		else
-		{
-			AddBothLog("No exception information available");
-		}
-
-		if (context)
-		{
-			AddBothLog("eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x",
-				context->Eax, context->Ebx, context->Ecx, context->Edx, context->Edi, context->Esi, context->Ebp, context->Eip, context->Esp);
-		}
-		else
-		{
-			AddBothLog("No register information available");
-		}
-
-		WriteMiniDump(ex);
-
-	} catch(...) { AddBothLog("Exception in AddExceptionInfoLog (minidump/exception)!"); }
-}
-
-#endif

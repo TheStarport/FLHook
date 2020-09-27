@@ -219,7 +219,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 			wscEvent += wszFrom;
 
 		wscEvent += L" id=";
-		wscEvent += stows(itos(cId.iID));
+		wscEvent += std::to_wstring(cId.iID);
 
 		wscEvent += L" type=";
 		if(cIdTo.iID == 0x00010000)
@@ -228,7 +228,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 		{
 			wscEvent += L"group";
 			wscEvent += L" grpidto=";
-			wscEvent += stows(itos(Players.GetGroupID(cId.iID)));
+			wscEvent += std::to_wstring(Players.GetGroupID(cId.iID));
 		}
 		else if(cIdTo.iID & 0x00010000)
 			wscEvent += L"system";
@@ -245,7 +245,7 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1, void const *rdl
 				wscEvent += wszTo;
 
 			wscEvent += L" idto=";
-			wscEvent += stows(itos(cIdTo.iID));
+			wscEvent += std::to_wstring(cIdTo.iID);
 		}
 
 		wscEvent += L" text=";
@@ -518,7 +518,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const & cId, unsigned int iCl
 					HkAddCheaterLog(wscCharname, L"Negative good-count, likely to have cheated in the past");
 
 					wchar_t wszBuf[256];
-					swprintf(wszBuf, L"Possible cheating detected (%s)", wscCharname.c_str());
+					swprintf_s(wszBuf, L"Possible cheating detected (%s)", wscCharname.c_str());
 					HkMsgU(wszBuf);
 					HkBan(ARG_CLIENTID(iClientID), true);
 					HkKick(ARG_CLIENTID(iClientID));
@@ -880,10 +880,10 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 					wchar_t wszBuf[1000];
 					
 					const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-					swprintf(wszBuf, L"Sold more good than possible item=%08x count=%u", gsi.iArchID, gsi.iCount);
+					swprintf_s(wszBuf, L"Sold more good than possible item=%08x count=%u", gsi.iArchID, gsi.iCount);
 					HkAddCheaterLog(wszCharname, wszBuf);
 
-					swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);
+					swprintf_s(wszBuf, L"Possible cheating detected (%s)", wszCharname);
 					HkMsgU(wszBuf);
 					HkBan(ARG_CLIENTID(iClientID), true);
 					HkKick(ARG_CLIENTID(iClientID));
@@ -896,7 +896,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int iClien
 		{
 			wchar_t wszBuf[1000];
 			const wchar_t *wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			swprintf(wszBuf, L"Sold good player does not have (buggy test), item=%08x", gsi.iArchID);
+			swprintf_s(wszBuf, L"Sold good player does not have (buggy test), item=%08x", gsi.iArchID);
 			HkAddCheaterLog(wszCharname, wszBuf);
 
 			//swprintf(wszBuf, L"Possible cheating detected (%s)", wszCharname);

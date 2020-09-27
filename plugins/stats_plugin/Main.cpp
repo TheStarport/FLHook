@@ -54,7 +54,7 @@ void exportJSON()
 	std::ofstream out(jsonFileName);
 
 	// Add Server Load object
-	out << "{\"serverload\": \"" + itos(g_iServerLoad) + "\"";
+	out << "{\"serverload\": \"" + std::to_string(g_iServerLoad) + "\"";
 
 	// Begin Player array
 	out << ",\"players\": [";
@@ -72,11 +72,11 @@ void exportJSON()
 		// Add rank
 		int iRank;
 		pub::Player::GetRank(player->iClientID, iRank);
-		out << ",\"rank\": \"" + itos(iRank) + "\"";
+		out << ",\"rank\": \"" + std::to_string(iRank) + "\"";
 
 		// Add group
 		int groupID = Players.GetGroupID(player->iClientID);
-		out << ",\"group\": \"" + itos(groupID) + "\"";
+		out << ",\"group\": \"" + std::to_string(groupID) + "\"";
 
 		// Add ship
 		Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);

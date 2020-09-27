@@ -55,7 +55,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cloak.cpp" />
-    <ClCompile Include="PluginUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
@@ -63,7 +62,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PluginUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

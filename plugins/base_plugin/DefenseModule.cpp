@@ -339,7 +339,7 @@ static uint CreateWPlatformSolar(PlayerBase *base, uint iSystem, Vector position
 	si.Costume.accessories = 0;
 	si.iVoiceID = CreateID("atc_leg_m01");
 
-	std::string wplatform_nickname = base->nickname + itos(rand());
+	std::string wplatform_nickname = base->nickname + std::to_string(rand());
 
 	strncpy_s(si.cNickName, sizeof(si.cNickName),wplatform_nickname.c_str(), wplatform_nickname.size());
 

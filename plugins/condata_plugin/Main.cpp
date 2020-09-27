@@ -7,6 +7,7 @@
 #include "plugin.h"
 #include "header.h"
 #include <math.h>
+#include <plugin_comms.h>
 
 #define PRINT_ERROR() { for(uint i = 0; (i < sizeof(wscError)/sizeof(std::wstring)); i++) PrintUserCmdText(iClientID, wscError[i]); return; }
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
@@ -466,19 +467,19 @@ void UserCmd_Ping(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstPing.size() < set_iPingKickFrame)
 		Response += L"n/a Fluct: n/a "; 
 	else {
-		Response += stows(itos(ConData[iClientIDTarget].iAveragePing)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iAveragePing).c_str(); 
 		Response += L"ms ";
 		if(set_iPingKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iPingKick)).c_str(); 
+			Response += std::to_wstring(set_iPingKick).c_str(); 
 			Response += L"ms) "; 
 		}
 		Response += L"Fluct: ";
-		Response += stows(itos(ConData[iClientIDTarget].iPingFluctuation)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iPingFluctuation).c_str(); 
 		Response += L"ms ";
 		if(set_iFluctKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iFluctKick)).c_str(); 
+			Response += std::to_wstring(set_iFluctKick).c_str(); 
 			Response += L"ms) "; 
 		}
 	}
@@ -487,11 +488,11 @@ void UserCmd_Ping(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstLoss.size() < (set_iLossKickFrame / (LOSS_INTERVALL / 1000))) 
 		Response += L"n/a "; 
     else {
-		Response += stows(itos(ConData[iClientIDTarget].iAverageLoss)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iAverageLoss).c_str(); 
 		Response += L"%% "; 
 		if(set_iLossKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iLossKick)).c_str(); 
+			Response += std::to_wstring(set_iLossKick).c_str(); 
 			Response += L"%%) "; 
 		}
 	}
@@ -500,11 +501,11 @@ void UserCmd_Ping(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstObjUpdateIntervalls.size() < set_iLagDetectionFrame)
 		Response += L"n/a";
 	else {
-		Response += stows(itos(ConData[iClientIDTarget].iLags)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iLags).c_str(); 
 		Response += L"%% "; 
 		if(set_iLagKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iLagKick)).c_str(); 
+			Response += std::to_wstring(set_iLagKick).c_str(); 
 			Response += L"%%)"; 
 		}
 	}
@@ -557,19 +558,19 @@ void UserCmd_PingTarget(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstPing.size() < set_iPingKickFrame)
 		Response += L"n/a Fluct: n/a "; 
 	else {
-		Response += stows(itos(ConData[iClientIDTarget].iAveragePing)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iAveragePing).c_str(); 
 		Response += L"ms ";
 		if(set_iPingKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iPingKick)).c_str(); 
+			Response += std::to_wstring(set_iPingKick).c_str(); 
 			Response += L"ms) "; 
 		}
 		Response += L"Fluct: ";
-		Response += stows(itos(ConData[iClientIDTarget].iPingFluctuation)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iPingFluctuation).c_str(); 
 		Response += L"ms ";
 		if(set_iFluctKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iFluctKick)).c_str(); 
+			Response += std::to_wstring(set_iFluctKick).c_str(); 
 			Response += L"ms) "; 
 		}
 	}
@@ -578,11 +579,11 @@ void UserCmd_PingTarget(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstLoss.size() < (set_iLossKickFrame / (LOSS_INTERVALL / 1000))) 
 		Response += L"n/a "; 
     else {
-		Response += stows(itos(ConData[iClientIDTarget].iAverageLoss)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iAverageLoss).c_str(); 
 		Response += L"%% "; 
 		if(set_iLossKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iLossKick)).c_str(); 
+			Response += std::to_wstring(set_iLossKick).c_str(); 
 			Response += L"%%) "; 
 		}
 	}
@@ -591,11 +592,11 @@ void UserCmd_PingTarget(uint iClientID, const std::wstring &wscParam)
 	if(ConData[iClientIDTarget].lstObjUpdateIntervalls.size() < set_iLagDetectionFrame)
 		Response += L"n/a";
 	else {
-		Response += stows(itos(ConData[iClientIDTarget].iLags)).c_str(); 
+		Response += std::to_wstring(ConData[iClientIDTarget].iLags).c_str(); 
 		Response += L"%% "; 
 		if(set_iLagKick > 0) {
 			Response += L"(Max: ";
-			Response += stows(itos(set_iLagKick)).c_str(); 
+			Response += std::to_wstring(set_iLagKick).c_str(); 
 			Response += L"%%)"; 
 		}
 	}

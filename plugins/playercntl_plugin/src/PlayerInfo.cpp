@@ -17,7 +17,8 @@
 
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
+#include <plugin_comms.h>
+
 
 enum MissionMessageType
 {
@@ -32,7 +33,7 @@ enum MissionMessageType
 #define POPUPDIALOG_BUTTONS_RIGHT_LATER 4
 #define POPUPDIALOG_BUTTONS_CENTER_OK 8
 
-//#include "PluginUtilities.h"
+//
 #include "Main.h"
 
 namespace PlayerInfo
@@ -53,7 +54,7 @@ namespace PlayerInfo
 		std::wstring wscValue = L"";
 		long lHiByte;
 		long lLoByte;
-		while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+		while(sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 		{
 			scValue = scValue.substr(4);
 			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
@@ -94,7 +95,7 @@ namespace PlayerInfo
 		std::wstring wscPlayerInfo = L"<RDL><PUSH/>";
 		for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 		{
-			std::wstring wscXML = IniGetLongWS(scFilePath, "Info", itos(i), L"");
+			std::wstring wscXML = IniGetLongWS(scFilePath, "Info", std::to_string(i), L"");
 			if (wscXML.length())
 				wscPlayerInfo += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
 		}
@@ -129,7 +130,7 @@ namespace PlayerInfo
 		int iCount = 0;
 		for (int i = 1; i <= MAX_PARAGRAPHS; i++)
 		{
-			iCount += IniGetLongWS(scFilePath, "Info", itos(i), L"").length();
+			iCount += IniGetLongWS(scFilePath, "Info", std::to_string(i), L"").length();
 		}
 		return iCount;
 	}
@@ -153,14 +154,14 @@ namespace PlayerInfo
 				return false;
 			}
 
-			std::wstring wscNewMsg = IniGetLongWS(scFilePath, "Info", itos(iPara), L"") + XMLText(wscMsg);
-			IniWriteW(scFilePath, "Info", itos(iPara), wscNewMsg);
+			std::wstring wscNewMsg = IniGetLongWS(scFilePath, "Info", std::to_string(iPara), L"") + XMLText(wscMsg);
+			IniWriteW(scFilePath, "Info", std::to_string(iPara), wscNewMsg);
 			PrintUserCmdText(iClientID, L"OK %d/%d characters used", length, MAX_CHARACTERS);
 		}
 		else if (iPara > 0 && iPara <= MAX_PARAGRAPHS && wscCommand == L"d")
 		{
-			IniWriteW(scFilePath, "Info", itos(iPara), L"");
-			PrintUserCmdText(iClientID, L"OK");		
+			IniWriteW(scFilePath, "Info", std::to_string(iPara), L"");
+			PrintUserCmdText(iClientID, L"OK");
 		}
 		else
 		{

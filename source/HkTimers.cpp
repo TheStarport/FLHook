@@ -1,4 +1,5 @@
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #include "wildcards.hh"
 #include "hook.h"
 #include <math.h>
@@ -164,10 +165,18 @@ void HkThreadResolver()
 
 			for(auto& ip : lstMyResolveIPs)
 			{
-				ulong addr = inet_addr(wstos(ip.wscIP).c_str());
-				hostent *host = gethostbyaddr((const char*)&addr, sizeof(addr), AF_INET);
-				if(host)
-					ip.wscHostname = stows(host->h_name);
+				SOCKADDR_IN addr {
+					AF_INET,
+					2302,
+					{ },
+					{ 0 }
+				};
+				InetPtonW(AF_INET, ip.wscIP.c_str(), &addr.sin_addr);
+
+				wchar_t hostbuf[255];
+				GetNameInfoW(reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
+
+				ip.wscHostname = hostbuf;
 			}
 
 			EnterCriticalSection(&csIPResolve);

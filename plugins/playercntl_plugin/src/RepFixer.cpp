@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -94,7 +94,7 @@ namespace RepFixer
 					if (set_iPluginDebug>0)
 					{
 						ConPrint(L"NOTICE: Add reputation %s/%s rep=%0.2f mode=%d\n",
-							stows(scIDNick).c_str(), stows(var.scKey).c_str(), factionRep.fRep, factionRep.iMode); 
+							stows(scIDNick).c_str(), stows(var.scKey).c_str(), factionRep.fRep, factionRep.iMode);
 					}
 					lstFactionReps.push_back(factionRep);
 				}
@@ -136,7 +136,7 @@ namespace RepFixer
 			if (!cargo.bMounted && set_bItemMustBeMounted)
 				continue;
 
-			// If the item is not an 'ID' then skip to the next one. 
+			// If the item is not an 'ID' then skip to the next one.
 			auto iterIDs = set_mapFactionReps.find(cargo.iArchID);
 			if (iterIDs==set_mapFactionReps.end())
 				continue;

@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -29,33 +29,6 @@
 
 namespace Rename
 {
-	static void ini_write_wstring(FILE *file, const std::string &parmname, const std::wstring &in)
-	{
-		fprintf(file, "%s=", parmname.c_str()); 
-		for (int i = 0; i < (int)in.size(); i++)
-		{
-			UINT v1 = in[i] >> 8;
-			UINT v2 = in[i] & 0xFF;
-			fprintf(file, "%02x%02x", v1, v2); 
-		}
-		fprintf(file, "\n");
-	}
-
-
-	static void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue)
-	{
-		std::string scValue = ini.get_value_string();
-		wscValue = L"";
-		long lHiByte;
-		long lLoByte;
-		while(sscanf(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
-		{
-			scValue = scValue.substr(4);
-			wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
-			wscValue.append(1, wChar);
-		}
-	}
-
 	// Cost of the rename in credits
 	int set_iMoveCost = 0;
 
@@ -148,7 +121,8 @@ namespace Rename
 		GetUserDataPath(szDataPath);
 		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\tags.ini";
 
-		FILE *file = fopen(scPath.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, scPath.c_str(), "w");
 		if (file)
 		{
 			for (std::map<std::wstring, TAG_DATA>::iterator i = mapTagToPassword.begin(); i != mapTagToPassword.end(); ++i)
@@ -224,7 +198,7 @@ namespace Rename
 	{
 		if (set_bCharnameTags)
 		{
-			// Indicate an error if the command does not appear to be formatted correctly 
+			// Indicate an error if the command does not appear to be formatted correctly
 			// and stop processing but tell FLHook that we processed the command.
 			if (wscParam.size()==0)
 			{
@@ -316,7 +290,7 @@ namespace Rename
 	{
 		if (set_bCharnameTags)
 		{
-			// Indicate an error if the command does not appear to be formatted correctly 
+			// Indicate an error if the command does not appear to be formatted correctly
 			// and stop processing but tell FLHook that we processed the command.
 			if (wscParam.size()==0)
 			{
@@ -353,7 +327,7 @@ namespace Rename
 	{
 		if (set_bCharnameTags)
 		{
-			// Indicate an error if the command does not appear to be formatted correctly 
+			// Indicate an error if the command does not appear to be formatted correctly
 			// and stop processing but tell FLHook that we processed the command.
 			if (wscParam.size()==0)
 			{
@@ -429,11 +403,11 @@ namespace Rename
 			RENAME o = pendingRenames.front();
 			if (HkGetClientIdFromCharname(o.wscCharname)!=-1)
 				return;
-			
+
 			pendingRenames.pop_front();
 
 			CAccount *acc = HkGetAccountByCharname(o.wscCharname);
-			
+
 			// Delete the character from the existing account, create a new character with the
 			// same name in this account and then copy over it with the save character file.
 			try
@@ -448,7 +422,7 @@ namespace Rename
 				if (!::MoveFileExA(o.scSourceFile.c_str(), o.scDestFileTemp.c_str(),
 					MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))
 					throw "move src to temp failed";
-			
+
 				// Decode the char file, update the char name and re-encode it.
 				// Add a space to the value so the ini file line looks like "<key> = <value>"
 				// otherwise Ioncross Server Operator can't decode the file correctly
@@ -488,7 +462,7 @@ namespace Rename
 				return;
 			if (HkGetClientIdFromCharname(o.wscMovingCharname)!=-1)
 				return;
-			
+
 			pendingMoves.pop_front();
 
 			CAccount *acc = HkGetAccountByCharname(o.wscDestinationCharname);
@@ -547,7 +521,7 @@ namespace Rename
 		if (!set_bEnableRenameMe)
 			return false;
 
-		// Indicate an error if the command does not appear to be formatted correctly 
+		// Indicate an error if the command does not appear to be formatted correctly
 		// and stop processing but tell FLHook that we processed the command.
 		if (wscParam.size()==0)
 		{
@@ -575,19 +549,19 @@ namespace Rename
 
 		if (HkGetAccountByCharname(wscNewCharname))
 		{
-			PrintUserCmdText(iClientID, L"ERR Name already exists");	
+			PrintUserCmdText(iClientID, L"ERR Name already exists");
 			return true;
 		}
 
 		if (wscNewCharname.length() > 23)
 		{
-			PrintUserCmdText(iClientID, L"ERR Name to long");	
+			PrintUserCmdText(iClientID, L"ERR Name to long");
 			return true;
 		}
-		
+
 		if (wscNewCharname.length() < MIN_CHAR_TAG_LEN)
 		{
-			PrintUserCmdText(iClientID, L"ERR Name to short");	
+			PrintUserCmdText(iClientID, L"ERR Name to short");
 			return true;
 		}
 
@@ -602,13 +576,13 @@ namespace Rename
 				{
 					if (!wscPassword.length())
 					{
-						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is required.");	
+						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is required.");
 						return true;
 					}
 					else if (wscPassword != i->second.master_password
 						&& wscPassword != i->second.rename_password)
 					{
-						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is wrong.");	
+						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is wrong.");
 						return true;
 					}
 					// Password is valid for owned tag.
@@ -620,7 +594,7 @@ namespace Rename
 		// Get the character name for this connection.
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-		// Saving the characters forces an anti-cheat checks and fixes 
+		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
 		HkSaveChar(wscCharname);
 		if (!HkIsValidClientID(iClientID))
@@ -691,9 +665,9 @@ namespace Rename
 		o.scDestFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscDestFile) + ".fl";
 		o.scDestFileTemp = scAcctPath + wstos(wscDir) + "\\" + wstos(wscSourceFile) + ".fl.renaming";
 		pendingRenames.push_back(o);
-		
+
 		HkKickReason(o.wscCharname, L"Updating character, please wait 10 seconds before reconnecting");
-		IniWrite(scRenameFile, "General", wstos(o.wscNewCharname), itos((int)time(0)));
+		IniWrite(scRenameFile, "General", wstos(o.wscNewCharname), std::to_string((int)time(0)));
 		return true;
 	}
 
@@ -712,8 +686,8 @@ namespace Rename
 		}
 
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
-		std::string scFile;
-		if (!GetUserFilePath(scFile, wscCharname, "-movechar.ini"))
+		std::string scFile = GetUserFilePath(wscCharname, "-movechar.ini");
+		if (scFile.empty())
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
@@ -744,7 +718,8 @@ namespace Rename
 		std::string banfile = std::string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
-		FILE *f = fopen(banfile.c_str(), "r");
+		FILE *f;
+	    fopen_s(&f, banfile.c_str(), "r");
 		if (f)
 		{
 			fclose(f);
@@ -764,7 +739,7 @@ namespace Rename
 		if (!set_bEnableMoveChar)
 			return false;
 
-		// Indicate an error if the command does not appear to be formatted correctly 
+		// Indicate an error if the command does not appear to be formatted correctly
 		// and stop processing but tell FLHook that we processed the command.
 		if (wscParam.size()==0)
 		{
@@ -782,14 +757,14 @@ namespace Rename
 		}
 
 		// Get the target account directory.
-		std::string scFile;
 		std::wstring wscMovingCharname = Trim(GetParam(wscParam, L' ', 0));
-		if (!GetUserFilePath(scFile, wscMovingCharname, "-movechar.ini"))
+		std::string scFile = GetUserFilePath(wscMovingCharname, "-movechar.ini");
+		if (scFile.empty())
 		{
 			PrintUserCmdText(iClientID, L"ERR Character does not exist");
 			return true;
 		}
-		
+
 		// Check the move char code.
 		std::wstring wscCode = Trim(GetParam(wscParam, L' ', 1));
 		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
@@ -808,7 +783,7 @@ namespace Rename
 
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-		// Saving the characters forces an anti-cheat checks and fixes 
+		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
 		HkSaveChar(wscCharname);
 		HkSaveChar(wscMovingCharname);
@@ -863,7 +838,7 @@ namespace Rename
 		if (set_iMoveCost>0)
 			HkAddCash(wscCharname, 0-set_iMoveCost);
 		HkSaveChar(wscCharname);
-		
+
 		// Schedule the move
 		MOVE o;
 		o.wscDestinationCharname = wscCharname;
@@ -914,7 +889,7 @@ namespace Rename
 		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\*.fl";
 
 		// Open the directory iterator.
-		WIN32_FIND_DATA FindFileData; 
+		WIN32_FIND_DATA FindFileData;
 		HANDLE hFileFind = FindFirstFile(scPath.c_str(), &FindFileData);
 		if (hFileFind==INVALID_HANDLE_VALUE)
 		{
@@ -940,7 +915,7 @@ namespace Rename
 			}
 		}
 		while (FindNextFile(hFileFind, &FindFileData));
-		FindClose(hFileFind); 
+		FindClose(hFileFind);
 
 		cmds->Print(L"OK\n");
 	}

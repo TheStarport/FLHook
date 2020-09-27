@@ -76,7 +76,6 @@
     <ClCompile Include="src\MiscCmds.cpp" />
     <ClCompile Include="src\PimpShip.cpp" />
     <ClCompile Include="src\PlayerInfo.cpp" />
-    <ClCompile Include="src\PluginUtilities.cpp" />
     <ClCompile Include="src\PurchaseRestrictions.cpp" />
     <ClCompile Include="src\Rename.cpp" />
     <ClCompile Include="src\RepFixer.cpp" />
@@ -84,7 +83,6 @@
     <ClCompile Include="src\StartupCache.cpp" />
     <ClCompile Include="src\SystemSensor.cpp" />
     <ClCompile Include="src\wildcards.cpp" />
-    <ClCompile Include="src\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -102,8 +100,6 @@
   <ItemGroup>
     <ClInclude Include="src\Mail.h" />
     <ClInclude Include="src\Main.h" />
-    <ClInclude Include="src\PluginUtilities.h" />
-    <ClInclude Include="src\ZoneUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

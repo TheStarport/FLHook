@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 using namespace std;
 
@@ -37,7 +36,7 @@ struct MARKET_ITEM
 
 	// Stop selling if the base holds less than this number of items
 	uint min_stock;
-	
+
 	// Stop buying if the base holds more than this number of items
 	uint max_stock;
 };
@@ -79,7 +78,7 @@ public:
 	virtual float SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage) { return 0.0f; }
 	virtual bool SpaceObjDestroyed(uint space_obj) { return false; }
 	virtual void SetReputation(int player_rep, float attitude) {}
-	
+
 };
 
 class CoreModule : public Module
@@ -109,7 +108,7 @@ public:
 
 	void LoadState(INI_Reader &ini);
 	void SaveState(FILE *file);
-	
+
 	bool Timer(uint time);
 	float SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage);
 	bool SpaceObjDestroyed(uint space_obj);
@@ -130,10 +129,10 @@ public:
 	ShieldModule(PlayerBase *the_base);
 	~ShieldModule();
 	wstring GetInfo(bool xml);
-	
+
 	void LoadState(INI_Reader &ini);
 	void SaveState(FILE *file);
-	
+
 	bool Timer(uint time);
 	void SetReputation(int player_rep, float attitude);
 
@@ -171,10 +170,10 @@ public:
 	DefenseModule(PlayerBase *the_base, uint the_type);
 	~DefenseModule();
 	wstring GetInfo(bool xml);
-	
+
 	void LoadState(INI_Reader &ini);
 	void SaveState(FILE *file);
-	
+
 	bool Timer(uint time);
 	float SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage);
 	bool SpaceObjDestroyed(uint space_obj);
@@ -198,7 +197,7 @@ public:
 
 	void LoadState(INI_Reader &ini);
 	void SaveState(FILE *file);
-	
+
 	bool Timer(uint time);
 };
 
@@ -248,7 +247,7 @@ public:
 
 	static string CreateBaseNickname(const string &basename);
 
-	float GetAttitudeTowardsClient(uint client);	
+	float GetAttitudeTowardsClient(uint client);
 	void SyncReputationForBase();
 	void SyncReputationForBaseObject(uint space_obj);
 
@@ -294,7 +293,7 @@ public:
 
 	// The maximum hit points of the base
 	float max_base_health;
-	
+
 	// When the base is spawned, this is the IDS of the base name
 	uint solar_ids;
 
@@ -313,7 +312,7 @@ public:
 	list<wstring> ally_tags;
 
 	// List of ships that are hostile to this base
-	map<wstring, wstring> hostile_tags; 
+	map<wstring, wstring> hostile_tags;
 
 	// Modules for base
 	vector<Module*> modules;
@@ -383,7 +382,7 @@ struct CLIENT_DATA
 	// Set to player base hash if ship is in base-> 0 if not.
 	uint player_base;
 
-	// Set to player base hash if ship is in base or was last in a player base-> 0 after 
+	// Set to player base hash if ship is in base or was last in a player base-> 0 after
 	// docking at any non player base->
 	uint last_player_base;
 };
@@ -397,12 +396,12 @@ namespace PlayerCommands
 	void BaseRmPwd(uint client, const wstring &args);
 	void BaseLstPwd(uint client, const wstring &args);
 	void BaseSetMasterPwd(uint client, const wstring &args);
-	
+
 	void BaseAddAllyTag(uint client, const wstring &args);
 	void BaseRmAllyTag(uint client, const wstring &args);
 	void BaseLstAllyTag(uint client, const wstring &args);
 	void BaseRep(uint client, const wstring &args);
-	
+
 	void BaseInfo(uint client, const wstring &args);
 	void BaseDefenseMode(uint client, const wstring &args);
 	void BaseDefMod(uint client, const wstring &args);

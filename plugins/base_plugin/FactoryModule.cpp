@@ -30,7 +30,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 	if (xml)
 	{
 		info += FACTORY_NAMES[type]; 
-		info += L"</TEXT><PARA/><TEXT>      Pending " + stows(itos(build_queue.size())) + L" items</TEXT>";
+		info += L"</TEXT><PARA/><TEXT>      Pending " + std::to_wstring(build_queue.size()) + L" items</TEXT>";
 		if (active_recipe.nickname)
 		{
 			info += L"<PARA/><TEXT>      Building " + active_recipe.infotext + L". Waiting for:</TEXT>";
@@ -44,7 +44,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 				const GoodInfo *gi = GoodList::find_by_id(good);
 				if (gi)
 				{
-					info += L"<PARA/><TEXT>      - " + stows(itos(quantity)) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
+					info += L"<PARA/><TEXT>      - " + std::to_wstring(quantity) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
 					if (quantity > 0 && base->HasMarketItem(good) < active_recipe.cooking_rate)
 						info += L" [Out of stock]";
 					info += L"</TEXT>";
@@ -56,7 +56,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 	else
 	{
 		info += FACTORY_NAMES[type];
-		info += L" - Pending " + stows(itos(build_queue.size())) + L" items ";
+		info += L" - Pending " + std::to_wstring(build_queue.size()) + L" items ";
 		if (active_recipe.nickname)
 		{
 			info = L" - Building " + active_recipe.infotext + L". Waiting for:";
@@ -70,7 +70,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 				const GoodInfo *gi = GoodList::find_by_id(good);
 				if (gi)
 				{
-					info += L" " + stows(itos(quantity)) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
+					info += L" " + std::to_wstring(quantity) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
 				}
 			}
 		}

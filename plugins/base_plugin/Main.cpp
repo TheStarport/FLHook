@@ -6,7 +6,7 @@
  Initial release
 */
 
-// includes 
+// includes
 
 #include <windows.h>
 #include <stdio.h>
@@ -18,9 +18,10 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 #include "Main.h"
+
+#include <plugin_comms.h>
 
 // Clients
 map<uint, CLIENT_DATA> clients;
@@ -98,7 +99,7 @@ PlayerBase *GetPlayerBaseForClient(uint client)
 	map<uint, PlayerBase*>::iterator i = player_bases.find(j->second.player_base);
 	if (i == player_bases.end())
 		return 0;
-	
+
 	return i->second;
 }
 
@@ -161,7 +162,7 @@ std::wstring HtmlEncode(std::wstring text)
                 if (text[i] > 159)
                 {
                     sb.append(L"&#");
-                    sb.append(stows(itos((int)text[i])));
+                    sb.append(std::to_wstring(text[i]));
                     sb.append(L";");
                 }
                 else
@@ -214,7 +215,7 @@ void LoadSettingsActual()
 	set_base_crew_consumption_items.clear();
 	set_base_crew_food_items.clear();
 	shield_power_items.clear();
-	
+
 	INI_Reader ini;
 	if (ini.open(cfg_file.c_str(), false))
 	{
@@ -249,7 +250,7 @@ void LoadSettingsActual()
 				recipes[recipe.nickname] = recipe;
 			}
 			else if (ini.is_header("general"))
-			{				
+			{
 				while (ini.read_value())
 				{
 					if (ini.is_value("debug"))
@@ -323,17 +324,17 @@ void LoadSettingsActual()
 
 	char datapath[MAX_PATH];
 	GetUserDataPath(datapath);
-	
+
 	// Create base account dir if it doesn't exist
 	std::string basedir = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\";
 	CreateDirectoryA(basedir.c_str(), 0);
 
 	// Load and spawn all bases
-	std::string path = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\base_*.ini";	
+	std::string path = std::string(datapath) + "\\Accts\\MultiPlayer\\player_bases\\base_*.ini";
 
-	WIN32_FIND_DATA findfile; 
+	WIN32_FIND_DATA findfile;
 	HANDLE h = FindFirstFile(path.c_str(), &findfile);
-	if (h != INVALID_HANDLE_VALUE)  
+	if (h != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
@@ -410,16 +411,17 @@ void HkTimerCheckKick()
 	// Write status to a json formatted page every 13 seconds
 	if ((curr_time % 13) == 0 && set_status_path_html.size()>0)
 	{
-		FILE *file = fopen(set_status_path_html.c_str(), "w");
+		FILE *file;
+	    fopen_s(&file, set_status_path_html.c_str(), "w");
 		if (file)
 		{
 			fprintf(file, "<html>\n<head><title>Player Base Status</title><style type=text/css>\n");
 			fprintf(file, ".ColumnH {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #ECE9D8;}\n");
 			fprintf(file, ".Column0 {FONT-FAMILY: Tahoma; FONT-SIZE: 10pt;  TEXT-ALIGN: left; COLOR: #000000; BACKGROUND: #FFFFFF;}\n");
 			fprintf(file, "</style></head><body>\n\n");
-                
+
 			fprintf(file, "<table width=\"90%%\" border=\"1\" cellspacing=\"0\" cellpadding=\"2\">\n");
-			
+
 			fprintf(file, "<tr>");
 			fprintf(file, "<th class=\"ColumnH\">Base Name</th>");
 			fprintf(file, "<th class=\"ColumnH\">Health (%%)</th>");
@@ -427,7 +429,7 @@ void HkTimerCheckKick()
 			fprintf(file, "<th class=\"ColumnH\">Money</th>");
 			fprintf(file, "<th class=\"ColumnH\">Description</th>");
 			fprintf(file, "</tr>\n\n");
-			
+
 			map<uint, PlayerBase*>::iterator iter = player_bases.begin();
 			while (iter != player_bases.end())
 			{
@@ -446,7 +448,7 @@ void HkTimerCheckKick()
 					desc += "</p>";
 				}
 				fprintf(file, "<td class=\"column0\">%s</td>", desc.c_str());
-				fprintf(file, "</tr>\n");   
+				fprintf(file, "</tr>\n");
 				++iter;
 			}
 
@@ -497,20 +499,20 @@ bool __stdcall HkCb_Land(IObjInspectImpl *obj, uint base_dock_id, uint base)
 			if (clients[client].player_base)
 				return true;
 
-			// If we're not docking at a player base then clear 
+			// If we're not docking at a player base then clear
 			// the last base flag
 			clients[client].last_player_base = 0;
 			clients[client].player_base = 0;
 			if (base==0)
-			{		
+			{
 				char szSystem[1024];
 				pub::GetSystemNickname(szSystem, sizeof(szSystem), Players[client].iSystemID);
-				
+
 				char szProxyBase[1024];
-				sprintf(szProxyBase, "%s_proxy_base", szSystem);
+				sprintf_s(szProxyBase, "%s_proxy_base", szSystem);
 
 				uint iProxyBaseID = CreateID(szProxyBase);
-		
+
 				clients[client].player_base = base_dock_id;
 				clients[client].last_player_base = base_dock_id;
 				if (set_plugin_debug>1)
@@ -532,7 +534,7 @@ __declspec(naked) void HkCb_LandNaked()
 		jz not_in_dock
 
 		mov eax, [ebx+0x18] // base id
-		push eax 
+		push eax
 		mov eax, [esp+0x14] // dock target
 		push eax
 		push edi // objinspect
@@ -583,7 +585,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				WriteProcMem((char*)hModServer + 0x2c24c, patch, sizeof(patch));
 				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)HkCb_LandNaked);
 			}
-			
+
 			hModCommon = GetModuleHandleA("common.dll");
 			{
 				// Suppress "is dockable " error message
@@ -751,7 +753,7 @@ bool UserCmd_Process(uint client, const std::wstring &args)
 }
 
 static bool IsDockingAllowed(PlayerBase *base, uint client)
-{	
+{
 	// Allies can always dock.
 	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 	for (list<std::wstring>::iterator i = base->ally_tags.begin(); i != base->ally_tags.end(); ++i)
@@ -765,7 +767,7 @@ static bool IsDockingAllowed(PlayerBase *base, uint client)
 	// Base allows neutral ships to dock
 	if (base->defense_mode == 2)
 		return true;
-	
+
 	return false;
 }
 
@@ -790,7 +792,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base, int i
 				returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 				return 0;
 			}
-		
+
 			// Docking prohibited
 			if (!IsDockingAllowed(pbase, client))
 			{
@@ -810,7 +812,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,unsigned int clien
 {
 	returncode = DEFAULT_RETURNCODE;
 
-	// Sync base names for the 
+	// Sync base names for the
 	map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
 	{
@@ -832,7 +834,7 @@ void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,unsigned int
 	{
 		if (set_plugin_debug>1)
 			ConPrint(L"CharacterSelect_AFTER[2] client=%u player_base=%u\n", client, clients[client].player_base);
-		
+
 		// If this base does not exist, dump the ship into space
 		PlayerBase *base = GetPlayerBase(clients[client].player_base);
 		if (!base)
@@ -868,7 +870,7 @@ void __stdcall BaseEnter(uint base, uint client)
 		clients[client].player_base = clients[client].last_player_base;
 	}
 
-	// If the player is registered as being in a player controlled base then 
+	// If the player is registered as being in a player controlled base then
 	// send the economy update, player system update and save a file to indicate
 	// that we're in the base->
 	if (clients[client].player_base)
@@ -899,8 +901,8 @@ void __stdcall BaseEnter(uint base, uint client)
 
 void __stdcall BaseExit(uint base, uint client)
 {
-	returncode = DEFAULT_RETURNCODE;	
-	
+	returncode = DEFAULT_RETURNCODE;
+
 	if (set_plugin_debug>1)
 			ConPrint(L"BaseExit base=%u client=%u player_base=%u\n", base, client, clients[client].player_base);
 
@@ -910,7 +912,7 @@ void __stdcall BaseExit(uint base, uint client)
 	{
 		if (set_plugin_debug)
 			ConPrint(L"BaseExit base=%u client=%u player_base=%u\n", base, client, clients[client].player_base);
-		
+
 		clients[client].last_player_base = clients[client].player_base;
 		clients[client].player_base = 0;
 		SaveDockState(client);
@@ -919,7 +921,7 @@ void __stdcall BaseExit(uint base, uint client)
 	{
 		DeleteDockState(client);
 	}
-		
+
 	// Clear the base market and text
 	SendResetMarketOverride(client);
 	SendSetBaseInfoText2(client, L"");
@@ -934,7 +936,7 @@ void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip, unsigne
 	if (client)
 	{
 		if (!iIsFormationRequest)
-		{ 
+		{
 			PlayerBase *base = GetPlayerBase(iDockTarget);
 			if (base)
 			{
@@ -964,7 +966,7 @@ PlayerBase* player_launch_base = 0;
 
 /// If the ship is launching from a player base record this so that
 /// override the launch location.
-bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos, Matrix &rot, int dock_mode) 
+bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos, Matrix &rot, int dock_mode)
 {
 	returncode = DEFAULT_RETURNCODE;
 	if (player_launch_base)
@@ -1034,21 +1036,21 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi, unsigned int client
 
 		uint count = gsi.iCount;
 		int price = (int)item.price * count;
-		
+
 		// If the base doesn't have sufficient cash to support this purchase
 		// reduce the amount purchased and shift the cargo back to the ship.
 		if (base->money < price)
 		{
 			PrintUserCmdText(client, L"ERR: Base cannot accept goods, insufficient cash");
 			clients[client].reverse_sell = true;
-			return;	
+			return;
 		}
 
-		if ((item.quantity + count) > item.max_stock) 
+		if ((item.quantity + count) > item.max_stock)
 		{
 			PrintUserCmdText(client, L"ERR: Base cannot accept goods, stock limit reached");
 			clients[client].reverse_sell = true;
-			return;	
+			return;
 		}
 
 		// Prevent player from getting invalid net worth.
@@ -1108,7 +1110,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count, unsigned int c
 			{
 				if (ci.iID == iID)
 				{
-					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);						
+					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
 					return;
 				}
 			}
@@ -1145,14 +1147,14 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi, unsigned int client)
 			PrintUserCmdText(client, L"ERR Base will not sell goods");
 			returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 			clients[client].stop_buy = true;
-			return;	
+			return;
 		}
 		else if (curr_money < price)
 		{
 			PrintUserCmdText(client, L"ERR Not enough credits");
 			returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 			clients[client].stop_buy = true;
-			return;	
+			return;
 		}
 
 		clients[client].stop_buy = false;
@@ -1188,8 +1190,8 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint, int co
 	if (base)
 	{
 		returncode = SKIPPLUGINS;
-		PlayerData *pd = &Players[client];			
-	
+		PlayerData *pd = &Players[client];
+
 		// Update the player CRC so that the player is not kicked for 'ship related' kick
 		HkPlayerRecalculateCRC(client);
 
@@ -1265,16 +1267,16 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1, float damage
 		{
 			if (set_plugin_debug)
 				ConPrint(L"HkCb_AddDmgEntry iDmgToSpaceID=%u get_inflictor_id=%u curr=%0.2f max=%0.0f damage=%0.2f cause=%u is_player=%u player_id=%u fate=%u\n",
-				iDmgToSpaceID, dmg->get_inflictor_id(), curr, max, damage, dmg->get_cause(), dmg->is_inflictor_a_player(), dmg->get_inflictor_owner_player(), fate);	
+				iDmgToSpaceID, dmg->get_inflictor_id(), curr, max, damage, dmg->get_cause(), dmg->is_inflictor_a_player(), dmg->get_inflictor_owner_player(), fate);
 
 			// A work around for an apparent bug where mines/missiles at the base
 			// causes the base damage to jump down to 0 even if the base is
 			// otherwise healthy.
-			if (damage==0.0f /*&& dmg->get_cause()==7*/ && curr>200000) 
+			if (damage==0.0f /*&& dmg->get_cause()==7*/ && curr>200000)
 			{
 				returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 				if (set_plugin_debug)
-					ConPrint(L"HkCb_AddDmgEntry[1] - invalid damage?\n");	
+					ConPrint(L"HkCb_AddDmgEntry[1] - invalid damage?\n");
 				return;
 			}
 
@@ -1282,7 +1284,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1, float damage
 			if (!dmg->is_inflictor_a_player())
 			{
 				if (set_plugin_debug)
-					ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc\n");	
+					ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc\n");
 				returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 				iDmgToSpaceID = 0;
 				return;
@@ -1295,7 +1297,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1, float damage
 			{
 				returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 				if (set_plugin_debug)
-					ConPrint(L"HkCb_AddDmgEntry[3] suppressed - shield up - new_damage=%0.0f\n", new_damage);	
+					ConPrint(L"HkCb_AddDmgEntry[3] suppressed - shield up - new_damage=%0.0f\n", new_damage);
 				dmg->add_damage_entry(p1, new_damage, fate);
 				iDmgToSpaceID = 0;
 				return;
@@ -1308,18 +1310,18 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 {
 	char system_nick[1024];
 	pub::GetSystemNickname(system_nick, sizeof(system_nick), base->system);
-				
+
 	char proxy_base_nick[1024];
-	sprintf(proxy_base_nick, "%s_proxy_base", system_nick);
+	sprintf_s(proxy_base_nick, "%s_proxy_base", system_nick);
 
 	uint proxy_base_id = CreateID(proxy_base_nick);
-		
+
 	clients[client].player_base = base->base;
 	clients[client].last_player_base = base->base;
-	
+
 	if (set_plugin_debug>1)
 		ConPrint(L"ForcePlayerBaseDock client=%u player_base=%u\n", client, clients[client].player_base);
-		
+
 	uint system;
 	pub::Player::GetSystem(client, system);
 
@@ -1334,7 +1336,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base)
 		HkGetCharFileName(charname, charfilename);
 		charfilename += L".fl";
 		CHARACTER_ID charid;
-		strcpy(charid.szCharFilename,wstos(charname.substr(0,14)).c_str());
+		strcpy_s(charid.szCharFilename,wstos(charname.substr(0,14)).c_str());
 
 		Server.CharacterSelect(charid, client);\
 	}
@@ -1385,7 +1387,7 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &args)
 			sys = Universe::GetNextSystem();
 		}
 		return true;
-	}*/	
+	}*/
 	if (args.find(L"testrecipe")==0)
 	{
 		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -1419,7 +1421,7 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &args)
 		{
 			cmd->Print(L"ERR Not in game");
 			return true;
-		}	
+		}
 
 		for (map<uint, uint>::iterator i = construction_items.begin(); i != construction_items.end(); ++i)
 		{
@@ -1427,7 +1429,7 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &args)
 			uint quantity = i->second;
 			pub::Player::AddCargo(client, good, quantity, 1.0, false);
 		}
-		
+
 		cmd->Print(L"OK");
 		return true;
 	}
@@ -1488,11 +1490,11 @@ bool ExecuteCommandString_Callback(CCmds* cmd, const std::wstring &args)
 
 void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 {
-	returncode = DEFAULT_RETURNCODE; 
+	returncode = DEFAULT_RETURNCODE;
 
 	if (msg == CUSTOM_BASE_BEAM)
 	{
-		CUSTOM_BASE_BEAM_STRUCT* info = reinterpret_cast<CUSTOM_BASE_BEAM_STRUCT*>(data);\
+        auto* info = static_cast<CUSTOM_BASE_BEAM_STRUCT*>(data);\
 		PlayerBase *base = GetPlayerBase(info->iTargetBaseID);
 		if (base)
 		{
@@ -1503,7 +1505,7 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 	}
 	else if (msg == CUSTOM_BASE_IS_DOCKED)
 	{
-		CUSTOM_BASE_IS_DOCKED_STRUCT* info = reinterpret_cast<CUSTOM_BASE_IS_DOCKED_STRUCT*>(data);
+        auto* info = static_cast<CUSTOM_BASE_IS_DOCKED_STRUCT*>(data);
 		PlayerBase *base = GetPlayerBaseForClient(info->iClientID);
 		if (base)
 		{
@@ -1511,7 +1513,7 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void* data)
 			info->iDockedBaseID = base->base;
 		}
 	}
-	return; 
+	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1527,12 +1529,12 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->ePluginReturnCode = &returncode;
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ClearClientInfo, PLUGIN_ClearClientInfo, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));	
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&RequestEvent, PLUGIN_HkIServerImpl_RequestEvent, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LaunchPosHook, PLUGIN_LaunchPosHook, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&PlayerLaunch_AFTER, PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect_AFTER, PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));	
+	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CharacterSelect_AFTER, PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&JumpInComplete, PLUGIN_HkIServerImpl_JumpInComplete, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&BaseExit, PLUGIN_HkIServerImpl_BaseExit, 0));
@@ -1547,11 +1549,11 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
-	
+
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimerCheckKick, PLUGIN_HkTimerCheckKick, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	
+
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CShip_destroy, PLUGIN_HkIEngine_CShip_destroy, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&BaseDestroyed, PLUGIN_BaseDestroyed, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkCb_AddDmgEntry, PLUGIN_HkCb_AddDmgEntry, 0));

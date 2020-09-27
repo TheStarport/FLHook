@@ -229,7 +229,7 @@ void LoadUserSettings(uint iClientID)
 	ClientInfo[iClientID].lstIgnore.clear();
 	for(int i = 1; ; i++)
 	{
-		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", itos(i), L"");
+		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
 		if(!wscIgnore.length())
 			break;
 
@@ -484,10 +484,10 @@ void HookRehashed()
 
 	// open debug log if necessary
 	if(set_bDebug && !fLogDebug) {
-		fLogDebug = fopen(sDebugLog.c_str(), "at");
+		fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
 	} else if(!set_bDebug && fLogDebug) {
 		fclose(fLogDebug);
-		fLogDebug = 0;
+		fLogDebug = nullptr;
 	}
 }
 

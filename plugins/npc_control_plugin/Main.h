@@ -12,7 +12,6 @@
 #include <plugin.h>
 #include <sstream>
 #include <iostream>
-#include "PluginUtilities.h"
 
 static int set_iPluginDebug = 0;
 PLUGIN_RETURNCODE returncode;
@@ -27,5 +26,3 @@ struct USERCMD
 };
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
-
-void AddExceptionInfoLog(struct SEHException* pep);

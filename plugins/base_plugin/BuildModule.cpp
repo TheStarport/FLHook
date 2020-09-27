@@ -34,7 +34,7 @@ std::wstring BuildModule::GetInfo(bool xml)
 			const GoodInfo *gi = GoodList::find_by_id(good);
 			if (gi)
 			{
-				info += L"<PARA/><TEXT>      - " + stows(itos(quantity)) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
+				info += L"<PARA/><TEXT>      - " + std::to_wstring(quantity) + L"x " + HkGetWStringFromIDS(gi->iIDSName);
 				if (base->HasMarketItem(good) < quantity)
 					info += L" [Out of stock]";
 				info += L"</TEXT>";
@@ -54,7 +54,7 @@ std::wstring BuildModule::GetInfo(bool xml)
 			const GoodInfo *gi = GoodList::find_by_id(good);
 			if (gi)
 			{
-				info += stows(itos(quantity)) + L"x" + HkGetWStringFromIDS(gi->iIDSName) + L" ";
+				info += std::to_wstring(quantity) + L"x" + HkGetWStringFromIDS(gi->iIDSName) + L" ";
 			}
 		}
 	}

@@ -8,8 +8,9 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
+#include <plugin_comms.h>
+
 #include "Main.h"
 
 CoreModule::CoreModule(PlayerBase *the_base) : Module(TYPE_CORE), base(the_base), space_obj(0), dont_eat(false), dont_rust(false)
@@ -31,7 +32,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	pub::AI::SetPersonalityParams p;
 	p.iStateGraph = pub::StateGraph::get_state_graph("NOTHING", pub::StateGraph::TYPE_STANDARD);
 	p.bStateID = true;
-	 
+
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[0] = 0.4f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[1] = 0.0f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[2] = 0.4f;
@@ -52,7 +53,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[1] = 0.25f;
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[2] = 0.25f;
 	p.personality.EvadeDodgeUse.evade_dodge_direction_weight[3] = 0.25f;
-	
+
 	p.personality.EvadeBreakUse.evade_break_roll_throttle = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_time = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_interval_time = 10.0f;
@@ -65,7 +66,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.EvadeBreakUse.evade_break_style_weight[0] = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_style_weight[1] = 1.0f;
 	p.personality.EvadeBreakUse.evade_break_style_weight[2] = 1.0f;
-	
+
 	p.personality.BuzzHeadTowardUse.buzz_min_distance_to_head_toward = 500.0f;
 	p.personality.BuzzHeadTowardUse.buzz_min_distance_to_head_toward_variance_percent = 0.25f;
 	p.personality.BuzzHeadTowardUse.buzz_max_time_to_head_away = 1.0f;
@@ -86,7 +87,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[0] = 0.33f;
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[1] = 0.33f;
 	p.personality.BuzzHeadTowardUse.buzz_head_toward_style_weight[2] = 0.33f;
-	
+
 	p.personality.BuzzPassByUse.buzz_distance_to_pass_by = 1000.0f;
 	p.personality.BuzzPassByUse.buzz_pass_by_time = 1.0f;
 	p.personality.BuzzPassByUse.buzz_break_direction_cone_angle = 1.5708f;
@@ -97,7 +98,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.BuzzPassByUse.buzz_break_direction_weight[2] = 1.0f;
 	p.personality.BuzzPassByUse.buzz_break_direction_weight[3] = 1.0f;
 	p.personality.BuzzPassByUse.buzz_pass_by_style_weight[2] = 1.0f;
-	
+
 	p.personality.TrailUse.trail_lock_cone_angle = 0.0873f;
 	p.personality.TrailUse.trail_break_time = 0.5f;
 	p.personality.TrailUse.trail_min_no_lock_time = 0.1f;
@@ -105,23 +106,23 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.TrailUse.trail_break_afterburner = true;
 	p.personality.TrailUse.trail_max_turn_throttle = 1.0f;
 	p.personality.TrailUse.trail_distance = 100.0f;
-	
+
 	p.personality.StrafeUse.strafe_run_away_distance = 100.0f;
 	p.personality.StrafeUse.strafe_attack_throttle = 1.0f;
-	
+
 	p.personality.EngineKillUse.engine_kill_search_time = 0.0f;
 	p.personality.EngineKillUse.engine_kill_face_time = 1.0f;
 	p.personality.EngineKillUse.engine_kill_use_afterburner = true;
 	p.personality.EngineKillUse.engine_kill_afterburner_time = 2.0f;
 	p.personality.EngineKillUse.engine_kill_max_target_distance = 100.0f;
-	
+
 	p.personality.RepairUse.use_shield_repair_pre_delay = 0.0f;
 	p.personality.RepairUse.use_shield_repair_post_delay = 1.0f;
 	p.personality.RepairUse.use_shield_repair_at_damage_percent = 0.2f;
 	p.personality.RepairUse.use_hull_repair_pre_delay = 0.0f;
 	p.personality.RepairUse.use_hull_repair_post_delay = 1.0f;
 	p.personality.RepairUse.use_hull_repair_at_damage_percent = 0.2f;
-	
+
 	p.personality.GunUse.gun_fire_interval_time = 0.1f;
 	p.personality.GunUse.gun_fire_interval_variance_percent = 0.05f;
 	p.personality.GunUse.gun_fire_burst_interval_time = 15.0f;
@@ -138,17 +139,17 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.GunUse.auto_turret_burst_interval_variance_percent = 0.1f;
 	p.personality.GunUse.gun_range_threshold_variance_percent = 1.0f;
 	p.personality.GunUse.gun_fire_accuracy_power_npc = 100.0f;
-	
+
 	p.personality.MineUse.mine_launch_interval = 8.0f;
 	p.personality.MineUse.mine_launch_cone_angle = 0.7854f;
 	p.personality.MineUse.mine_launch_range = 200.0f;
-	
+
 	p.personality.MissileUse.missile_launch_interval_time = 0.0f;
 	p.personality.MissileUse.missile_launch_interval_variance_percent = 0.5f;
 	p.personality.MissileUse.missile_launch_range = 800.0f;
 	p.personality.MissileUse.missile_launch_cone_angle = 0.01745f;
 	p.personality.MissileUse.missile_launch_allow_out_of_range = false;
-	
+
 	p.personality.DamageReaction.evade_break_damage_trigger_percent = 1.0f;
 	p.personality.DamageReaction.evade_dodge_more_damage_trigger_percent = 0.25f;
 	p.personality.DamageReaction.engine_kill_face_damage_trigger_percent = 1.0f;
@@ -164,15 +165,15 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.DamageReaction.fire_guns_damage_trigger_time = 1.0f;
 	p.personality.DamageReaction.fire_missiles_damage_trigger_percent = 1.0f;
 	p.personality.DamageReaction.fire_missiles_damage_trigger_time = 1.0f;
-	
+
 	p.personality.MissileReaction.evade_missile_distance = 800.0f;
 	p.personality.MissileReaction.evade_break_missile_reaction_time = 1.0f;
 	p.personality.MissileReaction.evade_slide_missile_reaction_time = 1.0f;
 	p.personality.MissileReaction.evade_afterburn_missile_reaction_time = 1.0f;
-	
+
 	p.personality.CountermeasureUse.countermeasure_active_time = 5.0f;
 	p.personality.CountermeasureUse.countermeasure_unactive_time = 0.0f;
-	
+
 	p.personality.FormationUse.force_attack_formation_active_time = 0.0f;
 	p.personality.FormationUse.force_attack_formation_unactive_time = 0.0f;
 	p.personality.FormationUse.break_formation_damage_trigger_percent = 0.01f;
@@ -185,7 +186,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.FormationUse.formation_exit_roll_outrun_throttle = 1.0f;
 	p.personality.FormationUse.formation_exit_max_time = 5.0f;
 	p.personality.FormationUse.formation_exit_mode = 1;
-	
+
 	p.personality.Job.wait_for_leader_target = false;
 	p.personality.Job.maximum_leader_target_distance = 3000;
 	p.personality.Job.flee_when_leader_flees_style = false;
@@ -204,7 +205,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	p.personality.Job.attack_order[0].type = 11;
 	p.personality.Job.attack_order[0].flag = 15;
 	p.personality.Job.attack_order[1].type = 12;
-	
+
 	return p;
 }
 
@@ -272,7 +273,7 @@ void CoreModule::Spawn()
 		si.iFlag = 4;
 
 		char archname[100];
-		_snprintf(archname, sizeof(archname), "dsy_playerbase_%02u", base->base_level);
+		_snprintf_s(archname, sizeof(archname), "dsy_playerbase_%02u", base->base_level);
 		si.iArchID = CreateID(archname);
 		si.iLoadoutID = CreateID(archname);
 
@@ -295,7 +296,7 @@ void CoreModule::Spawn()
 			solar_ids = 0;
 			return;
 		}
-		
+
 		// Send the base name to all players that are online
 		base->solar_ids = solar_ids;
 
@@ -324,7 +325,7 @@ void CoreModule::Spawn()
 
 		SpawnSolar(space_obj, si);
 		spaceobj_modules[space_obj] = this;
-		
+
 		// Set base health to reflect saved value unless this is a new base with
 		// a health of zero in which case we set it to 5% of the maximum and let
 		// players repair it.
@@ -484,7 +485,7 @@ bool CoreModule::Timer(uint time)
 float CoreModule::SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage)
 {
 	base->SpaceObjDamaged(space_obj, attacking_space_obj, curr_hitpoints, damage);
-	
+
 	// Reduce the damage to 10% if the shield is or will be online.
 	if (base->shield_state != PlayerBase::SHIELD_STATE_OFFLINE)
 	{
@@ -513,7 +514,7 @@ bool CoreModule::SpaceObjDestroyed(uint space_obj)
 
 		// Unspawn, delete base and save file.
 		DeleteBase(base);
-		
+
 		// Careful not to access this as this object will have been deleted by now.
 		return true;
 	}

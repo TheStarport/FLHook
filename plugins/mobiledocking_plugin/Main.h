@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
 #include <math.h>
 using namespace std;
 
@@ -21,7 +20,7 @@ struct CLIENT_DATA
 	mobile_docked(false) {}
 
 	bool bSetup;
- 
+
 	bool reverse_sell;
 	bool stop_buy;
 	list<CARGO_INFO> cargo;

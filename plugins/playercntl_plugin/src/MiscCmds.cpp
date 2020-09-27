@@ -17,7 +17,7 @@
 #include <list>
 #include <set>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include <FLCoreServer.h>
@@ -124,7 +124,7 @@ namespace MiscCmds
 		Vector erot = MatrixToEuler(rot);
 
 		wchar_t buf[100];
-		_snwprintf(buf, sizeof(buf), L"Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
+		_snwprintf_s(buf, sizeof(buf), L"Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f",
 			pos.x, pos.y, pos.z, erot.x, erot.y, erot.z);
 		PrintUserCmdText(iClientID, buf);
 		return true;
@@ -169,7 +169,7 @@ namespace MiscCmds
 	/** A command to help remove any affiliation that you might have */
 	bool MiscCmds::UserCmd_DropRep(uint iClientID, const std::wstring &wscCmd, const std::wstring &wscParam, const wchar_t *usage)
 	{
-		HK_ERROR err; 
+		HK_ERROR err;
 
 		std::wstring wscCharname = (const wchar_t*) Players.GetActiveCharacterName(iClientID);
 
@@ -225,8 +225,8 @@ namespace MiscCmds
 		uint number = (rand()%max)+1;
 		std::wstring wscMsg = set_wscDiceMsg;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-		wscMsg = ReplaceStr(wscMsg, L"%number", stows(itos(number)));
-		wscMsg = ReplaceStr(wscMsg, L"%max", stows(itos(max)));
+		wscMsg = ReplaceStr(wscMsg, L"%number", std::to_wstring(number));
+		wscMsg = ReplaceStr(wscMsg, L"%max", std::to_wstring(max));
 		PrintLocalUserCmdText(iFromClientID, wscMsg, 6000.0f);
 		return true;
 	}
@@ -293,12 +293,12 @@ namespace MiscCmds
 			Vector vShipLoc;
 			Matrix mShipDir;
 			pub::SpaceObj::GetLocation(iShip, vShipLoc, mShipDir);
-		
+
 			// Is player within scanner range (15K) of the sending char.
 			float fDistance = HkDistance3D(vShipLoc, vFromShipLoc);
 			if (fDistance>14999)
 				continue;
-		
+
 			pub::Audio::Tryptich music;
 			music.iDunno = 0;
 			music.iDunno2 = 0;
@@ -317,8 +317,8 @@ namespace MiscCmds
 				}
 			}
 		}
-		
-		cmds->Print(L"OK\n"); 
+
+		cmds->Print(L"OK\n");
 		return;
 	}
 

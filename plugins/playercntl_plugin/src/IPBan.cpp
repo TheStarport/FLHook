@@ -18,7 +18,7 @@
 #include <set>
 
 #include "Main.h"
-#include "PluginUtilities.h"
+
 #include "wildcards.h"
 
 namespace IPBans
@@ -70,18 +70,20 @@ namespace IPBans
 					std::string scLoginID2 = "";
 					std::string scThisIP = "";
 					std::string scFilePath = scAcctPath +  wstos(wscDir) + "\\" + findFileData.cFileName;
-					FILE *f = fopen(scFilePath.c_str(), "r");
+					FILE *f;
+				    fopen_s(&f, scFilePath.c_str(), "r");
 					if (f)
 					{
 						char szBuf[200];
 						if (fgets(szBuf, sizeof(szBuf), f)!=NULL)
 						{
+							std::string sz = szBuf;
 							try
 							{
-								scLoginID = Trim(GetParam(szBuf, '\t', 1).substr(3, std::string::npos));
-								scThisIP = Trim(GetParam(szBuf, '\t', 2).substr(3, std::string::npos));
-								if (GetParam(szBuf, '\t', 3).length() > 4)
-									scLoginID2 = Trim(GetParam(szBuf, '\t', 3).substr(4, std::string::npos));
+								scLoginID = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
+								scThisIP = Trim(GetParam(sz, '\t', 2).substr(3, std::string::npos));
+								if (GetParam(sz, '\t', 3).length() > 4)
+									scLoginID2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
 							}
 							catch (...)
 							{
@@ -132,10 +134,11 @@ namespace IPBans
 		if (!acc)
 			return false;
 
-		std::wstring wscDir; 
-		HkGetAccountDirName(acc, wscDir); 
+		std::wstring wscDir;
+		HkGetAccountDirName(acc, wscDir);
 		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\authenticated";
-		FILE* fTest = fopen(scUserFile.c_str(), "r");
+		FILE* fTest;
+	    fopen_s(&fTest, scUserFile.c_str(), "r");
 		if (!fTest)
 			return false;
 
@@ -189,7 +192,7 @@ namespace IPBans
 			{
 				while (ini.read_value())
 				{
-					set_lstLoginIDBans.push_back(Trim(ini.get_name_ptr()));
+					set_lstLoginIDBans.push_back(Trim(std::string(ini.get_name_ptr())));
 					if (set_iPluginDebug)
 						ConPrint(L"NOTICE: Adding Login ID ban %s\n", stows(ini.get_name_ptr()).c_str());
 				}
@@ -255,7 +258,8 @@ namespace IPBans
 		}
 
 		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(wscDir) + "\\authenticated";
-		FILE *fTest = fopen(scPath.c_str(), "w");
+		FILE *fTest;
+	    fopen_s(&fTest, scPath.c_str(), "w");
 		if (!fTest)
 		{
 			cmds->Print(L"ERR Writing authentication file\n");

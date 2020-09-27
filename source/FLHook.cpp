@@ -205,11 +205,12 @@ void FLHookInit_Pre()
 		hConsoleThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ReadConsoleEvents, &dwParam, 0, &id);
 
 		// logs
-		fLog = fopen("./flhook_logs/FLHook.log", "at");
+		fopen_s(&fLog, "./flhook_logs/FLHook.log", "at");
 		char szDate[64];
 		time_t tNow = time(0);
-		struct tm *t = localtime(&tNow);
-		strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", t);
+		tm t;
+	    localtime_s(&t, &tNow);
+		strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", &t);
 		sDebugLog = "./flhook_logs/debug/FLHookDebug_"+(std::string)szDate;
 		sDebugLog += ".log";
 
@@ -265,7 +266,7 @@ void FLHookInit_Pre()
 		LoadSettings();
 
 		if (set_bDebug && !fLogDebug)
-			fLogDebug = fopen(sDebugLog.c_str(), "at");
+			fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
 
 		CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
 
@@ -528,15 +529,15 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd)
 			AddLog("socket: socket connection from %s:%d closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort);
 			return true;
 		}
-		swscanf(wscCmd.c_str(), L"pass %s", wszPass);
+		swscanf_s(wscCmd.c_str(), L"pass %s", wszPass, std::size(wszPass));
 
 		// read passes from ini
 		for(uint i = 0;; i++)
 		{
 			char szBuf[64];
-			sprintf(szBuf, "pass%u", i);
+			sprintf_s(szBuf, "pass%u", i);
 			std::string scPass = IniGetS(set_scCfgFile, "Socket", szBuf, "");
-			sprintf(szBuf, "rights%u", i);
+			sprintf_s(szBuf, "rights%u", i);
 			std::string scRights = IniGetS(set_scCfgFile, "Socket", szBuf, "");
 
 			if(!scPass.length()) {
@@ -584,7 +585,7 @@ void ConPrint(std::wstring wscText, ...)
 	va_list marker;
 	va_start(marker, wscText);
 
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	DWORD iCharsWritten;
 	std::string scText = wstos(wszBuf);
@@ -600,7 +601,7 @@ void ProcessEvent(std::wstring wscText, ...)
 	wchar_t wszBuf[1024] = L"";
 	va_list marker;
 	va_start(marker, wscText);
-	_vsnwprintf(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
 
 	wscText = wszBuf;
 

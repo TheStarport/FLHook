@@ -292,8 +292,27 @@ Fuse* HkGetFuseFromID(uint iFuseID)
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Return the CEqObj from the IObjRW
+__declspec(naked) CEqObj * __stdcall HkGetEqObjFromObjRW_(struct IObjRW *objRW)
+{
+   __asm
+   {
+      push ecx
+      push edx
+      mov ecx, [esp+12]
+      mov edx, [ecx]
+      call dword ptr[edx+0x150]
+      pop edx
+      pop ecx
+      ret 4
+   }
+}
 
-__declspec(naked) bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime, float fSkip)
+CEqObj* HkGetEqObjFromObjRW(struct IObjRW *objRW) {
+    return HkGetEqObjFromObjRW_(objRW);
+}
+
+__declspec(naked) bool __stdcall HkLightFuse_(IObjRW *ship, uint iFuseID, float fDelay, float fLifetime, float fSkip)
 {
 	__asm
 	{
@@ -310,10 +329,14 @@ __declspec(naked) bool __stdcall HkLightFuse(IObjRW *ship, uint iFuseID, float f
 	}
 }
 
+bool HkLightFuse(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip) {
+    return HkLightFuse_(ship, iFuseID, fDelay, fLifetime, fSkip);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Returns true if a fuse was unlit
-__declspec(naked) bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float fDunno)
+__declspec(naked) bool __stdcall HkUnLightFuse_(IObjRW *ship, uint iFuseID, float fDunno)
 {
 	__asm
 	{
@@ -328,8 +351,21 @@ __declspec(naked) bool __stdcall HkUnLightFuse(IObjRW *ship, uint iFuseID, float
 	}
 }
 
+bool HkUnLightFuse(IObjRW* ship, uint iFuseID) {
+    return HkUnLightFuse_(ship, iFuseID, 0.f);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkTest(int iArg, int iArg2, int iArg3)
+uint HkGetClientIDFromArg(const std::wstring &wscArg)
 {
+	uint iClientID;
+
+	if (HkResolveId(wscArg, iClientID) == HKE_OK)
+		return iClientID;
+
+	if (HkResolveShortCut(wscArg, iClientID) == HKE_OK)
+		return iClientID;
+
+	return HkGetClientIdFromCharname(wscArg);
 }

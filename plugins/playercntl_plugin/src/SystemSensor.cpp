@@ -21,7 +21,7 @@
 #include <set>
 #include <algorithm>
 
-#include "PluginUtilities.h"
+
 #include "Main.h"
 
 #include "Shlwapi.h"
@@ -65,7 +65,7 @@ namespace SystemSensor
 	static std::map<UINT, INFO> mapInfo;
 
 	void LoadSettings(const std::string &scPluginCfgFile)
-	{	
+	{
 		INI_Reader ini;
 		if (ini.open(scPluginCfgFile.c_str(), false))
 		{
@@ -95,7 +95,7 @@ namespace SystemSensor
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
-			return true;	
+			return true;
 		}
 
 		if (!mapInfo[iClientID].iAvailableNetworkID)
@@ -137,7 +137,7 @@ namespace SystemSensor
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			PrintUserCmdText(iClientID, usage);
-			return true;	
+			return true;
 		}
 
 		uint iTargetClientID = HkGetClientIDFromArg(wscTargetCharname);
@@ -243,7 +243,7 @@ namespace SystemSensor
 	}
 
 	static void DumpSensorAccess(uint iClientID, const std::wstring &wscType, uint iType)
-	{	
+	{
 		unsigned int iSystemID;
 		pub::Player::GetSystem(iClientID, iSystemID);
 
@@ -263,7 +263,7 @@ namespace SystemSensor
 		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), mapInfo[iClientID].lstLastScan, iHoldSize);
 		mapInfo[iClientID].iLastScanNetworkID = siter->second.iNetworkID;
 
-		// Notify any players connected to the the sensor network that this ship is in 
+		// Notify any players connected to the the sensor network that this ship is in
 		auto piter = mapInfo.begin();
 		auto pend = mapInfo.end();
 		while (piter != pend)
@@ -307,18 +307,18 @@ namespace SystemSensor
 
 
 	void JumpInComplete(unsigned int iSystem, unsigned int iShip, unsigned int iClientID)
-	{	
+	{
 		EnableSensorAccess(iClientID);
 		if (mapInfo[iClientID].bInJumpGate)
 		{
 			mapInfo[iClientID].bInJumpGate = false;
-			DumpSensorAccess(iClientID, L"exited jumpgate", MODE_JUMPGATE);		
+			DumpSensorAccess(iClientID, L"exited jumpgate", MODE_JUMPGATE);
 		}
 	}
 
 	void GoTradelane(unsigned int iClientID, struct XGoTradelane const &xgt)
 	{
-		DumpSensorAccess(iClientID, L"entered tradelane", MODE_TRADELANE);		
+		DumpSensorAccess(iClientID, L"entered tradelane", MODE_TRADELANE);
 	}
 
 	void StopTradelane(unsigned int iClientID, unsigned int p1, unsigned int p2, unsigned int p3)

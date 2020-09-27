@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
-#include "PluginUtilities.h"
+
 
 PLUGIN_RETURNCODE returncode;
 
@@ -24,5 +24,3 @@ struct USERCMD
 };
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
-
-void AddExceptionInfoLog(struct SEHException* pep);

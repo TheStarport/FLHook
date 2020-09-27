@@ -56,7 +56,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PluginUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
@@ -65,7 +64,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
-    <ClInclude Include="PluginUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mark.cfg" />
