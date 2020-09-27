@@ -1,24 +1,24 @@
 ﻿#define LOSS_INTERVALL 4000
 
 struct CONNECTION_DATA {
-  // connection data
-  std::list<uint> lstLoss;
-  uint iLastLoss;
-  uint iAverageLoss;
-  std::list<uint> lstPing;
-  uint iAveragePing;
-  uint iPingFluctuation;
-  uint iLastPacketsSent;
-  uint iLastPacketsReceived;
-  uint iLastPacketsDropped;
-  uint iLags;
-  std::list<uint> lstObjUpdateIntervalls;
-  mstime tmLastObjUpdate;
-  mstime tmLastObjTimestamp;
+    // connection data
+    std::list<uint> lstLoss;
+    uint iLastLoss;
+    uint iAverageLoss;
+    std::list<uint> lstPing;
+    uint iAveragePing;
+    uint iPingFluctuation;
+    uint iLastPacketsSent;
+    uint iLastPacketsReceived;
+    uint iLastPacketsDropped;
+    uint iLags;
+    std::list<uint> lstObjUpdateIntervalls;
+    mstime tmLastObjUpdate;
+    mstime tmLastObjTimestamp;
 
-  // exception
-  bool bException;
-  std::string sExceptionReason;
+    // exception
+    bool bException;
+    std::string sExceptionReason;
 };
 
 uint set_iPingKickFrame;

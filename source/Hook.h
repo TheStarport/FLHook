@@ -63,53 +63,56 @@
 #ifdef EXTENDED_EXCEPTION_LOGGING
 
 struct SEHException {
-  SEHException(uint code, EXCEPTION_POINTERS *ep)
-      : code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord) {}
+    SEHException(uint code, EXCEPTION_POINTERS *ep)
+        : code(code), record(*ep->ExceptionRecord),
+          context(*ep->ContextRecord) {}
 
-  SEHException() = default;
+    SEHException() = default;
 
-  uint code;
-  EXCEPTION_RECORD record;
-  CONTEXT context;
+    uint code;
+    EXCEPTION_RECORD record;
+    CONTEXT context;
 
-  static void Translator(uint code, EXCEPTION_POINTERS *ep) {
-    throw SEHException(code, ep);
-  }
+    static void Translator(uint code, EXCEPTION_POINTERS *ep) {
+        throw SEHException(code, ep);
+    }
 };
 
 EXPORT void WriteMiniDump(SEHException *ex);
 EXPORT void AddExceptionInfoLog();
 EXPORT void AddExceptionInfoLog(SEHException *ex);
 #define TRY_HOOK                                                               \
-  try {                                                                        \
-    _set_se_translator(SEHException::Translator);
+    try {                                                                      \
+        _set_se_translator(SEHException::Translator);
 #define CATCH_HOOK(e)                                                          \
-  }                                                                            \
-  catch (SEHException & ex) {                                                  \
-    e;                                                                         \
-    AddBothLog("ERROR: SEH Exception in %s on line %d; minidump may contain "  \
-               "more information.",                                            \
-               __FUNCTION__, __LINE__);                                        \
-    AddExceptionInfoLog(&ex);                                                  \
-  }                                                                            \
-  catch (std::exception & ex) {                                                \
-    e;                                                                         \
-    AddBothLog("ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__,     \
-               __LINE__, ex.what());                                           \
-    AddExceptionInfoLog(0);                                                    \
-  }                                                                            \
-  catch (...) {                                                                \
-    e;                                                                         \
-    AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__, __LINE__);  \
-    AddExceptionInfoLog();                                                     \
-  }
+    }                                                                          \
+    catch (SEHException & ex) {                                                \
+        e;                                                                     \
+        AddBothLog(                                                            \
+            "ERROR: SEH Exception in %s on line %d; minidump may contain "     \
+            "more information.",                                               \
+            __FUNCTION__, __LINE__);                                           \
+        AddExceptionInfoLog(&ex);                                              \
+    }                                                                          \
+    catch (std::exception & ex) {                                              \
+        e;                                                                     \
+        AddBothLog("ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__, \
+                   __LINE__, ex.what());                                       \
+        AddExceptionInfoLog(0);                                                \
+    }                                                                          \
+    catch (...) {                                                              \
+        e;                                                                     \
+        AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__,         \
+                   __LINE__);                                                  \
+        AddExceptionInfoLog();                                                 \
+    }
 #else
 #define TRY_HOOK try
 #define CATCH_HOOK(e)                                                          \
-  catch (...) {                                                                \
-    e;                                                                         \
-    AddLog("ERROR: Exception in %s", __FUNCTION__);                            \
-  }
+    catch (...) {                                                              \
+        e;                                                                     \
+        AddLog("ERROR: Exception in %s", __FUNCTION__);                        \
+    }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,164 +121,168 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 class CCmds;
 
 class CTimer {
-public:
-  EXPORT CTimer(std::string sFunction, uint iWarning);
-  EXPORT void start();
-  EXPORT uint stop();
+  public:
+    EXPORT CTimer(std::string sFunction, uint iWarning);
+    EXPORT void start();
+    EXPORT uint stop();
 
-private:
-  mstime tmStart;
-  uint iMax;
-  std::string sFunction;
-  uint iWarning;
+  private:
+    mstime tmStart;
+    uint iMax;
+    std::string sFunction;
+    uint iWarning;
 };
 
 struct PLUGIN_HOOKDATA {
-  std::string sName;
-  std::string sPluginFunction;
-  HMODULE hDLL;
-  int iPriority;
-  bool bPaused;
-  FARPROC *pFunc;
-  PLUGIN_RETURNCODE *ePluginReturnCode;
+    std::string sName;
+    std::string sPluginFunction;
+    HMODULE hDLL;
+    int iPriority;
+    bool bPaused;
+    FARPROC *pFunc;
+    PLUGIN_RETURNCODE *ePluginReturnCode;
 };
 
 struct PLUGIN_DATA {
-  std::string sName;
-  std::string sShortName;
-  HMODULE hDLL;
-  std::string sDLL;
-  bool bMayPause;
-  bool bMayUnload;
-  bool bPaused;
+    std::string sName;
+    std::string sShortName;
+    HMODULE hDLL;
+    std::string sDLL;
+    bool bMayPause;
+    bool bMayUnload;
+    bool bPaused;
 };
 
 struct PLUGIN_SORTCRIT {
-  bool operator()(const PLUGIN_HOOKDATA &lhs,
-                  const PLUGIN_HOOKDATA &rhs) const {
-    if (lhs.iPriority > rhs.iPriority)
-      return true;
-    else
-      return false;
-  }
+    bool operator()(const PLUGIN_HOOKDATA &lhs,
+                    const PLUGIN_HOOKDATA &rhs) const {
+        if (lhs.iPriority > rhs.iPriority)
+            return true;
+        else
+            return false;
+    }
 };
 
 #define CALL_PLUGINS(callback_id, ret_type, calling_convention, arg_types,     \
                      args)                                                     \
-  {                                                                            \
-    ret_type vPluginRet;                                                       \
-    bool bPluginReturn = false;                                                \
-    g_bPlugin_nofunctioncall = false;                                          \
-    TRY_HOOK {                                                                 \
-      for (auto &plugin : pPluginHooks[(int)callback_id]) {                    \
-        if (plugin.bPaused)                                                    \
-          continue;                                                            \
-        if (plugin.pFunc) {                                                    \
-          CTimer timer(plugin.sPluginFunction, set_iTimerThreshold);           \
-          timer.start();                                                       \
-          TRY_HOOK {                                                           \
-            vPluginRet =                                                       \
-                ((ret_type(calling_convention *) arg_types)plugin.pFunc)args;  \
-          }                                                                    \
-          CATCH_HOOK({                                                         \
-            AddLog("ERROR: Exception in plugin '%s' in %s",                    \
-                   plugin.sName.c_str(), __FUNCTION__);                        \
-          })                                                                   \
-          timer.stop();                                                        \
-        } else                                                                 \
-          AddLog("ERROR: Plugin '%s' does not export %s [%s]",                 \
-                 plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__);           \
-        if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) {         \
-          bPluginReturn = true;                                                \
-          break;                                                               \
-        } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {              \
-          bPluginReturn = true;                                                \
-          g_bPlugin_nofunctioncall = true;                                     \
-        } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)                   \
-          break;                                                               \
-      }                                                                        \
-    }                                                                          \
-    CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })               \
-    if (bPluginReturn)                                                         \
-      return vPluginRet;                                                       \
-  }
+    {                                                                          \
+        ret_type vPluginRet;                                                   \
+        bool bPluginReturn = false;                                            \
+        g_bPlugin_nofunctioncall = false;                                      \
+        TRY_HOOK {                                                             \
+            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
+                if (plugin.bPaused)                                            \
+                    continue;                                                  \
+                if (plugin.pFunc) {                                            \
+                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
+                    timer.start();                                             \
+                    TRY_HOOK {                                                 \
+                        vPluginRet = ((ret_type(calling_convention *)          \
+                                           arg_types)plugin.pFunc)args;        \
+                    }                                                          \
+                    CATCH_HOOK({                                               \
+                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
+                               plugin.sName.c_str(), __FUNCTION__);            \
+                    })                                                         \
+                    timer.stop();                                              \
+                } else                                                         \
+                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
+                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+                    bPluginReturn = true;                                      \
+                    break;                                                     \
+                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
+                    bPluginReturn = true;                                      \
+                    g_bPlugin_nofunctioncall = true;                           \
+                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
+                    break;                                                     \
+            }                                                                  \
+        }                                                                      \
+        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
+        if (bPluginReturn)                                                     \
+            return vPluginRet;                                                 \
+    }
 
 // same for void types, not really seeing a way to integrate it in 1st macro :(
 #define CALL_PLUGINS_V(callback_id, calling_convention, arg_types, args)       \
-  {                                                                            \
-    bool bPluginReturn = false;                                                \
-    g_bPlugin_nofunctioncall = false;                                          \
-    TRY_HOOK {                                                                 \
-      for (auto &plugin : pPluginHooks[(int)callback_id]) {                    \
-        if (plugin.bPaused)                                                    \
-          continue;                                                            \
-        if (plugin.pFunc) {                                                    \
-          CTimer timer(plugin.sPluginFunction, set_iTimerThreshold);           \
-          timer.start();                                                       \
-          TRY_HOOK {                                                           \
-            ((void(calling_convention *) arg_types)plugin.pFunc) args;         \
-          }                                                                    \
-          CATCH_HOOK({                                                         \
-            AddLog("ERROR: Exception in plugin '%s' in %s",                    \
-                   plugin.sName.c_str(), __FUNCTION__);                        \
-          })                                                                   \
-          timer.stop();                                                        \
-        } else                                                                 \
-          AddLog("ERROR: Plugin '%s' does not export %s [%s]",                 \
-                 plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__);           \
-        if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) {         \
-          bPluginReturn = true;                                                \
-          break;                                                               \
-        } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {              \
-          bPluginReturn = true;                                                \
-          g_bPlugin_nofunctioncall = true;                                     \
-        } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)                   \
-          break;                                                               \
-      }                                                                        \
-    }                                                                          \
-    CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })               \
-    if (bPluginReturn)                                                         \
-      return;                                                                  \
-  }
+    {                                                                          \
+        bool bPluginReturn = false;                                            \
+        g_bPlugin_nofunctioncall = false;                                      \
+        TRY_HOOK {                                                             \
+            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
+                if (plugin.bPaused)                                            \
+                    continue;                                                  \
+                if (plugin.pFunc) {                                            \
+                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
+                    timer.start();                                             \
+                    TRY_HOOK {                                                 \
+                        ((void(calling_convention *) arg_types)plugin.pFunc)   \
+                            args;                                              \
+                    }                                                          \
+                    CATCH_HOOK({                                               \
+                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
+                               plugin.sName.c_str(), __FUNCTION__);            \
+                    })                                                         \
+                    timer.stop();                                              \
+                } else                                                         \
+                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
+                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+                    bPluginReturn = true;                                      \
+                    break;                                                     \
+                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
+                    bPluginReturn = true;                                      \
+                    g_bPlugin_nofunctioncall = true;                           \
+                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
+                    break;                                                     \
+            }                                                                  \
+        }                                                                      \
+        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
+        if (bPluginReturn)                                                     \
+            return;                                                            \
+    }
 
 // extra macro for plugin calls where we dont care about or dont allow returning
 #define CALL_PLUGINS_NORET(callback_id, calling_convention, arg_types, args)   \
-  {                                                                            \
-    g_bPlugin_nofunctioncall = false;                                          \
-    TRY_HOOK {                                                                 \
-      for (auto &plugin : pPluginHooks[(int)callback_id]) {                    \
-        if (plugin.bPaused)                                                    \
-          continue;                                                            \
-        if (plugin.pFunc) {                                                    \
-          CTimer timer(plugin.sPluginFunction, set_iTimerThreshold);           \
-          timer.start();                                                       \
-          TRY_HOOK {                                                           \
-            ((void(calling_convention *) arg_types)plugin.pFunc) args;         \
-          }                                                                    \
-          CATCH_HOOK({                                                         \
-            AddLog("ERROR: Exception in plugin '%s' in %s",                    \
-                   plugin.sName.c_str(), __FUNCTION__);                        \
-          })                                                                   \
-          timer.stop();                                                        \
-        } else                                                                 \
-          AddLog("ERROR: Plugin '%s' does not export %s [%s]",                 \
-                 plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__);           \
-        if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) {         \
-          AddLog("ERROR: Plugin '%s' wants to suppress function call in %s "   \
-                 "[%s] - denied!",                                             \
-                 plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__);           \
-          break;                                                               \
-        } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {              \
-          AddLog("ERROR: Plugin '%s' wants to suppress function call in %s "   \
-                 "[%s] - denied!",                                             \
-                 plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__);           \
-          g_bPlugin_nofunctioncall = true;                                     \
-        } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)                   \
-          break;                                                               \
-      }                                                                        \
-    }                                                                          \
-    CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })               \
-  }
+    {                                                                          \
+        g_bPlugin_nofunctioncall = false;                                      \
+        TRY_HOOK {                                                             \
+            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
+                if (plugin.bPaused)                                            \
+                    continue;                                                  \
+                if (plugin.pFunc) {                                            \
+                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
+                    timer.start();                                             \
+                    TRY_HOOK {                                                 \
+                        ((void(calling_convention *) arg_types)plugin.pFunc)   \
+                            args;                                              \
+                    }                                                          \
+                    CATCH_HOOK({                                               \
+                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
+                               plugin.sName.c_str(), __FUNCTION__);            \
+                    })                                                         \
+                    timer.stop();                                              \
+                } else                                                         \
+                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
+                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
+                    AddLog("ERROR: Plugin '%s' wants to suppress function "    \
+                           "call in %s "                                       \
+                           "[%s] - denied!",                                   \
+                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+                    break;                                                     \
+                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
+                    AddLog("ERROR: Plugin '%s' wants to suppress function "    \
+                           "call in %s "                                       \
+                           "[%s] - denied!",                                   \
+                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
+                    g_bPlugin_nofunctioncall = true;                           \
+                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
+                    break;                                                     \
+            }                                                                  \
+        }                                                                      \
+        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
+    }
 
 typedef PLUGIN_INFO *(*PLUGIN_Get_PluginInfo)();
 
@@ -295,275 +302,275 @@ EXPORT extern _GetShipInspect GetShipInspect;
 // enums
 
 enum HK_ERROR {
-  HKE_OK,
-  HKE_PLAYER_NOT_LOGGED_IN,
-  HKE_CHAR_DOES_NOT_EXIST,
-  HKE_INVALID_CLIENT_ID,
-  HKE_COULD_NOT_DECODE_CHARFILE,
-  HKE_COULD_NOT_ENCODE_CHARFILE,
-  HKE_INVALID_BASENAME,
-  HKE_INVALID_ID_STRING,
-  HKE_INVALID_SYSTEM,
-  HKE_PLAYER_NOT_IN_SPACE,
-  HKE_PLAYER_NO_ADMIN,
-  HKE_WRONG_XML_SYNTAX,
-  HKE_INVALID_GOOD,
-  HKE_NO_CHAR_SELECTED,
-  HKE_CHARNAME_ALREADY_EXISTS,
-  HKE_CHARNAME_TOO_LONG,
-  HKE_CHARNAME_TOO_SHORT,
-  HKE_AMBIGUOUS_SHORTCUT,
-  HKE_NO_MATCHING_PLAYER,
-  HKE_INVALID_SHORTCUT_STRING,
-  HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID,
-  HKE_INVALID_REP_GROUP,
-  HKE_PLUGIN_UNLOADABLE,
-  HKE_PLUGIN_UNPAUSABLE,
-  HKE_PLUGIN_NOT_FOUND,
-  HKE_UNKNOWN_ERROR,
-  HKE_CUSTOM_1,
-  HKE_CUSTOM_2,
-  HKE_CUSTOM_3,
-  HKE_CUSTOM_4,
-  HKE_CUSTOM_5,
-  HKE_CUSTOM_6,
-  HKE_CUSTOM_7,
-  HKE_CUSTOM_8,
-  HKE_CUSTOM_9,
-  HKE_CUSTOM_10,
+    HKE_OK,
+    HKE_PLAYER_NOT_LOGGED_IN,
+    HKE_CHAR_DOES_NOT_EXIST,
+    HKE_INVALID_CLIENT_ID,
+    HKE_COULD_NOT_DECODE_CHARFILE,
+    HKE_COULD_NOT_ENCODE_CHARFILE,
+    HKE_INVALID_BASENAME,
+    HKE_INVALID_ID_STRING,
+    HKE_INVALID_SYSTEM,
+    HKE_PLAYER_NOT_IN_SPACE,
+    HKE_PLAYER_NO_ADMIN,
+    HKE_WRONG_XML_SYNTAX,
+    HKE_INVALID_GOOD,
+    HKE_NO_CHAR_SELECTED,
+    HKE_CHARNAME_ALREADY_EXISTS,
+    HKE_CHARNAME_TOO_LONG,
+    HKE_CHARNAME_TOO_SHORT,
+    HKE_AMBIGUOUS_SHORTCUT,
+    HKE_NO_MATCHING_PLAYER,
+    HKE_INVALID_SHORTCUT_STRING,
+    HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID,
+    HKE_INVALID_REP_GROUP,
+    HKE_PLUGIN_UNLOADABLE,
+    HKE_PLUGIN_UNPAUSABLE,
+    HKE_PLUGIN_NOT_FOUND,
+    HKE_UNKNOWN_ERROR,
+    HKE_CUSTOM_1,
+    HKE_CUSTOM_2,
+    HKE_CUSTOM_3,
+    HKE_CUSTOM_4,
+    HKE_CUSTOM_5,
+    HKE_CUSTOM_6,
+    HKE_CUSTOM_7,
+    HKE_CUSTOM_8,
+    HKE_CUSTOM_9,
+    HKE_CUSTOM_10,
 };
 
 enum DIEMSGTYPE {
-  DIEMSG_ALL = 0,
-  DIEMSG_SYSTEM = 1,
-  DIEMSG_NONE = 2,
-  DIEMSG_SELF = 3,
+    DIEMSG_ALL = 0,
+    DIEMSG_SYSTEM = 1,
+    DIEMSG_NONE = 2,
+    DIEMSG_SELF = 3,
 };
 
 enum CHATSIZE {
-  CS_DEFAULT = 0,
-  CS_SMALL = 1,
-  CS_BIG = 2,
+    CS_DEFAULT = 0,
+    CS_SMALL = 1,
+    CS_BIG = 2,
 };
 
 enum CHATSTYLE {
-  CST_DEFAULT = 0,
-  CST_BOLD = 1,
-  CST_ITALIC = 2,
-  CST_UNDERLINE = 3,
+    CST_DEFAULT = 0,
+    CST_BOLD = 1,
+    CST_ITALIC = 2,
+    CST_UNDERLINE = 3,
 };
 
 enum ENGINE_STATE {
-  ES_CRUISE,
-  ES_THRUSTER,
-  ES_ENGINE,
-  ES_KILLED,
-  ES_TRADELANE
+    ES_CRUISE,
+    ES_THRUSTER,
+    ES_ENGINE,
+    ES_KILLED,
+    ES_TRADELANE
 };
 
 enum EQ_TYPE {
-  ET_GUN,
-  ET_TORPEDO,
-  ET_CD,
-  ET_MISSILE,
-  ET_MINE,
-  ET_CM,
-  ET_SHIELDGEN,
-  ET_THRUSTER,
-  ET_SHIELDBAT,
-  ET_NANOBOT,
-  ET_MUNITION,
-  ET_ENGINE,
-  ET_OTHER,
-  ET_SCANNER,
-  ET_TRACTOR,
-  ET_LIGHT
+    ET_GUN,
+    ET_TORPEDO,
+    ET_CD,
+    ET_MISSILE,
+    ET_MINE,
+    ET_CM,
+    ET_SHIELDGEN,
+    ET_THRUSTER,
+    ET_SHIELDBAT,
+    ET_NANOBOT,
+    ET_MUNITION,
+    ET_ENGINE,
+    ET_OTHER,
+    ET_SCANNER,
+    ET_TRACTOR,
+    ET_LIGHT
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structs
 
 struct HOOKENTRY {
-  FARPROC fpProc;
-  long dwRemoteAddress;
-  FARPROC fpOldProc;
+    FARPROC fpProc;
+    long dwRemoteAddress;
+    FARPROC fpOldProc;
 };
 
 struct CARGO_INFO {
-  uint iID;
-  int iCount;
-  uint iArchID;
-  float fStatus;
-  bool bMission;
-  bool bMounted;
-  CacheString hardpoint;
+    uint iID;
+    int iCount;
+    uint iArchID;
+    float fStatus;
+    bool bMission;
+    bool bMounted;
+    CacheString hardpoint;
 };
 
 // money stuff
 struct MONEY_FIX {
-  std::wstring wscCharname;
-  int iAmount;
+    std::wstring wscCharname;
+    int iAmount;
 
-  bool operator==(MONEY_FIX mf1) const {
-    if (!wscCharname.compare(mf1.wscCharname))
-      return true;
+    bool operator==(MONEY_FIX mf1) const {
+        if (!wscCharname.compare(mf1.wscCharname))
+            return true;
 
-    return false;
-  };
+        return false;
+    };
 };
 
 // ignore
 struct IGNORE_INFO {
-  std::wstring wscCharname;
-  std::wstring wscFlags;
+    std::wstring wscCharname;
+    std::wstring wscFlags;
 };
 
 // resolver
 struct RESOLVE_IP {
-  uint iClientID;
-  uint iConnects;
-  std::wstring wscIP;
-  std::wstring wscHostname;
+    uint iClientID;
+    uint iConnects;
+    std::wstring wscIP;
+    std::wstring wscHostname;
 };
 
 struct CLIENT_INFO {
-  // kill msgs
-  uint iShip;
-  uint iShipOld;
-  mstime tmSpawnTime;
+    // kill msgs
+    uint iShip;
+    uint iShipOld;
+    mstime tmSpawnTime;
 
-  DamageList dmgLast;
+    DamageList dmgLast;
 
-  // money cmd
-  std::list<MONEY_FIX> lstMoneyFix;
+    // money cmd
+    std::list<MONEY_FIX> lstMoneyFix;
 
-  // anticheat
-  uint iTradePartner;
+    // anticheat
+    uint iTradePartner;
 
-  // change cruise disruptor behaviour
-  bool bCruiseActivated;
-  bool bThrusterActivated;
-  bool bEngineKilled;
-  bool bTradelane;
+    // change cruise disruptor behaviour
+    bool bCruiseActivated;
+    bool bThrusterActivated;
+    bool bEngineKilled;
+    bool bTradelane;
 
-  // idle kicks
-  uint iBaseEnterTime;
-  uint iCharMenuEnterTime;
+    // idle kicks
+    uint iBaseEnterTime;
+    uint iCharMenuEnterTime;
 
-  // msg, wait and kick
-  mstime tmKickTime;
+    // msg, wait and kick
+    mstime tmKickTime;
 
-  // eventmode
-  uint iLastExitedBaseID;
-  bool bDisconnected;
+    // eventmode
+    uint iLastExitedBaseID;
+    bool bDisconnected;
 
-  // f1 laming
-  bool bCharSelected;
-  mstime tmF1Time;
-  mstime tmF1TimeDisconnect;
+    // f1 laming
+    bool bCharSelected;
+    mstime tmF1Time;
+    mstime tmF1TimeDisconnect;
 
-  // ignore usercommand
-  std::list<IGNORE_INFO> lstIgnore;
+    // ignore usercommand
+    std::list<IGNORE_INFO> lstIgnore;
 
-  // user settings
-  DIEMSGTYPE dieMsg;
-  CHATSIZE dieMsgSize;
-  CHATSTYLE dieMsgStyle;
-  CHATSIZE chatSize;
-  CHATSTYLE chatStyle;
+    // user settings
+    DIEMSGTYPE dieMsg;
+    CHATSIZE dieMsgSize;
+    CHATSTYLE dieMsgStyle;
+    CHATSIZE chatSize;
+    CHATSTYLE chatStyle;
 
-  // autobuy
-  bool bAutoBuyMissiles;
-  bool bAutoBuyMines;
-  bool bAutoBuyTorps;
-  bool bAutoBuyCD;
-  bool bAutoBuyCM;
-  bool bAutoBuyReload;
+    // autobuy
+    bool bAutoBuyMissiles;
+    bool bAutoBuyMines;
+    bool bAutoBuyTorps;
+    bool bAutoBuyCD;
+    bool bAutoBuyCM;
+    bool bAutoBuyReload;
 
-  // MultiKillMessages
-  uint iKillsInARow;
+    // MultiKillMessages
+    uint iKillsInARow;
 
-  // bans
-  uint iConnects; // incremented when player connects
+    // bans
+    uint iConnects; // incremented when player connects
 
-  // other
-  std::wstring wscHostname;
+    // other
+    std::wstring wscHostname;
 
-  bool bSpawnProtected;
-  uchar unused_data[128];
+    bool bSpawnProtected;
+    uchar unused_data[128];
 };
 
 // taken from directplay
 typedef struct _DPN_CONNECTION_INFO {
-  DWORD dwSize;
-  DWORD dwRoundTripLatencyMS;
-  DWORD dwThroughputBPS;
-  DWORD dwPeakThroughputBPS;
-  DWORD dwBytesSentGuaranteed;
-  DWORD dwPacketsSentGuaranteed;
-  DWORD dwBytesSentNonGuaranteed;
-  DWORD dwPacketsSentNonGuaranteed;
-  DWORD dwBytesRetried;
-  DWORD dwPacketsRetried;
-  DWORD dwBytesDropped;
-  DWORD dwPacketsDropped;
-  DWORD dwMessagesTransmittedHighPriority;
-  DWORD dwMessagesTimedOutHighPriority;
-  DWORD dwMessagesTransmittedNormalPriority;
-  DWORD dwMessagesTimedOutNormalPriority;
-  DWORD dwMessagesTransmittedLowPriority;
-  DWORD dwMessagesTimedOutLowPriority;
-  DWORD dwBytesReceivedGuaranteed;
-  DWORD dwPacketsReceivedGuaranteed;
-  DWORD dwBytesReceivedNonGuaranteed;
-  DWORD dwPacketsReceivedNonGuaranteed;
-  DWORD dwMessagesReceived;
+    DWORD dwSize;
+    DWORD dwRoundTripLatencyMS;
+    DWORD dwThroughputBPS;
+    DWORD dwPeakThroughputBPS;
+    DWORD dwBytesSentGuaranteed;
+    DWORD dwPacketsSentGuaranteed;
+    DWORD dwBytesSentNonGuaranteed;
+    DWORD dwPacketsSentNonGuaranteed;
+    DWORD dwBytesRetried;
+    DWORD dwPacketsRetried;
+    DWORD dwBytesDropped;
+    DWORD dwPacketsDropped;
+    DWORD dwMessagesTransmittedHighPriority;
+    DWORD dwMessagesTimedOutHighPriority;
+    DWORD dwMessagesTransmittedNormalPriority;
+    DWORD dwMessagesTimedOutNormalPriority;
+    DWORD dwMessagesTransmittedLowPriority;
+    DWORD dwMessagesTimedOutLowPriority;
+    DWORD dwBytesReceivedGuaranteed;
+    DWORD dwPacketsReceivedGuaranteed;
+    DWORD dwBytesReceivedNonGuaranteed;
+    DWORD dwPacketsReceivedNonGuaranteed;
+    DWORD dwMessagesReceived;
 } DPN_CONNECTION_INFO, *PDPN_CONNECTION_INFO;
 
 struct HKPLAYERINFO {
-  uint iClientID;
-  std::wstring wscCharname;
-  std::wstring wscBase;
-  std::wstring wscSystem;
-  uint iSystem;
-  uint iShip;
-  DPN_CONNECTION_INFO ci;
-  std::wstring wscIP;
-  std::wstring wscHostname;
+    uint iClientID;
+    std::wstring wscCharname;
+    std::wstring wscBase;
+    std::wstring wscSystem;
+    uint iSystem;
+    uint iShip;
+    DPN_CONNECTION_INFO ci;
+    std::wstring wscIP;
+    std::wstring wscHostname;
 };
 
 // patch stuff
 struct PATCH_INFO_ENTRY {
-  ulong pAddress;
-  void *pNewValue;
-  uint iSize;
-  void *pOldValue;
-  bool bAlloced;
+    ulong pAddress;
+    void *pNewValue;
+    uint iSize;
+    void *pOldValue;
+    bool bAlloced;
 };
 
 struct PATCH_INFO {
-  char *szBinName;
-  ulong pBaseAddress;
+    char *szBinName;
+    ulong pBaseAddress;
 
-  PATCH_INFO_ENTRY piEntries[128];
+    PATCH_INFO_ENTRY piEntries[128];
 };
 
 struct DATA_MARKETITEM {
-  uint iArchID;
-  float fRep;
+    uint iArchID;
+    float fRep;
 };
 
 struct BASE_INFO {
-  uint iBaseID;
-  std::string scBasename;
-  uint iObjectID;
-  bool bDestroyed;
-  std::list<DATA_MARKETITEM> lstMarketMisc;
+    uint iBaseID;
+    std::string scBasename;
+    uint iObjectID;
+    bool bDestroyed;
+    std::list<DATA_MARKETITEM> lstMarketMisc;
 };
 
 struct GROUP_MEMBER {
-  uint iClientID;
-  std::wstring wscCharname;
+    uint iClientID;
+    std::wstring wscCharname;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -721,10 +728,10 @@ EXPORT void HkSaveChar(uint iClientID);
 
 // HkFuncLog
 #define AddBothLog(s, ...)                                                     \
-  {                                                                            \
-    AddLog(s, __VA_ARGS__);                                                    \
-    AddDebugLog(s, __VA_ARGS__);                                               \
-  }
+    {                                                                          \
+        AddLog(s, __VA_ARGS__);                                                \
+        AddDebugLog(s, __VA_ARGS__);                                           \
+    }
 EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason,
@@ -890,11 +897,11 @@ extern EXPORT bool g_bPlugin_nofunctioncall;
 
 typedef bool (*_HelpEntryDisplayed)(uint);
 struct stHelpEntry {
-  std::wstring wszCommand;
-  std::wstring wszArguments;
-  std::wstring wszShortHelp;
-  std::wstring wszLongHelp;
-  _HelpEntryDisplayed fnIsDisplayed;
+    std::wstring wszCommand;
+    std::wstring wszArguments;
+    std::wstring wszShortHelp;
+    std::wstring wszLongHelp;
+    _HelpEntryDisplayed fnIsDisplayed;
 };
 
 extern std::list<stHelpEntry> lstHelpEntries;
@@ -911,7 +918,7 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
                                      const std::wstring &wscCharname);
 
 #define HK_GET_CLIENTID(a, b)                                                  \
-  bool bIdString = false;                                                      \
-  uint a = uint(-1);                                                           \
-  if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)                \
-    return err;
+    bool bIdString = false;                                                    \
+    uint a = uint(-1);                                                         \
+    if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)              \
+        return err;

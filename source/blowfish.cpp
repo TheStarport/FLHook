@@ -276,147 +276,147 @@ static const unsigned long ORIG_S[4][256] = {
      0x3AC372E6L}};
 
 static unsigned long F(BLOWFISH_CTX *ctx, unsigned long x) {
-  unsigned short a, b, c, d;
-  unsigned long y;
+    unsigned short a, b, c, d;
+    unsigned long y;
 
-  d = (unsigned short)(x & 0xFF);
-  x >>= 8;
-  c = (unsigned short)(x & 0xFF);
-  x >>= 8;
-  b = (unsigned short)(x & 0xFF);
-  x >>= 8;
-  a = (unsigned short)(x & 0xFF);
-  y = ctx->S[0][a] + ctx->S[1][b];
-  y = y ^ ctx->S[2][c];
-  y = y + ctx->S[3][d];
+    d = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    c = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    b = (unsigned short)(x & 0xFF);
+    x >>= 8;
+    a = (unsigned short)(x & 0xFF);
+    y = ctx->S[0][a] + ctx->S[1][b];
+    y = y ^ ctx->S[2][c];
+    y = y + ctx->S[3][d];
 
-  return y;
+    return y;
 }
 
 void Encrypt64(BLOWFISH_CTX *ctx, unsigned long *xl, unsigned long *xr) {
-  unsigned long Xl;
-  unsigned long Xr;
-  unsigned long temp;
-  short i;
+    unsigned long Xl;
+    unsigned long Xr;
+    unsigned long temp;
+    short i;
 
-  Xl = *xl;
-  Xr = *xr;
+    Xl = *xl;
+    Xr = *xr;
 
-  for (i = 0; i < N; ++i) {
-    Xl = Xl ^ ctx->P[i];
-    Xr = F(ctx, Xl) ^ Xr;
+    for (i = 0; i < N; ++i) {
+        Xl = Xl ^ ctx->P[i];
+        Xr = F(ctx, Xl) ^ Xr;
+
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
+    }
 
     temp = Xl;
     Xl = Xr;
     Xr = temp;
-  }
 
-  temp = Xl;
-  Xl = Xr;
-  Xr = temp;
+    Xr = Xr ^ ctx->P[N];
+    Xl = Xl ^ ctx->P[N + 1];
 
-  Xr = Xr ^ ctx->P[N];
-  Xl = Xl ^ ctx->P[N + 1];
-
-  *xl = Xl;
-  *xr = Xr;
+    *xl = Xl;
+    *xr = Xr;
 }
 
 void Decrypt64(BLOWFISH_CTX *ctx, unsigned long *xl, unsigned long *xr) {
-  unsigned long Xl;
-  unsigned long Xr;
-  unsigned long temp;
-  short i;
+    unsigned long Xl;
+    unsigned long Xr;
+    unsigned long temp;
+    short i;
 
-  Xl = *xl;
-  Xr = *xr;
+    Xl = *xl;
+    Xr = *xr;
 
-  for (i = N + 1; i > 1; --i) {
-    Xl = Xl ^ ctx->P[i];
-    Xr = F(ctx, Xl) ^ Xr;
+    for (i = N + 1; i > 1; --i) {
+        Xl = Xl ^ ctx->P[i];
+        Xr = F(ctx, Xl) ^ Xr;
+
+        /* Exchange Xl and Xr */
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
+    }
 
     /* Exchange Xl and Xr */
     temp = Xl;
     Xl = Xr;
     Xr = temp;
-  }
 
-  /* Exchange Xl and Xr */
-  temp = Xl;
-  Xl = Xr;
-  Xr = temp;
+    Xr = Xr ^ ctx->P[1];
+    Xl = Xl ^ ctx->P[0];
 
-  Xr = Xr ^ ctx->P[1];
-  Xl = Xl ^ ctx->P[0];
-
-  *xl = Xl;
-  *xr = Xr;
+    *xl = Xl;
+    *xr = Xr;
 }
 
 char Blowfish_Encrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen) {
-  unsigned long i;
+    unsigned long i;
 
-  if (dataLen % 8)
-    return 0;
+    if (dataLen % 8)
+        return 0;
 
-  for (i = 0; i < dataLen; i += 8) {
+    for (i = 0; i < dataLen; i += 8) {
 
-    Encrypt64(ctx, (unsigned long *)((char *)ptr + i),
-              (unsigned long *)((char *)ptr + i + 4));
-  }
+        Encrypt64(ctx, (unsigned long *)((char *)ptr + i),
+                  (unsigned long *)((char *)ptr + i + 4));
+    }
 
-  return 1;
+    return 1;
 }
 
 char Blowfish_Decrypt(BLOWFISH_CTX *ctx, void *ptr, unsigned long dataLen) {
-  unsigned long i;
+    unsigned long i;
 
-  if (dataLen % 8)
-    return 0;
+    if (dataLen % 8)
+        return 0;
 
-  for (i = 0; i < dataLen; i += 8) {
-    Decrypt64(ctx, (unsigned long *)((char *)ptr + i),
-              (unsigned long *)((char *)ptr + i + 4));
-  }
+    for (i = 0; i < dataLen; i += 8) {
+        Decrypt64(ctx, (unsigned long *)((char *)ptr + i),
+                  (unsigned long *)((char *)ptr + i + 4));
+    }
 
-  return 1;
+    return 1;
 }
 
 void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen) {
-  int i, j, k;
-  unsigned long data, datal, datar;
+    int i, j, k;
+    unsigned long data, datal, datar;
 
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 256; j++)
-      ctx->S[i][j] = ORIG_S[i][j];
-  }
-
-  j = 0;
-  for (i = 0; i < N + 2; ++i) {
-    data = 0x00000000;
-    for (k = 0; k < 4; ++k) {
-      data = (data << 8) | key[j];
-      j = j + 1;
-      if (j >= keyLen)
-        j = 0;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 256; j++)
+            ctx->S[i][j] = ORIG_S[i][j];
     }
-    ctx->P[i] = ORIG_P[i] ^ data;
-  }
 
-  datal = 0x00000000;
-  datar = 0x00000000;
-
-  for (i = 0; i < N + 2; i += 2) {
-    Encrypt64(ctx, &datal, &datar);
-    ctx->P[i] = datal;
-    ctx->P[i + 1] = datar;
-  }
-
-  for (i = 0; i < 4; ++i) {
-    for (j = 0; j < 256; j += 2) {
-      Encrypt64(ctx, &datal, &datar);
-      ctx->S[i][j] = datal;
-      ctx->S[i][j + 1] = datar;
+    j = 0;
+    for (i = 0; i < N + 2; ++i) {
+        data = 0x00000000;
+        for (k = 0; k < 4; ++k) {
+            data = (data << 8) | key[j];
+            j = j + 1;
+            if (j >= keyLen)
+                j = 0;
+        }
+        ctx->P[i] = ORIG_P[i] ^ data;
     }
-  }
+
+    datal = 0x00000000;
+    datar = 0x00000000;
+
+    for (i = 0; i < N + 2; i += 2) {
+        Encrypt64(ctx, &datal, &datar);
+        ctx->P[i] = datal;
+        ctx->P[i + 1] = datar;
+    }
+
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < 256; j += 2) {
+            Encrypt64(ctx, &datal, &datar);
+            ctx->S[i][j] = datal;
+            ctx->S[i][j + 1] = datar;
+        }
+    }
 }

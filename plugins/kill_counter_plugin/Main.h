@@ -13,8 +13,8 @@ PLUGIN_RETURNCODE returncode;
 typedef void (*_UserCmdProc)(uint, const std::wstring &);
 
 struct USERCMD {
-  wchar_t *wszCmd;
-  _UserCmdProc proc;
+    wchar_t *wszCmd;
+    _UserCmdProc proc;
 };
 
 #define IS_CMD(a) !wscCmd.compare(L##a)

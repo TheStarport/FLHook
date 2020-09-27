@@ -3,8 +3,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct HK_ERROR_INFO {
-  HK_ERROR hkErr;
-  wchar_t *wszText;
+    HK_ERROR hkErr;
+    wchar_t *wszText;
 };
 
 HK_ERROR_INFO hkErrors[] = {
@@ -38,10 +38,10 @@ HK_ERROR_INFO hkErrors[] = {
 };
 
 std::wstring HkErrGetText(HK_ERROR hkErr) {
-  for (uint i = 0; (i < (sizeof(hkErrors) / sizeof(HK_ERROR_INFO))); i++) {
-    if (hkErrors[i].hkErr == hkErr)
-      return hkErrors[i].wszText;
-  }
+    for (uint i = 0; (i < (sizeof(hkErrors) / sizeof(HK_ERROR_INFO))); i++) {
+        if (hkErrors[i].hkErr == hkErr)
+            return hkErrors[i].wszText;
+    }
 
-  return L"No error text available";
+    return L"No error text available";
 }

@@ -8,10 +8,10 @@ StorageModule::~StorageModule() {}
 std::wstring StorageModule::GetInfo(bool xml) { return L"Cargo Storage"; }
 
 void StorageModule::LoadState(INI_Reader &ini) {
-  while (ini.read_value()) {
-  }
+    while (ini.read_value()) {
+    }
 }
 
 void StorageModule::SaveState(FILE *file) {
-  fprintf(file, "[StorageModule]\n");
+    fprintf(file, "[StorageModule]\n");
 }

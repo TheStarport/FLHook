@@ -21,8 +21,8 @@ See blowfish.c for more information about this file.
 #define EXPORT __declspec(dllexport)
 
 typedef struct {
-  unsigned long P[16 + 2];
-  unsigned long S[4][256];
+    unsigned long P[16 + 2];
+    unsigned long S[4][256];
 } BLOWFISH_CTX;
 
 EXPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);

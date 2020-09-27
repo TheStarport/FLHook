@@ -40,13 +40,13 @@ typedef unsigned __int64 mstime;
 
 // structures
 struct INISECTIONVALUE {
-  std::string scKey;
-  std::string scValue;
+    std::string scKey;
+    std::string scValue;
 };
 
 struct MULTIKILLMESSAGE {
-  uint iKillsInARow;
-  std::wstring wscMessage;
+    uint iKillsInARow;
+    std::wstring wscMessage;
 };
 
 // functions
@@ -187,95 +187,95 @@ extern EXPORT bool set_bLogUserCmds;
 extern EXPORT bool set_bPerfTimer;
 
 struct SYSTEMINFO {
-  /** The system nickname */
-  std::string sysNick;
+    /** The system nickname */
+    std::string sysNick;
 
-  /** The system id */
-  uint systemId;
+    /** The system id */
+    uint systemId;
 
-  /** The system scale */
-  float scale;
+    /** The system scale */
+    float scale;
 };
 
 struct TransformMatrix {
-  float d[4][4];
+    float d[4][4];
 };
 
 struct ZONE {
-  /** The system nickname */
-  std::string sysNick;
+    /** The system nickname */
+    std::string sysNick;
 
-  /** The zone nickname */
-  std::string zoneNick;
+    /** The zone nickname */
+    std::string zoneNick;
 
-  /** The id of the system for this zone */
-  uint systemId;
+    /** The id of the system for this zone */
+    uint systemId;
 
-  /** The zone transformation matrix */
-  TransformMatrix transform;
+    /** The zone transformation matrix */
+    TransformMatrix transform;
 
-  /** The zone ellipsoid size */
-  Vector size;
+    /** The zone ellipsoid size */
+    Vector size;
 
-  /** The zone position */
-  Vector pos;
+    /** The zone position */
+    Vector pos;
 
-  /** The damage this zone causes per second */
-  int damage;
+    /** The damage this zone causes per second */
+    int damage;
 
-  /** Is this an encounter zone */
-  bool encounter;
+    /** Is this an encounter zone */
+    bool encounter;
 };
 
 class JUMPPOINT {
-public:
-  /** The system nickname */
-  std::string sysNick;
+  public:
+    /** The system nickname */
+    std::string sysNick;
 
-  /** The jump point nickname */
-  std::string jumpNick;
+    /** The jump point nickname */
+    std::string jumpNick;
 
-  /** The jump point destination system nickname */
-  std::string jumpDestSysNick;
+    /** The jump point destination system nickname */
+    std::string jumpDestSysNick;
 
-  /** The id of the system for this jump point. */
-  uint System;
+    /** The id of the system for this jump point. */
+    uint System;
 
-  /** The id of the jump point. */
-  uint jumpID;
+    /** The id of the jump point. */
+    uint jumpID;
 
-  /** The jump point destination system id */
-  uint jumpDestSysID;
+    /** The jump point destination system id */
+    uint jumpDestSysID;
 };
 
 struct LOOTABLE_ZONE {
-  /** The zone nickname */
-  std::string zoneNick;
+    /** The zone nickname */
+    std::string zoneNick;
 
-  /** The id of the system for this lootable zone */
-  uint systemID;
+    /** The id of the system for this lootable zone */
+    uint systemID;
 
-  /** The nickname and arch id of the loot dropped by the asteroids */
-  std::string lootNick;
-  uint iLootID;
+    /** The nickname and arch id of the loot dropped by the asteroids */
+    std::string lootNick;
+    uint iLootID;
 
-  /** The arch id of the crate the loot is dropped in */
-  uint iCrateID;
+    /** The arch id of the crate the loot is dropped in */
+    uint iCrateID;
 
-  /** The minimum number of loot items to drop */
-  uint iMinLoot;
+    /** The minimum number of loot items to drop */
+    uint iMinLoot;
 
-  /** The maximum number of loot items to drop */
-  uint iMaxLoot;
+    /** The maximum number of loot items to drop */
+    uint iMaxLoot;
 
-  /** The drop difficultly */
-  uint iLootDifficulty;
+    /** The drop difficultly */
+    uint iLootDifficulty;
 
-  /** The lootable zone ellipsoid size */
-  Vector size;
+    /** The lootable zone ellipsoid size */
+    Vector size;
 
-  /** The lootable zone position */
-  Vector pos;
+    /** The lootable zone position */
+    Vector pos;
 };
 typedef std::multimap<uint, LOOTABLE_ZONE, std::less<>> zone_map_t;
 

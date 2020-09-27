@@ -5,7 +5,7 @@
 #include <string>
 
 struct TEMPBAN_INFO {
-  std::wstring wscID;
-  mstime banstart;
-  mstime banduration;
+    std::wstring wscID;
+    mstime banstart;
+    mstime banduration;
 };

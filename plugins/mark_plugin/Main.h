@@ -17,8 +17,8 @@ PLUGIN_RETURNCODE returncode;
 typedef void (*_UserCmdProc)(uint, const std::wstring &);
 
 struct USERCMD {
-  wchar_t *wszCmd;
-  _UserCmdProc proc;
+    wchar_t *wszCmd;
+    _UserCmdProc proc;
 };
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
@@ -29,17 +29,17 @@ char HkUnMarkObject(uint iClientID, uint iObject);
 char HkMarkObject(uint iClientID, uint iObject);
 
 struct MARK_INFO {
-  bool bMarkEverything;
-  bool bIgnoreGroupMark;
-  float fAutoMarkRadius;
-  std::vector<uint> vMarkedObjs;
-  std::vector<uint> vDelayedSystemMarkedObjs;
-  std::vector<uint> vAutoMarkedObjs;
-  std::vector<uint> vDelayedAutoMarkedObjs;
+    bool bMarkEverything;
+    bool bIgnoreGroupMark;
+    float fAutoMarkRadius;
+    std::vector<uint> vMarkedObjs;
+    std::vector<uint> vDelayedSystemMarkedObjs;
+    std::vector<uint> vAutoMarkedObjs;
+    std::vector<uint> vDelayedAutoMarkedObjs;
 };
 
 struct DELAY_MARK {
-  uint iObj;
-  mstime time;
+    uint iObj;
+    mstime time;
 };
 std::string ftos(float f);

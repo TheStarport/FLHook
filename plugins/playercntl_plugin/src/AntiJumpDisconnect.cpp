@@ -23,49 +23,51 @@
 
 namespace AntiJumpDisconnect {
 struct INFO {
-  bool bInWrapGate;
+    bool bInWrapGate;
 };
 static std::map<uint, INFO> mapInfo;
 
 void AntiJumpDisconnect::ClearClientInfo(unsigned int iClientID) {
-  mapInfo[iClientID].bInWrapGate = false;
+    mapInfo[iClientID].bInWrapGate = false;
 }
 
 void AntiJumpDisconnect::DisConnect(unsigned int iClientID,
                                     enum EFLConnection state) {
-  if (mapInfo[iClientID].bInWrapGate) {
-    uint iShip;
-    pub::Player::GetShip(iClientID, iShip);
-    pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-    IObjInspectImpl *obj = HkGetInspect(iClientID);
-    if (obj) {
-      HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
+    if (mapInfo[iClientID].bInWrapGate) {
+        uint iShip;
+        pub::Player::GetShip(iClientID, iShip);
+        pub::SpaceObj::SetInvincible(iShip, false, false, 0);
+        IObjInspectImpl *obj = HkGetInspect(iClientID);
+        if (obj) {
+            HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f,
+                        0.0f);
+        }
+        HkTempBan(iClientID, 5);
     }
-    HkTempBan(iClientID, 5);
-  }
 }
 
 void AntiJumpDisconnect::CharacterInfoReq(unsigned int iClientID, bool p2) {
-  if (mapInfo[iClientID].bInWrapGate) {
-    uint iShip;
-    pub::Player::GetShip(iClientID, iShip);
-    pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-    IObjInspectImpl *obj = HkGetInspect(iClientID);
-    if (obj) {
-      HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
+    if (mapInfo[iClientID].bInWrapGate) {
+        uint iShip;
+        pub::Player::GetShip(iClientID, iShip);
+        pub::SpaceObj::SetInvincible(iShip, false, false, 0);
+        IObjInspectImpl *obj = HkGetInspect(iClientID);
+        if (obj) {
+            HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f,
+                        0.0f);
+        }
+        HkTempBan(iClientID, 5);
     }
-    HkTempBan(iClientID, 5);
-  }
 }
 
 void AntiJumpDisconnect::JumpInComplete(unsigned int iSystem,
                                         unsigned int iShip,
                                         unsigned int iClientID) {
-  mapInfo[iClientID].bInWrapGate = false;
+    mapInfo[iClientID].bInWrapGate = false;
 }
 
 void AntiJumpDisconnect::SystemSwitchOutComplete(unsigned int iShip,
                                                  unsigned int iClientID) {
-  mapInfo[iClientID].bInWrapGate = true;
+    mapInfo[iClientID].bInWrapGate = true;
 }
 } // namespace AntiJumpDisconnect
