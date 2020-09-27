@@ -1,4 +1,4 @@
-#ifndef _FLCODEC_
+﻿#ifndef _FLCODEC_
 #define _FLCODEC_
 
 EXPORT bool flc_decode(const char *ifile, const char *ofile);

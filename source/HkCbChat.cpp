@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)

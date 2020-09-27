@@ -1,4 +1,4 @@
-#ifndef _GLOBAL_
+﻿#ifndef _GLOBAL_
 #define _GLOBAL_
 #pragma warning(disable: 4311 4786)
 

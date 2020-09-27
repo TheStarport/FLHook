@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include "../hookext_plugin/hookext_exports.h"
 
 void DeleteBase(PlayerBase *base)

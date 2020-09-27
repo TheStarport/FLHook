@@ -1,4 +1,4 @@
-#include <winsock2.h>
+﻿#include <winsock2.h>
 #include <WS2tcpip.h>
 #include "wildcards.hh"
 #include "hook.h"

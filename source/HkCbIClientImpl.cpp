@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 
 
 #define ISERVER_LOG() if(set_bDebug) AddDebugLog(__FUNCSIG__);

@@ -1,4 +1,4 @@
-#include "wildcards.hh"
+﻿#include "wildcards.hh"
 #include "hook.h"
 #include "CInGame.h"
 

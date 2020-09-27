@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 
 #define PRINT_ERROR() { for(uint i = 0; (i < sizeof(wscError)/sizeof(std::wstring)); i++) PrintUserCmdText(iClientID, L"%s", wscError[i].c_str()); return; }
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
@@ -639,7 +639,7 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 					int pos = 0;
 					while(pos != std::wstring::npos) {
 						int nextPos = he.wszLongHelp.find('\n', pos+1);
-						PrintUserCmdText(iClientID, L"  " + he.wszLongHelp.substr(pos, (nextPos-pos)));
+						PrintUserCmdText(iClientID, L"â€‚â€‚" + he.wszLongHelp.substr(pos, (nextPos-pos)));
 						pos = nextPos;
 					}
 					return;
@@ -648,7 +648,7 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam)
 				set_wscUserCmdStyle = boldHelp;
 				PrintUserCmdText(iClientID, he.wszCommand + L" " + he.wszArguments);
 				set_wscUserCmdStyle = normal;
-				PrintUserCmdText(iClientID, L"  " + he.wszShortHelp);
+				PrintUserCmdText(iClientID, L"â€‚â€‚" + he.wszShortHelp);
 			}
 		}
 	}

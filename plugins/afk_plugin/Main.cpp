@@ -1,4 +1,4 @@
-// AFK Plugin
+﻿// AFK Plugin
 // By Raikkonen
 
 // Includes

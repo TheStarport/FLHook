@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 #include <plugin_comms.h>
 #include <windows.h>

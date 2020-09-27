@@ -1,4 +1,4 @@
-/*
+﻿/*
 blowfish.c:  C implementation of the Blowfish algorithm.
 
 Copyright (C) 1997 by Paul Kocher

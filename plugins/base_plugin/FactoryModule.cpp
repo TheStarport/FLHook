@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 const char* RECIPE_NAMES[] =
 { "Unknown", "recipe_make_dockmodule",

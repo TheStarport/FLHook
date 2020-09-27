@@ -1,4 +1,4 @@
-/*
+﻿/*
 Freelancer .FL Savegame encode/decoder
 
 Credits to Sherlog <sherlog@t-online.de> for finding out the algorithm

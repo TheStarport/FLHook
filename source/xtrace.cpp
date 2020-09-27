@@ -1,4 +1,4 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * xtrace.cpp by Hector J. Rivas, torjo2k@hotmail.com from "ExtendedTrace"
  * by Zoltan Csizmadia, zoltan_csizmadia@yahoo.com
  * 

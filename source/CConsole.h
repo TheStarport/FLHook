@@ -1,4 +1,4 @@
-#ifndef _CCONSOLE_
+﻿#ifndef _CCONSOLE_
 #define _CCONSOLE_
 
 #include "CCmds.h"

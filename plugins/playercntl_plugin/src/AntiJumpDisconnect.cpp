@@ -1,4 +1,4 @@
-// Player Control plugin for FLHookPlugin
+﻿// Player Control plugin for FLHookPlugin
 // Feb 2010 by Cannon
 //
 // This is free software; you can redistribute it and/or modify it as

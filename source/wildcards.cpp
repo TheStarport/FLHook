@@ -1,4 +1,4 @@
-// Copyright (C) 1996 - 2002 Florian Schintke
+﻿// Copyright (C) 1996 - 2002 Florian Schintke
 //
 // This is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free

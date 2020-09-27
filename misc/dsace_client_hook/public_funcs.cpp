@@ -1,4 +1,4 @@
-/// DSAce for Freelancer by Cannon 19/Sept/10
+﻿/// DSAce for Freelancer by Cannon 19/Sept/10
 ///
 /// Thanks to Adoxa, Wodka, Motah for helping me out with this.
 

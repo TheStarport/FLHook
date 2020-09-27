@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 PlayerBase::PlayerBase(uint client, const std::wstring &password, const std::wstring &the_basename)
 	: basename(the_basename),

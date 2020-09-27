@@ -1,4 +1,4 @@
-// Jan 2010 by Cannon
+﻿// Jan 2010 by Cannon
 //
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate

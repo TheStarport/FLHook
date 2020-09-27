@@ -1,4 +1,4 @@
-#ifndef WILDCARD_H_INCLUDED
+﻿#ifndef WILDCARD_H_INCLUDED
 #define WILDCARD_H_INCLUDED
 
 // Copyright (C) 1996 - 2002 Florian Schintke

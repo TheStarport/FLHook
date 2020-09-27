@@ -1,4 +1,4 @@
-#ifndef _CCMDS_
+﻿#ifndef _CCMDS_
 #define _CCMDS_
 
 #include "hook.h"

@@ -1,4 +1,4 @@
-/**
+﻿/**
  Cloak (Yet another) Docking Plugin for FLHook-Plugin
  by Cannon.
 

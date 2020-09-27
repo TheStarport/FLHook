@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 const char* MODULE_TYPE_NICKNAMES[] =
 { "module_build", "module_coreupgrade", "module_shieldgen",

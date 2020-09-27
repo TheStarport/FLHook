@@ -1,4 +1,4 @@
-/**
+﻿/**
  Base Plugin for FLHook-Plugin
  by Cannon.
 

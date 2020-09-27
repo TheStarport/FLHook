@@ -1,4 +1,4 @@
-// Stats Plugin
+﻿// Stats Plugin
 // by Raikkonen
 
 // Includes

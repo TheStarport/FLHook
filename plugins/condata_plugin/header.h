@@ -1,4 +1,4 @@
-#define LOSS_INTERVALL 4000
+﻿#define LOSS_INTERVALL 4000
 
 struct CONNECTION_DATA {
     // connection data	

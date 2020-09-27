@@ -1,4 +1,4 @@
-/**
+﻿/**
  Mining Plugin for FLHook-Plugin
  by Cannon.
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  Mobile Docking Plugin for FLHook-Plugin
  by Cannon.
 

@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 
 #define ISERVER_LOG() if(set_bDebug) AddLog(fLogDebug,__FUNCSIG__);
 #define ISERVER_LOGARG_F(a) if(set_bDebug) AddLog(fLogDebug,"     " #a ": %f", (float)a);

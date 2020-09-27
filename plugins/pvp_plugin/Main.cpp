@@ -1,4 +1,4 @@
-// PvP Betting Plugin
+﻿// PvP Betting Plugin
 // By Raikkonen
 
 // Includes

@@ -1,4 +1,4 @@
-/**
+﻿/**
  A patch for flserver to change the account directory path.
  By cannon 15 July 2009.
 */

@@ -1,4 +1,4 @@
-#include "dllmain.h"
+﻿#include "dllmain.h"
 #include "equip_funcs.h"
 
 #include "FLCoreDALib.h"

@@ -1,4 +1,4 @@
-#include "global.h"
+﻿#include "global.h"
 #include <Psapi.h>
 #include "hook.h"
 #include "CConsole.h"

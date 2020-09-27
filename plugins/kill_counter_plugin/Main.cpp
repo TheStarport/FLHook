@@ -1,4 +1,4 @@
-// Kill Counter Plugin
+﻿// Kill Counter Plugin
 // Originally by ||KOS||Acid
 // https://sourceforge.net/projects/kosacid/files/
 

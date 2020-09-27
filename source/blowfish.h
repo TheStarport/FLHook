@@ -1,4 +1,4 @@
-/*
+﻿/*
 blowfish.h:  Header file for blowfish.c
 
 Copyright (C) 1997 by Paul Kocher

@@ -1,4 +1,4 @@
-// NPCs for FLHookPlugin
+﻿// NPCs for FLHookPlugin
 // December 2015 by BestDiscoveryHookDevs2015
 //
 // This is free software; you can redistribute it and/or modify it as

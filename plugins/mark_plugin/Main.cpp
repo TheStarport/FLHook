@@ -1,4 +1,4 @@
-// Mark Plugin
+﻿// Mark Plugin
 // Originally by M0tah
 // https://sourceforge.net/projects/kosacid/files/
 

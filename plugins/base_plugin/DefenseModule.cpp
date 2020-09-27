@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 extern bool set_new_spawn;
 

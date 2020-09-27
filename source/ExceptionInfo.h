@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /* Inspired by Dr. Dobb's "Visual C++ Exception-Handling Instrumentation" article.
  * https://www.drdobbs.com/windows/visual-c-exception-handling-instrumentat/184416600

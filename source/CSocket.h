@@ -1,4 +1,4 @@
-#include "CCmds.h"
+﻿#include "CCmds.h"
 
 #ifndef _CSOCKET_
 #define _CSOCKET_

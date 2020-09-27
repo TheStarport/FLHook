@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 #include "CCmds.h"
 
 bool g_bPlugin_nofunctioncall;

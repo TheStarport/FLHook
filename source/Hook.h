@@ -1,4 +1,4 @@
-#ifndef _HOOK_
+﻿#ifndef _HOOK_
 #define _HOOK_
 
 #include <time.h>

@@ -1,4 +1,4 @@
-#include "hook.h"
+﻿#include "hook.h"
 
 EXPORT uint iDmgTo = 0;
 EXPORT uint iDmgToSpaceID = 0;
