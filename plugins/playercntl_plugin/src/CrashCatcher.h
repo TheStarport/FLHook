@@ -5,14 +5,12 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-
 #ifndef __CRASH_CATCHER_H__
 #define __CRASH_CATCHER_H__ 1
 
-namespace CrashCatcher
-{
-	void Init();
-	void Shutdown();
-}
+namespace CrashCatcher {
+void Init();
+void Shutdown();
+} // namespace CrashCatcher
 
 #endif
