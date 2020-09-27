@@ -345,7 +345,7 @@ void CrashCatcher::Init() {
                 //{
                 //	FARPROC fpHook = (FARPROC)HkCb_CrashProc1b221;
                 //	ReadProcMem((char*)hModContentAC + 0x1134f4,
-                //&fpCrashProc1b221Old, 4); 	WriteProcMem((char*)hModContentAC
+                //&fpCrashProc1b221Old, 4); WriteProcMem((char*)hModContentAC
                 //+
                 // 0x1134f4, &fpHook, 4);
                 //}

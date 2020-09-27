@@ -305,7 +305,7 @@ void CoreModule::Spawn() {
         // if (base->affiliation)
         //{
         //	basename =
-        //HkGetWStringFromIDS(Reputation::get_name(base->affiliation))
+        // HkGetWStringFromIDS(Reputation::get_name(base->affiliation))
         //+ L" - " + base->basename;
         //}
 
