@@ -1,59 +1,40 @@
 ﻿#include "hook.h"
 
-#define ISERVER_LOG()                                                          \
+#define ISERVER_LOG(...)                                                          \
     if (set_bDebug)                                                            \
-        AddDebugLog(__FUNCSIG__);
-#define ISERVER_LOGARG_WS(a)                                                   \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %s", wstos((const wchar_t *)a).c_str());
-#define ISERVER_LOGARG_S(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %s", (const char *)a);
-#define ISERVER_LOGARG_UI(a)                                                   \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %u", (uint)a);
-#define ISERVER_LOGARG_I(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %d", (int)a);
-#define ISERVER_LOGARG_H(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": 0x%08X", (int)a);
-#define ISERVER_LOGARG_F(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %f", (float)a);
-#define ISERVER_LOGARG_V(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %f %f %f", (float)a.x, (float)a.y,           \
-                    (float)a.z);
+        AddDebugLog(__FUNCSIG__, ...);
 
-#define CALL_CLIENT_METHOD(Method, Ret) {        \
-    void *vRet;                                  \
-    char *tmp;                                   \
-    memcpy(&tmp, &Client, 4);                    \
-    memcpy(&Client, &OldClient, 4);              \
-    HookClient->Method;                          \
-    __asm { mov [vRet], eax }                    \
-    memcpy(&Client, &tmp, 4);                    \
-    Ret = reinterpret_cast<decltype(Ret)>(vRet); }
+char* TempClient = nullptr;
+
+inline void CallClientPre() {
+    memcpy(&TempClient, &Client, 4);  // NOLINT
+    memcpy(&Client, &OldClient, 4);  // NOLINT
+}
+
+template<typename T>
+T CallClientPost() {
+    void *vRet;
+    __asm { mov [vRet], eax }
+    memcpy(&Client, &TempClient, 4);  // NOLINT
+    return reinterpret_cast<T>(vRet);
+}
+
+#define CALL_CLIENT_METHOD(Method) (CallClientPre(), HookClient->Method, CallClientPost<decltype(HookClient->Method)>())  // NOLINT
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 bool HkIClientImpl::CDPClientProxy__Disconnect(uint iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    bool ret;
-    CALL_CLIENT_METHOD(CDPClientProxy__Disconnect(iClientID), ret);
-    return ret;
+    return CALL_CLIENT_METHOD(CDPClientProxy__Disconnect(iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint iClientID) {
-    // ISERVER_LOG();
-    // ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
     char *tmp;
     memcpy(&tmp, &Client, 4);
@@ -68,44 +49,37 @@ double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint iClientID) {
 **************************************************************************************************************/
 
 uint HkIClientImpl::CDPClientProxy__GetSendQBytes(uint iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    uint ret;
-    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQBytes(iClientID), ret);
-    return ret;
+    return CALL_CLIENT_METHOD(CDPClientProxy__GetSendQBytes(iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 uint HkIClientImpl::CDPClientProxy__GetSendQSize(uint iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    uint ret;
-    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQSize(iClientID), ret);
-    return ret;
+    return CALL_CLIENT_METHOD(CDPClientProxy__GetSendQSize(iClientID));
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-void HkIClientImpl::nullsub(uint) { return; }
+void HkIClientImpl::nullsub(uint) { }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint iClientID,
                                                         XActivateCruise &aq) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, aq.bActivate, aq.iShip);
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATECRUISE, iClientID, aq);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_ACTIVATECRUISE, iClientID, aq);
 
-    if(!skip) CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATECRUISE(iClientID, aq), retVal);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATECRUISE(iClientID, aq));
 
-    CallPluginsAfter(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATECRUISE, iClientID, aq);
+    CallPluginsAfter(HookedCall::IClientImpl_Com_ACTIVATECRUISE, iClientID, aq);
 
     return retVal;
 }
@@ -115,14 +89,13 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(
     unsigned int iClientID, struct XActivateEquip &aq) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, aq.bActivate, aq.iSpaceID, aq.sID);
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATEEQUIP, iClientID, aq);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_ACTIVATEEQUIP, iClientID, aq);
 
-    if(!skip) CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATEEQUIP(iClientID, aq), retVal);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATEEQUIP(iClientID, aq));
 
-    CallPluginsAfter(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATEEQUIP, iClientID, aq);
+    CallPluginsAfter(HookedCall::IClientImpl_Com_ACTIVATEEQUIP, iClientID, aq);
 
     return retVal;
 }
@@ -132,15 +105,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(
     uint iClientID, XActivateThrusters &aq) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, aq.bActivate, aq.iShip);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATETHRUSTERS,
-                 bool, __stdcall, (uint, XActivateThrusters &),
-                 (iClientID, aq));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_ACTIVATETHRUSTERS, iClientID, aq);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(iClientID, aq));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(iClientID, aq));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_ACTIVATETHRUSTERS, iClientID, aq);
+
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -148,14 +121,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID,
                                                     XFireWeaponInfo &fwi) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, fwi.iObject, fwi.hpIds, fwi.vTarget);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_FIREWEAPON, bool,
-                 __stdcall, (uint, XFireWeaponInfo &), (iClientID, fwi));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_FIREWEAPON, iClientID, fwi);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_FIREWEAPON(iClientID, fwi));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_FIREWEAPON(iClientID, fwi));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_FIREWEAPON, iClientID, fwi);
+
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -163,11 +137,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint iClientID,
                                                      XGoTradelane &tl) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, tl.iShip, tl.iTradelaneSpaceObj1, tl.iTradelaneSpaceObj2);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_GOTRADELANE(iClientID, tl));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_GOTRADELANE, iClientID, tl);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_GOTRADELANE(iClientID, tl));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_GOTRADELANE, iClientID, tl);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -175,11 +153,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(uint iClientID,
                                                        XJettisonCargo &jc) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, jc.iShip, jc.iSlot, jc.iCount);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_JETTISONCARGO(iClientID, jc));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_JETTISONCARGO, iClientID, jc);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_JETTISONCARGO(iClientID, jc));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_JETTISONCARGO, iClientID, jc);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -187,11 +169,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint iClientID,
                                                       uint iDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, iDunno);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_PLAYER_TRADE(iClientID, iDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_PLAYER_TRADE, iClientID, iDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_PLAYER_TRADE(iClientID, iDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_PLAYER_TRADE, iClientID, iDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -200,12 +186,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint iClientID,
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint iClientID,
                                                            unsigned char *p2,
                                                            int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_REQUEST_BEST_PATH(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_REQUEST_BEST_PATH, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_REQUEST_BEST_PATH(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_REQUEST_BEST_PATH, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -213,12 +202,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(
     uint iClientID, unsigned char *p2, int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_REQUEST_GROUP_POSITIONS, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_REQUEST_GROUP_POSITIONS, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -227,12 +219,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint iClientID,
                                                               unsigned char *p2,
                                                               int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_REQUEST_PLAYER_STATS, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_REQUEST_PLAYER_STATS, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -241,12 +236,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint iClientID,
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint iClientID,
                                                              unsigned char *p2,
                                                              int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_SET_INTERFACE_STATE(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_SET_INTERFACE_STATE, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SET_INTERFACE_STATE(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_SET_INTERFACE_STATE, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -255,11 +253,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint iClientID,
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint iClientID,
                                                          unsigned char *p2,
                                                          int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SET_MISSION_LOG(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_SET_MISSION_LOG, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SET_MISSION_LOG(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_SET_MISSION_LOG, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -325,7 +327,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(
     // ISERVER_LOG();
     // ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_UPDATEOBJECT, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Com_UPDATEOBJECT, bool,
                  __stdcall, (uint, SSPObjUpdateInfo &), (iClientID, pUpdate));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_UPDATEOBJECT(iClientID, pUpdate));
@@ -340,7 +342,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint iClientID,
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_ACTIVATEOBJECT, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_ACTIVATEOBJECT, bool,
                  __stdcall, (uint, XActivateEquip &), (iClientID, aq));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_ACTIVATEOBJECT(iClientID, aq));
@@ -416,12 +418,12 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint iClientID,
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATELOOT, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATELOOT, bool,
                  __stdcall, (uint, FLPACKET_UNKNOWN &), (iClientID, pDunno));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATELOOT(iClientID, pDunno));
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATELOOT_AFTER,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATELOOT_AFTER,
                  bool, __stdcall, (uint, FLPACKET_UNKNOWN &),
                  (iClientID, pDunno));
 
@@ -448,12 +450,12 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESHIP, bool,
                  __stdcall, (uint, FLPACKET_CREATESHIP &), (iClientID, pShip));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESHIP(iClientID, pShip));
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESHIP_AFTER,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESHIP_AFTER,
                  bool, , (uint, FLPACKET_CREATESHIP &), (iClientID, pShip));
 
     return reinterpret_cast<bool>(vRet);
@@ -467,7 +469,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_CREATESOLAR, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESOLAR, bool,
                  __stdcall, (uint, FLPACKET_CREATESOLAR &),
                  (iClientID, pSolar));
 
@@ -498,7 +500,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_DESTROYOBJECT, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_DESTROYOBJECT, bool,
                  __stdcall, (uint, FLPACKET_DESTROYOBJECT &),
                  (iClientID, pDestroy));
 
@@ -728,7 +730,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint iClientID,
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_LAUNCH, bool,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_LAUNCH, bool,
                  __stdcall, (uint, FLPACKET_LAUNCH &), (iClientID, pLaunch));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_LAUNCH(iClientID, pLaunch));
@@ -832,7 +834,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID,
     ISERVER_LOGARG_UI(iTargetID);
     ISERVER_LOGARG_UI(iRank);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_MISCOBJUPDATE_3,
                  bool, __stdcall, (uint, uint, uint),
                  (iClientID, iTargetID, iRank));
 
@@ -840,7 +842,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint iClientID,
         Send_FLPACKET_SERVER_MISCOBJUPDATE_3(iClientID, iTargetID, iRank));
 
     CALL_PLUGINS(
-        PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_3_AFTER, bool, ,
+        PLUGIN_IClientImpl_Srv_MISCOBJUPDATE_3_AFTER, bool, ,
         (uint, uint, uint), (iClientID, iTargetID, iRank));
 
     return reinterpret_cast<bool>(vRet);
@@ -871,7 +873,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint iClientID,
     ISERVER_LOGARG_UI(iClientID2);
     ISERVER_LOGARG_UI(iSystemID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_MISCOBJUPDATE_5,
+    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_MISCOBJUPDATE_5,
                  bool, __stdcall, (uint, uint, uint),
                  (iClientID, iClientID2, iSystemID));
 
@@ -942,7 +944,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint iClientID,
     ISERVER_LOGARG_UI(iClientID);
 
     CALL_PLUGINS(
-        PLUGIN_HkIClientImpl_Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP, bool,
+        PLUGIN_IClientImpl_Srv_REQUESTCREATESHIPRESP, bool,
         __stdcall, (uint, bool, uint), (iClientID, bResponse, iShipID));
 
     CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(
