@@ -1,61 +1,41 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 #include "CCmds.h"
 
-bool g_bPlugin_nofunctioncall;
-
-void *vPluginRet;
-
-std::list<PLUGIN_HOOKDATA> *pPluginHooks;
-std::list<PLUGIN_DATA> lstPlugins;
-
-enum PLUGIN_MESSAGE;
-
-void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    CALL_PLUGINS_NORET(PLUGIN_Plugin_Communication, ,
-                       (PLUGIN_MESSAGE msg, void *data), (msg, data));
+const PluginData& PluginHookData::plugin() const {
+    return PluginManager::i()->pluginAt(index);
 }
 
-__declspec(dllexport) void Plugin_Communication(PLUGIN_MESSAGE msg,
-                                                void *data) {
-    Plugin_Communication_CallBack(msg, data);
+void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
+    CallPluginsBefore(HookedCall::PluginCommunication, msg, data);
+    CallPluginsAfter(HookedCall::PluginCommunication, msg, data);
 }
 
-namespace PluginManager {
+void PluginManager::clearData(bool free) {
+    if(free) {
+        for(auto& p : plugins_)
+            if(p.mayUnload)
+                FreeLibrary(p.dll);
+    }
+    plugins_.clear();
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Init() {
-    // create array of callback-function plugin-data lists
-    pPluginHooks = new std::list<PLUGIN_HOOKDATA>[(int)PLUGIN_CALLBACKS_AMOUNT];
-
-    lstPlugins.clear();
+    for(auto& p : pluginHooks_)
+        p.clear();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Destroy() {
-    delete[] pPluginHooks;
-
-    lstPlugins.clear();
+PluginManager::PluginManager() {
+    clearData(false);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+PluginManager::~PluginManager() {
+    clearData(false);
+}
 
-HK_ERROR PausePlugin(const std::string &sShortName, bool bPause) {
-    for (auto &plugin : lstPlugins) {
-        if (plugin.sShortName == sShortName) {
-            if (plugin.bMayPause == false)
+HK_ERROR PluginManager::pause(size_t hash, bool pause) {
+    for (auto &plugin : plugins_) {
+        if (plugin.hash == hash) {
+            if (!plugin.mayPause)
                 return HKE_PLUGIN_UNPAUSABLE;
-
-            plugin.bPaused = bPause;
-
-            for (int i = 0; i < (int)PLUGIN_CALLBACKS_AMOUNT; i++) {
-                for (auto &hooks : pPluginHooks[i]) {
-                    if (hooks.hDLL == plugin.hDLL)
-                        hooks.bPaused = bPause;
-                }
-            }
+            plugin.paused = pause;
             return HKE_OK;
         }
     }
@@ -63,27 +43,24 @@ HK_ERROR PausePlugin(const std::string &sShortName, bool bPause) {
     return HKE_PLUGIN_NOT_FOUND;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-HK_ERROR UnloadPlugin(const std::string &sShortName) {
-    for (auto plugin = lstPlugins.begin(); plugin != lstPlugins.end();
-         ++plugin) {
-        if (plugin->sShortName == sShortName) {
-            if (plugin->bMayUnload == false)
+HK_ERROR PluginManager::unload(size_t hash) {
+    for (auto plugin = plugins_.begin(); plugin != plugins_.end(); ++plugin) {
+        if (plugin->hash == hash) {
+            if (!plugin->mayUnload)
                 return HKE_PLUGIN_UNLOADABLE;
 
-            FreeLibrary(plugin->hDLL);
+            FreeLibrary(plugin->dll);
 
-            for (int i = 0; i < (int)PLUGIN_CALLBACKS_AMOUNT; i++) {
-                for (auto hook = pPluginHooks[i].begin();
-                     hook != pPluginHooks[i].end(); ++hook) {
-                    if (hook->hDLL == hook->hDLL) {
-                        pPluginHooks[i].erase(hook);
+            for (auto& i : pluginHooks_) {
+                for (auto hook = i.begin(); hook != i.end(); ++hook) {
+                    if (hook->plugin().hash == plugin->hash) {
+                        i.erase(hook);
                         break;
                     }
                 }
             }
-            lstPlugins.erase(plugin);
+
+            plugins_.erase(plugin);
             return HKE_OK;
         }
     }
@@ -91,142 +68,121 @@ HK_ERROR UnloadPlugin(const std::string &sShortName) {
     return HKE_PLUGIN_NOT_FOUND;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UnloadPlugins() {
-    for (int i = 0; i < (int)PLUGIN_CALLBACKS_AMOUNT; i++)
-        pPluginHooks[i].clear();
-
-    for (auto &plugin : lstPlugins) {
-        if (plugin.bMayUnload)
-            FreeLibrary(plugin.hDLL);
-    }
-
-    lstPlugins.clear();
+void PluginManager::unloadAll() {
+    clearData(true);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bool startup) {
 
-void LoadPlugin(const std::string &sFileName, CCmds *adminInterface,
-                bool bStartup) {
+    std::wstring dllName = fileName;
+    if (dllName.find(L".dll") == std::string::npos)
+        dllName.append(L".dll");
 
-    std::string sDLLName = sFileName;
-    if (sDLLName.find(".dll") == std::string::npos)
-        sDLLName.append(".dll");
-
-    for (auto &plugin : lstPlugins) {
-        if (plugin.sDLL == sDLLName)
+    for (auto &plugin : plugins_) {
+        if (plugin.dllName == dllName)
             return adminInterface->Print(
-                L"Plugin already loaded, skipping: (%s)\n",
-                stows(plugin.sDLL).c_str());
+                L"Plugin %s already loaded, skipping\n",
+                plugin.dllName.c_str());
     }
 
-    std::string sPathToDLL = "./flhook_plugins/";
-    sPathToDLL += sDLLName;
+    std::wstring pathToDLL = L"./flhook_plugins/" + dllName;
 
     FILE *fp;
-    fopen_s(&fp, sPathToDLL.c_str(), "r");
+    _wfopen_s(&fp, pathToDLL.c_str(), L"r");
     if (!fp)
-        return adminInterface->Print(L"Error, Plugin not found (%s)\n",
-                                     stows(sDLLName).c_str());
+        return adminInterface->Print(L"Error, plugin %s not found\n",
+                                     dllName.c_str());
     fclose(fp);
 
-    PLUGIN_DATA plugin;
-    plugin.bMayPause = false;
-    plugin.bMayUnload = false;
-    plugin.sName = "";
-    plugin.sShortName = "";
+    PluginData plugin;
+    plugin.dllName = dllName;
+    plugin.dll = LoadLibraryW(pathToDLL.c_str());
 
-    plugin.sDLL = sDLLName;
+    if (!plugin.dll)
+        return adminInterface->Print(L"Error, can't load plugin DLL %s\n",
+                                     dllName.c_str());
 
-    plugin.hDLL = LoadLibrary(sPathToDLL.c_str());
+    auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin.dll, "ExportPluginInfo"));
 
-    if (!plugin.hDLL)
-        return adminInterface->Print(L"Error, can't load plugin (%s)\n",
-                                     stows(sDLLName).c_str());
-
-    plugin.bPaused = false;
-
-    FARPROC pPluginInfo =
-        GetProcAddress(plugin.hDLL, "?Get_PluginInfo@@YAPAUPLUGIN_INFO@@XZ");
-
-    if (!pPluginInfo) {
+    if (!getPluginInfo) {
         adminInterface->Print(
-            L"Error, could not read plugin info (Get_PluginInfo "
-            L"not exported?): %s\n",
-            stows(sDLLName).c_str());
-        FreeLibrary(plugin.hDLL);
+            L"Error, could not read plugin info (ExportPluginInfo "
+            L"not exported?) for %s\n",
+            dllName.c_str());
+        FreeLibrary(plugin.dll);
         return;
     }
 
-    PLUGIN_Get_PluginInfo Plugin_Info = (PLUGIN_Get_PluginInfo)pPluginInfo;
-    PLUGIN_INFO *p_PI = Plugin_Info();
-    if (!p_PI || !p_PI->sShortName.length() || !p_PI->sName.length()) {
-        adminInterface->Print(L"Error, invalid plugin info: %s\n",
-                              stows(sDLLName).c_str());
-        FreeLibrary(plugin.hDLL);
+    PluginInfo pi;
+    getPluginInfo(&pi);
+    
+    if (pi.shortName_.empty() || pi.name_.empty()) {
+        adminInterface->Print(L"Error, missing name/short name for %s\n",
+                              dllName.c_str());
+        FreeLibrary(plugin.dll);
         return;
     }
 
-    plugin.bMayPause = p_PI->bMayPause;
-    plugin.bMayUnload = p_PI->bMayUnload;
-    plugin.sName = p_PI->sName;
-    plugin.sShortName = p_PI->sShortName;
+    if (pi.version_ != PLUGIN_API_VERSION) {
+        adminInterface->Print(L"Error, incompatible plugin API version for %s: expected %d, got %d\n",
+                              dllName.c_str(), PLUGIN_API_VERSION, pi.version_);
+        FreeLibrary(plugin.dll);
+        return;
+    }
+
+    if (pi.returnCode_ == nullptr) {
+        adminInterface->Print(L"Error, missing return code pointer %s\n",
+                              dllName.c_str());
+        FreeLibrary(plugin.dll);
+        return;
+    }
+
+    plugin.mayPause = pi.mayPause_;
+    plugin.mayUnload = pi.mayUnload_;
+    plugin.name = pi.name_;
+    plugin.shortName = pi.shortName_;
+    plugin.hash = std::hash<std::string>{}(plugin.shortName);
 
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
-    if (!plugin.bMayUnload && !bStartup) {
-        adminInterface->Print(L"Error, could not load plugin (unloadable, need "
-                              L"server restart to load): %s\n",
-                              stows(plugin.sDLL).c_str());
-        throw "";
+    if (!plugin.mayUnload && !startup) {
+        adminInterface->Print(L"Error, could not load plugin %s: plugin is not unloadable, need "
+                              L"server restart to load\n",
+                              plugin.dllName.c_str());
+        FreeLibrary(plugin.dll);
+        return;
     }
 
-    for (auto &hookIn : p_PI->lstHooks) {
-        PLUGIN_HOOKDATA hook;
-        hook.sName = plugin.sShortName;
-        hook.sPluginFunction =
-            hook.sName + "-" + std::to_string((int)hookIn.eCallbackID);
-        hook.bPaused = false;
-        hook.hDLL = plugin.hDLL;
-        hook.iPriority = hookIn.iPriority;
-        hook.pFunc = hookIn.pFunc;
-        hook.ePluginReturnCode = p_PI->ePluginReturnCode;
-        if (!hook.ePluginReturnCode)
-            throw "plugin return code pointer not defined";
+    plugins_.push_back(plugin);
+    size_t index = plugins_.size();
 
-        pPluginHooks[(int)hookIn.eCallbackID].push_back(hook);
-        pPluginHooks[(int)hookIn.eCallbackID].sort(PLUGIN_SORTCRIT());
+    for (const auto &hook : pi.hooks_) {
+        if(!hook.hookFunction_) {
+            adminInterface->Print(L"Error, could not load function %d.%d of plugin %s\n",
+                                  hook.targetFunction_, hook.step_, plugin.dllName.c_str());
+            continue;
+        }
+        uint hookId = uint(hook.targetFunction_) * 2 + uint(hook.step_);
+        auto& list = pluginHooks_[hookId];
+        list.emplace_back(hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index);
+        std::sort(list.begin(), list.end());
     }
 
-    adminInterface->Print(L"Plugin loaded: %s (%s)\n",
-                          stows(plugin.sShortName).c_str(),
-                          stows(sDLLName).c_str());
+    adminInterface->Print(L"Plugin %s loaded (%s)\n",
+                          stows(plugin.shortName).c_str(),
+                          plugin.dllName.c_str());
 
-    lstPlugins.push_back(plugin);
-
-    return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void PluginManager::loadAll(bool startup, CCmds *adminInterface) {
+    WIN32_FIND_DATAW findData;
+    HANDLE findPluginsHandle = FindFirstFileW(L"./flhook_plugins/*.dll", &findData);
 
-void LoadPlugins(bool bStartup, CCmds *adminInterface) {
-    WIN32_FIND_DATAA finddata;
-
-    HANDLE hfindplugins = FindFirstFileA("./flhook_plugins/*.dll", &finddata);
     do {
-        if (hfindplugins == INVALID_HANDLE_VALUE)
+        if (findPluginsHandle == INVALID_HANDLE_VALUE)
             break;
 
-        try {
-            LoadPlugin(finddata.cFileName, adminInterface, bStartup);
+        load(findData.cFileName, adminInterface, startup);
 
-        } catch (char *) {
-        };
-
-    } while (FindNextFile(hfindplugins, &finddata));
+    } while (FindNextFileW(findPluginsHandle, &findData));
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-} // namespace PluginManager

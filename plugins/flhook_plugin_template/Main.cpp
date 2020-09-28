@@ -136,13 +136,13 @@ void AdminCmd_Template(CCmds *cmds, float number) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define usable admin commands here
-void CmdHelp_Callback(CCmds *classptr) {
+void CmdHelp(CCmds *classptr) {
     returncode = DEFAULT_RETURNCODE;
     classptr->Print(L"template <number>\n");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command
-bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
     if (IS_CMD("template")) {
@@ -184,9 +184,9 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp_Callback,
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
                                              PLUGIN_CmdHelp_Callback, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));

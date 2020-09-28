@@ -1090,7 +1090,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
     if (IS_CMD("move")) {
@@ -1251,7 +1251,7 @@ bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
 }
 
 /** Admin help command callback */
-void CmdHelp_Callback(CCmds *classptr) {
+void CmdHelp(CCmds *classptr) {
     returncode = DEFAULT_RETURNCODE;
     classptr->Print(L"move x, y, z\n");
     classptr->Print(L"pull <charname>\n");
@@ -1398,9 +1398,9 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp_Callback,
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
                                              PLUGIN_CmdHelp_Callback, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkCB_MissileTorpHit,
                                              PLUGIN_HkCB_MissileTorpHit, 0));

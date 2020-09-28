@@ -1,9 +1,11 @@
-﻿#ifndef _GLOBAL_
-#define _GLOBAL_
+﻿#pragma once
+
 #pragma warning(disable : 4311 4786)
 
 // includes
 #include "blowfish.h"
+#include <algorithm>
+#include <array>
 #include <functional>
 #include <list>
 #include <map>
@@ -11,6 +13,8 @@
 #include <stdio.h>
 #include <string>
 #include <windows.h>
+
+#include "Singleton.h"
 
 typedef void *(*st6_malloc_t)(size_t);
 typedef void (*st6_free_t)(void *);
@@ -306,4 +310,3 @@ EXPORT SYSTEMINFO *GetSystemInfo(uint systemID);
 EXPORT void PrintZones();
 } // namespace ZoneUtilities
 
-#endif

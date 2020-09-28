@@ -382,7 +382,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
     if (IS_CMD("cloak")) {
@@ -466,7 +466,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkCb_AddDmgEntry,
                                              PLUGIN_HkCb_AddDmgEntry, 0));

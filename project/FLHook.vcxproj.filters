@@ -180,6 +180,7 @@
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
+    <ClInclude Include="..\source\Singleton.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />
