@@ -666,7 +666,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds *classptr,
+EXPORT bool ExecuteCommandString(CCmds *classptr,
                                           const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
@@ -745,7 +745,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
         PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
                         PLUGIN_Plugin_Communication, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
     return p_PI;
 }

@@ -1,4 +1,4 @@
-// Player Control plugin for FLHookPlugin
+﻿// Player Control plugin for FLHookPlugin
 // Feb 2010 by Cannon
 //
 // This is free software; you can redistribute it and/or modify it as
@@ -118,7 +118,6 @@ void LoadSettings() {
         IniGetB(scPluginCfgFile, "General", "EnableCargoDrop", false);
     set_bEnableWardrobe =
         IniGetB(scPluginCfgFile, "General", "EnableWardrobe", false);
-
     set_fSpinProtectMass =
         IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
     set_fSpinImpulseMultiplier =
@@ -172,7 +171,6 @@ void ClearClientInfo(uint iClientID) {
     PurchaseRestrictions::ClearClientInfo(iClientID);
     AntiJumpDisconnect::ClearClientInfo(iClientID);
     SystemSensor::ClearClientInfo(iClientID);
-
     if (set_bEnableCargoDrop)
         CargoDrop::ClearClientInfo(iClientID);
 }
@@ -1116,7 +1114,7 @@ pub::AI::SetPersonalityParams HkMakePersonality() {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
     if (IS_CMD("move")) {
@@ -1277,7 +1275,7 @@ bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
 }
 
 /** Admin help command callback */
-void CmdHelp_Callback(CCmds *classptr) {
+void CmdHelp(CCmds *classptr) {
     returncode = DEFAULT_RETURNCODE;
     classptr->Print(L"move x, y, z\n");
     classptr->Print(L"pull <charname>\n");
@@ -1424,9 +1422,9 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp_Callback,
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
                                              PLUGIN_CmdHelp_Callback, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkCB_MissileTorpHit,
                                              PLUGIN_HkCB_MissileTorpHit, 0));

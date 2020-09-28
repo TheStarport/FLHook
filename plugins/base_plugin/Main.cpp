@@ -1226,7 +1226,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base) {
 
 #define IS_CMD(a) !args.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *cmd, const std::wstring &args) {
+bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
     returncode = DEFAULT_RETURNCODE;
     /*if (args.find(L"dumpbases")==0)
     {
@@ -1441,7 +1441,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
 
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(

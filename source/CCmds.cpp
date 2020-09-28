@@ -927,7 +927,7 @@ std::wstring CCmds::ArgStrToEnd(uint iArg) {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *classptr,
+bool ExecuteCommandString(CCmds *classptr,
                                    const std::wstring &wscCmdStr) {
     CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback, bool, ,
                  (CCmds * classptr, const std::wstring &wscCmdStr),
@@ -995,7 +995,7 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
             wscCmd.erase(wscCmd.length() - 1, 1);
         }
 
-        if (!ExecuteCommandString_Callback(this, wscCmd)) {
+        if (!ExecuteCommandString(this, wscCmd)) {
 
             if (IS_CMD("getcash")) {
                 CmdGetCash(ArgCharname(1));

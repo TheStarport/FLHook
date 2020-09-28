@@ -1,16 +1,11 @@
 ﻿#include "Main.h"
 
 #include <plugin_comms.h>
-#include <stdio.h>
 #include <windows.h>
 
 std::list<TEMPBAN_INFO> lstTempBans;
 
-PLUGIN_RETURNCODE returncode;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
+ReturnCode returncode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +23,7 @@ Check if TempBans exceeded
 EXPORT void HkTimerCheckKick() {
     // timed out tempbans get deleted here
 
-    returncode = DEFAULT_RETURNCODE;
+    returncode = ReturnCode::Default;
 
     for (auto it = lstTempBans.begin(); it != lstTempBans.end(); ++it) {
         if (((*it).banstart + (*it).banduration) < timeInMS()) {
@@ -84,11 +79,11 @@ namespace HkIServerImpl {
 
 EXPORT void __stdcall Login(struct SLoginInfo const &li,
                             unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
+    returncode = ReturnCode::Default;
 
     // check for tempban
     if (HkTempBannedCheck(iClientID)) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         HkKick(ARG_CLIENTID(iClientID));
     }
 }
@@ -97,20 +92,9 @@ EXPORT void __stdcall Login(struct SLoginInfo const &li,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    returncode = DEFAULT_RETURNCODE; // we do not skip other plugins even if we
-                                     // handle the msg, maybe another plugin
-                                     // wants to get notice of this message
-    // for example a logging plugin that would log every tempban, etc..
-
-    // this is the hooked plugin communication function
-
-    // we now check, if the message is for us
+EXPORT void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
     if (msg == TEMPBAN_BAN) {
-        // the message is for us, now we know what the actual data is, so we do
-        // a reinterpret cast
-        TEMPBAN_BAN_STRUCT *incoming_data =
-            reinterpret_cast<TEMPBAN_BAN_STRUCT *>(data);
+        auto *incoming_data = static_cast<TEMPBAN_BAN_STRUCT *>(data);
 
         // do something here with the received data & instruction
         HkTempBan(ARG_CLIENTID(incoming_data->iClientID),
@@ -139,15 +123,14 @@ void CmdTempBan(CCmds *classptr, const std::wstring &wscCharname,
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-EXPORT bool ExecuteCommandString_Callback(CCmds *classptr,
+EXPORT bool ExecuteCommandString(CCmds *classptr,
                                           const std::wstring &wscCmd) {
-    returncode = NOFUNCTIONCALL; // flhook needs to care about our return code
+    returncode = ReturnCode::SkipFunctionCall;
 
     if (IS_CMD("tempban")) {
 
-        returncode =
-            SKIPPLUGINS_NOFUNCTIONCALL; // do not let other plugins kick in
-                                        // since we now handle the command
+        returncode = ReturnCode::SkipAll; // do not let other plugins kick in
+                                          // since we now handle the command
 
         CmdTempBan(classptr, classptr->ArgCharname(1), classptr->ArgInt(2));
 
@@ -157,32 +140,22 @@ EXPORT bool ExecuteCommandString_Callback(CCmds *classptr,
     return false;
 }
 
-EXPORT void CmdHelp_Callback(CCmds *classptr) {
-    returncode = DEFAULT_RETURNCODE;
-
+EXPORT void CmdHelp(CCmds *classptr) {
     classptr->Print(L"tempban <charname>\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "TempBan Plugin by w0dk4";
-    p_PI->sShortName = "tempban";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Login,
-                                             PLUGIN_HkIServerImpl_Login, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
-                        PLUGIN_Plugin_Communication, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp_Callback,
-                                             PLUGIN_CmdHelp_Callback, 0));
-    return p_PI;
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
+    pi->version();
+    pi->name("TempBan Plugin by w0dk4");
+    pi->shortName("tempban");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->addHook({ HookedCall::HkTimerCheckKick, &HkTimerCheckKick });
+    pi->addHook({ HookedCall::HkIServerImpl_Login, &HkIServerImpl::Login, HookStep::After });
+    pi->addHook({ HookedCall::PluginCommunication, &PluginCommunication });
+    pi->addHook({ HookedCall::ExecuteCommandString, &ExecuteCommandString });
+    pi->addHook({ HookedCall::CmdHelp, &CmdHelp });
 }

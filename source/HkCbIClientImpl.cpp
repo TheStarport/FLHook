@@ -26,14 +26,15 @@
         AddDebugLog("     " #a ": %f %f %f", (float)a.x, (float)a.y,           \
                     (float)a.z);
 
-#define CALL_CLIENT_METHOD(Method)                                             \
-    void *vRet;                                                                \
-    char *tmp;                                                                 \
-    memcpy(&tmp, &Client, 4);                                                  \
-    memcpy(&Client, &OldClient, 4);                                            \
-    HookClient->Method;                                                        \
-    __asm { mov [vRet], eax}                                                     \
-    memcpy(&Client, &tmp, 4);
+#define CALL_CLIENT_METHOD(Method, Ret) {        \
+    void *vRet;                                  \
+    char *tmp;                                   \
+    memcpy(&tmp, &Client, 4);                    \
+    memcpy(&Client, &OldClient, 4);              \
+    HookClient->Method;                          \
+    __asm { mov [vRet], eax }                    \
+    memcpy(&Client, &tmp, 4);                    \
+    Ret = reinterpret_cast<decltype(Ret)>(vRet); }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
@@ -42,8 +43,9 @@ bool HkIClientImpl::CDPClientProxy__Disconnect(uint iClientID) {
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_CLIENT_METHOD(CDPClientProxy__Disconnect(iClientID));
-    return reinterpret_cast<bool>(vRet);
+    bool ret;
+    CALL_CLIENT_METHOD(CDPClientProxy__Disconnect(iClientID), ret);
+    return ret;
 }
 
 /**************************************************************************************************************
@@ -69,8 +71,9 @@ uint HkIClientImpl::CDPClientProxy__GetSendQBytes(uint iClientID) {
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQBytes(iClientID));
-    return reinterpret_cast<uint>(vRet);
+    uint ret;
+    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQBytes(iClientID), ret);
+    return ret;
 }
 
 /**************************************************************************************************************
@@ -80,8 +83,9 @@ uint HkIClientImpl::CDPClientProxy__GetSendQSize(uint iClientID) {
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQSize(iClientID));
-    return reinterpret_cast<uint>(vRet);
+    uint ret;
+    CALL_CLIENT_METHOD(CDPClientProxy__GetSendQSize(iClientID), ret);
+    return ret;
 }
 
 /**************************************************************************************************************
@@ -97,11 +101,13 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint iClientID,
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATECRUISE, bool,
-                 __stdcall, (uint, XActivateCruise &), (iClientID, aq));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATECRUISE, iClientID, aq);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATECRUISE(iClientID, aq));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATECRUISE(iClientID, aq), retVal);
+
+    CallPluginsAfter(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATECRUISE, iClientID, aq);
+
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -112,11 +118,13 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(
     ISERVER_LOG();
     ISERVER_LOGARG_UI(iClientID);
 
-    CALL_PLUGINS(PLUGIN_HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATEEQUIP, bool,
-                 __stdcall, (uint, XActivateEquip &), (iClientID, aq));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATEEQUIP, iClientID, aq);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATEEQUIP(iClientID, aq));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_ACTIVATEEQUIP(iClientID, aq), retVal);
+
+    CallPluginsAfter(HookedCall::HkIClientImpl_Send_FLPACKET_COMMON_ACTIVATEEQUIP, iClientID, aq);
+
+    return retVal;
 }
 
 /**************************************************************************************************************

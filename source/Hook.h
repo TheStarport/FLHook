@@ -3,7 +3,6 @@
 #include <time.h>
 #include "global.h"
 #include "flcodec.h"
-#include <plugin.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // defines
@@ -116,7 +115,7 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// plugin functionality & hook prototypes
+// 
 
 class CCmds;
 
@@ -132,159 +131,6 @@ class CTimer {
     std::string sFunction;
     uint iWarning;
 };
-
-struct PLUGIN_HOOKDATA {
-    std::string sName;
-    std::string sPluginFunction;
-    HMODULE hDLL;
-    int iPriority;
-    bool bPaused;
-    FARPROC *pFunc;
-    PLUGIN_RETURNCODE *ePluginReturnCode;
-};
-
-struct PLUGIN_DATA {
-    std::string sName;
-    std::string sShortName;
-    HMODULE hDLL;
-    std::string sDLL;
-    bool bMayPause;
-    bool bMayUnload;
-    bool bPaused;
-};
-
-struct PLUGIN_SORTCRIT {
-    bool operator()(const PLUGIN_HOOKDATA &lhs,
-                    const PLUGIN_HOOKDATA &rhs) const {
-        if (lhs.iPriority > rhs.iPriority)
-            return true;
-        else
-            return false;
-    }
-};
-
-#define CALL_PLUGINS(callback_id, ret_type, calling_convention, arg_types,     \
-                     args)                                                     \
-    {                                                                          \
-        ret_type vPluginRet;                                                   \
-        bool bPluginReturn = false;                                            \
-        g_bPlugin_nofunctioncall = false;                                      \
-        TRY_HOOK {                                                             \
-            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
-                if (plugin.bPaused)                                            \
-                    continue;                                                  \
-                if (plugin.pFunc) {                                            \
-                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
-                    timer.start();                                             \
-                    TRY_HOOK {                                                 \
-                        vPluginRet = ((ret_type(calling_convention *)          \
-                                           arg_types)plugin.pFunc)args;        \
-                    }                                                          \
-                    CATCH_HOOK({                                               \
-                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
-                               plugin.sName.c_str(), __FUNCTION__);            \
-                    })                                                         \
-                    timer.stop();                                              \
-                } else                                                         \
-                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
-                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
-                    bPluginReturn = true;                                      \
-                    break;                                                     \
-                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
-                    bPluginReturn = true;                                      \
-                    g_bPlugin_nofunctioncall = true;                           \
-                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
-                    break;                                                     \
-            }                                                                  \
-        }                                                                      \
-        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
-        if (bPluginReturn)                                                     \
-            return vPluginRet;                                                 \
-    }
-
-// same for void types, not really seeing a way to integrate it in 1st macro :(
-#define CALL_PLUGINS_V(callback_id, calling_convention, arg_types, args)       \
-    {                                                                          \
-        bool bPluginReturn = false;                                            \
-        g_bPlugin_nofunctioncall = false;                                      \
-        TRY_HOOK {                                                             \
-            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
-                if (plugin.bPaused)                                            \
-                    continue;                                                  \
-                if (plugin.pFunc) {                                            \
-                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
-                    timer.start();                                             \
-                    TRY_HOOK {                                                 \
-                        ((void(calling_convention *) arg_types)plugin.pFunc)   \
-                            args;                                              \
-                    }                                                          \
-                    CATCH_HOOK({                                               \
-                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
-                               plugin.sName.c_str(), __FUNCTION__);            \
-                    })                                                         \
-                    timer.stop();                                              \
-                } else                                                         \
-                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
-                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
-                    bPluginReturn = true;                                      \
-                    break;                                                     \
-                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
-                    bPluginReturn = true;                                      \
-                    g_bPlugin_nofunctioncall = true;                           \
-                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
-                    break;                                                     \
-            }                                                                  \
-        }                                                                      \
-        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
-        if (bPluginReturn)                                                     \
-            return;                                                            \
-    }
-
-// extra macro for plugin calls where we dont care about or dont allow returning
-#define CALL_PLUGINS_NORET(callback_id, calling_convention, arg_types, args)   \
-    {                                                                          \
-        g_bPlugin_nofunctioncall = false;                                      \
-        TRY_HOOK {                                                             \
-            for (auto &plugin : pPluginHooks[(int)callback_id]) {              \
-                if (plugin.bPaused)                                            \
-                    continue;                                                  \
-                if (plugin.pFunc) {                                            \
-                    CTimer timer(plugin.sPluginFunction, set_iTimerThreshold); \
-                    timer.start();                                             \
-                    TRY_HOOK {                                                 \
-                        ((void(calling_convention *) arg_types)plugin.pFunc)   \
-                            args;                                              \
-                    }                                                          \
-                    CATCH_HOOK({                                               \
-                        AddLog("ERROR: Exception in plugin '%s' in %s",        \
-                               plugin.sName.c_str(), __FUNCTION__);            \
-                    })                                                         \
-                    timer.stop();                                              \
-                } else                                                         \
-                    AddLog("ERROR: Plugin '%s' does not export %s [%s]",       \
-                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-                if (*plugin.ePluginReturnCode == SKIPPLUGINS_NOFUNCTIONCALL) { \
-                    AddLog("ERROR: Plugin '%s' wants to suppress function "    \
-                           "call in %s "                                       \
-                           "[%s] - denied!",                                   \
-                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-                    break;                                                     \
-                } else if (*plugin.ePluginReturnCode == NOFUNCTIONCALL) {      \
-                    AddLog("ERROR: Plugin '%s' wants to suppress function "    \
-                           "call in %s "                                       \
-                           "[%s] - denied!",                                   \
-                           plugin.sName.c_str(), __FUNCTION__, __FUNCDNAME__); \
-                    g_bPlugin_nofunctioncall = true;                           \
-                } else if (*plugin.ePluginReturnCode == SKIPPLUGINS)           \
-                    break;                                                     \
-            }                                                                  \
-        }                                                                      \
-        CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); })           \
-    }
-
-typedef PLUGIN_INFO *(*PLUGIN_Get_PluginInfo)();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // typedefs
@@ -579,20 +425,142 @@ struct GROUP_MEMBER {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// plugin functionality & hook prototypes
+//
+
+#include <plugin.h>
+
+struct PluginHookData;
+
+struct PluginData {
+    std::string name;
+    std::string shortName;
+    size_t hash = 0;
+    HMODULE dll = nullptr;
+    std::wstring dllName;
+    bool mayPause = false;
+    bool mayUnload = false;
+    ReturnCode *returnCode = nullptr;
+
+    bool paused = false;
+};
+
+struct PluginHookData {
+    HookedCall targetFunction;
+    PluginHook::FunctionType *hookFunction;
+    HookStep step;
+    int priority;
+
+    size_t index;
+    [[nodiscard]] const PluginData& plugin() const;
+};
+
+inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
+    return lhs.priority > rhs.priority;
+}
+
+struct PluginInfo {
+    EXPORT void version(int version = PLUGIN_API_VERSION);
+    EXPORT void name(const char* name);
+    EXPORT void shortName(const char* shortName);
+    EXPORT void mayPause(bool pause);
+    EXPORT void mayUnload(bool unload);
+    EXPORT void returnCode(ReturnCode* returnCode);
+    EXPORT void addHook(const PluginHook& hook);
+
+    int version_;
+    std::string name_, shortName_;
+    bool mayPause_, mayUnload_;
+    ReturnCode* returnCode_;
+    std::list<PluginHook> hooks_;
+};
+
+EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
+
+class PluginManager : public Singleton<PluginManager> {
+    void clearData(bool free);
+    
+    std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * 2> pluginHooks_;
+    std::vector<PluginData> plugins_;
+
+public:
+    PluginManager();
+    ~PluginManager();
+    
+    void loadAll(bool, CCmds*);
+    void unloadAll();
+
+    void load(const std::wstring &fileName, CCmds*, bool);
+    HK_ERROR pause(size_t hash, bool pause);
+    HK_ERROR unload(size_t hash);
+    
+    const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
+    PluginData& pluginAt(size_t index) { return plugins_[index]; }
+
+    template<typename ReturnType, typename... Args>
+    ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&& ...args) const {
+        using PluginCallType = ReturnType(Args...);
+        constexpr bool ReturnTypeIsVoid = std::is_same_v<ReturnType, void>;
+        using NoVoidReturnType = std::conditional_t<ReturnTypeIsVoid, int, ReturnType>;
+
+        NoVoidReturnType ret {};
+        TRY_HOOK {
+            for (const auto &hook : pluginHooks_[uint(target) * 2 + uint(step)]) {
+                const auto& plugin = hook.plugin();
+                if (plugin.paused)
+                    continue;
+
+                *plugin.returnCode = ReturnCode::Default;
+
+                TRY_HOOK {
+                    if constexpr(ReturnTypeIsVoid)
+                        static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                    else
+                        ret = static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                }
+                CATCH_HOOK({
+                    AddLog("ERROR: Exception in plugin '%s' in %s",
+                           plugin.name.c_str(), __FUNCTION__);
+                });
+
+                auto code = *plugin.returnCode;
+
+                if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
+                    skipFunctionCall = true;
+
+                if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
+                    break;
+            }
+        } CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); });
+
+        if constexpr(!ReturnTypeIsVoid)
+            return ret;
+    }
+};
+
+template<typename ReturnType = void, typename... Args>
+auto CallPluginsBefore(HookedCall target, Args&& ...args) {
+    bool skip;
+    if constexpr(std::is_same_v<ReturnType, void>) {
+        PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        return skip;
+    } else {
+        ReturnType ret = PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        return std::make_tuple(ret, skip);
+    }
+}
+
+template<typename... Args>
+void CallPluginsAfter(HookedCall target, Args&& ...args) {
+    bool dontCare;
+    PluginManager::i()->callPlugins<void>(target, HookStep::After, dontCare, std::forward<Args>(args)...);
+}
+
+using ExportPluginInfoT = void(*)(PluginInfo*);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // prototypes
-
-// HkPluginManager
-namespace PluginManager {
-void Init();
-void Destroy();
-EXPORT void LoadPlugins(bool, CCmds *);
-EXPORT void LoadPlugin(const std::string &sFileName, CCmds *, bool);
-EXPORT HK_ERROR PausePlugin(const std::string &sShortName, bool bPause);
-EXPORT HK_ERROR UnloadPlugin(const std::string &sShortName);
-EXPORT void UnloadPlugins();
-} // namespace PluginManager
-
-EXPORT void Plugin_Communication(PLUGIN_MESSAGE msgtype, void *msg);
+//
 
 // HkInit
 void PatchClientImpl();
@@ -862,9 +830,6 @@ extern HOOKENTRY hookEntries[85];
 bool HkLoadBaseMarket();
 
 // variables
-
-extern EXPORT std::list<PLUGIN_HOOKDATA> *pPluginHooks;
-extern EXPORT std::list<PLUGIN_DATA> lstPlugins;
 
 extern EXPORT HkIClientImpl *FakeClient;
 extern EXPORT HkIClientImpl *HookClient;

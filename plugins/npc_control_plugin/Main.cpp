@@ -669,7 +669,7 @@ void AdminCmd_AIFleet(CCmds *cmds, std::wstring FleetName) {
 }
 
 // Admin command processing
-bool ExecuteCommandString_Callback(CCmds *cmds, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
     if (IS_CMD("aicreate")) {
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -732,7 +732,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
         (FARPROC *)&Startup_AFTER, PLUGIN_HkIServerImpl_Startup_AFTER, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString_Callback,
+        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));

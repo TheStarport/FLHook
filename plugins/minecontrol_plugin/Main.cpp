@@ -725,7 +725,7 @@ void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos,
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString_Callback(CCmds *cmd, const std::wstring &wscCmd) {
+bool ExecuteCommandString(CCmds *cmd, const std::wstring &wscCmd) {
     returncode = DEFAULT_RETURNCODE;
 
     if (IS_CMD("printminezones")) {
