@@ -270,12 +270,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint iClientID,
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint iClientID,
                                                            unsigned char *p2,
                                                            int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_SET_VISITED_STATE(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_SET_VISITED_STATE, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SET_VISITED_STATE(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_SET_VISITED_STATE, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -284,12 +287,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint iClientID,
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint iClientID,
                                                           unsigned char *p2,
                                                           int p3) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, p2, p3);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_COMMON_SET_WEAPON_GROUP(iClientID, p2, p3));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_SET_WEAPON_GROUP, iClientID, p2, p3);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SET_WEAPON_GROUP(iClientID, p2, p3));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_SET_WEAPON_GROUP, iClientID, p2, p3);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -297,11 +303,15 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint iClientID,
                                                    XSetTarget &st) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, st.iShip, st.iSpaceID, st.iSubObjID, st.iSlot);
+    
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_SET_TARGET, iClientID, st);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SETTARGET(iClientID, st));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_SETTARGET(iClientID, st));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_SET_TARGET, iClientID, st);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -311,54 +321,61 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint iClientID,
                                                        uint iShip,
                                                        uint iArchTradelane1,
                                                        uint iArchTradelane2) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, iShip, iArchTradelane1, iArchTradelane2);
+    
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_STOPTRADELANE, iClientID, iShip, iArchTradelane1, iArchTradelane2);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_STOPTRADELANE(
-        iClientID, iShip, iArchTradelane1, iArchTradelane2));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_STOPTRADELANE(iClientID, iShip, iArchTradelane1, iArchTradelane2));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Com_STOPTRADELANE, iClientID, iShip, iArchTradelane1, iArchTradelane2);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(
-    uint iClientID, SSPObjUpdateInfo &pUpdate) {
-    // ISERVER_LOG();
-    // ISERVER_LOGARG_UI(iClientID);
+bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint iClientID, SSPObjUpdateInfo &pUpdate) {
+    // No call log here because it's too common a packet
+    
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Com_UPDATEOBJECT, pUpdate);
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Com_UPDATEOBJECT, bool,
-                 __stdcall, (uint, SSPObjUpdateInfo &), (iClientID, pUpdate));
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_UPDATEOBJECT(iClientID, pUpdate));
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_UPDATEOBJECT(iClientID, pUpdate));
-    return reinterpret_cast<bool>(vRet);
+    CallPluginsAfter(HookedCall::IClientImpl_Com_UPDATEOBJECT, iClientID, pUpdate);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint iClientID,
-                                                        XActivateEquip &aq) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint iClientID, XActivateEquip &aq) {
+    ADD_CALL_LOG(iClientID, aq.bActivate, aq.iSpaceID, aq.sID);
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_ACTIVATEOBJECT, bool,
-                 __stdcall, (uint, XActivateEquip &), (iClientID, aq));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_ACTIVATEOBJECT, aq);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_ACTIVATEOBJECT(iClientID, aq));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_ACTIVATEOBJECT(iClientID, aq));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_ACTIVATEOBJECT, iClientID, aq);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(
-    uint iClientID, FLPACKET_BURNFUSE &pBurnfuse) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    uint iClientID, FLPACKET_BURNFUSE &burnFuse) {
+    ADD_CALL_LOG(iClientID, burnFuse.iShip, burnFuse.bActive, burnFuse.iFuseID, burnFuse.iShipAttacker);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_BURNFUSE(iClientID, pBurnfuse));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_BURNFUSE, burnFuse);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_BURNFUSE(iClientID, burnFuse));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_BURNFUSE, iClientID, burnFuse);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -366,11 +383,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(
     uint iClientID, FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CHARACTERINFO(iClientID, pDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CHARACTERINFO, pDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CHARACTERINFO(iClientID, pDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CHARACTERINFO, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -378,12 +399,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(
     uint iClientID, FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_SERVER_CHARSELECTVERIFIED(iClientID, pDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CHARSELECTVERIFIED, pDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CHARSELECTVERIFIED(iClientID, pDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CHARSELECTVERIFIED, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -391,11 +415,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(
     uint iClientID, FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATECOUNTER(iClientID, pDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATECOUNTER, pDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATECOUNTER(iClientID, pDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATECOUNTER, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -403,11 +431,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(
     uint iClientID, FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATEGUIDED(iClientID, pDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATEGUIDED, pDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATEGUIDED(iClientID, pDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATEGUIDED, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -415,19 +447,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint iClientID,
                                                     FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATELOOT, bool,
-                 __stdcall, (uint, FLPACKET_UNKNOWN &), (iClientID, pDunno));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATELOOT, pDunno);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATELOOT(iClientID, pDunno));
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATELOOT(iClientID, pDunno));
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATELOOT_AFTER,
-                 bool, __stdcall, (uint, FLPACKET_UNKNOWN &),
-                 (iClientID, pDunno));
-
-    return reinterpret_cast<bool>(vRet);
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATELOOT, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -435,11 +463,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint iClientID,
                                                     FLPACKET_UNKNOWN &pDunno) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATEMINE(iClientID, pDunno));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATEMINE, pDunno);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATEMINE(iClientID, pDunno));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATEMINE, iClientID, pDunno);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -447,18 +479,15 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint iClientID,
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(
     uint iClientID, FLPACKET_CREATESHIP &pShip) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, pShip.iSpaceID, pShip.iShipArch, pShip.vPos);
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESHIP, bool,
-                 __stdcall, (uint, FLPACKET_CREATESHIP &), (iClientID, pShip));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATESHIP, pShip);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESHIP(iClientID, pShip));
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESHIP(iClientID, pShip));
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESHIP_AFTER,
-                 bool, , (uint, FLPACKET_CREATESHIP &), (iClientID, pShip));
-
-    return reinterpret_cast<bool>(vRet);
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATESHIP, iClientID, pShip);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
@@ -466,30 +495,31 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(
     uint iClientID, FLPACKET_CREATESOLAR &pSolar) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
+    ADD_CALL_LOG(iClientID, pSolar.iSpaceID, pSolar.iSolarArch, pSolar.vPos);
 
-    CALL_PLUGINS(PLUGIN_IClientImpl_Srv_CREATESOLAR, bool,
-                 __stdcall, (uint, FLPACKET_CREATESOLAR &),
-                 (iClientID, pSolar));
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_CREATESOLAR, pSolar);
 
-    CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESOLAR(iClientID, pSolar));
-    return reinterpret_cast<bool>(vRet);
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_CREATESOLAR(iClientID, pSolar));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_CREATESOLAR, iClientID, pSolar);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
 **************************************************************************************************************/
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint iClientID, uint iObj,
-                                                      DamageList &dmlist) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
-    ISERVER_LOGARG_UI(iObj);
-    // ISERVER_LOGARG_UI(damageentries);
+                                                      DamageList &dmgList) {
+    ADD_CALL_LOG(iClientID, iObj);
 
-    CALL_CLIENT_METHOD(
-        Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iObj, dmlist));
-    return reinterpret_cast<bool>(vRet);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl_Srv_DAMAGEOBJECT, iClientID, iObj, dmgList);
+
+    if(!skip) retVal = CALL_CLIENT_METHOD(Send_FLPACKET_SERVER_DAMAGEOBJECT(iClientID, iObj, dmgList));
+
+    CallPluginsAfter(HookedCall::IClientImpl_Srv_DAMAGEOBJECT, iClientID, iObj, dmgList);
+    
+    return retVal;
 }
 
 /**************************************************************************************************************
