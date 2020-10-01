@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\code_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_alias_template.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_attribute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_class_template.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity_index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity_kind.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_enum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_expression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_forward_declarable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_friend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_function_template.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_language_linkage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_member_function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_member_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_namespace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_preprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_static_assert.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_template_parameter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_type_alias.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_variable_template.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\diagnostic_logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\visitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\class_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\cxtokenizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\debug_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\enum_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\expression_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\friend_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\function_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\language_linkage_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\libclang_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\namespace_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\preprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\template_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\type_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\variable_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\detail\assert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\detail\intrusive_list.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\code_generator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\compile_config.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_alias_template.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_array_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_attribute.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_class.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_class_template.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_decltype_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_container.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_index.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_kind.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_ref.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_enum.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_expression.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_file.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_forward_declarable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_friend.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function_template.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_language_linkage.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_member_function.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_member_variable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_namespace.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_preprocessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_static_assert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_storage_class_specifiers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_template.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_template_parameter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_token.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_type_alias.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable_base.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable_template.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\diagnostic.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\diagnostic_logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\libclang_parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\visitor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\cxtokenizer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\debug_helper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\libclang_visitor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_error.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_functions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\preprocessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\raii_wrapper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\aligned_union.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\all_of.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\assert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\assign_or_construct.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\constant_parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\copy_move_control.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\force_inline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\is_nothrow_swappable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\map_invoke.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\variant_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\config.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\arithmetic_policy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\boolean.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\bounded_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\compact_optional.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\constrained_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\deferred_construction.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\downcast.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\flag.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\flag_set.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\floating_point.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\index.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\integer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\narrow_cast.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\optional.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\optional_ref.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\output_parameter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\reference.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\strong_typedef.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\tagged_union.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\variant.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\visitor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert\debug_assert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jpgue\Projects\FLHook\cppast\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{6F0F1AF9-047A-3BF6-B947-2F504D0B8C31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{542E5814-A5D8-35CA-8E84-520545C4A5B6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
