@@ -710,27 +710,6 @@ void AddBothLog(const char* format, Args&&... args) {
     AddDebugLog(format, std::forward<Args>(args)...);
 }
 
-template<typename Front, typename... Rest>
-void AddSubCallLog(std::stringstream& ss, const std::string& argNames, size_t pos, Front&& f, Rest&&... rest) {
-    size_t posNext = argNames.find(',', pos);
-    ss << Trim(argNames.substr(pos, posNext - pos)) << " = (" << f << "), ";
-    if constexpr(sizeof...(Rest) > 0)
-        AddSubCallLog(ss, std::forward<Rest>(rest)..., posNext + 1);
-}
-
-template<typename... Args>
-void AddCallLog(const char* func, const char* argNames, Args... args) {
-    size_t pos = 0;
-    std::stringstream ss;
-    ss << func << ": ";
-    AddSubCallLog(ss, std::string(argNames), pos, std::forward<Args>(args)...);
-    ss << "\n";
-
-    AddDebugLog(ss.str().c_str());
-}
-
-#define ADD_CALL_LOG(...) (set_bDebug ? AddCallLog(__FUNCTION__, #__VA_ARGS__, __VA_ARGS__) : nullptr)
-
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason,
                             ...);
 EXPORT bool HkAddCheaterLog(const std::wstring &wscCharname,
