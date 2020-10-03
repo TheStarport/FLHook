@@ -61,6 +61,21 @@ std::string replace_backslashes(std::string s) {
     return s;
 }
 
+const cppast::cpp_type& walk_typedefs(const cppast::cpp_type& base_type, const cppast::cpp_entity_index& idx) {
+    if(base_type.kind() != cppast::cpp_type_kind::user_defined_t)
+        return base_type;
+
+    const auto& user_type = static_cast<const cppast::cpp_user_defined_type&>(base_type);
+    const auto& type_entity = user_type.entity().get(idx)[0u].get();
+    if(type_entity.kind() == cppast::cpp_entity_kind::type_alias_t) {
+        const auto& type_alias = static_cast<const cppast::cpp_type_alias&>(type_entity);
+        const auto& underlying_type = type_alias.underlying_type();
+        return walk_typedefs(underlying_type, idx);
+    }
+
+    return base_type;
+}
+
 enum class type_information {
     unknown,
     is_float,
@@ -69,16 +84,6 @@ enum class type_information {
     is_string,
     is_pointer
 };
-
-const cppast::cpp_type& walk_typedefs(const cppast::cpp_type& base_type, const cppast::cpp_entity_index& idx) {
-    if(base_type.kind() != cppast::cpp_type_kind::user_defined_t)
-        return base_type;
-
-    const auto& user_type = static_cast<const cppast::cpp_user_defined_type&>(base_type);
-    const auto& type_entity = static_cast<const cppast::cpp_type_alias&>(user_type.entity().get(idx)[0u].get());
-    const auto& underlying_type = type_entity.underlying_type();
-    return walk_typedefs(underlying_type, idx);
-}
 
 type_information determine_type_information(const cppast::cpp_type& in_type, const cppast::cpp_entity_index& idx) {
     const auto& type = walk_typedefs(in_type, idx);
@@ -119,74 +124,102 @@ type_information determine_type_information(const cppast::cpp_type& in_type, con
     return type_information::unknown;
 }
 
-void generate_function_hook(const cppast::cpp_entity& entity, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
+struct parsed_arg {
+    const std::string type;
+    const std::string name;
+    type_information info;
+};
+
+template<typename Iteratable>
+std::list<parsed_arg> parse_args(const Iteratable& params, const cppast::cpp_entity_index& idx) {
     size_t gen_idx = 0;
+    std::list<parsed_arg> args;
+    for(const auto& arg : params) {
+        std::string arg_name = arg.name().empty() ? ("_genArg" + std::to_string(++gen_idx)) : arg.name();
+        args.push_back({ cppast::to_string(arg.type()), arg_name, determine_type_information(arg.type(), idx) });
+    }
+
+    return args;
+}
+
+void append_args_list(const std::list<parsed_arg>& args, bool incl_type, std::ostream& output) {
+    for(const auto& a : args) {
+        if(incl_type)
+            output << a.type << " ";
+        output << a.name << ", ";
+    }
+    if(!args.empty())
+        output.seekp(-2, std::fstream::cur);
+}
+
+std::string make_enum(const std::string& context, const std::string& func_name) {
+    std::string enum_context = context;
+    std::replace(enum_context.begin(), enum_context.end(), ':', '_');
+
+    for(auto p = enum_context.find("Hk"); p != std::string::npos; p = enum_context.find("Hk")) {
+        enum_context = enum_context.substr(0, p) + enum_context.substr(p + 2);
+    }
+
+    return enum_context + func_name;
+}
+
+void generate_function_hook(const cppast::cpp_entity& entity, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header, bool client_call, bool server_call) {
+
+    // Never hook operator methods
+    if(entity.name().starts_with("operator"))
+        return;
 
     const auto& func = static_cast<const cppast::cpp_function&>(entity);
     std::string func_name = context + func.name();
+    std::string enum_val = make_enum(context, func.name());
+    std::string full_enum_val = "HookedCall::" + enum_val;
     
-    std::string enum_context = context;
-    std::replace(enum_context.begin(), enum_context.end(), ':', '_');
-    std::string enum_val = "HookedCall::" + enum_context + func.name();
-
     bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
+    bool no_log = has_attribute(entity, "NoLog").has_value();
 
     if(!no_plugins)
-        output_header << "\t" << enum_context + func.name() << "," << std::endl;
+        output_header << "\t" << enum_val << "," << std::endl;
 
-    std::list<std::tuple<std::string, std::string, const cppast::cpp_function_parameter&>> args;
-    for(const auto& arg : func.parameters()) {
-        std::string arg_name = arg.name().empty() ? ("_genArg" + std::to_string(++gen_idx)) : arg.name();
-        args.emplace_back(to_string(arg.type()), arg_name, arg);
-    }
+    auto args = parse_args(func.parameters(), idx);
 
     output << to_string(func.return_type()) << " " << func_name << "(";
-    for(auto& a : args) output << std::get<0>(a) << " " << std::get<1>(a) << ", ";
-    if(!args.empty())
-        output.seekp(-2, std::fstream::cur);
+    append_args_list(args, true, output);
     output << ") {" << std::endl;
 
-    output << "\tAddDebugLog(\"" << func_name << "(\\n";
-    for(auto& a : args) {
-        output << "\\t" << std::get<0>(a) << " " << std::get<1>(a) << " = %";
-        auto type_info = determine_type_information(std::get<2>(a).type(), idx);
-        switch(type_info) {
-        case type_information::is_integral:
-            output << "d";
-            break;
-        case type_information::is_unsigned:
-            output << "u";
-            break;
-        case type_information::is_float:
-            output << "f";
-            break;
-        case type_information::is_pointer:
-            output << "p";
-            break;
-        case type_information::is_string:
-        default:
-            output << "s";
-            break;
-        }
+    if(!no_log) {
+        output << "\tAddDebugLog(\"" << func_name << "(\\n";
+        for(auto& a : args) {
+            output << "\\t" << a.type << " " << a.name << " = %";
+            switch(a.info) {
+            case type_information::is_integral:
+                output << "d";
+                break;
+            case type_information::is_unsigned:
+                output << "u";
+                break;
+            case type_information::is_float:
+                output << "f";
+                break;
+            case type_information::is_pointer:
+                output << "p";
+                break;
+            case type_information::is_string:
+            default:
+                output << "s";
+                break;
+            }
 
-        output << "\\n";
+            output << "\\n";
+        }
+        output << ")\"," << std::endl << "\t\t\t";
+        append_args_list(args, false, output);
+        output << ");" << std::endl << std::endl;
     }
-    output << ")\"," << std::endl << "\t\t\t";
-    for(auto& a : args) {
-        output << std::get<1>(a) << ", ";
-    }
-    if(!args.empty())
-        output.seekp(-2, std::fstream::cur);
-    output << ");" << std::endl << std::endl;
 
 
     if(!no_plugins) {
-        output << "\tauto [retVal, skip] = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << enum_val << ",\n\t\t\t";
-        for(auto& a : args) {
-            output << std::get<1>(a) << ", ";
-        }
-        if(!args.empty())
-            output.seekp(-2, std::fstream::cur);
+        output << "\tauto [retVal, skip] = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val << ",\n\t\t\t";
+        append_args_list(args, false, output);
         output << ");" << std::endl << std::endl;
     }
 
@@ -196,18 +229,12 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     else
         output << "return ";
     output << "CALL_CLIENT_METHOD(" << func.name() << "(";
-    for(auto& a : args)
-        output << std::get<1>(a) << ", ";
-    if(!args.empty())
-        output.seekp(-2, std::fstream::cur);
+    append_args_list(args, false, output);
     output << "));" << std::endl;
 
     if(!no_plugins) {
-        output << std::endl << "\tCallPluginsAfter(" << enum_val << ",\n\t\t\t";
-        for(auto& a : args)
-            output << std::get<1>(a) << ", ";
-        if(!args.empty())
-            output.seekp(-2, std::fstream::cur);
+        output << std::endl << "\tCallPluginsAfter(" << full_enum_val << ",\n\t\t\t";
+        append_args_list(args, false, output);
         output << ");" << std::endl << std::endl;
 
         output << "\treturn retVal;" << std::endl;
@@ -216,10 +243,10 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     output << "}" << std::endl << std::endl;
 }
 
-void generate_hooks(const cppast::cpp_entity& e, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
+void generate_hooks(const cppast::cpp_entity& e, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header, bool client_call, bool server_call) {
     cppast::visit(e, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
         if(entity.kind() == cppast::cpp_entity_kind::member_function_t) {
-            generate_function_hook(entity, context + e.name() + "::", idx, output, output_header);
+            generate_function_hook(entity, context + e.name() + "::", idx, output, output_header, client_call, server_call);
         }
     });
 }
@@ -234,8 +261,11 @@ void locate_hooks(const cppast::cpp_entity& base, const std::string& context, co
         switch(entity.kind()) {
         case cppast::cpp_entity_kind::class_t:
         case cppast::cpp_entity_kind::base_class_t:
-            if(const auto& att = cppast::has_attribute(entity.attributes(), "Hook"))
-                generate_hooks(entity, context, idx, output, output_header);
+            if(cppast::has_attribute(entity.attributes(), "Hook").has_value()) {
+                bool client_call = cppast::has_attribute(entity.attributes(), "ClientCall").has_value();
+                bool server_call = cppast::has_attribute(entity.attributes(), "ServerCall").has_value();
+                generate_hooks(entity, context, idx, output, output_header, client_call, server_call);
+            }
             break;
         case cppast::cpp_entity_kind::namespace_t:
             locate_hooks(entity, context + entity.name() + "::", idx, output, output_header);
@@ -268,8 +298,8 @@ int main(int argc, char* argv[])
         config.set_flags(cppast::cpp_standard::cpp_latest, cppast::compile_flag::ms_extensions | cppast::compile_flag::ms_compatibility);
         config.define_macro("ST6_ALLOCATION_DEFINED", "1");
         config.define_macro("_X86_", "1");
-        config.define_macro("IMPORT", "");
-        config.define_macro("EXPORT", "");
+        config.define_macro("IMPORT", " ");
+        config.define_macro("EXPORT", " ");
         config.add_include_dir(replace_backslashes((sln_dir / "..\\FLHookSDK\\include").lexically_normal().string()));
         
         // the entity index is used to resolve cross references in the AST
@@ -282,6 +312,9 @@ int main(int argc, char* argv[])
 
         auto remote_client = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreRemoteClient.h").lexically_normal().string()), false);
         locate_hooks(*remote_client.get(), "", idx, output, output_header);
+
+        auto server = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreServer.h").lexically_normal().string()), false);
+        locate_hooks(*server.get(), "", idx, output, output_header);
 
         output_header << "};";
     } catch(...) {
