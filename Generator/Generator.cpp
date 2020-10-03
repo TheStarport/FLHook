@@ -119,11 +119,21 @@ type_information determine_type_information(const cppast::cpp_type& in_type, con
     return type_information::unknown;
 }
 
-void generate_function_hook(const cppast::cpp_entity& entity, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output) {
+void generate_function_hook(const cppast::cpp_entity& entity, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
     size_t gen_idx = 0;
 
     const auto& func = static_cast<const cppast::cpp_function&>(entity);
     std::string func_name = context + func.name();
+    
+    std::string enum_context = context;
+    std::replace(enum_context.begin(), enum_context.end(), ':', '_');
+    std::string enum_val = "HookedCall::" + enum_context + func.name();
+
+    bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
+
+    if(!no_plugins)
+        output_header << "\t" << enum_context + func.name() << "," << std::endl;
+
     std::list<std::tuple<std::string, std::string, const cppast::cpp_function_parameter&>> args;
     for(const auto& arg : func.parameters()) {
         std::string arg_name = arg.name().empty() ? ("_genArg" + std::to_string(++gen_idx)) : arg.name();
@@ -136,7 +146,7 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         output.seekp(-2, std::fstream::cur);
     output << ") {" << std::endl;
 
-    output << "\\tAddDebugLog(\"" << func_name << "(\\n";
+    output << "\tAddDebugLog(\"" << func_name << "(\\n";
     for(auto& a : args) {
         output << "\\t" << std::get<0>(a) << " " << std::get<1>(a) << " = %";
         auto type_info = determine_type_information(std::get<2>(a).type(), idx);
@@ -161,43 +171,74 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
 
         output << "\\n";
     }
-    output << ")\", ";
+    output << ")\"," << std::endl << "\t\t\t";
     for(auto& a : args) {
-        auto type_info = determine_type_information(std::get<2>(a).type(), idx);
-        switch(type_info) {
-        case type_information::unknown:
-            output << "ToString(" << std::get<1>(a) << ")";
-            break;
-        default:
-            output << std::get<1>(a);
-            break;
-        }
-        output << ", ";
+        output << std::get<1>(a) << ", ";
     }
     if(!args.empty())
         output.seekp(-2, std::fstream::cur);
-    output << ");" << std::endl;
+    output << ");" << std::endl << std::endl;
+
+
+    if(!no_plugins) {
+        output << "\tauto [retVal, skip] = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << enum_val << ",\n\t\t\t";
+        for(auto& a : args) {
+            output << std::get<1>(a) << ", ";
+        }
+        if(!args.empty())
+            output.seekp(-2, std::fstream::cur);
+        output << ");" << std::endl << std::endl;
+    }
+
+    output << "\t";
+    if(!no_plugins)
+        output << "if(!skip) retVal = ";
+    else
+        output << "return ";
+    output << "CALL_CLIENT_METHOD(" << func.name() << "(";
+    for(auto& a : args)
+        output << std::get<1>(a) << ", ";
+    if(!args.empty())
+        output.seekp(-2, std::fstream::cur);
+    output << "));" << std::endl;
+
+    if(!no_plugins) {
+        output << std::endl << "\tCallPluginsAfter(" << enum_val << ",\n\t\t\t";
+        for(auto& a : args)
+            output << std::get<1>(a) << ", ";
+        if(!args.empty())
+            output.seekp(-2, std::fstream::cur);
+        output << ");" << std::endl << std::endl;
+
+        output << "\treturn retVal;" << std::endl;
+    }
 
     output << "}" << std::endl << std::endl;
 }
 
-void generate_hooks(const cppast::cpp_entity& e, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output) {
-    cppast::visit(e, [&e, &output, &context, &idx](const cppast::cpp_entity& entity, cppast::visitor_info) {
+void generate_hooks(const cppast::cpp_entity& e, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
+    cppast::visit(e, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
         if(entity.kind() == cppast::cpp_entity_kind::member_function_t) {
-            generate_function_hook(entity, context + e.name() + "::", idx, output);
+            generate_function_hook(entity, context + e.name() + "::", idx, output, output_header);
         }
     });
 }
 
-void locate_hooks(const cppast::cpp_entity& base, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output) {
-    cppast::visit(base, [&output, &context, &idx](const cppast::cpp_entity& entity, cppast::visitor_info) {
+void locate_hooks(const cppast::cpp_entity& base, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
+    cppast::visit(base, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
+        if(&entity == &base)
+            return;
+
+        OutputDebugStringA((entity.name() + "\n").c_str());
+
         switch(entity.kind()) {
         case cppast::cpp_entity_kind::class_t:
+        case cppast::cpp_entity_kind::base_class_t:
             if(const auto& att = cppast::has_attribute(entity.attributes(), "Hook"))
-                generate_hooks(entity, context, idx, output);
+                generate_hooks(entity, context, idx, output, output_header);
             break;
         case cppast::cpp_entity_kind::namespace_t:
-            locate_hooks(entity, context + entity.name() + "::", idx, output);
+            locate_hooks(entity, context + entity.name() + "::", idx, output, output_header);
             break;
         default:
             break;
@@ -213,11 +254,22 @@ int main(int argc, char* argv[])
     try {
         std::filesystem::path sln_dir = argv[1];
         std::filesystem::path gen_file = (sln_dir / "../source/__generated.cpp").lexically_normal();
+        std::filesystem::path gen_header = (sln_dir / "../FLHookSDK/include/__generated.h").lexically_normal();
         std::ofstream output(gen_file.c_str());
+        output << "//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
+        output << "#include <Hook.h>" << std::endl << std::endl;
+
+        std::ofstream output_header(gen_header.c_str());
+        output_header << "#pragma once\n\n//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
+
+        output_header << "enum class HookedCall {" << std::endl;
 
         cppast::libclang_compile_config config;
         config.set_flags(cppast::cpp_standard::cpp_latest, cppast::compile_flag::ms_extensions | cppast::compile_flag::ms_compatibility);
         config.define_macro("ST6_ALLOCATION_DEFINED", "1");
+        config.define_macro("_X86_", "1");
+        config.define_macro("IMPORT", "");
+        config.define_macro("EXPORT", "");
         config.add_include_dir(replace_backslashes((sln_dir / "..\\FLHookSDK\\include").lexically_normal().string()));
         
         // the entity index is used to resolve cross references in the AST
@@ -229,7 +281,9 @@ int main(int argc, char* argv[])
         auto core_defs = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreDefs.h").lexically_normal().string()), false);
 
         auto remote_client = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreRemoteClient.h").lexically_normal().string()), false);
-        locate_hooks(*remote_client.get(), "", idx, output);
+        locate_hooks(*remote_client.get(), "", idx, output, output_header);
+
+        output_header << "};";
     } catch(...) {
         return 1;
     }
