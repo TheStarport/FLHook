@@ -70,12 +70,19 @@ enum class type_information {
     is_pointer
 };
 
-type_information determine_type_information(const cppast::cpp_type& type, const cppast::cpp_entity_index& idx) {
-    if(type.kind() == cppast::cpp_type_kind::user_defined_t) {
-        const auto& usertype = static_cast<const cppast::cpp_user_defined_type&>(type);
-        const auto& type_entity = static_cast<const cppast::cpp_type_alias&>(*usertype.entity().get(idx).front());
-        type_entity.underlying_type();
-    } else if(type.kind() == cppast::cpp_type_kind::pointer_t) {
+const cppast::cpp_type& walk_typedefs(const cppast::cpp_type& base_type, const cppast::cpp_entity_index& idx) {
+    if(base_type.kind() != cppast::cpp_type_kind::user_defined_t)
+        return base_type;
+
+    const auto& user_type = static_cast<const cppast::cpp_user_defined_type&>(base_type);
+    const auto& type_entity = static_cast<const cppast::cpp_type_alias&>(user_type.entity().get(idx)[0u].get());
+    const auto& underlying_type = type_entity.underlying_type();
+    return walk_typedefs(underlying_type, idx);
+}
+
+type_information determine_type_information(const cppast::cpp_type& in_type, const cppast::cpp_entity_index& idx) {
+    const auto& type = walk_typedefs(in_type, idx);
+    if(type.kind() == cppast::cpp_type_kind::pointer_t) {
         const auto& ptr = static_cast<const cppast::cpp_pointer_type&>(type);
         if(ptr.pointee().kind() == cppast::cpp_type_kind::builtin_t) {
             const auto& builtin = static_cast<const cppast::cpp_builtin_type&>(ptr.pointee());
@@ -131,7 +138,7 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
 
     output << "\\tAddDebugLog(\"" << func_name << "(\\n";
     for(auto& a : args) {
-        output << "\t" << std::get<0>(a) << " " << std::get<1>(a) << " = %";
+        output << "\\t" << std::get<0>(a) << " " << std::get<1>(a) << " = %";
         auto type_info = determine_type_information(std::get<2>(a).type(), idx);
         switch(type_info) {
         case type_information::is_integral:
@@ -185,10 +192,6 @@ void generate_hooks(const cppast::cpp_entity& e, const std::string& context, con
 void locate_hooks(const cppast::cpp_entity& base, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output) {
     cppast::visit(base, [&output, &context, &idx](const cppast::cpp_entity& entity, cppast::visitor_info) {
         switch(entity.kind()) {
-        case cppast::cpp_entity_kind::type_alias_t: {
-                const auto& type_alias = static_cast<const cppast::cpp_type_alias&>(entity);
-            }
-            break;
         case cppast::cpp_entity_kind::class_t:
             if(const auto& att = cppast::has_attribute(entity.attributes(), "Hook"))
                 generate_hooks(entity, context, idx, output);
@@ -223,10 +226,10 @@ int main(int argc, char* argv[])
         // the logger is used to print diagnostics
         win_logger logger;
 
-        parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreDefs.h").lexically_normal().string()), false);
+        auto core_defs = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreDefs.h").lexically_normal().string()), false);
 
-        auto file = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreRemoteClient.h").lexically_normal().string()), false);
-        locate_hooks(*file.get(), "", idx, output);
+        auto remote_client = parse_file(config, logger, idx, replace_backslashes((sln_dir / "..\\FLHookSDK\\include\\FLCoreRemoteClient.h").lexically_normal().string()), false);
+        locate_hooks(*remote_client.get(), "", idx, output);
     } catch(...) {
         return 1;
     }
