@@ -173,6 +173,8 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     std::string func_name = context + func.name();
     std::string enum_val = make_enum(context, func.name());
     std::string full_enum_val = "HookedCall::" + enum_val;
+
+    bool void_return = func.return_type().kind() == cppast::cpp_type_kind::builtin_t && static_cast<const cppast::cpp_builtin_type&>(func.return_type()).builtin_type_kind() == cppast::cpp_void;
     
     bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
     bool no_log = has_attribute(entity, "NoLog").has_value();
@@ -216,28 +218,38 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         output << ");" << std::endl << std::endl;
     }
 
-
     if(!no_plugins) {
-        output << "\tauto [retVal, skip] = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val << ",\n\t\t\t";
+        const char* retval = void_return ? "\tauto skip" : "\tauto [retVal, skip]";
+        output << retval << " = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val << ",\n\t\t\t";
         append_args_list(args, false, output);
         output << ");" << std::endl << std::endl;
     }
 
     output << "\t";
-    if(!no_plugins)
-        output << "if(!skip) retVal = ";
-    else
+    if(!no_plugins) {
+        output << "if(!skip) ";
+        if(!void_return)
+            output << "retVal = ";
+    } else if(!void_return)
         output << "return ";
-    output << "CALL_CLIENT_METHOD(" << func.name() << "(";
-    append_args_list(args, false, output);
-    output << "));" << std::endl;
+
+    if(client_call) {
+        output << "CALL_CLIENT_METHOD(" << func.name() << "(";
+        append_args_list(args, false, output);
+        output << "));" << std::endl;
+    } else if(server_call) {
+        output << "EXECUTE_SERVER_CALL(Server." << func.name() << "(";
+        append_args_list(args, false, output);
+        output << "));" << std::endl;
+    }
 
     if(!no_plugins) {
         output << std::endl << "\tCallPluginsAfter(" << full_enum_val << ",\n\t\t\t";
         append_args_list(args, false, output);
         output << ");" << std::endl << std::endl;
-
-        output << "\treturn retVal;" << std::endl;
+        
+        if(!void_return)
+            output << "\treturn retVal;" << std::endl;
     }
 
     output << "}" << std::endl << std::endl;
