@@ -256,9 +256,7 @@ void Logging(const char *szString, ...) {
     localtime_s(&t, &tNow);
     strftime(szBuf, sizeof(szBuf), "%d/%m/%Y %H:%M:%S", &t);
     fprintf(Logfile, "%s %s\n", szBuf, szBufString);
-    fflush(Logfile);
     fclose(Logfile);
-    fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
 }
 
 // Logs the NPC being created
