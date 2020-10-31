@@ -1869,31 +1869,25 @@ void IServerImpl::GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 }
 
 unsigned int IServerImpl::GetServerID() {
-	AddDebugLog("IServerImpl::GetServerID(\n)",
-			);
+	AddDebugLog("IServerImpl::GetServerID()");
 
-	auto [retVal, skip] = CallPluginsBefore<unsigned int>(HookedCall::IServerImpl__GetServerID,
-			);
+	auto [retVal, skip] = CallPluginsBefore<unsigned int>(HookedCall::IServerImpl__GetServerID);
 
 	if(!skip) retVal = EXECUTE_SERVER_CALL(Server.GetServerID());
 
-	CallPluginsAfter(HookedCall::IServerImpl__GetServerID,
-			);
+	CallPluginsAfter(HookedCall::IServerImpl__GetServerID);
 
 	return retVal;
 }
 
 char const* IServerImpl::GetServerSig() {
-	AddDebugLog("IServerImpl::GetServerSig(\n)",
-			);
+	AddDebugLog("IServerImpl::GetServerSig()");
 
-	auto [retVal, skip] = CallPluginsBefore<char const*>(HookedCall::IServerImpl__GetServerSig,
-			);
+	auto [retVal, skip] = CallPluginsBefore<char const*>(HookedCall::IServerImpl__GetServerSig);
 
 	if(!skip) retVal = EXECUTE_SERVER_CALL(Server.GetServerSig());
 
-	CallPluginsAfter(HookedCall::IServerImpl__GetServerSig,
-			);
+	CallPluginsAfter(HookedCall::IServerImpl__GetServerSig);
 
 	return retVal;
 }
@@ -2683,16 +2677,13 @@ void IServerImpl::SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2,
 }
 
 void IServerImpl::Shutdown() {
-	AddDebugLog("IServerImpl::Shutdown(\n)",
-			);
+	AddDebugLog("IServerImpl::Shutdown()");
 
-	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown,
-			);
+	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown);
 
 	if(!skip) EXECUTE_SERVER_CALL(Server.Shutdown());
 
-	CallPluginsAfter(HookedCall::IServerImpl__Shutdown,
-			);
+	CallPluginsAfter(HookedCall::IServerImpl__Shutdown);
 
 }
 
@@ -2825,16 +2816,13 @@ void IServerImpl::TradeResponse(unsigned char const* _genArg1, int _genArg2, uns
 }
 
 int IServerImpl::Update() {
-	AddDebugLog("IServerImpl::Update(\n)",
-			);
+	AddDebugLog("IServerImpl::Update()");
 
-	auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update,
-			);
+	auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update);
 
 	if(!skip) retVal = EXECUTE_SERVER_CALL(Server.Update());
 
-	CallPluginsAfter(HookedCall::IServerImpl__Update,
-			);
+	CallPluginsAfter(HookedCall::IServerImpl__Update);
 
 	return retVal;
 }
