@@ -192,7 +192,10 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
 
     auto args = parse_args(func.parameters(), idx);
 
-    output << to_string(func.return_type()) << " " << func_name << "(";
+    output << to_string(func.return_type()) << " ";
+    if(server_call)
+        output << "__stdcall ";
+    output << func_name << "(";
     append_args_list(args, true, output);
     output << ") {" << std::endl;
 
@@ -285,7 +288,7 @@ void generate_hooks(const cppast::cpp_entity& e, const std::string& context, con
         if(entity.kind() == cppast::cpp_entity_kind::member_function_t) {
             bool no_hook = cppast::has_attribute(entity.attributes(), "NoHook").has_value();
             if(!no_hook)
-                generate_function_hook(entity, context + e.name() + "::", idx, output, output_header, client_call, server_call);
+                generate_function_hook(entity, context + (server_call ? "Hk" : "") + e.name() + "::", idx, output, output_header, client_call, server_call);
         }
     });
 }
