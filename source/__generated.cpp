@@ -1504,8 +1504,8 @@ int HkIClientImpl::unknown_126(char* szUnknown) {
 	return CALL_CLIENT_METHOD(unknown_126(szUnknown));
 }
 
-void IServerImpl::AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::AbortMission(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::AbortMission(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AbortMission,
@@ -1518,8 +1518,8 @@ void IServerImpl::AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::AcceptTrade(unsigned int _genArg1, bool _genArg2) {
-	AddDebugLog("IServerImpl::AcceptTrade(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
+void __stdcall HkIServerImpl::AcceptTrade(unsigned int _genArg1, bool _genArg2) {
+	AddDebugLog("HkIServerImpl::AcceptTrade(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AcceptTrade,
@@ -1532,8 +1532,8 @@ void IServerImpl::AcceptTrade(unsigned int _genArg1, bool _genArg2) {
 
 }
 
-void IServerImpl::ActivateCruise(unsigned int _genArg1, XActivateCruise const& _genArg2) {
-	AddDebugLog("IServerImpl::ActivateCruise(\n\tunsigned int _genArg1 = %u\n\tXActivateCruise const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::ActivateCruise(unsigned int _genArg1, XActivateCruise const& _genArg2) {
+	AddDebugLog("HkIServerImpl::ActivateCruise(\n\tunsigned int _genArg1 = %u\n\tXActivateCruise const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateCruise,
@@ -1546,8 +1546,8 @@ void IServerImpl::ActivateCruise(unsigned int _genArg1, XActivateCruise const& _
 
 }
 
-void IServerImpl::ActivateEquip(unsigned int _genArg1, XActivateEquip const& _genArg2) {
-	AddDebugLog("IServerImpl::ActivateEquip(\n\tunsigned int _genArg1 = %u\n\tXActivateEquip const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::ActivateEquip(unsigned int _genArg1, XActivateEquip const& _genArg2) {
+	AddDebugLog("HkIServerImpl::ActivateEquip(\n\tunsigned int _genArg1 = %u\n\tXActivateEquip const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateEquip,
@@ -1560,8 +1560,8 @@ void IServerImpl::ActivateEquip(unsigned int _genArg1, XActivateEquip const& _ge
 
 }
 
-void IServerImpl::ActivateThrusters(unsigned int _genArg1, XActivateThrusters const& _genArg2) {
-	AddDebugLog("IServerImpl::ActivateThrusters(\n\tunsigned int _genArg1 = %u\n\tXActivateThrusters const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::ActivateThrusters(unsigned int _genArg1, XActivateThrusters const& _genArg2) {
+	AddDebugLog("HkIServerImpl::ActivateThrusters(\n\tunsigned int _genArg1 = %u\n\tXActivateThrusters const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateThrusters,
@@ -1574,8 +1574,8 @@ void IServerImpl::ActivateThrusters(unsigned int _genArg1, XActivateThrusters co
 
 }
 
-void IServerImpl::AddTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
-	AddDebugLog("IServerImpl::AddTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::AddTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
+	AddDebugLog("HkIServerImpl::AddTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AddTradeEquip,
@@ -1588,8 +1588,8 @@ void IServerImpl::AddTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2
 
 }
 
-void IServerImpl::BaseEnter(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::BaseEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::BaseEnter(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::BaseEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseEnter,
@@ -1602,8 +1602,8 @@ void IServerImpl::BaseEnter(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::BaseExit(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::BaseExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::BaseExit(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::BaseExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseExit,
@@ -1616,8 +1616,8 @@ void IServerImpl::BaseExit(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
-	AddDebugLog("IServerImpl::BaseInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
+	AddDebugLog("HkIServerImpl::BaseInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseInfoRequest,
@@ -1630,8 +1630,8 @@ void IServerImpl::BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, 
 
 }
 
-void IServerImpl::CharacterInfoReq(unsigned int _genArg1, bool _genArg2) {
-	AddDebugLog("IServerImpl::CharacterInfoReq(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
+void __stdcall HkIServerImpl::CharacterInfoReq(unsigned int _genArg1, bool _genArg2) {
+	AddDebugLog("HkIServerImpl::CharacterInfoReq(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterInfoReq,
@@ -1644,8 +1644,8 @@ void IServerImpl::CharacterInfoReq(unsigned int _genArg1, bool _genArg2) {
 
 }
 
-void IServerImpl::CharacterSelect(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::CharacterSelect(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::CharacterSelect(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::CharacterSelect(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect,
@@ -1658,8 +1658,8 @@ void IServerImpl::CharacterSelect(CHARACTER_ID const& _genArg1, unsigned int _ge
 
 }
 
-void IServerImpl::CharacterSkipAutosave(unsigned int _genArg1) {
-	AddDebugLog("IServerImpl::CharacterSkipAutosave(\n\tunsigned int _genArg1 = %u\n)",
+void __stdcall HkIServerImpl::CharacterSkipAutosave(unsigned int _genArg1) {
+	AddDebugLog("HkIServerImpl::CharacterSkipAutosave(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSkipAutosave,
@@ -1672,8 +1672,8 @@ void IServerImpl::CharacterSkipAutosave(unsigned int _genArg1) {
 
 }
 
-void IServerImpl::CommComplete(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, enum CommResult _genArg4) {
-	AddDebugLog("IServerImpl::CommComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tenum CommResult _genArg4 = %s\n)",
+void __stdcall HkIServerImpl::CommComplete(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, enum CommResult _genArg4) {
+	AddDebugLog("HkIServerImpl::CommComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tenum CommResult _genArg4 = %s\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CommComplete,
@@ -1686,8 +1686,8 @@ void IServerImpl::CommComplete(unsigned int _genArg1, unsigned int _genArg2, uns
 
 }
 
-void IServerImpl::Connect(char const* _genArg1, unsigned short* _genArg2) {
-	AddDebugLog("IServerImpl::Connect(\n\tchar const* _genArg1 = %p\n\tunsigned short* _genArg2 = %p\n)",
+void __stdcall HkIServerImpl::Connect(char const* _genArg1, unsigned short* _genArg2) {
+	AddDebugLog("HkIServerImpl::Connect(\n\tchar const* _genArg1 = %p\n\tunsigned short* _genArg2 = %p\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Connect,
@@ -1700,8 +1700,8 @@ void IServerImpl::Connect(char const* _genArg1, unsigned short* _genArg2) {
 
 }
 
-void IServerImpl::CreateNewCharacter(SCreateCharacterInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::CreateNewCharacter(SCreateCharacterInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CreateNewCharacter,
@@ -1714,8 +1714,8 @@ void IServerImpl::CreateNewCharacter(SCreateCharacterInfo const& _genArg1, unsig
 
 }
 
-void IServerImpl::DelTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
-	AddDebugLog("IServerImpl::DelTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::DelTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
+	AddDebugLog("HkIServerImpl::DelTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DelTradeEquip,
@@ -1728,8 +1728,8 @@ void IServerImpl::DelTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2
 
 }
 
-void IServerImpl::DestroyCharacter(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::DestroyCharacter(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DestroyCharacter,
@@ -1742,8 +1742,8 @@ void IServerImpl::DestroyCharacter(CHARACTER_ID const& _genArg1, unsigned int _g
 
 }
 
-void IServerImpl::DisConnect(unsigned int _genArg1, enum EFLConnection _genArg2) {
-	AddDebugLog("IServerImpl::DisConnect(\n\tunsigned int _genArg1 = %u\n\tenum EFLConnection _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::DisConnect(unsigned int _genArg1, enum EFLConnection _genArg2) {
+	AddDebugLog("HkIServerImpl::DisConnect(\n\tunsigned int _genArg1 = %u\n\tenum EFLConnection _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DisConnect,
@@ -1756,8 +1756,8 @@ void IServerImpl::DisConnect(unsigned int _genArg1, enum EFLConnection _genArg2)
 
 }
 
-void IServerImpl::Dock(unsigned int const& _genArg1, unsigned int const& _genArg2) {
-	AddDebugLog("IServerImpl::Dock(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::Dock(unsigned int const& _genArg1, unsigned int const& _genArg2) {
+	AddDebugLog("HkIServerImpl::Dock(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Dock,
@@ -1770,8 +1770,8 @@ void IServerImpl::Dock(unsigned int const& _genArg1, unsigned int const& _genArg
 
 }
 
-void IServerImpl::DumpPacketStats(char const* _genArg1) {
-	AddDebugLog("IServerImpl::DumpPacketStats(\n\tchar const* _genArg1 = %p\n)",
+void __stdcall HkIServerImpl::DumpPacketStats(char const* _genArg1) {
+	AddDebugLog("HkIServerImpl::DumpPacketStats(\n\tchar const* _genArg1 = %p\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DumpPacketStats,
@@ -1784,8 +1784,8 @@ void IServerImpl::DumpPacketStats(char const* _genArg1) {
 
 }
 
-void IServerImpl::ElapseTime(float _genArg1) {
-	AddDebugLog("IServerImpl::ElapseTime(\n\tfloat _genArg1 = %f\n)",
+void __stdcall HkIServerImpl::ElapseTime(float _genArg1) {
+	AddDebugLog("HkIServerImpl::ElapseTime(\n\tfloat _genArg1 = %f\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ElapseTime,
@@ -1798,8 +1798,8 @@ void IServerImpl::ElapseTime(float _genArg1) {
 
 }
 
-void IServerImpl::FireWeapon(unsigned int _genArg1, XFireWeaponInfo const& _genArg2) {
-	AddDebugLog("IServerImpl::FireWeapon(\n\tunsigned int _genArg1 = %u\n\tXFireWeaponInfo const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::FireWeapon(unsigned int _genArg1, XFireWeaponInfo const& _genArg2) {
+	AddDebugLog("HkIServerImpl::FireWeapon(\n\tunsigned int _genArg1 = %u\n\tXFireWeaponInfo const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__FireWeapon,
@@ -1812,8 +1812,8 @@ void IServerImpl::FireWeapon(unsigned int _genArg1, XFireWeaponInfo const& _genA
 
 }
 
-void IServerImpl::GFGoodBuy(SGFGoodBuyInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::GFGoodBuy(SGFGoodBuyInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy,
@@ -1826,8 +1826,8 @@ void IServerImpl::GFGoodBuy(SGFGoodBuyInfo const& _genArg1, unsigned int _genArg
 
 }
 
-void IServerImpl::GFGoodSell(SGFGoodSellInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::GFGoodSell(SGFGoodSellInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodSell,
@@ -1840,8 +1840,8 @@ void IServerImpl::GFGoodSell(SGFGoodSellInfo const& _genArg1, unsigned int _genA
 
 }
 
-void IServerImpl::GFGoodVaporized(SGFGoodVaporizedInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::GFGoodVaporized(SGFGoodVaporizedInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized,
@@ -1854,8 +1854,8 @@ void IServerImpl::GFGoodVaporized(SGFGoodVaporizedInfo const& _genArg1, unsigned
 
 }
 
-void IServerImpl::GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::GFObjSelect(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::GFObjSelect(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect,
@@ -1868,8 +1868,8 @@ void IServerImpl::GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-unsigned int IServerImpl::GetServerID() {
-	AddDebugLog("IServerImpl::GetServerID()");
+unsigned int __stdcall HkIServerImpl::GetServerID() {
+	AddDebugLog("HkIServerImpl::GetServerID()");
 
 	auto [retVal, skip] = CallPluginsBefore<unsigned int>(HookedCall::IServerImpl__GetServerID);
 
@@ -1880,8 +1880,8 @@ unsigned int IServerImpl::GetServerID() {
 	return retVal;
 }
 
-char const* IServerImpl::GetServerSig() {
-	AddDebugLog("IServerImpl::GetServerSig()");
+char const* __stdcall HkIServerImpl::GetServerSig() {
+	AddDebugLog("HkIServerImpl::GetServerSig()");
 
 	auto [retVal, skip] = CallPluginsBefore<char const*>(HookedCall::IServerImpl__GetServerSig);
 
@@ -1892,8 +1892,8 @@ char const* IServerImpl::GetServerSig() {
 	return retVal;
 }
 
-void IServerImpl::GetServerStats(ServerStats& _genArg1) {
-	AddDebugLog("IServerImpl::GetServerStats(\n\tServerStats& _genArg1 = %s\n)",
+void __stdcall HkIServerImpl::GetServerStats(ServerStats& _genArg1) {
+	AddDebugLog("HkIServerImpl::GetServerStats(\n\tServerStats& _genArg1 = %s\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GetServerStats,
@@ -1906,8 +1906,8 @@ void IServerImpl::GetServerStats(ServerStats& _genArg1) {
 
 }
 
-void IServerImpl::GoTradelane(unsigned int _genArg1, XGoTradelane const& _genArg2) {
-	AddDebugLog("IServerImpl::GoTradelane(\n\tunsigned int _genArg1 = %u\n\tXGoTradelane const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::GoTradelane(unsigned int _genArg1, XGoTradelane const& _genArg2) {
+	AddDebugLog("HkIServerImpl::GoTradelane(\n\tunsigned int _genArg1 = %u\n\tXGoTradelane const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GoTradelane,
@@ -1920,8 +1920,8 @@ void IServerImpl::GoTradelane(unsigned int _genArg1, XGoTradelane const& _genArg
 
 }
 
-void IServerImpl::Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3) {
-	AddDebugLog("IServerImpl::Hail(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n)",
+void __stdcall HkIServerImpl::Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3) {
+	AddDebugLog("HkIServerImpl::Hail(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Hail,
@@ -1934,8 +1934,8 @@ void IServerImpl::Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned in
 
 }
 
-void IServerImpl::InitiateTrade(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::InitiateTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::InitiateTrade(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::InitiateTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InitiateTrade,
@@ -1948,8 +1948,8 @@ void IServerImpl::InitiateTrade(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::InterfaceItemUsed(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::InterfaceItemUsed(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::InterfaceItemUsed(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::InterfaceItemUsed(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InterfaceItemUsed,
@@ -1962,8 +1962,8 @@ void IServerImpl::InterfaceItemUsed(unsigned int _genArg1, unsigned int _genArg2
 
 }
 
-void IServerImpl::JettisonCargo(unsigned int _genArg1, XJettisonCargo const& _genArg2) {
-	AddDebugLog("IServerImpl::JettisonCargo(\n\tunsigned int _genArg1 = %u\n\tXJettisonCargo const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::JettisonCargo(unsigned int _genArg1, XJettisonCargo const& _genArg2) {
+	AddDebugLog("HkIServerImpl::JettisonCargo(\n\tunsigned int _genArg1 = %u\n\tXJettisonCargo const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JettisonCargo,
@@ -1976,8 +1976,8 @@ void IServerImpl::JettisonCargo(unsigned int _genArg1, XJettisonCargo const& _ge
 
 }
 
-void IServerImpl::JumpInComplete(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::JumpInComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::JumpInComplete(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::JumpInComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete,
@@ -1990,8 +1990,8 @@ void IServerImpl::JumpInComplete(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::LaunchComplete(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::LaunchComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::LaunchComplete(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::LaunchComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete,
@@ -2004,8 +2004,8 @@ void IServerImpl::LaunchComplete(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::LocationEnter(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::LocationEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::LocationEnter(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::LocationEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationEnter,
@@ -2018,8 +2018,8 @@ void IServerImpl::LocationEnter(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::LocationExit(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::LocationExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::LocationExit(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::LocationExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationExit,
@@ -2032,8 +2032,8 @@ void IServerImpl::LocationExit(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
-	AddDebugLog("IServerImpl::LocationInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
+	AddDebugLog("HkIServerImpl::LocationInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationInfoRequest,
@@ -2046,8 +2046,8 @@ void IServerImpl::LocationInfoRequest(unsigned int _genArg1, unsigned int _genAr
 
 }
 
-void IServerImpl::Login(SLoginInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::Login(\n\tSLoginInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::Login(SLoginInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::Login(\n\tSLoginInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login,
@@ -2060,8 +2060,8 @@ void IServerImpl::Login(SLoginInfo const& _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::MineAsteroid(unsigned int _genArg1, Vector const& _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned int _genArg5, unsigned int _genArg6) {
-	AddDebugLog("IServerImpl::MineAsteroid(\n\tunsigned int _genArg1 = %u\n\tVector const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned int _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
+void __stdcall HkIServerImpl::MineAsteroid(unsigned int _genArg1, Vector const& _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned int _genArg5, unsigned int _genArg6) {
+	AddDebugLog("HkIServerImpl::MineAsteroid(\n\tunsigned int _genArg1 = %u\n\tVector const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned int _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MineAsteroid,
@@ -2074,8 +2074,8 @@ void IServerImpl::MineAsteroid(unsigned int _genArg1, Vector const& _genArg2, un
 
 }
 
-void IServerImpl::MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bool _genArg3, unsigned int _genArg4) {
-	AddDebugLog("IServerImpl::MissionResponse(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n\tbool _genArg3 = %d\n\tunsigned int _genArg4 = %u\n)",
+void __stdcall HkIServerImpl::MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bool _genArg3, unsigned int _genArg4) {
+	AddDebugLog("HkIServerImpl::MissionResponse(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n\tbool _genArg3 = %d\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MissionResponse,
@@ -2088,8 +2088,8 @@ void IServerImpl::MissionResponse(unsigned int _genArg1, unsigned long _genArg2,
 
 }
 
-void IServerImpl::MissionSaveB(unsigned int _genArg1, unsigned long _genArg2) {
-	AddDebugLog("IServerImpl::MissionSaveB(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::MissionSaveB(unsigned int _genArg1, unsigned long _genArg2) {
+	AddDebugLog("HkIServerImpl::MissionSaveB(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MissionSaveB,
@@ -2102,8 +2102,8 @@ void IServerImpl::MissionSaveB(unsigned int _genArg1, unsigned long _genArg2) {
 
 }
 
-void IServerImpl::NewCharacterInfoReq(unsigned int _genArg1) {
-	AddDebugLog("IServerImpl::NewCharacterInfoReq(\n\tunsigned int _genArg1 = %u\n)",
+void __stdcall HkIServerImpl::NewCharacterInfoReq(unsigned int _genArg1) {
+	AddDebugLog("HkIServerImpl::NewCharacterInfoReq(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__NewCharacterInfoReq,
@@ -2116,8 +2116,8 @@ void IServerImpl::NewCharacterInfoReq(unsigned int _genArg1) {
 
 }
 
-void IServerImpl::OnConnect(unsigned int _genArg1) {
-	AddDebugLog("IServerImpl::OnConnect(\n\tunsigned int _genArg1 = %u\n)",
+void __stdcall HkIServerImpl::OnConnect(unsigned int _genArg1) {
+	AddDebugLog("HkIServerImpl::OnConnect(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect,
@@ -2130,8 +2130,8 @@ void IServerImpl::OnConnect(unsigned int _genArg1) {
 
 }
 
-void IServerImpl::PlayerLaunch(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::PlayerLaunch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::PlayerLaunch(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::PlayerLaunch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PlayerLaunch,
@@ -2144,8 +2144,8 @@ void IServerImpl::PlayerLaunch(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::PopUpDialog(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::PopUpDialog(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::PopUpDialog(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::PopUpDialog(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopUpDialog,
@@ -2158,8 +2158,8 @@ void IServerImpl::PopUpDialog(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::PushToServer(CDAPacket* _genArg1) {
-	AddDebugLog("IServerImpl::PushToServer(\n\tCDAPacket* _genArg1 = %p\n)",
+void __stdcall HkIServerImpl::PushToServer(CDAPacket* _genArg1) {
+	AddDebugLog("HkIServerImpl::PushToServer(\n\tCDAPacket* _genArg1 = %p\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PushToServer,
@@ -2172,8 +2172,8 @@ void IServerImpl::PushToServer(CDAPacket* _genArg1) {
 
 }
 
-void IServerImpl::RTCDone(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::RTCDone(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::RTCDone(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::RTCDone(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RTCDone,
@@ -2186,8 +2186,8 @@ void IServerImpl::RTCDone(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::ReqAddItem(unsigned int _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
-	AddDebugLog("IServerImpl::ReqAddItem(\n\tunsigned int _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
+void __stdcall HkIServerImpl::ReqAddItem(unsigned int _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
+	AddDebugLog("HkIServerImpl::ReqAddItem(\n\tunsigned int _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqAddItem,
@@ -2200,8 +2200,8 @@ void IServerImpl::ReqAddItem(unsigned int _genArg1, char const* _genArg2, int _g
 
 }
 
-void IServerImpl::ReqCargo(EquipDescList const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqCargo(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqCargo(EquipDescList const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqCargo(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqCargo,
@@ -2214,8 +2214,8 @@ void IServerImpl::ReqCargo(EquipDescList const& _genArg1, unsigned int _genArg2)
 
 }
 
-void IServerImpl::ReqChangeCash(int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqChangeCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqChangeCash(int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqChangeCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash,
@@ -2228,8 +2228,8 @@ void IServerImpl::ReqChangeCash(int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::ReqCollisionGroups(st6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqCollisionGroups(\n\tst6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqCollisionGroups(st6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqCollisionGroups(\n\tst6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqCollisionGroups,
@@ -2242,8 +2242,8 @@ void IServerImpl::ReqCollisionGroups(st6::list<struct CollisionGroupDesc, class 
 
 }
 
-void IServerImpl::ReqDifficultyScale(float _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqDifficultyScale(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqDifficultyScale(float _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqDifficultyScale(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqDifficultyScale,
@@ -2256,8 +2256,8 @@ void IServerImpl::ReqDifficultyScale(float _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::ReqEquipment(EquipDescList const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqEquipment(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqEquipment(EquipDescList const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqEquipment(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment,
@@ -2270,8 +2270,8 @@ void IServerImpl::ReqEquipment(EquipDescList const& _genArg1, unsigned int _genA
 
 }
 
-void IServerImpl::ReqHullStatus(float _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqHullStatus(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqHullStatus(float _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqHullStatus(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus,
@@ -2284,8 +2284,8 @@ void IServerImpl::ReqHullStatus(float _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::ReqModifyItem(unsigned short _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
-	AddDebugLog("IServerImpl::ReqModifyItem(\n\tunsigned short _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
+void __stdcall HkIServerImpl::ReqModifyItem(unsigned short _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
+	AddDebugLog("HkIServerImpl::ReqModifyItem(\n\tunsigned short _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqModifyItem,
@@ -2298,8 +2298,8 @@ void IServerImpl::ReqModifyItem(unsigned short _genArg1, char const* _genArg2, i
 
 }
 
-void IServerImpl::ReqRemoveItem(unsigned short _genArg1, int _genArg2, unsigned int _genArg3) {
-	AddDebugLog("IServerImpl::ReqRemoveItem(\n\tunsigned short _genArg1 = %u\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
+void __stdcall HkIServerImpl::ReqRemoveItem(unsigned short _genArg1, int _genArg2, unsigned int _genArg3) {
+	AddDebugLog("HkIServerImpl::ReqRemoveItem(\n\tunsigned short _genArg1 = %u\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqRemoveItem,
@@ -2312,8 +2312,8 @@ void IServerImpl::ReqRemoveItem(unsigned short _genArg1, int _genArg2, unsigned 
 
 }
 
-void IServerImpl::ReqSetCash(int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqSetCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqSetCash(int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqSetCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash,
@@ -2326,8 +2326,8 @@ void IServerImpl::ReqSetCash(int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::ReqShipArch(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::ReqShipArch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::ReqShipArch(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::ReqShipArch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch,
@@ -2340,8 +2340,8 @@ void IServerImpl::ReqShipArch(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::RequestBestPath(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::RequestBestPath(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::RequestBestPath(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::RequestBestPath(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath,
@@ -2354,8 +2354,8 @@ void IServerImpl::RequestBestPath(unsigned int _genArg1, unsigned char* _genArg2
 
 }
 
-void IServerImpl::RequestCancel(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned long _genArg4, unsigned int _genArg5) {
-	AddDebugLog("IServerImpl::RequestCancel(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned long _genArg4 = %u\n\tunsigned int _genArg5 = %u\n)",
+void __stdcall HkIServerImpl::RequestCancel(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned long _genArg4, unsigned int _genArg5) {
+	AddDebugLog("HkIServerImpl::RequestCancel(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned long _genArg4 = %u\n\tunsigned int _genArg5 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCancel,
@@ -2368,8 +2368,8 @@ void IServerImpl::RequestCancel(int _genArg1, unsigned int _genArg2, unsigned in
 
 }
 
-void IServerImpl::RequestCreateShip(unsigned int _genArg1) {
-	AddDebugLog("IServerImpl::RequestCreateShip(\n\tunsigned int _genArg1 = %u\n)",
+void __stdcall HkIServerImpl::RequestCreateShip(unsigned int _genArg1) {
+	AddDebugLog("HkIServerImpl::RequestCreateShip(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip,
@@ -2382,8 +2382,8 @@ void IServerImpl::RequestCreateShip(unsigned int _genArg1) {
 
 }
 
-void IServerImpl::RequestEvent(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned long _genArg5, unsigned int _genArg6) {
-	AddDebugLog("IServerImpl::RequestEvent(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned long _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
+void __stdcall HkIServerImpl::RequestEvent(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned long _genArg5, unsigned int _genArg6) {
+	AddDebugLog("HkIServerImpl::RequestEvent(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned long _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestEvent,
@@ -2396,8 +2396,8 @@ void IServerImpl::RequestEvent(int _genArg1, unsigned int _genArg2, unsigned int
 
 }
 
-void IServerImpl::RequestGroupPositions(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::RequestGroupPositions(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::RequestGroupPositions(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::RequestGroupPositions(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestGroupPositions,
@@ -2410,8 +2410,8 @@ void IServerImpl::RequestGroupPositions(unsigned int _genArg1, unsigned char* _g
 
 }
 
-void IServerImpl::RequestPlayerStats(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::RequestPlayerStats(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::RequestPlayerStats(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::RequestPlayerStats(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestPlayerStats,
@@ -2424,8 +2424,8 @@ void IServerImpl::RequestPlayerStats(unsigned int _genArg1, unsigned char* _genA
 
 }
 
-void IServerImpl::RequestRankLevel(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::RequestRankLevel(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::RequestRankLevel(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::RequestRankLevel(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestRankLevel,
@@ -2438,8 +2438,8 @@ void IServerImpl::RequestRankLevel(unsigned int _genArg1, unsigned char* _genArg
 
 }
 
-void IServerImpl::RequestTrade(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::RequestTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::RequestTrade(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::RequestTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestTrade,
@@ -2452,8 +2452,8 @@ void IServerImpl::RequestTrade(unsigned int _genArg1, unsigned int _genArg2) {
 
 }
 
-void IServerImpl::SPBadLandsObjCollision(SSPBadLandsObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SPBadLandsObjCollision(\n\tSSPBadLandsObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SPBadLandsObjCollision(SSPBadLandsObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SPBadLandsObjCollision(\n\tSSPBadLandsObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPBadLandsObjCollision,
@@ -2466,8 +2466,8 @@ void IServerImpl::SPBadLandsObjCollision(SSPBadLandsObjCollisionInfo const& _gen
 
 }
 
-void IServerImpl::SPMunitionCollision(SSPMunitionCollisionInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SPMunitionCollision(SSPMunitionCollisionInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPMunitionCollision,
@@ -2480,8 +2480,8 @@ void IServerImpl::SPMunitionCollision(SSPMunitionCollisionInfo const& _genArg1, 
 
 }
 
-void IServerImpl::SPObjCollision(SSPObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SPObjCollision(\n\tSSPObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SPObjCollision(SSPObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SPObjCollision(\n\tSSPObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjCollision,
@@ -2494,8 +2494,8 @@ void IServerImpl::SPObjCollision(SSPObjCollisionInfo const& _genArg1, unsigned i
 
 }
 
-void IServerImpl::SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SPObjUpdate(\n\tSSPObjUpdateInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SPObjUpdate(\n\tSSPObjUpdateInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjUpdate,
@@ -2508,8 +2508,8 @@ void IServerImpl::SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _ge
 
 }
 
-void IServerImpl::SPRequestInvincibility(unsigned int _genArg1, bool _genArg2, enum InvincibilityReason _genArg3, unsigned int _genArg4) {
-	AddDebugLog("IServerImpl::SPRequestInvincibility(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n\tenum InvincibilityReason _genArg3 = %s\n\tunsigned int _genArg4 = %u\n)",
+void __stdcall HkIServerImpl::SPRequestInvincibility(unsigned int _genArg1, bool _genArg2, enum InvincibilityReason _genArg3, unsigned int _genArg4) {
+	AddDebugLog("HkIServerImpl::SPRequestInvincibility(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n\tenum InvincibilityReason _genArg3 = %s\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestInvincibility,
@@ -2522,8 +2522,8 @@ void IServerImpl::SPRequestInvincibility(unsigned int _genArg1, bool _genArg2, e
 
 }
 
-void IServerImpl::SPRequestUseItem(SSPUseItem const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SPRequestUseItem(\n\tSSPUseItem const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SPRequestUseItem(SSPUseItem const& _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SPRequestUseItem(\n\tSSPUseItem const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem,
@@ -2536,8 +2536,8 @@ void IServerImpl::SPRequestUseItem(SSPUseItem const& _genArg1, unsigned int _gen
 
 }
 
-void IServerImpl::SPScanCargo(unsigned int const& _genArg1, unsigned int const& _genArg2, unsigned int _genArg3) {
-	AddDebugLog("IServerImpl::SPScanCargo(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n)",
+void __stdcall HkIServerImpl::SPScanCargo(unsigned int const& _genArg1, unsigned int const& _genArg2, unsigned int _genArg3) {
+	AddDebugLog("HkIServerImpl::SPScanCargo(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPScanCargo,
@@ -2550,8 +2550,8 @@ void IServerImpl::SPScanCargo(unsigned int const& _genArg1, unsigned int const& 
 
 }
 
-void IServerImpl::SaveGame(CHARACTER_ID const& _genArg1, unsigned short const* _genArg2, unsigned int _genArg3) {
-	AddDebugLog("IServerImpl::SaveGame(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned short const* _genArg2 = %p\n\tunsigned int _genArg3 = %u\n)",
+void __stdcall HkIServerImpl::SaveGame(CHARACTER_ID const& _genArg1, unsigned short const* _genArg2, unsigned int _genArg3) {
+	AddDebugLog("HkIServerImpl::SaveGame(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned short const* _genArg2 = %p\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SaveGame,
@@ -2564,8 +2564,8 @@ void IServerImpl::SaveGame(CHARACTER_ID const& _genArg1, unsigned short const* _
 
 }
 
-void IServerImpl::SetActiveConnection(enum EFLConnection _genArg1) {
-	AddDebugLog("IServerImpl::SetActiveConnection(\n\tenum EFLConnection _genArg1 = %s\n)",
+void __stdcall HkIServerImpl::SetActiveConnection(enum EFLConnection _genArg1) {
+	AddDebugLog("HkIServerImpl::SetActiveConnection(\n\tenum EFLConnection _genArg1 = %s\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetActiveConnection,
@@ -2578,8 +2578,8 @@ void IServerImpl::SetActiveConnection(enum EFLConnection _genArg1) {
 
 }
 
-void IServerImpl::SetInterfaceState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::SetInterfaceState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::SetInterfaceState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::SetInterfaceState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetInterfaceState,
@@ -2592,8 +2592,8 @@ void IServerImpl::SetInterfaceState(unsigned int _genArg1, unsigned char* _genAr
 
 }
 
-void IServerImpl::SetManeuver(unsigned int _genArg1, XSetManeuver const& _genArg2) {
-	AddDebugLog("IServerImpl::SetManeuver(\n\tunsigned int _genArg1 = %u\n\tXSetManeuver const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::SetManeuver(unsigned int _genArg1, XSetManeuver const& _genArg2) {
+	AddDebugLog("HkIServerImpl::SetManeuver(\n\tunsigned int _genArg1 = %u\n\tXSetManeuver const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver,
@@ -2606,8 +2606,8 @@ void IServerImpl::SetManeuver(unsigned int _genArg1, XSetManeuver const& _genArg
 
 }
 
-void IServerImpl::SetMissionLog(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::SetMissionLog(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::SetMissionLog(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::SetMissionLog(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetMissionLog,
@@ -2620,8 +2620,8 @@ void IServerImpl::SetMissionLog(unsigned int _genArg1, unsigned char* _genArg2, 
 
 }
 
-void IServerImpl::SetTarget(unsigned int _genArg1, XSetTarget const& _genArg2) {
-	AddDebugLog("IServerImpl::SetTarget(\n\tunsigned int _genArg1 = %u\n\tXSetTarget const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::SetTarget(unsigned int _genArg1, XSetTarget const& _genArg2) {
+	AddDebugLog("HkIServerImpl::SetTarget(\n\tunsigned int _genArg1 = %u\n\tXSetTarget const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTarget,
@@ -2634,8 +2634,8 @@ void IServerImpl::SetTarget(unsigned int _genArg1, XSetTarget const& _genArg2) {
 
 }
 
-void IServerImpl::SetTradeMoney(unsigned int _genArg1, unsigned long _genArg2) {
-	AddDebugLog("IServerImpl::SetTradeMoney(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SetTradeMoney(unsigned int _genArg1, unsigned long _genArg2) {
+	AddDebugLog("HkIServerImpl::SetTradeMoney(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTradeMoney,
@@ -2648,8 +2648,8 @@ void IServerImpl::SetTradeMoney(unsigned int _genArg1, unsigned long _genArg2) {
 
 }
 
-void IServerImpl::SetVisitedState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::SetVisitedState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::SetVisitedState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::SetVisitedState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState,
@@ -2662,8 +2662,8 @@ void IServerImpl::SetVisitedState(unsigned int _genArg1, unsigned char* _genArg2
 
 }
 
-void IServerImpl::SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
-	AddDebugLog("IServerImpl::SetWeaponGroup(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
+void __stdcall HkIServerImpl::SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
+	AddDebugLog("HkIServerImpl::SetWeaponGroup(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup,
@@ -2676,8 +2676,8 @@ void IServerImpl::SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2,
 
 }
 
-void IServerImpl::Shutdown() {
-	AddDebugLog("IServerImpl::Shutdown()");
+void __stdcall HkIServerImpl::Shutdown() {
+	AddDebugLog("HkIServerImpl::Shutdown()");
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown);
 
@@ -2687,8 +2687,8 @@ void IServerImpl::Shutdown() {
 
 }
 
-bool IServerImpl::Startup(SStartupInfo const& _genArg1) {
-	AddDebugLog("IServerImpl::Startup(\n\tSStartupInfo const& _genArg1 = %s\n)",
+bool __stdcall HkIServerImpl::Startup(SStartupInfo const& _genArg1) {
+	AddDebugLog("HkIServerImpl::Startup(\n\tSStartupInfo const& _genArg1 = %s\n)",
 			_genArg1);
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__Startup,
@@ -2702,8 +2702,8 @@ bool IServerImpl::Startup(SStartupInfo const& _genArg1) {
 	return retVal;
 }
 
-void IServerImpl::StopTradeRequest(unsigned int _genArg1) {
-	AddDebugLog("IServerImpl::StopTradeRequest(\n\tunsigned int _genArg1 = %u\n)",
+void __stdcall HkIServerImpl::StopTradeRequest(unsigned int _genArg1) {
+	AddDebugLog("HkIServerImpl::StopTradeRequest(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradeRequest,
@@ -2716,8 +2716,8 @@ void IServerImpl::StopTradeRequest(unsigned int _genArg1) {
 
 }
 
-void IServerImpl::StopTradelane(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4) {
-	AddDebugLog("IServerImpl::StopTradelane(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n)",
+void __stdcall HkIServerImpl::StopTradelane(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4) {
+	AddDebugLog("HkIServerImpl::StopTradelane(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradelane,
@@ -2730,8 +2730,8 @@ void IServerImpl::StopTradelane(unsigned int _genArg1, unsigned int _genArg2, un
 
 }
 
-void IServerImpl::SubmitChat(CHAT_ID _genArg1, unsigned long _genArg2, void const* _genArg3, CHAT_ID _genArg4, int _genArg5) {
-	AddDebugLog("IServerImpl::SubmitChat(\n\tCHAT_ID _genArg1 = %s\n\tunsigned long _genArg2 = %u\n\tvoid const* _genArg3 = %p\n\tCHAT_ID _genArg4 = %s\n\tint _genArg5 = %d\n)",
+void __stdcall HkIServerImpl::SubmitChat(CHAT_ID _genArg1, unsigned long _genArg2, void const* _genArg3, CHAT_ID _genArg4, int _genArg5) {
+	AddDebugLog("HkIServerImpl::SubmitChat(\n\tCHAT_ID _genArg1 = %s\n\tunsigned long _genArg2 = %u\n\tvoid const* _genArg3 = %p\n\tCHAT_ID _genArg4 = %s\n\tint _genArg5 = %d\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat,
@@ -2744,8 +2744,8 @@ void IServerImpl::SubmitChat(CHAT_ID _genArg1, unsigned long _genArg2, void cons
 
 }
 
-bool IServerImpl::SwapConnections(enum EFLConnection _genArg1, enum EFLConnection _genArg2) {
-	AddDebugLog("IServerImpl::SwapConnections(\n\tenum EFLConnection _genArg1 = %s\n\tenum EFLConnection _genArg2 = %s\n)",
+bool __stdcall HkIServerImpl::SwapConnections(enum EFLConnection _genArg1, enum EFLConnection _genArg2) {
+	AddDebugLog("HkIServerImpl::SwapConnections(\n\tenum EFLConnection _genArg1 = %s\n\tenum EFLConnection _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__SwapConnections,
@@ -2759,8 +2759,8 @@ bool IServerImpl::SwapConnections(enum EFLConnection _genArg1, enum EFLConnectio
 	return retVal;
 }
 
-void IServerImpl::SystemSwitchOutComplete(unsigned int _genArg1, unsigned int _genArg2) {
-	AddDebugLog("IServerImpl::SystemSwitchOutComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
+void __stdcall HkIServerImpl::SystemSwitchOutComplete(unsigned int _genArg1, unsigned int _genArg2) {
+	AddDebugLog("HkIServerImpl::SystemSwitchOutComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete,
@@ -2773,8 +2773,8 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int _genArg1, unsigned int _g
 
 }
 
-void IServerImpl::TerminateTrade(unsigned int _genArg1, int _genArg2) {
-	AddDebugLog("IServerImpl::TerminateTrade(\n\tunsigned int _genArg1 = %u\n\tint _genArg2 = %d\n)",
+void __stdcall HkIServerImpl::TerminateTrade(unsigned int _genArg1, int _genArg2) {
+	AddDebugLog("HkIServerImpl::TerminateTrade(\n\tunsigned int _genArg1 = %u\n\tint _genArg2 = %d\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TerminateTrade,
@@ -2787,8 +2787,8 @@ void IServerImpl::TerminateTrade(unsigned int _genArg1, int _genArg2) {
 
 }
 
-void IServerImpl::TractorObjects(unsigned int _genArg1, XTractorObjects const& _genArg2) {
-	AddDebugLog("IServerImpl::TractorObjects(\n\tunsigned int _genArg1 = %u\n\tXTractorObjects const& _genArg2 = %s\n)",
+void __stdcall HkIServerImpl::TractorObjects(unsigned int _genArg1, XTractorObjects const& _genArg2) {
+	AddDebugLog("HkIServerImpl::TractorObjects(\n\tunsigned int _genArg1 = %u\n\tXTractorObjects const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TractorObjects,
@@ -2801,8 +2801,8 @@ void IServerImpl::TractorObjects(unsigned int _genArg1, XTractorObjects const& _
 
 }
 
-void IServerImpl::TradeResponse(unsigned char const* _genArg1, int _genArg2, unsigned int _genArg3) {
-	AddDebugLog("IServerImpl::TradeResponse(\n\tunsigned char const* _genArg1 = %p\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
+void __stdcall HkIServerImpl::TradeResponse(unsigned char const* _genArg1, int _genArg2, unsigned int _genArg3) {
+	AddDebugLog("HkIServerImpl::TradeResponse(\n\tunsigned char const* _genArg1 = %p\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TradeResponse,
@@ -2815,8 +2815,8 @@ void IServerImpl::TradeResponse(unsigned char const* _genArg1, int _genArg2, uns
 
 }
 
-int IServerImpl::Update() {
-	AddDebugLog("IServerImpl::Update()");
+int __stdcall HkIServerImpl::Update() {
+	AddDebugLog("HkIServerImpl::Update()");
 
 	auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update);
 
