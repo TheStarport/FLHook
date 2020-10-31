@@ -888,3 +888,5 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
     uint a = uint(-1);                                                         \
     if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)              \
         return err;
+
+void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
