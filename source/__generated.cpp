@@ -135,13 +135,15 @@ bool HkIClientImpl::SendPacket(uint iClientID, void* _genArg1) {
 	AddDebugLog("HkIClientImpl::SendPacket(\n\tuint iClientID = %u\n\tvoid* _genArg1 = %p\n)",
 			iClientID, _genArg1);
 
-	return CALL_CLIENT_METHOD(SendPacket(iClientID, _genArg1));
+	auto retVal = CALL_CLIENT_METHOD(SendPacket(iClientID, _genArg1));
+	return retVal;
 }
 
 bool HkIClientImpl::Startup(uint _genArg1, uint _genArg2) {
 	HkIClientImpl__Startup__Inner(_genArg1, _genArg2);
 
-	return CALL_CLIENT_METHOD(Startup(_genArg1, _genArg2));
+	auto retVal = CALL_CLIENT_METHOD(Startup(_genArg1, _genArg2));
+	return retVal;
 }
 
 void HkIClientImpl::nullsub(uint _genArg1) {
@@ -700,7 +702,8 @@ void HkIClientImpl::unknown_54(uint iClientID, uint iDunno, uint iDunno2, uint i
 }
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint iClientID, SSPObjUpdateInfo& pUpdate) {
-	return CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_UPDATEOBJECT(iClientID, pUpdate));
+	auto retVal = CALL_CLIENT_METHOD(Send_FLPACKET_COMMON_UPDATEOBJECT(iClientID, pUpdate));
+	return retVal;
 }
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint iClientID, FLPACKET_DESTROYOBJECT& pDestroy) {
@@ -1501,7 +1504,8 @@ int HkIClientImpl::unknown_126(char* szUnknown) {
 	AddDebugLog("HkIClientImpl::unknown_126(\n\tchar* szUnknown = %s\n)",
 			szUnknown);
 
-	return CALL_CLIENT_METHOD(unknown_126(szUnknown));
+	auto retVal = CALL_CLIENT_METHOD(unknown_126(szUnknown));
+	return retVal;
 }
 
 void __stdcall HkIServerImpl::AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
@@ -1651,7 +1655,13 @@ void __stdcall HkIServerImpl::CharacterSelect(CHARACTER_ID const& _genArg1, unsi
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect,
 			_genArg1, _genArg2);
 
+	CHECK_FOR_DISCONNECT;
+
+	bool innerCheck = HkIServerImpl__CharacterSelect__Inner(_genArg1, _genArg2);
+	if(!innerCheck) return;
 	if(!skip) EXECUTE_SERVER_CALL(Server.CharacterSelect(_genArg1, _genArg2));
+	HkIServerImpl__CharacterSelect__InnerAfter(_genArg1, _genArg2);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect,
 			_genArg1, _genArg2);
@@ -1804,6 +1814,8 @@ void __stdcall HkIServerImpl::FireWeapon(unsigned int _genArg1, XFireWeaponInfo 
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__FireWeapon,
 			_genArg1, _genArg2);
+
+	CHECK_FOR_DISCONNECT;
 
 	if(!skip) EXECUTE_SERVER_CALL(Server.FireWeapon(_genArg1, _genArg2));
 
@@ -1997,6 +2009,8 @@ void __stdcall HkIServerImpl::LaunchComplete(unsigned int _genArg1, unsigned int
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete,
 			_genArg1, _genArg2);
 
+	HkIServerImpl__LaunchComplete__Inner(_genArg1, _genArg2);
+
 	if(!skip) EXECUTE_SERVER_CALL(Server.LaunchComplete(_genArg1, _genArg2));
 
 	CallPluginsAfter(HookedCall::IServerImpl__LaunchComplete,
@@ -2137,7 +2151,13 @@ void __stdcall HkIServerImpl::PlayerLaunch(unsigned int _genArg1, unsigned int _
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PlayerLaunch,
 			_genArg1, _genArg2);
 
+	CHECK_FOR_DISCONNECT;
+
+	HkIServerImpl__PlayerLaunch__Inner(_genArg1, _genArg2);
+
 	if(!skip) EXECUTE_SERVER_CALL(Server.PlayerLaunch(_genArg1, _genArg2));
+	HkIServerImpl__PlayerLaunch__InnerAfter(_genArg1, _genArg2);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__PlayerLaunch,
 			_genArg1, _genArg2);
@@ -2473,6 +2493,10 @@ void __stdcall HkIServerImpl::SPMunitionCollision(SSPMunitionCollisionInfo const
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPMunitionCollision,
 			_genArg1, _genArg2);
 
+	CHECK_FOR_DISCONNECT;
+
+	HkIServerImpl__SPMunitionCollision__Inner(_genArg1, _genArg2);
+
 	if(!skip) EXECUTE_SERVER_CALL(Server.SPMunitionCollision(_genArg1, _genArg2));
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPMunitionCollision,
@@ -2487,6 +2511,8 @@ void __stdcall HkIServerImpl::SPObjCollision(SSPObjCollisionInfo const& _genArg1
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjCollision,
 			_genArg1, _genArg2);
 
+	CHECK_FOR_DISCONNECT;
+
 	if(!skip) EXECUTE_SERVER_CALL(Server.SPObjCollision(_genArg1, _genArg2));
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjCollision,
@@ -2495,12 +2521,13 @@ void __stdcall HkIServerImpl::SPObjCollision(SSPObjCollisionInfo const& _genArg1
 }
 
 void __stdcall HkIServerImpl::SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _genArg2) {
-	AddDebugLog("HkIServerImpl::SPObjUpdate(\n\tSSPObjUpdateInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
-			_genArg1, _genArg2);
-
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjUpdate,
 			_genArg1, _genArg2);
 
+	CHECK_FOR_DISCONNECT;
+
+	bool innerCheck = HkIServerImpl__SPObjUpdate__Inner(_genArg1, _genArg2);
+	if(!innerCheck) return;
 	if(!skip) EXECUTE_SERVER_CALL(Server.SPObjUpdate(_genArg1, _genArg2));
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjUpdate,
@@ -2737,7 +2764,11 @@ void __stdcall HkIServerImpl::SubmitChat(CHAT_ID _genArg1, unsigned long _genArg
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
 
+	HkIServerImpl__SubmitChat__Inner(_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
+
+	g_bInSubmitChat = true;
 	if(!skip) EXECUTE_SERVER_CALL(Server.SubmitChat(_genArg1, _genArg2, _genArg3, _genArg4, _genArg5));
+	g_bInSubmitChat = false;
 
 	CallPluginsAfter(HookedCall::IServerImpl__SubmitChat,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
@@ -2816,14 +2847,9 @@ void __stdcall HkIServerImpl::TradeResponse(unsigned char const* _genArg1, int _
 }
 
 int __stdcall HkIServerImpl::Update() {
-	AddDebugLog("HkIServerImpl::Update()");
+	HkIServerImpl__Update__Inner();
 
-	auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update);
-
-	if(!skip) retVal = EXECUTE_SERVER_CALL(Server.Update());
-
-	CallPluginsAfter(HookedCall::IServerImpl__Update);
-
+	auto retVal = EXECUTE_SERVER_CALL(Server.Update());
 	return retVal;
 }
 
