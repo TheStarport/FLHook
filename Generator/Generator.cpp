@@ -197,7 +197,9 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     output << ") {" << std::endl;
 
     if(!no_log) {
-        output << "\tAddDebugLog(\"" << func_name << "(\\n";
+        output << "\tAddDebugLog(\"" << func_name << "(";
+        if(!args.empty())
+            output << "\\n";
         for(auto& a : args) {
             output << "\\t" << a.type << " " << a.name << " = %";
             switch(a.info) {
@@ -221,15 +223,21 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
 
             output << "\\n";
         }
-        output << ")\"," << std::endl << "\t\t\t";
-        append_args_list(args, false, output);
+        if(!args.empty()) {
+            output << ")\"," << std::endl << "\t\t\t";
+            append_args_list(args, false, output);
+        } else
+            output << ")\"";
         output << ");" << std::endl << std::endl;
     }
 
     if(!no_plugins) {
         const char* retval = void_return ? "\tauto skip" : "\tauto [retVal, skip]";
-        output << retval << " = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val << ",\n\t\t\t";
-        append_args_list(args, false, output);
+        output << retval << " = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val;
+        if(!args.empty()) {
+            output << ",\n\t\t\t";
+            append_args_list(args, false, output);
+        }
         output << ");" << std::endl << std::endl;
     }
 
@@ -258,8 +266,11 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     }
 
     if(!no_plugins) {
-        output << std::endl << "\tCallPluginsAfter(" << full_enum_val << ",\n\t\t\t";
-        append_args_list(args, false, output);
+        output << std::endl << "\tCallPluginsAfter(" << full_enum_val;
+        if(!args.empty()) {
+            output << ",\n\t\t\t";
+            append_args_list(args, false, output);
+        }
         output << ");" << std::endl << std::endl;
         
         if(!void_return)
