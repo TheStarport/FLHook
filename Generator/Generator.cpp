@@ -185,7 +185,10 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     
     bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
     bool no_log = has_attribute(entity, "NoLog").has_value();
-    bool call_inner = has_attribute(entity, "CallInner").has_value();
+    auto call_inner = has_attribute(entity, "CallInner");
+    bool call_inner_after = has_attribute(entity, "CallInnerAfter").has_value();
+    bool dc_check = has_attribute(entity, "DisconnectCheck").has_value();
+    auto semaphore = has_attribute(entity, "Semaphore");
 
     if(!no_plugins)
         output_header << "\t" << enum_val << "," << std::endl;
@@ -244,10 +247,33 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         output << ");" << std::endl << std::endl;
     }
 
+    if(dc_check)
+        output << "\tCHECK_FOR_DISCONNECT;" << std::endl << std::endl;
+
     if(call_inner) {
-        output << "\t" << make_context_func_name(context, func.name()) << "__Inner(";
+        output << "\t";
+        auto call_inner_args = call_inner.value().arguments();
+        bool can_break = call_inner_args && call_inner_args.value().front().spelling == "true";
+        if(can_break)
+            output << "bool innerCheck = ";
+        output << make_context_func_name(context, func.name()) << "__Inner(";
         append_args_list(args, false, output);
-        output << ");" << std::endl << std::endl;
+        output << ");" << std::endl;
+
+        if(can_break) {
+            output << "\tif(!innerCheck) return";
+            if(!void_return)
+                output << " " << to_string(func.return_type()) << "()";
+            output << ";";
+        }
+
+        output << std::endl;
+    }
+
+    if(semaphore) {
+        auto semaphore_name = semaphore.value().arguments().value().front().spelling;
+
+        output << "\t" << semaphore_name << " = true;" << std::endl;
     }
 
     output << "\t";
@@ -256,7 +282,7 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         if(!void_return)
             output << "retVal = ";
     } else if(!void_return)
-        output << "return ";
+        output << "auto retVal = ";
 
     if(client_call) {
         output << "CALL_CLIENT_METHOD(" << func.name() << "(";
@@ -266,6 +292,18 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         output << "EXECUTE_SERVER_CALL(Server." << func.name() << "(";
         append_args_list(args, false, output);
         output << "));" << std::endl;
+    }
+
+    if(semaphore) {
+        auto semaphore_name = semaphore.value().arguments().value().front().spelling;
+
+        output << "\t" << semaphore_name << " = false;" << std::endl;
+    }
+
+    if(call_inner_after) {
+        output << "\t" << make_context_func_name(context, func.name()) << "__InnerAfter(";
+        append_args_list(args, false, output);
+        output << ");" << std::endl << std::endl;
     }
 
     if(!no_plugins) {
@@ -278,7 +316,8 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         
         if(!void_return)
             output << "\treturn retVal;" << std::endl;
-    }
+    } else if(!void_return)
+        output << "\treturn retVal;" << std::endl;
 
     output << "}" << std::endl << std::endl;
 }

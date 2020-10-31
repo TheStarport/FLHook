@@ -2,36 +2,6 @@
 #include "CInGame.h"
 #include "hook.h"
 
-#define ISERVER_LOG()                                                          \
-    if (set_bDebug)                                                            \
-        AddDebugLog(__FUNCSIG__);
-#define ISERVER_LOGARG_WS(a)                                                   \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %s", wstos((const wchar_t *)a).c_str());
-#define ISERVER_LOGARG_S(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %s", (const char *)a);
-#define ISERVER_LOGARG_UI(a)                                                   \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %u", (uint)a);
-#define ISERVER_LOGARG_I(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %d", (int)a);
-#define ISERVER_LOGARG_H(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": 0x%08X", (int)a);
-#define ISERVER_LOGARG_F(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %f", (float)a);
-#define ISERVER_LOGARG_V(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %f %f %f", (float)a.x, (float)a.y,           \
-                    (float)a.z);
-#define ISERVER_LOGARG_Q(a)                                                    \
-    if (set_bDebug)                                                            \
-        AddDebugLog("     " #a ": %f %f %f %f", (float)a.x, (float)a.y,        \
-                    (float)a.z, (float)a.w);
-
 #define EXECUTE_SERVER_CALL(args)                                              \
     {                                                                          \
         static CTimer timer(__FUNCTION__, set_iTimerThreshold);                \
@@ -76,8 +46,7 @@ TIMER Timers[] = {
     {HkTimerCheckResolveResults, 0, 0},
 };
 
-int __stdcall Update(void) {
-
+void Update__Inner() {
     static bool bFirstTime = true;
     if (bFirstTime) {
         FLHookInit();
@@ -96,12 +65,6 @@ int __stdcall Update(void) {
     memcpy(&pData, g_FLServerDataPtr + 0x40, 4);
     memcpy(&g_iServerLoad, pData + 0x204, 4);
     memcpy(&g_iPlayerCount, pData + 0x208, 4);
-
-    CALL_PLUGINS(PLUGIN_HkIServerImpl_Update, int, __stdcall, (), ());
-
-    int result = 0;
-    EXECUTE_SERVER_CALL(result = Server.Update());
-    return result;
 }
 
 /**************************************************************************************************************
@@ -118,17 +81,12 @@ CInGame admin;
 bool g_bInSubmitChat = false;
 uint g_iTextLen = 0;
 
-void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
+void SubmitChat__Inner(struct CHAT_ID cId, unsigned long lP1,
                           void const *rdlReader, struct CHAT_ID cIdTo,
                           int iP2) {
     ISERVER_LOG();
     ISERVER_LOGARG_I(cId.iID);
     ISERVER_LOGARG_I(cIdTo.iID);
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat, __stdcall,
-                   (struct CHAT_ID cId, unsigned long lP1,
-                    void const *rdlReader, struct CHAT_ID cIdTo, int iP2),
-                   (cId, lP1, rdlReader, cIdTo, iP2));
 
     TRY_HOOK {
 
@@ -266,29 +224,13 @@ void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
         }
     }
     CATCH_HOOK({})
-
-    // send
-    g_bInSubmitChat = true;
-    EXECUTE_SERVER_CALL(Server.SubmitChat(cId, lP1, rdlReader, cIdTo, iP2));
-    g_bInSubmitChat = false;
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SubmitChat_AFTER, __stdcall,
-                   (struct CHAT_ID cId, unsigned long lP1,
-                    void const *rdlReader, struct CHAT_ID cIdTo, int iP2),
-                   (cId, lP1, rdlReader, cIdTo, iP2));
 }
 
 /**************************************************************************************************************
 Called when player ship was created in space (after undock or login)
 **************************************************************************************************************/
 
-void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iShip);
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
+void PlayerLaunch__Inner(unsigned int iShip, unsigned int iClientID) {
     TRY_HOOK {
         ClientInfo[iClientID].iShip = iShip;
         ClientInfo[iClientID].iKillsInARow = 0;
@@ -310,13 +252,9 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
         }
     }
     CATCH_HOOK({})
+}
 
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch, __stdcall,
-                   (unsigned int iShip, unsigned int iClientID),
-                   (iShip, iClientID));
-
-    EXECUTE_SERVER_CALL(Server.PlayerLaunch(iShip, iClientID));
-
+void PlayerLaunch__InnerAfter(unsigned int iShip, unsigned int iClientID) {
     TRY_HOOK {
         if (!ClientInfo[iClientID].iLastExitedBaseID) {
             ClientInfo[iClientID].iLastExitedBaseID = 1;
@@ -328,32 +266,6 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
         }
     }
     CATCH_HOOK({})
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, __stdcall,
-                   (unsigned int iShip, unsigned int iClientID),
-                   (iShip, iClientID));
-}
-
-/**************************************************************************************************************
-Called when player fires a weapon
-**************************************************************************************************************/
-
-void __stdcall FireWeapon(unsigned int iClientID,
-                          struct XFireWeaponInfo const &wpn) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon, __stdcall,
-                   (unsigned int iClientID, struct XFireWeaponInfo const &wpn),
-                   (iClientID, wpn));
-
-    EXECUTE_SERVER_CALL(Server.FireWeapon(iClientID, wpn));
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_FireWeapon_AFTER, __stdcall,
-                   (unsigned int iClientID, struct XFireWeaponInfo const &wpn),
-                   (iClientID, wpn));
 }
 
 /**************************************************************************************************************
@@ -362,48 +274,22 @@ Called when one player hits a target with a gun
 ci:  only figured out where dwTargetShip is ...
 **************************************************************************************************************/
 
-void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const &ci,
+void SPMunitionCollision__Inner(struct SSPMunitionCollisionInfo const &ci,
                                    unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
-
     uint iClientIDTarget;
-
-    CHECK_FOR_DISCONNECT
 
     TRY_HOOK { iClientIDTarget = HkGetClientIDByShip(ci.dwTargetShip); }
     CATCH_HOOK({})
 
     iDmgTo = iClientIDTarget;
-
-    CALL_PLUGINS_V(
-        PLUGIN_HkIServerImpl_SPMunitionCollision, __stdcall,
-        (struct SSPMunitionCollisionInfo const &ci, unsigned int iClientID),
-        (ci, iClientID));
-
-    EXECUTE_SERVER_CALL(Server.SPMunitionCollision(ci, iClientID));
-
-    CALL_PLUGINS_V(
-        PLUGIN_HkIServerImpl_SPMunitionCollision_AFTER, __stdcall,
-        (struct SSPMunitionCollisionInfo const &ci, unsigned int iClientID),
-        (ci, iClientID));
 }
 
 /**************************************************************************************************************
 Called when player moves his ship
 **************************************************************************************************************/
 
-void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
+bool SPObjUpdate__Inner(struct SSPObjUpdateInfo const &ui,
                            unsigned int iClientID) {
-    /*ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
-    ISERVER_LOGARG_UI(ui.iShip);
-    ISERVER_LOGARG_V(ui.vPos);
-    ISERVER_LOGARG_Q(ui.vDir);
-    ISERVER_LOGARG_F(ui.throttle);*/
-
-    CHECK_FOR_DISCONNECT;
-
     // NAN check
     if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) ||
         !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) ||
@@ -411,7 +297,7 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
         !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle)) {
         AddLog("ERROR: NAN found in " __FUNCTION__ " for id=%u", iClientID);
         HkKick(Players[iClientID].Account);
-        return;
+        return false;
     };
 
     float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x +
@@ -422,7 +308,7 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
                                                                       "id=%u",
             iClientID);
         HkKick(Players[iClientID].Account);
-        return;
+        return false;
     }
 
     // Far check
@@ -432,52 +318,17 @@ void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
             "ERROR: Ship position out of bounds in " __FUNCTION__ " for id=%u",
             iClientID);
         HkKick(Players[iClientID].Account);
-        return;
+        return false;
     }
 
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate, __stdcall,
-                   (struct SSPObjUpdateInfo const &ui, unsigned int iClientID),
-                   (ui, iClientID));
-
-    EXECUTE_SERVER_CALL(Server.SPObjUpdate(ui, iClientID));
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_SPObjUpdate_AFTER, __stdcall,
-                   (struct SSPObjUpdateInfo const &ui, unsigned int iClientID),
-                   (ui, iClientID));
-}
-/**************************************************************************************************************
-Called when one player collides with a space object
-**************************************************************************************************************/
-
-void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci,
-                              unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
-    CALL_PLUGINS_V(
-        PLUGIN_HkIServerImpl_SPObjCollision, __stdcall,
-        (struct SSPObjCollisionInfo const &ci, unsigned int iClientID),
-        (ci, iClientID));
-
-    EXECUTE_SERVER_CALL(Server.SPObjCollision(ci, iClientID));
-
-    CALL_PLUGINS_V(
-        PLUGIN_HkIServerImpl_SPObjCollision_AFTER, __stdcall,
-        (struct SSPObjCollisionInfo const &ci, unsigned int iClientID),
-        (ci, iClientID));
+    return true;
 }
 
 /**************************************************************************************************************
 Called when player has undocked and is now ready to fly
 **************************************************************************************************************/
 
-void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iBaseID);
-    ISERVER_LOGARG_UI(iShip);
-
+void LaunchComplete__Inner(unsigned int iBaseID, unsigned int iShip) {
     TRY_HOOK {
         uint iClientID = HkGetClientIDByShip(iShip);
         if (iClientID) {
@@ -498,55 +349,35 @@ void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip) {
             HkGetPlayerSystem(iClientID).c_str());
     }
     CATCH_HOOK({})
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LaunchComplete, __stdcall,
-                   (unsigned int iBaseID, unsigned int iShip),
-                   (iBaseID, iShip));
-
-    EXECUTE_SERVER_CALL(Server.LaunchComplete(iBaseID, iShip));
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_LaunchComplete_AFTER, __stdcall,
-                   (unsigned int iBaseID, unsigned int iShip),
-                   (iBaseID, iShip));
 }
 
 /**************************************************************************************************************
 Called when player selects a character
 **************************************************************************************************************/
 
-void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
+std::wstring g_wscCharBefore;
+bool CharacterSelect__Inner(struct CHARACTER_ID const &cId,
                                unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_S(&cId);
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect, __stdcall,
-                   (struct CHARACTER_ID const &cId, unsigned int iClientID),
-                   (cId, iClientID));
-
-    std::wstring wscCharBefore;
     try {
-        const wchar_t *wszCharname =
-            (wchar_t *)Players.GetActiveCharacterName(iClientID);
-        wscCharBefore =
-            wszCharname ? (wchar_t *)Players.GetActiveCharacterName(iClientID)
-                        : L"";
+        const wchar_t *wszCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
+        g_wscCharBefore = wszCharname ? (wchar_t *)Players.GetActiveCharacterName(iClientID) : L"";
         ClientInfo[iClientID].iLastExitedBaseID = 0;
         ClientInfo[iClientID].iTradePartner = 0;
-        Server.CharacterSelect(cId, iClientID);
     } catch (...) {
         HkAddKickLog(iClientID, L"Corrupt charfile?");
         HkKick(ARG_CLIENTID(iClientID));
-        return;
+        return false;
     }
 
-    TRY_HOOK {
-        std::wstring wscCharname =
-            (wchar_t *)Players.GetActiveCharacterName(iClientID);
+    return true;
+}
 
-        if (wscCharBefore.compare(wscCharname) != 0) {
+void CharacterSelect__InnerAfter(struct CHARACTER_ID const &cId,
+                               unsigned int iClientID) {
+    TRY_HOOK {
+        std::wstring wscCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
+
+        if (g_wscCharBefore.compare(wscCharname) != 0) {
             LoadUserCharSettings(iClientID);
 
             if (set_bUserCmdHelp)
@@ -586,10 +417,6 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
         }
     }
     CATCH_HOOK({})
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_CharacterSelect_AFTER, __stdcall,
-                   (struct CHARACTER_ID const &cId, unsigned int iClientID),
-                   (cId, iClientID));
 }
 
 /**************************************************************************************************************
