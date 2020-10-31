@@ -152,6 +152,13 @@ void append_args_list(const std::list<parsed_arg>& args, bool incl_type, std::os
         output.seekp(-2, std::fstream::cur);
 }
 
+std::string make_context_func_name(const std::string& context, const std::string& func_name) {
+    std::string enum_context = context;
+    std::replace(enum_context.begin(), enum_context.end(), ':', '_');
+
+    return enum_context + func_name;
+}
+
 std::string make_enum(const std::string& context, const std::string& func_name) {
     std::string enum_context = context;
     std::replace(enum_context.begin(), enum_context.end(), ':', '_');
@@ -178,6 +185,7 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
     
     bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
     bool no_log = has_attribute(entity, "NoLog").has_value();
+    bool call_inner = has_attribute(entity, "CallInner").has_value();
 
     if(!no_plugins)
         output_header << "\t" << enum_val << "," << std::endl;
@@ -225,6 +233,12 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
         output << ");" << std::endl << std::endl;
     }
 
+    if(call_inner) {
+        output << "\t" << make_context_func_name(context, func.name()) << "__Inner(";
+        append_args_list(args, false, output);
+        output << ");" << std::endl << std::endl;
+    }
+
     output << "\t";
     if(!no_plugins) {
         output << "if(!skip) ";
@@ -258,15 +272,19 @@ void generate_function_hook(const cppast::cpp_entity& entity, const std::string&
 void generate_hooks(const cppast::cpp_entity& e, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header, bool client_call, bool server_call) {
     cppast::visit(e, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
         if(entity.kind() == cppast::cpp_entity_kind::member_function_t) {
-            generate_function_hook(entity, context + e.name() + "::", idx, output, output_header, client_call, server_call);
+            bool no_hook = cppast::has_attribute(entity.attributes(), "NoHook").has_value();
+            if(!no_hook)
+                generate_function_hook(entity, context + e.name() + "::", idx, output, output_header, client_call, server_call);
         }
     });
 }
 
 void locate_hooks(const cppast::cpp_entity& base, const std::string& context, const cppast::cpp_entity_index& idx, std::ofstream& output, std::ofstream& output_header) {
-    cppast::visit(base, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
+    cppast::visit(base, [&](const cppast::cpp_entity& entity, cppast::visitor_info vi) -> bool {
         if(&entity == &base)
-            return;
+            return cppast::visitor_result::continue_visit;
+        if(vi.event == cppast::visitor_info::container_entity_exit)
+            return cppast::visitor_result::continue_visit;
 
         OutputDebugStringA((entity.name() + "\n").c_str());
 
@@ -277,6 +295,8 @@ void locate_hooks(const cppast::cpp_entity& base, const std::string& context, co
                 bool client_call = cppast::has_attribute(entity.attributes(), "ClientCall").has_value();
                 bool server_call = cppast::has_attribute(entity.attributes(), "ServerCall").has_value();
                 generate_hooks(entity, context, idx, output, output_header, client_call, server_call);
+
+                return cppast::visitor_result::continue_visit_no_children;
             }
             break;
         case cppast::cpp_entity_kind::namespace_t:
@@ -285,6 +305,8 @@ void locate_hooks(const cppast::cpp_entity& base, const std::string& context, co
         default:
             break;
         }
+
+        return cppast::visitor_result::continue_visit;
     });
 }
 

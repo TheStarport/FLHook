@@ -119,6 +119,7 @@
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
+    <ClCompile Include="..\source\__generated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -181,6 +182,9 @@
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Singleton.h" />
+    <ClInclude Include="..\FLHookSDK\include\__generated.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

@@ -902,3 +902,5 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
     if (auto err = HkGetClientID(bIdString, a, b);                             \
         err != HKE_OK && err != HKE_PLAYER_NOT_LOGGED_IN)                      \
         return err;
+        
+void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
