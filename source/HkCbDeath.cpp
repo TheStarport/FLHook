@@ -7,9 +7,9 @@ std::wstring SetSizeToSmall(const std::wstring &wscDataFormat) {
     uint iFormat = wcstoul(wscDataFormat.c_str() + 2, nullptr, 16);
     wchar_t wszStyleSmall[32];
     wcscpy_s(wszStyleSmall, wscDataFormat.c_str());
-    swprintf_s(wszStyleSmall + std::size(wszStyleSmall) - 2, 2, L"%02X",
-               0x90 | (iFormat & 7));
-    return std::wstring(wszStyleSmall, std::size(wszStyleSmall));
+    swprintf_s(wszStyleSmall + std::size(wscDataFormat) - 2, 3, L"%02X",
+               0x90 | (iFormat & 7)); 
+    return std::wstring(wszStyleSmall, std::size(wscDataFormat));
 }
 
 /**************************************************************************************************************
