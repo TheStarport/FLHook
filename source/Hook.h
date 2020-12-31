@@ -920,5 +920,5 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
 #define HK_GET_CLIENTID(a, b)                                                  \
     bool bIdString = false;                                                    \
     uint a = uint(-1);                                                         \
-    if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)              \
+    if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK && err != HKE_PLAYER_NOT_LOGGED_IN)              \
         return err;
