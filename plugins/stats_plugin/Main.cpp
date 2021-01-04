@@ -44,6 +44,18 @@ void LoadSettings() {
     }
 }
 
+std::string encode(std::string data) {
+    std::string scEncoded;
+    scEncoded.reserve(data.size());
+    for (size_t pos = 0; pos != data.size(); ++pos) {
+        if (data[pos] == '\"')
+            scEncoded.append("&quot;");
+        else
+            scEncoded.append(1, data[pos]);
+    }
+    return scEncoded;
+}
+
 void exportJSON() {
     std::ofstream out(jsonFileName);
 
@@ -61,7 +73,7 @@ void exportJSON() {
             out << ",";
 
         // Add name
-        out << "{\"name\": \"" + wstos(player->wscCharname) + "\"";
+        out << "{\"name\": \"" + encode(wstos(player->wscCharname)) + "\"";
 
         // Add rank
         int iRank;
