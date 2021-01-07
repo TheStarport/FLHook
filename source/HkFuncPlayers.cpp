@@ -47,7 +47,7 @@ HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     uint iClientIDAcc = 0;
     if (iClientID == -1) {
@@ -160,7 +160,7 @@ HK_ERROR HkKickReason(const std::wstring &wscCharname,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 HK_ERROR HkBan(const std::wstring &wscCharname, bool bBan) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     CAccount *acc;
     if (iClientID != -1)
@@ -456,7 +456,7 @@ HK_ERROR HkAddCargo(const std::wstring &wscCharname,
 
 HK_ERROR HkRename(const std::wstring &wscCharname,
                   const std::wstring &wscNewCharname, bool bOnlyDelete) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     if ((iClientID == -1) && !HkGetAccountByCharname(wscCharname))
         return HKE_CHAR_DOES_NOT_EXIST;
