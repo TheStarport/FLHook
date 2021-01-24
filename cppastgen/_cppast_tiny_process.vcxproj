@@ -269,14 +269,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library\process.cpp" />
     <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library\process_win.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="C:\Users\jpgue\Projects\FLHook\cppastgen\ZERO_CHECK.vcxproj">
-      <Project>{FA35AC06-9557-3AAC-AACA-658A08563353}</Project>
-      <Name>ZERO_CHECK</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

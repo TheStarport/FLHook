@@ -282,12 +282,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert\debug_assert.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\Users\jpgue\Projects\FLHook\cppastgen\ZERO_CHECK.vcxproj">
-      <Project>{FA35AC06-9557-3AAC-AACA-658A08563353}</Project>
-      <Name>ZERO_CHECK</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </ProjectReference>
     <ProjectReference Include="C:\Users\jpgue\Projects\FLHook\cppastgen\_cppast_tiny_process.vcxproj">
       <Project>{57E06C77-72C3-37AA-926A-BA7D3B15274F}</Project>
       <Name>_cppast_tiny_process</Name>
