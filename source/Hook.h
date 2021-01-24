@@ -904,3 +904,30 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
         return err;
         
 void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
+
+#define INNER_SERVER_CALL(args)                                            \
+        TRY_HOOK { args; }                                                 \
+        CATCH_HOOK({                                                       \
+            AddLog("ERROR: Exception in " __FUNCTION__ " on server call"); \
+        })                                                                 \
+
+#ifdef _DEBUG
+#define EXECUTE_SERVER_CALL(args)                                          \
+    {                                                                      \
+        static CTimer timer(__FUNCTION__, set_iTimerThreshold);            \
+        timer.start();                                                     \
+        INNER_SERVER_CALL(args)                                            \
+        timer.stop();                                                      \
+    }
+#else
+#define EXECUTE_SERVER_CALL(args) INNER_SERVER_CALL(args)
+#endif
+
+#define CALL_CLIENT_METHOD(Method)                                         \
+    void *vRet;                                                            \
+    char *tmp;                                                             \
+    memcpy(&tmp, &Client, 4);                                              \
+    memcpy(&Client, &OldClient, 4);                                        \
+    HookClient->Method;                                                    \
+    __asm { mov [vRet], eax }                                              \
+    memcpy(&Client, &tmp, 4);

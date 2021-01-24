@@ -2,17 +2,6 @@
 #include "CInGame.h"
 #include "hook.h"
 
-#define EXECUTE_SERVER_CALL(args)                                              \
-    {                                                                          \
-        static CTimer timer(__FUNCTION__, set_iTimerThreshold);                \
-        timer.start();                                                         \
-        TRY_HOOK { args; }                                                     \
-        CATCH_HOOK({                                                           \
-            AddLog("ERROR: Exception in " __FUNCTION__ " on server call");     \
-        })                                                                     \
-        timer.stop();                                                          \
-    }
-
 #define CHECK_FOR_DISCONNECT                                                   \
     {                                                                          \
         if (ClientInfo[iClientID].bDisconnected) {                             \
@@ -426,30 +415,16 @@ void CharacterSelect__InnerAfter(struct CHARACTER_ID const &cId,
     CATCH_HOOK({})
 }
 
-/**************************************************************************************************************
-Called when player enters base
-**************************************************************************************************************/
-
-void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iBaseID);
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseEnter, __stdcall,
-                   (unsigned int iBaseID, unsigned int iClientID),
-                   (iBaseID, iClientID));
-
+void BaseEnter__Inner(unsigned int iBaseID, unsigned int iClientID) {
     TRY_HOOK {
         // autobuy
         if (set_bAutoBuy)
             HkPlayerAutoBuy(iClientID, iBaseID);
     }
     CATCH_HOOK({ AddLog("Exception in " __FUNCTION__ " on autobuy"); })
-
-    EXECUTE_SERVER_CALL(Server.BaseEnter(iBaseID, iClientID));
-
+}
+    
+void BaseEnter__InnerAfter(unsigned int iBaseID, unsigned int iClientID) {
     TRY_HOOK {
         // adjust cash, this is necessary when cash was added while use was in
         // charmenu/had other char selected
@@ -473,35 +448,21 @@ void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
                      HkGetPlayerSystem(iClientID).c_str());
     }
     CATCH_HOOK({})
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseEnter_AFTER, __stdcall,
-                   (unsigned int iBaseID, unsigned int iClientID),
-                   (iBaseID, iClientID));
 }
 
 /**************************************************************************************************************
 Called when player exits base
 **************************************************************************************************************/
 
-void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID) {
-    ISERVER_LOG();
-    ISERVER_LOGARG_UI(iBaseID);
-    ISERVER_LOGARG_UI(iClientID);
-
-    CHECK_FOR_DISCONNECT
-
+void BaseExit__Inner(unsigned int iBaseID, unsigned int iClientID) {
     TRY_HOOK {
         ClientInfo[iClientID].iBaseEnterTime = 0;
         ClientInfo[iClientID].iLastExitedBaseID = iBaseID;
     }
     CATCH_HOOK({})
+}
 
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseExit, __stdcall,
-                   (unsigned int iBaseID, unsigned int iClientID),
-                   (iBaseID, iClientID));
-
-    EXECUTE_SERVER_CALL(Server.BaseExit(iBaseID, iClientID));
-
+void BaseExit__InnerAfter(unsigned int iBaseID, unsigned int iClientID) {
     TRY_HOOK {
         const wchar_t *wszCharname =
             (wchar_t *)Players.GetActiveCharacterName(iClientID);
@@ -513,10 +474,6 @@ void __stdcall BaseExit(unsigned int iBaseID, unsigned int iClientID) {
                      HkGetPlayerSystem(iClientID).c_str());
     }
     CATCH_HOOK({})
-
-    CALL_PLUGINS_V(PLUGIN_HkIServerImpl_BaseExit_AFTER, __stdcall,
-                   (unsigned int iBaseID, unsigned int iClientID),
-                   (iBaseID, iClientID));
 }
 /**************************************************************************************************************
 Called when player connects
