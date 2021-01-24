@@ -1508,7 +1508,7 @@ int HkIClientImpl::unknown_126(char* szUnknown) {
 	return retVal;
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("AbortMission(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1520,11 +1520,10 @@ void __stdcall AbortMission(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__AbortMission,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall AcceptTrade(unsigned int _genArg1, bool _genArg2) {
 	AddDebugLog("AcceptTrade(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
 			_genArg1, _genArg2);
@@ -1536,11 +1535,10 @@ void __stdcall AcceptTrade(unsigned int _genArg1, bool _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__AcceptTrade,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ActivateCruise(unsigned int _genArg1, XActivateCruise const& _genArg2) {
 	AddDebugLog("ActivateCruise(\n\tunsigned int _genArg1 = %u\n\tXActivateCruise const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1552,11 +1550,10 @@ void __stdcall ActivateCruise(unsigned int _genArg1, XActivateCruise const& _gen
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateCruise,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ActivateEquip(unsigned int _genArg1, XActivateEquip const& _genArg2) {
 	AddDebugLog("ActivateEquip(\n\tunsigned int _genArg1 = %u\n\tXActivateEquip const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1568,11 +1565,10 @@ void __stdcall ActivateEquip(unsigned int _genArg1, XActivateEquip const& _genAr
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateEquip,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ActivateThrusters(unsigned int _genArg1, XActivateThrusters const& _genArg2) {
 	AddDebugLog("ActivateThrusters(\n\tunsigned int _genArg1 = %u\n\tXActivateThrusters const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1584,11 +1580,10 @@ void __stdcall ActivateThrusters(unsigned int _genArg1, XActivateThrusters const
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateThrusters,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall AddTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
 	AddDebugLog("AddTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1600,11 +1595,10 @@ void __stdcall AddTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__AddTradeEquip,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall BaseEnter(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("BaseEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1622,11 +1616,10 @@ void __stdcall BaseEnter(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseEnter,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall BaseExit(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("BaseExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1644,11 +1637,10 @@ void __stdcall BaseExit(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseExit,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
 	AddDebugLog("BaseInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -1660,11 +1652,10 @@ void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, boo
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseInfoRequest,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall CharacterInfoReq(unsigned int _genArg1, bool _genArg2) {
 	AddDebugLog("CharacterInfoReq(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n)",
 			_genArg1, _genArg2);
@@ -1676,11 +1667,10 @@ void __stdcall CharacterInfoReq(unsigned int _genArg1, bool _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterInfoReq,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall CharacterSelect(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("CharacterSelect(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1698,11 +1688,10 @@ void __stdcall CharacterSelect(CHARACTER_ID const& _genArg1, unsigned int _genAr
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall CharacterSkipAutosave(unsigned int _genArg1) {
 	AddDebugLog("CharacterSkipAutosave(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
@@ -1714,11 +1703,10 @@ void __stdcall CharacterSkipAutosave(unsigned int _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSkipAutosave,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall CommComplete(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, enum CommResult _genArg4) {
 	AddDebugLog("CommComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tenum CommResult _genArg4 = %s\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
@@ -1730,11 +1718,10 @@ void __stdcall CommComplete(unsigned int _genArg1, unsigned int _genArg2, unsign
 
 	CallPluginsAfter(HookedCall::IServerImpl__CommComplete,
 			_genArg1, _genArg2, _genArg3, _genArg4);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall Connect(char const* _genArg1, unsigned short* _genArg2) {
 	AddDebugLog("Connect(\n\tchar const* _genArg1 = %p\n\tunsigned short* _genArg2 = %p\n)",
 			_genArg1, _genArg2);
@@ -1746,11 +1733,10 @@ void __stdcall Connect(char const* _genArg1, unsigned short* _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__Connect,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall CreateNewCharacter(SCreateCharacterInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1762,11 +1748,10 @@ void __stdcall CreateNewCharacter(SCreateCharacterInfo const& _genArg1, unsigned
 
 	CallPluginsAfter(HookedCall::IServerImpl__CreateNewCharacter,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall DelTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
 	AddDebugLog("DelTradeEquip(\n\tunsigned int _genArg1 = %u\n\tEquipDesc const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1778,11 +1763,10 @@ void __stdcall DelTradeEquip(unsigned int _genArg1, EquipDesc const& _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__DelTradeEquip,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall DestroyCharacter(CHARACTER_ID const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1794,11 +1778,10 @@ void __stdcall DestroyCharacter(CHARACTER_ID const& _genArg1, unsigned int _genA
 
 	CallPluginsAfter(HookedCall::IServerImpl__DestroyCharacter,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall DisConnect(unsigned int _genArg1, enum EFLConnection _genArg2) {
 	AddDebugLog("DisConnect(\n\tunsigned int _genArg1 = %u\n\tenum EFLConnection _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1810,11 +1793,10 @@ void __stdcall DisConnect(unsigned int _genArg1, enum EFLConnection _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__DisConnect,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall Dock(unsigned int const& _genArg1, unsigned int const& _genArg2) {
 	AddDebugLog("Dock(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1826,11 +1808,10 @@ void __stdcall Dock(unsigned int const& _genArg1, unsigned int const& _genArg2) 
 
 	CallPluginsAfter(HookedCall::IServerImpl__Dock,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall DumpPacketStats(char const* _genArg1) {
 	AddDebugLog("DumpPacketStats(\n\tchar const* _genArg1 = %p\n)",
 			_genArg1);
@@ -1842,11 +1823,10 @@ void __stdcall DumpPacketStats(char const* _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__DumpPacketStats,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ElapseTime(float _genArg1) {
 	AddDebugLog("ElapseTime(\n\tfloat _genArg1 = %f\n)",
 			_genArg1);
@@ -1858,11 +1838,10 @@ void __stdcall ElapseTime(float _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ElapseTime,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall FireWeapon(unsigned int _genArg1, XFireWeaponInfo const& _genArg2) {
 	AddDebugLog("FireWeapon(\n\tunsigned int _genArg1 = %u\n\tXFireWeaponInfo const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1876,11 +1855,10 @@ void __stdcall FireWeapon(unsigned int _genArg1, XFireWeaponInfo const& _genArg2
 
 	CallPluginsAfter(HookedCall::IServerImpl__FireWeapon,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1892,11 +1870,10 @@ void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, unsigned int _genArg2) 
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodBuy,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1908,11 +1885,10 @@ void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, unsigned int _genArg2
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodSell,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1924,11 +1900,10 @@ void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& _genArg1, unsigned in
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodVaporized,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("GFObjSelect(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -1940,11 +1915,10 @@ void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFObjSelect,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GetServerStats(ServerStats& _genArg1) {
 	AddDebugLog("GetServerStats(\n\tServerStats& _genArg1 = %s\n)",
 			_genArg1);
@@ -1956,11 +1930,10 @@ void __stdcall GetServerStats(ServerStats& _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__GetServerStats,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall GoTradelane(unsigned int _genArg1, XGoTradelane const& _genArg2) {
 	AddDebugLog("GoTradelane(\n\tunsigned int _genArg1 = %u\n\tXGoTradelane const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -1972,11 +1945,10 @@ void __stdcall GoTradelane(unsigned int _genArg1, XGoTradelane const& _genArg2) 
 
 	CallPluginsAfter(HookedCall::IServerImpl__GoTradelane,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3) {
 	AddDebugLog("Hail(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -1988,11 +1960,10 @@ void __stdcall Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _
 
 	CallPluginsAfter(HookedCall::IServerImpl__Hail,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall InitiateTrade(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("InitiateTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2004,11 +1975,10 @@ void __stdcall InitiateTrade(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__InitiateTrade,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall InterfaceItemUsed(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("InterfaceItemUsed(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2020,11 +1990,10 @@ void __stdcall InterfaceItemUsed(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__InterfaceItemUsed,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall JettisonCargo(unsigned int _genArg1, XJettisonCargo const& _genArg2) {
 	AddDebugLog("JettisonCargo(\n\tunsigned int _genArg1 = %u\n\tXJettisonCargo const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -2036,11 +2005,10 @@ void __stdcall JettisonCargo(unsigned int _genArg1, XJettisonCargo const& _genAr
 
 	CallPluginsAfter(HookedCall::IServerImpl__JettisonCargo,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall JumpInComplete(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("JumpInComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2052,11 +2020,10 @@ void __stdcall JumpInComplete(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__JumpInComplete,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall LaunchComplete(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("LaunchComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2070,11 +2037,10 @@ void __stdcall LaunchComplete(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__LaunchComplete,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall LocationEnter(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("LocationEnter(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2086,11 +2052,10 @@ void __stdcall LocationEnter(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationEnter,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall LocationExit(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("LocationExit(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2102,11 +2067,10 @@ void __stdcall LocationExit(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationExit,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3) {
 	AddDebugLog("LocationInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2118,11 +2082,10 @@ void __stdcall LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2,
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationInfoRequest,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall Login(SLoginInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("Login(\n\tSLoginInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2134,11 +2097,10 @@ void __stdcall Login(SLoginInfo const& _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__Login,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall MineAsteroid(unsigned int _genArg1, Vector const& _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned int _genArg5, unsigned int _genArg6) {
 	AddDebugLog("MineAsteroid(\n\tunsigned int _genArg1 = %u\n\tVector const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned int _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
@@ -2150,11 +2112,10 @@ void __stdcall MineAsteroid(unsigned int _genArg1, Vector const& _genArg2, unsig
 
 	CallPluginsAfter(HookedCall::IServerImpl__MineAsteroid,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bool _genArg3, unsigned int _genArg4) {
 	AddDebugLog("MissionResponse(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n\tbool _genArg3 = %d\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
@@ -2166,11 +2127,10 @@ void __stdcall MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bo
 
 	CallPluginsAfter(HookedCall::IServerImpl__MissionResponse,
 			_genArg1, _genArg2, _genArg3, _genArg4);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall MissionSaveB(unsigned int _genArg1, unsigned long _genArg2) {
 	AddDebugLog("MissionSaveB(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2182,11 +2142,10 @@ void __stdcall MissionSaveB(unsigned int _genArg1, unsigned long _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__MissionSaveB,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall NewCharacterInfoReq(unsigned int _genArg1) {
 	AddDebugLog("NewCharacterInfoReq(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
@@ -2198,11 +2157,10 @@ void __stdcall NewCharacterInfoReq(unsigned int _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__NewCharacterInfoReq,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall OnConnect(unsigned int _genArg1) {
 	AddDebugLog("OnConnect(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
@@ -2214,11 +2172,10 @@ void __stdcall OnConnect(unsigned int _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__OnConnect,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall PlayerLaunch(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("PlayerLaunch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2236,11 +2193,10 @@ void __stdcall PlayerLaunch(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__PlayerLaunch,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall PopUpDialog(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("PopUpDialog(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2252,11 +2208,10 @@ void __stdcall PopUpDialog(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__PopUpDialog,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall PushToServer(CDAPacket* _genArg1) {
 	AddDebugLog("PushToServer(\n\tCDAPacket* _genArg1 = %p\n)",
 			_genArg1);
@@ -2268,11 +2223,10 @@ void __stdcall PushToServer(CDAPacket* _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__PushToServer,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RTCDone(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("RTCDone(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2284,11 +2238,10 @@ void __stdcall RTCDone(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__RTCDone,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqAddItem(unsigned int _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
 	AddDebugLog("ReqAddItem(\n\tunsigned int _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
@@ -2300,11 +2253,10 @@ void __stdcall ReqAddItem(unsigned int _genArg1, char const* _genArg2, int _genA
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqAddItem,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqCargo(EquipDescList const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqCargo(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2316,11 +2268,10 @@ void __stdcall ReqCargo(EquipDescList const& _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqCargo,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqChangeCash(int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqChangeCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2332,11 +2283,10 @@ void __stdcall ReqChangeCash(int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqChangeCash,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqCollisionGroups(st6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqCollisionGroups(\n\tst6::list<struct CollisionGroupDesc, class st6::allocator<struct CollisionGroupDesc>> const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2348,11 +2298,10 @@ void __stdcall ReqCollisionGroups(st6::list<struct CollisionGroupDesc, class st6
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqCollisionGroups,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqDifficultyScale(float _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqDifficultyScale(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2364,11 +2313,10 @@ void __stdcall ReqDifficultyScale(float _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqDifficultyScale,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqEquipment(EquipDescList const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqEquipment(\n\tEquipDescList const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2380,11 +2328,10 @@ void __stdcall ReqEquipment(EquipDescList const& _genArg1, unsigned int _genArg2
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqEquipment,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqHullStatus(float _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqHullStatus(\n\tfloat _genArg1 = %f\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2396,11 +2343,10 @@ void __stdcall ReqHullStatus(float _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqHullStatus,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqModifyItem(unsigned short _genArg1, char const* _genArg2, int _genArg3, float _genArg4, bool _genArg5, unsigned int _genArg6) {
 	AddDebugLog("ReqModifyItem(\n\tunsigned short _genArg1 = %u\n\tchar const* _genArg2 = %p\n\tint _genArg3 = %d\n\tfloat _genArg4 = %f\n\tbool _genArg5 = %d\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
@@ -2412,11 +2358,10 @@ void __stdcall ReqModifyItem(unsigned short _genArg1, char const* _genArg2, int 
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqModifyItem,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqRemoveItem(unsigned short _genArg1, int _genArg2, unsigned int _genArg3) {
 	AddDebugLog("ReqRemoveItem(\n\tunsigned short _genArg1 = %u\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2428,11 +2373,10 @@ void __stdcall ReqRemoveItem(unsigned short _genArg1, int _genArg2, unsigned int
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqRemoveItem,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqSetCash(int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqSetCash(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2444,11 +2388,10 @@ void __stdcall ReqSetCash(int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqSetCash,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall ReqShipArch(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("ReqShipArch(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2460,11 +2403,10 @@ void __stdcall ReqShipArch(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqShipArch,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestBestPath(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("RequestBestPath(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2476,11 +2418,10 @@ void __stdcall RequestBestPath(unsigned int _genArg1, unsigned char* _genArg2, i
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestBestPath,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestCancel(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned long _genArg4, unsigned int _genArg5) {
 	AddDebugLog("RequestCancel(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned long _genArg4 = %u\n\tunsigned int _genArg5 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
@@ -2492,11 +2433,10 @@ void __stdcall RequestCancel(int _genArg1, unsigned int _genArg2, unsigned int _
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCancel,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestCreateShip(unsigned int _genArg1) {
 	AddDebugLog("RequestCreateShip(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
@@ -2508,11 +2448,10 @@ void __stdcall RequestCreateShip(unsigned int _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCreateShip,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestEvent(int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4, unsigned long _genArg5, unsigned int _genArg6) {
 	AddDebugLog("RequestEvent(\n\tint _genArg1 = %d\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n\tunsigned long _genArg5 = %u\n\tunsigned int _genArg6 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
@@ -2524,11 +2463,10 @@ void __stdcall RequestEvent(int _genArg1, unsigned int _genArg2, unsigned int _g
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestEvent,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestGroupPositions(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("RequestGroupPositions(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2540,11 +2478,10 @@ void __stdcall RequestGroupPositions(unsigned int _genArg1, unsigned char* _genA
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestGroupPositions,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestPlayerStats(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("RequestPlayerStats(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2556,11 +2493,10 @@ void __stdcall RequestPlayerStats(unsigned int _genArg1, unsigned char* _genArg2
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestPlayerStats,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestRankLevel(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("RequestRankLevel(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2572,11 +2508,10 @@ void __stdcall RequestRankLevel(unsigned int _genArg1, unsigned char* _genArg2, 
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestRankLevel,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall RequestTrade(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("RequestTrade(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2588,11 +2523,10 @@ void __stdcall RequestTrade(unsigned int _genArg1, unsigned int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestTrade,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPBadLandsObjCollision(SSPBadLandsObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("SPBadLandsObjCollision(\n\tSSPBadLandsObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2604,11 +2538,10 @@ void __stdcall SPBadLandsObjCollision(SSPBadLandsObjCollisionInfo const& _genArg
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPBadLandsObjCollision,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2624,11 +2557,10 @@ void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& _genArg1, uns
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPMunitionCollision,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPObjCollision(SSPObjCollisionInfo const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("SPObjCollision(\n\tSSPObjCollisionInfo const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2642,11 +2574,10 @@ void __stdcall SPObjCollision(SSPObjCollisionInfo const& _genArg1, unsigned int 
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjCollision,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _genArg2) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjUpdate,
 			_genArg1, _genArg2);
@@ -2659,11 +2590,10 @@ void __stdcall SPObjUpdate(SSPObjUpdateInfo const& _genArg1, unsigned int _genAr
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjUpdate,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPRequestInvincibility(unsigned int _genArg1, bool _genArg2, enum InvincibilityReason _genArg3, unsigned int _genArg4) {
 	AddDebugLog("SPRequestInvincibility(\n\tunsigned int _genArg1 = %u\n\tbool _genArg2 = %d\n\tenum InvincibilityReason _genArg3 = %s\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
@@ -2675,11 +2605,10 @@ void __stdcall SPRequestInvincibility(unsigned int _genArg1, bool _genArg2, enum
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestInvincibility,
 			_genArg1, _genArg2, _genArg3, _genArg4);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPRequestUseItem(SSPUseItem const& _genArg1, unsigned int _genArg2) {
 	AddDebugLog("SPRequestUseItem(\n\tSSPUseItem const& _genArg1 = %s\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2691,11 +2620,10 @@ void __stdcall SPRequestUseItem(SSPUseItem const& _genArg1, unsigned int _genArg
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestUseItem,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SPScanCargo(unsigned int const& _genArg1, unsigned int const& _genArg2, unsigned int _genArg3) {
 	AddDebugLog("SPScanCargo(\n\tunsigned int const& _genArg1 = %s\n\tunsigned int const& _genArg2 = %s\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2707,11 +2635,10 @@ void __stdcall SPScanCargo(unsigned int const& _genArg1, unsigned int const& _ge
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPScanCargo,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SaveGame(CHARACTER_ID const& _genArg1, unsigned short const* _genArg2, unsigned int _genArg3) {
 	AddDebugLog("SaveGame(\n\tCHARACTER_ID const& _genArg1 = %s\n\tunsigned short const* _genArg2 = %p\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2723,11 +2650,10 @@ void __stdcall SaveGame(CHARACTER_ID const& _genArg1, unsigned short const* _gen
 
 	CallPluginsAfter(HookedCall::IServerImpl__SaveGame,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetActiveConnection(enum EFLConnection _genArg1) {
 	AddDebugLog("SetActiveConnection(\n\tenum EFLConnection _genArg1 = %s\n)",
 			_genArg1);
@@ -2739,11 +2665,10 @@ void __stdcall SetActiveConnection(enum EFLConnection _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetActiveConnection,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetInterfaceState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("SetInterfaceState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2755,11 +2680,10 @@ void __stdcall SetInterfaceState(unsigned int _genArg1, unsigned char* _genArg2,
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetInterfaceState,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetManeuver(unsigned int _genArg1, XSetManeuver const& _genArg2) {
 	AddDebugLog("SetManeuver(\n\tunsigned int _genArg1 = %u\n\tXSetManeuver const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -2771,11 +2695,10 @@ void __stdcall SetManeuver(unsigned int _genArg1, XSetManeuver const& _genArg2) 
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetManeuver,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetMissionLog(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("SetMissionLog(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2787,11 +2710,10 @@ void __stdcall SetMissionLog(unsigned int _genArg1, unsigned char* _genArg2, int
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetMissionLog,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetTarget(unsigned int _genArg1, XSetTarget const& _genArg2) {
 	AddDebugLog("SetTarget(\n\tunsigned int _genArg1 = %u\n\tXSetTarget const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -2803,11 +2725,10 @@ void __stdcall SetTarget(unsigned int _genArg1, XSetTarget const& _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetTarget,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetTradeMoney(unsigned int _genArg1, unsigned long _genArg2) {
 	AddDebugLog("SetTradeMoney(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2819,11 +2740,10 @@ void __stdcall SetTradeMoney(unsigned int _genArg1, unsigned long _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetTradeMoney,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetVisitedState(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("SetVisitedState(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2835,11 +2755,10 @@ void __stdcall SetVisitedState(unsigned int _genArg1, unsigned char* _genArg2, i
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetVisitedState,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2, int _genArg3) {
 	AddDebugLog("SetWeaponGroup(\n\tunsigned int _genArg1 = %u\n\tunsigned char* _genArg2 = %p\n\tint _genArg3 = %d\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -2851,11 +2770,10 @@ void __stdcall SetWeaponGroup(unsigned int _genArg1, unsigned char* _genArg2, in
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetWeaponGroup,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall Shutdown() {
 	AddDebugLog("Shutdown()");
 
@@ -2864,11 +2782,10 @@ void __stdcall Shutdown() {
 	if(!skip) EXECUTE_SERVER_CALL(Server.Shutdown());
 
 	CallPluginsAfter(HookedCall::IServerImpl__Shutdown);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 bool __stdcall Startup(SStartupInfo const& _genArg1) {
 	AddDebugLog("Startup(\n\tSStartupInfo const& _genArg1 = %s\n)",
 			_genArg1);
@@ -2885,7 +2802,7 @@ bool __stdcall Startup(SStartupInfo const& _genArg1) {
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall StopTradeRequest(unsigned int _genArg1) {
 	AddDebugLog("StopTradeRequest(\n\tunsigned int _genArg1 = %u\n)",
 			_genArg1);
@@ -2897,11 +2814,10 @@ void __stdcall StopTradeRequest(unsigned int _genArg1) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradeRequest,
 			_genArg1);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall StopTradelane(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3, unsigned int _genArg4) {
 	AddDebugLog("StopTradelane(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n\tunsigned int _genArg4 = %u\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4);
@@ -2913,11 +2829,10 @@ void __stdcall StopTradelane(unsigned int _genArg1, unsigned int _genArg2, unsig
 
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradelane,
 			_genArg1, _genArg2, _genArg3, _genArg4);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SubmitChat(CHAT_ID _genArg1, unsigned long _genArg2, void const* _genArg3, CHAT_ID _genArg4, int _genArg5) {
 	AddDebugLog("SubmitChat(\n\tCHAT_ID _genArg1 = %s\n\tunsigned long _genArg2 = %u\n\tvoid const* _genArg3 = %p\n\tCHAT_ID _genArg4 = %s\n\tint _genArg5 = %d\n)",
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
@@ -2933,11 +2848,10 @@ void __stdcall SubmitChat(CHAT_ID _genArg1, unsigned long _genArg2, void const* 
 
 	CallPluginsAfter(HookedCall::IServerImpl__SubmitChat,
 			_genArg1, _genArg2, _genArg3, _genArg4, _genArg5);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 bool __stdcall SwapConnections(enum EFLConnection _genArg1, enum EFLConnection _genArg2) {
 	AddDebugLog("SwapConnections(\n\tenum EFLConnection _genArg1 = %s\n\tenum EFLConnection _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -2954,7 +2868,7 @@ bool __stdcall SwapConnections(enum EFLConnection _genArg1, enum EFLConnection _
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall SystemSwitchOutComplete(unsigned int _genArg1, unsigned int _genArg2) {
 	AddDebugLog("SystemSwitchOutComplete(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)",
 			_genArg1, _genArg2);
@@ -2966,11 +2880,10 @@ void __stdcall SystemSwitchOutComplete(unsigned int _genArg1, unsigned int _genA
 
 	CallPluginsAfter(HookedCall::IServerImpl__SystemSwitchOutComplete,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall TerminateTrade(unsigned int _genArg1, int _genArg2) {
 	AddDebugLog("TerminateTrade(\n\tunsigned int _genArg1 = %u\n\tint _genArg2 = %d\n)",
 			_genArg1, _genArg2);
@@ -2982,11 +2895,10 @@ void __stdcall TerminateTrade(unsigned int _genArg1, int _genArg2) {
 
 	CallPluginsAfter(HookedCall::IServerImpl__TerminateTrade,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall TractorObjects(unsigned int _genArg1, XTractorObjects const& _genArg2) {
 	AddDebugLog("TractorObjects(\n\tunsigned int _genArg1 = %u\n\tXTractorObjects const& _genArg2 = %s\n)",
 			_genArg1, _genArg2);
@@ -2998,11 +2910,10 @@ void __stdcall TractorObjects(unsigned int _genArg1, XTractorObjects const& _gen
 
 	CallPluginsAfter(HookedCall::IServerImpl__TractorObjects,
 			_genArg1, _genArg2);
-
 }
 }
 
-namespace HkIServerImpl{
+namespace HkIServerImpl {
 void __stdcall TradeResponse(unsigned char const* _genArg1, int _genArg2, unsigned int _genArg3) {
 	AddDebugLog("TradeResponse(\n\tunsigned char const* _genArg1 = %p\n\tint _genArg2 = %d\n\tunsigned int _genArg3 = %u\n)",
 			_genArg1, _genArg2, _genArg3);
@@ -3014,7 +2925,6 @@ void __stdcall TradeResponse(unsigned char const* _genArg1, int _genArg2, unsign
 
 	CallPluginsAfter(HookedCall::IServerImpl__TradeResponse,
 			_genArg1, _genArg2, _genArg3);
-
 }
 }
 
