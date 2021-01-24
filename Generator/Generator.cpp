@@ -22,33 +22,35 @@
 #include <cppast/libclang_parser.hpp> // for libclang_parser, libclang_compile_config, cpp_entity,...
 #include <cppast/visitor.hpp>         // for visit()
 
-std::string replace_backslashes(std::string s) {
+std::string ReplaceBackslashes(std::string s) {
     std::replace(s.begin(), s.end(), '\\', '/');
     return s;
 }
 
-class win_logger : public cppast::diagnostic_logger {
+class WinLogger final : public cppast::diagnostic_logger {
 public:
     using diagnostic_logger::diagnostic_logger;
 
 private:
-    mutable char buf[8192];
+    mutable char buf_[8192] { };
     bool do_log(const char *source, const cppast::diagnostic &d) const override {
         auto loc = d.location.to_string();
         if (loc.empty())
-            sprintf_s(buf, "[%s] [%s] %s\n", source, to_string(d.severity), d.message.c_str());
+            sprintf_s(buf_, "[%s] [%s] %s\n", source, to_string(d.severity), d.message.c_str());
         else
-            sprintf_s(buf, "[%s] [%s] %s %s\n", source, to_string(d.severity),
+            sprintf_s(buf_, "[%s] [%s] %s %s\n", source, to_string(d.severity),
                          d.location.to_string().c_str(), d.message.c_str());
 
-        OutputDebugStringA(buf);
+        OutputDebugStringA(buf_);
         return true;
     }
 };
 
-class parser {
-    std::ofstream hook_src_, hook_header_, sdk_header_;
-    std::stringstream hooked_call_enum_;
+class Parser {
+    std::ofstream hookSrc_;
+    std::ofstream hookHeader_;
+    std::ofstream sdkHeader_;
+    std::stringstream hookedCallEnum_;
     
     cppast::libclang_compile_config config_;
         
@@ -56,54 +58,54 @@ class parser {
     cppast::cpp_entity_index idx_;
 
     // the logger is used to print diagnostics
-    win_logger logger_;
+    WinLogger logger_;
 
     std::vector<std::unique_ptr<cppast::cpp_file>> files_;
 
-    enum class type_information {
-        unknown,
-        is_float,
-        is_integral,
-        is_unsigned,
-        is_string,
-        is_pointer
+    enum class TypeInformation {
+        UNKNOWN,
+        IS_FLOAT,
+        IS_INTEGRAL,
+        IS_UNSIGNED,
+        IS_STRING,
+        IS_POINTER
     };
 
-    struct parsed_arg {
+    struct ParsedArg {
         const std::string type;
         const std::string name;
-        type_information info;
+        TypeInformation info;
     };
 
-    const cppast::cpp_type& walk_typedefs(const cppast::cpp_type& base_type) const {
-        if(base_type.kind() != cppast::cpp_type_kind::user_defined_t)
-            return base_type;
+    const cppast::cpp_type& WalkTypedefs(const cppast::cpp_type& baseType) const {
+        if(baseType.kind() != cppast::cpp_type_kind::user_defined_t)
+            return baseType;
 
-        const auto& user_type = dynamic_cast<const cppast::cpp_user_defined_type&>(base_type);
-        const auto& type_entity = user_type.entity().get(idx_)[0u].get();
-        if(type_entity.kind() == cppast::cpp_entity_kind::type_alias_t) {
-            const auto& type_alias = dynamic_cast<const cppast::cpp_type_alias&>(type_entity);
-            const auto& underlying_type = type_alias.underlying_type();
-            return walk_typedefs(underlying_type);
+        const auto& userType = dynamic_cast<const cppast::cpp_user_defined_type&>(baseType);
+        const auto& typeEntity = userType.entity().get(idx_)[0u].get();
+        if(typeEntity.kind() == cppast::cpp_entity_kind::type_alias_t) {
+            const auto& typeAlias = dynamic_cast<const cppast::cpp_type_alias&>(typeEntity);
+            const auto& underlyingType = typeAlias.underlying_type();
+            return WalkTypedefs(underlyingType);
         }
 
-        return base_type;
+        return baseType;
     }
 
-    type_information determine_type_information(const cppast::cpp_type& in_type) const {
-        const auto& type = walk_typedefs(in_type);
+    TypeInformation DetermineTypeInformation(const cppast::cpp_type& in_type) const {
+        const auto& type = WalkTypedefs(in_type);
         if(type.kind() == cppast::cpp_type_kind::pointer_t) {
-            const auto& ptr = static_cast<const cppast::cpp_pointer_type&>(type);
+            const auto& ptr = dynamic_cast<const cppast::cpp_pointer_type&>(type);
             if(ptr.pointee().kind() == cppast::cpp_type_kind::builtin_t) {
-                const auto& builtin = static_cast<const cppast::cpp_builtin_type&>(ptr.pointee());
+                const auto& builtin = dynamic_cast<const cppast::cpp_builtin_type&>(ptr.pointee());
                 if(builtin.builtin_type_kind() == cppast::cpp_char)
-                    return type_information::is_string;
+                    return TypeInformation::IS_STRING;
             }
-            return type_information::is_pointer;
+            return TypeInformation::IS_POINTER;
         }
 
         if(type.kind() == cppast::cpp_type_kind::builtin_t) {
-            const auto& builtin = static_cast<const cppast::cpp_builtin_type&>(type);
+            const auto& builtin = dynamic_cast<const cppast::cpp_builtin_type&>(type);
             
             switch (builtin.builtin_type_kind()) {
             using namespace cppast;
@@ -113,273 +115,275 @@ class parser {
             case cpp_int:
             case cpp_long:
             case cpp_longlong:
-                return type_information::is_integral;
+                return TypeInformation::IS_INTEGRAL;
             case cpp_uchar:
             case cpp_ushort:
             case cpp_uint:
             case cpp_ulong:
             case cpp_ulonglong:
-                return type_information::is_unsigned;
+                return TypeInformation::IS_UNSIGNED;
             case cpp_float:
             case cpp_double:
-                return type_information::is_float;
+                return TypeInformation::IS_FLOAT;
             default:
-                return type_information::unknown;
+                return TypeInformation::UNKNOWN;
             }
         }
 
-        return type_information::unknown;
+        return TypeInformation::UNKNOWN;
     }
 
     template<std::ranges::range T>
-    std::vector<parsed_arg> parse_args(const T& params) {
-        size_t gen_idx = 0;
-        std::vector<parsed_arg> args;
+    std::vector<ParsedArg> ParseArgs(const T& params) {
+        size_t genIdx = 0;
+        std::vector<ParsedArg> args;
         args.reserve(std::distance(std::ranges::begin(params), std::ranges::end(params)));
         for(const auto& arg : params) {
-            std::string arg_name = arg.name().empty() ? ("_genArg" + std::to_string(++gen_idx)) : arg.name();
-            args.push_back({ cppast::to_string(arg.type()), arg_name, determine_type_information(arg.type()) });
+            std::string argName = arg.name().empty() ? ("_genArg" + std::to_string(++genIdx)) : arg.name();
+            args.push_back({ cppast::to_string(arg.type()), argName, DetermineTypeInformation(arg.type()) });
         }
 
         return args;
     }
 
-    static void append_args_list(const std::vector<parsed_arg>& args, bool incl_type, std::ostream& output) {
+    static void AppendArgsList(const std::vector<ParsedArg>& args, bool inclType, std::ostream& output) {
         if(args.empty())
             return;
 
-        auto append = [&](const auto& a, bool trail_comma = true) {
-            if(incl_type)
+        auto append = [&](const auto& a, bool trailingComma = true) {
+            if(inclType)
                 output << a.type << " ";
             output << a.name;
-            if(trail_comma) output << ", ";
+            if(trailingComma) output << ", ";
         };
 
         std::ranges::for_each(args | std::ranges::views::take(args.size() - 1), append);
         append(args.back(), false);
     }
 
-    static std::string make_context_func_name(const std::string& context, const std::string& func_name) {
-        std::string enum_context = context;
-        std::replace(enum_context.begin(), enum_context.end(), ':', '_');
+    static std::string MakeContextFuncName(const std::string& context, const std::string& funcName) {
+        std::string enumContext = context;
+        std::replace(enumContext.begin(), enumContext.end(), ':', '_');
 
-        return enum_context + func_name;
+        return enumContext + funcName;
     }
 
-    static std::string make_enum(const std::string& context, const std::string& func_name) {
-        std::string enum_context = context;
-        std::replace(enum_context.begin(), enum_context.end(), ':', '_');
+    static std::string MakeEnum(const std::string& context, const std::string& funcName) {
+        std::string enumContext = context;
+        std::replace(enumContext.begin(), enumContext.end(), ':', '_');
 
-        for(auto p = enum_context.find("Hk"); p != std::string::npos; p = enum_context.find("Hk")) {
-            enum_context = enum_context.substr(0, p) + enum_context.substr(p + 2);
+        for(auto p = enumContext.find("Hk"); p != std::string::npos; p = enumContext.find("Hk")) {
+            enumContext = enumContext.substr(0, p) + enumContext.substr(p + 2);
         }
 
-        return enum_context + func_name;
+        return enumContext + funcName;
     }
 
-    void generate_function_hook(const cppast::cpp_entity& entity, const std::string& context, bool client_call, bool server_call) {
+    void GenerateFunctionHook(const cppast::cpp_entity& entity, const std::string& context, bool clientCall, bool serverCall) {
 
         // Never hook operator methods
         if(entity.name().starts_with("operator"))
             return;
 
-        const auto& func = static_cast<const cppast::cpp_function&>(entity);
-        std::string func_name = server_call ? func.name() : context + func.name();
-        std::string enum_val = make_enum(context, func.name());
-        std::string full_enum_val = "HookedCall::" + enum_val;
+        const auto& func = dynamic_cast<const cppast::cpp_function&>(entity);
+        std::string funcName = serverCall ? func.name() : context + func.name();
+        std::string enumVal = MakeEnum(context, func.name());
+        std::string fullEnumVal = "HookedCall::" + enumVal;
 
-        bool void_return = func.return_type().kind() == cppast::cpp_type_kind::builtin_t && static_cast<const cppast::cpp_builtin_type&>(func.return_type()).builtin_type_kind() == cppast::cpp_void;
+        bool voidReturn = func.return_type().kind() == cppast::cpp_type_kind::builtin_t && static_cast<const cppast::cpp_builtin_type&>(func.return_type()).builtin_type_kind() == cppast::cpp_void;
         
-        bool no_plugins = has_attribute(entity, "NoPlugins").has_value();
-        bool no_log = has_attribute(entity, "NoLog").has_value();
-        auto call_inner = has_attribute(entity, "CallInner");
-        bool call_inner_after = has_attribute(entity, "CallInnerAfter").has_value();
-        bool dc_check = has_attribute(entity, "DisconnectCheck").has_value();
+        bool noPlugins = has_attribute(entity, "NoPlugins").has_value();
+        bool noLog = has_attribute(entity, "NoLog").has_value();
+        auto callInner = has_attribute(entity, "CallInner");
+        bool callInnerAfter = has_attribute(entity, "CallInnerAfter").has_value();
+        bool dcCheck = has_attribute(entity, "DisconnectCheck").has_value();
         auto semaphore = has_attribute(entity, "Semaphore");
 
-        if(!no_plugins)
-            hooked_call_enum_ << "\t" << enum_val << "," << std::endl;
+        if(!noPlugins)
+            hookedCallEnum_ << "\t" << enumVal << "," << std::endl;
 
-        auto args = parse_args(func.parameters());
+        auto args = ParseArgs(func.parameters());
 
-        if(server_call && !context.empty())
-            hook_src_ << "namespace " << context.substr(0, context.length() - 2) << " {" << std::endl;
+        if(serverCall && !context.empty())
+            hookSrc_ << "namespace " << context.substr(0, context.length() - 2) << " {" << std::endl;
 
-        hook_src_ << to_string(func.return_type()) << " ";
-        if(server_call)
-            hook_src_ << "__stdcall ";
-        hook_src_ << func_name << "(";
-        append_args_list(args, true, hook_src_);
-        hook_src_ << ") {" << std::endl;
+        hookSrc_ << to_string(func.return_type()) << " ";
+        if(serverCall)
+            hookSrc_ << "__stdcall ";
+        hookSrc_ << funcName << "(";
+        AppendArgsList(args, true, hookSrc_);
+        hookSrc_ << ") {" << std::endl;
 
-        if(!no_log) {
-            hook_src_ << "\tAddDebugLog(\"" << func_name << "(";
+        if(!noLog) {
+            hookSrc_ << "\tAddDebugLog(\"" << funcName << "(";
             if(!args.empty())
-                hook_src_ << "\\n";
+                hookSrc_ << "\\n";
             for(auto& a : args) {
-                hook_src_ << "\\t" << a.type << " " << a.name << " = %";
+                hookSrc_ << "\\t" << a.type << " " << a.name << " = %";
                 switch(a.info) {
-                case type_information::is_integral:
-                    hook_src_ << "d";
+                case TypeInformation::IS_INTEGRAL:
+                    hookSrc_ << "d";
                     break;
-                case type_information::is_unsigned:
-                    hook_src_ << "u";
+                case TypeInformation::IS_UNSIGNED:
+                    hookSrc_ << "u";
                     break;
-                case type_information::is_float:
-                    hook_src_ << "f";
+                case TypeInformation::IS_FLOAT:
+                    hookSrc_ << "f";
                     break;
-                case type_information::is_pointer:
-                    hook_src_ << "p";
+                case TypeInformation::IS_POINTER:
+                    hookSrc_ << "p";
                     break;
-                case type_information::is_string:
+                case TypeInformation::IS_STRING:
                 default:
-                    hook_src_ << "s";
+                    hookSrc_ << "s";
                     break;
                 }
 
-                hook_src_ << "\\n";
+                hookSrc_ << "\\n";
             }
             if(!args.empty()) {
-                hook_src_ << ")\"," << std::endl << "\t\t\t";
-                append_args_list(args, false, hook_src_);
+                hookSrc_ << ")\"," << std::endl << "\t\t\t";
+                AppendArgsList(args, false, hookSrc_);
             } else
-                hook_src_ << ")\"";
-            hook_src_ << ");" << std::endl << std::endl;
+                hookSrc_ << ")\"";
+            hookSrc_ << ");" << std::endl << std::endl;
         }
 
-        if(!no_plugins) {
-            const char* retval = void_return ? "\tauto skip" : "\tauto [retVal, skip]";
-            hook_src_ << retval << " = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << full_enum_val;
+        if(!noPlugins) {
+            const char* retval = voidReturn ? "\tauto skip" : "\tauto [retVal, skip]";
+            hookSrc_ << retval << " = CallPluginsBefore<" << to_string(func.return_type()) << ">(" << fullEnumVal;
             if(!args.empty()) {
-                hook_src_ << ",\n\t\t\t";
-                append_args_list(args, false, hook_src_);
+                hookSrc_ << ",\n\t\t\t";
+                AppendArgsList(args, false, hookSrc_);
             }
-            hook_src_ << ");" << std::endl << std::endl;
+            hookSrc_ << ");" << std::endl << std::endl;
         }
 
-        if(dc_check)
-            hook_src_ << "\tCHECK_FOR_DISCONNECT;" << std::endl << std::endl;
+        if(dcCheck)
+            hookSrc_ << "\tCHECK_FOR_DISCONNECT;" << std::endl << std::endl;
 
-        if(call_inner) {
-            hook_src_ << "\t";
-            auto call_inner_args = call_inner.value().arguments();
-            bool can_break = call_inner_args && call_inner_args.value().front().spelling == "true";
-            if(can_break)
-                hook_src_ << "bool innerCheck = ";
-            hook_src_ << make_context_func_name(context, func.name()) << "__Inner(";
-            append_args_list(args, false, hook_src_);
-            hook_src_ << ");" << std::endl;
+        if(callInner) {
+            hookSrc_ << "\t";
+            const auto& callInnerArgs = callInner.value().arguments();
+            bool canBreak = callInnerArgs && callInnerArgs.value().front().spelling == "true";
+            if(canBreak)
+                hookSrc_ << "bool innerCheck = ";
+            hookSrc_ << MakeContextFuncName(context, func.name()) << "__Inner(";
+            AppendArgsList(args, false, hookSrc_);
+            hookSrc_ << ");" << std::endl;
 
-            if(can_break) {
-                hook_src_ << "\tif(!innerCheck) return";
-                if(!void_return)
-                    hook_src_ << " " << to_string(func.return_type()) << "()";
-                hook_src_ << ";";
+            if(canBreak) {
+                hookSrc_ << "\tif(!innerCheck) return";
+                if(!voidReturn)
+                    hookSrc_ << " " << to_string(func.return_type()) << "()";
+                hookSrc_ << ";";
             }
 
-            hook_src_ << std::endl;
+            hookSrc_ << std::endl;
         }
 
         if(semaphore) {
-            auto semaphore_name = semaphore.value().arguments().value().front().spelling;
+            auto semaphoreName = semaphore.value().arguments().value().front().spelling;
 
-            hook_src_ << "\t" << semaphore_name << " = true;" << std::endl;
+            hookSrc_ << "\t" << semaphoreName << " = true;" << std::endl;
         }
 
-        hook_src_ << "\t";
-        if(!no_plugins) {
-            hook_src_ << "if(!skip) ";
-            if(!void_return)
-                hook_src_ << "retVal = ";
-        } else if(!void_return)
-            hook_src_ << "auto retVal = ";
+        hookSrc_ << "\t";
+        if(!noPlugins) {
+            hookSrc_ << "if(!skip) ";
+            if(!voidReturn)
+                hookSrc_ << "retVal = ";
+        } else if(!voidReturn)
+            hookSrc_ << "auto retVal = ";
 
-        if(client_call) {
-            hook_src_ << "CALL_CLIENT_METHOD(" << func.name() << "(";
-            append_args_list(args, false, hook_src_);
-            hook_src_ << "));" << std::endl;
-        } else if(server_call) {
-            hook_src_ << "EXECUTE_SERVER_CALL(Server." << func.name() << "(";
-            append_args_list(args, false, hook_src_);
-            hook_src_ << "));" << std::endl;
+        if(clientCall) {
+            hookSrc_ << "CALL_CLIENT_METHOD(" << func.name() << "(";
+            AppendArgsList(args, false, hookSrc_);
+            hookSrc_ << "));" << std::endl;
+        } else if(serverCall) {
+            hookSrc_ << "EXECUTE_SERVER_CALL(Server." << func.name() << "(";
+            AppendArgsList(args, false, hookSrc_);
+            hookSrc_ << "));" << std::endl;
         }
 
         if(semaphore) {
-            auto semaphore_name = semaphore.value().arguments().value().front().spelling;
+            auto semaphoreName = semaphore.value().arguments().value().front().spelling;
 
-            hook_src_ << "\t" << semaphore_name << " = false;" << std::endl;
+            hookSrc_ << "\t" << semaphoreName << " = false;" << std::endl;
         }
 
-        if(call_inner_after) {
-            hook_src_ << "\t" << make_context_func_name(context, func.name()) << "__InnerAfter(";
-            append_args_list(args, false, hook_src_);
-            hook_src_ << ");" << std::endl << std::endl;
+        if(callInnerAfter) {
+            hookSrc_ << "\t" << MakeContextFuncName(context, func.name()) << "__InnerAfter(";
+            AppendArgsList(args, false, hookSrc_);
+            hookSrc_ << ");" << std::endl << std::endl;
         }
 
-        if(!no_plugins) {
-            hook_src_ << std::endl << "\tCallPluginsAfter(" << full_enum_val;
+        if(!noPlugins) {
+            hookSrc_ << std::endl << "\tCallPluginsAfter(" << fullEnumVal;
             if(!args.empty()) {
-                hook_src_ << ",\n\t\t\t";
-                append_args_list(args, false, hook_src_);
+                hookSrc_ << ",\n\t\t\t";
+                AppendArgsList(args, false, hookSrc_);
             }
-            hook_src_ << ");" << std::endl;
+            hookSrc_ << ");" << std::endl;
             
-            if(!void_return)
-                hook_src_ << std::endl << "\treturn retVal;" << std::endl;
-        } else if(!void_return)
-            hook_src_ << "\treturn retVal;" << std::endl;
+            if(!voidReturn)
+                hookSrc_ << std::endl << "\treturn retVal;" << std::endl;
+        } else if(!voidReturn)
+            hookSrc_ << "\treturn retVal;" << std::endl;
 
-        hook_src_ << "}" << std::endl;
+        hookSrc_ << "}" << std::endl;
         
-        if(server_call && !context.empty())
-            hook_src_ << "}" << std::endl;
+        if(serverCall && !context.empty())
+            hookSrc_ << "}" << std::endl;
 
-        hook_src_ << std::endl;
+        hookSrc_ << std::endl;
     }
 
-    void generate_hooks(const cppast::cpp_entity& e, const std::string& context, bool client_call, bool server_call) {
-        int32_t func_index = 0;
+    void GenerateHooks(const cppast::cpp_entity& e, const std::string& context, bool clientCall, bool serverCall) {
+        int32_t funcIndex = 0;
         cppast::visit(e, [&](const cppast::cpp_entity& entity, cppast::visitor_info) {
             if(entity.kind() == cppast::cpp_entity_kind::member_function_t) {
-                bool no_hook = cppast::has_attribute(entity.attributes(), "NoHook").has_value();
-                if(!no_hook)
-                    generate_function_hook(entity, context + (server_call ? "Hk" : "") + e.name() + "::", client_call, server_call);
+                bool noHook = cppast::has_attribute(entity.attributes(), "NoHook").has_value();
+                if(!noHook)
+                    GenerateFunctionHook(entity, context + (serverCall ? "Hk" : "") + e.name() + "::", clientCall, serverCall);
 
-                func_index++;
+                funcIndex++;
             }
         });
     }
 
 public:
-    explicit parser(const std::filesystem::path& sln_dir) : logger_(true) {
+    explicit Parser(const std::filesystem::path& slnDir) : logger_(true) {
         config_.set_flags(cppast::cpp_standard::cpp_latest, cppast::compile_flag::ms_extensions | cppast::compile_flag::ms_compatibility);
         config_.define_macro("ST6_ALLOCATION_DEFINED", "1");
         config_.define_macro("_X86_", "1");
         config_.define_macro("IMPORT", " ");
         config_.define_macro("EXPORT", " ");
-        config_.add_include_dir(replace_backslashes((sln_dir / R"(..\FLHookSDK\include)").lexically_normal().string()));
+        config_.add_include_dir(ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include)").lexically_normal().string()));
         
-        std::filesystem::path gen_hook_src = (sln_dir / "../source/__generated.cpp").lexically_normal();
-        std::filesystem::path gen_sdk_header = (sln_dir / "../FLHookSDK/include/__generated.h").lexically_normal();
+        std::filesystem::path genHookSrc = (slnDir / "../source/__generated.cpp").lexically_normal();
+        std::filesystem::path genSdkHeader = (slnDir / "../FLHookSDK/include/__generated.h").lexically_normal();
 
-        hook_src_.open(gen_hook_src.c_str());
-        hook_src_ << "//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
-        hook_src_ << "#include <Hook.h>" << std::endl << std::endl;
+        hookSrc_.open(genHookSrc.c_str());
+        hookSrc_ << "//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
+        hookSrc_ << "#include <Hook.h>" << std::endl << std::endl;
 
-        sdk_header_.open(gen_sdk_header.c_str());
-        sdk_header_ << "#pragma once\n\n//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
+        sdkHeader_.open(genSdkHeader.c_str());
+        sdkHeader_ << "#pragma once\n\n//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
 
-        hooked_call_enum_ << "enum class HookedCall {" << std::endl;
+        hookedCallEnum_ << "enum class HookedCall {" << std::endl;
     }
+    Parser(const Parser&) = delete;
+    Parser(Parser&&) = delete;
 
-    cppast::cpp_file& parse_file(std::string filename, bool fatal_error)
+    cppast::cpp_file& ParseFile(std::string filename, bool fatalError)
     {
         // the parser is used to parse the entity
         // there can be multiple parser implementations
         cppast::libclang_parser parser(type_safe::ref(logger_));
         // parse the file
         auto file = parser.parse(idx_, filename, config_);
-        if (fatal_error && parser.error())
+        if (fatalError && parser.error())
             throw std::invalid_argument("Parser fatal error.");
 
         files_.push_back(std::move(file));
@@ -387,28 +391,28 @@ public:
         return *files_.back();
     }
 
-    void locate_hooks(const cppast::cpp_entity& base, const std::string& context) {
+    void LocateHooks(const cppast::cpp_entity& base, const std::string& context) {
         cppast::visit(base, [&](const cppast::cpp_entity& entity, cppast::visitor_info vi) -> bool {
             if(&entity == &base)
                 return cppast::visitor_result::continue_visit;
             if(vi.event == cppast::visitor_info::container_entity_exit)
                 return cppast::visitor_result::continue_visit;
 
-            OutputDebugStringA((entity.name() + "\n").c_str());
+            logger_.log("Generator/locate_hooks", { entity.name(), cppast::source_location::make_unknown(), cppast::severity::info });
 
             switch(entity.kind()) {
             case cppast::cpp_entity_kind::class_t:
             case cppast::cpp_entity_kind::base_class_t:
-                if(cppast::has_attribute(entity.attributes(), "Hook").has_value()) {
-                    bool client_call = cppast::has_attribute(entity.attributes(), "ClientCall").has_value();
-                    bool server_call = cppast::has_attribute(entity.attributes(), "ServerCall").has_value();
-                    generate_hooks(entity, context, client_call, server_call);
+                if(has_attribute(entity.attributes(), "Hook").has_value()) {
+                    bool clientCall = has_attribute(entity.attributes(), "ClientCall").has_value();
+                    bool serverCall = has_attribute(entity.attributes(), "ServerCall").has_value();
+                    GenerateHooks(entity, context, clientCall, serverCall);
 
                     return cppast::visitor_result::continue_visit_no_children;
                 }
                 break;
             case cppast::cpp_entity_kind::namespace_t:
-                locate_hooks(entity, context + entity.name() + "::");
+                LocateHooks(entity, context + entity.name() + "::");
                 break;
             default:
                 break;
@@ -418,11 +422,11 @@ public:
         });
     }
 
-    ~parser() {
-        hook_src_ << "};" << std::endl;
-        hooked_call_enum_ << "\tCount" << std::endl << "};";
+    ~Parser() {
+        hookSrc_ << "};" << std::endl;
+        hookedCallEnum_ << "\tCount" << std::endl << "};";
 
-        sdk_header_ << hooked_call_enum_.str();
+        sdkHeader_ << hookedCallEnum_.str();
     }
 };
 
@@ -432,20 +436,20 @@ int main(int argc, char* argv[])
         return 1;
 
     try {
-        std::filesystem::path sln_dir = argv[1];
+        std::filesystem::path slnDir = argv[1];
 
-        parser parse(sln_dir);
+        Parser parse(slnDir);
 
-        auto core_defs_path = replace_backslashes((sln_dir / R"(..\FLHookSDK\include\FLCoreDefs.h)").lexically_normal().string());
-        parse.parse_file(core_defs_path, false);
+        auto coreDefsPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreDefs.h)").lexically_normal().string());
+        parse.ParseFile(coreDefsPath, false);
 
-        auto remote_client_path = replace_backslashes((sln_dir / R"(..\FLHookSDK\include\FLCoreRemoteClient.h)").lexically_normal().string());
-        auto& remote_client = parse.parse_file(remote_client_path, false);
-        parse.locate_hooks(remote_client, "");
+        auto remoteClientPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreRemoteClient.h)").lexically_normal().string());
+        auto& remote_client = parse.ParseFile(remoteClientPath, false);
+        parse.LocateHooks(remote_client, "");
 
-        auto server_path = replace_backslashes((sln_dir / R"(..\FLHookSDK\include\FLCoreServer.h)").lexically_normal().string());
-        auto& server = parse.parse_file(server_path, false);
-        parse.locate_hooks(server, "");
+        auto serverPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreServer.h)").lexically_normal().string());
+        auto& server = parse.ParseFile(serverPath, false);
+        parse.LocateHooks(server, "");
     } catch(...) {
         return 1;
     }
