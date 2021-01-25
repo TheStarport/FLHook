@@ -115,7 +115,7 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+//
 
 class CCmds;
 
@@ -419,6 +419,22 @@ struct GROUP_MEMBER {
     std::wstring wscCharname;
 };
 
+struct SpecialChatIDs {
+    enum : uint {
+        CONSOLE = 0,
+
+        PLAYER_MIN = 1,
+        PLAYER_MAX = 249,
+
+        SPECIAL_BASE = 0x10000,
+        UNIVERSE = SPECIAL_BASE | 0,
+        SYSTEM = SPECIAL_BASE | 1,
+        LOCAL = SPECIAL_BASE | 2,
+        GROUP = SPECIAL_BASE | 3,
+        GROUP_EVENT = SPECIAL_BASE | 4
+    };
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // plugin functionality & hook prototypes
 //
@@ -474,21 +490,21 @@ EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
 
 class PluginManager : public Singleton<PluginManager> {
     void clearData(bool free);
-    
+
     std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * 2> pluginHooks_;
     std::vector<PluginData> plugins_;
 
 public:
     PluginManager();
     ~PluginManager();
-    
+
     void loadAll(bool, CCmds*);
     void unloadAll();
 
     void load(const std::wstring &fileName, CCmds*, bool);
     HK_ERROR pause(size_t hash, bool pause);
     HK_ERROR unload(size_t hash);
-    
+
     const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
     PluginData& pluginAt(size_t index) { return plugins_[index]; }
 
@@ -922,3 +938,9 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
             return;                                                             \
         };                                                                      \
     }
+
+inline auto* ToWChar(const ushort* val) { return reinterpret_cast<const wchar_t*>(val); }
+inline auto* ToWChar(ushort* val) { return reinterpret_cast<wchar_t*>(val); }
+
+inline auto* ToUShort(const wchar_t* val) { return reinterpret_cast<const ushort*>(val); }
+inline auto* ToUShort(wchar_t* val) { return reinterpret_cast<ushort*>(val); }

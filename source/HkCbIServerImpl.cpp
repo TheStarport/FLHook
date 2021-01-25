@@ -26,155 +26,18 @@ Called when player moves his ship
 Called when player has undocked and is now ready to fly
 **************************************************************************************************************/
 
-void LaunchComplete__Inner(unsigned int iBaseID, unsigned int iShip) {
-    TRY_HOOK {
-        uint iClientID = HkGetClientIDByShip(iShip);
-        if (iClientID) {
-            ClientInfo[iClientID].tmSpawnTime =
-                timeInMS(); // save for anti-dockkill
-            // is there spawnprotection?
-            if (set_iAntiDockKill > 0)
-                ClientInfo[iClientID].bSpawnProtected = true;
-            else
-                ClientInfo[iClientID].bSpawnProtected = false;
-        }
 
-        // event
-        ProcessEvent(
-            L"launch char=%s id=%d base=%s system=%s",
-            (wchar_t *)Players.GetActiveCharacterName(iClientID), iClientID,
-            HkGetBaseNickByID(ClientInfo[iClientID].iLastExitedBaseID).c_str(),
-            HkGetPlayerSystem(iClientID).c_str());
-    }
-    CATCH_HOOK({})
-}
 
 /**************************************************************************************************************
 Called when player selects a character
 **************************************************************************************************************/
 
-std::wstring g_wscCharBefore;
-bool CharacterSelect__Inner(const CHARACTER_ID&cId, unsigned int clientID) {
-    try {
-        const wchar_t *wszCharname = (wchar_t *)Players.GetActiveCharacterName(clientID);
-        g_wscCharBefore = wszCharname ? (wchar_t *)Players.GetActiveCharacterName(clientID) : L"";
-        ClientInfo[clientID].iLastExitedBaseID = 0;
-        ClientInfo[clientID].iTradePartner = 0;
-    } catch (...) {
-        HkAddKickLog(clientID, L"Corrupt charfile?");
-        HkKick(ARG_CLIENTID(clientID));
-        return false;
-    }
 
-    return true;
-}
-
-void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID) {
-    TRY_HOOK {
-        std::wstring wscCharname = (wchar_t *)Players.GetActiveCharacterName(clientID);
-
-        if (g_wscCharBefore.compare(wscCharname) != 0) {
-            LoadUserCharSettings(clientID);
-
-            if (set_bUserCmdHelp)
-                PrintUserCmdText(clientID,
-                                 L"To get a list of available commands, type "
-                                 L"\"/help\" in chat.");
-
-            // anti-cheat check
-            std::list<CARGO_INFO> lstCargo;
-            int iHold;
-            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, iHold);
-            for (auto &cargo : lstCargo) {
-                if (cargo.iCount < 0) {
-                    HkAddCheaterLog(wscCharname,
-                                    L"Negative good-count, likely to have "
-                                    L"cheated in the past");
-
-                    wchar_t wszBuf[256];
-                    swprintf_s(wszBuf, L"Possible cheating detected (%s)",
-                               wscCharname.c_str());
-                    HkMsgU(wszBuf);
-                    HkBan(ARG_CLIENTID(clientID), true);
-                    HkKick(ARG_CLIENTID(clientID));
-                    return;
-                }
-            }
-
-            // event
-            CAccount *acc = Players.FindAccountFromClientID(clientID);
-            std::wstring wscDir;
-            HkGetAccountDirName(acc, wscDir);
-            HKPLAYERINFO pi;
-            HkGetPlayerInfo(ARG_CLIENTID(clientID), pi, false);
-            ProcessEvent(L"login char=%s accountdirname=%s id=%d ip=%s",
-                         wscCharname.c_str(), wscDir.c_str(), clientID,
-                         pi.wscIP.c_str());
-        }
-    }
-    CATCH_HOOK({})
-}
-
-void BaseEnter__Inner(unsigned int iBaseID, unsigned int iClientID) {
-    TRY_HOOK {
-        // autobuy
-        if (set_bAutoBuy)
-            HkPlayerAutoBuy(iClientID, iBaseID);
-    }
-    CATCH_HOOK({ AddLog("Exception in " __FUNCTION__ " on autobuy"); })
-}
-    
-void BaseEnter__InnerAfter(unsigned int iBaseID, unsigned int iClientID) {
-    TRY_HOOK {
-        // adjust cash, this is necessary when cash was added while use was in
-        // charmenu/had other char selected
-        std::wstring wscCharname =
-            ToLower((wchar_t *)Players.GetActiveCharacterName(iClientID));
-        for (auto &i : ClientInfo[iClientID].lstMoneyFix) {
-            if (!i.wscCharname.compare(wscCharname)) {
-                HkAddCash(wscCharname, i.iAmount);
-                ClientInfo[iClientID].lstMoneyFix.remove(i);
-                break;
-            }
-        }
-
-        // anti base-idle
-        ClientInfo[iClientID].iBaseEnterTime = (uint)time(0);
-
-        // event
-        ProcessEvent(L"baseenter char=%s id=%d base=%s system=%s",
-                     (wchar_t *)Players.GetActiveCharacterName(iClientID),
-                     iClientID, HkGetBaseNickByID(iBaseID).c_str(),
-                     HkGetPlayerSystem(iClientID).c_str());
-    }
-    CATCH_HOOK({})
-}
 
 /**************************************************************************************************************
 Called when player exits base
 **************************************************************************************************************/
 
-void BaseExit__Inner(unsigned int iBaseID, unsigned int iClientID) {
-    TRY_HOOK {
-        ClientInfo[iClientID].iBaseEnterTime = 0;
-        ClientInfo[iClientID].iLastExitedBaseID = iBaseID;
-    }
-    CATCH_HOOK({})
-}
-
-void BaseExit__InnerAfter(unsigned int iBaseID, unsigned int iClientID) {
-    TRY_HOOK {
-        const wchar_t *wszCharname =
-            (wchar_t *)Players.GetActiveCharacterName(iClientID);
-
-        // event
-        ProcessEvent(L"baseexit char=%s id=%d base=%s system=%s",
-                     (wchar_t *)Players.GetActiveCharacterName(iClientID),
-                     iClientID, HkGetBaseNickByID(iBaseID).c_str(),
-                     HkGetPlayerSystem(iClientID).c_str());
-    }
-    CATCH_HOOK({})
-}
 /**************************************************************************************************************
 Called when player connects
 **************************************************************************************************************/
