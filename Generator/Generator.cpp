@@ -298,7 +298,7 @@ class Parser {
     }
 
     template<bool client>
-    void InsertFunctionCall(const cppast::cpp_member_function &func, const std::vector<ParsedArg>& args, bool noPlugins, bool voidReturn) {
+    void InsertFunctionCall(const cppast::cpp_member_function &func, const std::vector<ParsedArg>& args, bool noPlugins, bool voidReturn, bool hasCatch) {
         
         if(!voidReturn && noPlugins)
             hookSrc_ << "\t" << to_string(func.return_type()) << " retVal;" << std::endl;
@@ -323,7 +323,19 @@ class Parser {
         AppendArgsList(args, false, hookSrc_);
         hookSrc_ << ");" << std::endl;
 
-        hookSrc_ << indent << "} CALL_" << (client ? "CLIENT" : "SERVER") << "_POSTAMBLE;" << std::endl;
+        hookSrc_ << indent << "} CALL_" << (client ? "CLIENT" : "SERVER") << "_POSTAMBLE";
+        if(!client) {
+            hookSrc_ << "(";
+            if(hasCatch) {
+                hookSrc_ << func.name();
+                hookSrc_ << "__Catch(";
+                AppendArgsList(args, false, hookSrc_);
+                hookSrc_ << ")";
+            } else
+                hookSrc_ << "true";
+            hookSrc_ << ")";
+        }
+        hookSrc_ << ";" << std::endl;
         
         if(!noPlugins)
             hookSrc_ << "\t}" << std::endl;
@@ -342,10 +354,12 @@ class Parser {
 
         bool disabled = has_attribute(entity, "Disable").has_value();
         bool noPlugins = has_attribute(entity, "NoPlugins").has_value();
+        bool noPluginsAfter = has_attribute(entity, "NoPluginsAfter").has_value();
         bool noLog = has_attribute(entity, "NoLog").has_value();
         auto callInner = has_attribute(entity, "CallInner");
         bool callInnerAfter = has_attribute(entity, "CallInnerAfter").has_value();
         bool dcCheck = has_attribute(entity, "DisconnectCheck").has_value();
+        bool hasCatch = has_attribute(entity, "CallCatch").has_value();
         auto semaphore = has_attribute(entity, "Semaphore");
         auto args = ParseArgs(func.parameters());
 
@@ -398,9 +412,9 @@ class Parser {
         InsertSemaphore<true>(semaphore);
 
         if(clientCall)
-            InsertFunctionCall<true>(func, args, noPlugins, voidReturn);
+            InsertFunctionCall<true>(func, args, noPlugins, voidReturn, hasCatch);
         else if(serverCall)
-            InsertFunctionCall<false>(func, args, noPlugins, voidReturn);
+            InsertFunctionCall<false>(func, args, noPlugins, voidReturn, hasCatch);
         
         InsertSemaphore<false>(semaphore);
 
@@ -415,7 +429,7 @@ class Parser {
             hookSrc_ << ");" << std::endl << std::endl;
         }
 
-        if(!noPlugins)
+        if(!noPlugins && !noPluginsAfter)
             InsertCallPlugins<false>(func, fullEnumVal, voidReturn, args);
         else if(!voidReturn)
             hookSrc_ << "\treturn retVal;" << std::endl;

@@ -251,7 +251,7 @@ std::wstring XMLText(const std::wstring &wscText) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void WriteProcMem(void *pAddress, void *pMem, int iSize) {
+void WriteProcMem(void *pAddress, const void *pMem, int iSize) {
     HANDLE hProc =
         OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
                     FALSE, GetCurrentProcessId());

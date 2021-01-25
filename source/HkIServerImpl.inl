@@ -3,6 +3,7 @@
 #pragma once
 #include <CInGame.h>
 #include <Hook.h>
+#include <wildcards.hh>
 
 namespace HkIServerImpl {
 
@@ -115,7 +116,7 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
             if (hFind != INVALID_HANDLE_VALUE) { // is admin
                 FindClose(hFind);
                 g_Admin.ReadRights(adminFile);
-                g_Admin.clientID = cidFrom.iID;
+                g_Admin.iClientID = cidFrom.iID;
                 g_Admin.wscAdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.iID));
                 g_Admin.ExecuteCommandString(buffer.data() + 1);
                 return false;
@@ -397,6 +398,349 @@ void BaseExit__InnerAfter(uint baseID, uint clientID) {
                      HkGetPlayerSystem(clientID).c_str());
     }
     CATCH_HOOK({})
+}
+
+void TerminateTrade__InnerAfter(uint clientID, int accepted) {
+    TRY_HOOK {
+        if (accepted) { // save both chars to prevent cheating in case of
+                         // server crash
+            HkSaveChar(ARG_CLIENTID(clientID));
+            if (ClientInfo[clientID].iTradePartner)
+                HkSaveChar(ARG_CLIENTID(ClientInfo[clientID].iTradePartner));
+        }
+
+        if (ClientInfo[clientID].iTradePartner)
+            ClientInfo[ClientInfo[clientID].iTradePartner].iTradePartner = 0;
+        ClientInfo[clientID].iTradePartner = 0;
+    }
+    CATCH_HOOK({})
+}
+
+void InitiateTrade__Inner(uint clientID1, uint clientID2) {
+    if(clientID1 <= MAX_CLIENT_ID && clientID2 <= MAX_CLIENT_ID) {
+        ClientInfo[clientID1].iTradePartner = clientID2;
+        ClientInfo[clientID2].iTradePartner = clientID1;
+    }
+}
+
+void ActivateEquip__Inner(uint clientID, const XActivateEquip& aq) {
+    TRY_HOOK {
+        std::list<CARGO_INFO> lstCargo;
+        {
+            int _;
+            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, _);
+        }
+
+        for (auto &cargo : lstCargo) {
+            if (cargo.iID == aq.sID) {
+                Archetype::Equipment *eq = Archetype::GetEquipment(cargo.iArchID);
+                EQ_TYPE eqType = HkGetEqType(eq);
+
+                if (eqType == ET_ENGINE) {
+                    ClientInfo[clientID].bEngineKilled = !aq.bActivate;
+                    if (!aq.bActivate)
+                        ClientInfo[clientID].bCruiseActivated = false; // enginekill enabled
+                }
+            }
+        }
+    }
+    CATCH_HOOK({})
+}
+
+void ActivateCruise__Inner(uint clientID, const XActivateCruise& ac) {
+    TRY_HOOK {
+        ClientInfo[clientID].bCruiseActivated = ac.bActivate;
+    }
+    CATCH_HOOK({})
+}
+
+void ActivateThrusters__Inner(uint clientID, const XActivateThrusters& at) {
+    TRY_HOOK {
+        ClientInfo[clientID].bThrusterActivated = at.bActivate;
+    }
+    CATCH_HOOK({})
+}
+
+bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
+    TRY_HOOK {
+        // anti-cheat check
+        std::list<CARGO_INFO> lstCargo;
+        {
+            int _;
+            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, _);
+        }
+        bool legalSell = false;
+        for (const auto &cargo : lstCargo) {
+            if (cargo.iArchID == gsi.iArchID) {
+                legalSell = true;
+                if (abs(gsi.iCount) > cargo.iCount) {
+                    wchar_t buf[512];
+                    const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+                    swprintf_s(buf,
+                        L"Sold more good than possible item=%08x count=%u",
+                        gsi.iArchID, gsi.iCount);
+                    HkAddCheaterLog(charName, buf);
+
+                    swprintf_s(buf, L"Possible cheating detected (%s)",
+                               charName);
+                    HkMsgU(buf);
+                    HkBan(ARG_CLIENTID(clientID), true);
+                    HkKick(ARG_CLIENTID(clientID));
+                    return false;
+                }
+                break;
+            }
+        }
+        if (!legalSell) {
+            wchar_t buf[1000];
+            const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+            swprintf_s(buf,
+                L"Sold good player does not have (buggy test), item=%08x",
+                gsi.iArchID);
+            HkAddCheaterLog(charName, buf);
+
+            return false;
+        }
+    }
+    CATCH_HOOK({
+        AddLog("Exception in %s (clientID=%u (%x))", __FUNCTION__, clientID, Players.GetActiveCharacterName(clientID));
+    })
+
+    return true;
+}
+
+bool CharacterInfoReq__Inner(uint clientID, bool) {
+    TRY_HOOK {
+        if (!ClientInfo[clientID].bCharSelected)
+                ClientInfo[clientID].bCharSelected = true;
+            else { // pushed f1
+                uint shipID = 0;
+                pub::Player::GetShip(clientID, shipID);
+                if (shipID) { // in space
+                    ClientInfo[clientID].tmF1Time = timeInMS() + set_iAntiF1;
+                    return false;
+                }
+            }
+        }
+    CATCH_HOOK({})
+
+    return true;
+}
+
+bool CharacterInfoReq__Catch(uint clientID, bool) {
+    HkAddKickLog(clientID, L"Corrupt charfile?");
+    HkKick(ARG_CLIENTID(clientID));
+    return false;
+}
+
+bool OnConnect__Inner(uint clientID) {
+    TRY_HOOK {
+        // If ID is too high due to disconnect buffer time then manually drop
+        // the connection.
+        if (clientID > MAX_CLIENT_ID) {
+            AddLog("INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
+            CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
+            if (!cdpClient)
+                return false;
+            cdpClient->Disconnect();
+            return false;
+        }
+
+        // If this client is in the anti-F1 timeout then force the disconnect.
+        if (ClientInfo[clientID].tmF1TimeDisconnect > timeInMS()) {
+            // manual disconnect
+            CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
+            if (!cdpClient)
+                return false;
+            cdpClient->Disconnect();
+            return false;
+        }
+
+        ClientInfo[clientID].iConnects++;
+        ClearClientInfo(clientID);
+    }
+    CATCH_HOOK({})
+
+    return true;
+}
+
+void OnConnect__InnerAfter(uint clientID) {
+    TRY_HOOK {
+        // event
+        std::wstring ip;
+        HkGetPlayerIP(clientID, ip);
+        ProcessEvent(L"connect id=%d ip=%s", clientID, ip.c_str());
+    }
+    CATCH_HOOK({})
+}
+
+void DisConnect__Inner(uint clientID, EFLConnection) {
+    if (clientID <= MAX_CLIENT_ID && clientID > 0 && !ClientInfo[clientID].bDisconnected) {
+        ClientInfo[clientID].bDisconnected = true;
+        ClientInfo[clientID].lstMoneyFix.clear();
+        ClientInfo[clientID].iTradePartner = 0;
+
+        const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+        ProcessEvent(L"disconnect char=%s id=%d", charName,
+                     clientID);
+    }
+}
+
+void JumpInComplete__InnerAfter(uint systemID, uint shipID) {
+    TRY_HOOK {
+        uint clientID = HkGetClientIDByShip(shipID);
+        if (!clientID)
+            return;
+
+        // event
+        ProcessEvent(L"jumpin char=%s id=%d system=%s",
+                     ToWChar(Players.GetActiveCharacterName(clientID)),
+                     clientID, HkGetSystemNickByID(systemID).c_str());
+    }
+    CATCH_HOOK({})
+}
+
+void SystemSwitchOutComplete__InnerAfter(uint, uint clientID) {
+    TRY_HOOK {
+        // event
+        std::wstring system = HkGetPlayerSystem(clientID);
+        ProcessEvent(L"switchout char=%s id=%d system=%s",
+                     ToWChar(Players.GetActiveCharacterName(clientID)),
+                     clientID, system.c_str());
+    }
+    CATCH_HOOK({})
+}
+
+bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
+    TRY_HOOK {
+        if (clientID > MAX_CLIENT_ID)
+            return false; // DisconnectDelay bug
+
+        if (!HkIsValidClientID(clientID))
+            return false; // player was kicked
+
+        // Kick the player if the account ID doesn't exist. This is caused
+        // by a duplicate log on.
+        CAccount *acc = Players.FindAccountFromClientID(clientID);
+        if (acc && !acc->wszAccID) {
+            acc->ForceLogout();
+            return false;
+        }
+
+        bool skip = CallPluginsOther(HookedCall::IServerImpl__Login, HookStep::Mid, li, clientID);
+        if(skip)
+            return false;
+
+        // check for ip ban
+        std::wstring ip;
+        HkGetPlayerIP(clientID, ip);
+
+        for (const auto& ban : set_setBans) {
+            if (Wildcard::wildcardfit(wstos(ban).c_str(),
+                                      wstos(ip).c_str())) {
+                HkAddKickLog(clientID, L"IP/Hostname ban(%s matches %s)",
+                             ip.c_str(), ban.c_str());
+                if (set_bBanAccountOnMatch)
+                    HkBan(ARG_CLIENTID(clientID), true);
+                HkKick(ARG_CLIENTID(clientID));
+            }
+        }
+
+        // resolve
+        RESOLVE_IP rip;
+        rip.wscIP = ip;
+        rip.wscHostname = L"";
+        rip.iConnects =
+            ClientInfo[clientID].iConnects; // security check so that wrong
+                                             // person doesnt get banned
+        rip.iClientID = clientID;
+        EnterCriticalSection(&csIPResolve);
+        g_lstResolveIPs.push_back(rip);
+        LeaveCriticalSection(&csIPResolve);
+
+        // count players
+        struct PlayerData *playerData = nullptr;
+        uint playerCount = 0;
+        while ((playerData = Players.traverse_active(playerData)))
+            playerCount++;
+
+        if (playerCount > (Players.GetMaxPlayerCount() - set_iReservedSlots)) { // check if player has a reserved slot
+            std::wstring dir;
+            HkGetAccountDirName(acc, dir);
+            std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+
+            bool reserved = IniGetB(userFile, "Settings", "ReservedSlot", false);
+            if (!reserved) {
+                HkKick(acc);
+                return false;
+            }
+        }
+
+        LoadUserSettings(clientID);
+
+        // log
+        if (set_bLogConnects)
+            HkAddConnectLog(clientID, ip);
+    }
+    CATCH_HOOK({
+        CAccount *acc = Players.FindAccountFromClientID(clientID);
+        if (acc)
+            acc->ForceLogout();
+        return false;
+    })
+
+    return true;
+}
+
+void GoTradelane__Inner(uint clientID, const XGoTradelane& gtl) {
+    if (clientID <= MAX_CLIENT_ID && clientID > 0)
+        ClientInfo[clientID].bTradelane = true;
+}
+        
+bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
+    uint system;
+    pub::Player::GetSystem(iClientID, system);
+    AddLog("ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
+           "sys=%08x arch=%08x arch2=%08x",
+           wstos(ToWChar(Players.GetActiveCharacterName(iClientID)))
+               .c_str(),
+           system, gtl.iTradelaneSpaceObj1, gtl.iTradelaneSpaceObj2);
+    return true;
+}
+
+void StopTradelane__Inner(uint clientID, uint, uint, uint) {
+    if (clientID <= MAX_CLIENT_ID && clientID > 0)
+        ClientInfo[clientID].bTradelane = false;
+}
+
+void Shutdown__InnerAfter() {
+    FLHookShutdown();
+}
+
+// The maximum number of players we can support is MAX_CLIENT_ID
+// Add one to the maximum number to allow renames
+int g_MaxPlayers = MAX_CLIENT_ID + 1;
+
+void Startup__Inner(const SStartupInfo &si) {
+    FLHookInit_Pre();
+
+    // Startup the server with this number of players.
+    char *address = (reinterpret_cast<char*>(hModServer) + ADDR_SRV_PLAYERDBMAXPLAYERSPATCH);
+    char nop[] = {'\x90'};
+    char movECX[] = {'\xB9'};
+    WriteProcMem(address, movECX, sizeof(movECX));
+    WriteProcMem(address + 1, &g_MaxPlayers, sizeof(g_MaxPlayers));
+    WriteProcMem(address + 5, nop, sizeof(nop));
+}
+
+void Startup__InnerAfter(const SStartupInfo &si) {
+    // Patch to set maximum number of players to connect. This is normally
+    // less than MAX_CLIENT_ID
+    char *address = (reinterpret_cast<char*>(hModServer) + ADDR_SRV_PLAYERDBMAXPLAYERS);
+    WriteProcMem(address, reinterpret_cast<const void*>(&si.iMaxPlayers), sizeof(g_MaxPlayers));
+
+    // read base market data from ini
+    HkLoadBaseMarket();
 }
 
 }

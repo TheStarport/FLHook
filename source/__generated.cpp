@@ -1937,7 +1937,7 @@ void __stdcall FireWeapon(uint clientID, XFireWeaponInfo const& fwi) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.FireWeapon(clientID, fwi);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__FireWeapon,
@@ -1953,10 +1953,14 @@ void __stdcall ActivateEquip(uint clientID, XActivateEquip const& aq) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateEquip,
 			clientID, aq);
 
+	CHECK_FOR_DISCONNECT;
+
+	ActivateEquip__Inner(clientID, aq);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ActivateEquip(clientID, aq);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateEquip,
@@ -1972,10 +1976,14 @@ void __stdcall ActivateCruise(uint clientID, XActivateCruise const& ac) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateCruise,
 			clientID, ac);
 
+	CHECK_FOR_DISCONNECT;
+
+	ActivateCruise__Inner(clientID, ac);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ActivateCruise(clientID, ac);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateCruise,
@@ -1991,10 +1999,14 @@ void __stdcall ActivateThrusters(uint clientID, XActivateThrusters const& at) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateThrusters,
 			clientID, at);
 
+	CHECK_FOR_DISCONNECT;
+
+	ActivateThrusters__Inner(clientID, at);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ActivateThrusters(clientID, at);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateThrusters,
@@ -2013,7 +2025,7 @@ void __stdcall SetTarget(uint clientID, XSetTarget const& st) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetTarget(clientID, st);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetTarget,
@@ -2032,7 +2044,7 @@ void __stdcall TractorObjects(uint clientID, XTractorObjects const& to) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.TractorObjects(clientID, to);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__TractorObjects,
@@ -2048,10 +2060,12 @@ void __stdcall GoTradelane(uint clientID, XGoTradelane const& gt) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GoTradelane,
 			clientID, gt);
 
+	GoTradelane__Inner(clientID, gt);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.GoTradelane(clientID, gt);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(GoTradelane__Catch(clientID, gt));
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__GoTradelane,
@@ -2067,10 +2081,12 @@ void __stdcall StopTradelane(uint clientID, uint shipID, uint tradelaneRing1, ui
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradelane,
 			clientID, shipID, tradelaneRing1, tradelaneRing2);
 
+	StopTradelane__Inner(clientID, shipID, tradelaneRing1, tradelaneRing2);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.StopTradelane(clientID, shipID, tradelaneRing1, tradelaneRing2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradelane,
@@ -2089,7 +2105,7 @@ void __stdcall JettisonCargo(uint clientID, XJettisonCargo const& jc) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.JettisonCargo(clientID, jc);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__JettisonCargo,
@@ -2105,16 +2121,36 @@ bool __stdcall Startup(SStartupInfo const& si) {
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__Startup,
 			si);
 
+	Startup__Inner(si);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			retVal = Server.Startup(si);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	Startup__InnerAfter(si);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__Startup,
 			si);
 
 	return retVal;
+}
+}
+
+namespace HkIServerImpl {
+void __stdcall Shutdown() {
+	AddDebugLog("Shutdown()");
+
+	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown);
+
+	if(!skip) {
+		CALL_SERVER_PREAMBLE {
+			Server.Shutdown();
+		} CALL_SERVER_POSTAMBLE(true);
+	}
+	Shutdown__InnerAfter();
+
 }
 }
 
@@ -2126,10 +2162,12 @@ void __stdcall DisConnect(uint clientID, EFLConnection conn) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DisConnect,
 			clientID, conn);
 
+	DisConnect__Inner(clientID, conn);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.DisConnect(clientID, conn);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__DisConnect,
@@ -2145,11 +2183,17 @@ void __stdcall OnConnect(uint clientID) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect,
 			clientID);
 
+	CHECK_FOR_DISCONNECT;
+
+	bool innerCheck = OnConnect__Inner(clientID);
+	if(!innerCheck) return;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.OnConnect(clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	OnConnect__InnerAfter(clientID);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__OnConnect,
 			clientID);
@@ -2167,8 +2211,10 @@ void __stdcall Login(SLoginInfo const& li, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.Login(li, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	Login__InnerAfter(li, clientID);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__Login,
 			li, clientID);
@@ -2183,10 +2229,14 @@ void __stdcall CharacterInfoReq(uint clientID, bool _genArg1) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterInfoReq,
 			clientID, _genArg1);
 
+	CHECK_FOR_DISCONNECT;
+
+	bool innerCheck = CharacterInfoReq__Inner(clientID, _genArg1);
+	if(!innerCheck) return;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.CharacterInfoReq(clientID, _genArg1);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(CharacterInfoReq__Catch(clientID, _genArg1));
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterInfoReq,
@@ -2209,7 +2259,7 @@ void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.CharacterSelect(cid, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 	CharacterSelect__InnerAfter(cid, clientID);
 
@@ -2230,7 +2280,7 @@ void __stdcall CreateNewCharacter(SCreateCharacterInfo const& _genArg1, uint cli
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.CreateNewCharacter(_genArg1, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__CreateNewCharacter,
@@ -2249,7 +2299,7 @@ void __stdcall DestroyCharacter(CHARACTER_ID const& _genArg1, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.DestroyCharacter(_genArg1, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__DestroyCharacter,
@@ -2268,7 +2318,7 @@ void __stdcall ReqShipArch(uint archID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqShipArch(archID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqShipArch,
@@ -2287,7 +2337,7 @@ void __stdcall ReqHullStatus(float status, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqHullStatus(status, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqHullStatus,
@@ -2306,7 +2356,7 @@ void __stdcall ReqCollisionGroups(st6::list<CollisionGroupDesc> const& collision
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqCollisionGroups(collisionGroups, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqCollisionGroups,
@@ -2325,7 +2375,7 @@ void __stdcall ReqEquipment(EquipDescList const& edl, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqEquipment(edl, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqEquipment,
@@ -2344,7 +2394,7 @@ void __stdcall ReqAddItem(uint goodID, char const* hardpoint, int count, float s
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqAddItem(goodID, hardpoint, count, status, mounted, iClientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqAddItem,
@@ -2363,7 +2413,7 @@ void __stdcall ReqRemoveItem(ushort slotID, int count, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqRemoveItem(slotID, count, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqRemoveItem,
@@ -2382,7 +2432,7 @@ void __stdcall ReqModifyItem(ushort slotID, char const* hardpoint, int count, fl
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqModifyItem(slotID, hardpoint, count, status, mounted, iClientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqModifyItem,
@@ -2401,7 +2451,7 @@ void __stdcall ReqSetCash(int cash, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqSetCash(cash, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqSetCash,
@@ -2420,7 +2470,7 @@ void __stdcall ReqChangeCash(int cashAdd, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.ReqChangeCash(cashAdd, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__ReqChangeCash,
@@ -2443,7 +2493,7 @@ void __stdcall BaseEnter(uint baseID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.BaseEnter(baseID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 	BaseEnter__InnerAfter(baseID, clientID);
 
@@ -2468,7 +2518,7 @@ void __stdcall BaseExit(uint baseID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.BaseExit(baseID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 	BaseExit__InnerAfter(baseID, clientID);
 
@@ -2489,7 +2539,7 @@ void __stdcall LocationEnter(uint locationID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.LocationEnter(locationID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationEnter,
@@ -2508,7 +2558,7 @@ void __stdcall LocationExit(uint locationID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.LocationExit(locationID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationExit,
@@ -2527,7 +2577,7 @@ void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, boo
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.BaseInfoRequest(_genArg1, _genArg2, _genArg3);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseInfoRequest,
@@ -2546,7 +2596,7 @@ void __stdcall LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2,
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.LocationInfoRequest(_genArg1, _genArg2, _genArg3);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__LocationInfoRequest,
@@ -2565,7 +2615,7 @@ void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.GFObjSelect(_genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFObjSelect,
@@ -2584,7 +2634,7 @@ void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& gvi, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.GFGoodVaporized(gvi, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodVaporized,
@@ -2603,7 +2653,7 @@ void __stdcall MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bo
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.MissionResponse(_genArg1, _genArg2, _genArg3, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__MissionResponse,
@@ -2622,7 +2672,7 @@ void __stdcall TradeResponse(unsigned char const* _genArg1, int _genArg2, uint c
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.TradeResponse(_genArg1, _genArg2, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__TradeResponse,
@@ -2641,7 +2691,7 @@ void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.GFGoodBuy(_genArg1, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodBuy,
@@ -2657,10 +2707,14 @@ void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, uint clientID) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodSell,
 			_genArg1, clientID);
 
+	CHECK_FOR_DISCONNECT;
+
+	bool innerCheck = GFGoodSell__Inner(_genArg1, clientID);
+	if(!innerCheck) return;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.GFGoodSell(_genArg1, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodSell,
@@ -2679,8 +2733,10 @@ void __stdcall SystemSwitchOutComplete(uint shipID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SystemSwitchOutComplete(shipID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	SystemSwitchOutComplete__InnerAfter(shipID, clientID);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__SystemSwitchOutComplete,
 			shipID, clientID);
@@ -2702,7 +2758,7 @@ void __stdcall PlayerLaunch(uint shipID, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.PlayerLaunch(shipID, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 	PlayerLaunch__InnerAfter(shipID, clientID);
 
@@ -2725,7 +2781,7 @@ void __stdcall LaunchComplete(uint baseID, uint shipID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.LaunchComplete(baseID, shipID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__LaunchComplete,
@@ -2744,8 +2800,10 @@ void __stdcall JumpInComplete(uint systemID, uint shipID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.JumpInComplete(systemID, shipID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	JumpInComplete__InnerAfter(systemID, shipID);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__JumpInComplete,
 			systemID, shipID);
@@ -2763,7 +2821,7 @@ void __stdcall Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.Hail(_genArg1, _genArg2, _genArg3);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__Hail,
@@ -2783,7 +2841,7 @@ void __stdcall SPObjUpdate(SSPObjUpdateInfo const& ui, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPObjUpdate(ui, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjUpdate,
@@ -2806,7 +2864,7 @@ void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& mci, uint cli
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPMunitionCollision(mci, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPMunitionCollision,
@@ -2827,7 +2885,7 @@ void __stdcall SPObjCollision(SSPObjCollisionInfo const& oci, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPObjCollision(oci, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjCollision,
@@ -2846,7 +2904,7 @@ void __stdcall SPRequestUseItem(SSPUseItem const& ui, uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPRequestUseItem(ui, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestUseItem,
@@ -2865,7 +2923,7 @@ void __stdcall SPRequestInvincibility(uint shipID, bool enable, InvincibilityRea
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPRequestInvincibility(shipID, enable, reason, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestInvincibility,
@@ -2884,7 +2942,7 @@ void __stdcall RequestEvent(int eventType, uint shipID, uint dockTarget, uint _g
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestEvent(eventType, shipID, dockTarget, _genArg1, _genArg2, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestEvent,
@@ -2903,7 +2961,7 @@ void __stdcall RequestCancel(int eventType, uint shipID, uint _genArg1, ulong _g
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestCancel(eventType, shipID, _genArg1, _genArg2, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCancel,
@@ -2922,7 +2980,7 @@ void __stdcall MineAsteroid(uint systemID, Vector const& pos, uint crateID, uint
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.MineAsteroid(systemID, pos, crateID, lootID, count, clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__MineAsteroid,
@@ -2941,7 +2999,7 @@ void __stdcall RequestCreateShip(uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestCreateShip(clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCreateShip,
@@ -2960,7 +3018,7 @@ void __stdcall SPScanCargo(uint const& _genArg1, uint const& _genArg2, uint _gen
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SPScanCargo(_genArg1, _genArg2, _genArg3);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SPScanCargo,
@@ -2979,7 +3037,7 @@ void __stdcall SetManeuver(uint clientID, XSetManeuver const& sm) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetManeuver(clientID, sm);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetManeuver,
@@ -2998,7 +3056,7 @@ void __stdcall InterfaceItemUsed(uint _genArg1, uint _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.InterfaceItemUsed(_genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__InterfaceItemUsed,
@@ -3017,7 +3075,7 @@ void __stdcall AbortMission(uint clientID, uint _genArg1) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.AbortMission(clientID, _genArg1);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__AbortMission,
@@ -3036,7 +3094,7 @@ void __stdcall SetWeaponGroup(uint clientID, uchar* _genArg1, int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetWeaponGroup(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetWeaponGroup,
@@ -3055,7 +3113,7 @@ void __stdcall SetVisitedState(uint clientID, uchar* _genArg1, int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetVisitedState(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetVisitedState,
@@ -3074,7 +3132,7 @@ void __stdcall RequestBestPath(uint clientID, uchar* _genArg1, int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestBestPath(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestBestPath,
@@ -3093,7 +3151,7 @@ void __stdcall RequestPlayerStats(uint clientID, uchar* _genArg1, int _genArg2) 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestPlayerStats(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestPlayerStats,
@@ -3112,7 +3170,7 @@ void __stdcall RequestGroupPositions(uint clientID, uchar* _genArg1, int _genArg
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestGroupPositions(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestGroupPositions,
@@ -3131,7 +3189,7 @@ void __stdcall SetInterfaceState(uint clientID, uchar* _genArg1, int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetInterfaceState(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetInterfaceState,
@@ -3150,7 +3208,7 @@ void __stdcall RequestRankLevel(uint clientID, uchar* _genArg1, int _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestRankLevel(clientID, _genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestRankLevel,
@@ -3166,10 +3224,12 @@ void __stdcall InitiateTrade(uint clientID1, uint clientID2) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InitiateTrade,
 			clientID1, clientID2);
 
+	InitiateTrade__Inner(clientID1, clientID2);
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.InitiateTrade(clientID1, clientID2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__InitiateTrade,
@@ -3185,11 +3245,15 @@ void __stdcall TerminateTrade(uint clientID, int accepted) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TerminateTrade,
 			clientID, accepted);
 
+	CHECK_FOR_DISCONNECT;
+
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.TerminateTrade(clientID, accepted);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
+	TerminateTrade__InnerAfter(clientID, accepted);
+
 
 	CallPluginsAfter(HookedCall::IServerImpl__TerminateTrade,
 			clientID, accepted);
@@ -3207,7 +3271,7 @@ void __stdcall AcceptTrade(uint clientID, bool _genArg1) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.AcceptTrade(clientID, _genArg1);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__AcceptTrade,
@@ -3226,7 +3290,7 @@ void __stdcall SetTradeMoney(uint clientID, ulong _genArg1) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SetTradeMoney(clientID, _genArg1);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__SetTradeMoney,
@@ -3245,7 +3309,7 @@ void __stdcall AddTradeEquip(uint clientID, EquipDesc const& ed) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.AddTradeEquip(clientID, ed);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__AddTradeEquip,
@@ -3264,7 +3328,7 @@ void __stdcall DelTradeEquip(uint clientID, EquipDesc const& ed) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.DelTradeEquip(clientID, ed);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__DelTradeEquip,
@@ -3283,7 +3347,7 @@ void __stdcall RequestTrade(uint _genArg1, uint _genArg2) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.RequestTrade(_genArg1, _genArg2);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestTrade,
@@ -3302,7 +3366,7 @@ void __stdcall StopTradeRequest(uint clientID) {
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.StopTradeRequest(clientID);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradeRequest,
@@ -3330,7 +3394,7 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SubmitChat(cidFrom, size, rdlReader, cidTo, _genArg1);
-		} CALL_SERVER_POSTAMBLE;
+		} CALL_SERVER_POSTAMBLE(true);
 	}
 	g_InSubmitChat = false;
 
@@ -3350,6 +3414,7 @@ HookEntry HkIServerImplEntries[] = {
 	{ FARPROC(HkIServerImpl::StopTradelane), 0x020, nullptr },
 	{ FARPROC(HkIServerImpl::JettisonCargo), 0x024, nullptr },
 	{ FARPROC(HkIServerImpl::Startup), 0x028, nullptr },
+	{ FARPROC(HkIServerImpl::Shutdown), 0x02C, nullptr },
 	{ FARPROC(HkIServerImpl::DisConnect), 0x044, nullptr },
 	{ FARPROC(HkIServerImpl::OnConnect), 0x048, nullptr },
 	{ FARPROC(HkIServerImpl::Login), 0x04C, nullptr },
