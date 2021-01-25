@@ -31,6 +31,9 @@
     <Filter Include="sdk\Header Files">
       <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hook\hooks">
+      <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\flcodec.cpp">
@@ -192,6 +195,15 @@
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md">
       <Filter>sdk</Filter>
+    </None>
+    <None Include="..\source\HkIClientImpl.inl">
+      <Filter>Hook\hooks</Filter>
+    </None>
+    <None Include="..\source\Generated.inl">
+      <Filter>Hook\hooks</Filter>
+    </None>
+    <None Include="..\source\HkIServerImpl.inl">
+      <Filter>Hook\hooks</Filter>
     </None>
   </ItemGroup>
 </Project>

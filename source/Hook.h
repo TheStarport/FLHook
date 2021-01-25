@@ -810,15 +810,11 @@ extern HANDLE hThreadResolver;
 
 // namespaces
 namespace HkIServerImpl {
-void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
-                          void const *rdlReader, struct CHAT_ID cIdTo, int iP2);
-int __stdcall Update(void);
-bool __stdcall Startup(struct SStartupInfo const &p1);
-void __stdcall Shutdown(void);
-EXPORT extern bool g_bInSubmitChat;
-EXPORT extern uint g_iTextLen;
-extern HOOKENTRY hookEntries[85];
+EXPORT extern bool g_InSubmitChat;
+EXPORT extern uint g_TextLength;
 } // namespace HkIServerImpl
+
+extern HookEntry HkIServerImplEntries[85];
 
 // HkDataBaseMarket
 bool HkLoadBaseMarket();
