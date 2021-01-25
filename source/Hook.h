@@ -237,7 +237,7 @@ enum EQ_TYPE {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structs
 
-struct HOOKENTRY {
+struct HookEntry {
     FARPROC fpProc;
     long dwRemoteAddress;
     FARPROC fpOldProc;
@@ -905,29 +905,38 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
         
 void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 
-#define INNER_SERVER_CALL(args)                                            \
-        TRY_HOOK { args; }                                                 \
-        CATCH_HOOK({                                                       \
-            AddLog("ERROR: Exception in " __FUNCTION__ " on server call"); \
-        })                                                                 \
+#define CALL_SERVER_PREAMBLE                                                    \
+        {                                                                       \
+            static CTimer timer(__FUNCTION__, set_iTimerThreshold);             \
+            timer.start();                                                      \
+            TRY_HOOK {
 
-#ifdef _DEBUG
-#define EXECUTE_SERVER_CALL(args)                                          \
-    {                                                                      \
-        static CTimer timer(__FUNCTION__, set_iTimerThreshold);            \
-        timer.start();                                                     \
-        INNER_SERVER_CALL(args)                                            \
-        timer.stop();                                                      \
+#define CALL_SERVER_POSTAMBLE                                                   \
+            } CATCH_HOOK({                                                      \
+                AddLog("ERROR: Exception in " __FUNCTION__ " on server call");  \
+            })                                                                  \
+            timer.stop();                                                       \
+        }
+
+#define CALL_CLIENT_PREAMBLE                                                    \
+    {                                                                           \
+        void *vRet;                                                             \
+        char *tmp;                                                              \
+        memcpy(&tmp, &Client, 4);                                               \
+        memcpy(&Client, &OldClient, 4);                                         \
+
+#define CALL_CLIENT_POSTAMBLE                                                   \
+        __asm { mov [vRet], eax }                                               \
+        memcpy(&Client, &tmp, 4);                                               \
     }
-#else
-#define EXECUTE_SERVER_CALL(args) INNER_SERVER_CALL(args)
-#endif
 
-#define CALL_CLIENT_METHOD(Method)                                         \
-    void *vRet;                                                            \
-    char *tmp;                                                             \
-    memcpy(&tmp, &Client, 4);                                              \
-    memcpy(&Client, &OldClient, 4);                                        \
-    HookClient->Method;                                                    \
-    __asm { mov [vRet], eax }                                              \
-    memcpy(&Client, &tmp, 4);
+#define CHECK_FOR_DISCONNECT                                                    \
+    {                                                                           \
+        if (ClientInfo[clientID].bDisconnected) {                               \
+            AddLog(                                                             \
+                "ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%"  \
+                                                                       "u",     \
+                clientID);                                                      \
+            return;                                                             \
+        };                                                                      \
+    }
