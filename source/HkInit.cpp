@@ -26,9 +26,9 @@ PATCH_INFO piCommonDLL = {"common.dll",
                           {
 
                               {0x0639C138, &HkIEngine::_CShip_init, 4,
-                               &HkIEngine::fpOldInitCShip, false},
+                               &HkIEngine::g_OldInitCShip, false},
                               {0x0639C064, &HkIEngine::_CShip_destroy, 4,
-                               &HkIEngine::fpOldDestroyCShip, false},
+                               &HkIEngine::g_OldDestroyCShip, false},
 
                               {0, 0, 0, 0} // terminate
                           }};
@@ -50,7 +50,7 @@ PATCH_INFO piServerDLL = {
         {0x6D67680, &_HkCb_GeneralDmg2, 4, 0, false},
         {0x6D67668, &_HkCb_NonGunWeaponHitsBase, 4, &fpOldNonGunWeaponHitsBase,
          false},
-        {0x6D6420C, &HkIEngine::_LaunchPos, 4, &HkIEngine::fpOldLaunchPos,
+        {0x6D6420C, &HkIEngine::_LaunchPos, 4, &HkIEngine::g_OldLaunchPos,
          false},
         {0x6D648E0, &HkIEngine::FreeReputationVibe, 4, 0, false},
 
@@ -331,7 +331,7 @@ bool InitHookExports() {
     WriteProcMem(pAddress + 1, &fpHkLoadRepFromCharFile, 4);
     WriteProcMem(pAddress + 5, szJMPEAX, 2);
 
-    HkIEngine::fpOldLoadRepCharFile = (FARPROC)SRV_ADDR(0x78B40);
+    HkIEngine::g_OldLoadRepCharFile = (FARPROC)SRV_ADDR(0x78B40);
 
     // crc anti-cheat
     CRCAntiCheat = (_CRCAntiCheat)((char *)hModServer + ADDR_CRCANTICHEAT);
