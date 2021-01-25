@@ -144,7 +144,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\HkCbDisconnect.cpp" />
     <ClCompile Include="..\source\HkCbIClientImpl.cpp" />
     <ClCompile Include="..\source\HkCbIEngine.cpp" />
-    <ClCompile Include="..\source\HkCbIServerImpl.cpp" />
     <ClCompile Include="..\source\HkTimers.cpp" />
     <ClCompile Include="..\source\HkUserCmd.cpp" />
     <ClCompile Include="..\source\HkFuncLog.cpp" />

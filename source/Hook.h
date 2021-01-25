@@ -567,6 +567,13 @@ void CallPluginsAfter(HookedCall target, Args&& ...args) {
     PluginManager::i()->callPlugins<void>(target, HookStep::After, dontCare, std::forward<Args>(args)...);
 }
 
+template<typename... Args>
+bool CallPluginsOther(HookedCall target, HookStep step, Args&& ...args) {
+    bool skip;
+    PluginManager::i()->callPlugins<void>(target, step, skip, std::forward<Args>(args)...);
+    return skip;
+}
+
 using ExportPluginInfoT = void(*)(PluginInfo*);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -909,9 +916,14 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
             timer.start();                                                      \
             TRY_HOOK {
 
-#define CALL_SERVER_POSTAMBLE                                                   \
+#define CALL_SERVER_POSTAMBLE(catchArgs)                                        \
             } CATCH_HOOK({                                                      \
                 AddLog("ERROR: Exception in " __FUNCTION__ " on server call");  \
+                bool ret = catchArgs;                                           \
+                if(!ret) {                                                      \
+                    timer.stop();                                               \
+                    return;                                                     \
+                }                                                               \
             })                                                                  \
             timer.stop();                                                       \
         }
