@@ -377,7 +377,11 @@ class Parser {
             bool canBreak = callInnerArgs && callInnerArgs.value().front().spelling == "true";
             if(canBreak)
                 hookSrc_ << "bool innerCheck = ";
-            hookSrc_ << MakeContextFuncName(context, func.name()) << "__Inner(";
+            if(serverCall && !context.empty())
+                hookSrc_ << func.name();
+            else
+                hookSrc_ << MakeContextFuncName(context, func.name());
+            hookSrc_ << "__Inner(";
             AppendArgsList(args, false, hookSrc_);
             hookSrc_ << ");" << std::endl;
 
@@ -401,7 +405,12 @@ class Parser {
         InsertSemaphore<false>(semaphore);
 
         if(callInnerAfter) {
-            hookSrc_ << "\t" << MakeContextFuncName(context, func.name()) << "__InnerAfter(";
+            hookSrc_ << "\t";
+            if(serverCall && !context.empty())
+                hookSrc_ << func.name();
+            else
+                hookSrc_ << MakeContextFuncName(context, func.name());
+            hookSrc_ << "__InnerAfter(";
             AppendArgsList(args, false, hookSrc_);
             hookSrc_ << ");" << std::endl << std::endl;
         }
@@ -466,7 +475,7 @@ public:
 
         hookSrc_.open(genHookSrc.c_str());
         hookSrc_ << "//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
-        hookSrc_ << "#include <Hook.h>" << std::endl << std::endl;
+        hookSrc_ << "#include <Generated.inl>" << std::endl << std::endl;
 
         sdkHeader_.open(genSdkHeader.c_str());
         sdkHeader_ << "#pragma once\n\n//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;

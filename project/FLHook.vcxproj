@@ -214,6 +214,9 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md" />
+    <None Include="..\source\Generated.inl" />
+    <None Include="..\source\HkIClientImpl.inl" />
+    <None Include="..\source\HkIServerImpl.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

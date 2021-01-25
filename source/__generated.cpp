@@ -2,7 +2,7 @@
 // WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!
 //
 
-#include <Hook.h>
+#include <Generated.inl>
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint iClientID, XFireWeaponInfo& fwi) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tuint iClientID = %u\n\tXFireWeaponInfo& fwi = %s\n)",
@@ -2204,14 +2204,14 @@ void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID) {
 
 	CHECK_FOR_DISCONNECT;
 
-	bool innerCheck = HkIServerImpl__CharacterSelect__Inner(cid, clientID);
+	bool innerCheck = CharacterSelect__Inner(cid, clientID);
 	if(!innerCheck) return;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.CharacterSelect(cid, clientID);
 		} CALL_SERVER_POSTAMBLE;
 	}
-	HkIServerImpl__CharacterSelect__InnerAfter(cid, clientID);
+	CharacterSelect__InnerAfter(cid, clientID);
 
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect,
@@ -2438,14 +2438,14 @@ void __stdcall BaseEnter(uint baseID, uint clientID) {
 
 	CHECK_FOR_DISCONNECT;
 
-	HkIServerImpl__BaseEnter__Inner(baseID, clientID);
+	BaseEnter__Inner(baseID, clientID);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.BaseEnter(baseID, clientID);
 		} CALL_SERVER_POSTAMBLE;
 	}
-	HkIServerImpl__BaseEnter__InnerAfter(baseID, clientID);
+	BaseEnter__InnerAfter(baseID, clientID);
 
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseEnter,
@@ -2463,14 +2463,14 @@ void __stdcall BaseExit(uint baseID, uint clientID) {
 
 	CHECK_FOR_DISCONNECT;
 
-	HkIServerImpl__BaseExit__Inner(baseID, clientID);
+	BaseExit__Inner(baseID, clientID);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.BaseExit(baseID, clientID);
 		} CALL_SERVER_POSTAMBLE;
 	}
-	HkIServerImpl__BaseExit__InnerAfter(baseID, clientID);
+	BaseExit__InnerAfter(baseID, clientID);
 
 
 	CallPluginsAfter(HookedCall::IServerImpl__BaseExit,
@@ -2697,14 +2697,14 @@ void __stdcall PlayerLaunch(uint shipID, uint clientID) {
 
 	CHECK_FOR_DISCONNECT;
 
-	HkIServerImpl__PlayerLaunch__Inner(shipID, clientID);
+	PlayerLaunch__Inner(shipID, clientID);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.PlayerLaunch(shipID, clientID);
 		} CALL_SERVER_POSTAMBLE;
 	}
-	HkIServerImpl__PlayerLaunch__InnerAfter(shipID, clientID);
+	PlayerLaunch__InnerAfter(shipID, clientID);
 
 
 	CallPluginsAfter(HookedCall::IServerImpl__PlayerLaunch,
@@ -2720,7 +2720,7 @@ void __stdcall LaunchComplete(uint baseID, uint shipID) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete,
 			baseID, shipID);
 
-	HkIServerImpl__LaunchComplete__Inner(baseID, shipID);
+	LaunchComplete__Inner(baseID, shipID);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
@@ -2778,7 +2778,7 @@ void __stdcall SPObjUpdate(SSPObjUpdateInfo const& ui, uint clientID) {
 
 	CHECK_FOR_DISCONNECT;
 
-	bool innerCheck = HkIServerImpl__SPObjUpdate__Inner(ui, clientID);
+	bool innerCheck = SPObjUpdate__Inner(ui, clientID);
 	if(!innerCheck) return;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
@@ -2801,7 +2801,7 @@ void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& mci, uint cli
 
 	CHECK_FOR_DISCONNECT;
 
-	HkIServerImpl__SPMunitionCollision__Inner(mci, clientID);
+	SPMunitionCollision__Inner(mci, clientID);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
@@ -3324,15 +3324,15 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat,
 			cidFrom, size, rdlReader, cidTo, _genArg1);
 
-	HkIServerImpl__SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
-
-	g_bInSubmitChat = true;
+	bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
+	if(!innerCheck) return;
+	g_InSubmitChat = true;
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
 			Server.SubmitChat(cidFrom, size, rdlReader, cidTo, _genArg1);
 		} CALL_SERVER_POSTAMBLE;
 	}
-	g_bInSubmitChat = false;
+	g_InSubmitChat = false;
 
 	CallPluginsAfter(HookedCall::IServerImpl__SubmitChat,
 			cidFrom, size, rdlReader, cidTo, _genArg1);

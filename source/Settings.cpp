@@ -238,7 +238,7 @@ void LoadSettings() {
         if (!scSuppress.length())
             break;
 
-        set_setChatSuppress.insert(stows(scSuppress));
+        set_setChatSuppress.insert(ToLower(stows(scSuppress)));
     }
 
     // MultiKillMessages

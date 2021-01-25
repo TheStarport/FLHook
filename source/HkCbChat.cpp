@@ -12,7 +12,7 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
                    (iClientID, iTo, iSize, pRDL));
 
     TRY_HOOK {
-        if (HkIServerImpl::g_bInSubmitChat && (iTo != 0x10004)) {
+        if (HkIServerImpl::g_InSubmitChat && (iTo != 0x10004)) {
             wchar_t wszBuf[1024] = L"";
             // extract text from rdlReader
             BinaryRDLReader rdl;
@@ -23,9 +23,9 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
 
             std::wstring wscBuf = wszBuf;
             std::wstring wscSender = wscBuf.substr(
-                0, wscBuf.length() - HkIServerImpl::g_iTextLen - 2);
+                0, wscBuf.length() - HkIServerImpl::g_TextLength - 2);
             std::wstring wscText =
-                wscBuf.substr(wscBuf.length() - HkIServerImpl::g_iTextLen);
+                wscBuf.substr(wscBuf.length() - HkIServerImpl::g_TextLength);
 
             if (set_bUserCmdIgnore && ((iTo & 0xFFFF) != 0)) { // check ignores
                 for (auto &ci : ClientInfo[iClientID].lstIgnore) {
