@@ -188,14 +188,23 @@ class Parser {
         return args;
     }
 
-    static void AppendArgsList(const std::vector<ParsedArg>& args, bool inclType, std::ostream& output) {
+    enum class ArgsOption {
+        NONE = 0,
+        INCLUDE_TYPE = 1,
+        WRAP_UNK = 2
+    };
+
+    static void AppendArgsList(const std::vector<ParsedArg>& args, ArgsOption opts, std::ostream& output) {
         if(args.empty())
             return;
 
         auto append = [&](const auto& a, bool trailingComma = true) {
-            if(inclType)
+            if(opts == ArgsOption::INCLUDE_TYPE)
                 output << a.type << " ";
-            output << a.name;
+            if(opts == ArgsOption::WRAP_UNK && a.info == TypeInformation::UNKNOWN)
+                output << "ToLogString(" << a.name << ")";
+            else
+                output << a.name;
             if(trailingComma) output << ", ";
         };
 
@@ -250,7 +259,7 @@ class Parser {
         }
         if(!args.empty()) {
             hookSrc_ << ")\"," << std::endl << "\t\t\t";
-            AppendArgsList(args, false, hookSrc_);
+            AppendArgsList(args, ArgsOption::WRAP_UNK, hookSrc_);
         } else
             hookSrc_ << ")\"";
         hookSrc_ << ");" << std::endl << std::endl;
@@ -264,7 +273,7 @@ class Parser {
         if(serverCall)
             hookSrc_ << "__stdcall ";
         hookSrc_ << funcName << "(";
-        AppendArgsList(args, true, hookSrc_);
+        AppendArgsList(args, ArgsOption::INCLUDE_TYPE, hookSrc_);
         hookSrc_ << ") {" << std::endl;
     }
 
@@ -279,7 +288,7 @@ class Parser {
         hookSrc_ << "(" << fullEnumVal;
         if(!args.empty()) {
             hookSrc_ << ",\n\t\t\t";
-            AppendArgsList(args, false, hookSrc_);
+            AppendArgsList(args, ArgsOption::NONE, hookSrc_);
         }
         hookSrc_ << ");" << std::endl;
 
@@ -320,7 +329,7 @@ class Parser {
             hookSrc_ << "Server.";
 
         hookSrc_ << func.name() << "(";
-        AppendArgsList(args, false, hookSrc_);
+        AppendArgsList(args, ArgsOption::NONE, hookSrc_);
         hookSrc_ << ");" << std::endl;
 
         hookSrc_ << indent << "} CALL_" << (client ? "CLIENT" : "SERVER") << "_POSTAMBLE";
@@ -329,7 +338,7 @@ class Parser {
             if(hasCatch) {
                 hookSrc_ << func.name();
                 hookSrc_ << "__Catch(";
-                AppendArgsList(args, false, hookSrc_);
+                AppendArgsList(args, ArgsOption::NONE, hookSrc_);
                 hookSrc_ << ")";
             } else
                 hookSrc_ << "true";
@@ -396,7 +405,7 @@ class Parser {
             else
                 hookSrc_ << MakeContextFuncName(context, func.name());
             hookSrc_ << "__Inner(";
-            AppendArgsList(args, false, hookSrc_);
+            AppendArgsList(args, ArgsOption::NONE, hookSrc_);
             hookSrc_ << ");" << std::endl;
 
             if(canBreak) {
@@ -425,7 +434,7 @@ class Parser {
             else
                 hookSrc_ << MakeContextFuncName(context, func.name());
             hookSrc_ << "__InnerAfter(";
-            AppendArgsList(args, false, hookSrc_);
+            AppendArgsList(args, ArgsOption::NONE, hookSrc_);
             hookSrc_ << ");" << std::endl << std::endl;
         }
 

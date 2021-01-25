@@ -718,6 +718,11 @@ EXPORT void HkRelocateClient(uint iClientID, Vector vDestination,
 EXPORT void HkSaveChar(uint iClientID);
 
 // HkFuncLog
+template<typename T>
+const char* ToLogString(const T& val) {
+    return "<undefined>";
+}
+
 EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
 template<typename... Args>
