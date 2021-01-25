@@ -63,9 +63,6 @@
     <ClCompile Include="..\source\HkCbDisconnect.cpp">
       <Filter>Hook\callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkCbIClientImpl.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkCbIEngine.cpp">
       <Filter>Hook\callbacks</Filter>
     </ClCompile>
