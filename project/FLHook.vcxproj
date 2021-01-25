@@ -145,6 +145,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   <ItemGroup>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
+    <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />
     <ClCompile Include="..\source\HkFLIni.cpp" />
     <ClCompile Include="..\source\HkHelp.cpp" />
@@ -153,7 +154,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\HkCbDamage.cpp" />
     <ClCompile Include="..\source\HkCbDeath.cpp" />
     <ClCompile Include="..\source\HkCbDisconnect.cpp" />
-    <ClCompile Include="..\source\HkCbIEngine.cpp" />
     <ClCompile Include="..\source\HkTimers.cpp" />
     <ClCompile Include="..\source\HkUserCmd.cpp" />
     <ClCompile Include="..\source\HkFuncLog.cpp" />
@@ -194,6 +194,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
+    <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\wildcards.hh" />
     <ClInclude Include="..\source\CCmds.h" />

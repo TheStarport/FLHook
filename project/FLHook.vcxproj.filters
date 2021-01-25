@@ -63,9 +63,6 @@
     <ClCompile Include="..\source\HkCbDisconnect.cpp">
       <Filter>Hook\callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkCbIEngine.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkTimers.cpp">
       <Filter>Hook\callbacks</Filter>
     </ClCompile>
@@ -117,6 +114,9 @@
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
     <ClCompile Include="..\source\__generated.cpp" />
+    <ClCompile Include="..\source\HkIEngine.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -182,6 +182,7 @@
     <ClInclude Include="..\FLHookSDK\include\__generated.h">
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\HookedCallBase.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

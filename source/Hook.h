@@ -825,10 +825,10 @@ void _CShip_init();
 void _CShip_destroy();
 void _HkLoadRepFromCharFile();
 
-extern FARPROC fpOldLaunchPos;
-extern FARPROC fpOldInitCShip;
-extern FARPROC fpOldDestroyCShip;
-extern FARPROC fpOldLoadRepCharFile;
+extern FARPROC g_OldLaunchPos;
+extern FARPROC g_OldInitCShip;
+extern FARPROC g_OldDestroyCShip;
+extern FARPROC g_OldLoadRepCharFile;
 } // namespace HkIEngine
 
 // HkTimers

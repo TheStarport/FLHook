@@ -554,6 +554,33 @@ public:
         });
     }
 
+    void Prefill(const cppast::cpp_entity& base) {
+        cppast::visit(base, [&](const cppast::cpp_entity& entity, cppast::visitor_info vi) -> bool {
+            if(&entity == &base)
+                return cppast::visitor_result::continue_visit;
+            if(vi.event == cppast::visitor_info::container_entity_exit)
+                return cppast::visitor_result::continue_visit;
+
+            logger_.log("Generator/prefill", { entity.name(), cppast::source_location::make_unknown(), cppast::severity::info });
+
+            if(entity.kind() == cppast::cpp_entity_kind::enum_t && entity.name().starts_with("HookedCall__")) {
+                cppast::visit(entity, [&](const cppast::cpp_entity& enumVal, cppast::visitor_info vi) -> bool {
+                        if(&entity == &enumVal)
+                            return cppast::visitor_result::continue_visit;
+                        if(vi.event == cppast::visitor_info::container_entity_exit)
+                            return cppast::visitor_result::continue_visit;
+
+                        if(enumVal.kind() == cppast::cpp_entity_kind::enum_value_t)
+                            hookedCallEnum_ << "\t" << entity.name().substr(12) << "__" << enumVal.name() << "," << std::endl;
+
+                        return cppast::visitor_result::continue_visit;
+                    });
+            }
+
+            return cppast::visitor_result::continue_visit;
+        });
+    }
+
     ~Parser() {
         for(const auto& a : addresses_) {
             hookSrc_ << a.second.str() << "};" << std::endl << std::endl;
@@ -577,9 +604,13 @@ int main(int argc, char* argv[])
         auto coreDefsPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreDefs.h)").lexically_normal().string());
         parse.ParseFile(coreDefsPath, false);
 
+        auto hookedCallBasePath = ReplaceBackslashes((slnDir / R"(..\source\HookedCallBase.h)").lexically_normal().string());
+        auto& hookedCallBase = parse.ParseFile(hookedCallBasePath, false);
+        parse.Prefill(hookedCallBase);
+
         auto remoteClientPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreRemoteClient.h)").lexically_normal().string());
-        auto& remote_client = parse.ParseFile(remoteClientPath, false);
-        parse.LocateHooks(remote_client, "");
+        auto& remoteClient = parse.ParseFile(remoteClientPath, false);
+        parse.LocateHooks(remoteClient, "");
 
         auto serverPath = ReplaceBackslashes((slnDir / R"(..\FLHookSDK\include\FLCoreServer.h)").lexically_normal().string());
         auto& server = parse.ParseFile(serverPath, false);
