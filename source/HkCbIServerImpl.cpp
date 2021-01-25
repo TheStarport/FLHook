@@ -2,17 +2,6 @@
 #include "CInGame.h"
 #include "hook.h"
 
-#define CHECK_FOR_DISCONNECT                                                   \
-    {                                                                          \
-        if (ClientInfo[iClientID].bDisconnected) {                             \
-            AddLog(                                                            \
-                "ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%" \
-                                                                       "u",    \
-                iClientID);                                                    \
-            return;                                                            \
-        };                                                                     \
-    }
-
 namespace HkIServerImpl {
 
 /**************************************************************************************************************
@@ -345,39 +334,37 @@ Called when player selects a character
 **************************************************************************************************************/
 
 std::wstring g_wscCharBefore;
-bool CharacterSelect__Inner(struct CHARACTER_ID const &cId,
-                               unsigned int iClientID) {
+bool CharacterSelect__Inner(const CHARACTER_ID&cId, unsigned int clientID) {
     try {
-        const wchar_t *wszCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
-        g_wscCharBefore = wszCharname ? (wchar_t *)Players.GetActiveCharacterName(iClientID) : L"";
-        ClientInfo[iClientID].iLastExitedBaseID = 0;
-        ClientInfo[iClientID].iTradePartner = 0;
+        const wchar_t *wszCharname = (wchar_t *)Players.GetActiveCharacterName(clientID);
+        g_wscCharBefore = wszCharname ? (wchar_t *)Players.GetActiveCharacterName(clientID) : L"";
+        ClientInfo[clientID].iLastExitedBaseID = 0;
+        ClientInfo[clientID].iTradePartner = 0;
     } catch (...) {
-        HkAddKickLog(iClientID, L"Corrupt charfile?");
-        HkKick(ARG_CLIENTID(iClientID));
+        HkAddKickLog(clientID, L"Corrupt charfile?");
+        HkKick(ARG_CLIENTID(clientID));
         return false;
     }
 
     return true;
 }
 
-void CharacterSelect__InnerAfter(struct CHARACTER_ID const &cId,
-                               unsigned int iClientID) {
+void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID) {
     TRY_HOOK {
-        std::wstring wscCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
+        std::wstring wscCharname = (wchar_t *)Players.GetActiveCharacterName(clientID);
 
         if (g_wscCharBefore.compare(wscCharname) != 0) {
-            LoadUserCharSettings(iClientID);
+            LoadUserCharSettings(clientID);
 
             if (set_bUserCmdHelp)
-                PrintUserCmdText(iClientID,
+                PrintUserCmdText(clientID,
                                  L"To get a list of available commands, type "
                                  L"\"/help\" in chat.");
 
             // anti-cheat check
             std::list<CARGO_INFO> lstCargo;
             int iHold;
-            HkEnumCargo(ARG_CLIENTID(iClientID), lstCargo, iHold);
+            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, iHold);
             for (auto &cargo : lstCargo) {
                 if (cargo.iCount < 0) {
                     HkAddCheaterLog(wscCharname,
@@ -388,20 +375,20 @@ void CharacterSelect__InnerAfter(struct CHARACTER_ID const &cId,
                     swprintf_s(wszBuf, L"Possible cheating detected (%s)",
                                wscCharname.c_str());
                     HkMsgU(wszBuf);
-                    HkBan(ARG_CLIENTID(iClientID), true);
-                    HkKick(ARG_CLIENTID(iClientID));
+                    HkBan(ARG_CLIENTID(clientID), true);
+                    HkKick(ARG_CLIENTID(clientID));
                     return;
                 }
             }
 
             // event
-            CAccount *acc = Players.FindAccountFromClientID(iClientID);
+            CAccount *acc = Players.FindAccountFromClientID(clientID);
             std::wstring wscDir;
             HkGetAccountDirName(acc, wscDir);
             HKPLAYERINFO pi;
-            HkGetPlayerInfo(ARG_CLIENTID(iClientID), pi, false);
+            HkGetPlayerInfo(ARG_CLIENTID(clientID), pi, false);
             ProcessEvent(L"login char=%s accountdirname=%s id=%d ip=%s",
-                         wscCharname.c_str(), wscDir.c_str(), iClientID,
+                         wscCharname.c_str(), wscDir.c_str(), clientID,
                          pi.wscIP.c_str());
         }
     }
