@@ -36,54 +36,50 @@ check if players should be kicked
 **************************************************************************************************************/
 
 void HkTimerCheckKick() {
-
-    CALL_PLUGINS_V(PLUGIN_HkTimerCheckKick, , (), ());
+    CallPluginsBefore(HookedCall::FLHook__TimerCheckKick);
 
     TRY_HOOK {
         // for all players
-        struct PlayerData *pPD = 0;
-        while (pPD = Players.traverse_active(pPD)) {
-            uint iClientID = HkGetClientIdFromPD(pPD);
-            if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+        struct PlayerData *playerData = 0;
+        while (playerData = Players.traverse_active(playerData)) {
+            uint clientID = HkGetClientIdFromPD(playerData);
+            if (clientID < 1 || clientID > MAX_CLIENT_ID)
                 continue;
 
-            if (ClientInfo[iClientID].tmKickTime) {
-                if (timeInMS() >= ClientInfo[iClientID].tmKickTime) {
-                    HkKick(ARG_CLIENTID(iClientID)); // kick time expired
-                    ClientInfo[iClientID].tmKickTime = 0;
+            if (ClientInfo[clientID].tmKickTime) {
+                if (timeInMS() >= ClientInfo[clientID].tmKickTime) {
+                    HkKick(ARG_CLIENTID(clientID)); // kick time expired
+                    ClientInfo[clientID].tmKickTime = 0;
                 }
                 continue; // player will be kicked anyway
             }
 
             if (set_iAntiBaseIdle) { // anti base-idle check
-                uint iBaseID;
-                pub::Player::GetBase(iClientID, iBaseID);
-                if (iBaseID && ClientInfo[iClientID].iBaseEnterTime) {
-                    if ((time(0) - ClientInfo[iClientID].iBaseEnterTime) >=
+                uint baseID;
+                pub::Player::GetBase(clientID, baseID);
+                if (baseID && ClientInfo[clientID].iBaseEnterTime) {
+                    if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >=
                         set_iAntiBaseIdle) {
-                        HkAddKickLog(iClientID, L"Base idling");
-                        HkMsgAndKick(iClientID, L"Base idling",
+                        HkAddKickLog(clientID, L"Base idling");
+                        HkMsgAndKick(clientID, L"Base idling",
                                      set_iKickMsgPeriod);
-                        ClientInfo[iClientID].iBaseEnterTime = 0;
+                        ClientInfo[clientID].iBaseEnterTime = 0;
                     }
                 }
             }
 
             if (set_iAntiCharMenuIdle) { // anti charmenu-idle check
-                if (HkIsInCharSelectMenu(iClientID)) {
-                    if (!ClientInfo[iClientID].iCharMenuEnterTime)
-                        ClientInfo[iClientID].iCharMenuEnterTime =
-                            (uint)time(0);
-                    else if ((time(0) -
-                              ClientInfo[iClientID].iCharMenuEnterTime) >=
-                             set_iAntiCharMenuIdle) {
-                        HkAddKickLog(iClientID, L"Charmenu idling");
-                        HkKick(ARG_CLIENTID(iClientID));
-                        ClientInfo[iClientID].iCharMenuEnterTime = 0;
+                if (HkIsInCharSelectMenu(clientID)) {
+                    if (!ClientInfo[clientID].iCharMenuEnterTime)
+                        ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(0));
+                    else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= set_iAntiCharMenuIdle) {
+                        HkAddKickLog(clientID, L"Charmenu idling");
+                        HkKick(ARG_CLIENTID(clientID));
+                        ClientInfo[clientID].iCharMenuEnterTime = 0;
                         continue;
                     }
                 } else
-                    ClientInfo[iClientID].iCharMenuEnterTime = 0;
+                    ClientInfo[clientID].iCharMenuEnterTime = 0;
             }
         }
     }
@@ -95,24 +91,23 @@ Check if NPC spawns should be disabled
 **************************************************************************************************************/
 
 void HkTimerNPCAndF1Check() {
-    CALL_PLUGINS_V(PLUGIN_HkTimerNPCAndF1Check, , (), ());
+    CallPluginsBefore(HookedCall::FLHook__TimerNPCAndF1Check);
 
     TRY_HOOK {
-        struct PlayerData *pPD = 0;
-        while (pPD = Players.traverse_active(pPD)) {
-            uint iClientID = HkGetClientIdFromPD(pPD);
-            if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+        struct PlayerData *playerData = 0;
+        while (playerData = Players.traverse_active(playerData)) {
+            uint clientID = HkGetClientIdFromPD(playerData);
+            if (clientID < 1 || clientID > MAX_CLIENT_ID)
                 continue;
 
-            if (ClientInfo[iClientID].tmF1Time &&
-                (timeInMS() >= ClientInfo[iClientID].tmF1Time)) { // f1
-                Server.CharacterInfoReq(iClientID, false);
-                ClientInfo[iClientID].tmF1Time = 0;
-            } else if (ClientInfo[iClientID].tmF1TimeDisconnect &&
+            if (ClientInfo[clientID].tmF1Time && (timeInMS() >= ClientInfo[clientID].tmF1Time)) { // f1
+                Server.CharacterInfoReq(clientID, false);
+                ClientInfo[clientID].tmF1Time = 0;
+            } else if (ClientInfo[clientID].tmF1TimeDisconnect &&
                        (timeInMS() >=
-                        ClientInfo[iClientID].tmF1TimeDisconnect)) {
-                ulong lArray[64] = {0};
-                lArray[26] = iClientID;
+                        ClientInfo[clientID].tmF1TimeDisconnect)) {
+                ulong dataArray[64] = {0};
+                dataArray[26] = clientID;
 
                 __asm {
                     pushad
@@ -123,7 +118,7 @@ void HkTimerNPCAndF1Check() {
                     popad
                 }
 
-                ClientInfo[iClientID].tmF1TimeDisconnect = 0;
+                ClientInfo[clientID].tmF1TimeDisconnect = 0;
                 continue;
             }
         }
@@ -147,7 +142,7 @@ HANDLE hThreadResolver;
 
 void HkThreadResolver() {
     TRY_HOOK {
-        while (1) {
+        while (true) {
             EnterCriticalSection(&csIPResolve);
             std::list<RESOLVE_IP> lstMyResolveIPs = g_lstResolveIPs;
             g_lstResolveIPs.clear();
@@ -189,7 +184,7 @@ void HkTimerCheckResolveResults() {
                 continue; // outdated
 
             // check if banned
-            for (auto &ban : set_setBans) {
+            for (const auto& ban : set_setBans) {
                 if (Wildcard::wildcardfit(wstos(ban).c_str(),
                                           wstos(ip.wscHostname).c_str())) {
                     HkAddKickLog(ip.iClientID,

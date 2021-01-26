@@ -1324,7 +1324,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
+        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMessage, PLUGIN_SendDeathMsg, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Startup,
                                              PLUGIN_HkIServerImpl_Startup, 10));
     p_PI->lstHooks.push_back(
