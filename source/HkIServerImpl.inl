@@ -230,7 +230,7 @@ void SPMunitionCollision__Inner(const SSPMunitionCollisionInfo& mci, uint) {
     TRY_HOOK { clientIDTarget = HkGetClientIDByShip(mci.dwTargetShip); }
     CATCH_HOOK({})
 
-    iDmgTo = clientIDTarget;
+    g_DmgTo = clientIDTarget;
 }
 
 bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {

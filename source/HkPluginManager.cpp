@@ -6,8 +6,8 @@ const PluginData& PluginHookData::plugin() const {
 }
 
 void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
-    CallPluginsBefore(HookedCall::PluginCommunication, msg, data);
-    CallPluginsAfter(HookedCall::PluginCommunication, msg, data);
+    CallPluginsBefore(HookedCall::FLHook__PluginCommunication, msg, data);
+    CallPluginsAfter(HookedCall::FLHook__PluginCommunication, msg, data);
 }
 
 void PluginManager::clearData(bool free) {

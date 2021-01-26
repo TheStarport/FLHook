@@ -139,10 +139,10 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\HkFLIni.cpp" />
     <ClCompile Include="..\source\HkHelp.cpp" />
     <ClCompile Include="..\source\HkInit.cpp" />
-    <ClCompile Include="..\source\HkCbChat.cpp" />
-    <ClCompile Include="..\source\HkCbDamage.cpp" />
-    <ClCompile Include="..\source\HkCbDeath.cpp" />
-    <ClCompile Include="..\source\HkCbDisconnect.cpp" />
+    <ClCompile Include="..\source\HkIChatServer.cpp" />
+    <ClCompile Include="..\source\HkIEngineDamage.cpp" />
+    <ClCompile Include="..\source\HkIEngineDeath.cpp" />
+    <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
     <ClCompile Include="..\source\HkTimers.cpp" />
     <ClCompile Include="..\source\HkUserCmd.cpp" />
     <ClCompile Include="..\source\HkFuncLog.cpp" />

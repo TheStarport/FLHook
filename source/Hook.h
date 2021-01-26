@@ -785,7 +785,7 @@ EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
 
 // HkDeath
 void ShipDestroyedHook();
-void BaseDestroyed(uint iObject, uint iClientIDBy);
+void BaseDestroyed(uint objectID, uint clientIDBy);
 
 // HkDamage
 void _HookMissileTorpHit();
@@ -794,17 +794,17 @@ void _HkCb_GeneralDmg();
 void _HkCb_GeneralDmg2();
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 void _HkCb_NonGunWeaponHitsBase();
-extern FARPROC fpOldNonGunWeaponHitsBase;
-EXPORT extern bool g_gNonGunHitsBase;
+extern FARPROC g_OldNonGunWeaponHitsBase;
+EXPORT extern bool g_NonGunHitsBase;
 EXPORT extern float g_LastHitPts;
 
 // HkCbCallbacks
 void _SendMessageHook();
-void __stdcall HkCb_SendChat(uint iId, uint iTo, uint iSize, void *pRDL);
+void __stdcall HkCb_SendChat(uint iId, uint clientIDTo, uint size, void *rdl);
 
 // HkCbDisconnect
 void _DisconnectPacketSent();
-extern FARPROC fpOldDiscPacketSent;
+extern FARPROC g_OldDisconnectPacketSent;
 
 // HkIEngine
 namespace HkIEngine {
@@ -853,16 +853,16 @@ extern EXPORT HkIClientImpl *FakeClient;
 extern EXPORT HkIClientImpl *HookClient;
 extern EXPORT char *OldClient;
 
-extern EXPORT uint iDmgTo;
-extern EXPORT uint iDmgToSpaceID;
+extern EXPORT uint g_DmgTo;
+extern EXPORT uint g_DmgToSpaceID;
 
 extern EXPORT bool g_bMsg;
 extern EXPORT bool g_bMsgS;
 extern EXPORT bool g_bMsgU;
 
-extern FARPROC fpOldShipDestroyed;
-extern FARPROC fpOldMissileTorpHit;
-extern FARPROC fpOldGeneralDmg, fpOldGeneralDmg2;
+extern FARPROC g_OldShipDestroyed;
+extern FARPROC g_OldGuidedHit;
+extern FARPROC g_OldDamageHit, g_OldDamageHit2;
 
 extern EXPORT CDPClientProxy **g_cClientProxyArray;
 extern EXPORT void *pClient;

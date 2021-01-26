@@ -37,18 +37,18 @@ PATCH_INFO piServerDLL = {
     "server.dll",
     0x6CE0000,
     {
-        {0x6D67274, &ShipDestroyedHook, 4, &fpOldShipDestroyed, false},
+        {0x6D67274, &ShipDestroyedHook, 4, &g_OldShipDestroyed, false},
         {0x6D641EC, &_HkCb_AddDmgEntry, 4, 0, false},
-        {0x6D67320, &_HookMissileTorpHit, 4, &fpOldMissileTorpHit, false},
+        {0x6D67320, &_HookMissileTorpHit, 4, &g_OldGuidedHit, false},
         {0x6D65448, &_HookMissileTorpHit, 4, 0, false},
         {0x6D67670, &_HookMissileTorpHit, 4, 0, false},
-        {0x6D653F4, &_HkCb_GeneralDmg, 4, &fpOldGeneralDmg, false},
+        {0x6D653F4, &_HkCb_GeneralDmg, 4, &g_OldDamageHit, false},
         {0x6D672CC, &_HkCb_GeneralDmg, 4, 0, false},
         {0x6D6761C, &_HkCb_GeneralDmg, 4, 0, false},
-        {0x6D65458, &_HkCb_GeneralDmg2, 4, &fpOldGeneralDmg2, false},
+        {0x6D65458, &_HkCb_GeneralDmg2, 4, &g_OldDamageHit2, false},
         {0x6D67330, &_HkCb_GeneralDmg2, 4, 0, false},
         {0x6D67680, &_HkCb_GeneralDmg2, 4, 0, false},
-        {0x6D67668, &_HkCb_NonGunWeaponHitsBase, 4, &fpOldNonGunWeaponHitsBase,
+        {0x6D67668, &_HkCb_NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase,
          false},
         {0x6D6420C, &HkIEngine::_LaunchPos, 4, &HkIEngine::g_OldLaunchPos,
          false},
@@ -70,7 +70,7 @@ PATCH_INFO piDaLibDLL = {
     "dalib.dll",
     0x65C0000,
     {
-        {0x65C4BEC, &_DisconnectPacketSent, 4, &fpOldDiscPacketSent, false},
+        {0x65C4BEC, &_DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
 
         {0, 0, 0, 0} // terminate
     }};

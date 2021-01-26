@@ -1136,18 +1136,18 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                                 float damage,
                                 enum DamageEntry::SubObjFate fate) {
     returncode = DEFAULT_RETURNCODE;
-    if (iDmgToSpaceID && dmg->get_inflictor_id()) {
+    if (g_DmgToSpaceID && dmg->get_inflictor_id()) {
         float curr, max;
-        pub::SpaceObj::GetHealth(iDmgToSpaceID, curr, max);
+        pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
 
-        map<uint, Module *>::iterator i = spaceobj_modules.find(iDmgToSpaceID);
+        map<uint, Module *>::iterator i = spaceobj_modules.find(g_DmgToSpaceID);
         if (i != spaceobj_modules.end()) {
             if (set_plugin_debug)
                 ConPrint(
-                    L"HkCb_AddDmgEntry iDmgToSpaceID=%u get_inflictor_id=%u "
+                    L"HkCb_AddDmgEntry g_DmgToSpaceID=%u get_inflictor_id=%u "
                     L"curr=%0.2f max=%0.0f damage=%0.2f cause=%u is_player=%u "
                     L"player_id=%u fate=%u\n",
-                    iDmgToSpaceID, dmg->get_inflictor_id(), curr, max, damage,
+                    g_DmgToSpaceID, dmg->get_inflictor_id(), curr, max, damage,
                     dmg->get_cause(), dmg->is_inflictor_a_player(),
                     dmg->get_inflictor_owner_player(), fate);
 
@@ -1166,14 +1166,14 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                 if (set_plugin_debug)
                     ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc\n");
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-                iDmgToSpaceID = 0;
+                g_DmgToSpaceID = 0;
                 return;
             }
 
             // This call is for us, skip all plugins.
             returncode = SKIPPLUGINS;
             float new_damage = i->second->SpaceObjDamaged(
-                iDmgToSpaceID, dmg->get_inflictor_id(), curr, damage);
+                g_DmgToSpaceID, dmg->get_inflictor_id(), curr, damage);
             if (new_damage != 0.0f) {
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
                 if (set_plugin_debug)
@@ -1181,7 +1181,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                              L"new_damage=%0.0f\n",
                              new_damage);
                 dmg->add_damage_entry(p1, new_damage, fate);
-                iDmgToSpaceID = 0;
+                g_DmgToSpaceID = 0;
                 return;
             }
         }
