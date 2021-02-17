@@ -441,7 +441,7 @@ template <typename Str> Str Trim(const Str &scIn) {
     auto start = scIn.find_first_not_of(trimmable);
     auto end = scIn.find_last_not_of(trimmable);
 
-    return scIn.substr(start, end - start);
+    return scIn.substr(start, end - start + 1);
 }
 
 std::wstring GetTimeString(bool bLocalTime) {
