@@ -1,4 +1,4 @@
-﻿// Player Control plugin for FLHookPlugin
+// Player Control plugin for FLHookPlugin
 // Feb 2010 by Cannon
 //
 // This is free software; you can redistribute it and/or modify it as
@@ -40,6 +40,7 @@ bool set_bEnableMe = false;
 bool set_bEnableDo = false;
 bool set_bEnableCargoDrop = false;
 bool set_bEnableWardrobe = false;
+bool set_bEnableRestartCost = false;
 
 float set_fSpinProtectMass;
 float set_fSpinImpulseMultiplier;
@@ -105,6 +106,8 @@ void LoadSettings() {
         IniGetB(scPluginCfgFile, "General", "EnablePimpShip", false);
     set_bEnableRestart =
         IniGetB(scPluginCfgFile, "General", "EnableRestart", false);
+	set_bEnableRestartCost =
+        IniGetB(scPluginCfgFile, "General", "EnableRestartCost", false);
     set_bEnableGiveCash =
         IniGetB(scPluginCfgFile, "General", "EnableGiveCash", false);
     set_bEnableLoginSound =
