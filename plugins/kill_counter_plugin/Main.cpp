@@ -80,23 +80,23 @@ void UserCmd_Kills(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"Level: %i", rank);
 }
 
-void __stdcall ShipDestroyed(DamageList *_dmg, char *szECX, uint iKill) {
+void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
     returncode = DEFAULT_RETURNCODE;
 
-    char *szP;
-    memcpy(&szP, szECX + 0x10, 4);
-    uint iClientID;
-    memcpy(&iClientID, szP + 0xB4, 4);
-    if (iClientID) {
-        DamageList dmg;
-        if (!dmg.get_cause())
-            dmg = ClientInfo[iClientID].dmgLast;
-        uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
-        if (iClientIDKiller && (iClientID != iClientIDKiller)) {
-            int iNumKills;
-            pub::Player::GetNumKills(iClientIDKiller, iNumKills);
-            iNumKills++;
-            pub::Player::SetNumKills(iClientIDKiller, iNumKills);
+    if (iKill == 1) {
+        CShip *cship = (CShip *)ecx[4];
+        uint iClientID = cship->GetOwnerPlayer();
+        if (iClientID) {
+            DamageList dmg;
+            if (!dmg.get_cause())
+                dmg = ClientInfo[iClientID].dmgLast;
+            uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
+            if (iClientIDKiller && (iClientID != iClientIDKiller)) {
+                int iNumKills;
+                pub::Player::GetNumKills(iClientIDKiller, iNumKills);
+                iNumKills++;
+                pub::Player::SetNumKills(iClientIDKiller, iNumKills);
+            }
         }
     }
 }
