@@ -16,6 +16,7 @@ bool extern set_bEnableRenameMe;
 bool extern set_bEnableMoveChar;
 bool extern set_bEnableMe;
 bool extern set_bEnableDo;
+bool extern set_bEnableWardrobe;
 bool extern set_bLocalTime;
 
 // Imports from freelancer libraries.
@@ -299,5 +300,14 @@ void StopTradelane(unsigned int iClientID, unsigned int p1, unsigned int p2,
 void Dock_Call(unsigned int const &iShip, unsigned int const &iDockTarget,
                int iCancel, enum DOCK_HOST_RESPONSE response);
 } // namespace SystemSensor
+
+namespace Wardrobe {
+void LoadSettings(const std::string &scPluginCfgFile);
+bool UserCmd_ShowWardrobe(uint iClientID, const std::wstring &wscCmd,
+                          const std::wstring &wscParam, const wchar_t *usage);
+bool UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscCmd,
+                           const std::wstring &wscParam, const wchar_t *usage);
+void Timer();
+} // namespace Wardrobe
 
 #endif

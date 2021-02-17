@@ -33,6 +33,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.checkBoxEnableDo = new System.Windows.Forms.CheckBox();
+            this.checkBoxEnableMe = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.textBoxSpinImpulseMultiplier = new System.Windows.Forms.TextBox();
             this.S = new System.Windows.Forms.Label();
@@ -61,10 +64,6 @@
             this.label42 = new System.Windows.Forms.Label();
             this.textBoxEscortedShipMinimumMass = new System.Windows.Forms.TextBox();
             this.checkBoxEnableEscort = new System.Windows.Forms.CheckBox();
-            this.textBoxRestartMaxCash = new System.Windows.Forms.TextBox();
-            this.label36 = new System.Windows.Forms.Label();
-            this.textBoxRestartMaxRank = new System.Windows.Forms.TextBox();
-            this.label35 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
             this.textBoxStuckMsg = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
@@ -75,7 +74,6 @@
             this.label22 = new System.Windows.Forms.Label();
             this.textBoxPimpShipCost = new System.Windows.Forms.TextBox();
             this.label20 = new System.Windows.Forms.Label();
-            this.checkBoxEnableRestart = new System.Windows.Forms.CheckBox();
             this.textBoxDropRepCost = new System.Windows.Forms.TextBox();
             this.checkBoxEnableDropRepAndMisc = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
@@ -227,6 +225,21 @@
             this.richTextBoxSounds = new System.Windows.Forms.RichTextBox();
             this.label47 = new System.Windows.Forms.Label();
             this.checkBoxEnableLoginSound = new System.Windows.Forms.CheckBox();
+            this.tabPage14 = new System.Windows.Forms.TabPage();
+            this.richTextBoxBodies = new System.Windows.Forms.RichTextBox();
+            this.label49 = new System.Windows.Forms.Label();
+            this.richTextBoxHeads = new System.Windows.Forms.RichTextBox();
+            this.label48 = new System.Windows.Forms.Label();
+            this.checkBoxEnableWardrobe = new System.Windows.Forms.CheckBox();
+            this.tabPage15 = new System.Windows.Forms.TabPage();
+            this.textBoxRestartMaxRank = new System.Windows.Forms.TextBox();
+            this.checkBoxEnableRestart = new System.Windows.Forms.CheckBox();
+            this.textBoxRestartMaxCash = new System.Windows.Forms.TextBox();
+            this.label36 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.richTextBoxRestarts = new System.Windows.Forms.RichTextBox();
+            this.label50 = new System.Windows.Forms.Label();
+            this.checkBoxEnableRestartCost = new System.Windows.Forms.CheckBox();
             this.buttonClose = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -242,13 +255,11 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.checkBoxEnableMe = new System.Windows.Forms.CheckBox();
-            this.checkBoxEnableDo = new System.Windows.Forms.CheckBox();
             gameDataSet = new PlayerCntlSetup.GameDataSet();
             ((System.ComponentModel.ISupportInitialize)(gameDataSet)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -284,9 +295,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSysSensor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sysSensorListBindingSource)).BeginInit();
             this.tabPage13.SuspendLayout();
+            this.tabPage14.SuspendLayout();
+            this.tabPage15.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
-            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // gameDataSet
@@ -312,6 +324,8 @@
             this.tabControl1.Controls.Add(this.tabPage9);
             this.tabControl1.Controls.Add(this.tabPage12);
             this.tabControl1.Controls.Add(this.tabPage13);
+            this.tabControl1.Controls.Add(this.tabPage14);
+            this.tabControl1.Controls.Add(this.tabPage15);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -332,6 +346,37 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.checkBoxEnableDo);
+            this.groupBox7.Controls.Add(this.checkBoxEnableMe);
+            this.groupBox7.Location = new System.Drawing.Point(10, 368);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(337, 42);
+            this.groupBox7.TabIndex = 23;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "/me and /do";
+            // 
+            // checkBoxEnableDo
+            // 
+            this.checkBoxEnableDo.AutoSize = true;
+            this.checkBoxEnableDo.Location = new System.Drawing.Point(93, 19);
+            this.checkBoxEnableDo.Name = "checkBoxEnableDo";
+            this.checkBoxEnableDo.Size = new System.Drawing.Size(79, 17);
+            this.checkBoxEnableDo.TabIndex = 12;
+            this.checkBoxEnableDo.Text = "Enable /do";
+            this.checkBoxEnableDo.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxEnableMe
+            // 
+            this.checkBoxEnableMe.AutoSize = true;
+            this.checkBoxEnableMe.Location = new System.Drawing.Point(6, 19);
+            this.checkBoxEnableMe.Name = "checkBoxEnableMe";
+            this.checkBoxEnableMe.Size = new System.Drawing.Size(81, 17);
+            this.checkBoxEnableMe.TabIndex = 11;
+            this.checkBoxEnableMe.Text = "Enable /me";
+            this.checkBoxEnableMe.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
@@ -544,10 +589,6 @@
             this.groupBox1.Controls.Add(this.label42);
             this.groupBox1.Controls.Add(this.textBoxEscortedShipMinimumMass);
             this.groupBox1.Controls.Add(this.checkBoxEnableEscort);
-            this.groupBox1.Controls.Add(this.textBoxRestartMaxCash);
-            this.groupBox1.Controls.Add(this.label36);
-            this.groupBox1.Controls.Add(this.textBoxRestartMaxRank);
-            this.groupBox1.Controls.Add(this.label35);
             this.groupBox1.Controls.Add(this.label25);
             this.groupBox1.Controls.Add(this.textBoxStuckMsg);
             this.groupBox1.Controls.Add(this.label24);
@@ -558,7 +599,6 @@
             this.groupBox1.Controls.Add(this.label22);
             this.groupBox1.Controls.Add(this.textBoxPimpShipCost);
             this.groupBox1.Controls.Add(this.label20);
-            this.groupBox1.Controls.Add(this.checkBoxEnableRestart);
             this.groupBox1.Controls.Add(this.textBoxDropRepCost);
             this.groupBox1.Controls.Add(this.checkBoxEnableDropRepAndMisc);
             this.groupBox1.Controls.Add(this.label15);
@@ -572,7 +612,7 @@
             // 
             // textBoxEscortedShipDamageFactor
             // 
-            this.textBoxEscortedShipDamageFactor.Location = new System.Drawing.Point(169, 361);
+            this.textBoxEscortedShipDamageFactor.Location = new System.Drawing.Point(169, 297);
             this.textBoxEscortedShipDamageFactor.Name = "textBoxEscortedShipDamageFactor";
             this.textBoxEscortedShipDamageFactor.Size = new System.Drawing.Size(166, 20);
             this.textBoxEscortedShipDamageFactor.TabIndex = 32;
@@ -580,7 +620,7 @@
             // label43
             // 
             this.label43.AutoSize = true;
-            this.label43.Location = new System.Drawing.Point(3, 364);
+            this.label43.Location = new System.Drawing.Point(3, 300);
             this.label43.Name = "label43";
             this.label43.Size = new System.Drawing.Size(142, 13);
             this.label43.TabIndex = 31;
@@ -589,7 +629,7 @@
             // label42
             // 
             this.label42.AutoSize = true;
-            this.label42.Location = new System.Drawing.Point(3, 338);
+            this.label42.Location = new System.Drawing.Point(3, 274);
             this.label42.Name = "label42";
             this.label42.Size = new System.Drawing.Size(141, 13);
             this.label42.TabIndex = 30;
@@ -597,7 +637,7 @@
             // 
             // textBoxEscortedShipMinimumMass
             // 
-            this.textBoxEscortedShipMinimumMass.Location = new System.Drawing.Point(169, 335);
+            this.textBoxEscortedShipMinimumMass.Location = new System.Drawing.Point(169, 271);
             this.textBoxEscortedShipMinimumMass.Name = "textBoxEscortedShipMinimumMass";
             this.textBoxEscortedShipMinimumMass.Size = new System.Drawing.Size(166, 20);
             this.textBoxEscortedShipMinimumMass.TabIndex = 29;
@@ -605,49 +645,17 @@
             // checkBoxEnableEscort
             // 
             this.checkBoxEnableEscort.AutoSize = true;
-            this.checkBoxEnableEscort.Location = new System.Drawing.Point(6, 312);
+            this.checkBoxEnableEscort.Location = new System.Drawing.Point(6, 248);
             this.checkBoxEnableEscort.Name = "checkBoxEnableEscort";
             this.checkBoxEnableEscort.Size = new System.Drawing.Size(96, 17);
             this.checkBoxEnableEscort.TabIndex = 28;
             this.checkBoxEnableEscort.Text = "Enable /escort";
             this.checkBoxEnableEscort.UseVisualStyleBackColor = true;
             // 
-            // textBoxRestartMaxCash
-            // 
-            this.textBoxRestartMaxCash.Location = new System.Drawing.Point(219, 63);
-            this.textBoxRestartMaxCash.Name = "textBoxRestartMaxCash";
-            this.textBoxRestartMaxCash.Size = new System.Drawing.Size(100, 20);
-            this.textBoxRestartMaxCash.TabIndex = 26;
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(6, 65);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(209, 13);
-            this.label36.TabIndex = 25;
-            this.label36.Text = "Prohibit restart if player has cash more than";
-            // 
-            // textBoxRestartMaxRank
-            // 
-            this.textBoxRestartMaxRank.Location = new System.Drawing.Point(219, 35);
-            this.textBoxRestartMaxRank.Name = "textBoxRestartMaxRank";
-            this.textBoxRestartMaxRank.Size = new System.Drawing.Size(100, 20);
-            this.textBoxRestartMaxRank.TabIndex = 24;
-            // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(6, 38);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(207, 13);
-            this.label35.TabIndex = 23;
-            this.label35.Text = "Prohibit restart if player has rank more than";
-            // 
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(8, 163);
+            this.label25.Location = new System.Drawing.Point(8, 99);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(76, 13);
             this.label25.TabIndex = 22;
@@ -655,7 +663,7 @@
             // 
             // textBoxStuckMsg
             // 
-            this.textBoxStuckMsg.Location = new System.Drawing.Point(6, 286);
+            this.textBoxStuckMsg.Location = new System.Drawing.Point(6, 222);
             this.textBoxStuckMsg.Name = "textBoxStuckMsg";
             this.textBoxStuckMsg.Size = new System.Drawing.Size(329, 20);
             this.textBoxStuckMsg.TabIndex = 21;
@@ -663,7 +671,7 @@
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(7, 136);
+            this.label24.Location = new System.Drawing.Point(7, 72);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(74, 13);
             this.label24.TabIndex = 20;
@@ -672,7 +680,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(7, 229);
+            this.label23.Location = new System.Drawing.Point(7, 165);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(184, 13);
             this.label23.TabIndex = 19;
@@ -680,21 +688,21 @@
             // 
             // textBoxSmiteMusic
             // 
-            this.textBoxSmiteMusic.Location = new System.Drawing.Point(89, 133);
+            this.textBoxSmiteMusic.Location = new System.Drawing.Point(89, 69);
             this.textBoxSmiteMusic.Name = "textBoxSmiteMusic";
             this.textBoxSmiteMusic.Size = new System.Drawing.Size(141, 20);
             this.textBoxSmiteMusic.TabIndex = 18;
             // 
             // textBoxCoinMsg
             // 
-            this.textBoxCoinMsg.Location = new System.Drawing.Point(6, 245);
+            this.textBoxCoinMsg.Location = new System.Drawing.Point(6, 181);
             this.textBoxCoinMsg.Name = "textBoxCoinMsg";
             this.textBoxCoinMsg.Size = new System.Drawing.Size(329, 20);
             this.textBoxCoinMsg.TabIndex = 17;
             // 
             // textBoxDiceMsg
             // 
-            this.textBoxDiceMsg.Location = new System.Drawing.Point(6, 206);
+            this.textBoxDiceMsg.Location = new System.Drawing.Point(6, 142);
             this.textBoxDiceMsg.Name = "textBoxDiceMsg";
             this.textBoxDiceMsg.Size = new System.Drawing.Size(329, 20);
             this.textBoxDiceMsg.TabIndex = 16;
@@ -702,7 +710,7 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(7, 190);
+            this.label22.Location = new System.Drawing.Point(7, 126);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(194, 13);
             this.label22.TabIndex = 15;
@@ -710,7 +718,7 @@
             // 
             // textBoxPimpShipCost
             // 
-            this.textBoxPimpShipCost.Location = new System.Drawing.Point(89, 160);
+            this.textBoxPimpShipCost.Location = new System.Drawing.Point(89, 96);
             this.textBoxPimpShipCost.Name = "textBoxPimpShipCost";
             this.textBoxPimpShipCost.Size = new System.Drawing.Size(78, 20);
             this.textBoxPimpShipCost.TabIndex = 14;
@@ -718,25 +726,15 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(7, 270);
+            this.label20.Location = new System.Drawing.Point(7, 206);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(83, 13);
             this.label20.TabIndex = 13;
             this.label20.Text = "/stuck message";
             // 
-            // checkBoxEnableRestart
-            // 
-            this.checkBoxEnableRestart.AutoSize = true;
-            this.checkBoxEnableRestart.Location = new System.Drawing.Point(6, 17);
-            this.checkBoxEnableRestart.Name = "checkBoxEnableRestart";
-            this.checkBoxEnableRestart.Size = new System.Drawing.Size(166, 17);
-            this.checkBoxEnableRestart.TabIndex = 10;
-            this.checkBoxEnableRestart.Text = "Enable /restart, /showrestarts";
-            this.checkBoxEnableRestart.UseVisualStyleBackColor = true;
-            // 
             // textBoxDropRepCost
             // 
-            this.textBoxDropRepCost.Location = new System.Drawing.Point(250, 160);
+            this.textBoxDropRepCost.Location = new System.Drawing.Point(250, 96);
             this.textBoxDropRepCost.Name = "textBoxDropRepCost";
             this.textBoxDropRepCost.Size = new System.Drawing.Size(72, 20);
             this.textBoxDropRepCost.TabIndex = 7;
@@ -744,7 +742,7 @@
             // checkBoxEnableDropRepAndMisc
             // 
             this.checkBoxEnableDropRepAndMisc.AutoSize = true;
-            this.checkBoxEnableDropRepAndMisc.Location = new System.Drawing.Point(6, 86);
+            this.checkBoxEnableDropRepAndMisc.Location = new System.Drawing.Point(6, 22);
             this.checkBoxEnableDropRepAndMisc.Name = "checkBoxEnableDropRepAndMisc";
             this.checkBoxEnableDropRepAndMisc.Size = new System.Drawing.Size(230, 17);
             this.checkBoxEnableDropRepAndMisc.TabIndex = 12;
@@ -754,7 +752,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(173, 163);
+            this.label15.Location = new System.Drawing.Point(173, 99);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(71, 13);
             this.label15.TabIndex = 6;
@@ -763,7 +761,7 @@
             // checkBoxEnablePimpShip
             // 
             this.checkBoxEnablePimpShip.AutoSize = true;
-            this.checkBoxEnablePimpShip.Location = new System.Drawing.Point(6, 111);
+            this.checkBoxEnablePimpShip.Location = new System.Drawing.Point(6, 47);
             this.checkBoxEnablePimpShip.Name = "checkBoxEnablePimpShip";
             this.checkBoxEnablePimpShip.Size = new System.Drawing.Size(260, 17);
             this.checkBoxEnablePimpShip.TabIndex = 9;
@@ -821,7 +819,7 @@
             this.button3.TabIndex = 23;
             this.button3.Text = "Change";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
             // 
             // textBoxBlockedSystem
             // 
@@ -1079,7 +1077,7 @@
             this.buttonDelItem.TabIndex = 22;
             this.buttonDelItem.Text = "Delete Item";
             this.buttonDelItem.UseVisualStyleBackColor = true;
-            this.buttonDelItem.Click += new System.EventHandler(this.buttonDelItem_Click);
+            this.buttonDelItem.Click += new System.EventHandler(this.ButtonDelItem_Click);
             // 
             // buttonAddItem
             // 
@@ -1090,7 +1088,7 @@
             this.buttonAddItem.TabIndex = 3;
             this.buttonAddItem.Text = "Add Item";
             this.buttonAddItem.UseVisualStyleBackColor = true;
-            this.buttonAddItem.Click += new System.EventHandler(this.buttonAddItem_Click);
+            this.buttonAddItem.Click += new System.EventHandler(this.ButtonAddItem_Click);
             // 
             // label2
             // 
@@ -1199,7 +1197,7 @@
             this.buttonDelBase.TabIndex = 28;
             this.buttonDelBase.Text = "Delete Base";
             this.buttonDelBase.UseVisualStyleBackColor = true;
-            this.buttonDelBase.Click += new System.EventHandler(this.buttonDelBase_Click);
+            this.buttonDelBase.Click += new System.EventHandler(this.ButtonDelBase_Click);
             // 
             // buttonAddBase
             // 
@@ -1210,7 +1208,7 @@
             this.buttonAddBase.TabIndex = 27;
             this.buttonAddBase.Text = "Add Base";
             this.buttonAddBase.UseVisualStyleBackColor = true;
-            this.buttonAddBase.Click += new System.EventHandler(this.buttonAddBase_Click);
+            this.buttonAddBase.Click += new System.EventHandler(this.ButtonAddBase_Click);
             // 
             // label3
             // 
@@ -1318,7 +1316,7 @@
             this.buttonRepDelItem.TabIndex = 20;
             this.buttonRepDelItem.Text = "Del Item";
             this.buttonRepDelItem.UseVisualStyleBackColor = true;
-            this.buttonRepDelItem.Click += new System.EventHandler(this.buttonRepDelItem_Click);
+            this.buttonRepDelItem.Click += new System.EventHandler(this.ButtonRepDelItem_Click);
             // 
             // buttonRepEditItem
             // 
@@ -1329,7 +1327,7 @@
             this.buttonRepEditItem.TabIndex = 19;
             this.buttonRepEditItem.Text = "Edit Item";
             this.buttonRepEditItem.UseVisualStyleBackColor = true;
-            this.buttonRepEditItem.Click += new System.EventHandler(this.buttonEditRep_Click);
+            this.buttonRepEditItem.Click += new System.EventHandler(this.ButtonEditRep_Click);
             // 
             // buttonRepAddItem
             // 
@@ -1340,7 +1338,7 @@
             this.buttonRepAddItem.TabIndex = 18;
             this.buttonRepAddItem.Text = "Add Item";
             this.buttonRepAddItem.UseVisualStyleBackColor = true;
-            this.buttonRepAddItem.Click += new System.EventHandler(this.buttonAddRepItem_Click);
+            this.buttonRepAddItem.Click += new System.EventHandler(this.ButtonAddRepItem_Click);
             // 
             // label1
             // 
@@ -1375,7 +1373,7 @@
             this.dataGridViewRepFixerItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewRepFixerItems.Size = new System.Drawing.Size(688, 339);
             this.dataGridViewRepFixerItems.TabIndex = 16;
-            this.dataGridViewRepFixerItems.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewRepFixerItems_CellDoubleClick);
+            this.dataGridViewRepFixerItems.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewRepFixerItems_CellDoubleClick);
             // 
             // iDSNameDataGridViewTextBoxColumn2
             // 
@@ -1489,7 +1487,7 @@
             this.buttonImportShipPurchaseRestrictions.TabIndex = 23;
             this.buttonImportShipPurchaseRestrictions.Text = "Import";
             this.buttonImportShipPurchaseRestrictions.UseVisualStyleBackColor = true;
-            this.buttonImportShipPurchaseRestrictions.Click += new System.EventHandler(this.buttonImportShipPurchaseRestrictions_Click);
+            this.buttonImportShipPurchaseRestrictions.Click += new System.EventHandler(this.ButtonImportShipPurchaseRestrictions_Click);
             // 
             // buttonPurchaseRestrictionDelItem
             // 
@@ -1500,7 +1498,7 @@
             this.buttonPurchaseRestrictionDelItem.TabIndex = 24;
             this.buttonPurchaseRestrictionDelItem.Text = "Del Item";
             this.buttonPurchaseRestrictionDelItem.UseVisualStyleBackColor = true;
-            this.buttonPurchaseRestrictionDelItem.Click += new System.EventHandler(this.buttonbuttonPurchaseRestrictionDelItem_Click);
+            this.buttonPurchaseRestrictionDelItem.Click += new System.EventHandler(this.ButtonPurchaseRestrictionDelItem_Click);
             // 
             // buttonPurchaseRestrictionEdittem
             // 
@@ -1511,7 +1509,7 @@
             this.buttonPurchaseRestrictionEdittem.TabIndex = 23;
             this.buttonPurchaseRestrictionEdittem.Text = "Edit Item";
             this.buttonPurchaseRestrictionEdittem.UseVisualStyleBackColor = true;
-            this.buttonPurchaseRestrictionEdittem.Click += new System.EventHandler(this.buttonbuttonPurchaseRestrictionEdittem_Click);
+            this.buttonPurchaseRestrictionEdittem.Click += new System.EventHandler(this.ButtonPurchaseRestrictionEditItem_Click);
             // 
             // buttonPurchaseRestrictionAddItem
             // 
@@ -1522,7 +1520,7 @@
             this.buttonPurchaseRestrictionAddItem.TabIndex = 22;
             this.buttonPurchaseRestrictionAddItem.Text = "Add Item";
             this.buttonPurchaseRestrictionAddItem.UseVisualStyleBackColor = true;
-            this.buttonPurchaseRestrictionAddItem.Click += new System.EventHandler(this.buttonPurchaseRestrictionAddItem_Click);
+            this.buttonPurchaseRestrictionAddItem.Click += new System.EventHandler(this.ButtonPurchaseRestrictionAddItem_Click);
             // 
             // label26
             // 
@@ -1556,7 +1554,7 @@
             this.dataGridViewPurchaseRestrictions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewPurchaseRestrictions.Size = new System.Drawing.Size(688, 339);
             this.dataGridViewPurchaseRestrictions.TabIndex = 20;
-            this.dataGridViewPurchaseRestrictions.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewPurchaseRestrictions_CellDoubleClick);
+            this.dataGridViewPurchaseRestrictions.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewPurchaseRestrictions_CellDoubleClick);
             // 
             // descriptionDataGridViewTextBoxColumn
             // 
@@ -1629,7 +1627,7 @@
             this.buttonEquipPurchaseRestrictionDel.TabIndex = 27;
             this.buttonEquipPurchaseRestrictionDel.Text = "Del Item";
             this.buttonEquipPurchaseRestrictionDel.UseVisualStyleBackColor = true;
-            this.buttonEquipPurchaseRestrictionDel.Click += new System.EventHandler(this.buttonEquipPurchaseRestrictionDel_Click);
+            this.buttonEquipPurchaseRestrictionDel.Click += new System.EventHandler(this.ButtonEquipPurchaseRestrictionDel_Click);
             // 
             // buttonEquipPurchaseRestrictionEdit
             // 
@@ -1640,7 +1638,7 @@
             this.buttonEquipPurchaseRestrictionEdit.TabIndex = 26;
             this.buttonEquipPurchaseRestrictionEdit.Text = "Edit Item";
             this.buttonEquipPurchaseRestrictionEdit.UseVisualStyleBackColor = true;
-            this.buttonEquipPurchaseRestrictionEdit.Click += new System.EventHandler(this.buttonEquipPurchaseRestrictionEdit_Click);
+            this.buttonEquipPurchaseRestrictionEdit.Click += new System.EventHandler(this.ButtonEquipPurchaseRestrictionEdit_Click);
             // 
             // buttonEquipPurchaseRestrictionAdd
             // 
@@ -1651,7 +1649,7 @@
             this.buttonEquipPurchaseRestrictionAdd.TabIndex = 25;
             this.buttonEquipPurchaseRestrictionAdd.Text = "Add Item";
             this.buttonEquipPurchaseRestrictionAdd.UseVisualStyleBackColor = true;
-            this.buttonEquipPurchaseRestrictionAdd.Click += new System.EventHandler(this.buttonEquipPurchaseRestrictionAdd_Click);
+            this.buttonEquipPurchaseRestrictionAdd.Click += new System.EventHandler(this.ButtonEquipPurchaseRestrictionAdd_Click);
             // 
             // label39
             // 
@@ -1685,7 +1683,7 @@
             this.dataGridViewEquipPurchaseRestriction.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewEquipPurchaseRestriction.Size = new System.Drawing.Size(688, 367);
             this.dataGridViewEquipPurchaseRestriction.TabIndex = 22;
-            this.dataGridViewEquipPurchaseRestriction.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewEquipPurchaseRestriction_CellDoubleClick);
+            this.dataGridViewEquipPurchaseRestriction.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewEquipPurchaseRestriction_CellDoubleClick);
             // 
             // descriptionDataGridViewTextBoxColumn1
             // 
@@ -1747,7 +1745,7 @@
             this.buttonDelNoBuyItem.TabIndex = 26;
             this.buttonDelNoBuyItem.Text = "Del Item";
             this.buttonDelNoBuyItem.UseVisualStyleBackColor = true;
-            this.buttonDelNoBuyItem.Click += new System.EventHandler(this.buttonDelNoBuyItem_Click);
+            this.buttonDelNoBuyItem.Click += new System.EventHandler(this.ButtonDelNoBuyItem_Click);
             // 
             // buttonEditNoBuyItem
             // 
@@ -1758,7 +1756,7 @@
             this.buttonEditNoBuyItem.TabIndex = 25;
             this.buttonEditNoBuyItem.Text = "Edit Item";
             this.buttonEditNoBuyItem.UseVisualStyleBackColor = true;
-            this.buttonEditNoBuyItem.Click += new System.EventHandler(this.buttonEditNoBuyItem_Click);
+            this.buttonEditNoBuyItem.Click += new System.EventHandler(this.ButtonEditNoBuyItem_Click);
             // 
             // buttonAddNoBuyItem
             // 
@@ -1769,7 +1767,7 @@
             this.buttonAddNoBuyItem.TabIndex = 24;
             this.buttonAddNoBuyItem.Text = "Add Item";
             this.buttonAddNoBuyItem.UseVisualStyleBackColor = true;
-            this.buttonAddNoBuyItem.Click += new System.EventHandler(this.buttonAddNoBuyItem_Click);
+            this.buttonAddNoBuyItem.Click += new System.EventHandler(this.ButtonAddNoBuyItem_Click);
             // 
             // label37
             // 
@@ -1803,7 +1801,7 @@
             this.dataGridViewNoBuyList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewNoBuyList.Size = new System.Drawing.Size(688, 368);
             this.dataGridViewNoBuyList.TabIndex = 22;
-            this.dataGridViewNoBuyList.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
+            this.dataGridViewNoBuyList.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellDoubleClick);
             // 
             // baseDescriptionDataGridViewTextBoxColumn
             // 
@@ -1991,7 +1989,7 @@
             this.buttonBannerDelItem.TabIndex = 27;
             this.buttonBannerDelItem.Text = "Del Item";
             this.buttonBannerDelItem.UseVisualStyleBackColor = true;
-            this.buttonBannerDelItem.Click += new System.EventHandler(this.buttonBannerDelItem_Click);
+            this.buttonBannerDelItem.Click += new System.EventHandler(this.ButtonBannerDelItem_Click);
             // 
             // buttonBannerEditItem
             // 
@@ -2002,7 +2000,7 @@
             this.buttonBannerEditItem.TabIndex = 26;
             this.buttonBannerEditItem.Text = "Edit Item";
             this.buttonBannerEditItem.UseVisualStyleBackColor = true;
-            this.buttonBannerEditItem.Click += new System.EventHandler(this.buttonBannerEditItem_Click);
+            this.buttonBannerEditItem.Click += new System.EventHandler(this.ButtonBannerEditItem_Click);
             // 
             // buttonBannerAddItem
             // 
@@ -2013,7 +2011,7 @@
             this.buttonBannerAddItem.TabIndex = 25;
             this.buttonBannerAddItem.Text = "Add Item";
             this.buttonBannerAddItem.UseVisualStyleBackColor = true;
-            this.buttonBannerAddItem.Click += new System.EventHandler(this.buttonBannerAddItem_Click);
+            this.buttonBannerAddItem.Click += new System.EventHandler(this.ButtonBannerAddItem_Click);
             // 
             // dataGridViewStandardBanners
             // 
@@ -2035,7 +2033,7 @@
             this.dataGridViewStandardBanners.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewStandardBanners.Size = new System.Drawing.Size(686, 336);
             this.dataGridViewStandardBanners.TabIndex = 12;
-            this.dataGridViewStandardBanners.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewStandardBanners_CellDoubleClick);
+            this.dataGridViewStandardBanners.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewStandardBanners_CellDoubleClick);
             // 
             // bannerTextDataGridViewTextBoxColumn
             // 
@@ -2171,7 +2169,7 @@
             this.buttonSysSensorDelItem.TabIndex = 31;
             this.buttonSysSensorDelItem.Text = "Del Item";
             this.buttonSysSensorDelItem.UseVisualStyleBackColor = true;
-            this.buttonSysSensorDelItem.Click += new System.EventHandler(this.buttonSysSensorDelItem_Click);
+            this.buttonSysSensorDelItem.Click += new System.EventHandler(this.ButtonSysSensorDelItem_Click);
             // 
             // buttonSysSensorEditItem
             // 
@@ -2182,7 +2180,7 @@
             this.buttonSysSensorEditItem.TabIndex = 30;
             this.buttonSysSensorEditItem.Text = "Edit Item";
             this.buttonSysSensorEditItem.UseVisualStyleBackColor = true;
-            this.buttonSysSensorEditItem.Click += new System.EventHandler(this.buttonSysSensorEditItem_Click);
+            this.buttonSysSensorEditItem.Click += new System.EventHandler(this.ButtonSysSensorEditItem_Click);
             // 
             // buttonSysSensorAddItem
             // 
@@ -2193,7 +2191,7 @@
             this.buttonSysSensorAddItem.TabIndex = 29;
             this.buttonSysSensorAddItem.Text = "Add Item";
             this.buttonSysSensorAddItem.UseVisualStyleBackColor = true;
-            this.buttonSysSensorAddItem.Click += new System.EventHandler(this.buttonSysSensorAddItem_Click);
+            this.buttonSysSensorAddItem.Click += new System.EventHandler(this.ButtonSysSensorAddItem_Click);
             // 
             // label40
             // 
@@ -2229,7 +2227,7 @@
             this.dataGridViewSysSensor.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewSysSensor.Size = new System.Drawing.Size(688, 363);
             this.dataGridViewSysSensor.TabIndex = 27;
-            this.dataGridViewSysSensor.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewSysSensor_CellDoubleClick);
+            this.dataGridViewSysSensor.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewSysSensor_CellDoubleClick);
             // 
             // systemDescriptionDataGridViewTextBoxColumn
             // 
@@ -2299,6 +2297,7 @@
             this.richTextBoxSounds.Size = new System.Drawing.Size(684, 367);
             this.richTextBoxSounds.TabIndex = 11;
             this.richTextBoxSounds.Text = resources.GetString("richTextBoxSounds.Text");
+            this.richTextBoxSounds.TextChanged += new System.EventHandler(this.RichTextBoxSounds_TextChanged);
             // 
             // label47
             // 
@@ -2319,6 +2318,165 @@
             this.checkBoxEnableLoginSound.Text = "Enable Login Sounds (Play on Server Connect)";
             this.checkBoxEnableLoginSound.UseVisualStyleBackColor = true;
             // 
+            // tabPage14
+            // 
+            this.tabPage14.Controls.Add(this.richTextBoxBodies);
+            this.tabPage14.Controls.Add(this.label49);
+            this.tabPage14.Controls.Add(this.richTextBoxHeads);
+            this.tabPage14.Controls.Add(this.label48);
+            this.tabPage14.Controls.Add(this.checkBoxEnableWardrobe);
+            this.tabPage14.Location = new System.Drawing.Point(4, 22);
+            this.tabPage14.Name = "tabPage14";
+            this.tabPage14.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage14.Size = new System.Drawing.Size(700, 416);
+            this.tabPage14.TabIndex = 14;
+            this.tabPage14.Text = "Wardrobe";
+            this.tabPage14.UseVisualStyleBackColor = true;
+            // 
+            // richTextBoxBodies
+            // 
+            this.richTextBoxBodies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxBodies.DetectUrls = false;
+            this.richTextBoxBodies.Location = new System.Drawing.Point(6, 236);
+            this.richTextBoxBodies.Name = "richTextBoxBodies";
+            this.richTextBoxBodies.Size = new System.Drawing.Size(684, 174);
+            this.richTextBoxBodies.TabIndex = 15;
+            this.richTextBoxBodies.Text = "orillion, pi_orillion_body";
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(3, 220);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(39, 13);
+            this.label49.TabIndex = 14;
+            this.label49.Text = "Bodies";
+            // 
+            // richTextBoxHeads
+            // 
+            this.richTextBoxHeads.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxHeads.DetectUrls = false;
+            this.richTextBoxHeads.Location = new System.Drawing.Point(6, 43);
+            this.richTextBoxHeads.Name = "richTextBoxHeads";
+            this.richTextBoxHeads.Size = new System.Drawing.Size(684, 174);
+            this.richTextBoxHeads.TabIndex = 13;
+            this.richTextBoxHeads.Text = "monkey, sh_male5_head";
+            this.richTextBoxHeads.TextChanged += new System.EventHandler(this.RichTextBoxHeads_TextChanged);
+            // 
+            // label48
+            // 
+            this.label48.AutoSize = true;
+            this.label48.Location = new System.Drawing.Point(3, 26);
+            this.label48.Name = "label48";
+            this.label48.Size = new System.Drawing.Size(38, 13);
+            this.label48.TabIndex = 12;
+            this.label48.Text = "Heads";
+            // 
+            // checkBoxEnableWardrobe
+            // 
+            this.checkBoxEnableWardrobe.AutoSize = true;
+            this.checkBoxEnableWardrobe.Location = new System.Drawing.Point(6, 6);
+            this.checkBoxEnableWardrobe.Name = "checkBoxEnableWardrobe";
+            this.checkBoxEnableWardrobe.Size = new System.Drawing.Size(109, 17);
+            this.checkBoxEnableWardrobe.TabIndex = 5;
+            this.checkBoxEnableWardrobe.Text = "Enable Wardrobe";
+            this.checkBoxEnableWardrobe.UseVisualStyleBackColor = true;
+            // 
+            // tabPage15
+            // 
+            this.tabPage15.Controls.Add(this.textBoxRestartMaxRank);
+            this.tabPage15.Controls.Add(this.checkBoxEnableRestart);
+            this.tabPage15.Controls.Add(this.textBoxRestartMaxCash);
+            this.tabPage15.Controls.Add(this.label36);
+            this.tabPage15.Controls.Add(this.label35);
+            this.tabPage15.Controls.Add(this.richTextBoxRestarts);
+            this.tabPage15.Controls.Add(this.label50);
+            this.tabPage15.Controls.Add(this.checkBoxEnableRestartCost);
+            this.tabPage15.Location = new System.Drawing.Point(4, 22);
+            this.tabPage15.Name = "tabPage15";
+            this.tabPage15.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage15.Size = new System.Drawing.Size(700, 416);
+            this.tabPage15.TabIndex = 15;
+            this.tabPage15.Text = "Restarts";
+            this.tabPage15.UseVisualStyleBackColor = true;
+            // 
+            // textBoxRestartMaxRank
+            // 
+            this.textBoxRestartMaxRank.Location = new System.Drawing.Point(583, 7);
+            this.textBoxRestartMaxRank.Name = "textBoxRestartMaxRank";
+            this.textBoxRestartMaxRank.Size = new System.Drawing.Size(100, 20);
+            this.textBoxRestartMaxRank.TabIndex = 24;
+            // 
+            // checkBoxEnableRestart
+            // 
+            this.checkBoxEnableRestart.AutoSize = true;
+            this.checkBoxEnableRestart.Location = new System.Drawing.Point(9, 6);
+            this.checkBoxEnableRestart.Name = "checkBoxEnableRestart";
+            this.checkBoxEnableRestart.Size = new System.Drawing.Size(166, 17);
+            this.checkBoxEnableRestart.TabIndex = 10;
+            this.checkBoxEnableRestart.Text = "Enable /restart, /showrestarts";
+            this.checkBoxEnableRestart.UseVisualStyleBackColor = true;
+            // 
+            // textBoxRestartMaxCash
+            // 
+            this.textBoxRestartMaxCash.Location = new System.Drawing.Point(583, 33);
+            this.textBoxRestartMaxCash.Name = "textBoxRestartMaxCash";
+            this.textBoxRestartMaxCash.Size = new System.Drawing.Size(100, 20);
+            this.textBoxRestartMaxCash.TabIndex = 26;
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Location = new System.Drawing.Point(368, 33);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(209, 13);
+            this.label36.TabIndex = 25;
+            this.label36.Text = "Prohibit restart if player has cash more than";
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(370, 10);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(207, 13);
+            this.label35.TabIndex = 23;
+            this.label35.Text = "Prohibit restart if player has rank more than";
+            // 
+            // richTextBoxRestarts
+            // 
+            this.richTextBoxRestarts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxRestarts.DetectUrls = false;
+            this.richTextBoxRestarts.Location = new System.Drawing.Point(6, 65);
+            this.richTextBoxRestarts.Name = "richTextBoxRestarts";
+            this.richTextBoxRestarts.Size = new System.Drawing.Size(684, 345);
+            this.richTextBoxRestarts.TabIndex = 16;
+            this.richTextBoxRestarts.Text = "zoner, 10000";
+            // 
+            // label50
+            // 
+            this.label50.AutoSize = true;
+            this.label50.Location = new System.Drawing.Point(6, 49);
+            this.label50.Name = "label50";
+            this.label50.Size = new System.Drawing.Size(85, 13);
+            this.label50.TabIndex = 15;
+            this.label50.Text = "Names and Cost";
+            // 
+            // checkBoxEnableRestartCost
+            // 
+            this.checkBoxEnableRestartCost.AutoSize = true;
+            this.checkBoxEnableRestartCost.Location = new System.Drawing.Point(9, 29);
+            this.checkBoxEnableRestartCost.Name = "checkBoxEnableRestartCost";
+            this.checkBoxEnableRestartCost.Size = new System.Drawing.Size(120, 17);
+            this.checkBoxEnableRestartCost.TabIndex = 14;
+            this.checkBoxEnableRestartCost.Text = "Enable Restart Cost";
+            this.checkBoxEnableRestartCost.UseVisualStyleBackColor = true;
+            // 
             // buttonClose
             // 
             this.buttonClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -2328,7 +2486,7 @@
             this.buttonClose.TabIndex = 1;
             this.buttonClose.Text = "Close";
             this.buttonClose.UseVisualStyleBackColor = true;
-            this.buttonClose.Click += new System.EventHandler(this.buttonClose_Click);
+            this.buttonClose.Click += new System.EventHandler(this.ButtonClose_Click);
             // 
             // buttonSave
             // 
@@ -2339,7 +2497,7 @@
             this.buttonSave.TabIndex = 2;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
             // 
             // statusStrip1
             // 
@@ -2468,37 +2626,6 @@
             this.checkBox1.Text = "Enforce purchase restrictions";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // groupBox7
-            // 
-            this.groupBox7.Controls.Add(this.checkBoxEnableDo);
-            this.groupBox7.Controls.Add(this.checkBoxEnableMe);
-            this.groupBox7.Location = new System.Drawing.Point(10, 368);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(340, 42);
-            this.groupBox7.TabIndex = 23;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "/me and /do";
-            // 
-            // checkBoxEnableMe
-            // 
-            this.checkBoxEnableMe.AutoSize = true;
-            this.checkBoxEnableMe.Location = new System.Drawing.Point(6, 19);
-            this.checkBoxEnableMe.Name = "checkBoxEnableMe";
-            this.checkBoxEnableMe.Size = new System.Drawing.Size(81, 17);
-            this.checkBoxEnableMe.TabIndex = 11;
-            this.checkBoxEnableMe.Text = "Enable /me";
-            this.checkBoxEnableMe.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxEnableDo
-            // 
-            this.checkBoxEnableDo.AutoSize = true;
-            this.checkBoxEnableDo.Location = new System.Drawing.Point(93, 19);
-            this.checkBoxEnableDo.Name = "checkBoxEnableDo";
-            this.checkBoxEnableDo.Size = new System.Drawing.Size(79, 17);
-            this.checkBoxEnableDo.TabIndex = 12;
-            this.checkBoxEnableDo.Text = "Enable /do";
-            this.checkBoxEnableDo.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2517,6 +2644,8 @@
             ((System.ComponentModel.ISupportInitialize)(gameDataSet)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox6.ResumeLayout(false);
@@ -2569,11 +2698,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.sysSensorListBindingSource)).EndInit();
             this.tabPage13.ResumeLayout(false);
             this.tabPage13.PerformLayout();
+            this.tabPage14.ResumeLayout(false);
+            this.tabPage14.PerformLayout();
+            this.tabPage15.ResumeLayout(false);
+            this.tabPage15.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2795,6 +2926,16 @@
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.CheckBox checkBoxEnableDo;
         private System.Windows.Forms.CheckBox checkBoxEnableMe;
+        private System.Windows.Forms.TabPage tabPage14;
+        private System.Windows.Forms.RichTextBox richTextBoxBodies;
+        private System.Windows.Forms.Label label49;
+        private System.Windows.Forms.RichTextBox richTextBoxHeads;
+        private System.Windows.Forms.Label label48;
+        private System.Windows.Forms.CheckBox checkBoxEnableWardrobe;
+        private System.Windows.Forms.TabPage tabPage15;
+        private System.Windows.Forms.RichTextBox richTextBoxRestarts;
+        private System.Windows.Forms.Label label50;
+        private System.Windows.Forms.CheckBox checkBoxEnableRestartCost;
     }
 }
 
