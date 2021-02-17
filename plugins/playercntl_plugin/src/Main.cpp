@@ -38,6 +38,7 @@ bool set_bLocalTime = false;
 bool set_bEnableLoginSound = false;
 bool set_bEnableMe = false;
 bool set_bEnableDo = false;
+bool set_bEnableCargoDrop = false;
 bool set_bEnableWardrobe = false;
 
 float set_fSpinProtectMass;
@@ -110,6 +111,7 @@ void LoadSettings() {
         IniGetB(scPluginCfgFile, "General", "EnableLoginSound", false);
     set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", false);
     set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", false);
+    set_bEnableCargoDrop = IniGetB(scPluginCfgFile, "General", "EnableCargoDrop", false);
     set_bEnableWardrobe = IniGetB(scPluginCfgFile, "General", "EnableWardrobe", false);
 
     set_fSpinProtectMass =
@@ -128,12 +130,13 @@ void LoadSettings() {
     HyperJump::LoadSettings(scPluginCfgFile);
     PurchaseRestrictions::LoadSettings(scPluginCfgFile);
     IPBans::LoadSettings(scPluginCfgFile);
-    CargoDrop::LoadSettings(scPluginCfgFile);
     Restart::LoadSettings(scPluginCfgFile);
     RepFixer::LoadSettings(scPluginCfgFile);
     Message::LoadSettings(scPluginCfgFile);
     SystemSensor::LoadSettings(scPluginCfgFile);
     Wardrobe::LoadSettings(scPluginCfgFile);
+    if (set_bEnableCargoDrop)
+        CargoDrop::LoadSettings(scPluginCfgFile);
     CrashCatcher::Init();
 
     // Load sounds from config if enabled
@@ -159,12 +162,14 @@ void ClearClientInfo(uint iClientID) {
     returncode = DEFAULT_RETURNCODE;
     MiscCmds::ClearClientInfo(iClientID);
     HyperJump::ClearClientInfo(iClientID);
-    CargoDrop::ClearClientInfo(iClientID);
     IPBans::ClearClientInfo(iClientID);
     Message::ClearClientInfo(iClientID);
     PurchaseRestrictions::ClearClientInfo(iClientID);
     AntiJumpDisconnect::ClearClientInfo(iClientID);
     SystemSensor::ClearClientInfo(iClientID);
+
+    if (set_bEnableCargoDrop)
+        CargoDrop::ClearClientInfo(iClientID);
 }
 
 /** One second timer */
@@ -172,10 +177,11 @@ void HkTimer() {
     returncode = DEFAULT_RETURNCODE;
     MiscCmds::Timer();
     HyperJump::Timer();
-    CargoDrop::Timer();
     Message::Timer();
     Restart::Timer();
     Rename::Timer();
+    if (set_bEnableCargoDrop)
+        CargoDrop::Timer();
     Wardrobe::Timer();
 }
 
@@ -186,8 +192,11 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
     returncode = NOFUNCTIONCALL;
 
     HyperJump::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
-    CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
     Message::SendDeathMsg(wscMsg, iSystem, iClientIDVictim, iClientIDKiller);
+
+    if (set_bEnableCargoDrop)
+        CargoDrop::SendDeathMsg(wscMsg, iSystem, iClientIDVictim,
+                                iClientIDKiller);
 
     const wchar_t *victim =
         (const wchar_t *)Players.GetActiveCharacterName(iClientIDVictim);
@@ -598,7 +607,8 @@ void __stdcall StopTradelane(unsigned int iClientID, unsigned int p1,
 void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
                            unsigned int iClientID) {
     returncode = DEFAULT_RETURNCODE;
-    CargoDrop::SPObjUpdate(ui, iClientID);
+    if (set_bEnableCargoDrop)
+        CargoDrop::SPObjUpdate(ui, iClientID);
 }
 } // namespace HkIServerImpl
 
