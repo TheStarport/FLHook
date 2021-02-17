@@ -83,6 +83,7 @@
     <ClCompile Include="src\StartupCache.cpp" />
     <ClCompile Include="src\SystemSensor.cpp" />
     <ClCompile Include="src\wildcards.cpp" />
+    <ClCompile Include="src\Wardrobe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />

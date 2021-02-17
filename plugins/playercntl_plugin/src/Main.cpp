@@ -39,6 +39,7 @@ bool set_bEnableLoginSound = false;
 bool set_bEnableMe = false;
 bool set_bEnableDo = false;
 bool set_bEnableCargoDrop = false;
+bool set_bEnableWardrobe = false;
 
 float set_fSpinProtectMass;
 float set_fSpinImpulseMultiplier;
@@ -111,6 +112,7 @@ void LoadSettings() {
     set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", false);
     set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", false);
     set_bEnableCargoDrop = IniGetB(scPluginCfgFile, "General", "EnableCargoDrop", false);
+    set_bEnableWardrobe = IniGetB(scPluginCfgFile, "General", "EnableWardrobe", false);
 
     set_fSpinProtectMass =
         IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
@@ -132,10 +134,9 @@ void LoadSettings() {
     RepFixer::LoadSettings(scPluginCfgFile);
     Message::LoadSettings(scPluginCfgFile);
     SystemSensor::LoadSettings(scPluginCfgFile);
-
+    Wardrobe::LoadSettings(scPluginCfgFile);
     if (set_bEnableCargoDrop)
         CargoDrop::LoadSettings(scPluginCfgFile);
-
     CrashCatcher::Init();
 
     // Load sounds from config if enabled
@@ -179,9 +180,9 @@ void HkTimer() {
     Message::Timer();
     Restart::Timer();
     Rename::Timer();
-
     if (set_bEnableCargoDrop)
         CargoDrop::Timer();
+    Wardrobe::Timer();
 }
 
 /// Hook for ship distruction. It's easier to hook this than the PlayerDeath
@@ -803,7 +804,13 @@ USERCMD UserCmds[] = {
     {L"/settagpass", Rename::UserCmd_SetTagPass,
      L"Usage: /settagpass <tag> <master password> <rename password>"},
     {L"/me", Message::UserCmd_Me, L"Usage: /me <message>"},
-    {L"/do", Message::UserCmd_Do, L"Usage: /do <message>"}};
+    {L"/do", Message::UserCmd_Do, L"Usage: /do <message>"},
+    {L"/show", Wardrobe::UserCmd_ShowWardrobe,
+     L"Usage: /show <heads/bodies> - This shows the available heads and bodies "
+     L"for the /change command."},
+    {L"/change", Wardrobe::UserCmd_ChangeCostume,
+     L"Usage: /change <head/body> <name> - This changes Trent's head or body "
+     L"to one specified in the /show command."}};
 
 /**
 This function is called by FLHook when a user types a chat std::string. We look
