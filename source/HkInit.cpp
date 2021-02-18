@@ -194,7 +194,7 @@ void ClearClientInfo(uint iClientID) {
     ClientInfo[iClientID].bEngineKilled = false;
     ClientInfo[iClientID].bThrusterActivated = false;
     ClientInfo[iClientID].bTradelane = false;
-
+    ClientInfo[iClientID].iGroupID = 0;
     ClientInfo[iClientID].bSpawnProtected = false;
 
     CALL_PLUGINS_V(PLUGIN_ClearClientInfo, , (uint), (iClientID));

@@ -328,6 +328,7 @@ enum HK_ERROR {
     HKE_PLUGIN_UNPAUSABLE,
     HKE_PLUGIN_NOT_FOUND,
     HKE_UNKNOWN_ERROR,
+    HKE_INVALID_GROUP_ID,
     HKE_CUSTOM_1,
     HKE_CUSTOM_2,
     HKE_CUSTOM_3,
@@ -492,6 +493,9 @@ struct CLIENT_INFO {
 
     // bans
     uint iConnects; // incremented when player connects
+
+    // Group
+    uint iGroupID;
 
     // other
     std::wstring wscHostname;
@@ -667,6 +671,8 @@ EXPORT void SendPrivateChat(uint iFromClientID, uint iToClientID,
 EXPORT void SendSystemChat(uint iFromClientID, const std::wstring &wscText);
 
 // HkFuncPlayers
+EXPORT HK_ERROR HkAddToGroup(uint iClientID, uint iGroupID);
+EXPORT HK_ERROR HkGetGroupID(uint iClientID, uint &iGroupID);
 EXPORT HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash);
 EXPORT HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount);
 EXPORT HK_ERROR HkKick(CAccount *acc);
