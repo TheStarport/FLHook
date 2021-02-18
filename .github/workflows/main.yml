@@ -16,10 +16,10 @@ jobs:
       - uses: DoozyX/clang-format-lint-action@v0.10
         with:
           style: file
-          source: 'source plugins misc FLHookSDK/include'
+          source: 'source plugins'
           clangFormatVersion: 11
           inplace: True
-      - uses: EndBug/add-and-commit@v5
+      - uses: EndBug/add-and-commit@v7
         with:
           author_name: Clang Robot
           author_email: clang-robot@the-starport.net
