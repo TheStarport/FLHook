@@ -114,8 +114,10 @@ void LoadSettings() {
         IniGetB(scPluginCfgFile, "General", "EnableLoginSound", false);
     set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", false);
     set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", false);
-    set_bEnableCargoDrop = IniGetB(scPluginCfgFile, "General", "EnableCargoDrop", false);
-    set_bEnableWardrobe = IniGetB(scPluginCfgFile, "General", "EnableWardrobe", false);
+    set_bEnableCargoDrop =
+        IniGetB(scPluginCfgFile, "General", "EnableCargoDrop", false);
+    set_bEnableWardrobe =
+        IniGetB(scPluginCfgFile, "General", "EnableWardrobe", false);
 
     set_fSpinProtectMass =
         IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
