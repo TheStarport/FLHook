@@ -1,4 +1,4 @@
-﻿// Player Control plugin for FLHookPlugin
+// Player Control plugin for FLHookPlugin
 // Feb 2010 by Cannon
 //
 // This is free software; you can redistribute it and/or modify it as
@@ -34,9 +34,29 @@ static int set_iMaxRank;
 // Players with a cash above this value cannot use the restart command.
 static int set_iMaxCash;
 
+// Name of each restart and how much cash they cost
+static std::map<std::wstring, int> shipPrices;
+
 void Restart::LoadSettings(const std::string &scPluginCfgFile) {
     set_iMaxRank = IniGetI(scPluginCfgFile, "Restart", "MaxRank", 5);
     set_iMaxCash = IniGetI(scPluginCfgFile, "Restart", "MaxCash", 1000000);
+
+    if (set_bEnableRestartCost) {
+        INI_Reader ini;
+        if (ini.open(scPluginCfgFile.c_str(), false)) {
+            while (ini.read_header()) {
+                if (ini.is_header("Restart")) {
+                    while (ini.read_value()) {
+                        if (ini.is_value("restart")) {
+                            std::wstring name = stows(ini.get_value_string(0));
+                            int iCash = ini.get_value_int(1);
+                            shipPrices[name] = iCash;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Restart::UserCmd_ShowRestarts(uint iClientID, const std::wstring &wscCmd,
@@ -57,22 +77,24 @@ bool Restart::UserCmd_ShowRestarts(uint iClientID, const std::wstring &wscCmd,
         return true;
     }
 
-    std::wstring wscMsg = L"";
-
+    PrintUserCmdText(iClientID, L"You can use these restarts:");
     do {
         // add filename
         std::string scFileName = FileData.cFileName;
         size_t len = scFileName.length();
         scFileName.erase(len - 3, len);
-        if (scFileName[0] != '_')
-            wscMsg += stows(scFileName) + L"  ";
+        if (scFileName[0] != '_') {
+            if (set_bEnableRestartCost)
+                PrintUserCmdText(
+                    iClientID,
+                    stows(scFileName) + L" - $" +
+                        std::to_wstring(shipPrices[stows(scFileName)]));
+            else
+                PrintUserCmdText(iClientID, stows(scFileName));
+        }
     } while (FindNextFile(hSearch, &FileData));
 
     FindClose(hSearch);
-
-    PrintUserCmdText(iClientID, L"You can use these restarts:");
-    PrintUserCmdText(iClientID, L"%s", wscMsg.c_str());
-    PrintUserCmdText(iClientID, L"OK");
     return true;
 }
 
@@ -81,6 +103,7 @@ struct RESTART {
     std::string scRestartFile;
     std::wstring wscDir;
     std::wstring wscCharfile;
+    int iCash;
 };
 std::list<RESTART> pendingRestarts;
 
@@ -128,22 +151,40 @@ bool Restart::UserCmd_Restart(uint iClientID, const std::wstring &wscCmd,
         return true;
     }
 
-    // Get rank for MaxRank limit
-    int iRank = 0;
-    HkGetRank(restart.wscCharname, iRank);
-    if (iRank == 0 || iRank > set_iMaxRank) {
-        PrintUserCmdText(iClientID, L"ERR You must create a new char to "
-                                    L"restart. Your rank is too high");
+    if (set_iMaxRank != 0) {
+        int iRank = 0;
+        HkGetRank(restart.wscCharname, iRank);
+        if (iRank == 0 || iRank > set_iMaxRank) {
+            PrintUserCmdText(iClientID, L"ERR You must create a new char to "
+                                        L"restart. Your rank is too high");
+            return true;
+        }
+    }
+
+    HK_ERROR err;
+    int iCash = 0;
+    if ((err = HkGetCash(restart.wscCharname, iCash)) != HKE_OK) {
+        PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
         return true;
     }
 
-    int iCash = 0;
-    HkGetCash(restart.wscCharname, iCash);
-    if (iCash > set_iMaxCash) {
+    if (set_iMaxCash != 0 && iCash > set_iMaxCash) {
         PrintUserCmdText(iClientID, L"ERR You must create a new char to "
                                     L"restart. Your cash is too high");
         return true;
     }
+
+    if (set_bEnableRestartCost) {
+        if (iCash < shipPrices[wscFaction]) {
+            PrintUserCmdText(
+                iClientID, L"You need $" +
+                               std::to_wstring(shipPrices[wscFaction] - iCash) +
+                               L" more credits to use this template");
+            return true;
+        }
+        restart.iCash = iCash - shipPrices[wscFaction];
+    } else
+        restart.iCash = iCash;
 
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     if (acc) {
@@ -181,6 +222,9 @@ void Timer() {
             IniWriteW(scCharFile, "Player", "name", restart.wscCharname);
             IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
             IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
+            IniWrite(scCharFile, "Player", "money",
+                     std::to_string(restart.iCash));
+
             if (!set_bDisableCharfileEncryption)
                 flc_encode(scCharFile.c_str(), scCharFile.c_str());
 

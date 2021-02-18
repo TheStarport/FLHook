@@ -17,6 +17,7 @@ bool extern set_bEnableMoveChar;
 bool extern set_bEnableMe;
 bool extern set_bEnableDo;
 bool extern set_bEnableWardrobe;
+bool extern set_bEnableRestartCost;
 bool extern set_bLocalTime;
 
 // Imports from freelancer libraries.
