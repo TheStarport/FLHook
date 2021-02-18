@@ -34,8 +34,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.3.0
+      - uses: ilammy/msvc-dev-cmd@v1.5.0
+        with:
+          arch: x86
 
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
