@@ -228,7 +228,7 @@ HK_ERROR HkGetAccountDirName(CAccount *acc, std::wstring &wscDir) {
 
 HK_ERROR HkGetAccountDirName(const std::wstring &wscCharname,
                              std::wstring &wscDir) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
     CAccount *acc;
     if (iClientID != -1)
         acc = Players.FindAccountFromClientID(iClientID);
@@ -250,7 +250,7 @@ HK_ERROR HkGetCharFileName(const std::wstring &wscCharname,
 
     char szBuf[1024] = "";
 
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
     if (iClientID != -1) {
         GetFLName(szBuf,
                   (const wchar_t *)Players.GetActiveCharacterName(iClientID));

@@ -221,7 +221,7 @@ bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd,
 
     // Prevent target ship from becoming corrupt.
     float fTargetValue = 0.0f;
-    if (HKGetShipValue(wscTargetCharname, fTargetValue) != HKE_OK) {
+    if ((err = HKGetShipValue(wscTargetCharname, fTargetValue)) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
         return true;
     }
@@ -260,8 +260,8 @@ bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd,
     }
 
     if (targetClientId != -1) {
-        if (ClientInfo[iClientID].iTradePartner ||
-            ClientInfo[targetClientId].iTradePartner) {
+        if (HkIsValidClientID(ClientInfo[iClientID].iTradePartner) ||
+            HkIsValidClientID(ClientInfo[targetClientId].iTradePartner)) {
             PrintUserCmdText(iClientID, L"ERR Trade window open");
             AddLog(
                 "NOTICE: Trade window open when sending %s credits from %s "
@@ -559,8 +559,8 @@ bool GiveCash::UserCmd_DrawCash(uint iClientID, const std::wstring &wscCmd,
 
     uint targetClientId = HkGetClientIdFromCharname(wscTargetCharname);
     if (targetClientId != -1) {
-        if (ClientInfo[iClientID].iTradePartner ||
-            ClientInfo[targetClientId].iTradePartner) {
+        if (HkIsValidClientID(ClientInfo[iClientID].iTradePartner) ||
+            HkIsValidClientID(ClientInfo[targetClientId].iTradePartner)) {
             PrintUserCmdText(iClientID, L"ERR Trade window open");
             AddLog(
                 "NOTICE: Trade window open when drawing %s credits from %s "
