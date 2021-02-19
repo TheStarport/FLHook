@@ -31,7 +31,7 @@ HK_ERROR HkGetGroupID(uint iClientID, uint &iGroupID) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     if ((iClientID != -1) && bIdString && HkIsInCharSelectMenu(iClientID))
         return HKE_NO_CHAR_SELECTED;
@@ -1044,7 +1044,7 @@ HK_ERROR HkGetGroupMembers(const std::wstring &wscCharname,
 HK_ERROR HkReadCharFile(const std::wstring &wscCharname,
                         std::list<std::wstring> &lstOutput) {
     lstOutput.clear();
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     std::wstring wscDir;
     CAccount *acc;

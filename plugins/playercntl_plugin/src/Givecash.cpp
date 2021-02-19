@@ -221,7 +221,7 @@ bool GiveCash::UserCmd_GiveCash(uint iClientID, const std::wstring &wscCmd,
 
     // Prevent target ship from becoming corrupt.
     float fTargetValue = 0.0f;
-    if (HKGetShipValue(wscTargetCharname, fTargetValue) != HKE_OK) {
+    if ((err = HKGetShipValue(wscTargetCharname, fTargetValue)) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
         return true;
     }
