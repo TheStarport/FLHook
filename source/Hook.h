@@ -501,7 +501,8 @@ struct CLIENT_INFO {
     std::wstring wscHostname;
 
     bool bSpawnProtected;
-    uchar unused_data[128];
+    bool bUseServersideHitDetection; // used by AC Plugin
+    uchar unused_data[127];
 };
 
 // taken from directplay
