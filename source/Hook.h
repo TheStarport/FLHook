@@ -461,8 +461,8 @@ struct PluginHookData {
     PluginHook::FunctionType *hookFunction;
     HookStep step;
     int priority;
-
     size_t index;
+
     [[nodiscard]] const PluginData& plugin() const;
 };
 
@@ -471,7 +471,7 @@ inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
 }
 
 struct PluginInfo {
-    EXPORT void version(int version = PLUGIN_API_VERSION);
+    EXPORT void version(int version);
     EXPORT void name(const char* name);
     EXPORT void shortName(const char* shortName);
     EXPORT void mayPause(bool pause);
@@ -479,20 +479,25 @@ struct PluginInfo {
     EXPORT void returnCode(ReturnCode* returnCode);
     EXPORT void addHook(const PluginHook& hook);
 
-    int version_;
+    template<typename... Args>
+    void addHook(Args&&... args) {
+        addHook(PluginHook(std::forward<Args>(args)...));
+    }
+
+    int version_ = 0;
     std::string name_, shortName_;
-    bool mayPause_, mayUnload_;
-    ReturnCode* returnCode_;
+    bool mayPause_ = false, mayUnload_ = false;
+    ReturnCode* returnCode_ = nullptr;
     std::list<PluginHook> hooks_;
 };
 
 EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
 
 class PluginManager : public Singleton<PluginManager> {
-    void clearData(bool free);
-
-    std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * 2> pluginHooks_;
+    std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * size_t(HookStep::Count)> pluginHooks_;
     std::vector<PluginData> plugins_;
+    
+    void clearData(bool free);
 
 public:
     PluginManager();
@@ -504,9 +509,14 @@ public:
     void load(const std::wstring &fileName, CCmds*, bool);
     HK_ERROR pause(size_t hash, bool pause);
     HK_ERROR unload(size_t hash);
+    HK_ERROR pause(const std::string& shortName, bool pause) { return this->pause(std::hash<std::string>{}(shortName), pause); }
+    HK_ERROR unload(const std::string& shortName) { return this->unload(std::hash<std::string>{}(shortName)); }
 
     const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
     PluginData& pluginAt(size_t index) { return plugins_[index]; }
+    
+    auto begin() const { return plugins_.begin(); }
+    auto end() const { return plugins_.end(); }
 
     template<typename ReturnType, typename... Args>
     ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&& ...args) const {
@@ -525,9 +535,9 @@ public:
 
                 TRY_HOOK {
                     if constexpr(ReturnTypeIsVoid)
-                        static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                        reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                     else
-                        ret = static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                        ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                 }
                 CATCH_HOOK({
                     AddLog("ERROR: Exception in plugin '%s' in %s",
@@ -553,7 +563,7 @@ template<typename ReturnType = void, typename... Args>
 auto CallPluginsBefore(HookedCall target, Args&& ...args) {
     bool skip;
     if constexpr(std::is_same_v<ReturnType, void>) {
-        PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        PluginManager::i()->callPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
         return skip;
     } else {
         ReturnType ret = PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
@@ -585,7 +595,7 @@ void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
 void HookRehashed();
-void LoadUserCharSettings(uint iClientID);
+void LoadUserCharSettings(uint clientID);
 
 // HkFuncTools
 EXPORT uint HkGetClientIdFromAccount(CAccount *acc);
@@ -772,7 +782,7 @@ EXPORT HK_ERROR HkFLIniWrite(const std::wstring &wscCharname,
                              const std::wstring &wscKey, std::wstring wscValue);
 
 EXPORT std::wstring HkErrGetText(HK_ERROR hkErr);
-void ClearClientInfo(uint iClientID);
+void ClearClientInfo(uint clientID);
 void LoadUserSettings(uint iClientID);
 
 // HkCbUserCmd
@@ -783,46 +793,11 @@ EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
 EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
                                   float fDistance);
 
-// HkDeath
-void ShipDestroyedHook();
+bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
-// HkDamage
-void _HookMissileTorpHit();
-void _HkCb_AddDmgEntry();
-void _HkCb_GeneralDmg();
-void _HkCb_GeneralDmg2();
-bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
-void _HkCb_NonGunWeaponHitsBase();
-extern FARPROC g_OldNonGunWeaponHitsBase;
 EXPORT extern bool g_NonGunHitsBase;
 EXPORT extern float g_LastHitPts;
-
-// HkCbCallbacks
-void _SendMessageHook();
-void __stdcall HkCb_SendChat(uint iId, uint clientIDTo, uint size, void *rdl);
-
-// HkCbDisconnect
-void _DisconnectPacketSent();
-extern FARPROC g_OldDisconnectPacketSent;
-
-// HkIEngine
-namespace HkIEngine {
-int __cdecl FreeReputationVibe(int const &p1);
-void __cdecl Update_Time(double);
-void __stdcall Elapse_Time(float p1);
-int __cdecl Dock_Call(unsigned int const &, unsigned int const &, int,
-                      enum DOCK_HOST_RESPONSE);
-void _LaunchPos();
-void _CShip_init();
-void _CShip_destroy();
-void _HkLoadRepFromCharFile();
-
-extern FARPROC g_OldLaunchPos;
-extern FARPROC g_OldInitCShip;
-extern FARPROC g_OldDestroyCShip;
-extern FARPROC g_OldLoadRepCharFile;
-} // namespace HkIEngine
 
 // HkTimers
 void HkTimerCheckKick();
@@ -859,10 +834,6 @@ extern EXPORT uint g_DmgToSpaceID;
 extern EXPORT bool g_bMsg;
 extern EXPORT bool g_bMsgS;
 extern EXPORT bool g_bMsgU;
-
-extern FARPROC g_OldShipDestroyed;
-extern FARPROC g_OldGuidedHit;
-extern FARPROC g_OldDamageHit, g_OldDamageHit2;
 
 extern EXPORT CDPClientProxy **g_cClientProxyArray;
 extern EXPORT void *pClient;
@@ -921,13 +892,13 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
             timer.start();                                                      \
             TRY_HOOK {
 
-#define CALL_SERVER_POSTAMBLE(catchArgs)                                        \
+#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                  \
             } CATCH_HOOK({                                                      \
                 AddLog("ERROR: Exception in " __FUNCTION__ " on server call");  \
                 bool ret = catchArgs;                                           \
                 if(!ret) {                                                      \
                     timer.stop();                                               \
-                    return;                                                     \
+                    return rval;                                                \
                 }                                                               \
             })                                                                  \
             timer.stop();                                                       \

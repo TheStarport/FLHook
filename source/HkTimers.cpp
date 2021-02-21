@@ -111,7 +111,7 @@ void HkTimerNPCAndF1Check() {
 
                 __asm {
                     pushad
-                    lea ecx, lArray
+                    lea ecx, dataArray
                     mov eax, [hModRemoteClient]
                     add eax, ADDR_RC_DISCONNECT
                     call eax ; disconncet

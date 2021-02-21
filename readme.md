@@ -192,6 +192,14 @@ If you wish to develop a new plugin within the solution, it is highly recommende
 
 If you would like the build process to copy FLHook as well as any enabled plugin, you may set the `FLHOOK_COPY_PATH` environment variable to your `.\EXE` directory. If it is not set, no such copy will occur. Unlike the `dist` folder structure, no configuration subfolder will be created, so Debug and Release builds will overwrite one another.
 
+### Compiling Generator
+
+The Generator project should rarely need to be recompiled since it's only used to generate some seldom-changed files. If this is necessary, some extra steps are needed to support it.
+
+1. Set the solution to "Generator". This will suspend building other projects.
+2. Follow the instructions [here](https://github.com/foonathan/cppast#installation-on-windows) to setup llvm, clang and `llvm-config`. Change the generator for cmake as required (e.g. Visual Studio 2019 instead).
+3. Build solution as normal.
+
 ### Note on the STL
 
 Freelancer was built using Visual C++ 6.0 libraries. A few functions in Freelancer's API use STL classes (e.g. `std::string`, `std::vector`, etc.). Unfortunately, binary compatibility between VC6 and modern compilers was not preserved, and as a result interoperability is not possible.

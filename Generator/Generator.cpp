@@ -342,6 +342,7 @@ class Parser {
                 hookSrc_ << ")";
             } else
                 hookSrc_ << "true";
+            hookSrc_ << ", " << (voidReturn ? "" : to_string(func.return_type()) + "()");
             hookSrc_ << ")";
         }
         hookSrc_ << ";" << std::endl;
@@ -593,8 +594,10 @@ public:
 
 int main(int argc, char* argv[])
 {
-    if(argc != 2)
+    if(argc != 2) {
+        std::cerr << "Error: solution path not found. Please pass solution path as only argument. From Visual Studio, this should be as easy as setting \"Command Arguments\" to \"$(SolutionDir)\" (WITH quotes) in Debugging for the Generator project." << std::endl;
         return 1;
+    }
 
     //try {
         std::filesystem::path slnDir = argv[1];

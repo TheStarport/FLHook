@@ -2,6 +2,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace HkIServerImpl {
+void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID cidTo, int _genArg1);
+}
+
 EXPORT bool g_bMsg = false;
 
 HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage) {
@@ -348,8 +352,8 @@ void SendLocalSystemChat(uint iFromClientID, const std::wstring &wscText) {
         pub::SpaceObj::GetLocation(iShip, vShipLoc, mShipDir);
 
         // Cheat in the distance calculation. Ignore the y-axis.
-        float fDistance = sqrt(pow(vShipLoc.x - vFromShipLoc.x, 2) +
-                               pow(vShipLoc.z - vFromShipLoc.z, 2));
+        float fDistance = float(sqrt(pow(vShipLoc.x - vFromShipLoc.x, 2) +
+                               pow(vShipLoc.z - vFromShipLoc.z, 2)));
 
         // Is player within scanner range (15K) of the sending char.
         if (fDistance > 14999)

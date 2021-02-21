@@ -254,7 +254,7 @@ void NonGunWeaponHitsBaseAfter() { g_NonGunHitsBase = false; }
 
 ulong g_NonGunWeaponHitsBaseRetAddress;
 
-__declspec(naked) void _HkCb_NonGunWeaponHitsBase() {
+__declspec(naked) void Naked__NonGunWeaponHitsBase() {
     __asm {
         mov eax, [esp+4]
         mov edx, [esp+8]

@@ -675,7 +675,7 @@ void CCmds::CmdDelAdmin(const std::wstring &wscCharname) {
 void CCmds::CmdLoadPlugins() {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    PluginManager::LoadPlugins(false, this);
+    PluginManager::i()->loadAll(false, this);
     Print(L"OK\n");
 }
 
@@ -684,7 +684,7 @@ void CCmds::CmdLoadPlugins() {
 void CCmds::CmdLoadPlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    PluginManager::LoadPlugin(wstos(wscPlugin), this, false);
+    PluginManager::i()->load(wscPlugin, this, false);
     Print(L"OK\n");
 }
 
@@ -694,10 +694,10 @@ void CCmds::CmdListPlugins() {
 
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    for (auto &data : lstPlugins)
-        Print(L"%s (%s) - %s\n", stows(data.sName).c_str(),
-              stows(data.sShortName).c_str(),
-              (!data.bPaused ? L"running" : L"paused"));
+    for (const auto &data : PluginManager::ir())
+        Print(L"%s (%s) - %s\n", stows(data.name).c_str(),
+              stows(data.shortName).c_str(),
+              (!data.paused ? L"running" : L"paused"));
 
     Print(L"OK\n");
 }
@@ -707,7 +707,7 @@ void CCmds::CmdListPlugins() {
 void CCmds::CmdUnloadPlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    if (HKSUCCESS(PluginManager::UnloadPlugin(wstos(wscPlugin))))
+    if (HKSUCCESS(PluginManager::i()->unload(wstos(wscPlugin))))
         Print(L"OK\n");
     else
         PrintError();
@@ -718,7 +718,7 @@ void CCmds::CmdUnloadPlugin(const std::wstring &wscPlugin) {
 void CCmds::CmdPausePlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    if (HKSUCCESS(PluginManager::PausePlugin(wstos(wscPlugin), true)))
+    if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), true)))
         Print(L"OK\n");
     else
         PrintError();
@@ -729,7 +729,7 @@ void CCmds::CmdPausePlugin(const std::wstring &wscPlugin) {
 void CCmds::CmdUnpausePlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
-    if (HKSUCCESS(PluginManager::PausePlugin(wstos(wscPlugin), false)))
+    if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), false)))
         Print(L"OK\n");
     else
         PrintError();
@@ -739,9 +739,9 @@ void CCmds::CmdUnpausePlugin(const std::wstring &wscPlugin) {
 
 void CCmds::CmdRehash() {
     RIGHT_CHECK(RIGHT_SETTINGS);
-
+    
     LoadSettings();
-    CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
+    CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
     HookRehashed();
     Print(L"OK\n");
@@ -810,10 +810,13 @@ void CCmds::CmdHelp() {
                            L"pauseplugin <plugin shortname>\n"
                            L"unpauseplugin <plugin shortname>\n"
                            L"rehash\n";
+    
+
+    CallPluginsBefore(HookedCall::FLHook__AdminCommand__Help, this);
 
     Print(L"%s", wszHelpMsg);
 
-    CALL_PLUGINS_NORET(PLUGIN_CmdHelp_Callback, , (CCmds * classptr), (this));
+    CallPluginsAfter(HookedCall::FLHook__AdminCommand__Help, this);
 
     Print(L"OK\n");
 }
@@ -927,15 +930,6 @@ std::wstring CCmds::ArgStrToEnd(uint iArg) {
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
-bool ExecuteCommandString(CCmds *classptr,
-                                   const std::wstring &wscCmdStr) {
-    CALL_PLUGINS(PLUGIN_ExecuteCommandString_Callback, bool, ,
-                 (CCmds * classptr, const std::wstring &wscCmdStr),
-                 (classptr, wscCmdStr));
-
-    return false;
-}
-
 void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
     // check if command was sent by a socket connection
     bool bSocket = false;
@@ -995,7 +989,9 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
             wscCmd.erase(wscCmd.length() - 1, 1);
         }
 
-        if (!ExecuteCommandString(this, wscCmd)) {
+        bool plugins = CallPluginsBefore(HookedCall::FLHook__AdminCommand__Process, this, wscCmd);
+
+        if (!plugins) {
 
             if (IS_CMD("getcash")) {
                 CmdGetCash(ArgCharname(1));

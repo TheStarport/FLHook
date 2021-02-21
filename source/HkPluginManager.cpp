@@ -162,9 +162,9 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
             continue;
         }
-        uint hookId = uint(hook.targetFunction_) * 2 + uint(hook.step_);
+        uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
         auto& list = pluginHooks_[hookId];
-        list.emplace_back(hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index);
+        list.push_back({ hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index });
         std::sort(list.begin(), list.end());
     }
 
@@ -185,4 +185,33 @@ void PluginManager::loadAll(bool startup, CCmds *adminInterface) {
         load(findData.cFileName, adminInterface, startup);
 
     } while (FindNextFileW(findPluginsHandle, &findData));
+}
+
+void PluginInfo::version(int version) {
+    version_ = version;
+}
+
+
+void PluginInfo::name(const char *name) {
+    name_ = name;
+}
+
+void PluginInfo::shortName(const char *shortName) {
+    shortName_ = shortName;
+}
+
+void PluginInfo::mayPause(bool pause) {
+    mayPause_ = pause;
+}
+
+void PluginInfo::mayUnload(bool unload) {
+    mayUnload_ = unload;
+}
+
+void PluginInfo::returnCode(ReturnCode *returnCode) {
+    returnCode_ = returnCode;
+}
+
+void PluginInfo::addHook(const PluginHook &hook) {
+    hooks_.push_back(hook);
 }

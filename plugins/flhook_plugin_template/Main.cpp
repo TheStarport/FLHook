@@ -9,8 +9,6 @@
 
 // Load configuration file
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
-
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
@@ -57,7 +55,6 @@ bool UserCmd_Template(uint iClientID, const std::wstring &wscCmd,
 
 // Additional information related to the plugin when the /help command is used
 void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
-    returncode = DEFAULT_RETURNCODE;
     PrintUserCmdText(iClientID, L"/template");
 }
 
@@ -72,8 +69,6 @@ USERCMD UserCmds[] = {
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
     try {
         std::wstring wscCmdLineLower = ToLower(wscCmd);
 
@@ -96,8 +91,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
                                      UserCmds[i].usage)) {
                     // We handled the command tell FL hook to stop processing
                     // this chat std::string.
-                    returncode =
-                        SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
+                    g_ReturnCode = ReturnCode::SkipAll; // we handled the command,
                                                     // return immediatly
                     return true;
                 }
@@ -137,16 +131,13 @@ void AdminCmd_Template(CCmds *cmds, float number) {
 
 // Define usable admin commands here
 void CmdHelp(CCmds *classptr) {
-    returncode = DEFAULT_RETURNCODE;
     classptr->Print(L"template <number>\n");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (IS_CMD("template")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        g_ReturnCode = ReturnCode::SkipAll;
         AdminCmd_Template(cmds, cmds->ArgFloat(1));
         return true;
     }
@@ -172,25 +163,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "$projectname$";
-    p_PI->sShortName = "$safeprojectname$";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
-                                             PLUGIN_CmdHelp_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo* pi) {
+    pi->version();
+    pi->name("$projectname$");
+    pi->shortName("$safeprojectname$");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&g_ReturnCode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimer);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

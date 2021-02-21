@@ -12,7 +12,7 @@
 #include <windows.h>
 
 static int set_iPluginDebug = 0;
-PLUGIN_RETURNCODE returncode;
+inline ReturnCode g_ReturnCode;
 
 typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &,
                              const wchar_t *);
