@@ -7,7 +7,7 @@
 // Global variables
 std::set<uint> afks;
 
-void LoadSettings() { returncode = DEFAULT_RETURNCODE; }
+ReturnCode returncode;
 
 // This text mimics the "New Player" messages
 bool RedText(uint iClientID, std::wstring message, std::wstring message2) {
@@ -71,16 +71,12 @@ bool UserCmd_Back(uint iClientID, const std::wstring &wscCmd,
 
 // Clean up when a client disconnects
 void DisConnect_AFTER(uint iClientID) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (afks.count(iClientID) > 0)
         afks.erase(iClientID);
 }
 
 // Hook on chat being sent
 void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (HkIsValidClientID(iTo) && afks.count(iClientID) > 0)
         PrintUserCmdText(iTo, L"This user is away from keyboard.");
 }
@@ -92,8 +88,6 @@ USERCMD UserCmds[] = {
 };
 
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
     std::wstring wscCmdLineLower = ToLower(wscCmd);
 
     // If the chat string does not match the USER_CMD then we do not handle the
@@ -116,9 +110,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
                                  UserCmds[i].usage)) {
                 // We handled the command tell FL hook to stop processing this
                 // chat string.
-                returncode =
-                    SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                // return immediatly
+                returncode = ReturnCode::SkipAll;
                 return true;
             }
         }
@@ -143,35 +135,18 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     srand((uint)time(0));
-    // If we're being loaded from the command line while FLHook is running then
-    // set_scCfgFile will not be empty so load the settings as FLHook only
-    // calls load settings on FLHook startup and .rehash.
-    if (fdwReason == DLL_PROCESS_ATTACH) {
-        if (set_scCfgFile.length() > 0)
-            LoadSettings();
-    } else if (fdwReason == DLL_PROCESS_DETACH) {
-    }
     return true;
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "AFK";
-    p_PI->sShortName = "afk";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&DisConnect_AFTER,
-                        PLUGIN_HkIServerImpl_DisConnect_AFTER, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkCb_SendChat, PLUGIN_HkCb_SendChat, 0));
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo* pi) {
+    pi->name("AFK");
+    pi->shortName("afk");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IChat__SendChat, &HkCb_SendChat);
 }
