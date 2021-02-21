@@ -1,8 +1,6 @@
 ﻿#include "Hook.h"
 #include "CCmds.h"
 
-std::unordered_map<HookedCall, PluginManager::FunctionHookProps*> PluginManager::hookProps_;
-
 const PluginData& PluginHookData::plugin() const {
     return PluginManager::i()->pluginAt(index);
 }
@@ -26,6 +24,7 @@ void PluginManager::clearData(bool free) {
 
 PluginManager::PluginManager() {
     clearData(false);
+    setupProps();
 }
 
 PluginManager::~PluginManager() {
@@ -165,8 +164,8 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
             continue;
         }
 
-        const auto* targetHookProps = hookProps_[hook.targetFunction_];
-        if(targetHookProps == nullptr || !targetHookProps->matches(hook.step_)) {
+        const auto& targetHookProps = hookProps_[hook.targetFunction_];
+        if(!targetHookProps.matches(hook.step_)) {
             adminInterface->Print(L"Error, could not bind function %d.%d of plugin %s, step not available\n",
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
             continue;
@@ -196,6 +195,11 @@ void PluginManager::loadAll(bool startup, CCmds *adminInterface) {
 
     } while (FindNextFileW(findPluginsHandle, &findData));
 }
+
+void PluginManager::setProps(HookedCall c, bool b, bool m, bool a) {
+    hookProps_[c] = { b, m, a };
+}
+
 
 void PluginInfo::version(int version) {
     version_ = version;
@@ -229,9 +233,4 @@ void PluginInfo::returnCode(ReturnCode *returnCode) {
 
 void PluginInfo::addHook(const PluginHook &hook) {
     hooks_.push_back(hook);
-}
-
-PluginManager::FunctionHookProps::FunctionHookProps(HookedCall c, bool b, bool m, bool a)
-    : callBefore_(b), callMid_(m), callAfter_(a) {
-    hookProps_[c] = this;
 }

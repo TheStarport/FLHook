@@ -97,6 +97,7 @@ class Parser {
     std::ofstream hookHeader_;
     std::ofstream sdkHeader_;
     std::stringstream hookedCallEnum_;
+    std::stringstream propsOutput_;
     std::map<std::string, std::stringstream> addresses_;
     
     cppast::libclang_compile_config config_;
@@ -391,6 +392,13 @@ class Parser {
         if(!noPlugins)
             hookedCallEnum_ << "\t" << enumVal << "," << std::endl;
 
+        if(!noPlugins) {
+            propsOutput_ << "\tsetProps(";
+            propsOutput_ << "HookedCall::" << enumVal << ", ";
+            propsOutput_ << "true, false, " << (noPluginsAfter ? "false" : "true");
+            propsOutput_ << ");" << std::endl;
+        }
+
         if(!noLog)
             InsertDebugLog(funcName, args);
 
@@ -450,13 +458,6 @@ class Parser {
             hookSrc_ << "\treturn retVal;" << std::endl;
 
         hookSrc_ << "}" << std::endl;
-
-        if(!noPlugins) {
-            hookSrc_ << "static PluginManager::FunctionHookProps " << ReplaceScope(funcName) << "__Props(";
-            hookSrc_ << "HookedCall::" << enumVal << ", ";
-            hookSrc_ << "true, false, " << (noPluginsAfter ? "false" : "true");
-            hookSrc_ << ");" << std::endl;
-        }
         
         if(serverCall && !context.empty())
             hookSrc_ << "}" << std::endl;
@@ -488,7 +489,12 @@ class Parser {
                         int32_t address = funcIndex * 4;
                         if(auto addrAttribute = has_attribute(entity.attributes(), "Address"); addrAttribute)
                             address = std::stoi(addrAttribute.value().arguments().value().as_string(), 0, 0);
-                        GetAddressStream(name) << "\t{ FARPROC(" << name << "::" << entity.name() << "), 0x" << std::hex << std::uppercase << std::setw(3) << std::setfill('0') << address << ", nullptr }," << std::endl;
+                        std::string sign = "";
+                        if(address < 0) {
+                            sign = "-";
+                            address = -address;
+                        }
+                        GetAddressStream(name) << "\t{ FARPROC(" << name << "::" << entity.name() << "), " << sign << "0x" << std::hex << std::uppercase << std::setw(3) << std::setfill('0') << address << ", nullptr }," << std::endl;
                     }
                 }
 
@@ -517,6 +523,8 @@ public:
         sdkHeader_ << "#pragma once\n\n//\n// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!\n//" << std::endl << std::endl;
 
         hookedCallEnum_ << "enum class HookedCall {" << std::endl;
+
+        propsOutput_ << "void PluginManager::setupProps() {" << std::endl;
     }
     Parser(const Parser&) = delete;
     Parser(Parser&&) = delete;
@@ -599,6 +607,9 @@ public:
             hookSrc_ << a.second.str() << "};" << std::endl << std::endl;
         }
         hookedCallEnum_ << "\tCount" << std::endl << "};";
+
+        propsOutput_ << "}";
+        hookSrc_ << propsOutput_.str();
 
         sdkHeader_ << hookedCallEnum_.str();
     }

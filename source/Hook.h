@@ -496,23 +496,17 @@ EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
 
 class PluginManager : public Singleton<PluginManager> {
 public:
-    class FunctionHookProps {
-        bool callBefore_, callMid_, callAfter_;
-
-    public:
-        FunctionHookProps(HookedCall c, bool b, bool m, bool a);
+    struct FunctionHookProps {
+        bool callBefore = false, callMid = false, callAfter = false;
         
-        bool callBefore() const { return callBefore_; }
-        bool callAfter() const { return callAfter_; }
-        bool callMid() const { return callMid_; }
         bool matches(HookStep s) const {
             switch(s) {
             case HookStep::Before:
-                return callBefore_;
+                return callBefore;
             case HookStep::After:
-                return callAfter_;
+                return callAfter;
             case HookStep::Mid:
-                return callMid_;
+                return callMid;
             default:
                 return false;
             }
@@ -522,9 +516,11 @@ public:
 private:
     std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * size_t(HookStep::Count)> pluginHooks_;
     std::vector<PluginData> plugins_;
-    static std::unordered_map<HookedCall, FunctionHookProps*> hookProps_;
+    std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
     
     void clearData(bool free);
+    void setupProps();
+    void setProps(HookedCall c, bool b, bool m, bool a);
 
 public:
 
