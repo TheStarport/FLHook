@@ -457,7 +457,7 @@ struct PluginData {
     bool mayPause = false;
     bool mayUnload = false;
     ReturnCode *returnCode = nullptr;
-
+    bool resetCode = true;
     bool paused = false;
 };
 
@@ -481,6 +481,7 @@ struct PluginInfo {
     EXPORT void shortName(const char* shortName);
     EXPORT void mayPause(bool pause);
     EXPORT void mayUnload(bool unload);
+    EXPORT void autoResetCode(bool reset);
     EXPORT void returnCode(ReturnCode* returnCode);
     EXPORT void addHook(const PluginHook& hook);
 
@@ -491,7 +492,7 @@ struct PluginInfo {
 
     int version_ = 0;
     std::string name_, shortName_;
-    bool mayPause_ = false, mayUnload_ = false;
+    bool mayPause_ = false, mayUnload_ = false, resetCode_ = true;
     ReturnCode* returnCode_ = nullptr;
     std::list<PluginHook> hooks_;
 };
@@ -536,7 +537,8 @@ public:
                 if (plugin.paused)
                     continue;
 
-                *plugin.returnCode = ReturnCode::Default;
+                if(plugin.resetCode)
+                    *plugin.returnCode = ReturnCode::Default;
 
                 TRY_HOOK {
                     if constexpr(ReturnTypeIsVoid)

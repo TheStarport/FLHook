@@ -115,17 +115,17 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
 
     PluginInfo pi;
     getPluginInfo(&pi);
-    
-    if (pi.shortName_.empty() || pi.name_.empty()) {
-        adminInterface->Print(L"Error, missing name/short name for %s\n",
-                              dllName.c_str());
-        FreeLibrary(plugin.dll);
-        return;
-    }
 
     if (pi.version_ != PLUGIN_API_VERSION) {
         adminInterface->Print(L"Error, incompatible plugin API version for %s: expected %d, got %d\n",
                               dllName.c_str(), PLUGIN_API_VERSION, pi.version_);
+        FreeLibrary(plugin.dll);
+        return;
+    }
+    
+    if (pi.shortName_.empty() || pi.name_.empty()) {
+        adminInterface->Print(L"Error, missing name/short name for %s\n",
+                              dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
@@ -142,12 +142,12 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     plugin.name = pi.name_;
     plugin.shortName = pi.shortName_;
     plugin.hash = std::hash<std::string>{}(plugin.shortName);
+    plugin.resetCode = pi.resetCode_;
 
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
     if (!plugin.mayUnload && !startup) {
-        adminInterface->Print(L"Error, could not load plugin %s: plugin is not unloadable, need "
-                              L"server restart to load\n",
+        adminInterface->Print(L"Error, could not load plugin %s: plugin cannot be unloaded, need server restart to load\n",
                               plugin.dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
@@ -207,6 +207,11 @@ void PluginInfo::mayPause(bool pause) {
 void PluginInfo::mayUnload(bool unload) {
     mayUnload_ = unload;
 }
+
+void PluginInfo::autoResetCode(bool reset) {
+    resetCode_ = reset;
+}
+
 
 void PluginInfo::returnCode(ReturnCode *returnCode) {
     returnCode_ = returnCode;
