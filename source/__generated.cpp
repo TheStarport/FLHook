@@ -22,6 +22,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint clientID, XFireWeaponIn
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_COMMON_FIREWEAPON__Props(HookedCall::IClientImpl__Send_FLPACKET_COMMON_FIREWEAPON, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint clientID, XActivateEquip& aq) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tuint clientID = %u\n\tXActivateEquip& aq = %s\n)",
@@ -41,6 +42,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint clientID, XActivateE
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_COMMON_ACTIVATEEQUIP__Props(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATEEQUIP, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint clientID, XActivateCruise& aq) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tuint clientID = %u\n\tXActivateCruise& aq = %s\n)",
@@ -60,6 +62,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint clientID, XActivate
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_COMMON_ACTIVATECRUISE__Props(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATECRUISE, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint clientID, XActivateThrusters& aq) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tuint clientID = %u\n\tXActivateThrusters& aq = %s\n)",
@@ -79,6 +82,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint clientID, XActiv
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_COMMON_ACTIVATETHRUSTERS__Props(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATETHRUSTERS, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint clientID, XSetTarget& st) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tuint clientID = %u\n\tXSetTarget& st = %s\n)",
@@ -262,6 +266,7 @@ double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint clientID) {
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__CDPClientProxy__GetLinkSaturation__Props(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint clientID, uint shipArch) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tuint clientID = %u\n\tuint shipArch = %u\n)",
@@ -281,6 +286,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint clientID, uint shipArc
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint clientID, float status) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tuint clientID = %u\n\tfloat status = %f\n)",
@@ -300,6 +306,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint clientID, float stat
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -319,6 +326,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint clientID, FLPAC
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -338,6 +346,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint clientID, FLPACKET_UN
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, true, false, true);
 
 void HkIClientImpl::unknown_26(uint clientID, uint _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_26(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
@@ -366,6 +375,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETADDITEM(uint clientID, FLPACKET_UNKN
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETADDITEM__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETADDITEM, true, false, true);
 
 void HkIClientImpl::unknown_28(uint clientID, uint _genArg1, uint _genArg2, uint _genArg3) {
 	AddDebugLog("HkIClientImpl::unknown_28(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint _genArg3 = %u\n)",
@@ -394,6 +404,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint clientID, uint _genAr
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETSTARTROOM__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSTARTROOM, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -608,6 +619,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint clientID, FLPACKET_CRE
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATESOLAR__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESOLAR, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint clientID, FLPACKET_CREATESHIP& ship) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tuint clientID = %u\n\tFLPACKET_CREATESHIP& ship = %s\n)",
@@ -627,6 +639,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint clientID, FLPACKET_CREA
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATESHIP__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESHIP, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -646,6 +659,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint clientID, FLPACKET_UNKN
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATELOOT__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATELOOT, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -665,6 +679,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint clientID, FLPACKET_UNKN
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATEMINE__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEMINE, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -684,6 +699,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint clientID, FLPACKET_UN
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -703,6 +719,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint clientID, FLPACKET_U
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_CREATECOUNTER__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATECOUNTER, true, false, true);
 
 void HkIClientImpl::unknown_53(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_53(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -737,6 +754,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint clientID, SSPObjUpdat
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_COMMON_UPDATEOBJECT__Props(HookedCall::IClientImpl__Send_FLPACKET_COMMON_UPDATEOBJECT, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint clientID, FLPACKET_DESTROYOBJECT& destroy) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tuint clientID = %u\n\tFLPACKET_DESTROYOBJECT& destroy = %s\n)",
@@ -756,6 +774,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint clientID, FLPACKET_D
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_DESTROYOBJECT__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_DESTROYOBJECT, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint clientID, XActivateEquip& aq) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tuint clientID = %u\n\tXActivateEquip& aq = %s\n)",
@@ -775,6 +794,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint clientID, XActivate
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_ACTIVATEOBJECT__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_ACTIVATEOBJECT, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -830,6 +850,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint clientID, FLPACKET_LAUNCH& 
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_LAUNCH__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_LAUNCH, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint clientID, bool response, uint shipID) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(\n\tuint clientID = %u\n\tbool response = %d\n\tuint shipID = %u\n)",
@@ -849,6 +870,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint clientID, bo
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP, true, false, true);
 
 void HkIClientImpl::unknown_63(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_63(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -898,6 +920,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint clientID, uint _genArg1) 
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_USE_ITEM__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_USE_ITEM, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint clientID, FLPACKET_SETREPUTATION& rep) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tuint clientID = %u\n\tFLPACKET_SETREPUTATION& rep = %s\n)",
@@ -917,6 +940,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint clientID, FLPACKET_S
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETREPUTATION__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETREPUTATION, true, false, true);
 
 void HkIClientImpl::unknown_68(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_68(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -945,6 +969,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint clientID, uint _genArg1, 
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SENDCOMM__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SENDCOMM, true, false, true);
 
 void HkIClientImpl::unknown_70(uint clientID, uint _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_70(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
@@ -973,6 +998,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint clientID, FLPA
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SET_MISSION_MESSAGE__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SET_MISSION_MESSAGE, true, false, true);
 
 void HkIClientImpl::unknown_72(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_72(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -1001,6 +1027,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint clientID, uin
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES, true, false, true);
 
 void HkIClientImpl::unknown_74(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_74(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -1059,6 +1086,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETCASH(uint clientID, uint cash) {
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SETCASH__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCASH, true, false, true);
 
 void HkIClientImpl::unknown_79(uint clientID, uint _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_79(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
@@ -1165,6 +1193,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint clientID, FLPACKET_BURNFU
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_BURNFUSE__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_BURNFUSE, true, false, true);
 
 void HkIClientImpl::unknown_89(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_89(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -1397,6 +1426,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint clientID, uint _genArg1
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_SCANNOTIFY__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SCANNOTIFY, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint clientID, wchar_t* _genArg1, uint _genArg2, char _genArg3) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tuint clientID = %u\n\twchar_t* _genArg1 = %p\n\tuint _genArg2 = %u\n\tchar _genArg3 = %s\n)",
@@ -1416,6 +1446,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint clientID, wchar_t* _gen
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_PLAYERLIST__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, true, false, true);
 
 void HkIClientImpl::unknown_112(uint clientID, uint _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_112(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
@@ -1444,6 +1475,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint clientID) {
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -1463,6 +1495,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint clientID, uint _ge
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_6__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_6, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -1482,6 +1515,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint clientID, uint _ge
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_7__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_7, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint clientID, FLPACKET_UNKNOWN& _genArg1) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
@@ -1501,6 +1535,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint clientID, FLPACKET_U
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -1520,6 +1555,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint clientID, uint _ge
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_2__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_2, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint clientID, uint targetID, uint rank) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tuint clientID = %u\n\tuint targetID = %u\n\tuint rank = %u\n)",
@@ -1539,6 +1575,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint clientID, uint tar
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_3__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_3, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -1558,6 +1595,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint clientID, uint _ge
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_4__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_4, true, false, true);
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint clientID, uint _genArg1, uint _genArg2) {
 	AddDebugLog("HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
@@ -1577,6 +1615,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint clientID, uint _ge
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps HkIClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_5__Props(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_5, true, false, true);
 
 void HkIClientImpl::unknown_121(uint clientID, uint _genArg1) {
 	AddDebugLog("HkIClientImpl::unknown_121(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
@@ -1657,6 +1696,7 @@ void __stdcall FireWeapon(uint clientID, XFireWeaponInfo const& fwi) {
 	CallPluginsAfter(HookedCall::IServerImpl__FireWeapon,
 			clientID, fwi);
 }
+static PluginManager::FunctionHookProps FireWeapon__Props(HookedCall::IServerImpl__FireWeapon, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1680,6 +1720,7 @@ void __stdcall ActivateEquip(uint clientID, XActivateEquip const& aq) {
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateEquip,
 			clientID, aq);
 }
+static PluginManager::FunctionHookProps ActivateEquip__Props(HookedCall::IServerImpl__ActivateEquip, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1703,6 +1744,7 @@ void __stdcall ActivateCruise(uint clientID, XActivateCruise const& ac) {
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateCruise,
 			clientID, ac);
 }
+static PluginManager::FunctionHookProps ActivateCruise__Props(HookedCall::IServerImpl__ActivateCruise, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1726,6 +1768,7 @@ void __stdcall ActivateThrusters(uint clientID, XActivateThrusters const& at) {
 	CallPluginsAfter(HookedCall::IServerImpl__ActivateThrusters,
 			clientID, at);
 }
+static PluginManager::FunctionHookProps ActivateThrusters__Props(HookedCall::IServerImpl__ActivateThrusters, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1745,6 +1788,7 @@ void __stdcall SetTarget(uint clientID, XSetTarget const& st) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetTarget,
 			clientID, st);
 }
+static PluginManager::FunctionHookProps SetTarget__Props(HookedCall::IServerImpl__SetTarget, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1764,6 +1808,7 @@ void __stdcall TractorObjects(uint clientID, XTractorObjects const& to) {
 	CallPluginsAfter(HookedCall::IServerImpl__TractorObjects,
 			clientID, to);
 }
+static PluginManager::FunctionHookProps TractorObjects__Props(HookedCall::IServerImpl__TractorObjects, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1785,6 +1830,7 @@ void __stdcall GoTradelane(uint clientID, XGoTradelane const& gt) {
 	CallPluginsAfter(HookedCall::IServerImpl__GoTradelane,
 			clientID, gt);
 }
+static PluginManager::FunctionHookProps GoTradelane__Props(HookedCall::IServerImpl__GoTradelane, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1806,6 +1852,7 @@ void __stdcall StopTradelane(uint clientID, uint shipID, uint tradelaneRing1, ui
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradelane,
 			clientID, shipID, tradelaneRing1, tradelaneRing2);
 }
+static PluginManager::FunctionHookProps StopTradelane__Props(HookedCall::IServerImpl__StopTradelane, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1825,6 +1872,7 @@ void __stdcall JettisonCargo(uint clientID, XJettisonCargo const& jc) {
 	CallPluginsAfter(HookedCall::IServerImpl__JettisonCargo,
 			clientID, jc);
 }
+static PluginManager::FunctionHookProps JettisonCargo__Props(HookedCall::IServerImpl__JettisonCargo, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1850,6 +1898,7 @@ bool __stdcall Startup(SStartupInfo const& si) {
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps Startup__Props(HookedCall::IServerImpl__Startup, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1866,12 +1915,11 @@ void __stdcall Shutdown() {
 	Shutdown__InnerAfter();
 
 }
+static PluginManager::FunctionHookProps Shutdown__Props(HookedCall::IServerImpl__Shutdown, true, false, false);
 }
 
 namespace HkIServerImpl {
 int __stdcall Update() {
-	AddDebugLog("Update()");
-
 	auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update);
 
 	Update__Inner();
@@ -1886,6 +1934,7 @@ int __stdcall Update() {
 
 	return retVal;
 }
+static PluginManager::FunctionHookProps Update__Props(HookedCall::IServerImpl__Update, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1907,6 +1956,7 @@ void __stdcall DisConnect(uint clientID, EFLConnection conn) {
 	CallPluginsAfter(HookedCall::IServerImpl__DisConnect,
 			clientID, conn);
 }
+static PluginManager::FunctionHookProps DisConnect__Props(HookedCall::IServerImpl__DisConnect, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1932,6 +1982,7 @@ void __stdcall OnConnect(uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__OnConnect,
 			clientID);
 }
+static PluginManager::FunctionHookProps OnConnect__Props(HookedCall::IServerImpl__OnConnect, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1953,6 +2004,7 @@ void __stdcall Login(SLoginInfo const& li, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__Login,
 			li, clientID);
 }
+static PluginManager::FunctionHookProps Login__Props(HookedCall::IServerImpl__Login, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -1976,6 +2028,7 @@ void __stdcall CharacterInfoReq(uint clientID, bool _genArg1) {
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterInfoReq,
 			clientID, _genArg1);
 }
+static PluginManager::FunctionHookProps CharacterInfoReq__Props(HookedCall::IServerImpl__CharacterInfoReq, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2001,6 +2054,7 @@ void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect,
 			cid, clientID);
 }
+static PluginManager::FunctionHookProps CharacterSelect__Props(HookedCall::IServerImpl__CharacterSelect, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2020,6 +2074,7 @@ void __stdcall CreateNewCharacter(SCreateCharacterInfo const& _genArg1, uint cli
 	CallPluginsAfter(HookedCall::IServerImpl__CreateNewCharacter,
 			_genArg1, clientID);
 }
+static PluginManager::FunctionHookProps CreateNewCharacter__Props(HookedCall::IServerImpl__CreateNewCharacter, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2039,6 +2094,7 @@ void __stdcall DestroyCharacter(CHARACTER_ID const& _genArg1, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__DestroyCharacter,
 			_genArg1, clientID);
 }
+static PluginManager::FunctionHookProps DestroyCharacter__Props(HookedCall::IServerImpl__DestroyCharacter, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2058,6 +2114,7 @@ void __stdcall ReqShipArch(uint archID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqShipArch,
 			archID, clientID);
 }
+static PluginManager::FunctionHookProps ReqShipArch__Props(HookedCall::IServerImpl__ReqShipArch, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2077,6 +2134,7 @@ void __stdcall ReqHullStatus(float status, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqHullStatus,
 			status, clientID);
 }
+static PluginManager::FunctionHookProps ReqHullStatus__Props(HookedCall::IServerImpl__ReqHullStatus, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2096,6 +2154,7 @@ void __stdcall ReqCollisionGroups(st6::list<CollisionGroupDesc> const& collision
 	CallPluginsAfter(HookedCall::IServerImpl__ReqCollisionGroups,
 			collisionGroups, clientID);
 }
+static PluginManager::FunctionHookProps ReqCollisionGroups__Props(HookedCall::IServerImpl__ReqCollisionGroups, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2115,6 +2174,7 @@ void __stdcall ReqEquipment(EquipDescList const& edl, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqEquipment,
 			edl, clientID);
 }
+static PluginManager::FunctionHookProps ReqEquipment__Props(HookedCall::IServerImpl__ReqEquipment, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2134,6 +2194,7 @@ void __stdcall ReqAddItem(uint goodID, char const* hardpoint, int count, float s
 	CallPluginsAfter(HookedCall::IServerImpl__ReqAddItem,
 			goodID, hardpoint, count, status, mounted, iClientID);
 }
+static PluginManager::FunctionHookProps ReqAddItem__Props(HookedCall::IServerImpl__ReqAddItem, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2153,6 +2214,7 @@ void __stdcall ReqRemoveItem(ushort slotID, int count, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqRemoveItem,
 			slotID, count, clientID);
 }
+static PluginManager::FunctionHookProps ReqRemoveItem__Props(HookedCall::IServerImpl__ReqRemoveItem, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2172,6 +2234,7 @@ void __stdcall ReqModifyItem(ushort slotID, char const* hardpoint, int count, fl
 	CallPluginsAfter(HookedCall::IServerImpl__ReqModifyItem,
 			slotID, hardpoint, count, status, mounted, iClientID);
 }
+static PluginManager::FunctionHookProps ReqModifyItem__Props(HookedCall::IServerImpl__ReqModifyItem, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2191,6 +2254,7 @@ void __stdcall ReqSetCash(int cash, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqSetCash,
 			cash, clientID);
 }
+static PluginManager::FunctionHookProps ReqSetCash__Props(HookedCall::IServerImpl__ReqSetCash, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2210,6 +2274,7 @@ void __stdcall ReqChangeCash(int cashAdd, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__ReqChangeCash,
 			cashAdd, clientID);
 }
+static PluginManager::FunctionHookProps ReqChangeCash__Props(HookedCall::IServerImpl__ReqChangeCash, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2235,6 +2300,7 @@ void __stdcall BaseEnter(uint baseID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__BaseEnter,
 			baseID, clientID);
 }
+static PluginManager::FunctionHookProps BaseEnter__Props(HookedCall::IServerImpl__BaseEnter, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2260,6 +2326,7 @@ void __stdcall BaseExit(uint baseID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__BaseExit,
 			baseID, clientID);
 }
+static PluginManager::FunctionHookProps BaseExit__Props(HookedCall::IServerImpl__BaseExit, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2279,6 +2346,7 @@ void __stdcall LocationEnter(uint locationID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__LocationEnter,
 			locationID, clientID);
 }
+static PluginManager::FunctionHookProps LocationEnter__Props(HookedCall::IServerImpl__LocationEnter, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2298,6 +2366,7 @@ void __stdcall LocationExit(uint locationID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__LocationExit,
 			locationID, clientID);
 }
+static PluginManager::FunctionHookProps LocationExit__Props(HookedCall::IServerImpl__LocationExit, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2317,6 +2386,7 @@ void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, boo
 	CallPluginsAfter(HookedCall::IServerImpl__BaseInfoRequest,
 			_genArg1, _genArg2, _genArg3);
 }
+static PluginManager::FunctionHookProps BaseInfoRequest__Props(HookedCall::IServerImpl__BaseInfoRequest, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2336,6 +2406,7 @@ void __stdcall LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2,
 	CallPluginsAfter(HookedCall::IServerImpl__LocationInfoRequest,
 			_genArg1, _genArg2, _genArg3);
 }
+static PluginManager::FunctionHookProps LocationInfoRequest__Props(HookedCall::IServerImpl__LocationInfoRequest, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2355,6 +2426,7 @@ void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__GFObjSelect,
 			_genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps GFObjSelect__Props(HookedCall::IServerImpl__GFObjSelect, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2374,6 +2446,7 @@ void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& gvi, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodVaporized,
 			gvi, clientID);
 }
+static PluginManager::FunctionHookProps GFGoodVaporized__Props(HookedCall::IServerImpl__GFGoodVaporized, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2393,6 +2466,7 @@ void __stdcall MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bo
 	CallPluginsAfter(HookedCall::IServerImpl__MissionResponse,
 			_genArg1, _genArg2, _genArg3, clientID);
 }
+static PluginManager::FunctionHookProps MissionResponse__Props(HookedCall::IServerImpl__MissionResponse, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2412,6 +2486,7 @@ void __stdcall TradeResponse(unsigned char const* _genArg1, int _genArg2, uint c
 	CallPluginsAfter(HookedCall::IServerImpl__TradeResponse,
 			_genArg1, _genArg2, clientID);
 }
+static PluginManager::FunctionHookProps TradeResponse__Props(HookedCall::IServerImpl__TradeResponse, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2431,6 +2506,7 @@ void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodBuy,
 			_genArg1, clientID);
 }
+static PluginManager::FunctionHookProps GFGoodBuy__Props(HookedCall::IServerImpl__GFGoodBuy, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2454,6 +2530,7 @@ void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__GFGoodSell,
 			_genArg1, clientID);
 }
+static PluginManager::FunctionHookProps GFGoodSell__Props(HookedCall::IServerImpl__GFGoodSell, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2475,6 +2552,7 @@ void __stdcall SystemSwitchOutComplete(uint shipID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__SystemSwitchOutComplete,
 			shipID, clientID);
 }
+static PluginManager::FunctionHookProps SystemSwitchOutComplete__Props(HookedCall::IServerImpl__SystemSwitchOutComplete, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2500,6 +2578,7 @@ void __stdcall PlayerLaunch(uint shipID, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__PlayerLaunch,
 			shipID, clientID);
 }
+static PluginManager::FunctionHookProps PlayerLaunch__Props(HookedCall::IServerImpl__PlayerLaunch, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2521,6 +2600,7 @@ void __stdcall LaunchComplete(uint baseID, uint shipID) {
 	CallPluginsAfter(HookedCall::IServerImpl__LaunchComplete,
 			baseID, shipID);
 }
+static PluginManager::FunctionHookProps LaunchComplete__Props(HookedCall::IServerImpl__LaunchComplete, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2542,6 +2622,7 @@ void __stdcall JumpInComplete(uint systemID, uint shipID) {
 	CallPluginsAfter(HookedCall::IServerImpl__JumpInComplete,
 			systemID, shipID);
 }
+static PluginManager::FunctionHookProps JumpInComplete__Props(HookedCall::IServerImpl__JumpInComplete, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2561,6 +2642,7 @@ void __stdcall Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _
 	CallPluginsAfter(HookedCall::IServerImpl__Hail,
 			_genArg1, _genArg2, _genArg3);
 }
+static PluginManager::FunctionHookProps Hail__Props(HookedCall::IServerImpl__Hail, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2581,6 +2663,7 @@ void __stdcall SPObjUpdate(SSPObjUpdateInfo const& ui, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjUpdate,
 			ui, clientID);
 }
+static PluginManager::FunctionHookProps SPObjUpdate__Props(HookedCall::IServerImpl__SPObjUpdate, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2604,6 +2687,7 @@ void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& mci, uint cli
 	CallPluginsAfter(HookedCall::IServerImpl__SPMunitionCollision,
 			mci, clientID);
 }
+static PluginManager::FunctionHookProps SPMunitionCollision__Props(HookedCall::IServerImpl__SPMunitionCollision, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2625,6 +2709,7 @@ void __stdcall SPObjCollision(SSPObjCollisionInfo const& oci, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__SPObjCollision,
 			oci, clientID);
 }
+static PluginManager::FunctionHookProps SPObjCollision__Props(HookedCall::IServerImpl__SPObjCollision, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2644,6 +2729,7 @@ void __stdcall SPRequestUseItem(SSPUseItem const& ui, uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestUseItem,
 			ui, clientID);
 }
+static PluginManager::FunctionHookProps SPRequestUseItem__Props(HookedCall::IServerImpl__SPRequestUseItem, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2663,6 +2749,7 @@ void __stdcall SPRequestInvincibility(uint shipID, bool enable, InvincibilityRea
 	CallPluginsAfter(HookedCall::IServerImpl__SPRequestInvincibility,
 			shipID, enable, reason, clientID);
 }
+static PluginManager::FunctionHookProps SPRequestInvincibility__Props(HookedCall::IServerImpl__SPRequestInvincibility, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2682,6 +2769,7 @@ void __stdcall RequestEvent(int eventType, uint shipID, uint dockTarget, uint _g
 	CallPluginsAfter(HookedCall::IServerImpl__RequestEvent,
 			eventType, shipID, dockTarget, _genArg1, _genArg2, clientID);
 }
+static PluginManager::FunctionHookProps RequestEvent__Props(HookedCall::IServerImpl__RequestEvent, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2701,6 +2789,7 @@ void __stdcall RequestCancel(int eventType, uint shipID, uint _genArg1, ulong _g
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCancel,
 			eventType, shipID, _genArg1, _genArg2, clientID);
 }
+static PluginManager::FunctionHookProps RequestCancel__Props(HookedCall::IServerImpl__RequestCancel, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2720,6 +2809,7 @@ void __stdcall MineAsteroid(uint systemID, Vector const& pos, uint crateID, uint
 	CallPluginsAfter(HookedCall::IServerImpl__MineAsteroid,
 			systemID, pos, crateID, lootID, count, clientID);
 }
+static PluginManager::FunctionHookProps MineAsteroid__Props(HookedCall::IServerImpl__MineAsteroid, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2739,6 +2829,7 @@ void __stdcall RequestCreateShip(uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__RequestCreateShip,
 			clientID);
 }
+static PluginManager::FunctionHookProps RequestCreateShip__Props(HookedCall::IServerImpl__RequestCreateShip, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2758,6 +2849,7 @@ void __stdcall SPScanCargo(uint const& _genArg1, uint const& _genArg2, uint _gen
 	CallPluginsAfter(HookedCall::IServerImpl__SPScanCargo,
 			_genArg1, _genArg2, _genArg3);
 }
+static PluginManager::FunctionHookProps SPScanCargo__Props(HookedCall::IServerImpl__SPScanCargo, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2777,6 +2869,7 @@ void __stdcall SetManeuver(uint clientID, XSetManeuver const& sm) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetManeuver,
 			clientID, sm);
 }
+static PluginManager::FunctionHookProps SetManeuver__Props(HookedCall::IServerImpl__SetManeuver, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2796,6 +2889,7 @@ void __stdcall InterfaceItemUsed(uint _genArg1, uint _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__InterfaceItemUsed,
 			_genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps InterfaceItemUsed__Props(HookedCall::IServerImpl__InterfaceItemUsed, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2815,6 +2909,7 @@ void __stdcall AbortMission(uint clientID, uint _genArg1) {
 	CallPluginsAfter(HookedCall::IServerImpl__AbortMission,
 			clientID, _genArg1);
 }
+static PluginManager::FunctionHookProps AbortMission__Props(HookedCall::IServerImpl__AbortMission, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2834,6 +2929,7 @@ void __stdcall SetWeaponGroup(uint clientID, uchar* _genArg1, int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetWeaponGroup,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps SetWeaponGroup__Props(HookedCall::IServerImpl__SetWeaponGroup, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2853,6 +2949,7 @@ void __stdcall SetVisitedState(uint clientID, uchar* _genArg1, int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetVisitedState,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps SetVisitedState__Props(HookedCall::IServerImpl__SetVisitedState, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2872,6 +2969,7 @@ void __stdcall RequestBestPath(uint clientID, uchar* _genArg1, int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__RequestBestPath,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps RequestBestPath__Props(HookedCall::IServerImpl__RequestBestPath, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2891,6 +2989,7 @@ void __stdcall RequestPlayerStats(uint clientID, uchar* _genArg1, int _genArg2) 
 	CallPluginsAfter(HookedCall::IServerImpl__RequestPlayerStats,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps RequestPlayerStats__Props(HookedCall::IServerImpl__RequestPlayerStats, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2910,6 +3009,7 @@ void __stdcall RequestGroupPositions(uint clientID, uchar* _genArg1, int _genArg
 	CallPluginsAfter(HookedCall::IServerImpl__RequestGroupPositions,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps RequestGroupPositions__Props(HookedCall::IServerImpl__RequestGroupPositions, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2929,6 +3029,7 @@ void __stdcall SetInterfaceState(uint clientID, uchar* _genArg1, int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetInterfaceState,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps SetInterfaceState__Props(HookedCall::IServerImpl__SetInterfaceState, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2948,6 +3049,7 @@ void __stdcall RequestRankLevel(uint clientID, uchar* _genArg1, int _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__RequestRankLevel,
 			clientID, _genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps RequestRankLevel__Props(HookedCall::IServerImpl__RequestRankLevel, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2969,6 +3071,7 @@ void __stdcall InitiateTrade(uint clientID1, uint clientID2) {
 	CallPluginsAfter(HookedCall::IServerImpl__InitiateTrade,
 			clientID1, clientID2);
 }
+static PluginManager::FunctionHookProps InitiateTrade__Props(HookedCall::IServerImpl__InitiateTrade, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -2992,6 +3095,7 @@ void __stdcall TerminateTrade(uint clientID, int accepted) {
 	CallPluginsAfter(HookedCall::IServerImpl__TerminateTrade,
 			clientID, accepted);
 }
+static PluginManager::FunctionHookProps TerminateTrade__Props(HookedCall::IServerImpl__TerminateTrade, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3011,6 +3115,7 @@ void __stdcall AcceptTrade(uint clientID, bool _genArg1) {
 	CallPluginsAfter(HookedCall::IServerImpl__AcceptTrade,
 			clientID, _genArg1);
 }
+static PluginManager::FunctionHookProps AcceptTrade__Props(HookedCall::IServerImpl__AcceptTrade, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3030,6 +3135,7 @@ void __stdcall SetTradeMoney(uint clientID, ulong _genArg1) {
 	CallPluginsAfter(HookedCall::IServerImpl__SetTradeMoney,
 			clientID, _genArg1);
 }
+static PluginManager::FunctionHookProps SetTradeMoney__Props(HookedCall::IServerImpl__SetTradeMoney, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3049,6 +3155,7 @@ void __stdcall AddTradeEquip(uint clientID, EquipDesc const& ed) {
 	CallPluginsAfter(HookedCall::IServerImpl__AddTradeEquip,
 			clientID, ed);
 }
+static PluginManager::FunctionHookProps AddTradeEquip__Props(HookedCall::IServerImpl__AddTradeEquip, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3068,6 +3175,7 @@ void __stdcall DelTradeEquip(uint clientID, EquipDesc const& ed) {
 	CallPluginsAfter(HookedCall::IServerImpl__DelTradeEquip,
 			clientID, ed);
 }
+static PluginManager::FunctionHookProps DelTradeEquip__Props(HookedCall::IServerImpl__DelTradeEquip, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3087,6 +3195,7 @@ void __stdcall RequestTrade(uint _genArg1, uint _genArg2) {
 	CallPluginsAfter(HookedCall::IServerImpl__RequestTrade,
 			_genArg1, _genArg2);
 }
+static PluginManager::FunctionHookProps RequestTrade__Props(HookedCall::IServerImpl__RequestTrade, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3106,6 +3215,7 @@ void __stdcall StopTradeRequest(uint clientID) {
 	CallPluginsAfter(HookedCall::IServerImpl__StopTradeRequest,
 			clientID);
 }
+static PluginManager::FunctionHookProps StopTradeRequest__Props(HookedCall::IServerImpl__StopTradeRequest, true, false, true);
 }
 
 namespace HkIServerImpl {
@@ -3135,6 +3245,7 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 	CallPluginsAfter(HookedCall::IServerImpl__SubmitChat,
 			cidFrom, size, rdlReader, cidTo, _genArg1);
 }
+static PluginManager::FunctionHookProps SubmitChat__Props(HookedCall::IServerImpl__SubmitChat, true, false, true);
 }
 
 HookEntry HkIServerImplEntries[] = {
