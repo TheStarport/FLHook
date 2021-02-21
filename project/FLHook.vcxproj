@@ -49,10 +49,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <GenerateManifest>true</GenerateManifest>
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>true</GenerateManifest>
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
@@ -132,17 +134,15 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   <ItemGroup>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
+    <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />
     <ClCompile Include="..\source\HkFLIni.cpp" />
     <ClCompile Include="..\source\HkHelp.cpp" />
     <ClCompile Include="..\source\HkInit.cpp" />
-    <ClCompile Include="..\source\HkCbChat.cpp" />
-    <ClCompile Include="..\source\HkCbDamage.cpp" />
-    <ClCompile Include="..\source\HkCbDeath.cpp" />
-    <ClCompile Include="..\source\HkCbDisconnect.cpp" />
-    <ClCompile Include="..\source\HkCbIClientImpl.cpp" />
-    <ClCompile Include="..\source\HkCbIEngine.cpp" />
-    <ClCompile Include="..\source\HkCbIServerImpl.cpp" />
+    <ClCompile Include="..\source\HkIChatServer.cpp" />
+    <ClCompile Include="..\source\HkIEngineDamage.cpp" />
+    <ClCompile Include="..\source\HkIEngineDeath.cpp" />
+    <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
     <ClCompile Include="..\source\HkTimers.cpp" />
     <ClCompile Include="..\source\HkUserCmd.cpp" />
     <ClCompile Include="..\source\HkFuncLog.cpp" />
@@ -165,6 +165,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
+    <ClCompile Include="..\source\__generated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
@@ -178,9 +179,11 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
     <ClInclude Include="..\FLHookSDK\include\plugin_comms.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\__generated.h" />
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
+    <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\wildcards.hh" />
     <ClInclude Include="..\source\CCmds.h" />
@@ -199,6 +202,9 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md" />
+    <None Include="..\source\Generated.inl" />
+    <None Include="..\source\HkIClientImpl.inl" />
+    <None Include="..\source\HkIServerImpl.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

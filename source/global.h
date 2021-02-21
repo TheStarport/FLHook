@@ -74,7 +74,7 @@ EXPORT bool IniGetB(const std::string &scFile, const std::string &scApp,
                     const std::string &scKey, bool bDefault);
 EXPORT void IniWrite(const std::string &scFile, const std::string &scApp,
                      const std::string &scKey, const std::string &scValue);
-EXPORT void WriteProcMem(void *pAddress, void *pMem, int iSize);
+EXPORT void WriteProcMem(void *pAddress, const void *pMem, int iSize);
 EXPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
 EXPORT int ToInt(const std::wstring &wscStr);
 EXPORT uint ToUInt(const std::wstring &wscStr);

@@ -115,7 +115,7 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+//
 
 class CCmds;
 
@@ -236,7 +236,7 @@ enum EQ_TYPE {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // structs
 
-struct HOOKENTRY {
+struct HookEntry {
     FARPROC fpProc;
     long dwRemoteAddress;
     FARPROC fpOldProc;
@@ -419,6 +419,22 @@ struct GROUP_MEMBER {
     std::wstring wscCharname;
 };
 
+struct SpecialChatIDs {
+    enum : uint {
+        CONSOLE = 0,
+
+        PLAYER_MIN = 1,
+        PLAYER_MAX = 249,
+
+        SPECIAL_BASE = 0x10000,
+        UNIVERSE = SPECIAL_BASE | 0,
+        SYSTEM = SPECIAL_BASE | 1,
+        LOCAL = SPECIAL_BASE | 2,
+        GROUP = SPECIAL_BASE | 3,
+        GROUP_EVENT = SPECIAL_BASE | 4
+    };
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // plugin functionality & hook prototypes
 //
@@ -436,7 +452,7 @@ struct PluginData {
     bool mayPause = false;
     bool mayUnload = false;
     ReturnCode *returnCode = nullptr;
-
+    bool resetCode = true;
     bool paused = false;
 };
 
@@ -445,8 +461,8 @@ struct PluginHookData {
     PluginHook::FunctionType *hookFunction;
     HookStep step;
     int priority;
-
     size_t index;
+
     [[nodiscard]] const PluginData& plugin() const;
 };
 
@@ -455,42 +471,80 @@ inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
 }
 
 struct PluginInfo {
-    EXPORT void version(int version = PLUGIN_API_VERSION);
+    EXPORT void version(int version);
     EXPORT void name(const char* name);
     EXPORT void shortName(const char* shortName);
     EXPORT void mayPause(bool pause);
     EXPORT void mayUnload(bool unload);
+    EXPORT void autoResetCode(bool reset);
     EXPORT void returnCode(ReturnCode* returnCode);
     EXPORT void addHook(const PluginHook& hook);
 
-    int version_;
+    template<typename... Args>
+    void addHook(Args&&... args) {
+        addHook(PluginHook(std::forward<Args>(args)...));
+    }
+
+    int version_ = 0;
     std::string name_, shortName_;
-    bool mayPause_, mayUnload_;
-    ReturnCode* returnCode_;
+    bool mayPause_ = false, mayUnload_ = false, resetCode_ = true;
+    ReturnCode* returnCode_ = nullptr;
     std::list<PluginHook> hooks_;
 };
 
 EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
 
 class PluginManager : public Singleton<PluginManager> {
-    void clearData(bool free);
-    
-    std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * 2> pluginHooks_;
+public:
+    class FunctionHookProps {
+        bool callBefore_, callMid_, callAfter_;
+
+    public:
+        FunctionHookProps(HookedCall c, bool b, bool m, bool a);
+        
+        bool callBefore() const { return callBefore_; }
+        bool callAfter() const { return callAfter_; }
+        bool callMid() const { return callMid_; }
+        bool matches(HookStep s) const {
+            switch(s) {
+            case HookStep::Before:
+                return callBefore_;
+            case HookStep::After:
+                return callAfter_;
+            case HookStep::Mid:
+                return callMid_;
+            default:
+                return false;
+            }
+        }
+    };
+
+private:
+    std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * size_t(HookStep::Count)> pluginHooks_;
     std::vector<PluginData> plugins_;
+    static std::unordered_map<HookedCall, FunctionHookProps*> hookProps_;
+    
+    void clearData(bool free);
 
 public:
+
     PluginManager();
     ~PluginManager();
-    
+
     void loadAll(bool, CCmds*);
     void unloadAll();
 
     void load(const std::wstring &fileName, CCmds*, bool);
     HK_ERROR pause(size_t hash, bool pause);
     HK_ERROR unload(size_t hash);
-    
+    HK_ERROR pause(const std::string& shortName, bool pause) { return this->pause(std::hash<std::string>{}(shortName), pause); }
+    HK_ERROR unload(const std::string& shortName) { return this->unload(std::hash<std::string>{}(shortName)); }
+
     const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
     PluginData& pluginAt(size_t index) { return plugins_[index]; }
+    
+    auto begin() const { return plugins_.begin(); }
+    auto end() const { return plugins_.end(); }
 
     template<typename ReturnType, typename... Args>
     ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&& ...args) const {
@@ -505,13 +559,14 @@ public:
                 if (plugin.paused)
                     continue;
 
-                *plugin.returnCode = ReturnCode::Default;
+                if(plugin.resetCode)
+                    *plugin.returnCode = ReturnCode::Default;
 
                 TRY_HOOK {
                     if constexpr(ReturnTypeIsVoid)
-                        static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                        reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                     else
-                        ret = static_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+                        ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                 }
                 CATCH_HOOK({
                     AddLog("ERROR: Exception in plugin '%s' in %s",
@@ -537,7 +592,7 @@ template<typename ReturnType = void, typename... Args>
 auto CallPluginsBefore(HookedCall target, Args&& ...args) {
     bool skip;
     if constexpr(std::is_same_v<ReturnType, void>) {
-        PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        PluginManager::i()->callPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
         return skip;
     } else {
         ReturnType ret = PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
@@ -551,6 +606,13 @@ void CallPluginsAfter(HookedCall target, Args&& ...args) {
     PluginManager::i()->callPlugins<void>(target, HookStep::After, dontCare, std::forward<Args>(args)...);
 }
 
+template<typename... Args>
+bool CallPluginsOther(HookedCall target, HookStep step, Args&& ...args) {
+    bool skip;
+    PluginManager::i()->callPlugins<void>(target, step, skip, std::forward<Args>(args)...);
+    return skip;
+}
+
 using ExportPluginInfoT = void(*)(PluginInfo*);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +624,7 @@ void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
 void HookRehashed();
-void LoadUserCharSettings(uint iClientID);
+void LoadUserCharSettings(uint clientID);
 
 // HkFuncTools
 EXPORT uint HkGetClientIdFromAccount(CAccount *acc);
@@ -695,6 +757,11 @@ EXPORT void HkRelocateClient(uint iClientID, Vector vDestination,
 EXPORT void HkSaveChar(uint iClientID);
 
 // HkFuncLog
+template<typename T>
+const char* ToLogString(const T& val) {
+    return "<undefined>";
+}
+
 EXPORT void AddDebugLog(const char *szString, ...);
 EXPORT void AddLog(const char *szString, ...);
 template<typename... Args>
@@ -702,27 +769,6 @@ void AddBothLog(const char* format, Args&&... args) {
     AddLog(format, std::forward<Args>(args)...);
     AddDebugLog(format, std::forward<Args>(args)...);
 }
-
-template<typename Front, typename... Rest>
-void AddSubCallLog(std::stringstream& ss, const std::string& argNames, size_t pos, Front&& f, Rest&&... rest) {
-    size_t posNext = argNames.find(',', pos);
-    ss << Trim(argNames.substr(pos, posNext - pos)) << " = (" << f << "), ";
-    if constexpr(sizeof...(Rest) > 0)
-        AddSubCallLog(ss, std::forward<Rest>(rest)..., posNext + 1);
-}
-
-template<typename... Args>
-void AddCallLog(const char* func, const char* argNames, Args... args) {
-    size_t pos = 0;
-    std::stringstream ss;
-    ss << func << ": ";
-    AddSubCallLog(ss, std::string(argNames), pos, std::forward<Args>(args)...);
-    ss << "\n";
-
-    AddDebugLog(ss.str().c_str());
-}
-
-#define ADD_CALL_LOG(...) (set_bDebug ? AddCallLog(__FUNCTION__, #__VA_ARGS__, __VA_ARGS__) : nullptr)
 
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason,
                             ...);
@@ -765,7 +811,7 @@ EXPORT HK_ERROR HkFLIniWrite(const std::wstring &wscCharname,
                              const std::wstring &wscKey, std::wstring wscValue);
 
 EXPORT std::wstring HkErrGetText(HK_ERROR hkErr);
-void ClearClientInfo(uint iClientID);
+void ClearClientInfo(uint clientID);
 void LoadUserSettings(uint iClientID);
 
 // HkCbUserCmd
@@ -776,46 +822,11 @@ EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
 EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
                                   float fDistance);
 
-// HkDeath
-void ShipDestroyedHook();
-void BaseDestroyed(uint iObject, uint iClientIDBy);
-
-// HkDamage
-void _HookMissileTorpHit();
-void _HkCb_AddDmgEntry();
-void _HkCb_GeneralDmg();
-void _HkCb_GeneralDmg2();
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
-void _HkCb_NonGunWeaponHitsBase();
-extern FARPROC fpOldNonGunWeaponHitsBase;
-EXPORT extern bool g_gNonGunHitsBase;
+void BaseDestroyed(uint objectID, uint clientIDBy);
+
+EXPORT extern bool g_NonGunHitsBase;
 EXPORT extern float g_LastHitPts;
-
-// HkCbCallbacks
-void _SendMessageHook();
-void __stdcall HkCb_SendChat(uint iId, uint iTo, uint iSize, void *pRDL);
-
-// HkCbDisconnect
-void _DisconnectPacketSent();
-extern FARPROC fpOldDiscPacketSent;
-
-// HkIEngine
-namespace HkIEngine {
-int __cdecl FreeReputationVibe(int const &p1);
-void __cdecl Update_Time(double);
-void __stdcall Elapse_Time(float p1);
-int __cdecl Dock_Call(unsigned int const &, unsigned int const &, int,
-                      enum DOCK_HOST_RESPONSE);
-void _LaunchPos();
-void _CShip_init();
-void _CShip_destroy();
-void _HkLoadRepFromCharFile();
-
-extern FARPROC fpOldLaunchPos;
-extern FARPROC fpOldInitCShip;
-extern FARPROC fpOldDestroyCShip;
-extern FARPROC fpOldLoadRepCharFile;
-} // namespace HkIEngine
 
 // HkTimers
 void HkTimerCheckKick();
@@ -831,15 +842,11 @@ extern HANDLE hThreadResolver;
 
 // namespaces
 namespace HkIServerImpl {
-void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
-                          void const *rdlReader, struct CHAT_ID cIdTo, int iP2);
-int __stdcall Update(void);
-bool __stdcall Startup(struct SStartupInfo const &p1);
-void __stdcall Shutdown(void);
-EXPORT extern bool g_bInSubmitChat;
-EXPORT extern uint g_iTextLen;
-extern HOOKENTRY hookEntries[85];
+EXPORT extern bool g_InSubmitChat;
+EXPORT extern uint g_TextLength;
 } // namespace HkIServerImpl
+
+extern HookEntry HkIServerImplEntries[85];
 
 // HkDataBaseMarket
 bool HkLoadBaseMarket();
@@ -850,16 +857,12 @@ extern EXPORT HkIClientImpl *FakeClient;
 extern EXPORT HkIClientImpl *HookClient;
 extern EXPORT char *OldClient;
 
-extern EXPORT uint iDmgTo;
-extern EXPORT uint iDmgToSpaceID;
+extern EXPORT uint g_DmgTo;
+extern EXPORT uint g_DmgToSpaceID;
 
 extern EXPORT bool g_bMsg;
 extern EXPORT bool g_bMsgS;
 extern EXPORT bool g_bMsgU;
-
-extern FARPROC fpOldShipDestroyed;
-extern FARPROC fpOldMissileTorpHit;
-extern FARPROC fpOldGeneralDmg, fpOldGeneralDmg2;
 
 extern EXPORT CDPClientProxy **g_cClientProxyArray;
 extern EXPORT void *pClient;
@@ -909,3 +912,52 @@ extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
     uint a = uint(-1);                                                         \
     if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)              \
         return err;
+
+void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
+
+#define CALL_SERVER_PREAMBLE                                                    \
+        {                                                                       \
+            static CTimer timer(__FUNCTION__, set_iTimerThreshold);             \
+            timer.start();                                                      \
+            TRY_HOOK {
+
+#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                  \
+            } CATCH_HOOK({                                                      \
+                AddLog("ERROR: Exception in " __FUNCTION__ " on server call");  \
+                bool ret = catchArgs;                                           \
+                if(!ret) {                                                      \
+                    timer.stop();                                               \
+                    return rval;                                                \
+                }                                                               \
+            })                                                                  \
+            timer.stop();                                                       \
+        }
+
+#define CALL_CLIENT_PREAMBLE                                                    \
+    {                                                                           \
+        void *vRet;                                                             \
+        char *tmp;                                                              \
+        memcpy(&tmp, &Client, 4);                                               \
+        memcpy(&Client, &OldClient, 4);                                         \
+
+#define CALL_CLIENT_POSTAMBLE                                                   \
+        __asm { mov [vRet], eax }                                               \
+        memcpy(&Client, &tmp, 4);                                               \
+    }
+
+#define CHECK_FOR_DISCONNECT                                                    \
+    {                                                                           \
+        if (ClientInfo[clientID].bDisconnected) {                               \
+            AddLog(                                                             \
+                "ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%"  \
+                                                                       "u",     \
+                clientID);                                                      \
+            return;                                                             \
+        };                                                                      \
+    }
+
+inline auto* ToWChar(const ushort* val) { return reinterpret_cast<const wchar_t*>(val); }
+inline auto* ToWChar(ushort* val) { return reinterpret_cast<wchar_t*>(val); }
+
+inline auto* ToUShort(const wchar_t* val) { return reinterpret_cast<const ushort*>(val); }
+inline auto* ToUShort(wchar_t* val) { return reinterpret_cast<ushort*>(val); }

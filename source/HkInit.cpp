@@ -1,14 +1,47 @@
 ﻿#include <process.h>
 #include "hook.h"
 
+namespace HkIEngine {
+void __cdecl UpdateTime(double interval);
+void __stdcall ElapseTime(float interval);
+int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HOST_RESPONSE response);
+int __cdecl FreeReputationVibe(int const &p1);
+
+void Naked__CShip__Init();
+void Naked__CShip__Destroy();
+void Naked__LaunchPosition();
+void Naked__LoadReputationFromCharacterFile();
+
+extern FARPROC g_OldInitCShip;
+extern FARPROC g_OldDestroyCShip;
+extern FARPROC g_OldLaunchPosition;
+extern FARPROC g_OldLoadReputationFromCharacterFile;
+}
+
+void __stdcall ShipDestroyed(DamageList *dmgList, DWORD *ecx, uint kill);
+void __stdcall NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg);
+void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void *rdl);
+
+void Naked__AddDamageEntry();
+void Naked__NonGunWeaponHitsBase();
+void Naked__AddDamageEntry();
+void Naked__DamageHit();
+void Naked__DamageHit2();
+void Naked__DisconnectPacketSent();
+
+extern FARPROC g_OldShipDestroyed;
+extern FARPROC g_OldNonGunWeaponHitsBase;
+extern FARPROC g_OldDamageHit, g_OldDamageHit2;
+extern FARPROC g_OldDisconnectPacketSent;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PATCH_INFO piFLServerEXE = {
     "flserver.exe",
     0x0400000,
     {
-        {0x041B094, &HkIEngine::Update_Time, 4, 0, false},
-        {0x041BAB0, &HkIEngine::Elapse_Time, 4, 0, false},
+        {0x041B094, &HkIEngine::UpdateTime, 4, 0, false},
+        {0x041BAB0, &HkIEngine::ElapseTime, 4, 0, false},
 
         {0, 0, 0, 0} // terminate
     }};
@@ -16,7 +49,7 @@ PATCH_INFO piFLServerEXE = {
 PATCH_INFO piContentDLL = {"content.dll",
                            0x6EA0000,
                            {
-                               {0x6FB358C, &HkIEngine::Dock_Call, 4, 0, false},
+                               {0x6FB358C, &HkIEngine::DockCall, 4, 0, false},
 
                                {0, 0, 0, 0} // terminate
                            }};
@@ -25,10 +58,10 @@ PATCH_INFO piCommonDLL = {"common.dll",
                           0x6260000,
                           {
 
-                              {0x0639C138, &HkIEngine::_CShip_init, 4,
-                               &HkIEngine::fpOldInitCShip, false},
-                              {0x0639C064, &HkIEngine::_CShip_destroy, 4,
-                               &HkIEngine::fpOldDestroyCShip, false},
+                              {0x0639C138, &HkIEngine::Naked__CShip__Init, 4,
+                               &HkIEngine::g_OldInitCShip, false},
+                              {0x0639C064, &HkIEngine::Naked__CShip__Destroy, 4,
+                               &HkIEngine::g_OldDestroyCShip, false},
 
                               {0, 0, 0, 0} // terminate
                           }};
@@ -37,20 +70,20 @@ PATCH_INFO piServerDLL = {
     "server.dll",
     0x6CE0000,
     {
-        {0x6D67274, &ShipDestroyedHook, 4, &fpOldShipDestroyed, false},
-        {0x6D641EC, &_HkCb_AddDmgEntry, 4, 0, false},
-        {0x6D67320, &_HookMissileTorpHit, 4, &fpOldMissileTorpHit, false},
-        {0x6D65448, &_HookMissileTorpHit, 4, 0, false},
-        {0x6D67670, &_HookMissileTorpHit, 4, 0, false},
-        {0x6D653F4, &_HkCb_GeneralDmg, 4, &fpOldGeneralDmg, false},
-        {0x6D672CC, &_HkCb_GeneralDmg, 4, 0, false},
-        {0x6D6761C, &_HkCb_GeneralDmg, 4, 0, false},
-        {0x6D65458, &_HkCb_GeneralDmg2, 4, &fpOldGeneralDmg2, false},
-        {0x6D67330, &_HkCb_GeneralDmg2, 4, 0, false},
-        {0x6D67680, &_HkCb_GeneralDmg2, 4, 0, false},
-        {0x6D67668, &_HkCb_NonGunWeaponHitsBase, 4, &fpOldNonGunWeaponHitsBase,
+        {0x6D67274, &ShipDestroyed, 4, &g_OldShipDestroyed, false},
+        {0x6D641EC, &Naked__AddDamageEntry, 4, 0, false},
+        {0x6D67320, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
+        {0x6D65448, &Naked__NonGunWeaponHitsBase, 4, 0, false},
+        {0x6D67670, &Naked__NonGunWeaponHitsBase, 4, 0, false},
+        {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
+        {0x6D672CC, &Naked__DamageHit, 4, 0, false},
+        {0x6D6761C, &Naked__DamageHit, 4, 0, false},
+        {0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false},
+        {0x6D67330, &Naked__DamageHit2, 4, 0, false},
+        {0x6D67680, &Naked__DamageHit2, 4, 0, false},
+        {0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase,
          false},
-        {0x6D6420C, &HkIEngine::_LaunchPos, 4, &HkIEngine::fpOldLaunchPos,
+        {0x6D6420C, &HkIEngine::Naked__LaunchPosition, 4, &HkIEngine::g_OldLaunchPosition,
          false},
         {0x6D648E0, &HkIEngine::FreeReputationVibe, 4, 0, false},
 
@@ -61,7 +94,7 @@ PATCH_INFO piRemoteClientDLL = {
     "remoteclient.dll",
     0x6B30000,
     {
-        {0x6B6BB80, &HkCb_SendChat, 4, &RCSendChatMsg, false},
+        {0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false},
 
         {0, 0, 0, 0} // terminate
     }};
@@ -70,7 +103,7 @@ PATCH_INFO piDaLibDLL = {
     "dalib.dll",
     0x65C0000,
     {
-        {0x65C4BEC, &_DisconnectPacketSent, 4, &fpOldDiscPacketSent, false},
+        {0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
 
         {0, 0, 0, 0} // terminate
     }};
@@ -158,46 +191,46 @@ char szRepFreeFixOld[5];
 clear the clientinfo
 **************************************************************************************************************/
 
-void ClearClientInfo(uint iClientID) {
-    ClientInfo[iClientID].dieMsg = DIEMSG_ALL;
-    ClientInfo[iClientID].iShip = 0;
-    ClientInfo[iClientID].iShipOld = 0;
-    ClientInfo[iClientID].tmSpawnTime = 0;
-    ClientInfo[iClientID].lstMoneyFix.clear();
-    ClientInfo[iClientID].iTradePartner = 0;
-    ClientInfo[iClientID].iBaseEnterTime = 0;
-    ClientInfo[iClientID].iCharMenuEnterTime = 0;
-    ClientInfo[iClientID].bCruiseActivated = false;
-    ClientInfo[iClientID].tmKickTime = 0;
-    ClientInfo[iClientID].iLastExitedBaseID = 0;
-    ClientInfo[iClientID].bDisconnected = false;
-    ClientInfo[iClientID].bCharSelected = false;
-    ClientInfo[iClientID].tmF1Time = 0;
-    ClientInfo[iClientID].tmF1TimeDisconnect = 0;
+void ClearClientInfo(uint clientID) {
+    ClientInfo[clientID].dieMsg = DIEMSG_ALL;
+    ClientInfo[clientID].iShip = 0;
+    ClientInfo[clientID].iShipOld = 0;
+    ClientInfo[clientID].tmSpawnTime = 0;
+    ClientInfo[clientID].lstMoneyFix.clear();
+    ClientInfo[clientID].iTradePartner = 0;
+    ClientInfo[clientID].iBaseEnterTime = 0;
+    ClientInfo[clientID].iCharMenuEnterTime = 0;
+    ClientInfo[clientID].bCruiseActivated = false;
+    ClientInfo[clientID].tmKickTime = 0;
+    ClientInfo[clientID].iLastExitedBaseID = 0;
+    ClientInfo[clientID].bDisconnected = false;
+    ClientInfo[clientID].bCharSelected = false;
+    ClientInfo[clientID].tmF1Time = 0;
+    ClientInfo[clientID].tmF1TimeDisconnect = 0;
 
     DamageList dmg;
-    ClientInfo[iClientID].dmgLast = dmg;
-    ClientInfo[iClientID].dieMsgSize = CS_DEFAULT;
-    ClientInfo[iClientID].chatSize = CS_DEFAULT;
-    ClientInfo[iClientID].chatStyle = CST_DEFAULT;
+    ClientInfo[clientID].dmgLast = dmg;
+    ClientInfo[clientID].dieMsgSize = CS_DEFAULT;
+    ClientInfo[clientID].chatSize = CS_DEFAULT;
+    ClientInfo[clientID].chatStyle = CST_DEFAULT;
 
-    ClientInfo[iClientID].bAutoBuyMissiles = false;
-    ClientInfo[iClientID].bAutoBuyMines = false;
-    ClientInfo[iClientID].bAutoBuyTorps = false;
-    ClientInfo[iClientID].bAutoBuyCD = false;
-    ClientInfo[iClientID].bAutoBuyCM = false;
-    ClientInfo[iClientID].bAutoBuyReload = false;
+    ClientInfo[clientID].bAutoBuyMissiles = false;
+    ClientInfo[clientID].bAutoBuyMines = false;
+    ClientInfo[clientID].bAutoBuyTorps = false;
+    ClientInfo[clientID].bAutoBuyCD = false;
+    ClientInfo[clientID].bAutoBuyCM = false;
+    ClientInfo[clientID].bAutoBuyReload = false;
 
-    ClientInfo[iClientID].lstIgnore.clear();
-    ClientInfo[iClientID].iKillsInARow = 0;
-    ClientInfo[iClientID].wscHostname = L"";
-    ClientInfo[iClientID].bEngineKilled = false;
-    ClientInfo[iClientID].bThrusterActivated = false;
-    ClientInfo[iClientID].bTradelane = false;
+    ClientInfo[clientID].lstIgnore.clear();
+    ClientInfo[clientID].iKillsInARow = 0;
+    ClientInfo[clientID].wscHostname = L"";
+    ClientInfo[clientID].bEngineKilled = false;
+    ClientInfo[clientID].bThrusterActivated = false;
+    ClientInfo[clientID].bTradelane = false;
 
-    ClientInfo[iClientID].bSpawnProtected = false;
-
-    CALL_PLUGINS_V(PLUGIN_ClearClientInfo, , (uint), (iClientID));
+    ClientInfo[clientID].bSpawnProtected = false;
+    
+    CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);
 }
 
 /**************************************************************************************************************
@@ -241,32 +274,32 @@ void LoadUserSettings(uint iClientID) {
 load settings from flhookhuser.ini (specific to character)
 **************************************************************************************************************/
 
-void LoadUserCharSettings(uint iClientID) {
-    CAccount *acc = Players.FindAccountFromClientID(iClientID);
+void LoadUserCharSettings(uint clientID) {
+    CAccount *acc = Players.FindAccountFromClientID(clientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
     std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
     // read autobuy
     std::wstring wscFilename;
-    HkGetCharFileName((wchar_t *)Players.GetActiveCharacterName(iClientID),
+    HkGetCharFileName((wchar_t *)Players.GetActiveCharacterName(clientID),
                       wscFilename);
     std::string scSection = "autobuy_" + wstos(wscFilename);
 
-    ClientInfo[iClientID].bAutoBuyMissiles =
+    ClientInfo[clientID].bAutoBuyMissiles =
         IniGetB(scUserFile, scSection, "missiles", false);
-    ClientInfo[iClientID].bAutoBuyMines =
+    ClientInfo[clientID].bAutoBuyMines =
         IniGetB(scUserFile, scSection, "mines", false);
-    ClientInfo[iClientID].bAutoBuyTorps =
+    ClientInfo[clientID].bAutoBuyTorps =
         IniGetB(scUserFile, scSection, "torps", false);
-    ClientInfo[iClientID].bAutoBuyCD =
+    ClientInfo[clientID].bAutoBuyCD =
         IniGetB(scUserFile, scSection, "cd", false);
-    ClientInfo[iClientID].bAutoBuyCM =
+    ClientInfo[clientID].bAutoBuyCM =
         IniGetB(scUserFile, scSection, "cm", false);
-    ClientInfo[iClientID].bAutoBuyReload =
+    ClientInfo[clientID].bAutoBuyReload =
         IniGetB(scUserFile, scSection, "reload", false);
 
-    CALL_PLUGINS_V(PLUGIN_LoadUserCharSettings, , (uint), (iClientID));
+    CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, clientID);
 }
 
 /**************************************************************************************************************
@@ -274,8 +307,6 @@ install the callback hooks
 **************************************************************************************************************/
 
 bool InitHookExports() {
-    char *pAddress;
-
     // init critial sections
     InitializeCriticalSection(&csIPResolve);
     DWORD dwID;
@@ -286,14 +317,13 @@ bool InitHookExports() {
     GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
     // install IServerImpl callbacks in remoteclient.dll
-    char *pServer = (char *)&Server;
+    auto* pServer = reinterpret_cast<char*>(&Server);
     memcpy(&pServer, pServer, 4);
-    for (uint i = 0;
-         (i < sizeof(HkIServerImpl::hookEntries) / sizeof(HOOKENTRY)); i++) {
+    for (uint i = 0; i < std::size(HkIServerImplEntries); i++) {
         char *pAddress =
-            pServer + HkIServerImpl::hookEntries[i].dwRemoteAddress;
-        ReadProcMem(pAddress, &HkIServerImpl::hookEntries[i].fpOldProc, 4);
-        WriteProcMem(pAddress, &HkIServerImpl::hookEntries[i].fpProc, 4);
+            pServer + HkIServerImplEntries[i].dwRemoteAddress;
+        ReadProcMem(pAddress, &HkIServerImplEntries[i].fpOldProc, 4);
+        WriteProcMem(pAddress, &HkIServerImplEntries[i].fpProc, 4);
     }
 
     // patch it
@@ -306,7 +336,7 @@ bool InitHookExports() {
 
     // patch rep array free
     char szNOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
-    pAddress = ((char *)hModServer + ADDR_SRV_REPARRAYFREE);
+    char* pAddress = ((char *)hModServer + ADDR_SRV_REPARRAYFREE);
     ReadProcMem(pAddress, szRepFreeFixOld, 5);
     WriteProcMem(pAddress, szNOPs, 5);
 
@@ -324,14 +354,13 @@ bool InitHookExports() {
     char szMovEAX[] = {'\xB8'};
     char szJMPEAX[] = {'\xFF', '\xE0'};
 
-    FARPROC fpHkLoadRepFromCharFile =
-        (FARPROC)HkIEngine::_HkLoadRepFromCharFile;
+    FARPROC fpHkLoadRepFromCharFile = (FARPROC)HkIEngine::Naked__LoadReputationFromCharacterFile;
 
     WriteProcMem(pAddress, szMovEAX, 1);
     WriteProcMem(pAddress + 1, &fpHkLoadRepFromCharFile, 4);
     WriteProcMem(pAddress + 5, szJMPEAX, 2);
 
-    HkIEngine::fpOldLoadRepCharFile = (FARPROC)SRV_ADDR(0x78B40);
+    HkIEngine::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
     // crc anti-cheat
     CRCAntiCheat = (_CRCAntiCheat)((char *)hModServer + ADDR_CRCANTICHEAT);
@@ -389,13 +418,11 @@ void UnloadHookExports() {
     char *pServer = (char *)&Server;
     if (pServer) {
         memcpy(&pServer, pServer, 4);
-        for (uint i = 0;
-             (i < sizeof(HkIServerImpl::hookEntries) / sizeof(HOOKENTRY));
-             i++) {
+        for (uint i = 0; i < std::size(HkIServerImplEntries); i++) {
             void *pAddress =
                 (void *)((char *)pServer +
-                         HkIServerImpl::hookEntries[i].dwRemoteAddress);
-            WriteProcMem(pAddress, &HkIServerImpl::hookEntries[i].fpOldProc, 4);
+                         HkIServerImplEntries[i].dwRemoteAddress);
+            WriteProcMem(pAddress, &HkIServerImplEntries[i].fpOldProc, 4);
         }
     }
 
@@ -427,8 +454,7 @@ void UnloadHookExports() {
     WriteProcMem(pAddress, szOld, 1);
 
     // plugins
-    PluginManager::UnloadPlugins();
-    PluginManager::Destroy();
+    PluginManager::i()->unloadAll();
 
     // help
     lstHelpEntries.clear();

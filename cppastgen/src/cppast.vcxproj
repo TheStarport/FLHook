@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{21C9F214-77DB-3AC2-B61F-8A6CE71B31EE}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>cppast</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cppast.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cppast</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cppast.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cppast</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cppast.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cppast</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">cppast.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">cppast</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CPPAST_VERSION_MINOR="0";CPPAST_VERSION_MAJOR="0";CPPAST_VERSION_STRING="0.0";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY="C:/Program Files/LLVM/bin/clang.exe";CPPAST_CLANG_VERSION_STRING="10.0.0";CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CPPAST_VERSION_MINOR=\"0\";CPPAST_VERSION_MAJOR=\"0\";CPPAST_VERSION_STRING=\"0.0\";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY=\"C:/Program Files/LLVM/bin/clang.exe\";CPPAST_CLANG_VERSION_STRING=\"10.0.0\";CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR="0";CPPAST_VERSION_MAJOR="0";CPPAST_VERSION_STRING="0.0";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY="C:/Program Files/LLVM/bin/clang.exe";CPPAST_CLANG_VERSION_STRING="10.0.0";CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR=\"0\";CPPAST_VERSION_MAJOR=\"0\";CPPAST_VERSION_STRING=\"0.0\";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY=\"C:/Program Files/LLVM/bin/clang.exe\";CPPAST_CLANG_VERSION_STRING=\"10.0.0\";CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR="0";CPPAST_VERSION_MAJOR="0";CPPAST_VERSION_STRING="0.0";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY="C:/Program Files/LLVM/bin/clang.exe";CPPAST_CLANG_VERSION_STRING="10.0.0";CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR=\"0\";CPPAST_VERSION_MAJOR=\"0\";CPPAST_VERSION_STRING=\"0.0\";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY=\"C:/Program Files/LLVM/bin/clang.exe\";CPPAST_CLANG_VERSION_STRING=\"10.0.0\";CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR="0";CPPAST_VERSION_MAJOR="0";CPPAST_VERSION_STRING="0.0";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY="C:/Program Files/LLVM/bin/clang.exe";CPPAST_CLANG_VERSION_STRING="10.0.0";CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR=\"0\";CPPAST_VERSION_MAJOR=\"0\";CPPAST_VERSION_STRING=\"0.0\";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY=\"C:/Program Files/LLVM/bin/clang.exe\";CPPAST_CLANG_VERSION_STRING=\"10.0.0\";CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jpgue\Projects\FLHook\cppast\src\CMakeLists.txt">
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\detail\assert.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\detail\intrusive_list.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\code_generator.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\compile_config.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_alias_template.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_array_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_attribute.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_class.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_class_template.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_decltype_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_container.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_index.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_kind.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_entity_ref.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_enum.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_expression.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_file.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_forward_declarable.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_friend.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function_template.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_function_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_language_linkage.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_member_function.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_member_variable.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_namespace.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_preprocessor.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_static_assert.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_storage_class_specifiers.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_template.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_template_parameter.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_token.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_type_alias.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable_base.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\cpp_variable_template.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\diagnostic.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\diagnostic_logger.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\libclang_parser.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\parser.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\include\cppast\visitor.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\code_generator.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_alias_template.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_attribute.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_class.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_class_template.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity_index.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_entity_kind.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_enum.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_expression.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_file.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_forward_declarable.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_friend.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_function.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_function_template.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_language_linkage.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_member_function.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_member_variable.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_namespace.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_preprocessor.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_static_assert.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_template_parameter.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_token.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_type.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_type_alias.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_variable.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\cpp_variable_template.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\diagnostic_logger.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\visitor.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\class_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\cxtokenizer.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\cxtokenizer.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\debug_helper.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\debug_helper.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\enum_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\expression_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\friend_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\function_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\language_linkage_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\libclang_parser.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\libclang_visitor.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\namespace_parser.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_error.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_functions.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\parse_functions.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\preprocessor.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\preprocessor.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\raii_wrapper.hpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\template_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\type_parser.cpp" />
+    <ClCompile Include="C:\Users\jpgue\Projects\FLHook\cppast\src\libclang\variable_parser.cpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\aligned_union.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\all_of.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\assert.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\assign_or_construct.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\constant_parser.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\copy_move_control.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\force_inline.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\is_nothrow_swappable.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\map_invoke.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\detail\variant_impl.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\config.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\arithmetic_policy.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\boolean.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\bounded_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\compact_optional.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\constrained_type.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\deferred_construction.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\downcast.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\flag.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\flag_set.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\floating_point.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\index.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\integer.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\narrow_cast.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\optional.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\optional_ref.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\output_parameter.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\reference.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\strong_typedef.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\tagged_union.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\types.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\variant.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include\type_safe\visitor.hpp" />
+    <ClInclude Include="C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert\debug_assert.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\jpgue\Projects\FLHook\cppastgen\ZERO_CHECK.vcxproj">
+      <Project>{FA35AC06-9557-3AAC-AACA-658A08563353}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\jpgue\Projects\FLHook\cppastgen\_cppast_tiny_process.vcxproj">
+      <Project>{57E06C77-72C3-37AA-926A-BA7D3B15274F}</Project>
+      <Name>_cppast_tiny_process</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

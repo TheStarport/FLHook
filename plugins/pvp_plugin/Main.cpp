@@ -506,7 +506,7 @@ void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2) {
     processDuel(iClientID);
 }
 
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
+void SendDeathMessage(const std::wstring &wscMsg, uint iSystem,
                   uint iClientIDVictim, uint iClientIDKiller) {
     returncode = DEFAULT_RETURNCODE;
     processDuel(iClientIDVictim);
@@ -552,7 +552,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
+        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMessage, PLUGIN_SendDeathMsg, 0));
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&CharacterInfoReq,
                         PLUGIN_HkIServerImpl_CharacterInfoReq, 0));

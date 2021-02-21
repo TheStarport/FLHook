@@ -1,13 +1,15 @@
 ﻿#include "Hook.h"
 #include "CCmds.h"
 
+std::unordered_map<HookedCall, PluginManager::FunctionHookProps*> PluginManager::hookProps_;
+
 const PluginData& PluginHookData::plugin() const {
     return PluginManager::i()->pluginAt(index);
 }
 
 void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
-    CallPluginsBefore(HookedCall::PluginCommunication, msg, data);
-    CallPluginsAfter(HookedCall::PluginCommunication, msg, data);
+    CallPluginsBefore(HookedCall::FLHook__PluginCommunication, msg, data);
+    CallPluginsAfter(HookedCall::FLHook__PluginCommunication, msg, data);
 }
 
 void PluginManager::clearData(bool free) {
@@ -115,17 +117,17 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
 
     PluginInfo pi;
     getPluginInfo(&pi);
-    
-    if (pi.shortName_.empty() || pi.name_.empty()) {
-        adminInterface->Print(L"Error, missing name/short name for %s\n",
-                              dllName.c_str());
-        FreeLibrary(plugin.dll);
-        return;
-    }
 
     if (pi.version_ != PLUGIN_API_VERSION) {
         adminInterface->Print(L"Error, incompatible plugin API version for %s: expected %d, got %d\n",
                               dllName.c_str(), PLUGIN_API_VERSION, pi.version_);
+        FreeLibrary(plugin.dll);
+        return;
+    }
+    
+    if (pi.shortName_.empty() || pi.name_.empty()) {
+        adminInterface->Print(L"Error, missing name/short name for %s\n",
+                              dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
@@ -142,12 +144,12 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     plugin.name = pi.name_;
     plugin.shortName = pi.shortName_;
     plugin.hash = std::hash<std::string>{}(plugin.shortName);
+    plugin.resetCode = pi.resetCode_;
 
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
     if (!plugin.mayUnload && !startup) {
-        adminInterface->Print(L"Error, could not load plugin %s: plugin is not unloadable, need "
-                              L"server restart to load\n",
+        adminInterface->Print(L"Error, could not load plugin %s: plugin cannot be unloaded, need server restart to load\n",
                               plugin.dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
@@ -162,9 +164,17 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
             continue;
         }
-        uint hookId = uint(hook.targetFunction_) * 2 + uint(hook.step_);
+
+        const auto* targetHookProps = hookProps_[hook.targetFunction_];
+        if(targetHookProps == nullptr || !targetHookProps->matches(hook.step_)) {
+            adminInterface->Print(L"Error, could not bind function %d.%d of plugin %s, step not available\n",
+                                  hook.targetFunction_, hook.step_, plugin.dllName.c_str());
+            continue;
+        }
+
+        uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
         auto& list = pluginHooks_[hookId];
-        list.emplace_back(hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index);
+        list.push_back({ hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index });
         std::sort(list.begin(), list.end());
     }
 
@@ -185,4 +195,43 @@ void PluginManager::loadAll(bool startup, CCmds *adminInterface) {
         load(findData.cFileName, adminInterface, startup);
 
     } while (FindNextFileW(findPluginsHandle, &findData));
+}
+
+void PluginInfo::version(int version) {
+    version_ = version;
+}
+
+
+void PluginInfo::name(const char *name) {
+    name_ = name;
+}
+
+void PluginInfo::shortName(const char *shortName) {
+    shortName_ = shortName;
+}
+
+void PluginInfo::mayPause(bool pause) {
+    mayPause_ = pause;
+}
+
+void PluginInfo::mayUnload(bool unload) {
+    mayUnload_ = unload;
+}
+
+void PluginInfo::autoResetCode(bool reset) {
+    resetCode_ = reset;
+}
+
+
+void PluginInfo::returnCode(ReturnCode *returnCode) {
+    returnCode_ = returnCode;
+}
+
+void PluginInfo::addHook(const PluginHook &hook) {
+    hooks_.push_back(hook);
+}
+
+PluginManager::FunctionHookProps::FunctionHookProps(HookedCall c, bool b, bool m, bool a)
+    : callBefore_(b), callMid_(m), callAfter_(a) {
+    hookProps_[c] = this;
 }

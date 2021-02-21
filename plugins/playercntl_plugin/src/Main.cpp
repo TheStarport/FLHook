@@ -177,7 +177,7 @@ void HkTimer() {
 
 /// Hook for ship distruction. It's easier to hook this than the PlayerDeath
 /// one. Drop a percentage of cargo + some loot representing ship bits.
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
+void SendDeathMessage(const std::wstring &wscMsg, uint iSystem,
                   uint iClientIDVictim, uint iClientIDKiller) {
     returncode = NOFUNCTIONCALL;
 
@@ -1300,7 +1300,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
     p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
+        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMessage, PLUGIN_SendDeathMsg, 0));
     p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Startup,
                                              PLUGIN_HkIServerImpl_Startup, 10));
     p_PI->lstHooks.push_back(

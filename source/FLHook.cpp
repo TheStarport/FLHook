@@ -57,6 +57,12 @@ DllMain
 
 FARPROC fpOldUpdate;
 
+namespace HkIServerImpl {
+bool __stdcall Startup(SStartupInfo const& si);
+void __stdcall Shutdown();
+int __stdcall Update();
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     if (bExecuted)
         return TRUE;
@@ -209,10 +215,10 @@ void FLHookInit_Pre() {
         GetCurrentDirectory(sizeof(szCurDir), szCurDir);
         std::string scCfgFile = std::string(szCurDir) + "\\FLHook.ini";
 
-        PluginManager::Init();
+        PluginManager::i();
 
         if (IniGetB(scCfgFile, "Plugins", "LoadAllPlugins", true))
-            PluginManager::LoadPlugins(true, &AdminConsole);
+            PluginManager::i()->loadAll(true, &AdminConsole);
         else {
             // LoadAllPlugins is false, check what plugins should be loaded
             std::list<INISECTIONVALUE> lstIniPlugins;
@@ -220,7 +226,7 @@ void FLHookInit_Pre() {
             for (auto &val : lstIniPlugins) {
                 if (val.scKey != "plugin")
                     continue;
-                PluginManager::LoadPlugin(val.scValue, &AdminConsole, true);
+                PluginManager::i()->load(stows(val.scValue), &AdminConsole, true);
             }
         }
 
@@ -257,7 +263,7 @@ void FLHookInit_Pre() {
         if (set_bDebug && !fLogDebug)
             fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
 
-        CALL_PLUGINS_NORET(PLUGIN_LoadSettings, , (), ());
+        CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
     } catch (char *szError) {
         ConPrint(L"CRITICAL ERROR: %s\n", stows(szError).c_str());
@@ -581,8 +587,7 @@ void ProcessEvent(std::wstring wscText, ...) {
 
     wscText = wszBuf;
 
-    CALL_PLUGINS_V(PLUGIN_ProcessEvent_BEFORE, , (std::wstring & wscText),
-                   (wscText));
+    CallPluginsBefore(HookedCall::FLHook__ProcessEvent, static_cast<std::wstring&>(wscText));
 
     for (auto &socket : lstSockets) {
         if (socket->csock.bEventMode)

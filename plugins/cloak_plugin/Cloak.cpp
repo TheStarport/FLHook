@@ -426,16 +426,16 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                                 float damage,
                                 enum DamageEntry::SubObjFate fate) {
     returncode = DEFAULT_RETURNCODE;
-    if (iDmgToSpaceID && dmg->get_inflictor_id()) {
+    if (g_DmgToSpaceID && dmg->get_inflictor_id()) {
         if (dmg->get_cause() == 0x06) {
             float curr, max;
-            pub::SpaceObj::GetHealth(iDmgToSpaceID, curr, max);
-            uint client = HkGetClientIDByShip(iDmgToSpaceID);
+            pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
+            uint client = HkGetClientIDByShip(g_DmgToSpaceID);
             if (client) {
                 if (mapClientsCloak[client].bCanCloak &&
                     !mapClientsCloak[client].bAdmin &&
                     mapClientsCloak[client].iState == STATE_CLOAK_CHARGING) {
-                    SetState(client, iDmgToSpaceID, STATE_CLOAK_OFF);
+                    SetState(client, g_DmgToSpaceID, STATE_CLOAK_OFF);
                 }
             }
         }

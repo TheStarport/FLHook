@@ -7,9 +7,6 @@
     <Filter Include="Hook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hook\callbacks">
-      <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Hook\functions">
       <UniqueIdentifier>{e5afe51b-e9c0-4bb5-9afb-e295fa101bff}</UniqueIdentifier>
     </Filter>
@@ -31,6 +28,12 @@
     <Filter Include="sdk\Header Files">
       <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hook\hooks">
+      <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hook\features">
+      <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\flcodec.cpp">
@@ -48,32 +51,11 @@
     <ClCompile Include="..\source\HkInit.cpp">
       <Filter>Hook</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkCbChat.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbDamage.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbDeath.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbDisconnect.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbIClientImpl.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbIEngine.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCbIServerImpl.cpp">
-      <Filter>Hook\callbacks</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkTimers.cpp">
-      <Filter>Hook\callbacks</Filter>
+      <Filter>Hook\features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkUserCmd.cpp">
-      <Filter>Hook\callbacks</Filter>
+      <Filter>Hook\features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkFuncLog.cpp">
       <Filter>Hook\functions</Filter>
@@ -88,9 +70,6 @@
       <Filter>Hook\functions</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkFuncTools.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkPluginManager.cpp">
       <Filter>Hook\functions</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp">
@@ -119,6 +98,25 @@
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
+    <ClCompile Include="..\source\__generated.cpp" />
+    <ClCompile Include="..\source\HkIEngine.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkIEngineDamage.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkIEngineDeath.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkIEngineDisconnect.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkIChatServer.cpp">
+      <Filter>Hook\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkPluginManager.cpp">
+      <Filter>Hook\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -181,6 +179,10 @@
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Singleton.h" />
+    <ClInclude Include="..\FLHookSDK\include\__generated.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\HookedCallBase.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />
@@ -188,6 +190,15 @@
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md">
       <Filter>sdk</Filter>
+    </None>
+    <None Include="..\source\HkIClientImpl.inl">
+      <Filter>Hook\hooks</Filter>
+    </None>
+    <None Include="..\source\Generated.inl">
+      <Filter>Hook\hooks</Filter>
+    </None>
+    <None Include="..\source\HkIServerImpl.inl">
+      <Filter>Hook\hooks</Filter>
     </None>
   </ItemGroup>
 </Project>
