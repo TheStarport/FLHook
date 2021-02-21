@@ -597,12 +597,12 @@ void UserCmd_Credits(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"Running plugins:");
 
     bool bRunning = false;
-    for (auto &plugin : lstPlugins) {
-        if (plugin.bPaused)
+    for (const auto &plugin : PluginManager::ir()) {
+        if (plugin.paused)
             continue;
 
         bRunning = true;
-        PrintUserCmdText(iClientID, L"- %s", stows(plugin.sName).c_str());
+        PrintUserCmdText(iClientID, L"- %s", stows(plugin.name).c_str());
     }
     if (!bRunning)
         PrintUserCmdText(iClientID, L"- none -");
@@ -665,9 +665,7 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
             PrintUserCmdText(iClientID,
                              L"No help found for specified command.");
     } else {
-        CALL_PLUGINS_NORET(PLUGIN_UserCmd_Help, ,
-                           (uint iClientID, const std::wstring &wscParam),
-                           (iClientID, wscParam));
+        CallPluginsAfter(HookedCall::FLHook__UserCommand__Help, iClientID, wscParam);
     }
 }
 
@@ -692,9 +690,9 @@ USERCMD UserCmds[] = {
 
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
-    CALL_PLUGINS(PLUGIN_UserCmd_Process, bool, ,
-                 (uint iClientID, const std::wstring &wscCmd),
-                 (iClientID, wscCmd));
+    auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, iClientID, wscCmd);
+    if(pluginSkip)
+        return pluginRet;
 
     std::wstring wscCmdLower = ToLower(wscCmd);
 

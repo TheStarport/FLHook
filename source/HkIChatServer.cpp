@@ -105,10 +105,11 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void *rdl) {
                 L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
             HkFMsg(clientID, xml);
         } else {
+            uint sz = size;
             __asm {
                 pushad
                 push [rdl]
-                push [size]
+                push [sz]
                 push [clientIDTo]
                 push [clientID]
                 mov ecx, [Client]

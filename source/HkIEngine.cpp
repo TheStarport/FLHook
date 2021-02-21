@@ -118,7 +118,7 @@ int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HO
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-FARPROC g_OldLaunchPos;
+FARPROC g_OldLaunchPosition;
 
 bool __stdcall LaunchPosition(uint spaceID, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock) {
     CallPluginsBefore(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
@@ -154,8 +154,7 @@ struct REP_DATA_LIST {
     LOAD_REP_DATA *end;
 };
 
-bool __stdcall HkLoadRepFromCharFile(REP_DATA_LIST *savedReps,
-                                     LOAD_REP_DATA *repToSave) {
+bool __stdcall LoadReputationFromCharacterFile(REP_DATA_LIST *savedReps, LOAD_REP_DATA *repToSave) {
     // check of the rep id is valid
     if (repToSave->iRepID == 0xFFFFFFFF)
         return false; // rep id not valid!
@@ -173,18 +172,18 @@ bool __stdcall HkLoadRepFromCharFile(REP_DATA_LIST *savedReps,
     return true;
 }
 
-FARPROC g_OldLoadRepCharFile;
+FARPROC g_OldLoadReputationFromCharacterFile;
 
-__declspec(naked) void _HkLoadRepFromCharFile() {
+__declspec(naked) void Naked__LoadReputationFromCharacterFile() {
     __asm {
         push ecx // save ecx because thiscall
         push [esp+4+4+8] // rep data
         push ecx // rep data list
-        call HkLoadRepFromCharFile
+        call LoadReputationFromCharacterFile
         pop ecx // recover ecx
         test al, al
         jz abort_lbl
-        jmp [g_OldLoadRepCharFile]
+        jmp [g_OldLoadReputationFromCharacterFile]
 abort_lbl:
         ret 0x0C
     }

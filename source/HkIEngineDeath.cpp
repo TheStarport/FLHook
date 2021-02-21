@@ -311,7 +311,7 @@ void BaseDestroyed(uint objectID, uint clientIDBy) {
             mov eax, [base]
             mov eax, [eax]
             call [eax+4]
-            mov [szBaseName], eax
+            mov [baseName], eax
             popad
         }
     }
