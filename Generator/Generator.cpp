@@ -68,6 +68,11 @@ std::string ReplaceBackslashes(std::string s) {
     return s;
 }
 
+std::string ReplaceScope(std::string s) {
+    std::replace(s.begin(), s.end(), ':', '_');
+    return s;
+}
+
 class WinLogger final : public cppast::diagnostic_logger {
 public:
     using diagnostic_logger::diagnostic_logger;
@@ -445,10 +450,17 @@ class Parser {
             hookSrc_ << "\treturn retVal;" << std::endl;
 
         hookSrc_ << "}" << std::endl;
+
+        if(!noPlugins) {
+            hookSrc_ << "static PluginManager::FunctionHookProps " << ReplaceScope(funcName) << "__Props(";
+            hookSrc_ << "HookedCall::" << enumVal << ", ";
+            hookSrc_ << "true, false, " << (noPluginsAfter ? "false" : "true");
+            hookSrc_ << ");" << std::endl;
+        }
         
         if(serverCall && !context.empty())
             hookSrc_ << "}" << std::endl;
-
+        
         hookSrc_ << std::endl;
     }
 
