@@ -24,7 +24,7 @@ std::map<uint, FLHOOK_PLAYER_DATA> clients;
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 std::string GetAccountDir(uint client) {
     static _GetFLName GetFLName = (_GetFLName)((char *)hModServer + 0x66370);
@@ -83,15 +83,12 @@ __declspec(naked) void HkCb_UpdateFileNaked() {
 
 /// Clear client info when a client connects.
 void ClearClientInfo(uint client) {
-    returncode = DEFAULT_RETURNCODE;
     clients.erase(client);
 }
 
 /// Load the flhook section from the character file
 void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
                                unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
-
     std::string path =
         scAcctPath + GetAccountDir(client) + "\\" + charid.szCharFilename;
 
@@ -118,14 +115,11 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
 }
 
 void __stdcall DisConnect(unsigned int client, enum EFLConnection p2) {
-    returncode = DEFAULT_RETURNCODE;
     clients.erase(client);
 }
 
 /// Load the configuration
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
-
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
@@ -320,21 +314,15 @@ EXPORT void IniSetF(const std::wstring &charname, const std::string &name,
 } // namespace HookExt
 
 /** Functions to hook */
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "HookExt Plugin by Cannon";
-    p_PI->sShortName = "hookext";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
+EXPORT void ExportPluginInfo(PluginInfo* pi) {
+    pi->name("HookExt Plugin by Cannon");
+    pi->shortName("hookext");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
     // p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect,
     // PLUGIN_HkIServerImpl_DisConnect,0));
-
-    return p_PI;
 }
