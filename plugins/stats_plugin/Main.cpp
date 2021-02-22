@@ -109,6 +109,21 @@ void ExportJSON() {
     out.close();
 }
 
+// Hooks for updating stats
+void __stdcall DisConnect_AFTER(unsigned int iClientID,
+                                enum EFLConnection state) {
+    ExportJSON();
+}
+
+void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client) {
+    ExportJSON();
+}
+
+void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &charId,
+                                     unsigned int iClientID) {
+    ExportJSON();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,10 +149,10 @@ EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->mayUnload(true);
     pi->returnCode(&returncode);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
-    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &ExportJSON,
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER,
                     HookStep::After);
-    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &ExportJSON,
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect_AFTER,
                     HookStep::After);
-    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &ExportJSON,
-                    HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect,
+                    &CharacterSelect_AFTER, HookStep::After);
 }

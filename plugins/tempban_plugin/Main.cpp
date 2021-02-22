@@ -142,18 +142,15 @@ EXPORT void CmdHelp(CCmds *classptr) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
-    pi->version();
     pi->name("TempBan Plugin by w0dk4");
     pi->shortName("tempban");
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
-    pi->addHook({HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick});
-    pi->addHook({HookedCall::IServerImpl__Login, &HkIServerImpl::Login,
-                 HookStep::After});
-    pi->addHook(
-        {HookedCall::FLHook__PluginCommunication, &PluginCommunication});
-    pi->addHook(
-        {HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString});
-    pi->addHook({HookedCall::FLHook__AdminCommand__Help, &CmdHelp});
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+    pi->emplaceHook(HookedCall::IServerImpl__Login, &HkIServerImpl::Login,
+                 HookStep::After);
+    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunication);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
 }
