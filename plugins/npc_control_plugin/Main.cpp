@@ -9,6 +9,7 @@
 #include "Main.h"
 
 // Structures and Global Variables
+ReturnCode returncode;
 
 struct NPC_ARCHTYPESSTRUCT {
     uint Shiparch;
@@ -293,7 +294,6 @@ bool IsFLHookNPC(CShip *ship) {
 
 // Hook on ship destroyed to remove from our data
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
-    returncode = DEFAULT_RETURNCODE;
     if (iKill) {
         CShip *cship = (CShip *)ecx[4];
         IsFLHookNPC(cship);
@@ -454,8 +454,6 @@ void LoadNPCInfo() {
 // Main Load Settings function, calls the one above. Had to use this hook
 // instead of LoadSettings otherwise NPCs wouldnt appear on server startup
 void Startup_AFTER() {
-    returncode = DEFAULT_RETURNCODE;
-
     LoadNPCInfo();
 
     listgraphs.push_back("FIGHTER");   // 0
@@ -670,33 +668,32 @@ void AdminCmd_AIFleet(CCmds *cmds, std::wstring FleetName) {
 
 // Admin command processing
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
     if (IS_CMD("aicreate")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
         return true;
     } else if (IS_CMD("aidestroy")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AIKill(cmds);
         return true;
     } else if (IS_CMD("aicancel")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AICancel(cmds);
         return true;
     } else if (IS_CMD("aifollow")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AIFollow(cmds, cmds->ArgCharname(1));
         return true;
     } else if (IS_CMD("aicome")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AICome(cmds);
         return true;
     } else if (IS_CMD("aifleet")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_AIFleet(cmds, cmds->ArgStr(1));
         return true;
     } else if (IS_CMD("fleetlist")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_ListNPCFleets(cmds);
         return true;
     }
@@ -721,21 +718,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return true;
 }
 
-// Functions to hook
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "NPCs by Alley and Cannon";
-    p_PI->sShortName = "npc";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&Startup_AFTER, PLUGIN_HkIServerImpl_Startup_AFTER, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("NPCs by Alley and Cannon");
+    pi->shortName("npc");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::IServerImpl__Startup, &Startup_AFTER,
+                    HookStep::After);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process,
+                    &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 }
