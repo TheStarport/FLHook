@@ -29,17 +29,9 @@
  recharge over time and are depleted as they're mined.
 */
 
-// includes
+// Includes
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
 
 static float set_fGenericFactor = 1.0f;
 static int set_iPluginDebug = 0;
@@ -116,7 +108,7 @@ std::map<uint, CLIENT_DATA> mapClients;
 
 /** A return code to indicate to FLHook if we want the hook processing to
  * continue. */
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -254,8 +246,6 @@ void CheckClientSetup(uint iClientID) {
 }
 
 EXPORT void HkTimerCheckKick() {
-    returncode = DEFAULT_RETURNCODE;
-
     // Perform 60 second tasks.
     if ((time(0) % 60) == 0) {
         // Recharge the fields
@@ -298,8 +288,6 @@ EXPORT void ClearClientInfo(uint iClientID) {
 
 /// Load the configuration
 EXPORT void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
-
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
@@ -527,20 +515,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
     ClearClientInfo(iClientID);
 }
 
 /// Called when a gun hits something
 void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const &ci,
                                    unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
-
     // If this is not a lootable rock, do no other processing.
     if (ci.dwTargetShip != 0)
         return;
 
-    returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+    returncode = ReturnCode::SkipAll;
 
     // Initialise the mining setup for this client if it hasn't been done
     // already.
@@ -719,17 +704,14 @@ void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos,
                             uint iClientID) {
     mapClients[iClientID].iPendingMineAsteroidEvents += 4;
     //	ConPrint(L"mine_asteroid %d %d %d\n", iCrateID, iLootID, iCount);
-    returncode = SKIPPLUGINS_NOFUNCTIONCALL;
     return;
 }
 
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
 bool ExecuteCommandString(CCmds *cmd, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (IS_CMD("printminezones")) {
-        returncode = NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         ZoneUtilities::PrintZones();
         return true;
     }
@@ -740,25 +722,17 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &wscCmd) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Functions to hook */
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Mine Control Plugin by cannon";
-    p_PI->sShortName = "minecontrol";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&MineAsteroid, PLUGIN_HkIServerImpl_MineAsteroid, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SPMunitionCollision,
-                        PLUGIN_HkIServerImpl_SPMunitionCollision, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Mine Control Plugin by cannon");
+    pi->shortName("minecontrol");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+    pi->emplaceHook(HookedCall::IServerImpl__MineAsteroid, &MineAsteroid);
+    pi->emplaceHook(HookedCall::IServerImpl__SPMunitionCollision,
+                    &SPMunitionCollision);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
 }
