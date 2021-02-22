@@ -19,15 +19,12 @@ bool set_bFlakVersion = true;
 std::string scMarkFile;
 
 EXPORT void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
-
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
     scMarkFile = std::string(szCurDir) + "\\flhook_plugins\\mark.cfg";
     set_fAutoMarkRadius =
         IniGetF(scMarkFile, "General", "AutoMarkRadius", 2.0f) * 1000;
 }
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     if (fdwReason == DLL_PROCESS_ATTACH)
@@ -646,7 +643,6 @@ TIMER Timers[] = {
 };
 
 EXPORT int __stdcall Update() {
-    returncode = DEFAULT_RETURNCODE;
     static bool bFirstTime = true;
     if (bFirstTime) {
         bFirstTime = false;
@@ -666,7 +662,6 @@ EXPORT int __stdcall Update() {
 
 EXPORT void __stdcall DisConnect(unsigned int iClientID,
                                  enum EFLConnection p2) {
-    returncode = DEFAULT_RETURNCODE;
     ClearClientMark(iClientID);
 }
 } // namespace HkIServerImpl
@@ -742,42 +737,31 @@ EXPORT bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
                 wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
             }
             UserCmds[i].proc(iClientID, wscParam);
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                     // return immediatly
+            returncode = ReturnCode::SkipAll;
             return true;
         }
     }
-    returncode = DEFAULT_RETURNCODE; // we did not handle the command, so let
-                                     // other plugins or FLHook kick in
     return false;
 }
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Mark plugin by M0tah";
-    p_PI->sShortName = "mark";
-    p_PI->bMayPause = false;
-    p_PI->bMayUnload = false;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::JumpInComplete,
-                        PLUGIN_HkIServerImpl_JumpInComplete, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::LaunchComplete,
-                        PLUGIN_HkIServerImpl_LaunchComplete, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::BaseEnter,
-                        PLUGIN_HkIServerImpl_BaseEnter, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
-                                             PLUGIN_HkIServerImpl_Update, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::DisConnect,
-                        PLUGIN_HkIServerImpl_DisConnect, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&LoadUserCharSettings,
-                                             PLUGIN_LoadUserCharSettings, 0));
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Mark plugin by M0tah");
+    pi->shortName("mark");
+    pi->mayPause(false);
+    pi->mayUnload(false);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete,
+                    &HkIServerImpl::JumpInComplete);
+    pi->emplaceHook(HookedCall::IServerImpl__LaunchComplete,
+                    &HkIServerImpl::LaunchComplete);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseEnter,
+                    &HkIServerImpl::BaseEnter);
+    pi->emplaceHook(HookedCall::IServerImpl__Update, &HkIServerImpl::Update);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect,
+                    &HkIServerImpl::DisConnect);
+    pi->emplaceHook(HookedCall::FLHook__LoadCharacterSettings,
+                    &LoadUserCharSettings);
 }
