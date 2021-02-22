@@ -1,18 +1,10 @@
 ﻿#pragma once
 
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
 
 static int set_iPluginDebug = 0;
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 typedef void (*_UserCmdProc)(uint, const std::wstring &);
 
