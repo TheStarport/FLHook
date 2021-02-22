@@ -5,6 +5,8 @@
 #include "Main.h"
 
 // Global variables and structures
+ReturnCode returncode;
+
 struct BET {
     uint iClientID;
     uint iClientID2;
@@ -445,8 +447,6 @@ the string they've typed and see if it starts with one of the above commands. If
 it does we try to process it.
 */
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
     std::wstring wscCmdLineLower = ToLower(wscCmd);
 
     // If the chat string does not match the USER_CMD then we do not handle the
@@ -468,9 +468,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
                                  UserCmds[i].usage)) {
                 // We handled the command tell FL hook to stop processing this
                 // chat string.
-                returncode =
-                    SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                // return immediatly
+                returncode = ReturnCode::SkipAll;
                 return true;
             }
         }
@@ -485,7 +483,6 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 int __cdecl Dock_Call(unsigned int const &iShip,
                       unsigned int const &iDockTarget, int iCancel,
                       enum DOCK_HOST_RESPONSE response) {
-    returncode = DEFAULT_RETURNCODE;
     uint iClientID = HkGetClientIDByShip(iShip);
     if (HkIsValidClientID(iClientID)) {
         processFFA(iClientID);
@@ -495,71 +492,40 @@ int __cdecl Dock_Call(unsigned int const &iShip,
 }
 
 void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection state) {
-    returncode = DEFAULT_RETURNCODE;
     processFFA(iClientID);
     processDuel(iClientID);
 }
 
 void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2) {
-    returncode = DEFAULT_RETURNCODE;
     processFFA(iClientID);
     processDuel(iClientID);
 }
 
 void SendDeathMessage(const std::wstring &wscMsg, uint iSystem,
                   uint iClientIDVictim, uint iClientIDKiller) {
-    returncode = DEFAULT_RETURNCODE;
     processDuel(iClientIDVictim);
     processFFA(iClientIDVictim);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Loading Settings
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void LoadSettings() { returncode = DEFAULT_RETURNCODE; }
-
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     srand((uint)time(0));
-    // If we're being loaded from the command line while FLHook is running then
-    // set_scCfgFile will not be empty so load the settings as FLHook only
-    // calls load settings on FLHook startup and .rehash.
-    if (fdwReason == DLL_PROCESS_ATTACH) {
-        if (set_scCfgFile.length() > 0)
-            LoadSettings();
-    } else if (fdwReason == DLL_PROCESS_DETACH) {
-    }
     return true;
 }
-
-/// Hook will call this function after calling a plugin function to see if we
-/// the processing to continue
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions to hook
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "PvP";
-    p_PI->sShortName = "pvp";
-    p_PI->bMayPause = false;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMessage, PLUGIN_SendDeathMsg, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&CharacterInfoReq,
-                        PLUGIN_HkIServerImpl_CharacterInfoReq, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&Dock_Call, PLUGIN_HkCb_Dock_Call, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
-
-    return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("PvP by Raikkonen");
+    pi->shortName("pvp");
+    pi->mayPause(false);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq,
+                    &CharacterInfoReq);
+    pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 }
