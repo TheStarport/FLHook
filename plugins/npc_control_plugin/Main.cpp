@@ -37,6 +37,7 @@ static std::map<int, NPC> startupNPCs;
 std::vector<const char *> listgraphs;
 std::vector<uint> npcnames;
 std::list<uint> npcs;
+FILE *Logfile;
 
 // Function to return a Personality. Possible improvements in the future to get
 // this to load from a config file
@@ -244,8 +245,6 @@ uint rand_name() {
 
 // Function to log output (usually NPCs that have been created)
 void Logging(const char *szString, ...) {
-    FILE *Logfile;
-    fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
     char szBufString[1024];
     va_list marker;
     va_start(marker, szString);
@@ -256,7 +255,7 @@ void Logging(const char *szString, ...) {
     localtime_s(&t, &tNow);
     strftime(szBuf, sizeof(szBuf), "%d/%m/%Y %H:%M:%S", &t);
     fprintf(Logfile, "%s %s\n", szBuf, szBufString);
-    fclose(Logfile);
+    fflush(Logfile);
 }
 
 // Logs the NPC being created
@@ -453,6 +452,8 @@ void LoadNPCInfo() {
 // instead of LoadSettings otherwise NPCs wouldnt appear on server startup
 void Startup_AFTER() {
     returncode = DEFAULT_RETURNCODE;
+
+    fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
 
     LoadNPCInfo();
 
