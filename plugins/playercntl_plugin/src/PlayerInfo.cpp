@@ -18,13 +18,6 @@
 #include <plugin.h>
 #include <plugin_comms.h>
 
-enum MissionMessageType {
-    MissionMessageType_Failure, // mission failure
-    MissionMessageType_Type1,   // objective
-    MissionMessageType_Type2,   // objective
-    MissionMessageType_Type3,   // mission success
-};
-
 #define POPUPDIALOG_BUTTONS_LEFT_YES 1
 #define POPUPDIALOG_BUTTONS_CENTER_NO 2
 #define POPUPDIALOG_BUTTONS_RIGHT_LATER 4
