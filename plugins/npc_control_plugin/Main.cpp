@@ -245,6 +245,9 @@ uint rand_name() {
 
 // Function to log output (usually NPCs that have been created)
 void Logging(const char *szString, ...) {
+    if (Logfile == nullptr)
+        fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
+
     char szBufString[1024];
     va_list marker;
     va_start(marker, szString);
@@ -452,8 +455,6 @@ void LoadNPCInfo() {
 // instead of LoadSettings otherwise NPCs wouldnt appear on server startup
 void Startup_AFTER() {
     returncode = DEFAULT_RETURNCODE;
-
-    fopen_s(&Logfile, "./flhook_logs/npc_log.log", "at");
 
     LoadNPCInfo();
 
