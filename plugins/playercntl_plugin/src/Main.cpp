@@ -296,7 +296,8 @@ void __stdcall Login(struct SLoginInfo const &li, unsigned int iClientID) {
     returncode = DEFAULT_RETURNCODE;
 
     // Player sound when player logs in (if enabled)
-    pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
+    if (set_bEnableLoginSound && sounds.size() > 0)
+        pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
 
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     if (acc) {
