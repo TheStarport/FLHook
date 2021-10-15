@@ -12,6 +12,7 @@
 #include <string>
 #include <time.h>
 #include <windows.h>
+#include <nlohmann/json.hpp>
 
 static int set_iPluginDebug = 0;
 PLUGIN_RETURNCODE returncode;

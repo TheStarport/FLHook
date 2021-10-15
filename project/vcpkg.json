@@ -1,0 +1,8 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "flhook",
+  "version": "2.1.0",
+  "dependencies": [
+    "nlohmann-json"
+  ]
+}
