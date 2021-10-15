@@ -214,6 +214,16 @@ Merge requests are welcome. The old Forge SVN repositories are no longer tracked
 
 For any and all support, please visit https://the-starport.net and look for the FLHook forums. Github issues are available for bug reports *only*.
 
+## Compiling the Project
+
+1. Install Visual Studio 2019
+2. Clone https://github.com/microsoft/vcpkg.git
+3. Run bootstrap-vcpkg.bat
+4. In this directory, run `.\vcpkg integrate install`
+5. Clone this repository
+6. Open `project\FLHook.sln`
+7. Ensure you are on `Release` and build the solution.
+
 ## Visual Studio Extension
 
 A visual studio extension is available to ease the plugin creation process. A new project template named "FLHook Plugin Template" will create a ready to use FLHook plugin project for you.
