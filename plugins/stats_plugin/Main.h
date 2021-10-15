@@ -13,7 +13,6 @@
 #include <time.h>
 #include <windows.h>
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 static int set_iPluginDebug = 0;
 PLUGIN_RETURNCODE returncode;

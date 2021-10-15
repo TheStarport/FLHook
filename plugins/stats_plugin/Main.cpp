@@ -4,6 +4,10 @@
 // Includes
 #include "Main.h"
 
+// JSON Library
+using json = nlohmann::json;
+
+// Global Variables
 std::string jsonFileName;
 std::map<uint, std::wstring> mapShips;
 
