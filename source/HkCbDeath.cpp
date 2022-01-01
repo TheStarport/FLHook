@@ -8,7 +8,7 @@ std::wstring SetSizeToSmall(const std::wstring &wscDataFormat) {
     wchar_t wszStyleSmall[32];
     wcscpy_s(wszStyleSmall, wscDataFormat.c_str());
     swprintf_s(wszStyleSmall + std::size(wscDataFormat) - 2, 3, L"%02X",
-               0x90 | (iFormat & 7)); 
+               0x90 | (iFormat & 7));
     return std::wstring(wszStyleSmall, std::size(wscDataFormat));
 }
 
@@ -174,9 +174,10 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
                     else if (iCause == 0x02)
                         wscType = L"Gun";
                     else {
-                        wscType = L"Gun"; // 0x02
-                                          //					AddLog("get_cause()
-                                          //returned %X", iCause);
+                        wscType =
+                            L"Gun"; // 0x02
+                                    //					AddLog("get_cause()
+                                    // returned %X", iCause);
                     }
 
                     std::wstring wscMsg;
