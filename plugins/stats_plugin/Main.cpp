@@ -20,7 +20,8 @@ void LoadSettings() {
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
     std::string configFile =
         std::string(szCurDir) + "\\flhook_plugins\\stats.cfg";
-    jsonFileName = IniGetS(configFile, "General", "jsonFileName", "EXPORTS\\stats.json");
+    jsonFileName =
+        IniGetS(configFile, "General", "jsonFileName", "EXPORTS\\stats.json");
 
     HkLoadStringDLLs();
 
