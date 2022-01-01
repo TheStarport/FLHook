@@ -53,7 +53,6 @@ bool UserCmd_AFK(uint iClientID, const std::wstring &wscCmd,
     return true;
 }
 
-
 // This function welcomes the player back and removes their afk status
 void Back(uint iClientID) {
     if (afks.count(iClientID) > 0) {
@@ -84,7 +83,8 @@ void DisConnect_AFTER(uint iClientID) {
         afks.erase(iClientID);
 }
 
-// Hook on chat being sent (This gets called twice with the iClientID and iTo swapped
+// Hook on chat being sent (This gets called twice with the iClientID and iTo
+// swapped
 void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
     returncode = DEFAULT_RETURNCODE;
 
@@ -190,8 +190,7 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
     p_PI->lstHooks.push_back(
         PLUGIN_HOOKINFO((FARPROC *)&HkCb_SendChat, PLUGIN_HkCb_SendChat, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&SubmitChat,
-                        PLUGIN_HkIServerImpl_SubmitChat, 0));
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+        (FARPROC *)&SubmitChat, PLUGIN_HkIServerImpl_SubmitChat, 0));
     return p_PI;
 }
