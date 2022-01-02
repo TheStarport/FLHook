@@ -21,14 +21,19 @@ jobs:
       - name: Build
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
       
+       - name: Get current date
+        id: date
+        run: |
+        powershell Get-Date -Format "dd-MMM-yyyy-HH-mm"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.date.outputs.date }}
+          release_name: ${{ steps.date.outputs.date }}
           body: |
             This is a release of FLHook automatically generated after a commit to the main branch. "Release.zip" contains a compiled copy of FLHook and it's plugins.
           draft: false
@@ -36,7 +41,7 @@ jobs:
       
       - name: Zip dlls
         run: |
-          powershell Compress-Archive -Path .\dist -DestinationPath .\Release.zip
+          powershell Compress-Archive -Path .\dist\Release -DestinationPath .\Release.zip
       
       - name: Upload Release Asset
         id: upload-release-asset 
