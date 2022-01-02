@@ -7,7 +7,6 @@ name: Create Release
 jobs:
   build:
     runs-on: windows-latest
-    needs: [format]
     steps:
       - uses: actions/checkout@v2
         with:
