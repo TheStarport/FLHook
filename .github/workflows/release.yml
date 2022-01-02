@@ -23,8 +23,7 @@ jobs:
       
       - name: Get current date
         id: date
-        run: |
-          powershell Get-Date -Format "dd-MMM-yyyy-HH-mm"
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')
 
       - name: Create Release
         id: create_release
