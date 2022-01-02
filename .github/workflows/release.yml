@@ -41,12 +41,12 @@ jobs:
       - name: Remove .pdb files
         run: |
           del /S *.pdb
+        shell: cmd
 
       - name: Zip dlls
         run: |
           powershell Compress-Archive -Path .\dist\Release -DestinationPath .\Release.zip
-        shell: cmd
-      
+
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
