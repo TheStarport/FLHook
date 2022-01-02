@@ -22,7 +22,7 @@ jobs:
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
 
       - name: Compile PlayerControlSetup
-        run: msbuild.exe "${env:GITHUB_WORKSPACE}\plugins\playercntl_plugin\setup_src\PlayerCntlSetup.sln" /t:Build /p:Configuration=Release /p:Platform=Any CPU
+        run: msbuild.exe "${env:GITHUB_WORKSPACE}\plugins\playercntl_plugin\setup_src\PlayerCntlSetup.sln" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
       
       - name: Get current date
         id: date
