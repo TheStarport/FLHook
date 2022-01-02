@@ -20,17 +20,9 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+            This is a release of FLHook automatically generated after a commit to the main branch. "Release.zip" contains a compiled copy of FLHook and it's plugins.
           draft: false
           prerelease: false
-
-    name: Upload Release Asset
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
       - name: Zip dlls
         run: |
           zip --junk-paths dist/Release README.md
