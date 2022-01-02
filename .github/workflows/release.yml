@@ -40,7 +40,7 @@ jobs:
       
       - name: Remove .pdb files
         run: |
-          powershell "Get-ChildItem .\dist\*.pdb -Recurse | foreach { Remove-Item -Path $_.FullName }"
+          del /S *.pdb
 
       - name: Zip dlls
         run: |
