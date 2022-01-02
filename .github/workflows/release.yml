@@ -45,6 +45,7 @@ jobs:
       - name: Zip dlls
         run: |
           powershell Compress-Archive -Path .\dist\Release -DestinationPath .\Release.zip
+        shell: cmd
       
       - name: Upload Release Asset
         id: upload-release-asset 
