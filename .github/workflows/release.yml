@@ -43,6 +43,11 @@ jobs:
           del /S *.pdb
         shell: cmd
 
+      - name: Remove template .dll
+        run: |
+          del /S $safeprojectname$.dll
+        shell: cmd
+
       - name: Zip dlls
         run: |
           powershell Compress-Archive -Path .\dist\Release -DestinationPath .\Release.zip
