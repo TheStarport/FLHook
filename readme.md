@@ -1,4 +1,6 @@
 # FLHook - A Server Improvement for Freelancer
+[![Build](https://github.com/fl-devs/FLHook/actions/workflows/release.yml/badge.svg)](https://github.com/fl-devs/FLHook/releases/latest/download/Release.zip) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/c6wtsBk) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://the-starport.net/)
+
 
 ## Installation
 **N.B. FLHOOK ONLY WORKS WITH THE 1.1 PATCH INSTALLED. USING IT WITH 1.0 WILL CRASH FLSERVER!**
