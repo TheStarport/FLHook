@@ -23,7 +23,7 @@ jobs:
       
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d--%H-%M')"
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
 
       - name: Create Release
         id: create_release
@@ -38,6 +38,10 @@ jobs:
           draft: false
           prerelease: false
       
+      - name: Remove .pdb files
+        run: |
+          powershell Get-ChildItem *.pdb -Recurse | foreach { Remove-Item -Path $_.FullName }
+
       - name: Zip dlls
         run: |
           powershell Compress-Archive -Path .\dist\Release -DestinationPath .\Release.zip
