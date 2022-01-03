@@ -1,0 +1,322 @@
+// Death Penalty Plugin
+// Ported from 88Flak by Raikkonen
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
+
+// Includes
+#include "Main.h"
+
+// Load configuration file
+void LoadSettings() {
+    returncode = DEFAULT_RETURNCODE;
+
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string configFile =
+        std::string(szCurDir) + "\\flhook_plugins\\deathpenalty.cfg";
+
+    INI_Reader ini;
+    if (ini.open(configFile.c_str(), false)) {
+        while (ini.read_header()) {
+            if (ini.is_header("General"))
+                while (ini.read_value()) {
+                    if (ini.is_value("DeathPenaltyFraction"))
+                        set_fDeathPenalty = ini.get_value_float(0);
+                    else if (ini.is_value("DeathPenaltyKillerFraction"))
+                        set_fDeathPenaltyKiller = ini.get_value_float(0);
+                }
+
+            if (ini.is_header("Excluded"))
+                while (ini.read_value()) {
+                    if (ini.is_value("ship"))
+                        ExcludedShips.push_back(
+                            CreateID(ini.get_value_string(0)));
+                    else if (ini.is_value("system"))
+                        ExcludedSystems.push_back(
+                            CreateID(ini.get_value_string(0)));
+                }
+        }
+        ini.close();
+    }
+}
+
+void ClearClientInfo(uint iClientID) {
+    bDontDisplayDPOnLaunch.erase(iClientID);
+    DeathPenaltyCredits.erase(iClientID);
+}
+
+bool bExcludedShiporSystem(uint iClientID) {
+    // Get ShipArchID and System ID
+    uint iShipArchID;
+    pub::Player::GetShipID(iClientID, iShipArchID);
+    uint iSystemID;
+    pub::Player::GetShipID(iClientID, iSystemID);
+    return (std::find(ExcludedShips.begin(), ExcludedShips.end(),
+                      iShipArchID) != ExcludedShips.end() ||
+            std::find(ExcludedSystems.begin(), ExcludedSystems.end(),
+                      iSystemID) != ExcludedSystems.end());
+}
+
+// Hook on Player Launch. Used to work out the death penalty and display a
+// message to the player warning them of such
+void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+    if (set_fDeathPenalty) {
+        if (!bExcludedShiporSystem(iClientID)) {
+            int iCash;
+            HkGetCash(ARG_CLIENTID(iClientID), iCash);
+            float fValue;
+            pub::Player::GetAssetValue(iClientID, fValue);
+            DeathPenaltyCredits[iClientID] = (int)(fValue * set_fDeathPenalty);
+            if (bDontDisplayDPOnLaunch.count(iClientID))
+                PrintUserCmdText(
+                    iClientID,
+                    L"Notice: the death penalty for your ship will be " +
+                        ToMoneyStr(DeathPenaltyCredits[iClientID]) +
+                        L" credits.  Type /dp for more information.");
+        } else
+            DeathPenaltyCredits[iClientID] = 0;
+    }
+}
+
+void LoadUserCharSettings(uint iClientID) {
+    CAccount *acc = Players.FindAccountFromClientID(iClientID);
+    std::wstring wscDir;
+    HkGetAccountDirName(acc, wscDir);
+    std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+
+    std::wstring wscFilename;
+    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
+    std::string scFilename = wstos(wscFilename);
+    std::string scSection = "general_" + scFilename;
+
+    // read death penalty settings
+    if (IniGetB(scUserFile, scSection, "DPnotice", true))
+        bDontDisplayDPOnLaunch.insert(iClientID);
+}
+
+// Function that will apply the death penalty on a player death
+void HkPenalizeDeath(std::wstring wscCharname, uint iKillerID) {
+    if (!set_fDeathPenalty)
+        return;
+
+    uint iClientID = HkGetClientIdFromCharname(wscCharname);
+    // Valid iClientID and the ShipArch or System isnt in the excluded list?
+    if (iClientID != -1 && !bExcludedShiporSystem(iClientID)) {
+
+        // Get the players cash
+        int iCash;
+        HkGetCash(wscCharname, iCash);
+
+        // Get how much the player owes
+        int iOwed = DeathPenaltyCredits[iClientID];
+
+        // If another player has killed the player
+        if (iKillerID && set_fDeathPenaltyKiller) {
+            int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
+
+            // Reward the killer, print message to them
+            HkAddCash(ARG_CLIENTID(iKillerID), iGive);
+            PrintUserCmdText(iKillerID,
+                             L"Death penalty: given " + ToMoneyStr(iGive) +
+                                 L" credits from %s's death penalty.",
+                             Players.GetActiveCharacterName(iClientID));
+        }
+        // If the amount the player owes is more than they have, set the
+        // amount to their total cash
+        if (iOwed > iCash)
+            iCash = iOwed;
+
+        // Print message to the player and remove cash
+        PrintUserCmdText(iClientID, L"Death penalty: charged " +
+                                        ToMoneyStr(iOwed) + L" credits.");
+        HkAddCash(wscCharname, -iOwed);
+    }
+}
+
+// Hook for BaseEnter. Is needed if the player goes offline before paying their
+// Death Penalty
+void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
+    HkPenalizeDeath(ARG_CLIENTID(iClientID), 0);
+}
+
+// Hook on ShipDestroyed
+void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+    // Get iClientID
+    CShip *cship = (CShip *)ecx[4];
+    uint iClientID = cship->GetOwnerPlayer();
+
+    // Get Killer ID if there is one
+    uint iKillerID = 0;
+    if (iClientID) {
+        DamageList dmg;
+        if (!dmg.get_cause())
+            dmg = ClientInfo[iClientID].dmgLast;
+        iKillerID = HkGetClientIDByShip(dmg.get_inflictor_id());
+    }
+
+    // Call function to penalize player and reward killer
+    HkPenalizeDeath(ARG_CLIENTID(iClientID), iKillerID);
+}
+
+void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
+    std::wstring wscDir, wscFilename;
+    CAccount *acc = Players.FindAccountFromClientID(iClientID);
+    if (HKHKSUCCESS(HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+        HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
+        std::string scUserFile =
+            scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+        std::string scSection = "general_" + wstos(wscFilename);
+        IniWrite(scUserFile, scSection, "DPnotice", value);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// USER COMMANDS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// /dp command. Shows information about death penalty
+bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
+                const std::wstring &wscParam, const wchar_t *usage) {
+
+    if (!set_fDeathPenalty) {
+        return true;
+    }
+
+    if (wscParam.length()) // Arguments passed
+    {
+        if (ToLower(Trim(wscParam)) == L"off") {
+            if (bDontDisplayDPOnLaunch.count(iClientID) == 0)
+                bDontDisplayDPOnLaunch.insert(iClientID);
+            SaveDPNoticeToCharFile(iClientID, "no");
+        } else if (ToLower(Trim(wscParam)) == L"on") {
+            bDontDisplayDPOnLaunch.erase(iClientID);
+            SaveDPNoticeToCharFile(iClientID, "yes");
+        } else {
+            PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+            PrintUserCmdText(iClientID, usage);
+        }
+    } else {
+        PrintUserCmdText(
+            iClientID,
+            L"The death penalty is charged immediately when you die.");
+        if (!bExcludedShiporSystem(iClientID)) {
+            float fValue;
+            pub::Player::GetAssetValue(iClientID, fValue);
+            int iOwed = (int)(fValue * set_fDeathPenalty);
+            PrintUserCmdText(iClientID,
+                             L"The death penalty for your ship will be " +
+                                 ToMoneyStr(iOwed) + L" credits.");
+            PrintUserCmdText(
+                iClientID,
+                L"If you would like to turn off the death penalty notices, run "
+                L"this command with the argument \"off\".");
+        } else {
+            PrintUserCmdText(iClientID,
+                             L"You don't have to pay the death penalty "
+                             L"because you are flying a specific ship or are "
+                             L"in a specific system.");
+        }
+    }
+    return true;
+}
+
+// Additional information related to the plugin when the /help command is used
+void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    returncode = DEFAULT_RETURNCODE;
+    PrintUserCmdText(iClientID, L"/dp");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// USER COMMAND PROCESSING
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Define usable chat commands here
+USERCMD UserCmds[] = {
+    {L"/dp", UserCmd_DP, L"Usage: /dp"},
+};
+
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    returncode = DEFAULT_RETURNCODE;
+
+    try {
+        std::wstring wscCmdLineLower = ToLower(wscCmd);
+
+        // If the chat std::string does not match the USER_CMD then we do not
+        // handle the command, so let other plugins or FLHook kick in. We
+        // require an exact match
+        for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
+            if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0) {
+                // Extract the parameters std::string from the chat std::string.
+                // It should be immediately after the command and a space.
+                std::wstring wscParam = L"";
+                if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
+                    if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
+                        continue;
+                    wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
+                }
+
+                // Dispatch the command to the appropriate processing function.
+                if (UserCmds[i].proc(iClientID, wscCmd, wscParam,
+                                     UserCmds[i].usage)) {
+                    // We handled the command tell FL hook to stop processing
+                    // this chat std::string.
+                    returncode =
+                        SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
+                                                    // return immediatly
+                    return true;
+                }
+            }
+        }
+    } catch (...) {
+        AddLog("ERROR: Exception in UserCmd_Process(iClientID=%u, wscCmd=%s)",
+               iClientID, wstos(wscCmd).c_str());
+        LOG_EXCEPTION;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FLHOOK STUFF
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Do things when the dll is loaded
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    srand((uint)time(0));
+
+    // If we're being loaded from the command line while FLHook is running then
+    // set_scCfgFile will not be empty so load the settings as FLHook only
+    // calls load settings on FLHook startup and .rehash.
+    if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
+        LoadSettings();
+
+    return true;
+}
+
+// Functions to hook
+EXPORT PLUGIN_INFO *Get_PluginInfo() {
+    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
+    p_PI->sName = "Death Penalty";
+    p_PI->sShortName = "deathpenalty";
+    p_PI->bMayPause = true;
+    p_PI->bMayUnload = true;
+    p_PI->ePluginReturnCode = &returncode;
+    p_PI->lstHooks.push_back(
+        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+                                             PLUGIN_UserCmd_Process, 0));
+    p_PI->lstHooks.push_back(
+        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
+    p_PI->lstHooks.push_back(
+        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+        (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&LoadUserCharSettings,
+                                             PLUGIN_LoadUserCharSettings, 0));
+    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+                                             PLUGIN_ClearClientInfo, 0));
+    return p_PI;
+}
