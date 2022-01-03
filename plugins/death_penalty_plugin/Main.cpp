@@ -21,6 +21,7 @@ void LoadSettings() {
     INI_Reader ini;
     if (ini.open(configFile.c_str(), false)) {
         while (ini.read_header()) {
+            // [General]
             if (ini.is_header("General"))
                 while (ini.read_value()) {
                     if (ini.is_value("DeathPenaltyFraction"))
@@ -29,6 +30,7 @@ void LoadSettings() {
                         set_fDeathPenaltyKiller = ini.get_value_float(0);
                 }
 
+            // [ExcludedSystems]
             if (ini.is_header("ExcludedSystems"))
                 while (ini.read_value()) {
                     if (ini.is_value("system"))
@@ -36,6 +38,7 @@ void LoadSettings() {
                             CreateID(ini.get_value_string(0)));
                 }
 
+            // [ShipOverrides]
             if (ini.is_header("ShipOverrides"))
                 while (ini.read_value()) {
                     if (ini.is_value("ship"))
@@ -52,10 +55,12 @@ void ClearClientInfo(uint iClientID) {
     MapClients.erase(iClientID);
 }
 
+// Is the player is a system that is excluded from death penalty?
 bool bExcludedSystem(uint iClientID) {
     // Get System ID
     uint iSystemID;
     pub::Player::GetSystem(iClientID, iSystemID);
+    // Search list for system
     return (std::find(ExcludedSystems.begin(), ExcludedSystems.end(),
                       iSystemID) != ExcludedSystems.end());
 }
@@ -113,11 +118,14 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
 void LoadUserCharSettings(uint iClientID) {
     returncode = DEFAULT_RETURNCODE;
+
+    // Get Account directory then flhookuser.ini file
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
     std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
+    // Get char filename and save setting to flhookuser.ini
     std::wstring wscFilename;
     HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
     std::string scFilename = wstos(wscFilename);
@@ -151,7 +159,6 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
 
         // If another player has killed the player
         if (iKillerID && set_fDeathPenaltyKiller) {
-
             int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
             if (iGive) {
                 // Reward the killer, print message to them
