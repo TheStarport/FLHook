@@ -18,9 +18,9 @@ struct CLIENT_DATA {
 
 float set_fDeathPenalty = 0;
 float set_fDeathPenaltyKiller = 0;
-std::list<uint> ExcludedShips;
 std::list<uint> ExcludedSystems;
 std::map<uint, CLIENT_DATA> MapClients;
+std::map<uint, float> FractionOverridesbyShip;
 
 PLUGIN_RETURNCODE returncode;
 

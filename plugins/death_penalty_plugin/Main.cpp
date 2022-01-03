@@ -29,35 +29,51 @@ void LoadSettings() {
                         set_fDeathPenaltyKiller = ini.get_value_float(0);
                 }
 
-            if (ini.is_header("Excluded"))
+            if (ini.is_header("ExcludedSystems"))
                 while (ini.read_value()) {
-                    if (ini.is_value("ship"))
-                        ExcludedShips.push_back(
-                            CreateID(ini.get_value_string(0)));
-                    else if (ini.is_value("system"))
+                    if (ini.is_value("system"))
                         ExcludedSystems.push_back(
                             CreateID(ini.get_value_string(0)));
+                }
+
+            if (ini.is_header("ShipOverrides"))
+                while (ini.read_value()) {
+                    if (ini.is_value("ship"))
+                        FractionOverridesbyShip[CreateID(
+                            ini.get_value_string(0))] = ini.get_value_float(1);
                 }
         }
         ini.close();
     }
 }
 
-void ClearClientInfo(uint iClientID) { 
+void ClearClientInfo(uint iClientID) {
     returncode = DEFAULT_RETURNCODE;
     MapClients.erase(iClientID);
 }
 
-bool bExcludedShiporSystem(uint iClientID) {
-    // Get ShipArchID and System ID
+bool bExcludedSystem(uint iClientID) {
+    // Get System ID
+    uint iSystemID;
+    pub::Player::GetSystem(iClientID, iSystemID);
+    return (std::find(ExcludedSystems.begin(), ExcludedSystems.end(),
+                      iSystemID) != ExcludedSystems.end());
+}
+
+float fShipFractionOverride(uint iClientID) {
+    // Get ShipArchID
     uint iShipArchID;
     pub::Player::GetShipID(iClientID, iShipArchID);
-    uint iSystemID;
-    pub::Player::GetShipID(iClientID, iSystemID);
-    return (std::find(ExcludedShips.begin(), ExcludedShips.end(),
-                      iShipArchID) != ExcludedShips.end() ||
-            std::find(ExcludedSystems.begin(), ExcludedSystems.end(),
-                      iSystemID) != ExcludedSystems.end());
+
+    // Default return value is the default death penalty fraction
+    float fOverrideValue = set_fDeathPenalty;
+
+    // See if the ship has an override fraction
+    if (FractionOverridesbyShip.find(iShipArchID) !=
+        FractionOverridesbyShip.end())
+        fOverrideValue = FractionOverridesbyShip[iShipArchID];
+
+    return fOverrideValue;
 }
 
 // Hook on Player Launch. Used to work out the death penalty and display a
@@ -65,21 +81,22 @@ bool bExcludedShiporSystem(uint iClientID) {
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
     returncode = DEFAULT_RETURNCODE;
     if (set_fDeathPenalty) {
-        if (!bExcludedShiporSystem(iClientID)) {
+        if (!bExcludedSystem(iClientID)) {
             int iCash;
             HkGetCash(ARG_CLIENTID(iClientID), iCash);
             float fValue;
             pub::Player::GetAssetValue(iClientID, fValue);
             MapClients[iClientID].DeathPenaltyCredits =
-                (int)(fValue * set_fDeathPenalty);
+                (int)(fValue * fShipFractionOverride(set_fDeathPenalty));
             AddDebugLog("Display: %c\n",
                         MapClients[iClientID].bDisplayDPOnLaunch ? 't' : 'f');
             if (MapClients[iClientID].bDisplayDPOnLaunch) {
-                AddDebugLog("Credits: %d\n",MapClients[iClientID].DeathPenaltyCredits);
+                AddDebugLog("Credits: %d\n",
+                            MapClients[iClientID].DeathPenaltyCredits);
                 PrintUserCmdText(
                     iClientID,
                     L"Notice: the death penalty for your ship will be " +
-                       ToMoneyStr(MapClients[iClientID].DeathPenaltyCredits) +
+                        ToMoneyStr(MapClients[iClientID].DeathPenaltyCredits) +
                         L" credits.  Type /dp for more information.");
             }
         } else
@@ -111,7 +128,7 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
         return;
 
     // Valid iClientID and the ShipArch or System isnt in the excluded list?
-    if (iClientID != -1 && !bExcludedShiporSystem(iClientID)) {
+    if (iClientID != -1 && !bExcludedSystem(iClientID)) {
 
         // Get the players cash
         int iCash;
@@ -120,47 +137,55 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
         // Get how much the player owes
         int iOwed = MapClients[iClientID].DeathPenaltyCredits;
 
-        // If another player has killed the player
-        if (iKillerID && set_fDeathPenaltyKiller) {
-            int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
-
-            // Reward the killer, print message to them
-            HkAddCash(ARG_CLIENTID(iKillerID), iGive);
-            PrintUserCmdText(iKillerID,
-                             L"Death penalty: given " + ToMoneyStr(iGive) +
-                                 L" credits from %s's death penalty.",
-                             Players.GetActiveCharacterName(iClientID));
-        }
         // If the amount the player owes is more than they have, set the
         // amount to their total cash
         if (iOwed > iCash)
             iOwed = iCash;
 
-        // Print message to the player and remove cash
-        PrintUserCmdText(iClientID, L"Death penalty: charged " +
-                                        ToMoneyStr(iOwed) + L" credits.");
-        HkAddCash(ARG_CLIENTID(iClientID), -iOwed);
+        // If another player has killed the player
+        if (iKillerID && set_fDeathPenaltyKiller) {
+
+            int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
+            if (iGive) {
+                // Reward the killer, print message to them
+                HkAddCash(ARG_CLIENTID(iKillerID), iGive);
+                PrintUserCmdText(iKillerID,
+                                 L"Death penalty: given " + ToMoneyStr(iGive) +
+                                     L" credits from %s's death penalty.",
+                                 Players.GetActiveCharacterName(iClientID));
+            }
+        }
+
+        if (iOwed) {
+            // Print message to the player and remove cash
+            PrintUserCmdText(iClientID, L"Death penalty: charged " +
+                                            ToMoneyStr(iOwed) + L" credits.");
+            HkAddCash(ARG_CLIENTID(iClientID), -iOwed);
+        }
     }
 }
 
 // Hook on ShipDestroyed
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
     returncode = DEFAULT_RETURNCODE;
-    // Get iClientID
-    CShip *cship = (CShip *)ecx[4];
-    uint iClientID = cship->GetOwnerPlayer();
 
-    // Get Killer ID if there is one
-    uint iKillerID = 0;
-    if (iClientID) {
-        DamageList dmg;
-        if (!dmg.get_cause())
-            dmg = ClientInfo[iClientID].dmgLast;
-        iKillerID = HkGetClientIDByShip(dmg.get_inflictor_id());
+    if (iKill) {
+        // Get iClientID
+        CShip *cship = (CShip *)ecx[4];
+        uint iClientID = cship->GetOwnerPlayer();
+
+        // Get Killer ID if there is one
+        uint iKillerID = 0;
+        if (iClientID) {
+            DamageList dmg;
+            if (!dmg.get_cause())
+                dmg = ClientInfo[iClientID].dmgLast;
+            iKillerID = HkGetClientIDByShip(dmg.get_inflictor_id());
+        }
+
+        // Call function to penalize player and reward killer
+        HkPenalizeDeath(iClientID, iKillerID);
     }
-
-    // Call function to penalize player and reward killer
-    HkPenalizeDeath(iClientID, iKillerID);
 }
 
 void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
@@ -205,10 +230,11 @@ bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
         PrintUserCmdText(
             iClientID,
             L"The death penalty is charged immediately when you die.");
-        if (!bExcludedShiporSystem(iClientID)) {
+        if (!bExcludedSystem(iClientID)) {
             float fValue;
             pub::Player::GetAssetValue(iClientID, fValue);
-            int iOwed = (int)(fValue * set_fDeathPenalty);
+            int iOwed =
+                (int)(fValue * fShipFractionOverride(set_fDeathPenalty));
             PrintUserCmdText(iClientID,
                              L"The death penalty for your ship will be " +
                                  ToMoneyStr(iOwed) + L" credits.");
@@ -219,8 +245,7 @@ bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
         } else {
             PrintUserCmdText(iClientID,
                              L"You don't have to pay the death penalty "
-                             L"because you are flying a specific ship or are "
-                             L"in a specific system.");
+                             L"because you are in a specific system.");
         }
     }
     return true;
