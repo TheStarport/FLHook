@@ -11,12 +11,16 @@
 #include <FLHook.h>
 #include <plugin.h>
 
+struct CLIENT_DATA {
+    bool bDisplayDPOnLaunch = true;
+    int DeathPenaltyCredits = 0;
+};
+
 float set_fDeathPenalty = 0;
 float set_fDeathPenaltyKiller = 0;
 std::list<uint> ExcludedShips;
 std::list<uint> ExcludedSystems;
-std::set<uint> bDontDisplayDPOnLaunch;
-std::map<uint, uint> DeathPenaltyCredits;
+std::map<uint, CLIENT_DATA> MapClients;
 
 PLUGIN_RETURNCODE returncode;
 

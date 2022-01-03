@@ -43,9 +43,9 @@ void LoadSettings() {
     }
 }
 
-void ClearClientInfo(uint iClientID) {
-    bDontDisplayDPOnLaunch.erase(iClientID);
-    DeathPenaltyCredits.erase(iClientID);
+void ClearClientInfo(uint iClientID) { 
+    returncode = DEFAULT_RETURNCODE;
+    MapClients.erase(iClientID);
 }
 
 bool bExcludedShiporSystem(uint iClientID) {
@@ -63,25 +63,33 @@ bool bExcludedShiporSystem(uint iClientID) {
 // Hook on Player Launch. Used to work out the death penalty and display a
 // message to the player warning them of such
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+    returncode = DEFAULT_RETURNCODE;
     if (set_fDeathPenalty) {
         if (!bExcludedShiporSystem(iClientID)) {
             int iCash;
             HkGetCash(ARG_CLIENTID(iClientID), iCash);
             float fValue;
             pub::Player::GetAssetValue(iClientID, fValue);
-            DeathPenaltyCredits[iClientID] = (int)(fValue * set_fDeathPenalty);
-            if (bDontDisplayDPOnLaunch.count(iClientID))
+            MapClients[iClientID].DeathPenaltyCredits =
+                (int)(fValue * set_fDeathPenalty);
+            AddDebugLog("Display: %c\n",
+                        MapClients[iClientID].bDisplayDPOnLaunch ? 't' : 'f');
+            if (MapClients[iClientID].bDisplayDPOnLaunch) {
+                AddDebugLog("Credits: %d\n",MapClients[iClientID].DeathPenaltyCredits);
                 PrintUserCmdText(
                     iClientID,
                     L"Notice: the death penalty for your ship will be " +
-                        ToMoneyStr(DeathPenaltyCredits[iClientID]) +
+                        std::to_wstring(
+                            MapClients[iClientID].DeathPenaltyCredits) +
                         L" credits.  Type /dp for more information.");
+            }
         } else
-            DeathPenaltyCredits[iClientID] = 0;
+            MapClients[iClientID].DeathPenaltyCredits = 0;
     }
 }
 
 void LoadUserCharSettings(uint iClientID) {
+    returncode = DEFAULT_RETURNCODE;
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
@@ -93,8 +101,9 @@ void LoadUserCharSettings(uint iClientID) {
     std::string scSection = "general_" + scFilename;
 
     // read death penalty settings
-    if (IniGetB(scUserFile, scSection, "DPnotice", true))
-        bDontDisplayDPOnLaunch.insert(iClientID);
+    CLIENT_DATA c;
+    c.bDisplayDPOnLaunch = IniGetB(scUserFile, scSection, "DPnotice", true);
+    MapClients[iClientID] = c;
 }
 
 // Function that will apply the death penalty on a player death
@@ -111,7 +120,7 @@ void HkPenalizeDeath(std::wstring wscCharname, uint iKillerID) {
         HkGetCash(wscCharname, iCash);
 
         // Get how much the player owes
-        int iOwed = DeathPenaltyCredits[iClientID];
+        int iOwed = MapClients[iClientID].DeathPenaltyCredits;
 
         // If another player has killed the player
         if (iKillerID && set_fDeathPenaltyKiller) {
@@ -136,14 +145,9 @@ void HkPenalizeDeath(std::wstring wscCharname, uint iKillerID) {
     }
 }
 
-// Hook for BaseEnter. Is needed if the player goes offline before paying their
-// Death Penalty
-void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
-    HkPenalizeDeath(ARG_CLIENTID(iClientID), 0);
-}
-
 // Hook on ShipDestroyed
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+    returncode = DEFAULT_RETURNCODE;
     // Get iClientID
     CShip *cship = (CShip *)ecx[4];
     uint iClientID = cship->GetOwnerPlayer();
@@ -188,12 +192,13 @@ bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
     if (wscParam.length()) // Arguments passed
     {
         if (ToLower(Trim(wscParam)) == L"off") {
-            if (bDontDisplayDPOnLaunch.count(iClientID) == 0)
-                bDontDisplayDPOnLaunch.insert(iClientID);
+            MapClients[iClientID].bDisplayDPOnLaunch = false;
             SaveDPNoticeToCharFile(iClientID, "no");
+            PrintUserCmdText(iClientID, L"Death penalty notices disabled.");
         } else if (ToLower(Trim(wscParam)) == L"on") {
-            bDontDisplayDPOnLaunch.erase(iClientID);
+            MapClients[iClientID].bDisplayDPOnLaunch = true;
             SaveDPNoticeToCharFile(iClientID, "yes");
+            PrintUserCmdText(iClientID, L"Death penalty notices enabled.");
         } else {
             PrintUserCmdText(iClientID, L"ERR Invalid parameters");
             PrintUserCmdText(iClientID, usage);
