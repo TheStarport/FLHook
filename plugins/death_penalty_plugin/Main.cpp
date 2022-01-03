@@ -60,6 +60,9 @@ bool bExcludedSystem(uint iClientID) {
                       iSystemID) != ExcludedSystems.end());
 }
 
+// This returns the override for the specific ship as defined in the cfg file.
+// If there is not override it returns the default value defined as
+// "DeathPenaltyFraction" in the cfg file
 float fShipFractionOverride(uint iClientID) {
     // Get ShipArchID
     uint iShipArchID;
@@ -80,25 +83,29 @@ float fShipFractionOverride(uint iClientID) {
 // message to the player warning them of such
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
     returncode = DEFAULT_RETURNCODE;
+
+    // No point in processing anything if there is no death penalty
     if (set_fDeathPenalty) {
+
+        // Check to see if the player is in a system that doesn't have death
+        // penalty
         if (!bExcludedSystem(iClientID)) {
-            int iCash;
-            HkGetCash(ARG_CLIENTID(iClientID), iCash);
+
+            // Get the players net worth
             float fValue;
             pub::Player::GetAssetValue(iClientID, fValue);
+
+            // Calculate what the death penalty would be upon death
             MapClients[iClientID].DeathPenaltyCredits =
                 (int)(fValue * fShipFractionOverride(set_fDeathPenalty));
-            AddDebugLog("Display: %c\n",
-                        MapClients[iClientID].bDisplayDPOnLaunch ? 't' : 'f');
-            if (MapClients[iClientID].bDisplayDPOnLaunch) {
-                AddDebugLog("Credits: %d\n",
-                            MapClients[iClientID].DeathPenaltyCredits);
+
+            // Should we print a death penalty notice?
+            if (MapClients[iClientID].bDisplayDPOnLaunch)
                 PrintUserCmdText(
                     iClientID,
                     L"Notice: the death penalty for your ship will be " +
                         ToMoneyStr(MapClients[iClientID].DeathPenaltyCredits) +
                         L" credits.  Type /dp for more information.");
-            }
         } else
             MapClients[iClientID].DeathPenaltyCredits = 0;
     }
@@ -188,6 +195,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
     }
 }
 
+// This will save whether the player wants to receieve the /dp notice or not to the flhookuser.ini file
 void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
     std::wstring wscDir, wscFilename;
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
@@ -208,6 +216,7 @@ void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
 bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
                 const std::wstring &wscParam, const wchar_t *usage) {
 
+    // If there is no death penalty, no point in having death penalty commands
     if (!set_fDeathPenalty) {
         return true;
     }
