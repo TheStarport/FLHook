@@ -79,8 +79,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
                 PrintUserCmdText(
                     iClientID,
                     L"Notice: the death penalty for your ship will be " +
-                        std::to_wstring(
-                            MapClients[iClientID].DeathPenaltyCredits) +
+                       ToMoneyStr(MapClients[iClientID].DeathPenaltyCredits) +
                         L" credits.  Type /dp for more information.");
             }
         } else
@@ -107,17 +106,16 @@ void LoadUserCharSettings(uint iClientID) {
 }
 
 // Function that will apply the death penalty on a player death
-void HkPenalizeDeath(std::wstring wscCharname, uint iKillerID) {
+void HkPenalizeDeath(uint iClientID, uint iKillerID) {
     if (!set_fDeathPenalty)
         return;
 
-    uint iClientID = HkGetClientIdFromCharname(wscCharname);
     // Valid iClientID and the ShipArch or System isnt in the excluded list?
     if (iClientID != -1 && !bExcludedShiporSystem(iClientID)) {
 
         // Get the players cash
         int iCash;
-        HkGetCash(wscCharname, iCash);
+        HkGetCash(ARG_CLIENTID(iClientID), iCash);
 
         // Get how much the player owes
         int iOwed = MapClients[iClientID].DeathPenaltyCredits;
@@ -136,12 +134,12 @@ void HkPenalizeDeath(std::wstring wscCharname, uint iKillerID) {
         // If the amount the player owes is more than they have, set the
         // amount to their total cash
         if (iOwed > iCash)
-            iCash = iOwed;
+            iOwed = iCash;
 
         // Print message to the player and remove cash
         PrintUserCmdText(iClientID, L"Death penalty: charged " +
                                         ToMoneyStr(iOwed) + L" credits.");
-        HkAddCash(wscCharname, -iOwed);
+        HkAddCash(ARG_CLIENTID(iClientID), -iOwed);
     }
 }
 
@@ -162,7 +160,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
     }
 
     // Call function to penalize player and reward killer
-    HkPenalizeDeath(ARG_CLIENTID(iClientID), iKillerID);
+    HkPenalizeDeath(iClientID, iKillerID);
 }
 
 void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
