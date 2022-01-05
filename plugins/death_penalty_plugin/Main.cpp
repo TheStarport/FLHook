@@ -202,7 +202,8 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
     }
 }
 
-// This will save whether the player wants to receieve the /dp notice or not to the flhookuser.ini file
+// This will save whether the player wants to receieve the /dp notice or not to
+// the flhookuser.ini file
 void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
     std::wstring wscDir, wscFilename;
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
