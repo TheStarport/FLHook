@@ -241,6 +241,10 @@ void SPObjUpdate(struct SSPObjUpdateInfo const &ui,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
+}
+
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Cargo Drop Plugin by Cannon");
     pi->shortName("cargo_drop");
