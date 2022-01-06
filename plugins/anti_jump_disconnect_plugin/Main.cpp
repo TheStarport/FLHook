@@ -58,6 +58,10 @@ void SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
+}
+
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Anti Jump Disconnect Plugin by Cannon");
     pi->shortName("anti_jump_disconnect");
