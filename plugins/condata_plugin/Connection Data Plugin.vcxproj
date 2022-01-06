@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>Condata Plugin</ProjectName>
+    <ProjectName>Condata</ProjectName>
     <ProjectGuid>{2CA8178B-9C91-4478-A955-21ABEC99E453}</ProjectGuid>
     <RootNamespace>FLHook Example Plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>

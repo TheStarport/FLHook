@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>MiningControl Plugin</ProjectName>
+    <ProjectName>Mining Control</ProjectName>
     <ProjectGuid>{367D5EDC-F360-49E0-B652-587B9E22CF6C}</ProjectGuid>
     <RootNamespace>FLHook Example Plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>
