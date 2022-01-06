@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>_HookExtension Plugin</ProjectName>
+    <ProjectName>_HookExtension</ProjectName>
     <ProjectGuid>{81D33B95-1DDD-4F58-A24C-E2EC4A143DD0}</ProjectGuid>
     <RootNamespace>ExtHook Plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>
