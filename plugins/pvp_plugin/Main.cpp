@@ -90,8 +90,7 @@ void processFFA(uint iClientIDVictim) {
 
 // This method is called when a player types /ffa in an attempt to start a pvp
 // event
-bool UserCmd_StartFFA(uint iClientID, const std::wstring &wscCmd,
-                      const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_StartFFA(uint iClientID, const std::wstring &wscParam) {
     HK_ERROR err;
 
     // Get buyin amount
@@ -111,7 +110,7 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring &wscCmd,
         PrintUserCmdText(
             iClientID,
             L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
-        return true;
+        return;
     }
 
     // Check the player can afford it
@@ -120,12 +119,12 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring &wscCmd,
     int iCash = 0;
     if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
-        return true;
+        return;
     }
     if (iAmount > 0 && iCash < iAmount) {
         PrintUserCmdText(iClientID,
                          L"You don't have enough credits to create this FFA.");
-        return true;
+        return;
     }
 
     // Get the player's current system and location in the system.
@@ -177,18 +176,16 @@ bool UserCmd_StartFFA(uint iClientID, const std::wstring &wscCmd,
     } else
         PrintUserCmdText(iClientID,
                          L"There is an FFA already happening in this system.");
-    return true;
 }
 
 // This method is called when a player types /acceptffa
-bool UserCmd_AcceptFFA(uint iClientID, const std::wstring &wscCmd,
-                       const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_AcceptFFA(uint iClientID, const std::wstring &wscParam) {
     // Is player in space?
     uint iShip;
     pub::Player::GetShip(iClientID, iShip);
     if (!iShip) {
         PrintUserCmdText(iClientID, L"You must be in space to accept this.");
-        return true;
+        return;
     }
 
     // Get the player's current system and location in the system.
@@ -199,7 +196,7 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring &wscCmd,
         PrintUserCmdText(
             iClientID,
             L"There isn't an FFA in this system. Use /ffa to create one.");
-        return true;
+        return;
     } else {
         HK_ERROR err;
 
@@ -211,12 +208,12 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring &wscCmd,
         int iCash = 0;
         if ((err = HkGetCash(charname, iCash)) != HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
-            return true;
+            return;
         }
         if (ffas[iSystemID].buyin > 0 && iCash < ffas[iSystemID].buyin) {
             PrintUserCmdText(
                 iClientID, L"You don't have enough credits to join this FFA.");
-            return true;
+            return;
         }
 
         // Accept
@@ -237,7 +234,6 @@ bool UserCmd_AcceptFFA(uint iClientID, const std::wstring &wscCmd,
         } else
             PrintUserCmdText(iClientID, L"You have already accepted the FFA.");
     }
-    return true;
 }
 
 // Removes any bets with this iClientID and handles payouts.
@@ -281,22 +277,21 @@ void processDuel(uint iClientID) {
 }
 
 // This method is called when a player types /duel in an attempt to start a duel
-bool UserCmd_Duel(uint iClientID, const std::wstring &wscCmd,
-                  const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Duel(uint iClientID, const std::wstring &wscParam) {
     // Get the object the player is targetting
     uint iShip, iTargetShip;
     pub::Player::GetShip(iClientID, iShip);
     pub::SpaceObj::GetTarget(iShip, iTargetShip);
     if (!iTargetShip) {
         PrintUserCmdText(iClientID, L"Target is not a ship.");
-        return true;
+        return;
     }
 
     // Check ship is a player
     uint iClientIDTarget = HkGetClientIDByShip(iTargetShip);
     if (!iClientIDTarget) {
         PrintUserCmdText(iClientID, L"Target is not a player.");
-        return true;
+        return;
     }
 
     // Get bet amount
@@ -315,7 +310,7 @@ bool UserCmd_Duel(uint iClientID, const std::wstring &wscCmd,
     if (iAmount <= 0) {
         PrintUserCmdText(iClientID, L"Must specify a cash amount. Usage: /duel "
                                     L"<amount> e.g. /duel 5000");
-        return true;
+        return;
     }
 
     HK_ERROR err;
@@ -326,13 +321,13 @@ bool UserCmd_Duel(uint iClientID, const std::wstring &wscCmd,
     int iCash = 0;
     if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
-        return true;
+        return;
     }
     if (iAmount > 0 && iCash < iAmount) {
         PrintUserCmdText(
             iClientID,
             L"You don't have enough credits to issue this challenge.");
-        return true;
+        return;
     }
 
     // Do either players already have a duel?
@@ -342,13 +337,13 @@ bool UserCmd_Duel(uint iClientID, const std::wstring &wscCmd,
              bet.iClientID2 == iClientIDTarget)) {
             PrintUserCmdText(iClientID,
                              L"This player already has an ongoing duel.");
-            return true;
+            return;
         }
         // Player already has a bet
         if ((bet.iClientID == iClientID || bet.iClientID2 == iClientID)) {
             PrintUserCmdText(iClientID,
                              L"You already have an ongoing duel. Type /cancel");
-            return true;
+            return;
         }
     }
 
@@ -368,18 +363,15 @@ bool UserCmd_Duel(uint iClientID, const std::wstring &wscCmd,
                        L" credits.";
     PrintLocalUserCmdText(iClientID, msg, 10000);
     PrintUserCmdText(iClientIDTarget, L"Type \"/acceptduel\" to accept.");
-
-    return true;
 }
 
-bool UserCmd_AcceptDuel(uint iClientID, const std::wstring &wscCmd,
-                        const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_AcceptDuel(uint iClientID, const std::wstring &wscParam) {
     // Is player in space?
     uint iShip;
     pub::Player::GetShip(iClientID, iShip);
     if (!iShip) {
         PrintUserCmdText(iClientID, L"You must be in space to accept this.");
-        return true;
+        return;
     }
 
     for (auto &bet : bets) {
@@ -388,7 +380,7 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring &wscCmd,
             if (bet.bAccepted == true) {
                 PrintUserCmdText(iClientID,
                                  L"You have already accepted the challenge.");
-                return true;
+                return;
             }
 
             // Check the player can afford it
@@ -398,14 +390,14 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring &wscCmd,
             int iCash = 0;
             if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK) {
                 PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
-                return true;
+                return;
             }
 
             if (iCash < bet.iAmount) {
                 PrintUserCmdText(
                     iClientID,
                     L"You don't have enough credits to accept this challenge");
-                return true;
+                return;
             }
 
             bet.bAccepted = true;
@@ -414,20 +406,17 @@ bool UserCmd_AcceptDuel(uint iClientID, const std::wstring &wscCmd,
                 (const wchar_t *)Players.GetActiveCharacterName(bet.iClientID) +
                 L" for " + std::to_wstring(bet.iAmount) + L" credits.";
             PrintLocalUserCmdText(iClientID, msg, 10000);
-            return true;
+            return;
         }
     }
     PrintUserCmdText(iClientID,
                      L"You have no duel requests. To challenge "
                      L"someone, target them and type /duel <amount>");
-    return true;
 }
 
-bool UserCmd_Cancel(uint iClientID, const std::wstring &wscCmd,
-                    const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Cancel(uint iClientID, const std::wstring &wscParam) {
     processFFA(iClientID);
     processDuel(iClientID);
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,11 +424,11 @@ bool UserCmd_Cancel(uint iClientID, const std::wstring &wscCmd,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 USERCMD UserCmds[] = {
-    {L"/acceptduel", UserCmd_AcceptDuel, L"Usage: /acceptduel"},
-    {L"/acceptffa", UserCmd_AcceptFFA, L"Usage: /acceptffa"},
-    {L"/cancel", UserCmd_Cancel, L"Usage: /cancel"},
-    {L"/duel", UserCmd_Duel, L"Usage: /duel <amount>"},
-    {L"/ffa", UserCmd_StartFFA, L"Usage: /ffa <amount>"},
+    {L"/acceptduel", UserCmd_AcceptDuel},
+    {L"/acceptffa", UserCmd_AcceptFFA},
+    {L"/cancel", UserCmd_Cancel},
+    {L"/duel", UserCmd_Duel},
+    {L"/ffa", UserCmd_StartFFA},
 };
 
 // Process user input
