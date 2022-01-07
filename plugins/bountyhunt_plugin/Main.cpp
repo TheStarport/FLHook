@@ -2,13 +2,16 @@
 // Originally by ||KOS||Acid
 // Modified by Raikkonen
 
-// Includes
-#include "Main.h"
+// Included
+#include <FLHook.h>
+#include <plugin.h>
 
 // Definitions
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
 // Global Variables and Structures
+ReturnCode returncode;
+
 struct BOUNTY_HUNT {
     uint uiTargetID;
     uint uiInitiatorID;
@@ -21,8 +24,6 @@ struct BOUNTY_HUNT {
 std::list<BOUNTY_HUNT> lstBountyHunt;
 bool set_bBhEnabled;
 int set_iLowLevelProtect;
-
-ReturnCode Get_PluginReturnCode() { return returncode; }
 
 // Functions
 void RemoveBountyHunt(BOUNTY_HUNT b) {
@@ -49,20 +50,19 @@ void PrintBountyHunts(uint iClientID) {
     }
 }
 
-bool UserCmd_BountyHunt(uint iClientID, const std::wstring &wscCmd,
-                        const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_BountyHunt(uint iClientID, const std::wstring &wscParam) {
     if (!set_bBhEnabled) {
         PRINT_DISABLED();
-        return true;
+        return;
     }
 
     std::wstring wscTarget = GetParam(wscParam, ' ', 0);
     std::wstring wscCredits = GetParam(wscParam, ' ', 1);
     std::wstring wscTime = GetParam(wscParam, ' ', 2);
     if (!wscTarget.length() || !wscCredits.length()) {
-        PrintUserCmdText(iClientID, usage);
+        PrintUserCmdText(iClientID, L"Usage: /bountyhunt <playername> <credits> <time>");
         PrintBountyHunts(iClientID);
-        return true;
+        return;
     }
 
     int iPrize = wcstol(wscCredits.c_str(), NULL, 10);
@@ -74,12 +74,12 @@ bool UserCmd_BountyHunt(uint iClientID, const std::wstring &wscCmd,
 
     if (uiTargetID == -1 || HkIsInCharSelectMenu(uiTargetID)) {
         PrintUserCmdText(iClientID, L"%s is not online.", wscTarget.c_str());
-        return true;
+        return;
     }
 
     if (iRankTarget < set_iLowLevelProtect) {
         PrintUserCmdText(iClientID, L"Low level players may not be hunted.");
-        return true;
+        return;
     }
     if (uiTime < 1 || uiTime > 240) {
         PrintUserCmdText(iClientID, L"Hunting time: 30 minutes.");
@@ -90,14 +90,14 @@ bool UserCmd_BountyHunt(uint iClientID, const std::wstring &wscCmd,
     pub::Player::InspectCash(iClientID, iClientCash);
     if (iClientCash < iPrize) {
         PrintUserCmdText(iClientID, L"You do not possess enough credits.");
-        return true;
+        return;
     }
 
     for (auto &bh : lstBountyHunt) {
         if (bh.uiInitiatorID == iClientID && bh.uiTargetID == uiTargetID) {
             PrintUserCmdText(iClientID,
                              L"You already have a bounty on this player.");
-            return true;
+            return;
         }
     }
 
@@ -118,38 +118,37 @@ bool UserCmd_BountyHunt(uint iClientID, const std::wstring &wscCmd,
     HkMsgU(bh.wscInitiator + L" offers " + std::to_wstring(bh.iCash) +
            L" credits for killing " + bh.wscTarget + L" in " +
            std::to_wstring(uiTime) + L" minutes.");
-    return true;
+    return;
 }
 
-bool UserCmd_BountyHuntId(uint iClientID, const std::wstring &wscCmd,
-                          const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_BountyHuntId(uint iClientID, const std::wstring &wscParam) {
     if (!set_bBhEnabled) {
         PRINT_DISABLED();
-        return true;
+        return;
     }
 
     std::wstring wscTarget = GetParam(wscParam, ' ', 0);
     std::wstring wscCredits = GetParam(wscParam, ' ', 1);
     std::wstring wscTime = GetParam(wscParam, ' ', 2);
     if (!wscTarget.length() || !wscCredits.length()) {
-        PrintUserCmdText(iClientID, usage);
+        PrintUserCmdText(iClientID, L"Usage: /bountyhuntid <id> <credits> <time>");
         PrintBountyHunts(iClientID);
-        return true;
+        return;
     }
 
     uint iClientIDTarget = ToInt(wscTarget);
     if (!HkIsValidClientID(iClientIDTarget) ||
         HkIsInCharSelectMenu(iClientIDTarget)) {
         PrintUserCmdText(iClientID, L"Error: Invalid client id.");
-        return true;
+        return;
     }
 
     std::wstring wscCharName =
         (wchar_t *)Players.GetActiveCharacterName(iClientIDTarget);
     std::wstring wscParamNew =
         std::wstring(wscCharName + L" " + wscCredits + L" " + wscTime);
-    UserCmd_BountyHunt(iClientID, wscCmd, wscParamNew, usage);
-    return true;
+    UserCmd_BountyHunt(iClientID, wscParamNew);
+    return;
 }
 
 void BhTimeOutCheck() {
@@ -191,8 +190,6 @@ void BhKillCheck(uint uiClientID, uint uiKillerID) {
 }
 
 // Hooks
-
-namespace HkIServerImpl {
 typedef void (*_TimerFunc)();
 struct TIMER {
     _TimerFunc proc;
@@ -205,7 +202,6 @@ TIMER Timers[] = {
 };
 
 EXPORT int __stdcall Update() {
-    returncode = DEFAULT_RETURNCODE;
 
     for (uint i = 0; (i < sizeof(Timers) / sizeof(TIMER)); i++) {
         if ((timeInMS() - Timers[i].tmLastCall) >= Timers[i].tmIntervallMS) {
@@ -216,18 +212,16 @@ EXPORT int __stdcall Update() {
     return 0;
 }
 
-} // namespace HkIServerImpl
-
 void SendDeathMsg(const std::wstring &wscMsg, uint iSystemID,
                   uint iClientIDVictim, uint iClientIDKiller) {
-    returncode = DEFAULT_RETURNCODE;
+
     if (set_bBhEnabled) {
         BhKillCheck(iClientIDVictim, iClientIDKiller);
     }
 }
 
 void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection state) {
-    returncode = DEFAULT_RETURNCODE;
+
     for (auto &it : lstBountyHunt) {
         if (it.uiTargetID == iClientID) {
             HkMsgU(L"The coward " + it.wscTarget + L" has fled. " +
@@ -241,45 +235,13 @@ void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection state) {
 
 // Client command processing
 USERCMD UserCmds[] = {
-    {L"/bountyhunt", UserCmd_BountyHunt,
-     L"Usage: /bountyhunt <playername> <credits> <time>"},
-    {L"/bountyhuntid", UserCmd_BountyHuntId,
-     L"Usage: /bountyhuntid <id> <credits> <time>"},
+    {L"/bountyhunt", UserCmd_BountyHunt},
+    {L"/bountyhuntid", UserCmd_BountyHuntId},
 };
 
+// Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
-    std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-    // If the chat string does not match the USER_CMD then we do not handle the
-    // command, so let other plugins or FLHook kick in. We require an exact
-    // match
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-
-        if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0) {
-            // Extract the parameters string from the chat string. It should
-            // be immediately after the command and a space.
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-
-            // Dispatch the command to the appropriate processing function.
-            if (UserCmds[i].proc(iClientID, wscCmd, wscParam,
-                                 UserCmds[i].usage)) {
-                // We handled the command tell FL hook to stop processing this
-                // chat string.
-                returncode =
-                    SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                // return immediatly
-                return true;
-            }
-        }
-    }
-    return false;
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
@@ -311,23 +273,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return true;
 }
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Bounty Hunt";
-    p_PI->sShortName = "bountyhunt";
-    p_PI->bMayPause = false;
-    p_PI->bMayUnload = false;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
-                                             PLUGIN_HkIServerImpl_Update, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
-    }
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Bounty Hunt");
+    pi->shortName("bountyhunt");
+    pi->mayPause(false);
+    pi->mayUnload(false);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+}
