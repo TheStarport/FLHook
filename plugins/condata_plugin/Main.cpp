@@ -2,18 +2,13 @@
 #include "FLHook.h"
 #include "header.h"
 #include "plugin.h"
-#include <math.h>
 #include <plugin_comms.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
 
-#define PRINT_ERROR()                                                          \
-    {                                                                          \
-        for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++)   \
-            PrintUserCmdText(iClientID, wscError[i]);                          \
-        return;                                                                \
+#define PRINT_ERROR()                                                        \
+    {                                                                        \
+        for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
+            PrintUserCmdText(iClientID, wscError[i]);                        \
+        return;                                                              \
     }
 #define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
@@ -32,7 +27,6 @@ EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void LoadSettings() {
-    
 
     set_iPingKickFrame = IniGetI(set_scCfgFile, "Kick", "PingKickFrame", 30);
     if (!set_iPingKickFrame)
@@ -87,7 +81,6 @@ void ClearConData(uint iClientID) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void ClearClientInfo(uint iClientID) {
-    
 
     ClearConData(iClientID);
 }
@@ -105,7 +98,6 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void HkTimerCheckKick() {
-    
 
     if (g_iServerLoad > set_iKickThreshold) {
         // for all players
@@ -333,7 +325,6 @@ TIMER Timers[] = {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT int __stdcall Update() {
-    
 
     static bool bFirstTime = true;
     if (bFirstTime) {
@@ -373,8 +364,6 @@ EXPORT void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
 EXPORT void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
                                   unsigned int iClientID) {
-    
-
     // lag detection
     IObjInspectImpl *ins = HkGetInspect(iClientID);
     if (!ins)
@@ -605,7 +594,6 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    
 
     // this is the hooked plugin communication function
 
@@ -640,8 +628,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
 #define IS_CMD(a) !wscCmd.compare(L##a)
 
 EXPORT bool ExecuteCommandString(CCmds *classptr,
-                                          const std::wstring &wscCmd) {
-    
+                                 const std::wstring &wscCmd) {
 
     if (IS_CMD("getstats")) {
         struct PlayerData *pPD = 0;
@@ -664,7 +651,7 @@ EXPORT bool ExecuteCommandString(CCmds *classptr,
                 ConData[iClientID].iPingFluctuation, saturation, txqueue);
         }
         classptr->Print(L"OK\n");
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         return true;
     } else if (IS_CMD("kick")) {
         // Find by charname. If this fails, fall through to default behaviour.
@@ -673,7 +660,7 @@ EXPORT bool ExecuteCommandString(CCmds *classptr,
             return false;
 
         // Logout.
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         acc->ForceLogout();
         classptr->Print(L"OK\n");
 
@@ -689,35 +676,20 @@ EXPORT bool ExecuteCommandString(CCmds *classptr,
     return false;
 }
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Advanced Connection Data Plugin by w0dk4";
-    p_PI->sShortName = "condata";
-    p_PI->bMayPause = false;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
-                                             PLUGIN_HkIServerImpl_Update, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SPObjUpdate,
-                        PLUGIN_HkIServerImpl_SPObjUpdate, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::PlayerLaunch,
-                        PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
-                        PLUGIN_Plugin_Communication, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-    }
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Advanced Connection Data Plugin by w0dk4");
+    pi->shortName("condata");
+    pi->mayPause(false);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+    pi->emplaceHook(HookedCall::IServerImpl__Update, &HkIServerImpl::Update);
+    pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &HkIServerImpl::SPObjUpdate);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &HkIServerImpl::PlayerLaunch);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &Plugin_Communication_CallBack);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+}
