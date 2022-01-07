@@ -121,7 +121,6 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-    srand((uint)time(0));
     return true;
 }
 

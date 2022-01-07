@@ -1,18 +1,38 @@
 #pragma once
 
-#include <windows.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <math.h>
-#include <list>
-#include <map>
-#include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
 
-static int set_iPluginDebug = 0;
 ReturnCode returncode;
 
-void AddExceptionInfoLog(struct SEHException* pep);
-#define LOG_EXCEPTION { AddLog("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
+enum MODE {
+    MODE_OFF = 0x00,
+    MODE_JUMPGATE = 0x01,
+    MODE_TRADELANE = 0x02,
+};
+
+struct SENSOR {
+    uint iSystemID;
+    uint iEquipID;
+    uint iNetworkID;
+};
+
+/// Map of equipment and systems that have sensor networks
+static std::multimap<unsigned int, SENSOR> set_mmapSensorEquip;
+static std::multimap<unsigned int, SENSOR> set_mmapSensorSystem;
+
+struct INFO {
+    INFO()
+        : iAvailableNetworkID(0), iLastScanNetworkID(0), bInJumpGate(false),
+          iMode(MODE_OFF) {}
+    uint iAvailableNetworkID;
+
+    std::list<CARGO_INFO> lstLastScan;
+    uint iLastScanNetworkID;
+
+    bool bInJumpGate;
+
+    uint iMode;
+};
+
+static std::map<UINT, INFO> mapInfo;
