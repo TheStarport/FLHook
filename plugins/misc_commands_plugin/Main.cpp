@@ -62,13 +62,11 @@ void HkTimer()
 void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, L"OK");
-	return true;
 }
 
 // Additional information related to the plugin when the /help command is used
 void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 {
-	returncode = DEFAULT_RETURNCODE;
 	PrintUserCmdText(iClientID, L"/template");
 }
 
