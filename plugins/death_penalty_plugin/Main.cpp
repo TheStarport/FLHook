@@ -10,8 +10,6 @@
 
 // Load configuration file
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
-
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
@@ -51,7 +49,6 @@ void LoadSettings() {
 }
 
 void ClearClientInfo(uint iClientID) {
-    returncode = DEFAULT_RETURNCODE;
     MapClients.erase(iClientID);
 }
 
@@ -87,8 +84,6 @@ float fShipFractionOverride(uint iClientID) {
 // Hook on Player Launch. Used to work out the death penalty and display a
 // message to the player warning them of such
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
-
     // No point in processing anything if there is no death penalty
     if (set_fDeathPenalty) {
 
@@ -117,8 +112,6 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 }
 
 void LoadUserCharSettings(uint iClientID) {
-    returncode = DEFAULT_RETURNCODE;
-
     // Get Account directory then flhookuser.ini file
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
@@ -181,8 +174,6 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
 
 // Hook on ShipDestroyed
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (iKill) {
         // Get iClientID
         CShip *cship = (CShip *)ecx[4];
@@ -221,12 +212,11 @@ void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // /dp command. Shows information about death penalty
-bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
-                const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_DP(uint iClientID, const std::wstring &wscParam) {
 
     // If there is no death penalty, no point in having death penalty commands
     if (!set_fDeathPenalty) {
-        return true;
+        return;
     }
 
     if (wscParam.length()) // Arguments passed
@@ -241,7 +231,7 @@ bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
             PrintUserCmdText(iClientID, L"Death penalty notices enabled.");
         } else {
             PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-            PrintUserCmdText(iClientID, usage);
+            PrintUserCmdText(iClientID, L"/dp on | /dp off");
         }
     } else {
         PrintUserCmdText(
@@ -265,12 +255,10 @@ bool UserCmd_DP(uint iClientID, const std::wstring &wscCmd,
                              L"because you are in a specific system.");
         }
     }
-    return true;
 }
 
 // Additional information related to the plugin when the /help command is used
 void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
-    returncode = DEFAULT_RETURNCODE;
     PrintUserCmdText(iClientID, L"/dp");
 }
 
@@ -279,59 +267,21 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define usable chat commands here
-USERCMD UserCmds[] = {
-    {L"/dp", UserCmd_DP, L"Usage: /dp"},
+USERCMD UserCmds[] = 
+{
+    {   L"/dp", UserCmd_DP },
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
-    try {
-        std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-        // If the chat std::string does not match the USER_CMD then we do not
-        // handle the command, so let other plugins or FLHook kick in. We
-        // require an exact match
-        for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-            if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0) {
-                // Extract the parameters std::string from the chat std::string.
-                // It should be immediately after the command and a space.
-                std::wstring wscParam = L"";
-                if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                    if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                        continue;
-                    wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-                }
-
-                // Dispatch the command to the appropriate processing function.
-                if (UserCmds[i].proc(iClientID, wscCmd, wscParam,
-                                     UserCmds[i].usage)) {
-                    // We handled the command tell FL hook to stop processing
-                    // this chat std::string.
-                    returncode =
-                        SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                    // return immediatly
-                    return true;
-                }
-            }
-        }
-    } catch (...) {
-        AddLog("ERROR: Exception in UserCmd_Process(iClientID=%u, wscCmd=%s)",
-               iClientID, wstos(wscCmd).c_str());
-        LOG_EXCEPTION;
-    }
-    return false;
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-    srand((uint)time(0));
-
     // If we're being loaded from the command line while FLHook is running then
     // set_scCfgFile will not be empty so load the settings as FLHook only
     // calls load settings on FLHook startup and .rehash.
@@ -342,25 +292,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Death Penalty";
-    p_PI->sShortName = "deathpenalty";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&LoadUserCharSettings,
-                                             PLUGIN_LoadUserCharSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    }
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Death Penalty Plugin");
+    pi->shortName("death_penalty");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+    pi->emplaceHook(HookedCall::FLHook__LoadCharacterSettings, &LoadUserCharSettings);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+}
