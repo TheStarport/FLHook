@@ -41,7 +41,7 @@ uint set_iDefaultBaseID = 0;
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 /// Clear client info when a client connects.
 void ClearClientInfo(uint iClientID) {
@@ -291,16 +291,15 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = true;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
                                              PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&PlayerLaunch_AFTER,
                         PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    return p_PI;
-}
+    }

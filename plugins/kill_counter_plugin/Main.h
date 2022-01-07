@@ -8,7 +8,7 @@
 #include <windows.h>
 
 static int set_iPluginDebug = 0;
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 typedef void (*_UserCmdProc)(uint, const std::wstring &);
 

@@ -21,11 +21,11 @@
 CONNECTION_DATA ConData[MAX_CLIENT_ID + 1];
 bool set_bPingCmd;
 
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
+EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -723,29 +723,28 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = false;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
                                              PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
                                              PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
                                              PLUGIN_HkIServerImpl_Update, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SPObjUpdate,
                         PLUGIN_HkIServerImpl_SPObjUpdate, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::PlayerLaunch,
                         PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
                         PLUGIN_Plugin_Communication, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
-    return p_PI;
-}
+    }

@@ -4,43 +4,45 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-// Includes
-#include "Main.h" 
+
+#include <FLHook.h>
+#include <plugin.h>
+
+ReturnCode returncode;
+
+bool bSelfDestructEnabled = false;
+bool bLightToggleEnabled = false;
+bool bShieldToggleEnabled = false;
+bool bPosEnabled = false;
+bool bStuckEnabled = false;
+bool bDiceEnabled = false;
+bool bCoinEnabled = false;
+bool bSmiteAllEnabled = false;
+
+struct INFO {
+    bool bLightsOn = false;
+    bool bShieldsDown = false;
+    bool bSelfDestruct = false;
+};
+
+std::map<uint, INFO> mapInfo;
 
 // Load configuration file
 void LoadSettings()
 {
-	returncode = DEFAULT_RETURNCODE;
-
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
 	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string configFile = std::string(szCurDir) + "\\flhook_plugins\\Misc_Commands_Plugin.ini";
+	std::string dir = std::string(szCurDir) + "\\flhook_plugins\\Misc_Commands_Plugin.ini";
 
-	INI_Reader ini;
-	if (ini.open(configFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{	
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("debug"))
-					{ 
-						set_iPluginDebug = ini.get_value_int(0);
-					}					
-				}
-			}
-		}
-
-		if (set_iPluginDebug&1)
-		{
-			ConPrint(L"Debug\n");
-		}
-
-		ini.close();
-	}	
+	bSelfDestructEnabled = IniGetB(dir, "Config", "bSelfDestructEnabled", false);
+    bLightToggleEnabled = IniGetB(dir, "Config", "bLightToggleEnabled", false);
+    bShieldToggleEnabled = IniGetB(dir, "Config", "bShieldToggleEnabled", false);
+    bPosEnabled = IniGetB(dir, "Config", "bPosEnabled", false);
+    bStuckEnabled = IniGetB(dir, "Config", "bStuckEnabled", false);
+    bDiceEnabled = IniGetB(dir, "Config", "bDiceEnabled", false);
+    bCoinEnabled = IniGetB(dir, "Config", "bCoinEnabled", false);
+    bSmiteAllEnabled = IniGetB(dir, "Config", "bSmiteAllEnabled", false);
 }
 
 // Do something every 100 seconds
@@ -57,7 +59,7 @@ void HkTimer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Demo command
-bool UserCmd_Template(uint iClientID, const std::wstring& wscCmd, const std::wstring& wscParam, const wchar_t* usage)
+void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, L"OK");
 	return true;
@@ -78,51 +80,13 @@ void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 // Define usable chat commands here
 USERCMD UserCmds[] =
 {
-	{ L"/template", UserCmd_Template, L"Usage: /template" },
+	{ L"/template", UserCmd_Template },
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 {
-	returncode = DEFAULT_RETURNCODE;
-
-	try
-	{
-		std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-		// If the chat std::string does not match the USER_CMD then we do not handle the
-		// command, so let other plugins or FLHook kick in. We require an exact match
-		for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++)
-		{
-			if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0)
-			{
-				// Extract the parameters std::string from the chat std::string. It should
-				// be immediately after the command and a space.
-				std::wstring wscParam = L"";
-				if (wscCmd.length() > wcslen(UserCmds[i].wszCmd))
-				{
-					if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-						continue;
-					wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-				}
-
-				// Dispatch the command to the appropriate processing function.
-				if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
-				{
-					// We handled the command tell FL hook to stop processing this
-					// chat std::string.
-					returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
-					return true;
-				}
-			}
-		}
-	}
-	catch (...)
-	{
-		AddLog("ERROR: Exception in UserCmd_Process(iClientID=%u, wscCmd=%s)", iClientID, wstos(wscCmd).c_str());
-		LOG_EXCEPTION;
-	}
-	return false;
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,18 +119,15 @@ void AdminCmd_Template(CCmds* cmds, float number)
 // Define usable admin commands here
 void CmdHelp_Callback(CCmds* classptr)
 {
-	returncode = DEFAULT_RETURNCODE;
 	classptr->Print(L"template <number>\n");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 {
-	returncode = DEFAULT_RETURNCODE;
-
 	if (IS_CMD("template"))
 	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+		returncode = ReturnCode::SkipFunctionCall;
 		AdminCmd_Template(cmds, cmds->ArgFloat(1));
 		return true;
 	}
@@ -181,7 +142,7 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	srand((uint)time(0));
+	srand(uint(time(nullptr)));
 
 	// If we're being loaded from the command line while FLHook is running then
 	// set_scCfgFile will not be empty so load the settings as FLHook only
@@ -193,19 +154,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
-	p_PI->sName = "Misc Commands Plugin";
-	p_PI->sShortName = "Misc_Commands_Plugin";
-	p_PI->bMayPause = true;
-	p_PI->bMayUnload = true;
-	p_PI->ePluginReturnCode = &returncode;
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-	return p_PI;
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Misc Commands");
+    pi->shortName("MiscCommands");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
 }

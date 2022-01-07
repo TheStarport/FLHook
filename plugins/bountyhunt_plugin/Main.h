@@ -9,7 +9,7 @@
 #include <plugin.h>
 
 static int set_iPluginDebug = 0;
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &,
                              const wchar_t *);

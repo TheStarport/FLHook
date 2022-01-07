@@ -22,7 +22,7 @@ std::list<BOUNTY_HUNT> lstBountyHunt;
 bool set_bBhEnabled;
 int set_iLowLevelProtect;
 
-PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
+ReturnCode Get_PluginReturnCode() { return returncode; }
 
 // Functions
 void RemoveBountyHunt(BOUNTY_HUNT b) {
@@ -318,17 +318,16 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = false;
     p_PI->bMayUnload = false;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Update,
                                              PLUGIN_HkIServerImpl_Update, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&SendDeathMsg, PLUGIN_SendDeathMsg, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
-    return p_PI;
-}
+    }

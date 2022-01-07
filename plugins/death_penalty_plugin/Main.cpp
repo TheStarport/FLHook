@@ -349,19 +349,18 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = true;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&LoadUserCharSettings,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&LoadUserCharSettings,
                                              PLUGIN_LoadUserCharSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
                                              PLUGIN_ClearClientInfo, 0));
-    return p_PI;
-}
+    }

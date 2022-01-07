@@ -49,7 +49,7 @@ uint set_base_crew_type;
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 /// Map of item nickname hash to recipes to construct item.
 map<uint, RECIPE> recipes;
@@ -1388,70 +1388,69 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = true;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
                                              PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&RequestEvent, PLUGIN_HkIServerImpl_RequestEvent, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LaunchPosHook, PLUGIN_LaunchPosHook, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&PlayerLaunch_AFTER,
                         PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&CharacterSelect_AFTER,
                         PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&JumpInComplete, PLUGIN_HkIServerImpl_JumpInComplete, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&BaseExit,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&BaseExit,
                                              PLUGIN_HkIServerImpl_BaseExit, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&Dock_Call, PLUGIN_HkCb_Dock_Call, 0));
+    pi->emplaceHook(
+        HookedCall::FLHook__Cb_Dock_Call, &Dock_Call);
 
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&GFGoodSell, PLUGIN_HkIServerImpl_GFGoodSell, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&ReqRemoveItem, PLUGIN_HkIServerImpl_ReqRemoveItem, 15));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ReqRemoveItem_AFTER,
                         PLUGIN_HkIServerImpl_ReqRemoveItem_AFTER, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&GFGoodBuy, PLUGIN_HkIServerImpl_GFGoodBuy, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&ReqAddItem, PLUGIN_HkIServerImpl_ReqAddItem, 15));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ReqAddItem_AFTER,
                         PLUGIN_HkIServerImpl_ReqAddItem_AFTER, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
 
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
                                              PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
 
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&CShip_destroy, PLUGIN_HkIEngine_CShip_destroy, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&BaseDestroyed, PLUGIN_BaseDestroyed, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkCb_AddDmgEntry,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkCb_AddDmgEntry,
                                              PLUGIN_HkCb_AddDmgEntry, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
                         PLUGIN_Plugin_Communication, 11));
-    return p_PI;
-}
+    }

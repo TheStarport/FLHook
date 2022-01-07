@@ -50,7 +50,7 @@ std::vector<int> sounds;
 
 /** A return code to indicate to FLHook if we want the hook processing to
  * continue. */
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 // TODO: detect frequent /stuck use and blow up ship (or something).
 
@@ -81,7 +81,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 /// Hook will call this function after calling a plugin function to see if we
 /// the processing to continue
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
+EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 
 /// Load the configuration
 void LoadSettings() {
@@ -1317,118 +1317,117 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = true;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
                                              PLUGIN_ClearClientInfo, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
+        HookedCall::FLHook__TimerCheckKick, &HkTimer);
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&SendDeathMessage, PLUGIN_SendDeathMsg, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Startup,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Startup,
                                              PLUGIN_HkIServerImpl_Startup, 10));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Startup_AFTER,
                         PLUGIN_HkIServerImpl_Startup_AFTER, 10));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Login,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::Login,
                                              PLUGIN_HkIServerImpl_Login, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::RequestEvent,
                         PLUGIN_HkIServerImpl_RequestEvent, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::PlayerLaunch,
                         PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::PlayerLaunch_AFTER,
                         PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::BaseEnter,
                         PLUGIN_HkIServerImpl_BaseEnter, 0));
     // check causes lag:
-    // p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::BaseEnter_AFTER,
+    // pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&HkIServerImpl::BaseEnter_AFTER,
     // PLUGIN_HkIServerImpl_BaseEnter_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::LocationEnter,
                         PLUGIN_HkIServerImpl_LocationEnter, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::DisConnect,
                         PLUGIN_HkIServerImpl_DisConnect, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::CharacterSelect_AFTER,
                         PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::JumpInComplete_AFTER,
                         PLUGIN_HkIServerImpl_JumpInComplete_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SystemSwitchOutComplete,
                         PLUGIN_HkIServerImpl_SystemSwitchOutComplete, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SPObjCollision,
                         PLUGIN_HkIServerImpl_SPObjCollision, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::GFGoodBuy,
                         PLUGIN_HkIServerImpl_GFGoodBuy, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqAddItem,
                         PLUGIN_HkIServerImpl_ReqAddItem, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqChangeCash,
                         PLUGIN_HkIServerImpl_ReqChangeCash, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqSetCash,
                         PLUGIN_HkIServerImpl_ReqSetCash, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqEquipment,
                         PLUGIN_HkIServerImpl_ReqEquipment, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqHullStatus,
                         PLUGIN_HkIServerImpl_ReqHullStatus, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::ReqShipArch,
                         PLUGIN_HkIServerImpl_ReqShipArch, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::TractorObjects,
                         PLUGIN_HkIServerImpl_TractorObjects_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::JettisonCargo,
                         PLUGIN_HkIServerImpl_JettisonCargo_AFTER, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SetTarget,
                         PLUGIN_HkIServerImpl_SetTarget, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::CharacterInfoReq,
                         PLUGIN_HkIServerImpl_CharacterInfoReq, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SubmitChat,
                         PLUGIN_HkIServerImpl_SubmitChat, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::SPObjUpdate,
                         PLUGIN_HkIServerImpl_SPObjUpdate, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::GoTradelane,
                         PLUGIN_HkIServerImpl_GoTradelane, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::StopTradelane,
                         PLUGIN_HkIServerImpl_StopTradelane, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&HkIServerImpl::CreateNewCharacter,
                         PLUGIN_HkIServerImpl_CreateNewCharacter, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkIEngine::Dock_Call,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkIEngine::Dock_Call,
                                              PLUGIN_HkCb_Dock_Call, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&HkCb_SendChat, PLUGIN_HkCb_SendChat, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(
+        HookedCall::FLHook__Cb_SendChat, &HkCb_SendChat);
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
                         PLUGIN_ExecuteCommandString_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&CmdHelp,
                                              PLUGIN_CmdHelp_Callback, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkCB_MissileTorpHit,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkCB_MissileTorpHit,
                                              PLUGIN_HkCB_MissileTorpHit, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
+    pi->emplaceHook(PLUGIN_HOOKINFO(
         (FARPROC *)&RequestBestPath, PLUGIN_HkIServerImpl_RequestBestPath, 0));
-    return p_PI;
-}
+    }

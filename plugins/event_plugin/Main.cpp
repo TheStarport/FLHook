@@ -46,7 +46,7 @@ std::multimap<UINT, NPC_MISSION> set_mapNpcMissions;
 
 // A return code to indicate to FLHook if we want the hook processing to
 // continue.
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 void LoadSettings() {
     // The path to the configuration file.
@@ -266,22 +266,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Functions to hook */
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Event Plugin by cannon";
-    p_PI->sShortName = "event";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    p_PI->lstHooks.push_back(
-        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodBuy, PLUGIN_HkIServerImpl_GFGoodBuy, 0));
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodSell, PLUGIN_HkIServerImpl_GFGoodSell, 0));
-    return p_PI;
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
+    pi->name("Event Plugin by cannon");
+    pi->shortName("event");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+    pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
 }

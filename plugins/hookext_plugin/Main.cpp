@@ -323,6 +323,6 @@ EXPORT void ExportPluginInfo(PluginInfo* pi) {
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
-    // p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&DisConnect,
+    // pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&DisConnect,
     // PLUGIN_HkIServerImpl_DisConnect,0));
 }

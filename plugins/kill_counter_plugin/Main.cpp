@@ -4,7 +4,7 @@
 
 #include "Main.h"
 
-EXPORT PLUGIN_RETURNCODE Get_PluginReturnCode() { return returncode; }
+EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 
 EXPORT void LoadSettings() { returncode = DEFAULT_RETURNCODE; }
 
@@ -133,13 +133,12 @@ EXPORT PLUGIN_INFO *Get_PluginInfo() {
     p_PI->bMayPause = false;
     p_PI->bMayUnload = true;
     p_PI->ePluginReturnCode = &returncode;
-    p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
+    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
                                              PLUGIN_UserCmd_Process, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    p_PI->lstHooks.push_back(
+    pi->emplaceHook(
         PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    return p_PI;
-}
+    }

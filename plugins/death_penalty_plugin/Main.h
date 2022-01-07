@@ -22,7 +22,7 @@ std::list<uint> ExcludedSystems;
 std::map<uint, CLIENT_DATA> MapClients;
 std::map<uint, float> FractionOverridesbyShip;
 
-PLUGIN_RETURNCODE returncode;
+ReturnCode returncode;
 
 typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &,
                              const wchar_t *);
