@@ -12,6 +12,13 @@
 
 ReturnCode returncode;
 
+static bool bPatchInstalled = false;
+static FARPROC fpOldTimingSeconds = 0;
+
+static HMODULE hModServerAC;
+static HMODULE hEngBase;
+static HMODULE hModContentAC;
+
 IMPORT struct CObject *__cdecl GetRoot(struct CObject const *);
 
 /** GetRoot hook to stop crashes at engbase.dll offset 0x000124bd */
@@ -249,13 +256,6 @@ static double __cdecl HkCb_TimingSeconds(__int64 &ticks_delta) {
     }
     return seconds;
 }
-
-static bool bPatchInstalled = false;
-static FARPROC fpOldTimingSeconds = 0;
-
-static HMODULE hModServerAC;
-static HMODULE hEngBase;
-static HMODULE hModContentAC;
 
 // Load configuration file
 void Init()
