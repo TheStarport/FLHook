@@ -10,7 +10,7 @@
 // Load configuration file
 void LoadSettings()
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
@@ -65,7 +65,7 @@ void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
 // Additional information related to the plugin when the /help command is used
 void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 	PrintUserCmdText(iClientID, L"/template");
 }
 
@@ -116,14 +116,14 @@ void AdminCmd_Template(CCmds* cmds, float number)
 // Define usable admin commands here
 void CmdHelp_Callback(CCmds* classptr)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 	classptr->Print(L"template <number>\n");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 
 	if (IS_CMD("template"))
 	{

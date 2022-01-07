@@ -126,7 +126,7 @@ void UpdateDockedShips(uint client) {
 
 /// Clear client info when a client connects.
 void ClearClientInfo(uint client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     clients.erase(client);
     mapDeferredJumps.erase(client);
     mapPendingDockingRequests.erase(client);
@@ -136,7 +136,7 @@ void ClearClientInfo(uint client) {
 
 /// Load the configuration
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
@@ -169,7 +169,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 bool UserCmd_Process(uint client, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (wscCmd.find(L"/listdocked") == 0) {
         if (clients[client].mapDockedShips.size() == 0) {
             PrintUserCmdText(client, L"No ships docked");
@@ -300,7 +300,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd) {
 // If this is a docking request at a player ship then process it.
 int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
                       int iCancel, enum DOCK_HOST_RESPONSE response) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     UINT client = HkGetClientIDByShip(iShip);
     if (client) {
@@ -357,7 +357,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
 
 void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
                                      unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     mapPendingDockingRequests.erase(client);
     LoadDockInfo(client);
 }
@@ -374,7 +374,7 @@ bool IsShipDockedOnCarrier(std::wstring &carrier_charname,
 }
 
 void __stdcall BaseEnter(uint iBaseID, uint client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // Update the location of any docked ships.
     if (clients[client].mapDockedShips.size()) {
@@ -407,7 +407,7 @@ void __stdcall BaseEnter(uint iBaseID, uint client) {
 }
 
 void __stdcall BaseExit(uint iBaseID, uint client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     LoadDockInfo(client);
 
     if (clients[client].mobile_docked) {
@@ -417,7 +417,7 @@ void __stdcall BaseExit(uint iBaseID, uint client) {
 }
 
 void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (clients[client].mobile_docked) {
         // Update the location of the carrier and remove the docked ship from
@@ -443,11 +443,11 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client) {
 }
 
 void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 }
 
 void SystemSwitchOutComplete(unsigned int iShip, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     static PBYTE SwitchOut = 0;
     if (!SwitchOut) {
         SwitchOut = (PBYTE)hModServer + 0xf600;
@@ -516,14 +516,14 @@ void SystemSwitchOutComplete(unsigned int iShip, unsigned int client) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall DisConnect(unsigned int client, enum EFLConnection p2) {
-    returncode = DEFAULT_RETURNCODE;
+    
     UpdateDockedShips(client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall CharacterInfoReq(unsigned int client, bool p2) {
-    returncode = DEFAULT_RETURNCODE;
+    
     UpdateDockedShips(client);
 }
 
@@ -531,7 +531,7 @@ void __stdcall CharacterInfoReq(unsigned int client, bool p2) {
 
 void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
                           unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (clients[client].mobile_docked) {
         returncode = SKIPPLUGINS;
@@ -546,7 +546,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
 
 void __stdcall ReqRemoveItem(unsigned short slot, int count,
                              unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (clients[client].mobile_docked) {
         returncode = SKIPPLUGINS;
@@ -563,7 +563,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count,
 
 void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
                                    unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (clients[client].mobile_docked) {
         returncode = SKIPPLUGINS;
@@ -586,7 +586,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
 
 void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
                          unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // If the client is in a player controlled base
     if (clients[client].mobile_docked) {
@@ -601,7 +601,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 
 void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
                           float fStatus, bool bMounted, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].mobile_docked) {
         returncode = SKIPPLUGINS;
 
@@ -616,7 +616,7 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
 
 /// Ignore cash commands from the client when we're in a player base.
 void __stdcall ReqChangeCash(int cash, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].mobile_docked)
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 }
@@ -625,7 +625,7 @@ void __stdcall ReqChangeCash(int cash, unsigned int client) {
 
 /// Ignore cash commands from the client when we're in a player base.
 void __stdcall ReqSetCash(int cash, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].mobile_docked)
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 }
@@ -634,7 +634,7 @@ void __stdcall ReqSetCash(int cash, unsigned int client) {
 
 void __stdcall ReqEquipment(class EquipDescList const &edl,
                             unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].mobile_docked)
         returncode = SKIPPLUGINS;
 }
@@ -642,7 +642,7 @@ void __stdcall ReqEquipment(class EquipDescList const &edl,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     CShip *cship = (CShip *)ecx[4];
     uint client = cship->GetOwnerPlayer();

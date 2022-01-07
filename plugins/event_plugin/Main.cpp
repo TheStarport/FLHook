@@ -168,7 +168,7 @@ void HkTimerCheckKick() {
 }
 
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (iKill) {
         CShip *cship = (CShip *)ecx[4];
@@ -222,7 +222,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 
 void __stdcall GFGoodSell(const struct SGFGoodSellInfo &gsi,
                           unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     uint iBase;
     pub::Player::GetBase(iClientID, iBase);

@@ -326,64 +326,19 @@ bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd,
     return true;
 }
 
-typedef bool (*_UserCmdProc)(uint, const std::wstring &, const std::wstring &,
-                             const wchar_t *);
-
-struct USERCMD {
-    wchar_t *wszCmd;
-    _UserCmdProc proc;
-    wchar_t *usage;
-};
-
 USERCMD UserCmds[] = {
     {L"/cloak", UserCmd_Cloak, L"Usage: /cloak"},
     {L"/cloak*", UserCmd_Cloak, L"Usage: /cloak"},
 
 };
 
-/**
-This function is called by FLHook when a user types a chat std::string. We look
-at the std::string they've typed and see if it starts with one of the above
-commands. If it does we try to process it.
-*/
+// Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
-
-    std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-    // If the chat std::string does not match the USER_CMD then we do not handle
-    // the command, so let other plugins or FLHook kick in. We require an exact
-    // match
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-        if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0) {
-            // Extract the parameters std::string from the chat std::string. It
-            // should be immediately after the command and a space.
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-
-            // Dispatch the command to the appropriate processing function.
-            if (UserCmds[i].proc(iClientID, wscCmd, wscParam,
-                                 UserCmds[i].usage)) {
-                // We handled the command tell FL hook to stop processing this
-                // chat std::string.
-                returncode =
-                    SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                // return immediatly
-                return true;
-            }
-        }
-    }
-    return false;
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
-#define IS_CMD(a) !wscCmd.compare(L##a)
-
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (IS_CMD("cloak")) {
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -425,7 +380,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
 void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                                 float damage,
                                 enum DamageEntry::SubObjFate fate) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (g_DmgToSpaceID && dmg->get_inflictor_id()) {
         if (dmg->get_cause() == 0x06) {
             float curr, max;

@@ -6,7 +6,7 @@
 
 EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 
-EXPORT void LoadSettings() { returncode = DEFAULT_RETURNCODE; }
+EXPORT void LoadSettings() {  }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
@@ -81,7 +81,7 @@ void UserCmd_Kills(uint iClientID, const std::wstring &wscParam) {
 }
 
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (iKill == 1) {
         CShip *cship = (CShip *)ecx[4];
@@ -105,25 +105,9 @@ USERCMD UserCmds[] = {
     {L"/kills", UserCmd_Kills},
 };
 
-EXPORT bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    std::wstring wscCmdLower = ToLower(wscCmd);
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-        if (wscCmdLower.find(ToLower(UserCmds[i].wszCmd)) == 0) {
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-            UserCmds[i].proc(iClientID, wscParam);
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                     // return immediatly
-            return true;
-        }
-    }
-    returncode = DEFAULT_RETURNCODE; // we did not handle the command, so let
-                                     // other plugins or FLHook kick in
-    return false;
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 EXPORT PLUGIN_INFO *Get_PluginInfo() {

@@ -10,7 +10,7 @@
 // Load configuration file
 void LoadSettings()
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 
 	// The path to the configuration file.
 	char szCurDir[MAX_PATH];
@@ -66,7 +66,7 @@ void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
 // Additional information related to the plugin when the /help command is used
 void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 	PrintUserCmdText(iClientID, L"/template");
 }
 
@@ -82,49 +82,9 @@ USERCMD UserCmds[] =
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
-{
-	returncode = DEFAULT_RETURNCODE;
-
-	try
-	{
-		std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-		// If the chat std::string does not match the USER_CMD then we do not handle the
-		// command, so let other plugins or FLHook kick in. We require an exact match
-		for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++)
-		{
-			if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0)
-			{
-				// Extract the parameters std::string from the chat std::string. It should
-				// be immediately after the command and a space.
-				std::wstring wscParam = L"";
-				if (wscCmd.length() > wcslen(UserCmds[i].wszCmd))
-				{
-					if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-						continue;
-					wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-				}
-
-				// Dispatch the command to the appropriate processing function.
-				if (UserCmds[i].proc(iClientID, wscCmd, wscParam, UserCmds[i].usage))
-				{
-					// We handled the command tell FL hook to stop processing this
-					// chat std::string.
-					returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command, return immediatly
-					return true;
-				}
-			}
-		}
-	}
-	catch (...)
-	{
-		AddLog("ERROR: Exception in UserCmd_Process(iClientID=%u, wscCmd=%s)", iClientID, wstos(wscCmd).c_str());
-		LOG_EXCEPTION;
-	}
-	return false;
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADMIN COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,14 +115,14 @@ void AdminCmd_Template(CCmds* cmds, float number)
 // Define usable admin commands here
 void CmdHelp_Callback(CCmds* classptr)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 	classptr->Print(L"template <number>\n");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 {
-	returncode = DEFAULT_RETURNCODE;
+	
 
 	if (IS_CMD("template"))
 	{

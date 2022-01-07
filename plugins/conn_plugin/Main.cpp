@@ -50,7 +50,7 @@ void ClearClientInfo(uint iClientID) {
 
 /// Load the configuration
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     memset(transferFlags, 0, sizeof(int) * (MAX_CLIENT_ID + 1));
 
@@ -186,73 +186,19 @@ bool CheckReturnDock(unsigned int client, unsigned int target) {
     return false;
 }
 
-bool UserCmd_Process(uint client, const std::wstring &cmd) {
-    returncode = DEFAULT_RETURNCODE;
-
-    if (!cmd.compare(L"/conn")) {
-        // Prohibit jump if in a restricted system or in the target system
-        uint system = 0;
-        pub::Player::GetSystem(client, system);
-        if (system == set_iRestrictedSystemID ||
-            system == set_iTargetSystemID || GetCustomBaseForClient(client)) {
-            PrintUserCmdText(client,
-                             L"ERR Cannot use command in this system or base");
-            return true;
-        }
-
-        if (!IsDockedClient(client)) {
-            PrintUserCmdText(client, STR_INFO1);
-            return true;
-        }
-
-        if (!ValidateCargo(client)) {
-            PrintUserCmdText(client, STR_INFO2);
-            return true;
-        }
-
-        StoreReturnPointForClient(client);
-        PrintUserCmdText(client, L"Redirecting undock to Connecticut.");
-        transferFlags[client] = CLIENT_STATE_TRANSFER;
-
-        return true;
-    } else if (!cmd.compare(L"/return")) {
-        if (!ReadReturnPointForClient(client)) {
-            PrintUserCmdText(client, L"No return possible");
-            return true;
-        }
-
-        if (!IsDockedClient(client)) {
-            PrintUserCmdText(client, STR_INFO1);
-            return true;
-        }
-
-        if (!CheckReturnDock(client, set_iTargetBaseID)) {
-            PrintUserCmdText(client, L"Not in correct base");
-            return true;
-        }
-
-        if (!ValidateCargo(client)) {
-            PrintUserCmdText(client, STR_INFO2);
-            return true;
-        }
-
-        PrintUserCmdText(client, L"Redirecting undock to previous base");
-        transferFlags[client] = CLIENT_STATE_RETURN;
-
-        return true;
-    }
-
-    return false;
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
                                unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     transferFlags[client] = CLIENT_STATE_NONE;
 }
 
 void __stdcall PlayerLaunch_AFTER(unsigned int ship, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (transferFlags[client] == CLIENT_STATE_TRANSFER) {
         if (!ValidateCargo(client)) {

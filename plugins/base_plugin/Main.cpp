@@ -174,7 +174,7 @@ void ClearClientInfo(uint client) { clients.erase(client); }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
+    
     load_settings_required = true;
 }
 
@@ -182,7 +182,7 @@ void LoadSettings() {
 
 /// Load the configuration
 void LoadSettingsActual() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // The path to the configuration file.
     char szCurDir[MAX_PATH];
@@ -333,7 +333,7 @@ void LoadSettingsActual() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void HkTimerCheckKick() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (load_settings_required) {
         load_settings_required = false;
@@ -579,7 +579,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 bool UserCmd_Process(uint client, const std::wstring &args) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (args.find(L"/base login") == 0) {
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
         PlayerCommands::BaseLogin(client, args);
@@ -683,7 +683,7 @@ static bool IsDockingAllowed(PlayerBase *base, uint client) {
 // infocards.
 int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
                       int iCancel, enum DOCK_HOST_RESPONSE response) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     uint client = HkGetClientIDByShip(iShip);
     if (client && response == PROCEED_DOCK) {
@@ -716,7 +716,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
 
 void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
                                unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // Sync base names for the
     map<uint, PlayerBase *>::iterator base = player_bases.begin();
@@ -728,7 +728,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
 
 void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
                                      unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (set_plugin_debug > 1)
         ConPrint(L"CharacterSelect_AFTER client=%u player_base=%u\n", client,
@@ -766,7 +766,7 @@ void __stdcall BaseEnter(uint base, uint client) {
             base, client, clients[client].player_base,
             clients[client].last_player_base);
 
-    returncode = DEFAULT_RETURNCODE;
+    
 
     clients[client].admin = false;
 
@@ -802,7 +802,7 @@ void __stdcall BaseEnter(uint base, uint client) {
 }
 
 void __stdcall BaseExit(uint base, uint client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (set_plugin_debug > 1)
         ConPrint(L"BaseExit base=%u client=%u player_base=%u\n", base, client,
@@ -835,7 +835,7 @@ void __stdcall BaseExit(uint base, uint client) {
 void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip,
                             unsigned int iDockTarget, unsigned int p4,
                             unsigned long p5, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (client) {
         if (!iIsFormationRequest) {
             PlayerBase *base = GetPlayerBase(iDockTarget);
@@ -871,7 +871,7 @@ PlayerBase *player_launch_base = 0;
 /// override the launch location.
 bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos,
                              Matrix &rot, int dock_mode) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (player_launch_base) {
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
         pos = player_launch_base->position;
@@ -889,19 +889,19 @@ bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos,
 /// If the ship is launching from a player base record this so that
 /// we will override the launch location.
 void __stdcall PlayerLaunch(unsigned int ship, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (set_plugin_debug > 1)
         ConPrint(L"PlayerLaunch ship=%u client=%u\n", ship, client);
     player_launch_base = GetPlayerBase(clients[client].last_player_base);
 }
 
 void __stdcall PlayerLaunch_AFTER(unsigned int ship, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     SyncReputationForClientShip(ship, client);
 }
 
 void __stdcall JumpInComplete(unsigned int system, unsigned int ship) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (set_plugin_debug > 1)
         ConPrint(L"JumpInComplete system=%u ship=%u\n");
@@ -914,7 +914,7 @@ void __stdcall JumpInComplete(unsigned int system, unsigned int ship) {
 
 void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
                           unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
@@ -975,7 +975,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
 
 void __stdcall ReqRemoveItem(unsigned short slot, int count,
                              unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (clients[client].player_base) {
         returncode = SKIPPLUGINS;
@@ -989,7 +989,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count,
 
 void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
                                    unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     uint player_base = clients[client].player_base;
     if (player_base) {
@@ -1014,7 +1014,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
 
 void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
                          unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
@@ -1053,7 +1053,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 
 void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
                           float fStatus, bool bMounted, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     PlayerBase *base = GetPlayerBaseForClient(client);
     if (base) {
         returncode = SKIPPLUGINS;
@@ -1068,7 +1068,7 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
 void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint,
                                 int count, float fStatus, bool bMounted,
                                 unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
@@ -1092,27 +1092,27 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint,
 
 /// Ignore cash commands from the client when we're in a player base.
 void __stdcall ReqChangeCash(int cash, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].player_base)
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 }
 
 /// Ignore cash commands from the client when we're in a player base.
 void __stdcall ReqSetCash(int cash, unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].player_base)
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
 }
 
 void __stdcall ReqEquipment(class EquipDescList const &edl,
                             unsigned int client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (clients[client].player_base)
         returncode = SKIPPLUGINS;
 }
 
 void __stdcall CShip_destroy(CShip *ship) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // Dispatch the destroy event to the appropriate module.
     uint space_obj = ship->get_id();
@@ -1124,7 +1124,7 @@ void __stdcall CShip_destroy(CShip *ship) {
 }
 
 void BaseDestroyed(uint space_obj, uint client) {
-    returncode = DEFAULT_RETURNCODE;
+    
     map<uint, Module *>::iterator i = spaceobj_modules.find(space_obj);
     if (i != spaceobj_modules.end()) {
         returncode = SKIPPLUGINS;
@@ -1135,7 +1135,7 @@ void BaseDestroyed(uint space_obj, uint client) {
 void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
                                 float damage,
                                 enum DamageEntry::SubObjFate fate) {
-    returncode = DEFAULT_RETURNCODE;
+    
     if (g_DmgToSpaceID && dmg->get_inflictor_id()) {
         float curr, max;
         pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
@@ -1227,7 +1227,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base) {
 #define IS_CMD(a) !args.compare(L##a)
 
 bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
-    returncode = DEFAULT_RETURNCODE;
+    
     /*if (args.find(L"dumpbases")==0)
     {
             Universe::ISystem *sys = Universe::GetFirstSystem();
@@ -1309,7 +1309,7 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
         cmd->Print(L"OK");
         return true;
     } else if (args.compare(L"beam") == 0) {
-        returncode = DEFAULT_RETURNCODE;
+        
         std::wstring charname = cmd->ArgCharname(1);
         std::wstring basename = cmd->ArgStrToEnd(2);
 
@@ -1357,7 +1357,7 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
 }
 
 void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (msg == CUSTOM_BASE_BEAM) {
         auto *info = static_cast<CUSTOM_BASE_BEAM_STRUCT *>(data);

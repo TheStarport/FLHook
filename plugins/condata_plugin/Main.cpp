@@ -32,7 +32,7 @@ EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void LoadSettings() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     set_iPingKickFrame = IniGetI(set_scCfgFile, "Kick", "PingKickFrame", 30);
     if (!set_iPingKickFrame)
@@ -87,7 +87,7 @@ void ClearConData(uint iClientID) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void ClearClientInfo(uint iClientID) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     ClearConData(iClientID);
 }
@@ -105,7 +105,7 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void HkTimerCheckKick() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (g_iServerLoad > set_iKickThreshold) {
         // for all players
@@ -333,7 +333,7 @@ TIMER Timers[] = {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT int __stdcall Update() {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     static bool bFirstTime = true;
     if (bFirstTime) {
@@ -373,7 +373,7 @@ EXPORT void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
 EXPORT void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
                                   unsigned int iClientID) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // lag detection
     IObjInspectImpl *ins = HkGetInspect(iClientID);
@@ -592,47 +592,20 @@ void UserCmd_PingTarget(uint iClientID, const std::wstring &wscParam) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef void (*_UserCmdProc)(uint, const std::wstring &);
-
-struct USERCMD {
-    wchar_t *wszCmd;
-    _UserCmdProc proc;
-};
-
 USERCMD UserCmds[] = {
     {L"/ping", UserCmd_Ping},
     {L"/pingtarget", UserCmd_PingTarget},
 };
 
-EXPORT bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-
-    std::wstring wscCmdLower = ToLower(wscCmd);
-
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-        if (wscCmdLower.find(ToLower(UserCmds[i].wszCmd)) == 0) {
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-            UserCmds[i].proc(iClientID, wscParam);
-
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL; // we handled the command,
-                                                     // return immediatly
-            return true;
-        }
-    }
-
-    returncode = DEFAULT_RETURNCODE; // we did not handle the command, so let
-                                     // other plugins or FLHook kick in
-    return false;
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     // this is the hooked plugin communication function
 
@@ -668,7 +641,7 @@ EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
 
 EXPORT bool ExecuteCommandString(CCmds *classptr,
                                           const std::wstring &wscCmd) {
-    returncode = DEFAULT_RETURNCODE;
+    
 
     if (IS_CMD("getstats")) {
         struct PlayerData *pPD = 0;

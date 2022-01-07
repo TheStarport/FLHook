@@ -726,22 +726,9 @@ USERCMD UserCmds[] = {
     {L"/automark", UserCmd_AutoMark},
 };
 
-EXPORT bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    std::wstring wscCmdLower = ToLower(wscCmd);
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-        if (wscCmdLower.find(ToLower(UserCmds[i].wszCmd)) == 0) {
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-            UserCmds[i].proc(iClientID, wscParam);
-            returncode = ReturnCode::SkipAll;
-            return true;
-        }
-    }
-    return false;
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 EXPORT void ExportPluginInfo(PluginInfo *pi) {
