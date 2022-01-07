@@ -5,7 +5,11 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.h" 
+#include <FLHook.h>
+#include <plugin.h>
+
+static int set_iPluginDebug = 0;
+ReturnCode returncode;
 
 // Load configuration file
 void LoadSettings()

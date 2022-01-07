@@ -2,7 +2,11 @@
 // by Raikkonen
 
 // Includes
-#include "Main.h"
+#include <FLHook.h>
+#include <fstream>
+#include <iostream>
+#include <plugin.h>
+#include <nlohmann/json.hpp>
 
 // JSON Library
 using json = nlohmann::json;

@@ -66,9 +66,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="npc.cfg">
       <FileType>Document</FileType>
     </CopyFileToFolders>

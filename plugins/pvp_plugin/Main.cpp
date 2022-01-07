@@ -2,7 +2,8 @@
 // By Raikkonen
 
 // Includes
-#include "Main.h"
+#include <FLHook.h>
+#include <plugin.h>
 
 // Global variables and structures
 ReturnCode returncode;

@@ -2,19 +2,11 @@
 // Originally by ||KOS||Acid
 // https://sourceforge.net/projects/kosacid/files/
 
-#include "Main.h"
+#include <FLHook.h>
+#include <plugin.h>
 
-EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
-
-EXPORT void LoadSettings() {  }
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-
-    if (fdwReason == DLL_PROCESS_ATTACH)
-        LoadSettings();
-
-    return true;
-}
+ReturnCode returncode;
+std::list<INISECTIONVALUE> lstRanks;
 
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/kills <player name>");
@@ -81,7 +73,6 @@ void UserCmd_Kills(uint iClientID, const std::wstring &wscParam) {
 }
 
 void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
-    
 
     if (iKill == 1) {
         CShip *cship = (CShip *)ecx[4];
@@ -110,19 +101,17 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Kill Counter Plugin";
-    p_PI->sShortName = "killcounter";
-    p_PI->bMayPause = false;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    }
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
+}
+
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Kill Counter");
+    pi->shortName("killcounter");
+    pi->mayPause(false);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+}

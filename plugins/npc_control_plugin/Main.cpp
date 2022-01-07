@@ -6,7 +6,10 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.h"
+#include <FLHook.h>
+#include <iostream>
+#include <plugin.h>
+#include <sstream>
 
 // Structures and Global Variables
 ReturnCode returncode;
