@@ -2,7 +2,8 @@
 // By Raikkonen
 
 // Includes
-#include "Main.h"
+#include <FLHook.h>
+#include <plugin.h>
 
 // Global variables
 std::set<uint> afks;
@@ -43,14 +44,12 @@ bool RedText(uint iClientID, std::wstring message, std::wstring message2) {
 }
 
 // This command is called when a player types /afk
-bool UserCmd_AFK(uint iClientID, const std::wstring &wscCmd,
-                 const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_AFK(uint iClientID, const std::wstring &wscParam) {
     afks.insert(iClientID);
     RedText(iClientID, L"", L" is now away from keyboard.");
     PrintUserCmdText(
         iClientID,
         L"Use the /back command to stop sending automatic replies to PMs.");
-    return true;
 }
 
 // This function welcomes the player back and removes their afk status
@@ -69,10 +68,9 @@ void Back(uint iClientID) {
 }
 
 // This command is called when a player types /back
-bool UserCmd_Back(uint iClientID, const std::wstring &wscCmd,
-                  const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Back(uint iClientID, const std::wstring &wscParam) {
     Back(iClientID);
-    return true;
+    return;
 }
 
 // Clean up when a client disconnects
@@ -92,47 +90,19 @@ void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
 void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
                           void const *rdlReader, struct CHAT_ID cIdTo,
                           int iP2) {
-    returncode = DEFAULT_RETURNCODE;
-
     if (HkIsValidClientID(cId.iID) && afks.count(cId.iID))
         Back(cId.iID);
 }
 
 // Client command processing
 USERCMD UserCmds[] = {
-    {L"/afk", UserCmd_AFK, L"Usage: /afk"},
-    {L"/back", UserCmd_Back, L"Usage: /back"},
+    {L"/afk", UserCmd_AFK},
+    {L"/back", UserCmd_Back},
 };
 
+// Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-    // If the chat string does not match the USER_CMD then we do not handle the
-    // command, so let other plugins or FLHook kick in. We require an exact
-    // match
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
-
-        if (wscCmdLineLower.find(UserCmds[i].wszCmd) == 0) {
-            // Extract the parameters string from the chat string. It should
-            // be immediately after the command and a space.
-            std::wstring wscParam = L"";
-            if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
-                if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
-                    continue;
-                wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
-            }
-
-            // Dispatch the command to the appropriate processing function.
-            if (UserCmds[i].proc(iClientID, wscCmd, wscParam,
-                                 UserCmds[i].usage)) {
-                // We handled the command tell FL hook to stop processing this
-                // chat string.
-                returncode = ReturnCode::SkipAll;
-                return true;
-            }
-        }
-    }
-    return false;
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
