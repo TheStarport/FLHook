@@ -1,24 +1,14 @@
-﻿/**
- Cloak (Yet another) Docking Plugin for FLHook-Plugin
- by Cannon.
+﻿// Cloak Plugin for FLHook by Cannon.
+//
+// Ported by Raikkonen 2022
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
 
-0.1:
- Initial release
-*/
-
-// includes
-
-#include "Cloak.h"
+// Includes
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
 
 static int set_iPluginDebug = 0;
 
@@ -38,7 +28,7 @@ struct CLOAK_ARCH {
     int iWarmupTime;
     int iCooldownTime;
     int iHoldSizeLimit;
-    map<uint, uint> mapFuelToUsage;
+    std::map<uint, uint> mapFuelToUsage;
     bool bDropShieldsOnUncloak;
 };
 
@@ -67,24 +57,8 @@ struct CLOAK_INFO {
     CLOAK_ARCH arch;
 };
 
-static map<uint, CLOAK_INFO> mapClientsCloak;
-
-static map<uint, CLOAK_ARCH> mapCloakingDevices;
-
-void LoadSettings();
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-    srand((uint)time(0));
-    // If we're being loaded from the command line while FLHook is running then
-    // set_scCfgFile will not be empty so load the settings as FLHook only
-    // calls load settings on FLHook startup and .rehash.
-    if (fdwReason == DLL_PROCESS_ATTACH) {
-        if (set_scCfgFile.length() > 0)
-            LoadSettings();
-    } else if (fdwReason == DLL_PROCESS_DETACH) {
-    }
-    return true;
-}
+static std::map<uint, CLOAK_INFO> mapClientsCloak;
+static std::map<uint, CLOAK_ARCH> mapCloakingDevices;
 
 void LoadSettings() {
     // The path to the configuration file.
@@ -234,7 +208,7 @@ void BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
 void HkTimerCheckKick() {
     mstime now = timeInMS();
 
-    for (map<uint, CLOAK_INFO>::iterator ci = mapClientsCloak.begin();
+    for (std::map<uint, CLOAK_INFO>::iterator ci = mapClientsCloak.begin();
          ci != mapClientsCloak.end(); ++ci) {
         uint iClientID = ci->first;
         uint iShipID = Players[iClientID].iShipID;
@@ -281,18 +255,17 @@ void HkTimerCheckKick() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd,
-                   const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Cloak(uint iClientID, const std::wstring &wscParam) {
     uint iShip;
     pub::Player::GetShip(iClientID, iShip);
     if (!iShip) {
         PrintUserCmdText(iClientID, L"Not in space");
-        return true;
+        return;
     }
 
     if (!mapClientsCloak[iClientID].bCanCloak) {
         PrintUserCmdText(iClientID, L"Cloaking device not available");
-        return true;
+        return;
     }
 
     // If this cloaking device requires more power than the ship can provide
@@ -309,7 +282,7 @@ bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd,
                     L"Cloaking device will not function on this ship type");
                 mapClientsCloak[iClientID].iState = STATE_CLOAK_INVALID;
                 SetState(iClientID, iShip, STATE_CLOAK_OFF);
-                return true;
+                return;
             }
 
             switch (mapClientsCloak[iClientID].iState) {
@@ -323,13 +296,11 @@ bool UserCmd_Cloak(uint iClientID, const std::wstring &wscCmd,
             }
         }
     }
-    return true;
+    return;
 }
 
 USERCMD UserCmds[] = {
-    {L"/cloak", UserCmd_Cloak, L"Usage: /cloak"},
-    {L"/cloak*", UserCmd_Cloak, L"Usage: /cloak"},
-
+    {L"/cloak", UserCmd_Cloak},
 };
 
 // Process user input
@@ -341,7 +312,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     
 
     if (IS_CMD("cloak")) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 
         uint iClientID = HkGetClientIdFromCharname(cmds->GetAdminName());
         if (iClientID == -1) {
@@ -398,32 +369,31 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Functions to hook */
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Cloak Plugin by cannon";
-    p_PI->sShortName = "cloak";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&PlayerLaunch_AFTER,
-                        PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkCb_AddDmgEntry,
-                                             PLUGIN_HkCb_AddDmgEntry, 0));
-
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    srand((uint)time(0));
+    // If we're being loaded from the command line while FLHook is running then
+    // set_scCfgFile will not be empty so load the settings as FLHook only
+    // calls load settings on FLHook startup and .rehash.
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        if (set_scCfgFile.length() > 0)
+            LoadSettings();
+    } else if (fdwReason == DLL_PROCESS_DETACH) {
     }
+    return true;
+}
+
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Cloak by Cannon");
+    pi->shortName("cloak");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
+
+}
