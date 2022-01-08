@@ -4,23 +4,23 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLHook", "FLHook.vcxproj", "{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tempban Plugin", "..\plugins\tempban_plugin\tempban Plugin.vcxproj", "{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tempban", "..\plugins\tempban_plugin\tempban Plugin.vcxproj", "{01DE3D3D-0DA2-447E-8C03-B2A2FB03A0F5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Condata Plugin", "..\plugins\condata_plugin\Connection Data Plugin.vcxproj", "{2CA8178B-9C91-4478-A955-21ABEC99E453}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Condata", "..\plugins\condata_plugin\Connection Data Plugin.vcxproj", "{2CA8178B-9C91-4478-A955-21ABEC99E453}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Base Plugin", "..\plugins\base_plugin\Base Plugin.vcxproj", "{81D35B95-1CDD-4F58-A24C-E2EC47D43DD0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Base", "..\plugins\base_plugin\Base Plugin.vcxproj", "{81D35B95-1CDD-4F58-A24C-E2EC47D43DD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cloak Plugin", "..\plugins\cloak_plugin\Cloak Plugin.vcxproj", "{81A35B95-1CED-4F58-A24C-E2DC47D43DD0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cloak", "..\plugins\cloak_plugin\Cloak Plugin.vcxproj", "{81A35B95-1CED-4F58-A24C-E2DC47D43DD0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arena", "..\plugins\arena_plugin\Arena.vcxproj", "{81D33B95-1CDD-4F58-A24C-E2EC47143DD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event Plugin", "..\plugins\event_plugin\Event Plugin.vcxproj", "{3A7D5EDC-F360-49E0-B652-587B9E22CF6C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event", "..\plugins\event_plugin\Event Plugin.vcxproj", "{3A7D5EDC-F360-49E0-B652-587B9E22CF6C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_HookExtension Plugin", "..\plugins\hookext_plugin\HookExt Plugin.vcxproj", "{81D33B95-1DDD-4F58-A24C-E2EC4A143DD0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_HookExtension", "..\plugins\hookext_plugin\HookExt Plugin.vcxproj", "{81D33B95-1DDD-4F58-A24C-E2EC4A143DD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobileDocking Plugin", "..\plugins\mobiledocking_plugin\MobileDocking Plugin.vcxproj", "{81A35B95-1CDD-4F58-A24C-E2DC47D43DD0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mobile Docking", "..\plugins\mobiledocking_plugin\MobileDocking Plugin.vcxproj", "{81A35B95-1CDD-4F58-A24C-E2DC47D43DD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MiningControl Plugin", "..\plugins\minecontrol_plugin\MineControl Plugin.vcxproj", "{367D5EDC-F360-49E0-B652-587B9E22CF6C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mining Control", "..\plugins\minecontrol_plugin\MineControl Plugin.vcxproj", "{367D5EDC-F360-49E0-B652-587B9E22CF6C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player Control", "..\plugins\playercntl_plugin\Player Control Plugin.vcxproj", "{9E084A9E-A8B9-4F64-8048-F3357839683E}"
 EndProject
@@ -30,19 +30,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{632FB3BE-F
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginTemplate", "..\plugins\flhook_plugin_template\PluginTemplate.vcxproj", "{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kill Counter Plugin", "..\plugins\kill_counter_plugin\kill_counter_plugin.vcxproj", "{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kill Counter", "..\plugins\kill_counter_plugin\kill_counter_plugin.vcxproj", "{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AFK Plugin", "..\plugins\afk_plugin\AFK Plugin.vcxproj", "{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AFK", "..\plugins\afk_plugin\AFK Plugin.vcxproj", "{18322D6B-43B1-49D8-A2FD-8C55EB4524AE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stats Plugin", "..\plugins\stats_plugin\stats_plugin.vcxproj", "{DF79DAB8-217F-4828-920D-89B2FDEEFB33}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stats", "..\plugins\stats_plugin\stats_plugin.vcxproj", "{DF79DAB8-217F-4828-920D-89B2FDEEFB33}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mark Plugin", "..\plugins\mark_plugin\mark_plugin.vcxproj", "{14C91A47-44A3-4D90-99C3-BFFA10491A56}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mark", "..\plugins\mark_plugin\mark_plugin.vcxproj", "{14C91A47-44A3-4D90-99C3-BFFA10491A56}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPC Control", "..\plugins\npc_control_plugin\npc_control_plugin.vcxproj", "{8E6A698F-7CE9-46C8-A21C-ADB5D4862895}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvP Plugin", "..\plugins\pvp_plugin\pvp_plugin.vcxproj", "{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvP", "..\plugins\pvp_plugin\pvp_plugin.vcxproj", "{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BountyHunt Plugin", "..\plugins\bountyhunt_plugin\bountyhunt_plugin.vcxproj", "{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bounty Hunt", "..\plugins\bountyhunt_plugin\bountyhunt_plugin.vcxproj", "{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Death Penalty Plugin", "..\plugins\death_penalty_plugin\death_penalty_plugin.vcxproj", "{723583D9-6348-4643-94E4-52EA2993AB78}"
 EndProject
@@ -52,35 +52,35 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Generator", "..\Generator\G
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_cppast_tiny_process", "..\cppastgen\_cppast_tiny_process.vcxproj", "{57E06C77-72C3-37AA-926A-BA7D3B15274F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Anti Jump Disconnect Plugin", "..\plugins\anti_jump_disconnect_plugin\Anti Jump Disconnect Plugin.vcxproj", "{F8835529-D882-4F95-B554-ABE96BE5C9F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Anti Jump Disconnect", "..\plugins\anti_jump_disconnect_plugin\Anti Jump Disconnect Plugin.vcxproj", "{F8835529-D882-4F95-B554-ABE96BE5C9F3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cargo Drop Plugin", "..\plugins\cargo_drop_plugin\Cargo Drop Plugin.vcxproj", "{E8190EFF-6AD0-40E7-8C65-7CB71CE0EEA4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cargo Drop", "..\plugins\cargo_drop_plugin\Cargo Drop Plugin.vcxproj", "{E8190EFF-6AD0-40E7-8C65-7CB71CE0EEA4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crash Catcher Plugin", "..\plugins\crash_catcher_plugin\Crash Catcher Plugin.vcxproj", "{141F7653-54FB-45ED-9E4A-7B9309CD9313}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crash Catcher", "..\plugins\crash_catcher_plugin\Crash Catcher Plugin.vcxproj", "{141F7653-54FB-45ED-9E4A-7B9309CD9313}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Equipment Utilities Plugins", "..\plugins\equipment_utilities_plugins\Equipment Utilities Plugins.vcxproj", "{A7E10A4C-E067-408C-9C0D-6BCC9362A99E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Equipment Utilities", "..\plugins\equipment_utilities_plugins\Equipment Utilities Plugins.vcxproj", "{A7E10A4C-E067-408C-9C0D-6BCC9362A99E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cash Manager Plugin", "..\plugins\cash_manager_plugin\Cash Manager Plugin.vcxproj", "{DFA28F29-9A64-45E7-8CF5-F9D3DB556BC2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cash Manager", "..\plugins\cash_manager_plugin\Cash Manager Plugin.vcxproj", "{DFA28F29-9A64-45E7-8CF5-F9D3DB556BC2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hyper Jump Plugin", "..\plugins\hyper_jump_plugin\Hyper Jump Plugin.vcxproj", "{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hyper Jump", "..\plugins\hyper_jump_plugin\Hyper Jump Plugin.vcxproj", "{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IP Ban Plugin", "..\plugins\ip_ban_plugin\IP Ban Plugin.vcxproj", "{16253ADD-D317-4C44-98C4-CE451814A3E9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IP Ban", "..\plugins\ip_ban_plugin\IP Ban Plugin.vcxproj", "{16253ADD-D317-4C44-98C4-CE451814A3E9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mail Plugin", "..\plugins\mail_plugin\Mail Plugin.vcxproj", "{CC79FB68-E0A8-45D9-80ED-303F5F0F5232}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mail", "..\plugins\mail_plugin\Mail Plugin.vcxproj", "{CC79FB68-E0A8-45D9-80ED-303F5F0F5232}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Message Plugin", "..\plugins\message_plugin\Message Plugin.vcxproj", "{F36013A1-7A38-49E1-9994-C7E8B61E1E21}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Message", "..\plugins\message_plugin\Message Plugin.vcxproj", "{F36013A1-7A38-49E1-9994-C7E8B61E1E21}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Misc Commands Plugin", "..\plugins\misc_commands_plugin\Misc Commands Plugin.vcxproj", "{60128B2F-1208-4E17-9420-FBDBDD89F118}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Misc Commands", "..\plugins\misc_commands_plugin\Misc Commands Plugin.vcxproj", "{60128B2F-1208-4E17-9420-FBDBDD89F118}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pimpship Plugin", "..\plugins\pimpship_plugin\Pimpship Plugin.vcxproj", "{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pimpship", "..\plugins\pimpship_plugin\Pimpship Plugin.vcxproj", "{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player Info Plugin", "..\plugins\player_info_plugin\Player Info Plugin.vcxproj", "{5BC43BA4-96C6-4AA4-BF23-5AC6DEBF05D5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player Info", "..\plugins\player_info_plugin\Player Info Plugin.vcxproj", "{5BC43BA4-96C6-4AA4-BF23-5AC6DEBF05D5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Purchase Restrictions Plugin", "..\plugins\purchase_restrictions_plugin\Purchase Restrictions Plugin.vcxproj", "{5C73EBB9-3FF4-4216-BFFE-894756DF6430}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Purchase Restrictions", "..\plugins\purchase_restrictions_plugin\Purchase Restrictions Plugin.vcxproj", "{5C73EBB9-3FF4-4216-BFFE-894756DF6430}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rename Plugin", "..\plugins\rename_plugin\Rename Plugin.vcxproj", "{B341DB54-BA24-41E6-9AC4-A88B84CDC137}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rename", "..\plugins\rename_plugin\Rename Plugin.vcxproj", "{B341DB54-BA24-41E6-9AC4-A88B84CDC137}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System Sensor Plugin", "..\plugins\system_sensor_plugin\System Sensor Plugin.vcxproj", "{9AE293D2-A402-4EA6-B9BA-A830DA18B219}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System Sensor", "..\plugins\system_sensor_plugin\System Sensor Plugin.vcxproj", "{9AE293D2-A402-4EA6-B9BA-A830DA18B219}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
