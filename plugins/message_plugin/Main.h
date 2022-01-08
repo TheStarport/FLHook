@@ -3,11 +3,9 @@
 #include <FLHook.h>
 #include <plugin.h>
 #include "../hookext_plugin/hookext_exports.h"
+#include <plugin_comms.h>
 
 ReturnCode returncode;
-
-/** The messaging plugin message log for offline players */
-static std::string MSG_LOG = "-mail.ini";
 
 /** the data for a single online player */
 class INFO {

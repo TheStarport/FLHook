@@ -231,16 +231,12 @@ void CharacterInfoReq(unsigned int iClientID, bool p2) {
 void PlayerLaunch(uint iShip, unsigned int iClientID) {
     LoadMsgs(iClientID);
     ShowGreetingBanner(iClientID);
-    Mail::MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
 }
 
 /// On base entry events and reload the msg cache for the client.
 void BaseEnter(uint iBaseID, uint iClientID) {
     LoadMsgs(iClientID);
     ShowGreetingBanner(iClientID);
-    Mail::MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
 }
 
 /// When a char selects a target and the target is a player ship then
@@ -333,7 +329,7 @@ static bool bSendingTime = false;
 
 /** When a chat message is sent to a client and this client has showchattime on
 insert the time on the line immediately before the chat message */
-bool Message::HkCb_SendChat(uint iClientID, uint iTo, uint iSize,
+bool HkCb_SendChat(uint iClientID, uint iTo, uint iSize,
                             void *rdlReader) {
     // Return immediately if the chat line is the time.
     if (bSendingTime)
@@ -376,7 +372,7 @@ bool Message::HkCb_SendChat(uint iClientID, uint iTo, uint iSize,
 }
 
 /** Set an preset message */
-bool Message::UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd,
                              const std::wstring &wscParam,
                              const wchar_t *usage) {
     if (!set_bSetMsg)
@@ -400,7 +396,7 @@ bool Message::UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Show preset messages */
-bool Message::UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd,
                                const std::wstring &wscParam,
                                const wchar_t *usage) {
     if (!set_bSetMsg)
@@ -420,7 +416,7 @@ bool Message::UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send an preset message to the system chat */
-bool Message::UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd,
                            const std::wstring &wscParam, const wchar_t *usage) {
     if (!set_bSetMsg)
         return false;
@@ -449,7 +445,7 @@ bool Message::UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send an preset message to the local system chat */
-bool Message::UserCmd_LMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_LMsg(uint iClientID, const std::wstring &wscCmd,
                            const std::wstring &wscParam, const wchar_t *usage) {
     if (!set_bSetMsg)
         return false;
@@ -478,7 +474,7 @@ bool Message::UserCmd_LMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send an preset message to the group chat */
-bool Message::UserCmd_GMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_GMsg(uint iClientID, const std::wstring &wscCmd,
                            const std::wstring &wscParam, const wchar_t *usage) {
     if (!set_bSetMsg)
         return false;
@@ -506,7 +502,7 @@ bool Message::UserCmd_GMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send an message to the last person that PM'd this client. */
-bool Message::UserCmd_ReplyToLastPMSender(uint iClientID,
+bool UserCmd_ReplyToLastPMSender(uint iClientID,
                                           const std::wstring &wscCmd,
                                           const std::wstring &wscParam,
                                           const wchar_t *usage) {
@@ -552,7 +548,7 @@ bool Message::UserCmd_ReplyToLastPMSender(uint iClientID,
 }
 
 /** Send a message to the last/current target. */
-bool Message::UserCmd_SendToLastTarget(uint iClientID,
+bool UserCmd_SendToLastTarget(uint iClientID,
                                        const std::wstring &wscCmd,
                                        const std::wstring &wscParam,
                                        const wchar_t *usage) {
@@ -598,7 +594,7 @@ bool Message::UserCmd_SendToLastTarget(uint iClientID,
 }
 
 /** Shows the sender of the last PM and the last char targetted */
-bool Message::UserCmd_ShowLastPMSender(uint iClientID,
+bool UserCmd_ShowLastPMSender(uint iClientID,
                                        const std::wstring &wscCmd,
                                        const std::wstring &wscParam,
                                        const wchar_t *usage) {
@@ -630,7 +626,7 @@ bool Message::UserCmd_ShowLastPMSender(uint iClientID,
 
 /** Send a private message to the specified charname. If the player is offline
 the message will be delivery when they next login. */
-bool Message::UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd,
                                  const std::wstring &wscParam,
                                  const wchar_t *usage) {
     std::wstring wscCharname =
@@ -664,7 +660,7 @@ bool Message::UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send a private message to the specified clientid. */
-bool Message::UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd,
                                    const std::wstring &wscParam,
                                    const wchar_t *usage) {
     std::wstring wscCharname =
@@ -684,7 +680,7 @@ bool Message::UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send a message to all players with a particular prefix. */
-bool Message::UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
                                  const std::wstring &wscParam,
                                  const wchar_t *usage) {
     std::wstring wscSender =
@@ -720,7 +716,7 @@ bool Message::UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Send a faction invite message to all players with a particular prefix. */
-bool Message::UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
                                     const std::wstring &wscParam,
                                     const wchar_t *usage) {
     const std::wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
@@ -764,7 +760,7 @@ bool Message::UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
     return true;
 }
 
-bool Message::UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
                                   const std::wstring &wscParam,
                                   const wchar_t *usage) {
     std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
@@ -793,7 +789,7 @@ bool Message::UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
     return true;
 }
 
-bool Message::UserCmd_Time(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_Time(uint iClientID, const std::wstring &wscCmd,
                            const std::wstring &wscParam, const wchar_t *usage) {
     // Send time with gray color (BEBEBE) in small text (90) above the chat
     // line.
@@ -802,7 +798,7 @@ bool Message::UserCmd_Time(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Print out custom help overriding flhook built in help */
-bool Message::UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd,
                                  const std::wstring &wscParam,
                                  const wchar_t *usage) {
     if (set_bCustomHelp) {
@@ -821,7 +817,7 @@ bool Message::UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd,
 }
 
 /** Print out help for built in flhook commands */
-bool Message::UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd,
+bool UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd,
                                      const std::wstring &wscParam,
                                      const wchar_t *usage) {
     if (wscParam.size() == 0) {
@@ -832,71 +828,7 @@ bool Message::UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd,
     return false;
 }
 
-/** Show Mail */
-bool Message::UserCmd_MailShow(uint iClientID, const std::wstring &wscCmd,
-                               const std::wstring &wscParam,
-                               const wchar_t *usage) {
-    int iNumberUnreadMsgs = Mail::MailCountUnread(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
-    int iNumberMsgs = Mail::MailCount(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
-    if (iNumberMsgs == 0) {
-        PrintUserCmdText(iClientID, L"OK You have no messages");
-        return true;
-    }
-
-    int iFirstMsg = ToInt(ToLower(GetParam(wscParam, ' ', 0)));
-    if (iFirstMsg == 0) {
-        if (iNumberUnreadMsgs > 0)
-            PrintUserCmdText(iClientID, L"OK You have %d unread messages",
-                             iNumberUnreadMsgs);
-        else
-            PrintUserCmdText(iClientID, L"OK You have %d messages",
-                             iNumberMsgs);
-        PrintUserCmdText(iClientID,
-                         L"Type /mail 1 to see first message or /mail "
-                         L"<num> to see specified message");
-        return true;
-    }
-
-    if (iFirstMsg > iNumberMsgs) {
-        PrintUserCmdText(iClientID, L"ERR Message does not exist");
-        return true;
-    }
-
-    Mail::MailShow((const wchar_t *)Players.GetActiveCharacterName(iClientID),
-                   MSG_LOG, iFirstMsg);
-    return true;
-}
-
-/** Delete Mail */
-bool Message::UserCmd_MailDel(uint iClientID, const std::wstring &wscCmd,
-                              const std::wstring &wscParam,
-                              const wchar_t *usage) {
-    if (wscParam.size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-
-    int iNumberMsgs = Mail::MailCount(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
-    int iMsg = ToInt(ToLower(GetParam(wscParam, ' ', 0)));
-    if (iMsg == 0 || iMsg > iNumberMsgs) {
-        PrintUserCmdText(iClientID, L"ERR Message does not exist");
-        return true;
-    }
-
-    if (Mail::MailDel(
-            (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG,
-            iMsg))
-        PrintUserCmdText(iClientID, L"OK");
-    else
-        PrintUserCmdText(iClientID, L"ERR");
-    return true;
-}
-
-void Message::UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+void UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     std::wstring wscCmdLineLower = ToLower(wscCmd);
 
     // Echo the command back to the sender's console but only if it starts with
@@ -1125,7 +1057,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Message");
     pi->shortName("message");
     pi->mayPause(true);

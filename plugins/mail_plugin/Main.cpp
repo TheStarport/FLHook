@@ -9,7 +9,29 @@
 
 #include "Main.h"
 
+bool set_bLocalTime = false;
 static const int MAX_MAIL_MSGS = 40;
+
+void LoadSettings() {
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\mail.cfg";
+
+    set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
+}
+
+void PlayerLaunch(uint iShip, unsigned int iClientID) {
+    MailCheckLog(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+}
+
+/// On base entry events and reload the msg cache for the client.
+void BaseEnter(uint iBaseID, uint iClientID) {
+    MailCheckLog(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+}
 
 /** Show five messages from the specified starting position. */
 void MailShow(const std::wstring &wscCharname, const std::string &scExtension,
@@ -130,7 +152,7 @@ bool MailSend(const std::wstring &wscCharname, const std::string &scExtension,
 }
 
 /**
-        Delete a message
+Delete a message
 */
 bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
              int iMsg) {
@@ -158,10 +180,68 @@ bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Show Mail */
+void UserCmd_MailShow(uint iClientID, const std::wstring &wscParam) {
+    int iNumberUnreadMsgs = MailCountUnread(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+    int iNumberMsgs = MailCount(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+    if (iNumberMsgs == 0) {
+        PrintUserCmdText(iClientID, L"OK You have no messages");
+        return;
+    }
+
+    int iFirstMsg = ToInt(ToLower(GetParam(wscParam, ' ', 0)));
+    if (iFirstMsg == 0) {
+        if (iNumberUnreadMsgs > 0)
+            PrintUserCmdText(iClientID, L"OK You have %d unread messages",
+                             iNumberUnreadMsgs);
+        else
+            PrintUserCmdText(iClientID, L"OK You have %d messages",
+                             iNumberMsgs);
+        PrintUserCmdText(iClientID,
+                         L"Type /mail 1 to see first message or /mail "
+                         L"<num> to see specified message");
+        return;
+    }
+
+    if (iFirstMsg > iNumberMsgs) {
+        PrintUserCmdText(iClientID, L"ERR Message does not exist");
+        return;
+    }
+
+    MailShow((const wchar_t *)Players.GetActiveCharacterName(iClientID),
+                   MSG_LOG, iFirstMsg);
+}
+
+/** Delete Mail */
+void UserCmd_MailDel(uint iClientID, const std::wstring &wscParam) {
+    if (wscParam.size() == 0) {
+        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+        PrintUserCmdText(iClientID, L"Usage: /maildel <msgnum>");
+        return;
+    }
+
+    int iNumberMsgs = MailCount(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+    int iMsg = ToInt(ToLower(GetParam(wscParam, ' ', 0)));
+    if (iMsg == 0 || iMsg > iNumberMsgs) {
+        PrintUserCmdText(iClientID, L"ERR Message does not exist");
+        return;
+    }
+
+    if (MailDel(
+            (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG,
+            iMsg))
+        PrintUserCmdText(iClientID, L"OK");
+    else
+        PrintUserCmdText(iClientID, L"ERR");
+}
+
 // Client command processing
 USERCMD UserCmds[] = {
-    {L"/afk", UserCmd_AFK},
-    {L"/back", UserCmd_Back},
+    {L"/mail", UserCmd_MailShow},
+    {L"/maildel", UserCmd_MailDel},
 };
 
 // Process user input
@@ -171,22 +251,28 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
 // Hook on /help
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
-    PrintUserCmdText(iClientID, L"/afk ");
-    PrintUserCmdText(iClientID,
-                     L"Sets the player to AFK. If any other player messages "
-                     L"directly, they will be told you are afk.");
-    PrintUserCmdText(iClientID, L"/back ");
-    PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
+    PrintUserCmdText(iClientID, L"/mail");
+    PrintUserCmdText(iClientID, L"/maildel");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Admin commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Message::AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname,
-                                const std::wstring &wscMsg) {
-    Mail::MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
+void AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname,
+                       const std::wstring &wscMsg) {
+    MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
     cmds->Print(L"OK message saved to mailbox\n");
+}
+
+bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
+
+    if (IS_CMD("move")) {
+        returncode = ReturnCode::SkipAll;
+        AdminCmd_SendMail(cmds, cmds->ArgStr(0), cmds->ArgStrToEnd(1)););
+        return true;
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +285,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Mail");
     pi->shortName("mail");
     pi->mayPause(true);
@@ -207,5 +293,9 @@ EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->returnCode(&returncode);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 
 }

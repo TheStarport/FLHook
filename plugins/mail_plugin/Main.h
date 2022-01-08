@@ -1,18 +1,10 @@
 #pragma once
 
-#include <windows.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <math.h>
-#include <list>
-#include <map>
-#include <algorithm>
 #include <FLHook.h>
 #include <plugin.h>
 
 static int set_iPluginDebug = 0;
 ReturnCode returncode;
 
-void AddExceptionInfoLog(struct SEHException* pep);
-#define LOG_EXCEPTION { AddLog("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }
+/** The messaging plugin message log for offline players */
+static std::string MSG_LOG = "-mail.ini";
