@@ -12,10 +12,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{81D33B95-1CDD-4F58-A24C-E2EC47143DD0}</ProjectGuid>
-    <RootNamespace>Player Beam Plugin</RootNamespace>
+    <RootNamespace>Arena</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Player Beam</ProjectName>
+    <ProjectName>Arena</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

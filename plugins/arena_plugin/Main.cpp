@@ -1,4 +1,4 @@
-﻿// Player Beam Plugin by MadHunter
+﻿// Arena Plugin by MadHunter
 //
 // Ported by Raikkonen 2022
 //
@@ -59,7 +59,7 @@ void LoadSettings() {
     char szCurDir[MAX_PATH];
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
     std::string scPluginCfgFile =
-        std::string(szCurDir) + "\\flhook_plugins\\player_beam.cfg";
+        std::string(szCurDir) + "\\flhook_plugins\\arena.cfg";
 
     // Load generic settings
     set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
@@ -239,7 +239,7 @@ void UserCmd_Conn(uint iClientID, const std::wstring &wscParam) {
     }
 
     StoreReturnPointForClient(iClientID);
-    PrintUserCmdText(iClientID, L"Redirecting undock to Connecticut.");
+    PrintUserCmdText(iClientID, L"Redirecting undock to Arena.");
     transferFlags[iClientID] = CLIENT_STATE_TRANSFER;
 }
 
@@ -283,7 +283,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, set_wscUserCommand);
     PrintUserCmdText(iClientID,
-                     L"Beams you to Connecticut");
+                     L"Beams you to the Arena system.");
     PrintUserCmdText(iClientID, L"/return ");
     PrintUserCmdText(iClientID, L"Returns you to the previous base.");
 }
@@ -303,8 +303,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
-    pi->name("Player Beam by MadHunter");
-    pi->shortName("conn");
+    pi->name("Arena by MadHunter");
+    pi->shortName("arena");
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
