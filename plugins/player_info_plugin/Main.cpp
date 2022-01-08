@@ -47,6 +47,19 @@ static std::wstring IniGetLongWS(const std::string &scFile,
     return wscValue;
 }
 
+static int CurrLength(const std::string &scFilePath) {
+    int iCount = 0;
+    for (int i = 1; i <= MAX_PARAGRAPHS; i++) {
+        iCount +=
+            IniGetLongWS(scFilePath, "Info", std::to_string(i), L"").length();
+    }
+    return iCount;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// USER COMMANDS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void UserCmd_ShowInfo(uint iClientID, const std::wstring &wscParam) {
     const wchar_t *wszTargetName = 0;
     const std::wstring &wscCommand = GetParam(wscParam, ' ', 0);
@@ -104,15 +117,6 @@ void UserCmd_ShowInfo(uint iClientID, const std::wstring &wscParam) {
                              POPUPDIALOG_BUTTONS_CENTER_OK);
 }
 
-static int CurrLength(const std::string &scFilePath) {
-    int iCount = 0;
-    for (int i = 1; i <= MAX_PARAGRAPHS; i++) {
-        iCount +=
-            IniGetLongWS(scFilePath, "Info", std::to_string(i), L"").length();
-    }
-    return iCount;
-}
-
 void UserCmd_SetInfo(uint iClientID, const std::wstring &wscParam) {
     uint iPara = ToInt(GetParam(wscParam, ' ', 0));
     const std::wstring &wscCommand = GetParam(wscParam, ' ', 1);
@@ -153,10 +157,6 @@ void UserCmd_SetInfo(uint iClientID, const std::wstring &wscParam) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Client command processing
 USERCMD UserCmds[] = {
     {L"/showinfo", UserCmd_ShowInfo},
@@ -189,7 +189,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Player Info by Cannon");
     pi->shortName("player_info");
     pi->mayPause(true);
