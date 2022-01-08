@@ -47,10 +47,8 @@ void HkTimer() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Demo command
-bool UserCmd_Template(uint iClientID, const std::wstring &wscCmd,
-                      const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Template(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"OK");
-    return true;
 }
 
 // Additional information related to the plugin when the /help command is used
@@ -64,7 +62,7 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 
 // Define usable chat commands here
 USERCMD UserCmds[] = {
-    {L"/template", UserCmd_Template, L"Usage: /template"},
+    {L"/template", UserCmd_Template},
 };
 
 // Process user input
@@ -104,7 +102,7 @@ void CmdHelp(CCmds *classptr) {
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     if (IS_CMD("template")) {
-        g_ReturnCode = ReturnCode::SkipAll;
+        returncode = ReturnCode::SkipAll;
         AdminCmd_Template(cmds, cmds->ArgFloat(1));
         return true;
     }
@@ -136,7 +134,7 @@ EXPORT void ExportPluginInfo(PluginInfo* pi) {
     pi->shortName("$safeprojectname$");
     pi->mayPause(true);
     pi->mayUnload(true);
-    pi->returnCode(&g_ReturnCode);
+    pi->returnCode(&returncode);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
     pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimer);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
