@@ -20,10 +20,6 @@ ReturnCode returncode;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT ReturnCode Get_PluginReturnCode() { return returncode; }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void LoadSettings() {
@@ -625,10 +621,7 @@ EXPORT void PluginCommunicationCallBack(PLUGIN_MESSAGE msg, void *data) {
     return;
 }
 
-#define IS_CMD(a) !wscCmd.compare(L##a)
-
-EXPORT bool ExecuteCommandString(CCmds *classptr,
-                                 const std::wstring &wscCmd) {
+EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
 
     if (IS_CMD("getstats")) {
         struct PlayerData *pPD = 0;
