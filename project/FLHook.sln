@@ -12,7 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Base Plugin", "..\plugins\b
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cloak Plugin", "..\plugins\cloak_plugin\Cloak Plugin.vcxproj", "{81A35B95-1CED-4F58-A24C-E2DC47D43DD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Conn Plugin", "..\plugins\conn_plugin\Conn Plugin.vcxproj", "{81D33B95-1CDD-4F58-A24C-E2EC47143DD0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player Beam", "..\plugins\player_beam_plugin\Player Beam.vcxproj", "{81D33B95-1CDD-4F58-A24C-E2EC47143DD0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Event Plugin", "..\plugins\event_plugin\Event Plugin.vcxproj", "{3A7D5EDC-F360-49E0-B652-587B9E22CF6C}"
 EndProject
