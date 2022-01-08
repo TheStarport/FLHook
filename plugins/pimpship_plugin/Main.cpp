@@ -5,133 +5,290 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.h" 
+#include "Main.h"
 
-// Load configuration file
-void LoadSettings()
-{
-	
-
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string configFile = std::string(szCurDir) + "\\flhook_plugins\\Pimpship_Plugin.ini";
-
-	INI_Reader ini;
-	if (ini.open(configFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{	
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("debug"))
-					{ 
-						set_iPluginDebug = ini.get_value_int(0);
-					}					
-				}
-			}
-		}
-
-		if (set_iPluginDebug&1)
-		{
-			ConPrint(L"Debug\n");
-		}
-
-		ini.close();
-	}	
+bool IsItemArchIDAvailable(uint iArchID) {
+    for (std::map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
+         iter != mapAvailableItems.end(); iter++) {
+        if (iter->second.iArchID == iArchID)
+            return true;
+    }
+    return false;
 }
 
-// Do something every 100 seconds
-void HkTimer()
-{
-	if ((time(0) % 100) == 0)
-	{
-		// Do something here
-	}
+std::wstring GetItemDescription(uint iArchID) {
+    for (std::map<uint, ITEM_INFO>::iterator iter = mapAvailableItems.begin();
+         iter != mapAvailableItems.end(); iter++) {
+        if (iter->second.iArchID == iArchID)
+            return iter->second.wscDescription;
+    }
+    return L"";
+}
+
+void LoadSettings() {
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\pimpship.cfg";
+    set_iCost = 0;
+    mapAvailableItems.clear();
+    set_mapDealers.clear();
+
+    // Patch BaseDataList::get_room_data to suppress annoying warnings
+    // flserver-errors.log
+    unsigned char patch1[] = {0x90, 0x90};
+    WriteProcMem((char *)0x62660F2, &patch1, 2);
+
+    int iItemID = 1;
+    INI_Reader ini;
+    if (ini.open(scPluginCfgFile.c_str(), false)) {
+        while (ini.read_header()) {
+            if (ini.is_header("ShipPimper")) {
+                while (ini.read_value()) {
+                    if (ini.is_value("cost")) {
+                        set_iCost = ini.get_value_int(0);
+                    } else if (ini.is_value("equip")) {
+                        std::string nickname = ini.get_value_string(0);
+                        std::string description = ini.get_value_string(1);
+                        uint iArchID = CreateID(nickname.c_str());
+                        mapAvailableItems[iItemID].iArchID = iArchID;
+                        mapAvailableItems[iItemID].wscNickname =
+                            stows(nickname);
+                        mapAvailableItems[iItemID].wscDescription =
+                            stows(description);
+                        if (mapAvailableItems[iItemID]
+                                .wscDescription.length() == 0)
+                            mapAvailableItems[iItemID].wscDescription =
+                                mapAvailableItems[iItemID].wscNickname;
+                        iItemID++;
+                    } else if (ini.is_value("room")) {
+                        std::string nickname = ini.get_value_string(0);
+                        uint iLocationID = CreateID(nickname.c_str());
+                        if (!BaseDataList_get()->get_room_data(iLocationID)) {
+                            if (set_bDebug > 0) {
+                                ConPrint(L"NOTICE: Room %s does not exist\n",
+                                         stows(nickname).c_str());
+                            }
+                        } else {
+                            set_mapDealers[iLocationID] = stows(nickname);
+                        }
+                    }
+                }
+            }
+        }
+        ini.close();
+    }
+
+    // Unpatch BaseDataList::get_room_data to suppress annoying warnings
+    // flserver-errors.log
+    unsigned char unpatch1[] = {0xFF, 0x12};
+    WriteProcMem((char *)0x62660F2, &patch1, 2);
+}
+
+// On entering a room check to see if we're in a valid ship dealer room (or base
+// if a ShipDealer is not defined). If we are then print the intro text
+// otherwise do nothing.
+void LocationEnter(unsigned int iLocationID, unsigned int iClientID) {
+    if (set_mapDealers.find(iLocationID) == set_mapDealers.end()) {
+        uint iBaseID = 0;
+        pub::Player::GetBase(iClientID, iBaseID);
+        if (set_mapDealers.find(iBaseID) == set_mapDealers.end()) {
+            mapInfo[iClientID].bInPimpDealer = false;
+            mapInfo[iClientID].mapCurrEquip.clear();
+            return;
+        }
+    }
+
+    if (set_wscIntroMsg1.length() > 0)
+        PrintUserCmdText(iClientID, L"%s", set_wscIntroMsg1.c_str());
+
+    if (set_wscIntroMsg2.length() > 0)
+        PrintUserCmdText(iClientID, L"%s", set_wscIntroMsg2.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Demo command
-void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"OK");
-	return true;
+void UserCmd_PimpShip(uint iClientID, const std::wstring &wscParam) {
+    uint iLocationID = 0;
+    pub::Player::GetLocation(iClientID, iLocationID);
+    if (set_mapDealers.find(iLocationID) == set_mapDealers.end()) {
+        uint iBaseID = 0;
+        pub::Player::GetBase(iClientID, iBaseID);
+        if (set_mapDealers.find(iBaseID) == set_mapDealers.end()) {
+            mapInfo[iClientID].bInPimpDealer = false;
+            mapInfo[iClientID].mapCurrEquip.clear();
+            return;
+        }
+    }
+
+    mapInfo[iClientID].mapCurrEquip.clear();
+    mapInfo[iClientID].bInPimpDealer = true;
+
+    PrintUserCmdText(iClientID, L"Available ship pimping commands:");
+
+    PrintUserCmdText(iClientID, L"/showsetup");
+    PrintUserCmdText(iClientID, L"|     Display current ship setup.");
+
+    PrintUserCmdText(iClientID, L"/showitems");
+    PrintUserCmdText(iClientID,
+                     L"|     Display items that may be added to your ship.");
+
+    PrintUserCmdText(iClientID, L"/setitem <hardpoint id> <new item id>");
+    PrintUserCmdText(iClientID,
+                     L"|     Change the item at <hp id> to <item id>.");
+    PrintUserCmdText(iClientID,
+                     L"|     <hi id>s are shown by typing /show setup.");
+    PrintUserCmdText(iClientID,
+                     L"|     <item id>s are shown by typing /show items.");
+
+    PrintUserCmdText(iClientID, L"/buynow");
+    PrintUserCmdText(iClientID, L"|     Confirms the changes.");
+    PrintUserCmdText(iClientID, L"This facility costs " +
+                                    ToMoneyStr(set_iCost) +
+                                    L" credits to use.");
+
+    std::wstring wscCharName =
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+
+    // Build the equipment list.
+    int iSlotID = 1;
+
+    st6::list<EquipDesc> &eqLst = Players[iClientID].equipDescList.equip;
+    for (auto eq = eqLst.begin(); eq != eqLst.end(); eq++) {
+        if (IsItemArchIDAvailable(eq->iArchID)) {
+            mapInfo[iClientID].mapCurrEquip[iSlotID].sID = eq->sID;
+            mapInfo[iClientID].mapCurrEquip[iSlotID].iArchID = eq->iArchID;
+            mapInfo[iClientID].mapCurrEquip[iSlotID].iOrigArchID = eq->iArchID;
+            mapInfo[iClientID].mapCurrEquip[iSlotID].wscHardPoint =
+                stows(eq->szHardPoint.value);
+            iSlotID++;
+        }
+    }
 }
 
-// Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
-{
-	
-	PrintUserCmdText(iClientID, L"/template");
+/// Show the setup of the player's ship.
+void UserCmd_ShowSetup(uint iClientID, const std::wstring &wscParam) {
+    if (!mapInfo[iClientID].bInPimpDealer)
+        return;
+
+    PrintUserCmdText(iClientID, L"Current ship setup: %d",
+                     mapInfo[iClientID].mapCurrEquip.size());
+    for (auto iter = mapInfo[iClientID].mapCurrEquip.begin();
+         iter != mapInfo[iClientID].mapCurrEquip.end(); iter++) {
+        PrintUserCmdText(iClientID, L"|     %.2d | %s : %s", iter->first,
+                         iter->second.wscHardPoint.c_str(),
+                         GetItemDescription(iter->second.iArchID).c_str());
+    }
+    PrintUserCmdText(iClientID, L"OK");
 }
 
+/// Show the items that may be changed.
+void UserCmd_ShowItems(uint iClientID, const std::wstring &wscParam) {
+    if (!mapInfo[iClientID].bInPimpDealer)
+        return;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    PrintUserCmdText(iClientID, L"Available items: %d",
+                     mapAvailableItems.size());
+    for (auto iter = mapAvailableItems.begin(); iter != mapAvailableItems.end();
+         iter++) {
+        PrintUserCmdText(iClientID, L"|     %.2d:  %s", iter->first,
+                         iter->second.wscDescription.c_str());
+    }
+    PrintUserCmdText(iClientID, L"OK");
+}
 
-// Define usable chat commands here
-USERCMD UserCmds[] =
-{
-	{ L"/template", UserCmd_Template, L"Usage: /template" },
+/// Change the item on the Slot ID to the specified item.
+void UserCmd_ChangeItem(uint iClientID, const std::wstring &wscParam) {
+    if (!mapInfo[iClientID].bInPimpDealer)
+        return;
+
+    int iHardPointID = ToInt(GetParam(wscParam, ' ', 0));
+    int iSelectedItemID = ToInt(GetParam(wscParam, ' ', 1));
+
+    if (mapInfo[iClientID].mapCurrEquip.find(iHardPointID) ==
+        mapInfo[iClientID].mapCurrEquip.end()) {
+        PrintUserCmdText(iClientID, L"ERR Invalid hard point ID");
+        return;
+    }
+
+    if (mapAvailableItems.find(iSelectedItemID) == mapAvailableItems.end()) {
+        PrintUserCmdText(iClientID, L"ERR Invalid item ID");
+        return;
+    }
+
+    mapInfo[iClientID].mapCurrEquip[iHardPointID].iArchID =
+        mapAvailableItems[iSelectedItemID].iArchID;
+    return UserCmd_ShowSetup(iClientID, wscParam);
+}
+
+void UserCmd_BuyNow(uint iClientID, const std::wstring &wscParam) {
+    HK_ERROR err;
+
+    std::wstring wscCharName =
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+
+    // Check the that player is in a ship dealer.
+    if (!mapInfo[iClientID].bInPimpDealer)
+        return;
+
+    // Charge for the equipment pimp.
+    if (set_iCost > 0) {
+        int iCash = 0;
+        if ((err = HkGetCash(wscCharName, iCash)) != HKE_OK) {
+            PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
+            return;
+        }
+        if (iCash < 0 && iCash < set_iCost) {
+            PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+            return;
+        }
+        HkAddCash(wscCharName, 0 - set_iCost);
+    }
+
+    // Remove all lights.
+    for (auto i = mapInfo[iClientID].mapCurrEquip.begin();
+         i != mapInfo[iClientID].mapCurrEquip.end(); ++i) {
+        pub::Player::RemoveCargo(iClientID, i->second.sID, 1);
+    }
+
+    // Re-add all lights so that the order is kept the same
+    for (auto i = mapInfo[iClientID].mapCurrEquip.begin();
+         i != mapInfo[iClientID].mapCurrEquip.end(); ++i) {
+        HkAddEquip(wscCharName, i->second.iArchID,
+                   wstos(i->second.wscHardPoint));
+    }
+
+    PrintUserCmdText(
+        iClientID,
+        L"OK Ship pimp complete. Please wait 10 seconds and reconnect.");
+    HkDelayedKick(iClientID, 5);
+}
+
+// Client command processing
+USERCMD UserCmds[] = {
+    {L"/pimpship", UserCmd_PimpShip},
+    {L"/showsetup", UserCmd_ShowSetup},
+    {L"/showitems", UserCmd_ShowItems},
+    {L"/setitem", UserCmd_ChangeItem},
+    {L"/buynow", UserCmd_BuyNow},
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Demo admin command
-void AdminCmd_Template(CCmds* cmds, float number)
-{
-	if (cmds->ArgStrToEnd(1).length() == 0)
-	{
-		cmds->Print(L"ERR Usage: template <number>\n");
-		return;
-	}
-
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	cmds->Print(L"Template is %0.0f\n", number);
-	return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable admin commands here
-void CmdHelp_Callback(CCmds* classptr)
-{
-	
-	classptr->Print(L"template <number>\n");
-}
-
-// Admin command callback. Compare the chat entry to see if it match a command
-bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
-{
-	
-
-	if (IS_CMD("template"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_Template(cmds, cmds->ArgFloat(1));
-		return true;
-	}
-
-	return false;
+// Hook on /help
+EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    PrintUserCmdText(iClientID, L"/afk ");
+    PrintUserCmdText(iClientID,
+                     L"Sets the player to AFK. If any other player messages "
+                     L"directly, they will be told you are afk.");
+    PrintUserCmdText(iClientID, L"/back ");
+    PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,32 +296,19 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
-		LoadSettings();
-
-	return true;
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
-	p_PI->sName = "Pimpship Plugin";
-	p_PI->sShortName = "Pimpship_Plugin";
-	p_PI->bMayPause = true;
-	p_PI->bMayUnload = true;
-	p_PI->ePluginReturnCode = &returncode;
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-	}
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Pimpship");
+    pi->shortName("pimpship");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::IServerImpl__LocationEnter, &LocationEnter);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+}
