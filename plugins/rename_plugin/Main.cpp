@@ -8,7 +8,14 @@
 
 #include "Main.h"
 
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\rename.cfg";
+
     set_bEnableRenameMe = IniGetB(scPluginCfgFile, "Rename", "EnableRename", false);
     set_bEnableMoveChar =
         IniGetB(scPluginCfgFile, "Rename", "EnableMoveChar", false);

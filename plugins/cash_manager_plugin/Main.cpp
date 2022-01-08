@@ -127,7 +127,13 @@ static bool InBlockedSystem(const std::wstring &wscCharname) {
     return false;
 }
 
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\cash_manager.cfg";
+
     set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
     set_iMinTransfer = IniGetI(scPluginCfgFile, "General", "MinTransfer", 1);
     set_iMinTime = IniGetI(scPluginCfgFile, "General", "MinTime", 0);

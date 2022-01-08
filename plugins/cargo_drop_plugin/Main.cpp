@@ -53,7 +53,13 @@ class INFO {
 };
 static std::map<uint, INFO> mapInfo;
 
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\cargo_drop.cfg";
+
     set_bReportDisconnectingPlayers =
         IniGetB(scPluginCfgFile, "General", "ReportDisconnectingPlayers", true);
     set_bKillDisconnectingPlayers =

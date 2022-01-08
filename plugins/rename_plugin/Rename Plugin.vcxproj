@@ -74,7 +74,7 @@
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Rename_Plugin.ini" />
+    <None Include="rename.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
