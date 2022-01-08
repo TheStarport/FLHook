@@ -116,7 +116,7 @@ EXPORT void HkTimerCheckKick() {
                     TEMPBAN_BAN_STRUCT tempban;
                     tempban.iClientID = iClientID;
                     tempban.iDuration = 1; // 1 minute
-                    Plugin_Communication(TEMPBAN_BAN, &tempban);
+                    PluginCommunication(TEMPBAN_BAN, &tempban);
                 }
             }
 
@@ -129,7 +129,7 @@ EXPORT void HkTimerCheckKick() {
                     TEMPBAN_BAN_STRUCT tempban;
                     tempban.iClientID = iClientID;
                     tempban.iDuration = 1; // 1 minute
-                    Plugin_Communication(TEMPBAN_BAN, &tempban);
+                    PluginCommunication(TEMPBAN_BAN, &tempban);
                 }
             }
 
@@ -143,7 +143,7 @@ EXPORT void HkTimerCheckKick() {
                     TEMPBAN_BAN_STRUCT tempban;
                     tempban.iClientID = iClientID;
                     tempban.iDuration = 1; // 1 minute
-                    Plugin_Communication(TEMPBAN_BAN, &tempban);
+                    PluginCommunication(TEMPBAN_BAN, &tempban);
                 }
             }
 
@@ -157,7 +157,7 @@ EXPORT void HkTimerCheckKick() {
                     TEMPBAN_BAN_STRUCT tempban;
                     tempban.iClientID = iClientID;
                     tempban.iDuration = 1; // 1 minute
-                    Plugin_Communication(TEMPBAN_BAN, &tempban);
+                    PluginCommunication(TEMPBAN_BAN, &tempban);
                 }
             }
         }
@@ -593,7 +593,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
+EXPORT void PluginCommunicationCallBack(PLUGIN_MESSAGE msg, void *data) {
 
     // this is the hooked plugin communication function
 
@@ -690,6 +690,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &HkIServerImpl::PlayerLaunch);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
-    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &Plugin_Communication_CallBack);
+    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunicationCallBack);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 }

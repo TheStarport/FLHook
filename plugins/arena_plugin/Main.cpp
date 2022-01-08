@@ -8,7 +8,6 @@
 
 // Includes
 
-#include "../hookext_plugin/hookext_exports.h"
 #include <FLHook.h>
 #include <plugin.h>
 #include <plugin_comms.h>
@@ -115,7 +114,7 @@ uint GetCustomBaseForClient(unsigned int client) {
     CUSTOM_BASE_IS_DOCKED_STRUCT info;
     info.iClientID = client;
     info.iDockedBaseID = 0;
-    Plugin_Communication(CUSTOM_BASE_IS_DOCKED, &info);
+    PluginCommunication(CUSTOM_BASE_IS_DOCKED, &info);
     return info.iDockedBaseID;
 }
 
@@ -140,7 +139,7 @@ void MoveClient(unsigned int client, unsigned int targetBase) {
     info.iClientID = client;
     info.iTargetBaseID = targetBase;
     info.bBeamed = false;
-    Plugin_Communication(CUSTOM_BASE_BEAM, &info);
+    PluginCommunication(CUSTOM_BASE_BEAM, &info);
     if (info.bBeamed)
         return;
 
