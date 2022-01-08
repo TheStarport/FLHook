@@ -66,7 +66,7 @@
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Message_Plugin.ini" />
+    <None Include="message.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

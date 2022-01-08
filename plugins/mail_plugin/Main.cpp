@@ -1,137 +1,192 @@
-// This is a template with the bare minimum to have a functional plugin.
+// Mail Plugin - Feb 2010 by Cannon
+//
+// Ported by Raikkonen 2022
 //
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
+//
 
-// Includes
-#include "Main.h" 
+#include "Main.h"
 
-// Load configuration file
-void LoadSettings()
-{
-	
+static const int MAX_MAIL_MSGS = 40;
 
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string configFile = std::string(szCurDir) + "\\flhook_plugins\\Mail_Plugin.ini";
+/** Show five messages from the specified starting position. */
+void MailShow(const std::wstring &wscCharname, const std::string &scExtension,
+              int iFirstMsg) {
+    // Make sure the character is logged in.
+    uint iClientID = HkGetClientIdFromCharname(wscCharname);
+    if (iClientID == -1)
+        return;
 
-	INI_Reader ini;
-	if (ini.open(configFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{	
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("debug"))
-					{ 
-						set_iPluginDebug = ini.get_value_int(0);
-					}					
-				}
-			}
-		}
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return;
 
-		if (set_iPluginDebug&1)
-		{
-			ConPrint(L"Debug\n");
-		}
-
-		ini.close();
-	}	
+    int iLastMsg = iFirstMsg;
+    for (int iMsgSlot = iFirstMsg, iMsgCount = 0;
+         iMsgSlot < MAX_MAIL_MSGS && iMsgCount < 5; iMsgSlot++, iMsgCount++) {
+        std::wstring wscTmpMsg =
+            IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
+        if (wscTmpMsg.length() == 0)
+            break;
+        PrintUserCmdText(iClientID, L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
+        IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), "yes");
+        iLastMsg = iMsgSlot;
+    }
+    PrintUserCmdText(iClientID, L"Viewing #%02d-#%02d of %02d messages",
+                     iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
 }
 
-// Do something every 100 seconds
-void HkTimer()
-{
-	if ((time(0) % 100) == 0)
-	{
-		// Do something here
-	}
+/** Return the number of unread messages. */
+int MailCountUnread(const std::wstring &wscCharname,
+                    const std::string &scExtension) {
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return 0;
+
+    int iUnreadMsgs = 0;
+    for (int iMsgSlot = 1; iMsgSlot < MAX_MAIL_MSGS; iMsgSlot++) {
+        if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "")
+                .length() == 0)
+            break;
+        if (!IniGetB(scFilePath, "MsgsRead", std::to_string(iMsgSlot), false))
+            iUnreadMsgs++;
+    }
+    return iUnreadMsgs;
+}
+
+/** Return the number of messages. */
+int MailCount(const std::wstring &wscCharname, const std::string &scExtension) {
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return 0;
+
+    int iMsgs = 0;
+    for (int iMsgSlot = 1; iMsgSlot < MAX_MAIL_MSGS; iMsgSlot++) {
+        if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "")
+                .length() == 0)
+            break;
+        iMsgs++;
+    }
+    return iMsgs;
+}
+
+/** Check for new or unread messages. */
+void MailCheckLog(const std::wstring &wscCharname,
+                  const std::string &scExtension) {
+    // Make sure the character is logged in.
+    uint iClientID = HkGetClientIdFromCharname(wscCharname);
+    if (iClientID == -1)
+        return;
+
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return;
+
+    // If there are unread messaging then inform the player
+    int iUnreadMsgs = MailCountUnread(wscCharname, scExtension);
+    if (iUnreadMsgs > 0) {
+        PrintUserCmdText(
+            iClientID,
+            L"You have %d unread messages. Type /mail to see your messages",
+            iUnreadMsgs);
+    }
+}
+
+/**
+ Save a msg to disk so that we can inform the receiving character
+ when they log in.
+*/
+bool MailSend(const std::wstring &wscCharname, const std::string &scExtension,
+              const std::wstring &wscMsg) {
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return false;
+
+    // Move all mail up one slot starting at the end. We automatically
+    // discard the oldest messages.
+    for (int iMsgSlot = MAX_MAIL_MSGS - 1; iMsgSlot > 0; iMsgSlot--) {
+        std::wstring wscTmpMsg =
+            IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
+        IniWriteW(scFilePath, "Msgs", std::to_string(iMsgSlot + 1), wscTmpMsg);
+
+        bool bTmpRead =
+            IniGetB(scFilePath, "MsgsRead", std::to_string(iMsgSlot), false);
+        IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot + 1),
+                 (bTmpRead ? "yes" : "no"));
+    }
+
+    // Write message into the slot
+    IniWriteW(scFilePath, "Msgs", "1",
+              GetTimeString(set_bLocalTime) + L" " + wscMsg);
+    IniWrite(scFilePath, "MsgsRead", "1", "no");
+    return true;
+}
+
+/**
+        Delete a message
+*/
+bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
+             int iMsg) {
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return false;
+
+    // Move all mail down one slot starting at the deleted message to overwrite
+    // it
+    for (int iMsgSlot = iMsg; iMsgSlot < MAX_MAIL_MSGS; iMsgSlot++) {
+        std::wstring wscTmpMsg =
+            IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot + 1), L"");
+        IniWriteW(scFilePath, "Msgs", std::to_string(iMsgSlot), wscTmpMsg);
+
+        bool bTmpRead = IniGetB(scFilePath, "MsgsRead",
+                                std::to_string(iMsgSlot + 1), false);
+        IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot),
+                 (bTmpRead ? "yes" : "no"));
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Demo command
-void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"OK");
-	return true;
-}
-
-// Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
-{
-	
-	PrintUserCmdText(iClientID, L"/template");
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable chat commands here
-USERCMD UserCmds[] =
-{
-	{ L"/template", UserCmd_Template, L"Usage: /template" },
+// Client command processing
+USERCMD UserCmds[] = {
+    {L"/afk", UserCmd_AFK},
+    {L"/back", UserCmd_Back},
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Demo admin command
-void AdminCmd_Template(CCmds* cmds, float number)
-{
-	if (cmds->ArgStrToEnd(1).length() == 0)
-	{
-		cmds->Print(L"ERR Usage: template <number>\n");
-		return;
-	}
-
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	cmds->Print(L"Template is %0.0f\n", number);
-	return;
+// Hook on /help
+EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    PrintUserCmdText(iClientID, L"/afk ");
+    PrintUserCmdText(iClientID,
+                     L"Sets the player to AFK. If any other player messages "
+                     L"directly, they will be told you are afk.");
+    PrintUserCmdText(iClientID, L"/back ");
+    PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMAND PROCESSING
+// Admin commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Define usable admin commands here
-void CmdHelp_Callback(CCmds* classptr)
-{
-	
-	classptr->Print(L"template <number>\n");
-}
-
-// Admin command callback. Compare the chat entry to see if it match a command
-bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
-{
-	
-
-	if (IS_CMD("template"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_Template(cmds, cmds->ArgFloat(1));
-		return true;
-	}
-
-	return false;
+void Message::AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname,
+                                const std::wstring &wscMsg) {
+    Mail::MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
+    cmds->Print(L"OK message saved to mailbox\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,32 +194,18 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
-		LoadSettings();
-
-	return true;
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
-	p_PI->sName = "Mail Plugin";
-	p_PI->sShortName = "Mail_Plugin";
-	p_PI->bMayPause = true;
-	p_PI->bMayUnload = true;
-	p_PI->ePluginReturnCode = &returncode;
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-	}
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Mail");
+    pi->shortName("mail");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+
+}
