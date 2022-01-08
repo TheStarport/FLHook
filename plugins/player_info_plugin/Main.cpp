@@ -1,137 +1,178 @@
-// This is a template with the bare minimum to have a functional plugin.
+// Player Info - Feb 2010 by Cannon
+//
+// Ported by Raikkonen 2022
 //
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.h" 
+#include <FLHook.h>
+#include <plugin.h>
+#include <plugin_comms.h>
 
-// Load configuration file
-void LoadSettings()
-{
-	
+// Global vars
+ReturnCode returncode;
 
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string configFile = std::string(szCurDir) + "\\flhook_plugins\\Player_Info_Plugin.ini";
+#define POPUPDIALOG_BUTTONS_LEFT_YES 1
+#define POPUPDIALOG_BUTTONS_CENTER_NO 2
+#define POPUPDIALOG_BUTTONS_RIGHT_LATER 4
+#define POPUPDIALOG_BUTTONS_CENTER_OK 8
 
-	INI_Reader ini;
-	if (ini.open(configFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{	
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("debug"))
-					{ 
-						set_iPluginDebug = ini.get_value_int(0);
-					}					
-				}
-			}
-		}
+#define RSRCID_PLAYERINFO_TITLE 500000
+#define RSRCID_PLAYERINFO_TEXT RSRCID_PLAYERINFO_TITLE + 1
+#define MAX_PARAGRAPHS 5
+#define MAX_CHARACTERS 1000
 
-		if (set_iPluginDebug&1)
-		{
-			ConPrint(L"Debug\n");
-		}
+static std::wstring IniGetLongWS(const std::string &scFile,
+                                 const std::string &scApp,
+                                 const std::string &scKey,
+                                 const std::wstring &wscDefault) {
+    char szRet[0x10000];
+    GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet,
+                            sizeof(szRet), scFile.c_str());
+    std::string scValue = szRet;
+    if (!scValue.length())
+        return wscDefault;
 
-		ini.close();
-	}	
+    std::wstring wscValue = L"";
+    long lHiByte;
+    long lLoByte;
+    while (sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2) {
+        scValue = scValue.substr(4);
+        wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
+        wscValue.append(1, wChar);
+    }
+
+    return wscValue;
 }
 
-// Do something every 100 seconds
-void HkTimer()
-{
-	if ((time(0) % 100) == 0)
-	{
-		// Do something here
-	}
+void UserCmd_ShowInfo(uint iClientID, const std::wstring &wscParam) {
+    const wchar_t *wszTargetName = 0;
+    const std::wstring &wscCommand = GetParam(wscParam, ' ', 0);
+    if (wscCommand == L"me") {
+        wszTargetName =
+            (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+    } else {
+        uint iShip;
+        pub::Player::GetShip(iClientID, iShip);
+
+        uint iTargetShip;
+        pub::SpaceObj::GetTarget(iShip, iTargetShip);
+
+        uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
+        if (HkIsValidClientID(iTargetClientID))
+            wszTargetName = (const wchar_t *)Players.GetActiveCharacterName(
+                iTargetClientID);
+    }
+
+    if (!wszTargetName) {
+        PrintUserCmdText(iClientID, L"ERR No target");
+        return;
+    }
+
+    std::string scFilePath = GetUserFilePath(wszTargetName, "-info.ini");
+    std::wstring wscPlayerInfo = L"<RDL><PUSH/>";
+    for (int i = 1; i <= MAX_PARAGRAPHS; i++) {
+        std::wstring wscXML =
+            IniGetLongWS(scFilePath, "Info", std::to_string(i), L"");
+        if (wscXML.length())
+            wscPlayerInfo += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
+    }
+    std::wstring wscXML = IniGetLongWS(scFilePath, "Info", "AdminNote", L"");
+    if (wscXML.length())
+        wscPlayerInfo += L"<TEXT>" + wscXML + L"</TEXT><PARA/><PARA/>";
+    wscPlayerInfo += L"<POP/></RDL>";
+
+    if (wscPlayerInfo.length() < 30) {
+        PrintUserCmdText(iClientID, L"ERR No information available");
+        return;
+    }
+
+    HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TITLE, wszTargetName);
+    HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TEXT, wscPlayerInfo);
+
+    FmtStr caption(0, 0);
+    caption.begin_mad_lib(RSRCID_PLAYERINFO_TITLE);
+    caption.end_mad_lib();
+
+    FmtStr message(0, 0);
+    message.begin_mad_lib(RSRCID_PLAYERINFO_TEXT);
+    message.end_mad_lib();
+
+    pub::Player::PopUpDialog(iClientID, caption, message,
+                             POPUPDIALOG_BUTTONS_CENTER_OK);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Demo command
-void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"OK");
-	return true;
+static int CurrLength(const std::string &scFilePath) {
+    int iCount = 0;
+    for (int i = 1; i <= MAX_PARAGRAPHS; i++) {
+        iCount +=
+            IniGetLongWS(scFilePath, "Info", std::to_string(i), L"").length();
+    }
+    return iCount;
 }
 
-// Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
-{
-	
-	PrintUserCmdText(iClientID, L"/template");
+void UserCmd_SetInfo(uint iClientID, const std::wstring &wscParam) {
+    uint iPara = ToInt(GetParam(wscParam, ' ', 0));
+    const std::wstring &wscCommand = GetParam(wscParam, ' ', 1);
+    const std::wstring &wscMsg = GetParamToEnd(wscParam, ' ', 2);
+
+    std::string scFilePath = GetUserFilePath(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID),
+        "-info.ini");
+    if (scFilePath.length() == 0)
+        return;
+
+    if (iPara > 0 && iPara <= MAX_PARAGRAPHS && wscCommand == L"a") {
+        int length = CurrLength(scFilePath) + wscMsg.length();
+        if (length > MAX_CHARACTERS) {
+            PrintUserCmdText(iClientID, L"ERR Too many characters. Limit is %d",
+                             MAX_CHARACTERS);
+            return;
+        }
+
+        std::wstring wscNewMsg =
+            IniGetLongWS(scFilePath, "Info", std::to_string(iPara), L"") +
+            XMLText(wscMsg);
+        IniWriteW(scFilePath, "Info", std::to_string(iPara), wscNewMsg);
+        PrintUserCmdText(iClientID, L"OK %d/%d characters used", length,
+                         MAX_CHARACTERS);
+    } else if (iPara > 0 && iPara <= MAX_PARAGRAPHS && wscCommand == L"d") {
+        IniWriteW(scFilePath, "Info", std::to_string(iPara), L"");
+        PrintUserCmdText(iClientID, L"OK");
+    } else {
+        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+        PrintUserCmdText(iClientID, L"/setinfo <paragraph> <command> <text>");
+        PrintUserCmdText(
+            iClientID, L"|  <paragraph> The paragraph number in the range 1-%d",
+            MAX_PARAGRAPHS);
+        PrintUserCmdText(iClientID,
+                         L"|  <command> The command to perform on the "
+                         L"paragraph, 'a' for append, 'd' for delete");
+    }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable chat commands here
-USERCMD UserCmds[] =
-{
-	{ L"/template", UserCmd_Template, L"Usage: /template" },
+// Client command processing
+USERCMD UserCmds[] = {
+    {L"/showinfo", UserCmd_ShowInfo},
+    {L"/si", UserCmd_ShowInfo},
+    {L"/setinfo", UserCmd_SetInfo},
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Demo admin command
-void AdminCmd_Template(CCmds* cmds, float number)
-{
-	if (cmds->ArgStrToEnd(1).length() == 0)
-	{
-		cmds->Print(L"ERR Usage: template <number>\n");
-		return;
-	}
-
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
-	{
-		cmds->Print(L"ERR No permission\n");
-		return;
-	}
-
-	cmds->Print(L"Template is %0.0f\n", number);
-	return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable admin commands here
-void CmdHelp_Callback(CCmds* classptr)
-{
-	
-	classptr->Print(L"template <number>\n");
-}
-
-// Admin command callback. Compare the chat entry to see if it match a command
-bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
-{
-	
-
-	if (IS_CMD("template"))
-	{
-		returncode = SKIPPLUGINS_NOFUNCTIONCALL;
-		AdminCmd_Template(cmds, cmds->ArgFloat(1));
-		return true;
-	}
-
-	return false;
+// Hook on /help
+EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    PrintUserCmdText(iClientID, L"/afk ");
+    PrintUserCmdText(iClientID,
+                     L"Sets the player to AFK. If any other player messages "
+                     L"directly, they will be told you are afk.");
+    PrintUserCmdText(iClientID, L"/back ");
+    PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,32 +180,17 @@ bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
-		LoadSettings();
-
-	return true;
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return true;
 }
 
 // Functions to hook
-EXPORT PLUGIN_INFO* Get_PluginInfo()
-{
-	PLUGIN_INFO* p_PI = new PLUGIN_INFO();
-	p_PI->sName = "Player Info Plugin";
-	p_PI->sShortName = "Player_Info_Plugin";
-	p_PI->bMayPause = true;
-	p_PI->bMayUnload = true;
-	p_PI->ePluginReturnCode = &returncode;
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&HkTimer, PLUGIN_HkTimerCheckKick, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Process, PLUGIN_UserCmd_Process, 0));
-	pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC*)&UserCmd_Help, PLUGIN_UserCmd_Help, 0));
-	}
+EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Player Info by Cannon");
+    pi->shortName("player_info");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+}
