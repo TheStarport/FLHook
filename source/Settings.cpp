@@ -20,6 +20,7 @@ float set_fTorpMissileBaseDamageMultiplier;
 uint set_iMaxGroupSize;
 uint set_iDisableNPCSpawns;
 bool set_bPersistGroup;
+bool set_bLocalTime;
 
 // log
 bool set_bDebug;
@@ -128,6 +129,7 @@ void LoadSettings() {
     set_iMaxGroupSize = IniGetI(set_scCfgFile, "General", "MaxGroupSize", 8);
     set_bPersistGroup =
         IniGetB(set_scCfgFile, "General", "PersistGroup", false);
+    set_bLocalTime = IniGetB(set_scCfgFile, "General", "LocalTime", false);
 
     // Log
     set_bDebug = IniGetB(set_scCfgFile, "Log", "Debug", false);

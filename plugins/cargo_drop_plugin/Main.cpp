@@ -23,9 +23,6 @@ bool set_bKillDisconnectingPlayers = false;
 /// players.
 bool set_bLootDisconnectingPlayers = true;
 
-// Convert to local time?
-bool set_bLocalTime = false;
-
 /// The container to contain loot in when it's dropped by the ship.
 static int set_iLootCrateID = 0;
 
@@ -66,8 +63,6 @@ void LoadSettings() {
         IniGetB(scPluginCfgFile, "General", "KillDisconnectingPlayers", false);
     set_bLootDisconnectingPlayers =
         IniGetB(scPluginCfgFile, "General", "LootDisconnectingPlayers", false);
-    set_bLocalTime =
-        IniGetB(scPluginCfgFile, "General", "LocalTime", false);
     set_fDisconnectingPlayersRange = IniGetF(
         scPluginCfgFile, "General", "DisconnectingPlayersRange", 5000.0f);
 

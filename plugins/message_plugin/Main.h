@@ -2,8 +2,8 @@
 
 #include <FLHook.h>
 #include <plugin.h>
-#include "../hookext_plugin/hookext_exports.h"
 #include <plugin_comms.h>
+#include "../hookext_plugin/hookext_exports.h"
 
 ReturnCode returncode;
 
@@ -66,6 +66,14 @@ static bool set_bCmdHide;
 /** if true support the /showmsg and /setmsg commands */
 static bool set_bSetMsg;
 
+// Enable /me and /do commands
+bool set_bEnableMe = false;
+bool set_bEnableDo = false;
+
+/** This parameter is sent when we send a chat time line so that we don't print
+a time chat line recursively. */
+static bool bSendingTime = false;
+
 /** color of echoed commands */
 static std::wstring set_wscCmdEchoStyle;
 
@@ -78,3 +86,6 @@ static std::list<std::wstring> set_lstSwearWords;
 
 /** A random macro to make things easier */
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+
+void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring &wscParam);
+void UserCmd_SendToLastTarget(uint iClientID, const std::wstring &wscParam);

@@ -69,6 +69,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mail", "..\plugins\mail_plugin\Mail Plugin.vcxproj", "{CC79FB68-E0A8-45D9-80ED-303F5F0F5232}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Message", "..\plugins\message_plugin\Message Plugin.vcxproj", "{F36013A1-7A38-49E1-9994-C7E8B61E1E21}"
+	ProjectSection(ProjectDependencies) = postProject
+		{81D33B95-1DDD-4F58-A24C-E2EC4A143DD0} = {81D33B95-1DDD-4F58-A24C-E2EC4A143DD0}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Misc Commands", "..\plugins\misc_commands_plugin\Misc Commands Plugin.vcxproj", "{60128B2F-1208-4E17-9420-FBDBDD89F118}"
 EndProject

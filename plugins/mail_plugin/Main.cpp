@@ -7,30 +7,31 @@
 // being notified and/or mentioned somewhere.
 //
 
-#include "Main.h"
+#include <FLHook.h>
+#include <plugin.h>
+#include <plugin_comms.h>
 
-bool set_bLocalTime = false;
+ReturnCode returncode;
+
+/** The messaging plugin message log for offline players */
+static std::string MSG_LOG = "-mail.ini";
 static const int MAX_MAIL_MSGS = 40;
 
-void LoadSettings() {
-    // The path to the configuration file.
-    char szCurDir[MAX_PATH];
-    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-    std::string scPluginCfgFile =
-        std::string(szCurDir) + "\\flhook_plugins\\mail.cfg";
+/** Return the number of messages. */
+int MailCount(const std::wstring &wscCharname, const std::string &scExtension) {
+    // Get the target player's message file.
+    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
+    if (scFilePath.length() == 0)
+        return 0;
 
-    set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
-}
-
-void PlayerLaunch(uint iShip, unsigned int iClientID) {
-    MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
-}
-
-/// On base entry events and reload the msg cache for the client.
-void BaseEnter(uint iBaseID, uint iClientID) {
-    MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+    int iMsgs = 0;
+    for (int iMsgSlot = 1; iMsgSlot < MAX_MAIL_MSGS; iMsgSlot++) {
+        if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "")
+                .length() == 0)
+            break;
+        iMsgs++;
+    }
+    return iMsgs;
 }
 
 /** Show five messages from the specified starting position. */
@@ -78,23 +79,6 @@ int MailCountUnread(const std::wstring &wscCharname,
             iUnreadMsgs++;
     }
     return iUnreadMsgs;
-}
-
-/** Return the number of messages. */
-int MailCount(const std::wstring &wscCharname, const std::string &scExtension) {
-    // Get the target player's message file.
-    std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
-    if (scFilePath.length() == 0)
-        return 0;
-
-    int iMsgs = 0;
-    for (int iMsgSlot = 1; iMsgSlot < MAX_MAIL_MSGS; iMsgSlot++) {
-        if (IniGetS(scFilePath, "Msgs", std::to_string(iMsgSlot), "")
-                .length() == 0)
-            break;
-        iMsgs++;
-    }
-    return iMsgs;
 }
 
 /** Check for new or unread messages. */
@@ -148,6 +132,9 @@ bool MailSend(const std::wstring &wscCharname, const std::string &scExtension,
     IniWriteW(scFilePath, "Msgs", "1",
               GetTimeString(set_bLocalTime) + L" " + wscMsg);
     IniWrite(scFilePath, "MsgsRead", "1", "no");
+
+    // Call the CheckLog function to prompt the target to check their mail if they are logged in
+    MailCheckLog(wscCharname,MSG_LOG);
     return true;
 }
 
@@ -174,6 +161,31 @@ bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
                  (bTmpRead ? "yes" : "no"));
     }
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hooks
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PlayerLaunch(uint iShip, unsigned int iClientID) {
+    MailCheckLog(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+}
+
+/// On base entry events and reload the msg cache for the client.
+void BaseEnter(uint iBaseID, uint iClientID) {
+    MailCheckLog(
+        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+}
+
+EXPORT void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
+    if (msg == MAIL) {
+        auto *incoming_data = static_cast<CUSTOM_MAIL_STRUCT *>(data);
+
+        // do something here with the received data & instruction
+        MailSend(incoming_data->wscTargetCharname, MSG_LOG, incoming_data->wscMsg);
+    }
+    return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,7 +281,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
 
     if (IS_CMD("move")) {
         returncode = ReturnCode::SkipAll;
-        AdminCmd_SendMail(cmds, cmds->ArgStr(0), cmds->ArgStrToEnd(1)););
+        AdminCmd_SendMail(cmds, cmds->ArgStr(0), cmds->ArgStrToEnd(1));
         return true;
     }
     return false;
@@ -295,7 +307,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
     pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-
+    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunication);
 }

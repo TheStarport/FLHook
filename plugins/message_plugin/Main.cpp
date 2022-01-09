@@ -5,7 +5,6 @@
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
-//
 
 #include "Main.h"
 
@@ -112,6 +111,67 @@ static bool ReplaceMessageTags(uint iClientID, INFO &clientData,
     return true;
 }
 
+std::wstring GetPresetMessage(uint iClientID, int iMsgSlot) {
+    auto iter = mapInfo.find(iClientID);
+    if (iter == mapInfo.end() || iter->second.slot[iMsgSlot].size() == 0) {
+        PrintUserCmdText(iClientID, L"ERR No message defined");
+        return L"";
+    }
+
+    // Replace the tag #t with name of the targeted player.
+    std::wstring wscMsg = iter->second.slot[iMsgSlot];
+    if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
+        return L"";
+
+    return wscMsg;
+}
+
+/** Send an preset message to the local system chat */
+void SendPresetLocalMessage(uint iClientID, int iMsgSlot) {
+    if (!set_bSetMsg)
+        return;
+
+    if (iMsgSlot < 0 || iMsgSlot > 9) {
+        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+        PrintUserCmdText(iClientID, L"Usage: /ln (n=0-9)");
+        return;
+    }
+
+    SendLocalSystemChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
+}
+
+/** Send a preset message to the last/current target. */
+void SendPresetToLastTarget(uint iClientID, int iMsgSlot) {
+    if (!set_bSetMsg)
+        return;
+
+    UserCmd_SendToLastTarget(iClientID, GetPresetMessage(iClientID, iMsgSlot));
+}
+
+/** Send an preset message to the system chat */
+void SendPresetSystemMessage(uint iClientID, int iMsgSlot) {
+    if (!set_bSetMsg)
+        return;
+
+    SendSystemChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
+}
+
+/** Send an preset message to the last PM sender */
+void SendPresetLastPMSender(uint iClientID, int iMsgSlot, std::wstring wscMsg) {
+    if (!set_bSetMsg)
+        return;
+
+    UserCmd_ReplyToLastPMSender(iClientID, GetPresetMessage(iClientID, iMsgSlot));
+}
+
+/** Send an preset message to the group chat */
+void SendPresetGroupMessage(uint iClientID, int iMsgSlot) {
+    if (!set_bSetMsg)
+        return;
+
+    SendGroupChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
+}
+
 /** Clean up when a client disconnects */
 void ClearClientInfo(uint iClientID) { mapInfo.erase(iClientID); }
 
@@ -126,22 +186,23 @@ void LoadSettings() {
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
     std::string scPluginCfgFile =
         std::string(szCurDir) + "\\flhook_plugins\\message.cfg";
-
-    set_bCustomHelp = IniGetB(scPluginCfgFile, "Message", "CustomHelp", true);
-    set_bCmdEcho = IniGetB(scPluginCfgFile, "Message", "CmdEcho", true);
-    set_bCmdHide = IniGetB(scPluginCfgFile, "Message", "CmdHide", true);
+    set_bEnableMe = IniGetB(scPluginCfgFile, "General", "EnableMe", true);
+    set_bEnableDo = IniGetB(scPluginCfgFile, "General", "EnableDo", true);
+    set_bCustomHelp = IniGetB(scPluginCfgFile, "General", "CustomHelp", true);
+    set_bCmdEcho = IniGetB(scPluginCfgFile, "General", "CmdEcho", true);
+    set_bCmdHide = IniGetB(scPluginCfgFile, "General", "CmdHide", true);
     set_wscCmdEchoStyle = stows(
-        IniGetS(scPluginCfgFile, "Message", "CmdEchoStyle", "0x00AA0090"));
+        IniGetS(scPluginCfgFile, "General", "CmdEchoStyle", "0x00AA0090"));
     set_iStandardBannerTimeout =
-        IniGetI(scPluginCfgFile, "Message", "StandardBannerDelay", 5);
+        IniGetI(scPluginCfgFile, "General", "StandardBannerDelay", 5);
     set_iSpecialBannerTimeout =
-        IniGetI(scPluginCfgFile, "Message", "SpecialBannerDelay", 60);
+        IniGetI(scPluginCfgFile, "General", "SpecialBannerDelay", 60);
     set_wscDisconnectSwearingInSpaceMsg = stows(
-        IniGetS(scPluginCfgFile, "Message", "DisconnectSwearingInSpaceMsg",
+        IniGetS(scPluginCfgFile, "General", "DisconnectSwearingInSpaceMsg",
                 "%player has been kicked for swearing"));
     set_fDisconnectSwearingInSpaceRange = IniGetF(
-        scPluginCfgFile, "Message", "DisconnectSwearingInSpaceRange", 5000.0f);
-    set_bSetMsg = IniGetB(scPluginCfgFile, "Message", "SetMsg", false);
+        scPluginCfgFile, "General", "DisconnectSwearingInSpaceRange", 5000.0f);
+    set_bSetMsg = IniGetB(scPluginCfgFile, "General", "SetMsg", false);
 
     // For every active player load their msg settings.
     std::list<HKPLAYERINFO> players = HkGetPlayers();
@@ -323,13 +384,27 @@ bool SubmitChat(CHAT_ID cId, unsigned long iSize,
     return false;
 }
 
-/** This parameter is sent when we send a chat time line so that we don't print
-a time chat line recursively. */
-static bool bSendingTime = false;
+void RedText(std::wstring wscXMLMsg, uint iSystemID) {
+    char szBuf[0x1000];
+    uint iRet;
+    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
+        return;
+
+    // Send to all players in system
+    struct PlayerData *pPD = 0;
+    while (pPD = Players.traverse_active(pPD)) {
+        uint iClientID = HkGetClientIdFromPD(pPD);
+        uint iClientSystemID = 0;
+        pub::Player::GetSystem(iClientID, iClientSystemID);
+
+        if (iSystemID == iClientSystemID)
+            HkFMsgSendChat(iClientID, szBuf, iRet);
+    }
+}
 
 /** When a chat message is sent to a client and this client has showchattime on
 insert the time on the line immediately before the chat message */
-bool HkCb_SendChat(uint iClientID, uint iTo, uint iSize,
+bool SendChat(uint iClientID, uint iTo, uint iSize,
                             void *rdlReader) {
     // Return immediately if the chat line is the time.
     if (bSendingTime)
@@ -371,20 +446,22 @@ bool HkCb_SendChat(uint iClientID, uint iTo, uint iSize,
     return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// USER COMMANDS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /** Set an preset message */
-bool UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd,
-                             const std::wstring &wscParam,
-                             const wchar_t *usage) {
+void UserCmd_SetMsg(uint iClientID, const std::wstring &wscParam) {
     if (!set_bSetMsg)
-        return false;
+        return;
 
     int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
     std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
     if (iMsgSlot < 0 || iMsgSlot > 9 || wscParam.size() == 0) {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
+        PrintUserCmdText(iClientID, L"Usage: /setmsg <n> <msg text>");
+        return;
     }
 
     HookExt::IniSetWS(iClientID, "msg." + std::to_string(iMsgSlot), wscMsg);
@@ -392,217 +469,256 @@ bool UserCmd_SetMsg(uint iClientID, const std::wstring &wscCmd,
     // Reload the character cache
     LoadMsgs(iClientID);
     PrintUserCmdText(iClientID, L"OK");
-    return true;
 }
 
 /** Show preset messages */
-bool UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscCmd,
-                               const std::wstring &wscParam,
-                               const wchar_t *usage) {
+void UserCmd_ShowMsgs(uint iClientID, const std::wstring &wscParam) {
     if (!set_bSetMsg)
-        return false;
+        return;
 
     auto iter = mapInfo.find(iClientID);
     if (iter == mapInfo.end()) {
         PrintUserCmdText(iClientID, L"ERR No messages");
-        return true;
+        return;
     }
 
     for (int i = 0; i < INFO::NUMBER_OF_SLOTS; i++) {
         PrintUserCmdText(iClientID, L"%d: %s", i, iter->second.slot[i].c_str());
     }
     PrintUserCmdText(iClientID, L"OK");
-    return true;
 }
 
-/** Send an preset message to the system chat */
-bool UserCmd_SMsg(uint iClientID, const std::wstring &wscCmd,
-                           const std::wstring &wscParam, const wchar_t *usage) {
-    if (!set_bSetMsg)
-        return false;
-
-    int iMsgSlot = ToInt(wscCmd.substr(1, 1));
-    if (iMsgSlot < 0 || iMsgSlot > 9) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-
-    auto iter = mapInfo.find(iClientID);
-    if (iter == mapInfo.end() || iter->second.slot[iMsgSlot].size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
-    }
-
-    // Replace the tag #t with name of the targeted player.
-    std::wstring wscMsg = iter->second.slot[iMsgSlot];
-    if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
-        return true;
-
-    SendSystemChat(iClientID, wscMsg);
-
-    return true;
+// User Commands for /r0-9
+void UserCmd_RMsg0(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 0, wscParam);
 }
 
-/** Send an preset message to the local system chat */
-bool UserCmd_LMsg(uint iClientID, const std::wstring &wscCmd,
-                           const std::wstring &wscParam, const wchar_t *usage) {
-    if (!set_bSetMsg)
-        return false;
-
-    int iMsgSlot = ToInt(wscCmd.substr(2, 1));
-    if (iMsgSlot < 0 || iMsgSlot > 9) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-
-    auto iter = mapInfo.find(iClientID);
-    if (iter == mapInfo.end() || iter->second.slot[iMsgSlot].size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
-    }
-
-    // Replace the tag #t with name of the targeted player.
-    std::wstring wscMsg = iter->second.slot[iMsgSlot];
-    if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
-        return true;
-
-    SendLocalSystemChat(iClientID, wscMsg);
-
-    return true;
+void UserCmd_RMsg1(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 1, wscParam);
 }
 
-/** Send an preset message to the group chat */
-bool UserCmd_GMsg(uint iClientID, const std::wstring &wscCmd,
-                           const std::wstring &wscParam, const wchar_t *usage) {
-    if (!set_bSetMsg)
-        return false;
+void UserCmd_RMsg2(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 2, wscParam);
+}
 
-    int iMsgSlot = ToInt(wscCmd.substr(2, 1));
-    if (iMsgSlot < 0 || iMsgSlot > 9) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
+void UserCmd_RMsg3(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 3, wscParam);
+}
 
-    auto iter = mapInfo.find(iClientID);
-    if (iter == mapInfo.end() || iter->second.slot[iMsgSlot].size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
-    }
+void UserCmd_RMsg4(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 4, wscParam);
+}
 
-    // Replace the tag #t with name of the targeted player.
-    std::wstring wscMsg = iter->second.slot[iMsgSlot];
-    if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
-        return true;
+void UserCmd_RMsg5(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 5, wscParam);
+}
 
-    SendGroupChat(iClientID, wscMsg);
-    return true;
+void UserCmd_RMsg6(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 6, wscParam);
+}
+
+void UserCmd_RMsg7(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 7, wscParam);
+}
+
+void UserCmd_RMsg8(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 8, wscParam);
+}
+
+void UserCmd_RMsg9(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLastPMSender(iClientID, 9, wscParam);
+}
+
+// User Commands for /s0-9
+void UserCmd_SMsg0(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 0);
+}
+
+void UserCmd_SMsg1(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 1);
+}
+
+void UserCmd_SMsg2(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 2);
+}
+
+void UserCmd_SMsg3(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 3);
+}
+
+void UserCmd_SMsg4(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 4);
+}
+
+void UserCmd_SMsg5(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 5);
+}
+
+void UserCmd_SMsg6(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 6);
+}
+
+void UserCmd_SMsg7(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 7);
+}
+
+void UserCmd_SMsg8(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 8);
+}
+
+void UserCmd_SMsg9(uint iClientID, const std::wstring &wscParam) {
+    SendPresetSystemMessage(iClientID, 0);
+}
+
+// User Commands for /l0-9
+void UserCmd_LMsg0(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 0);
+}
+
+void UserCmd_LMsg1(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 1);
+}
+
+void UserCmd_LMsg2(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 2);
+}
+
+void UserCmd_LMsg3(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 3);
+}
+
+void UserCmd_LMsg4(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 4);
+}
+
+void UserCmd_LMsg5(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 5);
+}
+
+void UserCmd_LMsg6(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 6);
+}
+
+void UserCmd_LMsg7(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 7);
+}
+
+void UserCmd_LMsg8(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 8);
+}
+
+void UserCmd_LMsg9(uint iClientID, const std::wstring &wscParam) {
+    SendPresetLocalMessage(iClientID, 9);
+}
+
+// User Commands for /g0-9
+void UserCmd_GMsg0(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 0);
+}
+
+void UserCmd_GMsg1(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 1);
+}
+
+void UserCmd_GMsg2(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 2);
+}
+
+void UserCmd_GMsg3(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 3);
+}
+
+void UserCmd_GMsg4(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 4);
+}
+
+void UserCmd_GMsg5(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 5);
+}
+
+void UserCmd_GMsg6(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 6);
+}
+
+void UserCmd_GMsg7(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 7);
+}
+
+void UserCmd_GMsg8(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 8);
+}
+
+void UserCmd_GMsg9(uint iClientID, const std::wstring &wscParam) {
+    SendPresetGroupMessage(iClientID, 9);
+}
+
+void UserCmd_TMsg0(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 0);
+}
+
+void UserCmd_TMsg1(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 1);
+}
+
+void UserCmd_TMsg2(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 2);
+}
+
+void UserCmd_TMsg3(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 3);
+}
+
+void UserCmd_TMsg4(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 4);
+}
+
+void UserCmd_TMsg5(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 5);
+}
+
+void UserCmd_TMsg6(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 6);
+}
+
+void UserCmd_TMsg7(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 7);
+}
+
+void UserCmd_TMsg8(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 8);
+}
+
+void UserCmd_TMsg9(uint iClientID, const std::wstring &wscParam) {
+    SendPresetToLastTarget(iClientID, 9);
 }
 
 /** Send an message to the last person that PM'd this client. */
-bool UserCmd_ReplyToLastPMSender(uint iClientID,
-                                          const std::wstring &wscCmd,
-                                          const std::wstring &wscParam,
-                                          const wchar_t *usage) {
+void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring &wscParam) {
     auto iter = mapInfo.find(iClientID);
     if (iter == mapInfo.end()) {
         // There's no way for this to happen! yeah right.
         PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
+        return;
     }
 
     std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
-    // If this is a /rN command then setup the preset message
-    if (set_bSetMsg && wscCmd.size() == 3 && wscMsg.size() == 0) {
-        int iMsgSlot = ToInt(wscCmd.substr(2, 1));
-        if (iMsgSlot < 0 || iMsgSlot > 9) {
-            PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-            PrintUserCmdText(iClientID, usage);
-            return true;
-        }
-        if (iter->second.slot[iMsgSlot].size() == 0) {
-            PrintUserCmdText(iClientID, L"ERR No message defined");
-            return true;
-        }
-        // Replace the tag #t with name of the targeted player.
-        wscMsg = iter->second.slot[iMsgSlot];
-        if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
-            return true;
-    } else if (wscMsg.size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-
     if (iter->second.ulastPmClientID == -1) {
         PrintUserCmdText(iClientID, L"ERR PM sender not available");
-        return true;
+        return;
     }
 
     mapInfo[iter->second.ulastPmClientID].ulastPmClientID = iClientID;
     SendPrivateChat(iClientID, iter->second.ulastPmClientID, wscMsg);
-    return true;
 }
 
-/** Send a message to the last/current target. */
-bool UserCmd_SendToLastTarget(uint iClientID,
-                                       const std::wstring &wscCmd,
-                                       const std::wstring &wscParam,
-                                       const wchar_t *usage) {
+/** Shows the sender of the last PM and the last char targeted */
+void UserCmd_ShowLastPMSender(uint iClientID, const std::wstring &wscParam) {
     auto iter = mapInfo.find(iClientID);
     if (iter == mapInfo.end()) {
         // There's no way for this to happen! yeah right.
         PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
-    }
-
-    std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
-
-    // If this is a /tN command then setup the preset message
-    if (set_bSetMsg && wscCmd.size() == 3 && wscMsg.size() == 0) {
-        int iMsgSlot = ToInt(wscCmd.substr(2, 1));
-        if (iMsgSlot < 0 || iMsgSlot > 9) {
-            PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-            PrintUserCmdText(iClientID, usage);
-            return true;
-        }
-        if (iter->second.slot[iMsgSlot].size() == 0) {
-            PrintUserCmdText(iClientID, L"ERR No message defined");
-            return true;
-        }
-        // Replace the tag #t with name of the targeted player.
-        wscMsg = iter->second.slot[iMsgSlot];
-        if (!ReplaceMessageTags(iClientID, iter->second, wscMsg))
-            return true;
-    } else if (wscMsg.size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-
-    if (iter->second.uTargetClientID == -1) {
-        PrintUserCmdText(iClientID, L"ERR PM target not available");
-        return true;
-    }
-
-    mapInfo[iter->second.uTargetClientID].ulastPmClientID = iClientID;
-    SendPrivateChat(iClientID, iter->second.uTargetClientID, wscMsg);
-    return true;
-}
-
-/** Shows the sender of the last PM and the last char targetted */
-bool UserCmd_ShowLastPMSender(uint iClientID,
-                                       const std::wstring &wscCmd,
-                                       const std::wstring &wscParam,
-                                       const wchar_t *usage) {
-    auto iter = mapInfo.find(iClientID);
-    if (iter == mapInfo.end()) {
-        // There's no way for this to happen! yeah right.
-        PrintUserCmdText(iClientID, L"ERR No message defined");
-        return true;
+        return;
     }
 
     std::wstring wscSenderCharname =
@@ -621,14 +737,32 @@ bool UserCmd_ShowLastPMSender(uint iClientID,
 
     PrintUserCmdText(iClientID, L"OK sender=" + wscSenderCharname +
                                     L" target=" + wscTargetCharname);
-    return true;
+}
+
+/** Send a message to the last/current target. */
+void UserCmd_SendToLastTarget(uint iClientID, const std::wstring &wscParam) {
+    auto iter = mapInfo.find(iClientID);
+    if (iter == mapInfo.end()) {
+        // There's no way for this to happen! yeah right.
+        PrintUserCmdText(iClientID, L"ERR No message defined");
+        return;
+    }
+
+    std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
+
+    if (iter->second.uTargetClientID == -1) {
+        PrintUserCmdText(iClientID, L"ERR PM target not available");
+        return;
+    }
+
+    mapInfo[iter->second.uTargetClientID].ulastPmClientID = iClientID;
+    SendPrivateChat(iClientID, iter->second.uTargetClientID, wscMsg);
 }
 
 /** Send a private message to the specified charname. If the player is offline
 the message will be delivery when they next login. */
-bool UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd,
-                                 const std::wstring &wscParam,
-                                 const wchar_t *usage) {
+void UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscParam) {
+    std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
     std::wstring wscCharname =
         (const wchar_t *)Players.GetActiveCharacterName(iClientID);
     const std::wstring &wscTargetCharname = GetParam(wscParam, ' ', 0);
@@ -637,32 +771,26 @@ bool UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscCmd,
     if (wscCharname.size() == 0 || wscMsg.size() == 0) {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
         PrintUserCmdText(iClientID, usage);
-        return true;
+        return;
     }
 
     if (!HkGetAccountByCharname(wscTargetCharname)) {
         PrintUserCmdText(iClientID, L"ERR charname does not exist");
-        return true;
+        return;
     }
 
     uint iToClientID = HkGetClientIdFromCharname(wscTargetCharname);
     if (iToClientID == -1) {
-        Mail::MailSend(wscTargetCharname, MSG_LOG,
-                       wscCharname + L": " + wscMsg);
-        Mail::MailCheckLog(wscTargetCharname, MSG_LOG);
+        HkSendMail(wscTargetCharname, wscCharname, wscMsg);
         PrintUserCmdText(iClientID, L"OK message saved to mailbox");
     } else {
         mapInfo[iToClientID].ulastPmClientID = iClientID;
         SendPrivateChat(iClientID, iToClientID, wscMsg);
     }
-
-    return true;
 }
 
 /** Send a private message to the specified clientid. */
-bool UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd,
-                                   const std::wstring &wscParam,
-                                   const wchar_t *usage) {
+void UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscParam) {
     std::wstring wscCharname =
         (const wchar_t *)Players.GetActiveCharacterName(iClientID);
     const std::wstring &wscClientID = GetParam(wscParam, ' ', 0);
@@ -671,18 +799,15 @@ bool UserCmd_PrivateMsgID(uint iClientID, const std::wstring &wscCmd,
     uint iToClientID = ToInt(wscClientID);
     if (!HkIsValidClientID(iToClientID) || HkIsInCharSelectMenu(iToClientID)) {
         PrintUserCmdText(iClientID, L"ERR Invalid client-id");
-        return true;
+        return;
     }
 
     mapInfo[iToClientID].ulastPmClientID = iClientID;
     SendPrivateChat(iClientID, iToClientID, wscMsg);
-    return true;
 }
 
 /** Send a message to all players with a particular prefix. */
-bool UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
-                                 const std::wstring &wscParam,
-                                 const wchar_t *usage) {
+void UserCmd_FactionMsg(uint iClientID, const std::wstring &wscParam) {
     std::wstring wscSender =
         (const wchar_t *)Players.GetActiveCharacterName(iClientID);
     const std::wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
@@ -690,8 +815,8 @@ bool UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
 
     if (wscCharnamePrefix.size() < 3 || wscMsg.size() == 0) {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
+        PrintUserCmdText(iClientID, L"Usage: /factionmsg <tag> <message> or /fm ...");
+        return;
     }
 
     bool bSenderReceived = false;
@@ -712,21 +837,18 @@ bool UserCmd_FactionMsg(uint iClientID, const std::wstring &wscCmd,
 
     if (bMsgSent == false)
         PrintUserCmdText(iClientID, L"ERR No chars found");
-    return true;
 }
 
 /** Send a faction invite message to all players with a particular prefix. */
-bool UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
-                                    const std::wstring &wscParam,
-                                    const wchar_t *usage) {
+void UserCmd_FactionInvite(uint iClientID, const std::wstring &wscParam) {
     const std::wstring &wscCharnamePrefix = GetParam(wscParam, ' ', 0);
 
     bool msgSent = false;
 
     if (wscCharnamePrefix.size() < 3) {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
+        PrintUserCmdText(iClientID, L"Usage: /factioninvite <tag> or /fi ...");
+        return;
     }
 
     for (auto &player : HkGetPlayers()) {
@@ -744,7 +866,7 @@ bool UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
         if ((err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) !=
             HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
-            return true;
+            return;
         }
 
         struct CHAT_ID cId = {iClientID};
@@ -756,13 +878,9 @@ bool UserCmd_FactionInvite(uint iClientID, const std::wstring &wscCmd,
 
     if (msgSent == false)
         PrintUserCmdText(iClientID, L"ERR No chars found");
-
-    return true;
 }
 
-bool UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
-                                  const std::wstring &wscParam,
-                                  const wchar_t *usage) {
+void UserCmd_SetChatTime(uint iClientID, const std::wstring &wscParam) {
     std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
     bool bShowChatTime = false;
     if (!wscParam1.compare(L"on"))
@@ -771,7 +889,7 @@ bool UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
         bShowChatTime = false;
     else {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
+        PrintUserCmdText(iClientID, L"Usage: /set chattime [on|off]");
     }
 
     std::wstring wscCharname =
@@ -786,21 +904,16 @@ bool UserCmd_SetChatTime(uint iClientID, const std::wstring &wscCmd,
 
     // Send confirmation msg
     PrintUserCmdText(iClientID, L"OK");
-    return true;
 }
 
-bool UserCmd_Time(uint iClientID, const std::wstring &wscCmd,
-                           const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Time(uint iClientID, const std::wstring &wscParam) {
     // Send time with gray color (BEBEBE) in small text (90) above the chat
     // line.
     PrintUserCmdText(iClientID, GetTimeString(set_bLocalTime));
-    return true;
 }
 
 /** Print out custom help overriding flhook built in help */
-bool UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd,
-                                 const std::wstring &wscParam,
-                                 const wchar_t *usage) {
+void UserCmd_CustomHelp(uint iClientID, const std::wstring &wscParam) {
     if (set_bCustomHelp) {
         // Print any custom help strings
         for (auto &line : set_lstHelpLines) {
@@ -811,61 +924,6 @@ bool UserCmd_CustomHelp(uint iClientID, const std::wstring &wscCmd,
             }
             PrintUserCmdText(iClientID, stows(scHelp));
         }
-        return true;
-    }
-    return false;
-}
-
-/** Print out help for built in flhook commands */
-bool UserCmd_BuiltInCmdHelp(uint iClientID, const std::wstring &wscCmd,
-                                     const std::wstring &wscParam,
-                                     const wchar_t *usage) {
-    if (wscParam.size() == 0) {
-        PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
-    }
-    return false;
-}
-
-void UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
-    std::wstring wscCmdLineLower = ToLower(wscCmd);
-
-    // Echo the command back to the sender's console but only if it starts with
-    // / or .
-    if (set_bCmdEcho) {
-        std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
-        if (wscCmd.find(L"/") == 0 || wscCmd.find(L".") == 0) {
-            if (!(wscCmd == L"/l" || wscCmd == L"/local" || wscCmd == L"/s" ||
-                  wscCmd == L"/system" || wscCmd == L"/g" ||
-                  wscCmd == L"/group" || wscCmd == L"/t" ||
-                  wscCmd == L"/target" || wscCmd == L"/r" ||
-                  wscCmd == L"/reply" || wscCmd.find(L"//") == 0 ||
-                  wscCmd.find(L"*") == (wscCmd.length() - 1))) {
-                std::wstring wscXML = L"<TRA data=\"" + set_wscCmdEchoStyle +
-                                      L"\" mask=\"-1\"/><TEXT>" +
-                                      XMLText(wscCmdLineLower) + L"</TEXT>";
-                HkFMsg(iClientID, wscXML);
-            }
-        }
-    }
-}
-
-void RedText(std::wstring wscXMLMsg, uint iSystemID) {
-    char szBuf[0x1000];
-    uint iRet;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
-        return;
-
-    // Send to all players in system
-    struct PlayerData *pPD = 0;
-    while (pPD = Players.traverse_active(pPD)) {
-        uint iClientID = HkGetClientIdFromPD(pPD);
-        uint iClientSystemID = 0;
-        pub::Player::GetSystem(iClientID, iClientSystemID);
-
-        if (iSystemID == iClientSystemID)
-            HkFMsgSendChat(iClientID, szBuf, iRet);
     }
 }
 
@@ -893,8 +951,7 @@ void UserCmd_Me(uint iClientID, const std::wstring &wscParam) {
 
 /** Do command allow players to type "/do Nomad fighters detected" which would
  * print: "Nomad fighters detected" in the standard red text */
-bool UserCmd_Do(uint iClientID, const std::wstring &wscCmd,
-                         const std::wstring &wscParam, const wchar_t *usage) {
+void UserCmd_Do(uint iClientID, const std::wstring &wscParam) {
     if (set_bEnableDo) {
         uint iSystemID;
         pub::Player::GetSystem(iClientID, iSystemID);
@@ -905,10 +962,9 @@ bool UserCmd_Do(uint iClientID, const std::wstring &wscCmd,
         wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
         wscXMLMsg += L"</TEXT>";
 
-        return RedText(wscXMLMsg, iSystemID);
+        RedText(wscXMLMsg, iSystemID);
     } else {
         PrintUserCmdText(iClientID, L"Command not enabled.");
-        return true;
     }
 }
 
@@ -1022,29 +1078,101 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystemID,
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Client command processing
 USERCMD UserCmds[] = {
-    {L"/afk", UserCmd_AFK},
-    {L"/back", UserCmd_Back},
+    {L"/setmsg", UserCmd_SetMsg},
+    {L"/showmsgs", UserCmd_ShowMsgs},
+    {L"/0", UserCmd_SMsg0},
+    {L"/1", UserCmd_SMsg1},
+    {L"/2", UserCmd_SMsg2},
+    {L"/3", UserCmd_SMsg3},
+    {L"/4", UserCmd_SMsg4},
+    {L"/5", UserCmd_SMsg5},
+    {L"/6", UserCmd_SMsg6},
+    {L"/7", UserCmd_SMsg7},
+    {L"/8", UserCmd_SMsg8},
+    {L"/9", UserCmd_SMsg9},
+    {L"/l0", UserCmd_LMsg0},
+    {L"/l1", UserCmd_LMsg1},
+    {L"/l2", UserCmd_LMsg2},
+    {L"/l3", UserCmd_LMsg3},
+    {L"/l4", UserCmd_LMsg4},
+    {L"/l5", UserCmd_LMsg5},
+    {L"/l6", UserCmd_LMsg6},
+    {L"/l7", UserCmd_LMsg7},
+    {L"/l8", UserCmd_LMsg8},
+    {L"/l9", UserCmd_LMsg9},
+    {L"/g0", UserCmd_GMsg0},
+    {L"/g1", UserCmd_GMsg1},
+    {L"/g2", UserCmd_GMsg2},
+    {L"/g3", UserCmd_GMsg3},
+    {L"/g4", UserCmd_GMsg4},
+    {L"/g5", UserCmd_GMsg5},
+    {L"/g6", UserCmd_GMsg6},
+    {L"/g7", UserCmd_GMsg7},
+    {L"/g8", UserCmd_GMsg8},
+    {L"/g9", UserCmd_GMsg9},
+    {L"/t0", UserCmd_TMsg0},
+    {L"/t1", UserCmd_TMsg1},
+    {L"/t2", UserCmd_TMsg2},
+    {L"/t3", UserCmd_TMsg3},
+    {L"/t4", UserCmd_TMsg4},
+    {L"/t5", UserCmd_TMsg5},
+    {L"/t6", UserCmd_TMsg6},
+    {L"/t7", UserCmd_TMsg7},
+    {L"/t8", UserCmd_TMsg8},
+    {L"/t9", UserCmd_TMsg9},
+    {L"/target", UserCmd_SendToLastTarget},
+    {L"/t", UserCmd_SendToLastTarget},
+    {L"/reply", UserCmd_ReplyToLastPMSender},
+    {L"/r", UserCmd_ReplyToLastPMSender},
+    {L"/privatemsg$", UserCmd_PrivateMsgID},
+    {L"/pm$", UserCmd_PrivateMsgID},
+    {L"/privatemsg", UserCmd_PrivateMsg},
+    {L"/pm", UserCmd_PrivateMsg},
+    {L"/factionmsg", UserCmd_FactionMsg},
+    {L"/fm", UserCmd_FactionMsg},
+    {L"/factioninvite", UserCmd_FactionInvite},
+    {L"/fi", UserCmd_FactionInvite},
+    {L"/lastpm", UserCmd_ShowLastPMSender},
+    {L"/set chattime", UserCmd_SetChatTime},
+    {L"/help", UserCmd_CustomHelp},
+    {L"/h", UserCmd_CustomHelp},
+    {L"/?", UserCmd_CustomHelp},
+    {L"/me", UserCmd_Me},
+    {L"/do", UserCmd_Do},
+    {L"/time", UserCmd_Time},
 };
 
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+
+    // Echo the command back to the sender's console but only if it starts with
+    // / or .
+    std::wstring wscCmdLineLower = ToLower(wscCmd);
+    if (set_bCmdEcho) {
+        std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
+        if (wscCmd.find(L"/") == 0 || wscCmd.find(L".") == 0) {
+            if (!(wscCmd == L"/l" || wscCmd == L"/local" || wscCmd == L"/s" ||
+                  wscCmd == L"/system" || wscCmd == L"/g" ||
+                  wscCmd == L"/group" || wscCmd == L"/t" ||
+                  wscCmd == L"/target" || wscCmd == L"/r" ||
+                  wscCmd == L"/reply" || wscCmd.find(L"//") == 0 ||
+                  wscCmd.find(L"*") == (wscCmd.length() - 1))) {
+                std::wstring wscXML = L"<TRA data=\"" + set_wscCmdEchoStyle +
+                                      L"\" mask=\"-1\"/><TEXT>" +
+                                      XMLText(wscCmdLineLower) + L"</TEXT>";
+                HkFMsg(iClientID, wscXML);
+            }
+        }
+    }
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
-    PrintUserCmdText(iClientID, L"/afk ");
-    PrintUserCmdText(iClientID,
-                     L"Sets the player to AFK. If any other player messages "
-                     L"directly, they will be told you are afk.");
-    PrintUserCmdText(iClientID, L"/back ");
-    PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
+    for (auto &uc : UserCmds)
+        PrintUserCmdText(iClientID, uc.wszCmd);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1066,4 +1194,12 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
     pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
+    pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);
+    pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+    pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 }

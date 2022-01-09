@@ -13,9 +13,6 @@
 
 ReturnCode returncode;
 
-// Convert to local time?
-bool set_bLocalTime = false;
-
 // The minimum transfer amount.
 static int set_iMinTransfer = 0;
 
@@ -134,7 +131,6 @@ void LoadSettings() {
     std::string scPluginCfgFile =
         std::string(szCurDir) + "\\flhook_plugins\\cash_manager.cfg";
 
-    set_bLocalTime = IniGetB(scPluginCfgFile, "General", "LocalTime", false);
     set_iMinTransfer = IniGetI(scPluginCfgFile, "General", "MinTransfer", 1);
     set_iMinTime = IniGetI(scPluginCfgFile, "General", "MinTime", 0);
     set_bCheatDetection =
