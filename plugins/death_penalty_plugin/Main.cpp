@@ -97,7 +97,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
             // Calculate what the death penalty would be upon death
             MapClients[iClientID].DeathPenaltyCredits =
-                (int)(fValue * fShipFractionOverride(set_fDeathPenalty));
+                static_cast<int>(fValue * fShipFractionOverride(set_fDeathPenalty));
 
             // Should we print a death penalty notice?
             if (MapClients[iClientID].bDisplayDPOnLaunch)
@@ -241,7 +241,7 @@ void UserCmd_DP(uint iClientID, const std::wstring &wscParam) {
             float fValue;
             pub::Player::GetAssetValue(iClientID, fValue);
             int iOwed =
-                (int)(fValue * fShipFractionOverride(set_fDeathPenalty));
+                static_cast<int>(fValue * fShipFractionOverride(set_fDeathPenalty));
             PrintUserCmdText(iClientID,
                              L"The death penalty for your ship will be " +
                                  ToMoneyStr(iOwed) + L" credits.");

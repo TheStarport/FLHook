@@ -64,7 +64,7 @@ static FARPROC fpCrashProc6F8B330Old = 0;
 char __stdcall HkCb_CrashProc6F8B330(int arg1) {
     int res = 0;
     try {
-        if (set_bDebug > 2)
+        if (set_bDebug)
             ConPrint(L"HkCb_CrashProc6F8B330(arg1=%08x)\n", arg1);
         __asm {
             pushad
@@ -91,7 +91,7 @@ __declspec(naked) void HkCb_CrashProc6F8B330Naked() {
 static FARPROC fpCrashProc6F78DD0Old = 0;
 void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2) {
     try {
-        if (set_bDebug > 2)
+        if (set_bDebug)
             ConPrint(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)\n", arg1,
                      arg2);
         __asm {
@@ -116,7 +116,7 @@ __declspec(naked) void HkCb_CrashProc6F78DD0Naked() {
 static FARPROC fpCrashProc6F671A0Old = 0;
 void __cdecl HkCb_CrashProc6F671A0(int arg1) {
     try {
-        if (set_bDebug > 2)
+        if (set_bDebug)
             ConPrint(L"HkCb_CrashProc6F671A0(arg1=%08x)\n", arg1);
         __asm {
             pushad

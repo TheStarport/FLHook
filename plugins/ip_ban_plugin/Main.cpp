@@ -79,7 +79,7 @@ static bool IsBanned(uint iClientID) {
                     fclose(f);
                 }
 
-                if (set_bDebug > 2) {
+                if (set_bDebug) {
                     ConPrint(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
                              L"ID2 %s "
                              L"Client %d\n",
