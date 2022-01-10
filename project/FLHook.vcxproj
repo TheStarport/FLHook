@@ -217,7 +217,9 @@
 			</Command>
 		</PreLinkEvent>
 		<PostBuildEvent>
-			<Command>robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" /is /E /e
+			<Command>
+				IF "%FL_PATH%"=="" exit 0
+				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" /is /E /e
 				if ERRORLEVEL GTR 5 goto HandleError
 				exit 0
 				:HandleError
