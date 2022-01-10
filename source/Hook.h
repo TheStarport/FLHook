@@ -591,7 +591,7 @@ public:
 
 template<typename ReturnType = void, typename... Args>
 auto CallPluginsBefore(HookedCall target, Args&& ...args) {
-    bool skip;
+    bool skip = false;
     if constexpr(std::is_same_v<ReturnType, void>) {
         PluginManager::i()->callPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
         return skip;
