@@ -91,7 +91,7 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     FILE *fp;
     _wfopen_s(&fp, pathToDLL.c_str(), L"r");
     if (!fp)
-        return adminInterface->Print(L"Error, plugin %s not found",
+        return adminInterface->Print(L"ERR plugin %s not found",
                                      dllName.c_str());
     fclose(fp);
 
@@ -100,14 +100,14 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     plugin.dll = LoadLibraryW(pathToDLL.c_str());
 
     if (!plugin.dll)
-        return adminInterface->Print(L"Error, can't load plugin DLL %s",
+        return adminInterface->Print(L"ERR can't load plugin DLL %s",
                                      dllName.c_str());
 
     auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin.dll, "ExportPluginInfo"));
 
     if (!getPluginInfo) {
         adminInterface->Print(
-            L"Error, could not read plugin info (ExportPluginInfo "
+            L"ERR could not read plugin info (ExportPluginInfo "
             L"not exported?) for %s\n",
             dllName.c_str());
         FreeLibrary(plugin.dll);
@@ -118,21 +118,21 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     getPluginInfo(&pi);
 
     if (pi.versionMinor_ == PluginMinorVersion::UNDEFINED || pi.versionMajor_ == PluginMajorVersion::UNDEFINED) {
-        adminInterface->Print(L"Error, plugin does not have defined API version. Unloading.",
+        adminInterface->Print(L"ERR plugin does not have defined API version. Unloading.",
                               dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
         FreeLibrary(plugin.dll);
         return;
     }
 
     if (pi.versionMajor_ != CurrentMajorVersion) {
-        adminInterface->Print(L"Error, incompatible plugin API (major) version for %s: expected %d, got %d",
+        adminInterface->Print(L"ERR incompatible plugin API (major) version for %s: expected %d, got %d",
                               dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
         FreeLibrary(plugin.dll);
         return;
     }
 
     if ((int)pi.versionMinor_ > (int)CurrentMinorVersion) {
-        adminInterface->Print(L"Error, incompatible plugin API (minor) version for %s: expected %d or lower, got %d",
+        adminInterface->Print(L"ERR incompatible plugin API (minor) version for %s: expected %d or lower, got %d",
                               dllName.c_str(), CurrentMinorVersion, pi.versionMinor_);
         FreeLibrary(plugin.dll);
         return;
@@ -145,14 +145,14 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     }
     
     if (pi.shortName_.empty() || pi.name_.empty()) {
-        adminInterface->Print(L"Error, missing name/short name for %s",
+        adminInterface->Print(L"ERR missing name/short name for %s",
                               dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
 
     if (pi.returnCode_ == nullptr) {
-        adminInterface->Print(L"Error, missing return code pointer %s",
+        adminInterface->Print(L"ERR missing return code pointer %s",
                               dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
@@ -168,7 +168,7 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
     if (!plugin.mayUnload && !startup) {
-        adminInterface->Print(L"Error, could not load plugin %s: plugin cannot be unloaded, need server restart to load",
+        adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load",
                               plugin.dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
@@ -179,14 +179,14 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
 
     for (const auto &hook : pi.hooks_) {
         if(!hook.hookFunction_) {
-            adminInterface->Print(L"Error, could not load function %d.%d of plugin %s",
+            adminInterface->Print(L"ERR could not load function %d.%d of plugin %s",
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
             continue;
         }
 
         const auto& targetHookProps = hookProps_[hook.targetFunction_];
         if(!targetHookProps.matches(hook.step_)) {
-            adminInterface->Print(L"Error, could not bind function %d.%d of plugin %s, step not available",
+            adminInterface->Print(L"ERR could not bind function %d.%d of plugin %s, step not available",
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
             continue;
         }
