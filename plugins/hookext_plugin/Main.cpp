@@ -24,7 +24,7 @@ std::map<uint, FLHOOK_PLAYER_DATA> clients;
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 std::string GetAccountDir(uint client) {
     static _GetFLName GetFLName = (_GetFLName)((char *)hModServer + 0x66370);

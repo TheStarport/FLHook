@@ -50,7 +50,7 @@ std::vector<int> sounds;
 
 /** A return code to indicate to FLHook if we want the hook processing to
  * continue. */
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 // TODO: detect frequent /stuck use and blow up ship (or something).
 

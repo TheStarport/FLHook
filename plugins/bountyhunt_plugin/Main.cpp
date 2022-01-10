@@ -10,7 +10,7 @@
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
 // Global Variables and Structures
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 struct BOUNTY_HUNT {
     uint uiTargetID;

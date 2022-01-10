@@ -12,7 +12,7 @@
 #include <sstream>
 
 // Structures and Global Variables
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 struct NPC_ARCHTYPESSTRUCT {
     uint Shiparch;

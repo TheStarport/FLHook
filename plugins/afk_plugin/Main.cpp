@@ -8,7 +8,7 @@
 // Global variables
 std::set<uint> afks;
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 // This text mimics the "New Player" messages
 bool RedText(uint iClientID, std::wstring message, std::wstring message2) {

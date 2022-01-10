@@ -4,7 +4,7 @@
 #include <plugin.h>
 #include "Shlwapi.h"
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 // Enable Rename
 bool set_bEnableRenameMe = false;

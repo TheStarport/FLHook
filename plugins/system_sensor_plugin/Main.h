@@ -3,7 +3,7 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 enum MODE {
     MODE_OFF = 0x00,

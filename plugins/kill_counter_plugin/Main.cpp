@@ -5,7 +5,7 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 std::list<INISECTIONVALUE> lstRanks;
 
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {

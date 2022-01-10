@@ -49,7 +49,7 @@ uint set_base_crew_type;
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 /// Map of item nickname hash to recipes to construct item.
 map<uint, RECIPE> recipes;

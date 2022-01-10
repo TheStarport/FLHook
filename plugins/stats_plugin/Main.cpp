@@ -12,7 +12,7 @@
 using json = nlohmann::json;
 
 // Global Variables
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 std::string jsonFileName;
 std::map<uint, std::wstring> mapShips;

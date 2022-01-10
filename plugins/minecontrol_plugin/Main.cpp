@@ -108,7 +108,7 @@ std::map<uint, CLIENT_DATA> mapClients;
 
 /** A return code to indicate to FLHook if we want the hook processing to
  * continue. */
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

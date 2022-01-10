@@ -12,7 +12,7 @@
 #include <plugin_comms.h>
 
 // Global vars
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 #define POPUPDIALOG_BUTTONS_LEFT_YES 1
 #define POPUPDIALOG_BUTTONS_CENTER_NO 2

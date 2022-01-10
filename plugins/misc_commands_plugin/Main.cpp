@@ -8,7 +8,7 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 bool bSelfDestructEnabled = false;
 bool bLightToggleEnabled = false;

@@ -46,7 +46,7 @@ std::multimap<UINT, NPC_MISSION> set_mapNpcMissions;
 
 // A return code to indicate to FLHook if we want the hook processing to
 // continue.
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 void LoadSettings() {
     // The path to the configuration file.

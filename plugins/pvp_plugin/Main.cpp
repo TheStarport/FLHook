@@ -6,7 +6,7 @@
 #include <plugin.h>
 
 // Global variables and structures
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 struct BET {
     uint iClientID;

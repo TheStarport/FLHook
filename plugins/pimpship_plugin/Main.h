@@ -6,7 +6,7 @@
 
 IMPORT unsigned int MakeLocationID(unsigned int, char const *);
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 // Intro messages when entering the room.
 static std::wstring set_wscIntroMsg1 =

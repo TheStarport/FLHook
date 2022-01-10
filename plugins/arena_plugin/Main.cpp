@@ -42,7 +42,7 @@ std::wstring set_wscUserCommand = L"/conn";
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 /// Clear client info when a client connects.
 void ClearClientInfo(uint iClientID) {

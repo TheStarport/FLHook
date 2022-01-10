@@ -5,7 +5,7 @@
 #include <plugin_comms.h>
 #include "../hookext_plugin/hookext_exports.h"
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 /** the data for a single online player */
 class INFO {

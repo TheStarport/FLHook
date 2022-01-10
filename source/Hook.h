@@ -605,13 +605,13 @@ auto CallPluginsBefore(HookedCall target, Args&& ...args) {
 
 template<typename... Args>
 void CallPluginsAfter(HookedCall target, Args&& ...args) {
-    bool dontCare;
+    bool dontCare = false;
     PluginManager::i()->callPlugins<void>(target, HookStep::After, dontCare, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 bool CallPluginsOther(HookedCall target, HookStep step, Args&& ...args) {
-    bool skip;
+    bool skip = false;
     PluginManager::i()->callPlugins<void>(target, step, skip, std::forward<Args>(args)...);
     return skip;
 }

@@ -3,4 +3,4 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;

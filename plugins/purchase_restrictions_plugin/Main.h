@@ -12,7 +12,7 @@
 #include <plugin.h>
 
 static int set_iPluginDebug = 0;
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 void AddExceptionInfoLog(struct SEHException* pep);
 #define LOG_EXCEPTION { AddLog("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(0); }

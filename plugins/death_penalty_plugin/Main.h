@@ -14,4 +14,4 @@ std::list<uint> ExcludedSystems;
 std::map<uint, CLIENT_DATA> MapClients;
 std::map<uint, float> FractionOverridesbyShip;
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;

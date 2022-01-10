@@ -11,7 +11,7 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 // The minimum transfer amount.
 static int set_iMinTransfer = 0;

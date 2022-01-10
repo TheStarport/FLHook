@@ -9,7 +9,7 @@
 #include <plugin.h>
 #include "wildcards.h"
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 /// list of bans
 static std::list<std::string> set_lstIPBans;

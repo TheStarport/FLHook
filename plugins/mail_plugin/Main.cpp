@@ -11,7 +11,7 @@
 #include <plugin.h>
 #include <plugin_comms.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 /** The messaging plugin message log for offline players */
 static std::string MSG_LOG = "-mail.ini";

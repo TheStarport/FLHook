@@ -4,4 +4,4 @@
 #include <plugin.h>
 #include <plugin_comms.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;

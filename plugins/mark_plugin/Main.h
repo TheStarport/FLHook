@@ -3,7 +3,7 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode;
+ReturnCode returncode = ReturnCode::Default;
 
 void ClearClientMark(uint iClientID);
 void HkUnMarkAllObjects(uint iClientID);

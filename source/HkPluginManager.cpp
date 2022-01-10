@@ -106,10 +106,7 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin.dll, "ExportPluginInfo"));
 
     if (!getPluginInfo) {
-        adminInterface->Print(
-            L"ERR could not read plugin info (ExportPluginInfo "
-            L"not exported?) for %s\n",
-            dllName.c_str());
+        adminInterface->Print(L"ERR could not read plugin info (ExportPluginInfo not exported?) for %s", dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
@@ -164,6 +161,7 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     plugin.shortName = pi.shortName_;
     plugin.hash = std::hash<std::string>{}(plugin.shortName);
     plugin.resetCode = pi.resetCode_;
+    plugin.returnCode = pi.returnCode_;
 
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
@@ -174,8 +172,8 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
         return;
     }
 
-    plugins_.push_back(plugin);
     size_t index = plugins_.size();
+    plugins_.push_back(plugin);
 
     for (const auto &hook : pi.hooks_) {
         if(!hook.hookFunction_) {
