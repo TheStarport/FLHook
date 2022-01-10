@@ -731,7 +731,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Mark plugin by M0tah");
     pi->shortName("mark");
     pi->mayPause(false);

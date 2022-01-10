@@ -146,7 +146,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 // Functions to hook
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Stats");
     pi->shortName("stats");
     pi->mayPause(true);

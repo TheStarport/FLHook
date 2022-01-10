@@ -314,7 +314,7 @@ EXPORT void IniSetF(const std::wstring &charname, const std::string &name,
 } // namespace HookExt
 
 /** Functions to hook */
-EXPORT void ExportPluginInfo(PluginInfo* pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
     pi->name("HookExt Plugin by Cannon");
     pi->shortName("hookext");
     pi->mayPause(true);

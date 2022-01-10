@@ -722,7 +722,7 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &wscCmd) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Functions to hook */
-EXPORT void ExportPluginInfo(PluginInfo *pi) {
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("Mine Control Plugin by cannon");
     pi->shortName("minecontrol");
     pi->mayPause(true);
