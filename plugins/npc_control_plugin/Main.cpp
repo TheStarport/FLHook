@@ -727,6 +727,8 @@ EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
+	pi->versionMajor(PluginMajorVersion::VERSION_04);
+	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::IServerImpl__Startup, &Startup_AFTER,
                     HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process,

@@ -482,6 +482,8 @@ EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->mayPause(false);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
+	pi->versionMajor(PluginMajorVersion::VERSION_04);
+	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq,

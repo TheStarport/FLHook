@@ -3234,6 +3234,31 @@ HookEntry HkIServerImplEntries[] = {
 };
 
 void PluginManager::setupProps() {
+    setProps(HookedCall::IEngine__CShip__Init, true, false, false);
+    setProps(HookedCall::IEngine__CShip__Destroy, true, false, false);
+    setProps(HookedCall::IEngine__UpdateTime, true, false, false);
+    setProps(HookedCall::IEngine__ElapseTime, true, false, false);
+    setProps(HookedCall::IEngine__DockCall, true, false, false);
+    setProps(HookedCall::IEngine__LaunchPosition, true, false, false);
+    setProps(HookedCall::IEngine__ShipDestroyed, true, false, false);
+    setProps(HookedCall::IEngine__BaseDestroyed, true, false, false);
+    setProps(HookedCall::IEngine__GuidedHit, true, false, false);
+    setProps(HookedCall::IEngine__AddDamageEntry, true, false, false);
+    setProps(HookedCall::IEngine__DamageHit, true, false, false);
+    setProps(HookedCall::IEngine__AllowPlayerDamage, true, false, false);
+    setProps(HookedCall::IEngine__SendDeathMessage, true, false, false);
+    setProps(HookedCall::FLHook__TimerCheckKick, true, false, false);
+    setProps(HookedCall::FLHook__TimerNPCAndF1Check, true, false, false);
+    setProps(HookedCall::FLHook__PluginCommunication, true, false, false);
+    setProps(HookedCall::FLHook__UserCommand__Help, true, false, false);
+    setProps(HookedCall::FLHook__UserCommand__Process, true, false, false);
+    setProps(HookedCall::FLHook__AdminCommand__Help, true, false, false);
+    setProps(HookedCall::FLHook__AdminCommand__Process, true, false, false);
+    setProps(HookedCall::FLHook__LoadSettings, true, false, false);
+    setProps(HookedCall::FLHook__LoadCharacterSettings, true, false, false);
+    setProps(HookedCall::FLHook__ClearClientInfo, true, false, false);
+    setProps(HookedCall::FLHook__ProcessEvent, true, false, false);
+    setProps(HookedCall::IChat__SendChat, true, false, false);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_COMMON_FIREWEAPON, true, false, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATEEQUIP, true, false, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATECRUISE, true, false, true);

@@ -195,6 +195,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
+	pi->versionMajor(PluginMajorVersion::VERSION_04);
+	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

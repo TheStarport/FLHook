@@ -728,6 +728,8 @@ EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
+	pi->versionMajor(PluginMajorVersion::VERSION_04);
+	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
