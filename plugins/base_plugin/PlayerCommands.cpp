@@ -923,7 +923,7 @@ static void ShowShopStatus(uint client, PlayerBase *base, int page) {
     status += L"<TEXT>Stock:</TEXT><PARA/>";
     int item = 1;
 
-    for (map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
+    for (std::map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
          i != base->market_items.end(); ++i, item++) {
         if (item < start_item)
             continue;
@@ -986,7 +986,7 @@ void Shop(uint client, const std::wstring &args) {
         }
 
         int curr_item = 1;
-        for (map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
+        for (std::map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
              i != base->market_items.end(); ++i, curr_item++) {
             if (curr_item == item) {
                 i->second.price = (float)money;
@@ -1006,7 +1006,7 @@ void Shop(uint client, const std::wstring &args) {
         int item = ToInt(GetParam(args, ' ', 2));
 
         int curr_item = 1;
-        for (map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
+        for (std::map<UINT, MARKET_ITEM>::iterator i = base->market_items.begin();
              i != base->market_items.end(); ++i, curr_item++) {
             if (curr_item == item) {
                 i->second.price = 0;
@@ -1079,15 +1079,15 @@ void BaseDeploy(uint client, const std::wstring &args) {
 
     // Check that the ship has the requires commodities.
     int hold_size;
-    list<CARGO_INFO> cargo;
+    std::list<CARGO_INFO> cargo;
     HkEnumCargo((const wchar_t *)Players.GetActiveCharacterName(client), cargo,
                 hold_size);
-    for (map<uint, uint>::iterator i = construction_items.begin();
+    for (std::map<uint, uint>::iterator i = construction_items.begin();
          i != construction_items.end(); ++i) {
         bool material_available = false;
         uint good = i->first;
         uint quantity = i->second;
-        for (list<CARGO_INFO>::iterator ci = cargo.begin(); ci != cargo.end();
+        for (std::list<CARGO_INFO>::iterator ci = cargo.begin(); ci != cargo.end();
              ++ci) {
             if (ci->iArchID == good && ci->iCount >= (int)quantity) {
                 material_available = true;

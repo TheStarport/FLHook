@@ -63,7 +63,7 @@ void SendMarketGoodSync(PlayerBase *base, uint client) {
         SendCommand(client, L" SetMarketOverride 0 0 0 0");
 
     // Send the market
-    for (map<uint, MARKET_ITEM>::iterator i = base->market_items.begin();
+    for (std::map<uint, MARKET_ITEM>::iterator i = base->market_items.begin();
          i != base->market_items.end(); i++) {
         uint good = i->first;
         MARKET_ITEM &item = i->second;

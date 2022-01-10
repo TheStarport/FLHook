@@ -2,24 +2,16 @@
 #define __MAIN_H__ 1
 
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
-using namespace std;
+#include <plugin_comms.h>
 
 struct RECIPE {
     RECIPE() : produced_item(0), cooking_rate(0) {}
     uint nickname;
     uint produced_item;
-    wstring infotext;
+    std::wstring infotext;
     uint cooking_rate;
-    map<uint, uint> consumed_items;
+    std::map<uint, uint> consumed_items;
 };
 
 struct MARKET_ITEM {
@@ -40,8 +32,8 @@ struct MARKET_ITEM {
 };
 
 struct NEWS_ITEM {
-    wstring headline;
-    wstring text;
+    std::wstring headline;
+    std::wstring text;
 };
 
 class PlayerBase;
@@ -65,7 +57,7 @@ class Module {
     Module(uint the_type) : type(the_type) {}
     virtual ~Module() {}
     virtual void Spawn() {}
-    virtual wstring GetInfo(bool xml) = 0;
+    virtual std::wstring GetInfo(bool xml) = 0;
     virtual void LoadState(INI_Reader &ini) = 0;
     virtual void SaveState(FILE *file) = 0;
 
@@ -93,15 +85,15 @@ class CoreModule : public Module {
     bool dont_rust;
 
     // The list of goods and usage of goods per minute for the autosys effect
-    map<uint, uint> mapAutosysGood;
+    std::map<uint, uint> mapAutosysGood;
 
     // The list of goods and usage of goods per minute for the autosys effect
-    map<uint, uint> mapHumansysGood;
+    std::map<uint, uint> mapHumansysGood;
 
     CoreModule(PlayerBase *the_base);
     ~CoreModule();
     void Spawn();
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
 
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
@@ -125,7 +117,7 @@ class ShieldModule : public Module {
 
     ShieldModule(PlayerBase *the_base);
     ~ShieldModule();
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
 
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
@@ -142,7 +134,7 @@ class StorageModule : public Module {
 
     StorageModule(PlayerBase *the_base);
     ~StorageModule();
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
 
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
@@ -164,7 +156,7 @@ class DefenseModule : public Module {
     DefenseModule(PlayerBase *the_base);
     DefenseModule(PlayerBase *the_base, uint the_type);
     ~DefenseModule();
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
 
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
@@ -188,7 +180,7 @@ class BuildModule : public Module {
     BuildModule(PlayerBase *the_base);
     BuildModule(PlayerBase *the_base, uint the_building_type);
 
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
 
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
@@ -204,11 +196,11 @@ class FactoryModule : public Module {
     RECIPE active_recipe;
 
     // List of queued recipes;
-    list<uint> build_queue;
+    std::list<uint> build_queue;
 
     FactoryModule(PlayerBase *the_base);
     FactoryModule(PlayerBase *the_base, uint type);
-    wstring GetInfo(bool xml);
+    std::wstring GetInfo(bool xml);
     void LoadState(INI_Reader &ini);
     void SaveState(FILE *file);
     bool Timer(uint time);
@@ -219,8 +211,8 @@ class FactoryModule : public Module {
 
 class PlayerBase {
   public:
-    PlayerBase(uint client, const wstring &password, const wstring &basename);
-    PlayerBase(const string &path);
+    PlayerBase(uint client, const std::wstring &password, const std::wstring &basename);
+    PlayerBase(const std::string &path);
     ~PlayerBase();
 
     void Spawn();
@@ -238,7 +230,7 @@ class PlayerBase {
     uint GetMaxCargoSpace();
     uint HasMarketItem(uint good);
 
-    static string CreateBaseNickname(const string &basename);
+    static std::string CreateBaseNickname(const std::string &basename);
 
     float GetAttitudeTowardsClient(uint client);
     void SyncReputationForBase();
@@ -248,21 +240,21 @@ class PlayerBase {
                           float curr_hitpoints, float damage);
 
     // The base nickname
-    string nickname;
+    std::string nickname;
 
     // The base affiliation
     uint affiliation;
 
     // The name of the base shown to other players
-    wstring basename;
+    std::wstring basename;
 
     // The infocard for the base
-    wstring infocard;
+    std::wstring infocard;
 
     // The infocard paragraphs for the base
 #define MAX_CHARACTERS 500
 #define MAX_PARAGRAPHS 5
-    wstring infocard_para[MAX_PARAGRAPHS + 1];
+    std::wstring infocard_para[MAX_PARAGRAPHS + 1];
 
     // The system the base is in
     uint system;
@@ -277,7 +269,7 @@ class PlayerBase {
     uint base_level;
 
     // The commodities carried by this base->
-    map<uint, MARKET_ITEM> market_items;
+    std::map<uint, MARKET_ITEM> market_items;
 
     // The money this base has
     INT64 money;
@@ -295,7 +287,7 @@ class PlayerBase {
     uint base;
 
     // The list of administration passwords
-    list<wstring> passwords;
+    std::list<std::wstring> passwords;
 
     // If 0 then base is neutral to all ships. Only ships on the ally tag list
     // may dock. If 1 then base is hostile to all ships unless they are on the
@@ -304,16 +296,16 @@ class PlayerBase {
     int defense_mode;
 
     // List of allied ship tags.
-    list<wstring> ally_tags;
+    std::list<std::wstring> ally_tags;
 
     // List of ships that are hostile to this base
-    map<wstring, wstring> hostile_tags;
+    std::map<std::wstring, std::wstring> hostile_tags;
 
     // Modules for base
-    vector<Module *> modules;
+    std::vector<Module *> modules;
 
     // Path to base ini file.
-    string path;
+    std::string path;
 
     // The proxy base associated with the system this base is in.
     uint proxy_base;
@@ -347,9 +339,9 @@ void SaveDockState(uint client);
 void DeleteDockState(uint client);
 
 /// Send a command to the client at destination ID 0x9999
-void SendCommand(uint client, const wstring &message);
-void SendSetBaseInfoText(uint client, const wstring &message);
-void SendSetBaseInfoText2(uint client, const wstring &message);
+void SendCommand(uint client, const std::wstring &message);
+void SendSetBaseInfoText(uint client, const std::wstring &message);
+void SendSetBaseInfoText2(uint client, const std::wstring &message);
 void SendResetMarketOverride(uint client);
 void SendMarketGoodUpdated(PlayerBase *base, uint good, MARKET_ITEM &item);
 void SendMarketGoodSync(PlayerBase *base, uint client);
@@ -366,7 +358,7 @@ struct CLIENT_DATA {
     bool reverse_sell;
 
     // The cargo list used by the reverse sell.
-    list<CARGO_INFO> cargo;
+    std::list<CARGO_INFO> cargo;
 
     // If true block the current buy and associated reqitemadd function.
     bool stop_buy;
@@ -383,62 +375,62 @@ struct CLIENT_DATA {
 };
 
 namespace PlayerCommands {
-void BaseHelp(uint client, const wstring &args);
+void BaseHelp(uint client, const std::wstring &args);
 
-void BaseLogin(uint client, const wstring &args);
-void BaseAddPwd(uint client, const wstring &args);
-void BaseRmPwd(uint client, const wstring &args);
-void BaseLstPwd(uint client, const wstring &args);
-void BaseSetMasterPwd(uint client, const wstring &args);
+void BaseLogin(uint client, const std::wstring &args);
+void BaseAddPwd(uint client, const std::wstring &args);
+void BaseRmPwd(uint client, const std::wstring &args);
+void BaseLstPwd(uint client, const std::wstring &args);
+void BaseSetMasterPwd(uint client, const std::wstring &args);
 
-void BaseAddAllyTag(uint client, const wstring &args);
-void BaseRmAllyTag(uint client, const wstring &args);
-void BaseLstAllyTag(uint client, const wstring &args);
-void BaseRep(uint client, const wstring &args);
+void BaseAddAllyTag(uint client, const std::wstring &args);
+void BaseRmAllyTag(uint client, const std::wstring &args);
+void BaseLstAllyTag(uint client, const std::wstring &args);
+void BaseRep(uint client, const std::wstring &args);
 
-void BaseInfo(uint client, const wstring &args);
-void BaseDefenseMode(uint client, const wstring &args);
-void BaseDefMod(uint client, const wstring &args);
-void BaseBuildMod(uint client, const wstring &args);
-void BaseFacMod(uint client, const wstring &args);
-void BaseShieldMod(uint client, const wstring &args);
-void Bank(uint client, const wstring &args);
-void Shop(uint client, const wstring &args);
+void BaseInfo(uint client, const std::wstring &args);
+void BaseDefenseMode(uint client, const std::wstring &args);
+void BaseDefMod(uint client, const std::wstring &args);
+void BaseBuildMod(uint client, const std::wstring &args);
+void BaseFacMod(uint client, const std::wstring &args);
+void BaseShieldMod(uint client, const std::wstring &args);
+void Bank(uint client, const std::wstring &args);
+void Shop(uint client, const std::wstring &args);
 
-void BaseDeploy(uint client, const wstring &args);
+void BaseDeploy(uint client, const std::wstring &args);
 } // namespace PlayerCommands
 
-extern map<uint, CLIENT_DATA> clients;
+extern std::map<uint, CLIENT_DATA> clients;
 
-extern map<uint, Module *> spaceobj_modules;
+extern std::map<uint, Module *> spaceobj_modules;
 
 // Map of ingame hash to info
-extern map<uint, class PlayerBase *> player_bases;
+extern std::map<uint, class PlayerBase *> player_bases;
 
 extern int set_plugin_debug;
 
-extern map<uint, RECIPE> recipes;
+extern std::map<uint, RECIPE> recipes;
 
 struct REPAIR_ITEM {
     uint good;
     uint quantity;
 };
-extern list<REPAIR_ITEM> set_base_repair_items;
+extern std::list<REPAIR_ITEM> set_base_repair_items;
 
 extern uint set_base_crew_type;
 
-extern map<uint, uint> set_base_crew_consumption_items;
+extern std::map<uint, uint> set_base_crew_consumption_items;
 
-extern map<uint, uint> set_base_crew_food_items;
+extern std::map<uint, uint> set_base_crew_food_items;
 
 /// The ship used to construct and upgrade bases
 extern uint set_construction_shiparch;
 
 /// Map of good to quantity for items required by construction ship
-extern map<uint, uint> construction_items;
+extern std::map<uint, uint> construction_items;
 
 /// Map of item nickname hash to recipes to operate shield.
-extern map<uint, uint> shield_power_items;
+extern std::map<uint, uint> shield_power_items;
 
 /// Damage to the base every 10 seconds
 extern uint set_damage_per_10sec;
@@ -452,6 +444,6 @@ extern uint set_tick_time;
 /// If the shield is up then damage to the base is changed by this multiplier.
 extern float set_shield_damage_multiplier;
 
-wstring HtmlEncode(wstring text);
+std::wstring HtmlEncode(std::wstring text);
 
 #endif

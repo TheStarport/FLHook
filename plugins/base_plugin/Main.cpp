@@ -6,27 +6,14 @@
  Initial release
 */
 
-// includes
-
+// Includes
 #include "Main.h"
-#include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
-#include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
-
-#include <plugin_comms.h>
 
 // Clients
-map<uint, CLIENT_DATA> clients;
+std::map<uint, CLIENT_DATA> clients;
 
 // Bases
-map<uint, PlayerBase *> player_bases;
+std::map<uint, PlayerBase *> player_bases;
 
 /// The debug mode
 int set_plugin_debug = 0;
@@ -35,14 +22,14 @@ int set_plugin_debug = 0;
 uint set_construction_shiparch = 0;
 
 /// Map of good to quantity for items required by construction ship
-map<uint, uint> construction_items;
+std::map<uint, uint> construction_items;
 
 /// list of items and quantity used to repair 10000 units of damage
-list<REPAIR_ITEM> set_base_repair_items;
+std::list<REPAIR_ITEM> set_base_repair_items;
 
 /// list of items used by human crew
-map<uint, uint> set_base_crew_consumption_items;
-map<uint, uint> set_base_crew_food_items;
+std::map<uint, uint> set_base_crew_consumption_items;
+std::map<uint, uint> set_base_crew_food_items;
 
 /// The commodity used as crew for the base
 uint set_base_crew_type;
@@ -52,13 +39,13 @@ uint set_base_crew_type;
 ReturnCode returncode = ReturnCode::Default;
 
 /// Map of item nickname hash to recipes to construct item.
-map<uint, RECIPE> recipes;
+std::map<uint, RECIPE> recipes;
 
 /// Map of item nickname hash to recipes to operate shield.
-map<uint, uint> shield_power_items;
+std::map<uint, uint> shield_power_items;
 
 /// Map of space obj IDs to base modules to speed up damage algorithms.
-map<uint, Module *> spaceobj_modules;
+std::map<uint, Module *> spaceobj_modules;
 
 /// Path to shield status html page
 std::string set_status_path_html;
@@ -81,7 +68,7 @@ bool load_settings_required = true;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PlayerBase *GetPlayerBase(uint base) {
-    map<uint, PlayerBase *>::iterator i = player_bases.find(base);
+    std::map<uint, PlayerBase *>::iterator i = player_bases.find(base);
     if (i != player_bases.end())
         return i->second;
     return 0;
@@ -90,11 +77,11 @@ PlayerBase *GetPlayerBase(uint base) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PlayerBase *GetPlayerBaseForClient(uint client) {
-    map<uint, CLIENT_DATA>::iterator j = clients.find(client);
+    std::map<uint, CLIENT_DATA>::iterator j = clients.find(client);
     if (j == clients.end())
         return 0;
 
-    map<uint, PlayerBase *>::iterator i =
+    std::map<uint, PlayerBase *>::iterator i =
         player_bases.find(j->second.player_base);
     if (i == player_bases.end())
         return 0;
@@ -113,7 +100,7 @@ void SyncReputationForClientShip(uint ship, uint client) {
     uint system;
     pub::SpaceObj::GetSystem(ship, system);
 
-    map<uint, PlayerBase *>::iterator base = player_bases.begin();
+    std::map<uint, PlayerBase *>::iterator base = player_bases.begin();
     for (; base != player_bases.end(); base++) {
         if (base->second->system == system) {
             float attitude = base->second->GetAttitudeTowardsClient(client);
@@ -121,7 +108,7 @@ void SyncReputationForClientShip(uint ship, uint client) {
                 Console::ConPrint(L"SyncReputationForClientShip:: ship=%u attitude=%f "
                          L"base=%08x\n",
                          ship, attitude, base->first);
-            for (vector<Module *>::iterator module =
+            for (std::vector<Module *>::iterator module =
                      base->second->modules.begin();
                  module != base->second->modules.end(); ++module) {
                 if (*module) {
@@ -189,7 +176,7 @@ void LoadSettingsActual() {
     GetCurrentDirectory(sizeof(szCurDir), szCurDir);
     std::string cfg_file = std::string(szCurDir) + "\\flhook_plugins\\base.cfg";
 
-    map<uint, PlayerBase *>::iterator base = player_bases.begin();
+    std::map<uint, PlayerBase *>::iterator base = player_bases.begin();
     for (; base != player_bases.end(); base++) {
         delete base->second;
     }
@@ -341,7 +328,7 @@ void HkTimerCheckKick() {
     }
 
     uint curr_time = (uint)time(0);
-    map<uint, PlayerBase *>::iterator iter = player_bases.begin();
+    std::map<uint, PlayerBase *>::iterator iter = player_bases.begin();
     while (iter != player_bases.end()) {
         PlayerBase *base = iter->second;
         // Advance to next base in case base is deleted in timer dispatcher
@@ -380,7 +367,7 @@ void HkTimerCheckKick() {
             fprintf(file, "<th class=\"ColumnH\">Description</th>");
             fprintf(file, "</tr>\n\n");
 
-            map<uint, PlayerBase *>::iterator iter = player_bases.begin();
+            std::map<uint, PlayerBase *>::iterator iter = player_bases.begin();
             while (iter != player_bases.end()) {
                 PlayerBase *base = iter->second;
                 fprintf(file, "<tr>");
@@ -568,7 +555,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
             }
         }
 
-        map<uint, PlayerBase *>::iterator base = player_bases.begin();
+        std::map<uint, PlayerBase *>::iterator base = player_bases.begin();
         for (; base != player_bases.end(); base++) {
             delete base->second;
         }
@@ -581,79 +568,79 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 bool UserCmd_Process(uint client, const std::wstring &args) {
     
     if (args.find(L"/base login") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseLogin(client, args);
         return true;
     } else if (args.find(L"/base addpwd") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseAddPwd(client, args);
         return true;
     } else if (args.find(L"/base rmpwd") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseRmPwd(client, args);
         return true;
     } else if (args.find(L"/base lstpwd") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseLstPwd(client, args);
         return true;
     } else if (args.find(L"/base setmasterpwd") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseSetMasterPwd(client, args);
         return true;
     } else if (args.find(L"/base addtag") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseAddAllyTag(client, args);
         return true;
     } else if (args.find(L"/base rmtag") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseRmAllyTag(client, args);
         return true;
     } else if (args.find(L"/base lsttag") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseLstAllyTag(client, args);
         return true;
     } else if (args.find(L"/base rep") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseRep(client, args);
         return true;
     } else if (args.find(L"/base defensemode") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseDefenseMode(client, args);
         return true;
     } else if (args.find(L"/base deploy") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseDeploy(client, args);
         return true;
     } else if (args.find(L"/shop") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::Shop(client, args);
         return true;
     } else if (args.find(L"/bank") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::Bank(client, args);
         return true;
     } else if (args.find(L"/base info") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseInfo(client, args);
         return true;
     } else if (args.find(L"/base facmod") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseFacMod(client, args);
         return true;
     } else if (args.find(L"/base defmod") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseDefMod(client, args);
         return true;
     } else if (args.find(L"/base shieldmod") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseShieldMod(client, args);
         return true;
     } else if (args.find(L"/base buildmod") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseBuildMod(client, args);
         return true;
     } else if (args.find(L"/base") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         PlayerCommands::BaseHelp(client, args);
         return true;
     }
@@ -664,7 +651,7 @@ static bool IsDockingAllowed(PlayerBase *base, uint client) {
     // Allies can always dock.
     std::wstring charname =
         (const wchar_t *)Players.GetActiveCharacterName(client);
-    for (list<std::wstring>::iterator i = base->ally_tags.begin();
+    for (std::list<std::wstring>::iterator i = base->ally_tags.begin();
          i != base->ally_tags.end(); ++i) {
         if (charname.find(*i) == 0) {
             return true;
@@ -695,7 +682,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
                     client, L"Docking failed because base shield is active");
                 pub::Player::SendNNMessage(
                     client, pub::GetNicknameId("info_access_denied"));
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;
                 return 0;
             }
 
@@ -704,7 +691,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
                 PrintUserCmdText(client, L"Docking at this base is restricted");
                 pub::Player::SendNNMessage(
                     client, pub::GetNicknameId("info_access_denied"));
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;
                 return 0;
             }
 
@@ -716,10 +703,8 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
 
 void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
                                unsigned int client) {
-    
-
     // Sync base names for the
-    map<uint, PlayerBase *>::iterator base = player_bases.begin();
+    std::map<uint, PlayerBase *>::iterator base = player_bases.begin();
     for (; base != player_bases.end(); base++) {
         HkChangeIDSString(client, base->second->solar_ids,
                           base->second->basename);
@@ -826,10 +811,6 @@ void __stdcall BaseExit(uint base, uint client) {
     // Clear the base market and text
     SendResetMarketOverride(client);
     SendSetBaseInfoText2(client, L"");
-
-    // std::wstring base_status = L"<RDL><PUSH/>";
-    // base_status += L"<TEXT>" + XMLText(base->name) + L", " +
-    // HkGetWStringFromIDS(sys->strid_name) +  L"</TEXT><PARA/><PARA/>";
 }
 
 void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip,
@@ -847,7 +828,7 @@ void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip,
                         L"Docking failed because base shield is active");
                     pub::Player::SendNNMessage(
                         client, pub::GetNicknameId("info_access_denied"));
-                    returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                    returncode = ReturnCode::SkipAll;
                     return;
                 }
 
@@ -856,7 +837,7 @@ void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip,
                                      L"Docking at this base is restricted");
                     pub::Player::SendNNMessage(
                         client, pub::GetNicknameId("info_access_denied"));
-                    returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                    returncode = ReturnCode::SkipAll;
                     return;
                 }
             }
@@ -873,7 +854,7 @@ bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos,
                              Matrix &rot, int dock_mode) {
     
     if (player_launch_base) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         pos = player_launch_base->position;
         rot = player_launch_base->rotation;
         TranslateX(pos, rot, -750);
@@ -919,7 +900,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
     if (base) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 
         if (base->market_items.find(gsi.iArchID) == base->market_items.end() &&
             !clients[client].admin) {
@@ -978,7 +959,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count,
     
 
     if (clients[client].player_base) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         if (clients[client].reverse_sell) {
             int hold_size;
             HkEnumCargo((const wchar_t *)Players.GetActiveCharacterName(client),
@@ -993,7 +974,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
 
     uint player_base = clients[client].player_base;
     if (player_base) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         if (clients[client].reverse_sell) {
             clients[client].reverse_sell = false;
 
@@ -1019,7 +1000,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
     if (base) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 
         uint count = gbi.iCount;
         if (count > base->market_items[gbi.iGoodID].quantity)
@@ -1033,12 +1014,12 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
         if (count == 0 || base->market_items[gbi.iGoodID].min_stock >=
                               base->market_items[gbi.iGoodID].quantity) {
             PrintUserCmdText(client, L"ERR Base will not sell goods");
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+            returncode = ReturnCode::SkipAll;
             clients[client].stop_buy = true;
             return;
         } else if (curr_money < price) {
             PrintUserCmdText(client, L"ERR Not enough credits");
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+            returncode = ReturnCode::SkipAll;
             clients[client].stop_buy = true;
             return;
         }
@@ -1056,11 +1037,11 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
     
     PlayerBase *base = GetPlayerBaseForClient(client);
     if (base) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         if (clients[client].stop_buy) {
             if (clients[client].stop_buy)
                 clients[client].stop_buy = false;
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+            returncode = ReturnCode::SkipAll;
         }
     }
 }
@@ -1073,7 +1054,7 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint,
     // If the client is in a player controlled base
     PlayerBase *base = GetPlayerBaseForClient(client);
     if (base) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         PlayerData *pd = &Players[client];
 
         // Update the player CRC so that the player is not kicked for 'ship
@@ -1094,21 +1075,21 @@ void __stdcall ReqAddItem_AFTER(unsigned int good, char const *hardpoint,
 void __stdcall ReqChangeCash(int cash, unsigned int client) {
     
     if (clients[client].player_base)
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 }
 
 /// Ignore cash commands from the client when we're in a player base.
 void __stdcall ReqSetCash(int cash, unsigned int client) {
     
     if (clients[client].player_base)
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 }
 
 void __stdcall ReqEquipment(class EquipDescList const &edl,
                             unsigned int client) {
     
     if (clients[client].player_base)
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 }
 
 void __stdcall CShip_destroy(CShip *ship) {
@@ -1116,18 +1097,18 @@ void __stdcall CShip_destroy(CShip *ship) {
 
     // Dispatch the destroy event to the appropriate module.
     uint space_obj = ship->get_id();
-    map<uint, Module *>::iterator i = spaceobj_modules.find(space_obj);
+    std::map<uint, Module *>::iterator i = spaceobj_modules.find(space_obj);
     if (i != spaceobj_modules.end()) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         i->second->SpaceObjDestroyed(space_obj);
     }
 }
 
 void BaseDestroyed(uint space_obj, uint client) {
     
-    map<uint, Module *>::iterator i = spaceobj_modules.find(space_obj);
+    std::map<uint, Module *>::iterator i = spaceobj_modules.find(space_obj);
     if (i != spaceobj_modules.end()) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
         i->second->SpaceObjDestroyed(space_obj);
     }
 }
@@ -1140,7 +1121,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
         float curr, max;
         pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
 
-        map<uint, Module *>::iterator i = spaceobj_modules.find(g_DmgToSpaceID);
+        std::map<uint, Module *>::iterator i = spaceobj_modules.find(g_DmgToSpaceID);
         if (i != spaceobj_modules.end()) {
             if (set_plugin_debug)
                 Console::ConPrint(
@@ -1155,7 +1136,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
             // base causes the base damage to jump down to 0 even if the base is
             // otherwise healthy.
             if (damage == 0.0f /*&& dmg->get_cause()==7*/ && curr > 200000) {
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;
                 if (set_plugin_debug)
                     Console::ConPrint(L"HkCb_AddDmgEntry[1] - invalid damage?");
                 return;
@@ -1165,17 +1146,17 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
             if (!dmg->is_inflictor_a_player()) {
                 if (set_plugin_debug)
                     Console::ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc");
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;
                 g_DmgToSpaceID = 0;
                 return;
             }
 
             // This call is for us, skip all plugins.
-            returncode = SKIPPLUGINS;
+            returncode = ReturnCode::SkipPlugins;
             float new_damage = i->second->SpaceObjDamaged(
                 g_DmgToSpaceID, dmg->get_inflictor_id(), curr, damage);
             if (new_damage != 0.0f) {
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;;
                 if (set_plugin_debug)
                     Console::ConPrint(L"HkCb_AddDmgEntry[3] suppressed - shield up - "
                              L"new_damage=%0.0f\n",
@@ -1224,53 +1205,10 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base) {
     }
 }
 
-#define IS_CMD(a) !args.compare(L##a)
-
 bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
-    
-    /*if (args.find(L"dumpbases")==0)
-    {
-            Universe::ISystem *sys = Universe::GetFirstSystem();
-            FILE* f = fopen("bases.txt", "w");
-            while (sys)
-            {
-                    fprintf(f, "[Base]\n");
-                    fprintf(f, "nickname = %s_proxy_base\n", sys->nickname);
-                    fprintf(f, "system = %s\n", sys->nickname);
-                    fprintf(f, "strid_name = 0\n");
-                    fprintf(f, "file=Universe\\Systems\\proxy_base->ini\n");
-                    fprintf(f, "BGCS_base_run_by=W02bF35\n\n");
 
-                    sys = Universe::GetNextSystem();
-            }
-            fclose(f);
-    }
-    if (args.find(L"makebases")==0)
-    {
-            struct Universe::ISystem *sys = Universe::GetFirstSystem();
-            while (sys)
-            {
-                    std::string path =
-    std::string("..\\DATA\\UNIVERSE\\SYSTEMS\\") + std::string(sys->nickname) +
-    "\\" + std::string(sys->nickname) + ".ini"; FILE *file = fopen(path.c_str(),
-    "a+"); if (file)
-                    {
-                            Console::ConPrint(L"doing path %s", stows(path).c_str());
-                            fprintf(file, "\n\n[Object]\n");
-                            fprintf(file, "nickname = %s_proxy_base\n",
-    sys->nickname); fprintf(file, "dock_with = %s_proxy_base\n", sys->nickname);
-                            fprintf(file, "base = %s_proxy_base\n",
-    sys->nickname); fprintf(file, "pos = 0, -100000, 0\n"); fprintf(file,
-    "archetype = invisible_base\n"); fprintf(file, "behavior = NOTHING\n");
-                            fprintf(file, "visit = 128\n");
-                            fclose(file);
-                    }
-                    sys = Universe::GetNextSystem();
-            }
-            return true;
-    }*/
     if (args.find(L"testrecipe") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;;
 
         uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
         PlayerBase *base = GetPlayerBaseForClient(client);
@@ -1282,7 +1220,7 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
         uint recipe_name = CreateID(wstos(cmd->ArgStr(1)).c_str());
 
         RECIPE recipe = recipes[recipe_name];
-        for (map<uint, uint>::iterator i = recipe.consumed_items.begin();
+        for (std::map<uint, uint>::iterator i = recipe.consumed_items.begin();
              i != recipe.consumed_items.end(); ++i) {
             base->market_items[i->first].quantity += i->second;
             SendMarketGoodUpdated(base, i->first, base->market_items[i->first]);
@@ -1292,14 +1230,14 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
         cmd->Print(L"OK");
         return true;
     } else if (args.find(L"testdeploy") == 0) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;;
         uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
         if (!client) {
             cmd->Print(L"ERR Not in game");
             return true;
         }
 
-        for (map<uint, uint>::iterator i = construction_items.begin();
+        for (std::map<uint, uint>::iterator i = construction_items.begin();
              i != construction_items.end(); ++i) {
             uint good = i->first;
             uint quantity = i->second;
@@ -1328,10 +1266,10 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
         }
 
         // Search for an match at the start of the name
-        for (map<uint, PlayerBase *>::iterator i = player_bases.begin();
+        for (std::map<uint, PlayerBase *>::iterator i = player_bases.begin();
              i != player_bases.end(); ++i) {
             if (ToLower(i->second->basename).find(ToLower(basename)) == 0) {
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;;
                 ForcePlayerBaseDock(info.iClientID, i->second);
                 cmd->Print(L"OK");
                 return true;
@@ -1339,10 +1277,10 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
         }
 
         // Exact match failed, try a for an partial match
-        for (map<uint, PlayerBase *>::iterator i = player_bases.begin();
+        for (std::map<uint, PlayerBase *>::iterator i = player_bases.begin();
              i != player_bases.end(); ++i) {
             if (ToLower(i->second->basename).find(ToLower(basename)) != -1) {
-                returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+                returncode = ReturnCode::SkipAll;
                 ForcePlayerBaseDock(info.iClientID, i->second);
                 cmd->Print(L"OK");
                 return true;
@@ -1356,14 +1294,14 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
     return false;
 }
 
-void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
+EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
     
 
     if (msg == CUSTOM_BASE_BEAM) {
         auto *info = static_cast<CUSTOM_BASE_BEAM_STRUCT *>(data);
         PlayerBase *base = GetPlayerBase(info->iTargetBaseID);
         if (base) {
-            returncode = SKIPPLUGINS;
+            returncode = returncode = ReturnCode::SkipPlugins;;
             ForcePlayerBaseDock(info->iClientID, base);
             info->bBeamed = true;
         }
@@ -1371,7 +1309,7 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
         auto *info = static_cast<CUSTOM_BASE_IS_DOCKED_STRUCT *>(data);
         PlayerBase *base = GetPlayerBaseForClient(info->iClientID);
         if (base) {
-            returncode = SKIPPLUGINS;
+            returncode = ReturnCode::SkipPlugins;
             info->iDockedBaseID = base->base;
         }
     }
@@ -1381,76 +1319,38 @@ void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Functions to hook */
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Base Plugin by cannon";
-    p_PI->sShortName = "base";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&CharacterSelect, PLUGIN_HkIServerImpl_CharacterSelect, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&RequestEvent, PLUGIN_HkIServerImpl_RequestEvent, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LaunchPosHook, PLUGIN_LaunchPosHook, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&PlayerLaunch_AFTER,
-                        PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&CharacterSelect_AFTER,
-                        PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&JumpInComplete, PLUGIN_HkIServerImpl_JumpInComplete, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&BaseExit,
-                                             PLUGIN_HkIServerImpl_BaseExit, 0));
-    pi->emplaceHook(
-        HookedCall::FLHook__Cb_Dock_Call, &Dock_Call);
-
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodSell, PLUGIN_HkIServerImpl_GFGoodSell, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqRemoveItem, PLUGIN_HkIServerImpl_ReqRemoveItem, 15));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ReqRemoveItem_AFTER,
-                        PLUGIN_HkIServerImpl_ReqRemoveItem_AFTER, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodBuy, PLUGIN_HkIServerImpl_GFGoodBuy, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqAddItem, PLUGIN_HkIServerImpl_ReqAddItem, 15));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ReqAddItem_AFTER,
-                        PLUGIN_HkIServerImpl_ReqAddItem_AFTER, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
-
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkTimerCheckKick,
-                                             PLUGIN_HkTimerCheckKick, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ExecuteCommandString,
-                        PLUGIN_ExecuteCommandString_Callback, 0));
-
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&CShip_destroy, PLUGIN_HkIEngine_CShip_destroy, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&BaseDestroyed, PLUGIN_BaseDestroyed, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&HkCb_AddDmgEntry,
-                                             PLUGIN_HkCb_AddDmgEntry, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&Plugin_Communication_CallBack,
-                        PLUGIN_Plugin_Communication, 11));
-    }
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Base by Cannon");
+    pi->shortName("base");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::IServerImpl__RequestEvent, &RequestEvent);
+    pi->emplaceHook(HookedCall::IEngine__LaunchPosition, &LaunchPosHook);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseExit, &BaseExit);
+    pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqRemoveItem, &ReqRemoveItem);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqRemoveItem, &ReqRemoveItem_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+    pi->emplaceHook(HookedCall::IEngine__CShip__Destroy, &CShip_destroy);
+    pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
+    pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
+    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &Plugin_Communication_CallBack);
+}

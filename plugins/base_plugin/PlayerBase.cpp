@@ -46,7 +46,7 @@ PlayerBase::PlayerBase(const std::string &the_path)
 }
 
 PlayerBase::~PlayerBase() {
-    for (vector<Module *>::iterator i = modules.begin(); i != modules.end();
+    for (std::vector<Module *>::iterator i = modules.begin(); i != modules.end();
          ++i) {
         if (*i) {
             delete *i;
@@ -55,7 +55,7 @@ PlayerBase::~PlayerBase() {
 }
 
 void PlayerBase::Spawn() {
-    for (vector<Module *>::iterator i = modules.begin(); i != modules.end();
+    for (std::vector<Module *>::iterator i = modules.begin(); i != modules.end();
          ++i) {
         if (*i) {
             (*i)->Spawn();
@@ -244,7 +244,7 @@ void PlayerBase::Save() {
         for (int i = 1; i <= MAX_PARAGRAPHS; i++) {
             ini_write_wstring(file, "infocardpara", infocard_para[i]);
         }
-        for (map<UINT, MARKET_ITEM>::iterator i = market_items.begin();
+        for (std::map<UINT, MARKET_ITEM>::iterator i = market_items.begin();
              i != market_items.end(); ++i) {
             fprintf(file, "commodity = %u, %u, %f, %u, %u\n", i->first,
                     i->second.quantity, i->second.price, i->second.min_stock,
@@ -288,7 +288,7 @@ bool PlayerBase::AddMarketGood(uint good, uint quantity) {
 }
 
 void PlayerBase::RemoveMarketGood(uint good, uint quantity) {
-    map<uint, MARKET_ITEM>::iterator iter = market_items.find(good);
+    std::map<uint, MARKET_ITEM>::iterator iter = market_items.find(good);
     if (iter != market_items.end()) {
         if (iter->second.quantity <= quantity)
             iter->second.quantity = 0;
@@ -306,7 +306,7 @@ void PlayerBase::ChangeMoney(INT64 the_money) {
 
 uint PlayerBase::GetRemainingCargoSpace() {
     uint used = 0;
-    for (map<UINT, MARKET_ITEM>::iterator i = market_items.begin();
+    for (std::map<UINT, MARKET_ITEM>::iterator i = market_items.begin();
          i != market_items.end(); ++i) {
         float vol, mass;
         pub::GetGoodProperties(i->first, vol, mass);
@@ -321,7 +321,7 @@ uint PlayerBase::GetRemainingCargoSpace() {
 
 uint PlayerBase::GetMaxCargoSpace() {
     uint max_capacity = 30000;
-    for (vector<Module *>::iterator i = modules.begin(); i != modules.end();
+    for (std::vector<Module *>::iterator i = modules.begin(); i != modules.end();
          ++i) {
         if ((*i) && (*i)->type == Module::TYPE_STORAGE) {
             max_capacity += 40000;
@@ -335,7 +335,7 @@ std::string PlayerBase::CreateBaseNickname(const std::string &basename) {
 }
 
 uint PlayerBase::HasMarketItem(uint good) {
-    map<UINT, MARKET_ITEM>::iterator i = market_items.find(good);
+    std::map<UINT, MARKET_ITEM>::iterator i = market_items.find(good);
     if (i != market_items.end())
         return i->second.quantity;
     return 0;
@@ -385,7 +385,7 @@ void PlayerBase::SyncReputationForBase() {
             int player_rep;
             pub::SpaceObj::GetRep(pd->iShipID, player_rep);
             float attitude = GetAttitudeTowardsClient(pd->iOnlineID);
-            for (vector<Module *>::iterator i = modules.begin();
+            for (std::vector<Module *>::iterator i = modules.begin();
                  i != modules.end(); ++i) {
                 if (*i) {
                     (*i)->SetReputation(player_rep, attitude);
@@ -425,7 +425,7 @@ float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj,
         // and so this is more efficient than searching the ally list first.
         if (hostile_tags.find(charname) == hostile_tags.end()) {
             bool is_ally = false;
-            for (list<std::wstring>::iterator i = ally_tags.begin();
+            for (std::list<std::wstring>::iterator i = ally_tags.begin();
                  i != ally_tags.end(); ++i) {
                 if (charname.find(*i) == 0) {
                     is_ally = true;

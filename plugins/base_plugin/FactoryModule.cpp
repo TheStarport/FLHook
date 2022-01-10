@@ -44,7 +44,7 @@ std::wstring FactoryModule::GetInfo(bool xml) {
             info += L"<PARA/><TEXT>      Building " + active_recipe.infotext +
                     L". Waiting for:</TEXT>";
 
-            for (map<uint, uint>::iterator i =
+            for (std::map<uint, uint>::iterator i =
                      active_recipe.consumed_items.begin();
                  i != active_recipe.consumed_items.end(); ++i) {
                 uint good = i->first;
@@ -70,7 +70,7 @@ std::wstring FactoryModule::GetInfo(bool xml) {
         if (active_recipe.nickname) {
             info = L" - Building " + active_recipe.infotext + L". Waiting for:";
 
-            for (map<uint, uint>::iterator i =
+            for (std::map<uint, uint>::iterator i =
                      active_recipe.consumed_items.begin();
                  i != active_recipe.consumed_items.end(); ++i) {
                 uint good = i->first;
@@ -97,7 +97,7 @@ bool FactoryModule::Timer(uint time) {
 
     // Get the next item to make from the build queue.
     if (!active_recipe.nickname && build_queue.size()) {
-        map<uint, RECIPE>::iterator i = recipes.find(build_queue.front());
+        std::map<uint, RECIPE>::iterator i = recipes.find(build_queue.front());
         if (i != recipes.end()) {
             active_recipe = i->second;
         }
@@ -110,7 +110,7 @@ bool FactoryModule::Timer(uint time) {
 
     // Consume goods at the cooking rate.
     bool cooked = true;
-    for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+    for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
          i != active_recipe.consumed_items.end(); ++i) {
         uint good = i->first;
         uint quantity = i->second > active_recipe.cooking_rate
@@ -118,7 +118,7 @@ bool FactoryModule::Timer(uint time) {
                             : i->second;
         if (quantity) {
             cooked = false;
-            map<uint, MARKET_ITEM>::iterator market_item =
+            std::map<uint, MARKET_ITEM>::iterator market_item =
                 base->market_items.find(good);
             if (market_item != base->market_items.end()) {
                 if (market_item->second.quantity >= quantity) {
@@ -174,11 +174,11 @@ void FactoryModule::SaveState(FILE *file) {
     fprintf(file, "produced_item = %u\n", active_recipe.produced_item);
     fprintf(file, "cooking_rate = %u\n", active_recipe.cooking_rate);
     fprintf(file, "infotext = %s\n", wstos(active_recipe.infotext).c_str());
-    for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+    for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
          i != active_recipe.consumed_items.end(); ++i) {
         fprintf(file, "consumed = %u, %u\n", i->first, i->second);
     }
-    for (list<uint>::iterator i = build_queue.begin(); i != build_queue.end();
+    for (std::list<uint>::iterator i = build_queue.begin(); i != build_queue.end();
          ++i) {
         fprintf(file, "build_queue = %u\n", *i);
     }

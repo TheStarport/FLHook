@@ -24,7 +24,7 @@ std::wstring BuildModule::GetInfo(bool xml) {
         info = L"<TEXT>Constructing " + active_recipe.infotext +
                L". Waiting for:</TEXT>";
 
-        for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+        for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
              i != active_recipe.consumed_items.end(); ++i) {
             uint good = i->first;
             uint quantity = i->second;
@@ -41,7 +41,7 @@ std::wstring BuildModule::GetInfo(bool xml) {
     } else {
         info = L"Constructing " + active_recipe.infotext + L". Waiting for: ";
 
-        for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+        for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
              i != active_recipe.consumed_items.end(); ++i) {
             uint good = i->first;
             uint quantity = i->second;
@@ -67,7 +67,7 @@ bool BuildModule::Timer(uint time) {
     bool cooked = true;
 
     // Consume goods at the cooking rate.
-    for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+    for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
          i != active_recipe.consumed_items.end(); ++i) {
         uint good = i->first;
         uint quantity = i->second > active_recipe.cooking_rate
@@ -75,7 +75,7 @@ bool BuildModule::Timer(uint time) {
                             : i->second;
         if (quantity) {
             cooked = false;
-            map<uint, MARKET_ITEM>::iterator market_item =
+            std::map<uint, MARKET_ITEM>::iterator market_item =
                 base->market_items.find(good);
             if (market_item != base->market_items.end()) {
                 if (market_item->second.quantity >= quantity) {
@@ -178,7 +178,7 @@ void BuildModule::SaveState(FILE *file) {
     fprintf(file, "produced_item = %u\n", active_recipe.produced_item);
     fprintf(file, "cooking_rate = %u\n", active_recipe.cooking_rate);
     fprintf(file, "infotext = %s\n", wstos(active_recipe.infotext).c_str());
-    for (map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
+    for (std::map<uint, uint>::iterator i = active_recipe.consumed_items.begin();
          i != active_recipe.consumed_items.end(); ++i) {
         fprintf(file, "consumed = %u, %u\n", i->first, i->second);
     }

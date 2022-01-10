@@ -37,7 +37,7 @@ void ShieldModule::LoadState(INI_Reader &ini) {
 void ShieldModule::SaveState(FILE *file) { fprintf(file, "[ShieldModule]\n"); }
 
 bool ShieldModule::HasShieldPower() {
-    for (map<uint, uint>::iterator i = shield_power_items.begin();
+    for (std::map<uint, uint>::iterator i = shield_power_items.begin();
          i != shield_power_items.end(); ++i) {
         uint good = i->first;
         uint quantity_consumed = i->second;
@@ -71,7 +71,7 @@ bool ShieldModule::Timer(uint time) {
     // If the shield is active then use fuel every 10 seconds
     if (base->shield_state == PlayerBase::SHIELD_STATE_ACTIVE &&
         (time % set_tick_time) == 0) {
-        for (map<uint, uint>::iterator i = shield_power_items.begin();
+        for (std::map<uint, uint>::iterator i = shield_power_items.begin();
              i != shield_power_items.end(); ++i) {
             uint good = i->first;
             uint quantity_consumed = i->second;
