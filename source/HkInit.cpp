@@ -192,44 +192,50 @@ clear the clientinfo
 **************************************************************************************************************/
 
 void ClearClientInfo(uint clientID) {
-    ClientInfo[clientID].dieMsg = DIEMSG_ALL;
-    ClientInfo[clientID].iShip = 0;
-    ClientInfo[clientID].iShipOld = 0;
-    ClientInfo[clientID].tmSpawnTime = 0;
-    ClientInfo[clientID].lstMoneyFix.clear();
-    ClientInfo[clientID].iTradePartner = 0;
-    ClientInfo[clientID].iBaseEnterTime = 0;
-    ClientInfo[clientID].iCharMenuEnterTime = 0;
-    ClientInfo[clientID].bCruiseActivated = false;
-    ClientInfo[clientID].tmKickTime = 0;
-    ClientInfo[clientID].iLastExitedBaseID = 0;
-    ClientInfo[clientID].bDisconnected = false;
-    ClientInfo[clientID].bCharSelected = false;
-    ClientInfo[clientID].tmF1Time = 0;
-    ClientInfo[clientID].tmF1TimeDisconnect = 0;
+    auto *info = &ClientInfo[clientID];
+
+   info->dieMsg = DIEMSG_ALL;
+   info->iShip = 0;
+   info->iShipOld = 0;
+   info->tmSpawnTime = 0;
+   info->lstMoneyFix.clear();
+   info->iTradePartner = 0;
+   info->iBaseEnterTime = 0;
+   info->iCharMenuEnterTime = 0;
+   info->bCruiseActivated = false;
+   info->tmKickTime = 0;
+   info->iLastExitedBaseID = 0;
+   info->bDisconnected = false;
+   info->bCharSelected = false;
+   info->tmF1Time = 0;
+   info->tmF1TimeDisconnect = 0;
 
     DamageList dmg;
-    ClientInfo[clientID].dmgLast = dmg;
-    ClientInfo[clientID].dieMsgSize = CS_DEFAULT;
-    ClientInfo[clientID].chatSize = CS_DEFAULT;
-    ClientInfo[clientID].chatStyle = CST_DEFAULT;
+   info->dmgLast = dmg;
+   info->dieMsgSize = CS_DEFAULT;
+   info->chatSize = CS_DEFAULT;
+   info->chatStyle = CST_DEFAULT;
 
-    ClientInfo[clientID].bAutoBuyMissiles = false;
-    ClientInfo[clientID].bAutoBuyMines = false;
-    ClientInfo[clientID].bAutoBuyTorps = false;
-    ClientInfo[clientID].bAutoBuyCD = false;
-    ClientInfo[clientID].bAutoBuyCM = false;
-    ClientInfo[clientID].bAutoBuyReload = false;
+   info->bAutoBuyMissiles = false;
+   info->bAutoBuyMines = false;
+   info->bAutoBuyTorps = false;
+   info->bAutoBuyCD = false;
+   info->bAutoBuyCM = false;
+   info->bAutoBuyReload = false;
 
-    ClientInfo[clientID].lstIgnore.clear();
-    ClientInfo[clientID].iKillsInARow = 0;
-    ClientInfo[clientID].wscHostname = L"";
-    ClientInfo[clientID].bEngineKilled = false;
-    ClientInfo[clientID].bThrusterActivated = false;
-    ClientInfo[clientID].bTradelane = false;
-    ClientInfo[clientID].iGroupID = 0;
+   info->lstIgnore.clear();
+   info->iKillsInARow = 0;
+   info->wscHostname = L"";
+   info->bEngineKilled = false;
+   info->bThrusterActivated = false;
+   info->bTradelane = false;
+   info->iGroupID = 0;
     
-    ClientInfo[clientID].bSpawnProtected = false;
+   info->bSpawnProtected = false;
+
+    for (auto &i : info->mapPluginData) {
+       std::fill_n(i.second, 40, 0x0);
+   }
     
     CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);
 }
@@ -239,35 +245,32 @@ load settings from flhookhuser.ini
 **************************************************************************************************************/
 
 void LoadUserSettings(uint iClientID) {
+    auto *info = &ClientInfo[iClientID];
+
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
     std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
     // read diemsg settings
-    ClientInfo[iClientID].dieMsg =
-        (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
-    ClientInfo[iClientID].dieMsgSize =
-        (CHATSIZE)IniGetI(scUserFile, "settings", "DieMsgSize", CS_DEFAULT);
+    info->dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
+    info->dieMsgSize = (CHATSIZE)IniGetI(scUserFile, "settings", "DieMsgSize", CS_DEFAULT);
 
     // read chatstyle settings
-    ClientInfo[iClientID].chatSize =
-        (CHATSIZE)IniGetI(scUserFile, "settings", "ChatSize", CS_DEFAULT);
-    ClientInfo[iClientID].chatStyle =
-        (CHATSTYLE)IniGetI(scUserFile, "settings", "ChatStyle", CST_DEFAULT);
+    info->chatSize = (CHATSIZE)IniGetI(scUserFile, "settings", "ChatSize", CS_DEFAULT);
+    info->chatStyle = (CHATSTYLE)IniGetI(scUserFile, "settings", "ChatStyle", CST_DEFAULT);
 
     // read ignorelist
-    ClientInfo[iClientID].lstIgnore.clear();
+    info->lstIgnore.clear();
     for (int i = 1;; i++) {
-        std::wstring wscIgnore =
-            IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
+        std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
         if (!wscIgnore.length())
             break;
 
         IGNORE_INFO ii;
         ii.wscCharname = GetParam(wscIgnore, ' ', 0);
         ii.wscFlags = GetParam(wscIgnore, ' ', 1);
-        ClientInfo[iClientID].lstIgnore.push_back(ii);
+        info->lstIgnore.push_back(ii);
     }
 }
 
@@ -276,6 +279,8 @@ load settings from flhookhuser.ini (specific to character)
 **************************************************************************************************************/
 
 void LoadUserCharSettings(uint clientID) {
+    auto *info = &ClientInfo[clientID];
+
     CAccount *acc = Players.FindAccountFromClientID(clientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
@@ -287,17 +292,17 @@ void LoadUserCharSettings(uint clientID) {
                       wscFilename);
     std::string scSection = "autobuy_" + wstos(wscFilename);
 
-    ClientInfo[clientID].bAutoBuyMissiles =
+   info->bAutoBuyMissiles =
         IniGetB(scUserFile, scSection, "missiles", false);
-    ClientInfo[clientID].bAutoBuyMines =
+   info->bAutoBuyMines =
         IniGetB(scUserFile, scSection, "mines", false);
-    ClientInfo[clientID].bAutoBuyTorps =
+   info->bAutoBuyTorps =
         IniGetB(scUserFile, scSection, "torps", false);
-    ClientInfo[clientID].bAutoBuyCD =
+   info->bAutoBuyCD =
         IniGetB(scUserFile, scSection, "cd", false);
-    ClientInfo[clientID].bAutoBuyCM =
+   info->bAutoBuyCM =
         IniGetB(scUserFile, scSection, "cm", false);
-    ClientInfo[clientID].bAutoBuyReload =
+   info->bAutoBuyReload =
         IniGetB(scUserFile, scSection, "reload", false);
 
     CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, clientID);

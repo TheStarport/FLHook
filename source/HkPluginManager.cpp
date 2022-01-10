@@ -111,57 +111,57 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
         return;
     }
 
-    PluginInfo pi;
-    getPluginInfo(&pi);
+    std::shared_ptr<PluginInfo> pi = std::make_shared<PluginInfo>();
+    getPluginInfo(pi.get());
 
-    if (pi.versionMinor_ == PluginMinorVersion::UNDEFINED || pi.versionMajor_ == PluginMajorVersion::UNDEFINED) {
+    if (pi->versionMinor_ == PluginMinorVersion::UNDEFINED || pi->versionMajor_ == PluginMajorVersion::UNDEFINED) {
         adminInterface->Print(L"ERR plugin does not have defined API version. Unloading.",
-                              dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
+                              dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
         FreeLibrary(plugin.dll);
         return;
     }
 
-    if (pi.versionMajor_ != CurrentMajorVersion) {
+    if (pi->versionMajor_ != CurrentMajorVersion) {
         adminInterface->Print(L"ERR incompatible plugin API (major) version for %s: expected %d, got %d",
-                              dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
+                              dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
         FreeLibrary(plugin.dll);
         return;
     }
 
-    if ((int)pi.versionMinor_ > (int)CurrentMinorVersion) {
+    if ((int)pi->versionMinor_ > (int)CurrentMinorVersion) {
         adminInterface->Print(L"ERR incompatible plugin API (minor) version for %s: expected %d or lower, got %d",
-                              dllName.c_str(), CurrentMinorVersion, pi.versionMinor_);
+                              dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
         FreeLibrary(plugin.dll);
         return;
     }
 
-    if (int(pi.versionMinor_) != (int)CurrentMinorVersion) {
+    if (int(pi->versionMinor_) != (int)CurrentMinorVersion) {
         adminInterface->Print(L"Warning, incompatible plugin API version for %s: expected %d, got %d",
-                              dllName.c_str(), CurrentMinorVersion, pi.versionMinor_);
+                              dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
         adminInterface->Print(L"Processing will continue, but plugin should be considered unstable.");
     }
     
-    if (pi.shortName_.empty() || pi.name_.empty()) {
+    if (pi->shortName_.empty() || pi->name_.empty()) {
         adminInterface->Print(L"ERR missing name/short name for %s",
                               dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
 
-    if (pi.returnCode_ == nullptr) {
+    if (pi->returnCode_ == nullptr) {
         adminInterface->Print(L"ERR missing return code pointer %s",
                               dllName.c_str());
         FreeLibrary(plugin.dll);
         return;
     }
 
-    plugin.mayPause = pi.mayPause_;
-    plugin.mayUnload = pi.mayUnload_;
-    plugin.name = pi.name_;
-    plugin.shortName = pi.shortName_;
+    plugin.mayPause = pi->mayPause_;
+    plugin.mayUnload = pi->mayUnload_;
+    plugin.name = pi->name_;
+    plugin.shortName = pi->shortName_;
     plugin.hash = std::hash<std::string>{}(plugin.shortName);
-    plugin.resetCode = pi.resetCode_;
-    plugin.returnCode = pi.returnCode_;
+    plugin.resetCode = pi->resetCode_;
+    plugin.returnCode = pi->returnCode_;
 
     // plugins that may not unload are interpreted as crucial plugins that can
     // also not be loaded after FLServer startup
@@ -175,7 +175,7 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     size_t index = plugins_.size();
     plugins_.push_back(plugin);
 
-    for (const auto &hook : pi.hooks_) {
+    for (const auto &hook : pi->hooks_) {
         if(!hook.hookFunction_) {
             adminInterface->Print(L"ERR could not load function %d.%d of plugin %s",
                                   hook.targetFunction_, hook.step_, plugin.dllName.c_str());
@@ -194,6 +194,13 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
         list.push_back({ hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index });
         std::sort(list.begin(), list.end());
     }
+
+    // Allocate some space in our client info block
+    for (auto &i : ClientInfo) {
+        i.mapPluginData[pi.get()] = std::array<uchar, 40>();
+    }
+
+    plugin.pInfo = std::move(pi);
 
     adminInterface->Print(L"Plugin %s loaded (%s)",
                           stows(plugin.shortName).c_str(),

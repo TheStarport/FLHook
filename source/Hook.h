@@ -235,218 +235,36 @@ enum EQ_TYPE {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// structs
-
-struct HookEntry {
-    FARPROC fpProc;
-    long dwRemoteAddress;
-    FARPROC fpOldProc;
-};
-
-struct CARGO_INFO {
-    uint iID;
-    int iCount;
-    uint iArchID;
-    float fStatus;
-    bool bMission;
-    bool bMounted;
-    CacheString hardpoint;
-};
-
-// money stuff
-struct MONEY_FIX {
-    std::wstring wscCharname;
-    int iAmount;
-
-    bool operator==(MONEY_FIX mf1) const {
-        if (!wscCharname.compare(mf1.wscCharname))
-            return true;
-
-        return false;
-    };
-};
-
-// ignore
-struct IGNORE_INFO {
-    std::wstring wscCharname;
-    std::wstring wscFlags;
-};
-
-// resolver
-struct RESOLVE_IP {
-    uint iClientID;
-    uint iConnects;
-    std::wstring wscIP;
-    std::wstring wscHostname;
-};
-
-struct CLIENT_INFO {
-    // kill msgs
-    uint iShip;
-    uint iShipOld;
-    mstime tmSpawnTime;
-
-    DamageList dmgLast;
-
-    // money cmd
-    std::list<MONEY_FIX> lstMoneyFix;
-
-    // anticheat
-    uint iTradePartner;
-
-    // change cruise disruptor behaviour
-    bool bCruiseActivated;
-    bool bThrusterActivated;
-    bool bEngineKilled;
-    bool bTradelane;
-
-    // idle kicks
-    uint iBaseEnterTime;
-    uint iCharMenuEnterTime;
-
-    // msg, wait and kick
-    mstime tmKickTime;
-
-    // eventmode
-    uint iLastExitedBaseID;
-    bool bDisconnected;
-
-    // f1 laming
-    bool bCharSelected;
-    mstime tmF1Time;
-    mstime tmF1TimeDisconnect;
-
-    // ignore usercommand
-    std::list<IGNORE_INFO> lstIgnore;
-
-    // user settings
-    DIEMSGTYPE dieMsg;
-    CHATSIZE dieMsgSize;
-    CHATSTYLE dieMsgStyle;
-    CHATSIZE chatSize;
-    CHATSTYLE chatStyle;
-
-    // autobuy
-    bool bAutoBuyMissiles;
-    bool bAutoBuyMines;
-    bool bAutoBuyTorps;
-    bool bAutoBuyCD;
-    bool bAutoBuyCM;
-    bool bAutoBuyReload;
-
-    // MultiKillMessages
-    uint iKillsInARow;
-
-    // bans
-    uint iConnects; // incremented when player connects
-
-    // Group
-    uint iGroupID;
-
-    // other
-    std::wstring wscHostname;
-
-    bool bSpawnProtected;
-    bool bUseServersideHitDetection; // used by AC Plugin
-    uchar unused_data[127];
-};
-
-// taken from directplay
-typedef struct _DPN_CONNECTION_INFO {
-    DWORD dwSize;
-    DWORD dwRoundTripLatencyMS;
-    DWORD dwThroughputBPS;
-    DWORD dwPeakThroughputBPS;
-    DWORD dwBytesSentGuaranteed;
-    DWORD dwPacketsSentGuaranteed;
-    DWORD dwBytesSentNonGuaranteed;
-    DWORD dwPacketsSentNonGuaranteed;
-    DWORD dwBytesRetried;
-    DWORD dwPacketsRetried;
-    DWORD dwBytesDropped;
-    DWORD dwPacketsDropped;
-    DWORD dwMessagesTransmittedHighPriority;
-    DWORD dwMessagesTimedOutHighPriority;
-    DWORD dwMessagesTransmittedNormalPriority;
-    DWORD dwMessagesTimedOutNormalPriority;
-    DWORD dwMessagesTransmittedLowPriority;
-    DWORD dwMessagesTimedOutLowPriority;
-    DWORD dwBytesReceivedGuaranteed;
-    DWORD dwPacketsReceivedGuaranteed;
-    DWORD dwBytesReceivedNonGuaranteed;
-    DWORD dwPacketsReceivedNonGuaranteed;
-    DWORD dwMessagesReceived;
-} DPN_CONNECTION_INFO, *PDPN_CONNECTION_INFO;
-
-struct HKPLAYERINFO {
-    uint iClientID;
-    std::wstring wscCharname;
-    std::wstring wscBase;
-    std::wstring wscSystem;
-    uint iSystem;
-    uint iShip;
-    DPN_CONNECTION_INFO ci;
-    std::wstring wscIP;
-    std::wstring wscHostname;
-};
-
-// patch stuff
-struct PATCH_INFO_ENTRY {
-    ulong pAddress;
-    void *pNewValue;
-    uint iSize;
-    void *pOldValue;
-    bool bAlloced;
-};
-
-struct PATCH_INFO {
-    char *szBinName;
-    ulong pBaseAddress;
-
-    PATCH_INFO_ENTRY piEntries[128];
-};
-
-struct DATA_MARKETITEM {
-    uint iArchID;
-    float fRep;
-};
-
-struct BASE_INFO {
-    uint iBaseID;
-    std::string scBasename;
-    uint iObjectID;
-    bool bDestroyed;
-    std::list<DATA_MARKETITEM> lstMarketMisc;
-};
-
-struct GROUP_MEMBER {
-    uint iClientID;
-    std::wstring wscCharname;
-};
-
-struct SpecialChatIDs {
-    enum : uint {
-        CONSOLE = 0,
-
-        PLAYER_MIN = 1,
-        PLAYER_MAX = 249,
-
-        SPECIAL_BASE = 0x10000,
-        UNIVERSE = SPECIAL_BASE | 0,
-        SYSTEM = SPECIAL_BASE | 1,
-        LOCAL = SPECIAL_BASE | 2,
-        GROUP = SPECIAL_BASE | 3,
-        GROUP_EVENT = SPECIAL_BASE | 4
-    };
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // plugin functionality & hook prototypes
 //
 
 #include <plugin.h>
 
 struct PluginHookData;
+
+struct PluginInfo {
+    EXPORT void versionMajor(PluginMajorVersion version);
+    EXPORT void versionMinor(PluginMinorVersion version);
+    EXPORT void name(const char *name);
+    EXPORT void shortName(const char *shortName);
+    EXPORT void mayPause(bool pause);
+    EXPORT void mayUnload(bool unload);
+    EXPORT void autoResetCode(bool reset);
+    EXPORT void returnCode(ReturnCode *returnCode);
+    EXPORT void addHook(const PluginHook &hook);
+
+    template <typename... Args>
+    void addHook(Args &&... args) {
+        addHook(PluginHook(std::forward<Args>(args)...));
+    }
+
+    PluginMajorVersion versionMajor_ = PluginMajorVersion::UNDEFINED;
+    PluginMinorVersion versionMinor_ = PluginMinorVersion::UNDEFINED;
+    std::string name_, shortName_;
+    bool mayPause_ = false, mayUnload_ = false, resetCode_ = true;
+    ReturnCode *returnCode_ = nullptr;
+    std::list<PluginHook> hooks_;
+};
 
 struct PluginData {
     std::string name;
@@ -459,6 +277,7 @@ struct PluginData {
     ReturnCode *returnCode = nullptr;
     bool resetCode = true;
     bool paused = false;
+    std::shared_ptr<PluginInfo> pInfo = nullptr;
 };
 
 struct PluginHookData {
@@ -474,30 +293,6 @@ struct PluginHookData {
 inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
     return lhs.priority > rhs.priority;
 }
-
-struct PluginInfo {
-    EXPORT void versionMajor(PluginMajorVersion version);
-    EXPORT void versionMinor(PluginMinorVersion version);
-    EXPORT void name(const char* name);
-    EXPORT void shortName(const char* shortName);
-    EXPORT void mayPause(bool pause);
-    EXPORT void mayUnload(bool unload);
-    EXPORT void autoResetCode(bool reset);
-    EXPORT void returnCode(ReturnCode* returnCode);
-    EXPORT void addHook(const PluginHook& hook);
-
-    template<typename... Args>
-    void addHook(Args&&... args) {
-        addHook(PluginHook(std::forward<Args>(args)...));
-    }
-
-    PluginMajorVersion versionMajor_ = PluginMajorVersion::UNDEFINED;
-    PluginMinorVersion versionMinor_ = PluginMinorVersion::UNDEFINED;
-    std::string name_, shortName_;
-    bool mayPause_ = false, mayUnload_ = false, resetCode_ = true;
-    ReturnCode* returnCode_ = nullptr;
-    std::list<PluginHook> hooks_;
-};
 
 EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
 
@@ -617,6 +412,212 @@ bool CallPluginsOther(HookedCall target, HookStep step, Args&& ...args) {
 }
 
 using ExportPluginInfoT = void(*)(PluginInfo*);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// structs
+
+struct HookEntry {
+    FARPROC fpProc;
+    long dwRemoteAddress;
+    FARPROC fpOldProc;
+};
+
+struct CARGO_INFO {
+    uint iID;
+    int iCount;
+    uint iArchID;
+    float fStatus;
+    bool bMission;
+    bool bMounted;
+    CacheString hardpoint;
+};
+
+// money stuff
+struct MONEY_FIX {
+    std::wstring wscCharname;
+    int iAmount;
+
+    bool operator==(MONEY_FIX mf1) const {
+        if (!wscCharname.compare(mf1.wscCharname))
+            return true;
+
+        return false;
+    };
+};
+
+// ignore
+struct IGNORE_INFO {
+    std::wstring wscCharname;
+    std::wstring wscFlags;
+};
+
+// resolver
+struct RESOLVE_IP {
+    uint iClientID;
+    uint iConnects;
+    std::wstring wscIP;
+    std::wstring wscHostname;
+};
+
+struct CLIENT_INFO {
+    // kill msgs
+    uint iShip;
+    uint iShipOld;
+    mstime tmSpawnTime;
+
+    DamageList dmgLast;
+
+    // money cmd
+    std::list<MONEY_FIX> lstMoneyFix;
+
+    // anticheat
+    uint iTradePartner;
+
+    // change cruise disruptor behaviour
+    bool bCruiseActivated;
+    bool bThrusterActivated;
+    bool bEngineKilled;
+    bool bTradelane;
+
+    // idle kicks
+    uint iBaseEnterTime;
+    uint iCharMenuEnterTime;
+
+    // msg, wait and kick
+    mstime tmKickTime;
+
+    // eventmode
+    uint iLastExitedBaseID;
+    bool bDisconnected;
+
+    // f1 laming
+    bool bCharSelected;
+    mstime tmF1Time;
+    mstime tmF1TimeDisconnect;
+
+    // ignore usercommand
+    std::list<IGNORE_INFO> lstIgnore;
+
+    // user settings
+    DIEMSGTYPE dieMsg;
+    CHATSIZE dieMsgSize;
+    CHATSTYLE dieMsgStyle;
+    CHATSIZE chatSize;
+    CHATSTYLE chatStyle;
+
+    // autobuy
+    bool bAutoBuyMissiles;
+    bool bAutoBuyMines;
+    bool bAutoBuyTorps;
+    bool bAutoBuyCD;
+    bool bAutoBuyCM;
+    bool bAutoBuyReload;
+
+    // MultiKillMessages
+    uint iKillsInARow;
+
+    // bans
+    uint iConnects; // incremented when player connects
+
+    // Group
+    uint iGroupID;
+
+    // other
+    std::wstring wscHostname;
+
+    bool bSpawnProtected;
+    bool bUseServersideHitDetection; // used by AC Plugin
+    std::map<PluginInfo*, std::array<uchar, 40>> mapPluginData;
+};
+
+// taken from directplay
+typedef struct _DPN_CONNECTION_INFO {
+    DWORD dwSize;
+    DWORD dwRoundTripLatencyMS;
+    DWORD dwThroughputBPS;
+    DWORD dwPeakThroughputBPS;
+    DWORD dwBytesSentGuaranteed;
+    DWORD dwPacketsSentGuaranteed;
+    DWORD dwBytesSentNonGuaranteed;
+    DWORD dwPacketsSentNonGuaranteed;
+    DWORD dwBytesRetried;
+    DWORD dwPacketsRetried;
+    DWORD dwBytesDropped;
+    DWORD dwPacketsDropped;
+    DWORD dwMessagesTransmittedHighPriority;
+    DWORD dwMessagesTimedOutHighPriority;
+    DWORD dwMessagesTransmittedNormalPriority;
+    DWORD dwMessagesTimedOutNormalPriority;
+    DWORD dwMessagesTransmittedLowPriority;
+    DWORD dwMessagesTimedOutLowPriority;
+    DWORD dwBytesReceivedGuaranteed;
+    DWORD dwPacketsReceivedGuaranteed;
+    DWORD dwBytesReceivedNonGuaranteed;
+    DWORD dwPacketsReceivedNonGuaranteed;
+    DWORD dwMessagesReceived;
+} DPN_CONNECTION_INFO, *PDPN_CONNECTION_INFO;
+
+struct HKPLAYERINFO {
+    uint iClientID;
+    std::wstring wscCharname;
+    std::wstring wscBase;
+    std::wstring wscSystem;
+    uint iSystem;
+    uint iShip;
+    DPN_CONNECTION_INFO ci;
+    std::wstring wscIP;
+    std::wstring wscHostname;
+};
+
+// patch stuff
+struct PATCH_INFO_ENTRY {
+    ulong pAddress;
+    void *pNewValue;
+    uint iSize;
+    void *pOldValue;
+    bool bAlloced;
+};
+
+struct PATCH_INFO {
+    char *szBinName;
+    ulong pBaseAddress;
+
+    PATCH_INFO_ENTRY piEntries[128];
+};
+
+struct DATA_MARKETITEM {
+    uint iArchID;
+    float fRep;
+};
+
+struct BASE_INFO {
+    uint iBaseID;
+    std::string scBasename;
+    uint iObjectID;
+    bool bDestroyed;
+    std::list<DATA_MARKETITEM> lstMarketMisc;
+};
+
+struct GROUP_MEMBER {
+    uint iClientID;
+    std::wstring wscCharname;
+};
+
+struct SpecialChatIDs {
+    enum : uint {
+        CONSOLE = 0,
+
+        PLAYER_MIN = 1,
+        PLAYER_MAX = 249,
+
+        SPECIAL_BASE = 0x10000,
+        UNIVERSE = SPECIAL_BASE | 0,
+        SYSTEM = SPECIAL_BASE | 1,
+        LOCAL = SPECIAL_BASE | 2,
+        GROUP = SPECIAL_BASE | 3,
+        GROUP_EVENT = SPECIAL_BASE | 4
+    };
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // prototypes
