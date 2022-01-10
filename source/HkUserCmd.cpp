@@ -593,7 +593,7 @@ void UserCmd_InviteID(uint iClientID, const std::wstring &wscParam) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Credits(uint iClientID, const std::wstring &wscParam) {
-    PrintUserCmdText(iClientID, L"This server is running FLHook v" VERSION);
+    PrintUserCmdText(iClientID, L"This server is running FLHook v" + VersionInformation);
     PrintUserCmdText(iClientID, L"Running plugins:");
 
     bool bRunning = false;

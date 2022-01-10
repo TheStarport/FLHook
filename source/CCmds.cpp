@@ -750,7 +750,7 @@ void CCmds::CmdRehash() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CCmds::CmdHelp() {
-    wchar_t wszHelpMsg[] = L"[version]\n" VERSION L"\n"
+    std::wstring wszHelpMsg = std::wstring(L"[version]\n") + VersionInformation + L"\n"
                            L"[commands]\n"
                            L"getcash <charname>\n"
                            L"setcash <charname> <amount>\n"
@@ -814,7 +814,7 @@ void CCmds::CmdHelp() {
 
     CallPluginsBefore(HookedCall::FLHook__AdminCommand__Help, this);
 
-    Print(L"%s", wszHelpMsg);
+    Print(L"%s", wszHelpMsg.c_str());
 
     CallPluginsAfter(HookedCall::FLHook__AdminCommand__Help, this);
 

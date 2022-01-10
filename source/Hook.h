@@ -476,7 +476,8 @@ inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
 }
 
 struct PluginInfo {
-    EXPORT void version(int version);
+    EXPORT void versionMajor(PluginMajorVersion version);
+    EXPORT void versionMinor(PluginMinorVersion version);
     EXPORT void name(const char* name);
     EXPORT void shortName(const char* shortName);
     EXPORT void mayPause(bool pause);
@@ -490,7 +491,8 @@ struct PluginInfo {
         addHook(PluginHook(std::forward<Args>(args)...));
     }
 
-    int version_ = 0;
+    PluginMajorVersion versionMajor_ = PluginMajorVersion::UNDEFINED;
+    PluginMinorVersion versionMinor_ = PluginMinorVersion::UNDEFINED;
     std::string name_, shortName_;
     bool mayPause_ = false, mayUnload_ = false, resetCode_ = true;
     ReturnCode* returnCode_ = nullptr;

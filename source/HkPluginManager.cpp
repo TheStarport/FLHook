@@ -117,11 +117,31 @@ void PluginManager::load(const std::wstring &fileName, CCmds *adminInterface, bo
     PluginInfo pi;
     getPluginInfo(&pi);
 
-    if (pi.version_ != PLUGIN_API_VERSION) {
-        adminInterface->Print(L"Error, incompatible plugin API version for %s: expected %d, got %d\n",
-                              dllName.c_str(), PLUGIN_API_VERSION, pi.version_);
+    if (pi.versionMinor_ == PluginMinorVersion::UNDEFINED || pi.versionMajor_ == PluginMajorVersion::UNDEFINED) {
+        adminInterface->Print(L"Error, plugin does not have defined API version. Unloading.\n",
+                              dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
         FreeLibrary(plugin.dll);
         return;
+    }
+
+    if (pi.versionMajor_ != CurrentMajorVersion) {
+        adminInterface->Print(L"Error, incompatible plugin API (major) version for %s: expected %d, got %d\n",
+                              dllName.c_str(), CurrentMajorVersion, pi.versionMajor_);
+        FreeLibrary(plugin.dll);
+        return;
+    }
+
+    if ((int)pi.versionMinor_ > (int)CurrentMinorVersion) {
+        adminInterface->Print(L"Error, incompatible plugin API (minor) version for %s: expected %d or lower, got %d\n",
+                              dllName.c_str(), CurrentMinorVersion, pi.versionMinor_);
+        FreeLibrary(plugin.dll);
+        return;
+    }
+
+    if (int(pi.versionMinor_) != (int)CurrentMinorVersion) {
+        adminInterface->Print(L"Warning, incompatible plugin API version for %s: expected %d, got %d\n",
+                              dllName.c_str(), CurrentMinorVersion, pi.versionMinor_);
+        adminInterface->Print(L"Processing will continue, but plugin should be considered unstable.\n");
     }
     
     if (pi.shortName_.empty() || pi.name_.empty()) {
@@ -201,10 +221,13 @@ void PluginManager::setProps(HookedCall c, bool b, bool m, bool a) {
 }
 
 
-void PluginInfo::version(int version) {
-    version_ = version;
+void PluginInfo::versionMajor(PluginMajorVersion version) {
+    versionMajor_ = version;
 }
 
+void PluginInfo::versionMinor(PluginMinorVersion version) {
+    versionMinor_ = version;
+}
 
 void PluginInfo::name(const char *name) {
     name_ = name;

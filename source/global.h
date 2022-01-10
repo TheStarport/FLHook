@@ -29,9 +29,6 @@ extern EXPORT st6_free_t st6_free;
 #include <FLCoreRemoteClient.h>
 #include <FLCoreServer.h>
 
-// defines
-#define VERSION L"2.0.0 plugin"
-
 #define TIME_UPDATE 50
 #define IMPORT __declspec(dllimport)
 #define EXPORT __declspec(dllexport)

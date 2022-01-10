@@ -182,7 +182,8 @@ void FLHookInit_Pre() {
     hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
     hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
 
-    ConPrint(L"Welcome to FLHook Console (" VERSION L")\n");
+    ConPrint(L"Welcome to FLHook Console Version " + 
+        std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion)) + L"\n");
 
     try {
 
