@@ -87,7 +87,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Hyper_Jump_Plugin.ini" />
+    <None Include="jump.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
