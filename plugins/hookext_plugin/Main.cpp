@@ -92,7 +92,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
     std::string path =
         scAcctPath + GetAccountDir(client) + "\\" + charid.szCharFilename;
 
-    // ConPrint(L"CharacterSelect=%s\n", stows(path).c_str());
+    // Console::ConPrint(L"CharacterSelect=%s", stows(path).c_str());
 
     clients[client].charfilename = charid.szCharFilename;
     clients[client].lines.clear();

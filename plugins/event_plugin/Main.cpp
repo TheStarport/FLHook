@@ -91,9 +91,9 @@ void LoadSettings() {
         }
 
         if (set_iPluginDebug & 1) {
-            ConPrint(L"CargoMissionSettings loaded [%d]\n",
+            Console::ConPrint(L"CargoMissionSettings loaded [%d]",
                      set_mapCargoMissions.size());
-            ConPrint(L"NpcMissionSettings loaded [%d]\n",
+            Console::ConPrint(L"NpcMissionSettings loaded [%d]",
                      set_mapNpcMissions.size());
         }
         ini.close();

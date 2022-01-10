@@ -78,6 +78,11 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BuildModule.cpp" />
     <ClCompile Include="ClientCommands.cpp" />

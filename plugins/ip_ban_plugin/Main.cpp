@@ -72,7 +72,7 @@ static bool IsBanned(uint iClientID) {
                                     Trim(GetParam(sz, '\t', 3)
                                              .substr(4, std::string::npos));
                         } catch (...) {
-                            ConPrint(L"ERR Corrupt loginid file $0\n",
+                            Console::ConPrint(L"ERR Corrupt loginid file $0",
                                      stows(scFilePath).c_str());
                         }
                     }
@@ -80,7 +80,7 @@ static bool IsBanned(uint iClientID) {
                 }
 
                 if (set_bDebug) {
-                    ConPrint(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
+                    Console::ConPrint(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
                              L"ID2 %s "
                              L"Client %d\n",
                              stows(scThisIP).c_str(), stows(scLoginID).c_str(),
@@ -92,7 +92,7 @@ static bool IsBanned(uint iClientID) {
                 if (scThisIP == scIP && scLoginID.length()) {
                     for (auto &ban : set_lstLoginIDBans) {
                         if (ban == scLoginID || ban == scLoginID2) {
-                            ConPrint(L"* Kicking player on ID ban: ip=%s "
+                            Console::ConPrint(L"* Kicking player on ID ban: ip=%s "
                                      L"id1=%s id2=%s\n",
                                      stows(scThisIP).c_str(),
                                      stows(scLoginID).c_str(),
@@ -139,7 +139,7 @@ static void ReloadIPBans() {
     std::string scAcctPath =
         std::string(szDataPath) + "\\Accts\\MultiPlayer\\ipbans.ini";
     if (set_bDebug)
-        ConPrint(L"NOTICE: Loading IP bans from %s\n",
+        Console::ConPrint(L"NOTICE: Loading IP bans from %s",
                  stows(scAcctPath).c_str());
 
     INI_Reader ini;
@@ -149,13 +149,13 @@ static void ReloadIPBans() {
             while (ini.read_value()) {
                 set_lstIPBans.push_back(ini.get_name_ptr());
                 if (set_bDebug)
-                    ConPrint(L"NOTICE: Adding IP ban %s\n",
+                    Console::ConPrint(L"NOTICE: Adding IP ban %s",
                              stows(ini.get_name_ptr()).c_str());
             }
         }
         ini.close();
     }
-    ConPrint(L"IP Bans [%u]\n", set_lstIPBans.size());
+    Console::ConPrint(L"IP Bans [%u]", set_lstIPBans.size());
 }
 
 static void ReloadLoginIDBans() {
@@ -165,7 +165,7 @@ static void ReloadLoginIDBans() {
     std::string scAcctPath =
         std::string(szDataPath) + "\\Accts\\MultiPlayer\\loginidbans.ini";
     if (set_bDebug)
-        ConPrint(L"NOTICE: Loading Login ID bans from %s\n",
+        Console::ConPrint(L"NOTICE: Loading Login ID bans from %s",
                  stows(scAcctPath).c_str());
 
     INI_Reader ini;
@@ -176,13 +176,13 @@ static void ReloadLoginIDBans() {
                 set_lstLoginIDBans.push_back(
                     Trim(std::string(ini.get_name_ptr())));
                 if (set_bDebug)
-                    ConPrint(L"NOTICE: Adding Login ID ban %s\n",
+                    Console::ConPrint(L"NOTICE: Adding Login ID ban %s",
                              stows(ini.get_name_ptr()).c_str());
             }
         }
         ini.close();
     }
-    ConPrint(L"ID Bans [%u]\n", set_lstLoginIDBans.size());
+    Console::ConPrint(L"ID Bans [%u]", set_lstLoginIDBans.size());
 }
 
 /// Reload the ipbans file.
@@ -226,14 +226,14 @@ void ClearClientInfo(uint iClientID) {
 void AdminCmd_ReloadBans(CCmds *cmds) {
     ReloadLoginIDBans();
     ReloadIPBans();
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 }
 
 /** Start automatic zone checking */
 void AdminCmd_AuthenticateChar(CCmds *cmds,
                                const std::wstring &wscCharname) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -243,7 +243,7 @@ void AdminCmd_AuthenticateChar(CCmds *cmds,
 
     std::wstring wscDir;
     if (HkGetAccountDirName(wscCharname, wscDir) != HKE_OK) {
-        cmds->Print(L"ERR Account not found\n");
+        cmds->Print(L"ERR Account not found");
         return;
     }
 
@@ -252,12 +252,12 @@ void AdminCmd_AuthenticateChar(CCmds *cmds,
     FILE *fTest;
     fopen_s(&fTest, scPath.c_str(), "w");
     if (!fTest) {
-        cmds->Print(L"ERR Writing authentication file\n");
+        cmds->Print(L"ERR Writing authentication file");
         return;
     }
 
     fclose(fTest);
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,8 +267,8 @@ void AdminCmd_AuthenticateChar(CCmds *cmds,
 // Define usable admin commands here
 void CmdHelp_Callback(CCmds *classptr) {
 
-    classptr->Print(L"authchar <charname>\n");
-    classptr->Print(L"reloadbans\n");
+    classptr->Print(L"authchar <charname>");
+    classptr->Print(L"reloadbans");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command

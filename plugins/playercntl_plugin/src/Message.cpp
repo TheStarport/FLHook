@@ -904,7 +904,7 @@ void Message::UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 void Message::AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname,
                                 const std::wstring &wscMsg) {
     Mail::MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
-    cmds->Print(L"OK message saved to mailbox\n");
+    cmds->Print(L"OK message saved to mailbox");
 }
 
 /** Me command allow players to type "/me powers his engines" which would print:

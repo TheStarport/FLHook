@@ -765,18 +765,18 @@ void AdminCmd_SetAccMoveCode(CCmds *cmds,
         return;
 
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     std::wstring wscDir;
     if (HkGetAccountDirName(wscCharname, wscDir) != HKE_OK) {
-        cmds->Print(L"ERR Charname not found\n");
+        cmds->Print(L"ERR Charname not found");
         return;
     }
 
     if (wscCode.length() == 0) {
-        cmds->Print(L"ERR Code too small, set to none to clear.\n");
+        cmds->Print(L"ERR Code too small, set to none to clear.");
         return;
     }
 
@@ -790,7 +790,7 @@ void AdminCmd_SetAccMoveCode(CCmds *cmds,
     WIN32_FIND_DATA FindFileData;
     HANDLE hFileFind = FindFirstFile(scPath.c_str(), &FindFileData);
     if (hFileFind == INVALID_HANDLE_VALUE) {
-        cmds->Print(L"ERR Account directory not found\n");
+        cmds->Print(L"ERR Account directory not found");
         return;
     }
 
@@ -813,13 +813,13 @@ void AdminCmd_SetAccMoveCode(CCmds *cmds,
     } while (FindNextFile(hFileFind, &FindFileData));
     FindClose(hFileFind);
 
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 }
 
 /// Set the move char code for all characters in the account
 void AdminCmd_ShowTags(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -836,29 +836,29 @@ void AdminCmd_ShowTags(CCmds *cmds) {
             i->second.rename_password.c_str(), days,
             i->second.description.c_str());
     }
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 }
 
 void AdminCmd_AddTag(CCmds *cmds, const std::wstring &tag,
                      const std::wstring &password,
                      const std::wstring &description) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     if (tag.size() < 3) {
-        cmds->Print(L"ERR Tag too short\n");
+        cmds->Print(L"ERR Tag too short");
         return;
     }
 
     if (!password.size()) {
-        cmds->Print(L"ERR Password not set\n");
+        cmds->Print(L"ERR Password not set");
         return;
     }
 
     if (!description.size()) {
-        cmds->Print(L"ERR Description not set\n");
+        cmds->Print(L"ERR Description not set");
         return;
     }
 
@@ -878,14 +878,14 @@ void AdminCmd_AddTag(CCmds *cmds, const std::wstring &tag,
     mapTagToPassword[tag].rename_password = L"";
     mapTagToPassword[tag].last_access = (uint)time(0);
     mapTagToPassword[tag].description = description;
-    cmds->Print(L"Created faction tag %s with master password %s\n",
+    cmds->Print(L"Created faction tag %s with master password %s",
                 tag.c_str(), password.c_str());
     SaveSettings();
 }
 
 void AdminCmd_DropTag(CCmds *cmds, const std::wstring &tag) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -896,12 +896,12 @@ void AdminCmd_DropTag(CCmds *cmds, const std::wstring &tag) {
         if (tag == i->second.tag) {
             mapTagToPassword.erase(tag);
             SaveSettings();
-            cmds->Print(L"OK Tag dropped\n");
+            cmds->Print(L"OK Tag dropped");
             return;
         }
     }
 
-    cmds->Print(L"ERR tag is invalid\n");
+    cmds->Print(L"ERR tag is invalid");
     return;
 }
 
@@ -931,10 +931,10 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 
 /** Admin help command callback */
 void CmdHelp(CCmds *classptr) {
-classptr->Print(L"setaccmovecode <charname> <code>\n");
-    classptr->Print(L"showtags\n");
-    classptr->Print(L"addtag <tag> <password>\n");
-    classptr->Print(L"droptag <tag> <password>\n");
+classptr->Print(L"setaccmovecode <charname> <code>");
+    classptr->Print(L"showtags");
+    classptr->Print(L"addtag <tag> <password>");
+    classptr->Print(L"droptag <tag> <password>");
 }
 
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {

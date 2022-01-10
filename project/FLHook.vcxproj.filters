@@ -34,6 +34,9 @@
     <Filter Include="Hook\features">
       <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\flcodec.cpp">
@@ -116,6 +119,9 @@
     </ClCompile>
     <ClCompile Include="..\source\HkPluginManager.cpp">
       <Filter>Hook\features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Tools\Console.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

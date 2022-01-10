@@ -88,6 +88,9 @@
     <Link>
       <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AntiJumpDisconnect.cpp" />

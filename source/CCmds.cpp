@@ -3,12 +3,12 @@
 
 #define RIGHT_CHECK(a)                                                         \
     if (!(this->rights & a)) {                                                 \
-        Print(L"ERR No permission\n");                                         \
+        Print(L"ERR No permission");                                         \
         return;                                                                \
     }
 #define RIGHT_CHECK_SUPERADMIN()                                               \
     if (!(this->rights == RIGHT_SUPERADMIN)) {                                 \
-        Print(L"ERR No permission\n");                                         \
+        Print(L"ERR No permission");                                         \
         return;                                                                \
     }
 
@@ -19,7 +19,7 @@ void CCmds::CmdGetCash(const std::wstring &wscCharname) {
 
     int iCash;
     if (HKSUCCESS(HkGetCash(wscCharname, iCash)))
-        Print(L"cash=%d\nOK\n", iCash);
+        Print(L"cash=%dOK\n", iCash);
     else
         PrintError();
 }
@@ -45,7 +45,7 @@ void CCmds::CmdSetCashSec(const std::wstring &wscCharname, int iAmountCheck,
 
     if (HKSUCCESS(HkGetCash(wscCharname, iCash))) {
         if (iCash != iAmountCheck)
-            Print(L"ERR Security check failed\n");
+            Print(L"ERR Security check failed");
         else
             CmdSetCash(wscCharname, iAmount);
     } else
@@ -71,7 +71,7 @@ void CCmds::CmdAddCashSec(const std::wstring &wscCharname, int iAmountCheck,
 
     if (HKSUCCESS(HkGetCash(wscCharname, iCash))) {
         if (iCash != iAmountCheck)
-            Print(L"ERR Security check failed\n");
+            Print(L"ERR Security check failed");
         else
             CmdAddCash(wscCharname, iAmount);
     } else
@@ -85,7 +85,7 @@ void CCmds::CmdKick(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_KICKBAN);
 
     if (HKSUCCESS(HkKickReason(wscCharname, wscReason)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -96,7 +96,7 @@ void CCmds::CmdBan(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_KICKBAN);
 
     if (HKSUCCESS(HkBan(wscCharname, true)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -107,7 +107,7 @@ void CCmds::CmdUnban(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_KICKBAN);
 
     if (HKSUCCESS(HkBan(wscCharname, false)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -128,7 +128,7 @@ void CCmds::CmdKickBan(const std::wstring &wscCharname,
         return;
     }
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ void CCmds::CmdGetBaseStatus(const std::wstring &wscBasename) {
     float fMaxHealth;
 
     if (HKSUCCESS(HkGetBaseStatus(wscBasename, fHealth, fMaxHealth)))
-        Print(L"hitpts=%u hitptsmax=%u\nOK\n", (long)fHealth, (long)fMaxHealth);
+        Print(L"hitpts=%u hitptsmax=%uOK\n", (long)fHealth, (long)fMaxHealth);
     else
         PrintError();
 }
@@ -158,7 +158,7 @@ void CCmds::CmdGetClientId(const std::wstring &wscCharname) {
         return;
     }
 
-    Print(L"clientid=%u\nOK\n", iClientID);
+    Print(L"clientid=%uOK\n", iClientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,12 +169,12 @@ void CCmds::CmdBeam(const std::wstring &wscCharname,
 
     try {
         if (HKSUCCESS(HkBeam(wscCharname, wscBasename)))
-            Print(L"OK\n");
+            Print(L"OK");
         else
             PrintError();
     } catch (...) { // exeption, kick player
         HkKick(wscCharname);
-        Print(L"ERR exception occured, player kicked\n");
+        Print(L"ERR exception occured, player kicked");
     }
 }
 
@@ -184,7 +184,7 @@ void CCmds::CmdKill(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_BEAMKILL);
 
     if (HKSUCCESS(HkKill(wscCharname)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -195,7 +195,7 @@ void CCmds::CmdResetRep(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_REPUTATION);
 
     if (HKSUCCESS(HkResetRep(wscCharname)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -207,7 +207,7 @@ void CCmds::CmdSetRep(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_REPUTATION);
 
     if (HKSUCCESS(HkSetRep(wscCharname, wscRepGroup, fValue)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -220,8 +220,8 @@ void CCmds::CmdGetRep(const std::wstring &wscCharname,
 
     float fValue;
     if (HKSUCCESS(HkGetRep(wscCharname, wscRepGroup, fValue))) {
-        Print(L"feelings=%f\n", fValue);
-        Print(L"OK\n");
+        Print(L"feelings=%f", fValue);
+        Print(L"OK");
     } else
         PrintError();
 }
@@ -233,7 +233,7 @@ void CCmds::CmdMsg(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkMsg(wscCharname, wscText)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -245,7 +245,7 @@ void CCmds::CmdMsgS(const std::wstring &wscSystemname,
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkMsgS(wscSystemname, wscText)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -256,7 +256,7 @@ void CCmds::CmdMsgU(const std::wstring &wscText) {
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkMsgU(wscText)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -268,7 +268,7 @@ void CCmds::CmdFMsg(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkFMsg(wscCharname, wscXML)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -280,7 +280,7 @@ void CCmds::CmdFMsgS(const std::wstring &wscSystemname,
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkFMsgS(wscSystemname, wscXML)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -291,7 +291,7 @@ void CCmds::CmdFMsgU(const std::wstring &wscXML) {
     RIGHT_CHECK(RIGHT_MSG);
 
     if (HKSUCCESS(HkFMsgU(wscXML)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -304,14 +304,14 @@ void CCmds::CmdEnumCargo(const std::wstring &wscCharname) {
     std::list<CARGO_INFO> lstCargo;
     int iRemainingHoldSize = 0;
     if (HKSUCCESS(HkEnumCargo(wscCharname, lstCargo, iRemainingHoldSize))) {
-        Print(L"remainingholdsize=%d\n", iRemainingHoldSize);
+        Print(L"remainingholdsize=%d", iRemainingHoldSize);
         for (auto &cargo : lstCargo) {
             if (!cargo.bMounted)
-                Print(L"id=%u archid=%u count=%d mission=%u\n", cargo.iID,
+                Print(L"id=%u archid=%u count=%d mission=%u", cargo.iID,
                       cargo.iArchID, cargo.iCount, cargo.bMission ? 1 : 0);
         }
 
-        Print(L"OK\n");
+        Print(L"OK");
     } else
         PrintError();
 }
@@ -323,7 +323,7 @@ void CCmds::CmdRemoveCargo(const std::wstring &wscCharname, uint iID,
     RIGHT_CHECK(RIGHT_CARGO);
 
     if (HKSUCCESS(HkRemoveCargo(wscCharname, iID, iCount)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -337,7 +337,7 @@ void CCmds::CmdAddCargo(const std::wstring &wscCharname,
 
     if (HKSUCCESS(
             HkAddCargo(wscCharname, wscGood, iCount, iMission ? true : false)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -349,7 +349,7 @@ void CCmds::CmdRename(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_CHARACTERS);
 
     if (HKSUCCESS(HkRename(wscCharname, wscNewCharname, false)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -360,7 +360,7 @@ void CCmds::CmdDeleteChar(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_CHARACTERS);
 
     if (HKSUCCESS(HkRename(wscCharname, L"", true)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -373,8 +373,8 @@ void CCmds::CmdReadCharFile(const std::wstring &wscCharname) {
     std::list<std::wstring> lstOut;
     if (HKSUCCESS(HkReadCharFile(wscCharname, lstOut))) {
         for (auto &l : lstOut)
-            Print(L"l %s\n", l.c_str());
-        Print(L"OK\n");
+            Print(L"l %s", l.c_str());
+        Print(L"OK");
     } else
         PrintError();
 }
@@ -386,7 +386,7 @@ void CCmds::CmdWriteCharFile(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_CHARACTERS);
 
     if (HKSUCCESS(HkWriteCharFile(wscCharname, wscData)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -396,7 +396,7 @@ void CCmds::CmdWriteCharFile(const std::wstring &wscCharname,
 void CCmds::PrintPlayerInfo(HKPLAYERINFO pi) {
     RIGHT_CHECK(RIGHT_OTHER);
 
-    Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s\n",
+    Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s",
           pi.wscCharname.c_str(), pi.iClientID, pi.wscIP.c_str(),
           pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS,
           pi.wscBase.c_str(), pi.wscSystem.c_str());
@@ -411,7 +411,7 @@ void CCmds::CmdGetPlayerInfo(const std::wstring &wscCharname) {
     else
         PrintError();
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 void CCmds::CmdGetPlayers() {
@@ -420,7 +420,7 @@ void CCmds::CmdGetPlayers() {
     for (auto &p : HkGetPlayers())
         PrintPlayerInfo(p);
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +444,7 @@ void CCmds::CmdXGetPlayerInfo(const std::wstring &wscCharname) {
     else
         PrintError();
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 void CCmds::CmdXGetPlayers() {
@@ -453,7 +453,7 @@ void CCmds::CmdXGetPlayers() {
     for (auto &p : HkGetPlayers())
         XPrintPlayerInfo(p);
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -466,15 +466,15 @@ void CCmds::CmdGetPlayerIDs() {
         wchar_t wszBuf[1024];
         swprintf_s(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
         if ((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine) / 2) {
-            Print(L"%s\n", wszLine);
+            Print(L"%s", wszLine);
             wcscpy_s(wszLine, wszBuf);
         } else
             wcscat_s(wszLine, wszBuf);
     }
 
     if (wcslen(wszLine))
-        Print(L"%s\n", wszLine);
-    Print(L"OK\n");
+        Print(L"%s", wszLine);
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -484,7 +484,7 @@ void CCmds::CmdGetAccountDirName(const std::wstring &wscCharname) {
 
     std::wstring wscDir;
     if (HKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
-        Print(L"dirname=%s\nOK\n", wscDir.c_str());
+        Print(L"dirname=%sOK\n", wscDir.c_str());
     else
         PrintError();
 }
@@ -496,7 +496,7 @@ void CCmds::CmdGetCharFileName(const std::wstring &wscCharname) {
 
     std::wstring wscFilename;
     if (HKSUCCESS(HkGetCharFileName(wscCharname, wscFilename)))
-        Print(L"charfilename=%s\nOK\n", wscFilename.c_str());
+        Print(L"charfilename=%sOK\n", wscFilename.c_str());
     else
         PrintError();
 }
@@ -515,9 +515,9 @@ void CCmds::CmdIsOnServer(const std::wstring &wscCharname) {
 
     uint iClientID = HkGetClientIdFromAccount(acc);
     if (iClientID == -1)
-        Print(L"onserver=no\nOK\n");
+        Print(L"onserver=noOK\n");
     else
-        Print(L"onserver=yes\nOK\n");
+        Print(L"onserver=yesOK\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -527,11 +527,11 @@ void CCmds::CmdIsLoggedIn(const std::wstring &wscCharname) {
 
     if (HkGetClientIdFromCharname(wscCharname) != -1) {
         if (HkIsInCharSelectMenu(wscCharname))
-            Print(L"loggedin=no\nOK\n");
+            Print(L"loggedin=noOK\n");
         else
-            Print(L"loggedin=yes\nOK\n");
+            Print(L"loggedin=yesOK\n");
     } else
-        Print(L"loggedin=no\nOK\n");
+        Print(L"loggedin=noOK\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -544,10 +544,10 @@ void CCmds::CmdMoneyFixList() {
         uint iClientID = HkGetClientIdFromPD(pPD);
 
         if (ClientInfo[iClientID].lstMoneyFix.size())
-            Print(L"id=%u\n", iClientID);
+            Print(L"id=%u", iClientID);
     }
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,7 +581,7 @@ void CCmds::CmdServerInfo() {
                iSeconds);
 
     // print
-    Print(L"serverload=%d npcspawn=%s uptime=%s\nOK\n", g_iServerLoad,
+    Print(L"serverload=%d npcspawn=%s uptime=%sOK\n", g_iServerLoad,
           g_bNPCDisabled ? L"disabled" : L"enabled", wszUptime);
 }
 
@@ -592,10 +592,10 @@ void CCmds::CmdGetGroupMembers(const std::wstring &wscCharname) {
 
     std::list<GROUP_MEMBER> lstMembers;
     if (HKSUCCESS(HkGetGroupMembers(wscCharname, lstMembers))) {
-        Print(L"groupsize=%d\n", lstMembers.size());
+        Print(L"groupsize=%d", lstMembers.size());
         for (auto &m : lstMembers)
-            Print(L"id=%d charname=%s\n", m.iClientID, m.wscCharname.c_str());
-        Print(L"OK\n");
+            Print(L"id=%d charname=%s", m.iClientID, m.wscCharname.c_str());
+        Print(L"OK");
     } else
         PrintError();
 }
@@ -606,7 +606,7 @@ void CCmds::CmdSaveChar(const std::wstring &wscCharname) {
     RIGHT_CHECK(RIGHT_OTHER);
 
     if (HKSUCCESS(HkSaveChar(wscCharname)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -618,7 +618,7 @@ void CCmds::CmdGetReservedSlot(const std::wstring &wscCharname) {
 
     bool bResult;
     if (HKSUCCESS(HkGetReservedSlot(wscCharname, bResult)))
-        Print(L"reservedslot=%s\nOK\n", bResult ? L"yes" : L"no");
+        Print(L"reservedslot=%sOK\n", bResult ? L"yes" : L"no");
     else
         PrintError();
 }
@@ -630,7 +630,7 @@ void CCmds::CmdSetReservedSlot(const std::wstring &wscCharname,
     RIGHT_CHECK(RIGHT_SETTINGS);
 
     if (HKSUCCESS(HkSetReservedSlot(wscCharname, iReservedSlot ? true : false)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -642,7 +642,7 @@ void CCmds::CmdSetAdmin(const std::wstring &wscCharname,
     RIGHT_CHECK_SUPERADMIN();
 
     if (HKSUCCESS(HkSetAdmin(wscCharname, wscRights)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -654,7 +654,7 @@ void CCmds::CmdGetAdmin(const std::wstring &wscCharname) {
 
     std::wstring wscRights;
     if (HKSUCCESS(HkGetAdmin(wscCharname, wscRights)))
-        Print(L"rights=%s\nOK\n", wscRights.c_str());
+        Print(L"rights=%sOK\n", wscRights.c_str());
     else
         PrintError();
 }
@@ -665,7 +665,7 @@ void CCmds::CmdDelAdmin(const std::wstring &wscCharname) {
     RIGHT_CHECK_SUPERADMIN();
 
     if (HKSUCCESS(HkDelAdmin(wscCharname)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -676,7 +676,7 @@ void CCmds::CmdLoadPlugins() {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     PluginManager::i()->loadAll(false, this);
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -685,7 +685,7 @@ void CCmds::CmdLoadPlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     PluginManager::i()->load(wscPlugin, this, false);
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -695,11 +695,11 @@ void CCmds::CmdListPlugins() {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     for (const auto &data : PluginManager::ir())
-        Print(L"%s (%s) - %s\n", stows(data.name).c_str(),
+        Print(L"%s (%s) - %s", stows(data.name).c_str(),
               stows(data.shortName).c_str(),
               (!data.paused ? L"running" : L"paused"));
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -708,7 +708,7 @@ void CCmds::CmdUnloadPlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     if (HKSUCCESS(PluginManager::i()->unload(wstos(wscPlugin))))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -719,7 +719,7 @@ void CCmds::CmdPausePlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), true)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -730,7 +730,7 @@ void CCmds::CmdUnpausePlugin(const std::wstring &wscPlugin) {
     RIGHT_CHECK(RIGHT_PLUGINS);
 
     if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), false)))
-        Print(L"OK\n");
+        Print(L"OK");
     else
         PrintError();
 }
@@ -744,7 +744,7 @@ void CCmds::CmdRehash() {
     CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
     HookRehashed();
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -818,7 +818,7 @@ void CCmds::CmdHelp() {
 
     CallPluginsAfter(HookedCall::FLHook__AdminCommand__Help, this);
 
-    Print(L"OK\n");
+    Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -967,7 +967,7 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
 
         std::wstring wscCmd = ToLower(GetParam(wscCmdStr, ' ', 0));
         if (wscCmd.length() == 0) {
-            Print(L"ERR unknown command\n");
+            Print(L"ERR unknown command");
             return;
         }
 
@@ -1104,7 +1104,7 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
             } else if (IS_CMD("help")) {
                 CmdHelp();
             } else {
-                Print(L"ERR unknown command\n");
+                Print(L"ERR unknown command");
             }
         }
         if (bSocket) {
@@ -1132,7 +1132,7 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
             if (set_bLogAdminCmds)
                 HkAddAdminCmdLog("exception");
         }
-        Print(L"ERR exception occured\n");
+        Print(L"ERR exception occured");
     }
 }
 
@@ -1176,7 +1176,7 @@ void CCmds::SetRightsByString(const std::string &scRights) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CCmds::PrintError() {
-    Print(L"ERR %s\n", HkErrGetText(this->hkLastErr).c_str());
+    Print(L"ERR %s", HkErrGetText(this->hkLastErr).c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

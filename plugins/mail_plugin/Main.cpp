@@ -274,7 +274,7 @@ EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
 void AdminCmd_SendMail(CCmds *cmds, const std::wstring &wscCharname,
                        const std::wstring &wscMsg) {
     MailSend(wscCharname, MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
-    cmds->Print(L"OK message saved to mailbox\n");
+    cmds->Print(L"OK message saved to mailbox");
 }
 
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {

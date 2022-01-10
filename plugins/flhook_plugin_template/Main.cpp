@@ -28,7 +28,7 @@ void LoadSettings() {
         }
 
         if (set_iPluginDebug & 1) {
-            ConPrint(L"Debug\n");
+            Console::ConPrint(L"Debug");
         }
 
         ini.close();
@@ -77,16 +77,16 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 // Demo admin command
 void AdminCmd_Template(CCmds *cmds, float number) {
     if (cmds->ArgStrToEnd(1).length() == 0) {
-        cmds->Print(L"ERR Usage: template <number>\n");
+        cmds->Print(L"ERR Usage: template <number>");
         return;
     }
 
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
-    cmds->Print(L"Template is %0.0f\n", number);
+    cmds->Print(L"Template is %0.0f", number);
     return;
 }
 
@@ -96,7 +96,7 @@ void AdminCmd_Template(CCmds *cmds, float number) {
 
 // Define usable admin commands here
 void CmdHelp(CCmds *classptr) {
-    classptr->Print(L"template <number>\n");
+    classptr->Print(L"template <number>");
 }
 
 // Admin command callback. Compare the chat entry to see if it match a command

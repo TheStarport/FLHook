@@ -67,7 +67,7 @@ void LoadSettings() {
                         uint iLocationID = CreateID(nickname.c_str());
                         if (!BaseDataList_get()->get_room_data(iLocationID)) {
                             if (set_bDebug) {
-                                ConPrint(L"NOTICE: Room %s does not exist\n",
+                                Console::ConPrint(L"NOTICE: Room %s does not exist",
                                          stows(nickname).c_str());
                             }
                         } else {

@@ -118,7 +118,7 @@ void SyncReputationForClientShip(uint ship, uint client) {
         if (base->second->system == system) {
             float attitude = base->second->GetAttitudeTowardsClient(client);
             if (set_plugin_debug > 1)
-                ConPrint(L"SyncReputationForClientShip:: ship=%u attitude=%f "
+                Console::ConPrint(L"SyncReputationForClientShip:: ship=%u attitude=%f "
                          L"base=%08x\n",
                          ship, attitude, base->first);
             for (vector<Module *>::iterator module =
@@ -414,7 +414,7 @@ void HkTimerCheckKick() {
 bool __stdcall HkCb_IsDockableError(uint dock_with, uint base) {
     if (GetPlayerBase(base))
         return false;
-    ConPrint(L"ERROR: Base not found dock_with=%08x base=%08x\n", base, base);
+    Console::ConPrint(L"ERROR: Base not found dock_with=%08x base=%08x", base, base);
     return true;
 }
 
@@ -440,7 +440,7 @@ bool __stdcall HkCb_Land(IObjInspectImpl *obj, uint base_dock_id, uint base) {
         uint client = HkGetClientIDByShip(obj->get_id());
         if (client) {
             if (set_plugin_debug > 1)
-                ConPrint(L"Land client=%u base_dock_id=%u base=%u\n", client,
+                Console::ConPrint(L"Land client=%u base_dock_id=%u base=%u", client,
                          base_dock_id, base);
 
             // If we're docking at a player base, do nothing.
@@ -464,7 +464,7 @@ bool __stdcall HkCb_Land(IObjInspectImpl *obj, uint base_dock_id, uint base) {
                 clients[client].player_base = base_dock_id;
                 clients[client].last_player_base = base_dock_id;
                 if (set_plugin_debug > 1)
-                    ConPrint(L"Land[2] client=%u baseDockID=%u base=%u "
+                    Console::ConPrint(L"Land[2] client=%u baseDockID=%u base=%u "
                              L"player_base=%u\n",
                              client, base_dock_id, base,
                              clients[client].player_base);
@@ -731,7 +731,7 @@ void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
     
 
     if (set_plugin_debug > 1)
-        ConPrint(L"CharacterSelect_AFTER client=%u player_base=%u\n", client,
+        Console::ConPrint(L"CharacterSelect_AFTER client=%u player_base=%u", client,
                  clients[client].player_base);
 
     // If this ship is in a player base is then set then docking ID to emulate
@@ -739,7 +739,7 @@ void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
     LoadDockState(client);
     if (clients[client].player_base) {
         if (set_plugin_debug > 1)
-            ConPrint(L"CharacterSelect_AFTER[2] client=%u player_base=%u\n",
+            Console::ConPrint(L"CharacterSelect_AFTER[2] client=%u player_base=%u",
                      client, clients[client].player_base);
 
         // If this base does not exist, dump the ship into space
@@ -761,7 +761,7 @@ void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
 
 void __stdcall BaseEnter(uint base, uint client) {
     if (set_plugin_debug > 1)
-        ConPrint(
+        Console::ConPrint(
             L"BaseEnter base=%u client=%u player_base=%u last_player_base=%u\n",
             base, client, clients[client].player_base,
             clients[client].last_player_base);
@@ -805,7 +805,7 @@ void __stdcall BaseExit(uint base, uint client) {
     
 
     if (set_plugin_debug > 1)
-        ConPrint(L"BaseExit base=%u client=%u player_base=%u\n", base, client,
+        Console::ConPrint(L"BaseExit base=%u client=%u player_base=%u", base, client,
                  clients[client].player_base);
 
     // Reset client state and save it retaining the last player base ID to deal
@@ -813,7 +813,7 @@ void __stdcall BaseExit(uint base, uint client) {
     clients[client].admin = false;
     if (clients[client].player_base) {
         if (set_plugin_debug)
-            ConPrint(L"BaseExit base=%u client=%u player_base=%u\n", base,
+            Console::ConPrint(L"BaseExit base=%u client=%u player_base=%u", base,
                      client, clients[client].player_base);
 
         clients[client].last_player_base = clients[client].player_base;
@@ -878,7 +878,7 @@ bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos,
         rot = player_launch_base->rotation;
         TranslateX(pos, rot, -750);
         if (set_plugin_debug)
-            ConPrint(L"LaunchPosHook[1] space_obj=%u pos=%0.0f %0.0f %0.0f "
+            Console::ConPrint(L"LaunchPosHook[1] space_obj=%u pos=%0.0f %0.0f %0.0f "
                      L"dock_mode=%u\n",
                      space_obj, pos.x, pos.y, pos.z, dock_mode);
         player_launch_base = 0;
@@ -891,7 +891,7 @@ bool __stdcall LaunchPosHook(uint space_obj, struct CEqObj &p1, Vector &pos,
 void __stdcall PlayerLaunch(unsigned int ship, unsigned int client) {
     
     if (set_plugin_debug > 1)
-        ConPrint(L"PlayerLaunch ship=%u client=%u\n", ship, client);
+        Console::ConPrint(L"PlayerLaunch ship=%u client=%u", ship, client);
     player_launch_base = GetPlayerBase(clients[client].last_player_base);
 }
 
@@ -904,7 +904,7 @@ void __stdcall JumpInComplete(unsigned int system, unsigned int ship) {
     
 
     if (set_plugin_debug > 1)
-        ConPrint(L"JumpInComplete system=%u ship=%u\n");
+        Console::ConPrint(L"JumpInComplete system=%u ship=%u");
 
     uint client = HkGetClientIDByShip(ship);
     if (client) {
@@ -1143,7 +1143,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
         map<uint, Module *>::iterator i = spaceobj_modules.find(g_DmgToSpaceID);
         if (i != spaceobj_modules.end()) {
             if (set_plugin_debug)
-                ConPrint(
+                Console::ConPrint(
                     L"HkCb_AddDmgEntry g_DmgToSpaceID=%u get_inflictor_id=%u "
                     L"curr=%0.2f max=%0.0f damage=%0.2f cause=%u is_player=%u "
                     L"player_id=%u fate=%u\n",
@@ -1157,14 +1157,14 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
             if (damage == 0.0f /*&& dmg->get_cause()==7*/ && curr > 200000) {
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
                 if (set_plugin_debug)
-                    ConPrint(L"HkCb_AddDmgEntry[1] - invalid damage?\n");
+                    Console::ConPrint(L"HkCb_AddDmgEntry[1] - invalid damage?");
                 return;
             }
 
             // If this is an NPC hit then suppress the call completely
             if (!dmg->is_inflictor_a_player()) {
                 if (set_plugin_debug)
-                    ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc\n");
+                    Console::ConPrint(L"HkCb_AddDmgEntry[2] suppressed - npc");
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
                 g_DmgToSpaceID = 0;
                 return;
@@ -1177,7 +1177,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
             if (new_damage != 0.0f) {
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
                 if (set_plugin_debug)
-                    ConPrint(L"HkCb_AddDmgEntry[3] suppressed - shield up - "
+                    Console::ConPrint(L"HkCb_AddDmgEntry[3] suppressed - shield up - "
                              L"new_damage=%0.0f\n",
                              new_damage);
                 dmg->add_damage_entry(p1, new_damage, fate);
@@ -1201,7 +1201,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase *base) {
     clients[client].last_player_base = base->base;
 
     if (set_plugin_debug > 1)
-        ConPrint(L"ForcePlayerBaseDock client=%u player_base=%u\n", client,
+        Console::ConPrint(L"ForcePlayerBaseDock client=%u player_base=%u", client,
                  clients[client].player_base);
 
     uint system;
@@ -1255,7 +1255,7 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
     "\\" + std::string(sys->nickname) + ".ini"; FILE *file = fopen(path.c_str(),
     "a+"); if (file)
                     {
-                            ConPrint(L"doing path %s\n", stows(path).c_str());
+                            Console::ConPrint(L"doing path %s", stows(path).c_str());
                             fprintf(file, "\n\n[Object]\n");
                             fprintf(file, "nickname = %s_proxy_base\n",
     sys->nickname); fprintf(file, "dock_with = %s_proxy_base\n", sys->nickname);

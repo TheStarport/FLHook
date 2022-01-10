@@ -28,7 +28,7 @@ static uint CreateValidID(const char *nickname) {
 
     if (!Archetype::GetEquipment(item) && !Archetype::GetSimple(item) &&
         !Archetype::GetShip(item)) {
-        ConPrint(L"ERROR: item '%s' is not valid\n", stows(nickname).c_str());
+        Console::ConPrint(L"ERROR: item '%s' is not valid", stows(nickname).c_str());
     }
 
     return item;
@@ -235,7 +235,7 @@ void HyperJump::LoadSettings(const std::string &scPluginCfgFile) {
     WriteProcMem((char *)0x62F944E, &patch2, 2);
     WriteProcMem((char *)0x62F123E, &patch2, 2);
 
-    ConPrint(L"Jumpdrive [%d]\n", mapJumpDriveArch.size());
+    Console::ConPrint(L"Jumpdrive [%d]", mapJumpDriveArch.size());
 }
 
 void SetFuse(uint iClientID, uint fuse) {
@@ -755,20 +755,20 @@ void HyperJump::ClearClientInfo(uint iClientID) {
  * selection algorithm */
 void HyperJump::AdminCmd_Chase(CCmds *cmds, const std::wstring &wscCharname) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
     HKPLAYERINFO targetPlyr;
     if (HkGetPlayerInfo(wscCharname, targetPlyr, false) != HKE_OK ||
         targetPlyr.iShip == 0) {
-        cmds->Print(L"ERR Player not found or not in space\n");
+        cmds->Print(L"ERR Player not found or not in space");
         return;
     }
 
@@ -777,7 +777,7 @@ void HyperJump::AdminCmd_Chase(CCmds *cmds, const std::wstring &wscCharname) {
     pub::SpaceObj::GetLocation(targetPlyr.iShip, pos, ornt);
     pos.y += 100;
 
-    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f\n",
+    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
                 targetPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
     SwitchSystem(adminPlyr.iClientID, targetPlyr.iSystem, pos, ornt);
     return;
@@ -788,19 +788,19 @@ void HyperJump::AdminCmd_Chase(CCmds *cmds, const std::wstring &wscCharname) {
 bool HyperJump::AdminCmd_Beam(CCmds *cmds, const std::wstring &wscCharname,
                               const std::wstring &wscTargetBaseName) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return true;
         ;
     }
 
     HKPLAYERINFO info;
     if (HkGetPlayerInfo(wscCharname, info, false) != HKE_OK) {
-        cmds->Print(L"ERR Player not found\n");
+        cmds->Print(L"ERR Player not found");
         return true;
     }
 
     if (info.iShip == 0) {
-        cmds->Print(L"ERR Player not in space\n");
+        cmds->Print(L"ERR Player not in space");
         return true;
     }
 
@@ -856,20 +856,20 @@ bool HyperJump::AdminCmd_Beam(CCmds *cmds, const std::wstring &wscCharname,
  * selection algorithm */
 void HyperJump::AdminCmd_Pull(CCmds *cmds, const std::wstring &wscCharname) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
         adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
     HKPLAYERINFO targetPlyr;
     if (HkGetPlayerInfo(wscCharname, targetPlyr, false) != HKE_OK) {
-        cmds->Print(L"ERR Player not found\n");
+        cmds->Print(L"ERR Player not found");
         return;
     }
 
@@ -878,7 +878,7 @@ void HyperJump::AdminCmd_Pull(CCmds *cmds, const std::wstring &wscCharname) {
     pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, ornt);
     pos.y += 400;
 
-    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f\n",
+    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
                 adminPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
     SwitchSystem(targetPlyr.iClientID, adminPlyr.iSystem, pos, ornt);
     return;
@@ -887,19 +887,19 @@ void HyperJump::AdminCmd_Pull(CCmds *cmds, const std::wstring &wscCharname) {
 /** Move to location */
 void HyperJump::AdminCmd_Move(CCmds *cmds, float x, float y, float z) {
     if (cmds->ArgStrToEnd(1).length() == 0) {
-        cmds->Print(L"ERR Usage: move x y z\n");
+        cmds->Print(L"ERR Usage: move x y z");
         return;
     }
 
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
         adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
@@ -909,7 +909,7 @@ void HyperJump::AdminCmd_Move(CCmds *cmds, float x, float y, float z) {
     pos.x = x;
     pos.y = y;
     pos.z = z;
-    cmds->Print(L"Moving to %0.0f %0.0f %0.0f\n", pos.x, pos.y, pos.z);
+    cmds->Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
     HkRelocateClient(adminPlyr.iClientID, pos, rot);
     return;
 }
@@ -918,20 +918,20 @@ void HyperJump::AdminCmd_Move(CCmds *cmds, float x, float y, float z) {
 void HyperJump::AdminCmd_TestBot(CCmds *cmds, const std::wstring &wscSystemNick,
                                  int iCheckZoneTime) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
         adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
     mapTestBots.erase(adminPlyr.iClientID);
     if (wscSystemNick == L"stop") {
-        cmds->Print(L"OK Check stopped\n");
+        cmds->Print(L"OK Check stopped");
         return;
     }
 
@@ -960,7 +960,7 @@ void HyperJump::AdminCmd_TestBot(CCmds *cmds, const std::wstring &wscSystemNick,
             tb.lstCheckZones.push_back(i->second);
         }
 
-        cmds->Print(L"Checking system %s (%x) containing %d zones\n",
+        cmds->Print(L"Checking system %s (%x) containing %d zones",
                     wscSystemNick.c_str(), tb.iCheckSystemOrBase,
                     tb.lstCheckZones.size());
 
@@ -988,14 +988,14 @@ void HyperJump::AdminCmd_TestBot(CCmds *cmds, const std::wstring &wscSystemNick,
         tb.iCheckTestedZones = 0;
         tb.iCheckZoneTime = iCheckZoneTime;
 
-        cmds->Print(L"Testing base %s (%x) containing\n", wscSystemNick.c_str(),
+        cmds->Print(L"Testing base %s (%x) containing", wscSystemNick.c_str(),
                     tb.iCheckSystemOrBase);
 
         mapTestBots[adminPlyr.iClientID] = tb;
         return;
     }
 
-    cmds->Print(L"ERR System or base not found\n");
+    cmds->Print(L"ERR System or base not found");
 }
 
 bool InitJumpDriveInfo(uint iClientID) {
@@ -1301,14 +1301,14 @@ bool HyperJump::UserCmd_ActivateJumpDrive(uint iClientID,
 /** Move to location */
 void HyperJump::AdminCmd_JumpTest(CCmds *cmds, const std::wstring &sys) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
         adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
@@ -1363,7 +1363,7 @@ void HyperJump::PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
     drift *= ((2.0f * rand() / (float)RAND_MAX) - 1.0f);
     // if (wscRights.size())
-    //	ConPrint(L"drift=%0.0f currTime=%u lastTime=%u\n", drift,
+    //	Console::ConPrint(L"drift=%0.0f currTime=%u lastTime=%u", drift,
     //(uint)currTime, (uint)lastTime);
 
     // Adjust the ship's position.

@@ -95,7 +95,7 @@ void LoadSettings() {
 
     set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
     if (set_iPluginDebug)
-        ConPrint(L"NOTICE: player control debug=%d\n", set_iPluginDebug);
+        Console::ConPrint(L"NOTICE: player control debug=%d", set_iPluginDebug);
 
     set_bLogLooting = IniGetB(scPluginCfgFile, "General", "LogLooting", false);
     set_bEnableMoveChar =
@@ -1175,7 +1175,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
             fLog = fopen("./flhook_logs/FLHook.log", "wt");
         }
 
-        cmds->Print(L"OK\n");
+        cmds->Print(L"OK");
         return true;
     } else if (IS_CMD("pm") || IS_CMD("privatemsg")) {
         returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -1226,7 +1226,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
                             pub::AI::SubmitState(*iShipIter, &testOP);
                     }
             }
-            cmds->Print(L"OK\n");
+            cmds->Print(L"OK");
             return true;
     }
     else if (IS_CMD("aicome"))
@@ -1250,7 +1250,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
                             pub::AI::SubmitDirective(*iShipIter, &go);
                     }
             }
-            cmds->Print(L"OK\n");
+            cmds->Print(L"OK");
             return true;
     }
     else if (IS_CMD("aifollow"))
@@ -1268,7 +1268,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
                             pub::AI::SubmitDirective(*iShipIter, &testOP);
                     }
             }
-            cmds->Print(L"OK\n");
+            cmds->Print(L"OK");
             return true;
     } */
     return false;
@@ -1277,27 +1277,27 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
 /** Admin help command callback */
 void CmdHelp(CCmds *classptr) {
     
-    classptr->Print(L"move x, y, z\n");
-    classptr->Print(L"pull <charname>\n");
-    classptr->Print(L"chase <charname>\n");
-    classptr->Print(L"smiteall [die]\n");
-    classptr->Print(L"testbot <system> <testtime>\n");
-    classptr->Print(L"authchar <charname>\n");
-    classptr->Print(L"reloadbans\n");
-    classptr->Print(L"setaccmovecode <charname> <code>\n");
-    classptr->Print(L"rotatelogs\n");
-    classptr->Print(L"privatemsg|pm <charname> <message>\n");
+    classptr->Print(L"move x, y, z");
+    classptr->Print(L"pull <charname>");
+    classptr->Print(L"chase <charname>");
+    classptr->Print(L"smiteall [die]");
+    classptr->Print(L"testbot <system> <testtime>");
+    classptr->Print(L"authchar <charname>");
+    classptr->Print(L"reloadbans");
+    classptr->Print(L"setaccmovecode <charname> <code>");
+    classptr->Print(L"rotatelogs");
+    classptr->Print(L"privatemsg|pm <charname> <message>");
 
-    classptr->Print(L"showtags\n");
-    classptr->Print(L"addtag <tag> <password>\n");
-    classptr->Print(L"droptag <tag> <password>\n");
+    classptr->Print(L"showtags");
+    classptr->Print(L"addtag <tag> <password>");
+    classptr->Print(L"droptag <tag> <password>");
 }
 
 void __stdcall Elapse_Time(float delta) {
     returncode = SKIPPLUGINS_NOFUNCTIONCALL;
     if (delta < 0.0001f) {
         AddLog("ERROR: Elapse time correction delta=%f", delta);
-        ConPrint(L"Elapse time correction delta=%f\n", delta);
+        Console::ConPrint(L"Elapse time correction delta=%f", delta);
         delta = 0.0001f;
     }
 

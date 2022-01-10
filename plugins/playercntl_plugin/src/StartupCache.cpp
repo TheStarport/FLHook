@@ -42,7 +42,7 @@ static int acc_path_prefix_length = 0;
 // A fast alternative to the built in read character name function in server.dll
 static int __stdcall HkCb_ReadCharacterName(const char *filename,
                                             st6::wstring *str) {
-    ConPrint(L"\rRead %d\r", ++chars_loaded);
+    Console::ConPrint(L"\rRead %d\r", ++chars_loaded);
 
     // If this account/charfile can be found in the character return
     // then name immediately.
@@ -69,7 +69,7 @@ static void LoadCache() {
     // Open the name cache file and load it into memory.
     std::string scPath = scBaseAcctPath + "namecache.bin";
 
-    ConPrint(L"Loading character name cache\n");
+    Console::ConPrint(L"Loading character name cache");
     FILE *file;
     fopen_s(&file, scPath.c_str(), "rb");
     if (file) {
@@ -81,7 +81,7 @@ static void LoadCache() {
         }
         fclose(file);
     }
-    ConPrint(L"Loaded %d names\n", cache.size());
+    Console::ConPrint(L"Loaded %d names", cache.size());
 }
 
 static void SaveCache() {
@@ -91,19 +91,19 @@ static void SaveCache() {
     FILE *file;
     fopen_s(&file, scPath.c_str(), "wb");
     if (file) {
-        ConPrint(L"Saving character name cache\n");
+        Console::ConPrint(L"Saving character name cache");
         for (auto i = cache.begin(); i != cache.end(); i++) {
             NAMEINFO ni;
             memset(&ni, 0, sizeof(ni));
             strncpy_s(ni.acc_path, 27, i->first.c_str(), i->first.size());
             wcsncpy_s(ni.name, 25, i->second.c_str(), i->second.size());
             if (!fwrite(&ni, sizeof(NAMEINFO), 1, file)) {
-                ConPrint(L"ERROR: Saving character name cache failed\n");
+                Console::ConPrint(L"ERROR: Saving character name cache failed");
                 break;
             }
         }
         fclose(file);
-        ConPrint(L"Saved %d names\n", cache.size());
+        Console::ConPrint(L"Saved %d names", cache.size());
     }
 
     cache.clear();

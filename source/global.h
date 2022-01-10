@@ -59,7 +59,43 @@ EXPORT void ProcessEvent(std::wstring wscText, ...);
 void LoadSettings();
 void ProcessPendingCommands();
 
-// tools
+// Tools
+class EXPORT Console {
+    static void Log(std::wstring &wStr, va_list args, void* addr);
+
+    // Might use more later?
+    enum class ConsoleColor {
+        BLUE = 0x0001,
+        GREEN = 0x0002,
+        CYAN = BLUE | GREEN,
+        RED = 0x0004,
+        PURPLE = RED | BLUE,
+        YELLOW = RED | GREEN,
+        WHITE = RED | BLUE | GREEN,
+
+        STRONG_BLUE = 0x0008 | BLUE,
+        STRONG_GREEN = 0x0008 | GREEN,
+        STRONG_CYAN = 0x0008 | CYAN,
+        STRONG_RED = 0x0008 | RED,
+        STRONG_PURPLE = 0x0008 | PURPLE,
+        STRONG_YELLOW = 0x0008 | YELLOW,
+        STRONG_WHITE = 0x0008 | WHITE,
+    };
+
+  public:
+    // String
+    static void ConPrint(std::string str, ...);
+    static void ConErr(std::string str, ...);
+    static void ConWarn(std::string str, ...);
+    static void ConInfo(std::string str, ...);
+
+    // Wide-string
+    static void ConPrint(std::wstring wStr, ...);
+    static void ConErr(std::wstring wStr, ...);
+    static void ConWarn(std::wstring wStr, ...);
+    static void ConInfo(std::wstring wStr, ...);
+};
+
 EXPORT std::wstring stows(const std::string &scText);
 EXPORT std::string wstos(const std::wstring &wscText);
 EXPORT std::string IniGetS(const std::string &scFile, const std::string &scApp,
@@ -75,7 +111,6 @@ EXPORT void WriteProcMem(void *pAddress, const void *pMem, int iSize);
 EXPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
 EXPORT int ToInt(const std::wstring &wscStr);
 EXPORT uint ToUInt(const std::wstring &wscStr);
-EXPORT void ConPrint(std::wstring wscText, ...);
 EXPORT std::wstring XMLText(const std::wstring &wscText);
 EXPORT std::wstring GetParam(const std::wstring &wscLine, wchar_t wcSplitChar,
                              uint iPos);

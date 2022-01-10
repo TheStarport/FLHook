@@ -28,7 +28,7 @@ struct CObject *__cdecl HkCb_GetRoot(struct CObject *child) {
         return GetRoot(child);
     } catch (...) {
         AddLog("ERROR: Crash suppression in GetRoot(child=%08x)", child);
-        ConPrint(L"ERROR: Crash suppression in GetRoot(child=%08x)\n", child);
+        Console::ConPrint(L"ERROR: Crash suppression in GetRoot(child=%08x)", child);
         return child;
     }
 }
@@ -65,7 +65,7 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1) {
     int res = 0;
     try {
         if (set_bDebug)
-            ConPrint(L"HkCb_CrashProc6F8B330(arg1=%08x)\n", arg1);
+            Console::ConPrint(L"HkCb_CrashProc6F8B330(arg1=%08x)", arg1);
         __asm {
             pushad
             push arg1
@@ -92,7 +92,7 @@ static FARPROC fpCrashProc6F78DD0Old = 0;
 void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2) {
     try {
         if (set_bDebug)
-            ConPrint(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)\n", arg1,
+            Console::ConPrint(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)", arg1,
                      arg2);
         __asm {
             pushad
@@ -117,7 +117,7 @@ static FARPROC fpCrashProc6F671A0Old = 0;
 void __cdecl HkCb_CrashProc6F671A0(int arg1) {
     try {
         if (set_bDebug)
-            ConPrint(L"HkCb_CrashProc6F671A0(arg1=%08x)\n", arg1);
+            Console::ConPrint(L"HkCb_CrashProc6F671A0(arg1=%08x)", arg1);
         __asm {
             pushad
             push arg1
@@ -244,14 +244,14 @@ static double __cdecl HkCb_TimingSeconds(__int64 &ticks_delta) {
     if (seconds < 0 || seconds > 10.0) {
         AddLog("ERROR: Time delta invalid seconds=%f ticks_delta=%I64i",
                seconds, ticks_delta);
-        ConPrint(L"ERROR: Time delta invalid seconds=%f ticks_delta=%I64i\n",
+        Console::ConPrint(L"ERROR: Time delta invalid seconds=%f ticks_delta=%I64i",
                  seconds, ticks_delta);
         ticks_delta = 1000000;
         seconds = Timing::seconds(ticks_delta);
     } else if (seconds > 1.0) {
         AddLog("ERROR: Time lag detected seconds=%f ticks_delta=%I64i", seconds,
                ticks_delta);
-        ConPrint(L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i\n",
+        Console::ConPrint(L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i",
                  seconds, ticks_delta);
     }
     return seconds;
@@ -289,7 +289,7 @@ void Init()
             hModContentAC = GetModuleHandle("content.dll");
             if (hModContentAC) {
                 if (set_bDebug)
-                    ConPrint(L"NOTICE: Installing patches into content.dll\n");
+                    Console::ConPrint(L"NOTICE: Installing patches into content.dll");
 
                 // Patch for crash at content.dll + blarg
                 {
@@ -420,7 +420,7 @@ void Shutdown() {
 
         if (hModContentAC) {
             if (set_bDebug)
-                ConPrint(L"NOTICE: Uninstalling patches from content.dll\n");
+                Console::ConPrint(L"NOTICE: Uninstalling patches from content.dll");
 
             {
                 uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};

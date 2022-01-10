@@ -107,13 +107,13 @@ void CmdTempBan(CCmds *classptr, const std::wstring &wscCharname,
 
     // right check
     if (!(classptr->rights & RIGHT_KICKBAN)) {
-        classptr->Print(L"ERR No permission\n");
+        classptr->Print(L"ERR No permission");
         return;
     }
 
     if (((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) ==
          HKE_OK)) // hksuccess
-        classptr->Print(L"OK\n");
+        classptr->Print(L"OK");
     else
         classptr->PrintError();
 }
@@ -136,7 +136,7 @@ EXPORT bool ExecuteCommandString(CCmds *classptr,
 }
 
 EXPORT void CmdHelp(CCmds *classptr) {
-    classptr->Print(L"tempban <charname>\n");
+    classptr->Print(L"tempban <charname>");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

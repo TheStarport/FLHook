@@ -473,7 +473,7 @@ void Startup_AFTER() {
 // Admin command to make NPCs
 void AdminCmd_AIMake(CCmds *cmds, int Amount, std::wstring NpcType) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -490,7 +490,7 @@ void AdminCmd_AIMake(CCmds *cmds, int Amount, std::wstring NpcType) {
     if (iter != mapNPCArchtypes.end()) {
         arch = iter->second;
     } else {
-        cmds->Print(L"ERR Wrong NPC name\n");
+        cmds->Print(L"ERR Wrong NPC name");
         return;
     }
 
@@ -520,7 +520,7 @@ void AdminCmd_AIMake(CCmds *cmds, int Amount, std::wstring NpcType) {
 // Admin command to destroy the AI
 void AdminCmd_AIKill(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -528,7 +528,7 @@ void AdminCmd_AIKill(CCmds *cmds) {
         pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
     npcs.clear();
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 
     return;
 }
@@ -536,7 +536,7 @@ void AdminCmd_AIKill(CCmds *cmds) {
 // Admin command to make AI come to your position
 void AdminCmd_AICome(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -562,14 +562,14 @@ void AdminCmd_AICome(CCmds *cmds) {
             pub::AI::SubmitDirective(npc, &go);
         }
     }
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
     return;
 }
 
 // Admin command to make AI follow target (or admin) until death
 void AdminCmd_AIFollow(CCmds *cmds, std::wstring &wscCharname) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -584,7 +584,7 @@ void AdminCmd_AIFollow(CCmds *cmds, std::wstring &wscCharname) {
         iClientId = HkGetClientIdFromCharname(wscCharname);
     }
     if (iClientId == -1) {
-        cmds->Print(L"%s is not online\n", wscCharname.c_str());
+        cmds->Print(L"%s is not online", wscCharname.c_str());
     } else {
         uint iShip1;
         pub::Player::GetShip(iClientId, iShip1);
@@ -597,9 +597,9 @@ void AdminCmd_AIFollow(CCmds *cmds, std::wstring &wscCharname) {
                 testOP.fMaxDistance = 100;
                 pub::AI::SubmitDirective(npc, &testOP);
             }
-            cmds->Print(L"Following %s\n", wscCharname.c_str());
+            cmds->Print(L"Following %s", wscCharname.c_str());
         } else {
-            cmds->Print(L"%s is not in space\n", wscCharname.c_str());
+            cmds->Print(L"%s is not in space", wscCharname.c_str());
         }
     }
     return;
@@ -608,7 +608,7 @@ void AdminCmd_AIFollow(CCmds *cmds, std::wstring &wscCharname) {
 // Admin command to cancel the current operation
 void AdminCmd_AICancel(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -621,22 +621,22 @@ void AdminCmd_AICancel(CCmds *cmds) {
             pub::AI::SubmitDirective(npc, &testOP);
         }
     }
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
     return;
 }
 
 // Admin command to list NPC fleets
 void AdminCmd_ListNPCFleets(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
-    cmds->Print(L"Available fleets: %d\n", mapNPCFleets.size());
+    cmds->Print(L"Available fleets: %d", mapNPCFleets.size());
     for (auto &[name, npcstruct] : mapNPCFleets)
-        cmds->Print(L"|%s\n", name.c_str());
+        cmds->Print(L"|%s", name.c_str());
 
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
 
     return;
 }
@@ -644,7 +644,7 @@ void AdminCmd_ListNPCFleets(CCmds *cmds) {
 // Admin command to spawn a Fleet
 void AdminCmd_AIFleet(CCmds *cmds, std::wstring FleetName) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
@@ -661,11 +661,11 @@ void AdminCmd_AIFleet(CCmds *cmds, std::wstring FleetName) {
     }
 
     if (wrongnpcname == 1) {
-        cmds->Print(L"ERR Wrong Fleet name\n");
+        cmds->Print(L"ERR Wrong Fleet name");
         return;
     }
 
-    cmds->Print(L"OK fleet spawned\n");
+    cmds->Print(L"OK fleet spawned");
     return;
 }
 

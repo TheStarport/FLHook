@@ -454,7 +454,7 @@ bool DefenseModule::Timer(uint time) {
 
         spaceobj_modules[space_obj] = this;
         if (set_plugin_debug > 1)
-            ConPrint(L"DefenseModule::created space_obj=%u\n", space_obj);
+            Console::ConPrint(L"DefenseModule::created space_obj=%u", space_obj);
         base->SyncReputationForBaseObject(space_obj);
     }
 
@@ -471,7 +471,7 @@ float DefenseModule::SpaceObjDamaged(uint space_obj, uint attacking_space_obj,
 bool DefenseModule::SpaceObjDestroyed(uint space_obj) {
     if (this->space_obj == space_obj) {
         if (set_plugin_debug > 1)
-            ConPrint(L"DefenseModule::destroyed space_obj=%u\n", space_obj);
+            Console::ConPrint(L"DefenseModule::destroyed space_obj=%u", space_obj);
         spaceobj_modules.erase(space_obj);
         this->space_obj = 0;
         return true;

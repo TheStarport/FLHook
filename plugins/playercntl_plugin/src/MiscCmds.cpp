@@ -251,14 +251,14 @@ bool MiscCmds::UserCmd_Coin(uint iFromClientID, const std::wstring &wscCmd,
 /** Smite all players in radar range */
 void MiscCmds::AdminCmd_SmiteAll(CCmds *cmds) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission\n");
+        cmds->Print(L"ERR No permission");
         return;
     }
 
     HKPLAYERINFO adminPlyr;
     if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
         adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space\n");
+        cmds->Print(L"ERR Not in space");
         return;
     }
 
@@ -318,7 +318,7 @@ void MiscCmds::AdminCmd_SmiteAll(CCmds *cmds) {
         }
     }
 
-    cmds->Print(L"OK\n");
+    cmds->Print(L"OK");
     return;
 }
 

@@ -85,7 +85,7 @@ static void LoadFactionReps(const std::string &scPluginCfgFile,
                 factionRep.iMode == FactionRep::MODE_REP_GREATERTHAN ||
                 factionRep.iMode == FactionRep::MODE_REP_STATIC) {
                 if (set_iPluginDebug > 0) {
-                    ConPrint(
+                    Console::ConPrint(
                         L"NOTICE: Add reputation %s/%s rep=%0.2f mode=%d\n",
                         stows(scIDNick).c_str(), stows(var.scKey).c_str(),
                         factionRep.fRep, factionRep.iMode);

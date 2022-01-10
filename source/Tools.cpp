@@ -455,7 +455,7 @@ std::wstring GetTimeString(bool bLocalTime) {
         GetSystemTime(&st);
 
     wchar_t wszBuf[100];
-    _snwprintf_s(wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d SMT ",
+    _snwprintf_s(wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d ",
                  st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute,
                  st.wSecond);
     return wszBuf;

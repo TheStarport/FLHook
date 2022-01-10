@@ -167,7 +167,7 @@ EXPORT void HkTimerCheckKick() {
         if (Players[iClientID].iOnlineID) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             if (acc) {
-                // ConPrint(L"Kicking lag bug account iClientID=%u %u\n",
+                // Console::ConPrint(L"Kicking lag bug account iClientID=%u %u",
                 // iClientID,Players[iClientID].iOnlineID);
                 acc->ForceLogout();
                 Players.logout(iClientID);
@@ -643,7 +643,7 @@ EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
                 ConData[iClientID].iAverageLoss, ConData[iClientID].iLags,
                 ConData[iClientID].iPingFluctuation, saturation, txqueue);
         }
-        classptr->Print(L"OK\n");
+        classptr->Print(L"OK");
         returncode = ReturnCode::SkipAll;
         return true;
     } else if (IS_CMD("kick")) {
@@ -655,12 +655,12 @@ EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
         // Logout.
         returncode = ReturnCode::SkipAll;
         acc->ForceLogout();
-        classptr->Print(L"OK\n");
+        classptr->Print(L"OK");
 
         // If the client is still active then force the disconnect.
         uint iClientID = HkGetClientIdFromAccount(acc);
         if (iClientID != -1) {
-            classptr->Print(L"Forcing logout on iClientID=%d\n", iClientID);
+            classptr->Print(L"Forcing logout on iClientID=%d", iClientID);
             Players.logout(iClientID);
         }
         return true;
