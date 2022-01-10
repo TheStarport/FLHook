@@ -167,8 +167,6 @@ EXPORT void HkTimerCheckKick() {
         if (Players[iClientID].iOnlineID) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             if (acc) {
-                // Console::ConPrint(L"Kicking lag bug account iClientID=%u %u",
-                // iClientID,Players[iClientID].iOnlineID);
                 acc->ForceLogout();
                 Players.logout(iClientID);
             }

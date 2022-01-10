@@ -142,7 +142,7 @@ void LoadSettings(const std::string &scPluginCfgFile) {
     WriteProcMem((char *)0x62F944E, &patch2, 2);
     WriteProcMem((char *)0x62F123E, &patch2, 2);
 
-    Console::ConPrint(L"Jumpdrive [%d]", mapJumpDriveArch.size());
+    Console::ConInfo(L"Jumpdrive [%d]", mapJumpDriveArch.size());
 }
 
 void SetFuse(uint iClientID, uint fuse) {
@@ -735,16 +735,11 @@ void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 
     // Calculate the expected drift.
     float drift = (float)(currTime - lastTime);
-    std::wstring wscRights;
-    HkGetAdmin((const wchar_t *)Players.GetActiveCharacterName(iClientID),
-               wscRights);
+
     if (drift > MAX_DRIFT)
         drift = MAX_DRIFT;
 
     drift *= ((2.0f * rand() / (float)RAND_MAX) - 1.0f);
-    // if (wscRights.size())
-    //	Console::ConPrint(L"drift=%0.0f currTime=%u lastTime=%u", drift,
-    //(uint)currTime, (uint)lastTime);
 
     // Adjust the ship's position.
     Vector pos = {Players[iClientID].vPosition.x,

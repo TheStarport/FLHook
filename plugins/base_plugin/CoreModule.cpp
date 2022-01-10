@@ -341,7 +341,7 @@ void CoreModule::Spawn() {
 
         base->SyncReputationForBaseObject(space_obj);
         if (set_plugin_debug > 1)
-            Console::ConPrint(L"CoreModule::created space_obj=%u health=%f", space_obj,
+            Console::ConInfo(L"CoreModule::created space_obj=%u health=%f", space_obj,
                      base->base_health);
 
         pub::AI::SetPersonalityParams pers = MakePersonality();
@@ -458,7 +458,7 @@ bool CoreModule::Timer(uint time) {
         float rhealth = base->base_health / base->max_base_health;
         pub::SpaceObj::SetRelativeHealth(space_obj, rhealth);
         if (set_plugin_debug > 1)
-            Console::ConPrint(L"CoreModule::timer space_obj=%u health=%f", space_obj,
+            Console::ConInfo(L"CoreModule::timer space_obj=%u health=%f", space_obj,
                      base->base_health);
 
         // if health is 0 then the object will be destroyed but we won't
@@ -487,7 +487,7 @@ float CoreModule::SpaceObjDamaged(uint space_obj, uint attacking_space_obj,
 bool CoreModule::SpaceObjDestroyed(uint space_obj) {
     if (this->space_obj == space_obj) {
         if (set_plugin_debug > 1)
-            Console::ConPrint(L"CoreModule::destroyed space_obj=%u", space_obj);
+            Console::ConInfo(L"CoreModule::destroyed space_obj=%u", space_obj);
         pub::SpaceObj::LightFuse(space_obj, "player_base_explode_fuse", 0);
         spaceobj_modules.erase(space_obj);
         this->space_obj = 0;
@@ -513,7 +513,7 @@ void CoreModule::SetReputation(int player_rep, float attitude) {
         int obj_rep;
         pub::SpaceObj::GetRep(this->space_obj, obj_rep);
         if (set_plugin_debug > 1)
-            Console::ConPrint(L"CoreModule::SetReputation player_rep=%u obj_rep=%u "
+            Console::ConInfo(L"CoreModule::SetReputation player_rep=%u obj_rep=%u "
                      L"attitude=%f base=%08x\n",
                      player_rep, obj_rep, attitude, base->base);
         pub::Reputation::SetAttitude(obj_rep, player_rep, attitude);

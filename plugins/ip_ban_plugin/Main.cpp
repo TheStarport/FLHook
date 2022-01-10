@@ -72,7 +72,7 @@ static bool IsBanned(uint iClientID) {
                                     Trim(GetParam(sz, '\t', 3)
                                              .substr(4, std::string::npos));
                         } catch (...) {
-                            Console::ConPrint(L"ERR Corrupt loginid file $0",
+                            Console::ConErr(L"ERR Corrupt loginid file $0",
                                      stows(scFilePath).c_str());
                         }
                     }
@@ -80,7 +80,7 @@ static bool IsBanned(uint iClientID) {
                 }
 
                 if (set_bDebug) {
-                    Console::ConPrint(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
+                    Console::ConInfo(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
                              L"ID2 %s "
                              L"Client %d\n",
                              stows(scThisIP).c_str(), stows(scLoginID).c_str(),
@@ -92,7 +92,7 @@ static bool IsBanned(uint iClientID) {
                 if (scThisIP == scIP && scLoginID.length()) {
                     for (auto &ban : set_lstLoginIDBans) {
                         if (ban == scLoginID || ban == scLoginID2) {
-                            Console::ConPrint(L"* Kicking player on ID ban: ip=%s "
+                            Console::ConWarn(L"* Kicking player on ID ban: ip=%s "
                                      L"id1=%s id2=%s\n",
                                      stows(scThisIP).c_str(),
                                      stows(scLoginID).c_str(),
@@ -139,7 +139,7 @@ static void ReloadIPBans() {
     std::string scAcctPath =
         std::string(szDataPath) + "\\Accts\\MultiPlayer\\ipbans.ini";
     if (set_bDebug)
-        Console::ConPrint(L"NOTICE: Loading IP bans from %s",
+        Console::ConInfo(L"NOTICE: Loading IP bans from %s",
                  stows(scAcctPath).c_str());
 
     INI_Reader ini;
@@ -149,13 +149,13 @@ static void ReloadIPBans() {
             while (ini.read_value()) {
                 set_lstIPBans.push_back(ini.get_name_ptr());
                 if (set_bDebug)
-                    Console::ConPrint(L"NOTICE: Adding IP ban %s",
+                    Console::ConInfo(L"NOTICE: Adding IP ban %s",
                              stows(ini.get_name_ptr()).c_str());
             }
         }
         ini.close();
     }
-    Console::ConPrint(L"IP Bans [%u]", set_lstIPBans.size());
+    Console::ConInfo(L"IP Bans [%u]", set_lstIPBans.size());
 }
 
 static void ReloadLoginIDBans() {
@@ -165,7 +165,7 @@ static void ReloadLoginIDBans() {
     std::string scAcctPath =
         std::string(szDataPath) + "\\Accts\\MultiPlayer\\loginidbans.ini";
     if (set_bDebug)
-        Console::ConPrint(L"NOTICE: Loading Login ID bans from %s",
+        Console::ConInfo(L"NOTICE: Loading Login ID bans from %s",
                  stows(scAcctPath).c_str());
 
     INI_Reader ini;
@@ -176,13 +176,13 @@ static void ReloadLoginIDBans() {
                 set_lstLoginIDBans.push_back(
                     Trim(std::string(ini.get_name_ptr())));
                 if (set_bDebug)
-                    Console::ConPrint(L"NOTICE: Adding Login ID ban %s",
+                    Console::ConInfo(L"NOTICE: Adding Login ID ban %s",
                              stows(ini.get_name_ptr()).c_str());
             }
         }
         ini.close();
     }
-    Console::ConPrint(L"ID Bans [%u]", set_lstLoginIDBans.size());
+    Console::ConInfo(L"ID Bans [%u]", set_lstLoginIDBans.size());
 }
 
 /// Reload the ipbans file.

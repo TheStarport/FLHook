@@ -1674,15 +1674,10 @@ HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue) {
                                       fItemValue) == 0) {
                 if (arch_is_combinable(iGoodID)) {
                     fValue += fItemValue * iGoodCount;
-                    // Console::ConPrint(L"market %u %0.2f = %0.2f x %u", iGoodID,
-                    // fItemValue * iGoodCount, fItemValue, iGoodCount);
                 } else {
                     float *fResaleFactor =
                         (float *)((char *)hModServer + 0x8AE7C);
                     fValue += fItemValue * (*fResaleFactor);
-                    // Console::ConPrint(L"market %u %0.2f = %0.2f x %0.2f x 1",
-                    // iGoodID, fItemValue  * (*fResaleFactor), fItemValue,
-                    // (*fResaleFactor));
                 }
             }
         } else if (wscKey == L"money") {
@@ -1703,8 +1698,6 @@ HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue) {
                         (float *)((char *)hModServer + 0x8AE78);
                     float fItemValue = gi->fPrice * (*fResaleFactor);
                     fValue += fItemValue;
-                    // Console::ConPrint(L"ship %u %0.2f = %0.2f x %0.2f", iShipArchID,
-                    // fItemValue, gi->fPrice, *fResaleFactor);
                 }
             }
         }

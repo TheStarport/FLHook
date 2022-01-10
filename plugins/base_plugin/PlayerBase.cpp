@@ -435,7 +435,7 @@ float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj,
 
             if (!is_ally) {
                 if (set_plugin_debug > 1)
-                    Console::ConPrint(L"PlayerBase::damaged space_obj=%u", space_obj);
+                    Console::ConInfo(L"PlayerBase::damaged space_obj=%u", space_obj);
                 hostile_tags[charname] = charname;
                 SyncReputationForBase();
             }
@@ -447,7 +447,7 @@ float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj,
     if (!this->shield_active_time && shield_state == SHIELD_STATE_ONLINE) {
         this->shield_active_time = 60 + (rand() % 512);
         if (set_plugin_debug > 1)
-            Console::ConPrint(L"PlayerBase::damaged shield active=%u",
+            Console::ConInfo(L"PlayerBase::damaged shield active=%u",
                      this->shield_active_time);
     }
 

@@ -466,11 +466,11 @@ void ZoneUtilities::PrintZones() {
     zone_map_t set_mmapZones;
     ReadUniverse(&set_mmapZones);
 
-    Console::ConPrint(
+    Console::ConInfo(
         L"Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, "
         L"SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
     for (const auto &z : set_mmapZones) {
-        Console::ConPrint(
+        Console::ConInfo(
             L"%s, %s, %d, %d, %d, %0.0f, %0.0f, %0.0f, %0.0f, %0.0f, %0.0f, "
             L"%d, %d, %2.2f\n",
             stows(z.second.zoneNick).c_str(), stows(z.second.lootNick).c_str(),
@@ -478,5 +478,5 @@ void ZoneUtilities::PrintZones() {
             z.second.pos.x, z.second.pos.y, z.second.pos.z, z.second.size.x,
             z.second.size.y, z.second.size.z);
     }
-    Console::ConPrint(L"Zones=%d", set_mmapZones.size());
+    Console::ConInfo(L"Zones=%d", set_mmapZones.size());
 }

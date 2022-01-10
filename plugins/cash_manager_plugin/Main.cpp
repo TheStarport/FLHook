@@ -665,12 +665,21 @@ USERCMD UserCmds[] = {
     {L"/drawcash", UserCmd_DrawCash}
 };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
+
+// Hook on /help
+EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    for (auto &uc : UserCmds) {
+        PrintUserCmdText(iClientID, uc.wszCmd);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FLHOOK STUFF
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return true;
@@ -687,4 +696,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
     pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

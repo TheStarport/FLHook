@@ -215,7 +215,7 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
         myLocation.x += 30.0;
 
         if (set_bDebug)
-            Console::ConPrint(
+            Console::ConInfo(
                 L"NOTICE: player control cargo drop in system %08x at %f,%f,%f "
                 L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",
                 iSystem, myLocation.x, myLocation.y, myLocation.z, iShipSizeEst,

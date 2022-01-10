@@ -503,8 +503,6 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
         wchar_t wszPass[256];
         if (wscCmd.length() >= 256) {
             sc->csock.DoPrint(L"ERR Wrong password");
-            //			Console::ConPrint(L"socket: socket authentication failed
-            //(invalid pass)\n");
             sc->csock.DoPrint(L"Goodbye.\r");
             Console::ConInfo(L"socket: connection closed (invalid pass)");
             AddLog("socket: socket connection from %s:%d closed (invalid pass)",
@@ -523,8 +521,6 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
 
             if (!scPass.length()) {
                 sc->csock.DoPrint(L"ERR Wrong password");
-                //				Console::ConPrint(L"socket: socket authentication
-                // failed (invalid pass)\n");
                 sc->csock.DoPrint(L"Goodbye.\r");
                 Console::ConInfo(L"socket: connection closed (invalid pass)");
                 AddLog("socket: socket connection from %s:%d closed (invalid "
@@ -617,9 +613,9 @@ void ProcessPendingCommands() {
                 sc->csock.bEncrypted = false;
                 sc->wscPending = L"";
                 lstSockets.push_back(sc);
-                Console::ConPrint(L"socket(ascii): new socket connection from %s:%d",
+                Console::ConInfo(L"socket(ascii): new socket connection from %s:%d",
                          stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-                sc->csock.Print(L"Welcome to FLHack, please authenticate");
+                sc->csock.Print(L"Welcome to FLHook, please authenticate");
             }
         }
 
@@ -697,7 +693,7 @@ void ProcessPendingCommands() {
                 sc->csock.bEncrypted = true;
                 sc->csock.bfc = set_BF_CTX;
                 lstSockets.push_back(sc);
-                Console::ConPrint(L"socket(encrypted-unicode): new socket connection "
+                Console::ConInfo(L"socket(encrypted-unicode): new socket connection "
                          L"from %s:%d\n",
                          stows(sc->csock.sIP).c_str(), sc->csock.iPort);
                 sc->csock.Print(L"Welcome to FLHack, please authenticate");
@@ -716,7 +712,7 @@ void ProcessPendingCommands() {
                 char *szData = new char[lSize + 1];
                 memset(szData, 0, lSize + 1);
                 if (recv(sc->csock.s, szData, lSize, 0) <= 0) {
-                    Console::ConPrint(L"socket: socket connection closed");
+                    Console::ConInfo(L"socket: socket connection closed");
                     delete[] szData;
                     lstDelete.push_back(sc);
                     continue;
@@ -742,7 +738,7 @@ void ProcessPendingCommands() {
                 if ((sc->csock.bAuthed)) // not authenticated yet
                     iMaxKB = 500;
                 if (wscData.length() > (1024 * iMaxKB)) {
-                    Console::ConPrint(L"socket: socket connection closed (possible ddos "
+                    Console::ConWarn(L"socket: socket connection closed (possible ddos "
                              L"attempt)\n");
                     AddLog("socket: socket connection from %s:%d closed "
                            "(possible ddos "

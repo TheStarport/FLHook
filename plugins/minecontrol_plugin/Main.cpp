@@ -186,7 +186,7 @@ static float GetBonus(uint iRep, uint iShipID, std::list<CARGO_INFO> lstCargo,
 void CheckClientSetup(uint iClientID) {
     if (!mapClients[iClientID].bSetup) {
         if (set_iPluginDebug > 1)
-            Console::ConPrint(L"NOTICE: iClientID=%d setup bonuses", iClientID);
+            Console::ConInfo(L"NOTICE: iClientID=%d setup bonuses", iClientID);
         mapClients[iClientID].bSetup = true;
 
         // Get the player affiliation
@@ -205,11 +205,11 @@ void CheckClientSetup(uint iClientID) {
         HkEnumCargo((const wchar_t *)Players.GetActiveCharacterName(iClientID),
                     lstCargo, remainingHoldSize);
         if (set_iPluginDebug > 1) {
-            Console::ConPrint(
+            Console::ConInfo(
                 L"NOTICE: iClientID=%d iRepGroupID=%u iShipID=%u lstCargo=",
                 iClientID, iRepGroupID, iShipID);
             for (auto &ci : lstCargo) {
-                Console::ConPrint(L"%u ", ci.iArchID);
+                Console::ConInfo(L"%u ", ci.iArchID);
             }
             Console::ConPrint(L"");
         }
@@ -230,7 +230,7 @@ void CheckClientSetup(uint iClientID) {
                 mapClients[iClientID].mapLootShipLst[iLootID] =
                     i.second.lstShips;
                 if (set_iPluginDebug > 1) {
-                    Console::ConPrint(
+                    Console::ConInfo(
                         L"NOTICE: iClientID=%d iLootID=%08x fBonus=%2.2f\n",
                         iClientID, iLootID, fBonus);
                 }
@@ -302,7 +302,7 @@ EXPORT void LoadSettings() {
         IniGetS(scPluginCfgFile, "MiningGeneral", "StatsPath", "");
 
     if (set_iPluginDebug)
-        Console::ConPrint(L"NOTICE: generic_factor=%0.0f debug=%d", set_fGenericFactor,
+        Console::ConInfo(L"NOTICE: generic_factor=%0.0f debug=%d", set_fGenericFactor,
                  set_iPluginDebug);
 
     // Patch Archetype::GetEquipment & Archetype::GetShip to suppress annoying
@@ -333,7 +333,7 @@ EXPORT void LoadSettings() {
                     pb.iLootID = CreateID(GetTrimParam(scLine, 0).c_str());
                     if (!Archetype::GetEquipment(pb.iLootID) &&
                         !Archetype::GetSimple(pb.iLootID)) {
-                        Console::ConPrint(L"ERROR: %s:%d: item '%s' not valid",
+                        Console::ConErr(L"ERROR: %s:%d: item '%s' not valid",
                                  stows(ini.get_file_name()).c_str(),
                                  ini.get_line_num(),
                                  stows(GetTrimParam(scLine, 0)).c_str());
@@ -342,7 +342,7 @@ EXPORT void LoadSettings() {
 
                     pb.fBonus = (float)atof(GetTrimParam(scLine, 1).c_str());
                     if (pb.fBonus <= 0.0f) {
-                        Console::ConPrint(L"ERROR: %s:%d: bonus not valid",
+                        Console::ConErr(L"ERROR: %s:%d: bonus not valid",
                                  stows(ini.get_file_name()).c_str(),
                                  ini.get_line_num());
                         continue;
@@ -353,7 +353,7 @@ EXPORT void LoadSettings() {
                         pub::Reputation::GetReputationGroup(
                             pb.iRep, GetTrimParam(scLine, 2).c_str());
                         if (pb.iRep == -1) {
-                            Console::ConPrint(L"ERROR: %s:%d: reputation not valid",
+                            Console::ConErr(L"ERROR: %s:%d: reputation not valid",
                                      stows(ini.get_file_name()).c_str(),
                                      ini.get_line_num());
                             continue;
@@ -383,7 +383,7 @@ EXPORT void LoadSettings() {
                         } else if (Archetype::GetSimple(iItemID)) {
                             pb.lstItems.push_back(iItemID);
                         } else {
-                            Console::ConPrint(L"ERROR: %s:%d: item '%s' not valid",
+                            Console::ConErr(L"ERROR: %s:%d: item '%s' not valid",
                                      stows(ini.get_file_name()).c_str(),
                                      ini.get_line_num(),
                                      stows(scShipOrEquip).c_str());
@@ -396,7 +396,7 @@ EXPORT void LoadSettings() {
                         std::multimap<uint, PLAYER_BONUS>::value_type(
                             pb.iLootID, pb));
                     if (set_iPluginDebug) {
-                        Console::ConPrint(L"NOTICE: mining player bonus %s(%u) %2.2f "
+                        Console::ConInfo(L"NOTICE: mining player bonus %s(%u) %2.2f "
                                  L"%s(%u)\n",
                                  stows(GetTrimParam(scLine, 0)).c_str(),
                                  pb.iLootID, pb.fBonus,
@@ -410,7 +410,7 @@ EXPORT void LoadSettings() {
 
                     std::string scZone = GetTrimParam(scLine, 0);
                     if (!scZone.size()) {
-                        Console::ConPrint(L"ERROR: %s:%d: zone not valid",
+                        Console::ConErr(L"ERROR: %s:%d: zone not valid",
                                  stows(ini.get_file_name()).c_str(),
                                  ini.get_line_num());
                         continue;
@@ -418,7 +418,7 @@ EXPORT void LoadSettings() {
 
                     float fBonus = (float)atof(GetTrimParam(scLine, 1).c_str());
                     if (fBonus <= 0.0f) {
-                        Console::ConPrint(L"ERROR: %s:%d: bonus not valid",
+                        Console::ConErr(L"ERROR: %s:%d: bonus not valid",
                                  stows(ini.get_file_name()).c_str(),
                                  ini.get_line_num());
                         continue;
@@ -451,7 +451,7 @@ EXPORT void LoadSettings() {
                     set_mapZoneBonus[iZoneID].fRechargeRate = fRechargeRate;
                     set_mapZoneBonus[iZoneID].fMaxReserve = fMaxReserve;
                     if (set_iPluginDebug) {
-                        Console::ConPrint(L"NOTICE: zone bonus %s fBonus=%2.2f "
+                        Console::ConInfo(L"NOTICE: zone bonus %s fBonus=%2.2f "
                                  L"iReplacementLootID=%s(%u) "
                                  L"fRechargeRate=%0.0f fMaxReserve=%0.0f\n",
                                  stows(scZone).c_str(), fBonus,
@@ -703,7 +703,6 @@ void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos,
                             uint iCrateID, uint iLootID, uint iCount,
                             uint iClientID) {
     mapClients[iClientID].iPendingMineAsteroidEvents += 4;
-    //	Console::ConPrint(L"mine_asteroid %d %d %d", iCrateID, iLootID, iCount);
     return;
 }
 
