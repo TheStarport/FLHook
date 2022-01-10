@@ -2892,6 +2892,26 @@ void __stdcall RequestPlayerStats(uint clientID, uchar* _genArg1, int _genArg2) 
 }
 
 namespace HkIServerImpl {
+void __stdcall PopupDialog(uint clientID, uint buttonClicked) {
+    AddDebugLog("PopupDialog(\n\tuint clientID = %u\n\tuint buttonClicked = %u\n)",
+                clientID, buttonClicked);
+
+    auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopupDialog,
+                                        clientID, buttonClicked);
+
+    if (!skip) {
+        CALL_SERVER_PREAMBLE {
+            Server.PopUpDialog(clientID, buttonClicked);
+        }
+        CALL_SERVER_POSTAMBLE(true, );
+    }
+
+    CallPluginsAfter(HookedCall::IServerImpl__PopupDialog,
+                     clientID, buttonClicked);
+}
+} // namespace HkIServerImpl
+
+namespace HkIServerImpl {
 void __stdcall RequestGroupPositions(uint clientID, uchar* _genArg1, int _genArg2) {
 	AddDebugLog("RequestGroupPositions(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
 			clientID, _genArg1, _genArg2);
@@ -3136,80 +3156,80 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 }
 
 HookEntry HkIServerImplEntries[] = {
+    {FARPROC(HkIServerImpl::FireWeapon), 0x000, nullptr },
+    {FARPROC(HkIServerImpl::ActivateEquip), 0x004, nullptr },
+    {FARPROC(HkIServerImpl::ActivateCruise), 0x008, nullptr },
+    {FARPROC(HkIServerImpl::ActivateThrusters), 0x00C, nullptr },
+    {FARPROC(HkIServerImpl::SetTarget), 0x010, nullptr },
+    {FARPROC(HkIServerImpl::TractorObjects), 0x014, nullptr },
+    {FARPROC(HkIServerImpl::GoTradelane), 0x018, nullptr },
+    {FARPROC(HkIServerImpl::StopTradelane), 0x01C, nullptr },
+    {FARPROC(HkIServerImpl::JettisonCargo), 0x020, nullptr },
+    {FARPROC(HkIServerImpl::Startup), 0x028, nullptr },
+    {FARPROC(HkIServerImpl::DisConnect), 0x040, nullptr },
+    {FARPROC(HkIServerImpl::OnConnect), 0x044, nullptr },
+    {FARPROC(HkIServerImpl::Login), 0x048, nullptr },
+    {FARPROC(HkIServerImpl::CharacterInfoReq), 0x04C, nullptr },
+    {FARPROC(HkIServerImpl::CharacterSelect), 0x050, nullptr },
+    {FARPROC(HkIServerImpl::CreateNewCharacter), 0x058, nullptr },
+    {FARPROC(HkIServerImpl::DestroyCharacter), 0x05C, nullptr },
+    {FARPROC(HkIServerImpl::ReqShipArch), 0x064, nullptr },
+    {FARPROC(HkIServerImpl::ReqHullStatus), 0x068, nullptr },
+    {FARPROC(HkIServerImpl::ReqCollisionGroups), 0x06C, nullptr },
+    {FARPROC(HkIServerImpl::ReqEquipment), 0x070, nullptr },
+    {FARPROC(HkIServerImpl::ReqAddItem), 0x078, nullptr },
+    {FARPROC(HkIServerImpl::ReqRemoveItem), 0x07C, nullptr },
+    {FARPROC(HkIServerImpl::ReqModifyItem), 0x080, nullptr },
+    {FARPROC(HkIServerImpl::ReqSetCash), 0x084, nullptr },
+    {FARPROC(HkIServerImpl::ReqChangeCash), 0x088, nullptr },
+    {FARPROC(HkIServerImpl::BaseEnter), 0x08C, nullptr },
+    {FARPROC(HkIServerImpl::BaseExit), 0x090, nullptr },
+    {FARPROC(HkIServerImpl::LocationEnter), 0x094, nullptr },
+    {FARPROC(HkIServerImpl::LocationExit), 0x098, nullptr },
+    {FARPROC(HkIServerImpl::BaseInfoRequest), 0x09C, nullptr },
+    {FARPROC(HkIServerImpl::LocationInfoRequest), 0x0A0, nullptr },
+    {FARPROC(HkIServerImpl::GFObjSelect), 0x0A4, nullptr },
+    {FARPROC(HkIServerImpl::GFGoodVaporized), 0x0A8, nullptr },
+    {FARPROC(HkIServerImpl::MissionResponse), 0x0AC, nullptr },
+    {FARPROC(HkIServerImpl::TradeResponse), 0x0B0, nullptr },
+    {FARPROC(HkIServerImpl::GFGoodBuy), 0x0B4, nullptr },
+    {FARPROC(HkIServerImpl::GFGoodSell), 0x0B8, nullptr },
+    {FARPROC(HkIServerImpl::SystemSwitchOutComplete), 0x0BC, nullptr },
+    {FARPROC(HkIServerImpl::PlayerLaunch), 0x0C0, nullptr },
+    {FARPROC(HkIServerImpl::LaunchComplete), 0x0C4, nullptr },
+    {FARPROC(HkIServerImpl::JumpInComplete), 0x0C8, nullptr },
+    {FARPROC(HkIServerImpl::Hail), 0x0CC, nullptr },
+    {FARPROC(HkIServerImpl::SPObjUpdate), 0x0D0, nullptr },
+    {FARPROC(HkIServerImpl::SPMunitionCollision), 0x0D4, nullptr },
+    {FARPROC(HkIServerImpl::SPObjCollision), 0x0DC, nullptr },
+    {FARPROC(HkIServerImpl::SPRequestUseItem), 0x0E0, nullptr },
+    {FARPROC(HkIServerImpl::SPRequestInvincibility), 0x0E4, nullptr },
+    {FARPROC(HkIServerImpl::RequestEvent), 0x0F0, nullptr },
+    {FARPROC(HkIServerImpl::RequestCancel), 0x0F4, nullptr },
+    {FARPROC(HkIServerImpl::MineAsteroid), 0x0F8, nullptr },
+    {FARPROC(HkIServerImpl::RequestCreateShip), 0x100, nullptr },
+    {FARPROC(HkIServerImpl::SPScanCargo), 0x104, nullptr },
+    {FARPROC(HkIServerImpl::SetManeuver), 0x108, nullptr },
+    {FARPROC(HkIServerImpl::InterfaceItemUsed), 0x10C, nullptr },
+    {FARPROC(HkIServerImpl::AbortMission), 0x110, nullptr },
+    {FARPROC(HkIServerImpl::SetWeaponGroup), 0x118, nullptr },
+    {FARPROC(HkIServerImpl::SetVisitedState), 0x11C, nullptr },
+    {FARPROC(HkIServerImpl::RequestBestPath), 0x120, nullptr },
+    {FARPROC(HkIServerImpl::RequestPlayerStats), 0x124, nullptr },
+    {FARPROC(HkIServerImpl::PopupDialog), 0x128, nullptr },
+    {FARPROC(HkIServerImpl::RequestGroupPositions), 0x12C, nullptr },
+    {FARPROC(HkIServerImpl::SetInterfaceState), 0x134, nullptr },
+    {FARPROC(HkIServerImpl::RequestRankLevel), 0x138, nullptr },
+    {FARPROC(HkIServerImpl::InitiateTrade), 0x13C, nullptr },
+    {FARPROC(HkIServerImpl::TerminateTrade), 0x140, nullptr },
+    {FARPROC(HkIServerImpl::AcceptTrade), 0x144, nullptr },
+    {FARPROC(HkIServerImpl::SetTradeMoney), 0x148, nullptr },
+    {FARPROC(HkIServerImpl::AddTradeEquip), 0x14C, nullptr },
+    {FARPROC(HkIServerImpl::DelTradeEquip), 0x150, nullptr },
+    {FARPROC(HkIServerImpl::RequestTrade), 0x154, nullptr },
+    {FARPROC(HkIServerImpl::StopTradeRequest), 0x158, nullptr },
+    {FARPROC(HkIServerImpl::Dock), 0x16C, nullptr },
 	{ FARPROC(HkIServerImpl::FireWeapon), 0x004, nullptr },
-	{ FARPROC(HkIServerImpl::ActivateEquip), 0x008, nullptr },
-	{ FARPROC(HkIServerImpl::ActivateCruise), 0x00C, nullptr },
-	{ FARPROC(HkIServerImpl::ActivateThrusters), 0x010, nullptr },
-	{ FARPROC(HkIServerImpl::SetTarget), 0x014, nullptr },
-	{ FARPROC(HkIServerImpl::TractorObjects), 0x018, nullptr },
-	{ FARPROC(HkIServerImpl::GoTradelane), 0x01C, nullptr },
-	{ FARPROC(HkIServerImpl::StopTradelane), 0x020, nullptr },
-	{ FARPROC(HkIServerImpl::JettisonCargo), 0x024, nullptr },
-	{ FARPROC(HkIServerImpl::Startup), 0x028, nullptr },
-	{ FARPROC(HkIServerImpl::Shutdown), 0x02C, nullptr },
-	{ FARPROC(HkIServerImpl::Update), 0x030, nullptr },
-	{ FARPROC(HkIServerImpl::DisConnect), 0x044, nullptr },
-	{ FARPROC(HkIServerImpl::OnConnect), 0x048, nullptr },
-	{ FARPROC(HkIServerImpl::Login), 0x04C, nullptr },
-	{ FARPROC(HkIServerImpl::CharacterInfoReq), 0x050, nullptr },
-	{ FARPROC(HkIServerImpl::CharacterSelect), 0x054, nullptr },
-	{ FARPROC(HkIServerImpl::CreateNewCharacter), 0x05C, nullptr },
-	{ FARPROC(HkIServerImpl::DestroyCharacter), 0x060, nullptr },
-	{ FARPROC(HkIServerImpl::ReqShipArch), 0x068, nullptr },
-	{ FARPROC(HkIServerImpl::ReqHullStatus), 0x06C, nullptr },
-	{ FARPROC(HkIServerImpl::ReqCollisionGroups), 0x070, nullptr },
-	{ FARPROC(HkIServerImpl::ReqEquipment), 0x074, nullptr },
-	{ FARPROC(HkIServerImpl::ReqAddItem), 0x07C, nullptr },
-	{ FARPROC(HkIServerImpl::ReqRemoveItem), 0x080, nullptr },
-	{ FARPROC(HkIServerImpl::ReqModifyItem), 0x084, nullptr },
-	{ FARPROC(HkIServerImpl::ReqSetCash), 0x088, nullptr },
-	{ FARPROC(HkIServerImpl::ReqChangeCash), 0x08C, nullptr },
-	{ FARPROC(HkIServerImpl::BaseEnter), 0x090, nullptr },
-	{ FARPROC(HkIServerImpl::BaseExit), 0x094, nullptr },
-	{ FARPROC(HkIServerImpl::LocationEnter), 0x098, nullptr },
-	{ FARPROC(HkIServerImpl::LocationExit), 0x09C, nullptr },
-	{ FARPROC(HkIServerImpl::BaseInfoRequest), 0x0A0, nullptr },
-	{ FARPROC(HkIServerImpl::LocationInfoRequest), 0x0A4, nullptr },
-	{ FARPROC(HkIServerImpl::GFObjSelect), 0x0A8, nullptr },
-	{ FARPROC(HkIServerImpl::GFGoodVaporized), 0x0AC, nullptr },
-	{ FARPROC(HkIServerImpl::MissionResponse), 0x0B0, nullptr },
-	{ FARPROC(HkIServerImpl::TradeResponse), 0x0B4, nullptr },
-	{ FARPROC(HkIServerImpl::GFGoodBuy), 0x0B8, nullptr },
-	{ FARPROC(HkIServerImpl::GFGoodSell), 0x0BC, nullptr },
-	{ FARPROC(HkIServerImpl::SystemSwitchOutComplete), 0x0C0, nullptr },
-	{ FARPROC(HkIServerImpl::PlayerLaunch), 0x0C4, nullptr },
-	{ FARPROC(HkIServerImpl::LaunchComplete), 0x0C8, nullptr },
-	{ FARPROC(HkIServerImpl::JumpInComplete), 0x0CC, nullptr },
-	{ FARPROC(HkIServerImpl::Hail), 0x0D0, nullptr },
-	{ FARPROC(HkIServerImpl::SPObjUpdate), 0x0D4, nullptr },
-	{ FARPROC(HkIServerImpl::SPMunitionCollision), 0x0D8, nullptr },
-	{ FARPROC(HkIServerImpl::SPObjCollision), 0x0E0, nullptr },
-	{ FARPROC(HkIServerImpl::SPRequestUseItem), 0x0E4, nullptr },
-	{ FARPROC(HkIServerImpl::SPRequestInvincibility), 0x0E8, nullptr },
-	{ FARPROC(HkIServerImpl::RequestEvent), 0x0F4, nullptr },
-	{ FARPROC(HkIServerImpl::RequestCancel), 0x0F8, nullptr },
-	{ FARPROC(HkIServerImpl::MineAsteroid), 0x0FC, nullptr },
-	{ FARPROC(HkIServerImpl::RequestCreateShip), 0x104, nullptr },
-	{ FARPROC(HkIServerImpl::SPScanCargo), 0x108, nullptr },
-	{ FARPROC(HkIServerImpl::SetManeuver), 0x10C, nullptr },
-	{ FARPROC(HkIServerImpl::InterfaceItemUsed), 0x110, nullptr },
-	{ FARPROC(HkIServerImpl::AbortMission), 0x114, nullptr },
-	{ FARPROC(HkIServerImpl::SetWeaponGroup), 0x11C, nullptr },
-	{ FARPROC(HkIServerImpl::SetVisitedState), 0x120, nullptr },
-	{ FARPROC(HkIServerImpl::RequestBestPath), 0x124, nullptr },
-	{ FARPROC(HkIServerImpl::RequestPlayerStats), 0x128, nullptr },
-	{ FARPROC(HkIServerImpl::RequestGroupPositions), 0x130, nullptr },
-	{ FARPROC(HkIServerImpl::SetInterfaceState), 0x138, nullptr },
-	{ FARPROC(HkIServerImpl::RequestRankLevel), 0x13C, nullptr },
-	{ FARPROC(HkIServerImpl::InitiateTrade), 0x140, nullptr },
-	{ FARPROC(HkIServerImpl::TerminateTrade), 0x144, nullptr },
-	{ FARPROC(HkIServerImpl::AcceptTrade), 0x148, nullptr },
-	{ FARPROC(HkIServerImpl::SetTradeMoney), 0x14C, nullptr },
-	{ FARPROC(HkIServerImpl::AddTradeEquip), 0x150, nullptr },
-	{ FARPROC(HkIServerImpl::DelTradeEquip), 0x154, nullptr },
-	{ FARPROC(HkIServerImpl::RequestTrade), 0x158, nullptr },
-	{ FARPROC(HkIServerImpl::StopTradeRequest), 0x15C, nullptr },
-	{ FARPROC(HkIServerImpl::Dock), 0x170, nullptr },
 	{ FARPROC(HkIServerImpl::SubmitChat), -0x008, nullptr },
 };
 
@@ -3315,6 +3335,7 @@ void PluginManager::setupProps() {
 	setProps(HookedCall::IServerImpl__SetVisitedState, true, false, true);
 	setProps(HookedCall::IServerImpl__RequestBestPath, true, false, true);
 	setProps(HookedCall::IServerImpl__RequestPlayerStats, true, false, true);
+    setProps(HookedCall::IServerImpl__PopupDialog, true, false, true);
 	setProps(HookedCall::IServerImpl__RequestGroupPositions, true, false, true);
 	setProps(HookedCall::IServerImpl__SetInterfaceState, true, false, true);
 	setProps(HookedCall::IServerImpl__RequestRankLevel, true, false, true);
