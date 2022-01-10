@@ -1,24 +1,17 @@
-﻿/**
- Mobile Docking Plugin for FLHook-Plugin
- by Cannon.
+﻿// Mobile Docking Plugin by Cannon
+// 2010 by Cannon
+//
+// Ported by Raikkonen 2022
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
 
-0.1:
- Initial release
-*/
-
-// includes
+// Includes
 
 #include "Main.h"
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
 
 void LoadDockInfo(uint client);
 void SaveDockInfo(uint client);
@@ -341,7 +334,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
             return 0;
         }
 
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 
         // Create a docking request and send a notification to the target ship.
         mapPendingDockingRequests[client].iTargetClientID = iTargetClientID;
@@ -459,7 +452,7 @@ void SystemSwitchOutComplete(unsigned int iShip, unsigned int client) {
     // Patch the system switch out routine to put the ship in a
     // system of our choosing.
     if (mapDeferredJumps.find(client) != mapDeferredJumps.end()) {
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 
         SwitchOut[0x0d7] = 0xeb; // ignore exit object
         SwitchOut[0x0d8] = 0x40;
@@ -534,7 +527,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
     
 
     if (clients[client].mobile_docked) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 
         PrintUserCmdText(client, L"ERR: Ship will not accept goods");
         clients[client].reverse_sell = true;
@@ -549,7 +542,7 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count,
     
 
     if (clients[client].mobile_docked) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 
         if (clients[client].reverse_sell) {
             int hold_size;
@@ -566,7 +559,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
     
 
     if (clients[client].mobile_docked) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 
         if (clients[client].reverse_sell) {
             clients[client].reverse_sell = false;
@@ -591,7 +584,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
     // If the client is in a player controlled base
     if (clients[client].mobile_docked) {
         PrintUserCmdText(client, L"ERR Base will not sell goods");
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
         clients[client].stop_buy = true;
         return;
     }
@@ -603,11 +596,11 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
                           float fStatus, bool bMounted, unsigned int client) {
     
     if (clients[client].mobile_docked) {
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 
         if (clients[client].stop_buy) {
             clients[client].stop_buy = false;
-            returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+            returncode = ReturnCode::SkipAll;
         }
     }
 }
@@ -618,7 +611,7 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
 void __stdcall ReqChangeCash(int cash, unsigned int client) {
     
     if (clients[client].mobile_docked)
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -627,7 +620,7 @@ void __stdcall ReqChangeCash(int cash, unsigned int client) {
 void __stdcall ReqSetCash(int cash, unsigned int client) {
     
     if (clients[client].mobile_docked)
-        returncode = SKIPPLUGINS_NOFUNCTIONCALL;
+        returncode = ReturnCode::SkipAll;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -636,7 +629,7 @@ void __stdcall ReqEquipment(class EquipDescList const &edl,
                             unsigned int client) {
     
     if (clients[client].mobile_docked)
-        returncode = SKIPPLUGINS;
+        returncode = ReturnCode::SkipPlugins;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -683,60 +676,32 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT PLUGIN_INFO *Get_PluginInfo() {
-    PLUGIN_INFO *p_PI = new PLUGIN_INFO();
-    p_PI->sName = "Mobile Docking Plugin by cannon";
-    p_PI->sShortName = "dock";
-    p_PI->bMayPause = true;
-    p_PI->bMayUnload = true;
-    p_PI->ePluginReturnCode = &returncode;
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&LoadSettings, PLUGIN_LoadSettings, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ClearClientInfo,
-                                             PLUGIN_ClearClientInfo, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&PlayerLaunch, PLUGIN_HkIServerImpl_PlayerLaunch, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&PlayerLaunch_AFTER,
-                        PLUGIN_HkIServerImpl_PlayerLaunch_AFTER, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&SystemSwitchOutComplete,
-                        PLUGIN_HkIServerImpl_SystemSwitchOutComplete, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&CharacterSelect_AFTER,
-                        PLUGIN_HkIServerImpl_CharacterSelect_AFTER, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&DisConnect, PLUGIN_HkIServerImpl_DisConnect, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&CharacterInfoReq,
-                        PLUGIN_HkIServerImpl_CharacterInfoReq, 0));
-    pi->emplaceHook(
-        PLUGIN_HOOKINFO((FARPROC *)&ShipDestroyed, PLUGIN_ShipDestroyed, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&BaseEnter, PLUGIN_HkIServerImpl_BaseEnter, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&BaseExit,
-                                             PLUGIN_HkIServerImpl_BaseExit, 0));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&UserCmd_Process,
-                                             PLUGIN_UserCmd_Process, 0));
-    pi->emplaceHook(
-        HookedCall::FLHook__Cb_Dock_Call, &Dock_Call);
-
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodSell, PLUGIN_HkIServerImpl_GFGoodSell, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqRemoveItem, PLUGIN_HkIServerImpl_ReqRemoveItem, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO((FARPROC *)&ReqRemoveItem_AFTER,
-                                             PLUGIN_HkIServerImpl_ReqRemoveItem,
-                                             15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&GFGoodBuy, PLUGIN_HkIServerImpl_GFGoodBuy, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqAddItem, PLUGIN_HkIServerImpl_ReqAddItem, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqChangeCash, PLUGIN_HkIServerImpl_ReqChangeCash, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqSetCash, PLUGIN_HkIServerImpl_ReqSetCash, 15));
-    pi->emplaceHook(PLUGIN_HOOKINFO(
-        (FARPROC *)&ReqEquipment, PLUGIN_HkIServerImpl_ReqEquipment, 11));
-
-    }
+/** Functions to hook */
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Mobile Docking by Cannon");
+    pi->shortName("MobileDocking");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+    pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
+    pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+    pi->emplaceHook(HookedCall::IServerImpl__BaseExit, &BaseExit);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqRemoveItem, &ReqRemoveItem);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqRemoveItem, &ReqRemoveItem_AFTER, HookStep::After);
+    pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
+    pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
+}

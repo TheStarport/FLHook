@@ -1,10 +1,11 @@
-﻿/**
- Base Plugin for FLHook-Plugin
- by Cannon.
-
-0.1:
- Initial release
-*/
+﻿// Base Plugin by Cannon
+// 2010 by Cannon
+//
+// Ported by Raikkonen 2022
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
 
 // Includes
 #include "Main.h"
