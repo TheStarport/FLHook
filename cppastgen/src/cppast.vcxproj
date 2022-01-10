@@ -8,6 +8,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseWithDebug|x64">
+      <Configuration>ReleaseWithDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -40,6 +44,11 @@
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
@@ -64,9 +73,13 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cppast</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cppast.dir\Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">cppast.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cppast</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">cppast</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cppast.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cppast</TargetName>
@@ -112,6 +125,41 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR="0";CPPAST_VERSION_MAJOR="0";CPPAST_VERSION_STRING="0.0";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY="C:/Program Files/LLVM/bin/clang.exe";CPPAST_CLANG_VERSION_STRING="10.0.0";CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CPPAST_VERSION_MINOR=\"0\";CPPAST_VERSION_MAJOR=\"0\";CPPAST_VERSION_STRING=\"0.0\";TYPE_SAFE_ENABLE_ASSERTIONS=0;TYPE_SAFE_ENABLE_PRECONDITION_CHECKS=1;TYPE_SAFE_ENABLE_WRAPPER=1;TYPE_SAFE_ARITHMETIC_UB=1;CPPAST_CLANG_BINARY=\"C:/Program Files/LLVM/bin/clang.exe\";CPPAST_CLANG_VERSION_STRING=\"10.0.0\";CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\jpgue\Projects\FLHook\cppast\src\..\include;C:\Users\jpgue\Projects\FLHook\cppast\src\SYSTEM;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\include;C:\Users\jpgue\Projects\FLHook\cppast\external\type_safe\external\debug_assert;C:\Users\jpgue\Projects\FLHook\cppast\external\tiny-process-library;C:\Program Files\LLVM\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
@@ -232,6 +280,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
@@ -241,9 +290,21 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">C:\Users\jpgue\Projects\FLHook\cppastgen\src\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">false</LinkObjects>
       <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/jpgue/Projects/FLHook/cppast/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jpgue/Projects/FLHook/cppast -BC:/Users/jpgue/Projects/FLHook/cppastgen --check-stamp-file C:/Users/jpgue/Projects/FLHook/cppastgen/src/CMakeFiles/generate.stamp
