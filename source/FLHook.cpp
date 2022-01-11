@@ -348,7 +348,7 @@ bool FLHookInit() {
                         throw "encrypted: socket-listen failed";
 
                     Console::ConInfo(L"socket(encrypted-ascii): socket connection "
-                             L"listening\n");
+                             L"listening");
                 }
 
                 if (set_iEWPort) {
@@ -365,7 +365,7 @@ bool FLHookInit() {
                         throw "encrypted-unicode: socket-listen failed";
 
                     Console::ConInfo(L"socket(encrypted-unicode): socket connection "
-                             L"listening\n");
+                             L"listening");
                 }
             }
         }
