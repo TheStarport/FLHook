@@ -234,7 +234,7 @@ void ClearClientInfo(uint clientID) {
    info->bSpawnProtected = false;
 
     for (auto &i : info->mapPluginData) {
-       std::fill_n(i.second, 40, 0x0);
+       i.second.fill(0x0);
    }
     
     CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);
