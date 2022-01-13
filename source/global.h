@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <windows.h>
+#include <filesystem>
 
 #include "Singleton.h"
 
@@ -345,3 +346,5 @@ EXPORT SYSTEMINFO *GetSystemInfo(uint systemID);
 EXPORT void PrintZones();
 } // namespace ZoneUtilities
 
+// Serialization
+#include "Tools/Serialization.hpp"

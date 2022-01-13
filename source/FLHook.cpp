@@ -161,6 +161,19 @@ init
 **************************************************************************************************************/
 std::string sDebugLog;
 
+struct TestStruct : Reflectable {
+    int i = 1;
+    float e = 3.0f;
+    std::vector<int> vals;
+};
+
+REFL_AUTO(
+    type(TestStruct),
+    field(i),
+    field(e),
+    field(vals)
+)
+
 void FLHookInit_Pre() {
 
     InitializeCriticalSection(&cs);
@@ -263,6 +276,11 @@ void FLHookInit_Pre() {
 
         if (set_bDebug && !fLogDebug)
             fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
+
+        TestStruct q;
+        auto w = Serializer::IniToObject<TestStruct>("test.json", true);
+        Console::ConInfo(L"%u", w.i);
+        Console::ConInfo(L"%f", w.e);
 
         CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
