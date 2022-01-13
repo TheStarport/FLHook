@@ -352,7 +352,7 @@ public:
 
         NoVoidReturnType ret {};
         TRY_HOOK {
-            for (const auto &hook : pluginHooks_[uint(target) * 2 + uint(step)]) {
+            for (const auto &hook : pluginHooks_[uint(target) * uint(HookStep::Count) + uint(step)]) {
                 const auto& plugin = hook.plugin();
                 if (plugin.paused)
                     continue;
