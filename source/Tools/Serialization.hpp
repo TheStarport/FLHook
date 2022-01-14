@@ -6,11 +6,15 @@
 
 #include "refl.hpp"
 
-// A base class used for denoting that a class can be scanned.
+// A base class/struct used for denoting that a class can be scanned.
 // Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
 // Reflectables are interepreted as headers of the provided name.
 // Circular references are not handled and will crash.
-class Reflectable {};
+// Marking a field as reflectable without properly initalizing it will crash upon attempted deserialization.
+// Ensure that the default CTOR initalizes all fields.
+struct Reflectable {
+    virtual std::string File() { return std::string(); };
+};
 template <typename T> constexpr auto IsBool = std::is_same_v<T, bool>;
 template <typename T> constexpr auto IsInt = std::is_same_v<T, int> || std::is_same_v<T, uint>;
 template <typename T> constexpr auto IsFloat = std::is_same_v<T, float>;
@@ -28,7 +32,12 @@ class Serializer {
         constexpr auto type = refl::reflect<T>();
 
         refl::util::for_each(type.members, [&type, &obj, &json](auto member) {
-            // Get our type with the reference removeds
+            // We ignore static and constant values.
+            // Not going to report this as there are use cases where you might want to store constant/static data with the regular
+            if (member.is_static || !member.is_writable)
+                return;
+
+            // Get our type with the reference removed
             typedef std::remove_reference_t<decltype(member(obj))> DeclType;
 
             void* ptr = PVOID(std::addressof(obj.*member.pointer));
@@ -52,7 +61,10 @@ class Serializer {
             } else if constexpr (IsString<DeclType>) {
                 *static_cast<std::string *>(ptr) = json[member.name.c_str()].template get<std::string>();
             } else if constexpr (IsReflectable<DeclType>) {
-
+                nlohmann::json jObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
+                DeclType reflectable;
+                ReadObject(jObj, reflectable);
+                *static_cast<DeclType*>(ptr) = reflectable;
             } else if constexpr (IsVector<DeclType>::value) {
                 if constexpr (IsBool<typename DeclType::value_type>) {
                     *static_cast<std::vector<bool>*>(ptr) = json[member.name.c_str()].template get<std::vector<bool>>();
@@ -63,7 +75,15 @@ class Serializer {
                 } else if constexpr (IsString<typename DeclType::value_type>) {
                     *static_cast<std::vector<std::string> *>(ptr) = json[member.name.c_str()].template get<std::vector<std::string>>();
                 } else if constexpr (IsReflectable<typename DeclType::value_type>) {
+                    auto jArr = json[member.name.c_str()].template get<nlohmann::json::array_t>();
+                    auto declArr = std::vector<DeclType>();
+                    for (nlohmann::json::iterator iter = jArr.begin(); iter != jArr.end(); ++jArr) {
+                        DeclType reflectable;
+                        ReadObject(*iter, reflectable);
+                        declArr.emplace_back(reflectable);
+                    }
 
+                    *static_cast<std::vector<DeclType>>(ptr) = declArr;
                 } else {
                     if (set_bDebug)
                         Console::ConWarn(L"Non-reflectable property (%s) present within vector on %s.", member.name, type.name.c_str());
@@ -76,45 +96,56 @@ class Serializer {
     }
 
     template <typename T>
-    static void WriteObject(std::ostringstream& ss, T& obj) {
-        
-    }
-
-  public:
-    /// <summary>
-    /// Save an instance of a class/struct to an INI file.
-    /// Only base types (int, string, bool, float) will be parsed.
-    /// </summary>
-    /// <typeparam name="T">The type you want to save as an INI file. The section name will be the class.</typeparam>
-    /// <param name="t">The instance of the class you would like to convert.</param>
-    template <typename T>
-    inline static void SaveToIni(T &t) {
-        static_assert(IsReflectable<T>, "Only classes that inherit from 'Reflectable' can be serialized.");
+    static void WriteObject(nlohmann::json& json, T& obj) {
 
         constexpr auto type = refl::reflect<T>();
-        refl::util::for_each(type.members, [&type, &t](auto member) {
+        refl::util::for_each(type.members, [&type, &obj, &json](auto member) {
             // We ignore static and constant values.
             // Not going to report this as there are use cases where you might want to store constant/static data with the regular
             if (member.is_static || !member.is_writable)
                 return;
 
-            // Get our type with the reference removeds
-            typedef std::remove_reference_t<decltype(member(t))> DeclType;
+            // Get our type with the reference removed
+            typedef std::remove_reference_t<decltype(member(obj))> DeclType;
 
             // Ensure someone isn't sending us a wide string.
             // Rather than ignoring it, lets give them an error.
-            static_assert(!(std::is_same_v<std::remove_reference_t<decltype(member(t))>, std::wstring>), "Wide strings are not supported for serialization.");
+            static_assert(!(std::is_same_v<std::remove_reference_t<decltype(member(obj))>, std::wstring>), "Wide strings are not supported for serialization.");
 
-            if (IsBool<DeclType>) {
-
-            } else if (IsInt<DeclType>) {
-
-            } else if (IsFloat<DeclType>) {
-
-            } else if (IsString<DeclType>) {
-
-            } else if (IsReflectable<DeclType>) {
-
+            if constexpr (IsBool<DeclType>) {
+                json[member.name.c_str()] = member(obj);
+            } else if constexpr (IsInt<DeclType>) {
+                json[member.name.c_str()] = member(obj);
+            } else if constexpr (IsFloat<DeclType>) {
+                json[member.name.c_str()] = member(obj);
+            } else if constexpr (IsString<DeclType>) {
+                json[member.name.c_str()] = member(obj);
+            } else if constexpr (IsReflectable<DeclType>) {
+                auto reflectableJson = nlohmann::json::object();
+                WriteObject(reflectableJson, member(obj));
+                json[member.name.c_str()] = reflectableJson;
+            } else if constexpr (IsVector<DeclType>::value) {
+                if constexpr (IsBool<typename DeclType::value_type>) {
+                    json[member.name.c_str()] = member(obj);
+                } else if constexpr (IsInt<typename DeclType::value_type>) {
+                    json[member.name.c_str()] = member(obj);
+                } else if constexpr (IsFloat<typename DeclType::value_type>) {
+                    json[member.name.c_str()] = member(obj);
+                } else if constexpr (IsString<typename DeclType::value_type>) {
+                    json[member.name.c_str()] = member(obj);
+                } else if constexpr (IsReflectable<typename DeclType::value_type>) {
+                    std::vector<nlohmann::json::object_t> objects;
+                    auto arr = member.get();
+                    for (auto& i : arr) {
+                        auto newObj = nlohmann::json::object();
+                        WriteObject(newObj, i);
+                        objects.emplace_back(newObj);
+                    }
+                    json[member.name.c_str()] = objects;
+                } else {
+                    if (set_bDebug)
+                        Console::ConWarn(L"Non-reflectable property (%s) present within vector on %s.", member.name, type.name.c_str());
+                }
             } else {
                 if (set_bDebug)
                     Console::ConWarn(L"Non-reflectable property (%s) present on %s.", member.name, type.name.c_str());
@@ -122,28 +153,79 @@ class Serializer {
         });
     }
 
+  public:
+    /// <summary>
+    /// Save an instance of a class/struct to a JSON file.
+    /// Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
+    /// Exceptions will be thrown for invalid file names.
+    /// </summary>
+    /// <typeparam name="T">The type you want to save as an JSON file.</typeparam>
+    /// <param name="t">The instance of the class you would like to serialize.</param>
+    /// <param name="fileToSave">Where you would like to save the file. Defaults to empty string. If empty, the class meta data will be used.</param>
     template <typename T>
-    inline static T IniToObject(const std::string fileName, bool createIfNotExist = true) {
+    inline static void SaveToJson(T &t, std::string fileToSave = "") {
         static_assert(IsReflectable<T>, "Only classes that inherit from 'Reflectable' can be serialized.");
+
+        // If no file is provided, we can search the class metadata.
+        if (fileToSave.empty()) {
+            fileToSave = ((Reflectable)t).File();
+            if (fileToSave.empty()) {
+                throw std::invalid_argument("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
+            }
+        }
+
+        // Create our JSON object to write
+        auto json = nlohmann::json::object();
+
+        WriteObject(json, t);
+
+        std::ofstream out(fileToSave);
+        if (!out.good() || !out.is_open()) {
+            Console::ConWarn(L"Unable to open %s for writing.", stows(fileToSave).c_str());
+            return;
+        }
+
+        out << json.dump(4);
+        out.close();
+
+        Console::ConInfo(L"JSON Serialized - %s", stows(fileToSave.c_str()));
+    }
+
+    template <typename T>
+    inline static T JsonToObject(std::string fileName = "", bool createIfNotExist = true) {
+        static_assert(IsReflectable<T>, "Only classes that inherit from 'Reflectable' can be deserialized.");
+
+        // If we cannot load, we return a default
+        T ret;
+
+        // If no file is provided, we can search the class metadata.
+        if (fileName.empty()) {
+            fileName = Reflectable(ret).File();
+            if (fileName.empty()) {
+                std::string err = "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
+                Console::ConErr(err);
+                throw std::invalid_argument(err);
+            }
+        }
 
         bool exists = std::filesystem::exists(fileName);
         if (!exists && !createIfNotExist) {
-            Console::ConErr(L"Couldn't load INI File (%s)", fileName.c_str());
-            return T();
+            Console::ConErr(L"Couldn't load JSON File (%s)", fileName.c_str());
+            return ret;
         }
 
         if (!exists) {
             // Default constructor
-            /*auto obj = std::make_shared<T>();
-            SaveToIni(*obj);
-            return obj;*/
+            //auto obj = std::make_shared<T>();
+            SaveToJson(ret);
+            return ret;
         }
 
 
         std::ifstream file(fileName);
         if (!file || !file.is_open() || !file.good()) {
             Console::ConWarn(L"Unable to open JSON file %s", fileName.c_str());
-            return T();
+            return ret;
         }
 
         // Load data from file.
@@ -153,10 +235,9 @@ class Serializer {
         nlohmann::json json = nlohmann::json::parse(buffer.str());
 
         //auto obj = std::make_shared<T>();
-        T t;
-        ReadObject(json, t);
+        ReadObject(json, ret);
 
-        return t;
+        return ret;
     }
 };
 
