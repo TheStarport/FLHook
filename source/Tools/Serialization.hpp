@@ -112,26 +112,15 @@ class Serializer {
             // Rather than ignoring it, lets give them an error.
             static_assert(!(std::is_same_v<std::remove_reference_t<decltype(member(obj))>, std::wstring>), "Wide strings are not supported for serialization.");
 
-            if constexpr (IsBool<DeclType>) {
-                json[member.name.c_str()] = member(obj);
-            } else if constexpr (IsInt<DeclType>) {
-                json[member.name.c_str()] = member(obj);
-            } else if constexpr (IsFloat<DeclType>) {
-                json[member.name.c_str()] = member(obj);
-            } else if constexpr (IsString<DeclType>) {
+            if constexpr (IsBool<DeclType> || IsInt<DeclType> || IsFloat<DeclType> || IsString<DeclType>) {
                 json[member.name.c_str()] = member(obj);
             } else if constexpr (IsReflectable<DeclType>) {
                 auto reflectableJson = nlohmann::json::object();
                 WriteObject(reflectableJson, member(obj));
                 json[member.name.c_str()] = reflectableJson;
             } else if constexpr (IsVector<DeclType>::value) {
-                if constexpr (IsBool<typename DeclType::value_type>) {
-                    json[member.name.c_str()] = member(obj);
-                } else if constexpr (IsInt<typename DeclType::value_type>) {
-                    json[member.name.c_str()] = member(obj);
-                } else if constexpr (IsFloat<typename DeclType::value_type>) {
-                    json[member.name.c_str()] = member(obj);
-                } else if constexpr (IsString<typename DeclType::value_type>) {
+                if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || 
+                    IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type>) {
                     json[member.name.c_str()] = member(obj);
                 } else if constexpr (IsReflectable<typename DeclType::value_type>) {
                     std::vector<nlohmann::json::object_t> objects;
