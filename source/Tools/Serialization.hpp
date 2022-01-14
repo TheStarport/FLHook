@@ -13,6 +13,7 @@
 // Marking a field as reflectable without properly initalizing it will crash upon attempted deserialization.
 // Ensure that the default CTOR initalizes all fields.
 struct Reflectable {
+    virtual ~Reflectable() = default;
     virtual std::string File() { return std::string(); };
 };
 template <typename T> constexpr auto IsBool = std::is_same_v<T, bool>;
@@ -157,8 +158,9 @@ class Serializer {
 
         // If no file is provided, we can search the class metadata.
         if (fileToSave.empty()) {
-            fileToSave = ((Reflectable)t).File();
+            fileToSave = dynamic_cast<Reflectable&>(t).File();
             if (fileToSave.empty()) {
+                Console::ConErr(L"While trying to serialize, a file, both the metadata of the class and fileName were empty.");
                 throw std::invalid_argument("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
             }
         }
@@ -189,10 +191,10 @@ class Serializer {
 
         // If no file is provided, we can search the class metadata.
         if (fileName.empty()) {
-            fileName = Reflectable(ret).File();
+            fileName = dynamic_cast<Reflectable&>(ret).File();
             if (fileName.empty()) {
                 std::string err = "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
-                Console::ConErr(err);
+                Console::ConErr(stows(err));
                 throw std::invalid_argument(err);
             }
         }
