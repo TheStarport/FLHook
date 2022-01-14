@@ -1197,7 +1197,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
     pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
     pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);
     pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget);
     pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

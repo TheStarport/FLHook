@@ -430,5 +430,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
