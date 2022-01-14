@@ -79,7 +79,7 @@ void LoadSettings() {
     conf.targetSystemId = CreateID(conf.targetSystem.c_str());
     config = std::make_unique<Config>(std::move(conf));
 
-    UserCmds[0] = { conf.wscCommand.data(), UserCmd_Conn };
+    UserCmds[0] = { config->wscCommand.data(), UserCmd_Conn };
 }
 
 bool IsDockedClient(unsigned int client) {
