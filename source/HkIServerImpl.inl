@@ -57,20 +57,20 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
            || cidTo.iID > SpecialChatIDs::PLAYER_MAX && cidTo.iID < SpecialChatIDs::SPECIAL_BASE)
             return false;
 
+        // extract text from rdlReader
         BinaryRDLReader rdl;
-        std::wstring buffer;
-        buffer.resize(1024);
-        {
-            uint _;
-            rdl.extract_text_from_buffer(ToUShort(buffer.data()), buffer.size(),
-                                         _, static_cast<const char*>(rdlReader), size);
-        }
+        wchar_t wszBuf[1024] = L"";
+        uint iRet1;
+        rdl.extract_text_from_buffer((unsigned short *)wszBuf, sizeof(wszBuf),
+                                     iRet1, (const char *)rdlReader, size);
+        std::wstring buffer = wszBuf;
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
         if (set_bDefaultLocalChat && cidTo.iID == SpecialChatIDs::SYSTEM) {
             cidTo.iID = SpecialChatIDs::LOCAL;
         }
+
 
         // fix flserver commands and change chat to id so that event logging is
         // accurate.
