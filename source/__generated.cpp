@@ -3166,7 +3166,6 @@ HookEntry HkIServerImplEntries[] = {
     {FARPROC(HkIServerImpl::GoTradelane), 0x018, nullptr },
     {FARPROC(HkIServerImpl::StopTradelane), 0x01C, nullptr },
     {FARPROC(HkIServerImpl::JettisonCargo), 0x020, nullptr },
-    {FARPROC(HkIServerImpl::Startup), 0x028, nullptr },
     {FARPROC(HkIServerImpl::DisConnect), 0x040, nullptr },
     {FARPROC(HkIServerImpl::OnConnect), 0x044, nullptr },
     {FARPROC(HkIServerImpl::Login), 0x048, nullptr },
