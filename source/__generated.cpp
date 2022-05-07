@@ -3156,6 +3156,7 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 }
 
 HookEntry HkIServerImplEntries[] = {
+    {FARPROC(HkIServerImpl::SubmitChat), -0x008, nullptr},
     {FARPROC(HkIServerImpl::FireWeapon), 0x000, nullptr },
     {FARPROC(HkIServerImpl::ActivateEquip), 0x004, nullptr },
     {FARPROC(HkIServerImpl::ActivateCruise), 0x008, nullptr },
@@ -3229,8 +3230,6 @@ HookEntry HkIServerImplEntries[] = {
     {FARPROC(HkIServerImpl::RequestTrade), 0x154, nullptr },
     {FARPROC(HkIServerImpl::StopTradeRequest), 0x158, nullptr },
     {FARPROC(HkIServerImpl::Dock), 0x16C, nullptr },
-	{ FARPROC(HkIServerImpl::FireWeapon), 0x004, nullptr },
-	{ FARPROC(HkIServerImpl::SubmitChat), -0x008, nullptr },
 };
 
 void PluginManager::setupProps() {

@@ -852,7 +852,7 @@ EXPORT extern bool g_InSubmitChat;
 EXPORT extern uint g_TextLength;
 } // namespace HkIServerImpl
 
-extern HookEntry HkIServerImplEntries[85];
+extern HookEntry HkIServerImplEntries[73];
 
 // HkDataBaseMarket
 bool HkLoadBaseMarket();
