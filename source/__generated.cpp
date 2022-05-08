@@ -1832,10 +1832,10 @@ bool __stdcall Startup(SStartupInfo const& si) {
 	AddDebugLog("Startup(\n\tSStartupInfo const& si = %s\n)",
 			ToLogString(si));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__Startup,
-			si);
-
 	Startup__Inner(si);
+
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__Startup,
+                                                  si);
 
 	if(!skip) {
 		CALL_SERVER_PREAMBLE {
@@ -3234,8 +3234,8 @@ HookEntry HkIServerImplEntries[] = {
 void PluginManager::setupProps() {
     setProps(HookedCall::IEngine__CShip__Init, true, false, false);
     setProps(HookedCall::IEngine__CShip__Destroy, true, false, false);
-    setProps(HookedCall::IEngine__UpdateTime, true, false, false);
-    setProps(HookedCall::IEngine__ElapseTime, true, false, false);
+    setProps(HookedCall::IEngine__UpdateTime, true, false, true);
+    setProps(HookedCall::IEngine__ElapseTime, true, false, true);
     setProps(HookedCall::IEngine__DockCall, true, false, false);
     setProps(HookedCall::IEngine__LaunchPosition, true, false, false);
     setProps(HookedCall::IEngine__ShipDestroyed, true, false, false);

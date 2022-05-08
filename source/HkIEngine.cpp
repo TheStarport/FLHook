@@ -121,7 +121,9 @@ int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HO
 FARPROC g_OldLaunchPosition;
 
 bool __stdcall LaunchPosition(uint spaceID, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock) {
-    CallPluginsBefore(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
+    if (skip)
+        return retVal;
 
     return obj.launch_pos(position, orientation, dock);
 }
