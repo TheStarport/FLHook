@@ -76,9 +76,11 @@ void __cdecl UpdateTime(double interval) {
 
 uint g_LastTicks = 0;
 
+static void *dummy;
 void __stdcall ElapseTime(float interval) {
     CallPluginsBefore(HookedCall::IEngine__ElapseTime, interval);
 
+    dummy = &Server;
     Server.ElapseTime(interval);
     
     CallPluginsAfter(HookedCall::IEngine__ElapseTime, interval);

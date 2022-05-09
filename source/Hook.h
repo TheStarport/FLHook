@@ -829,6 +829,9 @@ EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
                                   float fDistance);
 
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
+
+// HkDeath
+void Naked__ShipDestroyed();
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
 EXPORT extern bool g_NonGunHitsBase;

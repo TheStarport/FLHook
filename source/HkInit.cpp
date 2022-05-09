@@ -70,7 +70,7 @@ PATCH_INFO piServerDLL = {
     "server.dll",
     0x6CE0000,
     {
-        {0x6D67274, &ShipDestroyed, 4, &g_OldShipDestroyed, false},
+        {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
         {0x6D641EC, &Naked__AddDamageEntry, 4, 0, false},
         {0x6D67320, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
         {0x6D65448, &Naked__NonGunWeaponHitsBase, 4, 0, false},
