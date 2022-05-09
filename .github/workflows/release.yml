@@ -37,9 +37,8 @@ jobs:
         with:
           arch: x86
 
-      - uses: actions/setup-dotnet@v2
-        with:
-            dotnet-version: '5.0.x'
+      - name: Install .Net Framework 3.5
+        run: Dism /online /Enable-Feature /FeatureName:"NetFx3"
     
       - name: Compile PlayerControlSetup
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\plugins\playercntl_plugin\setup_src\PlayerCntlSetup.sln" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
