@@ -33,13 +33,17 @@ jobs:
       
       - run: vcpkg integrate install
 
-      - uses: ilammy/msvc-dev-cmd@v1.5.0
+      - uses: ilammy/msvc-dev-cmd@v1.10.0
         with:
           arch: x86
 
       - name: Compile FLHook
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
 
+      - uses: actions/setup-dotnet@v2
+        with:
+            dotnet-version: '3.5.x'
+    
       - name: Compile PlayerControlSetup
         run: msbuild.exe "${env:GITHUB_WORKSPACE}\plugins\playercntl_plugin\setup_src\PlayerCntlSetup.sln" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
       
