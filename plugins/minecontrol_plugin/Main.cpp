@@ -657,7 +657,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const &ci,
                         float average =
                             mapClients[iClientID].iMineAsteroidEvents / 30.0f;
                         if (average > 2.0f) {
-                            AddLog("NOTICE: high mining rate charname=%s "
+                            AddLog(Normal,L"NOTICE: high mining rate charname=%s "
                                    "rate=%0.1f/sec "
                                    "location=%0.0f,%0.0f,%0.0f system=%08x "
                                    "zone=%08x",

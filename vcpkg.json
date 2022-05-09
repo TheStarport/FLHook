@@ -3,6 +3,7 @@
   "name": "flhook",
   "version": "2.1.0",
   "dependencies": [
-    "nlohmann-json"
+    "nlohmann-json",
+    "spdlog"
   ]
 }

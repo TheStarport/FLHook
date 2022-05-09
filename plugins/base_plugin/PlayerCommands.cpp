@@ -862,7 +862,7 @@ void Bank(uint client, const std::wstring &args) {
         base->money -= money;
         base->Save();
 
-        AddLog("NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
+        AddLog(Normal,L"NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
                "charname=%s (%s)",
                base->money, money, wstos(base->basename).c_str(),
                wstos(charname).c_str(),
@@ -882,7 +882,7 @@ void Bank(uint client, const std::wstring &args) {
         base->money += money;
         base->Save();
 
-        AddLog("NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
+        AddLog(Normal,L"NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
                "charname=%s (%s)",
                money, base->money, wstos(base->basename).c_str(),
                wstos(charname).c_str(),
@@ -1112,7 +1112,7 @@ void BaseDeploy(uint client, const std::wstring &args) {
 
     std::wstring charname =
         (const wchar_t *)Players.GetActiveCharacterName(client);
-    AddLog("NOTICE: Base created %s by %s (%s)", wstos(basename).c_str(),
+    AddLog(Normal,L"NOTICE: Base created %s by %s (%s)", wstos(basename).c_str(),
            wstos(charname).c_str(),
            wstos(HkGetAccountID(HkGetAccountByCharname(charname))).c_str());
 

@@ -508,12 +508,4 @@ void HookRehashed() {
         pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
         WriteProcMem(pAddress, &cNewGroupSize, 1);
     }
-
-    // open debug log if necessary
-    if (set_bDebug && !fLogDebug) {
-        fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
-    } else if (!set_bDebug && fLogDebug) {
-        fclose(fLogDebug);
-        fLogDebug = nullptr;
-    }
 }

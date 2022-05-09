@@ -213,7 +213,7 @@ bool PurchaseRestrictions::GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
             set_mapGoodItemRestrictions.find(gbi.iGoodID);
         if (iter != set_mapGoodItemRestrictions.end()) {
             if (!CheckIDEquipRestrictions(iClientID, gbi.iGoodID)) {
-                AddLog("INFO: %s attempting to buy %u without correct ID",
+                AddLog(Normal,L"INFO: %s attempting to buy %u without correct ID",
                        wstos((const wchar_t *)Players.GetActiveCharacterName(
                                  iClientID))
                            .c_str(),

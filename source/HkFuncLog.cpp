@@ -1,59 +1,106 @@
 ﻿#include "hook.h"
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/msvc_sink.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<spdlog::logger> FLHookLog = nullptr;
+std::shared_ptr<spdlog::logger> CheaterLog = nullptr;
+std::shared_ptr<spdlog::logger> KickLog = nullptr;
+std::shared_ptr<spdlog::logger> ConnectsLog = nullptr;
+std::shared_ptr<spdlog::logger> AdminCmdsLog = nullptr;
+std::shared_ptr<spdlog::logger> SocketCmdsLog = nullptr;
+std::shared_ptr<spdlog::logger> UserCmdsLog = nullptr;
+std::shared_ptr<spdlog::logger> PerfTimersLog = nullptr;
+std::shared_ptr<spdlog::logger> FLHookDebugLog = nullptr;
+std::shared_ptr<spdlog::logger> WinDebugLog = nullptr;
 
-void AddDebugLog(const char *szString, ...) {
-    if (!set_bDebug || (!fLogDebug && !IsDebuggerPresent()))
-        return;
+bool InitLogs() {
+    try {
+        FLHookLog = spdlog::basic_logger_mt<spdlog::async_factory>("FLHook", "flhook_logs/FLHook.log");
+        CheaterLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_cheaters", "flhook_logs/flhook_cheaters.log");
+        KickLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_kicks", "flhook_logs/flhook_kicks.log");
+        ConnectsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "flhook_logs/flhook_connects.log");
+        AdminCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "flhook_logs/flhook_admincmds.log");
+        SocketCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "flhook_logs/flhook_socketcmds.log");
+        UserCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "flhook_logs/flhook_usercmds.log");
+        PerfTimersLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "flhook_logs/flhook_perftimers.log");
 
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    if (fLogDebug) {
-        if (ftell(fLogDebug) > ((int)set_iDebugMaxSize << 10)) {
-            fclose(fLogDebug);
-            _unlink(sDebugLog.c_str());
-            fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
+        if(IsDebuggerPresent()) {
+            WinDebugLog = spdlog::create_async<spdlog::sinks::msvc_sink_mt>("windows_debug");
+            WinDebugLog->set_level(spdlog::level::debug);
         }
 
-        char szBuf[64];
-        time_t tNow = time(0);
-        tm t;
-        localtime_s(&t, &tNow);
-        strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
-        fprintf(fLogDebug, "[%s] %s\n", szBuf, szBufString);
-        fflush(fLogDebug);
+        if (set_bDebug) {
+            char szDate[64];
+            time_t tNow = time(0);
+            tm t;
+            localtime_s(&t, &tNow);
+            strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", &t);
+
+            std::string sDebugLog = "./flhook_logs/debug/FLHookDebug_" + (std::string)szDate;
+            sDebugLog += ".log";
+
+            FLHookDebugLog = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", sDebugLog);
+            FLHookDebugLog->set_level(spdlog::level::debug);
+        }
+    } catch (const spdlog::spdlog_ex &ex) {
+        Console::ConErr(L"Log initialization failed: %s", ex.what());
+        return false;
     }
-    if (IsDebuggerPresent()) {
-        OutputDebugString(
-            ("[DEBUG] " + std::string(szBufString) + "\n").c_str());
-    }
+    return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AddLog(LogType LogType, std::wstring wStr, ...) {
 
-void AddLog(const char *szString, ...) {
-    if (!fLog && !IsDebuggerPresent())
-        return;
-
-    char szBufString[1024];
     va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
+    va_start(marker, wStr);
 
-    if (fLog) {
-        char szBuf[64];
-        time_t tNow = time(0);
-        tm t;
-        localtime_s(&t, &tNow);
-        strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
-        fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
-        fflush(fLog);
+    wchar_t wszBuf[1024 * 8] = L"";
+
+    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wStr.c_str(), marker);
+    std::string scText = wstos(wszBuf);
+
+    switch (LogType) {
+        case Cheater:
+            CheaterLog->info(scText);
+            CheaterLog->flush();
+            break;
+        case Kick:
+            KickLog->info(scText);
+            KickLog->flush();
+            break;
+        case Connects:
+            ConnectsLog->info(scText);
+            ConnectsLog->flush();
+            break;
+        case AdminCmds:
+            AdminCmdsLog->info(scText);
+            AdminCmdsLog->flush();
+            break;
+        case UserLogCmds:
+            UserCmdsLog->info(scText);
+            UserCmdsLog->flush();
+            break;
+        case SocketCmds:
+            SocketCmdsLog->info(scText);
+            SocketCmdsLog->flush();
+            break;
+        case PerfTimers:
+            PerfTimersLog->info(scText);
+            PerfTimersLog->flush();
+            break;
+        case Debug:
+            if (FLHookDebugLog)
+                FLHookDebugLog->debug(scText);
+                FLHookDebugLog->flush();
+            break;
+        default:
+            FLHookLog->info(scText);
+        // Normal
     }
+
     if (IsDebuggerPresent()) {
-        OutputDebugString(("[LOG] " + std::string(szBufString) + "\n").c_str());
+        WinDebugLog->debug(scText);
     }
 }
 
@@ -66,7 +113,7 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...) {
 
     _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 
-    HkAddCheaterLog(iClientID, wszBuf);
+    HkAddCheaterLog(ARG_CLIENTID(iClientID), wszBuf);
 
     if (wscReason[0] != '#' && Players.GetActiveCharacterName(iClientID)) {
         std::wstring wscCharname =
@@ -86,51 +133,9 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(const std::wstring &wscCharname,
-                     const std::wstring &wscReason) {
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_cheaters.log"), "at");
-    if (!f)
-        return false;
+bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscReason) {
 
-    CAccount *acc = HkGetAccountByCharname(wscCharname);
-    std::wstring wscAccountDir = L"???";
-    std::wstring wscAccountID = L"???";
-    if (acc) {
-        HkGetAccountDirName(acc, wscAccountDir);
-        wscAccountID = HkGetAccountID(acc);
-    }
-
-    uint iClientID = HkGetClientIdFromCharname(wscCharname);
-    std::wstring wscHostName = L"???";
-    std::wstring wscIp = L"???";
-    if (iClientID != -1) {
-        wscHostName = ClientInfo[iClientID].wscHostname;
-        HkGetPlayerIP(iClientID, wscIp);
-    }
-
-    time_t tNow = time(nullptr);
-    tm stNow;
-    localtime_s(&stNow, &tNow);
-    fprintf(f,
-            "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by "
-            "%s(%s)(%s) [%s %s]\n",
-            stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900,
-            stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wscReason).c_str(),
-            wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(),
-            wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(),
-            wstos(wscIp).c_str());
-    fclose(f);
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason) {
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_cheaters.log"), "at");
-    if (!f)
-        return false;
+    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
 
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscAccountDir = L"???";
@@ -146,24 +151,13 @@ bool HkAddCheaterLog(const uint &iClientID, const std::wstring &wscReason) {
     wscHostName = ClientInfo[iClientID].wscHostname;
     HkGetPlayerIP(iClientID, wscIp);
 
-    std::wstring wscCharname =
-        L"? ? ?"; // spaces to make clear it's not a player name
-    if (Players.GetActiveCharacterName(iClientID)) {
-        wscCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
-    }
-
-    time_t tNow = time(0);
-    tm stNow;
-    localtime_s(&stNow, &tNow);
-    fprintf(f,
-            "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Possible cheating detected (%s) by "
+    AddLog(Cheater,
+            L"Possible cheating detected (%s) by "
             "%s(%s)(%s) [%s %s]\n",
-            stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900,
-            stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wscReason).c_str(),
+            wstos(wscReason).c_str(),
             wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(),
             wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(),
             wstos(wscIp).c_str());
-    fclose(f);
     return true;
 }
 
@@ -176,11 +170,6 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...) {
 
     _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_kicks.log"), "at");
-    if (!f)
-        return false;
-
     const wchar_t *wszCharname =
         (wchar_t *)Players.GetActiveCharacterName(iClientID);
     if (!wszCharname)
@@ -190,15 +179,10 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...) {
     std::wstring wscAccountDir;
     HkGetAccountDirName(acc, wscAccountDir);
 
-    time_t tNow = time(0);
-    tm stNow;
-    localtime_s(&stNow, &tNow);
-    fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Kick (%s): %s(%s)(%s)\n",
-            stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900,
-            stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wszBuf).c_str(),
+    AddLog(Kick, L"Kick (%s): %s(%s)(%s)\n",
+            wstos(wszBuf).c_str(),
             wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(),
             wstos(HkGetAccountID(acc)).c_str());
-    fclose(f);
     return true;
 }
 
@@ -211,11 +195,6 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...) {
 
     _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
 
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_connects.log"), "at");
-    if (!f)
-        return false;
-
     const wchar_t *wszCharname =
         (wchar_t *)Players.GetActiveCharacterName(iClientID);
     if (!wszCharname)
@@ -225,107 +204,9 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...) {
     std::wstring wscAccountDir;
     HkGetAccountDirName(acc, wscAccountDir);
 
-    time_t tNow = time(0);
-    tm stNow;
-    localtime_s(&stNow, &tNow);
-    fprintf(f, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d Connect (%s): %s(%s)(%s)\n",
-            stNow.tm_mon + 1, stNow.tm_mday, stNow.tm_year + 1900,
-            stNow.tm_hour, stNow.tm_min, stNow.tm_sec, wstos(wszBuf).c_str(),
+    AddLog(Connects, L"Connect (%s): %s(%s)(%s)\n",
+            wstos(wszBuf).c_str(),
             wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(),
             wstos(HkGetAccountID(acc)).c_str());
-    fclose(f);
     return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-static void AddLog(FILE *fLog, const char *szString, ...) {
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    char szBuf[64];
-    time_t tNow = time(0);
-    tm t;
-    localtime_s(&t, &tNow);
-    strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
-    fprintf(fLog, "[%s] %s\n", szBuf, szBufString);
-    fflush(fLog);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void HkAddAdminCmdLog(const char *szString, ...) {
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_admincmds.log"), "at");
-    if (!f)
-        return;
-
-    AddLog(f, "%s", szBufString);
-
-    fclose(f);
-    return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void HkAddSocketCmdLog(const char *szString, ...) {
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_socketcmds.log"), "at");
-    if (!f)
-        return;
-
-    AddLog(f, "%s", szBufString);
-
-    fclose(f);
-    return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void HkAddUserCmdLog(const char *szString, ...) {
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_usercmds.log"), "at");
-    if (!f)
-        return;
-
-    AddLog(f, "%s", szBufString);
-
-    fclose(f);
-    return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void HkAddPerfTimerLog(const char *szString, ...) {
-    char szBufString[1024];
-    va_list marker;
-    va_start(marker, szString);
-    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
-
-    FILE *f;
-    fopen_s(&f, ("./flhook_logs/flhook_perftimers.log"), "at");
-    if (!f)
-        return;
-
-    AddLog(f, "%s", szBufString);
-
-    fclose(f);
-    return;
 }

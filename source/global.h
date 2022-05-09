@@ -162,10 +162,7 @@ extern EXPORT HMODULE hModRemoteClient;
 extern EXPORT HMODULE hModDPNet;
 extern EXPORT HMODULE hModDaLib;
 extern EXPORT HMODULE hModContent;
-extern EXPORT FILE *fLog;
-extern EXPORT FILE *fLogDebug;
 extern EXPORT FARPROC fpOldUpdate;
-extern EXPORT std::string sDebugLog;
 
 // setting variables
 extern EXPORT bool set_bLoadedSettings;

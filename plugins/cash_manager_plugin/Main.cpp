@@ -356,7 +356,7 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
         LogTransfer(wscTargetCharname, msg);
     }
 
-    AddLog("NOTICE: Send %s credits from %s (%s) to %s (%s)",
+    AddLog(Normal,L"NOTICE: Send %s credits from %s (%s) to %s (%s)",
            wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
            wstos(wscTargetCharname).c_str(),
@@ -642,7 +642,7 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
         LogTransfer(wscTargetCharname, msg);
     }
 
-    AddLog("NOTICE: Draw %s credits from %s (%s) to %s (%s)",
+    AddLog(Normal,L"NOTICE: Draw %s credits from %s (%s) to %s (%s)",
            wstos(ToMoneyStr(cash)).c_str(), wstos(wscTargetCharname).c_str(),
            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
                .c_str(),

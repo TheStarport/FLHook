@@ -134,13 +134,13 @@ void Timer() {
             if (!set_bDisableCharfileEncryption)
                 flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-            AddLog("NOTICE: User %s costume change to %u",
+            AddLog(Normal,L"NOTICE: User %s costume change to %u",
                    wstos(restart.wscCharname).c_str(), restart.costume);
         } catch (char *err) {
-            AddLog("ERROR: User %s costume change to %u (%s)",
+            AddLog(Normal,L"ERROR: User %s costume change to %u (%s)",
                    wstos(restart.wscCharname).c_str(), restart.costume, err);
         } catch (...) {
-            AddLog("ERROR: User %s costume change to %u",
+            AddLog(Normal,L"ERROR: User %s costume change to %u",
                    wstos(restart.wscCharname).c_str(), restart.costume);
         }
     }

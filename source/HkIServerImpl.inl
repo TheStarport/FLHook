@@ -239,7 +239,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
         !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) ||
         !(ui.vDir.y == ui.vDir.y) || !(ui.vDir.z == ui.vDir.z) ||
         !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle)) {
-        AddLog("ERROR: NAN found in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: NAN found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -248,7 +248,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x +
               ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
     if (n > 1.21f || n < 0.81f) {
-        AddLog("ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -256,7 +256,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     // Far check
     if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f ||
         abs(ui.vPos.z) > 1e7f) {
-        AddLog("ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -353,7 +353,7 @@ void BaseEnter__Inner(uint baseID, uint clientID) {
         if (set_bAutoBuy)
             HkPlayerAutoBuy(clientID, baseID);
     }
-    CATCH_HOOK({ AddLog("Exception in BaseEnter on autobuy"); })
+    CATCH_HOOK({ AddLog(Normal,L"Exception in BaseEnter on autobuy"); })
 }
     
 void BaseEnter__InnerAfter(uint baseID, uint clientID) {
@@ -503,7 +503,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
     }
     CATCH_HOOK({
-        AddLog("Exception in %s (clientID=%u (%x))", __FUNCTION__, clientID, Players.GetActiveCharacterName(clientID));
+        AddLog(Normal,L"Exception in %s (clientID=%u (%x))", __FUNCTION__, clientID, Players.GetActiveCharacterName(clientID));
     })
 
     return true;
@@ -538,7 +538,7 @@ bool OnConnect__Inner(uint clientID) {
         // If ID is too high due to disconnect buffer time then manually drop
         // the connection.
         if (clientID > MAX_CLIENT_ID) {
-            AddLog("INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
+            AddLog(Normal,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
             CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
             if (!cdpClient)
                 return false;
@@ -733,7 +733,7 @@ void GoTradelane__Inner(uint clientID, const XGoTradelane& gtl) {
 bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
     uint system;
     pub::Player::GetSystem(iClientID, system);
-    AddLog("ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
+    AddLog(Normal,L"ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
            "sys=%08x arch=%08x arch2=%08x",
            wstos(ToWChar(Players.GetActiveCharacterName(iClientID)))
                .c_str(),
