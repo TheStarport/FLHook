@@ -38,7 +38,7 @@ jobs:
           arch: x86
 
       - name: Compile FLHook
-        run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32"
+        run: msbuild.exe "${env:GITHUB_WORKSPACE}\project\FLHook.sln" /t:Build /p:Configuration=Release /p:Platform=Win32
       
       - name: Get current date
         id: date
