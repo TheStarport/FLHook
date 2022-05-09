@@ -828,6 +828,12 @@ EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
 EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
                                   float fDistance);
 
+// HKFuncCache
+namespace StartupCache {
+void Init();
+void Done();
+}
+
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 
 // HkDeath

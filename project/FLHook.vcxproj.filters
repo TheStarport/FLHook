@@ -123,6 +123,9 @@
     <ClCompile Include="..\source\Tools\Console.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\HkFuncCache.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">

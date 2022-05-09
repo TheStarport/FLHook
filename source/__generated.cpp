@@ -1940,7 +1940,7 @@ void __stdcall Login(SLoginInfo const& li, uint clientID) {
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login,
 			li, clientID);
 
-	if(!skip) {
+	if(!skip && Login__InnerBefore(li, clientID)) {
 		CALL_SERVER_PREAMBLE {
 			Server.Login(li, clientID);
 		} CALL_SERVER_POSTAMBLE(true, );

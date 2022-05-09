@@ -611,6 +611,39 @@ void SystemSwitchOutComplete__InnerAfter(uint, uint clientID) {
     CATCH_HOOK({})
 }
 
+bool Login__InnerBefore(const SLoginInfo &li, uint clientID) {
+    // The startup cache disables reading of the banned file. Check this manually on
+    // login and boot the player if they are banned.
+
+    CAccount *acc = Players.FindAccountFromClientID(clientID);
+    if (acc) {
+        std::wstring wscDir;
+        HkGetAccountDirName(acc, wscDir);
+
+        char szDataPath[MAX_PATH];
+        GetUserDataPath(szDataPath);
+
+        std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" +
+                           wstos(wscDir) + "\\banned";
+
+        FILE *file = fopen(path.c_str(), "r");
+        if (file) {
+            fclose(file);
+
+            // Ban the player
+            st6::wstring flStr((ushort *)acc->wszAccID);
+            Players.BanAccount(flStr, true);
+
+            // Kick them
+            acc->ForceLogout();
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
     TRY_HOOK {
         if (clientID > MAX_CLIENT_ID)
@@ -731,6 +764,8 @@ void Startup__Inner(const SStartupInfo &si) {
     WriteProcMem(address, movECX, sizeof(movECX));
     WriteProcMem(address + 1, &g_MaxPlayers, sizeof(g_MaxPlayers));
     WriteProcMem(address + 5, nop, sizeof(nop));
+
+    StartupCache::Init();
 }
 
 void Startup__InnerAfter(const SStartupInfo &si) {
@@ -741,6 +776,8 @@ void Startup__InnerAfter(const SStartupInfo &si) {
 
     // read base market data from ini
     HkLoadBaseMarket();
+
+    StartupCache::Done();
 }
 
 }
