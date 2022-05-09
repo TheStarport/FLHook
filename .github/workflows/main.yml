@@ -21,7 +21,7 @@ jobs:
       
       - run: vcpkg integrate install
 
-      - uses: ilammy/msvc-dev-cmd@v1.5.0
+      - uses: ilammy/msvc-dev-cmd@v1.10.0
         with:
           arch: x86
           
