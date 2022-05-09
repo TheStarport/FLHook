@@ -90,9 +90,10 @@ void AddLog(LogType LogType, std::wstring wStr, ...) {
             PerfTimersLog->flush();
             break;
         case Debug:
-            if (FLHookDebugLog)
+            if (FLHookDebugLog) {
                 FLHookDebugLog->debug(scText);
                 FLHookDebugLog->flush();
+            }
             break;
         default:
             FLHookLog->info(scText);
