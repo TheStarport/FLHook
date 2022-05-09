@@ -22,17 +22,11 @@ void __stdcall ShipDestroyed(DamageList *dmgList, DWORD *ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg);
 void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void *rdl);
 
-void Naked__AddDamageEntry();
-void Naked__NonGunWeaponHitsBase();
-void Naked__AddDamageEntry();
-void Naked__DamageHit();
-void Naked__DamageHit2();
-void Naked__DisconnectPacketSent();
-
 extern FARPROC g_OldShipDestroyed;
 extern FARPROC g_OldNonGunWeaponHitsBase;
 extern FARPROC g_OldDamageHit, g_OldDamageHit2;
 extern FARPROC g_OldDisconnectPacketSent;
+extern FARPROC g_OldGuidedHit;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,9 +66,9 @@ PATCH_INFO piServerDLL = {
     {
         {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
         {0x6D641EC, &Naked__AddDamageEntry, 4, 0, false},
-        {0x6D67320, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
-        {0x6D65448, &Naked__NonGunWeaponHitsBase, 4, 0, false},
-        {0x6D67670, &Naked__NonGunWeaponHitsBase, 4, 0, false},
+        {0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false},
+        {0x6D65448, &Naked__GuidedHit, 4, 0, false},
+        {0x6D67670, &Naked__GuidedHit, 4, 0, false},
         {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
         {0x6D672CC, &Naked__DamageHit, 4, 0, false},
         {0x6D6761C, &Naked__DamageHit, 4, 0, false},

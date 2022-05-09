@@ -832,6 +832,16 @@ bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 
 // HkDeath
 void Naked__ShipDestroyed();
+
+// Dmg
+void Naked__GuidedHit();
+void Naked__AddDamageEntry();
+void Naked__NonGunWeaponHitsBase();
+void Naked__AddDamageEntry();
+void Naked__DamageHit();
+void Naked__DamageHit2();
+void Naked__DisconnectPacketSent();
+
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
 EXPORT extern bool g_NonGunHitsBase;
