@@ -88,12 +88,14 @@ class EXPORT Console {
     static void ConErr(std::string str, ...);
     static void ConWarn(std::string str, ...);
     static void ConInfo(std::string str, ...);
+    static void ConDebug(std::string str, ...);
 
     // Wide-string
     static void ConPrint(std::wstring wStr, ...);
     static void ConErr(std::wstring wStr, ...);
     static void ConWarn(std::wstring wStr, ...);
     static void ConInfo(std::wstring wStr, ...);
+    static void ConDebug(std::wstring wStr, ...);
 };
 
 EXPORT std::wstring stows(const std::string &scText);

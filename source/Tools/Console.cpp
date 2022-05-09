@@ -51,11 +51,17 @@ void Console::ConInfo(std::string str, ...) {
     ConInfo(stows(str), marker);
 }
 
+void Console::ConDebug(std::string str, ...) {
+    va_list marker;
+    va_start(marker, str);
+    ConDebug(stows(str), marker);
+}
+
 void Console::ConPrint(std::wstring wStr, ...) {
     va_list marker;
     va_start(marker, wStr);
 
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::WHITE));
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::STRONG_WHITE));
     Log(wStr, marker, _ReturnAddress());
 }
 
@@ -64,7 +70,7 @@ void Console::ConErr(std::wstring wStr, ...) {
     va_list marker;
     va_start(marker, wStr);
 
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::RED));
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::STRONG_RED));
     Log(wStr, marker, _ReturnAddress());
 }
 
@@ -73,7 +79,7 @@ void Console::ConWarn(std::wstring wStr, ...) {
     va_list marker;
     va_start(marker, wStr);
 
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::YELLOW));
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::STRONG_YELLOW));
     Log(wStr, marker, _ReturnAddress());
 }
 
@@ -82,6 +88,19 @@ void Console::ConInfo(std::wstring wStr, ...) {
     va_list marker;
     va_start(marker, wStr);
 
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::CYAN));
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::STRONG_CYAN));
+    Log(wStr, marker, _ReturnAddress());
+}
+
+
+void Console::ConDebug(std::wstring wStr, ...) {
+    if (!set_bDebug)
+        return;
+
+    wStr = L"DEBUG: " + wStr;
+    va_list marker;
+    va_start(marker, wStr);
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WORD(ConsoleColor::STRONG_GREEN));
     Log(wStr, marker, _ReturnAddress());
 }
