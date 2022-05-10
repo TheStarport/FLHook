@@ -44,7 +44,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvP", "..\plugins\pvp_plugi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bounty Hunt", "..\plugins\bountyhunt_plugin\bountyhunt_plugin.vcxproj", "{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Death Penalty Plugin", "..\plugins\death_penalty_plugin\death_penalty_plugin.vcxproj", "{723583D9-6348-4643-94E4-52EA2993AB78}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Death Penalty", "..\plugins\death_penalty_plugin\death_penalty_plugin.vcxproj", "{723583D9-6348-4643-94E4-52EA2993AB78}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cppast", "..\cppastgen\src\cppast.vcxproj", "{21C9F214-77DB-3AC2-B61F-8A6CE71B31EE}"
 EndProject
