@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1BB57539-858B-4AB7-994E-401597653E64}</ProjectGuid>
-    <RootNamespace>wardrobe_plugin</RootNamespace>
+    <RootNamespace>wardrobe</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Wardrobe</ProjectName>
