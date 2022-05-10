@@ -780,9 +780,13 @@ EXPORT bool InitLogs();
 
 template<typename T>
 const wchar_t* ToLogString(const T& val) {
-    if (std::is_same_v<T, int> || std::is_same_v<T, uint> || std::is_same_v<T, short> || std::is_same_v<T, ushort> 
-        || std::is_same_v<T, float> || std::is_same_v<T, double>)
-        return std::to_wstring(val);
+    // Get type without reference
+    typedef std::remove_reference_t<decltype(val)> DeclType;
+    if constexpr (std::is_same_v<DeclType, int> || std::is_same_v<DeclType, uint> || std::is_same_v<DeclType, float> || std::is_same_v<DeclType, double>)
+    {
+        const std::wstring str = std::to_wstring(val);
+        return str.c_str();
+    }
 
     return L"<undefined>";
 }
