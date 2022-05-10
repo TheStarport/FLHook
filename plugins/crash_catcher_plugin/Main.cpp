@@ -21,6 +21,19 @@ static HMODULE hModContentAC;
 
 IMPORT struct CObject *__cdecl GetRoot(struct CObject const *);
 
+/** Originally in Main.cpp of PlayerControl */
+void __stdcall RequestBestPath(unsigned int p1, DWORD *p2, int p3) {
+    returncode = ReturnCode::SkipFunctionCall;
+    try {
+        Server.RequestBestPath(p1, (unsigned char *)p2, p3);
+    } catch (...) {
+        AddLog(Error, L"Exception in RequestBestPath p1=%d p2=%08x %08x %08x %08x "
+            "%08x %08x %08x %08x %08x p3=%08x",
+            p1, p2[0], p2[7], p2[3], p2[4], p2[5], p2[8], p2[9], p2[10],
+            p2[12]);
+    }
+}
+
 /** GetRoot hook to stop crashes at engbase.dll offset 0x000124bd */
 static FARPROC fpOldGetRootProc = 0;
 struct CObject *__cdecl HkCb_GetRoot(struct CObject *child) {
@@ -510,4 +523,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init);
+    pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
 }
