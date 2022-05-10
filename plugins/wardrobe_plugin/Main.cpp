@@ -117,7 +117,14 @@ void HkTimerCheckKick() {
     }
 }
 
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\wardrobe.cfg";
+
     INI_Reader ini;
     if (ini.open(scPluginCfgFile.c_str(), false)) {
         while (ini.read_header()) {
@@ -169,10 +176,10 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     // If we're being loaded from the command line while FLHook is running then
-    // set_scCfgFile will not be empty so load the settings as FLHook only
+    // load the settings as FLHook only
     // calls load settings on FLHook startup and .rehash.
-    if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
-        LoadSettings(set_scCfgFile);
+    if (fdwReason == DLL_PROCESS_ATTACH)
+        LoadSettings();
 
     return true;
 }
