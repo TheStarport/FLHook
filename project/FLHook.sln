@@ -85,6 +85,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System Sensor", "..\plugins
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wardrobe", "..\plugins\wardrobe_plugin\Wardrobe Plugin.vcxproj", "{1BB57539-858B-4AB7-994E-401597653E64}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spin Protection", "..\plugins\spin_protection_plugin\Spin Protection.vcxproj", "{B7E11334-9268-4963-8787-C843A9031230}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -717,6 +719,24 @@ Global
 		{1BB57539-858B-4AB7-994E-401597653E64}.ReleaseWithDebug|Win32.Build.0 = Release|Win32
 		{1BB57539-858B-4AB7-994E-401597653E64}.ReleaseWithDebug|x64.ActiveCfg = Debug|Win32
 		{1BB57539-858B-4AB7-994E-401597653E64}.ReleaseWithDebug|x64.Build.0 = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Debug|Win32.Build.0 = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Debug|x64.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Generation|Win32.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Generation|Win32.Build.0 = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Generation|x64.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Generation|x64.Build.0 = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Release|Win32.ActiveCfg = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Release|Win32.Build.0 = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.Release|x64.ActiveCfg = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseVersion|Win32.Build.0 = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseVersion|x64.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseVersion|x64.Build.0 = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|Win32.ActiveCfg = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|Win32.Build.0 = Release|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|x64.ActiveCfg = Debug|Win32
+		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|x64.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -759,6 +779,7 @@ Global
 		{B341DB54-BA24-41E6-9AC4-A88B84CDC137} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{9AE293D2-A402-4EA6-B9BA-A830DA18B219} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{1BB57539-858B-4AB7-994E-401597653E64} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{B7E11334-9268-4963-8787-C843A9031230} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
