@@ -32,7 +32,7 @@ void PrintUserCmdText(uint iClientID, std::wstring wscText, ...) {
     wchar_t wszBuf[1024 * 8] = L"";
     va_list marker;
     va_start(marker, wscText);
-    _vsnwprintf_s(wszBuf, sizeof(wszBuf) - 1, wscText.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf - 1, wscText.c_str(), marker);
 
     std::wstring wscXML = L"<TRA data=\"" + set_wscUserCmdStyle +
                           L"\" mask=\"-1\"/><TEXT>" + XMLText(wszBuf) +
@@ -258,7 +258,7 @@ void UserCmd_Ignore(uint iClientID, const std::wstring &wscParam) {
         PRINT_ERROR();
 
     // check if flags are valid
-    for (uint i = 0; (i < wscFlags.length()); i++) {
+    for (uint i = 0; i < wscFlags.length(); i++) {
         if (wscAllowedFlags.find_first_of(wscFlags[i]) == -1)
             PRINT_ERROR();
     }
@@ -274,7 +274,7 @@ void UserCmd_Ignore(uint iClientID, const std::wstring &wscParam) {
     GET_USERFILE(scUserFile);
     IniWriteW(scUserFile, "IgnoreList",
               std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
-              (wscCharname + L" " + wscFlags));
+              wscCharname + L" " + wscFlags);
 
     // save in ClientInfo
     IGNORE_INFO ii;
@@ -332,7 +332,7 @@ void UserCmd_IgnoreID(uint iClientID, const std::wstring &wscParam) {
     GET_USERFILE(scUserFile);
     IniWriteW(scUserFile, "IgnoreList",
               std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
-              (wscCharname + L" " + wscFlags));
+              wscCharname + L" " + wscFlags);
 
     // save in ClientInfo
     IGNORE_INFO ii;
@@ -396,7 +396,7 @@ void UserCmd_DelIgnore(uint iClientID, const std::wstring &wscParam) {
     std::list<uint> lstDelete;
     for (uint j = 1; wscID.length(); j++) {
         uint iID = ToInt(wscID.c_str());
-        if (!iID || (iID > ClientInfo[iClientID].lstIgnore.size())) {
+        if (!iID || iID > ClientInfo[iClientID].lstIgnore.size()) {
             PrintUserCmdText(iClientID, L"Error: Invalid ID");
             return;
         }
@@ -426,7 +426,7 @@ void UserCmd_DelIgnore(uint iClientID, const std::wstring &wscParam) {
     int i = 1;
     for (auto &ignore : ClientInfo[iClientID].lstIgnore) {
         IniWriteW(scUserFile, "IgnoreList", std::to_string(i),
-                  (ignore.wscCharname + L" " + ignore.wscFlags));
+                  ignore.wscCharname + L" " + ignore.wscFlags);
         i++;
     }
     PRINT_OK();
@@ -479,7 +479,7 @@ void UserCmd_AutoBuy(uint iClientID, const std::wstring &wscParam) {
     }
 
     if (!wscType.length() || !wscSwitch.length() ||
-        ((wscSwitch.compare(L"on") != 0) && (wscSwitch.compare(L"off") != 0)))
+        wscSwitch.compare(L"on") != 0 && wscSwitch.compare(L"off") != 0)
         PRINT_ERROR();
 
     GET_USERFILE(scUserFile);
@@ -534,7 +534,7 @@ void UserCmd_IDs(uint iClientID, const std::wstring &wscParam) {
         wchar_t wszBuf[1024];
         swprintf_s(wszBuf, L"%s = %u | ", player.wscCharname.c_str(),
                    player.iClientID);
-        if ((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine) / 2) {
+        if (wcslen(wszBuf) + wcslen(wszLine) >= sizeof wszLine / 2) {
             PrintUserCmdText(iClientID, L"%s", wszLine);
             wcscpy_s(wszLine, wszBuf);
         } else
@@ -578,7 +578,7 @@ void UserCmd_InviteID(uint iClientID, const std::wstring &wscParam) {
     std::wstring wscXML = L"<TEXT>/i " + XMLText(wscCharname) + L"</TEXT>";
     char szBuf[0xFFFF];
     uint iRet;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet))) {
+    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof szBuf, iRet))) {
         PrintUserCmdText(iClientID, L"Error: Could not encode XML");
         return;
     }
@@ -641,7 +641,7 @@ void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
                         int nextPos = he.wszLongHelp.find('\n', pos + 1);
                         PrintUserCmdText(iClientID,
                                          L"â€‚â€‚" + he.wszLongHelp.substr(
-                                                         pos, (nextPos - pos)));
+                                                         pos, nextPos - pos));
                         pos = nextPos;
                     }
                     return;
@@ -696,7 +696,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
     std::wstring wscCmdLower = ToLower(wscCmd);
 
-    for (uint i = 0; (i < sizeof(UserCmds) / sizeof(USERCMD)); i++) {
+    for (uint i = 0; i < sizeof UserCmds / sizeof(USERCMD); i++) {
         if (wscCmdLower.find(UserCmds[i].wszCmd) == 0) {
             std::wstring wscParam = L"";
             if (wscCmd.length() > wcslen(UserCmds[i].wszCmd)) {
@@ -707,10 +707,8 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
             // addlog
             if (set_bLogUserCmds) {
-                std::wstring wscCharname =
-                    (wchar_t *)Players.GetActiveCharacterName(iClientID);
-                AddLog(UserLogCmds,L"%s: %s", wstos(wscCharname).c_str(),
-                                wstos(wscCmd).c_str());
+                std::wstring wscCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
+                AddLog(UserLogCmds,L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
             }
 
             try {

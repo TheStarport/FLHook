@@ -353,7 +353,7 @@ void BaseEnter__Inner(uint baseID, uint clientID) {
         if (set_bAutoBuy)
             HkPlayerAutoBuy(clientID, baseID);
     }
-    CATCH_HOOK({ AddLog(Normal,L"Exception in BaseEnter on autobuy"); })
+    CATCH_HOOK({ AddLog(Normal, L"Exception in BaseEnter on autobuy"); })
 }
     
 void BaseEnter__InnerAfter(uint baseID, uint clientID) {
@@ -503,7 +503,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
     }
     CATCH_HOOK({
-        AddLog(Normal,L"Exception in %s (clientID=%u (%x))", __FUNCTION__, clientID, Players.GetActiveCharacterName(clientID));
+        AddLog(Normal,L"Exception in %s (clientID=%u (%x))", stows(__FUNCTION__).c_str(), clientID, Players.GetActiveCharacterName(clientID));
     })
 
     return true;

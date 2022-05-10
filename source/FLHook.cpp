@@ -485,7 +485,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
             sc->csock.DoPrint(L"Goodbye.\r");
             Console::ConInfo(L"socket: connection closed (invalid pass)");
             AddLog(Normal,L"socket: socket connection from %s:%d closed (invalid pass)",
-                   sc->csock.sIP.c_str(), sc->csock.iPort);
+                   stows(sc->csock.sIP).c_str(), sc->csock.iPort);
             return true;
         }
         swscanf_s(wscCmd.c_str(), L"pass %s", wszPass, std::size(wszPass));
@@ -504,7 +504,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
                 Console::ConInfo(L"socket: connection closed (invalid pass)");
                 AddLog(Normal,L"socket: socket connection from %s:%d closed (invalid "
                        "pass)",
-                       sc->csock.sIP.c_str(), sc->csock.iPort);
+                       stows(sc->csock.sIP).c_str(), sc->csock.iPort);
                 return true;
             } else if (!scPass.compare(wstos(wszPass))) {
                 sc->csock.bAuthed = true;
@@ -717,12 +717,8 @@ void ProcessPendingCommands() {
                 if ((sc->csock.bAuthed)) // not authenticated yet
                     iMaxKB = 500;
                 if (wscData.length() > (1024 * iMaxKB)) {
-                    Console::ConWarn(L"socket: socket connection closed (possible ddos "
-                             L"attempt)\n");
-                    AddLog(Normal,L"socket: socket connection from %s:%d closed "
-                           "(possible ddos "
-                           "attempt)",
-                           sc->csock.sIP.c_str(), sc->csock.iPort);
+                    Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
+                    AddLog(Normal,L"socket: socket connection from %s:%d closed (possible ddos attempt)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
                     delete[] szData;
                     lstDelete.push_back(sc);
                     continue;

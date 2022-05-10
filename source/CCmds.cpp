@@ -946,17 +946,14 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
         if (bSocket) {
             if (bLocalSocket) {
                 if (set_bLogLocalSocketCmds)
-                    AddLog(SocketCmds,L"%s: %s", wstos(wscAdminName).c_str(),
-                                      wstos(wscCmdStr).c_str());
+                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
             } else {
                 if (set_bLogSocketCmds)
-                    AddLog(SocketCmds,L"%s: %s", wstos(wscAdminName).c_str(),
-                                      wstos(wscCmdStr).c_str());
+                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
             }
         } else {
             if (set_bLogAdminCmds)
-                AddLog(AdminCmds,L"%s: %s", wstos(wscAdminName).c_str(),
-                                 wstos(wscCmdStr).c_str());
+                AddLog(AdminCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
         }
 
         bID = false;
@@ -1186,7 +1183,7 @@ void CCmds::Print(std::wstring wscText, ...) {
     va_list marker;
     va_start(marker, wscText);
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscText.c_str(), marker);
 
     DoPrint(wszBuf);
 }

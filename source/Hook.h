@@ -380,8 +380,7 @@ public:
                         ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                 }
                 CATCH_HOOK({
-                    AddLog(Normal,L"ERROR: Exception in plugin '%s' in %s",
-                           plugin.name.c_str(), __FUNCTION__);
+                    AddLog(Normal,L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(), stows(__FUNCTION__).c_str());
                 });
 
                 auto code = *plugin.returnCode;
@@ -392,7 +391,7 @@ public:
                 if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
                     break;
             }
-        } CATCH_HOOK({ AddLog(Normal,L"ERROR: Exception %s", __FUNCTION__); });
+        } CATCH_HOOK({ AddLog(Normal,L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
 
         if constexpr(!ReturnTypeIsVoid)
             return ret;
@@ -780,8 +779,12 @@ EXPORT void HkSaveChar(uint iClientID);
 EXPORT bool InitLogs();
 
 template<typename T>
-const char* ToLogString(const T& val) {
-    return "<undefined>";
+const wchar_t* ToLogString(const T& val) {
+    if (std::is_same_v<T, int> || std::is_same_v<T, uint> || std::is_same_v<T, short> || std::is_same_v<T, ushort> 
+        || std::is_same_v<T, float> || std::is_same_v<T, double>)
+        return std::to_wstring(val);
+
+    return L"<undefined>";
 }
 
 

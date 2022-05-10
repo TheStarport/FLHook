@@ -35,7 +35,7 @@ bool InitLogs() {
             time_t tNow = time(0);
             tm t;
             localtime_s(&t, &tNow);
-            strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", &t);
+            strftime(szDate, sizeof szDate, "%d.%m.%Y_%H.%M", &t);
 
             std::string sDebugLog = "./flhook_logs/debug/FLHookDebug_" + (std::string)szDate;
             sDebugLog += ".log";
@@ -57,7 +57,7 @@ void AddLog(LogType LogType, std::wstring wStr, ...) {
 
     wchar_t wszBuf[1024 * 8] = L"";
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wStr.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wStr.c_str(), marker);
     std::string scText = wstos(wszBuf);
 
     switch (LogType) {
@@ -95,9 +95,9 @@ void AddLog(LogType LogType, std::wstring wStr, ...) {
                 FLHookDebugLog->flush();
             }
             break;
-        default:
+        case Normal:
             FLHookLog->info(scText);
-        // Normal
+            break;
     }
 
     if (IsDebuggerPresent()) {
@@ -112,7 +112,7 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...) {
     va_list marker;
     va_start(marker, wscReason);
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
     HkAddCheaterLog(ARG_CLIENTID(iClientID), wszBuf);
 
@@ -155,10 +155,10 @@ bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscRea
     AddLog(Cheater,
             L"Possible cheating detected (%s) by "
             "%s(%s)(%s) [%s %s]\n",
-            wstos(wscReason).c_str(),
-            wstos(wscCharname).c_str(), wstos(wscAccountDir).c_str(),
-            wstos(wscAccountID).c_str(), wstos(wscHostName).c_str(),
-            wstos(wscIp).c_str());
+            wscReason.c_str(),
+            wscCharname.c_str(), wscAccountDir.c_str(),
+            wscAccountID.c_str(), wscHostName.c_str(),
+            wscIp.c_str());
     return true;
 }
 
@@ -169,7 +169,7 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...) {
     va_list marker;
     va_start(marker, wscReason);
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
     const wchar_t *wszCharname =
         (wchar_t *)Players.GetActiveCharacterName(iClientID);
@@ -181,9 +181,7 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...) {
     HkGetAccountDirName(acc, wscAccountDir);
 
     AddLog(Kick, L"Kick (%s): %s(%s)(%s)\n",
-            wstos(wszBuf).c_str(),
-            wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(),
-            wstos(HkGetAccountID(acc)).c_str());
+            wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
     return true;
 }
 
@@ -194,7 +192,7 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...) {
     va_list marker;
     va_start(marker, wscReason);
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscReason.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
     const wchar_t *wszCharname =
         (wchar_t *)Players.GetActiveCharacterName(iClientID);
@@ -205,9 +203,6 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...) {
     std::wstring wscAccountDir;
     HkGetAccountDirName(acc, wscAccountDir);
 
-    AddLog(Connects, L"Connect (%s): %s(%s)(%s)\n",
-            wstos(wszBuf).c_str(),
-            wstos(wszCharname).c_str(), wstos(wscAccountDir).c_str(),
-            wstos(HkGetAccountID(acc)).c_str());
+    AddLog(Connects, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
     return true;
 }
