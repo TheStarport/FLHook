@@ -27,8 +27,8 @@ struct CObject *__cdecl HkCb_GetRoot(struct CObject *child) {
     try {
         return GetRoot(child);
     } catch (...) {
-        AddLog(Normal,L"ERROR: Crash suppression in GetRoot(child=%08x)", child);
-        Console::ConErr(L"ERROR: Crash suppression in GetRoot(child=%08x)", child);
+        AddLog(Error,L"Crash suppression in GetRoot(child=%08x)", child);
+        Console::ConErr(L"Crash suppression in GetRoot(child=%08x)", child);
         return child;
     }
 }
@@ -43,7 +43,7 @@ int __cdecl HkCb_CrashProc1b221(unsigned int const &system,
         return pub::System::EnumerateConnections(system, conn,
                                                  (enum ConnectionType)type);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Normal,L"ERROR: Crash suppression in "
+        AddLog(Error,L"Crash suppression in "
                "pub::System::EnumerateConnections(system=%08x,type=%d)",
                system, type);
         LOG_EXCEPTION;
@@ -154,8 +154,8 @@ const BYTE *__stdcall EngBase124BD_Log(const BYTE *data) {
         }
         data = *(PBYTE *)(data + 16);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Normal,L"ERROR: Exception/Crash suppression engbase.dll:0x124BD");
-        AddLog(Normal,L"Cmp=%s Part=%s", cmp, part);
+        AddLog(Error,L"Exception/Crash suppression engbase.dll:0x124BD");
+        AddLog(Error,L"Cmp=%s Part=%s", cmp, part);
         data = 0;
     }
 
@@ -175,7 +175,7 @@ const DWORD __stdcall HkCb_EngBase11a6dNaked_Log(const BYTE *data) {
     __try {
         return *(DWORD *)(data + 0x28);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Normal,L"ERROR: Exception/Crash suppression engbase.dll:0x11A6D");
+        AddLog(Error,L"Exception/Crash suppression engbase.dll:0x11A6D");
         return 0;
     }
 }
@@ -189,7 +189,7 @@ __declspec(naked) void HkCb_EngBase11a6dNaked() {
 }
 
 void __stdcall HkCb_47bc4Naked_Log() {
-    AddLog(Normal,L"ERROR: Exception/Crash in content.dll:0x47bc4 - probably missing "
+    AddLog(Error,L"Exception/Crash in content.dll:0x47bc4 - probably missing "
            "formation in faction_props.ini/formations.ini - exiting");
     exit(-1);
 }
@@ -231,8 +231,7 @@ int HkCb_C4800Hook(int *a1, int *a2, int *zone, double *a4, int a5, int a6) {
 
         return res;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(
-            "ERROR: Exception/Crash suppression content.dll:0xC608D(zone=%08x)",
+        AddLog(Error,L"Exception/Crash suppression content.dll:0xC608D(zone=%08x)",
             (zone ? *zone : 0));
         LOG_EXCEPTION
         return 0;
@@ -242,16 +241,16 @@ int HkCb_C4800Hook(int *a1, int *a2, int *zone, double *a4, int a5, int a6) {
 static double __cdecl HkCb_TimingSeconds(__int64 &ticks_delta) {
     double seconds = Timing::seconds(ticks_delta);
     if (seconds < 0 || seconds > 10.0) {
-        AddLog(Normal,L"ERROR: Time delta invalid seconds=%f ticks_delta=%I64i",
+        AddLog(Error,L"Time delta invalid seconds=%f ticks_delta=%I64i",
                seconds, ticks_delta);
-        Console::ConErr(L"ERROR: Time delta invalid seconds=%f ticks_delta=%I64i",
+        Console::ConErr(L"Time delta invalid seconds=%f ticks_delta=%I64i",
                  seconds, ticks_delta);
         ticks_delta = 1000000;
         seconds = Timing::seconds(ticks_delta);
     } else if (seconds > 1.0) {
-        AddLog(Normal,L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i", seconds,
+        AddLog(Error,L"Time lag detected seconds=%f ticks_delta=%I64i", seconds,
                ticks_delta);
-        Console::ConErr(L"ERROR: Time lag detected seconds=%f ticks_delta=%I64i",
+        Console::ConErr(L"Time lag detected seconds=%f ticks_delta=%I64i",
                  seconds, ticks_delta);
     }
     return seconds;

@@ -237,15 +237,15 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
     if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId)) {
         if (HkAntiCheat(targetClientId) != HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR Transfer failed");
-            AddLog(
-                "NOTICE: Possible cheating when sending %s credits from %s "
+            AddLog(Cheater,
+                L"NOTICE: Possible cheating when sending %s credits from %s "
                 "(%s) "
                 "to %s (%s)",
-                wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname)))
+                ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscCharname))
                     .c_str(),
-                wstos(wscTargetCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+                wscTargetCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                     .c_str());
             return;
         }
@@ -256,15 +256,15 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
         if (ClientInfo[iClientID].iTradePartner ||
             ClientInfo[targetClientId].iTradePartner) {
             PrintUserCmdText(iClientID, L"ERR Trade window open");
-            AddLog(
-                "NOTICE: Trade window open when sending %s credits from %s "
+            AddLog(Normal,
+                L"NOTICE: Trade window open when sending %s credits from %s "
                 "(%s) "
                 "to %s (%s) %u %u",
-                wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname)))
+                ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscCharname))
                     .c_str(),
-                wstos(wscTargetCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+                wscTargetCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                     .c_str(),
                 iClientID, targetClientId);
             return;
@@ -281,13 +281,13 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
 
     if (HkAntiCheat(iClientID) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR Transfer failed");
-        AddLog(
-            "NOTICE: Possible cheating when sending %s credits from %s (%s) to "
+        AddLog(Cheater,
+            L"NOTICE: Possible cheating when sending %s credits from %s (%s) to "
             "%s (%s)",
-            wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-            wstos(wscTargetCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+            ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+            wscTargetCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                 .c_str());
         return;
     }
@@ -304,36 +304,36 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
     if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId)) {
         if (HkAntiCheat(targetClientId) != HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR Transfer failed");
-            AddLog(
-                "NOTICE: Possible cheating when sending %s credits from %s "
+            AddLog(Cheater,
+                L"NOTICE: Possible cheating when sending %s credits from %s "
                 "(%s) "
                 "to %s (%s)",
-                wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname)))
+                ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscCharname))
                     .c_str(),
-                wstos(wscTargetCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+                wscTargetCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                     .c_str());
             return;
         }
         HkSaveChar(targetClientId);
     }
 
-    // Check that receiving character has the correct ammount of cash.
+    // Check that receiving character has the correct amount of cash.
     int iCurrCash;
     if ((err = HkGetCash(wscTargetCharname, iCurrCash)) != HKE_OK ||
         iCurrCash != iExpectedCash) {
-        AddLog(
-            "ERROR: Cash transfer error when sending %s credits from %s (%s) "
+        AddLog(Error,
+            L"Cash transfer error when sending %s credits from %s (%s) "
             "to "
             "%s (%s) current %s credits expected %s credits ",
-            wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-            wstos(wscTargetCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+            ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+            wscTargetCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                 .c_str(),
-            wstos(ToMoneyStr(iCurrCash)).c_str(),
-            wstos(ToMoneyStr(iExpectedCash)).c_str());
+            ToMoneyStr(iCurrCash).c_str(),
+            ToMoneyStr(iExpectedCash).c_str());
         PrintUserCmdText(iClientID, L"ERR Transfer failed");
         return;
     }
@@ -357,10 +357,10 @@ void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
     }
 
     AddLog(Normal,L"NOTICE: Send %s credits from %s (%s) to %s (%s)",
-           wstos(ToMoneyStr(cash)).c_str(), wstos(wscCharname).c_str(),
-           wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-           wstos(wscTargetCharname).c_str(),
-           wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+           ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+           HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+           wscTargetCharname.c_str(),
+           HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                .c_str());
 
     // A friendly message explaining the transfer.
@@ -532,14 +532,14 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
     // Do an anticheat check on the receiving ship first.
     if (HkAntiCheat(iClientID) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR Transfer failed");
-        AddLog(
-            "NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
+        AddLog(Cheater,
+            L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
             "%s (%s)",
-            wstos(ToMoneyStr(cash)).c_str(), wstos(wscTargetCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+            ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                 .c_str(),
-            wstos(wscCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
+            wscCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
         return;
     }
     HkSaveChar(iClientID);
@@ -549,16 +549,16 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
         if (ClientInfo[iClientID].iTradePartner ||
             ClientInfo[targetClientId].iTradePartner) {
             PrintUserCmdText(iClientID, L"ERR Trade window open");
-            AddLog(
-                "NOTICE: Trade window open when drawing %s credits from %s "
+            AddLog(Normal,
+                L"NOTICE: Trade window open when drawing %s credits from %s "
                 "(%s) "
                 "to %s (%s) %u %u",
-                wstos(ToMoneyStr(cash)).c_str(),
-                wstos(wscTargetCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+                ToMoneyStr(cash).c_str(),
+                wscTargetCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                     .c_str(),
-                wstos(wscCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname)))
+                wscCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscCharname))
                     .c_str(),
                 iClientID, targetClientId);
             return;
@@ -574,16 +574,16 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
     if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId)) {
         if (HkAntiCheat(targetClientId) != HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR Transfer failed");
-            AddLog(
-                "NOTICE: Possible cheating when drawing %s credits from %s "
+            AddLog(Cheater,
+                L"NOTICE: Possible cheating when drawing %s credits from %s "
                 "(%s) to "
                 "%s (%s)",
-                wstos(ToMoneyStr(cash)).c_str(),
-                wstos(wscTargetCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+                ToMoneyStr(cash).c_str(),
+                wscTargetCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                     .c_str(),
-                wstos(wscCharname).c_str(),
-                wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname)))
+                wscCharname.c_str(),
+                HkGetAccountID(HkGetAccountByCharname(wscCharname))
                     .c_str());
             return;
         }
@@ -598,33 +598,33 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
 
     if (HkAntiCheat(iClientID) != HKE_OK) {
         PrintUserCmdText(iClientID, L"ERR Transfer failed");
-        AddLog(
-            "NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
+        AddLog(Cheater,
+            L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
             "%s (%s)",
-            wstos(ToMoneyStr(cash)).c_str(), wstos(wscTargetCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+            ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                 .c_str(),
-            wstos(wscCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
+            wscCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
         return;
     }
     HkSaveChar(iClientID);
 
-    // Check that receiving player has the correct ammount of cash.
+    // Check that receiving player has the correct amount of cash.
     int iCurrCash;
     if ((err = HkGetCash(wscCharname, iCurrCash)) != HKE_OK ||
         iCurrCash != iExpectedCash) {
-        AddLog(
-            "ERROR: Cash transfer error when drawing %s credits from %s (%s) "
+        AddLog(Error,
+            L"Cash transfer error when drawing %s credits from %s (%s) "
             "to "
             "%s (%s) current %s credits expected %s credits ",
-            wstos(ToMoneyStr(cash)).c_str(), wstos(wscTargetCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+            ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                 .c_str(),
-            wstos(wscCharname).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str(),
-            wstos(ToMoneyStr(iCurrCash)).c_str(),
-            wstos(ToMoneyStr(iExpectedCash)).c_str());
+            wscCharname.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+            ToMoneyStr(iCurrCash).c_str(),
+            ToMoneyStr(iExpectedCash).c_str());
         PrintUserCmdText(iClientID, L"ERR Transfer failed");
     }
 
@@ -643,11 +643,11 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring &wscParam) {
     }
 
     AddLog(Normal,L"NOTICE: Draw %s credits from %s (%s) to %s (%s)",
-           wstos(ToMoneyStr(cash)).c_str(), wstos(wscTargetCharname).c_str(),
-           wstos(HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)))
+           ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
+           HkGetAccountID(HkGetAccountByCharname(wscTargetCharname))
                .c_str(),
-           wstos(wscCharname).c_str(),
-           wstos(HkGetAccountID(HkGetAccountByCharname(wscCharname))).c_str());
+           wscCharname.c_str(),
+           HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
 
     // A friendly message explaining the transfer.
     msg = GetTimeString(set_bLocalTime) + L": You have drawn " +

@@ -98,6 +98,9 @@ void AddLog(LogType LogType, std::wstring wStr, ...) {
         case Normal:
             FLHookLog->info(scText);
             break;
+        case Error:
+            FLHookLog->error(scText);
+            break;
     }
 
     if (IsDebuggerPresent()) {

@@ -88,21 +88,21 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
     }                                                                          \
     catch (SEHException & ex) {                                                \
         e;                                                                     \
-        AddBothLog(                                                            \
-            L"ERROR: SEH Exception in %s on line %d; minidump may contain "    \
+        AddBothLog(true,                                                       \
+            L"SEH Exception in %s on line %d; minidump may contain "           \
             "more information.",                                               \
             __FUNCTION__, __LINE__);                                           \
         AddExceptionInfoLog(&ex);                                              \
     }                                                                          \
     catch (std::exception & ex) {                                              \
         e;                                                                     \
-        AddBothLog(L"ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__,\
+        AddBothLog(true, L"STL Exception in %s on line %d: %s.", __FUNCTION__, \
                    __LINE__, ex.what());                                       \
         AddExceptionInfoLog(0);                                                \
     }                                                                          \
     catch (...) {                                                              \
         e;                                                                     \
-        AddBothLog(L"ERROR: Exception in %s on line %d.", __FUNCTION__,        \
+        AddBothLog(true,L"Exception in %s on line %d.", __FUNCTION__,          \
                    __LINE__);                                                  \
         AddExceptionInfoLog();                                                 \
     }
@@ -111,7 +111,7 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 #define CATCH_HOOK(e)                                                          \
     catch (...) {                                                              \
         e;                                                                     \
-        AddLog(Normal,L"ERROR: Exception in %s", __FUNCTION__);                        \
+        AddLog(Error,L"Exception in %s", __FUNCTION__);                        \
     }
 #endif
 
@@ -149,6 +149,7 @@ EXPORT extern _GetShipInspect GetShipInspect;
 // enums
 
 enum LogType {
+    Error,
     Normal,
     Cheater,
     Kick,
@@ -794,8 +795,11 @@ const wchar_t* ToLogString(const T& val) {
 
 EXPORT void AddLog(enum LogType, std::wstring wStr, ...);
 template<typename... Args>
-void AddBothLog(std::wstring wStr, Args &&...args) {
-    AddLog(Normal, wStr, std::forward<Args>(args)...);
+void AddBothLog(bool bError, std::wstring wStr, Args &&...args) {
+    if (bError)
+        AddLog(Error, wStr, std::forward<Args>(args)...);
+    else
+        AddLog(Normal, wStr, std::forward<Args>(args)...);
     AddLog(Debug, wStr, std::forward<Args>(args)...);
 }
 
