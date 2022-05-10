@@ -183,6 +183,9 @@ void FLHookInit_Pre() {
 
     try {
 
+        // Load our settings before anything that might need access to debug mode
+        LoadSettings();
+
         // Initalize the log files and throw exception if there is a problem
         if (!InitLogs())
             throw "Log files cannot be created.";
@@ -243,9 +246,6 @@ void FLHookInit_Pre() {
             }
         }
 #endif
-
-        // load settings
-        LoadSettings();
 
         /*if (set_bDebug && !fLogDebug)
             fopen_s(&fLogDebug, sDebugLog.c_str(), "at");*/
