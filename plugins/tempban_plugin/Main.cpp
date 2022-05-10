@@ -118,10 +118,7 @@ void CmdTempBan(CCmds *classptr, const std::wstring &wscCharname,
         classptr->PrintError();
 }
 
-EXPORT bool ExecuteCommandString(CCmds *classptr,
-                                          const std::wstring &wscCmd) {
-    returncode = ReturnCode::SkipFunctionCall;
-
+EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
     if (IS_CMD("tempban")) {
 
         returncode = ReturnCode::SkipAll; // do not let other plugins kick in
