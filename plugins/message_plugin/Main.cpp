@@ -10,8 +10,6 @@
 #include "../mail_plugin/Mail.h"
 #include "../tempban_plugin/Main.h"
 
-#include "../mail_plugin/Mail.h"
-
 MailCommunicator *mailCommunicator = nullptr;
 TempBanCommunicator *tempBanCommunicator = nullptr;
 
@@ -81,17 +79,6 @@ static void ShowStandardBanner() {
                 PrintUserCmdText(iClientID, L"%s", sec.c_str());
         }
     }
-}
-
-static std::wstring SetSizeToSmall(const std::wstring &wscDataFormat) {
-    uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
-    wchar_t wszStyleSmall[32];
-    wcscpy(wszStyleSmall, wscDataFormat.c_str());
-    swprintf(wszStyleSmall + wcslen(wszStyleSmall) - 2,
-             sizeof(wszStyleSmall) / sizeof(wchar_t) + wcslen(wszStyleSmall) -
-                 2,
-             L"%02X", 0x90 | (iFormat & 7));
-    return wszStyleSmall;
 }
 
 /** Replace #t and #c tags with current target name and current ship location.
@@ -344,35 +331,23 @@ bool SubmitChat(uint& cId, unsigned long& iSize, const void **rdlReader, uint& c
         for (auto &word : set_lstSwearWords) {
             if (wscChatMsg.find(word) != -1) {
                 PrintUserCmdText(iClientID, L"This is an automated message.");
-                PrintUserCmdText(
-                    iClientID,
-                    L"Please do not swear or you may be sanctioned.");
+                PrintUserCmdText(iClientID, L"Please do not swear or you may be sanctioned.");
 
                 mapInfo[iClientID].iSwearWordWarnings++;
                 if (mapInfo[iClientID].iSwearWordWarnings > 2) {
-                    std::wstring wscCharname =
-                        (const wchar_t *)Players.GetActiveCharacterName(
-                            iClientID);
-                    AddLog(Normal,L"NOTICE: Swearing tempban on %s (%s) reason='%s'",
-                           wstos(wscCharname).c_str(),
-                           wstos(HkGetAccountID(
-                                     HkGetAccountByCharname(wscCharname)))
-                               .c_str(),
-                           wstos(wscChatMsg).c_str());
+                    std::wstring wscCharname = reinterpret_cast<const wchar_t *>(Players.GetActiveCharacterName(iClientID));
+                    AddLog(Kick, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), (wscChatMsg).c_str());
 
                     if (tempBanCommunicator)
                         tempBanCommunicator->TempBan(wscCharname, 10);
+
                     HkDelayedKick(iClientID, 1);
 
                     if (set_fDisconnectSwearingInSpaceRange > 0.0f) {
-                        std::wstring wscMsg =
-                            set_wscDisconnectSwearingInSpaceMsg;
-                        wscMsg = ReplaceStr(wscMsg, L"%time",
-                                            GetTimeString(set_bLocalTime));
+                        std::wstring wscMsg = set_wscDisconnectSwearingInSpaceMsg;
+                        wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
                         wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-                        PrintLocalUserCmdText(
-                            iClientID, wscMsg,
-                            set_fDisconnectSwearingInSpaceRange);
+                        PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectSwearingInSpaceRange);
                     }
                 }
                 return true;
@@ -980,116 +955,6 @@ void UserCmd_Do(uint iClientID, const std::wstring &wscParam) {
     }
 }
 
-/// Hook for ship distruction. It's easier to hook this than the PlayerDeath
-/// one. Drop a percentage of cargo + some loot representing ship bits.
-void SendDeathMsg(const std::wstring &wscMsg, uint& iSystemID,
-                           uint& iClientIDVictim, uint& iClientIDKiller) {
-    // encode xml std::string(default and small)
-    // non-sys
-    std::wstring wscXMLMsg =
-        L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsg += XMLText(wscMsg);
-    wscXMLMsg += L"</TEXT>";
-
-    char szBuf[0xFFFF];
-    uint iRet;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
-        return;
-
-    std::wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
-    std::wstring wscXMLMsgSmall = std::wstring(L"<TRA data=\"") +
-                                  wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSmall += XMLText(wscMsg);
-    wscXMLMsgSmall += L"</TEXT>";
-    char szBufSmall[0xFFFF];
-    uint iRetSmall;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSmall, szBufSmall,
-                                     sizeof(szBufSmall), iRetSmall)))
-        return;
-
-    // sys
-    std::wstring wscXMLMsgSys =
-        L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSys += XMLText(wscMsg);
-    wscXMLMsgSys += L"</TEXT>";
-    char szBufSys[0xFFFF];
-    uint iRetSys;
-    if (!HKHKSUCCESS(
-            HkFMsgEncodeXML(wscXMLMsgSys, szBufSys, sizeof(szBufSys), iRetSys)))
-        return;
-
-    std::wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
-    std::wstring wscXMLMsgSmallSys =
-        L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSmallSys += XMLText(wscMsg);
-    wscXMLMsgSmallSys += L"</TEXT>";
-    char szBufSmallSys[0xFFFF];
-    uint iRetSmallSys;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSmallSys, szBufSmallSys,
-                                     sizeof(szBufSmallSys), iRetSmallSys)))
-        return;
-
-    // send
-    // for all players
-    struct PlayerData *pPD = 0;
-    while (pPD = Players.traverse_active(pPD)) {
-        uint iClientID = HkGetClientIdFromPD(pPD);
-        uint iClientSystemID = 0;
-        pub::Player::GetSystem(iClientID, iClientSystemID);
-
-        if (mapInfo[iClientID].bShowChatTime) {
-            // Send time with gray color (BEBEBE) in small text (90) above the
-            // chat line.
-            bSendingTime = true;
-            HkFMsg(iClientID, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" +
-                                  XMLText(GetTimeString(set_bLocalTime)) +
-                                  L"</TEXT>");
-            bSendingTime = false;
-        }
-
-        char *szXMLBuf;
-        int iXMLBufRet;
-        char *szXMLBufSys;
-        int iXMLBufRetSys;
-        if (set_bUserCmdSetDieMsgSize &&
-            (ClientInfo[iClientID].dieMsgSize == CS_SMALL)) {
-            szXMLBuf = szBufSmall;
-            iXMLBufRet = iRetSmall;
-            szXMLBufSys = szBufSmallSys;
-            iXMLBufRetSys = iRetSmallSys;
-        } else {
-            szXMLBuf = szBuf;
-            iXMLBufRet = iRet;
-            szXMLBufSys = szBufSys;
-            iXMLBufRetSys = iRetSys;
-        }
-
-        if (!set_bUserCmdSetDieMsg) { // /set diemsg disabled, thus send to all
-            if (iSystemID == iClientSystemID)
-                HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-            else
-                HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
-            continue;
-        }
-
-        if (ClientInfo[iClientID].dieMsg == DIEMSG_NONE)
-            continue;
-        else if ((ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM) &&
-                 (iSystemID == iClientSystemID))
-            HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-        else if ((ClientInfo[iClientID].dieMsg == DIEMSG_SELF) &&
-                 ((iClientID == iClientIDVictim) ||
-                  (iClientID == iClientIDKiller)))
-            HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-        else if (ClientInfo[iClientID].dieMsg == DIEMSG_ALL) {
-            if (iSystemID == iClientSystemID)
-                HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-            else
-                HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
-        }
-    }
-}
-
 // Client command processing
 USERCMD UserCmds[] = {
     {L"/setmsg", UserCmd_SetMsg},
@@ -1215,7 +1080,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-    pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 
     // Load our communicators
     mailCommunicator = static_cast<MailCommunicator *>(PluginCommunicator::ImportPluginCommunicator(MailCommunicator::pluginName));

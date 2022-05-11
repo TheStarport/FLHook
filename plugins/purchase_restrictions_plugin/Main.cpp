@@ -16,10 +16,9 @@ static void LogItemsOfInterest(uint iClientID, uint iGoodID,
     if (iter != set_mapItemsOfInterest.end()) {
         std::wstring wscCharName =
             (const wchar_t *)Players.GetActiveCharacterName(iClientID);
-        AddLog(
-            "NOTICE: Item '%s' found in cargo of %s (%s) %s",
-            iter->second.c_str(), wstos(wscCharName).c_str(),
-            wstos(HkGetAccountID(HkGetAccountByCharname(wscCharName))).c_str(),
+        AddLog(Normal,L"Item '%s' found in cargo of %s (%s) %s",
+            iter->second.c_str(), wscCharName.c_str(),
+            HkGetAccountID(HkGetAccountByCharname(wscCharName)).c_str(),
             details.c_str());
     }
 }
@@ -157,10 +156,10 @@ bool GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
             set_mapGoodItemRestrictions.find(gbi.iGoodID);
         if (iter != set_mapGoodItemRestrictions.end()) {
             if (!CheckIDEquipRestrictions(iClientID, gbi.iGoodID)) {
-                AddLog(Normal,L"INFO: %s attempting to buy %u without correct ID",
-                       wstos((const wchar_t *)Players.GetActiveCharacterName(
-                                 iClientID))
-                           .c_str(),
+                std::wstring CharName = (const wchar_t *)Players.GetActiveCharacterName(
+                    iClientID);
+                AddLog(Normal,L"%s attempting to buy %u without correct ID",
+                       CharName.c_str(),
                        gbi.iGoodID);
                 if (set_bEnforceIDRestrictions) {
                     PrintUserCmdText(iClientID, set_wscGoodPurchaseDenied);
@@ -185,11 +184,10 @@ bool GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
                 if (iter2 != set_mapShipItemRestrictions.end()) {
                     if (!CheckIDEquipRestrictions(iClientID,
                                                   hullInfo->iShipGoodID)) {
-                        AddLog(
-                            "INFO: %s attempting to buy %u without correct ID",
-                            wstos((const wchar_t *)
-                                      Players.GetActiveCharacterName(iClientID))
-                                .c_str(),
+                        std::wstring CharName = (const wchar_t *)Players.GetActiveCharacterName(
+                            iClientID);
+                        AddLog(Normal,L"%s attempting to buy %u without correct ID",
+                               CharName.c_str(),
                             hullInfo->iShipGoodID);
                         if (set_bEnforceIDRestrictions) {
                             PrintUserCmdText(iClientID,
