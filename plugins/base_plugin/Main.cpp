@@ -702,7 +702,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &base,
     return 0;
 }
 
-void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
+void __stdcall CharacterSelect(std::string &szCharFilename,
                                unsigned int client) {
     // Sync base names for the
     std::map<uint, PlayerBase *>::iterator base = player_bases.begin();
@@ -712,7 +712,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &cId,
     }
 }
 
-void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
+void __stdcall CharacterSelect_AFTER(std::string &szCharFilename,
                                      unsigned int client) {
     
 

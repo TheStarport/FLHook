@@ -348,7 +348,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
     return 0;
 }
 
-void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &cId,
+void __stdcall CharacterSelect_AFTER(std::string &szCharFilename,
                                      unsigned int client) {
     
     mapPendingDockingRequests.erase(client);

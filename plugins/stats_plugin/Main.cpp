@@ -123,7 +123,7 @@ void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client) {
     ExportJSON();
 }
 
-void __stdcall CharacterSelect_AFTER(struct CHARACTER_ID const &charId,
+void __stdcall CharacterSelect_AFTER(std::string &szCharFilename,
                                      unsigned int iClientID) {
     ExportJSON();
 }

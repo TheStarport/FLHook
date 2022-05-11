@@ -130,7 +130,7 @@ bool CreateNewCharacter(struct SCreateCharacterInfo const &si,
 // Update the tag list when a character is selected update the tag list to
 // indicate that this tag is in use. If a tag is not used after 60 days, remove
 // it.
-void CharacterSelect_AFTER(struct CHARACTER_ID const &charId,
+void CharacterSelect_AFTER(std::string &szCharFilename,
                            unsigned int iClientID) {
     if (set_bCharnameTags) {
         std::wstring wscCharname =

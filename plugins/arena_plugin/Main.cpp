@@ -179,7 +179,7 @@ bool CheckReturnDock(unsigned int client, unsigned int target) {
     return false;
 }
 
-void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
+void __stdcall CharacterSelect(std::string& szCharFilename,
                                unsigned int client) {
     
     transferFlags[client] = CLIENT_STATE_NONE;

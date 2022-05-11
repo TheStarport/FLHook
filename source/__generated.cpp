@@ -1979,7 +1979,7 @@ void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID) {
 			ToLogString(cid), clientID);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect,
-			cid, clientID);
+			std::string(cid.szCharFilename), clientID);
 
 	CHECK_FOR_DISCONNECT;
 
@@ -1994,7 +1994,7 @@ void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID) {
 
 
 	CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect,
-			cid, clientID);
+			std::string(cid.szCharFilename), clientID);
 }
 }
 
