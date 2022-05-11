@@ -9,13 +9,18 @@
 
 #include <FLHook.h>
 #include <plugin.h>
-#include <plugin_comms.h>
+
+#include <utility>
+
+#include "Mail.h"
 
 ReturnCode returncode = ReturnCode::Default;
 
 /** The messaging plugin message log for offline players */
 static std::string MSG_LOG = "-mail.ini";
 static const int MAX_MAIL_MSGS = 40;
+
+MailCommunicator *communicator;
 
 /** Return the number of messages. */
 int MailCount(const std::wstring &wscCharname, const std::string &scExtension) {
@@ -108,7 +113,7 @@ void MailCheckLog(const std::wstring &wscCharname,
  Save a msg to disk so that we can inform the receiving character
  when they log in.
 */
-bool MailSend(const std::wstring &wscCharname, const std::string &scExtension,
+bool __stdcall MailSend(const std::wstring &wscCharname, const std::string &scExtension,
               const std::wstring &wscMsg) {
     // Get the target player's message file.
     std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
@@ -132,6 +137,9 @@ bool MailSend(const std::wstring &wscCharname, const std::string &scExtension,
     IniWriteW(scFilePath, "Msgs", "1",
               GetTimeString(set_bLocalTime) + L" " + wscMsg);
     IniWrite(scFilePath, "MsgsRead", "1", "no");
+
+    MailCommunicator::MailSent mail { wscCharname, wscMsg };
+    communicator->Dispatch(static_cast<int>(MailCommunicator::MailEvent::MailSent), &mail);
 
     // Call the CheckLog function to prompt the target to check their mail if they are logged in
     MailCheckLog(wscCharname,MSG_LOG);
@@ -167,25 +175,17 @@ bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
 // Hooks
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlayerLaunch(uint iShip, unsigned int iClientID) {
-    MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+void PlayerLaunch(uint& iShip, unsigned int& iClientID) {
+    MailCheckLog((const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
 }
-
+    
 /// On base entry events and reload the msg cache for the client.
-void BaseEnter(uint iBaseID, uint iClientID) {
-    MailCheckLog(
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
+void BaseEnter(uint& iBaseID, uint& iClientID) {
+    MailCheckLog((const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
 }
 
-EXPORT void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
-    if (msg == MAIL) {
-        auto *incoming_data = static_cast<CUSTOM_MAIL_STRUCT *>(data);
-
-        // do something here with the received data & instruction
-        MailSend(incoming_data->wscTargetCharname, MSG_LOG, incoming_data->wscMsg);
-    }
-    return;
+MailCommunicator::MailCommunicator(const std::string &plugin) : PluginCommunicator(plugin) {  // NOLINT(clang-diagnostic-shadow-field)
+    this->SendMail = [](std::wstring character, std::wstring msg) { MailSend(character, MSG_LOG, msg); };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,12 +257,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/mail");
     PrintUserCmdText(iClientID, L"/maildel");
 }
@@ -298,7 +298,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
-    pi->name("Mail");
+    pi->name(MailCommunicator::pluginName);
     pi->shortName("mail");
     pi->mayPause(true);
     pi->mayUnload(true);
@@ -310,5 +310,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
     pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunication);
+
+    // Register plugin for IPC
+    communicator = new MailCommunicator(MailCommunicator::pluginName);
+    PluginCommunicator::ExportPluginCommunicator(communicator);
 }

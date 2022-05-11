@@ -206,7 +206,7 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
     const wchar_t *killer =
         (const wchar_t *)Players.GetActiveCharacterName(iClientIDKiller);
     if (victim && killer) {
-        AddLog("NOTICE: Death charname=%s killername=%s system=%08x",
+        AddLog(Normal,L"NOTICE: Death charname=%s killername=%s system=%08x",
                wstos(victim).c_str(), wstos(killer).c_str(), iSystem);
     }
 }
@@ -255,7 +255,7 @@ int __cdecl Dock_Call(unsigned int const &iShip,
         pub::SpaceObj::GetType(iDockTarget, iTypeID);
         if (iTypeID == OBJ_DOCKING_RING || iTypeID == OBJ_STATION) {
             if (!IsDockingAllowed(iShip, iDockTarget, iClientID)) {
-                // AddLog("INFO: Docking suppressed docktarget=%u charname=%s",
+                // AddLog(Normal,L"INFO: Docking suppressed docktarget=%u charname=%s",
                 // iDockTarget,
                 // wstos(Players.GetActiveCharacterName(iClientID)).c_str());
                 returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -347,7 +347,7 @@ void __stdcall RequestEvent(int iIsFormationRequest, unsigned int iShip,
             if (iTargetTypeID == OBJ_DOCKING_RING ||
                 iTargetTypeID == OBJ_STATION) {
                 if (!IsDockingAllowed(iShip, iDockTarget, iClientID)) {
-                    // AddLog("INFO: Docking suppressed docktarget=%u
+                    // AddLog(Normal,L"INFO: Docking suppressed docktarget=%u
                     // charname=%s", iDockTarget,
                     // wstos(Players.GetActiveCharacterName(iClientID)).c_str());
                     returncode = SKIPPLUGINS_NOFUNCTIONCALL;
@@ -391,7 +391,7 @@ void __stdcall BaseEnter_AFTER(unsigned int iBaseID, unsigned int iClientID) {
             (const wchar_t *)Players.GetActiveCharacterName(iClientID),
             fValue) == HKE_OK) {
         if (fValue > 2100000000.0f) {
-            AddLog("ERROR: Possible corrupt ship charname=%s asset_value=%0.0f",
+            AddLog(Normal,L"ERROR: Possible corrupt ship charname=%s asset_value=%0.0f",
                    wstos((const wchar_t *)Players.GetActiveCharacterName(
                              iClientID))
                        .c_str(),
@@ -856,7 +856,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
             }
         }
     } catch (...) {
-        AddLog("ERROR: Exception in PlayerCntl::UserCmd_Process(iClientID=%u, "
+        AddLog(Normal,L"ERROR: Exception in PlayerCntl::UserCmd_Process(iClientID=%u, "
                "wscCmd=%s)",
                iClientID, wstos(wscCmd).c_str());
         LOG_EXCEPTION;
@@ -1296,7 +1296,7 @@ void CmdHelp(CCmds *classptr) {
 void __stdcall Elapse_Time(float delta) {
     returncode = SKIPPLUGINS_NOFUNCTIONCALL;
     if (delta < 0.0001f) {
-        AddLog("ERROR: Elapse time correction delta=%f", delta);
+        AddLog(Normal,L"ERROR: Elapse time correction delta=%f", delta);
         Console::ConPrint(L"Elapse time correction delta=%f", delta);
         delta = 0.0001f;
     }
@@ -1304,7 +1304,7 @@ void __stdcall Elapse_Time(float delta) {
     try {
         Server.ElapseTime(delta);
     } catch (...) {
-        AddLog("ERROR: Exception in Server.ElapseTime(delta=%f)", delta);
+        AddLog(Normal,L"ERROR: Exception in Server.ElapseTime(delta=%f)", delta);
         LOG_EXCEPTION;
     }
 }

@@ -230,6 +230,7 @@
   <ItemGroup>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
+    <ClCompile Include="..\source\HkFuncCache.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />
     <ClCompile Include="..\source\HkFLIni.cpp" />
@@ -275,7 +276,6 @@
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
-    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h" />
     <ClInclude Include="..\source\ExceptionInfo.h" />

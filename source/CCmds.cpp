@@ -946,17 +946,14 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
         if (bSocket) {
             if (bLocalSocket) {
                 if (set_bLogLocalSocketCmds)
-                    HkAddSocketCmdLog("%s: %s", wstos(wscAdminName).c_str(),
-                                      wstos(wscCmdStr).c_str());
+                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
             } else {
                 if (set_bLogSocketCmds)
-                    HkAddSocketCmdLog("%s: %s", wstos(wscAdminName).c_str(),
-                                      wstos(wscCmdStr).c_str());
+                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
             }
         } else {
             if (set_bLogAdminCmds)
-                HkAddAdminCmdLog("%s: %s", wstos(wscAdminName).c_str(),
-                                 wstos(wscCmdStr).c_str());
+                AddLog(AdminCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
         }
 
         bID = false;
@@ -1110,27 +1107,27 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
         if (bSocket) {
             if (bLocalSocket) {
                 if (set_bLogLocalSocketCmds)
-                    HkAddSocketCmdLog("finnished");
+                    AddLog(SocketCmds,L"finnished");
             } else {
                 if (set_bLogSocketCmds)
-                    HkAddSocketCmdLog("finnished");
+                    AddLog(SocketCmds,L"finnished");
             }
         } else {
             if (set_bLogAdminCmds)
-                HkAddAdminCmdLog("finnished");
+                AddLog(AdminCmds,L"finnished");
         }
     } catch (...) {
         if (bSocket) {
             if (bLocalSocket) {
                 if (set_bLogLocalSocketCmds)
-                    HkAddSocketCmdLog("exception");
+                    AddLog(SocketCmds,L"exception");
             } else {
                 if (set_bLogSocketCmds)
-                    HkAddSocketCmdLog("exception");
+                    AddLog(SocketCmds,L"exception");
             }
         } else {
             if (set_bLogAdminCmds)
-                HkAddAdminCmdLog("exception");
+                AddLog(AdminCmds,L"exception");
         }
         Print(L"ERR exception occured");
     }
@@ -1186,7 +1183,7 @@ void CCmds::Print(std::wstring wscText, ...) {
     va_list marker;
     va_start(marker, wscText);
 
-    _vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+    _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscText.c_str(), marker);
 
     DoPrint(wszBuf);
 }

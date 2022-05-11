@@ -3,6 +3,7 @@
 std::list<TEMPBAN_INFO> lstTempBans;
 
 ReturnCode returncode = ReturnCode::Default;
+static TempBanCommunicator *communicator = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +33,7 @@ EXPORT void HkTimerCheckKick() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkTempBan(const std::wstring &wscCharname, uint _duration) {
+HK_ERROR __stdcall HkTempBan(const std::wstring &wscCharname, uint _duration) {
 
     HK_GET_CLIENTID(iClientID, wscCharname);
 
@@ -75,7 +76,7 @@ bool HkTempBannedCheck(uint iClientID) {
 namespace HkIServerImpl {
 
 EXPORT void __stdcall Login(struct SLoginInfo const &li,
-                            unsigned int iClientID) {
+                            unsigned int& iClientID) {
     returncode = ReturnCode::Default;
 
     // check for tempban
@@ -86,19 +87,6 @@ EXPORT void __stdcall Login(struct SLoginInfo const &li,
 }
 
 } // namespace HkIServerImpl
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXPORT void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
-    if (msg == TEMPBAN_BAN) {
-        auto *incoming_data = static_cast<TEMPBAN_BAN_STRUCT *>(data);
-
-        // do something here with the received data & instruction
-        HkTempBan(ARG_CLIENTID(incoming_data->iClientID),
-                  incoming_data->iDuration);
-    }
-    return;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,10 +106,7 @@ void CmdTempBan(CCmds *classptr, const std::wstring &wscCharname,
         classptr->PrintError();
 }
 
-EXPORT bool ExecuteCommandString(CCmds *classptr,
-                                          const std::wstring &wscCmd) {
-    returncode = ReturnCode::SkipFunctionCall;
-
+EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
     if (IS_CMD("tempban")) {
 
         returncode = ReturnCode::SkipAll; // do not let other plugins kick in
@@ -142,7 +127,7 @@ EXPORT void CmdHelp(CCmds *classptr) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
-    pi->name("TempBan Plugin by w0dk4");
+    pi->name(TempBanCommunicator::pluginName);
     pi->shortName("tempban");
     pi->mayPause(true);
     pi->mayUnload(true);
@@ -150,9 +135,15 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi) {
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
-    pi->emplaceHook(HookedCall::IServerImpl__Login, &HkIServerImpl::Login,
-                 HookStep::After);
-    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunication);
+    pi->emplaceHook(HookedCall::IServerImpl__Login, &HkIServerImpl::Login, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
+
+    // Register IPC
+    communicator = new TempBanCommunicator(TempBanCommunicator::pluginName);
+    PluginCommunicator::ExportPluginCommunicator(communicator);
+}
+
+TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) {
+    this->TempBan = HkTempBan;
 }

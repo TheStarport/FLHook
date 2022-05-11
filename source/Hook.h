@@ -3,6 +3,7 @@
 #include <time.h>
 #include "global.h"
 #include "flcodec.h"
+#include <spdlog/logger.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // defines
@@ -87,21 +88,21 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
     }                                                                          \
     catch (SEHException & ex) {                                                \
         e;                                                                     \
-        AddBothLog(                                                            \
-            "ERROR: SEH Exception in %s on line %d; minidump may contain "     \
+        AddBothLog(true,                                                       \
+            L"SEH Exception in %s on line %d; minidump may contain "           \
             "more information.",                                               \
             __FUNCTION__, __LINE__);                                           \
         AddExceptionInfoLog(&ex);                                              \
     }                                                                          \
     catch (std::exception & ex) {                                              \
         e;                                                                     \
-        AddBothLog("ERROR: STL Exception in %s on line %d: %s.", __FUNCTION__, \
+        AddBothLog(true, L"STL Exception in %s on line %d: %s.", __FUNCTION__, \
                    __LINE__, ex.what());                                       \
         AddExceptionInfoLog(0);                                                \
     }                                                                          \
     catch (...) {                                                              \
         e;                                                                     \
-        AddBothLog("ERROR: Exception in %s on line %d.", __FUNCTION__,         \
+        AddBothLog(true,L"Exception in %s on line %d.", __FUNCTION__,          \
                    __LINE__);                                                  \
         AddExceptionInfoLog();                                                 \
     }
@@ -110,7 +111,7 @@ EXPORT void AddExceptionInfoLog(SEHException *ex);
 #define CATCH_HOOK(e)                                                          \
     catch (...) {                                                              \
         e;                                                                     \
-        AddLog("ERROR: Exception in %s", __FUNCTION__);                        \
+        AddLog(Error,L"Exception in %s", __FUNCTION__);                        \
     }
 #endif
 
@@ -146,6 +147,19 @@ EXPORT extern _GetShipInspect GetShipInspect;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // enums
+
+enum LogType {
+    Error,
+    Normal,
+    Cheater,
+    Kick,
+    Connects,
+    AdminCmds,
+    UserLogCmds,
+    SocketCmds,
+    PerfTimers,
+    Debug
+};
 
 enum HK_ERROR {
     HKE_OK,
@@ -294,8 +308,6 @@ inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
     return lhs.priority > rhs.priority;
 }
 
-EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
-
 class PluginManager : public Singleton<PluginManager> {
 public:
     struct FunctionHookProps {
@@ -367,8 +379,7 @@ public:
                         ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
                 }
                 CATCH_HOOK({
-                    AddLog("ERROR: Exception in plugin '%s' in %s",
-                           plugin.name.c_str(), __FUNCTION__);
+                    AddLog(Normal,L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(), stows(__FUNCTION__).c_str());
                 });
 
                 auto code = *plugin.returnCode;
@@ -379,7 +390,7 @@ public:
                 if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
                     break;
             }
-        } CATCH_HOOK({ AddLog("ERROR: Exception %s", __FUNCTION__); });
+        } CATCH_HOOK({ AddLog(Normal,L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
 
         if constexpr(!ReturnTypeIsVoid)
             return ret;
@@ -763,31 +774,39 @@ EXPORT void HkRelocateClient(uint iClientID, Vector vDestination,
 EXPORT void HkSaveChar(uint iClientID);
 
 // HkFuncLog
+
+EXPORT bool InitLogs();
+
 template<typename T>
-const char* ToLogString(const T& val) {
-    return "<undefined>";
+const wchar_t* ToLogString(const T& val) {
+    // Get type without reference
+    typedef std::remove_reference_t<decltype(val)> DeclType;
+    if constexpr (std::is_same_v<DeclType, int> || std::is_same_v<DeclType, uint> || std::is_same_v<DeclType, float> || std::is_same_v<DeclType, double>)
+    {
+        const std::wstring str = std::to_wstring(val);
+        return str.c_str();
+    }
+
+    return L"<undefined>";
 }
 
-EXPORT void AddDebugLog(const char *szString, ...);
-EXPORT void AddLog(const char *szString, ...);
+
+EXPORT void AddLog(enum LogType, std::wstring wStr, ...);
 template<typename... Args>
-void AddBothLog(const char* format, Args&&... args) {
-    AddLog(format, std::forward<Args>(args)...);
-    AddDebugLog(format, std::forward<Args>(args)...);
+void AddBothLog(bool bError, std::wstring wStr, Args &&...args) {
+    if (bError)
+        AddLog(Error, wStr, std::forward<Args>(args)...);
+    else
+        AddLog(Normal, wStr, std::forward<Args>(args)...);
+    AddLog(Debug, wStr, std::forward<Args>(args)...);
 }
 
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason,
                             ...);
 EXPORT bool HkAddCheaterLog(const std::wstring &wscCharname,
                             const std::wstring &wscReason);
-EXPORT bool HkAddCheaterLog(const uint &iClientID,
-                            const std::wstring &wscReason);
 EXPORT bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...);
 EXPORT bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...);
-EXPORT void HkAddAdminCmdLog(const char *szString, ...);
-EXPORT void HkAddSocketCmdLog(const char *szString, ...);
-EXPORT void HkAddUserCmdLog(const char *szString, ...);
-EXPORT void HkAddPerfTimerLog(const char *szString, ...);
 
 // HkFuncOther
 EXPORT void HkGetPlayerIP(uint iClientID, std::wstring &wscIP);
@@ -828,7 +847,26 @@ EXPORT void PrintUserCmdText(uint iClientID, std::wstring wscText, ...);
 EXPORT void PrintLocalUserCmdText(uint iClientID, const std::wstring &wscMsg,
                                   float fDistance);
 
+// HKFuncCache
+namespace StartupCache {
+void Init();
+void Done();
+}
+
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
+
+// HkDeath
+void Naked__ShipDestroyed();
+
+// Dmg
+void Naked__GuidedHit();
+void Naked__AddDamageEntry();
+void Naked__NonGunWeaponHitsBase();
+void Naked__AddDamageEntry();
+void Naked__DamageHit();
+void Naked__DamageHit2();
+void Naked__DisconnectPacketSent();
+
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
 EXPORT extern bool g_NonGunHitsBase;
@@ -852,7 +890,7 @@ EXPORT extern bool g_InSubmitChat;
 EXPORT extern uint g_TextLength;
 } // namespace HkIServerImpl
 
-extern HookEntry HkIServerImplEntries[85];
+extern HookEntry HkIServerImplEntries[73];
 
 // HkDataBaseMarket
 bool HkLoadBaseMarket();
@@ -936,7 +974,7 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                  \
             } CATCH_HOOK({                                                      \
-                AddLog("ERROR: Exception in " __FUNCTION__ " on server call");  \
+                AddLog(Normal,L"ERROR: Exception in " __FUNCTION__ " on server call");  \
                 bool ret = catchArgs;                                           \
                 if(!ret) {                                                      \
                     timer.stop();                                               \
@@ -961,8 +999,8 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 #define CHECK_FOR_DISCONNECT                                                    \
     {                                                                           \
         if (ClientInfo[clientID].bDisconnected) {                               \
-            AddLog(                                                             \
-                "ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%"  \
+            AddLog(Normal,                                                      \
+                L"ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%" \
                                                                        "u",     \
                 clientID);                                                      \
             return;                                                             \

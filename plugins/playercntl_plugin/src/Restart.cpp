@@ -228,14 +228,14 @@ void Timer() {
             if (!set_bDisableCharfileEncryption)
                 flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-            AddLog("NOTICE: User restart %s for %s",
+            AddLog(Normal,L"NOTICE: User restart %s for %s",
                    restart.scRestartFile.c_str(),
                    wstos(restart.wscCharname).c_str());
         } catch (char *err) {
-            AddLog("ERROR: User restart failed (%s) for %s", err,
+            AddLog(Normal,L"ERROR: User restart failed (%s) for %s", err,
                    wstos(restart.wscCharname).c_str());
         } catch (...) {
-            AddLog("ERROR: User restart failed for %s",
+            AddLog(Normal,L"ERROR: User restart failed for %s",
                    wstos(restart.wscCharname).c_str());
         }
     }

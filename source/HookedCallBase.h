@@ -19,7 +19,6 @@ enum class HookedCall__IEngine {
 enum class HookedCall__FLHook {
     TimerCheckKick,
     TimerNPCAndF1Check,
-    PluginCommunication,
     UserCommand__Help,
     UserCommand__Process,
     AdminCommand__Help,

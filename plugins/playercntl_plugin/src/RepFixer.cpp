@@ -149,7 +149,7 @@ static void CheckReps(unsigned int iClientID) {
                 ((fRep < rep.fRep) &&
                  (rep.iMode == FactionRep::MODE_REP_GREATERTHAN))) {
                 if (set_bLogUpdates) {
-                    AddLog("NOTICE: Updating reputation %s from %0.2f to %0.2f "
+                    AddLog(Normal,L"NOTICE: Updating reputation %s from %0.2f to %0.2f "
                            "on %s (%s)",
                            rep.scRepGroup.c_str(), fRep, rep.fRep,
                            wstos(wscCharName).c_str(),
@@ -161,7 +161,7 @@ static void CheckReps(unsigned int iClientID) {
             } else if ((fRep != rep.fRep) &&
                        (rep.iMode == FactionRep::MODE_REP_STATIC)) {
                 if (set_bLogUpdates) {
-                    AddLog("NOTICE: Updating reputation %s from %0.2f to %0.2f "
+                    AddLog(Normal,L"NOTICE: Updating reputation %s from %0.2f to %0.2f "
                            "on %s (%s)",
                            rep.scRepGroup.c_str(), fRep, rep.fRep,
                            wstos(wscCharName).c_str(),

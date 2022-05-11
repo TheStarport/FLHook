@@ -272,7 +272,7 @@ bool Message::SubmitChat(CHAT_ID cId, unsigned long iSize,
                     std::wstring wscCharname =
                         (const wchar_t *)Players.GetActiveCharacterName(
                             iClientID);
-                    AddLog("NOTICE: Swearing tempban on %s (%s) reason='%s'",
+                    AddLog(Normal,L"NOTICE: Swearing tempban on %s (%s) reason='%s'",
                            wstos(wscCharname).c_str(),
                            wstos(HkGetAccountID(
                                      HkGetAccountByCharname(wscCharname)))

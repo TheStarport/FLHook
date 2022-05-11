@@ -264,7 +264,7 @@ bool UserCmd_MakeTag(uint iClientID, const std::wstring &wscCmd,
         PrintUserCmdText(iClientID,
                          L"Created faction tag %s with master password %s",
                          tag.c_str(), pass.c_str());
-        AddLog("NOTICE: Tag %s created by %s (%s)", wstos(tag).c_str(),
+        AddLog(Normal,L"NOTICE: Tag %s created by %s (%s)", wstos(tag).c_str(),
                wstos(wscCharname).c_str(),
                wstos(HkGetAccountIDByClientID(iClientID)).c_str());
         SaveSettings();
@@ -298,7 +298,7 @@ bool UserCmd_DropTag(uint iClientID, const std::wstring &wscCmd,
                 mapTagToPassword.erase(tag);
                 SaveSettings();
                 PrintUserCmdText(iClientID, L"OK Tag dropped");
-                AddLog("NOTICE: Tag %s dropped by %s (%s)", wstos(tag).c_str(),
+                AddLog(Normal,L"NOTICE: Tag %s dropped by %s (%s)", wstos(tag).c_str(),
                        wstos(wscCharname).c_str(),
                        wstos(HkGetAccountIDByClientID(iClientID)).c_str());
                 return true;
@@ -437,12 +437,12 @@ void Timer() {
                 throw "dest does not exist";
 
             // The rename worked. Log it and save the rename time.
-            AddLog("NOTICE: User rename %s to %s (%s)",
+            AddLog(Normal,L"NOTICE: User rename %s to %s (%s)",
                    wstos(o.wscCharname).c_str(),
                    wstos(o.wscNewCharname).c_str(),
                    wstos(HkGetAccountID(acc)).c_str());
         } catch (char *err) {
-            AddLog("ERROR: User rename failed (%s) from %s to %s (%s)", err,
+            AddLog(Normal,L"ERROR: User rename failed (%s) from %s to %s (%s)", err,
                    wstos(o.wscCharname).c_str(),
                    wstos(o.wscNewCharname).c_str(),
                    wstos(HkGetAccountID(acc)).c_str());
@@ -492,13 +492,13 @@ void Timer() {
                 throw "dest does not exist";
 
             // The move worked. Log it.
-            AddLog("NOTICE: Character %s moved from %s to %s",
+            AddLog(Normal,L"NOTICE: Character %s moved from %s to %s",
                    wstos(o.wscMovingCharname).c_str(),
                    wstos(HkGetAccountID(oldAcc)).c_str(),
                    wstos(HkGetAccountID(acc)).c_str());
 
         } catch (char *err) {
-            AddLog("ERROR: Character %s move failed (%s) from %s to %s",
+            AddLog(Normal,L"ERROR: Character %s move failed (%s) from %s to %s",
                    wstos(o.wscMovingCharname).c_str(), err,
                    wstos(HkGetAccountID(oldAcc)).c_str(),
                    wstos(HkGetAccountID(acc)).c_str());

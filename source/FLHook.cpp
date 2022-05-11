@@ -37,9 +37,6 @@ std::list<SOCKET_CONNECTION *> lstDelete;
 
 CRITICAL_SECTION cs;
 
-FILE *fLog = 0;
-FILE *fLogDebug = 0;
-
 bool bExecuted = false;
 
 CConsole AdminConsole;
@@ -104,7 +101,7 @@ Replace FLServer's exception handler with our own.
 BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo) {
-    AddLog("!!TOP LEVEL EXCEPTION!!");
+    AddLog(Normal,L"!!TOP LEVEL EXCEPTION!!");
     SEHException ex(0, pExceptionInfo);
     WriteMiniDump(&ex);
     return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
@@ -159,7 +156,6 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
 /**************************************************************************************************************
 init
 **************************************************************************************************************/
-std::string sDebugLog;
 
 void FLHookInit_Pre() {
 
@@ -187,28 +183,21 @@ void FLHookInit_Pre() {
 
     try {
 
+        // Load our settings before anything that might need access to debug mode
+        LoadSettings();
+
+        // Initalize the log files and throw exception if there is a problem
+        if (!InitLogs())
+            throw "Log files cannot be created.";
+
         // get module handles
         if (!(hModServer = GetModuleHandle("server")))
             throw "server.dll not loaded";
-
-        // create log dirs
-        CreateDirectoryA("./flhook_logs/", NULL);
-        CreateDirectoryA("./flhook_logs/debug", NULL);
 
         DWORD id;
         DWORD dwParam;
         hConsoleThread = CreateThread(
             0, 0, (LPTHREAD_START_ROUTINE)ReadConsoleEvents, &dwParam, 0, &id);
-
-        // logs
-        fopen_s(&fLog, "./flhook_logs/FLHook.log", "at");
-        char szDate[64];
-        time_t tNow = time(0);
-        tm t;
-        localtime_s(&t, &tNow);
-        strftime(szDate, sizeof(szDate), "%d.%m.%Y_%H.%M", &t);
-        sDebugLog = "./flhook_logs/debug/FLHookDebug_" + (std::string)szDate;
-        sDebugLog += ".log";
 
         // check what plugins should be loaded; we need to read out the settings
         // ourselves cause LoadSettings() wasn't called yet
@@ -258,11 +247,8 @@ void FLHookInit_Pre() {
         }
 #endif
 
-        // load settings
-        LoadSettings();
-
-        if (set_bDebug && !fLogDebug)
-            fopen_s(&fLogDebug, sDebugLog.c_str(), "at");
+        /*if (set_bDebug && !fLogDebug)
+            fopen_s(&fLogDebug, sDebugLog.c_str(), "at");*/
 
         CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
@@ -468,14 +454,7 @@ void FLHookShutdown() {
     SetUnhandledExceptionFilter(0);
 #endif
 
-    AddLog("-------------------");
-
-    // close log
-    fclose(fLog);
-    fLog = nullptr;
-    if (set_bDebug)
-        fclose(fLogDebug);
-    fLogDebug = nullptr;
+    AddLog(Normal,L"-------------------");
 
     // unload rest
     DWORD id;
@@ -505,8 +484,8 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
             sc->csock.DoPrint(L"ERR Wrong password");
             sc->csock.DoPrint(L"Goodbye.\r");
             Console::ConInfo(L"socket: connection closed (invalid pass)");
-            AddLog("socket: socket connection from %s:%d closed (invalid pass)",
-                   sc->csock.sIP.c_str(), sc->csock.iPort);
+            AddLog(Normal,L"socket: socket connection from %s:%d closed (invalid pass)",
+                   stows(sc->csock.sIP).c_str(), sc->csock.iPort);
             return true;
         }
         swscanf_s(wscCmd.c_str(), L"pass %s", wszPass, std::size(wszPass));
@@ -523,9 +502,9 @@ bool ProcessSocketCmd(SOCKET_CONNECTION *sc, std::wstring wscCmd) {
                 sc->csock.DoPrint(L"ERR Wrong password");
                 sc->csock.DoPrint(L"Goodbye.\r");
                 Console::ConInfo(L"socket: connection closed (invalid pass)");
-                AddLog("socket: socket connection from %s:%d closed (invalid "
+                AddLog(Normal,L"socket: socket connection from %s:%d closed (invalid "
                        "pass)",
-                       sc->csock.sIP.c_str(), sc->csock.iPort);
+                       stows(sc->csock.sIP).c_str(), sc->csock.iPort);
                 return true;
             } else if (!scPass.compare(wstos(wszPass))) {
                 sc->csock.bAuthed = true;
@@ -738,12 +717,8 @@ void ProcessPendingCommands() {
                 if ((sc->csock.bAuthed)) // not authenticated yet
                     iMaxKB = 500;
                 if (wscData.length() > (1024 * iMaxKB)) {
-                    Console::ConWarn(L"socket: socket connection closed (possible ddos "
-                             L"attempt)\n");
-                    AddLog("socket: socket connection from %s:%d closed "
-                           "(possible ddos "
-                           "attempt)",
-                           sc->csock.sIP.c_str(), sc->csock.iPort);
+                    Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
+                    AddLog(Normal,L"socket: socket connection from %s:%d closed (possible ddos attempt)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
                     delete[] szData;
                     lstDelete.push_back(sc);
                     continue;

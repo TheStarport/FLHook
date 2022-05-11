@@ -123,6 +123,9 @@
     <ClCompile Include="..\source\Tools\Console.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\HkFuncCache.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">
@@ -178,9 +181,6 @@
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\plugin.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h">
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />

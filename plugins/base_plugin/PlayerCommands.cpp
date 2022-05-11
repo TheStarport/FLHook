@@ -862,11 +862,11 @@ void Bank(uint client, const std::wstring &args) {
         base->money -= money;
         base->Save();
 
-        AddLog("NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
+        AddLog(Normal,L"NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
                "charname=%s (%s)",
-               base->money, money, wstos(base->basename).c_str(),
-               wstos(charname).c_str(),
-               wstos(HkGetAccountID(HkGetAccountByCharname(charname))).c_str());
+               base->money, money, base->basename.c_str(),
+               charname.c_str(),
+               HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
 
         PrintUserCmdText(client, L"OK %u credits withdrawn", money);
     } else if (cmd == L"deposit") {
@@ -882,11 +882,11 @@ void Bank(uint client, const std::wstring &args) {
         base->money += money;
         base->Save();
 
-        AddLog("NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
+        AddLog(Normal,L"NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
                "charname=%s (%s)",
-               money, base->money, wstos(base->basename).c_str(),
-               wstos(charname).c_str(),
-               wstos(HkGetAccountID(HkGetAccountByCharname(charname))).c_str());
+               money, base->money, base->basename.c_str(),
+               charname.c_str(),
+               HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
 
         PrintUserCmdText(client, L"OK %u credits deposited", money);
     } else if (cmd == L"status") {
@@ -1112,9 +1112,9 @@ void BaseDeploy(uint client, const std::wstring &args) {
 
     std::wstring charname =
         (const wchar_t *)Players.GetActiveCharacterName(client);
-    AddLog("NOTICE: Base created %s by %s (%s)", wstos(basename).c_str(),
-           wstos(charname).c_str(),
-           wstos(HkGetAccountID(HkGetAccountByCharname(charname))).c_str());
+    AddLog(Normal,L"NOTICE: Base created %s by %s (%s)", basename.c_str(),
+           charname.c_str(),
+           HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
 
     PlayerBase *newbase = new PlayerBase(client, password, basename);
     player_bases[newbase->base] = newbase;

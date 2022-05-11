@@ -76,9 +76,11 @@ void __cdecl UpdateTime(double interval) {
 
 uint g_LastTicks = 0;
 
+static void *dummy;
 void __stdcall ElapseTime(float interval) {
     CallPluginsBefore(HookedCall::IEngine__ElapseTime, interval);
 
+    dummy = &Server;
     Server.ElapseTime(interval);
     
     CallPluginsAfter(HookedCall::IEngine__ElapseTime, interval);
@@ -121,7 +123,9 @@ int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HO
 FARPROC g_OldLaunchPosition;
 
 bool __stdcall LaunchPosition(uint spaceID, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock) {
-    CallPluginsBefore(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
+    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
+    if (skip)
+        return retVal;
 
     return obj.launch_pos(position, orientation, dock);
 }

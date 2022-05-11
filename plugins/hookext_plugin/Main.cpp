@@ -88,7 +88,7 @@ void ClearClientInfo(uint client) {
 
 /// Load the flhook section from the character file
 void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
-                               unsigned int client) {
+                               unsigned int& client) {
     std::string path =
         scAcctPath + GetAccountDir(client) + "\\" + charid.szCharFilename;
 
@@ -112,7 +112,7 @@ void __stdcall CharacterSelect(struct CHARACTER_ID const &charid,
     }
 }
 
-void __stdcall DisConnect(unsigned int client, enum EFLConnection p2) {
+void __stdcall DisConnect(unsigned int& client, enum EFLConnection p2) {
     clients.erase(client);
 }
 

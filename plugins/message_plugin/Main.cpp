@@ -7,6 +7,11 @@
 // being notified and/or mentioned somewhere.
 
 #include "Main.h"
+#include "../mail_plugin/Mail.h"
+#include "../tempban_plugin/Main.h"
+
+MailCommunicator *mailCommunicator = nullptr;
+TempBanCommunicator *tempBanCommunicator = nullptr;
 
 /** Load the msgs for specified client ID into memory. */
 static void LoadMsgs(uint iClientID) {
@@ -74,17 +79,6 @@ static void ShowStandardBanner() {
                 PrintUserCmdText(iClientID, L"%s", sec.c_str());
         }
     }
-}
-
-static std::wstring SetSizeToSmall(const std::wstring &wscDataFormat) {
-    uint iFormat = wcstoul(wscDataFormat.c_str() + 2, 0, 16);
-    wchar_t wszStyleSmall[32];
-    wcscpy(wszStyleSmall, wscDataFormat.c_str());
-    swprintf(wszStyleSmall + wcslen(wszStyleSmall) - 2,
-             sizeof(wszStyleSmall) / sizeof(wchar_t) + wcslen(wszStyleSmall) -
-                 2,
-             L"%02X", 0x90 | (iFormat & 7));
-    return wszStyleSmall;
 }
 
 /** Replace #t and #c tags with current target name and current ship location.
@@ -173,7 +167,7 @@ void SendPresetGroupMessage(uint iClientID, int iMsgSlot) {
 }
 
 /** Clean up when a client disconnects */
-void ClearClientInfo(uint iClientID) { mapInfo.erase(iClientID); }
+void ClearClientInfo(uint& iClientID) { mapInfo.erase(iClientID); }
 
 /**
 This function is called when the admin command rehash is called and when the
@@ -265,7 +259,7 @@ void Timer() {
 }
 
 /// On client disconnect remove any references to this client.
-void DisConnect(uint iClientID, enum EFLConnection p2) {
+void DisConnect(uint& iClientID, enum EFLConnection p2) {
     auto iter = mapInfo.begin();
     while (iter != mapInfo.end()) {
         if (iter->second.ulastPmClientID == iClientID)
@@ -289,7 +283,7 @@ void CharacterInfoReq(unsigned int iClientID, bool p2) {
 }
 
 /// On launch events and reload the msg cache for the client.
-void PlayerLaunch(uint iShip, unsigned int iClientID) {
+void PlayerLaunch(uint& iShip, unsigned int& iClientID) {
     LoadMsgs(iClientID);
     ShowGreetingBanner(iClientID);
 }
@@ -302,7 +296,7 @@ void BaseEnter(uint iBaseID, uint iClientID) {
 
 /// When a char selects a target and the target is a player ship then
 /// record the target's clientID. */
-void SetTarget(uint uClientID, struct XSetTarget const &p2) {
+void SetTarget(uint& uClientID, struct XSetTarget const &p2) {
     // The iSpaceID *appears* to represent a player ship ID when it is
     // targeted but this might not be the case. Also note that
     // HkGetClientIDByShip returns 0 on failure not -1.
@@ -315,10 +309,9 @@ void SetTarget(uint uClientID, struct XSetTarget const &p2) {
     }
 }
 
-bool SubmitChat(CHAT_ID cId, unsigned long iSize,
-                         const void *rdlReader, CHAT_ID cIdTo, int p2) {
+bool SubmitChat(uint& cId, unsigned long& iSize, const void **rdlReader, uint& cIdTo, int& p2) {
     // Ignore group join/leave commands
-    if (cIdTo.iID == 0x10004)
+    if (cIdTo == 0x10004)
         return false;
 
     // Extract text from rdlReader
@@ -326,45 +319,35 @@ bool SubmitChat(CHAT_ID cId, unsigned long iSize,
     wchar_t wszBuf[1024];
     uint iRet1;
     rdl.extract_text_from_buffer((unsigned short *)wszBuf, sizeof(wszBuf),
-                                 iRet1, (const char *)rdlReader, iSize);
+                                 iRet1, (const char *)*rdlReader, iSize);
 
     std::wstring wscChatMsg = ToLower(wszBuf);
-    uint iClientID = cId.iID;
+    uint iClientID = cId;
 
-    bool bIsGroup = (cIdTo.iID == 0x10003 || !wscChatMsg.find(L"/g ") ||
+    bool bIsGroup = (cIdTo == 0x10003 || !wscChatMsg.find(L"/g ") ||
                      !wscChatMsg.find(L"/group "));
     if (!bIsGroup) {
         // If a restricted word appears in the message take appropriate action.
         for (auto &word : set_lstSwearWords) {
             if (wscChatMsg.find(word) != -1) {
                 PrintUserCmdText(iClientID, L"This is an automated message.");
-                PrintUserCmdText(
-                    iClientID,
-                    L"Please do not swear or you may be sanctioned.");
+                PrintUserCmdText(iClientID, L"Please do not swear or you may be sanctioned.");
 
                 mapInfo[iClientID].iSwearWordWarnings++;
                 if (mapInfo[iClientID].iSwearWordWarnings > 2) {
-                    std::wstring wscCharname =
-                        (const wchar_t *)Players.GetActiveCharacterName(
-                            iClientID);
-                    AddLog("NOTICE: Swearing tempban on %s (%s) reason='%s'",
-                           wstos(wscCharname).c_str(),
-                           wstos(HkGetAccountID(
-                                     HkGetAccountByCharname(wscCharname)))
-                               .c_str(),
-                           wstos(wscChatMsg).c_str());
-                    HkTempBan(iClientID, 10);
+                    std::wstring wscCharname = reinterpret_cast<const wchar_t *>(Players.GetActiveCharacterName(iClientID));
+                    AddLog(Kick, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), (wscChatMsg).c_str());
+
+                    if (tempBanCommunicator)
+                        tempBanCommunicator->TempBan(wscCharname, 10);
+
                     HkDelayedKick(iClientID, 1);
 
                     if (set_fDisconnectSwearingInSpaceRange > 0.0f) {
-                        std::wstring wscMsg =
-                            set_wscDisconnectSwearingInSpaceMsg;
-                        wscMsg = ReplaceStr(wscMsg, L"%time",
-                                            GetTimeString(set_bLocalTime));
+                        std::wstring wscMsg = set_wscDisconnectSwearingInSpaceMsg;
+                        wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
                         wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-                        PrintLocalUserCmdText(
-                            iClientID, wscMsg,
-                            set_fDisconnectSwearingInSpaceRange);
+                        PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectSwearingInSpaceRange);
                     }
                 }
                 return true;
@@ -375,8 +358,8 @@ bool SubmitChat(CHAT_ID cId, unsigned long iSize,
     /// When a private chat message is sent from one client to another record
     /// who sent the message so that the receiver can reply using the /r command
     /// */
-    if (iClientID < 0x10000 && cIdTo.iID > 0 && cIdTo.iID < 0x10000) {
-        auto iter = mapInfo.find(cIdTo.iID);
+    if (iClientID < 0x10000 && cIdTo > 0 && cIdTo < 0x10000) {
+        auto iter = mapInfo.find(cIdTo);
         if (iter != mapInfo.end()) {
             iter->second.ulastPmClientID = iClientID;
         }
@@ -404,7 +387,7 @@ void RedText(std::wstring wscXMLMsg, uint iSystemID) {
 
 /** When a chat message is sent to a client and this client has showchattime on
 insert the time on the line immediately before the chat message */
-bool SendChat(uint iClientID, uint iTo, uint iSize,
+bool SendChat(uint& iClientID, uint& iTo, uint& iSize,
                             void *rdlReader) {
     // Return immediately if the chat line is the time.
     if (bSendingTime)
@@ -781,8 +764,12 @@ void UserCmd_PrivateMsg(uint iClientID, const std::wstring &wscParam) {
 
     uint iToClientID = HkGetClientIdFromCharname(wscTargetCharname);
     if (iToClientID == -1) {
-        HkSendMail(wscTargetCharname, wscCharname, wscMsg);
-        PrintUserCmdText(iClientID, L"OK message saved to mailbox");
+        if (mailCommunicator) {
+            mailCommunicator->SendMail(wscTargetCharname, wscMsg);
+            PrintUserCmdText(iClientID, L"OK message saved to mailbox");   
+        } else {
+            PrintUserCmdText(iClientID, L"ERR: Player offline");
+        }
     } else {
         mapInfo[iToClientID].ulastPmClientID = iClientID;
         SendPrivateChat(iClientID, iToClientID, wscMsg);
@@ -968,116 +955,6 @@ void UserCmd_Do(uint iClientID, const std::wstring &wscParam) {
     }
 }
 
-/// Hook for ship distruction. It's easier to hook this than the PlayerDeath
-/// one. Drop a percentage of cargo + some loot representing ship bits.
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystemID,
-                           uint iClientIDVictim, uint iClientIDKiller) {
-    // encode xml std::string(default and small)
-    // non-sys
-    std::wstring wscXMLMsg =
-        L"<TRA data=\"" + set_wscDeathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsg += XMLText(wscMsg);
-    wscXMLMsg += L"</TEXT>";
-
-    char szBuf[0xFFFF];
-    uint iRet;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
-        return;
-
-    std::wstring wscStyleSmall = SetSizeToSmall(set_wscDeathMsgStyle);
-    std::wstring wscXMLMsgSmall = std::wstring(L"<TRA data=\"") +
-                                  wscStyleSmall + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSmall += XMLText(wscMsg);
-    wscXMLMsgSmall += L"</TEXT>";
-    char szBufSmall[0xFFFF];
-    uint iRetSmall;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSmall, szBufSmall,
-                                     sizeof(szBufSmall), iRetSmall)))
-        return;
-
-    // sys
-    std::wstring wscXMLMsgSys =
-        L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSys += XMLText(wscMsg);
-    wscXMLMsgSys += L"</TEXT>";
-    char szBufSys[0xFFFF];
-    uint iRetSys;
-    if (!HKHKSUCCESS(
-            HkFMsgEncodeXML(wscXMLMsgSys, szBufSys, sizeof(szBufSys), iRetSys)))
-        return;
-
-    std::wstring wscStyleSmallSys = SetSizeToSmall(set_wscDeathMsgStyleSys);
-    std::wstring wscXMLMsgSmallSys =
-        L"<TRA data=\"" + wscStyleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
-    wscXMLMsgSmallSys += XMLText(wscMsg);
-    wscXMLMsgSmallSys += L"</TEXT>";
-    char szBufSmallSys[0xFFFF];
-    uint iRetSmallSys;
-    if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsgSmallSys, szBufSmallSys,
-                                     sizeof(szBufSmallSys), iRetSmallSys)))
-        return;
-
-    // send
-    // for all players
-    struct PlayerData *pPD = 0;
-    while (pPD = Players.traverse_active(pPD)) {
-        uint iClientID = HkGetClientIdFromPD(pPD);
-        uint iClientSystemID = 0;
-        pub::Player::GetSystem(iClientID, iClientSystemID);
-
-        if (mapInfo[iClientID].bShowChatTime) {
-            // Send time with gray color (BEBEBE) in small text (90) above the
-            // chat line.
-            bSendingTime = true;
-            HkFMsg(iClientID, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" +
-                                  XMLText(GetTimeString(set_bLocalTime)) +
-                                  L"</TEXT>");
-            bSendingTime = false;
-        }
-
-        char *szXMLBuf;
-        int iXMLBufRet;
-        char *szXMLBufSys;
-        int iXMLBufRetSys;
-        if (set_bUserCmdSetDieMsgSize &&
-            (ClientInfo[iClientID].dieMsgSize == CS_SMALL)) {
-            szXMLBuf = szBufSmall;
-            iXMLBufRet = iRetSmall;
-            szXMLBufSys = szBufSmallSys;
-            iXMLBufRetSys = iRetSmallSys;
-        } else {
-            szXMLBuf = szBuf;
-            iXMLBufRet = iRet;
-            szXMLBufSys = szBufSys;
-            iXMLBufRetSys = iRetSys;
-        }
-
-        if (!set_bUserCmdSetDieMsg) { // /set diemsg disabled, thus send to all
-            if (iSystemID == iClientSystemID)
-                HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-            else
-                HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
-            continue;
-        }
-
-        if (ClientInfo[iClientID].dieMsg == DIEMSG_NONE)
-            continue;
-        else if ((ClientInfo[iClientID].dieMsg == DIEMSG_SYSTEM) &&
-                 (iSystemID == iClientSystemID))
-            HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-        else if ((ClientInfo[iClientID].dieMsg == DIEMSG_SELF) &&
-                 ((iClientID == iClientIDVictim) ||
-                  (iClientID == iClientIDKiller)))
-            HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-        else if (ClientInfo[iClientID].dieMsg == DIEMSG_ALL) {
-            if (iSystemID == iClientSystemID)
-                HkFMsgSendChat(iClientID, szXMLBufSys, iXMLBufRetSys);
-            else
-                HkFMsgSendChat(iClientID, szXMLBuf, iXMLBufRet);
-        }
-    }
-}
-
 // Client command processing
 USERCMD UserCmds[] = {
     {L"/setmsg", UserCmd_SetMsg},
@@ -1145,7 +1022,7 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
 
     // Echo the command back to the sender's console but only if it starts with
     // / or .
@@ -1170,7 +1047,7 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     for (auto &uc : UserCmds)
         PrintUserCmdText(iClientID, uc.wszCmd);
 }
@@ -1203,5 +1080,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-    pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
+
+    // Load our communicators
+    mailCommunicator = static_cast<MailCommunicator *>(PluginCommunicator::ImportPluginCommunicator(MailCommunicator::pluginName));
+    tempBanCommunicator = static_cast<TempBanCommunicator *>(PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
 }

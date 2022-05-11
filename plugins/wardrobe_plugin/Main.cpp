@@ -1,28 +1,9 @@
 // Wardrobe
 // By Raikkonen
 
-#include <FLHook.h>
 #include "Main.h"
 
-namespace Wardrobe {
-std::map<std::string, std::string> heads;
-std::map<std::string, std::string> bodies;
-
-struct RESTART {
-    std::wstring wscCharname;
-    std::wstring wscDir;
-    std::wstring wscCharfile;
-    std::string costume;
-    bool head; // 1 Head, 0 Body
-};
-
-std::list<RESTART> pendingRestarts;
-
-bool Wardrobe::UserCmd_ShowWardrobe(uint iClientID, const std::wstring &wscCmd,
-                                    const std::wstring &wscParam,
-                                    const wchar_t *usage) {
-    if (!set_bEnableWardrobe)
-        return false;
+void UserCmd_ShowWardrobe(uint iClientID, const std::wstring &wscParam) {
 
     std::wstring wscType = GetParam(wscParam, ' ', 0);
 
@@ -38,25 +19,17 @@ bool Wardrobe::UserCmd_ShowWardrobe(uint iClientID, const std::wstring &wscCmd,
         for (auto &[name, id] : bodies)
             wscBodies += (stows(name) + L" | ");
         PrintUserCmdText(iClientID, wscBodies);
-    } else {
-        PrintUserCmdText(iClientID, usage);
     }
-    return true;
 }
 
-bool Wardrobe::UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscCmd,
-                                     const std::wstring &wscParam,
-                                     const wchar_t *usage) {
-    if (!set_bEnableWardrobe)
-        return false;
+void UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscParam) {
 
     std::wstring wscType = GetParam(wscParam, ' ', 0);
     std::wstring wscCostume = GetParam(wscParam, ' ', 1);
 
     if (!wscType.length() || !wscCostume.length()) {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
+        return;
     }
 
     RESTART restart;
@@ -66,7 +39,7 @@ bool Wardrobe::UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscCmd,
             PrintUserCmdText(
                 iClientID,
                 L"ERR Head not found. Use \"/show heads\" to get heads.");
-            return true;
+            return;
         }
         restart.head = 1;
         restart.costume = heads[wstos(wscCostume)];
@@ -75,28 +48,27 @@ bool Wardrobe::UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscCmd,
             PrintUserCmdText(
                 iClientID,
                 L"ERR Body not found. Use \"/show bodies\" to get bodies.");
-            return true;
+            return;
         }
         restart.head = 0;
         restart.costume = bodies[wstos(wscCostume)];
     } else {
         PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-        PrintUserCmdText(iClientID, usage);
-        return true;
+        return;
     }
 
     // Saving the characters forces an anti-cheat checks and fixes
     // up a multitude of other problems.
     HkSaveChar(iClientID);
     if (!HkIsValidClientID(iClientID))
-        return true;
+        return;
 
     // Check character is in base
     uint iBaseID;
     pub::Player::GetBase(iClientID, iBaseID);
     if (!iBaseID) {
         PrintUserCmdText(iClientID, L"ERR Not in base");
-        return true;
+        return;
     }
 
     restart.wscCharname =
@@ -110,10 +82,9 @@ bool Wardrobe::UserCmd_ChangeCostume(uint iClientID, const std::wstring &wscCmd,
             restart.wscCharname,
             L"Updating character, please wait 10 seconds before reconnecting");
     }
-    return true;
 }
 
-void Timer() {
+void HkTimerCheckKick() {
     while (pendingRestarts.size()) {
         RESTART restart = pendingRestarts.front();
         if (HkGetClientIdFromCharname(restart.wscCharname) != -1)
@@ -134,19 +105,26 @@ void Timer() {
             if (!set_bDisableCharfileEncryption)
                 flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-            AddLog(Normal,L"NOTICE: User %s costume change to %u",
+            AddLog(Normal, L"NOTICE: User %s costume change to %u",
                    wstos(restart.wscCharname).c_str(), restart.costume);
         } catch (char *err) {
-            AddLog(Normal,L"ERROR: User %s costume change to %u (%s)",
+            AddLog(Normal, L"ERROR: User %s costume change to %u (%s)",
                    wstos(restart.wscCharname).c_str(), restart.costume, err);
         } catch (...) {
-            AddLog(Normal,L"ERROR: User %s costume change to %u",
+            AddLog(Normal, L"ERROR: User %s costume change to %u",
                    wstos(restart.wscCharname).c_str(), restart.costume);
         }
     }
 }
 
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\wardrobe.cfg";
+
     INI_Reader ini;
     if (ini.open(scPluginCfgFile.c_str(), false)) {
         while (ini.read_header()) {
@@ -167,4 +145,56 @@ void LoadSettings(const std::string &scPluginCfgFile) {
         ini.close();
     }
 }
-} // namespace Wardrobe
+
+// Additional information related to the plugin when the /help command is used
+void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+    PrintUserCmdText(iClientID, L"/show");
+    PrintUserCmdText(iClientID, L"Usage: /show <heads/bodies> - This shows the available heads and bodies for the /change command.");
+    PrintUserCmdText(iClientID, L"/change");
+    PrintUserCmdText(iClientID, L"Usage: /change <head/body> <name> - This changes Trent's head or body to one specified in the /show command.");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// USER COMMAND PROCESSING
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Define usable chat commands here
+USERCMD UserCmds[] =
+{
+    {L"/show", UserCmd_ShowWardrobe },
+    {L"/change", UserCmd_ChangeCostume },
+};
+
+// Process user input
+bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+    DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FLHOOK STUFF
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    // If we're being loaded from the command line while FLHook is running then
+    // load the settings as FLHook only
+    // calls load settings on FLHook startup and .rehash.
+    if (fdwReason == DLL_PROCESS_ATTACH)
+        LoadSettings();
+
+    return true;
+}
+
+// Functions to hook
+extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
+    pi->name("Wardrobe Plugin");
+    pi->shortName("wardrobe");
+    pi->mayPause(true);
+    pi->mayUnload(true);
+    pi->returnCode(&returncode);
+    pi->versionMajor(PluginMajorVersion::VERSION_04);
+    pi->versionMinor(PluginMinorVersion::VERSION_00);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+    pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+}

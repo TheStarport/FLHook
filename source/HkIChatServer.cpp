@@ -11,18 +11,19 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void *rdl) {
 
     TRY_HOOK {
         if (HkIServerImpl::g_InSubmitChat && (clientIDTo != 0x10004)) {
-            BinaryRDLReader rdlReader;
-            std::wstring buffer;
-            buffer.resize(1024);
-            {
-                uint _;
-                rdlReader.extract_text_from_buffer(ToUShort(buffer.data()),
-                                             buffer.size(), _,
-                                             static_cast<const char *>(rdl), size);
-            }
+            wchar_t wszBuf[1024] = L"";
+            // extract text from rdlReader
+            BinaryRDLReader r;
+            uint iRet;
+            r.extract_text_from_buffer((unsigned short *)wszBuf,
+                                         sizeof(wszBuf), iRet,
+                                       (const char *)rdl, size);
 
-            std::wstring sender = buffer.substr(0, buffer.length() - HkIServerImpl::g_TextLength - 2);
-            std::wstring text = buffer.substr(buffer.length() - HkIServerImpl::g_TextLength);
+            std::wstring buffer = wszBuf;
+            std::wstring sender = buffer.substr(
+                0, buffer.length() - HkIServerImpl::g_TextLength - 2);
+            std::wstring text =
+                buffer.substr(buffer.length() - HkIServerImpl::g_TextLength);
 
             if (set_bUserCmdIgnore && ((clientIDTo & 0xFFFF) != 0)) { // check ignores
                 for (auto& ci : ClientInfo[clientID].lstIgnore) {
@@ -98,12 +99,13 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void *rdl) {
             else
                 traDataColor = L"19BD3A"; // pm chat color
 
-            std::wstring xml =
-                L"<TRA data=\"0x" + traDataSenderColor + traDataFormat +
-                L"\" mask=\"-1\"/><TEXT>" + XMLText(sender) + L": </TEXT>" +
-                L"<TRA data=\"0x" + traDataColor + traDataFormat +
-                L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
-            HkFMsg(clientID, xml);
+            std::wstringstream wos;
+            wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat
+                << L"\" mask=\"-1\"/><TEXT>" << XMLText(sender) << L": </TEXT>"
+                << L"<TRA data =\"0x" << traDataColor + traDataFormat << L"\" mask=\"-1\"/>"
+                << "<TEXT>" << XMLText(text) + L"</TEXT>";
+            
+            HkFMsg(clientID, wos.str());
         } else {
             uint sz = size;
             __asm {

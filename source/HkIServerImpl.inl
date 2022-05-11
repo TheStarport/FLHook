@@ -57,20 +57,20 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
            || cidTo.iID > SpecialChatIDs::PLAYER_MAX && cidTo.iID < SpecialChatIDs::SPECIAL_BASE)
             return false;
 
+        // extract text from rdlReader
         BinaryRDLReader rdl;
-        std::wstring buffer;
-        buffer.resize(1024);
-        {
-            uint _;
-            rdl.extract_text_from_buffer(ToUShort(buffer.data()), buffer.size(),
-                                         _, static_cast<const char*>(rdlReader), size);
-        }
+        wchar_t wszBuf[1024] = L"";
+        uint iRet1;
+        rdl.extract_text_from_buffer((unsigned short *)wszBuf, sizeof(wszBuf),
+                                     iRet1, (const char *)rdlReader, size);
+        std::wstring buffer = wszBuf;
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
         if (set_bDefaultLocalChat && cidTo.iID == SpecialChatIDs::SYSTEM) {
             cidTo.iID = SpecialChatIDs::LOCAL;
         }
+
 
         // fix flserver commands and change chat to id so that event logging is
         // accurate.
@@ -239,7 +239,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
         !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) ||
         !(ui.vDir.y == ui.vDir.y) || !(ui.vDir.z == ui.vDir.z) ||
         !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle)) {
-        AddLog("ERROR: NAN found in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: NAN found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -248,7 +248,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x +
               ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
     if (n > 1.21f || n < 0.81f) {
-        AddLog("ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -256,7 +256,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     // Far check
     if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f ||
         abs(ui.vPos.z) > 1e7f) {
-        AddLog("ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
+        AddLog(Normal,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -353,7 +353,7 @@ void BaseEnter__Inner(uint baseID, uint clientID) {
         if (set_bAutoBuy)
             HkPlayerAutoBuy(clientID, baseID);
     }
-    CATCH_HOOK({ AddLog("Exception in BaseEnter on autobuy"); })
+    CATCH_HOOK({ AddLog(Normal, L"Exception in BaseEnter on autobuy"); })
 }
     
 void BaseEnter__InnerAfter(uint baseID, uint clientID) {
@@ -503,7 +503,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
     }
     CATCH_HOOK({
-        AddLog("Exception in %s (clientID=%u (%x))", __FUNCTION__, clientID, Players.GetActiveCharacterName(clientID));
+        AddLog(Normal,L"Exception in %s (clientID=%u (%x))", stows(__FUNCTION__).c_str(), clientID, Players.GetActiveCharacterName(clientID));
     })
 
     return true;
@@ -538,7 +538,7 @@ bool OnConnect__Inner(uint clientID) {
         // If ID is too high due to disconnect buffer time then manually drop
         // the connection.
         if (clientID > MAX_CLIENT_ID) {
-            AddLog("INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
+            AddLog(Normal,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
             CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
             if (!cdpClient)
                 return false;
@@ -609,6 +609,39 @@ void SystemSwitchOutComplete__InnerAfter(uint, uint clientID) {
                      clientID, system.c_str());
     }
     CATCH_HOOK({})
+}
+
+bool Login__InnerBefore(const SLoginInfo &li, uint clientID) {
+    // The startup cache disables reading of the banned file. Check this manually on
+    // login and boot the player if they are banned.
+
+    CAccount *acc = Players.FindAccountFromClientID(clientID);
+    if (acc) {
+        std::wstring wscDir;
+        HkGetAccountDirName(acc, wscDir);
+
+        char szDataPath[MAX_PATH];
+        GetUserDataPath(szDataPath);
+
+        std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" +
+                           wstos(wscDir) + "\\banned";
+
+        FILE *file = fopen(path.c_str(), "r");
+        if (file) {
+            fclose(file);
+
+            // Ban the player
+            st6::wstring flStr((ushort *)acc->wszAccID);
+            Players.BanAccount(flStr, true);
+
+            // Kick them
+            acc->ForceLogout();
+
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
@@ -700,7 +733,7 @@ void GoTradelane__Inner(uint clientID, const XGoTradelane& gtl) {
 bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
     uint system;
     pub::Player::GetSystem(iClientID, system);
-    AddLog("ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
+    AddLog(Normal,L"ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
            "sys=%08x arch=%08x arch2=%08x",
            wstos(ToWChar(Players.GetActiveCharacterName(iClientID)))
                .c_str(),
@@ -731,6 +764,8 @@ void Startup__Inner(const SStartupInfo &si) {
     WriteProcMem(address, movECX, sizeof(movECX));
     WriteProcMem(address + 1, &g_MaxPlayers, sizeof(g_MaxPlayers));
     WriteProcMem(address + 5, nop, sizeof(nop));
+
+    StartupCache::Init();
 }
 
 void Startup__InnerAfter(const SStartupInfo &si) {
@@ -741,6 +776,8 @@ void Startup__InnerAfter(const SStartupInfo &si) {
 
     // read base market data from ini
     HkLoadBaseMarket();
+
+    StartupCache::Done();
 }
 
 }

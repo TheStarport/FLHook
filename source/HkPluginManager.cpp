@@ -5,9 +5,31 @@ const PluginData& PluginHookData::plugin() const {
     return PluginManager::i()->pluginAt(index);
 }
 
-void PluginCommunication(PLUGIN_MESSAGE msg, void *data) {
-    CallPluginsBefore(HookedCall::FLHook__PluginCommunication, msg, data);
-    CallPluginsAfter(HookedCall::FLHook__PluginCommunication, msg, data);
+// Map of plugins to their relative communicators, if they have any.
+static std::map<std::string, PluginCommunicator *> pluginCommunicators;
+void PluginCommunicator::ExportPluginCommunicator(PluginCommunicator *communicator) {
+    pluginCommunicators[communicator->plugin] = communicator;
+}
+
+void PluginCommunicator::Dispatch(int id, void *dataPack) const {
+    for (const auto &i : listeners) {
+        i.second(id, dataPack);
+    }
+}
+
+void PluginCommunicator::AddListener(const std::string plugin, EventSubscription event){
+    this->listeners[plugin] = event;
+}
+
+PluginCommunicator *PluginCommunicator::ImportPluginCommunicator(const std::string plugin, PluginCommunicator::EventSubscription subscription) {
+    const auto el = pluginCommunicators.find(plugin);
+    if (el == pluginCommunicators.end())
+        return nullptr;
+
+    if (subscription != nullptr) {
+        el->second->AddListener(plugin, subscription);   
+    }
+    return el->second;
 }
 
 void PluginManager::clearData(bool free) {
