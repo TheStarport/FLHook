@@ -15,11 +15,11 @@ struct INFO {
 };
 static std::map<uint, INFO> mapInfo;
 
-void ClearClientInfo(unsigned int iClientID) {
+void ClearClientInfo(uint& iClientID) {
     mapInfo[iClientID].bInWrapGate = false;
 }
 
-void DisConnect(unsigned int iClientID, enum EFLConnection state) {
+void DisConnect(uint& iClientID, enum EFLConnection& state) {
     if (mapInfo[iClientID].bInWrapGate) {
         uint iShip;
         pub::Player::GetShip(iClientID, iShip);
@@ -33,7 +33,7 @@ void DisConnect(unsigned int iClientID, enum EFLConnection state) {
     }
 }
 
-void CharacterInfoReq(unsigned int iClientID, bool p2) {
+void CharacterInfoReq(uint& iClientID, bool& p2) {
     if (mapInfo[iClientID].bInWrapGate) {
         uint iShip;
         pub::Player::GetShip(iClientID, iShip);
@@ -47,12 +47,12 @@ void CharacterInfoReq(unsigned int iClientID, bool p2) {
     }
 }
 
-void JumpInComplete(unsigned int iSystem, unsigned int iShip,
-                    unsigned int iClientID) {
+void JumpInComplete(uint& iSystem, uint& iShip,
+                    uint& iClientID) {
     mapInfo[iClientID].bInWrapGate = false;
 }
 
-void SystemSwitchOutComplete(unsigned int iShip, unsigned int iClientID) {
+void SystemSwitchOutComplete(uint& iShip, uint& iClientID) {
     mapInfo[iClientID].bInWrapGate = true;
 }
 
