@@ -74,20 +74,20 @@ void UserCmd_Back(uint iClientID, const std::wstring &wscParam) {
 }
 
 // Clean up when a client disconnects
-void DisConnect_AFTER(uint iClientID) {
+void DisConnect_AFTER(uint& iClientID) {
     if (afks.count(iClientID) > 0)
         afks.erase(iClientID);
 }
 
 // Hook on chat being sent (This gets called twice with the iClientID and iTo
 // swapped
-void __stdcall HkCb_SendChat(uint& iClientID, uint& iTo, uint& iSize, void *pRDL) {
+void __stdcall HkCb_SendChat(uint& iClientID, uint& iTo, uint& iSize, void** pRDL) {
     if (HkIsValidClientID(iTo) && afks.count(iClientID) > 0)
         PrintUserCmdText(iTo, L"This user is away from keyboard.");
 }
 
 // Hooks on chat being submitted
-void __stdcall SubmitChat(uint& cId, unsigned long& lP1, void const *rdlReader, uint& cIdTo, int& iP2) {
+void __stdcall SubmitChat(uint& cId, unsigned long& lP1, void const **rdlReader, uint& cIdTo, int& iP2) {
     if (HkIsValidClientID(cId) && afks.count(cId))
         Back(cId);
 }
@@ -99,12 +99,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam) {
     PrintUserCmdText(iClientID, L"/afk ");
     PrintUserCmdText(iClientID,
                      L"Sets the player to AFK. If any other player messages "
