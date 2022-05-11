@@ -81,17 +81,15 @@ void DisConnect_AFTER(uint iClientID) {
 
 // Hook on chat being sent (This gets called twice with the iClientID and iTo
 // swapped
-void __stdcall HkCb_SendChat(uint iClientID, uint iTo, uint iSize, void *pRDL) {
+void __stdcall HkCb_SendChat(uint& iClientID, uint& iTo, uint& iSize, void *pRDL) {
     if (HkIsValidClientID(iTo) && afks.count(iClientID) > 0)
         PrintUserCmdText(iTo, L"This user is away from keyboard.");
 }
 
 // Hooks on chat being submitted
-void __stdcall SubmitChat(struct CHAT_ID cId, unsigned long lP1,
-                          void const *rdlReader, struct CHAT_ID cIdTo,
-                          int iP2) {
-    if (HkIsValidClientID(cId.iID) && afks.count(cId.iID))
-        Back(cId.iID);
+void __stdcall SubmitChat(uint& cId, unsigned long& lP1, void const *rdlReader, uint& cIdTo, int& iP2) {
+    if (HkIsValidClientID(cId) && afks.count(cId))
+        Back(cId);
 }
 
 // Client command processing

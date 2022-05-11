@@ -219,7 +219,7 @@
     <PostBuildEvent>
       <Command>
 				IF "%FL_PATH%"=="" exit 0
-				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" /is /E /e
+				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" "*.pdb" /is /E /e
 				if ERRORLEVEL GTR 5 goto HandleError
 				exit 0
 				:HandleError
@@ -276,7 +276,6 @@
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
-    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h" />
     <ClInclude Include="..\source\ExceptionInfo.h" />

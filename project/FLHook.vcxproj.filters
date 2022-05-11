@@ -183,9 +183,6 @@
     <ClInclude Include="..\FLHookSDK\include\plugin.h">
       <Filter>sdk</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\plugin_comms.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h">

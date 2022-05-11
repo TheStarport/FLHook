@@ -307,8 +307,6 @@ inline bool operator<(const PluginHookData &lhs, const PluginHookData &rhs) {
     return lhs.priority > rhs.priority;
 }
 
-EXPORT void PluginCommunication(PLUGIN_MESSAGE msgtype, void *msg);
-
 class PluginManager : public Singleton<PluginManager> {
 public:
     struct FunctionHookProps {
