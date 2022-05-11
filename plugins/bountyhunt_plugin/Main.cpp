@@ -212,15 +212,15 @@ EXPORT int __stdcall Update() {
     return 0;
 }
 
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystemID,
-                  uint iClientIDVictim, uint iClientIDKiller) {
+void SendDeathMsg(const std::wstring &wscMsg, uint& iSystemID,
+                  uint& iClientIDVictim, uint& iClientIDKiller) {
 
     if (set_bBhEnabled) {
         BhKillCheck(iClientIDVictim, iClientIDKiller);
     }
 }
 
-void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection state) {
+void __stdcall DisConnect(uint& iClientID, enum EFLConnection& state) {
 
     for (auto &it : lstBountyHunt) {
         if (it.uiTargetID == iClientID) {
@@ -240,11 +240,11 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID,
                      L"/bountyhunt <charname> <credits> [<minutes>]");
     PrintUserCmdText(iClientID, L"/bountyhuntid <id> <credits> [<minutes>]");
