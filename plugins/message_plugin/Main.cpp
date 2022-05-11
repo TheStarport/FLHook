@@ -259,7 +259,7 @@ void Timer() {
 }
 
 /// On client disconnect remove any references to this client.
-void DisConnect(uint& iClientID, enum EFLConnection p2) {
+void DisConnect(uint& iClientID, enum EFLConnection& p2) {
     auto iter = mapInfo.begin();
     while (iter != mapInfo.end()) {
         if (iter->second.ulastPmClientID == iClientID)
@@ -283,7 +283,7 @@ void CharacterInfoReq(unsigned int iClientID, bool p2) {
 }
 
 /// On launch events and reload the msg cache for the client.
-void PlayerLaunch(uint& iShip, unsigned int& iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     LoadMsgs(iClientID);
     ShowGreetingBanner(iClientID);
 }
