@@ -141,13 +141,13 @@ void LoadSettings() {
 
 /// Check for cash transfer while this char was offline whenever they
 /// enter or leave a base.
-void PlayerLaunch(uint iShip, unsigned int iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     CheckTransferLog(iClientID);
 }
 
 /// Check for cash transfer while this char was offline whenever they
 /// enter or leave a base. */
-void BaseEnter(uint iBaseID, uint iClientID) { CheckTransferLog(iClientID); }
+void BaseEnter(uint& iBaseID, uint& iClientID) { CheckTransferLog(iClientID); }
 
 /** Process a give cash command */
 void UserCmd_GiveCash(uint iClientID, const std::wstring &wscParam) {
@@ -666,12 +666,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     for (auto &uc : UserCmds) {
         PrintUserCmdText(iClientID, uc.wszCmd);
     }
