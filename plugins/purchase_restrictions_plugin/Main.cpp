@@ -278,7 +278,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
     pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
     pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);

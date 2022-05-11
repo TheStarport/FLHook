@@ -299,6 +299,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__StopTradelane, &StopTradelane);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
     pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

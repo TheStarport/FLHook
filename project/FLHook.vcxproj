@@ -219,7 +219,7 @@
     <PostBuildEvent>
       <Command>
 				IF "%FL_PATH%"=="" exit 0
-				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" "*.pdb" /is /E /e
+				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" /is /E /e
 				if ERRORLEVEL GTR 5 goto HandleError
 				exit 0
 				:HandleError
@@ -283,6 +283,7 @@
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
+    <ClInclude Include="..\source\Tools\Serialization.hpp" />
     <ClInclude Include="..\source\wildcards.hh" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />

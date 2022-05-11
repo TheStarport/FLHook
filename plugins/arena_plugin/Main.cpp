@@ -22,23 +22,32 @@ int transferFlags[MAX_CLIENT_ID + 1];
 const std::wstring STR_INFO1 = L"Please dock at nearest base";
 const std::wstring STR_INFO2 = L"Cargo hold is not empty";
 
-// Debug var
-int set_iPluginDebug = 0;
+struct Config final : Reflectable {
+    std::string File() override { return "flhook_plugins/arena.json"; }
 
-// Base to beam to.
-uint set_iTargetBaseID = 0;
+    // Reflectable fields
+    std::string command = "arena";
+    std::string targetBase;
+    std::string targetSystem;
+    std::string restrictedSystem;
+    std::string defaultBase;
 
-// Restricted system, cannot jump out of here.
-uint set_iRestrictedSystemID = 0;
+    // Non-reflectable fields
+    uint targetBaseId;
+    uint targetSystemId;
+    uint restrictedSystemId;
+    uint defaultBaseId;
+    std::wstring wscCommand;
+};
 
-// Target system, cannot jump out of here.
-uint set_iTargetSystemID = 0;
-
-// Base to use if player is trapped in the conn system.
-uint set_iDefaultBaseID = 0;
-
-// The user command to beam them to the base (usually /conn)
-std::wstring set_wscUserCommand = L"/conn";
+REFL_AUTO(
+    type(Config),
+    field(command),
+    field(targetBase),
+    field(targetSystem),
+    field(restrictedSystem),
+    field(defaultBase)
+)
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
@@ -49,33 +58,28 @@ void ClearClientInfo(uint iClientID) {
     transferFlags[iClientID] = CLIENT_STATE_NONE;
 }
 
+std::unique_ptr<Config> config = nullptr;
+
+// Client command processing
+void UserCmd_Conn(uint iClientID, const std::wstring &wscParam);
+void UserCmd_Return(uint iClientID, const std::wstring &wscParam);
+USERCMD UserCmds[] = {
+    {L"/arena", UserCmd_Conn},
+    {L"/return", UserCmd_Return},
+};
+
 /// Load the configuration
 void LoadSettings() {
-    
-
     memset(transferFlags, 0, sizeof(int) * (MAX_CLIENT_ID + 1));
+    Config conf = Serializer::JsonToObject<Config>();
+    conf.wscCommand = L"/" + stows(conf.command);
+    conf.defaultBaseId = CreateID(conf.defaultBase.c_str());
+    conf.restrictedSystemId = CreateID(conf.restrictedSystem.c_str());
+    conf.targetBaseId = CreateID(conf.targetBase.c_str());
+    conf.targetSystemId = CreateID(conf.targetSystem.c_str());
+    config = std::make_unique<Config>(std::move(conf));
 
-    // The path to the configuration file.
-    char szCurDir[MAX_PATH];
-    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-    std::string scPluginCfgFile =
-        std::string(szCurDir) + "\\flhook_plugins\\arena.cfg";
-
-    // Load generic settings
-    set_iPluginDebug = IniGetI(scPluginCfgFile, "General", "Debug", 0);
-    set_iTargetBaseID = CreateID(
-        IniGetS(scPluginCfgFile, "General", "TargetBase", "li06_05_base")
-            .c_str());
-    set_iTargetSystemID = CreateID(
-        IniGetS(scPluginCfgFile, "General", "TargetSystem", "li06").c_str());
-    set_iRestrictedSystemID =
-        CreateID(IniGetS(scPluginCfgFile, "General", "RestrictedSystem", "iw09")
-                     .c_str());
-    set_iDefaultBaseID = CreateID(
-        IniGetS(scPluginCfgFile, "General", "DefaultBase", "li01_proxy_base")
-            .c_str());
-    set_wscUserCommand = 
-        IniGetWS(scPluginCfgFile, "General", "UserCommand", L"/conn");
+    UserCmds[0] = { config->wscCommand.data(), UserCmd_Conn };
 }
 
 bool IsDockedClient(unsigned int client) {
@@ -191,7 +195,7 @@ void __stdcall PlayerLaunch_AFTER(unsigned int ship, unsigned int client) {
         }
 
         transferFlags[client] = CLIENT_STATE_NONE;
-        MoveClient(client, set_iTargetBaseID);
+        MoveClient(client, config->targetBaseId);
         return;
     }
 
@@ -221,8 +225,8 @@ void UserCmd_Conn(uint iClientID, const std::wstring &wscParam) {
     // Prohibit jump if in a restricted system or in the target system
     uint system = 0;
     pub::Player::GetSystem(iClientID, system);
-    if (system == set_iRestrictedSystemID ||
-        system == set_iTargetSystemID || GetCustomBaseForClient(iClientID)) {
+    if (system == config->restrictedSystemId ||
+        system == config->targetSystemId || GetCustomBaseForClient(iClientID)) {
         PrintUserCmdText(iClientID,
                          L"ERR Cannot use command in this system or base");
         return;
@@ -254,7 +258,7 @@ void UserCmd_Return(uint iClientID, const std::wstring &wscParam) {
         return;
     }
 
-    if (!CheckReturnDock(iClientID, set_iTargetBaseID)) {
+    if (!CheckReturnDock(iClientID, config->targetBaseId)) {
         PrintUserCmdText(iClientID, L"Not in correct base");
         return;
     }
@@ -268,12 +272,6 @@ void UserCmd_Return(uint iClientID, const std::wstring &wscParam) {
     transferFlags[iClientID] = CLIENT_STATE_RETURN;
 }
 
-// Client command processing
-USERCMD UserCmds[] = {
-    {set_wscUserCommand.data(), UserCmd_Conn},
-    {L"/return", UserCmd_Return},
-};
-
 // Process user input
 bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
@@ -281,9 +279,8 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 
 // Hook on /help
 EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
-    PrintUserCmdText(iClientID, set_wscUserCommand);
-    PrintUserCmdText(iClientID,
-                     L"Beams you to the Arena system.");
+    PrintUserCmdText(iClientID, config->wscCommand);
+    PrintUserCmdText(iClientID, L"Beams you to the Arena system.");
     PrintUserCmdText(iClientID, L"/return ");
     PrintUserCmdText(iClientID, L"Returns you to the previous base.");
 }
@@ -312,7 +309,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
-    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
