@@ -563,8 +563,8 @@ void HkTimerMarkDelay() {
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace HkIServerImpl {
-EXPORT void __stdcall JumpInComplete(unsigned int iSystemID,
-                                     unsigned int iShip) {
+EXPORT void __stdcall JumpInComplete(uint &iSystemID,
+                                     uint &iShip) {
     uint iClientID = HkGetClientIDByShip(iShip);
     if (!iClientID)
         return;
@@ -606,7 +606,7 @@ EXPORT void __stdcall JumpInComplete(unsigned int iSystemID,
     Mark[iClientID].vMarkedObjs = vTempMark;
 }
 
-EXPORT void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip) {
+EXPORT void __stdcall LaunchComplete(uint &iBaseID, uint& iShip) {
     uint iClientID = HkGetClientIDByShip(iShip);
     if (!iClientID)
         return;
@@ -625,7 +625,7 @@ EXPORT void __stdcall LaunchComplete(unsigned int iBaseID, unsigned int iShip) {
     }
 }
 
-EXPORT void __stdcall BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
+EXPORT void __stdcall BaseEnter(uint &iBaseID, uint &iClientID) {
     Mark[iClientID].vAutoMarkedObjs.clear();
     Mark[iClientID].vDelayedAutoMarkedObjs.clear();
 }
@@ -660,13 +660,13 @@ EXPORT int __stdcall Update() {
     return 0;
 }
 
-EXPORT void __stdcall DisConnect(unsigned int iClientID,
-                                 enum EFLConnection p2) {
+EXPORT void __stdcall DisConnect(uint& iClientID,
+                                 enum EFLConnection& p2) {
     ClearClientMark(iClientID);
 }
 } // namespace HkIServerImpl
 
-EXPORT void LoadUserCharSettings(uint iClientID) {
+EXPORT void LoadUserCharSettings(uint& iClientID) {
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
     HkGetAccountDirName(acc, wscDir);
@@ -683,7 +683,7 @@ EXPORT void LoadUserCharSettings(uint iClientID) {
         IniGetF(scUserFile, scSection, "automarkradius", set_fAutoMarkRadius);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/mark /m ");
     PrintUserCmdText(
         iClientID,
@@ -727,7 +727,7 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
