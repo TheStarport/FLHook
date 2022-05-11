@@ -175,7 +175,7 @@ bool MailDel(const std::wstring &wscCharname, const std::string &scExtension,
 // Hooks
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlayerLaunch(uint& iShip, unsigned int& iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     MailCheckLog((const wchar_t *)Players.GetActiveCharacterName(iClientID), MSG_LOG);
 }
     
