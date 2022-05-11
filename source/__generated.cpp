@@ -3135,7 +3135,7 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 			ToLogString(cidFrom), size, rdlReader, ToLogString(cidTo), _genArg1);
 
 	auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat,
-			cidFrom, size, rdlReader, cidTo, _genArg1);
+			cidFrom.iID, size, rdlReader, cidTo.iID, _genArg1);
 
 	bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
 	if(!innerCheck) return;
@@ -3148,7 +3148,7 @@ void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CH
 	g_InSubmitChat = false;
 
 	CallPluginsAfter(HookedCall::IServerImpl__SubmitChat,
-			cidFrom, size, rdlReader, cidTo, _genArg1);
+			cidFrom.iID, size, rdlReader, cidTo.iID, _genArg1);
 }
 }
 
