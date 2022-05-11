@@ -20,6 +20,30 @@ static HMODULE hEngBase;
 static HMODULE hModContentAC;
 
 IMPORT struct CObject *__cdecl GetRoot(struct CObject const *);
+#define LOG_EXCEPTION_INTERNAL() { AddLogInternal("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(); };
+void AddLogInternal(const char *szString, ...) {
+    char szBufString[1024];
+    va_list marker;
+    va_start(marker, szString);
+    _vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
+
+    FILE *log;
+    fopen_s(&log, "flhook_logs\\flhook_crashes.log", "a");
+
+    char szBuf[64];
+    time_t tNow = time(nullptr);
+    tm t;
+    localtime_s(&t, &tNow);
+    strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
+    fprintf(log, "[%s] %s\n", szBuf, szBufString);
+    fflush(log);
+
+    if (IsDebuggerPresent()) {
+        OutputDebugString(("[LOG] " + std::string(szBufString) + "\n").c_str());
+    }
+
+    fclose(log);
+}
 
 /** Originally in Main.cpp of PlayerControl */
 void __stdcall RequestBestPath(unsigned int p1, DWORD *p2, int p3) {
@@ -56,10 +80,8 @@ int __cdecl HkCb_CrashProc1b221(unsigned int const &system,
         return pub::System::EnumerateConnections(system, conn,
                                                  (enum ConnectionType)type);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Error,L"Crash suppression in "
-               "pub::System::EnumerateConnections(system=%08x,type=%d)",
-               system, type);
-        LOG_EXCEPTION;
+        AddLogInternal("Crash suppression in pub::System::EnumerateConnections(system=%08x,type=%d)", system, type);
+        LOG_EXCEPTION_INTERNAL()
         return -2;
     }
 }
@@ -88,7 +110,7 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1) {
             popad
         }
     } catch (...) {
-        LOG_EXCEPTION
+        LOG_EXCEPTION_INTERNAL()
     }
 
     return res;
@@ -116,7 +138,7 @@ void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2) {
             popad
         }
     } catch (...) {
-        LOG_EXCEPTION
+        LOG_EXCEPTION_INTERNAL()
     }
 }
 __declspec(naked) void HkCb_CrashProc6F78DD0Naked() {
@@ -139,7 +161,7 @@ void __cdecl HkCb_CrashProc6F671A0(int arg1) {
             popad
         }
     } catch (...) {
-        LOG_EXCEPTION
+        LOG_EXCEPTION_INTERNAL()
     }
 }
 
@@ -167,8 +189,8 @@ const BYTE *__stdcall EngBase124BD_Log(const BYTE *data) {
         }
         data = *(PBYTE *)(data + 16);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Error,L"Exception/Crash suppression engbase.dll:0x124BD");
-        AddLog(Error,L"Cmp=%s Part=%s", cmp, part);
+        AddLogInternal("Exception/Crash suppression engbase.dll:0x124BD");
+        AddLogInternal("Cmp=%s Part=%s", cmp, part);
         data = 0;
     }
 
@@ -188,7 +210,7 @@ const DWORD __stdcall HkCb_EngBase11a6dNaked_Log(const BYTE *data) {
     __try {
         return *(DWORD *)(data + 0x28);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Error,L"Exception/Crash suppression engbase.dll:0x11A6D");
+        AddLogInternal("Exception/Crash suppression engbase.dll:0x11A6D");
         return 0;
     }
 }
@@ -244,9 +266,9 @@ int HkCb_C4800Hook(int *a1, int *a2, int *zone, double *a4, int a5, int a6) {
 
         return res;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        AddLog(Error,L"Exception/Crash suppression content.dll:0xC608D(zone=%08x)",
+        AddLogInternal("Exception/Crash suppression content.dll:0xC608D(zone=%08x)",
             (zone ? *zone : 0));
-        LOG_EXCEPTION
+        LOG_EXCEPTION_INTERNAL()
         return 0;
     }
 }
