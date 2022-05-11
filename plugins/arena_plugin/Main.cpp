@@ -54,7 +54,7 @@ REFL_AUTO(
 ReturnCode returncode = ReturnCode::Default;
 
 /// Clear client info when a client connects.
-void ClearClientInfo(uint iClientID) {
+void ClearClientInfo(uint& iClientID) {
     transferFlags[iClientID] = CLIENT_STATE_NONE;
 }
 
@@ -180,12 +180,12 @@ bool CheckReturnDock(unsigned int client, unsigned int target) {
 }
 
 void __stdcall CharacterSelect(std::string& szCharFilename,
-                               unsigned int client) {
+                               uint& client) {
     
     transferFlags[client] = CLIENT_STATE_NONE;
 }
 
-void __stdcall PlayerLaunch_AFTER(unsigned int ship, unsigned int client) {
+void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client) {
     
 
     if (transferFlags[client] == CLIENT_STATE_TRANSFER) {
@@ -273,12 +273,12 @@ void UserCmd_Return(uint iClientID, const std::wstring &wscParam) {
 }
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, config->wscCommand);
     PrintUserCmdText(iClientID, L"Beams you to the Arena system.");
     PrintUserCmdText(iClientID, L"/return ");
