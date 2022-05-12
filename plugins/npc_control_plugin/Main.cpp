@@ -296,9 +296,9 @@ bool IsFLHookNPC(CShip *ship) {
 }
 
 // Hook on ship destroyed to remove from our data
-void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& iKill) {
     if (iKill) {
-        CShip *cship = (CShip *)ecx[4];
+        CShip *cship = (CShip *)(*ecx)[4];
         IsFLHookNPC(cship);
     }
 }
@@ -454,20 +454,29 @@ void LoadNPCInfo() {
     }
 }
 
-// Main Load Settings function, calls the one above. Had to use this hook
-// instead of LoadSettings otherwise NPCs wouldnt appear on server startup
-void Startup_AFTER() {
+void LoadSettings() {
     LoadNPCInfo();
-
     listgraphs.push_back("FIGHTER");   // 0
     listgraphs.push_back("TRANSPORT"); // 1
     listgraphs.push_back("GUNBOAT");   // 2
     listgraphs.push_back("CRUISER");   // 3, doesn't seem to do anything
 
+}
+
+// Main Load Settings function, calls the one above. Had to use this hook
+// instead of LoadSettings otherwise NPCs wouldnt appear on server startup
+void Startup_AFTER() {
+
+    LoadSettings();
+
     for (auto &[id, npc] : startupNPCs) {
         CreateNPC(npc.name, npc.pos, npc.rot, npc.system, false);
         Log_CreateNPC(npc.name);
     }
+}
+
+void SpawnStartupSolars() {
+    
 }
 
 // Admin command to make NPCs
@@ -710,11 +719,7 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     srand((uint)time(0));
-    // If we're being loaded from the command line while FLHook is running then
-    // set_scCfgFile will not be empty so load the settings as FLHook only
-    // calls load settings on FLHook startup and .rehash.
     if (fdwReason == DLL_PROCESS_ATTACH) {
-        if (set_scCfgFile.length() > 0)
             Startup_AFTER();
     } else if (fdwReason == DLL_PROCESS_DETACH) {
     }
@@ -734,4 +739,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process,
                     &ExecuteCommandString);
     pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+    pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
 }
