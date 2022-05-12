@@ -191,7 +191,7 @@ void LoadSettings() {
     ReloadLoginIDBans();
 }
 
-void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     if (!mapInfo[iClientID].bIPChecked) {
         mapInfo[iClientID].bIPChecked = true;
         if (IsBanned(iClientID) && !IsAuthenticated(iClientID)) {
@@ -203,7 +203,7 @@ void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
     }
 }
 
-void BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
+void BaseEnter(uint& iBaseID, uint& iClientID) {
     if (!mapInfo[iClientID].bIPChecked) {
         mapInfo[iClientID].bIPChecked = true;
         if (IsBanned(iClientID) && !IsAuthenticated(iClientID)) {
@@ -301,7 +301,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->name("IP Ban Plugin");
-    pi->shortName("ip_ban_plugin");
+    pi->shortName("ip_ban");
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
