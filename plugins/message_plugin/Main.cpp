@@ -385,8 +385,7 @@ void RedText(std::wstring wscXMLMsg, uint iSystemID) {
 
 /** When a chat message is sent to a client and this client has showchattime on
 insert the time on the line immediately before the chat message */
-bool SendChat(uint& iClientID, uint& iTo, uint& iSize,
-                            void *rdlReader) {
+bool SendChat(uint& iClientID, uint& iTo, uint& iSize, void **rdlReader) {
     // Return immediately if the chat line is the time.
     if (bSendingTime)
         return false;
@@ -400,8 +399,9 @@ bool SendChat(uint& iClientID, uint& iTo, uint& iSize,
         BinaryRDLReader rdl;
         wchar_t wszBuf[1024];
         uint iRet1;
+        void *rdlReader2 = *rdlReader;
         rdl.extract_text_from_buffer((unsigned short *)wszBuf, sizeof(wszBuf),
-                                     iRet1, (const char *)rdlReader, iSize);
+                                     iRet1, (const char *)rdlReader2, iSize);
         std::wstring wscChatMsg = wszBuf;
 
         // Find the ': ' which indicates the end of the sending player name.
