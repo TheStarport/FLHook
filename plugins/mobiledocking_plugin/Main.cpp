@@ -118,7 +118,7 @@ void UpdateDockedShips(uint client) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Clear client info when a client connects.
-void ClearClientInfo(uint client) {
+void ClearClientInfo(uint& client) {
     
     clients.erase(client);
     mapDeferredJumps.erase(client);
@@ -161,7 +161,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return true;
 }
 
-bool UserCmd_Process(uint client, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& client, const std::wstring &wscCmd) {
     
     if (wscCmd.find(L"/listdocked") == 0) {
         if (clients[client].mapDockedShips.size() == 0) {
@@ -292,7 +292,7 @@ bool UserCmd_Process(uint client, const std::wstring &wscCmd) {
 
 // If this is a docking request at a player ship then process it.
 int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
-                      int iCancel, enum DOCK_HOST_RESPONSE response) {
+                      int& iCancel, enum DOCK_HOST_RESPONSE& response) {
     
 
     UINT client = HkGetClientIDByShip(iShip);
@@ -349,7 +349,7 @@ int __cdecl Dock_Call(unsigned int const &iShip, unsigned int const &iBaseID,
 }
 
 void __stdcall CharacterSelect_AFTER(std::string &szCharFilename,
-                                     unsigned int client) {
+                                     uint& client) {
     
     mapPendingDockingRequests.erase(client);
     LoadDockInfo(client);
@@ -366,7 +366,7 @@ bool IsShipDockedOnCarrier(std::wstring &carrier_charname,
     }
 }
 
-void __stdcall BaseEnter(uint iBaseID, uint client) {
+void __stdcall BaseEnter(uint& iBaseID, uint& client) {
     
 
     // Update the location of any docked ships.
@@ -399,7 +399,7 @@ void __stdcall BaseEnter(uint iBaseID, uint client) {
     }
 }
 
-void __stdcall BaseExit(uint iBaseID, uint client) {
+void __stdcall BaseExit(uint& iBaseID, uint& client) {
     
     LoadDockInfo(client);
 
@@ -409,7 +409,7 @@ void __stdcall BaseExit(uint iBaseID, uint client) {
     }
 }
 
-void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client) {
+void __stdcall PlayerLaunch(uint& iShip, uint& client) {
     
 
     if (clients[client].mobile_docked) {
@@ -435,11 +435,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int client) {
     }
 }
 
-void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client) {
-    
-}
-
-void SystemSwitchOutComplete(unsigned int iShip, unsigned int client) {
+void SystemSwitchOutComplete(uint& iShip, uint& client) {
     
     static PBYTE SwitchOut = 0;
     if (!SwitchOut) {
@@ -508,14 +504,14 @@ void SystemSwitchOutComplete(unsigned int iShip, unsigned int client) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall DisConnect(unsigned int client, enum EFLConnection p2) {
+void __stdcall DisConnect(uint& client, enum EFLConnection& p2) {
     
     UpdateDockedShips(client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall CharacterInfoReq(unsigned int client, bool p2) {
+void __stdcall CharacterInfoReq(uint& client, bool& p2) {
     
     UpdateDockedShips(client);
 }
@@ -523,7 +519,7 @@ void __stdcall CharacterInfoReq(unsigned int client, bool p2) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
-                          unsigned int client) {
+                          uint& client) {
     
 
     if (clients[client].mobile_docked) {
@@ -537,8 +533,8 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const &gsi,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqRemoveItem(unsigned short slot, int count,
-                             unsigned int client) {
+void __stdcall ReqRemoveItem(unsigned short& slot, int& count,
+                             uint& client) {
     
 
     if (clients[client].mobile_docked) {
@@ -554,8 +550,8 @@ void __stdcall ReqRemoveItem(unsigned short slot, int count,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
-                                   unsigned int client) {
+void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count,
+                                   uint& client) {
     
 
     if (clients[client].mobile_docked) {
@@ -578,7 +574,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short iID, int count,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
-                         unsigned int client) {
+                         uint& client) {
     
 
     // If the client is in a player controlled base
@@ -592,8 +588,8 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
-                          float fStatus, bool bMounted, unsigned int client) {
+void __stdcall ReqAddItem(uint& good, char const **hardpoint, int& count,
+                          float& fStatus, bool& bMounted, uint& client) {
     
     if (clients[client].mobile_docked) {
         returncode = ReturnCode::SkipPlugins;
@@ -608,7 +604,7 @@ void __stdcall ReqAddItem(unsigned int good, char const *hardpoint, int count,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqChangeCash(int cash, unsigned int client) {
+void __stdcall ReqChangeCash(uint& cash, uint& client) {
     
     if (clients[client].mobile_docked)
         returncode = ReturnCode::SkipAll;
@@ -617,7 +613,7 @@ void __stdcall ReqChangeCash(int cash, unsigned int client) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqSetCash(int cash, unsigned int client) {
+void __stdcall ReqSetCash(uint& cash, uint& client) {
     
     if (clients[client].mobile_docked)
         returncode = ReturnCode::SkipAll;
@@ -626,7 +622,7 @@ void __stdcall ReqSetCash(int cash, unsigned int client) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void __stdcall ReqEquipment(class EquipDescList const &edl,
-                            unsigned int client) {
+                            uint& client) {
     
     if (clients[client].mobile_docked)
         returncode = ReturnCode::SkipPlugins;
@@ -634,10 +630,10 @@ void __stdcall ReqEquipment(class EquipDescList const &edl,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint kill) {
+void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& kill) {
     
 
-    CShip *cship = (CShip *)ecx[4];
+    CShip *cship = (CShip *)(*ecx)[4];
     uint client = cship->GetOwnerPlayer();
     if (kill) {
         if (client) {
@@ -688,7 +684,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-    pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
     pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
     pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect_AFTER, HookStep::After);
     pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
