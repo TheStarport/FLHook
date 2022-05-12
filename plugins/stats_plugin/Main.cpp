@@ -119,12 +119,12 @@ void __stdcall DisConnect_AFTER(unsigned int iClientID,
     ExportJSON();
 }
 
-void __stdcall PlayerLaunch_AFTER(unsigned int iShip, unsigned int client) {
+void __stdcall PlayerLaunch_AFTER(uint& iShip, uint& client) {
     ExportJSON();
 }
 
 void __stdcall CharacterSelect_AFTER(std::string &szCharFilename,
-                                     unsigned int iClientID) {
+                                     uint& iClientID) {
     ExportJSON();
 }
 
