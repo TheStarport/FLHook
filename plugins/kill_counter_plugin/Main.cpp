@@ -8,7 +8,7 @@
 ReturnCode returncode = ReturnCode::Default;
 std::list<INISECTIONVALUE> lstRanks;
 
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/kills <player name>");
     PrintUserCmdText(iClientID, L"/kills$ <player id>");
 }
@@ -72,16 +72,16 @@ void UserCmd_Kills(uint iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"Level: %i", rank);
 }
 
-void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& iKill) {
 
     if (iKill == 1) {
-        CShip *cship = (CShip *)ecx[4];
+        CShip *cship = (CShip *)(*ecx)[4];
         uint iClientID = cship->GetOwnerPlayer();
+        DamageList *dmg = *_dmg;
         if (iClientID) {
-            DamageList dmg;
-            if (!dmg.get_cause())
-                dmg = ClientInfo[iClientID].dmgLast;
-            uint iClientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
+            if (!dmg->get_cause())
+                dmg = &ClientInfo[iClientID].dmgLast;
+            uint iClientIDKiller = HkGetClientIDByShip(dmg->get_inflictor_id());
             if (iClientIDKiller && (iClientID != iClientIDKiller)) {
                 int iNumKills;
                 pub::Player::GetNumKills(iClientIDKiller, iNumKills);
@@ -97,7 +97,7 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
