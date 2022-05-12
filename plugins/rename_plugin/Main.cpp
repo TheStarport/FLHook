@@ -93,7 +93,7 @@ void SaveSettings() {
 }
 
 bool CreateNewCharacter(struct SCreateCharacterInfo const &si,
-                        unsigned int iClientID) {
+                        uint& iClientID) {
     if (set_bCharnameTags) {
         // If this ship name starts with a restricted tag then the ship may only
         // be created using rename and the faction password
@@ -131,7 +131,7 @@ bool CreateNewCharacter(struct SCreateCharacterInfo const &si,
 // indicate that this tag is in use. If a tag is not used after 60 days, remove
 // it.
 void CharacterSelect_AFTER(std::string &szCharFilename,
-                           unsigned int iClientID) {
+                           uint& iClientID) {
     if (set_bCharnameTags) {
         std::wstring wscCharname =
             (const wchar_t *)Players.GetActiveCharacterName(iClientID);
@@ -918,12 +918,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
 
 }
 
