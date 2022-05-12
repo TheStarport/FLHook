@@ -7,17 +7,7 @@
 
 // includes
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
-
-static int set_iPluginDebug = 0;
 
 struct CARGO_MISSION {
     std::string nickname;
@@ -62,9 +52,7 @@ void LoadSettings() {
         while (ini.read_header()) {
             if (ini.is_header("General")) {
                 while (ini.read_value()) {
-                    if (ini.is_value("debug")) {
-                        set_iPluginDebug = ini.get_value_int(0);
-                    } else if (ini.is_value("cargo")) {
+                    if (ini.is_value("cargo")) {
                         CARGO_MISSION mis;
                         mis.nickname = ini.get_value_string(0);
                         mis.base = CreateID(ini.get_value_string(1));
@@ -89,13 +77,10 @@ void LoadSettings() {
             }
             ini.close();
         }
-
-        if (set_iPluginDebug & 1) {
-            Console::ConInfo(L"CargoMissionSettings loaded [%d]",
+        Console::ConInfo(L"CargoMissionSettings loaded [%d]",
                      set_mapCargoMissions.size());
-            Console::ConInfo(L"NpcMissionSettings loaded [%d]",
+        Console::ConInfo(L"NpcMissionSettings loaded [%d]",
                      set_mapNpcMissions.size());
-        }
         ini.close();
     }
 
@@ -167,11 +152,11 @@ void HkTimerCheckKick() {
     }
 }
 
-void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& iKill) {
     
 
     if (iKill) {
-        CShip *cship = (CShip *)ecx[4];
+        CShip *cship = (CShip *)(*ecx)[4];
 
         int iRep;
         pub::SpaceObj::GetRep(cship->get_id(), iRep);
@@ -204,7 +189,7 @@ void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
 }
 
 void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
-                         unsigned int iClientID) {
+                         uint& iClientID) {
     uint iBase;
     pub::Player::GetBase(iClientID, iBase);
 
@@ -221,7 +206,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 }
 
 void __stdcall GFGoodSell(const struct SGFGoodSellInfo &gsi,
-                          unsigned int iClientID) {
+                          uint& iClientID) {
     
 
     uint iBase;
