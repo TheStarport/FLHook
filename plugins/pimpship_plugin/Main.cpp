@@ -89,7 +89,7 @@ void LoadSettings() {
 // On entering a room check to see if we're in a valid ship dealer room (or base
 // if a ShipDealer is not defined). If we are then print the intro text
 // otherwise do nothing.
-void LocationEnter(unsigned int iLocationID, unsigned int iClientID) {
+void LocationEnter(uint& iLocationID, uint& iClientID) {
     if (set_mapDealers.find(iLocationID) == set_mapDealers.end()) {
         uint iBaseID = 0;
         pub::Player::GetBase(iClientID, iBaseID);
@@ -277,12 +277,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/afk ");
     PrintUserCmdText(iClientID,
                      L"Sets the player to AFK. If any other player messages "
