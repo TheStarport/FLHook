@@ -10,6 +10,9 @@
 
 #include <FLHook.h>
 #include <plugin.h>
+#include "../base_plugin/Main.h"
+
+BaseCommunicator *baseCommunicator = nullptr;
 
 #define CLIENT_STATE_NONE 0
 #define CLIENT_STATE_TRANSFER 1
@@ -112,38 +115,28 @@ bool ValidateCargo(unsigned int client) {
     return true;
 }
 
-uint GetCustomBaseForClient(unsigned int client) {
-    // Pass to plugins incase this ship is docked at a custom base.
-    CUSTOM_BASE_IS_DOCKED_STRUCT info;
-    info.iClientID = client;
-    info.iDockedBaseID = 0;
-    PluginCommunication(CUSTOM_BASE_IS_DOCKED, &info);
-    return info.iDockedBaseID;
-}
-
 void StoreReturnPointForClient(unsigned int client) {
     // It's not docked at a custom base, check for a regular base
-    uint base = GetCustomBaseForClient(client);
+    uint base = 0;
+
+    if (baseCommunicator)
+        base = baseCommunicator->GetCustomBaseId(client);
+
     if (!base)
         pub::Player::GetBase(client, base);
     if (!base)
         return;
 
-    HookExt::IniSetI(client, "conn.retbase", base);
+    HkSetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
 }
 
 unsigned int ReadReturnPointForClient(unsigned int client) {
-    return HookExt::IniGetI(client, "conn.retbase");
+    return HkGetCharacterIniUint(client, L"conn.retbase");
 }
 
 void MoveClient(unsigned int client, unsigned int targetBase) {
     // Ask that another plugin handle the beam.
-    CUSTOM_BASE_BEAM_STRUCT info;
-    info.iClientID = client;
-    info.iTargetBaseID = targetBase;
-    info.bBeamed = false;
-    PluginCommunication(CUSTOM_BASE_BEAM, &info);
-    if (info.bBeamed)
+    if (baseCommunicator->CustomBaseBeam(client, targetBase))
         return;
 
     // No plugin handled it, do it ourselves.
@@ -210,7 +203,7 @@ void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client) {
             return;
 
         MoveClient(client, returnPoint);
-        HookExt::IniSetI(client, "conn.retbase", 0);
+        HkSetCharacterIni(client, L"conn.retbase", L"0");
         return;
     }
 }
@@ -224,7 +217,7 @@ void UserCmd_Conn(uint iClientID, const std::wstring &wscParam) {
     uint system = 0;
     pub::Player::GetSystem(iClientID, system);
     if (system == config->restrictedSystemId ||
-        system == config->targetSystemId || GetCustomBaseForClient(iClientID)) {
+        system == config->targetSystemId || (baseCommunicator && baseCommunicator->GetCustomBaseId(iClientID))) {
         PrintUserCmdText(iClientID,
                          L"ERR Cannot use command in this system or base");
         return;
@@ -311,4 +304,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
     pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+
+    // We import the definitions for TempBan Communicator so we can talk to it
+    baseCommunicator = static_cast<BaseCommunicator *>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 }
