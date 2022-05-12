@@ -243,6 +243,8 @@ void SPObjUpdate(struct SSPObjUpdateInfo const &ui,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    if (fdwReason == DLL_PROCESS_ATTACH)
+        LoadSettings();
     return true;
 }
 
