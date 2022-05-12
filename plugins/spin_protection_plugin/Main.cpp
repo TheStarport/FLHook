@@ -23,7 +23,7 @@ void LoadSettings() {
 }
 
 void __stdcall SPObjCollision(struct SSPObjCollisionInfo const &ci,
-                              unsigned int iClientID) {
+                              uint& iClientID) {
 
     // If spin protection is off, do nothing.
     if (set_fSpinProtectMass == -1.0f)
