@@ -432,7 +432,7 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
@@ -441,8 +441,8 @@ bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int __cdecl Dock_Call(unsigned int const &iShip,
-                      unsigned int const &iDockTarget, int iCancel,
-                      enum DOCK_HOST_RESPONSE response) {
+                      unsigned int const &iDockTarget, int& iCancel,
+                      enum DOCK_HOST_RESPONSE& response) {
     uint iClientID = HkGetClientIDByShip(iShip);
     if (HkIsValidClientID(iClientID)) {
         processFFA(iClientID);
@@ -451,18 +451,18 @@ int __cdecl Dock_Call(unsigned int const &iShip,
     return 0;
 }
 
-void __stdcall DisConnect(unsigned int iClientID, enum EFLConnection state) {
+void __stdcall DisConnect(uint& iClientID, enum EFLConnection& state) {
     processFFA(iClientID);
     processDuel(iClientID);
 }
 
-void __stdcall CharacterInfoReq(unsigned int iClientID, bool p2) {
+void __stdcall CharacterInfoReq(uint& iClientID, bool& p2) {
     processFFA(iClientID);
     processDuel(iClientID);
 }
 
-void SendDeathMessage(const std::wstring &wscMsg, uint iSystem,
-                  uint iClientIDVictim, uint iClientIDKiller) {
+void SendDeathMessage(const std::wstring &wscMsg, uint& iSystem,
+                  uint& iClientIDVictim, uint& iClientIDKiller) {
     processDuel(iClientIDVictim);
     processFFA(iClientIDVictim);
 }
