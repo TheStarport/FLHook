@@ -24,7 +24,13 @@ static void LogItemsOfInterest(uint iClientID, uint iGoodID,
 }
 
 /// Load the configuration
-void LoadSettings(const std::string &scPluginCfgFile) {
+void LoadSettings() {
+    // The path to the configuration file.
+    char szCurDir[MAX_PATH];
+    GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+    std::string scPluginCfgFile =
+        std::string(szCurDir) + "\\flhook_plugins\\purchase_restrictions.cfg";
+
     set_bCheckIDRestrictions = IniGetB(scPluginCfgFile, "PurchaseRestrictions",
                                        "CheckIDRestrictions", false);
     set_bEnforceIDRestrictions =
@@ -117,23 +123,23 @@ bool CheckIDEquipRestrictions(uint iClientID, uint iGoodID) {
     return false;
 }
 
-void ClearClientInfo(unsigned int iClientID) {
+void ClearClientInfo(uint& iClientID) {
     mapInfo[iClientID].bSuppressBuy = false;
 }
 
-void PlayerLaunch(unsigned int iShip,
-                  unsigned int iClientID) {
+void PlayerLaunch(uint& iShip,
+                  uint& iClientID) {
     mapInfo[iClientID].bSuppressBuy = false;
 }
 
-void BaseEnter(unsigned int iBaseID,
-               unsigned int iClientID) {
+void BaseEnter(uint& iBaseID,
+               uint &iClientID) {
     mapInfo[iClientID].bSuppressBuy = false;
 }
 
 /// Suppress the buying of goods.
 bool GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
-               unsigned int iClientID) {
+               uint& iClientID) {
     mapInfo[iClientID].bSuppressBuy = false;
     LogItemsOfInterest(iClientID, gbi.iGoodID, "good-buy");
 
@@ -207,7 +213,7 @@ bool GFGoodBuy(struct SGFGoodBuyInfo const &gbi,
 }
 
 /// Suppress the buying of goods.
-bool ReqAddItem(unsigned int goodID, char const *hardpoint, int count, float status, bool mounted, uint iClientID) {
+bool ReqAddItem(uint& goodID, char const *hardpoint, int& count, float& status, bool& mounted, uint& iClientID) {
     LogItemsOfInterest(iClientID, goodID, "add-item");
     if (mapInfo[iClientID].bSuppressBuy) {
         return true;
@@ -216,7 +222,7 @@ bool ReqAddItem(unsigned int goodID, char const *hardpoint, int count, float sta
 }
 
 /// Suppress the buying of goods.
-bool ReqChangeCash(int iMoneyDiff, unsigned int iClientID) {
+bool ReqChangeCash(int& iMoneyDiff, uint& iClientID) {
     if (mapInfo[iClientID].bSuppressBuy) {
         mapInfo[iClientID].bSuppressBuy = false;
         return true;
@@ -225,7 +231,7 @@ bool ReqChangeCash(int iMoneyDiff, unsigned int iClientID) {
 }
 
 /// Suppress ship purchases
-bool ReqSetCash(int iMoney, unsigned int iClientID) {
+bool ReqSetCash(int& iMoney, uint& iClientID) {
     if (mapInfo[iClientID].bSuppressBuy) {
         return true;
     }
@@ -233,7 +239,7 @@ bool ReqSetCash(int iMoney, unsigned int iClientID) {
 }
 
 /// Suppress ship purchases
-bool ReqEquipment(class EquipDescList const &eqDesc, unsigned int iClientID) {
+bool ReqEquipment(class EquipDescList const &eqDesc, uint& iClientID) {
     if (mapInfo[iClientID].bSuppressBuy) {
         return true;
     }
@@ -241,7 +247,7 @@ bool ReqEquipment(class EquipDescList const &eqDesc, unsigned int iClientID) {
 }
 
 /// Suppress ship purchases
-bool ReqShipArch(unsigned int iArchID, unsigned int iClientID) {
+bool ReqShipArch(uint& iArchID, uint& iClientID) {
     if (mapInfo[iClientID].bSuppressBuy) {
         return true;
     }
@@ -249,7 +255,7 @@ bool ReqShipArch(unsigned int iArchID, unsigned int iClientID) {
 }
 
 /// Suppress ship purchases
-bool ReqHullStatus(float fStatus, unsigned int iClientID) {
+bool ReqHullStatus(float& fStatus, uint& iClientID) {
     if (mapInfo[iClientID].bSuppressBuy) {
         mapInfo[iClientID].bSuppressBuy = false;
         return true;
@@ -263,6 +269,8 @@ bool ReqHullStatus(float fStatus, unsigned int iClientID) {
 
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    if (fdwReason == DLL_PROCESS_ATTACH)
+        LoadSettings();
     return true;
 }
 

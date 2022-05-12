@@ -93,7 +93,7 @@
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Purchase_Restrictions_Plugins.ini" />
+    <None Include="purchase_restrictions.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
