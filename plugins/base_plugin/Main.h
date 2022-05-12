@@ -3,7 +3,6 @@
 
 #include <FLHook.h>
 #include <plugin.h>
-#include <plugin_comms.h>
 
 struct RECIPE {
     RECIPE() : produced_item(0), cooking_rate(0) {}

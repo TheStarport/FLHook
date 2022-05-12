@@ -20,13 +20,11 @@ static void LoadMsgs(uint iClientID) {
 
     // Load from disk the messages.
     for (int iMsgSlot = 0; iMsgSlot < INFO::NUMBER_OF_SLOTS; iMsgSlot++) {
-        mapInfo[iClientID].slot[iMsgSlot] =
-            HookExt::IniGetWS(iClientID, "msg." + std::to_string(iMsgSlot));
+        mapInfo[iClientID].slot[iMsgSlot] = HkGetCharacterIniString(iClientID, L"msg." + std::to_wstring(iMsgSlot));
     }
 
     // Chat time settings.
-    mapInfo[iClientID].bShowChatTime =
-        HookExt::IniGetB(iClientID, "msg.chat_time");
+    mapInfo[iClientID].bShowChatTime = HkGetCharacterIniBool(iClientID, L"msg.chat_time");
 }
 
 /** Show the greeting banner to the specified player */
@@ -447,7 +445,7 @@ void UserCmd_SetMsg(uint iClientID, const std::wstring &wscParam) {
         return;
     }
 
-    HookExt::IniSetWS(iClientID, "msg." + std::to_string(iMsgSlot), wscMsg);
+    HkSetCharacterIni(iClientID, L"msg." + std::to_wstring(iMsgSlot), wscMsg);
 
     // Reload the character cache
     LoadMsgs(iClientID);
@@ -879,10 +877,9 @@ void UserCmd_SetChatTime(uint iClientID, const std::wstring &wscParam) {
         PrintUserCmdText(iClientID, L"Usage: /set chattime [on|off]");
     }
 
-    std::wstring wscCharname =
-        (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+    std::wstring wscCharname = (const wchar_t *)Players.GetActiveCharacterName(iClientID);
 
-    HookExt::IniSetB(iClientID, "msg.chat_time", bShowChatTime);
+    HkSetCharacterIni(iClientID, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
 
     // Update the client cache.
     auto iter = mapInfo.find(iClientID);

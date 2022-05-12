@@ -230,6 +230,7 @@
   <ItemGroup>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
+    <ClCompile Include="..\source\HkCharacterIni.cpp" />
     <ClCompile Include="..\source\HkFuncCache.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />

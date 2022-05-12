@@ -126,6 +126,9 @@
     <ClCompile Include="..\source\HkFuncCache.cpp">
       <Filter>Hook\functions</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\HkCharacterIni.cpp">
+      <Filter>Hook\functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\flcodec.h">

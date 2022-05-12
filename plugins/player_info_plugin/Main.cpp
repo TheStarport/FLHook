@@ -9,7 +9,6 @@
 // Includes
 #include <FLHook.h>
 #include <plugin.h>
-#include <plugin_comms.h>
 
 // Global vars
 ReturnCode returncode = ReturnCode::Default;

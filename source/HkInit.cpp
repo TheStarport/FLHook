@@ -229,7 +229,9 @@ void ClearClientInfo(uint clientID) {
 
     for (auto &i : info->mapPluginData) {
        i.second.fill(0x0);
-   }
+    }
+
+    HkCharacterClearClientInfo(clientID);
     
     CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);
 }

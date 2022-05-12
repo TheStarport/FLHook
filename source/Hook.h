@@ -853,6 +853,21 @@ void Init();
 void Done();
 }
 
+// HkCharacterIni
+void HkCharacterInit();
+void HkCharacterShutDown();
+void HkCharacterClearClientInfo(uint client);
+void HkCharacterSelect(CHARACTER_ID const charId, uint client);
+EXPORT void HkSetCharacterIni(uint client, const std::wstring &name, std::wstring value);
+
+EXPORT std::wstring HkGetCharacterIniString(uint client, const std::wstring &name);
+EXPORT bool HkGetCharacterIniBool(uint client, const std::wstring &name);
+EXPORT int HkGetCharacterIniInt(uint client, const std::wstring &name);
+EXPORT uint HkGetCharacterIniUint(uint client, const std::wstring &name);
+EXPORT float HkGetCharacterIniFloat(uint client, const std::wstring &name);
+EXPORT double HkGetCharacterIniDouble(uint client, const std::wstring &name);
+EXPORT int64_t HkGetCharacterIniInt64(uint client, const std::wstring &name);
+
 bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
 
 // HkDeath

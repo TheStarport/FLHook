@@ -88,10 +88,6 @@
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
       <Project>{fe6eb3c9-da22-4492-aec3-068c9553a623}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\hookext_plugin\HookExt Plugin.vcxproj">
-      <Project>{81d33b95-1ddd-4f58-a24c-e2ec4a143dd0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

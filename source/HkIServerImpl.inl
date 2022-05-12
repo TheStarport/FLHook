@@ -299,6 +299,7 @@ bool CharacterSelect__Inner(const CHARACTER_ID& cid, uint clientID) {
         return false;
     }
 
+    HkCharacterSelect(cid, clientID);
     return true;
 }
 

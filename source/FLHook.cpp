@@ -220,6 +220,8 @@ void FLHookInit_Pre() {
             }
         }
 
+        HkCharacterInit();
+
         PatchClientImpl();
 
 #ifdef EXTENDED_EXCEPTION_LOGGING
