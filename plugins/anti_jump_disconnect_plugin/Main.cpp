@@ -10,6 +10,8 @@
 // Includes
 #include "Main.h"
 
+TempBanCommunicator *tempBanCommunicator = nullptr;
+
 struct INFO {
     bool bInWrapGate;
 };
@@ -29,7 +31,11 @@ void DisConnect(uint& iClientID, enum EFLConnection& state) {
             HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f,
                         0.0f);
         }
-        HkTempBan(iClientID, 5);
+        if (tempBanCommunicator) {
+            std::wstring wscCharname =
+                (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+            tempBanCommunicator->TempBan(wscCharname, 5);
+        }
     }
 }
 
@@ -43,7 +49,11 @@ void CharacterInfoReq(uint& iClientID, bool& p2) {
             HkLightFuse((IObjRW *)obj, CreateID("death_comm"), 0.0f, 0.0f,
                         0.0f);
         }
-        HkTempBan(iClientID, 5);
+        if (tempBanCommunicator) {
+            std::wstring wscCharname =
+                (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+            tempBanCommunicator->TempBan(wscCharname, 5);
+        }
     }
 }
 
@@ -77,4 +87,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
     pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete,
                     &SystemSwitchOutComplete);
+
+    // We import the definitions for TempBan Communicator so we can talk to it
+    tempBanCommunicator = static_cast<TempBanCommunicator *>(PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
 }
