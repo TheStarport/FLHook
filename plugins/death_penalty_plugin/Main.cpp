@@ -48,7 +48,7 @@ void LoadSettings() {
     }
 }
 
-void ClearClientInfo(uint iClientID) {
+void ClearClientInfo(uint& iClientID) {
     MapClients.erase(iClientID);
 }
 
@@ -83,7 +83,7 @@ float fShipFractionOverride(uint iClientID) {
 
 // Hook on Player Launch. Used to work out the death penalty and display a
 // message to the player warning them of such
-void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+void __stdcall PlayerLaunch(uint& iShip, uint& iClientID) {
     // No point in processing anything if there is no death penalty
     if (set_fDeathPenalty) {
 
@@ -111,7 +111,7 @@ void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
     }
 }
 
-void LoadUserCharSettings(uint iClientID) {
+void LoadUserCharSettings(uint& iClientID) {
     // Get Account directory then flhookuser.ini file
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscDir;
@@ -173,19 +173,19 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
 }
 
 // Hook on ShipDestroyed
-void __stdcall ShipDestroyed(DamageList *_dmg, DWORD *ecx, uint iKill) {
+void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& iKill) {
     if (iKill) {
         // Get iClientID
-        CShip *cship = (CShip *)ecx[4];
+        CShip *cship = (CShip *)(*ecx)[4];
         uint iClientID = cship->GetOwnerPlayer();
+        DamageList *dmg = *_dmg;
 
         // Get Killer ID if there is one
         uint iKillerID = 0;
         if (iClientID) {
-            DamageList dmg;
-            if (!dmg.get_cause())
-                dmg = ClientInfo[iClientID].dmgLast;
-            iKillerID = HkGetClientIDByShip(dmg.get_inflictor_id());
+            if (!dmg->get_cause())
+                dmg = &ClientInfo[iClientID].dmgLast;
+            iKillerID = HkGetClientIDByShip(dmg->get_inflictor_id());
         }
 
         // Call function to penalize player and reward killer
@@ -258,7 +258,7 @@ void UserCmd_DP(uint iClientID, const std::wstring &wscParam) {
 }
 
 // Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/dp");
 }
 
@@ -273,7 +273,7 @@ USERCMD UserCmds[] =
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
