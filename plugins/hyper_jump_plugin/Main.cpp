@@ -573,8 +573,8 @@ void Timer() {
     }
 }
 
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
-                  uint iClientIDVictim, uint iClientIDKiller) {
+void SendDeathMsg(const std::wstring &wscMsg, uint& iSystem,
+                  uint& iClientIDVictim, uint& iClientIDKiller) {
     // If someone killed a bot then take revenge
     auto iter = mapTestBots.find(iClientIDVictim);
     if (iter != mapTestBots.end()) {
@@ -586,8 +586,8 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
     }
 }
 
-bool SystemSwitchOutComplete(unsigned int iShip,
-                             unsigned int iClientID) {
+bool SystemSwitchOutComplete(uint& iShip,
+                             uint& iClientID) {
     static PBYTE SwitchOut = 0;
     if (!SwitchOut) {
         SwitchOut = (PBYTE)hModServer + 0xf600;
@@ -651,7 +651,7 @@ bool SystemSwitchOutComplete(unsigned int iShip,
     return false;
 }
 
-void ClearClientInfo(uint iClientID) {
+void ClearClientInfo(uint& iClientID) {
     mapTestBots.erase(iClientID);
     mapDeferredJumps.erase(iClientID);
     mapJumpDrives.erase(iClientID);
@@ -711,7 +711,7 @@ time_t filetime_to_timet(const FILETIME &ft) {
 
 // Move the ship's starting position randomly if it has been logged out in
 // space.
-void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     static const uint MAX_DRIFT = 50000;
 
     // Find the time this ship was last online.
@@ -751,9 +751,10 @@ void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
     pub::Player::SetInitialPos(iClientID, pos);
 }
 
-void GuidedHit(uint iClientID, DamageList *dmg) {
+void GuidedHit(uint& iClientID, DamageList **dmg) {
     if (mapSurvey.find(iClientID) != mapSurvey.find(iClientID)) {
-        if (dmg->get_cause() == 6 || dmg->get_cause() == 0x15) {
+        DamageList *dmg2 = *dmg;
+        if (dmg2->get_cause() == 6 || dmg2->get_cause() == 0x15) {
             mapSurvey[iClientID].curr_charge = 0;
             mapSurvey[iClientID].charging_on = false;
             PrintUserCmdText(iClientID,
@@ -1021,12 +1022,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/survey");
     PrintUserCmdText(iClientID, L"/setcoords");
     PrintUserCmdText(iClientID, L"/jump");
