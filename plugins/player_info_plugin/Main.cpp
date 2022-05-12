@@ -164,12 +164,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/afk ");
     PrintUserCmdText(iClientID,
                      L"Sets the player to AFK. If any other player messages "
