@@ -159,7 +159,7 @@ static bool ProcessFuel(uint iClientID, CLOAK_INFO &info) {
     return false;
 }
 
-void PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID) {
+void PlayerLaunch_AFTER(uint& iShip, uint& iClientID) {
     mapClientsCloak[iClientID].bCanCloak = false;
     mapClientsCloak[iClientID].bAdmin = false;
 
@@ -201,7 +201,7 @@ void PlayerLaunch_AFTER(unsigned int iShip, unsigned int iClientID) {
     }
 }
 
-void BaseEnter(unsigned int iBaseID, unsigned int iClientID) {
+void BaseEnter(uint& iBaseID, uint& iClientID) {
     mapClientsCloak.erase(iClientID);
 }
 
@@ -304,7 +304,7 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
@@ -348,12 +348,12 @@ bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
     return false;
 }
 
-void __stdcall HkCb_AddDmgEntry(DamageList *dmg, unsigned short p1,
+void __stdcall HkCb_AddDmgEntry(DamageList **dmg, unsigned short p1,
                                 float damage,
-                                enum DamageEntry::SubObjFate fate) {
-    
-    if (g_DmgToSpaceID && dmg->get_inflictor_id()) {
-        if (dmg->get_cause() == 0x06) {
+                                enum DamageEntry::SubObjFate& fate) {
+    DamageList *dmg2 = *dmg;
+    if (g_DmgToSpaceID && dmg2->get_inflictor_id()) {
+        if (dmg2->get_cause() == 0x06) {
             float curr, max;
             pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
             uint client = HkGetClientIDByShip(g_DmgToSpaceID);
