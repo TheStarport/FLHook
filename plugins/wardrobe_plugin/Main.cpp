@@ -147,7 +147,7 @@ void LoadSettings() {
 }
 
 // Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/show");
     PrintUserCmdText(iClientID, L"Usage: /show <heads/bodies> - This shows the available heads and bodies for the /change command.");
     PrintUserCmdText(iClientID, L"/change");
@@ -166,7 +166,7 @@ USERCMD UserCmds[] =
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
