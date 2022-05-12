@@ -135,7 +135,7 @@ void UserCmd_ShowScanID(uint iClientID, const std::wstring &wscParam) {
     UserCmd_ShowScan(iClientID, wscTargetCharname);
 }
 
-void ClearClientInfo(uint iClientID) { mapInfo.erase(iClientID); }
+void ClearClientInfo(uint& iClientID) { mapInfo.erase(iClientID); }
 
 static void EnableSensorAccess(uint iClientID) {
     // Retrieve the location and cargo list.
@@ -176,7 +176,7 @@ static void EnableSensorAccess(uint iClientID) {
     }
 }
 
-void PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+void PlayerLaunch(uint& iShip, uint& iClientID) {
     EnableSensorAccess(iClientID);
 }
 
@@ -226,7 +226,7 @@ static void DumpSensorAccess(uint iClientID, const std::wstring &wscType,
 
 // Record jump type.
 void Dock_Call(unsigned int const &iShip, unsigned int const &iDockTarget,
-               int iCancel, enum DOCK_HOST_RESPONSE response) {
+               int& iCancel, enum DOCK_HOST_RESPONSE& response) {
     uint iClientID = HkGetClientIDByShip(iShip);
     if (iClientID && (response == PROCEED_DOCK || response == DOCK) &&
         !iCancel) {
@@ -240,8 +240,8 @@ void Dock_Call(unsigned int const &iShip, unsigned int const &iDockTarget,
     }
 }
 
-void JumpInComplete(unsigned int iSystem, unsigned int iShip,
-                    unsigned int iClientID) {
+void JumpInComplete(uint &iSystem, uint &iShip,
+                    uint &iClientID) {
     EnableSensorAccess(iClientID);
     if (mapInfo[iClientID].bInJumpGate) {
         mapInfo[iClientID].bInJumpGate = false;
@@ -249,12 +249,12 @@ void JumpInComplete(unsigned int iSystem, unsigned int iShip,
     }
 }
 
-void GoTradelane(unsigned int iClientID, struct XGoTradelane const &xgt) {
+void GoTradelane(uint& iClientID, struct XGoTradelane const &xgt) {
     DumpSensorAccess(iClientID, L"entered tradelane", MODE_TRADELANE);
 }
 
-void StopTradelane(unsigned int iClientID, unsigned int p1, unsigned int p2,
-                   unsigned int p3) {
+void StopTradelane(uint& iClientID, uint& p1, uint& p2,
+                   uint& p3) {
     DumpSensorAccess(iClientID, L"exited tradelane", MODE_TRADELANE);
 }
 // Client command processing
@@ -265,12 +265,12 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
     PrintUserCmdText(iClientID, L"/showscan <charname>");
     PrintUserCmdText(iClientID, L"/showscan$ <clientid>");
     PrintUserCmdText(iClientID, L"/net [all|jumponly|off]");
