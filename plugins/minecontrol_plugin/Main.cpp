@@ -276,7 +276,7 @@ EXPORT void HkTimerCheckKick() {
 }
 
 /// Clear client info when a client connects.
-EXPORT void ClearClientInfo(uint iClientID) {
+EXPORT void ClearClientInfo(uint& iClientID) {
     mapClients[iClientID].bSetup = false;
     mapClients[iClientID].mapLootBonus.clear();
     mapClients[iClientID].mapLootAmmoLst.clear();
@@ -514,13 +514,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return true;
 }
 
-void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+void __stdcall PlayerLaunch(uint& iShip, uint& iClientID) {
     ClearClientInfo(iClientID);
 }
 
 /// Called when a gun hits something
 void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const &ci,
-                                   unsigned int iClientID) {
+                                   uint& iClientID) {
     // If this is not a lootable rock, do no other processing.
     if (ci.dwTargetShip != 0)
         return;
@@ -699,9 +699,9 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const &ci,
 
 /// Called when an asteriod is mined. We ignore all of the parameters from the
 /// client.
-void __stdcall MineAsteroid(uint iClientSystemID, class Vector const &vPos,
-                            uint iCrateID, uint iLootID, uint iCount,
-                            uint iClientID) {
+void __stdcall MineAsteroid(uint& iClientSystemID, class Vector const &vPos,
+                            uint& iCrateID, uint& iLootID, uint& iCount,
+                            uint& iClientID) {
     mapClients[iClientID].iPendingMineAsteroidEvents += 4;
     return;
 }
