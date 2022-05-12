@@ -1,5 +1,4 @@
 ﻿#include "Main.h"
-#include "../hookext_plugin/hookext_exports.h"
 
 void LoadDockInfo(uint client) {
     CLIENT_DATA &cd = clients[client];
@@ -16,12 +15,11 @@ void LoadDockInfo(uint client) {
     }
 
     // Load docked ships until we run out of docking module space.
-    uint count = HookExt::IniGetI(client, "dock.docked_ships_count");
+    uint count = HkGetCharacterIniUint(client, L"dock.docked_ships_count");
     for (uint i = 1;
          i <= count && cd.mapDockedShips.size() <= cd.iDockingModules; i++) {
-        char key[100];
-        sprintf_s(key, "dock.docked_ship.%u", i);
-        std::wstring charname = HookExt::IniGetWS(client, key);
+        std::wstring key = L"dock.docked_ship." + std::to_wstring(i);
+        std::wstring charname = HkGetCharacterIniString(client, key);
         if (charname.length()) {
             if (HkGetAccountByCharname(charname)) {
                 cd.mapDockedShips[charname] = charname;
@@ -30,20 +28,20 @@ void LoadDockInfo(uint client) {
     }
 
     cd.wscDockedWithCharname =
-        HookExt::IniGetWS(client, "dock.docked_with_charname");
+        HkGetCharacterIniString(client, L"dock.docked_with_charname");
     if (cd.wscDockedWithCharname.length())
         cd.mobile_docked = true;
 
-    cd.iLastBaseID = HookExt::IniGetI(client, "dock.last_base");
-    cd.iCarrierSystem = HookExt::IniGetI(client, "dock.carrier_system");
-    cd.vCarrierLocation.x = HookExt::IniGetF(client, "dock.carrier_pos.x");
-    cd.vCarrierLocation.y = HookExt::IniGetF(client, "dock.carrier_pos.y");
-    cd.vCarrierLocation.z = HookExt::IniGetF(client, "dock.carrier_pos.z");
+    cd.iLastBaseID = HkGetCharacterIniUint(client, L"dock.last_base");
+    cd.iCarrierSystem = HkGetCharacterIniUint(client, L"dock.carrier_system");
+    cd.vCarrierLocation.x = HkGetCharacterIniFloat(client, L"dock.carrier_pos.x");
+    cd.vCarrierLocation.y = HkGetCharacterIniFloat(client, L"dock.carrier_pos.y");
+    cd.vCarrierLocation.z = HkGetCharacterIniFloat(client, L"dock.carrier_pos.z");
 
     Vector vRot;
-    vRot.x = HookExt::IniGetF(client, "dock.carrier_rot.x");
-    vRot.y = HookExt::IniGetF(client, "dock.carrier_rot.y");
-    vRot.z = HookExt::IniGetF(client, "dock.carrier_rot.z");
+    vRot.x = HkGetCharacterIniFloat(client, L"dock.carrier_rot.x");
+    vRot.y = HkGetCharacterIniFloat(client, L"dock.carrier_rot.y");
+    vRot.z = HkGetCharacterIniFloat(client, L"dock.carrier_rot.z");
     cd.mCarrierLocation = EulerMatrix(vRot);
 }
 
@@ -51,56 +49,55 @@ void SaveDockInfo(uint client) {
     CLIENT_DATA &cd = clients[client];
 
     if (cd.mobile_docked) {
-        HookExt::IniSetWS(client, "dock.docked_with_charname",
+        HkSetCharacterIni(client, L"dock.docked_with_charname",
                           cd.wscDockedWithCharname);
-        HookExt::IniSetI(client, "dock.last_base", cd.iLastBaseID);
-        HookExt::IniSetI(client, "dock.carrier_system", cd.iCarrierSystem);
-        HookExt::IniSetF(client, "dock.carrier_pos.x", cd.vCarrierLocation.x);
-        HookExt::IniSetF(client, "dock.carrier_pos.y", cd.vCarrierLocation.y);
-        HookExt::IniSetF(client, "dock.carrier_pos.z", cd.vCarrierLocation.z);
+        HkSetCharacterIni(client, L"dock.last_base", std::to_wstring(cd.iLastBaseID));
+        HkSetCharacterIni(client, L"dock.carrier_system", std::to_wstring(cd.iCarrierSystem));
+        HkSetCharacterIni(client, L"dock.carrier_pos.x", std::to_wstring(cd.vCarrierLocation.x));
+        HkSetCharacterIni(client, L"dock.carrier_pos.y", std::to_wstring(cd.vCarrierLocation.y));
+        HkSetCharacterIni(client, L"dock.carrier_pos.z", std::to_wstring(cd.vCarrierLocation.z));
 
         Vector vRot = MatrixToEuler(cd.mCarrierLocation);
-        HookExt::IniSetF(client, "dock.carrier_rot.x", vRot.x);
-        HookExt::IniSetF(client, "dock.carrier_rot.y", vRot.y);
-        HookExt::IniSetF(client, "dock.carrier_rot.z", vRot.z);
+        HkSetCharacterIni(client, L"dock.carrier_rot.x", std::to_wstring(vRot.x));
+        HkSetCharacterIni(client, L"dock.carrier_rot.y", std::to_wstring(vRot.y));
+        HkSetCharacterIni(client, L"dock.carrier_rot.z", std::to_wstring(vRot.z));
     } else {
-        HookExt::IniSetWS(client, "dock.docked_with_charname", L"");
-        HookExt::IniSetI(client, "dock.last_base", 0);
-        HookExt::IniSetI(client, "dock.carrier_system", 0);
-        HookExt::IniSetI(client, "dock.carrier_pos.x", 0);
-        HookExt::IniSetI(client, "dock.carrier_pos.y", 0);
-        HookExt::IniSetI(client, "dock.carrier_pos.z", 0);
-        HookExt::IniSetI(client, "dock.carrier_rot.x", 0);
-        HookExt::IniSetI(client, "dock.carrier_rot.y", 0);
-        HookExt::IniSetI(client, "dock.carrier_rot.z", 0);
+        HkSetCharacterIni(client, L"dock.docked_with_charname", L"");
+        HkSetCharacterIni(client, L"dock.last_base", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_system", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_pos.x", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_pos.y", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_pos.z", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_rot.x", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_rot.y", L"0");
+        HkSetCharacterIni(client, L"dock.carrier_rot.z", L"0");
     }
 
     if (cd.mapDockedShips.size() > 0) {
         int index = 1;
-        for (map<std::wstring, std::wstring>::iterator i =
+        for (std::map<std::wstring, std::wstring>::iterator i =
                  cd.mapDockedShips.begin();
              i != cd.mapDockedShips.end(); ++i, ++index) {
-            char key[100];
-            sprintf_s(key, "dock.docked_ship.%u", index);
-            HookExt::IniSetWS(client, key, i->second);
+            std::wstring key = L"dock.docked_ship." + std::to_wstring(index);
+            HkSetCharacterIni(client, key, i->second);
         }
-        HookExt::IniSetI(client, "dock.docked_ships_count",
-                         cd.mapDockedShips.size());
+        HkSetCharacterIni(client, L"dock.docked_ships_count",
+                         std::to_wstring(cd.mapDockedShips.size()));
     } else {
-        HookExt::IniSetI(client, "dock.docked_ships_count", 0);
+        HkSetCharacterIni(client, L"dock.docked_ships_count", L"0");
     }
 }
 
-void UpdateDockInfo(const std::wstring &wscCharname, uint iSystem, Vector pos,
+void UpdateDockInfo(uint iClientID, uint iSystem, Vector pos,
                     Matrix rot) {
-    HookExt::IniSetI(wscCharname, "dock.carrier_system", iSystem);
-    HookExt::IniSetF(wscCharname, "dock.carrier_pos.x", pos.x);
-    HookExt::IniSetF(wscCharname, "dock.carrier_pos.y", pos.y);
-    HookExt::IniSetF(wscCharname, "dock.carrier_pos.z", pos.z);
+    HkSetCharacterIni(iClientID, L"dock.carrier_system", std::to_wstring(iSystem));
+    HkSetCharacterIni(iClientID, L"dock.carrier_pos.x", std::to_wstring(pos.x));
+    HkSetCharacterIni(iClientID, L"dock.carrier_pos.y", std::to_wstring(pos.y));
+    HkSetCharacterIni(iClientID, L"dock.carrier_pos.z", std::to_wstring(pos.z));
 
     Vector vRot = MatrixToEuler(rot);
 
-    HookExt::IniSetF(wscCharname, "dock.carrier_rot.x", vRot.x);
-    HookExt::IniSetF(wscCharname, "dock.carrier_rot.y", vRot.y);
-    HookExt::IniSetF(wscCharname, "dock.carrier_rot.z", vRot.z);
+    HkSetCharacterIni(iClientID, L"dock.carrier_rot.x", std::to_wstring(vRot.x));
+    HkSetCharacterIni(iClientID, L"dock.carrier_rot.y", std::to_wstring(vRot.y));
+    HkSetCharacterIni(iClientID, L"dock.carrier_rot.z", std::to_wstring(vRot.z));
 }

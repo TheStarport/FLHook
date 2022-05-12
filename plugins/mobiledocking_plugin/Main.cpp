@@ -15,25 +15,25 @@
 
 void LoadDockInfo(uint client);
 void SaveDockInfo(uint client);
-void UpdateDockInfo(const std::wstring &charname, uint iSystem, Vector pos,
+void UpdateDockInfo(uint iClientID, uint iSystem, Vector pos,
                     Matrix rot);
 
 void SendSetBaseInfoText2(UINT client, const std::wstring &message);
 void SendResetMarketOverride(UINT client);
 
-map<uint, CLIENT_DATA> clients;
+std::map<uint, CLIENT_DATA> clients;
 
 struct DEFERREDJUMPS {
     UINT system;
     Vector pos;
     Matrix ornt;
 };
-static map<UINT, DEFERREDJUMPS> mapDeferredJumps;
+static std::map<UINT, DEFERREDJUMPS> mapDeferredJumps;
 
 struct DOCKING_REQUEST {
     uint iTargetClientID;
 };
-map<uint, DOCKING_REQUEST> mapPendingDockingRequests;
+std::map<uint, DOCKING_REQUEST> mapPendingDockingRequests;
 
 /// The debug mode
 static int set_iPluginDebug = 0;
@@ -99,7 +99,7 @@ void UpdateDockedShips(uint client) {
     // For each docked ship, update it's last location to reflect that of the
     // carrier
     if (clients[client].mapDockedShips.size()) {
-        for (map<std::wstring, std::wstring>::iterator i =
+        for (std::map<std::wstring, std::wstring>::iterator i =
                  clients[client].mapDockedShips.begin();
              i != clients[client].mapDockedShips.end(); ++i) {
             uint iDockedClientID = HkGetClientIdFromCharname(i->first);
@@ -109,7 +109,7 @@ void UpdateDockedShips(uint client) {
                 clients[iDockedClientID].mCarrierLocation = rot;
                 SaveDockInfo(iDockedClientID);
             } else {
-                UpdateDockInfo(i->first, system, pos, rot);
+                UpdateDockInfo(iDockedClientID, system, pos, rot);
             }
         }
     }
@@ -168,7 +168,7 @@ bool UserCmd_Process(uint& client, const std::wstring &wscCmd) {
             PrintUserCmdText(client, L"No ships docked");
         } else {
             PrintUserCmdText(client, L"Docked ships:");
-            for (map<std::wstring, std::wstring>::iterator i =
+            for (std::map<std::wstring, std::wstring>::iterator i =
                      clients[client].mapDockedShips.begin();
                  i != clients[client].mapDockedShips.end(); ++i) {
                 PrintUserCmdText(client, i->first);
@@ -643,7 +643,7 @@ void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& kill) {
                 UpdateDockedShips(client);
 
                 // Send a system switch to force the ship to launch
-                for (map<std::wstring, std::wstring>::iterator i =
+                for (std::map<std::wstring, std::wstring>::iterator i =
                          clients[client].mapDockedShips.begin();
                      i != clients[client].mapDockedShips.end(); ++i) {
                     uint iDockedClientID = HkGetClientIdFromCharname(i->first);

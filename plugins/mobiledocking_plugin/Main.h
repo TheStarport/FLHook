@@ -2,16 +2,7 @@
 #define __MAIN_H__ 1
 
 #include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
 #include <plugin.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-#include <windows.h>
-using namespace std;
 
 struct CLIENT_DATA {
     CLIENT_DATA()
@@ -22,18 +13,18 @@ struct CLIENT_DATA {
 
     bool reverse_sell;
     bool stop_buy;
-    list<CARGO_INFO> cargo;
+    std::list<CARGO_INFO> cargo;
 
     bool bAdmin;
 
     uint iDockingModules;
-    map<wstring, wstring> mapDockedShips;
+    std::map<std::wstring, std::wstring> mapDockedShips;
 
     // True if currently docked on a carrier.
     bool mobile_docked;
 
     // The name of the carrier.
-    wstring wscDockedWithCharname;
+    std::wstring wscDockedWithCharname;
 
     // The last known location in space of the carrier
     uint iCarrierSystem;
@@ -44,6 +35,6 @@ struct CLIENT_DATA {
     uint iLastBaseID;
 };
 
-extern map<uint, CLIENT_DATA> clients;
+extern std::map<uint, CLIENT_DATA> clients;
 
 #endif
