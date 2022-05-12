@@ -185,8 +185,8 @@ void Timer() {
 
 /// Hook for ship distruction. It's easier to hook this than the PlayerDeath
 /// one. Drop a percentage of cargo + some loot representing ship bits.
-void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
-                             uint iClientIDVictim, uint iClientIDKiller) {
+void SendDeathMsg(const std::wstring &wscMsg, uint& iSystem,
+                             uint& iClientIDVictim, uint& iClientIDKiller) {
     // If player ship loot dropping is enabled then check for a loot drop.
     if (set_fHullFct == 0.0f)
         return;
@@ -229,12 +229,12 @@ void SendDeathMsg(const std::wstring &wscMsg, uint iSystem,
     }
 }
 
-void ClearClientInfo(unsigned int iClientID) {
+void ClearClientInfo(uint& iClientID) {
     mapInfo.erase(iClientID);
 }
 
 void SPObjUpdate(struct SSPObjUpdateInfo const &ui,
-                            unsigned int iClientID) {
+                            uint& iClientID) {
     mapInfo[iClientID].dLastTimestamp = ui.fTimestamp;
     mapInfo[iClientID].vLastPosition = ui.vPos;
     mapInfo[iClientID].vLastDir = ui.vDir;
