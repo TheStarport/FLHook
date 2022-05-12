@@ -10,6 +10,9 @@
 // Includes
 #include "Main.h"
 
+// IPC
+BaseCommunicator *communicator = nullptr;
+
 // Clients
 std::map<uint, CLIENT_DATA> clients;
 
@@ -1297,29 +1300,29 @@ bool ExecuteCommandString(CCmds *cmd, const std::wstring &args) {
     return false;
 }
 
-EXPORT void Plugin_Communication_CallBack(PLUGIN_MESSAGE msg, void *data) {
-    
+uint GetCustomBaseId(uint iClientID) {
+    PlayerBase *base = GetPlayerBaseForClient(iClientID);
+    if (base)
+        return base->base;
+    else
+        return 0;
+}
 
-    if (msg == CUSTOM_BASE_BEAM) {
-        auto *info = static_cast<CUSTOM_BASE_BEAM_STRUCT *>(data);
-        PlayerBase *base = GetPlayerBase(info->iTargetBaseID);
-        if (base) {
-            returncode = returncode = ReturnCode::SkipPlugins;;
-            ForcePlayerBaseDock(info->iClientID, base);
-            info->bBeamed = true;
-        }
-    } else if (msg == CUSTOM_BASE_IS_DOCKED) {
-        auto *info = static_cast<CUSTOM_BASE_IS_DOCKED_STRUCT *>(data);
-        PlayerBase *base = GetPlayerBaseForClient(info->iClientID);
-        if (base) {
-            returncode = ReturnCode::SkipPlugins;
-            info->iDockedBaseID = base->base;
-        }
-    }
-    return;
+bool CustomBaseBeam(uint iClientID, uint iTargetBaseID) {
+    PlayerBase *base = GetPlayerBase(iTargetBaseID);
+    if (base) {
+        ForcePlayerBaseDock(iClientID, base);
+        return true;
+    } else
+        return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+BaseCommunicator::BaseCommunicator(std::string plugin) : PluginCommunicator(plugin) {
+    this->GetCustomBaseId = GetCustomBaseId;
+    this->CustomBaseBeam = CustomBaseBeam;
+}
 
 /** Functions to hook */
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
@@ -1357,5 +1360,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IEngine__CShip__Destroy, &CShip_destroy);
     pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
     pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
-    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &Plugin_Communication_CallBack);
+
+    // Register plugin for IPC
+    communicator = new BaseCommunicator(BaseCommunicator::pluginName);
+    PluginCommunicator::ExportPluginCommunicator(communicator);
 }

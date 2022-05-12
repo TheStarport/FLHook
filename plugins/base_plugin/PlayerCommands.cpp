@@ -1,16 +1,4 @@
-﻿#include <windows.h>
-#include <FLHook.h>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <math.h>
-#include <plugin.h>
-#include <plugin_comms.h>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-
-#include "Main.h"
+﻿#include "Main.h"
 
 namespace Pub {
 namespace Player {

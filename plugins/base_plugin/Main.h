@@ -445,4 +445,14 @@ extern float set_shield_damage_multiplier;
 
 std::wstring HtmlEncode(std::wstring text);
 
+class BaseCommunicator final : public PluginCommunicator {
+  public:
+    inline static const char *pluginName = "Base by Cannon";
+    explicit BaseCommunicator(std::string plugin);
+
+    // Plugin Calls
+    uint PluginCall(GetCustomBaseId, uint iClientID);
+    bool PluginCall(CustomBaseBeam, uint iClientID, uint iTargetBaseID);
+};
+
 #endif
