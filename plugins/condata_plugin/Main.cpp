@@ -1,8 +1,6 @@
 ﻿// includes
-#include "FLHook.h"
 #include "header.h"
-#include "plugin.h"
-#include <plugin_comms.h>
+
 
 #define PRINT_ERROR()                                                        \
     {                                                                        \
@@ -18,7 +16,8 @@ bool set_bPingCmd;
 
 ReturnCode returncode = ReturnCode::Default;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static ConDataCommunicator *communicator = nullptr;
+TempBanCommunicator *tempBanCommunicator = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,14 +75,14 @@ void ClearConData(uint iClientID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void ClearClientInfo(uint iClientID) {
+EXPORT void ClearClientInfo(uint& iClientID) {
 
     ClearConData(iClientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void UserCmd_Help(uint iClientID, const std::wstring &wscParam) {
+EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
 
     if (set_bPingCmd) {
         PrintUserCmdText(iClientID, L"/ping");
@@ -109,10 +108,11 @@ EXPORT void HkTimerCheckKick() {
                     HkAddKickLog(iClientID, L"High loss");
                     HkMsgAndKick(iClientID, L"High loss", set_iKickMsgPeriod);
                     // call tempban plugin
-                    TEMPBAN_BAN_STRUCT tempban;
-                    tempban.iClientID = iClientID;
-                    tempban.iDuration = 1; // 1 minute
-                    PluginCommunication(TEMPBAN_BAN, &tempban);
+                    if (tempBanCommunicator) {
+                        std::wstring wscCharname =
+                            (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+                        tempBanCommunicator->TempBan(wscCharname, 60);
+                    }
                 }
             }
 
@@ -122,10 +122,11 @@ EXPORT void HkTimerCheckKick() {
                     HkAddKickLog(iClientID, L"High ping");
                     HkMsgAndKick(iClientID, L"High ping", set_iKickMsgPeriod);
                     // call tempban plugin
-                    TEMPBAN_BAN_STRUCT tempban;
-                    tempban.iClientID = iClientID;
-                    tempban.iDuration = 1; // 1 minute
-                    PluginCommunication(TEMPBAN_BAN, &tempban);
+                    if (tempBanCommunicator) {
+                        std::wstring wscCharname =
+                            (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+                        tempBanCommunicator->TempBan(wscCharname, 60);
+                    }
                 }
             }
 
@@ -136,10 +137,11 @@ EXPORT void HkTimerCheckKick() {
                     HkMsgAndKick(iClientID, L"High ping fluctuation",
                                  set_iKickMsgPeriod);
                     // call tempban plugin
-                    TEMPBAN_BAN_STRUCT tempban;
-                    tempban.iClientID = iClientID;
-                    tempban.iDuration = 1; // 1 minute
-                    PluginCommunication(TEMPBAN_BAN, &tempban);
+                    if (tempBanCommunicator) {
+                        std::wstring wscCharname =
+                            (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+                        tempBanCommunicator->TempBan(wscCharname, 60);
+                    }
                 }
             }
 
@@ -150,10 +152,11 @@ EXPORT void HkTimerCheckKick() {
                     HkAddKickLog(iClientID, L"High Lag");
                     HkMsgAndKick(iClientID, L"High Lag", set_iKickMsgPeriod);
                     // call tempban plugin
-                    TEMPBAN_BAN_STRUCT tempban;
-                    tempban.iClientID = iClientID;
-                    tempban.iDuration = 1; // 1 minute
-                    PluginCommunication(TEMPBAN_BAN, &tempban);
+                    if (tempBanCommunicator) {
+                        std::wstring wscCharname =
+                            (const wchar_t *)Players.GetActiveCharacterName(iClientID);
+                        tempBanCommunicator->TempBan(wscCharname, 60);
+                    }
                 }
             }
         }
@@ -349,7 +352,7 @@ EXPORT int __stdcall Update() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
+EXPORT void __stdcall PlayerLaunch(uint& iShip, uint& iClientID) {
 
     ConData[iClientID].tmLastObjUpdate = 0;
 }
@@ -357,7 +360,7 @@ EXPORT void __stdcall PlayerLaunch(unsigned int iShip, unsigned int iClientID) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EXPORT void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const &ui,
-                                  unsigned int iClientID) {
+                                  uint& iClientID) {
     // lag detection
     IObjInspectImpl *ins = HkGetInspect(iClientID);
     if (!ins)
@@ -581,43 +584,30 @@ USERCMD UserCmds[] = {
 };
 
 // Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring &wscCmd) {
+bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
     DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void PluginCommunicationCallBack(PLUGIN_MESSAGE msg, void *data) {
-
-    // this is the hooked plugin communication function
-
-    // we now check, if the message is for us
-    if (msg == CONDATA_EXCEPTION) {
-        // the message is for us, now we know what the actual data is, so we do
-        // a reinterpret cast
-        CONDATA_EXCEPTION_STRUCT *incoming_data =
-            reinterpret_cast<CONDATA_EXCEPTION_STRUCT *>(data);
-
-        ConData[incoming_data->iClientID].bException =
-            incoming_data->bException;
-        ConData[incoming_data->iClientID].sExceptionReason =
-            incoming_data->sReason;
-        if (!ConData[incoming_data->iClientID].bException)
-            ClearConData(incoming_data->iClientID);
-
-    } else if (msg == CONDATA_DATA) {
-        CONDATA_DATA_STRUCT *incoming_data =
-            reinterpret_cast<CONDATA_DATA_STRUCT *>(data);
-        incoming_data->iAverageLoss =
-            ConData[incoming_data->iClientID].iAverageLoss;
-        incoming_data->iAveragePing =
-            ConData[incoming_data->iClientID].iAveragePing;
-        incoming_data->iLags = ConData[incoming_data->iClientID].iLags;
-        incoming_data->iPingFluctuation =
-            ConData[incoming_data->iClientID].iPingFluctuation;
-    }
-    return;
+void ReceiveException(CONNECTION_DATA_EXCEPTION exc) {
+    ConData[exc.iClientID].bException =
+        exc.bException;
+    ConData[exc.iClientID].sExceptionReason =
+        exc.sReason;
+    if (!ConData[exc.iClientID].bException)
+        ClearConData(exc.iClientID);
 }
+
+void ReceiveConnectionData(CONNECTION_DATA cd) {
+    cd.iAverageLoss =
+        ConData[cd.iClientID].iAverageLoss;
+    cd.iAveragePing =
+        ConData[cd.iClientID].iAveragePing;
+    cd.iLags = ConData[cd.iClientID].iLags;
+    cd.iPingFluctuation =
+        ConData[cd.iClientID].iPingFluctuation;
+} 
 
 EXPORT bool ExecuteCommandString(CCmds *classptr, const std::wstring &wscCmd) {
 
@@ -683,6 +673,17 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &HkIServerImpl::PlayerLaunch);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
-    pi->emplaceHook(HookedCall::FLHook__PluginCommunication, &PluginCommunicationCallBack);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+
+    // Register plugin for IPC
+    communicator = new ConDataCommunicator(ConDataCommunicator::pluginName);
+    PluginCommunicator::ExportPluginCommunicator(communicator);
+
+    // We import the definitions for TempBan Communicator so we can talk to it
+    tempBanCommunicator = static_cast<TempBanCommunicator *>(PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
+}
+
+ConDataCommunicator::ConDataCommunicator(std::string plug) : PluginCommunicator(plug) {
+    this->ReceiveData = ReceiveData;
+    this->ReceiveException = ReceiveException;
 }
