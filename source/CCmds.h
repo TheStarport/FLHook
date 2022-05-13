@@ -37,78 +37,77 @@ class CCmds {
     EXPORT void PrintError();
 
     // commands
-    void CmdGetCash(const std::wstring &wscCharname);
-    void CmdSetCash(const std::wstring &wscCharname, int iAmount);
-    void CmdSetCashSec(const std::wstring &wscCharname, int iAmountCheck,
+    void CmdGetCash(std::variant<uint, std::wstring> player);
+    void CmdSetCash(std::variant<uint, std::wstring> player, int iAmount);
+    void CmdSetCashSec(std::variant<uint, std::wstring> player, int iAmountCheck,
                        int iAmount);
-    void CmdAddCash(const std::wstring &wscCharname, int iAmount);
-    void CmdAddCashSec(const std::wstring &wscCharname, int iAmountCheck,
+    void CmdAddCash(std::variant<uint, std::wstring> player, int iAmount);
+    void CmdAddCashSec(std::variant<uint, std::wstring> player, int iAmountCheck,
                        int iAmount);
 
-    void CmdKick(const std::wstring &wscCharname,
+    void CmdKick(std::variant<uint, std::wstring> player,
                  const std::wstring &wscReason);
-    void CmdBan(const std::wstring &wscCharname);
-    void CmdUnban(const std::wstring &wscCharname);
-    void CmdKickBan(const std::wstring &wscCharname,
+    void CmdBan(std::variant<uint, std::wstring> player);
+    void CmdUnban(std::variant<uint, std::wstring> player);
+    void CmdKickBan(std::variant<uint, std::wstring> player,
                     const std::wstring &wscReason);
 
-    void CmdBeam(const std::wstring &wscCharname,
+    void CmdBeam(std::variant<uint, std::wstring> player,
                  const std::wstring &wscBasename);
-    void CmdKill(const std::wstring &wscCharname);
-    void CmdResetRep(const std::wstring &wscCharname);
-    void CmdSetRep(const std::wstring &wscCharname,
+    void CmdKill(std::variant<uint, std::wstring> player);
+    void CmdResetRep(std::variant<uint, std::wstring> player);
+    void CmdSetRep(std::variant<uint, std::wstring> player,
                    const std::wstring &wscRepGroup, float fValue);
-    void CmdGetRep(const std::wstring &wscCharname,
+    void CmdGetRep(std::variant<uint, std::wstring> player,
                    const std::wstring &wscRepGroup);
 
-    void CmdMsg(const std::wstring &wscCharname, const std::wstring &wscText);
+    void CmdMsg(std::variant<uint, std::wstring> player, const std::wstring &wscText);
     void CmdMsgS(const std::wstring &wscSystemname,
                  const std::wstring &wscText);
     void CmdMsgU(const std::wstring &wscText);
-    void CmdFMsg(const std::wstring &wscCharname, const std::wstring &wscXML);
+    void CmdFMsg(std::variant<uint, std::wstring> player, const std::wstring &wscXML);
     void CmdFMsgS(const std::wstring &wscSystemname,
                   const std::wstring &wscXML);
     void CmdFMsgU(const std::wstring &wscXML);
 
-    void CmdEnumCargo(const std::wstring &wscCharname);
-    void CmdRemoveCargo(const std::wstring &wscCharname, uint iID, uint iCount);
-    void CmdAddCargo(const std::wstring &wscCharname,
+    void CmdEnumCargo(std::variant<uint, std::wstring> player);
+    void CmdRemoveCargo(std::variant<uint, std::wstring> player, uint iID, uint iCount);
+    void CmdAddCargo(std::variant<uint, std::wstring> player,
                      const std::wstring &wscGood, uint iCount, uint iMission);
 
-    void CmdRename(const std::wstring &wscCharname,
-                   const std::wstring &wscNewCharname);
-    void CmdDeleteChar(const std::wstring &wscCharname);
+    void CmdRename(std::variant<uint, std::wstring> player, const std::wstring &wscNewCharname);
+    void CmdDeleteChar(std::variant<uint, std::wstring> player);
 
-    void CmdReadCharFile(const std::wstring &wscCharname);
-    void CmdWriteCharFile(const std::wstring &wscCharname,
+    void CmdReadCharFile(std::variant<uint, std::wstring> player);
+    void CmdWriteCharFile(std::variant<uint, std::wstring> player,
                           const std::wstring &wscData);
 
     void CmdGetBaseStatus(const std::wstring &wscBasename);
-    void CmdGetClientId(const std::wstring &wscCharname);
+    void CmdGetClientId(std::wstring player);
     void PrintPlayerInfo(HKPLAYERINFO pi);
-    void CmdGetPlayerInfo(const std::wstring &wscCharname);
+    void CmdGetPlayerInfo(std::variant<uint, std::wstring> player);
     void CmdGetPlayers();
     void XPrintPlayerInfo(HKPLAYERINFO pi);
-    void CmdXGetPlayerInfo(const std::wstring &wscCharname);
+    void CmdXGetPlayerInfo(std::variant<uint, std::wstring> player);
     void CmdXGetPlayers();
     void CmdGetPlayerIDs();
     void CmdHelp();
-    void CmdGetAccountDirName(const std::wstring &wscCharname);
-    void CmdGetCharFileName(const std::wstring &wscCharname);
-    void CmdIsOnServer(const std::wstring &wscCharname);
-    void CmdIsLoggedIn(const std::wstring &wscCharname);
+    void CmdGetAccountDirName(std::variant<uint, std::wstring> player);
+    void CmdGetCharFileName(std::variant<uint, std::wstring> player);
+    void CmdIsOnServer(std::wstring player);
+    void CmdIsLoggedIn(std::wstring player);
     void CmdMoneyFixList();
     void CmdServerInfo();
-    void CmdGetGroupMembers(const std::wstring &wscCharname);
+    void CmdGetGroupMembers(std::variant<uint, std::wstring> player);
 
-    void CmdSaveChar(const std::wstring &wscCharname);
+    void CmdSaveChar(std::variant<uint, std::wstring> player);
 
-    void CmdGetReservedSlot(const std::wstring &wscCharname);
-    void CmdSetReservedSlot(const std::wstring &wscCharname, int iReservedSlot);
-    void CmdSetAdmin(const std::wstring &wscCharname,
+    void CmdGetReservedSlot(std::variant<uint, std::wstring> player);
+    void CmdSetReservedSlot(std::variant<uint, std::wstring> player, int iReservedSlot);
+    void CmdSetAdmin(std::variant<uint, std::wstring> player,
                      const std::wstring &wscRights);
-    void CmdGetAdmin(const std::wstring &wscCharname);
-    void CmdDelAdmin(const std::wstring &wscCharname);
+    void CmdGetAdmin(std::variant<uint, std::wstring> player);
+    void CmdDelAdmin(std::variant<uint, std::wstring> player);
     void CmdRehash();
     void CmdUnload(const std::wstring &wscParam);
 

@@ -2,8 +2,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
-                       const std::wstring &wscCharname) {
+HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID, const std::wstring &wscCharname) {
     bIdString = wscCharname.find(L"id ") == 0;
 
     HK_ERROR hkErr = HkResolveId(wscCharname, iClientID);
@@ -44,7 +43,7 @@ uint HkGetClientIdFromPD(struct PlayerData *pPD) { return pPD->iOnlineID; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CAccount *HkGetAccountByCharname(const std::wstring &wscCharname) {
+CAccount *HkGetAccountByCharname(const std::wstring& wscCharname) {
 
     st6::wstring flStr((ushort *)wscCharname.c_str());
     CAccount *acc = Players.FindAccountFromCharacterName(flStr);
@@ -54,7 +53,7 @@ CAccount *HkGetAccountByCharname(const std::wstring &wscCharname) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint HkGetClientIdFromCharname(const std::wstring &wscCharname) {
+uint HkGetClientIdFromCharname(const std::wstring& wscCharname) {
     CAccount *acc = HkGetAccountByCharname(wscCharname);
     if (!acc)
         return -1;
@@ -105,28 +104,10 @@ bool HkIsEncoded(const std::string &scFilename) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkIsInCharSelectMenu(const std::wstring &wscCharname) {
-    CAccount *acc = HkGetAccountByCharname(wscCharname);
-    if (!acc)
-        return false;
-
-    uint iClientID = HkGetClientIdFromAccount(acc);
+bool HkIsInCharSelectMenu(std::variant<uint, std::wstring> player) {
+    const uint iClientID = HkExtractClientId(player);
     if (iClientID == -1)
         return false;
-
-    uint iBase = 0;
-    uint iSystem = 0;
-    pub::Player::GetBase(iClientID, iBase);
-    pub::Player::GetSystem(iClientID, iSystem);
-    if (!iBase && !iSystem)
-        return true;
-    else
-        return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool HkIsInCharSelectMenu(uint iClientID) {
 
     uint iBase = 0;
     uint iSystem = 0;
@@ -226,36 +207,28 @@ HK_ERROR HkGetAccountDirName(CAccount *acc, std::wstring &wscDir) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAccountDirName(const std::wstring &wscCharname,
-                             std::wstring &wscDir) {
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
-    CAccount *acc;
-    if (iClientID != -1)
-        acc = Players.FindAccountFromClientID(iClientID);
-    else {
-        if (!(acc = HkGetAccountByCharname(wscCharname)))
-            return HKE_CHAR_DOES_NOT_EXIST;
-    }
-
+HK_ERROR HkGetAccountDirName(std::variant<uint, std::wstring> player, std::wstring &wscDir) {
+    CAccount *acc = HkExtractAccount(player);
     return HkGetAccountDirName(acc, wscDir);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCharFileName(const std::wstring &wscCharname,
-                           std::wstring &wscFilename) {
+HK_ERROR HkGetCharFileName(std::variant<uint, std::wstring> player, std::wstring &wscFilename) {
     static _GetFLName GetFLName = 0;
     if (!GetFLName)
         GetFLName = (_GetFLName)((char *)hModServer + 0x66370);
 
     char szBuf[1024] = "";
+    std::wstring wscCharname;
 
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
     if (iClientID != -1) {
-        GetFLName(szBuf,
-                  (const wchar_t *)Players.GetActiveCharacterName(iClientID));
+        GetFLName(szBuf, reinterpret_cast<const wchar_t *>(Players.GetActiveCharacterName(iClientID)));
+    } else if (player.index() && HkGetAccountByCharname(std::get<std::wstring>(player))) {
+        GetFLName(szBuf, std::get<std::wstring>(player).c_str());
     } else {
-        GetFLName(szBuf, wscCharname.c_str());
+        return HKE_CHAR_DOES_NOT_EXIST;
     }
 
     wscFilename = stows(szBuf);
@@ -544,4 +517,35 @@ void TranslateZ(Vector &pos, Matrix &rot, float z) {
     pos.x += z * rot.data[0][1];
     pos.y += z * rot.data[1][1];
     pos.z += z * rot.data[2][1];
+}
+
+uint HkExtractClientId(std::variant<uint, std::wstring> player) {
+    // If index is 0, we just use the client ID we are given
+    if (!player.index()) {
+        const uint id = std::get<uint>(player);
+        return HkIsValidClientID(id) ? id : -1;
+    }
+
+    // Otherwise we have a character name
+    const std::wstring characterName = std::get<std::wstring>(player);
+
+    // Check if its an id string
+    if (characterName.rfind(L"id ", 0) != std::wstring::npos) {
+        uint id;
+        const HK_ERROR err = HkResolveId(characterName, id);
+        return err == HKE_OK ? id : -1;
+    }
+
+    return HkGetClientIdFromCharname(characterName);
+}
+
+CAccount *HkExtractAccount(std::variant<uint, std::wstring> player) {
+    uint iClientID = HkExtractClientId(player);
+    if (iClientID != -1)
+        return Players.FindAccountFromClientID(iClientID);
+
+    if (!player.index())
+        return nullptr;
+
+    return HkGetAccountByCharname(std::get<std::wstring>(player));
 }

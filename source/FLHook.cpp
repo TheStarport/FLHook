@@ -1,4 +1,6 @@
-﻿#include "global.h"
+﻿#include <iostream>
+
+#include "global.h"
 #include "CConsole.h"
 #include "CSocket.h"
 #include "hook.h"
@@ -178,9 +180,24 @@ void FLHookInit_Pre() {
     hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
     hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
 
-    Console::ConInfo(L"Welcome to FLHook Console Version " + 
-        std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion)) + L"\n");
+    // change version number here: https://patorjk.com/software/taag/#p=display&f=Big&t=WELCOME%20TO%0A%20%20%20%20%20%20%20FLHook%204.0
+    std::string welcomeText = R"( __          ________ _      _____ ____  __  __ ______   _______ ____  
+ \ \        / /  ____| |    / ____/ __ \|  \/  |  ____| |__   __/ __ \ 
+  \ \  /\  / /| |__  | |   | |   | |  | | \  / | |__       | | | |  | |
+   \ \/  \/ / |  __| | |   | |   | |  | | |\/| |  __|      | | | |  | |
+    \  /\  /  | |____| |___| |___| |__| | |  | | |____     | | | |__| |
+     \/  \/___|______|______\_____\____/|_|  |_|______|  __|_|  \____/
 
+        |  ____| |    | |  | |           | |    | || |  / _ \          
+        | |__  | |    | |__| | ___   ___ | | __ | || |_| | | |         
+        |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| | | |         
+        | |    | |____| |  | | (_) | (_) |   <     | |_| |_| |         
+        |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)\___/          
+                                                                       
+                                                                       )";
+    welcomeText += "\n\n";
+    DWORD _;
+    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), welcomeText.c_str(), DWORD(welcomeText.length()), &_, nullptr);
     try {
 
         // Load our settings before anything that might need access to debug mode

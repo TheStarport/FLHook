@@ -214,7 +214,7 @@ void IniGetSection(const std::string &scFile, const std::string &scApp,
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-std::string GetUserFilePath(const std::wstring &wscCharname,
+std::string GetUserFilePath(std::variant<uint, std::wstring> player,
                             const std::string &scExtension) {
     // init variables
     char szDataPath[MAX_PATH];
@@ -223,9 +223,9 @@ std::string GetUserFilePath(const std::wstring &wscCharname,
 
     std::wstring wscDir;
     std::wstring wscFile;
-    if (HkGetAccountDirName(wscCharname, wscDir) != HKE_OK)
+    if (HkGetAccountDirName(player, wscDir) != HKE_OK)
         return "";
-    if (HkGetCharFileName(wscCharname, wscFile) != HKE_OK)
+    if (HkGetCharFileName(player, wscFile) != HKE_OK)
         return "";
 
     return scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + scExtension;

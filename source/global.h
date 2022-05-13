@@ -15,6 +15,7 @@
 #include <sstream>
 #include <windows.h>
 #include <filesystem>
+#include <variant>
 
 #include "Singleton.h"
 
@@ -151,8 +152,7 @@ EXPORT void ini_write_wstring(FILE *file, const std::string &parmname,
                               const std::wstring &in);
 EXPORT void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue);
 EXPORT std::wstring GetTimeString(bool bLocalTime);
-EXPORT std::string GetUserFilePath(const std::wstring &wscCharname,
-                                   const std::string &scExtension);
+EXPORT std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string &scExtension);
 EXPORT mstime GetTimeInMS();
 
 // variables

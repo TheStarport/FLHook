@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <time.h>
+#include <variant>
+
 #include "global.h"
 #include "flcodec.h"
 #include <spdlog/logger.h>
@@ -15,7 +17,6 @@
 #define DALIB_ADDR(a) ((char *)hModDaLib + a)
 #define FLSERVER_ADDR(a) ((char *)hProcFL + a)
 #define CONTENT_ADDR(a) ((char *)hModContent + a)
-#define ARG_CLIENTID(a) (std::wstring(L"id ") + std::to_wstring(a))
 
 #define ADDR_UPDATE 0x1BAB4
 #define ADDR_STARTUP 0x1BABC
@@ -641,6 +642,9 @@ void UnloadHookExports();
 void HookRehashed();
 void LoadUserCharSettings(uint clientID);
 
+uint HkExtractClientId(std::variant<uint, std::wstring> player);
+CAccount *HkExtractAccount(std::variant<uint, std::wstring> player);
+
 // HkFuncTools
 EXPORT uint HkGetClientIdFromAccount(CAccount *acc);
 EXPORT uint HkGetClientIdFromPD(struct PlayerData *pPD);
@@ -648,17 +652,16 @@ EXPORT CAccount *HkGetAccountByCharname(const std::wstring &wscCharname);
 EXPORT uint HkGetClientIdFromCharname(const std::wstring &wscCharname);
 EXPORT std::wstring HkGetAccountID(CAccount *acc);
 EXPORT bool HkIsEncoded(const std::string &scFilename);
-EXPORT bool HkIsInCharSelectMenu(const std::wstring &wscCharname);
-EXPORT bool HkIsInCharSelectMenu(uint iClientID);
+EXPORT bool HkIsInCharSelectMenu(std::variant<uint, std::wstring> player);
 EXPORT bool HkIsValidClientID(uint iClientID);
-EXPORT HK_ERROR HkResolveId(const std::wstring &wscCharname, uint &iClientID);
+EXPORT HK_ERROR HkResolveId(const std::wstring& player, uint &iClientID);
 EXPORT HK_ERROR HkResolveShortCut(const std::wstring &wscShortcut,
                                   uint &iClientID);
 EXPORT uint HkGetClientIDByShip(uint iShip);
 EXPORT HK_ERROR HkGetAccountDirName(CAccount *acc, std::wstring &wscDir);
-EXPORT HK_ERROR HkGetAccountDirName(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkGetAccountDirName(std::variant<uint, std::wstring> player,
                                     std::wstring &wscDir);
-EXPORT HK_ERROR HkGetCharFileName(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkGetCharFileName(std::variant<uint, std::wstring> player,
                                   std::wstring &wscFilename);
 EXPORT std::wstring HkGetBaseNickByID(uint iBaseID);
 EXPORT std::wstring HkGetPlayerSystem(uint iClientID);
@@ -684,7 +687,7 @@ EXPORT void TranslateZ(Vector &pos, Matrix &rot, float z);
 
 // HkFuncMsg
 EXPORT HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage);
-EXPORT HK_ERROR HkMsg(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkMsg(std::variant<uint, std::wstring> player,
                       const std::wstring &wscMessage);
 EXPORT HK_ERROR HkMsgS(const std::wstring &wscSystemname,
                        const std::wstring &wscMessage);
@@ -693,7 +696,7 @@ EXPORT HK_ERROR HkFMsgEncodeXML(const std::wstring &wscXML, char *szBuf,
                                 uint iSize, uint &iRet);
 EXPORT HK_ERROR HkFMsgSendChat(uint iClientID, char *szBuf, uint iSize);
 EXPORT HK_ERROR HkFMsg(uint iClientID, const std::wstring &wscXML);
-EXPORT HK_ERROR HkFMsg(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkFMsg(std::variant<uint, std::wstring> player,
                        const std::wstring &wscXML);
 EXPORT HK_ERROR HkFMsgS(const std::wstring &wscSystemname,
                         const std::wstring &wscXML);
@@ -714,61 +717,61 @@ EXPORT void SendSystemChat(uint iFromClientID, const std::wstring &wscText);
 // HkFuncPlayers
 EXPORT HK_ERROR HkAddToGroup(uint iClientID, uint iGroupID);
 EXPORT HK_ERROR HkGetGroupID(uint iClientID, uint &iGroupID);
-EXPORT HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash);
-EXPORT HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount);
+EXPORT HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int &iCash);
+EXPORT HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount);
 EXPORT HK_ERROR HkKick(CAccount *acc);
-EXPORT HK_ERROR HkKick(const std::wstring &wscCharname);
-EXPORT HK_ERROR HkKickReason(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkKick(std::variant<uint, std::wstring> player);
+EXPORT HK_ERROR HkKickReason(std::variant<uint, std::wstring> player,
                              const std::wstring &wscReason);
-EXPORT HK_ERROR HkBan(const std::wstring &wscCharname, bool bBan);
-EXPORT HK_ERROR HkBeam(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkBan(std::variant<uint, std::wstring> player, bool bBan);
+EXPORT HK_ERROR HkBeam(std::variant<uint, std::wstring> player,
                        const std::wstring &wscBasename);
-EXPORT HK_ERROR HkSaveChar(const std::wstring &wscCharname);
-EXPORT HK_ERROR HkEnumCargo(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkSaveChar(std::variant<uint, std::wstring> player);
+EXPORT HK_ERROR HkEnumCargo(std::variant<uint, std::wstring> player,
                             std::list<CARGO_INFO> &lstCargo,
                             int &iRemainingHoldSize);
-EXPORT HK_ERROR HkRemoveCargo(const std::wstring &wscCharname, uint iID,
+EXPORT HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID,
                               int iCount);
-EXPORT HK_ERROR HkAddCargo(const std::wstring &wscCharname, uint iGoodID,
+EXPORT HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID,
                            int iCount, bool bMission);
-EXPORT HK_ERROR HkAddCargo(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player,
                            const std::wstring &wscGood, int iCount,
                            bool bMission);
-EXPORT HK_ERROR HkRename(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkRename(std::variant<uint, std::wstring> player,
                          const std::wstring &wscNewCharname, bool bOnlyDelete);
 EXPORT HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring &wscReason,
                              uint iIntervall);
-EXPORT HK_ERROR HkKill(const std::wstring &wscCharname);
-EXPORT HK_ERROR HkGetReservedSlot(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkKill(std::variant<uint, std::wstring> player);
+EXPORT HK_ERROR HkGetReservedSlot(std::variant<uint, std::wstring> player,
                                   bool &bResult);
-EXPORT HK_ERROR HkSetReservedSlot(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkSetReservedSlot(std::variant<uint, std::wstring> player,
                                   bool bReservedSlot);
 EXPORT void HkPlayerAutoBuy(uint iClientID, uint iBaseID);
-EXPORT HK_ERROR HkResetRep(const std::wstring &wscCharname);
-EXPORT HK_ERROR HkGetGroupMembers(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkResetRep(std::variant<uint, std::wstring> player);
+EXPORT HK_ERROR HkGetGroupMembers(std::variant<uint, std::wstring> player,
                                   std::list<GROUP_MEMBER> &lstMembers);
-EXPORT HK_ERROR HkSetRep(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkSetRep(std::variant<uint, std::wstring> player,
                          const std::wstring &wscRepGroup, float fValue);
-EXPORT HK_ERROR HkGetRep(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkGetRep(std::variant<uint, std::wstring> player,
                          const std::wstring &wscRepGroup, float &fValue);
-EXPORT HK_ERROR HkReadCharFile(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player,
                                std::list<std::wstring> &lstOutput);
-EXPORT HK_ERROR HkWriteCharFile(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkWriteCharFile(std::variant<uint, std::wstring> player,
                                 std::wstring wscData);
 EXPORT HK_ERROR HkPlayerRecalculateCRC(uint iClientID);
 EXPORT std::string HkGetPlayerSystemS(uint iClientID);
 EXPORT bool IsInRange(uint iClientID, float fDistance);
 EXPORT std::wstring GetLocation(unsigned int iClientID);
-EXPORT HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
+EXPORT HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID,
                            const std::string &scHardpoint);
 EXPORT HK_ERROR HkAntiCheat(uint iClientID);
 EXPORT void HkDelayedKick(uint iClientID, uint secs);
 EXPORT HK_ERROR HkDeleteCharacter(CAccount *acc, std::wstring &wscCharname);
 EXPORT HK_ERROR HkNewCharacter(CAccount *acc, std::wstring &wscCharname);
 EXPORT std::wstring HkGetAccountIDByClientID(uint iClientID);
-EXPORT HK_ERROR HkGetOnlineTime(const std::wstring &wscCharname, int &iSecs);
-EXPORT HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank);
-EXPORT HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue);
+EXPORT HK_ERROR HkGetOnlineTime(std::variant<uint, std::wstring> player, int &iSecs);
+EXPORT HK_ERROR HkGetRank(std::variant<uint, std::wstring> player, int &iRank);
+EXPORT HK_ERROR HKGetShipValue(std::variant<uint, std::wstring> player, float &fValue);
 EXPORT void HkRelocateClient(uint iClientID, Vector vDestination,
                              Matrix mOrientation);
 EXPORT void HkSaveChar(uint iClientID);
@@ -803,22 +806,22 @@ void AddBothLog(bool bError, std::wstring wStr, Args &&...args) {
 
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason,
                             ...);
-EXPORT bool HkAddCheaterLog(const std::wstring &wscCharname,
+EXPORT bool HkAddCheaterLog(std::variant<uint, std::wstring> player,
                             const std::wstring &wscReason);
 EXPORT bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...);
 EXPORT bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...);
 
 // HkFuncOther
 EXPORT void HkGetPlayerIP(uint iClientID, std::wstring &wscIP);
-EXPORT HK_ERROR HkGetPlayerInfo(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkGetPlayerInfo(std::variant<uint, std::wstring> player,
                                 HKPLAYERINFO &pi, bool bAlsoCharmenu);
 EXPORT std::list<HKPLAYERINFO> HkGetPlayers();
 EXPORT HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO &ci);
-EXPORT HK_ERROR HkSetAdmin(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkSetAdmin(std::variant<uint, std::wstring> player,
                            const std::wstring &wscRights);
-EXPORT HK_ERROR HkGetAdmin(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player,
                            std::wstring &wscRights);
-EXPORT HK_ERROR HkDelAdmin(const std::wstring &wscCharname);
+EXPORT HK_ERROR HkDelAdmin(std::variant<uint, std::wstring> player);
 EXPORT HK_ERROR HkChangeNPCSpawn(bool bDisable);
 EXPORT HK_ERROR HkGetBaseStatus(const std::wstring &wscBasename, float &fHealth,
                                 float &fMaxHealth);
@@ -830,9 +833,9 @@ EXPORT CEqObj *HkGetEqObjFromObjRW(struct IObjRW *objRW);
 EXPORT uint HkGetClientIDFromArg(const std::wstring &wscArg);
 
 // HkFLIni
-EXPORT HK_ERROR HkFLIniGet(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkFLIniGet(std::variant<uint, std::wstring> player,
                            const std::wstring &wscKey, std::wstring &wscRet);
-EXPORT HK_ERROR HkFLIniWrite(const std::wstring &wscCharname,
+EXPORT HK_ERROR HkFLIniWrite(std::variant<uint, std::wstring> player,
                              const std::wstring &wscKey, std::wstring wscValue);
 
 EXPORT std::wstring HkErrGetText(HK_ERROR hkErr);
@@ -963,21 +966,7 @@ extern EXPORT void HkAddHelpEntry(const std::wstring &wscCommand,
 extern EXPORT void HkRemoveHelpEntry(const std::wstring &wscCommand,
                                      const std::wstring &wscArguments);
 
-extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID,
-                                     const std::wstring &wscCharname);
-
-#define HK_GET_CLIENTID(a, b)                                                  \
-    bool bIdString = false;                                                    \
-    uint a = uint(-1);                                                         \
-    if (auto err = HkGetClientID(bIdString, a, b); err != HKE_OK)              \
-        return err;
-
-#define HK_GET_CLIENTID_OR_LOGGED_OUT(a, b)                                    \
-    bool bIdString = false;                                                    \
-    uint a = uint(-1);                                                         \
-    if (auto err = HkGetClientID(bIdString, a, b);                             \
-        err != HKE_OK && err != HKE_PLAYER_NOT_LOGGED_IN)                      \
-        return err;
+extern EXPORT HK_ERROR HkGetClientID(bool &bIdString, uint &iClientID, const std::wstring& wscCharName);
         
 void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 

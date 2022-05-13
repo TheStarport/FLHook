@@ -3,15 +3,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey,
+HK_ERROR HkFLIniGet(std::variant<uint, std::wstring> player, const std::wstring &wscKey,
                     std::wstring &wscRet) {
     wscRet = L"";
     std::wstring wscDir;
-    if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+    if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
         return HKE_CHAR_DOES_NOT_EXIST;
 
     std::wstring wscFile;
-    HkGetCharFileName(wscCharname, wscFile);
+    HkGetCharFileName(player, wscFile);
 
     std::string scCharFile =
         scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
@@ -33,15 +33,15 @@ HK_ERROR HkFLIniGet(const std::wstring &wscCharname, const std::wstring &wscKey,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniWrite(const std::wstring &wscCharname,
+HK_ERROR HkFLIniWrite(std::variant<uint, std::wstring> player,
                       const std::wstring &wscKey,
                       const std::wstring &wscValue) {
     std::wstring wscDir;
-    if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+    if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
         return HKE_CHAR_DOES_NOT_EXIST;
 
     std::wstring wscFile;
-    HkGetCharFileName(wscCharname, wscFile);
+    HkGetCharFileName(player, wscFile);
 
     std::string scCharFile =
         scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";

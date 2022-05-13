@@ -151,7 +151,7 @@ void MoveClient(unsigned int client, unsigned int targetBase) {
         Server.BaseEnter(targetBase, client);
         Server.BaseExit(targetBase, client);
         std::wstring wscCharFileName;
-        HkGetCharFileName(ARG_CLIENTID(client), wscCharFileName);
+        HkGetCharFileName(client, wscCharFileName);
         wscCharFileName += L".fl";
         CHARACTER_ID cID;
         strcpy_s(cID.szCharFilename,

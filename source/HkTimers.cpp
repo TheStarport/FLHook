@@ -47,7 +47,7 @@ void HkTimerCheckKick() {
 
             if (ClientInfo[clientID].tmKickTime) {
                 if (timeInMS() >= ClientInfo[clientID].tmKickTime) {
-                    HkKick(ARG_CLIENTID(clientID)); // kick time expired
+                    HkKick(clientID); // kick time expired
                     ClientInfo[clientID].tmKickTime = 0;
                 }
                 continue; // player will be kicked anyway
@@ -73,7 +73,7 @@ void HkTimerCheckKick() {
                         ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(0));
                     else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= set_iAntiCharMenuIdle) {
                         HkAddKickLog(clientID, L"Charmenu idling");
-                        HkKick(ARG_CLIENTID(clientID));
+                        HkKick(clientID);
                         ClientInfo[clientID].iCharMenuEnterTime = 0;
                         continue;
                     }
@@ -190,8 +190,8 @@ void HkTimerCheckResolveResults() {
                                  L"IP/Hostname ban(%s matches %s)",
                                  ip.wscHostname.c_str(), ban.c_str());
                     if (set_bBanAccountOnMatch)
-                        HkBan(ARG_CLIENTID(ip.iClientID), true);
-                    HkKick(ARG_CLIENTID(ip.iClientID));
+                        HkBan(ip.iClientID, true);
+                    HkKick(ip.iClientID);
                 }
             }
             ClientInfo[ip.iClientID].wscHostname = ip.wscHostname;

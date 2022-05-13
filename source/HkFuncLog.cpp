@@ -117,7 +117,7 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...) {
 
     _vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
-    HkAddCheaterLog(ARG_CLIENTID(iClientID), wszBuf);
+    HkAddCheaterLog(iClientID, wszBuf);
 
     if (wscReason[0] != '#' && Players.GetActiveCharacterName(iClientID)) {
         std::wstring wscCharname =
@@ -130,16 +130,16 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...) {
     }
 
     if (bBan)
-        HkBan(ARG_CLIENTID(iClientID), true);
+        HkBan(iClientID, true);
     if (wscReason[0] != '#')
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscReason) {
+bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring &wscReason) {
 
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
 
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
     std::wstring wscAccountDir = L"???";
@@ -155,11 +155,13 @@ bool HkAddCheaterLog(const std::wstring &wscCharname, const std::wstring &wscRea
     wscHostName = ClientInfo[iClientID].wscHostname;
     HkGetPlayerIP(iClientID, wscIp);
 
+    const auto wscCharacterName = Players.GetActiveCharacterName(iClientID);
+
     AddLog(Cheater,
             L"Possible cheating detected (%s) by "
             "%s(%s)(%s) [%s %s]\n",
             wscReason.c_str(),
-            wscCharname.c_str(), wscAccountDir.c_str(),
+            wscCharacterName, wscAccountDir.c_str(),
             wscAccountID.c_str(), wscHostName.c_str(),
             wscIp.c_str());
     return true;

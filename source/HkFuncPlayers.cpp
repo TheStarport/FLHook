@@ -30,68 +30,64 @@ HK_ERROR HkGetGroupID(uint iClientID, uint &iGroupID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCash(const std::wstring &wscCharname, int &iCash) {
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int &iCash) {
+    const uint iClientID = HkExtractClientId(player);
 
-    if ((iClientID != -1) && bIdString && HkIsInCharSelectMenu(iClientID))
-        return HKE_NO_CHAR_SELECTED;
-    else if ((iClientID != -1) &&
-             !HkIsInCharSelectMenu(iClientID)) { // player logged in
+    if (iClientID != -1) {
+        if (HkIsInCharSelectMenu(iClientID))
+            return HKE_NO_CHAR_SELECTED;
+
         pub::Player::InspectCash(iClientID, iCash);
         return HKE_OK;
-    } else { // player not logged in
-        std::wstring wscDir;
-        if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
-            return HKE_CHAR_DOES_NOT_EXIST;
-        std::wstring wscFile;
-        HkGetCharFileName(wscCharname, wscFile);
-
-        std::string scCharFile =
-            scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
-
-        FILE *fTest;
-        fopen_s(&fTest, scCharFile.c_str(), "r");
-        if (!fTest)
-            return HKE_CHAR_DOES_NOT_EXIST;
-        else
-            fclose(fTest);
-
-        if (HkIsEncoded(scCharFile)) {
-            std::string scCharFileNew = scCharFile + ".ini";
-            if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-                return HKE_COULD_NOT_DECODE_CHARFILE;
-
-            iCash = IniGetI(scCharFileNew, "Player", "money", -1);
-            DeleteFile(scCharFileNew.c_str());
-        } else {
-            iCash = IniGetI(scCharFile, "Player", "money", -1);
-        }
-
-        return HKE_OK;
     }
+
+    if (!player.index())
+        return HKE_INVALID_CLIENT_ID;
+
+    // player not logged in
+    std::wstring wscDir;
+    if (!HKHKSUCCESS(HkGetAccountDirName(std::get<std::wstring>(player), wscDir)))
+        return HKE_CHAR_DOES_NOT_EXIST;
+    std::wstring wscFile;
+    HkGetCharFileName(player, wscFile);
+
+    std::string scCharFile =
+        scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
+
+    FILE *fTest;
+    fopen_s(&fTest, scCharFile.c_str(), "r");
+    if (!fTest)
+        return HKE_CHAR_DOES_NOT_EXIST;
+    else
+        fclose(fTest);
+
+    if (HkIsEncoded(scCharFile)) {
+        std::string scCharFileNew = scCharFile + ".ini";
+        if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+            return HKE_COULD_NOT_DECODE_CHARFILE;
+
+        iCash = IniGetI(scCharFileNew, "Player", "money", -1);
+        DeleteFile(scCharFileNew.c_str());
+    } else {
+        iCash = IniGetI(scCharFile, "Player", "money", -1);
+    }
+
+    return HKE_OK;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount) {
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount) {
+    const uint iClientID = HkExtractClientId(player);
 
-    uint iClientIDAcc = 0;
-    if (iClientID == -1) {
-        CAccount *acc = HkGetAccountByCharname(wscCharname);
-        if (!acc)
-            return HKE_CHAR_DOES_NOT_EXIST;
-        iClientIDAcc = HkGetClientIdFromAccount(acc);
-    } else
-        iClientIDAcc = iClientID;
-
-    if ((iClientID != -1) && bIdString && HkIsInCharSelectMenu(iClientID))
+    if ((iClientID != -1) && HkIsInCharSelectMenu(iClientID))
         return HKE_NO_CHAR_SELECTED;
-    else if ((iClientID != -1) &&
-             !HkIsInCharSelectMenu(iClientID)) { // player logged in
+    else if (iClientID != -1) { // player logged in
         pub::Player::AdjustCash(iClientID, iAmount);
         return HKE_OK;
-    } else { // player not logged in
+    } else if (player.index()) {
+        const auto wscCharname = std::get<std::wstring>(player);
         std::wstring wscDir;
         if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
             return HKE_CHAR_DOES_NOT_EXIST;
@@ -127,11 +123,11 @@ HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount) {
         }
 
         if (HkIsInCharSelectMenu(wscCharname) ||
-            (iClientIDAcc !=
+            (iClientID !=
              -1)) { // money fix in case player logs in with this account
             bool bFound = false;
             std::wstring wscCharnameLower = ToLower(wscCharname);
-            for (auto &money : ClientInfo[iClientIDAcc].lstMoneyFix) {
+            for (auto &money : ClientInfo[iClientID].lstMoneyFix) {
                 if (money.wscCharname == wscCharnameLower) {
                     money.iAmount += iAmount;
                     bFound = true;
@@ -143,12 +139,14 @@ HK_ERROR HkAddCash(const std::wstring &wscCharname, int iAmount) {
                 MONEY_FIX mf;
                 mf.wscCharname = wscCharnameLower;
                 mf.iAmount = iAmount;
-                ClientInfo[iClientIDAcc].lstMoneyFix.push_back(mf);
+                ClientInfo[iClientID].lstMoneyFix.push_back(mf);
             }
         }
 
         return HKE_OK;
     }
+
+    return HKE_INVALID_CLIENT_ID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,8 +156,8 @@ HK_ERROR HkKick(CAccount *acc) {
     return HKE_OK;
 }
 
-HK_ERROR HkKick(const std::wstring &wscCharname) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkKick(std::variant<uint, std::wstring> player) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -169,9 +167,8 @@ HK_ERROR HkKick(const std::wstring &wscCharname) {
     return HKE_OK;
 }
 
-HK_ERROR HkKickReason(const std::wstring &wscCharname,
-                      const std::wstring &wscReason) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkKickReason(std::variant<uint, std::wstring> player, const std::wstring &wscReason) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -186,16 +183,10 @@ HK_ERROR HkKickReason(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBan(const std::wstring &wscCharname, bool bBan) {
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
-
-    CAccount *acc;
-    if (iClientID != -1)
-        acc = Players.FindAccountFromClientID(iClientID);
-    else {
-        if (!(acc = HkGetAccountByCharname(wscCharname)))
-            return HKE_CHAR_DOES_NOT_EXIST;
-    }
+HK_ERROR HkBan(std::variant<uint, std::wstring> player, bool bBan) {
+    CAccount *acc = HkExtractAccount(player);
+    if (!acc)
+        return HKE_CHAR_DOES_NOT_EXIST;
 
     std::wstring wscID = HkGetAccountID(acc);
     st6::wstring flStr((ushort *)wscID.c_str());
@@ -205,9 +196,8 @@ HK_ERROR HkBan(const std::wstring &wscCharname, bool bBan) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBeam(const std::wstring &wscCharname,
-                const std::wstring &wscBasename) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkBeam(std::variant<uint, std::wstring> player, const std::wstring &wscBasename) {
+    const uint iClientID = HkExtractClientId(player);
 
     // check if logged in
     if (iClientID == -1)
@@ -259,7 +249,7 @@ HK_ERROR HkBeam(const std::wstring &wscCharname,
         Server.BaseEnter(iBaseID, iClientID);
         Server.BaseExit(iBaseID, iClientID);
         std::wstring wscCharFileName;
-        HkGetCharFileName(ARG_CLIENTID(iClientID), wscCharFileName);
+        HkGetCharFileName(iClientID, wscCharFileName);
         wscCharFileName += L".fl";
         CHARACTER_ID cID;
         strcpy_s(cID.szCharFilename,
@@ -272,8 +262,8 @@ HK_ERROR HkBeam(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSaveChar(const std::wstring &wscCharname) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkSaveChar(std::variant<uint, std::wstring> player) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -304,9 +294,8 @@ struct EQ_ITEM {
     bool bMission;
 };
 
-HK_ERROR HkEnumCargo(const std::wstring &wscCharname,
-                     std::list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkEnumCargo(std::variant<uint, std::wstring> player, std::list<CARGO_INFO> &lstCargo, int &iRemainingHoldSize) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -338,15 +327,15 @@ HK_ERROR HkEnumCargo(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRemoveCargo(const std::wstring &wscCharname, uint iID, int iCount) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID, int iCount) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
         return HKE_PLAYER_NOT_LOGGED_IN;
 
     std::list<CARGO_INFO> lstCargo;
     int iHold;
-    HkEnumCargo(wscCharname, lstCargo, iHold);
+    HkEnumCargo(player, lstCargo, iHold);
     for (auto &cargo : lstCargo) {
         if ((cargo.iID == iID) && (cargo.iCount < iCount))
             iCount = cargo.iCount; // trying to remove more than actually there,
@@ -372,9 +361,8 @@ HK_ERROR HkRemoveCargo(const std::wstring &wscCharname, uint iID, int iCount) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCargo(const std::wstring &wscCharname, uint iGoodID, int iCount,
-                    bool bMission) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int iCount, bool bMission) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -416,10 +404,10 @@ HK_ERROR HkAddCargo(const std::wstring &wscCharname, uint iGoodID, int iCount,
 
         // we need to do this, else server or client may crash
         std::list<CARGO_INFO> lstCargo;
-        HkEnumCargo(wscCharname, lstCargo, iRet);
+        HkEnumCargo(player, lstCargo, iRet);
         for (auto &cargo : lstCargo) {
             if ((cargo.iArchID == iGoodID) && (cargo.bMission != bMission)) {
-                HkRemoveCargo(wscCharname, cargo.iID, cargo.iCount);
+                HkRemoveCargo(player, cargo.iID, cargo.iCount);
                 iCount += cargo.iCount;
             }
         }
@@ -468,24 +456,22 @@ HK_ERROR HkAddCargo(const std::wstring &wscCharname, uint iGoodID, int iCount,
     return HKE_OK;
 }
 
-HK_ERROR HkAddCargo(const std::wstring &wscCharname,
-                    const std::wstring &wscGood, int iCount, bool bMission) {
+HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, const std::wstring &wscGood, int iCount, bool bMission) {
     uint iGoodID = ToInt(wscGood.c_str());
     if (!iGoodID)
         pub::GetGoodID(iGoodID, wstos(wscGood).c_str());
     if (!iGoodID)
         return HKE_INVALID_GOOD;
 
-    return HkAddCargo(wscCharname, iGoodID, iCount, bMission);
+    return HkAddCargo(player, iGoodID, iCount, bMission);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRename(const std::wstring &wscCharname,
-                  const std::wstring &wscNewCharname, bool bOnlyDelete) {
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring &wscNewCharname, bool bOnlyDelete) {
+    const uint iClientID = HkExtractClientId(player);
 
-    if ((iClientID == -1) && !HkGetAccountByCharname(wscCharname))
+    if ((iClientID == -1) && player.index() && !HkGetAccountByCharname(std::get<std::wstring>(player)))
         return HKE_CHAR_DOES_NOT_EXIST;
 
     if (!bOnlyDelete && HkGetAccountByCharname(wscNewCharname))
@@ -508,8 +494,8 @@ HK_ERROR HkRename(const std::wstring &wscCharname,
         acc = Players.FindAccountFromClientID(iClientID);
         wscOldCharname = (wchar_t *)Players.GetActiveCharacterName(iClientID);
     } else {
-        wscOldCharname = wscCharname;
-        acc = HkGetAccountByCharname(wscCharname);
+        wscOldCharname = std::get<std::wstring>(player);
+        acc = HkGetAccountByCharname(std::get<std::wstring>(player));
     }
 
     std::wstring wscAccountDirname;
@@ -650,8 +636,8 @@ HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring &wscReason,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkKill(const std::wstring &wscCharname) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkKill(std::variant<uint, std::wstring> player) {
+    const uint iClientID = HkExtractClientId(player);
 
     // check if logged in
     if (iClientID == -1)
@@ -668,14 +654,14 @@ HK_ERROR HkKill(const std::wstring &wscCharname) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetReservedSlot(const std::wstring &wscCharname, bool &bResult) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkGetReservedSlot(std::variant<uint, std::wstring> player, bool &bResult) {
+    const uint iClientID = HkExtractClientId(player);
 
     CAccount *acc;
     if (iClientID != -1)
         acc = Players.FindAccountFromClientID(iClientID);
     else
-        acc = HkGetAccountByCharname(wscCharname);
+        acc = player.index() ? HkGetAccountByCharname(std::get<std::wstring>(player)) : nullptr;
 
     if (!acc)
         return HKE_CHAR_DOES_NOT_EXIST;
@@ -690,16 +676,9 @@ HK_ERROR HkGetReservedSlot(const std::wstring &wscCharname, bool &bResult) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetReservedSlot(const std::wstring &wscCharname,
-                           bool bReservedSlot) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkSetReservedSlot(std::variant<uint, std::wstring> player, bool bReservedSlot) {
 
-    CAccount *acc;
-    if (iClientID != -1)
-        acc = Players.FindAccountFromClientID(iClientID);
-    else
-        acc = HkGetAccountByCharname(wscCharname);
-
+    CAccount *acc = HkExtractAccount(player);
     if (!acc)
         return HKE_CHAR_DOES_NOT_EXIST;
 
@@ -744,7 +723,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID) {
     // player cargo
     int iRemHoldSize;
     std::list<CARGO_INFO> lstCargo;
-    HkEnumCargo(ARG_CLIENTID(iClientID), lstCargo, iRemHoldSize);
+    HkEnumCargo(iClientID, lstCargo, iRemHoldSize);
 
     // shopping cart
     std::list<AUTOBUY_CARTITEM> lstCart;
@@ -860,7 +839,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID) {
         return; // base not found
 
     int iCash;
-    HkGetCash(ARG_CLIENTID(iClientID), iCash);
+    HkGetCash(iClientID, iCash);
 
     for (auto &buy : lstCart) {
         if (!buy.iCount || !Arch2Good(buy.iArchID))
@@ -919,10 +898,10 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID) {
                              L"Auto-Buy(%s): FAILED! Insufficient Credits",
                              buy.wscDescription.c_str());
         else {
-            HkAddCash(ARG_CLIENTID(iClientID), -iCost);
+            HkAddCash(iClientID, -iCost);
             iCash -= iCost;
             iRemHoldSize -= ((int)eq->fVolume * buy.iCount);
-            //			HkAddCargo(ARG_CLIENTID(iClientID),
+            //			HkAddCargo(iClientID,
             //(*it4).iArchID, (*it4).iCount, false);
 
             // add the item, dont use hkaddcargo for performance/bug reasons
@@ -939,8 +918,8 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResetRep(const std::wstring &wscCharname) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkResetRep(std::variant<uint, std::wstring> player) {
+    const uint iClientID = HkExtractClientId(player);
 
     // check if logged in
     if (iClientID == -1)
@@ -975,9 +954,9 @@ HK_ERROR HkResetRep(const std::wstring &wscCharname) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetRep(const std::wstring &wscCharname,
+HK_ERROR HkSetRep(std::variant<uint, std::wstring> player,
                   const std::wstring &wscRepGroup, float fValue) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
     // check if logged in
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -996,9 +975,9 @@ HK_ERROR HkSetRep(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetRep(const std::wstring &wscCharname,
+HK_ERROR HkGetRep(std::variant<uint, std::wstring> player,
                   const std::wstring &wscRepGroup, float &fValue) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
 
@@ -1016,10 +995,10 @@ HK_ERROR HkGetRep(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetGroupMembers(const std::wstring &wscCharname,
+HK_ERROR HkGetGroupMembers(std::variant<uint, std::wstring> player,
                            std::list<GROUP_MEMBER> &lstMembers) {
     lstMembers.clear();
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
 
     // check if logged in
     if (iClientID == -1)
@@ -1041,10 +1020,10 @@ HK_ERROR HkGetGroupMembers(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkReadCharFile(const std::wstring &wscCharname,
+HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player,
                         std::list<std::wstring> &lstOutput) {
     lstOutput.clear();
-    HK_GET_CLIENTID_OR_LOGGED_OUT(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
 
     std::wstring wscDir;
     CAccount *acc;
@@ -1058,12 +1037,14 @@ HK_ERROR HkReadCharFile(const std::wstring &wscCharname,
         if (!HKHKSUCCESS(HkGetAccountDirName(wszCharname, wscDir)))
             return HKE_CHAR_DOES_NOT_EXIST;
     } else {
-        if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+        acc = HkExtractAccount(player);
+        if (!acc)
             return HKE_CHAR_DOES_NOT_EXIST;
     }
+    
 
     std::wstring wscFile;
-    HkGetCharFileName(wscCharname, wscFile);
+    HkGetCharFileName(player, wscFile);
     std::string scCharFile =
         scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
     std::string scFileToRead;
@@ -1095,9 +1076,9 @@ HK_ERROR HkReadCharFile(const std::wstring &wscCharname,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkWriteCharFile(const std::wstring &wscCharname,
+HK_ERROR HkWriteCharFile(std::variant<uint, std::wstring> player,
                          std::wstring wscData) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
 
     std::wstring wscDir;
     CAccount *acc;
@@ -1111,12 +1092,13 @@ HK_ERROR HkWriteCharFile(const std::wstring &wscCharname,
         if (!HKHKSUCCESS(HkGetAccountDirName(wszCharname, wscDir)))
             return HKE_CHAR_DOES_NOT_EXIST;
     } else {
-        if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+        acc = HkExtractAccount(player);
+        if (!acc)
             return HKE_CHAR_DOES_NOT_EXIST;
     }
 
     std::wstring wscFile;
-    HkGetCharFileName(wscCharname, wscFile);
+    HkGetCharFileName(player, wscFile);
     std::string scCharFile =
         scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
     std::string scFileToWrite;
@@ -1225,10 +1207,10 @@ HK_ERROR HkInstantDock(uint iClientID, uint iDockObj) {
     return HKE_OK;
 }
 
-HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank) {
+HK_ERROR HkGetRank(std::variant<uint, std::wstring> player, int &iRank) {
     HK_ERROR err;
     std::wstring wscRet = L"";
-    if ((err = HkFLIniGet(wscCharname, L"rank", wscRet)) != HKE_OK)
+    if ((err = HkFLIniGet(player, L"rank", wscRet)) != HKE_OK)
         return err;
     if (wscRet.length())
         iRank = ToInt(wscRet);
@@ -1238,13 +1220,13 @@ HK_ERROR HkGetRank(const std::wstring &wscCharname, int &iRank) {
 }
 
 /// Get online time.
-HK_ERROR HkGetOnlineTime(const std::wstring &wscCharname, int &iSecs) {
+HK_ERROR HkGetOnlineTime(std::variant<uint, std::wstring> player, int &iSecs) {
     std::wstring wscDir;
-    if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
+    if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
         return HKE_CHAR_DOES_NOT_EXIST;
 
     std::wstring wscFile;
-    HkGetCharFileName(wscCharname, wscFile);
+    HkGetCharFileName(player, wscFile);
 
     std::string scCharFile =
         scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
@@ -1440,7 +1422,7 @@ HK_ERROR HkAntiCheat(uint iClientID) {
     }
 
     if (cRes != 0) { // kick
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
         return HKE_UNKNOWN_ERROR;
     }
 
@@ -1452,7 +1434,7 @@ HK_ERROR HkAntiCheat(uint iClientID) {
     }
 
     if (cRes != 0) { // kick
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
         return HKE_UNKNOWN_ERROR;
     }
 
@@ -1468,7 +1450,7 @@ HK_ERROR HkAntiCheat(uint iClientID) {
     }
 
     if (lRet > lCompare) { // kick
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
         return HKE_UNKNOWN_ERROR;
     }
 
@@ -1480,16 +1462,16 @@ HK_ERROR HkAntiCheat(uint iClientID) {
     }
 
     if (cRes != 0) { // kick
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
         return HKE_UNKNOWN_ERROR;
     }
 
     return HKE_OK;
 }
 
-HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
+HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID,
                     const std::string &scHardpoint) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
 
     if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
         return HKE_NO_CHAR_SELECTED;
@@ -1515,7 +1497,7 @@ HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
     return HKE_OK;
 }
 
-HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
+HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID,
                     const std::string &scHardpoint, bool bMounted) {
     typedef bool(__stdcall * _AddCargoDocked)(
         uint iGoodID, CacheString * &hardpoint, int iNumItems, float fHealth,
@@ -1524,7 +1506,7 @@ HK_ERROR HkAddEquip(const std::wstring &wscCharname, uint iGoodID,
     if (!AddCargoDocked)
         AddCargoDocked = (_AddCargoDocked)((char *)hModServer + 0x6EFC0);
 
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkExtractClientId(player);
     if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
         return HKE_PLAYER_NOT_LOGGED_IN;
 
@@ -1617,10 +1599,10 @@ std::string HkGetPlayerSystemS(uint iClientID) {
     return szSystemname;
 }
 
-HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue) {
-    UINT iClientID = HkGetClientIdFromCharname(wscCharname);
+HK_ERROR HKGetShipValue(std::variant<uint, std::wstring> player, float &fValue) {
+    uint iClientID = HkExtractClientId(player);
     if (iClientID != -1 && !HkIsInCharSelectMenu(iClientID)) {
-        HkSaveChar(wscCharname);
+        HkSaveChar(player);
         if (!HkIsValidClientID(iClientID)) {
             return HKE_UNKNOWN_ERROR;
         }
@@ -1631,7 +1613,7 @@ HK_ERROR HKGetShipValue(const std::wstring &wscCharname, float &fValue) {
     uint iBaseID = 0;
 
     std::list<std::wstring> lstCharFile;
-    HK_ERROR err = HkReadCharFile(wscCharname, lstCharFile);
+    HK_ERROR err = HkReadCharFile(player, lstCharFile);
     if (err != HKE_OK)
         return err;
 

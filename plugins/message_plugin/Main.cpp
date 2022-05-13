@@ -847,9 +847,7 @@ void UserCmd_FactionInvite(uint iClientID, const std::wstring &wscParam) {
 
         uint iRet;
         char szBuf[1024];
-        HK_ERROR err;
-        if ((err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) !=
-            HKE_OK) {
+        if (HK_ERROR err; (err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != HKE_OK) {
             PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
             return;
         }

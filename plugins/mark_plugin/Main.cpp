@@ -136,7 +136,7 @@ void UserCmd_SetIgnoreGroupMark(uint iClientID, const std::wstring &wscParam) {
         std::wstring wscDir, wscFilename;
         CAccount *acc = Players.FindAccountFromClientID(iClientID);
         if (HKHKSUCCESS(
-                HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                HkGetCharFileName(iClientID, wscFilename)) &&
             HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
             std::string scUserFile =
                 scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -149,7 +149,7 @@ void UserCmd_SetIgnoreGroupMark(uint iClientID, const std::wstring &wscParam) {
         std::wstring wscDir, wscFilename;
         CAccount *acc = Players.FindAccountFromClientID(iClientID);
         if (HKHKSUCCESS(
-                HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                HkGetCharFileName(iClientID, wscFilename)) &&
             HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
             std::string scUserFile =
                 scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -197,7 +197,7 @@ void UserCmd_AutoMark(uint iClientID, const std::wstring &wscParam) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             std::wstring wscDir, wscFilename;
             if (HKHKSUCCESS(
-                    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                    HkGetCharFileName(iClientID, wscFilename)) &&
                 HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
                 std::string scUserFile =
                     scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -214,7 +214,7 @@ void UserCmd_AutoMark(uint iClientID, const std::wstring &wscParam) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             std::wstring wscDir, wscFilename;
             if (HKHKSUCCESS(
-                    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                    HkGetCharFileName(iClientID, wscFilename)) &&
                 HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
                 std::string scUserFile =
                     scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -233,7 +233,7 @@ void UserCmd_AutoMark(uint iClientID, const std::wstring &wscParam) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             std::wstring wscDir, wscFilename;
             if (HKHKSUCCESS(
-                    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                    HkGetCharFileName(iClientID, wscFilename)) &&
                 HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
                 std::string scUserFile =
                     scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -254,7 +254,7 @@ void UserCmd_AutoMark(uint iClientID, const std::wstring &wscParam) {
             CAccount *acc = Players.FindAccountFromClientID(iClientID);
             std::wstring wscDir, wscFilename;
             if (HKHKSUCCESS(
-                    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+                    HkGetCharFileName(iClientID, wscFilename)) &&
                 HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
                 std::string scUserFile =
                     scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -672,7 +672,7 @@ EXPORT void LoadUserCharSettings(uint& iClientID) {
     HkGetAccountDirName(acc, wscDir);
     std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
     std::wstring wscFilename;
-    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
+    HkGetCharFileName(iClientID, wscFilename);
     std::string scFilename = wstos(wscFilename);
     std::string scSection = "general_" + scFilename;
     Mark[iClientID].bMarkEverything =

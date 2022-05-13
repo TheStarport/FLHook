@@ -120,7 +120,7 @@ void LoadUserCharSettings(uint& iClientID) {
 
     // Get char filename and save setting to flhookuser.ini
     std::wstring wscFilename;
-    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
+    HkGetCharFileName(iClientID, wscFilename);
     std::string scFilename = wstos(wscFilename);
     std::string scSection = "general_" + scFilename;
 
@@ -140,7 +140,7 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
 
         // Get the players cash
         int iCash;
-        HkGetCash(ARG_CLIENTID(iClientID), iCash);
+        HkGetCash(iClientID, iCash);
 
         // Get how much the player owes
         int iOwed = MapClients[iClientID].DeathPenaltyCredits;
@@ -155,7 +155,7 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
             int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
             if (iGive) {
                 // Reward the killer, print message to them
-                HkAddCash(ARG_CLIENTID(iKillerID), iGive);
+                HkAddCash(iKillerID, iGive);
                 PrintUserCmdText(iKillerID,
                                  L"Death penalty: given " + ToMoneyStr(iGive) +
                                      L" credits from %s's death penalty.",
@@ -167,7 +167,7 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID) {
             // Print message to the player and remove cash
             PrintUserCmdText(iClientID, L"Death penalty: charged " +
                                             ToMoneyStr(iOwed) + L" credits.");
-            HkAddCash(ARG_CLIENTID(iClientID), -iOwed);
+            HkAddCash(iClientID, -iOwed);
         }
     }
 }
@@ -198,7 +198,7 @@ void __stdcall ShipDestroyed(DamageList **_dmg, DWORD **ecx, uint& iKill) {
 void SaveDPNoticeToCharFile(uint iClientID, std::string value) {
     std::wstring wscDir, wscFilename;
     CAccount *acc = Players.FindAccountFromClientID(iClientID);
-    if (HKHKSUCCESS(HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename)) &&
+    if (HKHKSUCCESS(HkGetCharFileName(iClientID, wscFilename)) &&
         HKHKSUCCESS(HkGetAccountDirName(acc, wscDir))) {
         std::string scUserFile =
             scAcctPath + wstos(wscDir) + "\\flhookuser.ini";

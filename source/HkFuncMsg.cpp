@@ -24,9 +24,8 @@ HK_ERROR HkMsg(uint iClientID, const std::wstring &wscMessage) {
     return HKE_OK;
 }
 
-HK_ERROR HkMsg(const std::wstring &wscCharname,
-               const std::wstring &wscMessage) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkMsg(std::variant<uint, std::wstring> player, const std::wstring &wscMessage) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;
@@ -153,8 +152,8 @@ HK_ERROR HkFMsg(uint iClientID, const std::wstring &wscXML) {
     return HKE_OK;
 }
 
-HK_ERROR HkFMsg(const std::wstring &wscCharname, const std::wstring &wscXML) {
-    HK_GET_CLIENTID(iClientID, wscCharname);
+HK_ERROR HkFMsg(std::variant<uint, std::wstring> player, const std::wstring &wscXML) {
+    const uint iClientID = HkExtractClientId(player);
 
     if (iClientID == -1)
         return HKE_PLAYER_NOT_LOGGED_IN;

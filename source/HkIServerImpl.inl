@@ -295,7 +295,7 @@ bool CharacterSelect__Inner(const CHARACTER_ID& cid, uint clientID) {
         ClientInfo[clientID].iTradePartner = 0;
     } catch (...) {
         HkAddKickLog(clientID, L"Corrupt character file?");
-        HkKick(ARG_CLIENTID(clientID));
+        HkKick(clientID);
         return false;
     }
 
@@ -318,7 +318,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
             // anti-cheat check
             std::list<CARGO_INFO> lstCargo;
             int iHold;
-            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, iHold);
+            HkEnumCargo(clientID, lstCargo, iHold);
             for (const auto& cargo : lstCargo) {
                 if (cargo.iCount < 0) {
                     HkAddCheaterLog(charName,
@@ -329,8 +329,8 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
                     swprintf_s(wszBuf, L"Possible cheating detected (%s)",
                                charName.c_str());
                     HkMsgU(wszBuf);
-                    HkBan(ARG_CLIENTID(clientID), true);
-                    HkKick(ARG_CLIENTID(clientID));
+                    HkBan(clientID, true);
+                    HkKick(clientID);
                     return;
                 }
             }
@@ -340,7 +340,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
             std::wstring dir;
             HkGetAccountDirName(acc, dir);
             HKPLAYERINFO pi;
-            HkGetPlayerInfo(ARG_CLIENTID(clientID), pi, false);
+            HkGetPlayerInfo(clientID, pi, false);
             ProcessEvent(L"login char=%s accountdirname=%s id=%d ip=%s",
                          charName.c_str(), dir.c_str(), clientID,
                          pi.wscIP.c_str());
@@ -405,9 +405,9 @@ void TerminateTrade__InnerAfter(uint clientID, int accepted) {
     TRY_HOOK {
         if (accepted) { // save both chars to prevent cheating in case of
                          // server crash
-            HkSaveChar(ARG_CLIENTID(clientID));
+            HkSaveChar(clientID);
             if (ClientInfo[clientID].iTradePartner)
-                HkSaveChar(ARG_CLIENTID(ClientInfo[clientID].iTradePartner));
+                HkSaveChar(ClientInfo[clientID].iTradePartner);
         }
 
         if (ClientInfo[clientID].iTradePartner)
@@ -429,7 +429,7 @@ void ActivateEquip__Inner(uint clientID, const XActivateEquip& aq) {
         std::list<CARGO_INFO> lstCargo;
         {
             int _;
-            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, _);
+            HkEnumCargo(clientID, lstCargo, _);
         }
 
         for (auto &cargo : lstCargo) {
@@ -468,7 +468,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         std::list<CARGO_INFO> lstCargo;
         {
             int _;
-            HkEnumCargo(ARG_CLIENTID(clientID), lstCargo, _);
+            HkEnumCargo(clientID, lstCargo, _);
         }
         bool legalSell = false;
         for (const auto &cargo : lstCargo) {
@@ -485,8 +485,8 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
                     swprintf_s(buf, L"Possible cheating detected (%s)",
                                charName);
                     HkMsgU(buf);
-                    HkBan(ARG_CLIENTID(clientID), true);
-                    HkKick(ARG_CLIENTID(clientID));
+                    HkBan(clientID, true);
+                    HkKick(clientID);
                     return false;
                 }
                 break;
@@ -530,7 +530,7 @@ bool CharacterInfoReq__Inner(uint clientID, bool) {
 
 bool CharacterInfoReq__Catch(uint clientID, bool) {
     HkAddKickLog(clientID, L"Corrupt charfile?");
-    HkKick(ARG_CLIENTID(clientID));
+    HkKick(clientID);
     return false;
 }
 
@@ -675,8 +675,8 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
                 HkAddKickLog(clientID, L"IP/Hostname ban(%s matches %s)",
                              ip.c_str(), ban.c_str());
                 if (set_bBanAccountOnMatch)
-                    HkBan(ARG_CLIENTID(clientID), true);
-                HkKick(ARG_CLIENTID(clientID));
+                    HkBan(clientID, true);
+                HkKick(clientID);
             }
         }
 

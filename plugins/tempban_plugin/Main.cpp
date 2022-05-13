@@ -35,7 +35,7 @@ EXPORT void HkTimerCheckKick() {
 
 HK_ERROR __stdcall HkTempBan(const std::wstring &wscCharname, uint _duration) {
 
-    HK_GET_CLIENTID(iClientID, wscCharname);
+    const uint iClientID = HkGetClientIdFromCharname(wscCharname);
 
     mstime duration = 1000 * _duration * 60;
     TEMPBAN_INFO tempban;
@@ -82,7 +82,7 @@ EXPORT void __stdcall Login(struct SLoginInfo const &li,
     // check for tempban
     if (HkTempBannedCheck(iClientID)) {
         returncode = ReturnCode::SkipAll;
-        HkKick(ARG_CLIENTID(iClientID));
+        HkKick(iClientID);
     }
 }
 

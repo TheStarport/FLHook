@@ -485,7 +485,7 @@ void UserCmd_AutoBuy(uint iClientID, const std::wstring &wscParam) {
     GET_USERFILE(scUserFile);
 
     std::wstring wscFilename;
-    HkGetCharFileName(ARG_CLIENTID(iClientID), wscFilename);
+    HkGetCharFileName(iClientID, wscFilename);
     std::string scSection = "autobuy_" + wstos(wscFilename);
 
     bool bEnable = !wscSwitch.compare(L"on") ? true : false;
