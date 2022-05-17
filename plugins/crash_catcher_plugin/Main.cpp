@@ -19,6 +19,8 @@ static HMODULE hModServerAC;
 static HMODULE hEngBase;
 static HMODULE hModContentAC;
 
+std::map<uint, mstime> mapSaveTimes;
+
 IMPORT struct CObject *__cdecl GetRoot(struct CObject const *);
 #define LOG_EXCEPTION_INTERNAL() { AddLogInternal("ERROR Exception in %s", __FUNCTION__); AddExceptionInfoLog(); };
 void AddLogInternal(const char *szString, ...) {
@@ -43,6 +45,37 @@ void AddLogInternal(const char *szString, ...) {
     }
 
     fclose(log);
+}
+
+// Save after a tractor to prevent cargo duplication loss on crash
+void __stdcall TractorObjects(uint& iClientID,
+                              struct XTractorObjects const &objs) {
+
+    if (mapSaveTimes[iClientID] == 0) {
+        mapSaveTimes[iClientID] = GetTimeInMS() + 60000;
+    }
+}
+
+// Save after jettison to reduce chance of duplication on crash
+void __stdcall JettisonCargo(uint& iClientID,
+                             struct XJettisonCargo const &objs) {
+    if (mapSaveTimes[iClientID] == 0) {
+        mapSaveTimes[iClientID] = GetTimeInMS() + 60000;
+    }
+}
+
+// Action the save times recorded in the above two functions
+void Timer() {
+    mstime currTime = GetTimeInMS();
+    for (auto &t : mapSaveTimes) {
+        uint iClientID = t.first;
+        if (t.second != 0 && t.second < currTime) {
+            if (HkIsValidClientID(iClientID) &&
+                !HkIsInCharSelectMenu(iClientID))
+                HkSaveChar(t.first);
+            t.second = 0;
+        }
+    }
 }
 
 /** Originally in Main.cpp of PlayerControl */
@@ -546,4 +579,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init);
     pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
+    pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
+    pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);
+    pi->emplaceHook(HookedCall::IServerImpl__JettisonCargo, &JettisonCargo);
 }
