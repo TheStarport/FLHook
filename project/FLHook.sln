@@ -89,6 +89,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spin Protection", "..\plugi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Need Client Hook", "Need Client Hook", "{F715265D-4DBB-43B1-A159-979B912D095B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Restarts", "..\plugins\restarts_plugin\Restarts.vcxproj", "{E40976AF-586C-4EB4-83E9-5B660D0251B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -714,6 +716,24 @@ Global
 		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|Win32.Build.0 = Release|Win32
 		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|x64.ActiveCfg = Debug|Win32
 		{B7E11334-9268-4963-8787-C843A9031230}.ReleaseWithDebug|x64.Build.0 = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Debug|Win32.Build.0 = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Debug|x64.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Generation|Win32.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Generation|Win32.Build.0 = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Generation|x64.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Generation|x64.Build.0 = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Release|Win32.ActiveCfg = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Release|Win32.Build.0 = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.Release|x64.ActiveCfg = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseVersion|Win32.ActiveCfg = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseVersion|Win32.Build.0 = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseVersion|x64.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseVersion|x64.Build.0 = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseWithDebug|Win32.ActiveCfg = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseWithDebug|Win32.Build.0 = Release|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseWithDebug|x64.ActiveCfg = Debug|Win32
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8}.ReleaseWithDebug|x64.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -757,6 +777,7 @@ Global
 		{1BB57539-858B-4AB7-994E-401597653E64} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{B7E11334-9268-4963-8787-C843A9031230} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{F715265D-4DBB-43B1-A159-979B912D095B} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{E40976AF-586C-4EB4-83E9-5B660D0251B8} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
