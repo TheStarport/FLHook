@@ -21,6 +21,7 @@ uint set_iMaxGroupSize;
 uint set_iDisableNPCSpawns;
 bool set_bPersistGroup;
 bool set_bLocalTime;
+bool set_bDockingMessages;
 
 // log
 bool set_bDebug;
@@ -130,6 +131,7 @@ void LoadSettings() {
     set_bPersistGroup =
         IniGetB(set_scCfgFile, "General", "PersistGroup", false);
     set_bLocalTime = IniGetB(set_scCfgFile, "General", "LocalTime", false);
+    set_bDockingMessages = IniGetB(set_scCfgFile, "General", "DockingMessages", true);
 
     // Log
     set_bDebug = IniGetB(set_scCfgFile, "Log", "Debug", false);

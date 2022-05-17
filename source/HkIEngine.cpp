@@ -108,6 +108,19 @@ int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HO
 
     int retVal = 0;
     TRY_HOOK {
+        // Print out a message when a player ship docks.
+        if (set_bDockingMessages && response == PROCEED_DOCK) {
+            uint iClientID = HkGetClientIDByShip(shipID);
+            if (iClientID) {
+                std::wstring wscMsg =
+                    L"Traffic control alert: %player has requested to dock";
+                wscMsg = ReplaceStr(
+                    wscMsg, L"%player",
+                    (const wchar_t *)Players.GetActiveCharacterName(iClientID));
+                PrintLocalUserCmdText(iClientID, wscMsg, 15000); 
+            }
+        }
+        // Actually dock
         retVal = pub::SpaceObj::Dock(shipID, spaceID, flags, response);
     }
     CATCH_HOOK({})

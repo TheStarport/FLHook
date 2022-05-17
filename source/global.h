@@ -188,6 +188,7 @@ extern EXPORT bool set_bUserCmdHelp;
 extern EXPORT bool set_bDefaultLocalChat;
 extern EXPORT uint set_iDisableNPCSpawns;
 extern EXPORT bool set_bLocalTime;
+extern EXPORT bool set_bDockingMessages;
 extern EXPORT int set_iPort;
 extern EXPORT int set_iWPort;
 extern EXPORT int set_iEPort;
