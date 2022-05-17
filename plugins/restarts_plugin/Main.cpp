@@ -240,8 +240,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
-    pi->name("Rename");
-    pi->shortName("rename");
+    pi->name("Restarts");
+    pi->shortName("restarts");
     pi->mayPause(true);
     pi->mayUnload(true);
     pi->returnCode(&returncode);
