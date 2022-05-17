@@ -924,7 +924,18 @@ bool UserCmd_Process(uint& iClientID, const std::wstring &wscCmd) {
 
 // Hook on /help
 EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
-
+    PrintUserCmdText(iClientID,
+                     L"/maketag <tag> <master password> <description>");
+    PrintUserCmdText(iClientID,
+                     L"/droptag <tag> <master password>");
+    PrintUserCmdText(iClientID,
+                     L"/settagpass <tag> <master password> <rename password>");
+    PrintUserCmdText(iClientID,
+                     L"/renameme <name> <password-optional>");
+    PrintUserCmdText(iClientID,
+                     L"/movechar <name> <password>");
+    PrintUserCmdText(iClientID,
+                     L"/set movecharcode <password>");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -981,5 +992,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo *pi) {
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
     pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
     pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-    pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &UserCmd_Help);
 }
