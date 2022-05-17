@@ -379,6 +379,17 @@ void BaseEnter__InnerAfter(uint baseID, uint clientID) {
                      ToWChar(Players.GetActiveCharacterName(clientID)),
                      clientID, HkGetBaseNickByID(baseID).c_str(),
                      HkGetPlayerSystem(clientID).c_str());
+
+        // print to log if the char has too much money
+        float fValue;
+        if (HKGetShipValue(
+                (const wchar_t *)Players.GetActiveCharacterName(clientID),
+                fValue) == HKE_OK) {
+            if (fValue > 2100000000.0f) {
+                std::wstring charname = (const wchar_t *)Players.GetActiveCharacterName(clientID);
+                AddLog(Error, L"Possible corrupt ship charname=%s asset_value=%0.0f", charname.c_str(), fValue);
+            }
+        }
     }
     CATCH_HOOK({})
 }
