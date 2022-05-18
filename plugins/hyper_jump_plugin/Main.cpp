@@ -1038,38 +1038,6 @@ EXPORT void UserCmd_Help(uint& iClientID, const std::wstring &wscParam) {
 // Admin commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Chase a player. Works across systems but needs improvement of the path
- * selection algorithm */
-void AdminCmd_Chase(CCmds *cmds, const std::wstring &wscCharname) {
-    if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission");
-        return;
-    }
-
-    HKPLAYERINFO adminPlyr;
-    if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK) {
-        cmds->Print(L"ERR Not in space");
-        return;
-    }
-
-    HKPLAYERINFO targetPlyr;
-    if (HkGetPlayerInfo(wscCharname, targetPlyr, false) != HKE_OK ||
-        targetPlyr.iShip == 0) {
-        cmds->Print(L"ERR Player not found or not in space");
-        return;
-    }
-
-    Vector pos;
-    Matrix ornt;
-    pub::SpaceObj::GetLocation(targetPlyr.iShip, pos, ornt);
-    pos.y += 100;
-
-    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
-                targetPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
-    SwitchSystem(adminPlyr.iClientID, targetPlyr.iSystem, pos, ornt);
-    return;
-}
-
 /** Move to location */
 void AdminCmd_JumpTest(CCmds *cmds, const std::wstring &sys) {
     if (!(cmds->rights & RIGHT_SUPERADMIN)) {
@@ -1091,137 +1059,6 @@ void AdminCmd_JumpTest(CCmds *cmds, const std::wstring &sys) {
     jd.vTargetPosition.y = ((rand() * 10) % 400000) - 200000.0f;
     jd.vTargetPosition.z = ((rand() * 10) % 400000) - 200000.0f;
     jd.jump_timer = 8;
-    return;
-}
-
-/** Beam admin to a base. Works across systems but needs improvement of the path
- * selection algorithm */
-bool AdminCmd_Beam(CCmds *cmds, const std::wstring &wscCharname,
-                   const std::wstring &wscTargetBaseName) {
-    if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission");
-        return true;
-        ;
-    }
-
-    HKPLAYERINFO info;
-    if (HkGetPlayerInfo(wscCharname, info, false) != HKE_OK) {
-        cmds->Print(L"ERR Player not found");
-        return true;
-    }
-
-    if (info.iShip == 0) {
-        cmds->Print(L"ERR Player not in space");
-        return true;
-    }
-
-    // Search for an exact match at the start of the name
-    struct Universe::IBase *baseinfo = Universe::GetFirstBase();
-    while (baseinfo) {
-        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
-        if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0) {
-            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-            if (info.iSystem != baseinfo->iSystemID) {
-                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
-                std::wstring wscCharFileName;
-                HkGetCharFileName(info.wscCharname, wscCharFileName);
-                wscCharFileName += L".fl";
-                CHARACTER_ID cID;
-                strcpy(cID.szCharFilename,
-                       wstos(wscCharFileName.substr(0, 14)).c_str());
-                Server.CharacterSelect(cID, info.iClientID);
-            }
-            return true;
-        }
-        baseinfo = Universe::GetNextBase();
-    }
-
-    // Exact match failed, try a for an partial match
-    baseinfo = Universe::GetFirstBase();
-    while (baseinfo) {
-        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
-        if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1) {
-            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-            if (info.iSystem != baseinfo->iSystemID) {
-                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
-                std::wstring wscCharFileName;
-                HkGetCharFileName(info.wscCharname, wscCharFileName);
-                wscCharFileName += L".fl";
-                CHARACTER_ID cID;
-                strcpy(cID.szCharFilename,
-                       wstos(wscCharFileName.substr(0, 14)).c_str());
-                Server.CharacterSelect(cID, info.iClientID);
-            }
-            return true;
-        }
-        baseinfo = Universe::GetNextBase();
-    }
-
-    // Fall back to default flhook .beam command
-    return false;
-}
-
-/** Pull a player to you. Works across systems but needs improvement of the path
- * selection algorithm */
-void AdminCmd_Pull(CCmds *cmds, const std::wstring &wscCharname) {
-    if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission");
-        return;
-    }
-
-    HKPLAYERINFO adminPlyr;
-    if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
-        adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space");
-        return;
-    }
-
-    HKPLAYERINFO targetPlyr;
-    if (HkGetPlayerInfo(wscCharname, targetPlyr, false) != HKE_OK) {
-        cmds->Print(L"ERR Player not found");
-        return;
-    }
-
-    Vector pos;
-    Matrix ornt;
-    pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, ornt);
-    pos.y += 400;
-
-    cmds->Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
-                adminPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
-    SwitchSystem(targetPlyr.iClientID, adminPlyr.iSystem, pos, ornt);
-    return;
-}
-
-/** Move to location */
-void AdminCmd_Move(CCmds *cmds, float x, float y, float z) {
-    if (cmds->ArgStrToEnd(1).length() == 0) {
-        cmds->Print(L"ERR Usage: move x y z");
-        return;
-    }
-
-    if (!(cmds->rights & RIGHT_SUPERADMIN)) {
-        cmds->Print(L"ERR No permission");
-        return;
-    }
-
-    HKPLAYERINFO adminPlyr;
-    if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK ||
-        adminPlyr.iShip == 0) {
-        cmds->Print(L"ERR Not in space");
-        return;
-    }
-
-    Vector pos;
-    Matrix rot;
-    pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, rot);
-    pos.x = x;
-    pos.y = y;
-    pos.z = z;
-    cmds->Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
-    HkRelocateClient(adminPlyr.iClientID, pos, rot);
     return;
 }
 
@@ -1310,27 +1147,7 @@ void AdminCmd_TestBot(CCmds *cmds, const std::wstring &wscSystemNick,
 }
 
 bool ExecuteCommandString(CCmds *cmds, const std::wstring &wscCmd) {
-
-    if (IS_CMD("move")) {
-        returncode = ReturnCode::SkipAll;
-        AdminCmd_Move(cmds, cmds->ArgFloat(1), cmds->ArgFloat(2),
-                      cmds->ArgFloat(3));
-        return true;
-    } else if (IS_CMD("chase")) {
-        returncode = ReturnCode::SkipAll;
-        AdminCmd_Chase(cmds, cmds->ArgCharname(1));
-        return true;
-    } else if (IS_CMD("beam")) {
-        if (AdminCmd_Beam(cmds, cmds->ArgCharname(1),
-                          cmds->ArgStrToEnd(2))) {
-            returncode = ReturnCode::SkipAll;
-            return true;
-        }
-    } else if (IS_CMD("pull")) {
-        returncode = ReturnCode::SkipAll;
-        AdminCmd_Pull(cmds, cmds->ArgCharname(1));
-        return true;
-    } else if (IS_CMD("testbot")) {
+    if (IS_CMD("testbot")) {
         returncode = ReturnCode::SkipAll;
         AdminCmd_TestBot(cmds, cmds->ArgStr(1), cmds->ArgInt(2));
         return true;
