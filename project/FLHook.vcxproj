@@ -243,6 +243,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\HkCharacterIni.cpp" />
+    <ClCompile Include="..\source\HkClientServerInterface.cpp" />
     <ClCompile Include="..\source\HkFuncCache.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />
@@ -277,7 +278,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
-    <ClCompile Include="..\source\__generated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
@@ -315,7 +315,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md" />
-    <None Include="..\source\Generated.inl" />
     <None Include="..\source\HkIClientImpl.inl" />
     <None Include="..\source\HkIServerImpl.inl" />
   </ItemGroup>

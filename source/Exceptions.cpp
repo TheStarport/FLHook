@@ -1,5 +1,5 @@
-﻿#include "ExceptionInfo.h"
-#include "global.h"
+﻿#include "global.h"
+#include "ExceptionInfo.h"
 #include "hook.h"
 
 #ifdef EXTENDED_EXCEPTION_LOGGING

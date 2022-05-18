@@ -30,6 +30,7 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 Cpp11BracedListStyle: 'false'
 DerivePointerAlignment: 'false'
 FixNamespaceComments: 'true'
+SortIncludes: 'false'
 IncludeBlocks: Regroup
 IndentCaseLabels: 'true'
 IndentPPDirectives: BeforeHash

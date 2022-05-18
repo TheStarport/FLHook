@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "flcodec.h"
 #include "global.h"
+#include "flcodec.h"
 
 #include <spdlog/logger.h>
 #include <time.h>

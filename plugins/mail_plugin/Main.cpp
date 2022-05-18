@@ -7,11 +7,9 @@
 // being notified and/or mentioned somewhere.
 //
 
-#include "Mail.h"
-
 #include <FLHook.h>
 #include <plugin.h>
-#include <utility>
+#include "Mail.h"
 
 ReturnCode returncode = ReturnCode::Default;
 

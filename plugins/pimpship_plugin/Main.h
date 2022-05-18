@@ -1,6 +1,5 @@
 #pragma once
 
-#include <FLCoreServer.h>
 #include <FLHook.h>
 #include <plugin.h>
 

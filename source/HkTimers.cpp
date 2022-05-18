@@ -1,9 +1,9 @@
-﻿#include "hook.h"
+﻿#include <winsock2.h>
+#include "hook.h"
 #include "wildcards.hh"
 
 #include <WS2tcpip.h>
 #include <math.h>
-#include <winsock2.h>
 
 CTimer::CTimer(std::string sFunc, uint iWarn)
 {

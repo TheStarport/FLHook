@@ -7,8 +7,6 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-#include <FLCoreCommon.h>
-#include <FLCoreServer.h>
 #include <FLHook.h>
 #include <plugin.h>
 

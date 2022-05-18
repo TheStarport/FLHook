@@ -1,8 +1,6 @@
-//
-// WARNING: THIS IS AN AUTO-GENERATED FILE, DO NOT EDIT!
-//
-
-#include <Generated.inl>
+#include <Hook.h>
+#include "HkIClientImpl.inl"
+#include "HkIServerImpl.inl"
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint clientID, XFireWeaponInfo& fwi)
 {

@@ -101,7 +101,6 @@
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
-    <ClCompile Include="..\source\__generated.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp">
       <Filter>Hook\hooks</Filter>
     </ClCompile>
@@ -128,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="..\source\HkCharacterIni.cpp">
       <Filter>Hook\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\HkClientServerInterface.cpp">
+      <Filter>Hook\hooks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -204,9 +206,6 @@
       <Filter>sdk</Filter>
     </None>
     <None Include="..\source\HkIClientImpl.inl">
-      <Filter>Hook\hooks</Filter>
-    </None>
-    <None Include="..\source\Generated.inl">
       <Filter>Hook\hooks</Filter>
     </None>
     <None Include="..\source\HkIServerImpl.inl">

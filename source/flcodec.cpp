@@ -26,14 +26,15 @@ EDITED by mc_horst for use in FLHook
 #include <sys/stat.h>
 #include <sys/types.h>
 // #include <unistd.h>
-#include "flcodec.h"
-#include "global.h"
 
 #include <errno.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "global.h"
+#include "flcodec.h"
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";
