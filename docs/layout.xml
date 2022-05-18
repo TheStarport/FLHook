@@ -1,6 +1,16 @@
 <navindex>
     <tab type="mainpage" visible="yes" title="" />
-    <tab type="pages" visible="yes" title="" intro="" />
+    <tab type="usergroup" visible="yes" title="Usage" url="[none]">
+        <tab type="user" visible="true" url="md_docs__usage__administrative__commands.html" title="Administrative Commands" />
+        <tab type="user" visible="true" url="md_docs__usage__plugins.html" title="Plugins" />
+        <tab type="user" visible="true" url="md_docs__usage__logging.html" title="Logging" />
+        <tab type="user" visible="true" url="md_docs__usage__event__mode.html" title="Event Mode" />
+        <tab type="user" visible="true" url="md_docs__usage__blowfish__encryption.html" title="Blowfish Encryption" />
+    </tab>
+    <tab type="usergroup" visible="yes" title="Plugin Development" url="[none]">
+        <tab type="user" visible="true" url="md_docs__development__note__on__the__stl.html" title="Note on the STL" />
+        <tab type="user" visible="true" url="md_docs__usage__inter__plugin__communication___i_p_c_.html" title="Inter-Plugin Communication (IPC)" />
+    </tab>
     <tab type="usergroup" visible="yes" title="API Documentation" intro="">
         <tab type="modules" visible="yes" title="" intro="" />
         <tab type="namespaces" visible="yes" title="">
