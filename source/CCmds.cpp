@@ -768,71 +768,75 @@ void CCmds::CmdBeam(std::variant<uint, std::wstring> player,
                    const std::wstring &wscTargetBaseName) {
     RIGHT_CHECK(RIGHT_BEAMKILL);
 
-    HKPLAYERINFO info;
-    if (HkGetPlayerInfo(player, info, false) != HKE_OK) {
-        Print(L"ERR Player not found");
-        return;
-    }
-
-    if (info.iShip == 0) {
-        Print(L"ERR Player not in space");
-        return;
-    }
-
-    // Search for an exact match at the start of the name
-    struct Universe::IBase *baseinfo = Universe::GetFirstBase();
-    while (baseinfo) {
-        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
-        if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0) {
-            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-            if (info.iSystem != baseinfo->iSystemID) {
-                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
-                std::wstring wscCharFileName;
-                HkGetCharFileName(info.wscCharname, wscCharFileName);
-                wscCharFileName += L".fl";
-                CHARACTER_ID cID;
-                strcpy(cID.szCharFilename,
-                       wstos(wscCharFileName.substr(0, 14)).c_str());
-                Server.CharacterSelect(cID, info.iClientID);
-            }
-            return;
-        }
-        baseinfo = Universe::GetNextBase();
-    }
-
-    // Exact match failed, try a for an partial match
-    baseinfo = Universe::GetFirstBase();
-    while (baseinfo) {
-        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
-        if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1) {
-            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-            if (info.iSystem != baseinfo->iSystemID) {
-                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
-                std::wstring wscCharFileName;
-                HkGetCharFileName(info.wscCharname, wscCharFileName);
-                wscCharFileName += L".fl";
-                CHARACTER_ID cID;
-                strcpy(cID.szCharFilename,
-                       wstos(wscCharFileName.substr(0, 14)).c_str());
-                Server.CharacterSelect(cID, info.iClientID);
-            }
-            return;
-        }
-        baseinfo = Universe::GetNextBase();
-    }
-
     // Fall back to default flhook .beam command
     try {
-        if (HKSUCCESS(HkBeam(player, wscTargetBaseName)))
+        if (HKSUCCESS(HkBeam(player, wscTargetBaseName))) {
             Print(L"OK");
-        else
-            PrintError();
+            return;
+        }
+        else {
+            HKPLAYERINFO info;
+            if (HkGetPlayerInfo(player, info, false) != HKE_OK) {
+                Print(L"ERR Player not found");
+                return;
+            }
+
+            if (info.iShip == 0) {
+                Print(L"ERR Player not in space");
+                return;
+            }
+
+            // Search for an exact match at the start of the name
+            struct Universe::IBase *baseinfo = Universe::GetFirstBase();
+            while (baseinfo) {
+                std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+                if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0) {
+                    pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
+                    if (info.iSystem != baseinfo->iSystemID) {
+                        Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
+                        Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+                        std::wstring wscCharFileName;
+                        HkGetCharFileName(info.wscCharname, wscCharFileName);
+                        wscCharFileName += L".fl";
+                        CHARACTER_ID cID;
+                        strcpy(cID.szCharFilename,
+                               wstos(wscCharFileName.substr(0, 14)).c_str());
+                        Server.CharacterSelect(cID, info.iClientID);
+                    }
+                    return;
+                }
+                baseinfo = Universe::GetNextBase();
+            }
+
+            // Exact match failed, try a for an partial match
+            baseinfo = Universe::GetFirstBase();
+            while (baseinfo) {
+                std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+                if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1) {
+                    pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
+                    if (info.iSystem != baseinfo->iSystemID) {
+                        Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
+                        Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+                        std::wstring wscCharFileName;
+                        HkGetCharFileName(info.wscCharname, wscCharFileName);
+                        wscCharFileName += L".fl";
+                        CHARACTER_ID cID;
+                        strcpy(cID.szCharFilename,
+                               wstos(wscCharFileName.substr(0, 14)).c_str());
+                        Server.CharacterSelect(cID, info.iClientID);
+                    }
+                    return;
+                }
+                baseinfo = Universe::GetNextBase();
+            }
+        }
     } catch (...) { // exeption, kick player
         HkKick(player);
         Print(L"ERR exception occured, player kicked");
     }
+
+    // Couldn't beam any way
+    PrintError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
