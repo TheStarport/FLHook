@@ -11,13 +11,13 @@
 
 #if defined(_DEBUG) && defined(WIN32)
 
-#include <tchar.h>
-#include <windows.h>
+	#include <tchar.h>
+	#include <windows.h>
 
-#pragma comment(lib, "imagehlp.lib")
-#pragma warning(disable : 4172) // returning address of a temp
+	#pragma comment(lib, "imagehlp.lib")
+	#pragma warning(disable : 4172) // returning address of a temp
 
-#define BUFFERSIZE 512
+	#define BUFFERSIZE 512
 
 BOOL InitSymInfo(PCSTR lpszInitialSymbolPath = NULL, BOOL bSysPath = FALSE);
 void InitSymPath(PSTR lpszSymbolPath, PCSTR lpszIniPath, BOOL bSysPath);
@@ -25,16 +25,16 @@ BOOL GetFuncInfo(ULONG fnAddress, ULONG stackAddress, LPTSTR lpszSymbol);
 LPCTSTR GetFuncName();
 BOOL KillSymInfo();
 
-#define __FUNCTION__ GetFuncName()
+	#define __FUNCTION__ GetFuncName()
 
 #else
-#include <tchar.h>
-#include <windows.h>
+	#include <tchar.h>
+	#include <windows.h>
 
 BOOL InitSymInfo(PCSTR);
 BOOL KillSymInfo();
 
-#define __FUNCTION__ _T("")
+	#define __FUNCTION__ _T("")
 
 #endif
 

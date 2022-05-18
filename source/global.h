@@ -3,24 +3,24 @@
 #pragma warning(disable : 4311 4786)
 
 // includes
+#include "Singleton.h"
 #include "blowfish.h"
+
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <functional>
 #include <list>
 #include <map>
 #include <set>
+#include <sstream>
 #include <stdio.h>
 #include <string>
-#include <sstream>
-#include <windows.h>
-#include <filesystem>
 #include <variant>
+#include <windows.h>
 
-#include "Singleton.h"
-
-typedef void *(*st6_malloc_t)(size_t);
-typedef void (*st6_free_t)(void *);
+typedef void* (*st6_malloc_t)(size_t);
+typedef void (*st6_free_t)(void*);
 
 extern EXPORT st6_malloc_t st6_malloc;
 extern EXPORT st6_free_t st6_free;
@@ -32,8 +32,8 @@ extern EXPORT st6_free_t st6_free;
 #include <FLCoreServer.h>
 
 #define TIME_UPDATE 50
-#define IMPORT __declspec(dllimport)
-#define EXPORT __declspec(dllexport)
+#define IMPORT      __declspec(dllimport)
+#define EXPORT      __declspec(dllexport)
 
 // typedefs
 typedef unsigned int uint;
@@ -43,14 +43,16 @@ typedef unsigned long ulong;
 typedef unsigned __int64 mstime;
 
 // structures
-struct INISECTIONVALUE {
-    std::string scKey;
-    std::string scValue;
+struct INISECTIONVALUE
+{
+	std::string scKey;
+	std::string scValue;
 };
 
-struct MULTIKILLMESSAGE {
-    uint iKillsInARow;
-    std::wstring wscMessage;
+struct MULTIKILLMESSAGE
+{
+	uint iKillsInARow;
+	std::wstring wscMessage;
 };
 
 // functions
@@ -62,97 +64,88 @@ void LoadSettings();
 void ProcessPendingCommands();
 
 // Tools
-class EXPORT Console {
-    static void Log(std::wstring &wStr, va_list args, void* addr);
+class EXPORT Console
+{
+	static void Log(std::wstring& wStr, va_list args, void* addr);
 
-    // Might use more later?
-    enum class ConsoleColor {
-        BLUE = 0x0001,
-        GREEN = 0x0002,
-        CYAN = BLUE | GREEN,
-        RED = 0x0004,
-        PURPLE = RED | BLUE,
-        YELLOW = RED | GREEN,
-        WHITE = RED | BLUE | GREEN,
+	// Might use more later?
+	enum class ConsoleColor
+	{
+		BLUE = 0x0001,
+		GREEN = 0x0002,
+		CYAN = BLUE | GREEN,
+		RED = 0x0004,
+		PURPLE = RED | BLUE,
+		YELLOW = RED | GREEN,
+		WHITE = RED | BLUE | GREEN,
 
-        STRONG_BLUE = 0x0008 | BLUE,
-        STRONG_GREEN = 0x0008 | GREEN,
-        STRONG_CYAN = 0x0008 | CYAN,
-        STRONG_RED = 0x0008 | RED,
-        STRONG_PURPLE = 0x0008 | PURPLE,
-        STRONG_YELLOW = 0x0008 | YELLOW,
-        STRONG_WHITE = 0x0008 | WHITE,
-    };
+		STRONG_BLUE = 0x0008 | BLUE,
+		STRONG_GREEN = 0x0008 | GREEN,
+		STRONG_CYAN = 0x0008 | CYAN,
+		STRONG_RED = 0x0008 | RED,
+		STRONG_PURPLE = 0x0008 | PURPLE,
+		STRONG_YELLOW = 0x0008 | YELLOW,
+		STRONG_WHITE = 0x0008 | WHITE,
+	};
 
   public:
-    // String
-    static void ConPrint(std::string str, ...);
-    static void ConErr(std::string str, ...);
-    static void ConWarn(std::string str, ...);
-    static void ConInfo(std::string str, ...);
-    static void ConDebug(std::string str, ...);
+	// String
+	static void ConPrint(std::string str, ...);
+	static void ConErr(std::string str, ...);
+	static void ConWarn(std::string str, ...);
+	static void ConInfo(std::string str, ...);
+	static void ConDebug(std::string str, ...);
 
-    // Wide-string
-    static void ConPrint(std::wstring wStr, ...);
-    static void ConErr(std::wstring wStr, ...);
-    static void ConWarn(std::wstring wStr, ...);
-    static void ConInfo(std::wstring wStr, ...);
-    static void ConDebug(std::wstring wStr, ...);
+	// Wide-string
+	static void ConPrint(std::wstring wStr, ...);
+	static void ConErr(std::wstring wStr, ...);
+	static void ConWarn(std::wstring wStr, ...);
+	static void ConInfo(std::wstring wStr, ...);
+	static void ConDebug(std::wstring wStr, ...);
 };
 
-EXPORT std::wstring stows(const std::string &scText);
-EXPORT std::string wstos(const std::wstring &wscText);
-EXPORT std::string IniGetS(const std::string &scFile, const std::string &scApp,
-                           const std::string &scKey,
-                           const std::string &scDefault);
-EXPORT int IniGetI(const std::string &scFile, const std::string &scApp,
-                   const std::string &scKey, int iDefault);
-EXPORT bool IniGetB(const std::string &scFile, const std::string &scApp,
-                    const std::string &scKey, bool bDefault);
-EXPORT void IniWrite(const std::string &scFile, const std::string &scApp,
-                     const std::string &scKey, const std::string &scValue);
-EXPORT void WriteProcMem(void *pAddress, const void *pMem, int iSize);
-EXPORT void ReadProcMem(void *pAddress, void *pMem, int iSize);
-EXPORT int ToInt(const std::wstring &wscStr);
-EXPORT uint ToUInt(const std::wstring &wscStr);
-EXPORT std::wstring XMLText(const std::wstring &wscText);
-EXPORT std::wstring GetParam(const std::wstring &wscLine, wchar_t wcSplitChar,
-                             uint iPos);
+EXPORT std::wstring stows(const std::string& scText);
+EXPORT std::string wstos(const std::wstring& wscText);
+EXPORT std::string IniGetS(
+    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault);
+EXPORT int IniGetI(const std::string& scFile, const std::string& scApp, const std::string& scKey, int iDefault);
+EXPORT bool IniGetB(const std::string& scFile, const std::string& scApp, const std::string& scKey, bool bDefault);
+EXPORT void IniWrite(
+    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scValue);
+EXPORT void WriteProcMem(void* pAddress, const void* pMem, int iSize);
+EXPORT void ReadProcMem(void* pAddress, void* pMem, int iSize);
+EXPORT int ToInt(const std::wstring& wscStr);
+EXPORT uint ToUInt(const std::wstring& wscStr);
+EXPORT std::wstring XMLText(const std::wstring& wscText);
+EXPORT std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos);
 EXPORT std::string GetParam(std::string scLine, char cSplitChar, uint iPos);
-EXPORT std::wstring ReplaceStr(const std::wstring &wscSource,
-                               const std::wstring &wscSearchFor,
-                               const std::wstring &wscReplaceWith);
-EXPORT void IniDelSection(const std::string &scFile, const std::string &scApp);
-EXPORT void IniDelete(const std::string &scFile, const std::string &scApp,
-                      const std::string &scKey);
-EXPORT void IniWriteW(const std::string &scFile, const std::string &scApp,
-                      const std::string &scKey, const std::wstring &wscValue);
-EXPORT std::wstring IniGetWS(const std::string &scFile,
-                             const std::string &scApp, const std::string &scKey,
-                             const std::wstring &wscDefault);
+EXPORT std::wstring ReplaceStr(
+    const std::wstring& wscSource, const std::wstring& wscSearchFor, const std::wstring& wscReplaceWith);
+EXPORT void IniDelSection(const std::string& scFile, const std::string& scApp);
+EXPORT void IniDelete(const std::string& scFile, const std::string& scApp, const std::string& scKey);
+EXPORT void IniWriteW(
+    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue);
+EXPORT std::wstring IniGetWS(
+    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault);
 EXPORT std::wstring ToMoneyStr(int iCash);
-EXPORT float IniGetF(const std::string &scFile, const std::string &scApp,
-                     const std::string &scKey, float fDefault);
-EXPORT void IniGetSection(const std::string &scFile, const std::string &scApp,
-                          std::list<INISECTIONVALUE> &lstValues);
-EXPORT float ToFloat(const std::wstring &wscStr);
+EXPORT float IniGetF(const std::string& scFile, const std::string& scApp, const std::string& scKey, float fDefault);
+EXPORT void IniGetSection(const std::string& scFile, const std::string& scApp, std::list<INISECTIONVALUE>& lstValues);
+EXPORT float ToFloat(const std::wstring& wscStr);
 EXPORT mstime timeInMS();
-EXPORT void SwapBytes(void *ptr, uint iLen);
-EXPORT FARPROC PatchCallAddr(char *hMod, DWORD dwInstallAddress,
-                             char *dwHookFunction);
-template <typename Str> Str Trim(const Str &scIn);
-template EXPORT std::string Trim(const std::string &scIn);
-template EXPORT std::wstring Trim(const std::wstring &scIn);
+EXPORT void SwapBytes(void* ptr, uint iLen);
+EXPORT FARPROC PatchCallAddr(char* hMod, DWORD dwInstallAddress, char* dwHookFunction);
+template<typename Str>
+Str Trim(const Str& scIn);
+template EXPORT std::string Trim(const std::string& scIn);
+template EXPORT std::wstring Trim(const std::wstring& scIn);
 EXPORT BOOL FileExists(LPCTSTR szPath);
 EXPORT std::wstring ToLower(std::wstring wscStr);
 EXPORT std::string ToLower(std::string wscStr);
-EXPORT std::wstring GetParamToEnd(const std::wstring &wscLine,
-                                  wchar_t wcSplitChar, uint iPos);
-EXPORT void ini_write_wstring(FILE *file, const std::string &parmname,
-                              const std::wstring &in);
-EXPORT void ini_get_wstring(INI_Reader &ini, std::wstring &wscValue);
+EXPORT std::wstring GetParamToEnd(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos);
+EXPORT void ini_write_wstring(FILE* file, const std::string& parmname, const std::wstring& in);
+EXPORT void ini_get_wstring(INI_Reader& ini, std::wstring& wscValue);
 EXPORT std::wstring GetTimeString(bool bLocalTime);
-EXPORT std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string &scExtension);
+EXPORT std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string& scExtension);
 EXPORT mstime GetTimeInMS();
 
 // variables
@@ -193,7 +186,7 @@ extern EXPORT int set_iPort;
 extern EXPORT int set_iWPort;
 extern EXPORT int set_iEPort;
 extern EXPORT int set_iEWPort;
-extern EXPORT BLOWFISH_CTX *set_BF_CTX;
+extern EXPORT BLOWFISH_CTX* set_BF_CTX;
 extern EXPORT std::wstring set_wscKickMsg;
 extern EXPORT std::wstring set_wscUserCmdStyle;
 extern EXPORT std::wstring set_wscAdminCmdStyle;
@@ -226,96 +219,101 @@ extern EXPORT bool set_bLogLocalSocketCmds;
 extern EXPORT bool set_bLogUserCmds;
 extern EXPORT bool set_bPerfTimer;
 
-struct SYSTEMINFO {
-    /** The system nickname */
-    std::string sysNick;
+struct SYSTEMINFO
+{
+	/** The system nickname */
+	std::string sysNick;
 
-    /** The system id */
-    uint systemId;
+	/** The system id */
+	uint systemId;
 
-    /** The system scale */
-    float scale;
+	/** The system scale */
+	float scale;
 };
 
-struct TransformMatrix {
-    float d[4][4];
+struct TransformMatrix
+{
+	float d[4][4];
 };
 
-struct ZONE {
-    /** The system nickname */
-    std::string sysNick;
+struct ZONE
+{
+	/** The system nickname */
+	std::string sysNick;
 
-    /** The zone nickname */
-    std::string zoneNick;
+	/** The zone nickname */
+	std::string zoneNick;
 
-    /** The id of the system for this zone */
-    uint systemId;
+	/** The id of the system for this zone */
+	uint systemId;
 
-    /** The zone transformation matrix */
-    TransformMatrix transform;
+	/** The zone transformation matrix */
+	TransformMatrix transform;
 
-    /** The zone ellipsoid size */
-    Vector size;
+	/** The zone ellipsoid size */
+	Vector size;
 
-    /** The zone position */
-    Vector pos;
+	/** The zone position */
+	Vector pos;
 
-    /** The damage this zone causes per second */
-    int damage;
+	/** The damage this zone causes per second */
+	int damage;
 
-    /** Is this an encounter zone */
-    bool encounter;
+	/** Is this an encounter zone */
+	bool encounter;
 };
 
-class JUMPPOINT {
+class JUMPPOINT
+{
   public:
-    /** The system nickname */
-    std::string sysNick;
+	/** The system nickname */
+	std::string sysNick;
 
-    /** The jump point nickname */
-    std::string jumpNick;
+	/** The jump point nickname */
+	std::string jumpNick;
 
-    /** The jump point destination system nickname */
-    std::string jumpDestSysNick;
+	/** The jump point destination system nickname */
+	std::string jumpDestSysNick;
 
-    /** The id of the system for this jump point. */
-    uint System;
+	/** The id of the system for this jump point. */
+	uint System;
 
-    /** The id of the jump point. */
-    uint jumpID;
+	/** The id of the jump point. */
+	uint jumpID;
 
-    /** The jump point destination system id */
-    uint jumpDestSysID;
+	/** The jump point destination system id */
+	uint jumpDestSysID;
 };
 
-struct LOOTABLE_ZONE {
-    /** The zone nickname */
-    std::string zoneNick;
+struct LOOTABLE_ZONE
+{
+	/** The zone nickname */
+	std::string zoneNick;
 
-    /** The id of the system for this lootable zone */
-    uint systemID;
+	/** The id of the system for this lootable zone */
+	uint systemID;
 
-    /** The nickname and arch id of the loot dropped by the asteroids */
-    std::string lootNick;
-    uint iLootID;
+	/** The nickname and arch id of the loot dropped by the asteroids */
+	std::string lootNick;
+	uint iLootID;
 
-    /** The arch id of the crate the loot is dropped in */
-    uint iCrateID;
+	/** The arch id of the crate the loot is dropped in */
+	uint iCrateID;
 
-    /** The minimum number of loot items to drop */
-    uint iMinLoot;
+	/** The minimum number of loot items to drop */
+	uint iMinLoot;
 
-    /** The maximum number of loot items to drop */
-    uint iMaxLoot;
+	/** The maximum number of loot items to drop */
+	uint iMaxLoot;
 
-    /** The drop difficultly */
-    uint iLootDifficulty;
+	/** The drop difficultly */
+	uint iLootDifficulty;
 
-    /** The lootable zone ellipsoid size */
-    Vector size;
+	/** The lootable zone ellipsoid size */
+	Vector size;
 
-    /** The lootable zone position */
-    Vector pos;
+	/** The lootable zone position */
+	Vector pos;
 };
 typedef std::multimap<uint, LOOTABLE_ZONE, std::less<>> zone_map_t;
 
@@ -328,22 +326,19 @@ extern EXPORT std::multimap<uint, ZONE> zones;
 /** A map of system id to jumppoint info */
 extern EXPORT std::multimap<uint, JUMPPOINT> jumpPoints;
 
-namespace ZoneUtilities {
-EXPORT void ReadUniverse(zone_map_t *set_mmapZones);
-EXPORT void ReadLootableZone(zone_map_t &set_mmapZones,
-                             const std::string &systemNick,
-                             const std::string &defaultZoneNick,
-                             const std::string &file);
-EXPORT void ReadSystemLootableZones(zone_map_t &set_mmapZones,
-                                    const std::string &systemNick,
-                                    const std::string &file);
-EXPORT void ReadSystemZones(zone_map_t &set_mmapZones,
-                            const std::string &systemNick,
-                            const std::string &file);
-EXPORT bool InZone(uint systemID, const Vector &pos, ZONE &rlz);
-EXPORT bool InDeathZone(uint systemID, const Vector &pos, ZONE &rlz);
-EXPORT SYSTEMINFO *GetSystemInfo(uint systemID);
-EXPORT void PrintZones();
+namespace ZoneUtilities
+{
+	EXPORT void ReadUniverse(zone_map_t* set_mmapZones);
+	EXPORT void ReadLootableZone(
+	    zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& defaultZoneNick,
+	    const std::string& file);
+	EXPORT void ReadSystemLootableZones(
+	    zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& file);
+	EXPORT void ReadSystemZones(zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& file);
+	EXPORT bool InZone(uint systemID, const Vector& pos, ZONE& rlz);
+	EXPORT bool InDeathZone(uint systemID, const Vector& pos, ZONE& rlz);
+	EXPORT SYSTEMINFO* GetSystemInfo(uint systemID);
+	EXPORT void PrintZones();
 } // namespace ZoneUtilities
 
 // Serialization

@@ -12,7 +12,7 @@
 // to the wildcards pttern matching algorithm
 
 #ifndef __cplusplus
-#error This is a C++ include file and cannot be used from plain C
+	#error This is a C++ include file and cannot be used from plain C
 #endif
 
 // Implementation of the UN*X wildcards
@@ -22,22 +22,23 @@
 //       '[!abc]*e' matches 'smile'
 //       '[-z] matches 'a'
 
-class Wildcard {
+class Wildcard
+{
   public:
-    // This function implements the UN*X wildcards and returns:
-    // 0 - if *wildcard does not match *test
-    // 1 - if *wildcard matches *test
-    static int wildcardfit(const char *wildcard, const char *test);
+	// This function implements the UN*X wildcards and returns:
+	// 0 - if *wildcard does not match *test
+	// 1 - if *wildcard matches *test
+	static int wildcardfit(const char* wildcard, const char* test);
 
   private:
-    // Scans a set of characters and returns 0 if the set mismatches at this
-    // position in the teststring and 1 if it is matching
-    // wildcard is set to the closing ] and test is unmodified if mismatched
-    // and otherwise the char pointer is pointing to the next character
-    static int set(const char **wildcard, const char **test);
+	// Scans a set of characters and returns 0 if the set mismatches at this
+	// position in the teststring and 1 if it is matching
+	// wildcard is set to the closing ] and test is unmodified if mismatched
+	// and otherwise the char pointer is pointing to the next character
+	static int set(const char** wildcard, const char** test);
 
-    // Scans an asterisk
-    static int asterisk(const char **wildcard, const char **test);
+	// Scans an asterisk
+	static int asterisk(const char** wildcard, const char** test);
 };
 
 #endif

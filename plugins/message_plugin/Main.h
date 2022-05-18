@@ -6,29 +6,31 @@
 ReturnCode returncode = ReturnCode::Default;
 
 /** the data for a single online player */
-class INFO {
+class INFO
+{
   public:
-    INFO()
-        : ulastPmClientID(-1), uTargetClientID(-1), bShowChatTime(false),
-          bGreetingShown(false), iSwearWordWarnings(0) {}
+	INFO()
+	    : ulastPmClientID(-1), uTargetClientID(-1), bShowChatTime(false), bGreetingShown(false), iSwearWordWarnings(0)
+	{
+	}
 
-    static const int NUMBER_OF_SLOTS = 10;
-    std::wstring slot[NUMBER_OF_SLOTS];
+	static const int NUMBER_OF_SLOTS = 10;
+	std::wstring slot[NUMBER_OF_SLOTS];
 
-    // Client ID of last PM.
-    uint ulastPmClientID;
+	// Client ID of last PM.
+	uint ulastPmClientID;
 
-    // Client ID of selected target
-    uint uTargetClientID;
+	// Client ID of selected target
+	uint uTargetClientID;
 
-    // Current chat time settings
-    bool bShowChatTime;
+	// Current chat time settings
+	bool bShowChatTime;
 
-    // True if the login banner has been displayed.
-    bool bGreetingShown;
+	// True if the login banner has been displayed.
+	bool bGreetingShown;
 
-    // Swear word warn level
-    int iSwearWordWarnings;
+	// Swear word warn level
+	int iSwearWordWarnings;
 };
 
 /** cache of preset messages for the online players (by client ID) */
@@ -85,5 +87,5 @@ static std::list<std::wstring> set_lstSwearWords;
 /** A random macro to make things easier */
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring &wscParam);
-void UserCmd_SendToLastTarget(uint iClientID, const std::wstring &wscParam);
+void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring& wscParam);
+void UserCmd_SendToLastTarget(uint iClientID, const std::wstring& wscParam);

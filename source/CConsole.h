@@ -3,11 +3,12 @@
 
 #include "CCmds.h"
 
-class CConsole : public CCmds {
+class CConsole : public CCmds
+{
   public:
-    CConsole() { this->rights = RIGHT_SUPERADMIN; };
-    EXPORT void DoPrint(const std::wstring &wscText);
-    std::wstring GetAdminName();
+	CConsole() { this->rights = RIGHT_SUPERADMIN; };
+	EXPORT void DoPrint(const std::wstring& wscText);
+	std::wstring GetAdminName();
 };
 
 #endif

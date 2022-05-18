@@ -3,9 +3,10 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-struct CLIENT_DATA {
-    bool bDisplayDPOnLaunch = true;
-    int DeathPenaltyCredits = 0;
+struct CLIENT_DATA
+{
+	bool bDisplayDPOnLaunch = true;
+	int DeathPenaltyCredits = 0;
 };
 
 float set_fDeathPenalty = 0;
