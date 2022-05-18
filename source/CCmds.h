@@ -54,6 +54,9 @@ class CCmds {
 
     void CmdBeam(std::variant<uint, std::wstring> player,
                  const std::wstring &wscBasename);
+    void CmdChase(std::wstring wscAdminName, std::variant<uint, std::wstring> player);
+    void CmdPull(std::wstring wscAdminName, std::variant<uint, std::wstring> player);
+    void CmdMove(std::wstring wscAdminName, float x, float y, float z);
     void CmdKill(std::variant<uint, std::wstring> player);
     void CmdResetRep(std::variant<uint, std::wstring> player);
     void CmdSetRep(std::variant<uint, std::wstring> player,

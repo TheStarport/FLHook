@@ -123,6 +123,10 @@
     <PostBuildEvent>
       <Command />
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat
+$(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
@@ -174,6 +178,10 @@
 				exit %ERRORLEVEL%
 			</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat
+$(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
     <CustomBuildStep>
@@ -226,6 +234,10 @@
 				exit %ERRORLEVEL%
 			</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat
+$(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\source\Exceptions.cpp" />

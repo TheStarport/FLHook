@@ -163,23 +163,6 @@ void CCmds::CmdGetClientId(std::wstring player) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBeam(std::variant<uint, std::wstring> player,
-                    const std::wstring &wscBasename) {
-    RIGHT_CHECK(RIGHT_BEAMKILL);
-
-    try {
-        if (HKSUCCESS(HkBeam(player, wscBasename)))
-            Print(L"OK");
-        else
-            PrintError();
-    } catch (...) { // exeption, kick player
-        HkKick(player);
-        Print(L"ERR exception occured, player kicked");
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CCmds::CmdKill(std::variant<uint, std::wstring> player) {
     RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -749,6 +732,166 @@ void CCmds::CmdRehash() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Chase a player. Only works in system as you'd need a client hook to do across system */
+void CCmds::CmdChase(std::wstring wscAdminName, std::variant<uint, std::wstring> player) {
+
+    RIGHT_CHECK_SUPERADMIN();
+
+    HKPLAYERINFO adminPlyr;
+    if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK) {
+        Print(L"ERR Not in space");
+        return;
+    }
+
+    HKPLAYERINFO targetPlyr;
+    if (HkGetPlayerInfo(player, targetPlyr, false) != HKE_OK ||
+        targetPlyr.iShip == 0) {
+        Print(L"ERR Player not found or not in space");
+        return;
+    }
+
+    Vector pos;
+    Matrix ornt;
+    pub::SpaceObj::GetLocation(targetPlyr.iShip, pos, ornt);
+    pos.y += 100;
+
+    Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
+                targetPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
+    return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** Beam admin to a base. Works across systems but needs improvement of the path
+ * selection algorithm */
+void CCmds::CmdBeam(std::variant<uint, std::wstring> player,
+                   const std::wstring &wscTargetBaseName) {
+    RIGHT_CHECK(RIGHT_BEAMKILL);
+
+    HKPLAYERINFO info;
+    if (HkGetPlayerInfo(player, info, false) != HKE_OK) {
+        Print(L"ERR Player not found");
+        return;
+    }
+
+    if (info.iShip == 0) {
+        Print(L"ERR Player not in space");
+        return;
+    }
+
+    // Search for an exact match at the start of the name
+    struct Universe::IBase *baseinfo = Universe::GetFirstBase();
+    while (baseinfo) {
+        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+        if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0) {
+            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
+            if (info.iSystem != baseinfo->iSystemID) {
+                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
+                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+                std::wstring wscCharFileName;
+                HkGetCharFileName(info.wscCharname, wscCharFileName);
+                wscCharFileName += L".fl";
+                CHARACTER_ID cID;
+                strcpy(cID.szCharFilename,
+                       wstos(wscCharFileName.substr(0, 14)).c_str());
+                Server.CharacterSelect(cID, info.iClientID);
+            }
+            return;
+        }
+        baseinfo = Universe::GetNextBase();
+    }
+
+    // Exact match failed, try a for an partial match
+    baseinfo = Universe::GetFirstBase();
+    while (baseinfo) {
+        std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+        if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1) {
+            pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
+            if (info.iSystem != baseinfo->iSystemID) {
+                Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
+                Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+                std::wstring wscCharFileName;
+                HkGetCharFileName(info.wscCharname, wscCharFileName);
+                wscCharFileName += L".fl";
+                CHARACTER_ID cID;
+                strcpy(cID.szCharFilename,
+                       wstos(wscCharFileName.substr(0, 14)).c_str());
+                Server.CharacterSelect(cID, info.iClientID);
+            }
+            return;
+        }
+        baseinfo = Universe::GetNextBase();
+    }
+
+    // Fall back to default flhook .beam command
+    try {
+        if (HKSUCCESS(HkBeam(player, wscTargetBaseName)))
+            Print(L"OK");
+        else
+            PrintError();
+    } catch (...) { // exeption, kick player
+        HkKick(player);
+        Print(L"ERR exception occured, player kicked");
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** Pull a player to you. Only works in system as you'd need a client hook to move their system **/
+void CCmds::CmdPull(std::wstring wscAdminName, std::variant<uint, std::wstring> player) {
+
+    RIGHT_CHECK_SUPERADMIN();
+
+    HKPLAYERINFO adminPlyr;
+    if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK ||
+        adminPlyr.iShip == 0) {
+        Print(L"ERR Not in space");
+        return;
+    }
+
+    HKPLAYERINFO targetPlyr;
+    if (HkGetPlayerInfo(player, targetPlyr, false) != HKE_OK) {
+        Print(L"ERR Player not found");
+        return;
+    }
+
+    Vector pos;
+    Matrix ornt;
+    pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, ornt);
+    pos.y += 400;
+
+    Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f",
+                adminPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
+    return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** Move to location */
+void CCmds::CmdMove(std::wstring wscAdminName, float x, float y, float z) {
+
+    RIGHT_CHECK_SUPERADMIN();
+
+    HKPLAYERINFO adminPlyr;
+    if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK ||
+        adminPlyr.iShip == 0) {
+        Print(L"ERR Not in space");
+        return;
+    }
+
+    Vector pos;
+    Matrix rot;
+    pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, rot);
+    pos.x = x;
+    pos.y = y;
+    pos.z = z;
+    Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
+    HkRelocateClient(adminPlyr.iClientID, pos, rot);
+    return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CCmds::CmdHelp() {
     std::wstring wszHelpMsg = std::wstring(L"[version]\n") + VersionInformation + L"\n"
                            L"[commands]\n"
@@ -762,6 +905,9 @@ void CCmds::CmdHelp() {
                            L"unban <charname>\n"
                            L"kickban <charname> <reason>\n"
                            L"beam <charname> <basename>\n"
+                           L"pull <charname>\n"
+                           L"chase <charname>\n"
+                           L"move <x> <y> <z>\n"
                            L"kill <charname>\n"
                            L"resetrep <charname>\n"
                            L"setrep <charname> <repgroup> <value>\n"
@@ -943,18 +1089,11 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
     }
 
     try {
-        if (bSocket) {
-            if (bLocalSocket) {
-                if (set_bLogLocalSocketCmds)
-                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
-            } else {
-                if (set_bLogSocketCmds)
-                    AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
-            }
-        } else {
-            if (set_bLogAdminCmds)
-                AddLog(AdminCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
-        }
+        if (bSocket && ((bLocalSocket && set_bLogLocalSocketCmds) || set_bLogSocketCmds))
+            AddLog(SocketCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+
+        if (set_bLogAdminCmds)
+            AddLog(AdminCmds,L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
         bID = false;
         bShortCut = false;
@@ -1100,6 +1239,14 @@ void CCmds::ExecuteCommandString(const std::wstring &wscCmdStr) {
                 CmdRehash();
             } else if (IS_CMD("help")) {
                 CmdHelp();
+            } else if (IS_CMD("move")) {
+                CmdMove(wscAdminName, ArgFloat(1), ArgFloat(2), ArgFloat(3));
+            } else if (IS_CMD("chase")) {
+                CmdChase(wscAdminName, ArgCharname(1));
+            } else if (IS_CMD("beam")) {
+                CmdBeam(ArgCharname(1), ArgStrToEnd(2));
+            } else if (IS_CMD("pull")) {
+                CmdPull(wscAdminName, ArgCharname(1));
             } else {
                 Print(L"ERR unknown command");
             }
