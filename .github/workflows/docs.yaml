@@ -26,4 +26,3 @@ jobs:
         with:
           folder: docs_output/html
           branch: gh-pages
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
