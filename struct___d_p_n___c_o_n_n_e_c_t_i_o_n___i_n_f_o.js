@@ -1,0 +1,26 @@
+var struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o =
+[
+    [ "dwBytesDropped", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#aad9b99de2eb000014f191454902e96e8", null ],
+    [ "dwBytesReceivedGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a23c0d5cdb6b5f7df328f508e1611e7bd", null ],
+    [ "dwBytesReceivedNonGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#aad96a2176fdf5736b949ead16f3edf13", null ],
+    [ "dwBytesRetried", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a5f97d79b120c1085ffb7a9b5debf75ae", null ],
+    [ "dwBytesSentGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a780934fa88f57276e9870affd00830af", null ],
+    [ "dwBytesSentNonGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#aa2bcceda23ab8656c582beb0c6e1028c", null ],
+    [ "dwMessagesReceived", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a9cc25905e747cf2d657bac27aea6815a", null ],
+    [ "dwMessagesTimedOutHighPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#af19e36bbe77e22740c1d2d67864a5dd2", null ],
+    [ "dwMessagesTimedOutLowPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a7b997cfde8e497d8144a4dc7f98270e7", null ],
+    [ "dwMessagesTimedOutNormalPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a051ce24512aee156c8550a1e6d8e5fd4", null ],
+    [ "dwMessagesTransmittedHighPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a4c98826e755a75071e9dbbcf9b4ed95c", null ],
+    [ "dwMessagesTransmittedLowPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a8cb2614cc30009c48646440eab9d69e8", null ],
+    [ "dwMessagesTransmittedNormalPriority", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#afb22a65f081a20458f0b7fed2e82c766", null ],
+    [ "dwPacketsDropped", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a16e06a972f3046ed541cffce8729b41a", null ],
+    [ "dwPacketsReceivedGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a0421505567780cee789541871c648ace", null ],
+    [ "dwPacketsReceivedNonGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#ab2cdd6865408c22c6d63948f3b74fc5b", null ],
+    [ "dwPacketsRetried", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#ab43ec35507033e3471bf253e950baa13", null ],
+    [ "dwPacketsSentGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a31b3c380bdcfe3a3e22fec58db4b91ba", null ],
+    [ "dwPacketsSentNonGuaranteed", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a51e4028f7c1df180d55be1db92a04983", null ],
+    [ "dwPeakThroughputBPS", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a2fdf8de32c74e926cf2cad4fec18cdcb", null ],
+    [ "dwRoundTripLatencyMS", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#af0260ff254a5c23eecb6b894f955a529", null ],
+    [ "dwSize", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a4d20542122bdd36d143e2aec9a35bb71", null ],
+    [ "dwThroughputBPS", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html#a999650414868c6b9d2e3b20153a443b8", null ]
+];
