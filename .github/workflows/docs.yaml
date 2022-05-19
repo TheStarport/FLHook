@@ -22,8 +22,8 @@ jobs:
       - name: Generate Documentation
         run: ./doxygen Doxyfile
       - name: Publish generated content to GitHub Pages
-        uses: tsunematsu21/actions-publish-gh-pages@v1.0.1
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
         with:
-          dir: docs_output/html
+          folder: docs_output/html
           branch: gh-pages
           ssh-key: ${{ secrets.DEPLOY_KEY }}
