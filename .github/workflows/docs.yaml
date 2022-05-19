@@ -26,4 +26,4 @@ jobs:
         with:
           dir: docs_output/html
           branch: gh-pages
-          token: ${{ secrets.ACCESS_TOKEN }}
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
