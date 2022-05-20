@@ -90,12 +90,12 @@ var NAVTREEINDEX =
 "class_core_module.html#a003c73f38a6ae81ae3bc6643b1f2b74f",
 "dir_5e999edde22b7f0e19176695e3133ddf.html",
 "global_8h.html#acc1a54a435b2bc526ba5f549fe82b530",
-"md_docs__development__inter__plugin__communication___i_p_c_.html",
-"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6",
-"pvp__plugin_2_main_8cpp.html#ae429c3f895bd6271ce8b095d76c10048",
-"struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a.html",
-"struct_n_p_c___m_i_s_s_i_o_n.html#a2355628c625fd21c2ede4728065f1f78",
-"system__sensor__plugin_2_main_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02"
+"md_docs__usage__blowfish__encryption.html",
+"namespace_hk_i_server_impl.html#a6010cf07310269ced61147339fe372e3",
+"pvp__plugin_2_main_8cpp.html#ad69c2a8afa47f465923801d48609fbbf",
+"struct_c_l_o_a_k___i_n_f_o.html#af1fc2a7f6bab785a9896b0521e794c49",
+"struct_n_p_c___m_i_s_s_i_o_n.html",
+"system__sensor__plugin_2_main_8cpp.html#a4018e5aafd4316f0427dd209257ac198"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

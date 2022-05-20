@@ -1,6 +1,5 @@
 var NAVTREEINDEX10 =
 {
-"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6":[2,1,0,1,43],
 "namespace_hk_i_server_impl.html#a6010cf07310269ced61147339fe372e3":[2,1,0,1,4],
 "namespace_hk_i_server_impl.html#a641de563298bb5a46fa46bb4576cd0a7":[2,1,0,1,28],
 "namespace_hk_i_server_impl.html#a675e03a50ec81137899c2483c501d897":[2,1,0,1,77],
@@ -105,12 +104,14 @@ var NAVTREEINDEX10 =
 "namespace_plugins.html":[2,1,0,3],
 "namespace_plugins_1_1_misc_commands.html":[2,1,0,3,0],
 "namespace_plugins_1_1_misc_commands.html#a08cf1ab4f6c7337bab5c5ab8094ec4c8":[2,1,0,3,0,7],
-"namespace_plugins_1_1_misc_commands.html#a37d2936a5b35e1678a07f9ff4d520311":[2,1,0,3,0,8],
+"namespace_plugins_1_1_misc_commands.html#a6974774f76baf5e2a8679b0fdba6c266":[2,1,0,3,0,8],
 "namespace_plugins_1_1_misc_commands.html#a738153fd73295c08e46e4dfe12c14cc7":[2,1,0,3,0,4],
 "namespace_plugins_1_1_misc_commands.html#a7f299c21e25feb1298114349ef964b31":[2,1,0,3,0,9],
+"namespace_plugins_1_1_misc_commands.html#a8da84d0d5e8aa2cacbe36e5bae3273c3":[2,1,0,3,0,3],
 "namespace_plugins_1_1_misc_commands.html#a9f1c6e2baa3beb0d51786c0536090e1b":[2,1,0,3,0,6],
 "namespace_plugins_1_1_misc_commands.html#aae6aec7fedbc77bde76040145fa6ab8e":[2,1,0,3,0,5],
 "namespace_plugins_1_1_misc_commands.html#ade5027d3c1e5b080e5297c73025145f9":[2,1,0,3,0,17],
+"namespace_plugins_1_1_misc_commands.html#ae80d2b019fc8d02a3855b6b64f739a86":[2,1,0,3,0,18],
 "namespace_pub.html":[2,1,0,4],
 "namespace_pub_1_1_player.html":[2,1,0,4,0],
 "namespace_pub_1_1_player.html#a18343d5175b804b1e8402a457c6aaaf7":[2,1,0,4,0,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX10 =
 "pvp__plugin_2_main_8cpp.html#a99bfb9b6dcc0bfe85ef15f98fc41c900":[2,3,0,1,27,0,14],
 "pvp__plugin_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,27,0,7],
 "pvp__plugin_2_main_8cpp.html#ab565ea39ce444851d2f0e4143f9b4c6f":[2,3,0,1,27,0,20],
-"pvp__plugin_2_main_8cpp.html#acc40fa4e3895db60244b244d0a22b650":[2,3,0,1,27,0,18],
-"pvp__plugin_2_main_8cpp.html#ad69c2a8afa47f465923801d48609fbbf":[2,3,0,1,27,0,19]
+"pvp__plugin_2_main_8cpp.html#acc40fa4e3895db60244b244d0a22b650":[2,3,0,1,27,0,18]
 };

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['admin_20commands_0',['Admin Commands',['../group__admin.html',1,'']]]
+  ['misc_20commands_20_28plugin_29_0',['Misc Commands (plugin)',['../group___misc_commands.html',1,'']]]
 ];

@@ -35,7 +35,7 @@ var searchData=
   ['admincmd_5fshowtags_32',['AdminCmd_ShowTags',['../rename__plugin_2_main_8cpp.html#a4292db741f0dd0bec319e893af95c0d1',1,'Main.cpp']]],
   ['admincmd_5ftemplate_33',['AdminCmd_Template',['../flhook__plugin__template_2_main_8cpp.html#a3e27490552453a38238cc36252e27e93',1,'Main.cpp']]],
   ['admincmd_5ftestbot_34',['AdminCmd_TestBot',['../hyper__jump__plugin_2_main_8cpp.html#ac3fbbf230715f8fa649bfb4ef4f1e319',1,'Main.cpp']]],
-  ['admincmdsmiteall_35',['AdminCmdSmiteAll',['../group__admin.html#ga8da84d0d5e8aa2cacbe36e5bae3273c3',1,'Plugins::MiscCommands']]],
+  ['admincmdsmiteall_35',['AdminCmdSmiteAll',['../namespace_plugins_1_1_misc_commands.html#a8da84d0d5e8aa2cacbe36e5bae3273c3',1,'Plugins::MiscCommands']]],
   ['allowplayerdamage_36',['AllowPlayerDamage',['../_hk_i_engine_damage_8cpp.html#ad311773da04dcc55c3aa14367f4e4c63',1,'AllowPlayerDamage(uint iClientID, uint iClientIDTarget):&#160;HkIEngineDamage.cpp'],['../_hook_8h.html#ad311773da04dcc55c3aa14367f4e4c63',1,'AllowPlayerDamage(uint iClientID, uint iClientIDTarget):&#160;HkIEngineDamage.cpp']]],
   ['argcharname_37',['ArgCharname',['../class_c_cmds.html#ac04bc619cf13ca46d6f551ed36e0bc97',1,'CCmds']]],
   ['argfloat_38',['ArgFloat',['../class_c_cmds.html#a90b5337744c05f0b6b19aa16c4e0969a',1,'CCmds']]],

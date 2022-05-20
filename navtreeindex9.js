@@ -1,8 +1,5 @@
 var NAVTREEINDEX9 =
 {
-"md_docs__development__inter__plugin__communication___i_p_c_.html":[1,1],
-"md_docs__development__note_on_the__s_t_l.html":[1,0],
-"md_docs__usage__administrative__commands.html":[0,0],
 "md_docs__usage__blowfish__encryption.html":[0,3],
 "md_docs__usage__event__mode.html":[0,2],
 "md_docs__usage__logging.html":[0,1],
@@ -123,14 +120,16 @@ var NAVTREEINDEX9 =
 "minecontrol__plugin_2_main_8cpp.html#afc6a1b64b476e4bcd7f79fee683b9e44":[2,3,0,1,20,0,4],
 "misc__commands__plugin_2_main_8cpp.html":[2,3,0,1,21,0],
 "misc__commands__plugin_2_main_8cpp.html#a08cf1ab4f6c7337bab5c5ab8094ec4c8":[2,3,0,1,21,0,6],
-"misc__commands__plugin_2_main_8cpp.html#a37d2936a5b35e1678a07f9ff4d520311":[2,3,0,1,21,0,7],
+"misc__commands__plugin_2_main_8cpp.html#a6974774f76baf5e2a8679b0fdba6c266":[2,3,0,1,21,0,7],
 "misc__commands__plugin_2_main_8cpp.html#a738153fd73295c08e46e4dfe12c14cc7":[2,3,0,1,21,0,1],
 "misc__commands__plugin_2_main_8cpp.html#a7f299c21e25feb1298114349ef964b31":[2,3,0,1,21,0,8],
+"misc__commands__plugin_2_main_8cpp.html#a8da84d0d5e8aa2cacbe36e5bae3273c3":[2,3,0,1,21,0,0],
 "misc__commands__plugin_2_main_8cpp.html#a9f1c6e2baa3beb0d51786c0536090e1b":[2,3,0,1,21,0,4],
 "misc__commands__plugin_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,21,0,3],
 "misc__commands__plugin_2_main_8cpp.html#aae6aec7fedbc77bde76040145fa6ab8e":[2,3,0,1,21,0,2],
 "misc__commands__plugin_2_main_8cpp.html#ab89c72c82f1d9c070b0c22fda982960d":[2,3,0,1,21,0,18],
 "misc__commands__plugin_2_main_8cpp.html#ade5027d3c1e5b080e5297c73025145f9":[2,3,0,1,21,0,17],
+"misc__commands__plugin_2_main_8cpp.html#ae80d2b019fc8d02a3855b6b64f739a86":[2,3,0,1,21,0,19],
 "misc__commands__plugin_2_main_8cpp.html#aeade4deff3d41655ad3c284487c9db45":[2,3,0,1,21,0,16],
 "misc__commands__plugin_2_main_8cpp.html#afdc327b89750977bb154298276ede6f9":[2,3,0,1,21,0,5],
 "misc__commands__plugin_2main_8h.html":[2,3,0,1,21,1],
@@ -249,5 +248,6 @@ var NAVTREEINDEX9 =
 "namespace_hk_i_server_impl.html#a56a27701a6eee4d35e2bf9bd54e06fb4":[2,1,0,1,14],
 "namespace_hk_i_server_impl.html#a56e27c1139facab54dc7116ffefc70a8":[2,1,0,1,126],
 "namespace_hk_i_server_impl.html#a5bf706d8286387c08e6c71c72bd3cccd":[2,1,0,1,63],
-"namespace_hk_i_server_impl.html#a5c87ae57cd1c9d8be2ebe800fb652990":[2,1,0,1,25]
+"namespace_hk_i_server_impl.html#a5c87ae57cd1c9d8be2ebe800fb652990":[2,1,0,1,25],
+"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6":[2,1,0,1,43]
 };

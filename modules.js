@@ -1,5 +1,4 @@
 var modules =
 [
-    [ "User Commands", "group__cmds.html", "group__cmds" ],
-    [ "Admin Commands", "group__admin.html", "group__admin" ]
+    [ "Misc Commands (plugin)", "group___misc_commands.html", "group___misc_commands" ]
 ];
