@@ -9,6 +9,10 @@
 
 #include "Main.h"
 
+// Setup Doxygen Group
+
+/** @defgroup MiscCommands Misc Commands (plugin) */
+
 namespace Plugins::MiscCommands
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
@@ -73,11 +77,9 @@ namespace Plugins::MiscCommands
 			PrintUserCmdText(iClientID, L"Light control not available");
 	}
 
-	/** @defgroup cmds User Commands
-	 * @{
+	/** @ingroup MiscCommands
+	 * @brief Print the current location of your ship
 	 */
-
-	/** Print current position */
 	void UserCmdPos(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
 	{
 		HKPLAYERINFO p;
@@ -98,7 +100,9 @@ namespace Plugins::MiscCommands
 		PrintUserCmdText(iClientID, buf);
 	}
 
-	/** Move a ship a little if it is stuck in the base */
+	/** @ingroup MiscCommands
+	 * @brief Nudge your ship 15 meters on all axis to try and dislodge a stuck ship.
+	 */
 	void UserCmdStuck(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -132,11 +136,16 @@ namespace Plugins::MiscCommands
 		PrintLocalUserCmdText(iClientID, wscMsg, 6000.0f);
 	}
 
-	/** A command to help remove any affiliation that you might have */
+	/** @ingroup MiscCommands
+	 * @brief Command to remove your current affiliation if applicable.
+	 */
 	void UserCmdDropRep(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
 	{
 		if (global->config->repDropCost < 0)
+		{
+			PrintUserCmdText(iClientID, L"Command Disabled");
 			return;
+		}
 
 		std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
 
@@ -178,7 +187,9 @@ namespace Plugins::MiscCommands
 		}
 	}
 
-	/** Throw the dice and tell all players within 6 km */
+	/** @ingroup MiscCommands
+	 * @brief Roll a dice with the specified number of sides, or 6 is not specified.
+	 */
 	void UserCmdDice(uint iClientID, const std::wstring& wscParam)
 	{
 		std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
@@ -195,7 +206,9 @@ namespace Plugins::MiscCommands
 		PrintLocalUserCmdText(iClientID, wscMsg, 6000.0f);
 	}
 
-	/** Throw the dice and tell all players within 6 km */
+	/** @ingroup MiscCommands
+	 * @brief Throw the dice and tell all players within 6 km
+	 */
 	void UserCmdCoin(uint iClientID, const std::wstring& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -207,12 +220,18 @@ namespace Plugins::MiscCommands
 		PrintLocalUserCmdText(iClientID, wscMsg, 6000.0f);
 	}
 
+	/** @ingroup MiscCommands
+	 * @brief Activate or deactivate docking lights on your ship.
+	 */
 	void UserCmdLights(uint iClientID, const std::wstring& wscParam)
 	{
 		global->mapInfo[iClientID].bLightsOn = !global->mapInfo[iClientID].bLightsOn;
 		SetLights(iClientID, global->mapInfo[iClientID].bLightsOn);
 	}
 
+	/** @ingroup MiscCommands
+	 * @brief Disable/Enable your shields at will.
+	 */
 	void UserCmdShields(uint iClientID, const std::wstring& wscParam)
 	{
 		global->mapInfo[iClientID].bShieldsDown = !global->mapInfo[iClientID].bShieldsDown;
@@ -236,17 +255,13 @@ namespace Plugins::MiscCommands
 	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
 
 	// Hook on /help
-	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 	{
 		for (auto& uc : UserCmds)
 		{
 			PrintUserCmdText(iClientID, uc.wszCmd);
 		}
 	}
-
-	/** @defgroup admin Admin Commands
-	 * @{
-	 */
 
 	//! Smite all players in radar range
 	void AdminCmdSmiteAll(CCmds* cmds)
@@ -318,8 +333,6 @@ namespace Plugins::MiscCommands
 		cmds->Print(L"OK");
 		return;
 	}
-
-	/** @} */ // End of Admin Commands
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{

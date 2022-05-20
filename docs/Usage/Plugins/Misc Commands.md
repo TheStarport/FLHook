@@ -30,4 +30,4 @@ Default Configuration:
 This plugin does not expose any functionality.
 
 ## Other
-Documentation for the plugin code can be found [here]($relpath^namespace_plugins_1_1_misc_commands.html).
+Documentation for the plugin code can be found [here](group__MiscCommands.html).
