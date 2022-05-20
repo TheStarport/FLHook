@@ -1,0 +1,19 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "fl-devs",
+    "Name": "Freelancer Developers"
+  },
+  "ProjectKey": "fl-devs_FLHook",
+  "ProjectName": "FLHook",
+  "Profiles": {
+    "C++": {
+      "ProfileKey": "AYDScucVudwity4Q9Znc",
+      "ProfileTimestamp": "2022-04-26T08:30:19Z"
+    },
+    "C": {
+      "ProfileKey": "AYDScucWudwity4Q9Znu",
+      "ProfileTimestamp": "2022-03-15T10:55:54Z"
+    }
+  }
+}
