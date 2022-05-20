@@ -23,6 +23,7 @@ var namespaces_dup =
       [ "BaseShieldMod", "namespace_player_commands.html#a6386728ffb97f84570f81391cde11ac2", null ],
       [ "Shop", "namespace_player_commands.html#aeb43713e556bc8651e63c34738928b0b", null ]
     ] ],
+    [ "Plugins", "namespace_plugins.html", "namespace_plugins" ],
     [ "Pub", "namespace_pub.html", "namespace_pub" ],
     [ "StartupCache", "namespace_startup_cache.html", "namespace_startup_cache" ],
     [ "ZoneUtilities", "namespace_zone_utilities.html", [

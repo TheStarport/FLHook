@@ -27,16 +27,19 @@ var NAVTREE =
   [ "FLHook", "index.html", [
     [ "Usage", null, [
       [ "Administrative Commands", "md_docs__usage__administrative__commands.html", null ],
-      [ "Plugins", "md_docs__usage__plugins.html", null ],
       [ "Logging", "md_docs__usage__logging.html", null ],
       [ "Event Mode", "md_docs__usage__event__mode.html", null ],
-      [ "Blowfish Encryption", "md_docs__usage__blowfish__encryption.html", null ]
+      [ "Blowfish Encryption", "md_docs__usage__blowfish__encryption.html", null ],
+      [ "Plugins", "md_docs__usage__plugins.html", [
+        [ "Misc Commands", "md_docs__usage__plugins__misc__commands.html", null ]
+      ] ]
     ] ],
     [ "Plugin Development", null, [
-      [ "Note on the STL", "md_docs__development__note__on__the__stl.html", null ],
-      [ "Inter-Plugin Communication (IPC)", "md_docs__usage__inter__plugin__communication___i_p_c_.html", null ]
+      [ "Note on the STL", "md_docs__development__note_on_the__s_t_l.html", null ],
+      [ "Inter-Plugin Communication (IPC)", "md_docs__development__inter__plugin__communication___i_p_c_.html", null ]
     ] ],
     [ "API Documentation", "usergroup0.html", [
+      [ "Modules", "modules.html", "modules" ],
       [ "Namespace List", "namespaces.html", [
         [ "Namespace List", "namespaces.html", "namespaces_dup" ],
         [ "Namespace Members", "namespacemembers.html", [
@@ -83,16 +86,16 @@ var NAVTREEINDEX =
 "_hk_init_8cpp.html#a6521a3987b5fbccc0e2f67f7a6821d8e",
 "_hook_8h.html#a6e86e93273ce624d03426515a63855df",
 "_player_commands_8cpp.html#ae2147c966a7c4941d86302aa86320449",
-"base__plugin_2_save_files_8cpp.html",
-"class_core_module.html#a0ea6d823c33e600d88112ed5f310cfeb",
-"dir_6163ef39e5d76e1830e61521dcf66aa0.html",
-"global_8h.html#acfe8f202766c0f9254e7567f7859e513",
-"message__plugin_2_main_8cpp.html#a0bea18ab05611da3849357ae255e24ba",
+"base__plugin_2_main_8cpp.html#aff8bc7bc7baa729bb3965535767cad6d",
+"class_core_module.html#a003c73f38a6ae81ae3bc6643b1f2b74f",
+"dir_5e999edde22b7f0e19176695e3133ddf.html",
+"global_8h.html#acc1a54a435b2bc526ba5f549fe82b530",
+"md_docs__development__inter__plugin__communication___i_p_c_.html",
 "namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6",
-"rename__plugin_2_main_8cpp.html#a1c64f0f6a923e751687239c20a168f88",
-"struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a.html#a8d74f60860f8ecb7461230f07ef91ec3",
-"struct_n_p_c___m_i_s_s_i_o_n.html#af91476188f211aa356cc6bade780885c",
-"wardrobe__plugin_2_main_8cpp.html#a1c64f0f6a923e751687239c20a168f88"
+"pvp__plugin_2_main_8cpp.html#ae429c3f895bd6271ce8b095d76c10048",
+"struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a.html",
+"struct_n_p_c___m_i_s_s_i_o_n.html#a2355628c625fd21c2ede4728065f1f78",
+"system__sensor__plugin_2_main_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -8,6 +8,13 @@ var annotated_dup =
       [ "TIMER", "struct_hk_i_server_impl_1_1_t_i_m_e_r.html", "struct_hk_i_server_impl_1_1_t_i_m_e_r" ],
       [ "Timer", "struct_hk_i_server_impl_1_1_timer.html", "struct_hk_i_server_impl_1_1_timer" ]
     ] ],
+    [ "Plugins", "namespace_plugins.html", [
+      [ "MiscCommands", "namespace_plugins_1_1_misc_commands.html", [
+        [ "Config", "struct_plugins_1_1_misc_commands_1_1_config.html", "struct_plugins_1_1_misc_commands_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_misc_commands_1_1_global.html", "struct_plugins_1_1_misc_commands_1_1_global" ],
+        [ "MiscClientInfo", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html", "struct_plugins_1_1_misc_commands_1_1_misc_client_info" ]
+      ] ]
+    ] ],
     [ "StartupCache", "namespace_startup_cache.html", [
       [ "NameInfo", "struct_startup_cache_1_1_name_info.html", "struct_startup_cache_1_1_name_info" ]
     ] ],

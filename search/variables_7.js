@@ -23,8 +23,8 @@ var searchData=
   ['g_5fmaxplayers_20',['g_MaxPlayers',['../namespace_hk_i_server_impl.html#a82164388b79f779d129f998d0e2fb07c',1,'HkIServerImpl']]],
   ['g_5fnongunhitsbase_21',['g_NonGunHitsBase',['../_hk_i_engine_damage_8cpp.html#afff30bb4490d5f01fc543578e9ed77e8',1,'g_NonGunHitsBase():&#160;HkIEngineDamage.cpp'],['../_hook_8h.html#a585515a49dbb9ecd42c247574e02a2e0',1,'g_NonGunHitsBase():&#160;HkIEngineDamage.cpp']]],
   ['g_5fnongunweaponhitsbaseretaddress_22',['g_NonGunWeaponHitsBaseRetAddress',['../_hk_i_engine_damage_8cpp.html#a1a0e3aeabf1546edcb0e11bc03755c8b',1,'HkIEngineDamage.cpp']]],
-  ['g_5folddamagehit_23',['g_OldDamageHit',['../_hk_init_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp'],['../_hk_i_engine_damage_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp']]],
-  ['g_5folddamagehit2_24',['g_OldDamageHit2',['../_hk_i_engine_damage_8cpp.html#abd40d651cde9784c7a260d6d1d83ae2f',1,'g_OldDamageHit2():&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#abd40d651cde9784c7a260d6d1d83ae2f',1,'g_OldDamageHit2():&#160;HkInit.cpp']]],
+  ['g_5folddamagehit_23',['g_OldDamageHit',['../_hk_i_engine_damage_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp']]],
+  ['g_5folddamagehit2_24',['g_OldDamageHit2',['../_hk_init_8cpp.html#abd40d651cde9784c7a260d6d1d83ae2f',1,'g_OldDamageHit2():&#160;HkInit.cpp'],['../_hk_i_engine_damage_8cpp.html#abd40d651cde9784c7a260d6d1d83ae2f',1,'g_OldDamageHit2():&#160;HkIEngineDamage.cpp']]],
   ['g_5folddestroycship_25',['g_OldDestroyCShip',['../namespace_hk_i_engine.html#a86147a18ceab2c41ca2dcdde13cc8e65',1,'HkIEngine']]],
   ['g_5folddisconnectpacketsent_26',['g_OldDisconnectPacketSent',['../_hk_i_engine_disconnect_8cpp.html#a1fb12347763fbc3e661aa12e48c12479',1,'g_OldDisconnectPacketSent():&#160;HkIEngineDisconnect.cpp'],['../_hk_init_8cpp.html#a1fb12347763fbc3e661aa12e48c12479',1,'g_OldDisconnectPacketSent():&#160;HkIEngineDisconnect.cpp']]],
   ['g_5foldguidedhit_27',['g_OldGuidedHit',['../_hk_i_engine_damage_8cpp.html#a3cd709aa4a7317466eacd8f2e074a1c6',1,'g_OldGuidedHit():&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#a3cd709aa4a7317466eacd8f2e074a1c6',1,'g_OldGuidedHit():&#160;HkIEngineDamage.cpp']]],
@@ -37,6 +37,7 @@ var searchData=
   ['g_5ftimers_34',['g_Timers',['../namespace_hk_i_server_impl.html#ad36367f1f66140e2d25d0fc59b659590',1,'HkIServerImpl']]],
   ['gene_35',['gene',['../flcodec_8cpp.html#ae13823df5764b4100b76f1277ff0f3bf',1,'flcodec.cpp']]],
   ['getshipinspect_36',['GetShipInspect',['../_hk_init_8cpp.html#a906c29f13cda8c5047c9a886fa387043',1,'GetShipInspect():&#160;HkInit.cpp'],['../_hook_8h.html#a58dab4681d5e34ecbd2ec8a8dc5b4285',1,'GetShipInspect():&#160;HkInit.cpp']]],
-  ['good_37',['good',['../struct_r_e_p_a_i_r___i_t_e_m.html#a7509e1841242f2115ed7788b763583b1',1,'REPAIR_ITEM']]],
-  ['graph_38',['Graph',['../struct_n_p_c___a_r_c_h_t_y_p_e_s_s_t_r_u_c_t.html#a9266058716044e3c915e70518dffa5ae',1,'NPC_ARCHTYPESSTRUCT']]]
+  ['global_37',['global',['../namespace_plugins_1_1_misc_commands.html#ade5027d3c1e5b080e5297c73025145f9',1,'Plugins::MiscCommands']]],
+  ['good_38',['good',['../struct_r_e_p_a_i_r___i_t_e_m.html#a7509e1841242f2115ed7788b763583b1',1,'REPAIR_ITEM']]],
+  ['graph_39',['Graph',['../struct_n_p_c___a_r_c_h_t_y_p_e_s_s_t_r_u_c_t.html#a9266058716044e3c915e70518dffa5ae',1,'NPC_ARCHTYPESSTRUCT']]]
 ];

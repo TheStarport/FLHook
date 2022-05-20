@@ -10,7 +10,7 @@ var searchData=
   ['cloak_5farch_7',['CLOAK_ARCH',['../struct_c_l_o_a_k___a_r_c_h.html',1,'']]],
   ['cloak_5finfo_8',['CLOAK_INFO',['../struct_c_l_o_a_k___i_n_f_o.html',1,'']]],
   ['condatacommunicator_9',['ConDataCommunicator',['../class_con_data_communicator.html',1,'']]],
-  ['config_10',['Config',['../struct_config.html',1,'']]],
+  ['config_10',['Config',['../struct_config.html',1,'Config'],['../struct_plugins_1_1_misc_commands_1_1_config.html',1,'Plugins::MiscCommands::Config']]],
   ['connection_5fdata_11',['CONNECTION_DATA',['../struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a.html',1,'']]],
   ['connection_5fdata_5fexception_12',['CONNECTION_DATA_EXCEPTION',['../struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a___e_x_c_e_p_t_i_o_n.html',1,'']]],
   ['console_13',['Console',['../class_console.html',1,'']]],

@@ -9,5 +9,6 @@ var _serialization_8hpp =
     [ "IsInt", "_serialization_8hpp.html#a8a2d57512b4acc6079617c739e311018", null ],
     [ "IsReflectable", "_serialization_8hpp.html#a6883935aad402b1b677d15b2367d3f54", null ],
     [ "IsString", "_serialization_8hpp.html#af5e90aaea5c84d9b353b2c9192878edc", null ],
-    [ "IsVectorOfType", "_serialization_8hpp.html#a5535d156e93497b10a635dd1c789719d", null ]
+    [ "IsVectorOfType", "_serialization_8hpp.html#a5535d156e93497b10a635dd1c789719d", null ],
+    [ "IsWString", "_serialization_8hpp.html#a84b183902538fbadf48ce97fbdd88edc", null ]
 ];

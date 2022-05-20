@@ -183,8 +183,11 @@ Variables</h2></td></tr>
 <tr class="memitem:ac4ca7525ed49384a0b789e72eae91b5f"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="_serialization_8hpp.html#ac4ca7525ed49384a0b789e72eae91b5f">IsFloat</a> = std::is_same_v&lt;T, float&gt;</td></tr>
 <tr class="separator:ac4ca7525ed49384a0b789e72eae91b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5e90aaea5c84d9b353b2c9192878edc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:af5e90aaea5c84d9b353b2c9192878edc"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="_serialization_8hpp.html#af5e90aaea5c84d9b353b2c9192878edc">IsString</a> = std::is_same_v&lt;T, std::string&gt; || std::is_same_v&lt;T, std::wstring&gt;</td></tr>
+<tr class="memitem:af5e90aaea5c84d9b353b2c9192878edc"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="_serialization_8hpp.html#af5e90aaea5c84d9b353b2c9192878edc">IsString</a> = std::is_same_v&lt;T, std::string&gt;</td></tr>
 <tr class="separator:af5e90aaea5c84d9b353b2c9192878edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84b183902538fbadf48ce97fbdd88edc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a84b183902538fbadf48ce97fbdd88edc"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="_serialization_8hpp.html#a84b183902538fbadf48ce97fbdd88edc">IsWString</a> = std::is_same_v&lt;T, std::wstring&gt;</td></tr>
+<tr class="separator:a84b183902538fbadf48ce97fbdd88edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6883935aad402b1b677d15b2367d3f54"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a6883935aad402b1b677d15b2367d3f54"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="_serialization_8hpp.html#a6883935aad402b1b677d15b2367d3f54">IsReflectable</a> = std::is_base_of_v&lt;<a class="el" href="struct_reflectable.html">Reflectable</a>, T&gt;</td></tr>
 <tr class="separator:a6883935aad402b1b677d15b2367d3f54"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,7 +304,7 @@ template&lt;typename T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto IsString = std::is_same_v&lt;T, std::string&gt; || std::is_same_v&lt;T, std::wstring&gt;</td>
+          <td class="memname">constexpr auto IsString = std::is_same_v&lt;T, std::string&gt;</td>
         </tr>
       </table>
   </td>
@@ -326,6 +329,30 @@ template&lt;typename T , typename TT &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr auto IsVectorOfType = std::is_same_v&lt;T, std::vector&lt;TT&gt;&gt;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a84b183902538fbadf48ce97fbdd88edc" name="a84b183902538fbadf48ce97fbdd88edc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84b183902538fbadf48ce97fbdd88edc">&#9670;&nbsp;</a></span>IsWString</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto IsWString = std::is_same_v&lt;T, std::wstring&gt;</td>
         </tr>
       </table>
   </td>

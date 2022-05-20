@@ -26,14 +26,16 @@ var menudata={children:[
 {text:"Main Page",url:"index.html"},
 {text:"Usage",url:"[none]",children:[
 {text:"Administrative Commands",url:"md_docs__usage__administrative__commands.html"},
-{text:"Plugins",url:"md_docs__usage__plugins.html"},
 {text:"Logging",url:"md_docs__usage__logging.html"},
 {text:"Event Mode",url:"md_docs__usage__event__mode.html"},
-{text:"Blowfish Encryption",url:"md_docs__usage__blowfish__encryption.html"}]},
+{text:"Blowfish Encryption",url:"md_docs__usage__blowfish__encryption.html"},
+{text:"Plugins",url:"md_docs__usage__plugins.html",children:[
+{text:"Misc Commands",url:"md_docs__usage__plugins__misc__commands.html"}]}]},
 {text:"Plugin Development",url:"[none]",children:[
-{text:"Note on the STL",url:"md_docs__development__note__on__the__stl.html"},
-{text:"Inter-Plugin Communication (IPC)",url:"md_docs__usage__inter__plugin__communication___i_p_c_.html"}]},
+{text:"Note on the STL",url:"md_docs__development__note_on_the__s_t_l.html"},
+{text:"Inter-Plugin Communication (IPC)",url:"md_docs__development__inter__plugin__communication___i_p_c_.html"}]},
 {text:"API Documentation",url:"usergroup0.html",children:[
+{text:"Modules",url:"modules.html"},
 {text:"Namespace List",url:"namespaces.html",children:[
 {text:"Namespace List",url:"namespaces.html"},
 {text:"Namespace Members",url:"namespacemembers.html",children:[
@@ -247,16 +249,7 @@ var menudata={children:[
 {text:"v",url:"globals_vars_v.html#index_v"},
 {text:"w",url:"globals_vars_w.html#index_w"},
 {text:"z",url:"globals_vars_z.html#index_z"}]},
-{text:"Typedefs",url:"globals_type.html",children:[
-{text:"_",url:"globals_type.html#index__5F"},
-{text:"d",url:"globals_type.html#index_d"},
-{text:"e",url:"globals_type.html#index_e"},
-{text:"j",url:"globals_type.html#index_j"},
-{text:"m",url:"globals_type.html#index_m"},
-{text:"p",url:"globals_type.html#index_p"},
-{text:"s",url:"globals_type.html#index_s"},
-{text:"u",url:"globals_type.html#index_u"},
-{text:"z",url:"globals_type.html#index_z"}]},
+{text:"Typedefs",url:"globals_type.html"},
 {text:"Enumerations",url:"globals_enum.html"},
 {text:"Enumerator",url:"globals_eval.html",children:[
 {text:"a",url:"globals_eval.html#index_a"},

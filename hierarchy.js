@@ -36,6 +36,7 @@ var hierarchy =
     [ "FFA", "struct_f_f_a.html", null ],
     [ "FLHOOK_PLAYER_DATA", "struct_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html", null ],
     [ "PluginManager::FunctionHookProps", "struct_plugin_manager_1_1_function_hook_props.html", null ],
+    [ "Plugins::MiscCommands::Global", "struct_plugins_1_1_misc_commands_1_1_global.html", null ],
     [ "GROUP_MEMBER", "struct_g_r_o_u_p___m_e_m_b_e_r.html", null ],
     [ "HK_ERROR_INFO", "struct_h_k___e_r_r_o_r___i_n_f_o.html", null ],
     [ "HKPLAYERINFO", "struct_h_k_p_l_a_y_e_r_i_n_f_o.html", null ],
@@ -53,6 +54,7 @@ var hierarchy =
     [ "MailCommunicator::MailSent", "struct_mail_communicator_1_1_mail_sent.html", null ],
     [ "MARK_INFO", "struct_m_a_r_k___i_n_f_o.html", null ],
     [ "MARKET_ITEM", "struct_m_a_r_k_e_t___i_t_e_m.html", null ],
+    [ "Plugins::MiscCommands::MiscClientInfo", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html", null ],
     [ "Module", "class_module.html", [
       [ "BuildModule", "class_build_module.html", null ],
       [ "CoreModule", "class_core_module.html", null ],
@@ -90,7 +92,8 @@ var hierarchy =
     [ "PluginInfo", "struct_plugin_info.html", null ],
     [ "RECIPE", "struct_r_e_c_i_p_e.html", null ],
     [ "Reflectable", "struct_reflectable.html", [
-      [ "Config", "struct_config.html", null ]
+      [ "Config", "struct_config.html", null ],
+      [ "Plugins::MiscCommands::Config", "struct_plugins_1_1_misc_commands_1_1_config.html", null ]
     ] ],
     [ "RENAME", "struct_r_e_n_a_m_e.html", null ],
     [ "HkIEngine::REP_DATA_LIST", "struct_hk_i_engine_1_1_r_e_p___d_a_t_a___l_i_s_t.html", null ],
