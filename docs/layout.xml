@@ -3,6 +3,7 @@
     <tab type="usergroup" visible="yes" title="Usage" url="[none]">
         <tab type="user" visible="true" url="md_docs__usage__administrative__commands.html" title="Administrative Commands" />
         <tab type="user" visible="true" url="md_docs__usage__logging.html" title="Logging" />
+        <tab type="user" visible="true" url="md_docs__usage__x_m_l__text__reference.html" title="XML Text Reference" />
         <tab type="user" visible="true" url="md_docs__usage__event__mode.html" title="Event Mode" />
         <tab type="user" visible="true" url="md_docs__usage__blowfish__encryption.html" title="Blowfish Encryption" />
         <tab type="usergroup" visible="true" url="md_docs__usage__plugins.html" title="Plugins">
