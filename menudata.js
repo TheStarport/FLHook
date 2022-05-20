@@ -27,6 +27,7 @@ var menudata={children:[
 {text:"Usage",url:"[none]",children:[
 {text:"Administrative Commands",url:"md_docs__usage__administrative__commands.html"},
 {text:"Logging",url:"md_docs__usage__logging.html"},
+{text:"XML Text Reference",url:"md_docs__usage__x_m_l__text__reference.html"},
 {text:"Event Mode",url:"md_docs__usage__event__mode.html"},
 {text:"Blowfish Encryption",url:"md_docs__usage__blowfish__encryption.html"},
 {text:"Plugins",url:"md_docs__usage__plugins.html",children:[

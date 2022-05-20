@@ -173,46 +173,7 @@ Permissions</h3>
 </ul>
 <h3><a class="anchor" id="autotoc_md5"></a>
 XML Text Reference</h3>
-<p >The <code>fmsg*</code> commands allow you to format text in several ways (like in <code>.\exe\misctext.dll</code> entries). Text is enclosed in <code>&lt;TEXT&gt;&lt;/TEXT&gt;</code> tags while the format can be changed with <code>&lt;TRA .../&gt;</code>. Nodes names must be written in all caps! Be sure to replace the following characters within a text node: </p><div class="fragment"><div class="line">&lt; → &amp;#60;</div>
-<div class="line">&gt; → &amp;#62;</div>
-<div class="line">&amp; → &amp;#38;</div>
-</div><!-- fragment --><h4><a class="anchor" id="autotoc_md6"></a>
-TRA node syntax</h4>
-<p >The data field of a <code>TRA</code> node consists of an RGB value along with format specifications: </p><div class="fragment"><div class="line">&lt;<span class="keywordtype">TRA</span> <span class="keyword">data</span>=<span class="stringliteral">&quot;0xBBGGRRFF&quot;</span> <span class="keyword">mask</span>=<span class="stringliteral">&quot;-1&quot;</span>/&gt;</div>
-</div><!-- fragment --><ul>
-<li><code>BB</code> is the blue value</li>
-<li><code>GG</code> is the green value</li>
-<li><code>RR</code> is the red value</li>
-<li><code>FF</code> is the format value</li>
-</ul>
-<p >(All in hexadecimal representation)</p>
-<p >Format flags are: </p><table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">bin   </th><th class="markdownTableHeadNone">hex   </th><th class="markdownTableHeadNone">dec   </th><th class="markdownTableHeadNone">Formatting    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>00000001</code>   </td><td class="markdownTableBodyNone"><code>1</code>   </td><td class="markdownTableBodyNone"><code>1</code>   </td><td class="markdownTableBodyNone">Bold    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>00000010</code>   </td><td class="markdownTableBodyNone"><code>2</code>   </td><td class="markdownTableBodyNone"><code>2</code>   </td><td class="markdownTableBodyNone">Italic    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>00000100</code>   </td><td class="markdownTableBodyNone"><code>4</code>   </td><td class="markdownTableBodyNone"><code>4</code>   </td><td class="markdownTableBodyNone">Underline    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>00001000</code>   </td><td class="markdownTableBodyNone"><code>8</code>   </td><td class="markdownTableBodyNone"><code>8</code>   </td><td class="markdownTableBodyNone">Big    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>00010000</code>   </td><td class="markdownTableBodyNone"><code>10</code>   </td><td class="markdownTableBodyNone"><code>16</code>   </td><td class="markdownTableBodyNone">Big &amp; wide    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>00100000</code>   </td><td class="markdownTableBodyNone"><code>20</code>   </td><td class="markdownTableBodyNone"><code>32</code>   </td><td class="markdownTableBodyNone">Very big    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>01000000</code>   </td><td class="markdownTableBodyNone"><code>40</code>   </td><td class="markdownTableBodyNone"><code>64</code>   </td><td class="markdownTableBodyNone">Smoothest?    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>10000000</code>   </td><td class="markdownTableBodyNone"><code>80</code>   </td><td class="markdownTableBodyNone"><code>128</code>   </td><td class="markdownTableBodyNone">Smoother?    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>10010000</code>   </td><td class="markdownTableBodyNone"><code>90</code>   </td><td class="markdownTableBodyNone"><code>144</code>   </td><td class="markdownTableBodyNone">Small   </td></tr>
-</table>
-<p >Simply add the flags to combine them (e.g. 7 = bold/italic/underline), and remember to represent them as a hexadecimal value.</p>
-<p >Examples:</p><ul>
-<li><code>fmsgu &lt;TRA data="0x1919BD01" mask="-1"/&gt;&lt;TEXT&gt;A player has died: Player&lt;/TEXT&gt;</code> This is similar to the standard death message (which is shown in bold red).</li>
-<li><code>fmsgu &lt;TRA data="0xFF000003" mask="-1"/&gt;&lt;TEXT&gt;Hello&lt;/TEXT&gt;&lt;TRA data="0x00FF0008" mask="-1"/&gt; &lt;TEXT&gt;World&lt;/TEXT&gt;</code> This will show "Hello World" ("Hello" will be blue/bold/italic and "World" green/big). </li>
-</ul>
+<p >The <code>fmsg*</code> commands allow you to format text in several ways. Please see <a href="md_docs__usage__x_m_l__text__reference.html">XML Text Reference</a> for more information. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

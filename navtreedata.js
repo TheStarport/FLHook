@@ -28,6 +28,7 @@ var NAVTREE =
     [ "Usage", null, [
       [ "Administrative Commands", "md_docs__usage__administrative__commands.html", null ],
       [ "Logging", "md_docs__usage__logging.html", null ],
+      [ "XML Text Reference", "md_docs__usage__x_m_l__text__reference.html", null ],
       [ "Event Mode", "md_docs__usage__event__mode.html", null ],
       [ "Blowfish Encryption", "md_docs__usage__blowfish__encryption.html", null ],
       [ "Plugins", "md_docs__usage__plugins.html", [
@@ -91,11 +92,11 @@ var NAVTREEINDEX =
 "dir_5e999edde22b7f0e19176695e3133ddf.html",
 "global_8h.html#acc1a54a435b2bc526ba5f549fe82b530",
 "md_docs__usage__blowfish__encryption.html",
-"namespace_hk_i_server_impl.html#a6010cf07310269ced61147339fe372e3",
-"pvp__plugin_2_main_8cpp.html#ad69c2a8afa47f465923801d48609fbbf",
-"struct_c_l_o_a_k___i_n_f_o.html#af1fc2a7f6bab785a9896b0521e794c49",
-"struct_n_p_c___m_i_s_s_i_o_n.html",
-"system__sensor__plugin_2_main_8cpp.html#a4018e5aafd4316f0427dd209257ac198"
+"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6",
+"pvp__plugin_2_main_8cpp.html#acc40fa4e3895db60244b244d0a22b650",
+"struct_c_l_o_a_k___i_n_f_o.html#ad2270aadf8a7a980847f1c5fd8cadd8d",
+"struct_n_p_c___f_l_e_e_t_s_t_r_u_c_t.html#aec5c2eb1de6845d21ceec0be96783d27",
+"system__sensor__plugin_2_main_8cpp.html#a34e838a8ba465bc3c7835fac8c353fb8"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

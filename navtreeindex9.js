@@ -1,10 +1,11 @@
 var NAVTREEINDEX9 =
 {
-"md_docs__usage__blowfish__encryption.html":[0,3],
-"md_docs__usage__event__mode.html":[0,2],
+"md_docs__usage__blowfish__encryption.html":[0,4],
+"md_docs__usage__event__mode.html":[0,3],
 "md_docs__usage__logging.html":[0,1],
-"md_docs__usage__plugins.html":[0,4],
-"md_docs__usage__plugins__misc__commands.html":[0,4,0],
+"md_docs__usage__plugins.html":[0,5],
+"md_docs__usage__plugins__misc__commands.html":[0,5,0],
+"md_docs__usage__x_m_l__text__reference.html":[0,2],
 "message__plugin_2_main_8cpp.html":[2,3,0,1,19,0],
 "message__plugin_2_main_8cpp.html#a025b6658a7fd18e493f8b04edf8e3386":[2,3,0,1,19,0,41],
 "message__plugin_2_main_8cpp.html#a0679f23f15236b53f3646bc4c692f455":[2,3,0,1,19,0,75],
@@ -248,6 +249,5 @@ var NAVTREEINDEX9 =
 "namespace_hk_i_server_impl.html#a56a27701a6eee4d35e2bf9bd54e06fb4":[2,1,0,1,14],
 "namespace_hk_i_server_impl.html#a56e27c1139facab54dc7116ffefc70a8":[2,1,0,1,126],
 "namespace_hk_i_server_impl.html#a5bf706d8286387c08e6c71c72bd3cccd":[2,1,0,1,63],
-"namespace_hk_i_server_impl.html#a5c87ae57cd1c9d8be2ebe800fb652990":[2,1,0,1,25],
-"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6":[2,1,0,1,43]
+"namespace_hk_i_server_impl.html#a5c87ae57cd1c9d8be2ebe800fb652990":[2,1,0,1,25]
 };
