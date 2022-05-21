@@ -105,13 +105,11 @@ class Serializer
 				}
 				else if constexpr (IsFloat<typename DeclType::value_type>)
 				{
-					*static_cast<std::vector<float>*>(ptr) =
-					    json[member.name.c_str()].template get<std::vector<float>>();
+					*static_cast<std::vector<float>*>(ptr) = json[member.name.c_str()].template get<std::vector<float>>();
 				}
 				else if constexpr (IsString<typename DeclType::value_type>)
 				{
-					*static_cast<std::vector<std::string>*>(ptr) =
-					    json[member.name.c_str()].template get<std::vector<std::string>>();
+					*static_cast<std::vector<std::string>*>(ptr) = json[member.name.c_str()].template get<std::vector<std::string>>();
 				}
 				else if constexpr (IsWString<typename DeclType::value_type>)
 				{
@@ -139,8 +137,7 @@ class Serializer
 				else
 				{
 					if (set_bDebug)
-						Console::ConWarn(L"Non-reflectable property (%s) present within vector on %s.", member.name,
-						                 type.name.c_str());
+						Console::ConWarn(L"Non-reflectable property (%s) present within vector on %s.", member.name, type.name.c_str());
 				}
 			}
 			else
@@ -165,8 +162,7 @@ class Serializer
 			// Get our type with the reference removed
 			typedef std::remove_reference_t<decltype(member(obj))> DeclType;
 
-			if constexpr (IsBool<DeclType> || IsInt<DeclType> || IsFloat<DeclType> || IsString<DeclType> ||
-			              IsWString<DeclType>)
+			if constexpr (IsBool<DeclType> || IsInt<DeclType> || IsFloat<DeclType> || IsString<DeclType> || IsWString<DeclType>)
 			{
 				if constexpr (IsWString<DeclType>)
 				{
@@ -174,7 +170,7 @@ class Serializer
 				}
 				else
 				{
-					json[member.name.c_str()] = member(obj);	
+					json[member.name.c_str()] = member(obj);
 				}
 			}
 			else if constexpr (IsReflectable<DeclType>)
@@ -185,9 +181,8 @@ class Serializer
 			}
 			else if constexpr (IsVector<DeclType>::value)
 			{
-				if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> ||
-				              IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type> ||
-				              IsWString<typename DeclType::value_type>)
+				if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || IsFloat<typename DeclType::value_type> ||
+				    IsString<typename DeclType::value_type> || IsWString<typename DeclType::value_type>)
 				{
 					if constexpr (IsWString<typename DeclType::value_type>)
 					{
@@ -250,10 +245,8 @@ class Serializer
 			fileToSave = dynamic_cast<Reflectable&>(t).File();
 			if (fileToSave.empty())
 			{
-				Console::ConErr(
-				    L"While trying to serialize, a file, both the metadata of the class and fileName were empty.");
-				throw std::invalid_argument(
-				    "While trying to serialize, a file, both the metadata of the class and fileName were empty.");
+				Console::ConErr(L"While trying to serialize, a file, both the metadata of the class and fileName were empty.");
+				throw std::invalid_argument("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
 			}
 		}
 
@@ -289,8 +282,7 @@ class Serializer
 			fileName = dynamic_cast<Reflectable&>(ret).File();
 			if (fileName.empty())
 			{
-				std::string err =
-				    "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
+				std::string err = "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
 				Console::ConErr(stows(err));
 				throw std::invalid_argument(err);
 			}
@@ -306,7 +298,6 @@ class Serializer
 		if (!exists)
 		{
 			// Default constructor
-			// auto obj = std::make_shared<T>();
 			SaveToJson(ret);
 			return ret;
 		}
@@ -318,14 +309,32 @@ class Serializer
 			return ret;
 		}
 
-		// Load data from file.
-		std::stringstream buffer;
-		buffer << file.rdbuf();
-		file.close();
-		nlohmann::json json = nlohmann::json::parse(buffer.str());
+		try
+		{
+			// Load data from file.
+			std::stringstream buffer;
+			buffer << file.rdbuf();
+			file.close();
+			nlohmann::json json = nlohmann::json::parse(buffer.str());
 
-		// auto obj = std::make_shared<T>();
-		ReadObject(json, ret);
+			ReadObject(json, ret);
+		}
+		catch (nlohmann::json::parse_error& ex)
+		{
+			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
+			AddLog(Normal, L"Unable to process JSON file [" + stows(fileName) + L"]. The JSON could not be parsed. EXCEPTION: " + stows(ex.what()));
+		}
+		catch (nlohmann::json::type_error& ex)
+		{
+			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
+			AddLog(Normal,
+			    L"Unable to process JSON file [" + stows(fileName) + L"]. A type within the JSON object did not match. EXCEPTION: " + stows(ex.what()));
+		}
+		catch (nlohmann::json::exception& ex)
+		{
+			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
+			AddLog(Normal, L"Unable to process JSON file [" + stows(fileName) + L"] EXCEPTION: " + stows(ex.what()));
+		}
 
 		return ret;
 	}
