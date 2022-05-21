@@ -2,6 +2,7 @@ int
 bin
 dist
 .vs
+.vscode
 Debug
 Release
 *.vcxproj.user

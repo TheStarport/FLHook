@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "SConscript": "python",
-        "*.md.html": "markdown",
-        "string": "cpp",
-        "algorithm": "cpp",
-        "iostream": "cpp"
-    }
-}
