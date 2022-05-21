@@ -1,7 +1,7 @@
 name: docs
 on:
   push:
-    branches: [ doxygen ]
+    branches: [ master ]
 jobs:
   deploy:
     runs-on: ubuntu-20.04

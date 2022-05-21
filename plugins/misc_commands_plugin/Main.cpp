@@ -17,7 +17,7 @@ namespace Plugins::MiscCommands
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/// Load the configuration
+	// Load the configuration
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
