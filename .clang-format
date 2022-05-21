@@ -1,7 +1,7 @@
 ﻿---
 BasedOnStyle: Microsoft
-AlignAfterOpenBracket: AlwaysBreak
-AlignConsecutiveMacros: 'true'
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveMacros: 'false'
 AlignConsecutiveAssignments: 'false'
 AlignConsecutiveDeclarations: 'false'
 AlignEscapedNewlines: Left
@@ -25,9 +25,10 @@ BreakBeforeTernaryOperators: 'true'
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: 'true'
+ColumnLimit: 160
 CompactNamespaces: 'false'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
-Cpp11BracedListStyle: 'false'
+Cpp11BracedListStyle: 'true'
 DerivePointerAlignment: 'false'
 FixNamespaceComments: 'true'
 SortIncludes: 'false'

@@ -194,9 +194,6 @@
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\source\HookedCallBase.h" />
-    <ClInclude Include="..\source\Tools\Serialization.hpp">
-      <Filter>Tools</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

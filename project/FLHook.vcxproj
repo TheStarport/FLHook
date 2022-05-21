@@ -296,7 +296,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
-    <ClInclude Include="..\source\Tools\Serialization.hpp" />
     <ClInclude Include="..\source\wildcards.hh" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
