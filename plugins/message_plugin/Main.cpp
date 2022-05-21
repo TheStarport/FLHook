@@ -378,8 +378,7 @@ bool SubmitChat(uint& cId, unsigned long& iSize, const void** rdlReader, uint& c
 				{
 					std::wstring wscCharname =
 					    reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
-					AddLog(
-					    Kick, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(),
+					AddLog(Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(),
 					    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), (wscChatMsg).c_str());
 
 					if (tempBanCommunicator)

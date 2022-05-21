@@ -3,7 +3,6 @@
 #include "global.h"
 #include "flcodec.h"
 
-#include <spdlog/logger.h>
 #include <time.h>
 #include <variant>
 
@@ -116,7 +115,7 @@ EXPORT void AddExceptionInfoLog(SEHException* ex);
 		catch (...)                                          \
 		{                                                    \
 			e;                                               \
-			AddLog(Error, L"Exception in %s", __FUNCTION__); \
+			AddLog(Normal, LogLevel::Info, L"Exception in %s", __FUNCTION__); \
 		}
 #endif
 
@@ -152,9 +151,18 @@ EXPORT extern _GetShipInspect GetShipInspect;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // enums
 
+enum class LogLevel : int
+{
+	Trace,
+	Debug,
+	Info,
+	Warn,
+	Err,
+	Critical
+};
+
 enum LogType
 {
-	Error,
 	Normal,
 	Cheater,
 	Kick,
@@ -162,8 +170,7 @@ enum LogType
 	AdminCmds,
 	UserLogCmds,
 	SocketCmds,
-	PerfTimers,
-	Debug
+	PerfTimers
 };
 
 enum HK_ERROR
@@ -405,8 +412,7 @@ class PluginManager : public Singleton<PluginManager>
 						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 				}
 				CATCH_HOOK({
-					AddLog(
-					    Normal, L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(),
+					AddLog(Normal, LogLevel::Info, L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(),
 					    stows(__FUNCTION__).c_str());
 				});
 
@@ -419,7 +425,7 @@ class PluginManager : public Singleton<PluginManager>
 					break;
 			}
 		}
-		CATCH_HOOK({ AddLog(Normal, L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
+		CATCH_HOOK({ AddLog(Normal, LogLevel::Info, L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
 
 		if constexpr (!ReturnTypeIsVoid)
 			return ret;
@@ -820,15 +826,15 @@ const wchar_t* ToLogString(const T& val)
 	return L"<undefined>";
 }
 
-EXPORT void AddLog(enum LogType, std::wstring wStr, ...);
+EXPORT void AddLog(LogType LogType, LogLevel level, std::wstring wStr, ...);
 template<typename... Args>
 void AddBothLog(bool bError, std::wstring wStr, Args&&... args)
 {
 	if (bError)
-		AddLog(Error, wStr, std::forward<Args>(args)...);
+		AddLog(Normal, LogLevel::Err, wStr, std::forward<Args>(args)...);
 	else
-		AddLog(Normal, wStr, std::forward<Args>(args)...);
-	AddLog(Debug, wStr, std::forward<Args>(args)...);
+		AddLog(Normal, LogLevel::Info, wStr, std::forward<Args>(args)...);
+	AddLog(Normal, LogLevel::Debug, wStr, std::forward<Args>(args)...);
 }
 
 EXPORT void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...);
@@ -997,7 +1003,7 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                  \
 	}                                                                           \
 	CATCH_HOOK({                                                                \
-		AddLog(Normal, L"ERROR: Exception in " __FUNCTION__ " on server call"); \
+		AddLog(Normal, LogLevel::Info, L"ERROR: Exception in " __FUNCTION__ " on server call"); \
 		bool ret = catchArgs;                                                   \
 		if (!ret)                                                               \
 		{                                                                       \
@@ -1024,8 +1030,7 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 	{                                                                           \
 		if (ClientInfo[clientID].bDisconnected)                                 \
 		{                                                                       \
-			AddLog(                                                             \
-			    Normal,                                                         \
+			AddLog(Normal, LogLevel::Info,                                                         \
 			    L"ERROR: Ignoring disconnected client in " __FUNCTION__ " id=%" \
 			                                                            "u",    \
 			    clientID);                                                      \

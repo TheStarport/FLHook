@@ -1236,7 +1236,7 @@ namespace PlayerCommands
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		AddLog(
-		    Normal, L"NOTICE: Base created %s by %s (%s)", basename.c_str(), charname.c_str(),
+		     LogLevel::Info, L"NOTICE: Base created %s by %s (%s)", basename.c_str(), charname.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
 
 		PlayerBase* newbase = new PlayerBase(client, password, basename);

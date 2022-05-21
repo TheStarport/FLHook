@@ -2,6 +2,7 @@
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/msvc_sink.h"
+#include "spdlog/spdlog.h"
 
 std::shared_ptr<spdlog::logger> FLHookLog = nullptr;
 std::shared_ptr<spdlog::logger> CheaterLog = nullptr;
@@ -19,19 +20,16 @@ bool InitLogs()
 	try
 	{
 		FLHookLog = spdlog::basic_logger_mt<spdlog::async_factory>("FLHook", "flhook_logs/FLHook.log");
-		CheaterLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_cheaters", "flhook_logs/flhook_cheaters.log");
+		CheaterLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_cheaters", "flhook_logs/flhook_cheaters.log");
 		KickLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_kicks", "flhook_logs/flhook_kicks.log");
-		ConnectsLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "flhook_logs/flhook_connects.log");
-		AdminCmdsLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "flhook_logs/flhook_admincmds.log");
-		SocketCmdsLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "flhook_logs/flhook_socketcmds.log");
-		UserCmdsLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "flhook_logs/flhook_usercmds.log");
-		PerfTimersLog =
-		    spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "flhook_logs/flhook_perftimers.log");
+		ConnectsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "flhook_logs/flhook_connects.log");
+		AdminCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "flhook_logs/flhook_admincmds.log");
+		SocketCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "flhook_logs/flhook_socketcmds.log");
+		UserCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "flhook_logs/flhook_usercmds.log");
+		PerfTimersLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "flhook_logs/flhook_perftimers.log");
+
+		spdlog::flush_on(spdlog::level::err);
+		spdlog::flush_every(std::chrono::seconds(3));
 
 		if (IsDebuggerPresent())
 		{
@@ -62,8 +60,9 @@ bool InitLogs()
 	return true;
 }
 
-void AddLog(LogType LogType, std::wstring wStr, ...)
+void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
 {
+	auto level = static_cast<spdlog::level::level_enum>(lvl);
 	va_list marker;
 	va_start(marker, wStr);
 
@@ -75,51 +74,45 @@ void AddLog(LogType LogType, std::wstring wStr, ...)
 	switch (LogType)
 	{
 		case Cheater:
-			CheaterLog->info(scText);
-			CheaterLog->flush();
+			CheaterLog->log(level, scText);
 			break;
 		case Kick:
-			KickLog->info(scText);
-			KickLog->flush();
+			KickLog->log(level, scText);
 			break;
 		case Connects:
-			ConnectsLog->info(scText);
-			ConnectsLog->flush();
+			ConnectsLog->log(level, scText);
 			break;
 		case AdminCmds:
-			AdminCmdsLog->info(scText);
-			AdminCmdsLog->flush();
+			AdminCmdsLog->log(level, scText);
 			break;
 		case UserLogCmds:
-			UserCmdsLog->info(scText);
-			UserCmdsLog->flush();
+			UserCmdsLog->log(level, scText);
 			break;
 		case SocketCmds:
-			SocketCmdsLog->info(scText);
-			SocketCmdsLog->flush();
+			SocketCmdsLog->log(level, scText);
 			break;
 		case PerfTimers:
-			PerfTimersLog->info(scText);
-			PerfTimersLog->flush();
-			break;
-		case Debug:
-			if (FLHookDebugLog)
-			{
-				FLHookDebugLog->debug(scText);
-				FLHookDebugLog->flush();
-			}
+			PerfTimersLog->log(level, scText);
 			break;
 		case Normal:
-			FLHookLog->info(scText);
+			FLHookLog->log(level, scText);
 			break;
-		case Error:
-			FLHookLog->error(scText);
-			break;
+	}
+
+	if (lvl == LogLevel::Debug && FLHookDebugLog)
+	{
+		FLHookDebugLog->debug(scText);
 	}
 
 	if (IsDebuggerPresent())
 	{
 		WinDebugLog->debug(scText);
+	}
+
+	if (lvl == LogLevel::Critical)
+	{
+		// Ensure all is flushed!
+		spdlog::shutdown();
 	}
 }
 
@@ -173,12 +166,8 @@ bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring
 
 	const auto wscCharacterName = Players.GetActiveCharacterName(iClientID);
 
-	AddLog(
-	    Cheater,
-	    L"Possible cheating detected (%s) by "
-	    "%s(%s)(%s) [%s %s]\n",
-	    wscReason.c_str(), wscCharacterName, wscAccountDir.c_str(), wscAccountID.c_str(), wscHostName.c_str(),
-	    wscIp.c_str());
+	AddLog(Cheater, LogLevel::Info, L"Possible cheating detected (%s) by %s(%s)(%s) [%s %s]", 
+		wscReason.c_str(), wscCharacterName, wscAccountDir.c_str(), wscAccountID.c_str(), wscHostName.c_str(), wscIp.c_str());
 	return true;
 }
 
@@ -200,7 +189,7 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
-	AddLog(Kick, L"Kick (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
+	AddLog(Kick, LogLevel::Info, L"Kick (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
 	return true;
 }
 
@@ -222,8 +211,7 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
-	AddLog(
-	    Connects, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(),
+	AddLog(Connects, LogLevel::Info, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(),
 	    HkGetAccountID(acc).c_str());
 	return true;
 }

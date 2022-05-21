@@ -760,19 +760,19 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 			if (set_bLogUserCmds)
 			{
 				std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-				AddLog(UserLogCmds, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
+				AddLog(UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
 			}
 
 			try
 			{
 				UserCmds[i].proc(iClientID, wscParam);
 				if (set_bLogUserCmds)
-					AddLog(UserLogCmds, L"finished");
+					AddLog(UserLogCmds, LogLevel::Info, L"finished");
 			}
 			catch (...)
 			{
 				if (set_bLogUserCmds)
-					AddLog(UserLogCmds, L"exception");
+					AddLog(UserLogCmds, LogLevel::Info, L"exception");
 			}
 
 			return true;

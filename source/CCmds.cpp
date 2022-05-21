@@ -1180,10 +1180,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 	try
 	{
 		if (bSocket && ((bLocalSocket && set_bLogLocalSocketCmds) || set_bLogSocketCmds))
-			AddLog(SocketCmds, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+			AddLog(SocketCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
 		if (set_bLogAdminCmds)
-			AddLog(AdminCmds, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+			AddLog(AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
 		bID = false;
 		bShortCut = false;
@@ -1473,18 +1473,18 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			if (bLocalSocket)
 			{
 				if (set_bLogLocalSocketCmds)
-					AddLog(SocketCmds, L"finnished");
+					AddLog(SocketCmds, LogLevel::Info, L"finnished");
 			}
 			else
 			{
 				if (set_bLogSocketCmds)
-					AddLog(SocketCmds, L"finnished");
+					AddLog(SocketCmds, LogLevel::Info, L"finnished");
 			}
 		}
 		else
 		{
 			if (set_bLogAdminCmds)
-				AddLog(AdminCmds, L"finnished");
+				AddLog(AdminCmds, LogLevel::Info, L"finnished");
 		}
 	}
 	catch (...)
@@ -1494,18 +1494,18 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			if (bLocalSocket)
 			{
 				if (set_bLogLocalSocketCmds)
-					AddLog(SocketCmds, L"exception");
+					AddLog(SocketCmds, LogLevel::Info, L"exception");
 			}
 			else
 			{
 				if (set_bLogSocketCmds)
-					AddLog(SocketCmds, L"exception");
+					AddLog(SocketCmds, LogLevel::Info, L"exception");
 			}
 		}
 		else
 		{
 			if (set_bLogAdminCmds)
-				AddLog(AdminCmds, L"exception");
+				AddLog(AdminCmds, LogLevel::Info, L"exception");
 		}
 		Print(L"ERR exception occured");
 	}

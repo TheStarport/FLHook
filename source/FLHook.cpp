@@ -108,7 +108,7 @@ BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-	AddLog(Normal, L"!!TOP LEVEL EXCEPTION!!");
+	AddLog(Normal, LogLevel::Info, L"!!TOP LEVEL EXCEPTION!!");
 	SEHException ex(0, pExceptionInfo);
 	WriteMiniDump(&ex);
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
@@ -503,7 +503,7 @@ void FLHookShutdown()
 	SetUnhandledExceptionFilter(0);
 #endif
 
-	AddLog(Normal, L"-------------------");
+	AddLog(Normal, LogLevel::Info, L"-------------------");
 
 	// unload rest
 	DWORD id;
@@ -540,7 +540,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
 			AddLog(
-			    Normal, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(),
+			    Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(),
 			    sc->csock.iPort);
 			return true;
 		}
@@ -560,10 +560,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 				sc->csock.DoPrint(L"ERR Wrong password");
 				sc->csock.DoPrint(L"Goodbye.\r");
 				Console::ConInfo(L"socket: connection closed (invalid pass)");
-				AddLog(
-				    Normal,
-				    L"socket: socket connection from %s:%d closed (invalid "
-				    "pass)",
+				AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)",
 				    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 				return true;
 			}
@@ -805,7 +802,7 @@ void ProcessPendingCommands()
 				{
 					Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
 					AddLog(
-					    Normal, L"socket: socket connection from %s:%d closed (possible ddos attempt)",
+					    Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (possible ddos attempt)",
 					    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 					delete[] szData;
 					lstDelete.push_back(sc);

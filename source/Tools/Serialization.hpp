@@ -6,6 +6,12 @@
 
 #include "refl.hpp"
 
+#ifdef FLHOOK
+#include "hook.h"
+#else
+#include "FLHook.h"
+#endif
+
 // A base class/struct used for denoting that a class can be scanned.
 // Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
 // Reflectables are interepreted as headers of the provided name.
@@ -322,18 +328,18 @@ class Serializer
 		catch (nlohmann::json::parse_error& ex)
 		{
 			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(Normal, L"Unable to process JSON file [" + stows(fileName) + L"]. The JSON could not be parsed. EXCEPTION: " + stows(ex.what()));
+			AddLog(Normal, LogLevel::Info, L"Unable to process JSON file [" + stows(fileName) + L"]. The JSON could not be parsed. EXCEPTION: " + stows(ex.what()));
 		}
 		catch (nlohmann::json::type_error& ex)
 		{
 			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(Normal,
+			AddLog(Normal, LogLevel::Info,
 			    L"Unable to process JSON file [" + stows(fileName) + L"]. A type within the JSON object did not match. EXCEPTION: " + stows(ex.what()));
 		}
 		catch (nlohmann::json::exception& ex)
 		{
 			Console::ConErr(L"Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(Normal, L"Unable to process JSON file [" + stows(fileName) + L"] EXCEPTION: " + stows(ex.what()));
+			AddLog(Normal, LogLevel::Info, L"Unable to process JSON file [" + stows(fileName) + L"] EXCEPTION: " + stows(ex.what()));
 		}
 
 		return ret;

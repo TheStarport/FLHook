@@ -115,18 +115,16 @@ void HkTimerCheckKick()
 			if (!set_bDisableCharfileEncryption)
 				flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-			AddLog(
-			    Normal, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			AddLog(Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
 		}
 		catch (char* err)
 		{
-			AddLog(
-			    Normal, L"ERROR: User %s costume change to %u (%s)", wstos(restart.wscCharname).c_str(),
+			AddLog(Normal, LogLevel::Info, L"ERROR: User %s costume change to %u (%s)", wstos(restart.wscCharname).c_str(),
 			    restart.costume, err);
 		}
 		catch (...)
 		{
-			AddLog(Normal, L"ERROR: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			AddLog(Normal, LogLevel::Info, L"ERROR: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
 		}
 	}
 }

@@ -689,8 +689,7 @@ void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const& ci, ui
 						if (average > 2.0f)
 						{
 							std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-							AddLog(
-							    Normal,
+							AddLog(Normal, LogLevel::Info,
 							    L"High mining rate charname=%s "
 							    "rate=%0.1f/sec "
 							    "location=%0.0f,%0.0f,%0.0f system=%08x "
