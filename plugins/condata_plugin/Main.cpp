@@ -10,325 +10,264 @@
 #define PRINT_OK()       PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-CONNECTION_DATA ConData[MAX_CLIENT_ID + 1];
-bool set_bPingCmd;
+/** @defgroup MiscCommands Misc Commands (plugin) */
 
-ReturnCode returncode = ReturnCode::Default;
-
-static ConDataCommunicator* communicator = nullptr;
-TempBanCommunicator* tempBanCommunicator = nullptr;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXPORT void LoadSettings()
+namespace Plugins::ConData
 {
-	set_iPingKickFrame = IniGetI(set_scCfgFile, "Kick", "PingKickFrame", 30);
-	if (!set_iPingKickFrame)
-		set_iPingKickFrame = 60;
-	set_iPingKick = IniGetI(set_scCfgFile, "Kick", "PingKick", 0);
-	set_iFluctKick = IniGetI(set_scCfgFile, "Kick", "FluctKick", 0);
-	set_iLossKickFrame = IniGetI(set_scCfgFile, "Kick", "LossKickFrame", 30);
-	if (!set_iLossKickFrame)
-		set_iLossKickFrame = 60;
-	set_iLossKick = IniGetI(set_scCfgFile, "Kick", "LossKick", 0);
-	set_iLagDetectionFrame = IniGetI(set_scCfgFile, "Kick", "LagDetectionFrame", 50);
-	set_iLagDetectionMinimum = IniGetI(set_scCfgFile, "Kick", "LagDetectionMinimum", 200);
-	set_iLagKick = IniGetI(set_scCfgFile, "Kick", "LagKick", 0);
-	set_iKickThreshold = IniGetI(set_scCfgFile, "Kick", "KickThreshold", 0);
+	constexpr int KickTimer = 10;
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	set_bPingCmd = IniGetB(set_scCfgFile, "UserCommands", "Ping", false);
-}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-
-	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ClearConData(uint iClientID)
-{
-	ConData[iClientID].iAverageLoss = 0;
-	ConData[iClientID].iAveragePing = 0;
-	ConData[iClientID].iLastLoss = 0;
-	ConData[iClientID].iLastPacketsDropped = 0;
-	ConData[iClientID].iLastPacketsReceived = 0;
-	ConData[iClientID].iLastPacketsSent = 0;
-	ConData[iClientID].iPingFluctuation = 0;
-	ConData[iClientID].lstLoss.clear();
-	ConData[iClientID].lstPing.clear();
-	ConData[iClientID].lstObjUpdateIntervalls.clear();
-	ConData[iClientID].iLags = 0;
-	ConData[iClientID].tmLastObjUpdate = 0;
-	ConData[iClientID].tmLastObjTimestamp = 0;
-
-	ConData[iClientID].bException = false;
-	ConData[iClientID].sExceptionReason = "";
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXPORT void ClearClientInfo(uint& iClientID)
-{
-	ClearConData(iClientID);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-{
-	if (set_bPingCmd)
+	void ClearConData(uint iClientID)
 	{
-		PrintUserCmdText(iClientID, L"/ping");
-		PrintUserCmdText(iClientID, L"/pingtarget");
+		auto con = global->connections[iClientID];
+		con.iAverageLoss = 0;
+		con.iAveragePing = 0;
+		con.iLastLoss = 0;
+		con.iLastPacketsDropped = 0;
+		con.iLastPacketsReceived = 0;
+		con.iLastPacketsSent = 0;
+		con.iPingFluctuation = 0;
+		con.lstLoss.clear();
+		con.lstPing.clear();
+		con.lstObjUpdateIntervalls.clear();
+		con.iLags = 0;
+		con.tmLastObjUpdate = 0;
+		con.tmLastObjTimestamp = 0;
+
+		con.bException = false;
+		con.sExceptionReason = "";
 	}
-}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EXPORT void HkTimerCheckKick()
-{
-	if (g_iServerLoad > set_iKickThreshold)
+	void ClearClientInfo(uint& iClientID) { ClearConData(iClientID); }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void UserCmdHelp(uint& iClientID, const std::wstring& wscParam)
+	{
+		if (global->config->allowPing)
+		{
+			PrintUserCmdText(iClientID, L"/ping");
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void HkTimerCheckKick()
+	{
+		if (g_iServerLoad > global->config->kickThreshold)
+		{
+			// for all players
+			struct PlayerData* pPD = nullptr;
+			while (pPD = Players.traverse_active(pPD))
+			{
+				const uint iClientID = HkGetClientIdFromPD(pPD);
+				if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+					continue;
+
+				auto con = global->connections[iClientID];
+
+				if (global->config->lossKick && con.iAverageLoss > global->config->lossKick)
+				{
+					con.lstLoss.clear();
+					HkAddKickLog(iClientID, L"High loss");
+					HkMsgAndKick(iClientID, L"High loss", KickTimer);
+					// call tempban plugin
+					if (global->tempBanCommunicator)
+					{
+						std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+						global->tempBanCommunicator->TempBan(wscCharname, 60);
+					}
+				}
+
+				if (global->config->pingKick)
+				{ // check if ping is too high
+					if (con.iAveragePing > (global->config->pingKick))
+					{
+						con.lstPing.clear();
+						HkAddKickLog(iClientID, L"High ping");
+						HkMsgAndKick(iClientID, L"High ping", KickTimer);
+						// call tempban plugin
+						if (global->tempBanCommunicator)
+						{
+							std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+							global->tempBanCommunicator->TempBan(wscCharname, 60);
+						}
+					}
+				}
+
+				if (global->config->fluctKick)
+				{ // check if ping fluct is too high
+					if (con.iPingFluctuation > (global->config->fluctKick))
+					{
+						con.lstPing.clear();
+						HkAddKickLog(iClientID, L"High fluct");
+						HkMsgAndKick(iClientID, L"High ping fluctuation", KickTimer);
+						// call tempban plugin
+						if (global->tempBanCommunicator)
+						{
+							std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+							global->tempBanCommunicator->TempBan(wscCharname, 60);
+						}
+					}
+				}
+
+				if (global->config->lagKick)
+				{ // check if lag is too high
+					if (con.iLags > (global->config->lagKick))
+					{
+						con.lstObjUpdateIntervalls.clear();
+
+						HkAddKickLog(iClientID, L"High Lag");
+						HkMsgAndKick(iClientID, L"High Lag", KickTimer);
+						// call tempban plugin
+						if (global->tempBanCommunicator)
+						{
+							std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+							global->tempBanCommunicator->TempBan(wscCharname, 60);
+						}
+					}
+				}
+			}
+		}
+
+		// Are there accounts connected with client IDs greater than max player
+		// count? If so, kick them as FLServer is buggy and will use high client IDs
+		// but will not allow character selection on them.
+		for (int iClientID = Players.GetMaxPlayerCount() + 1; iClientID <= MAX_CLIENT_ID; iClientID++)
+		{
+			if (Players[iClientID].iOnlineID)
+			{
+				if (CAccount* acc = Players.FindAccountFromClientID(iClientID))
+				{
+					acc->ForceLogout();
+					Players.logout(iClientID);
+				}
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**************************************************************************************************************
+	Update average ping data
+	**************************************************************************************************************/
+
+	void TimerUpdatePingData()
 	{
 		// for all players
-		struct PlayerData* pPD = 0;
+		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			const uint iClientID = HkGetClientIdFromPD(pPD);
 			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
 				continue;
 
-			if (set_iLossKick)
-			{ // check if loss is too high
-				if (ConData[iClientID].iAverageLoss > (set_iLossKick))
-				{
-					ConData[iClientID].lstLoss.clear();
-					HkAddKickLog(iClientID, L"High loss");
-					HkMsgAndKick(iClientID, L"High loss", set_iKickMsgPeriod);
-					// call tempban plugin
-					if (tempBanCommunicator)
-					{
-						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-						tempBanCommunicator->TempBan(wscCharname, 60);
-					}
-				}
-			}
+			if (ClientInfo[iClientID].tmF1TimeDisconnect)
+				continue;
 
-			if (set_iPingKick)
-			{ // check if ping is too high
-				if (ConData[iClientID].iAveragePing > (set_iPingKick))
-				{
-					ConData[iClientID].lstPing.clear();
-					HkAddKickLog(iClientID, L"High ping");
-					HkMsgAndKick(iClientID, L"High ping", set_iKickMsgPeriod);
-					// call tempban plugin
-					if (tempBanCommunicator)
-					{
-						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-						tempBanCommunicator->TempBan(wscCharname, 60);
-					}
-				}
-			}
+			DPN_CONNECTION_INFO ci;
+			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
+				continue;
 
-			if (set_iFluctKick)
-			{ // check if ping fluct is too high
-				if (ConData[iClientID].iPingFluctuation > (set_iFluctKick))
-				{
-					ConData[iClientID].lstPing.clear();
-					HkAddKickLog(iClientID, L"High fluct");
-					HkMsgAndKick(iClientID, L"High ping fluctuation", set_iKickMsgPeriod);
-					// call tempban plugin
-					if (tempBanCommunicator)
-					{
-						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-						tempBanCommunicator->TempBan(wscCharname, 60);
-					}
-				}
-			}
+			auto con = global->connections[iClientID];
 
-			if (set_iLagKick)
-			{ // check if lag is too high
-				if (ConData[iClientID].iLags > (set_iLagKick))
-				{
-					ConData[iClientID].lstObjUpdateIntervalls.clear();
-
-					HkAddKickLog(iClientID, L"High Lag");
-					HkMsgAndKick(iClientID, L"High Lag", set_iKickMsgPeriod);
-					// call tempban plugin
-					if (tempBanCommunicator)
-					{
-						std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-						tempBanCommunicator->TempBan(wscCharname, 60);
-					}
-				}
-			}
-		}
-	}
-
-	// Are there accounts connected with client IDs greater than max player
-	// count? If so, kick them as FLServer is buggy and will use high client IDs
-	// but will not allow character selection on them.
-	for (int iClientID = Players.GetMaxPlayerCount() + 1; iClientID <= MAX_CLIENT_ID; iClientID++)
-	{
-		if (Players[iClientID].iOnlineID)
-		{
-			CAccount* acc = Players.FindAccountFromClientID(iClientID);
-			if (acc)
+			///////////////////////////////////////////////////////////////
+			// update ping data
+			if (con.lstPing.size() >= global->config->pingKickFrame)
 			{
-				acc->ForceLogout();
-				Players.logout(iClientID);
-			}
-		}
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**************************************************************************************************************
-Update average ping data
-**************************************************************************************************************/
-
-void TimerUpdatePingData()
-{
-	// for all players
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
-	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
-		if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
-			continue;
-
-		if (ClientInfo[iClientID].tmF1TimeDisconnect)
-			continue;
-
-		DPN_CONNECTION_INFO ci;
-		if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
-			continue;
-
-		///////////////////////////////////////////////////////////////
-		// update ping data
-		if (ConData[iClientID].lstPing.size() >= set_iPingKickFrame)
-		{
-			// calculate average ping and ping fluctuation
-			unsigned int iLastPing = 0;
-			ConData[iClientID].iAveragePing = 0;
-			ConData[iClientID].iPingFluctuation = 0;
-			for (auto& ping : ConData[iClientID].lstPing)
-			{
-				ConData[iClientID].iAveragePing += ping;
-				if (iLastPing != 0)
+				// calculate average ping and ping fluctuation
+				unsigned int iLastPing = 0;
+				con.iAveragePing = 0;
+				con.iPingFluctuation = 0;
+				for (const auto& ping : con.lstPing)
 				{
-					ConData[iClientID].iPingFluctuation += (uint)sqrt((double)pow(((float)ping - (float)iLastPing), 2));
+					con.iAveragePing += ping;
+					if (iLastPing != 0)
+					{
+						con.iPingFluctuation += static_cast<uint>(sqrt(pow(static_cast<float>(ping) - static_cast<float>(iLastPing), 2)));
+					}
+					iLastPing = ping;
 				}
-				iLastPing = ping;
+
+				con.iPingFluctuation /= con.lstPing.size();
+				con.iAveragePing /= con.lstPing.size();
 			}
 
-			ConData[iClientID].iPingFluctuation /= (uint)ConData[iClientID].lstPing.size();
-			ConData[iClientID].iAveragePing /= (uint)ConData[iClientID].lstPing.size();
+			// remove old pingdata
+			while (con.lstPing.size() >= global->config->pingKickFrame)
+				con.lstPing.pop_back();
+
+			con.lstPing.push_front(ci.dwRoundTripLatencyMS);
 		}
-
-		// remove old pingdata
-		while (ConData[iClientID].lstPing.size() >= set_iPingKickFrame)
-			ConData[iClientID].lstPing.pop_back();
-
-		ConData[iClientID].lstPing.push_front(ci.dwRoundTripLatencyMS);
 	}
-}
 
-/**************************************************************************************************************
-Update average loss data
-**************************************************************************************************************/
+	/**************************************************************************************************************
+	Update average loss data
+	**************************************************************************************************************/
 
-void TimerUpdateLossData()
-{
-	// for all players
-	float fLossPercentage;
-	uint iNewDrops;
-	uint iNewSent;
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	void TimerUpdateLossData()
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
-		if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
-			continue;
-
-		if (ClientInfo[iClientID].tmF1TimeDisconnect)
-			continue;
-
-		DPN_CONNECTION_INFO ci;
-		if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
-			continue;
-
-		///////////////////////////////////////////////////////////////
-		// update loss data
-		if (ConData[iClientID].lstLoss.size() >= (set_iLossKickFrame / (LOSS_INTERVALL / 1000)))
+		// for all players
+		float fLossPercentage;
+		struct PlayerData* pPD = 0;
+		while (pPD = Players.traverse_active(pPD))
 		{
-			// calculate average loss
-			ConData[iClientID].iAverageLoss = 0;
-			for (auto& loss : ConData[iClientID].lstLoss)
-				ConData[iClientID].iAverageLoss += loss;
+			const uint iClientID = HkGetClientIdFromPD(pPD);
+			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				continue;
 
-			ConData[iClientID].iAverageLoss /= (uint)ConData[iClientID].lstLoss.size();
+			if (ClientInfo[iClientID].tmF1TimeDisconnect)
+				continue;
+
+			DPN_CONNECTION_INFO ci;
+			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
+				continue;
+
+			auto con = global->connections[iClientID];
+
+			///////////////////////////////////////////////////////////////
+			// update loss data
+			if (con.lstLoss.size() >= (global->config->lossKickFrame / (LossInterval / 1000)))
+			{
+				// calculate average loss
+				con.iAverageLoss = 0;
+				for (const auto& loss : con.lstLoss)
+					con.iAverageLoss += loss;
+
+				con.iAverageLoss /= con.lstLoss.size();
+			}
+
+			// remove old lossdata
+			while (con.lstLoss.size() >= (global->config->lossKickFrame / (LossInterval / 1000)))
+				con.lstLoss.pop_back();
+
+			// sum of Drops = Drops guaranteed + drops non-guaranteed
+			const uint iNewDrops = (ci.dwPacketsRetried + ci.dwPacketsDropped) - con.iLastPacketsDropped;
+
+			// % of Packets Lost = Drops / (sent+received) * 100
+			if (const uint iNewSent = (ci.dwPacketsSentGuaranteed + ci.dwPacketsSentNonGuaranteed) - con.iLastPacketsSent; iNewSent > 0) // division by zero check
+				fLossPercentage = static_cast<float>(iNewDrops) / static_cast<float>(iNewSent) * 100.0f;
+			else
+				fLossPercentage = 0.0;
+
+			if (fLossPercentage > 100)
+				fLossPercentage = 100;
+
+			// add last loss to List lstLoss and put current value into iLastLoss
+			con.lstLoss.push_front(con.iLastLoss);
+			con.iLastLoss = static_cast<uint>(fLossPercentage);
+
+			// Fill new ClientInfo-variables with current values
+			con.iLastPacketsSent = ci.dwPacketsSentGuaranteed + ci.dwPacketsSentNonGuaranteed;
+			con.iLastPacketsDropped = ci.dwPacketsRetried + ci.dwPacketsDropped;
 		}
-
-		// remove old lossdata
-		while (ConData[iClientID].lstLoss.size() >= (set_iLossKickFrame / (LOSS_INTERVALL / 1000)))
-			ConData[iClientID].lstLoss.pop_back();
-
-		// sum of Drops = Drops guaranteed + drops non-guaranteed
-		iNewDrops = (ci.dwPacketsRetried + ci.dwPacketsDropped) - ConData[iClientID].iLastPacketsDropped;
-
-		iNewSent = (ci.dwPacketsSentGuaranteed + ci.dwPacketsSentNonGuaranteed) - ConData[iClientID].iLastPacketsSent;
-
-		// % of Packets Lost = Drops / (sent+received) * 100
-		if (iNewSent > 0) // division by zero check
-			fLossPercentage = (float)((float)iNewDrops / (float)iNewSent) * 100;
-		else
-			fLossPercentage = 0.0;
-
-		if (fLossPercentage > 100)
-			fLossPercentage = 100;
-
-		// add last loss to List lstLoss and put current value into iLastLoss
-		ConData[iClientID].lstLoss.push_front(ConData[iClientID].iLastLoss);
-		ConData[iClientID].iLastLoss = (uint)fLossPercentage;
-
-		// Fill new ClientInfo-variables with current values
-		ConData[iClientID].iLastPacketsSent = ci.dwPacketsSentGuaranteed + ci.dwPacketsSentNonGuaranteed;
-		ConData[iClientID].iLastPacketsDropped = ci.dwPacketsRetried + ci.dwPacketsDropped;
 	}
-}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace HkIServerImpl
-{
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// add timers here
-	typedef void (*_TimerFunc)();
-
-	struct TIMER
-	{
-		_TimerFunc proc;
-		mstime tmIntervallMS;
-		mstime tmLastCall;
-	};
-
-	TIMER Timers[] = {
-		{ TimerUpdatePingData, 1000, 0 },
-		{ TimerUpdateLossData, LOSS_INTERVALL, 0 },
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	EXPORT int __stdcall Update()
+	int __stdcall Update()
 	{
 		static bool bFirstTime = true;
 		if (bFirstTime)
@@ -338,7 +277,7 @@ namespace HkIServerImpl
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
 			{
-				uint iClientID = pPD->iOnlineID;
+				const uint iClientID = pPD->iOnlineID;
 				if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
 					continue;
 
@@ -347,12 +286,12 @@ namespace HkIServerImpl
 		}
 
 		// call timers
-		for (uint i = 0; (i < sizeof(Timers) / sizeof(TIMER)); i++)
+		for (auto& [proc, tmIntervallMS, tmLastCall] : global->timers)
 		{
-			if ((timeInMS() - Timers[i].tmLastCall) >= Timers[i].tmIntervallMS)
+			if ((timeInMS() - tmLastCall) >= tmIntervallMS)
 			{
-				Timers[i].tmLastCall = timeInMS();
-				Timers[i].proc();
+				tmLastCall = timeInMS();
+				proc();
 			}
 		}
 
@@ -363,352 +302,271 @@ namespace HkIServerImpl
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	EXPORT void __stdcall PlayerLaunch(uint& iShip, uint& iClientID)
-	{
-		ConData[iClientID].tmLastObjUpdate = 0;
-	}
+	void __stdcall PlayerLaunch(uint& iShip, uint& iClientID) { global->connections[iClientID].tmLastObjUpdate = 0; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	EXPORT void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& iClientID)
+	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& iClientID)
 	{
 		// lag detection
-		IObjInspectImpl* ins = HkGetInspect(iClientID);
-		if (!ins)
+		if (const IObjInspectImpl* ins = HkGetInspect(iClientID); !ins)
 			return; // ??? 8[
 
-		mstime tmNow = timeInMS();
-		mstime tmTimestamp = (mstime)(ui.fTimestamp * 1000);
+		const mstime tmNow = timeInMS();
+		const auto tmTimestamp = static_cast<mstime>(ui.fTimestamp * 1000);
 
-		if (set_iLagDetectionFrame && ConData[iClientID].tmLastObjUpdate &&
-		    (HkGetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
+		auto con = global->connections[iClientID];
+
+		if (global->config->lagDetectionFrame && con.tmLastObjUpdate && (HkGetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
 		{
-			uint iTimeDiff = (uint)(tmNow - ConData[iClientID].tmLastObjUpdate);
-			uint iTimestampDiff = (uint)(tmTimestamp - ConData[iClientID].tmLastObjTimestamp);
-			int iDiff = (int)sqrt(pow((long double)((int)iTimeDiff - (int)iTimestampDiff), 2));
+			const auto iTimeDiff = static_cast<uint>(tmNow - con.tmLastObjUpdate);
+			const auto iTimestampDiff = static_cast<uint>(tmTimestamp - con.tmLastObjTimestamp);
+			auto iDiff = static_cast<int>(sqrt(pow(static_cast<long double>(static_cast<int>(iTimeDiff) - static_cast<int>(iTimestampDiff)), 2)));
 			iDiff -= g_iServerLoad;
 			if (iDiff < 0)
 				iDiff = 0;
 
 			uint iPerc;
 			if (iTimestampDiff != 0)
-				iPerc = (uint)((float)((float)iDiff / (float)iTimestampDiff) * 100.0);
+				iPerc = static_cast<uint>(static_cast<float>(iDiff) / static_cast<float>(iTimestampDiff) * 100.0f);
 			else
 				iPerc = 0;
 
-			if (ConData[iClientID].lstObjUpdateIntervalls.size() >= set_iLagDetectionFrame)
+			if (con.lstObjUpdateIntervalls.size() >= global->config->lagDetectionFrame)
 			{
 				uint iLags = 0;
-				for (auto& iv : ConData[iClientID].lstObjUpdateIntervalls)
+				for (const auto& iv : con.lstObjUpdateIntervalls)
 				{
-					if (iv > set_iLagDetectionMinimum)
+					if (iv > global->config->lagDetectionMin)
 						iLags++;
 				}
 
-				ConData[iClientID].iLags = (iLags * 100) / set_iLagDetectionFrame;
-				while (ConData[iClientID].lstObjUpdateIntervalls.size() >= set_iLagDetectionFrame)
-					ConData[iClientID].lstObjUpdateIntervalls.pop_front();
+				con.iLags = (iLags * 100) / global->config->lagDetectionFrame;
+				while (con.lstObjUpdateIntervalls.size() >= global->config->lagDetectionFrame)
+					con.lstObjUpdateIntervalls.pop_front();
 			}
 
-			ConData[iClientID].lstObjUpdateIntervalls.push_back(iPerc);
+			con.lstObjUpdateIntervalls.push_back(iPerc);
 		}
 
-		ConData[iClientID].tmLastObjUpdate = tmNow;
-		ConData[iClientID].tmLastObjTimestamp = tmTimestamp;
+		con.tmLastObjUpdate = tmNow;
+		con.tmLastObjTimestamp = tmTimestamp;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-} // namespace HkIServerImpl
+	void UserCmdPing(uint iClientID, const std::wstring& wscParam)
+	{
+		if (!global->config->allowPing)
+		{
+			PRINT_DISABLED();
+			return;
+		}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		std::wstring wscTargetPlayer = GetParam(wscParam, ' ', 0);
+		uint iClientIDTarget = iClientID;
 
-void UserCmd_Ping(uint iClientID, const std::wstring& wscParam)
+		// If they have a target selected, and that target is a player, get their target's ping instead
+		uint iShip = 0;
+		pub::Player::GetShip(iClientID, iShip);
+		if (iShip)
+		{
+			uint iTarget = 0;
+			pub::SpaceObj::GetTarget(iShip, iTarget);
+
+			if (iTarget)
+			{
+				uint id = HkGetClientIDByShip(iTarget);
+				if (HkIsValidClientID(iClientIDTarget))
+					iClientIDTarget = id;
+			}
+		}
+
+		auto con = global->connections[iClientIDTarget];
+
+		std::wstring Response;
+
+		Response += L"Ping: ";
+		if (con.lstPing.size() < global->config->pingKickFrame)
+			Response += L"n/a Fluct: n/a ";
+		else
+		{
+			Response += std::to_wstring(con.iAveragePing);
+			Response += L"ms ";
+			if (global->config->pingKick > 0)
+			{
+				Response += L"(Max: ";
+				Response += std::to_wstring(global->config->pingKick);
+				Response += L"ms) ";
+			}
+			Response += L"Fluct: ";
+			Response += std::to_wstring(con.iPingFluctuation);
+			Response += L"ms ";
+			if (global->config->fluctKick > 0)
+			{
+				Response += L"(Max: ";
+				Response += std::to_wstring(global->config->fluctKick);
+				Response += L"ms) ";
+			}
+		}
+
+		Response += L"Loss: ";
+		if (con.lstLoss.size() < (global->config->lossKickFrame / (LossInterval / 1000)))
+			Response += L"n/a ";
+		else
+		{
+			Response += std::to_wstring(con.iAverageLoss);
+			Response += L"%% ";
+			if (global->config->lossKick > 0)
+			{
+				Response += L"(Max: ";
+				Response += std::to_wstring(global->config->lossKick);
+				Response += L"%%) ";
+			}
+		}
+
+		Response += L"Lag: ";
+		if (con.lstObjUpdateIntervalls.size() < global->config->lagDetectionFrame)
+			Response += L"n/a";
+		else
+		{
+			Response += std::to_wstring(con.iLags).c_str();
+			Response += L"%% ";
+			if (global->config->lagKick > 0)
+			{
+				Response += L"(Max: ";
+				Response += std::to_wstring(global->config->lagKick);
+				Response += L"%%)";
+			}
+		}
+
+		// Send the message to the user
+		PrintUserCmdText(iClientID, Response);
+	}
+	
+	constexpr USERCMD UserCmds[] = {
+	    {L"/ping", UserCmdPing},
+	};
+
+	// Process user input
+	bool UserCmdProcess(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+
+	void ReceiveException(ConnectionDataException exc)
+	{
+		global->connections[exc.iClientID].bException = exc.bException;
+		global->connections[exc.iClientID].sExceptionReason = exc.sReason;
+		if (!global->connections[exc.iClientID].bException)
+			ClearConData(exc.iClientID);
+	}
+
+	void ReceiveConnectionData(ConnectionData cd)
+	{
+		cd.iAverageLoss = global->connections[cd.iClientID].iAverageLoss;
+		cd.iAveragePing = global->connections[cd.iClientID].iAveragePing;
+		cd.iLags = global->connections[cd.iClientID].iLags;
+		cd.iPingFluctuation = global->connections[cd.iClientID].iPingFluctuation;
+	}
+
+	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
+	{
+		if (IS_CMD("getstats"))
+		{
+			struct PlayerData* pPD = 0;
+			while (pPD = Players.traverse_active(pPD))
+			{
+				uint iClientID = HkGetClientIdFromPD(pPD);
+				if (HkIsInCharSelectMenu(iClientID))
+					continue;
+
+				CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
+				if (!cdpClient)
+					continue;
+
+				auto con = global->connections[iClientID];
+
+				int saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
+				int txqueue = cdpClient->GetSendQSize();
+				classptr->Print(L"charname=%s clientid=%u loss=%u lag=%u pingfluct=%u "
+				                L"saturation=%u txqueue=%u\n",
+				    Players.GetActiveCharacterName(iClientID), iClientID, con.iAverageLoss, con.iLags, con.iPingFluctuation, saturation, txqueue);
+			}
+			classptr->Print(L"OK");
+			global->returncode = ReturnCode::SkipAll;
+			return true;
+		}
+		else if (IS_CMD("kick"))
+		{
+			// Find by charname. If this fails, fall through to default behaviour.
+			CAccount* acc = HkGetAccountByCharname(classptr->ArgCharname(1));
+			if (!acc)
+				return false;
+
+			// Logout.
+			global->returncode = ReturnCode::SkipAll;
+			acc->ForceLogout();
+			classptr->Print(L"OK");
+
+			// If the client is still active then force the disconnect.
+			const uint iClientID = HkGetClientIdFromAccount(acc);
+			if (iClientID != -1)
+			{
+				classptr->Print(L"Forcing logout on iClientID=%d", iClientID);
+				Players.logout(iClientID);
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	ConDataCommunicator::ConDataCommunicator(std::string plug) : PluginCommunicator(plug)
+	{
+		this->ReceiveData = ReceiveData;
+		this->ReceiveException = ReceiveException;
+	}
+
+	void LoadSettings()
+	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+		global->timers = {
+		    {TimerUpdatePingData, 1000, 0},
+		    {TimerUpdateLossData, LossInterval, 0},
+		};
+	}
+} // namespace Plugins::ConData
+
+using namespace Plugins::ConData;
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if (!set_bPingCmd)
-	{
-		PRINT_DISABLED();
-		return;
-	}
+	if (fdwReason == DLL_PROCESS_ATTACH)
+		LoadSettings();
 
-	std::wstring wscTargetPlayer = GetParam(wscParam, ' ', 0);
-
-	uint iClientIDTarget;
-	iClientIDTarget = iClientID;
-
-	std::wstring Response;
-
-	Response += L"Ping: ";
-	if (ConData[iClientIDTarget].lstPing.size() < set_iPingKickFrame)
-		Response += L"n/a Fluct: n/a ";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iAveragePing).c_str();
-		Response += L"ms ";
-		if (set_iPingKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iPingKick).c_str();
-			Response += L"ms) ";
-		}
-		Response += L"Fluct: ";
-		Response += std::to_wstring(ConData[iClientIDTarget].iPingFluctuation).c_str();
-		Response += L"ms ";
-		if (set_iFluctKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iFluctKick).c_str();
-			Response += L"ms) ";
-		}
-	}
-
-	Response += L"Loss: ";
-	if (ConData[iClientIDTarget].lstLoss.size() < (set_iLossKickFrame / (LOSS_INTERVALL / 1000)))
-		Response += L"n/a ";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iAverageLoss).c_str();
-		Response += L"%% ";
-		if (set_iLossKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iLossKick).c_str();
-			Response += L"%%) ";
-		}
-	}
-
-	Response += L"Lag: ";
-	if (ConData[iClientIDTarget].lstObjUpdateIntervalls.size() < set_iLagDetectionFrame)
-		Response += L"n/a";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iLags).c_str();
-		Response += L"%% ";
-		if (set_iLagKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iLagKick).c_str();
-			Response += L"%%)";
-		}
-	}
-
-	// Send the message to the user
-	PrintUserCmdText(iClientID, Response);
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_PingTarget(uint iClientID, const std::wstring& wscParam)
-{
-	if (!set_bPingCmd)
-	{
-		PRINT_DISABLED();
-		return;
-	}
-
-	uint iShip = 0;
-	pub::Player::GetShip(iClientID, iShip);
-	if (!iShip)
-	{
-		PrintUserCmdText(iClientID, L"Error: You are docked");
-		return;
-	}
-
-	uint iTarget = 0;
-	pub::SpaceObj::GetTarget(iShip, iTarget);
-
-	if (!iTarget)
-	{
-		PrintUserCmdText(iClientID, L"Error: No target");
-		return;
-	}
-
-	uint iClientIDTarget = HkGetClientIDByShip(iTarget);
-	if (!HkIsValidClientID(iClientIDTarget))
-	{
-		PrintUserCmdText(iClientID, L"Error: Target is no player");
-		return;
-	}
-
-	std::wstring Response;
-
-	if (iClientIDTarget != iClientID)
-	{
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
-		Response += wscCharname.c_str();
-		Response += L" - ";
-	}
-
-	Response += L"Ping: ";
-	if (ConData[iClientIDTarget].lstPing.size() < set_iPingKickFrame)
-		Response += L"n/a Fluct: n/a ";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iAveragePing).c_str();
-		Response += L"ms ";
-		if (set_iPingKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iPingKick).c_str();
-			Response += L"ms) ";
-		}
-		Response += L"Fluct: ";
-		Response += std::to_wstring(ConData[iClientIDTarget].iPingFluctuation).c_str();
-		Response += L"ms ";
-		if (set_iFluctKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iFluctKick).c_str();
-			Response += L"ms) ";
-		}
-	}
-
-	Response += L"Loss: ";
-	if (ConData[iClientIDTarget].lstLoss.size() < (set_iLossKickFrame / (LOSS_INTERVALL / 1000)))
-		Response += L"n/a ";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iAverageLoss).c_str();
-		Response += L"%% ";
-		if (set_iLossKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iLossKick).c_str();
-			Response += L"%%) ";
-		}
-	}
-
-	Response += L"Lag: ";
-	if (ConData[iClientIDTarget].lstObjUpdateIntervalls.size() < set_iLagDetectionFrame)
-		Response += L"n/a";
-	else
-	{
-		Response += std::to_wstring(ConData[iClientIDTarget].iLags).c_str();
-		Response += L"%% ";
-		if (set_iLagKick > 0)
-		{
-			Response += L"(Max: ";
-			Response += std::to_wstring(set_iLagKick).c_str();
-			Response += L"%%)";
-		}
-	}
-
-	// Send the message to the user
-	PrintUserCmdText(iClientID, Response);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-USERCMD UserCmds[] = {
-	{ L"/ping", UserCmd_Ping },
-	{ L"/pingtarget", UserCmd_PingTarget },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ReceiveException(CONNECTION_DATA_EXCEPTION exc)
-{
-	ConData[exc.iClientID].bException = exc.bException;
-	ConData[exc.iClientID].sExceptionReason = exc.sReason;
-	if (!ConData[exc.iClientID].bException)
-		ClearConData(exc.iClientID);
-}
-
-void ReceiveConnectionData(CONNECTION_DATA cd)
-{
-	cd.iAverageLoss = ConData[cd.iClientID].iAverageLoss;
-	cd.iAveragePing = ConData[cd.iClientID].iAveragePing;
-	cd.iLags = ConData[cd.iClientID].iLags;
-	cd.iPingFluctuation = ConData[cd.iClientID].iPingFluctuation;
-}
-
-EXPORT bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
-{
-	if (IS_CMD("getstats"))
-	{
-		struct PlayerData* pPD = 0;
-		while (pPD = Players.traverse_active(pPD))
-		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
-			if (HkIsInCharSelectMenu(iClientID))
-				continue;
-
-			CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
-			if (!cdpClient)
-				continue;
-
-			int saturation = (int)(cdpClient->GetLinkSaturation() * 100);
-			int txqueue = cdpClient->GetSendQSize();
-			classptr->Print(
-			    L"charname=%s clientid=%u loss=%u lag=%u pingfluct=%u "
-			    L"saturation=%u txqueue=%u\n",
-			    Players.GetActiveCharacterName(iClientID), iClientID, ConData[iClientID].iAverageLoss,
-			    ConData[iClientID].iLags, ConData[iClientID].iPingFluctuation, saturation, txqueue);
-		}
-		classptr->Print(L"OK");
-		returncode = ReturnCode::SkipAll;
-		return true;
-	}
-	else if (IS_CMD("kick"))
-	{
-		// Find by charname. If this fails, fall through to default behaviour.
-		CAccount* acc = HkGetAccountByCharname(classptr->ArgCharname(1));
-		if (!acc)
-			return false;
-
-		// Logout.
-		returncode = ReturnCode::SkipAll;
-		acc->ForceLogout();
-		classptr->Print(L"OK");
-
-		// If the client is still active then force the disconnect.
-		uint iClientID = HkGetClientIdFromAccount(acc);
-		if (iClientID != -1)
-		{
-			classptr->Print(L"Forcing logout on iClientID=%d", iClientID);
-			Players.logout(iClientID);
-		}
-		return true;
-	}
-
-	return false;
+	return true;
 }
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Advanced Connection Data Plugin by w0dk4");
+	pi->name(ConDataCommunicator::pluginName);
 	pi->shortName("condata");
 	pi->mayPause(false);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
-	pi->emplaceHook(HookedCall::IServerImpl__Update, &HkIServerImpl::Update);
-	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &HkIServerImpl::SPObjUpdate);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &HkIServerImpl::PlayerLaunch);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
+	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmdProcess);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 
 	// Register plugin for IPC
-	communicator = new ConDataCommunicator(ConDataCommunicator::pluginName);
-	PluginCommunicator::ExportPluginCommunicator(communicator);
-
-	// We import the definitions for TempBan Communicator so we can talk to it
-	tempBanCommunicator = static_cast<TempBanCommunicator*>(
-	    PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
-}
-
-ConDataCommunicator::ConDataCommunicator(std::string plug) : PluginCommunicator(plug)
-{
-	this->ReceiveData = ReceiveData;
-	this->ReceiveException = ReceiveException;
+	global->communicator = new ConDataCommunicator(ConDataCommunicator::pluginName);
+	PluginCommunicator::ExportPluginCommunicator(global->communicator);
+	global->tempBanCommunicator = static_cast<TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
 }

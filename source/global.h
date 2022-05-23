@@ -217,27 +217,15 @@ struct EXPORT FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::vector<std::string> noPVPSystems;
 
 		std::vector<uint> noPVPSystemsHashed;
+
+		uint antiBaseIdle = 600;
+		uint antiCharMenuIdle = 600;
 	};
 
 	struct Plugins final : Reflectable
 	{
 		bool loadAllPlugins = true;
 		std::vector<std::string> plugins = {};
-	};
-
-	struct Kick final : Reflectable
-	{
-		uint antiBaseIdle = 600;
-		uint antiCharMenuIdle = 600;
-		uint pingKick = 0;
-		uint pingKickFrame = 120;
-		uint fluctKick = 0;
-		uint lossKick = 0;
-		uint lossKickFrame = 120;
-		uint lagKick = 0;
-		uint lagDetectionFrame = 50;
-		uint lagDetectionMin = 50;
-		uint kickThreshold = 0;
 	};
 
 	struct MsgStyle final : Reflectable
@@ -299,7 +287,6 @@ struct EXPORT FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 
 	General general;
 	Plugins plugins;
-	Kick kick;
 	Socket socket;
 	MsgStyle msgStyle;
 	UserCommands userCommands;
@@ -312,8 +299,6 @@ REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field
     field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
     field(noPVPSystems))
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
-REFL_AUTO(type(FLHookConfig::Kick), field(antiBaseIdle), field(antiCharMenuIdle), field(pingKick), field(pingKickFrame), field(fluctKick), field(lossKick),
-    field(lossKickFrame), field(lagKick), field(lagDetectionFrame), field(lagDetectionMin), field(kickThreshold))
 REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
 REFL_AUTO(type(FLHookConfig::MsgStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg), field(userCmdStyle),
     field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC), field(deathMsgTextSuicide))

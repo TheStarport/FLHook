@@ -71,7 +71,7 @@ void HkTimerCheckKick()
 					if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >= config->kick.antiBaseIdle)
 					{
 						HkAddKickLog(clientID, L"Base idling");
-						HkMsgAndKick(clientID, L"Base idling", config->kick.kickThreshold);
+						HkMsgAndKick(clientID, L"Base idling", 10);
 						ClientInfo[clientID].iBaseEnterTime = 0;
 					}
 				}
@@ -82,7 +82,7 @@ void HkTimerCheckKick()
 				if (HkIsInCharSelectMenu(clientID))
 				{
 					if (!ClientInfo[clientID].iCharMenuEnterTime)
-						ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(0));
+						ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
 					else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= config->kick.antiCharMenuIdle)
 					{
 						HkAddKickLog(clientID, L"Charmenu idling");

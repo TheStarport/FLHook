@@ -279,7 +279,7 @@ void FLHookInit_Pre()
 		}
 #endif
 
-		/*if (set_bDebug && !fLogDebug)
+		/*if (FLHookConfig::i()->general.debugMode && !fLogDebug)
 		    fopen_s(&fLogDebug, sDebugLog.c_str(), "at");*/
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
