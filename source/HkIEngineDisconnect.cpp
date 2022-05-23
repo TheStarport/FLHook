@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -8,9 +8,9 @@ int __stdcall DisconnectPacketSent(uint iClientID)
 	{
 		uint iShip = 0;
 		pub::Player::GetShip(iClientID, iShip);
-		if (set_iDisconnectDelay && iShip)
+		if (FLHookConfig::i()->general.disconnectDelay && iShip)
 		{ // in space
-			ClientInfo[iClientID].tmF1TimeDisconnect = timeInMS() + set_iDisconnectDelay;
+			ClientInfo[iClientID].tmF1TimeDisconnect = timeInMS() + FLHookConfig::i()->general.disconnectDelay;
 			return 0; // don't pass on
 		}
 	}

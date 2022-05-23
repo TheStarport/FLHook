@@ -1,5 +1,5 @@
 ﻿#include <winsock2.h>
-#include "hook.h"
+#include "Hook.h"
 #include "wildcards.hh"
 
 #include <WS2tcpip.h>
@@ -23,15 +23,12 @@ uint CTimer::stop()
 
 	if (iDelta > iMax && iDelta > iWarning)
 	{
-		// log
-		if (set_bPerfTimer)
-			AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s, longest so far.", iDelta, stows(sFunction).c_str());
+		AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s, longest so far.", iDelta, stows(sFunction).c_str());
 		iMax = iDelta;
 	}
-	else if (iDelta > set_iTimerDebugThreshold && set_iTimerDebugThreshold > 0)
+	else if (iDelta > 100)
 	{
-		if (set_bPerfTimer)
-			AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s", iDelta, stows(sFunction).c_str());
+		AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s", iDelta, stows(sFunction).c_str());
 	}
 
 	return iDelta;
@@ -64,29 +61,29 @@ void HkTimerCheckKick()
 				}
 				continue; // player will be kicked anyway
 			}
-
-			if (set_iAntiBaseIdle)
+			const auto* config = FLHookConfig::c();
+			if (config->kick.antiBaseIdle)
 			{ // anti base-idle check
 				uint baseID;
 				pub::Player::GetBase(clientID, baseID);
 				if (baseID && ClientInfo[clientID].iBaseEnterTime)
 				{
-					if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >= set_iAntiBaseIdle)
+					if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >= config->kick.antiBaseIdle)
 					{
 						HkAddKickLog(clientID, L"Base idling");
-						HkMsgAndKick(clientID, L"Base idling", set_iKickMsgPeriod);
+						HkMsgAndKick(clientID, L"Base idling", config->kick.kickThreshold);
 						ClientInfo[clientID].iBaseEnterTime = 0;
 					}
 				}
 			}
 
-			if (set_iAntiCharMenuIdle)
+			if (config->kick.antiCharMenuIdle)
 			{ // anti charmenu-idle check
 				if (HkIsInCharSelectMenu(clientID))
 				{
 					if (!ClientInfo[clientID].iCharMenuEnterTime)
 						ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(0));
-					else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= set_iAntiCharMenuIdle)
+					else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= config->kick.antiCharMenuIdle)
 					{
 						HkAddKickLog(clientID, L"Charmenu idling");
 						HkKick(clientID);
@@ -143,8 +140,8 @@ void HkTimerNPCAndF1Check()
 			}
 		}
 
-		// npc
-		if (set_iDisableNPCSpawns && (g_iServerLoad >= set_iDisableNPCSpawns))
+		const auto* config = FLHookConfig::c();
+		if (config->general.disableNPCSpawns && (g_iServerLoad >= config->general.disableNPCSpawns))
 			HkChangeNPCSpawn(true); // serverload too high, disable npcs
 		else
 			HkChangeNPCSpawn(false);
@@ -211,12 +208,13 @@ void HkTimerCheckResolveResults()
 				continue; // outdated
 
 			// check if banned
-			for (const auto& ban : set_setBans)
+			const auto* config = FLHookConfig::c();
+			for (const auto& ban : config->bans.banWildcardsAndIPs)
 			{
 				if (Wildcard::wildcardfit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
 					HkAddKickLog(ip.iClientID, L"IP/Hostname ban(%s matches %s)", ip.wscHostname.c_str(), ban.c_str());
-					if (set_bBanAccountOnMatch)
+					if (config->bans.banAccountOnMatch)
 						HkBan(ip.iClientID, true);
 					HkKick(ip.iClientID);
 				}

@@ -1,7 +1,7 @@
 ﻿#ifndef _CCMDS_
 #define _CCMDS_
 
-#include "hook.h"
+#include "Hook.h"
 
 // enums
 enum CCMDS_RIGHTS

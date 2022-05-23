@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/msvc_sink.h"
@@ -37,10 +37,10 @@ bool InitLogs()
 			WinDebugLog->set_level(spdlog::level::debug);
 		}
 
-		if (set_bDebug)
+		if (FLHookConfig::c()->general.debugMode)
 		{
 			char szDate[64];
-			time_t tNow = time(0);
+			time_t tNow = time(nullptr);
 			tm t;
 			localtime_s(&t, &tNow);
 			strftime(szDate, sizeof szDate, "%d.%m.%Y_%H.%M", &t);

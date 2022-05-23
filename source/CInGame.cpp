@@ -1,6 +1,6 @@
 ﻿#include "CInGame.h"
 
-#include "hook.h"
+#include "Hook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@ void CInGame::DoPrint(const std::wstring& wscText)
 			if (!wcslen(wszBufSend))
 				break;
 			wszBufSend[wcslen(wszBufSend)] = '\0';
-			std::wstring wscXML = std::wstring(L"<TRA data=\"" + set_wscAdminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
+			std::wstring wscXML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
 			    XMLText(wszBufSend) + L"</TEXT>";
 			HkFMsg(this->iClientID, wscXML);
 			memset(wszBufSend, 0, sizeof(wszBufSend));

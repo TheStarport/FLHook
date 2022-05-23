@@ -8,7 +8,7 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-#include "Main.h"
+#include "main.h"
 
 // Check that the item is a ship, cargo or equipment item is valid
 static uint CreateValidID(const char* nickname)

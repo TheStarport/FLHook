@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 #include <process.h>
 
@@ -469,7 +469,7 @@ void HookRehashed()
 	char* pAddress;
 
 	// anti-deathmsg
-	if (set_bDieMsg)
+	if (FLHookConfig::i()->general.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
 		char szJMP[] = { '\xEB' };
 		pAddress = SRV_ADDR(ADDR_ANTIDIEMSG);
@@ -483,7 +483,7 @@ void HookRehashed()
 	}
 
 	// charfile encyption(doesn't get disabled when unloading FLHook)
-	if (set_bDisableCharfileEncryption)
+	if (FLHookConfig::i()->general.disableCharfileEncryption)
 	{
 		char szBuf[] = { '\x14', '\xB3' };
 		pAddress = SRV_ADDR(ADDR_DISCFENCR);
@@ -501,9 +501,9 @@ void HookRehashed()
 	}
 
 	// maximum group size
-	if (set_iMaxGroupSize > 0)
+	if (FLHookConfig::i()->general.maxGroupSize > 0)
 	{
-		char cNewGroupSize = set_iMaxGroupSize & 0xFF;
+		char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
 		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
 		WriteProcMem(pAddress, &cNewGroupSize, 1);
 		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);

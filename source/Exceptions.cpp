@@ -1,6 +1,6 @@
 ﻿#include "global.h"
 #include "ExceptionInfo.h"
-#include "hook.h"
+#include "Hook.h"
 
 #ifdef EXTENDED_EXCEPTION_LOGGING
 	#include <psapi.h>

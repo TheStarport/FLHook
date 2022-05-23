@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
@@ -36,8 +36,7 @@ void PrintUserCmdText(uint iClientID, std::wstring wscText, ...)
 	va_start(marker, wscText);
 	_vsnwprintf_s(wszBuf, sizeof wszBuf - 1, wscText.c_str(), marker);
 
-	std::wstring wscXML =
-	    L"<TRA data=\"" + set_wscUserCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wszBuf) + L"</TEXT>";
+	std::wstring wscXML = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.userCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wszBuf) + L"</TEXT>";
 	HkFMsg(iClientID, wscXML);
 }
 
@@ -87,9 +86,9 @@ void PrintLocalUserCmdText(uint iClientID, const std::wstring& wscMsg, float fDi
 
 void UserCmd_SetDieMsg(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdSetDieMsg)
+	if (!FLHookConfig::i()->general.dieMsg)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -100,38 +99,37 @@ void UserCmd_SetDieMsg(uint iClientID, const std::wstring& wscParam)
 	};
 
 	std::wstring wscDieMsg = ToLower(GetParam(wscParam, ' ', 0));
-	;
 
 	DIEMSGTYPE dieMsg;
-	if (!wscDieMsg.compare(L"all"))
+	if (wscDieMsg == L"all")
 		dieMsg = DIEMSG_ALL;
-	else if (!wscDieMsg.compare(L"system"))
+	else if (wscDieMsg == L"system")
 		dieMsg = DIEMSG_SYSTEM;
-	else if (!wscDieMsg.compare(L"none"))
+	else if (wscDieMsg == L"none")
 		dieMsg = DIEMSG_NONE;
-	else if (!wscDieMsg.compare(L"self"))
+	else if (wscDieMsg == L"self")
 		dieMsg = DIEMSG_SELF;
 	else
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	// save to ini
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 	IniWrite(scUserFile, "settings", "DieMsg", std::to_string(dieMsg));
 
 	// save in ClientInfo
 	ClientInfo[iClientID].dieMsg = dieMsg;
 
 	// send confirmation msg
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdSetDieMsgSize)
+	if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -142,7 +140,6 @@ void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring& wscParam)
 	};
 
 	std::wstring wscDieMsgSize = ToLower(GetParam(wscParam, ' ', 0));
-	//	std::wstring wscDieMsgStyle = ToLower(GetParam(wscParam, ' ', 1));
 
 	CHATSIZE dieMsgSize;
 	if (!wscDieMsgSize.compare(L"small"))
@@ -150,41 +147,26 @@ void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring& wscParam)
 	else if (!wscDieMsgSize.compare(L"default"))
 		dieMsgSize = CS_DEFAULT;
 	else
-		PRINT_ERROR();
-
-	/*	CHATSTYLE dieMsgStyle;
-	        if(!wscDieMsgStyle.compare(L"default"))
-	                dieMsgStyle = CST_DEFAULT;
-	        else if(!wscDieMsgStyle.compare(L"bold"))
-	                dieMsgStyle = CST_BOLD;
-	        else if(!wscDieMsgStyle.compare(L"italic"))
-	                dieMsgStyle = CST_ITALIC;
-	        else if(!wscDieMsgStyle.compare(L"underline"))
-	                dieMsgStyle = CST_UNDERLINE;
-	        else
-	                PRINT_ERROR(); */
+		PRINT_ERROR()
 
 	// save to ini
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 	IniWrite(scUserFile, "Settings", "DieMsgSize", std::to_string(dieMsgSize));
-	//	IniWrite(scUserFile, "Settings", "DieMsgStyle",
-	// std::to_string(dieMsgStyle));
 
 	// save in ClientInfo
 	ClientInfo[iClientID].dieMsgSize = dieMsgSize;
-	//	ClientInfo[iClientID].dieMsgStyle = dieMsgStyle;
 
 	// send confirmation msg
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdSetChatFont)
+	if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -206,7 +188,7 @@ void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
 	else if (!wscChatSize.compare(L"big"))
 		chatSize = CS_BIG;
 	else
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	CHATSTYLE chatStyle;
 	if (!wscChatStyle.compare(L"default"))
@@ -218,10 +200,10 @@ void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
 	else if (!wscChatStyle.compare(L"underline"))
 		chatStyle = CST_UNDERLINE;
 	else
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	// save to ini
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 	IniWrite(scUserFile, "settings", "ChatSize", std::to_string(chatSize));
 	IniWrite(scUserFile, "settings", "ChatStyle", std::to_string(chatStyle));
 
@@ -230,16 +212,16 @@ void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
 	ClientInfo[iClientID].chatStyle = chatStyle;
 
 	// send confirmation msg
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Ignore(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdIgnore)
+	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -265,26 +247,23 @@ void UserCmd_Ignore(uint iClientID, const std::wstring& wscParam)
 	std::wstring wscFlags = ToLower(GetParam(wscParam, ' ', 1));
 
 	if (!wscCharname.length())
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	// check if flags are valid
 	for (uint i = 0; i < wscFlags.length(); i++)
 	{
 		if (wscAllowedFlags.find_first_of(wscFlags[i]) == -1)
-			PRINT_ERROR();
+			PRINT_ERROR()
 	}
 
-	if (ClientInfo[iClientID].lstIgnore.size() > set_iUserCmdMaxIgnoreList)
+	if (ClientInfo[iClientID].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(
-		    iClientID,
-		    L"Error: Too many entries in the ignore list, "
-		    L"please delete an entry first!");
+		PrintUserCmdText(iClientID, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
 	// save to ini
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 	IniWriteW(
 	    scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
 	    wscCharname + L" " + wscFlags);
@@ -296,16 +275,16 @@ void UserCmd_Ignore(uint iClientID, const std::wstring& wscParam)
 	ClientInfo[iClientID].lstIgnore.push_back(ii);
 
 	// send confirmation msg
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdIgnore)
+	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -321,17 +300,14 @@ void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
 	std::wstring wscFlags = ToLower(GetParam(wscParam, ' ', 1));
 
 	if (!wscClientID.length())
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	if (wscFlags.length() && wscFlags.compare(L"p") != 0)
-		PRINT_ERROR();
+		PRINT_ERROR()
 
-	if (ClientInfo[iClientID].lstIgnore.size() > set_iUserCmdMaxIgnoreList)
+	if (ClientInfo[iClientID].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(
-		    iClientID,
-		    L"Error: Too many entries in the ignore list, "
-		    L"please delete an entry first!");
+		PrintUserCmdText(iClientID, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
@@ -345,7 +321,7 @@ void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
 	std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
 
 	// save to ini
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 	IniWriteW(
 	    scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
 	    wscCharname + L" " + wscFlags);
@@ -364,9 +340,9 @@ void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
 
 void UserCmd_IgnoreList(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdIgnore)
+	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -379,16 +355,16 @@ void UserCmd_IgnoreList(uint iClientID, const std::wstring& wscParam)
 	}
 
 	// send confirmation msg
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_DelIgnore(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdIgnore)
+	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -401,15 +377,15 @@ void UserCmd_DelIgnore(uint iClientID, const std::wstring& wscParam)
 	std::wstring wscID = GetParam(wscParam, ' ', 0);
 
 	if (!wscID.length())
-		PRINT_ERROR();
+		PRINT_ERROR()
 
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 
 	if (!wscID.compare(L"*"))
 	{ // delete all
 		IniDelSection(scUserFile, "IgnoreList");
 		ClientInfo[iClientID].lstIgnore.clear();
-		PRINT_OK();
+		PRINT_OK()
 		return;
 	}
 
@@ -454,16 +430,16 @@ void UserCmd_DelIgnore(uint iClientID, const std::wstring& wscParam)
 		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.wscCharname + L" " + ignore.wscFlags);
 		i++;
 	}
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_AutoBuy(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bAutoBuy)
+	if (!FLHookConfig::i()->general.autobuy)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -501,9 +477,9 @@ void UserCmd_AutoBuy(uint iClientID, const std::wstring& wscParam)
 	}
 
 	if (!wscType.length() || !wscSwitch.length() || wscSwitch.compare(L"on") != 0 && wscSwitch.compare(L"off") != 0)
-		PRINT_ERROR();
+		PRINT_ERROR()
 
-	GET_USERFILE(scUserFile);
+	GET_USERFILE(scUserFile)
 
 	std::wstring wscFilename;
 	HkGetCharFileName(iClientID, wscFilename);
@@ -556,9 +532,9 @@ void UserCmd_AutoBuy(uint iClientID, const std::wstring& wscParam)
 		IniWrite(scUserFile, scSection, "reload", bEnable ? "yes" : "no");
 	}
 	else
-		PRINT_ERROR();
+		PRINT_ERROR()
 
-	PRINT_OK();
+	PRINT_OK()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +579,7 @@ void UserCmd_InviteID(uint iClientID, const std::wstring& wscParam)
 	std::wstring wscClientID = GetParam(wscParam, ' ', 0);
 
 	if (!wscClientID.length())
-		PRINT_ERROR();
+		PRINT_ERROR()
 
 	uint iClientIDTarget = ToInt(wscClientID);
 	if (!HkIsValidClientID(iClientIDTarget) || HkIsInCharSelectMenu(iClientIDTarget))
@@ -654,9 +630,10 @@ void UserCmd_Credits(uint iClientID, const std::wstring& wscParam)
 
 void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 {
-	if (!set_bUserCmdHelp)
+	const auto* config = FLHookConfig::c(); 
+	if (!config->userCommands.userCmdHelp)
 	{
-		PRINT_DISABLED();
+		PRINT_DISABLED()
 		return;
 	}
 
@@ -668,10 +645,10 @@ void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 		    L"The following commands are available to you. Use /help "
 		    L"<command> for detailed information.");
 
-	std::wstring boldHelp = set_wscUserCmdStyle.substr(0, set_wscUserCmdStyle.length() - 1) + L"1";
-	std::wstring normal = set_wscUserCmdStyle;
+	std::wstring boldHelp = config->msgStyle.userCmdStyle.substr(0, config->msgStyle.userCmdStyle.length() - 1) + L"1";
+	std::wstring normal = config->msgStyle.userCmdStyle;
 
-	for (auto& he : lstHelpEntries)
+	/*for (auto& he : lstHelpEntries)
 	{
 		if (he.fnIsDisplayed(iClientID))
 		{
@@ -714,7 +691,7 @@ void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 	else
 	{
 		CallPluginsAfter(HookedCall::FLHook__UserCommand__Help, iClientID, wscParam);
-	}
+	}*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -755,24 +732,18 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 					continue;
 				wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
 			}
-
-			// addlog
-			if (set_bLogUserCmds)
-			{
-				std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-				AddLog(UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
-			}
+			
+			std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+			AddLog(UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
 
 			try
 			{
 				UserCmds[i].proc(iClientID, wscParam);
-				if (set_bLogUserCmds)
-					AddLog(UserLogCmds, LogLevel::Info, L"finished");
+				AddLog(UserLogCmds, LogLevel::Info, L"finished");
 			}
 			catch (...)
 			{
-				if (set_bLogUserCmds)
-					AddLog(UserLogCmds, LogLevel::Info, L"exception");
+				AddLog(UserLogCmds, LogLevel::Info, L"exception");
 			}
 
 			return true;

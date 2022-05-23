@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)
@@ -24,7 +24,7 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 			std::wstring sender = buffer.substr(0, buffer.length() - HkIServerImpl::g_TextLength - 2);
 			std::wstring text = buffer.substr(buffer.length() - HkIServerImpl::g_TextLength);
 
-			if (set_bUserCmdIgnore && ((clientIDTo & 0xFFFF) != 0))
+			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientIDTo & 0xFFFF) != 0))
 			{ // check ignores
 				for (auto& ci : ClientInfo[clientID].lstIgnore)
 				{
@@ -38,7 +38,7 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 			}
 
 			uchar format = 0x00;
-			if (set_bUserCmdSetChatFont)
+			if (FLHookConfig::i()->userCommands.userCmdSetChatFont)
 			{
 				// adjust chat size
 				switch (ClientInfo[clientID].chatSize)

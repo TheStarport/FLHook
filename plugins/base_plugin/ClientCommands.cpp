@@ -1,4 +1,4 @@
-﻿#include "main.h"
+﻿#include "Main.h"
 
 /// Send a command to the client at destination ID 0x9999
 void SendCommand(uint client, const std::wstring& message)

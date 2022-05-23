@@ -31,9 +31,9 @@ extern EXPORT st6_free_t st6_free;
 #include <FLCoreRemoteClient.h>
 #include <FLCoreServer.h>
 
-#define TIME_UPDATE 50
-#define IMPORT      __declspec(dllimport)
-#define EXPORT      __declspec(dllexport)
+constexpr int TimeUpdate = 50;
+#define IMPORT __declspec(dllimport)
+#define EXPORT __declspec(dllexport)
 
 // typedefs
 typedef unsigned int uint;
@@ -62,6 +62,28 @@ void FLHookShutdown();
 EXPORT void ProcessEvent(std::wstring wscText, ...);
 void LoadSettings();
 void ProcessPendingCommands();
+
+enum class LogLevel : int
+{
+	Trace,
+	Debug,
+	Info,
+	Warn,
+	Err,
+	Critical
+};
+
+enum LogType
+{
+	Normal,
+	Cheater,
+	Kick,
+	Connects,
+	AdminCmds,
+	UserLogCmds,
+	SocketCmds,
+	PerfTimers
+};
 
 // Tools
 class EXPORT Console
@@ -106,12 +128,10 @@ class EXPORT Console
 
 EXPORT std::wstring stows(const std::string& scText);
 EXPORT std::string wstos(const std::wstring& wscText);
-EXPORT std::string IniGetS(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault);
+EXPORT std::string IniGetS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault);
 EXPORT int IniGetI(const std::string& scFile, const std::string& scApp, const std::string& scKey, int iDefault);
 EXPORT bool IniGetB(const std::string& scFile, const std::string& scApp, const std::string& scKey, bool bDefault);
-EXPORT void IniWrite(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scValue);
+EXPORT void IniWrite(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scValue);
 EXPORT void WriteProcMem(void* pAddress, const void* pMem, int iSize);
 EXPORT void ReadProcMem(void* pAddress, void* pMem, int iSize);
 EXPORT int ToInt(const std::wstring& wscStr);
@@ -119,14 +139,11 @@ EXPORT uint ToUInt(const std::wstring& wscStr);
 EXPORT std::wstring XMLText(const std::wstring& wscText);
 EXPORT std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos);
 EXPORT std::string GetParam(std::string scLine, char cSplitChar, uint iPos);
-EXPORT std::wstring ReplaceStr(
-    const std::wstring& wscSource, const std::wstring& wscSearchFor, const std::wstring& wscReplaceWith);
+EXPORT std::wstring ReplaceStr(const std::wstring& wscSource, const std::wstring& wscSearchFor, const std::wstring& wscReplaceWith);
 EXPORT void IniDelSection(const std::string& scFile, const std::string& scApp);
 EXPORT void IniDelete(const std::string& scFile, const std::string& scApp, const std::string& scKey);
-EXPORT void IniWriteW(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue);
-EXPORT std::wstring IniGetWS(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault);
+EXPORT void IniWriteW(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue);
+EXPORT std::wstring IniGetWS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault);
 EXPORT std::wstring ToMoneyStr(int iCash);
 EXPORT float IniGetF(const std::string& scFile, const std::string& scApp, const std::string& scKey, float fDefault);
 EXPORT void IniGetSection(const std::string& scFile, const std::string& scApp, std::list<INISECTIONVALUE>& lstValues);
@@ -147,6 +164,7 @@ EXPORT void ini_get_wstring(INI_Reader& ini, std::wstring& wscValue);
 EXPORT std::wstring GetTimeString(bool bLocalTime);
 EXPORT std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string& scExtension);
 EXPORT mstime GetTimeInMS();
+EXPORT void AddLog(LogType LogType, LogLevel level, std::wstring wStr, ...);
 
 // variables
 extern EXPORT HANDLE hProcFL;
@@ -158,66 +176,151 @@ extern EXPORT HMODULE hModDaLib;
 extern EXPORT HMODULE hModContent;
 extern EXPORT FARPROC fpOldUpdate;
 
-// setting variables
-extern EXPORT bool set_bLoadedSettings;
-extern EXPORT std::string set_scCfgFile;
-extern EXPORT uint set_iAntiDockKill;
-extern EXPORT std::set<uint> set_setNoPVPSystems;
-extern EXPORT std::set<std::wstring> set_setChatSuppress;
-extern EXPORT bool set_bSocketActivated;
-extern EXPORT bool set_bDebug;
-extern EXPORT bool set_bLogConnects;
-extern EXPORT std::wstring set_wscDeathMsgStyle;
-extern EXPORT std::wstring set_wscDeathMsgStyleSys;
-extern EXPORT bool set_bDieMsg;
-extern EXPORT bool set_bDisableCharfileEncryption;
-extern EXPORT uint set_iAntiBaseIdle;
-extern EXPORT uint set_iAntiCharMenuIdle;
-extern EXPORT bool set_bChangeCruiseDisruptorBehaviour;
-extern EXPORT bool set_bUserCmdSetDieMsg;
-extern EXPORT bool set_bUserCmdSetChatFont;
-extern EXPORT bool set_bUserCmdIgnore;
-extern EXPORT bool set_bUserCmdHelp;
-extern EXPORT bool set_bDefaultLocalChat;
-extern EXPORT uint set_iDisableNPCSpawns;
-extern EXPORT bool set_bLocalTime;
-extern EXPORT bool set_bDockingMessages;
-extern EXPORT int set_iPort;
-extern EXPORT int set_iWPort;
-extern EXPORT int set_iEPort;
-extern EXPORT int set_iEWPort;
-extern EXPORT BLOWFISH_CTX* set_BF_CTX;
-extern EXPORT std::wstring set_wscKickMsg;
-extern EXPORT std::wstring set_wscUserCmdStyle;
-extern EXPORT std::wstring set_wscAdminCmdStyle;
-extern EXPORT uint set_iKickMsgPeriod;
-extern EXPORT std::wstring set_wscDeathMsgTextPlayerKill;
-extern EXPORT std::wstring set_wscDeathMsgTextSelfKill;
-extern EXPORT std::wstring set_wscDeathMsgTextNPC;
-extern EXPORT std::wstring set_wscDeathMsgTextSuicide;
-extern EXPORT uint set_iAntiF1;
-extern EXPORT std::wstring set_wscDeathMsgTextAdminKill;
-extern EXPORT uint set_iUserCmdMaxIgnoreList;
-extern EXPORT uint set_iReservedSlots;
-extern EXPORT uint set_iDisconnectDelay;
-extern EXPORT bool set_bAutoBuy;
-extern EXPORT float set_fTorpMissileBaseDamageMultiplier;
-extern EXPORT bool set_bPersistGroup;
-extern EXPORT bool set_MKM_bActivated;
-extern EXPORT std::wstring set_MKM_wscStyle;
-extern EXPORT std::list<MULTIKILLMESSAGE> set_MKM_lstMessages;
-extern EXPORT bool set_bUserCmdSetDieMsgSize;
-extern EXPORT uint set_iMaxGroupSize;
-extern EXPORT std::set<std::wstring> set_setBans;
-extern EXPORT bool set_bBanAccountOnMatch;
-extern EXPORT uint set_iTimerThreshold;
-extern EXPORT uint set_iTimerDebugThreshold;
-extern EXPORT uint set_iDebugMaxSize;
-extern EXPORT bool set_bLogAdminCmds;
-extern EXPORT bool set_bLogSocketCmds;
-extern EXPORT bool set_bLogLocalSocketCmds;
-extern EXPORT bool set_bLogUserCmds;
-extern EXPORT bool set_bPerfTimer;
+// A base class/struct used for denoting that a class can be scanned.
+// Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
+// Reflectables are interepreted as headers of the provided name.
+// Circular references are not handled and will crash.
+// Marking a field as reflectable without properly initalizing it will crash upon attempted deserialization.
+// Ensure that the default CTOR initalizes all fields.
+struct EXPORT Reflectable
+{
+	virtual ~Reflectable() = default;
+	virtual std::string File() { return {}; }
+};
+
+#include <Serialization.hpp>
+
+struct EXPORT FLHookConfig final : Reflectable, Singleton<FLHookConfig>
+{
+	std::string File() override;
+
+	struct General final : Reflectable
+	{
+		bool autobuy = false;
+		uint antiDockKill = 4000;
+		uint antiF1 = 0;
+		bool changeCruiseDisruptorBehaviour = 0;
+		bool debugMode = false;
+		bool dieMsg = true;
+		bool disableCharfileEncryption = false;
+		uint disconnectDelay = 0;
+		uint disableNPCSpawns = 0;
+		bool dockingMessages = true;
+		bool localTime = false;
+		uint maxGroupSize = 8;
+		bool persistGroup = false;
+		uint reservedSlots = 0;
+		float torpMissileBaseDamageMultiplier = 1.0f;
+		bool logPerformanceTimers = false;
+
+		std::vector<std::wstring> chatSuppressList;
+		std::vector<std::string> noPVPSystems;
+
+		std::vector<uint> noPVPSystemsHashed;
+	};
+
+	struct Plugins final : Reflectable
+	{
+		bool loadAllPlugins = true;
+		std::vector<std::string> plugins = {};
+	};
+
+	struct Kick final : Reflectable
+	{
+		uint antiBaseIdle = 600;
+		uint antiCharMenuIdle = 600;
+		uint pingKick = 0;
+		uint pingKickFrame = 120;
+		uint fluctKick = 0;
+		uint lossKick = 0;
+		uint lossKickFrame = 120;
+		uint lagKick = 0;
+		uint lagDetectionFrame = 50;
+		uint lagDetectionMin = 50;
+		uint kickThreshold = 0;
+	};
+
+	struct MsgStyle final : Reflectable
+	{
+		std::wstring deathMsgStyle = L"0x19198C01";
+		std::wstring deathMsgStyleSys = L"0x1919BD01";
+		uint kickMsgPeriod = 5000;
+		std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
+		std::wstring userCmdStyle = L"0x00FF0090";
+		std::wstring adminCmdStyle = L"0x00FF0090";
+		std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
+		std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
+		std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
+		std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
+		std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
+
+	};
+
+	struct Socket final : Reflectable
+	{
+		bool activated = false;
+		int port = 1919;
+		int wPort = 1920;
+		int ePort = 1921;
+		int eWPort = 1922;
+		std::string encryptionKey = "SomeRandomKey000";
+
+		BLOWFISH_CTX* bfCTX = nullptr;
+		std::map<std::wstring, std::string> passRightsMap;
+	};
+
+	struct UserCommands final : Reflectable
+	{
+		bool userCmdSetDieMsgSize = true;
+		bool userCmdSetDieMsg = true;
+		bool userCmdSetChatFont = true;
+		bool userCmdIgnore = true;
+		bool userCmdHelp = true;
+		uint userCmdMaxIgnoreList = true;
+		bool defaultLocalChat = false;
+	};
+
+	struct MultiKillMessages final : Reflectable
+	{
+		bool active = false;
+		std::wstring multiKillMessageStyle = L"0x1919BD01";
+		std::map<std::wstring, int> multiKillMessages = {
+			{ L"%player is on a rampage", 5},
+			{ L"%player runs amok", 10 },
+			{ L"%player is godlike", 15 }
+		};
+	};
+
+	struct Bans final : Reflectable
+	{
+		bool banAccountOnMatch = false;
+		std::vector<std::wstring> banWildcardsAndIPs;
+	};
+
+	General general;
+	Plugins plugins;
+	Kick kick;
+	Socket socket;
+	MsgStyle msgStyle;
+	UserCommands userCommands;
+	MultiKillMessages multiKillMessages;
+	Bans bans;
+};
+
+REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
+    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(dockingMessages), field(localTime), field(maxGroupSize),
+    field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
+    field(noPVPSystems))
+REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
+REFL_AUTO(type(FLHookConfig::Kick), field(antiBaseIdle), field(antiCharMenuIdle), field(pingKick), field(pingKickFrame), field(fluctKick), field(lossKick),
+    field(lossKickFrame), field(lagKick), field(lagDetectionFrame), field(lagDetectionMin), field(kickThreshold))
+REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
+REFL_AUTO(type(FLHookConfig::MsgStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg), field(userCmdStyle),
+    field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC), field(deathMsgTextSuicide))
+REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore), field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat))
+REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle), field(multiKillMessages))
+REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs))
+REFL_AUTO(type(FLHookConfig), field(general), field(kick), field(msgStyle), field(userCommands), field(multiKillMessages), field(bans))
 
 struct SYSTEMINFO
 {
@@ -329,17 +432,11 @@ extern EXPORT std::multimap<uint, JUMPPOINT> jumpPoints;
 namespace ZoneUtilities
 {
 	EXPORT void ReadUniverse(zone_map_t* set_mmapZones);
-	EXPORT void ReadLootableZone(
-	    zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& defaultZoneNick,
-	    const std::string& file);
-	EXPORT void ReadSystemLootableZones(
-	    zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& file);
+	EXPORT void ReadLootableZone(zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& defaultZoneNick, const std::string& file);
+	EXPORT void ReadSystemLootableZones(zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& file);
 	EXPORT void ReadSystemZones(zone_map_t& set_mmapZones, const std::string& systemNick, const std::string& file);
 	EXPORT bool InZone(uint systemID, const Vector& pos, ZONE& rlz);
 	EXPORT bool InDeathZone(uint systemID, const Vector& pos, ZONE& rlz);
 	EXPORT SYSTEMINFO* GetSystemInfo(uint systemID);
 	EXPORT void PrintZones();
 } // namespace ZoneUtilities
-
-// Serialization
-#include "Tools/Serialization.hpp"

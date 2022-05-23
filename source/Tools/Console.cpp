@@ -19,7 +19,8 @@ void Console::Log(std::wstring& wStr, va_list args, void* addr)
 		if (GetModuleFileName(hmod, sz, MAX_PATH))
 		{
 			std::string path = sz;
-			scText = std::string("(") + wstos(GetTimeString(set_bLocalTime)) +
+			scText =
+			    std::string("(") + wstos(GetTimeString(FLHookConfig::i()->general.localTime)) +
 			    path.substr(path.find_last_of("\\") + 1) + ") " + scText;
 		}
 	}
@@ -106,7 +107,7 @@ void Console::ConInfo(std::wstring wStr, ...)
 
 void Console::ConDebug(std::wstring wStr, ...)
 {
-	if (!set_bDebug)
+	if (!FLHookConfig::i()->general.debugMode)
 		return;
 
 	wStr = L"DEBUG: " + wStr;

@@ -610,9 +610,7 @@ void CCmds::CmdServerInfo()
 	swprintf_s(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
 
 	// print
-	Print(
-	    L"serverload=%d npcspawn=%s uptime=%sOK\n", g_iServerLoad, g_bNPCDisabled ? L"disabled" : L"enabled",
-	    wszUptime);
+	Print(L"serverload=%d npcspawn=%s uptime=%sOK\n", g_iServerLoad, g_bNPCDisabled ? L"disabled" : L"enabled", wszUptime);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -734,9 +732,7 @@ void CCmds::CmdListPlugins()
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
 	for (const auto& data : PluginManager::ir())
-		Print(
-		    L"%s (%s) - %s", stows(data.name).c_str(), stows(data.shortName).c_str(),
-		    (!data.paused ? L"running" : L"paused"));
+		Print(L"%s (%s) - %s", stows(data.name).c_str(), stows(data.shortName).c_str(), !data.paused ? L"running" : L"paused");
 
 	Print(L"OK");
 }
@@ -1179,11 +1175,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 
 	try
 	{
-		if (bSocket && ((bLocalSocket && set_bLogLocalSocketCmds) || set_bLogSocketCmds))
+		if (bSocket)
 			AddLog(SocketCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
-		if (set_bLogAdminCmds)
-			AddLog(AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+		AddLog(AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
 		bID = false;
 		bShortCut = false;
@@ -1470,43 +1465,18 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 		}
 		if (bSocket)
 		{
-			if (bLocalSocket)
-			{
-				if (set_bLogLocalSocketCmds)
-					AddLog(SocketCmds, LogLevel::Info, L"finnished");
-			}
-			else
-			{
-				if (set_bLogSocketCmds)
-					AddLog(SocketCmds, LogLevel::Info, L"finnished");
-			}
+			AddLog(SocketCmds, LogLevel::Info, L"finished");
 		}
 		else
 		{
-			if (set_bLogAdminCmds)
-				AddLog(AdminCmds, LogLevel::Info, L"finnished");
+			AddLog(AdminCmds, LogLevel::Info, L"finished");
 		}
 	}
 	catch (...)
 	{
 		if (bSocket)
-		{
-			if (bLocalSocket)
-			{
-				if (set_bLogLocalSocketCmds)
-					AddLog(SocketCmds, LogLevel::Info, L"exception");
-			}
-			else
-			{
-				if (set_bLogSocketCmds)
-					AddLog(SocketCmds, LogLevel::Info, L"exception");
-			}
-		}
-		else
-		{
-			if (set_bLogAdminCmds)
-				AddLog(AdminCmds, LogLevel::Info, L"exception");
-		}
+			AddLog(SocketCmds, LogLevel::Info, L"exception");
+		AddLog(AdminCmds, LogLevel::Info, L"exception");
 		Print(L"ERR exception occured");
 	}
 }
