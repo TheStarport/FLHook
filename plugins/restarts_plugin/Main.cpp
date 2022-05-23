@@ -213,7 +213,7 @@ void Timer()
 			IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
 			IniWrite(scCharFile, "Player", "money", std::to_string(restart.iCash));
 
-			if (!set_bDisableCharfileEncryption)
+			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
 			AddLog(Normal, LogLevel::Info, L"NOTICE: User restart %s for %s", restart.scRestartFile.c_str(),

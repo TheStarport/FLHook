@@ -127,7 +127,7 @@ bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scEx
 	}
 
 	// Write message into the slot
-	IniWriteW(scFilePath, "Msgs", "1", GetTimeString(set_bLocalTime) + L" " + wscMsg);
+	IniWriteW(scFilePath, "Msgs", "1", GetTimeString(FLHookConfig::i()->general.localTime) + L" " + wscMsg);
 	IniWrite(scFilePath, "MsgsRead", "1", "no");
 
 	MailCommunicator::MailSent mail { wscCharname, wscMsg };

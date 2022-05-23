@@ -650,8 +650,7 @@ void UserCmd_DrawCash(uint iClientID, const std::wstring& wscParam)
 	    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
 
 	// A friendly message explaining the transfer.
-	msg =
-	    GetTimeString(set_bLocalTime) + L": You have drawn " + ToMoneyStr(cash) + L" credits from " + wscTargetCharname;
+	msg = GetTimeString(FLHookConfig::i()->general.localTime) + L": You have drawn " + ToMoneyStr(cash) + L" credits from " + wscTargetCharname;
 	PrintUserCmdText(iClientID, L"%s", msg.c_str());
 	return;
 }

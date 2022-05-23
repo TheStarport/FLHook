@@ -125,7 +125,7 @@ void Timer()
 				if (set_bReportDisconnectingPlayers)
 				{
 					std::wstring wscMsg = set_wscDisconnectInSpaceMsg;
-					wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
+					wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
 					wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 					PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectingPlayersRange);
 				}

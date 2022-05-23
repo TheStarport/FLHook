@@ -62,13 +62,13 @@ void HkTimerCheckKick()
 				continue; // player will be kicked anyway
 			}
 			const auto* config = FLHookConfig::c();
-			if (config->kick.antiBaseIdle)
+			if (config->general.antiBaseIdle)
 			{ // anti base-idle check
 				uint baseID;
 				pub::Player::GetBase(clientID, baseID);
 				if (baseID && ClientInfo[clientID].iBaseEnterTime)
 				{
-					if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >= config->kick.antiBaseIdle)
+					if ((time(0) - ClientInfo[clientID].iBaseEnterTime) >= config->general.antiBaseIdle)
 					{
 						HkAddKickLog(clientID, L"Base idling");
 						HkMsgAndKick(clientID, L"Base idling", 10);
@@ -77,13 +77,13 @@ void HkTimerCheckKick()
 				}
 			}
 
-			if (config->kick.antiCharMenuIdle)
+			if (config->general.antiCharMenuIdle)
 			{ // anti charmenu-idle check
 				if (HkIsInCharSelectMenu(clientID))
 				{
 					if (!ClientInfo[clientID].iCharMenuEnterTime)
 						ClientInfo[clientID].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
-					else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= config->kick.antiCharMenuIdle)
+					else if ((time(0) - ClientInfo[clientID].iCharMenuEnterTime) >= config->general.antiCharMenuIdle)
 					{
 						HkAddKickLog(clientID, L"Charmenu idling");
 						HkKick(clientID);
