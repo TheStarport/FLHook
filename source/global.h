@@ -305,7 +305,7 @@ REFL_AUTO(type(FLHookConfig::MsgStyle), field(deathMsgStyle), field(deathMsgStyl
 REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore), field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat))
 REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle), field(multiKillMessages))
 REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs))
-REFL_AUTO(type(FLHookConfig), field(general), field(socket), field(msgStyle), field(userCommands), field(multiKillMessages), field(bans))
+REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(msgStyle), field(userCommands), field(multiKillMessages), field(bans))
 
 struct SYSTEMINFO
 {
