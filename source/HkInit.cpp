@@ -384,6 +384,9 @@ bool InitHookExports()
 	GetUserDataPath(szDataPath);
 	scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
+	// Load DLLs for strings
+	HkLoadStringDLLs();
+
 	// clear ClientInfo
 	for (uint i = 0; (i < sizeof(ClientInfo) / sizeof(CLIENT_INFO)); i++)
 	{
