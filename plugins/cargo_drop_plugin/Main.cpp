@@ -125,7 +125,7 @@ void Timer()
 				if (set_bReportDisconnectingPlayers)
 				{
 					std::wstring wscMsg = set_wscDisconnectInSpaceMsg;
-					wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
+					wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
 					wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 					PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectingPlayersRange);
 				}
@@ -204,7 +204,7 @@ void SendDeathMsg(const std::wstring& wscMsg, uint& iSystem, uint& iClientIDVict
 		pub::SpaceObj::GetLocation(iShip, myLocation, myRot);
 		myLocation.x += 30.0;
 
-		if (set_bDebug)
+		if (FLHookConfig::i()->general.debugMode)
 			Console::ConInfo(
 			    L"NOTICE: player control cargo drop in system %08x at %f,%f,%f "
 			    L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",

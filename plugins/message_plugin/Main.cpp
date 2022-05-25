@@ -389,7 +389,7 @@ bool SubmitChat(uint& cId, unsigned long& iSize, const void** rdlReader, uint& c
 					if (set_fDisconnectSwearingInSpaceRange > 0.0f)
 					{
 						std::wstring wscMsg = set_wscDisconnectSwearingInSpaceMsg;
-						wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(set_bLocalTime));
+						wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->general.dieMsg));
 						wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 						PrintLocalUserCmdText(iClientID, wscMsg, set_fDisconnectSwearingInSpaceRange);
 					}
@@ -473,8 +473,7 @@ bool SendChat(uint& iClientID, uint& iTo, uint& iSize, void** rdlReader)
 		// line.
 		bSendingTime = true;
 		HkFMsg(
-		    iClientID,
-		    L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(set_bLocalTime)) + L"</TEXT>");
+		    iClientID, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
 		bSendingTime = false;
 	}
 	return false;
@@ -1014,9 +1013,8 @@ void UserCmd_SetChatTime(uint iClientID, const std::wstring& wscParam)
 
 void UserCmd_Time(uint iClientID, const std::wstring& wscParam)
 {
-	// Send time with gray color (BEBEBE) in small text (90) above the chat
-	// line.
-	PrintUserCmdText(iClientID, GetTimeString(set_bLocalTime));
+	// Send time with gray color (BEBEBE) in small text (90) above the chat line.
+	PrintUserCmdText(iClientID, GetTimeString(FLHookConfig::i()->general.localTime));
 }
 
 /** Print out custom help overriding flhook built in help */
@@ -1049,7 +1047,7 @@ void UserCmd_Me(uint iClientID, const std::wstring& wscParam)
 		pub::Player::GetSystem(iClientID, iSystemID);
 
 		// Encode message using the death message style (red text).
-		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsg += charname + L" ";
 		wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
 		wscXMLMsg += L"</TEXT>";
@@ -1072,7 +1070,7 @@ void UserCmd_Do(uint iClientID, const std::wstring& wscParam)
 		pub::Player::GetSystem(iClientID, iSystemID);
 
 		// Encode message using the death message style (red text).
-		std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+		std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 		wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
 		wscXMLMsg += L"</TEXT>";
 

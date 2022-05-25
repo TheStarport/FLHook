@@ -17,7 +17,7 @@ bool RedText(uint iClientID, std::wstring message, std::wstring message2)
 	uint iSystemID;
 	pub::Player::GetSystem(iClientID, iSystemID);
 
-	std::wstring wscXMLMsg = L"<TRA data=\"" + set_wscDeathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
 	wscXMLMsg += XMLText(message);
 	wscXMLMsg += charname;
 	wscXMLMsg += XMLText(message2);

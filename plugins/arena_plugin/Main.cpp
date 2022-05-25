@@ -300,8 +300,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH)
 	{
-		if (set_scCfgFile.length() > 0)
-			LoadSettings();
+		LoadSettings();
 	}
 	return true;
 }

@@ -352,7 +352,7 @@ void Timer()
 			// correctly
 			flc_decode(o.scDestFileTemp.c_str(), o.scDestFileTemp.c_str());
 			IniWriteW(o.scDestFileTemp, "Player", "Name", o.wscNewCharname);
-			if (!set_bDisableCharfileEncryption)
+			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 			{
 				flc_encode(o.scDestFileTemp.c_str(), o.scDestFileTemp.c_str());
 			}

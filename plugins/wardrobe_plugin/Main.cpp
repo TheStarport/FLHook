@@ -92,7 +92,7 @@ void UserCmd_ChangeCostume(uint iClientID, const std::wstring& wscParam)
 
 void HkTimerCheckKick()
 {
-	while (pendingRestarts.size())
+	while (!pendingRestarts.empty())
 	{
 		RESTART restart = pendingRestarts.front();
 		if (HkGetClientIdFromCharname(restart.wscCharname) != -1)
@@ -112,7 +112,7 @@ void HkTimerCheckKick()
 			else
 				IniWrite(scCharFile, "Player", "body", " " + restart.costume);
 
-			if (!set_bDisableCharfileEncryption)
+			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
 			AddLog(Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);

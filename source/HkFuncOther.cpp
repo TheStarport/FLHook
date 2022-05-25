@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -244,12 +244,7 @@ HK_ERROR HkGetBaseStatus(const std::wstring& wscBasename, float& fHealth, float&
 	pub::GetBaseID(iBaseID, wstos(wscBasename).c_str());
 	if (!iBaseID)
 	{
-		std::string scBaseShortcut = IniGetS(set_scCfgFile, "names", wstos(wscBasename), "");
-		if (!scBaseShortcut.length())
-			return HKE_INVALID_BASENAME;
-
-		if (pub::GetBaseID(iBaseID, scBaseShortcut.c_str()) == -4)
-			return HKE_INVALID_BASENAME;
+		return HKE_INVALID_BASENAME;
 	}
 
 	Universe::IBase* base = Universe::get_base(iBaseID);

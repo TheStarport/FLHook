@@ -1,5 +1,5 @@
 ﻿#include "global.h"
-#include "hook.h"
+#include "Hook.h"
 
 #include <algorithm>
 #include <time.h>

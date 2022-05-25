@@ -1,7 +1,7 @@
 ﻿#include "CConsole.h"
 #include "CSocket.h"
 #include "global.h"
-#include "hook.h"
+#include "Hook.h"
 
 #include <Psapi.h>
 #include <iostream>
@@ -279,7 +279,7 @@ void FLHookInit_Pre()
 		}
 #endif
 
-		/*if (set_bDebug && !fLogDebug)
+		/*if (FLHookConfig::i()->general.debugMode && !fLogDebug)
 		    fopen_s(&fLogDebug, sDebugLog.c_str(), "at");*/
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
@@ -318,81 +318,79 @@ bool FLHookInit()
 			throw "InitHookExports failed";
 
 		bInitHookExports = true;
+		const auto* config = FLHookConfig::c();
 
-		if (set_bSocketActivated)
+		if (config->socket.activated)
 		{ // listen to socket
 			WSADATA wsa;
 			WSAStartup(MAKEWORD(2, 0), &wsa);
-			if (set_bSocketActivated)
+			if (config->socket.port > 0)
 			{
-				if (set_iPort)
-				{
-					sListen = socket(AF_INET, SOCK_STREAM, 0);
-					sockaddr_in adr;
-					memset(&adr, 0, sizeof(adr));
-					adr.sin_family = AF_INET;
-					adr.sin_port = htons(set_iPort);
-					if (::bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-						throw "ascii: socket-bind failed, port already in use?";
+				sListen = socket(AF_INET, SOCK_STREAM, 0);
+				sockaddr_in adr;
+				memset(&adr, 0, sizeof(adr));
+				adr.sin_family = AF_INET;
+				adr.sin_port = htons(config->socket.port);
+				if (::bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					throw "ascii: socket-bind failed, port already in use?";
 
-					if (listen(sListen, SOMAXCONN) != 0)
-						throw "ascii: socket-listen failed";
+				if (listen(sListen, SOMAXCONN) != 0)
+					throw "ascii: socket-listen failed";
 
-					Console::ConInfo(L"socket(ascii): socket connection listening");
-				}
+				Console::ConInfo(L"socket(ascii): socket connection listening");
+			}
 
-				if (set_iWPort)
-				{
-					sWListen = socket(AF_INET, SOCK_STREAM, 0);
-					sockaddr_in adr;
-					memset(&adr, 0, sizeof(adr));
-					adr.sin_family = AF_INET;
-					adr.sin_port = htons(set_iWPort);
-					if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-						throw "unicode: socket-bind failed, port already in "
-						      "use?";
+			if (config->socket.wPort > 0)
+			{
+				sWListen = socket(AF_INET, SOCK_STREAM, 0);
+				sockaddr_in adr;
+				memset(&adr, 0, sizeof(adr));
+				adr.sin_family = AF_INET;
+				adr.sin_port = htons(config->socket.wPort);
+				if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					throw "unicode: socket-bind failed, port already in "
+						"use?";
 
-					if (listen(sWListen, SOMAXCONN) != 0)
-						throw "unicode: socket-listen failed";
+				if (listen(sWListen, SOMAXCONN) != 0)
+					throw "unicode: socket-listen failed";
 
-					Console::ConInfo(L"socket(unicode): socket connection listening");
-				}
+				Console::ConInfo(L"socket(unicode): socket connection listening");
+			}
 
-				if (set_iEPort)
-				{
-					sEListen = socket(AF_INET, SOCK_STREAM, 0);
-					sockaddr_in adr;
-					memset(&adr, 0, sizeof(adr));
-					adr.sin_family = AF_INET;
-					adr.sin_port = htons(set_iEPort);
-					if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-						throw "encrypted: socket-bind failed, port already in "
-						      "use?";
+			if (config->socket.ePort > 0)
+			{
+				sEListen = socket(AF_INET, SOCK_STREAM, 0);
+				sockaddr_in adr;
+				memset(&adr, 0, sizeof(adr));
+				adr.sin_family = AF_INET;
+				adr.sin_port = htons(config->socket.ePort);
+				if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					throw "encrypted: socket-bind failed, port already in "
+						"use?";
 
-					if (listen(sEListen, SOMAXCONN) != 0)
-						throw "encrypted: socket-listen failed";
+				if (listen(sEListen, SOMAXCONN) != 0)
+					throw "encrypted: socket-listen failed";
 
-					Console::ConInfo(L"socket(encrypted-ascii): socket connection "
-					                 L"listening");
-				}
+				Console::ConInfo(L"socket(encrypted-ascii): socket connection "
+					L"listening");
+			}
 
-				if (set_iEWPort)
-				{
-					sEWListen = socket(AF_INET, SOCK_STREAM, 0);
-					sockaddr_in adr;
-					memset(&adr, 0, sizeof(adr));
-					adr.sin_family = AF_INET;
-					adr.sin_port = htons(set_iEWPort);
-					if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-						throw "encrypted-unicode: socket-bind failed, port "
-						      "already in use?";
+			if (config->socket.eWPort > 0)
+			{
+				sEWListen = socket(AF_INET, SOCK_STREAM, 0);
+				sockaddr_in adr;
+				memset(&adr, 0, sizeof(adr));
+				adr.sin_family = AF_INET;
+				adr.sin_port = htons(config->socket.eWPort);
+				if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
+					throw "encrypted-unicode: socket-bind failed, port "
+						"already in use?";
 
-					if (listen(sEWListen, SOMAXCONN) != 0)
-						throw "encrypted-unicode: socket-listen failed";
+				if (listen(sEWListen, SOMAXCONN) != 0)
+					throw "encrypted-unicode: socket-listen failed";
 
-					Console::ConInfo(L"socket(encrypted-unicode): socket connection "
-					                 L"listening");
-				}
+				Console::ConInfo(L"socket(encrypted-unicode): socket connection "
+					L"listening");
 			}
 		}
 	}
@@ -463,10 +461,10 @@ void FLHookUnload()
 	lstSockets.clear();
 
 	// free blowfish encryption data
-	if (set_BF_CTX)
+	if (const FLHookConfig* config = FLHookConfig::i(); config->socket.bfCTX)
 	{
-		ZeroMemory(set_BF_CTX, sizeof(set_BF_CTX));
-		free(set_BF_CTX);
+		ZeroMemory(config->socket.bfCTX, sizeof(config->socket.bfCTX));
+		free(config->socket.bfCTX);
 	}
 
 	// misc
@@ -525,54 +523,44 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 		return true;
 	}
 	else if (!(sc->csock.bAuthed))
-	{ // not authenticated yet
-		std::wstring wscLwr = ToLower(wscCmd);
-		if (wscLwr.find(L"pass") != 0)
+	{
+		const std::wstring wscLwr = ToLower(wscCmd);
+		const auto passFind = wscLwr.find(L"pass");
+		if (passFind == std::wstring::npos)
 		{
 			sc->csock.Print(L"ERR Please authenticate first");
 			return false;
 		}
-
-		wchar_t wszPass[256];
+		
 		if (wscCmd.length() >= 256)
 		{
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(
-			    Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(),
-			    sc->csock.iPort);
+			AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 			return true;
 		}
-		swscanf_s(wscCmd.c_str(), L"pass %s", wszPass, std::size(wszPass));
 
-		// read passes from ini
-		for (uint i = 0;; i++)
+		const auto* config = FLHookConfig::c();
+
+		auto pass = wscLwr.substr(passFind + 1);
+		pass = Trim(pass);
+
+		const auto auth = config->socket.passRightsMap.find(pass);
+		if (auth == config->socket.passRightsMap.end())
 		{
-			char szBuf[64];
-			sprintf_s(szBuf, "pass%u", i);
-			std::string scPass = IniGetS(set_scCfgFile, "Socket", szBuf, "");
-			sprintf_s(szBuf, "rights%u", i);
-			std::string scRights = IniGetS(set_scCfgFile, "Socket", szBuf, "");
-
-			if (!scPass.length())
-			{
-				sc->csock.DoPrint(L"ERR Wrong password");
-				sc->csock.DoPrint(L"Goodbye.\r");
-				Console::ConInfo(L"socket: connection closed (invalid pass)");
-				AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)",
-				    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-				return true;
-			}
-			else if (!scPass.compare(wstos(wszPass)))
-			{
-				sc->csock.bAuthed = true;
-				sc->csock.SetRightsByString(scRights);
-				sc->csock.Print(L"OK");
-				Console::ConInfo(L"socket: socket authentication successful");
-				return false;
-			}
+			sc->csock.DoPrint(L"ERR Wrong password");
+			sc->csock.DoPrint(L"Goodbye.\r");
+			Console::ConInfo(L"socket: connection closed (invalid pass)");
+			AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+			return true;
 		}
+
+		sc->csock.bAuthed = true;
+		sc->csock.SetRightsByString(auth->second);
+		sc->csock.Print(L"OK");
+		Console::ConInfo(L"socket: socket authentication successful");
+		return false;
 	}
 	else
 	{ // execute admin command
@@ -718,7 +706,7 @@ void ProcessPendingCommands()
 				sc->csock.bUnicode = false;
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = true;
-				sc->csock.bfc = set_BF_CTX;
+				sc->csock.bfc = FLHookConfig::c()->socket.bfCTX;
 				lstSockets.push_back(sc);
 				Console::ConInfo(
 				    L"socket(encrypted-ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(),
@@ -747,7 +735,7 @@ void ProcessPendingCommands()
 				sc->csock.bUnicode = true;
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = true;
-				sc->csock.bfc = set_BF_CTX;
+				sc->csock.bfc = FLHookConfig::c()->socket.bfCTX;
 				lstSockets.push_back(sc);
 				Console::ConInfo(
 				    L"socket(encrypted-unicode): new socket connection "

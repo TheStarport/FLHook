@@ -46,7 +46,9 @@ bool g_InSubmitChat = false;
 uint g_TextLength = 0;
 
 bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID& cidTo, int) {
-    TRY_HOOK {
+	TRY_HOOK
+	{
+		const auto* config = FLHookConfig::i();
 
         // Group join/leave commands are not parsed
         if (cidTo.iID == SpecialChatIDs::GROUP_EVENT)
@@ -67,7 +69,8 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
-        if (set_bDefaultLocalChat && cidTo.iID == SpecialChatIDs::SYSTEM) {
+		if (config->userCommands.defaultLocalChat && cidTo.iID == SpecialChatIDs::SYSTEM)
+		{
             cidTo.iID = SpecialChatIDs::LOCAL;
         }
 
@@ -174,9 +177,11 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         ProcessEvent(L"%s", eventString.c_str());
 
         // check if chat should be suppressed
-        if(!set_setChatSuppress.empty()) {
+		if (!config->general.chatSuppressList.empty())
+		{
             auto lcBuffer = ToLower(buffer);
-            for (const auto &chat : set_setChatSuppress) {
+			for (const auto& chat : config->general.chatSuppressList)
+			{
                 if (lcBuffer.find(chat) == 0)
                     return false;
             }
@@ -270,7 +275,7 @@ void LaunchComplete__Inner(uint, uint shipID) {
         if (clientID) {
             ClientInfo[clientID].tmSpawnTime = timeInMS(); // save for anti-dockkill
             // is there spawnprotection?
-            if (set_iAntiDockKill > 0)
+		    if (FLHookConfig::i()->general.antiDockKill > 0)
                 ClientInfo[clientID].bSpawnProtected = true;
             else
                 ClientInfo[clientID].bSpawnProtected = false;
@@ -310,7 +315,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
         if (g_CharBefore.compare(charName) != 0) {
             LoadUserCharSettings(clientID);
 
-            if (set_bUserCmdHelp)
+            if (FLHookConfig::i()->userCommands.userCmdHelp)
                 PrintUserCmdText(clientID,
                                  L"To get a list of available commands, type "
                                  L"\"/help\" in chat.");
@@ -351,7 +356,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
 
 void BaseEnter__Inner(uint baseID, uint clientID) {
     TRY_HOOK {
-        if (set_bAutoBuy)
+        if (FLHookConfig::i()->general.autobuy)
             HkPlayerAutoBuy(clientID, baseID);
     }
     CATCH_HOOK({ AddLog(Normal, LogLevel::Info, L"Exception in BaseEnter on autobuy"); })
@@ -529,7 +534,7 @@ bool CharacterInfoReq__Inner(uint clientID, bool) {
                 uint shipID = 0;
                 pub::Player::GetShip(clientID, shipID);
                 if (shipID) { // in space
-                    ClientInfo[clientID].tmF1Time = timeInMS() + set_iAntiF1;
+                    ClientInfo[clientID].tmF1Time = timeInMS() + FLHookConfig::i()->general.antiF1;
                     return false;
                 }
             }
@@ -680,12 +685,12 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
         std::wstring ip;
         HkGetPlayerIP(clientID, ip);
 
-        for (const auto& ban : set_setBans) {
-            if (Wildcard::wildcardfit(wstos(ban).c_str(),
-                                      wstos(ip).c_str())) {
+        for (const auto& ban : FLHookConfig::i()->bans.banWildcardsAndIPs) {
+            if (Wildcard::wildcardfit(wstos(ban).c_str(), wstos(ip).c_str())) 
+            {
                 HkAddKickLog(clientID, L"IP/Hostname ban(%s matches %s)",
                              ip.c_str(), ban.c_str());
-                if (set_bBanAccountOnMatch)
+				if (FLHookConfig::i()->bans.banAccountOnMatch)
                     HkBan(clientID, true);
                 HkKick(clientID);
             }
@@ -709,7 +714,7 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
         while ((playerData = Players.traverse_active(playerData)))
             playerCount++;
 
-        if (playerCount > (Players.GetMaxPlayerCount() - set_iReservedSlots)) { // check if player has a reserved slot
+        if (playerCount > (Players.GetMaxPlayerCount() - FLHookConfig::i()->general.reservedSlots)) { // check if player has a reserved slot
             std::wstring dir;
             HkGetAccountDirName(acc, dir);
             std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
@@ -722,10 +727,8 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
         }
 
         LoadUserSettings(clientID);
-
-        // log
-        if (set_bLogConnects)
-            HkAddConnectLog(clientID, ip);
+        
+    	HkAddConnectLog(clientID, ip);
     }
     CATCH_HOOK({
         CAccount *acc = Players.FindAccountFromClientID(clientID);

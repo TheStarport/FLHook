@@ -153,7 +153,7 @@ char __stdcall HkCb_CrashProc6F8B330(int arg1)
 	int res = 0;
 	try
 	{
-		if (set_bDebug)
+		if (FLHookConfig::i()->general.debugMode)
 			Console::ConInfo(L"HkCb_CrashProc6F8B330(arg1=%08x)", arg1);
 		__asm {
             pushad
@@ -185,7 +185,7 @@ void __stdcall HkCb_CrashProc6F78DD0(int arg1, int arg2)
 {
 	try
 	{
-		if (set_bDebug)
+		if (FLHookConfig::i()->general.debugMode)
 			Console::ConInfo(L"HkCb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)", arg1, arg2);
 		__asm {
             pushad
@@ -214,7 +214,7 @@ void __cdecl HkCb_CrashProc6F671A0(int arg1)
 {
 	try
 	{
-		if (set_bDebug)
+		if (FLHookConfig::i()->general.debugMode)
 			Console::ConInfo(L"HkCb_CrashProc6F671A0(arg1=%08x)", arg1);
 		__asm {
             pushad
@@ -409,7 +409,7 @@ void Init()
 			hModContentAC = GetModuleHandle("content.dll");
 			if (hModContentAC)
 			{
-				if (set_bDebug)
+				if (FLHookConfig::i()->general.debugMode)
 					Console::ConInfo(L"NOTICE: Installing patches into content.dll");
 
 				// Patch for crash at content.dll + blarg
@@ -526,7 +526,7 @@ void Shutdown()
 
 		if (hModContentAC)
 		{
-			if (set_bDebug)
+			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(L"NOTICE: Uninstalling patches from content.dll");
 
 			{
@@ -585,7 +585,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	// If we're being loaded from the command line while FLHook is running then
 	// set_scCfgFile will not be empty so load the settings as FLHook only
 	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH && set_scCfgFile.length() > 0)
+	if (fdwReason == DLL_PROCESS_ATTACH)
 		Init();
 
 	else if (fdwReason == DLL_PROCESS_DETACH)

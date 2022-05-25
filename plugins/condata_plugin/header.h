@@ -2,61 +2,101 @@
 #include "FLHook.h"
 #include "plugin.h"
 
-#define LOSS_INTERVALL 4000
+constexpr int LossInterval = 4000;
 
-struct CONNECTION_DATA
+namespace Plugins::ConData
 {
-	// connection data
-	std::list<uint> lstLoss;
-	uint iLastLoss;
-	uint iAverageLoss;
-	std::list<uint> lstPing;
-	uint iAveragePing;
-	uint iPingFluctuation;
-	uint iLastPacketsSent;
-	uint iLastPacketsReceived;
-	uint iLastPacketsDropped;
-	uint iLags;
-	std::list<uint> lstObjUpdateIntervalls;
-	mstime tmLastObjUpdate;
-	mstime tmLastObjTimestamp;
+	struct ConnectionData
+	{
+		// connection data
+		std::list<uint> lstLoss;
+		uint iLastLoss;
+		uint iAverageLoss;
+		std::list<uint> lstPing;
+		uint iAveragePing;
+		uint iPingFluctuation;
+		uint iLastPacketsSent;
+		uint iLastPacketsReceived;
+		uint iLastPacketsDropped;
+		uint iLags;
+		std::list<uint> lstObjUpdateIntervalls;
+		mstime tmLastObjUpdate;
+		mstime tmLastObjTimestamp;
 
-	// exception
-	bool bException;
-	std::string sExceptionReason;
+		// exception
+		bool bException;
+		std::string sExceptionReason;
 
-	// Client ID (for when receiving data)
-	uint iClientID;
-};
+		// Client ID (for when receiving data)
+		uint iClientID;
+	};
 
-struct CONNECTION_DATA_EXCEPTION
-{
-	uint iClientID;
-	bool bException;
-	std::string sReason;
-};
+	struct ConnectionDataException final
+	{
+		uint iClientID;
+		bool bException;
+		std::string sReason;
+	};
 
-uint set_iPingKickFrame;
-uint set_iPingKick;
-uint set_iFluctKick;
-uint set_iLossKickFrame;
-uint set_iLossKick;
-uint set_iLagDetectionFrame;
-uint set_iLagDetectionMinimum;
-uint set_iLagKick;
+	// Inter plugin comms
 
-// Kick high lag and loss players only if the server load
-// exceeds this threshold.
-uint set_iKickThreshold;
+	class ConDataCommunicator : public PluginCommunicator
+	{
+	  public:
+		inline static const char* pluginName = "Advanced Connection Data";
+		explicit ConDataCommunicator(std::string plug);
 
-// Inter plugin comms
+		HK_ERROR PluginCall(ReceiveException, ConnectionDataException);
+		HK_ERROR PluginCall(ReceiveData, ConnectionData);
+	};
 
-class ConDataCommunicator : public PluginCommunicator
-{
-  public:
-	inline static const char* pluginName = "Advanced Connection Data Plugin by w0dk4";
-	explicit ConDataCommunicator(std::string plug);
+	//! The struct that holds client info for this plugin
+	struct MiscClientInfo final
+	{
+		bool bLightsOn = false;
+		bool bShieldsDown = false;
+	};
 
-	HK_ERROR PluginCall(ReceiveException, CONNECTION_DATA_EXCEPTION);
-	HK_ERROR PluginCall(ReceiveData, CONNECTION_DATA);
-};
+	typedef void (*TimerFunc)();
+
+	struct Timer
+	{
+		TimerFunc proc;
+		mstime tmIntervallMS;
+		mstime tmLastCall;
+	};
+
+	struct Config final : Reflectable
+	{
+		std::string File() override { return "config/misc_commands.json"; }
+		uint pingKick = 0;
+		uint pingKickFrame = 120;
+		uint fluctKick = 0;
+		uint lossKick = 0;
+		uint lossKickFrame = 120;
+		uint lagKick = 0;
+		uint lagDetectionFrame = 50;
+		uint lagDetectionMin = 50;
+		uint kickThreshold = 0;
+		bool allowPing = true;
+	};
+
+	//! Global data for this plugin
+	struct Global final
+	{
+		std::unique_ptr<Config> config = nullptr;
+
+		// Other fields
+		ReturnCode returncode = ReturnCode::Default;
+
+		ConnectionData connections[MAX_CLIENT_ID + 1];
+
+		ConDataCommunicator* communicator = nullptr;
+		TempBanCommunicator* tempBanCommunicator = nullptr;
+
+		std::vector<Timer> timers;
+	};
+}; // namespace Plugins::ConData
+
+REFL_AUTO(type(Plugins::ConData::Config), field(pingKick), field(pingKickFrame), field(fluctKick), field(lossKick), field(lossKickFrame), field(lagKick),
+    field(lagDetectionFrame), field(lagDetectionMin), field(kickThreshold), field(allowPing))

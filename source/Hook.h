@@ -151,28 +151,6 @@ EXPORT extern _GetShipInspect GetShipInspect;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // enums
 
-enum class LogLevel : int
-{
-	Trace,
-	Debug,
-	Info,
-	Warn,
-	Err,
-	Critical
-};
-
-enum LogType
-{
-	Normal,
-	Cheater,
-	Kick,
-	Connects,
-	AdminCmds,
-	UserLogCmds,
-	SocketCmds,
-	PerfTimers
-};
-
 enum HK_ERROR
 {
 	HKE_OK,
@@ -826,7 +804,6 @@ const wchar_t* ToLogString(const T& val)
 	return L"<undefined>";
 }
 
-EXPORT void AddLog(LogType LogType, LogLevel level, std::wstring wStr, ...);
 template<typename... Args>
 void AddBothLog(bool bError, std::wstring wStr, Args&&... args)
 {
@@ -996,7 +973,7 @@ void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 
 #define CALL_SERVER_PREAMBLE                                    \
 	{                                                           \
-		static CTimer timer(__FUNCTION__, set_iTimerThreshold); \
+		static CTimer timer(__FUNCTION__, 100); \
 		timer.start();                                          \
 		TRY_HOOK                                                \
 		{

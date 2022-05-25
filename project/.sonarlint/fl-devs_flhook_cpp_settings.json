@@ -1022,10 +1022,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S3630": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5817": {
       "level": "On",
       "severity": "Major"
@@ -1051,10 +1047,6 @@
       "severity": "Critical"
     },
     "cpp:S1103": {
-      "level": "On",
-      "severity": "Minor"
-    },
-    "cpp:S3642": {
       "level": "On",
       "severity": "Minor"
     },
@@ -1255,10 +1247,6 @@
     "cpp:S5276": {
       "level": "On",
       "severity": "Major"
-    },
-    "cpp:S5275": {
-      "level": "On",
-      "severity": "Critical"
     },
     "cpp:S5272": {
       "level": "On",
@@ -1624,10 +1612,6 @@
     "cpp:S4263": {
       "level": "On",
       "severity": "Major"
-    },
-    "cpp:S5008": {
-      "level": "On",
-      "severity": "Critical"
     },
     "cpp:S5487": {
       "level": "On",
@@ -2033,10 +2017,16 @@
     "cpp:S1642": {
       "level": "Off"
     },
+    "cpp:S3630": {
+      "level": "Off"
+    },
     "cpp:S1451": {
       "level": "Off"
     },
     "cpp:S1578": {
+      "level": "Off"
+    },
+    "cpp:S3642": {
       "level": "Off"
     },
     "cpp:S5946": {
@@ -2064,6 +2054,9 @@
       "level": "Off"
     },
     "cpp:S6007": {
+      "level": "Off"
+    },
+    "cpp:S5275": {
       "level": "Off"
     },
     "cpp:S5270": {
@@ -2163,6 +2156,9 @@
       "level": "Off"
     },
     "cpp:S5356": {
+      "level": "Off"
+    },
+    "cpp:S5008": {
       "level": "Off"
     },
     "common-cpp:InsufficientLineCoverage": {

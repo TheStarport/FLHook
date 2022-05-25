@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceID = 0;
@@ -43,7 +43,7 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 			if (!AllowPlayerDamage(clientIDInflictor, clientID))
 				return 1;
 
-			if (set_bChangeCruiseDisruptorBehaviour)
+			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour)
 			{
 				if (((dmgList->get_cause() == 6) || (dmgList->get_cause() == 0x15)) &&
 				    !ClientInfo[clientID].bCruiseActivated)
@@ -88,8 +88,7 @@ the g_DmgTo variable...
 void __stdcall AddDamageEntry(
     DamageList* dmgList, unsigned short subObjID, float hitPts, enum DamageEntry::SubObjFate fate)
 {
-	bool skip = CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjID, hitPts, fate);
-	if (skip)
+	if (CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjID, hitPts, fate))
 		return;
 
 	// check if we got damaged by a cd with changed behaviour
@@ -107,8 +106,8 @@ void __stdcall AddDamageEntry(
 
 	if (g_NonGunHitsBase && (dmgList->get_cause() == 5))
 	{
-		float damage = g_LastHitPts - hitPts;
-		hitPts = g_LastHitPts - damage * set_fTorpMissileBaseDamageMultiplier;
+		const float damage = g_LastHitPts - hitPts;
+		hitPts = g_LastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
 		if (hitPts < 0)
 			hitPts = 0;
 	}
@@ -223,19 +222,21 @@ bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
 	if (skip)
 		return rval;
 
+	const auto* config = FLHookConfig::c();
+
 	if (iClientIDTarget)
 	{
 		// anti-dockkill check
 		if (ClientInfo[iClientIDTarget].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[iClientIDTarget].tmSpawnTime) <= set_iAntiDockKill)
+			if ((timeInMS() - ClientInfo[iClientIDTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
 			else
 				ClientInfo[iClientIDTarget].bSpawnProtected = false;
 		}
 		if (ClientInfo[iClientID].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[iClientID].tmSpawnTime) <= set_iAntiDockKill)
+			if ((timeInMS() - ClientInfo[iClientID].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
 			else
 				ClientInfo[iClientID].bSpawnProtected = false;
@@ -244,7 +245,7 @@ bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
 		// no-pvp check
 		uint systemID;
 		pub::Player::GetSystem(iClientID, systemID);
-		if (set_setNoPVPSystems.count(systemID))
+		if (std::find(config->general.noPVPSystemsHashed.begin(), config->general.noPVPSystemsHashed.end(), systemID) != config->general.noPVPSystemsHashed.end())
 			return false;
 	}
 

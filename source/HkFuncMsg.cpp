@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +231,7 @@ void FormatSendChat(
 {
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-	if (set_bUserCmdIgnore)
+	if (FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
 		for (auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
@@ -291,7 +291,7 @@ void SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring& w
 {
 	std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientID);
 
-	if (set_bUserCmdIgnore)
+	if (FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
 		for (auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{

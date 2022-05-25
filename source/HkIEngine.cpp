@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 /**************************************************************************************************************
 // misc flserver engine function hooks
@@ -118,7 +118,7 @@ namespace HkIEngine
 		TRY_HOOK
 		{
 			// Print out a message when a player ship docks.
-			if (set_bDockingMessages && response == PROCEED_DOCK)
+			if (FLHookConfig::c()->general.dockingMessages && response == PROCEED_DOCK)
 			{
 				uint iClientID = HkGetClientIDByShip(shipID);
 				if (iClientID)

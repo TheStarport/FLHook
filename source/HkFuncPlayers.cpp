@@ -1,4 +1,4 @@
-﻿#include "hook.h"
+﻿#include "Hook.h"
 
 #include <fstream>
 
@@ -118,7 +118,7 @@ HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
 			// <value>" otherwise IFSO can't decode the file correctly
 			IniWrite(scCharFileNew, "Player", "money", " " + std::to_string(iRet + iAmount));
 
-			if (!set_bDisableCharfileEncryption)
+			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				if (!flc_encode(scCharFileNew.c_str(), scCharFile.c_str()))
 					return HKE_COULD_NOT_ENCODE_CHARFILE;
 
@@ -189,7 +189,7 @@ HK_ERROR HkKickReason(std::variant<uint, std::wstring> player, const std::wstrin
 		return HKE_PLAYER_NOT_LOGGED_IN;
 
 	if (wscReason.length())
-		HkMsgAndKick(iClientID, wscReason, set_iKickMsgPeriod);
+		HkMsgAndKick(iClientID, wscReason, FLHookConfig::i()->msgStyle.kickMsgPeriod);
 	else
 		HkKick(Players.FindAccountFromClientID(iClientID));
 
@@ -232,32 +232,7 @@ HK_ERROR HkBeam(std::variant<uint, std::wstring> player, const std::wstring& wsc
 
 	if (pub::GetBaseID(iBaseID, scBasename.c_str()) == -4)
 	{
-		std::string scBaseShortcut = IniGetS(set_scCfgFile, "names", wstos(wscBasename), "");
-		if (!scBaseShortcut.length())
-		{
-			typedef int (*_GetString)(LPVOID, uint, wchar_t*, uint);
-			_GetString GetString = (_GetString)0x4176b0;
-			Universe::IBase* pBase = Universe::GetFirstBase();
-			while (pBase)
-			{
-				wchar_t buf[1024];
-				GetString(NULL, pBase->iBaseIDS, buf, 1024);
-				if (wcsstr(buf, wscBasename.c_str()))
-				{
-					// Ignore the intro bases.
-					if (_strnicmp("intro", (char*)pBase->iDunno2, 5) != 0)
-					{
-						iBaseID = pBase->iBaseID;
-						break;
-					}
-				}
-				pBase = Universe::GetNextBase();
-			}
-			if (iBaseID == 0)
-				return HKE_INVALID_BASENAME;
-		}
-		else if (pub::GetBaseID(iBaseID, scBaseShortcut.c_str()) == -4)
-			return HKE_INVALID_BASENAME;
+		return HKE_INVALID_BASENAME;
 	}
 
 	uint iSysID;
@@ -655,7 +630,7 @@ HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& w
 	IniWrite(scNewCharfilePath, "Player", "Name", scValue);
 
 	// Re-encode the char file if needed.
-	if (!set_bDisableCharfileEncryption)
+	if (!FLHookConfig::i()->general.disableCharfileEncryption)
 		if (!flc_encode(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
 			return HKE_COULD_NOT_ENCODE_CHARFILE;
 
@@ -668,7 +643,7 @@ HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring& wscReason, uint iInter
 {
 	if (!ClientInfo[iClientID].tmKickTime)
 	{
-		std::wstring wscMsg = ReplaceStr(set_wscKickMsg, L"%reason", XMLText(wscReason));
+		std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->msgStyle.kickMsg, L"%reason", XMLText(wscReason));
 		HkFMsg(iClientID, wscMsg);
 		ClientInfo[iClientID].tmKickTime = timeInMS() + iIntervall;
 	}
