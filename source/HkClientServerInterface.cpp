@@ -2548,8 +2548,6 @@ namespace HkIServerImpl
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect, clientID);
 
-		CHECK_FOR_DISCONNECT;
-
 		bool innerCheck = OnConnect__Inner(clientID);
 		if (!innerCheck)
 			return;
