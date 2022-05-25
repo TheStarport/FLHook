@@ -135,7 +135,7 @@ unsigned int ReadReturnPointForClient(unsigned int client)
 void MoveClient(unsigned int client, unsigned int targetBase)
 {
 	// Ask that another plugin handle the beam.
-	if (baseCommunicator->CustomBaseBeam(client, targetBase))
+	if (baseCommunicator && baseCommunicator->CustomBaseBeam(client, targetBase))
 		return;
 
 	// No plugin handled it, do it ourselves.
