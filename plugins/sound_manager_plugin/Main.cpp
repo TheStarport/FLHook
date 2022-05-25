@@ -10,40 +10,40 @@
 // Includes
 #include "Main.h"
 
-struct Config final : Reflectable
+// Setup Doxygen Group
+
+/** @defgroup SoundManager Sound Manager (plugin) */
+
+namespace Plugins::SoundManager
 {
-	// This json file should contain a "sounds" array containing a list of sounds for e.g. dx_s032a_01a01_hvis_xtr_1
-	std::string File() override { return "flhook_plugins/soundmanager.json"; }
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// Reflectable fields
-	std::vector<std::string> sounds;
+	void LoadSettings()
+	{
+		Config conf = Serializer::JsonToObject<Config>();
 
-	// Non-reflectable fields
-	std::vector<uint> sound_ids;
-};
+		for (auto& sound : conf.sounds)
+			conf.sound_ids.push_back(CreateID(sound.c_str()));
 
-REFL_AUTO(type(Config), field(sounds))
-std::unique_ptr<Config> config = nullptr;
+		global->config = std::make_unique<Config>(std::move(conf));
+	}
 
-void LoadSettings()
-{
-	Config conf = Serializer::JsonToObject<Config>();
+	void __stdcall Login(struct SLoginInfo const& li, uint& iClientID)
+	{
+		// Player sound when player logs in
 
-	for (auto& sound : conf.sounds)
-	    conf.sound_ids.push_back(CreateID(sound.c_str()));
-
-	config = std::make_unique<Config>(std::move(conf));
-}
-
-void __stdcall Login(struct SLoginInfo const& li, uint& iClientID)
-{
-	// Player sound when player logs in
-	
-	if (config->sound_ids.size())
-		pub::Audio::PlaySoundEffect(iClientID, config->sound_ids[rand() % config->sound_ids.size()]);
+		if (global->config->sound_ids.size())
+			pub::Audio::PlaySoundEffect(iClientID, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FLHOOK STUFF
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using namespace Plugins::SoundManager;
+// REFL_AUTO must be global namespace
+REFL_AUTO(type(Config), field(sounds))
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -56,7 +56,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("sound_manager");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
