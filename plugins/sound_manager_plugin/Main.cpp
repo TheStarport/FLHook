@@ -10,38 +10,37 @@
 // Includes
 #include "Main.h"
 
+struct Config final : Reflectable
+{
+	// This json file should contain a "sounds" array containing a list of sounds for e.g. dx_s032a_01a01_hvis_xtr_1
+	std::string File() override { return "flhook_plugins/soundmanager.json"; }
+
+	// Reflectable fields
+	std::vector<std::string> sounds;
+
+	// Non-reflectable fields
+	std::vector<uint> sound_ids;
+};
+
+REFL_AUTO(type(Config), field(sounds))
+std::unique_ptr<Config> config = nullptr;
+
 void LoadSettings()
 {
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\sound_manager.cfg";
+	Config conf = Serializer::JsonToObject<Config>();
 
-	INI_Reader ini;
-	if (ini.open(scPluginCfgFile.c_str(), false))
-	{
-		while (ini.read_header())
-		{
-			if (ini.is_header("Sounds"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("sound"))
-					{
-						sounds.push_back(CreateID(ini.get_value_string(0)));
-					}
-				}
-			}
-		}
-		ini.close();
-	}
+	for (auto& sound : conf.sounds)
+	    conf.sound_ids.push_back(CreateID(sound.c_str()));
+
+	config = std::make_unique<Config>(std::move(conf));
 }
 
 void __stdcall Login(struct SLoginInfo const& li, uint& iClientID)
 {
 	// Player sound when player logs in
-	if (sounds.size() > 0)
-		pub::Audio::PlaySoundEffect(iClientID, sounds[rand() % sounds.size()]);
+	
+	if (config->sound_ids.size())
+		pub::Audio::PlaySoundEffect(iClientID, config->sound_ids[rand() % config->sound_ids.size()]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
