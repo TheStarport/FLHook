@@ -10,31 +10,16 @@
 // Includes
 #include "Main.h"
 
-TempBanCommunicator* tempBanCommunicator = nullptr;
-
-struct INFO
-{
-	bool bInWrapGate;
-};
-static std::map<uint, INFO> mapInfo;
-
 void ClearClientInfo(uint& iClientID)
 {
 	mapInfo[iClientID].bInWrapGate = false;
 }
 
-void DisConnect(uint& iClientID, enum EFLConnection& state)
+void KillBan(uint& iClientID)
 {
 	if (mapInfo[iClientID].bInWrapGate)
 	{
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
-		if (obj)
-		{
-			HkLightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
-		}
+		HkKill(iClientID);
 		if (tempBanCommunicator)
 		{
 			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -43,24 +28,14 @@ void DisConnect(uint& iClientID, enum EFLConnection& state)
 	}
 }
 
+void DisConnect(uint& iClientID, enum EFLConnection& state)
+{
+	KillBan(iClientID);
+}
+
 void CharacterInfoReq(uint& iClientID, bool& p2)
 {
-	if (mapInfo[iClientID].bInWrapGate)
-	{
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
-		if (obj)
-		{
-			HkLightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
-		}
-		if (tempBanCommunicator)
-		{
-			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			tempBanCommunicator->TempBan(wscCharname, 5);
-		}
-	}
+	KillBan(iClientID);
 }
 
 void JumpInComplete(uint& iSystem, uint& iShip, uint& iClientID)
