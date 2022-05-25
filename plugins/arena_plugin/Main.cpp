@@ -33,18 +33,16 @@ struct Config final : Reflectable
 	std::string targetBase;
 	std::string targetSystem;
 	std::string restrictedSystem;
-	std::string defaultBase;
 
 	// Non-reflectable fields
 	uint targetBaseId;
 	uint targetSystemId;
 	uint restrictedSystemId;
-	uint defaultBaseId;
 	std::wstring wscCommand;
 };
 
 REFL_AUTO(
-    type(Config), field(command), field(targetBase), field(targetSystem), field(restrictedSystem), field(defaultBase))
+    type(Config), field(command), field(targetBase), field(targetSystem), field(restrictedSystem))
 
 /// A return code to indicate to FLHook if we want the hook processing to
 /// continue.
@@ -72,7 +70,6 @@ void LoadSettings()
 	memset(transferFlags, 0, sizeof(int) * (MAX_CLIENT_ID + 1));
 	Config conf = Serializer::JsonToObject<Config>();
 	conf.wscCommand = L"/" + stows(conf.command);
-	conf.defaultBaseId = CreateID(conf.defaultBase.c_str());
 	conf.restrictedSystemId = CreateID(conf.restrictedSystem.c_str());
 	conf.targetBaseId = CreateID(conf.targetBase.c_str());
 	conf.targetSystemId = CreateID(conf.targetSystem.c_str());
