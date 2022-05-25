@@ -2621,8 +2621,9 @@ namespace HkIServerImpl
 		    Normal, LogLevel::Debug, L"CharacterSelect(\n\tCHARACTER_ID const& cid = %s\n\tuint clientID = %u\n)", ToLogString(cid),
 		    clientID);
 
+		std::string charName = cid.szCharFilename;
 		auto skip = CallPluginsBefore<void>(
-		    HookedCall::IServerImpl__CharacterSelect, std::string(cid.szCharFilename), clientID);
+		    HookedCall::IServerImpl__CharacterSelect, charName, clientID);
 
 		CHECK_FOR_DISCONNECT;
 
@@ -2639,7 +2640,7 @@ namespace HkIServerImpl
 		}
 		CharacterSelect__InnerAfter(cid, clientID);
 
-		CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect, std::string(cid.szCharFilename), clientID);
+		CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect, charName, clientID);
 	}
 } // namespace HkIServerImpl
 
