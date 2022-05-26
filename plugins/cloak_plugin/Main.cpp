@@ -20,7 +20,6 @@ namespace Plugins::Cloak
 		for (auto& device : config.mapCloakingDevices)
 		{
 			CLOAK_ARCH ca;
-			ca.scNickName = device.second.NickName;
 			ca.bDropShieldsOnUncloak = device.second.DropShieldsOnUncloak;
 			ca.iCooldownTime = device.second.CooldownTime;
 			ca.iHoldSizeLimit = device.second.HoldSizeLimit;
@@ -338,8 +337,8 @@ namespace Plugins::Cloak
 
 using namespace Plugins::Cloak;
 // REFL_AUTO must be global namespace
-REFL_AUTO(
-    type(Config::CLOAK_ARCH_REFLECTABLE), field(scNickName), field(iWarmupTime), field(iCooldownTime), field(iHoldSizeLimit), field(bDropShieldsOnUncloak));
+REFL_AUTO(type(Config::CLOAK_ARCH_REFLECTABLE), field(WarmupTime), field(CooldownTime), field(HoldSizeLimit), field(DropShieldsOnUncloak),
+    field(FuelToUsage));
 REFL_AUTO(type(Config), field(mapCloakingDevices), field(DsAce))
 
 

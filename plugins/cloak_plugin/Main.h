@@ -56,7 +56,6 @@ namespace Plugins::Cloak
 
 		struct CLOAK_ARCH_REFLECTABLE : Reflectable
 		{
-			std::string NickName = "example";
 			int WarmupTime = 0;
 			int CooldownTime = 0;
 			int HoldSizeLimit = 0;
@@ -82,7 +81,7 @@ namespace Plugins::Cloak
 		std::map<uint, CLOAK_INFO> mapClientsCloak;
 		std::map<uint, CLOAK_ARCH> mapCloakingDevices;
 		std::wstring CloakingText = L" Cloaking";
-		std::wstring UncloakingText = L"Uncloaking";
+		std::wstring UncloakingText = L" Uncloaking";
 	};
 }
 
