@@ -159,7 +159,7 @@ void HkPenalizeDeath(uint iClientID, uint iKillerID)
 			iOwed = iCash;
 
 		// If another player has killed the player
-		if (iKillerID && set_fDeathPenaltyKiller)
+		if (iKillerID && iKillerID != iClientID && set_fDeathPenaltyKiller)
 		{
 			int iGive = (int)(iOwed * set_fDeathPenaltyKiller);
 			if (iGive)
