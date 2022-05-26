@@ -56,16 +56,19 @@ namespace Plugins::Cloak
 
 		struct CLOAK_ARCH_REFLECTABLE : Reflectable
 		{
-			std::string scNickName;
-			int iWarmupTime;
-			int iCooldownTime;
-			int iHoldSizeLimit;
-			//std::map<std::string, int> mapFuelToUsage;
-			bool bDropShieldsOnUncloak;
+			std::string NickName = "example";
+			int WarmupTime = 0;
+			int CooldownTime = 0;
+			int HoldSizeLimit = 0;
+			std::map<std::string, int> FuelToUsage = {{"SomeItem", 123}};
+			bool DropShieldsOnUncloak = false;
 		};
 
+		CLOAK_ARCH_REFLECTABLE example;
+
 		// Reflectable fields
-		std::map<std::string, CLOAK_ARCH_REFLECTABLE> mapCloakingDevices;
+		std::map<std::string, CLOAK_ARCH_REFLECTABLE> mapCloakingDevices = {{"example", example}};
+		bool DsAce = false;
 	};
 
 	//! Global data for this plugin
@@ -78,6 +81,8 @@ namespace Plugins::Cloak
 
 		std::map<uint, CLOAK_INFO> mapClientsCloak;
 		std::map<uint, CLOAK_ARCH> mapCloakingDevices;
+		std::wstring CloakingText = L" Cloaking";
+		std::wstring UncloakingText = L"Uncloaking";
 	};
 }
 

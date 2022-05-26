@@ -17,20 +17,27 @@ namespace Plugins::Cloak
 	{
 		auto config = Serializer::JsonToObject<Config>();
 
-		//for (auto& device : config.mapCloakingDevices)
-		//{
-		//	CLOAK_ARCH ca;
-		//	ca.scNickName = device.second.scNickName;
-		//	ca.bDropShieldsOnUncloak = device.second.bDropShieldsOnUncloak;
-		//	ca.iCooldownTime = device.second.iCooldownTime;
-		//	ca.iHoldSizeLimit = device.second.iHoldSizeLimit;
-		//	ca.iWarmupTime = device.second.iWarmupTime;
+		for (auto& device : config.mapCloakingDevices)
+		{
+			CLOAK_ARCH ca;
+			ca.scNickName = device.second.NickName;
+			ca.bDropShieldsOnUncloak = device.second.DropShieldsOnUncloak;
+			ca.iCooldownTime = device.second.CooldownTime;
+			ca.iHoldSizeLimit = device.second.HoldSizeLimit;
+			ca.iWarmupTime = device.second.WarmupTime;
 
-		//	//for (auto& fuel : device.second.mapFuelToUsage)
-		//	//	ca.mapFuelToUsage[CreateID(fuel.first.c_str())] = fuel.second;
+			for (auto& fuel : device.second.FuelToUsage)
+				if (fuel.first != "SomeItem")
+					ca.mapFuelToUsage[CreateID(fuel.first.c_str())] = fuel.second;
 
-		//	global->mapCloakingDevices[CreateID(device.first.c_str())] = ca;
-		//}
+			global->mapCloakingDevices[CreateID(device.first.c_str())] = ca;
+		}
+
+		if (config.DsAce)
+		{
+			global->CloakingText = L" Cloaking device on";
+			global->UncloakingText = L" Cloaking device off";
+		}
 
 		global->config = std::make_unique<Config>(config);
 	}
@@ -60,14 +67,14 @@ namespace Plugins::Cloak
 				}
 
 				case STATE_CLOAK_ON: {
-					PrintUserCmdText(iClientID, L" Cloaking device on");
+					PrintUserCmdText(iClientID, global->CloakingText);
 					SetCloak(iClientID, iShipID, true);
 					PrintUserCmdText(iClientID, L"Cloaking device on");
 					break;
 				}
 				case STATE_CLOAK_OFF:
 				default: {
-					PrintUserCmdText(iClientID, L" Cloaking device off");
+					PrintUserCmdText(iClientID, global->UncloakingText);
 					SetCloak(iClientID, iShipID, false);
 					PrintUserCmdText(iClientID, L"Cloaking device off");
 					break;
@@ -79,7 +86,7 @@ namespace Plugins::Cloak
 	// Returns false if the ship has no fuel to operate its cloaking device.
 	static bool ProcessFuel(uint iClientID, CLOAK_INFO& info)
 	{
-		if (info.bAdmin)
+		if (info.bAdmin || info.arch.mapFuelToUsage.empty())
 			return true;
 
 		for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
@@ -333,7 +340,7 @@ using namespace Plugins::Cloak;
 // REFL_AUTO must be global namespace
 REFL_AUTO(
     type(Config::CLOAK_ARCH_REFLECTABLE), field(scNickName), field(iWarmupTime), field(iCooldownTime), field(iHoldSizeLimit), field(bDropShieldsOnUncloak));
-REFL_AUTO(type(Config), field(mapCloakingDevices))
+REFL_AUTO(type(Config), field(mapCloakingDevices), field(DsAce))
 
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
