@@ -143,13 +143,11 @@ HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO& ci)
 
 HK_ERROR HkSetAdmin(std::variant<uint, std::wstring> player, const std::wstring& wscRights)
 {
-	const uint iClientID = HkExtractClientId(player);
-	if (iClientID == -1)
+	auto* acc = HkExtractAccount(player);
+	if (acc == nullptr)
 	{
 		return HKE_CHAR_DOES_NOT_EXIST;
 	}
-
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
 
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
@@ -163,12 +161,11 @@ HK_ERROR HkSetAdmin(std::variant<uint, std::wstring> player, const std::wstring&
 HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player, std::wstring& wscRights)
 {
 	wscRights = L"";
-	const uint iClientID = HkExtractClientId(player);
-	if (iClientID == -1)
+	auto* acc = HkExtractAccount(player);
+	if (acc == nullptr)
 	{
 		return HKE_CHAR_DOES_NOT_EXIST;
 	}
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
 
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
@@ -190,12 +187,11 @@ HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player, std::wstring& wscRi
 
 HK_ERROR HkDelAdmin(std::variant<uint, std::wstring> player)
 {
-	const uint iClientID = HkExtractClientId(player);
-	if (iClientID == -1)
+	auto* acc = HkExtractAccount(player);
+	if (acc == nullptr)
 	{
 		return HKE_CHAR_DOES_NOT_EXIST;
 	}
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
 
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
