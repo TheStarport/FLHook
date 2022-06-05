@@ -5,12 +5,19 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-ReturnCode returncode = ReturnCode::Default;
-
-TempBanCommunicator* tempBanCommunicator = nullptr;
-
-struct INFO
+namespace Plugins::AntiJumpDisconnect
 {
-	bool bInWrapGate;
-};
-static std::map<uint, INFO> mapInfo;
+	struct Global final
+	{
+		ReturnCode returncode = ReturnCode::Default;
+
+		TempBanCommunicator* tempBanCommunicator = nullptr;
+
+		struct INFO
+		{
+			bool bInWrapGate;
+		};
+
+		std::map<uint, INFO> mapInfo;
+	};
+} // namespace Plugins::AntiJumpDisconnect

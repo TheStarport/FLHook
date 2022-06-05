@@ -10,45 +10,37 @@
 // Includes
 #include "Main.h"
 
-void ClearClientInfo(uint& iClientID)
+namespace Plugins::AntiJumpDisconnect
 {
-	mapInfo[iClientID].bInWrapGate = false;
-}
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-void KillBan(uint& iClientID)
-{
-	if (mapInfo[iClientID].bInWrapGate)
+	void ClearClientInfo(uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
+
+	void KillBan(uint& iClientID)
 	{
-		HkKill(iClientID);
-		if (tempBanCommunicator)
+		if (global->mapInfo[iClientID].bInWrapGate)
 		{
-			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			tempBanCommunicator->TempBan(wscCharname, 5);
+			HkKill(iClientID);
+			if (global->tempBanCommunicator)
+			{
+				std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+				global->tempBanCommunicator->TempBan(wscCharname, 5);
+			}
 		}
 	}
-}
 
-void DisConnect(uint& iClientID, enum EFLConnection& state)
-{
-	KillBan(iClientID);
-}
+	void DisConnect(uint& iClientID, enum EFLConnection& state) { KillBan(iClientID); }
 
-void CharacterInfoReq(uint& iClientID, bool& p2)
-{
-	KillBan(iClientID);
-}
+	void CharacterInfoReq(uint& iClientID, bool& p2) { KillBan(iClientID); }
 
-void JumpInComplete(uint& iSystem, uint& iShip, uint& iClientID)
-{
-	mapInfo[iClientID].bInWrapGate = false;
-}
+	void JumpInComplete(uint& iSystem, uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
 
-void SystemSwitchOutComplete(uint& iShip, uint& iClientID)
-{
-	mapInfo[iClientID].bInWrapGate = true;
-}
+	void SystemSwitchOutComplete(uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = true; }
+} // namespace Plugins::AntiJumpDisconnect
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using namespace Plugins::AntiJumpDisconnect;
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -61,7 +53,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("anti_jump_disconnect");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
@@ -71,6 +63,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
 
 	// We import the definitions for TempBan Communicator so we can talk to it
-	tempBanCommunicator = static_cast<TempBanCommunicator*>(
+	global->tempBanCommunicator = static_cast<TempBanCommunicator*>(
 	    PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
 }
