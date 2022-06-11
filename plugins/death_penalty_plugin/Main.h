@@ -3,16 +3,36 @@
 #include <FLHook.h>
 #include <plugin.h>
 
-struct CLIENT_DATA
+namespace Plugins::DeathPenalty
 {
-	bool bDisplayDPOnLaunch = true;
-	int DeathPenaltyCredits = 0;
-};
+	struct CLIENT_DATA
+	{
+		bool bDisplayDPOnLaunch = true;
+		int DeathPenaltyCredits = 0;
+	};
 
-float set_fDeathPenalty = 0;
-float set_fDeathPenaltyKiller = 0;
-std::list<uint> ExcludedSystems;
-std::map<uint, CLIENT_DATA> MapClients;
-std::map<uint, float> FractionOverridesbyShip;
+	//! Configurable fields for this plugin
+	struct Config final : Reflectable
+	{
+		std::string File() override { return "flhook_plugins/deathpenalty.json"; }
 
-ReturnCode returncode = ReturnCode::Default;
+		// Reflectable fields
+		float DeathPenaltyFraction = 0;
+		float DeathPenaltyFractionKiller = 0;
+		std::vector<std::string> ExcludedSystems = {};
+		std::map<std::string, float> FractionOverridesByShip = {};
+	};
+
+	struct Global final
+	{
+
+		std::vector<uint> ExcludedSystemsIds;
+		std::map<uint, float> FractionOverridesByShipIds;
+
+		std::map<uint, CLIENT_DATA> MapClients;
+
+		std::unique_ptr<Config> config = nullptr;
+
+		ReturnCode returncode = ReturnCode::Default;
+	};
+} // namespace Plugins::DeathPenalty
