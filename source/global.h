@@ -294,7 +294,8 @@ struct EXPORT FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 	Bans bans;
 };
 
-REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
+REFL_AUTO(type(FLHookConfig::General), field(antiBaseIdle), field(antiCharMenuIdle), field(autobuy), field(antiDockKill), field(antiF1),
+    field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
     field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(dockingMessages), field(localTime), field(maxGroupSize),
     field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
     field(noPVPSystems))
