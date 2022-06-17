@@ -93,7 +93,7 @@ namespace Plugins::Tax
 		HkGetOnlineTime(wscTargetCharname, secs);
 		if (secs < global->config->MinPlayTimeSec)
 		{
-			PrintUserCmdText(iClientID, L"Error: This player dont have enough playtime.");
+			PrintUserCmdText(iClientID, L"Error: This player does not have enough playtime.");
 			return;
 		}
 
@@ -170,7 +170,7 @@ namespace Plugins::Tax
 
 	}
 
-	void HkTimerF1Check()
+	void HkTimerCheck()
 	{
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
@@ -180,6 +180,31 @@ namespace Plugins::Tax
 			if (ClientInfo[iClientID].tmF1TimeDisconnect)
 				continue;
 
+			//IsinRange
+			for (auto& it : global->lsttax)
+			{
+				uint iShip;
+				pub::Player::GetShip(it.uiInitiatorID, iShip);
+				if (iShip)
+					continue;
+
+				uint iTargetShip;
+				pub::Player::GetShip(it.uiTargetID, iTargetShip);
+				if (iTargetShip)
+					continue;
+
+				if (HkDistance3DByShip(iShip, iTargetShip) > 5000.0f)
+				{
+					std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
+					PrintUserCmdText(it.uiInitiatorID, L"Tax request to %s aborted. Ship is out of range.", wscCharname.c_str());
+					PrintUserCmdText(it.uiTargetID, L"Tax request aborted. You are out of range!");
+					RemoveTax(it);
+					return;
+				}
+
+			}
+
+			//F1Check
 			if (ClientInfo[iClientID].tmF1Time && (timeInMS() >= ClientInfo[iClientID].tmF1Time)) // f1
 			{
 				// tax
@@ -236,7 +261,7 @@ namespace Plugins::Tax
 	};
 
 	TIMER Timers[] = {
-	    {HkTimerF1Check, 1000, 0},
+	    {HkTimerCheck, 1000, 0},
 	};
 
 	EXPORT int __stdcall Update()
@@ -256,7 +281,7 @@ namespace Plugins::Tax
 	{ 
 		if (global->config->EnableTax)
 		{
-			HkTimerF1Check();
+			HkTimerCheck();
 		}
 	}
 
