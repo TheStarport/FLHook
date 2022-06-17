@@ -17,6 +17,7 @@ namespace Plugins::Tax
 		std::wstring wscTarget;
 		std::wstring wscInitiator;
 		int iCash;
+		bool f1;
 	};
 
 	//! Configurable fields for this plugin

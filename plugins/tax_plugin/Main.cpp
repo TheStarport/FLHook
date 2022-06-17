@@ -33,8 +33,8 @@ namespace Plugins::Tax
 			return;
 		}
 
-		std::wstring wscCredits = GetParam(wscParam, ' ', 1);
-		if (!wscCredits.length())
+		std::wstring wscTaxAmount = GetParam(wscParam, ' ', 0);
+		if (!wscTaxAmount.length())
 		{
 			PrintUserCmdText(iClientID, L"Usage: /tax <credits in k>");
 			return;
@@ -59,22 +59,19 @@ namespace Plugins::Tax
 			}
 		}
 
-
-		std::wstring wscTaxAmount = GetParam(wscParam, ' ', 0);
-
 		if (!wscTaxAmount.length())
 			PrintUserCmdText(iClientID, L"Error: No valid tax amount!");
 
 		int iTaxValue = ToInt(wscTaxAmount);
-		int iTaxValue_K = iTaxValue *= 1000;
+		int iTaxValue_K = iTaxValue * 1000;
 
-		if (iTaxValue_K > global->config->iMaxTax)
+		if (iTaxValue > global->config->iMaxTax)
 		{
-			PrintUserCmdText(iClientID, L"Error: Maximum tax value is %u Credits.", global->config->iMaxTax);
+			PrintUserCmdText(iClientID, L"Error: Maximum tax value is %u K Credits.", global->config->iMaxTax);
 			return;
 		}
 
-		if (iTaxValue_K < 0)
+		if (iTaxValue < 0)
 		{
 			PrintUserCmdText(iClientID, L"Error: The tax must be 0 or greater!");
 			return;
@@ -110,18 +107,19 @@ namespace Plugins::Tax
 		TAX tax;
 		tax.uiInitiatorID = iClientID;
 		tax.uiTargetID = iClientIDTarget;
-		tax.iCash = iTaxValue;
+		tax.iCash = iTaxValue_K;
+		tax.f1 = false;
 		global->lsttax.push_back(tax);
 
 		if (iTaxValue == 0)
 			PrintUserCmd2(iClientIDTarget, L"You are being hunted by %s. Run for cover, he wants to kill you!", wscCharname.c_str());
 		else
 			PrintUserCmd2(
-			    iClientIDTarget, L"You have received a tax request: Pay %d Credits to %s! Type \"/acc\" to pay the tax.", iTaxValue, wscCharname.c_str());
+			    iClientIDTarget, L"You have received a tax request: Pay %d Credits to %s! Type \"/acc\" to pay the tax.", iTaxValue_K, wscCharname.c_str());
 
 		// send confirmation msg
 		if (iTaxValue > 0)
-			PrintUserCmdText(iClientID, L"Tax request of %d credits sent to %s!", iTaxValue, wscTargetCharname.c_str());
+			PrintUserCmdText(iClientID, L"Tax request of %d credits sent to %s!", iTaxValue_K, wscTargetCharname.c_str());
 		else
 			PrintUserCmdText(iClientID, L"Unacceptable tax request sent to %s!", wscTargetCharname.c_str());
 
@@ -177,76 +175,58 @@ namespace Plugins::Tax
 		{
 			uint iClientID = HkGetClientIdFromPD(pPD);
 
-			if (ClientInfo[iClientID].tmF1TimeDisconnect)
-				continue;
 
-			//IsinRange
+			// F1
+			for (auto& it : global->lsttax)
+			{
+				if (it.uiTargetID == iClientID)
+				{
+					if (HkIsInCharSelectMenu(iClientID))
+					{
+						TAX tax;
+						tax.uiInitiatorID = it.uiInitiatorID;
+						tax.uiTargetID = it.uiTargetID;
+						tax.iCash = it.iCash;
+						tax.f1 = true;
+						RemoveTax(it);
+						global->lsttax.push_back(tax);
+						return;
+					}
+					if (it.f1)
+					{
+						uint iShip;
+						pub::Player::GetShip(iClientID, iShip);
+						if (iShip)
+						{
+							// F1 -> Kill
+							pub::SpaceObj::SetRelativeHealth(iShip, 0.0);
+							std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
+							PrintUserCmdText(it.uiInitiatorID, L"Tax request to %s aborted.", wscCharname.c_str());
+							RemoveTax(it);
+						}
+						break;
+					}
+				}
+			}
+
+			// IsinRange
 			for (auto& it : global->lsttax)
 			{
 				uint iShip;
 				pub::Player::GetShip(it.uiInitiatorID, iShip);
-				if (iShip)
-					continue;
 
 				uint iTargetShip;
 				pub::Player::GetShip(it.uiTargetID, iTargetShip);
-				if (iTargetShip)
-					continue;
 
-				if (HkDistance3DByShip(iShip, iTargetShip) > 5000.0f)
+				if (HkDistance3DByShip(iShip, iTargetShip) > 5000.0f && !it.f1)
 				{
+
 					std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
 					PrintUserCmdText(it.uiInitiatorID, L"Tax request to %s aborted. Ship is out of range.", wscCharname.c_str());
 					PrintUserCmdText(it.uiTargetID, L"Tax request aborted. You are out of range!");
 					RemoveTax(it);
-					return;
+				
 				}
-
-			}
-
-			//F1Check
-			if (ClientInfo[iClientID].tmF1Time && (timeInMS() >= ClientInfo[iClientID].tmF1Time)) // f1
-			{
-				// tax
-				for (auto& it : global->lsttax)
-				{
-					if (it.uiTargetID == iClientID)
-					{
-						uint iShip;
-						pub::Player::GetShip(iClientID, iShip);
-						if (iShip)
-						{
-							//F1 -> Kill
-							pub::SpaceObj::SetRelativeHealth(iShip, 0.0);
-						}
-						std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
-						PrintUserCmdText(it.uiInitiatorID, L"Tax request to %s aborted.", wscCharname.c_str());
-						RemoveTax(it);
-						break;
-					}
-				}
-			}
-			else if (ClientInfo[iClientID].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[iClientID].tmF1TimeDisconnect))
-			{
-				// tax
-				for (auto& it : global->lsttax)
-				{
-					if (it.uiTargetID == iClientID)
-					{
-						uint iShip;
-						pub::Player::GetShip(iClientID, iShip);
-						if (iShip)
-						{
-							//F1 -> Kill
-							pub::SpaceObj::SetRelativeHealth(iShip, 0.0);
-						}
-						std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
-						PrintUserCmdText(it.uiInitiatorID , L"Tax request to %s aborted.", wscCharname.c_str());
-						RemoveTax(it);
-						break;
-					}
-				}
-				continue;
 			}
 		}
 	}
@@ -261,7 +241,7 @@ namespace Plugins::Tax
 	};
 
 	TIMER Timers[] = {
-	    {HkTimerCheck, 1000, 0},
+	    {HkTimerCheck, 2000, 0},
 	};
 
 	EXPORT int __stdcall Update()
@@ -281,9 +261,27 @@ namespace Plugins::Tax
 	{ 
 		if (global->config->EnableTax)
 		{
-			HkTimerCheck();
+			for (auto& it : global->lsttax)
+			{
+				if (it.uiTargetID == iClientID)
+				{
+					uint iShip;
+					pub::Player::GetShip(iClientID, iShip);
+					if (iShip)
+					{
+						// F1 -> Kill
+						pub::SpaceObj::SetRelativeHealth(iShip, 0.0);
+					}
+					std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(it.uiTargetID);
+					PrintUserCmdText(it.uiInitiatorID, L"Tax request to %s aborted.", wscCharname.c_str());
+					RemoveTax(it);
+					break;
+				}
+			}
+			
 		}
 	}
+
 
 	// Client command processing
 	USERCMD UserCmds[] = {
