@@ -205,7 +205,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\source\Tools\Console.cpp" />
-    <ClCompile Include="..\source\wildcards.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
     <ClCompile Include="..\source\CConsole.cpp" />
     <ClCompile Include="..\source\CInGame.cpp" />
@@ -226,15 +225,16 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
+    <ClInclude Include="..\FLHookSDK\include\Serialization.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Singleton.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h" />
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\flcodec.h" />
     <ClInclude Include="..\source\Hook.h" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
-    <ClInclude Include="..\source\Tools\Serialization.hpp" />
-    <ClInclude Include="..\source\wildcards.hh" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CInGame.h" />

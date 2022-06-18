@@ -13,9 +13,6 @@
     <Filter Include="Hook\data">
       <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="wildcards">
-      <UniqueIdentifier>{5ab78678-a596-40ba-bff8-456eed8e3646}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk">
       <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="Tools">
       <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\Tools">
+      <UniqueIdentifier>{eb17067b-6832-4c5d-9174-094efb89822f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +77,6 @@
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp">
       <Filter>Hook\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\wildcards.cpp">
-      <Filter>wildcards</Filter>
     </ClCompile>
     <ClCompile Include="..\source\CCmds.cpp">
       <Filter>AdminCommands</Filter>
@@ -139,9 +136,6 @@
     <ClInclude Include="..\source\Hook.h">
       <Filter>Hook</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\wildcards.hh">
-      <Filter>wildcards</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\CCmds.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
@@ -194,8 +188,14 @@
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\source\HookedCallBase.h" />
-    <ClInclude Include="..\source\Tools\Serialization.hpp">
-      <Filter>Tools</Filter>
+    <ClInclude Include="..\FLHookSDK\include\Serialization.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Singleton.h">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp">
+      <Filter>sdk\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

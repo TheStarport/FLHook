@@ -5,7 +5,7 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "wildcards.h"
+#include <Wildcard.hpp>
 
 #include <FLHook.h>
 #include <plugin.h>
@@ -31,7 +31,7 @@ static bool IsBanned(uint iClientID)
 
 	// Check for an IP range match.
 	for (auto& ban : set_lstIPBans)
-		if (Wildcard::wildcardfit(ban.c_str(), scIP.c_str()))
+		if (Wildcard::Fit(ban.c_str(), scIP.c_str()))
 			return true;
 	// To avoid plugin comms with DSAce because I ran out of time to make this
 	// work, I use something of a trick to get the login ID.
