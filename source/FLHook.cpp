@@ -125,24 +125,23 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI
 thread that reads console input
 **************************************************************************************************************/
 
-void ReadConsoleEvents()
+void __stdcall ReadConsoleEvents()
 {
-	while (1)
+	while (true)
 	{
 		DWORD dwBytesRead;
-		char szCmd[1024];
-		memset(szCmd, 0, sizeof(szCmd));
-		if (ReadConsole(hConsoleIn, szCmd, sizeof(szCmd), &dwBytesRead, 0))
+		std::string cmd;
+		cmd.resize(1024);
+		if (ReadConsole(hConsoleIn, cmd.data(), cmd.size(), &dwBytesRead, nullptr))
 		{
-			std::string scCmd = szCmd;
-			if (scCmd[scCmd.length() - 1] == '\n')
-				scCmd = scCmd.substr(0, scCmd.length() - 1);
-			if (scCmd[scCmd.length() - 1] == '\r')
-				scCmd = scCmd.substr(0, scCmd.length() - 1);
+			if (cmd[cmd.length() - 1] == '\n')
+				cmd = cmd.substr(0, cmd.length() - 1);
+			if (cmd[cmd.length() - 1] == '\r')
+				cmd = cmd.substr(0, cmd.length() - 1);
 
-			std::wstring wscCmd = stows(scCmd);
+			std::wstring wscCmd = stows(cmd);
 			EnterCriticalSection(&cs);
-			std::wstring* pwscCmd = new std::wstring;
+			auto pwscCmd = new std::wstring;
 			*pwscCmd = wscCmd;
 			lstConsoleCmds.push_back(pwscCmd);
 			LeaveCriticalSection(&cs);
@@ -179,9 +178,12 @@ void FLHookInit_Pre()
 	// Get direct pointers to malloc and free for st6 to prevent debug heap
 	// issues
 	{
-		auto msvcrt = GetModuleHandle(TEXT("msvcrt.dll"));
-		st6_malloc = (st6_malloc_t)GetProcAddress(msvcrt, "malloc");
-		st6_free = (st6_free_t)GetProcAddress(msvcrt, "free");
+		const auto dll = GetModuleHandle(TEXT("msvcrt.dll"));
+		if (!dll)
+			throw std::runtime_error("msvcrt.dll");
+
+		st6_malloc = reinterpret_cast<st6_malloc_t>(GetProcAddress(dll, "malloc"));
+		st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(dll, "free"));
 	}
 
 	// start console
@@ -193,20 +195,14 @@ void FLHookInit_Pre()
 	hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
 
 	// change version number here:
-	// https://patorjk.com/software/taag/#p=display&f=Big&t=WELCOME%20TO%0A%20%20%20%20%20%20%20FLHook%204.0
-	std::string welcomeText = R"( __          ________ _      _____ ____  __  __ ______   _______ ____  
- \ \        / /  ____| |    / ____/ __ \|  \/  |  ____| |__   __/ __ \ 
-  \ \  /\  / /| |__  | |   | |   | |  | | \  / | |__       | | | |  | |
-   \ \/  \/ / |  __| | |   | |   | |  | | |\/| |  __|      | | | |  | |
-    \  /\  /  | |____| |___| |___| |__| | |  | | |____     | | | |__| |
-     \/  \/___|______|______\_____\____/|_|  |_|______|  __|_|  \____/
-
-        |  ____| |    | |  | |           | |    | || |  / _ \          
-        | |__  | |    | |__| | ___   ___ | | __ | || |_| | | |         
-        |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| | | |         
-        | |    | |____| |  | | (_) | (_) |   <     | |_| |_| |         
-        |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)\___/          
-                                                                       
+	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.0
+	std::string welcomeText = R"(
+  ______ _      _    _             _      _  _    ___  
+ |  ____| |    | |  | |           | |    | || |  / _ \ 
+ | |__  | |    | |__| | ___   ___ | | __ | || |_| | | |
+ |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| | | |
+ | |    | |____| |  | | (_) | (_) |   <     | |_| |_| |
+ |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)\___/                              
                                                                        )";
 	welcomeText += "\n\n";
 	DWORD _;
@@ -218,36 +214,26 @@ void FLHookInit_Pre()
 
 		// Initalize the log files and throw exception if there is a problem
 		if (!InitLogs())
-			throw "Log files cannot be created.";
+			throw std::runtime_error("Log files cannot be created.");
 
 		// get module handles
 		if (!(hModServer = GetModuleHandle("server")))
-			throw "server.dll not loaded";
+			throw std::runtime_error("server.dll not loaded");
 
 		DWORD id;
-		DWORD dwParam;
-		hConsoleThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ReadConsoleEvents, &dwParam, 0, &id);
-
-		// check what plugins should be loaded; we need to read out the settings
-		// ourselves cause LoadSettings() wasn't called yet
-		char szCurDir[MAX_PATH];
-		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		std::string scCfgFile = std::string(szCurDir) + "\\FLHook.ini";
+		hConsoleThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ReadConsoleEvents), nullptr, 0, &id);
 
 		PluginManager::i();
 
-		if (IniGetB(scCfgFile, "Plugins", "LoadAllPlugins", true))
+		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
+		{
 			PluginManager::i()->loadAll(true, &AdminConsole);
+		}
 		else
 		{
-			// LoadAllPlugins is false, check what plugins should be loaded
-			std::list<INISECTIONVALUE> lstIniPlugins;
-			IniGetSection(scCfgFile, "Plugins", lstIniPlugins);
-			for (auto& val : lstIniPlugins)
+			for (auto& i : config->plugins.plugins)
 			{
-				if (val.scKey != "plugin")
-					continue;
-				PluginManager::i()->load(stows(val.scValue), &AdminConsole, true);
+				PluginManager::i()->load(stows(i), &AdminConsole, true);	
 			}
 		}
 
@@ -278,9 +264,6 @@ void FLHookInit_Pre()
 			}
 		}
 #endif
-
-		/*if (FLHookConfig::i()->general.debugMode && !fLogDebug)
-		    fopen_s(&fLogDebug, sDebugLog.c_str(), "at");*/
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 	}
