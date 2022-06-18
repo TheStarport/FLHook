@@ -2,246 +2,157 @@
  Event Plugin for FLHook-Plugin
  by Cannon.
 
-1.0:
+June 2022 - Ported by Raikkonen
 */
 
 // includes
-#include <FLHook.h>
-#include <plugin.h>
+#include "Main.h"
 
-struct CARGO_MISSION
+namespace Plugins::Event
 {
-	std::string nickname;
-	uint base;
-	uint item;
-	int required_amount;
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	int curr_amount;
-};
-
-struct NPC_MISSION
-{
-	std::string nickname;
-	uint system;
-	std::string sector;
-	uint reputation;
-	int required_amount;
-
-	int curr_amount;
-};
-
-// Map of base ID to mission structure
-std::multimap<UINT, CARGO_MISSION> set_mapCargoMissions;
-
-// Map of repgroup ID to mission structure
-std::multimap<UINT, NPC_MISSION> set_mapNpcMissions;
-
-// A return code to indicate to FLHook if we want the hook processing to
-// continue.
-ReturnCode returncode = ReturnCode::Default;
-
-void LoadSettings()
-{
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\event.cfg";
-
-	INI_Reader ini;
-	set_mapCargoMissions.clear();
-	set_mapNpcMissions.clear();
-	if (ini.open(scPluginCfgFile.c_str(), false))
+	void LoadSettings()
 	{
-		while (ini.read_header())
+		global->CargoMissions.clear();
+		global->NpcMissions.clear();
+
+		auto config = Serializer::JsonToObject<Config>();
+		
+		for (auto& cargo : config.CargoMissions)
 		{
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("cargo"))
-					{
-						CARGO_MISSION mis;
-						mis.nickname = ini.get_value_string(0);
-						mis.base = CreateID(ini.get_value_string(1));
-						mis.item = CreateID(ini.get_value_string(2));
-						mis.required_amount = ini.get_value_int(3);
-						set_mapCargoMissions.insert(std::multimap<uint, CARGO_MISSION>::value_type(mis.base, mis));
-					}
-					else if (ini.is_value("npc"))
-					{
-						NPC_MISSION mis;
-						mis.nickname = ini.get_value_string(0);
-						mis.system = CreateID(ini.get_value_string(1));
-						mis.sector = ini.get_value_string(2);
-						pub::Reputation::GetReputationGroup(mis.reputation, ini.get_value_string(3));
-						mis.required_amount = ini.get_value_int(4);
-						set_mapNpcMissions.insert(std::multimap<uint, NPC_MISSION>::value_type(mis.reputation, mis));
-					}
-				}
-			}
-			ini.close();
+			if (cargo.first == "Example Nickname")
+				continue;
+
+			CARGO_MISSION cargo_mission;
+			cargo_mission.nickname = cargo.second.nickname;
+			cargo_mission.base = CreateID(cargo.second.base.c_str());
+			cargo_mission.item = CreateID(cargo.second.item.c_str());
+			cargo_mission.required_amount = cargo.second.required_amount;
+			cargo_mission.current_amount = cargo.second.current_amount;
+			global->CargoMissions.push_back(cargo_mission);
 		}
-		Console::ConInfo(L"CargoMissionSettings loaded [%d]", set_mapCargoMissions.size());
-		Console::ConInfo(L"NpcMissionSettings loaded [%d]", set_mapNpcMissions.size());
-		ini.close();
+
+		for (auto& mission : config.NpcMissions)
+		{
+			if (mission.first == "Example Nickname")
+				continue;
+
+			NPC_MISSION npc_mission;
+			npc_mission.nickname = mission.second.nickname;
+			npc_mission.system = CreateID(mission.second.system.c_str());
+			npc_mission.sector = mission.second.sector;
+			pub::Reputation::GetReputationGroup(npc_mission.reputation, mission.second.reputation.c_str());
+			npc_mission.required_amount = mission.second.required_amount;
+			npc_mission.current_amount = mission.second.current_amount;
+			global->NpcMissions.push_back(npc_mission);
+		}
+
+		global->config = std::make_unique<Config>(config);
+
+		Console::ConInfo(L"CargoMissionSettings loaded [%d]", global->CargoMissions.size());
+		Console::ConInfo(L"NpcMissionSettings loaded [%d]", global->NpcMissions.size());
 	}
 
-	// Read the last saved event status
-	char szDataPath[MAX_PATH];
-	GetUserDataPath(szDataPath);
-	std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";
-	if (ini.open(scStatsPath.c_str(), false))
+	// Save mission status every 100 seconds
+	void HkTimerCheckKick()
 	{
-		while (ini.read_header())
+		if ((time(0) % 100) == 0)
 		{
-			if (ini.is_header("Missions"))
+			std::ofstream out("flhook_plugins/event.json");
+
+			nlohmann::json jExport;
+
+			for (auto& mission : global->CargoMissions)
 			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("cargo"))
-					{
-						std::string nickname = ini.get_value_string(0);
-						int curr_amount = ini.get_value_int(2);
-
-						for (std::multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin();
-						     i != set_mapCargoMissions.end(); ++i)
-						{
-							if (i->second.nickname == nickname)
-							{
-								i->second.curr_amount = curr_amount;
-							}
-						}
-					}
-					else if (ini.is_value("npc"))
-					{
-						NPC_MISSION mis;
-						std::string nickname = ini.get_value_string(0);
-						int curr_amount = ini.get_value_int(2);
-
-						for (auto& i : set_mapNpcMissions)
-						{
-							if (i.second.nickname == nickname)
-							{
-								i.second.curr_amount = curr_amount;
-							}
-						}
-					}
-				}
+				nlohmann::json jMission;
+				jMission["nickname"] = mission.nickname;
+				jMission["base"] = mission.base;
+				jMission["item"] = mission.item;
+				jMission["current_amount"] = mission.current_amount;
+				jMission["required_amount"] = mission.required_amount;
+				jExport["CargoMissions"].push_back(jMission);
 			}
-		}
-		ini.close();
-	}
-}
 
-// Save mission status every 100 seconds
-void HkTimerCheckKick()
-{
-	if ((time(0) % 100) == 0)
-	{
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		std::string scStatsPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\event_stats.txt";
-
-		FILE* file;
-		fopen_s(&file, scStatsPath.c_str(), "w");
-		if (file)
-		{
-			fprintf(file, "[Missions]\n");
-			for (std::multimap<uint, NPC_MISSION>::iterator i = set_mapNpcMissions.begin();
-			     i != set_mapNpcMissions.end(); ++i)
+			for (auto& mission : global->NpcMissions)
 			{
-				fprintf(
-				    file, "npc = %s, %d, %d\n", i->second.nickname.c_str(), i->second.required_amount,
-				    i->second.curr_amount);
+				nlohmann::json jMission;
+				jMission["nickname"] = mission.nickname;
+				jMission["system"] = mission.system;
+				jMission["reputation"] = mission.reputation;
+				jMission["sector"] = mission.sector;
+				jMission["current_amount"] = mission.current_amount;
+				jMission["required_amount"] = mission.required_amount;
+				jExport["NpcMissions"].push_back(jMission);
 			}
-			for (std::multimap<uint, CARGO_MISSION>::iterator i = set_mapCargoMissions.begin();
-			     i != set_mapCargoMissions.end(); ++i)
-			{
-				fprintf(
-				    file, "cargo = %s, %d, %d\n", i->second.nickname.c_str(), i->second.required_amount,
-				    i->second.curr_amount);
-			}
-			fclose(file);
+
+			out << jExport;
+			out.close();
+
 		}
 	}
-}
 
-void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
-{
-	if (iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
 	{
-		CShip* cship = (CShip*)(*ecx)[4];
-
-		int iRep;
-		pub::SpaceObj::GetRep(cship->get_id(), iRep);
-
-		uint iAff;
-		pub::Reputation::GetAffiliation(iRep, iAff);
-
-		uint iSystem;
-		pub::SpaceObj::GetSystem(cship->get_id(), iSystem);
-
-		Vector vPos = cship->get_position();
-		std::string scSector = VectorToSectorCoord<std::string>(iSystem, vPos);
-
-		auto start = set_mapNpcMissions.lower_bound(iAff);
-		auto end = set_mapNpcMissions.upper_bound(iAff);
-		for (; start != end; ++start)
+		if (iKill)
 		{
-			if (start->second.system == iSystem)
-			{
-				if (start->second.sector.length() && start->second.sector != scSector)
-					continue;
+			CShip* cship = (CShip*)(*ecx)[4];
 
-				if (start->second.curr_amount < start->second.required_amount)
+			int Reputation;
+			pub::SpaceObj::GetRep(cship->get_id(), Reputation);
+
+			uint Affiliation;
+			pub::Reputation::GetAffiliation(Reputation, Affiliation);
+
+			uint System;
+			pub::SpaceObj::GetSystem(cship->get_id(), System);
+
+			Vector Position = cship->get_position();
+			std::string Sector = VectorToSectorCoord<std::string>(System, Position);
+
+			for (auto& mission : global->NpcMissions)
+			{
+				if (Affiliation == mission.reputation && System == mission.system && mission.sector.length() && mission.sector == Sector &&
+				    mission.current_amount < mission.required_amount)
 				{
-					start->second.curr_amount++;
-					// PrintUserCmdText(iClientID, L"%d ships remaining to
-					// destroy to complete mission objective", needed);
+					mission.current_amount++;
+					int needed = mission.required_amount = mission.current_amount;
+					// Print Mission text here in red text once we integrate that function into core
 				}
 			}
 		}
 	}
-}
 
-void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
-{
-	uint iBase;
-	pub::Player::GetBase(iClientID, iBase);
-
-	auto start = set_mapCargoMissions.lower_bound(iBase);
-	auto end = set_mapCargoMissions.upper_bound(iBase);
-	for (; start != end; ++start)
+	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
 	{
-		if (start->second.item == gbi.iGoodID)
+		uint Base;
+		pub::Player::GetBase(iClientID, Base);
+
+		for (auto& mission : global->CargoMissions)
 		{
-			start->second.curr_amount -= gbi.iCount;
-			if (start->second.curr_amount < 0)
+			if (mission.base == Base && mission.item == gbi.iGoodID)
 			{
-				start->second.curr_amount = 0;
+				mission.current_amount -= gbi.iCount;
+				if (mission.current_amount < 0)
+					mission.current_amount = 0;
 			}
 		}
 	}
-}
 
-void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
-{
-	uint iBase;
-	pub::Player::GetBase(iClientID, iBase);
-
-	auto start = set_mapCargoMissions.lower_bound(iBase);
-	auto end = set_mapCargoMissions.upper_bound(iBase);
-	for (; start != end; ++start)
+	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
 	{
-		if (start->second.item == gsi.iArchID)
+		uint Base;
+		pub::Player::GetBase(iClientID, Base);
+
+		for (auto& mission : global->CargoMissions)
 		{
-			if (start->second.curr_amount < start->second.required_amount)
+			if (mission.base == Base && mission.item == gsi.iArchID && mission.current_amount < mission.required_amount)
 			{
-				int needed = start->second.required_amount - start->second.curr_amount;
+				int needed = mission.required_amount - mission.current_amount;
 				if (needed > gsi.iCount)
 				{
-					start->second.curr_amount += gsi.iCount;
-					needed = start->second.required_amount - start->second.curr_amount;
+					mission.current_amount += gsi.iCount;
+					needed = mission.required_amount - mission.current_amount;
 					PrintUserCmdText(iClientID, L"%d units remaining to complete mission objective", needed);
 				}
 				else
@@ -251,7 +162,14 @@ void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
 			}
 		}
 	}
-}
+} // namespace Plugins::Event
+
+using namespace Plugins::Event;
+
+REFL_AUTO(type(Config::CARGO_MISSION_REFLECTABLE), field(nickname), field(base), field(item), field(required_amount), field(current_amount))
+REFL_AUTO(
+    type(Config::NPC_MISSION_REFLECTABLE), field(nickname), field(system), field(sector), field(reputation), field(required_amount), field(current_amount))
+REFL_AUTO(type(Config), field(CargoMissions), field(NpcMissions))
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -266,16 +184,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /** Functions to hook */
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Event Plugin by cannon");
+	pi->name("Event");
 	pi->shortName("event");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
