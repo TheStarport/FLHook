@@ -44,7 +44,7 @@ namespace Plugins::Pimpship
 	{
 		std::string File() override { return "flhook_plugins/pimpship.json"; }
 
-		// Map of Available equipment
+		// Vector of Available equipment
 		std::vector<ITEM_INFO> AvailableItems;
 
 		// Cost per changed item.
