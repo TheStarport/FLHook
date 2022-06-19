@@ -2,90 +2,107 @@
 
 #include <FLHook.h>
 #include <plugin.h>
+#include "../mail_plugin/Main.h"
+#include "../tempban_plugin/Main.h"
 
-ReturnCode returncode = ReturnCode::Default;
-
-/** the data for a single online player */
-class INFO
+namespace Plugins::Message
 {
-  public:
-	INFO()
-	    : ulastPmClientID(-1), uTargetClientID(-1), bShowChatTime(false), bGreetingShown(false), iSwearWordWarnings(0)
+	/** the data for a single online player */
+	class INFO
 	{
-	}
+	  public:
+		INFO() : LastPmClientID(-1), TargetClientID(-1), ShowChatTime(false), GreetingShown(false), SwearWordWarnings(0) {}
 
-	static const int NUMBER_OF_SLOTS = 10;
-	std::wstring slot[NUMBER_OF_SLOTS];
+		static const int NUMBER_OF_SLOTS = 10;
+		std::wstring slot[NUMBER_OF_SLOTS];
 
-	// Client ID of last PM.
-	uint ulastPmClientID;
+		// Client ID of last PM.
+		uint LastPmClientID;
 
-	// Client ID of selected target
-	uint uTargetClientID;
+		// Client ID of selected target
+		uint TargetClientID;
 
-	// Current chat time settings
-	bool bShowChatTime;
+		// Current chat time settings
+		bool ShowChatTime;
 
-	// True if the login banner has been displayed.
-	bool bGreetingShown;
+		// True if the login banner has been displayed.
+		bool GreetingShown;
 
-	// Swear word warn level
-	int iSwearWordWarnings;
-};
+		// Swear word warn level
+		int SwearWordWarnings;
+	};
 
-/** cache of preset messages for the online players (by client ID) */
-static std::map<uint, INFO> mapInfo;
+	struct Config : Reflectable
+	{
+		/** help text for when user types /help */
+		std::map<std::string, std::string> HelpLines;
 
-/** help text for when user types /help */
-static std::list<INISECTIONVALUE> set_lstHelpLines;
+		/** greetings text for when user logins in */
+		std::vector<std::wstring> GreetingBannerLines;
 
-/** greetings text for when user types /help */
-static std::list<std::wstring> set_lstGreetingBannerLines;
+		/** special banner text, on timer */
+		std::list<std::wstring> SpecialBannerLines;
 
-/** special banner text for when user types /help */
-static std::list<std::wstring> set_lstSpecialBannerLines;
+		/** standard banner text, on timer */
+		std::vector<std::vector<std::wstring>> StandardBannerLines;
 
-/** special banner text for when user types /help */
-static std::vector<std::list<std::wstring>> set_vctStandardBannerLines;
+		/** Time in second to repeat display of special banner */
+		int SpecialBannerTimeout = 5;
 
-/** Time in second to repeat display of special banner */
-static int set_iSpecialBannerTimeout;
+		/** Time in second to repeat display of standard banner */
+		int StandardBannerTimeout = 60;
 
-/** Time in second to repeat display of standard banner */
-static int set_iStandardBannerTimeout;
+		/** true if we override flhook built in help */
+		bool CustomHelp = false;
 
-/** true if we override flhook built in help */
-static bool set_bCustomHelp;
+		/** true if we echo user and admin commands to sender */
+		bool EchoCommandsBackToUser = false;
 
-/** true if we echo user and admin commands to sender */
-static bool set_bCmdEcho;
+		/** true if we don't echo mistyped user and admin commands to other players. */
+		bool SuppressMistypedCommands = true;
 
-/** true if we don't echo mistyped user and admin commands to other players. */
-static bool set_bCmdHide;
+		/** if true support the /showmsg and /setmsg commands. This needs a client hook*/
+		bool EnableSetMessage = false;
 
-/** if true support the /showmsg and /setmsg commands */
-static bool set_bSetMsg;
+		// Enable /me and /do commands
+		bool EnableMe = true;
+		bool EnableDo = true;
 
-// Enable /me and /do commands
-bool set_bEnableMe = false;
-bool set_bEnableDo = false;
+		/** color of echoed commands */
+		std::wstring CommandEchoStyle = L"0x00AA0090";
 
-/** This parameter is sent when we send a chat time line so that we don't print
-a time chat line recursively. */
-static bool bSendingTime = false;
+		std::wstring DisconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
-/** color of echoed commands */
-static std::wstring set_wscCmdEchoStyle;
+		float DisconnectSwearingInSpaceRange = 5000.0f;
 
-static std::wstring set_wscDisconnectSwearingInSpaceMsg;
+		/** list of swear words */
+		std::vector<std::wstring> SwearWords;
+	};
 
-static float set_fDisconnectSwearingInSpaceRange;
+	struct Global final
+	{
+		ReturnCode returncode = ReturnCode::Default;
 
-/** list of swear words */
-static std::list<std::wstring> set_lstSwearWords;
+		/** cache of preset messages for the online players (by client ID) */
+		std::map<uint, INFO> Info;
 
-/** A random macro to make things easier */
-#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+		std::unique_ptr<Config> config = nullptr;
 
-void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring& wscParam);
-void UserCmd_SendToLastTarget(uint iClientID, const std::wstring& wscParam);
+		/** This parameter is sent when we send a chat time line so that we don't print
+		a time chat line recursively. */
+		bool SendingTime = false;
+
+		Plugins::Mail::MailCommunicator* mailCommunicator = nullptr;
+		Plugins::Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
+	};
+
+	/** A random macro to make things easier */
+	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+
+	void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring& wscParam);
+	void UserCmd_SendToLastTarget(uint iClientID, const std::wstring& wscParam);
+}
+
+
+
+
