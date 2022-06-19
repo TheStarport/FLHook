@@ -1,7 +1,5 @@
-﻿#include "CCmds.h"
-
-#ifndef _CINGAME_
-	#define _CINGAME_
+﻿#pragma once
+#include <FLHook.hpp>
 
 class CInGame : public CCmds
 {
@@ -12,5 +10,3 @@ class CInGame : public CCmds
 	void ReadRights(const std::string& scIniFile);
 	std::wstring GetAdminName();
 };
-
-#endif

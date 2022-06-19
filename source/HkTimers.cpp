@@ -1,9 +1,8 @@
-﻿#include <winsock2.h>
-#include "Hook.h"
+﻿#include "Global.hpp"
+#include <WinSock2.h>
 #include <Wildcard.hpp>
 
 #include <WS2tcpip.h>
-#include <math.h>
 
 CTimer::CTimer(std::string sFunc, uint iWarn)
 {
@@ -23,12 +22,12 @@ uint CTimer::stop()
 
 	if (iDelta > iMax && iDelta > iWarning)
 	{
-		AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s, longest so far.", iDelta, stows(sFunction).c_str());
+		AddLog(LogType::PerfTimers, LogLevel::Info, L"Spent %d ms in %s, longest so far.", iDelta, stows(sFunction).c_str());
 		iMax = iDelta;
 	}
 	else if (iDelta > 100)
 	{
-		AddLog(PerfTimers, LogLevel::Info, L"Spent %d ms in %s", iDelta, stows(sFunction).c_str());
+		AddLog(LogType::PerfTimers, LogLevel::Info, L"Spent %d ms in %s", iDelta, stows(sFunction).c_str());
 	}
 
 	return iDelta;
@@ -49,7 +48,7 @@ void HkTimerCheckKick()
 		while (playerData = Players.traverse_active(playerData))
 		{
 			uint clientID = HkGetClientIdFromPD(playerData);
-			if (clientID < 1 || clientID > MAX_CLIENT_ID)
+			if (clientID < 1 || clientID > MaxClientId)
 				continue;
 
 			if (ClientInfo[clientID].tmKickTime)
@@ -113,7 +112,7 @@ void HkTimerNPCAndF1Check()
 		while (playerData = Players.traverse_active(playerData))
 		{
 			uint clientID = HkGetClientIdFromPD(playerData);
-			if (clientID < 1 || clientID > MAX_CLIENT_ID)
+			if (clientID < 1 || clientID > MaxClientId)
 				continue;
 
 			if (ClientInfo[clientID].tmF1Time && (timeInMS() >= ClientInfo[clientID].tmF1Time))

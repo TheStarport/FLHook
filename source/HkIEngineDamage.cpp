@@ -1,4 +1,4 @@
-﻿#include "Hook.h"
+﻿#include "Global.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceID = 0;

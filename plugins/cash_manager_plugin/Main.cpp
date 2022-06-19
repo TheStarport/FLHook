@@ -232,7 +232,7 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR Transfer failed");
-				AddLog(Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
+				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
 				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
 				return;
@@ -245,7 +245,7 @@ namespace Plugins::CashManager
 			if (ClientInfo[iClientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 			{
 				PrintUserCmdText(iClientID, L"ERR Trade window open");
-				AddLog(Normal, LogLevel::Info, L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u", ToMoneyStr(cash).c_str(),
+				AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u", ToMoneyStr(cash).c_str(),
 				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), iClientID, targetClientId);
 				return;
@@ -263,7 +263,7 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR Transfer failed");
-			AddLog(Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
+			AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
 			    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
 			    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
 			return;
@@ -283,7 +283,7 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR Transfer failed");
-				AddLog(Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
+				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
 				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
 				return;
@@ -295,7 +295,7 @@ namespace Plugins::CashManager
 		int iCurrCash;
 		if ((err = HkGetCash(wscTargetCharname, iCurrCash)) != HKE_OK || iCurrCash != iExpectedCash)
 		{
-			AddLog(Normal, LogLevel::Err,
+			AddLog(LogType::Normal, LogLevel::Err,
 			    L"Cash transfer error when sending %s credits from %s (%s) "
 			    "to "
 			    "%s (%s) current %s credits expected %s credits ",
@@ -321,7 +321,7 @@ namespace Plugins::CashManager
 			LogTransfer(wscTargetCharname, msg);
 		}
 
-		AddLog(Normal, LogLevel::Info, L"NOTICE: Send %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscCharname.c_str(),
+		AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Send %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscCharname.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
 
@@ -511,7 +511,7 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR Transfer failed");
-			AddLog(Cheater, LogLevel::Info,
+			AddLog(LogType::Cheater, LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
 			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
@@ -526,7 +526,7 @@ namespace Plugins::CashManager
 			if (ClientInfo[iClientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 			{
 				PrintUserCmdText(iClientID, L"ERR Trade window open");
-				AddLog(Normal, LogLevel::Info,
+				AddLog(LogType::Normal, LogLevel::Info,
 				    L"NOTICE: Trade window open when drawing %s credits from %s "
 				    "(%s) "
 				    "to %s (%s) %u %u",
@@ -548,7 +548,7 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR Transfer failed");
-				AddLog(Cheater, LogLevel::Info,
+				AddLog(LogType::Cheater, LogLevel::Info,
 				    L"NOTICE: Possible cheating when drawing %s credits from %s "
 				    "(%s) to "
 				    "%s (%s)",
@@ -569,7 +569,7 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(iClientID) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR Transfer failed");
-			AddLog(Cheater, LogLevel::Info,
+			AddLog(LogType::Cheater, LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
 			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
@@ -582,10 +582,8 @@ namespace Plugins::CashManager
 		int iCurrCash;
 		if ((err = HkGetCash(wscCharname, iCurrCash)) != HKE_OK || iCurrCash != iExpectedCash)
 		{
-			AddLog(Normal, LogLevel::Err,
-			    L"Cash transfer error when drawing %s credits from %s (%s) "
-			    "to "
-			    "%s (%s) current %s credits expected %s credits ",
+			AddLog(LogType::Normal, LogLevel::Err,
+			    L"Cash transfer error when drawing %s credits from %s (%s) to %s (%s) current %s credits expected %s credits ",
 			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
 			    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), ToMoneyStr(iCurrCash).c_str(), ToMoneyStr(iExpectedCash).c_str());
 			PrintUserCmdText(iClientID, L"ERR Transfer failed");
@@ -606,7 +604,7 @@ namespace Plugins::CashManager
 			LogTransfer(wscTargetCharname, msg);
 		}
 
-		AddLog(Normal, LogLevel::Info, L"NOTICE: Draw %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
+		AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Draw %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
 
@@ -617,20 +615,13 @@ namespace Plugins::CashManager
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {{L"/givecash", UserCmd_GiveCash}, {L"/sendcash", UserCmd_GiveCash}, {L"/set cashcode", UserCmd_SetCashCode},
-	    {L"/showcash", UserCmd_ShowCash}, {L"/drawcash", UserCmd_DrawCash}};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
-
-	// Hook on /help
-	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-	{
-		for (auto& uc : UserCmds)
-		{
-			PrintUserCmdText(iClientID, uc.wszCmd);
-		}
-	}
+	const std::array<USERCMD, 5> UserCmds = {{
+		{L"/givecash", UserCmd_GiveCash},
+	    {L"/sendcash", UserCmd_GiveCash},
+	    {L"/set cashcode", UserCmd_SetCashCode},
+	    {L"/showcash", UserCmd_ShowCash},
+	    {L"/drawcash", UserCmd_DrawCash}
+	}};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -638,6 +629,12 @@ namespace Plugins::CashManager
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::CashManager;
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(set_iMinTransfer), field(set_iBlockedSystem), field(set_bCheatDetection), field(set_iMinTime))
 
@@ -648,7 +645,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Cash Manager Plugin by Cannon");
+	pi->name("Cash Manager Plugin");
 	pi->shortName("cash_manager");
 	pi->mayPause(true);
 	pi->mayUnload(true);
@@ -658,6 +655,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 }

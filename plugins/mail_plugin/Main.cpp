@@ -7,7 +7,6 @@
 // being notified and/or mentioned somewhere.
 //
 
-
 #include "Main.h"
 
 namespace Plugins::Mail
@@ -129,6 +128,7 @@ namespace Plugins::Mail
 
 		// Call the CheckLog function to prompt the target to check their mail if they are logged in
 		MailCheckLog(wscCharname, global->MSG_LOG);
+
 		return true;
 	}
 
@@ -233,13 +233,10 @@ namespace Plugins::Mail
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {
+	const std::array<USERCMD, 2> UserCmds = {{
 	    {L"/mail", UserCmd_MailShow},
 	    {L"/maildel", UserCmd_MailDel},
-	};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 
 	// Hook on /help
 	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
@@ -260,7 +257,7 @@ namespace Plugins::Mail
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("move"))
+		if (wscCmd == L"move")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_SendMail(cmds, cmds->ArgStr(0), cmds->ArgStrToEnd(1));
@@ -275,6 +272,11 @@ namespace Plugins::Mail
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::Mail;
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
 
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -292,7 +294,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);

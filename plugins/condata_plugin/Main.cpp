@@ -65,7 +65,7 @@ namespace Plugins::ConData
 			while (pPD = Players.traverse_active(pPD))
 			{
 				const uint iClientID = HkGetClientIdFromPD(pPD);
-				if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				if (iClientID < 1 || iClientID > MaxClientId)
 					continue;
 
 				auto con = global->connections[iClientID];
@@ -137,7 +137,7 @@ namespace Plugins::ConData
 		// Are there accounts connected with client IDs greater than max player
 		// count? If so, kick them as FLServer is buggy and will use high client IDs
 		// but will not allow character selection on them.
-		for (int iClientID = Players.GetMaxPlayerCount() + 1; iClientID <= MAX_CLIENT_ID; iClientID++)
+		for (int iClientID = Players.GetMaxPlayerCount() + 1; iClientID <= MaxClientId; iClientID++)
 		{
 			if (Players[iClientID].iOnlineID)
 			{
@@ -163,7 +163,7 @@ namespace Plugins::ConData
 		while (pPD = Players.traverse_active(pPD))
 		{
 			const uint iClientID = HkGetClientIdFromPD(pPD);
-			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+			if (iClientID < 1 || iClientID > MaxClientId)
 				continue;
 
 			if (ClientInfo[iClientID].tmF1TimeDisconnect)
@@ -217,7 +217,7 @@ namespace Plugins::ConData
 		while (pPD = Players.traverse_active(pPD))
 		{
 			const uint iClientID = HkGetClientIdFromPD(pPD);
-			if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+			if (iClientID < 1 || iClientID > MaxClientId)
 				continue;
 
 			if (ClientInfo[iClientID].tmF1TimeDisconnect)
@@ -278,7 +278,7 @@ namespace Plugins::ConData
 			while (pPD = Players.traverse_active(pPD))
 			{
 				const uint iClientID = pPD->iOnlineID;
-				if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+				if (iClientID < 1 || iClientID > MaxClientId)
 					continue;
 
 				ClearConData(HkGetClientIdFromPD(pPD));
@@ -444,12 +444,9 @@ namespace Plugins::ConData
 		PrintUserCmdText(iClientID, Response);
 	}
 	
-	constexpr USERCMD UserCmds[] = {
+	const std::array<USERCMD, 1> UserCmds = {{
 	    {L"/ping", UserCmdPing},
-	};
-
-	// Process user input
-	bool UserCmdProcess(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 
 	void ReceiveException(ConnectionDataException exc)
 	{
@@ -469,7 +466,7 @@ namespace Plugins::ConData
 
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("getstats"))
+		if (wscCmd == L"getstats")
 		{
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
@@ -494,7 +491,7 @@ namespace Plugins::ConData
 			global->returncode = ReturnCode::SkipAll;
 			return true;
 		}
-		else if (IS_CMD("kick"))
+		else if (wscCmd == L"kick")
 		{
 			// Find by charname. If this fails, fall through to default behaviour.
 			CAccount* acc = HkGetAccountByCharname(classptr->ArgCharname(1));
@@ -538,6 +535,11 @@ namespace Plugins::ConData
 
 using namespace Plugins::ConData;
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH)
@@ -561,7 +563,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmdProcess);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 

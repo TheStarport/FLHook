@@ -239,7 +239,7 @@ namespace Plugins::MiscCommands
 	}
 
 	// Client command processing
-	const std::vector<USERCMD> UserCmds = {
+	const std::array<USERCMD, 7> UserCmds = {{
 	    {L"/lights", UserCmdLights},
 	    {L"/shields", UserCmdShields},
 	    {L"/pos", UserCmdPos},
@@ -247,19 +247,16 @@ namespace Plugins::MiscCommands
 	    {L"/droprep", UserCmdDropRep},
 	    {L"/dice", UserCmdDice},
 	    {L"/coin", UserCmdCoin},
-	};
+	}};
 
 	/** @} */ // End of user commands
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
 
 	// Hook on /help
 	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 	{
 		for (auto& uc : UserCmds)
 		{
-			PrintUserCmdText(iClientID, uc.wszCmd);
+			PrintUserCmdText(iClientID, uc.cmd);
 		}
 	}
 
@@ -336,7 +333,7 @@ namespace Plugins::MiscCommands
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("smiteall"))
+		if (wscCmd == L"smiteall")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmdSmiteAll(cmds);
@@ -351,6 +348,12 @@ namespace Plugins::MiscCommands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::MiscCommands;
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId))
 
@@ -370,7 +373,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);

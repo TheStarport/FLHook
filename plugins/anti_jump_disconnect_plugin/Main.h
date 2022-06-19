@@ -2,7 +2,7 @@
 
 #include "../tempban_plugin/Main.h"
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 namespace Plugins::AntiJumpDisconnect

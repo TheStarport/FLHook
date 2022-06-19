@@ -10,7 +10,7 @@
 
 #include "../base_plugin/Main.h"
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 BaseCommunicator* baseCommunicator = nullptr;
@@ -19,7 +19,7 @@ BaseCommunicator* baseCommunicator = nullptr;
 #define CLIENT_STATE_TRANSFER 1
 #define CLIENT_STATE_RETURN   2
 
-int transferFlags[MAX_CLIENT_ID + 1];
+int transferFlags[MaxClientId + 1];
 
 const std::wstring STR_INFO1 = L"Please dock at nearest base";
 const std::wstring STR_INFO2 = L"Cargo hold is not empty";
@@ -59,15 +59,15 @@ std::unique_ptr<Config> config = nullptr;
 // Client command processing
 void UserCmd_Conn(uint iClientID, const std::wstring& wscParam);
 void UserCmd_Return(uint iClientID, const std::wstring& wscParam);
-USERCMD UserCmds[] = {
-	{ L"/arena", UserCmd_Conn },
-	{ L"/return", UserCmd_Return },
-};
+std::array<USERCMD, 2> UserCmds = {{
+    {L"/arena", UserCmd_Conn},
+    {L"/return", UserCmd_Return},
+}};
 
 /// Load the configuration
 void LoadSettings()
 {
-	memset(transferFlags, 0, sizeof(int) * (MAX_CLIENT_ID + 1));
+	memset(transferFlags, 0, sizeof(int) * (MaxClientId + 1));
 	Config conf = Serializer::JsonToObject<Config>();
 	conf.wscCommand = L"/" + stows(conf.command);
 	conf.restrictedSystemId = CreateID(conf.restrictedSystem.c_str());
@@ -273,14 +273,8 @@ void UserCmd_Return(uint iClientID, const std::wstring& wscParam)
 	transferFlags[iClientID] = CLIENT_STATE_RETURN;
 }
 
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
 // Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, config->wscCommand);
 	PrintUserCmdText(iClientID, L"Beams you to the Arena system.");
@@ -302,17 +296,22 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return true;
 }
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
+
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Arena by MadHunter");
+	pi->name("Arena");
 	pi->shortName("arena");
 	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
@@ -320,6 +319,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 
 	// We import the definitions for TempBan Communicator so we can talk to it
-	baseCommunicator =
-	    static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+	baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 }

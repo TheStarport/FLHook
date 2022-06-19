@@ -91,13 +91,10 @@ namespace Plugins::AFK
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {
+	const std::array<USERCMD, 2> UserCmds = {{
 	    {L"/afk", UserCmd_AFK},
 	    {L"/back", UserCmd_Back},
-	};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 
 	// Hook on /help
 	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
@@ -117,6 +114,11 @@ namespace Plugins::AFK
 
 using namespace Plugins::AFK;
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -134,7 +136,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &HkCb_SendChat);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);

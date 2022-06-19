@@ -83,7 +83,7 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(Normal, LogLevel::Err,
+			AddLog(LogType::Normal, LogLevel::Err,
 			    L"Exception in RequestBestPath p1=%d p2=%08x %08x %08x %08x "
 			    "%08x %08x %08x %08x %08x p3=%08x",
 			    p1, p2[0], p2[7], p2[3], p2[4], p2[5], p2[8], p2[9], p2[10], p2[12]);
@@ -100,7 +100,7 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(Normal, LogLevel::Err, L"Crash suppression in GetRoot(child=%08x)", child);
+			AddLog(LogType::Normal, LogLevel::Err, L"Crash suppression in GetRoot(child=%08x)", child);
 			Console::ConErr(L"Crash suppression in GetRoot(child=%08x)", child);
 			return child;
 		}
@@ -127,7 +127,7 @@ namespace Plugins::CrashCatcher
 	uint __cdecl HkCb_PubZoneSystem(uint system)
 	{
 		int res = pub::Zone::GetSystem(system);
-		// AddLog(Normal, LogLevel::Info,L"pub::Zone::GetSystem %u %u", system, res);
+		// AddLog(LogType::Normal, LogLevel::Info,L"pub::Zone::GetSystem %u %u", system, res);
 		return res;
 	}
 
@@ -292,7 +292,7 @@ namespace Plugins::CrashCatcher
 
 	void __stdcall HkCb_47bc4Naked_Log()
 	{
-		AddLog(Normal, LogLevel::Err,
+		AddLog(LogType::Normal, LogLevel::Err,
 		    L"Exception/Crash in content.dll:0x47bc4 - probably missing "
 		    "formation in faction_props.ini/formations.ini - exiting");
 		exit(-1);
@@ -357,14 +357,14 @@ will_crash:
 		double seconds = Timing::seconds(ticks_delta);
 		if (seconds < 0 || seconds > 10.0)
 		{
-			AddLog(Normal, LogLevel::Err, L"Time delta invalid seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
+			AddLog(LogType::Normal, LogLevel::Err, L"Time delta invalid seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
 			Console::ConErr(L"Time delta invalid seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
 			ticks_delta = 1000000;
 			seconds = Timing::seconds(ticks_delta);
 		}
 		else if (seconds > 1.0)
 		{
-			AddLog(Normal, LogLevel::Err, L"Time lag detected seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
+			AddLog(LogType::Normal, LogLevel::Err, L"Time lag detected seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
 			Console::ConErr(L"Time lag detected seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
 		}
 		return seconds;

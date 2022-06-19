@@ -1,5 +1,4 @@
-﻿#include "CCmds.h"
-#include "Hook.h"
+﻿#include "Global.hpp"
 
 const PluginData& PluginHookData::plugin() const
 {

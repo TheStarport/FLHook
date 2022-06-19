@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Wildcard.hpp>
-
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 struct IPBans : Reflectable

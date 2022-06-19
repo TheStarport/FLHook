@@ -101,7 +101,7 @@ namespace Plugins::Tempban
 
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("tempban"))
+		if (wscCmd == L"tempban")
 		{
 			global->returncode = ReturnCode::SkipAll; // do not let other plugins kick in
 			                                  // since we now handle the command

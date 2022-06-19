@@ -1216,13 +1216,13 @@ void AdminCmd_TestBot(CCmds* cmds, const std::wstring& wscSystemNick, int iCheck
 
 bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 {
-	if (IS_CMD("testbot"))
+	if (wscCmd == L"testbot")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_TestBot(cmds, cmds->ArgStr(1), cmds->ArgInt(2));
 		return true;
 	}
-	else if (IS_CMD("jumptest"))
+	else if (wscCmd == L"jumptest")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_JumpTest(cmds, cmds->ArgStr(1));

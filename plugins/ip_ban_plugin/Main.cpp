@@ -244,13 +244,13 @@ namespace Plugins::IPBan
 	// Admin command callback. Compare the chat entry to see if it match a command
 	bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("authchar"))
+		if (wscCmd == L"authchar")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_AuthenticateChar(cmds, cmds->ArgStr(1));
 			return true;
 		}
-		else if (IS_CMD("reloadbans"))
+		else if (wscCmd == L"reloadbans")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_ReloadBans(cmds);

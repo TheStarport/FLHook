@@ -238,7 +238,7 @@ void UserCmd_MakeTag(uint iClientID, const std::wstring& wscParam)
 		mapTagToPassword[tag].description = description;
 
 		PrintUserCmdText(iClientID, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
-		AddLog(Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), wscCharname.c_str(),
+		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), wscCharname.c_str(),
 		    HkGetAccountIDByClientID(iClientID).c_str());
 		SaveSettings();
 	}
@@ -270,7 +270,7 @@ void UserCmd_DropTag(uint iClientID, const std::wstring& wscParam)
 				mapTagToPassword.erase(tag);
 				SaveSettings();
 				PrintUserCmdText(iClientID, L"OK Tag dropped");
-				AddLog(Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(),
+				AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(),
 				    HkGetAccountIDByClientID(iClientID).c_str());
 				return;
 			}
@@ -371,12 +371,12 @@ void Timer()
 				throw "dest does not exist";
 
 			// The rename worked. Log it and save the rename time.
-			AddLog(Normal, LogLevel::Info, L"User rename %s to %s (%s)", o.wscCharname.c_str(), o.wscNewCharname.c_str(),
+			AddLog(LogType::Normal, LogLevel::Info, L"User rename %s to %s (%s)", o.wscCharname.c_str(), o.wscNewCharname.c_str(),
 			    HkGetAccountID(acc).c_str());
 		}
 		catch (char* err)
 		{
-			AddLog(Normal, LogLevel::Err, L"User rename failed (%s) from %s to %s (%s)", err, o.wscCharname.c_str(),
+			AddLog(LogType::Normal, LogLevel::Err, L"User rename failed (%s) from %s to %s (%s)", err, o.wscCharname.c_str(),
 			    o.wscNewCharname.c_str(), HkGetAccountID(acc).c_str());
 		}
 	}
@@ -425,12 +425,12 @@ void Timer()
 				throw "dest does not exist";
 
 			// The move worked. Log it.
-			AddLog(Normal, LogLevel::Info, L"Character %s moved from %s to %s", wstos(o.wscMovingCharname).c_str(),
+			AddLog(LogType::Normal, LogLevel::Info, L"Character %s moved from %s to %s", wstos(o.wscMovingCharname).c_str(),
 			    wstos(HkGetAccountID(oldAcc)).c_str(), wstos(HkGetAccountID(acc)).c_str());
 		}
 		catch (char* err)
 		{
-			AddLog(Normal, LogLevel::Err, L"Character %s move failed (%s) from %s to %s", o.wscMovingCharname.c_str(), err,
+			AddLog(LogType::Normal, LogLevel::Err, L"Character %s move failed (%s) from %s to %s", o.wscMovingCharname.c_str(), err,
 			    HkGetAccountID(oldAcc).c_str(), HkGetAccountID(acc).c_str());
 		}
 	}
@@ -941,20 +941,17 @@ void AdminCmd_DropTag(CCmds* cmds, const std::wstring& tag)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Client command processing
-USERCMD UserCmds[] = {
-	{ L"/maketag", UserCmd_MakeTag },       { L"/droptag", UserCmd_DropTag },
-	{ L"/settagpass", UserCmd_SetTagPass }, { L"/renameme", UserCmd_RenameMe },
-	{ L"/movechar", UserCmd_MoveChar },     { L"/set movecharcode", UserCmd_SetMoveCharCode },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
+const std::array<USERCMD, 6> UserCmds = {{
+    {L"/maketag", UserCmd_MakeTag},
+    {L"/droptag", UserCmd_DropTag},
+    {L"/settagpass", UserCmd_SetTagPass},
+    {L"/renameme", UserCmd_RenameMe},
+    {L"/movechar", UserCmd_MoveChar},
+    {L"/set movecharcode", UserCmd_SetMoveCharCode},
+}};
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/maketag <tag> <master password> <description>");
 	PrintUserCmdText(iClientID, L"/droptag <tag> <master password>");
@@ -977,25 +974,25 @@ void CmdHelp(CCmds* classptr)
 
 bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 {
-	if (IS_CMD("setaccmovecode"))
+	if (wscCmd == L"setaccmovecode")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_SetAccMoveCode(cmds, cmds->ArgCharname(1), cmds->ArgStr(2));
 		return true;
 	}
-	else if (IS_CMD("showtags"))
+	else if (wscCmd == L"showtags")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_ShowTags(cmds);
 		return true;
 	}
-	else if (IS_CMD("addtag"))
+	else if (wscCmd == L"addtag")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AddTag(cmds, cmds->ArgStr(1), cmds->ArgStr(2), cmds->ArgStrToEnd(3));
 		return true;
 	}
-	else if (IS_CMD("droptag"))
+	else if (wscCmd == L"droptag")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_DropTag(cmds, cmds->ArgStr(1));
@@ -1005,6 +1002,11 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -1024,7 +1026,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__CreateNewCharacter, &CreateNewCharacter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 }

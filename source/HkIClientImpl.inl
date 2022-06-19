@@ -1,7 +1,6 @@
 // ReSharper disable CppNonInlineFunctionDefinitionInHeaderFile
 // ReSharper disable CppNonInlineVariableDefinitionInHeaderFile
 #pragma once
-#include <Hook.h>
 
 void HkIClientImpl__Startup__Inner(uint, uint) {
     // load the universe directly before the server becomes internet accessible

@@ -2,7 +2,7 @@
 // by Raikkonen
 
 // Includes
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>

@@ -286,20 +286,14 @@ void StopTradelane(uint& iClientID, uint& p1, uint& p2, uint& p3)
 	DumpSensorAccess(iClientID, L"exited tradelane", MODE_TRADELANE);
 }
 // Client command processing
-USERCMD UserCmds[] = {
-	{ L"/showscan", UserCmd_ShowScan },
-	{ L"/showscan$", UserCmd_ShowScan },
-	{ L"/net", UserCmd_Net },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
+const std::array<USERCMD, 3> UserCmds = {{
+    {L"/showscan", UserCmd_ShowScan},
+    {L"/showscan$", UserCmd_ShowScan},
+    {L"/net", UserCmd_Net},
+}};
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/showscan <charname>");
 	PrintUserCmdText(iClientID, L"/showscan$ <clientid>");
@@ -310,6 +304,11 @@ EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
+
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -318,7 +317,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("System Sensor by Cannon");
+	pi->name("System Sensor");
 	pi->shortName("system_sensor");
 	pi->mayPause(true);
 	pi->mayUnload(true);
@@ -331,6 +330,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__StopTradelane, &StopTradelane);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

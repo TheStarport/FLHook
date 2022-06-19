@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 #include "../mail_plugin/Main.h"
 #include "../tempban_plugin/Main.h"

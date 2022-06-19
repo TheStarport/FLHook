@@ -266,7 +266,7 @@ namespace Plugins::Cloak
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("cloak"))
+		if (wscCmd == L"cloak")
 		{
 			global->returncode = ReturnCode::SkipAll;
 

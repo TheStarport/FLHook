@@ -1,7 +1,7 @@
-﻿#include "CCmds.h"
+﻿#pragma once
+#include <FLHook.hpp>
 
-#ifndef _CSOCKET_
-	#define _CSOCKET_
+#include "WinSock2.h"
 
 class CSocket : public CCmds
 {
@@ -24,5 +24,3 @@ class CSocket : public CCmds
 	void DoPrint(const std::wstring& wscText);
 	std::wstring GetAdminName();
 };
-
-#endif

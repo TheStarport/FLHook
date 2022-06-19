@@ -1,8 +1,7 @@
-﻿#include "global.h"
+﻿#include "Global.hpp"
 #include "ExceptionInfo.h"
-#include "Hook.h"
 
-#ifdef EXTENDED_EXCEPTION_LOGGING
+#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	#include <psapi.h>
 
 HMODULE GetModuleAddr(uint iAddr)

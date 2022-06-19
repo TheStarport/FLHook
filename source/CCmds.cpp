@@ -1,6 +1,4 @@
-﻿#include "CCmds.h"
-
-#include "global.h"
+﻿#include "Global.hpp"
 
 #define RIGHT_CHECK(a)               \
 	if (!(this->rights & a))         \
@@ -1157,8 +1155,6 @@ std::wstring CCmds::ArgStrToEnd(uint iArg)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define IS_CMD(a) !wscCmd.compare(L##a)
-
 void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 {
 	// check if command was sent by a socket connection
@@ -1176,9 +1172,9 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 	try
 	{
 		if (bSocket)
-			AddLog(SocketCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+			AddLog(LogType::SocketCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
-		AddLog(AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+		AddLog(LogType::AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
 		bID = false;
 		bShortCut = false;
@@ -1222,239 +1218,239 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 
 		if (!plugins)
 		{
-			if (IS_CMD("getcash"))
+			if (wscCmd == L"getcash")
 			{
 				CmdGetCash(ArgCharname(1));
 			}
-			else if (IS_CMD("setcash"))
+			else if (wscCmd == L"setcash")
 			{
 				CmdSetCash(ArgCharname(1), ArgInt(2));
 			}
-			else if (IS_CMD("setcashsec"))
+			else if (wscCmd == L"setcashsec")
 			{
 				CmdSetCashSec(ArgCharname(1), ArgInt(2), ArgInt(3));
 			}
-			else if (IS_CMD("addcash"))
+			else if (wscCmd == L"addcash")
 			{
 				CmdAddCash(ArgCharname(1), ArgInt(2));
 			}
-			else if (IS_CMD("addcashsec"))
+			else if (wscCmd == L"addcashsec")
 			{
 				CmdAddCashSec(ArgCharname(1), ArgInt(2), ArgInt(3));
 			}
-			else if (IS_CMD("kick"))
+			else if (wscCmd == L"kick")
 			{
 				CmdKick(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("ban"))
+			else if (wscCmd == L"ban")
 			{
 				CmdBan(ArgCharname(1));
 			}
-			else if (IS_CMD("unban"))
+			else if (wscCmd == L"unban")
 			{
 				CmdUnban(ArgCharname(1));
 			}
-			else if (IS_CMD("kickban"))
+			else if (wscCmd == L"kickban")
 			{
 				CmdKickBan(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("getbasestatus"))
+			else if (wscCmd == L"getbasestatus")
 			{
 				CmdGetBaseStatus(ArgStr(1));
 			}
-			else if (IS_CMD("getclientid"))
+			else if (wscCmd == L"getclientid")
 			{
 				CmdGetClientId(ArgCharname(1));
 			}
-			else if (IS_CMD("beam"))
+			else if (wscCmd == L"beam")
 			{
 				CmdBeam(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("kill"))
+			else if (wscCmd == L"kill")
 			{
 				CmdKill(ArgCharname(1));
 			}
-			else if (IS_CMD("resetrep"))
+			else if (wscCmd == L"resetrep")
 			{
 				CmdResetRep(ArgCharname(1));
 			}
-			else if (IS_CMD("setrep"))
+			else if (wscCmd == L"setrep")
 			{
 				CmdSetRep(ArgCharname(1), ArgStr(2), ArgFloat(3));
 			}
-			else if (IS_CMD("getrep"))
+			else if (wscCmd == L"getrep")
 			{
 				CmdGetRep(ArgCharname(1), ArgStr(2));
 			}
-			else if (IS_CMD("msg"))
+			else if (wscCmd == L"msg")
 			{
 				CmdMsg(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("msgs"))
+			else if (wscCmd == L"msgs")
 			{
 				CmdMsgS(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("msgu"))
+			else if (wscCmd == L"msgu")
 			{
 				CmdMsgU(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("fmsg"))
+			else if (wscCmd == L"fmsg")
 			{
 				CmdFMsg(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("fmsgs"))
+			else if (wscCmd == L"fmsgs")
 			{
 				CmdFMsgS(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("fmsgu"))
+			else if (wscCmd == L"fmsgu")
 			{
 				CmdFMsgU(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("enumcargo"))
+			else if (wscCmd == L"enumcargo")
 			{
 				CmdEnumCargo(ArgCharname(1));
 			}
-			else if (IS_CMD("removecargo"))
+			else if (wscCmd == L"removecargo")
 			{
 				CmdRemoveCargo(ArgCharname(1), ArgInt(2), ArgInt(3));
 			}
-			else if (IS_CMD("addcargo"))
+			else if (wscCmd == L"addcargo")
 			{
 				CmdAddCargo(ArgCharname(1), ArgStr(2), ArgInt(3), ArgInt(4));
 			}
-			else if (IS_CMD("rename"))
+			else if (wscCmd == L"rename")
 			{
 				CmdRename(ArgCharname(1), ArgStr(2));
 			}
-			else if (IS_CMD("deletechar"))
+			else if (wscCmd == L"deletechar")
 			{
 				CmdDeleteChar(ArgCharname(1));
 			}
-			else if (IS_CMD("readcharfile"))
+			else if (wscCmd == L"readcharfile")
 			{
 				CmdReadCharFile(ArgCharname(1));
 			}
-			else if (IS_CMD("writecharfile"))
+			else if (wscCmd == L"writecharfile")
 			{
 				CmdWriteCharFile(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("getplayerinfo"))
+			else if (wscCmd == L"getplayerinfo")
 			{
 				CmdGetPlayerInfo(ArgCharname(1));
 			}
-			else if (IS_CMD("getplayers"))
+			else if (wscCmd == L"getplayers")
 			{
 				CmdGetPlayers();
 			}
-			else if (IS_CMD("xgetplayerinfo"))
+			else if (wscCmd == L"xgetplayerinfo")
 			{
 				CmdXGetPlayerInfo(ArgCharname(1));
 			}
-			else if (IS_CMD("xgetplayers"))
+			else if (wscCmd == L"xgetplayers")
 			{
 				CmdXGetPlayers();
 			}
-			else if (IS_CMD("getplayerids"))
+			else if (wscCmd == L"getplayerids")
 			{
 				CmdGetPlayerIDs();
 			}
-			else if (IS_CMD("getaccountdirname"))
+			else if (wscCmd == L"getaccountdirname")
 			{
 				CmdGetAccountDirName(ArgCharname(1));
 			}
-			else if (IS_CMD("getcharfilename"))
+			else if (wscCmd == L"getcharfilename")
 			{
 				CmdGetCharFileName(ArgCharname(1));
 			}
-			else if (IS_CMD("savechar"))
+			else if (wscCmd == L"savechar")
 			{
 				CmdSaveChar(ArgCharname(1));
 			}
-			else if (IS_CMD("isonserver"))
+			else if (wscCmd == L"isonserver")
 			{
 				CmdIsOnServer(ArgCharname(1));
 			}
-			else if (IS_CMD("isloggedin"))
+			else if (wscCmd == L"isloggedin")
 			{
 				CmdIsLoggedIn(ArgCharname(1));
 			}
-			else if (IS_CMD("moneyfixlist"))
+			else if (wscCmd == L"moneyfixlist")
 			{
 				CmdMoneyFixList();
 			}
-			else if (IS_CMD("serverinfo"))
+			else if (wscCmd == L"serverinfo")
 			{
 				CmdServerInfo();
 			}
-			else if (IS_CMD("getgroupmembers"))
+			else if (wscCmd == L"getgroupmembers")
 			{
 				CmdGetGroupMembers(ArgCharname(1));
 			}
-			else if (IS_CMD("getreservedslot"))
+			else if (wscCmd == L"getreservedslot")
 			{
 				CmdGetReservedSlot(ArgCharname(1));
 			}
-			else if (IS_CMD("setreservedslot"))
+			else if (wscCmd == L"setreservedslot")
 			{
 				CmdSetReservedSlot(ArgCharname(1), ArgInt(2));
 			}
-			else if (IS_CMD("setadmin"))
+			else if (wscCmd == L"setadmin")
 			{
 				CmdSetAdmin(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("getadmin"))
+			else if (wscCmd == L"getadmin")
 			{
 				CmdGetAdmin(ArgCharname(1));
 			}
-			else if (IS_CMD("deladmin"))
+			else if (wscCmd == L"deladmin")
 			{
 				CmdDelAdmin(ArgCharname(1));
 			}
-			else if (IS_CMD("unloadplugin"))
+			else if (wscCmd == L"unloadplugin")
 			{
 				CmdUnloadPlugin(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("loadplugins"))
+			else if (wscCmd == L"loadplugins")
 			{
 				CmdLoadPlugins();
 			}
-			else if (IS_CMD("loadplugin"))
+			else if (wscCmd == L"loadplugin")
 			{
 				CmdLoadPlugin(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("listplugins"))
+			else if (wscCmd == L"listplugins")
 			{
 				CmdListPlugins();
 			}
-			else if (IS_CMD("pauseplugin"))
+			else if (wscCmd == L"pauseplugin")
 			{
 				CmdPausePlugin(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("unpauseplugin"))
+			else if (wscCmd == L"unpauseplugin")
 			{
 				CmdUnpausePlugin(ArgStrToEnd(1));
 			}
-			else if (IS_CMD("rehash"))
+			else if (wscCmd == L"rehash")
 			{
 				CmdRehash();
 			}
-			else if (IS_CMD("help"))
+			else if (wscCmd == L"help")
 			{
 				CmdHelp();
 			}
-			else if (IS_CMD("move"))
+			else if (wscCmd == L"move")
 			{
 				CmdMove(wscAdminName, ArgFloat(1), ArgFloat(2), ArgFloat(3));
 			}
-			else if (IS_CMD("chase"))
+			else if (wscCmd == L"chase")
 			{
 				CmdChase(wscAdminName, ArgCharname(1));
 			}
-			else if (IS_CMD("beam"))
+			else if (wscCmd == L"beam")
 			{
 				CmdBeam(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (IS_CMD("pull"))
+			else if (wscCmd == L"pull")
 			{
 				CmdPull(wscAdminName, ArgCharname(1));
 			}
@@ -1465,18 +1461,18 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 		}
 		if (bSocket)
 		{
-			AddLog(SocketCmds, LogLevel::Info, L"finished");
+			AddLog(LogType::SocketCmds, LogLevel::Info, L"finished");
 		}
 		else
 		{
-			AddLog(AdminCmds, LogLevel::Info, L"finished");
+			AddLog(LogType::AdminCmds, LogLevel::Info, L"finished");
 		}
 	}
 	catch (...)
 	{
 		if (bSocket)
-			AddLog(SocketCmds, LogLevel::Info, L"exception");
-		AddLog(AdminCmds, LogLevel::Info, L"exception");
+			AddLog(LogType::SocketCmds, LogLevel::Info, L"exception");
+		AddLog(LogType::AdminCmds, LogLevel::Info, L"exception");
 		Print(L"ERR exception occured");
 	}
 }

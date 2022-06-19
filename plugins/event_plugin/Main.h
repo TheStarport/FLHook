@@ -1,5 +1,5 @@
 #pragma once
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 #include <nlohmann/json.hpp>
 

@@ -1,11 +1,11 @@
-#include <Hook.h>
+#include "Global.hpp"
 #include "HkIClientImpl.inl"
 #include "HkIServerImpl.inl"
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint clientID, XFireWeaponInfo& fwi)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tuint clientID = %u\n\tXFireWeaponInfo& fwi = %s\n)",
+		LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tuint clientID = %u\n\tXFireWeaponInfo& fwi = %s\n)",
 	    clientID, ToLogString(fwi));
 
 	auto [retVal, skip] =
@@ -27,8 +27,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint clientID, XFireWeaponIn
 
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint clientID, XActivateEquip& aq)
 {
-	AddLog(
-	    Normal, LogLevel::Debug,
+	AddLog(LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tuint clientID = %u\n\tXActivateEquip& aq = %s\n)",
 	    clientID, ToLogString(aq));
 
@@ -52,7 +51,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint clientID, XActivateE
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint clientID, XActivateCruise& aq)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tuint clientID = %u\n\tXActivateCruise& aq = %s\n)",
 	    clientID, ToLogString(aq));
 
@@ -76,7 +75,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint clientID, XActivate
 bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint clientID, XActivateThrusters& aq)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tuint clientID = %u\n\tXActivateThrusters& aq = "
 	    L"%s\n)",
 	    clientID, ToLogString(aq));
@@ -101,7 +100,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint clientID, XActiv
 bool HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint clientID, XSetTarget& st)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tuint clientID = %u\n\tXSetTarget& st = %s\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tuint clientID = %u\n\tXSetTarget& st = %s\n)",
 	    clientID, ToLogString(st));
 
 	bool retVal;
@@ -117,7 +116,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint clientID, XSetTarget& st
 void HkIClientImpl::unknown_6(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_6(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_6(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -130,7 +129,7 @@ void HkIClientImpl::unknown_6(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 bool HkIClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint clientID, XGoTradelane& tl)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tuint clientID = %u\n\tXGoTradelane& tl = %s\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tuint clientID = %u\n\tXGoTradelane& tl = %s\n)",
 	    clientID, ToLogString(tl));
 
 	bool retVal;
@@ -147,7 +146,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(
     uint clientID, uint shipID, uint archTradelane1, uint archTradelane2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(\n\tuint clientID = %u\n\tuint shipID = %u\n\tuint "
 	    L"archTradelane1 = %u\n\tuint archTradelane2 = %u\n)",
 	    clientID, shipID, archTradelane1, archTradelane2);
@@ -165,7 +164,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(
 bool HkIClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(uint clientID, XJettisonCargo& jc)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tuint clientID = %u\n\tXJettisonCargo& jc = %s\n)",
 	    clientID, ToLogString(jc));
 
@@ -207,7 +206,7 @@ bool HkIClientImpl::Startup(uint _genArg1, uint _genArg2)
 
 void HkIClientImpl::nullsub(uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::nullsub(\n\tuint _genArg1 = %u\n)", _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::nullsub(\n\tuint _genArg1 = %u\n)", _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -219,7 +218,7 @@ void HkIClientImpl::nullsub(uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -237,7 +236,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint clientID, FLPACKET_U
 bool HkIClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -255,7 +254,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint clientID, FLPACKET_U
 bool HkIClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 "
 	    L"= %s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -281,7 +280,7 @@ void HkIClientImpl::Shutdown()
 
 bool HkIClientImpl::CDPClientProxy__Disconnect(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__Disconnect(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__Disconnect(\n\tuint clientID = %u\n)", clientID);
 
 	bool retVal;
 	CALL_CLIENT_PREAMBLE
@@ -295,7 +294,7 @@ bool HkIClientImpl::CDPClientProxy__Disconnect(uint clientID)
 
 uint HkIClientImpl::CDPClientProxy__GetSendQSize(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetSendQSize(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetSendQSize(\n\tuint clientID = %u\n)", clientID);
 
 	uint retVal;
 	CALL_CLIENT_PREAMBLE
@@ -309,7 +308,7 @@ uint HkIClientImpl::CDPClientProxy__GetSendQSize(uint clientID)
 
 uint HkIClientImpl::CDPClientProxy__GetSendQBytes(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetSendQBytes(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetSendQBytes(\n\tuint clientID = %u\n)", clientID);
 
 	uint retVal;
 	CALL_CLIENT_PREAMBLE
@@ -323,7 +322,7 @@ uint HkIClientImpl::CDPClientProxy__GetSendQBytes(uint clientID)
 
 double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetLinkSaturation(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetLinkSaturation(\n\tuint clientID = %u\n)", clientID);
 
 	auto [retVal, skip] =
 	    CallPluginsBefore<double>(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, clientID);
@@ -345,7 +344,7 @@ double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint clientID)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint clientID, uint shipArch)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tuint clientID = %u\n\tuint shipArch = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tuint clientID = %u\n\tuint shipArch = %u\n)",
 	    clientID, shipArch);
 
 	auto [retVal, skip] =
@@ -368,7 +367,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint clientID, uint shipArc
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint clientID, float status)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tuint clientID = %u\n\tfloat status = %f\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tuint clientID = %u\n\tfloat status = %f\n)",
 	    clientID, status);
 
 	auto [retVal, skip] =
@@ -391,7 +390,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint clientID, float stat
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 "
 	    L"= %s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -416,7 +415,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint clientID, FLPAC
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -440,7 +439,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint clientID, FLPACKET_UN
 
 void HkIClientImpl::unknown_26(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_26(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_26(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -453,7 +452,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETADDITEM(
     uint clientID, FLPACKET_UNKNOWN& _genArg1, FLPACKET_UNKNOWN& _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n\tFLPACKET_UNKNOWN& _genArg2 = %s\n)",
 	    clientID, ToLogString(_genArg1), ToLogString(_genArg2));
@@ -478,7 +477,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETADDITEM(
 void HkIClientImpl::unknown_28(uint clientID, uint _genArg1, uint _genArg2, uint _genArg3)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::unknown_28(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint "
 	    L"_genArg3 = %u\n)",
 	    clientID, _genArg1, _genArg2, _genArg3);
@@ -493,7 +492,7 @@ void HkIClientImpl::unknown_28(uint clientID, uint _genArg1, uint _genArg2, uint
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -518,7 +517,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint clientID, uint _genAr
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -536,7 +535,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint clientID, uint 
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -554,7 +553,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint clientID, uint _genAr
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
 	    clientID, _genArg1);
 
@@ -571,7 +570,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint clientID, uint 
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -589,7 +588,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint clientID, uint _g
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -607,7 +606,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint clientID, 
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n)",
 	    clientID, _genArg1);
@@ -625,7 +624,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint clien
 void HkIClientImpl::unknown_36(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_36(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_36(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -638,7 +637,7 @@ void HkIClientImpl::unknown_36(uint clientID, uint _genArg1, uint _genArg2)
 void HkIClientImpl::unknown_37(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_37(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_37(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -651,7 +650,7 @@ void HkIClientImpl::unknown_37(uint clientID, uint _genArg1, uint _genArg2)
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n)",
 	    clientID, _genArg1);
@@ -669,7 +668,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint client
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -687,7 +686,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint clientID,
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -705,7 +704,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint clientID, 
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n)",
 	    clientID, _genArg1);
@@ -723,7 +722,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint clie
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -741,7 +740,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint clientID
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint clientID, uint reason)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(\n\tuint clientID = %u\n\tuint reason = %u\n)",
 	    clientID, reason);
 
@@ -758,7 +757,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint clientID, 
 void HkIClientImpl::unknown_44(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_44(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_44(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -771,7 +770,7 @@ void HkIClientImpl::unknown_44(uint clientID, uint _genArg1, uint _genArg2)
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -789,7 +788,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint clientID, ui
 bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(\n\tuint clientID = %u\n\tuint _genArg1 = "
 	    L"%u\n)",
 	    clientID, _genArg1);
@@ -807,7 +806,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint client
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint clientID, FLPACKET_CREATESOLAR& solar)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tuint clientID = %u\n\tFLPACKET_CREATESOLAR& solar = "
 	    L"%s\n)",
 	    clientID, ToLogString(solar));
@@ -832,7 +831,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint clientID, FLPACKET_CRE
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint clientID, FLPACKET_CREATESHIP& ship)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tuint clientID = %u\n\tFLPACKET_CREATESHIP& ship = %s\n)",
 	    clientID, ToLogString(ship));
 
@@ -856,7 +855,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint clientID, FLPACKET_CREA
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
 	    clientID, ToLogString(_genArg1));
 
@@ -880,7 +879,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint clientID, FLPACKET_UNKN
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)",
 	    clientID, ToLogString(_genArg1));
 
@@ -904,7 +903,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint clientID, FLPACKET_UNKN
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -929,7 +928,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint clientID, FLPACKET_UN
 bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -954,7 +953,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint clientID, FLPACKET_U
 void HkIClientImpl::unknown_53(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_53(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_53(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -967,7 +966,7 @@ void HkIClientImpl::unknown_53(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 void HkIClientImpl::unknown_54(uint clientID, uint _genArg1, uint _genArg2, uint _genArg3)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::unknown_54(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint "
 	    L"_genArg3 = %u\n)",
 	    clientID, _genArg1, _genArg2, _genArg3);
@@ -1001,7 +1000,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint clientID, SSPObjUpdat
 bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint clientID, FLPACKET_DESTROYOBJECT& destroy)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tuint clientID = %u\n\tFLPACKET_DESTROYOBJECT& destroy "
 	    L"= %s\n)",
 	    clientID, ToLogString(destroy));
@@ -1026,7 +1025,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint clientID, FLPACKET_D
 bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint clientID, XActivateEquip& aq)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tuint clientID = %u\n\tXActivateEquip& aq = %s\n)",
 	    clientID, ToLogString(aq));
 
@@ -1050,7 +1049,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint clientID, XActivate
 bool HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -1068,7 +1067,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint clientID, FLPACK
 bool HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -1086,7 +1085,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint clientID, FLPACKE
 bool HkIClientImpl::Send_FLPACKET_SERVER_LAND(uint clientID, FLPACKET_LAND& land)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_LAND(\n\tuint clientID = %u\n\tFLPACKET_LAND& land = %s\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_LAND(\n\tuint clientID = %u\n\tFLPACKET_LAND& land = %s\n)",
 	    clientID, ToLogString(land));
 
 	bool retVal;
@@ -1102,7 +1101,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LAND(uint clientID, FLPACKET_LAND& land
 bool HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint clientID, FLPACKET_LAUNCH& launch)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tuint clientID = %u\n\tFLPACKET_LAUNCH& launch = %s\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tuint clientID = %u\n\tFLPACKET_LAUNCH& launch = %s\n)",
 	    clientID, ToLogString(launch));
 
 	auto [retVal, skip] =
@@ -1125,7 +1124,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint clientID, FLPACKET_LAUNCH& 
 bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint clientID, bool response, uint shipID)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(\n\tuint clientID = %u\n\tbool response = "
 	    L"%d\n\tuint shipID = %u\n)",
 	    clientID, response, shipID);
@@ -1150,7 +1149,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint clientID, bo
 void HkIClientImpl::unknown_63(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_63(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_63(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1175,7 +1174,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint clientID, uint objID,
 bool HkIClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
 	    clientID, _genArg1);
 
 	bool retVal;
@@ -1191,7 +1190,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint clientID, uint _genA
 bool HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
 	    clientID, _genArg1);
 
 	auto [retVal, skip] =
@@ -1214,7 +1213,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint clientID, FLPACKET_SETREPUTATION& rep)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tuint clientID = %u\n\tFLPACKET_SETREPUTATION& rep = "
 	    L"%s\n)",
 	    clientID, ToLogString(rep));
@@ -1239,7 +1238,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint clientID, FLPACKET_S
 void HkIClientImpl::unknown_68(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_68(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_68(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1256,7 +1255,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SENDCOMM(
     uint _genArg21, uint _genArg22)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SENDCOMM(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = "
 	    L"%u\n\tuint _genArg3 = %u\n\tuint _genArg4 = %u\n\tuint _genArg5 = %u\n\tuint _genArg6 = %u\n\tuint _genArg7 "
 	    L"= %u\n\tuint _genArg8 = %u\n\tuint _genArg9 = %u\n\tuint _genArg10 = %u\n\tuint _genArg11 = %u\n\tuint "
@@ -1294,7 +1293,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SENDCOMM(
 
 void HkIClientImpl::unknown_70(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_70(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_70(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1306,7 +1305,7 @@ void HkIClientImpl::unknown_70(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 "
 	    L"= %s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -1331,7 +1330,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint clientID, FLPA
 void HkIClientImpl::unknown_72(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_72(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_72(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1344,7 +1343,7 @@ void HkIClientImpl::unknown_72(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
 	    clientID, _genArg1);
 
@@ -1368,7 +1367,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint clientID, uin
 void HkIClientImpl::unknown_74(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_74(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_74(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1380,7 +1379,7 @@ void HkIClientImpl::unknown_74(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 
 void HkIClientImpl::unknown_75(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_75(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_75(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1392,7 +1391,7 @@ void HkIClientImpl::unknown_75(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MARKOBJ(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = "
 	    L"%u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1409,7 +1408,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint clientID, uint _genArg1, u
 
 void HkIClientImpl::unknown_77(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_77(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_77(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1421,7 +1420,7 @@ void HkIClientImpl::unknown_77(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SETCASH(uint clientID, uint cash)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tuint clientID = %u\n\tuint cash = %u\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tuint clientID = %u\n\tuint cash = %u\n)", clientID,
 	    cash);
 
 	auto [retVal, skip] =
@@ -1443,7 +1442,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SETCASH(uint clientID, uint cash)
 
 void HkIClientImpl::unknown_79(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_79(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_79(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1454,7 +1453,7 @@ void HkIClientImpl::unknown_79(uint clientID, uint _genArg1)
 
 void HkIClientImpl::unknown_80(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_80(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_80(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1465,7 +1464,7 @@ void HkIClientImpl::unknown_80(uint clientID, uint _genArg1)
 
 void HkIClientImpl::unknown_81(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_81(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_81(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1476,7 +1475,7 @@ void HkIClientImpl::unknown_81(uint clientID, uint _genArg1)
 
 void HkIClientImpl::unknown_82(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_82(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_82(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1487,7 +1486,7 @@ void HkIClientImpl::unknown_82(uint clientID, uint _genArg1)
 
 void HkIClientImpl::unknown_83(uint clientID, char* _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_83(\n\tuint clientID = %u\n\tchar* _genArg1 = %s\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_83(\n\tuint clientID = %u\n\tchar* _genArg1 = %s\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1500,7 +1499,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(
     uint clientID, uint shipID, uint flag, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(\n\tuint clientID = %u\n\tuint shipID = %u\n\tuint flag "
 	    L"= %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, shipID, flag, _genArg1, _genArg2);
@@ -1518,7 +1517,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(
 void HkIClientImpl::unknown_85(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_85(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_85(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1531,7 +1530,7 @@ void HkIClientImpl::unknown_85(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 void HkIClientImpl::unknown_86(uint clientID, uint _genArg1, uint _genArg2, uint _genArg3)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::unknown_86(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint "
 	    L"_genArg3 = %u\n)",
 	    clientID, _genArg1, _genArg2, _genArg3);
@@ -1546,7 +1545,7 @@ void HkIClientImpl::unknown_86(uint clientID, uint _genArg1, uint _genArg2, uint
 bool HkIClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1564,7 +1563,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(uint clientID, uint _
 bool HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint clientID, FLPACKET_BURNFUSE& burnFuse)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tuint clientID = %u\n\tFLPACKET_BURNFUSE& burnFuse = %s\n)",
 	    clientID, ToLogString(burnFuse));
 
@@ -1588,7 +1587,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint clientID, FLPACKET_BURNFU
 void HkIClientImpl::unknown_89(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_89(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_89(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1600,7 +1599,7 @@ void HkIClientImpl::unknown_89(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 
 void HkIClientImpl::unknown_90(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_90(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_90(\n\tuint clientID = %u\n)", clientID);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1611,7 +1610,7 @@ void HkIClientImpl::unknown_90(uint clientID)
 
 void HkIClientImpl::unknown_91(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_91(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_91(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1623,7 +1622,7 @@ void HkIClientImpl::unknown_91(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint "
 	    L"_genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1641,7 +1640,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint clientID, uchar* 
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint "
 	    L"_genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1659,7 +1658,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint clientID, uchar*
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint "
 	    L"_genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1677,7 +1676,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint clientID, uchar*
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tuint clientID = %u\n\tuchar* _genArg1 = "
 	    L"%p\n\tint _genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1695,7 +1694,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint clientID, uch
 void HkIClientImpl::unknown_96(uint clientID, uint _genArg1, uint _genArg2, uint _genArg3)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::unknown_96(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint "
 	    L"_genArg3 = %u\n)",
 	    clientID, _genArg1, _genArg2, _genArg3);
@@ -1710,7 +1709,7 @@ void HkIClientImpl::unknown_96(uint clientID, uint _genArg1, uint _genArg2, uint
 bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tuint clientID = %u\n\tuchar* _genArg1 = "
 	    L"%p\n\tint _genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1728,7 +1727,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint clientID, 
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint "
 	    L"_genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1746,7 +1745,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint clientID, uchar* _
 bool HkIClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint clientID, uchar* _genArg1, int _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tuint clientID = %u\n\tuchar* _genArg1 = "
 	    L"%p\n\tint _genArg2 = %d\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1764,7 +1763,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint clientID, ucha
 void HkIClientImpl::unknown_100(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_100(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_100(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -1777,7 +1776,7 @@ void HkIClientImpl::unknown_100(uint clientID, uint _genArg1, uint _genArg2)
 void HkIClientImpl::unknown_101(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_101(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_101(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = %s\n)", clientID,
 	    ToLogString(_genArg1));
 
 	CALL_CLIENT_PREAMBLE
@@ -1789,7 +1788,7 @@ void HkIClientImpl::unknown_101(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 
 void HkIClientImpl::unknown_102(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_102(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_102(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1800,7 +1799,7 @@ void HkIClientImpl::unknown_102(uint clientID, uint _genArg1)
 
 void HkIClientImpl::unknown_103(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_103(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_103(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1812,7 +1811,7 @@ void HkIClientImpl::unknown_103(uint clientID, uint _genArg1)
 void HkIClientImpl::unknown_104(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_104(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_104(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -1825,7 +1824,7 @@ void HkIClientImpl::unknown_104(uint clientID, uint _genArg1, uint _genArg2)
 void HkIClientImpl::unknown_105(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_105(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_105(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -1838,7 +1837,7 @@ void HkIClientImpl::unknown_105(uint clientID, uint _genArg1, uint _genArg2)
 void HkIClientImpl::unknown_106(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_106(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_106(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -1851,7 +1850,7 @@ void HkIClientImpl::unknown_106(uint clientID, uint _genArg1, uint _genArg2)
 void HkIClientImpl::unknown_107(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::unknown_107(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_107(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
 
 	CALL_CLIENT_PREAMBLE
@@ -1864,7 +1863,7 @@ void HkIClientImpl::unknown_107(uint clientID, uint _genArg1, uint _genArg2)
 bool HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint clientID, uint _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
+	    LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)",
 	    clientID, _genArg1);
 
 	bool retVal;
@@ -1879,7 +1878,7 @@ bool HkIClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint clientID, uint _genAr
 
 void HkIClientImpl::unknown_109(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_109(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_109(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1891,7 +1890,7 @@ void HkIClientImpl::unknown_109(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 "
 	    L"= %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1916,7 +1915,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint clientID, uint _genArg1
 bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint clientID, wchar_t* _genArg1, uint _genArg2, char _genArg3)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tuint clientID = %u\n\twchar_t* _genArg1 = %p\n\tuint "
 	    L"_genArg2 = %u\n\tchar _genArg3 = %s\n)",
 	    clientID, _genArg1, _genArg2, ToLogString(_genArg3));
@@ -1940,7 +1939,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint clientID, wchar_t* _gen
 
 void HkIClientImpl::unknown_112(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_112(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_112(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -1951,7 +1950,7 @@ void HkIClientImpl::unknown_112(uint clientID, uint _genArg1)
 
 bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tuint clientID = %u\n)", clientID);
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2, clientID);
 
@@ -1972,7 +1971,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint clientID)
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -1997,7 +1996,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint clientID, uint _ge
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -2022,7 +2021,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint clientID, uint _ge
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint clientID, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tuint clientID = %u\n\tFLPACKET_UNKNOWN& _genArg1 = "
 	    L"%s\n)",
 	    clientID, ToLogString(_genArg1));
@@ -2047,7 +2046,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint clientID, FLPACKET_U
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -2072,7 +2071,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint clientID, uint _ge
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint clientID, uint targetID, uint rank)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tuint clientID = %u\n\tuint targetID = %u\n\tuint "
 	    L"rank = %u\n)",
 	    clientID, targetID, rank);
@@ -2097,7 +2096,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint clientID, uint tar
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -2122,7 +2121,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint clientID, uint _ge
 bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint clientID, uint _genArg1, uint _genArg2)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint "
 	    L"_genArg2 = %u\n)",
 	    clientID, _genArg1, _genArg2);
@@ -2146,7 +2145,7 @@ bool HkIClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint clientID, uint _ge
 
 void HkIClientImpl::unknown_121(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_121(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_121(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -2158,7 +2157,7 @@ void HkIClientImpl::unknown_121(uint clientID, uint _genArg1)
 bool HkIClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint clientID, uint shipID, Vector& formationOffset)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(\n\tuint clientID = %u\n\tuint shipID = %u\n\tVector& "
 	    L"formationOffset = %s\n)",
 	    clientID, shipID, ToLogString(formationOffset));
@@ -2177,7 +2176,7 @@ void HkIClientImpl::unknown_123(
     uint clientID, uint _genArg1, uint _genArg2, uint _genArg3, uint _genArg4, uint _genArg5, uint _genArg6)
 {
 	AddLog(
-	    Normal, LogLevel::Debug,
+	    LogType::Normal, LogLevel::Debug,
 	    L"HkIClientImpl::unknown_123(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n\tuint "
 	    L"_genArg3 = %u\n\tuint _genArg4 = %u\n\tuint _genArg5 = %u\n\tuint _genArg6 = %u\n)",
 	    clientID, _genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
@@ -2191,7 +2190,7 @@ void HkIClientImpl::unknown_123(
 
 void HkIClientImpl::unknown_124(uint clientID)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_124(\n\tuint clientID = %u\n)", clientID);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_124(\n\tuint clientID = %u\n)", clientID);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -2202,7 +2201,7 @@ void HkIClientImpl::unknown_124(uint clientID)
 
 void HkIClientImpl::unknown_125(uint clientID, uint _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_125(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_125(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 	CALL_CLIENT_PREAMBLE
 	{
@@ -2213,7 +2212,7 @@ void HkIClientImpl::unknown_125(uint clientID, uint _genArg1)
 
 int HkIClientImpl::unknown_126(char* _genArg1)
 {
-	AddLog(Normal, LogLevel::Debug, L"HkIClientImpl::unknown_126(\n\tchar* _genArg1 = %s\n)", _genArg1);
+	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::unknown_126(\n\tchar* _genArg1 = %s\n)", _genArg1);
 
 	int retVal;
 	CALL_CLIENT_PREAMBLE
@@ -2230,7 +2229,7 @@ namespace HkIServerImpl
 	void __stdcall FireWeapon(uint clientID, XFireWeaponInfo const& fwi)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"FireWeapon(\n\tuint clientID = %u\n\tXFireWeaponInfo const& fwi = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"FireWeapon(\n\tuint clientID = %u\n\tXFireWeaponInfo const& fwi = %s\n)", clientID,
 		    ToLogString(fwi));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__FireWeapon, clientID, fwi);
@@ -2255,7 +2254,7 @@ namespace HkIServerImpl
 	void __stdcall ActivateEquip(uint clientID, XActivateEquip const& aq)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"ActivateEquip(\n\tuint clientID = %u\n\tXActivateEquip const& aq = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"ActivateEquip(\n\tuint clientID = %u\n\tXActivateEquip const& aq = %s\n)", clientID,
 		    ToLogString(aq));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateEquip, clientID, aq);
@@ -2282,7 +2281,7 @@ namespace HkIServerImpl
 	void __stdcall ActivateCruise(uint clientID, XActivateCruise const& ac)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"ActivateCruise(\n\tuint clientID = %u\n\tXActivateCruise const& ac = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"ActivateCruise(\n\tuint clientID = %u\n\tXActivateCruise const& ac = %s\n)", clientID,
 		    ToLogString(ac));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateCruise, clientID, ac);
@@ -2309,7 +2308,7 @@ namespace HkIServerImpl
 	void __stdcall ActivateThrusters(uint clientID, XActivateThrusters const& at)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"ActivateThrusters(\n\tuint clientID = %u\n\tXActivateThrusters const& at = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"ActivateThrusters(\n\tuint clientID = %u\n\tXActivateThrusters const& at = %s\n)", clientID,
 		    ToLogString(at));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateThrusters, clientID, at);
@@ -2335,7 +2334,7 @@ namespace HkIServerImpl
 {
 	void __stdcall SetTarget(uint clientID, XSetTarget const& st)
 	{
-		AddLog(Normal, LogLevel::Debug, L"SetTarget(\n\tuint clientID = %u\n\tXSetTarget const& st = %s\n)", clientID, ToLogString(st));
+		AddLog(LogType::Normal, LogLevel::Debug, L"SetTarget(\n\tuint clientID = %u\n\tXSetTarget const& st = %s\n)", clientID, ToLogString(st));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTarget, clientID, st);
 
@@ -2357,7 +2356,7 @@ namespace HkIServerImpl
 	void __stdcall TractorObjects(uint clientID, XTractorObjects const& to)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"TractorObjects(\n\tuint clientID = %u\n\tXTractorObjects const& to = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"TractorObjects(\n\tuint clientID = %u\n\tXTractorObjects const& to = %s\n)", clientID,
 		    ToLogString(to));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TractorObjects, clientID, to);
@@ -2380,7 +2379,7 @@ namespace HkIServerImpl
 	void __stdcall GoTradelane(uint clientID, XGoTradelane const& gt)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"GoTradelane(\n\tuint clientID = %u\n\tXGoTradelane const& gt = %s\n)", clientID, ToLogString(gt));
+		    LogType::Normal, LogLevel::Debug, L"GoTradelane(\n\tuint clientID = %u\n\tXGoTradelane const& gt = %s\n)", clientID, ToLogString(gt));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GoTradelane, clientID, gt);
 
@@ -2404,7 +2403,7 @@ namespace HkIServerImpl
 	void __stdcall StopTradelane(uint clientID, uint shipID, uint tradelaneRing1, uint tradelaneRing2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"StopTradelane(\n\tuint clientID = %u\n\tuint shipID = %u\n\tuint tradelaneRing1 = %u\n\tuint "
 		    L"tradelaneRing2 = %u\n)",
 		    clientID, shipID, tradelaneRing1, tradelaneRing2);
@@ -2432,7 +2431,7 @@ namespace HkIServerImpl
 	void __stdcall JettisonCargo(uint clientID, XJettisonCargo const& jc)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"JettisonCargo(\n\tuint clientID = %u\n\tXJettisonCargo const& jc = %s\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"JettisonCargo(\n\tuint clientID = %u\n\tXJettisonCargo const& jc = %s\n)", clientID,
 		    ToLogString(jc));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JettisonCargo, clientID, jc);
@@ -2478,7 +2477,7 @@ namespace HkIServerImpl
 {
 	void __stdcall Shutdown()
 	{
-		AddLog(Normal, LogLevel::Debug, L"Shutdown()");
+		AddLog(LogType::Normal, LogLevel::Debug, L"Shutdown()");
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown);
 
@@ -2521,7 +2520,7 @@ namespace HkIServerImpl
 {
 	void __stdcall DisConnect(uint clientID, EFLConnection conn)
 	{
-		AddLog(Normal, LogLevel::Debug, L"DisConnect(\n\tuint clientID = %u\n\tEFLConnection conn = %s\n)", clientID, ToLogString(conn));
+		AddLog(LogType::Normal, LogLevel::Debug, L"DisConnect(\n\tuint clientID = %u\n\tEFLConnection conn = %s\n)", clientID, ToLogString(conn));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DisConnect, clientID, conn);
 
@@ -2544,7 +2543,7 @@ namespace HkIServerImpl
 {
 	void __stdcall OnConnect(uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"OnConnect(\n\tuint clientID = %u\n)", clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"OnConnect(\n\tuint clientID = %u\n)", clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect, clientID);
 
@@ -2569,7 +2568,7 @@ namespace HkIServerImpl
 {
 	void __stdcall Login(SLoginInfo const& li, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"Login(\n\tSLoginInfo const& li = %s\n\tuint clientID = %u\n)", ToLogString(li), clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"Login(\n\tSLoginInfo const& li = %s\n\tuint clientID = %u\n)", ToLogString(li), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login, li, clientID);
 
@@ -2591,7 +2590,7 @@ namespace HkIServerImpl
 {
 	void __stdcall CharacterInfoReq(uint clientID, bool _genArg1)
 	{
-		AddLog(Normal, LogLevel::Debug, L"CharacterInfoReq(\n\tuint clientID = %u\n\tbool _genArg1 = %d\n)", clientID, _genArg1);
+		AddLog(LogType::Normal, LogLevel::Debug, L"CharacterInfoReq(\n\tuint clientID = %u\n\tbool _genArg1 = %d\n)", clientID, _genArg1);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterInfoReq, clientID, _genArg1);
 
@@ -2618,7 +2617,7 @@ namespace HkIServerImpl
 	void __stdcall CharacterSelect(CHARACTER_ID const& cid, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"CharacterSelect(\n\tCHARACTER_ID const& cid = %s\n\tuint clientID = %u\n)", ToLogString(cid),
+		    LogType::Normal, LogLevel::Debug, L"CharacterSelect(\n\tCHARACTER_ID const& cid = %s\n\tuint clientID = %u\n)", ToLogString(cid),
 		    clientID);
 
 		std::string charName = cid.szCharFilename;
@@ -2649,7 +2648,7 @@ namespace HkIServerImpl
 	void __stdcall CreateNewCharacter(SCreateCharacterInfo const& _genArg1, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = %s\n\tuint clientID = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = %s\n\tuint clientID = %u\n)",
 		    ToLogString(_genArg1), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CreateNewCharacter, _genArg1, clientID);
@@ -2672,7 +2671,7 @@ namespace HkIServerImpl
 	void __stdcall DestroyCharacter(CHARACTER_ID const& _genArg1, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = %s\n\tuint clientID = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = %s\n\tuint clientID = %u\n)",
 		    ToLogString(_genArg1), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DestroyCharacter, _genArg1, clientID);
@@ -2694,7 +2693,7 @@ namespace HkIServerImpl
 {
 	void __stdcall ReqShipArch(uint archID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"ReqShipArch(\n\tuint archID = %u\n\tuint clientID = %u\n)", archID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"ReqShipArch(\n\tuint archID = %u\n\tuint clientID = %u\n)", archID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch, archID, clientID);
 
@@ -2715,7 +2714,7 @@ namespace HkIServerImpl
 {
 	void __stdcall ReqHullStatus(float status, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"ReqHullStatus(\n\tfloat status = %f\n\tuint clientID = %u\n)", status, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"ReqHullStatus(\n\tfloat status = %f\n\tuint clientID = %u\n)", status, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus, status, clientID);
 
@@ -2737,7 +2736,7 @@ namespace HkIServerImpl
 	void __stdcall ReqCollisionGroups(st6::list<CollisionGroupDesc> const& collisionGroups, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroups = %s\n\tuint clientID = "
 		    L"%u\n)",
 		    ToLogString(collisionGroups), clientID);
@@ -2762,7 +2761,7 @@ namespace HkIServerImpl
 	void __stdcall ReqEquipment(EquipDescList const& edl, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"ReqEquipment(\n\tEquipDescList const& edl = %s\n\tuint clientID = %u\n)", ToLogString(edl),
+		    LogType::Normal, LogLevel::Debug, L"ReqEquipment(\n\tEquipDescList const& edl = %s\n\tuint clientID = %u\n)", ToLogString(edl),
 		    clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment, edl, clientID);
@@ -2785,7 +2784,7 @@ namespace HkIServerImpl
 	void __stdcall ReqAddItem(uint goodID, char const* hardpoint, int count, float status, bool mounted, uint iClientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"ReqAddItem(\n\tuint goodID = %u\n\tchar const* hardpoint = %p\n\tint count = %d\n\tfloat status = "
 		    L"%f\n\tbool mounted = %d\n\tuint iClientID = %u\n)",
 		    goodID, hardpoint, count, status, mounted, iClientID);
@@ -2811,7 +2810,7 @@ namespace HkIServerImpl
 	void __stdcall ReqRemoveItem(ushort slotID, int count, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"ReqRemoveItem(\n\tushort slotID = %u\n\tint count = %d\n\tuint clientID = %u\n)", slotID, count,
+		    LogType::Normal, LogLevel::Debug, L"ReqRemoveItem(\n\tushort slotID = %u\n\tint count = %d\n\tuint clientID = %u\n)", slotID, count,
 		    clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqRemoveItem, slotID, count, clientID);
@@ -2835,7 +2834,7 @@ namespace HkIServerImpl
 	    ushort slotID, char const* hardpoint, int count, float status, bool mounted, uint iClientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"ReqModifyItem(\n\tushort slotID = %u\n\tchar const* hardpoint = %p\n\tint count = %d\n\tfloat status = "
 		    L"%f\n\tbool mounted = %d\n\tuint iClientID = %u\n)",
 		    slotID, hardpoint, count, status, mounted, iClientID);
@@ -2860,7 +2859,7 @@ namespace HkIServerImpl
 {
 	void __stdcall ReqSetCash(int cash, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"ReqSetCash(\n\tint cash = %d\n\tuint clientID = %u\n)", cash, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"ReqSetCash(\n\tint cash = %d\n\tuint clientID = %u\n)", cash, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash, cash, clientID);
 
@@ -2881,7 +2880,7 @@ namespace HkIServerImpl
 {
 	void __stdcall ReqChangeCash(int cashAdd, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"ReqChangeCash(\n\tint cashAdd = %d\n\tuint clientID = %u\n)", cashAdd, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"ReqChangeCash(\n\tint cashAdd = %d\n\tuint clientID = %u\n)", cashAdd, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash, cashAdd, clientID);
 
@@ -2902,7 +2901,7 @@ namespace HkIServerImpl
 {
 	void __stdcall BaseEnter(uint baseID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"BaseEnter(\n\tuint baseID = %u\n\tuint clientID = %u\n)", baseID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"BaseEnter(\n\tuint baseID = %u\n\tuint clientID = %u\n)", baseID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseEnter, baseID, clientID);
 
@@ -2928,7 +2927,7 @@ namespace HkIServerImpl
 {
 	void __stdcall BaseExit(uint baseID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"BaseExit(\n\tuint baseID = %u\n\tuint clientID = %u\n)", baseID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"BaseExit(\n\tuint baseID = %u\n\tuint clientID = %u\n)", baseID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseExit, baseID, clientID);
 
@@ -2954,7 +2953,7 @@ namespace HkIServerImpl
 {
 	void __stdcall LocationEnter(uint locationID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"LocationEnter(\n\tuint locationID = %u\n\tuint clientID = %u\n)", locationID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"LocationEnter(\n\tuint locationID = %u\n\tuint clientID = %u\n)", locationID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationEnter, locationID, clientID);
 
@@ -2975,7 +2974,7 @@ namespace HkIServerImpl
 {
 	void __stdcall LocationExit(uint locationID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"LocationExit(\n\tuint locationID = %u\n\tuint clientID = %u\n)", locationID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"LocationExit(\n\tuint locationID = %u\n\tuint clientID = %u\n)", locationID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationExit, locationID, clientID);
 
@@ -2997,7 +2996,7 @@ namespace HkIServerImpl
 	void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"BaseInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = %d\n)",
 		    _genArg1, _genArg2, _genArg3);
 
@@ -3021,7 +3020,7 @@ namespace HkIServerImpl
 	void __stdcall LocationInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"LocationInfoRequest(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tbool _genArg3 = "
 		    L"%d\n)",
 		    _genArg1, _genArg2, _genArg3);
@@ -3046,7 +3045,7 @@ namespace HkIServerImpl
 	void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"GFObjSelect(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)", _genArg1, _genArg2);
+		    LogType::Normal, LogLevel::Debug, L"GFObjSelect(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n)", _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2);
 
@@ -3068,7 +3067,7 @@ namespace HkIServerImpl
 	void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& gvi, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& gvi = %s\n\tuint clientID = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& gvi = %s\n\tuint clientID = %u\n)",
 		    ToLogString(gvi), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized, gvi, clientID);
@@ -3091,7 +3090,7 @@ namespace HkIServerImpl
 	void __stdcall MissionResponse(unsigned int _genArg1, unsigned long _genArg2, bool _genArg3, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"MissionResponse(\n\tunsigned int _genArg1 = %u\n\tunsigned long _genArg2 = %u\n\tbool _genArg3 = "
 		    L"%d\n\tuint clientID = %u\n)",
 		    _genArg1, _genArg2, _genArg3, clientID);
@@ -3117,7 +3116,7 @@ namespace HkIServerImpl
 	void __stdcall TradeResponse(unsigned char const* _genArg1, int _genArg2, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"TradeResponse(\n\tunsigned char const* _genArg1 = %p\n\tint _genArg2 = %d\n\tuint clientID = %u\n)",
 		    _genArg1, _genArg2, clientID);
 
@@ -3141,7 +3140,7 @@ namespace HkIServerImpl
 	void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = %s\n\tuint clientID = %u\n)", ToLogString(_genArg1),
+		    LogType::Normal, LogLevel::Debug, L"GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = %s\n\tuint clientID = %u\n)", ToLogString(_genArg1),
 		    clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy, _genArg1, clientID);
@@ -3164,7 +3163,7 @@ namespace HkIServerImpl
 	void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = %s\n\tuint clientID = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = %s\n\tuint clientID = %u\n)",
 		    ToLogString(_genArg1), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodSell, _genArg1, clientID);
@@ -3191,7 +3190,7 @@ namespace HkIServerImpl
 {
 	void __stdcall SystemSwitchOutComplete(uint shipID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"SystemSwitchOutComplete(\n\tuint shipID = %u\n\tuint clientID = %u\n)", shipID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"SystemSwitchOutComplete(\n\tuint shipID = %u\n\tuint clientID = %u\n)", shipID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete, shipID, clientID);
 
@@ -3213,7 +3212,7 @@ namespace HkIServerImpl
 {
 	void __stdcall PlayerLaunch(uint shipID, uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"PlayerLaunch(\n\tuint shipID = %u\n\tuint clientID = %u\n)", shipID, clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"PlayerLaunch(\n\tuint shipID = %u\n\tuint clientID = %u\n)", shipID, clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PlayerLaunch, shipID, clientID);
 
@@ -3239,7 +3238,7 @@ namespace HkIServerImpl
 {
 	void __stdcall LaunchComplete(uint baseID, uint shipID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"LaunchComplete(\n\tuint baseID = %u\n\tuint shipID = %u\n)", baseID, shipID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"LaunchComplete(\n\tuint baseID = %u\n\tuint shipID = %u\n)", baseID, shipID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete, baseID, shipID);
 
@@ -3262,7 +3261,7 @@ namespace HkIServerImpl
 {
 	void __stdcall JumpInComplete(uint systemID, uint shipID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"JumpInComplete(\n\tuint systemID = %u\n\tuint shipID = %u\n)", systemID, shipID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"JumpInComplete(\n\tuint systemID = %u\n\tuint shipID = %u\n)", systemID, shipID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete, systemID, shipID);
 
@@ -3285,7 +3284,7 @@ namespace HkIServerImpl
 	void __stdcall Hail(unsigned int _genArg1, unsigned int _genArg2, unsigned int _genArg3)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"Hail(\n\tunsigned int _genArg1 = %u\n\tunsigned int _genArg2 = %u\n\tunsigned int _genArg3 = %u\n)",
 		    _genArg1, _genArg2, _genArg3);
 
@@ -3333,7 +3332,7 @@ namespace HkIServerImpl
 	void __stdcall SPMunitionCollision(SSPMunitionCollisionInfo const& mci, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& mci = %s\n\tuint clientID = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& mci = %s\n\tuint clientID = %u\n)",
 		    ToLogString(mci), clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPMunitionCollision, mci, clientID);
@@ -3360,7 +3359,7 @@ namespace HkIServerImpl
 	void __stdcall SPObjCollision(SSPObjCollisionInfo const& oci, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SPObjCollision(\n\tSSPObjCollisionInfo const& oci = %s\n\tuint clientID = %u\n)", ToLogString(oci),
+		    LogType::Normal, LogLevel::Debug, L"SPObjCollision(\n\tSSPObjCollisionInfo const& oci = %s\n\tuint clientID = %u\n)", ToLogString(oci),
 		    clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjCollision, oci, clientID);
@@ -3385,7 +3384,7 @@ namespace HkIServerImpl
 	void __stdcall SPRequestUseItem(SSPUseItem const& ui, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SPRequestUseItem(\n\tSSPUseItem const& ui = %s\n\tuint clientID = %u\n)", ToLogString(ui),
+		    LogType::Normal, LogLevel::Debug, L"SPRequestUseItem(\n\tSSPUseItem const& ui = %s\n\tuint clientID = %u\n)", ToLogString(ui),
 		    clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem, ui, clientID);
@@ -3408,7 +3407,7 @@ namespace HkIServerImpl
 	void __stdcall SPRequestInvincibility(uint shipID, bool enable, InvincibilityReason reason, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"SPRequestInvincibility(\n\tuint shipID = %u\n\tbool enable = %d\n\tInvincibilityReason reason = "
 		    L"%s\n\tuint clientID = %u\n)",
 		    shipID, enable, ToLogString(reason), clientID);
@@ -3435,7 +3434,7 @@ namespace HkIServerImpl
 	    int eventType, uint shipID, uint dockTarget, uint _genArg1, ulong _genArg2, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"RequestEvent(\n\tint eventType = %d\n\tuint shipID = %u\n\tuint dockTarget = %u\n\tuint _genArg1 = "
 		    L"%u\n\tulong _genArg2 = %u\n\tuint clientID = %u\n)",
 		    eventType, shipID, dockTarget, _genArg1, _genArg2, clientID);
@@ -3462,7 +3461,7 @@ namespace HkIServerImpl
 	void __stdcall RequestCancel(int eventType, uint shipID, uint _genArg1, ulong _genArg2, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"RequestCancel(\n\tint eventType = %d\n\tuint shipID = %u\n\tuint _genArg1 = %u\n\tulong _genArg2 = "
 		    L"%u\n\tuint clientID = %u\n)",
 		    eventType, shipID, _genArg1, _genArg2, clientID);
@@ -3488,7 +3487,7 @@ namespace HkIServerImpl
 	void __stdcall MineAsteroid(uint systemID, Vector const& pos, uint crateID, uint lootID, uint count, uint clientID)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"MineAsteroid(\n\tuint systemID = %u\n\tVector const& pos = %s\n\tuint crateID = %u\n\tuint lootID = "
 		    L"%u\n\tuint count = %u\n\tuint clientID = %u\n)",
 		    systemID, ToLogString(pos), crateID, lootID, count, clientID);
@@ -3513,7 +3512,7 @@ namespace HkIServerImpl
 {
 	void __stdcall RequestCreateShip(uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"RequestCreateShip(\n\tuint clientID = %u\n)", clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"RequestCreateShip(\n\tuint clientID = %u\n)", clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip, clientID);
 
@@ -3535,7 +3534,7 @@ namespace HkIServerImpl
 	void __stdcall SPScanCargo(uint const& _genArg1, uint const& _genArg2, uint _genArg3)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SPScanCargo(\n\tuint const& _genArg1 = %s\n\tuint const& _genArg2 = %s\n\tuint _genArg3 = %u\n)",
+		    LogType::Normal, LogLevel::Debug, L"SPScanCargo(\n\tuint const& _genArg1 = %s\n\tuint const& _genArg2 = %s\n\tuint _genArg3 = %u\n)",
 		    ToLogString(_genArg1), ToLogString(_genArg2), _genArg3);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPScanCargo, _genArg1, _genArg2, _genArg3);
@@ -3558,7 +3557,7 @@ namespace HkIServerImpl
 	void __stdcall SetManeuver(uint clientID, XSetManeuver const& sm)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SetManeuver(\n\tuint clientID = %u\n\tXSetManeuver const& sm = %s\n)", clientID, ToLogString(sm));
+		    LogType::Normal, LogLevel::Debug, L"SetManeuver(\n\tuint clientID = %u\n\tXSetManeuver const& sm = %s\n)", clientID, ToLogString(sm));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver, clientID, sm);
 
@@ -3579,7 +3578,7 @@ namespace HkIServerImpl
 {
 	void __stdcall InterfaceItemUsed(uint _genArg1, uint _genArg2)
 	{
-		AddLog(Normal, LogLevel::Debug, L"InterfaceItemUsed(\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)", _genArg1, _genArg2);
+		AddLog(LogType::Normal, LogLevel::Debug, L"InterfaceItemUsed(\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)", _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InterfaceItemUsed, _genArg1, _genArg2);
 
@@ -3600,7 +3599,7 @@ namespace HkIServerImpl
 {
 	void __stdcall AbortMission(uint clientID, uint _genArg1)
 	{
-		AddLog(Normal, LogLevel::Debug, L"AbortMission(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
+		AddLog(LogType::Normal, LogLevel::Debug, L"AbortMission(\n\tuint clientID = %u\n\tuint _genArg1 = %u\n)", clientID, _genArg1);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AbortMission, clientID, _genArg1);
 
@@ -3622,7 +3621,7 @@ namespace HkIServerImpl
 	void __stdcall SetWeaponGroup(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SetWeaponGroup(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"SetWeaponGroup(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
 		    _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup, clientID, _genArg1, _genArg2);
@@ -3645,7 +3644,7 @@ namespace HkIServerImpl
 	void __stdcall SetVisitedState(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SetVisitedState(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"SetVisitedState(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
 		    _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState, clientID, _genArg1, _genArg2);
@@ -3668,7 +3667,7 @@ namespace HkIServerImpl
 	void __stdcall RequestBestPath(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"RequestBestPath(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"RequestBestPath(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
 		    _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath, clientID, _genArg1, _genArg2);
@@ -3691,7 +3690,7 @@ namespace HkIServerImpl
 	void __stdcall RequestPlayerStats(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"RequestPlayerStats(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
+		    LogType::Normal, LogLevel::Debug, L"RequestPlayerStats(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
 		    clientID, _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestPlayerStats, clientID, _genArg1, _genArg2);
@@ -3713,7 +3712,7 @@ namespace HkIServerImpl
 {
 	void __stdcall PopupDialog(uint clientID, uint buttonClicked)
 	{
-		AddLog(Normal, LogLevel::Debug, L"PopupDialog(\n\tuint clientID = %u\n\tuint buttonClicked = %u\n)", clientID, buttonClicked);
+		AddLog(LogType::Normal, LogLevel::Debug, L"PopupDialog(\n\tuint clientID = %u\n\tuint buttonClicked = %u\n)", clientID, buttonClicked);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopupDialog, clientID, buttonClicked);
 
@@ -3735,7 +3734,7 @@ namespace HkIServerImpl
 	void __stdcall RequestGroupPositions(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"RequestGroupPositions(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
+		    LogType::Normal, LogLevel::Debug, L"RequestGroupPositions(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
 		    clientID, _genArg1, _genArg2);
 
 		auto skip =
@@ -3759,7 +3758,7 @@ namespace HkIServerImpl
 	void __stdcall SetInterfaceState(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"SetInterfaceState(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
+		    LogType::Normal, LogLevel::Debug, L"SetInterfaceState(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)",
 		    clientID, _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetInterfaceState, clientID, _genArg1, _genArg2);
@@ -3782,7 +3781,7 @@ namespace HkIServerImpl
 	void __stdcall RequestRankLevel(uint clientID, uchar* _genArg1, int _genArg2)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"RequestRankLevel(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
+		    LogType::Normal, LogLevel::Debug, L"RequestRankLevel(\n\tuint clientID = %u\n\tuchar* _genArg1 = %p\n\tint _genArg2 = %d\n)", clientID,
 		    _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestRankLevel, clientID, _genArg1, _genArg2);
@@ -3804,7 +3803,7 @@ namespace HkIServerImpl
 {
 	void __stdcall InitiateTrade(uint clientID1, uint clientID2)
 	{
-		AddLog(Normal, LogLevel::Debug, L"InitiateTrade(\n\tuint clientID1 = %u\n\tuint clientID2 = %u\n)", clientID1, clientID2);
+		AddLog(LogType::Normal, LogLevel::Debug, L"InitiateTrade(\n\tuint clientID1 = %u\n\tuint clientID2 = %u\n)", clientID1, clientID2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InitiateTrade, clientID1, clientID2);
 
@@ -3827,7 +3826,7 @@ namespace HkIServerImpl
 {
 	void __stdcall TerminateTrade(uint clientID, int accepted)
 	{
-		AddLog(Normal, LogLevel::Debug, L"TerminateTrade(\n\tuint clientID = %u\n\tint accepted = %d\n)", clientID, accepted);
+		AddLog(LogType::Normal, LogLevel::Debug, L"TerminateTrade(\n\tuint clientID = %u\n\tint accepted = %d\n)", clientID, accepted);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TerminateTrade, clientID, accepted);
 
@@ -3851,7 +3850,7 @@ namespace HkIServerImpl
 {
 	void __stdcall AcceptTrade(uint clientID, bool _genArg1)
 	{
-		AddLog(Normal, LogLevel::Debug, L"AcceptTrade(\n\tuint clientID = %u\n\tbool _genArg1 = %d\n)", clientID, _genArg1);
+		AddLog(LogType::Normal, LogLevel::Debug, L"AcceptTrade(\n\tuint clientID = %u\n\tbool _genArg1 = %d\n)", clientID, _genArg1);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AcceptTrade, clientID, _genArg1);
 
@@ -3872,7 +3871,7 @@ namespace HkIServerImpl
 {
 	void __stdcall SetTradeMoney(uint clientID, ulong _genArg1)
 	{
-		AddLog(Normal, LogLevel::Debug, L"SetTradeMoney(\n\tuint clientID = %u\n\tulong _genArg1 = %u\n)", clientID, _genArg1);
+		AddLog(LogType::Normal, LogLevel::Debug, L"SetTradeMoney(\n\tuint clientID = %u\n\tulong _genArg1 = %u\n)", clientID, _genArg1);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTradeMoney, clientID, _genArg1);
 
@@ -3894,7 +3893,7 @@ namespace HkIServerImpl
 	void __stdcall AddTradeEquip(uint clientID, EquipDesc const& ed)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"AddTradeEquip(\n\tuint clientID = %u\n\tEquipDesc const& ed = %s\n)", clientID, ToLogString(ed));
+		    LogType::Normal, LogLevel::Debug, L"AddTradeEquip(\n\tuint clientID = %u\n\tEquipDesc const& ed = %s\n)", clientID, ToLogString(ed));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AddTradeEquip, clientID, ed);
 
@@ -3916,7 +3915,7 @@ namespace HkIServerImpl
 	void __stdcall DelTradeEquip(uint clientID, EquipDesc const& ed)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug, L"DelTradeEquip(\n\tuint clientID = %u\n\tEquipDesc const& ed = %s\n)", clientID, ToLogString(ed));
+		    LogType::Normal, LogLevel::Debug, L"DelTradeEquip(\n\tuint clientID = %u\n\tEquipDesc const& ed = %s\n)", clientID, ToLogString(ed));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DelTradeEquip, clientID, ed);
 
@@ -3937,7 +3936,7 @@ namespace HkIServerImpl
 {
 	void __stdcall RequestTrade(uint _genArg1, uint _genArg2)
 	{
-		AddLog(Normal, LogLevel::Debug, L"RequestTrade(\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)", _genArg1, _genArg2);
+		AddLog(LogType::Normal, LogLevel::Debug, L"RequestTrade(\n\tuint _genArg1 = %u\n\tuint _genArg2 = %u\n)", _genArg1, _genArg2);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestTrade, _genArg1, _genArg2);
 
@@ -3958,7 +3957,7 @@ namespace HkIServerImpl
 {
 	void __stdcall StopTradeRequest(uint clientID)
 	{
-		AddLog(Normal, LogLevel::Debug, L"StopTradeRequest(\n\tuint clientID = %u\n)", clientID);
+		AddLog(LogType::Normal, LogLevel::Debug, L"StopTradeRequest(\n\tuint clientID = %u\n)", clientID);
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradeRequest, clientID);
 
@@ -3987,7 +3986,7 @@ namespace HkIServerImpl
 	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID cidTo, int _genArg1)
 	{
 		AddLog(
-		    Normal, LogLevel::Debug,
+		    LogType::Normal, LogLevel::Debug,
 		    L"SubmitChat(\n\tCHAT_ID cidFrom = %s\n\tulong size = %u\n\tvoid const* rdlReader = %p\n\tCHAT_ID cidTo = "
 		    L"%s\n\tint _genArg1 = %d\n)",
 		    ToLogString(cidFrom), size, rdlReader, ToLogString(cidTo), _genArg1);

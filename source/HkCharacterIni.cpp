@@ -1,4 +1,4 @@
-#include "Hook.h"
+#include "Global.hpp"
 
 struct FLHOOK_PLAYER_DATA
 {

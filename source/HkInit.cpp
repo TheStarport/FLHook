@@ -1,5 +1,4 @@
-﻿#include "Hook.h"
-
+﻿#include "Global.hpp"
 #include <process.h>
 
 namespace HkIEngine
@@ -164,7 +163,7 @@ _CreateChar CreateChar;
 
 std::string scAcctPath;
 
-CLIENT_INFO ClientInfo[MAX_CLIENT_ID + 1];
+std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
 
 uint g_iServerLoad = 0;
 uint g_iPlayerCount = 0;
@@ -388,7 +387,7 @@ bool InitHookExports()
 	HkLoadStringDLLs();
 
 	// clear ClientInfo
-	for (uint i = 0; (i < sizeof(ClientInfo) / sizeof(CLIENT_INFO)); i++)
+	for (uint i = 0; i < ClientInfo.size(); i++)
 	{
 		ClientInfo[i].iConnects = 0; // only set to 0 on start
 		ClearClientInfo(i);

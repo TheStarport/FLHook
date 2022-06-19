@@ -216,40 +216,39 @@ void Timer()
 			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-			AddLog(Normal, LogLevel::Info, L"NOTICE: User restart %s for %s", restart.scRestartFile.c_str(),
+			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User restart %s for %s", restart.scRestartFile.c_str(),
 			    wstos(restart.wscCharname).c_str());
 		}
 		catch (char* err)
 		{
-			AddLog(Normal, LogLevel::Info, L"ERROR: User restart failed (%s) for %s", err, wstos(restart.wscCharname).c_str());
+			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed (%s) for %s", err, wstos(restart.wscCharname).c_str());
 		}
 		catch (...)
 		{
-			AddLog(Normal, LogLevel::Info, L"ERROR: User restart failed for %s", wstos(restart.wscCharname).c_str());
+			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed for %s", wstos(restart.wscCharname).c_str());
 		}
 	}
 }
 
 // Client command processing
-USERCMD UserCmds[] = {
-	{ L"/restart", UserCmd_Restart },
-	{ L"/showrestarts", UserCmd_ShowRestarts },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
+const std::array<USERCMD, 2> UserCmds = {{
+    {L"/restart", UserCmd_Restart},
+    {L"/showrestarts", UserCmd_ShowRestarts},
+}};
 
 // Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/restart <template>");
 	PrintUserCmdText(iClientID, L"/showrestarts");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -267,6 +266,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 ReturnCode returncode = ReturnCode::Default;

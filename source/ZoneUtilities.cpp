@@ -4,8 +4,7 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-#include "Hook.h"
-#include "global.h"
+#include "Global.hpp"
 
 #include <algorithm>
 #include <cmath>

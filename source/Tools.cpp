@@ -1,5 +1,4 @@
-﻿#include "global.h"
-#include "Hook.h"
+﻿#include "Global.hpp"
 
 #include <algorithm>
 #include <time.h>

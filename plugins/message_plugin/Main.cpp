@@ -309,7 +309,7 @@ namespace Plugins::Message
 					if (global->Info[iClientID].SwearWordWarnings > 2)
 					{
 						std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
-						AddLog(Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(),
+						AddLog(LogType::Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(),
 						    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), (wscChatMsg).c_str());
 
 						if (global->tempBanCommunicator)
@@ -862,81 +862,81 @@ namespace Plugins::Message
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {
-	    {L"/setmsg", UserCmd_SetMsg},
-	    {L"/showmsgs", UserCmd_ShowMsgs},
-	    {L"/0", UserCmd_SMsg0},
-	    {L"/1", UserCmd_SMsg1},
-	    {L"/2", UserCmd_SMsg2},
-	    {L"/3", UserCmd_SMsg3},
-	    {L"/4", UserCmd_SMsg4},
-	    {L"/5", UserCmd_SMsg5},
-	    {L"/6", UserCmd_SMsg6},
-	    {L"/7", UserCmd_SMsg7},
-	    {L"/8", UserCmd_SMsg8},
-	    {L"/9", UserCmd_SMsg9},
-	    {L"/l0", UserCmd_LMsg0},
-	    {L"/l1", UserCmd_LMsg1},
-	    {L"/l2", UserCmd_LMsg2},
-	    {L"/l3", UserCmd_LMsg3},
-	    {L"/l4", UserCmd_LMsg4},
-	    {L"/l5", UserCmd_LMsg5},
-	    {L"/l6", UserCmd_LMsg6},
-	    {L"/l7", UserCmd_LMsg7},
-	    {L"/l8", UserCmd_LMsg8},
-	    {L"/l9", UserCmd_LMsg9},
-	    {L"/g0", UserCmd_GMsg0},
-	    {L"/g1", UserCmd_GMsg1},
-	    {L"/g2", UserCmd_GMsg2},
-	    {L"/g3", UserCmd_GMsg3},
-	    {L"/g4", UserCmd_GMsg4},
-	    {L"/g5", UserCmd_GMsg5},
-	    {L"/g6", UserCmd_GMsg6},
-	    {L"/g7", UserCmd_GMsg7},
-	    {L"/g8", UserCmd_GMsg8},
-	    {L"/g9", UserCmd_GMsg9},
-	    {L"/t0", UserCmd_TMsg0},
-	    {L"/t1", UserCmd_TMsg1},
-	    {L"/t2", UserCmd_TMsg2},
-	    {L"/t3", UserCmd_TMsg3},
-	    {L"/t4", UserCmd_TMsg4},
-	    {L"/t5", UserCmd_TMsg5},
-	    {L"/t6", UserCmd_TMsg6},
-	    {L"/t7", UserCmd_TMsg7},
-	    {L"/t8", UserCmd_TMsg8},
-	    {L"/t9", UserCmd_TMsg9},
-	    {L"/target", UserCmd_SendToLastTarget},
-	    {L"/t", UserCmd_SendToLastTarget},
-	    {L"/reply", UserCmd_ReplyToLastPMSender},
-	    {L"/r", UserCmd_ReplyToLastPMSender},
-	    {L"/privatemsg$", UserCmd_PrivateMsgID},
-	    {L"/pm$", UserCmd_PrivateMsgID},
-	    {L"/privatemsg", UserCmd_PrivateMsg},
-	    {L"/pm", UserCmd_PrivateMsg},
-	    {L"/factionmsg", UserCmd_FactionMsg},
-	    {L"/fm", UserCmd_FactionMsg},
-	    {L"/factioninvite", UserCmd_FactionInvite},
-	    {L"/fi", UserCmd_FactionInvite},
-	    {L"/lastpm", UserCmd_ShowLastPMSender},
-	    {L"/set chattime", UserCmd_SetChatTime},
-	    {L"/help", UserCmd_CustomHelp},
-	    {L"/h", UserCmd_CustomHelp},
-	    {L"/?", UserCmd_CustomHelp},
-	    {L"/me", UserCmd_Me},
-	    {L"/do", UserCmd_Do},
-	    {L"/time", UserCmd_Time},
-	};
+const std::array<USERCMD, 62> UserCmds = {{
+    {L"/setmsg", UserCmd_SetMsg},
+    {L"/showmsgs", UserCmd_ShowMsgs},
+    {L"/0", UserCmd_SMsg0},
+    {L"/1", UserCmd_SMsg1},
+    {L"/2", UserCmd_SMsg2},
+    {L"/3", UserCmd_SMsg3},
+    {L"/4", UserCmd_SMsg4},
+    {L"/5", UserCmd_SMsg5},
+    {L"/6", UserCmd_SMsg6},
+    {L"/7", UserCmd_SMsg7},
+    {L"/8", UserCmd_SMsg8},
+    {L"/9", UserCmd_SMsg9},
+    {L"/l0", UserCmd_LMsg0},
+    {L"/l1", UserCmd_LMsg1},
+    {L"/l2", UserCmd_LMsg2},
+    {L"/l3", UserCmd_LMsg3},
+    {L"/l4", UserCmd_LMsg4},
+    {L"/l5", UserCmd_LMsg5},
+    {L"/l6", UserCmd_LMsg6},
+    {L"/l7", UserCmd_LMsg7},
+    {L"/l8", UserCmd_LMsg8},
+    {L"/l9", UserCmd_LMsg9},
+    {L"/g0", UserCmd_GMsg0},
+    {L"/g1", UserCmd_GMsg1},
+    {L"/g2", UserCmd_GMsg2},
+    {L"/g3", UserCmd_GMsg3},
+    {L"/g4", UserCmd_GMsg4},
+    {L"/g5", UserCmd_GMsg5},
+    {L"/g6", UserCmd_GMsg6},
+    {L"/g7", UserCmd_GMsg7},
+    {L"/g8", UserCmd_GMsg8},
+    {L"/g9", UserCmd_GMsg9},
+    {L"/t0", UserCmd_TMsg0},
+    {L"/t1", UserCmd_TMsg1},
+    {L"/t2", UserCmd_TMsg2},
+    {L"/t3", UserCmd_TMsg3},
+    {L"/t4", UserCmd_TMsg4},
+    {L"/t5", UserCmd_TMsg5},
+    {L"/t6", UserCmd_TMsg6},
+    {L"/t7", UserCmd_TMsg7},
+    {L"/t8", UserCmd_TMsg8},
+    {L"/t9", UserCmd_TMsg9},
+    {L"/target", UserCmd_SendToLastTarget},
+    {L"/t", UserCmd_SendToLastTarget},
+    {L"/reply", UserCmd_ReplyToLastPMSender},
+    {L"/r", UserCmd_ReplyToLastPMSender},
+    {L"/privatemsg$", UserCmd_PrivateMsgID},
+    {L"/pm$", UserCmd_PrivateMsgID},
+    {L"/privatemsg", UserCmd_PrivateMsg},
+    {L"/pm", UserCmd_PrivateMsg},
+    {L"/factionmsg", UserCmd_FactionMsg},
+    {L"/fm", UserCmd_FactionMsg},
+    {L"/factioninvite", UserCmd_FactionInvite},
+    {L"/fi", UserCmd_FactionInvite},
+    {L"/lastpm", UserCmd_ShowLastPMSender},
+    {L"/set chattime", UserCmd_SetChatTime},
+    {L"/help", UserCmd_CustomHelp},
+    {L"/h", UserCmd_CustomHelp},
+    {L"/?", UserCmd_CustomHelp},
+    {L"/me", UserCmd_Me},
+    {L"/do", UserCmd_Do},
+    {L"/time", UserCmd_Time},
+}};
 
 	// Process user input
 	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
 	{
-		// Echo the command back to the sender's console but only if it starts with
-		// / or .
-		std::wstring wscCmdLineLower = ToLower(wscCmd);
-		if (global->config->EchoCommandsBackToUser)
-		{
-			std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
-			if (wscCmd.find(L"/") == 0 || wscCmd.find(L".") == 0)
+	// Echo the command back to the sender's console but only if it starts with
+	// / or .
+	std::wstring wscCmdLineLower = ToLower(wscCmd);
+	if (global->config->EchoCommandsBackToUser)
+	{
+		std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
+		if (wscCmd.find(L"/") == 0 || wscCmd.find(L".") == 0)
 			{
 				if (!(wscCmd == L"/l" || wscCmd == L"/local" || wscCmd == L"/s" || wscCmd == L"/system" || wscCmd == L"/g" || wscCmd == L"/group" ||
 				        wscCmd == L"/t" || wscCmd == L"/target" || wscCmd == L"/r" || wscCmd == L"/reply" || wscCmd.find(L"//") == 0 ||
@@ -952,10 +952,10 @@ namespace Plugins::Message
 	}
 
 	// Hook on /help
-	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-	{
-		for (auto& uc : UserCmds)
-			PrintUserCmdText(iClientID, uc.wszCmd);
+	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	{	
+	for (auto& uc : UserCmds)
+		PrintUserCmdText(iClientID, uc.cmd);
 	}
 } // namespace Plugins::Message
 

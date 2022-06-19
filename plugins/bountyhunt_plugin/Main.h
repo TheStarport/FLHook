@@ -1,7 +1,7 @@
 #pragma once
 
 // Included
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 namespace Plugins::BountyHunt

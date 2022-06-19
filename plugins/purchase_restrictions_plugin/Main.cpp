@@ -16,7 +16,7 @@ static void LogItemsOfInterest(uint iClientID, uint iGoodID, const std::string& 
 	if (iter != set_mapItemsOfInterest.end())
 	{
 		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-		AddLog(Normal, 
+		AddLog(LogType::Normal, 
 		     LogLevel::Info, L"Item '%s' found in cargo of %s (%s) %s", iter->second.c_str(), wscCharName.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(wscCharName)).c_str(), details.c_str());
 	}
@@ -179,7 +179,7 @@ bool GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
 			if (!CheckIDEquipRestrictions(iClientID, gbi.iGoodID))
 			{
 				std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-				AddLog(Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", CharName.c_str(), gbi.iGoodID);
+				AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", CharName.c_str(), gbi.iGoodID);
 				if (set_bEnforceIDRestrictions)
 				{
 					PrintUserCmdText(iClientID, set_wscGoodPurchaseDenied);
@@ -206,7 +206,7 @@ bool GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
 					if (!CheckIDEquipRestrictions(iClientID, hullInfo->iShipGoodID))
 					{
 						std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-						AddLog(Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", CharName.c_str(),
+						AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", CharName.c_str(),
 						    hullInfo->iShipGoodID);
 						if (set_bEnforceIDRestrictions)
 						{

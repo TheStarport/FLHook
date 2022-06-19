@@ -1,7 +1,7 @@
 ﻿#ifndef __MAIN_H__
 #define __MAIN_H__ 1
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 struct RECIPE

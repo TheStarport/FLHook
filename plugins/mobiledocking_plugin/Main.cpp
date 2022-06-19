@@ -11,7 +11,7 @@
 
 #include "Main.h"
 
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 void LoadDockInfo(uint client);

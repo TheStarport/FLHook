@@ -240,13 +240,10 @@ namespace Plugins::BountyHunt
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {
+	const std::array<USERCMD, 2> UserCmds = {{
 	    {L"/bountyhunt", UserCmd_BountyHunt},
 	    {L"/bountyhuntid", UserCmd_BountyHuntId},
-	};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 
 	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 	{
@@ -268,6 +265,11 @@ namespace Plugins::BountyHunt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 REFL_AUTO(type(Config), field(EnableBountyHunt), field(LevelProtect))
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -287,7 +289,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
