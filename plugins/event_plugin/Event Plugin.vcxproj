@@ -61,15 +61,12 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin-vc14\event.cfg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
       <Project>{fe6eb3c9-da22-4492-aec3-068c9553a623}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,125 @@
 {
   "sonarlint.rules": {
+    "c:S4524": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5982": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S3562": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5832": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5271": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "c:S5847": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5849": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5042": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S3358": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S6069": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5547": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5542": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S4423": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S4426": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S2245": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5527": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S4790": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5332": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S2068": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "c:S2755": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "c:S5443": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S2612": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5814": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5816": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5815": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5824": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S1313": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "c:S4830": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5801": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5802": {
+      "level": "On",
+      "severity": "Critical"
+    },
     "c:S3805": {
       "level": "On",
       "severity": "Major"
@@ -20,14 +140,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S5982": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5832": {
-      "level": "On",
-      "severity": "Major"
-    },
     "c:S2681": {
       "level": "On",
       "severity": "Major"
@@ -40,33 +152,9 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S5847": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5849": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S5042": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S6069": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "c:S1854": {
       "level": "On",
       "severity": "Major"
-    },
-    "c:S5547": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5542": {
-      "level": "On",
-      "severity": "Critical"
     },
     "c:S836": {
       "level": "On",
@@ -75,22 +163,6 @@
     "c:S5782": {
       "level": "On",
       "severity": "Blocker"
-    },
-    "c:S4423": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S4426": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S2245": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S131": {
-      "level": "On",
-      "severity": "Critical"
     },
     "c:S128": {
       "level": "On",
@@ -104,25 +176,9 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "c:S5527": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "c:S935": {
       "level": "On",
       "severity": "Critical"
-    },
-    "c:S4790": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5332": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S2068": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "c:S905": {
       "level": "On",
@@ -131,10 +187,6 @@
     "c:S2637": {
       "level": "On",
       "severity": "Minor"
-    },
-    "c:S2755": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "c:S1874": {
       "level": "On",
@@ -152,14 +204,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S5443": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S2612": {
-      "level": "On",
-      "severity": "Major"
-    },
     "c:S1081": {
       "level": "On",
       "severity": "Critical"
@@ -172,19 +216,7 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "c:S5814": {
-      "level": "On",
-      "severity": "Major"
-    },
     "c:S5813": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S5816": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S5815": {
       "level": "On",
       "severity": "Major"
     },
@@ -195,22 +227,6 @@
     "c:S3529": {
       "level": "On",
       "severity": "Blocker"
-    },
-    "c:S5824": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S4830": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5801": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S5802": {
-      "level": "On",
-      "severity": "Critical"
     },
     "c:S2095": {
       "level": "On",
@@ -447,10 +463,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S5271": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "c:S1123": {
       "level": "On",
       "severity": "Major"
@@ -484,10 +496,6 @@
       "severity": "Critical"
     },
     "c:S977": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S3358": {
       "level": "On",
       "severity": "Major"
     },
@@ -765,10 +773,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "c:S1313": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "c:S3972": {
       "level": "On",
       "severity": "Critical"
@@ -844,6 +848,12 @@
     "common-c:DuplicatedBlocks": {
       "level": "On",
       "severity": "Major"
+    },
+    "c:S131": {
+      "level": "Off"
+    },
+    "c:S1774": {
+      "level": "Off"
     },
     "c:S864": {
       "level": "Off"
@@ -980,9 +990,6 @@
     "c:S1142": {
       "level": "Off"
     },
-    "c:S3562": {
-      "level": "Off"
-    },
     "c:S1705": {
       "level": "Off"
     },
@@ -1104,9 +1111,6 @@
       "level": "Off"
     },
     "c:S813": {
-      "level": "Off"
-    },
-    "c:S1774": {
       "level": "Off"
     },
     "c:S1772": {

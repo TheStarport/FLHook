@@ -3,7 +3,7 @@
 #pragma once
 #include <CInGame.h>
 #include <Hook.h>
-#include <wildcards.hh>
+#include <Wildcard.hpp>
 
 namespace HkIServerImpl {
 
@@ -686,7 +686,7 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
         HkGetPlayerIP(clientID, ip);
 
         for (const auto& ban : FLHookConfig::i()->bans.banWildcardsAndIPs) {
-            if (Wildcard::wildcardfit(wstos(ban).c_str(), wstos(ip).c_str())) 
+            if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip).c_str())) 
             {
                 HkAddKickLog(clientID, L"IP/Hostname ban(%s matches %s)",
                              ip.c_str(), ban.c_str());

@@ -1,6 +1,6 @@
 ﻿#include <winsock2.h>
 #include "Hook.h"
-#include "wildcards.hh"
+#include <Wildcard.hpp>
 
 #include <WS2tcpip.h>
 #include <math.h>
@@ -211,7 +211,7 @@ void HkTimerCheckResolveResults()
 			const auto* config = FLHookConfig::c();
 			for (const auto& ban : config->bans.banWildcardsAndIPs)
 			{
-				if (Wildcard::wildcardfit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
+				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
 					HkAddKickLog(ip.iClientID, L"IP/Hostname ban(%s matches %s)", ip.wscHostname.c_str(), ban.c_str());
 					if (config->bans.banAccountOnMatch)
