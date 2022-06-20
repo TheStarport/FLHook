@@ -1,6 +1,4 @@
-﻿#include "Hook.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿#include "Global.hpp"
 
 HK_ERROR HkGetClientID(bool& bIdString, uint& iClientID, const std::wstring& wscCharname)
 {
@@ -204,7 +202,7 @@ HK_ERROR HkResolveShortCut(const std::wstring& wscShortcut, uint& _iClientID)
 
 uint HkGetClientIDByShip(uint iShip)
 {
-	for (uint i = 0; i <= MAX_CLIENT_ID; i++)
+	for (uint i = 0; i <= MaxClientId; i++)
 	{
 		if (ClientInfo[i].iShip == iShip || ClientInfo[i].iShipOld == iShip)
 			return i;

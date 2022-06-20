@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="flcodec">
-      <UniqueIdentifier>{b1c45f5a-e0ce-4d76-bcdf-1f7e6f6e7cb9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Hook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
     </Filter>
@@ -39,9 +36,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\flcodec.cpp">
-      <Filter>flcodec</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkError.cpp">
       <Filter>Hook</Filter>
     </ClCompile>
@@ -90,9 +84,6 @@
     <ClCompile Include="..\source\CSocket.cpp">
       <Filter>AdminCommands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\blowfish.cpp">
-      <Filter>blowfish</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
@@ -128,14 +119,10 @@
     <ClCompile Include="..\source\HkClientServerInterface.cpp">
       <Filter>Hook\hooks</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\flcodec.cpp" />
+    <ClCompile Include="..\source\blowfish.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source\flcodec.h">
-      <Filter>flcodec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\Hook.h">
-      <Filter>Hook</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\CCmds.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
@@ -148,10 +135,6 @@
     <ClInclude Include="..\source\CSocket.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\blowfish.h">
-      <Filter>blowfish</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\global.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDefs.h">
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
@@ -176,9 +159,6 @@
     <ClInclude Include="..\FLHookSDK\include\st6.h">
       <Filter>sdk\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLHook.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\plugin.h">
       <Filter>sdk</Filter>
     </ClInclude>
@@ -197,6 +177,22 @@
     <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp">
       <Filter>sdk\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Constexpr.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Enums.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Macros.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLHook.hpp">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Global.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini" />

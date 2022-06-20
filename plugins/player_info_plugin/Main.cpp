@@ -7,7 +7,7 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 // Global vars

@@ -117,7 +117,7 @@ void CmdHelp(CCmds* classptr)
 // Admin command callback. Compare the chat entry to see if it match a command
 bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 {
-	if (IS_CMD("template"))
+	if (wscCmd == L"template")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_Template(cmds, cmds->ArgFloat(1));

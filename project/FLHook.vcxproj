@@ -216,6 +216,8 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\Constexpr.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Enums.hpp" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDALib.h" />
@@ -223,24 +225,23 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCoreFLServerEXE.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLHook.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLHook.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Macros.hpp" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
     <ClInclude Include="..\FLHookSDK\include\Serialization.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Singleton.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h" />
     <ClInclude Include="..\source\ExceptionInfo.h" />
-    <ClInclude Include="..\source\flcodec.h" />
-    <ClInclude Include="..\source\Hook.h" />
+    <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CInGame.h" />
     <ClInclude Include="..\source\CSocket.h" />
-    <ClInclude Include="..\source\blowfish.h" />
-    <ClInclude Include="..\source\global.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\misc\FLHook.ini">

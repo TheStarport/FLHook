@@ -33,8 +33,7 @@ EDITED by mc_horst for use in FLHook
 #include <stdlib.h>
 #include <string.h>
 
-#include "global.h"
-#include "flcodec.h"
+#include "Global.hpp"
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";

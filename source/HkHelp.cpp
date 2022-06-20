@@ -1,4 +1,4 @@
-﻿#include "Hook.h"
+﻿#include "Global.hpp"
 
 std::list<stHelpEntry> lstHelpEntries;
 bool get_bTrue(uint iClientID)

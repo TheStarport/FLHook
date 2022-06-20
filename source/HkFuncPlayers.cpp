@@ -1,8 +1,5 @@
-﻿#include "Hook.h"
-
+﻿#include "Global.hpp"
 #include <fstream>
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 HK_ERROR HkAddToGroup(uint iClientID, uint iGroupID)
 {
@@ -548,7 +545,7 @@ HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& w
 	// Emulate char create
 	SLoginInfo logindata;
 	wcsncpy_s(logindata.wszAccount, HkGetAccountID(acc).c_str(), 36);
-	Players.login(logindata, MAX_CLIENT_ID + 1);
+	Players.login(logindata, MaxClientId + 1);
 
 	SCreateCharacterInfo newcharinfo;
 	wcsncpy_s(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
@@ -601,9 +598,9 @@ HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& w
 	newcharinfo.iDunno[13] = 65540;
 	newcharinfo.iDunno[14] = 65536;
 	newcharinfo.iDunno[15] = 65538;
-	Server.CreateNewCharacter(newcharinfo, MAX_CLIENT_ID + 1);
+	Server.CreateNewCharacter(newcharinfo, MaxClientId + 1);
 	HkSaveChar(wscNewCharname);
-	Players.logout(MAX_CLIENT_ID + 1);
+	Players.logout(MaxClientId + 1);
 
 	// Decode the backup of the old char and overwrite the new char file
 	if (!flc_decode(scTmpPath.c_str(), scNewCharfilePath.c_str()))

@@ -115,16 +115,16 @@ void HkTimerCheckKick()
 			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-			AddLog(Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
 		}
 		catch (char* err)
 		{
-			AddLog(Normal, LogLevel::Info, L"ERROR: User %s costume change to %u (%s)", wstos(restart.wscCharname).c_str(),
+			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u (%s)", wstos(restart.wscCharname).c_str(),
 			    restart.costume, err);
 		}
 		catch (...)
 		{
-			AddLog(Normal, LogLevel::Info, L"ERROR: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
 		}
 	}
 }
@@ -182,20 +182,19 @@ void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Define usable chat commands here
-USERCMD UserCmds[] = {
-	{ L"/show", UserCmd_ShowWardrobe },
-	{ L"/change", UserCmd_ChangeCostume },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
+const std::array<USERCMD, 2> UserCmds = {{
+    {L"/show", UserCmd_ShowWardrobe},
+    {L"/change", UserCmd_ChangeCostume},
+}};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -219,7 +218,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
 }

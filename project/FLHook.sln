@@ -72,6 +72,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System Sensor", "..\plugins
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3111A690-73C5-484F-9D51-630B12824971}"
 	ProjectSection(SolutionItems) = preProject
+		..\.clang-format = ..\.clang-format
 		..\vcpkg.json = ..\vcpkg.json
 	EndProjectSection
 EndProject
@@ -223,7 +224,6 @@ Global
 		{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}.Release|Win32.Build.0 = Release|Win32
 		{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}.Release|x64.ActiveCfg = Release|Win32
 		{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
-		{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{81084F4C-B176-48A1-8BE1-FDDD36E15CE6}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 		{16253ADD-D317-4C44-98C4-CE451814A3E9}.Release|Win32.ActiveCfg = Release|Win32
 		{16253ADD-D317-4C44-98C4-CE451814A3E9}.Release|Win32.Build.0 = Release|Win32

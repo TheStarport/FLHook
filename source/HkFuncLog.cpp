@@ -1,4 +1,4 @@
-﻿#include "Hook.h"
+﻿#include "Global.hpp"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/msvc_sink.h"
@@ -73,28 +73,28 @@ void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
 
 	switch (LogType)
 	{
-		case Cheater:
+		case LogType::Cheater:
 			CheaterLog->log(level, scText);
 			break;
-		case Kick:
+		case LogType::Kick:
 			KickLog->log(level, scText);
 			break;
-		case Connects:
+		case LogType::Connects:
 			ConnectsLog->log(level, scText);
 			break;
-		case AdminCmds:
+		case LogType::AdminCmds:
 			AdminCmdsLog->log(level, scText);
 			break;
-		case UserLogCmds:
+		case LogType::UserLogCmds:
 			UserCmdsLog->log(level, scText);
 			break;
-		case SocketCmds:
+		case LogType::SocketCmds:
 			SocketCmdsLog->log(level, scText);
 			break;
-		case PerfTimers:
+		case LogType::PerfTimers:
 			PerfTimersLog->log(level, scText);
 			break;
-		case Normal:
+		case LogType::Normal:
 			FLHookLog->log(level, scText);
 			break;
 	}
@@ -166,7 +166,7 @@ bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring
 
 	const auto wscCharacterName = Players.GetActiveCharacterName(iClientID);
 
-	AddLog(Cheater, LogLevel::Info, L"Possible cheating detected (%s) by %s(%s)(%s) [%s %s]", 
+	AddLog(LogType::Cheater, LogLevel::Info, L"Possible cheating detected (%s) by %s(%s)(%s) [%s %s]", 
 		wscReason.c_str(), wscCharacterName, wscAccountDir.c_str(), wscAccountID.c_str(), wscHostName.c_str(), wscIp.c_str());
 	return true;
 }
@@ -189,7 +189,7 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
-	AddLog(Kick, LogLevel::Info, L"Kick (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
+	AddLog(LogType::Kick, LogLevel::Info, L"Kick (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), HkGetAccountID(acc).c_str());
 	return true;
 }
 
@@ -211,7 +211,7 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
-	AddLog(Connects, LogLevel::Info, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(),
+	AddLog(LogType::Connects, LogLevel::Info, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(),
 	    HkGetAccountID(acc).c_str());
 	return true;
 }

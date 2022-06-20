@@ -1,6 +1,4 @@
-﻿#include "Hook.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿#include "Global.hpp"
 
 void HkGetPlayerIP(uint iClientID, std::wstring& wscIP)
 {
@@ -129,7 +127,7 @@ std::list<HKPLAYERINFO> HkGetPlayers()
 
 HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO& ci)
 {
-	if (iClientID < 1 || iClientID > MAX_CLIENT_ID)
+	if (iClientID < 1 || iClientID > MaxClientId)
 		return HKE_INVALID_CLIENT_ID;
 
 	CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];

@@ -1,140 +1,133 @@
 ﻿#include "Main.h"
 
-std::list<TEMPBAN_INFO> lstTempBans;
-
-ReturnCode returncode = ReturnCode::Default;
-static TempBanCommunicator* communicator = nullptr;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+namespace Plugins::Tempban
 {
-	// clear tempban list
-	lstTempBans.clear();
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	return true;
-}
+	/**************************************************************************************************************
+	Check if TempBans exceeded
+	**************************************************************************************************************/
 
-/**************************************************************************************************************
-Check if TempBans exceeded
-**************************************************************************************************************/
-
-EXPORT void HkTimerCheckKick()
-{
-	// timed out tempbans get deleted here
-
-	returncode = ReturnCode::Default;
-
-	for (auto it = lstTempBans.begin(); it != lstTempBans.end(); ++it)
+	void HkTimerCheckKick()
 	{
-		if (((*it).banstart + (*it).banduration) < timeInMS())
+		// timed out tempbans get deleted here
+
+		global->returncode = ReturnCode::Default;
+
+		for (auto it = global->TempBans.begin(); it != global->TempBans.end(); ++it)
 		{
-			lstTempBans.erase(it);
-			break; // fix to not overflow the list
+			if (((*it).banstart + (*it).banduration) < timeInMS())
+			{
+				global->TempBans.erase(it);
+				break; // fix to not overflow the list
+			}
 		}
 	}
-}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
-{
-	const uint iClientID = HkGetClientIdFromCharname(wscCharname);
+	HK_ERROR __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
+	{
+		const uint iClientID = HkGetClientIdFromCharname(wscCharname);
 
-	mstime duration = 1000 * _duration * 60;
-	TEMPBAN_INFO tempban;
-	tempban.banstart = timeInMS();
-	tempban.banduration = duration;
+		mstime duration = 1000 * _duration * 60;
+		TEMPBAN_INFO tempban;
+		tempban.banstart = timeInMS();
+		tempban.banduration = duration;
 
-	CAccount* acc;
-	if (iClientID != -1)
+		CAccount* acc;
+		if (iClientID != -1)
+			acc = Players.FindAccountFromClientID(iClientID);
+		else
+		{
+			if (!(acc = HkGetAccountByCharname(wscCharname)))
+				return HKE_CHAR_DOES_NOT_EXIST;
+		}
+		std::wstring wscID = HkGetAccountID(acc);
+
+		tempban.wscID = wscID;
+		global->TempBans.push_back(tempban);
+
+		return HKE_OK;
+	}
+
+	bool HkTempBannedCheck(uint iClientID)
+	{
+		CAccount* acc;
 		acc = Players.FindAccountFromClientID(iClientID);
-	else
-	{
-		if (!(acc = HkGetAccountByCharname(wscCharname)))
-			return HKE_CHAR_DOES_NOT_EXIST;
-	}
-	std::wstring wscID = HkGetAccountID(acc);
 
-	tempban.wscID = wscID;
-	lstTempBans.push_back(tempban);
+		std::wstring wscID = HkGetAccountID(acc);
 
-	return HKE_OK;
-}
+		for (auto& ban : global->TempBans)
+		{
+			if (ban.wscID == wscID)
+				return true;
+		}
 
-bool HkTempBannedCheck(uint iClientID)
-{
-	CAccount* acc;
-	acc = Players.FindAccountFromClientID(iClientID);
-
-	std::wstring wscID = HkGetAccountID(acc);
-
-	for (auto& ban : lstTempBans)
-	{
-		if (ban.wscID == wscID)
-			return true;
+		return false;
 	}
 
-	return false;
-}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace HkIServerImpl
-{
-
-	EXPORT void __stdcall Login(struct SLoginInfo const& li, unsigned int& iClientID)
+	void __stdcall Login(struct SLoginInfo const& li, unsigned int& iClientID)
 	{
-		returncode = ReturnCode::Default;
+		global->returncode = ReturnCode::Default;
 
 		// check for tempban
 		if (HkTempBannedCheck(iClientID))
 		{
-			returncode = ReturnCode::SkipAll;
+			global->returncode = ReturnCode::SkipAll;
 			HkKick(iClientID);
 		}
 	}
 
-} // namespace HkIServerImpl
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CmdTempBan(CCmds* classptr, const std::wstring& wscCharname, uint iDuration)
-{
-	// right check
-	if (!(classptr->rights & RIGHT_KICKBAN))
+	void CmdTempBan(CCmds* classptr, const std::wstring& wscCharname, uint iDuration)
 	{
-		classptr->Print(L"ERR No permission");
-		return;
+		// right check
+		if (!(classptr->rights & RIGHT_KICKBAN))
+		{
+			classptr->Print(L"ERR No permission");
+			return;
+		}
+
+		if (((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK)) // hksuccess
+			classptr->Print(L"OK");
+		else
+			classptr->PrintError();
 	}
 
-	if (((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK)) // hksuccess
-		classptr->Print(L"OK");
-	else
-		classptr->PrintError();
-}
-
-EXPORT bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
-{
-	if (IS_CMD("tempban"))
+	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
 	{
-		returncode = ReturnCode::SkipAll; // do not let other plugins kick in
-		                                  // since we now handle the command
+		if (wscCmd == L"tempban")
+		{
+			global->returncode = ReturnCode::SkipAll; // do not let other plugins kick in
+			                                  // since we now handle the command
 
-		CmdTempBan(classptr, classptr->ArgCharname(1), classptr->ArgInt(2));
+			CmdTempBan(classptr, classptr->ArgCharname(1), classptr->ArgInt(2));
 
-		return true;
+			return true;
+		}
+
+		return false;
 	}
 
-	return false;
-}
+	void CmdHelp(CCmds* classptr) { classptr->Print(L"tempban <charname>"); }
 
-EXPORT void CmdHelp(CCmds* classptr)
+	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = HkTempBan; }
+} // namespace Plugins::Tempban
+
+using namespace Plugins::Tempban;
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	classptr->Print(L"tempban <charname>");
-}
+	// clear tempban list
+	global->TempBans.clear();
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	return true;
+}
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -142,20 +135,15 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("tempban");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
-	pi->emplaceHook(HookedCall::IServerImpl__Login, &HkIServerImpl::Login, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
 
 	// Register IPC
-	communicator = new TempBanCommunicator(TempBanCommunicator::pluginName);
-	PluginCommunicator::ExportPluginCommunicator(communicator);
-}
-
-TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug)
-{
-	this->TempBan = HkTempBan;
+	global->communicator = new TempBanCommunicator(TempBanCommunicator::pluginName);
+	PluginCommunicator::ExportPluginCommunicator(global->communicator);
 }

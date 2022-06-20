@@ -1,7 +1,7 @@
 ﻿#ifndef _CCONSOLE_
 #define _CCONSOLE_
 
-#include "CCmds.h"
+#include <FLHook.hpp>
 
 class CConsole : public CCmds
 {

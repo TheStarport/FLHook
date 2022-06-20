@@ -159,7 +159,7 @@ namespace Plugins::Mark
 		    L"to completely disable automarking, set the radius to a number <= 0.");
 	}
 
-	USERCMD UserCmds[] = {
+	const std::array<USERCMD, 12> UserCmds = {{
 	    {L"/mark", UserCmd_MarkObj},
 	    {L"/m", UserCmd_MarkObj},
 	    {L"/unmark", UserCmd_UnMarkObj},
@@ -172,13 +172,16 @@ namespace Plugins::Mark
 	    {L"/gum", UserCmd_UnMarkObjGroup},
 	    {L"/ignoregroupmarks", UserCmd_SetIgnoreGroupMark},
 	    {L"/automark", UserCmd_AutoMark},
-	};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 }
 
 using namespace Plugins::Mark;
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
+
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
@@ -191,7 +194,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Mark plugin by M0tah");
+	pi->name("Mark plugin");
 	pi->shortName("mark");
 	pi->mayPause(false);
 	pi->mayUnload(false);
@@ -199,7 +202,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
 	pi->emplaceHook(HookedCall::IServerImpl__LaunchComplete, &LaunchComplete);

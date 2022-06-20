@@ -60,10 +60,6 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "cpp:S2738": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "cpp:S2612": {
       "level": "On",
       "severity": "Major"
@@ -1643,6 +1639,9 @@
       "level": "Off"
     },
     "cpp:S1774": {
+      "level": "Off"
+    },
+    "cpp:S2738": {
       "level": "Off"
     },
     "cpp:S106": {

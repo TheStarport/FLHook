@@ -1,14 +1,12 @@
-﻿#include "Hook.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿#include "Global.hpp"
 
 struct HK_ERROR_INFO
 {
 	HK_ERROR hkErr;
-	wchar_t* wszText;
+	std::wstring text;
 };
 
-HK_ERROR_INFO hkErrors[] = {
+const HK_ERROR_INFO hkErrors[] = {
 	{ HKE_OK, L"Ok" },
 	{ HKE_PLAYER_NOT_LOGGED_IN, L"Player not logged in" },
 	{ HKE_CHAR_DOES_NOT_EXIST, L"Char does not exist" },
@@ -42,7 +40,7 @@ std::wstring HkErrGetText(HK_ERROR hkErr)
 	for (uint i = 0; (i < (sizeof(hkErrors) / sizeof(HK_ERROR_INFO))); i++)
 	{
 		if (hkErrors[i].hkErr == hkErr)
-			return hkErrors[i].wszText;
+			return hkErrors[i].text;
 	}
 
 	return L"No error text available";

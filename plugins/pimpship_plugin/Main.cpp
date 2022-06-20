@@ -258,19 +258,16 @@ namespace Plugins::Pimpship
 	}
 
 	// Client command processing
-	USERCMD UserCmds[] = {
+	const std::array<USERCMD, 5> UserCmds = {{
 	    {L"/pimpship", UserCmd_PimpShip},
 	    {L"/showsetup", UserCmd_ShowSetup},
 	    {L"/showitems", UserCmd_ShowItems},
 	    {L"/setitem", UserCmd_ChangeItem},
 	    {L"/buynow", UserCmd_BuyNow},
-	};
-
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd) { DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode); }
+	}};
 
 	// Hook on /help
-	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/afk ");
 		PrintUserCmdText(iClientID,
@@ -286,6 +283,11 @@ namespace Plugins::Pimpship
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::Pimpship;
+
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+}
 
 REFL_AUTO(type(ITEM_INFO), field(Nickname), field(Description))
 REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(Dealers), field(IntroMsg1), field(IntroMsg2))
@@ -306,7 +308,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IServerImpl__LocationEnter, &LocationEnter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);

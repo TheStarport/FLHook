@@ -6,7 +6,7 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <iostream>
 #include <plugin.h>
 #include <sstream>
@@ -739,43 +739,43 @@ void AdminCmd_AIFleet(CCmds* cmds, std::wstring FleetName)
 // Admin command processing
 bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 {
-	if (IS_CMD("aicreate"))
+	if (wscCmd == L"aicreate")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
 		return true;
 	}
-	else if (IS_CMD("aidestroy"))
+	else if (wscCmd == L"aidestroy")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AIKill(cmds);
 		return true;
 	}
-	else if (IS_CMD("aicancel"))
+	else if (wscCmd == L"aicancel")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AICancel(cmds);
 		return true;
 	}
-	else if (IS_CMD("aifollow"))
+	else if (wscCmd == L"aifollow")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AIFollow(cmds, cmds->ArgCharname(1));
 		return true;
 	}
-	else if (IS_CMD("aicome"))
+	else if (wscCmd == L"aicome")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AICome(cmds);
 		return true;
 	}
-	else if (IS_CMD("aifleet"))
+	else if (wscCmd == L"aifleet")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_AIFleet(cmds, cmds->ArgStr(1));
 		return true;
 	}
-	else if (IS_CMD("fleetlist"))
+	else if (wscCmd == L"fleetlist")
 	{
 		returncode = ReturnCode::SkipAll;
 		AdminCmd_ListNPCFleets(cmds);

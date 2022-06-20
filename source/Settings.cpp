@@ -1,4 +1,4 @@
-﻿#include "global.h"
+﻿#include "Global.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setting variables
@@ -19,7 +19,8 @@ void LoadSettings()
 	{
 		if (!config.socket.bfCTX)
 			config.socket.bfCTX = static_cast<BLOWFISH_CTX*>(malloc(sizeof(BLOWFISH_CTX)));
-		Blowfish_Init(config.socket.bfCTX, reinterpret_cast<unsigned char*>(config.socket.encryptionKey.data()), static_cast<int>(config.socket.encryptionKey.length()));
+		Blowfish_Init(static_cast<BLOWFISH_CTX*>(config.socket.bfCTX), reinterpret_cast<unsigned char*>(config.socket.encryptionKey.data()),
+		    static_cast<int>(config.socket.encryptionKey.length()));
 	}
 
 	// NoPVP

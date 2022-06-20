@@ -2,7 +2,7 @@
 // By Raikkonen
 
 // Includes
-#include <FLHook.h>
+#include <FLHook.hpp>
 #include <plugin.h>
 
 // Global variables and structures
@@ -74,7 +74,7 @@ void processFFA(uint iClientIDVictim)
 				}
 				else
 				{
-					struct PlayerData* pPD = 0;
+					struct PlayerData* pPD = nullptr;
 					while (pPD = Players.traverse_active(pPD))
 					{
 						uint iClientID = HkGetClientIdFromPD(pPD);
@@ -141,7 +141,7 @@ void UserCmd_StartFFA(uint iClientID, const std::wstring& wscParam)
 	{
 		// Get a list of other players in the system
 		// Add them and the player into the ffa map
-		struct PlayerData* pPD = 0;
+		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
 			// Get the this player's current system
@@ -444,17 +444,13 @@ void UserCmd_Cancel(uint iClientID, const std::wstring& wscParam)
 // Client command processing
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-USERCMD UserCmds[] = {
-	{ L"/acceptduel", UserCmd_AcceptDuel }, { L"/acceptffa", UserCmd_AcceptFFA },
-	{ L"/cancel", UserCmd_Cancel },         { L"/duel", UserCmd_Duel },
-	{ L"/ffa", UserCmd_StartFFA },
-};
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
+const std::array<USERCMD, 5> UserCmds = {{
+    {L"/acceptduel", UserCmd_AcceptDuel},
+    {L"/acceptffa", UserCmd_AcceptFFA},
+    {L"/cancel", UserCmd_Cancel},
+    {L"/duel", UserCmd_Duel},
+    {L"/ffa", UserCmd_StartFFA},
+}};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hooks
@@ -490,9 +486,14 @@ void SendDeathMessage(const std::wstring& wscMsg, uint& iSystem, uint& iClientID
 	processFFA(iClientIDVictim);
 }
 
+bool ProcessUserCmds(uint& clientId, const std::wstring& param)
+{
+	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	srand((uint)time(0));
+	srand(static_cast<uint>(time(nullptr)));
 	return true;
 }
 
@@ -502,7 +503,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("PvP by Raikkonen");
+	pi->name("PvP");
 	pi->shortName("pvp");
 	pi->mayPause(false);
 	pi->mayUnload(true);
@@ -510,7 +511,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
+	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
 	pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

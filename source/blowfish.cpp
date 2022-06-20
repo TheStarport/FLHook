@@ -55,7 +55,7 @@ have time to provide unpaid support for everyone who uses this code.
                                              -- Paul Kocher
 */
 
-#include "blowfish.h"
+#include "FLHook.hpp"
 
 #define N 16
 

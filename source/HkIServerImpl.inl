@@ -2,7 +2,6 @@
 // ReSharper disable CppNonInlineVariableDefinitionInHeaderFile
 #pragma once
 #include <CInGame.h>
-#include <Hook.h>
 #include <Wildcard.hpp>
 
 namespace HkIServerImpl {
@@ -244,7 +243,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
         !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) ||
         !(ui.vDir.y == ui.vDir.y) || !(ui.vDir.z == ui.vDir.z) ||
         !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle)) {
-        AddLog(Normal, LogLevel::Info,L"ERROR: NAN found in SPObjUpdate for id=%u", clientID);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: NAN found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -253,7 +252,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x +
               ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
     if (n > 1.21f || n < 0.81f) {
-        AddLog(Normal, LogLevel::Info,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -261,7 +260,7 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     // Far check
     if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f ||
         abs(ui.vPos.z) > 1e7f) {
-        AddLog(Normal, LogLevel::Info,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
         HkKick(Players[clientID].Account);
         return false;
     }
@@ -359,7 +358,7 @@ void BaseEnter__Inner(uint baseID, uint clientID) {
         if (FLHookConfig::i()->general.autobuy)
             HkPlayerAutoBuy(clientID, baseID);
     }
-    CATCH_HOOK({ AddLog(Normal, LogLevel::Info, L"Exception in BaseEnter on autobuy"); })
+    CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Info, L"Exception in BaseEnter on autobuy"); })
 }
     
 void BaseEnter__InnerAfter(uint baseID, uint clientID) {
@@ -392,7 +391,7 @@ void BaseEnter__InnerAfter(uint baseID, uint clientID) {
                 fValue) == HKE_OK) {
             if (fValue > 2100000000.0f) {
                 std::wstring charname = (const wchar_t *)Players.GetActiveCharacterName(clientID);
-                AddLog(Normal, LogLevel::Err, L"Possible corrupt ship charname=%s asset_value=%0.0f", charname.c_str(), fValue);
+                AddLog(LogType::Normal, LogLevel::Err, L"Possible corrupt ship charname=%s asset_value=%0.0f", charname.c_str(), fValue);
             }
         }
     }
@@ -434,7 +433,7 @@ void TerminateTrade__InnerAfter(uint clientID, int accepted) {
 }
 
 void InitiateTrade__Inner(uint clientID1, uint clientID2) {
-    if(clientID1 <= MAX_CLIENT_ID && clientID2 <= MAX_CLIENT_ID) {
+    if(clientID1 <= MaxClientId && clientID2 <= MaxClientId) {
         ClientInfo[clientID1].iTradePartner = clientID2;
         ClientInfo[clientID2].iTradePartner = clientID1;
     }
@@ -520,7 +519,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
     }
     CATCH_HOOK({
-        AddLog(Normal, LogLevel::Info,L"Exception in %s (clientID=%u (%x))", stows(__FUNCTION__).c_str(), clientID, Players.GetActiveCharacterName(clientID));
+        AddLog(LogType::Normal, LogLevel::Info,L"Exception in %s (clientID=%u (%x))", stows(__FUNCTION__).c_str(), clientID, Players.GetActiveCharacterName(clientID));
     })
 
     return true;
@@ -554,8 +553,8 @@ bool OnConnect__Inner(uint clientID) {
     TRY_HOOK {
         // If ID is too high due to disconnect buffer time then manually drop
         // the connection.
-        if (clientID > MAX_CLIENT_ID) {
-            AddLog(Normal, LogLevel::Info,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
+        if (clientID > MaxClientId) {
+            AddLog(LogType::Normal, LogLevel::Info,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
             CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
             if (!cdpClient)
                 return false;
@@ -592,7 +591,7 @@ void OnConnect__InnerAfter(uint clientID) {
 }
 
 void DisConnect__Inner(uint clientID, EFLConnection) {
-    if (clientID <= MAX_CLIENT_ID && clientID > 0 && !ClientInfo[clientID].bDisconnected) {
+    if (clientID <= MaxClientId && clientID > 0 && !ClientInfo[clientID].bDisconnected) {
         ClientInfo[clientID].bDisconnected = true;
         ClientInfo[clientID].lstMoneyFix.clear();
         ClientInfo[clientID].iTradePartner = 0;
@@ -663,7 +662,7 @@ bool Login__InnerBefore(const SLoginInfo &li, uint clientID) {
 
 bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
     TRY_HOOK {
-        if (clientID > MAX_CLIENT_ID)
+        if (clientID > MaxClientId)
             return false; // DisconnectDelay bug
 
         if (!HkIsValidClientID(clientID))
@@ -741,14 +740,14 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
 }
 
 void GoTradelane__Inner(uint clientID, const XGoTradelane& gtl) {
-    if (clientID <= MAX_CLIENT_ID && clientID > 0)
+    if (clientID <= MaxClientId && clientID > 0)
         ClientInfo[clientID].bTradelane = true;
 }
         
 bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
     uint system;
     pub::Player::GetSystem(iClientID, system);
-    AddLog(Normal, LogLevel::Info,L"ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
+    AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
            "sys=%08x arch=%08x arch2=%08x",
            wstos(ToWChar(Players.GetActiveCharacterName(iClientID)))
                .c_str(),
@@ -757,7 +756,7 @@ bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
 }
 
 void StopTradelane__Inner(uint clientID, uint, uint, uint) {
-    if (clientID <= MAX_CLIENT_ID && clientID > 0)
+	if (clientID <= MaxClientId && clientID > 0)
         ClientInfo[clientID].bTradelane = false;
 }
 
@@ -765,9 +764,9 @@ void Shutdown__InnerAfter() {
     FLHookShutdown();
 }
 
-// The maximum number of players we can support is MAX_CLIENT_ID
+// The maximum number of players we can support is MaxClientId
 // Add one to the maximum number to allow renames
-int g_MaxPlayers = MAX_CLIENT_ID + 1;
+int g_MaxPlayers = MaxClientId + 1;
 
 void Startup__Inner(const SStartupInfo &si) {
     FLHookInit_Pre();
@@ -785,7 +784,7 @@ void Startup__Inner(const SStartupInfo &si) {
 
 void Startup__InnerAfter(const SStartupInfo &si) {
     // Patch to set maximum number of players to connect. This is normally
-    // less than MAX_CLIENT_ID
+    // less than MaxClientId
     char *address = (reinterpret_cast<char*>(hModServer) + ADDR_SRV_PLAYERDBMAXPLAYERS);
     WriteProcMem(address, reinterpret_cast<const void*>(&si.iMaxPlayers), sizeof(g_MaxPlayers));
 

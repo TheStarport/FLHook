@@ -1,5 +1,7 @@
-﻿#include "../tempban_plugin/Main.h"
-#include "FLHook.h"
+﻿#pragma once
+
+#include "../tempban_plugin/Main.h"
+#include <FLHook.hpp>
 #include "plugin.h"
 
 constexpr int LossInterval = 4000;
@@ -89,7 +91,7 @@ namespace Plugins::ConData
 		// Other fields
 		ReturnCode returncode = ReturnCode::Default;
 
-		ConnectionData connections[MAX_CLIENT_ID + 1];
+		ConnectionData connections[MaxClientId + 1];
 
 		ConDataCommunicator* communicator = nullptr;
 		TempBanCommunicator* tempBanCommunicator = nullptr;

@@ -1,4 +1,4 @@
-﻿#include "Hook.h"
+﻿#include "Global.hpp"
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
@@ -16,16 +16,6 @@
 		HkGetAccountDirName(acc, wscDir);                           \
 		a = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";        \
 	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-typedef void (*_UserCmdProc)(uint, const std::wstring&);
-
-struct USERCMD
-{
-	wchar_t* wszCmd;
-	_UserCmdProc proc;
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -696,22 +686,22 @@ void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-USERCMD UserCmds[] = {
-	{ L"/set diemsg", UserCmd_SetDieMsg },
-	{ L"/set diemsgsize", UserCmd_SetDieMsgSize },
-	{ L"/set chatfont", UserCmd_SetChatFont },
-	{ L"/ignorelist", UserCmd_IgnoreList },
-	{ L"/delignore", UserCmd_DelIgnore },
-	{ L"/ignore", UserCmd_Ignore },
-	{ L"/ignoreid", UserCmd_IgnoreID },
-	{ L"/autobuy", UserCmd_AutoBuy },
-	{ L"/ids", UserCmd_IDs },
-	{ L"/id", UserCmd_ID },
-	{ L"/i$", UserCmd_InviteID },
-	{ L"/invite$", UserCmd_InviteID },
-	{ L"/credits", UserCmd_Credits },
-	{ L"/help", UserCmd_Help },
-};
+const std::array<USERCMD, 14> UserCmds = {{
+    {L"/set diemsg", UserCmd_SetDieMsg},
+    {L"/set diemsgsize", UserCmd_SetDieMsgSize},
+    {L"/set chatfont", UserCmd_SetChatFont},
+    {L"/ignorelist", UserCmd_IgnoreList},
+    {L"/delignore", UserCmd_DelIgnore},
+    {L"/ignore", UserCmd_Ignore},
+    {L"/ignoreid", UserCmd_IgnoreID},
+    {L"/autobuy", UserCmd_AutoBuy},
+    {L"/ids", UserCmd_IDs},
+    {L"/id", UserCmd_ID},
+    {L"/i$", UserCmd_InviteID},
+    {L"/invite$", UserCmd_InviteID},
+    {L"/credits", UserCmd_Credits},
+    {L"/help", UserCmd_Help},
+}};
 
 bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 {
@@ -719,31 +709,33 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 	if (pluginSkip)
 		return pluginRet;
 
-	std::wstring wscCmdLower = ToLower(wscCmd);
+	const std::wstring wscCmdLower = ToLower(wscCmd);
 
-	for (uint i = 0; i < sizeof UserCmds / sizeof(USERCMD); i++)
+	for (const auto& UserCmd : UserCmds)
 	{
-		if (wscCmdLower.find(UserCmds[i].wszCmd) == 0)
+		if (wscCmdLower.find(UserCmd.cmd) == 0)
 		{
-			std::wstring wscParam = L"";
-			if (wscCmd.length() > wcslen(UserCmds[i].wszCmd))
+			std::wstring wscParam;
+			if (wscCmd.length() > UserCmd.cmd.length())
 			{
-				if (wscCmd[wcslen(UserCmds[i].wszCmd)] != ' ')
+				if (wscCmd[UserCmd.cmd.length()] != ' ')
+				{
 					continue;
-				wscParam = wscCmd.substr(wcslen(UserCmds[i].wszCmd) + 1);
+				}
+				wscParam = wscCmd.substr(UserCmd.cmd.length() + 1);
 			}
 			
 			std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			AddLog(UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
+			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
 
 			try
 			{
-				UserCmds[i].proc(iClientID, wscParam);
-				AddLog(UserLogCmds, LogLevel::Info, L"finished");
+				UserCmd.proc(iClientID, wscParam);
+				AddLog(LogType::UserLogCmds, LogLevel::Info, L"finished");
 			}
-			catch (...)
+			catch (std::exception ex)
 			{
-				AddLog(UserLogCmds, LogLevel::Info, L"exception");
+				AddLog(LogType::UserLogCmds, LogLevel::Info, L"exception %s", stows(ex.what()));
 			}
 
 			return true;

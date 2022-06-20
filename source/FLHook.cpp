@@ -1,7 +1,6 @@
-﻿#include "CConsole.h"
+﻿#include "Global.hpp"
+#include "CConsole.h"
 #include "CSocket.h"
-#include "global.h"
-#include "Hook.h"
 
 #include <Psapi.h>
 #include <iostream>
@@ -108,7 +107,7 @@ BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-	AddLog(Normal, LogLevel::Info, L"!!TOP LEVEL EXCEPTION!!");
+	AddLog(LogType::Normal, LogLevel::Info, L"!!TOP LEVEL EXCEPTION!!");
 	SEHException ex(0, pExceptionInfo);
 	WriteMiniDump(&ex);
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
@@ -222,7 +221,6 @@ void FLHookInit_Pre()
 
 		DWORD id;
 		hConsoleThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ReadConsoleEvents), nullptr, 0, &id);
-
 		PluginManager::i();
 
 		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
@@ -484,7 +482,7 @@ void FLHookShutdown()
 	SetUnhandledExceptionFilter(0);
 #endif
 
-	AddLog(Normal, LogLevel::Info, L"-------------------");
+	AddLog(LogType::Normal, LogLevel::Info, L"-------------------");
 
 	// unload rest
 	DWORD id;
@@ -520,7 +518,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+			AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 			return true;
 		}
 
@@ -535,7 +533,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+			AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 			return true;
 		}
 
@@ -689,7 +687,7 @@ void ProcessPendingCommands()
 				sc->csock.bUnicode = false;
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = true;
-				sc->csock.bfc = FLHookConfig::c()->socket.bfCTX;
+				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
 				Console::ConInfo(
 				    L"socket(encrypted-ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(),
@@ -718,7 +716,7 @@ void ProcessPendingCommands()
 				sc->csock.bUnicode = true;
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = true;
-				sc->csock.bfc = FLHookConfig::c()->socket.bfCTX;
+				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
 				Console::ConInfo(
 				    L"socket(encrypted-unicode): new socket connection "
@@ -772,8 +770,7 @@ void ProcessPendingCommands()
 				if (wscData.length() > (1024 * iMaxKB))
 				{
 					Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
-					AddLog(
-					    Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (possible ddos attempt)",
+					AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (possible ddos attempt)",
 					    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 					delete[] szData;
 					lstDelete.push_back(sc);
