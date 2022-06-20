@@ -17,12 +17,12 @@ namespace Plugins::CargoDrop
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
-		global->CargoDropContainerId = CreateID(config.CargoDropContainer.c_str());
-		global->HullDrop1NickNameId = CreateID(config.HullDrop1NickName.c_str());
-		global->HullDrop2NickNameId = CreateID(config.HullDrop2NickName.c_str());
+		global->cargoDropContainerId = CreateID(config.cargoDropContainer.c_str());
+		global->hullDrop1NickNameId = CreateID(config.hullDrop1NickName.c_str());
+		global->hullDrop2NickNameId = CreateID(config.hullDrop2NickName.c_str());
 
-		for (const auto& no_loot_item : config.NoLootItems)
-			global->NoLootItemsIds.push_back(CreateID(no_loot_item.c_str()));
+		for (const auto& noLootItem : config.noLootItems)
+			global->noLootItemsIds.push_back(CreateID(noLootItem.c_str()));
 
 		global->config = std::make_unique<Config>(config);
 	}
@@ -30,85 +30,78 @@ namespace Plugins::CargoDrop
 	void Timer()
 	{
 		// Disconnecting while interacting checks.
-		for (auto& iter : global->mapInfo)
+		for (auto& [clientId, snd] : global->info)
 		{
-			int iClientID = iter.first;
-
 			// If selecting a character or invalid, do nothing.
-			if (!HkIsValidClientID(iClientID) || HkIsInCharSelectMenu(iClientID))
+			if (!HkIsValidClientID(clientId) || HkIsInCharSelectMenu(clientId))
 				continue;
 
 			// If not in space, do nothing
-			uint iShip;
-			pub::Player::GetShip(iClientID, iShip);
-			if (!iShip)
+			uint shipId;
+			pub::Player::GetShip(clientId, shipId);
+			if (!shipId)
 				continue;
 
-			if (ClientInfo[iClientID].tmF1Time || ClientInfo[iClientID].tmF1TimeDisconnect)
+			if (ClientInfo[clientId].tmF1Time || ClientInfo[clientId].tmF1TimeDisconnect)
 			{
-				std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
 
 				// Drain the ship's shields.
-				pub::SpaceObj::DrainShields(iShip);
+				pub::SpaceObj::DrainShields(shipId);
 
 				// Simulate an obj update to stop the ship in space.
-				SSPObjUpdateInfo ui;
-				iter.second.dLastTimestamp += 1.0;
-				ui.fTimestamp = (float)iter.second.dLastTimestamp;
-				ui.cState = 0;
-				ui.fThrottle = 0;
-				ui.vPos = iter.second.vLastPosition;
-				ui.vDir = iter.second.vLastDir;
-				Server.SPObjUpdate(ui, iClientID);
+				SSPObjUpdateInfo updateInfo{};
+				snd.lastTimestamp += 1.0;
+				updateInfo.fTimestamp = static_cast<float>(snd.lastTimestamp);
+				updateInfo.cState = 0;
+				updateInfo.fThrottle = 0;
+				updateInfo.vPos = snd.lastPosition;
+				updateInfo.vDir = snd.lastDirection;
+				Server.SPObjUpdate(updateInfo, clientId);
 
-				if (!iter.second.bF1DisconnectProcessed)
+				if (!snd.f1DisconnectProcessed)
 				{
-					iter.second.bF1DisconnectProcessed = true;
+					snd.f1DisconnectProcessed = true;
 
 					// Send disconnect report to all ships in scanner range.
-					if (global->config->ReportDisconnectingPlayers)
+					if (global->config->reportDisconnectingPlayers)
 					{
-						std::wstring wscMsg = stows(global->config->DisconnectMsg);
-						wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
-						wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-						PrintLocalUserCmdText(iClientID, wscMsg, global->config->DisconnectingPlayersRange);
+						std::wstring msg = stows(global->config->disconnectMsg);
+						msg = ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
+						msg = ReplaceStr(msg, L"%player", characterName);
+						PrintLocalUserCmdText(clientId, msg, global->config->disconnectingPlayersRange);
 					}
 
 					// Drop the player's cargo.
-					if (global->config->LootDisconnectingPlayers && IsInRange(iClientID, global->config->DisconnectingPlayersRange))
+					if (global->config->lootDisconnectingPlayers && IsInRange(clientId, global->config->disconnectingPlayersRange))
 					{
-						uint iSystem = 0;
-						pub::Player::GetSystem(iClientID, iSystem);
-						uint iShip = 0;
-						pub::Player::GetShip(iClientID, iShip);
+						uint systemID = 0;
+						pub::Player::GetSystem(clientId, systemID);
 						Vector vLoc = {0.0f, 0.0f, 0.0f};
 						Matrix mRot = {0.0f, 0.0f, 0.0f};
-						pub::SpaceObj::GetLocation(iShip, vLoc, mRot);
-						vLoc.x += 30.0;
+						pub::SpaceObj::GetLocation(shipId, vLoc, mRot);
+						vLoc.x += 30.0f;
 
-						std::list<CARGO_INFO> lstCargo;
-						int iRemainingHoldSize = 0;
-						if (HkEnumCargo(wscCharname, lstCargo, iRemainingHoldSize) == HKE_OK)
+						std::list<CARGO_INFO> cargo;
+						if (int iRemainingHoldSize = 0; HkEnumCargo(characterName, cargo, iRemainingHoldSize) == HKE_OK)
 						{
-							for (auto& item : lstCargo)
+							for (const auto& [iID, iCount, iArchID, fStatus, bMission, bMounted, hardpoint] : cargo)
 							{
-								if (!item.bMounted &&
-								    std::find(global->NoLootItemsIds.begin(), global->NoLootItemsIds.end(), item.iArchID) != global->NoLootItemsIds.end())
+								if (!bMounted &&
+								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), iArchID) != global->noLootItemsIds.end())
 								{
-									HkRemoveCargo(wscCharname, item.iID, item.iCount);
-									Server.MineAsteroid(iSystem, vLoc, global->CargoDropContainerId, item.iArchID, item.iCount, iClientID);
+									HkRemoveCargo(characterName, iID, iCount);
+									Server.MineAsteroid(systemID, vLoc, global->cargoDropContainerId, iArchID, iCount, clientId);
 								}
 							}
 						}
-						HkSaveChar(wscCharname);
+						HkSaveChar(characterName);
 					}
 
 					// Kill if other ships are in scanner range.
-					if (global->config->KillDisconnectingPlayers && IsInRange(iClientID, global->config->DisconnectingPlayersRange))
+					if (global->config->killDisconnectingPlayers && IsInRange(clientId, global->config->disconnectingPlayersRange))
 					{
-						uint iShip = 0;
-						pub::Player::GetShip(iClientID, iShip);
-						pub::SpaceObj::SetRelativeHealth(iShip, 0.0f);
+						pub::SpaceObj::SetRelativeHealth(shipId, 0.0f);
 					}
 				}
 			}
@@ -117,61 +110,61 @@ namespace Plugins::CargoDrop
 
 	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath
 	/// one. Drop a percentage of cargo + some loot representing ship bits.
-	void SendDeathMsg(const std::wstring& wscMsg, uint& iSystem, uint& iClientIDVictim, uint& iClientIDKiller)
+	void SendDeathMsg(const std::wstring& message, uint& system, uint& clientIDVictim, uint& clientIDKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
-		if (global->config->HullDropFactor == 0.0f)
+		if (global->config->hullDropFactor == 0.0f)
 			return;
 
-		std::list<CARGO_INFO> lstCargo;
+		std::list<CARGO_INFO> cargo;
 		int iRemainingHoldSize;
-		if (HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientIDVictim), lstCargo, iRemainingHoldSize) != HKE_OK)
+		if (HkEnumCargo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientIDVictim)), cargo, iRemainingHoldSize) != HKE_OK)
 			return;
 
-		int iShipSizeEst = iRemainingHoldSize;
-		for (auto& item : lstCargo)
+		int shipSizeEstimate = iRemainingHoldSize;
+		for (const auto& [iID, iCount, iArchID, fStatus, bMission, bMounted, hardpoint] : cargo)
 		{
-			if (!(item.bMounted))
+			if (!bMounted)
 			{
-				iShipSizeEst += item.iCount;
+				shipSizeEstimate += iCount;
 			}
 		}
 
-		int iHullDrop = (int)(global->config->HullDropFactor * (float)iShipSizeEst);
-		if (iHullDrop > 0)
+		if (const auto iHullDrop = static_cast<int>(global->config->hullDropFactor * shipSizeEstimate); iHullDrop > 0)
 		{
-			uint iShip;
-			pub::Player::GetShip(iClientIDVictim, iShip);
-			Vector myLocation;
-			Matrix myRot;
-			pub::SpaceObj::GetLocation(iShip, myLocation, myRot);
-			myLocation.x += 30.0;
+			uint shipId;
+			pub::Player::GetShip(clientIDVictim, shipId);
+			Vector location{};
+			Matrix rotation{};
+			pub::SpaceObj::GetLocation(shipId, location, rotation);
+			location.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(L"NOTICE: player control cargo drop in system %08x at %f,%f,%f "
 				                 L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",
-				    iSystem, myLocation.x, myLocation.y, myLocation.z, iShipSizeEst, iHullDrop);
+				    system, location.x, location.y, location.z, shipSizeEstimate, iHullDrop);
 
-			Server.MineAsteroid(iSystem, myLocation, global->CargoDropContainerId, global->HullDrop1NickNameId, iHullDrop, iClientIDVictim);
-			Server.MineAsteroid(iSystem, myLocation, global->CargoDropContainerId, global->HullDrop2NickNameId, (int)(0.5 * (float)iHullDrop), iClientIDVictim);
+			Server.MineAsteroid(system, location, global->cargoDropContainerId, global->hullDrop1NickNameId, iHullDrop, clientIDVictim);
+			Server.MineAsteroid(system, location, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast
+				<int>(0.5 * iHullDrop), clientIDVictim);
 		}
 	}
 
-	void ClearClientInfo(uint& iClientID) { global->mapInfo.erase(iClientID); }
+	void ClearClientInfo(uint& clientId) { global->info.erase(clientId); }
 
-	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& iClientID)
+	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& clientId)
 	{
-		global->mapInfo[iClientID].dLastTimestamp = ui.fTimestamp;
-		global->mapInfo[iClientID].vLastPosition = ui.vPos;
-		global->mapInfo[iClientID].vLastDir = ui.vDir;
+		global->info[clientId].lastTimestamp = ui.fTimestamp;
+		global->info[clientId].lastPosition = ui.vPos;
+		global->info[clientId].lastDirection = ui.vDir;
 	}
 } // namespace Plugins::CargoDrop
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::CargoDrop;
-REFL_AUTO(type(Config), field(ReportDisconnectingPlayers), field(KillDisconnectingPlayers), field(LootDisconnectingPlayers), field(DisconnectingPlayersRange),
-    field(HullDropFactor), field(DisconnectMsg), field(CargoDropContainer), field(HullDrop1NickName), field(HullDrop2NickName), field(NoLootItems))
+REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
+    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems))
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -186,7 +179,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("cargo_drop");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&global->returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
