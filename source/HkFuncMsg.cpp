@@ -433,3 +433,18 @@ std::wstring HkGetWStringFromIDS(uint iIDS)
 		return wszBuf;
 	return L"";
 }
+
+
+void HkFormatMessage(uint clientId, MessageColor color, MessageFormat format, const std::wstring& msg, ...)
+{
+	wchar_t buf[1024 * 8] = L"";
+	va_list marker;
+	va_start(marker, msg);
+	_vsnwprintf_s(buf, sizeof buf - 1, msg.c_str(), marker);
+
+	uint bgrColor = RgbToBgr(static_cast<uint>(color));
+	std::wstring tra = UintToHex(bgrColor, 4, true) + UintToHex(static_cast<uint>(format), 2);
+
+	const std::wstring xml = L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(buf) + L"</TEXT>";
+	HkFMsg(clientId, xml);
+}

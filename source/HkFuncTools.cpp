@@ -563,6 +563,22 @@ void TranslateZ(Vector& pos, Matrix& rot, float z)
 	pos.z += z * rot.data[2][1];
 }
 
+uint RgbToBgr(uint color)
+{
+	return (color & 0xFF000000) | ((color & 0xFF0000) >> 16) | (color & 0x00FF00) | ((color & 0x0000FF) << 16);
+};
+
+std::wstring UintToHex(uint number, bool addPrefix)
+{
+	std::wstringstream stream;
+	if (addPrefix)
+	{
+		stream << L"0x";
+	}
+	stream << std::setfill('0') << std::setw(4) << std::hex << number;
+	return stream.str();
+}
+
 uint HkExtractClientId(std::variant<uint, std::wstring> player)
 {
 	// If index is 0, we just use the client ID we are given
