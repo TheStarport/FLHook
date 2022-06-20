@@ -7,8 +7,11 @@
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
-// Includes
 #include "Main.h"
+
+// Setup Doxygen Group
+
+/** @defgroup CashManager Cash Manager (plugin) */
 
 namespace Plugins::CashManager
 {
@@ -19,11 +22,11 @@ namespace Plugins::CashManager
 	messages. Also fixes the money fix list, we can do this because this plugin is
 	called before the money fix list is accessed.
 	*/
-	static void CheckTransferLog(uint iClientID)
+	static void CheckTransferLog(uint clientId)
 	{
-		std::wstring wscCharname = ToLower((const wchar_t*)Players.GetActiveCharacterName(iClientID));
+		std::wstring characterName = ToLower(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId)));
 
-		std::string logFile = GetUserFilePath(wscCharname, "-givecashlog.txt");
+		const std::string logFile = GetUserFilePath(characterName, "-givecashlog.txt");
 		if (logFile.empty())
 			return;
 
@@ -38,22 +41,23 @@ namespace Plugins::CashManager
 		try
 		{
 			char buf[1000];
-			while (fgets(buf, 1000, f) != NULL)
+			while (fgets(buf, 1000, f) != nullptr)
 			{
-				std::string scValue = buf;
-				std::wstring msg = L"";
-				uint lHiByte;
-				uint lLoByte;
-				while (scValue.length() > 3 && sscanf_s(scValue.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+				std::string string = buf;
+				std::wstring msg;
+				uint hiByte;
+				uint loByte;
+				while (string.length() > 3 && sscanf_s(string.c_str(), "%02X%02X", &hiByte, &loByte) == 2)
 				{
-					scValue = scValue.substr(4);
-					msg.append(1, (wchar_t)((lHiByte << 8) | lLoByte));
+					string = string.substr(4);
+					msg.append(1, static_cast<wchar_t>((hiByte << 8) | loByte));
 				}
-				PrintUserCmdText(iClientID, L"%s", msg.c_str());
+				PrintUserCmdText(clientId, L"%s", msg.c_str());
 			}
 		}
 		catch (...)
 		{
+			AddLog(LogType::Normal, LogLevel::Err, L"Unable to read %s", logFile.c_str());
 		}
 		// Always close the file and remove the givecash log.
 		fclose(f);
@@ -65,9 +69,9 @@ namespace Plugins::CashManager
 	when they log in. The log is recorded in ascii hex to support wide
 	char sets.
 	*/
-	static void LogTransfer(std::wstring wscToCharname, std::wstring msg)
+	static void LogTransfer(std::wstring toCharacterName, std::wstring msg)
 	{
-		std::string logFile = GetUserFilePath(wscToCharname, "-givecashlog.txt");
+		const std::string logFile = GetUserFilePath(toCharacterName, "-givecashlog.txt");
 		if (logFile.empty())
 			return;
 		FILE* f;
@@ -79,45 +83,45 @@ namespace Plugins::CashManager
 		{
 			for (uint i = 0; (i < msg.length()); i++)
 			{
-				char cHiByte = msg[i] >> 8;
-				char cLoByte = msg[i] & 0xFF;
-				fprintf(f, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+				const char hiByte = msg[i] >> 8;
+				const char loByte = msg[i] & 0xFF;
+				fprintf(f, "%02X%02X", static_cast<uint>(hiByte) & 0xFF, static_cast<uint>(loByte) & 0xFF);
 			}
 			fprintf(f, "\n");
 		}
 		catch (...)
 		{
+			AddLog(LogType::Normal, LogLevel::Err, L"Unable to log transfer %s", logFile.c_str());
 		}
 		fclose(f);
 		return;
 	}
 
 	/** Return return if this char is in the blocked system */
-	static bool InBlockedSystem(const std::wstring& wscCharname)
+	static bool InBlockedSystem(const std::wstring& characterName)
 	{
 		// An optimisation if we have no blocked systems.
-		if (global->config->set_iBlockedSystem == 0)
+		if (global->config->blockedSystem == 0)
 			return false;
 
 		// If the char is logged in we can check in memory.
-		uint iClientID = HkGetClientIdFromCharname(wscCharname);
-		if (iClientID != -1)
+		if (const uint clientId = HkGetClientIdFromCharname(characterName))
 		{
-			uint iSystem = 0;
-			pub::Player::GetSystem(iClientID, iSystem);
-			if (iSystem == global->config->set_iBlockedSystem)
+			uint system = 0;
+			pub::Player::GetSystem(clientId, system);
+			if (system == global->config->blockedSystem)
 				return true;
 			return false;
 		}
 
 		// Have to check the charfile.
-		std::wstring wscSystemNick;
-		if (HkFLIniGet(wscCharname, L"system", wscSystemNick) != HKE_OK)
+		std::wstring systemNickname;
+		if (HkFLIniGet(characterName, L"system", systemNickname) != HKE_OK)
 			return false;
 
-		uint iSystem = 0;
-		pub::GetSystemID(iSystem, wstos(wscSystemNick).c_str());
-		if (iSystem == global->config->set_iBlockedSystem)
+		uint system = 0;
+		pub::GetSystemID(system, wstos(systemNickname).c_str());
+		if (system == global->config->blockedSystem)
 			return true;
 		return false;
 	}
@@ -130,33 +134,33 @@ namespace Plugins::CashManager
 
 	/// Check for cash transfer while this char was offline whenever they
 	/// enter or leave a base.
-	void PlayerLaunch(uint& iShip, uint& iClientID) { CheckTransferLog(iClientID); }
+	void PlayerLaunch(uint& ship, uint& clientID) { CheckTransferLog(clientID); }
 
 	/// Check for cash transfer while this char was offline whenever they
 	/// enter or leave a base. */
-	void BaseEnter(uint& iBaseID, uint& iClientID) { CheckTransferLog(iClientID); }
+	void BaseEnter(uint& baseID, uint& clientID) { CheckTransferLog(clientID); }
 
 	/** Process a give cash command */
-	void UserCmd_GiveCash(uint iClientID, const std::wstring& wscParam)
+	void UserCmdGiveCash(uint clientID, const std::wstring& param)
 	{
 		// The last error.
-		HK_ERROR err;
+		HK_ERROR error;
 
 		// Get the current character name
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
 
 		// Get the parameters from the user command.
-		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		std::wstring wscCash = GetParam(wscParam, L' ', 1);
-		std::wstring wscAnon = GetParam(wscParam, L' ', 2);
+		std::wstring targetCharacter = GetParam(param, L' ', 0);
+		std::wstring wscCash = GetParam(param, L' ', 1);
+		const std::wstring wscAnon = GetParam(param, L' ', 2);
 		wscCash = ReplaceStr(wscCash, L".", L"");
 		wscCash = ReplaceStr(wscCash, L",", L"");
 		wscCash = ReplaceStr(wscCash, L"$", L"");
-		int cash = ToInt(wscCash);
-		if ((!wscTargetCharname.length() || cash <= 0) || (wscAnon.size() && wscAnon != L"anon"))
+		const int cash = ToInt(wscCash);
+		if ((!targetCharacter.length() || cash <= 0) || (!wscAnon.empty() && wscAnon != L"anon"))
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /givecash <charname> <cash> [anon]");
+			PrintUserCmdText(clientID, L"ERR Invalid parameters");
+			PrintUserCmdText(clientID, L"Usage: /givecash <charname> <cash> [anon]");
 			return;
 		}
 
@@ -164,152 +168,148 @@ namespace Plugins::CashManager
 		if (wscAnon == L"anon")
 			bAnon = true;
 
-		if (HkGetAccountByCharname(wscTargetCharname) == 0)
+		if (HkGetAccountByCharname(targetCharacter) == nullptr)
 		{
-			PrintUserCmdText(iClientID, L"ERR char does not exist");
+			PrintUserCmdText(clientID, L"ERR char does not exist");
 			return;
 		}
 
 		int secs = 0;
-		HkGetOnlineTime(wscCharname, secs);
-		if (secs < global->config->set_iMinTime)
+		HkGetOnlineTime(characterName, secs);
+		if (secs < global->config->minimumTime)
 		{
-			PrintUserCmdText(iClientID, L"ERR insufficient time online");
+			PrintUserCmdText(clientID, L"ERR insufficient time online");
 			return;
 		}
 
-		if (InBlockedSystem(wscCharname) || InBlockedSystem(wscTargetCharname))
+		if (InBlockedSystem(characterName) || InBlockedSystem(targetCharacter))
 		{
-			PrintUserCmdText(iClientID, L"ERR cash transfer blocked");
+			PrintUserCmdText(clientID, L"ERR cash transfer blocked");
 			return;
 		}
 
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
-		int iCash = 0;
-		if ((err = HkGetCash(wscCharname, iCash)) != HKE_OK)
+		int currentCash = 0;
+		if ((error = HkGetCash(characterName, currentCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
-		if (cash < global->config->set_iMinTransfer || cash < 0)
+		if (cash < global->config->minimumTransfer || cash < 0)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->set_iMinTransfer) + L" credits");
+			PrintUserCmdText(clientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
 			return;
 		}
-		if (iCash < cash)
+		if (currentCash < cash)
 		{
-			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+			PrintUserCmdText(clientID, L"ERR Insufficient credits");
 			return;
 		}
 
 		// Prevent target ship from becoming corrupt.
-		float fTargetValue = 0.0f;
-		if (HKGetShipValue(wscTargetCharname, fTargetValue) != HKE_OK)
+		float targetValue = 0.0f;
+		if (HKGetShipValue(targetCharacter, targetValue) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
-		if ((fTargetValue + cash) > 2000000000.0f)
+		if ((targetValue + static_cast<float>(cash)) > 2000000000.0f)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer will exceed credit limit");
+			PrintUserCmdText(clientID, L"ERR Transfer will exceed credit limit");
 			return;
 		}
 
 		// Calculate the new cash
-		int iExpectedCash = 0;
-		if ((err = HkGetCash(wscTargetCharname, iExpectedCash)) != HKE_OK)
+		int expectedCash = 0;
+		if ((error = HkGetCash(targetCharacter, expectedCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Get cash failed err=" + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR Get cash failed err=" + HkErrGetText(error));
 			return;
 		}
-		iExpectedCash += cash;
+		expectedCash += cash;
 
 		// Do an anticheat check on the receiving character first.
-		uint targetClientId = HkGetClientIdFromCharname(wscTargetCharname);
-		if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId))
+		uint targetClientId = HkGetClientIdFromCharname(targetCharacter);
+		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");
+				PrintUserCmdText(clientID, L"ERR Transfer failed");
 				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
+				    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 				return;
 			}
 			HkSaveChar(targetClientId);
 		}
 
-		if (targetClientId != -1)
+		if (targetClientId && (ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner))
 		{
-			if (ClientInfo[iClientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
-			{
-				PrintUserCmdText(iClientID, L"ERR Trade window open");
-				AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u", ToMoneyStr(cash).c_str(),
-				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), iClientID, targetClientId);
-				return;
-			}
+			PrintUserCmdText(clientID, L"ERR Trade window open");
+			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u", ToMoneyStr(cash).c_str(),
+				characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+				HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(), clientID, targetClientId);
+			return;
 		}
 
 		// Remove cash from current character and save it checking that the
 		// save completes before allowing the cash to be added to the target ship.
-		if ((err = HkAddCash(wscCharname, 0 - cash)) != HKE_OK)
+		if ((error = HkAddCash(characterName, 0 - cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Remove cash failed err=" + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR Remove cash failed err=" + HkErrGetText(error));
 			return;
 		}
 
-		if (HkAntiCheat(iClientID) != HKE_OK)
+		if (HkAntiCheat(clientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");
+			PrintUserCmdText(clientID, L"ERR Transfer failed");
 			AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-			    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
+			    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 			return;
 		}
-		HkSaveChar(iClientID);
+		HkSaveChar(clientID);
 
 		// Add cash to target character
-		if ((err = HkAddCash(wscTargetCharname, cash)) != HKE_OK)
+		if ((error = HkAddCash(targetCharacter, cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Add cash failed err=" + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR Add cash failed err=" + HkErrGetText(error));
 			return;
 		}
 
-		targetClientId = HkGetClientIdFromCharname(wscTargetCharname);
-		if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId))
+		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");
+				PrintUserCmdText(clientID, L"ERR Transfer failed");
 				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-				    wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-				    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
+				    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 				return;
 			}
 			HkSaveChar(targetClientId);
 		}
 
 		// Check that receiving character has the correct amount of cash.
-		int iCurrCash;
-		if ((err = HkGetCash(wscTargetCharname, iCurrCash)) != HKE_OK || iCurrCash != iExpectedCash)
+		if (int targetCurrentCash; (HkGetCash(targetCharacter, targetCurrentCash)) != HKE_OK || targetCurrentCash != expectedCash)
 		{
 			AddLog(LogType::Normal, LogLevel::Err,
 			    L"Cash transfer error when sending %s credits from %s (%s) "
 			    "to "
 			    "%s (%s) current %s credits expected %s credits ",
-			    ToMoneyStr(cash).c_str(), wscCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), ToMoneyStr(iCurrCash).c_str(), ToMoneyStr(iExpectedCash).c_str());
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");
+			    ToMoneyStr(cash).c_str(), characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(), ToMoneyStr(targetCurrentCash).c_str(), ToMoneyStr(expectedCash).c_str());
+			PrintUserCmdText(clientID, L"ERR Transfer failed");
 			return;
 		}
 
 		// If the target player is online then send them a message saying
 		// telling them that they've received the cash.
-		std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon) ? L"anonymous" : wscCharname);
-		if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId))
+		
+		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
+			const std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + (bAnon ? L"anonymous" : characterName);
 			PrintUserCmdText(targetClientId, L"%s", msg.c_str());
 		}
 		// Otherwise we assume that the character is offline so we record an entry
@@ -317,282 +317,289 @@ namespace Plugins::CashManager
 		// of the transfer. The ini is cleared when ever the character logs in.
 		else
 		{
-			std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + ((bAnon) ? L"anonymous" : wscCharname);
-			LogTransfer(wscTargetCharname, msg);
+			const std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + (bAnon ? L"anonymous" : characterName);
+			LogTransfer(targetCharacter, msg);
 		}
 
-		AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Send %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscCharname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), wscTargetCharname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str());
+		AddLog(LogType::Normal, LogLevel::Info, L"Send %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), characterName.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 
 		// A friendly message explaining the transfer.
-		msg = L"You have sent " + ToMoneyStr(cash) + L" credits to " + wscTargetCharname;
+		std::wstring msg = L"You have sent " + ToMoneyStr(cash) + L" credits to " + targetCharacter;
 		if (bAnon)
 			msg += L" anonymously";
-		PrintUserCmdText(iClientID, L"%s", msg.c_str());
+		PrintUserCmdText(clientID, L"%s", msg.c_str());
 		return;
 	}
 
 	/** Process a set cash code command */
-	void UserCmd_SetCashCode(uint iClientID, const std::wstring& wscParam)
+	void UserCmdSetCashCode(uint clientID, const std::wstring& param)
 	{
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-		std::string scFile = GetUserFilePath(wscCharname, "-givecash.ini");
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+		const std::string scFile = GetUserFilePath(characterName, "-givecash.ini");
 		if (scFile.empty())
 			return;
 
-		std::wstring wscCode = GetParam(wscParam, L' ', 0);
+		const std::wstring code = GetParam(param, L' ', 0);
 
-		if (wscCode.empty())
+		if (code.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /set cashcode <code>");
+			PrintUserCmdText(clientID, L"ERR Invalid parameters");
+			PrintUserCmdText(clientID, L"Usage: /set cashcode <code>");
 		}
-		else if (wscCode == L"none")
+		else if (code == L"none")
 		{
 			IniWriteW(scFile, "Settings", "Code", L"");
-			PrintUserCmdText(iClientID, L"OK Account code cleared");
+			PrintUserCmdText(clientID, L"OK Account code cleared");
 		}
 		else
 		{
-			IniWriteW(scFile, "Settings", "Code", wscCode);
-			PrintUserCmdText(iClientID, L"OK Account code set to " + wscCode);
+			IniWriteW(scFile, "Settings", "Code", code);
+			PrintUserCmdText(clientID, L"OK Account code set to " + code);
 		}
 		return;
 	}
 
 	/** Process a show cash command **/
-	void UserCmd_ShowCash(uint iClientID, const std::wstring& wscParam)
+	void UserCmdShowCash(uint clientID, const std::wstring& param)
 	{
 		// The last error.
-		HK_ERROR err;
+		HK_ERROR error;
 
 		// Get the current character name
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
 
 		// Get the parameters from the user command.
-		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		std::wstring wscCode = GetParam(wscParam, L' ', 1);
+		std::wstring targetCharacterName = GetParam(param, L' ', 0);
+		const std::wstring code = GetParam(param, L' ', 1);
 
-		if (!wscTargetCharname.length() || !wscCode.length())
+		if (!targetCharacterName.length() || !code.length())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /showcash <charname> <code>");
+			PrintUserCmdText(clientID, L"ERR Invalid parameters");
+			PrintUserCmdText(clientID, L"Usage: /showcash <charname> <code>");
 			return;
 		}
 
-		CAccount* acc = HkGetAccountByCharname(wscTargetCharname);
-		if (acc == 0)
+		if (CAccount const* acc = HkGetAccountByCharname(targetCharacterName); acc == nullptr)
 		{
-			PrintUserCmdText(iClientID, L"ERR char does not exist");
+			PrintUserCmdText(clientID, L"ERR char does not exist");
 			return;
 		}
 
-		std::string scFile = GetUserFilePath(wscTargetCharname, "-givecash.ini");
-		if (scFile.empty())
+		const std::string file = GetUserFilePath(targetCharacterName, "-givecash.ini");
+		if (file.empty())
 			return;
 
-		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
-		if (!wscTargetCode.length() || wscTargetCode != wscCode)
+		if (const std::wstring targetCode = IniGetWS(file, "Settings", "Code", L""); !targetCode.length() || targetCode != code)
 		{
-			PrintUserCmdText(iClientID, L"ERR cash account access denied");
+			PrintUserCmdText(clientID, L"ERR cash account access denied");
 			return;
 		}
 
-		int iCash = 0;
-		if ((err = HkGetCash(wscTargetCharname, iCash)) != HKE_OK)
+		int cash = 0;
+		if ((error = HkGetCash(targetCharacterName, cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
 
-		PrintUserCmdText(iClientID, L"OK Account " + wscTargetCharname + L" has " + ToMoneyStr(iCash) + L" credits");
+		PrintUserCmdText(clientID, L"OK Account " + targetCharacterName + L" has " + ToMoneyStr(cash) + L" credits");
 		return;
 	}
 
 	/** Process a draw cash command **/
-	void UserCmd_DrawCash(uint iClientID, const std::wstring& wscParam)
+	void UserCmdDrawCash(uint clientID, const std::wstring& param)
 	{
 		// The last error.
-		HK_ERROR err;
+		HK_ERROR error;
 
 		// Get the current character name
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
 
 		// Get the parameters from the user command.
-		std::wstring wscTargetCharname = GetParam(wscParam, L' ', 0);
-		std::wstring wscCode = GetParam(wscParam, L' ', 1);
-		std::wstring wscCash = GetParam(wscParam, L' ', 2);
-		wscCash = ReplaceStr(wscCash, L".", L"");
-		wscCash = ReplaceStr(wscCash, L",", L"");
-		wscCash = ReplaceStr(wscCash, L"$", L"");
-		int cash = ToInt(wscCash);
-		if (!wscTargetCharname.length() || !wscCode.length() || cash <= 0)
+		std::wstring targetCharacterName = GetParam(param, L' ', 0);
+		const std::wstring code = GetParam(param, L' ', 1);
+		std::wstring cashString = GetParam(param, L' ', 2);
+		cashString = ReplaceStr(cashString, L".", L"");
+		cashString = ReplaceStr(cashString, L",", L"");
+		cashString = ReplaceStr(cashString, L"$", L"");
+		const int cash = ToInt(cashString);
+		if (!targetCharacterName.length() || !code.length() || !cash)
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /drawcash <charname> <code> <cash>");
+			PrintUserCmdText(clientID, L"ERR Invalid parameters");
+			PrintUserCmdText(clientID, L"Usage: /drawcash <charname> <code> <cash>");
 			return;
 		}
 
-		CAccount* iTargetAcc = HkGetAccountByCharname(wscTargetCharname);
-		if (iTargetAcc == 0)
+		if (CAccount const* iTargetAcc = HkGetAccountByCharname(targetCharacterName); iTargetAcc == nullptr)
 		{
-			PrintUserCmdText(iClientID, L"ERR char does not exist");
+			PrintUserCmdText(clientID, L"ERR char does not exist");
 			return;
 		}
 
 		int secs = 0;
-		HkGetOnlineTime(wscTargetCharname, secs);
-		if (secs < global->config->set_iMinTime)
+		HkGetOnlineTime(targetCharacterName, secs);
+		if (secs < global->config->minimumTime)
 		{
-			PrintUserCmdText(iClientID, L"ERR insufficient time online");
+			PrintUserCmdText(clientID, L"ERR insufficient time online");
 			return;
 		}
 
-		if (InBlockedSystem(wscCharname) || InBlockedSystem(wscTargetCharname))
+		if (InBlockedSystem(characterName) || InBlockedSystem(targetCharacterName))
 		{
-			PrintUserCmdText(iClientID, L"ERR cash transfer blocked");
+			PrintUserCmdText(clientID, L"ERR cash transfer blocked");
 			return;
 		}
 
-		std::string scFile = GetUserFilePath(wscTargetCharname, "-givecash.ini");
+		const std::string scFile = GetUserFilePath(targetCharacterName, "-givecash.ini");
 		if (scFile.empty())
 			return;
 
-		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
-		if (!wscTargetCode.length() || wscTargetCode != wscCode)
+		if (const std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L""); !wscTargetCode.length() || wscTargetCode != code)
 		{
-			PrintUserCmdText(iClientID, L"ERR cash account access denied");
+			PrintUserCmdText(clientID, L"ERR cash account access denied");
 			return;
 		}
 
-		if (cash < global->config->set_iMinTransfer || cash < 0)
+		if (cash < global->config->minimumTransfer || cash < 0)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->set_iMinTransfer) + L" credits");
+			PrintUserCmdText(clientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
 			return;
 		}
 
 		int tCash = 0;
-		if ((err = HkGetCash(wscTargetCharname, tCash)) != HKE_OK)
+		if ((error = HkGetCash(targetCharacterName, tCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
 		if (tCash < cash)
 		{
-			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+			PrintUserCmdText(clientID, L"ERR Insufficient credits");
 			return;
 		}
 
 		// Check the adding this cash to this player will not
 		// exceed the maximum ship value.
 		float fTargetValue = 0.0f;
-		if (HKGetShipValue(wscCharname, fTargetValue) != HKE_OK)
+		if (HKGetShipValue(characterName, fTargetValue) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
-		if ((fTargetValue + cash) > 2000000000.0f)
+		if ((fTargetValue + static_cast<float>(cash)) > 2000000000.0f)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer will exceed credit limit");
+			PrintUserCmdText(clientID, L"ERR Transfer will exceed credit limit");
 			return;
 		}
 
 		// Calculate the new cash
 		int iExpectedCash = 0;
-		if ((err = HkGetCash(wscCharname, iExpectedCash)) != HKE_OK)
+		if ((error = HkGetCash(characterName, iExpectedCash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
 		iExpectedCash += cash;
 
 		// Do an anticheat check on the receiving ship first.
-		if (HkAntiCheat(iClientID) != HKE_OK)
+		if (HkAntiCheat(clientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");
+			PrintUserCmdText(clientID, L"ERR Transfer failed");
 			AddLog(LogType::Cheater, LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
-			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
+			    ToMoneyStr(cash).c_str(),
+			    targetCharacterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str());
 			return;
 		}
-		HkSaveChar(iClientID);
+		HkSaveChar(clientID);
 
-		uint targetClientId = HkGetClientIdFromCharname(wscTargetCharname);
-		if (targetClientId != -1)
+		uint targetClientId = HkGetClientIdFromCharname(targetCharacterName);
+		if (targetClientId && ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 		{
-			if (ClientInfo[iClientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
-			{
-				PrintUserCmdText(iClientID, L"ERR Trade window open");
-				AddLog(LogType::Normal, LogLevel::Info,
-				    L"NOTICE: Trade window open when drawing %s credits from %s "
-				    "(%s) "
-				    "to %s (%s) %u %u",
-				    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-				    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), iClientID, targetClientId);
-				return;
-			}
+			PrintUserCmdText(clientID, L"ERR Trade window open");
+			AddLog(LogType::Normal, LogLevel::Info,
+			    L"NOTICE: Trade window open when drawing %s credits from %s "
+			    "(%s) "
+			    "to %s (%s) %u %u",
+			    ToMoneyStr(cash).c_str(),
+			    targetCharacterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), clientID, targetClientId);
+			return;
 		}
 
 		// Remove cash from target character
-		if ((err = HkAddCash(wscTargetCharname, 0 - cash)) != HKE_OK)
+		if ((error = HkAddCash(targetCharacterName, 0 - cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
 
-		if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId))
+		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR Transfer failed");
+				PrintUserCmdText(clientID, L"ERR Transfer failed");
 				AddLog(LogType::Cheater, LogLevel::Info,
 				    L"NOTICE: Possible cheating when drawing %s credits from %s "
 				    "(%s) to "
 				    "%s (%s)",
-				    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-				    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
+				    ToMoneyStr(cash).c_str(),
+				    targetCharacterName.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+				    characterName.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str());
 				return;
 			}
 			HkSaveChar(targetClientId);
 		}
 
 		// Add cash to this player
-		if ((err = HkAddCash(wscCharname, cash)) != HKE_OK)
+		if ((error = HkAddCash(characterName, cash)) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(clientID, L"ERR " + HkErrGetText(error));
 			return;
 		}
 
-		if (HkAntiCheat(iClientID) != HKE_OK)
+		if (HkAntiCheat(clientID) != HKE_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");
+			PrintUserCmdText(clientID, L"ERR Transfer failed");
 			AddLog(LogType::Cheater, LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
-			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
+			    ToMoneyStr(cash).c_str(),
+			    targetCharacterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str());
 			return;
 		}
-		HkSaveChar(iClientID);
+		HkSaveChar(clientID);
 
 		// Check that receiving player has the correct amount of cash.
-		int iCurrCash;
-		if ((err = HkGetCash(wscCharname, iCurrCash)) != HKE_OK || iCurrCash != iExpectedCash)
+		if (int currentCash; (HkGetCash(characterName, currentCash)) != HKE_OK || currentCash != iExpectedCash)
 		{
 			AddLog(LogType::Normal, LogLevel::Err,
 			    L"Cash transfer error when drawing %s credits from %s (%s) to %s (%s) current %s credits expected %s credits ",
-			    ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(), HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), ToMoneyStr(iCurrCash).c_str(), ToMoneyStr(iExpectedCash).c_str());
-			PrintUserCmdText(iClientID, L"ERR Transfer failed");
+			    ToMoneyStr(cash).c_str(),
+			    targetCharacterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), ToMoneyStr(currentCash).c_str(), ToMoneyStr(iExpectedCash).c_str());
+			PrintUserCmdText(clientID, L"ERR Transfer failed");
 		}
 
 		// If the target player is online then send them a message saying
 		// telling them that they've received transfered cash.
-		std::wstring msg = L"You have transferred " + ToMoneyStr(cash) + L" credits to " + wscCharname;
-		if (targetClientId != -1 && !HkIsInCharSelectMenu(targetClientId))
+		std::wstring msg = L"You have transferred " + ToMoneyStr(cash) + L" credits to " + characterName;
+		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
 			PrintUserCmdText(targetClientId, L"%s", msg.c_str());
 		}
@@ -601,26 +608,30 @@ namespace Plugins::CashManager
 		// of the transfer. The ini is cleared when ever the character logs in.
 		else
 		{
-			LogTransfer(wscTargetCharname, msg);
+			LogTransfer(targetCharacterName, msg);
 		}
 
-		AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Draw %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), wscTargetCharname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(wscTargetCharname)).c_str(), wscCharname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str());
+		AddLog(LogType::Normal,
+		    LogLevel::Info,
+		    L"NOTICE: Draw %s credits from %s (%s) to %s (%s)",
+		    ToMoneyStr(cash).c_str(),
+		    targetCharacterName.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(), characterName.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str());
 
 		// A friendly message explaining the transfer.
-		msg = GetTimeString(FLHookConfig::i()->general.localTime) + L": You have drawn " + ToMoneyStr(cash) + L" credits from " + wscTargetCharname;
-		PrintUserCmdText(iClientID, L"%s", msg.c_str());
+		msg = GetTimeString(FLHookConfig::i()->general.localTime) + L": You have drawn " + ToMoneyStr(cash) + L" credits from " + targetCharacterName;
+		PrintUserCmdText(clientID, L"%s", msg.c_str());
 		return;
 	}
 
 	// Client command processing
 	const std::array<USERCMD, 5> UserCmds = {{
-		{L"/givecash", UserCmd_GiveCash},
-	    {L"/sendcash", UserCmd_GiveCash},
-	    {L"/set cashcode", UserCmd_SetCashCode},
-	    {L"/showcash", UserCmd_ShowCash},
-	    {L"/drawcash", UserCmd_DrawCash}
+		{L"/givecash", UserCmdGiveCash},
+	    {L"/sendcash", UserCmdGiveCash},
+	    {L"/set cashcode", UserCmdSetCashCode},
+	    {L"/showcash", UserCmdShowCash},
+	    {L"/drawcash", UserCmdDrawCash}
 	}};
 }
 
@@ -632,11 +643,11 @@ using namespace Plugins::CashManager;
 
 bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 {
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
+	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
 }
 
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(set_iMinTransfer), field(set_iBlockedSystem), field(set_bCheatDetection), field(set_iMinTime))
+REFL_AUTO(type(Config), field(minimumTransfer), field(blockedSystem), field(cheatDetection), field(minimumTime))
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -649,7 +660,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("cash_manager");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&global->returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
