@@ -5,16 +5,35 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-ReturnCode returncode = ReturnCode::Default;
-
-struct RESTART
+namespace Plugins::Restart
 {
-	std::wstring wscCharname;
-	std::string scRestartFile;
-	std::wstring wscDir;
-	std::wstring wscCharfile;
-	int iCash;
-};
-std::list<RESTART> pendingRestarts;
+	struct Restart final
+	{
+		std::wstring characterName;
+		std::string restartFile;
+		std::wstring directory;
+		std::wstring characterFile;
+		int cash;
+	};
 
-bool set_bEnableRestartCost;
+	struct Config final : Reflectable
+	{
+		// Players with a cash above this value cannot use the restart command.
+		int maxCash = 1000000;
+
+		// Players with a rank above this value cannot use the restart command.
+		int maxRank = 5;
+
+		bool enableRestartCost;
+
+		std::string File() override { return "flhook_plugins/restarts.json"; }
+		std::map<std::wstring, int> restartCosts;
+	};
+
+	struct Global final
+	{
+		std::unique_ptr<Config> config = nullptr;
+		ReturnCode returnCode = ReturnCode::Default;
+		std::list<Restart> pendingRestarts;
+	};
+}
