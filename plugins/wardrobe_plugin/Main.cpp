@@ -138,7 +138,7 @@ namespace Plugins::Wardrobe
 	void LoadSettings() { auto config = Serializer::JsonToObject<Config>(); }
 
 	// Additional information related to the plugin when the /help command is used
-	void UserCmdHelp(const uint& clientId, const std::wstring& param)
+	void UserCmdHelp(const uint& clientId, [[maybe_unused]] const std::wstring& param)
 	{
 		PrintUserCmdText(clientId, L"/show");
 		PrintUserCmdText(clientId, L"Usage: /show <heads/bodies> - This shows the available heads and bodies for the /change command.");
@@ -162,7 +162,7 @@ namespace Plugins::Wardrobe
 
 using namespace Plugins::Wardrobe;
 
-bool ProcessUserCmds(const uint& clientId, const std::wstring& param)
+bool ProcessUserCmds(const uint& clientId, [[maybe_unused]] const std::wstring& param)
 {
 	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
 }
