@@ -102,7 +102,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 /**************************************************************************************************************
 Replace FLServer's exception handler with our own.
 **************************************************************************************************************/
-#ifdef EXTENDED_EXCEPTION_LOGGING
+#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
@@ -211,7 +211,7 @@ void FLHookInit_Pre()
 		// Load our settings before anything that might need access to debug mode
 		LoadSettings();
 
-		// Initalize the log files and throw exception if there is a problem
+		// Initialize the log files and throw exception if there is a problem
 		if (!InitLogs())
 			throw std::runtime_error("Log files cannot be created.");
 
@@ -239,7 +239,7 @@ void FLHookInit_Pre()
 
 		PatchClientImpl();
 
-#ifdef EXTENDED_EXCEPTION_LOGGING
+#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 		// Install our own exception handler to automatically log minidumps.
 		::SetUnhandledExceptionFilter(FLHookTopLevelFilter);
 
@@ -466,7 +466,7 @@ void FLHookShutdown()
 	// unload hooks
 	UnloadHookExports();
 
-#ifdef EXTENDED_EXCEPTION_LOGGING
+#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	// If extended exception logging is in use, restore patched functions
 	HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
 	if (hKernel32)
