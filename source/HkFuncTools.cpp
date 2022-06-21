@@ -568,15 +568,25 @@ uint RgbToBgr(uint color)
 	return (color & 0xFF000000) | ((color & 0xFF0000) >> 16) | (color & 0x00FF00) | ((color & 0x0000FF) << 16);
 };
 
-std::wstring UintToHex(uint number, bool addPrefix)
+std::wstring UintToHex(uint number, uint width, bool addPrefix)
 {
 	std::wstringstream stream;
 	if (addPrefix)
 	{
 		stream << L"0x";
 	}
-	stream << std::setfill('0') << std::setw(4) << std::hex << number;
+	stream << std::setfill('0') << std::setw(width) << std::hex << number;
 	return stream.str();
+}
+
+HK_ERROR HkGetSystemByNickname(std::variant<std::string, std::wstring> nickname, uint& system)
+{
+	const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : wstos(std::get<std::wstring>(nickname));
+	pub::GetSystemID(system, nick.c_str());
+	if (!system)
+		return HKE_INVALID_SYSTEM;
+
+	return HKE_OK;
 }
 
 uint HkExtractClientId(std::variant<uint, std::wstring> player)
