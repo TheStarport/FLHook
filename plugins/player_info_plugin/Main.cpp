@@ -188,11 +188,7 @@ EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

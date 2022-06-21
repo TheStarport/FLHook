@@ -185,12 +185,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

@@ -792,6 +792,10 @@ void Startup__InnerAfter(const SStartupInfo &si) {
     HkLoadBaseMarket();
 
     StartupCache::Done();
+
+    Console::ConInfo(L"FLHook Ready");
+
+    flhookReady = true;
 }
 
 }

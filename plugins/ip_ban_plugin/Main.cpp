@@ -269,14 +269,7 @@ REFL_AUTO(type(IPBans), field(Bans))
 REFL_AUTO(type(LoginIDBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

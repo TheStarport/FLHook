@@ -1236,10 +1236,7 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

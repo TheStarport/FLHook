@@ -649,10 +649,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(minimumTransfer), field(blockedSystem), field(cheatDetection), field(minimumTime))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

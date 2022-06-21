@@ -169,16 +169,7 @@ bool ProcessUserCmds(const uint& clientId, const std::wstring& param)
 
 REFL_AUTO(type(Config))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved)
-{
-	// If we're being loaded from the command line while FLHook is running then
-	// load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (reason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

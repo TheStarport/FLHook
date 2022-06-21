@@ -576,10 +576,10 @@ using namespace Plugins::CrashCatcher;
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if (fdwReason == DLL_PROCESS_ATTACH)
+	if (fdwReason == DLL_PROCESS_ATTACH && flhookReady)
 		Init();
 
-	else if (fdwReason == DLL_PROCESS_DETACH)
+	if (fdwReason == DLL_PROCESS_DETACH)
 		Shutdown();
 
 	return true;

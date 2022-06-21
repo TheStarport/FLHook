@@ -166,12 +166,7 @@ using namespace Plugins::CargoDrop;
 REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
     field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

@@ -131,19 +131,7 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

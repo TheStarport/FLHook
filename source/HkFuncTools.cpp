@@ -575,7 +575,7 @@ std::wstring UintToHex(uint number, uint width, bool addPrefix)
 	{
 		stream << L"0x";
 	}
-	stream << std::setfill('0') << std::setw(width) << std::hex << number;
+	stream << std::setfill(L'0') << std::setw(width) << std::hex << number;
 	return stream.str();
 }
 

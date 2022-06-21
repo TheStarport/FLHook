@@ -357,11 +357,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId))
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDll, [[maybe_unused]] DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

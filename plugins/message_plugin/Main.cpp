@@ -948,7 +948,7 @@ const std::array<USERCMD, 62> UserCmds = {{
 				}
 			}
 		}
-		DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode);
+		return DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode);
 	}
 
 	// Hook on /help
@@ -968,11 +968,7 @@ REFL_AUTO(type(Config), field(HelpLines), field(GreetingBannerLines), field(Spec
     field(StandardBannerTimeout), field(CustomHelp), field(EchoCommandsBackToUser), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe),
     field(EnableDo), field(CommandEchoStyle), field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

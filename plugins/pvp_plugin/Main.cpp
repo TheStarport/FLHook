@@ -491,11 +491,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand(static_cast<uint>(time(nullptr)));
-	return true;
-}
+DefaultDllMain()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions to hook

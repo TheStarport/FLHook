@@ -309,11 +309,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
 }
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

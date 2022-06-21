@@ -434,7 +434,7 @@ std::wstring HkGetWStringFromIDS(uint iIDS)
 }
 
 
-void HkFormatMessage(uint clientId, MessageColor color, MessageFormat format, const std::wstring& msg, ...)
+void HkFormatMessage(uint clientId, MessageColor color, MessageFormat format, const std::wstring msg, ...)  // NOLINT(performance-unnecessary-value-param)
 {
 	wchar_t buf[1024 * 8] = L"";
 	va_list marker;

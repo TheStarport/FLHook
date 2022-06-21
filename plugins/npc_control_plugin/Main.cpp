@@ -788,19 +788,7 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		Startup_AFTER();
-	}
-	else if (fdwReason == DLL_PROCESS_DETACH)
-	{
-	}
-	return true;
-}
+DefaultDllMainSettings(Startup_AFTER)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

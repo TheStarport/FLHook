@@ -540,13 +540,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -570,5 +564,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	// Register plugin for IPC
 	global->communicator = new ConDataCommunicator(ConDataCommunicator::pluginName);
 	PluginCommunicator::ExportPluginCommunicator(global->communicator);
-	global->tempBanCommunicator = static_cast<TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
+	global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 }

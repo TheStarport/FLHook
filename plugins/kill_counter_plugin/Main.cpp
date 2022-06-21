@@ -110,10 +110,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

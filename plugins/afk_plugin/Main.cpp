@@ -121,13 +121,8 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
 }
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
-
-// Functions to hook
+DefaultDllMain()
+    // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("AFK");

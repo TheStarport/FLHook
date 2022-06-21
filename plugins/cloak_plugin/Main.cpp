@@ -342,14 +342,7 @@ REFL_AUTO(type(Config::CLOAK_ARCH_REFLECTABLE), field(WarmupTime), field(Cooldow
 REFL_AUTO(type(Config), field(mapCloakingDevices), field(DsAce))
 
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-			LoadSettings();
-	}
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

@@ -121,13 +121,7 @@ namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	// clear tempban list
-	global->TempBans.clear();
-
-	return true;
-}
+DefaultDllMain()
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

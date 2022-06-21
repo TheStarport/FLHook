@@ -94,7 +94,7 @@ namespace Plugins::ConData
 		ConnectionData connections[MaxClientId + 1];
 
 		ConDataCommunicator* communicator = nullptr;
-		TempBanCommunicator* tempBanCommunicator = nullptr;
+		Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 
 		std::vector<Timer> timers;
 	};

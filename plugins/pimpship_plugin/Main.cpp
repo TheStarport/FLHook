@@ -292,11 +292,7 @@ bool ProcessUserCmds(uint& clientId, const std::wstring& param)
 REFL_AUTO(type(ITEM_INFO), field(Nickname), field(Description))
 REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(Dealers), field(IntroMsg1), field(IntroMsg2))
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
