@@ -191,7 +191,7 @@ namespace Plugins::DeathPenalty
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// /dp command. Shows information about death penalty
-	void UserCmd_DP(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_DP(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// If there is no death penalty, no point in having death penalty commands
 		if (!global->config->DeathPenaltyFraction)
@@ -199,15 +199,16 @@ namespace Plugins::DeathPenalty
 			return;
 		}
 
+		const auto param = ViewToWString(wscParam);
 		if (wscParam.length()) // Arguments passed
 		{
-			if (ToLower(Trim(wscParam)) == L"off")
+			if (ToLower(Trim(param)) == L"off")
 			{
 				global->MapClients[iClientID].bDisplayDPOnLaunch = false;
 				SaveDPNoticeToCharFile(iClientID, "no");
 				PrintUserCmdText(iClientID, L"Death penalty notices disabled.");
 			}
-			else if (ToLower(Trim(wscParam)) == L"on")
+			else if (ToLower(Trim(param)) == L"on")
 			{
 				global->MapClients[iClientID].bDisplayDPOnLaunch = true;
 				SaveDPNoticeToCharFile(iClientID, "yes");
@@ -242,15 +243,15 @@ namespace Plugins::DeathPenalty
 	}
 
 	// Additional information related to the plugin when the /help command is used
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam) { PrintUserCmdText(iClientID, L"/dp"); }
+	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam) { PrintUserCmdText(iClientID, L"/dp"); }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMAND PROCESSING
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Define usable chat commands here
-	std::array<USERCMD, 1> UserCmds = {{
-	    {L"/dp", UserCmd_DP},
+	std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/dp", L"", UserCmd_DP, L""),
 	}};
 } // namespace Plugins::DeathPenalty
 
@@ -258,11 +259,6 @@ namespace Plugins::DeathPenalty
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::DeathPenalty;
-
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
 
 REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionKiller), field(ExcludedSystems), field(FractionOverridesByShip))
 
@@ -275,12 +271,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("death_penalty");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::FLHook__LoadCharacterSettings, &LoadUserCharSettings);

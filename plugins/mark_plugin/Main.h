@@ -45,13 +45,13 @@ namespace Plugins::Mark
 	void HkUnMarkAllObjects(uint iClientID);
 	char HkUnMarkObject(uint iClientID, uint iObject);
 
-	void UserCmd_AutoMark(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_MarkObj(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_MarkObjGroup(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_SetIgnoreGroupMark(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_UnMarkObj(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_UnMarkObjGroup(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_UnMarkAllObj(uint iClientID, const std::wstring& wscParam);
+	void UserCmd_AutoMark(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_MarkObj(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_MarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_SetIgnoreGroupMark(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkObj(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkAllObj(const uint& iClientID, const std::wstring_view& wscParam);
 
 	void HkTimerMarkDelay();
 	void HkTimerSpaceObjMark();

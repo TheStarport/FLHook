@@ -209,7 +209,7 @@ namespace Plugins::Cloak
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void UserCmd_Cloak(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Cloak(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip;
 		pub::Player::GetShip(iClientID, iShip);
@@ -258,7 +258,7 @@ namespace Plugins::Cloak
 	}
 
 	USERCMD UserCmds[] = {
-	    {L"/cloak", UserCmd_Cloak},
+	    CreateUserCommand(L"/cloak", L"", UserCmd_Cloak, L""),
 	};
 
 	// Process user input
@@ -350,6 +350,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("cloak");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

@@ -151,7 +151,7 @@ void CharacterSelect_AFTER(std::string& szCharFilename, uint& iClientID)
 	}
 }
 
-void UserCmd_MakeTag(uint iClientID, const std::wstring& wscParam)
+void UserCmd_MakeTag(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (set_bCharnameTags)
 	{
@@ -176,7 +176,7 @@ void UserCmd_MakeTag(uint iClientID, const std::wstring& wscParam)
 
 		std::wstring tag = GetParam(wscParam, ' ', 0);
 		std::wstring pass = GetParam(wscParam, ' ', 1);
-		std::wstring description = GetParamToEnd(wscParam, ' ', 2);
+		std::wstring_view description = GetParamToEnd(wscParam, ' ', 2);
 
 		if (tag.size() < MIN_CHAR_TAG_LEN)
 		{
@@ -244,7 +244,7 @@ void UserCmd_MakeTag(uint iClientID, const std::wstring& wscParam)
 	}
 }
 
-void UserCmd_DropTag(uint iClientID, const std::wstring& wscParam)
+void UserCmd_DropTag(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (set_bCharnameTags)
 	{
@@ -281,7 +281,7 @@ void UserCmd_DropTag(uint iClientID, const std::wstring& wscParam)
 }
 
 // Make tag password
-void UserCmd_SetTagPass(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetTagPass(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (set_bCharnameTags)
 	{
@@ -436,7 +436,7 @@ void Timer()
 	}
 }
 
-void UserCmd_RenameMe(uint iClientID, const std::wstring& wscParam)
+void UserCmd_RenameMe(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	HK_ERROR err;
 
@@ -598,7 +598,7 @@ void UserCmd_RenameMe(uint iClientID, const std::wstring& wscParam)
 }
 
 /** Process a set the move char code command */
-void UserCmd_SetMoveCharCode(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetMoveCharCode(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// Don't indicate an error if moving is disabled.
 	if (!set_bEnableMoveChar)
@@ -657,7 +657,7 @@ static bool IsBanned(std::wstring charname)
 /**
  Move a character from a remote account into this one.
 */
-void UserCmd_MoveChar(uint iClientID, const std::wstring& wscParam)
+void UserCmd_MoveChar(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	HK_ERROR err;
 
@@ -941,17 +941,17 @@ void AdminCmd_DropTag(CCmds* cmds, const std::wstring& tag)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Client command processing
-const std::array<USERCMD, 6> UserCmds = {{
-    {L"/maketag", UserCmd_MakeTag},
-    {L"/droptag", UserCmd_DropTag},
-    {L"/settagpass", UserCmd_SetTagPass},
-    {L"/renameme", UserCmd_RenameMe},
-    {L"/movechar", UserCmd_MoveChar},
-    {L"/set movecharcode", UserCmd_SetMoveCharCode},
+const std::vector<UserCommand> commands = {{
+    CreateUserCommand(L"/maketag", L"", UserCmd_MakeTag, L""),
+    CreateUserCommand(L"/droptag", L"", UserCmd_DropTag, L""),
+    CreateUserCommand(L"/settagpass", L"", UserCmd_SetTagPass, L""),
+    CreateUserCommand(L"/renameme", L"", UserCmd_RenameMe, L""),
+    CreateUserCommand(L"/movechar", L"", UserCmd_MoveChar, L""),
+    CreateUserCommand(L"/set movecharcode", L"", UserCmd_SetMoveCharCode, L""),
 }};
 
 // Hook on /help
-void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/maketag <tag> <master password> <description>");
 	PrintUserCmdText(iClientID, L"/droptag <tag> <master password>");
@@ -1003,11 +1003,6 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
-
 DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -1016,6 +1011,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("rename");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -1023,7 +1019,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__CreateNewCharacter, &CreateNewCharacter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 }

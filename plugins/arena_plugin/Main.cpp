@@ -57,11 +57,11 @@ void ClearClientInfo(uint& iClientID)
 std::unique_ptr<Config> config = nullptr;
 
 // Client command processing
-void UserCmd_Conn(uint iClientID, const std::wstring& wscParam);
-void UserCmd_Return(uint iClientID, const std::wstring& wscParam);
-std::array<USERCMD, 2> UserCmds = {{
-    {L"/arena", UserCmd_Conn},
-    {L"/return", UserCmd_Return},
+void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam);
+void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam);
+const std::vector commands = {{
+    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L""),
+    CreateUserCommand(L"/return", L"", UserCmd_Return, L""),
 }};
 
 /// Load the configuration
@@ -75,7 +75,8 @@ void LoadSettings()
 	conf.targetSystemId = CreateID(conf.targetSystem.c_str());
 	config = std::make_unique<Config>(std::move(conf));
 
-	UserCmds[0] = { config->wscCommand.data(), UserCmd_Conn };
+	auto& cmd = const_cast<UserCommand&>(commands[0]);
+	cmd = CreateUserCommand(config->wscCommand.data(), cmd.usage, cmd.proc, cmd.description);
 }
 
 bool IsDockedClient(unsigned int client)
@@ -214,7 +215,7 @@ void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client)
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Conn(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// Prohibit jump if in a restricted system or in the target system
 	uint system = 0;
@@ -243,7 +244,7 @@ void UserCmd_Conn(uint iClientID, const std::wstring& wscParam)
 	transferFlags[iClientID] = CLIENT_STATE_TRANSFER;
 }
 
-void UserCmd_Return(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!ReadReturnPointForClient(iClientID))
 	{
@@ -274,7 +275,7 @@ void UserCmd_Return(uint iClientID, const std::wstring& wscParam)
 }
 
 // Hook on /help
-void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, config->wscCommand);
 	PrintUserCmdText(iClientID, L"Beams you to the Arena system.");
@@ -288,11 +289,6 @@ void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 
 DefaultDllMainSettings(LoadSettings)
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
-
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -300,11 +296,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("arena");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);

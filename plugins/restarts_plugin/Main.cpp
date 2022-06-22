@@ -21,7 +21,7 @@ namespace Plugins::Restart
 
 	/* User Commands */
 
-	void UserCmd_ShowRestarts(const uint iClientID, [[maybe_unused]] const std::wstring& param)
+	void UserCmd_ShowRestarts(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->restartCosts.empty())
 		{
@@ -43,7 +43,7 @@ namespace Plugins::Restart
 		}
 	}
 
-	void UserCmd_Restart(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Restart(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring restartTemplate = GetParam(wscParam, ' ', 0);
 		if (!restartTemplate.length())
@@ -180,13 +180,13 @@ namespace Plugins::Restart
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 2> UserCmds = {{
-	    {L"/restart", UserCmd_Restart},
-	    {L"/showrestarts", UserCmd_ShowRestarts},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/restart", L"", UserCmd_Restart, L""),
+	    CreateUserCommand(L"/showrestarts", L"", UserCmd_ShowRestarts, L""),
 	}};
 
 	// Hook on /help
-	void UserCmd_Help(const uint& iClientID, [[maybe_unused]] const std::wstring& param)
+	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/restart <template>");
 		PrintUserCmdText(iClientID, L"/showrestarts");
@@ -199,11 +199,6 @@ using namespace Plugins::Restart;
 
 REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(restartCosts))
 
-bool ProcessUserCmds(const uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
-}
-
 DefaultDllMainSettings(LoadSettings)
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -212,11 +207,10 @@ DefaultDllMainSettings(LoadSettings)
 	pi->shortName("restarts");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

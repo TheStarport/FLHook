@@ -94,7 +94,7 @@ void processFFA(uint iClientIDVictim)
 
 // This method is called when a player types /ffa in an attempt to start a pvp
 // event
-void UserCmd_StartFFA(uint iClientID, const std::wstring& wscParam)
+void UserCmd_StartFFA(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	HK_ERROR err;
 
@@ -186,7 +186,7 @@ void UserCmd_StartFFA(uint iClientID, const std::wstring& wscParam)
 }
 
 // This method is called when a player types /acceptffa
-void UserCmd_AcceptFFA(uint iClientID, const std::wstring& wscParam)
+void UserCmd_AcceptFFA(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// Is player in space?
 	uint iShip;
@@ -291,7 +291,7 @@ void processDuel(uint iClientID)
 }
 
 // This method is called when a player types /duel in an attempt to start a duel
-void UserCmd_Duel(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Duel(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// Get the object the player is targetting
 	uint iShip, iTargetShip;
@@ -382,7 +382,7 @@ void UserCmd_Duel(uint iClientID, const std::wstring& wscParam)
 	PrintUserCmdText(iClientIDTarget, L"Type \"/acceptduel\" to accept.");
 }
 
-void UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscParam)
+void UserCmd_AcceptDuel(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// Is player in space?
 	uint iShip;
@@ -434,7 +434,7 @@ void UserCmd_AcceptDuel(uint iClientID, const std::wstring& wscParam)
 	    L"someone, target them and type /duel <amount>");
 }
 
-void UserCmd_Cancel(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Cancel(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	processFFA(iClientID);
 	processDuel(iClientID);
@@ -444,12 +444,12 @@ void UserCmd_Cancel(uint iClientID, const std::wstring& wscParam)
 // Client command processing
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::array<USERCMD, 5> UserCmds = {{
-    {L"/acceptduel", UserCmd_AcceptDuel},
-    {L"/acceptffa", UserCmd_AcceptFFA},
-    {L"/cancel", UserCmd_Cancel},
-    {L"/duel", UserCmd_Duel},
-    {L"/ffa", UserCmd_StartFFA},
+const std::vector<UserCommand> commands = {{
+    CreateUserCommand(L"/acceptduel", L"", UserCmd_AcceptDuel, L""),
+    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L""),
+    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L""),
+    CreateUserCommand(L"/duel", L"", UserCmd_Duel, L""),
+    CreateUserCommand(L"/ffa", L"", UserCmd_StartFFA, L""),
 }};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -486,11 +486,6 @@ void SendDeathMessage(const std::wstring& wscMsg, uint& iSystem, uint& iClientID
 	processFFA(iClientIDVictim);
 }
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
-
 DefaultDllMain()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -503,11 +498,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("pvp");
 	pi->mayPause(false);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
 	pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

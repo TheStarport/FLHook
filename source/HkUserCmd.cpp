@@ -74,7 +74,7 @@ void PrintLocalUserCmdText(uint iClientID, const std::wstring& wscMsg, float fDi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsg(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetDieMsg(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->general.dieMsg)
 	{
@@ -115,7 +115,7 @@ void UserCmd_SetDieMsg(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetDieMsgSize(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
 	{
@@ -152,7 +152,7 @@ void UserCmd_SetDieMsgSize(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetChatFont(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
 	{
@@ -207,7 +207,7 @@ void UserCmd_SetChatFont(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ignore(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -270,7 +270,7 @@ void UserCmd_Ignore(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
+void UserCmd_IgnoreID(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -328,7 +328,7 @@ void UserCmd_IgnoreID(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(uint iClientID, const std::wstring& wscParam)
+void UserCmd_IgnoreList(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -350,7 +350,7 @@ void UserCmd_IgnoreList(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_DelIgnore(uint iClientID, const std::wstring& wscParam)
+void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -425,7 +425,7 @@ void UserCmd_DelIgnore(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(uint iClientID, const std::wstring& wscParam)
+void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->general.autobuy)
 	{
@@ -529,7 +529,7 @@ void UserCmd_AutoBuy(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IDs(uint iClientID, const std::wstring& wscParam)
+void UserCmd_IDs(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	wchar_t wszLine[128] = L"";
 	for (auto& player : HkGetPlayers())
@@ -552,14 +552,14 @@ void UserCmd_IDs(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ID(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ID(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"Your client-id: %u", iClientID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_InviteID(uint iClientID, const std::wstring& wscParam)
+void UserCmd_InviteID(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	std::wstring wscError[] = {
 		L"Error: Invalid parameters",
@@ -598,7 +598,7 @@ void UserCmd_InviteID(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Credits(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"This server is running FLHook v" + VersionInformation);
 	PrintUserCmdText(iClientID, L"Running plugins:");
@@ -618,7 +618,7 @@ void UserCmd_Credits(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	const auto* config = FLHookConfig::c(); 
 	if (!config->userCommands.userCmdHelp)
@@ -686,61 +686,89 @@ void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::array<USERCMD, 14> UserCmds = {{
-    {L"/set diemsg", UserCmd_SetDieMsg},
-    {L"/set diemsgsize", UserCmd_SetDieMsgSize},
-    {L"/set chatfont", UserCmd_SetChatFont},
-    {L"/ignorelist", UserCmd_IgnoreList},
-    {L"/delignore", UserCmd_DelIgnore},
-    {L"/ignore", UserCmd_Ignore},
-    {L"/ignoreid", UserCmd_IgnoreID},
-    {L"/autobuy", UserCmd_AutoBuy},
-    {L"/ids", UserCmd_IDs},
-    {L"/id", UserCmd_ID},
-    {L"/i$", UserCmd_InviteID},
-    {L"/invite$", UserCmd_InviteID},
-    {L"/credits", UserCmd_Credits},
-    {L"/help", UserCmd_Help},
+UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
+{
+	return { command, command + L" " + usage, proc, description };
+}
+
+const std::vector<UserCommand> UserCmds = {{
+    CreateUserCommand(L"/set diemsg", L"", UserCmd_SetDieMsg, L""),
+    CreateUserCommand(L"/set diemsgsize", L"", UserCmd_SetDieMsgSize, L""),
+    CreateUserCommand(L"/set chatfont", L"", UserCmd_SetChatFont, L""),
+    CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L""),
+    CreateUserCommand(L"/delignore", L"", UserCmd_DelIgnore, L""),
+    CreateUserCommand(L"/ignore", L"", UserCmd_Ignore, L""),
+    CreateUserCommand(L"/ignoreid", L"", UserCmd_IgnoreID, L""),
+    CreateUserCommand(L"/autobuy", L"", UserCmd_AutoBuy, L""),
+    CreateUserCommand(L"/ids", L"", UserCmd_IDs, L""),
+    CreateUserCommand(L"/id", L"", UserCmd_ID, L""),
+    CreateUserCommand(L"/i$", L"", UserCmd_InviteID, L""),
+    CreateUserCommand(L"/invite$", L"", UserCmd_InviteID, L""),
+    CreateUserCommand(L"/credits", L"", UserCmd_Credits, L""),
+    CreateUserCommand(L"/help", L"", UserCmd_Help, L""),
 }};
 
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
+bool ProcessPluginCommand(const uint& clientId, const std::wstring& cmd, const std::vector<UserCommand>& commands)
 {
-	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, iClientID, wscCmd);
-	if (pluginSkip)
-		return pluginRet;
-
-	const std::wstring wscCmdLower = ToLower(wscCmd);
-
-	for (const auto& UserCmd : UserCmds)
+	const std::wstring cmdLower = ToLower(cmd);
+	for (const auto& command : commands)
 	{
-		if (wscCmdLower.find(UserCmd.cmd) == 0)
+		if (cmdLower.find(command.command) == 0)
 		{
 			std::wstring wscParam;
-			if (wscCmd.length() > UserCmd.cmd.length())
+			if (cmd.length() > command.command.length())
 			{
-				if (wscCmd[UserCmd.cmd.length()] != ' ')
+				if (cmd[command.command.length()] != ' ')
 				{
 					continue;
 				}
-				wscParam = wscCmd.substr(UserCmd.cmd.length() + 1);
+				wscParam = cmd.substr(command.command.length() + 1);
 			}
-			
-			std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), wscCmd.c_str());
+
+			std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
+			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), cmd.c_str());
 
 			try
 			{
-				UserCmd.proc(iClientID, wscParam);
+				const auto view = std::wstring_view(wscParam);
+				command.proc(clientId, view);
 				AddLog(LogType::UserLogCmds, LogLevel::Info, L"finished");
 			}
 			catch (std::exception ex)
 			{
-				AddLog(LogType::UserLogCmds, LogLevel::Info, L"exception %s", stows(ex.what()));
+				AddLog(LogType::UserLogCmds, LogLevel::Info, L"exception %s", stows(ex.what()).c_str());
 			}
 
 			return true;
 		}
 	}
-
 	return false;
+};
+
+bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
+{
+	if (const auto& config = FLHookConfig::c(); config->general.echoCommands)
+	{
+		std::wstring lower = ToLower(GetParam(wscCmd, ' ', 0));
+		if ((lower.find(L'/') == 0 || lower.find(L'.') == 0) && !(lower == L"/l" || lower == L"/local" || lower == L"/s" || lower == L"/system" || lower == L"/g" || lower == L"/group" || lower == L"/t" ||
+			lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
+		{
+			const std::wstring wscXML = L"<TRA data=\"" + config->msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmd) + L"</TEXT>";
+			HkFMsg(iClientID, wscXML);
+		}
+	}
+
+	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, iClientID, wscCmd);
+	if (pluginSkip)
+		return pluginRet;
+
+	const auto& plugins = PluginManager::ir();
+	for (const PluginData& i : plugins)
+	{
+		if (ProcessPluginCommand(iClientID, wscCmd, i.commands))
+			return true;
+	}
+
+	// In-built commands
+	return ProcessPluginCommand(iClientID, wscCmd, UserCmds);
 }

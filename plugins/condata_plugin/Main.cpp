@@ -46,7 +46,7 @@ namespace Plugins::ConData
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void UserCmdHelp(uint& iClientID, const std::wstring& wscParam)
+	void UserCmdHelp(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->allowPing)
 		{
@@ -355,7 +355,7 @@ namespace Plugins::ConData
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void UserCmdPing(uint iClientID, const std::wstring& wscParam)
+	void UserCmdPing(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->allowPing)
 		{
@@ -444,8 +444,8 @@ namespace Plugins::ConData
 		PrintUserCmdText(iClientID, Response);
 	}
 	
-	const std::array<USERCMD, 1> UserCmds = {{
-	    {L"/ping", UserCmdPing},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/ping", L"", UserCmdPing, L""),
 	}};
 
 	void ReceiveException(ConnectionDataException exc)
@@ -535,11 +535,6 @@ namespace Plugins::ConData
 
 using namespace Plugins::ConData;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
 DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -548,6 +543,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("condata");
 	pi->mayPause(false);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -557,8 +553,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 
 	// Register plugin for IPC

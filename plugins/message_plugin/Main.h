@@ -55,9 +55,6 @@ namespace Plugins::Message
 		/** true if we override flhook built in help */
 		bool CustomHelp = false;
 
-		/** true if we echo user and admin commands to sender */
-		bool EchoCommandsBackToUser = false;
-
 		/** true if we don't echo mistyped user and admin commands to other players. */
 		bool SuppressMistypedCommands = true;
 
@@ -67,9 +64,6 @@ namespace Plugins::Message
 		// Enable /me and /do commands
 		bool EnableMe = true;
 		bool EnableDo = true;
-
-		/** color of echoed commands */
-		std::wstring CommandEchoStyle = L"0x00AA0090";
 
 		std::wstring DisconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
@@ -99,8 +93,8 @@ namespace Plugins::Message
 	/** A random macro to make things easier */
 	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-	void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring& wscParam);
-	void UserCmd_SendToLastTarget(uint iClientID, const std::wstring& wscParam);
+	void UserCmd_ReplyToLastPMSender(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_SendToLastTarget(const uint& iClientID, const std::wstring_view& wscParam);
 }
 
 

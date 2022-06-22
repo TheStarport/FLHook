@@ -40,7 +40,7 @@ namespace Plugins::Afk
 	}
 
 	// This command is called when a player types /afk
-	void UserCmdAfk(uint clientID, const std::wstring& param)
+	void UserCmdAfk(const uint& clientID, const std::wstring_view& wscParam)
 	{
 		global->awayClients.emplace_back(clientID);
 		RedText(clientID, L"", L" is now away from keyboard.");
@@ -61,7 +61,7 @@ namespace Plugins::Afk
 	}
 
 	// This command is called when a player types /back
-	void UserCmdBack(uint clientId, const std::wstring& wscParam)
+	void UserCmdBack(const uint& clientId, const std::wstring_view& wscParam)
 	{
 		Back(clientId);
 	}
@@ -93,13 +93,13 @@ namespace Plugins::Afk
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 2> UserCmds = {{
-	    {L"/afk", UserCmdAfk},
-	    {L"/back", UserCmdBack},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L""),
+	    CreateUserCommand(L"/back", L"", UserCmdBack, L""),
 	}};
 
 	// Hook on /help
-	void UserCmdHelp(uint& clientId, const std::wstring& param)
+	void UserCmdHelp(const uint& clientId, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(clientId, L"/afk ");
 		PrintUserCmdText(clientId,
@@ -116,11 +116,6 @@ namespace Plugins::Afk
 
 using namespace Plugins::Afk;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
-}
-
 DefaultDllMain()
     // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -129,12 +124,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("afk");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &HkCb_SendChat);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 }

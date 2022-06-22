@@ -40,7 +40,7 @@ void LoadSettings()
 	}
 }
 
-void UserCmd_Net(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Net(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	std::wstring wscMode = ToLower(GetParam(wscParam, ' ', 0));
 	if (wscMode.size() == 0)
@@ -75,7 +75,7 @@ void UserCmd_Net(uint iClientID, const std::wstring& wscParam)
 	return;
 }
 
-void UserCmd_ShowScan(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ShowScan(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	std::wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
 
@@ -135,7 +135,7 @@ void UserCmd_ShowScan(uint iClientID, const std::wstring& wscParam)
 	PrintUserCmdText(iClientID, L"OK");
 }
 
-void UserCmd_ShowScanID(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ShowScanID(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	const uint iClientID2 = ToInt(GetParam(wscParam, ' ', 0));
 
@@ -286,14 +286,14 @@ void StopTradelane(uint& iClientID, uint& p1, uint& p2, uint& p3)
 	DumpSensorAccess(iClientID, L"exited tradelane", MODE_TRADELANE);
 }
 // Client command processing
-const std::array<USERCMD, 3> UserCmds = {{
-    {L"/showscan", UserCmd_ShowScan},
-    {L"/showscan$", UserCmd_ShowScan},
-    {L"/net", UserCmd_Net},
+const std::vector<UserCommand> commands = {{
+    CreateUserCommand(L"/showscan", L"", UserCmd_ShowScan, L""),
+    CreateUserCommand(L"/showscan$", L"", UserCmd_ShowScan, L""),
+    CreateUserCommand(L"/net", L"", UserCmd_Net, L""),
 }};
 
 // Hook on /help
-void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/showscan <charname>");
 	PrintUserCmdText(iClientID, L"/showscan$ <clientid>");
@@ -304,11 +304,6 @@ void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
-
 DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -317,6 +312,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("system_sensor");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -326,7 +322,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__StopTradelane, &StopTradelane);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

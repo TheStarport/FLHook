@@ -165,7 +165,7 @@ namespace Plugins::Message
 	}
 
 	/** Send an preset message to the last PM sender */
-	void SendPresetLastPMSender(uint iClientID, int iMsgSlot, std::wstring wscMsg)
+	void SendPresetLastPMSender(const uint& iClientID, int iMsgSlot, const std::wstring_view& wscMsg)
 	{
 		if (!global->config->EnableSetMessage)
 			return;
@@ -174,7 +174,7 @@ namespace Plugins::Message
 	}
 
 	/** Send an preset message to the group chat */
-	void SendPresetGroupMessage(uint iClientID, int iMsgSlot)
+	void SendPresetGroupMessage(const uint& iClientID, int iMsgSlot)
 	{
 		if (!global->config->EnableSetMessage)
 			return;
@@ -309,8 +309,12 @@ namespace Plugins::Message
 					if (global->Info[iClientID].SwearWordWarnings > 2)
 					{
 						std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
-						AddLog(LogType::Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(),
-						    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(), (wscChatMsg).c_str());
+						AddLog(LogType::Kick,
+						    LogLevel::Info,
+						    L"Swearing tempban on %s (%s) reason='%s'",
+						    wscCharname.c_str(),
+						    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+						    (wscChatMsg).c_str());
 
 						if (global->tempBanCommunicator)
 							global->tempBanCommunicator->TempBan(wscCharname, 10);
@@ -413,13 +417,13 @@ namespace Plugins::Message
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** Set an preset message */
-	void UserCmd_SetMsg(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_SetMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->EnableSetMessage)
 			return;
 
 		int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
-		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		std::wstring_view wscMsg = GetParamToEnd(ViewToWString(wscParam), ' ', 1);
 
 		if (iMsgSlot < 0 || iMsgSlot > 9 || wscParam.size() == 0)
 		{
@@ -428,7 +432,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		HkSetCharacterIni(iClientID, L"msg." + std::to_wstring(iMsgSlot), wscMsg);
+		HkSetCharacterIni(iClientID, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
 
 		// Reload the character cache
 		LoadMsgs(iClientID);
@@ -436,7 +440,7 @@ namespace Plugins::Message
 	}
 
 	/** Show preset messages */
-	void UserCmd_ShowMsgs(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ShowMsgs(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->EnableSetMessage)
 			return;
@@ -456,111 +460,111 @@ namespace Plugins::Message
 	}
 
 	// User Commands for /r0-9
-	void UserCmd_RMsg0(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 0, wscParam); }
+	void UserCmd_RMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 0, wscParam); }
 
-	void UserCmd_RMsg1(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 1, wscParam); }
+	void UserCmd_RMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 1, wscParam); }
 
-	void UserCmd_RMsg2(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 2, wscParam); }
+	void UserCmd_RMsg2(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 2, wscParam); }
 
-	void UserCmd_RMsg3(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 3, wscParam); }
+	void UserCmd_RMsg3(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 3, wscParam); }
 
-	void UserCmd_RMsg4(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 4, wscParam); }
+	void UserCmd_RMsg4(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 4, wscParam); }
 
-	void UserCmd_RMsg5(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 5, wscParam); }
+	void UserCmd_RMsg5(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 5, wscParam); }
 
-	void UserCmd_RMsg6(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 6, wscParam); }
+	void UserCmd_RMsg6(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 6, wscParam); }
 
-	void UserCmd_RMsg7(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 7, wscParam); }
+	void UserCmd_RMsg7(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 7, wscParam); }
 
-	void UserCmd_RMsg8(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 8, wscParam); }
+	void UserCmd_RMsg8(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 8, wscParam); }
 
-	void UserCmd_RMsg9(uint iClientID, const std::wstring& wscParam) { SendPresetLastPMSender(iClientID, 9, wscParam); }
+	void UserCmd_RMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 9, wscParam); }
 
 	// User Commands for /s0-9
-	void UserCmd_SMsg0(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 0); }
+	void UserCmd_SMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 0); }
 
-	void UserCmd_SMsg1(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 1); }
+	void UserCmd_SMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 1); }
 
-	void UserCmd_SMsg2(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 2); }
+	void UserCmd_SMsg2(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 2); }
 
-	void UserCmd_SMsg3(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 3); }
+	void UserCmd_SMsg3(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 3); }
 
-	void UserCmd_SMsg4(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 4); }
+	void UserCmd_SMsg4(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 4); }
 
-	void UserCmd_SMsg5(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 5); }
+	void UserCmd_SMsg5(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 5); }
 
-	void UserCmd_SMsg6(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 6); }
+	void UserCmd_SMsg6(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 6); }
 
-	void UserCmd_SMsg7(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 7); }
+	void UserCmd_SMsg7(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 7); }
 
-	void UserCmd_SMsg8(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 8); }
+	void UserCmd_SMsg8(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 8); }
 
-	void UserCmd_SMsg9(uint iClientID, const std::wstring& wscParam) { SendPresetSystemMessage(iClientID, 0); }
+	void UserCmd_SMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 0); }
 
 	// User Commands for /l0-9
-	void UserCmd_LMsg0(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 0); }
+	void UserCmd_LMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 0); }
 
-	void UserCmd_LMsg1(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 1); }
+	void UserCmd_LMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 1); }
 
-	void UserCmd_LMsg2(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 2); }
+	void UserCmd_LMsg2(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 2); }
 
-	void UserCmd_LMsg3(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 3); }
+	void UserCmd_LMsg3(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 3); }
 
-	void UserCmd_LMsg4(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 4); }
+	void UserCmd_LMsg4(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 4); }
 
-	void UserCmd_LMsg5(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 5); }
+	void UserCmd_LMsg5(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 5); }
 
-	void UserCmd_LMsg6(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 6); }
+	void UserCmd_LMsg6(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 6); }
 
-	void UserCmd_LMsg7(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 7); }
+	void UserCmd_LMsg7(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 7); }
 
-	void UserCmd_LMsg8(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 8); }
+	void UserCmd_LMsg8(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 8); }
 
-	void UserCmd_LMsg9(uint iClientID, const std::wstring& wscParam) { SendPresetLocalMessage(iClientID, 9); }
+	void UserCmd_LMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 9); }
 
 	// User Commands for /g0-9
-	void UserCmd_GMsg0(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 0); }
+	void UserCmd_GMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 0); }
 
-	void UserCmd_GMsg1(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 1); }
+	void UserCmd_GMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 1); }
 
-	void UserCmd_GMsg2(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 2); }
+	void UserCmd_GMsg2(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 2); }
 
-	void UserCmd_GMsg3(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 3); }
+	void UserCmd_GMsg3(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 3); }
 
-	void UserCmd_GMsg4(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 4); }
+	void UserCmd_GMsg4(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 4); }
 
-	void UserCmd_GMsg5(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 5); }
+	void UserCmd_GMsg5(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 5); }
 
-	void UserCmd_GMsg6(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 6); }
+	void UserCmd_GMsg6(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 6); }
 
-	void UserCmd_GMsg7(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 7); }
+	void UserCmd_GMsg7(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 7); }
 
-	void UserCmd_GMsg8(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 8); }
+	void UserCmd_GMsg8(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 8); }
 
-	void UserCmd_GMsg9(uint iClientID, const std::wstring& wscParam) { SendPresetGroupMessage(iClientID, 9); }
+	void UserCmd_GMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 9); }
 
-	void UserCmd_TMsg0(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 0); }
+	void UserCmd_TMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 0); }
 
-	void UserCmd_TMsg1(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 1); }
+	void UserCmd_TMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 1); }
 
-	void UserCmd_TMsg2(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 2); }
+	void UserCmd_TMsg2(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 2); }
 
-	void UserCmd_TMsg3(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 3); }
+	void UserCmd_TMsg3(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 3); }
 
-	void UserCmd_TMsg4(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 4); }
+	void UserCmd_TMsg4(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 4); }
 
-	void UserCmd_TMsg5(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 5); }
+	void UserCmd_TMsg5(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 5); }
 
-	void UserCmd_TMsg6(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 6); }
+	void UserCmd_TMsg6(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 6); }
 
-	void UserCmd_TMsg7(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 7); }
+	void UserCmd_TMsg7(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 7); }
 
-	void UserCmd_TMsg8(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 8); }
+	void UserCmd_TMsg8(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 8); }
 
-	void UserCmd_TMsg9(uint iClientID, const std::wstring& wscParam) { SendPresetToLastTarget(iClientID, 9); }
+	void UserCmd_TMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 9); }
 
 	/** Send an message to the last person that PM'd this client. */
-	void UserCmd_ReplyToLastPMSender(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ReplyToLastPMSender(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
 		if (iter == global->Info.end())
@@ -570,7 +574,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		if (iter->second.LastPmClientID == -1)
 		{
@@ -579,11 +583,11 @@ namespace Plugins::Message
 		}
 
 		global->Info[iter->second.LastPmClientID].LastPmClientID = iClientID;
-		SendPrivateChat(iClientID, iter->second.LastPmClientID, wscMsg);
+		SendPrivateChat(iClientID, iter->second.LastPmClientID, ViewToWString(wscMsg));
 	}
 
 	/** Shows the sender of the last PM and the last char targeted */
-	void UserCmd_ShowLastPMSender(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ShowLastPMSender(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
 		if (iter == global->Info.end())
@@ -605,7 +609,7 @@ namespace Plugins::Message
 	}
 
 	/** Send a message to the last/current target. */
-	void UserCmd_SendToLastTarget(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_SendToLastTarget(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
 		if (iter == global->Info.end())
@@ -615,7 +619,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		std::wstring wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		if (iter->second.TargetClientID == -1)
 		{
@@ -624,17 +628,17 @@ namespace Plugins::Message
 		}
 
 		global->Info[iter->second.TargetClientID].LastPmClientID = iClientID;
-		SendPrivateChat(iClientID, iter->second.TargetClientID, wscMsg);
+		SendPrivateChat(iClientID, iter->second.TargetClientID, ViewToWString(wscMsg));
 	}
 
 	/** Send a private message to the specified charname. If the player is offline
 	the message will be delivery when they next login. */
-	void UserCmd_PrivateMsg(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_PrivateMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 		const std::wstring& wscTargetCharname = GetParam(wscParam, ' ', 0);
-		const std::wstring& wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		if (wscCharname.size() == 0 || wscMsg.size() == 0)
 		{
@@ -665,16 +669,16 @@ namespace Plugins::Message
 		else
 		{
 			global->Info[iToClientID].LastPmClientID = iClientID;
-			SendPrivateChat(iClientID, iToClientID, wscMsg);
+			SendPrivateChat(iClientID, iToClientID, ViewToWString(wscMsg));
 		}
 	}
 
 	/** Send a private message to the specified clientid. */
-	void UserCmd_PrivateMsgID(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_PrivateMsgID(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 		const std::wstring& wscClientID = GetParam(wscParam, ' ', 0);
-		const std::wstring& wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		uint iToClientID = ToInt(wscClientID);
 		if (!HkIsValidClientID(iToClientID) || HkIsInCharSelectMenu(iToClientID))
@@ -684,15 +688,15 @@ namespace Plugins::Message
 		}
 
 		global->Info[iToClientID].LastPmClientID = iClientID;
-		SendPrivateChat(iClientID, iToClientID, wscMsg);
+		SendPrivateChat(iClientID, iToClientID, ViewToWString(wscMsg));
 	}
 
 	/** Send a message to all players with a particular prefix. */
-	void UserCmd_FactionMsg(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_FactionMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 		const std::wstring& wscCharnamePrefix = GetParam(wscParam, ' ', 0);
-		const std::wstring& wscMsg = GetParamToEnd(wscParam, ' ', 1);
+		const std::wstring_view& wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		if (wscCharnamePrefix.size() < 3 || wscMsg.size() == 0)
 		{
@@ -711,18 +715,18 @@ namespace Plugins::Message
 			if (player.iClientID == iClientID)
 				bSenderReceived = true;
 
-			FormatSendChat(player.iClientID, wscSender, wscMsg, L"FF7BFF");
+			FormatSendChat(player.iClientID, wscSender, ViewToWString(wscMsg), L"FF7BFF");
 			bMsgSent = true;
 		}
 		if (!bSenderReceived)
-			FormatSendChat(iClientID, wscSender, wscMsg, L"FF7BFF");
+			FormatSendChat(iClientID, wscSender, ViewToWString(wscMsg), L"FF7BFF");
 
 		if (bMsgSent == false)
 			PrintUserCmdText(iClientID, L"ERR No chars found");
 	}
 
 	/** Send a faction invite message to all players with a particular prefix. */
-	void UserCmd_FactionInvite(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_FactionInvite(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		const std::wstring& wscCharnamePrefix = GetParam(wscParam, ' ', 0);
 
@@ -763,7 +767,7 @@ namespace Plugins::Message
 			PrintUserCmdText(iClientID, L"ERR No chars found");
 	}
 
-	void UserCmd_SetChatTime(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_SetChatTime(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
 		bool bShowChatTime = false;
@@ -790,14 +794,14 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, L"OK");
 	}
 
-	void UserCmd_Time(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Time(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
 		PrintUserCmdText(iClientID, GetTimeString(FLHookConfig::i()->general.localTime));
 	}
 
 	/** Print out custom help overriding flhook built in help */
-	void UserCmd_CustomHelp(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_CustomHelp(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->CustomHelp)
 		{
@@ -817,7 +821,7 @@ namespace Plugins::Message
 
 	/** Me command allow players to type "/me powers his engines" which would print:
 	 * "Trent powers his engines" */
-	void UserCmd_Me(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Me(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->EnableMe)
 		{
@@ -828,7 +832,7 @@ namespace Plugins::Message
 			// Encode message using the death message style (red text).
 			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			wscXMLMsg += charname + L" ";
-			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += XMLText(ViewToWString(GetParamToEnd(wscParam, ' ', 0)));
 			wscXMLMsg += L"</TEXT>";
 
 			RedText(wscXMLMsg, iSystemID);
@@ -841,7 +845,7 @@ namespace Plugins::Message
 
 	/** Do command allow players to type "/do Nomad fighters detected" which would
 	 * print: "Nomad fighters detected" in the standard red text */
-	void UserCmd_Do(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Do(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->EnableDo)
 		{
@@ -850,7 +854,7 @@ namespace Plugins::Message
 
 			// Encode message using the death message style (red text).
 			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-			wscXMLMsg += XMLText(GetParamToEnd(wscParam, ' ', 0));
+			wscXMLMsg += XMLText(ViewToWString(GetParamToEnd(ViewToWString(wscParam), ' ', 0)));
 			wscXMLMsg += L"</TEXT>";
 
 			RedText(wscXMLMsg, iSystemID);
@@ -862,101 +866,71 @@ namespace Plugins::Message
 	}
 
 	// Client command processing
-const std::array<USERCMD, 62> UserCmds = {{
-    {L"/setmsg", UserCmd_SetMsg},
-    {L"/showmsgs", UserCmd_ShowMsgs},
-    {L"/0", UserCmd_SMsg0},
-    {L"/1", UserCmd_SMsg1},
-    {L"/2", UserCmd_SMsg2},
-    {L"/3", UserCmd_SMsg3},
-    {L"/4", UserCmd_SMsg4},
-    {L"/5", UserCmd_SMsg5},
-    {L"/6", UserCmd_SMsg6},
-    {L"/7", UserCmd_SMsg7},
-    {L"/8", UserCmd_SMsg8},
-    {L"/9", UserCmd_SMsg9},
-    {L"/l0", UserCmd_LMsg0},
-    {L"/l1", UserCmd_LMsg1},
-    {L"/l2", UserCmd_LMsg2},
-    {L"/l3", UserCmd_LMsg3},
-    {L"/l4", UserCmd_LMsg4},
-    {L"/l5", UserCmd_LMsg5},
-    {L"/l6", UserCmd_LMsg6},
-    {L"/l7", UserCmd_LMsg7},
-    {L"/l8", UserCmd_LMsg8},
-    {L"/l9", UserCmd_LMsg9},
-    {L"/g0", UserCmd_GMsg0},
-    {L"/g1", UserCmd_GMsg1},
-    {L"/g2", UserCmd_GMsg2},
-    {L"/g3", UserCmd_GMsg3},
-    {L"/g4", UserCmd_GMsg4},
-    {L"/g5", UserCmd_GMsg5},
-    {L"/g6", UserCmd_GMsg6},
-    {L"/g7", UserCmd_GMsg7},
-    {L"/g8", UserCmd_GMsg8},
-    {L"/g9", UserCmd_GMsg9},
-    {L"/t0", UserCmd_TMsg0},
-    {L"/t1", UserCmd_TMsg1},
-    {L"/t2", UserCmd_TMsg2},
-    {L"/t3", UserCmd_TMsg3},
-    {L"/t4", UserCmd_TMsg4},
-    {L"/t5", UserCmd_TMsg5},
-    {L"/t6", UserCmd_TMsg6},
-    {L"/t7", UserCmd_TMsg7},
-    {L"/t8", UserCmd_TMsg8},
-    {L"/t9", UserCmd_TMsg9},
-    {L"/target", UserCmd_SendToLastTarget},
-    {L"/t", UserCmd_SendToLastTarget},
-    {L"/reply", UserCmd_ReplyToLastPMSender},
-    {L"/r", UserCmd_ReplyToLastPMSender},
-    {L"/privatemsg$", UserCmd_PrivateMsgID},
-    {L"/pm$", UserCmd_PrivateMsgID},
-    {L"/privatemsg", UserCmd_PrivateMsg},
-    {L"/pm", UserCmd_PrivateMsg},
-    {L"/factionmsg", UserCmd_FactionMsg},
-    {L"/fm", UserCmd_FactionMsg},
-    {L"/factioninvite", UserCmd_FactionInvite},
-    {L"/fi", UserCmd_FactionInvite},
-    {L"/lastpm", UserCmd_ShowLastPMSender},
-    {L"/set chattime", UserCmd_SetChatTime},
-    {L"/help", UserCmd_CustomHelp},
-    {L"/h", UserCmd_CustomHelp},
-    {L"/?", UserCmd_CustomHelp},
-    {L"/me", UserCmd_Me},
-    {L"/do", UserCmd_Do},
-    {L"/time", UserCmd_Time},
-}};
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/setmsg", L"", UserCmd_SetMsg, L""),
+	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L""),
+	    CreateUserCommand(L"/0", L"", UserCmd_SMsg0, L""),
+	    CreateUserCommand(L"/1", L"", UserCmd_SMsg1, L""),
+	    CreateUserCommand(L"/2", L"", UserCmd_SMsg2, L""),
+	    CreateUserCommand(L"/3", L"", UserCmd_SMsg3, L""),
+	    CreateUserCommand(L"/4", L"", UserCmd_SMsg4, L""),
+	    CreateUserCommand(L"/5", L"", UserCmd_SMsg5, L""),
+	    CreateUserCommand(L"/6", L"", UserCmd_SMsg6, L""),
+	    CreateUserCommand(L"/7", L"", UserCmd_SMsg7, L""),
+	    CreateUserCommand(L"/8", L"", UserCmd_SMsg8, L""),
+	    CreateUserCommand(L"/9", L"", UserCmd_SMsg9, L""),
+	    CreateUserCommand(L"/l0", L"", UserCmd_LMsg0, L""),
+	    CreateUserCommand(L"/l1", L"", UserCmd_LMsg1, L""),
+	    CreateUserCommand(L"/l2", L"", UserCmd_LMsg2, L""),
+	    CreateUserCommand(L"/l3", L"", UserCmd_LMsg3, L""),
+	    CreateUserCommand(L"/l4", L"", UserCmd_LMsg4, L""),
+	    CreateUserCommand(L"/l5", L"", UserCmd_LMsg5, L""),
+	    CreateUserCommand(L"/l6", L"", UserCmd_LMsg6, L""),
+	    CreateUserCommand(L"/l7", L"", UserCmd_LMsg7, L""),
+	    CreateUserCommand(L"/l8", L"", UserCmd_LMsg8, L""),
+	    CreateUserCommand(L"/l9", L"", UserCmd_LMsg9, L""),
+	    CreateUserCommand(L"/g0", L"", UserCmd_GMsg0, L""),
+	    CreateUserCommand(L"/g1", L"", UserCmd_GMsg1, L""),
+	    CreateUserCommand(L"/g2", L"", UserCmd_GMsg2, L""),
+	    CreateUserCommand(L"/g3", L"", UserCmd_GMsg3, L""),
+	    CreateUserCommand(L"/g4", L"", UserCmd_GMsg4, L""),
+	    CreateUserCommand(L"/g5", L"", UserCmd_GMsg5, L""),
+	    CreateUserCommand(L"/g6", L"", UserCmd_GMsg6, L""),
+	    CreateUserCommand(L"/g7", L"", UserCmd_GMsg7, L""),
+	    CreateUserCommand(L"/g8", L"", UserCmd_GMsg8, L""),
+	    CreateUserCommand(L"/g9", L"", UserCmd_GMsg9, L""),
+	    CreateUserCommand(L"/t0", L"", UserCmd_TMsg0, L""),
+	    CreateUserCommand(L"/t1", L"", UserCmd_TMsg1, L""),
+	    CreateUserCommand(L"/t2", L"", UserCmd_TMsg2, L""),
+	    CreateUserCommand(L"/t3", L"", UserCmd_TMsg3, L""),
+	    CreateUserCommand(L"/t4", L"", UserCmd_TMsg4, L""),
+	    CreateUserCommand(L"/t5", L"", UserCmd_TMsg5, L""),
+	    CreateUserCommand(L"/t6", L"", UserCmd_TMsg6, L""),
+	    CreateUserCommand(L"/t7", L"", UserCmd_TMsg7, L""),
+	    CreateUserCommand(L"/t8", L"", UserCmd_TMsg8, L""),
+	    CreateUserCommand(L"/t9", L"", UserCmd_TMsg9, L""),
+	    CreateUserCommand(L"/target", L"", UserCmd_SendToLastTarget, L""),
+	    CreateUserCommand(L"/t", L"", UserCmd_SendToLastTarget, L""),
+	    CreateUserCommand(L"/reply", L"", UserCmd_ReplyToLastPMSender, L""),
+	    CreateUserCommand(L"/r", L"", UserCmd_ReplyToLastPMSender, L""),
+	    CreateUserCommand(L"/privatemsg$", L"", UserCmd_PrivateMsgID, L""),
+	    CreateUserCommand(L"/pm$", L"", UserCmd_PrivateMsgID, L""),
+	    CreateUserCommand(L"/privatemsg", L"", UserCmd_PrivateMsg, L""),
+	    CreateUserCommand(L"/pm", L"", UserCmd_PrivateMsg, L""),
+	    CreateUserCommand(L"/factionmsg", L"", UserCmd_FactionMsg, L""),
+	    CreateUserCommand(L"/fm", L"", UserCmd_FactionMsg, L""),
+	    CreateUserCommand(L"/factioninvite", L"", UserCmd_FactionInvite, L""),
+	    CreateUserCommand(L"/fi", L"", UserCmd_FactionInvite, L""),
+	    CreateUserCommand(L"/lastpm", L"", UserCmd_ShowLastPMSender, L""),
+	    CreateUserCommand(L"/set chattime", L"", UserCmd_SetChatTime, L""),
+	    CreateUserCommand(L"/help", L"", UserCmd_CustomHelp, L""),
+	    CreateUserCommand(L"/h", L"", UserCmd_CustomHelp, L""),
+	    CreateUserCommand(L"/?", L"", UserCmd_CustomHelp, L""),
+	    CreateUserCommand(L"/me", L"", UserCmd_Me, L""),
+	    CreateUserCommand(L"/do", L"", UserCmd_Do, L""),
+	    CreateUserCommand(L"/time", L"", UserCmd_Time, L""),
+	}};
 
-	// Process user input
-	bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-	{
-	// Echo the command back to the sender's console but only if it starts with
-	// / or .
-	std::wstring wscCmdLineLower = ToLower(wscCmd);
-	if (global->config->EchoCommandsBackToUser)
-	{
-		std::wstring wscCmd = GetParam(wscCmdLineLower, ' ', 0);
-		if (wscCmd.find(L"/") == 0 || wscCmd.find(L".") == 0)
-			{
-				if (!(wscCmd == L"/l" || wscCmd == L"/local" || wscCmd == L"/s" || wscCmd == L"/system" || wscCmd == L"/g" || wscCmd == L"/group" ||
-				        wscCmd == L"/t" || wscCmd == L"/target" || wscCmd == L"/r" || wscCmd == L"/reply" || wscCmd.find(L"//") == 0 ||
-				        wscCmd.find(L"*") == (wscCmd.length() - 1)))
-				{
-					std::wstring wscXML =
-					    L"<TRA data=\"" + global->config->CommandEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmdLineLower) + L"</TEXT>";
-					HkFMsg(iClientID, wscXML);
-				}
-			}
-		}
-		return DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, global->returncode);
-	}
-
-	// Hook on /help
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-	{	
-	for (auto& uc : UserCmds)
-		PrintUserCmdText(iClientID, uc.cmd);
-	}
 } // namespace Plugins::Message
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -965,8 +939,8 @@ const std::array<USERCMD, 62> UserCmds = {{
 
 using namespace Plugins::Message;
 REFL_AUTO(type(Config), field(HelpLines), field(GreetingBannerLines), field(SpecialBannerLines), field(StandardBannerLines), field(SpecialBannerTimeout),
-    field(StandardBannerTimeout), field(CustomHelp), field(EchoCommandsBackToUser), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe),
-    field(EnableDo), field(CommandEchoStyle), field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
+    field(StandardBannerTimeout), field(CustomHelp), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe),
+    field(EnableDo), field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
 
 DefaultDllMainSettings(LoadSettings)
 
@@ -977,11 +951,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("message");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);

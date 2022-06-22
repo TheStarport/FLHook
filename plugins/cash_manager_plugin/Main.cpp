@@ -141,7 +141,7 @@ namespace Plugins::CashManager
 	void BaseEnter(uint& baseID, uint& clientID) { CheckTransferLog(clientID); }
 
 	/** Process a give cash command */
-	void UserCmdGiveCash(uint clientID, const std::wstring& param)
+	void UserCmdGiveCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
 		HK_ERROR error;
@@ -334,7 +334,7 @@ namespace Plugins::CashManager
 	}
 
 	/** Process a set cash code command */
-	void UserCmdSetCashCode(uint clientID, const std::wstring& param)
+	void UserCmdSetCashCode(const uint& clientID, const std::wstring_view& param)
 	{
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
 		const std::string scFile = GetUserFilePath(characterName, "-givecash.ini");
@@ -362,7 +362,7 @@ namespace Plugins::CashManager
 	}
 
 	/** Process a show cash command **/
-	void UserCmdShowCash(uint clientID, const std::wstring& param)
+	void UserCmdShowCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
 		HK_ERROR error;
@@ -409,7 +409,7 @@ namespace Plugins::CashManager
 	}
 
 	/** Process a draw cash command **/
-	void UserCmdDrawCash(uint clientID, const std::wstring& param)
+	void UserCmdDrawCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
 		HK_ERROR error;
@@ -548,9 +548,7 @@ namespace Plugins::CashManager
 			{
 				PrintUserCmdText(clientID, L"ERR Transfer failed");
 				AddLog(LogType::Cheater, LogLevel::Info,
-				    L"NOTICE: Possible cheating when drawing %s credits from %s "
-				    "(%s) to "
-				    "%s (%s)",
+				L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
 				    ToMoneyStr(cash).c_str(),
 				    targetCharacterName.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
@@ -626,12 +624,12 @@ namespace Plugins::CashManager
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 5> UserCmds = {{
-		{L"/givecash", UserCmdGiveCash},
-	    {L"/sendcash", UserCmdGiveCash},
-	    {L"/set cashcode", UserCmdSetCashCode},
-	    {L"/showcash", UserCmdShowCash},
-	    {L"/drawcash", UserCmdDrawCash}
+	const std::vector<UserCommand> commands = {{
+		CreateUserCommand(L"/givecash", L"", UserCmdGiveCash, L""),
+	    CreateUserCommand(L"/sendcash", L"", UserCmdGiveCash, L""),
+	    CreateUserCommand(L"/set cashcode", L"", UserCmdSetCashCode, L""),
+	    CreateUserCommand(L"/showcash", L"", UserCmdShowCash, L""),
+	    CreateUserCommand(L"/drawcash", L"", UserCmdDrawCash, L"")
 	}};
 }
 
@@ -640,11 +638,6 @@ namespace Plugins::CashManager
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::CashManager;
-
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
-}
 
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(minimumTransfer), field(blockedSystem), field(cheatDetection), field(minimumTime))
@@ -657,11 +650,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("cash_manager");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
 }

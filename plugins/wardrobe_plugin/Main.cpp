@@ -9,7 +9,7 @@ namespace Plugins::Wardrobe
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmdShowWardrobe(const uint iClientID, const std::wstring& wscParam)
+	void UserCmdShowWardrobe(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 
@@ -31,7 +31,7 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	void UserCmdChangeCostume(const uint iClientID, const std::wstring& wscParam)
+	void UserCmdChangeCostume(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 		const std::wstring costume = GetParam(wscParam, ' ', 1);
@@ -137,35 +137,19 @@ namespace Plugins::Wardrobe
 
 	void LoadSettings() { auto config = Serializer::JsonToObject<Config>(); }
 
-	// Additional information related to the plugin when the /help command is used
-	void UserCmdHelp(const uint& clientId, [[maybe_unused]] const std::wstring& param)
-	{
-		PrintUserCmdText(clientId, L"/show");
-		PrintUserCmdText(clientId, L"Usage: /show <heads/bodies> - This shows the available heads and bodies for the /change command.");
-		PrintUserCmdText(clientId, L"/change");
-		PrintUserCmdText(clientId,
-		    L"Usage: /change <head/body> <name> - This changes Trent's head or body to one specified in the "
-		    L"/show command.");
-	}
-
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMAND PROCESSING
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Define usable chat commands here
-	const std::array<USERCMD, 2> UserCmds = {{
-	    {L"/show", UserCmdShowWardrobe},
-	    {L"/change", UserCmdChangeCostume},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/show", L"", UserCmdShowWardrobe, L""),
+	    CreateUserCommand(L"/change", L"", UserCmdChangeCostume, L""),
 	}};
 
 } // namespace Plugins::Wardrobe
 
 using namespace Plugins::Wardrobe;
-
-bool ProcessUserCmds(const uint& clientId, [[maybe_unused]] const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
 
 REFL_AUTO(type(Config))
 
@@ -178,11 +162,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("wardrobe");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
 }

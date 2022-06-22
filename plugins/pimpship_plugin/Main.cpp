@@ -105,7 +105,7 @@ namespace Plugins::Pimpship
 	// USER COMMANDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void UserCmd_PimpShip(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_PimpShip(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iLocationID = 0;
 		pub::Player::GetLocation(iClientID, iLocationID);
@@ -161,7 +161,7 @@ namespace Plugins::Pimpship
 	}
 
 	/// Show the setup of the player's ship.
-	void UserCmd_ShowSetup(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ShowSetup(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->Info[iClientID].InPimpDealer)
 			return;
@@ -176,7 +176,7 @@ namespace Plugins::Pimpship
 	}
 
 	/// Show the items that may be changed.
-	void UserCmd_ShowItems(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ShowItems(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->Info[iClientID].InPimpDealer)
 			return;
@@ -190,7 +190,7 @@ namespace Plugins::Pimpship
 	}
 
 	/// Change the item on the Slot ID to the specified item.
-	void UserCmd_ChangeItem(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_ChangeItem(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->Info[iClientID].InPimpDealer)
 			return;
@@ -214,7 +214,7 @@ namespace Plugins::Pimpship
 		return UserCmd_ShowSetup(iClientID, wscParam);
 	}
 
-	void UserCmd_BuyNow(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_BuyNow(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		HK_ERROR err;
 
@@ -258,16 +258,16 @@ namespace Plugins::Pimpship
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 5> UserCmds = {{
-	    {L"/pimpship", UserCmd_PimpShip},
-	    {L"/showsetup", UserCmd_ShowSetup},
-	    {L"/showitems", UserCmd_ShowItems},
-	    {L"/setitem", UserCmd_ChangeItem},
-	    {L"/buynow", UserCmd_BuyNow},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/pimpship", L"", UserCmd_PimpShip, L""),
+	    CreateUserCommand(L"/showsetup", L"", UserCmd_ShowSetup, L""),
+	    CreateUserCommand(L"/showitems", L"", UserCmd_ShowItems, L""),
+	    CreateUserCommand(L"/setitem", L"", UserCmd_ChangeItem, L""),
+	    CreateUserCommand(L"/buynow", L"", UserCmd_BuyNow, L""),
 	}};
 
 	// Hook on /help
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/afk ");
 		PrintUserCmdText(iClientID,
@@ -284,11 +284,6 @@ namespace Plugins::Pimpship
 
 using namespace Plugins::Pimpship;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
 REFL_AUTO(type(ITEM_INFO), field(Nickname), field(Description))
 REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(Dealers), field(IntroMsg1), field(IntroMsg2))
 
@@ -301,11 +296,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("pimpship");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IServerImpl__LocationEnter, &LocationEnter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

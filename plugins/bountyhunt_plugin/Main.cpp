@@ -41,7 +41,7 @@ namespace Plugins::BountyHunt
 		}
 	}
 
-	void UserCmdBountyHunt(uint clientId, const std::wstring& wscParam)
+	void UserCmdBountyHunt(const uint& clientId, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableBountyHunt)
 			return;
@@ -114,7 +114,7 @@ namespace Plugins::BountyHunt
 		    L" minutes.");
 	}
 
-	void UserCmdBountyHuntId(uint iClientID, const std::wstring& wscParam)
+	void UserCmdBountyHuntId(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableBountyHunt)
 			return;
@@ -232,12 +232,12 @@ namespace Plugins::BountyHunt
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 2> UserCmds = {{
-	    {L"/bountyhunt", UserCmdBountyHunt},
-	    {L"/bountyhuntid", UserCmdBountyHuntId},
+	const std::vector<UserCommand> commands = {{
+	    CreateUserCommand(L"/bountyhunt", L"", UserCmdBountyHunt, L""),
+	    CreateUserCommand(L"/bountyhuntid", L"", UserCmdBountyHuntId, L""),
 	}};
 
-	void UserCmdHelp(uint& iClientID, const std::wstring& wscParam)
+	void UserCmdHelp(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/bountyhunt <charname> <credits> [<minutes>]");
 		PrintUserCmdText(iClientID, L"/bountyhuntid <id> <credits> [<minutes>]");
@@ -248,7 +248,6 @@ namespace Plugins::BountyHunt
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-
 	}
 } // namespace BountyHunt
 
@@ -256,11 +255,6 @@ namespace Plugins::BountyHunt
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
-
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returnCode);
-}
 
 REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect))
 
@@ -272,12 +266,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("bountyhunt");
 	pi->mayPause(false);
 	pi->mayUnload(false);
+	pi->commands(commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmdHelp);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

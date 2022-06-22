@@ -11,7 +11,7 @@ namespace Plugins::Mail
 	  public:
 		inline static const char* pluginName = "Mail";
 		explicit MailCommunicator(const std::string& plugin);
-		void PluginCall(SendMail, std::wstring character, std::wstring msg);
+		void PluginCall(SendMail, std::wstring character, std::wstring_view msg);
 
 		enum class MailEvent
 		{
@@ -21,7 +21,7 @@ namespace Plugins::Mail
 		struct MailSent
 		{
 			std::wstring character;
-			std::wstring msg;
+			std::wstring_view msg;
 		};
 	};
 

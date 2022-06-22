@@ -252,6 +252,21 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		std::sort(list.begin(), list.end());
 	}
 
+	// Clean up the command list
+	pi->commands_.erase(std::remove_if(pi->commands_.begin(), pi->commands_.end(), [adminInterface, plugin](const UserCommand& cmd) {
+		if (!cmd.command.empty())
+		{
+			adminInterface->Print(L"ERR empty command present within %s, ignoring", plugin.dllName.c_str());
+			return true;
+		}
+		if (!cmd.proc)
+		{
+			adminInterface->Print(L"ERR nullptr found in %s command in %s, ignoring", cmd.command.c_str(), plugin.dllName.c_str());
+			return true;
+		}
+		return false;
+	}), pi->commands_.end());
+
 	// Allocate some space in our client info block
 	for (auto& i : ClientInfo)
 	{
@@ -326,4 +341,9 @@ void PluginInfo::returnCode(ReturnCode* returnCode)
 void PluginInfo::addHook(const PluginHook& hook)
 {
 	hooks_.push_back(hook);
+}
+
+void PluginInfo::commands(const std::vector<UserCommand>& cmds)
+{
+	commands_ = cmds;
 }

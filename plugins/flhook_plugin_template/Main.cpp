@@ -55,13 +55,13 @@ void HkTimer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Demo command
-void UserCmd_Template(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Template(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"OK");
 }
 
 // Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	PrintUserCmdText(iClientID, L"/template");
 }
@@ -140,6 +140,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("$safeprojectname$");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -148,5 +149,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
-}
+second_type::value_type}
