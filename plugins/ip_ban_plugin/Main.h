@@ -13,7 +13,7 @@ struct IPBans : Reflectable
 		return std::string(path) + "\\IPBans.json";
 	}
 
-	std::list<std::string> Bans;
+	std::vector<std::string> Bans;
 };
 
 struct LoginIDBans : Reflectable
@@ -25,7 +25,7 @@ struct LoginIDBans : Reflectable
 		return std::string(path) + "\\LoginIDBans.json";
 	}
 
-	std::list<std::string> Bans;
+	std::vector<std::string> Bans;
 };
 
 struct AuthenticatedAccounts : Reflectable
@@ -37,7 +37,7 @@ struct AuthenticatedAccounts : Reflectable
 		return std::string(path) + "\\AuthenticatedAccounts.json";
 	}
 
-	std::list<std::wstring> Accounts;
+	std::vector<std::wstring> Accounts;
 };
 
 struct Global final

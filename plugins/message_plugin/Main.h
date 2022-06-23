@@ -34,6 +34,8 @@ namespace Plugins::Message
 
 	struct Config : Reflectable
 	{
+		std::string File() override { return "flhook_plugins/message.json"; }
+
 		/** help text for when user types /help */
 		std::map<std::string, std::string> HelpLines;
 
