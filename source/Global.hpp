@@ -80,6 +80,9 @@ void HkTimerNPCAndF1Check();
 void HkThreadResolver();
 void HkTimerCheckResolveResults();
 
+// HkPilotPersonalities
+void HkLoadPersonalities();
+
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
 extern HookEntry HkIServerImplEntries[73];

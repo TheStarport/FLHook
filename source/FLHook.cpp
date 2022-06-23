@@ -238,6 +238,7 @@ void FLHookInit_Pre()
 		}
 
 		HkCharacterInit();
+		HkLoadPersonalities();
 
 		PatchClientImpl();
 
