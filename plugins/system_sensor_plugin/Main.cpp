@@ -286,19 +286,11 @@ void StopTradelane(uint& iClientID, uint& p1, uint& p2, uint& p3)
 	DumpSensorAccess(iClientID, L"exited tradelane", MODE_TRADELANE);
 }
 // Client command processing
-const std::vector<UserCommand> commands = {{
+const std::vector commands = {{
     CreateUserCommand(L"/showscan", L"", UserCmd_ShowScan, L""),
     CreateUserCommand(L"/showscan$", L"", UserCmd_ShowScan, L""),
     CreateUserCommand(L"/net", L"", UserCmd_Net, L""),
 }};
-
-// Hook on /help
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/showscan <charname>");
-	PrintUserCmdText(iClientID, L"/showscan$ <clientid>");
-	PrintUserCmdText(iClientID, L"/net [all|jumponly|off]");
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF

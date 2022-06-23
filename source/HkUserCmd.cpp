@@ -6,7 +6,7 @@
 			PrintUserCmdText(iClientID, L"%s", wscError[i].c_str());         \
 		return;                                                              \
 	}
-#define PRINT_OK()       PrintUserCmdText(iClientID, L"OK");
+#define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 #define GET_USERFILE(a)                                             \
 	std::string a;                                                  \
@@ -83,9 +83,9 @@ void UserCmd_SetDieMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /set diemsg <param>",
-		L"<param>: all,system,self or none",
+	    L"Error: Invalid parameters",
+	    L"Usage: /set diemsg <param>",
+	    L"<param>: all,system,self or none",
 	};
 
 	std::wstring wscDieMsg = ToLower(GetParam(wscParam, ' ', 0));
@@ -124,9 +124,9 @@ void UserCmd_SetDieMsgSize(const uint& iClientID, const std::wstring_view& wscPa
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /set diemsgsize <size>",
-		L"<size>: small, default",
+	    L"Error: Invalid parameters",
+	    L"Usage: /set diemsgsize <size>",
+	    L"<size>: small, default",
 	};
 
 	std::wstring wscDieMsgSize = ToLower(GetParam(wscParam, ' ', 0));
@@ -161,10 +161,10 @@ void UserCmd_SetChatFont(const uint& iClientID, const std::wstring_view& wscPara
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /set chatfont <size> <style>",
-		L"<size>: small, default or big",
-		L"<style>: default, bold, italic or underline",
+	    L"Error: Invalid parameters",
+	    L"Usage: /set chatfont <size> <style>",
+	    L"<size>: small, default or big",
+	    L"<style>: default, bold, italic or underline",
 	};
 
 	std::wstring wscChatSize = ToLower(GetParam(wscParam, ' ', 0));
@@ -216,19 +216,19 @@ void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /ignore <charname> [<flags>]",
-		L"<charname>: character name which should be ignored(case insensitive)",
-		L"<flags>: combination of the following flags:",
-		L" p - only affect private chat",
-		L" i - <charname> may match partially",
-		L"Examples:",
-		L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude",
-		L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX",
-		L"\"/ignore idiot i\" ignores all chatmessages from players whose "
-		L"charname contain \"idiot\" (e.g. \"[XYZ]IDIOT\", \"MrIdiot\", etc)",
-		L"\"/ignore Fool pi\" ignores all private-chatmessages from players "
-		L"whose charname contain \"fool\"",
+	    L"Error: Invalid parameters",
+	    L"Usage: /ignore <charname> [<flags>]",
+	    L"<charname>: character name which should be ignored(case insensitive)",
+	    L"<flags>: combination of the following flags:",
+	    L" p - only affect private chat",
+	    L" i - <charname> may match partially",
+	    L"Examples:",
+	    L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude",
+	    L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX",
+	    L"\"/ignore idiot i\" ignores all chatmessages from players whose "
+	    L"charname contain \"idiot\" (e.g. \"[XYZ]IDIOT\", \"MrIdiot\", etc)",
+	    L"\"/ignore Fool pi\" ignores all private-chatmessages from players "
+	    L"whose charname contain \"fool\"",
 	};
 
 	std::wstring wscAllowedFlags = L"pi";
@@ -254,9 +254,7 @@ void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(
-	    scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
-	    wscCharname + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1), wscCharname + L" " + wscFlags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
@@ -279,11 +277,11 @@ void UserCmd_IgnoreID(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /ignoreid <client-id> [<flags>]",
-		L"<client-id>: client-id of character which should be ignored",
-		L"<flags>: if \"p\"(without quotation marks) then only affect private "
-		L"chat",
+	    L"Error: Invalid parameters",
+	    L"Usage: /ignoreid <client-id> [<flags>]",
+	    L"<client-id>: client-id of character which should be ignored",
+	    L"<flags>: if \"p\"(without quotation marks) then only affect private "
+	    L"chat",
 	};
 
 	std::wstring wscClientID = GetParam(wscParam, ' ', 0);
@@ -312,9 +310,7 @@ void UserCmd_IgnoreID(const uint& iClientID, const std::wstring_view& wscParam)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(
-	    scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1),
-	    wscCharname + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1), wscCharname + L" " + wscFlags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
@@ -359,9 +355,9 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /delignore <id> [<id2> <id3> ...]",
-		L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)",
+	    L"Error: Invalid parameters",
+	    L"Usage: /delignore <id> [<id2> <id3> ...]",
+	    L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)",
 	};
 
 	std::wstring wscID = GetParam(wscParam, ' ', 0);
@@ -399,8 +395,7 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 	for (auto& del : lstDelete)
 	{
 		uint iCurID = (uint)ClientInfo[iClientID].lstIgnore.size();
-		for (auto ignoreIt = ClientInfo[iClientID].lstIgnore.begin(); ignoreIt != ClientInfo[iClientID].lstIgnore.end();
-		     ++ignoreIt)
+		for (auto ignoreIt = ClientInfo[iClientID].lstIgnore.begin(); ignoreIt != ClientInfo[iClientID].lstIgnore.end(); ++ignoreIt)
 		{
 			if (iCurID == del)
 			{
@@ -434,21 +429,21 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /autobuy <param> [<on/off>]",
-		L"<Param>:",
-		L"   info - display current autobuy-settings",
-		L"   missiles - enable/disable autobuy for missiles",
-		L"   torps - enable/disable autobuy for torpedos",
-		L"   mines - enable/disable autobuy for mines",
-		L"   cd - enable/disable autobuy for cruise disruptors",
-		L"   cm - enable/disable autobuy for countermeasures",
-		L"   reload - enable/disable autobuy for nanobots/shield batteries",
-		L"   all: enable/disable autobuy for all of the above",
-		L"Examples:",
-		L"\"/autobuy missiles on\" enable autobuy for missiles",
-		L"\"/autobuy all off\" completely disable autobuy",
-		L"\"/autobuy info\" show autobuy info",
+	    L"Error: Invalid parameters",
+	    L"Usage: /autobuy <param> [<on/off>]",
+	    L"<Param>:",
+	    L"   info - display current autobuy-settings",
+	    L"   missiles - enable/disable autobuy for missiles",
+	    L"   torps - enable/disable autobuy for torpedos",
+	    L"   mines - enable/disable autobuy for mines",
+	    L"   cd - enable/disable autobuy for cruise disruptors",
+	    L"   cm - enable/disable autobuy for countermeasures",
+	    L"   reload - enable/disable autobuy for nanobots/shield batteries",
+	    L"   all: enable/disable autobuy for all of the above",
+	    L"Examples:",
+	    L"\"/autobuy missiles on\" enable autobuy for missiles",
+	    L"\"/autobuy all off\" completely disable autobuy",
+	    L"\"/autobuy info\" show autobuy info",
 	};
 
 	std::wstring wscType = ToLower(GetParam(wscParam, ' ', 0));
@@ -461,8 +456,7 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 		PrintUserCmdText(iClientID, L"Torpedos: %s", ClientInfo[iClientID].bAutoBuyTorps ? L"On" : L"Off");
 		PrintUserCmdText(iClientID, L"Cruise Disruptors: %s", ClientInfo[iClientID].bAutoBuyCD ? L"On" : L"Off");
 		PrintUserCmdText(iClientID, L"Countermeasures: %s", ClientInfo[iClientID].bAutoBuyCM ? L"On" : L"Off");
-		PrintUserCmdText(
-		    iClientID, L"Nanobots/Shield Batteries: %s", ClientInfo[iClientID].bAutoBuyReload ? L"On" : L"Off");
+		PrintUserCmdText(iClientID, L"Nanobots/Shield Batteries: %s", ClientInfo[iClientID].bAutoBuyReload ? L"On" : L"Off");
 		return;
 	}
 
@@ -562,8 +556,8 @@ void UserCmd_ID(const uint& iClientID, const std::wstring_view& wscParam)
 void UserCmd_InviteID(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	std::wstring wscError[] = {
-		L"Error: Invalid parameters",
-		L"Usage: /i$ <client-id>",
+	    L"Error: Invalid parameters",
+	    L"Usage: /i$ <client-id>",
 	};
 
 	std::wstring wscClientID = GetParam(wscParam, ' ', 0);
@@ -618,80 +612,15 @@ void UserCmd_Credits(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	const auto* config = FLHookConfig::c(); 
-	if (!config->userCommands.userCmdHelp)
-	{
-		PRINT_DISABLED()
-		return;
-	}
-
-	bool singleCommandHelp = wscParam.length() > 1;
-
-	if (!singleCommandHelp)
-		PrintUserCmdText(
-		    iClientID,
-		    L"The following commands are available to you. Use /help "
-		    L"<command> for detailed information.");
-
-	std::wstring boldHelp = config->msgStyle.userCmdStyle.substr(0, config->msgStyle.userCmdStyle.length() - 1) + L"1";
-	std::wstring normal = config->msgStyle.userCmdStyle;
-
-	/*for (auto& he : lstHelpEntries)
-	{
-		if (he.fnIsDisplayed(iClientID))
-		{
-			if (singleCommandHelp)
-			{
-				if (he.wszCommand == wscParam)
-				{
-					set_wscUserCmdStyle = boldHelp;
-					PrintUserCmdText(iClientID, he.wszCommand + L" " + he.wszArguments);
-					set_wscUserCmdStyle = normal;
-					int pos = 0;
-					while (pos != std::wstring::npos)
-					{
-						int nextPos = he.wszLongHelp.find('\n', pos + 1);
-						PrintUserCmdText(iClientID, L"â€‚â€‚" + he.wszLongHelp.substr(pos, nextPos - pos));
-						pos = nextPos;
-					}
-					return;
-				}
-			}
-			else
-			{
-				set_wscUserCmdStyle = boldHelp;
-				PrintUserCmdText(iClientID, he.wszCommand + L" " + he.wszArguments);
-				set_wscUserCmdStyle = normal;
-				PrintUserCmdText(iClientID, L"â€‚â€‚" + he.wszShortHelp);
-			}
-		}
-	}
-
-	if (singleCommandHelp)
-	{
-		set_wscUserCmdStyle = boldHelp;
-		PrintUserCmdText(iClientID, wscParam);
-		set_wscUserCmdStyle = normal;
-
-		if (!UserCmd_Process(iClientID, wscParam))
-			PrintUserCmdText(iClientID, L"No help found for specified command.");
-	}
-	else
-	{
-		CallPluginsAfter(HookedCall::FLHook__UserCommand__Help, iClientID, wscParam);
-	}*/
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView);
 UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
 {
-	return { command, command + L" " + usage, proc, description };
+	return {command, command + L" " + usage, proc, description};
 }
 
-const std::vector<UserCommand> UserCmds = {{
+const std::wstring helpUsage = L"[module] [command]";
+const std::wstring helpDescription = L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
+const std::vector UserCmds = {{
     CreateUserCommand(L"/set diemsg", L"", UserCmd_SetDieMsg, L""),
     CreateUserCommand(L"/set diemsgsize", L"", UserCmd_SetDieMsgSize, L""),
     CreateUserCommand(L"/set chatfont", L"", UserCmd_SetChatFont, L""),
@@ -705,8 +634,100 @@ const std::vector<UserCommand> UserCmds = {{
     CreateUserCommand(L"/i$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/invite$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/credits", L"", UserCmd_Credits, L""),
-    CreateUserCommand(L"/help", L"", UserCmd_Help, L""),
+    CreateUserCommand(L"/help", helpUsage, UserCmd_Help, helpDescription),
+    CreateUserCommand(L"/h", helpUsage, UserCmd_Help, helpDescription),
+    CreateUserCommand(L"/?", helpUsage, UserCmd_Help, helpDescription),
 }};
+
+bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
+{
+	if (cmd.rfind(L'/') == 0)
+	{
+		return userCmd.command == cmd;
+	}
+
+	auto trimmed = userCmd.command;
+	trimmed.erase(0, 1);
+	return trimmed == cmd;
+}
+
+void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
+{
+	if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
+	{
+		PRINT_DISABLED()
+		return;
+	}
+
+	const auto& plugins = PluginManager::ir();
+	if (paramView.empty() || paramView.find_first_not_of(L' ') == std::string::npos)
+	{
+		PrintUserCmdText(iClientID, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
+		PrintUserCmdText(iClientID, L"core");
+		for (const auto& plugin : plugins)
+		{
+			if (plugin.commands.empty())
+				continue;
+
+			PrintUserCmdText(iClientID, ToLower(stows(plugin.shortName)));
+		}
+		return;
+	}
+
+	const auto mod = GetParam(paramView, L' ', 0);
+	const auto cmd = ToLower(Trim(GetParam(paramView, L' ', 1)));
+
+	if (mod == L"core")
+	{
+		if (cmd.empty())
+		{
+			for (const auto& i : UserCmds)
+			{
+				PrintUserCmdText(iClientID, i.command);
+			}
+		}
+		else if (const auto& userCommand =
+		             std::find_if(UserCmds.begin(), UserCmds.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		         userCommand != UserCmds.end())
+		{
+			PrintUserCmdText(iClientID, userCommand->usage);
+			PrintUserCmdText(iClientID, userCommand->description);
+		}
+		else
+		{
+			PrintUserCmdText(iClientID, L"Command '%s' not found within module 'Core'", cmd.c_str());
+		}
+		return;
+	}
+
+	const auto& plugin =
+	    std::find_if(plugins.begin(), plugins.end(), [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
+
+	if (plugin == plugins.end())
+	{
+		PrintUserCmdText(iClientID, L"Command module not found.");
+		return;
+	}
+
+	if (cmd.empty())
+	{
+		for (const auto& command : plugin->commands)
+		{
+			PrintUserCmdText(iClientID, command.command);
+		}
+	}
+	else if (const auto& userCommand =
+	             std::find_if(plugin->commands.begin(), plugin->commands.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+	         userCommand != plugin->commands.end())
+	{
+		PrintUserCmdText(iClientID, userCommand->usage);
+		PrintUserCmdText(iClientID, userCommand->description);
+	}
+	else
+	{
+		PrintUserCmdText(iClientID, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+	}
+}
 
 bool ProcessPluginCommand(const uint& clientId, const std::wstring& cmd, const std::vector<UserCommand>& commands)
 {
@@ -734,7 +755,7 @@ bool ProcessPluginCommand(const uint& clientId, const std::wstring& cmd, const s
 				command.proc(clientId, view);
 				AddLog(LogType::UserLogCmds, LogLevel::Info, L"finished");
 			}
-			catch (std::exception ex)
+			catch (std::exception const& ex)
 			{
 				AddLog(LogType::UserLogCmds, LogLevel::Info, L"exception %s", stows(ex.what()).c_str());
 			}
@@ -750,8 +771,9 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 	if (const auto& config = FLHookConfig::c(); config->general.echoCommands)
 	{
 		std::wstring lower = ToLower(GetParam(wscCmd, ' ', 0));
-		if ((lower.find(L'/') == 0 || lower.find(L'.') == 0) && !(lower == L"/l" || lower == L"/local" || lower == L"/s" || lower == L"/system" || lower == L"/g" || lower == L"/group" || lower == L"/t" ||
-			lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
+		if ((lower.find(L'/') == 0 || lower.find(L'.') == 0) &&
+		    !(lower == L"/l" || lower == L"/local" || lower == L"/s" || lower == L"/system" || lower == L"/g" || lower == L"/group" || lower == L"/t" ||
+		        lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
 		{
 			const std::wstring wscXML = L"<TRA data=\"" + config->msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmd) + L"</TEXT>";
 			HkFMsg(iClientID, wscXML);

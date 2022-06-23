@@ -180,18 +180,10 @@ namespace Plugins::Restart
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/restart", L"", UserCmd_Restart, L""),
 	    CreateUserCommand(L"/showrestarts", L"", UserCmd_ShowRestarts, L""),
 	}};
-
-	// Hook on /help
-	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/restart <template>");
-		PrintUserCmdText(iClientID, L"/showrestarts");
-	}
-
 } // namespace Plugins::Restart
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

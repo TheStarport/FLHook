@@ -274,15 +274,6 @@ void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam)
 	transferFlags[iClientID] = CLIENT_STATE_RETURN;
 }
 
-// Hook on /help
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, config->wscCommand);
-	PrintUserCmdText(iClientID, L"Beams you to the Arena system.");
-	PrintUserCmdText(iClientID, L"/return ");
-	PrintUserCmdText(iClientID, L"Returns you to the previous base.");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

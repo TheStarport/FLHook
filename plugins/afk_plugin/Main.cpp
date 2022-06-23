@@ -93,21 +93,10 @@ namespace Plugins::Afk
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L""),
 	    CreateUserCommand(L"/back", L"", UserCmdBack, L""),
 	}};
-
-	// Hook on /help
-	void UserCmdHelp(const uint& clientId, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(clientId, L"/afk ");
-		PrintUserCmdText(clientId,
-		    L"Sets the player to AFK. If any other player messages "
-		    L"directly, they will be told you are afk.");
-		PrintUserCmdText(clientId, L"/back ");
-		PrintUserCmdText(clientId, L"Turns off AFK for a the player.");
-	}
 } // namespace Plugins::AFK
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

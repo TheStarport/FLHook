@@ -98,7 +98,7 @@ namespace Plugins::KillCounter
 		}
 	}
 
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/kills", L"", UserCmd_Kills, L""),
 	}};
 } // namespace Plugins::KillCounter

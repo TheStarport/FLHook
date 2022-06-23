@@ -258,24 +258,13 @@ namespace Plugins::Pimpship
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/pimpship", L"", UserCmd_PimpShip, L""),
 	    CreateUserCommand(L"/showsetup", L"", UserCmd_ShowSetup, L""),
 	    CreateUserCommand(L"/showitems", L"", UserCmd_ShowItems, L""),
 	    CreateUserCommand(L"/setitem", L"", UserCmd_ChangeItem, L""),
 	    CreateUserCommand(L"/buynow", L"", UserCmd_BuyNow, L""),
 	}};
-
-	// Hook on /help
-	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/afk ");
-		PrintUserCmdText(iClientID,
-		    L"Sets the player to AFK. If any other player messages "
-		    L"directly, they will be told you are afk.");
-		PrintUserCmdText(iClientID, L"/back ");
-		PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
-	}
 } // namespace Plugins::Pimpship
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

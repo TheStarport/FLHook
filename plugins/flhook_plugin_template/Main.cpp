@@ -60,12 +60,6 @@ void UserCmd_Template(const uint& iClientID, const std::wstring_view& wscParam)
 	PrintUserCmdText(iClientID, L"OK");
 }
 
-// Additional information related to the plugin when the /help command is used
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/template");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // USER COMMAND PROCESSING
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,12 +68,6 @@ void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 USERCMD UserCmds[] = {
 	{ L"/template", UserCmd_Template },
 };
-
-// Process user input
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADMIN COMMANDS

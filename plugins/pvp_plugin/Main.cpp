@@ -409,7 +409,7 @@ namespace Plugins::Pvp
 	// Client command processing
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const std::vector<UserCommand> commands = {
+	const std::vector commands = {
 	    CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L""),
 	    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L""),
 	    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L""),

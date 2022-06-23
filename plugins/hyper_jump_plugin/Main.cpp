@@ -1083,21 +1083,6 @@ USERCMD UserCmds[] = {
 	{ L"/charge", UserCmd_ChargeJumpDrive },
 };
 
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
-// Hook on /help
-EXPORT void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/survey");
-	PrintUserCmdText(iClientID, L"/setcoords");
-	PrintUserCmdText(iClientID, L"/jump");
-	PrintUserCmdText(iClientID, L"/charge");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Admin commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

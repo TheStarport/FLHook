@@ -166,24 +166,6 @@ USERCMD UserCmds[] = {
 	{ L"/setinfo", UserCmd_SetInfo },
 };
 
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
-// Hook on /help
-EXPORT void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/afk ");
-	PrintUserCmdText(
-	    iClientID,
-	    L"Sets the player to AFK. If any other player messages "
-	    L"directly, they will be told you are afk.");
-	PrintUserCmdText(iClientID, L"/back ");
-	PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,5 +183,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-second_type::value_type}
+}

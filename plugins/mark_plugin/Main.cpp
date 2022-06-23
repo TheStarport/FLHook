@@ -159,7 +159,7 @@ namespace Plugins::Mark
 		    L"to completely disable automarking, set the radius to a number <= 0.");
 	}
 
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/mark", L"", UserCmd_MarkObj, L""),
 	    CreateUserCommand(L"/m", L"", UserCmd_MarkObj, L""),
 	    CreateUserCommand(L"/unmark", L"", UserCmd_UnMarkObj, L""),

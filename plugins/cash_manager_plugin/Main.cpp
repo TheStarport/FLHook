@@ -624,7 +624,7 @@ namespace Plugins::CashManager
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 		CreateUserCommand(L"/givecash", L"", UserCmdGiveCash, L""),
 	    CreateUserCommand(L"/sendcash", L"", UserCmdGiveCash, L""),
 	    CreateUserCommand(L"/set cashcode", L"", UserCmdSetCashCode, L""),

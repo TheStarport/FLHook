@@ -242,15 +242,12 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
-	// Additional information related to the plugin when the /help command is used
-	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam) { PrintUserCmdText(iClientID, L"/dp"); }
-
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMAND PROCESSING
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Define usable chat commands here
-	std::vector<UserCommand> commands = {{
+	std::vector commands = {{
 	    CreateUserCommand(L"/dp", L"", UserCmd_DP, L""),
 	}};
 } // namespace Plugins::DeathPenalty

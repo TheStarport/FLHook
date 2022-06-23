@@ -232,7 +232,7 @@ namespace Plugins::BountyHunt
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/bountyhunt", L"", UserCmdBountyHunt, L""),
 	    CreateUserCommand(L"/bountyhuntid", L"", UserCmdBountyHuntId, L""),
 	}};

@@ -233,17 +233,10 @@ namespace Plugins::Mail
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/mail", L"", UserCmd_MailShow, L""),
 	    CreateUserCommand(L"/maildel", L"", UserCmd_MailDel, L""),
 	}};
-
-	// Hook on /help
-	EXPORT void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/mail");
-		PrintUserCmdText(iClientID, L"/maildel");
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Admin commands

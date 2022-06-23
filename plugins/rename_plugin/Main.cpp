@@ -941,7 +941,7 @@ void AdminCmd_DropTag(CCmds* cmds, const std::wstring& tag)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Client command processing
-const std::vector<UserCommand> commands = {{
+const std::vector commands = {{
     CreateUserCommand(L"/maketag", L"", UserCmd_MakeTag, L""),
     CreateUserCommand(L"/droptag", L"", UserCmd_DropTag, L""),
     CreateUserCommand(L"/settagpass", L"", UserCmd_SetTagPass, L""),
@@ -949,17 +949,6 @@ const std::vector<UserCommand> commands = {{
     CreateUserCommand(L"/movechar", L"", UserCmd_MoveChar, L""),
     CreateUserCommand(L"/set movecharcode", L"", UserCmd_SetMoveCharCode, L""),
 }};
-
-// Hook on /help
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/maketag <tag> <master password> <description>");
-	PrintUserCmdText(iClientID, L"/droptag <tag> <master password>");
-	PrintUserCmdText(iClientID, L"/settagpass <tag> <master password> <rename password>");
-	PrintUserCmdText(iClientID, L"/renameme <name> <password-optional>");
-	PrintUserCmdText(iClientID, L"/movechar <name> <password>");
-	PrintUserCmdText(iClientID, L"/set movecharcode <password>");
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

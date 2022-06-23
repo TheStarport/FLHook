@@ -800,25 +800,6 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, GetTimeString(FLHookConfig::i()->general.localTime));
 	}
 
-	/** Print out custom help overriding flhook built in help */
-	void UserCmd_CustomHelp(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		if (global->config->CustomHelp)
-		{
-			// Print any custom help strings
-			for (auto& [key, value] : global->config->HelpLines)
-			{
-				std::string scHelp = key;
-				if (value.size() > 0)
-				{
-					scHelp += "=";
-					scHelp += value;
-				}
-				PrintUserCmdText(iClientID, stows(scHelp));
-			}
-		}
-	}
-
 	/** Me command allow players to type "/me powers his engines" which would print:
 	 * "Trent powers his engines" */
 	void UserCmd_Me(const uint& iClientID, const std::wstring_view& wscParam)
@@ -866,7 +847,7 @@ namespace Plugins::Message
 	}
 
 	// Client command processing
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/setmsg", L"", UserCmd_SetMsg, L""),
 	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L""),
 	    CreateUserCommand(L"/0", L"", UserCmd_SMsg0, L""),
@@ -923,9 +904,6 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/fi", L"", UserCmd_FactionInvite, L""),
 	    CreateUserCommand(L"/lastpm", L"", UserCmd_ShowLastPMSender, L""),
 	    CreateUserCommand(L"/set chattime", L"", UserCmd_SetChatTime, L""),
-	    CreateUserCommand(L"/help", L"", UserCmd_CustomHelp, L""),
-	    CreateUserCommand(L"/h", L"", UserCmd_CustomHelp, L""),
-	    CreateUserCommand(L"/?", L"", UserCmd_CustomHelp, L""),
 	    CreateUserCommand(L"/me", L"", UserCmd_Me, L""),
 	    CreateUserCommand(L"/do", L"", UserCmd_Do, L""),
 	    CreateUserCommand(L"/time", L"", UserCmd_Time, L""),
@@ -938,7 +916,7 @@ namespace Plugins::Message
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::Message;
-REFL_AUTO(type(Config), field(HelpLines), field(GreetingBannerLines), field(SpecialBannerLines), field(StandardBannerLines), field(SpecialBannerTimeout),
+REFL_AUTO(type(Config), field(GreetingBannerLines), field(SpecialBannerLines), field(StandardBannerLines), field(SpecialBannerTimeout),
     field(StandardBannerTimeout), field(CustomHelp), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe),
     field(EnableDo), field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
 

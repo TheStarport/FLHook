@@ -444,7 +444,7 @@ namespace Plugins::ConData
 		PrintUserCmdText(iClientID, Response);
 	}
 	
-	const std::vector<UserCommand> commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/ping", L"", UserCmdPing, L""),
 	}};
 
