@@ -76,6 +76,7 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
 
         // fix flserver commands and change chat to id so that event logging is
         // accurate.
+		bool inBuiltCommand = true;
         g_TextLength = static_cast<uint>(buffer.length());
         if (!buffer.find(L"/g ")) {
             cidTo.iID = SpecialChatIDs::GROUP;
@@ -101,12 +102,15 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         } else if (!buffer.find(L"/universe ")) {
             cidTo.iID = SpecialChatIDs::UNIVERSE;
             g_TextLength -= 10;
+        } else
+        {
+			inBuiltCommand = false;
         }
 
         if (UserCmd_Process(cidFrom.iID, buffer))
             return false;
 
-        if (buffer[0] == '.') {
+        else if (buffer[0] == '.') {
             CAccount *acc = Players.FindAccountFromClientID(cidFrom.iID);
             std::wstring accDirname;
 
@@ -175,16 +179,22 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         eventString += buffer;
         ProcessEvent(L"%s", eventString.c_str());
 
-        // check if chat should be suppressed
+        // check if chat should be suppressed for in-built command prefixes
+		if (config->general.supressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
+		{
+			return false;
+		}
+
+        // Check if any other custom prefixes have been added
 		if (!config->general.chatSuppressList.empty())
 		{
             auto lcBuffer = ToLower(buffer);
 			for (const auto& chat : config->general.chatSuppressList)
 			{
-                if (lcBuffer.find(chat) == 0)
+                if (lcBuffer.rfind(chat, 0) == 0)
                     return false;
             }
-        }
+		}
     }
     CATCH_HOOK({})
 
