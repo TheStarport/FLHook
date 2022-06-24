@@ -66,11 +66,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="stats.cfg">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

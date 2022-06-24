@@ -66,9 +66,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="npc.cfg">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
+    <ClInclude Include="Main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

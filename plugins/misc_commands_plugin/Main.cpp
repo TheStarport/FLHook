@@ -29,7 +29,7 @@ namespace Plugins::MiscCommands
 	void ClearClientInfo(const uint& iClientID) { global->mapInfo.erase(iClientID); }
 
 	/** One second timer */
-	void Timer()
+	void OneSecondTimer()
 	{
 		// Drop player shields and keep them down.
 		for (const auto& [id, info] : global->mapInfo)
@@ -357,7 +357,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);
+	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

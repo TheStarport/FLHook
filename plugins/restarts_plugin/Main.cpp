@@ -138,7 +138,7 @@ namespace Plugins::Restart
 
 	/* Hooks */
 
-	void Timer()
+	void OneSecondTimer()
 	{
 		while (global->pendingRestarts.size())
 		{
@@ -204,5 +204,5 @@ DefaultDllMainSettings(LoadSettings)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 }

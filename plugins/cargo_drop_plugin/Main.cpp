@@ -27,7 +27,7 @@ namespace Plugins::CargoDrop
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void Timer()
+	void OneSecondTimer()
 	{
 		// Disconnecting while interacting checks.
 		for (auto& [clientId, snd] : global->info)
@@ -179,7 +179,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
 }
