@@ -145,6 +145,13 @@ bool HkIsValidClientID(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+std::wstring HkGetCharacterNameById(const uint& iClientId)
+{
+	return reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientId));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 HK_ERROR HkResolveId(const std::wstring& wscCharname, uint& iClientID)
 {
 	std::wstring wscCharnameLower = ToLower(wscCharname);
