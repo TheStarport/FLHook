@@ -302,6 +302,8 @@ class PluginManager : public Singleton<PluginManager>
 
 	auto begin() { return plugins_.begin(); }
 	auto end() { return plugins_.end(); }
+	auto begin() const { return plugins_.begin(); }
+	auto end() const { return plugins_.end(); }
 
 	template<typename ReturnType, typename... Args>
 	ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
