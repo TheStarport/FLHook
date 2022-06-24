@@ -214,6 +214,16 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		return;
 	}
 
+	for (const auto& timer : pi->timers_)
+	{
+		if (timer.func)
+			continue;
+
+		adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load", plugin.dllName.c_str());
+		FreeLibrary(plugin.dll);
+		return;
+	}
+
 	// Clean up the command list
 	pi->commands_.erase(std::remove_if(pi->commands_.begin(), pi->commands_.end(),
 	                        [adminInterface, dllName](const UserCommand& cmd) {
@@ -336,4 +346,9 @@ void PluginInfo::addHook(const PluginHook& hook)
 void PluginInfo::commands(const std::vector<UserCommand>& cmds)
 {
 	commands_ = cmds;
+}
+
+void PluginInfo::timers(const std::vector<Timer>& timers)
+{
+	timers_ = timers;
 }

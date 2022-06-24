@@ -6,12 +6,6 @@
 
 namespace HkIServerImpl {
 
-struct Timer {
-    std::function<void()> func;
-    mstime interval;
-    mstime lastTime = 0;
-};
-
 Timer g_Timers[] = {
     { ProcessPendingCommands, 50 },
     { HkTimerCheckKick, 1000 },
@@ -26,12 +20,25 @@ void Update__Inner() {
         firstTime = false;
     }
 
-    auto currentTime = timeInMS();
+    const auto currentTime = timeInMS();
     for (auto& timer : g_Timers) {
-        if ((currentTime - timer.lastTime) >= timer.interval) {
+        // This one isn't actually in seconds, but the plugins should be
+        if ((currentTime - timer.lastTime) >= timer.intervalInSeconds) {
             timer.lastTime = currentTime;
             timer.func();
         }
+    }
+
+    for (PluginData& plugin : PluginManager::ir())
+    {
+		for (auto& timer : plugin.timers)
+		{
+			if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 100))
+			{
+				timer.lastTime = currentTime;
+				timer.func();
+			}
+		}
     }
 
     char *data;
@@ -180,7 +187,7 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         ProcessEvent(L"%s", eventString.c_str());
 
         // check if chat should be suppressed for in-built command prefixes
-		if (config->general.supressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
+		if (config->general.suppressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
 		{
 			return false;
 		}

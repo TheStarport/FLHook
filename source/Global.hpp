@@ -228,6 +228,7 @@ struct PluginData
 	bool resetCode = true;
 	bool paused = false;
 	std::vector<UserCommand> commands;
+	std::vector<Timer> timers;
 	std::shared_ptr<PluginInfo> pInfo = nullptr;
 };
 
@@ -299,8 +300,8 @@ class PluginManager : public Singleton<PluginManager>
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }
 	const std::vector<UserCommand>& commands();
 
-	auto begin() const { return plugins_.begin(); }
-	auto end() const { return plugins_.end(); }
+	auto begin() { return plugins_.begin(); }
+	auto end() { return plugins_.end(); }
 
 	template<typename ReturnType, typename... Args>
 	ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
