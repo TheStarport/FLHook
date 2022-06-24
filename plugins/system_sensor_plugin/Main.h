@@ -3,37 +3,58 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-ReturnCode returncode = ReturnCode::Default;
-
-enum MODE
+namespace Plugins::SystemSensor
 {
-	MODE_OFF = 0x00,
-	MODE_JUMPGATE = 0x01,
-	MODE_TRADELANE = 0x02,
-};
+	using NetworkId = uint;
+	enum class Mode
+	{
+		Off = 0x00,
+		JumpGate = 0x01,
+		TradeLane = 0x02,
+		Both = 0x1 | 0x2
+	};
 
-struct SENSOR
-{
-	uint iSystemID;
-	uint iEquipID;
-	uint iNetworkID;
-};
+	struct Sensor final
+	{
+		Sensor() = delete;
+		Sensor(const std::string& systemId, const std::string& equipId, const NetworkId networkId) : systemId(CreateID(systemId.c_str())), equipId(CreateID(equipId.c_str())), networkId(networkId)
+		{
+		}
 
-/// Map of equipment and systems that have sensor networks
-static std::multimap<unsigned int, SENSOR> set_mmapSensorEquip;
-static std::multimap<unsigned int, SENSOR> set_mmapSensorSystem;
+		const SystemId systemId;
+		const EquipId equipId;
+		const NetworkId networkId;
+	};
 
-struct INFO
-{
-	INFO() : iAvailableNetworkID(0), iLastScanNetworkID(0), bInJumpGate(false), iMode(MODE_OFF) {}
-	uint iAvailableNetworkID;
+	//! Map of equipment and systems that have sensor networks
+	struct ActiveNetwork
+	{
+		std::list<CARGO_INFO> lstLastScan;
+		NetworkId iAvailableNetworkID = 0;
+		NetworkId lastScanNetworkId = 0;
+		bool inJumpGate = false;
+		Mode mode = Mode::Off;
+	};
 
-	std::list<CARGO_INFO> lstLastScan;
-	uint iLastScanNetworkID;
+	struct ReflectableSensor final : Reflectable
+	{
+		std::string systemId;
+		std::string equipId;
+		NetworkId networkId;
+	};
 
-	bool bInJumpGate;
+	struct Config final : Reflectable
+	{
+		std::string File() override { return "flhook_plugins/systemSensor.json"; }
 
-	uint iMode;
-};
+		std::vector<ReflectableSensor> sensors;
+	};
 
-static std::map<UINT, INFO> mapInfo;
+	struct Global
+	{
+		ReturnCode returnCode = ReturnCode::Default;
+		std::map<ClientId, ActiveNetwork> networks;
+		std::multimap<EquipId, Sensor> sensorEquip;
+		std::multimap<SystemId, Sensor> sensorSystem;
+	};
+}
