@@ -256,13 +256,6 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "cpp:S3776": {
-      "level": "On",
-      "parameters": {
-        "maximumFunctionCognitiveComplexityThreshold": "25"
-      },
-      "severity": "Critical"
-    },
     "cpp:S841": {
       "level": "On",
       "severity": "Major"
@@ -630,10 +623,6 @@
         "maximum": "30"
       },
       "severity": "Major"
-    },
-    "cpp:S1116": {
-      "level": "On",
-      "severity": "Minor"
     },
     "cpp:S969": {
       "level": "On",
@@ -1344,13 +1333,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S134": {
-      "level": "On",
-      "parameters": {
-        "max": "3"
-      },
-      "severity": "Critical"
-    },
     "cpp:S1709": {
       "level": "On",
       "severity": "Critical"
@@ -1680,6 +1662,9 @@
     "cpp:S997": {
       "level": "Off"
     },
+    "cpp:S3776": {
+      "level": "Off"
+    },
     "cpp:S968": {
       "level": "Off"
     },
@@ -1846,6 +1831,9 @@
       "level": "Off"
     },
     "cpp:S2324": {
+      "level": "Off"
+    },
+    "cpp:S1116": {
       "level": "Off"
     },
     "cpp:S960": {
@@ -2068,6 +2056,9 @@
       "level": "Off"
     },
     "cpp:S1749": {
+      "level": "Off"
+    },
+    "cpp:S134": {
       "level": "Off"
     },
     "cpp:S2806": {
