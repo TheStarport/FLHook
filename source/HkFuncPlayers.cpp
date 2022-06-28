@@ -339,22 +339,22 @@ HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID, int iC
 	{
 		if ((cargo.iID == iID) && (cargo.iCount < iCount))
 			iCount = cargo.iCount; // trying to remove more than actually there,
-			                       // thus fix
+								   // thus fix
 	}
 
 	pub::Player::RemoveCargo(iClientID, iID, iCount);
 
 	// anti-cheat related
 	/*	char *szClassPtr;
-	        memcpy(&szClassPtr, &Players, 4);
-	        szClassPtr += 0x418 * (iClientID - 1);
-	        EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
-	        const EquipDesc *ed = edlList->find_equipment_item(iID);
-	        if(ed)
-	        {
-	                ed->get_id();
-	                edlList->remove_equipment_item(
-	        } */
+			memcpy(&szClassPtr, &Players, 4);
+			szClassPtr += 0x418 * (iClientID - 1);
+			EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
+			const EquipDesc *ed = edlList->find_equipment_item(iID);
+			if(ed)
+			{
+					ed->get_id();
+					edlList->remove_equipment_item(
+			} */
 
 	return HKE_OK;
 }
@@ -369,13 +369,13 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 		return HKE_PLAYER_NOT_LOGGED_IN;
 
 	/*	// anti-cheat related
-	        char *szClassPtr;
-	        memcpy(&szClassPtr, &Players, 4);
-	        szClassPtr += 0x418 * (iClientID - 1);
-	        EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
-	        bool bCargoFound = true;
-	        if(!edlList->find_matching_cargo(iGoodID, 0, 1))
-	                bCargoFound = false;*/
+			char *szClassPtr;
+			memcpy(&szClassPtr, &Players, 4);
+			szClassPtr += 0x418 * (iClientID - 1);
+			EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
+			bool bCargoFound = true;
+			if(!edlList->find_matching_cargo(iGoodID, 0, 1))
+					bCargoFound = false;*/
 
 	// add
 	const GoodInfo* gi;
@@ -437,28 +437,28 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 			Server.LocationEnter(iLocation, iClientID);
 
 		/*		// fix "Ship or Equipment not sold on base" kick
-		                if(!bCargoFound)
-		                {
-		                        // get last equipid
-		                        char *szLastEquipID = szClassPtr + 0x3C8;
-		                        ushort sEquipID;
-		                        memcpy(&sEquipID, szLastEquipID, 2);
+						if(!bCargoFound)
+						{
+								// get last equipid
+								char *szLastEquipID = szClassPtr + 0x3C8;
+								ushort sEquipID;
+								memcpy(&sEquipID, szLastEquipID, 2);
 
-		                        // add to check-list which is being compared to
+								// add to check-list which is being compared to
 		   the users equip-list when saving char EquipDesc ed; memset(&ed, 0,
 		   sizeof(ed)); ed.id = sEquipID; ed.count = iCount; ed.archid =
 		   iGoodID; edlList->add_equipment_item(ed, true);
-		                }
+						}
 
-		                // fix "Ship Related" kick, update crc
-		                ulong lCRC;
-		                __asm
-		                {
-		                        mov ecx, [szClassPtr]
-		                        call [CRCAntiCheat]
-		                        mov [lCRC], eax
-		                }
-		                memcpy(szClassPtr + 0x320, &lCRC, 4);*/
+						// fix "Ship Related" kick, update crc
+						ulong lCRC;
+						__asm
+						{
+								mov ecx, [szClassPtr]
+								call [CRCAntiCheat]
+								mov [lCRC], eax
+						}
+						memcpy(szClassPtr + 0x320, &lCRC, 4);*/
 	}
 
 	return HKE_OK;
@@ -605,7 +605,7 @@ HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& w
 	// Decode the backup of the old char and overwrite the new char file
 	if (!flc_decode(scTmpPath.c_str(), scNewCharfilePath.c_str()))
 	{                                          // file wasn't encoded, thus
-		                                       // simply rename it
+											   // simply rename it
 		DeleteFile(scNewCharfilePath.c_str()); // just to get sure...
 		CopyFile(scTmpPath.c_str(), scNewCharfilePath.c_str(), FALSE);
 	}
@@ -800,7 +800,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 	}
 
 	if (ClientInfo[iClientID].bAutoBuyCD || ClientInfo[iClientID].bAutoBuyCM || ClientInfo[iClientID].bAutoBuyMines ||
-	    ClientInfo[iClientID].bAutoBuyMissiles || ClientInfo[iClientID].bAutoBuyTorps)
+		ClientInfo[iClientID].bAutoBuyMissiles || ClientInfo[iClientID].bAutoBuyTorps)
 	{
 		// add mounted equip to a new list and eliminate double equipment(such
 		// as 2x lancer etc)
@@ -898,7 +898,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 				pub::Reputation::GetAffiliation(iSolarRep, iBaseRep);
 				if (iBaseRep == -1)
 					continue; // rep can't be determined yet(space object not
-					          // created yet?)
+							  // created yet?)
 
 				// get player rep
 				int iRepID;
@@ -952,8 +952,8 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 			pub::Player::AddCargo(iClientID, buy.iArchID, buy.iCount, 1, false);
 
 			PrintUserCmdText(
-			    iClientID, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount,
-			    ToMoneyStr(iCost).c_str());
+				iClientID, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount,
+				ToMoneyStr(iCost).c_str());
 		}
 	}
 }
@@ -1197,12 +1197,12 @@ HK_ERROR HkPlayerRecalculateCRC(uint iClientID)
 		PlayerData* pd = &Players[iClientID];
 		char* ACCalcCRC = (char*)hModServer + 0x6FAF0;
 		__asm {
-            pushad
-            mov ecx, [pd]
-            call[ACCalcCRC]
-            mov ecx, [pd]
-            mov[ecx + 320h], eax
-            popad
+			pushad
+			mov ecx, [pd]
+			call[ACCalcCRC]
+			mov ecx, [pd]
+			mov[ecx + 320h], eax
+			popad
 		}
 	}
 	catch (...)
@@ -1469,7 +1469,7 @@ HK_ERROR HkAntiCheat(uint iClientID)
 	_FLAntiCheat FLAntiCheat3 = (_FLAntiCheat)((char*)hModServer + ADDR_FL_ANTICHEAT_3);
 	_FLAntiCheat FLAntiCheat4 = (_FLAntiCheat)((char*)hModServer + ADDR_FL_ANTICHEAT_4);
 	_FLPossibleCheatingDetected FLPossibleCheatingDetected =
-	    (_FLPossibleCheatingDetected)((char*)hModServer + ADDR_FL_POSSIBLE_CHEATING_DETECTED);
+		(_FLPossibleCheatingDetected)((char*)hModServer + ADDR_FL_POSSIBLE_CHEATING_DETECTED);
 
 	// check if ship in space
 	uint iShip = 0;
@@ -1485,9 +1485,9 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	////////////////////////// 1
 	__asm {
-        mov ecx, [szObjPtr]
-        call [FLAntiCheat1]
-        mov [cRes], al
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat1]
+		mov [cRes], al
 	}
 
 	if (cRes != 0)
@@ -1498,9 +1498,9 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	////////////////////////// 2
 	__asm {
-        mov ecx, [szObjPtr]
-        call [FLAntiCheat2]
-        mov [cRes], al
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat2]
+		mov [cRes], al
 	}
 
 	if (cRes != 0)
@@ -1513,11 +1513,11 @@ HK_ERROR HkAntiCheat(uint iClientID)
 	ulong lRet;
 	ulong lCompare;
 	__asm {
-        mov ecx, [szObjPtr]
-        mov eax, [ecx+0x320]
-        mov [lCompare], eax
-        call [FLAntiCheat3]
-        mov [lRet], eax
+		mov ecx, [szObjPtr]
+		mov eax, [ecx+0x320]
+		mov [lCompare], eax
+		call [FLAntiCheat3]
+		mov [lRet], eax
 	}
 
 	if (lRet > lCompare)
@@ -1528,9 +1528,9 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	////////////////////////// 4
 	__asm {
-        mov ecx, [szObjPtr]
-        call [FLAntiCheat4]
-        mov [cRes], al
+		mov ecx, [szObjPtr]
+		call [FLAntiCheat4]
+		mov [cRes], al
 	}
 
 	if (cRes != 0)
@@ -1572,10 +1572,10 @@ HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID, const
 }
 
 HK_ERROR HkAddEquip(
-    std::variant<uint, std::wstring> player, uint iGoodID, const std::string& scHardpoint, bool bMounted)
+	std::variant<uint, std::wstring> player, uint iGoodID, const std::string& scHardpoint, bool bMounted)
 {
 	typedef bool(__stdcall * _AddCargoDocked)(
-	    uint iGoodID, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
+		uint iGoodID, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
 	static _AddCargoDocked AddCargoDocked = 0;
 	if (!AddCargoDocked)
 		AddCargoDocked = (_AddCargoDocked)((char*)hModServer + 0x6EFC0);
@@ -1606,15 +1606,15 @@ HK_ERROR HkAddEquip(
 	float fHealth = 1;
 	CacheString* pHP = &hardpoint;
 	__asm {
-        push iOne
-        push iMounted
-        push iOne
-        push fHealth
-        push iOne
-        push pHP
-        push iGoodID
-        mov ecx, pd
-        call AddCargoDocked
+		push iOne
+		push iMounted
+		push iOne
+		push fHealth
+		push iOne
+		push pHP
+		push iGoodID
+		mov ecx, pd
+		call AddCargoDocked
 	}
 
 	if (iBase) Server.BaseEnter(iBase, iClientID);
@@ -1788,4 +1788,77 @@ void HkSaveChar(uint iClientID)
 	BYTE patch[] = { 0x90, 0x90 };
 	WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
 	pub::Save(iClientID, 1);
+}
+
+HK_ERROR HkGetTarget(std::variant<uint, std::wstring> player, uint& target)
+{
+	uint ship;
+	if (const HK_ERROR shipErr = HkGetShip(std::move(player), ship); shipErr != HKE_OK)
+		return shipErr;
+
+	pub::SpaceObj::GetTarget(ship, target);
+	if (!ship)
+		return HKE_NO_TARGET_SELECTED;
+
+	return HKE_OK;
+}
+
+HK_ERROR HkGetTargetClientId(std::variant<uint, std::wstring> player, uint& targetClientId)
+{
+	uint target;
+	if (const HK_ERROR error = HkGetTarget(std::move(player), target); error != HKE_OK)
+		return error;
+
+	targetClientId = HkGetClientIDByShip(target);
+	if (!targetClientId)
+		return HKE_TARGET_IS_NOT_PLAYER;
+
+	return HKE_OK;
+}
+
+HK_ERROR HkGetCurrentBase(std::variant<uint, std::wstring> player, uint& base)
+{
+	const uint clientId = HkExtractClientId(std::move(player));
+	if (clientId == -1)
+	{
+		return HKE_PLAYER_NOT_LOGGED_IN;
+	}
+
+	pub::Player::GetBase(clientId, base);
+	if (base)
+	{
+		return HKE_OK;
+	}
+
+	return HKE_PLAYER_NOT_DOCKED;
+}
+
+HK_ERROR HkGetSystem(std::variant<uint, std::wstring> player, uint& system)
+{
+	const uint clientId = HkExtractClientId(std::move(player));
+	if (clientId == -1)
+	{
+		return HKE_PLAYER_NOT_LOGGED_IN;
+	}
+
+	pub::Player::GetSystem(clientId, system);
+	if (!system)
+		return HKE_INVALID_SYSTEM;
+
+	return HKE_OK;
+}
+
+HK_ERROR HkGetShip(std::variant<uint, std::wstring> player, uint& ship)
+{
+	const uint clientId = HkExtractClientId(std::move(player));
+	if (clientId == -1)
+	{
+		return HKE_PLAYER_NOT_LOGGED_IN;
+	}
+
+	pub::Player::GetShip(clientId, ship);
+	if (!ship)
+		return HKE_PLAYER_NOT_IN_SPACE;
+
+	return HKE_OK;
 }

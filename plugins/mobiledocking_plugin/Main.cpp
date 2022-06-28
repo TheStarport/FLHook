@@ -158,22 +158,7 @@ void LoadSettings()
 	}
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	srand((uint)time(0));
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		if (set_scCfgFile.length() > 0)
-			LoadSettings();
-	}
-	else if (fdwReason == DLL_PROCESS_DETACH)
-	{
-	}
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 {
@@ -681,6 +666,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("MobileDocking");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

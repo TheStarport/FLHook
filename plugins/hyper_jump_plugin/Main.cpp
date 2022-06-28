@@ -853,7 +853,7 @@ bool InitSurveyInfo(uint iClientID)
 // User commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Survey(uint iClientID, const std::wstring& wscParam)
+void UserCmd_Survey(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = HkGetInspect(iClientID);
@@ -894,7 +894,7 @@ void UserCmd_Survey(uint iClientID, const std::wstring& wscParam)
 	}
 }
 
-void UserCmd_SetCoords(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	if (!InitJumpDriveInfo(iClientID))
 	{
@@ -963,7 +963,7 @@ void UserCmd_SetCoords(uint iClientID, const std::wstring& wscParam)
 	return;
 }
 
-void UserCmd_ChargeJumpDrive(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = HkGetInspect(iClientID);
@@ -1018,7 +1018,7 @@ void UserCmd_ChargeJumpDrive(uint iClientID, const std::wstring& wscParam)
 	return;
 }
 
-void UserCmd_ActivateJumpDrive(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ActivateJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = HkGetInspect(iClientID);
@@ -1082,21 +1082,6 @@ USERCMD UserCmds[] = {
 	{ L"/jump", UserCmd_ActivateJumpDrive },
 	{ L"/charge", UserCmd_ChargeJumpDrive },
 };
-
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
-// Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/survey");
-	PrintUserCmdText(iClientID, L"/setcoords");
-	PrintUserCmdText(iClientID, L"/jump");
-	PrintUserCmdText(iClientID, L"/charge");
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Admin commands
@@ -1236,10 +1221,7 @@ bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -1248,11 +1230,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("hyperjump");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);

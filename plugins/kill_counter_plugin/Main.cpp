@@ -8,13 +8,13 @@ namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/kills <player name>");
 		PrintUserCmdText(iClientID, L"/kills$ <player id>");
 	}
 
-	void UserCmd_Kills(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_Kills(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscClientID = GetParam(wscParam, ' ', 0);
 		int iNumKills;
@@ -98,22 +98,14 @@ namespace Plugins::KillCounter
 		}
 	}
 
-	const std::array<USERCMD, 1> UserCmds = {{
-	    {L"/kills", UserCmd_Kills},
+	const std::vector commands = {{
+	    CreateUserCommand(L"/kills", L"", UserCmd_Kills, L""),
 	}};
 } // namespace Plugins::KillCounter
 
 using namespace Plugins::KillCounter;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -121,10 +113,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("killcounter");
 	pi->mayPause(false);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 }

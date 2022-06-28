@@ -145,6 +145,13 @@ bool HkIsValidClientID(uint iClientID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+std::wstring HkGetCharacterNameById(const uint& iClientId)
+{
+	return reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientId));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 HK_ERROR HkResolveId(const std::wstring& wscCharname, uint& iClientID)
 {
 	std::wstring wscCharnameLower = ToLower(wscCharname);
@@ -561,6 +568,32 @@ void TranslateZ(Vector& pos, Matrix& rot, float z)
 	pos.x += z * rot.data[0][1];
 	pos.y += z * rot.data[1][1];
 	pos.z += z * rot.data[2][1];
+}
+
+uint RgbToBgr(uint color)
+{
+	return (color & 0xFF000000) | ((color & 0xFF0000) >> 16) | (color & 0x00FF00) | ((color & 0x0000FF) << 16);
+};
+
+std::wstring UintToHex(uint number, uint width, bool addPrefix)
+{
+	std::wstringstream stream;
+	if (addPrefix)
+	{
+		stream << L"0x";
+	}
+	stream << std::setfill(L'0') << std::setw(width) << std::hex << number;
+	return stream.str();
+}
+
+HK_ERROR HkGetSystemByNickname(std::variant<std::string, std::wstring> nickname, uint& system)
+{
+	const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : wstos(std::get<std::wstring>(nickname));
+	pub::GetSystemID(system, nick.c_str());
+	if (!system)
+		return HKE_INVALID_SYSTEM;
+
+	return HKE_OK;
 }
 
 uint HkExtractClientId(std::variant<uint, std::wstring> player)

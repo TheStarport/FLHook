@@ -9,81 +9,69 @@
 // Includes
 #include "Main.h"
 
-// Load configuration file
-void LoadSettings()
+namespace Plugins::SpinProtection
 {
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\spin_protection.cfg";
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	set_fSpinProtectMass = IniGetF(scPluginCfgFile, "General", "SpinProtectionMass", 180.0f);
-	set_fSpinImpulseMultiplier = IniGetF(scPluginCfgFile, "General", "SpinProtectionMultiplier", -1.0f);
-}
+	// Load configuration file
+	void LoadSettings()
+	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+	}
 
-void __stdcall SPObjCollision(struct SSPObjCollisionInfo const& ci, uint& iClientID)
-{
-	// If spin protection is off, do nothing.
-	if (set_fSpinProtectMass == -1.0f)
-		return;
+	void __stdcall SPObjCollision(struct SSPObjCollisionInfo const& ci, uint& clientID)
+	{
+		// If spin protection is off, do nothing.
+		if (global->config->spinProtectionMass == -1.0f)
+			return;
 
-	// If the target is not a player, do nothing.
-	// uint iClientIDTarget = HkGetClientIDByShip(ci.dwTargetShip);
-	// if (iClientIDTarget<=0)
-	//	return;
+		float targetMass;
+		pub::SpaceObj::GetMass(ci.iColliderObjectID, targetMass);
 
-	float target_mass;
-	pub::SpaceObj::GetMass(ci.iColliderObjectID, target_mass);
+		uint clientShip;
+		pub::Player::GetShip(clientID, clientShip);
 
-	uint client_ship;
-	pub::Player::GetShip(iClientID, client_ship);
+		float clientMass;
+		pub::SpaceObj::GetMass(clientShip, clientMass);
 
-	float client_mass;
-	pub::SpaceObj::GetMass(client_ship, client_mass);
+		// Don't do spin protect unless the hit ship is big
+		if (targetMass < global->config->spinProtectionMass)
+			return;
 
-	// Don't do spin protect unless the hit ship is big
-	if (target_mass < set_fSpinProtectMass)
-		return;
+		// Don't do spin protect unless the hit ship is 2 times larger than the
+		// hitter
+		if (targetMass < clientMass * 2)
+			return;
 
-	// Don't do spin protect unless the hit ship is 2 times larger than the
-	// hitter
-	if (target_mass < client_mass * 2)
-		return;
-
-	Vector V1, V2;
-	pub::SpaceObj::GetMotion(ci.iColliderObjectID, V1, V2);
-	V1.x *= set_fSpinImpulseMultiplier * client_mass;
-	V1.y *= set_fSpinImpulseMultiplier * client_mass;
-	V1.z *= set_fSpinImpulseMultiplier * client_mass;
-	V2.x *= set_fSpinImpulseMultiplier * client_mass;
-	V2.y *= set_fSpinImpulseMultiplier * client_mass;
-	V2.z *= set_fSpinImpulseMultiplier * client_mass;
-	pub::SpaceObj::AddImpulse(ci.iColliderObjectID, V1, V2);
-}
+		Vector V1, V2;
+		pub::SpaceObj::GetMotion(ci.iColliderObjectID, V1, V2);
+		V1.x *= global->config->spinImpulseMultiplier * clientMass;
+		V1.y *= global->config->spinImpulseMultiplier * clientMass;
+		V1.z *= global->config->spinImpulseMultiplier * clientMass;
+		V2.x *= global->config->spinImpulseMultiplier * clientMass;
+		V2.y *= global->config->spinImpulseMultiplier * clientMass;
+		V2.z *= global->config->spinImpulseMultiplier * clientMass;
+		pub::SpaceObj::AddImpulse(ci.iColliderObjectID, V1, V2);
+	}
+} // namespace Plugins::SpinProtection
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using namespace Plugins::SpinProtection;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	// If we're being loaded from the command line while FLHook is running then
-	// set_scCfgFile will not be empty so load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
+DefaultDllMainSettings(LoadSettings)
 
-	return true;
-}
+REFL_AUTO(type(Config), field(spinProtectionMass), field(spinImpulseMultiplier))
 
-// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Spin Protection Plugin");
+	pi->name("Spin Protection");
 	pi->shortName("spin_protection");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);

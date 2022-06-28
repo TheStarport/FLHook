@@ -59,7 +59,7 @@ static int CurrLength(const std::string& scFilePath)
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ShowInfo(uint iClientID, const std::wstring& wscParam)
+void UserCmd_ShowInfo(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	const wchar_t* wszTargetName = 0;
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 0);
@@ -119,7 +119,7 @@ void UserCmd_ShowInfo(uint iClientID, const std::wstring& wscParam)
 	pub::Player::PopUpDialog(iClientID, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 }
 
-void UserCmd_SetInfo(uint iClientID, const std::wstring& wscParam)
+void UserCmd_SetInfo(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	uint iPara = ToInt(GetParam(wscParam, ' ', 0));
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 1);
@@ -166,33 +166,11 @@ USERCMD UserCmds[] = {
 	{ L"/setinfo", UserCmd_SetInfo },
 };
 
-// Process user input
-bool UserCmd_Process(uint& iClientID, const std::wstring& wscCmd)
-{
-	DefaultUserCommandHandling(iClientID, wscCmd, UserCmds, returncode);
-}
-
-// Hook on /help
-EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/afk ");
-	PrintUserCmdText(
-	    iClientID,
-	    L"Sets the player to AFK. If any other player messages "
-	    L"directly, they will be told you are afk.");
-	PrintUserCmdText(iClientID, L"/back ");
-	PrintUserCmdText(iClientID, L"Turns off AFK for a the player.");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -201,9 +179,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("player_info");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 }

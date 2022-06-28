@@ -6,18 +6,15 @@
 
 namespace Plugins::BountyHunt
 {
-	//! Macros
-	#define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
-
 	//! Structs
-	struct BOUNTY_HUNT
+	struct BountyHunt
 	{
-		uint uiTargetID;
-		uint uiInitiatorID;
-		std::wstring wscTarget;
-		std::wstring wscInitiator;
-		int iCash;
-		mstime msEnd;
+		uint targetId;
+		uint initiatorId;
+		std::wstring target;
+		std::wstring initiator;
+		int cash;
+		mstime end;
 	};
 
 	//! Configurable fields for this plugin
@@ -26,8 +23,8 @@ namespace Plugins::BountyHunt
 		std::string File() override { return "flhook_plugins/bountyhunt.json"; }
 
 		// Reflectable fields
-		bool EnableBountyHunt = true;
-		int LevelProtect = 0;
+		bool enableBountyHunt = true;
+		int levelProtect = 0;
 	};
 
 	
@@ -35,8 +32,8 @@ namespace Plugins::BountyHunt
 	struct Global final
 	{
 		std::unique_ptr<Config> config = nullptr;
-		ReturnCode returncode = ReturnCode::Default;
-		std::list<BOUNTY_HUNT> lstBountyHunt;
+		ReturnCode returnCode = ReturnCode::Default;
+		std::vector<BountyHunt> bountyHunt;
 	};
 }
 

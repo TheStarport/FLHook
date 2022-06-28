@@ -135,7 +135,7 @@ namespace Plugins::Mark
 		global->Mark[iClientID].AutoMarkRadius = IniGetF(scUserFile, scSection, "automarkradius", global->config->AutoMarkRadiusInM);
 	}
 
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
+	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		PrintUserCmdText(iClientID, L"/mark /m ");
 		PrintUserCmdText(iClientID,
@@ -159,38 +159,28 @@ namespace Plugins::Mark
 		    L"to completely disable automarking, set the radius to a number <= 0.");
 	}
 
-	const std::array<USERCMD, 12> UserCmds = {{
-	    {L"/mark", UserCmd_MarkObj},
-	    {L"/m", UserCmd_MarkObj},
-	    {L"/unmark", UserCmd_UnMarkObj},
-	    {L"/um", UserCmd_UnMarkObj},
-	    {L"/unmarkall", UserCmd_UnMarkAllObj},
-	    {L"/uma", UserCmd_UnMarkAllObj},
-	    {L"/groupmark", UserCmd_MarkObjGroup},
-	    {L"/gm", UserCmd_MarkObjGroup},
-	    {L"/groupunmark", UserCmd_UnMarkObjGroup},
-	    {L"/gum", UserCmd_UnMarkObjGroup},
-	    {L"/ignoregroupmarks", UserCmd_SetIgnoreGroupMark},
-	    {L"/automark", UserCmd_AutoMark},
+	const std::vector commands = {{
+	    CreateUserCommand(L"/mark", L"", UserCmd_MarkObj, L""),
+	    CreateUserCommand(L"/m", L"", UserCmd_MarkObj, L""),
+	    CreateUserCommand(L"/unmark", L"", UserCmd_UnMarkObj, L""),
+	    CreateUserCommand(L"/um", L"", UserCmd_UnMarkObj, L""),
+	    CreateUserCommand(L"/unmarkall", L"", UserCmd_UnMarkAllObj, L""),
+	    CreateUserCommand(L"/uma", L"", UserCmd_UnMarkAllObj, L""),
+	    CreateUserCommand(L"/groupmark", L"", UserCmd_MarkObjGroup, L""),
+	    CreateUserCommand(L"/gm", L"", UserCmd_MarkObjGroup, L""),
+	    CreateUserCommand(L"/groupunmark", L"", UserCmd_UnMarkObjGroup, L""),
+	    CreateUserCommand(L"/gum", L"", UserCmd_UnMarkObjGroup, L""),
+	    CreateUserCommand(L"/ignoregroupmarks", L"", UserCmd_SetIgnoreGroupMark, L""),
+	    CreateUserCommand(L"/automark", L"", UserCmd_AutoMark, L""),
 	}};
 }
 
 using namespace Plugins::Mark;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -198,12 +188,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("mark");
 	pi->mayPause(false);
 	pi->mayUnload(false);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
 	pi->emplaceHook(HookedCall::IServerImpl__LaunchComplete, &LaunchComplete);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);

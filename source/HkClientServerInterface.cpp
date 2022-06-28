@@ -4105,7 +4105,6 @@ void PluginManager::setupProps()
 	setProps(HookedCall::IEngine__SendDeathMessage, true, false, false);
 	setProps(HookedCall::FLHook__TimerCheckKick, true, false, false);
 	setProps(HookedCall::FLHook__TimerNPCAndF1Check, true, false, false);
-	setProps(HookedCall::FLHook__UserCommand__Help, true, false, false);
 	setProps(HookedCall::FLHook__UserCommand__Process, true, false, false);
 	setProps(HookedCall::FLHook__AdminCommand__Help, true, false, true);
 	setProps(HookedCall::FLHook__AdminCommand__Process, true, false, false);

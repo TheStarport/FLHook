@@ -42,10 +42,7 @@ namespace Plugins::AntiJumpDisconnect
 
 using namespace Plugins::AntiJumpDisconnect;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -63,6 +60,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
 
 	// We import the definitions for TempBan Communicator so we can talk to it
-	global->tempBanCommunicator = static_cast<TempBanCommunicator*>(
-	    PluginCommunicator::ImportPluginCommunicator(TempBanCommunicator::pluginName));
+	global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(
+	    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 }

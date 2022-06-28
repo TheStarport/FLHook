@@ -11,7 +11,7 @@ namespace Plugins::AntiJumpDisconnect
 	{
 		ReturnCode returncode = ReturnCode::Default;
 
-		TempBanCommunicator* tempBanCommunicator = nullptr;
+		Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 
 		struct INFO
 		{

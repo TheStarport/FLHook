@@ -280,9 +280,9 @@ void ReadProcMem(void* pAddress, void* pMem, int iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos)
+std::wstring GetParam(const std::wstring_view& wscLine, wchar_t wcSplitChar, uint iPos)
 {
-	uint i = 0, j = 0;
+	uint i, j;
 
 	std::wstring wscResult = L"";
 	for (i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
@@ -301,6 +301,11 @@ std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPo
 	}
 
 	return wscResult;
+}
+
+std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos)
+{
+	return GetParam(std::wstring_view(wscLine), wcSplitChar, iPos);
 }
 
 std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
@@ -334,7 +339,7 @@ wscLine - the std::string to get parameters from
 wcSplitChar - the seperator character
 iPos - the parameter number to start from.
 */
-std::wstring GetParamToEnd(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos)
+std::wstring_view GetParamToEnd(const std::wstring_view& wscLine, wchar_t wcSplitChar, uint iPos)
 {
 	for (uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
 	{
@@ -463,6 +468,15 @@ Str Trim(const Str& scIn)
 	auto end = scIn.find_last_not_of(trimmable);
 
 	return scIn.substr(start, end - start + 1);
+}
+
+std::wstring ViewToWString(const std::wstring_view& sv)
+{
+	return {sv.begin(), sv.end()};
+}
+std::string ViewToString(const std::string_view& sv)
+{
+	return {sv.begin(), sv.end()};
 }
 
 std::wstring GetTimeString(bool bLocalTime)

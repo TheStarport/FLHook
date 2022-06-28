@@ -80,6 +80,9 @@ void HkTimerNPCAndF1Check();
 void HkThreadResolver();
 void HkTimerCheckResolveResults();
 
+// HkPilotPersonalities
+void HkLoadPersonalities();
+
 void BaseDestroyed(uint objectID, uint clientIDBy);
 
 extern HookEntry HkIServerImplEntries[73];
@@ -224,6 +227,8 @@ struct PluginData
 	ReturnCode* returnCode = nullptr;
 	bool resetCode = true;
 	bool paused = false;
+	std::vector<UserCommand> commands;
+	std::vector<Timer> timers;
 	std::shared_ptr<PluginInfo> pInfo = nullptr;
 };
 
@@ -293,7 +298,10 @@ class PluginManager : public Singleton<PluginManager>
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }
+	const std::vector<UserCommand>& commands();
 
+	auto begin() { return plugins_.begin(); }
+	auto end() { return plugins_.end(); }
 	auto begin() const { return plugins_.begin(); }
 	auto end() const { return plugins_.end(); }
 

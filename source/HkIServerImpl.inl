@@ -6,12 +6,6 @@
 
 namespace HkIServerImpl {
 
-struct Timer {
-    std::function<void()> func;
-    mstime interval;
-    mstime lastTime = 0;
-};
-
 Timer g_Timers[] = {
     { ProcessPendingCommands, 50 },
     { HkTimerCheckKick, 1000 },
@@ -26,12 +20,25 @@ void Update__Inner() {
         firstTime = false;
     }
 
-    auto currentTime = timeInMS();
+    const auto currentTime = timeInMS();
     for (auto& timer : g_Timers) {
-        if ((currentTime - timer.lastTime) >= timer.interval) {
+        // This one isn't actually in seconds, but the plugins should be
+        if ((currentTime - timer.lastTime) >= timer.intervalInSeconds) {
             timer.lastTime = currentTime;
             timer.func();
         }
+    }
+
+    for (PluginData& plugin : PluginManager::ir())
+    {
+		for (auto& timer : plugin.timers)
+		{
+			if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 100))
+			{
+				timer.lastTime = currentTime;
+				timer.func();
+			}
+		}
     }
 
     char *data;
@@ -76,6 +83,7 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
 
         // fix flserver commands and change chat to id so that event logging is
         // accurate.
+		bool inBuiltCommand = true;
         g_TextLength = static_cast<uint>(buffer.length());
         if (!buffer.find(L"/g ")) {
             cidTo.iID = SpecialChatIDs::GROUP;
@@ -101,12 +109,15 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         } else if (!buffer.find(L"/universe ")) {
             cidTo.iID = SpecialChatIDs::UNIVERSE;
             g_TextLength -= 10;
+        } else
+        {
+			inBuiltCommand = false;
         }
 
         if (UserCmd_Process(cidFrom.iID, buffer))
             return false;
 
-        if (buffer[0] == '.') {
+        else if (buffer[0] == '.') {
             CAccount *acc = Players.FindAccountFromClientID(cidFrom.iID);
             std::wstring accDirname;
 
@@ -175,16 +186,22 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
         eventString += buffer;
         ProcessEvent(L"%s", eventString.c_str());
 
-        // check if chat should be suppressed
+        // check if chat should be suppressed for in-built command prefixes
+		if (config->general.suppressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
+		{
+			return false;
+		}
+
+        // Check if any other custom prefixes have been added
 		if (!config->general.chatSuppressList.empty())
 		{
             auto lcBuffer = ToLower(buffer);
 			for (const auto& chat : config->general.chatSuppressList)
 			{
-                if (lcBuffer.find(chat) == 0)
+                if (lcBuffer.rfind(chat, 0) == 0)
                     return false;
             }
-        }
+		}
     }
     CATCH_HOOK({})
 
@@ -792,6 +809,10 @@ void Startup__InnerAfter(const SStartupInfo &si) {
     HkLoadBaseMarket();
 
     StartupCache::Done();
+
+    Console::ConInfo(L"FLHook Ready");
+
+    flhookReady = true;
 }
 
 }

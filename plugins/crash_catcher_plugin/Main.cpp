@@ -58,7 +58,7 @@ namespace Plugins::CrashCatcher
 	}
 
 	// Action the save times recorded in the above two functions
-	void Timer()
+	void OneSecondTimer()
 	{
 		mstime currTime = GetTimeInMS();
 		for (auto& t : global->mapSaveTimes)
@@ -576,10 +576,10 @@ using namespace Plugins::CrashCatcher;
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if (fdwReason == DLL_PROCESS_ATTACH)
+	if (fdwReason == DLL_PROCESS_ATTACH && flhookReady)
 		Init();
 
-	else if (fdwReason == DLL_PROCESS_DETACH)
+	if (fdwReason == DLL_PROCESS_DETACH)
 		Shutdown();
 
 	return true;
@@ -597,7 +597,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init);
 	pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);
 	pi->emplaceHook(HookedCall::IServerImpl__JettisonCargo, &JettisonCargo);
 }

@@ -29,7 +29,7 @@ namespace Plugins::MiscCommands
 	void ClearClientInfo(const uint& iClientID) { global->mapInfo.erase(iClientID); }
 
 	/** One second timer */
-	void Timer()
+	void OneSecondTimer()
 	{
 		// Drop player shields and keep them down.
 		for (const auto& [id, info] : global->mapInfo)
@@ -80,7 +80,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Print the current location of your ship
 	 */
-	void UserCmdPos(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
+	void UserCmdPos(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		HKPLAYERINFO p;
 		if (HkGetPlayerInfo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID)), p, false) != HKE_OK || p.iShip == 0)
@@ -103,7 +103,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Nudge your ship 15 meters on all axis to try and dislodge a stuck ship.
 	 */
-	void UserCmdStuck(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
+	void UserCmdStuck(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
@@ -139,7 +139,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Command to remove your current affiliation if applicable.
 	 */
-	void UserCmdDropRep(uint iClientID, [[maybe_unused]] const std::wstring& wscParam)
+	void UserCmdDropRep(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->repDropCost < 0)
 		{
@@ -190,7 +190,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Roll a dice with the specified number of sides, or 6 is not specified.
 	 */
-	void UserCmdDice(uint iClientID, const std::wstring& wscParam)
+	void UserCmdDice(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
 
@@ -209,7 +209,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Throw the dice and tell all players within 6 km
 	 */
-	void UserCmdCoin(uint iClientID, const std::wstring& wscParam)
+	void UserCmdCoin(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
@@ -223,7 +223,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Activate or deactivate docking lights on your ship.
 	 */
-	void UserCmdLights(uint iClientID, const std::wstring& wscParam)
+	void UserCmdLights(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		global->mapInfo[iClientID].bLightsOn = !global->mapInfo[iClientID].bLightsOn;
 		SetLights(iClientID, global->mapInfo[iClientID].bLightsOn);
@@ -232,33 +232,24 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Disable/Enable your shields at will.
 	 */
-	void UserCmdShields(uint iClientID, const std::wstring& wscParam)
+	void UserCmdShields(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		global->mapInfo[iClientID].bShieldsDown = !global->mapInfo[iClientID].bShieldsDown;
 		PrintUserCmdText(iClientID, L"Shields %s", global->mapInfo[iClientID].bShieldsDown ? L"Disabled" : L"Enabled");
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 7> UserCmds = {{
-	    {L"/lights", UserCmdLights},
-	    {L"/shields", UserCmdShields},
-	    {L"/pos", UserCmdPos},
-	    {L"/stuck", UserCmdStuck},
-	    {L"/droprep", UserCmdDropRep},
-	    {L"/dice", UserCmdDice},
-	    {L"/coin", UserCmdCoin},
+	const std::vector commands = {{
+	    CreateUserCommand(L"/lights", L"", UserCmdLights, L""),
+	    CreateUserCommand(L"/shields", L"", UserCmdShields, L""),
+	    CreateUserCommand(L"/pos", L"", UserCmdPos, L""),
+	    CreateUserCommand(L"/stuck", L"", UserCmdStuck, L""),
+	    CreateUserCommand(L"/droprep", L"", UserCmdDropRep, L""),
+	    CreateUserCommand(L"/dice", L"", UserCmdDice, L""),
+	    CreateUserCommand(L"/coin", L"", UserCmdCoin, L""),
 	}};
 
 	/** @} */ // End of user commands
-
-	// Hook on /help
-	void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-	{
-		for (auto& uc : UserCmds)
-		{
-			PrintUserCmdText(iClientID, uc.cmd);
-		}
-	}
 
 	//! Smite all players in radar range
 	void AdminCmdSmiteAll(CCmds* cmds)
@@ -349,19 +340,10 @@ namespace Plugins::MiscCommands
 
 using namespace Plugins::MiscCommands;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId))
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDll, [[maybe_unused]] DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -370,13 +352,12 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("MiscCommands");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &Timer);
+	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

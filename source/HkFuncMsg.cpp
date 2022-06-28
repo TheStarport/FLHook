@@ -45,7 +45,6 @@ HK_ERROR HkMsgS(const std::wstring& wscSystemname, const std::wstring& wscMessag
 		pub::GetSystemID(iSystemID, wstos(wscSystemname).c_str());
 		if (!iSystemID)
 			return HKE_INVALID_SYSTEM;
-		;
 	}
 
 	// prepare xml
@@ -432,4 +431,19 @@ std::wstring HkGetWStringFromIDS(uint iIDS)
 	if (LoadStringW(vDLLs[iIDS >> 16], iIDS & 0xFFFF, wszBuf, 1024))
 		return wszBuf;
 	return L"";
+}
+
+
+void HkFormatMessage(uint clientId, MessageColor color, MessageFormat format, const std::wstring msg, ...)  // NOLINT(performance-unnecessary-value-param)
+{
+	wchar_t buf[1024 * 8] = L"";
+	va_list marker;
+	va_start(marker, msg);
+	_vsnwprintf_s(buf, sizeof buf - 1, msg.c_str(), marker);
+
+	uint bgrColor = RgbToBgr(static_cast<uint>(color));
+	std::wstring tra = UintToHex(bgrColor, 6, true) + UintToHex(static_cast<uint>(format), 2);
+
+	const std::wstring xml = L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(buf) + L"</TEXT>";
+	HkFMsg(clientId, xml);
 }

@@ -182,6 +182,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\HkCharacterIni.cpp" />
     <ClCompile Include="..\source\HkClientServerInterface.cpp" />
+    <ClCompile Include="..\source\HkDataPilotPersonalities.cpp" />
     <ClCompile Include="..\source\HkFuncCache.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkError.cpp" />

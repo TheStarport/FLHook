@@ -25,8 +25,7 @@ void PluginCommunicator::AddListener(const std::string plugin, EventSubscription
 	this->listeners[plugin] = event;
 }
 
-PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(
-    const std::string plugin, PluginCommunicator::EventSubscription subscription)
+PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(const std::string plugin, PluginCommunicator::EventSubscription subscription)
 {
 	const auto el = pluginCommunicators.find(plugin);
 	if (el == pluginCommunicators.end())
@@ -147,8 +146,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	if (!getPluginInfo)
 	{
-		adminInterface->Print(
-		    L"ERR could not read plugin info (ExportPluginInfo not exported?) for %s", dllName.c_str());
+		adminInterface->Print(L"ERR could not read plugin info (ExportPluginInfo not exported?) for %s", dllName.c_str());
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -158,9 +156,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	if (pi->versionMinor_ == PluginMinorVersion::UNDEFINED || pi->versionMajor_ == PluginMajorVersion::UNDEFINED)
 	{
-		adminInterface->Print(
-		    L"ERR plugin does not have defined API version. Unloading.", dllName.c_str(), CurrentMajorVersion,
-		    pi->versionMajor_);
+		adminInterface->Print(L"ERR plugin does not have defined API version. Unloading.", dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -168,8 +164,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	if (pi->versionMajor_ != CurrentMajorVersion)
 	{
 		adminInterface->Print(
-		    L"ERR incompatible plugin API (major) version for %s: expected %d, got %d", dllName.c_str(),
-		    CurrentMajorVersion, pi->versionMajor_);
+		    L"ERR incompatible plugin API (major) version for %s: expected %d, got %d", dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -177,17 +172,14 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	if ((int)pi->versionMinor_ > (int)CurrentMinorVersion)
 	{
 		adminInterface->Print(
-		    L"ERR incompatible plugin API (minor) version for %s: expected %d or lower, got %d", dllName.c_str(),
-		    CurrentMinorVersion, pi->versionMinor_);
+		    L"ERR incompatible plugin API (minor) version for %s: expected %d or lower, got %d", dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if (int(pi->versionMinor_) != (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(
-		    L"Warning, incompatible plugin API version for %s: expected %d, got %d", dllName.c_str(),
-		    CurrentMinorVersion, pi->versionMinor_);
+		adminInterface->Print(L"Warning, incompatible plugin API version for %s: expected %d, got %d", dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
 		adminInterface->Print(L"Processing will continue, but plugin should be considered unstable.");
 	}
 
@@ -217,12 +209,38 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	// also not be loaded after FLServer startup
 	if (!plugin.mayUnload && !startup)
 	{
-		adminInterface->Print(
-		    L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load",
-		    plugin.dllName.c_str());
+		adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load", plugin.dllName.c_str());
 		FreeLibrary(plugin.dll);
 		return;
 	}
+
+	for (const auto& timer : pi->timers_)
+	{
+		if (timer.func)
+			continue;
+
+		adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load", plugin.dllName.c_str());
+		FreeLibrary(plugin.dll);
+		return;
+	}
+
+	// Clean up the command list
+	pi->commands_.erase(std::remove_if(pi->commands_.begin(), pi->commands_.end(),
+	                        [adminInterface, dllName](const UserCommand& cmd) {
+		                        if (cmd.command.empty())
+		                        {
+			                        adminInterface->Print(L"ERR empty command present within %s, ignoring", dllName.c_str());
+			                        return true;
+		                        }
+		                        if (!cmd.proc)
+		                        {
+			                        adminInterface->Print(L"ERR nullptr found in %s command in %s, ignoring", cmd.command.c_str(), dllName.c_str());
+			                        return true;
+		                        }
+		                        return false;
+	                        }),
+	    pi->commands_.end());
+	plugin.commands = std::move(pi->commands_);
 
 	size_t index = plugins_.size();
 	plugins_.push_back(plugin);
@@ -231,9 +249,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	{
 		if (!hook.hookFunction_)
 		{
-			adminInterface->Print(
-			    L"ERR could not load function %d.%d of plugin %s", hook.targetFunction_, hook.step_,
-			    plugin.dllName.c_str());
+			adminInterface->Print(L"ERR could not load function %d.%d of plugin %s", hook.targetFunction_, hook.step_, plugin.dllName.c_str());
 			continue;
 		}
 
@@ -241,14 +257,13 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		if (!targetHookProps.matches(hook.step_))
 		{
 			adminInterface->Print(
-			    L"ERR could not bind function %d.%d of plugin %s, step not available", hook.targetFunction_, hook.step_,
-			    plugin.dllName.c_str());
+			    L"ERR could not bind function %d.%d of plugin %s, step not available", hook.targetFunction_, hook.step_, plugin.dllName.c_str());
 			continue;
 		}
 
 		uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
 		auto& list = pluginHooks_[hookId];
-		list.push_back({ hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index });
+		list.push_back({hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index});
 		std::sort(list.begin(), list.end());
 	}
 
@@ -280,7 +295,7 @@ void PluginManager::loadAll(bool startup, CCmds* adminInterface)
 
 void PluginManager::setProps(HookedCall c, bool b, bool m, bool a)
 {
-	hookProps_[c] = { b, m, a };
+	hookProps_[c] = {b, m, a};
 }
 
 void PluginInfo::versionMajor(PluginMajorVersion version)
@@ -326,4 +341,14 @@ void PluginInfo::returnCode(ReturnCode* returnCode)
 void PluginInfo::addHook(const PluginHook& hook)
 {
 	hooks_.push_back(hook);
+}
+
+void PluginInfo::commands(const std::vector<UserCommand>& cmds)
+{
+	commands_ = cmds;
+}
+
+void PluginInfo::timers(const std::vector<Timer>& timers)
+{
+	timers_ = timers;
 }

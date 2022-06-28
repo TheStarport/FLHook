@@ -16,9 +16,6 @@
     <Filter Include="AdminCommands">
       <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="blowfish">
-      <UniqueIdentifier>{0f3adb60-b17c-438e-b2d0-28b05cfd230d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\Header Files">
       <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
@@ -121,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\blowfish.cpp" />
+    <ClCompile Include="..\source\HkDataPilotPersonalities.cpp">
+      <Filter>Hook\data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CCmds.h">

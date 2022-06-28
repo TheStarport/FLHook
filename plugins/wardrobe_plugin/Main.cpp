@@ -1,211 +1,159 @@
 // Wardrobe
 // By Raikkonen
+//
+//Ported by Nen 2022
 
 #include "Main.h"
 
-void UserCmd_ShowWardrobe(uint iClientID, const std::wstring& wscParam)
+namespace Plugins::Wardrobe
 {
-	std::wstring wscType = GetParam(wscParam, ' ', 0);
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	if (ToLower(wscType) == L"heads")
+	void UserCmdShowWardrobe(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		PrintUserCmdText(iClientID, L"Heads:");
-		std::wstring wscHeads;
-		for (auto& [name, id] : heads)
-			wscHeads += (stows(name) + L" | ");
-		PrintUserCmdText(iClientID, wscHeads);
-	}
-	else if (ToLower(wscType) == L"bodies")
-	{
-		PrintUserCmdText(iClientID, L"Bodies:");
-		std::wstring wscBodies;
-		for (auto& [name, id] : bodies)
-			wscBodies += (stows(name) + L" | ");
-		PrintUserCmdText(iClientID, wscBodies);
-	}
-}
+		const std::wstring type = GetParam(wscParam, ' ', 0);
 
-void UserCmd_ChangeCostume(uint iClientID, const std::wstring& wscParam)
-{
-	std::wstring wscType = GetParam(wscParam, ' ', 0);
-	std::wstring wscCostume = GetParam(wscParam, ' ', 1);
-
-	if (!wscType.length() || !wscCostume.length())
-	{
-		PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-		return;
-	}
-
-	RESTART restart;
-
-	if (ToLower(wscType) == L"head")
-	{
-		if (heads.find(wstos(wscCostume)) == heads.end())
+		if (ToLower(type) == L"heads")
 		{
-			PrintUserCmdText(iClientID, L"ERR Head not found. Use \"/show heads\" to get heads.");
+			PrintUserCmdText(iClientID, L"Heads:");
+			std::wstring heads;
+			for (const auto& [name, id] : global->heads)
+				heads += (stows(name) + L" | ");
+			PrintUserCmdText(iClientID, heads);
+		}
+		else if (ToLower(type) == L"bodies")
+		{
+			PrintUserCmdText(iClientID, L"Bodies:");
+			std::wstring bodies;
+			for (const auto& [name, id] : global->bodies)
+				bodies += (stows(name) + L" | ");
+			PrintUserCmdText(iClientID, bodies);
+		}
+	}
+
+	void UserCmdChangeCostume(const uint& iClientID, const std::wstring_view& wscParam)
+	{
+		const std::wstring type = GetParam(wscParam, ' ', 0);
+		const std::wstring costume = GetParam(wscParam, ' ', 1);
+
+		if (!type.length() || !costume.length())
+		{
+			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
 			return;
 		}
-		restart.head = 1;
-		restart.costume = heads[wstos(wscCostume)];
-	}
-	else if (ToLower(wscType) == L"body")
-	{
-		if (bodies.find(wstos(wscCostume)) == bodies.end())
+
+		Wardrobe restart;
+
+		if (ToLower(type) == L"head")
 		{
-			PrintUserCmdText(iClientID, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
-			return;
-		}
-		restart.head = 0;
-		restart.costume = bodies[wstos(wscCostume)];
-	}
-	else
-	{
-		PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-		return;
-	}
-
-	// Saving the characters forces an anti-cheat checks and fixes
-	// up a multitude of other problems.
-	HkSaveChar(iClientID);
-	if (!HkIsValidClientID(iClientID))
-		return;
-
-	// Check character is in base
-	uint iBaseID;
-	pub::Player::GetBase(iClientID, iBaseID);
-	if (!iBaseID)
-	{
-		PrintUserCmdText(iClientID, L"ERR Not in base");
-		return;
-	}
-
-	restart.wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
-	if (acc)
-	{
-		HkGetAccountDirName(acc, restart.wscDir);
-		HkGetCharFileName(restart.wscCharname, restart.wscCharfile);
-		pendingRestarts.push_back(restart);
-		HkKickReason(restart.wscCharname, L"Updating character, please wait 10 seconds before reconnecting");
-	}
-}
-
-void HkTimerCheckKick()
-{
-	while (!pendingRestarts.empty())
-	{
-		RESTART restart = pendingRestarts.front();
-		if (HkGetClientIdFromCharname(restart.wscCharname) != -1)
-			return;
-
-		pendingRestarts.pop_front();
-
-		try
-		{
-			// Overwrite the existing character file
-			std::string scCharFile = scAcctPath + wstos(restart.wscDir) + "\\" + wstos(restart.wscCharfile) + ".fl";
-			flc_decode(scCharFile.c_str(), scCharFile.c_str());
-			if (restart.head)
+			if (global->heads.find(wstos(costume)) == global->heads.end())
 			{
-				IniWrite(scCharFile, "Player", "head", " " + restart.costume);
+				PrintUserCmdText(iClientID, L"ERR Head not found. Use \"/show heads\" to get heads.");
+				return;
 			}
-			else
-				IniWrite(scCharFile, "Player", "body", " " + restart.costume);
-
-			if (!FLHookConfig::i()->general.disableCharfileEncryption)
-				flc_encode(scCharFile.c_str(), scCharFile.c_str());
-
-			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			restart.head = true;
+			restart.costume = global->heads[wstos(costume)];
 		}
-		catch (char* err)
+		else if (ToLower(type) == L"body")
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u (%s)", wstos(restart.wscCharname).c_str(),
-			    restart.costume, err);
+			if (global->bodies.find(wstos(costume)) == global->bodies.end())
+			{
+				PrintUserCmdText(iClientID, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
+				return;
+			}
+			restart.head = false;
+			restart.costume = global->bodies[wstos(costume)];
 		}
-		catch (...)
+		else
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u", wstos(restart.wscCharname).c_str(), restart.costume);
+			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+			return;
+		}
+
+		// Saving the characters forces an anti-cheat checks and fixes
+		// up a multitude of other problems.
+		HkSaveChar(iClientID);
+		if (!HkIsValidClientID(iClientID))
+			return;
+
+		// Check character is in base
+		uint baseID;
+		pub::Player::GetBase(iClientID, baseID);
+		if (!baseID)
+		{
+			PrintUserCmdText(iClientID, L"ERR Not in base");
+			return;
+		}
+
+		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+
+		if (CAccount* account = Players.FindAccountFromClientID(iClientID))
+		{
+			HkGetAccountDirName(account, restart.directory);
+			HkGetCharFileName(restart.characterName, restart.characterFile);
+			global->pendingRestarts.push_back(restart);
+			HkKickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 	}
-}
 
-void LoadSettings()
-{
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\wardrobe.cfg";
-
-	INI_Reader ini;
-	if (ini.open(scPluginCfgFile.c_str(), false))
+	void HkTimerCheckKick()
 	{
-		while (ini.read_header())
+		while (!global->pendingRestarts.empty())
 		{
-			if (ini.is_header("Wardrobe"))
+			Wardrobe restart = global->pendingRestarts.front();
+			if (HkGetClientIdFromCharname(restart.characterName) != -1)
+				return;
+
+			global->pendingRestarts.pop_front();
+
+			try
 			{
-				while (ini.read_value())
+				// Overwrite the existing character file
+				std::string scCharFile = scAcctPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				flc_decode(scCharFile.c_str(), scCharFile.c_str());
+				if (restart.head)
 				{
-					if (ini.is_value("head"))
-					{
-						std::string name = ini.get_value_string(0);
-						std::string value = ini.get_value_string(1);
-						heads[name] = value;
-					}
-					else if (ini.is_value("body"))
-					{
-						std::string name = ini.get_value_string(0);
-						std::string value = ini.get_value_string(1);
-						bodies[name] = value;
-					}
+					IniWrite(scCharFile, "Player", "head", " " + restart.costume);
 				}
+				else
+					IniWrite(scCharFile, "Player", "body", " " + restart.costume);
+
+				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+					flc_encode(scCharFile.c_str(), scCharFile.c_str());
+
+				AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User %s costume change to %u", wstos(restart.characterFile).c_str(), restart.costume);
+			}
+			catch (char* err)
+			{
+				AddLog(
+				    LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u (%s)", wstos(restart.characterName).c_str(), restart.costume, err);
+			}
+			catch (...)
+			{
+				AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User %s costume change to %u", wstos(restart.characterName).c_str(), restart.costume);
 			}
 		}
-		ini.close();
 	}
-}
 
-// Additional information related to the plugin when the /help command is used
-void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/show");
-	PrintUserCmdText(
-	    iClientID, L"Usage: /show <heads/bodies> - This shows the available heads and bodies for the /change command.");
-	PrintUserCmdText(iClientID, L"/change");
-	PrintUserCmdText(
-	    iClientID,
-	    L"Usage: /change <head/body> <name> - This changes Trent's head or body to one specified in the "
-	    L"/show command.");
-}
+	void LoadSettings() { auto config = Serializer::JsonToObject<Config>(); }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// USER COMMAND PROCESSING
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Define usable chat commands here
-const std::array<USERCMD, 2> UserCmds = {{
-    {L"/show", UserCmd_ShowWardrobe},
-    {L"/change", UserCmd_ChangeCostume},
-}};
+	// Define usable chat commands here
+	const std::vector commands = {{
+	    CreateUserCommand(L"/show", L"", UserCmdShowWardrobe, L""),
+	    CreateUserCommand(L"/change", L"", UserCmdChangeCostume, L""),
+	}};
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+} // namespace Plugins::Wardrobe
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
+using namespace Plugins::Wardrobe;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	// If we're being loaded from the command line while FLHook is running then
-	// load the settings as FLHook only
-	// calls load settings on FLHook startup and .rehash.
-	if (fdwReason == DLL_PROCESS_ATTACH)
-		LoadSettings();
+REFL_AUTO(type(Config))
 
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -214,11 +162,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("wardrobe");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->commands(commands);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
 }

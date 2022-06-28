@@ -2,7 +2,7 @@
 
 namespace Plugins::Mark
 {
-	void UserCmd_MarkObj(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_MarkObj(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip, iTargetShip;
 		pub::Player::GetShip(iClientID, iShip);
@@ -23,7 +23,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkObj(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_UnMarkObj(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip, iTargetShip;
 		pub::Player::GetShip(iClientID, iShip);
@@ -44,12 +44,12 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkAllObj(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_UnMarkAllObj(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		HkUnMarkAllObjects(iClientID);
 	}
 
-	void UserCmd_MarkObjGroup(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_MarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip, iTargetShip;
 		pub::Player::GetShip(iClientID, iShip);
@@ -75,7 +75,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkObjGroup(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_UnMarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip, iTargetShip;
 		pub::Player::GetShip(iClientID, iShip);
@@ -95,14 +95,16 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_SetIgnoreGroupMark(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_SetIgnoreGroupMark(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		std::wstring wscError[] = {
+		const std::wstring wscError[] = {
 		    L"Error: Invalid parameters",
 		    L"Usage: /ignoregroupmarks <on|off>",
 		};
 
-		if (ToLower(wscParam) == L"off")
+		const auto param = ViewToWString(wscParam);
+
+		if (ToLower(param) == L"off")
 		{
 			global->Mark[iClientID].IgnoreGroupMark = false;
 			std::wstring wscDir, wscFilename;
@@ -115,7 +117,7 @@ namespace Plugins::Mark
 				PrintUserCmdText(iClientID, L"Accepting marks from the group");
 			}
 		}
-		else if (ToLower(wscParam) == L"on")
+		else if (ToLower(param) == L"on")
 		{
 			global->Mark[iClientID].IgnoreGroupMark = true;
 			std::wstring wscDir, wscFilename;
@@ -134,7 +136,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_AutoMark(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_AutoMark(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 		{

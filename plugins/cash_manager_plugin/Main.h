@@ -10,17 +10,17 @@ namespace Plugins::CashManager
 		std::string File() override { return "flhook_plugins/cash_manager.json"; }
 
 		// The minimum transfer amount.
-		int set_iMinTransfer = 0;
+		int minimumTransfer = 0;
 
 		// Transfers are not allowed to/from chars in this system.
-		uint set_iBlockedSystem = 0;
+		uint blockedSystem = 0;
 
 		// Enable in dock cash cheat detection
-		bool set_bCheatDetection = false;
+		bool cheatDetection = false;
 
 		// Prohibit transfers if the character has not been online for at least this
 		// time
-		int set_iMinTime = 0;
+		int minimumTime = 0;
 	};
 
 	//! Global data for this plugin
@@ -29,7 +29,7 @@ namespace Plugins::CashManager
 		std::unique_ptr<Config> config = nullptr;
 
 		// Other fields
-		ReturnCode returncode = ReturnCode::Default;
+		ReturnCode returnCode = ReturnCode::Default;
 	};
 }
 

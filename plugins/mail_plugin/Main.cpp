@@ -101,7 +101,7 @@ namespace Plugins::Mail
 	 Save a msg to disk so that we can inform the receiving character
 	 when they log in.
 	*/
-	bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scExtension, const std::wstring& wscMsg)
+	bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scExtension, const std::wstring_view& wscMsg)
 	{
 		// Get the target player's message file.
 		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
@@ -120,7 +120,7 @@ namespace Plugins::Mail
 		}
 
 		// Write message into the slot
-		IniWriteW(scFilePath, "Msgs", "1", GetTimeString(FLHookConfig::i()->general.localTime) + L" " + wscMsg);
+		IniWriteW(scFilePath, "Msgs", "1", GetTimeString(FLHookConfig::i()->general.localTime) + L" " + ViewToWString(wscMsg));
 		IniWrite(scFilePath, "MsgsRead", "1", "no");
 
 		MailCommunicator::MailSent mail {wscCharname, wscMsg};
@@ -166,7 +166,7 @@ namespace Plugins::Mail
 
 	MailCommunicator::MailCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
 	{ // NOLINT(clang-diagnostic-shadow-field)
-		this->SendMail = [](std::wstring character, std::wstring msg) {
+		this->SendMail = [](std::wstring character, std::wstring_view msg) {
 			MailSend(character, global->MSG_LOG, msg);
 		};
 	}
@@ -176,7 +176,7 @@ namespace Plugins::Mail
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** Show Mail */
-	void UserCmd_MailShow(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_MailShow(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		int iNumberUnreadMsgs = MailCountUnread((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
 		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
@@ -209,7 +209,7 @@ namespace Plugins::Mail
 	}
 
 	/** Delete Mail */
-	void UserCmd_MailDel(uint iClientID, const std::wstring& wscParam)
+	void UserCmd_MailDel(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (wscParam.size() == 0)
 		{
@@ -233,17 +233,10 @@ namespace Plugins::Mail
 	}
 
 	// Client command processing
-	const std::array<USERCMD, 2> UserCmds = {{
-	    {L"/mail", UserCmd_MailShow},
-	    {L"/maildel", UserCmd_MailDel},
+	const std::vector commands = {{
+	    CreateUserCommand(L"/mail", L"", UserCmd_MailShow, L""),
+	    CreateUserCommand(L"/maildel", L"", UserCmd_MailDel, L""),
 	}};
-
-	// Hook on /help
-	EXPORT void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/mail");
-		PrintUserCmdText(iClientID, L"/maildel");
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Admin commands
@@ -273,16 +266,7 @@ namespace Plugins::Mail
 
 using namespace Plugins::Mail;
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, global->returncode);
-}
-
-// Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMain()
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
@@ -291,11 +275,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("mail");
 	pi->mayPause(true);
 	pi->mayUnload(true);
+	pi->commands(commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);

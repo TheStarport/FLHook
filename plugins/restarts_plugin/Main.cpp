@@ -1,6 +1,6 @@
 // Restarts plugin - Feb 2010 by Cannon
 //
-// Ported by Raikkonen 2022
+// Ported by Raikkonen & Nen 2022
 //
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
@@ -8,264 +8,201 @@
 
 #include "Main.h"
 
-// Players with a rank above this value cannot use the restart command.
-static int set_iMaxRank;
-
-// Players with a cash above this value cannot use the restart command.
-static int set_iMaxCash;
-
-// Name of each restart and how much cash they cost
-static std::map<std::wstring, int> shipPrices;
-
-void LoadSettings()
+namespace Plugins::Restart
 {
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\restarts.cfg";
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	set_iMaxRank = IniGetI(scPluginCfgFile, "General", "MaxRank", 5);
-	set_iMaxCash = IniGetI(scPluginCfgFile, "General", "MaxCash", 1000000);
-	set_bEnableRestartCost = IniGetB(scPluginCfgFile, "General", "EnableCost", false);
-
-	INI_Reader ini;
-	if (ini.open(scPluginCfgFile.c_str(), false))
+	void LoadSettings()
 	{
-		while (ini.read_header())
+		auto config = Serializer::JsonToObject<Config>();
+
+		global->config = std::make_unique<Config>(config);
+	}
+
+	/* User Commands */
+
+	void UserCmd_ShowRestarts(const uint& iClientID, const std::wstring_view& wscParam)
+	{
+		if (global->config->restartCosts.empty())
 		{
-			if (ini.is_header("Restart"))
+			PrintUserCmdText(iClientID, L"There are no restarts available.");
+			return;
+		}
+
+		PrintUserCmdText(iClientID, L"You can use these restarts:");
+		for (const auto& [key, value] : global->config->restartCosts)
+		{
+			if (global->config->enableRestartCost)
 			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("restart"))
-					{
-						std::wstring name = stows(ini.get_value_string(0));
-						int iCash = ini.get_value_int(1);
-						shipPrices[name] = iCash;
-					}
-				}
+				PrintUserCmdText(iClientID, L"%s - $%i", key.c_str(), value);
+			}
+			else
+			{
+				PrintUserCmdText(iClientID, L"%s", key.c_str());
 			}
 		}
 	}
-}
 
-/* User Commands */
-
-void UserCmd_ShowRestarts(uint iClientID, const std::wstring& wscParam)
-{
-	WIN32_FIND_DATA FileData;
-	HANDLE hSearch;
-
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string scRestartFiles = std::string(szCurDir) + "\\flhook_plugins\\restart\\*.fl";
-
-	// Start searching for .fl files in the current directory.
-	hSearch = FindFirstFile(scRestartFiles.c_str(), &FileData);
-	if (hSearch == INVALID_HANDLE_VALUE)
+	void UserCmd_Restart(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		PrintUserCmdText(iClientID, L"Restart files not found");
-		return;
-	}
-
-	PrintUserCmdText(iClientID, L"You can use these restarts:");
-	do
-	{
-		// add filename
-		std::string scFileName = FileData.cFileName;
-		size_t len = scFileName.length();
-		scFileName.erase(len - 3, len);
-		if (scFileName[0] != '_')
+		std::wstring restartTemplate = GetParam(wscParam, ' ', 0);
+		if (!restartTemplate.length())
 		{
-			if (set_bEnableRestartCost)
-				PrintUserCmdText(
-				    iClientID, stows(scFileName) + L" - $" + std::to_wstring(shipPrices[stows(scFileName)]));
-			else
-				PrintUserCmdText(iClientID, stows(scFileName));
+			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+			PrintUserCmdText(iClientID, L"/restart <template>");
 		}
-	} while (FindNextFile(hSearch, &FileData));
 
-	FindClose(hSearch);
-}
+		// Get the character name for this connection.
+		Restart restart;
+		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
 
-void UserCmd_Restart(uint iClientID, const std::wstring& wscParam)
-{
-	std::wstring wscFaction = GetParam(wscParam, ' ', 0);
-	if (!wscFaction.length())
-	{
-		PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-		PrintUserCmdText(iClientID, L"/restart <template>");
-	}
+		// Searching restart
 
-	// Get the character name for this connection.
-	RESTART restart;
-	restart.wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-	// Searching restart
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	restart.scRestartFile = std::string(szCurDir) + "\\flhook_plugins\\restart\\" + wstos(wscFaction) + ".fl";
-
-	if (!::PathFileExistsA(restart.scRestartFile.c_str()))
-	{
-		restart.scRestartFile = std::string(szCurDir) + "\\flhook_plugins\\restart\\_" + wstos(wscFaction) + ".fl";
-		if (!PathFileExistsA(restart.scRestartFile.c_str()))
+		for (const auto& entity : std::filesystem::directory_iterator("flhook_plugins/restart"))
 		{
-			PrintUserCmdText(iClientID, L"ERR Template does not exist");
+			if (entity.is_directory() || entity.path().extension().string() != ".fl")
+			{
+				continue;
+			}
+			if (entity.path().filename().string() == wstos(restartTemplate + L".fl"))
+			{
+				PrintUserCmdText(iClientID, L"ERR Template does not exist");
+			}
 		}
-	}
 
-	// Saving the characters forces an anti-cheat checks and fixes
-	// up a multitude of other problems.
-	HkSaveChar(iClientID);
-	if (!HkIsValidClientID(iClientID))
-		return;
+		// Saving the characters forces an anti-cheat checks and fixes
+		// up a multitude of other problems.
+		HkSaveChar(iClientID);
+		if (!HkIsValidClientID(iClientID))
+			return;
 
-	uint iBaseID;
-	pub::Player::GetBase(iClientID, iBaseID);
-	if (!iBaseID)
-	{
-		PrintUserCmdText(iClientID, L"ERR Not in base");
-		return;
-	}
-
-	if (set_iMaxRank != 0)
-	{
-		int iRank = 0;
-		HkGetRank(restart.wscCharname, iRank);
-		if (iRank == 0 || iRank > set_iMaxRank)
+		uint iBaseID;
+		pub::Player::GetBase(iClientID, iBaseID);
+		if (!iBaseID)
 		{
-			PrintUserCmdText(
-			    iClientID,
+			PrintUserCmdText(iClientID, L"ERR Not in base");
+			return;
+		}
+
+		if (global->config->maxRank != 0)
+		{
+			int rank = 0;
+			HkGetRank(restart.characterName, rank);
+			if (rank == 0 || rank > global->config->maxRank)
+			{
+				PrintUserCmdText(iClientID,
+				    L"ERR You must create a new char to "
+				    L"restart. Your rank is too high");
+				return;
+			}
+		}
+
+		HK_ERROR err;
+		int cash = 0;
+		if ((err = HkGetCash(restart.characterName, cash)) != HKE_OK)
+		{
+			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			return;
+		}
+
+		if (global->config->maxCash != 0 && cash > global->config->maxCash)
+		{
+			PrintUserCmdText(iClientID,
 			    L"ERR You must create a new char to "
-			    L"restart. Your rank is too high");
+			    L"restart. Your cash is too high");
 			return;
 		}
-	}
 
-	HK_ERROR err;
-	int iCash = 0;
-	if ((err = HkGetCash(restart.wscCharname, iCash)) != HKE_OK)
-	{
-		PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+		if (global->config->enableRestartCost)
+		{
+			if (cash < global->config->restartCosts[restartTemplate])
+			{
+				PrintUserCmdText(
+				    iClientID, L"You need $" + std::to_wstring(global->config->restartCosts[restartTemplate] - cash) + L" more credits to use this template");
+				return;
+			}
+			restart.cash = cash - global->config->restartCosts[restartTemplate];
+		}
+		else
+			restart.cash = cash;
+
+		if (CAccount* acc = Players.FindAccountFromClientID(iClientID))
+		{
+			HkGetAccountDirName(acc, restart.directory);
+			HkGetCharFileName(restart.characterName, restart.characterFile);
+			global->pendingRestarts.push_back(restart);
+			HkKickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+		}
 		return;
 	}
 
-	if (set_iMaxCash != 0 && iCash > set_iMaxCash)
+	/* Hooks */
+
+	void OneSecondTimer()
 	{
-		PrintUserCmdText(
-		    iClientID,
-		    L"ERR You must create a new char to "
-		    L"restart. Your cash is too high");
-		return;
-	}
-
-	if (set_bEnableRestartCost)
-	{
-		if (iCash < shipPrices[wscFaction])
+		while (global->pendingRestarts.size())
 		{
-			PrintUserCmdText(
-			    iClientID,
-			    L"You need $" + std::to_wstring(shipPrices[wscFaction] - iCash) +
-			        L" more credits to use this template");
-			return;
-		}
-		restart.iCash = iCash - shipPrices[wscFaction];
-	}
-	else
-		restart.iCash = iCash;
+			Restart restart = global->pendingRestarts.front();
+			if (HkGetClientIdFromCharname(restart.characterName) != -1)
+				return;
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
-	if (acc)
-	{
-		HkGetAccountDirName(acc, restart.wscDir);
-		HkGetCharFileName(restart.wscCharname, restart.wscCharfile);
-		pendingRestarts.push_back(restart);
-		HkKickReason(restart.wscCharname, L"Updating character, please wait 10 seconds before reconnecting");
-	}
-	return;
-}
+			global->pendingRestarts.pop_front();
 
-/* Hooks */
+			try
+			{
+				// Overwrite the existing character file
+				std::string scCharFile = scAcctPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
+				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
+				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
+					throw("copy template");
 
-void Timer()
-{
-	while (pendingRestarts.size())
-	{
-		RESTART restart = pendingRestarts.front();
-		if (HkGetClientIdFromCharname(restart.wscCharname) != -1)
-			return;
+				flc_decode(scCharFile.c_str(), scCharFile.c_str());
+				IniWriteW(scCharFile, "Player", "name", restart.characterName);
+				IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
+				IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
+				IniWrite(scCharFile, "Player", "money", std::to_string(restart.cash));
 
-		pendingRestarts.pop_front();
+				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+					flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-		try
-		{
-			// Overwrite the existing character file
-			std::string scCharFile = scAcctPath + wstos(restart.wscDir) + "\\" + wstos(restart.wscCharfile) + ".fl";
-			std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
-			std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
-			if (!::CopyFileA(restart.scRestartFile.c_str(), scCharFile.c_str(), FALSE))
-				throw("copy template");
-
-			flc_decode(scCharFile.c_str(), scCharFile.c_str());
-			IniWriteW(scCharFile, "Player", "name", restart.wscCharname);
-			IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
-			IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
-			IniWrite(scCharFile, "Player", "money", std::to_string(restart.iCash));
-
-			if (!FLHookConfig::i()->general.disableCharfileEncryption)
-				flc_encode(scCharFile.c_str(), scCharFile.c_str());
-
-			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User restart %s for %s", restart.scRestartFile.c_str(),
-			    wstos(restart.wscCharname).c_str());
-		}
-		catch (char* err)
-		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed (%s) for %s", err, wstos(restart.wscCharname).c_str());
-		}
-		catch (...)
-		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed for %s", wstos(restart.wscCharname).c_str());
+				AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: User restart %s for %s", restart.restartFile.c_str(), wstos(restart.characterName).c_str());
+			}
+			catch (char* err)
+			{
+				AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed (%s) for %s", err, wstos(restart.characterName).c_str());
+			}
+			catch (...)
+			{
+				AddLog(LogType::Normal, LogLevel::Info, L"ERROR: User restart failed for %s", wstos(restart.characterName).c_str());
+			}
 		}
 	}
-}
 
-// Client command processing
-const std::array<USERCMD, 2> UserCmds = {{
-    {L"/restart", UserCmd_Restart},
-    {L"/showrestarts", UserCmd_ShowRestarts},
-}};
-
-// Hook on /help
-void UserCmd_Help(uint& iClientID, const std::wstring& wscParam)
-{
-	PrintUserCmdText(iClientID, L"/restart <template>");
-	PrintUserCmdText(iClientID, L"/showrestarts");
-}
-
+	// Client command processing
+	const std::vector commands = {{
+	    CreateUserCommand(L"/restart", L"", UserCmd_Restart, L""),
+	    CreateUserCommand(L"/showrestarts", L"", UserCmd_ShowRestarts, L""),
+	}};
+} // namespace Plugins::Restart
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ProcessUserCmds(uint& clientId, const std::wstring& param)
-{
-	return DefaultUserCommandHandling(clientId, param, UserCmds, returncode);
-}
+using namespace Plugins::Restart;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(restartCosts))
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+DefaultDllMainSettings(LoadSettings)
+
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Restarts");
 	pi->shortName("restarts");
 	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&returncode);
+	pi->commands(commands);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &Timer);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &ProcessUserCmds);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Help, &UserCmd_Help);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 }

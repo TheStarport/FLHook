@@ -5,63 +5,86 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-ReturnCode returncode = ReturnCode::Default;
-
-// Enable Rename
-bool set_bEnableRenameMe = false;
-
-// Enable Moving of Characters
-bool set_bEnableMoveChar = false;
-
-// Cost of the rename in credits
-int set_iMoveCost = 0;
-
-// Cost of the rename in credits
-int set_iRenameCost = 0;
-
-// Rename is not allowed if attempted within the rename time limit (in seconds)
-int set_iRenameTimeLimit = 0;
-
-// True if charname tags are supported
-bool set_bCharnameTags = false;
-
-// True if ascii only tags are supported
-bool set_bAsciiCharnameOnly = false;
-
-// The tag making cost
-int set_iMakeTagCost = 50000000;
-
-struct TAG_DATA
+namespace Plugins::Rename
 {
-	std::wstring tag;
-	std::wstring master_password;
-	std::wstring rename_password;
-	uint last_access;
-	std::wstring description;
-};
+	struct TagData : Reflectable
+	{
+		std::wstring tag;
+		std::wstring masterPassword;
+		std::wstring renamePassword;
+		long long lastAccess;
+		std::wstring description;
+	};
 
-std::map<std::wstring, TAG_DATA> mapTagToPassword;
+	struct Rename
+	{
+		std::wstring charName;
+		std::wstring newCharName;
 
-struct RENAME
-{
-	std::wstring wscCharname;
-	std::wstring wscNewCharname;
+		std::string sourceFile;
+		std::string destFile;
+		std::string destFileTemp;
+	};
 
-	std::string scSourceFile;
-	std::string scDestFile;
-	std::string scDestFileTemp;
-};
-std::list<RENAME> pendingRenames;
+	struct Move
+	{
+		std::wstring destinationCharName;
+		std::wstring movingCharName;
 
-struct MOVE
-{
-	std::wstring wscDestinationCharname;
-	std::wstring wscMovingCharname;
+		std::string sourceFile;
+		std::string destFile;
+		std::string destFileTemp;
+	};
 
-	std::string scSourceFile;
-	std::string scDestFile;
-	std::string scDestFileTemp;
-};
-std::list<MOVE> pendingMoves;
+	struct TagList : Reflectable
+	{
+		std::string File() override
+		{
+			char szDataPath[MAX_PATH];
+			GetUserDataPath(szDataPath);
+			return std::string(szDataPath) + R"(\Accts\MultiPlayer\tags.json)";
+		}
 
-#define MIN_CHAR_TAG_LEN 3
+		std::vector<TagData> tags;
+		std::vector<TagData>::iterator FindTag(const std::wstring& tag);
+		std::vector<TagData>::iterator FindTagPartial(const std::wstring& tag);
+	};
+
+	struct Config : Reflectable
+	{
+		// Enable Rename
+		bool enableRenameMe = false;
+
+		// Enable Moving of Characters
+		bool enableMoveChar = false;
+
+		// Cost of the rename in credits
+		int moveCost = 0;
+
+		// Cost of the rename in credits
+		int renameCost = 0;
+
+		// Rename is not allowed if attempted within the rename time limit (in seconds)
+		int renameTimeLimit = 0;
+
+		// True if charname tags are supported
+		bool charNameTags = false;
+
+		// True if ascii only tags are supported
+		bool asciiCharNameOnly = false;
+
+		// The tag making cost
+		int makeTagCost = 2'500'000;
+	};
+
+	constexpr int MinCharacterNameLength = 3;
+	struct Global
+	{
+		ReturnCode returnCode = ReturnCode::Default;
+
+		Config config;
+		std::vector<Move> pendingMoves;
+		std::vector<Rename> pendingRenames;
+		TagList tagList;
+	};
+} // namespace Plugins::Rename

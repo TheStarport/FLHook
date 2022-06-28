@@ -45,10 +45,7 @@ using namespace Plugins::SoundManager;
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(sounds))
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

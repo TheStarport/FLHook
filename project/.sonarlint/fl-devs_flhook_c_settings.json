@@ -849,6 +849,9 @@
       "level": "On",
       "severity": "Major"
     },
+    "c:S116": {
+      "level": "Off"
+    },
     "c:S131": {
       "level": "Off"
     },
@@ -1126,9 +1129,6 @@
       "level": "Off"
     },
     "c:S113": {
-      "level": "Off"
-    },
-    "c:S116": {
       "level": "Off"
     },
     "c:S117": {
