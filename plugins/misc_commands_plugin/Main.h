@@ -12,6 +12,7 @@ namespace Plugins::MiscCommands
 		bool bShieldsDown = false;
 	};
 
+	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
 		std::string File() override { return "flhook_plugins/misc_commands.json"; }

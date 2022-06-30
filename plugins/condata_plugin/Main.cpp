@@ -1,5 +1,5 @@
 ﻿// includes
-#include "header.h"
+#include "Main.h"
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
@@ -10,7 +10,7 @@
 #define PRINT_OK()       PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-/** @defgroup MiscCommands Misc Commands (plugin) */
+/** @defgroup Condata Connection Data (plugin) */
 
 namespace Plugins::ConData
 {
