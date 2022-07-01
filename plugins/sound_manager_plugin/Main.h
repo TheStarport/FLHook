@@ -5,15 +5,16 @@
 
 namespace Plugins::SoundManager
 {
+	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		// This json file should contain a "sounds" array containing a list of sounds for e.g. dx_s032a_01a01_hvis_xtr_1
+		//! This json file should contain a "sounds" array containing a list of sounds for e.g. dx_s032a_01a01_hvis_xtr_1
 		std::string File() override { return "flhook_plugins/soundmanager.json"; }
 
-		// Reflectable fields
+		//! A vector of sounds in their Freelancer name format
 		std::vector<std::string> sounds;
 
-		// Non-reflectable fields
+		//! A vector of sounds converted to their ids
 		std::vector<uint> sound_ids;
 	};
 
@@ -21,8 +22,6 @@ namespace Plugins::SoundManager
 	struct Global final
 	{
 		std::unique_ptr<Config> config = nullptr;
-
-		// Other fields
 		ReturnCode returncode = ReturnCode::Default;
 	};
 }

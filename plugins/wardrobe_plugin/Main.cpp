@@ -100,11 +100,11 @@ namespace Plugins::Wardrobe
 	{
 		while (!global->pendingRestarts.empty())
 		{
-			Wardrobe restart = global->pendingRestarts.front();
+			Wardrobe restart = global->pendingRestarts.back();
 			if (HkGetClientIdFromCharname(restart.characterName) != -1)
 				return;
 
-			global->pendingRestarts.pop_front();
+			global->pendingRestarts.pop_back();
 
 			try
 			{

@@ -23,14 +23,14 @@ namespace Plugins::Restart
 
 	void UserCmd_ShowRestarts(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (global->config->restartCosts.empty())
+		if (global->config->availableRestarts.empty())
 		{
 			PrintUserCmdText(iClientID, L"There are no restarts available.");
 			return;
 		}
 
 		PrintUserCmdText(iClientID, L"You can use these restarts:");
-		for (const auto& [key, value] : global->config->restartCosts)
+		for (const auto& [key, value] : global->config->availableRestarts)
 		{
 			if (global->config->enableRestartCost)
 			{
@@ -115,13 +115,13 @@ namespace Plugins::Restart
 
 		if (global->config->enableRestartCost)
 		{
-			if (cash < global->config->restartCosts[restartTemplate])
+			if (cash < global->config->availableRestarts[restartTemplate])
 			{
 				PrintUserCmdText(
-				    iClientID, L"You need $" + std::to_wstring(global->config->restartCosts[restartTemplate] - cash) + L" more credits to use this template");
+				    iClientID, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash) + L" more credits to use this template");
 				return;
 			}
-			restart.cash = cash - global->config->restartCosts[restartTemplate];
+			restart.cash = cash - global->config->availableRestarts[restartTemplate];
 		}
 		else
 			restart.cash = cash;
@@ -142,11 +142,11 @@ namespace Plugins::Restart
 	{
 		while (global->pendingRestarts.size())
 		{
-			Restart restart = global->pendingRestarts.front();
+			Restart restart = global->pendingRestarts.back();
 			if (HkGetClientIdFromCharname(restart.characterName) != -1)
 				return;
 
-			global->pendingRestarts.pop_front();
+			global->pendingRestarts.pop_back();
 
 			try
 			{
@@ -189,7 +189,7 @@ namespace Plugins::Restart
 
 using namespace Plugins::Restart;
 
-REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(restartCosts))
+REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(availableRestarts))
 
 DefaultDllMainSettings(LoadSettings)
 
