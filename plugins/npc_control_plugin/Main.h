@@ -7,6 +7,7 @@
 
 namespace Plugins::Npc
 {
+	//! A struct that represents an npc that can be spawned
 	struct Npc : Reflectable
 	{
 		std::string shipArch;
@@ -22,12 +23,14 @@ namespace Plugins::Npc
 		uint iffId;
 	};
 
+	// A struct that represents a fleet that can be spawned
 	struct Fleet : Reflectable
 	{
 		std::wstring name;
 		std::map<std::wstring, int> member;
 	};
 
+	// A struct that represents an NPC that is spawned on startup
 	struct StartupNpc : Reflectable
 	{
 		std::wstring name;
@@ -40,15 +43,22 @@ namespace Plugins::Npc
 		Vector positionVector;
 	};
 
+	//! Config data for this plugin
 	struct Config : Reflectable
 	{
+		//! Map of npcs that can be spawned
 		std::map<std::wstring, Npc> npcInfo;
+		//! Map of fleets that can be spawned
 		std::map<std::wstring, Fleet> fleetInfo;
+		//! Vector of npcs that are spawned on startup
 		std::vector<StartupNpc> startupNpcs;
+		//! Vector containing Infocard Ids used for naming npcs
 		std::vector<uint> npcInfocardIds {};
+		//! The config file we load out of
 		std::string File() override { return "flhook_plugins/npc_control.json"; }
 	};
 
+	//! Global data for this plugin
 	struct Global final
 	{
 		std::unique_ptr<Config> config = nullptr;

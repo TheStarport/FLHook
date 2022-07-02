@@ -16,7 +16,7 @@ namespace Plugins::Tempban
 
 		for (auto it = global->TempBans.begin(); it != global->TempBans.end(); ++it)
 		{
-			if (((*it).banstart + (*it).banduration) < timeInMS())
+			if (((*it).banStart + (*it).banDuration) < timeInMS())
 			{
 				global->TempBans.erase(it);
 				break; // fix to not overflow the list
@@ -31,9 +31,9 @@ namespace Plugins::Tempban
 		const uint iClientID = HkGetClientIdFromCharname(wscCharname);
 
 		mstime duration = 1000 * _duration * 60;
-		TEMPBAN_INFO tempban;
-		tempban.banstart = timeInMS();
-		tempban.banduration = duration;
+		TempbanInfo tempban;
+		tempban.banStart = timeInMS();
+		tempban.banDuration = duration;
 
 		CAccount* acc;
 		if (iClientID != -1)
@@ -45,7 +45,7 @@ namespace Plugins::Tempban
 		}
 		std::wstring wscID = HkGetAccountID(acc);
 
-		tempban.wscID = wscID;
+		tempban.accountId = wscID;
 		global->TempBans.push_back(tempban);
 
 		return HKE_OK;
@@ -60,7 +60,7 @@ namespace Plugins::Tempban
 
 		for (auto& ban : global->TempBans)
 		{
-			if (ban.wscID == wscID)
+			if (ban.accountId == wscID)
 				return true;
 		}
 

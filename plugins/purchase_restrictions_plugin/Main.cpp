@@ -27,30 +27,32 @@ namespace Plugins::PurchaseRestrictions
 
 	void LoadSettings()
 	{
-		global->config = Serializer::JsonToObject<Config>();
-		for (const auto& str : global->config.itemsOfInterest)
+		auto config = Serializer::JsonToObject<Config>();
+
+		for (const auto& str : config.itemsOfInterest)
 		{
 			global->itemsOfInterestHashed[CreateID(str.c_str())] = str;
 		}
 
-		for (const auto& str : global->config.unbuyableItems)
+		for (const auto& str : config.unbuyableItems)
 		{
 			global->unbuyableItemsHashed.emplace_back(CreateID(str.c_str()));
 		}
 
-		for (const auto& [key, value] : global->config.goodItemRestrictions)
+		for (const auto& [key, value] : config.goodItemRestrictions)
 		{
 			auto map = global->goodItemRestrictionsHashed[CreateID(key.c_str())] = {};
 			for (const auto& i : value)
 				map.emplace_back(CreateID(i.c_str()));
 		}
 
-		for (const auto& [key, value] : global->config.shipItemRestrictions)
+		for (const auto& [key, value] : config.shipItemRestrictions)
 		{
 			auto map = global->shipItemRestrictionsHashed[CreateID(key.c_str())] = {};
 			for (const auto& i : value)
 				map.emplace_back(CreateID(i.c_str()));
 		}
+		global->config = std::make_unique<Config>(config);
 	}
 
 	/// Check that this client is allowed to buy/mount this piece of equipment or
@@ -90,7 +92,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 
 		/// Check restrictions for the ID that a player has.
-		if (global->config.checkItemRestrictions)
+		if (global->config->checkItemRestrictions)
 		{
 			// Check Item
 			if (global->goodItemRestrictionsHashed.find(gbi.iGoodID) != global->goodItemRestrictionsHashed.end())
@@ -99,9 +101,9 @@ namespace Plugins::PurchaseRestrictions
 				{
 					const std::wstring charName = HkGetCharacterNameById(iClientID);
 					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", charName.c_str(), gbi.iGoodID);
-					if (global->config.enforceItemRestrictions)
+					if (global->config->enforceItemRestrictions)
 					{
-						PrintUserCmdText(iClientID, global->config.goodPurchaseDenied);
+						PrintUserCmdText(iClientID, global->config->goodPurchaseDenied);
 						pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						return true;
@@ -127,9 +129,9 @@ namespace Plugins::PurchaseRestrictions
 				{
 					const std::wstring charName = HkGetCharacterNameById(iClientID);
 					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", charName.c_str(), hullInfo->iShipGoodID);
-					if (global->config.enforceItemRestrictions)
+					if (global->config->enforceItemRestrictions)
 					{
-						PrintUserCmdText(iClientID, global->config.shipPurchaseDenied);
+						PrintUserCmdText(iClientID, global->config->shipPurchaseDenied);
 						pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						return true;

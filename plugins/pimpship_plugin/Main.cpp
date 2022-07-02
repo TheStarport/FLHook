@@ -15,7 +15,7 @@ namespace Plugins::Pimpship
 	{
 		for (auto& item : global->AvailableItems)
 		{
-			if (item.second.ArchID == iArchID)
+			if (item.second.archId == iArchID)
 				return true;
 		}
 		return false;
@@ -25,8 +25,8 @@ namespace Plugins::Pimpship
 	{
 		for (auto& item : global->AvailableItems)
 		{
-			if (item.second.ArchID == iArchID)
-				return item.second.Description;
+			if (item.second.archId == iArchID)
+				return item.second.description;
 		}
 		return "";
 	}
@@ -46,9 +46,9 @@ namespace Plugins::Pimpship
 		for (auto& info : config.AvailableItems)
 		{
 
-			info.ArchID = CreateID(info.Nickname.c_str());
-			if (!info.Description.length())
-				info.Description = info.Nickname;
+			info.archId = CreateID(info.nickname.c_str());
+			if (!info.description.length())
+				info.description = info.nickname;
 
 			global->AvailableItems[iItemID] = info;
 			iItemID++;
@@ -184,7 +184,7 @@ namespace Plugins::Pimpship
 		PrintUserCmdText(iClientID, L"Available items: %d", global->AvailableItems.size());
 		for (auto iter = global->AvailableItems.begin(); iter != global->AvailableItems.end(); iter++)
 		{
-			PrintUserCmdText(iClientID, L"|     %.2d:  %s", iter->first, iter->second.Description.c_str());
+			PrintUserCmdText(iClientID, L"|     %.2d:  %s", iter->first, iter->second.description.c_str());
 		}
 		PrintUserCmdText(iClientID, L"OK");
 	}
@@ -210,7 +210,7 @@ namespace Plugins::Pimpship
 			return;
 		}
 
-		global->Info[iClientID].CurrentEquipment[iHardPointID].ArchID = global->AvailableItems[iSelectedItemID].ArchID;
+		global->Info[iClientID].CurrentEquipment[iHardPointID].ArchID = global->AvailableItems[iSelectedItemID].archId;
 		return UserCmd_ShowSetup(iClientID, wscParam);
 	}
 
@@ -273,7 +273,7 @@ namespace Plugins::Pimpship
 
 using namespace Plugins::Pimpship;
 
-REFL_AUTO(type(ITEM_INFO), field(Nickname), field(Description))
+REFL_AUTO(type(ItemInfo), field(nickname), field(description))
 REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(Dealers), field(IntroMsg1), field(IntroMsg2))
 
 DefaultDllMainSettings(LoadSettings)

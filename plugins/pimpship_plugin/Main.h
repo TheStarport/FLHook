@@ -7,20 +7,20 @@ namespace Plugins::Pimpship
 {
 	IMPORT unsigned int MakeLocationID(unsigned int, char const*);
 
-	// Map of item id to ITEM INFO
-	struct ITEM_INFO : Reflectable
+	//! This struct stores a piece of equipment available for purchase an a user friendly name/description
+	struct ItemInfo : Reflectable
 	{
-		ITEM_INFO() : ArchID(0) {}
+		ItemInfo() : archId(0) {}
 
-		uint ArchID;
-		std::string Nickname;
-		std::string Description;
+		uint archId;
+		std::string nickname;
+		std::string description;
 	};
 
-	// Item of equipment for a single client.
-	struct EQ_HARDPOINT
+	//! A hardpoint for a single client.
+	struct EquipmentHardpoint
 	{
-		EQ_HARDPOINT() : ID(0), ArchID(0), OriginalArchID(0) {}
+		EquipmentHardpoint() : ID(0), ArchID(0), OriginalArchID(0) {}
 
 		uint ID;
 		uint ArchID;
@@ -28,32 +28,33 @@ namespace Plugins::Pimpship
 		std::wstring HardPoint;
 	};
 
-	// List of connected clients.
-	struct INFO
+	//! A struct that represents a client
+	struct ClientInfo
 	{
-		INFO() : InPimpDealer(false) {}
+		ClientInfo() : InPimpDealer(false) {}
 
-		// Map of hard point ID to equip.
-		std::map<uint, EQ_HARDPOINT> CurrentEquipment;
+		//! Map of hard point ID to equip.
+		std::map<uint, EquipmentHardpoint> CurrentEquipment;
 
-		// Are they in the pimpship dealer?
+		//! Are they in the pimpship dealer?
 		bool InPimpDealer;
 	};
 
+	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
 		std::string File() override { return "flhook_plugins/pimpship.json"; }
 
-		// Vector of Available equipment
-		std::vector<ITEM_INFO> AvailableItems;
+		//! Vector of Available equipment
+		std::vector<ItemInfo> AvailableItems;
 
-		// Cost per changed item.
+		//! Cost per changed item.
 		int Cost = 0;
 
-		// Map of Equipment dealer rooms who offer pimpship
+		//! Map of Equipment dealer rooms who offer pimpship
 		std::vector<std::string> Dealers;
 
-		// Intro messages when entering the room.
+		//! Intro messages when entering the room.
 		std::wstring IntroMsg1 = L"Pimp-my-ship facilities are available here.";
 		std::wstring IntroMsg2 = L"Type /pimpship on your console to see options.";
 	};
@@ -65,13 +66,13 @@ namespace Plugins::Pimpship
 
 		ReturnCode returncode = ReturnCode::Default;
 
-		// Map of dealer rooms
+		//! Map of dealer rooms
 		std::map<uint, std::wstring> Dealers;
 
-		// Map of available equipment
-		std::map<uint, ITEM_INFO> AvailableItems;
+		//! Map of available equipment
+		std::map<uint, ItemInfo> AvailableItems;
 
-		// Map of clients and if they're in the pimpship and their hardpoints
-		std::map<uint, INFO> Info;
+		//! Map of clients and if they're in the pimpship and their hardpoints
+		std::map<uint, ClientInfo> Info;
 	};
 } // namespace Plugins::Pimpship
