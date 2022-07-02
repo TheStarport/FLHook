@@ -19,21 +19,21 @@ namespace Plugins::Message
 			return;
 
 		// Load from disk the messages.
-		for (int iMsgSlot = 0; iMsgSlot < INFO::NUMBER_OF_SLOTS; iMsgSlot++)
+		for (int iMsgSlot = 0; iMsgSlot < numberOfSlots; iMsgSlot++)
 		{
 			global->Info[iClientID].slot[iMsgSlot] = HkGetCharacterIniString(iClientID, L"msg." + std::to_wstring(iMsgSlot));
 		}
 
 		// Chat time settings.
-		global->Info[iClientID].ShowChatTime = HkGetCharacterIniBool(iClientID, L"msg.chat_time");
+		global->Info[iClientID].showChatTime = HkGetCharacterIniBool(iClientID, L"msg.chat_time");
 	}
 
 	/** Show the greeting banner to the specified player */
 	static void ShowGreetingBanner(int iClientID)
 	{
-		if (!global->Info[iClientID].GreetingShown)
+		if (!global->Info[iClientID].greetingShown)
 		{
-			global->Info[iClientID].GreetingShown = true;
+			global->Info[iClientID].greetingShown = true;
 			for (auto& line : global->config->GreetingBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
@@ -90,17 +90,17 @@ namespace Plugins::Message
 
 	/** Replace #t and #c tags with current target name and current ship location.
 	Return false if tags cannot be replaced. */
-	static bool ReplaceMessageTags(uint iClientID, INFO& clientData, std::wstring& wscMsg)
+	static bool ReplaceMessageTags(uint iClientID, ClientInfo& clientData, std::wstring& wscMsg)
 	{
 		if (wscMsg.find(L"#t") != -1)
 		{
-			if (clientData.TargetClientID == -1)
+			if (clientData.targetClientID == -1)
 			{
 				PrintUserCmdText(iClientID, L"ERR Target not available");
 				return false;
 			}
 
-			std::wstring wscTargetName = (const wchar_t*)Players.GetActiveCharacterName(clientData.TargetClientID);
+			std::wstring wscTargetName = (const wchar_t*)Players.GetActiveCharacterName(clientData.targetClientID);
 			wscMsg = ReplaceStr(wscMsg, L"#t", wscTargetName);
 		}
 
@@ -225,10 +225,10 @@ namespace Plugins::Message
 		auto iter = global->Info.begin();
 		while (iter != global->Info.end())
 		{
-			if (iter->second.LastPmClientID == iClientID)
-				iter->second.LastPmClientID = -1;
-			if (iter->second.TargetClientID == iClientID)
-				iter->second.TargetClientID = -1;
+			if (iter->second.lastPmClientID == iClientID)
+				iter->second.lastPmClientID = -1;
+			if (iter->second.targetClientID == iClientID)
+				iter->second.targetClientID = -1;
 			++iter;
 		}
 	}
@@ -239,10 +239,10 @@ namespace Plugins::Message
 		auto iter = global->Info.begin();
 		while (iter != global->Info.end())
 		{
-			if (iter->second.LastPmClientID == iClientID)
-				iter->second.LastPmClientID = -1;
-			if (iter->second.TargetClientID == iClientID)
-				iter->second.TargetClientID = -1;
+			if (iter->second.lastPmClientID == iClientID)
+				iter->second.lastPmClientID = -1;
+			if (iter->second.targetClientID == iClientID)
+				iter->second.targetClientID = -1;
 			++iter;
 		}
 	}
@@ -274,7 +274,7 @@ namespace Plugins::Message
 			auto iter = global->Info.find(uClientID);
 			if (iter != global->Info.end())
 			{
-				iter->second.TargetClientID = uTargetClientID;
+				iter->second.targetClientID = uTargetClientID;
 			}
 		}
 	}
@@ -305,8 +305,8 @@ namespace Plugins::Message
 					PrintUserCmdText(iClientID, L"This is an automated message.");
 					PrintUserCmdText(iClientID, L"Please do not swear or you may be sanctioned.");
 
-					global->Info[iClientID].SwearWordWarnings++;
-					if (global->Info[iClientID].SwearWordWarnings > 2)
+					global->Info[iClientID].swearWordWarnings++;
+					if (global->Info[iClientID].swearWordWarnings > 2)
 					{
 						std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
 						AddLog(LogType::Kick,
@@ -342,7 +342,7 @@ namespace Plugins::Message
 			auto iter = global->Info.find(cIdTo);
 			if (iter != global->Info.end())
 			{
-				iter->second.LastPmClientID = iClientID;
+				iter->second.lastPmClientID = iClientID;
 			}
 		}
 		return false;
@@ -401,7 +401,7 @@ namespace Plugins::Message
 			}
 		}
 
-		if (global->Info[iClientID].ShowChatTime)
+		if (global->Info[iClientID].showChatTime)
 		{
 			// Send time with gray color (BEBEBE) in small text (90) above the chat
 			// line.
@@ -452,7 +452,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		for (int i = 0; i < INFO::NUMBER_OF_SLOTS; i++)
+		for (int i = 0; i < numberOfSlots; i++)
 		{
 			PrintUserCmdText(iClientID, L"%d: %s", i, iter->second.slot[i].c_str());
 		}
@@ -576,14 +576,14 @@ namespace Plugins::Message
 
 		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
-		if (iter->second.LastPmClientID == -1)
+		if (iter->second.lastPmClientID == -1)
 		{
 			PrintUserCmdText(iClientID, L"ERR PM sender not available");
 			return;
 		}
 
-		global->Info[iter->second.LastPmClientID].LastPmClientID = iClientID;
-		SendPrivateChat(iClientID, iter->second.LastPmClientID, ViewToWString(wscMsg));
+		global->Info[iter->second.lastPmClientID].lastPmClientID = iClientID;
+		SendPrivateChat(iClientID, iter->second.lastPmClientID, ViewToWString(wscMsg));
 	}
 
 	/** Shows the sender of the last PM and the last char targeted */
@@ -597,13 +597,13 @@ namespace Plugins::Message
 			return;
 		}
 
-		std::wstring wscSenderCharname = L"<not available>" + std::to_wstring(iter->second.LastPmClientID);
-		if (iter->second.LastPmClientID != -1 && HkIsValidClientID(iter->second.LastPmClientID))
-			wscSenderCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.LastPmClientID);
+		std::wstring wscSenderCharname = L"<not available>" + std::to_wstring(iter->second.lastPmClientID);
+		if (iter->second.lastPmClientID != -1 && HkIsValidClientID(iter->second.lastPmClientID))
+			wscSenderCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.lastPmClientID);
 
-		std::wstring wscTargetCharname = L"<not available>" + std::to_wstring(iter->second.TargetClientID);
-		if (iter->second.TargetClientID != -1 && HkIsValidClientID(iter->second.TargetClientID))
-			wscTargetCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.TargetClientID);
+		std::wstring wscTargetCharname = L"<not available>" + std::to_wstring(iter->second.targetClientID);
+		if (iter->second.targetClientID != -1 && HkIsValidClientID(iter->second.targetClientID))
+			wscTargetCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.targetClientID);
 
 		PrintUserCmdText(iClientID, L"OK sender=" + wscSenderCharname + L" target=" + wscTargetCharname);
 	}
@@ -621,14 +621,14 @@ namespace Plugins::Message
 
 		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
-		if (iter->second.TargetClientID == -1)
+		if (iter->second.targetClientID == -1)
 		{
 			PrintUserCmdText(iClientID, L"ERR PM target not available");
 			return;
 		}
 
-		global->Info[iter->second.TargetClientID].LastPmClientID = iClientID;
-		SendPrivateChat(iClientID, iter->second.TargetClientID, ViewToWString(wscMsg));
+		global->Info[iter->second.targetClientID].lastPmClientID = iClientID;
+		SendPrivateChat(iClientID, iter->second.targetClientID, ViewToWString(wscMsg));
 	}
 
 	/** Send a private message to the specified charname. If the player is offline
@@ -668,7 +668,7 @@ namespace Plugins::Message
 		}
 		else
 		{
-			global->Info[iToClientID].LastPmClientID = iClientID;
+			global->Info[iToClientID].lastPmClientID = iClientID;
 			SendPrivateChat(iClientID, iToClientID, ViewToWString(wscMsg));
 		}
 	}
@@ -687,7 +687,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		global->Info[iToClientID].LastPmClientID = iClientID;
+		global->Info[iToClientID].lastPmClientID = iClientID;
 		SendPrivateChat(iClientID, iToClientID, ViewToWString(wscMsg));
 	}
 
@@ -788,7 +788,7 @@ namespace Plugins::Message
 		// Update the client cache.
 		auto iter = global->Info.find(iClientID);
 		if (iter != global->Info.end())
-			iter->second.ShowChatTime = bShowChatTime;
+			iter->second.showChatTime = bShowChatTime;
 
 		// Send confirmation msg
 		PrintUserCmdText(iClientID, L"OK");

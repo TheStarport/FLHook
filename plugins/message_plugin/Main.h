@@ -7,89 +7,98 @@
 
 namespace Plugins::Message
 {
-	/** the data for a single online player */
-	class INFO
+	//! Number of auto message slots
+	constexpr int numberOfSlots = 10;
+
+	//! A struct to represent each client
+	class ClientInfo
 	{
 	  public:
-		INFO() : LastPmClientID(-1), TargetClientID(-1), ShowChatTime(false), GreetingShown(false), SwearWordWarnings(0) {}
+		ClientInfo() : lastPmClientID(-1), targetClientID(-1), showChatTime(false), greetingShown(false), swearWordWarnings(0) {}
 
-		static const int NUMBER_OF_SLOTS = 10;
-		std::wstring slot[NUMBER_OF_SLOTS];
+		//! Slots that contain prewritten messages
+		std::wstring slot[numberOfSlots];
 
-		// Client ID of last PM.
-		uint LastPmClientID;
+		//! Client ID of last PM.
+		uint lastPmClientID;
 
-		// Client ID of selected target
-		uint TargetClientID;
+		//! Client ID of selected target
+		uint targetClientID;
 
-		// Current chat time settings
-		bool ShowChatTime;
+		//! Current chat time settings
+		bool showChatTime;
 
-		// True if the login banner has been displayed.
-		bool GreetingShown;
+		//! True if the login banner has been displayed.
+		bool greetingShown;
 
-		// Swear word warn level
-		int SwearWordWarnings;
+		//! Swear word warn level
+		int swearWordWarnings;
 	};
 
+	//! Config data for this plugin
 	struct Config : Reflectable
 	{
+		//! The json file we load out of
 		std::string File() override { return "flhook_plugins/message.json"; }
 
-		/** greetings text for when user logins in */
+		//! Greetings text for when user logins in 
 		std::vector<std::wstring> GreetingBannerLines;
 
-		/** special banner text, on timer */
+		//! special banner text, on timer
 		std::list<std::wstring> SpecialBannerLines;
 
-		/** standard banner text, on timer */
+		//! standard banner text, on timer
 		std::vector<std::vector<std::wstring>> StandardBannerLines;
 
-		/** Time in second to repeat display of special banner */
+		//! Time in second to repeat display of special banner
 		int SpecialBannerTimeout = 5;
 
-		/** Time in second to repeat display of standard banner */
+		//! Time in second to repeat display of standard banner
 		int StandardBannerTimeout = 60;
 
-		/** true if we override flhook built in help */
+		//! true if we override flhook built in help
 		bool CustomHelp = false;
 
-		/** true if we don't echo mistyped user and admin commands to other players. */
+		//! true if we don't echo mistyped user and admin commands to other players.
 		bool SuppressMistypedCommands = true;
 
-		/** if true support the /showmsg and /setmsg commands. This needs a client hook*/
+		//! if true support the /showmsg and /setmsg commands. This needs a client hook
 		bool EnableSetMessage = false;
 
-		// Enable /me and /do commands
+		//! Enable /me command
 		bool EnableMe = true;
+
+		//! Enable /do command
 		bool EnableDo = true;
 
+		//! String that stores the disconnect message for swearing in space
 		std::wstring DisconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
+		//! What radius around the player the message should be broadcasted to
 		float DisconnectSwearingInSpaceRange = 5000.0f;
 
-		/** list of swear words */
+		//! Vector of swear words
 		std::vector<std::wstring> SwearWords;
 	};
 
+	//! Global data for this plugin
 	struct Global final
 	{
 		ReturnCode returncode = ReturnCode::Default;
-
-		/** cache of preset messages for the online players (by client ID) */
-		std::map<uint, INFO> Info;
-
 		std::unique_ptr<Config> config = nullptr;
 
-		/** This parameter is sent when we send a chat time line so that we don't print
-		a time chat line recursively. */
+		//! Cache of preset messages for the online players (by client ID)
+		std::map<uint, ClientInfo> Info;
+
+		//! This parameter is sent when we send a chat time line so that we don't print a time chat line recursively.
 		bool SendingTime = false;
 
+		//! Communication to other plugins
 		Plugins::Mail::MailCommunicator* mailCommunicator = nullptr;
 		Plugins::Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 	};
 
-	/** A random macro to make things easier */
+	//! A random macro to make things easier
 	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
 	void UserCmd_ReplyToLastPMSender(const uint& iClientID, const std::wstring_view& wscParam);
