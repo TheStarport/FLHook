@@ -173,7 +173,7 @@ namespace Plugins::ConData
 			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
 				continue;
 
-			auto con = global->connections[iClientID];
+			auto& con = global->connections[iClientID];
 
 			///////////////////////////////////////////////////////////////
 			// update ping data
@@ -227,7 +227,7 @@ namespace Plugins::ConData
 			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
 				continue;
 
-			auto con = global->connections[iClientID];
+			auto& con = global->connections[iClientID];
 
 			///////////////////////////////////////////////////////////////
 			// update loss data
@@ -315,7 +315,7 @@ namespace Plugins::ConData
 		const mstime tmNow = timeInMS();
 		const auto tmTimestamp = static_cast<mstime>(ui.fTimestamp * 1000);
 
-		auto con = global->connections[iClientID];
+		auto& con = global->connections[iClientID];
 
 		if (global->config->lagDetectionFrame && con.tmLastObjUpdate && (HkGetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
 		{
@@ -363,15 +363,14 @@ namespace Plugins::ConData
 			return;
 		}
 
-		std::wstring wscTargetPlayer = GetParam(wscParam, ' ', 0);
 		uint iClientIDTarget = iClientID;
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
 		uint iShip = 0;
+		uint iTarget = 0;
 		pub::Player::GetShip(iClientID, iShip);
 		if (iShip)
 		{
-			uint iTarget = 0;
 			pub::SpaceObj::GetTarget(iShip, iTarget);
 
 			if (iTarget)
@@ -382,11 +381,13 @@ namespace Plugins::ConData
 			}
 		}
 
-		auto con = global->connections[iClientIDTarget];
+		auto& con = global->connections[iClientIDTarget];
 
-		std::wstring Response;
+		std::wstring Response = L"Ping";
+		if (iTarget)
+			Response += L" (target)";
 
-		Response += L"Ping: ";
+		Response += L" :";
 		if (con.lstPing.size() < global->config->pingKickFrame)
 			Response += L"n/a Fluct: n/a ";
 		else
