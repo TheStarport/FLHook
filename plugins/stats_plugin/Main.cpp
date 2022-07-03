@@ -12,6 +12,7 @@ namespace Plugins::Stats
 	void LoadSettings()
 	{
 		global->jsonFileName = Serializer::JsonToObject<FileName>();
+		std::filesystem::create_directories(global->jsonFileName.FilePath);
 
 		HkLoadStringDLLs();
 
@@ -50,12 +51,12 @@ namespace Plugins::Stats
 	{
 		std::string scEncoded;
 		scEncoded.reserve(data.size());
-		for (size_t pos = 0; pos != data.size(); ++pos)
+		for (char pos : data)
 		{
-			if (data[pos] == '\"')
+			if (pos == '\"')
 				scEncoded.append("&quot;");
 			else
-				scEncoded.append(1, data[pos]);
+				scEncoded.append(1, pos);
 		}
 		return scEncoded;
 	}
@@ -69,31 +70,31 @@ namespace Plugins::Stats
 		jExport["serverload"] = g_iServerLoad;
 
 		nlohmann::json jPlayers;
-		std::list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
+		const std::list<HKPLAYERINFO> lstPlayers = HkGetPlayers();
 
-		for (std::list<HKPLAYERINFO>::iterator player = lstPlayers.begin(); player != lstPlayers.end(); player++)
+		for (auto& lstPlayer : lstPlayers)
 		{
 			nlohmann::json jPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(wstos(player->wscCharname));
+			jPlayer["name"] = encode(wstos(lstPlayer.wscCharname));
 
 			// Add rank
 			int iRank;
-			pub::Player::GetRank(player->iClientID, iRank);
+			pub::Player::GetRank(lstPlayer.iClientID, iRank);
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
-			int groupID = Players.GetGroupID(player->iClientID);
+			int groupID = Players.GetGroupID(lstPlayer.iClientID);
 			jPlayer["group"] = groupID ? std::to_string(groupID) : "None";
 
 			// Add ship
-			Archetype::Ship* ship = Archetype::GetShip(Players[player->iClientID].iShipArchetype);
+			Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.iClientID].iShipArchetype);
 			jPlayer["ship"] = (ship) ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
 			uint iSystemID;
-			pub::Player::GetSystem(player->iClientID, iSystemID);
+			pub::Player::GetSystem(lstPlayer.iClientID, iSystemID);
 			const Universe::ISystem* iSys = Universe::get_system(iSystemID);
 			jPlayer["system"] = wstos(HkGetWStringFromIDS(iSys->strid_name));
 
