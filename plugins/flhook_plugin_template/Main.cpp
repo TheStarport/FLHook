@@ -5,136 +5,112 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.h"
+#include "Main.hpp"
 
-// Load configuration file
-void LoadSettings()
+#include <random>
+
+namespace Plugins::Template
 {
-	// The path to the configuration file.
-	char szCurDir[MAX_PATH];
-	GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-	std::string configFile = std::string(szCurDir) + "\\flhook_plugins\\$safeprojectname$.ini";
+	const auto global = std::make_unique<Global>();
 
-	INI_Reader ini;
-	if (ini.open(configFile.c_str(), false))
+	// Put things that are performed on plugin load here!
+	void LoadSettings()
 	{
-		while (ini.read_header())
+		// Load JSON config
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(std::move(config));
+	}
+
+	// Demo command
+	void UserCmdTemplate(const uint& iClientID, const std::wstring_view& wscParam)
+	{
+		// Access our config value
+		if (global->config->overrideUserNumber)
 		{
-			if (ini.is_header("General"))
-			{
-				while (ini.read_value())
-				{
-					if (ini.is_value("debug"))
-					{
-						set_iPluginDebug = ini.get_value_int(0);
-					}
-				}
-			}
+			std::random_device dev;
+			std::mt19937 rng(dev());
+			const std::uniform_int_distribution<std::mt19937::result_type> dist(1, 6); // distribution in range [1, 1000]
+
+			PrintUserCmdText(iClientID, L"The gods decided your number is actually: " +  std::to_wstring(dist(rng)));
+			return;
 		}
 
-		if (set_iPluginDebug & 1)
+		if (const auto number = ToInt(GetParam(wscParam, ' ', 0)); number > 0)
 		{
-			Console::ConPrint(L"Debug");
+			PrintUserCmdText(iClientID, L"You put in the following number: " + std::to_wstring(number));
+		}
+		else
+		{
+			PrintUserCmdText(iClientID, L"ERR: You must provide a valid positive non-zero number.");
+		}
+	}
+
+	// Define usable chat commands here
+	const std::vector<UserCommand> commands = {{
+	    { L"/template", L"<number>", UserCmdTemplate, L"Outputs a user provided non-zero number." },
+	}};
+
+	// Demo admin command
+	void AdminCmdTemplate(CCmds* cmds, float number)
+	{
+		if (cmds->ArgStrToEnd(1).length() == 0)
+		{
+			cmds->Print(L"ERR Usage: template <number>");
+			return;
 		}
 
-		ini.close();
-	}
-}
+		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		{
+			cmds->Print(L"ERR No permission");
+			return;
+		}
 
-// Do something every 100 seconds
-void HkTimer()
-{
-	if ((time(0) % 100) == 0)
-	{
-		// Do something here
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Demo command
-void UserCmd_Template(const uint& iClientID, const std::wstring_view& wscParam)
-{
-	PrintUserCmdText(iClientID, L"OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// USER COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable chat commands here
-USERCMD UserCmds[] = {
-	{ L"/template", UserCmd_Template },
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMANDS
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Demo admin command
-void AdminCmd_Template(CCmds* cmds, float number)
-{
-	if (cmds->ArgStrToEnd(1).length() == 0)
-	{
-		cmds->Print(L"ERR Usage: template <number>");
+		cmds->Print(L"Template is %0.0f", number);
 		return;
 	}
 
-	if (!(cmds->rights & RIGHT_SUPERADMIN))
+
+	// This is called when an admin does .help
+	void CmdHelp(CCmds* command)
 	{
-		cmds->Print(L"ERR No permission");
-		return;
+		command->Print(L"template <number>");
 	}
 
-	cmds->Print(L"Template is %0.0f", number);
-	return;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ADMIN COMMAND PROCESSING
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Define usable admin commands here
-void CmdHelp(CCmds* classptr)
-{
-	classptr->Print(L"template <number>");
-}
-
-// Admin command callback. Compare the chat entry to see if it match a command
-bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
-{
-	if (wscCmd == L"template")
+	// Admin command callback. Compare the chat entry to see if it match a command
+	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		returncode = ReturnCode::SkipAll;
-		AdminCmd_Template(cmds, cmds->ArgFloat(1));
+		if (wscCmd == L"template")
+		{
+			AdminCmdTemplate(cmds, cmds->ArgFloat(1));
+		}
+		else
+		{
+			return false;	
+		}
+
+		global->returnCode = ReturnCode::SkipAll;
 		return true;
 	}
 
-	return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using namespace Plugins::Template;
 
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("$projectname$");
-	pi->shortName("$safeprojectname$");
+	// Full name of your plugin
+	pi->name("The Plugin Template");
+	// Shortened name, all lower case, no spaces. Abbreviation when possible.
+	pi->shortName("template");
 	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
-	pi->returnCode(&returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimer);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
-	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
-second_type::value_type}
+}

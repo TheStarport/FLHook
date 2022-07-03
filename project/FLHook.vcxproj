@@ -164,13 +164,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>
-				IF "%FL_PATH%"=="" exit 0
-				robocopy $(SolutionDir)../dist/ReleaseWithDebug %FL_PATH%\\EXE  "*.dll" /is /E /e
-				if ERRORLEVEL GTR 5 goto HandleError
-				exit 0
-				:HandleError
-				exit %ERRORLEVEL%
-			</Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat

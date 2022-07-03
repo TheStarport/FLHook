@@ -4,7 +4,7 @@
         <Identity Id="flhook_vsix.4cfd00d1-1b6c-4918-8b85-4646a0692244" Version="1.0" Language="en-US" Publisher="Alley" />
         <DisplayName>FLHook Plugin Templates</DisplayName>
         <Description xml:space="preserve">FLHook plugin templates</Description>
-        <MoreInfo>https://github.com/Friendly0Fire/FLHook</MoreInfo>
+        <MoreInfo>https://github.com/fl-devs/FLHook</MoreInfo>
         <License>license.txt</License>
         <ReleaseNotes>releasenotes.txt</ReleaseNotes>
         <Icon>Icon.ico</Icon>
