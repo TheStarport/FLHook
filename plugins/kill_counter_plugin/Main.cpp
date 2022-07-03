@@ -79,20 +79,19 @@ namespace Plugins::KillCounter
 	{
 		if (iKill == 1)
 		{
-			CShip* cship = (CShip*)(*ecx)[4];
-			uint iClientID = cship->GetOwnerPlayer();
-			DamageList* dmg = *_dmg;
-			if (iClientID)
+			const CShip* cship = (CShip*)(*ecx)[4];
+
+			if (const uint iClientID = cship->GetOwnerPlayer())
 			{
-				if (!dmg->get_cause())
-					dmg = &ClientInfo[iClientID].dmgLast;
-				uint iClientIDKiller = HkGetClientIDByShip(dmg->get_inflictor_id());
-				if (iClientIDKiller && (iClientID != iClientIDKiller))
+				const DamageList* dmg = *_dmg;
+
+				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? HkGetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
+					: HkGetClientIDByShip(dmg->get_inflictor_id()); killerId && (iClientID != killerId))
 				{
 					int iNumKills;
-					pub::Player::GetNumKills(iClientIDKiller, iNumKills);
+					pub::Player::GetNumKills(killerId, iNumKills);
 					iNumKills++;
-					pub::Player::SetNumKills(iClientIDKiller, iNumKills);
+					pub::Player::SetNumKills(killerId, iNumKills);
 				}
 			}
 		}

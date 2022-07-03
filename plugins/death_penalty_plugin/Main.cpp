@@ -154,17 +154,16 @@ namespace Plugins::DeathPenalty
 		if (iKill)
 		{
 			// Get iClientID
-			CShip* cship = (CShip*)(*ecx)[4];
-			uint iClientID = cship->GetOwnerPlayer();
-			DamageList* dmg = *_dmg;
+			const CShip* cship = (CShip*)(*ecx)[4];
+			const uint iClientID = cship->GetOwnerPlayer();
 
 			// Get Killer ID if there is one
 			uint iKillerID = 0;
 			if (iClientID)
 			{
-				if (!dmg->get_cause())
-					dmg = &ClientInfo[iClientID].dmgLast;
-				iKillerID = HkGetClientIDByShip(dmg->get_inflictor_id());
+				const DamageList* dmg = *_dmg;
+				iKillerID = dmg->get_cause() == DamageCause::Unknown ? HkGetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
+					: HkGetClientIDByShip(dmg->get_inflictor_id());
 			}
 
 			// Call function to penalize player and reward killer
@@ -194,8 +193,9 @@ namespace Plugins::DeathPenalty
 	void UserCmd_DP(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// If there is no death penalty, no point in having death penalty commands
-		if (!global->config->DeathPenaltyFraction)
+		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)
 		{
+			Console::ConWarn(L"DP Plugin active, but no/too low death penalty fraction is set.");
 			return;
 		}
 

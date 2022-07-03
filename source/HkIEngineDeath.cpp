@@ -142,27 +142,39 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 				wchar_t systemName[64];
 				swprintf_s(systemName, L"%u", systemID);
 
-				if (!dmg.get_cause())
+				if (!enum_integer(dmg.get_cause()))
 					dmg = ClientInfo[clientID].dmgLast;
 
-				uint cause = dmg.get_cause();
+				DamageCause cause = dmg.get_cause();
 				uint clientIDKiller = HkGetClientIDByShip(dmg.get_inflictor_id());
 
 				std::wstring victimName = ToWChar(Players.GetActiveCharacterName(clientID));
 				eventStr += L" victim=" + victimName;
 				if (clientIDKiller)
 				{
-					std::wstring killType = L"";
-					if (cause == 0x05)
-						killType = L"Missile/Torpedo";
-					else if (cause == 0x07)
-						killType = L"Mine";
-					else if ((cause == 0x06) || (cause == 0xC0) || (cause == 0x15))
-						killType = L"Cruise Disruptor";
-					else if (cause == 0x01)
-						killType = L"Collision";
-					else
-						killType = L"Gun";
+					std::wstring killType;
+					switch (cause)
+					{
+						case DamageCause::Collision:
+							killType = L"Collision";
+							break;
+						case DamageCause::Gun:
+							break;
+						case DamageCause::MissileTorpedo:
+							killType = L"Missile/Torpedo";
+							break;
+						case DamageCause::CruiseDisrupter:
+						case DamageCause::DummyDisrupter:
+						case DamageCause::UnkDisrupter:
+							killType = L"Cruise Disruptor";
+							break;
+						case DamageCause::Mine:
+							killType = L"Mine";
+							break;
+						default: 
+							killType = L"Gun";
+							;
+					}						
 
 					std::wstring deathMessage;
 					if (clientID == clientIDKiller)
@@ -224,17 +236,28 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 				}
 				else if (dmg.get_inflictor_id())
 				{
-					std::wstring killType = L"";
-					if (cause == 0x05)
-						killType = L"Missile/Torpedo";
-					else if (cause == 0x07)
-						killType = L"Mine";
-					else if ((cause == 0x06) || (cause == 0xC0) || (cause == 0x15))
-						killType = L"Cruise Disruptor";
-					else if (cause == 0x01)
-						killType = L"Collision";
-					else
-						killType = L"Gun";
+					std::wstring killType;
+					switch (cause)
+					{
+						case DamageCause::Collision:
+							killType = L"Collision";
+							break;
+						case DamageCause::Gun:
+							break;
+						case DamageCause::MissileTorpedo:
+							killType = L"Missile/Torpedo";
+							break;
+						case DamageCause::CruiseDisrupter:
+						case DamageCause::DummyDisrupter:
+						case DamageCause::UnkDisrupter:
+							killType = L"Cruise Disruptor";
+							break;
+						case DamageCause::Mine:
+							killType = L"Mine";
+							break;
+						default:
+							killType = L"Gun";
+					}			
 
 					eventStr += L" type=npc";
 					std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextNPC, L"%victim", victimName);
@@ -244,20 +267,17 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						SendDeathMessage(deathMessage, systemID, clientID, 0);
 					ProcessEvent(L"%s", eventStr.c_str());
 				}
-				else if (cause == 0x08)
+				else if (cause == DamageCause::Suicide)
 				{
 					eventStr += L" type=suicide";
-					std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSuicide, L"%victim", victimName);
 
-					if (FLHookConfig::i()->general.dieMsg && deathMessage.length())
+					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSuicide, L"%victim", victimName); FLHookConfig::i()->general.dieMsg && !deathMessage.empty())
 						SendDeathMessage(deathMessage, systemID, clientID, 0);
 					ProcessEvent(L"%s", eventStr.c_str());
 				}
-				else if (cause == 0x18)
+				else if (cause == DamageCause::Admin)
 				{
-					std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
-
-					if (FLHookConfig::i()->general.dieMsg && deathMessage.length())
+					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextAdminKill, L"%victim", victimName); FLHookConfig::i()->general.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemID, clientID, 0);
 				}
 				else

@@ -228,6 +228,13 @@ void ClearClientInfo(uint clientID)
 		i.second.fill(0x0);
 	}
 
+	// Reset the dmg list if this client was the inflictor
+	for (auto& i : ClientInfo)
+	{
+		if (i.dmgLast.iInflictorPlayerID == clientID)
+			i.dmgLast = dmg;
+	}
+
 	HkCharacterClearClientInfo(clientID);
 
 	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);

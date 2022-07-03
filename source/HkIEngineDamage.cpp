@@ -43,13 +43,10 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 			if (!AllowPlayerDamage(clientIDInflictor, clientID))
 				return 1;
 
-			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour)
+			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
+				!ClientInfo[clientID].bCruiseActivated))
 			{
-				if (((dmgList->get_cause() == 6) || (dmgList->get_cause() == 0x15)) &&
-				    !ClientInfo[clientID].bCruiseActivated)
-					dmgList->set_cause(static_cast<enum DamageCause>(0xC0)); // change to sth else, so
-					                                                         // client won't recognize it as
-					                                                         // a disruptor
+				dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
 			}
 		}
 	}
@@ -92,7 +89,7 @@ void __stdcall AddDamageEntry(
 		return;
 
 	// check if we got damaged by a cd with changed behaviour
-	if (dmgList->get_cause() == 0xC0)
+	if (dmgList->get_cause() == DamageCause::DummyDisrupter)
 	{
 		// check if player should be protected (f.e. in a docking cut scene)
 		bool unk1 = false;
@@ -104,7 +101,7 @@ void __stdcall AddDamageEntry(
 			return;
 	}
 
-	if (g_NonGunHitsBase && (dmgList->get_cause() == 5))
+	if (g_NonGunHitsBase && (dmgList->get_cause() == DamageCause::CruiseDisrupter))
 	{
 		const float damage = g_LastHitPts - hitPts;
 		hitPts = g_LastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
