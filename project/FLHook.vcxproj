@@ -239,13 +239,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\source\CSocket.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\misc\FLHook.ini">
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">true</DeploymentContent>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\FLHookSDK\README.md" />
     <None Include="..\source\HkIClientImpl.inl" />
     <None Include="..\source\HkIServerImpl.inl" />

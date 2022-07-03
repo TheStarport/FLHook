@@ -195,9 +195,6 @@
     <ClInclude Include="..\source\Global.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\misc\FLHook.ini" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\FLHookSDK\README.md">
       <Filter>sdk</Filter>
     </None>
