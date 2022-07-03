@@ -1,5 +1,8 @@
-// Tax Plugin
-// By NekuraMew
+// Tax plugin - July 2022 by Nekura Mew
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
 
 #include "Main.h"
 
@@ -7,85 +10,71 @@ namespace Plugins::Tax
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 	// Functions
-	void RemoveTax(Tax b)
+	void RemoveTax(const Tax& b)
 	{
-		std::list<Tax>::iterator it = global->lsttax.begin();
+		auto it = global->lsttax.begin();
 		while (it != global->lsttax.end())
 		{
 			if (it->targetId == b.targetId && it->initiatorId == b.initiatorId)
-			{
 				global->lsttax.erase(it++);
-			}
 			else
-			{
 				++it;
-			}
 		}
 	}
 
 	void UserCmdTax(const uint& clientId, const std::wstring_view& param)
 	{
-		std::wstring credits = GetParam(param, ' ', 1);
-		if (!credits.length())
-		{
-			PrintUserCmdText(clientId, L"Usage: /tax <credits in k>");
-			return;
-		}
-
 		uint system = 0;
 		pub::Player::GetSystem(clientId, system);
 
 		// no-pvp check
-		for (auto& it : global->excludedsystemsIds)
+		for (auto const& it : global->excludedsystemsIds)
 		{
-			if (system == (it))
+			if (system == it)
 			{
 				PrintUserCmdText(clientId, L"Error: You cannot tax in a No-PvP system.");
 				return;
 			}
 		}
 
-		std::wstring taxAmount = GetParam(param, ' ', 0);
+		const std::wstring taxAmount = GetParam(param, ' ', 0);
 
 		if (!taxAmount.length())
 			PrintUserCmdText(clientId, L"Error: No valid tax amount!");
 
-		int taxValue = ToInt(taxAmount);
-		int taxValueKM = taxValue *= 1000;
+		const int taxValue = ToInt(taxAmount);
 
-		if (taxValueKM > global->config->maxTax)
+		if (taxValue > global->config->maxTax)
 		{
-			PrintUserCmdText(clientId, L"Error: Maximum tax value is %u Credits.", global->config->maxTax);
+			PrintUserCmdText(clientId, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
 			return;
 		}
 
-		if (taxValueKM < 0)
+		if (taxValue < 0)
 		{
 			PrintUserCmdText(clientId, L"Error: The tax must be 0 or greater!");
 			return;
 		}
 
-		std::wstring charname = (wchar_t*)Players.GetActiveCharacterName(clientId);
+		std::wstring characterName = HkGetCharacterNameById(clientId);
 		uint clientIdTarget;
-		HkGetTargetClientId(charname, clientIdTarget);
-		if (!HkIsValidClientID(clientIdTarget))
+		if (const HK_ERROR error = HkGetTargetClientId(characterName, clientIdTarget); error != HKE_OK || !HkIsValidClientID(clientIdTarget))
 		{
-			PrintUserCmdText(clientId, L"Error: You must select the ship of the player you want to tax and it has to be a player.");
+			PrintUserCmdText(clientId, L"Error: You are not targeting a player.");
 			return;
 		}
 
 		int secs = 0;
-		std::wstring targetCharname = (wchar_t*)Players.GetActiveCharacterName(clientIdTarget);
-		HkGetOnlineTime(targetCharname, secs);
-		if (secs < global->config->minplaytimeSec)
+		std::wstring targetCharacterName = HkGetCharacterNameById(clientIdTarget);
+		if (const HK_ERROR error = HkGetOnlineTime(targetCharacterName, secs); error != HKE_OK || secs < global->config->minplaytimeSec)
 		{
-			PrintUserCmdText(clientId, L"Error: This player dont have enough playtime.");
+			PrintUserCmdText(clientId, L"Error: This player doesn't have enough playtime.");
 			return;
 		}
 
-		for (auto& it : global->lsttax)
+		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->lsttax)
 		{
-			if (it.targetId == clientIdTarget)
+			if (targetId == clientIdTarget)
 			{
 				PrintUserCmdText(clientId, L"Error: There already is a tax request pending for this player.");
 				return;
@@ -99,26 +88,25 @@ namespace Plugins::Tax
 		global->lsttax.push_back(tax);
 
 		if (taxValue == 0)
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, L"You are being hunted by %s. Run for cover, he wants to kill you!", charname.c_str());
+			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
 		else
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, L"You have received a tax request: Pay %d Credits to %s! Type \"/acc\" to pay the tax.", taxValue, charname.c_str());
+			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
 
 		// send confirmation msg
 		if (taxValue > 0)
-			PrintUserCmdText(clientId, L"Tax request of %d credits sent to %s!", taxValue, targetCharname.c_str());
+			PrintUserCmdText(clientId, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.c_str());
 		else
-			PrintUserCmdText(clientId, L"Unacceptable tax request sent to %s!", targetCharname.c_str());
+			PrintUserCmdText(clientId, global->config->huntingMessageOriginator, targetCharacterName.c_str());
 	}
 
 	void UserCmdPay(const uint& clientId, const std::wstring_view& param)
 	{
 		for (auto& it : global->lsttax)
-		{
 			if (it.targetId == clientId)
 			{
 				if (it.cash == 0)
 				{
-					PrintUserCmdText(clientId, L"You cannot pay this rogue. Run for cover, he wants to kill you!");
+					PrintUserCmdText(clientId, global->config->cannotPay);
 					return;
 				}
 
@@ -127,27 +115,26 @@ namespace Plugins::Tax
 				if (cash < it.cash)
 				{
 					PrintUserCmdText(clientId, L"You have not enough money to pay the tax.");
-					PrintUserCmdText(it.initiatorId, L"The player has not enough money to pay the tax.");
+					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
 				HkAddCash(clientId, (0 - it.cash));
 				PrintUserCmdText(clientId, L"You paid the tax.");
 				HkAddCash(it.initiatorId, it.cash);
-				std::wstring charname = (wchar_t*)Players.GetActiveCharacterName(clientId);
-				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", charname.c_str());
+				const std::wstring characterName = HkGetCharacterNameById(clientId);
+				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.c_str());
 				RemoveTax(it);
 				HkSaveChar(clientId);
 				HkSaveChar(it.initiatorId);
 				return;
 			}
-		}
 
-		PrintUserCmdText(clientId, L"Error: No tax request found that could be accepted!");
+		PrintUserCmdText(clientId, L"Error: No tax request was found that could be accepted!");
 	}
 
 	void HkTimerF1Check()
 	{
-		struct PlayerData* pPd = 0;
+		struct PlayerData* pPd = nullptr;
 		while (pPd = Players.traverse_active(pPd))
 		{
 			uint clientId = HkGetClientIdFromPD(pPd);
@@ -158,19 +145,19 @@ namespace Plugins::Tax
 			if (ClientInfo[clientId].tmF1Time && (timeInMS() >= ClientInfo[clientId].tmF1Time)) // f1
 			{
 				// tax
-				for (auto& it : global->lsttax)
+				for (const auto& it : global->lsttax)
 				{
 					if (it.targetId == clientId)
 					{
 						uint ship;
 						pub::Player::GetShip(clientId, ship);
-						if (ship)
+						if (ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring charname = (wchar_t*)Players.GetActiveCharacterName(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", charname.c_str());
+						std::wstring characterName = HkGetCharacterNameById(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
 					}
@@ -179,7 +166,7 @@ namespace Plugins::Tax
 			else if (ClientInfo[clientId].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[clientId].tmF1TimeDisconnect))
 			{
 				// tax
-				for (auto& it : global->lsttax)
+				for (const auto& it : global->lsttax)
 				{
 					if (it.targetId == clientId)
 					{
@@ -190,8 +177,8 @@ namespace Plugins::Tax
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring charname = (wchar_t*)Players.GetActiveCharacterName(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", charname.c_str());
+						std::wstring characterName = HkGetCharacterNameById(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
 					}
@@ -202,10 +189,10 @@ namespace Plugins::Tax
 	}
 
 	// Hooks
-	typedef void (*_TimerFunc)();
+	typedef void (*TimerFunc)();
 	struct TIMER
 	{
-		_TimerFunc proc;
+		TimerFunc proc;
 		mstime tmIntervallMS;
 		mstime tmLastCall;
 	};
@@ -227,12 +214,12 @@ namespace Plugins::Tax
 		return 0;
 	}
 
-	void __stdcall DisConnect(uint& clientId, enum EFLConnection& state)
+	void __stdcall DisConnect(ClientId& clientId, enum EFLConnection& state)
 	{
 		HkTimerF1Check();
 	}
 
-	void UserCmdHelp(uint& clientId, const std::wstring& param)
+	void UserCmdHelp(ClientId& clientId, const std::wstring& param)
 	{
 		PrintUserCmdText(clientId, L"/pay <credits>");
 		PrintUserCmdText(clientId, L"/acc");
@@ -244,7 +231,7 @@ namespace Plugins::Tax
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		for (auto& system : config.excludedSystems)
+		for (auto const& system : config.excludedSystems)
 		{
 			global->excludedsystemsIds.push_back(CreateID(system.c_str()));
 		}
@@ -263,13 +250,14 @@ namespace Plugins::Tax
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Tax;
 
-REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec), field(maxTax), field(customColor), field(customFormat)) 
+REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec), field(maxTax), field(customColor), field(customFormat), field(taxRequestReceived),
+    field(huntingMessage), field(huntingMessageOriginator), field(cannotPay), field(killDisconnectingPlayers)) 
 
 DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Tax Plugin");
+	pi->name("Tax");
 	pi->shortName("Tax");
 	pi->mayPause(true);
 	pi->mayUnload(true);
