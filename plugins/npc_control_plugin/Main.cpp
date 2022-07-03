@@ -66,12 +66,12 @@ namespace Plugins::Npc
 	}
 
 	// Hook on ship destroyed to remove from our data
-	void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
 		{
-			CShip* cship = (CShip*)(*ecx)[4];
-			IsFLHookNPC(cship);
+			CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			IsFLHookNPC(cShip);
 		}
 	}
 

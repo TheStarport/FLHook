@@ -155,13 +155,13 @@ namespace Plugins::DeathPenalty
 	}
 
 	// Hook on ShipDestroyed
-	void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
 		{
 			// Get iClientID
-			const CShip* cship = (CShip*)(*ecx)[4];
-			const uint iClientID = cship->GetOwnerPlayer();
+			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			const uint iClientID = cShip->GetOwnerPlayer();
 
 			// Get Killer ID if there is one
 			uint iKillerID = 0;

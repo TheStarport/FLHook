@@ -92,27 +92,27 @@ namespace Plugins::Event
 		}
 	}
 
-	void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
 		{
-			CShip* cship = (CShip*)(*ecx)[4];
+			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
 
 			int Reputation;
-			pub::SpaceObj::GetRep(cship->get_id(), Reputation);
+			pub::SpaceObj::GetRep(cShip->get_id(), Reputation);
 
 			uint Affiliation;
 			pub::Reputation::GetAffiliation(Reputation, Affiliation);
 
 			uint System;
-			pub::SpaceObj::GetSystem(cship->get_id(), System);
+			pub::SpaceObj::GetSystem(cShip->get_id(), System);
 
-			Vector Position = cship->get_position();
-			std::string Sector = VectorToSectorCoord<std::string>(System, Position);
+			const Vector position = cShip->get_position();
+			const std::string sector = VectorToSectorCoord<std::string>(System, position);
 
 			for (auto& mission : global->NpcMissions)
 			{
-				if (Affiliation == mission.reputation && System == mission.system && mission.sector.length() && mission.sector == Sector &&
+				if (Affiliation == mission.reputation && System == mission.system && mission.sector.length() && mission.sector == sector &&
 				    mission.current_amount < mission.required_amount)
 				{
 					mission.current_amount++;

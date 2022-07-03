@@ -75,13 +75,13 @@ namespace Plugins::KillCounter
 		PrintUserCmdText(iClientID, L"Level: %i", rank);
 	}
 
-	void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill == 1)
 		{
-			const CShip* cship = (CShip*)(*ecx)[4];
+			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
 
-			if (const uint iClientID = cship->GetOwnerPlayer())
+			if (const uint iClientID = cShip->GetOwnerPlayer())
 			{
 				const DamageList* dmg = *_dmg;
 

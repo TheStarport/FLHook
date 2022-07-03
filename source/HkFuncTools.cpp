@@ -596,6 +596,11 @@ HK_ERROR HkGetSystemByNickname(std::variant<std::string, std::wstring> nickname,
 	return HKE_OK;
 }
 
+CShip* HkCShipFromShipDestroyed(const DWORD** ecx)
+{
+	return reinterpret_cast<CShip*>((*ecx)[4]);  // NOLINT(performance-no-int-to-ptr)
+}
+
 uint HkExtractClientId(std::variant<uint, std::wstring> player)
 {
 	// If index is 0, we just use the client ID we are given
