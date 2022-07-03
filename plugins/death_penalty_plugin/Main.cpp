@@ -61,7 +61,7 @@ namespace Plugins::DeathPenalty
 	void __stdcall PlayerLaunch(uint& iShip, uint& iClientID)
 	{
 		// No point in processing anything if there is no death penalty
-		if (global->config->DeathPenaltyFraction)
+		if (global->config->DeathPenaltyFraction > 0.00001f)
 		{
 			// Check to see if the player is in a system that doesn't have death
 			// penalty
@@ -71,13 +71,19 @@ namespace Plugins::DeathPenalty
 				float fValue;
 				pub::Player::GetAssetValue(iClientID, fValue);
 
+				int cash;
+				HkFunc(HkGetCash, iClientID, cash);
+
+				int dpCredits = static_cast<int>(fValue * fShipFractionOverride(iClientID));
+				if (cash < dpCredits)
+					dpCredits = cash;
+
 				// Calculate what the death penalty would be upon death
-				global->MapClients[iClientID].DeathPenaltyCredits = static_cast<int>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
+				global->MapClients[iClientID].DeathPenaltyCredits = dpCredits;
 
 				// Should we print a death penalty notice?
 				if (global->MapClients[iClientID].bDisplayDPOnLaunch)
-					PrintUserCmdText(iClientID,
-					    L"Notice: the death penalty for your ship will be " + ToMoneyStr(global->MapClients[iClientID].DeathPenaltyCredits) +
+					PrintUserCmdText(iClientID, L"Notice: the death penalty for your ship will be " + ToMoneyStr(global->MapClients[iClientID].DeathPenaltyCredits) +
 					        L" credits.  Type /dp for more information.");
 			}
 			else
@@ -108,7 +114,7 @@ namespace Plugins::DeathPenalty
 	// Function that will apply the death penalty on a player death
 	void HkPenalizeDeath(uint iClientID, uint iKillerID)
 	{
-		if (!global->config->DeathPenaltyFraction)
+		if (global->config->DeathPenaltyFraction < 0.00001f)
 			return;
 
 		// Valid iClientID and the ShipArch or System isnt in the excluded list?
@@ -127,7 +133,7 @@ namespace Plugins::DeathPenalty
 				iOwed = iCash;
 
 			// If another player has killed the player
-			if (iKillerID && iKillerID != iClientID && global->config->DeathPenaltyFractionKiller)
+			if (iKillerID != iClientID && global->config->DeathPenaltyFractionKiller)
 			{
 				int iGive = (int)(iOwed * global->config->DeathPenaltyFractionKiller);
 				if (iGive)
@@ -247,7 +253,7 @@ namespace Plugins::DeathPenalty
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Define usable chat commands here
-	std::vector commands = {{
+	const std::vector commands = {{
 	    CreateUserCommand(L"/dp", L"", UserCmd_DP, L""),
 	}};
 } // namespace Plugins::DeathPenalty
