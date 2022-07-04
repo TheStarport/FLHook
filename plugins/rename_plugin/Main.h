@@ -76,7 +76,7 @@ namespace Plugins::Rename
 		int renameTimeLimit = 0;
 
 		//! True if charname tags are supported
-		bool charNameTags = false;
+		bool enableTagProtection = false;
 
 		//! True if ascii only tags are supported
 		bool asciiCharNameOnly = false;
