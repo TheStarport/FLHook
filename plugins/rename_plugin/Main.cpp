@@ -13,8 +13,8 @@ namespace Plugins::Rename
 	const auto global = std::make_unique<Global>();
 	void LoadSettings()
 	{
-		global->config = Serializer::JsonToObject<Config>();
 		global->tagList = Serializer::JsonToObject<TagList>();
+		global->config = std::make_unique<Config>(Serializer::JsonToObject<Config>());
 	}
 
 	void SaveSettings()
@@ -24,7 +24,7 @@ namespace Plugins::Rename
 
 	bool CreateNewCharacter(SCreateCharacterInfo const& si, const uint& iClientID)
 	{
-		if (global->config.charNameTags)
+		if (global->config->charNameTags)
 		{
 			// If this ship name starts with a restricted tag then the ship may only be created using rename and the faction password
 			const std::wstring charName(si.wszCharname);
@@ -42,7 +42,7 @@ namespace Plugins::Rename
 			}
 		}
 
-		if (global->config.asciiCharNameOnly)
+		if (global->config->asciiCharNameOnly)
 		{
 			const std::wstring wscCharName(si.wszCharname);
 			for (const wchar_t ch : wscCharName)
@@ -60,7 +60,7 @@ namespace Plugins::Rename
 	// it.
 	void CharacterSelect_AFTER([[maybe_unused]] std::string& szCharFilename, const uint& iClientID)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->charNameTags)
 			return;
 
 		const auto charName = HkGetCharacterNameById(iClientID);
@@ -72,7 +72,7 @@ namespace Plugins::Rename
 
 	void UserCmd_MakeTag(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->charNameTags)
 			return;
 
 		const std::wstring usage = L"Usage: /maketag <tag> <master password> <description>";
@@ -136,13 +136,13 @@ namespace Plugins::Rename
 
 		int iCash;
 		HkFunc(HkGetCash, iClientID, iCash);
-		if (global->config.makeTagCost > 0 && iCash < global->config.makeTagCost)
+		if (global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
 		}
 
-		HkAddCash(charName, 0 - global->config.makeTagCost);
+		HkAddCash(charName, 0 - global->config->makeTagCost);
 
 		TagData data;
 
@@ -160,7 +160,7 @@ namespace Plugins::Rename
 
 	void UserCmd_DropTag(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->charNameTags)
 			return;
 
 		// Indicate an error if the command does not appear to be formatted
@@ -195,7 +195,7 @@ namespace Plugins::Rename
 	// Make tag password
 	void UserCmd_SetTagPass(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (global->config.charNameTags)
+		if (global->config->charNameTags)
 		{
 			// Indicate an error if the command does not appear to be formatted
 			// correctly and stop processing but tell FLHook that we processed the command.
@@ -356,7 +356,7 @@ namespace Plugins::Rename
 		HK_ERROR err;
 
 		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableRenameMe)
+		if (!global->config->enableRenameMe)
 			return;
 
 		// Indicate an error if the command does not appear to be formatted
@@ -404,7 +404,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		if (global->config.charNameTags)
+		if (global->config->charNameTags)
 		{
 			std::wstring wscPassword = Trim(GetParam(wscParam, L' ', 1));
 
@@ -445,7 +445,7 @@ namespace Plugins::Rename
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return;
 		}
-		if (global->config.renameCost > 0 && iCash < global->config.renameCost)
+		if (global->config->renameCost > 0 && iCash < global->config->renameCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
@@ -466,7 +466,7 @@ namespace Plugins::Rename
 		// yet.
 		if ((lastRenameTime + 300) < static_cast<int>(time(nullptr)))
 		{
-			if ((lastRenameTime + global->config.renameTimeLimit) > static_cast<int>(time(nullptr)))
+			if ((lastRenameTime + global->config->renameTimeLimit) > static_cast<int>(time(nullptr)))
 			{
 				PrintUserCmdText(iClientID, L"ERR Rename time limit");
 				return;
@@ -491,8 +491,8 @@ namespace Plugins::Rename
 		}
 
 		// Remove cash if we're charging for it.
-		if (global->config.renameCost > 0)
-			HkAddCash(wscCharname, 0 - global->config.renameCost);
+		if (global->config->renameCost > 0)
+			HkAddCash(wscCharname, 0 - global->config->renameCost);
 
 		Rename o;
 		o.charName = wscCharname;
@@ -510,7 +510,7 @@ namespace Plugins::Rename
 	void UserCmd_SetMoveCharCode(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
 			return;
 
 		if (wscParam.empty())
@@ -571,7 +571,7 @@ namespace Plugins::Rename
 		HK_ERROR err;
 
 		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
 			return;
 
 		// Indicate an error if the command does not appear to be formatted
@@ -632,7 +632,7 @@ namespace Plugins::Rename
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return;
 		}
-		if (global->config.moveCost > 0 && iCash < global->config.moveCost)
+		if (global->config->moveCost > 0 && iCash < global->config->moveCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
@@ -670,8 +670,8 @@ namespace Plugins::Rename
 		}
 
 		// Remove cash if we're charging for it.
-		if (global->config.moveCost > 0)
-			HkAddCash(wscCharname, 0 - global->config.moveCost);
+		if (global->config->moveCost > 0)
+			HkAddCash(wscCharname, 0 - global->config->moveCost);
 		HkSaveChar(wscCharname);
 
 		// Schedule the move
@@ -695,7 +695,7 @@ namespace Plugins::Rename
 	void AdminCmd_SetAccMoveCode(CCmds* cmds, const std::wstring& wscCharname, const std::wstring& wscCode)
 	{
 		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
 			return;
 
 		if (!(cmds->rights & RIGHT_SUPERADMIN))

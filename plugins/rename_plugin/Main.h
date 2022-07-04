@@ -57,6 +57,9 @@ namespace Plugins::Rename
 	//! Config data for this plugin
 	struct Config : Reflectable
 	{
+		//! Json file the config is stored at
+		std::string File() override { return "flhook_plugins/rename.json"; }
+
 		//! Enable Rename
 		bool enableRenameMe = false;
 
@@ -90,7 +93,7 @@ namespace Plugins::Rename
 	{
 		ReturnCode returnCode = ReturnCode::Default;
 
-		Config config;
+		std::unique_ptr<Config> config = nullptr;
 		std::vector<Move> pendingMoves;
 		std::vector<Rename> pendingRenames;
 		TagList tagList;
