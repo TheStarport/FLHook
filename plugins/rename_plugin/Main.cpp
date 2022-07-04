@@ -859,12 +859,12 @@ namespace Plugins::Rename
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/maketag", L"/maketag <tag> <master password> <description>", UserCmd_MakeTag, L"Creates a faction tag and prevents others from creating said tag without a password."),
-	    CreateUserCommand(L"/droptag", L"/droptag <tag> <master password>", UserCmd_DropTag, L"Deletes a faction tag"),
-	    CreateUserCommand(L"/settagpass", L"/settagpass <tag> <master password> <rename password>", UserCmd_SetTagPass, L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
-	    CreateUserCommand(L"/renameme", L"/renameme <charname> [password]", UserCmd_RenameMe, L"Renames the current character"),
-	    CreateUserCommand(L"/movechar", L"/movechar <charname> <code>", UserCmd_MoveChar, L"Move a character from a remote account into this one"),
-	    CreateUserCommand(L"/set movecharcode", L"/set movecharcode <code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
+	    CreateUserCommand(L"/maketag", L"<tag> <master password> <description>", UserCmd_MakeTag, L"Creates a faction tag and prevents others from creating said tag without a password."),
+	    CreateUserCommand(L"/droptag", L"<tag> <master password>", UserCmd_DropTag, L"Deletes a faction tag"),
+	    CreateUserCommand(L"/settagpass", L"<tag> <master password> <rename password>", UserCmd_SetTagPass, L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
+	    CreateUserCommand(L"/renameme", L"<charname> [password]", UserCmd_RenameMe, L"Renames the current character"),
+	    CreateUserCommand(L"/movechar", L"<charname> <code>", UserCmd_MoveChar, L"Move a character from a remote account into this one"),
+	    CreateUserCommand(L"/set movecharcode", L"movecharcode <code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
 	}};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
