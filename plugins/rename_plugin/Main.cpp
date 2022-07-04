@@ -13,8 +13,8 @@ namespace Plugins::Rename
 	const auto global = std::make_unique<Global>();
 	void LoadSettings()
 	{
-		global->config = Serializer::JsonToObject<Config>();
 		global->tagList = Serializer::JsonToObject<TagList>();
+		global->config = std::make_unique<Config>(Serializer::JsonToObject<Config>());
 	}
 
 	void SaveSettings()
@@ -24,7 +24,7 @@ namespace Plugins::Rename
 
 	bool CreateNewCharacter(SCreateCharacterInfo const& si, const uint& iClientID)
 	{
-		if (global->config.charNameTags)
+		if (global->config->enableTagProtection)
 		{
 			// If this ship name starts with a restricted tag then the ship may only be created using rename and the faction password
 			const std::wstring charName(si.wszCharname);
@@ -42,7 +42,7 @@ namespace Plugins::Rename
 			}
 		}
 
-		if (global->config.asciiCharNameOnly)
+		if (global->config->asciiCharNameOnly)
 		{
 			const std::wstring wscCharName(si.wszCharname);
 			for (const wchar_t ch : wscCharName)
@@ -60,7 +60,7 @@ namespace Plugins::Rename
 	// it.
 	void CharacterSelect_AFTER([[maybe_unused]] std::string& szCharFilename, const uint& iClientID)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->enableTagProtection)
 			return;
 
 		const auto charName = HkGetCharacterNameById(iClientID);
@@ -72,8 +72,11 @@ namespace Plugins::Rename
 
 	void UserCmd_MakeTag(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->enableTagProtection)
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 			return;
+		}
 
 		const std::wstring usage = L"Usage: /maketag <tag> <master password> <description>";
 		// Indicate an error if the command does not appear to be formatted
@@ -136,13 +139,13 @@ namespace Plugins::Rename
 
 		int iCash;
 		HkFunc(HkGetCash, iClientID, iCash);
-		if (global->config.makeTagCost > 0 && iCash < global->config.makeTagCost)
+		if (global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
 		}
 
-		HkAddCash(charName, 0 - global->config.makeTagCost);
+		HkAddCash(charName, 0 - global->config->makeTagCost);
 
 		TagData data;
 
@@ -160,8 +163,11 @@ namespace Plugins::Rename
 
 	void UserCmd_DropTag(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->config.charNameTags)
+		if (!global->config->enableTagProtection)
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 			return;
+		}
 
 		// Indicate an error if the command does not appear to be formatted
 		// correctly and stop processing but tell FLHook that we processed the
@@ -195,7 +201,7 @@ namespace Plugins::Rename
 	// Make tag password
 	void UserCmd_SetTagPass(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (global->config.charNameTags)
+		if (global->config->enableTagProtection)
 		{
 			// Indicate an error if the command does not appear to be formatted
 			// correctly and stop processing but tell FLHook that we processed the command.
@@ -222,6 +228,10 @@ namespace Plugins::Rename
 				}
 			}
 			PrintUserCmdText(iClientID, L"ERR tag or master password are invalid");
+		}
+		else
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 		}
 	}
 
@@ -355,9 +365,11 @@ namespace Plugins::Rename
 	{
 		HK_ERROR err;
 
-		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableRenameMe)
+		if (!global->config->enableRenameMe)
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 			return;
+		}
 
 		// Indicate an error if the command does not appear to be formatted
 		// correctly and stop processing but tell FLHook that we processed the
@@ -404,7 +416,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		if (global->config.charNameTags)
+		if (global->config->enableTagProtection)
 		{
 			std::wstring wscPassword = Trim(GetParam(wscParam, L' ', 1));
 
@@ -445,7 +457,7 @@ namespace Plugins::Rename
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return;
 		}
-		if (global->config.renameCost > 0 && iCash < global->config.renameCost)
+		if (global->config->renameCost > 0 && iCash < global->config->renameCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
@@ -466,7 +478,7 @@ namespace Plugins::Rename
 		// yet.
 		if ((lastRenameTime + 300) < static_cast<int>(time(nullptr)))
 		{
-			if ((lastRenameTime + global->config.renameTimeLimit) > static_cast<int>(time(nullptr)))
+			if ((lastRenameTime + global->config->renameTimeLimit) > static_cast<int>(time(nullptr)))
 			{
 				PrintUserCmdText(iClientID, L"ERR Rename time limit");
 				return;
@@ -491,8 +503,8 @@ namespace Plugins::Rename
 		}
 
 		// Remove cash if we're charging for it.
-		if (global->config.renameCost > 0)
-			HkAddCash(wscCharname, 0 - global->config.renameCost);
+		if (global->config->renameCost > 0)
+			HkAddCash(wscCharname, 0 - global->config->renameCost);
 
 		Rename o;
 		o.charName = wscCharname;
@@ -509,9 +521,11 @@ namespace Plugins::Rename
 	/** Process a set the move char code command */
 	void UserCmd_SetMoveCharCode(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 			return;
+		}
 
 		if (wscParam.empty())
 		{
@@ -570,9 +584,11 @@ namespace Plugins::Rename
 	{
 		HK_ERROR err;
 
-		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
+		{
+			PrintUserCmdText(iClientID, L"Command disabled");
 			return;
+		}
 
 		// Indicate an error if the command does not appear to be formatted
 		// correctly and stop processing but tell FLHook that we processed the
@@ -632,7 +648,7 @@ namespace Plugins::Rename
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return;
 		}
-		if (global->config.moveCost > 0 && iCash < global->config.moveCost)
+		if (global->config->moveCost > 0 && iCash < global->config->moveCost)
 		{
 			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
 			return;
@@ -670,8 +686,8 @@ namespace Plugins::Rename
 		}
 
 		// Remove cash if we're charging for it.
-		if (global->config.moveCost > 0)
-			HkAddCash(wscCharname, 0 - global->config.moveCost);
+		if (global->config->moveCost > 0)
+			HkAddCash(wscCharname, 0 - global->config->moveCost);
 		HkSaveChar(wscCharname);
 
 		// Schedule the move
@@ -695,7 +711,7 @@ namespace Plugins::Rename
 	void AdminCmd_SetAccMoveCode(CCmds* cmds, const std::wstring& wscCharname, const std::wstring& wscCode)
 	{
 		// Don't indicate an error if moving is disabled.
-		if (!global->config.enableMoveChar)
+		if (!global->config->enableMoveChar)
 			return;
 
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -843,12 +859,12 @@ namespace Plugins::Rename
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/maketag", L"", UserCmd_MakeTag, L""),
-	    CreateUserCommand(L"/droptag", L"", UserCmd_DropTag, L""),
-	    CreateUserCommand(L"/settagpass", L"", UserCmd_SetTagPass, L""),
-	    CreateUserCommand(L"/renameme", L"", UserCmd_RenameMe, L""),
-	    CreateUserCommand(L"/movechar", L"", UserCmd_MoveChar, L""),
-	    CreateUserCommand(L"/set movecharcode", L"", UserCmd_SetMoveCharCode, L""),
+	    CreateUserCommand(L"/maketag", L"<tag> <master password> <description>", UserCmd_MakeTag, L"Creates a faction tag and prevents others from creating said tag without a password."),
+	    CreateUserCommand(L"/droptag", L"<tag> <master password>", UserCmd_DropTag, L"Deletes a faction tag"),
+	    CreateUserCommand(L"/settagpass", L"<tag> <master password> <rename password>", UserCmd_SetTagPass, L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
+	    CreateUserCommand(L"/renameme", L"<charname> [password]", UserCmd_RenameMe, L"Renames the current character"),
+	    CreateUserCommand(L"/movechar", L"<charname> <code>", UserCmd_MoveChar, L"Move a character from a remote account into this one"),
+	    CreateUserCommand(L"/set movecharcode", L"movecharcode <code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
 	}};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -870,23 +886,22 @@ namespace Plugins::Rename
 			AdminCmd_SetAccMoveCode(cmds, cmds->ArgCharname(1), cmds->ArgStr(2));
 			return true;
 		}
-		else if (wscCmd == L"showtags")
+		if (wscCmd == L"showtags")
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_ShowTags(cmds);
 			return true;
 		}
-		else if (wscCmd == L"addtag")
+		if (wscCmd == L"addtag")
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_AddTag(cmds, cmds->ArgStr(1), cmds->ArgStr(2), cmds->ArgStrToEnd(3));
 			return true;
 		}
-		else if (wscCmd == L"droptag")
+		if (wscCmd == L"droptag")
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_DropTag(cmds, cmds->ArgStr(1));
-			return true;
 		}
 		return true;
 	}
@@ -907,7 +922,7 @@ namespace Plugins::Rename
 using namespace Plugins::Rename;
 REFL_AUTO(type(TagData), field(tag), field(masterPassword), field(renamePassword), field(lastAccess), field(description));
 REFL_AUTO(type(TagList), field(tags));
-REFL_AUTO(type(Config), field(enableRenameMe), field(enableMoveChar), field(moveCost), field(renameCost), field(renameTimeLimit), field(charNameTags), field(asciiCharNameOnly), field(makeTagCost));
+REFL_AUTO(type(Config), field(enableRenameMe), field(enableMoveChar), field(moveCost), field(renameCost), field(renameTimeLimit), field(enableTagProtection), field(asciiCharNameOnly), field(makeTagCost));
 
 DefaultDllMainSettings(LoadSettings)
 
