@@ -147,8 +147,8 @@ namespace Plugins::Wardrobe
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/show", L"", UserCmdShowWardrobe, L""),
-	    CreateUserCommand(L"/change", L"", UserCmdChangeCostume, L""),
+	    CreateUserCommand(L"/show", L"<heads/bodies>", UserCmdShowWardrobe, L"Shows the available heads or bodies."),
+	    CreateUserCommand(L"/change", L"<head/body> <name>", UserCmdChangeCostume, L"Changes your head/body to the one specified."),
 	}};
 
 } // namespace Plugins::Wardrobe
