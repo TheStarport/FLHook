@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Shlwapi.h"
-
 #include <FLHook.hpp>
 #include <plugin.h>
 

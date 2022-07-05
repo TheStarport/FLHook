@@ -233,9 +233,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
-    <ClInclude Include="..\source\CCmds.h" />
     <ClInclude Include="..\source\CConsole.h" />
-    <ClInclude Include="..\source\CInGame.h" />
     <ClInclude Include="..\source\CSocket.h" />
   </ItemGroup>
   <ItemGroup>

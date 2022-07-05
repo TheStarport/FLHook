@@ -1189,6 +1189,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			return;
 		}
 
+		// If in the console, lets remove any padding thats get added by the console
+		wscCmd = ReplaceStr(wscCmd, L"\n", L"");
+		wscCmd = ReplaceStr(wscCmd, L"\r", L"");
+
 		size_t wscCmd_pos = wscCmdStr.find(wscCmd);
 
 		if (wscCmd[wscCmd.length() - 1] == '$')
@@ -1214,9 +1218,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			wscCmd.erase(wscCmd.length() - 1, 1);
 		}
 
-		bool plugins = CallPluginsBefore(HookedCall::FLHook__AdminCommand__Process, this, wscCmd);
-
-		if (!plugins)
+		if (const bool plugins = CallPluginsBefore(HookedCall::FLHook__AdminCommand__Process, this, wscCmd); !plugins)
 		{
 			if (wscCmd == L"getcash")
 			{

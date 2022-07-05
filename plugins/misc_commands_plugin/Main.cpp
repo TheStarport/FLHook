@@ -261,7 +261,8 @@ namespace Plugins::MiscCommands
 		}
 
 		HKPLAYERINFO adminPlyr;
-		if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+		const std::wstring adminName = cmds->GetAdminName();
+		if (HkGetPlayerInfo(adminName, adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
 		{
 			cmds->Print(L"ERR Not in space");
 			return;
@@ -324,6 +325,9 @@ namespace Plugins::MiscCommands
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
+		if (!cmds->IsPlayer())
+			return false;
+
 		if (wscCmd == L"smiteall")
 		{
 			global->returncode = ReturnCode::SkipAll;

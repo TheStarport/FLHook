@@ -282,9 +282,9 @@ namespace Plugins::Rename
 				// Move files around
 				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 					throw "move failed";
-				if (::PathFileExistsA(o.sourceFile.c_str()))
+				if (std::filesystem::exists(o.sourceFile.c_str()))
 					throw "src still exists";
-				if (!::PathFileExistsA(o.destFile.c_str()))
+				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
 				// The rename worked. Log it and save the rename time.
@@ -342,9 +342,9 @@ namespace Plugins::Rename
 				// Move files around
 				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 					throw "move failed";
-				if (::PathFileExistsA(o.sourceFile.c_str()))
+				if (std::filesystem::exists(o.sourceFile.c_str()))
 					throw "src still exists";
-				if (!::PathFileExistsA(o.destFile.c_str()))
+				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
 				// The move worked. Log it.
