@@ -17,7 +17,7 @@ namespace Plugins::Wardrobe
 		{
 			PrintUserCmdText(iClientID, L"Heads:");
 			std::wstring heads;
-			for (const auto& [name, id] : global->heads)
+			for (const auto& [name, id] : global->config->heads)
 				heads += (stows(name) + L" | ");
 			PrintUserCmdText(iClientID, heads);
 		}
@@ -25,7 +25,7 @@ namespace Plugins::Wardrobe
 		{
 			PrintUserCmdText(iClientID, L"Bodies:");
 			std::wstring bodies;
-			for (const auto& [name, id] : global->bodies)
+			for (const auto& [name, id] : global->config->bodies)
 				bodies += (stows(name) + L" | ");
 			PrintUserCmdText(iClientID, bodies);
 		}
@@ -46,23 +46,23 @@ namespace Plugins::Wardrobe
 
 		if (ToLower(type) == L"head")
 		{
-			if (global->heads.find(wstos(costume)) == global->heads.end())
+			if (global->config->heads.find(wstos(costume)) == global->config->heads.end())
 			{
 				PrintUserCmdText(iClientID, L"ERR Head not found. Use \"/show heads\" to get heads.");
 				return;
 			}
 			restart.head = true;
-			restart.costume = global->heads[wstos(costume)];
+			restart.costume = global->config->heads[wstos(costume)];
 		}
 		else if (ToLower(type) == L"body")
 		{
-			if (global->bodies.find(wstos(costume)) == global->bodies.end())
+			if (global->config->bodies.find(wstos(costume)) == global->config->bodies.end())
 			{
 				PrintUserCmdText(iClientID, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
 				return;
 			}
 			restart.head = false;
-			restart.costume = global->bodies[wstos(costume)];
+			restart.costume = global->config->bodies[wstos(costume)];
 		}
 		else
 		{
@@ -135,7 +135,11 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	void LoadSettings() { auto config = Serializer::JsonToObject<Config>(); }
+	void LoadSettings()
+	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMAND PROCESSING
@@ -151,7 +155,7 @@ namespace Plugins::Wardrobe
 
 using namespace Plugins::Wardrobe;
 
-REFL_AUTO(type(Config))
+REFL_AUTO(type(Config), field(heads), field(bodies))
 
 DefaultDllMainSettings(LoadSettings)
 
