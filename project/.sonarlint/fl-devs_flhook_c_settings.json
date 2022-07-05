@@ -1,5 +1,37 @@
 {
   "sonarlint.rules": {
+    "c:S6069": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S5542": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "c:S3806": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5798": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "c:S1199": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "c:S3135": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S1764": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S5813": {
+      "level": "On",
+      "severity": "Major"
+    },
     "c:S4524": {
       "level": "On",
       "severity": "Critical"
@@ -36,15 +68,7 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S6069": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "c:S5547": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S5542": {
       "level": "On",
       "severity": "Critical"
     },
@@ -192,10 +216,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "c:S5798": {
-      "level": "On",
-      "severity": "Blocker"
-    },
     "c:S1079": {
       "level": "On",
       "severity": "Critical"
@@ -215,10 +235,6 @@
     "c:S3519": {
       "level": "On",
       "severity": "Blocker"
-    },
-    "c:S5813": {
-      "level": "On",
-      "severity": "Major"
     },
     "c:S3520": {
       "level": "On",
@@ -246,6 +262,10 @@
         "maximumFunctionCognitiveComplexityThreshold": "25"
       },
       "severity": "Critical"
+    },
+    "c:S1913": {
+      "level": "On",
+      "severity": "Major"
     },
     "c:S1912": {
       "level": "On",
@@ -547,10 +567,6 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "c:S3806": {
-      "level": "On",
-      "severity": "Major"
-    },
     "c:S5308": {
       "level": "On",
       "severity": "Critical"
@@ -669,10 +685,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "c:S1199": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "c:S1198": {
       "level": "On",
       "severity": "Major"
@@ -688,10 +700,6 @@
     "c:S3491": {
       "level": "On",
       "severity": "Blocker"
-    },
-    "c:S1764": {
-      "level": "On",
-      "severity": "Major"
     },
     "c:S1762": {
       "level": "On",
@@ -845,9 +853,11 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "common-c:DuplicatedBlocks": {
-      "level": "On",
-      "severity": "Major"
+    "c:S922": {
+      "level": "Off"
+    },
+    "c:S3715": {
+      "level": "Off"
     },
     "c:S116": {
       "level": "Off"
@@ -888,9 +898,6 @@
     "c:S1914": {
       "level": "Off"
     },
-    "c:S1913": {
-      "level": "Off"
-    },
     "c:S968": {
       "level": "Off"
     },
@@ -913,9 +920,6 @@
       "level": "Off"
     },
     "c:S126": {
-      "level": "Off"
-    },
-    "c:S922": {
       "level": "Off"
     },
     "c:S907": {
@@ -1119,9 +1123,6 @@
     "c:S1772": {
       "level": "Off"
     },
-    "c:S3715": {
-      "level": "Off"
-    },
     "c:S109": {
       "level": "Off"
     },
@@ -1162,6 +1163,9 @@
       "level": "Off"
     },
     "common-c:InsufficientBranchCoverage": {
+      "level": "Off"
+    },
+    "common-c:DuplicatedBlocks": {
       "level": "Off"
     },
     "common-c:FailedUnitTests": {
