@@ -66,8 +66,13 @@ namespace Plugins::Restart
 			}
 			if (entity.path().filename().string() == wstos(restartTemplate + L".fl"))
 			{
-				PrintUserCmdText(iClientID, L"ERR Template does not exist");
+				restart.restartFile = entity.path().string();
 			}
+		}
+		if (restart.restartFile.empty())
+		{
+			PrintUserCmdText(iClientID, L"ERR Template does not exist");
+			return;
 		}
 
 		// Saving the characters forces an anti-cheat checks and fixes
@@ -181,8 +186,8 @@ namespace Plugins::Restart
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/restart", L"", UserCmd_Restart, L""),
-	    CreateUserCommand(L"/showrestarts", L"", UserCmd_ShowRestarts, L""),
+	    CreateUserCommand(L"/restart", L"<name>", UserCmd_Restart, L"Restart with a template. This wipes your character!"),
+	    CreateUserCommand(L"/showrestarts", L"", UserCmd_ShowRestarts, L"Shows the available restarts on the server."),
 	}};
 } // namespace Plugins::Restart
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
