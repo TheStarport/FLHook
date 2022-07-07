@@ -547,13 +547,9 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 		return false;
 	}
 	else
-	{ // execute admin command
-		if (wscCmd[wscCmd.length() - 1] == '\n')
-			wscCmd = wscCmd.substr(0, wscCmd.length() - 1);
-		if (wscCmd[wscCmd.length() - 1] == '\r')
-			wscCmd = wscCmd.substr(0, wscCmd.length() - 1);
+	{
 
-		if (!wscCmd.compare(L"eventmode"))
+		if (const auto cmd = Trim(wscCmd); cmd == L"eventmode")
 		{
 			if (sc->csock.rights & RIGHT_EVENTMODE)
 			{
@@ -566,7 +562,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			}
 		}
 		else
-			sc->csock.ExecuteCommandString(wscCmd);
+			sc->csock.ExecuteCommandString(cmd);
 
 		return false;
 	}
@@ -606,11 +602,11 @@ void ProcessPendingCommands()
 	{
 		// check for new console commands
 		EnterCriticalSection(&cs);
-		while (lstConsoleCmds.size())
+		while (!lstConsoleCmds.empty())
 		{
 			std::wstring* pwscCmd = lstConsoleCmds.front();
 			lstConsoleCmds.pop_front();
-			AdminConsole.ExecuteCommandString(*pwscCmd);
+			AdminConsole.ExecuteCommandString(Trim(*pwscCmd));
 			delete pwscCmd;
 		}
 		LeaveCriticalSection(&cs);

@@ -1165,10 +1165,6 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			return;
 		}
 
-		// If in the console, lets remove any padding thats get added by the console
-		wscCmd = ReplaceStr(wscCmd, L"\n", L"");
-		wscCmd = ReplaceStr(wscCmd, L"\r", L"");
-
 		size_t wscCmd_pos = wscCmdStr.find(wscCmd);
 
 		if (wscCmd[wscCmd.length() - 1] == '$')
