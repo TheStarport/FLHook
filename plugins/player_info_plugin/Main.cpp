@@ -177,7 +177,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Player Info by Cannon");
 	pi->shortName("player_info");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&returncode);

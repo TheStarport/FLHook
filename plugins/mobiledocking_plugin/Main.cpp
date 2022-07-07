@@ -664,7 +664,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Mobile Docking by Cannon");
 	pi->shortName("MobileDocking");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&returncode);

@@ -930,7 +930,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Rename");
 	pi->shortName("rename");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->timers(timers);

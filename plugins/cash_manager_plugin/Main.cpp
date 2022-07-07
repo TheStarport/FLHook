@@ -648,7 +648,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Cash Manager Plugin");
 	pi->shortName("cash_manager");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);

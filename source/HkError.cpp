@@ -34,7 +34,6 @@ const std::array<ErrorInfo, 29> hkErrors = {{
     {HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID, L"mpnewcharacter.fl not found or invalid"},
     {HKE_INVALID_REP_GROUP, L"Invalid reputation group"},
     {HKE_PLUGIN_UNLOADABLE, L"Plugin cannot be unloaded"},
-    {HKE_PLUGIN_UNPAUSABLE, L"Plugin cannot be paused"},
     {HKE_PLUGIN_NOT_FOUND, L"Plugin not found"},
 }};
 

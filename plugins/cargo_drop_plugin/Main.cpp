@@ -172,7 +172,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Cargo Drop Plugin by Cannon");
 	pi->shortName("cargo_drop");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

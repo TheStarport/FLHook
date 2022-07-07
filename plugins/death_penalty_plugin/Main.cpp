@@ -272,7 +272,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Death Penalty Plugin");
 	pi->shortName("death_penalty");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returncode);

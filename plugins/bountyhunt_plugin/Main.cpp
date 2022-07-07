@@ -264,7 +264,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Bounty Hunt");
 	pi->shortName("bountyhunt");
-	pi->mayPause(false);
 	pi->mayUnload(false);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);

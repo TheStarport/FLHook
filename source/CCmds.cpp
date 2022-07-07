@@ -749,30 +749,6 @@ void CCmds::CmdUnloadPlugin(const std::wstring& wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdPausePlugin(const std::wstring& wscPlugin)
-{
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
-	if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), true)))
-		Print(L"OK");
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdUnpausePlugin(const std::wstring& wscPlugin)
-{
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
-	if (HKSUCCESS(PluginManager::i()->pause(wstos(wscPlugin), false)))
-		Print(L"OK");
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CCmds::CmdRehash()
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
@@ -1423,14 +1399,6 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"listplugins")
 			{
 				CmdListPlugins();
-			}
-			else if (wscCmd == L"pauseplugin")
-			{
-				CmdPausePlugin(ArgStrToEnd(1));
-			}
-			else if (wscCmd == L"unpauseplugin")
-			{
-				CmdUnpausePlugin(ArgStrToEnd(1));
 			}
 			else if (wscCmd == L"rehash")
 			{

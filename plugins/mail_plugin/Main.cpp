@@ -273,7 +273,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(MailCommunicator::pluginName);
 	pi->shortName("mail");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returncode);

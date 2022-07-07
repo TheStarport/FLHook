@@ -48,7 +48,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Anti Jump Disconnect Plugin by Cannon");
 	pi->shortName("anti_jump_disconnect");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

@@ -276,7 +276,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("IP Ban Plugin");
 	pi->shortName("ip_ban");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

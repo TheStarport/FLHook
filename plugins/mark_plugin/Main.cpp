@@ -186,7 +186,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Mark plugin");
 	pi->shortName("mark");
-	pi->mayPause(false);
 	pi->mayUnload(false);
 	pi->commands(commands);
 	pi->returnCode(&global->returncode);

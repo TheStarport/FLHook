@@ -590,7 +590,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Crash Catcher");
 	pi->shortName("CrashCatcher");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

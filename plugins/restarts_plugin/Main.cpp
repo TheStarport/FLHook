@@ -202,7 +202,6 @@ DefaultDllMainSettings(LoadSettings)
 {
 	pi->name("Restarts");
 	pi->shortName("restarts");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);

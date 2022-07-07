@@ -542,7 +542,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(ConDataCommunicator::pluginName);
 	pi->shortName("condata");
-	pi->mayPause(false);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returncode);

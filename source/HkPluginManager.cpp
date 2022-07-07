@@ -63,51 +63,18 @@ PluginManager::~PluginManager()
 	clearData(false);
 }
 
-HK_ERROR PluginManager::pause(size_t hash, bool pause)
+HK_ERROR PluginManager::unload(const std::string& name)
 {
-	for (auto& plugin : plugins_)
-	{
-		if (plugin.hash == hash)
-		{
-			if (!plugin.mayPause)
-				return HKE_PLUGIN_UNPAUSABLE;
-			plugin.paused = pause;
-			return HKE_OK;
-		}
-	}
+	const auto plugin = std::find_if(begin(), end(), [name](const PluginData& data) {
+		return name == data.shortName;
+	});
 
-	return HKE_PLUGIN_NOT_FOUND;
-}
+	if (plugin == end())
+		return HKE_PLUGIN_NOT_FOUND;
 
-HK_ERROR PluginManager::unload(size_t hash)
-{
-	for (auto plugin = plugins_.begin(); plugin != plugins_.end(); ++plugin)
-	{
-		if (plugin->hash == hash)
-		{
-			if (!plugin->mayUnload)
-				return HKE_PLUGIN_UNLOADABLE;
-
-			FreeLibrary(plugin->dll);
-
-			for (auto& i : pluginHooks_)
-			{
-				for (auto hook = i.begin(); hook != i.end(); ++hook)
-				{
-					if (hook->plugin().hash == plugin->hash)
-					{
-						i.erase(hook);
-						break;
-					}
-				}
-			}
-
-			plugins_.erase(plugin);
-			return HKE_OK;
-		}
-	}
-
-	return HKE_PLUGIN_NOT_FOUND;
+	plugins_.erase(plugin);
+	Console::ConPrint(L"Unloading %s (%s)", stows(plugin->name).c_str(), plugin->dllName.c_str());
+	return HKE_OK;
 }
 
 void PluginManager::unloadAll()
@@ -197,11 +164,9 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		return;
 	}
 
-	plugin.mayPause = pi->mayPause_;
 	plugin.mayUnload = pi->mayUnload_;
 	plugin.name = pi->name_;
 	plugin.shortName = pi->shortName_;
-	plugin.hash = std::hash<std::string> {}(plugin.shortName);
 	plugin.resetCode = pi->resetCode_;
 	plugin.returnCode = pi->returnCode_;
 
@@ -316,11 +281,6 @@ void PluginInfo::name(const char* name)
 void PluginInfo::shortName(const char* shortName)
 {
 	shortName_ = shortName;
-}
-
-void PluginInfo::mayPause(bool pause)
-{
-	mayPause_ = pause;
 }
 
 void PluginInfo::mayUnload(bool unload)

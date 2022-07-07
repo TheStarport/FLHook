@@ -219,10 +219,8 @@ struct PluginData
 {
 	std::string name;
 	std::string shortName;
-	size_t hash = 0;
 	HMODULE dll = nullptr;
 	std::wstring dllName;
-	bool mayPause = false;
 	bool mayUnload = false;
 	ReturnCode* returnCode = nullptr;
 	bool resetCode = true;
@@ -288,17 +286,10 @@ class PluginManager : public Singleton<PluginManager>
 	void unloadAll();
 
 	void load(const std::wstring& fileName, CCmds*, bool);
-	HK_ERROR pause(size_t hash, bool pause);
-	HK_ERROR unload(size_t hash);
-	HK_ERROR pause(const std::string& shortName, bool pause)
-	{
-		return this->pause(std::hash<std::string> {}(shortName), pause);
-	}
-	HK_ERROR unload(const std::string& shortName) { return this->unload(std::hash<std::string> {}(shortName)); }
+	HK_ERROR unload(const std::string& shortName);
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }
-	const std::vector<UserCommand>& commands();
 
 	auto begin() { return plugins_.begin(); }
 	auto end() { return plugins_.end(); }

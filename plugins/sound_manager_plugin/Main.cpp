@@ -51,7 +51,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Sound Manager");
 	pi->shortName("sound_manager");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

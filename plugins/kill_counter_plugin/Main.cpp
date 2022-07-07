@@ -110,7 +110,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Kill Counter");
 	pi->shortName("killcounter");
-	pi->mayPause(false);
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returncode);

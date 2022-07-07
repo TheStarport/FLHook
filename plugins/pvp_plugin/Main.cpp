@@ -463,7 +463,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("PvP");
 	pi->shortName("pvp");
-	pi->mayPause(false);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->commands(commands);

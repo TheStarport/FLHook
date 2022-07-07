@@ -101,9 +101,9 @@ DefaultDllMainSettings(LoadSettings)
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	// Full name of your plugin
-	pi->name("The Plugin Template");
+	pi->name("$projectname$");
 	// Shortened name, all lower case, no spaces. Abbreviation when possible.
-	pi->shortName("template");
+	pi->shortName("$safeprojectname$");
 	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->commands(commands);

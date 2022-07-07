@@ -438,7 +438,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("NPC Control");
 	pi->shortName("npc");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);

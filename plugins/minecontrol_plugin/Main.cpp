@@ -554,7 +554,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Mine Control");
 	pi->shortName("minecontrol");
-	pi->mayPause(true);
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
