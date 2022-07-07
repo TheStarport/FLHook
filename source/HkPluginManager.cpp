@@ -72,8 +72,8 @@ HK_ERROR PluginManager::unload(const std::string& name)
 	if (plugin == end())
 		return HKE_PLUGIN_NOT_FOUND;
 
-	plugins_.erase(plugin);
 	Console::ConPrint(L"Unloading %s (%s)", stows(plugin->name).c_str(), plugin->dllName.c_str());
+	plugins_.erase(plugin);
 	return HKE_OK;
 }
 
