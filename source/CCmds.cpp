@@ -21,7 +21,7 @@ void CCmds::CmdGetCash(std::variant<uint, std::wstring> player)
 
 	int iCash;
 	if (HKSUCCESS(HkGetCash(player, iCash)))
-		Print(L"cash=%dOK\n", iCash);
+		Print(L"cash=%d\nOK\n", iCash);
 	else
 		PrintError();
 }
