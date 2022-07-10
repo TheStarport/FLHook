@@ -15,7 +15,7 @@ namespace Plugins::BountyHunt
 		{
 			if (it->targetId == bounty.targetId && it->initiatorId == bounty.initiatorId)
 			{
-				global->bountyHunt.erase(it++);
+				it = global->bountyHunt.erase(it);
 			}
 			else
 			{
