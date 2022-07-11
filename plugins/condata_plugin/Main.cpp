@@ -44,15 +44,6 @@ namespace Plugins::ConData
 
 	void ClearClientInfo(uint& iClientID) { ClearConData(iClientID); }
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	void UserCmdHelp(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		if (global->config->allowPing)
-		{
-			PrintUserCmdText(iClientID, L"/ping");
-		}
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -531,6 +522,8 @@ namespace Plugins::ConData
 		    {TimerUpdatePingData, 1000, 0},
 		    {TimerUpdateLossData, LossInterval, 0},
 		};
+
+		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 } // namespace Plugins::ConData
 
@@ -558,5 +551,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	// Register plugin for IPC
 	global->communicator = new ConDataCommunicator(ConDataCommunicator::pluginName);
 	PluginCommunicator::ExportPluginCommunicator(global->communicator);
-	global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 }

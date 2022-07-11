@@ -14,6 +14,11 @@ namespace Plugins::AntiJumpDisconnect
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
+	void LoadSettings()
+	{
+		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
+	}
+
 	void ClearClientInfo(uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
 
 	void KillBan(uint& iClientID)
@@ -53,12 +58,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
 	pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
-
-	// We import the definitions for TempBan Communicator so we can talk to it
-	global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(
-	    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 }

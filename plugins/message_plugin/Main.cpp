@@ -64,26 +64,26 @@ namespace Plugins::Message
 	/** Show the next standard banner to all players. */
 	static void ShowStandardBanner()
 	{
-		if (global->config->StandardBannerLines.size() == 0)
+		if (global->config->StandardBannerLines.empty())
 			return;
 
 		static size_t iCurStandardBanner = 0;
 		if (++iCurStandardBanner >= global->config->StandardBannerLines.size())
 			iCurStandardBanner = 0;
 
-		auto& lstStandardBannerSection = global->config->StandardBannerLines[iCurStandardBanner];
+		const auto& lstStandardBannerSection = global->config->StandardBannerLines[iCurStandardBanner];
 
-		struct PlayerData* pPD = 0;
+		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			const uint clientId = HkGetClientIdFromPD(pPD);
 
 			for (auto& sec : lstStandardBannerSection)
 			{
 				if (sec.find(L"<TRA") == 0)
-					HkFMsg(iClientID, sec);
+					HkFMsg(clientId, sec);
 				else
-					PrintUserCmdText(iClientID, L"%s", sec.c_str());
+					PrintUserCmdText(clientId, L"%s", sec.c_str());
 			}
 		}
 	}
@@ -107,7 +107,7 @@ namespace Plugins::Message
 		if (wscMsg.find(L"#c") != -1)
 		{
 			std::wstring wscCurrLocation = GetLocation(iClientID);
-			wscMsg = ReplaceStr(wscMsg, L"#c", wscCurrLocation.c_str());
+			wscMsg = ReplaceStr(wscMsg, L"#c", wscCurrLocation);
 		}
 
 		return true;
@@ -116,7 +116,7 @@ namespace Plugins::Message
 	std::wstring GetPresetMessage(uint iClientID, int iMsgSlot)
 	{
 		auto iter = global->Info.find(iClientID);
-		if (iter == global->Info.end() || iter->second.slot[iMsgSlot].size() == 0)
+		if (iter == global->Info.end() || iter->second.slot[iMsgSlot].empty())
 		{
 			PrintUserCmdText(iClientID, L"ERR No message defined");
 			return L"";
@@ -192,27 +192,28 @@ namespace Plugins::Message
 	void LoadSettings()
 	{
 		// For every active player load their msg settings.
-		std::list<HKPLAYERINFO> players = HkGetPlayers();
+		const std::list<HKPLAYERINFO> players = HkGetPlayers();
 		for (auto& p : players)
 			LoadMsgs(p.iClientID);
 
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
+
+		// Load our communicators 
+		global->mailCommunicator = static_cast<Mail::MailCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Mail::MailCommunicator::pluginName));
+		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 
 	/// On this timer display banners
 	void OneSecondTimer()
 	{
-		static int iSpecialBannerTimer = 0;
-		static int iStandardBannerTimer = 0;
-
-		if (++iSpecialBannerTimer > global->config->SpecialBannerTimeout)
+		if (static int iSpecialBannerTimer = 0; ++iSpecialBannerTimer > global->config->SpecialBannerTimeout)
 		{
 			iSpecialBannerTimer = 0;
 			ShowSpecialBanner();
 		}
 
-		if (++iStandardBannerTimer > global->config->StandardBannerTimeout)
+		if (static int iStandardBannerTimer = 0; ++iStandardBannerTimer > global->config->StandardBannerTimeout)
 		{
 			iStandardBannerTimer = 0;
 			ShowStandardBanner();
@@ -940,10 +941,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-
-	// Load our communicators
-	global->mailCommunicator =
-	    static_cast<Plugins::Mail::MailCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Mail::MailCommunicator::pluginName));
-	global->tempBanCommunicator =
-	    static_cast<Plugins::Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 }

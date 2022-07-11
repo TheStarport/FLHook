@@ -84,6 +84,8 @@ namespace Plugins::Arena
 
 		auto& cmd = const_cast<UserCommand&>(commands[0]);
 		cmd = CreateUserCommand(global->config->wscCommand, cmd.usage, cmd.proc, cmd.description);
+
+		global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
 
 	bool IsDockedClient(unsigned int client)
@@ -295,8 +297,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
-
-	// We import the definitions for Base Communicator so we can talk to it
-	global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);	
 }
