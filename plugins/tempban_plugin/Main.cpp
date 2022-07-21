@@ -48,6 +48,12 @@ namespace Plugins::Tempban
 		tempban.accountId = wscID;
 		global->TempBans.push_back(tempban);
 
+		if (iClientID != -1 && HkKick(iClientID) != HKE_OK)
+		{
+			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
+			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
+		}
+
 		return HKE_OK;
 	}
 
@@ -69,8 +75,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-	void __stdcall Login(struct SLoginInfo const& li, unsigned int& iClientID)
+	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& iClientID)
 	{
 		global->returncode = ReturnCode::Default;
 
@@ -93,7 +98,7 @@ namespace Plugins::Tempban
 			return;
 		}
 
-		if (((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK)) // hksuccess
+		if ((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK) // hksuccess
 			classptr->Print(L"OK");
 		else
 			classptr->PrintError();
@@ -104,7 +109,7 @@ namespace Plugins::Tempban
 		if (wscCmd == L"tempban")
 		{
 			global->returncode = ReturnCode::SkipAll; // do not let other plugins kick in
-			                                  // since we now handle the command
+			                                          // since we now handle the command
 
 			CmdTempBan(classptr, classptr->ArgCharname(1), classptr->ArgInt(2));
 
@@ -123,7 +128,7 @@ using namespace Plugins::Tempban;
 
 DefaultDllMain()
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(TempBanCommunicator::pluginName);
 	pi->shortName("tempban");
