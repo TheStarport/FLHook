@@ -1,10 +1,9 @@
-// This is a template with the bare minimum to have a functional plugin.
+// Pimpship plugin, adds functionality to changing the lights on player ships.
 //
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
-
-// Includes
+// Created by Canon
+//
+// Ported to 4.0 by Nen
+//
 #include "Main.h"
 
 namespace Plugins::Pimpship
@@ -34,18 +33,12 @@ namespace Plugins::Pimpship
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
-		global->Dealers.clear();
-
-		// Patch BaseDataList::get_room_data to suppress annoying warnings
-		// flserver-errors.log
-		unsigned char patch1[] = {0x90, 0x90};
-		WriteProcMem((char*)0x62660F2, &patch1, 2);
+		global->config = std::make_unique<Config>(config);
 
 		int iItemID = 1;
 
 		for (auto& info : config.AvailableItems)
 		{
-
 			info.archId = CreateID(info.nickname.c_str());
 			if (!info.description.length())
 				info.description = info.nickname;
@@ -54,51 +47,33 @@ namespace Plugins::Pimpship
 			iItemID++;
 		}
 
-		for (auto& room : config.Dealers)
+		for (auto& base : config.bases)
 		{
-			uint iLocationID = CreateID(room.c_str());
-
-			if (!BaseDataList_get()->get_room_data(iLocationID))
-			{
-				if (FLHookConfig::i()->general.debugMode)
-				{
-					Console::ConWarn(L"NOTICE: Room %s does not exist", stows(room).c_str());
-				}
-			}
-			else
-				global->Dealers[iLocationID] = stows(room);
+			uint baseIdHash = CreateID(base.c_str());
+			global->config->baseIdHashes.push_back(baseIdHash);
 		}
-
-		global->config = std::make_unique<Config>(config);
-		
-		// Unpatch BaseDataList::get_room_data to suppress annoying warnings
-		// flserver-errors.log
-		unsigned char unpatch1[] = {0xFF, 0x12};
-		WriteProcMem((char*)0x62660F2, &patch1, 2);
 	}
 
-	// On entering a room check to see if we're in a valid ship dealer room (or base
-	// if a ShipDealer is not defined). If we are then print the intro text
-	// otherwise do nothing.
-	void LocationEnter(uint& iLocationID, uint& iClientID)
+	void BaseEnter(const uint& baseId, const uint& clientId)
 	{
-		if (global->Dealers.find(iLocationID) == global->Dealers.end())
+		if (!global->config->notifyAvailabilityOnEnter)
 		{
-			uint iBaseID = 0;
-			pub::Player::GetBase(iClientID, iBaseID);
-			if (global->Dealers.find(iBaseID) == global->Dealers.end())
-			{
-				global->Info[iClientID].InPimpDealer = false;
-				global->Info[iClientID].CurrentEquipment.clear();
-				return;
-			}
+			return;
 		}
 
-		if (global->config->IntroMsg1.length())
-			PrintUserCmdText(iClientID, L"%s", global->config->IntroMsg1.c_str());
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
+			return;
+		}
 
-		if (global->config->IntroMsg2.length())
-			PrintUserCmdText(iClientID, L"%s", global->config->IntroMsg2.c_str());
+		for (auto& baseIdIter : global->config->baseIdHashes)
+		{
+			if (global->config->IntroMsg1.length())
+				PrintUserCmdText(clientId, L"%s", global->config->IntroMsg1.c_str());
+
+			if (global->config->IntroMsg2.length())
+				PrintUserCmdText(clientId, L"%s", global->config->IntroMsg2.c_str());
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,18 +82,14 @@ namespace Plugins::Pimpship
 
 	void UserCmd_PimpShip(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		uint iLocationID = 0;
-		pub::Player::GetLocation(iClientID, iLocationID);
-		if (global->Dealers.find(iLocationID) == global->Dealers.end())
+		uint baseId;
+		HkFunc(HkGetCurrentBase, iClientID, baseId);
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
 		{
-			uint iBaseID = 0;
-			pub::Player::GetBase(iClientID, iBaseID);
-			if (global->Dealers.find(iBaseID) == global->Dealers.end())
-			{
-				global->Info[iClientID].InPimpDealer = false;
-				global->Info[iClientID].CurrentEquipment.clear();
-				return;
-			}
+			global->Info[iClientID].InPimpDealer = false;
+			global->Info[iClientID].CurrentEquipment.clear();
+			PrintUserCmdText(iClientID, L"This station does not have pimpship available");
+			return;
 		}
 
 		global->Info[iClientID].CurrentEquipment.clear();
@@ -163,14 +134,17 @@ namespace Plugins::Pimpship
 	/// Show the setup of the player's ship.
 	void UserCmd_ShowSetup(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->Info[iClientID].InPimpDealer)
+		uint baseId;
+		HkFunc(HkGetCurrentBase, iClientID, baseId);
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
 			return;
+		}
 
 		PrintUserCmdText(iClientID, L"Current ship setup: %d", global->Info[iClientID].CurrentEquipment.size());
 		for (auto iter = global->Info[iClientID].CurrentEquipment.begin(); iter != global->Info[iClientID].CurrentEquipment.end(); iter++)
 		{
-			PrintUserCmdText(
-			    iClientID, L"|     %.2d | %s : %s", iter->first, iter->second.HardPoint.c_str(), GetItemDescription(iter->second.ArchID).c_str());
+			PrintUserCmdText(iClientID, L"|     %.2d | %s : %s", iter->first, iter->second.HardPoint.c_str(), GetItemDescription(iter->second.ArchID).c_str());
 		}
 		PrintUserCmdText(iClientID, L"OK");
 	}
@@ -178,8 +152,12 @@ namespace Plugins::Pimpship
 	/// Show the items that may be changed.
 	void UserCmd_ShowItems(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->Info[iClientID].InPimpDealer)
+		uint baseId;
+		HkFunc(HkGetCurrentBase, iClientID, baseId);
+		if (auto iterator = std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
 			return;
+		}
 
 		PrintUserCmdText(iClientID, L"Available items: %d", global->AvailableItems.size());
 		for (auto iter = global->AvailableItems.begin(); iter != global->AvailableItems.end(); iter++)
@@ -192,8 +170,12 @@ namespace Plugins::Pimpship
 	/// Change the item on the Slot ID to the specified item.
 	void UserCmd_ChangeItem(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		if (!global->Info[iClientID].InPimpDealer)
+		uint baseId;
+		HkFunc(HkGetCurrentBase, iClientID, baseId);
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
 			return;
+		}
 
 		int iHardPointID = ToInt(GetParam(wscParam, ' ', 0));
 		int iSelectedItemID = ToInt(GetParam(wscParam, ' ', 1));
@@ -221,8 +203,12 @@ namespace Plugins::Pimpship
 		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
 		// Check the that player is in a ship dealer.
-		if (!global->Info[iClientID].InPimpDealer)
+		uint baseId;
+		HkFunc(HkGetCurrentBase, iClientID, baseId);
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
 			return;
+		}
 
 		// Charge for the equipment pimp.
 		if (global->config->Cost)
@@ -274,12 +260,11 @@ namespace Plugins::Pimpship
 using namespace Plugins::Pimpship;
 
 REFL_AUTO(type(ItemInfo), field(nickname), field(description))
-REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(Dealers), field(IntroMsg1), field(IntroMsg2))
-
+REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(bases), field(IntroMsg1), field(IntroMsg2), field(notifyAvailabilityOnEnter))
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Pimpship");
 	pi->shortName("pimpship");
@@ -288,6 +273,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::IServerImpl__LocationEnter, &LocationEnter);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

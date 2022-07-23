@@ -52,11 +52,13 @@ namespace Plugins::Pimpship
 		int Cost = 0;
 
 		//! Map of Equipment dealer rooms who offer pimpship
-		std::vector<std::string> Dealers;
+		std::vector<std::string> bases;
+		std::vector<uint> baseIdHashes;
 
 		//! Intro messages when entering the room.
 		std::wstring IntroMsg1 = L"Pimp-my-ship facilities are available here.";
 		std::wstring IntroMsg2 = L"Type /pimpship on your console to see options.";
+		bool notifyAvailabilityOnEnter = false;
 	};
 
 	//! Global data for this plugin
