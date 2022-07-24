@@ -140,7 +140,7 @@ namespace Plugins::CargoDrop
 			location.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"NOTICE: player control cargo drop in system %08x at %f,%f,%f "
+				Console::ConInfo(L"NOTICE: Cargo drop in system %08x at %f,%f,%f "
 				                 L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",
 				    system, location.x, location.y, location.z, shipSizeEstimate, iHullDrop);
 
