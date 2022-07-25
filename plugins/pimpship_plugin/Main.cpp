@@ -10,6 +10,8 @@
 
 namespace Plugins::LightControl
 {
+
+
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 	constexpr auto pattern = ctll::fixed_string("(?<!(?=^.{2}))[A-Z]");
 
@@ -77,8 +79,6 @@ namespace Plugins::LightControl
 
 		return baseId;
 	}
-
-	
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMANDS
@@ -151,28 +151,8 @@ namespace Plugins::LightControl
 		HkFunc(HkAddCash, clientId, -global->config->cost);
 		HkSaveChar(clientId);
 
-		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes and for changes to take effect please use /lights update ");
+		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
-
-
-	// TODO: For Laz, turn this into a helper function
-	//TODO: This function seems to cause the player to be kicked upon undocking regardless of light changing.
-	void UserCmdUpdateLights(const uint& clientId, const std::wstring_view& param)
-	{
-		uint targetBase;
-
-		HkFunc(HkGetCurrentBase,clientId, targetBase)
-
-		Server.BaseEnter(targetBase, clientId);
-		Server.BaseExit(targetBase, clientId);
-		std::wstring wscCharFileName;
-		HkGetCharFileName(clientId, wscCharFileName);
-		wscCharFileName += L".fl";
-		CHARACTER_ID cID;
-		strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-		Server.CharacterSelect(cID, clientId);
-	}
-
 
 	void UserCommandHandler(const uint& clientId, const std::wstring_view& param) 
 	{
@@ -180,11 +160,7 @@ namespace Plugins::LightControl
 			return;
 
 		const auto subCommand = GetParam(param, ' ', 0);
-		if (subCommand == L"update")
-		{
-			UserCmdUpdateLights(clientId, param);
-		}
-		else if (subCommand == L"change") 
+		if (subCommand == L"change") 
 		{
 			UserCmdChangeItem(clientId, param);
 		}
@@ -201,11 +177,12 @@ namespace Plugins::LightControl
 			PrintUserCmdText(clientId, L"Usage: /lights show");
 			PrintUserCmdText(clientId, L"Usage: /lights options");
 			PrintUserCmdText(clientId, L"Usage: /lights change <Light Point> <Item>");
-			PrintUserCmdText(clientId, L"Usage: /lights update");
 			if (global->config->cost > 0) 
 			{
 				PrintUserCmdText(clientId, L"Each light changed will cost %u credits.", global->config->cost);
 			}
+			PrintUserCmdText(clientId, L"Please log off for light changes to take effect.");
+
 		}
 	}
 
