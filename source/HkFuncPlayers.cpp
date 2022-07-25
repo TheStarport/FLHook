@@ -1542,6 +1542,63 @@ HK_ERROR HkAntiCheat(uint iClientID)
 	return HKE_OK;
 }
 
+HK_ERROR HkSetEquip(std::variant<uint, std::wstring> player, const st6::list<EquipDesc>& equip)
+{
+	const uint iClientID = HkExtractClientId(player);
+
+	if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
+		return HKE_NO_CHAR_SELECTED;
+
+	// Update FLHook's lists to make anticheat pleased.
+	if (&equip != &Players[iClientID].lShadowEquipDescList.equip)
+		Players[iClientID].lShadowEquipDescList.equip = equip;
+
+	if (&equip != &Players[iClientID].equipDescList.equip)
+		Players[iClientID].equipDescList.equip = equip;
+
+	// Calculate packet size. First two bytes reserved for items count.
+	uint itemBufSize = 2;
+	for (const auto& item : equip)
+	{
+		itemBufSize += sizeof(SetEquipmentItem) + strlen(item.szHardPoint.value) + 1;
+	}
+
+	FLPACKET* packet = FLPACKET::Create(itemBufSize, FLPACKET::FLPACKET_SERVER_SETEQUIPMENT);
+	FlPacketSetEquipment* pSetEquipment = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
+
+	// Add items to packet as array of variable size.
+	uint index = 0;
+	for (const auto& item : equip)
+	{
+		SetEquipmentItem setEquipItem;
+		setEquipItem.iCount = item.iCount;
+		setEquipItem.fHealth = item.fHealth;
+		setEquipItem.iArchID = item.iArchID;
+		setEquipItem.sID = item.sID;
+		setEquipItem.bMounted = item.bMounted;
+		setEquipItem.bMission = item.bMission;
+
+		if (uint len = strlen(item.szHardPoint.value); len && item.szHardPoint.value != "BAY") {
+			setEquipItem.szHardPointLen = len + 1; // add 1 for the null - char* is a null-terminated string in C++
+		}
+		else {
+			setEquipItem.szHardPointLen = 0;
+		}
+		pSetEquipment->count++;
+
+		byte* buf = (byte*)&setEquipItem;
+		for (int i = 0; i < sizeof(SetEquipmentItem); i++)
+			pSetEquipment->items[index++] = buf[i];
+
+		byte* szHardPoint = (byte*)item.szHardPoint.value;
+		for (int i = 0; i < setEquipItem.szHardPointLen; i++)
+			pSetEquipment->items[index++] = szHardPoint[i];
+	}
+
+	return packet->SendTo(iClientID) ? HKE_OK : HKE_UNKNOWN_ERROR;
+	
+}
+
 HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID, const std::string& scHardpoint)
 {
 	const uint iClientID = HkExtractClientId(player);

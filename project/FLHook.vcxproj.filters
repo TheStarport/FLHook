@@ -121,6 +121,7 @@
     <ClCompile Include="..\source\HkDataPilotPersonalities.cpp">
       <Filter>Hook\data</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\FLPacket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
