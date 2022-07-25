@@ -3,10 +3,11 @@
     "name": "flhook",
     "version": "4.0",
     "builtin-baseline": "0a1420dc443a2c8fc135ef88bbf96af57263e911",
-    "dependencies": [
-        "magic-enum",
-        "nlohmann-json",
-        "refl-cpp",
-        "spdlog"
-    ]
+  "dependencies": [
+    "ctre",
+    "magic-enum",
+    "nlohmann-json",
+    "refl-cpp",
+    "spdlog"
+  ]
 }

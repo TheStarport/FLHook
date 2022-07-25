@@ -1,56 +1,42 @@
-// Pimpship plugin, adds functionality to changing the lights on player ships.
+// LightControl plugin, adds functionality to changing the lights on player ships.
 //
 // Created by Canon
 //
 // Ported to 4.0 by Nen
 //
 #include "Main.h"
+#include "refl.hpp"
+#include <ctre-unicode.hpp>
 
-namespace Plugins::Pimpship
+namespace Plugins::LightControl
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
+	constexpr auto pattern = ctll::fixed_string("(?<!(?=^.{2}))[A-Z]");
 
-	bool IsItemArchIDAvailable(uint iArchID)
-	{
-		for (auto& item : global->AvailableItems)
-		{
-			if (item.second.archId == iArchID)
-				return true;
-		}
-		return false;
+
+	// TODO: For Lazrius, finish the regex expression
+	/*
+	constexpr auto AddSpaceToPascalCase(std::string str) noexcept {
+    	const auto match = ctre::match<pattern>(std::string_view(str));
+		if (!match)
+			return str;
 	}
-
-	std::string GetItemDescription(uint iArchID)
-	{
-		for (auto& item : global->AvailableItems)
-		{
-			if (item.second.archId == iArchID)
-				return item.second.description;
-		}
-		return "";
-	}
-
+	*/
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		int iItemID = 1;
-
-		for (auto& info : config.AvailableItems)
-		{
-			info.archId = CreateID(info.nickname.c_str());
-			if (!info.description.length())
-				info.description = info.nickname;
-
-			global->AvailableItems[iItemID] = info;
-			iItemID++;
-		}
-
-		for (auto& base : config.bases)
+		for (const auto& base : config.bases)
 		{
 			uint baseIdHash = CreateID(base.c_str());
-			global->config->baseIdHashes.push_back(baseIdHash);
+			global->config->baseIdHashes.emplace_back(baseIdHash);
+		}
+
+		for (const auto& light : config.lights)
+		{
+			uint lightIdHash = CreateID(wstos(light).c_str());
+			global->config->lightsHashed.emplace_back(lightIdHash);
 		}
 	}
 
@@ -66,211 +52,186 @@ namespace Plugins::Pimpship
 			return;
 		}
 
-		for (auto& baseIdIter : global->config->baseIdHashes)
-		{
-			if (global->config->IntroMsg1.length())
-				PrintUserCmdText(clientId, L"%s", global->config->IntroMsg1.c_str());
+		if (!global->config->introMessage1.empty())
+			PrintUserCmdText(clientId, L"%s", global->config->introMessage1.c_str());
 
-			if (global->config->IntroMsg2.length())
-				PrintUserCmdText(clientId, L"%s", global->config->IntroMsg2.c_str());
-		}
+		if (!global->config->introMessage2.empty())
+			PrintUserCmdText(clientId, L"%s", global->config->introMessage2.c_str());
 	}
+
+	uint IsInValidBase(const uint& clientId) 
+	{
+		uint baseId;
+		if (HK_ERROR err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
+		{ 
+			std::wstring errorString = HkErrGetText(err); 
+			PrintUserCmdText(clientId, L"ERR:" + errorString); 
+			return 0; 
+		}
+		
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		{
+			PrintUserCmdText(clientId, L"Light customization is not available at this facility.");
+			return 0;
+		}
+
+		return baseId;
+	}
+
+	
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// USER COMMANDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void UserCmd_PimpShip(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		uint baseId;
-		HkFunc(HkGetCurrentBase, iClientID, baseId);
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
-		{
-			global->Info[iClientID].InPimpDealer = false;
-			global->Info[iClientID].CurrentEquipment.clear();
-			PrintUserCmdText(iClientID, L"This station does not have pimpship available");
-			return;
-		}
-
-		global->Info[iClientID].CurrentEquipment.clear();
-		global->Info[iClientID].InPimpDealer = true;
-
-		PrintUserCmdText(iClientID, L"Available ship pimping commands:");
-
-		PrintUserCmdText(iClientID, L"/showsetup");
-		PrintUserCmdText(iClientID, L"|     Display current ship setup.");
-
-		PrintUserCmdText(iClientID, L"/showitems");
-		PrintUserCmdText(iClientID, L"|     Display items that may be added to your ship.");
-
-		PrintUserCmdText(iClientID, L"/setitem <hardpoint id> <new item id>");
-		PrintUserCmdText(iClientID, L"|     Change the item at <hp id> to <item id>.");
-		PrintUserCmdText(iClientID, L"|     <hi id>s are shown by typing /show setup.");
-		PrintUserCmdText(iClientID, L"|     <item id>s are shown by typing /show items.");
-
-		PrintUserCmdText(iClientID, L"/buynow");
-		PrintUserCmdText(iClientID, L"|     Confirms the changes.");
-		PrintUserCmdText(iClientID, L"This facility costs " + ToMoneyStr(global->config->Cost) + L" credits to use.");
-
-		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-
-		// Build the equipment list.
-		int iSlotID = 1;
-
-		st6::list<EquipDesc>& eqLst = Players[iClientID].equipDescList.equip;
-		for (auto eq = eqLst.begin(); eq != eqLst.end(); eq++)
-		{
-			if (IsItemArchIDAvailable(eq->iArchID))
-			{
-				global->Info[iClientID].CurrentEquipment[iSlotID].ID = eq->sID;
-				global->Info[iClientID].CurrentEquipment[iSlotID].ArchID = eq->iArchID;
-				global->Info[iClientID].CurrentEquipment[iSlotID].OriginalArchID = eq->iArchID;
-				global->Info[iClientID].CurrentEquipment[iSlotID].HardPoint = stows(eq->szHardPoint.value);
-				iSlotID++;
-			}
-		}
-	}
-
 	/// Show the setup of the player's ship.
-	void UserCmd_ShowSetup(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmdShowSetup(const uint& clientId, const std::wstring_view& param)
 	{
-		uint baseId;
-		HkFunc(HkGetCurrentBase, iClientID, baseId);
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
-		{
-			return;
-		}
+		PrintUserCmdText(clientId, L"Current light setup:");
 
-		PrintUserCmdText(iClientID, L"Current ship setup: %d", global->Info[iClientID].CurrentEquipment.size());
-		for (auto iter = global->Info[iClientID].CurrentEquipment.begin(); iter != global->Info[iClientID].CurrentEquipment.end(); iter++)
+		const st6::list<EquipDesc> &eqLst = Players[clientId].equipDescList.equip;
+		int itemNumber = 1;
+		for (const auto& i : eqLst) 
 		{
-			PrintUserCmdText(iClientID, L"|     %.2d | %s : %s", iter->first, iter->second.HardPoint.c_str(), GetItemDescription(iter->second.ArchID).c_str());
-		}
-		PrintUserCmdText(iClientID, L"OK");
-	}
+			const auto& index = std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchID);
+			if (index == global->config->lightsHashed.end()) 
+			{
+				continue;
+			}
 
-	/// Show the items that may be changed.
-	void UserCmd_ShowItems(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		uint baseId;
-		HkFunc(HkGetCurrentBase, iClientID, baseId);
-		if (auto iterator = std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
-		{
-			return;
-		}
+			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 
-		PrintUserCmdText(iClientID, L"Available items: %d", global->AvailableItems.size());
-		for (auto iter = global->AvailableItems.begin(); iter != global->AvailableItems.end(); iter++)
-		{
-			PrintUserCmdText(iClientID, L"|     %.2d:  %s", iter->first, iter->second.description.c_str());
+			
+			PrintUserCmdText(clientId, L"|    %u: %s", itemNumber++, str.c_str());
 		}
-		PrintUserCmdText(iClientID, L"OK");
 	}
 
 	/// Change the item on the Slot ID to the specified item.
-	void UserCmd_ChangeItem(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmdChangeItem(const uint& clientId, const std::wstring_view& param)
 	{
-		uint baseId;
-		HkFunc(HkGetCurrentBase, iClientID, baseId);
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		int cash;
+		HkFunc(HkGetCash, clientId, cash);
+		if (cash < global->config->cost)
 		{
+			PrintUserCmdText(clientId, L"Error: Not enough credits, the cost is %u", global->config->cost);
 			return;
 		}
 
-		int iHardPointID = ToInt(GetParam(wscParam, ' ', 0));
-		int iSelectedItemID = ToInt(GetParam(wscParam, ' ', 1));
+		const int hardPointId = ToInt(GetParam(param, ' ', 1)) -1;
+		const std::wstring selectedLight = Trim(ViewToWString(GetParamToEnd(param, ' ', 2)));
 
-		if (global->Info[iClientID].CurrentEquipment.find(iHardPointID) == global->Info[iClientID].CurrentEquipment.end())
+		std::vector<EquipDesc> lights;
+		st6::list<EquipDesc>& eqLst = Players[clientId].equipDescList.equip;
+		for (const auto& i : eqLst)
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid hard point ID");
+			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchID) == global->config->lightsHashed.end())
+			{
+				continue;
+			}
+
+			lights.emplace_back(i);
+		}
+
+		if (hardPointId < 0 || hardPointId > lights.size())
+		{
+			PrintUserCmdText(clientId, L"Error: Invalid light point");
 			return;
 		}
 
-		if (global->AvailableItems.find(iSelectedItemID) == global->AvailableItems.end())
-		{
-			PrintUserCmdText(iClientID, L"ERR Invalid item ID");
-			return;
-		}
+		const auto lightId = CreateID(wstos(selectedLight).c_str());
+		const auto selectedLightEquipDesc = lights[hardPointId];
 
-		global->Info[iClientID].CurrentEquipment[iHardPointID].ArchID = global->AvailableItems[iSelectedItemID].archId;
-		return UserCmd_ShowSetup(iClientID, wscParam);
+		const auto light = std::find_if(eqLst.begin(), eqLst.end(), [selectedLightEquipDesc](const EquipDesc& eq) { 
+			return eq.get_id() == selectedLightEquipDesc.get_id();
+		});
+
+		light->iArchID = lightId;
+		HkFunc(HkSetEquip, clientId, eqLst);
+
+		HkFunc(HkAddCash, clientId, -global->config->cost);
+		HkSaveChar(clientId);
+
+		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes and for changes to take effect please use /lights update ");
 	}
 
-	void UserCmd_BuyNow(const uint& iClientID, const std::wstring_view& wscParam)
+
+	// TODO: For Laz, turn this into a helper function
+	//TODO: This function seems to cause the player to be kicked upon undocking regardless of light changing.
+	void UserCmdUpdateLights(const uint& clientId, const std::wstring_view& param)
 	{
-		HK_ERROR err;
+		uint targetBase;
 
-		std::wstring wscCharName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		HkFunc(HkGetCurrentBase,clientId, targetBase)
 
-		// Check the that player is in a ship dealer.
-		uint baseId;
-		HkFunc(HkGetCurrentBase, iClientID, baseId);
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
-		{
+		Server.BaseEnter(targetBase, clientId);
+		Server.BaseExit(targetBase, clientId);
+		std::wstring wscCharFileName;
+		HkGetCharFileName(clientId, wscCharFileName);
+		wscCharFileName += L".fl";
+		CHARACTER_ID cID;
+		strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+		Server.CharacterSelect(cID, clientId);
+	}
+
+
+	void UserCommandHandler(const uint& clientId, const std::wstring_view& param) 
+	{
+		if (!IsInValidBase(clientId))
 			return;
-		}
 
-		// Charge for the equipment pimp.
-		if (global->config->Cost)
+		const auto subCommand = GetParam(param, ' ', 0);
+		if (subCommand == L"update")
 		{
-			int iCash = 0;
-			if ((err = HkGetCash(wscCharName, iCash)) != HKE_OK)
+			UserCmdUpdateLights(clientId, param);
+		}
+		else if (subCommand == L"change") 
+		{
+			UserCmdChangeItem(clientId, param);
+		}
+		else if (subCommand == L"show")
+		{
+			UserCmdShowSetup(clientId, param);
+		}
+		else if (subCommand == L"options") 
+		{
+			PrintUserCmdText(clientId, L"Urmumlmao");
+		}
+		else 
+		{
+			PrintUserCmdText(clientId, L"Usage: /lights show");
+			PrintUserCmdText(clientId, L"Usage: /lights options");
+			PrintUserCmdText(clientId, L"Usage: /lights change <Light Point> <Item>");
+			PrintUserCmdText(clientId, L"Usage: /lights update");
+			if (global->config->cost > 0) 
 			{
-				PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
-				return;
+				PrintUserCmdText(clientId, L"Each light changed will cost %u credits.", global->config->cost);
 			}
-			if (iCash < 0 && iCash < global->config->Cost)
-			{
-				PrintUserCmdText(iClientID, L"ERR Insufficient credits");
-				return;
-			}
-			HkAddCash(wscCharName, 0 - global->config->Cost);
 		}
-
-		// Remove all lights.
-		for (auto i = global->Info[iClientID].CurrentEquipment.begin(); i != global->Info[iClientID].CurrentEquipment.end(); ++i)
-		{
-			pub::Player::RemoveCargo(iClientID, i->second.ID, 1);
-		}
-
-		// Re-add all lights so that the order is kept the same
-		for (auto i = global->Info[iClientID].CurrentEquipment.begin(); i != global->Info[iClientID].CurrentEquipment.end(); ++i)
-		{
-			HkAddEquip(wscCharName, i->second.ArchID, wstos(i->second.HardPoint));
-		}
-
-		PrintUserCmdText(iClientID, L"OK Ship pimp complete. Please wait 10 seconds and reconnect.");
-		HkDelayedKick(iClientID, 5);
 	}
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/pimpship", L"", UserCmd_PimpShip, L""),
-	    CreateUserCommand(L"/showsetup", L"", UserCmd_ShowSetup, L""),
-	    CreateUserCommand(L"/showitems", L"", UserCmd_ShowItems, L""),
-	    CreateUserCommand(L"/setitem", L"", UserCmd_ChangeItem, L""),
-	    CreateUserCommand(L"/buynow", L"", UserCmd_BuyNow, L""),
+	    CreateUserCommand(L"/lights", L"",UserCommandHandler, L""),
 	}};
-} // namespace Plugins::Pimpship
+} // namespace Plugins::LightControl
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace Plugins::Pimpship;
+using namespace Plugins::LightControl;
 
-REFL_AUTO(type(ItemInfo), field(nickname), field(description))
-REFL_AUTO(type(Config), field(AvailableItems), field(Cost), field(bases), field(IntroMsg1), field(IntroMsg2), field(notifyAvailabilityOnEnter))
-DefaultDllMainSettings(LoadSettings)
+REFL_AUTO(type(Config), field(lights), field(cost), field(bases), field(introMessage1), field(introMessage2), field(notifyAvailabilityOnEnter))
+DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+// Functions to hook
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Pimpship");
-	pi->shortName("pimpship");
+	pi->name("LightControl");
+	pi->shortName("LightControl");
 	pi->mayUnload(true);
 	pi->commands(commands);
-	pi->returnCode(&global->returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);

@@ -240,7 +240,7 @@ namespace Plugins::MiscCommands
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/lights", L"", UserCmdLights, L""),
+	    CreateUserCommand(L"/togglelights", L"", UserCmdLights, L""),
 	    CreateUserCommand(L"/shields", L"", UserCmdShields, L""),
 	    CreateUserCommand(L"/pos", L"", UserCmdPos, L""),
 	    CreateUserCommand(L"/stuck", L"", UserCmdStuck, L""),
