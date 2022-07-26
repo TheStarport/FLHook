@@ -20,7 +20,6 @@ The plugins are categories into three sections:
 * Mark
 * Misc Commands
 * NPC Control
-* Pimpship
 * PvP
 * Tempban
 
@@ -34,6 +33,7 @@ The plugins are categories into three sections:
 * Death Penalty
 * Event
 * Hyper Jump
+* Light Control
 * Mining Control
 * Mobile Docking
 * Player Info

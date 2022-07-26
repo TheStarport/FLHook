@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}</ProjectGuid>
-    <RootNamespace>Pimpship Plugin</RootNamespace>
+    <ProjectGuid>{3A7D5EDC-F360-49E0-B652-587B9E22CF6C}</ProjectGuid>
+    <RootNamespace>FLHook Example Plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Pimpship</ProjectName>
+    <ProjectName>Event</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -44,10 +44,10 @@
     <Import Project="..\Plugin Common.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>pimpship</TargetName>
+    <TargetName>event</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
-    <TargetName>pimpship</TargetName>
+    <TargetName>event</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -56,9 +56,6 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>FLHook.lib;pcre2-16.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
