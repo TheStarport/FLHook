@@ -10,13 +10,13 @@ namespace Plugins::Npc
 	//! A struct that represents an npc that can be spawned
 	struct Npc : Reflectable
 	{
-		std::string shipArch;
-		std::string loadout;
-		std::string iff;
-		uint infocardId;
-		uint infocard2Id;
-		std::string pilot;
-		std::string graph; // NOTHING, FIGHTER, TRANSPORT, GUNBOAT, CRUISER. Possibly (unconfirmed) MINER, CAPITAL, FREIGHTER
+		std::string shipArch = "ge_fighter";
+		std::string loadout = "MP_ge_fighter";
+		std::string iff = "fc_fl_grp";
+		uint infocardId = 197808;
+		uint infocard2Id = 197809;
+		std::string pilot = "pilot_pirate_ace";
+		std::string graph = "FIGHTER"; // NOTHING, FIGHTER, TRANSPORT, GUNBOAT, CRUISER. Possibly (unconfirmed) MINER, CAPITAL, FREIGHTER
 
 		uint shipArchId;
 		uint loadoutId;
@@ -26,17 +26,17 @@ namespace Plugins::Npc
 	// A struct that represents a fleet that can be spawned
 	struct Fleet : Reflectable
 	{
-		std::wstring name;
-		std::map<std::wstring, int> member;
+		std::wstring name = L"example";
+		std::map<std::wstring, int> member = {{L"example",5}};
 	};
 
 	// A struct that represents an NPC that is spawned on startup
 	struct StartupNpc : Reflectable
 	{
-		std::wstring name;
-		std::string system;
-		std::vector<float> position;
-		std::vector<std::vector<float>> rotation;
+		std::wstring name = L"example";
+		std::string system = "li01";
+		std::vector<float> position = {-33367, 120, -28810};
+		std::vector<float> rotation = {0,0,0};
 
 		uint systemId;
 		Matrix rotationMatrix;
@@ -46,16 +46,20 @@ namespace Plugins::Npc
 	//! Config data for this plugin
 	struct Config : Reflectable
 	{
+		Npc exampleNpc;
+		Fleet exampleFleet;
+		StartupNpc exampleStartupNpc;
+
 		//! Map of npcs that can be spawned
-		std::map<std::wstring, Npc> npcInfo;
+		std::map<std::wstring, Npc> npcInfo = {{L"example", exampleNpc}};
 		//! Map of fleets that can be spawned
-		std::map<std::wstring, Fleet> fleetInfo;
+		std::map<std::wstring, Fleet> fleetInfo = {{L"example", exampleFleet}};
 		//! Vector of npcs that are spawned on startup
-		std::vector<StartupNpc> startupNpcs;
+		std::vector<StartupNpc> startupNpcs = {exampleStartupNpc};
 		//! Vector containing Infocard Ids used for naming npcs
-		std::vector<uint> npcInfocardIds {};
+		std::vector<uint> npcInfocardIds {197808};
 		//! The config file we load out of
-		std::string File() override { return "flhook_plugins/npc_control.json"; }
+		std::string File() override { return "flhook_plugins/npc.json"; }
 	};
 
 	//! Global data for this plugin

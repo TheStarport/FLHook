@@ -171,9 +171,7 @@ namespace Plugins::Npc
 			npc.positionVector.y = npc.position[1];
 			npc.positionVector.z = npc.position[2];
 
-			for (int i = 0; i < 3; i++)
-				for (int j = 0; j < 3; j++)
-					npc.rotationMatrix.data[i][j] = npc.rotation[i][j];
+			npc.rotationMatrix = EulerMatrix({npc.rotation[0], npc.rotation[1], npc.rotation[2]});
 		}
 
 		global->config = std::make_unique<Config>(config);
