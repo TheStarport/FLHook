@@ -44,5 +44,7 @@ namespace Plugins::LightControl
 		std::unique_ptr<Config> config = nullptr;
 
 		ReturnCode returnCode = ReturnCode::Default;
+
+		jpWide::Regex regex = jpWide::Regex(L"(?<=.{2})[A-Z]", "gS");
 	};
 } // namespace Plugins::LightControl

@@ -56,6 +56,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>FLHook.lib;pcre2-16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />

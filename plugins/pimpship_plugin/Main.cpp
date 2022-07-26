@@ -6,27 +6,25 @@
 //
 #include "Main.h"
 #include "refl.hpp"
-#include <ctre-unicode.hpp>
 
 namespace Plugins::LightControl
 {
-
-
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
-	constexpr auto pattern = ctll::fixed_string("(?<!(?=^.{2}))[A-Z]");
 
-
-	// TODO: For Lazrius, finish the regex expression
-	/*
-	constexpr auto AddSpaceToPascalCase(std::string str) noexcept {
-    	const auto match = ctre::match<pattern>(std::string_view(str));
-		if (!match)
-			return str;
+	auto RegexReplace(const jpWide::NumSub& m1, void*, void*)
+	{
+		return L" " + m1[0];
 	}
-	*/
+	
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
+
+		// Clean empty values? For some reason, we have a bunch of empty items in the JSON array. This will remove them.
+		config.lights.erase(std::remove(config.lights.begin(), config.lights.end(), L""), config.lights.end());
+		// Sort into alphabetical order
+		std::sort(config.lights.begin(), config.lights.end());
+
 		global->config = std::make_unique<Config>(config);
 
 		for (const auto& base : config.bases)
@@ -66,7 +64,7 @@ namespace Plugins::LightControl
 		uint baseId;
 		if (HK_ERROR err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
 		{ 
-			std::wstring errorString = HkErrGetText(err); 
+			const std::wstring errorString = HkErrGetText(err); 
 			PrintUserCmdText(clientId, L"ERR:" + errorString); 
 			return 0; 
 		}
@@ -85,7 +83,7 @@ namespace Plugins::LightControl
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/// Show the setup of the player's ship.
-	void UserCmdShowSetup(const uint& clientId, const std::wstring_view& param)
+	void UserCmdShowSetup(const uint& clientId)
 	{
 		PrintUserCmdText(clientId, L"Current light setup:");
 
@@ -100,9 +98,17 @@ namespace Plugins::LightControl
 			}
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
+			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
+			PrintUserCmdText(clientId, L"|    %u: %s", itemNumber++, me.nreplace().c_str());
+		}
+	}
 
-			
-			PrintUserCmdText(clientId, L"|    %u: %s", itemNumber++, str.c_str());
+	void UserCmdShowOptions(const uint& clientId)
+	{
+		for (const auto& light : global->config->lights)
+		{
+			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll();
+			PrintUserCmdText(clientId, me.nreplace());
 		}
 	}
 
@@ -117,8 +123,8 @@ namespace Plugins::LightControl
 			return;
 		}
 
-		const int hardPointId = ToInt(GetParam(param, ' ', 1)) -1;
-		const std::wstring selectedLight = Trim(ViewToWString(GetParamToEnd(param, ' ', 2)));
+		const int hardPointId = ToInt(GetParam(param, ' ', 1)) - 1;
+		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 
 		std::vector<EquipDesc> lights;
 		st6::list<EquipDesc>& eqLst = Players[clientId].equipDescList.equip;
@@ -139,7 +145,7 @@ namespace Plugins::LightControl
 		}
 
 		const auto lightId = CreateID(wstos(selectedLight).c_str());
-		const auto selectedLightEquipDesc = lights[hardPointId];
+		const auto& selectedLightEquipDesc = lights[hardPointId];
 
 		const auto light = std::find_if(eqLst.begin(), eqLst.end(), [selectedLightEquipDesc](const EquipDesc& eq) { 
 			return eq.get_id() == selectedLightEquipDesc.get_id();
@@ -159,18 +165,17 @@ namespace Plugins::LightControl
 		if (!IsInValidBase(clientId))
 			return;
 
-		const auto subCommand = GetParam(param, ' ', 0);
-		if (subCommand == L"change") 
+		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change") 
 		{
 			UserCmdChangeItem(clientId, param);
 		}
 		else if (subCommand == L"show")
 		{
-			UserCmdShowSetup(clientId, param);
+			UserCmdShowSetup(clientId);
 		}
 		else if (subCommand == L"options") 
 		{
-			PrintUserCmdText(clientId, L"Urmumlmao");
+			UserCmdShowOptions(clientId);
 		}
 		else 
 		{
