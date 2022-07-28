@@ -55,6 +55,9 @@ namespace Plugins::CashManager
 		long long cash = 0;
 		long long lastAccessedUnix = std::chrono::seconds(std::time(nullptr)).count();
 		std::vector<Transaction> transactions;
+		std::wstring flAccountId;
+
+		void Save();
 	};
 
 	//! Global data for this plugin
@@ -65,6 +68,6 @@ namespace Plugins::CashManager
 		// Other fields
 		ReturnCode returnCode = ReturnCode::Default;
 
-		
+		std::vector<Bank> banks;
 	};
 }
