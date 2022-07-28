@@ -53,10 +53,10 @@ namespace Plugins::CashManager
 		std::wstring accountId = GenerateAccountId();
 		std::wstring bankPassword;
 		long long cash = 0;
-		long long lastAccessedUnix = std::chrono::seconds(std::time(nullptr)).count();
 		std::vector<Transaction> transactions;
-		std::wstring flAccountId;
 
+		// Non-reflectable
+		std::wstring flAccountId;
 		void Save();
 	};
 
@@ -68,6 +68,6 @@ namespace Plugins::CashManager
 		// Other fields
 		ReturnCode returnCode = ReturnCode::Default;
 
-		std::vector<Bank> banks;
+		std::map<std::wstring, std::shared_ptr<Bank>> banks;
 	};
 }
