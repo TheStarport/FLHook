@@ -61,7 +61,7 @@ namespace Plugins::CashManager
 			const auto json = entry.path().string() + "/" + jsonPath;
 			if (std::filesystem::exists(json))
 			{
-				const auto bank = Serializer::JsonToObject<Bank>(json, false);
+				auto bank = Serializer::JsonToObject<Bank>(json, false);
 				auto accId = entry.path().filename().wstring();
 				bank.flAccountId = accId;
 				global->banks[accId] = std::make_shared<Bank>(bank);
@@ -99,12 +99,12 @@ namespace Plugins::CashManager
 	{
 		const std::vector letters = {
 		    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-		const auto dev = std::random_device {};
-		std::mt19937 r(dev);
+		std::random_device dev;
+		std::mt19937 r(dev());
 		const std::uniform_int_distribution<std::size_t> randLetter(0, letters.size() - 1);
 		const std::uniform_int_distribution<std::size_t> randNumber(0, 9);
 		std::stringstream ss;
-		ss << randLetter(r) << randNumber(r) << randNumber(r) << randNumber(r) << randNumber(r);
+		ss << letters[randLetter(r)] << randNumber(r) << randNumber(r) << randNumber(r) << randNumber(r);
 		return stows(ss.str());
 	}
 
@@ -200,17 +200,79 @@ namespace Plugins::CashManager
 		bank->Save();
 	}
 
-	void WithdrawMoneyFromAccount(const ClientId& clientId, const CAccount* acc, int amount) {}
+	// /bank withdraw account password amount
+	void WithdrawMoneyByPassword(const ClientId& clientId, const std::wstring_view& param)
+	{
+		const auto accountId = GetParam(param, ' ', 1);
+		const auto password = GetParam(param, ' ', 2);
+		const auto withdrawal = ToInt(GetParam(param, ' ', 3));
 
-	void WithdrawMoneyByPassword(const ClientId& clientId, const std::wstring_view& param) {}
+		if (withdrawal <= 0)
+		{
+			PrintUserCmdText(clientId, L"Error: Invalid withdraw amount, please input a positive number.");
+			return;
+		}
+		auto bank = GetBank(accountId);
 
-	void UserCmdWithdraw(const ClientId& clientId, const std::wstring_view& param) {}
+		if (!bank)
+		{
+			PrintUserCmdText(clientId, L"Error: Bank accountId could not be found.");
+			return;
+		}
+		if (password != bank->bankPassword)
+		{
+			PrintUserCmdText(clientId, L"Error: Invalid Password.");
+			return;
+		}
+		WithdrawMoney(bank, withdrawal, clientId);
+	}
 
-	void UserCmdDeposit(const ClientId& clientId, const std::wstring_view& param) {}
+	// /bank transfer targetBank amount
+	void TransferMoney(const ClientId clientId, const std::wstring_view& param)
+	{
+		auto sourceBank = GetBank(clientId);
+		auto targetBank = GetBank(GetParam(param, ' ', 1));
+		const auto amount = ToInt(GetParam(param, ' ', 2));
 
-	void UserCmdPassword(const ClientId& clientId, const std::wstring_view& param) {}
+		if (!targetBank)
+		{
+			PrintUserCmdText(clientId, L"Error: Target Bank not found");
+			return;
+		}
 
-	void UserCmdInfo(const ClientId& clientId, const std::wstring_view& param) {}
+		if (amount <= 0)
+		{
+			PrintUserCmdText(clientId, L"Error: Invalid amount, please input a positive number.");
+			return;
+		}
+		sourceBank->cash -= amount;
+		targetBank->cash += amount;
+	}
+
+	void ShowBankInfo(const ClientId& clientId, std::shared_ptr<Bank> bank, bool showPass)
+	{
+		PrintUserCmdText(clientId, L"Your Bank Information: ");
+		PrintUserCmdText(clientId, L"|    Account ID: %s", bank->accountId.c_str());
+		if (bank->bankPassword.empty())
+		{
+			PrintUserCmdText(clientId, L"|    Password: None Set");
+		}
+		else 
+		{
+			PrintUserCmdText(clientId, L"|    Password: %s", showPass ? bank->bankPassword.c_str() : L"*****");
+		}
+		
+		PrintUserCmdText(clientId, L"|    Credits: %u", bank->cash);
+		if (!bank->transactions.empty())
+		{
+			PrintUserCmdText(clientId, L"|    Last Accessed: %s", GetHumanTime(bank->transactions.front().lastAccessedUnix).c_str());
+		}
+
+		if (!showPass && !bank->bankPassword.empty())
+		{
+			PrintUserCmdText(clientId, L"Use /bank info pass to make the password visible.");
+		}
+	}
 
 	void UserCommandHandler(const ClientId& clientId, const std::wstring_view& param)
 	{
@@ -231,10 +293,11 @@ namespace Plugins::CashManager
 				}
 			}
 
-			if (const int withdrawAmount = ToInt(GetParam(param, ' ', 1)) - 1; withdrawAmount > 0)
+			if (const int withdrawAmount = ToInt(GetParam(param, ' ', 1)) - 1)
 			{
 				const CAccount* acc = Players.FindAccountFromClientID(clientId);
-				WithdrawMoneyFromAccount(clientId, acc, withdrawAmount);
+				const auto bank = GetBank(acc->wszAccID);
+				WithdrawMoney(bank, withdrawAmount, clientId);
 				return;
 			}
 
@@ -242,31 +305,57 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"deposit")
 		{
+			const int depositAmount = ToInt(GetParam(param, ' ', 1)) - 1;
+			const CAccount* acc = Players.FindAccountFromClientID(clientId);
+			const auto bank = GetBank(acc->wszAccID);
+			DepositMoney(bank, depositAmount, clientId);
 		}
+
 		else if (cmd == L"password")
 		{
+			const CAccount* acc = Players.FindAccountFromClientID(clientId);
+			const auto bank = GetBank(acc->wszAccID);
+
+			if (GetParam(param, ' ', 2) == L"confirm")
+			{
+				bank->bankPassword = GenerateAccountId();
+				PrintUserCmdText(clientId, L"Your bank account information has been updated.");
+				ShowBankInfo(clientId, bank, true);
+				return;
+			}
+
+			if (bank->bankPassword.empty())
+			{
+				PrintUserCmdText(clientId, L"Your bank currently does not have a password set");
+				PrintUserCmdText(clientId, L"Generating a password means anybody with the password and Bank ID can access your bank");
+				PrintUserCmdText(clientId, L"Are you sure you want to generate a password for this account?");
+				PrintUserCmdText(clientId, L"Please type \"/bank password confirm\" to proceed.");
+				return;
+			}
+			PrintUserCmdText(clientId, L"This will generate a new password and the previous will be invalid");
+			PrintUserCmdText(clientId,
+			    L"Your currently set password is " + bank->bankPassword + L" if you are sure you want to regenerate your password type \"/bank password confirm\". ");
+			
+		}
+		else if (cmd == L"transfer")
+		{
+			TransferMoney(clientId, param);
 		}
 		else if (cmd == L"info")
 		{
 			const auto bank = GetBank(clientId);
-
-			const bool showPass = GetParam(param, ' ', 2) == L"pass";
-			PrintUserCmdText(clientId, L"Your Bank Information: ");
-			PrintUserCmdText(clientId, L"|    Account ID: %s", bank->accountId.c_str());
-			PrintUserCmdText(clientId, L"|    Password: %s", showPass ? bank->bankPassword.c_str() : L"*****");
-			PrintUserCmdText(clientId, L"|    Credits: %u", bank->cash);
-			if (!bank->transactions.empty())
-			{
-				PrintUserCmdText(clientId, L"|    Last Accessed: %s", GetHumanTime(bank->transactions.front().lastAccessedUnix).c_str());	
-			}
-
-			if (!showPass)
-			{
-				PrintUserCmdText(clientId, L"Use /bank info pass to make the password visible.");
-			}
+			const bool showPass = GetParam(param, ' ', 1) == L"pass";
+			ShowBankInfo(clientId, bank, showPass);
 		}
 		else
 		{
+			PrintUserCmdText(clientId, L"Here are the available commands for the bank plugin");
+			PrintUserCmdText(clientId, L"\"/bank withdraw \" will withdraw money from your account's bank");
+			PrintUserCmdText(clientId, L"\"/bank deposit\" will deposit money from your character to your bank");
+			PrintUserCmdText(clientId, L"\"/bank withdraw bankID password\" will withdraw money from a specified bank that has a password set up");
+			PrintUserCmdText(clientId, L"\"/bank transfer bankID \" transfer money from your current bank to the target Bank ID");
+			PrintUserCmdText(clientId, L"\"/bank password \" will generate a password for your bank or regen one of you already have one");
+			PrintUserCmdText(clientId, L"\"/bank info \" will display information regarding your current account's bank");
 		}
 	}
 
