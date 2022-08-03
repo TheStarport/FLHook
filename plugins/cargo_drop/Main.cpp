@@ -10,6 +10,10 @@
 // Includes
 #include "Main.h"
 
+// Setup Doxygen Group
+
+/** @defgroup CargoDrop Cargo Drop (plugin) */
+
 namespace Plugins::CargoDrop
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
