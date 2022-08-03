@@ -17,11 +17,8 @@ namespace Plugins::CashManager
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/**
-	It checks character's givecash history and prints out any received cash
-	messages. Also fixes the money fix list, we can do this because this plugin is
-	called before the money fix list is accessed.
-	*/
+	//! It checks character's givecash history and prints out any received cash messages. Also fixes the money fix list, we can do this because this plugin is
+	//! called before the money fix list is accessed.
 	static void CheckTransferLog(uint clientId)
 	{
 		std::wstring characterName = ToLower(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId)));
@@ -64,11 +61,7 @@ namespace Plugins::CashManager
 		remove(logFile.c_str());
 	}
 
-	/**
-	Save a transfer to disk so that we can inform the receiving character
-	when they log in. The log is recorded in ascii hex to support wide
-	char sets.
-	*/
+	//! Save a transfer to disk so that we can inform the receiving character when they log in. The log is recorded in ascii hex to support wide char sets.
 	static void LogTransfer(std::wstring toCharacterName, std::wstring msg)
 	{
 		const std::string logFile = GetUserFilePath(toCharacterName, "-givecashlog.txt");
@@ -97,11 +90,11 @@ namespace Plugins::CashManager
 		return;
 	}
 
-	/** Return return if this char is in the blocked system */
+	//! Return if this char is in the blocked system
 	static bool InBlockedSystem(const std::wstring& characterName)
 	{
 		// An optimisation if we have no blocked systems.
-		if (global->config->blockedSystem == 0)
+		if (global->config->blockedSystemId == 0)
 			return false;
 
 		// If the char is logged in we can check in memory.
@@ -109,7 +102,7 @@ namespace Plugins::CashManager
 		{
 			uint system = 0;
 			pub::Player::GetSystem(clientId, system);
-			if (system == global->config->blockedSystem)
+			if (system == global->config->blockedSystemId)
 				return true;
 			return false;
 		}
@@ -121,7 +114,7 @@ namespace Plugins::CashManager
 
 		uint system = 0;
 		pub::GetSystemID(system, wstos(systemNickname).c_str());
-		if (system == global->config->blockedSystem)
+		if (system == global->config->blockedSystemId)
 			return true;
 		return false;
 	}
@@ -129,18 +122,17 @@ namespace Plugins::CashManager
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
+		config.blockedSystemId = CreateID(config.blockedSystem.c_str());
 		global->config = std::make_unique<Config>(config);
 	}
 
-	/// Check for cash transfer while this char was offline whenever they
-	/// enter or leave a base.
+	//! Check for cash transfer while this char was offline whenever they enter or leave a base.
 	void PlayerLaunch(uint& ship, uint& clientID) { CheckTransferLog(clientID); }
 
-	/// Check for cash transfer while this char was offline whenever they
-	/// enter or leave a base. */
+	//! Check for cash transfer while this char was offline whenever they enter or leave a base.
 	void BaseEnter(uint& baseID, uint& clientID) { CheckTransferLog(clientID); }
 
-	/** Process a give cash command */
+	//! Process a give cash command
 	void UserCmdGiveCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
@@ -236,8 +228,13 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(clientID, L"ERR Transfer failed");
-				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-				    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+				AddLog(LogType::Cheater,
+				    LogLevel::Info,
+				    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
+				    ToMoneyStr(cash).c_str(),
+				    characterName.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+				    targetCharacter.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 				return;
 			}
@@ -247,9 +244,16 @@ namespace Plugins::CashManager
 		if (targetClientId && (ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner))
 		{
 			PrintUserCmdText(clientID, L"ERR Trade window open");
-			AddLog(LogType::Normal, LogLevel::Info, L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u", ToMoneyStr(cash).c_str(),
-				characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
-				HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(), clientID, targetClientId);
+			AddLog(LogType::Normal,
+			    LogLevel::Info,
+			    L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u",
+			    ToMoneyStr(cash).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+			    targetCharacter.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(),
+			    clientID,
+			    targetClientId);
 			return;
 		}
 
@@ -264,8 +268,13 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(clientID) != HKE_OK)
 		{
 			PrintUserCmdText(clientID, L"ERR Transfer failed");
-			AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-			    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+			AddLog(LogType::Cheater,
+			    LogLevel::Info,
+			    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
+			    ToMoneyStr(cash).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+			    targetCharacter.c_str(),
 			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 			return;
 		}
@@ -283,8 +292,13 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(clientID, L"ERR Transfer failed");
-				AddLog(LogType::Cheater, LogLevel::Info, L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(),
-				    characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+				AddLog(LogType::Cheater,
+				    LogLevel::Info,
+				    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
+				    ToMoneyStr(cash).c_str(),
+				    characterName.c_str(),
+				    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+				    targetCharacter.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 				return;
 			}
@@ -294,19 +308,25 @@ namespace Plugins::CashManager
 		// Check that receiving character has the correct amount of cash.
 		if (int targetCurrentCash; (HkGetCash(targetCharacter, targetCurrentCash)) != HKE_OK || targetCurrentCash != expectedCash)
 		{
-			AddLog(LogType::Normal, LogLevel::Err,
+			AddLog(LogType::Normal,
+			    LogLevel::Err,
 			    L"Cash transfer error when sending %s credits from %s (%s) "
 			    "to "
 			    "%s (%s) current %s credits expected %s credits ",
-			    ToMoneyStr(cash).c_str(), characterName.c_str(), HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(), ToMoneyStr(targetCurrentCash).c_str(), ToMoneyStr(expectedCash).c_str());
+			    ToMoneyStr(cash).c_str(),
+			    characterName.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+			    targetCharacter.c_str(),
+			    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str(),
+			    ToMoneyStr(targetCurrentCash).c_str(),
+			    ToMoneyStr(expectedCash).c_str());
 			PrintUserCmdText(clientID, L"ERR Transfer failed");
 			return;
 		}
 
 		// If the target player is online then send them a message saying
 		// telling them that they've received the cash.
-		
+
 		if (targetClientId && !HkIsInCharSelectMenu(targetClientId))
 		{
 			const std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + (bAnon ? L"anonymous" : characterName);
@@ -321,8 +341,13 @@ namespace Plugins::CashManager
 			LogTransfer(targetCharacter, msg);
 		}
 
-		AddLog(LogType::Normal, LogLevel::Info, L"Send %s credits from %s (%s) to %s (%s)", ToMoneyStr(cash).c_str(), characterName.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), targetCharacter.c_str(),
+		AddLog(LogType::Normal,
+		    LogLevel::Info,
+		    L"Send %s credits from %s (%s) to %s (%s)",
+		    ToMoneyStr(cash).c_str(),
+		    characterName.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+		    targetCharacter.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(targetCharacter)).c_str());
 
 		// A friendly message explaining the transfer.
@@ -333,7 +358,7 @@ namespace Plugins::CashManager
 		return;
 	}
 
-	/** Process a set cash code command */
+	//! Process a set cash code command
 	void UserCmdSetCashCode(const uint& clientID, const std::wstring_view& param)
 	{
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
@@ -361,7 +386,7 @@ namespace Plugins::CashManager
 		return;
 	}
 
-	/** Process a show cash command **/
+	//! Process a show cash command
 	void UserCmdShowCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
@@ -408,7 +433,7 @@ namespace Plugins::CashManager
 		return;
 	}
 
-	/** Process a draw cash command **/
+	//! Process a draw cash command
 	void UserCmdDrawCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
@@ -507,7 +532,8 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(clientID) != HKE_OK)
 		{
 			PrintUserCmdText(clientID, L"ERR Transfer failed");
-			AddLog(LogType::Cheater, LogLevel::Info,
+			AddLog(LogType::Cheater,
+			    LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
 			    ToMoneyStr(cash).c_str(),
@@ -523,7 +549,8 @@ namespace Plugins::CashManager
 		if (targetClientId && ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 		{
 			PrintUserCmdText(clientID, L"ERR Trade window open");
-			AddLog(LogType::Normal, LogLevel::Info,
+			AddLog(LogType::Normal,
+			    LogLevel::Info,
 			    L"NOTICE: Trade window open when drawing %s credits from %s "
 			    "(%s) "
 			    "to %s (%s) %u %u",
@@ -531,7 +558,9 @@ namespace Plugins::CashManager
 			    targetCharacterName.c_str(),
 			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
 			    characterName.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), clientID, targetClientId);
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+			    clientID,
+			    targetClientId);
 			return;
 		}
 
@@ -547,8 +576,9 @@ namespace Plugins::CashManager
 			if (HkAntiCheat(targetClientId) != HKE_OK)
 			{
 				PrintUserCmdText(clientID, L"ERR Transfer failed");
-				AddLog(LogType::Cheater, LogLevel::Info,
-				L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
+				AddLog(LogType::Cheater,
+				    LogLevel::Info,
+				    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
 				    ToMoneyStr(cash).c_str(),
 				    targetCharacterName.c_str(),
 				    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
@@ -569,7 +599,8 @@ namespace Plugins::CashManager
 		if (HkAntiCheat(clientID) != HKE_OK)
 		{
 			PrintUserCmdText(clientID, L"ERR Transfer failed");
-			AddLog(LogType::Cheater, LogLevel::Info,
+			AddLog(LogType::Cheater,
+			    LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
 			    "%s (%s)",
 			    ToMoneyStr(cash).c_str(),
@@ -584,13 +615,16 @@ namespace Plugins::CashManager
 		// Check that receiving player has the correct amount of cash.
 		if (int currentCash; (HkGetCash(characterName, currentCash)) != HKE_OK || currentCash != iExpectedCash)
 		{
-			AddLog(LogType::Normal, LogLevel::Err,
+			AddLog(LogType::Normal,
+			    LogLevel::Err,
 			    L"Cash transfer error when drawing %s credits from %s (%s) to %s (%s) current %s credits expected %s credits ",
 			    ToMoneyStr(cash).c_str(),
 			    targetCharacterName.c_str(),
 			    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
 			    characterName.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(), ToMoneyStr(currentCash).c_str(), ToMoneyStr(iExpectedCash).c_str());
+			    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str(),
+			    ToMoneyStr(currentCash).c_str(),
+			    ToMoneyStr(iExpectedCash).c_str());
 			PrintUserCmdText(clientID, L"ERR Transfer failed");
 		}
 
@@ -614,7 +648,8 @@ namespace Plugins::CashManager
 		    L"NOTICE: Draw %s credits from %s (%s) to %s (%s)",
 		    ToMoneyStr(cash).c_str(),
 		    targetCharacterName.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(), characterName.c_str(),
+		    HkGetAccountID(HkGetAccountByCharname(targetCharacterName)).c_str(),
+		    characterName.c_str(),
 		    HkGetAccountID(HkGetAccountByCharname(characterName)).c_str());
 
 		// A friendly message explaining the transfer.
@@ -624,14 +659,13 @@ namespace Plugins::CashManager
 	}
 
 	// Client command processing
-	const std::vector commands = {{
-		CreateUserCommand(L"/givecash", L"", UserCmdGiveCash, L""),
-	    CreateUserCommand(L"/sendcash", L"", UserCmdGiveCash, L""),
-	    CreateUserCommand(L"/set cashcode", L"", UserCmdSetCashCode, L""),
-	    CreateUserCommand(L"/showcash", L"", UserCmdShowCash, L""),
-	    CreateUserCommand(L"/drawcash", L"", UserCmdDrawCash, L"")
-	}};
-}
+	const std::vector commands = {{CreateUserCommand(L"/givecash", L"<charname> <cash> [anon]", UserCmdGiveCash, L"Sends credits to a player."),
+	    CreateUserCommand(L"/sendcash", L"<charname> <cash> [anon]", UserCmdGiveCash, L"Alias of the above command."),
+	    CreateUserCommand(L"/set cashcode", L"<code>", UserCmdSetCashCode,
+	        L"Sets the ""code"" of this character. Other characters can withdraw cash from this character via /drawcash if they know this."),
+	    CreateUserCommand(L"/showcash", L" <charname> <code>", UserCmdShowCash, L"Show the cash currently on a character."),
+	    CreateUserCommand(L"/drawcash", L"<charname> <code> <cash>", UserCmdDrawCash, L"Withdrawn cash from a character.")}};
+} // namespace Plugins::CashManager
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
