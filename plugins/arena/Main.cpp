@@ -8,52 +8,14 @@
 
 // Includes
 
-#include "../base_plugin/Main.h"
+#include "Main.h"
 
-#include <FLHook.hpp>
-#include <plugin.h>
+// Setup Doxygen Group
+
+/** @defgroup Arena Arena (plugin) */
 
 namespace Plugins::Arena
 {
-	
-
-	enum class ClientState
-	{
-		None,
-		Transfer,
-		Return
-	};
-
-	
-
-	const std::wstring StrInfo1 = L"Please dock at nearest base";
-	const std::wstring StrInfo2 = L"Cargo hold is not empty";
-
-	struct Config final : Reflectable
-	{
-		std::string File() override { return "flhook_plugins/arena.json"; }
-
-		// Reflectable fields
-		std::string command = "arena";
-		std::string targetBase;
-		std::string targetSystem;
-		std::string restrictedSystem;
-
-		// Non-reflectable fields
-		uint targetBaseId;
-		uint targetSystemId;
-		uint restrictedSystemId;
-		std::wstring wscCommand;
-	};
-
-	struct Global
-	{
-		std::array<ClientState, MaxClientId + 1> transferFlags;
-		BaseCommunicator* baseCommunicator = nullptr;
-		ReturnCode returnCode = ReturnCode::Default;
-		std::unique_ptr<Config> config = nullptr;
-	};
-
 	const auto global = std::make_unique<Global>();
 
 	/// Clear client info when a client connects.
@@ -61,8 +23,6 @@ namespace Plugins::Arena
 	{
 		global->transferFlags[iClientID] = ClientState::None;
 	}
-
-	
 
 	// Client command processing
 	void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam);
