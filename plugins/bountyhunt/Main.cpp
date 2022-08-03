@@ -4,6 +4,10 @@
 
 #include "Main.h"
 
+// Setup Doxygen Group
+
+/** @defgroup BountyHunt Bounty Hunt (plugin) */
+
 namespace Plugins::BountyHunt
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
@@ -233,15 +237,9 @@ namespace Plugins::BountyHunt
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/bountyhunt", L"", UserCmdBountyHunt, L""),
-	    CreateUserCommand(L"/bountyhuntid", L"", UserCmdBountyHuntId, L""),
+	    CreateUserCommand(L"/bountyhunt", L"<charname> <credits> [minutes]", UserCmdBountyHunt, L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
+	    CreateUserCommand(L"/bountyhuntid", L"<id> <credits> [minutes]", UserCmdBountyHuntId, L"Same as above but with an id instead of a player name. Use /ids"),
 	}};
-
-	void UserCmdHelp(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/bountyhunt <charname> <credits> [<minutes>]");
-		PrintUserCmdText(iClientID, L"/bountyhuntid <id> <credits> [<minutes>]");
-	}
 
 	// Load Settings
 	void LoadSettings()
