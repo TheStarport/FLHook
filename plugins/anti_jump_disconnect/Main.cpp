@@ -10,6 +10,10 @@
 // Includes
 #include "Main.h"
 
+// Setup Doxygen Group
+
+/** @defgroup AntiJumpDisconnect Anti Jump Disconnect (plugin) */
+
 namespace Plugins::AntiJumpDisconnect
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
