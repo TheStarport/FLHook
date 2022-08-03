@@ -1,7 +1,15 @@
-﻿// AFK Plugin
-// By Raikkonen
+﻿// Away from keyboard
+// August 2022 - Raikkonen
+//
+// This is free software; you can redistribute it and/or modify it as
+// you wish without restriction. If you do then I would appreciate
+// being notified and/or mentioned somewhere.
 
 #include "Main.h"
+
+// Setup Doxygen Group
+
+/** @defgroup AwayFromKeyboard Away from Keyboard (plugin) */
 
 namespace Plugins::Afk
 {
@@ -94,8 +102,8 @@ namespace Plugins::Afk
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L""),
-	    CreateUserCommand(L"/back", L"", UserCmdBack, L""),
+	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L"Sets your status to ""Away from Keyboard"". Other players will notified if they try to speak to you."),
+	    CreateUserCommand(L"/back", L"", UserCmdBack, L"Removes the AFK status."),
 	}};
 } // namespace Plugins::AFK
 
