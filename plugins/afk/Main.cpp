@@ -14,7 +14,6 @@
  * There are no admin commands in this plugin.
  *
  * @paragraph configuration Configuration
- * @code
  * No configuration file is needed.
  *
  * @paragraph ipc IPC Interfaces Exposed
