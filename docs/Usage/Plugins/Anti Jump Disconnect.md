@@ -17,4 +17,4 @@ This plugin does not expose any functionality.
 This plugin uses the "Temp Ban" plugin.
 
 ## Other
-Documentation for the plugin code can be found [here](group___anti_jump_disconnect.html).
+Documentation for the plugin code can be found [here](@ref AntiJumpDisconnect).

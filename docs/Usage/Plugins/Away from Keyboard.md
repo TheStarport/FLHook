@@ -16,4 +16,4 @@ No configuration file is needed.
 This plugin does not expose any functionality.
 
 ## Other
-Documentation for the plugin code can be found [here](group___afk.html).
+Documentation for the plugin code can be found [here](@ref AwayFromKeyboard).

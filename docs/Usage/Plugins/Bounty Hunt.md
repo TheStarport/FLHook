@@ -25,4 +25,4 @@ This plugin does not expose any functionality.
 None
 
 ## Other
-Documentation for the plugin code can be found [here](group___bountyhunt.html).
+Documentation for the plugin code can be found [here](@ref BountyHunt).

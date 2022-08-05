@@ -27,4 +27,4 @@ This plugin does not expose any functionality.
 This plugin uses the "Base" plugin.
 
 ## Other
-Documentation for the plugin code can be found [here](group___arena.html).
+Documentation for the plugin code can be found [here](@ref Arena).
