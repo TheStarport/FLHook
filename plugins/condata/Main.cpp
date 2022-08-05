@@ -10,7 +10,7 @@
 #define PRINT_OK()       PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-/** @defgroup Condata Connection Data (plugin) */
+/** @defgroup Condata Connection Data */
 
 namespace Plugins::ConData
 {

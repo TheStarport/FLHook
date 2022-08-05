@@ -1,17 +1,44 @@
-﻿// Cloak Plugin for FLHook by Cannon.
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+﻿/**
+ * @date Unknown
+ * @author Cannon (Ported by Raikkonen 2022)
+ * @defgroup Cloak Cloak
+ * @brief
+ * The "Cloak" plugin allows players to cloak their ship if fitted with an appropriate cloaking device.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - cloak - Cloaks/uncloaks the ship.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "cloakingDevices": {
+ *         "example": {
+ *             "cooldownTime": 0,
+ *             "dropShieldsOnUncloak": false,
+ *             "fuelToUsage": {
+ *                 "commodity_prisoners": 1
+ *             },
+ *             "holdSizeLimit": 0,
+ *             "warmupTime": 0
+ *         }
+ *     },
+ *     "dsAce": false
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * None
+ */
 
 // Includes
 #include "Main.h"
-
-// Setup Doxygen Group
-
-/** @defgroup Cloak Cloak (plugin) */
 
 namespace Plugins::Cloak
 {
@@ -45,8 +72,14 @@ namespace Plugins::Cloak
 		global->config = std::make_unique<Config>(config);
 	}
 
+	/** @ingroup Cloak
+	 * @brief Hook on ClearClientInfo. Remove the client from our data so we don't get confused if that client id gets recycled.
+	 */
 	void ClearClientInfo(uint iClientID) { global->clientCloakingInfo.erase(iClientID); }
 
+	/** @ingroup Cloak
+	 * @brief Set cloak to be on or off
+	 */
 	void SetCloak(uint iClientID, uint iShipID, bool bOn)
 	{
 		XActivateEquip ActivateEq;
@@ -56,6 +89,9 @@ namespace Plugins::Cloak
 		Server.ActivateEquip(iClientID, ActivateEq);
 	}
 
+	/** @ingroup Cloak
+	 * @brief Set the state of a cloaking device. e.g. Charging, On or Off.
+	 */
 	void SetState(uint iClientID, uint iShipID, int iNewState)
 	{
 		if (global->clientCloakingInfo[iClientID].state != iNewState)
@@ -86,7 +122,9 @@ namespace Plugins::Cloak
 		}
 	}
 
-	// Returns false if the ship has no fuel to operate its cloaking device.
+	/** @ingroup Cloak
+	 * @brief Returns false if the ship has no fuel to operate its cloaking device.
+	 */
 	static bool ProcessFuel(uint iClientID, CloakInfo& info)
 	{
 		if (info.admin || info.arch.fuelToUsage.empty())
@@ -108,6 +146,9 @@ namespace Plugins::Cloak
 		return false;
 	}
 
+	/** @ingroup Cloak
+	 * @brief Hook on PlayerLaunch. Checks if they have a cloak and initialises it.
+	 */
 	void PlayerLaunch_AFTER(uint& iShip, uint& iClientID)
 	{
 		global->clientCloakingInfo[iClientID].canCloak = false;
@@ -152,8 +193,14 @@ namespace Plugins::Cloak
 		}
 	}
 
+	/** @ingroup Cloak
+	 * @brief Hook on BaseEnter. Removes the client from our data.
+	 */
 	void BaseEnter(uint& iBaseID, uint& iClientID) { global->clientCloakingInfo.erase(iClientID); }
 
+	/** @ingroup Cloak
+	 * @brief A timer function. Actions the cloaking device bases on the state.
+	 */
 	void HkTimerCheckKick()
 	{
 		mstime now = timeInMS();
@@ -211,8 +258,9 @@ namespace Plugins::Cloak
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Cloak
+	 * @brief Is called when the player types /cloak. Sets the cloaking device state accordingly.
+	 */
 	void UserCmd_Cloak(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		uint iShip;
@@ -265,6 +313,9 @@ namespace Plugins::Cloak
 	    CreateUserCommand(L"/cloak", L"", UserCmd_Cloak, L"This cloaks or uncloaks the player."),
 	};
 
+	/** @ingroup Cloak
+	 * @brief Admin command processing.
+	 */
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
 		if (wscCmd == L"cloak")
@@ -309,6 +360,9 @@ namespace Plugins::Cloak
 		return false;
 	}
 
+	/** @ingroup Cloak
+	 * @brief Hook on HkCb_AddDmgEntry. Interrupts the cloak if the player is hit whilst charging.
+	 */
 	void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate& fate)
 	{
 		DamageList* dmg2 = *dmg;

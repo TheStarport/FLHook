@@ -11,7 +11,7 @@
 
 // Setup Doxygen Group
 
-/** @defgroup CashManager Cash Manager (plugin) */
+/** @defgroup CashManager Cash Manager */
 
 namespace Plugins::CashManager
 {
