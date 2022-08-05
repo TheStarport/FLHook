@@ -15,13 +15,7 @@
  *
  * @paragraph configuration Configuration
  * @code
- * {
- *	"command": "arena",
- *	"restrictedSystem": "Li01",
- *	"targetBase": "Li02_01_Base",
- *	"targetSystem": "Li02"
- * }
- * @endcode
+ * No configuration file is needed.
  *
  * @paragraph ipc IPC Interfaces Exposed
  * This plugin does not expose any functionality.
