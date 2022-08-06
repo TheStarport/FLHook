@@ -11,6 +11,7 @@
         <tab type="user" visible="true" url="md_docs__usage__blowfish__encryption.html" title="Blowfish Encryption" />
     </tab>
     <tab type="usergroup" visible="yes" title="Plugin Development" url="[none]">
+		<tab type="user" visible="true" url="md_docs__development__Recommended__Visual__Studio__Extensions.html" title="Recommended Visual Studio Extensions" />
         <tab type="user" visible="true" url="md_docs__development__note_on_the__s_t_l.html" title="Note on the STL" />
         <tab type="user" visible="true" url="md_docs__development__inter__plugin__communication___i_p_c_.html" title="Inter-Plugin Communication (IPC)" />
     </tab>
