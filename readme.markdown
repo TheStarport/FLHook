@@ -1,5 +1,5 @@
 # FLHook - A Server Improvement for Freelancer
-[![Build](https://github.com/fl-devs/FLHook/actions/workflows/release.yml/badge.svg)](https://github.com/fl-devs/FLHook/releases/latest/download/Release.zip) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/c6wtsBk) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://the-starport.net/)
+[![Build](https://github.com/fl-devs/FLHook/actions/workflows/release.yml/badge.svg)](https://github.com/fl-devs/FLHook/releases/latest/download/Release.zip) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/c6wtsBk) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://flhook.org/)
 
 
 ## Installation
@@ -8,9 +8,9 @@
 For the purpose of this readme, your Freelancer root installation folder (e.g. by default `C:\Program Files (x86)\Microsoft Games\Freelancer`) will be referred to as `.`.
 
 1. Copy all files from `dist\$Configuration` to your `.\EXE` directory. You may selectively remove some of the default plugins as desired.
-2. Edit `.\EXE\FLHook.ini` as required.
-3. Edit `.\EXE\dacomsrv.ini` and append `FLHook.dll` to the `[Libraries]` section.
-4. FLServer should now load FLHook whenever you start it!
+2. Edit `.\EXE\dacomsrv.ini` and append `FLHook.dll` to the `[Libraries]` section.
+3. Launch `FLServer.exe`, this should generate a fresh `FLHook.json` file.
+4. Edit this file as needed and relaunch `FLServer.exe`.
 
 ## Plugin Installation
 
@@ -19,7 +19,7 @@ The plugin DLL needs to be in `.\EXE\flhook_plugins`. Verify with the plugin's d
 
 ## Configuration
 
-All configuration options are found in `.\EXE\FLHook.ini` and are documented therein. Note that plugins may create additional options, either in this file or elsewhere. Refer to the plugin's documentation for more information.
+All configuration options are found in `.\EXE\FLHook.json` and are documented therein. Note that plugins may create additional options, either in this file or elsewhere. Refer to the plugin's documentation for more information.
 
 ## User Commands
 
@@ -29,49 +29,34 @@ User commands may be entered in game by every player in chat and can be enabled 
 
 Starting with version 2.1, Visual Studio 2019 is required. To compile, simply build the solution as normal. The final build will be found in `dist`, whereas intermediate files are located in `int` and `bin`.
 
-If you wish to develop a new plugin within the solution, it is highly recommended to follow the existing structure, imitate current plugins' project settings, and import the `Plugin Common` properties sheet.
+If you wish to develop a new plugin within the solution, please see our `Plugin Development` section in the [docs](https://docs.flhook.org).
 
 If you would like the build process to copy FLHook as well as any enabled plugin, you may set the `FLHOOK_COPY_PATH` environment variable to your `.\EXE` directory. If it is not set, no such copy will occur. Unlike the `dist` folder structure, no configuration subfolder will be created, so Debug and Release builds will overwrite one another.
-
-### Compiling Generator
-
-The Generator project should rarely need to be recompiled since it's only used to generate some seldom-changed files. If this is necessary, some extra steps are needed to support it.
-
-1. Set the solution to "Generator". This will suspend building other projects.
-2. Follow the instructions [here](https://github.com/foonathan/cppast#installation-on-windows) to setup llvm, clang and `llvm-config`. Change the generator for cmake as required (e.g. Visual Studio 2019 instead).
-3. Build solution as normal.
 
 ### Compiling Instructions
 
 1. Install Visual Studio 2019
-2. Clone https://github.com/microsoft/vcpkg.git
-3. Run bootstrap-vcpkg.bat
-4. In this directory, run `.\vcpkg integrate install`
-5. Clone this repository
-6. Open `project\FLHook.sln`
-7. Ensure you are on `Release` and build the solution.
-
-## Visual Studio Extension
-
-A visual studio extension is available to ease the plugin creation process. A new project template named "FLHook Plugin Template" will create a ready to use FLHook plugin project for you.
-
-The extension is available on the visual studio marketplace here: https://marketplace.visualstudio.com/items?itemName=Alley.flhook-plugin-templates
-
-You can also build it yourself with the project located in misc/flhook_vsix.
+2. Clone this repository
+3. Open `project\FLHook.sln`
+4. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
 
 ## Contributing and Support
 
 Merge requests are welcome. The old Forge SVN repositories are no longer tracked and will not be merged into this repository unless the commit author also creates a merge request here.
 
-For any and all support, please visit https://the-starport.net and look for the FLHook forums. Github issues are available for bug reports *only*.
+For any and all support, please join the [Discord](https://discord.com/invite/c6wtsBk) or visit the [forums](https://the-starport.net) and look for the FLHook section. Github issues are available for bug reports and feature requests *only*.
 
 ## Credits
 
-* Initial FLHook development by mc_horst
-* Versions 1.5.5 to 1.6.0 by w0dk4
-* Versions 1.6.0 to 2.0.0 based on open-source SVN, supervised by w0dk4
-* Versions 2.1.0 and later on Github, supervised by FriendlyFire
+* Initial FLHook development by mc_horst.
+* Versions 1.5.5 to 1.6.0 by w0dk4.
+* Versions 1.6.0 to 2.0.0 based on open-source SVN, supervised by w0dk4.
+* Versions 2.1.0 and later on Github, supervised by FriendlyFire.
+* Versions 4.0.0 and later on Github, supervised by Laz and Raikkonen.
 
-Special thanks to w0dk4 and Niwo for testing and the whole Hamburg City Server admin team for the suggestions and feedback.
+Special thanks to:
+* FriendlyFire for kicking off the initial rewrite.
+* Nen for testing and plugin development.
+* All those who have worked on FLHook before.
 
 FLHook uses a slightly modified version of `flcodec.c`.
