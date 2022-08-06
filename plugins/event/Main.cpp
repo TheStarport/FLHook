@@ -58,7 +58,7 @@ namespace Plugins::Event
 		
 		for (auto& cargo : config.CargoMissions)
 		{
-			if (cargo.first == "Example Nickname")
+			if (cargo.first == "Example")
 				continue;
 
 			CARGO_MISSION cargo_mission;
@@ -72,7 +72,7 @@ namespace Plugins::Event
 
 		for (auto& mission : config.NpcMissions)
 		{
-			if (mission.first == "Example Nickname")
+			if (mission.first == "Example")
 				continue;
 
 			NPC_MISSION npc_mission;
