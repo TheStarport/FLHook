@@ -21,16 +21,6 @@
  * This plugin has no dependencies.
  */
 
-
-// Player Control plugin for FLHookPlugin
-// Feb 2010 by Cannon
-// Ported 2022 by Laz
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
-
-// Includes
 #include "Main.h"
 
 namespace Plugins::CrashCatcher
