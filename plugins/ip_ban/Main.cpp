@@ -1,14 +1,36 @@
-// IP Ban plugin - Feb 2010 by Cannon
-// Ported by Raikkonen 2022
-
-// Includes
+/**
+ * @date Feb, 2010
+ * @author Cannon (Ported by Raikkonen)
+ * @defgroup IPBan IP Ban
+ * @brief
+ * This plugin is used to ban players based on their IP address.
+ *
+ * @paragraph cmds Player Commands
+ * There are no player commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
+ * - authchar <charname> - Allow a character to connect even if they are in a restricted IP range.
+ * - reloadbans - Reload the bans from file.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 #include "Main.h"
 
 namespace Plugins::IPBan
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/// Return true if this client is on a banned IP range.
+	/** @ingroup IPBan
+	 * @brief Return true if this client is on a banned IP range.
+	 */
 	static bool IsBanned(uint iClientID)
 	{
 		std::wstring wscIP;
@@ -102,9 +124,9 @@ namespace Plugins::IPBan
 		return false;
 	}
 
-	/// Return true if this client is in in the AuthenticatedAccounts.json
-	/// file indicating that the client can connect even if
-	/// they are otherwise on a restricted IP range.
+	/** @ingroup IPBan
+	 * @brief Return true if this client is in in the AuthenticatedAccounts.json file indicating that the client can connect even if they are otherwise on a restricted IP range.
+	 */
 	static bool IsAuthenticated(uint iClientID)
 	{
 		CAccount* acc = Players.FindAccountFromClientID(iClientID);
@@ -123,6 +145,9 @@ namespace Plugins::IPBan
 			return false;
 	}
 
+	/** @ingroup IPBan
+	 * @brief Reload IP Bans from file.
+	 */
 	static void ReloadIPBans()
 	{
 		global->ipBans = Serializer::JsonToObject<IPBans>();
@@ -133,6 +158,9 @@ namespace Plugins::IPBan
 		Console::ConInfo(L"IP Bans [%u]", global->ipBans.Bans.size());
 	}
 
+	/** @ingroup IPBan
+	 * @brief Reload Login ID bans from file.
+	 */
 	static void ReloadLoginIDBans()
 	{
 		global->loginIDBans = Serializer::JsonToObject<LoginIDBans>();
@@ -143,6 +171,9 @@ namespace Plugins::IPBan
 		Console::ConInfo(L"Login ID Bans [%u]", global->loginIDBans.Bans.size());
 	}
 
+	/** @ingroup IPBan
+	 * @brief Reload Authenticated Accounts from file.
+	 */
 	static void ReloadAuthenticatedAccounts()
 	{
 		global->authenticatedAccounts = Serializer::JsonToObject<AuthenticatedAccounts>();
@@ -161,6 +192,9 @@ namespace Plugins::IPBan
 		ReloadAuthenticatedAccounts();
 	}
 
+	/** @ingroup IPBan
+	 * @brief Hook on PlayerLaunch. Checks if player is banned and kicks if so.
+	 */
 	void PlayerLaunch(uint& iShip, uint& iClientID)
 	{
 		if (!global->IPChecked[iClientID])
@@ -174,6 +208,9 @@ namespace Plugins::IPBan
 		}
 	}
 
+	/** @ingroup IPBan
+	 * @brief Hook on BaseEnter. Checks if player is banned and kicks if so.
+	 */
 	void BaseEnter(uint& iBaseID, uint& iClientID)
 	{
 		if (!global->IPChecked[iClientID])
@@ -187,12 +224,18 @@ namespace Plugins::IPBan
 		}
 	}
 
+	/** @ingroup IPBan
+	 * @brief Hook on ClearClientInfo. Resets the checked variable for the client Id.
+	 */
 	void ClearClientInfo(uint iClientID) { global->IPChecked[iClientID] = false; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// ADMIN COMMANDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/** @ingroup IPBan
+	 * @brief Is called when an admin types ".reloadbans".
+	 */
 	void AdminCmd_ReloadBans(CCmds* cmds)
 	{
 		ReloadLoginIDBans();
@@ -201,7 +244,9 @@ namespace Plugins::IPBan
 		cmds->Print(L"OK");
 	}
 
-	/** Start automatic zone checking */
+	/** @ingroup IPBan
+	 * @brief Is called when an admin types ".authchar".
+	 */
 	void AdminCmd_AuthenticateChar(CCmds* cmds, const std::wstring& wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -234,14 +279,18 @@ namespace Plugins::IPBan
 	// ADMIN COMMAND PROCESSING
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// Define usable admin commands here
+	/** @ingroup IPBan
+	 * @brief Is called when an admin types ".help".
+	 */
 	void CmdHelp_Callback(CCmds* classptr)
 	{
 		classptr->Print(L"authchar <charname>");
 		classptr->Print(L"reloadbans");
 	}
 
-	// Admin command callback. Compare the chat entry to see if it match a command
+	/** @ingroup IPBan
+	 * @brief Admin command callback. Compare the chat entry to see if it match a command
+	 */
 	bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
 	{
 		if (wscCmd == L"authchar")
