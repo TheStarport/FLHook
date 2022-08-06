@@ -12,7 +12,29 @@
  * There are no admin commands in this plugin.
  *
  * @paragraph configuration Configuration
- * No configuration file is needed.
+ * @code
+ * {
+ *     "CargoMissions": {
+ *         "Example Nickname": {
+ *             "base": "li01_01_base",
+ *             "current_amount": 0,
+ *             "item": "commodity_gold",
+ *             "nickname": "Example",
+ *             "required_amount": 99
+ *         }
+ *     },
+ *     "NpcMissions": {
+ *         "Example Nickname": {
+ *             "current_amount": 0,
+ *             "nickname": "Example",
+ *             "reputation": "li_n_grp",
+ *             "required_amount": 99,
+ *             "sector": "D1",
+ *             "system": "li01"
+ *         }
+ *     }
+ * }
+ * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
  * This plugin does not expose any functionality.
