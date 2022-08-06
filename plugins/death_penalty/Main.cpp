@@ -298,7 +298,7 @@ DefaultDllMainSettings(LoadSettings)
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Death Penalty Plugin");
+	pi->name("Death Penalty");
 	pi->shortName("death_penalty");
 	pi->mayUnload(true);
 	pi->commands(commands);
