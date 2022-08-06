@@ -207,7 +207,7 @@ DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Cargo Drop Plugin by Cannon");
+	pi->name("Cargo Drop");
 	pi->shortName("cargo_drop");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
