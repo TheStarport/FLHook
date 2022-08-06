@@ -1,6 +1,26 @@
-﻿// Kill Counter Plugin
-// Originally by ||KOS||Acid
-// https://sourceforge.net/projects/kosacid/files/
+﻿/**
+ * @date Unknown
+ * @author ||KOS||Acid (Ported by Raikkonen)
+ * @defgroup KillCounter Kill Counter
+ * @brief
+ * This plugin is used to count pvp kills and save them in the player file. Vanilla doesn't do this by default.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - kills {clientId} - Shows the pvp kills for a player if a client id is specified, or if not, the player who typed it.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 
@@ -14,6 +34,9 @@ namespace Plugins::KillCounter
 		PrintUserCmdText(iClientID, L"/kills$ <player id>");
 	}
 
+	/** @ingroup KillCounter
+	 * @brief Called when a player types "/kills".
+	 */
 	void UserCmd_Kills(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscClientID = GetParam(wscParam, ' ', 0);
@@ -75,6 +98,9 @@ namespace Plugins::KillCounter
 		PrintUserCmdText(iClientID, L"Level: %i", rank);
 	}
 
+	/** @ingroup KillCounter
+	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
+	 */
 	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill == 1)
@@ -98,7 +124,7 @@ namespace Plugins::KillCounter
 	}
 
 	const std::vector commands = {{
-	    CreateUserCommand(L"/kills", L"", UserCmd_Kills, L""),
+	    CreateUserCommand(L"/kills", L"{clientId}", UserCmd_Kills, L"Displays how many pvp kills you have."),
 	}};
 } // namespace Plugins::KillCounter
 
