@@ -7,6 +7,7 @@
  * This will notify other players if they try and speak to you, that you are not at your desk.
  *
  * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
  * - afk - Sets your status to Away from Keyboard. Other players will notified if they try to speak to you.
  * - back - Removes the AFK status.
  *
