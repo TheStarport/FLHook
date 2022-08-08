@@ -6,10 +6,12 @@
  * Plugin to handle the sending/receiving of mail.
  *
  * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
  * - mail - Sends mail to a character.
  * - maildel - Deletes the specified mail.
  *
  * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
  * - mail - Sends mail to a character.
  *
  * @paragraph configuration Configuration
