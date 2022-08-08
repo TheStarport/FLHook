@@ -378,43 +378,27 @@ namespace Plugins::Npc
 	// Admin command processing
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
+		global->returnCode = ReturnCode::SkipAll;
+
 		if (wscCmd == L"aicreate")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
-		}
 		else if (wscCmd == L"aidestroy")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAIKill(cmds);
-		}
 		else if (wscCmd == L"aicancel")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAICancel(cmds);
-		}
 		else if (wscCmd == L"aifollow")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAIFollow(cmds, cmds->ArgCharname(1));
-		}
 		else if (wscCmd == L"aicome")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAICome(cmds);
-		}
 		else if (wscCmd == L"aifleet")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdAIFleet(cmds, cmds->ArgStr(1));
-		}
 		else if (wscCmd == L"fleetlist")
-		{
-			global->returnCode = ReturnCode::SkipAll;
 			AdminCmdListNPCFleets(cmds);
-		}
 		else
+		{
+			global->returnCode = ReturnCode::Default;
 			return false;
+		}
 
 		return true;
 	}
