@@ -1,10 +1,57 @@
-// Message Plugin - Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb, 2010
+ * @author Cannon (Ported by Raikkonen)
+ * @defgroup Message Message
+ * @brief Handles different types of messages, banners and faction invitations.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - setmsg <n> <msg text> - Sets a preset message.
+ * - showmsgs - Show your preset messages.
+ * - {0-9} - Send preset message from slot 0-9.
+ * - l{0-9} - Send preset message to local chat from slot 0-9.
+ * - g{0-9} - Send preset message to group chat from slot 0-9.
+ * - t{0-9} - Send preset message to last target from slot 0-9.
+ * - target <message> - Send a message to previous/current target.
+ * - reply <message> - Send a message to the last person to PM you.
+ * - privatemsg <charname> <message> - Send private message to the specified player.
+ * - factionmsg <tag> <message> - Send a message to the specified faction tag.
+ * - factioninvite <tag> - Send a group invite to online members of the specified tag.
+ * - lastpm - Shows the send of the last PM received.
+ * - set chattime <on/off> - Enable time stamps on chat.
+ * - me - Prints your name plus other text to system. Eg, /me thinks would say Bob thinks in system chat.
+ * - do - Prints red text to system chat.
+ * - time - Prints the current server time.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "CustomHelp": false,
+ *     "DisconnectSwearingInSpaceMsg": "%player has been kicked for swearing",
+ *     "DisconnectSwearingInSpaceRange": 5000.0,
+ *     "EnableDo": true,
+ *     "EnableMe": true,
+ *     "EnableSetMessage": false,
+ *     "GreetingBannerLines": ["<TRA data="0xDA70D608" mask="-1"/><TEXT>Welcome to the server.</TEXT>"],
+ *     "SpecialBannerLines": ["<TRA data="0x40B60000" mask="-1"/><TEXT>This is a special banner.</TEXT>"],
+ *     "SpecialBannerTimeout": 5,
+ *     "StandardBannerLines": ["<TRA data="0x40B60000" mask="-1"/><TEXT>Here is a standard banner.</TEXT>"],
+ *     "StandardBannerTimeout": 60,
+ *     "SuppressMistypedCommands": true,
+ *     "SwearWords": [""]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * - Mail
+ * - Tempban
+ */
 
 #include "Main.h"
 
@@ -12,7 +59,9 @@ namespace Plugins::Message
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/** Load the msgs for specified client ID into memory. */
+	/** @ingroup Message
+	 * @brief Load the msgs for specified client ID into memory.
+	 */
 	static void LoadMsgs(uint iClientID)
 	{
 		if (!global->config->EnableSetMessage)
@@ -28,7 +77,9 @@ namespace Plugins::Message
 		global->Info[iClientID].showChatTime = HkGetCharacterIniBool(iClientID, L"msg.chat_time");
 	}
 
-	/** Show the greeting banner to the specified player */
+	/** @ingroup Message
+	 * @brief Show the greeting banner to the specified player.
+	 */
 	static void ShowGreetingBanner(int iClientID)
 	{
 		if (!global->Info[iClientID].greetingShown)
@@ -44,7 +95,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/** Show the special banner to all players. */
+	/** @ingroup Message
+	 * @brief Show the special banner to all players.
+	 */
 	static void ShowSpecialBanner()
 	{
 		struct PlayerData* pPD = 0;
@@ -61,7 +114,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/** Show the next standard banner to all players. */
+	/** @ingroup Message
+	 * @brief Show the next standard banner to all players.
+	 */
 	static void ShowStandardBanner()
 	{
 		if (global->config->StandardBannerLines.empty())
@@ -71,25 +126,21 @@ namespace Plugins::Message
 		if (++iCurStandardBanner >= global->config->StandardBannerLines.size())
 			iCurStandardBanner = 0;
 
-		const auto& lstStandardBannerSection = global->config->StandardBannerLines[iCurStandardBanner];
-
 		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
 			const uint clientId = HkGetClientIdFromPD(pPD);
 
-			for (auto& sec : lstStandardBannerSection)
-			{
-				if (sec.find(L"<TRA") == 0)
-					HkFMsg(clientId, sec);
-				else
-					PrintUserCmdText(clientId, L"%s", sec.c_str());
-			}
+			if (global->config->StandardBannerLines[iCurStandardBanner].find(L"<TRA") == 0)
+				HkFMsg(clientId, global->config->StandardBannerLines[iCurStandardBanner]);
+			else
+				PrintUserCmdText(clientId, L"%s", global->config->StandardBannerLines[iCurStandardBanner].c_str());
 		}
 	}
 
-	/** Replace #t and #c tags with current target name and current ship location.
-	Return false if tags cannot be replaced. */
+	/** @ingroup Message
+	 * @brief Replace #t and #c tags with current target name and current ship location. Return false if tags cannot be replaced.
+	 */
 	static bool ReplaceMessageTags(uint iClientID, ClientInfo& clientData, std::wstring& wscMsg)
 	{
 		if (wscMsg.find(L"#t") != -1)
@@ -113,6 +164,9 @@ namespace Plugins::Message
 		return true;
 	}
 
+	/** @ingroup Message
+	 * @brief Returns a string with the preset message
+	 */
 	std::wstring GetPresetMessage(uint iClientID, int iMsgSlot)
 	{
 		auto iter = global->Info.find(iClientID);
@@ -130,7 +184,9 @@ namespace Plugins::Message
 		return wscMsg;
 	}
 
-	/** Send an preset message to the local system chat */
+	/** @ingroup Message
+	 * @brief Send an preset message to the local system chat
+	 */
 	void SendPresetLocalMessage(uint iClientID, int iMsgSlot)
 	{
 		if (!global->config->EnableSetMessage)
@@ -146,7 +202,9 @@ namespace Plugins::Message
 		SendLocalSystemChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
 	}
 
-	/** Send a preset message to the last/current target. */
+	/** @ingroup Message
+	 * @brief Send a preset message to the last/current target.
+	 */
 	void SendPresetToLastTarget(uint iClientID, int iMsgSlot)
 	{
 		if (!global->config->EnableSetMessage)
@@ -155,7 +213,9 @@ namespace Plugins::Message
 		UserCmd_SendToLastTarget(iClientID, GetPresetMessage(iClientID, iMsgSlot));
 	}
 
-	/** Send an preset message to the system chat */
+	/** @ingroup Message
+	 * @brief Send an preset message to the system chat 
+	 */
 	void SendPresetSystemMessage(uint iClientID, int iMsgSlot)
 	{
 		if (!global->config->EnableSetMessage)
@@ -164,7 +224,9 @@ namespace Plugins::Message
 		SendSystemChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
 	}
 
-	/** Send an preset message to the last PM sender */
+	/** @ingroup Message
+	 * @brief Send an preset message to the last PM sender
+	 */
 	void SendPresetLastPMSender(const uint& iClientID, int iMsgSlot, const std::wstring_view& wscMsg)
 	{
 		if (!global->config->EnableSetMessage)
@@ -173,7 +235,9 @@ namespace Plugins::Message
 		UserCmd_ReplyToLastPMSender(iClientID, GetPresetMessage(iClientID, iMsgSlot));
 	}
 
-	/** Send an preset message to the group chat */
+	/** @ingroup Message
+	 * @brief Send an preset message to the group chat
+	 */
 	void SendPresetGroupMessage(const uint& iClientID, int iMsgSlot)
 	{
 		if (!global->config->EnableSetMessage)
@@ -182,13 +246,14 @@ namespace Plugins::Message
 		SendGroupChat(iClientID, GetPresetMessage(iClientID, iMsgSlot));
 	}
 
-	/** Clean up when a client disconnects */
+	/** @ingroup Message
+	 * @brief Clean up when a client disconnects
+	 */
 	void ClearClientInfo(uint& iClientID) { global->Info.erase(iClientID); }
 
-	/**
-	This function is called when the admin command rehash is called and when the
-	module is loaded.
-	*/
+	/** @ingroup Message
+	 * @brief This function is called when the admin command rehash is called and when the module is loaded.
+	 */
 	void LoadSettings()
 	{
 		// For every active player load their msg settings.
@@ -199,12 +264,15 @@ namespace Plugins::Message
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		// Load our communicators 
+		// Load our communicators
 		global->mailCommunicator = static_cast<Mail::MailCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Mail::MailCommunicator::pluginName));
-		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
+		global->tempBanCommunicator =
+		    static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 
-	/// On this timer display banners
+	/** @ingroup Message
+	 * @brief On this timer display banners
+	 */
 	void OneSecondTimer()
 	{
 		if (static int iSpecialBannerTimer = 0; ++iSpecialBannerTimer > global->config->SpecialBannerTimeout)
@@ -220,7 +288,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/// On client disconnect remove any references to this client.
+	/** @ingroup Message
+	 * @brief On client disconnect remove any references to this client.
+	 */
 	void DisConnect(uint& iClientID, enum EFLConnection& p2)
 	{
 		auto iter = global->Info.begin();
@@ -234,7 +304,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/// On client F1 or entry to char select menu.
+	/** @ingroup Message
+	 * @brief On client F1 or entry to char select menu.
+	 */
 	void CharacterInfoReq(unsigned int iClientID, bool p2)
 	{
 		auto iter = global->Info.begin();
@@ -248,22 +320,27 @@ namespace Plugins::Message
 		}
 	}
 
-	/// On launch events and reload the msg cache for the client.
+	/** @ingroup Message
+	 * @brief On launch events and reload the msg cache for the client.
+	 */
 	void PlayerLaunch(uint& iShip, uint& iClientID)
 	{
 		LoadMsgs(iClientID);
 		ShowGreetingBanner(iClientID);
 	}
 
-	/// On base entry events and reload the msg cache for the client.
+	/** @ingroup Message
+	 * @brief On base entry events and reload the msg cache for the client.
+	 */
 	void BaseEnter(uint iBaseID, uint iClientID)
 	{
 		LoadMsgs(iClientID);
 		ShowGreetingBanner(iClientID);
 	}
 
-	/// When a char selects a target and the target is a player ship then
-	/// record the target's clientID. */
+	/** @ingroup Message
+	 * @brief When a char selects a target and the target is a player ship then record the target's clientID.
+	 */
 	void SetTarget(uint& uClientID, struct XSetTarget const& p2)
 	{
 		// The iSpaceID *appears* to represent a player ship ID when it is
@@ -280,6 +357,9 @@ namespace Plugins::Message
 		}
 	}
 
+	/** @ingroup Message
+	 * @brief Hook on SubmitChat. Suppresses swearing. Records the last user to PM.
+	 */
 	bool SubmitChat(uint& cId, unsigned long& iSize, const void** rdlReader, uint& cIdTo, int& p2)
 	{
 		// Ignore group join/leave commands
@@ -349,6 +429,9 @@ namespace Plugins::Message
 		return false;
 	}
 
+	/** @ingroup Message
+	 * @brief Prints RedText in the style of New Player messages.
+	 */
 	void RedText(std::wstring wscXMLMsg, uint iSystemID)
 	{
 		char szBuf[0x1000];
@@ -369,8 +452,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/** When a chat message is sent to a client and this client has showchattime on
-	insert the time on the line immediately before the chat message */
+	/** @ingroup Message
+	 * @brief When a chat message is sent to a client and this client has showchattime on insert the time on the line immediately before the chat message
+	 */
 	bool SendChat(uint& iClientID, uint& iTo, uint& iSize, void** rdlReader)
 	{
 		// Return immediately if the chat line is the time.
@@ -413,11 +497,9 @@ namespace Plugins::Message
 		return false;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMANDS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/** Set an preset message */
+	/** @ingroup Message
+	 * @brief Set a preset message
+	 */
 	void UserCmd_SetMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->EnableSetMessage)
@@ -440,7 +522,9 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, L"OK");
 	}
 
-	/** Show preset messages */
+	/** @ingroup Message
+	 * @brief Show preset messages
+	 */
 	void UserCmd_ShowMsgs(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->EnableSetMessage)
@@ -460,7 +544,9 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, L"OK");
 	}
 
-	// User Commands for /r0-9
+	/** @ingroup Message
+	 * @brief User Commands for /r0-9
+	 */
 	void UserCmd_RMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 0, wscParam); }
 
 	void UserCmd_RMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 1, wscParam); }
@@ -481,7 +567,9 @@ namespace Plugins::Message
 
 	void UserCmd_RMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLastPMSender(iClientID, 9, wscParam); }
 
-	// User Commands for /s0-9
+	/** @ingroup Message
+	 * @brief User Commands for /s0-9
+	 */
 	void UserCmd_SMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 0); }
 
 	void UserCmd_SMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 1); }
@@ -502,7 +590,9 @@ namespace Plugins::Message
 
 	void UserCmd_SMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetSystemMessage(iClientID, 0); }
 
-	// User Commands for /l0-9
+	/** @ingroup Message
+	 * @brief User Commands for /l0-9
+	 */
 	void UserCmd_LMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 0); }
 
 	void UserCmd_LMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 1); }
@@ -523,7 +613,9 @@ namespace Plugins::Message
 
 	void UserCmd_LMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetLocalMessage(iClientID, 9); }
 
-	// User Commands for /g0-9
+	/** @ingroup Message
+	 * @brief User Commands for /g0-9
+	 */
 	void UserCmd_GMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 0); }
 
 	void UserCmd_GMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 1); }
@@ -544,6 +636,9 @@ namespace Plugins::Message
 
 	void UserCmd_GMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetGroupMessage(iClientID, 9); }
 
+	/** @ingroup Message
+	 * @brief User Commands for /t0-9
+	 */
 	void UserCmd_TMsg0(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 0); }
 
 	void UserCmd_TMsg1(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 1); }
@@ -564,7 +659,9 @@ namespace Plugins::Message
 
 	void UserCmd_TMsg9(const uint& iClientID, const std::wstring_view& wscParam) { SendPresetToLastTarget(iClientID, 9); }
 
-	/** Send an message to the last person that PM'd this client. */
+	/** @ingroup Message
+	 * @brief Send an message to the last person that PM'd this client.
+	 */
 	void UserCmd_ReplyToLastPMSender(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
@@ -587,7 +684,9 @@ namespace Plugins::Message
 		SendPrivateChat(iClientID, iter->second.lastPmClientID, ViewToWString(wscMsg));
 	}
 
-	/** Shows the sender of the last PM and the last char targeted */
+	/** @ingroup Message
+	 * @brief Shows the sender of the last PM and the last char targeted
+	 */
 	void UserCmd_ShowLastPMSender(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
@@ -609,7 +708,9 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, L"OK sender=" + wscSenderCharname + L" target=" + wscTargetCharname);
 	}
 
-	/** Send a message to the last/current target. */
+	/** @ingroup Message
+	 * @brief Send a message to the last/current target. 
+	 */
 	void UserCmd_SendToLastTarget(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		auto iter = global->Info.find(iClientID);
@@ -632,8 +733,9 @@ namespace Plugins::Message
 		SendPrivateChat(iClientID, iter->second.targetClientID, ViewToWString(wscMsg));
 	}
 
-	/** Send a private message to the specified charname. If the player is offline
-	the message will be delivery when they next login. */
+	/** @ingroup Message
+	 * @brief Send a private message to the specified charname. If the player is offline the message will be delivery when they next login.
+	 */
 	void UserCmd_PrivateMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
@@ -674,7 +776,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/** Send a private message to the specified clientid. */
+	/** @ingroup Message
+	 * @brief Send a private message to the specified clientid.
+	 */
 	void UserCmd_PrivateMsgID(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -692,7 +796,9 @@ namespace Plugins::Message
 		SendPrivateChat(iClientID, iToClientID, ViewToWString(wscMsg));
 	}
 
-	/** Send a message to all players with a particular prefix. */
+	/** @ingroup Message
+	 * @brief Send a message to all players with a particular prefix.
+	 */
 	void UserCmd_FactionMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
@@ -726,7 +832,9 @@ namespace Plugins::Message
 			PrintUserCmdText(iClientID, L"ERR No chars found");
 	}
 
-	/** Send a faction invite message to all players with a particular prefix. */
+	/** @ingroup Message
+	 * @brief Send a faction invite message to all players with a particular prefix.
+	 */
 	void UserCmd_FactionInvite(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		const std::wstring& wscCharnamePrefix = GetParam(wscParam, ' ', 0);
@@ -768,6 +876,9 @@ namespace Plugins::Message
 			PrintUserCmdText(iClientID, L"ERR No chars found");
 	}
 
+	/** @ingroup Message
+	 * @brief User command for enabling the chat timestamps.
+	 */
 	void UserCmd_SetChatTime(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
@@ -795,14 +906,18 @@ namespace Plugins::Message
 		PrintUserCmdText(iClientID, L"OK");
 	}
 
+	/** @ingroup Message
+	 * @brief Prints the current server time.
+	 */
 	void UserCmd_Time(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
 		PrintUserCmdText(iClientID, GetTimeString(FLHookConfig::i()->general.localTime));
 	}
 
-	/** Me command allow players to type "/me powers his engines" which would print:
-	 * "Trent powers his engines" */
+	/** @ingroup Message
+	 * @brief Me command allow players to type "/me powers his engines" which would print: "Trent powers his engines"
+	 */
 	void UserCmd_Me(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->EnableMe)
@@ -825,8 +940,9 @@ namespace Plugins::Message
 		}
 	}
 
-	/** Do command allow players to type "/do Nomad fighters detected" which would
-	 * print: "Nomad fighters detected" in the standard red text */
+	/** @ingroup Message
+	 * @brief Do command allow players to type "/do Nomad fighters detected" which would print: "Nomad fighters detected" in the standard red text 
+	 */
 	void UserCmd_Do(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (global->config->EnableDo)
@@ -849,9 +965,9 @@ namespace Plugins::Message
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/setmsg", L"", UserCmd_SetMsg, L""),
-	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L""),
-	    CreateUserCommand(L"/0", L"", UserCmd_SMsg0, L""),
+	    CreateUserCommand(L"/setmsg", L"<n> <msg text>", UserCmd_SetMsg, L"Sets a preset message."),
+	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L"Show your preset messages."),
+	    CreateUserCommand(L"/0", L"", UserCmd_SMsg0, L"Send preset message from slot 0."),
 	    CreateUserCommand(L"/1", L"", UserCmd_SMsg1, L""),
 	    CreateUserCommand(L"/2", L"", UserCmd_SMsg2, L""),
 	    CreateUserCommand(L"/3", L"", UserCmd_SMsg3, L""),
@@ -861,7 +977,7 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/7", L"", UserCmd_SMsg7, L""),
 	    CreateUserCommand(L"/8", L"", UserCmd_SMsg8, L""),
 	    CreateUserCommand(L"/9", L"", UserCmd_SMsg9, L""),
-	    CreateUserCommand(L"/l0", L"", UserCmd_LMsg0, L""),
+	    CreateUserCommand(L"/l0", L"", UserCmd_LMsg0, L"Send preset message to local chat from slot 0."),
 	    CreateUserCommand(L"/l1", L"", UserCmd_LMsg1, L""),
 	    CreateUserCommand(L"/l2", L"", UserCmd_LMsg2, L""),
 	    CreateUserCommand(L"/l3", L"", UserCmd_LMsg3, L""),
@@ -871,7 +987,7 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/l7", L"", UserCmd_LMsg7, L""),
 	    CreateUserCommand(L"/l8", L"", UserCmd_LMsg8, L""),
 	    CreateUserCommand(L"/l9", L"", UserCmd_LMsg9, L""),
-	    CreateUserCommand(L"/g0", L"", UserCmd_GMsg0, L""),
+	    CreateUserCommand(L"/g0", L"", UserCmd_GMsg0, L"Send preset message to group chat from slot 0."),
 	    CreateUserCommand(L"/g1", L"", UserCmd_GMsg1, L""),
 	    CreateUserCommand(L"/g2", L"", UserCmd_GMsg2, L""),
 	    CreateUserCommand(L"/g3", L"", UserCmd_GMsg3, L""),
@@ -881,7 +997,7 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/g7", L"", UserCmd_GMsg7, L""),
 	    CreateUserCommand(L"/g8", L"", UserCmd_GMsg8, L""),
 	    CreateUserCommand(L"/g9", L"", UserCmd_GMsg9, L""),
-	    CreateUserCommand(L"/t0", L"", UserCmd_TMsg0, L""),
+	    CreateUserCommand(L"/t0", L"", UserCmd_TMsg0, L"Send preset message to last target from slot 0."),
 	    CreateUserCommand(L"/t1", L"", UserCmd_TMsg1, L""),
 	    CreateUserCommand(L"/t2", L"", UserCmd_TMsg2, L""),
 	    CreateUserCommand(L"/t3", L"", UserCmd_TMsg3, L""),
@@ -891,40 +1007,36 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/t7", L"", UserCmd_TMsg7, L""),
 	    CreateUserCommand(L"/t8", L"", UserCmd_TMsg8, L""),
 	    CreateUserCommand(L"/t9", L"", UserCmd_TMsg9, L""),
-	    CreateUserCommand(L"/target", L"", UserCmd_SendToLastTarget, L""),
-	    CreateUserCommand(L"/t", L"", UserCmd_SendToLastTarget, L""),
-	    CreateUserCommand(L"/reply", L"", UserCmd_ReplyToLastPMSender, L""),
-	    CreateUserCommand(L"/r", L"", UserCmd_ReplyToLastPMSender, L""),
-	    CreateUserCommand(L"/privatemsg$", L"", UserCmd_PrivateMsgID, L""),
-	    CreateUserCommand(L"/pm$", L"", UserCmd_PrivateMsgID, L""),
-	    CreateUserCommand(L"/privatemsg", L"", UserCmd_PrivateMsg, L""),
-	    CreateUserCommand(L"/pm", L"", UserCmd_PrivateMsg, L""),
-	    CreateUserCommand(L"/factionmsg", L"", UserCmd_FactionMsg, L""),
-	    CreateUserCommand(L"/fm", L"", UserCmd_FactionMsg, L""),
-	    CreateUserCommand(L"/factioninvite", L"", UserCmd_FactionInvite, L""),
-	    CreateUserCommand(L"/fi", L"", UserCmd_FactionInvite, L""),
-	    CreateUserCommand(L"/lastpm", L"", UserCmd_ShowLastPMSender, L""),
-	    CreateUserCommand(L"/set chattime", L"", UserCmd_SetChatTime, L""),
-	    CreateUserCommand(L"/me", L"", UserCmd_Me, L""),
-	    CreateUserCommand(L"/do", L"", UserCmd_Do, L""),
-	    CreateUserCommand(L"/time", L"", UserCmd_Time, L""),
+	    CreateUserCommand(L"/target", L"<message>", UserCmd_SendToLastTarget, L"Send a message to previous/current target."),
+	    CreateUserCommand(L"/t", L"<message>", UserCmd_SendToLastTarget, L"Shortcut for /target."),
+	    CreateUserCommand(L"/reply", L"<message>", UserCmd_ReplyToLastPMSender, L"Send a message to the last person to PM you."),
+	    CreateUserCommand(L"/r", L"<message>", UserCmd_ReplyToLastPMSender, L"Shortcut for /reply."),
+	    CreateUserCommand(L"/privatemsg$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Send private message to the specified client id."),
+	    CreateUserCommand(L"/pm$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Shortcut for /privatemsg$."),
+	    CreateUserCommand(L"/privatemsg", L"<charname> <message>", UserCmd_PrivateMsg, L"Send private message to the specified character name."),
+	    CreateUserCommand(L"/pm", L"<charname> <message>", UserCmd_PrivateMsg, L"Shortcut for /privatemsg."),
+	    CreateUserCommand(L"/factionmsg", L"<tag> <message>", UserCmd_FactionMsg, L"Send a message to the specified faction tag."),
+	    CreateUserCommand(L"/fm", L"<tag> <message>", UserCmd_FactionMsg, L"Shortcut for /factionmsg."),
+	    CreateUserCommand(L"/factioninvite", L"<name>", UserCmd_FactionInvite, L"Send a group invite to online members of the specified tag."),
+	    CreateUserCommand(L"/fi", L"<name>", UserCmd_FactionInvite, L"Shortcut for /factioninvite."),
+	    CreateUserCommand(L"/lastpm", L"", UserCmd_ShowLastPMSender, L"Shows the send of the last PM received."),
+	    CreateUserCommand(L"/set chattime", L"<on|off>", UserCmd_SetChatTime, L"Enable time stamps on chat."),
+	    CreateUserCommand(L"/me", L"<message>", UserCmd_Me, L"Prints your name plus other text to system. Eg, /me thinks would say Bob thinks in system chat."),
+	    CreateUserCommand(L"/do", L"<message>", UserCmd_Do, L"Prints red text to system chat."),
+	    CreateUserCommand(L"/time", L"", UserCmd_Time, L"Prints the current server time."),
 	}};
 
 } // namespace Plugins::Message
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 using namespace Plugins::Message;
 REFL_AUTO(type(Config), field(GreetingBannerLines), field(SpecialBannerLines), field(StandardBannerLines), field(SpecialBannerTimeout),
-    field(StandardBannerTimeout), field(CustomHelp), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe),
-    field(EnableDo), field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
+    field(StandardBannerTimeout), field(CustomHelp), field(SuppressMistypedCommands), field(EnableSetMessage), field(EnableMe), field(EnableDo),
+    field(DisconnectSwearingInSpaceMsg), field(DisconnectSwearingInSpaceRange), field(SwearWords))
 
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Message");
 	pi->shortName("message");
