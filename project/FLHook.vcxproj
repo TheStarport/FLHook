@@ -117,7 +117,7 @@
 			</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat
+      <Command>$(SolutionDir)..\vcpkg\bootstrap-vcpkg.bat
 $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
