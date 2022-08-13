@@ -46,6 +46,8 @@
 #include <random>
 #include <sstream>
 
+constexpr long long SecondsInADay = 86400;
+
 // Setup Doxygen Group
 
 /** @defgroup CashManager Cash Manager */
@@ -113,6 +115,17 @@ namespace Plugins::CashManager
 				auto accId = entry.path().filename().wstring();
 				bank.flAccountId = accId;
 				global->banks[accId] = std::make_shared<Bank>(bank);
+				if (global->config->eraseTransactionsAfterDaysPassed > 0)
+				{
+					const long long currentTime = std::chrono::seconds(std::time(nullptr)).count();
+					auto transaction = &global->banks[accId]->transactions;
+					transaction->erase(std::remove_if(transaction->begin(),
+					                       transaction->end(),
+					                       [currentTime](const Transaction& t) {
+						                       return currentTime - t.lastAccessedUnix > (global->config->eraseTransactionsAfterDaysPassed * SecondsInADay);
+					                       }),
+					    transaction->end());
+				}
 			}
 			else
 			{
@@ -368,11 +381,27 @@ namespace Plugins::CashManager
 
 	void UserCommandHandler(const ClientId& clientId, const std::wstring_view& param)
 	{
+		// Checks before we handle any sort of command or process.
 		int secs;
 		HkGetOnlineTime(HkGetCharacterNameById(clientId), secs);
 		if (secs < global->config->minimumTime / 60)
 		{
 			PrintUserCmdText(clientId, L"Error: You cannot interact with the bank. This character is too new.");
+			return;
+		}
+		if (ClientInfo[clientId].iTradePartner)
+		{
+			PrintUserCmdText(clientId, L"Error: You are currently in a trade.");
+			return;
+		}
+
+		uint currentSystem;
+		HkGetSystem(clientId, currentSystem);
+
+		if (const auto blockedSystems = &global->config->blockedSystemsHashed;
+		    std::find(blockedSystems->begin(), blockedSystems->end(), currentSystem) != blockedSystems->end())
+		{
+			PrintUserCmdText(clientId, L"Error: You are in a blocked system, you are unable to access the bank.");
 			return;
 		}
 
@@ -512,7 +541,14 @@ namespace Plugins::CashManager
 			return false;
 
 		float currentValue;
-		HkFunc(HKGetShipValue, clientId, currentValue);
+		{
+			if (HK_ERROR err; (err = HKGetShipValue(clientId, currentValue)) != HKE_OK)
+			{
+				std::wstring errorString = HkErrGetText(err);
+				PrintUserCmdText(clientId, L"ERR:" + errorString);
+				return false;
+			}
+		};
 
 		if (global->config->cashThreshold < static_cast<int>(currentValue))
 		{
@@ -523,15 +559,14 @@ namespace Plugins::CashManager
 		return false;
 	}
 
-	bool ReqAddItem(const uint& goodID [[maybe_unused]], char const* hardpoint [[maybe_unused]], const int& count [[maybe_unused]], const float& status [[maybe_unused]],
-	    const bool& mounted [[maybe_unused]], const uint& clientId)
+	bool ReqAddItem(const uint& goodID [[maybe_unused]], char const* hardpoint [[maybe_unused]], const int& count [[maybe_unused]],
+	    const float& status [[maybe_unused]], const bool& mounted [[maybe_unused]], const uint& clientId)
 	{
 		// First value is dummy garbage
 		return ShouldSuppressBuy(&goodID, clientId);
 	}
 
 	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
-
 
 } // namespace Plugins::CashManager
 
