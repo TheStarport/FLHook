@@ -1,11 +1,48 @@
 ﻿/**
- Event Plugin for FLHook-Plugin
- by Cannon.
+ * @date June, 2022
+ * @author Cannon (Ported by Raikkonen)
+ * @defgroup Event Event
+ * @brief
+ * This plugin is used to create NPC and Cargo missions. For example, a base needs to be sold a certain amount of a commodity.
+ *
+ * @paragraph cmds Player Commands
+ * There are no player commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "CargoMissions": {
+ *         "Example Nickname": {
+ *             "base": "li01_01_base",
+ *             "current_amount": 0,
+ *             "item": "commodity_gold",
+ *             "nickname": "Example",
+ *             "required_amount": 99
+ *         }
+ *     },
+ *     "NpcMissions": {
+ *         "Example Nickname": {
+ *             "current_amount": 0,
+ *             "nickname": "Example",
+ *             "reputation": "li_n_grp",
+ *             "required_amount": 99,
+ *             "sector": "D1",
+ *             "system": "li01"
+ *         }
+ *     }
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
-June 2022 - Ported by Raikkonen
-*/
-
-// includes
 #include "Main.h"
 
 namespace Plugins::Event
@@ -21,7 +58,7 @@ namespace Plugins::Event
 		
 		for (auto& cargo : config.CargoMissions)
 		{
-			if (cargo.first == "Example Nickname")
+			if (cargo.first == "Example")
 				continue;
 
 			CARGO_MISSION cargo_mission;
@@ -35,7 +72,7 @@ namespace Plugins::Event
 
 		for (auto& mission : config.NpcMissions)
 		{
-			if (mission.first == "Example Nickname")
+			if (mission.first == "Example")
 				continue;
 
 			NPC_MISSION npc_mission;
@@ -54,7 +91,9 @@ namespace Plugins::Event
 		Console::ConInfo(L"NpcMissionSettings loaded [%d]", global->NpcMissions.size());
 	}
 
-	// Save mission status every 100 seconds
+	/** @ingroup Event
+	 * @brief Save mission status every 100 seconds.
+	 */
 	void HkTimerCheckKick()
 	{
 		if ((time(0) % 100) == 0)
@@ -92,6 +131,9 @@ namespace Plugins::Event
 		}
 	}
 
+	/** @ingroup Event
+	 * @brief Hook on ShipDestroyed to see if an NPC mission needs to be updated.
+	 */
 	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
@@ -123,6 +165,9 @@ namespace Plugins::Event
 		}
 	}
 
+	/** @ingroup Event
+	 * @brief Hook on GFGoodBuy to see if a cargo mission needs to be updated.
+	 */
 	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
 	{
 		uint Base;
@@ -139,6 +184,9 @@ namespace Plugins::Event
 		}
 	}
 
+	/** @ingroup Event
+	 * @brief Hook on GFGoodSell to see if a cargo mission needs to be updated.
+	 */
 	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
 	{
 		uint Base;

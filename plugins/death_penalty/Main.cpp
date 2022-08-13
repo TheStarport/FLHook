@@ -1,11 +1,34 @@
-// Death Penalty Plugin
-// Ported from 88Flak by Raikkonen
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date August, 2022
+ * @author Ported from 88Flak by Raikkonen
+ * @defgroup DeathPenalty Death Penalty
+ * @brief
+ * This plugin charges players credits for dying based on their ship worth. If the killer was a player it also rewards them.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - dp - Shows the credits you would be charged if you died.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "DeathPenaltyFraction": 1.0,
+ *     "DeathPenaltyFractionKiller": 1.0,
+ *     "ExcludedSystems": ["li01"],
+ *     "FractionOverridesByShip": {{"ge_fighter",1.0}}
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
-// Includes
 #include "Main.h"
 
 namespace Plugins::DeathPenalty
@@ -27,7 +50,9 @@ namespace Plugins::DeathPenalty
 
 	void ClearClientInfo(uint& iClientID) { global->MapClients.erase(iClientID); }
 
-	// Is the player is a system that is excluded from death penalty?
+	/** @ingroup DeathPenalty
+	 * @brief Is the player is a system that is excluded from death penalty?
+	 */
 	bool bExcludedSystem(uint iClientID)
 	{
 		// Get System ID
@@ -37,9 +62,12 @@ namespace Plugins::DeathPenalty
 		return (std::find(global->ExcludedSystemsIds.begin(), global->ExcludedSystemsIds.end(), iSystemID) != global->ExcludedSystemsIds.end());
 	}
 
-	// This returns the override for the specific ship as defined in the cfg file.
-	// If there is not override it returns the default value defined as
-	// "DeathPenaltyFraction" in the cfg file
+	
+	/** @ingroup DeathPenalty
+	 * @brief This returns the override for the specific ship as defined in the json file.
+	 * If there is not override it returns the default value defined as
+	 * "DeathPenaltyFraction" in the json file
+	 */
 	float fShipFractionOverride(uint iClientID)
 	{
 		// Get ShipArchID
@@ -56,8 +84,9 @@ namespace Plugins::DeathPenalty
 		return fOverrideValue;
 	}
 
-	// Hook on Player Launch. Used to work out the death penalty and display a
-	// message to the player warning them of such
+	/** @ingroup DeathPenalty
+	 * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
+	 */
 	void __stdcall PlayerLaunch(uint& iShip, uint& iClientID)
 	{
 		// No point in processing anything if there is no death penalty
@@ -91,6 +120,9 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
+	/** @ingroup DeathPenalty
+	 * @brief Load settings directly from the player's save directory
+	 */
 	void LoadUserCharSettings(uint& iClientID)
 	{
 		// Get Account directory then flhookuser.ini file
@@ -111,7 +143,9 @@ namespace Plugins::DeathPenalty
 		global->MapClients[iClientID] = c;
 	}
 
-	// Function that will apply the death penalty on a player death
+	/** @ingroup DeathPenalty
+	 * @brief Apply the death penalty on a player death
+	 */
 	void HkPenalizeDeath(uint iClientID, uint iKillerID)
 	{
 		if (global->config->DeathPenaltyFraction < 0.00001f)
@@ -154,7 +188,9 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
-	// Hook on ShipDestroyed
+	/** @ingroup DeathPenalty
+	 * @brief Hook on ShipDestroyed to kick off HkPenalizeDeath
+	 */
 	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
@@ -177,8 +213,9 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
-	// This will save whether the player wants to receieve the /dp notice or not to
-	// the flhookuser.ini file
+	/** @ingroup DeathPenalty
+	 * @brief This will save whether the player wants to receieve the /dp notice or not to the flhookuser.ini file
+	 */
 	void SaveDPNoticeToCharFile(uint iClientID, std::string value)
 	{
 		std::wstring wscDir, wscFilename;
@@ -191,11 +228,9 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMANDS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// /dp command. Shows information about death penalty
+	/** @ingroup DeathPenalty
+	 * @brief /dp command. Shows information about death penalty
+	 */
 	void UserCmd_DP(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// If there is no death penalty, no point in having death penalty commands
@@ -248,19 +283,12 @@ namespace Plugins::DeathPenalty
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMAND PROCESSING
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/dp", L"", UserCmd_DP, L""),
+	    CreateUserCommand(L"/dp", L"", UserCmd_DP, L"Shows the credits you would be charged if you died."),
 	}};
 } // namespace Plugins::DeathPenalty
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::DeathPenalty;
 
 REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionKiller), field(ExcludedSystems), field(FractionOverridesByShip))
@@ -270,7 +298,7 @@ DefaultDllMainSettings(LoadSettings)
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Death Penalty Plugin");
+	pi->name("Death Penalty");
 	pi->shortName("death_penalty");
 	pi->mayUnload(true);
 	pi->commands(commands);

@@ -1,59 +1,39 @@
-﻿// Arena Plugin by MadHunter
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+﻿/**
+ * @date August, 2022
+ * @author MadHunter (Ported by Raikkonen 2022)
+ * @defgroup Arena Arena
+ * @brief
+ * This plugin is used to beam players to/from an arena system for the purpose of pvp.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - arena (configurable) - This beams the player to the pvp system.
+ * - return - This returns the player to their last docked base.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "command": "arena",
+ *     "restrictedSystem": "Li01",
+ *     "targetBase": "Li02_01_Base",
+ *     "targetSystem": "Li02"
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin uses the "Base" plugin.
+ */
 
-// Includes
-
-#include "../base_plugin/Main.h"
-
-#include <FLHook.hpp>
-#include <plugin.h>
+#include "Main.h"
 
 namespace Plugins::Arena
 {
-	
-
-	enum class ClientState
-	{
-		None,
-		Transfer,
-		Return
-	};
-
-	
-
-	const std::wstring StrInfo1 = L"Please dock at nearest base";
-	const std::wstring StrInfo2 = L"Cargo hold is not empty";
-
-	struct Config final : Reflectable
-	{
-		std::string File() override { return "flhook_plugins/arena.json"; }
-
-		// Reflectable fields
-		std::string command = "arena";
-		std::string targetBase;
-		std::string targetSystem;
-		std::string restrictedSystem;
-
-		// Non-reflectable fields
-		uint targetBaseId;
-		uint targetSystemId;
-		uint restrictedSystemId;
-		std::wstring wscCommand;
-	};
-
-	struct Global
-	{
-		std::array<ClientState, MaxClientId + 1> transferFlags;
-		BaseCommunicator* baseCommunicator = nullptr;
-		ReturnCode returnCode = ReturnCode::Default;
-		std::unique_ptr<Config> config = nullptr;
-	};
-
 	const auto global = std::make_unique<Global>();
 
 	/// Clear client info when a client connects.
@@ -61,8 +41,6 @@ namespace Plugins::Arena
 	{
 		global->transferFlags[iClientID] = ClientState::None;
 	}
-
-	
 
 	// Client command processing
 	void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam);
@@ -88,6 +66,9 @@ namespace Plugins::Arena
 		global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
 
+	/** @ingroup Arena
+	 * @brief Returns true if the client is docked, returns false otherwise.
+	 */
 	bool IsDockedClient(unsigned int client)
 	{
 		unsigned int base = 0;
@@ -98,6 +79,9 @@ namespace Plugins::Arena
 		return false;
 	}
 
+	/** @ingroup Arena
+	 * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade shortcut.
+	 */
 	bool ValidateCargo(unsigned int client)
 	{
 		std::wstring playerName = HkGetCharacterNameById(client);
@@ -121,6 +105,9 @@ namespace Plugins::Arena
 		return true;
 	}
 
+	/** @ingroup Arena
+	 * @brief Stores the return point for the client in their save file (this should be changed).
+	 */
 	void StoreReturnPointForClient(unsigned int client)
 	{
 		// It's not docked at a custom base, check for a regular base
@@ -137,8 +124,14 @@ namespace Plugins::Arena
 		HkSetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
 	}
 
+	/** @ingroup Arena
+	 * @brief This returns the return base id that is stored in the client's save file.
+	 */
 	unsigned int ReadReturnPointForClient(unsigned int client) { return HkGetCharacterIniUint(client, L"conn.retbase"); }
 
+	/** @ingroup Arena
+	 * @brief Move the specified client to the specified base.
+	 */
 	void MoveClient(unsigned int client, unsigned int targetBase)
 	{
 		// Ask that another plugin handle the beam.
@@ -166,6 +159,9 @@ namespace Plugins::Arena
 		}
 	}
 
+	/** @ingroup Arena
+	 * @brief Checks the client is in the specified base. Returns true is so, returns false otherwise.
+	 */
 	bool CheckReturnDock(unsigned int client, unsigned int target)
 	{
 		unsigned int base = 0;
@@ -177,8 +173,14 @@ namespace Plugins::Arena
 		return false;
 	}
 
+	/** @ingroup Arena
+	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
+	 */
 	void __stdcall CharacterSelect(std::string& szCharFilename, uint& client) { global->transferFlags[client] = ClientState::None; }
 
+	/** @ingroup Arena
+	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
+	 */
 	void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client)
 	{
 		if (global->transferFlags[client] == ClientState::Transfer)
@@ -218,6 +220,9 @@ namespace Plugins::Arena
 	// USER COMMANDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/** @ingroup Arena
+	 * @brief Used to switch to the arena system
+	 */
 	void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		// Prohibit jump if in a restricted system or in the target system
@@ -247,6 +252,9 @@ namespace Plugins::Arena
 		global->transferFlags[iClientID] = ClientState::Transfer;
 	}
 
+	/** @ingroup Arena
+	 * @brief Used to return from the arena system.
+	 */
 	void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!ReadReturnPointForClient(iClientID))

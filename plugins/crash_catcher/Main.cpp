@@ -1,18 +1,35 @@
-// Player Control plugin for FLHookPlugin
-// Feb 2010 by Cannon
-// Ported 2022 by Laz
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb, 2010
+ * @author Cannon (Ported by Laz 2022)
+ * @defgroup CrashCatcher Crash Catcher
+ * @brief
+ * This plugin is used to catch and handle known crashes in FLServer
+ *
+ * @paragraph cmds Player Commands
+ * There are no player commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
-// Includes
 #include "Main.h"
 
 namespace Plugins::CrashCatcher
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
+	/** @ingroup CrashCatcher
+	 * @brief Need to use our own logging functions since the nature of this plugin isn't compatible with FLHook's standard logging functionality.
+	 */
 	void AddLogInternal(const char* szString, ...)
 	{
 		char szBufString[1024];
@@ -39,7 +56,9 @@ namespace Plugins::CrashCatcher
 		fclose(log);
 	}
 
-	// Save after a tractor to prevent cargo duplication loss on crash
+	/** @ingroup CrashCatcher
+	 * @brief Save after a tractor to prevent cargo duplication loss on crash
+	 */
 	void __stdcall TractorObjects(uint& iClientID, struct XTractorObjects const& objs)
 	{
 		if (global->mapSaveTimes[iClientID] == 0)
@@ -48,7 +67,9 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	// Save after jettison to reduce chance of duplication on crash
+	/** @ingroup CrashCatcher
+	 * @brief Save after jettison to reduce chance of duplication on crash
+	 */
 	void __stdcall JettisonCargo(uint& iClientID, struct XJettisonCargo const& objs)
 	{
 		if (global->mapSaveTimes[iClientID] == 0)
@@ -57,7 +78,9 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	// Action the save times recorded in the above two functions
+	/** @ingroup CrashCatcher
+	 * @brief Action the save times recorded in the above two functions
+	 */
 	void OneSecondTimer()
 	{
 		mstime currTime = GetTimeInMS();
@@ -73,7 +96,9 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	/** Originally in Main.cpp of PlayerControl */
+	/** @ingroup CrashCatcher
+	 * @brief Originally in Main.cpp of PlayerControl
+	 */
 	void __stdcall RequestBestPath(unsigned int p1, DWORD* p2, int p3)
 	{
 		global->returncode = ReturnCode::SkipFunctionCall;
@@ -90,8 +115,10 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	/** GetRoot hook to stop crashes at engbase.dll offset 0x000124bd */
 	static FARPROC fpOldGetRootProc = 0;
+	/** @ingroup CrashCatcher
+	 * @brief GetRoot hook to stop crashes at engbase.dll offset 0x000124bd
+	 */
 	struct CObject* __cdecl HkCb_GetRoot(struct CObject* child)
 	{
 		try
@@ -106,9 +133,10 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	// This crash will happen if you have broken path finding or more than 10
-	// connections per system.
 	static FARPROC fpCrashProc1b221Old = 0;
+	/** @ingroup CrashCatcher
+	 * @brief This crash will happen if you have broken path finding or more than 10 connections per system.
+	 */
 	int __cdecl HkCb_CrashProc1b221(unsigned int const& system, struct pub::System::ConnectionEnumerator& conn, int type)
 	{
 		__try
@@ -370,7 +398,9 @@ will_crash:
 		return seconds;
 	}
 
-	// Load configuration file
+	/** @ingroup CrashCatcher
+	 * @brief Install hooks
+	 */
 	void Init()
 	{
 		try
@@ -504,6 +534,9 @@ will_crash:
 		}
 	}
 
+	/** @ingroup CrashCatcher
+	 * @brief Uninstall hooks
+	 */
 	void Shutdown()
 	{
 		if (global->bPatchInstalled)

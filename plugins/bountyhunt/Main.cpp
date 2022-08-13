@@ -1,6 +1,32 @@
-// BountyHunt Plugin
-// Originally by ||KOS||Acid
-// Modified by Raikkonen
+/**
+ * @date Unknown
+ * @author ||KOS||Acid (Ported by Raikkonen 2022)
+ * @defgroup BountyHunt Bounty Hunt
+ * @brief
+ * The "Bounty Hunt" plugin allows players to put bounties on each other that can be collected by destroying that player.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
+ * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "enableBountyHunt": true,
+ *     "levelProtect": 0
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * None
+ */
 
 #include "Main.h"
 
@@ -8,6 +34,9 @@ namespace Plugins::BountyHunt
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
+	/** @ingroup BountyHunt
+	 * @brief Removed an active bounty hunt
+	 */
 	void RemoveBountyHunt(const BountyHunt& bounty)
 	{
 		auto it = global->bountyHunt.begin();
@@ -24,6 +53,9 @@ namespace Plugins::BountyHunt
 		}
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief Print all the active bounty hunts to the player
+	 */
 	void PrintBountyHunts(uint clientId)
 	{
 		if (global->bountyHunt.begin() != global->bountyHunt.end())
@@ -41,6 +73,9 @@ namespace Plugins::BountyHunt
 		}
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
+	 */
 	void UserCmdBountyHunt(const uint& clientId, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableBountyHunt)
@@ -114,6 +149,9 @@ namespace Plugins::BountyHunt
 		    L" minutes.");
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief User Command for /bountyhuntid. Creates a bounty against a specified player.
+	 */
 	void UserCmdBountyHuntId(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableBountyHunt)
@@ -141,6 +179,9 @@ namespace Plugins::BountyHunt
 		UserCmdBountyHunt(iClientID, paramNew);
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief Checks for expired bounties.
+	 */
 	void BhTimeOutCheck()
 	{
 		for (auto& bounty : global->bountyHunt)
@@ -156,6 +197,9 @@ namespace Plugins::BountyHunt
 		}
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief Processes a ship death to see if it was part of a bounty.
+	 */
 	void BhKillCheck(uint clientId, uint killerId)
 	{
 		for (auto& bounty : global->bountyHunt)
@@ -196,6 +240,9 @@ namespace Plugins::BountyHunt
 	    {BhTimeOutCheck, 2017, 0},
 	};
 
+	/** @ingroup BountyHunt
+	 * @brief Calls our BhTimeOutCheck timer.
+	 */
 	int __stdcall Update()
 	{
 		for (uint i = 0; (i < sizeof(Timers) / sizeof(Timer)); i++)
@@ -209,6 +256,9 @@ namespace Plugins::BountyHunt
 		return 0;
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief Hook for SendDeathMsg to call BhKillCheck
+	 */
 	void SendDeathMsg(const std::wstring& wscMsg, uint& iSystemID, uint& iClientIDVictim, uint& iClientIDKiller)
 	{
 		if (global->config->enableBountyHunt)
@@ -217,6 +267,9 @@ namespace Plugins::BountyHunt
 		}
 	}
 
+	/** @ingroup BountyHunt
+	 * @brief Hook for Disconnect to see if the player had a bounty on them
+	 */
 	void __stdcall DisConnect(uint& iClientID, enum EFLConnection& state)
 	{
 		for (auto& it : global->bountyHunt)
@@ -233,15 +286,9 @@ namespace Plugins::BountyHunt
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/bountyhunt", L"", UserCmdBountyHunt, L""),
-	    CreateUserCommand(L"/bountyhuntid", L"", UserCmdBountyHuntId, L""),
+	    CreateUserCommand(L"/bountyhunt", L"<charname> <credits> [minutes]", UserCmdBountyHunt, L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
+	    CreateUserCommand(L"/bountyhuntid", L"<id> <credits> [minutes]", UserCmdBountyHuntId, L"Same as above but with an id instead of a player name. Use /ids"),
 	}};
-
-	void UserCmdHelp(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/bountyhunt <charname> <credits> [<minutes>]");
-		PrintUserCmdText(iClientID, L"/bountyhuntid <id> <credits> [<minutes>]");
-	}
 
 	// Load Settings
 	void LoadSettings()

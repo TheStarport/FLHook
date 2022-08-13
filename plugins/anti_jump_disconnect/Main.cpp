@@ -1,11 +1,26 @@
-// Anti Jump Disconnect Plugin by Cannon
-// Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb 2010
+ * @author Cannon (Ported by Raikkonen 2022)
+ * @defgroup AntiJumpDisconnect Anti Jump Disconnect
+ * @brief
+ * The "Anti Jump Disconnect" plugin will kill a player if they disconnect during the jump animation.
+ * If tempban is loaded then they will also be banned for 5 minutes.
+ *
+ * @paragraph cmds Player Commands
+ * There are no player commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin uses the "Temp Ban" plugin.
+ */
 
 // Includes
 #include "Main.h"
@@ -21,6 +36,9 @@ namespace Plugins::AntiJumpDisconnect
 
 	void ClearClientInfo(uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
 
+	/** @ingroup AntiJumpDisconnect
+	 * @brief Kills and possibly bans the player. This depends on if the Temp Ban plugin is active.
+	 */
 	void KillBan(uint& iClientID)
 	{
 		if (global->mapInfo[iClientID].bInWrapGate)
@@ -34,12 +52,24 @@ namespace Plugins::AntiJumpDisconnect
 		}
 	}
 
+	/** @ingroup AntiJumpDisconnect
+	 * @brief Hook on Disconnect. Calls KillBan.
+	 */
 	void DisConnect(uint& iClientID, enum EFLConnection& state) { KillBan(iClientID); }
 
+	/** @ingroup AntiJumpDisconnect
+	 * @brief Hook on CharacterInfoReq (Character Select screen). Calls KillBan.
+	 */
 	void CharacterInfoReq(uint& iClientID, bool& p2) { KillBan(iClientID); }
 
+	/** @ingroup AntiJumpDisconnect
+	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
+	 */
 	void JumpInComplete(uint& iSystem, uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
 
+	/** @ingroup AntiJumpDisconnect
+	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
+	 */
 	void SystemSwitchOutComplete(uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = true; }
 } // namespace Plugins::AntiJumpDisconnect
 

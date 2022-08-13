@@ -1,4 +1,30 @@
-﻿// includes
+﻿/**
+ * @date August, 2022
+ * @author w0dk4
+ * @defgroup Condata Connection Data
+ * @brief
+ * This plugin is used to provide connection data e.g. ping
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - ping - This shows connection data to the player.
+ *
+ * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
+ * - getstats - Gets connection stats on all connected clients.
+ * - kick <character> - Kicks the specified character.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * - ReceiveData - See function documentation below
+ * - ReceiveException - See function documentation below
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin uses the "Tempban" plugin.
+ */
+
 #include "Main.h"
 
 #define PRINT_ERROR()                                                        \
@@ -10,15 +36,14 @@
 #define PRINT_OK()       PrintUserCmdText(iClientID, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
 
-/** @defgroup Condata Connection Data (plugin) */
-
 namespace Plugins::ConData
 {
 	constexpr int KickTimer = 10;
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief Clears our connection data for the specified client.
+	 */
 	void ClearConData(uint iClientID)
 	{
 		auto con = global->connections[iClientID];
@@ -40,13 +65,15 @@ namespace Plugins::ConData
 		con.sExceptionReason = "";
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief ClearClientInfo hook. Calls ClearConData().
+	 */
 	void ClearClientInfo(uint& iClientID) { ClearConData(iClientID); }
 
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief Hook on TimerCheckKick. Checks clients's connections against a threshold and kicks them if they are above it.
+	 */
 	void HkTimerCheckKick()
 	{
 		if (g_iServerLoad > global->config->kickThreshold)
@@ -141,12 +168,9 @@ namespace Plugins::ConData
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**************************************************************************************************************
-	Update average ping data
-	**************************************************************************************************************/
-
+	/** @ingroup Condata
+	 * @brief Update average ping data.
+	 */
 	void TimerUpdatePingData()
 	{
 		// for all players
@@ -196,10 +220,9 @@ namespace Plugins::ConData
 		}
 	}
 
-	/**************************************************************************************************************
-	Update average loss data
-	**************************************************************************************************************/
-
+	/** @ingroup Condata
+	 * @brief Update average loss data.
+	 */
 	void TimerUpdateLossData()
 	{
 		// for all players
@@ -258,6 +281,9 @@ namespace Plugins::ConData
 		}
 	}
 
+	/** @ingroup Condata
+	 * @brief If this is the first tick of the plugin being loaded, reset any connection data. Call any timers also.
+	 */
 	int __stdcall Update()
 	{
 		static bool bFirstTime = true;
@@ -291,12 +317,14 @@ namespace Plugins::ConData
 		          // it
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief Hook on PlayerLaunch. Sets tmLastObjUpdate to 0.
+	 */
 	void __stdcall PlayerLaunch(uint& iShip, uint& iClientID) { global->connections[iClientID].tmLastObjUpdate = 0; }
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
+	 */
 	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& iClientID)
 	{
 		// lag detection
@@ -344,8 +372,9 @@ namespace Plugins::ConData
 		con.tmLastObjTimestamp = tmTimestamp;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Condata
+	 * @brief Gets called when the player types /ping
+	 */
 	void UserCmdPing(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (!global->config->allowPing)
@@ -440,6 +469,9 @@ namespace Plugins::ConData
 	    CreateUserCommand(L"/ping", L"", UserCmdPing, L""),
 	}};
 
+	/** @ingroup Condata
+	 * @brief Receive Exception from inter-plugin communication.
+	 */
 	void ReceiveException(ConnectionDataException exc)
 	{
 		global->connections[exc.iClientID].bException = exc.bException;
@@ -448,6 +480,9 @@ namespace Plugins::ConData
 			ClearConData(exc.iClientID);
 	}
 
+	/** @ingroup Condata
+	 * @brief Receive Connection data from inter-plugin communication.
+	 */
 	void ReceiveConnectionData(ConnectionData cd)
 	{
 		cd.iAverageLoss = global->connections[cd.iClientID].iAverageLoss;
@@ -456,6 +491,9 @@ namespace Plugins::ConData
 		cd.iPingFluctuation = global->connections[cd.iClientID].iPingFluctuation;
 	}
 
+	/** @ingroup Condata
+	 * @brief Process admin commands.
+	 */
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
 	{
 		if (wscCmd == L"getstats")
@@ -508,6 +546,9 @@ namespace Plugins::ConData
 		return false;
 	}
 
+	/** @ingroup Condata
+	 * @brief Exposes functions for inter-plugin communication.
+	 */
 	ConDataCommunicator::ConDataCommunicator(std::string plug) : PluginCommunicator(plug)
 	{
 		this->ReceiveData = ReceiveData;
@@ -523,7 +564,8 @@ namespace Plugins::ConData
 		    {TimerUpdateLossData, LossInterval, 0},
 		};
 
-		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
+		global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(
+		    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 	}
 } // namespace Plugins::ConData
 

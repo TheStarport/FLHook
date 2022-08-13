@@ -28,11 +28,12 @@ namespace Plugins::CashManager
 	};
 
 	std::wstring GenerateAccountId();
+  
 	struct Config final : Reflectable
 	{
 		std::string File() override { return "flhook_plugins/cash_manager.json"; }
 
-		// The minimum transfer amount.
+		//! The minimum transfer amount.
 		int minimumTransfer = 0;
 		
 		// It is best to set this to a low enough value as to prevent players from
@@ -49,7 +50,7 @@ namespace Plugins::CashManager
 		std::vector<std::string> blockedSystems;
 		std::vector<uint> blockedSystemsHashed;
 
-		// Enable in dock cash cheat detection
+		//! Enable in dock cash cheat detection
 		bool cheatDetection = false;
 
 		// Prohibit transfers if the character has not been online for at least this time

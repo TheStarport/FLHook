@@ -1,9 +1,37 @@
-// LightControl plugin, adds functionality to changing the lights on player ships.
-//
-// Created by Canon
-//
-// Ported to 4.0 by Nen
-//
+/**
+ * @date Feb, 2010
+ * @author Cannon (Ported by Nen)
+ * @defgroup LightControl Light Control
+ * @brief
+ * Adds functionality to change the lights on player ships.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - lights show - Shows the current equipped lights.
+ * - lights options - Shows what lights you can equip.
+ * - lights change <Light Point> <Item> - Swap a light.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "bases": ["li01_01_base"],
+ *     "cost": 123,
+ *     "introMessage1": "Light customization facilities are available here.",
+ *     "introMessage2": "Type /lights on your console to see options.",
+ *     "lights": ["SmallWhite","LargeGreen"],
+ *     "notifyAvailabilityOnEnter": false
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 #include "Main.h"
 #include "refl.hpp"
 
@@ -40,6 +68,9 @@ namespace Plugins::LightControl
 		}
 	}
 
+	/** @ingroup LightControl
+	 * @brief Hook on BaseEnter. Shows availability messages if configured.
+	 */
 	void BaseEnter(const uint& baseId, const uint& clientId)
 	{
 		if (!global->config->notifyAvailabilityOnEnter)
@@ -59,6 +90,9 @@ namespace Plugins::LightControl
 			PrintUserCmdText(clientId, L"%s", global->config->introMessage2.c_str());
 	}
 
+	/** @ingroup LightControl
+	 * @brief Returns a baseId if in a valid base.
+	 */
 	uint IsInValidBase(const uint& clientId) 
 	{
 		uint baseId;
@@ -78,11 +112,9 @@ namespace Plugins::LightControl
 		return baseId;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMANDS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/// Show the setup of the player's ship.
+	/** @ingroup LightControl
+	 * @brief Show the setup of the player's ship.
+	 */
 	void UserCmdShowSetup(const uint& clientId)
 	{
 		PrintUserCmdText(clientId, L"Current light setup:");
@@ -103,6 +135,9 @@ namespace Plugins::LightControl
 		}
 	}
 
+	/** @ingroup LightControl
+	 * @brief Show the options available to the player.
+	 */
 	void UserCmdShowOptions(const uint& clientId)
 	{
 		for (const auto& light : global->config->lights)
@@ -112,7 +147,9 @@ namespace Plugins::LightControl
 		}
 	}
 
-	/// Change the item on the Slot ID to the specified item.
+	/** @ingroup LightControl
+	 * @brief Change the item on the Slot ID to the specified item.
+	 */
 	void UserCmdChangeItem(const uint& clientId, const std::wstring_view& param)
 	{
 		int cash;
@@ -160,6 +197,9 @@ namespace Plugins::LightControl
 		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
 
+	/** @ingroup LightControl
+	 * @brief Custom user command handler.
+	 */
 	void UserCommandHandler(const uint& clientId, const std::wstring_view& param) 
 	{
 		if (!IsInValidBase(clientId))
@@ -196,10 +236,6 @@ namespace Plugins::LightControl
 	    CreateUserCommand(L"/lights", L"",UserCommandHandler, L""),
 	}};
 } // namespace Plugins::LightControl
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::LightControl;
 

@@ -1,11 +1,28 @@
-// Mail Plugin - Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
-//
+/**
+ * @date Feb, 2010
+ * @author Cannon (Ported by Raikkonen)
+ * @defgroup Mail Mail
+ * @brief
+ * Plugin to handle the sending/receiving of mail.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - mail - Sends mail to a character.
+ * - maildel - Deletes the specified mail.
+ *
+ * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
+ * - mail - Sends mail to a character.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * - SendMail - Can use this to send mail to a character.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 
@@ -13,7 +30,9 @@ namespace Plugins::Mail
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/** Return the number of messages. */
+	/** @ingroup Mail
+	 * @brief Return the number of messages.
+	 */
 	int MailCount(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Get the target player's message file.
@@ -31,7 +50,9 @@ namespace Plugins::Mail
 		return iMsgs;
 	}
 
-	/** Show five messages from the specified starting position. */
+	/** @ingroup Mail
+	 * @brief Show five messages from the specified starting position.
+	 */
 	void MailShow(const std::wstring& wscCharname, const std::string& scExtension, int iFirstMsg)
 	{
 		// Make sure the character is logged in.
@@ -57,7 +78,9 @@ namespace Plugins::Mail
 		PrintUserCmdText(iClientID, L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
 	}
 
-	/** Return the number of unread messages. */
+	/** @ingroup Mail
+	 * @brief Return the number of unread messages.
+	 */
 	int MailCountUnread(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Get the target player's message file.
@@ -76,7 +99,9 @@ namespace Plugins::Mail
 		return iUnreadMsgs;
 	}
 
-	/** Check for new or unread messages. */
+	/** @ingroup Mail
+	 * @brief Check for new or unread messages. 
+	 */
 	void MailCheckLog(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Make sure the character is logged in.
@@ -97,10 +122,9 @@ namespace Plugins::Mail
 		}
 	}
 
-	/**
-	 Save a msg to disk so that we can inform the receiving character
-	 when they log in.
-	*/
+	/** @ingroup Mail
+	 * @brief Save a msg to disk so that we can inform the receiving character when they log in.
+	 */
 	bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scExtension, const std::wstring_view& wscMsg)
 	{
 		// Get the target player's message file.
@@ -132,9 +156,9 @@ namespace Plugins::Mail
 		return true;
 	}
 
-	/**
-	Delete a message
-	*/
+	/** @ingroup Mail
+	 * @brief Delete a message.
+	 */
 	bool MailDel(const std::wstring& wscCharname, const std::string& scExtension, int iMsg)
 	{
 		// Get the target player's message file.
@@ -155,15 +179,19 @@ namespace Plugins::Mail
 		return true;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Hooks
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Mail
+	 * @brief Hook on PlayerLaunch. Calls MailCheckLog.
+	 */
 	void PlayerLaunch(uint& iShip, uint& iClientID) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG); }
 
-	/// On base entry events and reload the msg cache for the client.
+	/** @ingroup Mail
+	 * @brief Hook on BaseEnter. Calls MailCheckLog.
+	 */
 	void BaseEnter(uint& iBaseID, uint& iClientID) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG); }
 
+	/** @ingroup Mail
+	 * @brief MailCommunicator for inter-plugin communication.
+	 */
 	MailCommunicator::MailCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
 	{ // NOLINT(clang-diagnostic-shadow-field)
 		this->SendMail = [](std::wstring character, std::wstring_view msg) {
@@ -171,11 +199,9 @@ namespace Plugins::Mail
 		};
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMANDS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/** Show Mail */
+	/** @ingroup Mail
+	 * @brief Called when the player types "/mail". 
+	 */
 	void UserCmd_MailShow(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		int iNumberUnreadMsgs = MailCountUnread((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
@@ -208,7 +234,9 @@ namespace Plugins::Mail
 		MailShow((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG, iFirstMsg);
 	}
 
-	/** Delete Mail */
+	/** @ingroup Mail
+	 * @brief Called when the player types "/maildel".
+	 */
 	void UserCmd_MailDel(const uint& iClientID, const std::wstring_view& wscParam)
 	{
 		if (wscParam.size() == 0)
@@ -234,23 +262,25 @@ namespace Plugins::Mail
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/mail", L"", UserCmd_MailShow, L""),
-	    CreateUserCommand(L"/maildel", L"", UserCmd_MailDel, L""),
+	    CreateUserCommand(L"/mail", L"{num}", UserCmd_MailShow, L"Shows any mail you have."),
+	    CreateUserCommand(L"/maildel", L"<msgnum>", UserCmd_MailDel, L"Deletes mail from your inbox."),
 	}};
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Admin commands
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/** @ingroup Mail
+	 * @brief Called when the admin types ".mail".
+	 */
 	void AdminCmd_SendMail(CCmds* cmds, const std::wstring& wscCharname, const std::wstring& wscMsg)
 	{
 		MailSend(wscCharname, global->MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
 		cmds->Print(L"OK message saved to mailbox");
 	}
 
+	/** @ingroup Mail
+	 * @brief Admin command processsing.
+	 */
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (wscCmd == L"move")
+		if (wscCmd == L"mail")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_SendMail(cmds, cmds->ArgStr(0), cmds->ArgStrToEnd(1));
@@ -259,10 +289,6 @@ namespace Plugins::Mail
 		return false;
 	}
 } // namespace Plugins::Mail
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::Mail;
 

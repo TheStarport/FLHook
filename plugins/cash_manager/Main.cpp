@@ -48,12 +48,11 @@
 
 // Setup Doxygen Group
 
-/** @defgroup CashManager Cash Manager (plugin) */
+/** @defgroup CashManager Cash Manager */
 
 namespace Plugins::CashManager
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
-
 	constexpr const char* jsonPath = R"(\AccountBank.json)";
 
 	void CreateAccountBank(const std::string& path, const std::wstring& accountId)
@@ -532,6 +531,7 @@ namespace Plugins::CashManager
 	}
 
 	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
+
 
 } // namespace Plugins::CashManager
 

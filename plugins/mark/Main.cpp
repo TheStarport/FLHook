@@ -1,6 +1,35 @@
-﻿// Mark Plugin
-// Originally by M0tah
-// https://sourceforge.net/projects/kosacid/files/
+﻿/**
+ * @date Unknown
+ * @author M0tah (Ported by Raikkonen)
+ * @defgroup Mark Mark
+ * @brief
+ * A plugin that allows players to mark objects for themselves or group
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - mark - Mark the selected object.
+ * - unmark - Unmark the selected object.
+ * - unmarkall - Unmark all objects.
+ * - groupmark - Mark an object for your group.
+ * - groupunmark - Unmark an object for your group.
+ * - ignoregroupmarks - Ignore any marks your group make.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "AutoMarkRadiusInM": 2000.0
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 
@@ -16,16 +45,21 @@ namespace Plugins::Mark
 		global->config = std::make_unique<Config>(config);
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void ClearClientMark(uint iClientID)
+	/** @ingroup Mark
+	 * @brief Clear the mark settings for the specified clientId
+	 */
+	void ClearClientMark(uint clientId)
 	{
-		global->Mark[iClientID].MarkEverything = false;
-		global->Mark[iClientID].MarkedObjects.clear();
-		global->Mark[iClientID].DelayedSystemMarkedObjects.clear();
-		global->Mark[iClientID].AutoMarkedObjects.clear();
-		global->Mark[iClientID].DelayedAutoMarkedObjects.clear();
+		global->Mark[clientId].MarkEverything = false;
+		global->Mark[clientId].MarkedObjects.clear();
+		global->Mark[clientId].DelayedSystemMarkedObjects.clear();
+		global->Mark[clientId].AutoMarkedObjects.clear();
+		global->Mark[clientId].DelayedAutoMarkedObjects.clear();
 	}
 
+	/** @ingroup Mark
+	 * @brief Hook on JumpInComplete. This marks objects in the new system (for example, a group member might have marked in when they were out of system).
+	 */
 	void JumpInComplete(uint& iSystemID, uint& iShip)
 	{
 		uint iClientID = HkGetClientIDByShip(iShip);
@@ -69,6 +103,9 @@ namespace Plugins::Mark
 		global->Mark[iClientID].MarkedObjects = vTempMark;
 	}
 
+	/** @ingroup Mark
+	 * @brief Hook on LaunchComplete. Sets all the objects in the system to be marked.
+	 */
 	void LaunchComplete(uint& iBaseID, uint& iShip)
 	{
 		uint iClientID = HkGetClientIDByShip(iShip);
@@ -90,12 +127,18 @@ namespace Plugins::Mark
 		}
 	}
 
+	/** @ingroup Mark
+	 * @brief Hook on BaseEnter. Clear marked objects.
+	 */
 	void BaseEnter(uint& iBaseID, uint& iClientID)
 	{
 		global->Mark[iClientID].AutoMarkedObjects.clear();
 		global->Mark[iClientID].DelayedAutoMarkedObjects.clear();
 	}
 
+	/** @ingroup Mark
+	 * @brief Hook on Update. Calls timers.
+	 */
 	int Update()
 	{
 		static bool bFirstTime = true;
@@ -118,8 +161,14 @@ namespace Plugins::Mark
 		return 0;
 	}
 
+	/** @ingroup Mark
+	 * @brief Hook on Disconnect. CallsClearClientMark.
+	 */
 	void DisConnect(uint& iClientID, enum EFLConnection& p2) { ClearClientMark(iClientID); }
 
+	/** @ingroup Mark
+	 * @brief Hook on LoadUserCharSettings. Loads the character's settings from the flhookuser.ini file.
+	 */
 	void LoadUserCharSettings(uint& iClientID)
 	{
 		CAccount* acc = Players.FindAccountFromClientID(iClientID);
@@ -135,45 +184,25 @@ namespace Plugins::Mark
 		global->Mark[iClientID].AutoMarkRadius = IniGetF(scUserFile, scSection, "automarkradius", global->config->AutoMarkRadiusInM);
 	}
 
-	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
-	{
-		PrintUserCmdText(iClientID, L"/mark /m ");
-		PrintUserCmdText(iClientID,
-		    L"Makes the selected object appear in the important section of the "
-		    L"contacts and have an arrow on the side of the screen, as well as "
-		    L"have "
-		    L"> and < on the sides of the selection box.");
-		PrintUserCmdText(iClientID, L"/unmark /um");
-		PrintUserCmdText(iClientID, L"Unmarks the selected object marked with the /mark (/m) command.");
-		PrintUserCmdText(iClientID, L"/groupmark /gm");
-		PrintUserCmdText(iClientID, L"Marks selected object for the entire group.");
-		PrintUserCmdText(iClientID, L"/groupunmark /gum");
-		PrintUserCmdText(iClientID, L"Unmarks the selected object for the entire group.");
-		PrintUserCmdText(iClientID, L"/ignoregroupmarks <on|off>");
-		PrintUserCmdText(iClientID, L"Ignores marks from others in your group.");
-		PrintUserCmdText(iClientID, L"/automark <on|off> [radius in KM]");
-		PrintUserCmdText(iClientID,
-		    L"Automatically marks all ships in KM radius.Bots are marked "
-		    L"automatically in the\n  range specified whether on or off. If you "
-		    L"want "
-		    L"to completely disable automarking, set the radius to a number <= 0.");
-	}
-
 	const std::vector commands = {{
-	    CreateUserCommand(L"/mark", L"", UserCmd_MarkObj, L""),
-	    CreateUserCommand(L"/m", L"", UserCmd_MarkObj, L""),
-	    CreateUserCommand(L"/unmark", L"", UserCmd_UnMarkObj, L""),
-	    CreateUserCommand(L"/um", L"", UserCmd_UnMarkObj, L""),
-	    CreateUserCommand(L"/unmarkall", L"", UserCmd_UnMarkAllObj, L""),
-	    CreateUserCommand(L"/uma", L"", UserCmd_UnMarkAllObj, L""),
-	    CreateUserCommand(L"/groupmark", L"", UserCmd_MarkObjGroup, L""),
-	    CreateUserCommand(L"/gm", L"", UserCmd_MarkObjGroup, L""),
-	    CreateUserCommand(L"/groupunmark", L"", UserCmd_UnMarkObjGroup, L""),
-	    CreateUserCommand(L"/gum", L"", UserCmd_UnMarkObjGroup, L""),
-	    CreateUserCommand(L"/ignoregroupmarks", L"", UserCmd_SetIgnoreGroupMark, L""),
-	    CreateUserCommand(L"/automark", L"", UserCmd_AutoMark, L""),
+	    CreateUserCommand(L"/mark", L"", UserCmd_MarkObj,
+	        L"Makes the selected object appear in the important section of the contacts and have an arrow on the side of the screen, as well as have > and < "
+	        L"on the sides of the selection box."),
+	    CreateUserCommand(L"/m", L"", UserCmd_MarkObj, L"Shortcut for /mark."),
+	    CreateUserCommand(L"/unmark", L"", UserCmd_UnMarkObj, L"Unmarks the selected object marked with the /mark (/m) command."),
+	    CreateUserCommand(L"/um", L"", UserCmd_UnMarkObj, L"Shortcut from /unmark."),
+	    CreateUserCommand(L"/unmarkall", L"", UserCmd_UnMarkAllObj, L"Unmarks all objects that have been marked."),
+	    CreateUserCommand(L"/uma", L"", UserCmd_UnMarkAllObj, L"Shortcut for /unmarkall."),
+	    CreateUserCommand(L"/groupmark", L"", UserCmd_MarkObjGroup, L"Marks selected object for the entire group."),
+	    CreateUserCommand(L"/gm", L"", UserCmd_MarkObjGroup, L"Shortcut for /groupmark."),
+	    CreateUserCommand(L"/groupunmark", L"", UserCmd_UnMarkObjGroup, L"Unmarks the selected object for the entire group."),
+	    CreateUserCommand(L"/gum", L"", UserCmd_UnMarkObjGroup, L"Shortcut for /groupunmark."),
+	    CreateUserCommand(L"/ignoregroupmarks", L"<on|off>", UserCmd_SetIgnoreGroupMark, L"Ignores marks from others in your group."),
+	    CreateUserCommand(L"/automark", L"<on|off> [radius in KM]", UserCmd_AutoMark,
+	        L"Automatically marks all ships in KM radius.Bots are marked automatically in the range specified whether on or off. If you want to completely "
+	        L"disable automarking, set the radius to a number <= 0."),
 	}};
-}
+} // namespace Plugins::Mark
 
 using namespace Plugins::Mark;
 
@@ -182,7 +211,7 @@ REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
 DefaultDllMainSettings(LoadSettings)
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Mark plugin");
 	pi->shortName("mark");

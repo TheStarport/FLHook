@@ -14,60 +14,60 @@ namespace Plugins::Cloak
 		STATE_CLOAK_ON = 3,
 	};
 
-	struct CLOAK_ARCH
+	struct CloakArch
 	{
 		std::string scNickName;
-		int iWarmupTime;
-		int iCooldownTime;
-		int iHoldSizeLimit;
-		std::map<uint, uint> mapFuelToUsage;
-		bool bDropShieldsOnUncloak;
+		int warmupTime;
+		int cooldownTime;
+		int holdSizeLimit;
+		std::map<uint, uint> fuelToUsage;
+		bool dropShieldsOnUncloak;
 	};
 
-	struct CLOAK_INFO
+	struct CloakInfo
 	{
-		CLOAK_INFO()
+		CloakInfo()
 		{
-			uint iCloakSlot = 0;
-			bCanCloak = false;
-			mstime tmCloakTime = 0;
-			uint iState = STATE_CLOAK_INVALID;
-			uint bAdmin = false;
-
-			arch.iWarmupTime = 0;
-			arch.iCooldownTime = 0;
-			arch.iHoldSizeLimit = 0;
-			arch.mapFuelToUsage.clear();
-			arch.bDropShieldsOnUncloak = false;
+			arch.warmupTime = 0;
+			arch.cooldownTime = 0;
+			arch.holdSizeLimit = 0;
+			arch.fuelToUsage.clear();
+			arch.dropShieldsOnUncloak = false;
 		}
 
-		uint iCloakSlot;
-		bool bCanCloak;
-		mstime tmCloakTime;
-		uint iState;
-		bool bAdmin;
-
-		CLOAK_ARCH arch;
+		uint cloakSlot = 0;
+		bool canCloak = false;
+		mstime cloakTime = 0;
+		uint state = STATE_CLOAK_INVALID;
+		bool admin = false;
+		CloakArch arch;
 	};
 
+	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
 		std::string File() override { return "flhook_plugins/cloak.json"; }
 
-		struct CLOAK_ARCH_REFLECTABLE : Reflectable
+		//! Struct to hold each cloaking device
+		struct CloakArch : Reflectable
 		{
-			int WarmupTime = 0;
-			int CooldownTime = 0;
-			int HoldSizeLimit = 0;
-			std::map<std::string, int> FuelToUsage = {{"SomeItem", 123}};
-			bool DropShieldsOnUncloak = false;
+			//! Warm up time of the device
+			int warmupTime = 0;
+			//! Cooldown time of the device
+			int cooldownTime = 0;
+			//! Cannot fit on ships with a larger hold size than this value
+			int holdSizeLimit = 0;
+			//! Fuel the cloak uses and how much
+			std::map<std::string, int> fuelToUsage = {{"commodity_prisoners", 1}};
+			//! Whether the shields should drop when the cloak is deactivated
+			bool dropShieldsOnUncloak = false;
 		};
 
-		CLOAK_ARCH_REFLECTABLE example;
+		CloakArch example;
 
 		// Reflectable fields
-		std::map<std::string, CLOAK_ARCH_REFLECTABLE> mapCloakingDevices = {{"example", example}};
-		bool DsAce = false;
+		std::map<std::string, CloakArch> cloakingDevices = {{"example", example}};
+		bool dsAce = false;
 	};
 
 	//! Global data for this plugin
@@ -78,10 +78,10 @@ namespace Plugins::Cloak
 		// Other fields
 		ReturnCode returncode = ReturnCode::Default;
 
-		std::map<uint, CLOAK_INFO> mapClientsCloak;
-		std::map<uint, CLOAK_ARCH> mapCloakingDevices;
-		std::wstring CloakingText = L" Cloaking";
-		std::wstring UncloakingText = L" Uncloaking";
+		std::map<uint, CloakInfo> clientCloakingInfo;
+		std::map<uint, CloakArch> cloakingDevices;
+		std::wstring cloakingText = L" Cloaking";
+		std::wstring uncloakingText = L" Uncloaking";
 	};
 }
 

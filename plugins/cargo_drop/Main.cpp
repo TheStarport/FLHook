@@ -1,11 +1,38 @@
-// Cargo Drop Plugin by Cannon
-// Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb 2010
+ * @author Cannon (Ported by Raikkonen 2022)
+ * @defgroup CargoDrop Cargo Drop
+ * @brief
+ * The "Cargo Drop" plugin handles consequences to a player who disconnects whilst in space.
+ *
+ * @paragraph cmds Player Commands
+ * There are no player commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *   "cargoDropContainer": "lootcrate_ast_loot_metal",
+ *   "disconnectMsg": "%player is attempting to engage cloaking device",
+ *   "disconnectingPlayersRange": 5000.0,
+ *   "hullDrop1NickName": "commodity_super_alloys",
+ *   "hullDrop2NickName": "commodity_engine_components",
+ *   "hullDropFactor": 0.1,
+ *   "killDisconnectingPlayers": true,
+ *   "lootDisconnectingPlayers": true,
+ *   "noLootItems": [],
+ *   "reportDisconnectingPlayers": true
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * None.
+ */
 
 // Includes
 #include "Main.h"
@@ -27,6 +54,9 @@ namespace Plugins::CargoDrop
 		global->config = std::make_unique<Config>(config);
 	}
 
+	/** @ingroup CargoDrop
+	 * @brief Timer that checks if a player has disconnected and punished them if so.
+	 */
 	void OneSecondTimer()
 	{
 		// Disconnecting while interacting checks.
@@ -108,8 +138,9 @@ namespace Plugins::CargoDrop
 		}
 	}
 
-	/// Hook for ship distruction. It's easier to hook this than the PlayerDeath
-	/// one. Drop a percentage of cargo + some loot representing ship bits.
+	/** @ingroup CargoDrop
+	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.
+	 */
 	void SendDeathMsg(const std::wstring& message, uint& system, uint& clientIDVictim, uint& clientIDKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
@@ -150,8 +181,14 @@ namespace Plugins::CargoDrop
 		}
 	}
 
+	/** @ingroup CargoDrop
+	 * @brief Clear our variables so that we can recycle clientIds without confusion.
+	 */
 	void ClearClientInfo(uint& clientId) { global->info.erase(clientId); }
 
+	/** @ingroup CargoDrop
+	 * @brief Hook on SPObjUpdate, used to get the timestamp from the player. Used to figure out if the player has disconnected in the timer.
+	 */
 	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& clientId)
 	{
 		global->info[clientId].lastTimestamp = ui.fTimestamp;
@@ -170,7 +207,7 @@ DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Cargo Drop Plugin by Cannon");
+	pi->name("Cargo Drop");
 	pi->shortName("cargo_drop");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);

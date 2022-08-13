@@ -2,8 +2,8 @@
 
 #include <FLHook.hpp>
 #include <plugin.h>
-#include "../mail_plugin/Main.h"
-#include "../tempban_plugin/Main.h"
+#include "../mail/Main.h"
+#include "../tempban/Main.h"
 
 namespace Plugins::Message
 {
@@ -45,10 +45,10 @@ namespace Plugins::Message
 		std::vector<std::wstring> GreetingBannerLines;
 
 		//! special banner text, on timer
-		std::list<std::wstring> SpecialBannerLines;
+		std::vector<std::wstring> SpecialBannerLines;
 
 		//! standard banner text, on timer
-		std::vector<std::vector<std::wstring>> StandardBannerLines;
+		std::vector<std::wstring> StandardBannerLines;
 
 		//! Time in second to repeat display of special banner
 		int SpecialBannerTimeout = 5;

@@ -31,19 +31,19 @@ namespace Plugins::Event
 
 		struct NPC_MISSION_REFLECTABLE : Reflectable
 		{
-			std::string nickname = "Example Nickname";
-			std::string system = "ExampleSystem";
-			std::string sector = "ExampleSector";
-			std::string reputation = "ExampleReputation";
+			std::string nickname = "Example";
+			std::string system = "li01";
+			std::string sector = "D1";
+			std::string reputation = "li_n_grp";
 			int required_amount = 99;
 			int current_amount = 0;
 		};
 
 		struct CARGO_MISSION_REFLECTABLE : Reflectable
 		{
-			std::string nickname = "Example Nickname";
-			std::string base = "ExampleBase";
-			std::string item = "ExampleItem";
+			std::string nickname = "Example";
+			std::string base = "li01_01_base";
+			std::string item = "commodity_gold";
 			int required_amount = 99;
 			int current_amount = 0;
 		};
@@ -52,8 +52,8 @@ namespace Plugins::Event
 		NPC_MISSION_REFLECTABLE example2;
 
 		// Reflectable fields
-		std::map<std::string, CARGO_MISSION_REFLECTABLE> CargoMissions;//= {{example.nickname, example}};
-		std::map<std::string, NPC_MISSION_REFLECTABLE> NpcMissions;//= {{example2.nickname, example2}};
+		std::map<std::string, CARGO_MISSION_REFLECTABLE> CargoMissions = {{example.nickname, example}};
+		std::map<std::string, NPC_MISSION_REFLECTABLE> NpcMissions = {{example2.nickname, example2}};
 	};
 
 	struct Global final

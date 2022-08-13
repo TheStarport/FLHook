@@ -10,26 +10,26 @@ namespace Plugins::MiningControl
 		PlayerBonus() : LootID(0), Bonus(0.0f), RepID(-1) {}
 
 		//! The loot commodity id this configuration applies to.
-		std::string Loot;
+		std::string Loot = "commodity_gold";
 		uint LootID;
 
 		//! The loot bonus multiplier.
 		float Bonus;
 
 		//! The affiliation/reputation of the player
-		std::string Rep;
+		std::string Rep = "li_n_grp";
 		uint RepID;
 
 		//! The list of ships that this bonus applies to
-		std::vector<std::string> Ships;
+		std::vector<std::string> Ships = {"ge_fighter"};
 		std::vector<uint> ShipIDs;
 
 		//! The list of equipment items that the ship must carry
-		std::vector<std::string> Items;
+		std::vector<std::string> Items = {"ge_s_battery_01"};
 		std::vector<uint> ItemIDs;
 
 		//! The list of ammo arch ids for mining guns
-		std::vector<std::string> Ammo;
+		std::vector<std::string> Ammo = {"missile01_mark01"};
 		std::vector<uint> AmmoIDs;
 	};
 	
@@ -38,13 +38,13 @@ namespace Plugins::MiningControl
 	{
 		ZoneBonus() : Bonus(0.0f), ReplacementLootID(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
 
-		std::string Zone;
+		std::string Zone = "ExampleZone";
 
 		//! The loot bonus multiplier.
 		float Bonus;
 
 		//! The hash of the item to replace the dropped
-		std::string ReplacementLoot;
+		std::string ReplacementLoot = "commodity_gold";
 		uint ReplacementLootID;
 
 		//! The recharge rate of the zone. This is the number of units of ore added to the reserve per minute.
@@ -106,8 +106,12 @@ namespace Plugins::MiningControl
 	{
 		//! The json file we load out of
 		std::string File() override { return "flhook_plugins/MineControl.json"; }
-		std::vector<PlayerBonus> PlayerBonus;
-		std::vector<ZoneBonus> ZoneBonus;
+
+		PlayerBonus playerBonusExample;
+		ZoneBonus zoneBonusExample;
+
+		std::vector<PlayerBonus> PlayerBonus = {playerBonusExample};
+		std::vector<ZoneBonus> ZoneBonus = {zoneBonusExample};
 		float GenericFactor = 1.0f;
 		int PluginDebug = 0;
 	};

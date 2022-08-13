@@ -12,7 +12,7 @@
 
 // Setup Doxygen Group
 
-/** @defgroup SoundManager Sound Manager (plugin) */
+/** @defgroup SoundManager Sound Manager */
 
 namespace Plugins::SoundManager
 {

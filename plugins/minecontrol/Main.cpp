@@ -1,45 +1,68 @@
 ﻿/**
- Mining Plugin for FLHook-Plugin
- by Cannon.
-
- Ported by Raikkonen 2022
-*/
-
-// Includes
+ * @date Feb, 2010
+ * @author Cannon (Ported by Raikkonen)
+ * @defgroup MiningControl Mining Control
+ * @brief
+ * Adds bonuses to mining.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * There are no players commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
+ * - printminezones - Prints all the configured mining zones.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "GenericFactor": 1.0,
+ *     "PlayerBonus": [
+ *         {
+ *             "Ammo": [
+ *                 "missile01_mark01"
+ *             ],
+ *             "Bonus": 0.0,
+ *             "Items": [
+ *                 "ge_s_battery_01"
+ *             ],
+ *             "Loot": "commodity_gold",
+ *             "Rep": "",
+ *             "Ships": [
+ *                 "ge_fighter"
+ *             ]
+ *         }
+ *     ],
+ *     "PluginDebug": 0,
+ *     "ZoneBonus": [
+ *         {
+ *             "Bonus": 0.0,
+ *             "CurrentReserve": 100000.0,
+ *             "MaxReserve": 50000.0,
+ *             "Mined": 0.0,
+ *             "RechargeRate": 0.0,
+ *             "ReplacementLoot": "commodity_gold",
+ *             "Zone": "ExampleZone"
+ *         }
+ *     ]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 #include "Main.h"
 
 namespace Plugins::MiningControl
 {
 	std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	/// Return the std::string parameter at position iPos from the ini line. The
-	/// delimiter is a ',' character. A chunk of code is from Motah's Flak.
-	static std::string GetTrimParam(const std::string& scLine, uint iPos)
-	{
-		std::string scOut = "";
-		for (uint i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
-		{
-			if (scLine[j] == ',')
-				i++;
-			else if (i == iPos)
-				scOut += scLine[j];
-			else if (i > iPos)
-				break;
-		}
-
-		while (scOut.size() && (scOut[0] == L' ' || scOut[0] == L'\t' || scOut[0] == L'\n' || scOut[0] == L'\r'))
-		{
-			scOut = scOut.substr(1);
-		}
-		while (scOut.size() &&
-		    (scOut[scOut.size() - 1] == L' ' || scOut[scOut.size() - 1] == L'\t' || scOut[scOut.size() - 1] == L'\n' || scOut[scOut.size() - 1] == L'\r'))
-		{
-			scOut = scOut.substr(0, scOut.length() - 1);
-		}
-		return scOut;
-	}
-
-	/// Return true if the cargo list contains the specified good.
+	/** @ingroup MiningControl
+	 * @brief Return true if the cargo list contains the specified good.
+	 */
 	static bool ContainsEquipment(std::list<CARGO_INFO> & lstCargo, uint iArchID)
 	{
 		for (auto& c : lstCargo)
@@ -48,7 +71,9 @@ namespace Plugins::MiningControl
 		return false;
 	}
 
-	/// Return the factor to modify a mining loot drop by.
+	/** @ingroup MiningControl
+	 * @brief Return the factor to modify a mining loot drop by.
+	 */
 	static float GetBonus(uint iRep, uint iShipID, std::list<CARGO_INFO> lstCargo, uint iLootID)
 	{
 		if (!global->PlayerBonus.size())
@@ -87,6 +112,9 @@ namespace Plugins::MiningControl
 		return 0.0f;
 	}
 
+	/** @ingroup MiningControl
+	 * @brief Check if the client qualifies for bonuses
+	 */
 	void CheckClientSetup(uint iClientID)
 	{
 		if (!Clients[iClientID].Setup)
@@ -148,6 +176,9 @@ namespace Plugins::MiningControl
 		}
 	}
 
+	/** @ingroup MiningControl
+	 * @brief Timer hook to update mining stats to file
+	 */
 	void HkTimerCheckKick()
 	{
 		// Perform 60 second tasks.
@@ -171,7 +202,9 @@ namespace Plugins::MiningControl
 		}
 	}
 
-	/// Clear client info when a client connects.
+	/** @ingroup MiningControl
+	 * @brief Clear client info when a client connects.
+	 */
 	void ClearClientInfo(uint & iClientID)
 	{
 		Clients[iClientID].Setup = false;
@@ -183,8 +216,10 @@ namespace Plugins::MiningControl
 		Clients[iClientID].MineAsteroidSampleStart = 0;
 	}
 
-	/// Load the configuration
-	void LoadSettings()
+	/** @ingroup MiningControl
+	 * @brief Load the configuration
+	 */
+	void LoadSettingsAfterStartup()
 	{
 		global->ZoneBonus.clear();
 		global->PlayerBonus.clear();
@@ -337,9 +372,14 @@ namespace Plugins::MiningControl
 		}
 	}
 
+	/** @ingroup MiningControl
+	 * @brief PlayerLaunch hook. Calls ClearClientInfo.
+	 */
 	void __stdcall PlayerLaunch(uint & iShip, uint & iClientID) { ClearClientInfo(iClientID); }
 
-	/// Called when a gun hits something
+	/** @ingroup MiningControl
+	 * @brief Called when a gun hits something.
+	 */
 	void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const& ci, uint& iClientID)
 	{
 		// If this is not a lootable rock, do no other processing.
@@ -515,16 +555,18 @@ namespace Plugins::MiningControl
 		}
 	}
 
-	/// Called when an asteriod is mined. We ignore all of the parameters from the
-	/// client.
+	/** @ingroup MiningControl
+	 * @brief Called when an asteriod is mined. We ignore all of the parameters from the client.
+	 */
 	void __stdcall MineAsteroid(uint & iClientSystemID, class Vector const& vPos, uint& iCrateID, uint& iLootID, uint& iCount, uint& iClientID)
 	{
 		Clients[iClientID].PendingMineAsteroidEvents += 4;
 		return;
 	}
 
-#define IS_CMD(a) !wscCmd.compare(L##a)
-
+	/** @ingroup MiningControl
+	 * @brief Admin command processing.
+	 */
 	bool ExecuteCommandString(CCmds * cmd, const std::wstring& wscCmd)
 	{
 		if (wscCmd == L"printminezones")
@@ -538,7 +580,6 @@ namespace Plugins::MiningControl
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::MiningControl;
 
 REFL_AUTO(type(PlayerBonus), field(Loot), field(Bonus), field(Rep), field(Ships), field(Items), field(Ammo))
@@ -547,8 +588,7 @@ REFL_AUTO(type(ZoneStats), field(Zone), field(CurrentReserve), field(Mined))
 REFL_AUTO(type(MiningStats), field(Stats))
 REFL_AUTO(type(Config), field(PlayerBonus), field(ZoneBonus), field(GenericFactor), field(PluginDebug));
 
-
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettingsAfterStartup)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -558,7 +598,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__Startup, &LoadSettingsAfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__MineAsteroid, &MineAsteroid);
