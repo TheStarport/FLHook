@@ -5,6 +5,28 @@
 
 namespace Plugins::CashManager
 {
+	enum class BankCode
+	{
+		NoBank,
+		NotEnoughMoney,
+		AboveMaximumTransferThreshold,
+		BelowMinimumTransferThreshold,
+		CannotWithdrawNegativeNumber,
+		BankCouldNotAffordTransfer,
+		Success
+	};
+	class CashManagerCommunicator final : public PluginCommunicator
+	{
+	public:
+		inline static const char* pluginName = "Cash Manager";
+		explicit CashManagerCommunicator(const std::string& plugin);
+
+		/** @ingroup CashManager
+		 * @brief Withdraw money from the specified accountId.
+		 */
+		BankCode PluginCall(ConsumeBankCash, std::wstring accountId, int cashAmount, const std::wstring_view& transactionSource);
+	};
+
 	std::wstring GenerateAccountId();
 	struct Config final : Reflectable
 	{
@@ -35,6 +57,9 @@ namespace Plugins::CashManager
 
 		// Remove transaction logs older than the amount of days indicated
 		int eraseTransactionsAfterDaysPassed = 365;
+
+		// Cost in credits per transfer
+		int transferFee = 0;
 	};
 
 	struct Transaction : Reflectable
@@ -44,7 +69,7 @@ namespace Plugins::CashManager
 		// Who accessed the bank?
 		std::wstring accessor;
 		// How much was taken/removed?
-		int amount;
+		long long amount;
 	};
 
 

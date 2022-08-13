@@ -1,9 +1,45 @@
-// Cash Manager Plugin
-// Written by Lazrius & MrNen
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date July 2022
+ * @author Lazrius & MrNen
+ * @defgroup CashManager Cash Manager
+ * @brief
+ * The "Cash Manager" plugin serves as a utility for which players can manage their money through a shared bank
+ * and transfer money between characters with ease. It also exposes functionality for other plugins to leverage
+ * this shared pool of money.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - bank withdraw <cash> - Withdraw money from the bank of the active account
+ * - bank withdraw <bankId> <password> - Withdraw cash from a different account bank using an id and password.
+ * - bank deposit <cash> - Deposit cash into the current account bank
+ * - bank transfer <bankId> <cash> - Transfer money from the current account bank to another one.
+ * - bank password [confirm] - Generates a password for the current bank, will warn if confirm not specified.
+ * - bank info [pass] - Shows your bank account information, if pass provided, will include the password (if set)
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *   "minimumTransfer": 0,
+ *   "maximumTransfer": 0,
+ *   "preventTransactionsNearThreshold": true,
+ *   "cashThreshold": 1800000000,
+ *   "blockedSystems": [],
+ *   "cheatDetection": true,
+ *   "minimumTime": 60,
+ *   "eraseTransactionsAfterDaysPassed": 365,
+ *	 "transferFee": 0
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * - ConsumeBankCash - Use this to take money directly from the current account bank for an action.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 #include "refl.hpp"
@@ -46,6 +82,19 @@ namespace Plugins::CashManager
 		for (const auto& system : global->config->blockedSystems)
 		{
 			global->config->blockedSystemsHashed.emplace_back(CreateID(system.c_str()));
+		}
+
+		if (global->config->transferFee < 0)
+		{
+			Console::ConWarn(L"Transfer Fee is a negative number!");
+		}
+		if (global->config->maximumTransfer < 0)
+		{
+			Console::ConWarn(L"Maximum Transfer is a negative number!");
+		}
+		if (global->config->minimumTransfer < 0)
+		{
+			Console::ConWarn(L"Minimum Transfer is a negative number!");
 		}
 
 		std::string saveGameDir;
@@ -145,6 +194,14 @@ namespace Plugins::CashManager
 
 	void WithdrawMoney(std::shared_ptr<Bank> bank, int withdrawal, ClientId clientId)
 	{
+		float currentValue;
+		HkFunc(HKGetShipValue, clientId, currentValue);
+
+		if (global->config->cashThreshold > 0 && currentValue > static_cast<float>(global->config->cashThreshold))
+		{
+			PrintUserCmdText(clientId, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
+		}
+
 		if (bank->cash < withdrawal)
 		{
 			PrintUserCmdText(clientId, L"Error: Not enough credits, this bank only has %u", bank->cash);
@@ -157,14 +214,21 @@ namespace Plugins::CashManager
 			return;
 		}
 
+		const auto fee = static_cast<long long>(withdrawal) + global->config->transferFee;
+		if (global->config->transferFee > 0 && bank->cash - fee < 0)
+		{
+			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for withdrawal and fee (%u).", fee);
+			return;
+		}
+
 		HkFunc(HkAddCash, clientId, withdrawal);
 
-		bank->cash -= withdrawal;
+		bank->cash -= fee;
 
 		Transaction transaction;
 
 		transaction.accessor = HkGetCharacterNameById(clientId);
-		transaction.amount = -withdrawal;
+		transaction.amount = -fee;
 
 		bank->transactions.emplace(bank->transactions.begin(), transaction);
 		bank->Save();
@@ -212,8 +276,8 @@ namespace Plugins::CashManager
 			PrintUserCmdText(clientId, L"Error: Invalid withdraw amount, please input a positive number.");
 			return;
 		}
-		auto bank = GetBank(accountId);
 
+		const auto bank = GetBank(accountId);
 		if (!bank)
 		{
 			PrintUserCmdText(clientId, L"Error: Bank accountId could not be found.");
@@ -230,8 +294,8 @@ namespace Plugins::CashManager
 	// /bank transfer targetBank amount
 	void TransferMoney(const ClientId clientId, const std::wstring_view& param)
 	{
-		auto sourceBank = GetBank(clientId);
-		auto targetBank = GetBank(GetParam(param, ' ', 1));
+		const auto sourceBank = GetBank(clientId);
+		const auto targetBank = GetBank(GetParam(param, ' ', 1));
 		const auto amount = ToInt(GetParam(param, ' ', 2));
 
 		if (!targetBank)
@@ -245,8 +309,37 @@ namespace Plugins::CashManager
 			PrintUserCmdText(clientId, L"Error: Invalid amount, please input a positive number.");
 			return;
 		}
-		sourceBank->cash -= amount;
+
+		if (sourceBank->cash - amount < 0)
+		{
+			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for transfer.");
+			return;
+		}
+
+		const auto fee = static_cast<long long>(amount) + global->config->transferFee;
+		if (global->config->transferFee > 0 && sourceBank->cash - fee < 0)
+		{
+			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for transfer and fee (%u).", fee);
+			return;
+		}
+
+		sourceBank->cash -= fee;
 		targetBank->cash += amount;
+
+		const auto charName = HkGetCharacterNameById(clientId);
+
+		Transaction sourceTransaction;
+		sourceTransaction.accessor = charName;
+		sourceTransaction.amount = fee;
+		sourceBank->transactions.emplace(sourceBank->transactions.begin(), std::move(sourceTransaction));
+
+		Transaction targetTransaction;
+		targetTransaction.accessor = charName;
+		targetTransaction.amount = amount;
+		targetBank->transactions.emplace(targetBank->transactions.begin(), std::move(targetTransaction));
+
+		sourceBank->Save();
+		targetBank->Save();
 	}
 
 	void ShowBankInfo(const ClientId& clientId, std::shared_ptr<Bank> bank, bool showPass)
@@ -257,11 +350,11 @@ namespace Plugins::CashManager
 		{
 			PrintUserCmdText(clientId, L"|    Password: None Set");
 		}
-		else 
+		else
 		{
 			PrintUserCmdText(clientId, L"|    Password: %s", showPass ? bank->bankPassword.c_str() : L"*****");
 		}
-		
+
 		PrintUserCmdText(clientId, L"|    Credits: %u", bank->cash);
 		if (!bank->transactions.empty())
 		{
@@ -276,8 +369,15 @@ namespace Plugins::CashManager
 
 	void UserCommandHandler(const ClientId& clientId, const std::wstring_view& param)
 	{
-		const auto cmd = GetParam(param, L' ', 1);
-		if (cmd == L"withdraw")
+		int secs;
+		HkGetOnlineTime(HkGetCharacterNameById(clientId), secs);
+		if (secs < global->config->minimumTime / 60)
+		{
+			PrintUserCmdText(clientId, L"Error: You cannot interact with the bank. This character is too new.");
+			return;
+		}
+
+		if (const auto cmd = GetParam(param, L' ', 1); cmd == L"withdraw")
 		{
 			if (global->config->preventTransactionsNearThreshold)
 			{
@@ -334,8 +434,8 @@ namespace Plugins::CashManager
 			}
 			PrintUserCmdText(clientId, L"This will generate a new password and the previous will be invalid");
 			PrintUserCmdText(clientId,
-			    L"Your currently set password is " + bank->bankPassword + L" if you are sure you want to regenerate your password type \"/bank password confirm\". ");
-			
+			    L"Your currently set password is " + bank->bankPassword +
+			        L" if you are sure you want to regenerate your password type \"/bank password confirm\". ");
 		}
 		else if (cmd == L"transfer")
 		{
@@ -359,27 +459,95 @@ namespace Plugins::CashManager
 		}
 	}
 
-	std::vector<UserCommand> commands = {
+	const std::vector commands = {
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters.")}};
-} // namespace Plugins::CashManager
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	BankCode __stdcall IpcConsumeBankCash(std::wstring accountId, int cashAmount, const std::wstring_view& transactionSource)
+	{
+		if (cashAmount <= 0)
+		{
+			return BankCode::CannotWithdrawNegativeNumber;
+		}
+
+		if (cashAmount > global->config->maximumTransfer)
+		{
+			return BankCode::AboveMaximumTransferThreshold;
+		}
+
+		if (cashAmount < global->config->minimumTransfer)
+		{
+			return BankCode::AboveMaximumTransferThreshold;
+		}
+
+		const auto bank = GetBank(accountId);
+		if (!bank)
+		{
+			return BankCode::NoBank;
+		}
+
+		if (bank->cash < cashAmount)
+		{
+			return BankCode::NotEnoughMoney;
+		}
+
+		const auto fee = static_cast<long long>(cashAmount) + global->config->transferFee;
+		if (global->config->transferFee > 0 && bank->cash - fee < 0)
+		{
+			return BankCode::BankCouldNotAffordTransfer;
+		}
+
+		bank->cash -= fee;
+
+		Transaction transaction;
+		transaction.accessor = transactionSource;
+		transaction.amount = fee;
+		bank->transactions.emplace(bank->transactions.begin(), std::move(transaction));
+
+		bank->Save();
+		return BankCode::Success;
+	}
+
+	bool ShouldSuppressBuy(const void* dummy [[maybe_unused]], const ClientId& clientId)
+	{
+		if (!global->config->preventTransactionsNearThreshold)
+			return false;
+
+		float currentValue;
+		HkFunc(HKGetShipValue, clientId, currentValue);
+
+		if (global->config->cashThreshold < static_cast<int>(currentValue))
+		{
+			PrintUserCmdText(clientId, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
+			return true;
+		}
+
+		return false;
+	}
+
+	bool ReqAddItem(const uint& goodID [[maybe_unused]], char const* hardpoint [[maybe_unused]], const int& count [[maybe_unused]], const float& status [[maybe_unused]],
+	    const bool& mounted [[maybe_unused]], const uint& clientId)
+	{
+		// First value is dummy garbage
+		return ShouldSuppressBuy(&goodID, clientId);
+	}
+
+	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
+
+} // namespace Plugins::CashManager
 
 using namespace Plugins::CashManager;
 
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(minimumTransfer), field(eraseTransactionsAfterDaysPassed), field(blockedSystems), field(preventTransactionsNearThreshold),
-    field(maximumTransfer), field(cheatDetection), field(minimumTime));
+    field(maximumTransfer), field(cheatDetection), field(minimumTime), field(transferFee));
 REFL_AUTO(type(Bank), field(accountId), field(bankPassword), field(cash), field(transactions));
 REFL_AUTO(type(Transaction), field(lastAccessedUnix), field(accessor), field(amount));
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Cash Manager Plugin");
+	pi->name(CashManagerCommunicator::pluginName);
 	pi->shortName("cash_manager");
 	pi->mayUnload(true);
 	pi->commands(commands);
@@ -388,4 +556,12 @@ DefaultDllMainSettings(LoadSettings)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &OnPlayerLogin);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqHullStatus, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ShouldSuppressBuy);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqShipArch, &ShouldSuppressBuy);
 }
