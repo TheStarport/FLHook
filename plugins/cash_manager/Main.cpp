@@ -136,7 +136,7 @@ namespace Plugins::CashManager
 	void UserCmdGiveCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
-		HK_ERROR error;
+		HkError error;
 
 		// Get the current character name
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
@@ -390,7 +390,7 @@ namespace Plugins::CashManager
 	void UserCmdShowCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
-		HK_ERROR error;
+		HkError error;
 
 		// Get the current character name
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
@@ -437,7 +437,7 @@ namespace Plugins::CashManager
 	void UserCmdDrawCash(const uint& clientID, const std::wstring_view& param)
 	{
 		// The last error.
-		HK_ERROR error;
+		HkError error;
 
 		// Get the current character name
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));

@@ -1,9 +1,9 @@
 ﻿#include "Global.hpp"
 
-void HkGetPlayerIP(uint iClientID, std::wstring& wscIP)
+void HkGetPlayerIP(uint clientId, std::wstring& wscIP)
 {
 	wscIP = L"";
-	CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
+	CDPClientProxy* cdpClient = g_cClientProxyArray[clientId - 1];
 	if (!cdpClient)
 		return;
 
@@ -55,24 +55,24 @@ some_error:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetPlayerInfo(std::variant<uint, std::wstring> player, HKPLAYERINFO& pi, bool bAlsoCharmenu)
+HkError HkGetPlayerInfo(const std::variant<uint, std::wstring>& player, HKPLAYERINFO& pi, bool bAlsoCharmenu)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1 || (HkIsInCharSelectMenu(iClientID) && !bAlsoCharmenu))
-		return HKE_PLAYER_NOT_LOGGED_IN; // not on server
+	if (clientId == -1 || (HkIsInCharSelectMenu(clientId) && !bAlsoCharmenu))
+		return PlayerNotLoggedIn; // not on server
 
-	const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+	const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 
-	pi.iClientID = iClientID;
-	pi.wscCharname = wszActiveCharname ? wszActiveCharname : L"";
+	pi.clientId = clientId;
+	pi.character = wszActiveCharname ? wszActiveCharname : L"";
 	pi.wscBase = pi.wscSystem = L"";
 
 	uint iBase = 0;
 	uint iSystem = 0;
-	pub::Player::GetBase(iClientID, iBase);
-	pub::Player::GetSystem(iClientID, iSystem);
-	pub::Player::GetShip(iClientID, pi.iShip);
+	pub::Player::GetBase(clientId, iBase);
+	pub::Player::GetSystem(clientId, iSystem);
+	pub::Player::GetShip(clientId, pi.iShip);
 
 	if (iBase)
 	{
@@ -91,13 +91,13 @@ HK_ERROR HkGetPlayerInfo(std::variant<uint, std::wstring> player, HKPLAYERINFO& 
 
 	// get ping
 	DPN_CONNECTION_INFO ci;
-	HkGetConnectionStats(iClientID, ci);
+	HkGetConnectionStats(clientId, ci);
 	pi.ci = ci;
 
 	// get ip
-	HkGetPlayerIP(iClientID, pi.wscIP);
+	HkGetPlayerIP(clientId, pi.wscIP);
 
-	pi.wscHostname = ClientInfo[iClientID].wscHostname;
+	pi.wscHostname = ClientInfo[clientId].wscHostname;
 
 	return HKE_OK;
 }
@@ -107,16 +107,16 @@ std::list<HKPLAYERINFO> HkGetPlayers()
 	std::list<HKPLAYERINFO> lstRet;
 	std::wstring wscRet;
 
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 
-		if (HkIsInCharSelectMenu(iClientID))
+		if (HkIsInCharSelectMenu(clientId))
 			continue;
 
 		HKPLAYERINFO pi;
-		HkGetPlayerInfo(iClientID, pi, false);
+		HkGetPlayerInfo(clientId, pi, false);
 		lstRet.push_back(pi);
 	}
 
@@ -125,26 +125,26 @@ std::list<HKPLAYERINFO> HkGetPlayers()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetConnectionStats(uint iClientID, DPN_CONNECTION_INFO& ci)
+HkError HkGetConnectionStats(uint clientId, DPN_CONNECTION_INFO& ci)
 {
-	if (iClientID < 1 || iClientID > MaxClientId)
-		return HKE_INVALID_CLIENT_ID;
+	if (clientId < 1 || clientId > MaxClientId)
+		return InvalidClientId;
 
-	CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
+	CDPClientProxy* cdpClient = g_cClientProxyArray[clientId - 1];
 
 	if (!cdpClient || !cdpClient->GetConnectionStats(&ci))
-		return HKE_INVALID_CLIENT_ID;
+		return InvalidClientId;
 
 	return HKE_OK;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetAdmin(std::variant<uint, std::wstring> player, const std::wstring& wscRights)
+HkError HkSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights)
 {
 	auto* acc = HkExtractAccount(player);
 	if (acc == nullptr)
 	{
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 	}
 
 	std::wstring wscDir;
@@ -156,13 +156,13 @@ HK_ERROR HkSetAdmin(std::variant<uint, std::wstring> player, const std::wstring&
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player, std::wstring& wscRights)
+HkError HkGetAdmin(const std::variant<uint, std::wstring>& player, std::wstring& wscRights)
 {
 	wscRights = L"";
 	auto* acc = HkExtractAccount(player);
 	if (acc == nullptr)
 	{
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 	}
 
 	std::wstring wscDir;
@@ -172,7 +172,7 @@ HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player, std::wstring& wscRi
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
 	if (hFind == INVALID_HANDLE_VALUE)
-		return HKE_PLAYER_NO_ADMIN;
+		return NoAdmin;
 	;
 
 	FindClose(hFind);
@@ -183,12 +183,12 @@ HK_ERROR HkGetAdmin(std::variant<uint, std::wstring> player, std::wstring& wscRi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkDelAdmin(std::variant<uint, std::wstring> player)
+HkError HkDelAdmin(const std::variant<uint, std::wstring>& player)
 {
 	auto* acc = HkExtractAccount(player);
 	if (acc == nullptr)
 	{
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 	}
 
 	std::wstring wscDir;
@@ -202,7 +202,7 @@ HK_ERROR HkDelAdmin(std::variant<uint, std::wstring> player)
 
 bool g_bNPCDisabled = false;
 
-HK_ERROR HkChangeNPCSpawn(bool bDisable)
+HkError HkChangeNPCSpawn(bool bDisable)
 {
 	if (g_bNPCDisabled && bDisable)
 		return HKE_OK;
@@ -232,16 +232,16 @@ HK_ERROR HkChangeNPCSpawn(bool bDisable)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetBaseStatus(const std::wstring& wscBasename, float& fHealth, float& fMaxHealth)
+HkError HkGetBaseStatus(const std::wstring& wscBasename, float& fHealth, float& fMaxHealth)
 {
-	uint iBaseID = 0;
-	pub::GetBaseID(iBaseID, wstos(wscBasename).c_str());
-	if (!iBaseID)
+	uint baseId = 0;
+	pub::GetBaseID(baseId, wstos(wscBasename).c_str());
+	if (!baseId)
 	{
-		return HKE_INVALID_BASENAME;
+		return InvalidBaseName;
 	}
 
-	Universe::IBase* base = Universe::get_base(iBaseID);
+	Universe::IBase* base = Universe::get_base(baseId);
 	pub::SpaceObj::GetHealth(base->lSpaceObjID, fHealth, fMaxHealth);
 	return HKE_OK;
 }
@@ -339,13 +339,13 @@ bool HkUnLightFuse(IObjRW* ship, uint iFuseID)
 
 uint HkGetClientIDFromArg(const std::wstring& wscArg)
 {
-	uint iClientID;
+	uint clientId;
 
-	if (HkResolveId(wscArg, iClientID) == HKE_OK)
-		return iClientID;
+	if (HkResolveId(wscArg, clientId) == HKE_OK)
+		return clientId;
 
-	if (HkResolveShortCut(wscArg, iClientID) == HKE_OK)
-		return iClientID;
+	if (HkResolveShortCut(wscArg, clientId) == HKE_OK)
+		return clientId;
 
 	return HkGetClientIdFromCharname(wscArg);
 }

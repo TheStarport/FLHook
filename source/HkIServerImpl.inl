@@ -129,7 +129,7 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
             if (hFind != INVALID_HANDLE_VALUE) { // is admin
                 FindClose(hFind);
                 g_Admin.ReadRights(adminFile);
-                g_Admin.iClientID = cidFrom.iID;
+                g_Admin.clientId = cidFrom.iID;
                 g_Admin.wscAdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.iID));
                 g_Admin.ExecuteCommandString(buffer.data() + 1);
                 return false;
@@ -208,22 +208,22 @@ bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_
     return true;
 }
 
-void PlayerLaunch__Inner(uint shipID, uint clientID) {
+void PlayerLaunch__Inner(uint shipID, uint clientId) {
     TRY_HOOK {
-        ClientInfo[clientID].iShip = shipID;
-        ClientInfo[clientID].iKillsInARow = 0;
-        ClientInfo[clientID].bCruiseActivated = false;
-        ClientInfo[clientID].bThrusterActivated = false;
-        ClientInfo[clientID].bEngineKilled = false;
-        ClientInfo[clientID].bTradelane = false;
+        ClientInfo[clientId].iShip = shipID;
+        ClientInfo[clientId].iKillsInARow = 0;
+        ClientInfo[clientId].bCruiseActivated = false;
+        ClientInfo[clientId].bThrusterActivated = false;
+        ClientInfo[clientId].bEngineKilled = false;
+        ClientInfo[clientId].bTradelane = false;
 
         // adjust cash, this is necessary when cash was added while use was in
         // charmenu/had other char selected
-        std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(clientID)));
-        for (auto &i : ClientInfo[clientID].lstMoneyFix) {
-            if (i.wscCharname == charName) {
+        std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(clientId)));
+        for (auto &i : ClientInfo[clientId].lstMoneyFix) {
+            if (i.character == charName) {
                 HkAddCash(charName, i.iAmount);
-                ClientInfo[clientID].lstMoneyFix.remove(i);
+                ClientInfo[clientId].lstMoneyFix.remove(i);
                 break;
             }
         }
@@ -231,37 +231,37 @@ void PlayerLaunch__Inner(uint shipID, uint clientID) {
     CATCH_HOOK({})
 }
 
-void PlayerLaunch__InnerAfter(uint shipID, uint clientID) {
+void PlayerLaunch__InnerAfter(uint shipID, uint clientId) {
     TRY_HOOK {
-        if (!ClientInfo[clientID].iLastExitedBaseID) {
-            ClientInfo[clientID].iLastExitedBaseID = 1;
+        if (!ClientInfo[clientId].iLastExitedBaseID) {
+            ClientInfo[clientId].iLastExitedBaseID = 1;
 
             // event
             ProcessEvent(L"spawn char=%s id=%d system=%s",
-                         ToWChar(Players.GetActiveCharacterName(clientID)),
-                         clientID, HkGetPlayerSystem(clientID).c_str());
+                         ToWChar(Players.GetActiveCharacterName(clientId)),
+                         clientId, HkGetPlayerSystem(clientId).c_str());
         }
     }
     CATCH_HOOK({})
 }
 
 void SPMunitionCollision__Inner(const SSPMunitionCollisionInfo& mci, uint) {
-    uint clientIDTarget;
+    uint clientIdTarget;
 
-    TRY_HOOK { clientIDTarget = HkGetClientIDByShip(mci.dwTargetShip); }
+    TRY_HOOK { clientIdTarget = HkGetClientIDByShip(mci.dwTargetShip); }
     CATCH_HOOK({})
 
-    g_DmgTo = clientIDTarget;
+    g_DmgTo = clientIdTarget;
 }
 
-bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
+bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientId) {
     // NAN check
     if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) ||
         !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) ||
         !(ui.vDir.y == ui.vDir.y) || !(ui.vDir.z == ui.vDir.z) ||
         !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle)) {
-        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: NAN found in SPObjUpdate for id=%u", clientID);
-        HkKick(Players[clientID].Account);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: NAN found in SPObjUpdate for id=%u", clientId);
+        HkKick(Players[clientId].Account);
         return false;
     }
 
@@ -269,16 +269,16 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
     float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x +
               ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
     if (n > 1.21f || n < 0.81f) {
-        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientID);
-        HkKick(Players[clientID].Account);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", clientId);
+        HkKick(Players[clientId].Account);
         return false;
     }
 
     // Far check
     if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f ||
         abs(ui.vPos.z) > 1e7f) {
-        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientID);
-        HkKick(Players[clientID].Account);
+        AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", clientId);
+        HkKick(Players[clientId].Account);
         return false;
     }
 
@@ -287,59 +287,59 @@ bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, uint clientID) {
 
 void LaunchComplete__Inner(uint, uint shipID) {
     TRY_HOOK {
-        uint clientID = HkGetClientIDByShip(shipID);
-        if (clientID) {
-            ClientInfo[clientID].tmSpawnTime = timeInMS(); // save for anti-dockkill
+        uint clientId = HkGetClientIDByShip(shipID);
+        if (clientId) {
+            ClientInfo[clientId].tmSpawnTime = timeInMS(); // save for anti-dockkill
             // is there spawnprotection?
 		    if (FLHookConfig::i()->general.antiDockKill > 0)
-                ClientInfo[clientID].bSpawnProtected = true;
+                ClientInfo[clientId].bSpawnProtected = true;
             else
-                ClientInfo[clientID].bSpawnProtected = false;
+                ClientInfo[clientId].bSpawnProtected = false;
         }
 
         // event
         ProcessEvent(
             L"launch char=%s id=%d base=%s system=%s",
-            ToWChar(Players.GetActiveCharacterName(clientID)), clientID,
-            HkGetBaseNickByID(ClientInfo[clientID].iLastExitedBaseID).c_str(),
-            HkGetPlayerSystem(clientID).c_str());
+            ToWChar(Players.GetActiveCharacterName(clientId)), clientId,
+            HkGetBaseNickByID(ClientInfo[clientId].iLastExitedBaseID).c_str(),
+            HkGetPlayerSystem(clientId).c_str());
     }
     CATCH_HOOK({})
 }
 
 std::wstring g_CharBefore;
-bool CharacterSelect__Inner(const CHARACTER_ID& cid, uint clientID) {
+bool CharacterSelect__Inner(const CHARACTER_ID& cid, uint clientId) {
     try {
-        const wchar_t *charName = ToWChar(Players.GetActiveCharacterName(clientID));
-        g_CharBefore = charName ? ToWChar(Players.GetActiveCharacterName(clientID)) : L"";
-        ClientInfo[clientID].iLastExitedBaseID = 0;
-        ClientInfo[clientID].iTradePartner = 0;
+        const wchar_t *charName = ToWChar(Players.GetActiveCharacterName(clientId));
+        g_CharBefore = charName ? ToWChar(Players.GetActiveCharacterName(clientId)) : L"";
+        ClientInfo[clientId].iLastExitedBaseID = 0;
+        ClientInfo[clientId].iTradePartner = 0;
     } catch (...) {
-        HkAddKickLog(clientID, L"Corrupt character file?");
-        HkKick(clientID);
+        HkAddKickLog(clientId, L"Corrupt character file?");
+        HkKick(clientId);
         return false;
     }
 
-    HkCharacterSelect(cid, clientID);
+    HkCharacterSelect(cid, clientId);
     return true;
 }
 
-void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID) {
+void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientId) {
     TRY_HOOK {
-        std::wstring charName = ToWChar(Players.GetActiveCharacterName(clientID));
+        std::wstring charName = ToWChar(Players.GetActiveCharacterName(clientId));
 
         if (g_CharBefore.compare(charName) != 0) {
-            LoadUserCharSettings(clientID);
+            LoadUserCharSettings(clientId);
 
             if (FLHookConfig::i()->userCommands.userCmdHelp)
-                PrintUserCmdText(clientID,
+                PrintUserCmdText(clientId,
                                  L"To get a list of available commands, type "
                                  L"\"/help\" in chat.");
 
             // anti-cheat check
             std::list<CARGO_INFO> lstCargo;
             int iHold;
-            HkEnumCargo(clientID, lstCargo, iHold);
+            HkEnumCargo(clientId, lstCargo, iHold);
             for (const auto& cargo : lstCargo) {
                 if (cargo.iCount < 0) {
                     HkAddCheaterLog(charName,
@@ -350,64 +350,64 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int clientID)
                     swprintf_s(wszBuf, L"Possible cheating detected (%s)",
                                charName.c_str());
                     HkMsgU(wszBuf);
-                    HkBan(clientID, true);
-                    HkKick(clientID);
+                    HkBan(clientId, true);
+                    HkKick(clientId);
                     return;
                 }
             }
 
             // event
-            CAccount *acc = Players.FindAccountFromClientID(clientID);
+            CAccount *acc = Players.FindAccountFromClientID(clientId);
             std::wstring dir;
             HkGetAccountDirName(acc, dir);
             HKPLAYERINFO pi;
-            HkGetPlayerInfo(clientID, pi, false);
+            HkGetPlayerInfo(clientId, pi, false);
             ProcessEvent(L"login char=%s accountdirname=%s id=%d ip=%s",
-                         charName.c_str(), dir.c_str(), clientID,
+                         charName.c_str(), dir.c_str(), clientId,
                          pi.wscIP.c_str());
         }
     }
     CATCH_HOOK({})
 }
 
-void BaseEnter__Inner(uint baseID, uint clientID) {
+void BaseEnter__Inner(uint baseID, uint clientId) {
     TRY_HOOK {
         if (FLHookConfig::i()->general.autobuy)
-            HkPlayerAutoBuy(clientID, baseID);
+            HkPlayerAutoBuy(clientId, baseID);
     }
     CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Info, L"Exception in BaseEnter on autobuy"); })
 }
     
-void BaseEnter__InnerAfter(uint baseID, uint clientID) {
+void BaseEnter__InnerAfter(uint baseID, uint clientId) {
     TRY_HOOK {
         // adjust cash, this is necessary when cash was added while use was in
         // charmenu/had other char selected
         std::wstring charName =
-            ToLower(ToWChar(Players.GetActiveCharacterName(clientID)));
-        for (auto &i : ClientInfo[clientID].lstMoneyFix) {
-            if (i.wscCharname == charName) {
+            ToLower(ToWChar(Players.GetActiveCharacterName(clientId)));
+        for (auto &i : ClientInfo[clientId].lstMoneyFix) {
+            if (i.character == charName) {
                 HkAddCash(charName, i.iAmount);
-                ClientInfo[clientID].lstMoneyFix.remove(i);
+                ClientInfo[clientId].lstMoneyFix.remove(i);
                 break;
             }
         }
 
         // anti base-idle
-        ClientInfo[clientID].iBaseEnterTime = static_cast<uint>(time(0));
+        ClientInfo[clientId].iBaseEnterTime = static_cast<uint>(time(0));
 
         // event
         ProcessEvent(L"baseenter char=%s id=%d base=%s system=%s",
-                     ToWChar(Players.GetActiveCharacterName(clientID)),
-                     clientID, HkGetBaseNickByID(baseID).c_str(),
-                     HkGetPlayerSystem(clientID).c_str());
+                     ToWChar(Players.GetActiveCharacterName(clientId)),
+                     clientId, HkGetBaseNickByID(baseID).c_str(),
+                     HkGetPlayerSystem(clientId).c_str());
 
         // print to log if the char has too much money
         float fValue;
         if (HKGetShipValue(
-                (const wchar_t *)Players.GetActiveCharacterName(clientID),
+                (const wchar_t *)Players.GetActiveCharacterName(clientId),
                 fValue) == HKE_OK) {
             if (fValue > 2100000000.0f) {
-                std::wstring charname = (const wchar_t *)Players.GetActiveCharacterName(clientID);
+                std::wstring charname = (const wchar_t *)Players.GetActiveCharacterName(clientId);
                 AddLog(LogType::Normal, LogLevel::Err, L"Possible corrupt ship charname=%s asset_value=%0.0f", charname.c_str(), fValue);
             }
         }
@@ -415,64 +415,64 @@ void BaseEnter__InnerAfter(uint baseID, uint clientID) {
     CATCH_HOOK({})
 }
 
-void BaseExit__Inner(uint baseID, uint clientID) {
+void BaseExit__Inner(uint baseID, uint clientId) {
     TRY_HOOK {
-        ClientInfo[clientID].iBaseEnterTime = 0;
-        ClientInfo[clientID].iLastExitedBaseID = baseID;
+        ClientInfo[clientId].iBaseEnterTime = 0;
+        ClientInfo[clientId].iLastExitedBaseID = baseID;
     }
     CATCH_HOOK({})
 }
 
-void BaseExit__InnerAfter(uint baseID, uint clientID) {
+void BaseExit__InnerAfter(uint baseID, uint clientId) {
     TRY_HOOK {
         ProcessEvent(L"baseexit char=%s id=%d base=%s system=%s",
-                     ToWChar(Players.GetActiveCharacterName(clientID)),
-                     clientID, HkGetBaseNickByID(baseID).c_str(),
-                     HkGetPlayerSystem(clientID).c_str());
+                     ToWChar(Players.GetActiveCharacterName(clientId)),
+                     clientId, HkGetBaseNickByID(baseID).c_str(),
+                     HkGetPlayerSystem(clientId).c_str());
     }
     CATCH_HOOK({})
 }
 
-void TerminateTrade__InnerAfter(uint clientID, int accepted) {
+void TerminateTrade__InnerAfter(uint clientId, int accepted) {
     TRY_HOOK {
         if (accepted) { // save both chars to prevent cheating in case of
                          // server crash
-            HkSaveChar(clientID);
-            if (ClientInfo[clientID].iTradePartner)
-                HkSaveChar(ClientInfo[clientID].iTradePartner);
+            HkSaveChar(clientId);
+            if (ClientInfo[clientId].iTradePartner)
+                HkSaveChar(ClientInfo[clientId].iTradePartner);
         }
 
-        if (ClientInfo[clientID].iTradePartner)
-            ClientInfo[ClientInfo[clientID].iTradePartner].iTradePartner = 0;
-        ClientInfo[clientID].iTradePartner = 0;
+        if (ClientInfo[clientId].iTradePartner)
+            ClientInfo[ClientInfo[clientId].iTradePartner].iTradePartner = 0;
+        ClientInfo[clientId].iTradePartner = 0;
     }
     CATCH_HOOK({})
 }
 
-void InitiateTrade__Inner(uint clientID1, uint clientID2) {
-    if(clientID1 <= MaxClientId && clientID2 <= MaxClientId) {
-        ClientInfo[clientID1].iTradePartner = clientID2;
-        ClientInfo[clientID2].iTradePartner = clientID1;
+void InitiateTrade__Inner(uint clientId1, uint clientId2) {
+    if(clientId1 <= MaxClientId && clientId2 <= MaxClientId) {
+        ClientInfo[clientId1].iTradePartner = clientId2;
+        ClientInfo[clientId2].iTradePartner = clientId1;
     }
 }
 
-void ActivateEquip__Inner(uint clientID, const XActivateEquip& aq) {
+void ActivateEquip__Inner(uint clientId, const XActivateEquip& aq) {
     TRY_HOOK {
         std::list<CARGO_INFO> lstCargo;
         {
             int _;
-            HkEnumCargo(clientID, lstCargo, _);
+            HkEnumCargo(clientId, lstCargo, _);
         }
 
         for (auto &cargo : lstCargo) {
             if (cargo.iID == aq.sID) {
                 Archetype::Equipment *eq = Archetype::GetEquipment(cargo.iArchID);
-                EQ_TYPE eqType = HkGetEqType(eq);
+                EquipmentType eqType = HkGetEqType(eq);
 
                 if (eqType == ET_ENGINE) {
-                    ClientInfo[clientID].bEngineKilled = !aq.bActivate;
+                    ClientInfo[clientId].bEngineKilled = !aq.bActivate;
                     if (!aq.bActivate)
-                        ClientInfo[clientID].bCruiseActivated = false; // enginekill enabled
+                        ClientInfo[clientId].bCruiseActivated = false; // enginekill enabled
                 }
             }
         }
@@ -480,27 +480,27 @@ void ActivateEquip__Inner(uint clientID, const XActivateEquip& aq) {
     CATCH_HOOK({})
 }
 
-void ActivateCruise__Inner(uint clientID, const XActivateCruise& ac) {
+void ActivateCruise__Inner(uint clientId, const XActivateCruise& ac) {
     TRY_HOOK {
-        ClientInfo[clientID].bCruiseActivated = ac.bActivate;
+        ClientInfo[clientId].bCruiseActivated = ac.bActivate;
     }
     CATCH_HOOK({})
 }
 
-void ActivateThrusters__Inner(uint clientID, const XActivateThrusters& at) {
+void ActivateThrusters__Inner(uint clientId, const XActivateThrusters& at) {
     TRY_HOOK {
-        ClientInfo[clientID].bThrusterActivated = at.bActivate;
+        ClientInfo[clientId].bThrusterActivated = at.bActivate;
     }
     CATCH_HOOK({})
 }
 
-bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
+bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientId) {
     TRY_HOOK {
         // anti-cheat check
         std::list<CARGO_INFO> lstCargo;
         {
             int _;
-            HkEnumCargo(clientID, lstCargo, _);
+            HkEnumCargo(clientId, lstCargo, _);
         }
         bool legalSell = false;
         for (const auto &cargo : lstCargo) {
@@ -508,7 +508,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
                 legalSell = true;
                 if (abs(gsi.iCount) > cargo.iCount) {
                     wchar_t buf[512];
-                    const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+                    const auto* charName = ToWChar(Players.GetActiveCharacterName(clientId));
                     swprintf_s(buf,
                         L"Sold more good than possible item=%08x count=%u",
                         gsi.iArchID, gsi.iCount);
@@ -517,8 +517,8 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
                     swprintf_s(buf, L"Possible cheating detected (%s)",
                                charName);
                     HkMsgU(buf);
-                    HkBan(clientID, true);
-                    HkKick(clientID);
+                    HkBan(clientId, true);
+                    HkKick(clientId);
                     return false;
                 }
                 break;
@@ -526,7 +526,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
         if (!legalSell) {
             wchar_t buf[1000];
-            const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+            const auto* charName = ToWChar(Players.GetActiveCharacterName(clientId));
             swprintf_s(buf,
                 L"Sold good player does not have (buggy test), item=%08x",
                 gsi.iArchID);
@@ -536,21 +536,21 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, uint clientID) {
         }
     }
     CATCH_HOOK({
-        AddLog(LogType::Normal, LogLevel::Info,L"Exception in %s (clientID=%u (%x))", stows(__FUNCTION__).c_str(), clientID, Players.GetActiveCharacterName(clientID));
+        AddLog(LogType::Normal, LogLevel::Info,L"Exception in %s (clientId=%u (%x))", stows(__FUNCTION__).c_str(), clientId, Players.GetActiveCharacterName(clientId));
     })
 
     return true;
 }
 
-bool CharacterInfoReq__Inner(uint clientID, bool) {
+bool CharacterInfoReq__Inner(uint clientId, bool) {
     TRY_HOOK {
-        if (!ClientInfo[clientID].bCharSelected)
-                ClientInfo[clientID].bCharSelected = true;
+        if (!ClientInfo[clientId].bCharSelected)
+                ClientInfo[clientId].bCharSelected = true;
             else { // pushed f1
                 uint shipID = 0;
-                pub::Player::GetShip(clientID, shipID);
+                pub::Player::GetShip(clientId, shipID);
                 if (shipID) { // in space
-                    ClientInfo[clientID].tmF1Time = timeInMS() + FLHookConfig::i()->general.antiF1;
+                    ClientInfo[clientId].tmF1Time = timeInMS() + FLHookConfig::i()->general.antiF1;
                     return false;
                 }
             }
@@ -560,19 +560,19 @@ bool CharacterInfoReq__Inner(uint clientID, bool) {
     return true;
 }
 
-bool CharacterInfoReq__Catch(uint clientID, bool) {
-    HkAddKickLog(clientID, L"Corrupt charfile?");
-    HkKick(clientID);
+bool CharacterInfoReq__Catch(uint clientId, bool) {
+    HkAddKickLog(clientId, L"Corrupt charfile?");
+    HkKick(clientId);
     return false;
 }
 
-bool OnConnect__Inner(uint clientID) {
+bool OnConnect__Inner(uint clientId) {
     TRY_HOOK {
         // If ID is too high due to disconnect buffer time then manually drop
         // the connection.
-        if (clientID > MaxClientId) {
-            AddLog(LogType::Normal, LogLevel::Info,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientID);
-            CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
+        if (clientId > MaxClientId) {
+            AddLog(LogType::Normal, LogLevel::Info,L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", clientId);
+            CDPClientProxy *cdpClient = g_cClientProxyArray[clientId - 1];
             if (!cdpClient)
                 return false;
             cdpClient->Disconnect();
@@ -580,75 +580,75 @@ bool OnConnect__Inner(uint clientID) {
         }
 
         // If this client is in the anti-F1 timeout then force the disconnect.
-        if (ClientInfo[clientID].tmF1TimeDisconnect > timeInMS()) {
+        if (ClientInfo[clientId].tmF1TimeDisconnect > timeInMS()) {
             // manual disconnect
-            CDPClientProxy *cdpClient = g_cClientProxyArray[clientID - 1];
+            CDPClientProxy *cdpClient = g_cClientProxyArray[clientId - 1];
             if (!cdpClient)
                 return false;
             cdpClient->Disconnect();
             return false;
         }
 
-        ClientInfo[clientID].iConnects++;
-        ClearClientInfo(clientID);
+        ClientInfo[clientId].iConnects++;
+        ClearClientInfo(clientId);
     }
     CATCH_HOOK({})
 
     return true;
 }
 
-void OnConnect__InnerAfter(uint clientID) {
+void OnConnect__InnerAfter(uint clientId) {
     TRY_HOOK {
         // event
         std::wstring ip;
-        HkGetPlayerIP(clientID, ip);
-        ProcessEvent(L"connect id=%d ip=%s", clientID, ip.c_str());
+        HkGetPlayerIP(clientId, ip);
+        ProcessEvent(L"connect id=%d ip=%s", clientId, ip.c_str());
     }
     CATCH_HOOK({})
 }
 
-void DisConnect__Inner(uint clientID, EFLConnection) {
-    if (clientID <= MaxClientId && clientID > 0 && !ClientInfo[clientID].bDisconnected) {
-        ClientInfo[clientID].bDisconnected = true;
-        ClientInfo[clientID].lstMoneyFix.clear();
-        ClientInfo[clientID].iTradePartner = 0;
+void DisConnect__Inner(uint clientId, EFLConnection) {
+    if (clientId <= MaxClientId && clientId > 0 && !ClientInfo[clientId].bDisconnected) {
+        ClientInfo[clientId].bDisconnected = true;
+        ClientInfo[clientId].lstMoneyFix.clear();
+        ClientInfo[clientId].iTradePartner = 0;
 
-        const auto* charName = ToWChar(Players.GetActiveCharacterName(clientID));
+        const auto* charName = ToWChar(Players.GetActiveCharacterName(clientId));
         ProcessEvent(L"disconnect char=%s id=%d", charName,
-                     clientID);
+                     clientId);
     }
 }
 
 void JumpInComplete__InnerAfter(uint systemID, uint shipID) {
     TRY_HOOK {
-        uint clientID = HkGetClientIDByShip(shipID);
-        if (!clientID)
+        uint clientId = HkGetClientIDByShip(shipID);
+        if (!clientId)
             return;
 
         // event
         ProcessEvent(L"jumpin char=%s id=%d system=%s",
-                     ToWChar(Players.GetActiveCharacterName(clientID)),
-                     clientID, HkGetSystemNickByID(systemID).c_str());
+                     ToWChar(Players.GetActiveCharacterName(clientId)),
+                     clientId, HkGetSystemNickByID(systemID).c_str());
     }
     CATCH_HOOK({})
 }
 
-void SystemSwitchOutComplete__InnerAfter(uint, uint clientID) {
+void SystemSwitchOutComplete__InnerAfter(uint, uint clientId) {
     TRY_HOOK {
         // event
-        std::wstring system = HkGetPlayerSystem(clientID);
+        std::wstring system = HkGetPlayerSystem(clientId);
         ProcessEvent(L"switchout char=%s id=%d system=%s",
-                     ToWChar(Players.GetActiveCharacterName(clientID)),
-                     clientID, system.c_str());
+                     ToWChar(Players.GetActiveCharacterName(clientId)),
+                     clientId, system.c_str());
     }
     CATCH_HOOK({})
 }
 
-bool Login__InnerBefore(const SLoginInfo &li, uint clientID) {
+bool Login__InnerBefore(const SLoginInfo &li, uint clientId) {
     // The startup cache disables reading of the banned file. Check this manually on
     // login and boot the player if they are banned.
 
-    CAccount *acc = Players.FindAccountFromClientID(clientID);
+    CAccount *acc = Players.FindAccountFromClientID(clientId);
     if (acc) {
         std::wstring wscDir;
         HkGetAccountDirName(acc, wscDir);
@@ -677,38 +677,38 @@ bool Login__InnerBefore(const SLoginInfo &li, uint clientID) {
     return true;
 }
 
-bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
+bool Login__InnerAfter(const SLoginInfo& li, uint clientId) {
     TRY_HOOK {
-        if (clientID > MaxClientId)
+        if (clientId > MaxClientId)
             return false; // DisconnectDelay bug
 
-        if (!HkIsValidClientID(clientID))
+        if (!HkIsValidClientID(clientId))
             return false; // player was kicked
 
         // Kick the player if the account ID doesn't exist. This is caused
         // by a duplicate log on.
-        CAccount *acc = Players.FindAccountFromClientID(clientID);
+        CAccount *acc = Players.FindAccountFromClientID(clientId);
         if (acc && !acc->wszAccID) {
             acc->ForceLogout();
             return false;
         }
 
-        bool skip = CallPluginsOther(HookedCall::IServerImpl__Login, HookStep::Mid, li, clientID);
+        bool skip = CallPluginsOther(HookedCall::IServerImpl__Login, HookStep::Mid, li, clientId);
         if(skip)
             return false;
 
         // check for ip ban
         std::wstring ip;
-        HkGetPlayerIP(clientID, ip);
+        HkGetPlayerIP(clientId, ip);
 
         for (const auto& ban : FLHookConfig::i()->bans.banWildcardsAndIPs) {
             if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip).c_str())) 
             {
-                HkAddKickLog(clientID, L"IP/Hostname ban(%s matches %s)",
+                HkAddKickLog(clientId, L"IP/Hostname ban(%s matches %s)",
                              ip.c_str(), ban.c_str());
 				if (FLHookConfig::i()->bans.banAccountOnMatch)
-                    HkBan(clientID, true);
-                HkKick(clientID);
+                    HkBan(clientId, true);
+                HkKick(clientId);
             }
         }
 
@@ -717,9 +717,9 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
         rip.wscIP = ip;
         rip.wscHostname = L"";
         rip.iConnects =
-            ClientInfo[clientID].iConnects; // security check so that wrong
+            ClientInfo[clientId].iConnects; // security check so that wrong
                                              // person doesnt get banned
-        rip.iClientID = clientID;
+        rip.clientId = clientId;
         EnterCriticalSection(&csIPResolve);
         g_lstResolveIPs.push_back(rip);
         LeaveCriticalSection(&csIPResolve);
@@ -742,12 +742,12 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
             }
         }
 
-        LoadUserSettings(clientID);
+        LoadUserSettings(clientId);
         
-    	HkAddConnectLog(clientID, ip);
+    	HkAddConnectLog(clientId, ip);
     }
     CATCH_HOOK({
-        CAccount *acc = Players.FindAccountFromClientID(clientID);
+        CAccount *acc = Players.FindAccountFromClientID(clientId);
         if (acc)
             acc->ForceLogout();
         return false;
@@ -756,25 +756,25 @@ bool Login__InnerAfter(const SLoginInfo& li, uint clientID) {
     return true;
 }
 
-void GoTradelane__Inner(uint clientID, const XGoTradelane& gtl) {
-    if (clientID <= MaxClientId && clientID > 0)
-        ClientInfo[clientID].bTradelane = true;
+void GoTradelane__Inner(uint clientId, const XGoTradelane& gtl) {
+    if (clientId <= MaxClientId && clientId > 0)
+        ClientInfo[clientId].bTradelane = true;
 }
         
-bool GoTradelane__Catch(uint iClientID, const XGoTradelane& gtl) {
+bool GoTradelane__Catch(uint clientId, const XGoTradelane& gtl) {
     uint system;
-    pub::Player::GetSystem(iClientID, system);
+    pub::Player::GetSystem(clientId, system);
     AddLog(LogType::Normal, LogLevel::Info,L"ERROR: Exception in HkIServerImpl::GoTradelane charname=%s "
            "sys=%08x arch=%08x arch2=%08x",
-           wstos(ToWChar(Players.GetActiveCharacterName(iClientID)))
+           wstos(ToWChar(Players.GetActiveCharacterName(clientId)))
                .c_str(),
            system, gtl.iTradelaneSpaceObj1, gtl.iTradelaneSpaceObj2);
     return true;
 }
 
-void StopTradelane__Inner(uint clientID, uint, uint, uint) {
-	if (clientID <= MaxClientId && clientID > 0)
-        ClientInfo[clientID].bTradelane = false;
+void StopTradelane__Inner(uint clientId, uint, uint, uint) {
+	if (clientId <= MaxClientId && clientId > 0)
+        ClientInfo[clientId].bTradelane = false;
 }
 
 void Shutdown__InnerAfter() {

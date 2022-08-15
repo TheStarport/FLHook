@@ -26,7 +26,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	HK_ERROR __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
+	HkError __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
 	{
 		const uint iClientID = HkGetClientIdFromCharname(wscCharname);
 
@@ -41,7 +41,7 @@ namespace Plugins::Tempban
 		else
 		{
 			if (!(acc = HkGetAccountByCharname(wscCharname)))
-				return HKE_CHAR_DOES_NOT_EXIST;
+				return CharDoesNotExist;
 		}
 		std::wstring wscID = HkGetAccountID(acc);
 

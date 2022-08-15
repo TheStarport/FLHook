@@ -1,55 +1,55 @@
 ﻿#include "Global.hpp"
 #include <fstream>
 
-HK_ERROR HkAddToGroup(uint iClientID, uint iGroupID)
+HkError HkAddToGroup(uint clientId, uint iGroupID)
 {
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
-	uint iCurrentGroupID = Players.GetGroupID(iClientID);
+	uint iCurrentGroupID = Players.GetGroupID(clientId);
 	if (iCurrentGroupID == iGroupID)
-		return HKE_INVALID_GROUP_ID;
+		return InvalidGroupId;
 
 	CPlayerGroup* group = CPlayerGroup::FromGroupID(iGroupID);
 	if (!group)
-		return HKE_INVALID_GROUP_ID;
-	group->AddMember(iClientID);
+		return InvalidGroupId;
+	group->AddMember(clientId);
 	return HKE_OK;
 }
 
-HK_ERROR HkGetGroupID(uint iClientID, uint& iGroupID)
+HkError HkGetGroupID(uint clientId, uint& iGroupID)
 {
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
-	iGroupID = Players.GetGroupID(iClientID);
+	iGroupID = Players.GetGroupID(clientId);
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int& iCash)
+HkError HkGetCash(const std::variant<uint, std::wstring>& player, int& iCash)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID != -1)
+	if (clientId != -1)
 	{
-		if (HkIsInCharSelectMenu(iClientID))
-			return HKE_NO_CHAR_SELECTED;
+		if (HkIsInCharSelectMenu(clientId))
+			return NoCharSelected;
 
-		pub::Player::InspectCash(iClientID, iCash);
+		pub::Player::InspectCash(clientId, iCash);
 		return HKE_OK;
 	}
 
 	if (!player.index())
-		return HKE_INVALID_CLIENT_ID;
+		return InvalidClientId;
 
 	// player not logged in
 	std::wstring wscDir;
 	if (!HKHKSUCCESS(HkGetAccountDirName(std::get<std::wstring>(player), wscDir)))
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 	std::wstring wscFile;
 	HkGetCharFileName(player, wscFile);
 
@@ -58,7 +58,7 @@ HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int& iCash)
 	FILE* fTest;
 	fopen_s(&fTest, scCharFile.c_str(), "r");
 	if (!fTest)
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 	else
 		fclose(fTest);
 
@@ -66,7 +66,7 @@ HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int& iCash)
 	{
 		std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-			return HKE_COULD_NOT_DECODE_CHARFILE;
+			return CouldNotDecodeCharFile;
 
 		iCash = IniGetI(scCharFileNew, "Player", "money", -1);
 		DeleteFile(scCharFileNew.c_str());
@@ -81,25 +81,25 @@ HK_ERROR HkGetCash(std::variant<uint, std::wstring> player, int& iCash)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
+HkError HkAddCash(const std::variant<uint, std::wstring>& player, int iAmount)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if ((iClientID != -1) && HkIsInCharSelectMenu(iClientID))
-		return HKE_NO_CHAR_SELECTED;
-	else if (iClientID != -1)
+	if ((clientId != -1) && HkIsInCharSelectMenu(clientId))
+		return NoCharSelected;
+	else if (clientId != -1)
 	{ // player logged in
-		pub::Player::AdjustCash(iClientID, iAmount);
+		pub::Player::AdjustCash(clientId, iAmount);
 		return HKE_OK;
 	}
 	else if (player.index())
 	{
-		const auto wscCharname = std::get<std::wstring>(player);
+		const auto character = std::get<std::wstring>(player);
 		std::wstring wscDir;
-		if (!HKHKSUCCESS(HkGetAccountDirName(wscCharname, wscDir)))
-			return HKE_CHAR_DOES_NOT_EXIST;
+		if (!HKHKSUCCESS(HkGetAccountDirName(character, wscDir)))
+			return CharDoesNotExist;
 		std::wstring wscFile;
-		HkGetCharFileName(wscCharname, wscFile);
+		HkGetCharFileName(character, wscFile);
 
 		std::string scCharFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
 		int iRet;
@@ -108,7 +108,7 @@ HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
 			std::string scCharFileNew = scCharFile + ".ini";
 
 			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-				return HKE_COULD_NOT_DECODE_CHARFILE;
+				return CouldNotDecodeCharFile;
 
 			iRet = IniGetI(scCharFileNew, "Player", "money", -1);
 			// Add a space to the value so the ini file line looks like "<key> =
@@ -117,7 +117,7 @@ HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
 
 			if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				if (!flc_encode(scCharFileNew.c_str(), scCharFile.c_str()))
-					return HKE_COULD_NOT_ENCODE_CHARFILE;
+					return CouldNotEncodeCharFile;
 
 			DeleteFile(scCharFileNew.c_str());
 		}
@@ -129,13 +129,13 @@ HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
 			IniWrite(scCharFile, "Player", "money", " " + std::to_string(iRet + iAmount));
 		}
 
-		if (HkIsInCharSelectMenu(wscCharname) || (iClientID != -1))
+		if (HkIsInCharSelectMenu(character) || (clientId != -1))
 		{ // money fix in case player logs in with this account
 			bool bFound = false;
-			std::wstring wscCharnameLower = ToLower(wscCharname);
-			for (auto& money : ClientInfo[iClientID].lstMoneyFix)
+			std::wstring characterLower = ToLower(character);
+			for (auto& money : ClientInfo[clientId].lstMoneyFix)
 			{
-				if (money.wscCharname == wscCharnameLower)
+				if (money.character == characterLower)
 				{
 					money.iAmount += iAmount;
 					bFound = true;
@@ -146,60 +146,60 @@ HK_ERROR HkAddCash(std::variant<uint, std::wstring> player, int iAmount)
 			if (!bFound)
 			{
 				MONEY_FIX mf;
-				mf.wscCharname = wscCharnameLower;
+				mf.character = characterLower;
 				mf.iAmount = iAmount;
-				ClientInfo[iClientID].lstMoneyFix.push_back(mf);
+				ClientInfo[clientId].lstMoneyFix.push_back(mf);
 			}
 		}
 
 		return HKE_OK;
 	}
 
-	return HKE_INVALID_CLIENT_ID;
+	return InvalidClientId;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkKick(CAccount* acc)
+HkError HkKick(CAccount* acc)
 {
 	acc->ForceLogout();
 	return HKE_OK;
 }
 
-HK_ERROR HkKick(std::variant<uint, std::wstring> player)
+HkError HkKick(const std::variant<uint, std::wstring>& player)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	acc->ForceLogout();
 	return HKE_OK;
 }
 
-HK_ERROR HkKickReason(std::variant<uint, std::wstring> player, const std::wstring& wscReason)
+HkError HkKickReason(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	if (wscReason.length())
-		HkMsgAndKick(iClientID, wscReason, FLHookConfig::i()->msgStyle.kickMsgPeriod);
+		HkMsgAndKick(clientId, wscReason, FLHookConfig::i()->msgStyle.kickMsgPeriod);
 	else
-		HkKick(Players.FindAccountFromClientID(iClientID));
+		HkKick(Players.FindAccountFromClientID(clientId));
 
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBan(std::variant<uint, std::wstring> player, bool bBan)
+HkError HkBan(const std::variant<uint, std::wstring>& player, bool bBan)
 {
 	CAccount* acc = HkExtractAccount(player);
 	if (!acc)
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 
 	std::wstring wscID = HkGetAccountID(acc);
 	st6::wstring flStr((ushort*)wscID.c_str());
@@ -209,46 +209,46 @@ HK_ERROR HkBan(std::variant<uint, std::wstring> player, bool bBan)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkBeam(std::variant<uint, std::wstring> player, const std::wstring& wscBasename)
+HkError HkBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscBasename)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	std::string scBasename = wstos(wscBasename);
 	// check if ship in space
 	uint iShip = 0;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 	if (!iShip)
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 
 	// get base id
 	uint iBaseID;
 
 	if (pub::GetBaseID(iBaseID, scBasename.c_str()) == -4)
 	{
-		return HKE_INVALID_BASENAME;
+		return InvalidBaseName;
 	}
 
 	uint iSysID;
-	pub::Player::GetSystem(iClientID, iSysID);
+	pub::Player::GetSystem(clientId, iSysID);
 	Universe::IBase* base = Universe::get_base(iBaseID);
 
-	pub::Player::ForceLand(iClientID, iBaseID); // beam
+	pub::Player::ForceLand(clientId, iBaseID); // beam
 
 	// if not in the same system, emulate F1 charload
 	if (base->iSystemID != iSysID)
 	{
-		Server.BaseEnter(iBaseID, iClientID);
-		Server.BaseExit(iBaseID, iClientID);
+		Server.BaseEnter(iBaseID, clientId);
+		Server.BaseExit(iBaseID, clientId);
 		std::wstring wscCharFileName;
-		HkGetCharFileName(iClientID, wscCharFileName);
+		HkGetCharFileName(clientId, wscCharFileName);
 		wscCharFileName += L".fl";
 		CHARACTER_ID cID;
 		strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-		Server.CharacterSelect(cID, iClientID);
+		Server.CharacterSelect(cID, clientId);
 	}
 
 	return HKE_OK;
@@ -256,18 +256,18 @@ HK_ERROR HkBeam(std::variant<uint, std::wstring> player, const std::wstring& wsc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSaveChar(std::variant<uint, std::wstring> player)
+HkError HkSaveChar(const std::variant<uint, std::wstring>& player)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	void* pJmp = (char*)hModServer + 0x7EFA8;
 	char szNop[2] = { '\x90', '\x90' };
 	char szTestAlAl[2] = { '\x74', '\x44' };
 	WriteProcMem(pJmp, szNop, sizeof(szNop)); // nop the SinglePlayer() check
-	pub::Save(iClientID, 1);
+	pub::Save(clientId, 1);
 	WriteProcMem(pJmp, szTestAlAl, sizeof(szTestAlAl)); // restore
 
 	return HKE_OK;
@@ -290,18 +290,18 @@ struct EQ_ITEM
 	bool bMission;
 };
 
-HK_ERROR HkEnumCargo(std::variant<uint, std::wstring> player, std::list<CARGO_INFO>& lstCargo, int& iRemainingHoldSize)
+HkError HkEnumCargo(const std::variant<uint, std::wstring>& player, std::list<CARGO_INFO>& lstCargo, int& iRemainingHoldSize)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1 || HkIsInCharSelectMenu(clientId))
+		return PlayerNotLoggedIn;
 
 	lstCargo.clear();
 
 	char* szClassPtr;
 	memcpy(&szClassPtr, &Players, 4);
-	szClassPtr += 0x418 * (iClientID - 1);
+	szClassPtr += 0x418 * (clientId - 1);
 
 	EQ_ITEM* eqLst;
 	memcpy(&eqLst, szClassPtr + 0x27C, 4);
@@ -318,19 +318,19 @@ HK_ERROR HkEnumCargo(std::variant<uint, std::wstring> player, std::list<CARGO_IN
 	}
 
 	float fRemHold;
-	pub::Player::GetRemainingHoldSize(iClientID, fRemHold);
+	pub::Player::GetRemainingHoldSize(clientId, fRemHold);
 	iRemainingHoldSize = (int)fRemHold;
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID, int iCount)
+HkError HkRemoveCargo(const std::variant<uint, std::wstring>& player, uint iID, int iCount)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1 || HkIsInCharSelectMenu(clientId))
+		return PlayerNotLoggedIn;
 
 	std::list<CARGO_INFO> lstCargo;
 	int iHold;
@@ -342,12 +342,12 @@ HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID, int iC
 								   // thus fix
 	}
 
-	pub::Player::RemoveCargo(iClientID, iID, iCount);
+	pub::Player::RemoveCargo(clientId, iID, iCount);
 
 	// anti-cheat related
 	/*	char *szClassPtr;
 			memcpy(&szClassPtr, &Players, 4);
-			szClassPtr += 0x418 * (iClientID - 1);
+			szClassPtr += 0x418 * (clientId - 1);
 			EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
 			const EquipDesc *ed = edlList->find_equipment_item(iID);
 			if(ed)
@@ -361,17 +361,17 @@ HK_ERROR HkRemoveCargo(std::variant<uint, std::wstring> player, uint iID, int iC
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int iCount, bool bMission)
+HkError HkAddCargo(const std::variant<uint, std::wstring>& player, uint iGoodID, int iCount, bool bMission)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1 || HkIsInCharSelectMenu(clientId))
+		return PlayerNotLoggedIn;
 
 	/*	// anti-cheat related
 			char *szClassPtr;
 			memcpy(&szClassPtr, &Players, 4);
-			szClassPtr += 0x418 * (iClientID - 1);
+			szClassPtr += 0x418 * (clientId - 1);
 			EquipDescList *edlList = (EquipDescList*)szClassPtr + 0x328;
 			bool bCargoFound = true;
 			if(!edlList->find_matching_cargo(iGoodID, 0, 1))
@@ -380,24 +380,24 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 	// add
 	const GoodInfo* gi;
 	if (!(gi = GoodList::find_by_id(iGoodID)))
-		return HKE_INVALID_GOOD;
+		return InvalidGood;
 
 	bool bMultiCount;
 	memcpy(&bMultiCount, (char*)gi + 0x70, 1);
 
 	uint iBase = 0;
-	pub::Player::GetBase(iClientID, iBase);
+	pub::Player::GetBase(clientId, iBase);
 	uint iLocation = 0;
-	pub::Player::GetLocation(iClientID, iLocation);
+	pub::Player::GetLocation(clientId, iLocation);
 
 	// trick cheat detection
 	if (iBase)
 	{
 		if (iLocation)
-			Server.LocationExit(iLocation, iClientID);
-		Server.BaseExit(iBase, iClientID);
-		if (!HkIsValidClientID(iClientID)) // got cheat kicked
-			return HKE_PLAYER_NOT_LOGGED_IN;
+			Server.LocationExit(iLocation, clientId);
+		Server.BaseExit(iBase, clientId);
+		if (!HkIsValidClientID(clientId)) // got cheat kicked
+			return PlayerNotLoggedIn;
 	}
 
 	if (bMultiCount)
@@ -417,12 +417,12 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 			}
 		}
 
-		pub::Player::AddCargo(iClientID, iGoodID, iCount, 1, bMission);
+		pub::Player::AddCargo(clientId, iGoodID, iCount, 1, bMission);
 	}
 	else
 	{
 		for (int i = 0; (i < iCount); i++)
-			pub::Player::AddCargo(iClientID, iGoodID, 1, 1, bMission);
+			pub::Player::AddCargo(clientId, iGoodID, 1, 1, bMission);
 	}
 
 	if (iBase)
@@ -432,9 +432,9 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 		// this DOES NOT disable anti-cheat-detection, we're
 		// just making some adjustments so that we dont get kicked
 
-		Server.BaseEnter(iBase, iClientID);
+		Server.BaseEnter(iBase, clientId);
 		if (iLocation)
-			Server.LocationEnter(iLocation, iClientID);
+			Server.LocationEnter(iLocation, clientId);
 
 		/*		// fix "Ship or Equipment not sold on base" kick
 						if(!bCargoFound)
@@ -464,45 +464,45 @@ HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, uint iGoodID, int i
 	return HKE_OK;
 }
 
-HK_ERROR HkAddCargo(std::variant<uint, std::wstring> player, const std::wstring& wscGood, int iCount, bool bMission)
+HkError HkAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, int iCount, bool bMission)
 {
 	uint iGoodID = ToInt(wscGood.c_str());
 	if (!iGoodID)
 		pub::GetGoodID(iGoodID, wstos(wscGood).c_str());
 	if (!iGoodID)
-		return HKE_INVALID_GOOD;
+		return InvalidGood;
 
 	return HkAddCargo(player, iGoodID, iCount, bMission);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& wscNewCharname, bool bOnlyDelete)
+HkError HkRename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname, bool bOnlyDelete)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if ((iClientID == -1) && player.index() && !HkGetAccountByCharname(std::get<std::wstring>(player)))
-		return HKE_CHAR_DOES_NOT_EXIST;
+	if ((clientId == -1) && player.index() && !HkGetAccountByCharname(std::get<std::wstring>(player)))
+		return CharDoesNotExist;
 
 	if (!bOnlyDelete && HkGetAccountByCharname(wscNewCharname))
-		return HKE_CHARNAME_ALREADY_EXISTS;
+		return AlreadyExists;
 
 	if (!bOnlyDelete && (wscNewCharname.length() > 23))
-		return HKE_CHARNAME_TOO_LONG;
+		return CharacterNameTooLong;
 
 	if (!bOnlyDelete && !wscNewCharname.length())
-		return HKE_CHARNAME_TOO_SHORT;
+		return CharacterNameTooShort;
 
 	INI_Reader ini;
 	if (!bOnlyDelete && !(ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false)))
-		return HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID;
+		return MpNewCharacterFileNotFoundOrInvalid;
 
 	CAccount* acc;
 	std::wstring wscOldCharname;
-	if (iClientID != -1)
+	if (clientId != -1)
 	{
-		acc = Players.FindAccountFromClientID(iClientID);
-		wscOldCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		acc = Players.FindAccountFromClientID(clientId);
+		wscOldCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 	}
 	else
 	{
@@ -629,20 +629,20 @@ HK_ERROR HkRename(std::variant<uint, std::wstring> player, const std::wstring& w
 	// Re-encode the char file if needed.
 	if (!FLHookConfig::i()->general.disableCharfileEncryption)
 		if (!flc_encode(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
-			return HKE_COULD_NOT_ENCODE_CHARFILE;
+			return CouldNotEncodeCharFile;
 
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring& wscReason, uint iIntervall)
+HkError HkMsgAndKick(uint clientId, const std::wstring& wscReason, uint iIntervall)
 {
-	if (!ClientInfo[iClientID].tmKickTime)
+	if (!ClientInfo[clientId].tmKickTime)
 	{
 		std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->msgStyle.kickMsg, L"%reason", XMLText(wscReason));
-		HkFMsg(iClientID, wscMsg);
-		ClientInfo[iClientID].tmKickTime = timeInMS() + iIntervall;
+		HkFMsg(clientId, wscMsg);
+		ClientInfo[clientId].tmKickTime = timeInMS() + iIntervall;
 	}
 
 	return HKE_OK;
@@ -650,18 +650,18 @@ HK_ERROR HkMsgAndKick(uint iClientID, const std::wstring& wscReason, uint iInter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkKill(std::variant<uint, std::wstring> player)
+HkError HkKill(const std::variant<uint, std::wstring>& player)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	uint iShip;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 	if (!iShip)
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 
 	pub::SpaceObj::SetRelativeHealth(iShip, 0.0f);
 	return HKE_OK;
@@ -669,18 +669,18 @@ HK_ERROR HkKill(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetReservedSlot(std::variant<uint, std::wstring> player, bool& bResult)
+HkError HkGetReservedSlot(const std::variant<uint, std::wstring>& player, bool& bResult)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	CAccount* acc;
-	if (iClientID != -1)
-		acc = Players.FindAccountFromClientID(iClientID);
+	if (clientId != -1)
+		acc = Players.FindAccountFromClientID(clientId);
 	else
 		acc = player.index() ? HkGetAccountByCharname(std::get<std::wstring>(player)) : nullptr;
 
 	if (!acc)
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
@@ -692,11 +692,11 @@ HK_ERROR HkGetReservedSlot(std::variant<uint, std::wstring> player, bool& bResul
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetReservedSlot(std::variant<uint, std::wstring> player, bool bReservedSlot)
+HkError HkSetReservedSlot(const std::variant<uint, std::wstring>& player, bool bReservedSlot)
 {
 	CAccount* acc = HkExtractAccount(player);
 	if (!acc)
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
@@ -737,19 +737,19 @@ int HkPlayerAutoBuyGetCount(std::list<CARGO_INFO>& lstCargo, uint iItemArchID)
 		lstCart.push_back(aci);                                                        \
 	}
 
-void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
+void HkPlayerAutoBuy(uint clientId, uint iBaseID)
 {
 	// player cargo
 	int iRemHoldSize;
 	std::list<CARGO_INFO> lstCargo;
-	HkEnumCargo(iClientID, lstCargo, iRemHoldSize);
+	HkEnumCargo(clientId, lstCargo, iRemHoldSize);
 
 	// shopping cart
 	std::list<AUTOBUY_CARTITEM> lstCart;
 
-	if (ClientInfo[iClientID].bAutoBuyReload)
+	if (ClientInfo[clientId].bAutoBuyReload)
 	{ // shield bats & nanobots
-		Archetype::Ship* ship = Archetype::GetShip(Players[iClientID].iShipArchetype);
+		Archetype::Ship* ship = Archetype::GetShip(Players[clientId].iShipArchetype);
 
 		uint iNanobotsID;
 		pub::GetGoodID(iNanobotsID, "ge_s_repair_01");
@@ -799,8 +799,8 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 		}
 	}
 
-	if (ClientInfo[iClientID].bAutoBuyCD || ClientInfo[iClientID].bAutoBuyCM || ClientInfo[iClientID].bAutoBuyMines ||
-		ClientInfo[iClientID].bAutoBuyMissiles || ClientInfo[iClientID].bAutoBuyTorps)
+	if (ClientInfo[clientId].bAutoBuyCD || ClientInfo[clientId].bAutoBuyCM || ClientInfo[clientId].bAutoBuyMines ||
+		ClientInfo[clientId].bAutoBuyMissiles || ClientInfo[clientId].bAutoBuyTorps)
 	{
 		// add mounted equip to a new list and eliminate double equipment(such
 		// as 2x lancer etc)
@@ -834,30 +834,30 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 			uint i = mounted.iArchID;
 			AUTOBUY_CARTITEM aci;
 			Archetype::Equipment* eq = Archetype::GetEquipment(mounted.iArchID);
-			EQ_TYPE eq_type = HkGetEqType(eq);
+			EquipmentType eq_type = HkGetEqType(eq);
 			if (eq_type == ET_MINE)
 			{
-				if (ClientInfo[iClientID].bAutoBuyMines)
+				if (ClientInfo[clientId].bAutoBuyMines)
 					ADD_EQUIP_TO_CART(L"Mines")
 			}
 			else if (eq_type == ET_CM)
 			{
-				if (ClientInfo[iClientID].bAutoBuyCM)
+				if (ClientInfo[clientId].bAutoBuyCM)
 					ADD_EQUIP_TO_CART(L"Countermeasures")
 			}
 			else if (eq_type == ET_TORPEDO)
 			{
-				if (ClientInfo[iClientID].bAutoBuyTorps)
+				if (ClientInfo[clientId].bAutoBuyTorps)
 					ADD_EQUIP_TO_CART(L"Torpedos")
 			}
 			else if (eq_type == ET_CD)
 			{
-				if (ClientInfo[iClientID].bAutoBuyCD)
+				if (ClientInfo[clientId].bAutoBuyCD)
 					ADD_EQUIP_TO_CART(L"Cruise Disruptors")
 			}
 			else if (eq_type == ET_MISSILE)
 			{
-				if (ClientInfo[iClientID].bAutoBuyMissiles)
+				if (ClientInfo[clientId].bAutoBuyMissiles)
 					ADD_EQUIP_TO_CART(L"Missiles")
 			}
 		}
@@ -878,7 +878,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 		return; // base not found
 
 	int iCash;
-	HkGetCash(iClientID, iCash);
+	HkGetCash(clientId, iCash);
 
 	for (auto& buy : lstCart)
 	{
@@ -902,7 +902,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 
 				// get player rep
 				int iRepID;
-				pub::Player::GetRep(iClientID, iRepID);
+				pub::Player::GetRep(clientId, iRepID);
 
 				// check if rep is sufficient
 				float fPlayerRep;
@@ -927,7 +927,7 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 			uint iNewCount = (uint)(iRemHoldSize / eq->fVolume);
 			if (!iNewCount)
 			{
-				//				PrintUserCmdText(iClientID,
+				//				PrintUserCmdText(clientId,
 				// L"Auto-Buy(%s): FAILED! Insufficient cargo space",
 				// (*it4).wscDescription.c_str());
 				continue;
@@ -938,21 +938,21 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 
 		int iCost = ((int)fPrice * buy.iCount);
 		if (iCash < iCost)
-			PrintUserCmdText(iClientID, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
+			PrintUserCmdText(clientId, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
 		else
 		{
-			HkAddCash(iClientID, -iCost);
+			HkAddCash(clientId, -iCost);
 			iCash -= iCost;
 			iRemHoldSize -= ((int)eq->fVolume * buy.iCount);
-			//			HkAddCargo(iClientID,
+			//			HkAddCargo(clientId,
 			//(*it4).iArchID, (*it4).iCount, false);
 
 			// add the item, dont use hkaddcargo for performance/bug reasons
 			// assume we only mount multicount goods (missiles, ammo, bots)
-			pub::Player::AddCargo(iClientID, buy.iArchID, buy.iCount, 1, false);
+			pub::Player::AddCargo(clientId, buy.iArchID, buy.iCount, 1, false);
 
 			PrintUserCmdText(
-				iClientID, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount,
+				clientId, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount,
 				ToMoneyStr(iCost).c_str());
 		}
 	}
@@ -960,27 +960,27 @@ void HkPlayerAutoBuy(uint iClientID, uint iBaseID)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkResetRep(std::variant<uint, std::wstring> player)
+HkError HkResetRep(const std::variant<uint, std::wstring>& player)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	INI_Reader ini;
 	if (!ini.open("mpnewcharacter.fl", false))
-		return HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID;
+		return MpNewCharacterFileNotFoundOrInvalid;
 
 	ini.read_header();
 	if (!ini.is_header("Player"))
 	{
 		ini.close();
-		return HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID;
+		return MpNewCharacterFileNotFoundOrInvalid;
 	}
 
 	int iPlayerRep;
-	pub::Player::GetRep(iClientID, iPlayerRep);
+	pub::Player::GetRep(clientId, iPlayerRep);
 	while (ini.read_value())
 	{
 		if (ini.is_value("house"))
@@ -1000,63 +1000,63 @@ HK_ERROR HkResetRep(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkSetRep(std::variant<uint, std::wstring> player, const std::wstring& wscRepGroup, float fValue)
+HkError HkSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	uint iRepGroupID;
 	pub::Reputation::GetReputationGroup(iRepGroupID, wstos(wscRepGroup).c_str());
 	if (iRepGroupID == -1)
-		return HKE_INVALID_REP_GROUP;
+		return InvalidRepGroup;
 
 	int iPlayerRep;
-	pub::Player::GetRep(iClientID, iPlayerRep);
+	pub::Player::GetRep(clientId, iPlayerRep);
 	pub::Reputation::SetReputation(iPlayerRep, iRepGroupID, fValue);
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetRep(std::variant<uint, std::wstring> player, const std::wstring& wscRepGroup, float& fValue)
+HkError HkGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float& fValue)
 {
-	const uint iClientID = HkExtractClientId(player);
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	const uint clientId = HkExtractClientId(player);
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	uint iRepGroupID;
 	pub::Reputation::GetReputationGroup(iRepGroupID, wstos(wscRepGroup).c_str());
 	if (iRepGroupID == -1)
-		return HKE_INVALID_REP_GROUP;
+		return InvalidRepGroup;
 
 	int iPlayerRep;
-	pub::Player::GetRep(iClientID, iPlayerRep);
+	pub::Player::GetRep(clientId, iPlayerRep);
 	pub::Reputation::GetGroupFeelingsTowards(iPlayerRep, iRepGroupID, fValue);
 	return HKE_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkGetGroupMembers(std::variant<uint, std::wstring> player, std::list<GROUP_MEMBER>& lstMembers)
+HkError HkGetGroupMembers(const std::variant<uint, std::wstring>& player, std::list<GROUP_MEMBER>& lstMembers)
 {
 	lstMembers.clear();
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	// hey, at least it works! beware of the VC optimiser.
 	st6::vector<uint> vMembers;
-	pub::Player::GetGroupMembers(iClientID, vMembers);
+	pub::Player::GetGroupMembers(clientId, vMembers);
 
 	for (uint i : vMembers)
 	{
 		GROUP_MEMBER gm;
-		gm.iClientID = i;
-		gm.wscCharname = (wchar_t*)Players.GetActiveCharacterName(i);
+		gm.clientId = i;
+		gm.character = (wchar_t*)Players.GetActiveCharacterName(i);
 		lstMembers.push_back(gm);
 	}
 
@@ -1065,28 +1065,28 @@ HK_ERROR HkGetGroupMembers(std::variant<uint, std::wstring> player, std::list<GR
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player, std::list<std::wstring>& lstOutput)
+HkError HkReadCharFile(const std::variant<uint, std::wstring>& player, std::list<std::wstring>& lstOutput)
 {
 	lstOutput.clear();
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	std::wstring wscDir;
 	CAccount* acc;
-	if (iClientID != -1)
+	if (clientId != -1)
 	{
-		acc = Players.FindAccountFromClientID(iClientID);
-		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		acc = Players.FindAccountFromClientID(clientId);
+		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 		if (!wszCharname)
-			return HKE_NO_CHAR_SELECTED;
+			return NoCharSelected;
 
 		if (!HKHKSUCCESS(HkGetAccountDirName(wszCharname, wscDir)))
-			return HKE_CHAR_DOES_NOT_EXIST;
+			return CharDoesNotExist;
 	}
 	else
 	{
 		acc = HkExtractAccount(player);
 		if (!acc)
-			return HKE_CHAR_DOES_NOT_EXIST;
+			return CharDoesNotExist;
 	}
 
 	std::wstring wscFile;
@@ -1098,7 +1098,7 @@ HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player, std::list<std::
 	{
 		std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-			return HKE_COULD_NOT_DECODE_CHARFILE;
+			return CouldNotDecodeCharFile;
 		scFileToRead = scCharFileNew;
 		bDeleteAfter = true;
 	}
@@ -1111,7 +1111,7 @@ HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player, std::list<std::
 	std::ifstream ifs;
 	ifs.open(scFileToRead.c_str(), std::ios_base::in);
 	if (!ifs.is_open())
-		return HKE_UNKNOWN_ERROR;
+		return UnknownError;
 
 	std::string scLine;
 	while (getline(ifs, scLine))
@@ -1124,27 +1124,27 @@ HK_ERROR HkReadCharFile(std::variant<uint, std::wstring> player, std::list<std::
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkWriteCharFile(std::variant<uint, std::wstring> player, std::wstring wscData)
+HkError HkWriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring wscData)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
 	std::wstring wscDir;
 	CAccount* acc;
-	if (iClientID != -1)
+	if (clientId != -1)
 	{
-		acc = Players.FindAccountFromClientID(iClientID);
-		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		acc = Players.FindAccountFromClientID(clientId);
+		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 		if (!wszCharname)
-			return HKE_NO_CHAR_SELECTED;
+			return NoCharSelected;
 
 		if (!HKHKSUCCESS(HkGetAccountDirName(wszCharname, wscDir)))
-			return HKE_CHAR_DOES_NOT_EXIST;
+			return CharDoesNotExist;
 	}
 	else
 	{
 		acc = HkExtractAccount(player);
 		if (!acc)
-			return HKE_CHAR_DOES_NOT_EXIST;
+			return CharDoesNotExist;
 	}
 
 	std::wstring wscFile;
@@ -1166,7 +1166,7 @@ HK_ERROR HkWriteCharFile(std::variant<uint, std::wstring> player, std::wstring w
 	std::ofstream ofs;
 	ofs.open(scFileToWrite.c_str(), std::ios_base::out);
 	if (!ofs.is_open())
-		return HKE_UNKNOWN_ERROR;
+		return UnknownError;
 
 	size_t iPos;
 	while ((iPos = wscData.find(L"\\n")) != -1)
@@ -1190,11 +1190,11 @@ HK_ERROR HkWriteCharFile(std::variant<uint, std::wstring> player, std::wstring w
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkPlayerRecalculateCRC(uint iClientID)
+HkError HkPlayerRecalculateCRC(uint clientId)
 {
 	try
 	{
-		PlayerData* pd = &Players[iClientID];
+		PlayerData* pd = &Players[clientId];
 		char* ACCalcCRC = (char*)hModServer + 0x6FAF0;
 		__asm {
 			pushad
@@ -1207,19 +1207,19 @@ HK_ERROR HkPlayerRecalculateCRC(uint iClientID)
 	}
 	catch (...)
 	{
-		return HKE_INVALID_CLIENT_ID;
+		return InvalidClientId;
 	}
 
 	return HKE_OK;
 }
 
 /** Move the client to the specified location */
-void HkRelocateClient(uint iClientID, Vector vDestination, Matrix mOrientation)
+void HkRelocateClient(uint clientId, Vector vDestination, Matrix mOrientation)
 {
 	Quaternion qRotation = HkMatrixToQuaternion(mOrientation);
 
 	FLPACKET_LAUNCH pLaunch;
-	pLaunch.iShip = ClientInfo[iClientID].iShip;
+	pLaunch.iShip = ClientInfo[clientId].iShip;
 	pLaunch.iBase = 0;
 	pLaunch.iState = 0xFFFFFFFF;
 	pLaunch.fRotate[0] = qRotation.w;
@@ -1230,31 +1230,31 @@ void HkRelocateClient(uint iClientID, Vector vDestination, Matrix mOrientation)
 	pLaunch.fPos[1] = vDestination.y;
 	pLaunch.fPos[2] = vDestination.z;
 
-	HookClient->Send_FLPACKET_SERVER_LAUNCH(iClientID, pLaunch);
+	HookClient->Send_FLPACKET_SERVER_LAUNCH(clientId, pLaunch);
 
 	uint iSystem;
-	pub::Player::GetSystem(iClientID, iSystem);
-	pub::SpaceObj::Relocate(ClientInfo[iClientID].iShip, iSystem, vDestination, mOrientation);
+	pub::Player::GetSystem(clientId, iSystem);
+	pub::SpaceObj::Relocate(ClientInfo[clientId].iShip, iSystem, vDestination, mOrientation);
 }
 
 /** Dock the client immediately */
-HK_ERROR HkInstantDock(uint iClientID, uint iDockObj)
+HkError HkInstantDock(uint clientId, uint iDockObj)
 {
 	// check if logged in
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
 	uint iShip;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 	if (!iShip)
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 
 	uint iSystem, iSystem2;
 	pub::SpaceObj::GetSystem(iShip, iSystem);
 	pub::SpaceObj::GetSystem(iDockObj, iSystem2);
 	if (iSystem != iSystem2)
 	{
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 	}
 
 	try
@@ -1263,15 +1263,15 @@ HK_ERROR HkInstantDock(uint iClientID, uint iDockObj)
 	}
 	catch (...)
 	{
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 	}
 
 	return HKE_OK;
 }
 
-HK_ERROR HkGetRank(std::variant<uint, std::wstring> player, int& iRank)
+HkError HkGetRank(const std::variant<uint, std::wstring>& player, int& iRank)
 {
-	HK_ERROR err;
+	HkError err;
 	std::wstring wscRet = L"";
 	if ((err = HkFLIniGet(player, L"rank", wscRet)) != HKE_OK)
 		return err;
@@ -1283,11 +1283,11 @@ HK_ERROR HkGetRank(std::variant<uint, std::wstring> player, int& iRank)
 }
 
 /// Get online time.
-HK_ERROR HkGetOnlineTime(std::variant<uint, std::wstring> player, int& iSecs)
+HkError HkGetOnlineTime(const std::variant<uint, std::wstring>& player, int& iSecs)
 {
 	std::wstring wscDir;
 	if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 
 	std::wstring wscFile;
 	HkGetCharFileName(player, wscFile);
@@ -1297,7 +1297,7 @@ HK_ERROR HkGetOnlineTime(std::variant<uint, std::wstring> player, int& iSecs)
 	{
 		std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-			return HKE_COULD_NOT_DECODE_CHARFILE;
+			return CouldNotDecodeCharFile;
 
 		iSecs = (int)IniGetF(scCharFileNew, "mPlayer", "total_time_played", 0.0f);
 		DeleteFile(scCharFileNew.c_str());
@@ -1312,34 +1312,34 @@ HK_ERROR HkGetOnlineTime(std::variant<uint, std::wstring> player, int& iSecs)
 
 /// Return true if this player is within the specified distance of any other
 /// player.
-bool IsInRange(uint iClientID, float fDistance)
+bool IsInRange(uint clientId, float fDistance)
 {
 	std::list<GROUP_MEMBER> lstMembers;
-	HkGetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstMembers);
+	HkGetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(clientId), lstMembers);
 
 	uint iShip;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 
 	Vector pos;
 	Matrix rot;
 	pub::SpaceObj::GetLocation(iShip, pos, rot);
 
 	uint iSystem;
-	pub::Player::GetSystem(iClientID, iSystem);
+	pub::Player::GetSystem(clientId, iSystem);
 
 	// For all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
 		// Get the this player's current system and location in the system.
-		uint iClientID2 = HkGetClientIdFromPD(pPD);
+		uint clientId2 = HkGetClientIdFromPD(playerDb);
 		uint iSystem2 = 0;
-		pub::Player::GetSystem(iClientID2, iSystem2);
+		pub::Player::GetSystem(clientId2, iSystem2);
 		if (iSystem != iSystem2)
 			continue;
 
 		uint iShip2;
-		pub::Player::GetShip(iClientID2, iShip2);
+		pub::Player::GetShip(clientId2, iShip2);
 
 		Vector pos2;
 		Matrix rot2;
@@ -1349,7 +1349,7 @@ bool IsInRange(uint iClientID, float fDistance)
 		bool bGrouped = false;
 		for (auto& gm : lstMembers)
 		{
-			if (gm.iClientID == iClientID2)
+			if (gm.clientId == clientId2)
 			{
 				bGrouped = true;
 				break;
@@ -1368,10 +1368,10 @@ bool IsInRange(uint iClientID, float fDistance)
 /**
 Delete a character.
 */
-HK_ERROR HkDeleteCharacter(CAccount* acc, std::wstring& wscCharname)
+HkError HkDeleteCharacter(CAccount* acc, std::wstring& character)
 {
 	HkLockAccountAccess(acc, true);
-	st6::wstring str((ushort*)wscCharname.c_str());
+	st6::wstring str((ushort*)character.c_str());
 	Players.DeleteCharacterFromName(str);
 	HkUnlockAccountAccess(acc);
 	return HKE_OK;
@@ -1381,14 +1381,14 @@ HK_ERROR HkDeleteCharacter(CAccount* acc, std::wstring& wscCharname)
 Create a new character in the specified account by emulating a
 create character.
 */
-HK_ERROR HkNewCharacter(CAccount* acc, std::wstring& wscCharname)
+HkError HkNewCharacter(CAccount* acc, std::wstring& character)
 {
 	HkLockAccountAccess(acc, true);
 	HkUnlockAccountAccess(acc);
 
 	INI_Reader ini;
 	if (!ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false))
-		return HKE_MPNEWCHARACTERFILE_NOT_FOUND_OR_INVALID;
+		return MpNewCharacterFileNotFoundOrInvalid;
 
 	// Emulate char create by logging in.
 	SLoginInfo logindata;
@@ -1396,7 +1396,7 @@ HK_ERROR HkNewCharacter(CAccount* acc, std::wstring& wscCharname)
 	Players.login(logindata, Players.GetMaxPlayerCount() + 1);
 
 	SCreateCharacterInfo newcharinfo;
-	wcsncpy_s(newcharinfo.wszCharname, wscCharname.c_str(), 23);
+	wcsncpy_s(newcharinfo.wszCharname, character.c_str(), 23);
 	newcharinfo.wszCharname[23] = 0;
 
 	newcharinfo.iNickName = 0;
@@ -1447,7 +1447,7 @@ HK_ERROR HkNewCharacter(CAccount* acc, std::wstring& wscCharname)
 	newcharinfo.iDunno[14] = 65536;
 	newcharinfo.iDunno[15] = 65538;
 	Server.CreateNewCharacter(newcharinfo, Players.GetMaxPlayerCount() + 1);
-	HkSaveChar(wscCharname);
+	HkSaveChar(character);
 	Players.logout(Players.GetMaxPlayerCount() + 1);
 	return HKE_OK;
 }
@@ -1456,7 +1456,7 @@ typedef void(__stdcall* _FLAntiCheat)();
 typedef void(__stdcall* _FLPossibleCheatingDetected)(int iReason);
 
 /** Anti cheat checking code by mc_horst */
-HK_ERROR HkAntiCheat(uint iClientID)
+HkError HkAntiCheat(uint clientId)
 {
 #define ADDR_FL_ANTICHEAT_1                0x70120
 #define ADDR_FL_ANTICHEAT_2                0x6FD20
@@ -1473,13 +1473,13 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	// check if ship in space
 	uint iShip = 0;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 	if (iShip)
 		return HKE_OK;
 
 	char* szObjPtr;
 	memcpy(&szObjPtr, &Players, 4);
-	szObjPtr += 0x418 * (iClientID - 1);
+	szObjPtr += 0x418 * (clientId - 1);
 
 	char cRes;
 
@@ -1492,8 +1492,8 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	if (cRes != 0)
 	{ // kick
-		HkKick(iClientID);
-		return HKE_UNKNOWN_ERROR;
+		HkKick(clientId);
+		return UnknownError;
 	}
 
 	////////////////////////// 2
@@ -1505,8 +1505,8 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	if (cRes != 0)
 	{ // kick
-		HkKick(iClientID);
-		return HKE_UNKNOWN_ERROR;
+		HkKick(clientId);
+		return UnknownError;
 	}
 
 	////////////////////////// 3
@@ -1522,8 +1522,8 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	if (lRet > lCompare)
 	{ // kick
-		HkKick(iClientID);
-		return HKE_UNKNOWN_ERROR;
+		HkKick(clientId);
+		return UnknownError;
 	}
 
 	////////////////////////// 4
@@ -1535,26 +1535,26 @@ HK_ERROR HkAntiCheat(uint iClientID)
 
 	if (cRes != 0)
 	{ // kick
-		HkKick(iClientID);
-		return HKE_UNKNOWN_ERROR;
+		HkKick(clientId);
+		return UnknownError;
 	}
 
 	return HKE_OK;
 }
 
-HK_ERROR HkSetEquip(std::variant<uint, std::wstring> player, const st6::list<EquipDesc>& equip)
+HkError HkSetEquip(const std::variant<uint, std::wstring>& player, const st6::list<EquipDesc>& equip)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
-		return HKE_NO_CHAR_SELECTED;
+	if ((clientId == -1) || HkIsInCharSelectMenu(clientId))
+		return NoCharSelected;
 
 	// Update FLHook's lists to make anticheat pleased.
-	if (&equip != &Players[iClientID].lShadowEquipDescList.equip)
-		Players[iClientID].lShadowEquipDescList.equip = equip;
+	if (&equip != &Players[clientId].lShadowEquipDescList.equip)
+		Players[clientId].lShadowEquipDescList.equip = equip;
 
-	if (&equip != &Players[iClientID].equipDescList.equip)
-		Players[iClientID].equipDescList.equip = equip;
+	if (&equip != &Players[clientId].equipDescList.equip)
+		Players[clientId].equipDescList.equip = equip;
 
 	// Calculate packet size. First two bytes reserved for items count.
 	uint itemBufSize = 2;
@@ -1595,41 +1595,41 @@ HK_ERROR HkSetEquip(std::variant<uint, std::wstring> player, const st6::list<Equ
 			pSetEquipment->items[index++] = szHardPoint[i];
 	}
 
-	return packet->SendTo(iClientID) ? HKE_OK : HKE_UNKNOWN_ERROR;
+	return packet->SendTo(clientId) ? HKE_OK : UnknownError;
 	
 }
 
-HK_ERROR HkAddEquip(std::variant<uint, std::wstring> player, uint iGoodID, const std::string& scHardpoint)
+HkError HkAddEquip(const std::variant<uint, std::wstring>& player, uint iGoodID, const std::string& scHardpoint)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if ((iClientID == -1) || HkIsInCharSelectMenu(iClientID))
-		return HKE_NO_CHAR_SELECTED;
+	if ((clientId == -1) || HkIsInCharSelectMenu(clientId))
+		return NoCharSelected;
 
-	if (!Players[iClientID].iEnteredBase)
+	if (!Players[clientId].iEnteredBase)
 	{
-		Players[iClientID].iEnteredBase = Players[iClientID].iBaseID;
-		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, iClientID);
-		Players[iClientID].iEnteredBase = 0;
+		Players[clientId].iEnteredBase = Players[clientId].iBaseID;
+		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, clientId);
+		Players[clientId].iEnteredBase = 0;
 	}
 	else
 	{
-		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, iClientID);
+		Server.ReqAddItem(iGoodID, scHardpoint.c_str(), 1, 1.0f, true, clientId);
 	}
 
 	// Add to check-list which is being compared to the users equip-list when
 	// saving char to fix "Ship or Equipment not sold on base" kick
 	EquipDesc ed;
-	ed.sID = Players[iClientID].sLastEquipID;
+	ed.sID = Players[clientId].sLastEquipID;
 	ed.iCount = 1;
 	ed.iArchID = iGoodID;
-	Players[iClientID].lShadowEquipDescList.add_equipment_item(ed, false);
+	Players[clientId].lShadowEquipDescList.add_equipment_item(ed, false);
 
 	return HKE_OK;
 }
 
-HK_ERROR HkAddEquip(
-	std::variant<uint, std::wstring> player, uint iGoodID, const std::string& scHardpoint, bool bMounted)
+HkError HkAddEquip(
+	const std::variant<uint, std::wstring>& player, uint iGoodID, const std::string& scHardpoint, bool bMounted)
 {
 	typedef bool(__stdcall * _AddCargoDocked)(
 		uint iGoodID, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
@@ -1637,23 +1637,23 @@ HK_ERROR HkAddEquip(
 	if (!AddCargoDocked)
 		AddCargoDocked = (_AddCargoDocked)((char*)hModServer + 0x6EFC0);
 
-	const uint iClientID = HkExtractClientId(player);
-	if (iClientID == -1 || HkIsInCharSelectMenu(iClientID))
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	const uint clientId = HkExtractClientId(player);
+	if (clientId == -1 || HkIsInCharSelectMenu(clientId))
+		return PlayerNotLoggedIn;
 
 	uint iBase = 0;
-	pub::Player::GetBase(iClientID, iBase);
+	pub::Player::GetBase(clientId, iBase);
 	uint iLocation = 0;
-	pub::Player::GetLocation(iClientID, iLocation);
+	pub::Player::GetLocation(clientId, iLocation);
 
 	if (iLocation)
-		Server.LocationExit(iLocation, iClientID);
+		Server.LocationExit(iLocation, clientId);
 	if (iBase)
-		Server.BaseExit(iBase, iClientID);
-	if (!HkIsValidClientID(iClientID))
-		return HKE_PLAYER_NOT_LOGGED_IN;
+		Server.BaseExit(iBase, clientId);
+	if (!HkIsValidClientID(clientId))
+		return PlayerNotLoggedIn;
 
-	PlayerData* pd = &Players[iClientID];
+	PlayerData* pd = &Players[clientId];
 	const char* p = scHardpoint.c_str();
 	CacheString hardpoint;
 	hardpoint.value = StringAlloc(p, false);
@@ -1674,22 +1674,22 @@ HK_ERROR HkAddEquip(
 		call AddCargoDocked
 	}
 
-	if (iBase) Server.BaseEnter(iBase, iClientID);
+	if (iBase) Server.BaseEnter(iBase, clientId);
 	if (iLocation)
-		Server.LocationEnter(iLocation, iClientID);
+		Server.LocationEnter(iLocation, clientId);
 
 	return HKE_OK;
 }
 
-std::wstring GetLocation(unsigned int iClientID)
+std::wstring GetLocation(unsigned int clientId)
 {
 	uint iSystemID = 0;
 	uint iShip = 0;
-	pub::Player::GetSystem(iClientID, iSystemID);
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetSystem(clientId, iSystemID);
+	pub::Player::GetShip(clientId, iShip);
 	if (!iSystemID || !iShip)
 	{
-		PrintUserCmdText(iClientID, L"ERR Not in space");
+		PrintUserCmdText(clientId, L"ERR Not in space");
 		return false;
 	}
 
@@ -1700,19 +1700,19 @@ std::wstring GetLocation(unsigned int iClientID)
 	return VectorToSectorCoord<std::wstring>(iSystemID, pos);
 }
 
-CAccount* HkGetAccountByClientID(uint iClientID)
+CAccount* HkGetAccountByClientID(uint clientId)
 {
-	if (!HkIsValidClientID(iClientID))
+	if (!HkIsValidClientID(clientId))
 		return 0;
 
-	return Players.FindAccountFromClientID(iClientID);
+	return Players.FindAccountFromClientID(clientId);
 }
 
-std::wstring HkGetAccountIDByClientID(uint iClientID)
+std::wstring HkGetAccountIDByClientID(uint clientId)
 {
-	if (HkIsValidClientID(iClientID))
+	if (HkIsValidClientID(clientId))
 	{
-		CAccount* acc = HkGetAccountByClientID(iClientID);
+		CAccount* acc = HkGetAccountByClientID(clientId);
 		if (acc && acc->wszAccID)
 		{
 			return acc->wszAccID;
@@ -1721,31 +1721,31 @@ std::wstring HkGetAccountIDByClientID(uint iClientID)
 	return L"";
 }
 
-void HkDelayedKick(uint iClientID, uint secs)
+void HkDelayedKick(uint clientId, uint secs)
 {
 	mstime kick_time = timeInMS() + (secs * 1000);
-	if (!ClientInfo[iClientID].tmKickTime || ClientInfo[iClientID].tmKickTime > kick_time)
-		ClientInfo[iClientID].tmKickTime = kick_time;
+	if (!ClientInfo[clientId].tmKickTime || ClientInfo[clientId].tmKickTime > kick_time)
+		ClientInfo[clientId].tmKickTime = kick_time;
 }
 
-std::string HkGetPlayerSystemS(uint iClientID)
+std::string HkGetPlayerSystemS(uint clientId)
 {
 	uint iSystemID;
-	pub::Player::GetSystem(iClientID, iSystemID);
+	pub::Player::GetSystem(clientId, iSystemID);
 	char szSystemname[1024] = "";
 	pub::GetSystemNickname(szSystemname, sizeof(szSystemname), iSystemID);
 	return szSystemname;
 }
 
-HK_ERROR HKGetShipValue(std::variant<uint, std::wstring> player, float& fValue)
+HkError HKGetShipValue(const std::variant<uint, std::wstring>& player, float& fValue)
 {
-	uint iClientID = HkExtractClientId(player);
-	if (iClientID != -1 && !HkIsInCharSelectMenu(iClientID))
+	uint clientId = HkExtractClientId(player);
+	if (clientId != -1 && !HkIsInCharSelectMenu(clientId))
 	{
 		HkSaveChar(player);
-		if (!HkIsValidClientID(iClientID))
+		if (!HkIsValidClientID(clientId))
 		{
-			return HKE_UNKNOWN_ERROR;
+			return UnknownError;
 		}
 	}
 
@@ -1754,7 +1754,7 @@ HK_ERROR HKGetShipValue(std::variant<uint, std::wstring> player, float& fValue)
 	uint iBaseID = 0;
 
 	std::list<std::wstring> lstCharFile;
-	HK_ERROR err = HkReadCharFile(player, lstCharFile);
+	HkError err = HkReadCharFile(player, lstCharFile);
 	if (err != HKE_OK)
 		return err;
 
@@ -1840,45 +1840,45 @@ HK_ERROR HKGetShipValue(std::variant<uint, std::wstring> player, float& fValue)
 	return HKE_OK;
 }
 
-void HkSaveChar(uint iClientID)
+void HkSaveChar(uint clientId)
 {
 	BYTE patch[] = { 0x90, 0x90 };
 	WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
-	pub::Save(iClientID, 1);
+	pub::Save(clientId, 1);
 }
 
-HK_ERROR HkGetTarget(std::variant<uint, std::wstring> player, uint& target)
+HkError HkGetTarget(const std::variant<uint, std::wstring>& player, uint& target)
 {
 	uint ship;
-	if (const HK_ERROR shipErr = HkGetShip(std::move(player), ship); shipErr != HKE_OK)
+	if (const HkError shipErr = HkGetShip(std::move(player), ship); shipErr != HKE_OK)
 		return shipErr;
 
 	pub::SpaceObj::GetTarget(ship, target);
 	if (!ship)
-		return HKE_NO_TARGET_SELECTED;
+		return NoTargetSelected;
 
 	return HKE_OK;
 }
 
-HK_ERROR HkGetTargetClientId(std::variant<uint, std::wstring> player, uint& targetClientId)
+HkError HkGetTargetClientId(const std::variant<uint, std::wstring>& player, uint& targetClientId)
 {
 	uint target;
-	if (const HK_ERROR error = HkGetTarget(std::move(player), target); error != HKE_OK)
+	if (const HkError error = HkGetTarget(std::move(player), target); error != HKE_OK)
 		return error;
 
 	targetClientId = HkGetClientIDByShip(target);
 	if (!targetClientId)
-		return HKE_TARGET_IS_NOT_PLAYER;
+		return TargetIsNotPlayer;
 
 	return HKE_OK;
 }
 
-HK_ERROR HkGetCurrentBase(std::variant<uint, std::wstring> player, uint& base)
+HkError HkGetCurrentBase(const std::variant<uint, std::wstring>& player, uint& base)
 {
 	const uint clientId = HkExtractClientId(std::move(player));
 	if (clientId == -1)
 	{
-		return HKE_PLAYER_NOT_LOGGED_IN;
+		return PlayerNotLoggedIn;
 	}
 
 	pub::Player::GetBase(clientId, base);
@@ -1887,35 +1887,35 @@ HK_ERROR HkGetCurrentBase(std::variant<uint, std::wstring> player, uint& base)
 		return HKE_OK;
 	}
 
-	return HKE_PLAYER_NOT_DOCKED;
+	return PlayerNotDocked;
 }
 
-HK_ERROR HkGetSystem(std::variant<uint, std::wstring> player, uint& system)
+HkError HkGetSystem(const std::variant<uint, std::wstring>& player, uint& system)
 {
 	const uint clientId = HkExtractClientId(std::move(player));
 	if (clientId == -1)
 	{
-		return HKE_PLAYER_NOT_LOGGED_IN;
+		return PlayerNotLoggedIn;
 	}
 
 	pub::Player::GetSystem(clientId, system);
 	if (!system)
-		return HKE_INVALID_SYSTEM;
+		return InvalidSystem;
 
 	return HKE_OK;
 }
 
-HK_ERROR HkGetShip(std::variant<uint, std::wstring> player, uint& ship)
+HkError HkGetShip(const std::variant<uint, std::wstring>& player, uint& ship)
 {
 	const uint clientId = HkExtractClientId(std::move(player));
 	if (clientId == -1)
 	{
-		return HKE_PLAYER_NOT_LOGGED_IN;
+		return PlayerNotLoggedIn;
 	}
 
 	pub::Player::GetShip(clientId, ship);
 	if (!ship)
-		return HKE_PLAYER_NOT_IN_SPACE;
+		return PlayerNotInSpace;
 
 	return HKE_OK;
 }

@@ -1,7 +1,7 @@
 ﻿#include "Global.hpp"
 
 std::list<stHelpEntry> lstHelpEntries;
-bool get_bTrue(uint iClientID)
+bool get_bTrue(uint clientId)
 {
 	return true;
 }

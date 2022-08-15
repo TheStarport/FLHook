@@ -2,15 +2,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int __stdcall DisconnectPacketSent(uint iClientID)
+int __stdcall DisconnectPacketSent(uint clientId)
 {
 	TRY_HOOK
 	{
 		uint iShip = 0;
-		pub::Player::GetShip(iClientID, iShip);
+		pub::Player::GetShip(clientId, iShip);
 		if (FLHookConfig::i()->general.disconnectDelay && iShip)
 		{ // in space
-			ClientInfo[iClientID].tmF1TimeDisconnect = timeInMS() + FLHookConfig::i()->general.disconnectDelay;
+			ClientInfo[clientId].tmF1TimeDisconnect = timeInMS() + FLHookConfig::i()->general.disconnectDelay;
 			return 0; // don't pass on
 		}
 	}

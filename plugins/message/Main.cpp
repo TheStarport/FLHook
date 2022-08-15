@@ -859,7 +859,7 @@ namespace Plugins::Message
 
 			uint iRet;
 			char szBuf[1024];
-			if (HK_ERROR err; (err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != HKE_OK)
+			if (HkError err; (err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != HKE_OK)
 			{
 				PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 				return;

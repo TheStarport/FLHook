@@ -6,13 +6,13 @@ called when chat-text is being sent to a player, we reformat it(/set chatfont)
 
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
+void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl)
 {
-	CallPluginsBefore(HookedCall::IChat__SendChat, clientID, clientIDTo, size, rdl);
+	CallPluginsBefore(HookedCall::IChat__SendChat, clientId, clientIdTo, size, rdl);
 
 	TRY_HOOK
 	{
-		if (HkIServerImpl::g_InSubmitChat && (clientIDTo != 0x10004))
+		if (HkIServerImpl::g_InSubmitChat && (clientIdTo != 0x10004))
 		{
 			wchar_t wszBuf[1024] = L"";
 			// extract text from rdlReader
@@ -24,15 +24,15 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 			std::wstring sender = buffer.substr(0, buffer.length() - HkIServerImpl::g_TextLength - 2);
 			std::wstring text = buffer.substr(buffer.length() - HkIServerImpl::g_TextLength);
 
-			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientIDTo & 0xFFFF) != 0))
+			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientIdTo & 0xFFFF) != 0))
 			{ // check ignores
-				for (auto& ci : ClientInfo[clientID].lstIgnore)
+				for (auto& ci : ClientInfo[clientId].lstIgnore)
 				{
-					if (HAS_FLAG(ci, L"p") && (clientIDTo & 0x10000))
+					if (HAS_FLAG(ci, L"p") && (clientIdTo & 0x10000))
 						continue; // no privchat
-					else if (!HAS_FLAG(ci, L"i") && !(ToLower(sender).compare(ToLower(ci.wscCharname))))
+					else if (!HAS_FLAG(ci, L"i") && !(ToLower(sender).compare(ToLower(ci.character))))
 						return; // ignored
-					else if (HAS_FLAG(ci, L"i") && (ToLower(sender).find(ToLower(ci.wscCharname)) != -1))
+					else if (HAS_FLAG(ci, L"i") && (ToLower(sender).find(ToLower(ci.character)) != -1))
 						return; // ignored
 				}
 			}
@@ -41,7 +41,7 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 			if (FLHookConfig::i()->userCommands.userCmdSetChatFont)
 			{
 				// adjust chat size
-				switch (ClientInfo[clientID].chatSize)
+				switch (ClientInfo[clientId].chatSize)
 				{
 					case CS_SMALL:
 						format = 0x90;
@@ -57,7 +57,7 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 				}
 
 				// adjust chat style
-				switch (ClientInfo[clientID].chatStyle)
+				switch (ClientInfo[clientId].chatStyle)
 				{
 					case CST_BOLD:
 						format += 0x01;
@@ -96,15 +96,15 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 				traDataSenderColor = L"00FF00";
 				traDataColor = L"FFFFFF"; // universe chat color
 			}
-			else if (clientIDTo == 0x10000)
+			else if (clientIdTo == 0x10000)
 				traDataColor = L"FFFFFF"; // universe chat color
-			else if (clientIDTo == 0)
+			else if (clientIdTo == 0)
 				traDataColor = L"FFFFFF"; // console
-			else if (clientIDTo == 0x10003)
+			else if (clientIdTo == 0x10003)
 				traDataColor = L"FF7BFF"; // group chat
-			else if (clientIDTo == 0x10002)
+			else if (clientIdTo == 0x10002)
 				traDataColor = L"FF8F40"; // local chat color
-			else if (clientIDTo & 0x10000)
+			else if (clientIdTo & 0x10000)
 				traDataColor = L"E6C684"; // system chat color
 			else
 				traDataColor = L"19BD3A"; // pm chat color
@@ -114,7 +114,7 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
 			    << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x" << traDataColor + traDataFormat
 			    << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
 
-			HkFMsg(clientID, wos.str());
+			HkFMsg(clientId, wos.str());
 		}
 		else
 		{
@@ -123,8 +123,8 @@ void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl)
                 pushad
                 push [rdl]
                 push [sz]
-                push [clientIDTo]
-                push [clientID]
+                push [clientIdTo]
+                push [clientId]
                 mov ecx, [Client]
                 add ecx, 4
                 call [RCSendChatMsg]

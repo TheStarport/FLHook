@@ -3,15 +3,15 @@
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
 		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(iClientID, L"%s", wscError[i].c_str());         \
+			PrintUserCmdText(clientId, L"%s", wscError[i].c_str());         \
 		return;                                                              \
 	}
-#define PRINT_OK() PrintUserCmdText(iClientID, L"OK");
-#define PRINT_DISABLED() PrintUserCmdText(iClientID, L"Command disabled");
+#define PRINT_OK() PrintUserCmdText(clientId, L"OK");
+#define PRINT_DISABLED() PrintUserCmdText(clientId, L"Command disabled");
 #define GET_USERFILE(a)                                             \
 	std::string a;                                                  \
 	{                                                               \
-		CAccount* acc = Players.FindAccountFromClientID(iClientID); \
+		CAccount* acc = Players.FindAccountFromClientID(clientId); \
 		std::wstring wscDir;                                        \
 		HkGetAccountDirName(acc, wscDir);                           \
 		a = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";        \
@@ -19,7 +19,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrintUserCmdText(uint iClientID, std::wstring wscText, ...)
+void PrintUserCmdText(uint clientId, std::wstring wscText, ...)
 {
 	wchar_t wszBuf[1024 * 8] = L"";
 	va_list marker;
@@ -27,38 +27,38 @@ void PrintUserCmdText(uint iClientID, std::wstring wscText, ...)
 	_vsnwprintf_s(wszBuf, sizeof wszBuf - 1, wscText.c_str(), marker);
 
 	std::wstring wscXML = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.userCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wszBuf) + L"</TEXT>";
-	HkFMsg(iClientID, wscXML);
+	HkFMsg(clientId, wscXML);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Print message to all ships within the specific number of meters of the
 /// player.
-void PrintLocalUserCmdText(uint iClientID, const std::wstring& wscMsg, float fDistance)
+void PrintLocalUserCmdText(uint clientId, const std::wstring& wscMsg, float fDistance)
 {
 	uint iShip;
-	pub::Player::GetShip(iClientID, iShip);
+	pub::Player::GetShip(clientId, iShip);
 
 	Vector pos;
 	Matrix rot;
 	pub::SpaceObj::GetLocation(iShip, pos, rot);
 
 	uint iSystem;
-	pub::Player::GetSystem(iClientID, iSystem);
+	pub::Player::GetSystem(clientId, iSystem);
 
 	// For all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
 		// Get the this player's current system and location in the system.
-		uint iClientID2 = HkGetClientIdFromPD(pPD);
+		uint clientId2 = HkGetClientIdFromPD(playerDb);
 		uint iSystem2 = 0;
-		pub::Player::GetSystem(iClientID2, iSystem2);
+		pub::Player::GetSystem(clientId2, iSystem2);
 		if (iSystem != iSystem2)
 			continue;
 
 		uint iShip2;
-		pub::Player::GetShip(iClientID2, iShip2);
+		pub::Player::GetShip(clientId2, iShip2);
 
 		Vector pos2;
 		Matrix rot2;
@@ -68,13 +68,13 @@ void PrintLocalUserCmdText(uint iClientID, const std::wstring& wscMsg, float fDi
 		if (HkDistance3D(pos, pos2) > fDistance)
 			continue;
 
-		PrintUserCmdText(iClientID2, wscMsg);
+		PrintUserCmdText(clientId2, wscMsg);
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsg(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_SetDieMsg(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->general.dieMsg)
 	{
@@ -107,7 +107,7 @@ void UserCmd_SetDieMsg(const uint& iClientID, const std::wstring_view& wscParam)
 	IniWrite(scUserFile, "settings", "DieMsg", std::to_string(dieMsg));
 
 	// save in ClientInfo
-	ClientInfo[iClientID].dieMsg = dieMsg;
+	ClientInfo[clientId].dieMsg = dieMsg;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -115,7 +115,7 @@ void UserCmd_SetDieMsg(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsgSize(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_SetDieMsgSize(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
 	{
@@ -144,7 +144,7 @@ void UserCmd_SetDieMsgSize(const uint& iClientID, const std::wstring_view& wscPa
 	IniWrite(scUserFile, "Settings", "DieMsgSize", std::to_string(dieMsgSize));
 
 	// save in ClientInfo
-	ClientInfo[iClientID].dieMsgSize = dieMsgSize;
+	ClientInfo[clientId].dieMsgSize = dieMsgSize;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -152,7 +152,7 @@ void UserCmd_SetDieMsgSize(const uint& iClientID, const std::wstring_view& wscPa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetChatFont(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_SetChatFont(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
 	{
@@ -198,8 +198,8 @@ void UserCmd_SetChatFont(const uint& iClientID, const std::wstring_view& wscPara
 	IniWrite(scUserFile, "settings", "ChatStyle", std::to_string(chatStyle));
 
 	// save in ClientInfo
-	ClientInfo[iClientID].chatSize = chatSize;
-	ClientInfo[iClientID].chatStyle = chatStyle;
+	ClientInfo[clientId].chatSize = chatSize;
+	ClientInfo[clientId].chatStyle = chatStyle;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -207,7 +207,7 @@ void UserCmd_SetChatFont(const uint& iClientID, const std::wstring_view& wscPara
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_Ignore(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -233,10 +233,10 @@ void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 
 	std::wstring wscAllowedFlags = L"pi";
 
-	std::wstring wscCharname = GetParam(wscParam, ' ', 0);
+	std::wstring character = GetParam(wscParam, ' ', 0);
 	std::wstring wscFlags = ToLower(GetParam(wscParam, ' ', 1));
 
-	if (!wscCharname.length())
+	if (!character.length())
 		PRINT_ERROR()
 
 	// check if flags are valid
@@ -246,21 +246,21 @@ void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 			PRINT_ERROR()
 	}
 
-	if (ClientInfo[iClientID].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[clientId].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(iClientID, L"Error: Too many entries in the ignore list, please delete an entry first!");
+		PrintUserCmdText(clientId, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1), wscCharname + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[clientId].lstIgnore.size() + 1), character + L" " + wscFlags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
-	ii.wscCharname = wscCharname;
+	ii.character = character;
 	ii.wscFlags = wscFlags;
-	ClientInfo[iClientID].lstIgnore.push_back(ii);
+	ClientInfo[clientId].lstIgnore.push_back(ii);
 
 	// send confirmation msg
 	PRINT_OK()
@@ -268,7 +268,7 @@ void UserCmd_Ignore(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreID(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -293,38 +293,38 @@ void UserCmd_IgnoreID(const uint& iClientID, const std::wstring_view& wscParam)
 	if (wscFlags.length() && wscFlags.compare(L"p") != 0)
 		PRINT_ERROR()
 
-	if (ClientInfo[iClientID].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[clientId].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(iClientID, L"Error: Too many entries in the ignore list, please delete an entry first!");
+		PrintUserCmdText(clientId, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
-	uint iClientIDTarget = ToInt(wscClientID);
-	if (!HkIsValidClientID(iClientIDTarget) || HkIsInCharSelectMenu(iClientIDTarget))
+	uint clientIdTarget = ToInt(wscClientID);
+	if (!HkIsValidClientID(clientIdTarget) || HkIsInCharSelectMenu(clientIdTarget))
 	{
-		PrintUserCmdText(iClientID, L"Error: Invalid client-id");
+		PrintUserCmdText(clientId, L"Error: Invalid client-id");
 		return;
 	}
 
-	std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
+	std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientIdTarget);
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[iClientID].lstIgnore.size() + 1), wscCharname + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[clientId].lstIgnore.size() + 1), character + L" " + wscFlags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
-	ii.wscCharname = wscCharname;
+	ii.character = character;
 	ii.wscFlags = wscFlags;
-	ClientInfo[iClientID].lstIgnore.push_back(ii);
+	ClientInfo[clientId].lstIgnore.push_back(ii);
 
 	// send confirmation msg
-	PrintUserCmdText(iClientID, L"OK, \"%s\" added to ignore list", wscCharname.c_str());
+	PrintUserCmdText(clientId, L"OK, \"%s\" added to ignore list", character.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_IgnoreList(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -332,11 +332,11 @@ void UserCmd_IgnoreList(const uint& iClientID, const std::wstring_view& wscParam
 		return;
 	}
 
-	PrintUserCmdText(iClientID, L"ID | Charactername | Flags");
+	PrintUserCmdText(clientId, L"ID | Charactername | Flags");
 	int i = 1;
-	for (auto& ignore : ClientInfo[iClientID].lstIgnore)
+	for (auto& ignore : ClientInfo[clientId].lstIgnore)
 	{
-		PrintUserCmdText(iClientID, L"%.2u | %s | %s", i, ignore.wscCharname.c_str(), ignore.wscFlags.c_str());
+		PrintUserCmdText(clientId, L"%.2u | %s | %s", i, ignore.character.c_str(), ignore.wscFlags.c_str());
 		i++;
 	}
 
@@ -346,7 +346,7 @@ void UserCmd_IgnoreList(const uint& iClientID, const std::wstring_view& wscParam
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -370,7 +370,7 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 	if (!wscID.compare(L"*"))
 	{ // delete all
 		IniDelSection(scUserFile, "IgnoreList");
-		ClientInfo[iClientID].lstIgnore.clear();
+		ClientInfo[clientId].lstIgnore.clear();
 		PRINT_OK()
 		return;
 	}
@@ -379,9 +379,9 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 	for (uint j = 1; wscID.length(); j++)
 	{
 		uint iID = ToInt(wscID.c_str());
-		if (!iID || iID > ClientInfo[iClientID].lstIgnore.size())
+		if (!iID || iID > ClientInfo[clientId].lstIgnore.size())
 		{
-			PrintUserCmdText(iClientID, L"Error: Invalid ID");
+			PrintUserCmdText(clientId, L"Error: Invalid ID");
 			return;
 		}
 
@@ -391,28 +391,28 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 
 	lstDelete.sort(std::greater<uint>());
 
-	ClientInfo[iClientID].lstIgnore.reverse();
+	ClientInfo[clientId].lstIgnore.reverse();
 	for (auto& del : lstDelete)
 	{
-		uint iCurID = (uint)ClientInfo[iClientID].lstIgnore.size();
-		for (auto ignoreIt = ClientInfo[iClientID].lstIgnore.begin(); ignoreIt != ClientInfo[iClientID].lstIgnore.end(); ++ignoreIt)
+		uint iCurID = (uint)ClientInfo[clientId].lstIgnore.size();
+		for (auto ignoreIt = ClientInfo[clientId].lstIgnore.begin(); ignoreIt != ClientInfo[clientId].lstIgnore.end(); ++ignoreIt)
 		{
 			if (iCurID == del)
 			{
-				ClientInfo[iClientID].lstIgnore.erase(ignoreIt);
+				ClientInfo[clientId].lstIgnore.erase(ignoreIt);
 				break;
 			}
 			iCurID--;
 		}
 	}
-	ClientInfo[iClientID].lstIgnore.reverse();
+	ClientInfo[clientId].lstIgnore.reverse();
 
 	// send confirmation msg
 	IniDelSection(scUserFile, "IgnoreList");
 	int i = 1;
-	for (auto& ignore : ClientInfo[iClientID].lstIgnore)
+	for (auto& ignore : ClientInfo[clientId].lstIgnore)
 	{
-		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.wscCharname + L" " + ignore.wscFlags);
+		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.wscFlags);
 		i++;
 	}
 	PRINT_OK()
@@ -420,7 +420,7 @@ void UserCmd_DelIgnore(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->general.autobuy)
 	{
@@ -451,12 +451,12 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 
 	if (!wscType.compare(L"info"))
 	{
-		PrintUserCmdText(iClientID, L"Missiles: %s", ClientInfo[iClientID].bAutoBuyMissiles ? L"On" : L"Off");
-		PrintUserCmdText(iClientID, L"Mine: %s", ClientInfo[iClientID].bAutoBuyMines ? L"On" : L"Off");
-		PrintUserCmdText(iClientID, L"Torpedos: %s", ClientInfo[iClientID].bAutoBuyTorps ? L"On" : L"Off");
-		PrintUserCmdText(iClientID, L"Cruise Disruptors: %s", ClientInfo[iClientID].bAutoBuyCD ? L"On" : L"Off");
-		PrintUserCmdText(iClientID, L"Countermeasures: %s", ClientInfo[iClientID].bAutoBuyCM ? L"On" : L"Off");
-		PrintUserCmdText(iClientID, L"Nanobots/Shield Batteries: %s", ClientInfo[iClientID].bAutoBuyReload ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Missiles: %s", ClientInfo[clientId].bAutoBuyMissiles ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Mine: %s", ClientInfo[clientId].bAutoBuyMines ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Torpedos: %s", ClientInfo[clientId].bAutoBuyTorps ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Cruise Disruptors: %s", ClientInfo[clientId].bAutoBuyCD ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Countermeasures: %s", ClientInfo[clientId].bAutoBuyCM ? L"On" : L"Off");
+		PrintUserCmdText(clientId, L"Nanobots/Shield Batteries: %s", ClientInfo[clientId].bAutoBuyReload ? L"On" : L"Off");
 		return;
 	}
 
@@ -466,18 +466,18 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 	GET_USERFILE(scUserFile)
 
 	std::wstring wscFilename;
-	HkGetCharFileName(iClientID, wscFilename);
+	HkGetCharFileName(clientId, wscFilename);
 	std::string scSection = "autobuy_" + wstos(wscFilename);
 
 	bool bEnable = !wscSwitch.compare(L"on") ? true : false;
 	if (!wscType.compare(L"all"))
 	{
-		ClientInfo[iClientID].bAutoBuyMissiles = bEnable;
-		ClientInfo[iClientID].bAutoBuyMines = bEnable;
-		ClientInfo[iClientID].bAutoBuyTorps = bEnable;
-		ClientInfo[iClientID].bAutoBuyCD = bEnable;
-		ClientInfo[iClientID].bAutoBuyCM = bEnable;
-		ClientInfo[iClientID].bAutoBuyReload = bEnable;
+		ClientInfo[clientId].bAutoBuyMissiles = bEnable;
+		ClientInfo[clientId].bAutoBuyMines = bEnable;
+		ClientInfo[clientId].bAutoBuyTorps = bEnable;
+		ClientInfo[clientId].bAutoBuyCD = bEnable;
+		ClientInfo[clientId].bAutoBuyCM = bEnable;
+		ClientInfo[clientId].bAutoBuyReload = bEnable;
 		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
 		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
 		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
@@ -487,32 +487,32 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 	else if (!wscType.compare(L"missiles"))
 	{
-		ClientInfo[iClientID].bAutoBuyMissiles = bEnable;
+		ClientInfo[clientId].bAutoBuyMissiles = bEnable;
 		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"mines"))
 	{
-		ClientInfo[iClientID].bAutoBuyMines = bEnable;
+		ClientInfo[clientId].bAutoBuyMines = bEnable;
 		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"torps"))
 	{
-		ClientInfo[iClientID].bAutoBuyTorps = bEnable;
+		ClientInfo[clientId].bAutoBuyTorps = bEnable;
 		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"cd"))
 	{
-		ClientInfo[iClientID].bAutoBuyCD = bEnable;
+		ClientInfo[clientId].bAutoBuyCD = bEnable;
 		IniWrite(scUserFile, scSection, "cd", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"cm"))
 	{
-		ClientInfo[iClientID].bAutoBuyCM = bEnable;
+		ClientInfo[clientId].bAutoBuyCM = bEnable;
 		IniWrite(scUserFile, scSection, "cm", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"reload"))
 	{
-		ClientInfo[iClientID].bAutoBuyReload = bEnable;
+		ClientInfo[clientId].bAutoBuyReload = bEnable;
 		IniWrite(scUserFile, scSection, "reload", bEnable ? "yes" : "no");
 	}
 	else
@@ -523,16 +523,16 @@ void UserCmd_AutoBuy(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IDs(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_IDs(const uint& clientId, const std::wstring_view& wscParam)
 {
 	wchar_t wszLine[128] = L"";
 	for (auto& player : HkGetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf_s(wszBuf, L"%s = %u | ", player.wscCharname.c_str(), player.iClientID);
+		swprintf_s(wszBuf, L"%s = %u | ", player.character.c_str(), player.clientId);
 		if (wcslen(wszBuf) + wcslen(wszLine) >= sizeof wszLine / 2)
 		{
-			PrintUserCmdText(iClientID, L"%s", wszLine);
+			PrintUserCmdText(clientId, L"%s", wszLine);
 			wcscpy_s(wszLine, wszBuf);
 		}
 		else
@@ -540,20 +540,20 @@ void UserCmd_IDs(const uint& iClientID, const std::wstring_view& wscParam)
 	}
 
 	if (wcslen(wszLine))
-		PrintUserCmdText(iClientID, L"%s", wszLine);
-	PrintUserCmdText(iClientID, L"OK");
+		PrintUserCmdText(clientId, L"%s", wszLine);
+	PrintUserCmdText(clientId, L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ID(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_ID(const uint& clientId, const std::wstring_view& wscParam)
 {
-	PrintUserCmdText(iClientID, L"Your client-id: %u", iClientID);
+	PrintUserCmdText(clientId, L"Your client-id: %u", clientId);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_InviteID(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_InviteID(const uint& clientId, const std::wstring_view& wscParam)
 {
 	std::wstring wscError[] = {
 	    L"Error: Invalid parameters",
@@ -565,26 +565,26 @@ void UserCmd_InviteID(const uint& iClientID, const std::wstring_view& wscParam)
 	if (!wscClientID.length())
 		PRINT_ERROR()
 
-	uint iClientIDTarget = ToInt(wscClientID);
-	if (!HkIsValidClientID(iClientIDTarget) || HkIsInCharSelectMenu(iClientIDTarget))
+	uint clientIdTarget = ToInt(wscClientID);
+	if (!HkIsValidClientID(clientIdTarget) || HkIsInCharSelectMenu(clientIdTarget))
 	{
-		PrintUserCmdText(iClientID, L"Error: Invalid client-id");
+		PrintUserCmdText(clientId, L"Error: Invalid client-id");
 		return;
 	}
 
-	std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientIDTarget);
+	std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientIdTarget);
 
-	std::wstring wscXML = L"<TEXT>/i " + XMLText(wscCharname) + L"</TEXT>";
+	std::wstring wscXML = L"<TEXT>/i " + XMLText(character) + L"</TEXT>";
 	char szBuf[0xFFFF];
 	uint iRet;
 	if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof szBuf, iRet)))
 	{
-		PrintUserCmdText(iClientID, L"Error: Could not encode XML");
+		PrintUserCmdText(clientId, L"Error: Could not encode XML");
 		return;
 	}
 
 	CHAT_ID cID;
-	cID.iID = iClientID;
+	cID.iID = clientId;
 	CHAT_ID cIDTo;
 	cIDTo.iID = 0x00010001;
 	Server.SubmitChat(cID, iRet, szBuf, cIDTo, -1);
@@ -592,10 +592,10 @@ void UserCmd_InviteID(const uint& iClientID, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_Credits(const uint& clientId, const std::wstring_view& wscParam)
 {
-	PrintUserCmdText(iClientID, L"This server is running FLHook v" + VersionInformation);
-	PrintUserCmdText(iClientID, L"Running plugins:");
+	PrintUserCmdText(clientId, L"This server is running FLHook v" + VersionInformation);
+	PrintUserCmdText(clientId, L"Running plugins:");
 
 	bool bRunning = false;
 	for (const auto& plugin : PluginManager::ir())
@@ -604,15 +604,15 @@ void UserCmd_Credits(const uint& iClientID, const std::wstring_view& wscParam)
 			continue;
 
 		bRunning = true;
-		PrintUserCmdText(iClientID, L"- %s", stows(plugin.name).c_str());
+		PrintUserCmdText(clientId, L"- %s", stows(plugin.name).c_str());
 	}
 	if (!bRunning)
-		PrintUserCmdText(iClientID, L"- none -");
+		PrintUserCmdText(clientId, L"- none -");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView);
+void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView);
 UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
 {
 	return {command, command + L" " + usage, proc, description};
@@ -651,7 +651,7 @@ bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 	return trimmed == cmd;
 }
 
-void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
+void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
 {
 	if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
 	{
@@ -662,14 +662,14 @@ void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
 	const auto& plugins = PluginManager::ir();
 	if (paramView.empty() || paramView.find_first_not_of(L' ') == std::string::npos)
 	{
-		PrintUserCmdText(iClientID, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
-		PrintUserCmdText(iClientID, L"core");
+		PrintUserCmdText(clientId, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
+		PrintUserCmdText(clientId, L"core");
 		for (const auto& plugin : plugins)
 		{
 			if (plugin.commands.empty())
 				continue;
 
-			PrintUserCmdText(iClientID, ToLower(stows(plugin.shortName)));
+			PrintUserCmdText(clientId, ToLower(stows(plugin.shortName)));
 		}
 		return;
 	}
@@ -683,19 +683,19 @@ void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
 		{
 			for (const auto& i : UserCmds)
 			{
-				PrintUserCmdText(iClientID, i.command);
+				PrintUserCmdText(clientId, i.command);
 			}
 		}
 		else if (const auto& userCommand =
 		             std::find_if(UserCmds.begin(), UserCmds.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != UserCmds.end())
 		{
-			PrintUserCmdText(iClientID, userCommand->usage);
-			PrintUserCmdText(iClientID, userCommand->description);
+			PrintUserCmdText(clientId, userCommand->usage);
+			PrintUserCmdText(clientId, userCommand->description);
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"Command '%s' not found within module 'Core'", cmd.c_str());
+			PrintUserCmdText(clientId, L"Command '%s' not found within module 'Core'", cmd.c_str());
 		}
 		return;
 	}
@@ -705,7 +705,7 @@ void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
 
 	if (plugin == plugins.end())
 	{
-		PrintUserCmdText(iClientID, L"Command module not found.");
+		PrintUserCmdText(clientId, L"Command module not found.");
 		return;
 	}
 
@@ -713,19 +713,19 @@ void UserCmd_Help(const uint& iClientID, const std::wstring_view& paramView)
 	{
 		for (const auto& command : plugin->commands)
 		{
-			PrintUserCmdText(iClientID, command.command);
+			PrintUserCmdText(clientId, command.command);
 		}
 	}
 	else if (const auto& userCommand =
 	             std::find_if(plugin->commands.begin(), plugin->commands.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 	         userCommand != plugin->commands.end())
 	{
-		PrintUserCmdText(iClientID, userCommand->usage);
-		PrintUserCmdText(iClientID, userCommand->description);
+		PrintUserCmdText(clientId, userCommand->usage);
+		PrintUserCmdText(clientId, userCommand->description);
 	}
 	else
 	{
-		PrintUserCmdText(iClientID, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+		PrintUserCmdText(clientId, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
 	}
 }
 
@@ -746,8 +746,8 @@ bool ProcessPluginCommand(const uint& clientId, const std::wstring& cmd, const s
 				wscParam = cmd.substr(command.command.length() + 1);
 			}
 
-			std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", wscCharname.c_str(), cmd.c_str());
+			std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientId);
+			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", character.c_str(), cmd.c_str());
 
 			try
 			{
@@ -766,7 +766,7 @@ bool ProcessPluginCommand(const uint& clientId, const std::wstring& cmd, const s
 	return false;
 };
 
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
+bool UserCmd_Process(uint clientId, const std::wstring& wscCmd)
 {
 	if (const auto& config = FLHookConfig::c(); config->general.echoCommands)
 	{
@@ -776,21 +776,21 @@ bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd)
 		        lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
 		{
 			const std::wstring wscXML = L"<TRA data=\"" + config->msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmd) + L"</TEXT>";
-			HkFMsg(iClientID, wscXML);
+			HkFMsg(clientId, wscXML);
 		}
 	}
 
-	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, iClientID, wscCmd);
+	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, clientId, wscCmd);
 	if (pluginSkip)
 		return pluginRet;
 
 	const auto& plugins = PluginManager::ir();
 	for (const PluginData& i : plugins)
 	{
-		if (ProcessPluginCommand(iClientID, wscCmd, i.commands))
+		if (ProcessPluginCommand(clientId, wscCmd, i.commands))
 			return true;
 	}
 
 	// In-built commands
-	return ProcessPluginCommand(iClientID, wscCmd, UserCmds);
+	return ProcessPluginCommand(clientId, wscCmd, UserCmds);
 }

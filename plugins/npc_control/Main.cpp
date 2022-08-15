@@ -17,7 +17,7 @@ namespace Plugins::Npc
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
 		p.bStateID = true;
-		HK_ERROR error;
+		HkError error;
 		p.personality = HkGetPersonality(personality, error);
 
 		if (error != HKE_OK)

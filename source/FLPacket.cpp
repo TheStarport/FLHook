@@ -34,9 +34,9 @@ FLPACKET* FLPACKET::Create(uint size, FLPACKET::CLIENT kind)
 }
 
 // Returns true if sent succesfully, false if not. Frees memory allocated for packet.
-bool FLPACKET::SendTo(uint iClientID)
+bool FLPACKET::SendTo(uint clientId)
 {
-	CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
+	CDPClientProxy* cdpClient = g_cClientProxyArray[clientId - 1];
 
 	// We don't include first 4 bytes directly in packet, it is info about size. Type and kind are already included.
 	bool result = cdpClient->Send((byte*)this + 4, Size);

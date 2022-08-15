@@ -172,7 +172,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\FLHookSDK\source\Helpers.cpp" />
+    <ClCompile Include="..\FLHookSDK\source\HK.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\FLPacket.cpp" />
@@ -201,6 +201,8 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
+    <ClCompile Include="..\source\Hooks\Client.cpp" />
+    <ClCompile Include="..\source\Hooks\Math.cpp" />
     <ClCompile Include="..\source\Tools\Console.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
     <ClCompile Include="..\source\CConsole.cpp" />
@@ -223,7 +225,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Helpers.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\HK.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Macros.hpp" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
     <ClInclude Include="..\FLHookSDK\include\Serialization.hpp" />

@@ -102,7 +102,7 @@ namespace Plugins::Restart
 			}
 		}
 
-		HK_ERROR err;
+		HkError err;
 		int cash = 0;
 		if ((err = HkGetCash(restart.characterName, cash)) != HKE_OK)
 		{

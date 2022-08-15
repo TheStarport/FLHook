@@ -25,26 +25,26 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 	{
 		char* p;
 		memcpy(&p, ecx + 0x10, 4);
-		uint clientID;
-		memcpy(&clientID, p + 0xB4, 4);
+		uint clientId;
+		memcpy(&clientId, p + 0xB4, 4);
 		uint spaceID;
 		memcpy(&spaceID, p + 0xB0, 4);
 
-		g_DmgTo = clientID;
+		g_DmgTo = clientId;
 		g_DmgToSpaceID = spaceID;
-		if (clientID)
+		if (clientId)
 		{ // a player was hit
 			uint inflictorShip;
 			memcpy(&inflictorShip, p1 + 4, 4);
-			uint clientIDInflictor = HkGetClientIDByShip(inflictorShip);
-			if (!clientIDInflictor)
+			uint clientIdInflictor = HkGetClientIDByShip(inflictorShip);
+			if (!clientIdInflictor)
 				return 0; // hit by npc
 
-			if (!AllowPlayerDamage(clientIDInflictor, clientID))
+			if (!AllowPlayerDamage(clientIdInflictor, clientId))
 				return 1;
 
 			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-				!ClientInfo[clientID].bCruiseActivated))
+				!ClientInfo[clientId].bCruiseActivated))
 			{
 				dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
 			}
@@ -130,9 +130,9 @@ void __stdcall AddDamageEntry(
 		{
 			uint type;
 			pub::SpaceObj::GetType(g_DmgToSpaceID, type);
-			uint clientIDKiller = HkGetClientIDByShip(dmgList->get_inflictor_id());
-			if (clientIDKiller && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
-				BaseDestroyed(g_DmgToSpaceID, clientIDKiller);
+			uint clientIdKiller = HkGetClientIDByShip(dmgList->get_inflictor_id());
+			if (clientIdKiller && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
+				BaseDestroyed(g_DmgToSpaceID, clientIdKiller);
 		}
 
 		if (g_DmgTo && subObjID == 1) // only save hits on the hull (subObjID=1)
@@ -176,12 +176,12 @@ void __stdcall DamageHit(char* ecx)
 	{
 		char* p;
 		memcpy(&p, ecx + 0x10, 4);
-		uint clientID;
-		memcpy(&clientID, p + 0xB4, 4);
+		uint clientId;
+		memcpy(&clientId, p + 0xB4, 4);
 		uint spaceID;
 		memcpy(&spaceID, p + 0xB0, 4);
 
-		g_DmgTo = clientID;
+		g_DmgTo = clientId;
 		g_DmgToSpaceID = spaceID;
 	}
 	CATCH_HOOK({})
@@ -213,35 +213,35 @@ __declspec(naked) void Naked__DamageHit2()
 Called when ship was damaged
 **************************************************************************************************************/
 
-bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget)
+bool AllowPlayerDamage(uint clientId, uint clientIdTarget)
 {
-	auto [rval, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__AllowPlayerDamage, iClientID, iClientIDTarget);
+	auto [rval, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__AllowPlayerDamage, clientId, clientIdTarget);
 	if (skip)
 		return rval;
 
 	const auto* config = FLHookConfig::c();
 
-	if (iClientIDTarget)
+	if (clientIdTarget)
 	{
 		// anti-dockkill check
-		if (ClientInfo[iClientIDTarget].bSpawnProtected)
+		if (ClientInfo[clientIdTarget].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[iClientIDTarget].tmSpawnTime) <= config->general.antiDockKill)
+			if ((timeInMS() - ClientInfo[clientIdTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
 			else
-				ClientInfo[iClientIDTarget].bSpawnProtected = false;
+				ClientInfo[clientIdTarget].bSpawnProtected = false;
 		}
-		if (ClientInfo[iClientID].bSpawnProtected)
+		if (ClientInfo[clientId].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[iClientID].tmSpawnTime) <= config->general.antiDockKill)
+			if ((timeInMS() - ClientInfo[clientId].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
 			else
-				ClientInfo[iClientID].bSpawnProtected = false;
+				ClientInfo[clientId].bSpawnProtected = false;
 		}
 
 		// no-pvp check
 		uint systemID;
-		pub::Player::GetSystem(iClientID, systemID);
+		pub::Player::GetSystem(clientId, systemID);
 		if (std::find(config->general.noPVPSystemsHashed.begin(), config->general.noPVPSystemsHashed.end(), systemID) != config->general.noPVPSystemsHashed.end())
 			return false;
 	}

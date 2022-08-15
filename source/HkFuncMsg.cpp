@@ -7,10 +7,10 @@ namespace HkIServerImpl
 
 EXPORT bool g_bMsg = false;
 
-HK_ERROR HkMsg(uint iClientID, const std::wstring& wscMessage)
+HkError HkMsg(uint clientId, const std::wstring& wscMessage)
 {
 	struct CHAT_ID ci = { 0 };
-	struct CHAT_ID ciClient = { iClientID };
+	struct CHAT_ID ciClient = { clientId };
 
 	std::wstring wscXML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 	uint iRet;
@@ -23,28 +23,28 @@ HK_ERROR HkMsg(uint iClientID, const std::wstring& wscMessage)
 	return HKE_OK;
 }
 
-HK_ERROR HkMsg(std::variant<uint, std::wstring> player, const std::wstring& wscMessage)
+HkError HkMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscMessage)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
-	return HkMsg(iClientID, wscMessage);
+	return HkMsg(clientId, wscMessage);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool g_bMsgS = false;
 
-HK_ERROR HkMsgS(const std::wstring& wscSystemname, const std::wstring& wscMessage)
+HkError HkMsgS(const std::wstring& wscSystemname, const std::wstring& wscMessage)
 {
-	uint iSystemID = 0;
-	if (!(iSystemID = ToInt(wscSystemname.c_str())))
+	uint systemId = 0;
+	if (!(systemId = ToInt(wscSystemname.c_str())))
 	{
-		pub::GetSystemID(iSystemID, wstos(wscSystemname).c_str());
-		if (!iSystemID)
-			return HKE_INVALID_SYSTEM;
+		pub::GetSystemID(systemId, wstos(wscSystemname).c_str());
+		if (!systemId)
+			return InvalidSystem;
 	}
 
 	// prepare xml
@@ -56,15 +56,15 @@ HK_ERROR HkMsgS(const std::wstring& wscSystemname, const std::wstring& wscMessag
 	struct CHAT_ID ci = { 0 };
 
 	// for all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 		uint iClientSystemID = 0;
-		pub::Player::GetSystem(iClientID, iClientSystemID);
-		if (iSystemID == iClientSystemID)
+		pub::Player::GetSystem(clientId, iClientSystemID);
+		if (systemId == iClientSystemID)
 		{
-			struct CHAT_ID ciClient = { iClientID };
+			struct CHAT_ID ciClient = { clientId };
 			g_bMsgS = true;
 			HkIServerImpl::SubmitChat(ci, iRet, szBuf, ciClient, -1);
 			g_bMsgS = false;
@@ -78,7 +78,7 @@ HK_ERROR HkMsgS(const std::wstring& wscSystemname, const std::wstring& wscMessag
 
 bool g_bMsgU = false;
 
-HK_ERROR HkMsgU(const std::wstring& wscMessage)
+HkError HkMsgU(const std::wstring& wscMessage)
 {
 	struct CHAT_ID ci = { 0 };
 	struct CHAT_ID ciClient = { 0x00010000 };
@@ -96,7 +96,7 @@ HK_ERROR HkMsgU(const std::wstring& wscMessage)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgEncodeXML(const std::wstring& wscXML, char* szBuf, uint iSize, uint& iRet)
+HkError HkFMsgEncodeXML(const std::wstring& wscXML, char* szBuf, uint iSize, uint& iRet)
 {
 	XMLReader rdr;
 	RenderDisplayList rdl;
@@ -104,7 +104,7 @@ HK_ERROR HkFMsgEncodeXML(const std::wstring& wscXML, char* szBuf, uint iSize, ui
 	wscMsg += wscXML;
 	wscMsg += L"<PARA/><POP/></RDL>\x000A\x000A";
 	if (!rdr.read_buffer(rdl, (const char*)wscMsg.c_str(), (uint)wscMsg.length() * 2))
-		return HKE_WRONG_XML_SYNTAX;
+		return WrongXmlSyntax;
 	;
 
 	BinaryRDLWriter rdlwrite;
@@ -118,12 +118,12 @@ HK_ERROR HkFMsgEncodeXML(const std::wstring& wscXML, char* szBuf, uint iSize, ui
 
 _RCSendChatMsg RCSendChatMsg;
 
-HK_ERROR HkFMsgSendChat(uint iClientID, char* szBuf, uint iSize)
+HkError HkFMsgSendChat(uint clientId, char* szBuf, uint iSize)
 {
 	uint p4 = (uint)szBuf;
 	uint p3 = iSize;
 	uint p2 = 0x00010000;
-	uint p1 = iClientID;
+	uint p1 = clientId;
 
 	__asm {
         push [p4]
@@ -141,39 +141,39 @@ HK_ERROR HkFMsgSendChat(uint iClientID, char* szBuf, uint iSize)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsg(uint iClientID, const std::wstring& wscXML)
+HkError HkFMsg(uint clientId, const std::wstring& wscXML)
 {
 	char szBuf[0xFFFF];
 	uint iRet;
 	if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet)))
-		return HKE_WRONG_XML_SYNTAX;
+		return WrongXmlSyntax;
 	;
 
-	HkFMsgSendChat(iClientID, szBuf, iRet);
+	HkFMsgSendChat(clientId, szBuf, iRet);
 	return HKE_OK;
 }
 
-HK_ERROR HkFMsg(std::variant<uint, std::wstring> player, const std::wstring& wscXML)
+HkError HkFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	if (iClientID == -1)
-		return HKE_PLAYER_NOT_LOGGED_IN;
+	if (clientId == -1)
+		return PlayerNotLoggedIn;
 
-	return HkFMsg(iClientID, wscXML);
+	return HkFMsg(clientId, wscXML);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
+HkError HkFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
 {
 	// get system id
-	uint iSystemID = 0;
-	if (!(iSystemID = ToInt(wscSystemname.c_str())))
+	uint systemId = 0;
+	if (!(systemId = ToInt(wscSystemname.c_str())))
 	{
-		pub::GetSystemID(iSystemID, wstos(wscSystemname).c_str());
-		if (!iSystemID)
-			return HKE_INVALID_SYSTEM;
+		pub::GetSystemID(systemId, wstos(wscSystemname).c_str());
+		if (!systemId)
+			return InvalidSystem;
 		;
 	}
 
@@ -181,18 +181,18 @@ HK_ERROR HkFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
 	char szBuf[0xFFFF];
 	uint iRet;
 	if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet)))
-		return HKE_WRONG_XML_SYNTAX;
+		return WrongXmlSyntax;
 	;
 
 	// for all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 		uint iClientSystemID = 0;
-		pub::Player::GetSystem(iClientID, iClientSystemID);
-		if (iSystemID == iClientSystemID)
-			HkFMsgSendChat(iClientID, szBuf, iRet);
+		pub::Player::GetSystem(clientId, iClientSystemID);
+		if (systemId == iClientSystemID)
+			HkFMsgSendChat(clientId, szBuf, iRet);
 	}
 
 	return HKE_OK;
@@ -200,21 +200,21 @@ HK_ERROR HkFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFMsgU(const std::wstring& wscXML)
+HkError HkFMsgU(const std::wstring& wscXML)
 {
 	// encode xml std::string
 	char szBuf[0xFFFF];
 	uint iRet;
 	if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet)))
-		return HKE_WRONG_XML_SYNTAX;
+		return WrongXmlSyntax;
 	;
 
 	// for all players
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
-		HkFMsgSendChat(iClientID, szBuf, iRet);
+		uint clientId = HkGetClientIdFromPD(playerDb);
+		HkFMsgSendChat(clientId, szBuf, iRet);
 	}
 
 	return HKE_OK;
@@ -232,9 +232,9 @@ void FormatSendChat(
 	{
 		for (auto& ignore : ClientInfo[iToClientID].lstIgnore)
 		{
-			if (!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.wscCharname))))
+			if (!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.character))))
 				return; // ignored
-			else if (HAS_FLAG(ignore, L"i") && (ToLower(wscSender).find(ToLower(ignore.wscCharname)) != -1))
+			else if (HAS_FLAG(ignore, L"i") && (ToLower(wscSender).find(ToLower(ignore.character)) != -1))
 				return; // ignored
 		}
 	}
@@ -308,20 +308,20 @@ void SendSystemChat(uint iFromClientID, const std::wstring& wscText)
 	std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientID);
 
 	// Get the player's current system.
-	uint iSystemID;
-	pub::Player::GetSystem(iFromClientID, iSystemID);
+	uint systemId;
+	pub::Player::GetSystem(iFromClientID, systemId);
 
 	// For all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 		uint iClientSystemID = 0;
-		pub::Player::GetSystem(iClientID, iClientSystemID);
-		if (iSystemID == iClientSystemID)
+		pub::Player::GetSystem(clientId, iClientSystemID);
+		if (systemId == iClientSystemID)
 		{
 			// Send the message a player in this system.
-			FormatSendChat(iClientID, wscSender, wscText, L"E6C684");
+			FormatSendChat(clientId, wscSender, wscText, L"E6C684");
 		}
 	}
 }
@@ -332,8 +332,8 @@ void SendLocalSystemChat(uint iFromClientID, const std::wstring& wscText)
 	std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientID);
 
 	// Get the player's current system and location in the system.
-	uint iSystemID;
-	pub::Player::GetSystem(iFromClientID, iSystemID);
+	uint systemId;
+	pub::Player::GetSystem(iFromClientID, systemId);
 
 	uint iFromShip;
 	pub::Player::GetShip(iFromClientID, iFromShip);
@@ -343,18 +343,18 @@ void SendLocalSystemChat(uint iFromClientID, const std::wstring& wscText)
 	pub::SpaceObj::GetLocation(iFromShip, vFromShipLoc, mFromShipDir);
 
 	// For all players in system...
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
 		// Get the this player's current system and location in the system.
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 		uint iClientSystemID = 0;
-		pub::Player::GetSystem(iClientID, iClientSystemID);
-		if (iSystemID != iClientSystemID)
+		pub::Player::GetSystem(clientId, iClientSystemID);
+		if (systemId != iClientSystemID)
 			continue;
 
 		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
+		pub::Player::GetShip(clientId, iShip);
 
 		Vector vShipLoc;
 		Matrix mShipDir;
@@ -368,7 +368,7 @@ void SendLocalSystemChat(uint iFromClientID, const std::wstring& wscText)
 			continue;
 
 		// Send the message a player in this system.
-		FormatSendChat(iClientID, wscSender, wscText, L"FF8F40");
+		FormatSendChat(clientId, wscSender, wscText, L"FF8F40");
 	}
 }
 
@@ -381,7 +381,7 @@ void SendGroupChat(uint iFromClientID, const std::wstring& wscText)
 	HkGetGroupMembers(wscSender, lstMembers);
 	for (auto& gm : lstMembers)
 	{
-		FormatSendChat(gm.iClientID, wscSender, wscText, L"FF7BFF");
+		FormatSendChat(gm.clientId, wscSender, wscText, L"FF7BFF");
 	}
 }
 

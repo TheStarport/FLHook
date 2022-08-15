@@ -2,41 +2,40 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniGet(std::variant<uint, std::wstring> player, const std::wstring& wscKey, std::wstring& wscRet)
+cpp::result<std::wstring, HkError> HkFLIniGet(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey)
 {
-	wscRet = L"";
+	std::wstring ret;
 	std::wstring wscDir;
 	if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return cpp::fail(CharDoesNotExist);
 
 	std::wstring wscFile;
 	HkGetCharFileName(player, wscFile);
 
-	std::string scCharFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl";
-	if (HkIsEncoded(scCharFile))
+	if (const std::string scCharFile = scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + ".fl"; HkIsEncoded(scCharFile))
 	{
-		std::string scCharFileNew = scCharFile + ".ini";
+		const std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-			return HKE_COULD_NOT_DECODE_CHARFILE;
+			return CouldNotDecodeCharFile;
 
-		wscRet = stows(IniGetS(scCharFileNew, "Player", wstos(wscKey).c_str(), ""));
+		ret = stows(IniGetS(scCharFileNew, "Player", wstos(wscKey), ""));
 		DeleteFile(scCharFileNew.c_str());
 	}
 	else
 	{
-		wscRet = stows(IniGetS(scCharFile, "Player", wstos(wscKey).c_str(), ""));
+		ret = stows(IniGetS(scCharFile, "Player", wstos(wscKey), ""));
 	}
 
-	return HKE_OK;
+	return ;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HK_ERROR HkFLIniWrite(std::variant<uint, std::wstring> player, const std::wstring& wscKey, const std::wstring& wscValue)
+HkError HkFLIniWrite(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey, const std::wstring& wscValue)
 {
 	std::wstring wscDir;
 	if (!HKHKSUCCESS(HkGetAccountDirName(player, wscDir)))
-		return HKE_CHAR_DOES_NOT_EXIST;
+		return CharDoesNotExist;
 
 	std::wstring wscFile;
 	HkGetCharFileName(player, wscFile);
@@ -46,21 +45,21 @@ HK_ERROR HkFLIniWrite(std::variant<uint, std::wstring> player, const std::wstrin
 	{
 		std::string scCharFileNew = scCharFile + ".ini";
 		if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
-			return HKE_COULD_NOT_DECODE_CHARFILE;
+			return CouldNotDecodeCharFile;
 
-		IniWrite(scCharFileNew, "Player", wstos(wscKey).c_str(), wstos(wscValue).c_str());
+		IniWrite(scCharFileNew, "Player", wstos(wscKey), wstos(wscValue));
 
 		// keep decoded
 		DeleteFile(scCharFile.c_str());
 		MoveFile(scCharFileNew.c_str(), scCharFile.c_str());
 		/*		if(!flc_encode(scCharFileNew.c_str(), scCharFile.c_str()))
-		                        return HKE_COULD_NOT_ENCODE_CHARFILE;
+		                        return CouldNotEncodeCharFile;
 
 		                DeleteFile(scCharFileNew.c_str()); */
 	}
 	else
 	{
-		IniWrite(scCharFile, "Player", wstos(wscKey).c_str(), wstos(wscValue).c_str());
+		IniWrite(scCharFile, "Player", wstos(wscKey), wstos(wscValue));
 	}
 
 	return HKE_OK;

@@ -58,7 +58,7 @@ namespace Plugins::Tax
 
 		std::wstring characterName = HkGetCharacterNameById(clientId);
 		uint clientIdTarget;
-		if (const HK_ERROR error = HkGetTargetClientId(characterName, clientIdTarget); error != HKE_OK || !HkIsValidClientID(clientIdTarget))
+		if (const HkError error = HkGetTargetClientId(characterName, clientIdTarget); error != HKE_OK || !HkIsValidClientID(clientIdTarget))
 		{
 			PrintUserCmdText(clientId, L"Error: You are not targeting a player.");
 			return;
@@ -66,7 +66,7 @@ namespace Plugins::Tax
 
 		int secs = 0;
 		std::wstring targetCharacterName = HkGetCharacterNameById(clientIdTarget);
-		if (const HK_ERROR error = HkGetOnlineTime(targetCharacterName, secs); error != HKE_OK || secs < global->config->minplaytimeSec)
+		if (const HkError error = HkGetOnlineTime(targetCharacterName, secs); error != HKE_OK || secs < global->config->minplaytimeSec)
 		{
 			PrintUserCmdText(clientId, L"Error: This player doesn't have enough playtime.");
 			return;

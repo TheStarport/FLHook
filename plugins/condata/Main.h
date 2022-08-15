@@ -48,8 +48,8 @@ namespace Plugins::ConData
 		inline static const char* pluginName = "Advanced Connection Data";
 		explicit ConDataCommunicator(std::string plug);
 
-		HK_ERROR PluginCall(ReceiveException, ConnectionDataException);
-		HK_ERROR PluginCall(ReceiveData, ConnectionData);
+		HkError PluginCall(ReceiveException, ConnectionDataException);
+		HkError PluginCall(ReceiveData, ConnectionData);
 	};
 
 	//! The struct that holds client info for this plugin

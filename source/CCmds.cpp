@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCash(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -28,7 +28,7 @@ void CCmds::CmdGetCash(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetCash(std::variant<uint, std::wstring> player, int iAmount)
+void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -42,7 +42,7 @@ void CCmds::CmdSetCash(std::variant<uint, std::wstring> player, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdSetCashSec(std::variant<uint, std::wstring> player, int iAmountCheck, int iAmount)
+void CCmds::CmdSetCashSec(const std::variant<uint, std::wstring>& player, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -61,7 +61,7 @@ void CCmds::CmdSetCashSec(std::variant<uint, std::wstring> player, int iAmountCh
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCash(std::variant<uint, std::wstring> player, int iAmount)
+void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -71,7 +71,7 @@ void CCmds::CmdAddCash(std::variant<uint, std::wstring> player, int iAmount)
 		PrintError();
 }
 
-void CCmds::CmdAddCashSec(std::variant<uint, std::wstring> player, int iAmountCheck, int iAmount)
+void CCmds::CmdAddCashSec(const std::variant<uint, std::wstring>& player, int iAmountCheck, int iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -90,7 +90,7 @@ void CCmds::CmdAddCashSec(std::variant<uint, std::wstring> player, int iAmountCh
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKick(std::variant<uint, std::wstring> player, const std::wstring& wscReason)
+void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -102,7 +102,7 @@ void CCmds::CmdKick(std::variant<uint, std::wstring> player, const std::wstring&
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdBan(std::variant<uint, std::wstring> player)
+void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -114,7 +114,7 @@ void CCmds::CmdBan(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnban(std::variant<uint, std::wstring> player)
+void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -126,7 +126,7 @@ void CCmds::CmdUnban(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKickBan(std::variant<uint, std::wstring> player, const std::wstring& wscReason)
+void CCmds::CmdKickBan(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
@@ -166,20 +166,20 @@ void CCmds::CmdGetClientId(std::wstring player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	uint iClientID = HkGetClientIdFromCharname(player);
-	if (iClientID == -1)
+	uint clientId = HkGetClientIdFromCharname(player);
+	if (clientId == -1)
 	{
-		hkLastErr = HKE_PLAYER_NOT_LOGGED_IN;
+		hkLastErr = PlayerNotLoggedIn;
 		PrintError();
 		return;
 	}
 
-	Print(L"clientid=%uOK\n", iClientID);
+	Print(L"clientid=%uOK\n", clientId);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKill(std::variant<uint, std::wstring> player)
+void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -191,7 +191,7 @@ void CCmds::CmdKill(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdResetRep(std::variant<uint, std::wstring> player)
+void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -203,7 +203,7 @@ void CCmds::CmdResetRep(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetRep(std::variant<uint, std::wstring> player, const std::wstring& wscRepGroup, float fValue)
+void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -215,7 +215,7 @@ void CCmds::CmdSetRep(std::variant<uint, std::wstring> player, const std::wstrin
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetRep(std::variant<uint, std::wstring> player, const std::wstring& wscRepGroup)
+void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
@@ -231,7 +231,7 @@ void CCmds::CmdGetRep(std::variant<uint, std::wstring> player, const std::wstrin
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsg(std::variant<uint, std::wstring> player, const std::wstring& wscText)
+void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscText)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -267,7 +267,7 @@ void CCmds::CmdMsgU(const std::wstring& wscText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsg(std::variant<uint, std::wstring> player, const std::wstring& wscXML)
+void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
@@ -303,7 +303,7 @@ void CCmds::CmdFMsgU(const std::wstring& wscXML)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdEnumCargo(std::variant<uint, std::wstring> player)
+void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -328,7 +328,7 @@ void CCmds::CmdEnumCargo(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(std::variant<uint, std::wstring> player, uint iID, uint iCount)
+void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint iID, uint iCount)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -341,7 +341,7 @@ void CCmds::CmdRemoveCargo(std::variant<uint, std::wstring> player, uint iID, ui
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CCmds::CmdAddCargo(
-    std::variant<uint, std::wstring> player, const std::wstring& wscGood, uint iCount, uint iMission)
+    const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, uint iCount, uint iMission)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -353,7 +353,7 @@ void CCmds::CmdAddCargo(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRename(std::variant<uint, std::wstring> player, const std::wstring& wscNewCharname)
+void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -365,7 +365,7 @@ void CCmds::CmdRename(std::variant<uint, std::wstring> player, const std::wstrin
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDeleteChar(std::variant<uint, std::wstring> player)
+void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -377,7 +377,7 @@ void CCmds::CmdDeleteChar(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdReadCharFile(std::variant<uint, std::wstring> player)
+void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -394,7 +394,7 @@ void CCmds::CmdReadCharFile(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdWriteCharFile(std::variant<uint, std::wstring> player, const std::wstring& wscData)
+void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscData)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
@@ -411,11 +411,11 @@ void CCmds::PrintPlayerInfo(HKPLAYERINFO pi)
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	Print(
-	    L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.wscCharname.c_str(), pi.iClientID,
+	    L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.clientId,
 	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdGetPlayerInfo(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -445,11 +445,11 @@ void CCmds::XPrintPlayerInfo(HKPLAYERINFO pi)
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	Print(
-	    L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.wscCharname.c_str(), pi.iClientID,
+	    L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.clientId,
 	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
-void CCmds::CmdXGetPlayerInfo(std::variant<uint, std::wstring> player)
+void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -482,7 +482,7 @@ void CCmds::CmdGetPlayerIDs()
 	for (auto& p : HkGetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf_s(wszBuf, L"%s = %u | ", p.wscCharname.c_str(), p.iClientID);
+		swprintf_s(wszBuf, L"%s = %u | ", p.character.c_str(), p.clientId);
 		if ((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine) / 2)
 		{
 			Print(L"%s", wszLine);
@@ -499,7 +499,7 @@ void CCmds::CmdGetPlayerIDs()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAccountDirName(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -512,7 +512,7 @@ void CCmds::CmdGetAccountDirName(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetCharFileName(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -532,13 +532,13 @@ void CCmds::CmdIsOnServer(std::wstring player)
 	CAccount* acc = HkGetAccountByCharname(player);
 	if (!acc)
 	{
-		hkLastErr = HKE_CHAR_DOES_NOT_EXIST;
+		hkLastErr = CharDoesNotExist;
 		PrintError();
 		return;
 	}
 
-	uint iClientID = HkGetClientIdFromAccount(acc);
-	if (iClientID == -1)
+	uint clientId = HkGetClientIdFromAccount(acc);
+	if (clientId == -1)
 		Print(L"onserver=noOK\n");
 	else
 		Print(L"onserver=yesOK\n");
@@ -567,13 +567,13 @@ void CCmds::CmdMoneyFixList()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	struct PlayerData* pPD = 0;
-	while (pPD = Players.traverse_active(pPD))
+	struct PlayerData* playerDb = 0;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint iClientID = HkGetClientIdFromPD(pPD);
+		uint clientId = HkGetClientIdFromPD(playerDb);
 
-		if (ClientInfo[iClientID].lstMoneyFix.size())
-			Print(L"id=%u", iClientID);
+		if (ClientInfo[clientId].lstMoneyFix.size())
+			Print(L"id=%u", clientId);
 	}
 
 	Print(L"OK");
@@ -613,7 +613,7 @@ void CCmds::CmdServerInfo()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetGroupMembers(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -622,7 +622,7 @@ void CCmds::CmdGetGroupMembers(std::variant<uint, std::wstring> player)
 	{
 		Print(L"groupsize=%d", lstMembers.size());
 		for (auto& m : lstMembers)
-			Print(L"id=%d charname=%s", m.iClientID, m.wscCharname.c_str());
+			Print(L"id=%d charname=%s", m.clientId, m.character.c_str());
 		Print(L"OK");
 	}
 	else
@@ -631,7 +631,7 @@ void CCmds::CmdGetGroupMembers(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSaveChar(std::variant<uint, std::wstring> player)
+void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -643,7 +643,7 @@ void CCmds::CmdSaveChar(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetReservedSlot(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -656,7 +656,7 @@ void CCmds::CmdGetReservedSlot(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetReservedSlot(std::variant<uint, std::wstring> player, int iReservedSlot)
+void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int iReservedSlot)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
@@ -668,7 +668,7 @@ void CCmds::CmdSetReservedSlot(std::variant<uint, std::wstring> player, int iRes
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetAdmin(std::variant<uint, std::wstring> player, const std::wstring& wscRights)
+void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -680,7 +680,7 @@ void CCmds::CmdSetAdmin(std::variant<uint, std::wstring> player, const std::wstr
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetAdmin(std::variant<uint, std::wstring> player)
+void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -693,7 +693,7 @@ void CCmds::CmdGetAdmin(std::variant<uint, std::wstring> player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdDelAdmin(std::variant<uint, std::wstring> player)
+void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -763,7 +763,7 @@ void CCmds::CmdRehash()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Chase a player. Only works in system as you'd need a client hook to do across system */
-void CCmds::CmdChase(std::wstring wscAdminName, std::variant<uint, std::wstring> player)
+void CCmds::CmdChase(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -794,7 +794,7 @@ void CCmds::CmdChase(std::wstring wscAdminName, std::variant<uint, std::wstring>
 
 /** Beam admin to a base. Works across systems but needs improvement of the path
  * selection algorithm */
-void CCmds::CmdBeam(std::variant<uint, std::wstring> player, const std::wstring& wscTargetBaseName)
+void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscTargetBaseName)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
@@ -825,20 +825,20 @@ void CCmds::CmdBeam(std::variant<uint, std::wstring> player, const std::wstring&
 			struct Universe::IBase* baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+				std::wstring basename = HkGetWStringFromIDS(baseinfo->baseIdS);
 				if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0)
 				{
-					pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-					if (info.iSystem != baseinfo->iSystemID)
+					pub::Player::ForceLand(info.clientId, baseinfo->baseId);
+					if (info.iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-						Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+						Server.BaseEnter(baseinfo->baseId, info.clientId);
+						Server.BaseExit(baseinfo->baseId, info.clientId);
 						std::wstring wscCharFileName;
-						HkGetCharFileName(info.wscCharname, wscCharFileName);
+						HkGetCharFileName(info.character, wscCharFileName);
 						wscCharFileName += L".fl";
 						CHARACTER_ID cID;
 						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, info.iClientID);
+						Server.CharacterSelect(cID, info.clientId);
 					}
 					return;
 				}
@@ -849,20 +849,20 @@ void CCmds::CmdBeam(std::variant<uint, std::wstring> player, const std::wstring&
 			baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = HkGetWStringFromIDS(baseinfo->iBaseIDS);
+				std::wstring basename = HkGetWStringFromIDS(baseinfo->baseIdS);
 				if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1)
 				{
-					pub::Player::ForceLand(info.iClientID, baseinfo->iBaseID);
-					if (info.iSystem != baseinfo->iSystemID)
+					pub::Player::ForceLand(info.clientId, baseinfo->baseId);
+					if (info.iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->iBaseID, info.iClientID);
-						Server.BaseExit(baseinfo->iBaseID, info.iClientID);
+						Server.BaseEnter(baseinfo->baseId, info.clientId);
+						Server.BaseExit(baseinfo->baseId, info.clientId);
 						std::wstring wscCharFileName;
-						HkGetCharFileName(info.wscCharname, wscCharFileName);
+						HkGetCharFileName(info.character, wscCharFileName);
 						wscCharFileName += L".fl";
 						CHARACTER_ID cID;
 						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, info.iClientID);
+						Server.CharacterSelect(cID, info.clientId);
 					}
 					return;
 				}
@@ -883,7 +883,7 @@ void CCmds::CmdBeam(std::variant<uint, std::wstring> player, const std::wstring&
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Pull a player to you. Only works in system as you'd need a client hook to move their system **/
-void CCmds::CmdPull(std::wstring wscAdminName, std::variant<uint, std::wstring> player)
+void CCmds::CmdPull(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
@@ -931,7 +931,7 @@ void CCmds::CmdMove(std::wstring wscAdminName, float x, float y, float z)
 	pos.y = y;
 	pos.z = z;
 	Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
-	HkRelocateClient(adminPlyr.iClientID, pos, rot);
+	HkRelocateClient(adminPlyr.clientId, pos, rot);
 	return;
 }
 
@@ -1029,21 +1029,21 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return this->GetAdminName();
 		else if (bTarget)
 		{
-			uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
-			if (!iClientID)
+			uint clientId = HkGetClientIdFromCharname(this->GetAdminName());
+			if (!clientId)
 				return L"";
 			uint iShip;
-			pub::Player::GetShip(iClientID, iShip);
+			pub::Player::GetShip(clientId, iShip);
 			if (!iShip)
 				return L"";
 			uint iTarget;
 			pub::SpaceObj::GetTarget(iShip, iTarget);
 			if (!iTarget)
 				return L"";
-			iClientID = HkGetClientIDByShip(iTarget);
-			if (!iClientID)
+			clientId = HkGetClientIDByShip(iTarget);
+			if (!clientId)
 				return L"";
-			return L"id " + std::to_wstring(iClientID);
+			return L"id " + std::to_wstring(clientId);
 		}
 	}
 
@@ -1054,21 +1054,21 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + wscArg.substr(2);
 		else if (wscArg == L">t")
 		{
-			uint iClientID = HkGetClientIdFromCharname(this->GetAdminName());
-			if (!iClientID)
+			uint clientId = HkGetClientIdFromCharname(this->GetAdminName());
+			if (!clientId)
 				return L"";
 			uint iShip;
-			pub::Player::GetShip(iClientID, iShip);
+			pub::Player::GetShip(clientId, iShip);
 			if (!iShip)
 				return L"";
 			uint iTarget;
 			pub::SpaceObj::GetTarget(iShip, iTarget);
 			if (!iTarget)
 				return L"";
-			iClientID = HkGetClientIDByShip(iTarget);
-			if (!iClientID)
+			clientId = HkGetClientIDByShip(iTarget);
+			if (!clientId)
 				return L"";
-			return L"id " + std::to_wstring(iClientID);
+			return L"id " + std::to_wstring(clientId);
 		}
 		else
 			return wscArg;

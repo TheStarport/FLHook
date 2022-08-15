@@ -63,14 +63,14 @@ PluginManager::~PluginManager()
 	clearData(false);
 }
 
-HK_ERROR PluginManager::unload(const std::string& name)
+HkError PluginManager::unload(const std::string& name)
 {
 	const auto plugin = std::find_if(begin(), end(), [name](const PluginData& data) {
 		return name == data.shortName;
 	});
 
 	if (plugin == end())
-		return HKE_PLUGIN_NOT_FOUND;
+		return PluginNotFound;
 
 	Console::ConPrint(L"Unloading %s (%s)", stows(plugin->name).c_str(), plugin->dllName.c_str());
 	plugins_.erase(plugin);

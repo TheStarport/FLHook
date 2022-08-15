@@ -18,12 +18,12 @@ std::map<std::string, pub::AI::Personality::CountermeasureUseStruct> cm;
 std::map<std::string, pub::AI::Personality::FormationUseStruct> formation; 
 std::map<std::string, pub::AI::Personality::JobStruct> job; 
 
-pub::AI::Personality HkGetPersonality(const std::string& pilotNickname, HK_ERROR& err)
+pub::AI::Personality HkGetPersonality(const std::string& pilotNickname, HkError& err)
 {
 	const auto& pilot = pilots.find(pilotNickname);
 	if (pilot == pilots.end())
 	{
-		err = HKE_NICKNAME_NOT_FOUND;
+		err = NicknameNotFound;
 		return {};
 	}
 

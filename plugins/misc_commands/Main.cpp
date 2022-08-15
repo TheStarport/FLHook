@@ -183,7 +183,7 @@ namespace Plugins::MiscCommands
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
 		int iCash = 0;
-		if (HK_ERROR err; (err = HkGetCash(wscCharname, iCash)) != HKE_OK)
+		if (HkError err; (err = HkGetCash(wscCharname, iCash)) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
 			return;
@@ -195,7 +195,7 @@ namespace Plugins::MiscCommands
 		}
 
 		float fValue = 0.0f;
-		if (HK_ERROR err; (err = HkGetRep(wscCharname, wscRepGroupNick, fValue)) != HKE_OK)
+		if (HkError err; (err = HkGetRep(wscCharname, wscRepGroupNick, fValue)) != HKE_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
 			return;

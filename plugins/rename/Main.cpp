@@ -363,7 +363,7 @@ namespace Plugins::Rename
 
 	void UserCmd_RenameMe(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		HK_ERROR err;
+		HkError err;
 
 		if (!global->config->enableRenameMe)
 		{
@@ -582,7 +582,7 @@ namespace Plugins::Rename
 	*/
 	void UserCmd_MoveChar(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		HK_ERROR err;
+		HkError err;
 
 		if (!global->config->enableMoveChar)
 		{

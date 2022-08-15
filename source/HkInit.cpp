@@ -21,7 +21,7 @@ namespace HkIEngine
 
 void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg);
-void __stdcall SendChat(uint clientID, uint clientIDTo, uint size, void* rdl);
+void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl);
 
 extern FARPROC g_OldShipDestroyed;
 extern FARPROC g_OldNonGunWeaponHitsBase;
@@ -180,9 +180,9 @@ char szRepFreeFixOld[5];
 clear the clientinfo
 **************************************************************************************************************/
 
-void ClearClientInfo(uint clientID)
+void ClearClientInfo(uint clientId)
 {
-	auto* info = &ClientInfo[clientID];
+	auto* info = &ClientInfo[clientId];
 
 	info->dieMsg = DIEMSG_ALL;
 	info->iShip = 0;
@@ -231,24 +231,24 @@ void ClearClientInfo(uint clientID)
 	// Reset the dmg list if this client was the inflictor
 	for (auto& i : ClientInfo)
 	{
-		if (i.dmgLast.iInflictorPlayerID == clientID)
+		if (i.dmgLast.iInflictorPlayerID == clientId)
 			i.dmgLast = dmg;
 	}
 
-	HkCharacterClearClientInfo(clientID);
+	HkCharacterClearClientInfo(clientId);
 
-	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientID);
+	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientId);
 }
 
 /**************************************************************************************************************
 load settings from flhookhuser.ini
 **************************************************************************************************************/
 
-void LoadUserSettings(uint iClientID)
+void LoadUserSettings(uint clientId)
 {
-	auto* info = &ClientInfo[iClientID];
+	auto* info = &ClientInfo[clientId];
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
 	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
@@ -270,7 +270,7 @@ void LoadUserSettings(uint iClientID)
 			break;
 
 		IGNORE_INFO ii;
-		ii.wscCharname = GetParam(wscIgnore, ' ', 0);
+		ii.character = GetParam(wscIgnore, ' ', 0);
 		ii.wscFlags = GetParam(wscIgnore, ' ', 1);
 		info->lstIgnore.push_back(ii);
 	}
@@ -280,18 +280,18 @@ void LoadUserSettings(uint iClientID)
 load settings from flhookhuser.ini (specific to character)
 **************************************************************************************************************/
 
-void LoadUserCharSettings(uint clientID)
+void LoadUserCharSettings(uint clientId)
 {
-	auto* info = &ClientInfo[clientID];
+	auto* info = &ClientInfo[clientId];
 
-	CAccount* acc = Players.FindAccountFromClientID(clientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	std::wstring wscDir;
 	HkGetAccountDirName(acc, wscDir);
 	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
 
 	// read autobuy
 	std::wstring wscFilename;
-	HkGetCharFileName((wchar_t*)Players.GetActiveCharacterName(clientID), wscFilename);
+	HkGetCharFileName((wchar_t*)Players.GetActiveCharacterName(clientId), wscFilename);
 	std::string scSection = "autobuy_" + wstos(wscFilename);
 
 	info->bAutoBuyMissiles = IniGetB(scUserFile, scSection, "missiles", false);
@@ -301,7 +301,7 @@ void LoadUserCharSettings(uint clientID)
 	info->bAutoBuyCM = IniGetB(scUserFile, scSection, "cm", false);
 	info->bAutoBuyReload = IniGetB(scUserFile, scSection, "reload", false);
 
-	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, clientID);
+	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, clientId);
 }
 
 /**************************************************************************************************************

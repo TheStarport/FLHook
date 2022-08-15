@@ -12,17 +12,17 @@ void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
 void HookRehashed();
-void LoadUserCharSettings(uint clientID);
+void LoadUserCharSettings(uint clientId);
 
-uint HkExtractClientId(std::variant<uint, std::wstring> player);
-CAccount* HkExtractAccount(std::variant<uint, std::wstring> player);
+uint HkExtractClientId(const std::variant<uint, std::wstring>& player);
+CAccount* HkExtractAccount(const std::variant<uint, std::wstring>& player);
 
-void ClearClientInfo(uint clientID);
-void LoadUserSettings(uint iClientID);
+void ClearClientInfo(uint clientId);
+void LoadUserSettings(uint clientId);
 
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd);
+bool UserCmd_Process(uint clientId, const std::wstring& wscCmd);
 
-bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
+bool AllowPlayerDamage(uint clientId, uint clientIdTarget);
 
 // Logs
 template<typename T>
@@ -83,7 +83,7 @@ void HkTimerCheckResolveResults();
 // HkPilotPersonalities
 void HkLoadPersonalities();
 
-void BaseDestroyed(uint objectID, uint clientIDBy);
+void BaseDestroyed(uint objectID, uint clientIdBy);
 
 extern HookEntry HkIServerImplEntries[73];
 
@@ -152,12 +152,12 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CHECK_FOR_DISCONNECT                                                    \
 	{                                                                           \
-		if (ClientInfo[clientID].bDisconnected)                                 \
+		if (ClientInfo[clientId].bDisconnected)                                 \
 		{                                                                       \
 			AddLog(LogType::Normal, LogLevel::Info,                                      \
 			    L"ERROR: Ignoring disconnected client in " + stows(__FUNCTION__) + L" id=%" \
 			                                                            "u",    \
-			    clientID);                                                      \
+			    clientId);                                                      \
 			return;                                                             \
 		};                                                                      \
 	}
@@ -286,7 +286,7 @@ class PluginManager : public Singleton<PluginManager>
 	void unloadAll();
 
 	void load(const std::wstring& fileName, CCmds*, bool);
-	HK_ERROR unload(const std::string& shortName);
+	HkError unload(const std::string& shortName);
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }

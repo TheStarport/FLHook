@@ -124,8 +124,14 @@
     <ClCompile Include="..\source\FLPacket.cpp">
       <Filter>Hook</Filter>
     </ClCompile>
-    <ClCompile Include="..\FLHookSDK\source\Helpers.cpp">
+    <ClCompile Include="..\FLHookSDK\source\HK.cpp">
       <Filter>sdk\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Hooks\Client.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Hooks\Math.cpp">
+      <Filter>Hook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -193,7 +199,7 @@
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Helpers.hpp">
+    <ClInclude Include="..\FLHookSDK\include\HK.hpp">
       <Filter>sdk\Tools</Filter>
     </ClInclude>
   </ItemGroup>

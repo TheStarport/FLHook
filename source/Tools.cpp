@@ -219,7 +219,7 @@ void IniGetSection(const std::string& scFile, const std::string& scApp, std::lis
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string& scExtension)
+std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& scExtension)
 {
 	// init variables
 	char szDataPath[MAX_PATH];

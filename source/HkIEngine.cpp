@@ -120,12 +120,12 @@ namespace HkIEngine
 			// Print out a message when a player ship docks.
 			if (FLHookConfig::c()->general.dockingMessages && response == PROCEED_DOCK)
 			{
-				uint iClientID = HkGetClientIDByShip(shipID);
-				if (iClientID)
+				uint clientId = HkGetClientIDByShip(shipID);
+				if (clientId)
 				{
 					std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
-					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(iClientID));
-					PrintLocalUserCmdText(iClientID, wscMsg, 15000);
+					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(clientId));
+					PrintLocalUserCmdText(clientId, wscMsg, 15000);
 				}
 			}
 			// Actually dock

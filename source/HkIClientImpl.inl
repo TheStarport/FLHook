@@ -22,9 +22,9 @@ void HkIClientImpl__Startup__Inner(uint, uint) {
         }
 
         bi.scBasename = szBaseName;
-        bi.iBaseID = CreateID(szBaseName);
+        bi.baseId = CreateID(szBaseName);
         lstBases.push_back(bi);
-        pub::System::LoadSystem(base->iSystemID);
+        pub::System::LoadSystem(base->systemId);
 
         base = Universe::GetNextBase();
     }

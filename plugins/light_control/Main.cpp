@@ -96,7 +96,7 @@ namespace Plugins::LightControl
 	uint IsInValidBase(const uint& clientId) 
 	{
 		uint baseId;
-		if (HK_ERROR err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
+		if (HkError err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
 		{ 
 			const std::wstring errorString = HkErrGetText(err); 
 			PrintUserCmdText(clientId, L"ERR:" + errorString); 

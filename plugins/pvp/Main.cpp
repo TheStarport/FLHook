@@ -68,7 +68,7 @@ namespace Plugins::Pvp
 	// event
 	void UserCmdStartFreeForAll(const uint& clientId, const std::wstring_view& param)
 	{
-		HK_ERROR error;
+		HkError error;
 
 		// Get entryAmount amount
 		std::wstring amountString = GetParam(param, ' ', 0);
@@ -179,7 +179,7 @@ namespace Plugins::Pvp
 		}
 		else
 		{
-			HK_ERROR error;
+			HkError error;
 
 			std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
 
@@ -301,7 +301,7 @@ namespace Plugins::Pvp
 			return;
 		}
 
-		HK_ERROR error;
+		HkError error;
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
 
 		// Check the player can afford it
@@ -372,7 +372,7 @@ namespace Plugins::Pvp
 				}
 
 				// Check the player can afford it
-				HK_ERROR error;
+				HkError error;
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
 				int cash = 0;
 				if ((error = HkGetCash(characterName, cash)) != HKE_OK)

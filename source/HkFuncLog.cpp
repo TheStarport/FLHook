@@ -118,7 +118,7 @@ void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
+void HkHandleCheater(uint clientId, bool bBan, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024 * 8] = L"";
 	va_list marker;
@@ -126,30 +126,30 @@ void HkHandleCheater(uint iClientID, bool bBan, std::wstring wscReason, ...)
 
 	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
-	HkAddCheaterLog(iClientID, wszBuf);
+	HkAddCheaterLog(clientId, wszBuf);
 
-	if (wscReason[0] != '#' && Players.GetActiveCharacterName(iClientID))
+	if (wscReason[0] != '#' && Players.GetActiveCharacterName(clientId))
 	{
-		std::wstring wscCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientId);
 
 		wchar_t wszBuf2[500];
-		swprintf_s(wszBuf2, L"Possible cheating detected: %s", wscCharname.c_str());
+		swprintf_s(wszBuf2, L"Possible cheating detected: %s", character.c_str());
 		HkMsgU(wszBuf2);
 	}
 
 	if (bBan)
-		HkBan(iClientID, true);
+		HkBan(clientId, true);
 	if (wscReason[0] != '#')
-		HkKick(iClientID);
+		HkKick(clientId);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring& wscReason)
+bool HkAddCheaterLog(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
 {
-	const uint iClientID = HkExtractClientId(player);
+	const uint clientId = HkExtractClientId(player);
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	std::wstring wscAccountDir = L"???";
 	std::wstring wscAccountID = L"???";
 	if (acc)
@@ -161,10 +161,10 @@ bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring
 	std::wstring wscHostName = L"???";
 	std::wstring wscIp = L"???";
 
-	wscHostName = ClientInfo[iClientID].wscHostname;
-	HkGetPlayerIP(iClientID, wscIp);
+	wscHostName = ClientInfo[clientId].wscHostname;
+	HkGetPlayerIP(clientId, wscIp);
 
-	const auto wscCharacterName = Players.GetActiveCharacterName(iClientID);
+	const auto wscCharacterName = Players.GetActiveCharacterName(clientId);
 
 	AddLog(LogType::Cheater, LogLevel::Info, L"Possible cheating detected (%s) by %s(%s)(%s) [%s %s]", 
 		wscReason.c_str(), wscCharacterName, wscAccountDir.c_str(), wscAccountID.c_str(), wscHostName.c_str(), wscIp.c_str());
@@ -173,7 +173,7 @@ bool HkAddCheaterLog(std::variant<uint, std::wstring> player, const std::wstring
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
+bool HkAddKickLog(uint clientId, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024 * 8] = L"";
 	va_list marker;
@@ -181,11 +181,11 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 
 	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
-	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 	if (!wszCharname)
 		wszCharname = L"";
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
@@ -195,7 +195,7 @@ bool HkAddKickLog(uint iClientID, std::wstring wscReason, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
+bool HkAddConnectLog(uint clientId, std::wstring wscReason, ...)
 {
 	wchar_t wszBuf[1024 * 8] = L"";
 	va_list marker;
@@ -203,11 +203,11 @@ bool HkAddConnectLog(uint iClientID, std::wstring wscReason, ...)
 
 	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
 
-	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID);
+	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
 	if (!wszCharname)
 		wszCharname = L"";
 
-	CAccount* acc = Players.FindAccountFromClientID(iClientID);
+	CAccount* acc = Players.FindAccountFromClientID(clientId);
 	std::wstring wscAccountDir;
 	HkGetAccountDirName(acc, wscAccountDir);
 
