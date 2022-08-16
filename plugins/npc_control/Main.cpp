@@ -1,9 +1,69 @@
-﻿// NPCs for FLHookPlugin
-// December 2015 by BestDiscoveryHookDevs2015
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+﻿/**
+ * @date Dec 2015 & Aug 2022
+ * @author Alley & Raikkonen
+ * @defgroup NPCControl NPC Control
+ * @brief
+ * Allows custom NPCs to be spawned.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * There are no players commands in this plugin.
+ *
+ * @paragraph adminCmds Admin Commands
+ * All commands are prefixed with '.' unless explicitly specified.
+ * - aicreate <quantity> <npc name>
+ * - aidestroy
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *    "fleetInfo": {
+ *        "example": {
+ *            "member": {
+ *                "example": 5
+ *            },
+ *            "name": "example"
+ *        }
+ *    },
+ *    "npcInfo": {
+ *        "example": {
+ *            "graph": "FIGHTER",
+ *            "iff": "li_lsf_grp",
+ *            "infocard2Id": 197809,
+ *            "infocardId": 197808,
+ *            "loadout": "MSN13_Juni",
+ *            "pilot": "pilot_pirate_ace",
+ *            "shipArch": "li_elite2"
+ *        }
+ *    },
+ *    "npcInfocardIds": [
+ *        197808
+ *    ],
+ *    "startupNpcs": [
+ *        {
+ *            "name": "example",
+ *            "position": [
+ *                -33367.0,
+ *                120.0,
+ *                -28810.0
+ *            ],
+ *            "rotation": [
+ *                0.0,
+ *                0.0,
+ *                0.0
+ *            ],
+ *            "system": "li01"
+ *        }
+ *    ]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 
@@ -11,7 +71,9 @@ namespace Plugins::Npc
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// Function to return a Personality.
+	/** @ingroup NPCControl
+	 * @brief Function to return a Personality
+	 */
 	pub::AI::SetPersonalityParams HkMakePersonality(std::string graph, const std::string& personality)
 	{
 		pub::AI::SetPersonalityParams p;
@@ -30,17 +92,23 @@ namespace Plugins::Npc
 		return p;
 	}
 
-	// Returns a random float between two
+	/** @ingroup NPCControl
+	 * @brief Returns a random float between two numbers
+	 */
 	float RandomFloatRange(float a, float b) { return ((b - a) * (static_cast<float>(rand()) / RAND_MAX)) + a; }
 
-	// Return random infocard ID from list that was loaded in
+	/** @ingroup NPCControl
+	 * @brief Return random infocard ID from list that was loaded in
+	 */
 	uint RandomInfocardId()
 	{
 		int randomIndex = rand() % global->config->npcInfocardIds.size();
 		return global->config->npcInfocardIds.at(randomIndex);
 	}
 
-	// Function called by next function to remove spawned NPCs from our data
+	/** @ingroup NPCControl
+	 * @brief Function called by next function to remove spawned NPCs from our data
+	 */
 	bool IsFLHookNPC(CShip* ship)
 	{
 		// If it's a player do nothing
@@ -65,7 +133,9 @@ namespace Plugins::Npc
 		return false;
 	}
 
-	// Hook on ship destroyed to remove from our data
+	/** @ingroup NPCControl
+	 * @brief Hook on ship destroyed to remove from our data
+	 */
 	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
@@ -75,7 +145,9 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Function that actually spawns the NPC
+	/** @ingroup NPCControl
+	 * @brief Function that actually spawns the NPC
+	 */
 	void CreateNPC(std::wstring& name, Vector position, Matrix rotation, uint systemId, bool varyPosition)
 	{
 		Npc arch = global->config->npcInfo[name];
@@ -152,6 +224,9 @@ namespace Plugins::Npc
 		global->Log->log(level, logMessage);
 	}
 
+	/** @ingroup NPCControl
+	 * @brief Loads the settings from the config file. Also sets up the logging.
+	 */
 	void LoadSettings()
 	{
 		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_npcs", "flhook_logs/npc.log");
@@ -177,15 +252,18 @@ namespace Plugins::Npc
 		global->config = std::make_unique<Config>(config);
 	}
 
-	// Main Load Settings function, calls the one above. Had to use this hook
-	// instead of LoadSettings otherwise NPCs wouldnt appear on server startup
+	/** @ingroup NPCControl
+	 * @brief Had to use this hook instead of LoadSettings otherwise NPCs wouldnt appear on server startup
+	 */
 	void AfterStartup()
 	{
 		for (auto& npc : global->config->startupNpcs)
 			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
 	}
 
-	// Admin command to make NPCs
+	/** @ingroup NPCControl
+	 * @brief Admin command to make NPCs
+	 */
 	void AdminCmdAIMake(CCmds* cmds, int Amount, std::wstring NpcType)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -222,7 +300,9 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Admin command to destroy the AI
+	/** @ingroup NPCControl
+	 * @brief Admin command to destroy the AI
+	 */
 	void AdminCmdAIKill(CCmds* cmds)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -254,21 +334,9 @@ namespace Plugins::Npc
 		cmds->Print(L"OK");
 	}
 
-	void AiCome(uint ship, Vector pos)
-	{
-		pub::AI::DirectiveCancelOp cancelOP;
-		pub::AI::SubmitDirective(ship, &cancelOP);
-
-		pub::AI::DirectiveGotoOp go;
-		go.iGotoType = 1;
-		go.vPos = pos;
-		go.vPos.x = pos.x + RandomFloatRange(0, 500);
-		go.vPos.y = pos.y + RandomFloatRange(0, 500);
-		go.vPos.z = pos.z + RandomFloatRange(0, 500);
-		go.fRange = 0;
-		pub::AI::SubmitDirective(ship, &go);
-	}
-
+	/** @ingroup NPCControl
+	 * @brief Admin command to make an AI dock with a target
+	 */
 	void AdminCmdAIDock(CCmds* cmds)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -315,7 +383,27 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Admin command to make AI come to your position
+	/** @ingroup NPCControl
+	 * @brief Admin command to make an AI come to a location. Called by the function below.
+	 */
+	void AiCome(uint ship, Vector pos)
+	{
+		pub::AI::DirectiveCancelOp cancelOP;
+		pub::AI::SubmitDirective(ship, &cancelOP);
+
+		pub::AI::DirectiveGotoOp go;
+		go.iGotoType = 1;
+		go.vPos = pos;
+		go.vPos.x = pos.x + RandomFloatRange(0, 500);
+		go.vPos.y = pos.y + RandomFloatRange(0, 500);
+		go.vPos.z = pos.z + RandomFloatRange(0, 500);
+		go.fRange = 0;
+		pub::AI::SubmitDirective(ship, &go);
+	}
+
+	/** @ingroup NPCControl
+	 * @brief Admin command to make an AI come to a location.
+	 */
 	void AdminCmdAICome(CCmds* cmds)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -352,6 +440,9 @@ namespace Plugins::Npc
 		return;
 	}
 
+	/** @ingroup NPCControl
+	 * @brief Admin command to make AI follow target (or admin) until death. Called by the function below.
+	 */
 	void AiFollow(uint ship, uint npc)
 	{
 		pub::AI::DirectiveCancelOp cancelOP;
@@ -362,7 +453,9 @@ namespace Plugins::Npc
 		pub::AI::SubmitDirective(npc, &testOP);
 	}
 
-	// Admin command to make AI follow target (or admin) until death
+	/** @ingroup NPCControl
+	 * @brief Admin command to make AI follow target (or admin) until death
+	 */
 	void AdminCmdAIFollow(CCmds* cmds, std::wstring& wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -407,7 +500,9 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Admin command to cancel the current operation
+	/** @ingroup NPCControl
+	 * @brief Admin command to cancel the current operation
+	 */
 	void AdminCmdAICancel(CCmds* cmds)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -441,7 +536,9 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Admin command to list NPC fleets
+	/** @ingroup NPCControl
+	 * @brief Admin command to list NPC fleets
+	 */
 	void AdminCmdListNPCFleets(CCmds* cmds)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -456,7 +553,9 @@ namespace Plugins::Npc
 			cmds->Print(L"|%s", name.c_str());
 	}
 
-	// Admin command to spawn a Fleet
+	/** @ingroup NPCControl
+	 * @brief Admin command to spawn a Fleet
+	 */
 	void AdminCmdAIFleet(CCmds* cmds, std::wstring FleetName)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
@@ -475,7 +574,9 @@ namespace Plugins::Npc
 		}
 	}
 
-	// Admin command processing
+	/** @ingroup NPCControl
+	 * @brief Admin command processing
+	 */
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
 		global->returnCode = ReturnCode::SkipAll;
