@@ -242,6 +242,7 @@ HK_ERROR HkGetAccountDirName(std::variant<uint, std::wstring> player, std::wstri
 
 HK_ERROR HkGetCharFileName(std::variant<uint, std::wstring> player, std::wstring& wscFilename)
 {
+	HK_ERROR err = HKE_OK;
 	static _GetFLName GetFLName = 0;
 	if (!GetFLName)
 		GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
@@ -254,17 +255,14 @@ HK_ERROR HkGetCharFileName(std::variant<uint, std::wstring> player, std::wstring
 	{
 		GetFLName(szBuf, reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID)));
 	}
-	else if (player.index() && HkGetAccountByCharname(std::get<std::wstring>(player)))
-	{
-		GetFLName(szBuf, std::get<std::wstring>(player).c_str());
-	}
 	else
 	{
-		return HKE_CHAR_DOES_NOT_EXIST;
+		GetFLName(szBuf, std::get<std::wstring>(player).c_str());
+		if (!player.index() || !HkGetAccountByCharname(std::get<std::wstring>(player)))
+			err = HKE_CHAR_DOES_NOT_EXIST;
 	}
-
 	wscFilename = stows(szBuf);
-	return HKE_OK;
+	return err;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -280,7 +280,7 @@ namespace Plugins::Rename
 				HkNewCharacter(acc, o.newCharName);
 
 				// Move files around
-				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) // This renames to a blank file, wtf?
 					throw "move failed";
 				if (std::filesystem::exists(o.sourceFile.c_str()))
 					throw "src still exists";
@@ -307,7 +307,7 @@ namespace Plugins::Rename
 			}
 		}
 
-		while (global->pendingMoves.empty())
+		while (!global->pendingMoves.empty())
 		{
 			Move o = global->pendingMoves.front();
 			if (HkGetClientIdFromCharname(o.destinationCharName) != -1)
@@ -496,7 +496,7 @@ namespace Plugins::Rename
 			return;
 		}
 		std::wstring wscDestFile;
-		if ((err = HkGetCharFileName(wscNewCharname, wscDestFile)) != HKE_OK)
+		if ((err = HkGetCharFileName(wscNewCharname, wscDestFile)) != HKE_CHAR_DOES_NOT_EXIST)
 		{
 			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
 			return;

@@ -33,7 +33,7 @@ void Update__Inner() {
     {
 		for (auto& timer : plugin.timers)
 		{
-			if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 100))
+			if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
 			{
 				timer.lastTime = currentTime;
 				timer.func();
