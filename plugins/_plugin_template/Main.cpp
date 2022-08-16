@@ -96,6 +96,8 @@ namespace Plugins::Template
 
 using namespace Plugins::Template;
 
+REFL_AUTO(type(Config))
+
 DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
