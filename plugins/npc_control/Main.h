@@ -20,7 +20,6 @@ namespace Plugins::Npc
 
 		uint shipArchId;
 		uint loadoutId;
-		uint iffId;
 	};
 
 	// A struct that represents a fleet that can be spawned
@@ -70,6 +69,7 @@ namespace Plugins::Npc
 		std::vector<const char*> listGraphs {};
 		std::vector<uint> spawnedNpcs{};
 		std::shared_ptr<spdlog::logger> Log = nullptr;
+		uint dockNpc = 0;
 	};
 }
 

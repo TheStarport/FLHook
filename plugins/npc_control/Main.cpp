@@ -150,8 +150,6 @@ namespace Plugins::Npc
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
 		std::string logMessage = "Created " + wstos(name);
 		global->Log->log(level, logMessage);
-
-		return;
 	}
 
 	void LoadSettings()
@@ -269,42 +267,6 @@ namespace Plugins::Npc
 		go.vPos.z = pos.z + RandomFloatRange(0, 500);
 		go.fRange = 0;
 		pub::AI::SubmitDirective(ship, &go);
-	}
-
-	void AdminCmdAILaunch(CCmds* cmds, uint npc)
-	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
-		{
-			cmds->Print(L"ERR No permission");
-			return;
-		}
-
-		uint ship;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
-		if (ship)
-		{
-			uint target;
-			pub::SpaceObj::GetTarget(ship, target);
-			
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), npc); target && it != global->spawnedNpcs.end())
-			{
-				uint typeId;
-				pub::SpaceObj::GetType(target, typeId);
-
-				if (typeId == OBJ_DOCKING_RING || typeId == OBJ_STATION)
-				{
-					pub::AI::DirectiveLaunchOp launchOP;
-					launchOP.iLaunchFromObject = target;
-					launchOP.x10 = 2;
-					launchOP.x14 = 1;
-					pub::AI::SubmitDirective(npc, &launchOP);
-				}
-				else
-					cmds->Print(L"Target is not undockable.");
-			}
-			else
-				cmds->Print(L"You have not selected a target or have not provided a valid npc number.");
-		}
 	}
 
 	void AdminCmdAIDock(CCmds* cmds)
@@ -530,8 +492,6 @@ namespace Plugins::Npc
 			AdminCmdAICome(cmds);
 		else if (wscCmd == L"aidock")
 			AdminCmdAIDock(cmds);
-		else if (wscCmd == L"ailaunch")
-			AdminCmdAILaunch(cmds, cmds->ArgUInt(1));
 		else if (wscCmd == L"aifleet")
 			AdminCmdAIFleet(cmds, cmds->ArgStr(1));
 		else if (wscCmd == L"fleetlist")
