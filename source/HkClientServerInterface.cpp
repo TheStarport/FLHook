@@ -322,8 +322,6 @@ uint HkIClientImpl::CDPClientProxy__GetSendQBytes(uint clientID)
 
 double HkIClientImpl::CDPClientProxy__GetLinkSaturation(uint clientID)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, L"HkIClientImpl::CDPClientProxy__GetLinkSaturation(\n\tuint clientID = %u\n)", clientID);
-
 	auto [retVal, skip] =
 	    CallPluginsBefore<double>(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, clientID);
 

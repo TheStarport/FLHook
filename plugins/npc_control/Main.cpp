@@ -134,7 +134,10 @@ namespace Plugins::Npc
 		pilot_name.end_mad_lib();
 
 		pub::Reputation::Alloc(si.iRep, scanner_name, pilot_name);
-		pub::Reputation::SetAffiliation(si.iRep, arch.iffId);
+
+		uint iff;
+		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
+		pub::Reputation::SetAffiliation(si.iRep, iff);
 
 		uint spaceObj;
 		pub::SpaceObj::Create(spaceObj, si);
@@ -160,7 +163,6 @@ namespace Plugins::Npc
 		{
 			npc.shipArchId = CreateID(npc.shipArch.c_str());
 			npc.loadoutId = CreateID(npc.loadout.c_str());
-			pub::Reputation::GetReputationGroup(npc.iffId, npc.iff.c_str());
 		}
 
 		for (auto& npc : config.startupNpcs)
@@ -181,8 +183,6 @@ namespace Plugins::Npc
 	// instead of LoadSettings otherwise NPCs wouldnt appear on server startup
 	void AfterStartup()
 	{
-		LoadSettings();
-
 		for (auto& npc : global->config->startupNpcs)
 			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
 	}
@@ -236,13 +236,13 @@ namespace Plugins::Npc
 		// Destroy targeted ship
 		if (cmds->IsPlayer())
 		{
-			uint ship, target;
+			uint ship;
+			uint target;
 			pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
 			pub::SpaceObj::GetTarget(ship, target);
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
-				global->spawnedNpcs.erase(it);
 				cmds->Print(L"OK");
 				return;
 			}
@@ -271,6 +271,88 @@ namespace Plugins::Npc
 		pub::AI::SubmitDirective(ship, &go);
 	}
 
+	void AdminCmdAILaunch(CCmds* cmds, uint npc)
+	{
+		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		{
+			cmds->Print(L"ERR No permission");
+			return;
+		}
+
+		uint ship;
+		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
+		if (ship)
+		{
+			uint target;
+			pub::SpaceObj::GetTarget(ship, target);
+			
+			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), npc); target && it != global->spawnedNpcs.end())
+			{
+				uint typeId;
+				pub::SpaceObj::GetType(target, typeId);
+
+				if (typeId == OBJ_DOCKING_RING || typeId == OBJ_STATION)
+				{
+					pub::AI::DirectiveLaunchOp launchOP;
+					launchOP.iLaunchFromObject = target;
+					launchOP.x10 = 2;
+					launchOP.x14 = 1;
+					pub::AI::SubmitDirective(npc, &launchOP);
+				}
+				else
+					cmds->Print(L"Target is not undockable.");
+			}
+			else
+				cmds->Print(L"You have not selected a target or have not provided a valid npc number.");
+		}
+	}
+
+	void AdminCmdAIDock(CCmds* cmds)
+	{
+		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		{
+			cmds->Print(L"ERR No permission");
+			return;
+		}
+
+		uint ship;
+		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
+		if (ship)
+		{
+			uint target;
+			pub::SpaceObj::GetTarget(ship, target);
+
+			if (global->dockNpc)
+			{
+				
+				uint typeId;
+				pub::SpaceObj::GetType(target, typeId);
+				if (typeId == OBJ_DOCKING_RING || typeId == OBJ_STATION)
+				{
+					pub::AI::DirectiveCancelOp cancelOP;
+					pub::AI::SubmitDirective(global->dockNpc, &cancelOP);
+					pub::AI::DirectiveDockOp dockOP;
+					dockOP.iDockSpaceObj = target;
+					pub::AI::SubmitDirective(global->dockNpc, &dockOP);
+					cmds->Print(L"NPC %u docking with base.", global->dockNpc);
+					global->dockNpc = 0;
+				}
+				else
+					cmds->Print(L"Target is not dockable.");
+			}
+			else
+			{
+				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+				{
+					global->dockNpc = target;
+					cmds->Print(L"Confirmed. Now use the same command again targeting the base you want the npc to dock at.");
+				}
+				else
+					cmds->Print(L"You are not targeting a valid npc.");
+			}
+		}
+	}
+
 	// Admin command to make AI come to your position
 	void AdminCmdAICome(CCmds* cmds)
 	{
@@ -294,7 +376,6 @@ namespace Plugins::Npc
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				AiCome(target, pos);
-				global->spawnedNpcs.erase(it);
 				cmds->Print(L"OK");
 				return;
 			}
@@ -351,10 +432,7 @@ namespace Plugins::Npc
 				uint target;
 				pub::SpaceObj::GetTarget(ship, target);
 				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
-				{
 					AiFollow(ship, target);
-					global->spawnedNpcs.erase(it);
-				}
 				// Perform action on all npcs
 				else
 					for (const auto& npc : global->spawnedNpcs)
@@ -450,6 +528,10 @@ namespace Plugins::Npc
 			AdminCmdAIFollow(cmds, cmds->ArgCharname(1));
 		else if (wscCmd == L"aicome")
 			AdminCmdAICome(cmds);
+		else if (wscCmd == L"aidock")
+			AdminCmdAIDock(cmds);
+		else if (wscCmd == L"ailaunch")
+			AdminCmdAILaunch(cmds, cmds->ArgUInt(1));
 		else if (wscCmd == L"aifleet")
 			AdminCmdAIFleet(cmds, cmds->ArgStr(1));
 		else if (wscCmd == L"fleetlist")
