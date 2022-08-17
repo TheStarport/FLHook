@@ -85,6 +85,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Warehouse", "..\plugins\war
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Autobuy", "..\plugins\autobuy\autobuy.vcxproj", "{681DDE36-BA92-48DB-92E8-4E821B92B4BA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Solar Control", "..\plugins\solarcontrol\solarcontrol.vcxproj", "{6F69FEED-80B6-4DFB-865E-90A195281BAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Win32 = Release|Win32
@@ -295,6 +297,12 @@ Global
 		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
 		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.Build.0 = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|x64.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -334,6 +342,7 @@ Global
 		{737AC6EA-7361-44B9-A15A-6975D1BC1DA4} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{681DDE36-BA92-48DB-92E8-4E821B92B4BA} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}

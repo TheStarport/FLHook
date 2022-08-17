@@ -21,8 +21,7 @@ namespace Plugins::SolarControl
 		int returnVal = pub::SpaceObj::CreateSolar(iSpaceID, solarInfo);
 
 		uint dunno;
-		IObjInspectImpl* inspect;
-		if (GetShipInspect(iSpaceID, inspect, dunno))
+		if (IObjInspectImpl* inspect; GetShipInspect(iSpaceID, inspect, dunno))
 		{
 			CSolar* solar = (CSolar*)inspect->cobject();
 
@@ -66,53 +65,38 @@ namespace Plugins::SolarControl
 		return returnVal;
 	}
 
-	pub::AI::SetPersonalityParams HkMakePersonality()
+	/** @ingroup NPCControl
+	 * @brief Function to return a Personality
+	 */
+	pub::AI::SetPersonalityParams HkMakePersonality(const std::string& personality)
 	{
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph("STATION", pub::StateGraph::TYPE_STANDARD);
 		p.bStateID = true;
+		HK_ERROR error;
+		p.personality = HkGetPersonality(personality, error);
 
-		p.personality.GunUse.gun_fire_interval_time = 0.5f;
-		p.personality.GunUse.gun_fire_interval_variance_percent = 0.5f;
-		p.personality.GunUse.gun_fire_burst_interval_time = 5.0f;
-		p.personality.GunUse.gun_fire_burst_interval_variance_percent = 0.50f;
-		p.personality.GunUse.gun_fire_no_burst_interval_time = 2.0f;
-		p.personality.GunUse.gun_fire_accuracy_cone_angle = 1.0f;
-		p.personality.GunUse.gun_fire_accuracy_power = 1.1f;
-		p.personality.GunUse.gun_range_threshold = 1.1f;
-		p.personality.GunUse.gun_target_point_switch_time = 3.0f;
-		p.personality.GunUse.fire_style = 0;
-		p.personality.GunUse.auto_turret_interval_time = 1.8f;
-		p.personality.GunUse.auto_turret_burst_interval_time = 2.0f;
-		p.personality.GunUse.auto_turret_no_burst_interval_time = 0.0f;
-		p.personality.GunUse.auto_turret_burst_interval_variance_percent = 0.2f;
-		p.personality.GunUse.gun_range_threshold_variance_percent = 0.3f;
-		p.personality.GunUse.gun_fire_accuracy_power_npc = 2.0f;
-
-		p.personality.MissileUse.missile_launch_interval_time = 20.0f;
-		p.personality.MissileUse.missile_launch_interval_variance_percent = 0.25f;
-		p.personality.MissileUse.missile_launch_range = 1000.0f;
-		p.personality.MissileUse.missile_launch_cone_angle = 20.0f;
-		p.personality.MissileUse.missile_launch_allow_out_of_range = false;
-
-		p.personality.FormationUse.force_attack_formation_active_time = 0.0f;
-		p.personality.FormationUse.force_attack_formation_unactive_time = 0.0f;
+		if (error != HKE_OK)
+		{
+			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
+			Console::ConErr(errorMessage);
+			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
+		}
 
 		return p;
 	}
 
-
 	uint CreateSolar(std::wstring name, Vector pos, Matrix rot, uint iSystem, bool varyPos)
 	{
-		SOLAR_ARCHTYPE_STRUCT arch = global->mapSolarArchtypes[name];
+		SolarArch arch = global->config->solarArches[name];
 
 		pub::SpaceObj::SolarInfo si {};
 		memset(&si, 0, sizeof(si));
 		si.iFlag = 4;
 
 		// Prepare the settings for the space object
-		si.iArchID = arch.Shiparch;
-		si.iLoadoutID = arch.Loadout;
+		si.iArchID = arch.solarArchId;
+		si.iLoadoutID = arch.loadoutId;
 		si.iHitPointsLeft = 1000;
 		si.iSystemID = iSystem;
 		si.mOrientation = rot;
@@ -123,8 +107,8 @@ namespace Plugins::SolarControl
 		si.Costume.accessories = 0;
 		si.iVoiceID = CreateID("atc_leg_m01");
 		si.iRep = MakeId("fc_lr_grp");
-		std::string npcid = wstos(name).c_str() + std::to_string(global->spawnedSOLARs.size());
-		strncpy_s(si.cNickName, sizeof(si.cNickName), npcid.c_str(), name.size() + global->spawnedSOLARs.size());
+		std::string npcId = wstos(name) + std::to_string(global->spawnedSolars.size());
+		strncpy_s(si.cNickName, sizeof(si.cNickName), npcId.c_str(), name.size() + global->spawnedSolars.size());
 
 		// Do we need to vary the starting position slightly? Useful when spawning multiple objects
 		si.vPos = pos;
@@ -142,7 +126,7 @@ namespace Plugins::SolarControl
 		}
 
 		// Which base this links to
-		si.iUnk8 = arch.Base;
+		si.iUnk8 = arch.baseId;
 
 		// Define the string used for the scanner name.
 		// Because this is empty, the solar_name will be used instead.
@@ -153,24 +137,26 @@ namespace Plugins::SolarControl
 		// Define the string used for the solar name.
 		FmtStr solar_name(0, 0);
 		solar_name.begin_mad_lib(16163); // ids of "%s0 %s1"
-		solar_name.append_string(arch.Infocard);
+		solar_name.append_string(arch.infocard);
 		solar_name.end_mad_lib();
 
 		// Set Reputation
 		pub::Reputation::Alloc(si.iRep, scanner_name, solar_name);
-		pub::Reputation::SetAffiliation(si.iRep, MakeId("fc_lr_grp"));
+		uint iff;
+		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
+		pub::Reputation::SetAffiliation(si.iRep, iff);
 
 		// Spawn the solar object
 		uint iSpaceObj;
 		HkCreateSolar(iSpaceObj, si);
 
-		pub::AI::SetPersonalityParams pers = HkMakePersonality();
+		pub::AI::SetPersonalityParams pers = HkMakePersonality(arch.pilot);
 		pub::AI::SubmitState(iSpaceObj, &pers);
 
 		// Set the visible health for the Space Object
 		pub::SpaceObj::SetRelativeHealth(iSpaceObj, 1);
 
-		global->spawnedSOLARs[iSpaceObj] = name;
+		global->spawnedSolars[iSpaceObj] = name;
 
 		return iSpaceObj;
 	}
@@ -187,11 +173,8 @@ namespace Plugins::SolarControl
 		if (Amount == 0)
 			Amount = 1;
 
-		SOLAR_ARCHTYPE_STRUCT arch;
-
-		std::map<std::wstring, SOLAR_ARCHTYPE_STRUCT>::iterator iter = global->mapSolarArchtypes.find(SolarType);
-		if (iter != global->mapSolarArchtypes.end())
-			arch = iter->second;
+		if (const auto iter = global->config->solarArches.find(SolarType); iter != global->config->solarArches.end())
+			SolarArch arch = iter->second;
 		else
 		{
 			cmds->Print(L"ERR Wrong Solar name\n");
@@ -206,8 +189,8 @@ namespace Plugins::SolarControl
 		uint iSystem;
 		pub::Player::GetSystem(HkGetClientIdFromCharname(cmds->GetAdminName()), iSystem);
 
-		Vector pos;
-		Matrix rot;
+		Vector pos{};
+		Matrix rot{};
 		pub::SpaceObj::GetLocation(iShip, pos, rot);
 
 		for (int i = 0; i < Amount; i++)
@@ -224,10 +207,10 @@ namespace Plugins::SolarControl
 			return;
 		}
 
-		for (auto& [id, name] : global->spawnedSOLARs)
+		for (auto const& [id, name] : global->spawnedSolars)
 			pub::SpaceObj::SetRelativeHealth(id, 0.0f);
 
-		global->spawnedSOLARs.clear();
+		global->spawnedSolars.clear();
 		cmds->Print(L"OK\n");
 
 		return;
@@ -235,112 +218,72 @@ namespace Plugins::SolarControl
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
 	{
-		if (IS_CMD("solarcreate"))
+		global->returnCode = ReturnCode::SkipAll;
+
+		if (wscCmd == L"solarcreate")
 		{
-			global->returncode = ReturnCode::SkipAll;
+			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_SolarMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
 			return true;
 		}
-		else if (IS_CMD("solardestroy"))
+		else if (wscCmd == L"solardestroy")
 		{
-			global->returncode = ReturnCode::SkipAll;
+			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_SolarKill(cmds);
 			return true;
 		}
-		return false;
-	}
-
-	// Settings
-	void LoadSolarInfo()
-	{
-		global->startupSOLARs.clear();
-		global->spawnedSOLARs.clear();
-
-		// The path to the configuration file.
-		char szCurDir[MAX_PATH];
-		GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-		std::string scPluginCfgFile = std::string(szCurDir) + "\\flhook_plugins\\solar.cfg";
-
-		INI_Reader ini;
-		if (ini.open(scPluginCfgFile.c_str(), false))
+		else
 		{
-			while (ini.read_header())
-			{
-				if (ini.is_header("solars"))
-				{
-					SOLAR_ARCHTYPE_STRUCT solarstruct;
-					while (ini.read_value())
-					{
-						if (ini.is_value("solar"))
-						{
-							std::string setsolarname = ini.get_value_string(0);
-							std::wstring solarname = stows(setsolarname);
-							solarstruct.Shiparch = CreateID(ini.get_value_string(1));
-							std::string loadoutstring = ini.get_value_string(2);
-							solarstruct.Loadout = CreateID(loadoutstring.c_str());
-
-							// IFF calc
-							pub::Reputation::GetReputationGroup(solarstruct.IFF, ini.get_value_string(3));
-
-							solarstruct.Infocard = ini.get_value_int(4);
-							solarstruct.Base = CreateID(ini.get_value_string(5));
-
-							global->mapSolarArchtypes[solarname] = solarstruct;
-						}
-					}
-				}
-				else if (ini.is_header("startupsolars"))
-				{
-					while (ini.read_value())
-					{
-						if (ini.is_value("startupsolar"))
-						{
-							SOLAR n;
-							n.name = stows(ini.get_value_string(0));
-							n.pos.x = ini.get_value_int(1);
-							n.pos.y = ini.get_value_int(2);
-							n.pos.z = ini.get_value_int(3);
-							n.rot.data[0][0] = ini.get_value_float(4);
-							n.rot.data[0][1] = ini.get_value_float(5);
-							n.rot.data[0][2] = ini.get_value_float(6);
-							n.rot.data[1][0] = ini.get_value_float(7);
-							n.rot.data[1][1] = ini.get_value_float(8);
-							n.rot.data[1][2] = ini.get_value_float(9);
-							n.rot.data[2][0] = ini.get_value_float(10);
-							n.rot.data[2][1] = ini.get_value_float(11);
-							n.rot.data[2][2] = ini.get_value_float(12);
-							n.system = CreateID(ini.get_value_string(13));
-							global->startupSOLARs[global->startupSOLARs.size()] = n;
-						}
-					}
-				}
-			}
-			ini.close();
+			global->returnCode = ReturnCode::Default;
+			return false;
 		}
 	}
 
+	// Settings
 	void LoadSettings()
 	{
-		
+		auto config = Serializer::JsonToObject<Config>();
+		global->spawnedSolars.clear();
+		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_solars", "flhook_logs/solar.log");
+
+		for (auto& [name, solar] : config.solarArches)
+		{
+			solar.baseId = CreateID(solar.base.c_str());
+			solar.loadoutId = CreateID(solar.loadout.c_str());
+			solar.solarArchId = CreateID(solar.solarArch.c_str());
+		}
+
+		for (auto& solar : config.startupSolars)
+		{
+			solar.systemId = CreateID(solar.system.c_str());
+
+			solar.pos.x = solar.position[0];
+			solar.pos.y = solar.position[1];
+			solar.pos.z = solar.position[2];
+
+			solar.rot = EulerMatrix({solar.rotation[0], solar.rotation[1], solar.rotation[2]});
+		}
+
+		global->config = std::make_unique<Config>(config);
 	}
 
 	// We have to spawn here since the Startup/LoadSettings hooks are too early
 	void __stdcall Login(struct SLoginInfo const& li, uint& iClientID)
 	{
-		if (global->FirstRun)
+		if (global->firstRun)
 		{
-			LoadSolarInfo();
+			LoadSettings();
 
 			// hook solar creation to fix fl-bug in MP where loadout is not sent
 			char* pAddressCreateSolar = ((char*)GetModuleHandle("content.dll") + 0x1134D4);
 			FARPROC fpHkCreateSolar = (FARPROC)HkCreateSolar;
 			WriteProcMem(pAddressCreateSolar, &fpHkCreateSolar, 4);
 
-			for (std::map<int, SOLAR>::iterator i = global->startupSOLARs.begin(); i != global->startupSOLARs.end(); ++i)
+			for (const auto& solar : global->config->startupSolars)
 			{
-				CreateSolar(i->second.name, i->second.pos, i->second.rot, i->second.system, false);
+				CreateSolar(solar.name, solar.pos, solar.rot, solar.systemId, false);
 			}
-			global->FirstRun = false;
+			global->firstRun = false;
 		}
 	}
 }
@@ -352,28 +295,23 @@ namespace Plugins::SolarControl
 
 using namespace Plugins::SolarControl;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		LoadSettings();
-	}
-	return true;
-}
+DefaultDllMainSettings(LoadSettings)
 
+REFL_AUTO(type(SolarArch), field(solarArch), field(loadout), field(iff), field(infocard), field(base), field(pilot))
+REFL_AUTO(type(StartupSolar), field(name), field(system), field(position), field(rotation))
+REFL_AUTO(type(Config), field(startupSolars), field(solarArches))
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Solar Control");
 	pi->shortName("solar_control");
-	pi->mayPause(true);
 	pi->mayUnload(true);
-	pi->returnCode(&global->returncode);
+	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
 
 
