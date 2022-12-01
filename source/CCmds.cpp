@@ -251,7 +251,15 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
-	if (const auto res = Hk::Message::FMsgS(system, xml); res.has_error())
+	uint systemId;
+	pub::GetSystemID(systemId, wstos(system).c_str());
+	if (!systemId)
+	{
+		Print(L"Invalid System");
+		return;
+	}
+
+	if (const auto res = Hk::Message::FMsgS(systemId, xml); res.has_error())
 	{
 		PrintError(res.error());
 		return;

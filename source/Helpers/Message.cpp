@@ -150,17 +150,8 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
+	cpp::result<void, Error> FMsgS(const SystemId id, const std::wstring& wscXML)
 	{
-		// get system id
-		uint systemId;
-		if (!((systemId = ToInt(wscSystemname.c_str()))))
-		{
-			pub::GetSystemID(systemId, wstos(wscSystemname).c_str());
-			if (!systemId)
-				return cpp::fail(Error::InvalidSystem);
-		}
-
 		// encode xml std::string
 		char szBuf[0xFFFF];
 		uint iRet;
@@ -174,7 +165,7 @@ namespace Hk::Message
 			uint clientId = playerDb->iOnlineID;
 			uint iClientSystemID = 0;
 			pub::Player::GetSystem(clientId, iClientSystemID);
-			if (systemId == iClientSystemID)
+			if (id == iClientSystemID)
 				FMsgSendChat(clientId, szBuf, iRet);
 		}
 
