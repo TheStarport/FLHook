@@ -435,7 +435,7 @@ namespace Hk::Message
 		return L"";
 	}
 
-	cpp::result<void, Error> FormatMsg(uint clientId, MessageColor color, MessageFormat format, const std::wstring msg, ...) // NOLINT(performance-unnecessary-value-param)
+	std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring msg, ...) // NOLINT(performance-unnecessary-value-param)
 	{
 		wchar_t buf[1024 * 8] = L"";
 		va_list marker;
@@ -445,11 +445,6 @@ namespace Hk::Message
 		const uint bgrColor = Math::RgbToBgr(static_cast<uint>(color));
 		const std::wstring tra = Math::UintToHexString(bgrColor, 6, true) + Math::UintToHexString(static_cast<uint>(format), 2);
 
-		const std::wstring xml = L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(buf) + L"</TEXT>";
-		const auto err = FMsg(clientId, xml);
-		if (err.has_error())
-			return cpp::fail(err.error());
-
-		return {};
+		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(buf) + L"</TEXT>";
 	}
 } // namespace Hk::Message
