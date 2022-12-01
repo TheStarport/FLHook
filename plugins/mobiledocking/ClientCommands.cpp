@@ -3,7 +3,7 @@
 /// Send a command to the client at destination ID 0x9999
 void SendCommand(uint client, const std::wstring& message)
 {
-	HkFMsg(client, L"<TEXT>" + XMLText(message) + L"</TEXT>");
+	FMsg(client, L"<TEXT>" + XMLText(message) + L"</TEXT>");
 }
 
 void SendSetBaseEntryText(UINT client, const std::wstring& message)

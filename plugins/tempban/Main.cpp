@@ -8,7 +8,7 @@ namespace Plugins::Tempban
 	Check if TempBans exceeded
 	**************************************************************************************************************/
 
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		// timed out tempbans get deleted here
 
@@ -26,9 +26,9 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	HkError __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
+	Error __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
 	{
-		const uint iClientID = HkGetClientIdFromCharname(wscCharname);
+		const uint iClientID = GetClientIdFromCharname(wscCharname);
 
 		mstime duration = 1000 * _duration * 60;
 		TempbanInfo tempban;
@@ -40,29 +40,29 @@ namespace Plugins::Tempban
 			acc = Players.FindAccountFromClientID(iClientID);
 		else
 		{
-			if (!(acc = HkGetAccountByCharname(wscCharname)))
+			if (!(acc = GetAccountByCharname(wscCharname)))
 				return CharDoesNotExist;
 		}
-		std::wstring wscID = HkGetAccountID(acc);
+		std::wstring wscID = GetAccountID(acc);
 
 		tempban.accountId = wscID;
 		global->TempBans.push_back(tempban);
 
-		if (iClientID != -1 && HkKick(iClientID) != HKE_OK)
+		if (iClientID != -1 && Kick(iClientID) != E_OK)
 		{
 			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
 		}
 
-		return HKE_OK;
+		return E_OK;
 	}
 
-	bool HkTempBannedCheck(uint iClientID)
+	bool TempBannedCheck(uint iClientID)
 	{
 		CAccount* acc;
 		acc = Players.FindAccountFromClientID(iClientID);
 
-		std::wstring wscID = HkGetAccountID(acc);
+		std::wstring wscID = GetAccountID(acc);
 
 		for (auto& ban : global->TempBans)
 		{
@@ -80,10 +80,10 @@ namespace Plugins::Tempban
 		global->returncode = ReturnCode::Default;
 
 		// check for tempban
-		if (HkTempBannedCheck(iClientID))
+		if (TempBannedCheck(iClientID))
 		{
 			global->returncode = ReturnCode::SkipAll;
-			HkKick(iClientID);
+			Kick(iClientID);
 		}
 	}
 
@@ -98,7 +98,7 @@ namespace Plugins::Tempban
 			return;
 		}
 
-		if ((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK) // hksuccess
+		if ((classptr->LastErr = TempBan(wscCharname, iDuration)) == E_OK) // success
 			classptr->Print(L"OK");
 		else
 			classptr->PrintError();
@@ -121,7 +121,7 @@ namespace Plugins::Tempban
 
 	void CmdHelp(CCmds* classptr) { classptr->Print(L"tempban <charname>"); }
 
-	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = HkTempBan; }
+	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBan; }
 } // namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
@@ -136,7 +136,7 @@ DefaultDllMain()
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);

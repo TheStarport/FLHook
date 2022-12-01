@@ -1,6 +1,6 @@
 ﻿#include "Global.hpp"
 
-bool HkLoadBaseMarket()
+bool LoadBaseMarket()
 {
 	INI_Reader ini;
 

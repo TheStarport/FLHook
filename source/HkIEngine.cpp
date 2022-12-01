@@ -4,7 +4,7 @@
 // misc flserver engine function hooks
 **************************************************************************************************************/
 
-namespace HkIEngine
+namespace IEngineHook
 {
 
 	/**************************************************************************************************************
@@ -120,12 +120,12 @@ namespace HkIEngine
 			// Print out a message when a player ship docks.
 			if (FLHookConfig::c()->general.dockingMessages && response == PROCEED_DOCK)
 			{
-				uint clientId = HkGetClientIDByShip(shipID);
-				if (clientId)
+				const auto clientId = Hk::Client::GetClientIDByShip(shipID);
+				if (clientId.has_value())
 				{
 					std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
-					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(clientId));
-					PrintLocalUserCmdText(clientId, wscMsg, 15000);
+					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(clientId.value()));
+					PrintLocalUserCmdText(clientId.value(), wscMsg, 15000);
 				}
 			}
 			// Actually dock
@@ -225,4 +225,4 @@ abort_lbl:
 	/**************************************************************************************************************
 	**************************************************************************************************************/
 
-} // namespace HkIEngine
+} // namespace IEngine

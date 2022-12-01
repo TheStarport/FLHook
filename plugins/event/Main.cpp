@@ -94,7 +94,7 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Save mission status every 100 seconds.
 	 */
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		if ((time(0) % 100) == 0)
 		{
@@ -138,7 +138,7 @@ namespace Plugins::Event
 	{
 		if (iKill)
 		{
-			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			const CShip* cShip = CShipFromShipDestroyed(ecx);
 
 			int Reputation;
 			pub::SpaceObj::GetRep(cShip->get_id(), Reputation);
@@ -231,7 +231,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);

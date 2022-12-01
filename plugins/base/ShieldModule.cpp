@@ -108,9 +108,9 @@ bool ShieldModule::Timer(uint time)
 			IObjInspectImpl* inspect;
 			if (GetShipInspect(core->space_obj, inspect, dunno))
 			{
-				HkUnLightFuse((IObjRW*)inspect, shield_fuse);
+				UnLightFuse((IObjRW*)inspect, shield_fuse);
 				if (base->shield_state == PlayerBase::SHIELD_STATE_ACTIVE)
-					HkLightFuse((IObjRW*)inspect, shield_fuse, 0.0f, 0.0f, 0.0f);
+					LightFuse((IObjRW*)inspect, shield_fuse, 0.0f, 0.0f, 0.0f);
 			}
 		}
 	}

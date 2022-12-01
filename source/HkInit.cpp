@@ -1,7 +1,7 @@
 ﻿#include "Global.hpp"
 #include <process.h>
 
-namespace HkIEngine
+namespace IEngineHook
 {
 	void __cdecl UpdateTime(double interval);
 	void __stdcall ElapseTime(float interval);
@@ -17,7 +17,7 @@ namespace HkIEngine
 	extern FARPROC g_OldDestroyCShip;
 	extern FARPROC g_OldLaunchPosition;
 	extern FARPROC g_OldLoadReputationFromCharacterFile;
-} // namespace HkIEngine
+} // namespace IEngine
 
 void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg);
@@ -34,8 +34,8 @@ extern FARPROC g_OldGuidedHit;
 PATCH_INFO piFLServerEXE = { "flserver.exe",
 	                         0x0400000,
 	                         {
-	                             { 0x041B094, &HkIEngine::UpdateTime, 4, 0, false },
-	                             { 0x041BAB0, &HkIEngine::ElapseTime, 4, 0, false },
+	                             { 0x041B094, &IEngineHook::UpdateTime, 4, 0, false },
+	                             { 0x041BAB0, &IEngineHook::ElapseTime, 4, 0, false },
 
 	                             { 0, 0, 0, 0 } // terminate
 	                         } };
@@ -43,7 +43,7 @@ PATCH_INFO piFLServerEXE = { "flserver.exe",
 PATCH_INFO piContentDLL = { "content.dll",
 	                        0x6EA0000,
 	                        {
-	                            { 0x6FB358C, &HkIEngine::DockCall, 4, 0, false },
+	                            { 0x6FB358C, &IEngineHook::DockCall, 4, 0, false },
 
 	                            { 0, 0, 0, 0 } // terminate
 	                        } };
@@ -52,8 +52,8 @@ PATCH_INFO piCommonDLL = { "common.dll",
 	                       0x6260000,
 	                       {
 
-	                           { 0x0639C138, &HkIEngine::Naked__CShip__Init, 4, &HkIEngine::g_OldInitCShip, false },
-	                           { 0x0639C064, &HkIEngine::Naked__CShip__Destroy, 4, &HkIEngine::g_OldDestroyCShip,
+	                           { 0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false },
+	                           { 0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip,
 	                             false },
 
 	                           { 0, 0, 0, 0 } // terminate
@@ -74,9 +74,9 @@ PATCH_INFO piServerDLL = { "server.dll",
 	                           { 0x6D67330, &Naked__DamageHit2, 4, 0, false },
 	                           { 0x6D67680, &Naked__DamageHit2, 4, 0, false },
 	                           { 0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false },
-	                           { 0x6D6420C, &HkIEngine::Naked__LaunchPosition, 4, &HkIEngine::g_OldLaunchPosition,
+	                           { 0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition,
 	                             false },
-	                           { 0x6D648E0, &HkIEngine::FreeReputationVibe, 4, 0, false },
+	                           { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, 0, false },
 
 	                           { 0, 0, 0, 0 } // terminate
 	                       } };
@@ -154,8 +154,8 @@ CDPClientProxy** g_cClientProxyArray;
 
 CDPServer* cdpSrv;
 
-HkIClientImpl* FakeClient;
-HkIClientImpl* HookClient;
+IClientImpl* FakeClient;
+IClientImpl* HookClient;
 char* OldClient;
 
 _CRCAntiCheat CRCAntiCheat;
@@ -223,11 +223,6 @@ void ClearClientInfo(uint clientId)
 
 	info->bSpawnProtected = false;
 
-	for (auto& i : info->mapPluginData)
-	{
-		i.second.fill(0x0);
-	}
-
 	// Reset the dmg list if this client was the inflictor
 	for (auto& i : ClientInfo)
 	{
@@ -235,7 +230,7 @@ void ClearClientInfo(uint clientId)
 			i.dmgLast = dmg;
 	}
 
-	HkCharacterClearClientInfo(clientId);
+	Hk::Ini::CharacterClearClientInfo(clientId);
 
 	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientId);
 }
@@ -249,9 +244,8 @@ void LoadUserSettings(uint clientId)
 	auto* info = &ClientInfo[clientId];
 
 	CAccount* acc = Players.FindAccountFromClientID(clientId);
-	std::wstring wscDir;
-	HkGetAccountDirName(acc, wscDir);
-	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+	std::wstring dir = Hk::Client::GetAccountDirName(acc);
+	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
 	info->dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
@@ -285,14 +279,17 @@ void LoadUserCharSettings(uint clientId)
 	auto* info = &ClientInfo[clientId];
 
 	CAccount* acc = Players.FindAccountFromClientID(clientId);
-	std::wstring wscDir;
-	HkGetAccountDirName(acc, wscDir);
-	std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+	std::wstring dir = Hk::Client::GetAccountDirName(acc);
+	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read autobuy
-	std::wstring wscFilename;
-	HkGetCharFileName((wchar_t*)Players.GetActiveCharacterName(clientId), wscFilename);
-	std::string scSection = "autobuy_" + wstos(wscFilename);
+	auto fileName = Hk::Client::GetCharFileName((wchar_t*)Players.GetActiveCharacterName(clientId));
+	if (fileName.has_error())
+	{
+		return;
+	}
+
+	std::string scSection = "autobuy_" + wstos(fileName.value());
 
 	info->bAutoBuyMissiles = IniGetB(scUserFile, scSection, "missiles", false);
 	info->bAutoBuyMines = IniGetB(scUserFile, scSection, "mines", false);
@@ -314,18 +311,18 @@ bool InitHookExports()
 	InitializeCriticalSection(&csIPResolve);
 	DWORD dwID;
 	DWORD dwParam[34]; // else release version crashes, dont ask me why...
-	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)HkThreadResolver, &dwParam, 0, &dwID);
+	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwID);
 
 	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
 	// install IServerImpl callbacks in remoteclient.dll
 	auto* pServer = reinterpret_cast<char*>(&Server);
 	memcpy(&pServer, pServer, 4);
-	for (uint i = 0; i < std::size(HkIServerImplEntries); i++)
+	for (uint i = 0; i < std::size(IServerImplEntries); i++)
 	{
-		char* pAddress = pServer + HkIServerImplEntries[i].dwRemoteAddress;
-		ReadProcMem(pAddress, &HkIServerImplEntries[i].fpOldProc, 4);
-		WriteProcMem(pAddress, &HkIServerImplEntries[i].fpProc, 4);
+		char* pAddress = pServer + IServerImplEntries[i].dwRemoteAddress;
+		ReadProcMem(pAddress, &IServerImplEntries[i].fpOldProc, 4);
+		WriteProcMem(pAddress, &IServerImplEntries[i].fpProc, 4);
 	}
 
 	// patch it
@@ -356,13 +353,13 @@ bool InitHookExports()
 	char szMovEAX[] = { '\xB8' };
 	char szJMPEAX[] = { '\xFF', '\xE0' };
 
-	FARPROC fpHkLoadRepFromCharFile = (FARPROC)HkIEngine::Naked__LoadReputationFromCharacterFile;
+	FARPROC fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
 	WriteProcMem(pAddress, szMovEAX, 1);
-	WriteProcMem(pAddress + 1, &fpHkLoadRepFromCharFile, 4);
+	WriteProcMem(pAddress + 1, &fpLoadRepFromCharFile, 4);
 	WriteProcMem(pAddress + 5, szJMPEAX, 2);
 
-	HkIEngine::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
+	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
 	// crc anti-cheat
 	CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
@@ -391,7 +388,7 @@ bool InitHookExports()
 	scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
 	// Load DLLs for strings
-	HkLoadStringDLLs();
+	Hk::Message::LoadStringDLLs();
 
 	// clear ClientInfo
 	for (uint i = 0; i < ClientInfo.size(); i++)
@@ -405,9 +402,9 @@ bool InitHookExports()
 
 void PatchClientImpl()
 {
-	// install HkIClientImpl callback
+	// install IClientImpl callback
 
-	FakeClient = new HkIClientImpl;
+	FakeClient = new IClientImpl;
 	HookClient = &Client;
 
 	memcpy(&OldClient, &Client, 4);
@@ -427,15 +424,15 @@ void UnloadHookExports()
 	if (pServer)
 	{
 		memcpy(&pServer, pServer, 4);
-		for (uint i = 0; i < std::size(HkIServerImplEntries); i++)
+		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
-			void* pAddress = (void*)((char*)pServer + HkIServerImplEntries[i].dwRemoteAddress);
-			WriteProcMem(pAddress, &HkIServerImplEntries[i].fpOldProc, 4);
+			void* pAddress = (void*)((char*)pServer + IServerImplEntries[i].dwRemoteAddress);
+			WriteProcMem(pAddress, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}
 
 	// reset npc spawn setting
-	HkChangeNPCSpawn(false);
+	Hk::Admin::ChangeNPCSpawn(false);
 
 	// restore other hooks
 	RestorePatch(piFLServerEXE);

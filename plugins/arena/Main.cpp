@@ -84,11 +84,11 @@ namespace Plugins::Arena
 	 */
 	bool ValidateCargo(unsigned int client)
 	{
-		std::wstring playerName = HkGetCharacterNameById(client);
+		std::wstring playerName = GetCharacterNameById(client);
 		std::list<CARGO_INFO> cargo;
 		int holdSize = 0;
 
-		HkEnumCargo(playerName, cargo, holdSize);
+		EnumCargo(playerName, cargo, holdSize);
 
 		for (std::list<CARGO_INFO>::const_iterator it = cargo.begin(); it != cargo.end(); ++it)
 		{
@@ -121,13 +121,13 @@ namespace Plugins::Arena
 		if (!base)
 			return;
 
-		HkSetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
+		SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
 	}
 
 	/** @ingroup Arena
 	 * @brief This returns the return base id that is stored in the client's save file.
 	 */
-	unsigned int ReadReturnPointForClient(unsigned int client) { return HkGetCharacterIniUint(client, L"conn.retbase"); }
+	unsigned int ReadReturnPointForClient(unsigned int client) { return GetCharacterIniUint(client, L"conn.retbase"); }
 
 	/** @ingroup Arena
 	 * @brief Move the specified client to the specified base.
@@ -151,7 +151,7 @@ namespace Plugins::Arena
 			Server.BaseEnter(targetBase, client);
 			Server.BaseExit(targetBase, client);
 			std::wstring wscCharFileName;
-			HkGetCharFileName(client, wscCharFileName);
+			GetCharFileName(client, wscCharFileName);
 			wscCharFileName += L".fl";
 			CHARACTER_ID cID;
 			strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
@@ -211,7 +211,7 @@ namespace Plugins::Arena
 				return;
 
 			MoveClient(client, returnPoint);
-			HkSetCharacterIni(client, L"conn.retbase", L"0");
+			SetCharacterIni(client, L"conn.retbase", L"0");
 			return;
 		}
 	}

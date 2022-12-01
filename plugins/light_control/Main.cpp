@@ -96,9 +96,9 @@ namespace Plugins::LightControl
 	uint IsInValidBase(const uint& clientId) 
 	{
 		uint baseId;
-		if (HkError err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
+		if (Error err; (err = GetCurrentBase(clientId, baseId)) != E_OK) 
 		{ 
-			const std::wstring errorString = HkErrGetText(err); 
+			const std::wstring errorString = ErrGetText(err); 
 			PrintUserCmdText(clientId, L"ERR:" + errorString); 
 			return 0; 
 		}
@@ -153,7 +153,7 @@ namespace Plugins::LightControl
 	void UserCmdChangeItem(const uint& clientId, const std::wstring_view& param)
 	{
 		int cash;
-		HkFunc(HkGetCash, clientId, cash);
+		Func(GetCash, clientId, cash);
 		if (cash < global->config->cost)
 		{
 			PrintUserCmdText(clientId, L"Error: Not enough credits, the cost is %u", global->config->cost);
@@ -189,10 +189,10 @@ namespace Plugins::LightControl
 		});
 
 		light->iArchID = lightId;
-		HkFunc(HkSetEquip, clientId, eqLst);
+		Func(SetEquip, clientId, eqLst);
 
-		HkFunc(HkAddCash, clientId, -global->config->cost);
-		HkSaveChar(clientId);
+		Func(AddCash, clientId, -global->config->cost);
+		SaveChar(clientId);
 
 		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}

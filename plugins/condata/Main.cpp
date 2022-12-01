@@ -74,7 +74,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on TimerCheckKick. Checks clients's connections against a threshold and kicks them if they are above it.
 	 */
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		if (g_iServerLoad > global->config->kickThreshold)
 		{
@@ -82,7 +82,7 @@ namespace Plugins::ConData
 			struct PlayerData* pPD = nullptr;
 			while (pPD = Players.traverse_active(pPD))
 			{
-				const uint iClientID = HkGetClientIdFromPD(pPD);
+				const uint iClientID = GetClientIdFromPD(pPD);
 				if (iClientID < 1 || iClientID > MaxClientId)
 					continue;
 
@@ -91,8 +91,8 @@ namespace Plugins::ConData
 				if (global->config->lossKick && con.iAverageLoss > global->config->lossKick)
 				{
 					con.lstLoss.clear();
-					HkAddKickLog(iClientID, L"High loss");
-					HkMsgAndKick(iClientID, L"High loss", KickTimer);
+					AddKickLog(iClientID, L"High loss");
+					MsgAndKick(iClientID, L"High loss", KickTimer);
 					// call tempban plugin
 					if (global->tempBanCommunicator)
 					{
@@ -106,8 +106,8 @@ namespace Plugins::ConData
 					if (con.iAveragePing > (global->config->pingKick))
 					{
 						con.lstPing.clear();
-						HkAddKickLog(iClientID, L"High ping");
-						HkMsgAndKick(iClientID, L"High ping", KickTimer);
+						AddKickLog(iClientID, L"High ping");
+						MsgAndKick(iClientID, L"High ping", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
@@ -122,8 +122,8 @@ namespace Plugins::ConData
 					if (con.iPingFluctuation > (global->config->fluctKick))
 					{
 						con.lstPing.clear();
-						HkAddKickLog(iClientID, L"High fluct");
-						HkMsgAndKick(iClientID, L"High ping fluctuation", KickTimer);
+						AddKickLog(iClientID, L"High fluct");
+						MsgAndKick(iClientID, L"High ping fluctuation", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
@@ -139,8 +139,8 @@ namespace Plugins::ConData
 					{
 						con.lstObjUpdateIntervalls.clear();
 
-						HkAddKickLog(iClientID, L"High Lag");
-						HkMsgAndKick(iClientID, L"High Lag", KickTimer);
+						AddKickLog(iClientID, L"High Lag");
+						MsgAndKick(iClientID, L"High Lag", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
@@ -177,7 +177,7 @@ namespace Plugins::ConData
 		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			const uint iClientID = HkGetClientIdFromPD(pPD);
+			const uint iClientID = GetClientIdFromPD(pPD);
 			if (iClientID < 1 || iClientID > MaxClientId)
 				continue;
 
@@ -185,7 +185,7 @@ namespace Plugins::ConData
 				continue;
 
 			DPN_CONNECTION_INFO ci;
-			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
+			if (GetConnectionStats(iClientID, ci) != E_OK)
 				continue;
 
 			auto& con = global->connections[iClientID];
@@ -230,7 +230,7 @@ namespace Plugins::ConData
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			const uint iClientID = HkGetClientIdFromPD(pPD);
+			const uint iClientID = GetClientIdFromPD(pPD);
 			if (iClientID < 1 || iClientID > MaxClientId)
 				continue;
 
@@ -238,7 +238,7 @@ namespace Plugins::ConData
 				continue;
 
 			DPN_CONNECTION_INFO ci;
-			if (HkGetConnectionStats(iClientID, ci) != HKE_OK)
+			if (GetConnectionStats(iClientID, ci) != E_OK)
 				continue;
 
 			auto& con = global->connections[iClientID];
@@ -298,7 +298,7 @@ namespace Plugins::ConData
 				if (iClientID < 1 || iClientID > MaxClientId)
 					continue;
 
-				ClearConData(HkGetClientIdFromPD(pPD));
+				ClearConData(GetClientIdFromPD(pPD));
 			}
 		}
 
@@ -328,7 +328,7 @@ namespace Plugins::ConData
 	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& iClientID)
 	{
 		// lag detection
-		if (const IObjInspectImpl* ins = HkGetInspect(iClientID); !ins)
+		if (const IObjInspectImpl* ins = GetInspect(iClientID); !ins)
 			return; // ??? 8[
 
 		const mstime tmNow = timeInMS();
@@ -336,7 +336,7 @@ namespace Plugins::ConData
 
 		auto& con = global->connections[iClientID];
 
-		if (global->config->lagDetectionFrame && con.tmLastObjUpdate && (HkGetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
+		if (global->config->lagDetectionFrame && con.tmLastObjUpdate && (GetEngineState(iClientID) != ES_TRADELANE) && (ui.cState != 7))
 		{
 			const auto iTimeDiff = static_cast<uint>(tmNow - con.tmLastObjUpdate);
 			const auto iTimestampDiff = static_cast<uint>(tmTimestamp - con.tmLastObjTimestamp);
@@ -395,8 +395,8 @@ namespace Plugins::ConData
 
 			if (iTarget)
 			{
-				uint id = HkGetClientIDByShip(iTarget);
-				if (HkIsValidClientID(iClientIDTarget))
+				uint id = GetClientIDByShip(iTarget);
+				if (IsValidClientID(iClientIDTarget))
 					iClientIDTarget = id;
 			}
 		}
@@ -501,8 +501,8 @@ namespace Plugins::ConData
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
 			{
-				uint iClientID = HkGetClientIdFromPD(pPD);
-				if (HkIsInCharSelectMenu(iClientID))
+				uint iClientID = GetClientIdFromPD(pPD);
+				if (IsInCharSelectMenu(iClientID))
 					continue;
 
 				CDPClientProxy* cdpClient = g_cClientProxyArray[iClientID - 1];
@@ -524,7 +524,7 @@ namespace Plugins::ConData
 		else if (wscCmd == L"kick")
 		{
 			// Find by charname. If this fails, fall through to default behaviour.
-			CAccount* acc = HkGetAccountByCharname(classptr->ArgCharname(1));
+			CAccount* acc = GetAccountByCharname(classptr->ArgCharname(1));
 			if (!acc)
 				return false;
 
@@ -534,7 +534,7 @@ namespace Plugins::ConData
 			classptr->Print(L"OK");
 
 			// If the client is still active then force the disconnect.
-			const uint iClientID = HkGetClientIdFromAccount(acc);
+			const uint iClientID = GetClientIdFromAccount(acc);
 			if (iClientID != -1)
 			{
 				classptr->Print(L"Forcing logout on iClientID=%d", iClientID);
@@ -584,7 +584,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);

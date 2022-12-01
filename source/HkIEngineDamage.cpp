@@ -36,11 +36,11 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 		{ // a player was hit
 			uint inflictorShip;
 			memcpy(&inflictorShip, p1 + 4, 4);
-			uint clientIdInflictor = HkGetClientIDByShip(inflictorShip);
-			if (!clientIdInflictor)
+			const auto clientIdInflictor = Hk::Client::GetClientIDByShip(inflictorShip);
+			if (clientIdInflictor.has_error())
 				return 0; // hit by npc
 
-			if (!AllowPlayerDamage(clientIdInflictor, clientId))
+			if (!AllowPlayerDamage(clientIdInflictor.value(), clientId))
 				return 1;
 
 			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
@@ -114,8 +114,8 @@ void __stdcall AddDamageEntry(
 	else if (g_DmgTo)
 	{
 		// lets see if player should do damage to other player
-		uint dmgFrom = HkGetClientIDByShip(dmgList->get_inflictor_id());
-		if (dmgFrom && AllowPlayerDamage(dmgFrom, g_DmgTo))
+		const auto dmgFrom = Hk::Client::GetClientIDByShip(dmgList->get_inflictor_id());
+		if (dmgFrom.has_value() && AllowPlayerDamage(dmgFrom.value(), g_DmgTo))
 			dmgList->add_damage_entry(subObjID, hitPts, fate);
 	}
 	else
@@ -130,9 +130,9 @@ void __stdcall AddDamageEntry(
 		{
 			uint type;
 			pub::SpaceObj::GetType(g_DmgToSpaceID, type);
-			uint clientIdKiller = HkGetClientIDByShip(dmgList->get_inflictor_id());
-			if (clientIdKiller && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
-				BaseDestroyed(g_DmgToSpaceID, clientIdKiller);
+			const auto clientIdKiller = Hk::Client::GetClientIDByShip(dmgList->get_inflictor_id());
+			if (clientIdKiller.has_value() && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
+				BaseDestroyed(g_DmgToSpaceID, clientIdKiller.value());
 		}
 
 		if (g_DmgTo && subObjID == 1) // only save hits on the hull (subObjID=1)

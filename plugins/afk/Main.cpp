@@ -44,19 +44,19 @@ namespace Plugins::Afk
 
 		char buffer[0x1000];
 		uint size;
-		if (!HKHKSUCCESS(HkFMsgEncodeXML(xmlMsg, buffer, sizeof(buffer), size)))
+		if (!HKSUCCESS(FMsgEncodeXML(xmlMsg, buffer, sizeof(buffer), size)))
 			return false;
 
 		// Send to all players in system
 		struct PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
-			uint playerClientID = HkGetClientIdFromPD(playerData);
+			uint playerClientID = GetClientIdFromPD(playerData);
 			uint clientSystemID = 0;
 			pub::Player::GetSystem(playerClientID, clientSystemID);
 
 			if (systemID == clientSystemID)
-				HkFMsgSendChat(playerClientID, buffer, size);
+				FMsgSendChat(playerClientID, buffer, size);
 		}
 		return true;
 	}
@@ -104,10 +104,10 @@ namespace Plugins::Afk
 
 	// Hook on chat being sent (This gets called twice with the iClientID and to
 	// swapped
-	void __stdcall HkCb_SendChat(uint& clientId, uint& to, uint& size, void** rdl)
+	void __stdcall Cb_SendChat(uint& clientId, uint& to, uint& size, void** rdl)
 	{
 		if (const auto it = global->awayClients.begin();
-		    HkIsValidClientID(to) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
+		    IsValidClientID(to) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
 				PrintUserCmdText(to, L"This user is away from keyboard.");
 	}
 
@@ -115,7 +115,7 @@ namespace Plugins::Afk
 	void __stdcall SubmitChat(uint& clientId, unsigned long& lP1, void const** rdlReader, uint& to, int& iP2)
 	{
 		if (const auto it = global->awayClients.begin();
-		    HkIsValidClientID(clientId) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
+		    IsValidClientID(clientId) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
 			Back(clientId);
 	}
 
@@ -144,6 +144,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::IChat__SendChat, &HkCb_SendChat);
+	pi->emplaceHook(HookedCall::IChat__SendChat, &Cb_SendChat);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 }

@@ -93,12 +93,12 @@ namespace Plugins::BountyHunt
 
 		const int prize = wcstol(credits.c_str(), nullptr, 10);
 		uint time = wcstol(timeString.c_str(), nullptr, 10);
-		uint targetId = HkGetClientIdFromCharname(target);
+		uint targetId = GetClientIdFromCharname(target);
 
 		int rankTarget;
 		pub::Player::GetRank(targetId, rankTarget);
 
-		if (targetId == -1 || HkIsInCharSelectMenu(targetId))
+		if (targetId == -1 || IsInCharSelectMenu(targetId))
 		{
 			PrintUserCmdText(clientId, L"%s is not online.", target.c_str());
 			return;
@@ -145,7 +145,7 @@ namespace Plugins::BountyHunt
 
 		global->bountyHunt.push_back(bh);
 
-		HkMsgU(bh.initiator + L" offers " + std::to_wstring(bh.cash) + L" credits for killing " + bh.target + L" in " + std::to_wstring(time) +
+		MsgU(bh.initiator + L" offers " + std::to_wstring(bh.cash) + L" credits for killing " + bh.target + L" in " + std::to_wstring(time) +
 		    L" minutes.");
 	}
 
@@ -168,7 +168,7 @@ namespace Plugins::BountyHunt
 		}
 
 		uint clientIdTarget = ToInt(target);
-		if (!HkIsValidClientID(clientIdTarget) || HkIsInCharSelectMenu(clientIdTarget))
+		if (!IsValidClientID(clientIdTarget) || IsInCharSelectMenu(clientIdTarget))
 		{
 			PrintUserCmdText(iClientID, L"Error: Invalid client id.");
 			return;
@@ -188,8 +188,8 @@ namespace Plugins::BountyHunt
 		{
 			if (bounty.end < timeInMS())
 			{
-				HkAddCash(bounty.target, bounty.cash);
-				HkMsgU(bounty.target + L" was not hunted down and earned " + std::to_wstring(bounty.cash) + L" credits.");
+				AddCash(bounty.target, bounty.cash);
+				MsgU(bounty.target + L" was not hunted down and earned " + std::to_wstring(bounty.cash) + L" credits.");
 				RemoveBountyHunt(bounty);
 				BhTimeOutCheck();
 				break;
@@ -200,7 +200,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Processes a ship death to see if it was part of a bounty.
 	 */
-	void BhKillCheck(uint clientId, uint killerId)
+	void BillCheck(uint clientId, uint killerId)
 	{
 		for (auto& bounty : global->bountyHunt)
 		{
@@ -208,20 +208,20 @@ namespace Plugins::BountyHunt
 			{
 				if (killerId == 0 || clientId == killerId)
 				{
-					HkMsgU(L"The hunt for " + bounty.target + L" still goes on.");
+					MsgU(L"The hunt for " + bounty.target + L" still goes on.");
 					continue;
 				}
 				
 				if (std::wstring winnerCharacterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(killerId)); !winnerCharacterName.empty())
 				{
-					HkAddCash(winnerCharacterName, bounty.cash);
-					HkMsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
+					AddCash(winnerCharacterName, bounty.cash);
+					MsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
 				}
 				else 
-					HkAddCash(bounty.initiator, bounty.cash);
+					AddCash(bounty.initiator, bounty.cash);
 
 				RemoveBountyHunt(bounty);
-				BhKillCheck(clientId, killerId);
+				BillCheck(clientId, killerId);
 				break;
 			}
 		}
@@ -257,13 +257,13 @@ namespace Plugins::BountyHunt
 	}
 
 	/** @ingroup BountyHunt
-	 * @brief Hook for SendDeathMsg to call BhKillCheck
+	 * @brief Hook for SendDeathMsg to call BillCheck
 	 */
 	void SendDeathMsg(const std::wstring& wscMsg, uint& iSystemID, uint& iClientIDVictim, uint& iClientIDKiller)
 	{
 		if (global->config->enableBountyHunt)
 		{
-			BhKillCheck(iClientIDVictim, iClientIDKiller);
+			BillCheck(iClientIDVictim, iClientIDKiller);
 		}
 	}
 
@@ -276,8 +276,8 @@ namespace Plugins::BountyHunt
 		{
 			if (it.targetId == iClientID)
 			{
-				HkMsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
-				HkAddCash(it.initiator, it.cash);
+				MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
+				AddCash(it.initiator, it.cash);
 				RemoveBountyHunt(it);
 				return;
 			}

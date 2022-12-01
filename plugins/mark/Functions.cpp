@@ -2,12 +2,12 @@
 
 namespace Plugins::Mark
 {
-	char HkMarkObject(uint iClientID, uint iObject)
+	char MarkObject(uint iClientID, uint iObject)
 	{
 		if (!iObject)
 			return 1;
 
-		uint iClientIDMark = HkGetClientIDByShip(iObject);
+		uint iClientIDMark = GetClientIDByShip(iObject);
 
 		uint iSystemID, iObjectSystemID;
 		pub::Player::GetSystem(iClientID, iSystemID);
@@ -52,7 +52,7 @@ namespace Plugins::Mark
 		return 0;
 	}
 
-	char HkUnMarkObject(uint iClientID, uint iObject)
+	char UnMarkObject(uint iClientID, uint iObject)
 	{
 		if (!iObject)
 			return 1;
@@ -107,7 +107,7 @@ namespace Plugins::Mark
 		return 2;
 	}
 
-	void HkUnMarkAllObjects(uint iClientID)
+	void UnMarkAllObjects(uint iClientID)
 	{
 		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
 		{

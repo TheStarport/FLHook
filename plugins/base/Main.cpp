@@ -342,7 +342,7 @@ void LoadSettingsActual()
 	while (pd = Players.traverse_active(pd))
 	{
 		uint client = pd->iOnlineID;
-		if (HkIsInCharSelectMenu(client))
+		if (IsInCharSelectMenu(client))
 			continue;
 
 		// If this player is in space, set the reputations.
@@ -377,7 +377,7 @@ void LoadSettingsActual()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkTimerCheckKick()
+void TimerCheckKick()
 {
 	if (load_settings_required)
 	{
@@ -460,7 +460,7 @@ void HkTimerCheckKick()
 	}
 }
 
-bool __stdcall HkCb_IsDockableError(uint dock_with, uint base)
+bool __stdcall Cb_IsDockableError(uint dock_with, uint base)
 {
 	if (GetPlayerBase(base))
 		return false;
@@ -468,14 +468,14 @@ bool __stdcall HkCb_IsDockableError(uint dock_with, uint base)
 	return true;
 }
 
-__declspec(naked) void HkCb_IsDockableErrorNaked()
+__declspec(naked) void Cb_IsDockableErrorNaked()
 {
 	__asm {
         test [esi+0x1b4], eax
         jnz no_error
         push [edi+0xB8]
         push [esi+0x1b4]
-        call HkCb_IsDockableError
+        call Cb_IsDockableError
         test al, al
         jz no_error
         push 0x62b76d3
@@ -486,11 +486,11 @@ no_error:
 	}
 }
 
-bool __stdcall HkCb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
+bool __stdcall Cb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 {
 	if (obj)
 	{
-		uint client = HkGetClientIDByShip(obj->get_id());
+		uint client = GetClientIDByShip(obj->get_id());
 		if (client)
 		{
 			if (set_plugin_debug > 1)
@@ -529,7 +529,7 @@ bool __stdcall HkCb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 	return true;
 }
 
-__declspec(naked) void HkCb_LandNaked()
+__declspec(naked) void Cb_LandNaked()
 {
 	__asm {
         mov al, [ebx+0x1c]
@@ -541,7 +541,7 @@ __declspec(naked) void HkCb_LandNaked()
         mov eax, [esp+0x14] // dock target
         push eax
         push edi   // objinspect
-        call HkCb_Land
+        call Cb_Land
         test al, al
         jz done
 
@@ -581,7 +581,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				// Call our function on landing
 				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModServer + 0x2c24c, patch, sizeof(patch));
-				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)HkCb_LandNaked);
+				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)Cb_LandNaked);
 			}
 
 			hModCommon = GetModuleHandleA("common.dll");
@@ -589,7 +589,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				// Suppress "is dockable " error message
 				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModCommon + 0x576cb, patch, sizeof(patch));
-				PatchCallAddr((char*)hModCommon, 0x576cb, (char*)HkCb_IsDockableErrorNaked);
+				PatchCallAddr((char*)hModCommon, 0x576cb, (char*)Cb_IsDockableErrorNaked);
 			}
 
 			{
@@ -600,7 +600,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			}
 		}
 
-		HkLoadStringDLLs();
+		LoadStringDLLs();
 	}
 	else if (fdwReason == DLL_PROCESS_DETACH)
 	{
@@ -625,7 +625,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			delete base->second;
 		}
 
-		HkUnloadStringDLLs();
+		UnloadStringDLLs();
 	}
 	return true;
 }
@@ -774,7 +774,7 @@ static bool IsDockingAllowed(PlayerBase* base, uint client)
 int __cdecl Dock_Call(
     unsigned int const& iShip, unsigned int const& base, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 {
-	uint client = HkGetClientIDByShip(iShip);
+	uint client = GetClientIDByShip(iShip);
 	if (client && response == PROCEED_DOCK)
 	{
 		PlayerBase* pbase = GetPlayerBase(base);
@@ -810,7 +810,7 @@ void __stdcall CharacterSelect(std::string& szCharFilename, uint& client)
 	std::map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
 	{
-		HkChangeIDSString(client, base->second->solar_ids, base->second->basename);
+		ChangeIDSString(client, base->second->solar_ids, base->second->basename);
 	}
 }
 
@@ -991,7 +991,7 @@ void __stdcall JumpInComplete(uint& system, uint& ship)
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"JumpInComplete system=%u ship=%u");
 
-	uint client = HkGetClientIDByShip(ship);
+	uint client = GetClientIDByShip(ship);
 	if (client)
 	{
 		SyncReputationForClientShip(ship, client);
@@ -1068,7 +1068,7 @@ void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
-			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
+			EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
 		}
 	}
 }
@@ -1096,7 +1096,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client
 		{
 			// Update the player CRC so that the player is not kicked for 'ship
 			// related' kick
-			HkPlayerRecalculateCRC(client);
+			PlayerRecalculateCRC(client);
 		}
 	}
 }
@@ -1168,7 +1168,7 @@ void __stdcall ReqAddItem_AFTER(
 
 		// Update the player CRC so that the player is not kicked for 'ship
 		// related' kick
-		HkPlayerRecalculateCRC(client);
+		PlayerRecalculateCRC(client);
 
 		// Add to check-list which is being compared to the users equip-list
 		// when saving char to fix "Ship or Equipment not sold on base" kick
@@ -1222,7 +1222,7 @@ void BaseDestroyed(uint& space_obj, uint& client)
 	}
 }
 
-void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate fate)
+void __stdcall Cb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate fate)
 {
 	DamageList* dmg2 = *dmg;
 
@@ -1236,7 +1236,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 		{
 			if (set_plugin_debug)
 				Console::ConInfo(
-				    L"HkCb_AddDmgEntry g_DmgToSpaceID=%u get_inflictor_id=%u "
+				    L"Cb_AddDmgEntry g_DmgToSpaceID=%u get_inflictor_id=%u "
 				    L"curr=%0.2f max=%0.0f damage=%0.2f cause=%u is_player=%u "
 				    L"player_id=%u fate=%u\n",
 				    g_DmgToSpaceID, dmg2->get_inflictor_id(), curr, max, damage, dmg2->get_cause(),
@@ -1249,7 +1249,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 			{
 				returncode = ReturnCode::SkipAll;
 				if (set_plugin_debug)
-					Console::ConWarn(L"HkCb_AddDmgEntry[1] - invalid damage?");
+					Console::ConWarn(L"Cb_AddDmgEntry[1] - invalid damage?");
 				return;
 			}
 
@@ -1257,7 +1257,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 			if (!dmg2->is_inflictor_a_player())
 			{
 				if (set_plugin_debug)
-					Console::ConInfo(L"HkCb_AddDmgEntry[2] suppressed - npc");
+					Console::ConInfo(L"Cb_AddDmgEntry[2] suppressed - npc");
 				returncode = ReturnCode::SkipAll;
 				g_DmgToSpaceID = 0;
 				return;
@@ -1272,7 +1272,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 				;
 				if (set_plugin_debug)
 					Console::ConInfo(
-					    L"HkCb_AddDmgEntry[3] suppressed - shield up - "
+					    L"Cb_AddDmgEntry[3] suppressed - shield up - "
 					    L"new_damage=%0.0f\n",
 					    new_damage);
 				dmg2->add_damage_entry(p1, new_damage, fate);
@@ -1310,7 +1310,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase* base)
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::wstring charfilename;
-		HkGetCharFileName(charname, charfilename);
+		GetCharFileName(charname, charfilename);
 		charfilename += L".fl";
 		CHARACTER_ID charid;
 		strcpy_s(charid.szCharFilename, wstos(charname.substr(0, 14)).c_str());
@@ -1326,7 +1326,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 		returncode = ReturnCode::SkipAll;
 		;
 
-		uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
+		uint client = GetClientIdFromCharname(cmd->GetAdminName());
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
 		{
@@ -1351,7 +1351,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 	{
 		returncode = ReturnCode::SkipAll;
 		;
-		uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
+		uint client = GetClientIdFromCharname(cmd->GetAdminName());
 		if (!client)
 		{
 			cmd->Print(L"ERR Not in game");
@@ -1379,8 +1379,8 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 			return false;
 		}
 
-		HKPLAYERINFO info;
-		if (HkGetPlayerInfo(charname, info, false) != HKE_OK)
+		PLAYERINFO info;
+		if (GetPlayerInfo(charname, info, false) != E_OK)
 		{
 			return false;
 		}
@@ -1482,12 +1482,12 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__CShip__Destroy, &CShip_destroy);
 	pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
-	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
+	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &Cb_AddDmgEntry);
 
 	// Register plugin for IPC
 	communicator = new BaseCommunicator(BaseCommunicator::pluginName);

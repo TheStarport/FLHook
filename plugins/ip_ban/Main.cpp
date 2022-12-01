@@ -34,7 +34,7 @@ namespace Plugins::IPBan
 	static bool IsBanned(uint iClientID)
 	{
 		std::wstring wscIP;
-		HkGetPlayerIP(iClientID, wscIP);
+		GetPlayerIP(iClientID, wscIP);
 		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
@@ -51,12 +51,12 @@ namespace Plugins::IPBan
 		{
 			bool bBannedLoginID = false;
 
-			std::wstring wscDir;
-			HkGetAccountDirName(acc, wscDir);
+			std::wstring dir;
+			GetAccountDirName(acc, dir);
 
 			WIN32_FIND_DATA findFileData;
 
-			std::string scFileSearchPath = scAcctPath + "\\" + wstos(wscDir) + "\\login_*.ini"; // Looks like DSAM generates this file
+			std::string scFileSearchPath = scAcctPath + "\\" + wstos(dir) + "\\login_*.ini"; // Looks like DSAM generates this file
 			HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData);
 			if (hFileFind != INVALID_HANDLE_VALUE)
 			{
@@ -66,7 +66,7 @@ namespace Plugins::IPBan
 					std::string scLoginID;
 					std::string scLoginID2;
 					std::string scThisIP;
-					std::string scFilePath = scAcctPath + wstos(wscDir) + "\\" + findFileData.cFileName;
+					std::string scFilePath = scAcctPath + wstos(dir) + "\\" + findFileData.cFileName;
 					FILE* f;
 					fopen_s(&f, scFilePath.c_str(), "r");
 					if (f)
@@ -135,7 +135,7 @@ namespace Plugins::IPBan
 			return false;
 
 		std::wstring directory;
-		if (HkGetAccountDirName(acc, directory) != HKE_OK)
+		if (GetAccountDirName(acc, directory) != E_OK)
 			return false;
 
 		if (std::find(global->authenticatedAccounts.Accounts.begin(), global->authenticatedAccounts.Accounts.end(), directory) !=
@@ -202,8 +202,8 @@ namespace Plugins::IPBan
 			global->IPChecked[iClientID] = true;
 			if (IsBanned(iClientID) && !IsAuthenticated(iClientID))
 			{
-				HkAddKickLog(iClientID, L"IP banned");
-				HkMsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 15000L);
+				AddKickLog(iClientID, L"IP banned");
+				MsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 15000L);
 			}
 		}
 	}
@@ -218,8 +218,8 @@ namespace Plugins::IPBan
 			global->IPChecked[iClientID] = true;
 			if (IsBanned(iClientID) && !IsAuthenticated(iClientID))
 			{
-				HkAddKickLog(iClientID, L"IP banned");
-				HkMsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 7000L);
+				AddKickLog(iClientID, L"IP banned");
+				MsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 7000L);
 			}
 		}
 	}
@@ -262,7 +262,7 @@ namespace Plugins::IPBan
 			return;
 
 		std::wstring directory;
-		if (HkGetAccountDirName(acc, directory) != HKE_OK)
+		if (GetAccountDirName(acc, directory) != E_OK)
 		{
 			cmds->Print(L"ERR Account not found");
 			return;

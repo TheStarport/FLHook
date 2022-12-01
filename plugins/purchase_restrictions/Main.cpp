@@ -19,8 +19,8 @@ namespace Plugins::PurchaseRestrictions
 		const auto iter = global->itemsOfInterestHashed.find(iGoodID);
 		if (iter != global->itemsOfInterestHashed.end())
 		{
-			const std::wstring charName = HkGetCharacterNameById(iClientID);
-			AddLog(LogType::Normal, LogLevel::Info, L"Item '%s' found in cargo of %s (%s) %s", iter->second.c_str(), charName.c_str(), HkGetAccountID(HkGetAccountByCharname(charName)).c_str(), 
+			const std::wstring charName = GetCharacterNameById(iClientID);
+			AddLog(LogType::Normal, LogLevel::Info, L"Item '%s' found in cargo of %s (%s) %s", iter->second.c_str(), charName.c_str(), GetAccountID(GetAccountByCharname(charName)).c_str(), 
 				details.c_str());
 		}
 	}
@@ -65,7 +65,7 @@ namespace Plugins::PurchaseRestrictions
 
 		std::list<CARGO_INFO> lstCargo;
 		int iRemainingHoldSize;
-		HkEnumCargo(iClientID, lstCargo, iRemainingHoldSize);
+		EnumCargo(iClientID, lstCargo, iRemainingHoldSize);
 		return std::any_of(lstCargo.begin(), lstCargo.end(), [validItem](const CARGO_INFO& cargo) {
 			return cargo.bMounted && std::find(validItem->second.begin(), validItem->second.end(), cargo.iArchID) == validItem->second.end();
 		});
@@ -99,7 +99,7 @@ namespace Plugins::PurchaseRestrictions
 			{
 				if (!CheckIDEquipRestrictions(iClientID, gbi.iGoodID))
 				{
-					const std::wstring charName = HkGetCharacterNameById(iClientID);
+					const std::wstring charName = GetCharacterNameById(iClientID);
 					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", charName.c_str(), gbi.iGoodID);
 					if (global->config->enforceItemRestrictions)
 					{
@@ -127,7 +127,7 @@ namespace Plugins::PurchaseRestrictions
 
 				if (global->shipItemRestrictionsHashed.find(gbi.iGoodID) != global->shipItemRestrictionsHashed.end() && !CheckIDEquipRestrictions(iClientID, hullInfo->iShipGoodID))
 				{
-					const std::wstring charName = HkGetCharacterNameById(iClientID);
+					const std::wstring charName = GetCharacterNameById(iClientID);
 					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct ID", charName.c_str(), hullInfo->iShipGoodID);
 					if (global->config->enforceItemRestrictions)
 					{

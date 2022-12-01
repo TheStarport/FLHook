@@ -110,7 +110,7 @@ void UpdateDockedShips(uint client)
 		for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 		     i != clients[client].mapDockedShips.end(); ++i)
 		{
-			uint iDockedClientID = HkGetClientIdFromCharname(i->first);
+			uint iDockedClientID = GetClientIdFromCharname(i->first);
 			if (iDockedClientID)
 			{
 				clients[iDockedClientID].iCarrierSystem = system;
@@ -153,7 +153,7 @@ void LoadSettings()
 
 	while (pd = Players.traverse_active(pd))
 	{
-		if (!HkIsInCharSelectMenu(pd->iOnlineID))
+		if (!IsInCharSelectMenu(pd->iOnlineID))
 			LoadDockInfo(pd->iOnlineID);
 	}
 }
@@ -197,7 +197,7 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 
 		// Send a system switch to force the ship to launch. Do nothing
 		// if the ship is in space for some reason.
-		uint iDockedClientID = HkGetClientIdFromCharname(charname);
+		uint iDockedClientID = GetClientIdFromCharname(charname);
 		if (iDockedClientID)
 		{
 			uint ship;
@@ -233,8 +233,8 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 
 		// If target is not player ship or ship is too far away then ignore the
 		// request.
-		uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
-		if (!iTargetClientID || HkDistance3DByShip(iShip, iTargetShip) > 1000.0f)
+		uint iTargetClientID = GetClientIDByShip(iTargetShip);
+		if (!iTargetClientID || Distance3DByShip(iShip, iTargetShip) > 1000.0f)
 		{
 			PrintUserCmdText(client, L"Ship is out of range");
 			return true;
@@ -261,7 +261,7 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 		// Delete the docking request and dock the player.
 		mapPendingDockingRequests.erase(iTargetClientID);
 
-		std::string scProxyBase = HkGetPlayerSystemS(client) + "_proxy_base";
+		std::string scProxyBase = GetPlayerSystemS(client) + "_proxy_base";
 		uint iBaseID;
 		if (pub::GetBaseID(iBaseID, scProxyBase.c_str()) == -4)
 		{
@@ -296,7 +296,7 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 int __cdecl Dock_Call(
     unsigned int const& iShip, unsigned int const& iBaseID, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 {
-	UINT client = HkGetClientIDByShip(iShip);
+	UINT client = GetClientIDByShip(iShip);
 	if (client)
 	{
 		// If no target then ignore the request.
@@ -312,8 +312,8 @@ int __cdecl Dock_Call(
 
 		// If target is not player ship or ship is too far away then ignore the
 		// request.
-		uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
-		if (!iTargetClientID || HkDistance3DByShip(iShip, iTargetShip) > 1000.0f)
+		uint iTargetClientID = GetClientIDByShip(iTargetShip);
+		if (!iTargetClientID || Distance3DByShip(iShip, iTargetShip) > 1000.0f)
 		{
 			PrintUserCmdText(client, L"Ship is out of range");
 			return 0;
@@ -328,7 +328,7 @@ int __cdecl Dock_Call(
 		}
 
 		// Check that the requesting ship is of the appropriate size to dock.
-		CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)HkGetInspect(client));
+		CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)GetInspect(client));
 		if (cship->shiparch()->fHoldSize > 275)
 		{
 			PrintUserCmdText(client, L"Target ship is too small");
@@ -356,7 +356,7 @@ void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
 
 bool IsShipDockedOnCarrier(std::wstring& carrier_charname, std::wstring& docked_charname)
 {
-	uint client = HkGetClientIdFromCharname(carrier_charname);
+	uint client = GetClientIdFromCharname(carrier_charname);
 	if (client != -1)
 	{
 		return clients[client].mapDockedShips.find(docked_charname) != clients[client].mapDockedShips.end();
@@ -416,7 +416,7 @@ void __stdcall PlayerLaunch(uint& iShip, uint& client)
 	{
 		// Update the location of the carrier and remove the docked ship from
 		// the carrier
-		uint carrier_client = HkGetClientIdFromCharname(clients[client].wscDockedWithCharname);
+		uint carrier_client = GetClientIdFromCharname(clients[client].wscDockedWithCharname);
 		if (carrier_client != -1)
 		{
 			UpdateDockedShips(carrier_client);
@@ -528,7 +528,7 @@ void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
-			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
+			EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
 		}
 	}
 }
@@ -633,7 +633,7 @@ void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& kill)
 				for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 				     i != clients[client].mapDockedShips.end(); ++i)
 				{
-					uint iDockedClientID = HkGetClientIdFromCharname(i->first);
+					uint iDockedClientID = GetClientIdFromCharname(i->first);
 					if (iDockedClientID)
 					{
 						JumpToLocation(

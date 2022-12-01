@@ -12,15 +12,15 @@ namespace Plugins::Npc
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
 	// Function to return a Personality.
-	pub::AI::SetPersonalityParams HkMakePersonality(std::string graph, const std::string& personality)
+	pub::AI::SetPersonalityParams MakePersonality(std::string graph, const std::string& personality)
 	{
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
 		p.bStateID = true;
-		HkError error;
-		p.personality = HkGetPersonality(personality, error);
+		Error error;
+		p.personality = GetPersonality(personality, error);
 
-		if (error != HKE_OK)
+		if (error != E_OK)
 		{
 			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
 			Console::ConErr(errorMessage);
@@ -70,7 +70,7 @@ namespace Plugins::Npc
 	{
 		if (iKill)
 		{
-			CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			CShip* cShip = CShipFromShipDestroyed(ecx);
 			IsFLHookNPC(cShip);
 		}
 	}
@@ -139,7 +139,7 @@ namespace Plugins::Npc
 		uint spaceObj;
 		pub::SpaceObj::Create(spaceObj, si);
 
-		pub::AI::SetPersonalityParams personality = HkMakePersonality(arch.graph, arch.pilot);
+		pub::AI::SetPersonalityParams personality = MakePersonality(arch.graph, arch.pilot);
 		pub::AI::SubmitState(spaceObj, &personality);
 
 		global->spawnedNpcs.push_back(spaceObj);
@@ -206,12 +206,12 @@ namespace Plugins::Npc
 		}
 
 		uint shipId;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), shipId);
+		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), shipId);
 		if (!shipId)
 			return;
 
 		uint iSystem;
-		pub::Player::GetSystem(HkGetClientIdFromCharname(cmds->GetAdminName()), iSystem);
+		pub::Player::GetSystem(GetClientIdFromCharname(cmds->GetAdminName()), iSystem);
 
 		Vector position;
 		Matrix rotation;
@@ -249,7 +249,7 @@ namespace Plugins::Npc
 		}
 
 		uint iShip1;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), iShip1);
+		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), iShip1);
 		if (iShip1)
 		{
 			Vector pos;
@@ -288,12 +288,12 @@ namespace Plugins::Npc
 		uint clientId;
 		if (wscCharname == L"")
 		{
-			clientId = HkGetClientIdFromCharname(cmds->GetAdminName());
+			clientId = GetClientIdFromCharname(cmds->GetAdminName());
 			wscCharname = cmds->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			clientId = HkGetClientIdFromCharname(wscCharname);
+			clientId = GetClientIdFromCharname(wscCharname);
 
 		if (clientId == -1)
 			cmds->Print(L"%s is not online", wscCharname.c_str());
@@ -332,7 +332,7 @@ namespace Plugins::Npc
 		}
 
 		uint shipId;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), shipId);
+		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), shipId);
 		if (shipId)
 			for (const auto& npc : global->spawnedNpcs)
 			{

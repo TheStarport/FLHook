@@ -77,8 +77,8 @@ namespace Plugins::Restart
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		HkSaveChar(iClientID);
-		if (!HkIsValidClientID(iClientID))
+		SaveChar(iClientID);
+		if (!IsValidClientID(iClientID))
 			return;
 
 		uint iBaseID;
@@ -92,7 +92,7 @@ namespace Plugins::Restart
 		if (global->config->maxRank != 0)
 		{
 			int rank = 0;
-			HkGetRank(restart.characterName, rank);
+			GetRank(restart.characterName, rank);
 			if (rank == 0 || rank > global->config->maxRank)
 			{
 				PrintUserCmdText(iClientID,
@@ -102,11 +102,11 @@ namespace Plugins::Restart
 			}
 		}
 
-		HkError err;
+		Error err;
 		int cash = 0;
-		if ((err = HkGetCash(restart.characterName, cash)) != HKE_OK)
+		if ((err = GetCash(restart.characterName, cash)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
 			return;
 		}
 
@@ -133,10 +133,10 @@ namespace Plugins::Restart
 
 		if (CAccount* acc = Players.FindAccountFromClientID(iClientID))
 		{
-			HkGetAccountDirName(acc, restart.directory);
-			HkGetCharFileName(restart.characterName, restart.characterFile);
+			GetAccountDirName(acc, restart.directory);
+			GetCharFileName(restart.characterName, restart.characterFile);
 			global->pendingRestarts.push_back(restart);
-			HkKickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+			KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 		return;
 	}
@@ -148,7 +148,7 @@ namespace Plugins::Restart
 		while (global->pendingRestarts.size())
 		{
 			Restart restart = global->pendingRestarts.back();
-			if (HkGetClientIdFromCharname(restart.characterName) != -1)
+			if (GetClientIdFromCharname(restart.characterName) != -1)
 				return;
 
 			global->pendingRestarts.pop_back();

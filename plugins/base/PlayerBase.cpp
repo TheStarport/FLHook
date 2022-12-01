@@ -496,7 +496,7 @@ void PlayerBase::SyncReputationForBaseObject(uint space_obj)
 float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage)
 {
 	// Make sure that the attacking player is hostile.
-	uint client = HkGetClientIDByShip(attacking_space_obj);
+	uint client = GetClientIDByShip(attacking_space_obj);
 	if (client)
 	{
 		const std::wstring& charname = (const wchar_t*)Players.GetActiveCharacterName(client);

@@ -70,11 +70,11 @@ namespace Plugins::Message
 		// Load from disk the messages.
 		for (int iMsgSlot = 0; iMsgSlot < numberOfSlots; iMsgSlot++)
 		{
-			global->Info[iClientID].slot[iMsgSlot] = HkGetCharacterIniString(iClientID, L"msg." + std::to_wstring(iMsgSlot));
+			global->Info[iClientID].slot[iMsgSlot] = GetCharacterIniString(iClientID, L"msg." + std::to_wstring(iMsgSlot));
 		}
 
 		// Chat time settings.
-		global->Info[iClientID].showChatTime = HkGetCharacterIniBool(iClientID, L"msg.chat_time");
+		global->Info[iClientID].showChatTime = GetCharacterIniBool(iClientID, L"msg.chat_time");
 	}
 
 	/** @ingroup Message
@@ -88,7 +88,7 @@ namespace Plugins::Message
 			for (auto& line : global->config->GreetingBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
-					HkFMsg(iClientID, line);
+					FMsg(iClientID, line);
 				else
 					PrintUserCmdText(iClientID, L"%s", line.c_str());
 			}
@@ -103,11 +103,11 @@ namespace Plugins::Message
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			uint iClientID = GetClientIdFromPD(pPD);
 			for (auto& line : global->config->SpecialBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
-					HkFMsg(iClientID, line);
+					FMsg(iClientID, line);
 				else
 					PrintUserCmdText(iClientID, L"%s", line.c_str());
 			}
@@ -129,10 +129,10 @@ namespace Plugins::Message
 		struct PlayerData* pPD = nullptr;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			const uint clientId = HkGetClientIdFromPD(pPD);
+			const uint clientId = GetClientIdFromPD(pPD);
 
 			if (global->config->StandardBannerLines[iCurStandardBanner].find(L"<TRA") == 0)
-				HkFMsg(clientId, global->config->StandardBannerLines[iCurStandardBanner]);
+				FMsg(clientId, global->config->StandardBannerLines[iCurStandardBanner]);
 			else
 				PrintUserCmdText(clientId, L"%s", global->config->StandardBannerLines[iCurStandardBanner].c_str());
 		}
@@ -257,7 +257,7 @@ namespace Plugins::Message
 	void LoadSettings()
 	{
 		// For every active player load their msg settings.
-		const std::list<HKPLAYERINFO> players = HkGetPlayers();
+		const std::list<PLAYERINFO> players = GetPlayers();
 		for (auto& p : players)
 			LoadMsgs(p.iClientID);
 
@@ -345,8 +345,8 @@ namespace Plugins::Message
 	{
 		// The iSpaceID *appears* to represent a player ship ID when it is
 		// targeted but this might not be the case. Also note that
-		// HkGetClientIDByShip returns 0 on failure not -1.
-		uint uTargetClientID = HkGetClientIDByShip(p2.iSpaceID);
+		// GetClientIDByShip returns 0 on failure not -1.
+		uint uTargetClientID = GetClientIDByShip(p2.iSpaceID);
 		if (uTargetClientID)
 		{
 			auto iter = global->Info.find(uClientID);
@@ -394,13 +394,13 @@ namespace Plugins::Message
 						    LogLevel::Info,
 						    L"Swearing tempban on %s (%s) reason='%s'",
 						    wscCharname.c_str(),
-						    HkGetAccountID(HkGetAccountByCharname(wscCharname)).c_str(),
+						    GetAccountID(GetAccountByCharname(wscCharname)).c_str(),
 						    (wscChatMsg).c_str());
 
 						if (global->tempBanCommunicator)
 							global->tempBanCommunicator->TempBan(wscCharname, 10);
 
-						HkDelayedKick(iClientID, 1);
+						DelayedKick(iClientID, 1);
 
 						if (global->config->DisconnectSwearingInSpaceRange > 0.0f)
 						{
@@ -436,19 +436,19 @@ namespace Plugins::Message
 	{
 		char szBuf[0x1000];
 		uint iRet;
-		if (!HKHKSUCCESS(HkFMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
+		if (!HKSUCCESS(FMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
 			return;
 
 		// Send to all players in system
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			uint iClientID = GetClientIdFromPD(pPD);
 			uint iClientSystemID = 0;
 			pub::Player::GetSystem(iClientID, iClientSystemID);
 
 			if (iSystemID == iClientSystemID)
-				HkFMsgSendChat(iClientID, szBuf, iRet);
+				FMsgSendChat(iClientID, szBuf, iRet);
 		}
 	}
 
@@ -491,7 +491,7 @@ namespace Plugins::Message
 			// Send time with gray color (BEBEBE) in small text (90) above the chat
 			// line.
 			global->SendingTime = true;
-			HkFMsg(iClientID, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
+			FMsg(iClientID, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
 			global->SendingTime = false;
 		}
 		return false;
@@ -515,7 +515,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		HkSetCharacterIni(iClientID, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
+		SetCharacterIni(iClientID, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
 
 		// Reload the character cache
 		LoadMsgs(iClientID);
@@ -698,11 +698,11 @@ namespace Plugins::Message
 		}
 
 		std::wstring wscSenderCharname = L"<not available>" + std::to_wstring(iter->second.lastPmClientID);
-		if (iter->second.lastPmClientID != -1 && HkIsValidClientID(iter->second.lastPmClientID))
+		if (iter->second.lastPmClientID != -1 && IsValidClientID(iter->second.lastPmClientID))
 			wscSenderCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.lastPmClientID);
 
 		std::wstring wscTargetCharname = L"<not available>" + std::to_wstring(iter->second.targetClientID);
-		if (iter->second.targetClientID != -1 && HkIsValidClientID(iter->second.targetClientID))
+		if (iter->second.targetClientID != -1 && IsValidClientID(iter->second.targetClientID))
 			wscTargetCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.targetClientID);
 
 		PrintUserCmdText(iClientID, L"OK sender=" + wscSenderCharname + L" target=" + wscTargetCharname);
@@ -750,13 +750,13 @@ namespace Plugins::Message
 			return;
 		}
 
-		if (!HkGetAccountByCharname(wscTargetCharname))
+		if (!GetAccountByCharname(wscTargetCharname))
 		{
 			PrintUserCmdText(iClientID, L"ERR charname does not exist");
 			return;
 		}
 
-		uint iToClientID = HkGetClientIdFromCharname(wscTargetCharname);
+		uint iToClientID = GetClientIdFromCharname(wscTargetCharname);
 		if (iToClientID == -1)
 		{
 			if (global->mailCommunicator)
@@ -786,7 +786,7 @@ namespace Plugins::Message
 		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		uint iToClientID = ToInt(wscClientID);
-		if (!HkIsValidClientID(iToClientID) || HkIsInCharSelectMenu(iToClientID))
+		if (!IsValidClientID(iToClientID) || IsInCharSelectMenu(iToClientID))
 		{
 			PrintUserCmdText(iClientID, L"ERR Invalid client-id");
 			return;
@@ -814,7 +814,7 @@ namespace Plugins::Message
 
 		bool bSenderReceived = false;
 		bool bMsgSent = false;
-		for (auto& player : HkGetPlayers())
+		for (auto& player : GetPlayers())
 		{
 			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix)) == std::string::npos)
 				continue;
@@ -848,7 +848,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		for (auto& player : HkGetPlayers())
+		for (auto& player : GetPlayers())
 		{
 			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix)) == std::string::npos)
 				continue;
@@ -859,9 +859,9 @@ namespace Plugins::Message
 
 			uint iRet;
 			char szBuf[1024];
-			if (HkError err; (err = HkFMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != HKE_OK)
+			if (Error err; (err = FMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != E_OK)
 			{
-				PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+				PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
 				return;
 			}
 
@@ -895,7 +895,7 @@ namespace Plugins::Message
 
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-		HkSetCharacterIni(iClientID, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
+		SetCharacterIni(iClientID, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
 
 		// Update the client cache.
 		auto iter = global->Info.find(iClientID);

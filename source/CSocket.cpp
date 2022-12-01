@@ -2,14 +2,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSocket::DoPrint(const std::wstring& wscTextIn)
+void CSocket::DoPrint(const std::wstring& textIn)
 {
-	std::wstring wscText(wscTextIn);
-	for (uint i = 0; (i < wscText.length()); i++)
+	std::wstring text(textIn);
+	for (uint i = 0; (i < text.length()); i++)
 	{
-		if (wscText[i] == '\n')
+		if (text[i] == '\n')
 		{
-			wscText.replace(i, 1, L"\r\n");
+			text.replace(i, 1, L"\r\n");
 			i++;
 		}
 	}
@@ -25,25 +25,25 @@ void CSocket::DoPrint(const std::wstring& wscTextIn)
 		const char* tempData;
 		if (bUnicode)
 		{
-			uint iRem = (uint)(wscText.length() % 4);
+			uint iRem = (uint)(text.length() % 4);
 			if (iRem) // Data to be encrypted is not a multiple of 8 bytes, add
 			          // 0x00s to compensate
 			{
 				iRem = 4 - iRem;
-				wscText.resize(wscText.length() + iRem, L'\x00');
+				text.resize(text.length() + iRem, L'\x00');
 			}
-			tempData = (const char*)wscText.data();
-			iLen = (uint)(wscText.length() * 2);
+			tempData = (const char*)text.data();
+			iLen = (uint)(text.length() * 2);
 			data = (char*)malloc(iLen);
 			memcpy(data, tempData, iLen);
 		}
 		else
 		{
-			uint iRem = (uint)(wscText.length() % 8);
+			uint iRem = (uint)(text.length() % 8);
 			if (iRem)
 			{
 				iRem = 8 - iRem;
-				std::string scText = wstos(wscText);
+				std::string scText = wstos(text);
 				scText.resize(scText.length() + iRem, '\x00');
 				tempData = scText.data();
 				iLen = (int)scText.length();
@@ -52,9 +52,9 @@ void CSocket::DoPrint(const std::wstring& wscTextIn)
 			}
 			else
 			{
-				std::string scText = wstos(wscText);
+				std::string scText = wstos(text);
 				tempData = scText.data();
-				iLen = (int)wscText.length();
+				iLen = (int)text.length();
 				data = (char*)malloc(iLen);
 				memcpy(data, tempData, iLen);
 			}
@@ -71,9 +71,9 @@ void CSocket::DoPrint(const std::wstring& wscTextIn)
 	else
 	{
 		if (bUnicode)
-			send(this->s, (const char*)wscText.c_str(), (int)wscText.length() * 2, 0);
+			send(this->s, (const char*)text.c_str(), (int)text.length() * 2, 0);
 		else
-			send(this->s, wstos(wscText).c_str(), (int)wscText.length(), 0);
+			send(this->s, wstos(text).c_str(), (int)text.length(), 0);
 	}
 }
 

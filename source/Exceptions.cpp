@@ -170,11 +170,7 @@ void AddExceptionInfoLog(SEHException* ex)
 			AddBothLog(true, L"No exception information available");
 		if (reg)
 		{
-			AddBothLog(
-			    false,
-			    L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x "
-			    "eip=%x esp=%x",
-			    reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+			AddBothLog(false, L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
 		}
 		else
 		{

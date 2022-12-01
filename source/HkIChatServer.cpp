@@ -12,7 +12,7 @@ void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl)
 
 	TRY_HOOK
 	{
-		if (HkIServerImpl::g_InSubmitChat && (clientIdTo != 0x10004))
+		if (IServerImplHook::g_InSubmitChat && (clientIdTo != 0x10004))
 		{
 			wchar_t wszBuf[1024] = L"";
 			// extract text from rdlReader
@@ -21,8 +21,8 @@ void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl)
 			r.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet, (const char*)rdl, size);
 
 			std::wstring buffer = wszBuf;
-			std::wstring sender = buffer.substr(0, buffer.length() - HkIServerImpl::g_TextLength - 2);
-			std::wstring text = buffer.substr(buffer.length() - HkIServerImpl::g_TextLength);
+			std::wstring sender = buffer.substr(0, buffer.length() - IServerImplHook::g_TextLength - 2);
+			std::wstring text = buffer.substr(buffer.length() - IServerImplHook::g_TextLength);
 
 			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientIdTo & 0xFFFF) != 0))
 			{ // check ignores
@@ -114,7 +114,7 @@ void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl)
 			    << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x" << traDataColor + traDataFormat
 			    << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
 
-			HkFMsg(clientId, wos.str());
+			Hk::Message::FMsg(clientId, wos.str());
 		}
 		else
 		{

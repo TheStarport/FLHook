@@ -3,23 +3,23 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::DoPrint(const std::wstring& wscText)
+void CInGame::DoPrint(const std::wstring& text)
 {
 	wchar_t wszBufSend[1024] = L"";
-	for (uint i = 0; (i <= wscText.length()); i++)
+	for (uint i = 0; (i <= text.length()); i++)
 	{
-		if (wscText[i] == '\n' || wscText[i] == '\0')
+		if (text[i] == '\n' || text[i] == '\0')
 		{
 			if (!wcslen(wszBufSend))
 				break;
 			wszBufSend[wcslen(wszBufSend)] = '\0';
 			std::wstring wscXML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
 			    XMLText(wszBufSend) + L"</TEXT>";
-			HkFMsg(this->clientId, wscXML);
+			Hk::Message::FMsg(this->clientId, wscXML);
 			memset(wszBufSend, 0, sizeof(wszBufSend));
 		}
 		else
-			wszBufSend[wcslen(wszBufSend)] = wscText[i];
+			wszBufSend[wcslen(wszBufSend)] = text[i];
 	}
 }
 

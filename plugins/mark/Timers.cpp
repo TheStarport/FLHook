@@ -2,7 +2,7 @@
 
 namespace Plugins::Mark
 {
-	void HkTimerSpaceObjMark()
+	void TimerSpaceObjMark()
 	{
 		try
 		{
@@ -12,7 +12,7 @@ namespace Plugins::Mark
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
 			{
-				uint iShip, iClientID = HkGetClientIdFromPD(pPD);
+				uint iShip, iClientID = GetClientIdFromPD(pPD);
 				pub::Player::GetShip(iClientID, iShip);
 				if (!iShip || global->Mark[iClientID].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
@@ -27,7 +27,7 @@ namespace Plugins::Mark
 					Vector VTargetPos;
 					Matrix MTargetOri;
 					pub::SpaceObj::GetLocation(global->Mark[iClientID].AutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (HkDistance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius)
+					if (Distance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius)
 					{
 						pub::Player::MarkObj(iClientID, global->Mark[iClientID].AutoMarkedObjects[i], 0);
 						global->Mark[iClientID].DelayedAutoMarkedObjects.push_back(global->Mark[iClientID].AutoMarkedObjects[i]);
@@ -57,7 +57,7 @@ namespace Plugins::Mark
 					Vector VTargetPos;
 					Matrix MTargetOri;
 					pub::SpaceObj::GetLocation(global->Mark[iClientID].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (!(HkDistance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius))
+					if (!(Distance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius))
 					{
 						pub::Player::MarkObj(iClientID, global->Mark[iClientID].DelayedAutoMarkedObjects[i], 1);
 						global->Mark[iClientID].AutoMarkedObjects.push_back(global->Mark[iClientID].DelayedAutoMarkedObjects[i]);
@@ -76,7 +76,7 @@ namespace Plugins::Mark
 		{
 		}
 	}
-	void HkTimerMarkDelay()
+	void TimerMarkDelay()
 	{
 		if (!global->DelayedMarks.size())
 			return;
@@ -95,13 +95,13 @@ namespace Plugins::Mark
 				struct PlayerData* pPD = 0;
 				while (pPD = Players.traverse_active(pPD))
 				{
-					uint iClientID = HkGetClientIdFromPD(pPD);
+					uint iClientID = GetClientIdFromPD(pPD);
 					if (Players[iClientID].iSystemID == iItemSystem)
 					{
 						pub::SpaceObj::GetLocation(Players[iClientID].iShipID, vPlayer, mTemp);
-						if (HkDistance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
+						if (Distance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
 						{
-							HkMarkObject(iClientID, mark->iObj);
+							MarkObject(iClientID, mark->iObj);
 						}
 					}
 				}

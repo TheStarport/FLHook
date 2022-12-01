@@ -56,7 +56,7 @@ namespace Plugins::Mail
 	void MailShow(const std::wstring& wscCharname, const std::string& scExtension, int iFirstMsg)
 	{
 		// Make sure the character is logged in.
-		uint iClientID = HkGetClientIdFromCharname(wscCharname);
+		uint iClientID = GetClientIdFromCharname(wscCharname);
 		if (iClientID == -1)
 			return;
 
@@ -105,7 +105,7 @@ namespace Plugins::Mail
 	void MailCheckLog(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Make sure the character is logged in.
-		uint iClientID = HkGetClientIdFromCharname(wscCharname);
+		uint iClientID = GetClientIdFromCharname(wscCharname);
 		if (iClientID == -1)
 			return;
 

@@ -292,14 +292,14 @@ void CoreModule::Spawn()
 		// if (base->affiliation)
 		//{
 		//	basename =
-		// HkGetWStringFromIDS(Reputation::get_name(base->affiliation))
+		// GetWStringFromIDS(Reputation::get_name(base->affiliation))
 		//+ L" - " + base->basename;
 		//}
 
 		struct PlayerData* pd = 0;
 		while (pd = Players.traverse_active(pd))
 		{
-			HkChangeIDSString(pd->iOnlineID, base->solar_ids, basename);
+			ChangeIDSString(pd->iOnlineID, base->solar_ids, basename);
 		}
 
 		// Set the base name

@@ -43,7 +43,7 @@ namespace Plugins::AntiJumpDisconnect
 	{
 		if (global->mapInfo[iClientID].bInWrapGate)
 		{
-			HkKill(iClientID);
+			Kill(iClientID);
 			if (global->tempBanCommunicator)
 			{
 				std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);

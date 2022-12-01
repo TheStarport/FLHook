@@ -41,7 +41,7 @@ namespace Plugins::Mark
 	{
 		auto config = Serializer::JsonToObject<Config>();
 
-		global->Timers = {{HkTimerMarkDelay, 50, 0}, {HkTimerSpaceObjMark, 50, 0}};
+		global->Timers = {{TimerMarkDelay, 50, 0}, {TimerSpaceObjMark, 50, 0}};
 		global->config = std::make_unique<Config>(config);
 	}
 
@@ -62,7 +62,7 @@ namespace Plugins::Mark
 	 */
 	void JumpInComplete(uint& iSystemID, uint& iShip)
 	{
-		uint iClientID = HkGetClientIDByShip(iShip);
+		uint iClientID = GetClientIDByShip(iShip);
 		if (!iClientID)
 			return;
 		std::vector<uint> vTempMark;
@@ -108,7 +108,7 @@ namespace Plugins::Mark
 	 */
 	void LaunchComplete(uint& iBaseID, uint& iShip)
 	{
-		uint iClientID = HkGetClientIDByShip(iShip);
+		uint iClientID = GetClientIDByShip(iShip);
 		if (!iClientID)
 			return;
 		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
@@ -148,7 +148,7 @@ namespace Plugins::Mark
 			// check for logged in players and reset their connection data
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
-				ClearClientMark(HkGetClientIdFromPD(pPD));
+				ClearClientMark(GetClientIdFromPD(pPD));
 		}
 		for (auto& timer : global->Timers)
 		{
@@ -172,11 +172,11 @@ namespace Plugins::Mark
 	void LoadUserCharSettings(uint& iClientID)
 	{
 		CAccount* acc = Players.FindAccountFromClientID(iClientID);
-		std::wstring wscDir;
-		HkGetAccountDirName(acc, wscDir);
-		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+		std::wstring dir;
+		GetAccountDirName(acc, dir);
+		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 		std::wstring wscFilename;
-		HkGetCharFileName(iClientID, wscFilename);
+		GetCharFileName(iClientID, wscFilename);
 		std::string scFilename = wstos(wscFilename);
 		std::string scSection = "general_" + scFilename;
 		global->Mark[iClientID].MarkEverything = IniGetB(scUserFile, scSection, "automarkenabled", false);

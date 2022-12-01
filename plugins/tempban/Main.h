@@ -20,7 +20,7 @@ namespace Plugins::Tempban
 		inline static const char* pluginName = "TempBan Plugin by w0dk4";
 		explicit TempBanCommunicator(std::string plug);
 
-		HkError PluginCall(TempBan, const std::wstring& characterName, uint duration);
+		Error PluginCall(TempBan, const std::wstring& characterName, uint duration);
 	};
 
 	//! Global data for this plugin

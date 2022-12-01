@@ -72,8 +72,8 @@ namespace Plugins::Wardrobe
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		HkSaveChar(iClientID);
-		if (!HkIsValidClientID(iClientID))
+		SaveChar(iClientID);
+		if (!IsValidClientID(iClientID))
 			return;
 
 		// Check character is in base
@@ -89,19 +89,19 @@ namespace Plugins::Wardrobe
 
 		if (CAccount* account = Players.FindAccountFromClientID(iClientID))
 		{
-			HkGetAccountDirName(account, restart.directory);
-			HkGetCharFileName(restart.characterName, restart.characterFile);
+			GetAccountDirName(account, restart.directory);
+			GetCharFileName(restart.characterName, restart.characterFile);
 			global->pendingRestarts.push_back(restart);
-			HkKickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+			KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 	}
 
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		while (!global->pendingRestarts.empty())
 		{
 			Wardrobe restart = global->pendingRestarts.back();
-			if (HkGetClientIdFromCharname(restart.characterName) != -1)
+			if (GetClientIdFromCharname(restart.characterName) != -1)
 				return;
 
 			global->pendingRestarts.pop_back();
@@ -170,5 +170,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 }

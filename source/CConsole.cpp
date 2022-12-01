@@ -3,30 +3,30 @@
 #include <wchar.h>
 
 // I hate this
-void CConsole::DoPrint(const std::wstring& wscText)
+void CConsole::DoPrint(const std::wstring& text)
 {
-	if (wscText.find(L"ERROR", 0) == 0)
+	if (text.find(L"ERROR", 0) == 0)
 	{
-		Console::ConErr(ReplaceStr(wscText, L"ERROR", L""));
+		Console::ConErr(ReplaceStr(text, L"ERROR", L""));
 	}
-	else if (wscText.find(L"error", 0) == 0)
+	else if (text.find(L"error", 0) == 0)
 	{
-		Console::ConErr(ReplaceStr(wscText, L"error", L""));
+		Console::ConErr(ReplaceStr(text, L"error", L""));
 	}
-	else if (wscText.find(L"Error", 0) == 0)
+	else if (text.find(L"Error", 0) == 0)
 	{
-		Console::ConErr(ReplaceStr(wscText, L"Error", L""));
+		Console::ConErr(ReplaceStr(text, L"Error", L""));
 	}
-	else if (wscText.find(L"ERR", 0) == 0)
+	else if (text.find(L"ERR", 0) == 0)
 	{
-		Console::ConErr(ReplaceStr(wscText, L"ERR", L""));
+		Console::ConErr(ReplaceStr(text, L"ERR", L""));
 	}
-	else if (wscText.find(L"err", 0) == 0)
+	else if (text.find(L"err", 0) == 0)
 	{
-		Console::ConErr(ReplaceStr(wscText, L"err", L""));
+		Console::ConErr(ReplaceStr(text, L"err", L""));
 	}
 	else
-		Console::ConPrint(wscText);
+		Console::ConPrint(text);
 }
 
 std::wstring CConsole::GetAdminName()

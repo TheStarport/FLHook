@@ -58,7 +58,7 @@ void SwitchSystem(uint iClientID, uint system, Vector pos, Matrix ornt)
 	// Force a launch to put the ship in the right location in the current
 	// system so that when the change system command arrives (hopefully) a
 	// fraction of a second later the ship will appear at the right location.
-	HkRelocateClient(iClientID, pos, ornt);
+	RelocateClient(iClientID, pos, ornt);
 	// Send the jump command to the client. The client will send a system switch
 	// out complete event which we intercept to set the new starting positions.
 	PrintUserCmdText(iClientID, L" ChangeSys %u", system);
@@ -193,42 +193,42 @@ void SetFuse(uint iClientID, uint fuse)
 	JUMPDRIVE& jd = mapJumpDrives[iClientID];
 	if (jd.active_fuse)
 	{
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(iClientID);
 		if (obj)
 		{
-			HkUnLightFuse((IObjRW*)obj, jd.active_fuse);
+			UnLightFuse((IObjRW*)obj, jd.active_fuse);
 		}
 		jd.active_fuse = 0;
 	}
 
 	if (fuse)
 	{
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(iClientID);
 		if (obj)
 		{
 			jd.active_fuse = fuse;
-			HkLightFuse((IObjRW*)obj, jd.active_fuse, 0.0f, 0.0f, 0.0f);
+			LightFuse((IObjRW*)obj, jd.active_fuse, 0.0f, 0.0f, 0.0f);
 		}
 	}
 }
 
 void AddChargeFuse(uint iClientID, uint fuse)
 {
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(iClientID);
 	if (obj)
 	{
 		mapJumpDrives[iClientID].active_charge_fuse.push_back(fuse);
-		HkLightFuse((IObjRW*)obj, fuse, 0, 0, 0);
+		LightFuse((IObjRW*)obj, fuse, 0, 0, 0);
 	}
 }
 
 void StopChargeFuses(uint iClientID)
 {
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(iClientID);
 	if (obj)
 	{
 		for (auto& fuse : mapJumpDrives[iClientID].active_charge_fuse)
-			HkUnLightFuse((IObjRW*)obj, fuse);
+			UnLightFuse((IObjRW*)obj, fuse);
 		mapJumpDrives[iClientID].active_charge_fuse.clear();
 	}
 }
@@ -397,7 +397,7 @@ void Timer()
 							pub::SpaceObj::GetLocation(pPD->iShipID, vPosition2, mShipDir2);
 
 							if (pPD->iOnlineID != iClientID && iSystemID2 == iSystemID &&
-							    HkDistance3D(vPosition, vPosition2) <= jd.arch.field_range)
+							    Distance3D(vPosition, vPosition2) <= jd.arch.field_range)
 							{
 								PrintUserCmdText(pPD->iOnlineID, L"Jumping...");
 
@@ -429,10 +429,10 @@ void Timer()
 					// kill the ship
 					if (set_death_systems.find(jd.iTargetSystem) != set_death_systems.end())
 					{
-						IObjInspectImpl* obj = HkGetInspect(iClientID);
+						IObjInspectImpl* obj = GetInspect(iClientID);
 						if (obj)
 						{
-							HkLightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
+							LightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
 						}
 					}
 
@@ -586,7 +586,7 @@ void Timer()
 						Server.BaseEnter(baseinfo->iBaseID, iClientID);
 						Server.BaseExit(baseinfo->iBaseID, iClientID);
 						std::wstring wscCharFileName;
-						HkGetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
+						GetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
 						wscCharFileName += L".fl";
 						CHARACTER_ID cID;
 						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
@@ -626,7 +626,7 @@ void Timer()
 						Matrix myRot;
 						pub::SpaceObj::GetLocation(iShip, myLocation, myRot);
 
-						HkRelocateClient(iClientID, lz.pos, myRot);
+						RelocateClient(iClientID, lz.pos, myRot);
 						tb.lstCheckZones.pop_front();
 						tb.lstCheckZones.push_back(lz);
 					}
@@ -643,7 +643,7 @@ void SendDeathMsg(const std::wstring& wscMsg, uint& iSystem, uint& iClientIDVict
 	if (iter != mapTestBots.end())
 	{
 		PrintUserCmdText(iClientIDKiller, L"Err 0101010001110 Does not compute");
-		HkKill((const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller));
+		Kill((const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller));
 		return;
 	}
 }
@@ -772,7 +772,7 @@ void PlayerLaunch(uint& iShip, uint& iClientID)
 
 	// Find the time this ship was last online.
 	std::wstring wscTimeStamp = L"";
-	if (HkFLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
+	if (FLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != E_OK)
 		return;
 
 	FILETIME ft;
@@ -856,7 +856,7 @@ bool InitSurveyInfo(uint iClientID)
 void UserCmd_Survey(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(iClientID);
 	if (!obj)
 	{
 		PrintUserCmdText(iClientID, L"Survey module not available");
@@ -871,7 +871,7 @@ void UserCmd_Survey(const uint& iClientID, const std::wstring_view& wscParam)
 
 	SURVEY& sm = mapSurvey[iClientID];
 
-	CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+	CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 	if (cship->get_max_power() < sm.arch.power)
 	{
 		PrintUserCmdText(iClientID, L"Insufficient power to start survey module");
@@ -952,7 +952,7 @@ void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 
 	const struct Universe::ISystem* sysinfo = Universe::get_system(jd.iTargetSystem);
 	PrintUserCmdText(
-	    iClientID, L"OK Coordinates verified: %s %0.0f.%0.0f.%0.0f", HkGetWStringFromIDS(sysinfo->strid_name).c_str(),
+	    iClientID, L"OK Coordinates verified: %s %0.0f.%0.0f.%0.0f", GetWStringFromIDS(sysinfo->strid_name).c_str(),
 	    *(float*)&jd.vTargetPosition.x, *(float*)&jd.vTargetPosition.y, *(float*)&jd.vTargetPosition.z);
 
 	int wiggle_factor = (int)coords.accuracy;
@@ -966,7 +966,7 @@ void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(iClientID);
 	if (!obj)
 	{
 		PrintUserCmdText(iClientID, L"Jump drive charging failed");
@@ -983,7 +983,7 @@ void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wsc
 
 	JUMPDRIVE& jd = mapJumpDrives[iClientID];
 
-	CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+	CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 	if (cship->get_max_power() < jd.arch.power)
 	{
 		PrintUserCmdText(iClientID, L"Insufficient power to charge jumpdrive");
@@ -1021,7 +1021,7 @@ void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wsc
 void UserCmd_ActivateJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(iClientID);
 	if (!obj)
 	{
 		PrintUserCmdText(iClientID, L"Jump drive charging failed");
@@ -1096,8 +1096,8 @@ void AdminCmd_JumpTest(CCmds* cmds, const std::wstring& sys)
 		return;
 	}
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	PLAYERINFO adminPlyr;
+	if (GetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != E_OK || adminPlyr.iShip == 0)
 	{
 		cmds->Print(L"ERR Not in space");
 		return;
@@ -1122,8 +1122,8 @@ void AdminCmd_TestBot(CCmds* cmds, const std::wstring& wscSystemNick, int iCheck
 		return;
 	}
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	PLAYERINFO adminPlyr;
+	if (GetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != E_OK || adminPlyr.iShip == 0)
 	{
 		cmds->Print(L"ERR Not in space");
 		return;

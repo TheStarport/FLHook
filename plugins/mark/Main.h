@@ -41,9 +41,9 @@ namespace Plugins::Mark
 	};
 
 	// Functions
-	char HkMarkObject(uint iClientID, uint iObject);
-	void HkUnMarkAllObjects(uint iClientID);
-	char HkUnMarkObject(uint iClientID, uint iObject);
+	char MarkObject(uint iClientID, uint iObject);
+	void UnMarkAllObjects(uint iClientID);
+	char UnMarkObject(uint iClientID, uint iObject);
 
 	void UserCmd_AutoMark(const uint& iClientID, const std::wstring_view& wscParam);
 	void UserCmd_MarkObj(const uint& iClientID, const std::wstring_view& wscParam);
@@ -53,8 +53,8 @@ namespace Plugins::Mark
 	void UserCmd_UnMarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam);
 	void UserCmd_UnMarkAllObj(const uint& iClientID, const std::wstring_view& wscParam);
 
-	void HkTimerMarkDelay();
-	void HkTimerSpaceObjMark();
+	void TimerMarkDelay();
+	void TimerSpaceObjMark();
 
 	//! Global data for this plugin
 	struct Global final

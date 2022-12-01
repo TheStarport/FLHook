@@ -47,7 +47,7 @@ namespace Plugins::KillCounter
 		if (!wscClientID.length())
 		{
 			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-			HkReadCharFile(wscCharname, lstLines);
+			ReadCharFile(wscCharname, lstLines);
 			pub::Player::GetNumKills(iClientID, iNumKills);
 			PrintUserCmdText(iClientID, L"PvP kills: %i", iNumKills);
 			for (auto& str : lstLines)
@@ -60,7 +60,7 @@ namespace Plugins::KillCounter
 					Archetype::Ship* ship = Archetype::GetShip(iShipArchID);
 					if (!ship)
 						continue;
-					PrintUserCmdText(iClientID, L"NPC kills:  %s %i", HkGetWStringFromIDS(ship->iIdsName).c_str(), count);
+					PrintUserCmdText(iClientID, L"NPC kills:  %s %i", GetWStringFromIDS(ship->iIdsName).c_str(), count);
 				}
 			}
 			int rank;
@@ -70,13 +70,13 @@ namespace Plugins::KillCounter
 			return;
 		}
 
-		uint iClientIDPlayer = HkGetClientIdFromCharname(wscClientID);
+		uint iClientIDPlayer = GetClientIdFromCharname(wscClientID);
 		if (iClientIDPlayer == -1)
 		{
 			PrintUserCmdText(iClientID, L"ERROR player not found");
 			return;
 		}
-		HkReadCharFile(wscClientID, lstLines);
+		ReadCharFile(wscClientID, lstLines);
 		pub::Player::GetNumKills(iClientIDPlayer, iNumKills);
 		PrintUserCmdText(iClientID, L"PvP kills: %i", iNumKills);
 		for (auto& str : lstLines)
@@ -89,7 +89,7 @@ namespace Plugins::KillCounter
 				Archetype::Ship* ship = Archetype::GetShip(iShipArchID);
 				if (!ship)
 					continue;
-				PrintUserCmdText(iClientID, L"NPC kills:  %s %i", HkGetWStringFromIDS(ship->iIdsName).c_str(), count);
+				PrintUserCmdText(iClientID, L"NPC kills:  %s %i", GetWStringFromIDS(ship->iIdsName).c_str(), count);
 			}
 		}
 		int rank;
@@ -105,14 +105,14 @@ namespace Plugins::KillCounter
 	{
 		if (iKill == 1)
 		{
-			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			const CShip* cShip = CShipFromShipDestroyed(ecx);
 
 			if (const uint iClientID = cShip->GetOwnerPlayer())
 			{
 				const DamageList* dmg = *_dmg;
 
-				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? HkGetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
-					: HkGetClientIDByShip(dmg->get_inflictor_id()); killerId && (iClientID != killerId))
+				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
+					: GetClientIDByShip(dmg->get_inflictor_id()); killerId && (iClientID != killerId))
 				{
 					int iNumKills;
 					pub::Player::GetNumKills(killerId, iNumKills);

@@ -56,17 +56,17 @@ namespace Plugins::Tax
 			return;
 		}
 
-		std::wstring characterName = HkGetCharacterNameById(clientId);
+		std::wstring characterName = GetCharacterNameById(clientId);
 		uint clientIdTarget;
-		if (const HkError error = HkGetTargetClientId(characterName, clientIdTarget); error != HKE_OK || !HkIsValidClientID(clientIdTarget))
+		if (const Error error = GetTargetClientId(characterName, clientIdTarget); error != E_OK || !IsValidClientID(clientIdTarget))
 		{
 			PrintUserCmdText(clientId, L"Error: You are not targeting a player.");
 			return;
 		}
 
 		int secs = 0;
-		std::wstring targetCharacterName = HkGetCharacterNameById(clientIdTarget);
-		if (const HkError error = HkGetOnlineTime(targetCharacterName, secs); error != HKE_OK || secs < global->config->minplaytimeSec)
+		std::wstring targetCharacterName = GetCharacterNameById(clientIdTarget);
+		if (const Error error = GetOnlineTime(targetCharacterName, secs); error != E_OK || secs < global->config->minplaytimeSec)
 		{
 			PrintUserCmdText(clientId, L"Error: This player doesn't have enough playtime.");
 			return;
@@ -88,9 +88,9 @@ namespace Plugins::Tax
 		global->lsttax.push_back(tax);
 
 		if (taxValue == 0)
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
+			FormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
 		else
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
+			FormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
 
 		// send confirmation msg
 		if (taxValue > 0)
@@ -111,33 +111,33 @@ namespace Plugins::Tax
 				}
 
 				int cash;
-				HkGetCash(clientId, cash);
+				GetCash(clientId, cash);
 				if (cash < it.cash)
 				{
 					PrintUserCmdText(clientId, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
-				HkAddCash(clientId, (0 - it.cash));
+				AddCash(clientId, (0 - it.cash));
 				PrintUserCmdText(clientId, L"You paid the tax.");
-				HkAddCash(it.initiatorId, it.cash);
-				const std::wstring characterName = HkGetCharacterNameById(clientId);
+				AddCash(it.initiatorId, it.cash);
+				const std::wstring characterName = GetCharacterNameById(clientId);
 				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.c_str());
 				RemoveTax(it);
-				HkSaveChar(clientId);
-				HkSaveChar(it.initiatorId);
+				SaveChar(clientId);
+				SaveChar(it.initiatorId);
 				return;
 			}
 
 		PrintUserCmdText(clientId, L"Error: No tax request was found that could be accepted!");
 	}
 
-	void HkTimerF1Check()
+	void TimerF1Check()
 	{
 		struct PlayerData* pPd = nullptr;
 		while (pPd = Players.traverse_active(pPd))
 		{
-			uint clientId = HkGetClientIdFromPD(pPd);
+			uint clientId = GetClientIdFromPD(pPd);
 
 			if (ClientInfo[clientId].tmF1TimeDisconnect)
 				continue;
@@ -156,7 +156,7 @@ namespace Plugins::Tax
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = HkGetCharacterNameById(it.targetId);
+						std::wstring characterName = GetCharacterNameById(it.targetId);
 						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
@@ -177,7 +177,7 @@ namespace Plugins::Tax
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = HkGetCharacterNameById(it.targetId);
+						std::wstring characterName = GetCharacterNameById(it.targetId);
 						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
@@ -198,7 +198,7 @@ namespace Plugins::Tax
 	};
 
 	TIMER Timers[] = {
-	    {HkTimerF1Check, 1000, 0},
+	    {TimerF1Check, 1000, 0},
 	};
 
 	int __stdcall Update()
@@ -216,7 +216,7 @@ namespace Plugins::Tax
 
 	void __stdcall DisConnect(ClientId& clientId, enum EFLConnection& state)
 	{
-		HkTimerF1Check();
+		TimerF1Check();
 	}
 
 	void UserCmdHelp(ClientId& clientId, const std::wstring& param)

@@ -19,11 +19,14 @@ void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
-	int iCash;
-	if (HKSUCCESS(HkGetCash(player, iCash)))
-		Print(L"cash=%d\nOK\n", iCash);
-	else
-		PrintError();
+	const auto res = Hk::Player::GetCash(player);
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"cash=%d\nOK\n", res.value());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,72 +35,45 @@ void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, int iAmou
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
-	int iCash;
-	if (HKSUCCESS(HkGetCash(player, iCash)))
+	const auto res = Hk::Player::GetCash(player);
+	if (res.has_error())
 	{
-		HkAddCash(player, iAmount - iCash);
-		CmdGetCash(player);
+		PrintError(res.error());
+		return;
 	}
-	else
-		PrintError();
-}
 
-void CCmds::CmdSetCashSec(const std::variant<uint, std::wstring>& player, int iAmountCheck, int iAmount)
-{
-	RIGHT_CHECK(RIGHT_CASH);
-
-	int iCash;
-
-	if (HKSUCCESS(HkGetCash(player, iCash)))
-	{
-		if (iCash != iAmountCheck)
-			Print(L"ERR Security check failed");
-		else
-			CmdSetCash(player, iAmount);
-	}
-	else
-		PrintError();
+	Hk::Player::AddCash(player, iAmount - res.value());
+	CmdGetCash(player);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, int iAmount)
+void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, int amount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
-	if (HKSUCCESS(HkAddCash(player, iAmount)))
-		CmdGetCash(player);
-	else
-		PrintError();
-}
-
-void CCmds::CmdAddCashSec(const std::variant<uint, std::wstring>& player, int iAmountCheck, int iAmount)
-{
-	RIGHT_CHECK(RIGHT_CASH);
-
-	int iCash;
-
-	if (HKSUCCESS(HkGetCash(player, iCash)))
+	if (const auto res = Hk::Player::AddCash(player, amount); res.has_error())
 	{
-		if (iCash != iAmountCheck)
-			Print(L"ERR Security check failed");
-		else
-			CmdAddCash(player, iAmount);
+		PrintError(res.error());
+		return;
 	}
-	else
-		PrintError();
+
+	CmdGetCash(player);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
+void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& reason)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
-	if (HKSUCCESS(HkKickReason(player, wscReason)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::KickReason(player, reason); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,10 +82,14 @@ void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
-	if (HKSUCCESS(HkBan(player, true)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::Ban(player, true); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"Player banned");
+	CmdKick(player, L"Player banned");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,27 +98,9 @@ void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
-	if (HKSUCCESS(HkBan(player, false)))
-		Print(L"OK");
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdKickBan(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
-{
-	RIGHT_CHECK(RIGHT_KICKBAN);
-
-	if (!HKSUCCESS(HkBan(player, true)))
+	if (const auto res = Hk::Player::Ban(player, false); res.has_error())
 	{
-		PrintError();
-		return;
-	}
-
-	if (!HKSUCCESS(HkKickReason(player, wscReason)))
-	{
-		PrintError();
+		PrintError(res.error());
 		return;
 	}
 
@@ -147,34 +109,18 @@ void CCmds::CmdKickBan(const std::variant<uint, std::wstring>& player, const std
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetBaseStatus(const std::wstring& wscBasename)
+void CCmds::CmdGetClientId(const std::wstring& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	float fHealth;
-	float fMaxHealth;
-
-	if (HKSUCCESS(HkGetBaseStatus(wscBasename, fHealth, fMaxHealth)))
-		Print(L"hitpts=%u hitptsmax=%uOK\n", (long)fHealth, (long)fMaxHealth);
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdGetClientId(std::wstring player)
-{
-	RIGHT_CHECK(RIGHT_OTHER);
-
-	uint clientId = HkGetClientIdFromCharname(player);
-	if (clientId == -1)
+	auto client = Hk::Client::GetClientIdFromCharName(player);
+	if (client.has_error())
 	{
-		hkLastErr = PlayerNotLoggedIn;
-		PrintError();
+		PrintError(client.error());
 		return;
 	}
 
-	Print(L"clientid=%uOK\n", clientId);
+	Print(L"clientid=%uOK\n", client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,10 +129,13 @@ void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
-	if (HKSUCCESS(HkKill(player)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::Kill(player); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,110 +144,135 @@ void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
-	if (HKSUCCESS(HkResetRep(player)))
-		Print(L"OK");
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue)
-{
-	RIGHT_CHECK(RIGHT_REPUTATION);
-
-	if (HKSUCCESS(HkSetRep(player, wscRepGroup, fValue)))
-		Print(L"OK");
-	else
-		PrintError();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup)
-{
-	RIGHT_CHECK(RIGHT_REPUTATION);
-
-	float fValue;
-	if (HKSUCCESS(HkGetRep(player, wscRepGroup, fValue)))
+	if (const auto res = Hk::Player::ResetRep(player); res.has_error())
 	{
-		Print(L"feelings=%f", fValue);
-		Print(L"OK");
+		PrintError(res.error());
+		return;
 	}
-	else
-		PrintError();
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscText)
+void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup, float value)
 {
-	RIGHT_CHECK(RIGHT_MSG);
+	RIGHT_CHECK(RIGHT_REPUTATION);
 
-	if (HKSUCCESS(HkMsg(player, wscText)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::SetRep(player, repGroup, value); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgS(const std::wstring& wscSystemname, const std::wstring& wscText)
+void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup)
 {
-	RIGHT_CHECK(RIGHT_MSG);
+	RIGHT_CHECK(RIGHT_REPUTATION);
 
-	if (HKSUCCESS(HkMsgS(wscSystemname, wscText)))
-		Print(L"OK");
-	else
-		PrintError();
+	const auto res = Hk::Player::GetRep(player, repGroup);
+	if ( res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"feelings=%f", res.value());
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdMsgU(const std::wstring& wscText)
+void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& text)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
-	if (HKSUCCESS(HkMsgU(wscText)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Message::Msg(player, text); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML)
+void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
-	if (HKSUCCESS(HkFMsg(player, wscXML)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Message::MsgS(system, text); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML)
+void CCmds::CmdMsgU(const std::wstring& text)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
-	if (HKSUCCESS(HkFMsgS(wscSystemname, wscXML)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Message::MsgU(text); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdFMsgU(const std::wstring& wscXML)
+void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xml)
 {
 	RIGHT_CHECK(RIGHT_MSG);
 
-	if (HKSUCCESS(HkFMsgU(wscXML)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Message::FMsg(player, xml); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
+{
+	RIGHT_CHECK(RIGHT_MSG);
+
+	if (const auto res = Hk::Message::FMsgS(system, xml); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CCmds::CmdFMsgU(const std::wstring& xml)
+{
+	RIGHT_CHECK(RIGHT_MSG);
+
+	if (const auto res = Hk::Message::FMsgU(xml); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -307,60 +281,66 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
-	std::list<CARGO_INFO> lstCargo;
-	int iRemainingHoldSize = 0;
-	if (HKSUCCESS(HkEnumCargo(player, lstCargo, iRemainingHoldSize)))
+	int holdSize = 0;
+	auto cargo = Hk::Player::EnumCargo(player, holdSize);
+	if (cargo.has_error())
 	{
-		Print(L"remainingholdsize=%d", iRemainingHoldSize);
-		for (auto& cargo : lstCargo)
-		{
-			if (!cargo.bMounted)
-				Print(
-				    L"id=%u archid=%u count=%d mission=%u", cargo.iID, cargo.iArchID, cargo.iCount,
-				    cargo.bMission ? 1 : 0);
-		}
-
-		Print(L"OK");
+		PrintError(cargo.error());	
 	}
-	else
-		PrintError();
+
+	Print(L"remainingholdsize=%d", holdSize);
+	for (auto& item : cargo.value())
+	{
+		if (!item.bMounted)
+			Print(L"id=%u archid=%u count=%d mission=%u", item.iID, item.iArchID, item.iCount, item.bMission ? 1 : 0);
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint iID, uint iCount)
+void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint id, uint count)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
-	if (HKSUCCESS(HkRemoveCargo(player, iID, iCount)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::RemoveCargo(player, id, count); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCargo(
-    const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, uint iCount, uint iMission)
+void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, uint count, bool mission)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
-	if (HKSUCCESS(HkAddCargo(player, wscGood, iCount, iMission ? true : false)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::AddCargo(player, good, count, mission); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname)
+void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& newName)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	if (HKSUCCESS(HkRename(player, wscNewCharname, false)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::Rename(player, newName, false); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,10 +349,13 @@ void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	if (HKSUCCESS(HkRename(player, L"", true)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::Rename(player, L"", true); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -381,58 +364,66 @@ void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	std::list<std::wstring> lstOut;
-	if (HKSUCCESS(HkReadCharFile(player, lstOut)))
+	const auto res = Hk::Player::ReadCharFile(player); 
+	if (res.has_error())
 	{
-		for (auto& l : lstOut)
-			Print(L"l %s", l.c_str());
-		Print(L"OK");
+		PrintError(res.error());
+		return;
 	}
-	else
-		PrintError();
+
+	for (const auto& line : res.value())
+	{
+		Print(L"%s", line.c_str());
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscData)
+void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& data)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	if (HKSUCCESS(HkWriteCharFile(player, wscData)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::WriteCharFile(player, data); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::PrintPlayerInfo(HKPLAYERINFO pi)
+void CCmds::PrintPlayerInfo(PLAYERINFO& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(
-	    L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.clientId,
-	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
+	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.clientId,
+	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	HKPLAYERINFO pi;
-	if (HKSUCCESS(HkGetPlayerInfo(player, pi, false)))
-		PrintPlayerInfo(pi);
-	else
-		PrintError();
+	const auto res = Hk::Admin::GetPlayerInfo(player, false);
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
 
-	Print(L"OK");
+	auto info = res.value();
+	PrintPlayerInfo(info);
 }
 
 void CCmds::CmdGetPlayers()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	for (auto& p : HkGetPlayers())
+	for (auto& p : Hk::Admin::GetPlayers())
 		PrintPlayerInfo(p);
 
 	Print(L"OK");
@@ -440,33 +431,33 @@ void CCmds::CmdGetPlayers()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::XPrintPlayerInfo(HKPLAYERINFO pi)
+void CCmds::XPrintPlayerInfo(const PLAYERINFO& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(
-	    L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.clientId,
-	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.ci.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
+	Print(L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.clientId,
+	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	HKPLAYERINFO pi;
-	if (HKSUCCESS(HkGetPlayerInfo(player, pi, false)))
-		XPrintPlayerInfo(pi);
-	else
-		PrintError();
+	const auto res = Hk::Admin::GetPlayerInfo(player, false);
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
 
-	Print(L"OK");
+	XPrintPlayerInfo(res.value());
 }
 
 void CCmds::CmdXGetPlayers()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	for (auto& p : HkGetPlayers())
+	for (auto& p : Hk::Admin::GetPlayers())
 		XPrintPlayerInfo(p);
 
 	Print(L"OK");
@@ -479,7 +470,7 @@ void CCmds::CmdGetPlayerIDs()
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	wchar_t wszLine[128] = L"";
-	for (auto& p : HkGetPlayers())
+	for (auto& p : Hk::Admin::GetPlayers())
 	{
 		wchar_t wszBuf[1024];
 		swprintf_s(wszBuf, L"%s = %u | ", p.character.c_str(), p.clientId);
@@ -503,11 +494,16 @@ void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	std::wstring wscDir;
-	if (HKSUCCESS(HkGetAccountDirName(player, wscDir)))
-		Print(L"dirname=%sOK\n", wscDir.c_str());
-	else
-		PrintError();
+	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
+	if (acc.has_error())
+	{
+		PrintError(acc.error());
+		return;
+	}
+
+	auto dir = Hk::Client::GetAccountDirName(acc.value());
+
+	Print(L"dirname=%s\nOK", dir.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,11 +512,14 @@ void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	std::wstring wscFilename;
-	if (HKSUCCESS(HkGetCharFileName(player, wscFilename)))
-		Print(L"charfilename=%sOK\n", wscFilename.c_str());
-	else
-		PrintError();
+	const auto res = Hk::Client::GetCharFileName(player);
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"filename=%s", res.value());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -529,36 +528,18 @@ void CCmds::CmdIsOnServer(std::wstring player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	CAccount* acc = HkGetAccountByCharname(player);
-	if (!acc)
+	const auto res = Hk::Client::GetAccountByCharName(player);
+	if ( res.has_error())
 	{
-		hkLastErr = CharDoesNotExist;
-		PrintError();
+		PrintError(res.error());
 		return;
 	}
 
-	uint clientId = HkGetClientIdFromAccount(acc);
-	if (clientId == -1)
+	const auto id = Hk::Client::GetClientIdFromAccount(res.value());
+	if (id.has_error())
 		Print(L"onserver=noOK\n");
 	else
 		Print(L"onserver=yesOK\n");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdIsLoggedIn(std::wstring player)
-{
-	RIGHT_CHECK(RIGHT_OTHER);
-
-	if (HkGetClientIdFromCharname(player) != -1)
-	{
-		if (HkIsInCharSelectMenu(player))
-			Print(L"loggedin=noOK\n");
-		else
-			Print(L"loggedin=yesOK\n");
-	}
-	else
-		Print(L"loggedin=noOK\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -570,7 +551,7 @@ void CCmds::CmdMoneyFixList()
 	struct PlayerData* playerDb = 0;
 	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint clientId = HkGetClientIdFromPD(playerDb);
+		uint clientId = playerDb->iOnlineID;
 
 		if (ClientInfo[clientId].lstMoneyFix.size())
 			Print(L"id=%u", clientId);
@@ -617,16 +598,17 @@ void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	std::list<GROUP_MEMBER> lstMembers;
-	if (HKSUCCESS(HkGetGroupMembers(player, lstMembers)))
+	const auto res = Hk::Player::GetGroupMembers(player);
+	if (res.has_error())
 	{
-		Print(L"groupsize=%d", lstMembers.size());
-		for (auto& m : lstMembers)
-			Print(L"id=%d charname=%s", m.clientId, m.character.c_str());
-		Print(L"OK");
+		PrintError(res.error());
+		return;
 	}
-	else
-		PrintError();
+
+	Print(L"groupsize=%d", res.value().size());
+	for (auto& m : res.value())
+		Print(L"id=%d charname=%s", m.clientId, m.character.c_str());
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -635,10 +617,13 @@ void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	if (HKSUCCESS(HkSaveChar(player)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::SaveChar(player); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -647,35 +632,45 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
-	bool bResult;
-	if (HKSUCCESS(HkGetReservedSlot(player, bResult)))
-		Print(L"reservedslot=%sOK\n", bResult ? L"yes" : L"no");
-	else
-		PrintError();
+	const auto res = Hk::Player::GetReservedSlot(player); 
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"reservedslot=%sOK\n", res.value() ? L"yes" : L"no");
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int iReservedSlot)
+void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int reservedSlot)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
-	if (HKSUCCESS(HkSetReservedSlot(player, iReservedSlot ? true : false)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Player::SetReservedSlot(player, reservedSlot ? true : false); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights)
+void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& rights)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	if (HKSUCCESS(HkSetAdmin(player, wscRights)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Admin::SetAdmin(player, rights); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -684,11 +679,14 @@ void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	std::wstring wscRights;
-	if (HKSUCCESS(HkGetAdmin(player, wscRights)))
-		Print(L"rights=%sOK\n", wscRights.c_str());
-	else
-		PrintError();
+	const auto res = Hk::Admin::GetAdmin(player);
+	if (res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"rights=%s\nOK\n", res.value().c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,10 +695,13 @@ void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	if (HKSUCCESS(HkDelAdmin(player)))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = Hk::Admin::DelAdmin(player); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -741,10 +742,13 @@ void CCmds::CmdUnloadPlugin(const std::wstring& wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
-	if (HKSUCCESS(PluginManager::i()->unload(wstos(wscPlugin))))
-		Print(L"OK");
-	else
-		PrintError();
+	if (const auto res = PluginManager::i()->unload(wstos(wscPlugin)); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print(L"OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -763,19 +767,19 @@ void CCmds::CmdRehash()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Chase a player. Only works in system as you'd need a client hook to do across system */
-void CCmds::CmdChase(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player)
+void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK)
+	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
+	if (res.has_error())
 	{
-		Print(L"ERR Not in space");
+		PrintError(res.error());
 		return;
 	}
 
-	HKPLAYERINFO targetPlyr;
-	if (HkGetPlayerInfo(player, targetPlyr, false) != HKE_OK || targetPlyr.iShip == 0)
+	const auto target = Hk::Admin::GetPlayerInfo(player, false);
+	if (target.has_error() || target.value().iShip == 0)
 	{
 		Print(L"ERR Player not found or not in space");
 		return;
@@ -783,10 +787,10 @@ void CCmds::CmdChase(std::wstring wscAdminName, const std::variant<uint, std::ws
 
 	Vector pos;
 	Matrix ornt;
-	pub::SpaceObj::GetLocation(targetPlyr.iShip, pos, ornt);
+	pub::SpaceObj::GetLocation(target.value().iShip, pos, ornt);
 	pos.y += 100;
 
-	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", targetPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
+	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
 	return;
 }
 
@@ -794,51 +798,57 @@ void CCmds::CmdChase(std::wstring wscAdminName, const std::variant<uint, std::ws
 
 /** Beam admin to a base. Works across systems but needs improvement of the path
  * selection algorithm */
-void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscTargetBaseName)
+void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& targetBaseName)
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
 	// Fall back to default flhook .beam command
 	try
 	{
-		if (HKSUCCESS(HkBeam(player, wscTargetBaseName)))
+		const auto res = Hk::Player::Beam(player, targetBaseName);
+		if (res.has_error())
 		{
-			Print(L"OK");
+			PrintError(res.error());
 			return;
 		}
 		else
 		{
-			HKPLAYERINFO info;
-			if (HkGetPlayerInfo(player, info, false) != HKE_OK)
+
+			const auto res = Hk::Admin::GetPlayerInfo(player, false);
+			if (res.has_error())
 			{
-				Print(L"ERR Player not found");
+				PrintError(res.error());
 				return;
 			}
 
-			if (info.iShip == 0)
+			if (res.value().iShip == 0)
 			{
 				Print(L"ERR Player not in space");
 				return;
 			}
 
 			// Search for an exact match at the start of the name
-			struct Universe::IBase* baseinfo = Universe::GetFirstBase();
+			const struct Universe::IBase* baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = HkGetWStringFromIDS(baseinfo->baseIdS);
-				if (ToLower(basename).find(ToLower(wscTargetBaseName)) == 0)
+				std::wstring basename = Hk::Message::GetWStringFromIDS(baseinfo->baseIdS);
+				if (ToLower(basename).find(ToLower(targetBaseName)) == 0)
 				{
-					pub::Player::ForceLand(info.clientId, baseinfo->baseId);
-					if (info.iSystem != baseinfo->systemId)
+					pub::Player::ForceLand(res.value().clientId, baseinfo->baseId);
+					if (res.value().iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->baseId, info.clientId);
-						Server.BaseExit(baseinfo->baseId, info.clientId);
-						std::wstring wscCharFileName;
-						HkGetCharFileName(info.character, wscCharFileName);
-						wscCharFileName += L".fl";
+						Server.BaseEnter(baseinfo->baseId, res.value().clientId);
+						Server.BaseExit(baseinfo->baseId, res.value().clientId);
+						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
+						if (charFileName.has_error()) 
+						{
+							return;
+						}
+
+						const auto fileName = charFileName.value() + L".fl";
 						CHARACTER_ID cID;
-						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, info.clientId);
+						strcpy(cID.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
+						Server.CharacterSelect(cID, res.value().clientId);
 					}
 					return;
 				}
@@ -849,20 +859,24 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 			baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = HkGetWStringFromIDS(baseinfo->baseIdS);
-				if (ToLower(basename).find(ToLower(wscTargetBaseName)) != -1)
+				std::wstring basename = Hk::Message::GetWStringFromIDS(baseinfo->baseIdS);
+				if (ToLower(basename).find(ToLower(targetBaseName)) != -1)
 				{
-					pub::Player::ForceLand(info.clientId, baseinfo->baseId);
-					if (info.iSystem != baseinfo->systemId)
+					pub::Player::ForceLand(res.value().clientId, baseinfo->baseId);
+					if (res.value().iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->baseId, info.clientId);
-						Server.BaseExit(baseinfo->baseId, info.clientId);
-						std::wstring wscCharFileName;
-						HkGetCharFileName(info.character, wscCharFileName);
-						wscCharFileName += L".fl";
+						Server.BaseEnter(baseinfo->baseId, res.value().clientId);
+						Server.BaseExit(baseinfo->baseId, res.value().clientId);
+						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
+						if (charFileName.has_error())
+						{
+							return;
+						}
+
+						const auto fileName = charFileName.value() + L".fl";
 						CHARACTER_ID cID;
-						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, info.clientId);
+						strcpy(cID.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
+						Server.CharacterSelect(cID, res.value().clientId);
 					}
 					return;
 				}
@@ -872,66 +886,63 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 	}
 	catch (...)
 	{ // exeption, kick player
-		HkKick(player);
+		Hk::Player::Kick(player);
 		Print(L"ERR exception occured, player kicked");
 	}
-
-	// Couldn't beam any way
-	PrintError();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Pull a player to you. Only works in system as you'd need a client hook to move their system **/
-void CCmds::CmdPull(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player)
+void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
+	if (res.has_error())
 	{
-		Print(L"ERR Not in space");
+		PrintError(res.error());
 		return;
 	}
 
-	HKPLAYERINFO targetPlyr;
-	if (HkGetPlayerInfo(player, targetPlyr, false) != HKE_OK)
+	const auto target = Hk::Admin::GetPlayerInfo(player, false);
+	if (target.has_error() || target.value().iShip == 0)
 	{
-		Print(L"ERR Player not found");
+		Print(L"ERR Player not found or not in space");
 		return;
 	}
 
 	Vector pos;
 	Matrix ornt;
-	pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, ornt);
+	pub::SpaceObj::GetLocation(target.value().iShip, pos, ornt);
 	pos.y += 400;
 
-	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", adminPlyr.wscSystem.c_str(), pos.x, pos.y, pos.z);
+	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
 	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Move to location */
-void CCmds::CmdMove(std::wstring wscAdminName, float x, float y, float z)
+void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(wscAdminName, adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
+	if (res.has_error())
 	{
-		Print(L"ERR Not in space");
+		PrintError(res.error());
 		return;
 	}
 
 	Vector pos;
 	Matrix rot;
-	pub::SpaceObj::GetLocation(adminPlyr.iShip, pos, rot);
+	pub::SpaceObj::GetLocation(res.value().iShip, pos, rot);
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
 	Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
-	HkRelocateClient(adminPlyr.clientId, pos, rot);
+	Hk::Player::RelocateClient(res.value().clientId, pos, rot);
 	return;
 }
 
@@ -944,13 +955,10 @@ void CCmds::CmdHelp()
 	    L"[commands]\n"
 	    L"getcash <charname>\n"
 	    L"setcash <charname> <amount>\n"
-	    L"setcashsec <charname> <oldmoney> <amount>\n"
 	    L"addcash <charname> <amount>\n"
-	    L"addcashsec <charname> <oldmoney> <amount>\n"
 	    L"kick <charname> <reason>\n"
 	    L"ban <charname>\n"
 	    L"unban <charname>\n"
-	    L"kickban <charname> <reason>\n"
 	    L"beam <charname> <basename>\n"
 	    L"pull <charname>\n"
 	    L"chase <charname>\n"
@@ -987,7 +995,6 @@ void CCmds::CmdHelp()
 	    L"getaccountdirname <charname>\n"
 	    L"getcharfilename <charname>\n"
 	    L"isonserver <charname>\n"
-	    L"isloggedin <charname>\n"
 	    L"serverinfo\n"
 	    L"moneyfixlist\n"
 	    L"savechar <charname>\n"
@@ -1029,21 +1036,21 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return this->GetAdminName();
 		else if (bTarget)
 		{
-			uint clientId = HkGetClientIdFromCharname(this->GetAdminName());
-			if (!clientId)
+			auto clientId = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			if (clientId.has_error())
 				return L"";
 			uint iShip;
-			pub::Player::GetShip(clientId, iShip);
+			pub::Player::GetShip(clientId.value(), iShip);
 			if (!iShip)
 				return L"";
 			uint iTarget;
 			pub::SpaceObj::GetTarget(iShip, iTarget);
 			if (!iTarget)
 				return L"";
-			clientId = HkGetClientIDByShip(iTarget);
-			if (!clientId)
+			auto targetId = Hk::Client::GetClientIDByShip(iTarget);
+			if (!targetId.has_error())
 				return L"";
-			return L"id " + std::to_wstring(clientId);
+			return L"id " + std::to_wstring(targetId.value());
 		}
 	}
 
@@ -1054,21 +1061,21 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + wscArg.substr(2);
 		else if (wscArg == L">t")
 		{
-			uint clientId = HkGetClientIdFromCharname(this->GetAdminName());
-			if (!clientId)
+			auto clientId = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			if (clientId.has_error())
 				return L"";
 			uint iShip;
-			pub::Player::GetShip(clientId, iShip);
+			pub::Player::GetShip(clientId.value(), iShip);
 			if (!iShip)
 				return L"";
 			uint iTarget;
 			pub::SpaceObj::GetTarget(iShip, iTarget);
 			if (!iTarget)
 				return L"";
-			clientId = HkGetClientIDByShip(iTarget);
-			if (!clientId)
+			auto targetId = Hk::Client::GetClientIDByShip(iTarget);
+			if (!targetId.has_error())
 				return L"";
-			return L"id " + std::to_wstring(clientId);
+			return L"id " + std::to_wstring(targetId.value());
 		}
 		else
 			return wscArg;
@@ -1200,17 +1207,9 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			{
 				CmdSetCash(ArgCharname(1), ArgInt(2));
 			}
-			else if (wscCmd == L"setcashsec")
-			{
-				CmdSetCashSec(ArgCharname(1), ArgInt(2), ArgInt(3));
-			}
 			else if (wscCmd == L"addcash")
 			{
 				CmdAddCash(ArgCharname(1), ArgInt(2));
-			}
-			else if (wscCmd == L"addcashsec")
-			{
-				CmdAddCashSec(ArgCharname(1), ArgInt(2), ArgInt(3));
 			}
 			else if (wscCmd == L"kick")
 			{
@@ -1223,14 +1222,6 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"unban")
 			{
 				CmdUnban(ArgCharname(1));
-			}
-			else if (wscCmd == L"kickban")
-			{
-				CmdKickBan(ArgCharname(1), ArgStrToEnd(2));
-			}
-			else if (wscCmd == L"getbasestatus")
-			{
-				CmdGetBaseStatus(ArgStr(1));
 			}
 			else if (wscCmd == L"getclientid")
 			{
@@ -1343,10 +1334,6 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"isonserver")
 			{
 				CmdIsOnServer(ArgCharname(1));
-			}
-			else if (wscCmd == L"isloggedin")
-			{
-				CmdIsLoggedIn(ArgCharname(1));
 			}
 			else if (wscCmd == L"moneyfixlist")
 			{
@@ -1483,20 +1470,20 @@ void CCmds::SetRightsByString(const std::string& scRights)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::PrintError()
+void CCmds::PrintError(Error err)
 {
-	Print(L"ERR %s", HkErrGetText(this->hkLastErr).c_str());
+	Print(L"ERR %s", Hk::Err::ErrGetText(err).c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::Print(std::wstring wscText, ...)
+void CCmds::Print(std::wstring text, ...)
 {
 	wchar_t wszBuf[1024 * 8] = L"";
 	va_list marker;
-	va_start(marker, wscText);
+	va_start(marker, text);
 
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscText.c_str(), marker);
+	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, text.c_str(), marker);
 
 	DoPrint(wszBuf);
 }

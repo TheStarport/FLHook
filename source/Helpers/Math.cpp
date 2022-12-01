@@ -2,27 +2,34 @@
 
 namespace Hk::Math
 {
-	/** Calculate the distance between the two vectors */
-	float HkDistance3D(Vector v1, Vector v2)
+	float Distance3D(Vector v1, Vector v2)
 	{
-		float sq1 = v1.x - v2.x, sq2 = v1.y - v2.y, sq3 = v1.z - v2.z;
+		const float sq1 = v1.x - v2.x;
+		const float sq2 = v1.y - v2.y;
+		const float sq3 = v1.z - v2.z;
 		return sqrt(sq1 * sq1 + sq2 * sq2 + sq3 * sq3);
 	}
 
-	/** Calculate the distance between the two vectors */
-	float HkDistance3DByShip(uint iShip1, uint iShip2)
+	cpp::result<float, Error> Distance3DByShip(uint iShip1, uint iShip2)
 	{
 		Vector v1;
 		Matrix m1;
 		pub::SpaceObj::GetLocation(iShip1, v1, m1);
+
+		if (v1.x == 0.f && v1.y == 0.f && v1.z == 0.f)
+			return cpp::fail(Error::InvalidShip);
+
 		Vector v2;
 		Matrix m2;
 		pub::SpaceObj::GetLocation(iShip2, v2, m2);
 
-		return HkDistance3D(v1, v2);
+		if (v2.x == 0.f && v2.y == 0.f && v2.z == 0.f)
+			return cpp::fail(Error::InvalidShip);
+
+		return Distance3D(v1, v2);
 	}
 
-	Quaternion HkMatrixToQuaternion(Matrix m)
+	Quaternion MatrixToQuaternion(const Matrix& m)
 	{
 		Quaternion quaternion;
 		quaternion.w = sqrt(max(0, 1 + m.data[0][0] + m.data[1][1] + m.data[2][2])) / 2;
@@ -43,7 +50,7 @@ namespace Hk::Math
 		if (iSystem)
 			scale = iSystem->NavMapScale;
 
-		float fGridSize = 34000.0f / scale;
+		const float fGridSize = 34000.0f / scale;
 		int gridRefX = (int)((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
 		int gridRefZ = (int)((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
 
@@ -65,7 +72,7 @@ namespace Hk::Math
 #define PI 3.14159265f
 
 	// Convert radians to degrees.
-	float degrees(float rad)
+	float Degrees(float rad)
 	{
 		rad *= 180 / PI;
 
@@ -79,7 +86,7 @@ namespace Hk::Math
 		}
 
 		// Round to two decimal places here, so %g can display it without decimals.
-		float frac = modff(rad * 100, &rad);
+		const float frac = modff(rad * 100, &rad);
 		if (frac >= 0.5f)
 			++rad;
 		else if (frac <= -0.5f)
@@ -92,61 +99,29 @@ namespace Hk::Math
 	// Freelancer does for the save game.
 	Vector MatrixToEuler(const Matrix& mat)
 	{
-		Vector x = {mat.data[0][0], mat.data[1][0], mat.data[2][0]};
-		Vector y = {mat.data[0][1], mat.data[1][1], mat.data[2][1]};
-		Vector z = {mat.data[0][2], mat.data[1][2], mat.data[2][2]};
+		const Vector x = {mat.data[0][0], mat.data[1][0], mat.data[2][0]};
+		const Vector y = {mat.data[0][1], mat.data[1][1], mat.data[2][1]};
+		const Vector z = {mat.data[0][2], mat.data[1][2], mat.data[2][2]};
 
 		Vector vec;
-		float h = (float)_hypot(x.x, x.y);
-		if (h > 1 / 524288.0f)
+		if (const float h = (float)_hypot(x.x, x.y); h > 1 / 524288.0f)
 		{
-			vec.x = degrees(atan2f(y.z, z.z));
-			vec.y = degrees(atan2f(-x.z, h));
-			vec.z = degrees(atan2f(x.y, x.x));
+			vec.x = Degrees(atan2f(y.z, z.z));
+			vec.y = Degrees(atan2f(-x.z, h));
+			vec.z = Degrees(atan2f(x.y, x.x));
 		}
 		else
 		{
-			vec.x = degrees(atan2f(-z.y, y.y));
-			vec.y = degrees(atan2f(-x.z, h));
+			vec.x = Degrees(atan2f(-z.y, y.y));
+			vec.y = Degrees(atan2f(-x.z, h));
 			vec.z = 0;
 		}
 		return vec;
 	}
 
-	void Rotate180(Matrix& rot)
-	{
-		rot.data[0][0] = -rot.data[0][0];
-		rot.data[1][0] = -rot.data[1][0];
-		rot.data[2][0] = -rot.data[2][0];
-		rot.data[0][2] = -rot.data[0][2];
-		rot.data[1][2] = -rot.data[1][2];
-		rot.data[2][2] = -rot.data[2][2];
-	}
-
-	void TranslateY(Vector& pos, Matrix& rot, float y)
-	{
-		pos.x += y * rot.data[0][0];
-		pos.y += y * rot.data[1][0];
-		pos.z += y * rot.data[2][0];
-	}
-
-	void TranslateX(Vector& pos, Matrix& rot, float x)
-	{
-		pos.x += x * rot.data[0][2];
-		pos.y += x * rot.data[1][2];
-		pos.z += x * rot.data[2][2];
-	}
-
-	void TranslateZ(Vector& pos, Matrix& rot, float z)
-	{
-		pos.x += z * rot.data[0][1];
-		pos.y += z * rot.data[1][1];
-		pos.z += z * rot.data[2][1];
-	}
-
 	uint RgbToBgr(uint color) { return (color & 0xFF000000) | ((color & 0xFF0000) >> 16) | (color & 0x00FF00) | ((color & 0x0000FF) << 16); };
 
-	std::wstring UintToHex(uint number, uint width, bool addPrefix)
+	std::wstring UintToHexString(uint number, uint width, bool addPrefix)
 	{
 		std::wstringstream stream;
 		if (addPrefix)

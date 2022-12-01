@@ -101,7 +101,7 @@ namespace Plugins::DeathPenalty
 				pub::Player::GetAssetValue(iClientID, fValue);
 
 				int cash;
-				HkFunc(HkGetCash, iClientID, cash);
+				Func(GetCash, iClientID, cash);
 
 				int dpCredits = static_cast<int>(fValue * fShipFractionOverride(iClientID));
 				if (cash < dpCredits)
@@ -127,13 +127,13 @@ namespace Plugins::DeathPenalty
 	{
 		// Get Account directory then flhookuser.ini file
 		CAccount* acc = Players.FindAccountFromClientID(iClientID);
-		std::wstring wscDir;
-		HkGetAccountDirName(acc, wscDir);
-		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+		std::wstring dir;
+		GetAccountDirName(acc, dir);
+		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
 		std::wstring wscFilename;
-		HkGetCharFileName(iClientID, wscFilename);
+		GetCharFileName(iClientID, wscFilename);
 		std::string scFilename = wstos(wscFilename);
 		std::string scSection = "general_" + scFilename;
 
@@ -146,7 +146,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Apply the death penalty on a player death
 	 */
-	void HkPenalizeDeath(uint iClientID, uint iKillerID)
+	void PenalizeDeath(uint iClientID, uint iKillerID)
 	{
 		if (global->config->DeathPenaltyFraction < 0.00001f)
 			return;
@@ -156,7 +156,7 @@ namespace Plugins::DeathPenalty
 		{
 			// Get the players cash
 			int iCash;
-			HkGetCash(iClientID, iCash);
+			GetCash(iClientID, iCash);
 
 			// Get how much the player owes
 			int iOwed = global->MapClients[iClientID].DeathPenaltyCredits;
@@ -173,7 +173,7 @@ namespace Plugins::DeathPenalty
 				if (iGive)
 				{
 					// Reward the killer, print message to them
-					HkAddCash(iKillerID, iGive);
+					AddCash(iKillerID, iGive);
 					PrintUserCmdText(iKillerID, L"Death penalty: given " + ToMoneyStr(iGive) + L" credits from %s's death penalty.",
 					    Players.GetActiveCharacterName(iClientID));
 				}
@@ -183,20 +183,20 @@ namespace Plugins::DeathPenalty
 			{
 				// Print message to the player and remove cash
 				PrintUserCmdText(iClientID, L"Death penalty: charged " + ToMoneyStr(iOwed) + L" credits.");
-				HkAddCash(iClientID, -iOwed);
+				AddCash(iClientID, -iOwed);
 			}
 		}
 	}
 
 	/** @ingroup DeathPenalty
-	 * @brief Hook on ShipDestroyed to kick off HkPenalizeDeath
+	 * @brief Hook on ShipDestroyed to kick off PenalizeDeath
 	 */
 	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
 		{
 			// Get iClientID
-			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			const CShip* cShip = CShipFromShipDestroyed(ecx);
 			const uint iClientID = cShip->GetOwnerPlayer();
 
 			// Get Killer ID if there is one
@@ -204,12 +204,12 @@ namespace Plugins::DeathPenalty
 			if (iClientID)
 			{
 				const DamageList* dmg = *_dmg;
-				iKillerID = dmg->get_cause() == DamageCause::Unknown ? HkGetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
-					: HkGetClientIDByShip(dmg->get_inflictor_id());
+				iKillerID = dmg->get_cause() == DamageCause::Unknown ? GetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
+					: GetClientIDByShip(dmg->get_inflictor_id());
 			}
 
 			// Call function to penalize player and reward killer
-			HkPenalizeDeath(iClientID, iKillerID);
+			PenalizeDeath(iClientID, iKillerID);
 		}
 	}
 
@@ -218,11 +218,11 @@ namespace Plugins::DeathPenalty
 	 */
 	void SaveDPNoticeToCharFile(uint iClientID, std::string value)
 	{
-		std::wstring wscDir, wscFilename;
+		std::wstring dir, wscFilename;
 		CAccount* acc = Players.FindAccountFromClientID(iClientID);
-		if (HKHKSUCCESS(HkGetCharFileName(iClientID, wscFilename)) && HKHKSUCCESS(HkGetAccountDirName(acc, wscDir)))
+		if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 		{
-			std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
+			std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 			std::string scSection = "general_" + wstos(wscFilename);
 			IniWrite(scUserFile, scSection, "DPnotice", value);
 		}

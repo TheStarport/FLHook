@@ -14,9 +14,6 @@ void UnloadHookExports();
 void HookRehashed();
 void LoadUserCharSettings(uint clientId);
 
-uint HkExtractClientId(const std::variant<uint, std::wstring>& player);
-CAccount* HkExtractAccount(const std::variant<uint, std::wstring>& player);
-
 void ClearClientInfo(uint clientId);
 void LoadUserSettings(uint clientId);
 
@@ -49,20 +46,38 @@ void AddBothLog(bool bError, std::wstring wStr, Args&&... args)
 	AddLog(LogType::Normal, LogLevel::Debug, wStr, std::forward<Args>(args)...);
 }
 
-// HKFuncCache
+// FuncCache
 namespace StartupCache
 {
 	void Init();
 	void Done();
 } // namespace StartupCache
 
-// HkCharacterIni
-void HkCharacterInit();
-void HkCharacterShutDown();
-void HkCharacterClearClientInfo(uint client);
-void HkCharacterSelect(CHARACTER_ID const charId, uint client);
+namespace Hk
+{
+	namespace Ini
+	{
+		// Ini processing functions
+		void CharacterInit();
+		void CharacterShutdown();
+		void CharacterClearClientInfo(uint client);
+		void CharacterSelect(CHARACTER_ID const charId, uint client);
+	}
 
-// HkDeath
+	namespace Personalities
+	{
+		void LoadPersonalities();
+	}
+
+	namespace Client
+	{
+		uint ExtractClientId(const std::variant<uint, std::wstring>& player);
+		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
+	}
+}
+
+
+// Death
 void Naked__ShipDestroyed();
 
 // Dmg
@@ -74,21 +89,18 @@ void Naked__DamageHit();
 void Naked__DamageHit2();
 void Naked__DisconnectPacketSent();
 
-// HkTimers
-void HkTimerCheckKick();
-void HkTimerNPCAndF1Check();
-void HkThreadResolver();
-void HkTimerCheckResolveResults();
-
-// HkPilotPersonalities
-void HkLoadPersonalities();
+// Timers
+void TimerCheckKick();
+void TimerNPCAndF1Check();
+void ThreadResolver();
+void TimerCheckResolveResults();
 
 void BaseDestroyed(uint objectID, uint clientIdBy);
 
-extern HookEntry HkIServerImplEntries[73];
+extern HookEntry IServerImplEntries[73];
 
-// HkDataBaseMarket
-bool HkLoadBaseMarket();
+// DataBaseMarket
+bool LoadBaseMarket();
 
 extern CRITICAL_SECTION csIPResolve;
 extern std::list<RESOLVE_IP> g_lstResolveIPs;
@@ -98,7 +110,7 @@ extern HANDLE hThreadResolver;
 // help
 
 extern std::list<stHelpEntry> lstHelpEntries;
-void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
+void IClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 
 inline auto* ToWChar(const ushort* val)
 {
@@ -286,7 +298,7 @@ class PluginManager : public Singleton<PluginManager>
 	void unloadAll();
 
 	void load(const std::wstring& fileName, CCmds*, bool);
-	HkError unload(const std::string& shortName);
+	cpp::result<void, Error> unload(const std::string& shortName);
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }

@@ -154,10 +154,10 @@ namespace Plugins::Cloak
 		global->clientCloakingInfo[iClientID].canCloak = false;
 		global->clientCloakingInfo[iClientID].admin = false;
 
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(iClientID);
 		if (obj)
 		{
-			CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+			CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 
 			CEquipTraverser tr;
 
@@ -201,7 +201,7 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief A timer function. Actions the cloaking device bases on the state.
 	 */
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		mstime now = timeInMS();
 
@@ -279,10 +279,10 @@ namespace Plugins::Cloak
 
 		// If this cloaking device requires more power than the ship can provide
 		// no cloaking device is available.
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(iClientID);
 		if (obj)
 		{
-			CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+			CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 			if (cship)
 			{
 				if (global->clientCloakingInfo[iClientID].arch.holdSizeLimit != 0 &&
@@ -322,7 +322,7 @@ namespace Plugins::Cloak
 		{
 			global->returncode = ReturnCode::SkipAll;
 
-			uint iClientID = HkGetClientIdFromCharname(cmds->GetAdminName());
+			uint iClientID = GetClientIdFromCharname(cmds->GetAdminName());
 			if (iClientID == -1)
 			{
 				cmds->Print(L"ERR On console");
@@ -361,9 +361,9 @@ namespace Plugins::Cloak
 	}
 
 	/** @ingroup Cloak
-	 * @brief Hook on HkCb_AddDmgEntry. Interrupts the cloak if the player is hit whilst charging.
+	 * @brief Hook on Cb_AddDmgEntry. Interrupts the cloak if the player is hit whilst charging.
 	 */
-	void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate& fate)
+	void __stdcall Cb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate& fate)
 	{
 		DamageList* dmg2 = *dmg;
 		if (g_DmgToSpaceID && dmg2->get_inflictor_id())
@@ -372,7 +372,7 @@ namespace Plugins::Cloak
 			{
 				float curr, max;
 				pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
-				uint client = HkGetClientIDByShip(g_DmgToSpaceID);
+				uint client = GetClientIDByShip(g_DmgToSpaceID);
 				if (client)
 				{
 					if (global->clientCloakingInfo[client].canCloak && !global->clientCloakingInfo[client].admin &&
@@ -411,7 +411,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
+	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &Cb_AddDmgEntry);
 }

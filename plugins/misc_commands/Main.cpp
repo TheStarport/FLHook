@@ -60,8 +60,8 @@ namespace Plugins::MiscCommands
 		{
 			if (info.bShieldsDown)
 			{
-				HKPLAYERINFO p;
-				if (HkGetPlayerInfo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(id)), p, false) == HKE_OK && p.iShip)
+				PLAYERINFO p;
+				if (GetPlayerInfo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(id)), p, false) == E_OK && p.iShip)
 				{
 					pub::SpaceObj::DrainShields(p.iShip);
 				}
@@ -106,8 +106,8 @@ namespace Plugins::MiscCommands
 	 */
 	void UserCmdPos(const uint& iClientID, const std::wstring_view& wscParam)
 	{
-		HKPLAYERINFO p;
-		if (HkGetPlayerInfo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID)), p, false) != HKE_OK || p.iShip == 0)
+		PLAYERINFO p;
+		if (GetPlayerInfo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID)), p, false) != E_OK || p.iShip == 0)
 		{
 			PrintUserCmdText(iClientID, L"ERR Not in space");
 			return;
@@ -131,8 +131,8 @@ namespace Plugins::MiscCommands
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
 
-		HKPLAYERINFO p;
-		if (HkGetPlayerInfo(wscCharname, p, false) != HKE_OK)
+		PLAYERINFO p;
+		if (GetPlayerInfo(wscCharname, p, false) != E_OK)
 		{
 			PrintUserCmdText(iClientID, L"ERR Not in space");
 			return;
@@ -153,7 +153,7 @@ namespace Plugins::MiscCommands
 		pos.x += 15;
 		pos.y += 15;
 		pos.z += 15;
-		HkRelocateClient(iClientID, pos, rot);
+		RelocateClient(iClientID, pos, rot);
 
 		std::wstring wscMsg = global->config->stuckMessage;
 		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
@@ -174,7 +174,7 @@ namespace Plugins::MiscCommands
 		std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
 
 		std::wstring wscRepGroupNick;
-		if (HkFLIniGet(wscCharname, L"rep_group", wscRepGroupNick) != HKE_OK || wscRepGroupNick.length() == 0)
+		if (FLIniGet(wscCharname, L"rep_group", wscRepGroupNick) != E_OK || wscRepGroupNick.length() == 0)
 		{
 			PrintUserCmdText(iClientID, L"ERR No affiliation");
 			return;
@@ -183,9 +183,9 @@ namespace Plugins::MiscCommands
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
 		int iCash = 0;
-		if (HkError err; (err = HkGetCash(wscCharname, iCash)) != HKE_OK)
+		if (Error err; (err = GetCash(wscCharname, iCash)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
+			PrintUserCmdText(iClientID, L"ERR %s", ErrGetText(err).c_str());
 			return;
 		}
 		if (global->config->repDropCost > 0 && iCash < global->config->repDropCost)
@@ -195,19 +195,19 @@ namespace Plugins::MiscCommands
 		}
 
 		float fValue = 0.0f;
-		if (HkError err; (err = HkGetRep(wscCharname, wscRepGroupNick, fValue)) != HKE_OK)
+		if (Error err; (err = GetRep(wscCharname, wscRepGroupNick, fValue)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR %s", HkErrGetText(err).c_str());
+			PrintUserCmdText(iClientID, L"ERR %s", ErrGetText(err).c_str());
 			return;
 		}
 
-		HkSetRep(wscCharname, wscRepGroupNick, 0.599f);
+		SetRep(wscCharname, wscRepGroupNick, 0.599f);
 		PrintUserCmdText(iClientID, L"OK Reputation dropped, logout for change to take effect.");
 
 		// Remove cash if we're charging for it.
 		if (global->config->repDropCost > 0)
 		{
-			HkAddCash(wscCharname, 0 - global->config->repDropCost);
+			AddCash(wscCharname, 0 - global->config->repDropCost);
 		}
 	}
 
@@ -284,9 +284,9 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		HKPLAYERINFO adminPlyr;
+		PLAYERINFO adminPlyr;
 		const std::wstring adminName = cmds->GetAdminName();
-		if (HkGetPlayerInfo(adminName, adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+		if (GetPlayerInfo(adminName, adminPlyr, false) != E_OK || adminPlyr.iShip == 0)
 		{
 			cmds->Print(L"ERR Not in space");
 			return;
@@ -310,7 +310,7 @@ namespace Plugins::MiscCommands
 		while ((pPD = Players.traverse_active(pPD)))
 		{
 			// Get the this player's current system and location in the system.
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			uint iClientID = GetClientIdFromPD(pPD);
 			if (iClientID == adminPlyr.iClientID)
 				continue;
 
@@ -327,7 +327,7 @@ namespace Plugins::MiscCommands
 			pub::SpaceObj::GetLocation(iShip, vShipLoc, mShipDir);
 
 			// Is player within scanner range (15K) of the sending char.
-			if (HkDistance3D(vShipLoc, vFromShipLoc) > 14999)
+			if (Distance3D(vShipLoc, vFromShipLoc) > 14999)
 				continue;
 
 			pub::Audio::SetMusic(iClientID, music);
@@ -336,9 +336,9 @@ namespace Plugins::MiscCommands
 
 			if (bKillAll)
 			{
-				if (IObjInspectImpl* obj = HkGetInspect(iClientID))
+				if (IObjInspectImpl* obj = GetInspect(iClientID))
 				{
-					HkLightFuse(reinterpret_cast<IObjRW*>(obj), CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
+					LightFuse(reinterpret_cast<IObjRW*>(obj), CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
 				}
 			}
 		}

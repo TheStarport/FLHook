@@ -120,8 +120,8 @@ namespace PlayerCommands
 
 		                    L"<POP/></RDL>";
 
-		HkChangeIDSString(client, 500000, L"Base Help");
-		HkChangeIDSString(client, 500001, help);
+		ChangeIDSString(client, 500000, L"Base Help");
+		ChangeIDSString(client, 500001, help);
 
 		FmtStr caption(0, 0);
 		caption.begin_mad_lib(500000);
@@ -435,7 +435,7 @@ namespace PlayerCommands
 		base->affiliation = affiliation;
 		base->Save();
 		PrintUserCmdText(
-		    client, L"OK Affiliation set to %s", HkGetWStringFromIDS(Reputation::get_name(affiliation)).c_str());
+		    client, L"OK Affiliation set to %s", GetWStringFromIDS(Reputation::get_name(affiliation)).c_str());
 	}
 
 	void BaseInfo(uint client, const std::wstring& args)
@@ -832,7 +832,7 @@ namespace PlayerCommands
 
 					// Distance from base is limited to 5km
 					Vector new_pos = { x, y, z };
-					if (HkDistance3D(new_pos, base->position) > 5000)
+					if (Distance3D(new_pos, base->position) > 5000)
 					{
 						PrintUserCmdText(client, L"ERR Out of range");
 						return;
@@ -966,7 +966,7 @@ namespace PlayerCommands
 			    L"NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
 			    "charname=%s (%s)",
 			    base->money, money, base->basename.c_str(), charname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+			    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 			PrintUserCmdText(client, L"OK %u credits withdrawn", money);
 		}
@@ -990,7 +990,7 @@ namespace PlayerCommands
 			    L"NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
 			    "charname=%s (%s)",
 			    money, base->money, base->basename.c_str(), charname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+			    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 			PrintUserCmdText(client, L"OK %u credits deposited", money);
 		}
@@ -1047,14 +1047,14 @@ namespace PlayerCommands
 			    buf, _TRUNCATE,
 			    L"<TEXT>  %02u:  %u x %s %0.0f credits stock: %u min %u "
 			    L"max</TEXT><PARA/>",
-			    uint(item), i->second.quantity, HtmlEncode(HkGetWStringFromIDS(gi->iIDSName)).c_str(), i->second.price,
+			    uint(item), i->second.quantity, HtmlEncode(GetWStringFromIDS(gi->iIDSName)).c_str(), i->second.price,
 			    i->second.min_stock, i->second.max_stock);
 			status += buf;
 		}
 		status += L"<POP/></RDL>";
 
-		HkChangeIDSString(client, 500000, title);
-		HkChangeIDSString(client, 500001, status);
+		ChangeIDSString(client, 500000, title);
+		ChangeIDSString(client, 500001, status);
 
 		FmtStr caption(0, 0);
 		caption.begin_mad_lib(500000);
@@ -1205,7 +1205,7 @@ namespace PlayerCommands
 		// Check that the ship has the requires commodities.
 		int hold_size;
 		std::list<CARGO_INFO> cargo;
-		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), cargo, hold_size);
+		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), cargo, hold_size);
 		for (std::map<uint, uint>::iterator i = construction_items.begin(); i != construction_items.end(); ++i)
 		{
 			bool material_available = false;
@@ -1227,7 +1227,7 @@ namespace PlayerCommands
 					const GoodInfo* gi = GoodList::find_by_id(i->first);
 					if (gi)
 					{
-						PrintUserCmdText(client, L"|  %ux %s", i->second, HkGetWStringFromIDS(gi->iIDSName).c_str());
+						PrintUserCmdText(client, L"|  %ux %s", i->second, GetWStringFromIDS(gi->iIDSName).c_str());
 					}
 				}
 				return;
@@ -1237,7 +1237,7 @@ namespace PlayerCommands
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		AddLog(
 		     LogLevel::Info, L"NOTICE: Base created %s by %s (%s)", basename.c_str(), charname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+		    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 		PlayerBase* newbase = new PlayerBase(client, password, basename);
 		player_bases[newbase->base] = newbase;

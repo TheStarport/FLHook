@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Hook">
-      <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hook\functions">
-      <UniqueIdentifier>{e5afe51b-e9c0-4bb5-9afb-e295fa101bff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hook\data">
-      <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk">
       <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
     </Filter>
@@ -19,55 +10,37 @@
     <Filter Include="sdk\Header Files">
       <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hook\hooks">
-      <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hook\features">
-      <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tools">
       <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\Tools">
       <UniqueIdentifier>{eb17067b-6832-4c5d-9174-094efb89822f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FLHook">
+      <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\data">
+      <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\hooks">
+      <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\Helpers">
+      <UniqueIdentifier>{9f77e9f6-3d8d-45c9-bd51-4e9d0d316a62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\Features">
+      <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\HkError.cpp">
-      <Filter>Hook</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFLIni.cpp">
-      <Filter>Hook</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkHelp.cpp">
-      <Filter>Hook</Filter>
+      <Filter>FLHook</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkInit.cpp">
-      <Filter>Hook</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkTimers.cpp">
-      <Filter>Hook\features</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkUserCmd.cpp">
-      <Filter>Hook\features</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFuncLog.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFuncMsg.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFuncOther.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFuncPlayers.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkFuncTools.cpp">
-      <Filter>Hook\functions</Filter>
+      <Filter>FLHook</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp">
-      <Filter>Hook\data</Filter>
+      <Filter>FLHook\data</Filter>
     </ClCompile>
     <ClCompile Include="..\source\CCmds.cpp">
       <Filter>AdminCommands</Filter>
@@ -87,51 +60,72 @@
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\ZoneUtilities.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp">
-      <Filter>Hook\hooks</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkIEngineDamage.cpp">
-      <Filter>Hook\hooks</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkIEngineDeath.cpp">
-      <Filter>Hook\hooks</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkIEngineDisconnect.cpp">
-      <Filter>Hook\hooks</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkIChatServer.cpp">
-      <Filter>Hook\hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkPluginManager.cpp">
-      <Filter>Hook\features</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Tools\Console.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkFuncCache.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\HkCharacterIni.cpp">
-      <Filter>Hook\functions</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkClientServerInterface.cpp">
-      <Filter>Hook\hooks</Filter>
+      <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\blowfish.cpp" />
-    <ClCompile Include="..\source\HkDataPilotPersonalities.cpp">
-      <Filter>Hook\data</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\FLPacket.cpp">
-      <Filter>Hook</Filter>
+      <Filter>FLHook</Filter>
     </ClCompile>
     <ClCompile Include="..\FLHookSDK\source\HK.cpp">
       <Filter>sdk\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Hooks\Client.cpp">
-      <Filter>Hook</Filter>
+    <ClCompile Include="..\source\Features\Logging.cpp">
+      <Filter>FLHook\Features</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Hooks\Math.cpp">
-      <Filter>Hook</Filter>
+    <ClCompile Include="..\source\Features\PluginManager.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\StartupCache.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\Timers.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\UserCommands.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Admin.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Client.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Ini.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Math.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Message.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\Player.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\Error.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
+      <Filter>FLHook\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,16 +196,13 @@
     <ClInclude Include="..\FLHookSDK\include\HK.hpp">
       <Filter>sdk\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Structs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md">
       <Filter>sdk</Filter>
-    </None>
-    <None Include="..\source\HkIClientImpl.inl">
-      <Filter>Hook\hooks</Filter>
-    </None>
-    <None Include="..\source\HkIServerImpl.inl">
-      <Filter>Hook\hooks</Filter>
     </None>
   </ItemGroup>
 </Project>

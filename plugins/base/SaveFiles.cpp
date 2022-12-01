@@ -8,7 +8,7 @@ void DeleteBase(PlayerBase* base)
 	while (pd = Players.traverse_active(pd))
 	{
 		uint client = pd->iOnlineID;
-		if (HkIsInCharSelectMenu(client))
+		if (IsInCharSelectMenu(client))
 			continue;
 
 		// If this player is in space, set the reputations.
@@ -34,18 +34,18 @@ void DeleteBase(PlayerBase* base)
 
 void LoadDockState(uint client)
 {
-	clients[client].player_base = HkGetCharacterIniUint(client, L"base.player_base");
-	clients[client].last_player_base = HkGetCharacterIniUint(client, L"base.last_player_base");
+	clients[client].player_base = GetCharacterIniUint(client, L"base.player_base");
+	clients[client].last_player_base = GetCharacterIniUint(client, L"base.last_player_base");
 }
 
 void SaveDockState(uint client)
 {
-	HkSetCharacterIni(client, L"base.player_base", std::to_wstring(clients[client].player_base));
-	HkSetCharacterIni(client, L"base.last_player_base", std::to_wstring(clients[client].last_player_base));
+	SetCharacterIni(client, L"base.player_base", std::to_wstring(clients[client].player_base));
+	SetCharacterIni(client, L"base.last_player_base", std::to_wstring(clients[client].last_player_base));
 }
 
 void DeleteDockState(uint client)
 {
-	HkSetCharacterIni(client, L"base.player_base", L"0");
-	HkSetCharacterIni(client, L"base.last_player_base", L"0");
+	SetCharacterIni(client, L"base.player_base", L"0");
+	SetCharacterIni(client, L"base.last_player_base", L"0");
 }

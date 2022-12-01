@@ -63,7 +63,7 @@ namespace Plugins::CargoDrop
 		for (auto& [clientId, snd] : global->info)
 		{
 			// If selecting a character or invalid, do nothing.
-			if (!HkIsValidClientID(clientId) || HkIsInCharSelectMenu(clientId))
+			if (!IsValidClientID(clientId) || IsInCharSelectMenu(clientId))
 				continue;
 
 			// If not in space, do nothing
@@ -113,19 +113,19 @@ namespace Plugins::CargoDrop
 						vLoc.x += 30.0f;
 
 						std::list<CARGO_INFO> cargo;
-						if (int iRemainingHoldSize = 0; HkEnumCargo(characterName, cargo, iRemainingHoldSize) == HKE_OK)
+						if (int iRemainingHoldSize = 0; EnumCargo(characterName, cargo, iRemainingHoldSize) == E_OK)
 						{
 							for (const auto& [iID, iCount, iArchID, fStatus, bMission, bMounted, hardpoint] : cargo)
 							{
 								if (!bMounted &&
 								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), iArchID) != global->noLootItemsIds.end())
 								{
-									HkRemoveCargo(characterName, iID, iCount);
+									RemoveCargo(characterName, iID, iCount);
 									Server.MineAsteroid(systemID, vLoc, global->cargoDropContainerId, iArchID, iCount, clientId);
 								}
 							}
 						}
-						HkSaveChar(characterName);
+						SaveChar(characterName);
 					}
 
 					// Kill if other ships are in scanner range.
@@ -149,7 +149,7 @@ namespace Plugins::CargoDrop
 
 		std::list<CARGO_INFO> cargo;
 		int iRemainingHoldSize;
-		if (HkEnumCargo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientIDVictim)), cargo, iRemainingHoldSize) != HKE_OK)
+		if (EnumCargo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientIDVictim)), cargo, iRemainingHoldSize) != E_OK)
 			return;
 
 		int shipSizeEstimate = iRemainingHoldSize;

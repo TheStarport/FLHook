@@ -70,7 +70,7 @@ namespace Plugins::SystemSensor
 			return;
 		}
 
-		const uint iTargetClientID = HkGetClientIDFromArg(wscTargetCharname);
+		const uint iTargetClientID = GetClientIDFromArg(wscTargetCharname);
 		if (iTargetClientID == -1)
 		{
 			PrintUserCmdText(iClientID, L"ERR Target not found");
@@ -95,7 +95,7 @@ namespace Plugins::SystemSensor
 				if (eq && eq->iIdsName)
 				{
 					std::wstring wscResult;
-					switch (HkGetEqType(eq))
+					switch (GetEqType(eq))
 					{
 						case ET_GUN:
 						case ET_MISSILE:
@@ -105,7 +105,7 @@ namespace Plugins::SystemSensor
 						case ET_OTHER:
 							if (wscEqList.length())
 								wscEqList += L",";
-							wscResult = HkGetWStringFromIDS(eq->iIdsName);
+							wscResult = GetWStringFromIDS(eq->iIdsName);
 							wscEqList += wscResult;
 							break;
 						default:
@@ -124,7 +124,7 @@ namespace Plugins::SystemSensor
 
 		std::wstring wscTargetCharname = L"";
 
-		if (HkIsValidClientID(iClientID2))
+		if (IsValidClientID(iClientID2))
 			wscTargetCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID2);
 
 		UserCmd_ShowScan(iClientID, wscTargetCharname);
@@ -137,7 +137,7 @@ namespace Plugins::SystemSensor
 		// Retrieve the location and cargo list.
 		int iHoldSize;
 		std::list<CARGO_INFO> lstCargo;
-		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
+		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
 
 		unsigned int iSystemID;
 		pub::Player::GetSystem(iClientID, iSystemID);
@@ -195,7 +195,7 @@ namespace Plugins::SystemSensor
 
 		// Record the ship's cargo.
 		int iHoldSize;
-		HkEnumCargo(iClientID, global->networks[iClientID].lstLastScan, iHoldSize);
+		EnumCargo(iClientID, global->networks[iClientID].lstLastScan, iHoldSize);
 		global->networks[iClientID].lastScanNetworkId = siter->second.networkId;
 
 		// Notify any players connected to the the sensor network that this ship is
@@ -209,7 +209,7 @@ namespace Plugins::SystemSensor
 				const Universe::ISystem* iSys = Universe::get_system(iSystemID);
 				if (iSys && enum_integer(iter->second.mode & mode))
 				{
-					std::wstring wscSysName = HkGetWStringFromIDS(iSys->strid_name);
+					std::wstring wscSysName = GetWStringFromIDS(iSys->strid_name);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
 						Players.GetActiveCharacterName(iClientID),
@@ -226,7 +226,7 @@ namespace Plugins::SystemSensor
 	// Record jump type.
 	void Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 	{
-		uint iClientID = HkGetClientIDByShip(iShip);
+		uint iClientID = GetClientIDByShip(iShip);
 		if (iClientID && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
 			uint iTypeID;

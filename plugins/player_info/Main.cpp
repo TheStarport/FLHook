@@ -75,8 +75,8 @@ void UserCmd_ShowInfo(const uint& iClientID, const std::wstring_view& wscParam)
 		uint iTargetShip;
 		pub::SpaceObj::GetTarget(iShip, iTargetShip);
 
-		uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
-		if (HkIsValidClientID(iTargetClientID))
+		uint iTargetClientID = GetClientIDByShip(iTargetShip);
+		if (IsValidClientID(iTargetClientID))
 			wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
 	}
 
@@ -105,8 +105,8 @@ void UserCmd_ShowInfo(const uint& iClientID, const std::wstring_view& wscParam)
 		return;
 	}
 
-	HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TITLE, wszTargetName);
-	HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TEXT, wscPlayerInfo);
+	ChangeIDSString(iClientID, RSRCID_PLAYERINFO_TITLE, wszTargetName);
+	ChangeIDSString(iClientID, RSRCID_PLAYERINFO_TEXT, wscPlayerInfo);
 
 	FmtStr caption(0, 0);
 	caption.begin_mad_lib(RSRCID_PLAYERINFO_TITLE);

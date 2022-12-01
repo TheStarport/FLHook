@@ -125,7 +125,7 @@ namespace Plugins::MiningControl
 
 			// Get the player affiliation
 			uint iRepGroupID = -1;
-			IObjInspectImpl* oship = HkGetInspect(iClientID);
+			IObjInspectImpl* oship = GetInspect(iClientID);
 			if (oship)
 				oship->get_affiliation(iRepGroupID);
 
@@ -136,7 +136,7 @@ namespace Plugins::MiningControl
 			// Get the ship cargo so that we can check ids, guns, etc.
 			std::list<CARGO_INFO> lstCargo;
 			int remainingHoldSize = 0;
-			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, remainingHoldSize);
+			EnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, remainingHoldSize);
 			if (global->config->PluginDebug > 1)
 			{
 				Console::ConInfo(L"NOTICE: iClientID=%d iRepGroupID=%u iShipID=%u lstCargo=", iClientID, iRepGroupID, iShipID);
@@ -170,7 +170,7 @@ namespace Plugins::MiningControl
 			}
 
 			std::wstring wscRights;
-			HkGetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
+			GetAdmin((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscRights);
 			if (wscRights.size())
 				Clients[iClientID].Debug = global->config->PluginDebug;
 		}
@@ -179,7 +179,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Timer hook to update mining stats to file
 	 */
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		// Perform 60 second tasks.
 		if ((time(0) % 60) == 0)
@@ -367,7 +367,7 @@ namespace Plugins::MiningControl
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			uint iClientID = HkGetClientIdFromPD(pPD);
+			uint iClientID = GetClientIdFromPD(pPD);
 			ClearClientInfo(iClientID);
 		}
 	}
@@ -475,10 +475,10 @@ namespace Plugins::MiningControl
 							pub::SpaceObj::GetTarget(iShip, iTargetShip);
 							if (iTargetShip)
 							{
-								uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
+								uint iTargetClientID = GetClientIDByShip(iTargetShip);
 								if (iTargetClientID)
 								{
-									if (HkDistance3DByShip(iShip, iTargetShip) < 1000.0f)
+									if (Distance3DByShip(iShip, iTargetShip) < 1000.0f)
 									{
 										iSendToClientID = iTargetClientID;
 									}
@@ -603,5 +603,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__MineAsteroid, &MineAsteroid);
 	pi->emplaceHook(HookedCall::IServerImpl__SPMunitionCollision, &SPMunitionCollision);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 }

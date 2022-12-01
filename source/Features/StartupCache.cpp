@@ -19,7 +19,7 @@ namespace StartupCache
 	static int acc_path_prefix_length = 0;
 
 	// A fast alternative to the built in read character name function in server.dll
-	static int __stdcall HkCb_ReadCharacterName(const char* filename, st6::wstring* str)
+	static int __stdcall Cb_ReadCharacterName(const char* filename, st6::wstring* str)
 	{
 		Console::ConDebug(L"Read character - " + stows(filename));
 
@@ -109,7 +109,7 @@ namespace StartupCache
 		}
 
 		// Hook the read character name and replace it with the caching version
-		PatchCallAddr((char*)hModServer, 0x717be, (char*)HkCb_ReadCharacterName);
+		PatchCallAddr((char*)hModServer, 0x717be, (char*)Cb_ReadCharacterName);
 
 		// Keep a reference to the old read character name function.
 		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(hModServer) + 0x72fe0);
