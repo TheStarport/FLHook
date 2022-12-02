@@ -168,14 +168,14 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodBuy to see if a cargo mission needs to be updated.
 	 */
-	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
+	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		uint Base;
-		pub::Player::GetBase(iClientID, Base);
+		pub::Player::GetBase(client, Base);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gbi.iGoodID)
+			if (mission.base == Base && mission.item == gbi.iGoodId)
 			{
 				mission.current_amount -= gbi.iCount;
 				if (mission.current_amount < 0)
@@ -187,25 +187,25 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodSell to see if a cargo mission needs to be updated.
 	 */
-	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
+	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
 		uint Base;
-		pub::Player::GetBase(iClientID, Base);
+		pub::Player::GetBase(client, Base);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gsi.iArchID && mission.current_amount < mission.required_amount)
+			if (mission.base == Base && mission.item == gsi.iArchId && mission.current_amount < mission.required_amount)
 			{
 				int needed = mission.required_amount - mission.current_amount;
 				if (needed > gsi.iCount)
 				{
 					mission.current_amount += gsi.iCount;
 					needed = mission.required_amount - mission.current_amount;
-					PrintUserCmdText(iClientID, L"%d units remaining to complete mission objective", needed);
+					PrintUserCmdText(client, L"%d units remaining to complete mission objective", needed);
 				}
 				else
 				{
-					PrintUserCmdText(iClientID, L"Mission objective completed", needed);
+					PrintUserCmdText(client, L"Mission objective completed", needed);
 				}
 			}
 		}

@@ -19,9 +19,9 @@ namespace Plugins::CashManager
 
 	//! It checks character's givecash history and prints out any received cash messages. Also fixes the money fix list, we can do this because this plugin is
 	//! called before the money fix list is accessed.
-	static void CheckTransferLog(uint clientId)
+	static void CheckTransferLog(ClientId client)
 	{
-		std::wstring characterName = ToLower(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId)));
+		std::wstring characterName = ToLower(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
 
 		const std::string logFile = GetUserFilePath(characterName, "-givecashlog.txt");
 		if (logFile.empty())
@@ -49,7 +49,7 @@ namespace Plugins::CashManager
 					string = string.substr(4);
 					msg.append(1, static_cast<wchar_t>((hiByte << 8) | loByte));
 				}
-				PrintUserCmdText(clientId, L"%s", msg.c_str());
+				PrintUserCmdText(client, L"%s", msg.c_str());
 			}
 		}
 		catch (...)
@@ -98,10 +98,10 @@ namespace Plugins::CashManager
 			return false;
 
 		// If the char is logged in we can check in memory.
-		if (const uint clientId = GetClientIdFromCharname(characterName))
+		if (ClientId client = GetClientIdFromCharname(characterName))
 		{
 			uint system = 0;
-			pub::Player::GetSystem(clientId, system);
+			pub::Player::GetSystem(client, system);
 			if (system == global->config->blockedSystemId)
 				return true;
 			return false;
@@ -127,19 +127,19 @@ namespace Plugins::CashManager
 	}
 
 	//! Check for cash transfer while this char was offline whenever they enter or leave a base.
-	void PlayerLaunch(uint& ship, uint& clientID) { CheckTransferLog(clientID); }
+	void PlayerLaunch(uint& ship, ClientId& client) { CheckTransferLog(client); }
 
 	//! Check for cash transfer while this char was offline whenever they enter or leave a base.
-	void BaseEnter(uint& baseID, uint& clientID) { CheckTransferLog(clientID); }
+	void BaseEnter(uint& baseId, ClientId& client) { CheckTransferLog(client); }
 
 	//! Process a give cash command
-	void UserCmdGiveCash(const uint& clientID, const std::wstring_view& param)
+	void UserCmdGiveCash(ClientId& client, const std::wstring_view& param)
 	{
 		// The last error.
 		Error error;
 
 		// Get the current character name
-		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Get the parameters from the user command.
 		std::wstring targetCharacter = GetParam(param, L' ', 0);
@@ -151,8 +151,8 @@ namespace Plugins::CashManager
 		const int cash = ToInt(wscCash);
 		if ((!targetCharacter.length() || cash <= 0) || (!wscAnon.empty() && wscAnon != L"anon"))
 		{
-			PrintUserCmdText(clientID, L"ERR Invalid parameters");
-			PrintUserCmdText(clientID, L"Usage: /givecash <charname> <cash> [anon]");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /givecash <charname> <cash> [anon]");
 			return;
 		}
 
@@ -162,7 +162,7 @@ namespace Plugins::CashManager
 
 		if (GetAccountByCharname(targetCharacter) == nullptr)
 		{
-			PrintUserCmdText(clientID, L"ERR char does not exist");
+			PrintUserCmdText(client, L"ERR char does not exist");
 			return;
 		}
 
@@ -170,13 +170,13 @@ namespace Plugins::CashManager
 		GetOnlineTime(characterName, secs);
 		if (secs < global->config->minimumTime)
 		{
-			PrintUserCmdText(clientID, L"ERR insufficient time online");
+			PrintUserCmdText(client, L"ERR insufficient time online");
 			return;
 		}
 
 		if (InBlockedSystem(characterName) || InBlockedSystem(targetCharacter))
 		{
-			PrintUserCmdText(clientID, L"ERR cash transfer blocked");
+			PrintUserCmdText(client, L"ERR cash transfer blocked");
 			return;
 		}
 
@@ -185,17 +185,17 @@ namespace Plugins::CashManager
 		int currentCash = 0;
 		if ((error = GetCash(characterName, currentCash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 		if (cash < global->config->minimumTransfer || cash < 0)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
+			PrintUserCmdText(client, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
 			return;
 		}
 		if (currentCash < cash)
 		{
-			PrintUserCmdText(clientID, L"ERR Insufficient credits");
+			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
@@ -203,12 +203,12 @@ namespace Plugins::CashManager
 		float targetValue = 0.0f;
 		if (GetShipValue(targetCharacter, targetValue) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 		if ((targetValue + static_cast<float>(cash)) > 2000000000.0f)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer will exceed credit limit");
+			PrintUserCmdText(client, L"ERR Transfer will exceed credit limit");
 			return;
 		}
 
@@ -216,7 +216,7 @@ namespace Plugins::CashManager
 		int expectedCash = 0;
 		if ((error = GetCash(targetCharacter, expectedCash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Get cash failed err=" + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR Get cash failed err=" + ErrGetText(error));
 			return;
 		}
 		expectedCash += cash;
@@ -227,7 +227,7 @@ namespace Plugins::CashManager
 		{
 			if (AntiCheat(targetClientId) != E_OK)
 			{
-				PrintUserCmdText(clientID, L"ERR Transfer failed");
+				PrintUserCmdText(client, L"ERR Transfer failed");
 				AddLog(LogType::Cheater,
 				    LogLevel::Info,
 				    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
@@ -241,9 +241,9 @@ namespace Plugins::CashManager
 			SaveChar(targetClientId);
 		}
 
-		if (targetClientId && (ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner))
+		if (targetClientId && (ClientInfo[client].iTradePartner || ClientInfo[targetClientId].iTradePartner))
 		{
-			PrintUserCmdText(clientID, L"ERR Trade window open");
+			PrintUserCmdText(client, L"ERR Trade window open");
 			AddLog(LogType::Normal,
 			    LogLevel::Info,
 			    L"NOTICE: Trade window open when sending %s credits from %s (%s) to %s (%s) %u %u",
@@ -252,7 +252,7 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(characterName)).c_str(),
 			    targetCharacter.c_str(),
 			    GetAccountID(GetAccountByCharname(targetCharacter)).c_str(),
-			    clientID,
+			    client,
 			    targetClientId);
 			return;
 		}
@@ -261,13 +261,13 @@ namespace Plugins::CashManager
 		// save completes before allowing the cash to be added to the target ship.
 		if ((error = AddCash(characterName, 0 - cash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Remove cash failed err=" + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR Remove cash failed err=" + ErrGetText(error));
 			return;
 		}
 
-		if (AntiCheat(clientID) != E_OK)
+		if (AntiCheat(client) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer failed");
+			PrintUserCmdText(client, L"ERR Transfer failed");
 			AddLog(LogType::Cheater,
 			    LogLevel::Info,
 			    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
@@ -278,12 +278,12 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(targetCharacter)).c_str());
 			return;
 		}
-		SaveChar(clientID);
+		SaveChar(client);
 
 		// Add cash to target character
 		if ((error = AddCash(targetCharacter, cash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Add cash failed err=" + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR Add cash failed err=" + ErrGetText(error));
 			return;
 		}
 
@@ -291,7 +291,7 @@ namespace Plugins::CashManager
 		{
 			if (AntiCheat(targetClientId) != E_OK)
 			{
-				PrintUserCmdText(clientID, L"ERR Transfer failed");
+				PrintUserCmdText(client, L"ERR Transfer failed");
 				AddLog(LogType::Cheater,
 				    LogLevel::Info,
 				    L"NOTICE: Possible cheating when sending %s credits from %s (%s) to %s (%s)",
@@ -320,7 +320,7 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(targetCharacter)).c_str(),
 			    ToMoneyStr(targetCurrentCash).c_str(),
 			    ToMoneyStr(expectedCash).c_str());
-			PrintUserCmdText(clientID, L"ERR Transfer failed");
+			PrintUserCmdText(client, L"ERR Transfer failed");
 			return;
 		}
 
@@ -354,14 +354,14 @@ namespace Plugins::CashManager
 		std::wstring msg = L"You have sent " + ToMoneyStr(cash) + L" credits to " + targetCharacter;
 		if (bAnon)
 			msg += L" anonymously";
-		PrintUserCmdText(clientID, L"%s", msg.c_str());
+		PrintUserCmdText(client, L"%s", msg.c_str());
 		return;
 	}
 
 	//! Process a set cash code command
-	void UserCmdSetCashCode(const uint& clientID, const std::wstring_view& param)
+	void UserCmdSetCashCode(ClientId& client, const std::wstring_view& param)
 	{
-		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 		const std::string scFile = GetUserFilePath(characterName, "-givecash.ini");
 		if (scFile.empty())
 			return;
@@ -370,30 +370,30 @@ namespace Plugins::CashManager
 
 		if (code.empty())
 		{
-			PrintUserCmdText(clientID, L"ERR Invalid parameters");
-			PrintUserCmdText(clientID, L"Usage: /set cashcode <code>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /set cashcode <code>");
 		}
 		else if (code == L"none")
 		{
 			IniWriteW(scFile, "Settings", "Code", L"");
-			PrintUserCmdText(clientID, L"OK Account code cleared");
+			PrintUserCmdText(client, L"OK Account code cleared");
 		}
 		else
 		{
 			IniWriteW(scFile, "Settings", "Code", code);
-			PrintUserCmdText(clientID, L"OK Account code set to " + code);
+			PrintUserCmdText(client, L"OK Account code set to " + code);
 		}
 		return;
 	}
 
 	//! Process a show cash command
-	void UserCmdShowCash(const uint& clientID, const std::wstring_view& param)
+	void UserCmdShowCash(ClientId& client, const std::wstring_view& param)
 	{
 		// The last error.
 		Error error;
 
 		// Get the current character name
-		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Get the parameters from the user command.
 		std::wstring targetCharacterName = GetParam(param, L' ', 0);
@@ -401,14 +401,14 @@ namespace Plugins::CashManager
 
 		if (!targetCharacterName.length() || !code.length())
 		{
-			PrintUserCmdText(clientID, L"ERR Invalid parameters");
-			PrintUserCmdText(clientID, L"Usage: /showcash <charname> <code>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /showcash <charname> <code>");
 			return;
 		}
 
 		if (CAccount const* acc = GetAccountByCharname(targetCharacterName); acc == nullptr)
 		{
-			PrintUserCmdText(clientID, L"ERR char does not exist");
+			PrintUserCmdText(client, L"ERR char does not exist");
 			return;
 		}
 
@@ -418,29 +418,29 @@ namespace Plugins::CashManager
 
 		if (const std::wstring targetCode = IniGetWS(file, "Settings", "Code", L""); !targetCode.length() || targetCode != code)
 		{
-			PrintUserCmdText(clientID, L"ERR cash account access denied");
+			PrintUserCmdText(client, L"ERR cash account access denied");
 			return;
 		}
 
 		int cash = 0;
 		if ((error = GetCash(targetCharacterName, cash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 
-		PrintUserCmdText(clientID, L"OK Account " + targetCharacterName + L" has " + ToMoneyStr(cash) + L" credits");
+		PrintUserCmdText(client, L"OK Account " + targetCharacterName + L" has " + ToMoneyStr(cash) + L" credits");
 		return;
 	}
 
 	//! Process a draw cash command
-	void UserCmdDrawCash(const uint& clientID, const std::wstring_view& param)
+	void UserCmdDrawCash(ClientId& client, const std::wstring_view& param)
 	{
 		// The last error.
 		Error error;
 
 		// Get the current character name
-		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Get the parameters from the user command.
 		std::wstring targetCharacterName = GetParam(param, L' ', 0);
@@ -452,14 +452,14 @@ namespace Plugins::CashManager
 		const int cash = ToInt(cashString);
 		if (!targetCharacterName.length() || !code.length() || !cash)
 		{
-			PrintUserCmdText(clientID, L"ERR Invalid parameters");
-			PrintUserCmdText(clientID, L"Usage: /drawcash <charname> <code> <cash>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /drawcash <charname> <code> <cash>");
 			return;
 		}
 
 		if (CAccount const* iTargetAcc = GetAccountByCharname(targetCharacterName); iTargetAcc == nullptr)
 		{
-			PrintUserCmdText(clientID, L"ERR char does not exist");
+			PrintUserCmdText(client, L"ERR char does not exist");
 			return;
 		}
 
@@ -467,13 +467,13 @@ namespace Plugins::CashManager
 		GetOnlineTime(targetCharacterName, secs);
 		if (secs < global->config->minimumTime)
 		{
-			PrintUserCmdText(clientID, L"ERR insufficient time online");
+			PrintUserCmdText(client, L"ERR insufficient time online");
 			return;
 		}
 
 		if (InBlockedSystem(characterName) || InBlockedSystem(targetCharacterName))
 		{
-			PrintUserCmdText(clientID, L"ERR cash transfer blocked");
+			PrintUserCmdText(client, L"ERR cash transfer blocked");
 			return;
 		}
 
@@ -483,25 +483,25 @@ namespace Plugins::CashManager
 
 		if (const std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L""); !wscTargetCode.length() || wscTargetCode != code)
 		{
-			PrintUserCmdText(clientID, L"ERR cash account access denied");
+			PrintUserCmdText(client, L"ERR cash account access denied");
 			return;
 		}
 
 		if (cash < global->config->minimumTransfer || cash < 0)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
+			PrintUserCmdText(client, L"ERR Transfer too small, minimum transfer " + ToMoneyStr(global->config->minimumTransfer) + L" credits");
 			return;
 		}
 
 		int tCash = 0;
 		if ((error = GetCash(targetCharacterName, tCash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 		if (tCash < cash)
 		{
-			PrintUserCmdText(clientID, L"ERR Insufficient credits");
+			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
@@ -510,12 +510,12 @@ namespace Plugins::CashManager
 		float fTargetValue = 0.0f;
 		if (GetShipValue(characterName, fTargetValue) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 		if ((fTargetValue + static_cast<float>(cash)) > 2000000000.0f)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer will exceed credit limit");
+			PrintUserCmdText(client, L"ERR Transfer will exceed credit limit");
 			return;
 		}
 
@@ -523,15 +523,15 @@ namespace Plugins::CashManager
 		int iExpectedCash = 0;
 		if ((error = GetCash(characterName, iExpectedCash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 		iExpectedCash += cash;
 
 		// Do an anticheat check on the receiving ship first.
-		if (AntiCheat(clientID) != E_OK)
+		if (AntiCheat(client) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer failed");
+			PrintUserCmdText(client, L"ERR Transfer failed");
 			AddLog(LogType::Cheater,
 			    LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
@@ -543,12 +543,12 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(characterName)).c_str());
 			return;
 		}
-		SaveChar(clientID);
+		SaveChar(client);
 
 		uint targetClientId = GetClientIdFromCharname(targetCharacterName);
-		if (targetClientId && ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId].iTradePartner)
+		if (targetClientId && ClientInfo[client].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 		{
-			PrintUserCmdText(clientID, L"ERR Trade window open");
+			PrintUserCmdText(client, L"ERR Trade window open");
 			AddLog(LogType::Normal,
 			    LogLevel::Info,
 			    L"NOTICE: Trade window open when drawing %s credits from %s "
@@ -559,7 +559,7 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(targetCharacterName)).c_str(),
 			    characterName.c_str(),
 			    GetAccountID(GetAccountByCharname(characterName)).c_str(),
-			    clientID,
+			    client,
 			    targetClientId);
 			return;
 		}
@@ -567,7 +567,7 @@ namespace Plugins::CashManager
 		// Remove cash from target character
 		if ((error = AddCash(targetCharacterName, 0 - cash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 
@@ -575,7 +575,7 @@ namespace Plugins::CashManager
 		{
 			if (AntiCheat(targetClientId) != E_OK)
 			{
-				PrintUserCmdText(clientID, L"ERR Transfer failed");
+				PrintUserCmdText(client, L"ERR Transfer failed");
 				AddLog(LogType::Cheater,
 				    LogLevel::Info,
 				    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to %s (%s)",
@@ -592,13 +592,13 @@ namespace Plugins::CashManager
 		// Add cash to this player
 		if ((error = AddCash(characterName, cash)) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
 			return;
 		}
 
-		if (AntiCheat(clientID) != E_OK)
+		if (AntiCheat(client) != E_OK)
 		{
-			PrintUserCmdText(clientID, L"ERR Transfer failed");
+			PrintUserCmdText(client, L"ERR Transfer failed");
 			AddLog(LogType::Cheater,
 			    LogLevel::Info,
 			    L"NOTICE: Possible cheating when drawing %s credits from %s (%s) to "
@@ -610,7 +610,7 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(characterName)).c_str());
 			return;
 		}
-		SaveChar(clientID);
+		SaveChar(client);
 
 		// Check that receiving player has the correct amount of cash.
 		if (int currentCash; (GetCash(characterName, currentCash)) != E_OK || currentCash != iExpectedCash)
@@ -625,7 +625,7 @@ namespace Plugins::CashManager
 			    GetAccountID(GetAccountByCharname(characterName)).c_str(),
 			    ToMoneyStr(currentCash).c_str(),
 			    ToMoneyStr(iExpectedCash).c_str());
-			PrintUserCmdText(clientID, L"ERR Transfer failed");
+			PrintUserCmdText(client, L"ERR Transfer failed");
 		}
 
 		// If the target player is online then send them a message saying
@@ -654,7 +654,7 @@ namespace Plugins::CashManager
 
 		// A friendly message explaining the transfer.
 		msg = GetTimeString(FLHookConfig::i()->general.localTime) + L": You have drawn " + ToMoneyStr(cash) + L" credits from " + targetCharacterName;
-		PrintUserCmdText(clientID, L"%s", msg.c_str());
+		PrintUserCmdText(client, L"%s", msg.c_str());
 		return;
 	}
 

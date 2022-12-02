@@ -140,7 +140,7 @@ namespace Plugins::CargoDrop
 	/** @ingroup CargoDrop
 	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.
 	 */
-	void SendDeathMsg(const std::wstring& message, const SystemId& system, const ClientId& clientVictim, const ClientId& clientKiller)
+	void SendDeathMsg(const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
 		if (global->config->hullDropFactor == 0.0f)
@@ -152,7 +152,7 @@ namespace Plugins::CargoDrop
 			return;
 
 		int shipSizeEstimate = remainingHullSize;
-		for (const auto& [iID, count, archId, status, mission, mounted, hardpoint] : cargo)
+		for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo)
 		{
 			if (!mounted)
 			{
@@ -171,7 +171,7 @@ namespace Plugins::CargoDrop
 
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(L"NOTICE: Cargo drop in system %08x at %f,%f,%f "
-				                 L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",
+				                 L"for ship size of shipSizeEst=%d iHullDrop=%d\n",
 				    system,
 				    position.x,
 				    position.y,
@@ -185,14 +185,14 @@ namespace Plugins::CargoDrop
 	}
 
 	/** @ingroup CargoDrop
-	 * @brief Clear our variables so that we can recycle clientIds without confusion.
+	 * @brief Clear our variables so that we can recycle clients without confusion.
 	 */
-	void ClearClientInfo(const ClientId& client) { global->info.erase(client); }
+	void ClearClientInfo(ClientId& client) { global->info.erase(client); }
 
 	/** @ingroup CargoDrop
 	 * @brief Hook on SPObjUpdate, used to get the timestamp from the player. Used to figure out if the player has disconnected in the timer.
 	 */
-	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, const ClientId& client)
+	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		global->info[client].lastTimestamp = ui.fTimestamp;
 		global->info[client].lastPosition = ui.vPos;

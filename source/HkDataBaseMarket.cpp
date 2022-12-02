@@ -41,7 +41,7 @@ bool LoadBaseMarket()
 		{
 			DATA_MARKETITEM mi;
 			const char* szEquipName = ini.get_value_string(0);
-			mi.iArchID = CreateID(szEquipName);
+			mi.iArchId = CreateID(szEquipName);
 			mi.fRep = ini.get_value_float(2);
 			biBase->lstMarketMisc.push_back(mi);
 		} while (ini.read_value());

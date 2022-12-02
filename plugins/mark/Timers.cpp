@@ -12,62 +12,62 @@ namespace Plugins::Mark
 			struct PlayerData* pPD = 0;
 			while (pPD = Players.traverse_active(pPD))
 			{
-				uint iShip, iClientID = GetClientIdFromPD(pPD);
-				pub::Player::GetShip(iClientID, iShip);
-				if (!iShip || global->Mark[iClientID].AutoMarkRadius <= 0.0f) // docked or does not want any marking
+				uint ship, client = GetClientIdFromPD(pPD);
+				pub::Player::GetShip(client, ship);
+				if (!ship || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
 				uint iSystem;
-				pub::Player::GetSystem(iClientID, iSystem);
+				pub::Player::GetSystem(client, iSystem);
 				Vector VClientPos;
 				Matrix MClientOri;
-				pub::SpaceObj::GetLocation(iShip, VClientPos, MClientOri);
+				pub::SpaceObj::GetLocation(ship, VClientPos, MClientOri);
 
-				for (uint i = 0; i < global->Mark[iClientID].AutoMarkedObjects.size(); i++)
+				for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++)
 				{
 					Vector VTargetPos;
 					Matrix MTargetOri;
-					pub::SpaceObj::GetLocation(global->Mark[iClientID].AutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (Distance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius)
+					pub::SpaceObj::GetLocation(global->Mark[client].AutoMarkedObjects[i], VTargetPos, MTargetOri);
+					if (Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius)
 					{
-						pub::Player::MarkObj(iClientID, global->Mark[iClientID].AutoMarkedObjects[i], 0);
-						global->Mark[iClientID].DelayedAutoMarkedObjects.push_back(global->Mark[iClientID].AutoMarkedObjects[i]);
-						if (i != global->Mark[iClientID].AutoMarkedObjects.size() - 1)
+						pub::Player::MarkObj(client, global->Mark[client].AutoMarkedObjects[i], 0);
+						global->Mark[client].DelayedAutoMarkedObjects.push_back(global->Mark[client].AutoMarkedObjects[i]);
+						if (i != global->Mark[client].AutoMarkedObjects.size() - 1)
 						{
-							global->Mark[iClientID].AutoMarkedObjects[i] =
-							    global->Mark[iClientID].AutoMarkedObjects[global->Mark[iClientID].AutoMarkedObjects.size() - 1];
+							global->Mark[client].AutoMarkedObjects[i] =
+							    global->Mark[client].AutoMarkedObjects[global->Mark[client].AutoMarkedObjects.size() - 1];
 							i--;
 						}
-						global->Mark[iClientID].AutoMarkedObjects.pop_back();
+						global->Mark[client].AutoMarkedObjects.pop_back();
 					}
 				}
 
-				for (uint i = 0; i < global->Mark[iClientID].DelayedAutoMarkedObjects.size(); i++)
+				for (uint i = 0; i < global->Mark[client].DelayedAutoMarkedObjects.size(); i++)
 				{
-					if (pub::SpaceObj::ExistsAndAlive(global->Mark[iClientID].DelayedAutoMarkedObjects[i]))
+					if (pub::SpaceObj::ExistsAndAlive(global->Mark[client].DelayedAutoMarkedObjects[i]))
 					{
-						if (i != global->Mark[iClientID].DelayedAutoMarkedObjects.size() - 1)
+						if (i != global->Mark[client].DelayedAutoMarkedObjects.size() - 1)
 						{
-							global->Mark[iClientID].DelayedAutoMarkedObjects[i] =
-							    global->Mark[iClientID].DelayedAutoMarkedObjects[global->Mark[iClientID].DelayedAutoMarkedObjects.size() - 1];
+							global->Mark[client].DelayedAutoMarkedObjects[i] =
+							    global->Mark[client].DelayedAutoMarkedObjects[global->Mark[client].DelayedAutoMarkedObjects.size() - 1];
 							i--;
 						}
-						global->Mark[iClientID].DelayedAutoMarkedObjects.pop_back();
+						global->Mark[client].DelayedAutoMarkedObjects.pop_back();
 						continue;
 					}
 					Vector VTargetPos;
 					Matrix MTargetOri;
-					pub::SpaceObj::GetLocation(global->Mark[iClientID].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (!(Distance3D(VTargetPos, VClientPos) > global->Mark[iClientID].AutoMarkRadius))
+					pub::SpaceObj::GetLocation(global->Mark[client].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
+					if (!(Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius))
 					{
-						pub::Player::MarkObj(iClientID, global->Mark[iClientID].DelayedAutoMarkedObjects[i], 1);
-						global->Mark[iClientID].AutoMarkedObjects.push_back(global->Mark[iClientID].DelayedAutoMarkedObjects[i]);
-						if (i != global->Mark[iClientID].DelayedAutoMarkedObjects.size() - 1)
+						pub::Player::MarkObj(client, global->Mark[client].DelayedAutoMarkedObjects[i], 1);
+						global->Mark[client].AutoMarkedObjects.push_back(global->Mark[client].DelayedAutoMarkedObjects[i]);
+						if (i != global->Mark[client].DelayedAutoMarkedObjects.size() - 1)
 						{
-							global->Mark[iClientID].DelayedAutoMarkedObjects[i] =
-							    global->Mark[iClientID].DelayedAutoMarkedObjects[global->Mark[iClientID].DelayedAutoMarkedObjects.size() - 1];
+							global->Mark[client].DelayedAutoMarkedObjects[i] =
+							    global->Mark[client].DelayedAutoMarkedObjects[global->Mark[client].DelayedAutoMarkedObjects.size() - 1];
 							i--;
 						}
-						global->Mark[iClientID].DelayedAutoMarkedObjects.pop_back();
+						global->Mark[client].DelayedAutoMarkedObjects.pop_back();
 					}
 				}
 			}
@@ -95,13 +95,13 @@ namespace Plugins::Mark
 				struct PlayerData* pPD = 0;
 				while (pPD = Players.traverse_active(pPD))
 				{
-					uint iClientID = GetClientIdFromPD(pPD);
-					if (Players[iClientID].iSystemID == iItemSystem)
+					ClientId client = GetClientIdFromPD(pPD);
+					if (Players[client].iSystemId == iItemSystem)
 					{
-						pub::SpaceObj::GetLocation(Players[iClientID].iShipID, vPlayer, mTemp);
+						pub::SpaceObj::GetLocation(Players[client].shipId, vPlayer, mTemp);
 						if (Distance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
 						{
-							MarkObject(iClientID, mark->iObj);
+							MarkObject(client, mark->iObj);
 						}
 					}
 				}

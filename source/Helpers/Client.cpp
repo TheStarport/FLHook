@@ -9,7 +9,7 @@ namespace Hk::Client
 			return cpp::fail(Error::InvalidIdString);
 		}
 
-		auto resolvedId = ResolveId(character);
+		auto resolvedId = ResolveID(character);
 		if (resolvedId.has_error() || resolvedId.error() == Error::InvalidIdString)
 		{
 			resolvedId = ResolveShortCut(character);
@@ -46,7 +46,7 @@ namespace Hk::Client
 		{
 			if (playerDb->Account == acc)
 			{
-				return playerDb->iOnlineID;
+				return playerDb->iOnlineId;
 			}
 		}
 
@@ -74,11 +74,11 @@ namespace Hk::Client
 		if (acc.has_error())
 			return cpp::fail(acc.error());
 
-		const auto clientId = GetClientIdFromAccount(acc.value());
-		if (clientId.has_error())
-			return cpp::fail(clientId.error());
+		const auto client = GetClientIdFromAccount(acc.value());
+		if (client.has_error())
+			return cpp::fail(client.error());
 
-		const auto newCharacter = GetCharacterNameById(clientId.value());
+		const auto newCharacter = GetCharacterNameByID(client.value());
 		if (newCharacter.has_error())
 			return cpp::fail(newCharacter.error());
 
@@ -86,15 +86,15 @@ namespace Hk::Client
 		if (ToLower(newCharacter.value()).compare(ToLower(character)) != 0)
 			return cpp::fail(Error::CharacterDoesNotExist);
 
-		return clientId;
+		return client;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<const std::wstring, Error> GetAccountID(CAccount* acc)
 	{
-		if (acc && acc->wszAccID)
-			return acc->wszAccID;
+		if (acc && acc->wszAccId)
+			return acc->wszAccId;
 
 		return cpp::fail(Error::CannotGetAccount);
 	}
@@ -123,14 +123,14 @@ namespace Hk::Client
 
 	bool IsInCharSelectMenu(const uint& player)
 	{
-		const uint clientId = Hk::Client::ExtractClientId(player);
-		if (clientId == UINT_MAX)
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == UINT_MAX)
 			return false;
 
 		uint iBase = 0;
 		uint iSystem = 0;
-		pub::Player::GetBase(clientId, iBase);
-		pub::Player::GetSystem(clientId, iSystem);
+		pub::Player::GetBase(client, iBase);
+		pub::Player::GetSystem(client, iSystem);
 		if (!iBase && !iSystem)
 			return true;
 		else
@@ -139,12 +139,12 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool IsValidClientID(uint clientId)
+	bool IsValidClientID(ClientId client)
 	{
 		struct PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			if (playerDb->iOnlineID == clientId)
+			if (playerDb->iOnlineId == client)
 				return true;
 		}
 
@@ -153,26 +153,26 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const std::wstring, Error> GetCharacterNameById(const uint& clientId)
+	cpp::result<const std::wstring, Error> GetCharacterNameByID(ClientId& client)
 	{
-		if (!IsValidClientID(clientId))
+		if (!IsValidClientID(client))
 			return cpp::fail(Error::InvalidClientId);
 
-		return reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
+		return reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> ResolveId(const std::wstring& character)
+	cpp::result<const uint, Error> ResolveID(const std::wstring& character)
 	{
 		if (const std::wstring characterLower = ToLower(character); characterLower.find(L"id ") == 0)
 		{
-			uint iID = 0;
-			swscanf_s(characterLower.c_str(), L"id %u", &iID);
-			if (!IsValidClientID(iID))
+			uint iId = 0;
+			swscanf_s(characterLower.c_str(), L"id %u", &iId);
+			if (!IsValidClientID(iId))
 				return cpp::fail(Error::InvalidClientId);
 
-			return iID;
+			return iId;
 		}
 
 		return cpp::fail(Error::InvalidIdString);
@@ -180,7 +180,7 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> ResolveShortCut(const std::wstring& wscShortcut)
+	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& wscShortcut)
 	{
 		std::wstring wscShortcutLower = ToLower(wscShortcut);
 		if (wscShortcutLower.find(L"sc ") != 0)
@@ -188,36 +188,36 @@ namespace Hk::Client
 
 		wscShortcutLower = wscShortcutLower.substr(3);
 
-		uint clientIdFound = UINT_MAX;
+		uint clientFound = UINT_MAX;
 		struct PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			const auto characterName = GetCharacterNameById(playerDb->iOnlineID);
+			const auto characterName = GetCharacterNameByID(playerDb->iOnlineId);
 			if (characterName.has_error())
 				continue;
 
 			if (ToLower(characterName.value()).find(wscShortcutLower) != -1)
 			{
-				if (clientIdFound == UINT_MAX)
-					clientIdFound = playerDb->iOnlineID;
+				if (clientFound == UINT_MAX)
+					clientFound = playerDb->iOnlineId;
 				else
 					return cpp::fail(Error::AmbiguousShortcut);
 			}
 		}
 
-		if (clientIdFound == UINT_MAX)
+		if (clientFound == UINT_MAX)
 			return cpp::fail(Error::NoMatchingPlayer);
 
-		return clientIdFound;
+		return clientFound;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const ClientId, Error> GetClientIDByShip(const ShipId iShip)
+	cpp::result<ClientId, Error> GetClientIdByShip(const ShipId ship)
 	{
 		for (uint i = 0; i <= MaxClientId; i++)
 		{
-			if (ClientInfo[i].iShip == iShip || ClientInfo[i].iShipOld == iShip)
+			if (ClientInfo[i].ship == ship || ClientInfo[i].shipOld == ship)
 				return i;
 		}
 
@@ -231,7 +231,7 @@ namespace Hk::Client
 		const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(hModServer) + 0x66370);
 
 		char szDir[1024] = "";
-		GetFLName(szDir, acc->wszAccID);
+		GetFLName(szDir, acc->wszAccId);
 		return stows(szDir);
 	}
 
@@ -246,12 +246,12 @@ namespace Hk::Client
 		std::string buffer;
 		buffer.reserve(1024);
 
-		if (const uint clientId = Hk::Client::ExtractClientId(player); clientId != UINT_MAX)
+		if (ClientId client = Hk::Client::ExtractClientID(player); client != UINT_MAX)
 		{
-			if (const auto character = GetCharacterNameById(clientId); character.has_error())
+			if (const auto character = GetCharacterNameByID(client); character.has_error())
 				return cpp::fail(character.error());
 
-			GetFLName(buffer.data(), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId)));
+			GetFLName(buffer.data(), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
 		}
 		else if (player.index() && GetAccountByCharName(std::get<std::wstring>(player)))
 		{
@@ -295,13 +295,13 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const std::wstring, Error> GetPlayerSystem(uint clientId)
+	cpp::result<const std::wstring, Error> GetPlayerSystem(ClientId client)
 	{
-		if (!IsValidClientID(clientId))
+		if (!IsValidClientID(client))
 			return cpp::fail(Error::InvalidClientId);
 
 		uint systemId;
-		pub::Player::GetSystem(clientId, systemId);
+		pub::Player::GetSystem(client, systemId);
 		return GetSystemNickByID(systemId);
 	}
 
@@ -358,13 +358,13 @@ namespace Hk::Client
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<IObjInspectImpl*, Error> GetInspect(uint clientId)
+	cpp::result<IObjInspectImpl*, Error> GetInspect(ClientId client)
 	{
-		uint iShip;
-		pub::Player::GetShip(clientId, iShip);
+		uint ship;
+		pub::Player::GetShip(client, ship);
 		uint iDunno;
 		IObjInspectImpl* inspect;
-		if (!GetShipInspect(iShip, inspect, iDunno))
+		if (!GetShipInspect(ship, inspect, iDunno))
 			return cpp::fail(Error::InvalidShip);
 		else
 			return inspect;
@@ -372,15 +372,15 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	EngineState GetEngineState(uint clientId)
+	EngineState GetEngineState(ClientId client)
 	{
-		if (ClientInfo[clientId].bTradelane)
+		if (ClientInfo[client].bTradelane)
 			return ES_TRADELANE;
-		else if (ClientInfo[clientId].bCruiseActivated)
+		else if (ClientInfo[client].bCruiseActivated)
 			return ES_CRUISE;
-		else if (ClientInfo[clientId].bThrusterActivated)
+		else if (ClientInfo[client].bThrusterActivated)
 			return ES_THRUSTER;
-		else if (!ClientInfo[clientId].bEngineKilled)
+		else if (!ClientInfo[client].bEngineKilled)
 			return ES_ENGINE;
 		else
 			return ES_KILLED;
@@ -407,7 +407,7 @@ namespace Hk::Client
 		if (iVFTable == iVFTableGun)
 		{
 			Archetype::Gun const* gun = (Archetype::Gun*)eq;
-			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->iProjectileArchID);
+			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->iProjectileArchId);
 			int iMissile;
 			memcpy(&iMissile, (char*)eqAmmo + 0x90, 4);
 			uint iGunType = gun->get_hp_type_by_index(0);
@@ -462,9 +462,9 @@ namespace Hk::Client
 		return reinterpret_cast<CShip*>((*ecx)[4]); // NOLINT(performance-no-int-to-ptr)
 	}
 
-	uint ExtractClientId(const std::variant<uint, std::wstring>& player)
+	uint ExtractClientID(const std::variant<uint, std::wstring>& player)
 	{
-		// If index is 0, we just use the client ID we are given
+		// If index is 0, we just use the client Id we are given
 		if (!player.index())
 		{
 			const uint id = std::get<uint>(player);
@@ -477,7 +477,7 @@ namespace Hk::Client
 		// Check if its an id string
 		if (characterName.rfind(L"id ", 0) != std::wstring::npos)
 		{
-			const auto val = ResolveId(characterName);
+			const auto val = ResolveID(characterName);
 			if (val.has_error())
 			{
 				return -1;
@@ -497,8 +497,8 @@ namespace Hk::Client
 
 	cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player)
 	{
-		if (uint clientId = Hk::Client::ExtractClientId(player); clientId != -1)
-			return Players.FindAccountFromClientID(clientId);
+		if (ClientId client = Hk::Client::ExtractClientID(player); client != -1)
+			return Players.FindAccountFromClientID(client);
 
 		if (!player.index())
 			return nullptr;
@@ -512,22 +512,22 @@ namespace Hk::Client
 		return acc.value();
 	}
 
-	CAccount* GetAccountByClientID(uint clientId)
+	CAccount* GetAccountByClientID(ClientId client)
 	{
-		if (!Hk::Client::IsValidClientID(clientId))
+		if (!Hk::Client::IsValidClientID(client))
 			return nullptr;
 
-		return Players.FindAccountFromClientID(clientId);
+		return Players.FindAccountFromClientID(client);
 	}
 
-	std::wstring GetAccountIDByClientID(uint clientId)
+	std::wstring GetAccountIdByClientID(ClientId client)
 	{
-		if (Hk::Client::IsValidClientID(clientId))
+		if (Hk::Client::IsValidClientID(client))
 		{
-			CAccount const* acc = GetAccountByClientID(clientId);
-			if (acc && acc->wszAccID)
+			CAccount const* acc = GetAccountByClientID(client);
+			if (acc && acc->wszAccId)
 			{
-				return acc->wszAccID;
+				return acc->wszAccId;
 			}
 		}
 		return L"";

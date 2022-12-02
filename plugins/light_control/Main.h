@@ -10,9 +10,9 @@ namespace Plugins::LightControl
 	{
 		EquipmentHardpoint() : ID(0), ArchID(0), OriginalArchID(0) {}
 
-		uint ID;
-		uint ArchID;
-		uint OriginalArchID;
+		uint Id;
+		uint ArchId;
+		uint OriginalArchId;
 		std::wstring HardPoint;
 	};
 

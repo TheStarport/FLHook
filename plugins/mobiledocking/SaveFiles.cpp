@@ -1,6 +1,6 @@
 ﻿#include "Main.h"
 
-void LoadDockInfo(uint client)
+void LoadDockInfo(ClientId client)
 {
 	CLIENT_DATA& cd = clients[client];
 
@@ -11,7 +11,7 @@ void LoadDockInfo(uint client)
 	for (auto item = Players[client].equipDescList.equip.begin(); item != Players[client].equipDescList.equip.end();
 	     item++)
 	{
-		if (item->bMounted && item->iArchID == 0xB85AB480)
+		if (item->bMounted && item->iArchId == 0xB85AB480)
 		{
 			cd.iDockingModules++;
 		}
@@ -36,7 +36,7 @@ void LoadDockInfo(uint client)
 	if (cd.wscDockedWithCharname.length())
 		cd.mobile_docked = true;
 
-	cd.iLastBaseID = GetCharacterIniUint(client, L"dock.last_base");
+	cd.iLastBaseId = GetCharacterIniUint(client, L"dock.last_base");
 	cd.iCarrierSystem = GetCharacterIniUint(client, L"dock.carrier_system");
 	cd.vCarrierLocation.x = GetCharacterIniFloat(client, L"dock.carrier_pos.x");
 	cd.vCarrierLocation.y = GetCharacterIniFloat(client, L"dock.carrier_pos.y");
@@ -49,14 +49,14 @@ void LoadDockInfo(uint client)
 	cd.mCarrierLocation = EulerMatrix(vRot);
 }
 
-void SaveDockInfo(uint client)
+void SaveDockInfo(ClientId client)
 {
 	CLIENT_DATA& cd = clients[client];
 
 	if (cd.mobile_docked)
 	{
 		SetCharacterIni(client, L"dock.docked_with_charname", cd.wscDockedWithCharname);
-		SetCharacterIni(client, L"dock.last_base", std::to_wstring(cd.iLastBaseID));
+		SetCharacterIni(client, L"dock.last_base", std::to_wstring(cd.iLastBaseId));
 		SetCharacterIni(client, L"dock.carrier_system", std::to_wstring(cd.iCarrierSystem));
 		SetCharacterIni(client, L"dock.carrier_pos.x", std::to_wstring(cd.vCarrierLocation.x));
 		SetCharacterIni(client, L"dock.carrier_pos.y", std::to_wstring(cd.vCarrierLocation.y));
@@ -97,16 +97,16 @@ void SaveDockInfo(uint client)
 	}
 }
 
-void UpdateDockInfo(uint iClientID, uint iSystem, Vector pos, Matrix rot)
+void UpdateDockInfo(ClientId client, uint iSystem, Vector pos, Matrix rot)
 {
-	SetCharacterIni(iClientID, L"dock.carrier_system", std::to_wstring(iSystem));
-	SetCharacterIni(iClientID, L"dock.carrier_pos.x", std::to_wstring(pos.x));
-	SetCharacterIni(iClientID, L"dock.carrier_pos.y", std::to_wstring(pos.y));
-	SetCharacterIni(iClientID, L"dock.carrier_pos.z", std::to_wstring(pos.z));
+	SetCharacterIni(client, L"dock.carrier_system", std::to_wstring(iSystem));
+	SetCharacterIni(client, L"dock.carrier_pos.x", std::to_wstring(pos.x));
+	SetCharacterIni(client, L"dock.carrier_pos.y", std::to_wstring(pos.y));
+	SetCharacterIni(client, L"dock.carrier_pos.z", std::to_wstring(pos.z));
 
 	Vector vRot = MatrixToEuler(rot);
 
-	SetCharacterIni(iClientID, L"dock.carrier_rot.x", std::to_wstring(vRot.x));
-	SetCharacterIni(iClientID, L"dock.carrier_rot.y", std::to_wstring(vRot.y));
-	SetCharacterIni(iClientID, L"dock.carrier_rot.z", std::to_wstring(vRot.z));
+	SetCharacterIni(client, L"dock.carrier_rot.x", std::to_wstring(vRot.x));
+	SetCharacterIni(client, L"dock.carrier_rot.y", std::to_wstring(vRot.y));
+	SetCharacterIni(client, L"dock.carrier_rot.z", std::to_wstring(vRot.z));
 }

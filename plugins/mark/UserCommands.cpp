@@ -2,100 +2,100 @@
 
 namespace Plugins::Mark
 {
-	void UserCmd_MarkObj(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MarkObj(ClientId& client, const std::wstring_view& wscParam)
 	{
-		uint iShip, iTargetShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
-		char err = MarkObject(iClientID, iTargetShip);
+		uint ship, iTargetShip;
+		pub::Player::GetShip(client, ship);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
+		char err = MarkObject(client, iTargetShip);
 		switch (err)
 		{
 			case 1:
-				PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
+				PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 				break;
 			case 2:
-				PrintUserCmdText(iClientID, L"Error: You cannot mark cloaked ships.");
+				PrintUserCmdText(client, L"Error: You cannot mark cloaked ships.");
 				break;
 			case 3:
-				PrintUserCmdText(iClientID, L"Error: Object is already marked.");
+				PrintUserCmdText(client, L"Error: Object is already marked.");
 			default:
 				break;
 		}
 	}
 
-	void UserCmd_UnMarkObj(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkObj(ClientId& client, const std::wstring_view& wscParam)
 	{
-		uint iShip, iTargetShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
-		char err = UnMarkObject(iClientID, iTargetShip);
+		uint ship, iTargetShip;
+		pub::Player::GetShip(client, ship);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
+		char err = UnMarkObject(client, iTargetShip);
 		switch (err)
 		{
 			case 0:
 				// PRINT_OK()
 				break;
 			case 1:
-				PrintUserCmdText(iClientID, L"Error: You must have something targeted to unmark it.");
+				PrintUserCmdText(client, L"Error: You must have something targeted to unmark it.");
 				break;
 			case 2:
-				PrintUserCmdText(iClientID, L"Error: Object is not marked.");
+				PrintUserCmdText(client, L"Error: Object is not marked.");
 			default:
 				break;
 		}
 	}
 
-	void UserCmd_UnMarkAllObj(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring_view& wscParam)
 	{
-		UnMarkAllObjects(iClientID);
+		UnMarkAllObjects(client);
 	}
 
-	void UserCmd_MarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring_view& wscParam)
 	{
-		uint iShip, iTargetShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
+		uint ship, iTargetShip;
+		pub::Player::GetShip(client, ship);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 		{
-			PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
+			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 			return;
 		}
 		std::list<GROUP_MEMBER> lstMembers;
 		lstMembers.clear();
-		std::wstring wsClientID = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-		GetGroupMembers(wsClientID, lstMembers);
+		std::wstring wsClientId = (wchar_t*)Players.GetActiveCharacterName(client);
+		GetGroupMembers(wsClientId, lstMembers);
 		for (auto& lstG : lstMembers)
 		{
-			if (global->Mark[lstG.iClientID].IgnoreGroupMark)
+			if (global->Mark[lstG.client].IgnoreGroupMark)
 				continue;
 			uint iClientShip;
-			pub::Player::GetShip(lstG.iClientID, iClientShip);
+			pub::Player::GetShip(lstG.client, iClientShip);
 			if (iClientShip == iTargetShip)
 				continue;
-			MarkObject(lstG.iClientID, iTargetShip);
+			MarkObject(lstG.client, iTargetShip);
 		}
 	}
 
-	void UserCmd_UnMarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring_view& wscParam)
 	{
-		uint iShip, iTargetShip;
-		pub::Player::GetShip(iClientID, iShip);
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
+		uint ship, iTargetShip;
+		pub::Player::GetShip(client, ship);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 		{
-			PrintUserCmdText(iClientID, L"Error: You must have something targeted to mark it.");
+			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 			return;
 		}
 		std::list<GROUP_MEMBER> lstMembers;
 		lstMembers.clear();
-		std::wstring wsClientID = (wchar_t*)Players.GetActiveCharacterName(iClientID);
-		GetGroupMembers(wsClientID, lstMembers);
+		std::wstring wsClientId = (wchar_t*)Players.GetActiveCharacterName(client);
+		GetGroupMembers(wsClientId, lstMembers);
 		for (auto& lstG : lstMembers)
 		{
-			UnMarkObject(lstG.iClientID, iTargetShip);
+			UnMarkObject(lstG.client, iTargetShip);
 		}
 	}
 
-	void UserCmd_SetIgnoreGroupMark(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring_view& wscParam)
 	{
 		const std::wstring wscError[] = {
 		    L"Error: Invalid parameters",
@@ -106,28 +106,28 @@ namespace Plugins::Mark
 
 		if (ToLower(param) == L"off")
 		{
-			global->Mark[iClientID].IgnoreGroupMark = false;
+			global->Mark[client].IgnoreGroupMark = false;
 			std::wstring dir, wscFilename;
-			CAccount* acc = Players.FindAccountFromClientID(iClientID);
-			if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+			CAccount* acc = Players.FindAccountFromClientID(client);
+			if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 			{
 				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 				std::string scSection = "general_" + wstos(wscFilename);
 				IniWrite(scUserFile, scSection, "automarkenabled", "no");
-				PrintUserCmdText(iClientID, L"Accepting marks from the group");
+				PrintUserCmdText(client, L"Accepting marks from the group");
 			}
 		}
 		else if (ToLower(param) == L"on")
 		{
-			global->Mark[iClientID].IgnoreGroupMark = true;
+			global->Mark[client].IgnoreGroupMark = true;
 			std::wstring dir, wscFilename;
-			CAccount* acc = Players.FindAccountFromClientID(iClientID);
-			if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+			CAccount* acc = Players.FindAccountFromClientID(client);
+			if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 			{
 				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 				std::string scSection = "general_" + wstos(wscFilename);
 				IniWrite(scUserFile, scSection, "automarkenabled", "yes");
-				PrintUserCmdText(iClientID, L"Ignoring marks from the group");
+				PrintUserCmdText(client, L"Ignoring marks from the group");
 			}
 		}
 		else
@@ -136,11 +136,11 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_AutoMark(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_AutoMark(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
@@ -165,71 +165,71 @@ namespace Plugins::Mark
 		}
 
 		// I think this section could be done better, but I can't think of it now..
-		if (!global->Mark[iClientID].MarkEverything)
+		if (!global->Mark[client].MarkEverything)
 		{
 			if (wscRadius.length())
-				global->Mark[iClientID].AutoMarkRadius = fRadius * 1000;
+				global->Mark[client].AutoMarkRadius = fRadius * 1000;
 			if (wscEnabled == L"on") // AutoMark is being enabled
 			{
-				global->Mark[iClientID].MarkEverything = true;
-				CAccount* acc = Players.FindAccountFromClientID(iClientID);
+				global->Mark[client].MarkEverything = true;
+				CAccount* acc = Players.FindAccountFromClientID(client);
 				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(wscFilename);
 					IniWrite(scUserFile, scSection, "automark", "yes");
 					if (wscRadius.length())
-						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[iClientID].AutoMarkRadius));
+						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(iClientID, L"Automarking turned on within a %g KM radius", global->Mark[iClientID].AutoMarkRadius / 1000);
+				PrintUserCmdText(client, L"Automarking turned on within a %g KM radius", global->Mark[client].AutoMarkRadius / 1000);
 			}
 			else if (wscRadius.length())
 			{
-				CAccount* acc = Players.FindAccountFromClientID(iClientID);
+				CAccount* acc = Players.FindAccountFromClientID(client);
 				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(wscFilename);
-					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[iClientID].AutoMarkRadius));
+					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(iClientID, L"Radius changed to %g KMs", fRadius);
+				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);
 			}
 		}
 		else
 		{
 			if (wscRadius.length())
-				global->Mark[iClientID].AutoMarkRadius = fRadius * 1000;
+				global->Mark[client].AutoMarkRadius = fRadius * 1000;
 			if (wscEnabled == L"off") // AutoMark is being disabled
 			{
-				global->Mark[iClientID].MarkEverything = false;
-				CAccount* acc = Players.FindAccountFromClientID(iClientID);
+				global->Mark[client].MarkEverything = false;
+				CAccount* acc = Players.FindAccountFromClientID(client);
 				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(wscFilename);
 					IniWrite(scUserFile, scSection, "automark", "no");
 					if (wscRadius.length())
-						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[iClientID].AutoMarkRadius));
+						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				if (wscRadius.length())
-					PrintUserCmdText(iClientID, L"Automarking turned off; radius changed to %g KMs", global->Mark[iClientID].AutoMarkRadius / 1000);
+					PrintUserCmdText(client, L"Automarking turned off; radius changed to %g KMs", global->Mark[client].AutoMarkRadius / 1000);
 				else
-					PrintUserCmdText(iClientID, L"Automarking turned off");
+					PrintUserCmdText(client, L"Automarking turned off");
 			}
 			else if (wscRadius.length())
 			{
-				CAccount* acc = Players.FindAccountFromClientID(iClientID);
+				CAccount* acc = Players.FindAccountFromClientID(client);
 				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(wscFilename);
-					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[iClientID].AutoMarkRadius));
+					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(iClientID, L"Radius changed to %g KMs", fRadius);
+				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);
 			}
 		}
 	}

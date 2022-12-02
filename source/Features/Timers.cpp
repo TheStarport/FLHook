@@ -46,51 +46,51 @@ void TimerCheckKick()
 		struct PlayerData* playerData = 0;
 		while (playerData = Players.traverse_active(playerData))
 		{
-			uint clientId = playerData->iOnlineID;
-			if (clientId < 1 || clientId > MaxClientId)
+			ClientId client = playerData->iOnlineId;
+			if (client < 1 || client > MaxClientId)
 				continue;
 
-			if (ClientInfo[clientId].tmKickTime)
+			if (ClientInfo[client].tmKickTime)
 			{
-				if (timeInMS() >= ClientInfo[clientId].tmKickTime)
+				if (timeInMS() >= ClientInfo[client].tmKickTime)
 				{
-					Hk::Player::Kick(clientId); // kick time expired
-					ClientInfo[clientId].tmKickTime = 0;
+					Hk::Player::Kick(client); // kick time expired
+					ClientInfo[client].tmKickTime = 0;
 				}
 				continue; // player will be kicked anyway
 			}
 			const auto* config = FLHookConfig::c();
 			if (config->general.antbaseIdle)
 			{ // anti base-idle check
-				uint baseID;
-				pub::Player::GetBase(clientId, baseID);
-				if (baseID && ClientInfo[clientId].iBaseEnterTime)
+				uint baseId;
+				pub::Player::GetBase(client, baseId);
+				if (baseId && ClientInfo[client].iBaseEnterTime)
 				{
-					if ((time(0) - ClientInfo[clientId].iBaseEnterTime) >= config->general.antbaseIdle)
+					if ((time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antbaseIdle)
 					{
-						AddKickLog(clientId, L"Base idling");
-						Hk::Player::MsgAndKick(clientId, L"Base idling", 10);
-						ClientInfo[clientId].iBaseEnterTime = 0;
+						AddKickLog(client, L"Base idling");
+						Hk::Player::MsgAndKick(client, L"Base idling", 10);
+						ClientInfo[client].iBaseEnterTime = 0;
 					}
 				}
 			}
 
 			if (config->general.antiCharMenuIdle)
 			{ // anti charmenu-idle check
-				if (Hk::Client::IsInCharSelectMenu(clientId))
+				if (Hk::Client::IsInCharSelectMenu(client))
 				{
-					if (!ClientInfo[clientId].iCharMenuEnterTime)
-						ClientInfo[clientId].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
-					else if ((time(0) - ClientInfo[clientId].iCharMenuEnterTime) >= config->general.antiCharMenuIdle)
+					if (!ClientInfo[client].iCharMenuEnterTime)
+						ClientInfo[client].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
+					else if ((time(0) - ClientInfo[client].iCharMenuEnterTime) >= config->general.antiCharMenuIdle)
 					{
-						AddKickLog(clientId, L"Charmenu idling");
-						Hk::Player::Kick(clientId);
-						ClientInfo[clientId].iCharMenuEnterTime = 0;
+						AddKickLog(client, L"Charmenu idling");
+						Hk::Player::Kick(client);
+						ClientInfo[client].iCharMenuEnterTime = 0;
 						continue;
 					}
 				}
 				else
-					ClientInfo[clientId].iCharMenuEnterTime = 0;
+					ClientInfo[client].iCharMenuEnterTime = 0;
 			}
 		}
 	}
@@ -110,19 +110,19 @@ void TimerNPCAndF1Check()
 		struct PlayerData* playerData = 0;
 		while (playerData = Players.traverse_active(playerData))
 		{
-			uint clientId = playerData->iOnlineID;
-			if (clientId < 1 || clientId > MaxClientId)
+			ClientId client = playerData->iOnlineId;
+			if (client < 1 || client > MaxClientId)
 				continue;
 
-			if (ClientInfo[clientId].tmF1Time && (timeInMS() >= ClientInfo[clientId].tmF1Time))
+			if (ClientInfo[client].tmF1Time && (timeInMS() >= ClientInfo[client].tmF1Time))
 			{ // f1
-				Server.CharacterInfoReq(clientId, false);
-				ClientInfo[clientId].tmF1Time = 0;
+				Server.CharacterInfoReq(client, false);
+				ClientInfo[client].tmF1Time = 0;
 			}
-			else if (ClientInfo[clientId].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[clientId].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				ulong dataArray[64] = { 0 };
-				dataArray[26] = clientId;
+				dataArray[26] = client;
 
 				__asm {
                     pushad
@@ -133,7 +133,7 @@ void TimerNPCAndF1Check()
                     popad
 				}
 
-				ClientInfo[clientId].tmF1TimeDisconnect = 0;
+				ClientInfo[client].tmF1TimeDisconnect = 0;
 				continue;
 			}
 		}
@@ -202,7 +202,7 @@ void TimerCheckResolveResults()
 		EnterCriticalSection(&csIPResolve);
 		for (auto& ip : g_lstResolveIPsResult)
 		{
-			if (ip.iConnects != ClientInfo[ip.clientId].iConnects)
+			if (ip.iConnects != ClientInfo[ip.client].iConnects)
 				continue; // outdated
 
 			// check if banned
@@ -211,13 +211,13 @@ void TimerCheckResolveResults()
 			{
 				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
-					AddKickLog(ip.clientId, L"IP/Hostname ban(%s matches %s)", ip.wscHostname.c_str(), ban.c_str());
+					AddKickLog(ip.client, L"IP/Hostname ban(%s matches %s)", ip.wscHostname.c_str(), ban.c_str());
 					if (config->bans.banAccountOnMatch)
-						Hk::Player::Ban(ip.clientId, true);
-					Hk::Player::Kick(ip.clientId);
+						Hk::Player::Ban(ip.client, true);
+					Hk::Player::Kick(ip.client);
 				}
 			}
-			ClientInfo[ip.clientId].wscHostname = ip.wscHostname;
+			ClientInfo[ip.client].wscHostname = ip.wscHostname;
 		}
 
 		g_lstResolveIPsResult.clear();

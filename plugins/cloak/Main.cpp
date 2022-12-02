@@ -75,47 +75,47 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Hook on ClearClientInfo. Remove the client from our data so we don't get confused if that client id gets recycled.
 	 */
-	void ClearClientInfo(uint iClientID) { global->clientCloakingInfo.erase(iClientID); }
+	void ClearClientInfo(ClientId client) { global->clientCloakingInfo.erase(client); }
 
 	/** @ingroup Cloak
 	 * @brief Set cloak to be on or off
 	 */
-	void SetCloak(uint iClientID, uint iShipID, bool bOn)
+	void SetCloak(ClientId client, uint shipId, bool bOn)
 	{
 		XActivateEquip ActivateEq;
 		ActivateEq.bActivate = bOn;
-		ActivateEq.iSpaceID = iShipID;
-		ActivateEq.sID = global->clientCloakingInfo[iClientID].cloakSlot;
-		Server.ActivateEquip(iClientID, ActivateEq);
+		ActivateEq.iSpaceId = shipId;
+		ActivateEq.sId = global->clientCloakingInfo[client].cloakSlot;
+		Server.ActivateEquip(client, ActivateEq);
 	}
 
 	/** @ingroup Cloak
 	 * @brief Set the state of a cloaking device. e.g. Charging, On or Off.
 	 */
-	void SetState(uint iClientID, uint iShipID, int iNewState)
+	void SetState(ClientId client, uint shipId, int iNewState)
 	{
-		if (global->clientCloakingInfo[iClientID].state != iNewState)
+		if (global->clientCloakingInfo[client].state != iNewState)
 		{
-			global->clientCloakingInfo[iClientID].state = iNewState;
-			global->clientCloakingInfo[iClientID].cloakTime = timeInMS();
+			global->clientCloakingInfo[client].state = iNewState;
+			global->clientCloakingInfo[client].cloakTime = timeInMS();
 			switch (iNewState)
 			{
 				case STATE_CLOAK_CHARGING: {
-					PrintUserCmdText(iClientID, L"Preparing to cloak...");
+					PrintUserCmdText(client, L"Preparing to cloak...");
 					break;
 				}
 
 				case STATE_CLOAK_ON: {
-					PrintUserCmdText(iClientID, global->cloakingText);
-					SetCloak(iClientID, iShipID, true);
-					PrintUserCmdText(iClientID, L"Cloaking device on");
+					PrintUserCmdText(client, global->cloakingText);
+					SetCloak(client, shipId, true);
+					PrintUserCmdText(client, L"Cloaking device on");
 					break;
 				}
 				case STATE_CLOAK_OFF:
 				default: {
-					PrintUserCmdText(iClientID, global->uncloakingText);
-					SetCloak(iClientID, iShipID, false);
-					PrintUserCmdText(iClientID, L"Cloaking device off");
+					PrintUserCmdText(client, global->uncloakingText);
+					SetCloak(client, shipId, false);
+					PrintUserCmdText(client, L"Cloaking device off");
 					break;
 				}
 			}
@@ -125,19 +125,19 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Returns false if the ship has no fuel to operate its cloaking device.
 	 */
-	static bool ProcessFuel(uint iClientID, CloakInfo& info)
+	static bool ProcessFuel(ClientId client, CloakInfo& info)
 	{
 		if (info.admin || info.arch.fuelToUsage.empty())
 			return true;
 
-		for (auto item = Players[iClientID].equipDescList.equip.begin(); item != Players[iClientID].equipDescList.equip.end(); item++)
+		for (auto item = Players[client].equipDescList.equip.begin(); item != Players[client].equipDescList.equip.end(); item++)
 		{
-			if (info.arch.fuelToUsage.find(item->iArchID) != info.arch.fuelToUsage.end())
+			if (info.arch.fuelToUsage.find(item->iArchId) != info.arch.fuelToUsage.end())
 			{
-				uint fuel_usage = info.arch.fuelToUsage[item->iArchID];
+				uint fuel_usage = info.arch.fuelToUsage[item->iArchId];
 				if (item->iCount >= fuel_usage)
 				{
-					pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
+					pub::Player::RemoveCargo(client, item->sId, fuel_usage);
 					return true;
 				}
 			}
@@ -149,12 +149,12 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Hook on PlayerLaunch. Checks if they have a cloak and initialises it.
 	 */
-	void PlayerLaunch_AFTER(uint& iShip, uint& iClientID)
+	void PlayerLaunch_AFTER(uint& ship, ClientId& client)
 	{
-		global->clientCloakingInfo[iClientID].canCloak = false;
-		global->clientCloakingInfo[iClientID].admin = false;
+		global->clientCloakingInfo[client].canCloak = false;
+		global->clientCloakingInfo[client].admin = false;
 
-		IObjInspectImpl* obj = GetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(client);
 		if (obj)
 		{
 			CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
@@ -165,28 +165,28 @@ namespace Plugins::Cloak
 			{
 				if (CECloakingDevice::cast(equip))
 				{
-					global->clientCloakingInfo[iClientID].cloakSlot = equip->GetID();
+					global->clientCloakingInfo[client].cloakSlot = equip->GetID();
 
-					if (global->cloakingDevices.find(equip->EquipArch()->iArchID) != global->cloakingDevices.end())
+					if (global->cloakingDevices.find(equip->EquipArch()->iArchId) != global->cloakingDevices.end())
 					{
 						// Otherwise set the fuel usage and warm up time
-						global->clientCloakingInfo[iClientID].arch = global->cloakingDevices[equip->EquipArch()->iArchID];
+						global->clientCloakingInfo[client].arch = global->cloakingDevices[equip->EquipArch()->iArchId];
 					}
 					// If this cloaking device does not appear in the cloaking
 					// device list then warming up and fuel usage is zero and it may
 					// be used by any ship.
 					else
 					{
-						global->clientCloakingInfo[iClientID].arch.dropShieldsOnUncloak = false;
-						global->clientCloakingInfo[iClientID].arch.cooldownTime = 0;
-						global->clientCloakingInfo[iClientID].arch.holdSizeLimit = 0;
-						global->clientCloakingInfo[iClientID].arch.warmupTime = 0;
-						global->clientCloakingInfo[iClientID].arch.fuelToUsage.clear();
+						global->clientCloakingInfo[client].arch.dropShieldsOnUncloak = false;
+						global->clientCloakingInfo[client].arch.cooldownTime = 0;
+						global->clientCloakingInfo[client].arch.holdSizeLimit = 0;
+						global->clientCloakingInfo[client].arch.warmupTime = 0;
+						global->clientCloakingInfo[client].arch.fuelToUsage.clear();
 					}
 
-					global->clientCloakingInfo[iClientID].canCloak = true;
-					global->clientCloakingInfo[iClientID].state = STATE_CLOAK_INVALID;
-					SetState(iClientID, iShip, STATE_CLOAK_OFF);
+					global->clientCloakingInfo[client].canCloak = true;
+					global->clientCloakingInfo[client].state = STATE_CLOAK_INVALID;
+					SetState(client, ship, STATE_CLOAK_OFF);
 					return;
 				}
 			}
@@ -196,7 +196,7 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Hook on BaseEnter. Removes the client from our data.
 	 */
-	void BaseEnter(uint& iBaseID, uint& iClientID) { global->clientCloakingInfo.erase(iClientID); }
+	void BaseEnter(uint& iBaseId, ClientId& client) { global->clientCloakingInfo.erase(client); }
 
 	/** @ingroup Cloak
 	 * @brief A timer function. Actions the cloaking device bases on the state.
@@ -207,11 +207,11 @@ namespace Plugins::Cloak
 
 		for (std::map<uint, CloakInfo>::iterator ci = global->clientCloakingInfo.begin(); ci != global->clientCloakingInfo.end(); ++ci)
 		{
-			uint iClientID = ci->first;
-			uint iShipID = Players[iClientID].iShipID;
+			ClientId client = ci->first;
+			uint shipId = Players[client].shipId;
 			CloakInfo& info = ci->second;
 
-			if (iShipID && info.canCloak)
+			if (shipId && info.canCloak)
 			{
 				switch (info.state)
 				{
@@ -221,36 +221,36 @@ namespace Plugins::Cloak
 						// wouldnt always see uncloaked players
 						XActivateEquip ActivateEq;
 						ActivateEq.bActivate = false;
-						ActivateEq.iSpaceID = iShipID;
-						ActivateEq.sID = info.cloakSlot;
-						Server.ActivateEquip(iClientID, ActivateEq);
+						ActivateEq.iSpaceId = shipId;
+						ActivateEq.sId = info.cloakSlot;
+						Server.ActivateEquip(client, ActivateEq);
 						break;
 
 					case STATE_CLOAK_CHARGING:
-						if (!ProcessFuel(iClientID, info))
+						if (!ProcessFuel(client, info))
 						{
-							PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");
-							SetState(iClientID, iShipID, STATE_CLOAK_OFF);
+							PrintUserCmdText(client, L"Cloaking device shutdown, no fuel");
+							SetState(client, shipId, STATE_CLOAK_OFF);
 						}
 						else if ((info.cloakTime + info.arch.warmupTime) < now)
 						{
-							SetState(iClientID, iShipID, STATE_CLOAK_ON);
+							SetState(client, shipId, STATE_CLOAK_ON);
 						}
 						else if (info.arch.dropShieldsOnUncloak && !info.admin)
 						{
-							pub::SpaceObj::DrainShields(iShipID);
+							pub::SpaceObj::DrainShields(shipId);
 						}
 						break;
 
 					case STATE_CLOAK_ON:
-						if (!ProcessFuel(iClientID, info))
+						if (!ProcessFuel(client, info))
 						{
-							PrintUserCmdText(iClientID, L"Cloaking device shutdown, no fuel");
-							SetState(iClientID, iShipID, STATE_CLOAK_OFF);
+							PrintUserCmdText(client, L"Cloaking device shutdown, no fuel");
+							SetState(client, shipId, STATE_CLOAK_OFF);
 						}
 						else if (info.arch.dropShieldsOnUncloak && !info.admin)
 						{
-							pub::SpaceObj::DrainShields(iShipID);
+							pub::SpaceObj::DrainShields(shipId);
 						}
 						break;
 				}
@@ -261,47 +261,47 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Is called when the player types /cloak. Sets the cloaking device state accordingly.
 	 */
-	void UserCmd_Cloak(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Cloak(ClientId& client, const std::wstring_view& wscParam)
 	{
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		if (!iShip)
+		uint ship;
+		pub::Player::GetShip(client, ship);
+		if (!ship)
 		{
-			PrintUserCmdText(iClientID, L"Not in space");
+			PrintUserCmdText(client, L"Not in space");
 			return;
 		}
 
-		if (!global->clientCloakingInfo[iClientID].canCloak)
+		if (!global->clientCloakingInfo[client].canCloak)
 		{
-			PrintUserCmdText(iClientID, L"Cloaking device not available");
+			PrintUserCmdText(client, L"Cloaking device not available");
 			return;
 		}
 
 		// If this cloaking device requires more power than the ship can provide
 		// no cloaking device is available.
-		IObjInspectImpl* obj = GetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(client);
 		if (obj)
 		{
 			CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 			if (cship)
 			{
-				if (global->clientCloakingInfo[iClientID].arch.holdSizeLimit != 0 &&
-				    global->clientCloakingInfo[iClientID].arch.holdSizeLimit < cship->shiparch()->fHoldSize)
+				if (global->clientCloakingInfo[client].arch.holdSizeLimit != 0 &&
+				    global->clientCloakingInfo[client].arch.holdSizeLimit < cship->shiparch()->fHoldSize)
 				{
-					PrintUserCmdText(iClientID, L"Cloaking device will not function on this ship type");
-					global->clientCloakingInfo[iClientID].state = STATE_CLOAK_INVALID;
-					SetState(iClientID, iShip, STATE_CLOAK_OFF);
+					PrintUserCmdText(client, L"Cloaking device will not function on this ship type");
+					global->clientCloakingInfo[client].state = STATE_CLOAK_INVALID;
+					SetState(client, ship, STATE_CLOAK_OFF);
 					return;
 				}
 
-				switch (global->clientCloakingInfo[iClientID].state)
+				switch (global->clientCloakingInfo[client].state)
 				{
 					case STATE_CLOAK_OFF:
-						SetState(iClientID, iShip, STATE_CLOAK_CHARGING);
+						SetState(client, ship, STATE_CLOAK_CHARGING);
 						break;
 					case STATE_CLOAK_CHARGING:
 					case STATE_CLOAK_ON:
-						SetState(iClientID, iShip, STATE_CLOAK_OFF);
+						SetState(client, ship, STATE_CLOAK_OFF);
 						break;
 				}
 			}
@@ -322,37 +322,37 @@ namespace Plugins::Cloak
 		{
 			global->returncode = ReturnCode::SkipAll;
 
-			uint iClientID = GetClientIdFromCharname(cmds->GetAdminName());
-			if (iClientID == -1)
+			ClientId client = GetClientIdFromCharname(cmds->GetAdminName());
+			if (client == -1)
 			{
 				cmds->Print(L"ERR On console");
 				return true;
 			}
 
-			uint iShip;
-			pub::Player::GetShip(iClientID, iShip);
-			if (!iShip)
+			uint ship;
+			pub::Player::GetShip(client, ship);
+			if (!ship)
 			{
-				PrintUserCmdText(iClientID, L"ERR Not in space");
+				PrintUserCmdText(client, L"ERR Not in space");
 				return true;
 			}
 
-			if (!global->clientCloakingInfo[iClientID].canCloak)
+			if (!global->clientCloakingInfo[client].canCloak)
 			{
 				cmds->Print(L"ERR Cloaking device not available");
 				return true;
 			}
 
-			switch (global->clientCloakingInfo[iClientID].state)
+			switch (global->clientCloakingInfo[client].state)
 			{
 				case STATE_CLOAK_OFF:
-					global->clientCloakingInfo[iClientID].admin = true;
-					SetState(iClientID, iShip, STATE_CLOAK_ON);
+					global->clientCloakingInfo[client].admin = true;
+					SetState(client, ship, STATE_CLOAK_ON);
 					break;
 				case STATE_CLOAK_CHARGING:
 				case STATE_CLOAK_ON:
-					global->clientCloakingInfo[iClientID].admin = false;
-					SetState(iClientID, iShip, STATE_CLOAK_OFF);
+					global->clientCloakingInfo[client].admin = false;
+					SetState(client, ship, STATE_CLOAK_OFF);
 					break;
 			}
 			return true;
@@ -366,19 +366,19 @@ namespace Plugins::Cloak
 	void __stdcall Cb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate& fate)
 	{
 		DamageList* dmg2 = *dmg;
-		if (g_DmgToSpaceID && dmg2->get_inflictor_id())
+		if (g_DmgToSpaceId && dmg2->get_inflictor_id())
 		{
 			if (dmg2->get_cause() == DamageCause::CruiseDisrupter)
 			{
 				float curr, max;
-				pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
-				uint client = GetClientIDByShip(g_DmgToSpaceID);
+				pub::SpaceObj::GetHealth(g_DmgToSpaceId, curr, max);
+				ClientId client = GetClientIdByShip(g_DmgToSpaceId);
 				if (client)
 				{
 					if (global->clientCloakingInfo[client].canCloak && !global->clientCloakingInfo[client].admin &&
 					    global->clientCloakingInfo[client].state == STATE_CLOAK_CHARGING)
 					{
-						SetState(client, g_DmgToSpaceID, STATE_CLOAK_OFF);
+						SetState(client, g_DmgToSpaceId, STATE_CLOAK_OFF);
 					}
 				}
 			}

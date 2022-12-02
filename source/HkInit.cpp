@@ -5,7 +5,7 @@ namespace IEngineHook
 {
 	void __cdecl UpdateTime(double interval);
 	void __stdcall ElapseTime(float interval);
-	int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HOST_RESPONSE response);
+	int __cdecl DockCall(const uint& shipId, const uint& spaceId, int flags, DOCK_HOST_RESPONSE response);
 	int __cdecl FreeReputationVibe(int const& p1);
 
 	void Naked__CShip__Init();
@@ -21,7 +21,7 @@ namespace IEngineHook
 
 void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg);
-void __stdcall SendChat(uint clientId, uint clientIdTo, uint size, void* rdl);
+void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl);
 
 extern FARPROC g_OldShipDestroyed;
 extern FARPROC g_OldNonGunWeaponHitsBase;
@@ -180,13 +180,13 @@ char szRepFreeFixOld[5];
 clear the clientinfo
 **************************************************************************************************************/
 
-void ClearClientInfo(uint clientId)
+void ClearClientInfo(ClientId client)
 {
-	auto* info = &ClientInfo[clientId];
+	auto* info = &ClientInfo[client];
 
 	info->dieMsg = DIEMSG_ALL;
-	info->iShip = 0;
-	info->iShipOld = 0;
+	info->ship = 0;
+	info->shipOld = 0;
 	info->tmSpawnTime = 0;
 	info->lstMoneyFix.clear();
 	info->iTradePartner = 0;
@@ -194,7 +194,7 @@ void ClearClientInfo(uint clientId)
 	info->iCharMenuEnterTime = 0;
 	info->bCruiseActivated = false;
 	info->tmKickTime = 0;
-	info->iLastExitedBaseID = 0;
+	info->iLastExitedBaseId = 0;
 	info->bDisconnected = false;
 	info->bCharSelected = false;
 	info->tmF1Time = 0;
@@ -219,31 +219,31 @@ void ClearClientInfo(uint clientId)
 	info->bEngineKilled = false;
 	info->bThrusterActivated = false;
 	info->bTradelane = false;
-	info->iGroupID = 0;
+	info->iGroupId = 0;
 
 	info->bSpawnProtected = false;
 
 	// Reset the dmg list if this client was the inflictor
 	for (auto& i : ClientInfo)
 	{
-		if (i.dmgLast.iInflictorPlayerID == clientId)
+		if (i.dmgLast.iInflictorPlayerId == client)
 			i.dmgLast = dmg;
 	}
 
-	Hk::Ini::CharacterClearClientInfo(clientId);
+	Hk::Ini::CharacterClearClientInfo(client);
 
-	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, clientId);
+	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, client);
 }
 
 /**************************************************************************************************************
 load settings from flhookhuser.ini
 **************************************************************************************************************/
 
-void LoadUserSettings(uint clientId)
+void LoadUserSettings(ClientId client)
 {
-	auto* info = &ClientInfo[clientId];
+	auto* info = &ClientInfo[client];
 
-	CAccount* acc = Players.FindAccountFromClientID(clientId);
+	CAccount* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
 	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
@@ -274,16 +274,16 @@ void LoadUserSettings(uint clientId)
 load settings from flhookhuser.ini (specific to character)
 **************************************************************************************************************/
 
-void LoadUserCharSettings(uint clientId)
+void LoadUserCharSettings(ClientId client)
 {
-	auto* info = &ClientInfo[clientId];
+	auto* info = &ClientInfo[client];
 
-	CAccount* acc = Players.FindAccountFromClientID(clientId);
+	CAccount* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
 	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read autobuy
-	auto fileName = Hk::Client::GetCharFileName((wchar_t*)Players.GetActiveCharacterName(clientId));
+	auto fileName = Hk::Client::GetCharFileName((wchar_t*)Players.GetActiveCharacterName(client));
 	if (fileName.has_error())
 	{
 		return;
@@ -298,7 +298,7 @@ void LoadUserCharSettings(uint clientId)
 	info->bAutoBuyCM = IniGetB(scUserFile, scSection, "cm", false);
 	info->bAutoBuyReload = IniGetB(scUserFile, scSection, "reload", false);
 
-	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, clientId);
+	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, client);
 }
 
 /**************************************************************************************************************
@@ -309,9 +309,9 @@ bool InitHookExports()
 {
 	// init critial sections
 	InitializeCriticalSection(&csIPResolve);
-	DWORD dwID;
+	DWORD dwId;
 	DWORD dwParam[34]; // else release version crashes, dont ask me why...
-	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwID);
+	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
 
 	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
@@ -455,7 +455,7 @@ void UnloadHookExports()
 
 	// anti-death-msg
 	char szOld[] = { '\x74' };
-	pAddress = SRV_ADDR(ADDR_ANTIDIEMSG);
+	pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 	WriteProcMem(pAddress, szOld, 1);
 
 	// plugins
@@ -478,13 +478,13 @@ void HookRehashed()
 	if (FLHookConfig::i()->general.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
 		char szJMP[] = { '\xEB' };
-		pAddress = SRV_ADDR(ADDR_ANTIDIEMSG);
+		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(pAddress, szJMP, 1);
 	}
 	else
 	{
 		char szOld[] = { '\x74' };
-		pAddress = SRV_ADDR(ADDR_ANTIDIEMSG);
+		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(pAddress, szOld, 1);
 	}
 

@@ -6,7 +6,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 {
 	pub::AI::SetPersonalityParams p;
 	p.iStateGraph = pub::StateGraph::get_state_graph("NOTHING", pub::StateGraph::TYPE_STANDARD);
-	p.bStateID = true;
+	p.bStateId = true;
 
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[0] = 0.4f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[1] = 0.0f;
@@ -196,16 +196,16 @@ static uint CreateWPlatformNPC(uint iSystem, Vector position, Matrix rotation, u
 	switch (type)
 	{
 		case Module::TYPE_DEFENSE_3:
-			si.iShipArchetype = CreateID("wplatform_pbase_01");
+			si.shipArchetype = CreateID("wplatform_pbase_01");
 			si.iLoadout = CreateID("wplatform_pbase_loadout03");
 			break;
 		case Module::TYPE_DEFENSE_2:
-			si.iShipArchetype = CreateID("wplatform_pbase_01");
+			si.shipArchetype = CreateID("wplatform_pbase_01");
 			si.iLoadout = CreateID("wplatform_pbase_loadout02");
 			break;
 		case Module::TYPE_DEFENSE_1:
 		default:
-			si.iShipArchetype = CreateID("wplatform_pbase_01");
+			si.shipArchetype = CreateID("wplatform_pbase_01");
 			si.iLoadout = CreateID("wplatform_pbase_loadout01");
 			break;
 	}
@@ -249,18 +249,18 @@ static uint CreateWPlatformNPC(uint iSystem, Vector position, Matrix rotation, u
 	return space_obj;
 }
 
-static void SpawnSolar(unsigned int& spaceID, pub::SpaceObj::SolarInfo const& solarInfo)
+static void SpawnSolar(unsigned int& spaceId, pub::SpaceObj::SolarInfo const& solarInfo)
 {
 	// hack server.dll so it does not call create solar packet send
 	char* serverHackAddress = (char*)hModServer + 0x2A62A;
 	char serverHack[] = { '\xEB' };
 	WriteProcMem(serverHackAddress, &serverHack, 1);
 
-	pub::SpaceObj::CreateSolar(spaceID, solarInfo);
+	pub::SpaceObj::CreateSolar(spaceId, solarInfo);
 
 	uint dunno;
 	IObjInspectImpl* inspect;
-	if (GetShipInspect(spaceID, inspect, dunno))
+	if (GetShipInspect(spaceId, inspect, dunno))
 	{
 		CSolar* solar = (CSolar*)inspect->cobject();
 
@@ -293,9 +293,9 @@ static void SpawnSolar(unsigned int& spaceID, pub::SpaceObj::SolarInfo const& so
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			if (pPD->iSystemID == solarInfo.iSystemID)
+			if (pPD->iSystemId == solarInfo.iSystemId)
 				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(
-				    pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
+				    pPD->iOnlineId, (FLPACKET_CREATESOLAR&)packetSolar);
 		}
 	}
 
@@ -310,24 +310,24 @@ static uint CreateWPlatformSolar(
 	pub::SpaceObj::SolarInfo si;
 	memset(&si, 0, sizeof(si));
 	si.iFlag = 4;
-	si.iSystemID = iSystem;
+	si.iSystemId = iSystem;
 	si.vPos = position;
 	si.mOrientation = rotation;
 
 	switch (type)
 	{
 		case Module::TYPE_DEFENSE_3:
-			si.iArchID = CreateID("wplatform_pbase_01");
-			si.iLoadoutID = CreateID("wplatform_pbase_loadout03");
+			si.iArchId = CreateID("wplatform_pbase_01");
+			si.iLoadoutId = CreateID("wplatform_pbase_loadout03");
 			break;
 		case Module::TYPE_DEFENSE_2:
-			si.iArchID = CreateID("wplatform_pbase_01");
-			si.iLoadoutID = CreateID("wplatform_pbase_loadout02");
+			si.iArchId = CreateID("wplatform_pbase_01");
+			si.iLoadoutId = CreateID("wplatform_pbase_loadout02");
 			break;
 		case Module::TYPE_DEFENSE_1:
 		default:
-			si.iArchID = CreateID("wplatform_pbase_01");
-			si.iLoadoutID = CreateID("wplatform_pbase_loadout01");
+			si.iArchId = CreateID("wplatform_pbase_01");
+			si.iLoadoutId = CreateID("wplatform_pbase_loadout01");
 			break;
 	}
 
@@ -336,7 +336,7 @@ static uint CreateWPlatformSolar(
 	si.Costume.lefthand = 0;
 	si.Costume.righthand = 0;
 	si.Costume.accessories = 0;
-	si.iVoiceID = CreateID("atc_leg_m01");
+	si.iVoiceId = CreateID("atc_leg_m01");
 
 	std::string wplatform_nickname = base->nickname + std::to_string(rand());
 

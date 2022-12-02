@@ -28,7 +28,7 @@ namespace Plugins::Tempban
 
 	Error __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
 	{
-		const uint iClientID = GetClientIdFromCharname(wscCharname);
+		ClientId client = GetClientIdFromCharname(wscCharname);
 
 		mstime duration = 1000 * _duration * 60;
 		TempbanInfo tempban;
@@ -36,19 +36,19 @@ namespace Plugins::Tempban
 		tempban.banDuration = duration;
 
 		CAccount* acc;
-		if (iClientID != -1)
-			acc = Players.FindAccountFromClientID(iClientID);
+		if (client != -1)
+			acc = Players.FindAccountFromClientID(client);
 		else
 		{
 			if (!(acc = GetAccountByCharname(wscCharname)))
 				return CharDoesNotExist;
 		}
-		std::wstring wscID = GetAccountID(acc);
+		std::wstring wscId = GetAccountID(acc);
 
-		tempban.accountId = wscID;
+		tempban.accountId = wscId;
 		global->TempBans.push_back(tempban);
 
-		if (iClientID != -1 && Kick(iClientID) != E_OK)
+		if (client != -1 && Kick(client) != E_OK)
 		{
 			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
@@ -57,16 +57,16 @@ namespace Plugins::Tempban
 		return E_OK;
 	}
 
-	bool TempBannedCheck(uint iClientID)
+	bool TempBannedCheck(ClientId client)
 	{
 		CAccount* acc;
-		acc = Players.FindAccountFromClientID(iClientID);
+		acc = Players.FindAccountFromClientID(client);
 
-		std::wstring wscID = GetAccountID(acc);
+		std::wstring wscId = GetAccountID(acc);
 
 		for (auto& ban : global->TempBans)
 		{
-			if (ban.accountId == wscID)
+			if (ban.accountId == wscId)
 				return true;
 		}
 
@@ -75,15 +75,15 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& iClientID)
+	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
 	{
 		global->returncode = ReturnCode::Default;
 
 		// check for tempban
-		if (TempBannedCheck(iClientID))
+		if (TempBannedCheck(client))
 		{
 			global->returncode = ReturnCode::SkipAll;
-			Kick(iClientID);
+			Kick(client);
 		}
 	}
 

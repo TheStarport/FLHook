@@ -16,13 +16,13 @@ struct IPBans : Reflectable
 	std::vector<std::string> Bans;
 };
 
-struct LoginIDBans : Reflectable
+struct LoginIdBans : Reflectable
 {
 	std::string File() override
 	{
 		char path[MAX_PATH];
 		GetUserDataPath(path);
-		return std::string(path) + "\\LoginIDBans.json";
+		return std::string(path) + "\\LoginIdBans.json";
 	}
 
 	std::vector<std::string> Bans;
@@ -46,7 +46,7 @@ struct Global final
 
 	/// list of bans
 	IPBans ipBans;
-	LoginIDBans loginIDBans;
+	LoginIdBans loginIdBans;
 
 	// Authenticated accounts even if they are banned somehow
 	AuthenticatedAccounts authenticatedAccounts;

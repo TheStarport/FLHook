@@ -109,7 +109,7 @@ void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetClientId(const std::wstring& player)
+void CCmds::CmdGetClientID(const std::wstring& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -300,7 +300,7 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 	for (auto& item : cargo.value())
 	{
 		if (!item.bMounted)
-			Print(L"id=%u archid=%u count=%d mission=%u", item.iID, item.iArchID, item.iCount, item.bMission ? 1 : 0);
+			Print(L"id=%u archid=%u count=%d mission=%u", item.iId, item.iArchId, item.iCount, item.bMission ? 1 : 0);
 	}
 
 	Print(L"OK");
@@ -408,7 +408,7 @@ void CCmds::PrintPlayerInfo(PLAYERINFO& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.clientId,
+	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.client,
 	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
@@ -443,7 +443,7 @@ void CCmds::XPrintPlayerInfo(const PLAYERINFO& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(L"Name: %s, ID: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.clientId,
+	Print(L"Name: %s, Id: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.client,
 	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
 }
 
@@ -473,7 +473,7 @@ void CCmds::CmdXGetPlayers()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdGetPlayerIDs()
+void CCmds::CmdGetPlayerIds()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -481,7 +481,7 @@ void CCmds::CmdGetPlayerIDs()
 	for (auto& p : Hk::Admin::GetPlayers())
 	{
 		wchar_t wszBuf[1024];
-		swprintf_s(wszBuf, L"%s = %u | ", p.character.c_str(), p.clientId);
+		swprintf_s(wszBuf, L"%s = %u | ", p.character.c_str(), p.client);
 		if ((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine) / 2)
 		{
 			Print(L"%s", wszLine);
@@ -559,10 +559,10 @@ void CCmds::CmdMoneyFixList()
 	struct PlayerData* playerDb = 0;
 	while (playerDb = Players.traverse_active(playerDb))
 	{
-		uint clientId = playerDb->iOnlineID;
+		ClientId client = playerDb->iOnlineId;
 
-		if (ClientInfo[clientId].lstMoneyFix.size())
-			Print(L"id=%u", clientId);
+		if (ClientInfo[client].lstMoneyFix.size())
+			Print(L"id=%u", client);
 	}
 
 	Print(L"OK");
@@ -615,7 +615,7 @@ void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 
 	Print(L"groupsize=%d", res.value().size());
 	for (auto& m : res.value())
-		Print(L"id=%d charname=%s", m.clientId, m.character.c_str());
+		Print(L"id=%d charname=%s", m.client, m.character.c_str());
 	Print(L"OK");
 }
 
@@ -787,7 +787,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	}
 
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
-	if (target.has_error() || target.value().iShip == 0)
+	if (target.has_error() || target.value().ship == 0)
 	{
 		Print(L"ERR Player not found or not in space");
 		return;
@@ -795,7 +795,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 
 	Vector pos;
 	Matrix ornt;
-	pub::SpaceObj::GetLocation(target.value().iShip, pos, ornt);
+	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
 	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
@@ -829,7 +829,7 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 				return;
 			}
 
-			if (res.value().iShip == 0)
+			if (res.value().ship == 0)
 			{
 				Print(L"ERR Player not in space");
 				return;
@@ -839,14 +839,14 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 			const struct Universe::IBase* baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = Hk::Message::GetWStringFromIDS(baseinfo->baseIdS);
+				std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS);
 				if (ToLower(basename).find(ToLower(targetBaseName)) == 0)
 				{
-					pub::Player::ForceLand(res.value().clientId, baseinfo->baseId);
+					pub::Player::ForceLand(res.value().client, baseinfo->baseId);
 					if (res.value().iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->baseId, res.value().clientId);
-						Server.BaseExit(baseinfo->baseId, res.value().clientId);
+						Server.BaseEnter(baseinfo->baseId, res.value().client);
+						Server.BaseExit(baseinfo->baseId, res.value().client);
 						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
 						if (charFileName.has_error()) 
 						{
@@ -854,9 +854,9 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 						}
 
 						const auto fileName = charFileName.value() + L".fl";
-						CHARACTER_ID cID;
-						strcpy(cID.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, res.value().clientId);
+						CHARACTER_ID cId;
+						strcpy(cId.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
+						Server.CharacterSelect(cId, res.value().client);
 					}
 					return;
 				}
@@ -867,14 +867,14 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 			baseinfo = Universe::GetFirstBase();
 			while (baseinfo)
 			{
-				std::wstring basename = Hk::Message::GetWStringFromIDS(baseinfo->baseIdS);
+				std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS);
 				if (ToLower(basename).find(ToLower(targetBaseName)) != -1)
 				{
-					pub::Player::ForceLand(res.value().clientId, baseinfo->baseId);
+					pub::Player::ForceLand(res.value().client, baseinfo->baseId);
 					if (res.value().iSystem != baseinfo->systemId)
 					{
-						Server.BaseEnter(baseinfo->baseId, res.value().clientId);
-						Server.BaseExit(baseinfo->baseId, res.value().clientId);
+						Server.BaseEnter(baseinfo->baseId, res.value().client);
+						Server.BaseExit(baseinfo->baseId, res.value().client);
 						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
 						if (charFileName.has_error())
 						{
@@ -882,9 +882,9 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 						}
 
 						const auto fileName = charFileName.value() + L".fl";
-						CHARACTER_ID cID;
-						strcpy(cID.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, res.value().clientId);
+						CHARACTER_ID cId;
+						strcpy(cId.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
+						Server.CharacterSelect(cId, res.value().client);
 					}
 					return;
 				}
@@ -914,7 +914,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	}
 
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
-	if (target.has_error() || target.value().iShip == 0)
+	if (target.has_error() || target.value().ship == 0)
 	{
 		Print(L"ERR Player not found or not in space");
 		return;
@@ -922,7 +922,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 
 	Vector pos;
 	Matrix ornt;
-	pub::SpaceObj::GetLocation(target.value().iShip, pos, ornt);
+	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 400;
 
 	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
@@ -945,12 +945,12 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 
 	Vector pos;
 	Matrix rot;
-	pub::SpaceObj::GetLocation(res.value().iShip, pos, rot);
+	pub::SpaceObj::GetLocation(res.value().ship, pos, rot);
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
 	Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
-	Hk::Player::RelocateClient(res.value().clientId, pos, rot);
+	Hk::Player::RelocateClient(res.value().client, pos, rot);
 	return;
 }
 
@@ -1036,7 +1036,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 
 	if (iArg == 1)
 	{
-		if (bID)
+		if (bId)
 			return wscArg.replace((int)0, (int)0, L"id ");
 		else if (bShortCut)
 			return wscArg.replace((int)0, (int)0, L"sc ");
@@ -1044,18 +1044,18 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return this->GetAdminName();
 		else if (bTarget)
 		{
-			auto clientId = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
-			if (clientId.has_error())
+			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			if (client.has_error())
 				return L"";
-			uint iShip;
-			pub::Player::GetShip(clientId.value(), iShip);
-			if (!iShip)
+			uint ship;
+			pub::Player::GetShip(client.value(), ship);
+			if (!ship)
 				return L"";
 			uint iTarget;
-			pub::SpaceObj::GetTarget(iShip, iTarget);
+			pub::SpaceObj::GetTarget(ship, iTarget);
 			if (!iTarget)
 				return L"";
-			auto targetId = Hk::Client::GetClientIDByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -1069,18 +1069,18 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + wscArg.substr(2);
 		else if (wscArg == L">t")
 		{
-			auto clientId = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
-			if (clientId.has_error())
+			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			if (client.has_error())
 				return L"";
-			uint iShip;
-			pub::Player::GetShip(clientId.value(), iShip);
-			if (!iShip)
+			uint ship;
+			pub::Player::GetShip(client.value(), ship);
+			if (!ship)
 				return L"";
 			uint iTarget;
-			pub::SpaceObj::GetTarget(iShip, iTarget);
+			pub::SpaceObj::GetTarget(ship, iTarget);
 			if (!iTarget)
 				return L"";
-			auto targetId = Hk::Client::GetClientIDByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -1167,7 +1167,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 
 		AddLog(LogType::AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
 
-		bID = false;
+		bId = false;
 		bShortCut = false;
 		bSelf = false;
 		bTarget = false;
@@ -1184,7 +1184,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 
 		if (wscCmd[wscCmd.length() - 1] == '$')
 		{
-			bID = true;
+			bId = true;
 			wscCmd.erase(wscCmd.length() - 1, 1);
 		}
 		else if (wscCmd[wscCmd.length() - 1] == '&')
@@ -1233,7 +1233,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			}
 			else if (wscCmd == L"getclientid")
 			{
-				CmdGetClientId(ArgCharname(1));
+				CmdGetClientID(ArgCharname(1));
 			}
 			else if (wscCmd == L"beam")
 			{
@@ -1325,7 +1325,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			}
 			else if (wscCmd == L"getplayerids")
 			{
-				CmdGetPlayerIDs();
+				CmdGetPlayerIds();
 			}
 			else if (wscCmd == L"getaccountdirname")
 			{

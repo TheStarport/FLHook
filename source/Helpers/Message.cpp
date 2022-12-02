@@ -16,13 +16,13 @@ namespace Hk::Message
 {
 	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& wscMessage)
 	{
-		const uint clientId = Hk::Client::ExtractClientId(player);
+		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (clientId == UINT_MAX)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		const CHAT_ID ci = {0};
-		const CHAT_ID ciClient = {clientId};
+		const CHAT_ID ciClient = {client};
 
 		const std::wstring wscXML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(wscMessage) + L"</TEXT>";
 		uint iRet;
@@ -59,12 +59,12 @@ namespace Hk::Message
 		PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			uint clientId = playerDb->iOnlineID;
-			uint iClientSystemID = 0;
-			pub::Player::GetSystem(clientId, iClientSystemID);
-			if (systemId == iClientSystemID)
+			ClientId client = playerDb->iOnlineId;
+			uint iClientSystemId = 0;
+			pub::Player::GetSystem(client, iClientSystemId);
+			if (systemId == iClientSystemId)
 			{
-				const CHAT_ID ciClient = {clientId};
+				const CHAT_ID ciClient = {client};
 				IServerImplHook::SubmitChat(ci, iRet, szBuf, ciClient, -1);
 			}
 		}
@@ -108,12 +108,12 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void FMsgSendChat(uint clientId, char* szBuf, uint iSize)
+	void FMsgSendChat(ClientId client, char* szBuf, uint iSize)
 	{
 		uint p4 = (uint)szBuf;
 		uint p3 = iSize;
 		uint p2 = 0x00010000;
-		uint p1 = clientId;
+		uint p1 = client;
 
 		__asm {
         push [p4]
@@ -128,24 +128,24 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsg(uint clientId, const std::wstring& wscXML)
+	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& wscXML)
 	{
 		char szBuf[0xFFFF];
 		uint iRet;
 		if (const auto err = FMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
-		FMsgSendChat(clientId, szBuf, iRet);
+		FMsgSendChat(client, szBuf, iRet);
 	}
 
 	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML)
 	{
-		const uint clientId = Hk::Client::ExtractClientId(player);
+		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (clientId == UINT_MAX)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		return FMsg(clientId, wscXML);
+		return FMsg(client, wscXML);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,11 +162,11 @@ namespace Hk::Message
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			uint clientId = playerDb->iOnlineID;
-			uint iClientSystemID = 0;
-			pub::Player::GetSystem(clientId, iClientSystemID);
-			if (id == iClientSystemID)
-				FMsgSendChat(clientId, szBuf, iRet);
+			ClientId client = playerDb->iOnlineId;
+			uint iClientSystemId = 0;
+			pub::Player::GetSystem(client, iClientSystemId);
+			if (id == iClientSystemId)
+				FMsgSendChat(client, szBuf, iRet);
 		}
 
 		return {};
@@ -187,8 +187,8 @@ namespace Hk::Message
 		PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			const uint clientId = playerDb->iOnlineID;
-			FMsgSendChat(clientId, szBuf, iRet);
+			ClientId client = playerDb->iOnlineId;
+			FMsgSendChat(client, szBuf, iRet);
 		}
 
 		return {};
@@ -197,13 +197,13 @@ namespace Hk::Message
 	/** Format a chat std::string in accordance with the receiver's preferences and
 	send it. Will check that the receiver accepts messages from wscSender and
 	refuses to send if necessary. */
-	cpp::result<void, Error> FormatSendChat(uint iToClientID, const std::wstring& wscSender, const std::wstring& text, const std::wstring& textColor)
+	cpp::result<void, Error> FormatSendChat(uint iToClientId, const std::wstring& wscSender, const std::wstring& text, const std::wstring& textColor)
 	{
 #define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (auto& ignore : ClientInfo[iToClientID].lstIgnore)
+			for (auto& ignore : ClientInfo[iToClientId].lstIgnore)
 			{
 				if (!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.character))))
 					return {}; // ignored
@@ -214,7 +214,7 @@ namespace Hk::Message
 
 		uchar cFormat;
 		// adjust chatsize
-		switch (ClientInfo[iToClientID].chatSize)
+		switch (ClientInfo[iToClientId].chatSize)
 		{
 			case CS_SMALL:
 				cFormat = 0x90;
@@ -228,7 +228,7 @@ namespace Hk::Message
 		}
 
 		// adjust chatstyle
-		switch (ClientInfo[iToClientID].chatStyle)
+		switch (ClientInfo[iToClientId].chatStyle)
 		{
 			case CST_BOLD:
 				cFormat += 0x01;
@@ -252,25 +252,25 @@ namespace Hk::Message
 		const std::wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscSender) +
 		    L": </TEXT>" + L"<TRA data=\"0x" + textColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
 
-		if (const auto err = FMsg(iToClientID, wscXML); err.has_error())
+		if (const auto err = FMsg(iToClientId, wscXML); err.has_error())
 			return cpp::fail(err.error());
 
 		return {};
 	}
 
 	/** Send a player to player message */
-	cpp::result<void, Error> SendPrivateChat(uint iFromClientID, uint iToClientID, const std::wstring& text)
+	cpp::result<void, Error> SendPrivateChat(uint iFromClientId, uint iToClientId, const std::wstring& text)
 	{
-		const auto wscSender = Client::GetCharacterNameById(iFromClientID);
+		const auto wscSender = Client::GetCharacterNameByID(iFromClientId);
 		if (wscSender.has_error())
 		{
-			Console::ConErr(L"Unable to send private chat message from client %u", iFromClientID);
+			Console::ConErr(L"Unable to send private chat message from client %u", iFromClientId);
 			return {};
 		}
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (auto const& ignore : ClientInfo[iToClientID].lstIgnore)
+			for (auto const& ignore : ClientInfo[iToClientId].lstIgnore)
 			{
 				if (HAS_FLAG(ignore, L"p"))
 					return {};
@@ -278,11 +278,11 @@ namespace Hk::Message
 		}
 
 		// Send the message to both the sender and receiver.
-		auto err = FormatSendChat(iToClientID, wscSender.value(), text, L"19BD3A");
+		auto err = FormatSendChat(iToClientId, wscSender.value(), text, L"19BD3A");
 		if (err.has_error())
 			return cpp::fail(err.error());
 
-		err = FormatSendChat(iFromClientID, wscSender.value(), text, L"19BD3A");
+		err = FormatSendChat(iFromClientId, wscSender.value(), text, L"19BD3A");
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -290,45 +290,45 @@ namespace Hk::Message
 	}
 
 	/** Send a player to system message */
-	void SendSystemChat(uint iFromClientID, const std::wstring& text)
+	void SendSystemChat(uint iFromClientId, const std::wstring& text)
 	{
-		const std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientID);
+		const std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientId);
 
 		// Get the player's current system.
 		uint systemId;
-		pub::Player::GetSystem(iFromClientID, systemId);
+		pub::Player::GetSystem(iFromClientId, systemId);
 
 		// For all players in system...
 		PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			uint clientId = playerDb->iOnlineID;
-			uint iClientSystemID = 0;
-			pub::Player::GetSystem(clientId, iClientSystemID);
-			if (systemId == iClientSystemID)
+			ClientId client = playerDb->iOnlineId;
+			uint iClientSystemId = 0;
+			pub::Player::GetSystem(client, iClientSystemId);
+			if (systemId == iClientSystemId)
 			{
 				// Send the message a player in this system.
-				FormatSendChat(clientId, wscSender, text, L"E6C684");
+				FormatSendChat(client, wscSender, text, L"E6C684");
 			}
 		}
 	}
 
 	/** Send a player to local system message */
-	void SendLocalSystemChat(uint iFromClientID, const std::wstring& text)
+	void SendLocalSystemChat(uint iFromClientId, const std::wstring& text)
 	{
-		const auto wscSender = Client::GetCharacterNameById(iFromClientID);
+		const auto wscSender = Client::GetCharacterNameByID(iFromClientId);
 		if (wscSender.has_error())
 		{
-			Console::ConErr(L"Unable to send local system chat message from client %u", iFromClientID);
+			Console::ConErr(L"Unable to send local system chat message from client %u", iFromClientId);
 			return;
 		}
 
 		// Get the player's current system and location in the system.
 		uint systemId;
-		pub::Player::GetSystem(iFromClientID, systemId);
+		pub::Player::GetSystem(iFromClientId, systemId);
 
 		uint iFromShip;
-		pub::Player::GetShip(iFromClientID, iFromShip);
+		pub::Player::GetShip(iFromClientId, iFromShip);
 
 		Vector vFromShipLoc;
 		Matrix mFromShipDir;
@@ -339,18 +339,18 @@ namespace Hk::Message
 		while (playerDb = Players.traverse_active(playerDb))
 		{
 			// Get the this player's current system and location in the system.
-			uint clientId = playerDb->iOnlineID;
-			uint iClientSystemID = 0;
-			pub::Player::GetSystem(clientId, iClientSystemID);
-			if (systemId != iClientSystemID)
+			ClientId client = playerDb->iOnlineId;
+			uint iClientSystemId = 0;
+			pub::Player::GetSystem(client, iClientSystemId);
+			if (systemId != iClientSystemId)
 				continue;
 
-			uint iShip;
-			pub::Player::GetShip(clientId, iShip);
+			uint ship;
+			pub::Player::GetShip(client, ship);
 
 			Vector vShipLoc;
 			Matrix mShipDir;
-			pub::SpaceObj::GetLocation(iShip, vShipLoc, mShipDir);
+			pub::SpaceObj::GetLocation(ship, vShipLoc, mShipDir);
 
 			// Cheat in the distance calculation. Ignore the y-axis
 			// Is player within scanner range (15K) of the sending char.
@@ -358,14 +358,14 @@ namespace Hk::Message
 				continue;
 
 			// Send the message a player in this system.
-			FormatSendChat(clientId, wscSender.value(), text, L"FF8F40");
+			FormatSendChat(client, wscSender.value(), text, L"FF8F40");
 		}
 	}
 
 	/** Send a player to group message */
-	void SendGroupChat(uint iFromClientID, const std::wstring& text)
+	void SendGroupChat(uint iFromClientId, const std::wstring& text)
 	{
-		const wchar_t* wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientID);
+		const wchar_t* wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientId);
 		// Format and send the message a player in this group.
 		auto lstMembers = Hk::Player::GetGroupMembers(wscSender);
 		if (lstMembers.has_error())
@@ -375,7 +375,7 @@ namespace Hk::Message
 
 		for (const auto& gm : lstMembers.value())
 		{
-			FormatSendChat(gm.clientId, wscSender, text, L"FF7BFF");
+			FormatSendChat(gm.client, wscSender, text, L"FF7BFF");
 		}
 	}
 
@@ -419,9 +419,9 @@ namespace Hk::Message
 		}
 	}
 
-	std::wstring GetWStringFromIDS(uint iIDS)
+	std::wstring GetWStringFromIdS(uint iIdS)
 	{
-		if (wchar_t wszBuf[1024]; LoadStringW(vDLLs[iIDS >> 16], iIDS & 0xFFFF, wszBuf, 1024))
+		if (wchar_t wszBuf[1024]; LoadStringW(vDLLs[iIdS >> 16], iIdS & 0xFFFF, wszBuf, 1024))
 			return wszBuf;
 		return L"";
 	}

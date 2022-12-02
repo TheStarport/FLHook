@@ -12,14 +12,14 @@ void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
 void HookRehashed();
-void LoadUserCharSettings(uint clientId);
+void LoadUserCharSettings(ClientId client);
 
-void ClearClientInfo(uint clientId);
-void LoadUserSettings(uint clientId);
+void ClearClientInfo(ClientId client);
+void LoadUserSettings(ClientId client);
 
-bool UserCmd_Process(uint clientId, const std::wstring& wscCmd);
+bool UserCmd_Process(ClientId client, const std::wstring& wscCmd);
 
-bool AllowPlayerDamage(uint clientId, uint clientIdTarget);
+bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
 // Logs
 template<typename T>
@@ -60,8 +60,8 @@ namespace Hk
 		// Ini processing functions
 		void CharacterInit();
 		void CharacterShutdown();
-		void CharacterClearClientInfo(uint client);
-		void CharacterSelect(CHARACTER_ID const charId, uint client);
+		void CharacterClearClientInfo(ClientId client);
+		void CharacterSelect(CHARACTER_ID const charId, ClientId client);
 	}
 
 	namespace Personalities
@@ -71,7 +71,7 @@ namespace Hk
 
 	namespace Client
 	{
-		uint ExtractClientId(const std::variant<uint, std::wstring>& player);
+		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
 		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
 	}
 }
@@ -95,7 +95,7 @@ void TimerNPCAndF1Check();
 void ThreadResolver();
 void TimerCheckResolveResults();
 
-void BaseDestroyed(uint objectID, uint clientIdBy);
+void BaseDestroyed(uint objectId, ClientId clientBy);
 
 extern HookEntry IServerImplEntries[73];
 
@@ -164,12 +164,12 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CHECK_FOR_DISCONNECT                                                    \
 	{                                                                           \
-		if (ClientInfo[clientId].bDisconnected)                                 \
+		if (ClientInfo[client].bDisconnected)                                 \
 		{                                                                       \
 			AddLog(LogType::Normal, LogLevel::Info,                                      \
 			    L"ERROR: Ignoring disconnected client in " + stows(__FUNCTION__) + L" id=%" \
 			                                                            "u",    \
-			    clientId);                                                      \
+			    client);                                                      \
 			return;                                                             \
 		};                                                                      \
 	}
@@ -177,7 +177,7 @@ inline auto* ToUShort(wchar_t* val)
 #define ADDR_UPDATE 0x1BAB4
 #define ADDR_STARTUP 0x1BABC
 #define ADDR_SHUTDOWN 0x1BAB8
-#define ADDR_ANTIDIEMSG 0x39124
+#define ADDR_ANTIdIEMSG 0x39124
 #define ADDR_DISCFENCR 0x6E10D
 #define ADDR_DISCFENCR2 0x6BFA6
 #define ADDR_CRCANTICHEAT 0x6FAF0

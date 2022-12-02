@@ -15,7 +15,7 @@ void CInGame::DoPrint(const std::wstring& text)
 			wszBufSend[wcslen(wszBufSend)] = '\0';
 			std::wstring wscXML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
 			    XMLText(wszBufSend) + L"</TEXT>";
-			Hk::Message::FMsg(this->clientId, wscXML);
+			Hk::Message::FMsg(this->client, wscXML);
 			memset(wszBufSend, 0, sizeof(wszBufSend));
 		}
 		else

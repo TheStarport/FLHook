@@ -44,7 +44,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Clears our connection data for the specified client.
 	 */
-	void ClearConData(uint client)
+	void ClearConData(ClientId client)
 	{
 		auto con = global->connections[client];
 		con.iAverageLoss = 0;
@@ -68,7 +68,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief ClearClientInfo hook. Calls ClearConData().
 	 */
-	void ClearClientInfo(uint& client) { ClearConData(client); }
+	void ClearClientInfo(ClientId& client) { ClearConData(client); }
 
 	/** @ingroup Condata
 	 * @brief Hook on TimerCheckKick. Checks clients's connections against a threshold and kicks them if they are above it.
@@ -81,7 +81,7 @@ namespace Plugins::ConData
 			struct PlayerData* playerData = nullptr;
 			while (playerData = Players.traverse_active(playerData))
 			{
-				const ClientId client = playerData->iOnlineID ;
+				ClientId client = playerData->iOnlineId ;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
@@ -95,7 +95,7 @@ namespace Plugins::ConData
 					// call tempban plugin
 					if (global->tempBanCommunicator)
 					{
-						const auto charName = Hk::Client::GetCharacterNameById(client);
+						const auto charName = Hk::Client::GetCharacterNameByID(client);
 						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
 				}
@@ -110,7 +110,7 @@ namespace Plugins::ConData
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
-							const auto charName = Hk::Client::GetCharacterNameById(client);
+							const auto charName = Hk::Client::GetCharacterNameByID(client);
 							global->tempBanCommunicator->TempBan(charName.value(), 60);
 						}
 					}
@@ -126,7 +126,7 @@ namespace Plugins::ConData
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
-							const auto charName = Hk::Client::GetCharacterNameById(client);
+							const auto charName = Hk::Client::GetCharacterNameByID(client);
 							global->tempBanCommunicator->TempBan(charName.value(), 60);
 						}
 					}
@@ -143,7 +143,7 @@ namespace Plugins::ConData
 						// call tempban plugin
 						if (global->tempBanCommunicator)
 						{
-							const auto charName = Hk::Client::GetCharacterNameById(client);
+							const auto charName = Hk::Client::GetCharacterNameByID(client);
 							global->tempBanCommunicator->TempBan(charName.value(), 60);
 						}
 					}
@@ -151,12 +151,12 @@ namespace Plugins::ConData
 			}
 		}
 
-		// Are there accounts connected with client IDs greater than max player
-		// count? If so, kick them as FLServer is buggy and will use high client IDs
+		// Are there accounts connected with client Ids greater than max player
+		// count? If so, kick them as FLServer is buggy and will use high client Ids
 		// but will not allow character selection on them.
 		for (ClientId client = Players.GetMaxPlayerCount() + 1; client <= MaxClientId; client++)
 		{
-			if (Players[client].iOnlineID)
+			if (Players[client].iOnlineId)
 			{
 				if (CAccount* acc = Players.FindAccountFromClientID(client))
 				{
@@ -176,7 +176,7 @@ namespace Plugins::ConData
 		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
-			const ClientId client = playerData->iOnlineID;
+			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
 				continue;
 
@@ -229,7 +229,7 @@ namespace Plugins::ConData
 		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
-			const ClientId client = playerData->iOnlineID;
+			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
 				continue;
 
@@ -296,11 +296,11 @@ namespace Plugins::ConData
 			struct PlayerData* playerData = 0;
 			while (playerData = Players.traverse_active(playerData))
 			{
-				const uint client = playerData->iOnlineID;
+				ClientId client = playerData->iOnlineId;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
-				ClearConData(playerData->iOnlineID);
+				ClearConData(playerData->iOnlineId);
 			}
 		}
 
@@ -327,7 +327,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
 	 */
-	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& client)
+	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		// lag detection
 		if (const auto ins = Hk::Client::GetInspect(client); !ins.value())
@@ -377,7 +377,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Gets called when the player types /ping
 	 */
-	void UserCmdPing(const ClientId& client, const std::wstring_view& param)
+	void UserCmdPing(ClientId& client, const std::wstring_view& param)
 	{
 		if (!global->config->allowPing)
 		{
@@ -385,25 +385,25 @@ namespace Plugins::ConData
 			return;
 		}
 
-		uint clientIdTarget = client;
+		ClientId clientTarget = client;
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
-		uint iShip = 0;
+		uint ship = 0;
 		uint iTarget = 0;
-		pub::Player::GetShip(client, iShip);
-		if (iShip)
+		pub::Player::GetShip(client, ship);
+		if (ship)
 		{
-			pub::SpaceObj::GetTarget(iShip, iTarget);
+			pub::SpaceObj::GetTarget(ship, iTarget);
 
 			if (iTarget)
 			{
-				const auto id = Hk::Client::GetClientIDByShip(iTarget);
-				if (Hk::Client::IsValidClientID(clientIdTarget))
-					clientIdTarget = id.value();
+				const auto id = Hk::Client::GetClientIdByShip(iTarget);
+				if (Hk::Client::IsValidClientID(clientTarget))
+					clientTarget = id.value();
 			}
 		}
 
-		auto& con = global->connections[clientIdTarget];
+		auto& con = global->connections[clientTarget];
 
 		std::wstring Response = L"Ping";
 		if (iTarget)
@@ -503,7 +503,7 @@ namespace Plugins::ConData
 			struct PlayerData* playerData = 0;
 			while (playerData = Players.traverse_active(playerData))
 			{
-				const ClientId client = playerData->iOnlineID;
+				ClientId client = playerData->iOnlineId;
 				if (Hk::Client::IsInCharSelectMenu(client))
 					continue;
 

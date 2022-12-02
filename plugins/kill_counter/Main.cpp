@@ -7,7 +7,7 @@
  *
  * @paragraph cmds Player Commands
  * All commands are prefixed with '/' unless explicitly specified.
- * - kills {clientId} - Shows the pvp kills for a player if a client id is specified, or if not, the player who typed it.
+ * - kills {client} - Shows the pvp kills for a player if a client id is specified, or if not, the player who typed it.
  *
  * @paragraph adminCmds Admin Commands
  * There are no admin commands in this plugin.
@@ -28,74 +28,74 @@ namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Help(ClientId& client, const std::wstring_view& wscParam)
 	{
-		PrintUserCmdText(iClientID, L"/kills <player name>");
-		PrintUserCmdText(iClientID, L"/kills$ <player id>");
+		PrintUserCmdText(client, L"/kills <player name>");
+		PrintUserCmdText(client, L"/kills$ <player id>");
 	}
 
 	/** @ingroup KillCounter
 	 * @brief Called when a player types "/kills".
 	 */
-	void UserCmd_Kills(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Kills(ClientId& client, const std::wstring_view& wscParam)
 	{
-		std::wstring wscClientID = GetParam(wscParam, ' ', 0);
+		std::wstring wscClientId = GetParam(wscParam, ' ', 0);
 		int iNumKills;
 		std::wstring mainrank;
 		std::list<std::wstring> lstLines;
 		int count;
-		if (!wscClientID.length())
+		if (!wscClientId.length())
 		{
-			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 			ReadCharFile(wscCharname, lstLines);
-			pub::Player::GetNumKills(iClientID, iNumKills);
-			PrintUserCmdText(iClientID, L"PvP kills: %i", iNumKills);
+			pub::Player::GetNumKills(client, iNumKills);
+			PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
 			for (auto& str : lstLines)
 			{
 				if (!ToLower((str)).find(L"ship_type_killed"))
 				{
-					uint iShipArchID = ToInt(GetParam(str, '=', 1).c_str());
+					uint shipArchId = ToInt(GetParam(str, '=', 1).c_str());
 					count = ToInt(GetParam(str, ',', 1).c_str());
 					iNumKills += count;
-					Archetype::Ship* ship = Archetype::GetShip(iShipArchID);
+					Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 					if (!ship)
 						continue;
-					PrintUserCmdText(iClientID, L"NPC kills:  %s %i", GetWStringFromIDS(ship->iIdsName).c_str(), count);
+					PrintUserCmdText(client, L"NPC kills:  %s %i", GetWStringFromIdS(ship->iIdsName).c_str(), count);
 				}
 			}
 			int rank;
-			pub::Player::GetRank(iClientID, rank);
-			PrintUserCmdText(iClientID, L"Total kills: %i", iNumKills);
-			PrintUserCmdText(iClientID, L"Level: %i", rank);
+			pub::Player::GetRank(client, rank);
+			PrintUserCmdText(client, L"Total kills: %i", iNumKills);
+			PrintUserCmdText(client, L"Level: %i", rank);
 			return;
 		}
 
-		uint iClientIDPlayer = GetClientIdFromCharname(wscClientID);
-		if (iClientIDPlayer == -1)
+		ClientId clientPlayer = GetClientIdFromCharname(wscClientId);
+		if (clientPlayer == -1)
 		{
-			PrintUserCmdText(iClientID, L"ERROR player not found");
+			PrintUserCmdText(client, L"ERROR player not found");
 			return;
 		}
-		ReadCharFile(wscClientID, lstLines);
-		pub::Player::GetNumKills(iClientIDPlayer, iNumKills);
-		PrintUserCmdText(iClientID, L"PvP kills: %i", iNumKills);
+		ReadCharFile(wscClientId, lstLines);
+		pub::Player::GetNumKills(clientPlayer, iNumKills);
+		PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
 		for (auto& str : lstLines)
 		{
 			if (!ToLower((str)).find(L"ship_type_killed"))
 			{
-				uint iShipArchID = ToInt(GetParam(str, '=', 1));
+				uint shipArchId = ToInt(GetParam(str, '=', 1));
 				count = ToInt(GetParam(str, ',', 1).c_str());
 				iNumKills += count;
-				Archetype::Ship* ship = Archetype::GetShip(iShipArchID);
+				Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(iClientID, L"NPC kills:  %s %i", GetWStringFromIDS(ship->iIdsName).c_str(), count);
+				PrintUserCmdText(client, L"NPC kills:  %s %i", GetWStringFromIdS(ship->iIdsName).c_str(), count);
 			}
 		}
 		int rank;
-		pub::Player::GetRank(iClientID, rank);
-		PrintUserCmdText(iClientID, L"Total kills: %i", iNumKills);
-		PrintUserCmdText(iClientID, L"Level: %i", rank);
+		pub::Player::GetRank(client, rank);
+		PrintUserCmdText(client, L"Total kills: %i", iNumKills);
+		PrintUserCmdText(client, L"Level: %i", rank);
 	}
 
 	/** @ingroup KillCounter
@@ -107,12 +107,12 @@ namespace Plugins::KillCounter
 		{
 			const CShip* cShip = CShipFromShipDestroyed(ecx);
 
-			if (const uint iClientID = cShip->GetOwnerPlayer())
+			if (ClientId client = cShip->GetOwnerPlayer())
 			{
 				const DamageList* dmg = *_dmg;
 
-				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
-					: GetClientIDByShip(dmg->get_inflictor_id()); killerId && (iClientID != killerId))
+				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
+					: GetClientIdByShip(dmg->get_inflictor_id()); killerId && (client != killerId))
 				{
 					int iNumKills;
 					pub::Player::GetNumKills(killerId, iNumKills);
@@ -124,7 +124,7 @@ namespace Plugins::KillCounter
 	}
 
 	const std::vector commands = {{
-	    CreateUserCommand(L"/kills", L"{clientId}", UserCmd_Kills, L"Displays how many pvp kills you have."),
+	    CreateUserCommand(L"/kills", L"{client}", UserCmd_Kills, L"Displays how many pvp kills you have."),
 	}};
 } // namespace Plugins::KillCounter
 

@@ -19,7 +19,7 @@ static pub::AI::SetPersonalityParams MakePersonality()
 {
 	pub::AI::SetPersonalityParams p;
 	p.iStateGraph = pub::StateGraph::get_state_graph("NOTHING", pub::StateGraph::TYPE_STANDARD);
-	p.bStateID = true;
+	p.bStateId = true;
 
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[0] = 0.4f;
 	p.personality.EvadeDodgeUse.evade_dodge_style_weight[1] = 0.0f;
@@ -197,18 +197,18 @@ static pub::AI::SetPersonalityParams MakePersonality()
 	return p;
 }
 
-static void SpawnSolar(unsigned int& spaceID, pub::SpaceObj::SolarInfo const& solarInfo)
+static void SpawnSolar(unsigned int& spaceId, pub::SpaceObj::SolarInfo const& solarInfo)
 {
 	// hack server.dll so it does not call create solar packet send
 	char* serverHackAddress = (char*)hModServer + 0x2A62A;
 	char serverHack[] = { '\xEB' };
 	WriteProcMem(serverHackAddress, &serverHack, 1);
 
-	pub::SpaceObj::CreateSolar(spaceID, solarInfo);
+	pub::SpaceObj::CreateSolar(spaceId, solarInfo);
 
 	uint dunno;
 	IObjInspectImpl* inspect;
-	if (GetShipInspect(spaceID, inspect, dunno))
+	if (GetShipInspect(spaceId, inspect, dunno))
 	{
 		CSolar* solar = (CSolar*)inspect->cobject();
 
@@ -241,9 +241,9 @@ static void SpawnSolar(unsigned int& spaceID, pub::SpaceObj::SolarInfo const& so
 		struct PlayerData* pPD = 0;
 		while (pPD = Players.traverse_active(pPD))
 		{
-			if (pPD->iSystemID == solarInfo.iSystemID)
+			if (pPD->iSystemId == solarInfo.iSystemId)
 				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(
-				    pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
+				    pPD->iOnlineId, (FLPACKET_CREATESOLAR&)packetSolar);
 		}
 	}
 
@@ -262,11 +262,11 @@ void CoreModule::Spawn()
 
 		char archname[100];
 		_snprintf_s(archname, sizeof(archname), "dsy_playerbase_%02u", base->base_level);
-		si.iArchID = CreateID(archname);
-		si.iLoadoutID = CreateID(archname);
+		si.iArchId = CreateID(archname);
+		si.iLoadoutId = CreateID(archname);
 
 		si.iHitPointsLeft = 1;
-		si.iSystemID = base->system;
+		si.iSystemId = base->system;
 		si.mOrientation = base->rotation;
 		si.vPos = base->position;
 		si.Costume.head = CreateID("pi_pirate2_head");
@@ -274,10 +274,10 @@ void CoreModule::Spawn()
 		si.Costume.lefthand = 0;
 		si.Costume.righthand = 0;
 		si.Costume.accessories = 0;
-		si.iVoiceID = CreateID("atc_leg_m01");
+		si.iVoiceId = CreateID("atc_leg_m01");
 		strncpy_s(si.cNickName, sizeof(si.cNickName), base->nickname.c_str(), base->nickname.size());
 
-		// Check to see if the hook IDS limit has been reached
+		// Check to see if the hook IdS limit has been reached
 		static uint solar_ids = 526000;
 		if (++solar_ids > 526999)
 		{
@@ -292,14 +292,14 @@ void CoreModule::Spawn()
 		// if (base->affiliation)
 		//{
 		//	basename =
-		// GetWStringFromIDS(Reputation::get_name(base->affiliation))
+		// GetWStringFromIdS(Reputation::get_name(base->affiliation))
 		//+ L" - " + base->basename;
 		//}
 
 		struct PlayerData* pd = 0;
 		while (pd = Players.traverse_active(pd))
 		{
-			ChangeIDSString(pd->iOnlineID, base->solar_ids, basename);
+			ChangeIdSString(pd->iOnlineId, base->solar_ids, basename);
 		}
 
 		// Set the base name
@@ -494,7 +494,7 @@ bool CoreModule::SpaceObjDestroyed(uint space_obj)
 		struct PlayerData* pd = 0;
 		while (pd = Players.traverse_active(pd))
 		{
-			PrintUserCmdText(pd->iOnlineID, L"Base %s destroyed", base->basename.c_str());
+			PrintUserCmdText(pd->iOnlineId, L"Base %s destroyed", base->basename.c_str());
 		}
 
 		// Unspawn, delete base and save file.

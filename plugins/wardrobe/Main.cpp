@@ -9,36 +9,36 @@ namespace Plugins::Wardrobe
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmdShowWardrobe(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmdShowWardrobe(ClientId& client, const std::wstring_view& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 
 		if (ToLower(type) == L"heads")
 		{
-			PrintUserCmdText(iClientID, L"Heads:");
+			PrintUserCmdText(client, L"Heads:");
 			std::wstring heads;
 			for (const auto& [name, id] : global->config->heads)
 				heads += (stows(name) + L" | ");
-			PrintUserCmdText(iClientID, heads);
+			PrintUserCmdText(client, heads);
 		}
 		else if (ToLower(type) == L"bodies")
 		{
-			PrintUserCmdText(iClientID, L"Bodies:");
+			PrintUserCmdText(client, L"Bodies:");
 			std::wstring bodies;
 			for (const auto& [name, id] : global->config->bodies)
 				bodies += (stows(name) + L" | ");
-			PrintUserCmdText(iClientID, bodies);
+			PrintUserCmdText(client, bodies);
 		}
 	}
 
-	void UserCmdChangeCostume(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmdChangeCostume(ClientId& client, const std::wstring_view& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 		const std::wstring costume = GetParam(wscParam, ' ', 1);
 
 		if (!type.length() || !costume.length())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
 			return;
 		}
 
@@ -48,7 +48,7 @@ namespace Plugins::Wardrobe
 		{
 			if (global->config->heads.find(wstos(costume)) == global->config->heads.end())
 			{
-				PrintUserCmdText(iClientID, L"ERR Head not found. Use \"/show heads\" to get heads.");
+				PrintUserCmdText(client, L"ERR Head not found. Use \"/show heads\" to get heads.");
 				return;
 			}
 			restart.head = true;
@@ -58,7 +58,7 @@ namespace Plugins::Wardrobe
 		{
 			if (global->config->bodies.find(wstos(costume)) == global->config->bodies.end())
 			{
-				PrintUserCmdText(iClientID, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
+				PrintUserCmdText(client, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
 				return;
 			}
 			restart.head = false;
@@ -66,28 +66,28 @@ namespace Plugins::Wardrobe
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
 			return;
 		}
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		SaveChar(iClientID);
-		if (!IsValidClientID(iClientID))
+		SaveChar(client);
+		if (!IsValidClientID(client))
 			return;
 
 		// Check character is in base
-		uint baseID;
-		pub::Player::GetBase(iClientID, baseID);
-		if (!baseID)
+		uint baseId;
+		pub::Player::GetBase(client, baseId);
+		if (!baseId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Not in base");
+			PrintUserCmdText(client, L"ERR Not in base");
 			return;
 		}
 
-		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		if (CAccount* account = Players.FindAccountFromClientID(iClientID))
+		if (CAccount* account = Players.FindAccountFromClientID(client))
 		{
 			GetAccountDirName(account, restart.directory);
 			GetCharFileName(restart.characterName, restart.characterFile);

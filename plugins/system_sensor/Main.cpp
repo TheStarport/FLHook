@@ -24,74 +24,74 @@ namespace Plugins::SystemSensor
 		});
 	}
 
-	void UserCmd_Net(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Net(ClientId& client, const std::wstring_view& wscParam)
 	{
 		const std::wstring wscMode = ToLower(GetParam(wscParam, ' ', 0));
 		if (wscMode.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /net [all|jumponly|off]");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /net [all|jumponly|off]");
 			return;
 		}
 
-		if (!global->networks[iClientID].iAvailableNetworkID)
+		if (!global->networks[client].iAvailableNetworkId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Sensor network monitoring is not available");
-			global->networks[iClientID].mode = Mode::Off;
+			PrintUserCmdText(client, L"ERR Sensor network monitoring is not available");
+			global->networks[client].mode = Mode::Off;
 			return;
 		}
 
 		if (wscMode == L"all")
 		{
-			PrintUserCmdText(iClientID, L"OK Sensor network monitoring all traffic");
-			global->networks[iClientID].mode = Mode::Both;
+			PrintUserCmdText(client, L"OK Sensor network monitoring all traffic");
+			global->networks[client].mode = Mode::Both;
 		}
 		else if (wscMode == L"jumponly")
 		{
-			PrintUserCmdText(iClientID, L"OK Sensor network monitoring jumpgate traffic only");
-			global->networks[iClientID].mode = Mode::JumpGate;
+			PrintUserCmdText(client, L"OK Sensor network monitoring jumpgate traffic only");
+			global->networks[client].mode = Mode::JumpGate;
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"OK Sensor network monitoring disabled");
-			global->networks[iClientID].mode = Mode::Off;
+			PrintUserCmdText(client, L"OK Sensor network monitoring disabled");
+			global->networks[client].mode = Mode::Off;
 		}
 		return;
 	}
 
-	void UserCmd_ShowScan(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_ShowScan(ClientId& client, const std::wstring_view& wscParam)
 	{
 		std::wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
 
 		if (wscTargetCharname.size() == 0)
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /showscan <charname>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /showscan <charname>");
 			return;
 		}
 
-		const uint iTargetClientID = GetClientIDFromArg(wscTargetCharname);
-		if (iTargetClientID == -1)
+		const uint iTargetClientId = GetClientIdFromArg(wscTargetCharname);
+		if (iTargetClientId == -1)
 		{
-			PrintUserCmdText(iClientID, L"ERR Target not found");
+			PrintUserCmdText(client, L"ERR Target not found");
 			return;
 		}
 
-		auto iterTargetClientID = global->networks.find(iTargetClientID);
-		if (iterTargetClientID == global->networks.end() || !global->networks[iClientID].iAvailableNetworkID || !iterTargetClientID->second.lastScanNetworkId ||
-		    global->networks[iClientID].iAvailableNetworkID != iterTargetClientID->second.lastScanNetworkId)
+		auto iterTargetClientId = global->networks.find(iTargetClientId);
+		if (iterTargetClientId == global->networks.end() || !global->networks[client].iAvailableNetworkId || !iterTargetClientId->second.lastScanNetworkId ||
+		    global->networks[client].iAvailableNetworkId != iterTargetClientId->second.lastScanNetworkId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Scan data not available");
+			PrintUserCmdText(client, L"ERR Scan data not available");
 			return;
 		}
 
 		std::wstring wscEqList;
-		for (auto& ci : iterTargetClientID->second.lstLastScan)
+		for (auto& ci : iterTargetClientId->second.lstLastScan)
 		{
 			std::string scHardpoint = ci.hardpoint.value;
 			if (scHardpoint.length())
 			{
-				Archetype::Equipment* eq = Archetype::GetEquipment(ci.iArchID);
+				Archetype::Equipment* eq = Archetype::GetEquipment(ci.iArchId);
 				if (eq && eq->iIdsName)
 				{
 					std::wstring wscResult;
@@ -105,7 +105,7 @@ namespace Plugins::SystemSensor
 						case ET_OTHER:
 							if (wscEqList.length())
 								wscEqList += L",";
-							wscResult = GetWStringFromIDS(eq->iIdsName);
+							wscResult = GetWStringFromIdS(eq->iIdsName);
 							wscEqList += wscResult;
 							break;
 						default:
@@ -114,48 +114,48 @@ namespace Plugins::SystemSensor
 				}
 			}
 		}
-		PrintUserCmdText(iClientID, L"%s", wscEqList.c_str());
-		PrintUserCmdText(iClientID, L"OK");
+		PrintUserCmdText(client, L"%s", wscEqList.c_str());
+		PrintUserCmdText(client, L"OK");
 	}
 
-	void UserCmd_ShowScanID(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_ShowScanID(ClientId& client, const std::wstring_view& wscParam)
 	{
-		const uint iClientID2 = ToInt(GetParam(wscParam, ' ', 0));
+		ClientId client2 = ToInt(GetParam(wscParam, ' ', 0));
 
 		std::wstring wscTargetCharname = L"";
 
-		if (IsValidClientID(iClientID2))
-			wscTargetCharname = (wchar_t*)Players.GetActiveCharacterName(iClientID2);
+		if (IsValidClientID(client2))
+			wscTargetCharname = (wchar_t*)Players.GetActiveCharacterName(client2);
 
-		UserCmd_ShowScan(iClientID, wscTargetCharname);
+		UserCmd_ShowScan(client, wscTargetCharname);
 	}
 
-	void ClearClientInfo(uint& iClientID) { global->networks.erase(iClientID); }
+	void ClearClientInfo(ClientId& client) { global->networks.erase(client); }
 
-	static void EnableSensorAccess(uint iClientID)
+	static void EnableSensorAccess(ClientId client)
 	{
 		// Retrieve the location and cargo list.
 		int iHoldSize;
 		std::list<CARGO_INFO> lstCargo;
-		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(iClientID), lstCargo, iHoldSize);
+		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), lstCargo, iHoldSize);
 
-		unsigned int iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
+		unsigned int iSystemId;
+		pub::Player::GetSystem(client, iSystemId);
 
 		// If this is ship has the right equipment and is in the right system then
 		// enable access.
-		uint iAvailableNetworkID = 0;
+		uint iAvailableNetworkId = 0;
 		for (auto& ci : lstCargo)
 		{
 			if (ci.bMounted)
 			{
-				auto start = global->sensorEquip.lower_bound(ci.iArchID);
-				auto end = global->sensorEquip.upper_bound(ci.iArchID);
+				auto start = global->sensorEquip.lower_bound(ci.iArchId);
+				auto end = global->sensorEquip.upper_bound(ci.iArchId);
 				while (start != end)
 				{
-					if (start->second.systemId == iSystemID)
+					if (start->second.systemId == iSystemId)
 					{
-						iAvailableNetworkID = start->second.networkId;
+						iAvailableNetworkId = start->second.networkId;
 						break;
 					}
 					++start;
@@ -163,40 +163,40 @@ namespace Plugins::SystemSensor
 			}
 		}
 
-		if (iAvailableNetworkID != global->networks[iClientID].iAvailableNetworkID)
+		if (iAvailableNetworkId != global->networks[client].iAvailableNetworkId)
 		{
-			global->networks[iClientID].iAvailableNetworkID = iAvailableNetworkID;
-			if (iAvailableNetworkID)
-				PrintUserCmdText(iClientID,
+			global->networks[client].iAvailableNetworkId = iAvailableNetworkId;
+			if (iAvailableNetworkId)
+				PrintUserCmdText(client,
 				    L"Connection to tradelane sensor network "
 				    L"established. Type /net access network.");
 			else
-				PrintUserCmdText(iClientID, L"Connection to tradelane sensor network lost.");
+				PrintUserCmdText(client, L"Connection to tradelane sensor network lost.");
 		}
 	}
 
-	void PlayerLaunch(uint& iShip, uint& iClientID) { EnableSensorAccess(iClientID); }
+	void PlayerLaunch(uint& ship, ClientId& client) { EnableSensorAccess(client); }
 
-	static void DumpSensorAccess(uint iClientID, const std::wstring& wscType, Mode mode)
+	static void DumpSensorAccess(ClientId client, const std::wstring& wscType, Mode mode)
 	{
-		unsigned int iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
+		unsigned int iSystemId;
+		pub::Player::GetSystem(client, iSystemId);
 
 		// Find the sensor network for this system.
-		auto siter = global->sensorSystem.lower_bound(iSystemID);
-		auto send = global->sensorSystem.upper_bound(iSystemID);
+		auto siter = global->sensorSystem.lower_bound(iSystemId);
+		auto send = global->sensorSystem.upper_bound(iSystemId);
 		if (siter == send)
 			return;
 
-		if (global->networks.find(iClientID) == global->networks.end())
+		if (global->networks.find(client) == global->networks.end())
 		{
-			ClearClientInfo(iClientID);
+			ClearClientInfo(client);
 		}
 
 		// Record the ship's cargo.
 		int iHoldSize;
-		EnumCargo(iClientID, global->networks[iClientID].lstLastScan, iHoldSize);
-		global->networks[iClientID].lastScanNetworkId = siter->second.networkId;
+		EnumCargo(client, global->networks[client].lstLastScan, iHoldSize);
+		global->networks[client].lastScanNetworkId = siter->second.networkId;
 
 		// Notify any players connected to the the sensor network that this ship is
 		// in
@@ -204,19 +204,19 @@ namespace Plugins::SystemSensor
 		const auto pend = global->networks.end();
 		while (iter != pend)
 		{
-			if (iter->second.iAvailableNetworkID == siter->second.networkId)
+			if (iter->second.iAvailableNetworkId == siter->second.networkId)
 			{
-				const Universe::ISystem* iSys = Universe::get_system(iSystemID);
+				const Universe::ISystem* iSys = Universe::get_system(iSystemId);
 				if (iSys && enum_integer(iter->second.mode & mode))
 				{
-					std::wstring wscSysName = GetWStringFromIDS(iSys->strid_name);
+					std::wstring wscSysName = GetWStringFromIdS(iSys->strid_name);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
-						Players.GetActiveCharacterName(iClientID),
-						iClientID,
+						Players.GetActiveCharacterName(client),
+						client,
 						wscType.c_str(),
 						wscSysName.c_str(),
-						GetLocation(iClientID).c_str());
+						GetLocation(client).c_str());
 				}
 			}
 			++iter;
@@ -224,37 +224,37 @@ namespace Plugins::SystemSensor
 	}
 
 	// Record jump type.
-	void Dock_Call(unsigned int const& iShip, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
+	void Dock_Call(unsigned int const& ship, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 	{
-		uint iClientID = GetClientIDByShip(iShip);
-		if (iClientID && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
+		ClientId client = GetClientIdByShip(ship);
+		if (client && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
-			uint iTypeID;
-			pub::SpaceObj::GetType(iDockTarget, iTypeID);
-			if (iTypeID == OBJ_JUMP_GATE)
+			uint iTypeId;
+			pub::SpaceObj::GetType(iDockTarget, iTypeId);
+			if (iTypeId == OBJ_JUMP_GATE)
 			{
-				global->networks[iClientID].inJumpGate = true;
+				global->networks[client].inJumpGate = true;
 			}
 			else
 			{
-				global->networks[iClientID].inJumpGate = false;
+				global->networks[client].inJumpGate = false;
 			}
 		}
 	}
 
-	void JumpInComplete(SystemId& iSystem, ShipId& iShip, ClientId& iClientID)
+	void JumpInComplete(SystemId& iSystem, ShipId& ship, ClientId& client)
 	{
-		EnableSensorAccess(iClientID);
-		if (global->networks[iClientID].inJumpGate)
+		EnableSensorAccess(client);
+		if (global->networks[client].inJumpGate)
 		{
-			global->networks[iClientID].inJumpGate = false;
-			DumpSensorAccess(iClientID, L"exited jumpgate", Mode::JumpGate);
+			global->networks[client].inJumpGate = false;
+			DumpSensorAccess(client, L"exited jumpgate", Mode::JumpGate);
 		}
 	}
 
-	void GoTradelane(uint& iClientID, struct XGoTradelane const& xgt) { DumpSensorAccess(iClientID, L"entered tradelane", Mode::TradeLane); }
+	void GoTradelane(ClientId& client, struct XGoTradelane const& xgt) { DumpSensorAccess(client, L"entered tradelane", Mode::TradeLane); }
 
-	void StopTradelane(uint& iClientID, uint& p1, uint& p2, uint& p3) { DumpSensorAccess(iClientID, L"exited tradelane", Mode::TradeLane); }
+	void StopTradelane(ClientId& client, uint& p1, uint& p2, uint& p3) { DumpSensorAccess(client, L"exited tradelane", Mode::TradeLane); }
 	// Client command processing
 	const std::vector commands = {{
 	    CreateUserCommand(L"/showscan", L"", UserCmd_ShowScan, L""),

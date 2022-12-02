@@ -16,7 +16,7 @@ namespace Plugins::Npc
 	{
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
-		p.bStateID = true;
+		p.bStateId = true;
 		Error error;
 		p.personality = GetPersonality(personality, error);
 
@@ -33,8 +33,8 @@ namespace Plugins::Npc
 	// Returns a random float between two
 	float RandomFloatRange(float a, float b) { return ((b - a) * (static_cast<float>(rand()) / RAND_MAX)) + a; }
 
-	// Return random infocard ID from list that was loaded in
-	uint RandomInfocardId()
+	// Return random infocard Id from list that was loaded in
+	uint RandomInfocardID()
 	{
 		int randomIndex = rand() % global->config->npcInfocardIds.size();
 		return global->config->npcInfocardIds.at(randomIndex);
@@ -84,7 +84,7 @@ namespace Plugins::Npc
 		memset(&si, 0, sizeof(si));
 		si.iFlag = 1;
 		si.iSystem = systemId;
-		si.iShipArchetype = arch.shipArchId;
+		si.shipArchetype = arch.shipArchId;
 		si.mOrientation = rotation;
 		si.iLoadout = arch.loadoutId;
 		si.iLook1 = CreateID("li_newscaster_head_gen_hat");
@@ -128,8 +128,8 @@ namespace Plugins::Npc
 		}
 		else
 		{
-			pilot_name.append_string(RandomInfocardId()); // ids that replaces %s0
-			pilot_name.append_string(RandomInfocardId()); // ids that replaces %s1
+			pilot_name.append_string(RandomInfocardID()); // ids that replaces %s0
+			pilot_name.append_string(RandomInfocardID()); // ids that replaces %s1
 		}
 		pilot_name.end_mad_lib();
 
@@ -248,13 +248,13 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint iShip1;
-		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), iShip1);
-		if (iShip1)
+		uint ship1;
+		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), ship1);
+		if (ship1)
 		{
 			Vector pos;
 			Matrix rot;
-			pub::SpaceObj::GetLocation(iShip1, pos, rot);
+			pub::SpaceObj::GetLocation(ship1, pos, rot);
 
 			for (const auto& npc : global->spawnedNpcs)
 			{
@@ -285,31 +285,31 @@ namespace Plugins::Npc
 		}
 
 		// If no player specified follow the admin
-		uint clientId;
+		ClientId client;
 		if (wscCharname == L"")
 		{
-			clientId = GetClientIdFromCharname(cmds->GetAdminName());
+			client = GetClientIdFromCharname(cmds->GetAdminName());
 			wscCharname = cmds->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			clientId = GetClientIdFromCharname(wscCharname);
+			client = GetClientIdFromCharname(wscCharname);
 
-		if (clientId == -1)
+		if (client == -1)
 			cmds->Print(L"%s is not online", wscCharname.c_str());
 
 		else
 		{
-			uint iShip1;
-			pub::Player::GetShip(clientId, iShip1);
-			if (iShip1)
+			uint ship1;
+			pub::Player::GetShip(client, ship1);
+			if (ship1)
 			{
 				for (const auto& npc : global->spawnedNpcs)
 				{
 					pub::AI::DirectiveCancelOp cancelOP;
 					pub::AI::SubmitDirective(npc, &cancelOP);
 					pub::AI::DirectiveFollowOp testOP;
-					testOP.iFollowSpaceObj = iShip1;
+					testOP.iFollowSpaceObj = ship1;
 					testOP.fMaxDistance = 100;
 					pub::AI::SubmitDirective(npc, &testOP);
 				}

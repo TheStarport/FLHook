@@ -22,17 +22,17 @@ namespace Plugins::Tax
 		}
 	}
 
-	void UserCmdTax(const uint& clientId, const std::wstring_view& param)
+	void UserCmdTax(ClientId& client, const std::wstring_view& param)
 	{
 		uint system = 0;
-		pub::Player::GetSystem(clientId, system);
+		pub::Player::GetSystem(client, system);
 
 		// no-pvp check
 		for (auto const& it : global->excludedsystemsIds)
 		{
 			if (system == it)
 			{
-				PrintUserCmdText(clientId, L"Error: You cannot tax in a No-PvP system.");
+				PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
 				return;
 			}
 		}
@@ -40,96 +40,96 @@ namespace Plugins::Tax
 		const std::wstring taxAmount = GetParam(param, ' ', 0);
 
 		if (!taxAmount.length())
-			PrintUserCmdText(clientId, L"Error: No valid tax amount!");
+			PrintUserCmdText(client, L"Error: No valid tax amount!");
 
 		const int taxValue = ToInt(taxAmount);
 
 		if (taxValue > global->config->maxTax)
 		{
-			PrintUserCmdText(clientId, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
+			PrintUserCmdText(client, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
 			return;
 		}
 
 		if (taxValue < 0)
 		{
-			PrintUserCmdText(clientId, L"Error: The tax must be 0 or greater!");
+			PrintUserCmdText(client, L"Error: The tax must be 0 or greater!");
 			return;
 		}
 
-		std::wstring characterName = GetCharacterNameById(clientId);
-		uint clientIdTarget;
-		if (const Error error = GetTargetClientId(characterName, clientIdTarget); error != E_OK || !IsValidClientID(clientIdTarget))
+		std::wstring characterName = GetCharacterNameByID(client);
+		ClientId clientTarget;
+		if (const Error error = GetTargetClientID(characterName, clientTarget); error != E_OK || !IsValidClientID(clientTarget))
 		{
-			PrintUserCmdText(clientId, L"Error: You are not targeting a player.");
+			PrintUserCmdText(client, L"Error: You are not targeting a player.");
 			return;
 		}
 
 		int secs = 0;
-		std::wstring targetCharacterName = GetCharacterNameById(clientIdTarget);
+		std::wstring targetCharacterName = GetCharacterNameByID(clientTarget);
 		if (const Error error = GetOnlineTime(targetCharacterName, secs); error != E_OK || secs < global->config->minplaytimeSec)
 		{
-			PrintUserCmdText(clientId, L"Error: This player doesn't have enough playtime.");
+			PrintUserCmdText(client, L"Error: This player doesn't have enough playtime.");
 			return;
 		}
 
 		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->lsttax)
 		{
-			if (targetId == clientIdTarget)
+			if (targetId == clientTarget)
 			{
-				PrintUserCmdText(clientId, L"Error: There already is a tax request pending for this player.");
+				PrintUserCmdText(client, L"Error: There already is a tax request pending for this player.");
 				return;
 			}
 		}
 
 		Tax tax;
-		tax.initiatorId = clientId;
-		tax.targetId = clientIdTarget;
+		tax.initiatorId = client;
+		tax.targetId = clientTarget;
 		tax.cash = taxValue;
 		global->lsttax.push_back(tax);
 
 		if (taxValue == 0)
-			FormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
+			FormatMessage(clientTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
 		else
-			FormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
+			FormatMessage(clientTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
 
 		// send confirmation msg
 		if (taxValue > 0)
-			PrintUserCmdText(clientId, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.c_str());
+			PrintUserCmdText(client, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.c_str());
 		else
-			PrintUserCmdText(clientId, global->config->huntingMessageOriginator, targetCharacterName.c_str());
+			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.c_str());
 	}
 
-	void UserCmdPay(const uint& clientId, const std::wstring_view& param)
+	void UserCmdPay(ClientId& client, const std::wstring_view& param)
 	{
 		for (auto& it : global->lsttax)
-			if (it.targetId == clientId)
+			if (it.targetId == client)
 			{
 				if (it.cash == 0)
 				{
-					PrintUserCmdText(clientId, global->config->cannotPay);
+					PrintUserCmdText(client, global->config->cannotPay);
 					return;
 				}
 
 				int cash;
-				GetCash(clientId, cash);
+				GetCash(client, cash);
 				if (cash < it.cash)
 				{
-					PrintUserCmdText(clientId, L"You have not enough money to pay the tax.");
+					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
-				AddCash(clientId, (0 - it.cash));
-				PrintUserCmdText(clientId, L"You paid the tax.");
+				AddCash(client, (0 - it.cash));
+				PrintUserCmdText(client, L"You paid the tax.");
 				AddCash(it.initiatorId, it.cash);
-				const std::wstring characterName = GetCharacterNameById(clientId);
+				const std::wstring characterName = GetCharacterNameByID(client);
 				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.c_str());
 				RemoveTax(it);
-				SaveChar(clientId);
+				SaveChar(client);
 				SaveChar(it.initiatorId);
 				return;
 			}
 
-		PrintUserCmdText(clientId, L"Error: No tax request was found that could be accepted!");
+		PrintUserCmdText(client, L"Error: No tax request was found that could be accepted!");
 	}
 
 	void TimerF1Check()
@@ -137,47 +137,47 @@ namespace Plugins::Tax
 		struct PlayerData* pPd = nullptr;
 		while (pPd = Players.traverse_active(pPd))
 		{
-			uint clientId = GetClientIdFromPD(pPd);
+			ClientId client = GetClientIdFromPD(pPd);
 
-			if (ClientInfo[clientId].tmF1TimeDisconnect)
+			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;
 
-			if (ClientInfo[clientId].tmF1Time && (timeInMS() >= ClientInfo[clientId].tmF1Time)) // f1
+			if (ClientInfo[client].tmF1Time && (timeInMS() >= ClientInfo[client].tmF1Time)) // f1
 			{
 				// tax
 				for (const auto& it : global->lsttax)
 				{
-					if (it.targetId == clientId)
+					if (it.targetId == client)
 					{
 						uint ship;
-						pub::Player::GetShip(clientId, ship);
+						pub::Player::GetShip(client, ship);
 						if (ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = GetCharacterNameById(it.targetId);
+						std::wstring characterName = GetCharacterNameByID(it.targetId);
 						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
 					}
 				}
 			}
-			else if (ClientInfo[clientId].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[clientId].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				// tax
 				for (const auto& it : global->lsttax)
 				{
-					if (it.targetId == clientId)
+					if (it.targetId == client)
 					{
 						uint ship;
-						pub::Player::GetShip(clientId, ship);
+						pub::Player::GetShip(client, ship);
 						if (ship)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = GetCharacterNameById(it.targetId);
+						std::wstring characterName = GetCharacterNameByID(it.targetId);
 						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
 						RemoveTax(it);
 						break;
@@ -214,15 +214,15 @@ namespace Plugins::Tax
 		return 0;
 	}
 
-	void __stdcall DisConnect(ClientId& clientId, enum EFLConnection& state)
+	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		TimerF1Check();
 	}
 
-	void UserCmdHelp(ClientId& clientId, const std::wstring& param)
+	void UserCmdHelp(ClientId& client, const std::wstring& param)
 	{
-		PrintUserCmdText(clientId, L"/pay <credits>");
-		PrintUserCmdText(clientId, L"/acc");
+		PrintUserCmdText(client, L"/pay <credits>");
+		PrintUserCmdText(client, L"/acc");
 	}
 
 	// Load Settings

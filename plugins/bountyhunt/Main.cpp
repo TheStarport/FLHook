@@ -56,7 +56,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Print all the active bounty hunts to the player
 	 */
-	void PrintBountyHunts(const ClientId& client)
+	void PrintBountyHunts(ClientId& client)
 	{
 		if (global->bountyHunt.begin() != global->bountyHunt.end())
 		{
@@ -71,7 +71,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
 	 */
-	void UserCmdBountyHunt(const ClientId& client, const std::wstring_view& param)
+	void UserCmdBountyHunt(ClientId& client, const std::wstring_view& param)
 	{
 		if (!global->config->enableBountyHunt)
 			return;
@@ -147,7 +147,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief User Command for /bountyhuntid. Creates a bounty against a specified player.
 	 */
-	void UserCmdBountyHuntId(const ClientId& client, const std::wstring_view& param)
+	void UserCmdBountyHuntID(ClientId& client, const std::wstring_view& param)
 	{
 		if (!global->config->enableBountyHunt)
 			return;
@@ -162,14 +162,14 @@ namespace Plugins::BountyHunt
 			return;
 		}
 
-		uint clientIdTarget = ToInt(target);
-		if (!Hk::Client::IsValidClientID(clientIdTarget) || Hk::Client::IsInCharSelectMenu(clientIdTarget))
+		ClientId clientTarget = ToInt(target);
+		if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
 		{
 			PrintUserCmdText(client, L"Error: Invalid client id.");
 			return;
 		}
 
-		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientIdTarget));
+		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientTarget));
 		const auto paramNew = std::wstring(charName + L" " + credits + L" " + time);
 		UserCmdBountyHunt(client, paramNew);
 	}
@@ -200,7 +200,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Processes a ship death to see if it was part of a bounty.
 	 */
-	void BillCheck(const ClientId& client, const ClientId& killer)
+	void BillCheck(ClientId& client, ClientId& killer)
 	{
 		for (auto& bounty : global->bountyHunt)
 		{
@@ -269,7 +269,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for SendDeathMsg to call BillCheck
 	 */
-	void SendDeathMsg(const std::wstring& msg,const SystemId& system, const ClientId& clientVictim, const ClientId& clientKiller)
+	void SendDeathMsg(const std::wstring& msg,const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		if (global->config->enableBountyHunt)
 		{
@@ -280,7 +280,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for Disconnect to see if the player had a bounty on them
 	 */
-	void __stdcall DisConnect(const ClientId& client, enum EFLConnection& state)
+	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		for (auto& it : global->bountyHunt)
 		{

@@ -5,7 +5,7 @@
 
 ReturnCode returncode = ReturnCode::Default;
 
-bool InitJumpDriveInfo(uint iClientID);
+bool InitJumpDriveInfo(ClientId client);
 
 /// Zone testing state and lists.
 struct TESTBOT

@@ -41,17 +41,17 @@ namespace Plugins::Mark
 	};
 
 	// Functions
-	char MarkObject(uint iClientID, uint iObject);
-	void UnMarkAllObjects(uint iClientID);
-	char UnMarkObject(uint iClientID, uint iObject);
+	char MarkObject(ClientId client, uint iObject);
+	void UnMarkAllObjects(ClientId client);
+	char UnMarkObject(ClientId client, uint iObject);
 
-	void UserCmd_AutoMark(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_MarkObj(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_MarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_SetIgnoreGroupMark(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_UnMarkObj(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_UnMarkObjGroup(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_UnMarkAllObj(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_AutoMark(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_MarkObj(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkObj(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring_view& wscParam);
 
 	void TimerMarkDelay();
 	void TimerSpaceObjMark();
@@ -75,7 +75,7 @@ namespace Plugins::Mark
 	#define PRINT_ERROR()                                                    \
 	{                                                                        \
 		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(iClientID, wscError[i]);                        \
+			PrintUserCmdText(client, wscError[i]);                        \
 		return;                                                              \
 	}
 } // namespace Plugins::Mark

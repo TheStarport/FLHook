@@ -28,12 +28,12 @@ namespace Plugins::SoundManager
 		global->config = std::make_unique<Config>(std::move(conf));
 	}
 
-	void __stdcall Login(struct SLoginInfo const& li, uint& iClientID)
+	void __stdcall Login(struct SLoginInfo const& li, ClientId& client)
 	{
 		// Player sound when player logs in
 
 		if (global->config->sound_ids.size())
-			pub::Audio::PlaySoundEffect(iClientID, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
+			pub::Audio::PlaySoundEffect(client, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
 	}
 }
 

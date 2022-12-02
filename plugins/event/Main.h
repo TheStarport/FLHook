@@ -58,10 +58,10 @@ namespace Plugins::Event
 
 	struct Global final
 	{
-		// Map of base ID to mission structure
+		// Map of base Id to mission structure
 		std::vector<CARGO_MISSION> CargoMissions;
 
-		// Map of repgroup ID to mission structure
+		// Map of repgroup Id to mission structure
 		std::vector<NPC_MISSION> NpcMissions;
 
 		// A return code to indicate to FLHook if we want the hook processing to

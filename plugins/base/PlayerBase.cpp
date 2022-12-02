@@ -1,6 +1,6 @@
 ﻿#include "Main.h"
 
-PlayerBase::PlayerBase(uint client, const std::wstring& password, const std::wstring& the_basename)
+PlayerBase::PlayerBase(ClientId client, const std::wstring& password, const std::wstring& the_basename)
     : basename(the_basename), base(0), money(0), base_health(0), base_level(1), defense_mode(0), proxy_base(0),
       affiliation(0), repairing(false), shield_active_time(0), shield_state(PlayerBase::SHIELD_STATE_OFFLINE)
 {
@@ -411,7 +411,7 @@ uint PlayerBase::HasMarketItem(uint good)
 	return 0;
 }
 
-float PlayerBase::GetAttitudeTowardsClient(uint client)
+float PlayerBase::GetAttitudeTowardsClient(ClientId client)
 {
 	// By default all bases are hostile to everybody.
 	float attitude = -1.0;
@@ -457,11 +457,11 @@ void PlayerBase::SyncReputationForBase()
 	struct PlayerData* pd = 0;
 	while (pd = Players.traverse_active(pd))
 	{
-		if (pd->iShipID && pd->iSystemID == system)
+		if (pd->shipId && pd->iSystemId == system)
 		{
 			int player_rep;
-			pub::SpaceObj::GetRep(pd->iShipID, player_rep);
-			float attitude = GetAttitudeTowardsClient(pd->iOnlineID);
+			pub::SpaceObj::GetRep(pd->shipId, player_rep);
+			float attitude = GetAttitudeTowardsClient(pd->iOnlineId);
 			for (std::vector<Module*>::iterator i = modules.begin(); i != modules.end(); ++i)
 			{
 				if (*i)
@@ -479,11 +479,11 @@ void PlayerBase::SyncReputationForBaseObject(uint space_obj)
 	struct PlayerData* pd = 0;
 	while (pd = Players.traverse_active(pd))
 	{
-		if (pd->iShipID && pd->iSystemID == system)
+		if (pd->shipId && pd->iSystemId == system)
 		{
 			int player_rep;
-			pub::SpaceObj::GetRep(pd->iShipID, player_rep);
-			float attitude = GetAttitudeTowardsClient(pd->iOnlineID);
+			pub::SpaceObj::GetRep(pd->shipId, player_rep);
+			float attitude = GetAttitudeTowardsClient(pd->iOnlineId);
 
 			int obj_rep;
 			pub::SpaceObj::GetRep(space_obj, obj_rep);
@@ -496,7 +496,7 @@ void PlayerBase::SyncReputationForBaseObject(uint space_obj)
 float PlayerBase::SpaceObjDamaged(uint space_obj, uint attacking_space_obj, float curr_hitpoints, float damage)
 {
 	// Make sure that the attacking player is hostile.
-	uint client = GetClientIDByShip(attacking_space_obj);
+	ClientId client = GetClientIdByShip(attacking_space_obj);
 	if (client)
 	{
 		const std::wstring& charname = (const wchar_t*)Players.GetActiveCharacterName(client);

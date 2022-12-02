@@ -56,7 +56,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 				if (gi)
 				{
 					info += L"<PARA/><TEXT>      - " + std::to_wstring(quantity) + L"x " +
-					    GetWStringFromIDS(gi->iIDSName);
+					    GetWStringFromIdS(gi->iIdSName);
 					if (quantity > 0 && base->HasMarketItem(good) < active_recipe.cooking_rate)
 						info += L" [Out of stock]";
 					info += L"</TEXT>";
@@ -82,7 +82,7 @@ std::wstring FactoryModule::GetInfo(bool xml)
 				const GoodInfo* gi = GoodList::find_by_id(good);
 				if (gi)
 				{
-					info += L" " + std::to_wstring(quantity) + L"x " + GetWStringFromIDS(gi->iIDSName);
+					info += L" " + std::to_wstring(quantity) + L"x " + GetWStringFromIdS(gi->iIdSName);
 				}
 			}
 		}

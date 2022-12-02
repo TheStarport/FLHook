@@ -59,22 +59,22 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after a tractor to prevent cargo duplication loss on crash
 	 */
-	void __stdcall TractorObjects(uint& iClientID, struct XTractorObjects const& objs)
+	void __stdcall TractorObjects(ClientId& client, struct XTractorObjects const& objs)
 	{
-		if (global->mapSaveTimes[iClientID] == 0)
+		if (global->mapSaveTimes[client] == 0)
 		{
-			global->mapSaveTimes[iClientID] = GetTimeInMS() + 60000;
+			global->mapSaveTimes[client] = GetTimeInMS() + 60000;
 		}
 	}
 
 	/** @ingroup CrashCatcher
 	 * @brief Save after jettison to reduce chance of duplication on crash
 	 */
-	void __stdcall JettisonCargo(uint& iClientID, struct XJettisonCargo const& objs)
+	void __stdcall JettisonCargo(ClientId& client, struct XJettisonCargo const& objs)
 	{
-		if (global->mapSaveTimes[iClientID] == 0)
+		if (global->mapSaveTimes[client] == 0)
 		{
-			global->mapSaveTimes[iClientID] = GetTimeInMS() + 60000;
+			global->mapSaveTimes[client] = GetTimeInMS() + 60000;
 		}
 	}
 
@@ -86,11 +86,11 @@ namespace Plugins::CrashCatcher
 		mstime currTime = GetTimeInMS();
 		for (auto& t : global->mapSaveTimes)
 		{
-			uint iClientID = t.first;
+			ClientId client = t.first;
 			if (t.second != 0 && t.second < currTime)
 			{
-				if (IsValidClientID(iClientID) && !IsInCharSelectMenu(iClientID))
-					SaveChar(t.first);
+				if (Hk::Client::IsValidClientID(client) && !Hk::Client::IsInCharSelectMenu(client))
+					Hk::Player::SaveChar(t.first);
 				t.second = 0;
 			}
 		}
@@ -108,14 +108,12 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(LogType::Normal, LogLevel::Err,
-			    L"Exception in RequestBestPath p1=%d p2=%08x %08x %08x %08x "
-			    "%08x %08x %08x %08x %08x p3=%08x",
+			AddLog(LogType::Normal, LogLevel::Err, L"Exception in RequestBestPath p1=%d p2=%08x %08x %08x %08x %08x %08x %08x %08x %08x p3=%08x",
 			    p1, p2[0], p2[7], p2[3], p2[4], p2[5], p2[8], p2[9], p2[10], p2[12]);
 		}
 	}
 
-	static FARPROC fpOldGetRootProc = 0;
+	static FARPROC fpOldGetRootProc = nullptr;
 	/** @ingroup CrashCatcher
 	 * @brief GetRoot hook to stop crashes at engbase.dll offset 0x000124bd
 	 */

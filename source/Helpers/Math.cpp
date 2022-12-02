@@ -10,18 +10,18 @@ namespace Hk::Math
 		return sqrt(sq1 * sq1 + sq2 * sq2 + sq3 * sq3);
 	}
 
-	cpp::result<float, Error> Distance3DByShip(uint iShip1, uint iShip2)
+	cpp::result<float, Error> Distance3DByShip(uint ship1, uint ship2)
 	{
 		Vector v1;
 		Matrix m1;
-		pub::SpaceObj::GetLocation(iShip1, v1, m1);
+		pub::SpaceObj::GetLocation(ship1, v1, m1);
 
 		if (v1.x == 0.f && v1.y == 0.f && v1.z == 0.f)
 			return cpp::fail(Error::InvalidShip);
 
 		Vector v2;
 		Matrix m2;
-		pub::SpaceObj::GetLocation(iShip2, v2, m2);
+		pub::SpaceObj::GetLocation(ship2, v2, m2);
 
 		if (v2.x == 0.f && v2.y == 0.f && v2.z == 0.f)
 			return cpp::fail(Error::InvalidShip);

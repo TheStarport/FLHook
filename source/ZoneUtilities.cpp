@@ -187,11 +187,11 @@ void ZoneUtilities::ReadLootableZone(
 				}
 
 				LOOTABLE_ZONE lz;
-				lz.systemID = CreateID(systemNick.c_str());
+				lz.systemId = CreateID(systemNick.c_str());
 				lz.zoneNick = zoneNick;
 				lz.lootNick = lootNick;
-				lz.iLootID = CreateID(lootNick.c_str());
-				lz.iCrateID = CreateID(crateNick.c_str());
+				lz.iLootId = CreateID(lootNick.c_str());
+				lz.iCrateId = CreateID(crateNick.c_str());
 				lz.iMinLoot = iMinLoot;
 				lz.iMaxLoot = iMaxLoot;
 				lz.iLootDifficulty = iLootDifficulty;
@@ -208,7 +208,7 @@ void ZoneUtilities::ReadLootableZone(
 					}
 				}
 				if (!exists)
-					set_mmapZones.insert({ lz.systemID, lz });
+					set_mmapZones.insert({ lz.systemId, lz });
 			}
 		}
 		ini.close();
@@ -366,8 +366,8 @@ void ZoneUtilities::ReadSystemZones(zone_map_t& set_mmapZones, const std::string
 					jp.jumpNick = nickname;
 					jp.jumpDestSysNick = jumpDestSysNick;
 					jp.System = CreateID(systemNick.c_str());
-					jp.jumpID = CreateID(nickname.c_str());
-					jp.jumpDestSysID = CreateID(jumpDestSysNick.c_str());
+					jp.jumpId = CreateID(nickname.c_str());
+					jp.jumpDestSysId = CreateID(jumpDestSysNick.c_str());
 					jumpPoints.insert({ jp.System, jp });
 				}
 			}
@@ -514,13 +514,13 @@ bool ZoneUtilities::InDeathZone(uint system, const Vector& pos, ZONE& rlz)
 }
 
 /**
-        Return a pointer to the system info object for the specified system ID.
-        Return 0 if the system ID does not exist.
+        Return a pointer to the system info object for the specified system Id.
+        Return 0 if the system Id does not exist.
 */
-SYSTEMINFO* ZoneUtilities::GetSystemInfo(uint systemID)
+SYSTEMINFO* ZoneUtilities::GetSystemInfo(uint systemId)
 {
-	if (mapSystems.find(systemID) != mapSystems.end())
-		return &mapSystems[systemID];
+	if (mapSystems.find(systemId) != mapSystems.end())
+		return &mapSystems[systemId];
 	return 0;
 }
 

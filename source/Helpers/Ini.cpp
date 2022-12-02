@@ -10,11 +10,11 @@ namespace Hk::Ini
 
 	std::map<uint, FLHOOK_PLAYER_DATA> clients;
 
-	std::string GetAccountDir(uint client)
+	std::string GetAccountDir(ClientId client)
 	{
 		static _GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
 		char dirname[1024];
-		GetFLName(dirname, Players[client].Account->wszAccID);
+		GetFLName(dirname, Players[client].Account->wszAccId);
 		return dirname;
 	}
 
@@ -46,7 +46,7 @@ namespace Hk::Ini
 		// Readd the flhook section.
 		if (retv)
 		{
-			uint client = CurrPlayer->iOnlineID;
+			ClientId client = CurrPlayer->iOnlineId;
 
 			std::string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
 			FILE* file;
@@ -71,9 +71,9 @@ namespace Hk::Ini
 		}
 	}
 
-	void CharacterClearClientInfo(uint client) { clients.erase(client); }
+	void CharacterClearClientInfo(ClientId client) { clients.erase(client); }
 
-	void CharacterSelect(CHARACTER_ID const charId, uint client)
+	void CharacterSelect(CHARACTER_ID const charId, ClientId client)
 	{
 		std::string path = scAcctPath + GetAccountDir(client) + "\\" + charId.szCharFilename;
 
@@ -129,7 +129,7 @@ namespace Hk::Ini
 	cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey)
 	{
 		std::wstring ret;
-		const auto client = Hk::Client::ExtractClientId(player);
+		const auto client = Hk::Client::ExtractClientID(player);
 		const auto acc = Hk::Client::GetAccountByClientID(client);
 		auto dir = Hk::Client::GetAccountDirName(acc);
 
@@ -158,7 +158,7 @@ namespace Hk::Ini
 
 	cpp::result<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey, const std::wstring& wscValue)
 	{
-		const auto client = Hk::Client::ExtractClientId(player);
+		const auto client = Hk::Client::ExtractClientID(player);
 		const auto acc = Hk::Client::GetAccountByClientID(client);
 		auto dir = Hk::Client::GetAccountDirName(acc);
 
@@ -188,7 +188,7 @@ namespace Hk::Ini
 		return {};
 	}
 
-	std::wstring GetCharacterIniString(uint client, const std::wstring& name)
+	std::wstring GetCharacterIniString(ClientId client, const std::wstring& name)
 	{
 		if (clients.find(client) == clients.end())
 			return L"";
@@ -203,39 +203,39 @@ namespace Hk::Ini
 		return line;
 	}
 
-	void SetCharacterIni(uint client, const std::wstring& name, std::wstring value) { clients[client].lines[name] = std::move(value); }
+	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) { clients[client].lines[name] = std::move(value); }
 
-	bool GetCharacterIniBool(uint client, const std::wstring& name)
+	bool GetCharacterIniBool(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return val == L"true" || val == L"1";
 	}
 
-	int GetCharacterIniInt(uint client, const std::wstring& name)
+	int GetCharacterIniInt(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstol(val.c_str(), nullptr, 10);
 	}
 
-	uint GetCharacterIniUint(uint client, const std::wstring& name)
+	uint GetCharacterIniUint(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstoul(val.c_str(), nullptr, 10);
 	}
 
-	float GetCharacterIniFloat(uint client, const std::wstring& name)
+	float GetCharacterIniFloat(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstof(val.c_str(), nullptr);
 	}
 
-	double GetCharacterIniDouble(uint client, const std::wstring& name)
+	double GetCharacterIniDouble(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstod(val.c_str(), nullptr);
 	}
 
-	int64_t GetCharacterIniInt64(uint client, const std::wstring& name)
+	int64_t GetCharacterIniInt64(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstoll(val.c_str(), nullptr, 10);

@@ -31,10 +31,10 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Return true if this client is on a banned IP range.
 	 */
-	static bool IsBanned(uint iClientID)
+	static bool IsBanned(ClientId client)
 	{
 		std::wstring wscIP;
-		GetPlayerIP(iClientID, wscIP);
+		GetPlayerIP(client, wscIP);
 		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
@@ -42,14 +42,14 @@ namespace Plugins::IPBan
 			if (Wildcard::Fit(ban.c_str(), scIP.c_str()))
 				return true;
 		// To avoid plugin comms with DSAce because I ran out of time to make this
-		// work, I use something of a trick to get the login ID.
-		// Read all login ID files in the account and look for the one with a
+		// work, I use something of a trick to get the login Id.
+		// Read all login Id files in the account and look for the one with a
 		// matching IP to this player. If we find a matching IP then we've got a
-		// login ID we can check.
-		CAccount* acc = Players.FindAccountFromClientID(iClientID);
+		// login Id we can check.
+		CAccount* acc = Players.FindAccountFromClientID(client);
 		if (acc)
 		{
-			bool bBannedLoginID = false;
+			bool bBannedLoginId = false;
 
 			std::wstring dir;
 			GetAccountDirName(acc, dir);
@@ -62,9 +62,9 @@ namespace Plugins::IPBan
 			{
 				do
 				{
-					// Read the login ID and IP from the login ID record.
-					std::string scLoginID;
-					std::string scLoginID2;
+					// Read the login Id and IP from the login Id record.
+					std::string scLoginId;
+					std::string scLoginId2;
 					std::string scThisIP;
 					std::string scFilePath = scAcctPath + wstos(dir) + "\\" + findFileData.cFileName;
 					FILE* f;
@@ -77,10 +77,10 @@ namespace Plugins::IPBan
 							std::string sz = szBuf;
 							try
 							{
-								scLoginID = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
+								scLoginId = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
 								scThisIP = Trim(GetParam(sz, '\t', 2).substr(3, std::string::npos));
 								if (GetParam(sz, '\t', 3).length() > 4)
-									scLoginID2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
+									scLoginId2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
 							}
 							catch (...)
 							{
@@ -92,24 +92,24 @@ namespace Plugins::IPBan
 
 					if (FLHookConfig::i()->general.debugMode)
 					{
-						Console::ConInfo(L"NOTICE: Checking for ban on IP %s Login ID1 %s "
-						                 L"ID2 %s "
+						Console::ConInfo(L"NOTICE: Checking for ban on IP %s Login Id1 %s "
+						                 L"Id2 %s "
 						                 L"Client %d\n",
-						    stows(scThisIP).c_str(), stows(scLoginID).c_str(), stows(scLoginID2).c_str(), iClientID);
+						    stows(scThisIP).c_str(), stows(scLoginId).c_str(), stows(scLoginId2).c_str(), client);
 					}
 
-					// If the login ID has been read then check it to see if it has
+					// If the login Id has been read then check it to see if it has
 					// been banned
-					if (scThisIP == scIP && scLoginID.length())
+					if (scThisIP == scIP && scLoginId.length())
 					{
-						for (auto& ban : global->loginIDBans.Bans)
+						for (auto& ban : global->loginIdBans.Bans)
 						{
-							if (ban == scLoginID || ban == scLoginID2)
+							if (ban == scLoginId || ban == scLoginId2)
 							{
-								Console::ConWarn(L"* Kicking player on ID ban: ip=%s "
+								Console::ConWarn(L"* Kicking player on Id ban: ip=%s "
 								                 L"id1=%s id2=%s\n",
-								    stows(scThisIP).c_str(), stows(scLoginID).c_str(), stows(scLoginID2).c_str());
-								bBannedLoginID = true;
+								    stows(scThisIP).c_str(), stows(scLoginId).c_str(), stows(scLoginId2).c_str());
+								bBannedLoginId = true;
 								break;
 							}
 						}
@@ -118,7 +118,7 @@ namespace Plugins::IPBan
 				FindClose(hFileFind);
 			}
 
-			if (bBannedLoginID)
+			if (bBannedLoginId)
 				return true;
 		}
 		return false;
@@ -127,9 +127,9 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Return true if this client is in in the AuthenticatedAccounts.json file indicating that the client can connect even if they are otherwise on a restricted IP range.
 	 */
-	static bool IsAuthenticated(uint iClientID)
+	static bool IsAuthenticated(ClientId client)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(iClientID);
+		CAccount* acc = Players.FindAccountFromClientID(client);
 
 		if (!acc)
 			return false;
@@ -159,16 +159,16 @@ namespace Plugins::IPBan
 	}
 
 	/** @ingroup IPBan
-	 * @brief Reload Login ID bans from file.
+	 * @brief Reload Login Id bans from file.
 	 */
-	static void ReloadLoginIDBans()
+	static void ReloadLoginIdBans()
 	{
-		global->loginIDBans = Serializer::JsonToObject<LoginIDBans>();
+		global->loginIdBans = Serializer::JsonToObject<LoginIdBans>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"NOTICE: Loading Login ID bans from %s", stows(global->loginIDBans.File()).c_str());
+			Console::ConInfo(L"NOTICE: Loading Login Id bans from %s", stows(global->loginIdBans.File()).c_str());
 
-		Console::ConInfo(L"Login ID Bans [%u]", global->loginIDBans.Bans.size());
+		Console::ConInfo(L"Login Id Bans [%u]", global->loginIdBans.Bans.size());
 	}
 
 	/** @ingroup IPBan
@@ -188,22 +188,22 @@ namespace Plugins::IPBan
 	void LoadSettings()
 	{
 		ReloadIPBans();
-		ReloadLoginIDBans();
+		ReloadLoginIdBans();
 		ReloadAuthenticatedAccounts();
 	}
 
 	/** @ingroup IPBan
 	 * @brief Hook on PlayerLaunch. Checks if player is banned and kicks if so.
 	 */
-	void PlayerLaunch(uint& iShip, uint& iClientID)
+	void PlayerLaunch(uint& ship, ClientId& client)
 	{
-		if (!global->IPChecked[iClientID])
+		if (!global->IPChecked[client])
 		{
-			global->IPChecked[iClientID] = true;
-			if (IsBanned(iClientID) && !IsAuthenticated(iClientID))
+			global->IPChecked[client] = true;
+			if (IsBanned(client) && !IsAuthenticated(client))
 			{
-				AddKickLog(iClientID, L"IP banned");
-				MsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 15000L);
+				AddKickLog(client, L"IP banned");
+				MsgAndKick(client, L"Your IP is banned, please contact an administrator", 15000L);
 			}
 		}
 	}
@@ -211,15 +211,15 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Hook on BaseEnter. Checks if player is banned and kicks if so.
 	 */
-	void BaseEnter(uint& iBaseID, uint& iClientID)
+	void BaseEnter(uint& iBaseId, ClientId& client)
 	{
-		if (!global->IPChecked[iClientID])
+		if (!global->IPChecked[client])
 		{
-			global->IPChecked[iClientID] = true;
-			if (IsBanned(iClientID) && !IsAuthenticated(iClientID))
+			global->IPChecked[client] = true;
+			if (IsBanned(client) && !IsAuthenticated(client))
 			{
-				AddKickLog(iClientID, L"IP banned");
-				MsgAndKick(iClientID, L"Your IP is banned, please contact an administrator", 7000L);
+				AddKickLog(client, L"IP banned");
+				MsgAndKick(client, L"Your IP is banned, please contact an administrator", 7000L);
 			}
 		}
 	}
@@ -227,7 +227,7 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Hook on ClearClientInfo. Resets the checked variable for the client Id.
 	 */
-	void ClearClientInfo(uint iClientID) { global->IPChecked[iClientID] = false; }
+	void ClearClientInfo(ClientId client) { global->IPChecked[client] = false; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// ADMIN COMMANDS
@@ -238,7 +238,7 @@ namespace Plugins::IPBan
 	 */
 	void AdminCmd_ReloadBans(CCmds* cmds)
 	{
-		ReloadLoginIDBans();
+		ReloadLoginIdBans();
 		ReloadIPBans();
 		ReloadAuthenticatedAccounts();
 		cmds->Print(L"OK");
@@ -315,7 +315,7 @@ namespace Plugins::IPBan
 
 using namespace Plugins::IPBan;
 REFL_AUTO(type(IPBans), field(Bans))
-REFL_AUTO(type(LoginIDBans), field(Bans))
+REFL_AUTO(type(LoginIdBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
 
 DefaultDllMainSettings(LoadSettings)

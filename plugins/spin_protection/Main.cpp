@@ -20,17 +20,17 @@ namespace Plugins::SpinProtection
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void __stdcall SPObjCollision(struct SSPObjCollisionInfo const& ci, uint& clientID)
+	void __stdcall SPObjCollision(struct SSPObjCollisionInfo const& ci, ClientId& client)
 	{
 		// If spin protection is off, do nothing.
 		if (global->config->spinProtectionMass == -1.0f)
 			return;
 
 		float targetMass;
-		pub::SpaceObj::GetMass(ci.iColliderObjectID, targetMass);
+		pub::SpaceObj::GetMass(ci.iColliderObjectId, targetMass);
 
-		uint clientShip;
-		pub::Player::GetShip(clientID, clientShip);
+		ClientId clientShip;
+		pub::Player::GetShip(client, clientShip);
 
 		float clientMass;
 		pub::SpaceObj::GetMass(clientShip, clientMass);
@@ -45,14 +45,14 @@ namespace Plugins::SpinProtection
 			return;
 
 		Vector V1, V2;
-		pub::SpaceObj::GetMotion(ci.iColliderObjectID, V1, V2);
+		pub::SpaceObj::GetMotion(ci.iColliderObjectId, V1, V2);
 		V1.x *= global->config->spinImpulseMultiplier * clientMass;
 		V1.y *= global->config->spinImpulseMultiplier * clientMass;
 		V1.z *= global->config->spinImpulseMultiplier * clientMass;
 		V2.x *= global->config->spinImpulseMultiplier * clientMass;
 		V2.y *= global->config->spinImpulseMultiplier * clientMass;
 		V2.z *= global->config->spinImpulseMultiplier * clientMass;
-		pub::SpaceObj::AddImpulse(ci.iColliderObjectID, V1, V2);
+		pub::SpaceObj::AddImpulse(ci.iColliderObjectId, V1, V2);
 	}
 } // namespace Plugins::SpinProtection
 

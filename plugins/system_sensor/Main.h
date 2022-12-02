@@ -17,7 +17,7 @@ namespace Plugins::SystemSensor
 	struct Sensor final
 	{
 		Sensor() = delete;
-		Sensor(const std::string& systemId, const std::string& equipId, const NetworkId networkId) : systemId(CreateID(systemId.c_str())), equipId(CreateID(equipId.c_str())), networkId(networkId)
+		Sensor(const std::string& systemId, const std::string& equipId, const NetworkId networkId) : systemID(CreateID(systemId.c_str())), equipID(CreateID(equipId.c_str())), networkID(networkId)
 		{
 		}
 
@@ -30,7 +30,7 @@ namespace Plugins::SystemSensor
 	struct ActiveNetwork
 	{
 		std::list<CARGO_INFO> lstLastScan;
-		NetworkId iAvailableNetworkID = 0;
+		NetworkId iAvailableNetworkId = 0;
 		NetworkId lastScanNetworkId = 0;
 		bool inJumpGate = false;
 		Mode mode = Mode::Off;

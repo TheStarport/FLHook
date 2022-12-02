@@ -30,78 +30,79 @@ namespace Plugins::Afk
 	/** @ingroup AwayFromKeyboard
 	 * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let anyone who messages them know too.
 	 */
-	void UserCmdAfk(const uint& clientId, const std::wstring_view& wscParam)
+	void UserCmdAfk(ClientId& client, const std::wstring_view& wscParam)
 	{
-		global->awayClients.emplace_back(clientId);
-		const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
+		global->awayClients.emplace_back(client);
+		const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 		const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal,playerName + L" is now away from keyboard.");
 
-		const auto systemId = Hk::Player::GetSystem(clientId);
+		const auto systemId = Hk::Player::GetSystem(client);
 
 		if (systemId.has_error())
 		{
-			PrintUserCmdText(clientId, Hk::Err::ErrGetText(systemId.error()));
+			PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
 			return;
 		}
-		const auto _ = Hk::Message::FMsgS(systemId.value(), message);
+		
+		Hk::Message::FMsgS(systemId.value(), message);
 
-		PrintUserCmdText(clientId, L"Use the /back command to stop sending automatic replies to PMs.");
+		PrintUserCmdText(client, L"Use the /back command to stop sending automatic replies to PMs.");
 	}
 
 	// This function welcomes the player back and removes their afk status
-	void Back(const ClientId clientId)
+	void Back(ClientId client)
 	{
-		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
+		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), client) != global->awayClients.end())
 		{
-			const auto systemId = Hk::Player::GetSystem(clientId);
+			const auto systemId = Hk::Player::GetSystem(client);
 
 			if (systemId.has_error())
 			{
-				PrintUserCmdText(clientId, Hk::Err::ErrGetText(systemId.error()));
+				PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
 				return;
 			}
 			global->awayClients.erase(it);
-			const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
+			const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 			const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
 			const auto _ = Hk::Message::FMsgS(systemId.value(), message);
 			return;
 		}
-		PrintUserCmdText(clientId, L"You are not marked as AFK. To do this, use the /afk command.");
+		PrintUserCmdText(client, L"You are not marked as AFK. To do this, use the /afk command.");
 	}
 
 	/** @ingroup AwayFromKeyboard
 	 * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
 	 * who messages them know too.
 	 */
-	void UserCmdBack(const uint& clientId, const std::wstring_view& wscParam)
+	void UserCmdBack(ClientId& client, const std::wstring_view& wscParam)
 	{
-		Back(clientId);
+		Back(client);
 	}
 
 	// Clean up when a client disconnects
-	void ClearClientInfo(const ClientId& clientId)
+	void ClearClientInfo(ClientId& client)
 	{
-		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
+		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), client) != global->awayClients.end())
 		{
 			global->awayClients.erase(it);
 		}
 	}
 
-	// Hook on chat being sent (This gets called twice with the iClientID and to
+	// Hook on chat being sent (This gets called twice with the client and to
 	// swapped
-	void __stdcall Cb_SendChat(ClientId& clientId, ClientId& to, uint& size, void** rdl)
+	void __stdcall Cb_SendChat(ClientId& client, ClientId& to, uint& size, void** rdl)
 	{
 		if (const auto it = global->awayClients.begin();
-			Hk::Client::IsValidClientID(to) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
+			Hk::Client::IsValidClientID(to) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
 				PrintUserCmdText(to, L"This user is away from keyboard.");
 	}
 
 	// Hooks on chat being submitted
-	void __stdcall SubmitChat(const ClientId& clientId, unsigned long& lP1, void const** rdlReader, const ClientId& to, int& iP2)
+	void __stdcall SubmitChat(ClientId& client, unsigned long& lP1, void const** rdlReader, ClientId& to, int& iP2)
 	{
 		if (const auto it = global->awayClients.begin();
-			Hk::Client::IsValidClientID(clientId) && std::find(it, global->awayClients.end(), clientId) != global->awayClients.end())
-			Back(clientId);
+			Hk::Client::IsValidClientID(client) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
+			Back(client);
 	}
 
 	// Client command processing

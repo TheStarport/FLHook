@@ -16,7 +16,7 @@ namespace Plugins::Stats
 
 		LoadStringDLLs();
 
-		// Load in shiparch.ini to generate IDs based off the nickname and generate
+		// Load in shiparch.ini to generate Ids based off the nickname and generate
 		// ship names via ids_name
 		std::string shiparchfile = "..\\data\\ships\\shiparch.ini";
 
@@ -33,7 +33,7 @@ namespace Plugins::Stats
 						if (ini.is_value("nickname"))
 						{
 							uint shiphash = CreateID(ini.get_value_string(0));
-							global->Ships[shiphash] = GetWStringFromIDS(idsname);
+							global->Ships[shiphash] = GetWStringFromIdS(idsname);
 						}
 						if (ini.is_value("ids_name"))
 						{
@@ -81,22 +81,22 @@ namespace Plugins::Stats
 
 			// Add rank
 			int iRank;
-			pub::Player::GetRank(lstPlayer.iClientID, iRank);
+			pub::Player::GetRank(lstPlayer.client, iRank);
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
-			int groupID = Players.GetGroupID(lstPlayer.iClientID);
-			jPlayer["group"] = groupID ? std::to_string(groupID) : "None";
+			int groupId = Players.GetGroupID(lstPlayer.client);
+			jPlayer["group"] = groupId ? std::to_string(groupId) : "None";
 
 			// Add ship
-			Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.iClientID].iShipArchetype);
+			Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.client].shipArchetype);
 			jPlayer["ship"] = (ship) ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
-			uint iSystemID;
-			pub::Player::GetSystem(lstPlayer.iClientID, iSystemID);
-			const Universe::ISystem* iSys = Universe::get_system(iSystemID);
-			jPlayer["system"] = wstos(GetWStringFromIDS(iSys->strid_name));
+			uint iSystemId;
+			pub::Player::GetSystem(lstPlayer.client, iSystemId);
+			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
+			jPlayer["system"] = wstos(GetWStringFromIdS(iSys->strid_name));
 
 			jPlayers.push_back(jPlayer);
 		}
@@ -107,11 +107,11 @@ namespace Plugins::Stats
 	}
 
 	// Hooks for updating stats
-	void __stdcall DisConnect_AFTER(unsigned int iClientID, enum EFLConnection state) { ExportJSON(); }
+	void __stdcall DisConnect_AFTER(unsigned int client, enum EFLConnection state) { ExportJSON(); }
 
-	void __stdcall PlayerLaunch_AFTER(uint& iShip, uint& client) { ExportJSON(); }
+	void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client) { ExportJSON(); }
 
-	void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& iClientID) { ExportJSON(); }
+	void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client) { ExportJSON(); }
 } // namespace Plugins::Stats
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

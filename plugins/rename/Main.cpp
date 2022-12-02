@@ -22,7 +22,7 @@ namespace Plugins::Rename
 		Serializer::SaveToJson(global->tagList);
 	}
 
-	bool CreateNewCharacter(SCreateCharacterInfo const& si, const uint& iClientID)
+	bool CreateNewCharacter(SCreateCharacterInfo const& si, ClientId& client)
 	{
 		if (global->config->enableTagProtection)
 		{
@@ -30,14 +30,14 @@ namespace Plugins::Rename
 			const std::wstring charName(si.wszCharname);
 			if (const auto& tag = global->tagList.FindTagPartial(charName); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 			{
-				Server.CharacterInfoReq(iClientID, true);
+				Server.CharacterInfoReq(client, true);
 				return true;
 			}
 
 			// If this ship name is too short, reject the request
 			if (charName.size() < MinCharacterNameLength + 1)
 			{
-				Server.CharacterInfoReq(iClientID, true);
+				Server.CharacterInfoReq(client, true);
 				return true;
 			}
 		}
@@ -58,23 +58,23 @@ namespace Plugins::Rename
 	// Update the tag list when a character is selected update the tag list to
 	// indicate that this tag is in use. If a tag is not used after 60 days, remove
 	// it.
-	void CharacterSelect_AFTER([[maybe_unused]] std::string& szCharFilename, const uint& iClientID)
+	void CharacterSelect_AFTER([[maybe_unused]] std::string& szCharFilename, ClientId& client)
 	{
 		if (!global->config->enableTagProtection)
 			return;
 
-		const auto charName = GetCharacterNameById(iClientID);
+		const auto charName = GetCharacterNameByID(client);
 		if (const auto& tag = global->tagList.FindTagPartial(charName); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 		{
 			tag->lastAccess = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}
 	}
 
-	void UserCmd_MakeTag(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MakeTag(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableTagProtection)
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
@@ -83,16 +83,16 @@ namespace Plugins::Rename
 		// correctly and stop processing but tell FLHook that we processed the command.
 		if (wscParam.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, usage);
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, usage);
 			return;
 		}
 
-		uint iBaseID;
-		pub::Player::GetBase(iClientID, iBaseID);
-		if (!iBaseID)
+		uint iBaseId;
+		pub::Player::GetBase(client, iBaseId);
+		if (!iBaseId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Not in base");
+			PrintUserCmdText(client, L"ERR Not in base");
 			return;
 		}
 
@@ -102,22 +102,22 @@ namespace Plugins::Rename
 
 		if (tag.size() < MinCharacterNameLength)
 		{
-			PrintUserCmdText(iClientID, L"ERR Tag too short");
-			PrintUserCmdText(iClientID, usage);
+			PrintUserCmdText(client, L"ERR Tag too short");
+			PrintUserCmdText(client, usage);
 			return;
 		}
 
 		if (pass.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Password not set");
-			PrintUserCmdText(iClientID, usage);
+			PrintUserCmdText(client, L"ERR Password not set");
+			PrintUserCmdText(client, usage);
 			return;
 		}
 
 		if (description.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Description not set");
-			PrintUserCmdText(iClientID, usage);
+			PrintUserCmdText(client, L"ERR Description not set");
+			PrintUserCmdText(client, usage);
 			return;
 		}
 
@@ -126,22 +126,22 @@ namespace Plugins::Rename
 		{
 			if (tag.find(i.tag) == 0 || i.tag.find(tag) == 0)
 			{
-				PrintUserCmdText(iClientID, L"ERR Tag already exists or conflicts with existing tag");
+				PrintUserCmdText(client, L"ERR Tag already exists or conflicts with existing tag");
 				return;
 			}
 		}
 
 		// Save character and exit if kicked on save.
-		std::wstring charName = GetCharacterNameById(iClientID);
+		std::wstring charName = GetCharacterNameByID(client);
 		SaveChar(charName);
 		if (GetClientIdFromCharname(charName) == -1)
 			return;
 
 		int iCash;
-		Func(GetCash, iClientID, iCash);
+		Func(GetCash, client, iCash);
 		if (global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
 		{
-			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
@@ -156,16 +156,16 @@ namespace Plugins::Rename
 		data.tag = tag;
 		global->tagList.tags.emplace_back(data);
 
-		PrintUserCmdText(iClientID, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
-		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), charName.c_str(), GetAccountIDByClientID(iClientID).c_str());
+		PrintUserCmdText(client, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
+		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), charName.c_str(), GetAccountIdByClientID(client).c_str());
 		SaveSettings();
 	}
 
-	void UserCmd_DropTag(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_DropTag(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableTagProtection)
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
@@ -174,12 +174,12 @@ namespace Plugins::Rename
 		// command.
 		if (wscParam.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /droptag <tag> <master password>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /droptag <tag> <master password>");
 			return;
 		}
 
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::wstring tag = GetParam(wscParam, ' ', 0);
 		std::wstring pass = GetParam(wscParam, ' ', 1);
 
@@ -190,16 +190,16 @@ namespace Plugins::Rename
 			    std::remove_if(global->tagList.tags.begin(), global->tagList.tags.end(), [tag](const TagData& tg) { return tg.tag == tag; }),
 			    global->tagList.tags.end());
 			SaveSettings();
-			PrintUserCmdText(iClientID, L"OK Tag dropped");
-			AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(), GetAccountIDByClientID(iClientID).c_str());
+			PrintUserCmdText(client, L"OK Tag dropped");
+			AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(), GetAccountIdByClientID(client).c_str());
 			return;
 		}
 
-		PrintUserCmdText(iClientID, L"ERR tag or master password are invalid");
+		PrintUserCmdText(client, L"ERR tag or master password are invalid");
 	}
 
 	// Make tag password
-	void UserCmd_SetTagPass(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_SetTagPass(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (global->config->enableTagProtection)
 		{
@@ -207,8 +207,8 @@ namespace Plugins::Rename
 			// correctly and stop processing but tell FLHook that we processed the command.
 			if (wscParam.empty())
 			{
-				PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-				PrintUserCmdText(iClientID, L"Usage: /settagpass <tag> <master password> <rename password>");
+				PrintUserCmdText(client, L"ERR Invalid parameters");
+				PrintUserCmdText(client, L"Usage: /settagpass <tag> <master password> <rename password>");
 				return;
 			}
 
@@ -223,15 +223,15 @@ namespace Plugins::Rename
 				{
 					data->renamePassword = renamePassword;
 					SaveSettings();
-					PrintUserCmdText(iClientID, L"OK Created rename password %s for tag %s", renamePassword.c_str(), tag.c_str());
+					PrintUserCmdText(client, L"OK Created rename password %s for tag %s", renamePassword.c_str(), tag.c_str());
 					return;
 				}
 			}
-			PrintUserCmdText(iClientID, L"ERR tag or master password are invalid");
+			PrintUserCmdText(client, L"ERR tag or master password are invalid");
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 		}
 	}
 
@@ -361,13 +361,13 @@ namespace Plugins::Rename
 		{ RenameTimer, 5 }
 	};
 
-	void UserCmd_RenameMe(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_RenameMe(ClientId& client, const std::wstring_view& wscParam)
 	{
 		Error err;
 
 		if (!global->config->enableRenameMe)
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
@@ -376,16 +376,16 @@ namespace Plugins::Rename
 		// command.
 		if (wscParam.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /renameme <charname> [password]");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /renameme <charname> [password]");
 			return;
 		}
 
-		uint iBaseID;
-		pub::Player::GetBase(iClientID, iBaseID);
-		if (!iBaseID)
+		uint iBaseId;
+		pub::Player::GetBase(client, iBaseId);
+		if (!iBaseId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Not in base");
+			PrintUserCmdText(client, L"ERR Not in base");
 			return;
 		}
 
@@ -394,25 +394,25 @@ namespace Plugins::Rename
 		std::wstring wscNewCharname = Trim(GetParam(wscParam, L' ', 0));
 		if (wscNewCharname.find(L" ") != -1)
 		{
-			PrintUserCmdText(iClientID, L"ERR Space characters not allowed in name");
+			PrintUserCmdText(client, L"ERR Space characters not allowed in name");
 			return;
 		}
 
 		if (GetAccountByCharname(wscNewCharname))
 		{
-			PrintUserCmdText(iClientID, L"ERR Name already exists");
+			PrintUserCmdText(client, L"ERR Name already exists");
 			return;
 		}
 
 		if (wscNewCharname.length() > 23)
 		{
-			PrintUserCmdText(iClientID, L"ERR Name to long");
+			PrintUserCmdText(client, L"ERR Name to long");
 			return;
 		}
 
 		if (wscNewCharname.length() < MinCharacterNameLength)
 		{
-			PrintUserCmdText(iClientID, L"ERR Name to short");
+			PrintUserCmdText(client, L"ERR Name to short");
 			return;
 		}
 
@@ -426,12 +426,12 @@ namespace Plugins::Rename
 				{
 					if (!wscPassword.length())
 					{
-						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is required.");
+						PrintUserCmdText(client, L"ERR Name starts with an owned tag. Password is required.");
 						return;
 					}
 					else if (wscPassword != i.masterPassword && wscPassword != i.renamePassword)
 					{
-						PrintUserCmdText(iClientID, L"ERR Name starts with an owned tag. Password is wrong.");
+						PrintUserCmdText(client, L"ERR Name starts with an owned tag. Password is wrong.");
 						return;
 					}
 					// Password is valid for owned tag.
@@ -441,12 +441,12 @@ namespace Plugins::Rename
 		}
 
 		// Get the character name for this connection.
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
 		SaveChar(wscCharname);
-		if (!IsValidClientID(iClientID))
+		if (!IsValidClientID(client))
 			return;
 
 		// Read the current number of credits for the player
@@ -454,12 +454,12 @@ namespace Plugins::Rename
 		int iCash = 0; 
 		if ((err = GetCash(wscCharname, iCash)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		if (global->config->renameCost > 0 && iCash < global->config->renameCost)
 		{
-			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
@@ -467,7 +467,7 @@ namespace Plugins::Rename
 		std::wstring dir;
 		if ((err = GetAccountDirName(wscCharname, dir)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		std::string scRenameFile = scAcctPath + wstos(dir) + "\\" + "rename.ini";
@@ -480,7 +480,7 @@ namespace Plugins::Rename
 		{
 			if ((lastRenameTime + global->config->renameTimeLimit) > static_cast<int>(time(nullptr)))
 			{
-				PrintUserCmdText(iClientID, L"ERR Rename time limit");
+				PrintUserCmdText(client, L"ERR Rename time limit");
 				return;
 			}
 		}
@@ -492,13 +492,13 @@ namespace Plugins::Rename
 		std::wstring wscSourceFile;
 		if ((err = GetCharFileName(wscCharname, wscSourceFile)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		std::wstring wscDestFile;
 		if ((err = GetCharFileName(wscNewCharname, wscDestFile)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 
@@ -519,26 +519,26 @@ namespace Plugins::Rename
 	}
 
 	/** Process a set the move char code command */
-	void UserCmd_SetMoveCharCode(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_SetMoveCharCode(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (!global->config->enableMoveChar)
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
 		if (wscParam.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /set movecharcode <code>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /set movecharcode <code>");
 			return;
 		}
 
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::string scFile = GetUserFilePath(wscCharname, "-movechar.ini");
 		if (scFile.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Character does not exist");
+			PrintUserCmdText(client, L"ERR Character does not exist");
 			return;
 		}
 
@@ -546,12 +546,12 @@ namespace Plugins::Rename
 		if (wscCode == L"none")
 		{
 			IniWriteW(scFile, "Settings", "Code", L"");
-			PrintUserCmdText(iClientID, L"OK Movechar code cleared");
+			PrintUserCmdText(client, L"OK Movechar code cleared");
 		}
 		else
 		{
 			IniWriteW(scFile, "Settings", "Code", wscCode);
-			PrintUserCmdText(iClientID, L"OK Movechar code set to " + wscCode);
+			PrintUserCmdText(client, L"OK Movechar code set to " + wscCode);
 		}
 		return;
 	}
@@ -580,13 +580,13 @@ namespace Plugins::Rename
 	/**
 	 Move a character from a remote account into this one.
 	*/
-	void UserCmd_MoveChar(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MoveChar(ClientId& client, const std::wstring_view& wscParam)
 	{
 		Error err;
 
 		if (!global->config->enableMoveChar)
 		{
-			PrintUserCmdText(iClientID, L"Command disabled");
+			PrintUserCmdText(client, L"Command disabled");
 			return;
 		}
 
@@ -595,16 +595,16 @@ namespace Plugins::Rename
 		// command.
 		if (wscParam.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /movechar <charname> <code>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /movechar <charname> <code>");
 			return;
 		}
 
-		uint iBaseID;
-		pub::Player::GetBase(iClientID, iBaseID);
-		if (!iBaseID)
+		uint iBaseId;
+		pub::Player::GetBase(client, iBaseId);
+		if (!iBaseId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Not in base");
+			PrintUserCmdText(client, L"ERR Not in base");
 			return;
 		}
 
@@ -613,7 +613,7 @@ namespace Plugins::Rename
 		std::string scFile = GetUserFilePath(wscMovingCharname, "-movechar.ini");
 		if (scFile.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Character does not exist");
+			PrintUserCmdText(client, L"ERR Character does not exist");
 			return;
 		}
 
@@ -622,18 +622,18 @@ namespace Plugins::Rename
 		std::wstring wscTargetCode = IniGetWS(scFile, "Settings", "Code", L"");
 		if (!wscTargetCode.length() || wscTargetCode != wscCode)
 		{
-			PrintUserCmdText(iClientID, L"ERR Move character access denied");
+			PrintUserCmdText(client, L"ERR Move character access denied");
 			return;
 		}
 
 		// Prevent ships from banned accounts from being moved.
 		if (IsBanned(wscMovingCharname))
 		{
-			PrintUserCmdText(iClientID, L"ERR not permitted");
+			PrintUserCmdText(client, L"ERR not permitted");
 			return;
 		}
 
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
@@ -645,19 +645,19 @@ namespace Plugins::Rename
 		int iCash = 0;
 		if ((err = GetCash(wscCharname, iCash)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		if (global->config->moveCost > 0 && iCash < global->config->moveCost)
 		{
-			PrintUserCmdText(iClientID, L"ERR Insufficient credits");
+			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
 		// Check there is room in this account.
-		if (CAccount* acc = Players.FindAccountFromClientID(iClientID); acc->iNumberOfCharacters >= 5)
+		if (CAccount* acc = Players.FindAccountFromClientID(client); acc->iNumberOfCharacters >= 5)
 		{
-			PrintUserCmdText(iClientID, L"ERR Too many characters in account");
+			PrintUserCmdText(client, L"ERR Too many characters in account");
 			return;
 		}
 
@@ -671,17 +671,17 @@ namespace Plugins::Rename
 		std::wstring wscSourceFile;
 		if ((err = GetAccountDirName(wscCharname, dir)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		if ((err = GetAccountDirName(wscMovingCharname, wscSourceDir)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 		if ((err = GetCharFileName(wscMovingCharname, wscSourceFile)) != E_OK)
 		{
-			PrintUserCmdText(iClientID, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
 			return;
 		}
 

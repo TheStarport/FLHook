@@ -52,7 +52,7 @@ namespace Plugins::AntiJumpDisconnect
 
 			if (global->tempBanCommunicator)
 			{
-				const auto charName = Hk::Client::GetCharacterNameById(client);
+				const auto charName = Hk::Client::GetCharacterNameByID(client);
 				global->tempBanCommunicator->TempBan(charName.value(), 5);
 			}
 		}

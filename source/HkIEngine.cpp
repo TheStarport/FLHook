@@ -105,14 +105,14 @@ namespace IEngineHook
 	/**************************************************************************************************************
 	**************************************************************************************************************/
 
-	int __cdecl DockCall(const uint& shipID, const uint& spaceID, int flags, DOCK_HOST_RESPONSE response)
+	int __cdecl DockCall(const uint& shipId, const uint& spaceId, int flags, DOCK_HOST_RESPONSE response)
 	{
 		//	flags == -1, response -> 2 --> Dock Denied!
 		//	flags == -1, response -> 3 --> Dock in Use
 		//	flags != -1, response -> 4 --> Dock ok, proceed (flags Dock Port?)
 		//	flags == -1, response -> 5 --> now DOCK!
 
-		CallPluginsBefore(HookedCall::IEngine__DockCall, shipID, spaceID, flags, response);
+		CallPluginsBefore(HookedCall::IEngine__DockCall, shipId, spaceId, flags, response);
 
 		int retVal = 0;
 		TRY_HOOK
@@ -120,20 +120,20 @@ namespace IEngineHook
 			// Print out a message when a player ship docks.
 			if (FLHookConfig::c()->general.dockingMessages && response == PROCEED_DOCK)
 			{
-				const auto clientId = Hk::Client::GetClientIDByShip(shipID);
-				if (clientId.has_value())
+				const auto client = Hk::Client::GetClientIdByShip(shipId);
+				if (client.has_value())
 				{
 					std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
-					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(clientId.value()));
-					PrintLocalUserCmdText(clientId.value(), wscMsg, 15000);
+					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
+					PrintLocalUserCmdText(client.value(), wscMsg, 15000);
 				}
 			}
 			// Actually dock
-			retVal = pub::SpaceObj::Dock(shipID, spaceID, flags, response);
+			retVal = pub::SpaceObj::Dock(shipId, spaceId, flags, response);
 		}
 		CATCH_HOOK({})
 
-		CallPluginsAfter(HookedCall::IEngine__DockCall, shipID, spaceID, flags, response);
+		CallPluginsAfter(HookedCall::IEngine__DockCall, shipId, spaceId, flags, response);
 
 		return retVal;
 	}
@@ -143,10 +143,10 @@ namespace IEngineHook
 
 	FARPROC g_OldLaunchPosition;
 
-	bool __stdcall LaunchPosition(uint spaceID, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock)
+	bool __stdcall LaunchPosition(uint spaceId, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock)
 	{
 		auto [retVal, skip] =
-		    CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceID, obj, position, orientation, dock);
+		    CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
 		if (skip)
 			return retVal;
 
@@ -173,7 +173,7 @@ namespace IEngineHook
 
 	struct LOAD_REP_DATA
 	{
-		uint iRepID;
+		uint iRepId;
 		float fAttitude;
 	};
 
@@ -187,14 +187,14 @@ namespace IEngineHook
 	bool __stdcall LoadReputationFromCharacterFile(REP_DATA_LIST* savedReps, LOAD_REP_DATA* repToSave)
 	{
 		// check of the rep id is valid
-		if (repToSave->iRepID == 0xFFFFFFFF)
+		if (repToSave->iRepId == 0xFFFFFFFF)
 			return false; // rep id not valid!
 
 		LOAD_REP_DATA* repIt = savedReps->begin;
 
 		while (repIt != savedReps->end)
 		{
-			if (repIt->iRepID == repToSave->iRepID)
+			if (repIt->iRepId == repToSave->iRepId)
 				return false; // we already saved this rep!
 
 			repIt++;

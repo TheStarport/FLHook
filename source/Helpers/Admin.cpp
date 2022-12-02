@@ -4,15 +4,15 @@ bool g_bNPCDisabled;
 
 namespace Hk::Admin
 {
-	std::wstring GetPlayerIP(uint clientId)
+	std::wstring GetPlayerIP(ClientId client)
 	{
-		CDPClientProxy* cdpClient = g_cClientProxyArray[clientId - 1];
+		CDPClientProxy const* cdpClient = g_cClientProxyArray[client - 1];
 		if (!cdpClient)
 			return L"";
 
 		// get ip
 		char* szP1;
-		char* szIDirectPlay8Address;
+		char* szIdirectPlay8Address;
 		wchar_t wszHostname[] = L"hostname";
 		memcpy(&szP1, (char*)cdpSrv + 4, 4);
 
@@ -21,7 +21,7 @@ namespace Hk::Admin
 		long lDataType = 1;
 		__asm {
         push 0                          ; dwFlags
-        lea edx, szIDirectPlay8Address
+        lea edx, szIdirectPlay8Address
         push edx                        ; pAddress 
         mov edx, [cdpClient]
         mov edx, [edx+8]
@@ -41,12 +41,12 @@ namespace Hk::Admin
         push eax
         lea eax, wszHostname
         push eax
-        mov ecx, [szIDirectPlay8Address]
+        mov ecx, [szIdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
         call dword ptr[ecx+0x40]        ; GetComponentByName
 
-        mov ecx, [szIDirectPlay8Address]
+        mov ecx, [szIdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
         call dword ptr[ecx+0x08]        ; Release
@@ -60,23 +60,23 @@ some_error:
 
 	cpp::result<PLAYERINFO, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu)
 	{
-		const uint clientId = Hk::Client::ExtractClientId(player);
+		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (clientId == -1 || (Hk::Client::IsInCharSelectMenu(clientId) && !bAlsoCharmenu))
+		if (client == -1 || (Hk::Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PLAYERINFO pi;
-		const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(clientId);
+		const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 
-		pi.clientId = clientId;
+		pi.client = client;
 		pi.character = wszActiveCharname ? wszActiveCharname : L"";
 		pi.wscBase = pi.wscSystem = L"";
 
 		uint iBase = 0;
 		uint iSystem = 0;
-		pub::Player::GetBase(clientId, iBase);
-		pub::Player::GetSystem(clientId, iSystem);
-		pub::Player::GetShip(clientId, pi.iShip);
+		pub::Player::GetBase(client, iBase);
+		pub::Player::GetSystem(client, iSystem);
+		pub::Player::GetShip(client, pi.ship);
 
 		if (iBase)
 		{
@@ -95,13 +95,13 @@ some_error:
 
 		// get ping
 		DPN_CONNECTION_INFO ci;
-		GetConnectionStats(clientId);
+		GetConnectionStats(client);
 		pi.connectionInfo = ci;
 
 		// get ip
-		pi.wscIP = GetPlayerIP(clientId);
+		pi.wscIP = GetPlayerIP(client);
 
-		pi.wscHostname = ClientInfo[clientId].wscHostname;
+		pi.wscHostname = ClientInfo[client].wscHostname;
 
 		return pi;
 	}
@@ -114,12 +114,12 @@ some_error:
 		struct PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
-			uint clientId = playerDb->iOnlineID;
+			ClientId client = playerDb->iOnlineId;
 
-			if (Hk::Client::IsInCharSelectMenu(clientId))
+			if (Hk::Client::IsInCharSelectMenu(client))
 				continue;
 
-			/*auto pi = GetPlayerInfo(clientId, false);
+			/*auto pi = GetPlayerInfo(client, false);
 			auto a = std::move(pi).value();
 			lstRet.emplace_back(a);*/
 		}
@@ -129,12 +129,12 @@ some_error:
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(uint clientId)
+	cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client)
 	{
-		if (clientId < 1 || clientId > MaxClientId)
+		if (client < 1 || client > MaxClientId)
 			return cpp::fail(Error::InvalidClientId);
 
-		CDPClientProxy* cdpClient = g_cClientProxyArray[clientId - 1];
+		CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
 
 		DPN_CONNECTION_INFO ci;
 		if (!cdpClient || !cdpClient->GetConnectionStats(&ci))
@@ -246,14 +246,14 @@ some_error:
 		float maxHealth;
 
 		Universe::IBase const* base = Universe::get_base(baseId);
-		pub::SpaceObj::GetHealth(base->lSpaceObjID, curHealth, maxHealth);
+		pub::SpaceObj::GetHealth(base->lSpaceObjId, curHealth, maxHealth);
 		BaseHealth bh = { curHealth, maxHealth };
 		return bh;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Fuse* GetFuseFromID(uint iFuseID)
+	Fuse* GetFuseFromID(uint iFuseId)
 	{
 		int iDunno;
 		Fuse* fuse;
@@ -261,7 +261,7 @@ some_error:
         mov edx, 0x6CFD390
         call edx
 
-        lea ecx, iFuseID
+        lea ecx, iFuseId
         push ecx
         lea ecx, iDunno
         push ecx
@@ -294,13 +294,13 @@ some_error:
 
 	CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW) { return GetEqObjFromObjRW_(objRW); }
 
-	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip)
+	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
 	{
 		__asm {
-        lea eax, [esp+8] // iFuseID
+        lea eax, [esp+8] // iFuseId
         push [esp+20] // fSkip
         push [esp+16] // fDelay
-        push 0 // SUBOBJ_ID_NONE
+        push 0 // SUBOBJ_Id_NONE
         push eax
         push [esp+32] // fLifetime
         mov ecx, [esp+24]
@@ -310,24 +310,24 @@ some_error:
 		}
 	}
 
-	bool LightFuse(IObjRW* ship, uint iFuseID, float fDelay, float fLifetime, float fSkip) { return LightFuse_(ship, iFuseID, fDelay, fLifetime, fSkip); }
+	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip) { return LightFuse_(ship, iFuseId, fDelay, fLifetime, fSkip); }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Returns true if a fuse was unlit
-	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseID, float fDunno)
+	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseId, float fDunno)
 	{
 		__asm {
         mov ecx, [esp+4]
-        lea eax, [esp+8] // iFuseID
+        lea eax, [esp+8] // iFuseId
         push [esp+12] // fDunno
-        push 0 // SUBOBJ_ID_NONE
-        push eax // iFuseID
+        push 0 // SUBOBJ_Id_NONE
+        push eax // iFuseId
         mov eax, [ecx]
         call [eax+0x1E8]
         ret 12
 		}
 	}
 
-	bool UnLightFuse(IObjRW* ship, uint iFuseID) { return UnLightFuse_(ship, iFuseID, 0.f); }
+	bool UnLightFuse(IObjRW* ship, uint iFuseId) { return UnLightFuse_(ship, iFuseId, 0.f); }
 }

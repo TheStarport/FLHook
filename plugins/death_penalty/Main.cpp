@@ -48,18 +48,18 @@ namespace Plugins::DeathPenalty
 			global->FractionOverridesByShipIds[CreateID(override.first.c_str())] = override.second;
 	}
 
-	void ClearClientInfo(uint& iClientID) { global->MapClients.erase(iClientID); }
+	void ClearClientInfo(ClientId& client) { global->MapClients.erase(client); }
 
 	/** @ingroup DeathPenalty
 	 * @brief Is the player is a system that is excluded from death penalty?
 	 */
-	bool bExcludedSystem(uint iClientID)
+	bool bExcludedSystem(ClientId client)
 	{
-		// Get System ID
-		uint iSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
+		// Get System Id
+		uint iSystemId;
+		pub::Player::GetSystem(client, iSystemId);
 		// Search list for system
-		return (std::find(global->ExcludedSystemsIds.begin(), global->ExcludedSystemsIds.end(), iSystemID) != global->ExcludedSystemsIds.end());
+		return (std::find(global->ExcludedSystemsIds.begin(), global->ExcludedSystemsIds.end(), iSystemId) != global->ExcludedSystemsIds.end());
 	}
 
 	
@@ -68,18 +68,18 @@ namespace Plugins::DeathPenalty
 	 * If there is not override it returns the default value defined as
 	 * "DeathPenaltyFraction" in the json file
 	 */
-	float fShipFractionOverride(uint iClientID)
+	float fShipFractionOverride(ClientId client)
 	{
-		// Get ShipArchID
-		uint iShipArchID;
-		pub::Player::GetShipID(iClientID, iShipArchID);
+		// Get ShipArchId
+		uint shipArchId;
+		pub::Player::GetShipID(client, shipArchId);
 
 		// Default return value is the default death penalty fraction
 		float fOverrideValue = global->config->DeathPenaltyFraction;
 
 		// See if the ship has an override fraction
-		if (global->FractionOverridesByShipIds.find(iShipArchID) != global->FractionOverridesByShipIds.end())
-			fOverrideValue = global->FractionOverridesByShipIds[iShipArchID];
+		if (global->FractionOverridesByShipIds.find(shipArchId) != global->FractionOverridesByShipIds.end())
+			fOverrideValue = global->FractionOverridesByShipIds[shipArchId];
 
 		return fOverrideValue;
 	}
@@ -87,79 +87,83 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
 	 */
-	void __stdcall PlayerLaunch(uint& iShip, uint& iClientID)
+	void __stdcall PlayerLaunch(uint& ship, ClientId& client)
 	{
 		// No point in processing anything if there is no death penalty
 		if (global->config->DeathPenaltyFraction > 0.00001f)
 		{
 			// Check to see if the player is in a system that doesn't have death
 			// penalty
-			if (!bExcludedSystem(iClientID))
+			if (!bExcludedSystem(client))
 			{
 				// Get the players net worth
 				float fValue;
-				pub::Player::GetAssetValue(iClientID, fValue);
+				pub::Player::GetAssetValue(client, fValue);
 
-				int cash;
-				Func(GetCash, iClientID, cash);
+				const auto cash = Hk::Player::GetCash(client);
+				if (cash.has_error())
+				{
+					Console::ConWarn(L"Unable to get cash of undocking player: %s", Hk::Err::ErrGetText(cash.error()));
+					return;
+				}
 
-				int dpCredits = static_cast<int>(fValue * fShipFractionOverride(iClientID));
+				auto dpCredits = static_cast<int>(fValue * fShipFractionOverride(client));
 				if (cash < dpCredits)
-					dpCredits = cash;
+					dpCredits = cash.value();
 
 				// Calculate what the death penalty would be upon death
-				global->MapClients[iClientID].DeathPenaltyCredits = dpCredits;
+				global->MapClients[client].DeathPenaltyCredits = dpCredits;
 
 				// Should we print a death penalty notice?
-				if (global->MapClients[iClientID].bDisplayDPOnLaunch)
-					PrintUserCmdText(iClientID, L"Notice: the death penalty for your ship will be " + ToMoneyStr(global->MapClients[iClientID].DeathPenaltyCredits) +
+				if (global->MapClients[client].bDisplayDPOnLaunch)
+					PrintUserCmdText(client, L"Notice: the death penalty for your ship will be " + ToMoneyStr(global->MapClients[client].DeathPenaltyCredits) +
 					        L" credits.  Type /dp for more information.");
 			}
 			else
-				global->MapClients[iClientID].DeathPenaltyCredits = 0;
+				global->MapClients[client].DeathPenaltyCredits = 0;
 		}
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Load settings directly from the player's save directory
 	 */
-	void LoadUserCharSettings(uint& iClientID)
+	void LoadUserCharSettings(ClientId& client)
 	{
 		// Get Account directory then flhookuser.ini file
-		CAccount* acc = Players.FindAccountFromClientID(iClientID);
+		CAccount* acc = Players.FindAccountFromClientID(client);
 		std::wstring dir;
 		GetAccountDirName(acc, dir);
 		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
 		std::wstring wscFilename;
-		GetCharFileName(iClientID, wscFilename);
+		GetCharFileName(client, wscFilename);
 		std::string scFilename = wstos(wscFilename);
 		std::string scSection = "general_" + scFilename;
 
 		// read death penalty settings
 		CLIENT_DATA c;
 		c.bDisplayDPOnLaunch = IniGetB(scUserFile, scSection, "DPnotice", true);
-		global->MapClients[iClientID] = c;
+		global->MapClients[client] = c;
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Apply the death penalty on a player death
 	 */
-	void PenalizeDeath(uint iClientID, uint iKillerID)
+	void PenalizeDeath(ClientId client, uint iKillerId)
 	{
 		if (global->config->DeathPenaltyFraction < 0.00001f)
 			return;
 
-		// Valid iClientID and the ShipArch or System isnt in the excluded list?
-		if (iClientID != -1 && !bExcludedSystem(iClientID))
+		// Valid client and the ShipArch or System isnt in the excluded list?
+		if (client != -1 && !bExcludedSystem(client))
 		{
 			// Get the players cash
 			int iCash;
-			GetCash(iClientID, iCash);
+			GetCash(client, iCash);
 
 			// Get how much the player owes
-			int iOwed = global->MapClients[iClientID].DeathPenaltyCredits;
+			int iOwed = global->MapClients[client].DeathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash
@@ -167,23 +171,23 @@ namespace Plugins::DeathPenalty
 				iOwed = iCash;
 
 			// If another player has killed the player
-			if (iKillerID != iClientID && global->config->DeathPenaltyFractionKiller)
+			if (iKillerId != client && global->config->DeathPenaltyFractionKiller)
 			{
 				int iGive = (int)(iOwed * global->config->DeathPenaltyFractionKiller);
 				if (iGive)
 				{
 					// Reward the killer, print message to them
-					AddCash(iKillerID, iGive);
-					PrintUserCmdText(iKillerID, L"Death penalty: given " + ToMoneyStr(iGive) + L" credits from %s's death penalty.",
-					    Players.GetActiveCharacterName(iClientID));
+					AddCash(iKillerId, iGive);
+					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(iGive) + L" credits from %s's death penalty.",
+					    Players.GetActiveCharacterName(client));
 				}
 			}
 
 			if (iOwed)
 			{
 				// Print message to the player and remove cash
-				PrintUserCmdText(iClientID, L"Death penalty: charged " + ToMoneyStr(iOwed) + L" credits.");
-				AddCash(iClientID, -iOwed);
+				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(iOwed) + L" credits.");
+				AddCash(client, -iOwed);
 			}
 		}
 	}
@@ -195,32 +199,32 @@ namespace Plugins::DeathPenalty
 	{
 		if (iKill)
 		{
-			// Get iClientID
+			// Get client
 			const CShip* cShip = CShipFromShipDestroyed(ecx);
-			const uint iClientID = cShip->GetOwnerPlayer();
+			ClientId client = cShip->GetOwnerPlayer();
 
-			// Get Killer ID if there is one
-			uint iKillerID = 0;
-			if (iClientID)
+			// Get Killer Id if there is one
+			uint iKillerId = 0;
+			if (client)
 			{
 				const DamageList* dmg = *_dmg;
-				iKillerID = dmg->get_cause() == DamageCause::Unknown ? GetClientIDByShip(ClientInfo[iClientID].dmgLast.get_inflictor_id())
-					: GetClientIDByShip(dmg->get_inflictor_id());
+				iKillerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
+					: GetClientIdByShip(dmg->get_inflictor_id());
 			}
 
 			// Call function to penalize player and reward killer
-			PenalizeDeath(iClientID, iKillerID);
+			PenalizeDeath(client, iKillerId);
 		}
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief This will save whether the player wants to receieve the /dp notice or not to the flhookuser.ini file
 	 */
-	void SaveDPNoticeToCharFile(uint iClientID, std::string value)
+	void SaveDPNoticeToCharFile(ClientId client, std::string value)
 	{
 		std::wstring dir, wscFilename;
-		CAccount* acc = Players.FindAccountFromClientID(iClientID);
-		if (HKSUCCESS(GetCharFileName(iClientID, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+		CAccount* acc = Players.FindAccountFromClientID(client);
+		if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
 		{
 			std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 			std::string scSection = "general_" + wstos(wscFilename);
@@ -231,7 +235,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief /dp command. Shows information about death penalty
 	 */
-	void UserCmd_DP(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_DP(ClientId& client, const std::wstring_view& wscParam)
 	{
 		// If there is no death penalty, no point in having death penalty commands
 		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)
@@ -245,38 +249,38 @@ namespace Plugins::DeathPenalty
 		{
 			if (ToLower(Trim(param)) == L"off")
 			{
-				global->MapClients[iClientID].bDisplayDPOnLaunch = false;
-				SaveDPNoticeToCharFile(iClientID, "no");
-				PrintUserCmdText(iClientID, L"Death penalty notices disabled.");
+				global->MapClients[client].bDisplayDPOnLaunch = false;
+				SaveDPNoticeToCharFile(client, "no");
+				PrintUserCmdText(client, L"Death penalty notices disabled.");
 			}
 			else if (ToLower(Trim(param)) == L"on")
 			{
-				global->MapClients[iClientID].bDisplayDPOnLaunch = true;
-				SaveDPNoticeToCharFile(iClientID, "yes");
-				PrintUserCmdText(iClientID, L"Death penalty notices enabled.");
+				global->MapClients[client].bDisplayDPOnLaunch = true;
+				SaveDPNoticeToCharFile(client, "yes");
+				PrintUserCmdText(client, L"Death penalty notices enabled.");
 			}
 			else
 			{
-				PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-				PrintUserCmdText(iClientID, L"/dp on | /dp off");
+				PrintUserCmdText(client, L"ERR Invalid parameters");
+				PrintUserCmdText(client, L"/dp on | /dp off");
 			}
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"The death penalty is charged immediately when you die.");
-			if (!bExcludedSystem(iClientID))
+			PrintUserCmdText(client, L"The death penalty is charged immediately when you die.");
+			if (!bExcludedSystem(client))
 			{
 				float fValue;
-				pub::Player::GetAssetValue(iClientID, fValue);
+				pub::Player::GetAssetValue(client, fValue);
 				int iOwed = static_cast<int>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
-				PrintUserCmdText(iClientID, L"The death penalty for your ship will be " + ToMoneyStr(iOwed) + L" credits.");
-				PrintUserCmdText(iClientID,
+				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(iOwed) + L" credits.");
+				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");
 			}
 			else
 			{
-				PrintUserCmdText(iClientID,
+				PrintUserCmdText(client,
 				    L"You don't have to pay the death penalty "
 				    L"because you are in a specific system.");
 			}

@@ -37,11 +37,11 @@ namespace Plugins::Arena
 	const auto global = std::make_unique<Global>();
 
 	/// Clear client info when a client connects.
-	void ClearClientInfo(const uint& iClientID) { global->transferFlags[iClientID] = ClientState::None; }
+	void ClearClientInfo(ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	// Client command processing
-	void UserCmd_Conn(const ClientId& client, const std::wstring_view& param);
-	void UserCmd_Return(const ClientId& client, const std::wstring_view& param);
+	void UserCmd_Conn(ClientId& client, const std::wstring_view& param);
+	void UserCmd_Return(ClientId& client, const std::wstring_view& param);
 	const std::vector commands = {{
 	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L""),
 	    CreateUserCommand(L"/return", L"", UserCmd_Return, L""),
@@ -80,9 +80,9 @@ namespace Plugins::Arena
 	 * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
 	 * shortcut.
 	 */
-	bool ValidateCargo(const ClientId& client)
+	bool ValidateCargo(ClientId& client)
 	{
-		if (const auto playerName = Hk::Client::GetCharacterNameById(client); playerName.has_error())
+		if (const auto playerName = Hk::Client::GetCharacterNameByID(client); playerName.has_error())
 		{
 			PrintUserCmdText(client, Hk::Err::ErrGetText(playerName.error()));
 			return false;
@@ -99,7 +99,7 @@ namespace Plugins::Arena
 		for (const auto& item : cargo.value())
 		{
 			bool flag = false;
-			pub::IsCommodity(item.iArchID, flag);
+			pub::IsCommodity(item.iArchId, flag);
 
 			// Some commodity present.
 			if (flag)
@@ -118,7 +118,7 @@ namespace Plugins::Arena
 		uint base = 0;
 
 		if (global->baseCommunicator)
-			base = global->baseCommunicator->GetCustomBaseId(client);
+			base = global->baseCommunicator->GetCustomBaseID(client);
 
 		if (!base)
 			pub::Player::GetBase(client, base);
@@ -161,9 +161,9 @@ namespace Plugins::Arena
 				return;
 
 			auto fileName = charFileName.value() + L".fl";
-			CHARACTER_ID cID;
-			strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-			Server.CharacterSelect(cID, client);
+			CHARACTER_ID cId;
+			strcpy_s(cId.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+			Server.CharacterSelect(cId, client);
 		}
 	}
 
@@ -184,12 +184,12 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void __stdcall CharacterSelect(std::string& szCharFilename, uint& client) { global->transferFlags[client] = ClientState::None; }
+	void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
 	 */
-	void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client)
+	void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client)
 	{
 		if (global->transferFlags[client] == ClientState::Transfer)
 		{
@@ -231,13 +231,13 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to switch to the arena system
 	 */
-	void UserCmd_Conn(const ClientId& client, const std::wstring_view& param)
+	void UserCmd_Conn(ClientId& client, const std::wstring_view& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
 		uint system = 0;
 		pub::Player::GetSystem(client, system);
 		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId ||
-		    (global->baseCommunicator && global->baseCommunicator->GetCustomBaseId(client)))
+		    (global->baseCommunicator && global->baseCommunicator->GetCustomBaseID(client)))
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
@@ -263,7 +263,7 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to return from the arena system.
 	 */
-	void UserCmd_Return(const ClientId& client, const std::wstring_view& param)
+	void UserCmd_Return(ClientId& client, const std::wstring_view& param)
 	{
 		if (!ReadReturnPointForClient(client))
 		{

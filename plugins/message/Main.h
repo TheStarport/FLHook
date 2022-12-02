@@ -19,11 +19,11 @@ namespace Plugins::Message
 		//! Slots that contain prewritten messages
 		std::wstring slot[numberOfSlots];
 
-		//! Client ID of last PM.
-		uint lastPmClientID;
+		//! Client Id of last PM.
+		uint lastPmClientId;
 
-		//! Client ID of selected target
-		uint targetClientID;
+		//! Client Id of selected target
+		uint targetClientId;
 
 		//! Current chat time settings
 		bool showChatTime;
@@ -87,7 +87,7 @@ namespace Plugins::Message
 		ReturnCode returncode = ReturnCode::Default;
 		std::unique_ptr<Config> config = nullptr;
 
-		//! Cache of preset messages for the online players (by client ID)
+		//! Cache of preset messages for the online players (by client Id)
 		std::map<uint, ClientInfo> Info;
 
 		//! This parameter is sent when we send a chat time line so that we don't print a time chat line recursively.
@@ -101,8 +101,8 @@ namespace Plugins::Message
 	//! A random macro to make things easier
 	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-	void UserCmd_ReplyToLastPMSender(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_SendToLastTarget(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_SendToLastTarget(ClientId& client, const std::wstring_view& wscParam);
 }
 
 

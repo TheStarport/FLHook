@@ -14,9 +14,9 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-void LoadDockInfo(uint client);
-void SaveDockInfo(uint client);
-void UpdateDockInfo(uint iClientID, uint iSystem, Vector pos, Matrix rot);
+void LoadDockInfo(ClientId client);
+void SaveDockInfo(ClientId client);
+void UpdateDockInfo(ClientId client, uint iSystem, Vector pos, Matrix rot);
 
 void SendSetBaseInfoText2(UINT client, const std::wstring& message);
 void SendResetMarketOverride(UINT client);
@@ -33,7 +33,7 @@ static std::map<UINT, DEFERREDJUMPS> mapDeferredJumps;
 
 struct DOCKING_REQUEST
 {
-	uint iTargetClientID;
+	uint iTargetClientId;
 };
 std::map<uint, DOCKING_REQUEST> mapPendingDockingRequests;
 
@@ -49,7 +49,7 @@ ReturnCode returncode = ReturnCode::Default;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void JumpToLocation(uint client, uint system, Vector pos, Matrix ornt)
+void JumpToLocation(ClientId client, uint system, Vector pos, Matrix ornt)
 {
 	mapDeferredJumps[client].system = system;
 	mapDeferredJumps[client].pos = pos;
@@ -62,7 +62,7 @@ void JumpToLocation(uint client, uint system, Vector pos, Matrix ornt)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UpdateDockedShips(uint client)
+void UpdateDockedShips(ClientId client)
 {
 	uint tgt;
 	uint system;
@@ -72,13 +72,13 @@ void UpdateDockedShips(uint client)
 	pub::Player::GetShip(client, tgt);
 	if (!tgt)
 	{
-		uint iBaseID;
-		pub::Player::GetBase(client, iBaseID);
-		if (!iBaseID)
+		uint iBaseId;
+		pub::Player::GetBase(client, iBaseId);
+		if (!iBaseId)
 			return;
 
-		Universe::IBase* base = Universe::get_base(iBaseID);
-		tgt = base->lSpaceObjID;
+		Universe::IBase* base = Universe::get_base(iBaseId);
+		tgt = base->lSpaceObjId;
 
 		pub::SpaceObj::GetSystem(tgt, system);
 		pub::SpaceObj::GetLocation(tgt, pos, rot);
@@ -110,17 +110,17 @@ void UpdateDockedShips(uint client)
 		for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 		     i != clients[client].mapDockedShips.end(); ++i)
 		{
-			uint iDockedClientID = GetClientIdFromCharname(i->first);
-			if (iDockedClientID)
+			uint iDockedClientId = GetClientIdFromCharname(i->first);
+			if (iDockedClientId)
 			{
-				clients[iDockedClientID].iCarrierSystem = system;
-				clients[iDockedClientID].vCarrierLocation = pos;
-				clients[iDockedClientID].mCarrierLocation = rot;
-				SaveDockInfo(iDockedClientID);
+				clients[iDockedClientId].iCarrierSystem = system;
+				clients[iDockedClientId].vCarrierLocation = pos;
+				clients[iDockedClientId].mCarrierLocation = rot;
+				SaveDockInfo(iDockedClientId);
 			}
 			else
 			{
-				UpdateDockInfo(iDockedClientID, system, pos, rot);
+				UpdateDockInfo(iDockedClientId, system, pos, rot);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ void UpdateDockedShips(uint client)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Clear client info when a client connects.
-void ClearClientInfo(uint& client)
+void ClearClientInfo(ClientId& client)
 {
 	clients.erase(client);
 	mapDeferredJumps.erase(client);
@@ -153,14 +153,14 @@ void LoadSettings()
 
 	while (pd = Players.traverse_active(pd))
 	{
-		if (!IsInCharSelectMenu(pd->iOnlineID))
-			LoadDockInfo(pd->iOnlineID);
+		if (!IsInCharSelectMenu(pd->iOnlineId))
+			LoadDockInfo(pd->iOnlineId);
 	}
 }
 
 DefaultDllMainSettings(LoadSettings)
 
-bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
+bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 {
 	if (wscCmd.find(L"/listdocked") == 0)
 	{
@@ -197,16 +197,16 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 
 		// Send a system switch to force the ship to launch. Do nothing
 		// if the ship is in space for some reason.
-		uint iDockedClientID = GetClientIdFromCharname(charname);
-		if (iDockedClientID)
+		uint iDockedClientId = GetClientIdFromCharname(charname);
+		if (iDockedClientId)
 		{
 			uint ship;
-			pub::Player::GetShip(iDockedClientID, ship);
+			pub::Player::GetShip(iDockedClientId, ship);
 			if (!ship)
 			{
 				JumpToLocation(
-				    iDockedClientID, clients[iDockedClientID].iCarrierSystem, clients[iDockedClientID].vCarrierLocation,
-				    clients[iDockedClientID].mCarrierLocation);
+				    iDockedClientId, clients[iDockedClientId].iCarrierSystem, clients[iDockedClientId].vCarrierLocation,
+				    clients[iDockedClientId].mCarrierLocation);
 			}
 		}
 
@@ -220,21 +220,21 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 	else if (wscCmd.find(L"/allowdock") == 0)
 	{
 		// If not in space then ignore the request.
-		uint iShip;
-		pub::Player::GetShip(client, iShip);
-		if (!iShip)
+		uint ship;
+		pub::Player::GetShip(client, ship);
+		if (!ship)
 			return true;
 
 		// If no target then ignore the request.
 		uint iTargetShip;
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 			return true;
 
 		// If target is not player ship or ship is too far away then ignore the
 		// request.
-		uint iTargetClientID = GetClientIDByShip(iTargetShip);
-		if (!iTargetClientID || Distance3DByShip(iShip, iTargetShip) > 1000.0f)
+		uint iTargetClientId = GetClientIdByShip(iTargetShip);
+		if (!iTargetClientId || Distance3DByShip(ship, iTargetShip) > 1000.0f)
 		{
 			PrintUserCmdText(client, L"Ship is out of range");
 			return true;
@@ -242,8 +242,8 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 
 		// Find the docking request. If there is no docking request then ignore
 		// this command
-		if (mapPendingDockingRequests.find(iTargetClientID) == mapPendingDockingRequests.end() ||
-		    mapPendingDockingRequests[iTargetClientID].iTargetClientID != client)
+		if (mapPendingDockingRequests.find(iTargetClientId) == mapPendingDockingRequests.end() ||
+		    mapPendingDockingRequests[iTargetClientId].iTargetClientId != client)
 		{
 			PrintUserCmdText(client, L"No pending docking requests for this ship");
 			return true;
@@ -253,39 +253,39 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 		// error
 		if (clients[client].mapDockedShips.size() >= clients[client].iDockingModules)
 		{
-			mapPendingDockingRequests.erase(iTargetClientID);
+			mapPendingDockingRequests.erase(iTargetClientId);
 			PrintUserCmdText(client, L"No free docking capacity");
 			return true;
 		}
 
 		// Delete the docking request and dock the player.
-		mapPendingDockingRequests.erase(iTargetClientID);
+		mapPendingDockingRequests.erase(iTargetClientId);
 
 		std::string scProxyBase = GetPlayerSystemS(client) + "_proxy_base";
-		uint iBaseID;
-		if (pub::GetBaseID(iBaseID, scProxyBase.c_str()) == -4)
+		uint iBaseId;
+		if (pub::GetBaseID(iBaseId, scProxyBase.c_str()) == -4)
 		{
 			PrintUserCmdText(client, L"No proxy base, contact administrator");
 			return true;
 		}
 
 		// Save the carrier info
-		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
+		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientId);
 		clients[client].mapDockedShips[charname] = charname;
 		SaveDockInfo(client);
 
 		// Save the docking ship info
-		clients[iTargetClientID].mobile_docked = true;
-		clients[iTargetClientID].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		if (clients[iTargetClientID].iLastBaseID != 0)
-			clients[iTargetClientID].iLastBaseID = Players[iTargetClientID].iLastBaseID;
-		pub::SpaceObj::GetSystem(iShip, clients[iTargetClientID].iCarrierSystem);
+		clients[iTargetClientId].mobile_docked = true;
+		clients[iTargetClientId].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		if (clients[iTargetClientId].iLastBaseId != 0)
+			clients[iTargetClientId].iLastBaseId = Players[iTargetClientId].iLastBaseId;
+		pub::SpaceObj::GetSystem(ship, clients[iTargetClientId].iCarrierSystem);
 		pub::SpaceObj::GetLocation(
-		    iShip, clients[iTargetClientID].vCarrierLocation, clients[iTargetClientID].mCarrierLocation);
-		SaveDockInfo(iTargetClientID);
+		    ship, clients[iTargetClientId].vCarrierLocation, clients[iTargetClientId].mCarrierLocation);
+		SaveDockInfo(iTargetClientId);
 
 		// Land the ship on the proxy base.
-		pub::Player::ForceLand(iTargetClientID, iBaseID);
+		pub::Player::ForceLand(iTargetClientId, iBaseId);
 		PrintUserCmdText(client, L"Ship docked");
 		return true;
 	}
@@ -294,14 +294,14 @@ bool UserCmd_Process(uint& client, const std::wstring& wscCmd)
 
 // If this is a docking request at a player ship then process it.
 int __cdecl Dock_Call(
-    unsigned int const& iShip, unsigned int const& iBaseID, int& iCancel, enum DOCK_HOST_RESPONSE& response)
+    unsigned int const& ship, unsigned int const& iBaseId, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 {
-	UINT client = GetClientIDByShip(iShip);
+	UINT client = GetClientIdByShip(ship);
 	if (client)
 	{
 		// If no target then ignore the request.
 		uint iTargetShip;
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 			return 0;
 
@@ -312,8 +312,8 @@ int __cdecl Dock_Call(
 
 		// If target is not player ship or ship is too far away then ignore the
 		// request.
-		uint iTargetClientID = GetClientIDByShip(iTargetShip);
-		if (!iTargetClientID || Distance3DByShip(iShip, iTargetShip) > 1000.0f)
+		uint iTargetClientId = GetClientIdByShip(iTargetShip);
+		if (!iTargetClientId || Distance3DByShip(ship, iTargetShip) > 1000.0f)
 		{
 			PrintUserCmdText(client, L"Ship is out of range");
 			return 0;
@@ -321,7 +321,7 @@ int __cdecl Dock_Call(
 
 		// Check that the target ship has an empty docking module. Report the
 		// error
-		if (clients[iTargetClientID].mapDockedShips.size() >= clients[iTargetClientID].iDockingModules)
+		if (clients[iTargetClientId].mapDockedShips.size() >= clients[iTargetClientId].iDockingModules)
 		{
 			PrintUserCmdText(client, L"Target ship has no free docking capacity");
 			return 0;
@@ -338,17 +338,17 @@ int __cdecl Dock_Call(
 		returncode = ReturnCode::SkipAll;
 
 		// Create a docking request and send a notification to the target ship.
-		mapPendingDockingRequests[client].iTargetClientID = iTargetClientID;
+		mapPendingDockingRequests[client].iTargetClientId = iTargetClientId;
 		PrintUserCmdText(
-		    iTargetClientID, L"%s is requesting to dock, authorise with /allowdock",
+		    iTargetClientId, L"%s is requesting to dock, authorise with /allowdock",
 		    Players.GetActiveCharacterName(client));
-		PrintUserCmdText(client, L"Docking request sent to %s", Players.GetActiveCharacterName(iTargetClientID));
+		PrintUserCmdText(client, L"Docking request sent to %s", Players.GetActiveCharacterName(iTargetClientId));
 		return -1;
 	}
 	return 0;
 }
 
-void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
+void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client)
 {
 	mapPendingDockingRequests.erase(client);
 	LoadDockInfo(client);
@@ -356,7 +356,7 @@ void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
 
 bool IsShipDockedOnCarrier(std::wstring& carrier_charname, std::wstring& docked_charname)
 {
-	uint client = GetClientIdFromCharname(carrier_charname);
+	ClientId client = GetClientIdFromCharname(carrier_charname);
 	if (client != -1)
 	{
 		return clients[client].mapDockedShips.find(docked_charname) != clients[client].mapDockedShips.end();
@@ -367,7 +367,7 @@ bool IsShipDockedOnCarrier(std::wstring& carrier_charname, std::wstring& docked_
 	}
 }
 
-void __stdcall BaseEnter(uint& iBaseID, uint& client)
+void __stdcall BaseEnter(uint& iBaseId, ClientId& client)
 {
 	// Update the location of any docked ships.
 	if (clients[client].mapDockedShips.size())
@@ -399,7 +399,7 @@ void __stdcall BaseEnter(uint& iBaseID, uint& client)
 	}
 }
 
-void __stdcall BaseExit(uint& iBaseID, uint& client)
+void __stdcall BaseExit(uint& iBaseId, ClientId& client)
 {
 	LoadDockInfo(client);
 
@@ -410,7 +410,7 @@ void __stdcall BaseExit(uint& iBaseID, uint& client)
 	}
 }
 
-void __stdcall PlayerLaunch(uint& iShip, uint& client)
+void __stdcall PlayerLaunch(uint& ship, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 	{
@@ -434,7 +434,7 @@ void __stdcall PlayerLaunch(uint& iShip, uint& client)
 	}
 }
 
-void SystemSwitchOutComplete(uint& iShip, uint& client)
+void SystemSwitchOutComplete(uint& ship, ClientId& client)
 {
 	static PBYTE SwitchOut = 0;
 	if (!SwitchOut)
@@ -471,8 +471,8 @@ void SystemSwitchOutComplete(uint& iShip, uint& client)
 		*(PDWORD)(SwitchOut + 0x388) = 0x03ebc031; // ignore entry object
 		mapDeferredJumps.erase(client);
 
-		pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-		Server.SystemSwitchOutComplete(iShip, client);
+		pub::SpaceObj::SetInvincible(ship, false, false, 0);
+		Server.SystemSwitchOutComplete(ship, client);
 
 		// Unpatch the code.
 		SwitchOut[0x0d7] = 0x0f;
@@ -491,21 +491,21 @@ void SystemSwitchOutComplete(uint& iShip, uint& client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall DisConnect(uint& client, enum EFLConnection& p2)
+void __stdcall DisConnect(ClientId& client, enum EFLConnection& p2)
 {
 	UpdateDockedShips(client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall CharacterInfoReq(uint& client, bool& p2)
+void __stdcall CharacterInfoReq(ClientId& client, bool& p2)
 {
 	UpdateDockedShips(client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
+void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 	{
@@ -519,7 +519,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
+void __stdcall ReqRemoveItem(unsigned short& slot, int& count, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 	{
@@ -535,7 +535,7 @@ void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client)
+void __stdcall ReqRemoveItem_AFTER(unsigned short& iId, int& count, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 	{
@@ -547,9 +547,9 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client
 
 			for (auto& ci : clients[client].cargo)
 			{
-				if (ci.iID == iID)
+				if (ci.iId == iId)
 				{
-					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
+					Server.ReqAddItem(ci.iArchId, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
 					return;
 				}
 			}
@@ -559,7 +559,7 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& client)
+void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 {
 	// If the client is in a player controlled base
 	if (clients[client].mobile_docked)
@@ -573,7 +573,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqAddItem(uint& good, char const** hardpoint, int& count, float& fStatus, bool& bMounted, uint& client)
+void __stdcall ReqAddItem(uint& good, char const** hardpoint, int& count, float& fStatus, bool& bMounted, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 	{
@@ -590,7 +590,7 @@ void __stdcall ReqAddItem(uint& good, char const** hardpoint, int& count, float&
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqChangeCash(uint& cash, uint& client)
+void __stdcall ReqChangeCash(uint& cash, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 		returncode = ReturnCode::SkipAll;
@@ -599,7 +599,7 @@ void __stdcall ReqChangeCash(uint& cash, uint& client)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqSetCash(uint& cash, uint& client)
+void __stdcall ReqSetCash(uint& cash, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 		returncode = ReturnCode::SkipAll;
@@ -607,7 +607,7 @@ void __stdcall ReqSetCash(uint& cash, uint& client)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void __stdcall ReqEquipment(class EquipDescList const& edl, uint& client)
+void __stdcall ReqEquipment(class EquipDescList const& edl, ClientId& client)
 {
 	if (clients[client].mobile_docked)
 		returncode = ReturnCode::SkipPlugins;
@@ -618,7 +618,7 @@ void __stdcall ReqEquipment(class EquipDescList const& edl, uint& client)
 void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& kill)
 {
 	CShip* cship = (CShip*)(*ecx)[4];
-	uint client = cship->GetOwnerPlayer();
+	ClientId client = cship->GetOwnerPlayer();
 	if (kill)
 	{
 		if (client)
@@ -633,12 +633,12 @@ void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& kill)
 				for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 				     i != clients[client].mapDockedShips.end(); ++i)
 				{
-					uint iDockedClientID = GetClientIdFromCharname(i->first);
-					if (iDockedClientID)
+					uint iDockedClientId = GetClientIdFromCharname(i->first);
+					if (iDockedClientId)
 					{
 						JumpToLocation(
-						    iDockedClientID, clients[iDockedClientID].iCarrierSystem,
-						    clients[iDockedClientID].vCarrierLocation, clients[iDockedClientID].mCarrierLocation);
+						    iDockedClientId, clients[iDockedClientId].iCarrierSystem,
+						    clients[iDockedClientId].vCarrierLocation, clients[iDockedClientId].mCarrierLocation);
 					}
 				}
 
@@ -648,10 +648,10 @@ void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& kill)
 			}
 			// If this was last docked at a carrier then set the last base to
 			// the to last real base the ship docked at.
-			else if (clients[client].iLastBaseID)
+			else if (clients[client].iLastBaseId)
 			{
-				Players[client].iLastBaseID = clients[client].iLastBaseID;
-				clients[client].iLastBaseID = 0;
+				Players[client].iLastBaseId = clients[client].iLastBaseId;
+				clients[client].iLastBaseId = 0;
 			}
 		}
 	}
