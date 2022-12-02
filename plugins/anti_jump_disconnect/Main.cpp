@@ -34,20 +34,26 @@ namespace Plugins::AntiJumpDisconnect
 		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 
-	void ClearClientInfo(uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
+	void ClearClientInfo(ClientId& client) { global->mapInfo[client].bInWrapGate = false; }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Kills and possibly bans the player. This depends on if the Temp Ban plugin is active.
 	 */
-	void KillBan(uint& iClientID)
+	void KillBan(ClientId& client)
 	{
-		if (global->mapInfo[iClientID].bInWrapGate)
+		if (global->mapInfo[client].bInWrapGate)
 		{
-			Kill(iClientID);
+
+			if (const auto ban = Hk::Player::Kill(client); ban.has_error())
+			{
+				PrintUserCmdText(client, Hk::Err::ErrGetText(ban.error()));
+				return;
+			}
+
 			if (global->tempBanCommunicator)
 			{
-				std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
-				global->tempBanCommunicator->TempBan(wscCharname, 5);
+				const auto charName = Hk::Client::GetCharacterNameById(client);
+				global->tempBanCommunicator->TempBan(charName.value(), 5);
 			}
 		}
 	}
@@ -55,22 +61,22 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on Disconnect. Calls KillBan.
 	 */
-	void DisConnect(uint& iClientID, enum EFLConnection& state) { KillBan(iClientID); }
+	void DisConnect(ClientId& client, enum EFLConnection& state) { KillBan(client); }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on CharacterInfoReq (Character Select screen). Calls KillBan.
 	 */
-	void CharacterInfoReq(uint& iClientID, bool& p2) { KillBan(iClientID); }
+	void CharacterInfoReq(ClientId& client, bool& p2) { KillBan(client); }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
 	 */
-	void JumpInComplete(uint& iSystem, uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = false; }
+	void JumpInComplete(SystemId& System, ShipId& Ship, ClientId& client) { global->mapInfo[client].bInWrapGate = false; }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
 	 */
-	void SystemSwitchOutComplete(uint& iShip, uint& iClientID) { global->mapInfo[iClientID].bInWrapGate = true; }
+	void SystemSwitchOutComplete(ShipId& Ship, ClientId& client) { global->mapInfo[client].bInWrapGate = true; }
 } // namespace Plugins::AntiJumpDisconnect
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

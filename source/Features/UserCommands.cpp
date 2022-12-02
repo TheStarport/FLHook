@@ -2,16 +2,16 @@
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
-		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(clientId, L"%s", wscError[i].c_str());         \
+		for (uint i = 0; (i < sizeof(error) / sizeof(std::wstring)); i++) \
+			PrintUserCmdText(client, L"%s", error[i].c_str());         \
 		return;                                                              \
 	}
-#define PRINT_OK() PrintUserCmdText(clientId, L"OK");
-#define PRINT_DISABLED() PrintUserCmdText(clientId, L"Command disabled");
+#define PRINT_OK() PrintUserCmdText(client, L"OK");
+#define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
 #define GET_USERFILE(a)                                             \
 	std::string a;                                                  \
 	{                                                               \
-		CAccount* acc = Players.FindAccountFromClientID(clientId); \
+		CAccount* acc = Players.FindAccountFromClientID(client); \
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);                           \
 		a = scAcctPath + wstos(dir) + "\\flhookuser.ini";        \
 	}
@@ -73,7 +73,7 @@ void PrintLocalUserCmdText(uint clientId, const std::wstring& wscMsg, float fDis
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsg(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_SetDieMsg(const uint& client, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->general.dieMsg)
 	{
@@ -81,7 +81,7 @@ void UserCmd_SetDieMsg(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /set diemsg <param>",
 	    L"<param>: all,system,self or none",
@@ -106,7 +106,7 @@ void UserCmd_SetDieMsg(const uint& clientId, const std::wstring_view& wscParam)
 	IniWrite(scUserFile, "settings", "DieMsg", std::to_string(dieMsg));
 
 	// save in ClientInfo
-	ClientInfo[clientId].dieMsg = dieMsg;
+	ClientInfo[client].dieMsg = dieMsg;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -114,7 +114,7 @@ void UserCmd_SetDieMsg(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsgSize(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_SetDieMsgSize(const uint& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
 	{
@@ -122,13 +122,13 @@ void UserCmd_SetDieMsgSize(const uint& clientId, const std::wstring_view& wscPar
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /set diemsgsize <size>",
 	    L"<size>: small, default",
 	};
 
-	std::wstring wscDieMsgSize = ToLower(GetParam(wscParam, ' ', 0));
+	std::wstring wscDieMsgSize = ToLower(GetParam(param, ' ', 0));
 
 	CHATSIZE dieMsgSize;
 	if (!wscDieMsgSize.compare(L"small"))
@@ -143,7 +143,7 @@ void UserCmd_SetDieMsgSize(const uint& clientId, const std::wstring_view& wscPar
 	IniWrite(scUserFile, "Settings", "DieMsgSize", std::to_string(dieMsgSize));
 
 	// save in ClientInfo
-	ClientInfo[clientId].dieMsgSize = dieMsgSize;
+	ClientInfo[client].dieMsgSize = dieMsgSize;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -151,7 +151,7 @@ void UserCmd_SetDieMsgSize(const uint& clientId, const std::wstring_view& wscPar
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetChatFont(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_SetChatFont(const ClientId& client, const std::wstring_view& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
 	{
@@ -159,7 +159,7 @@ void UserCmd_SetChatFont(const uint& clientId, const std::wstring_view& wscParam
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /set chatfont <size> <style>",
 	    L"<size>: small, default or big",
@@ -197,8 +197,8 @@ void UserCmd_SetChatFont(const uint& clientId, const std::wstring_view& wscParam
 	IniWrite(scUserFile, "settings", "ChatStyle", std::to_string(chatStyle));
 
 	// save in ClientInfo
-	ClientInfo[clientId].chatSize = chatSize;
-	ClientInfo[clientId].chatStyle = chatStyle;
+	ClientInfo[client].chatSize = chatSize;
+	ClientInfo[client].chatStyle = chatStyle;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -206,7 +206,7 @@ void UserCmd_SetChatFont(const uint& clientId, const std::wstring_view& wscParam
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ignore(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_Ignore(const ClientId& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -214,7 +214,7 @@ void UserCmd_Ignore(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /ignore <charname> [<flags>]",
 	    L"<charname>: character name which should be ignored(case insensitive)",
@@ -230,36 +230,36 @@ void UserCmd_Ignore(const uint& clientId, const std::wstring_view& wscParam)
 	    L"whose charname contain \"fool\"",
 	};
 
-	std::wstring wscAllowedFlags = L"pi";
+	std::wstring allowedFlags = L"pi";
 
-	std::wstring character = GetParam(wscParam, ' ', 0);
-	std::wstring wscFlags = ToLower(GetParam(wscParam, ' ', 1));
+	std::wstring character = GetParam(param, ' ', 0);
+	std::wstring flags = ToLower(GetParam(param, ' ', 1));
 
 	if (!character.length())
 		PRINT_ERROR()
 
 	// check if flags are valid
-	for (uint i = 0; i < wscFlags.length(); i++)
+	for (uint i = 0; i < flags.length(); i++)
 	{
-		if (wscAllowedFlags.find_first_of(wscFlags[i]) == -1)
+		if (allowedFlags.find_first_of(flags[i]) == -1)
 			PRINT_ERROR()
 	}
 
-	if (ClientInfo[clientId].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(clientId, L"Error: Too many entries in the ignore list, please delete an entry first!");
+		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[clientId].lstIgnore.size() + 1), character + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].lstIgnore.size() + 1), character + L" " + flags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
 	ii.character = character;
-	ii.wscFlags = wscFlags;
-	ClientInfo[clientId].lstIgnore.push_back(ii);
+	ii.wscFlags = flags;
+	ClientInfo[client].lstIgnore.push_back(ii);
 
 	// send confirmation msg
 	PRINT_OK()
@@ -267,7 +267,7 @@ void UserCmd_Ignore(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_IgnoreID(const ClientId& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -275,7 +275,7 @@ void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /ignoreid <client-id> [<flags>]",
 	    L"<client-id>: client-id of character which should be ignored",
@@ -283,8 +283,8 @@ void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
 	    L"chat",
 	};
 
-	std::wstring wscClientID = GetParam(wscParam, ' ', 0);
-	std::wstring wscFlags = ToLower(GetParam(wscParam, ' ', 1));
+	std::wstring wscClientID = GetParam(param ,' ', 0);
+	std::wstring wscFlags = ToLower(GetParam(param, ' ', 1));
 
 	if (!wscClientID.length())
 		PRINT_ERROR()
@@ -292,16 +292,16 @@ void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
 	if (wscFlags.length() && wscFlags.compare(L"p") != 0)
 		PRINT_ERROR()
 
-	if (ClientInfo[clientId].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
-		PrintUserCmdText(clientId, L"Error: Too many entries in the ignore list, please delete an entry first!");
+		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
 	}
 
 	uint clientIdTarget = ToInt(wscClientID);
 	if (!Hk::Client::IsValidClientID(clientIdTarget) || Hk::Client::IsInCharSelectMenu(clientIdTarget))
 	{
-		PrintUserCmdText(clientId, L"Error: Invalid client-id");
+		PrintUserCmdText(client, L"Error: Invalid client-id");
 		return;
 	}
 
@@ -309,21 +309,21 @@ void UserCmd_IgnoreID(const uint& clientId, const std::wstring_view& wscParam)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[clientId].lstIgnore.size() + 1), character + L" " + wscFlags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].lstIgnore.size() + 1), character + L" " + wscFlags);
 
 	// save in ClientInfo
 	IGNORE_INFO ii;
 	ii.character = character;
 	ii.wscFlags = wscFlags;
-	ClientInfo[clientId].lstIgnore.push_back(ii);
+	ClientInfo[client].lstIgnore.push_back(ii);
 
 	// send confirmation msg
-	PrintUserCmdText(clientId, L"OK, \"%s\" added to ignore list", character.c_str());
+	PrintUserCmdText(client, L"OK, \"%s\" added to ignore list", character.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_IgnoreList(const ClientId& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -331,11 +331,11 @@ void UserCmd_IgnoreList(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	PrintUserCmdText(clientId, L"ID | Charactername | Flags");
+	PrintUserCmdText(client, L"ID | Charactername | Flags");
 	int i = 1;
-	for (auto& ignore : ClientInfo[clientId].lstIgnore)
+	for (auto& ignore : ClientInfo[client].lstIgnore)
 	{
-		PrintUserCmdText(clientId, L"%.2u | %s | %s", i, ignore.character.c_str(), ignore.wscFlags.c_str());
+		PrintUserCmdText(client, L"%.2u | %s | %s", i, ignore.character.c_str(), ignore.wscFlags.c_str());
 		i++;
 	}
 
@@ -345,7 +345,7 @@ void UserCmd_IgnoreList(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_DelIgnore(const ClientId& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -353,13 +353,13 @@ void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /delignore <id> [<id2> <id3> ...]",
 	    L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)",
 	};
 
-	std::wstring wscID = GetParam(wscParam, ' ', 0);
+	std::wstring wscID = GetParam(param, ' ', 0);
 
 	if (!wscID.length())
 		PRINT_ERROR()
@@ -369,7 +369,7 @@ void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
 	if (!wscID.compare(L"*"))
 	{ // delete all
 		IniDelSection(scUserFile, "IgnoreList");
-		ClientInfo[clientId].lstIgnore.clear();
+		ClientInfo[client].lstIgnore.clear();
 		PRINT_OK()
 		return;
 	}
@@ -378,38 +378,38 @@ void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
 	for (uint j = 1; wscID.length(); j++)
 	{
 		uint iID = ToInt(wscID.c_str());
-		if (!iID || iID > ClientInfo[clientId].lstIgnore.size())
+		if (!iID || iID > ClientInfo[client].lstIgnore.size())
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid ID");
+			PrintUserCmdText(client, L"Error: Invalid ID");
 			return;
 		}
 
 		lstDelete.push_back(iID);
-		wscID = GetParam(wscParam, ' ', j);
+		wscID = GetParam(param, ' ', j);
 	}
 
 	lstDelete.sort(std::greater<uint>());
 
-	ClientInfo[clientId].lstIgnore.reverse();
+	ClientInfo[client].lstIgnore.reverse();
 	for (auto& del : lstDelete)
 	{
-		uint iCurID = (uint)ClientInfo[clientId].lstIgnore.size();
-		for (auto ignoreIt = ClientInfo[clientId].lstIgnore.begin(); ignoreIt != ClientInfo[clientId].lstIgnore.end(); ++ignoreIt)
+		uint iCurID = (uint)ClientInfo[client].lstIgnore.size();
+		for (auto ignoreIt = ClientInfo[client].lstIgnore.begin(); ignoreIt != ClientInfo[client].lstIgnore.end(); ++ignoreIt)
 		{
 			if (iCurID == del)
 			{
-				ClientInfo[clientId].lstIgnore.erase(ignoreIt);
+				ClientInfo[client].lstIgnore.erase(ignoreIt);
 				break;
 			}
 			iCurID--;
 		}
 	}
-	ClientInfo[clientId].lstIgnore.reverse();
+	ClientInfo[client].lstIgnore.reverse();
 
 	// send confirmation msg
 	IniDelSection(scUserFile, "IgnoreList");
 	int i = 1;
-	for (auto& ignore : ClientInfo[clientId].lstIgnore)
+	for (auto& ignore : ClientInfo[client].lstIgnore)
 	{
 		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.wscFlags);
 		i++;
@@ -419,7 +419,7 @@ void UserCmd_DelIgnore(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_AutoBuy(const ClientId& client, const std::wstring_view& param)
 {
 	if (!FLHookConfig::i()->general.autobuy)
 	{
@@ -427,7 +427,7 @@ void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
 		return;
 	}
 
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /autobuy <param> [<on/off>]",
 	    L"<Param>:",
@@ -445,17 +445,17 @@ void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
 	    L"\"/autobuy info\" show autobuy info",
 	};
 
-	std::wstring wscType = ToLower(GetParam(wscParam, ' ', 0));
-	std::wstring wscSwitch = ToLower(GetParam(wscParam, ' ', 1));
+	std::wstring wscType = ToLower(GetParam(param, ' ', 0));
+	std::wstring wscSwitch = ToLower(GetParam(param, ' ', 1));
 
 	if (!wscType.compare(L"info"))
 	{
-		PrintUserCmdText(clientId, L"Missiles: %s", ClientInfo[clientId].bAutoBuyMissiles ? L"On" : L"Off");
-		PrintUserCmdText(clientId, L"Mine: %s", ClientInfo[clientId].bAutoBuyMines ? L"On" : L"Off");
-		PrintUserCmdText(clientId, L"Torpedos: %s", ClientInfo[clientId].bAutoBuyTorps ? L"On" : L"Off");
-		PrintUserCmdText(clientId, L"Cruise Disruptors: %s", ClientInfo[clientId].bAutoBuyCD ? L"On" : L"Off");
-		PrintUserCmdText(clientId, L"Countermeasures: %s", ClientInfo[clientId].bAutoBuyCM ? L"On" : L"Off");
-		PrintUserCmdText(clientId, L"Nanobots/Shield Batteries: %s", ClientInfo[clientId].bAutoBuyReload ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Missiles: %s", ClientInfo[client].bAutoBuyMissiles ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Mine: %s", ClientInfo[client].bAutoBuyMines ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Torpedos: %s", ClientInfo[client].bAutoBuyTorps ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Cruise Disruptors: %s", ClientInfo[client].bAutoBuyCD ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Countermeasures: %s", ClientInfo[client].bAutoBuyCM ? L"On" : L"Off");
+		PrintUserCmdText(client, L"Nanobots/Shield Batteries: %s", ClientInfo[client].bAutoBuyReload ? L"On" : L"Off");
 		return;
 	}
 
@@ -464,18 +464,18 @@ void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
 
 	GET_USERFILE(scUserFile)
 
-	const auto fileName = Hk::Client::GetCharFileName(clientId);
+	const auto fileName = Hk::Client::GetCharFileName(client);
 	std::string scSection = "autobuy_" + wstos(fileName.value());
 
 	bool bEnable = !wscSwitch.compare(L"on") ? true : false;
 	if (!wscType.compare(L"all"))
 	{
-		ClientInfo[clientId].bAutoBuyMissiles = bEnable;
-		ClientInfo[clientId].bAutoBuyMines = bEnable;
-		ClientInfo[clientId].bAutoBuyTorps = bEnable;
-		ClientInfo[clientId].bAutoBuyCD = bEnable;
-		ClientInfo[clientId].bAutoBuyCM = bEnable;
-		ClientInfo[clientId].bAutoBuyReload = bEnable;
+		ClientInfo[client].bAutoBuyMissiles = bEnable;
+		ClientInfo[client].bAutoBuyMines = bEnable;
+		ClientInfo[client].bAutoBuyTorps = bEnable;
+		ClientInfo[client].bAutoBuyCD = bEnable;
+		ClientInfo[client].bAutoBuyCM = bEnable;
+		ClientInfo[client].bAutoBuyReload = bEnable;
 		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
 		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
 		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
@@ -485,32 +485,32 @@ void UserCmd_AutoBuy(const uint& clientId, const std::wstring_view& wscParam)
 	}
 	else if (!wscType.compare(L"missiles"))
 	{
-		ClientInfo[clientId].bAutoBuyMissiles = bEnable;
+		ClientInfo[client].bAutoBuyMissiles = bEnable;
 		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"mines"))
 	{
-		ClientInfo[clientId].bAutoBuyMines = bEnable;
+		ClientInfo[client].bAutoBuyMines = bEnable;
 		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"torps"))
 	{
-		ClientInfo[clientId].bAutoBuyTorps = bEnable;
+		ClientInfo[client].bAutoBuyTorps = bEnable;
 		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"cd"))
 	{
-		ClientInfo[clientId].bAutoBuyCD = bEnable;
+		ClientInfo[client].bAutoBuyCD = bEnable;
 		IniWrite(scUserFile, scSection, "cd", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"cm"))
 	{
-		ClientInfo[clientId].bAutoBuyCM = bEnable;
+		ClientInfo[client].bAutoBuyCM = bEnable;
 		IniWrite(scUserFile, scSection, "cm", bEnable ? "yes" : "no");
 	}
 	else if (!wscType.compare(L"reload"))
 	{
-		ClientInfo[clientId].bAutoBuyReload = bEnable;
+		ClientInfo[client].bAutoBuyReload = bEnable;
 		IniWrite(scUserFile, scSection, "reload", bEnable ? "yes" : "no");
 	}
 	else
@@ -551,14 +551,14 @@ void UserCmd_ID(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_InviteID(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_InviteID(const uint& client, const std::wstring_view& param)
 {
-	std::wstring wscError[] = {
+	std::wstring error[] = {
 	    L"Error: Invalid parameters",
 	    L"Usage: /i$ <client-id>",
 	};
 
-	std::wstring wscClientID = GetParam(wscParam, ' ', 0);
+	std::wstring wscClientID = GetParam(param, ' ', 0);
 
 	if (!wscClientID.length())
 		PRINT_ERROR()
@@ -566,7 +566,7 @@ void UserCmd_InviteID(const uint& clientId, const std::wstring_view& wscParam)
 	uint clientIdTarget = ToInt(wscClientID);
 	if (!Hk::Client::IsValidClientID(clientIdTarget) || Hk::Client::IsInCharSelectMenu(clientIdTarget))
 	{
-		PrintUserCmdText(clientId, L"Error: Invalid client-id");
+		PrintUserCmdText(client, L"Error: Invalid client-id");
 		return;
 	}
 
@@ -577,12 +577,12 @@ void UserCmd_InviteID(const uint& clientId, const std::wstring_view& wscParam)
 	uint iRet;
 	if (!Hk::Message::FMsgEncodeXML(wscXML, szBuf, sizeof szBuf, iRet).has_error())
 	{
-		PrintUserCmdText(clientId, L"Error: Could not encode XML");
+		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;
 	}
 
 	CHAT_ID cID;
-	cID.iID = clientId;
+	cID.iID = client;
 	CHAT_ID cIDTo;
 	cIDTo.iID = 0x00010001;
 	Server.SubmitChat(cID, iRet, szBuf, cIDTo, -1);
@@ -590,10 +590,10 @@ void UserCmd_InviteID(const uint& clientId, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(const uint& clientId, const std::wstring_view& wscParam)
+void UserCmd_Credits(const uint& client, const std::wstring_view& param)
 {
-	PrintUserCmdText(clientId, L"This server is running FLHook v" + VersionInformation);
-	PrintUserCmdText(clientId, L"Running plugins:");
+	PrintUserCmdText(client, L"This server is running FLHook v" + VersionInformation);
+	PrintUserCmdText(client, L"Running plugins:");
 
 	bool bRunning = false;
 	for (const auto& plugin : PluginManager::ir())
@@ -602,15 +602,15 @@ void UserCmd_Credits(const uint& clientId, const std::wstring_view& wscParam)
 			continue;
 
 		bRunning = true;
-		PrintUserCmdText(clientId, L"- %s", stows(plugin.name).c_str());
+		PrintUserCmdText(client, L"- %s", stows(plugin.name).c_str());
 	}
 	if (!bRunning)
-		PrintUserCmdText(clientId, L"- none -");
+		PrintUserCmdText(client, L"- none -");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView);
+void UserCmd_Help(const ClientId& client, const std::wstring_view& paramView);
 UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
 {
 	return {command, command + L" " + usage, proc, description};
@@ -649,7 +649,7 @@ bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 	return trimmed == cmd;
 }
 
-void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
+void UserCmd_Help(const ClientId& client, const std::wstring_view& paramView)
 {
 	if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
 	{
@@ -660,14 +660,14 @@ void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
 	const auto& plugins = PluginManager::ir();
 	if (paramView.empty() || paramView.find_first_not_of(L' ') == std::string::npos)
 	{
-		PrintUserCmdText(clientId, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
-		PrintUserCmdText(clientId, L"core");
+		PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
+		PrintUserCmdText(client, L"core");
 		for (const auto& plugin : plugins)
 		{
 			if (plugin.commands.empty())
 				continue;
 
-			PrintUserCmdText(clientId, ToLower(stows(plugin.shortName)));
+			PrintUserCmdText(client, ToLower(stows(plugin.shortName)));
 		}
 		return;
 	}
@@ -681,19 +681,19 @@ void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
 		{
 			for (const auto& i : UserCmds)
 			{
-				PrintUserCmdText(clientId, i.command);
+				PrintUserCmdText(client, i.command);
 			}
 		}
 		else if (const auto& userCommand =
 		             std::find_if(UserCmds.begin(), UserCmds.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != UserCmds.end())
 		{
-			PrintUserCmdText(clientId, userCommand->usage);
-			PrintUserCmdText(clientId, userCommand->description);
+			PrintUserCmdText(client, userCommand->usage);
+			PrintUserCmdText(client, userCommand->description);
 		}
 		else
 		{
-			PrintUserCmdText(clientId, L"Command '%s' not found within module 'Core'", cmd.c_str());
+			PrintUserCmdText(client, L"Command '%s' not found within module 'Core'", cmd.c_str());
 		}
 		return;
 	}
@@ -703,7 +703,7 @@ void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
 
 	if (plugin == plugins.end())
 	{
-		PrintUserCmdText(clientId, L"Command module not found.");
+		PrintUserCmdText(client, L"Command module not found.");
 		return;
 	}
 
@@ -711,19 +711,19 @@ void UserCmd_Help(const uint& clientId, const std::wstring_view& paramView)
 	{
 		for (const auto& command : plugin->commands)
 		{
-			PrintUserCmdText(clientId, command.command);
+			PrintUserCmdText(client, command.command);
 		}
 	}
 	else if (const auto& userCommand =
 	             std::find_if(plugin->commands.begin(), plugin->commands.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 	         userCommand != plugin->commands.end())
 	{
-		PrintUserCmdText(clientId, userCommand->usage);
-		PrintUserCmdText(clientId, userCommand->description);
+		PrintUserCmdText(client, userCommand->usage);
+		PrintUserCmdText(client, userCommand->description);
 	}
 	else
 	{
-		PrintUserCmdText(clientId, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+		PrintUserCmdText(client, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
 	}
 }
 

@@ -30,12 +30,12 @@ namespace Plugins::ConData
 		std::string sExceptionReason;
 
 		// Client ID (for when receiving data)
-		uint iClientID;
+		uint client;
 	};
 
 	struct ConnectionDataException final
 	{
-		uint iClientID;
+		uint client;
 		bool bException;
 		std::string sReason;
 	};

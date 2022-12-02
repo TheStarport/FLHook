@@ -60,34 +60,34 @@ namespace Plugins::CargoDrop
 	void OneSecondTimer()
 	{
 		// Disconnecting while interacting checks.
-		for (auto& [clientId, snd] : global->info)
+		for (auto& [client, snd] : global->info)
 		{
 			// If selecting a character or invalid, do nothing.
-			if (!IsValidClientID(clientId) || IsInCharSelectMenu(clientId))
+			if (!Hk::Client::IsValidClientID(client) || Hk::Client::IsInCharSelectMenu(client))
 				continue;
 
 			// If not in space, do nothing
 			uint shipId;
-			pub::Player::GetShip(clientId, shipId);
+			pub::Player::GetShip(client, shipId);
 			if (!shipId)
 				continue;
 
-			if (ClientInfo[clientId].tmF1Time || ClientInfo[clientId].tmF1TimeDisconnect)
+			if (ClientInfo[client].tmF1Time || ClientInfo[client].tmF1TimeDisconnect)
 			{
-				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientId));
+				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 				// Drain the ship's shields.
 				pub::SpaceObj::DrainShields(shipId);
 
 				// Simulate an obj update to stop the ship in space.
-				SSPObjUpdateInfo updateInfo{};
+				SSPObjUpdateInfo updateInfo {};
 				snd.lastTimestamp += 1.0;
 				updateInfo.fTimestamp = static_cast<float>(snd.lastTimestamp);
 				updateInfo.cState = 0;
 				updateInfo.fThrottle = 0;
 				updateInfo.vPos = snd.lastPosition;
 				updateInfo.vDir = snd.lastDirection;
-				Server.SPObjUpdate(updateInfo, clientId);
+				Server.SPObjUpdate(updateInfo, client);
 
 				if (!snd.f1DisconnectProcessed)
 				{
@@ -99,37 +99,36 @@ namespace Plugins::CargoDrop
 						std::wstring msg = stows(global->config->disconnectMsg);
 						msg = ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
 						msg = ReplaceStr(msg, L"%player", characterName);
-						PrintLocalUserCmdText(clientId, msg, global->config->disconnectingPlayersRange);
+						PrintLocalUserCmdText(client, msg, global->config->disconnectingPlayersRange);
 					}
 
 					// Drop the player's cargo.
-					if (global->config->lootDisconnectingPlayers && IsInRange(clientId, global->config->disconnectingPlayersRange))
+					if (global->config->lootDisconnectingPlayers && Hk::Player::IsInRange(client, global->config->disconnectingPlayersRange))
 					{
-						uint systemID = 0;
-						pub::Player::GetSystem(clientId, systemID);
-						Vector vLoc = {0.0f, 0.0f, 0.0f};
-						Matrix mRot = {0.0f, 0.0f, 0.0f};
-						pub::SpaceObj::GetLocation(shipId, vLoc, mRot);
-						vLoc.x += 30.0f;
+						const auto system = Hk::Player::GetSystem(client);
+						Vector position = {0.0f, 0.0f, 0.0f};
+						Matrix orientation = {0.0f, 0.0f, 0.0f};
+						pub::SpaceObj::GetLocation(shipId, position, orientation);
+						position.x += 30.0f;
 
-						std::list<CARGO_INFO> cargo;
-						if (int iRemainingHoldSize = 0; EnumCargo(characterName, cargo, iRemainingHoldSize) == E_OK)
+						int remainingHoldSize = 0;
+						if (const auto cargo = Hk::Player::EnumCargo(client, remainingHoldSize); cargo.has_value())
 						{
-							for (const auto& [iID, iCount, iArchID, fStatus, bMission, bMounted, hardpoint] : cargo)
+							for (const auto& [id, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 							{
-								if (!bMounted &&
-								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), iArchID) != global->noLootItemsIds.end())
+								if (!mounted &&
+								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), archId) != global->noLootItemsIds.end())
 								{
-									RemoveCargo(characterName, iID, iCount);
-									Server.MineAsteroid(systemID, vLoc, global->cargoDropContainerId, iArchID, iCount, clientId);
+									Hk::Player::RemoveCargo(characterName, id, count);
+									Server.MineAsteroid(system.value(), position, global->cargoDropContainerId, archId, count, client);
 								}
 							}
 						}
-						SaveChar(characterName);
+						Hk::Player::SaveChar(characterName);
 					}
 
 					// Kill if other ships are in scanner range.
-					if (global->config->killDisconnectingPlayers && IsInRange(clientId, global->config->disconnectingPlayersRange))
+					if (global->config->killDisconnectingPlayers && Hk::Player::IsInRange(client, global->config->disconnectingPlayersRange))
 					{
 						pub::SpaceObj::SetRelativeHealth(shipId, 0.0f);
 					}
@@ -141,59 +140,63 @@ namespace Plugins::CargoDrop
 	/** @ingroup CargoDrop
 	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.
 	 */
-	void SendDeathMsg(const std::wstring& message, uint& system, uint& clientIDVictim, uint& clientIDKiller)
+	void SendDeathMsg(const std::wstring& message, const SystemId& system, const ClientId& clientVictim, const ClientId& clientKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
 		if (global->config->hullDropFactor == 0.0f)
 			return;
 
 		std::list<CARGO_INFO> cargo;
-		int iRemainingHoldSize;
-		if (EnumCargo(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientIDVictim)), cargo, iRemainingHoldSize) != E_OK)
+		int remainingHullSize;
+		if (const auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHullSize); cargo.has_error())
 			return;
 
-		int shipSizeEstimate = iRemainingHoldSize;
-		for (const auto& [iID, iCount, iArchID, fStatus, bMission, bMounted, hardpoint] : cargo)
+		int shipSizeEstimate = remainingHullSize;
+		for (const auto& [iID, count, archId, status, mission, mounted, hardpoint] : cargo)
 		{
-			if (!bMounted)
+			if (!mounted)
 			{
-				shipSizeEstimate += iCount;
+				shipSizeEstimate += count;
 			}
 		}
 
-		if (const auto iHullDrop = static_cast<int>(global->config->hullDropFactor * shipSizeEstimate); iHullDrop > 0)
+		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * shipSizeEstimate); hullDrop > 0)
 		{
 			uint shipId;
-			pub::Player::GetShip(clientIDVictim, shipId);
-			Vector location{};
-			Matrix rotation{};
-			pub::SpaceObj::GetLocation(shipId, location, rotation);
-			location.x += 30.0f;
+			pub::Player::GetShip(clientVictim, shipId);
+			Vector position {};
+			Matrix orientation {};
+			pub::SpaceObj::GetLocation(shipId, position, orientation);
+			position.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(L"NOTICE: Cargo drop in system %08x at %f,%f,%f "
 				                 L"for ship size of iShipSizeEst=%d iHullDrop=%d\n",
-				    system, location.x, location.y, location.z, shipSizeEstimate, iHullDrop);
+				    system,
+				    position.x,
+				    position.y,
+				    position.z,
+				    shipSizeEstimate,
+				    hullDrop);
 
-			Server.MineAsteroid(system, location, global->cargoDropContainerId, global->hullDrop1NickNameId, iHullDrop, clientIDVictim);
-			Server.MineAsteroid(system, location, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast
-				<int>(0.5 * iHullDrop), clientIDVictim);
+			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop1NickNameId, hullDrop, clientKiller);
+			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast<int>(0.5 * hullDrop), clientKiller);
 		}
 	}
 
 	/** @ingroup CargoDrop
 	 * @brief Clear our variables so that we can recycle clientIds without confusion.
 	 */
-	void ClearClientInfo(uint& clientId) { global->info.erase(clientId); }
+	void ClearClientInfo(const ClientId& client) { global->info.erase(client); }
 
 	/** @ingroup CargoDrop
 	 * @brief Hook on SPObjUpdate, used to get the timestamp from the player. Used to figure out if the player has disconnected in the timer.
 	 */
-	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, uint& clientId)
+	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, const ClientId& client)
 	{
-		global->info[clientId].lastTimestamp = ui.fTimestamp;
-		global->info[clientId].lastPosition = ui.vPos;
-		global->info[clientId].lastDirection = ui.vDir;
+		global->info[client].lastTimestamp = ui.fTimestamp;
+		global->info[client].lastPosition = ui.vPos;
+		global->info[client].lastDirection = ui.vDir;
 	}
 } // namespace Plugins::CargoDrop
 
@@ -205,7 +208,7 @@ REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnecti
 
 DefaultDllMainSettings(LoadSettings)
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Cargo Drop");
 	pi->shortName("cargo_drop");
