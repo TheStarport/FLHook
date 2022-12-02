@@ -70,7 +70,7 @@ namespace Plugins::Npc
 	{
 		if (iKill)
 		{
-			CShip* cShip = CShipFromShipDestroyed(ecx);
+			CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 			IsFLHookNPC(cShip);
 		}
 	}

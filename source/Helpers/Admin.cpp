@@ -94,8 +94,7 @@ some_error:
 		}
 
 		// get ping
-		DPN_CONNECTION_INFO ci;
-		GetConnectionStats(client);
+		DPN_CONNECTION_INFO ci = GetConnectionStats(client).value();
 		pi.connectionInfo = ci;
 
 		// get ip

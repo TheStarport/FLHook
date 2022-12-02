@@ -138,7 +138,7 @@ namespace Plugins::Event
 	{
 		if (iKill)
 		{
-			const CShip* cShip = CShipFromShipDestroyed(ecx);
+			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 
 			int Reputation;
 			pub::SpaceObj::GetRep(cShip->get_id(), Reputation);
@@ -150,7 +150,7 @@ namespace Plugins::Event
 			pub::SpaceObj::GetSystem(cShip->get_id(), System);
 
 			const Vector position = cShip->get_position();
-			const std::string sector = VectorToSectorCoord<std::string>(System, position);
+			const std::string sector = Hk::Math::VectorToSectorCoord<std::string>(System, position);
 
 			for (auto& mission : global->NpcMissions)
 			{
@@ -159,7 +159,7 @@ namespace Plugins::Event
 				{
 					mission.current_amount++;
 					int needed = mission.required_amount = mission.current_amount;
-					// Print Mission text here in red text once we integrate that function into core
+					// TODO: Print Mission text here in red text once we integrate that function into core
 				}
 			}
 		}

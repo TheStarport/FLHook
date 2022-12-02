@@ -33,8 +33,7 @@ namespace Plugins::IPBan
 	 */
 	static bool IsBanned(ClientId client)
 	{
-		std::wstring wscIP;
-		GetPlayerIP(client, wscIP);
+		std::wstring wscIP = Hk::Admin::GetPlayerIP(client);
 		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
@@ -51,8 +50,7 @@ namespace Plugins::IPBan
 		{
 			bool bBannedLoginId = false;
 
-			std::wstring dir;
-			GetAccountDirName(acc, dir);
+			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 
 			WIN32_FIND_DATA findFileData;
 
@@ -134,9 +132,7 @@ namespace Plugins::IPBan
 		if (!acc)
 			return false;
 
-		std::wstring directory;
-		if (GetAccountDirName(acc, directory) != E_OK)
-			return false;
+		std::wstring directory = Hk::Client::GetAccountDirName(acc);
 
 		if (std::find(global->authenticatedAccounts.Accounts.begin(), global->authenticatedAccounts.Accounts.end(), directory) !=
 		    global->authenticatedAccounts.Accounts.end())
@@ -203,7 +199,7 @@ namespace Plugins::IPBan
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
 				AddKickLog(client, L"IP banned");
-				MsgAndKick(client, L"Your IP is banned, please contact an administrator", 15000L);
+				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 15000L);
 			}
 		}
 	}
@@ -219,7 +215,7 @@ namespace Plugins::IPBan
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
 				AddKickLog(client, L"IP banned");
-				MsgAndKick(client, L"Your IP is banned, please contact an administrator", 7000L);
+				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 7000L);
 			}
 		}
 	}
@@ -261,12 +257,7 @@ namespace Plugins::IPBan
 		if (!acc)
 			return;
 
-		std::wstring directory;
-		if (GetAccountDirName(acc, directory) != E_OK)
-		{
-			cmds->Print(L"ERR Account not found");
-			return;
-		}
+		std::wstring directory = Hk::Client::GetAccountDirName(acc);
 
 		if (std::find(global->authenticatedAccounts.Accounts.begin(), global->authenticatedAccounts.Accounts.end(), directory) ==
 		    global->authenticatedAccounts.Accounts.end())

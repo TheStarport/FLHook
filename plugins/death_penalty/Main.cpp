@@ -131,14 +131,12 @@ namespace Plugins::DeathPenalty
 	{
 		// Get Account directory then flhookuser.ini file
 		CAccount* acc = Players.FindAccountFromClientID(client);
-		std::wstring dir;
-		GetAccountDirName(acc, dir);
+		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
-		std::wstring wscFilename;
-		GetCharFileName(client, wscFilename);
-		std::string scFilename = wstos(wscFilename);
+		const auto wscFilename = Hk::Client::GetCharFileName(client);
+		std::string scFilename = wstos(wscFilename.value());
 		std::string scSection = "general_" + scFilename;
 
 		// read death penalty settings
@@ -159,16 +157,20 @@ namespace Plugins::DeathPenalty
 		if (client != -1 && !bExcludedSystem(client))
 		{
 			// Get the players cash
-			int iCash;
-			GetCash(client, iCash);
+			const auto cash = Hk::Player::GetCash(client);
+			if (cash.has_error())
+			{
+				Console::ConWarn(L"Unable to get cash from client.");
+				return;
+			}
 
 			// Get how much the player owes
 			int iOwed = global->MapClients[client].DeathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash
-			if (iOwed > iCash)
-				iOwed = iCash;
+			if (iOwed > cash.value())
+				iOwed = cash.value();
 
 			// If another player has killed the player
 			if (iKillerId != client && global->config->DeathPenaltyFractionKiller)
@@ -177,7 +179,7 @@ namespace Plugins::DeathPenalty
 				if (iGive)
 				{
 					// Reward the killer, print message to them
-					AddCash(iKillerId, iGive);
+					Hk::Player::AddCash(iKillerId, iGive);
 					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(iGive) + L" credits from %s's death penalty.",
 					    Players.GetActiveCharacterName(client));
 				}
@@ -187,7 +189,7 @@ namespace Plugins::DeathPenalty
 			{
 				// Print message to the player and remove cash
 				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(iOwed) + L" credits.");
-				AddCash(client, -iOwed);
+				Hk::Player::AddCash(client, -iOwed);
 			}
 		}
 	}
@@ -200,7 +202,7 @@ namespace Plugins::DeathPenalty
 		if (iKill)
 		{
 			// Get client
-			const CShip* cShip = CShipFromShipDestroyed(ecx);
+			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 			ClientId client = cShip->GetOwnerPlayer();
 
 			// Get Killer Id if there is one
@@ -208,8 +210,12 @@ namespace Plugins::DeathPenalty
 			if (client)
 			{
 				const DamageList* dmg = *_dmg;
-				iKillerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
-					: GetClientIdByShip(dmg->get_inflictor_id());
+				const auto inflictor = dmg->get_cause() == DamageCause::Unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
+				                                                     : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
+				if (inflictor.has_value())
+				{
+					iKillerId = inflictor.value();
+				}
 			}
 
 			// Call function to penalize player and reward killer
@@ -222,12 +228,12 @@ namespace Plugins::DeathPenalty
 	 */
 	void SaveDPNoticeToCharFile(ClientId client, std::string value)
 	{
-		std::wstring dir, wscFilename;
 		CAccount* acc = Players.FindAccountFromClientID(client);
-		if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+		std::wstring dir = Hk::Client::GetAccountDirName(acc);
+		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
 			std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-			std::string scSection = "general_" + wstos(wscFilename);
+			std::string scSection = "general_" + wstos(file.value());
 			IniWrite(scUserFile, scSection, "DPnotice", value);
 		}
 	}

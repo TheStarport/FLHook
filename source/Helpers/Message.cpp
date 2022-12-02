@@ -136,6 +136,7 @@ namespace Hk::Message
 			return cpp::fail(err.error());
 
 		FMsgSendChat(client, szBuf, iRet);
+		return {};
 	}
 
 	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML)

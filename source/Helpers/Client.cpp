@@ -324,6 +324,8 @@ namespace Hk::Client
 		Players.LockAccountAccess(flStr); // also kicks player on this account
 		if (!bKick)
 			WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
+
+		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,6 +338,7 @@ namespace Hk::Client
 
 		st6::wstring flStr((ushort*)accountId.value().c_str());
 		Players.UnlockAccountAccess(flStr);
+		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,22 +447,6 @@ namespace Hk::Client
 			return ET_TRACTOR;
 		else
 			return ET_OTHER;
-	}
-
-	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname)
-	{
-		uint system = 0;
-		const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : wstos(std::get<std::wstring>(nickname));
-		pub::GetSystemID(system, nick.c_str());
-		if (!system)
-			return cpp::fail(Error::InvalidSystem);
-
-		return system;
-	}
-
-	CShip* CShipFromShipDestroyed(const DWORD** ecx)
-	{
-		return reinterpret_cast<CShip*>((*ecx)[4]); // NOLINT(performance-no-int-to-ptr)
 	}
 
 	uint ExtractClientID(const std::variant<uint, std::wstring>& player)

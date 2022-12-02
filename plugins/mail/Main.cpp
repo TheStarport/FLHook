@@ -56,8 +56,8 @@ namespace Plugins::Mail
 	void MailShow(const std::wstring& wscCharname, const std::string& scExtension, int iFirstMsg)
 	{
 		// Make sure the character is logged in.
-		ClientId client = GetClientIdFromCharname(wscCharname);
-		if (client == -1)
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
+		if (client.has_error())
 			return;
 
 		// Get the target player's message file.
@@ -71,11 +71,11 @@ namespace Plugins::Mail
 			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
 			if (wscTmpMsg.length() == 0)
 				break;
-			PrintUserCmdText(client, L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
+			PrintUserCmdText(client.value(), L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
 			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), "yes");
 			iLastMsg = iMsgSlot;
 		}
-		PrintUserCmdText(client, L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
+		PrintUserCmdText(client.value(), L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
 	}
 
 	/** @ingroup Mail
@@ -105,8 +105,8 @@ namespace Plugins::Mail
 	void MailCheckLog(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Make sure the character is logged in.
-		ClientId client = GetClientIdFromCharname(wscCharname);
-		if (client == -1)
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
+		if (client.has_error())
 			return;
 
 		// Get the target player's message file.
@@ -118,7 +118,7 @@ namespace Plugins::Mail
 		int iUnreadMsgs = MailCountUnread(wscCharname, scExtension);
 		if (iUnreadMsgs > 0)
 		{
-			PrintUserCmdText(client, L"You have %d unread messages. Type /mail to see your messages", iUnreadMsgs);
+			PrintUserCmdText(client.value(), L"You have %d unread messages. Type /mail to see your messages", iUnreadMsgs);
 		}
 	}
 

@@ -42,15 +42,15 @@ namespace Plugins::KillCounter
 		std::wstring wscClientId = GetParam(wscParam, ' ', 0);
 		int iNumKills;
 		std::wstring mainrank;
-		std::list<std::wstring> lstLines;
 		int count;
 		if (!wscClientId.length())
 		{
 			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
-			ReadCharFile(wscCharname, lstLines);
+			const auto lines = Hk::Player::ReadCharFile(wscCharname);
+
 			pub::Player::GetNumKills(client, iNumKills);
 			PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
-			for (auto& str : lstLines)
+			for (auto& str : lines.value())
 			{
 				if (!ToLower((str)).find(L"ship_type_killed"))
 				{
@@ -60,7 +60,7 @@ namespace Plugins::KillCounter
 					Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 					if (!ship)
 						continue;
-					PrintUserCmdText(client, L"NPC kills:  %s %i", GetWStringFromIdS(ship->iIdsName).c_str(), count);
+					PrintUserCmdText(client, L"NPC kills:  %s %i", Hk::Message::GetWStringFromIdS(ship->iIdsName).c_str(), count);
 				}
 			}
 			int rank;
@@ -70,16 +70,17 @@ namespace Plugins::KillCounter
 			return;
 		}
 
-		ClientId clientPlayer = GetClientIdFromCharname(wscClientId);
-		if (clientPlayer == -1)
+		const auto clientPlayer = Hk::Client::GetClientIdFromCharName(wscClientId);
+		if (clientPlayer.has_error())
 		{
 			PrintUserCmdText(client, L"ERROR player not found");
 			return;
 		}
-		ReadCharFile(wscClientId, lstLines);
-		pub::Player::GetNumKills(clientPlayer, iNumKills);
+
+		const auto lines = Hk::Player::ReadCharFile(wscClientId);
+		pub::Player::GetNumKills(clientPlayer.value(), iNumKills);
 		PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
-		for (auto& str : lstLines)
+		for (auto& str : lines.value())
 		{
 			if (!ToLower((str)).find(L"ship_type_killed"))
 			{
@@ -89,7 +90,7 @@ namespace Plugins::KillCounter
 				Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(client, L"NPC kills:  %s %i", GetWStringFromIdS(ship->iIdsName).c_str(), count);
+				PrintUserCmdText(client, L"NPC kills:  %s %i", Hk::Message::GetWStringFromIdS(ship->iIdsName).c_str(), count);
 			}
 		}
 		int rank;
@@ -105,19 +106,19 @@ namespace Plugins::KillCounter
 	{
 		if (iKill == 1)
 		{
-			const CShip* cShip = CShipFromShipDestroyed(ecx);
+			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 
 			if (ClientId client = cShip->GetOwnerPlayer())
 			{
 				const DamageList* dmg = *_dmg;
+				const auto killerId = Hk::Client::GetClientIdByShip(dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 
-				if (const uint killerId = dmg->get_cause() == DamageCause::Unknown ? GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
-					: GetClientIdByShip(dmg->get_inflictor_id()); killerId && (client != killerId))
+				if (killerId.has_value() && killerId.value() != client)
 				{
 					int iNumKills;
-					pub::Player::GetNumKills(killerId, iNumKills);
+					pub::Player::GetNumKills(killerId.value(), iNumKills);
 					iNumKills++;
-					pub::Player::SetNumKills(killerId, iNumKills);
+					pub::Player::SetNumKills(killerId.value(), iNumKills);
 				}
 			}
 		}
@@ -130,7 +131,7 @@ namespace Plugins::KillCounter
 
 using namespace Plugins::KillCounter;
 
-DefaultDllMain()
+DefaultDllMain();
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

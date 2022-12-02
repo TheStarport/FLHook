@@ -1298,14 +1298,30 @@ namespace Hk::Player
 			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			int secs = IniGetI(scCharFileNew, "mPlayer", "total_time_played", 0.0f);
+			int secs = IniGetI(scCharFileNew, "mPlayer", "total_time_played", 0);
 			DeleteFile(scCharFileNew.c_str());
 			return secs;
 		}
 		else
 		{
-			return IniGetI(scCharFile, "mPlayer", "total_time_played", 0.0f);
+			return IniGetI(scCharFile, "mPlayer", "total_time_played", 0);
 		}
+	}
+
+	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname)
+	{
+		uint system = 0;
+		const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : wstos(std::get<std::wstring>(nickname));
+		pub::GetSystemID(system, nick.c_str());
+		if (!system)
+			return cpp::fail(Error::InvalidSystem);
+
+		return system;
+	}
+
+	CShip* CShipFromShipDestroyed(const DWORD** ecx)
+	{
+		return reinterpret_cast<CShip*>((*ecx)[4]); // NOLINT(performance-no-int-to-ptr)
 	}
 
 	/// Return true if this player is within the specified distance of any other player.
