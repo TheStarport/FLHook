@@ -14,7 +14,7 @@ namespace Plugins::Stats
 		global->jsonFileName = Serializer::JsonToObject<FileName>();
 		std::filesystem::create_directories(global->jsonFileName.FilePath);
 
-		LoadStringDLLs();
+		Hk::Message::LoadStringDLLs();
 
 		// Load in shiparch.ini to generate Ids based off the nickname and generate
 		// ship names via ids_name
@@ -33,7 +33,7 @@ namespace Plugins::Stats
 						if (ini.is_value("nickname"))
 						{
 							uint shiphash = CreateID(ini.get_value_string(0));
-							global->Ships[shiphash] = GetWStringFromIdS(idsname);
+							global->Ships[shiphash] = Hk::Message::GetWStringFromIdS(idsname);
 						}
 						if (ini.is_value("ids_name"))
 						{
@@ -70,14 +70,14 @@ namespace Plugins::Stats
 		jExport["serverload"] = g_iServerLoad;
 
 		nlohmann::json jPlayers;
-		const std::list<PLAYERINFO> lstPlayers = GetPlayers();
+		const std::list<PLAYERINFO> lstPlayers = Hk::Admin::GetPlayers();
 
 		for (auto& lstPlayer : lstPlayers)
 		{
 			nlohmann::json jPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(wstos(lstPlayer.wscCharname));
+			jPlayer["name"] = encode(wstos(lstPlayer.character));
 
 			// Add rank
 			int iRank;
@@ -96,7 +96,7 @@ namespace Plugins::Stats
 			uint iSystemId;
 			pub::Player::GetSystem(lstPlayer.client, iSystemId);
 			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
-			jPlayer["system"] = wstos(GetWStringFromIdS(iSys->strid_name));
+			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->strid_name));
 
 			jPlayers.push_back(jPlayer);
 		}

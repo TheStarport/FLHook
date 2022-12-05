@@ -154,7 +154,7 @@ namespace Plugins::ConData
 		// Are there accounts connected with client Ids greater than max player
 		// count? If so, kick them as FLServer is buggy and will use high client Ids
 		// but will not allow character selection on them.
-		for (ClientId client = Players.GetMaxPlayerCount() + 1; client <= MaxClientId; client++)
+		for (uint client = Players.GetMaxPlayerCount() + 1; client <= MaxClientId; client++)
 		{
 			if (Players[client].iOnlineId)
 			{
@@ -385,7 +385,7 @@ namespace Plugins::ConData
 			return;
 		}
 
-		ClientId clientTarget = client;
+		uint clientTarget = client;
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
 		uint ship = 0;

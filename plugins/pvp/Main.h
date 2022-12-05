@@ -7,8 +7,8 @@ namespace Plugins::Pvp
 	//! A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
 	struct Duel
 	{
-		ClientId client;
-		ClientId client2;
+		uint client;
+		uint client2;
 		int amount;
 		bool accepted;
 	};

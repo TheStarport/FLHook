@@ -70,14 +70,14 @@ namespace Plugins::SystemSensor
 			return;
 		}
 
-		const uint iTargetClientId = GetClientIdFromArg(wscTargetCharname);
-		if (iTargetClientId == -1)
+		const auto iTargetClientId = Hk::Client::GetClientIdFromCharName(wscTargetCharname);
+		if (iTargetClientId.value() == -1)
 		{
 			PrintUserCmdText(client, L"ERR Target not found");
 			return;
 		}
 
-		auto iterTargetClientId = global->networks.find(iTargetClientId);
+		auto iterTargetClientId = global->networks.find(iTargetClientId.value());
 		if (iterTargetClientId == global->networks.end() || !global->networks[client].iAvailableNetworkId || !iterTargetClientId->second.lastScanNetworkId ||
 		    global->networks[client].iAvailableNetworkId != iterTargetClientId->second.lastScanNetworkId)
 		{
@@ -95,7 +95,7 @@ namespace Plugins::SystemSensor
 				if (eq && eq->iIdsName)
 				{
 					std::wstring wscResult;
-					switch (GetEqType(eq))
+					switch (Hk::Client::GetEqType(eq))
 					{
 						case ET_GUN:
 						case ET_MISSILE:
@@ -105,7 +105,7 @@ namespace Plugins::SystemSensor
 						case ET_OTHER:
 							if (wscEqList.length())
 								wscEqList += L",";
-							wscResult = GetWStringFromIdS(eq->iIdsName);
+							wscResult = Hk::Message::GetWStringFromIdS(eq->iIdsName);
 							wscEqList += wscResult;
 							break;
 						default:
@@ -124,7 +124,7 @@ namespace Plugins::SystemSensor
 
 		std::wstring wscTargetCharname = L"";
 
-		if (IsValidClientID(client2))
+		if (Hk::Client::IsValidClientID(client2))
 			wscTargetCharname = (wchar_t*)Players.GetActiveCharacterName(client2);
 
 		UserCmd_ShowScan(client, wscTargetCharname);
@@ -136,8 +136,7 @@ namespace Plugins::SystemSensor
 	{
 		// Retrieve the location and cargo list.
 		int iHoldSize;
-		std::list<CARGO_INFO> lstCargo;
-		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), lstCargo, iHoldSize);
+		const auto cargo = Hk::Player::EnumCargo(client, iHoldSize);
 
 		unsigned int iSystemId;
 		pub::Player::GetSystem(client, iSystemId);
@@ -145,7 +144,7 @@ namespace Plugins::SystemSensor
 		// If this is ship has the right equipment and is in the right system then
 		// enable access.
 		uint iAvailableNetworkId = 0;
-		for (auto& ci : lstCargo)
+		for (auto& ci : cargo.value())
 		{
 			if (ci.bMounted)
 			{
@@ -195,7 +194,7 @@ namespace Plugins::SystemSensor
 
 		// Record the ship's cargo.
 		int iHoldSize;
-		EnumCargo(client, global->networks[client].lstLastScan, iHoldSize);
+		global->networks[client].lstLastScan = Hk::Player::EnumCargo(client, iHoldSize).value();
 		global->networks[client].lastScanNetworkId = siter->second.networkId;
 
 		// Notify any players connected to the the sensor network that this ship is
@@ -209,14 +208,14 @@ namespace Plugins::SystemSensor
 				const Universe::ISystem* iSys = Universe::get_system(iSystemId);
 				if (iSys && enum_integer(iter->second.mode & mode))
 				{
-					std::wstring wscSysName = GetWStringFromIdS(iSys->strid_name);
+					std::wstring wscSysName = Hk::Message::GetWStringFromIdS(iSys->strid_name);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
 						Players.GetActiveCharacterName(client),
 						client,
 						wscType.c_str(),
 						wscSysName.c_str(),
-						GetLocation(client).c_str());
+						Hk::Player::GetLocation(client).c_str());
 				}
 			}
 			++iter;
@@ -226,18 +225,18 @@ namespace Plugins::SystemSensor
 	// Record jump type.
 	void Dock_Call(unsigned int const& ship, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 	{
-		ClientId client = GetClientIdByShip(ship);
+		const auto client = Hk::Client::GetClientIdByShip(ship);
 		if (client && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
 			uint iTypeId;
 			pub::SpaceObj::GetType(iDockTarget, iTypeId);
 			if (iTypeId == OBJ_JUMP_GATE)
 			{
-				global->networks[client].inJumpGate = true;
+				global->networks[client.value()].inJumpGate = true;
 			}
 			else
 			{
-				global->networks[client].inJumpGate = false;
+				global->networks[client.value()].inJumpGate = false;
 			}
 		}
 	}

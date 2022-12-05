@@ -56,17 +56,19 @@ namespace Plugins::Tax
 			return;
 		}
 
-		std::wstring characterName = GetCharacterNameByID(client);
-		ClientId clientTarget;
-		if (const Error error = GetTargetClientID(characterName, clientTarget); error != E_OK || !IsValidClientID(clientTarget))
+		const auto characterName = Hk::Client::GetCharacterNameByID(client);
+
+		const auto clientTargetObject = Hk::Player::GetTargetClientID(client);
+		const auto clientTarget = clientTargetObject.value();
+		if (clientTargetObject.has_error())
 		{
 			PrintUserCmdText(client, L"Error: You are not targeting a player.");
 			return;
 		}
 
-		int secs = 0;
-		std::wstring targetCharacterName = GetCharacterNameByID(clientTarget);
-		if (const Error error = GetOnlineTime(targetCharacterName, secs); error != E_OK || secs < global->config->minplaytimeSec)
+		const auto secs = Hk::Player::GetOnlineTime(client);
+		const auto targetCharacterName = Hk::Client::GetCharacterNameByID(clientTarget);
+		if (secs.has_error() || secs.value() < global->config->minplaytimeSec)
 		{
 			PrintUserCmdText(client, L"Error: This player doesn't have enough playtime.");
 			return;
@@ -110,22 +112,22 @@ namespace Plugins::Tax
 					return;
 				}
 
-				int cash;
-				GetCash(client, cash);
-				if (cash < it.cash)
+				
+				const auto cash = Hk::Player::GetCash(client);
+				if (cash.value() < it.cash)
 				{
 					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
-				AddCash(client, (0 - it.cash));
+				Hk::Player::AddCash(client, (0 - it.cash));
 				PrintUserCmdText(client, L"You paid the tax.");
-				AddCash(it.initiatorId, it.cash);
-				const std::wstring characterName = GetCharacterNameByID(client);
-				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.c_str());
+				Hk::Player::AddCash(it.initiatorId, it.cash);
+				const auto characterName = Hk::Client::GetCharacterNameByID(client);
+				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.value().c_str());
 				RemoveTax(it);
-				SaveChar(client);
-				SaveChar(it.initiatorId);
+				Hk::Player::SaveChar(client);
+				Hk::Player::SaveChar(it.initiatorId);
 				return;
 			}
 
@@ -137,7 +139,7 @@ namespace Plugins::Tax
 		struct PlayerData* pPd = nullptr;
 		while (pPd = Players.traverse_active(pPd))
 		{
-			ClientId client = GetClientIdFromPD(pPd);
+			ClientId client = pPd->iOnlineId;
 
 			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;
@@ -156,8 +158,8 @@ namespace Plugins::Tax
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = GetCharacterNameByID(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
+						const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.value().c_str());
 						RemoveTax(it);
 						break;
 					}
@@ -177,8 +179,8 @@ namespace Plugins::Tax
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = GetCharacterNameByID(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
+						const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.value().c_str());
 						RemoveTax(it);
 						break;
 					}

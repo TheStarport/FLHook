@@ -36,11 +36,11 @@ namespace Plugins::Pvp
 				// Has the FreeForAll been won?
 				if (count <= 1)
 				{
-					if (IsValidClientID(contestantId))
+					if (Hk::Client::IsValidClientID(contestantId))
 					{
 						// Announce and pay winner
 						std::wstring winner = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(contestantId));
-						AddCash(winner, global->freeForAlls[system].pot);
+						Hk::Player::AddCash(winner, global->freeForAlls[system].pot);
 						const std::wstring message = winner + L" has won the FFA and receives " + std::to_wstring(global->freeForAlls[system].pot) + L" credits.";
 						PrintLocalUserCmdText(contestantId, message, 100000);
 					}
@@ -49,7 +49,7 @@ namespace Plugins::Pvp
 						struct PlayerData* playerData = nullptr;
 						while (playerData = Players.traverse_active(playerData))
 						{
-							ClientId client = GetClientIdFromPD(playerData);
+							ClientId client = playerData->iOnlineId;
 							uint systemId = 0;
 							pub::Player::GetSystem(client, systemId);
 							if (system == systemId)
@@ -92,9 +92,9 @@ namespace Plugins::Pvp
 		// Check the player can afford it
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 		int cash = 0;
-		if ((error = GetCash(characterName, cash)) != E_OK)
+		if (const auto err =  Hk::Player::GetCash(client); err.has_error() )
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 			return;
 		}
 		if (amount > 0 && cash < amount)
@@ -117,8 +117,8 @@ namespace Plugins::Pvp
 			while (playerData = Players.traverse_active(playerData))
 			{
 				// Get the this player's current system
-				ClientId client2 = GetClientIdFromPD(playerData);
-				ClientId clientSystemId = 0;
+				ClientId client2 = playerData->iOnlineId;
+				uint clientSystemId = 0;
 				pub::Player::GetSystem(client2, clientSystemId);
 				if (systemId != clientSystemId)
 					continue;
@@ -145,7 +145,7 @@ namespace Plugins::Pvp
 				PrintUserCmdText(client, L"Challenge issued. Waiting for others to accept.");
 				global->freeForAlls[systemId].entryAmount = amount;
 				global->freeForAlls[systemId].pot = amount;
-				AddCash(characterName, -(amount));
+				Hk::Player::AddCash(characterName, -(amount));
 			}
 			else
 			{
@@ -185,9 +185,9 @@ namespace Plugins::Pvp
 
 			// Check the player can afford it
 			int cash = 0;
-			if ((error = GetCash(characterName, cash)) != E_OK)
+			if (const auto err = Hk::Player::GetCash(client) ; err.has_error())
 			{
-				PrintUserCmdText(client, L"ERR " + ErrGetText(error));
+				PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
 			if (global->freeForAlls[systemId].entryAmount > 0 && cash < global->freeForAlls[systemId].entryAmount)
@@ -210,7 +210,7 @@ namespace Plugins::Pvp
 				PrintLocalUserCmdText(client, msg, 100000);
 
 				// Deduct cash
-				AddCash(characterName, -(global->freeForAlls[systemId].entryAmount));
+				Hk::Player::AddCash(characterName, -(global->freeForAlls[systemId].entryAmount));
 			}
 			else
 				PrintUserCmdText(client, L"You have already accepted the FFA.");
@@ -223,7 +223,7 @@ namespace Plugins::Pvp
 		const auto duel = global->duels.begin();
 		while (duel != global->duels.end())
 		{
-			ClientId clientKiller = 0;
+			uint clientKiller = 0;
 
 			if (duel->client == client)
 				clientKiller = duel->client2;
@@ -245,8 +245,8 @@ namespace Plugins::Pvp
 				PrintLocalUserCmdText(clientKiller, msg, 10000);
 
 				// Change cash
-				AddCash(killer, duel->amount);
-				AddCash(victim, -(duel->amount));
+				Hk::Player::AddCash(killer, duel->amount);
+				Hk::Player::AddCash(victim, -(duel->amount));
 			}
 			else
 			{
@@ -273,8 +273,8 @@ namespace Plugins::Pvp
 		}
 
 		// Check ship is a player
-		ClientId clientTarget = GetClientIdByShip(targetShip);
-		if (!clientTarget)
+		const auto clientTarget = Hk::Client::GetClientIdByShip(targetShip);
+		if (!clientTarget.value())
 		{
 			PrintUserCmdText(client, L"Target is not a player.");
 			return;
@@ -306,9 +306,9 @@ namespace Plugins::Pvp
 
 		// Check the player can afford it
 		int iCash = 0;
-		if ((error = GetCash(characterName, iCash)) != E_OK)
+		if (const auto err = Hk::Player::GetCash(client); err.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(error));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 			return;
 		}
 		if (amount > 0 && iCash < amount)
@@ -337,16 +337,16 @@ namespace Plugins::Pvp
 		// Create duel
 		Duel duel;
 		duel.client = client;
-		duel.client2 = clientTarget;
+		duel.client2 = clientTarget.value();
 		duel.amount = amount;
 		duel.accepted = false;
 		global->duels.push_back(duel);
 
 		// Message players
-		const std::wstring characterName2 = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientTarget));
+		const std::wstring characterName2 = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientTarget.value()));
 		const std::wstring message = characterName + L" has challenged " + characterName2 + L" to a duel for " + std::to_wstring(amount) + L" credits.";
 		PrintLocalUserCmdText(client, message, 10000);
-		PrintUserCmdText(clientTarget, L"Type \"/acceptduel\" to accept.");
+		PrintUserCmdText(clientTarget.value(), L"Type \"/acceptduel\" to accept.");
 	}
 
 	void UserCmdAcceptDuel(ClientId& client, const std::wstring_view& param)
@@ -375,9 +375,9 @@ namespace Plugins::Pvp
 				Error error;
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 				int cash = 0;
-				if ((error = GetCash(characterName, cash)) != E_OK)
+				if (const auto err = Hk::Player::GetCash(client); err.has_error())
 				{
-					PrintUserCmdText(client, L"ERR " + ErrGetText(error));
+					PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 					return;
 				}
 
@@ -423,11 +423,11 @@ namespace Plugins::Pvp
 
 	int __cdecl DockCall(unsigned int const& ship, unsigned int const& d, int& cancel, enum DOCK_HOST_RESPONSE& response)
 	{
-		ClientId client = GetClientIdByShip(ship);
-		if (IsValidClientID(client))
+		const auto client = Hk::Client::GetClientIdByShip(ship);
+		if (Hk::Client::IsValidClientID(client.value()))
 		{
-			processFFA(client);
-			processDuel(client);
+			processFFA(client.value());
+			processDuel(client.value());
 		}
 		return 0;
 	}

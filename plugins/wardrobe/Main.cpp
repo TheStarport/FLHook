@@ -72,8 +72,8 @@ namespace Plugins::Wardrobe
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		SaveChar(client);
-		if (!IsValidClientID(client))
+		Hk::Player::SaveChar(client);
+		if (!Hk::Client::IsValidClientID(client))
 			return;
 
 		// Check character is in base
@@ -89,10 +89,10 @@ namespace Plugins::Wardrobe
 
 		if (CAccount* account = Players.FindAccountFromClientID(client))
 		{
-			GetAccountDirName(account, restart.directory);
-			GetCharFileName(restart.characterName, restart.characterFile);
+			restart.directory = Hk::Client::GetAccountDirName(account);
+			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
 			global->pendingRestarts.push_back(restart);
-			KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+			Hk::Player::KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 	}
 
@@ -101,7 +101,7 @@ namespace Plugins::Wardrobe
 		while (!global->pendingRestarts.empty())
 		{
 			Wardrobe restart = global->pendingRestarts.back();
-			if (GetClientIdFromCharname(restart.characterName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(restart.characterName).value() != -1)
 				return;
 
 			global->pendingRestarts.pop_back();

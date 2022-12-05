@@ -14,13 +14,15 @@ namespace Plugins::PurchaseRestrictions
 	const auto global = std::make_unique<Global>();
 
 	//! Log items of interest so we can see what cargo cheats people are using.
-	static void LogItemsOfInterest(ClientId client, uint iGoodId, const std::string& details)
+	static void LogItemsOfInterest(ClientId& client, uint iGoodId, const std::string& details)
 	{
 		const auto iter = global->itemsOfInterestHashed.find(iGoodId);
 		if (iter != global->itemsOfInterestHashed.end())
 		{
-			const std::wstring charName = GetCharacterNameByID(client);
-			AddLog(LogType::Normal, LogLevel::Info, L"Item '%s' found in cargo of %s (%s) %s", iter->second.c_str(), charName.c_str(), GetAccountID(GetAccountByCharname(charName)).c_str(), 
+			const auto charName = Hk::Client::GetCharacterNameByID(client);
+			const auto account = Hk::Client::GetAccountByClientID(client);
+			AddLog(LogType::Normal, LogLevel::Info, L"Item '%s' found in cargo of %s (%s) %s", iter->second.c_str(), charName.value().c_str(),
+				account, 
 				details.c_str());
 		}
 	}
@@ -63,10 +65,10 @@ namespace Plugins::PurchaseRestrictions
 		if (validItem == global->goodItemRestrictionsHashed.end())
 			return true;
 
-		std::list<CARGO_INFO> lstCargo;
-		int iRemainingHoldSize;
-		EnumCargo(client, lstCargo, iRemainingHoldSize);
-		return std::any_of(lstCargo.begin(), lstCargo.end(), [validItem](const CARGO_INFO& cargo) {
+		
+		int remainingHoldSize;
+		const auto cargo = Hk::Player::EnumCargo(client, remainingHoldSize);
+		return std::any_of(cargo.value().begin(), cargo.value().end(), [validItem](const CARGO_INFO& cargo) {
 			return cargo.bMounted && std::find(validItem->second.begin(), validItem->second.end(), cargo.iArchId) == validItem->second.end();
 		});
 	}
@@ -86,7 +88,7 @@ namespace Plugins::PurchaseRestrictions
 		if (std::find(global->unbuyableItemsHashed.begin(), global->unbuyableItemsHashed.end(), gbi.iGoodId) == global->unbuyableItemsHashed.end())
 		{
 			suppress = true;
-			pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
+			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 			PrintUserCmdText(client, L"ERR Temporarily out of stock");
 			return true;
 		}
@@ -99,12 +101,12 @@ namespace Plugins::PurchaseRestrictions
 			{
 				if (!CheckIdEquipRestrictions(client, gbi.iGoodId))
 				{
-					const std::wstring charName = GetCharacterNameByID(client);
-					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct Id", charName.c_str(), gbi.iGoodId);
+					const auto charName = Hk::Client::GetCharacterNameByID(client);
+					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct Id", charName.value().c_str(), gbi.iGoodId);
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->goodPurchaseDenied);
-						pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
+						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						return true;
 					}
@@ -127,12 +129,12 @@ namespace Plugins::PurchaseRestrictions
 
 				if (global->shipItemRestrictionsHashed.find(gbi.iGoodId) != global->shipItemRestrictionsHashed.end() && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId))
 				{
-					const std::wstring charName = GetCharacterNameByID(client);
-					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct Id", charName.c_str(), hullInfo->shipGoodId);
+					const auto charName = Hk::Client::GetCharacterNameByID(client);
+					AddLog(LogType::Normal, LogLevel::Info, L"%s attempting to buy %u without correct Id", charName.value().c_str(), hullInfo->shipGoodId);
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->shipPurchaseDenied);
-						pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
+						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						return true;
 					}

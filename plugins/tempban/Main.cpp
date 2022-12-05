@@ -28,7 +28,7 @@ namespace Plugins::Tempban
 
 	Error __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
 	{
-		ClientId client = GetClientIdFromCharname(wscCharname);
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
 		mstime duration = 1000 * _duration * 60;
 		TempbanInfo tempban;
@@ -37,24 +37,24 @@ namespace Plugins::Tempban
 
 		CAccount* acc;
 		if (client != -1)
-			acc = Players.FindAccountFromClientID(client);
+			acc = Players.FindAccountFromClientID(client.value());
 		else
 		{
-			if (!(acc = GetAccountByCharname(wscCharname)))
-				return CharDoesNotExist;
+			if (!(acc = Hk::Client::GetAccountByCharName(wscCharname).value()))
+				return Error::CharacterDoesNotExist;
 		}
-		std::wstring wscId = GetAccountID(acc);
+		const auto wscId = Hk::Client::GetAccountID(acc);
 
-		tempban.accountId = wscId;
+		tempban.accountId = wscId.value();
 		global->TempBans.push_back(tempban);
 
-		if (client != -1 && Kick(client) != E_OK)
+		if (client != -1 && Hk::Player::Kick(client.value()).has_error())
 		{
 			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
 		}
-
-		return E_OK;
+		//Wants to return an "OK" but we don't have one of those anymore. 
+		return Error::UnknownError;
 	}
 
 	bool TempBannedCheck(ClientId client)
@@ -62,11 +62,11 @@ namespace Plugins::Tempban
 		CAccount* acc;
 		acc = Players.FindAccountFromClientID(client);
 
-		std::wstring wscId = GetAccountID(acc);
+		const auto wscId = Hk::Client::GetAccountID(acc);
 
 		for (auto& ban : global->TempBans)
 		{
-			if (ban.accountId == wscId)
+			if (ban.accountId == wscId.value())
 				return true;
 		}
 
@@ -83,7 +83,7 @@ namespace Plugins::Tempban
 		if (TempBannedCheck(client))
 		{
 			global->returncode = ReturnCode::SkipAll;
-			Kick(client);
+			Hk::Player::Kick(client);
 		}
 	}
 

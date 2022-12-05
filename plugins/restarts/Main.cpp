@@ -77,8 +77,8 @@ namespace Plugins::Restart
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		SaveChar(client);
-		if (!IsValidClientID(client))
+		Hk::Player::SaveChar(client);
+		if (!Hk::Client::IsValidClientID(client))
 			return;
 
 		uint iBaseId;
@@ -91,9 +91,8 @@ namespace Plugins::Restart
 
 		if (global->config->maxRank != 0)
 		{
-			int rank = 0;
-			GetRank(restart.characterName, rank);
-			if (rank == 0 || rank > global->config->maxRank)
+			const auto rank = Hk::Player::GetRank(restart.characterName);
+			if (rank.value() == 0 || rank > global->config->maxRank)
 			{
 				PrintUserCmdText(client,
 				    L"ERR You must create a new char to "
@@ -102,11 +101,10 @@ namespace Plugins::Restart
 			}
 		}
 
-		Error err;
-		int cash = 0;
-		if ((err = GetCash(restart.characterName, cash)) != E_OK)
+		const auto cash = Hk::Player::GetCash(restart.characterFile);
+		if (cash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 
@@ -123,20 +121,20 @@ namespace Plugins::Restart
 			if (cash < global->config->availableRestarts[restartTemplate])
 			{
 				PrintUserCmdText(
-				    client, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash) + L" more credits to use this template");
+				    client, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash.value()) + L" more credits to use this template");
 				return;
 			}
-			restart.cash = cash - global->config->availableRestarts[restartTemplate];
+			restart.cash = cash.value() - global->config->availableRestarts[restartTemplate];
 		}
 		else
-			restart.cash = cash;
+			restart.cash = cash.value();
 
 		if (CAccount* acc = Players.FindAccountFromClientID(client))
 		{
-			GetAccountDirName(acc, restart.directory);
-			GetCharFileName(restart.characterName, restart.characterFile);
+			restart.directory = Hk::Client::GetAccountDirName(acc);
+			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
 			global->pendingRestarts.push_back(restart);
-			KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+			Hk::Player::KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 		return;
 	}
@@ -148,7 +146,7 @@ namespace Plugins::Restart
 		while (global->pendingRestarts.size())
 		{
 			Restart restart = global->pendingRestarts.back();
-			if (GetClientIdFromCharname(restart.characterName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(restart.characterName).value() != -1)
 				return;
 
 			global->pendingRestarts.pop_back();
