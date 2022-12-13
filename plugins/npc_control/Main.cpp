@@ -233,9 +233,42 @@ namespace Plugins::Npc
 			return;
 		}
 
+		// Destroy targeted ship
+		if (cmds->IsPlayer())
+		{
+			uint ship, target;
+			pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship);
+			pub::SpaceObj::GetTarget(ship, target);
+			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+			{
+				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
+				global->spawnedNpcs.erase(it);
+				cmds->Print(L"OK");
+				return;
+			}
+		}
+
+		// Destroy all ships
 		for (const auto& npc : global->spawnedNpcs)
 			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
+		global->spawnedNpcs.clear();
+		cmds->Print(L"OK");
+	}
+
+	void AiCome(uint ship, Vector pos)
+	{
+		pub::AI::DirectiveCancelOp cancelOP;
+		pub::AI::SubmitDirective(ship, &cancelOP);
+
+		pub::AI::DirectiveGotoOp go;
+		go.iGotoType = 1;
+		go.vPos = pos;
+		go.vPos.x = pos.x + RandomFloatRange(0, 500);
+		go.vPos.y = pos.y + RandomFloatRange(0, 500);
+		go.vPos.z = pos.z + RandomFloatRange(0, 500);
+		go.fRange = 0;
+		pub::AI::SubmitDirective(ship, &go);
 		global->spawnedNpcs.clear();
 	}
 
@@ -275,6 +308,17 @@ namespace Plugins::Npc
 		return;
 	}
 
+	void AiFollow(uint ship, uint npc)
+	{
+		pub::AI::DirectiveCancelOp cancelOP;
+		pub::AI::SubmitDirective(npc, &cancelOP);
+		pub::AI::DirectiveFollowOp testOP;
+		testOP.iFollowSpaceObj = ship;
+		testOP.fMaxDistance = 100;
+		pub::AI::SubmitDirective(npc, &testOP);
+	}
+
+
 	// Admin command to make AI follow target (or admin) until death
 	void AdminCmdAIFollow(CCmds* cmds, std::wstring& wscCharname)
 	{
@@ -300,18 +344,21 @@ namespace Plugins::Npc
 
 		else
 		{
-			uint ship1;
-			pub::Player::GetShip(client, ship1);
-			if (ship1)
+			uint ship;
+			pub::Player::GetShip(client, ship);
+			if (ship)
 			{
-				for (const auto& npc : global->spawnedNpcs)
+				uint target;
+				pub::SpaceObj::GetTarget(ship, target);
+				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 				{
-					pub::AI::DirectiveCancelOp cancelOP;
-					pub::AI::SubmitDirective(npc, &cancelOP);
-					pub::AI::DirectiveFollowOp testOP;
-					testOP.iFollowSpaceObj = ship1;
-					testOP.fMaxDistance = 100;
-					pub::AI::SubmitDirective(npc, &testOP);
+					AiFollow(ship, target);
+					global->spawnedNpcs.erase(it);
+				}
+				else
+				{
+					for (const auto& npc : global->spawnedNpcs)
+						AiFollow(ship, npc);
 				}
 				cmds->Print(L"Following %s", wscCharname.c_str());
 			}
@@ -331,14 +378,29 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint shipId;
-		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
-		if (shipId)
-			for (const auto& npc : global->spawnedNpcs)
+		uint ship;
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship);
+		if (ship)
+		{
+			// Is the admin targeting an NPC?
+			uint target;
+			pub::SpaceObj::GetTarget(ship, target);
+			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::AI::DirectiveCancelOp cancelOp;
-				pub::AI::SubmitDirective(npc, &cancelOp);
+				pub::AI::SubmitDirective(target, &cancelOp);
 			}
+			// Cancel all NPC actions
+			else
+			{
+				for (const auto& npc : global->spawnedNpcs)
+				{
+					pub::AI::DirectiveCancelOp cancelOp;
+					pub::AI::SubmitDirective(npc, &cancelOp);
+				}
+			}
+			cmds->Print(L"OK");
+		}
 	}
 
 	// Admin command to list NPC fleets

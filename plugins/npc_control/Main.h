@@ -13,6 +13,7 @@ namespace Plugins::Npc
 		std::string shipArch = "ge_fighter";
 		std::string loadout = "MP_ge_fighter";
 		std::string iff = "fc_fl_grp";
+		uint iffId;
 		uint infocardId = 197808;
 		uint infocard2Id = 197809;
 		std::string pilot = "pilot_pirate_ace";
