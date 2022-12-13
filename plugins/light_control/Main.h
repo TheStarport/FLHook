@@ -8,12 +8,12 @@ namespace Plugins::LightControl
 	//! A hardpoint for a single client.
 	struct EquipmentHardpoint
 	{
-		EquipmentHardpoint() : ID(0), ArchID(0), OriginalArchID(0) {}
+		EquipmentHardpoint() = default;
 
-		uint ID;
-		uint ArchID;
-		uint OriginalArchID;
-		std::wstring HardPoint;
+		uint id = 0;
+		uint archId = 0;
+		uint originalArchId = 0;
+		std::wstring hardPoint;
 	};
 
 	//! Config data for this plugin

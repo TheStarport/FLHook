@@ -17,11 +17,11 @@ std::wstring stows(const std::string& scText)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string wstos(const std::wstring& wscText)
+std::string wstos(const std::wstring& text)
 {
-	uint iLen = (uint)wscText.length() + 1;
+	uint iLen = (uint)text.length() + 1;
 	char* szBuf = new char[iLen];
-	WideCharToMultiByte(CP_ACP, 0, wscText.c_str(), -1, szBuf, iLen, 0, 0);
+	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, szBuf, iLen, 0, 0);
 	std::string scRet = szBuf;
 	delete[] szBuf;
 	return scRet;
@@ -219,38 +219,41 @@ void IniGetSection(const std::string& scFile, const std::string& scApp, std::lis
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-std::string GetUserFilePath(std::variant<uint, std::wstring> player, const std::string& scExtension)
+std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& scExtension)
 {
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
 	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-	std::wstring wscDir;
-	std::wstring wscFile;
-	if (HkGetAccountDirName(player, wscDir) != HKE_OK)
-		return "";
-	if (HkGetCharFileName(player, wscFile) != HKE_OK)
+
+	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
+	if (acc.has_error())
 		return "";
 
-	return scAcctPath + wstos(wscDir) + "\\" + wstos(wscFile) + scExtension;
+	auto dir = Hk::Client::GetAccountDirName(acc.value());
+	const auto file = Hk::Client::GetCharFileName(player);
+	if (file.has_error())
+		return "";
+
+	return scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + scExtension;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring XMLText(const std::wstring& wscText)
+std::wstring XMLText(const std::wstring& text)
 {
 	std::wstring wscRet;
-	for (uint i = 0; (i < wscText.length()); i++)
+	for (uint i = 0; (i < text.length()); i++)
 	{
-		if (wscText[i] == '<')
+		if (text[i] == '<')
 			wscRet.append(L"&#60;");
-		else if (wscText[i] == '>')
+		else if (text[i] == '>')
 			wscRet.append(L"&#62;");
-		else if (wscText[i] == '&')
+		else if (text[i] == '&')
 			wscRet.append(L"&#38;");
 		else
-			wscRet.append(1, wscText[i]);
+			wscRet.append(1, text[i]);
 	}
 
 	return wscRet;

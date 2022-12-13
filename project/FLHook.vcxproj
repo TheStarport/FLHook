@@ -172,34 +172,31 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\FLHookSDK\source\Helpers.cpp" />
+    <ClCompile Include="..\FLHookSDK\source\HK.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
+    <ClCompile Include="..\source\Features\Error.cpp" />
+    <ClCompile Include="..\source\Features\Logging.cpp" />
+    <ClCompile Include="..\source\Features\PluginManager.cpp" />
+    <ClCompile Include="..\source\Features\StartupCache.cpp" />
+    <ClCompile Include="..\source\Features\Timers.cpp" />
+    <ClCompile Include="..\source\Features\UserCommands.cpp" />
     <ClCompile Include="..\source\flcodec.cpp" />
     <ClCompile Include="..\source\FLPacket.cpp" />
-    <ClCompile Include="..\source\HkCharacterIni.cpp" />
+    <ClCompile Include="..\source\Helpers\Admin.cpp" />
+    <ClCompile Include="..\source\Helpers\Client.cpp" />
+    <ClCompile Include="..\source\Helpers\Ini.cpp" />
+    <ClCompile Include="..\source\Helpers\Math.cpp" />
+    <ClCompile Include="..\source\Helpers\Message.cpp" />
+    <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
+    <ClCompile Include="..\source\Helpers\Player.cpp" />
     <ClCompile Include="..\source\HkClientServerInterface.cpp" />
-    <ClCompile Include="..\source\HkDataPilotPersonalities.cpp" />
-    <ClCompile Include="..\source\HkFuncCache.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
-    <ClCompile Include="..\source\HkError.cpp" />
-    <ClCompile Include="..\source\HkFLIni.cpp" />
     <ClCompile Include="..\source\HkHelp.cpp" />
     <ClCompile Include="..\source\HkInit.cpp" />
     <ClCompile Include="..\source\HkIChatServer.cpp" />
     <ClCompile Include="..\source\HkIEngineDamage.cpp" />
     <ClCompile Include="..\source\HkIEngineDeath.cpp" />
     <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
-    <ClCompile Include="..\source\HkTimers.cpp" />
-    <ClCompile Include="..\source\HkUserCmd.cpp" />
-    <ClCompile Include="..\source\HkFuncLog.cpp" />
-    <ClCompile Include="..\source\HkFuncMsg.cpp" />
-    <ClCompile Include="..\source\HkFuncOther.cpp" />
-    <ClCompile Include="..\source\HkFuncPlayers.cpp" />
-    <ClCompile Include="..\source\HkFuncTools.cpp" />
-    <ClCompile Include="..\source\HkPluginManager.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-    </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\source\Tools\Console.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
@@ -223,12 +220,13 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLHook.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Helpers.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\HK.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Macros.hpp" />
     <ClInclude Include="..\FLHookSDK\include\plugin.h" />
     <ClInclude Include="..\FLHookSDK\include\Serialization.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Singleton.h" />
     <ClInclude Include="..\FLHookSDK\include\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\Structs.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp" />
     <ClInclude Include="..\FLHookSDK\include\__generated.h" />
@@ -241,8 +239,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md" />
-    <None Include="..\source\HkIClientImpl.inl" />
-    <None Include="..\source\HkIServerImpl.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

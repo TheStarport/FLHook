@@ -7,8 +7,8 @@ namespace Plugins::Pvp
 	//! A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
 	struct Duel
 	{
-		uint clientId;
-		uint clientId2;
+		uint client;
+		uint client2;
 		int amount;
 		bool accepted;
 	};
@@ -33,6 +33,6 @@ namespace Plugins::Pvp
 	{
 		ReturnCode returnCode = ReturnCode::Default;
 		std::list<Duel> duels;
-		std::map<uint, FreeForAll> freeForAlls; // uint is iSystemID
+		std::map<uint, FreeForAll> freeForAlls; // uint is iSystemId
 	};
 }

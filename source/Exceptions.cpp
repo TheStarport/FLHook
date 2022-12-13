@@ -34,9 +34,10 @@ HMODULE GetModuleAddr(uint iAddr)
 	#include <string.h>
 
 // based on dbghelp.h
-typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(
+typedef BOOL(WINAPI* MINIdUMPWRITEDUMP)(
     HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
-    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
+	CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
     CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
 void WriteMiniDump(SEHException* ex)
@@ -45,7 +46,7 @@ void WriteMiniDump(SEHException* ex)
 	HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
 	if (hDll)
 	{
-		MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress(hDll, "MiniDumpWriteDump");
+		MINIdUMPWRITEDUMP pDump = (MINIdUMPWRITEDUMP)::GetProcAddress(hDll, "MiniDumpWriteDump");
 		if (pDump)
 		{
 			// put the dump file in the flhook logs/debug directory
@@ -170,11 +171,7 @@ void AddExceptionInfoLog(SEHException* ex)
 			AddBothLog(true, L"No exception information available");
 		if (reg)
 		{
-			AddBothLog(
-			    false,
-			    L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x "
-			    "eip=%x esp=%x",
-			    reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+			AddBothLog(false, L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
 		}
 		else
 		{

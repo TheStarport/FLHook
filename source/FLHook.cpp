@@ -58,12 +58,12 @@ DllMain
 
 FARPROC fpOldUpdate;
 
-namespace HkIServerImpl
+namespace IServerImplHook
 {
 	bool __stdcall Startup(SStartupInfo const& si);
 	void __stdcall Shutdown();
 	int __stdcall Update();
-} // namespace HkIServerImpl
+} // namespace IServerImplHook
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -79,18 +79,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		bExecuted = true;
 
 		// redirect IServerImpl::Update
-		FARPROC fpLoop = (FARPROC)HkIServerImpl::Update;
+		FARPROC fpLoop = (FARPROC)IServerImplHook::Update;
 		void* pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_UPDATE);
 		ReadProcMem(pAddress, &fpOldUpdate, 4);
 		WriteProcMem(pAddress, &fpLoop, 4);
 
 		// install startup hook
-		FARPROC fpStartup = (FARPROC)HkIServerImpl::Startup;
+		FARPROC fpStartup = (FARPROC)IServerImplHook::Startup;
 		pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_STARTUP);
 		WriteProcMem(pAddress, &fpStartup, 4);
 
 		// install shutdown hook
-		FARPROC fpShutdown = (FARPROC)HkIServerImpl::Shutdown;
+		FARPROC fpShutdown = (FARPROC)IServerImplHook::Shutdown;
 		pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
 		WriteProcMem(pAddress, &fpShutdown, 4);
 
@@ -116,7 +116,7 @@ LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 }
 
 LPTOP_LEVEL_EXCEPTION_FILTER WINAPI
-    HkCb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
+    Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
 {
 	return NULL;
 }
@@ -237,8 +237,8 @@ void FLHookInit_Pre()
 			}
 		}
 
-		HkCharacterInit();
-		HkLoadPersonalities();
+		Hk::Ini::CharacterInit();
+		Hk::Personalities::LoadPersonalities();
 
 		PatchClientImpl();
 
@@ -249,19 +249,19 @@ void FLHookInit_Pre()
 		// Hook the kernel SetUnhandledExceptionFilter function to prevent
 		// newer versions of the crt disabling our filter function if a buffer
 		// overrun is detected.
-		HMODULE hKernel32 = LoadLibrary("kernel32.dll");
-		if (hKernel32)
+		HMODULE ernel32 = LoadLibrary("kernel32.dll");
+		if (ernel32)
 		{
-			void* dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
+			void* dwOrgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
 			if (dwOrgEntry)
 			{
-				DWORD offset = (char*)dwOrgEntry - (char*)hKernel32;
+				DWORD offset = (char*)dwOrgEntry - (char*)ernel32;
 
-				ReadProcMem((char*)hKernel32 + offset, oldSetUnhandledExceptionFilter, 5);
+				ReadProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 
 				BYTE patch[] = { 0xE9 };
-				WriteProcMem((char*)hKernel32 + offset, patch, 1);
-				PatchCallAddr((char*)hKernel32, offset, (char*)HkCb_SetUnhandledExceptionFilter);
+				WriteProcMem((char*)ernel32 + offset, patch, 1);
+				PatchCallAddr((char*)ernel32, offset, (char*)Cb_SetUnhandledExceptionFilter);
 			}
 		}
 #endif
@@ -471,14 +471,14 @@ void FLHookShutdown()
 
 #ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	// If extended exception logging is in use, restore patched functions
-	HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
-	if (hKernel32)
+	HMODULE ernel32 = GetModuleHandle("kernel32.dll");
+	if (ernel32)
 	{
-		void* dwOrgEntry = GetProcAddress(hKernel32, "SetUnhandledExceptionFilter");
+		void* dwOrgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
 		if (dwOrgEntry)
 		{
-			DWORD offset = (char*)dwOrgEntry - (char*)hKernel32;
-			WriteProcMem((char*)hKernel32 + offset, oldSetUnhandledExceptionFilter, 5);
+			DWORD offset = (char*)dwOrgEntry - (char*)ernel32;
+			WriteProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 		}
 	}
 	// And restore the default exception filter.
@@ -572,21 +572,21 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 send event to all sockets which are in eventmode
 **************************************************************************************************************/
 
-void ProcessEvent(std::wstring wscText, ...)
+void ProcessEvent(std::wstring text, ...)
 {
 	wchar_t wszBuf[1024] = L"";
 	va_list marker;
-	va_start(marker, wscText);
-	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, wscText.c_str(), marker);
+	va_start(marker, text);
+	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, text.c_str(), marker);
 
-	wscText = wszBuf;
+	text = wszBuf;
 
-	CallPluginsBefore(HookedCall::FLHook__ProcessEvent, static_cast<std::wstring&>(wscText));
+	CallPluginsBefore(HookedCall::FLHook__ProcessEvent, static_cast<std::wstring&>(text));
 
 	for (auto& socket : lstSockets)
 	{
 		if (socket->csock.bEventMode)
-			socket->csock.Print(L"%s", wscText.c_str());
+			socket->csock.Print(L"%s", text.c_str());
 	}
 }
 

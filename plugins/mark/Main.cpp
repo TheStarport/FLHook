@@ -41,99 +41,103 @@ namespace Plugins::Mark
 	{
 		auto config = Serializer::JsonToObject<Config>();
 
-		global->Timers = {{HkTimerMarkDelay, 50, 0}, {HkTimerSpaceObjMark, 50, 0}};
+		global->Timers = {{TimerMarkDelay, 50, 0}, {TimerSpaceObjMark, 50, 0}};
 		global->config = std::make_unique<Config>(config);
 	}
 
 	/** @ingroup Mark
-	 * @brief Clear the mark settings for the specified clientId
+	 * @brief Clear the mark settings for the specified client
 	 */
-	void ClearClientMark(uint clientId)
+	void ClearClientMark(ClientId client)
 	{
-		global->Mark[clientId].MarkEverything = false;
-		global->Mark[clientId].MarkedObjects.clear();
-		global->Mark[clientId].DelayedSystemMarkedObjects.clear();
-		global->Mark[clientId].AutoMarkedObjects.clear();
-		global->Mark[clientId].DelayedAutoMarkedObjects.clear();
+		global->Mark[client].MarkEverything = false;
+		global->Mark[client].MarkedObjects.clear();
+		global->Mark[client].DelayedSystemMarkedObjects.clear();
+		global->Mark[client].AutoMarkedObjects.clear();
+		global->Mark[client].DelayedAutoMarkedObjects.clear();
 	}
 
 	/** @ingroup Mark
 	 * @brief Hook on JumpInComplete. This marks objects in the new system (for example, a group member might have marked in when they were out of system).
 	 */
-	void JumpInComplete(uint& iSystemID, uint& iShip)
+	void JumpInComplete(uint& iSystemId, uint& ship)
 	{
-		uint iClientID = HkGetClientIDByShip(iShip);
-		if (!iClientID)
+		const auto err = Hk::Client::GetClientIdByShip(ship);
+		if (!err.has_error())
 			return;
+
+		ClientId client = err.value();
 		std::vector<uint> vTempMark;
-		for (uint i = 0; i < global->Mark[iClientID].DelayedSystemMarkedObjects.size(); i++)
+		for (uint i = 0; i < global->Mark[client].DelayedSystemMarkedObjects.size(); i++)
 		{
-			if (pub::SpaceObj::ExistsAndAlive(global->Mark[iClientID].DelayedSystemMarkedObjects[i]))
+			if (pub::SpaceObj::ExistsAndAlive(global->Mark[client].DelayedSystemMarkedObjects[i]))
 			{
-				if (i != global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1)
+				if (i != global->Mark[client].DelayedSystemMarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].DelayedSystemMarkedObjects[i] =
-					    global->Mark[iClientID].DelayedSystemMarkedObjects[global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1];
+					global->Mark[client].DelayedSystemMarkedObjects[i] =
+					    global->Mark[client].DelayedSystemMarkedObjects[global->Mark[client].DelayedSystemMarkedObjects.size() - 1];
 					i--;
 				}
-				global->Mark[iClientID].DelayedSystemMarkedObjects.pop_back();
+				global->Mark[client].DelayedSystemMarkedObjects.pop_back();
 				continue;
 			}
 
 			uint iTargetSystem;
-			pub::SpaceObj::GetSystem(global->Mark[iClientID].DelayedSystemMarkedObjects[i], iTargetSystem);
-			if (iTargetSystem == iSystemID)
+			pub::SpaceObj::GetSystem(global->Mark[client].DelayedSystemMarkedObjects[i], iTargetSystem);
+			if (iTargetSystem == iSystemId)
 			{
-				pub::Player::MarkObj(iClientID, global->Mark[iClientID].DelayedSystemMarkedObjects[i], 1);
-				vTempMark.push_back(global->Mark[iClientID].DelayedSystemMarkedObjects[i]);
-				if (i != global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1)
+				pub::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);
+				vTempMark.push_back(global->Mark[client].DelayedSystemMarkedObjects[i]);
+				if (i != global->Mark[client].DelayedSystemMarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].DelayedSystemMarkedObjects[i] =
-					    global->Mark[iClientID].DelayedSystemMarkedObjects[global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1];
+					global->Mark[client].DelayedSystemMarkedObjects[i] =
+					    global->Mark[client].DelayedSystemMarkedObjects[global->Mark[client].DelayedSystemMarkedObjects.size() - 1];
 					i--;
 				}
-				global->Mark[iClientID].DelayedSystemMarkedObjects.pop_back();
+				global->Mark[client].DelayedSystemMarkedObjects.pop_back();
 			}
 		}
-		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
+		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
-			if (!pub::SpaceObj::ExistsAndAlive(global->Mark[iClientID].MarkedObjects[i]))
-				global->Mark[iClientID].DelayedSystemMarkedObjects.push_back(global->Mark[iClientID].MarkedObjects[i]);
+			if (!pub::SpaceObj::ExistsAndAlive(global->Mark[client].MarkedObjects[i]))
+				global->Mark[client].DelayedSystemMarkedObjects.push_back(global->Mark[client].MarkedObjects[i]);
 		}
-		global->Mark[iClientID].MarkedObjects = vTempMark;
+		global->Mark[client].MarkedObjects = vTempMark;
 	}
 
 	/** @ingroup Mark
 	 * @brief Hook on LaunchComplete. Sets all the objects in the system to be marked.
 	 */
-	void LaunchComplete(uint& iBaseID, uint& iShip)
+	void LaunchComplete([[maybe_unused]] BaseId& iBaseId, ShipId& ship)
 	{
-		uint iClientID = HkGetClientIDByShip(iShip);
-		if (!iClientID)
+		const auto err = Hk::Client::GetClientIdByShip(ship);
+		if (!err.has_error())
 			return;
-		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
+
+		ClientId client = err.value();
+		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
-			if (pub::SpaceObj::ExistsAndAlive(global->Mark[iClientID].MarkedObjects[i]))
+			if (pub::SpaceObj::ExistsAndAlive(global->Mark[client].MarkedObjects[i]))
 			{
-				if (i != global->Mark[iClientID].MarkedObjects.size() - 1)
+				if (i != global->Mark[client].MarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].MarkedObjects[i] = global->Mark[iClientID].MarkedObjects[global->Mark[iClientID].MarkedObjects.size() - 1];
+					global->Mark[client].MarkedObjects[i] = global->Mark[client].MarkedObjects[global->Mark[client].MarkedObjects.size() - 1];
 					i--;
 				}
-				global->Mark[iClientID].MarkedObjects.pop_back();
+				global->Mark[client].MarkedObjects.pop_back();
 				continue;
 			}
-			pub::Player::MarkObj(iClientID, global->Mark[iClientID].MarkedObjects[i], 1);
+			pub::Player::MarkObj(client, global->Mark[client].MarkedObjects[i], 1);
 		}
 	}
 
 	/** @ingroup Mark
 	 * @brief Hook on BaseEnter. Clear marked objects.
 	 */
-	void BaseEnter(uint& iBaseID, uint& iClientID)
+	void BaseEnter(uint& iBaseId, ClientId& client)
 	{
-		global->Mark[iClientID].AutoMarkedObjects.clear();
-		global->Mark[iClientID].DelayedAutoMarkedObjects.clear();
+		global->Mark[client].AutoMarkedObjects.clear();
+		global->Mark[client].DelayedAutoMarkedObjects.clear();
 	}
 
 	/** @ingroup Mark
@@ -146,13 +150,13 @@ namespace Plugins::Mark
 		{
 			bFirstTime = false;
 			// check for logged in players and reset their connection data
-			struct PlayerData* pPD = 0;
-			while (pPD = Players.traverse_active(pPD))
-				ClearClientMark(HkGetClientIdFromPD(pPD));
+			struct PlayerData* playerData = 0;
+			while (playerData = Players.traverse_active(playerData))
+				ClearClientMark(playerData->iOnlineId);
 		}
 		for (auto& timer : global->Timers)
 		{
-			if ((timeInMS() - timer.LastCall) >= timer.IntervalMS)
+			if (timeInMS() - timer.LastCall >= timer.IntervalMS)
 			{
 				timer.LastCall = timeInMS();
 				timer.proc();
@@ -164,24 +168,21 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on Disconnect. CallsClearClientMark.
 	 */
-	void DisConnect(uint& iClientID, enum EFLConnection& p2) { ClearClientMark(iClientID); }
+	void DisConnect(ClientId& client, enum EFLConnection& p2) { ClearClientMark(client); }
 
 	/** @ingroup Mark
 	 * @brief Hook on LoadUserCharSettings. Loads the character's settings from the flhookuser.ini file.
 	 */
-	void LoadUserCharSettings(uint& iClientID)
+	void LoadUserCharSettings(ClientId& client)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(iClientID);
-		std::wstring wscDir;
-		HkGetAccountDirName(acc, wscDir);
-		std::string scUserFile = scAcctPath + wstos(wscDir) + "\\flhookuser.ini";
-		std::wstring wscFilename;
-		HkGetCharFileName(iClientID, wscFilename);
-		std::string scFilename = wstos(wscFilename);
-		std::string scSection = "general_" + scFilename;
-		global->Mark[iClientID].MarkEverything = IniGetB(scUserFile, scSection, "automarkenabled", false);
-		global->Mark[iClientID].IgnoreGroupMark = IniGetB(scUserFile, scSection, "ignoregroupmarkenabled", false);
-		global->Mark[iClientID].AutoMarkRadius = IniGetF(scUserFile, scSection, "automarkradius", global->config->AutoMarkRadiusInM);
+		const auto* acc = Players.FindAccountFromClientID(client);
+		const auto dir = Hk::Client::GetAccountDirName(acc);
+		const std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		const auto fileName = Hk::Client::GetCharFileName(client);
+		const std::string section = "general_" + wstos(fileName.value());
+		global->Mark[client].MarkEverything = IniGetB(userFile, section, "automarkenabled", false);
+		global->Mark[client].IgnoreGroupMark = IniGetB(userFile, section, "ignoregroupmarkenabled", false);
+		global->Mark[client].AutoMarkRadius = IniGetF(userFile, section, "automarkradius", global->config->AutoMarkRadiusInM);
 	}
 
 	const std::vector commands = {{

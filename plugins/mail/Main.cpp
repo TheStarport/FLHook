@@ -56,8 +56,8 @@ namespace Plugins::Mail
 	void MailShow(const std::wstring& wscCharname, const std::string& scExtension, int iFirstMsg)
 	{
 		// Make sure the character is logged in.
-		uint iClientID = HkGetClientIdFromCharname(wscCharname);
-		if (iClientID == -1)
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
+		if (client.has_error())
 			return;
 
 		// Get the target player's message file.
@@ -71,11 +71,11 @@ namespace Plugins::Mail
 			std::wstring wscTmpMsg = IniGetWS(scFilePath, "Msgs", std::to_string(iMsgSlot), L"");
 			if (wscTmpMsg.length() == 0)
 				break;
-			PrintUserCmdText(iClientID, L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
+			PrintUserCmdText(client.value(), L"#%02d %s", iMsgSlot, wscTmpMsg.c_str());
 			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), "yes");
 			iLastMsg = iMsgSlot;
 		}
-		PrintUserCmdText(iClientID, L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
+		PrintUserCmdText(client.value(), L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
 	}
 
 	/** @ingroup Mail
@@ -105,8 +105,8 @@ namespace Plugins::Mail
 	void MailCheckLog(const std::wstring& wscCharname, const std::string& scExtension)
 	{
 		// Make sure the character is logged in.
-		uint iClientID = HkGetClientIdFromCharname(wscCharname);
-		if (iClientID == -1)
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
+		if (client.has_error())
 			return;
 
 		// Get the target player's message file.
@@ -118,7 +118,7 @@ namespace Plugins::Mail
 		int iUnreadMsgs = MailCountUnread(wscCharname, scExtension);
 		if (iUnreadMsgs > 0)
 		{
-			PrintUserCmdText(iClientID, L"You have %d unread messages. Type /mail to see your messages", iUnreadMsgs);
+			PrintUserCmdText(client.value(), L"You have %d unread messages. Type /mail to see your messages", iUnreadMsgs);
 		}
 	}
 
@@ -182,12 +182,12 @@ namespace Plugins::Mail
 	/** @ingroup Mail
 	 * @brief Hook on PlayerLaunch. Calls MailCheckLog.
 	 */
-	void PlayerLaunch(uint& iShip, uint& iClientID) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG); }
+	void PlayerLaunch(uint& ship, ClientId& client) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG); }
 
 	/** @ingroup Mail
 	 * @brief Hook on BaseEnter. Calls MailCheckLog.
 	 */
-	void BaseEnter(uint& iBaseID, uint& iClientID) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG); }
+	void BaseEnter(uint& iBaseId, ClientId& client) { MailCheckLog((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG); }
 
 	/** @ingroup Mail
 	 * @brief MailCommunicator for inter-plugin communication.
@@ -202,13 +202,13 @@ namespace Plugins::Mail
 	/** @ingroup Mail
 	 * @brief Called when the player types "/mail". 
 	 */
-	void UserCmd_MailShow(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MailShow(ClientId& client, const std::wstring_view& wscParam)
 	{
-		int iNumberUnreadMsgs = MailCountUnread((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
-		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
+		int iNumberUnreadMsgs = MailCountUnread((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG);
+		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG);
 		if (iNumberMsgs == 0)
 		{
-			PrintUserCmdText(iClientID, L"OK You have no messages");
+			PrintUserCmdText(client, L"OK You have no messages");
 			return;
 		}
 
@@ -216,10 +216,10 @@ namespace Plugins::Mail
 		if (iFirstMsg == 0)
 		{
 			if (iNumberUnreadMsgs > 0)
-				PrintUserCmdText(iClientID, L"OK You have %d unread messages", iNumberUnreadMsgs);
+				PrintUserCmdText(client, L"OK You have %d unread messages", iNumberUnreadMsgs);
 			else
-				PrintUserCmdText(iClientID, L"OK You have %d messages", iNumberMsgs);
-			PrintUserCmdText(iClientID,
+				PrintUserCmdText(client, L"OK You have %d messages", iNumberMsgs);
+			PrintUserCmdText(client,
 			    L"Type /mail 1 to see first message or /mail "
 			    L"<num> to see specified message");
 			return;
@@ -227,37 +227,37 @@ namespace Plugins::Mail
 
 		if (iFirstMsg > iNumberMsgs)
 		{
-			PrintUserCmdText(iClientID, L"ERR Message does not exist");
+			PrintUserCmdText(client, L"ERR Message does not exist");
 			return;
 		}
 
-		MailShow((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG, iFirstMsg);
+		MailShow((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG, iFirstMsg);
 	}
 
 	/** @ingroup Mail
 	 * @brief Called when the player types "/maildel".
 	 */
-	void UserCmd_MailDel(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_MailDel(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (wscParam.size() == 0)
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"Usage: /maildel <msgnum>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"Usage: /maildel <msgnum>");
 			return;
 		}
 
-		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG);
+		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG);
 		int iMsg = ToInt(ToLower(GetParam(wscParam, ' ', 0)));
 		if (iMsg == 0 || iMsg > iNumberMsgs)
 		{
-			PrintUserCmdText(iClientID, L"ERR Message does not exist");
+			PrintUserCmdText(client, L"ERR Message does not exist");
 			return;
 		}
 
-		if (MailDel((const wchar_t*)Players.GetActiveCharacterName(iClientID), global->MSG_LOG, iMsg))
-			PrintUserCmdText(iClientID, L"OK");
+		if (MailDel((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG, iMsg))
+			PrintUserCmdText(client, L"OK");
 		else
-			PrintUserCmdText(iClientID, L"ERR");
+			PrintUserCmdText(client, L"ERR");
 	}
 
 	// Client command processing

@@ -7,36 +7,36 @@ namespace Plugins::MiningControl
 	//! A struct that defines a mining bonus to a player if they meet certain criteria
 	struct PlayerBonus : Reflectable
 	{
-		PlayerBonus() : LootID(0), Bonus(0.0f), RepID(-1) {}
+		PlayerBonus() : LootId(0), Bonus(0.0f), RepId(-1) {}
 
 		//! The loot commodity id this configuration applies to.
 		std::string Loot = "commodity_gold";
-		uint LootID;
+		uint LootId;
 
 		//! The loot bonus multiplier.
 		float Bonus;
 
 		//! The affiliation/reputation of the player
 		std::string Rep = "li_n_grp";
-		uint RepID;
+		uint RepId;
 
 		//! The list of ships that this bonus applies to
 		std::vector<std::string> Ships = {"ge_fighter"};
-		std::vector<uint> ShipIDs;
+		std::vector<uint> ShipIds;
 
 		//! The list of equipment items that the ship must carry
 		std::vector<std::string> Items = {"ge_s_battery_01"};
-		std::vector<uint> ItemIDs;
+		std::vector<uint> ItemIds;
 
 		//! The list of ammo arch ids for mining guns
 		std::vector<std::string> Ammo = {"missile01_mark01"};
-		std::vector<uint> AmmoIDs;
+		std::vector<uint> AmmoIds;
 	};
 	
 	//! A struct that defines a mining bonus for a certain zone in space
 	struct ZoneBonus : Reflectable
 	{
-		ZoneBonus() : Bonus(0.0f), ReplacementLootID(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
+		ZoneBonus() : Bonus(0.0f), ReplacementLootId(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
 
 		std::string Zone = "ExampleZone";
 
@@ -45,7 +45,7 @@ namespace Plugins::MiningControl
 
 		//! The hash of the item to replace the dropped
 		std::string ReplacementLoot = "commodity_gold";
-		uint ReplacementLootID;
+		uint ReplacementLootId;
 
 		//! The recharge rate of the zone. This is the number of units of ore added to the reserve per minute.
 		float RechargeRate;

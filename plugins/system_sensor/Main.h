@@ -30,7 +30,7 @@ namespace Plugins::SystemSensor
 	struct ActiveNetwork
 	{
 		std::list<CARGO_INFO> lstLastScan;
-		NetworkId iAvailableNetworkID = 0;
+		NetworkId iAvailableNetworkId = 0;
 		NetworkId lastScanNetworkId = 0;
 		bool inJumpGate = false;
 		Mode mode = Mode::Off;

@@ -12,29 +12,29 @@ namespace Plugins::Npc
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
 	// Function to return a Personality.
-	pub::AI::SetPersonalityParams HkMakePersonality(std::string graph, const std::string& personality)
+	pub::AI::SetPersonalityParams MakePersonality(std::string graph, const std::string& personality)
 	{
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
-		p.bStateID = true;
-		HK_ERROR error;
-		p.personality = HkGetPersonality(personality, error);
+		p.bStateId = true;
+		const auto err = Hk::Personalities::GetPersonality(personality);
 
-		if (error != HKE_OK)
+		if (err.has_error())
 		{
 			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
 			Console::ConErr(errorMessage);
 			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
 		}
 
+		p.personality = err.value();
 		return p;
 	}
 
 	// Returns a random float between two
 	float RandomFloatRange(float a, float b) { return ((b - a) * (static_cast<float>(rand()) / RAND_MAX)) + a; }
 
-	// Return random infocard ID from list that was loaded in
-	uint RandomInfocardId()
+	// Return random infocard Id from list that was loaded in
+	uint RandomInfocardID()
 	{
 		int randomIndex = rand() % global->config->npcInfocardIds.size();
 		return global->config->npcInfocardIds.at(randomIndex);
@@ -70,7 +70,7 @@ namespace Plugins::Npc
 	{
 		if (iKill)
 		{
-			CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 			IsFLHookNPC(cShip);
 		}
 	}
@@ -84,7 +84,7 @@ namespace Plugins::Npc
 		memset(&si, 0, sizeof(si));
 		si.iFlag = 1;
 		si.iSystem = systemId;
-		si.iShipArchetype = arch.shipArchId;
+		si.shipArchetype = arch.shipArchId;
 		si.mOrientation = rotation;
 		si.iLoadout = arch.loadoutId;
 		si.iLook1 = CreateID("li_newscaster_head_gen_hat");
@@ -128,8 +128,8 @@ namespace Plugins::Npc
 		}
 		else
 		{
-			pilot_name.append_string(RandomInfocardId()); // ids that replaces %s0
-			pilot_name.append_string(RandomInfocardId()); // ids that replaces %s1
+			pilot_name.append_string(RandomInfocardID()); // ids that replaces %s0
+			pilot_name.append_string(RandomInfocardID()); // ids that replaces %s1
 		}
 		pilot_name.end_mad_lib();
 
@@ -139,7 +139,7 @@ namespace Plugins::Npc
 		uint spaceObj;
 		pub::SpaceObj::Create(spaceObj, si);
 
-		pub::AI::SetPersonalityParams personality = HkMakePersonality(arch.graph, arch.pilot);
+		pub::AI::SetPersonalityParams personality = MakePersonality(arch.graph, arch.pilot);
 		pub::AI::SubmitState(spaceObj, &personality);
 
 		global->spawnedNpcs.push_back(spaceObj);
@@ -206,12 +206,12 @@ namespace Plugins::Npc
 		}
 
 		uint shipId;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), shipId);
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
 		if (!shipId)
 			return;
 
 		uint iSystem;
-		pub::Player::GetSystem(HkGetClientIdFromCharname(cmds->GetAdminName()), iSystem);
+		pub::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), iSystem);
 
 		Vector position;
 		Matrix rotation;
@@ -233,42 +233,10 @@ namespace Plugins::Npc
 			return;
 		}
 
-		// Destroy targeted ship
-		if (cmds->IsPlayer())
-		{
-			uint ship, target;
-			pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
-			pub::SpaceObj::GetTarget(ship, target);
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
-			{
-				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
-				global->spawnedNpcs.erase(it);
-				cmds->Print(L"OK");
-				return;
-			}
-		}
-
-		// Destroy all ships
 		for (const auto& npc : global->spawnedNpcs)
 			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
 		global->spawnedNpcs.clear();
-		cmds->Print(L"OK");
-	}
-
-	void AiCome(uint ship, Vector pos)
-	{
-		pub::AI::DirectiveCancelOp cancelOP;
-		pub::AI::SubmitDirective(ship, &cancelOP);
-
-		pub::AI::DirectiveGotoOp go;
-		go.iGotoType = 1;
-		go.vPos = pos;
-		go.vPos.x = pos.x + RandomFloatRange(0, 500);
-		go.vPos.y = pos.y + RandomFloatRange(0, 500);
-		go.vPos.z = pos.z + RandomFloatRange(0, 500);
-		go.fRange = 0;
-		pub::AI::SubmitDirective(ship, &go);
 	}
 
 	// Admin command to make AI come to your position
@@ -280,43 +248,31 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
-		if (ship)
+		uint ship1;
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship1);
+		if (ship1)
 		{
-			Vector pos {};
-			Matrix rot {};
-			pub::SpaceObj::GetLocation(ship, pos, rot);
+			Vector pos;
+			Matrix rot;
+			pub::SpaceObj::GetLocation(ship1, pos, rot);
 
-			// Is the admin targeting an npc?
-			uint target;
-			pub::SpaceObj::GetTarget(ship, target);
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
-			{
-				AiCome(target, pos);
-				global->spawnedNpcs.erase(it);
-				cmds->Print(L"OK");
-				return;
-			}
-
-			// Perform action on all npcs
 			for (const auto& npc : global->spawnedNpcs)
 			{
-				AiCome(npc, pos);
+				pub::AI::DirectiveCancelOp cancelOP;
+				pub::AI::SubmitDirective(npc, &cancelOP);
+
+				pub::AI::DirectiveGotoOp go;
+				go.iGotoType = 1;
+				go.vPos = pos;
+				go.vPos.x = pos.x + RandomFloatRange(0, 500);
+				go.vPos.y = pos.y + RandomFloatRange(0, 500);
+				go.vPos.z = pos.z + RandomFloatRange(0, 500);
+				go.fRange = 0;
+				pub::AI::SubmitDirective(npc, &go);
 			}
 		}
 		cmds->Print(L"OK");
 		return;
-	}
-
-	void AiFollow(uint ship, uint npc)
-	{
-		pub::AI::DirectiveCancelOp cancelOP;
-		pub::AI::SubmitDirective(npc, &cancelOP);
-		pub::AI::DirectiveFollowOp testOP;
-		testOP.iFollowSpaceObj = ship;
-		testOP.fMaxDistance = 100;
-		pub::AI::SubmitDirective(npc, &testOP);
 	}
 
 	// Admin command to make AI follow target (or admin) until death
@@ -329,41 +285,40 @@ namespace Plugins::Npc
 		}
 
 		// If no player specified follow the admin
-		uint clientId;
+		uint client;
 		if (wscCharname == L"")
 		{
-			clientId = HkGetClientIdFromCharname(cmds->GetAdminName());
+			client = Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value();
 			wscCharname = cmds->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			clientId = HkGetClientIdFromCharname(wscCharname);
+			client = Hk::Client::GetClientIdFromCharName(wscCharname).value();
 
-		if (clientId == -1)
+		if (client == -1)
 			cmds->Print(L"%s is not online", wscCharname.c_str());
+
 		else
 		{
-			uint ship;
-			pub::Player::GetShip(clientId, ship);
-			if (ship)
+			uint ship1;
+			pub::Player::GetShip(client, ship1);
+			if (ship1)
 			{
-				// Is the admin targeting an NPC?
-				uint target;
-				pub::SpaceObj::GetTarget(ship, target);
-				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+				for (const auto& npc : global->spawnedNpcs)
 				{
-					AiFollow(ship, target);
-					global->spawnedNpcs.erase(it);
+					pub::AI::DirectiveCancelOp cancelOP;
+					pub::AI::SubmitDirective(npc, &cancelOP);
+					pub::AI::DirectiveFollowOp testOP;
+					testOP.iFollowSpaceObj = ship1;
+					testOP.fMaxDistance = 100;
+					pub::AI::SubmitDirective(npc, &testOP);
 				}
-				// Perform action on all npcs
-				else
-					for (const auto& npc : global->spawnedNpcs)
-						AiFollow(ship, npc);
-
 				cmds->Print(L"Following %s", wscCharname.c_str());
 			}
 			else
+			{
 				cmds->Print(L"%s is not in space", wscCharname.c_str());
+			}
 		}
 	}
 
@@ -376,29 +331,14 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship;
-		pub::Player::GetShip(HkGetClientIdFromCharname(cmds->GetAdminName()), ship);
-		if (ship)
-		{
-			// Is the admin targeting an NPC?
-			uint target;
-			pub::SpaceObj::GetTarget(ship, target);
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+		uint shipId;
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
+		if (shipId)
+			for (const auto& npc : global->spawnedNpcs)
 			{
 				pub::AI::DirectiveCancelOp cancelOp;
-				pub::AI::SubmitDirective(target, &cancelOp);
+				pub::AI::SubmitDirective(npc, &cancelOp);
 			}
-			// Cancel all NPC actions
-			else
-			{
-				for (const auto& npc : global->spawnedNpcs)
-				{
-					pub::AI::DirectiveCancelOp cancelOp;
-					pub::AI::SubmitDirective(npc, &cancelOp);
-				}
-			}
-			cmds->Print(L"OK");
-		}
 	}
 
 	// Admin command to list NPC fleets
@@ -469,12 +409,11 @@ namespace Plugins::Npc
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Npc;
 
-DefaultDllMainSettings(AfterStartup)
+DefaultDllMainSettings(AfterStartup);
 
-REFL_AUTO(type(Npc), field(shipArch), field(loadout), field(iff), field(infocardId), field(infocard2Id), field(pilot), field(graph))
-REFL_AUTO(type(Fleet), field(name), field(member))
-REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation))
-REFL_AUTO(type(Config), field(npcInfo), field(fleetInfo), field(startupNpcs), field(npcInfocardIds))
+REFL_AUTO(type(Npc), field(shipArch), field(loadout), field(iff), field(infocardId), field(infocard2Id), field(pilot), field(graph));
+REFL_AUTO(type(Fleet), field(name), field(member)) REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation));
+REFL_AUTO(type(Config), field(npcInfo), field(fleetInfo), field(startupNpcs), field(npcInfocardIds));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

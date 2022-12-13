@@ -12,17 +12,14 @@ void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
 void HookRehashed();
-void LoadUserCharSettings(uint clientID);
+void LoadUserCharSettings(ClientId client);
 
-uint HkExtractClientId(std::variant<uint, std::wstring> player);
-CAccount* HkExtractAccount(std::variant<uint, std::wstring> player);
+void ClearClientInfo(ClientId client);
+void LoadUserSettings(ClientId client);
 
-void ClearClientInfo(uint clientID);
-void LoadUserSettings(uint iClientID);
+bool UserCmd_Process(ClientId client, const std::wstring& wscCmd);
 
-bool UserCmd_Process(uint iClientID, const std::wstring& wscCmd);
-
-bool AllowPlayerDamage(uint iClientID, uint iClientIDTarget);
+bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
 // Logs
 template<typename T>
@@ -49,20 +46,38 @@ void AddBothLog(bool bError, std::wstring wStr, Args&&... args)
 	AddLog(LogType::Normal, LogLevel::Debug, wStr, std::forward<Args>(args)...);
 }
 
-// HKFuncCache
+// FuncCache
 namespace StartupCache
 {
 	void Init();
 	void Done();
 } // namespace StartupCache
 
-// HkCharacterIni
-void HkCharacterInit();
-void HkCharacterShutDown();
-void HkCharacterClearClientInfo(uint client);
-void HkCharacterSelect(CHARACTER_ID const charId, uint client);
+namespace Hk
+{
+	namespace Ini
+	{
+		// Ini processing functions
+		void CharacterInit();
+		void CharacterShutdown();
+		void CharacterClearClientInfo(ClientId client);
+		void CharacterSelect(CHARACTER_ID const charId, ClientId client);
+	}
 
-// HkDeath
+	namespace Personalities
+	{
+		void LoadPersonalities();
+	}
+
+	namespace Client
+	{
+		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
+		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
+	}
+}
+
+
+// Death
 void Naked__ShipDestroyed();
 
 // Dmg
@@ -74,21 +89,18 @@ void Naked__DamageHit();
 void Naked__DamageHit2();
 void Naked__DisconnectPacketSent();
 
-// HkTimers
-void HkTimerCheckKick();
-void HkTimerNPCAndF1Check();
-void HkThreadResolver();
-void HkTimerCheckResolveResults();
+// Timers
+void TimerCheckKick();
+void TimerNPCAndF1Check();
+void ThreadResolver();
+void TimerCheckResolveResults();
 
-// HkPilotPersonalities
-void HkLoadPersonalities();
+void BaseDestroyed(uint objectId, ClientId clientBy);
 
-void BaseDestroyed(uint objectID, uint clientIDBy);
+extern HookEntry IServerImplEntries[73];
 
-extern HookEntry HkIServerImplEntries[73];
-
-// HkDataBaseMarket
-bool HkLoadBaseMarket();
+// DataBaseMarket
+bool LoadBaseMarket();
 
 extern CRITICAL_SECTION csIPResolve;
 extern std::list<RESOLVE_IP> g_lstResolveIPs;
@@ -98,7 +110,7 @@ extern HANDLE hThreadResolver;
 // help
 
 extern std::list<stHelpEntry> lstHelpEntries;
-void HkIClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
+void IClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
 
 inline auto* ToWChar(const ushort* val)
 {
@@ -152,12 +164,12 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CHECK_FOR_DISCONNECT                                                    \
 	{                                                                           \
-		if (ClientInfo[clientID].bDisconnected)                                 \
+		if (ClientInfo[client].bDisconnected)                                 \
 		{                                                                       \
 			AddLog(LogType::Normal, LogLevel::Info,                                      \
 			    L"ERROR: Ignoring disconnected client in " + stows(__FUNCTION__) + L" id=%" \
 			                                                            "u",    \
-			    clientID);                                                      \
+			    client);                                                      \
 			return;                                                             \
 		};                                                                      \
 	}
@@ -165,7 +177,7 @@ inline auto* ToUShort(wchar_t* val)
 #define ADDR_UPDATE 0x1BAB4
 #define ADDR_STARTUP 0x1BABC
 #define ADDR_SHUTDOWN 0x1BAB8
-#define ADDR_ANTIDIEMSG 0x39124
+#define ADDR_ANTIdIEMSG 0x39124
 #define ADDR_DISCFENCR 0x6E10D
 #define ADDR_DISCFENCR2 0x6BFA6
 #define ADDR_CRCANTICHEAT 0x6FAF0
@@ -286,7 +298,7 @@ class PluginManager : public Singleton<PluginManager>
 	void unloadAll();
 
 	void load(const std::wstring& fileName, CCmds*, bool);
-	HK_ERROR unload(const std::string& shortName);
+	cpp::result<void, Error> unload(const std::string& shortName);
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }

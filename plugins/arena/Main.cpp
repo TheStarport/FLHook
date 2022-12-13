@@ -37,14 +37,11 @@ namespace Plugins::Arena
 	const auto global = std::make_unique<Global>();
 
 	/// Clear client info when a client connects.
-	void ClearClientInfo(const uint& iClientID)
-	{
-		global->transferFlags[iClientID] = ClientState::None;
-	}
+	void ClearClientInfo(ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	// Client command processing
-	void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam);
-	void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam);
+	void UserCmd_Conn(ClientId& client, const std::wstring_view& param);
+	void UserCmd_Return(ClientId& client, const std::wstring_view& param);
 	const std::vector commands = {{
 	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L""),
 	    CreateUserCommand(L"/return", L"", UserCmd_Return, L""),
@@ -80,22 +77,29 @@ namespace Plugins::Arena
 	}
 
 	/** @ingroup Arena
-	 * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade shortcut.
+	 * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
+	 * shortcut.
 	 */
-	bool ValidateCargo(unsigned int client)
+	bool ValidateCargo(ClientId& client)
 	{
-		std::wstring playerName = HkGetCharacterNameById(client);
-		std::list<CARGO_INFO> cargo;
+		if (const auto playerName = Hk::Client::GetCharacterNameByID(client); playerName.has_error())
+		{
+			PrintUserCmdText(client, Hk::Err::ErrGetText(playerName.error()));
+			return false;
+		}
 		int holdSize = 0;
 
-		HkEnumCargo(playerName, cargo, holdSize);
-
-		for (std::list<CARGO_INFO>::const_iterator it = cargo.begin(); it != cargo.end(); ++it)
+		const auto cargo = Hk::Player::EnumCargo(client, holdSize);
+		if (cargo.has_error())
 		{
-			const CARGO_INFO& item = *it;
+			PrintUserCmdText(client, Hk::Err::ErrGetText(cargo.error()));
+			return false;
+		}
 
+		for (const auto& item : cargo.value())
+		{
 			bool flag = false;
-			pub::IsCommodity(item.iArchID, flag);
+			pub::IsCommodity(item.iArchId, flag);
 
 			// Some commodity present.
 			if (flag)
@@ -113,21 +117,18 @@ namespace Plugins::Arena
 		// It's not docked at a custom base, check for a regular base
 		uint base = 0;
 
-		if (global->baseCommunicator)
-			base = global->baseCommunicator->GetCustomBaseId(client);
-
 		if (!base)
 			pub::Player::GetBase(client, base);
 		if (!base)
 			return;
 
-		HkSetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
+		Hk::Ini::SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
 	}
 
 	/** @ingroup Arena
 	 * @brief This returns the return base id that is stored in the client's save file.
 	 */
-	unsigned int ReadReturnPointForClient(unsigned int client) { return HkGetCharacterIniUint(client, L"conn.retbase"); }
+	unsigned int ReadReturnPointForClient(unsigned int client) { return Hk::Ini::GetCharacterIniUint(client, L"conn.retbase"); }
 
 	/** @ingroup Arena
 	 * @brief Move the specified client to the specified base.
@@ -146,16 +147,20 @@ namespace Plugins::Arena
 		pub::Player::ForceLand(client, targetBase); // beam
 
 		// if not in the same system, emulate F1 charload
-		if (base->iSystemID != system)
+		if (base->systemId != system)
 		{
 			Server.BaseEnter(targetBase, client);
 			Server.BaseExit(targetBase, client);
 			std::wstring wscCharFileName;
-			HkGetCharFileName(client, wscCharFileName);
-			wscCharFileName += L".fl";
-			CHARACTER_ID cID;
-			strcpy_s(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-			Server.CharacterSelect(cID, client);
+			const auto charFileName = Hk::Client::GetCharFileName(client);
+
+			if (charFileName.has_error())
+				return;
+
+			auto fileName = charFileName.value() + L".fl";
+			CHARACTER_ID cId;
+			strcpy_s(cId.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+			Server.CharacterSelect(cId, client);
 		}
 	}
 
@@ -176,12 +181,12 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void __stdcall CharacterSelect(std::string& szCharFilename, uint& client) { global->transferFlags[client] = ClientState::None; }
+	void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
 	 */
-	void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client)
+	void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client)
 	{
 		if (global->transferFlags[client] == ClientState::Transfer)
 		{
@@ -205,13 +210,13 @@ namespace Plugins::Arena
 			}
 
 			global->transferFlags[client] = ClientState::None;
-			unsigned int returnPoint = ReadReturnPointForClient(client);
+			const unsigned int returnPoint = ReadReturnPointForClient(client);
 
 			if (!returnPoint)
 				return;
 
 			MoveClient(client, returnPoint);
-			HkSetCharacterIni(client, L"conn.retbase", L"0");
+			Hk::Ini::SetCharacterIni(client, L"conn.retbase", L"0");
 			return;
 		}
 	}
@@ -223,68 +228,67 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to switch to the arena system
 	 */
-	void UserCmd_Conn(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Conn(ClientId& client, const std::wstring_view& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
 		uint system = 0;
-		pub::Player::GetSystem(iClientID, system);
-		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId ||
-		    (global->baseCommunicator && global->baseCommunicator->GetCustomBaseId(iClientID)))
+		pub::Player::GetSystem(client, system);
+		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Cannot use command in this system or base");
+			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
 		}
 
-		if (!IsDockedClient(iClientID))
+		if (!IsDockedClient(client))
 		{
-			PrintUserCmdText(iClientID, StrInfo1);
+			PrintUserCmdText(client, StrInfo1);
 			return;
 		}
 
-		if (!ValidateCargo(iClientID))
+		if (!ValidateCargo(client))
 		{
-			PrintUserCmdText(iClientID, StrInfo2);
+			PrintUserCmdText(client, StrInfo2);
 			return;
 		}
 
-		StoreReturnPointForClient(iClientID);
-		PrintUserCmdText(iClientID, L"Redirecting undock to Arena.");
-		global->transferFlags[iClientID] = ClientState::Transfer;
+		StoreReturnPointForClient(client);
+		PrintUserCmdText(client, L"Redirecting undock to Arena.");
+		global->transferFlags[client] = ClientState::Transfer;
 	}
 
 	/** @ingroup Arena
 	 * @brief Used to return from the arena system.
 	 */
-	void UserCmd_Return(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Return(ClientId& client, const std::wstring_view& param)
 	{
-		if (!ReadReturnPointForClient(iClientID))
+		if (!ReadReturnPointForClient(client))
 		{
-			PrintUserCmdText(iClientID, L"No return possible");
+			PrintUserCmdText(client, L"No return possible");
 			return;
 		}
 
-		if (!IsDockedClient(iClientID))
+		if (!IsDockedClient(client))
 		{
-			PrintUserCmdText(iClientID, StrInfo1);
+			PrintUserCmdText(client, StrInfo1);
 			return;
 		}
 
-		if (!CheckReturnDock(iClientID, global->config->targetBaseId))
+		if (!CheckReturnDock(client, global->config->targetBaseId))
 		{
-			PrintUserCmdText(iClientID, L"Not in correct base");
+			PrintUserCmdText(client, L"Not in correct base");
 			return;
 		}
 
-		if (!ValidateCargo(iClientID))
+		if (!ValidateCargo(client))
 		{
-			PrintUserCmdText(iClientID, StrInfo2);
+			PrintUserCmdText(client, StrInfo2);
 			return;
 		}
 
-		PrintUserCmdText(iClientID, L"Redirecting undock to previous base");
-		global->transferFlags[iClientID] = ClientState::Return;
+		PrintUserCmdText(client, L"Redirecting undock to previous base");
+		global->transferFlags[client] = ClientState::Return;
 	}
-}
+} // namespace Plugins::Arena
 
 using namespace Plugins::Arena;
 
@@ -292,8 +296,8 @@ REFL_AUTO(type(Config), field(command), field(targetBase), field(targetSystem), 
 
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Arena");
 	pi->shortName("arena");
@@ -305,5 +309,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);	
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 }

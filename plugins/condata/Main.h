@@ -29,13 +29,13 @@ namespace Plugins::ConData
 		bool bException;
 		std::string sExceptionReason;
 
-		// Client ID (for when receiving data)
-		uint iClientID;
+		// Client Id (for when receiving data)
+		uint client;
 	};
 
 	struct ConnectionDataException final
 	{
-		uint iClientID;
+		ClientId client;
 		bool bException;
 		std::string sReason;
 	};
@@ -48,8 +48,8 @@ namespace Plugins::ConData
 		inline static const char* pluginName = "Advanced Connection Data";
 		explicit ConDataCommunicator(std::string plug);
 
-		HK_ERROR PluginCall(ReceiveException, ConnectionDataException);
-		HK_ERROR PluginCall(ReceiveData, ConnectionData);
+		Error PluginCall(ReceiveException, ConnectionDataException);
+		Error PluginCall(ReceiveData, ConnectionData);
 	};
 
 	//! The struct that holds client info for this plugin

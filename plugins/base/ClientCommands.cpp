@@ -1,22 +1,22 @@
 ﻿#include "Main.h"
 
-/// Send a command to the client at destination ID 0x9999
-void SendCommand(uint client, const std::wstring& message)
+/// Send a command to the client at destination Id 0x9999
+void SendCommand(ClientId client, const std::wstring& message)
 {
-	HkFMsg(client, L"<TEXT>" + XMLText(message) + L"</TEXT>");
+	FMsg(client, L"<TEXT>" + XMLText(message) + L"</TEXT>");
 }
 
-void SendSetBaseInfoText(uint client, const std::wstring& message)
+void SendSetBaseInfoText(ClientId client, const std::wstring& message)
 {
 	SendCommand(client, std::wstring(L" SetBaseInfoText ") + message);
 }
 
-void SendSetBaseInfoText2(uint client, const std::wstring& message)
+void SendSetBaseInfoText2(ClientId client, const std::wstring& message)
 {
 	SendCommand(client, std::wstring(L" SetBaseInfoText2 ") + message);
 }
 
-void SendResetMarketOverride(uint client)
+void SendResetMarketOverride(ClientId client)
 {
 	SendCommand(client, L" ResetMarketOverride");
 }
@@ -27,8 +27,8 @@ void SendMarketGoodUpdated(PlayerBase* base, uint good, MARKET_ITEM& item)
 	struct PlayerData* pd = 0;
 	while (pd = Players.traverse_active(pd))
 	{
-		uint client = pd->iOnlineID;
-		if (!HkIsInCharSelectMenu(client))
+		ClientId client = pd->iOnlineId;
+		if (!IsInCharSelectMenu(client))
 		{
 			if (clients[client].player_base == base->base)
 			{
@@ -64,7 +64,7 @@ void SendMarketGoodUpdated(PlayerBase* base, uint good, MARKET_ITEM& item)
 }
 
 // Send a price update to a single client for all goods in the base
-void SendMarketGoodSync(PlayerBase* base, uint client)
+void SendMarketGoodSync(PlayerBase* base, ClientId client)
 {
 	// Reset the client's market
 	SendResetMarketOverride(client);
@@ -129,13 +129,13 @@ static std::wstring IntToStr(uint iValue)
 	return buf;
 }
 
-void SendBaseStatus(uint client, PlayerBase* base)
+void SendBaseStatus(ClientId client, PlayerBase* base)
 {
 	const Universe::ISystem* sys = Universe::get_system(base->system);
 
 	std::wstring base_status = L"<RDL><PUSH/>";
 	base_status +=
-	    L"<TEXT>" + XMLText(base->basename) + L", " + HkGetWStringFromIDS(sys->strid_name) + L"</TEXT><PARA/><PARA/>";
+	    L"<TEXT>" + XMLText(base->basename) + L", " + GetWStringFromIdS(sys->strid_name) + L"</TEXT><PARA/><PARA/>";
 
 	base_status += base->infocard;
 
@@ -151,7 +151,7 @@ void SendBaseStatus(uint client, PlayerBase* base)
 	if (base->affiliation)
 	{
 		base_status +=
-		    L"<TEXT>Affiliation: " + HkGetWStringFromIDS(Reputation::get_name(base->affiliation)) + L"</TEXT><PARA/>";
+		    L"<TEXT>Affiliation: " + GetWStringFromIdS(Reputation::get_name(base->affiliation)) + L"</TEXT><PARA/>";
 	}
 	else
 	{
@@ -192,17 +192,17 @@ void SendBaseStatus(PlayerBase* base)
 	struct PlayerData* pd = 0;
 	while (pd = Players.traverse_active(pd))
 	{
-		if (!HkIsInCharSelectMenu(pd->iOnlineID))
+		if (!IsInCharSelectMenu(pd->iOnlineId))
 		{
-			if (clients[pd->iOnlineID].player_base == base->base)
+			if (clients[pd->iOnlineId].player_base == base->base)
 			{
-				SendBaseStatus(pd->iOnlineID, base);
+				SendBaseStatus(pd->iOnlineId, base);
 			}
 		}
 	}
 }
 
-void ForceLaunch(uint client)
+void ForceLaunch(ClientId client)
 {
 	uint ship;
 	pub::Player::GetShip(client, ship);

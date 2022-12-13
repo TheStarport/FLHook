@@ -48,7 +48,7 @@ std::map<uint, RECIPE> recipes;
 /// Map of item nickname hash to recipes to operate shield.
 std::map<uint, uint> shield_power_items;
 
-/// Map of space obj IDs to base modules to speed up damage algorithms.
+/// Map of space obj Ids to base modules to speed up damage algorithms.
 std::map<uint, Module*> spaceobj_modules;
 
 /// Path to shield status html page
@@ -81,7 +81,7 @@ PlayerBase* GetPlayerBase(uint base)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PlayerBase* GetPlayerBaseForClient(uint client)
+PlayerBase* GetPlayerBaseForClient(ClientId client)
 {
 	std::map<uint, CLIENT_DATA>::iterator j = clients.find(client);
 	if (j == clients.end())
@@ -98,7 +98,7 @@ PlayerBase* GetPlayerBaseForClient(uint client)
 
 // For the specified client setup the reputation to any bases in the
 // client's system.
-void SyncReputationForClientShip(uint ship, uint client)
+void SyncReputationForClientShip(uint ship, ClientId client)
 {
 	int player_rep;
 	pub::SpaceObj::GetRep(ship, player_rep);
@@ -172,7 +172,7 @@ std::wstring HtmlEncode(std::wstring text)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Clear client info when a client connects.
-void ClearClientInfo(uint& client)
+void ClearClientInfo(ClientId& client)
 {
 	clients.erase(client);
 }
@@ -341,13 +341,13 @@ void LoadSettingsActual()
 	struct PlayerData* pd = 0;
 	while (pd = Players.traverse_active(pd))
 	{
-		uint client = pd->iOnlineID;
-		if (HkIsInCharSelectMenu(client))
+		ClientId client = pd->iOnlineId;
+		if (IsInCharSelectMenu(client))
 			continue;
 
 		// If this player is in space, set the reputations.
-		if (pd->iShipID)
-			SyncReputationForClientShip(pd->iShipID, client);
+		if (pd->shipId)
+			SyncReputationForClientShip(pd->shipId, client);
 
 		// Get state if player is in player base and  reset the commodity list
 		// and send a dummy entry if there are no commodities in the market
@@ -377,7 +377,7 @@ void LoadSettingsActual()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HkTimerCheckKick()
+void TimerCheckKick()
 {
 	if (load_settings_required)
 	{
@@ -460,7 +460,7 @@ void HkTimerCheckKick()
 	}
 }
 
-bool __stdcall HkCb_IsDockableError(uint dock_with, uint base)
+bool __stdcall Cb_IsDockableError(uint dock_with, uint base)
 {
 	if (GetPlayerBase(base))
 		return false;
@@ -468,14 +468,14 @@ bool __stdcall HkCb_IsDockableError(uint dock_with, uint base)
 	return true;
 }
 
-__declspec(naked) void HkCb_IsDockableErrorNaked()
+__declspec(naked) void Cb_IsDockableErrorNaked()
 {
 	__asm {
         test [esi+0x1b4], eax
         jnz no_error
         push [edi+0xB8]
         push [esi+0x1b4]
-        call HkCb_IsDockableError
+        call Cb_IsDockableError
         test al, al
         jz no_error
         push 0x62b76d3
@@ -486,11 +486,11 @@ no_error:
 	}
 }
 
-bool __stdcall HkCb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
+bool __stdcall Cb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 {
 	if (obj)
 	{
-		uint client = HkGetClientIDByShip(obj->get_id());
+		ClientId client = GetClientIdByShip(obj->get_id());
 		if (client)
 		{
 			if (set_plugin_debug > 1)
@@ -507,21 +507,21 @@ bool __stdcall HkCb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 			if (base == 0)
 			{
 				char szSystem[1024];
-				pub::GetSystemNickname(szSystem, sizeof(szSystem), Players[client].iSystemID);
+				pub::GetSystemNickname(szSystem, sizeof(szSystem), Players[client].iSystemId);
 
 				char szProxyBase[1024];
 				sprintf_s(szProxyBase, "%s_proxy_base", szSystem);
 
-				uint iProxyBaseID = CreateID(szProxyBase);
+				uint iProxyBaseId = CreateID(szProxyBase);
 
 				clients[client].player_base = base_dock_id;
 				clients[client].last_player_base = base_dock_id;
 				if (set_plugin_debug > 1)
 					Console::ConInfo(
-					    L"Land[2] client=%u baseDockID=%u base=%u "
+					    L"Land[2] client=%u baseDockId=%u base=%u "
 					    L"player_base=%u\n",
 					    client, base_dock_id, base, clients[client].player_base);
-				pub::Player::ForceLand(client, iProxyBaseID);
+				pub::Player::ForceLand(client, iProxyBaseId);
 				return false;
 			}
 		}
@@ -529,7 +529,7 @@ bool __stdcall HkCb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 	return true;
 }
 
-__declspec(naked) void HkCb_LandNaked()
+__declspec(naked) void Cb_LandNaked()
 {
 	__asm {
         mov al, [ebx+0x1c]
@@ -541,7 +541,7 @@ __declspec(naked) void HkCb_LandNaked()
         mov eax, [esp+0x14] // dock target
         push eax
         push edi   // objinspect
-        call HkCb_Land
+        call Cb_Land
         test al, al
         jz done
 
@@ -581,7 +581,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				// Call our function on landing
 				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModServer + 0x2c24c, patch, sizeof(patch));
-				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)HkCb_LandNaked);
+				PatchCallAddr((char*)hModServer, 0x2c24c, (char*)Cb_LandNaked);
 			}
 
 			hModCommon = GetModuleHandleA("common.dll");
@@ -589,7 +589,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				// Suppress "is dockable " error message
 				uchar patch[] = { 0xe9 }; // jmpr
 				WriteProcMem((char*)hModCommon + 0x576cb, patch, sizeof(patch));
-				PatchCallAddr((char*)hModCommon, 0x576cb, (char*)HkCb_IsDockableErrorNaked);
+				PatchCallAddr((char*)hModCommon, 0x576cb, (char*)Cb_IsDockableErrorNaked);
 			}
 
 			{
@@ -600,7 +600,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			}
 		}
 
-		HkLoadStringDLLs();
+		LoadStringDLLs();
 	}
 	else if (fdwReason == DLL_PROCESS_DETACH)
 	{
@@ -625,12 +625,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			delete base->second;
 		}
 
-		HkUnloadStringDLLs();
+		UnloadStringDLLs();
 	}
 	return true;
 }
 
-bool UserCmd_Process(uint& client, const std::wstring& args)
+bool UserCmd_Process(ClientId& client, const std::wstring& args)
 {
 	if (args.find(L"/base login") == 0)
 	{
@@ -749,7 +749,7 @@ bool UserCmd_Process(uint& client, const std::wstring& args)
 	return false;
 }
 
-static bool IsDockingAllowed(PlayerBase* base, uint client)
+static bool IsDockingAllowed(PlayerBase* base, ClientId client)
 {
 	// Allies can always dock.
 	std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
@@ -772,9 +772,9 @@ static bool IsDockingAllowed(PlayerBase* base, uint client)
 // an update to set the base arrival text, base economy and change the
 // infocards.
 int __cdecl Dock_Call(
-    unsigned int const& iShip, unsigned int const& base, int& iCancel, enum DOCK_HOST_RESPONSE& response)
+    unsigned int const& ship, unsigned int const& base, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 {
-	uint client = HkGetClientIDByShip(iShip);
+	ClientId client = GetClientIdByShip(ship);
 	if (client && response == PROCEED_DOCK)
 	{
 		PlayerBase* pbase = GetPlayerBase(base);
@@ -784,7 +784,7 @@ int __cdecl Dock_Call(
 			if (pbase->shield_active_time)
 			{
 				PrintUserCmdText(client, L"Docking failed because base shield is active");
-				pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
+				pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
 				returncode = ReturnCode::SkipAll;
 				return 0;
 			}
@@ -793,7 +793,7 @@ int __cdecl Dock_Call(
 			if (!IsDockingAllowed(pbase, client))
 			{
 				PrintUserCmdText(client, L"Docking at this base is restricted");
-				pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
+				pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
 				returncode = ReturnCode::SkipAll;
 				return 0;
 			}
@@ -804,22 +804,22 @@ int __cdecl Dock_Call(
 	return 0;
 }
 
-void __stdcall CharacterSelect(std::string& szCharFilename, uint& client)
+void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client)
 {
 	// Sync base names for the
 	std::map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
 	{
-		HkChangeIDSString(client, base->second->solar_ids, base->second->basename);
+		ChangeIdSString(client, base->second->solar_ids, base->second->basename);
 	}
 }
 
-void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
+void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client)
 {
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"CharacterSelect_AFTER client=%u player_base=%u", client, clients[client].player_base);
 
-	// If this ship is in a player base is then set then docking ID to emulate
+	// If this ship is in a player base is then set then docking Id to emulate
 	// a landing.
 	LoadDockState(client);
 	if (clients[client].player_base)
@@ -837,7 +837,7 @@ void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
 		}
 		// If the player file indicates that the ship is in a base but this
 		// isn't this base then dump the ship into space.
-		else if (Players[client].iBaseID != base->proxy_base)
+		else if (Players[client].iBaseId != base->proxy_base)
 		{
 			DeleteDockState(client);
 			SendResetMarketOverride(client);
@@ -846,7 +846,7 @@ void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, uint& client)
 	}
 }
 
-void __stdcall BaseEnter(uint& base, uint& client)
+void __stdcall BaseEnter(uint& base, ClientId& client)
 {
 	if (set_plugin_debug > 1)
 		Console::ConInfo(
@@ -891,12 +891,12 @@ void __stdcall BaseEnter(uint& base, uint& client)
 	SendResetMarketOverride(client);
 }
 
-void __stdcall BaseExit(uint& base, uint& client)
+void __stdcall BaseExit(uint& base, ClientId& client)
 {
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"BaseExit base=%u client=%u player_base=%u", base, client, clients[client].player_base);
 
-	// Reset client state and save it retaining the last player base ID to deal
+	// Reset client state and save it retaining the last player base Id to deal
 	// with respawn.
 	clients[client].admin = false;
 	if (clients[client].player_base)
@@ -919,7 +919,7 @@ void __stdcall BaseExit(uint& base, uint& client)
 }
 
 void __stdcall RequestEvent(
-    int& iIsFormationRequest, uint& iShip, uint& iDockTarget, uint& p4, unsigned long& p5, uint& client)
+    int& iIsFormationRequest, uint& ship, uint& iDockTarget, uint& p4, unsigned long& p5, ClientId& client)
 {
 	if (client)
 	{
@@ -932,7 +932,7 @@ void __stdcall RequestEvent(
 				if (base->shield_active_time)
 				{
 					PrintUserCmdText(client, L"Docking failed because base shield is active");
-					pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
+					pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
 					returncode = ReturnCode::SkipAll;
 					return;
 				}
@@ -940,7 +940,7 @@ void __stdcall RequestEvent(
 				if (!IsDockingAllowed(base, client))
 				{
 					PrintUserCmdText(client, L"Docking at this base is restricted");
-					pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
+					pub::Player::SendNNMessage(client, pub::GetNicknameID("info_access_denied"));
 					returncode = ReturnCode::SkipAll;
 					return;
 				}
@@ -974,14 +974,14 @@ bool __stdcall LaunchPosHook(uint& space_obj, struct CEqObj& p1, Vector& pos, Ma
 
 /// If the ship is launching from a player base record this so that
 /// we will override the launch location.
-void __stdcall PlayerLaunch(uint& ship, uint& client)
+void __stdcall PlayerLaunch(uint& ship, ClientId& client)
 {
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"PlayerLaunch ship=%u client=%u", ship, client);
 	player_launch_base = GetPlayerBase(clients[client].last_player_base);
 }
 
-void __stdcall PlayerLaunch_AFTER(uint& ship, uint& client)
+void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client)
 {
 	SyncReputationForClientShip(ship, client);
 }
@@ -991,14 +991,14 @@ void __stdcall JumpInComplete(uint& system, uint& ship)
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"JumpInComplete system=%u ship=%u");
 
-	uint client = HkGetClientIDByShip(ship);
+	ClientId client = GetClientIdByShip(ship);
 	if (client)
 	{
 		SyncReputationForClientShip(ship, client);
 	}
 }
 
-void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
+void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, ClientId& client)
 {
 	// If the client is in a player controlled base
 	PlayerBase* base = GetPlayerBaseForClient(client);
@@ -1006,14 +1006,14 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
 	{
 		returncode = ReturnCode::SkipAll;
 
-		if (base->market_items.find(gsi.iArchID) == base->market_items.end() && !clients[client].admin)
+		if (base->market_items.find(gsi.iArchId) == base->market_items.end() && !clients[client].admin)
 		{
 			PrintUserCmdText(client, L"ERR: Base will not accept goods");
 			clients[client].reverse_sell = true;
 			return;
 		}
 
-		MARKET_ITEM& item = base->market_items[gsi.iArchID];
+		MARKET_ITEM& item = base->market_items[gsi.iArchId];
 
 		uint count = gsi.iCount;
 		int price = (int)item.price * count;
@@ -1047,7 +1047,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
 			return;
 		}
 
-		if (!base->AddMarketGood(gsi.iArchID, gsi.iCount))
+		if (!base->AddMarketGood(gsi.iArchId, gsi.iCount))
 		{
 			PrintUserCmdText(client, L"ERR: Base will not accept goods");
 			clients[client].reverse_sell = true;
@@ -1060,7 +1060,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, uint& client)
 	}
 }
 
-void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
+void __stdcall ReqRemoveItem(unsigned short& slot, int& count, ClientId& client)
 {
 	if (clients[client].player_base)
 	{
@@ -1068,12 +1068,12 @@ void __stdcall ReqRemoveItem(unsigned short& slot, int& count, uint& client)
 		if (clients[client].reverse_sell)
 		{
 			int hold_size;
-			HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
+			EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), clients[client].cargo, hold_size);
 		}
 	}
 }
 
-void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client)
+void __stdcall ReqRemoveItem_AFTER(unsigned short& iId, int& count, ClientId& client)
 {
 	uint player_base = clients[client].player_base;
 	if (player_base)
@@ -1085,9 +1085,9 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client
 
 			for (auto& ci : clients[client].cargo)
 			{
-				if (ci.iID == iID)
+				if (ci.iId == iId)
 				{
-					Server.ReqAddItem(ci.iArchID, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
+					Server.ReqAddItem(ci.iArchId, ci.hardpoint.value, count, ci.fStatus, ci.bMounted, client);
 					return;
 				}
 			}
@@ -1096,12 +1096,12 @@ void __stdcall ReqRemoveItem_AFTER(unsigned short& iID, int& count, uint& client
 		{
 			// Update the player CRC so that the player is not kicked for 'ship
 			// related' kick
-			HkPlayerRecalculateCRC(client);
+			PlayerRecalculateCRC(client);
 		}
 	}
 }
 
-void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& client)
+void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 {
 	// If the client is in a player controlled base
 	PlayerBase* base = GetPlayerBaseForClient(client);
@@ -1110,15 +1110,15 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& client)
 		returncode = ReturnCode::SkipAll;
 
 		uint count = gbi.iCount;
-		if (count > base->market_items[gbi.iGoodID].quantity)
-			count = base->market_items[gbi.iGoodID].quantity;
+		if (count > base->market_items[gbi.iGoodId].quantity)
+			count = base->market_items[gbi.iGoodId].quantity;
 
-		int price = (int)base->market_items[gbi.iGoodID].price * count;
+		int price = (int)base->market_items[gbi.iGoodId].price * count;
 		int curr_money;
 		pub::Player::InspectCash(client, curr_money);
 
 		// In theory, these should never be called.
-		if (count == 0 || base->market_items[gbi.iGoodID].min_stock >= base->market_items[gbi.iGoodID].quantity)
+		if (count == 0 || base->market_items[gbi.iGoodId].min_stock >= base->market_items[gbi.iGoodId].quantity)
 		{
 			PrintUserCmdText(client, L"ERR Base will not sell goods");
 			returncode = ReturnCode::SkipAll;
@@ -1134,14 +1134,14 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& client)
 		}
 
 		clients[client].stop_buy = false;
-		base->RemoveMarketGood(gbi.iGoodID, count);
+		base->RemoveMarketGood(gbi.iGoodId, count);
 		pub::Player::AdjustCash(client, 0 - price);
 		base->ChangeMoney(price);
 		base->Save();
 	}
 }
 
-void __stdcall ReqAddItem(uint& good, char const* hardpoint, int& count, float& fStatus, bool& bMounted, uint& client)
+void __stdcall ReqAddItem(uint& good, char const* hardpoint, int& count, float& fStatus, bool& bMounted, ClientId& client)
 {
 	PlayerBase* base = GetPlayerBaseForClient(client);
 	if (base)
@@ -1157,7 +1157,7 @@ void __stdcall ReqAddItem(uint& good, char const* hardpoint, int& count, float& 
 }
 
 void __stdcall ReqAddItem_AFTER(
-    uint& good, char const* hardpoint, int& count, float& fStatus, bool& bMounted, uint& client)
+    uint& good, char const* hardpoint, int& count, float& fStatus, bool& bMounted, ClientId& client)
 {
 	// If the client is in a player controlled base
 	PlayerBase* base = GetPlayerBaseForClient(client);
@@ -1168,33 +1168,33 @@ void __stdcall ReqAddItem_AFTER(
 
 		// Update the player CRC so that the player is not kicked for 'ship
 		// related' kick
-		HkPlayerRecalculateCRC(client);
+		PlayerRecalculateCRC(client);
 
 		// Add to check-list which is being compared to the users equip-list
 		// when saving char to fix "Ship or Equipment not sold on base" kick
 		EquipDesc ed;
-		ed.sID = pd->sLastEquipID;
+		ed.sId = pd->sLastEquipId;
 		ed.iCount = 1;
-		ed.iArchID = good;
+		ed.iArchId = good;
 		pd->lShadowEquipDescList.add_equipment_item(ed, false);
 	}
 }
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqChangeCash(int& cash, uint& client)
+void __stdcall ReqChangeCash(int& cash, ClientId& client)
 {
 	if (clients[client].player_base)
 		returncode = ReturnCode::SkipAll;
 }
 
 /// Ignore cash commands from the client when we're in a player base.
-void __stdcall ReqSetCash(int& cash, uint& client)
+void __stdcall ReqSetCash(int& cash, ClientId& client)
 {
 	if (clients[client].player_base)
 		returncode = ReturnCode::SkipAll;
 }
 
-void __stdcall ReqEquipment(class EquipDescList const& edl, uint& client)
+void __stdcall ReqEquipment(class EquipDescList const& edl, ClientId& client)
 {
 	if (clients[client].player_base)
 		returncode = ReturnCode::SkipPlugins;
@@ -1212,7 +1212,7 @@ void __stdcall CShip_destroy(CShip* ship)
 	}
 }
 
-void BaseDestroyed(uint& space_obj, uint& client)
+void BaseDestroyed(uint& space_obj, ClientId& client)
 {
 	std::map<uint, Module*>::iterator i = spaceobj_modules.find(space_obj);
 	if (i != spaceobj_modules.end())
@@ -1222,24 +1222,24 @@ void BaseDestroyed(uint& space_obj, uint& client)
 	}
 }
 
-void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate fate)
+void __stdcall Cb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damage, enum DamageEntry::SubObjFate fate)
 {
 	DamageList* dmg2 = *dmg;
 
-	if (g_DmgToSpaceID && dmg2->get_inflictor_id())
+	if (g_DmgToSpaceId && dmg2->get_inflictor_id())
 	{
 		float curr, max;
-		pub::SpaceObj::GetHealth(g_DmgToSpaceID, curr, max);
+		pub::SpaceObj::GetHealth(g_DmgToSpaceId, curr, max);
 
-		std::map<uint, Module*>::iterator i = spaceobj_modules.find(g_DmgToSpaceID);
+		std::map<uint, Module*>::iterator i = spaceobj_modules.find(g_DmgToSpaceId);
 		if (i != spaceobj_modules.end())
 		{
 			if (set_plugin_debug)
 				Console::ConInfo(
-				    L"HkCb_AddDmgEntry g_DmgToSpaceID=%u get_inflictor_id=%u "
+				    L"Cb_AddDmgEntry g_DmgToSpaceId=%u get_inflictor_id=%u "
 				    L"curr=%0.2f max=%0.0f damage=%0.2f cause=%u is_player=%u "
 				    L"player_id=%u fate=%u\n",
-				    g_DmgToSpaceID, dmg2->get_inflictor_id(), curr, max, damage, dmg2->get_cause(),
+				    g_DmgToSpaceId, dmg2->get_inflictor_id(), curr, max, damage, dmg2->get_cause(),
 				    dmg2->is_inflictor_a_player(), dmg2->get_inflictor_owner_player(), fate);
 
 			// A work around for an apparent bug where mines/missiles at the
@@ -1249,7 +1249,7 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 			{
 				returncode = ReturnCode::SkipAll;
 				if (set_plugin_debug)
-					Console::ConWarn(L"HkCb_AddDmgEntry[1] - invalid damage?");
+					Console::ConWarn(L"Cb_AddDmgEntry[1] - invalid damage?");
 				return;
 			}
 
@@ -1257,33 +1257,33 @@ void __stdcall HkCb_AddDmgEntry(DamageList** dmg, unsigned short p1, float damag
 			if (!dmg2->is_inflictor_a_player())
 			{
 				if (set_plugin_debug)
-					Console::ConInfo(L"HkCb_AddDmgEntry[2] suppressed - npc");
+					Console::ConInfo(L"Cb_AddDmgEntry[2] suppressed - npc");
 				returncode = ReturnCode::SkipAll;
-				g_DmgToSpaceID = 0;
+				g_DmgToSpaceId = 0;
 				return;
 			}
 
 			// This call is for us, skip all plugins.
 			returncode = ReturnCode::SkipPlugins;
-			float new_damage = i->second->SpaceObjDamaged(g_DmgToSpaceID, dmg2->get_inflictor_id(), curr, damage);
+			float new_damage = i->second->SpaceObjDamaged(g_DmgToSpaceId, dmg2->get_inflictor_id(), curr, damage);
 			if (new_damage != 0.0f)
 			{
 				returncode = ReturnCode::SkipAll;
 				;
 				if (set_plugin_debug)
 					Console::ConInfo(
-					    L"HkCb_AddDmgEntry[3] suppressed - shield up - "
+					    L"Cb_AddDmgEntry[3] suppressed - shield up - "
 					    L"new_damage=%0.0f\n",
 					    new_damage);
 				dmg2->add_damage_entry(p1, new_damage, fate);
-				g_DmgToSpaceID = 0;
+				g_DmgToSpaceId = 0;
 				return;
 			}
 		}
 	}
 }
 
-static void ForcePlayerBaseDock(uint client, PlayerBase* base)
+static void ForcePlayerBaseDock(ClientId client, PlayerBase* base)
 {
 	char system_nick[1024];
 	pub::GetSystemNickname(system_nick, sizeof(system_nick), base->system);
@@ -1310,7 +1310,7 @@ static void ForcePlayerBaseDock(uint client, PlayerBase* base)
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::wstring charfilename;
-		HkGetCharFileName(charname, charfilename);
+		GetCharFileName(charname, charfilename);
 		charfilename += L".fl";
 		CHARACTER_ID charid;
 		strcpy_s(charid.szCharFilename, wstos(charname.substr(0, 14)).c_str());
@@ -1326,7 +1326,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 		returncode = ReturnCode::SkipAll;
 		;
 
-		uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
+		ClientId client = Hk::Client::GetClientIdFromCharName(cmd->GetAdminName());
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
 		{
@@ -1351,7 +1351,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 	{
 		returncode = ReturnCode::SkipAll;
 		;
-		uint client = HkGetClientIdFromCharname(cmd->GetAdminName());
+		ClientId client = Hk::Client::GetClientIdFromCharName(cmd->GetAdminName());
 		if (!client)
 		{
 			cmd->Print(L"ERR Not in game");
@@ -1379,13 +1379,13 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 			return false;
 		}
 
-		HKPLAYERINFO info;
-		if (HkGetPlayerInfo(charname, info, false) != HKE_OK)
+		PLAYERINFO info;
+		if (GetPlayerInfo(charname, info, false) != E_OK)
 		{
 			return false;
 		}
 
-		if (info.iShip == 0)
+		if (info.ship == 0)
 		{
 			return false;
 		}
@@ -1397,7 +1397,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 			{
 				returncode = ReturnCode::SkipAll;
 				;
-				ForcePlayerBaseDock(info.iClientID, i->second);
+				ForcePlayerBaseDock(info.client, i->second);
 				cmd->Print(L"OK");
 				return true;
 			}
@@ -1409,7 +1409,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 			if (ToLower(i->second->basename).find(ToLower(basename)) != -1)
 			{
 				returncode = ReturnCode::SkipAll;
-				ForcePlayerBaseDock(info.iClientID, i->second);
+				ForcePlayerBaseDock(info.client, i->second);
 				cmd->Print(L"OK");
 				return true;
 			}
@@ -1422,21 +1422,21 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 	return false;
 }
 
-uint GetCustomBaseId(uint iClientID)
+uint GetCustomBaseID(ClientId client)
 {
-	PlayerBase* base = GetPlayerBaseForClient(iClientID);
+	PlayerBase* base = GetPlayerBaseForClient(client);
 	if (base)
 		return base->base;
 	else
 		return 0;
 }
 
-bool CustomBaseBeam(uint iClientID, uint iTargetBaseID)
+bool CustomBaseBeam(ClientId client, uint iTargetBaseId)
 {
-	PlayerBase* base = GetPlayerBase(iTargetBaseID);
+	PlayerBase* base = GetPlayerBase(iTargetBaseId);
 	if (base)
 	{
-		ForcePlayerBaseDock(iClientID, base);
+		ForcePlayerBaseDock(client, base);
 		return true;
 	}
 	else
@@ -1482,12 +1482,12 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__CShip__Destroy, &CShip_destroy);
 	pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
-	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &HkCb_AddDmgEntry);
+	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &Cb_AddDmgEntry);
 
 	// Register plugin for IPC
 	communicator = new BaseCommunicator(BaseCommunicator::pluginName);

@@ -22,7 +22,7 @@ namespace Plugins::Template
 	}
 
 	// Demo command
-	void UserCmdTemplate(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmdTemplate(ClientId& client, const std::wstring_view& wscParam)
 	{
 		// Access our config value
 		if (global->config->overrideUserNumber)
@@ -31,17 +31,17 @@ namespace Plugins::Template
 			std::mt19937 rng(dev());
 			const std::uniform_int_distribution<std::mt19937::result_type> dist(1, 6); // distribution in range [1, 1000]
 
-			PrintUserCmdText(iClientID, L"The gods decided your number is actually: " +  std::to_wstring(dist(rng)));
+			PrintUserCmdText(client, L"The gods decided your number is actually: " +  std::to_wstring(dist(rng)));
 			return;
 		}
 
 		if (const auto number = ToInt(GetParam(wscParam, ' ', 0)); number > 0)
 		{
-			PrintUserCmdText(iClientID, L"You put in the following number: " + std::to_wstring(number));
+			PrintUserCmdText(client, L"You put in the following number: " + std::to_wstring(number));
 		}
 		else
 		{
-			PrintUserCmdText(iClientID, L"ERR: You must provide a valid positive non-zero number.");
+			PrintUserCmdText(client, L"ERR: You must provide a valid positive non-zero number.");
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace Plugins::Template
 
 using namespace Plugins::Template;
 
-REFL_AUTO(type(Config))
+REFL_AUTO(type(Config), field(overrideUserNumber));
 
 DefaultDllMainSettings(LoadSettings)
 

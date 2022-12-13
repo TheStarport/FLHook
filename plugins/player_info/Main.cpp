@@ -18,8 +18,8 @@ ReturnCode returncode = ReturnCode::Default;
 #define POPUPDIALOG_BUTTONS_RIGHT_LATER 4
 #define POPUPDIALOG_BUTTONS_CENTER_OK   8
 
-#define RSRCID_PLAYERINFO_TITLE 500000
-#define RSRCID_PLAYERINFO_TEXT  RSRCID_PLAYERINFO_TITLE + 1
+#define RSRCId_PLAYERINFO_TITLE 500000
+#define RSRCId_PLAYERINFO_TEXT  RSRCId_PLAYERINFO_TITLE + 1
 #define MAX_PARAGRAPHS          5
 #define MAX_CHARACTERS          1000
 
@@ -59,30 +59,30 @@ static int CurrLength(const std::string& scFilePath)
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ShowInfo(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_ShowInfo(ClientId& client, const std::wstring_view& wscParam)
 {
 	const wchar_t* wszTargetName = 0;
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 0);
 	if (wscCommand == L"me")
 	{
-		wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iClientID);
+		wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(client);
 	}
 	else
 	{
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
+		uint ship;
+		pub::Player::GetShip(client, ship);
 
 		uint iTargetShip;
-		pub::SpaceObj::GetTarget(iShip, iTargetShip);
+		pub::SpaceObj::GetTarget(ship, iTargetShip);
 
-		uint iTargetClientID = HkGetClientIDByShip(iTargetShip);
-		if (HkIsValidClientID(iTargetClientID))
-			wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientID);
+		uint iTargetClientId = GetClientIdByShip(iTargetShip);
+		if (IsValidClientID(iTargetClientId))
+			wszTargetName = (const wchar_t*)Players.GetActiveCharacterName(iTargetClientId);
 	}
 
 	if (!wszTargetName)
 	{
-		PrintUserCmdText(iClientID, L"ERR No target");
+		PrintUserCmdText(client, L"ERR No target");
 		return;
 	}
 
@@ -101,31 +101,31 @@ void UserCmd_ShowInfo(const uint& iClientID, const std::wstring_view& wscParam)
 
 	if (wscPlayerInfo.length() < 30)
 	{
-		PrintUserCmdText(iClientID, L"ERR No information available");
+		PrintUserCmdText(client, L"ERR No information available");
 		return;
 	}
 
-	HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TITLE, wszTargetName);
-	HkChangeIDSString(iClientID, RSRCID_PLAYERINFO_TEXT, wscPlayerInfo);
+	ChangeIdSString(client, RSRCId_PLAYERINFO_TITLE, wszTargetName);
+	ChangeIdSString(client, RSRCId_PLAYERINFO_TEXT, wscPlayerInfo);
 
 	FmtStr caption(0, 0);
-	caption.begin_mad_lib(RSRCID_PLAYERINFO_TITLE);
+	caption.begin_mad_lib(RSRCId_PLAYERINFO_TITLE);
 	caption.end_mad_lib();
 
 	FmtStr message(0, 0);
-	message.begin_mad_lib(RSRCID_PLAYERINFO_TEXT);
+	message.begin_mad_lib(RSRCId_PLAYERINFO_TEXT);
 	message.end_mad_lib();
 
-	pub::Player::PopUpDialog(iClientID, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
+	pub::Player::PopUpDialog(client, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 }
 
-void UserCmd_SetInfo(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_SetInfo(ClientId& client, const std::wstring_view& wscParam)
 {
 	uint iPara = ToInt(GetParam(wscParam, ' ', 0));
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 1);
 	const std::wstring& wscMsg = GetParamToEnd(wscParam, ' ', 2);
 
-	std::string scFilePath = GetUserFilePath((const wchar_t*)Players.GetActiveCharacterName(iClientID), "-info.ini");
+	std::string scFilePath = GetUserFilePath((const wchar_t*)Players.GetActiveCharacterName(client), "-info.ini");
 	if (scFilePath.length() == 0)
 		return;
 
@@ -134,26 +134,26 @@ void UserCmd_SetInfo(const uint& iClientID, const std::wstring_view& wscParam)
 		int length = CurrLength(scFilePath) + wscMsg.length();
 		if (length > MAX_CHARACTERS)
 		{
-			PrintUserCmdText(iClientID, L"ERR Too many characters. Limit is %d", MAX_CHARACTERS);
+			PrintUserCmdText(client, L"ERR Too many characters. Limit is %d", MAX_CHARACTERS);
 			return;
 		}
 
 		std::wstring wscNewMsg = IniGetLongWS(scFilePath, "Info", std::to_string(iPara), L"") + XMLText(wscMsg);
 		IniWriteW(scFilePath, "Info", std::to_string(iPara), wscNewMsg);
-		PrintUserCmdText(iClientID, L"OK %d/%d characters used", length, MAX_CHARACTERS);
+		PrintUserCmdText(client, L"OK %d/%d characters used", length, MAX_CHARACTERS);
 	}
 	else if (iPara > 0 && iPara <= MAX_PARAGRAPHS && wscCommand == L"d")
 	{
 		IniWriteW(scFilePath, "Info", std::to_string(iPara), L"");
-		PrintUserCmdText(iClientID, L"OK");
+		PrintUserCmdText(client, L"OK");
 	}
 	else
 	{
-		PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-		PrintUserCmdText(iClientID, L"/setinfo <paragraph> <command> <text>");
-		PrintUserCmdText(iClientID, L"|  <paragraph> The paragraph number in the range 1-%d", MAX_PARAGRAPHS);
+		PrintUserCmdText(client, L"ERR Invalid parameters");
+		PrintUserCmdText(client, L"/setinfo <paragraph> <command> <text>");
+		PrintUserCmdText(client, L"|  <paragraph> The paragraph number in the range 1-%d", MAX_PARAGRAPHS);
 		PrintUserCmdText(
-		    iClientID,
+		    client,
 		    L"|  <command> The command to perform on the "
 		    L"paragraph, 'a' for append, 'd' for delete");
 	}

@@ -9,6 +9,7 @@
     "magic-enum",
     "nlohmann-json",
     "refl-cpp",
-    "spdlog"
+    "spdlog",
+    "fmt"
   ]
 }

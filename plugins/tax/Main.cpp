@@ -22,17 +22,17 @@ namespace Plugins::Tax
 		}
 	}
 
-	void UserCmdTax(const uint& clientId, const std::wstring_view& param)
+	void UserCmdTax(ClientId& client, const std::wstring_view& param)
 	{
 		uint system = 0;
-		pub::Player::GetSystem(clientId, system);
+		pub::Player::GetSystem(client, system);
 
 		// no-pvp check
 		for (auto const& it : global->excludedsystemsIds)
 		{
 			if (system == it)
 			{
-				PrintUserCmdText(clientId, L"Error: You cannot tax in a No-PvP system.");
+				PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
 				return;
 			}
 		}
@@ -40,145 +40,150 @@ namespace Plugins::Tax
 		const std::wstring taxAmount = GetParam(param, ' ', 0);
 
 		if (!taxAmount.length())
-			PrintUserCmdText(clientId, L"Error: No valid tax amount!");
+			PrintUserCmdText(client, L"Error: No valid tax amount!");
 
 		const int taxValue = ToInt(taxAmount);
 
 		if (taxValue > global->config->maxTax)
 		{
-			PrintUserCmdText(clientId, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
+			PrintUserCmdText(client, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
 			return;
 		}
 
 		if (taxValue < 0)
 		{
-			PrintUserCmdText(clientId, L"Error: The tax must be 0 or greater!");
+			PrintUserCmdText(client, L"Error: The tax must be 0 or greater!");
 			return;
 		}
 
-		std::wstring characterName = HkGetCharacterNameById(clientId);
-		uint clientIdTarget;
-		if (const HK_ERROR error = HkGetTargetClientId(characterName, clientIdTarget); error != HKE_OK || !HkIsValidClientID(clientIdTarget))
+		const auto characterName = Hk::Client::GetCharacterNameByID(client);
+
+		const auto clientTargetObject = Hk::Player::GetTargetClientID(client);
+		const auto clientTarget = clientTargetObject.value();
+		if (clientTargetObject.has_error())
 		{
-			PrintUserCmdText(clientId, L"Error: You are not targeting a player.");
+			PrintUserCmdText(client, L"Error: You are not targeting a player.");
 			return;
 		}
 
-		int secs = 0;
-		std::wstring targetCharacterName = HkGetCharacterNameById(clientIdTarget);
-		if (const HK_ERROR error = HkGetOnlineTime(targetCharacterName, secs); error != HKE_OK || secs < global->config->minplaytimeSec)
+		const auto secs = Hk::Player::GetOnlineTime(client);
+		const auto targetCharacterName = Hk::Client::GetCharacterNameByID(clientTarget);
+		if (secs.has_error() || secs.value() < global->config->minplaytimeSec)
 		{
-			PrintUserCmdText(clientId, L"Error: This player doesn't have enough playtime.");
+			PrintUserCmdText(client, L"Error: This player doesn't have enough playtime.");
 			return;
 		}
 
 		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->lsttax)
 		{
-			if (targetId == clientIdTarget)
+			if (targetId == clientTarget)
 			{
-				PrintUserCmdText(clientId, L"Error: There already is a tax request pending for this player.");
+				PrintUserCmdText(client, L"Error: There already is a tax request pending for this player.");
 				return;
 			}
 		}
 
 		Tax tax;
-		tax.initiatorId = clientId;
-		tax.targetId = clientIdTarget;
+		tax.initiatorId = client;
+		tax.targetId = clientTarget;
 		tax.cash = taxValue;
 		global->lsttax.push_back(tax);
 
+		std::wstring msg;
+
 		if (taxValue == 0)
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.value().c_str());
 		else
-			HkFormatMessage(clientIdTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.value().c_str());
+
+		Hk::Message::FMsg(clientTarget, msg);
 
 		// send confirmation msg
 		if (taxValue > 0)
-			PrintUserCmdText(clientId, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.c_str());
+			PrintUserCmdText(client, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.value().c_str());
 		else
-			PrintUserCmdText(clientId, global->config->huntingMessageOriginator, targetCharacterName.c_str());
+			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.value().c_str());
 	}
 
-	void UserCmdPay(const uint& clientId, const std::wstring_view& param)
+	void UserCmdPay(ClientId& client, const std::wstring_view& param)
 	{
 		for (auto& it : global->lsttax)
-			if (it.targetId == clientId)
+			if (it.targetId == client)
 			{
 				if (it.cash == 0)
 				{
-					PrintUserCmdText(clientId, global->config->cannotPay);
+					PrintUserCmdText(client, global->config->cannotPay);
 					return;
 				}
 
-				int cash;
-				HkGetCash(clientId, cash);
-				if (cash < it.cash)
+				const auto cash = Hk::Player::GetCash(client);
+				if (cash.has_error() || cash.value() < it.cash)
 				{
-					PrintUserCmdText(clientId, L"You have not enough money to pay the tax.");
+					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
-				HkAddCash(clientId, (0 - it.cash));
-				PrintUserCmdText(clientId, L"You paid the tax.");
-				HkAddCash(it.initiatorId, it.cash);
-				const std::wstring characterName = HkGetCharacterNameById(clientId);
-				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.c_str());
+				Hk::Player::AddCash(client, (0 - it.cash));
+				PrintUserCmdText(client, L"You paid the tax.");
+				Hk::Player::AddCash(it.initiatorId, it.cash);
+				const auto characterName = Hk::Client::GetCharacterNameByID(client);
+				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.value().c_str());
 				RemoveTax(it);
-				HkSaveChar(clientId);
-				HkSaveChar(it.initiatorId);
+				Hk::Player::SaveChar(client);
+				Hk::Player::SaveChar(it.initiatorId);
 				return;
 			}
 
-		PrintUserCmdText(clientId, L"Error: No tax request was found that could be accepted!");
+		PrintUserCmdText(client, L"Error: No tax request was found that could be accepted!");
 	}
 
-	void HkTimerF1Check()
+	void TimerF1Check()
 	{
-		struct PlayerData* pPd = nullptr;
-		while (pPd = Players.traverse_active(pPd))
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			uint clientId = HkGetClientIdFromPD(pPd);
+			ClientId client = playerData->iOnlineId;
 
-			if (ClientInfo[clientId].tmF1TimeDisconnect)
+			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;
 
-			if (ClientInfo[clientId].tmF1Time && (timeInMS() >= ClientInfo[clientId].tmF1Time)) // f1
+			if (ClientInfo[client].tmF1Time && (timeInMS() >= ClientInfo[client].tmF1Time)) // f1
 			{
 				// tax
 				for (const auto& it : global->lsttax)
 				{
-					if (it.targetId == clientId)
+					if (it.targetId == client)
 					{
 						uint ship;
-						pub::Player::GetShip(clientId, ship);
+						pub::Player::GetShip(client, ship);
 						if (ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = HkGetCharacterNameById(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
+						const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.value().c_str());
 						RemoveTax(it);
 						break;
 					}
 				}
 			}
-			else if (ClientInfo[clientId].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[clientId].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				// tax
 				for (const auto& it : global->lsttax)
 				{
-					if (it.targetId == clientId)
+					if (it.targetId == client)
 					{
 						uint ship;
-						pub::Player::GetShip(clientId, ship);
+						pub::Player::GetShip(client, ship);
 						if (ship)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
 						}
-						std::wstring characterName = HkGetCharacterNameById(it.targetId);
-						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.c_str());
+						const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId);
+						PrintUserCmdText(it.initiatorId, L"Tax request to %s aborted.", characterName.value().c_str());
 						RemoveTax(it);
 						break;
 					}
@@ -198,7 +203,7 @@ namespace Plugins::Tax
 	};
 
 	TIMER Timers[] = {
-	    {HkTimerF1Check, 1000, 0},
+	    {TimerF1Check, 1000, 0},
 	};
 
 	int __stdcall Update()
@@ -214,15 +219,15 @@ namespace Plugins::Tax
 		return 0;
 	}
 
-	void __stdcall DisConnect(ClientId& clientId, enum EFLConnection& state)
+	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
 	{
-		HkTimerF1Check();
+		TimerF1Check();
 	}
 
-	void UserCmdHelp(ClientId& clientId, const std::wstring& param)
+	void UserCmdHelp(ClientId& client, const std::wstring& param)
 	{
-		PrintUserCmdText(clientId, L"/pay <credits>");
-		PrintUserCmdText(clientId, L"/acc");
+		PrintUserCmdText(client, L"/pay <credits>");
+		PrintUserCmdText(client, L"/acc");
 	}
 
 	// Load Settings

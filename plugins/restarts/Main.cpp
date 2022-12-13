@@ -21,40 +21,40 @@ namespace Plugins::Restart
 
 	/* User Commands */
 
-	void UserCmd_ShowRestarts(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_ShowRestarts(ClientId& client, const std::wstring_view& wscParam)
 	{
 		if (global->config->availableRestarts.empty())
 		{
-			PrintUserCmdText(iClientID, L"There are no restarts available.");
+			PrintUserCmdText(client, L"There are no restarts available.");
 			return;
 		}
 
-		PrintUserCmdText(iClientID, L"You can use these restarts:");
+		PrintUserCmdText(client, L"You can use these restarts:");
 		for (const auto& [key, value] : global->config->availableRestarts)
 		{
 			if (global->config->enableRestartCost)
 			{
-				PrintUserCmdText(iClientID, L"%s - $%i", key.c_str(), value);
+				PrintUserCmdText(client, L"%s - $%i", key.c_str(), value);
 			}
 			else
 			{
-				PrintUserCmdText(iClientID, L"%s", key.c_str());
+				PrintUserCmdText(client, L"%s", key.c_str());
 			}
 		}
 	}
 
-	void UserCmd_Restart(const uint& iClientID, const std::wstring_view& wscParam)
+	void UserCmd_Restart(ClientId& client, const std::wstring_view& wscParam)
 	{
 		std::wstring restartTemplate = GetParam(wscParam, ' ', 0);
 		if (!restartTemplate.length())
 		{
-			PrintUserCmdText(iClientID, L"ERR Invalid parameters");
-			PrintUserCmdText(iClientID, L"/restart <template>");
+			PrintUserCmdText(client, L"ERR Invalid parameters");
+			PrintUserCmdText(client, L"/restart <template>");
 		}
 
 		// Get the character name for this connection.
 		Restart restart;
-		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(iClientID));
+		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Searching restart
 
@@ -71,48 +71,46 @@ namespace Plugins::Restart
 		}
 		if (restart.restartFile.empty())
 		{
-			PrintUserCmdText(iClientID, L"ERR Template does not exist");
+			PrintUserCmdText(client, L"ERR Template does not exist");
 			return;
 		}
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		HkSaveChar(iClientID);
-		if (!HkIsValidClientID(iClientID))
+		Hk::Player::SaveChar(client);
+		if (!Hk::Client::IsValidClientID(client))
 			return;
 
-		uint iBaseID;
-		pub::Player::GetBase(iClientID, iBaseID);
-		if (!iBaseID)
+		uint iBaseId;
+		pub::Player::GetBase(client, iBaseId);
+		if (!iBaseId)
 		{
-			PrintUserCmdText(iClientID, L"ERR Not in base");
+			PrintUserCmdText(client, L"ERR Not in base");
 			return;
 		}
 
 		if (global->config->maxRank != 0)
 		{
-			int rank = 0;
-			HkGetRank(restart.characterName, rank);
-			if (rank == 0 || rank > global->config->maxRank)
+			const auto rank = Hk::Player::GetRank(restart.characterName);
+			if (rank.value() == 0 || rank > global->config->maxRank)
 			{
-				PrintUserCmdText(iClientID,
+				PrintUserCmdText(client,
 				    L"ERR You must create a new char to "
 				    L"restart. Your rank is too high");
 				return;
 			}
 		}
 
-		HK_ERROR err;
-		int cash = 0;
-		if ((err = HkGetCash(restart.characterName, cash)) != HKE_OK)
+		const auto cash = Hk::Player::GetCash(restart.characterFile);
+		if (cash.has_error())
 		{
-			PrintUserCmdText(iClientID, L"ERR " + HkErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 
 		if (global->config->maxCash != 0 && cash > global->config->maxCash)
 		{
-			PrintUserCmdText(iClientID,
+			PrintUserCmdText(client,
 			    L"ERR You must create a new char to "
 			    L"restart. Your cash is too high");
 			return;
@@ -123,20 +121,20 @@ namespace Plugins::Restart
 			if (cash < global->config->availableRestarts[restartTemplate])
 			{
 				PrintUserCmdText(
-				    iClientID, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash) + L" more credits to use this template");
+				    client, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash.value()) + L" more credits to use this template");
 				return;
 			}
-			restart.cash = cash - global->config->availableRestarts[restartTemplate];
+			restart.cash = cash.value() - global->config->availableRestarts[restartTemplate];
 		}
 		else
-			restart.cash = cash;
+			restart.cash = cash.value();
 
-		if (CAccount* acc = Players.FindAccountFromClientID(iClientID))
+		if (CAccount* acc = Players.FindAccountFromClientID(client))
 		{
-			HkGetAccountDirName(acc, restart.directory);
-			HkGetCharFileName(restart.characterName, restart.characterFile);
+			restart.directory = Hk::Client::GetAccountDirName(acc);
+			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
 			global->pendingRestarts.push_back(restart);
-			HkKickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
+			Hk::Player::KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
 		}
 		return;
 	}
@@ -148,7 +146,7 @@ namespace Plugins::Restart
 		while (global->pendingRestarts.size())
 		{
 			Restart restart = global->pendingRestarts.back();
-			if (HkGetClientIdFromCharname(restart.characterName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(restart.characterName).value() != -1)
 				return;
 
 			global->pendingRestarts.pop_back();

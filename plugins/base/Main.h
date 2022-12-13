@@ -78,7 +78,7 @@ class CoreModule : public Module
   public:
 	PlayerBase* base;
 
-	// The space ID of this base
+	// The space Id of this base
 	uint space_obj;
 
 	// If true, do not use food and commodities
@@ -218,7 +218,7 @@ class FactoryModule : public Module
 class PlayerBase
 {
   public:
-	PlayerBase(uint client, const std::wstring& password, const std::wstring& basename);
+	PlayerBase(ClientId client, const std::wstring& password, const std::wstring& basename);
 	PlayerBase(const std::string& path);
 	~PlayerBase();
 
@@ -239,7 +239,7 @@ class PlayerBase
 
 	static std::string CreateBaseNickname(const std::string& basename);
 
-	float GetAttitudeTowardsClient(uint client);
+	float GetAttitudeTowardsClient(ClientId client);
 	void SyncReputationForBase();
 	void SyncReputationForBaseObject(uint space_obj);
 
@@ -286,7 +286,7 @@ class PlayerBase
 	// The maximum hit points of the base
 	float max_base_health;
 
-	// When the base is spawned, this is the IDS of the base name
+	// When the base is spawned, this is the IdS of the base name
 	uint solar_ids;
 
 	// The ingame hash of the nickname
@@ -336,24 +336,24 @@ class PlayerBase
 };
 
 PlayerBase* GetPlayerBase(uint base);
-PlayerBase* GetPlayerBaseForClient(uint client);
+PlayerBase* GetPlayerBaseForClient(ClientId client);
 
 void SaveBases();
 void DeleteBase(PlayerBase* base);
-void LoadDockState(uint client);
-void SaveDockState(uint client);
-void DeleteDockState(uint client);
+void LoadDockState(ClientId client);
+void SaveDockState(ClientId client);
+void DeleteDockState(ClientId client);
 
-/// Send a command to the client at destination ID 0x9999
-void SendCommand(uint client, const std::wstring& message);
-void SendSetBaseInfoText(uint client, const std::wstring& message);
-void SendSetBaseInfoText2(uint client, const std::wstring& message);
-void SendResetMarketOverride(uint client);
+/// Send a command to the client at destination Id 0x9999
+void SendCommand(ClientId client, const std::wstring& message);
+void SendSetBaseInfoText(ClientId client, const std::wstring& message);
+void SendSetBaseInfoText2(ClientId client, const std::wstring& message);
+void SendResetMarketOverride(ClientId client);
 void SendMarketGoodUpdated(PlayerBase* base, uint good, MARKET_ITEM& item);
-void SendMarketGoodSync(PlayerBase* base, uint client);
-void SendBaseStatus(uint client, PlayerBase* base);
+void SendMarketGoodSync(PlayerBase* base, ClientId client);
+void SendBaseStatus(ClientId client, PlayerBase* base);
 void SendBaseStatus(PlayerBase* base);
-void ForceLaunch(uint client);
+void ForceLaunch(ClientId client);
 
 struct CLIENT_DATA
 {
@@ -381,29 +381,29 @@ struct CLIENT_DATA
 
 namespace PlayerCommands
 {
-	void BaseHelp(uint client, const std::wstring& args);
+	void BaseHelp(ClientId client, const std::wstring& args);
 
-	void BaseLogin(uint client, const std::wstring& args);
-	void BaseAddPwd(uint client, const std::wstring& args);
-	void BaseRmPwd(uint client, const std::wstring& args);
-	void BaseLstPwd(uint client, const std::wstring& args);
-	void BaseSetMasterPwd(uint client, const std::wstring& args);
+	void BaseLogin(ClientId client, const std::wstring& args);
+	void BaseAddPwd(ClientId client, const std::wstring& args);
+	void BaseRmPwd(ClientId client, const std::wstring& args);
+	void BaseLstPwd(ClientId client, const std::wstring& args);
+	void BaseSetMasterPwd(ClientId client, const std::wstring& args);
 
-	void BaseAddAllyTag(uint client, const std::wstring& args);
-	void BaseRmAllyTag(uint client, const std::wstring& args);
-	void BaseLstAllyTag(uint client, const std::wstring& args);
-	void BaseRep(uint client, const std::wstring& args);
+	void BaseAddAllyTag(ClientId client, const std::wstring& args);
+	void BaseRmAllyTag(ClientId client, const std::wstring& args);
+	void BaseLstAllyTag(ClientId client, const std::wstring& args);
+	void BaseRep(ClientId client, const std::wstring& args);
 
-	void BaseInfo(uint client, const std::wstring& args);
-	void BaseDefenseMode(uint client, const std::wstring& args);
-	void BaseDefMod(uint client, const std::wstring& args);
-	void BaseBuildMod(uint client, const std::wstring& args);
-	void BaseFacMod(uint client, const std::wstring& args);
-	void BaseShieldMod(uint client, const std::wstring& args);
-	void Bank(uint client, const std::wstring& args);
-	void Shop(uint client, const std::wstring& args);
+	void BaseInfo(ClientId client, const std::wstring& args);
+	void BaseDefenseMode(ClientId client, const std::wstring& args);
+	void BaseDefMod(ClientId client, const std::wstring& args);
+	void BaseBuildMod(ClientId client, const std::wstring& args);
+	void BaseFacMod(ClientId client, const std::wstring& args);
+	void BaseShieldMod(ClientId client, const std::wstring& args);
+	void Bank(ClientId client, const std::wstring& args);
+	void Shop(ClientId client, const std::wstring& args);
 
-	void BaseDeploy(uint client, const std::wstring& args);
+	void BaseDeploy(ClientId client, const std::wstring& args);
 } // namespace PlayerCommands
 
 extern std::map<uint, CLIENT_DATA> clients;
@@ -460,8 +460,8 @@ class BaseCommunicator final : public PluginCommunicator
 	explicit BaseCommunicator(std::string plugin);
 
 	// Plugin Calls
-	uint PluginCall(GetCustomBaseId, uint iClientID);
-	bool PluginCall(CustomBaseBeam, uint iClientID, uint iTargetBaseID);
+	uint PluginCall(GetCustomBaseId, ClientId client);
+	bool PluginCall(CustomBaseBeam, ClientId client, uint iTargetBaseId);
 };
 
 #endif

@@ -2,104 +2,102 @@
 
 namespace Plugins::Mark
 {
-	char HkMarkObject(uint iClientID, uint iObject)
+	char MarkObject(ClientId client, uint iObject)
 	{
 		if (!iObject)
 			return 1;
 
-		uint iClientIDMark = HkGetClientIDByShip(iObject);
-
-		uint iSystemID, iObjectSystemID;
-		pub::Player::GetSystem(iClientID, iSystemID);
-		pub::SpaceObj::GetSystem(iObject, iObjectSystemID);
-		if (iSystemID == iObjectSystemID)
+		uint iSystemId, iObjectSystemId;
+		pub::Player::GetSystem(client, iSystemId);
+		pub::SpaceObj::GetSystem(iObject, iObjectSystemId);
+		if (iSystemId == iObjectSystemId)
 		{
-			for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
+			for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 			{
-				if (global->Mark[iClientID].MarkedObjects[i] == iObject)
+				if (global->Mark[client].MarkedObjects[i] == iObject)
 					return 3; // already marked
 			}
 		}
 		else
 		{
-			for (uint j = 0; j < global->Mark[iClientID].DelayedSystemMarkedObjects.size(); j++)
+			for (uint j = 0; j < global->Mark[client].DelayedSystemMarkedObjects.size(); j++)
 			{
-				if (global->Mark[iClientID].DelayedSystemMarkedObjects[j] == iObject)
+				if (global->Mark[client].DelayedSystemMarkedObjects[j] == iObject)
 					return 3; // already marked
 			}
-			global->Mark[iClientID].DelayedSystemMarkedObjects.push_back(iObject);
-			pub::Audio::PlaySoundEffect(iClientID,
+			global->Mark[client].DelayedSystemMarkedObjects.push_back(iObject);
+			pub::Audio::PlaySoundEffect(client,
 			    2460046221); // CreateID("ui_select_add")
 			return 0;
 		}
 
-		pub::Player::MarkObj(iClientID, iObject, 1);
-		for (uint i = 0; i < global->Mark[iClientID].AutoMarkedObjects.size(); i++) // remove from automarked vector
+		pub::Player::MarkObj(client, iObject, 1);
+		for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++) // remove from automarked vector
 		{
-			if (global->Mark[iClientID].AutoMarkedObjects[i] == iObject)
+			if (global->Mark[client].AutoMarkedObjects[i] == iObject)
 			{
-				if (i != global->Mark[iClientID].AutoMarkedObjects.size() - 1)
+				if (i != global->Mark[client].AutoMarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].AutoMarkedObjects[i] = global->Mark[iClientID].AutoMarkedObjects[global->Mark[iClientID].AutoMarkedObjects.size() - 1];
+					global->Mark[client].AutoMarkedObjects[i] = global->Mark[client].AutoMarkedObjects[global->Mark[client].AutoMarkedObjects.size() - 1];
 				}
-				global->Mark[iClientID].AutoMarkedObjects.pop_back();
+				global->Mark[client].AutoMarkedObjects.pop_back();
 				break;
 			}
 		}
-		global->Mark[iClientID].MarkedObjects.push_back(iObject);
-		pub::Audio::PlaySoundEffect(iClientID,
+		global->Mark[client].MarkedObjects.push_back(iObject);
+		pub::Audio::PlaySoundEffect(client,
 		    2460046221); // CreateID("ui_select_add")
 		return 0;
 	}
 
-	char HkUnMarkObject(uint iClientID, uint iObject)
+	char UnMarkObject(ClientId client, uint iObject)
 	{
 		if (!iObject)
 			return 1;
 
-		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
+		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
-			if (global->Mark[iClientID].MarkedObjects[i] == iObject)
+			if (global->Mark[client].MarkedObjects[i] == iObject)
 			{
-				if (i != global->Mark[iClientID].MarkedObjects.size() - 1)
+				if (i != global->Mark[client].MarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].MarkedObjects[i] = global->Mark[iClientID].MarkedObjects[global->Mark[iClientID].MarkedObjects.size() - 1];
+					global->Mark[client].MarkedObjects[i] = global->Mark[client].MarkedObjects[global->Mark[client].MarkedObjects.size() - 1];
 				}
-				global->Mark[iClientID].MarkedObjects.pop_back();
-				pub::Player::MarkObj(iClientID, iObject, 0);
-				pub::Audio::PlaySoundEffect(iClientID,
+				global->Mark[client].MarkedObjects.pop_back();
+				pub::Player::MarkObj(client, iObject, 0);
+				pub::Audio::PlaySoundEffect(client,
 				    2939827141); // CreateID("ui_select_remove")
 				return 0;
 			}
 		}
 
-		for (uint j = 0; j < global->Mark[iClientID].AutoMarkedObjects.size(); j++)
+		for (uint j = 0; j < global->Mark[client].AutoMarkedObjects.size(); j++)
 		{
-			if (global->Mark[iClientID].AutoMarkedObjects[j] == iObject)
+			if (global->Mark[client].AutoMarkedObjects[j] == iObject)
 			{
-				if (j != global->Mark[iClientID].AutoMarkedObjects.size() - 1)
+				if (j != global->Mark[client].AutoMarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].AutoMarkedObjects[j] = global->Mark[iClientID].AutoMarkedObjects[global->Mark[iClientID].AutoMarkedObjects.size() - 1];
+					global->Mark[client].AutoMarkedObjects[j] = global->Mark[client].AutoMarkedObjects[global->Mark[client].AutoMarkedObjects.size() - 1];
 				}
-				global->Mark[iClientID].AutoMarkedObjects.pop_back();
-				pub::Player::MarkObj(iClientID, iObject, 0);
-				pub::Audio::PlaySoundEffect(iClientID,
+				global->Mark[client].AutoMarkedObjects.pop_back();
+				pub::Player::MarkObj(client, iObject, 0);
+				pub::Audio::PlaySoundEffect(client,
 				    2939827141); // CreateID("ui_select_remove")
 				return 0;
 			}
 		}
 
-		for (uint k = 0; k < global->Mark[iClientID].DelayedSystemMarkedObjects.size(); k++)
+		for (uint k = 0; k < global->Mark[client].DelayedSystemMarkedObjects.size(); k++)
 		{
-			if (global->Mark[iClientID].DelayedSystemMarkedObjects[k] == iObject)
+			if (global->Mark[client].DelayedSystemMarkedObjects[k] == iObject)
 			{
-				if (k != global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1)
+				if (k != global->Mark[client].DelayedSystemMarkedObjects.size() - 1)
 				{
-					global->Mark[iClientID].DelayedSystemMarkedObjects[k] =
-					    global->Mark[iClientID].DelayedSystemMarkedObjects[global->Mark[iClientID].DelayedSystemMarkedObjects.size() - 1];
+					global->Mark[client].DelayedSystemMarkedObjects[k] =
+					    global->Mark[client].DelayedSystemMarkedObjects[global->Mark[client].DelayedSystemMarkedObjects.size() - 1];
 				}
-				global->Mark[iClientID].DelayedSystemMarkedObjects.pop_back();
-				pub::Audio::PlaySoundEffect(iClientID,
+				global->Mark[client].DelayedSystemMarkedObjects.pop_back();
+				pub::Audio::PlaySoundEffect(client,
 				    2939827141); // CreateID("ui_select_remove")
 				return 0;
 			}
@@ -107,20 +105,20 @@ namespace Plugins::Mark
 		return 2;
 	}
 
-	void HkUnMarkAllObjects(uint iClientID)
+	void UnMarkAllObjects(ClientId client)
 	{
-		for (uint i = 0; i < global->Mark[iClientID].MarkedObjects.size(); i++)
+		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
-			pub::Player::MarkObj(iClientID, (global->Mark[iClientID].MarkedObjects[i]), 0);
+			pub::Player::MarkObj(client, (global->Mark[client].MarkedObjects[i]), 0);
 		}
-		global->Mark[iClientID].MarkedObjects.clear();
-		for (uint i = 0; i < global->Mark[iClientID].AutoMarkedObjects.size(); i++)
+		global->Mark[client].MarkedObjects.clear();
+		for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++)
 		{
-			pub::Player::MarkObj(iClientID, (global->Mark[iClientID].AutoMarkedObjects[i]), 0);
+			pub::Player::MarkObj(client, (global->Mark[client].AutoMarkedObjects[i]), 0);
 		}
-		global->Mark[iClientID].AutoMarkedObjects.clear();
-		global->Mark[iClientID].DelayedSystemMarkedObjects.clear();
-		pub::Audio::PlaySoundEffect(iClientID,
+		global->Mark[client].AutoMarkedObjects.clear();
+		global->Mark[client].DelayedSystemMarkedObjects.clear();
+		pub::Audio::PlaySoundEffect(client,
 		    2939827141); // CreateID("ui_select_remove")
 	}
 } // namespace Plugins::Mark

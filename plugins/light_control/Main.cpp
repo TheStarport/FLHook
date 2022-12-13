@@ -71,7 +71,7 @@ namespace Plugins::LightControl
 	/** @ingroup LightControl
 	 * @brief Hook on BaseEnter. Shows availability messages if configured.
 	 */
-	void BaseEnter(const uint& baseId, const uint& clientId)
+	void BaseEnter(const uint& baseId, ClientId& client)
 	{
 		if (!global->config->notifyAvailabilityOnEnter)
 		{
@@ -84,46 +84,46 @@ namespace Plugins::LightControl
 		}
 
 		if (!global->config->introMessage1.empty())
-			PrintUserCmdText(clientId, L"%s", global->config->introMessage1.c_str());
+			PrintUserCmdText(client, L"%s", global->config->introMessage1.c_str());
 
 		if (!global->config->introMessage2.empty())
-			PrintUserCmdText(clientId, L"%s", global->config->introMessage2.c_str());
+			PrintUserCmdText(client, L"%s", global->config->introMessage2.c_str());
 	}
 
 	/** @ingroup LightControl
 	 * @brief Returns a baseId if in a valid base.
 	 */
-	uint IsInValidBase(const uint& clientId) 
+	uint IsInValidBase(ClientId& client) 
 	{
-		uint baseId;
-		if (HK_ERROR err; (err = HkGetCurrentBase(clientId, baseId)) != HKE_OK) 
+		const auto baseId = Hk::Player::GetCurrentBase(client);
+		if (baseId.has_error()) 
 		{ 
-			const std::wstring errorString = HkErrGetText(err); 
-			PrintUserCmdText(clientId, L"ERR:" + errorString); 
+			const std::wstring errorString = Hk::Err::ErrGetText(baseId.error()); 
+			PrintUserCmdText(client, L"ERR:" + errorString); 
 			return 0; 
 		}
 		
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId.value()) == global->config->baseIdHashes.end())
 		{
-			PrintUserCmdText(clientId, L"Light customization is not available at this facility.");
+			PrintUserCmdText(client, L"Light customization is not available at this facility.");
 			return 0;
 		}
 
-		return baseId;
+		return baseId.value();
 	}
 
 	/** @ingroup LightControl
 	 * @brief Show the setup of the player's ship.
 	 */
-	void UserCmdShowSetup(const uint& clientId)
+	void UserCmdShowSetup(ClientId& client)
 	{
-		PrintUserCmdText(clientId, L"Current light setup:");
+		PrintUserCmdText(client, L"Current light setup:");
 
-		const st6::list<EquipDesc> &eqLst = Players[clientId].equipDescList.equip;
+		const st6::list<EquipDesc> &eqLst = Players[client].equipDescList.equip;
 		int itemNumber = 1;
 		for (const auto& i : eqLst) 
 		{
-			const auto& index = std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchID);
+			const auto& index = std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId);
 			if (index == global->config->lightsHashed.end()) 
 			{
 				continue;
@@ -131,32 +131,30 @@ namespace Plugins::LightControl
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
-			PrintUserCmdText(clientId, L"|    %u: %s", itemNumber++, me.nreplace().c_str());
+			PrintUserCmdText(client, L"|    %u: %s", itemNumber++, me.nreplace().c_str());
 		}
 	}
 
 	/** @ingroup LightControl
 	 * @brief Show the options available to the player.
 	 */
-	void UserCmdShowOptions(const uint& clientId)
+	void UserCmdShowOptions(ClientId& client)
 	{
 		for (const auto& light : global->config->lights)
 		{
 			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll();
-			PrintUserCmdText(clientId, me.nreplace());
+			PrintUserCmdText(client, me.nreplace());
 		}
 	}
 
 	/** @ingroup LightControl
-	 * @brief Change the item on the Slot ID to the specified item.
+	 * @brief Change the item on the Slot Id to the specified item.
 	 */
-	void UserCmdChangeItem(const uint& clientId, const std::wstring_view& param)
+	void UserCmdChangeItem(ClientId& client, const std::wstring_view& param)
 	{
-		int cash;
-		HkFunc(HkGetCash, clientId, cash);
-		if (cash < global->config->cost)
+		if (const auto cash = Hk::Player::GetCash(client); cash.has_value() && cash.value() < global->config->cost)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough credits, the cost is %u", global->config->cost);
+			PrintUserCmdText(client, L"Error: Not enough credits, the cost is %u", global->config->cost);
 			return;
 		}
 
@@ -164,10 +162,10 @@ namespace Plugins::LightControl
 		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 
 		std::vector<EquipDesc> lights;
-		st6::list<EquipDesc>& eqLst = Players[clientId].equipDescList.equip;
+		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
 		for (const auto& i : eqLst)
 		{
-			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchID) == global->config->lightsHashed.end())
+			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
@@ -177,7 +175,7 @@ namespace Plugins::LightControl
 
 		if (hardPointId < 0 || hardPointId > lights.size())
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid light point");
+			PrintUserCmdText(client, L"Error: Invalid light point");
 			return;
 		}
 
@@ -188,45 +186,55 @@ namespace Plugins::LightControl
 			return eq.get_id() == selectedLightEquipDesc.get_id();
 		});
 
-		light->iArchID = lightId;
-		HkFunc(HkSetEquip, clientId, eqLst);
+		light->iArchId = lightId;
+		auto err = Hk::Player::SetEquip(client, eqLst);
+		if (err.has_error())
+		{
+			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+			return;
+		}
 
-		HkFunc(HkAddCash, clientId, -global->config->cost);
-		HkSaveChar(clientId);
+		err = Hk::Player::AddCash(client, -global->config->cost);
+		if (err.has_error())
+		{
+			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+			return;
+		}
 
-		PrintUserCmdText(clientId, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
+		Hk::Player::SaveChar(client);
+		PrintUserCmdText(client, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
 
 	/** @ingroup LightControl
 	 * @brief Custom user command handler.
 	 */
-	void UserCommandHandler(const uint& clientId, const std::wstring_view& param) 
+	void UserCommandHandler(ClientId& client, const std::wstring_view& param) 
 	{
-		if (!IsInValidBase(clientId))
+		if (!IsInValidBase(client))
 			return;
 
 		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change") 
 		{
-			UserCmdChangeItem(clientId, param);
+			UserCmdChangeItem(client, param);
 		}
 		else if (subCommand == L"show")
 		{
-			UserCmdShowSetup(clientId);
+			UserCmdShowSetup(client);
 		}
 		else if (subCommand == L"options") 
 		{
-			UserCmdShowOptions(clientId);
+			UserCmdShowOptions(client);
 		}
 		else 
 		{
-			PrintUserCmdText(clientId, L"Usage: /lights show");
-			PrintUserCmdText(clientId, L"Usage: /lights options");
-			PrintUserCmdText(clientId, L"Usage: /lights change <Light Point> <Item>");
+			PrintUserCmdText(client, L"Usage: /lights show");
+			PrintUserCmdText(client, L"Usage: /lights options");
+			PrintUserCmdText(client, L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0) 
 			{
-				PrintUserCmdText(clientId, L"Each light changed will cost %u credits.", global->config->cost);
+				PrintUserCmdText(client, L"Each light changed will cost %u credits.", global->config->cost);
 			}
-			PrintUserCmdText(clientId, L"Please log off for light changes to take effect.");
+			PrintUserCmdText(client, L"Please log off for light changes to take effect.");
 
 		}
 	}

@@ -25,7 +25,7 @@ struct __vcrt_ptd
 	void* _curexcspec;              // for handling exceptions thrown from std::unexpected
 	int _cxxReThrow;                // true if it's a rethrown C++ exception
 
-#if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID
+#if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRId
 	void* _pExitContext;
 	void* _pUnwindContext;
 	void* _pFrameInfoChain;

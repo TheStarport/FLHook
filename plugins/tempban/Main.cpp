@@ -8,7 +8,7 @@ namespace Plugins::Tempban
 	Check if TempBans exceeded
 	**************************************************************************************************************/
 
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		// timed out tempbans get deleted here
 
@@ -26,9 +26,9 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	HK_ERROR __stdcall HkTempBan(const std::wstring& wscCharname, uint _duration)
+	cpp::result<void, Error> __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
 	{
-		const uint iClientID = HkGetClientIdFromCharname(wscCharname);
+		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
 		mstime duration = 1000 * _duration * 60;
 		TempbanInfo tempban;
@@ -36,37 +36,37 @@ namespace Plugins::Tempban
 		tempban.banDuration = duration;
 
 		CAccount* acc;
-		if (iClientID != -1)
-			acc = Players.FindAccountFromClientID(iClientID);
+		if (client != -1)
+			acc = Players.FindAccountFromClientID(client.value());
 		else
 		{
-			if (!(acc = HkGetAccountByCharname(wscCharname)))
-				return HKE_CHAR_DOES_NOT_EXIST;
+			if (!(acc = Hk::Client::GetAccountByCharName(wscCharname).value()))
+				return cpp::fail(Error::CharacterDoesNotExist);
 		}
-		std::wstring wscID = HkGetAccountID(acc);
+		const auto wscId = Hk::Client::GetAccountID(acc);
 
-		tempban.accountId = wscID;
+		tempban.accountId = wscId.value();
 		global->TempBans.push_back(tempban);
 
-		if (iClientID != -1 && HkKick(iClientID) != HKE_OK)
+		if (client != -1 && Hk::Player::Kick(client.value()).has_error())
 		{
 			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
 		}
-
-		return HKE_OK;
+		
+		return {};
 	}
 
-	bool HkTempBannedCheck(uint iClientID)
+	bool TempBannedCheck(ClientId client)
 	{
 		CAccount* acc;
-		acc = Players.FindAccountFromClientID(iClientID);
+		acc = Players.FindAccountFromClientID(client);
 
-		std::wstring wscID = HkGetAccountID(acc);
+		const auto wscId = Hk::Client::GetAccountID(acc);
 
 		for (auto& ban : global->TempBans)
 		{
-			if (ban.accountId == wscID)
+			if (ban.accountId == wscId.value())
 				return true;
 		}
 
@@ -75,15 +75,15 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& iClientID)
+	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
 	{
 		global->returncode = ReturnCode::Default;
 
 		// check for tempban
-		if (HkTempBannedCheck(iClientID))
+		if (TempBannedCheck(client))
 		{
 			global->returncode = ReturnCode::SkipAll;
-			HkKick(iClientID);
+			Hk::Player::Kick(client);
 		}
 	}
 
@@ -98,10 +98,12 @@ namespace Plugins::Tempban
 			return;
 		}
 
-		if ((classptr->hkLastErr = HkTempBan(wscCharname, iDuration)) == HKE_OK) // hksuccess
-			classptr->Print(L"OK");
-		else
-			classptr->PrintError();
+		if (const auto err = TempBan(wscCharname, iDuration); err.has_error())
+		{
+			classptr->PrintError(err.error());
+		}
+			
+		classptr->Print(L"OK");
 	}
 
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
@@ -121,14 +123,14 @@ namespace Plugins::Tempban
 
 	void CmdHelp(CCmds* classptr) { classptr->Print(L"tempban <charname>"); }
 
-	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = HkTempBan; }
+	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBan; }
 } // namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
 
-DefaultDllMain()
+DefaultDllMain();
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(TempBanCommunicator::pluginName);
 	pi->shortName("tempban");
@@ -136,7 +138,7 @@ DefaultDllMain()
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);

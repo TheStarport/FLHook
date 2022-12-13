@@ -94,7 +94,7 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Save mission status every 100 seconds.
 	 */
-	void HkTimerCheckKick()
+	void TimerCheckKick()
 	{
 		if ((time(0) % 100) == 0)
 		{
@@ -138,7 +138,7 @@ namespace Plugins::Event
 	{
 		if (iKill)
 		{
-			const CShip* cShip = HkCShipFromShipDestroyed(ecx);
+			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 
 			int Reputation;
 			pub::SpaceObj::GetRep(cShip->get_id(), Reputation);
@@ -150,7 +150,7 @@ namespace Plugins::Event
 			pub::SpaceObj::GetSystem(cShip->get_id(), System);
 
 			const Vector position = cShip->get_position();
-			const std::string sector = VectorToSectorCoord<std::string>(System, position);
+			const std::string sector = Hk::Math::VectorToSectorCoord<std::string>(System, position);
 
 			for (auto& mission : global->NpcMissions)
 			{
@@ -159,7 +159,7 @@ namespace Plugins::Event
 				{
 					mission.current_amount++;
 					int needed = mission.required_amount = mission.current_amount;
-					// Print Mission text here in red text once we integrate that function into core
+					// TODO: Print Mission text here in red text once we integrate that function into core
 				}
 			}
 		}
@@ -168,14 +168,14 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodBuy to see if a cargo mission needs to be updated.
 	 */
-	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, uint& iClientID)
+	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		uint Base;
-		pub::Player::GetBase(iClientID, Base);
+		pub::Player::GetBase(client, Base);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gbi.iGoodID)
+			if (mission.base == Base && mission.item == gbi.iGoodId)
 			{
 				mission.current_amount -= gbi.iCount;
 				if (mission.current_amount < 0)
@@ -187,25 +187,25 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodSell to see if a cargo mission needs to be updated.
 	 */
-	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, uint& iClientID)
+	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
 		uint Base;
-		pub::Player::GetBase(iClientID, Base);
+		pub::Player::GetBase(client, Base);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gsi.iArchID && mission.current_amount < mission.required_amount)
+			if (mission.base == Base && mission.item == gsi.iArchId && mission.current_amount < mission.required_amount)
 			{
 				int needed = mission.required_amount - mission.current_amount;
 				if (needed > gsi.iCount)
 				{
 					mission.current_amount += gsi.iCount;
 					needed = mission.required_amount - mission.current_amount;
-					PrintUserCmdText(iClientID, L"%d units remaining to complete mission objective", needed);
+					PrintUserCmdText(client, L"%d units remaining to complete mission objective", needed);
 				}
 				else
 				{
-					PrintUserCmdText(iClientID, L"Mission objective completed", needed);
+					PrintUserCmdText(client, L"Mission objective completed", needed);
 				}
 			}
 		}
@@ -231,7 +231,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &HkTimerCheckKick);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);

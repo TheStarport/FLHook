@@ -27,9 +27,9 @@ void LoadSettings()
 	config.general.noPVPSystemsHashed.clear();
 	for (const auto& system : config.general.noPVPSystems)
 	{
-		uint iSystemID;
-		pub::GetSystemID(iSystemID, system.c_str());
-		config.general.noPVPSystemsHashed.emplace_back(iSystemID);
+		uint systemId;
+		pub::GetSystemID(systemId, system.c_str());
+		config.general.noPVPSystemsHashed.emplace_back(systemId);
 	}
 
 	auto ptr = std::make_unique<FLHookConfig>(config);

@@ -21,7 +21,7 @@ namespace Pub
 
 namespace PlayerCommands
 {
-	void BaseHelp(uint client, const std::wstring& args)
+	void BaseHelp(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -120,8 +120,8 @@ namespace PlayerCommands
 
 		                    L"<POP/></RDL>";
 
-		HkChangeIDSString(client, 500000, L"Base Help");
-		HkChangeIDSString(client, 500001, help);
+		ChangeIdSString(client, 500000, L"Base Help");
+		ChangeIdSString(client, 500001, help);
 
 		FmtStr caption(0, 0);
 		caption.begin_mad_lib(500000);
@@ -134,7 +134,7 @@ namespace PlayerCommands
 		pub::Player::PopUpDialog(client, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 	}
 
-	void BaseLogin(uint client, const std::wstring& args)
+	void BaseLogin(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -166,7 +166,7 @@ namespace PlayerCommands
 		return;
 	}
 
-	void BaseAddPwd(uint client, const std::wstring& args)
+	void BaseAddPwd(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -199,7 +199,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseRmPwd(uint client, const std::wstring& args)
+	void BaseRmPwd(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -231,7 +231,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseSetMasterPwd(uint client, const std::wstring& args)
+	void BaseSetMasterPwd(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -284,7 +284,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK New master password %s", new_password.c_str());
 	}
 
-	void BaseLstPwd(uint client, const std::wstring& cmd)
+	void BaseLstPwd(ClientId client, const std::wstring& cmd)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -311,7 +311,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseAddAllyTag(uint client, const std::wstring& args)
+	void BaseAddAllyTag(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -344,7 +344,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseRmAllyTag(uint client, const std::wstring& args)
+	void BaseRmAllyTag(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -376,7 +376,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseLstAllyTag(uint client, const std::wstring& cmd)
+	void BaseLstAllyTag(ClientId client, const std::wstring& cmd)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -396,7 +396,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void BaseRep(uint client, const std::wstring& args)
+	void BaseRep(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -435,10 +435,10 @@ namespace PlayerCommands
 		base->affiliation = affiliation;
 		base->Save();
 		PrintUserCmdText(
-		    client, L"OK Affiliation set to %s", HkGetWStringFromIDS(Reputation::get_name(affiliation)).c_str());
+		    client, L"OK Affiliation set to %s", GetWStringFromIdS(Reputation::get_name(affiliation)).c_str());
 	}
 
-	void BaseInfo(uint client, const std::wstring& args)
+	void BaseInfo(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -508,7 +508,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDefenseMode(uint client, const std::wstring& args)
+	void BaseDefenseMode(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -560,7 +560,7 @@ namespace PlayerCommands
 		base->SyncReputationForBase();
 	}
 
-	void BaseBuildMod(uint client, const std::wstring& args)
+	void BaseBuildMod(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -659,7 +659,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseFacMod(uint client, const std::wstring& args)
+	void BaseFacMod(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -775,7 +775,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDefMod(uint client, const std::wstring& args)
+	void BaseDefMod(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -832,7 +832,7 @@ namespace PlayerCommands
 
 					// Distance from base is limited to 5km
 					Vector new_pos = { x, y, z };
-					if (HkDistance3D(new_pos, base->position) > 5000)
+					if (Distance3D(new_pos, base->position) > 5000)
 					{
 						PrintUserCmdText(client, L"ERR Out of range");
 						return;
@@ -877,7 +877,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseShieldMod(uint client, const std::wstring& args)
+	void BaseShieldMod(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
@@ -923,7 +923,7 @@ namespace PlayerCommands
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void Bank(uint client, const std::wstring& args)
+	void Bank(ClientId client, const std::wstring& args)
 	{
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!clients[client].admin)
@@ -966,7 +966,7 @@ namespace PlayerCommands
 			    L"NOTICE: Bank withdraw new_balance=%I64d money=%d base=%s "
 			    "charname=%s (%s)",
 			    base->money, money, base->basename.c_str(), charname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+			    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 			PrintUserCmdText(client, L"OK %u credits withdrawn", money);
 		}
@@ -990,7 +990,7 @@ namespace PlayerCommands
 			    L"NOTICE: Bank deposit money=%d new_balance=%I64d base=%s "
 			    "charname=%s (%s)",
 			    money, base->money, base->basename.c_str(), charname.c_str(),
-			    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+			    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 			PrintUserCmdText(client, L"OK %u credits deposited", money);
 		}
@@ -1005,7 +1005,7 @@ namespace PlayerCommands
 		}
 	}
 
-	static void ShowShopStatus(uint client, PlayerBase* base, int page)
+	static void ShowShopStatus(ClientId client, PlayerBase* base, int page)
 	{
 		int pages = (base->market_items.size() / 40) + 1;
 		if (page > pages)
@@ -1047,14 +1047,14 @@ namespace PlayerCommands
 			    buf, _TRUNCATE,
 			    L"<TEXT>  %02u:  %u x %s %0.0f credits stock: %u min %u "
 			    L"max</TEXT><PARA/>",
-			    uint(item), i->second.quantity, HtmlEncode(HkGetWStringFromIDS(gi->iIDSName)).c_str(), i->second.price,
+			    uint(item), i->second.quantity, HtmlEncode(GetWStringFromIdS(gi->iIdSName)).c_str(), i->second.price,
 			    i->second.min_stock, i->second.max_stock);
 			status += buf;
 		}
 		status += L"<POP/></RDL>";
 
-		HkChangeIDSString(client, 500000, title);
-		HkChangeIDSString(client, 500001, status);
+		ChangeIdSString(client, 500000, title);
+		ChangeIdSString(client, 500001, status);
 
 		FmtStr caption(0, 0);
 		caption.begin_mad_lib(500000);
@@ -1067,7 +1067,7 @@ namespace PlayerCommands
 		pub::Player::PopUpDialog(client, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 	}
 
-	void Shop(uint client, const std::wstring& args)
+	void Shop(ClientId client, const std::wstring& args)
 	{
 		// Check that this player is in a player controlled base
 		PlayerBase* base = GetPlayerBaseForClient(client);
@@ -1151,7 +1151,7 @@ namespace PlayerCommands
 		}
 	}
 
-	void BaseDeploy(uint client, const std::wstring& args)
+	void BaseDeploy(ClientId client, const std::wstring& args)
 	{
 		// Abort processing if this is not a "heavy lifter"
 		uint shiparch;
@@ -1205,7 +1205,7 @@ namespace PlayerCommands
 		// Check that the ship has the requires commodities.
 		int hold_size;
 		std::list<CARGO_INFO> cargo;
-		HkEnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), cargo, hold_size);
+		EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), cargo, hold_size);
 		for (std::map<uint, uint>::iterator i = construction_items.begin(); i != construction_items.end(); ++i)
 		{
 			bool material_available = false;
@@ -1213,10 +1213,10 @@ namespace PlayerCommands
 			uint quantity = i->second;
 			for (std::list<CARGO_INFO>::iterator ci = cargo.begin(); ci != cargo.end(); ++ci)
 			{
-				if (ci->iArchID == good && ci->iCount >= (int)quantity)
+				if (ci->iArchId == good && ci->iCount >= (int)quantity)
 				{
 					material_available = true;
-					pub::Player::RemoveCargo(client, ci->iID, quantity);
+					pub::Player::RemoveCargo(client, ci->iId, quantity);
 				}
 			}
 			if (material_available == false)
@@ -1227,7 +1227,7 @@ namespace PlayerCommands
 					const GoodInfo* gi = GoodList::find_by_id(i->first);
 					if (gi)
 					{
-						PrintUserCmdText(client, L"|  %ux %s", i->second, HkGetWStringFromIDS(gi->iIDSName).c_str());
+						PrintUserCmdText(client, L"|  %ux %s", i->second, GetWStringFromIdS(gi->iIdSName).c_str());
 					}
 				}
 				return;
@@ -1237,7 +1237,7 @@ namespace PlayerCommands
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		AddLog(
 		     LogLevel::Info, L"NOTICE: Base created %s by %s (%s)", basename.c_str(), charname.c_str(),
-		    HkGetAccountID(HkGetAccountByCharname(charname)).c_str());
+		    GetAccountID(GetAccountByCharname(charname)).c_str());
 
 		PlayerBase* newbase = new PlayerBase(client, password, basename);
 		player_bases[newbase->base] = newbase;

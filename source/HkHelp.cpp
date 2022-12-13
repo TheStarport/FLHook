@@ -1,11 +1,11 @@
 ﻿#include "Global.hpp"
 
 std::list<stHelpEntry> lstHelpEntries;
-bool get_bTrue(uint iClientID)
+bool get_bTrue(ClientId client)
 {
 	return true;
 }
-void HkAddHelpEntry(
+void AddHelpEntry(
     const std::wstring& wscCommand, const std::wstring& wscArguments, const std::wstring& wscShortHelp,
     const std::wstring& wscLongHelp, _HelpEntryDisplayed fnIsDisplayed)
 {
@@ -31,7 +31,7 @@ void HkAddHelpEntry(
 	he.wszShortHelp = wscShortHelp;
 	lstHelpEntries.push_back(he);
 }
-void HkRemoveHelpEntry(const std::wstring& wscCommand, const std::wstring& wscArguments)
+void RemoveHelpEntry(const std::wstring& wscCommand, const std::wstring& wscArguments)
 {
 	for (auto he = lstHelpEntries.begin(); he != lstHelpEntries.end(); ++he)
 	{

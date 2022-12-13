@@ -49,19 +49,19 @@ static void EncryptDecrypt(char* ibuf, char* obuf)
 	}
 }
 
-void SwitchSystem(uint iClientID, uint system, Vector pos, Matrix ornt)
+void SwitchSystem(ClientId client, uint system, Vector pos, Matrix ornt)
 {
-	mapDeferredJumps[iClientID].system = system;
-	mapDeferredJumps[iClientID].pos = pos;
-	mapDeferredJumps[iClientID].ornt = ornt;
+	mapDeferredJumps[client].system = system;
+	mapDeferredJumps[client].pos = pos;
+	mapDeferredJumps[client].ornt = ornt;
 
 	// Force a launch to put the ship in the right location in the current
 	// system so that when the change system command arrives (hopefully) a
 	// fraction of a second later the ship will appear at the right location.
-	HkRelocateClient(iClientID, pos, ornt);
+	RelocateClient(client, pos, ornt);
 	// Send the jump command to the client. The client will send a system switch
 	// out complete event which we intercept to set the new starting positions.
-	PrintUserCmdText(iClientID, L" ChangeSys %u", system);
+	PrintUserCmdText(client, L" ChangeSys %u", system);
 }
 
 void LoadSettings(const std::string& scPluginCfgFile)
@@ -188,48 +188,48 @@ void LoadSettings(const std::string& scPluginCfgFile)
 	Console::ConInfo(L"Jumpdrive [%d]", mapJumpDriveArch.size());
 }
 
-void SetFuse(uint iClientID, uint fuse)
+void SetFuse(ClientId client, uint fuse)
 {
-	JUMPDRIVE& jd = mapJumpDrives[iClientID];
+	JUMPDRIVE& jd = mapJumpDrives[client];
 	if (jd.active_fuse)
 	{
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(client);
 		if (obj)
 		{
-			HkUnLightFuse((IObjRW*)obj, jd.active_fuse);
+			UnLightFuse((IObjRW*)obj, jd.active_fuse);
 		}
 		jd.active_fuse = 0;
 	}
 
 	if (fuse)
 	{
-		IObjInspectImpl* obj = HkGetInspect(iClientID);
+		IObjInspectImpl* obj = GetInspect(client);
 		if (obj)
 		{
 			jd.active_fuse = fuse;
-			HkLightFuse((IObjRW*)obj, jd.active_fuse, 0.0f, 0.0f, 0.0f);
+			LightFuse((IObjRW*)obj, jd.active_fuse, 0.0f, 0.0f, 0.0f);
 		}
 	}
 }
 
-void AddChargeFuse(uint iClientID, uint fuse)
+void AddChargeFuse(ClientId client, uint fuse)
 {
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(client);
 	if (obj)
 	{
-		mapJumpDrives[iClientID].active_charge_fuse.push_back(fuse);
-		HkLightFuse((IObjRW*)obj, fuse, 0, 0, 0);
+		mapJumpDrives[client].active_charge_fuse.push_back(fuse);
+		LightFuse((IObjRW*)obj, fuse, 0, 0, 0);
 	}
 }
 
-void StopChargeFuses(uint iClientID)
+void StopChargeFuses(ClientId client)
 {
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(client);
 	if (obj)
 	{
-		for (auto& fuse : mapJumpDrives[iClientID].active_charge_fuse)
-			HkUnLightFuse((IObjRW*)obj, fuse);
-		mapJumpDrives[iClientID].active_charge_fuse.clear();
+		for (auto& fuse : mapJumpDrives[client].active_charge_fuse)
+			UnLightFuse((IObjRW*)obj, fuse);
+		mapJumpDrives[client].active_charge_fuse.clear();
 	}
 }
 
@@ -240,13 +240,13 @@ void Timer()
 	// Handle survey charging
 	for (auto& iter : mapSurvey)
 	{
-		uint iClientID = iter.first;
+		ClientId client = iter.first;
 
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		if (iShip == 0)
+		uint ship;
+		pub::Player::GetShip(client, ship);
+		if (ship == 0)
 		{
-			lstOldClients.push_back(iClientID);
+			lstOldClients.push_back(client);
 		}
 		else
 		{
@@ -256,15 +256,15 @@ void Timer()
 				// Use fuel to charge the jump drive's storage capacitors
 				sm.charging_on = false;
 
-				for (auto item = Players[iClientID].equipDescList.equip.begin();
-				     item != Players[iClientID].equipDescList.equip.end(); item++)
+				for (auto item = Players[client].equipDescList.equip.begin();
+				     item != Players[client].equipDescList.equip.end(); item++)
 				{
-					if (sm.arch.mapFuelToUsage.find(item->iArchID) != sm.arch.mapFuelToUsage.end())
+					if (sm.arch.mapFuelToUsage.find(item->iArchId) != sm.arch.mapFuelToUsage.end())
 					{
-						uint fuel_usage = sm.arch.mapFuelToUsage[item->iArchID];
+						uint fuel_usage = sm.arch.mapFuelToUsage[item->iArchId];
 						if (item->iCount >= fuel_usage)
 						{
-							pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
+							pub::Player::RemoveCargo(client, item->sId, fuel_usage);
 							sm.curr_charge += sm.arch.charge_rate;
 							sm.charging_on = true;
 							break;
@@ -274,7 +274,7 @@ void Timer()
 
 				Vector dir1;
 				Vector dir2;
-				pub::SpaceObj::GetMotion(iShip, dir1, dir2);
+				pub::SpaceObj::GetMotion(ship, dir1, dir2);
 				if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 				{
 					sm.charging_on = false;
@@ -285,7 +285,7 @@ void Timer()
 				if (!sm.charging_on)
 				{
 					sm.curr_charge = 0;
-					PrintUserCmdText(iClientID, L"Survey failed");
+					PrintUserCmdText(client, L"Survey failed");
 					continue;
 				}
 
@@ -294,14 +294,14 @@ void Timer()
 					// We're done.
 					Vector v;
 					Matrix m;
-					pub::SpaceObj::GetLocation(iShip, v, m);
+					pub::SpaceObj::GetLocation(ship, v, m);
 
 					// Fill out the coordinate structure
 					HYPERSPACE_COORDS coords;
 					char* ibuf = (char*)&coords;
 					memset(&coords, 0, sizeof(coords));
 					coords.seed = rand();
-					coords.system = Players[iClientID].iSystemID;
+					coords.system = Players[client].iSystemId;
 					coords.x = v.x;
 					coords.y = v.y;
 					coords.z = v.z;
@@ -317,38 +317,38 @@ void Timer()
 					// Encrypt it
 					char obuf[HCOORD_SIZE];
 					EncryptDecrypt(ibuf, obuf);
-					PrintUserCmdText(iClientID, L"Hyperspace survey complete");
-					// PrintUserCmdText(iClientID, L"Raw: %s",
+					PrintUserCmdText(client, L"Hyperspace survey complete");
+					// PrintUserCmdText(client, L"Raw: %s",
 					// FormatCoords(ibuf).c_str());
-					PrintUserCmdText(iClientID, L"Coords: %s", FormatCoords(obuf).c_str());
+					PrintUserCmdText(client, L"Coords: %s", FormatCoords(obuf).c_str());
 
-					lstOldClients.push_back(iClientID);
+					lstOldClients.push_back(client);
 				}
 				else if (time(0) % 10 == 0)
 				{
 					PrintUserCmdText(
-					    iClientID, L"Survey %0.0f%% complete",
+					    client, L"Survey %0.0f%% complete",
 					    (sm.curr_charge / sm.arch.survey_complete_charge) * 100.0f);
 				}
 			}
 		}
 	}
 
-	for (auto& iClientID : lstOldClients)
-		mapSurvey.erase(iClientID);
+	for (auto& client : lstOldClients)
+		mapSurvey.erase(client);
 
 	lstOldClients.clear();
 
 	// Handle jump drive charging
 	for (auto& iter : mapJumpDrives)
 	{
-		uint iClientID = iter.first;
+		ClientId client = iter.first;
 
-		uint iShip;
-		pub::Player::GetShip(iClientID, iShip);
-		if (iShip == 0)
+		uint ship;
+		pub::Player::GetShip(client, ship);
+		if (ship == 0)
 		{
-			lstOldClients.push_back(iClientID);
+			lstOldClients.push_back(client);
 		}
 		else
 		{
@@ -362,52 +362,52 @@ void Timer()
 					jd.charging_complete = false;
 					jd.curr_charge = 0.0;
 					jd.charging_on = false;
-					SetFuse(iClientID, jd.arch.jump_fuse);
-					pub::Audio::PlaySoundEffect(iClientID, CreateID("dsy_jumpdrive_activate"));
+					SetFuse(client, jd.arch.jump_fuse);
+					pub::Audio::PlaySoundEffect(client, CreateID("dsy_jumpdrive_activate"));
 				}
 				// Execute the jump and do the pop sound
 				else if (jd.jump_timer == 2)
 				{
 					// Stop the charging fuses
-					StopChargeFuses(iClientID);
+					StopChargeFuses(client);
 
 					// Jump the player's ship
 					Vector vPosition;
 					Matrix mShipDir;
-					pub::SpaceObj::GetLocation(iShip, vPosition, mShipDir);
+					pub::SpaceObj::GetLocation(ship, vPosition, mShipDir);
 
-					uint iSystemID;
-					pub::SpaceObj::GetSystem(iShip, iSystemID);
+					uint iSystemId;
+					pub::SpaceObj::GetSystem(ship, iSystemId);
 
-					pub::SpaceObj::DrainShields(iShip);
-					SwitchSystem(iClientID, jd.iTargetSystem, jd.vTargetPosition, mShipDir);
+					pub::SpaceObj::DrainShields(ship);
+					SwitchSystem(client, jd.iTargetSystem, jd.vTargetPosition, mShipDir);
 
 					// Find all ships within the jump field including the one
 					// with the jump engine.
 					if (jd.arch.field_range > 0)
 					{
-						struct PlayerData* pPD = 0;
-						while (pPD = Players.traverse_active(pPD))
+						struct PlayerData* playerData = 0;
+						while (playerData = Players.traverse_active(playerData))
 						{
-							uint iSystemID2;
-							pub::SpaceObj::GetSystem(pPD->iShipID, iSystemID2);
+							uint iSystemId2;
+							pub::SpaceObj::GetSystem(playerData->shipId, iSystemId2);
 
 							Vector vPosition2;
 							Matrix mShipDir2;
-							pub::SpaceObj::GetLocation(pPD->iShipID, vPosition2, mShipDir2);
+							pub::SpaceObj::GetLocation(playerData->shipId, vPosition2, mShipDir2);
 
-							if (pPD->iOnlineID != iClientID && iSystemID2 == iSystemID &&
-							    HkDistance3D(vPosition, vPosition2) <= jd.arch.field_range)
+							if (playerData->iOnlineId != client && iSystemId2 == iSystemId &&
+							    Distance3D(vPosition, vPosition2) <= jd.arch.field_range)
 							{
-								PrintUserCmdText(pPD->iOnlineID, L"Jumping...");
+								PrintUserCmdText(playerData->iOnlineId, L"Jumping...");
 
 								Vector vNewTargetPosition;
 								vNewTargetPosition.x = jd.vTargetPosition.x + (vPosition.x - vPosition2.x);
 								vNewTargetPosition.y = jd.vTargetPosition.y + (vPosition.y - vPosition2.y);
 								vNewTargetPosition.z = jd.vTargetPosition.z + (vPosition.z - vPosition2.z);
-								pub::Audio::PlaySoundEffect(pPD->iOnlineID, CreateID("dsy_jumpdrive_activate"));
-								pub::SpaceObj::DrainShields(pPD->iShipID);
-								SwitchSystem(pPD->iOnlineID, jd.iTargetSystem, vNewTargetPosition, mShipDir2);
+								pub::Audio::PlaySoundEffect(playerData->iOnlineId, CreateID("dsy_jumpdrive_activate"));
+								pub::SpaceObj::DrainShields(playerData->shipId);
+								SwitchSystem(playerData->iOnlineId, jd.iTargetSystem, vNewTargetPosition, mShipDir2);
 							}
 						}
 					}
@@ -417,7 +417,7 @@ void Timer()
 				else if (jd.jump_timer == 1)
 				{
 					uint iSystem;
-					pub::Player::GetSystem(iClientID, iSystem);
+					pub::Player::GetSystem(client, iSystem);
 					if (iSystem != jd.iTargetSystem)
 						jd.jump_timer = 2;
 				}
@@ -429,10 +429,10 @@ void Timer()
 					// kill the ship
 					if (set_death_systems.find(jd.iTargetSystem) != set_death_systems.end())
 					{
-						IObjInspectImpl* obj = HkGetInspect(iClientID);
+						IObjInspectImpl* obj = GetInspect(client);
 						if (obj)
 						{
-							HkLightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
+							LightFuse((IObjRW*)obj, CreateID("death_comm"), 0.0f, 0.0f, 0.0f);
 						}
 					}
 
@@ -440,9 +440,9 @@ void Timer()
 					jd.vTargetPosition.x = 0;
 					jd.vTargetPosition.y = 0;
 					jd.vTargetPosition.z = 0;
-					pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-					SetFuse(iClientID, 0);
-					StopChargeFuses(iClientID);
+					pub::SpaceObj::SetInvincible(ship, false, false, 0);
+					SetFuse(client, 0);
+					StopChargeFuses(client);
 				}
 
 				// Proceed to the next ship.
@@ -454,15 +454,15 @@ void Timer()
 				// Use fuel to charge the jump drive's storage capacitors
 				jd.charging_on = false;
 
-				for (auto item = Players[iClientID].equipDescList.equip.begin();
-				     item != Players[iClientID].equipDescList.equip.end(); item++)
+				for (auto item = Players[client].equipDescList.equip.begin();
+				     item != Players[client].equipDescList.equip.end(); item++)
 				{
-					if (jd.arch.mapFuelToUsage.find(item->iArchID) != jd.arch.mapFuelToUsage.end())
+					if (jd.arch.mapFuelToUsage.find(item->iArchId) != jd.arch.mapFuelToUsage.end())
 					{
-						uint fuel_usage = jd.arch.mapFuelToUsage[item->iArchID];
+						uint fuel_usage = jd.arch.mapFuelToUsage[item->iArchId];
 						if (item->iCount >= fuel_usage)
 						{
-							pub::Player::RemoveCargo(iClientID, item->sID, fuel_usage);
+							pub::Player::RemoveCargo(client, item->sId, fuel_usage);
 							jd.curr_charge += jd.arch.charge_rate;
 							jd.charging_on = true;
 							break;
@@ -474,22 +474,22 @@ void Timer()
 				// to lack of fuel and skip to the next player.
 				if (!jd.charging_on)
 				{
-					PrintUserCmdText(iClientID, L"Jump drive charging failed");
-					pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
-					SetFuse(iClientID, 0);
-					StopChargeFuses(iClientID);
+					PrintUserCmdText(client, L"Jump drive charging failed");
+					pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
+					SetFuse(client, 0);
+					StopChargeFuses(client);
 					continue;
 				}
 
-				pub::Audio::PlaySoundEffect(iClientID, CreateID("dsy_jumpdrive_charge"));
+				pub::Audio::PlaySoundEffect(client, CreateID("dsy_jumpdrive_charge"));
 
 				if (jd.curr_charge >= jd.arch.can_jump_charge)
 				{
 					jd.curr_charge = jd.arch.can_jump_charge;
 					if (!jd.charging_complete)
 					{
-						PrintUserCmdText(iClientID, L"Jump drive charging complete, ready to jump");
-						pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_complete"));
+						PrintUserCmdText(client, L"Jump drive charging complete, ready to jump");
+						pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_complete"));
 						jd.charging_complete = true;
 					}
 				}
@@ -503,7 +503,7 @@ void Timer()
 				{
 					jd.charge_status = expected_charge_status;
 					PrintUserCmdText(
-					    iClientID, L"Jump drive charge %0.0f%%", (jd.curr_charge / jd.arch.can_jump_charge) * 100.0f);
+					    client, L"Jump drive charge %0.0f%%", (jd.curr_charge / jd.arch.can_jump_charge) * 100.0f);
 
 					// Find the currently expected charge fuse
 					uint charge_fuse_idx =
@@ -516,7 +516,7 @@ void Timer()
 					if (find(jd.active_charge_fuse.begin(), jd.active_charge_fuse.end(), charge_fuse) ==
 					    jd.active_charge_fuse.end())
 					{
-						AddChargeFuse(iClientID, charge_fuse);
+						AddChargeFuse(client, charge_fuse);
 					}
 				}
 			}
@@ -531,20 +531,20 @@ void Timer()
 
 				jd.charging_complete = false;
 				jd.charge_status = -1;
-				StopChargeFuses(iClientID);
-				SetFuse(iClientID, 0);
+				StopChargeFuses(client);
+				SetFuse(client, 0);
 			}
 		}
 	}
 
 	// If the ship has docked or died remove the client.
-	for (auto& iClientID : lstOldClients)
-		mapJumpDrives.erase(iClientID);
+	for (auto& client : lstOldClients)
+		mapJumpDrives.erase(client);
 
 	// Handle testbot jumping.
 	for (auto& iter : mapTestBots)
 	{
-		uint iClientID = iter.first;
+		ClientId client = iter.first;
 		TESTBOT& tb = iter.second;
 
 		if (tb.bBaseTest)
@@ -558,39 +558,39 @@ void Timer()
 				tb.iCheckZonesTimer = tb.iCheckZoneTime;
 				tb.iCheckTestedZones++;
 				uint iSystem;
-				pub::Player::GetSystem(iClientID, iSystem);
+				pub::Player::GetSystem(client, iSystem);
 
-				uint iShip;
-				pub::Player::GetShip(iClientID, iShip);
+				uint ship;
+				pub::Player::GetShip(client, ship);
 
 				// if ship is in base undock it
 				uint iBase;
-				pub::Player::GetBase(iClientID, iBase);
+				pub::Player::GetBase(client, iBase);
 				if (iBase)
 				{
-					PrintUserCmdText(iClientID, L"Launching iteration %d", tb.iCheckTestedZones);
+					PrintUserCmdText(client, L"Launching iteration %d", tb.iCheckTestedZones);
 
 					Vector pos = { 0, 300000, 0 };
 					Matrix ornt = { 0 };
-					SwitchSystem(iClientID, iSystem, pos, ornt);
+					SwitchSystem(client, iSystem, pos, ornt);
 				}
 				// if in space dock with specified base.
-				else if (iShip)
+				else if (ship)
 				{
-					PrintUserCmdText(iClientID, L"Docking iteration %d", tb.iCheckTestedZones);
+					PrintUserCmdText(client, L"Docking iteration %d", tb.iCheckTestedZones);
 
 					const struct Universe::IBase* baseinfo = Universe::get_base(tb.iCheckSystemOrBase);
-					pub::Player::ForceLand(iClientID, baseinfo->iBaseID);
-					if (iSystem != baseinfo->iSystemID)
+					pub::Player::ForceLand(client, baseinfo->iBaseId);
+					if (iSystem != baseinfo->iSystemId)
 					{
-						Server.BaseEnter(baseinfo->iBaseID, iClientID);
-						Server.BaseExit(baseinfo->iBaseID, iClientID);
+						Server.BaseEnter(baseinfo->iBaseId, client);
+						Server.BaseExit(baseinfo->iBaseId, client);
 						std::wstring wscCharFileName;
-						HkGetCharFileName((const wchar_t*)Players.GetActiveCharacterName(iClientID), wscCharFileName);
+						GetCharFileName((const wchar_t*)Players.GetActiveCharacterName(client), wscCharFileName);
 						wscCharFileName += L".fl";
-						CHARACTER_ID cID;
-						strcpy(cID.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cID, iClientID);
+						CHARACTER_ID cId;
+						strcpy(cId.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+						Server.CharacterSelect(cId, client);
 					}
 				}
 			}
@@ -604,7 +604,7 @@ void Timer()
 				if (tb.iCheckZonesTimer > 0)
 				{
 					if ((tb.iCheckZonesTimer % 10) == 0)
-						PrintUserCmdText(iClientID, L"Jump to next zone in %d seconds", tb.iCheckZonesTimer);
+						PrintUserCmdText(client, L"Jump to next zone in %d seconds", tb.iCheckZonesTimer);
 					tb.iCheckZonesTimer--;
 				}
 				else if (tb.iCheckZonesTimer == 0)
@@ -616,17 +616,17 @@ void Timer()
 
 						const ZONE& lz = tb.lstCheckZones.front();
 						PrintUserCmdText(
-						    iClientID, L"Testing zone %s (%0.0f %0.0f %0.0f) iteration %d", stows(lz.zoneNick).c_str(),
+						    client, L"Testing zone %s (%0.0f %0.0f %0.0f) iteration %d", stows(lz.zoneNick).c_str(),
 						    lz.pos.x, lz.pos.y, lz.pos.z, tb.iCheckTestedZones);
 
-						uint iShip;
-						pub::Player::GetShip(iClientID, iShip);
+						uint ship;
+						pub::Player::GetShip(client, ship);
 
 						Vector myLocation;
 						Matrix myRot;
-						pub::SpaceObj::GetLocation(iShip, myLocation, myRot);
+						pub::SpaceObj::GetLocation(ship, myLocation, myRot);
 
-						HkRelocateClient(iClientID, lz.pos, myRot);
+						RelocateClient(client, lz.pos, myRot);
 						tb.lstCheckZones.pop_front();
 						tb.lstCheckZones.push_back(lz);
 					}
@@ -636,19 +636,19 @@ void Timer()
 	}
 }
 
-void SendDeathMsg(const std::wstring& wscMsg, uint& iSystem, uint& iClientIDVictim, uint& iClientIDKiller)
+void SendDeathMsg(const std::wstring& wscMsg, uint& iSystem, ClientId& clientVictim, ClientId& clientKiller)
 {
 	// If someone killed a bot then take revenge
-	auto iter = mapTestBots.find(iClientIDVictim);
+	auto iter = mapTestBots.find(clientVictim);
 	if (iter != mapTestBots.end())
 	{
-		PrintUserCmdText(iClientIDKiller, L"Err 0101010001110 Does not compute");
-		HkKill((const wchar_t*)Players.GetActiveCharacterName(iClientIDKiller));
+		PrintUserCmdText(clientKiller, L"Err 0101010001110 Does not compute");
+		Kill((const wchar_t*)Players.GetActiveCharacterName(clientKiller));
 		return;
 	}
 }
 
-bool SystemSwitchOutComplete(uint& iShip, uint& iClientID)
+bool SystemSwitchOutComplete(uint& ship, ClientId& client)
 {
 	static PBYTE SwitchOut = 0;
 	if (!SwitchOut)
@@ -661,29 +661,29 @@ bool SystemSwitchOutComplete(uint& iShip, uint& iClientID)
 
 	// Patch the system switch out routine to put the ship in a
 	// system of our choosing.
-	if (mapDeferredJumps.find(iClientID) != mapDeferredJumps.end())
+	if (mapDeferredJumps.find(client) != mapDeferredJumps.end())
 	{
 		SwitchOut[0x0d7] = 0xeb; // ignore exit object
 		SwitchOut[0x0d8] = 0x40;
 		SwitchOut[0x119] = 0xbb; // set the destination system
-		*(PDWORD)(SwitchOut + 0x11a) = mapDeferredJumps[iClientID].system;
+		*(PDWORD)(SwitchOut + 0x11a) = mapDeferredJumps[client].system;
 		SwitchOut[0x266] = 0x45;                                          // don't generate warning
-		*(float*)(SwitchOut + 0x2b0) = mapDeferredJumps[iClientID].pos.z; // set entry location
-		*(float*)(SwitchOut + 0x2b8) = mapDeferredJumps[iClientID].pos.y;
-		*(float*)(SwitchOut + 0x2c0) = mapDeferredJumps[iClientID].pos.x;
-		*(float*)(SwitchOut + 0x2c8) = mapDeferredJumps[iClientID].ornt.data[2][2];
-		*(float*)(SwitchOut + 0x2d0) = mapDeferredJumps[iClientID].ornt.data[1][1];
-		*(float*)(SwitchOut + 0x2d8) = mapDeferredJumps[iClientID].ornt.data[0][0];
-		*(float*)(SwitchOut + 0x2e0) = mapDeferredJumps[iClientID].ornt.data[2][1];
-		*(float*)(SwitchOut + 0x2e8) = mapDeferredJumps[iClientID].ornt.data[2][0];
-		*(float*)(SwitchOut + 0x2f0) = mapDeferredJumps[iClientID].ornt.data[1][2];
-		*(float*)(SwitchOut + 0x2f8) = mapDeferredJumps[iClientID].ornt.data[1][0];
-		*(float*)(SwitchOut + 0x300) = mapDeferredJumps[iClientID].ornt.data[0][2];
-		*(float*)(SwitchOut + 0x308) = mapDeferredJumps[iClientID].ornt.data[0][1];
+		*(float*)(SwitchOut + 0x2b0) = mapDeferredJumps[client].pos.z; // set entry location
+		*(float*)(SwitchOut + 0x2b8) = mapDeferredJumps[client].pos.y;
+		*(float*)(SwitchOut + 0x2c0) = mapDeferredJumps[client].pos.x;
+		*(float*)(SwitchOut + 0x2c8) = mapDeferredJumps[client].ornt.data[2][2];
+		*(float*)(SwitchOut + 0x2d0) = mapDeferredJumps[client].ornt.data[1][1];
+		*(float*)(SwitchOut + 0x2d8) = mapDeferredJumps[client].ornt.data[0][0];
+		*(float*)(SwitchOut + 0x2e0) = mapDeferredJumps[client].ornt.data[2][1];
+		*(float*)(SwitchOut + 0x2e8) = mapDeferredJumps[client].ornt.data[2][0];
+		*(float*)(SwitchOut + 0x2f0) = mapDeferredJumps[client].ornt.data[1][2];
+		*(float*)(SwitchOut + 0x2f8) = mapDeferredJumps[client].ornt.data[1][0];
+		*(float*)(SwitchOut + 0x300) = mapDeferredJumps[client].ornt.data[0][2];
+		*(float*)(SwitchOut + 0x308) = mapDeferredJumps[client].ornt.data[0][1];
 		*(PDWORD)(SwitchOut + 0x388) = 0x03ebc031; // ignore entry object
-		mapDeferredJumps.erase(iClientID);
-		pub::SpaceObj::SetInvincible(iShip, false, false, 0);
-		Server.SystemSwitchOutComplete(iShip, iClientID);
+		mapDeferredJumps.erase(client);
+		pub::SpaceObj::SetInvincible(ship, false, false, 0);
+		Server.SystemSwitchOutComplete(ship, client);
 		SwitchOut[0x0d7] = 0x0f;
 		SwitchOut[0x0d8] = 0x84;
 		SwitchOut[0x119] = 0x87;
@@ -701,50 +701,50 @@ bool SystemSwitchOutComplete(uint& iShip, uint& iClientID)
 	return false;
 }
 
-void ClearClientInfo(uint& iClientID)
+void ClearClientInfo(ClientId& client)
 {
-	mapTestBots.erase(iClientID);
-	mapDeferredJumps.erase(iClientID);
-	mapJumpDrives.erase(iClientID);
-	mapSurvey.erase(iClientID);
+	mapTestBots.erase(client);
+	mapDeferredJumps.erase(client);
+	mapJumpDrives.erase(client);
+	mapSurvey.erase(client);
 }
 
-bool InitJumpDriveInfo(uint iClientID)
+bool InitJumpDriveInfo(ClientId client)
 {
 	// Initialise the drive parameters for this ship
-	if (mapJumpDrives.find(iClientID) == mapJumpDrives.end())
+	if (mapJumpDrives.find(client) == mapJumpDrives.end())
 	{
-		mapJumpDrives[iClientID].arch.nickname = 0;
-		mapJumpDrives[iClientID].arch.can_jump_charge = 0;
-		mapJumpDrives[iClientID].arch.charge_fuse.clear();
-		mapJumpDrives[iClientID].arch.charge_rate = 0;
-		mapJumpDrives[iClientID].arch.discharge_rate = 0;
-		mapJumpDrives[iClientID].arch.jump_fuse = 0;
-		mapJumpDrives[iClientID].arch.mapFuelToUsage.clear();
+		mapJumpDrives[client].arch.nickname = 0;
+		mapJumpDrives[client].arch.can_jump_charge = 0;
+		mapJumpDrives[client].arch.charge_fuse.clear();
+		mapJumpDrives[client].arch.charge_rate = 0;
+		mapJumpDrives[client].arch.discharge_rate = 0;
+		mapJumpDrives[client].arch.jump_fuse = 0;
+		mapJumpDrives[client].arch.mapFuelToUsage.clear();
 
-		mapJumpDrives[iClientID].charging_on = false;
-		mapJumpDrives[iClientID].curr_charge = 0;
-		mapJumpDrives[iClientID].active_fuse = 0;
-		mapJumpDrives[iClientID].active_charge_fuse.clear();
-		mapJumpDrives[iClientID].charging_complete = false;
-		mapJumpDrives[iClientID].charge_status = -1;
+		mapJumpDrives[client].charging_on = false;
+		mapJumpDrives[client].curr_charge = 0;
+		mapJumpDrives[client].active_fuse = 0;
+		mapJumpDrives[client].active_charge_fuse.clear();
+		mapJumpDrives[client].charging_complete = false;
+		mapJumpDrives[client].charge_status = -1;
 
-		mapJumpDrives[iClientID].jump_timer = 0;
-		mapJumpDrives[iClientID].iTargetSystem = 0;
-		mapJumpDrives[iClientID].vTargetPosition.x = 0;
-		mapJumpDrives[iClientID].vTargetPosition.y = 0;
-		mapJumpDrives[iClientID].vTargetPosition.z = 0;
+		mapJumpDrives[client].jump_timer = 0;
+		mapJumpDrives[client].iTargetSystem = 0;
+		mapJumpDrives[client].vTargetPosition.x = 0;
+		mapJumpDrives[client].vTargetPosition.y = 0;
+		mapJumpDrives[client].vTargetPosition.z = 0;
 
 		// Check that the player has a jump drive and initialise the infomation
 		// about it - otherwise return false.
-		for (auto item = Players[iClientID].equipDescList.equip.begin();
-		     item != Players[iClientID].equipDescList.equip.end(); item++)
+		for (auto item = Players[client].equipDescList.equip.begin();
+		     item != Players[client].equipDescList.equip.end(); item++)
 		{
-			if (mapJumpDriveArch.find(item->iArchID) != mapJumpDriveArch.end())
+			if (mapJumpDriveArch.find(item->iArchId) != mapJumpDriveArch.end())
 			{
 				if (item->bMounted)
 				{
-					mapJumpDrives[iClientID].arch = mapJumpDriveArch[item->iArchID];
+					mapJumpDrives[client].arch = mapJumpDriveArch[item->iArchId];
 					return true;
 				}
 			}
@@ -766,13 +766,13 @@ time_t filetime_to_timet(const FILETIME& ft)
 
 // Move the ship's starting position randomly if it has been logged out in
 // space.
-void PlayerLaunch(uint& iShip, uint& iClientID)
+void PlayerLaunch(uint& ship, ClientId& client)
 {
 	static const uint MAX_DRIFT = 50000;
 
 	// Find the time this ship was last online.
 	std::wstring wscTimeStamp = L"";
-	if (HkFLIniGet((const wchar_t*)Players.GetActiveCharacterName(iClientID), L"tstamp", wscTimeStamp) != HKE_OK)
+	if (FLIniGet((const wchar_t*)Players.GetActiveCharacterName(client), L"tstamp", wscTimeStamp) != E_OK)
 		return;
 
 	FILETIME ft;
@@ -795,50 +795,50 @@ void PlayerLaunch(uint& iShip, uint& iClientID)
 	drift *= ((2.0f * rand() / (float)RAND_MAX) - 1.0f);
 
 	// Adjust the ship's position.
-	Vector pos = { Players[iClientID].vPosition.x, Players[iClientID].vPosition.y, Players[iClientID].vPosition.z };
+	Vector pos = { Players[client].vPosition.x, Players[client].vPosition.y, Players[client].vPosition.z };
 	pos.x += drift / 10;
 	pos.y += drift;
 	pos.z += drift / 10;
-	pub::Player::SetInitialPos(iClientID, pos);
+	pub::Player::SetInitialPos(client, pos);
 }
 
-void GuidedHit(uint& iClientID, DamageList** dmg)
+void GuidedHit(ClientId& client, DamageList** dmg)
 {
-	if (mapSurvey.find(iClientID) != mapSurvey.find(iClientID))
+	if (mapSurvey.find(client) != mapSurvey.find(client))
 	{
 		DamageList* dmg2 = *dmg;
 		if (dmg2->get_cause() == 6 || dmg2->get_cause() == 0x15)
 		{
-			mapSurvey[iClientID].curr_charge = 0;
-			mapSurvey[iClientID].charging_on = false;
-			PrintUserCmdText(iClientID, L"Hyperspace survey disrupted, restart required");
+			mapSurvey[client].curr_charge = 0;
+			mapSurvey[client].charging_on = false;
+			PrintUserCmdText(client, L"Hyperspace survey disrupted, restart required");
 		}
 	}
 }
 
-bool InitSurveyInfo(uint iClientID)
+bool InitSurveyInfo(ClientId client)
 {
 	// Initialise the drive parameters for this ship
-	if (mapSurvey.find(iClientID) == mapSurvey.end())
+	if (mapSurvey.find(client) == mapSurvey.end())
 	{
-		mapSurvey[iClientID].arch.nickname = 0;
-		mapSurvey[iClientID].arch.survey_complete_charge = 0;
-		mapSurvey[iClientID].arch.charge_rate = 0;
-		mapSurvey[iClientID].arch.coord_accuracy = 0;
-		mapSurvey[iClientID].arch.power = 0;
-		mapSurvey[iClientID].arch.mapFuelToUsage.clear();
+		mapSurvey[client].arch.nickname = 0;
+		mapSurvey[client].arch.survey_complete_charge = 0;
+		mapSurvey[client].arch.charge_rate = 0;
+		mapSurvey[client].arch.coord_accuracy = 0;
+		mapSurvey[client].arch.power = 0;
+		mapSurvey[client].arch.mapFuelToUsage.clear();
 
-		mapSurvey[iClientID].charging_on = false;
-		mapSurvey[iClientID].curr_charge = 0;
+		mapSurvey[client].charging_on = false;
+		mapSurvey[client].curr_charge = 0;
 
 		// Check that the player has a jump drive and initialise the infomation
 		// about it - otherwise return false.
-		for (auto item = Players[iClientID].equipDescList.equip.begin();
-		     item != Players[iClientID].equipDescList.equip.end(); item++)
+		for (auto item = Players[client].equipDescList.equip.begin();
+		     item != Players[client].equipDescList.equip.end(); item++)
 		{
-			if (mapSurveyArch.find(item->iArchID) != mapSurveyArch.end())
+			if (mapSurveyArch.find(item->iArchId) != mapSurveyArch.end())
 			{
-				mapSurvey[iClientID].arch = mapSurveyArch[item->iArchID];
+				mapSurvey[client].arch = mapSurveyArch[item->iArchId];
 				return true;
 			}
 		}
@@ -853,28 +853,28 @@ bool InitSurveyInfo(uint iClientID)
 // User commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Survey(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_Survey(ClientId& client, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(client);
 	if (!obj)
 	{
-		PrintUserCmdText(iClientID, L"Survey module not available");
+		PrintUserCmdText(client, L"Survey module not available");
 		return;
 	}
 
-	if (!InitSurveyInfo(iClientID))
+	if (!InitSurveyInfo(client))
 	{
-		PrintUserCmdText(iClientID, L"Survey module not available");
+		PrintUserCmdText(client, L"Survey module not available");
 		return;
 	}
 
-	SURVEY& sm = mapSurvey[iClientID];
+	SURVEY& sm = mapSurvey[client];
 
-	CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+	CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 	if (cship->get_max_power() < sm.arch.power)
 	{
-		PrintUserCmdText(iClientID, L"Insufficient power to start survey module");
+		PrintUserCmdText(client, L"Insufficient power to start survey module");
 		return;
 	}
 
@@ -882,33 +882,33 @@ void UserCmd_Survey(const uint& iClientID, const std::wstring_view& wscParam)
 	sm.charging_on = !sm.charging_on;
 	if (sm.charging_on)
 	{
-		PrintUserCmdText(iClientID, L"Survey started");
+		PrintUserCmdText(client, L"Survey started");
 		sm.curr_charge = 0;
 		return;
 	}
 	else
 	{
-		PrintUserCmdText(iClientID, L"Survey aborted");
+		PrintUserCmdText(client, L"Survey aborted");
 		sm.curr_charge = 0;
 		return;
 	}
 }
 
-void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_SetCoords(ClientId& client, const std::wstring_view& wscParam)
 {
-	if (!InitJumpDriveInfo(iClientID))
+	if (!InitJumpDriveInfo(client))
 	{
-		PrintUserCmdText(iClientID, L"Jump drive not available");
+		PrintUserCmdText(client, L"Jump drive not available");
 		return;
 	}
 
-	JUMPDRIVE& jd = mapJumpDrives[iClientID];
+	JUMPDRIVE& jd = mapJumpDrives[client];
 	jd.iTargetSystem = 0;
 
 	std::string sbuf = wstos(ReplaceStr(GetParam(wscParam, L' ', 0), L"-", L""));
 	if (sbuf.size() != 56)
 	{
-		PrintUserCmdText(iClientID, L"ERR Invalid coordinates, format error");
+		PrintUserCmdText(client, L"ERR Invalid coordinates, format error");
 		return;
 	}
 
@@ -935,13 +935,13 @@ void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 
 	if (coords.parity != parity)
 	{
-		PrintUserCmdText(iClientID, L"ERR Invalid coordinates, parity error");
+		PrintUserCmdText(client, L"ERR Invalid coordinates, parity error");
 		return;
 	}
 
 	if (coords.time < time(0))
 	{
-		PrintUserCmdText(iClientID, L"Warning old coordinates detected. Jump not recommended");
+		PrintUserCmdText(client, L"Warning old coordinates detected. Jump not recommended");
 		coords.accuracy *= rand() % 7;
 	}
 
@@ -952,7 +952,7 @@ void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 
 	const struct Universe::ISystem* sysinfo = Universe::get_system(jd.iTargetSystem);
 	PrintUserCmdText(
-	    iClientID, L"OK Coordinates verified: %s %0.0f.%0.0f.%0.0f", HkGetWStringFromIDS(sysinfo->strid_name).c_str(),
+	    client, L"OK Coordinates verified: %s %0.0f.%0.0f.%0.0f", GetWStringFromIdS(sysinfo->strid_name).c_str(),
 	    *(float*)&jd.vTargetPosition.x, *(float*)&jd.vTargetPosition.y, *(float*)&jd.vTargetPosition.z);
 
 	int wiggle_factor = (int)coords.accuracy;
@@ -963,31 +963,31 @@ void UserCmd_SetCoords(const uint& iClientID, const std::wstring_view& wscParam)
 	return;
 }
 
-void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_ChargeJumpDrive(ClientId& client, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(client);
 	if (!obj)
 	{
-		PrintUserCmdText(iClientID, L"Jump drive charging failed");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
+		PrintUserCmdText(client, L"Jump drive charging failed");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
 		return;
 	}
 
-	if (!InitJumpDriveInfo(iClientID))
+	if (!InitJumpDriveInfo(client))
 	{
-		PrintUserCmdText(iClientID, L"Jump drive not available");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
+		PrintUserCmdText(client, L"Jump drive not available");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
 		return;
 	}
 
-	JUMPDRIVE& jd = mapJumpDrives[iClientID];
+	JUMPDRIVE& jd = mapJumpDrives[client];
 
-	CShip* cship = (CShip*)HkGetEqObjFromObjRW((IObjRW*)obj);
+	CShip* cship = (CShip*)GetEqObjFromObjRW((IObjRW*)obj);
 	if (cship->get_max_power() < jd.arch.power)
 	{
-		PrintUserCmdText(iClientID, L"Insufficient power to charge jumpdrive");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
+		PrintUserCmdText(client, L"Insufficient power to charge jumpdrive");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
 		return;
 	}
 
@@ -1000,59 +1000,59 @@ void UserCmd_ChargeJumpDrive(const uint& iClientID, const std::wstring_view& wsc
 	{
 		if (jd.iTargetSystem == 0)
 		{
-			PrintUserCmdText(iClientID, L"WARNING NO JUMP COORDINATES");
-			pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_blind_jump_warning"));
+			PrintUserCmdText(client, L"WARNING NO JUMP COORDINATES");
+			pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_blind_jump_warning"));
 		}
 
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging"));
-		PrintUserCmdText(iClientID, L"Jump drive charging");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging"));
+		PrintUserCmdText(client, L"Jump drive charging");
 	}
 	// Cancel jump effect if it is running
 	else
 	{
-		PrintUserCmdText(iClientID, L"Jump drive disabled");
-		StopChargeFuses(iClientID);
-		SetFuse(iClientID, 0);
+		PrintUserCmdText(client, L"Jump drive disabled");
+		StopChargeFuses(client);
+		SetFuse(client, 0);
 	}
 
 	return;
 }
 
-void UserCmd_ActivateJumpDrive(const uint& iClientID, const std::wstring_view& wscParam)
+void UserCmd_ActivateJumpDrive(ClientId& client, const std::wstring_view& wscParam)
 {
 	// If no ship, report a warning
-	IObjInspectImpl* obj = HkGetInspect(iClientID);
+	IObjInspectImpl* obj = GetInspect(client);
 	if (!obj)
 	{
-		PrintUserCmdText(iClientID, L"Jump drive charging failed");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
+		PrintUserCmdText(client, L"Jump drive charging failed");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
 		return;
 	}
 
 	// If no jumpdrive, report a warning.
-	if (!InitJumpDriveInfo(iClientID))
+	if (!InitJumpDriveInfo(client))
 	{
-		PrintUserCmdText(iClientID, L"Jump drive not ready");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_charging_failed"));
+		PrintUserCmdText(client, L"Jump drive not ready");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_charging_failed"));
 		return;
 	}
 
-	JUMPDRIVE& jd = mapJumpDrives[iClientID];
+	JUMPDRIVE& jd = mapJumpDrives[client];
 
 	// If insufficient charging, report a warning
 	if (!jd.charging_complete)
 	{
-		PrintUserCmdText(iClientID, L"Jump drive not ready");
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_not_ready"));
+		PrintUserCmdText(client, L"Jump drive not ready");
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_not_ready"));
 		return;
 	}
 
 	if (jd.iTargetSystem == 0)
 	{
-		PrintUserCmdText(iClientID, L"WARNING NO JUMP COORDINATES");
-		PrintUserCmdText(iClientID, L"BLIND JUMP ACTIVATED");
+		PrintUserCmdText(client, L"WARNING NO JUMP COORDINATES");
+		PrintUserCmdText(client, L"BLIND JUMP ACTIVATED");
 
-		pub::Player::SendNNMessage(iClientID, pub::GetNicknameId("nnv_jumpdrive_blind_jump_warning"));
+		pub::Player::SendNNMessage(client, pub::GetNicknameID("nnv_jumpdrive_blind_jump_warning"));
 
 		std::vector<std::string> systems;
 		struct Universe::ISystem* sysinfo = Universe::GetFirstSystem();
@@ -1096,14 +1096,14 @@ void AdminCmd_JumpTest(CCmds* cmds, const std::wstring& sys)
 		return;
 	}
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	PLAYERINFO adminPlyr;
+	if (GetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != E_OK || adminPlyr.ship == 0)
 	{
 		cmds->Print(L"ERR Not in space");
 		return;
 	}
 
-	JUMPDRIVE& jd = mapJumpDrives[adminPlyr.iClientID];
+	JUMPDRIVE& jd = mapJumpDrives[adminPlyr.client];
 
 	jd.iTargetSystem = CreateID(wstos(sys).c_str());
 	jd.vTargetPosition.x = ((rand() * 10) % 400000) - 200000.0f;
@@ -1122,14 +1122,14 @@ void AdminCmd_TestBot(CCmds* cmds, const std::wstring& wscSystemNick, int iCheck
 		return;
 	}
 
-	HKPLAYERINFO adminPlyr;
-	if (HkGetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != HKE_OK || adminPlyr.iShip == 0)
+	PLAYERINFO adminPlyr;
+	if (GetPlayerInfo(cmds->GetAdminName(), adminPlyr, false) != E_OK || adminPlyr.ship == 0)
 	{
 		cmds->Print(L"ERR Not in space");
 		return;
 	}
 
-	mapTestBots.erase(adminPlyr.iClientID);
+	mapTestBots.erase(adminPlyr.client);
 	if (wscSystemNick == L"stop")
 	{
 		cmds->Print(L"OK Check stopped");
@@ -1170,10 +1170,10 @@ void AdminCmd_TestBot(CCmds* cmds, const std::wstring& wscSystemNick, int iCheck
 		{
 			Vector pos = { 0, 100000, 0 };
 			Matrix ornt = { 0 };
-			SwitchSystem(adminPlyr.iClientID, tb.iCheckSystemOrBase, pos, ornt);
+			SwitchSystem(adminPlyr.client, tb.iCheckSystemOrBase, pos, ornt);
 		}
 
-		mapTestBots[adminPlyr.iClientID] = tb;
+		mapTestBots[adminPlyr.client] = tb;
 		return;
 	}
 
@@ -1192,7 +1192,7 @@ void AdminCmd_TestBot(CCmds* cmds, const std::wstring& wscSystemNick, int iCheck
 
 		cmds->Print(L"Testing base %s (%x) containing", wscSystemNick.c_str(), tb.iCheckSystemOrBase);
 
-		mapTestBots[adminPlyr.iClientID] = tb;
+		mapTestBots[adminPlyr.client] = tb;
 		return;
 	}
 
