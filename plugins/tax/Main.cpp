@@ -89,16 +89,20 @@ namespace Plugins::Tax
 		tax.cash = taxValue;
 		global->lsttax.push_back(tax);
 
+		std::wstring msg;
+
 		if (taxValue == 0)
-			FormatMessage(clientTarget,  global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.c_str());
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.value().c_str());
 		else
-			FormatMessage(clientTarget,  global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.c_str());
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.value().c_str());
+
+		Hk::Message::FMsg(clientTarget, msg);
 
 		// send confirmation msg
 		if (taxValue > 0)
-			PrintUserCmdText(client, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.c_str());
+			PrintUserCmdText(client, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.value().c_str());
 		else
-			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.c_str());
+			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.value().c_str());
 	}
 
 	void UserCmdPay(ClientId& client, const std::wstring_view& param)
@@ -112,9 +116,8 @@ namespace Plugins::Tax
 					return;
 				}
 
-				
 				const auto cash = Hk::Player::GetCash(client);
-				if (cash.value() < it.cash)
+				if (cash.has_error() || cash.value() < it.cash)
 				{
 					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
@@ -136,10 +139,10 @@ namespace Plugins::Tax
 
 	void TimerF1Check()
 	{
-		struct PlayerData* pPd = nullptr;
-		while (pPd = Players.traverse_active(pPd))
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			ClientId client = pPd->iOnlineId;
+			ClientId client = playerData->iOnlineId;
 
 			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;

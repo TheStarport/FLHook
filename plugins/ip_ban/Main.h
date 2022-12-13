@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Wildcard.hpp>
 #include <FLHook.hpp>
 #include <plugin.h>
 

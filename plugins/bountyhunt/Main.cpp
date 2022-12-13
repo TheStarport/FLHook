@@ -303,7 +303,7 @@ namespace Plugins::BountyHunt
 	    CreateUserCommand(L"/bountyhunt", L"<charname> <credits> [minutes]", UserCmdBountyHunt,
 	        L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
 	    CreateUserCommand(
-	        L"/bountyhuntid", L"<id> <credits> [minutes]", UserCmdBountyHuntId, L"Same as above but with an id instead of a player name. Use /ids"),
+	        L"/bountyhuntid", L"<id> <credits> [minutes]", UserCmdBountyHuntID, L"Same as above but with an id instead of a player name. Use /ids"),
 	}};
 
 	// Load Settings

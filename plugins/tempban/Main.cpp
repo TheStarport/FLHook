@@ -26,7 +26,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Error __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
+	cpp::result<void, Error> __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
 	{
 		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
@@ -41,7 +41,7 @@ namespace Plugins::Tempban
 		else
 		{
 			if (!(acc = Hk::Client::GetAccountByCharName(wscCharname).value()))
-				return Error::CharacterDoesNotExist;
+				return cpp::fail(Error::CharacterDoesNotExist);
 		}
 		const auto wscId = Hk::Client::GetAccountID(acc);
 
@@ -53,8 +53,8 @@ namespace Plugins::Tempban
 			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
 		}
-		//Wants to return an "OK" but we don't have one of those anymore. 
-		return Error::UnknownError;
+		
+		return {};
 	}
 
 	bool TempBannedCheck(ClientId client)
@@ -98,10 +98,12 @@ namespace Plugins::Tempban
 			return;
 		}
 
-		if ((classptr->LastErr = TempBan(wscCharname, iDuration)) == E_OK) // success
-			classptr->Print(L"OK");
-		else
-			classptr->PrintError();
+		if (const auto err = TempBan(wscCharname, iDuration); err.has_error())
+		{
+			classptr->PrintError(err.error());
+		}
+			
+		classptr->Print(L"OK");
 	}
 
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
@@ -126,9 +128,9 @@ namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
 
-DefaultDllMain()
+DefaultDllMain();
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(TempBanCommunicator::pluginName);
 	pi->shortName("tempban");

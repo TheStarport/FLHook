@@ -7,8 +7,6 @@ namespace Plugins::Mark
 		if (!iObject)
 			return 1;
 
-		ClientId clientMark = GetClientIdByShip(iObject);
-
 		uint iSystemId, iObjectSystemId;
 		pub::Player::GetSystem(client, iSystemId);
 		pub::SpaceObj::GetSystem(iObject, iObjectSystemId);

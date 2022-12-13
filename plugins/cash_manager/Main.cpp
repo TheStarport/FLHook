@@ -98,7 +98,7 @@ namespace Plugins::CashManager
 			return false;
 
 		// If the char is logged in we can check in memory.
-		if (ClientId client = GetClientIdFromCharname(characterName))
+		if (ClientId client = Hk::Client::GetClientIdFromCharName(characterName))
 		{
 			uint system = 0;
 			pub::Player::GetSystem(client, system);
@@ -222,7 +222,7 @@ namespace Plugins::CashManager
 		expectedCash += cash;
 
 		// Do an anticheat check on the receiving character first.
-		uint targetClientId = GetClientIdFromCharname(targetCharacter);
+		uint targetClientId = Hk::Client::GetClientIdFromCharName(targetCharacter);
 		if (targetClientId && !IsInCharSelectMenu(targetClientId))
 		{
 			if (AntiCheat(targetClientId) != E_OK)
@@ -545,7 +545,7 @@ namespace Plugins::CashManager
 		}
 		SaveChar(client);
 
-		uint targetClientId = GetClientIdFromCharname(targetCharacterName);
+		uint targetClientId = Hk::Client::GetClientIdFromCharName(targetCharacterName);
 		if (targetClientId && ClientInfo[client].iTradePartner || ClientInfo[targetClientId].iTradePartner)
 		{
 			PrintUserCmdText(client, L"ERR Trade window open");

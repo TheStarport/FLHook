@@ -14,16 +14,16 @@ namespace Plugins::Message
 	class ClientInfo
 	{
 	  public:
-		ClientInfo() : lastPmClientID(-1), targetClientID(-1), showChatTime(false), greetingShown(false), swearWordWarnings(0) {}
+		ClientInfo() = default;
 
 		//! Slots that contain prewritten messages
 		std::wstring slot[numberOfSlots];
 
 		//! Client Id of last PM.
-		uint lastPmClientId;
+		uint lastPmClientId = -1;
 
 		//! Client Id of selected target
-		uint targetClientId;
+		uint targetClientId = -1;
 
 		//! Current chat time settings
 		bool showChatTime;
@@ -32,7 +32,7 @@ namespace Plugins::Message
 		bool greetingShown;
 
 		//! Swear word warn level
-		int swearWordWarnings;
+		int swearWordWarnings = 0;
 	};
 
 	//! Config data for this plugin

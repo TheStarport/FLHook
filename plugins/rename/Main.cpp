@@ -63,8 +63,8 @@ namespace Plugins::Rename
 		if (!global->config->enableTagProtection)
 			return;
 
-		const auto charName = GetCharacterNameByID(client);
-		if (const auto& tag = global->tagList.FindTagPartial(charName); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
+		const auto charName = Hk::Client::GetCharacterNameByID(client);
+		if (const auto& tag = global->tagList.FindTagPartial(charName.value()); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 		{
 			tag->lastAccess = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}
@@ -132,20 +132,18 @@ namespace Plugins::Rename
 		}
 
 		// Save character and exit if kicked on save.
-		std::wstring charName = GetCharacterNameByID(client);
-		SaveChar(charName);
-		if (GetClientIdFromCharname(charName) == -1)
+		const auto charName = Hk::Client::GetCharacterNameByID(client);
+		Hk::Player::SaveChar(charName.value());
+		if (Hk::Client::GetClientIdFromCharName(charName.value()) == -1)
 			return;
 
-		int iCash;
-		Func(GetCash, client, iCash);
-		if (global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
+		if (const auto iCash = Hk::Player::GetCash(client); global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
 		{
 			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
-		AddCash(charName, 0 - global->config->makeTagCost);
+		Hk::Player::AddCash(client, 0 - global->config->makeTagCost);
 
 		TagData data;
 
@@ -157,7 +155,7 @@ namespace Plugins::Rename
 		global->tagList.tags.emplace_back(data);
 
 		PrintUserCmdText(client, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
-		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), charName.c_str(), GetAccountIdByClientID(client).c_str());
+		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str());
 		SaveSettings();
 	}
 
@@ -191,7 +189,7 @@ namespace Plugins::Rename
 			    global->tagList.tags.end());
 			SaveSettings();
 			PrintUserCmdText(client, L"OK Tag dropped");
-			AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(), GetAccountIdByClientID(client).c_str());
+			AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str());
 			return;
 		}
 
@@ -242,12 +240,12 @@ namespace Plugins::Rename
 		while (!global->pendingRenames.empty())
 		{
 			Rename o = global->pendingRenames.front();
-			if (GetClientIdFromCharname(o.charName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(o.charName) != -1)
 				return;
 
 			global->pendingRenames.erase(global->pendingRenames.begin());
 
-			CAccount* acc = GetAccountByCharname(o.charName);
+			CAccount* acc = Hk::Client::GetAccountByCharName(o.charName).value();
 
 			// Delete the character from the existing account, create a new
 			// character with the same name in this account and then copy over it
@@ -257,8 +255,8 @@ namespace Plugins::Rename
 				if (!acc)
 					throw "no acc";
 
-				LockAccountAccess(acc, true);
-				UnlockAccountAccess(acc);
+				Hk::Client::LockAccountAccess(acc, true);
+				Hk::Client::UnlockAccountAccess(acc);
 
 				// Move the char file to a temporary one.
 				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFileTemp.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
@@ -276,8 +274,8 @@ namespace Plugins::Rename
 				}
 
 				// Create and delete the character
-				DeleteCharacter(acc, o.charName);
-				NewCharacter(acc, o.newCharName);
+				Hk::Player::DeleteCharacter(acc, o.charName);
+				Hk::Player::NewCharacter(acc, o.newCharName);
 
 				// Move files around
 				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
@@ -293,7 +291,7 @@ namespace Plugins::Rename
 				    L"User rename %s to %s (%s)",
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
-				    GetAccountID(acc).c_str());
+				    Hk::Client::GetAccountID(acc).value().c_str());
 			}
 			catch (char* err)
 			{
@@ -303,41 +301,41 @@ namespace Plugins::Rename
 				    err,
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
-				    GetAccountID(acc).c_str());
+				    Hk::Client::GetAccountID(acc).value().c_str());
 			}
 		}
 
 		while (global->pendingMoves.empty())
 		{
 			Move o = global->pendingMoves.front();
-			if (GetClientIdFromCharname(o.destinationCharName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName) != -1)
 				return;
-			if (GetClientIdFromCharname(o.movingCharName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(o.movingCharName) != -1)
 				return;
 
 			global->pendingMoves.erase(global->pendingMoves.begin());
 
-			CAccount* acc = GetAccountByCharname(o.destinationCharName);
-			CAccount* oldAcc = GetAccountByCharname(o.movingCharName);
+			CAccount* acc = Hk::Client::GetAccountByCharName(o.destinationCharName).value();
+			CAccount* oldAcc = Hk::Client::GetAccountByCharName(o.movingCharName).value();
 
 			// Delete the character from the existing account, create a new
 			// character with the same name in this account and then copy over it
 			// with the save character file.
 			try
 			{
-				LockAccountAccess(acc, true);
-				UnlockAccountAccess(acc);
+				Hk::Client::LockAccountAccess(acc, true);
+				Hk::Client::UnlockAccountAccess(acc);
 
-				LockAccountAccess(oldAcc, true);
-				UnlockAccountAccess(oldAcc);
+				Hk::Client::LockAccountAccess(oldAcc, true);
+				Hk::Client::UnlockAccountAccess(oldAcc);
 
 				// Move the char file to a temporary one.
 				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFileTemp.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 					throw "move src to temp failed";
 
 				// Create and delete the character
-				DeleteCharacter(oldAcc, o.movingCharName);
-				NewCharacter(acc, o.movingCharName);
+				Hk::Player::DeleteCharacter(oldAcc, o.movingCharName);
+				Hk::Player::NewCharacter(acc, o.movingCharName);
 
 				// Move files around
 				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
@@ -348,11 +346,22 @@ namespace Plugins::Rename
 					throw "dest does not exist";
 
 				// The move worked. Log it.
-				AddLog(LogType::Normal, LogLevel::Info, L"Character %s moved from %s to %s", o.movingCharName.c_str(), GetAccountID(oldAcc).c_str(), GetAccountID(acc).c_str()); 
+				AddLog(LogType::Normal,
+				    LogLevel::Info,
+				    L"Character %s moved from %s to %s",
+				    o.movingCharName.c_str(),
+				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str()); 
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, L"Character %s move failed (%s) from %s to %s", o.movingCharName.c_str(), err, GetAccountID(oldAcc).c_str(), GetAccountID(acc).c_str());
+				AddLog(LogType::Normal,
+				    LogLevel::Err,
+				    L"Character %s move failed (%s) from %s to %s",
+				    o.movingCharName.c_str(),
+				    err,
+				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str());
 			}
 		}
 	}
@@ -391,26 +400,26 @@ namespace Plugins::Rename
 
 		// If the new name contains spaces then flag this as an
 		// error.
-		std::wstring wscNewCharname = Trim(GetParam(wscParam, L' ', 0));
-		if (wscNewCharname.find(L" ") != -1)
+		std::wstring newCharName = Trim(GetParam(wscParam, L' ', 0));
+		if (newCharName.find(L" ") != -1)
 		{
 			PrintUserCmdText(client, L"ERR Space characters not allowed in name");
 			return;
 		}
 
-		if (GetAccountByCharname(wscNewCharname))
+		if (Hk::Client::GetAccountByCharName(newCharName).has_value())
 		{
 			PrintUserCmdText(client, L"ERR Name already exists");
 			return;
 		}
 
-		if (wscNewCharname.length() > 23)
+		if (newCharName.length() > 23)
 		{
 			PrintUserCmdText(client, L"ERR Name to long");
 			return;
 		}
 
-		if (wscNewCharname.length() < MinCharacterNameLength)
+		if (newCharName.length() < MinCharacterNameLength)
 		{
 			PrintUserCmdText(client, L"ERR Name to short");
 			return;
@@ -422,7 +431,7 @@ namespace Plugins::Rename
 
 			for (const auto& i : global->tagList.tags)
 			{
-				if (wscNewCharname.find(i.tag) == 0 && !i.renamePassword.empty())
+				if (newCharName.find(i.tag) == 0 && !i.renamePassword.empty())
 				{
 					if (!wscPassword.length())
 					{
@@ -445,16 +454,16 @@ namespace Plugins::Rename
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		SaveChar(wscCharname);
-		if (!IsValidClientID(client))
+		Hk::Player::SaveChar(wscCharname);
+		if (!Hk::Client::IsValidClientID(client))
 			return;
 
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
-		int iCash = 0; 
-		if ((err = GetCash(wscCharname, iCash)) != E_OK)
+		const auto iCash = Hk::Player::GetCash(wscCharname);
+		if (iCash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err));
 			return;
 		}
 		if (global->config->renameCost > 0 && iCash < global->config->renameCost)
@@ -464,12 +473,7 @@ namespace Plugins::Rename
 		}
 
 		// Read the last time a rename was done on this character
-		std::wstring dir;
-		if ((err = GetAccountDirName(wscCharname, dir)) != E_OK)
-		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
-			return;
-		}
+		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
 		std::string scRenameFile = scAcctPath + wstos(dir) + "\\" + "rename.ini";
 		int lastRenameTime = IniGetI(scRenameFile, "General", wstos(wscCharname), 0);
 
@@ -487,35 +491,36 @@ namespace Plugins::Rename
 
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		std::string accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-		std::wstring wscSourceFile;
-		if ((err = GetCharFileName(wscCharname, wscSourceFile)) != E_OK)
+		const auto sourceFile = Hk::Client::GetCharFileName(wscCharname);
+		if (sourceFile.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err));
 			return;
 		}
-		std::wstring wscDestFile;
-		if ((err = GetCharFileName(wscNewCharname, wscDestFile)) != E_OK)
+
+		const auto destFile = Hk::Client::GetCharFileName(newCharName);
+		if (destFile.has_value())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err));
 			return;
 		}
 
 		// Remove cash if we're charging for it.
 		if (global->config->renameCost > 0)
-			AddCash(wscCharname, 0 - global->config->renameCost);
+			Hk::Player::AddCash(wscCharname, 0 - global->config->renameCost);
 
 		Rename o;
 		o.charName = wscCharname;
-		o.newCharName = wscNewCharname;
-		o.sourceFile = scAcctPath + wstos(dir) + "\\" + wstos(wscSourceFile) + ".fl";
-		o.destFile = scAcctPath + wstos(dir) + "\\" + wstos(wscDestFile) + ".fl";
-		o.destFileTemp = scAcctPath + wstos(dir) + "\\" + wstos(wscSourceFile) + ".fl.renaming";
+		o.newCharName = newCharName;
+		o.sourceFile = accPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.destFile = accPath + wstos(dir) + "\\" + wstos(destFile.value()) + ".fl";
+		o.destFileTemp = accPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl.renaming";
 		global->pendingRenames.emplace_back(o);
 
-		KickReason(o.charName, L"Updating character, please wait 10 seconds before reconnecting");
-		IniWrite(scRenameFile, "General", wstos(o.newCharName), std::to_string((int)time(0)));
+		Hk::Player::KickReason(o.charName, L"Updating character, please wait 10 seconds before reconnecting");
+		IniWrite(scRenameFile, "General", wstos(o.newCharName), std::to_string(time(nullptr)));
 	}
 
 	/** Process a set the move char code command */
@@ -561,8 +566,7 @@ namespace Plugins::Rename
 		char datapath[MAX_PATH];
 		GetUserDataPath(datapath);
 
-		std::wstring dir;
-		GetAccountDirName(charname, dir);
+		std::wstring dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByCharName(charname).value());
 
 		std::string banfile = std::string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
 
@@ -609,8 +613,8 @@ namespace Plugins::Rename
 		}
 
 		// Get the target account directory.
-		std::wstring wscMovingCharname = Trim(GetParam(wscParam, L' ', 0));
-		std::string scFile = GetUserFilePath(wscMovingCharname, "-movechar.ini");
+		std::wstring movingCharName = Trim(GetParam(wscParam, L' ', 0));
+		std::string scFile = GetUserFilePath(movingCharName, "-movechar.ini");
 		if (scFile.empty())
 		{
 			PrintUserCmdText(client, L"ERR Character does not exist");
@@ -627,7 +631,7 @@ namespace Plugins::Rename
 		}
 
 		// Prevent ships from banned accounts from being moved.
-		if (IsBanned(wscMovingCharname))
+		if (IsBanned(movingCharName))
 		{
 			PrintUserCmdText(client, L"ERR not permitted");
 			return;
@@ -637,25 +641,27 @@ namespace Plugins::Rename
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		SaveChar(wscCharname);
-		SaveChar(wscMovingCharname);
+		Hk::Player::SaveChar(wscCharname);
+		Hk::Player::SaveChar(movingCharName);
 
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
-		int iCash = 0;
-		if ((err = GetCash(wscCharname, iCash)) != E_OK)
+		const auto iCash = Hk::Player::GetCash(wscCharname);
+		if (iCash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err));
 			return;
 		}
-		if (global->config->moveCost > 0 && iCash < global->config->moveCost)
+
+		if (global->config->moveCost > 0 && iCash.value() < global->config->moveCost)
 		{
 			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
 		}
 
 		// Check there is room in this account.
-		if (CAccount* acc = Players.FindAccountFromClientID(client); acc->iNumberOfCharacters >= 5)
+		CAccount const* acc = Players.FindAccountFromClientID(client);
+		if (acc && acc->iNumberOfCharacters >= 5)
 		{
 			PrintUserCmdText(client, L"ERR Too many characters in account");
 			return;
@@ -666,45 +672,40 @@ namespace Plugins::Rename
 		GetUserDataPath(szDataPath);
 		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-		std::wstring dir;
-		std::wstring wscSourceDir;
-		std::wstring wscSourceFile;
-		if ((err = GetAccountDirName(wscCharname, dir)) != E_OK)
+		const auto sourceAcc = Hk::Client::GetAccountByCharName(movingCharName);
+
+		std::wstring dir = Hk::Client::GetAccountDirName(acc);
+		std::wstring sourceDir = Hk::Client::GetAccountDirName(sourceAcc.value());
+		const auto sourceFile = Hk::Client::GetCharFileName(movingCharName);
+		if (sourceFile.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
-			return;
-		}
-		if ((err = GetAccountDirName(wscMovingCharname, wscSourceDir)) != E_OK)
-		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
-			return;
-		}
-		if ((err = GetCharFileName(wscMovingCharname, wscSourceFile)) != E_OK)
-		{
-			PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err));
 			return;
 		}
 
 		// Remove cash if we're charging for it.
 		if (global->config->moveCost > 0)
-			AddCash(wscCharname, 0 - global->config->moveCost);
-		SaveChar(wscCharname);
+		{
+			Hk::Player::AddCash(wscCharname, 0 - global->config->moveCost);
+		}
+
+		Hk::Player::SaveChar(wscCharname);
 
 		// Schedule the move
 		Move o;
 		o.destinationCharName = wscCharname;
-		o.movingCharName = wscMovingCharname;
-		o.sourceFile = scAcctPath + wstos(wscSourceDir) + "\\" + wstos(wscSourceFile) + ".fl";
-		o.destFile = scAcctPath + wstos(dir) + "\\" + wstos(wscSourceFile) + ".fl";
-		o.destFileTemp = scAcctPath + wstos(dir) + "\\" + wstos(wscSourceFile) + ".fl.moving";
+		o.movingCharName = movingCharName;
+		o.sourceFile = scAcctPath + wstos(sourceDir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.destFile = scAcctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.destFileTemp = scAcctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl.moving";
 		global->pendingMoves.emplace_back(o);
 
 		// Delete the move code
 		::DeleteFileA(scFile.c_str());
 
 		// Kick
-		KickReason(o.destinationCharName, L"Moving character, please wait 10 seconds before reconnecting");
-		KickReason(o.movingCharName, L"Moving character, please wait 10 seconds before reconnecting");
+		Hk::Player::KickReason(o.destinationCharName, L"Moving character, please wait 10 seconds before reconnecting");
+		Hk::Player::KickReason(o.movingCharName, L"Moving character, please wait 10 seconds before reconnecting");
 	}
 
 	/// Set the move char code for all characters in the account
@@ -720,8 +721,10 @@ namespace Plugins::Rename
 			return;
 		}
 
-		std::wstring dir;
-		if (GetAccountDirName(wscCharname, dir) != E_OK)
+		
+		const auto acc = Hk::Client::GetAccountByCharName(wscCharname);
+		
+		if (acc.has_error())
 		{
 			cmds->Print(L"ERR Charname not found");
 			return;
@@ -732,6 +735,8 @@ namespace Plugins::Rename
 			cmds->Print(L"ERR Code too small, set to none to clear.");
 			return;
 		}
+
+		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
 
 		// Get the account path.
 		char szDataPath[MAX_PATH];

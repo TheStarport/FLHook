@@ -95,21 +95,21 @@ namespace Plugins::LightControl
 	 */
 	uint IsInValidBase(ClientId& client) 
 	{
-		uint baseId;
-		if (Error err; (err = GetCurrentBase(client, baseId)) != E_OK) 
+		const auto baseId = Hk::Player::GetCurrentBase(client);
+		if (baseId.has_error()) 
 		{ 
-			const std::wstring errorString = ErrGetText(err); 
+			const std::wstring errorString = Hk::Err::ErrGetText(baseId.error()); 
 			PrintUserCmdText(client, L"ERR:" + errorString); 
 			return 0; 
 		}
 		
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId.value()) == global->config->baseIdHashes.end())
 		{
 			PrintUserCmdText(client, L"Light customization is not available at this facility.");
 			return 0;
 		}
 
-		return baseId;
+		return baseId.value();
 	}
 
 	/** @ingroup LightControl
@@ -152,9 +152,7 @@ namespace Plugins::LightControl
 	 */
 	void UserCmdChangeItem(ClientId& client, const std::wstring_view& param)
 	{
-		int cash;
-		Func(GetCash, client, cash);
-		if (cash < global->config->cost)
+		if (const auto cash = Hk::Player::GetCash(client); cash.has_value() && cash.value() < global->config->cost)
 		{
 			PrintUserCmdText(client, L"Error: Not enough credits, the cost is %u", global->config->cost);
 			return;
@@ -189,11 +187,21 @@ namespace Plugins::LightControl
 		});
 
 		light->iArchId = lightId;
-		Func(SetEquip, client, eqLst);
+		auto err = Hk::Player::SetEquip(client, eqLst);
+		if (err.has_error())
+		{
+			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+			return;
+		}
 
-		Func(AddCash, client, -global->config->cost);
-		SaveChar(client);
+		err = Hk::Player::AddCash(client, -global->config->cost);
+		if (err.has_error())
+		{
+			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+			return;
+		}
 
+		Hk::Player::SaveChar(client);
 		PrintUserCmdText(client, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
 

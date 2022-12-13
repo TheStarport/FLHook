@@ -59,19 +59,25 @@ namespace Plugins::Mark
 			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 			return;
 		}
-		std::list<GROUP_MEMBER> lstMembers;
-		lstMembers.clear();
-		std::wstring wsClientId = (wchar_t*)Players.GetActiveCharacterName(client);
-		GetGroupMembers(wsClientId, lstMembers);
-		for (auto& lstG : lstMembers)
+
+		const auto lstMembers = Hk::Player::GetGroupMembers(client);
+
+		if (lstMembers.has_error())
 		{
-			if (global->Mark[lstG.client].IgnoreGroupMark)
+			return;
+		}
+
+		for (const auto& [groupClient, character] : lstMembers.value())
+		{
+			if (global->Mark[groupClient].IgnoreGroupMark)
 				continue;
+
 			uint iClientShip;
-			pub::Player::GetShip(lstG.client, iClientShip);
+			pub::Player::GetShip(groupClient, iClientShip);
 			if (iClientShip == iTargetShip)
 				continue;
-			MarkObject(lstG.client, iTargetShip);
+
+			MarkObject(groupClient, iTargetShip);
 		}
 	}
 
@@ -85,11 +91,13 @@ namespace Plugins::Mark
 			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 			return;
 		}
-		std::list<GROUP_MEMBER> lstMembers;
-		lstMembers.clear();
-		std::wstring wsClientId = (wchar_t*)Players.GetActiveCharacterName(client);
-		GetGroupMembers(wsClientId, lstMembers);
-		for (auto& lstG : lstMembers)
+		const auto lstMembers = Hk::Player::GetGroupMembers(client);
+		if (lstMembers.has_error())
+		{
+			return;
+		}
+
+		for (auto& lstG : lstMembers.value())
 		{
 			UnMarkObject(lstG.client, iTargetShip);
 		}
@@ -107,12 +115,13 @@ namespace Plugins::Mark
 		if (ToLower(param) == L"off")
 		{
 			global->Mark[client].IgnoreGroupMark = false;
-			std::wstring dir, wscFilename;
-			CAccount* acc = Players.FindAccountFromClientID(client);
-			if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+			CAccount const* acc = Players.FindAccountFromClientID(client);
+			const auto fileName = Hk::Client::GetCharFileName(client);
+			const auto dir = Hk::Client::GetAccountDirName(acc);
+			if (fileName.has_value())
 			{
 				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-				std::string scSection = "general_" + wstos(wscFilename);
+				std::string scSection = "general_" + wstos(fileName.value());
 				IniWrite(scUserFile, scSection, "automarkenabled", "no");
 				PrintUserCmdText(client, L"Accepting marks from the group");
 			}
@@ -120,12 +129,13 @@ namespace Plugins::Mark
 		else if (ToLower(param) == L"on")
 		{
 			global->Mark[client].IgnoreGroupMark = true;
-			std::wstring dir, wscFilename;
-			CAccount* acc = Players.FindAccountFromClientID(client);
-			if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+			CAccount const* acc = Players.FindAccountFromClientID(client);
+			const auto fileName = Hk::Client::GetCharFileName(client);
+			const auto dir = Hk::Client::GetAccountDirName(acc);
+			if (fileName.has_value())
 			{
 				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-				std::string scSection = "general_" + wstos(wscFilename);
+				std::string scSection = "general_" + wstos(fileName.value());
 				IniWrite(scUserFile, scSection, "automarkenabled", "yes");
 				PrintUserCmdText(client, L"Ignoring marks from the group");
 			}
@@ -172,12 +182,13 @@ namespace Plugins::Mark
 			if (wscEnabled == L"on") // AutoMark is being enabled
 			{
 				global->Mark[client].MarkEverything = true;
-				CAccount* acc = Players.FindAccountFromClientID(client);
-				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				CAccount const* acc = Players.FindAccountFromClientID(client);
+				const auto fileName = Hk::Client::GetCharFileName(client);
+				const auto dir = Hk::Client::GetAccountDirName(acc);
+				if (fileName.has_value())
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-					std::string scSection = "general_" + wstos(wscFilename);
+					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automark", "yes");
 					if (wscRadius.length())
 						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
@@ -186,12 +197,13 @@ namespace Plugins::Mark
 			}
 			else if (wscRadius.length())
 			{
-				CAccount* acc = Players.FindAccountFromClientID(client);
-				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				CAccount const* acc = Players.FindAccountFromClientID(client);
+				const auto fileName = Hk::Client::GetCharFileName(client);
+				const auto dir = Hk::Client::GetAccountDirName(acc);
+				if (fileName.has_value())
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-					std::string scSection = "general_" + wstos(wscFilename);
+					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);
@@ -204,12 +216,13 @@ namespace Plugins::Mark
 			if (wscEnabled == L"off") // AutoMark is being disabled
 			{
 				global->Mark[client].MarkEverything = false;
-				CAccount* acc = Players.FindAccountFromClientID(client);
-				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				CAccount const* acc = Players.FindAccountFromClientID(client);
+				const auto fileName = Hk::Client::GetCharFileName(client);
+				const auto dir = Hk::Client::GetAccountDirName(acc);
+				if (fileName.has_value())
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-					std::string scSection = "general_" + wstos(wscFilename);
+					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automark", "no");
 					if (wscRadius.length())
 						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
@@ -221,12 +234,13 @@ namespace Plugins::Mark
 			}
 			else if (wscRadius.length())
 			{
-				CAccount* acc = Players.FindAccountFromClientID(client);
-				std::wstring dir, wscFilename;
-				if (HKSUCCESS(GetCharFileName(client, wscFilename)) && HKSUCCESS(GetAccountDirName(acc, dir)))
+				CAccount const* acc = Players.FindAccountFromClientID(client);
+				const auto fileName = Hk::Client::GetCharFileName(client);
+				const auto dir = Hk::Client::GetAccountDirName(acc);
+				if (fileName.has_value())
 				{
 					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-					std::string scSection = "general_" + wstos(wscFilename);
+					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);

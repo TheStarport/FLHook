@@ -322,7 +322,7 @@ namespace Plugins::Cloak
 		{
 			global->returncode = ReturnCode::SkipAll;
 
-			ClientId client = GetClientIdFromCharname(cmds->GetAdminName());
+			ClientId client = Hk::Client::GetClientIdFromCharName(cmds->GetAdminName());
 			if (client == -1)
 			{
 				cmds->Print(L"ERR On console");

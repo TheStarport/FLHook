@@ -17,16 +17,16 @@ namespace Plugins::Npc
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
 		p.bStateId = true;
-		Error error;
-		p.personality = GetPersonality(personality, error);
+		const auto err = Hk::Personalities::GetPersonality(personality);
 
-		if (error != E_OK)
+		if (err.has_error())
 		{
 			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
 			Console::ConErr(errorMessage);
 			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
 		}
 
+		p.personality = err.value();
 		return p;
 	}
 
@@ -206,12 +206,12 @@ namespace Plugins::Npc
 		}
 
 		uint shipId;
-		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), shipId);
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
 		if (!shipId)
 			return;
 
 		uint iSystem;
-		pub::Player::GetSystem(GetClientIdFromCharname(cmds->GetAdminName()), iSystem);
+		pub::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), iSystem);
 
 		Vector position;
 		Matrix rotation;
@@ -249,7 +249,7 @@ namespace Plugins::Npc
 		}
 
 		uint ship1;
-		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), ship1);
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship1);
 		if (ship1)
 		{
 			Vector pos;
@@ -285,15 +285,15 @@ namespace Plugins::Npc
 		}
 
 		// If no player specified follow the admin
-		ClientId client;
+		uint client;
 		if (wscCharname == L"")
 		{
-			client = GetClientIdFromCharname(cmds->GetAdminName());
+			client = Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value();
 			wscCharname = cmds->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			client = GetClientIdFromCharname(wscCharname);
+			client = Hk::Client::GetClientIdFromCharName(wscCharname).value();
 
 		if (client == -1)
 			cmds->Print(L"%s is not online", wscCharname.c_str());
@@ -332,7 +332,7 @@ namespace Plugins::Npc
 		}
 
 		uint shipId;
-		pub::Player::GetShip(GetClientIdFromCharname(cmds->GetAdminName()), shipId);
+		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
 		if (shipId)
 			for (const auto& npc : global->spawnedNpcs)
 			{

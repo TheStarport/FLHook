@@ -70,11 +70,11 @@ namespace Plugins::Message
 		// Load from disk the messages.
 		for (int iMsgSlot = 0; iMsgSlot < numberOfSlots; iMsgSlot++)
 		{
-			global->Info[client].slot[iMsgSlot] = GetCharacterIniString(client, L"msg." + std::to_wstring(iMsgSlot));
+			global->Info[client].slot[iMsgSlot] = Hk::Ini::GetCharacterIniString(client, L"msg." + std::to_wstring(iMsgSlot));
 		}
 
 		// Chat time settings.
-		global->Info[client].showChatTime = GetCharacterIniBool(client, L"msg.chat_time");
+		global->Info[client].showChatTime = Hk::Ini::GetCharacterIniBool(client, L"msg.chat_time");
 	}
 
 	/** @ingroup Message
@@ -88,7 +88,7 @@ namespace Plugins::Message
 			for (auto& line : global->config->GreetingBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
-					FMsg(client, line);
+					Hk::Message::FMsg(client, line);
 				else
 					PrintUserCmdText(client, L"%s", line.c_str());
 			}
@@ -100,14 +100,14 @@ namespace Plugins::Message
 	 */
 	static void ShowSpecialBanner()
 	{
-		struct PlayerData* pPD = 0;
-		while (pPD = Players.traverse_active(pPD))
+		struct PlayerData* playerData = 0;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			ClientId client = GetClientIdFromPD(pPD);
+			ClientId client = playerData->iOnlineId;
 			for (auto& line : global->config->SpecialBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
-					FMsg(client, line);
+					Hk::Message::FMsg(client, line);
 				else
 					PrintUserCmdText(client, L"%s", line.c_str());
 			}
@@ -126,13 +126,13 @@ namespace Plugins::Message
 		if (++iCurStandardBanner >= global->config->StandardBannerLines.size())
 			iCurStandardBanner = 0;
 
-		struct PlayerData* pPD = nullptr;
-		while (pPD = Players.traverse_active(pPD))
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			ClientId client = GetClientIdFromPD(pPD);
+			ClientId client = playerData->iOnlineId;
 
 			if (global->config->StandardBannerLines[iCurStandardBanner].find(L"<TRA") == 0)
-				FMsg(client, global->config->StandardBannerLines[iCurStandardBanner]);
+				Hk::Message::FMsg(client, global->config->StandardBannerLines[iCurStandardBanner]);
 			else
 				PrintUserCmdText(client, L"%s", global->config->StandardBannerLines[iCurStandardBanner].c_str());
 		}
@@ -151,14 +151,14 @@ namespace Plugins::Message
 				return false;
 			}
 
-			std::wstring wscTargetName = (const wchar_t*)Players.GetActiveCharacterName(clientData.targetClientId);
-			wscMsg = ReplaceStr(wscMsg, L"#t", wscTargetName);
+			const auto targetName = Hk::Client::GetCharacterNameByID(clientData.targetClientId);
+			wscMsg = ReplaceStr(wscMsg, L"#t", targetName.value());
 		}
 
 		if (wscMsg.find(L"#c") != -1)
 		{
-			std::wstring wscCurrLocation = GetLocation(client);
-			wscMsg = ReplaceStr(wscMsg, L"#c", wscCurrLocation);
+			const std::wstring curLocation = Hk::Player::GetLocation(client);
+			wscMsg = ReplaceStr(wscMsg, L"#c", curLocation);
 		}
 
 		return true;
@@ -169,7 +169,7 @@ namespace Plugins::Message
 	 */
 	std::wstring GetPresetMessage(ClientId client, int iMsgSlot)
 	{
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter == global->Info.end() || iter->second.slot[iMsgSlot].empty())
 		{
 			PrintUserCmdText(client, L"ERR No message defined");
@@ -199,7 +199,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		SendLocalSystemChat(client, GetPresetMessage(client, iMsgSlot));
+		Hk::Message::SendLocalSystemChat(client, GetPresetMessage(client, iMsgSlot));
 	}
 
 	/** @ingroup Message
@@ -221,7 +221,7 @@ namespace Plugins::Message
 		if (!global->config->EnableSetMessage)
 			return;
 
-		SendSystemChat(client, GetPresetMessage(client, iMsgSlot));
+		Hk::Message::SendSystemChat(client, GetPresetMessage(client, iMsgSlot));
 	}
 
 	/** @ingroup Message
@@ -243,7 +243,7 @@ namespace Plugins::Message
 		if (!global->config->EnableSetMessage)
 			return;
 
-		SendGroupChat(client, GetPresetMessage(client, iMsgSlot));
+		Hk::Message::SendGroupChat(client, GetPresetMessage(client, iMsgSlot));
 	}
 
 	/** @ingroup Message
@@ -257,7 +257,7 @@ namespace Plugins::Message
 	void LoadSettings()
 	{
 		// For every active player load their msg settings.
-		const std::list<PLAYERINFO> players = GetPlayers();
+		const std::list<PLAYERINFO> players = Hk::Admin::GetPlayers();
 		for (auto& p : players)
 			LoadMsgs(p.client);
 
@@ -346,13 +346,13 @@ namespace Plugins::Message
 		// The iSpaceId *appears* to represent a player ship Id when it is
 		// targeted but this might not be the case. Also note that
 		// GetClientIdByShip returns 0 on failure not -1.
-		uint uTargetClientId = GetClientIdByShip(p2.iSpaceId);
-		if (uTargetClientId)
+		const auto targetClientId = Hk::Client::GetClientIdByShip(p2.iSpaceId);
+		if (targetClientId.has_value())
 		{
-			auto iter = global->Info.find(uClientId);
+			const auto iter = global->Info.find(uClientId);
 			if (iter != global->Info.end())
 			{
-				iter->second.targetClientId = uTargetClientId;
+				iter->second.targetClientId = targetClientId.value();
 			}
 		}
 	}
@@ -372,10 +372,10 @@ namespace Plugins::Message
 		uint iRet1;
 		rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)*rdlReader, iSize);
 
-		std::wstring wscChatMsg = ToLower(wszBuf);
+		const std::wstring wscChatMsg = ToLower(wszBuf);
 		ClientId client = cId;
 
-		bool bIsGroup = (cIdTo == 0x10003 || !wscChatMsg.find(L"/g ") || !wscChatMsg.find(L"/group "));
+		const bool bIsGroup = (cIdTo == 0x10003 || !wscChatMsg.find(L"/g ") || !wscChatMsg.find(L"/group "));
 		if (!bIsGroup)
 		{
 			// If a restricted word appears in the message take appropriate action.
@@ -389,18 +389,14 @@ namespace Plugins::Message
 					global->Info[client].swearWordWarnings++;
 					if (global->Info[client].swearWordWarnings > 2)
 					{
-						std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-						AddLog(LogType::Kick,
-						    LogLevel::Info,
-						    L"Swearing tempban on %s (%s) reason='%s'",
-						    wscCharname.c_str(),
-						    GetAccountID(GetAccountByCharname(wscCharname)).c_str(),
-						    (wscChatMsg).c_str());
+						const std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
+						AddLog(LogType::Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(), 
+						    Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(wscCharname).value()), wscChatMsg.c_str());
 
 						if (global->tempBanCommunicator)
 							global->tempBanCommunicator->TempBan(wscCharname, 10);
 
-						DelayedKick(client, 1);
+						Hk::Player::DelayedKick(client, 1);
 
 						if (global->config->DisconnectSwearingInSpaceRange > 0.0f)
 						{
@@ -420,7 +416,7 @@ namespace Plugins::Message
 		/// */
 		if (client < 0x10000 && cIdTo > 0 && cIdTo < 0x10000)
 		{
-			auto iter = global->Info.find(cIdTo);
+			const auto iter = global->Info.find(cIdTo);
 			if (iter != global->Info.end())
 			{
 				iter->second.lastPmClientId = client;
@@ -436,19 +432,20 @@ namespace Plugins::Message
 	{
 		char szBuf[0x1000];
 		uint iRet;
-		if (!HKSUCCESS(FMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet)))
+		const auto err = Hk::Message::FMsgEncodeXML(wscXMLMsg, szBuf, sizeof(szBuf), iRet);
+		if (err.has_error())
 			return;
 
 		// Send to all players in system
-		struct PlayerData* pPD = 0;
-		while (pPD = Players.traverse_active(pPD))
+		struct PlayerData* playerData = 0;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			ClientId client = GetClientIdFromPD(pPD);
+			ClientId client = playerData->iOnlineId;
 			uint iClientSystemId = 0;
 			pub::Player::GetSystem(client, iClientSystemId);
 
 			if (iSystemId == iClientSystemId)
-				FMsgSendChat(client, szBuf, iRet);
+				Hk::Message::FMsgSendChat(client, szBuf, iRet);
 		}
 	}
 
@@ -471,12 +468,12 @@ namespace Plugins::Message
 			BinaryRDLReader rdl;
 			wchar_t wszBuf[1024];
 			uint iRet1;
-			void* rdlReader2 = *rdlReader;
+			const void* rdlReader2 = *rdlReader;
 			rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader2, iSize);
 			std::wstring wscChatMsg = wszBuf;
 
 			// Find the ': ' which indicates the end of the sending player name.
-			size_t iTextStartPos = wscChatMsg.find(L": ");
+			const size_t iTextStartPos = wscChatMsg.find(L": ");
 			if (iTextStartPos != std::string::npos)
 			{
 				if ((wscChatMsg.find(L": /") == iTextStartPos && wscChatMsg.find(L": //") != iTextStartPos) || wscChatMsg.find(L": .") == iTextStartPos)
@@ -491,7 +488,7 @@ namespace Plugins::Message
 			// Send time with gray color (BEBEBE) in small text (90) above the chat
 			// line.
 			global->SendingTime = true;
-			FMsg(client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
+			Hk::Message::FMsg(client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
 			global->SendingTime = false;
 		}
 		return false;
@@ -505,8 +502,8 @@ namespace Plugins::Message
 		if (!global->config->EnableSetMessage)
 			return;
 
-		int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
-		std::wstring_view wscMsg = GetParamToEnd(ViewToWString(wscParam), ' ', 1);
+		const int iMsgSlot = ToInt(GetParam(wscParam, ' ', 0));
+		const std::wstring_view wscMsg = GetParamToEnd(ViewToWString(wscParam), ' ', 1);
 
 		if (iMsgSlot < 0 || iMsgSlot > 9 || wscParam.size() == 0)
 		{
@@ -515,7 +512,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		SetCharacterIni(client, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
+		Hk::Ini::SetCharacterIni(client, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
 
 		// Reload the character cache
 		LoadMsgs(client);
@@ -530,7 +527,7 @@ namespace Plugins::Message
 		if (!global->config->EnableSetMessage)
 			return;
 
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter == global->Info.end())
 		{
 			PrintUserCmdText(client, L"ERR No messages");
@@ -664,7 +661,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring_view& wscParam)
 	{
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter == global->Info.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -672,7 +669,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		if (iter->second.lastPmClientId == -1)
 		{
@@ -681,7 +678,7 @@ namespace Plugins::Message
 		}
 
 		global->Info[iter->second.lastPmClientId].lastPmClientId = client;
-		SendPrivateChat(client, iter->second.lastPmClientId, ViewToWString(wscMsg));
+		Hk::Message::SendPrivateChat(client, iter->second.lastPmClientId, ViewToWString(wscMsg));
 	}
 
 	/** @ingroup Message
@@ -689,7 +686,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_ShowLastPMSender(ClientId& client, const std::wstring_view& wscParam)
 	{
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter == global->Info.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -698,11 +695,11 @@ namespace Plugins::Message
 		}
 
 		std::wstring wscSenderCharname = L"<not available>" + std::to_wstring(iter->second.lastPmClientId);
-		if (iter->second.lastPmClientId != -1 && IsValidClientID(iter->second.lastPmClientId))
+		if (iter->second.lastPmClientId != -1 && Hk::Client::IsValidClientID(iter->second.lastPmClientId))
 			wscSenderCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.lastPmClientId);
 
 		std::wstring wscTargetCharname = L"<not available>" + std::to_wstring(iter->second.targetClientId);
-		if (iter->second.targetClientId != -1 && IsValidClientID(iter->second.targetClientId))
+		if (iter->second.targetClientId != -1 && Hk::Client::IsValidClientID(iter->second.targetClientId))
 			wscTargetCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.targetClientId);
 
 		PrintUserCmdText(client, L"OK sender=" + wscSenderCharname + L" target=" + wscTargetCharname);
@@ -713,7 +710,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_SendToLastTarget(ClientId& client, const std::wstring_view& wscParam)
 	{
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter == global->Info.end())
 		{
 			// There's no way for this to happen! yeah right.
@@ -721,7 +718,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
+		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 0);
 
 		if (iter->second.targetClientId == -1)
 		{
@@ -730,7 +727,7 @@ namespace Plugins::Message
 		}
 
 		global->Info[iter->second.targetClientId].lastPmClientId = client;
-		SendPrivateChat(client, iter->second.targetClientId, ViewToWString(wscMsg));
+		Hk::Message::SendPrivateChat(client, iter->second.targetClientId, ViewToWString(wscMsg));
 	}
 
 	/** @ingroup Message
@@ -738,8 +735,8 @@ namespace Plugins::Message
 	 */
 	void UserCmd_PrivateMsg(ClientId& client, const std::wstring_view& wscParam)
 	{
-		std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		const std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
+		const std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		const std::wstring& wscTargetCharname = GetParam(wscParam, ' ', 0);
 		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
@@ -750,14 +747,14 @@ namespace Plugins::Message
 			return;
 		}
 
-		if (!GetAccountByCharname(wscTargetCharname))
+		if (!Hk::Client::GetAccountByCharName(wscTargetCharname))
 		{
 			PrintUserCmdText(client, L"ERR charname does not exist");
 			return;
 		}
 
-		uint iToClientId = GetClientIdFromCharname(wscTargetCharname);
-		if (iToClientId == -1)
+		const auto clientId = Hk::Client::GetClientIdFromCharName(wscTargetCharname);
+		if (clientId.has_error())
 		{
 			if (global->mailCommunicator)
 			{
@@ -771,8 +768,8 @@ namespace Plugins::Message
 		}
 		else
 		{
-			global->Info[iToClientId].lastPmClientId = client;
-			SendPrivateChat(client, iToClientId, ViewToWString(wscMsg));
+			global->Info[clientId.value()].lastPmClientId = client;
+			Hk::Message::SendPrivateChat(client, clientId.value(), ViewToWString(wscMsg));
 		}
 	}
 
@@ -786,14 +783,14 @@ namespace Plugins::Message
 		const std::wstring_view wscMsg = GetParamToEnd(wscParam, ' ', 1);
 
 		uint iToClientId = ToInt(wscClientId);
-		if (!IsValidClientID(iToClientId) || IsInCharSelectMenu(iToClientId))
+		if (!Hk::Client::IsValidClientID(iToClientId) || Hk::Client::IsInCharSelectMenu(iToClientId))
 		{
 			PrintUserCmdText(client, L"ERR Invalid client-id");
 			return;
 		}
 
 		global->Info[iToClientId].lastPmClientId = client;
-		SendPrivateChat(client, iToClientId, ViewToWString(wscMsg));
+		Hk::Message::SendPrivateChat(client, iToClientId, ViewToWString(wscMsg));
 	}
 
 	/** @ingroup Message
@@ -814,19 +811,19 @@ namespace Plugins::Message
 
 		bool bSenderReceived = false;
 		bool bMsgSent = false;
-		for (auto& player : GetPlayers())
+		for (auto& player : Hk::Admin::GetPlayers())
 		{
-			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix)) == std::string::npos)
+			if (ToLower(player.character).find(ToLower(wscCharnamePrefix)) == std::string::npos)
 				continue;
 
 			if (player.client == client)
 				bSenderReceived = true;
 
-			FormatSendChat(player.client, wscSender, ViewToWString(wscMsg), L"FF7BFF");
+			Hk::Message::FormatSendChat(player.client, wscSender, ViewToWString(wscMsg), L"FF7BFF");
 			bMsgSent = true;
 		}
 		if (!bSenderReceived)
-			FormatSendChat(client, wscSender, ViewToWString(wscMsg), L"FF7BFF");
+			Hk::Message::FormatSendChat(client, wscSender, ViewToWString(wscMsg), L"FF7BFF");
 
 		if (bMsgSent == false)
 			PrintUserCmdText(client, L"ERR No chars found");
@@ -848,25 +845,26 @@ namespace Plugins::Message
 			return;
 		}
 
-		for (auto& player : GetPlayers())
+		for (auto& player : Hk::Admin::GetPlayers())
 		{
-			if (ToLower(player.wscCharname).find(ToLower(wscCharnamePrefix)) == std::string::npos)
+			if (ToLower(player.character).find(ToLower(wscCharnamePrefix)) == std::string::npos)
 				continue;
+
 			if (player.client == client)
 				continue;
 
-			std::wstring wscMsg = L"/i " + player.wscCharname;
+			std::wstring wscMsg = L"/i " + player.character;
 
 			uint iRet;
 			char szBuf[1024];
-			if (Error err; (err = FMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet)) != E_OK)
+			if (const auto err = Hk::Message::FMsgEncodeXML(wscMsg, szBuf, sizeof(szBuf), iRet); err.has_error())
 			{
-				PrintUserCmdText(client, L"ERR " + ErrGetText(err));
+				PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
 
-			struct CHAT_ID cId = {client};
-			struct CHAT_ID cIdTo = {0x10001};
+			const struct CHAT_ID cId = {client};
+			const struct CHAT_ID cIdTo = {0x10001};
 
 			Server.SubmitChat(cId, iRet, szBuf, cIdTo, -1);
 			msgSent = true;
@@ -881,7 +879,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_SetChatTime(ClientId& client, const std::wstring_view& wscParam)
 	{
-		std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
+		const std::wstring wscParam1 = ToLower(GetParam(wscParam, ' ', 0));
 		bool bShowChatTime = false;
 		if (!wscParam1.compare(L"on"))
 			bShowChatTime = true;
@@ -895,10 +893,10 @@ namespace Plugins::Message
 
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
-		SetCharacterIni(client, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
+		Hk::Ini::SetCharacterIni(client, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
 
 		// Update the client cache.
-		auto iter = global->Info.find(client);
+		const auto iter = global->Info.find(client);
 		if (iter != global->Info.end())
 			iter->second.showChatTime = bShowChatTime;
 
@@ -922,7 +920,7 @@ namespace Plugins::Message
 	{
 		if (global->config->EnableMe)
 		{
-			std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+			const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 			uint iSystemId;
 			pub::Player::GetSystem(client, iSystemId);
 
@@ -1011,8 +1009,8 @@ namespace Plugins::Message
 	    CreateUserCommand(L"/t", L"<message>", UserCmd_SendToLastTarget, L"Shortcut for /target."),
 	    CreateUserCommand(L"/reply", L"<message>", UserCmd_ReplyToLastPMSender, L"Send a message to the last person to PM you."),
 	    CreateUserCommand(L"/r", L"<message>", UserCmd_ReplyToLastPMSender, L"Shortcut for /reply."),
-	    CreateUserCommand(L"/privatemsg$", L"<clientid> <message>", UserCmd_PrivateMsgId, L"Send private message to the specified client id."),
-	    CreateUserCommand(L"/pm$", L"<clientid> <message>", UserCmd_PrivateMsgId, L"Shortcut for /privatemsg$."),
+	    CreateUserCommand(L"/privatemsg$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Send private message to the specified client id."),
+	    CreateUserCommand(L"/pm$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Shortcut for /privatemsg$."),
 	    CreateUserCommand(L"/privatemsg", L"<charname> <message>", UserCmd_PrivateMsg, L"Send private message to the specified character name."),
 	    CreateUserCommand(L"/pm", L"<charname> <message>", UserCmd_PrivateMsg, L"Shortcut for /privatemsg."),
 	    CreateUserCommand(L"/factionmsg", L"<tag> <message>", UserCmd_FactionMsg, L"Send a message to the specified faction tag."),

@@ -238,12 +238,12 @@ static void SpawnSolar(unsigned int& spaceId, pub::SpaceObj::SolarInfo const& so
             popad
 		}
 
-		struct PlayerData* pPD = 0;
-		while (pPD = Players.traverse_active(pPD))
+		struct PlayerData* playerData = 0;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			if (pPD->iSystemId == solarInfo.iSystemId)
+			if (playerData->iSystemId == solarInfo.iSystemId)
 				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(
-				    pPD->iOnlineId, (FLPACKET_CREATESOLAR&)packetSolar);
+				    playerData->iOnlineId, (FLPACKET_CREATESOLAR&)packetSolar);
 		}
 	}
 

@@ -62,9 +62,11 @@ namespace Plugins::Mark
 	 */
 	void JumpInComplete(uint& iSystemId, uint& ship)
 	{
-		ClientId client = GetClientIdByShip(ship);
-		if (!client)
+		const auto err = Hk::Client::GetClientIdByShip(ship);
+		if (!err.has_error())
 			return;
+
+		ClientId client = err.value();
 		std::vector<uint> vTempMark;
 		for (uint i = 0; i < global->Mark[client].DelayedSystemMarkedObjects.size(); i++)
 		{
@@ -106,11 +108,13 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on LaunchComplete. Sets all the objects in the system to be marked.
 	 */
-	void LaunchComplete(uint& iBaseId, uint& ship)
+	void LaunchComplete([[maybe_unused]] BaseId& iBaseId, ShipId& ship)
 	{
-		ClientId client = GetClientIdByShip(ship);
-		if (!client)
+		const auto err = Hk::Client::GetClientIdByShip(ship);
+		if (!err.has_error())
 			return;
+
+		ClientId client = err.value();
 		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
 			if (pub::SpaceObj::ExistsAndAlive(global->Mark[client].MarkedObjects[i]))
@@ -146,13 +150,13 @@ namespace Plugins::Mark
 		{
 			bFirstTime = false;
 			// check for logged in players and reset their connection data
-			struct PlayerData* pPD = 0;
-			while (pPD = Players.traverse_active(pPD))
-				ClearClientMark(GetClientIdFromPD(pPD));
+			struct PlayerData* playerData = 0;
+			while (playerData = Players.traverse_active(playerData))
+				ClearClientMark(playerData->iOnlineId);
 		}
 		for (auto& timer : global->Timers)
 		{
-			if ((timeInMS() - timer.LastCall) >= timer.IntervalMS)
+			if (timeInMS() - timer.LastCall >= timer.IntervalMS)
 			{
 				timer.LastCall = timeInMS();
 				timer.proc();
@@ -171,17 +175,14 @@ namespace Plugins::Mark
 	 */
 	void LoadUserCharSettings(ClientId& client)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(client);
-		std::wstring dir;
-		GetAccountDirName(acc, dir);
-		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-		std::wstring wscFilename;
-		GetCharFileName(client, wscFilename);
-		std::string scFilename = wstos(wscFilename);
-		std::string scSection = "general_" + scFilename;
-		global->Mark[client].MarkEverything = IniGetB(scUserFile, scSection, "automarkenabled", false);
-		global->Mark[client].IgnoreGroupMark = IniGetB(scUserFile, scSection, "ignoregroupmarkenabled", false);
-		global->Mark[client].AutoMarkRadius = IniGetF(scUserFile, scSection, "automarkradius", global->config->AutoMarkRadiusInM);
+		const auto* acc = Players.FindAccountFromClientID(client);
+		const auto dir = Hk::Client::GetAccountDirName(acc);
+		const std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		const auto fileName = Hk::Client::GetCharFileName(client);
+		const std::string section = "general_" + wstos(fileName.value());
+		global->Mark[client].MarkEverything = IniGetB(userFile, section, "automarkenabled", false);
+		global->Mark[client].IgnoreGroupMark = IniGetB(userFile, section, "ignoregroupmarkenabled", false);
+		global->Mark[client].AutoMarkRadius = IniGetF(userFile, section, "automarkradius", global->config->AutoMarkRadiusInM);
 	}
 
 	const std::vector commands = {{

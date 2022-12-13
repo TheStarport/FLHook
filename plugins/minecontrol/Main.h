@@ -7,7 +7,7 @@ namespace Plugins::MiningControl
 	//! A struct that defines a mining bonus to a player if they meet certain criteria
 	struct PlayerBonus : Reflectable
 	{
-		PlayerBonus() : LootID(0), Bonus(0.0f), RepID(-1) {}
+		PlayerBonus() : LootId(0), Bonus(0.0f), RepId(-1) {}
 
 		//! The loot commodity id this configuration applies to.
 		std::string Loot = "commodity_gold";
@@ -36,7 +36,7 @@ namespace Plugins::MiningControl
 	//! A struct that defines a mining bonus for a certain zone in space
 	struct ZoneBonus : Reflectable
 	{
-		ZoneBonus() : Bonus(0.0f), ReplacementLootID(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
+		ZoneBonus() : Bonus(0.0f), ReplacementLootId(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
 
 		std::string Zone = "ExampleZone";
 

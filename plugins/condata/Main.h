@@ -30,7 +30,7 @@ namespace Plugins::ConData
 		std::string sExceptionReason;
 
 		// Client Id (for when receiving data)
-		ClientId client;
+		uint client;
 	};
 
 	struct ConnectionDataException final

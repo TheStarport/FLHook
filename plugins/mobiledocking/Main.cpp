@@ -110,7 +110,7 @@ void UpdateDockedShips(ClientId client)
 		for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 		     i != clients[client].mapDockedShips.end(); ++i)
 		{
-			uint iDockedClientId = GetClientIdFromCharname(i->first);
+			uint iDockedClientId = Hk::Client::GetClientIdFromCharName(i->first);
 			if (iDockedClientId)
 			{
 				clients[iDockedClientId].iCarrierSystem = system;
@@ -197,7 +197,7 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 
 		// Send a system switch to force the ship to launch. Do nothing
 		// if the ship is in space for some reason.
-		uint iDockedClientId = GetClientIdFromCharname(charname);
+		uint iDockedClientId = Hk::Client::GetClientIdFromCharName(charname);
 		if (iDockedClientId)
 		{
 			uint ship;
@@ -356,7 +356,7 @@ void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, ClientId& clie
 
 bool IsShipDockedOnCarrier(std::wstring& carrier_charname, std::wstring& docked_charname)
 {
-	ClientId client = GetClientIdFromCharname(carrier_charname);
+	ClientId client = Hk::Client::GetClientIdFromCharName(carrier_charname);
 	if (client != -1)
 	{
 		return clients[client].mapDockedShips.find(docked_charname) != clients[client].mapDockedShips.end();
@@ -416,7 +416,7 @@ void __stdcall PlayerLaunch(uint& ship, ClientId& client)
 	{
 		// Update the location of the carrier and remove the docked ship from
 		// the carrier
-		uint carrier_client = GetClientIdFromCharname(clients[client].wscDockedWithCharname);
+		uint carrier_client = Hk::Client::GetClientIdFromCharName(clients[client].wscDockedWithCharname);
 		if (carrier_client != -1)
 		{
 			UpdateDockedShips(carrier_client);
@@ -633,7 +633,7 @@ void __stdcall ShipDestroyed(DamageList** _dmg, DWORD** ecx, uint& kill)
 				for (std::map<std::wstring, std::wstring>::iterator i = clients[client].mapDockedShips.begin();
 				     i != clients[client].mapDockedShips.end(); ++i)
 				{
-					uint iDockedClientId = GetClientIdFromCharname(i->first);
+					uint iDockedClientId = Hk::Client::GetClientIdFromCharName(i->first);
 					if (iDockedClientId)
 					{
 						JumpToLocation(

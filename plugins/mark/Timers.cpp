@@ -9,10 +9,10 @@ namespace Plugins::Mark
 			if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 				return;
 
-			struct PlayerData* pPD = 0;
-			while (pPD = Players.traverse_active(pPD))
+			struct PlayerData* playerData = 0;
+			while (playerData = Players.traverse_active(playerData))
 			{
-				uint ship, client = GetClientIdFromPD(pPD);
+				uint ship, client = playerData->iOnlineId;
 				pub::Player::GetShip(client, ship);
 				if (!ship || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
@@ -27,7 +27,7 @@ namespace Plugins::Mark
 					Vector VTargetPos;
 					Matrix MTargetOri;
 					pub::SpaceObj::GetLocation(global->Mark[client].AutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius)
+					if (Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius)
 					{
 						pub::Player::MarkObj(client, global->Mark[client].AutoMarkedObjects[i], 0);
 						global->Mark[client].DelayedAutoMarkedObjects.push_back(global->Mark[client].AutoMarkedObjects[i]);
@@ -57,7 +57,7 @@ namespace Plugins::Mark
 					Vector VTargetPos;
 					Matrix MTargetOri;
 					pub::SpaceObj::GetLocation(global->Mark[client].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (!(Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius))
+					if (!(Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius))
 					{
 						pub::Player::MarkObj(client, global->Mark[client].DelayedAutoMarkedObjects[i], 1);
 						global->Mark[client].AutoMarkedObjects.push_back(global->Mark[client].DelayedAutoMarkedObjects[i]);
@@ -92,14 +92,14 @@ namespace Plugins::Mark
 				uint iItemSystem;
 				pub::SpaceObj::GetSystem(mark->iObj, iItemSystem);
 				// for all players
-				struct PlayerData* pPD = 0;
-				while (pPD = Players.traverse_active(pPD))
+				struct PlayerData* playerData = 0;
+				while (playerData = Players.traverse_active(playerData))
 				{
-					ClientId client = GetClientIdFromPD(pPD);
-					if (Players[client].iSystemId == iItemSystem)
+					ClientId client = playerData->iOnlineId;
+					if (Players[client].systemId == iItemSystem)
 					{
 						pub::SpaceObj::GetLocation(Players[client].shipId, vPlayer, mTemp);
-						if (Distance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
+						if (Hk::Math::Distance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
 						{
 							MarkObject(client, mark->iObj);
 						}

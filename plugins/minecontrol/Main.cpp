@@ -125,22 +125,20 @@ namespace Plugins::MiningControl
 
 			// Get the player affiliation
 			uint iRepGroupId = -1;
-			IObjInspectImpl* oship = GetInspect(client);
-			if (oship)
-				oship->get_affiliation(iRepGroupId);
+			if (const auto shipObj = Hk::Client::GetInspect(client); shipObj.has_value())
+				shipObj.value()->get_affiliation(iRepGroupId);
 
 			// Get the ship type
 			uint shipId;
 			pub::Player::GetShipID(client, shipId);
 
 			// Get the ship cargo so that we can check ids, guns, etc.
-			std::list<CARGO_INFO> lstCargo;
 			int remainingHoldSize = 0;
-			EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), lstCargo, remainingHoldSize);
+			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
 			if (global->config->PluginDebug > 1)
 			{
 				Console::ConInfo(L"NOTICE: client=%d iRepGroupId=%u shipId=%u lstCargo=", client, iRepGroupId, shipId);
-				for (auto& ci : lstCargo)
+				for (auto& ci : lstCargo.value())
 				{
 					Console::ConInfo(L"%u ", ci.iArchId);
 				}
@@ -156,7 +154,7 @@ namespace Plugins::MiningControl
 			for (auto& i : global->PlayerBonus)
 			{
 				uint iLootId = i.first;
-				float fBonus = GetBonus(iRepGroupId, shipId, lstCargo, iLootId);
+				float fBonus = GetBonus(iRepGroupId, shipId, lstCargo.value(), iLootId);
 				if (fBonus > 0.0f)
 				{
 					Clients[client].LootBonus[iLootId] = fBonus;
@@ -169,9 +167,8 @@ namespace Plugins::MiningControl
 				}
 			}
 
-			std::wstring wscRights;
-			GetAdmin((const wchar_t*)Players.GetActiveCharacterName(client), wscRights);
-			if (wscRights.size())
+			const auto rights = Hk::Admin::GetAdmin((const wchar_t*)Players.GetActiveCharacterName(client));
+			if (rights.has_value())
 				Clients[client].Debug = global->config->PluginDebug;
 		}
 	}
@@ -364,10 +361,10 @@ namespace Plugins::MiningControl
 		WriteProcMem((char*)0x62F944E, &patch2, 2);
 		WriteProcMem((char*)0x62F123E, &patch2, 2);
 
-		struct PlayerData* pPD = 0;
-		while (pPD = Players.traverse_active(pPD))
+		struct PlayerData* playerData = 0;
+		while (playerData = Players.traverse_active(playerData))
 		{
-			ClientId client = GetClientIdFromPD(pPD);
+			uint client = playerData->iOnlineId;
 			ClearClientInfo(client);
 		}
 	}
@@ -475,22 +472,19 @@ namespace Plugins::MiningControl
 							pub::SpaceObj::GetTarget(ship, iTargetShip);
 							if (iTargetShip)
 							{
-								uint iTargetClientId = GetClientIdByShip(iTargetShip);
-								if (iTargetClientId)
+								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip);
+								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip) < 1000.0f)
 								{
-									if (Distance3DByShip(ship, iTargetShip) < 1000.0f)
-									{
-										iSendToClientId = iTargetClientId;
-									}
+									iSendToClientId = iTargetClientId.value();
 								}
 							}
 						}
 
 						// Calculate the loot drop count
-						float fRand = (float)rand() / (float)RAND_MAX;
+						const float random = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 						// Calculate the loot drop and drop it.
-						int iLootCount = (int)(fRand * global->config->GenericFactor * fZoneBonus * fPlayerBonus * zone->lootableZone->dynamic_loot_count2);
+						int iLootCount = (int)(random * global->config->GenericFactor * fZoneBonus * fPlayerBonus * zone->lootableZone->dynamic_loot_count2);
 
 						// Remove this lootCount from the field
 						global->ZoneBonus[zone->iZoneId].CurrentReserve -= iLootCount;
@@ -504,10 +498,8 @@ namespace Plugins::MiningControl
 						if (Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
-							    L"* fRand=%2.2f fGenericBonus=%2.2f "
-							    L"fPlayerBonus=%2.2f fZoneBonus=%2.2f "
-							    L"iLootCount=%d LootId=%u/%u CurrentReserve=%0.0f",
-							    fRand, global->config->GenericFactor, fPlayerBonus, fZoneBonus, iLootCount, iLootId, iCrateId,
+							    L"* fRand=%2.2f fGenericBonus=%2.2f fPlayerBonus=%2.2f fZoneBonus=%2.2f iLootCount=%d LootId=%u/%u CurrentReserve=%0.0f", 
+							    random, global->config->GenericFactor, fPlayerBonus, fZoneBonus, iLootCount, iLootId, iCrateId,
 							    global->ZoneBonus[zone->iZoneId].CurrentReserve);
 						}
 
@@ -518,12 +510,8 @@ namespace Plugins::MiningControl
 							if (average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
-								AddLog(LogType::Normal, LogLevel::Info,
-								    L"High mining rate charname=%s "
-								    "rate=%0.1f/sec "
-								    "location=%0.0f,%0.0f,%0.0f system=%08x "
-								    "zone=%08x",
-								    CharName.c_str(), average, vPos.x, vPos.y, vPos.z, zone->iSystemId, zone->iZoneId);
+								AddLog(LogType::Normal, LogLevel::Info, L"High mining rate charname=%s rate=%0.1f/sec location=%0.0f,%0.0f,%0.0f system=%08x zone=%08x",
+								    CharName.c_str(), average, vPos.x, vPos.y, vPos.z, zone->systemId, zone->iZoneId);
 							}
 
 							Clients[client].MineAsteroidSampleStart = time(0) + 30;

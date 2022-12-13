@@ -386,28 +386,28 @@ void Timer()
 					// with the jump engine.
 					if (jd.arch.field_range > 0)
 					{
-						struct PlayerData* pPD = 0;
-						while (pPD = Players.traverse_active(pPD))
+						struct PlayerData* playerData = 0;
+						while (playerData = Players.traverse_active(playerData))
 						{
 							uint iSystemId2;
-							pub::SpaceObj::GetSystem(pPD->shipId, iSystemId2);
+							pub::SpaceObj::GetSystem(playerData->shipId, iSystemId2);
 
 							Vector vPosition2;
 							Matrix mShipDir2;
-							pub::SpaceObj::GetLocation(pPD->shipId, vPosition2, mShipDir2);
+							pub::SpaceObj::GetLocation(playerData->shipId, vPosition2, mShipDir2);
 
-							if (pPD->iOnlineId != client && iSystemId2 == iSystemId &&
+							if (playerData->iOnlineId != client && iSystemId2 == iSystemId &&
 							    Distance3D(vPosition, vPosition2) <= jd.arch.field_range)
 							{
-								PrintUserCmdText(pPD->iOnlineId, L"Jumping...");
+								PrintUserCmdText(playerData->iOnlineId, L"Jumping...");
 
 								Vector vNewTargetPosition;
 								vNewTargetPosition.x = jd.vTargetPosition.x + (vPosition.x - vPosition2.x);
 								vNewTargetPosition.y = jd.vTargetPosition.y + (vPosition.y - vPosition2.y);
 								vNewTargetPosition.z = jd.vTargetPosition.z + (vPosition.z - vPosition2.z);
-								pub::Audio::PlaySoundEffect(pPD->iOnlineId, CreateID("dsy_jumpdrive_activate"));
-								pub::SpaceObj::DrainShields(pPD->shipId);
-								SwitchSystem(pPD->iOnlineId, jd.iTargetSystem, vNewTargetPosition, mShipDir2);
+								pub::Audio::PlaySoundEffect(playerData->iOnlineId, CreateID("dsy_jumpdrive_activate"));
+								pub::SpaceObj::DrainShields(playerData->shipId);
+								SwitchSystem(playerData->iOnlineId, jd.iTargetSystem, vNewTargetPosition, mShipDir2);
 							}
 						}
 					}

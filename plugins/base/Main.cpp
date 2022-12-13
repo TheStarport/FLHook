@@ -1326,7 +1326,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 		returncode = ReturnCode::SkipAll;
 		;
 
-		ClientId client = GetClientIdFromCharname(cmd->GetAdminName());
+		ClientId client = Hk::Client::GetClientIdFromCharName(cmd->GetAdminName());
 		PlayerBase* base = GetPlayerBaseForClient(client);
 		if (!base)
 		{
@@ -1351,7 +1351,7 @@ bool ExecuteCommandString(CCmds* cmd, const std::wstring& args)
 	{
 		returncode = ReturnCode::SkipAll;
 		;
-		ClientId client = GetClientIdFromCharname(cmd->GetAdminName());
+		ClientId client = Hk::Client::GetClientIdFromCharName(cmd->GetAdminName());
 		if (!client)
 		{
 			cmd->Print(L"ERR Not in game");

@@ -117,9 +117,6 @@ namespace Plugins::Arena
 		// It's not docked at a custom base, check for a regular base
 		uint base = 0;
 
-		if (global->baseCommunicator)
-			base = global->baseCommunicator->GetCustomBaseID(client);
-
 		if (!base)
 			pub::Player::GetBase(client, base);
 		if (!base)
@@ -236,8 +233,7 @@ namespace Plugins::Arena
 		// Prohibit jump if in a restricted system or in the target system
 		uint system = 0;
 		pub::Player::GetSystem(client, system);
-		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId ||
-		    (global->baseCommunicator && global->baseCommunicator->GetCustomBaseID(client)))
+		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
