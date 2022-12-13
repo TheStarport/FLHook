@@ -134,16 +134,15 @@ namespace Plugins::CashManager
 		}
 	}
 
-	void OnPlayerLogin(const SLoginInfo& li, const ClientId& clientId)
+	void OnPlayerLogin(const SLoginInfo& li, const ClientId& client)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(clientId);
+		CAccount const* acc = Players.FindAccountFromClientID(client);
 		if (!acc)
 		{
 			return;
 		}
 
-		std::wstring dir;
-		HkGetAccountDirName(acc, dir);
+		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
 
 		std::string saveGameDir;
 		saveGameDir.reserve(MAX_PATH);
@@ -152,7 +151,7 @@ namespace Plugins::CashManager
 		const std::string path = saveGameDir + R"(\Accts\MultiPlayer\)" + wstos(dir) + jsonPath;
 		if (!std::filesystem::exists(path))
 		{
-			CreateAccountBank(path, acc->wszAccID);
+			CreateAccountBank(path, acc->wszAccId);
 		}
 	}
 
@@ -184,7 +183,7 @@ namespace Plugins::CashManager
 		if (targetBank.index() == 0)
 		{
 			const auto* acc = Players.FindAccountFromClientID(std::get<ClientId>(targetBank));
-			const auto bankIter = global->banks.find(acc->wszAccID);
+			const auto bankIter = global->banks.find(acc->wszAccId);
 			if (bankIter == global->banks.end())
 			{
 				throw std::logic_error("Attempted to access bank of account that does not have a bank.");
@@ -204,72 +203,67 @@ namespace Plugins::CashManager
 		return bank;
 	}
 
-	void WithdrawMoney(std::shared_ptr<Bank> bank, int withdrawal, ClientId clientId)
+	void WithdrawMoney(std::shared_ptr<Bank> bank, int withdrawal, ClientId client)
 	{
-		float currentValue;
-		HkFunc(HKGetShipValue, clientId, currentValue);
-
-		if (global->config->cashThreshold > 0 && currentValue > static_cast<float>(global->config->cashThreshold))
+		if (const auto currentValue = Hk::Player::GetShipValue(client); 
+			currentValue.has_error() || (global->config->cashThreshold > 0 && currentValue.value() > static_cast<float>(global->config->cashThreshold)))
 		{
-			PrintUserCmdText(clientId, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
+			PrintUserCmdText(client, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
 		}
 
 		if (bank->cash < withdrawal)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough credits, this bank only has %u", bank->cash);
+			PrintUserCmdText(client, L"Error: Not enough credits, this bank only has %u", bank->cash);
 			return;
 		}
 
 		if (withdrawal <= 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid withdraw amount, please input a positive number. %u", bank->cash);
+			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number. %u", bank->cash);
 			return;
 		}
 
 		const auto fee = static_cast<long long>(withdrawal) + global->config->transferFee;
 		if (global->config->transferFee > 0 && bank->cash - fee < 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for withdrawal and fee (%u).", fee);
+			PrintUserCmdText(client, L"Error: Not enough cash in bank for withdrawal and fee (%u).", fee);
 			return;
 		}
 
-		HkFunc(HkAddCash, clientId, withdrawal);
+		Hk::Player::AddCash(client, withdrawal);
 
 		bank->cash -= fee;
 
 		Transaction transaction;
 
-		transaction.accessor = HkGetCharacterNameById(clientId);
+		transaction.accessor = Hk::Client::GetCharacterNameByID(client).value();
 		transaction.amount = -fee;
 
 		bank->transactions.emplace(bank->transactions.begin(), transaction);
 		bank->Save();
 	}
 
-	void DepositMoney(std::shared_ptr<Bank> bank, int deposit, ClientId clientId)
+	void DepositMoney(std::shared_ptr<Bank> bank, int deposit, ClientId client)
 	{
-		int playerCash;
-		HkFunc(HkGetCash, clientId, playerCash);
-
-		if (playerCash < deposit)
+		if (const int playerCash = Hk::Player::GetCash(client).value(); playerCash < deposit)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
+			PrintUserCmdText(client, L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
 			return;
 		}
 
 		if (deposit <= 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid deposit amount, please input a positive number.");
+			PrintUserCmdText(client, L"Error: Invalid deposit amount, please input a positive number.");
 			return;
 		}
 
-		HkFunc(HkAddCash, clientId, -deposit);
+		Hk::Player::AddCash(client, -deposit);
 
 		bank->cash += deposit;
 
 		Transaction transaction;
 
-		transaction.accessor = HkGetCharacterNameById(clientId);
+		transaction.accessor = Hk::Client::GetCharacterNameByID(client).value();
 		transaction.amount = deposit;
 
 		bank->transactions.emplace(bank->transactions.begin(), transaction);
@@ -277,7 +271,7 @@ namespace Plugins::CashManager
 	}
 
 	// /bank withdraw account password amount
-	void WithdrawMoneyByPassword(const ClientId& clientId, const std::wstring_view& param)
+	void WithdrawMoneyByPassword(const ClientId& client, const std::wstring_view& param)
 	{
 		const auto accountId = GetParam(param, ' ', 1);
 		const auto password = GetParam(param, ' ', 2);
@@ -285,60 +279,60 @@ namespace Plugins::CashManager
 
 		if (withdrawal <= 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid withdraw amount, please input a positive number.");
+			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number.");
 			return;
 		}
 
 		const auto bank = GetBank(accountId);
 		if (!bank)
 		{
-			PrintUserCmdText(clientId, L"Error: Bank accountId could not be found.");
+			PrintUserCmdText(client, L"Error: Bank accountId could not be found.");
 			return;
 		}
 		if (password != bank->bankPassword)
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid Password.");
+			PrintUserCmdText(client, L"Error: Invalid Password.");
 			return;
 		}
-		WithdrawMoney(bank, withdrawal, clientId);
+		WithdrawMoney(bank, withdrawal, client);
 	}
 
 	// /bank transfer targetBank amount
-	void TransferMoney(const ClientId clientId, const std::wstring_view& param)
+	void TransferMoney(const ClientId client, const std::wstring_view& param)
 	{
-		const auto sourceBank = GetBank(clientId);
+		const auto sourceBank = GetBank(client);
 		const auto targetBank = GetBank(GetParam(param, ' ', 1));
 		const auto amount = ToInt(GetParam(param, ' ', 2));
 
 		if (!targetBank)
 		{
-			PrintUserCmdText(clientId, L"Error: Target Bank not found");
+			PrintUserCmdText(client, L"Error: Target Bank not found");
 			return;
 		}
 
 		if (amount <= 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Invalid amount, please input a positive number.");
+			PrintUserCmdText(client, L"Error: Invalid amount, please input a positive number.");
 			return;
 		}
 
 		if (sourceBank->cash - amount < 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for transfer.");
+			PrintUserCmdText(client, L"Error: Not enough cash in bank for transfer.");
 			return;
 		}
 
 		const auto fee = static_cast<long long>(amount) + global->config->transferFee;
 		if (global->config->transferFee > 0 && sourceBank->cash - fee < 0)
 		{
-			PrintUserCmdText(clientId, L"Error: Not enough cash in bank for transfer and fee (%u).", fee);
+			PrintUserCmdText(client, L"Error: Not enough cash in bank for transfer and fee (%u).", fee);
 			return;
 		}
 
 		sourceBank->cash -= fee;
 		targetBank->cash += amount;
 
-		const auto charName = HkGetCharacterNameById(clientId);
+		const auto charName = Hk::Client::GetCharacterNameByID(client).value();
 
 		Transaction sourceTransaction;
 		sourceTransaction.accessor = charName;
@@ -354,54 +348,57 @@ namespace Plugins::CashManager
 		targetBank->Save();
 	}
 
-	void ShowBankInfo(const ClientId& clientId, std::shared_ptr<Bank> bank, bool showPass)
+	void ShowBankInfo(const ClientId& client, std::shared_ptr<Bank> bank, bool showPass)
 	{
-		PrintUserCmdText(clientId, L"Your Bank Information: ");
-		PrintUserCmdText(clientId, L"|    Account ID: %s", bank->accountId.c_str());
+		PrintUserCmdText(client, L"Your Bank Information: ");
+		PrintUserCmdText(client, L"|    Account ID: %s", bank->accountId.c_str());
 		if (bank->bankPassword.empty())
 		{
-			PrintUserCmdText(clientId, L"|    Password: None Set");
+			PrintUserCmdText(client, L"|    Password: None Set");
 		}
 		else
 		{
-			PrintUserCmdText(clientId, L"|    Password: %s", showPass ? bank->bankPassword.c_str() : L"*****");
+			PrintUserCmdText(client, L"|    Password: %s", showPass ? bank->bankPassword.c_str() : L"*****");
 		}
 
-		PrintUserCmdText(clientId, L"|    Credits: %u", bank->cash);
+		PrintUserCmdText(client, L"|    Credits: %u", bank->cash);
 		if (!bank->transactions.empty())
 		{
-			PrintUserCmdText(clientId, L"|    Last Accessed: %s", GetHumanTime(bank->transactions.front().lastAccessedUnix).c_str());
+			PrintUserCmdText(client, L"|    Last Accessed: %s", GetHumanTime(bank->transactions.front().lastAccessedUnix).c_str());
 		}
 
 		if (!showPass && !bank->bankPassword.empty())
 		{
-			PrintUserCmdText(clientId, L"Use /bank info pass to make the password visible.");
+			PrintUserCmdText(client, L"Use /bank info pass to make the password visible.");
 		}
 	}
 
-	void UserCommandHandler(const ClientId& clientId, const std::wstring_view& param)
+	void UserCommandHandler(const ClientId& client, const std::wstring_view& param)
 	{
 		// Checks before we handle any sort of command or process.
-		int secs;
-		HkGetOnlineTime(HkGetCharacterNameById(clientId), secs);
+		const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value();
 		if (secs < global->config->minimumTime / 60)
 		{
-			PrintUserCmdText(clientId, L"Error: You cannot interact with the bank. This character is too new.");
+			PrintUserCmdText(client, L"Error: You cannot interact with the bank. This character is too new.");
 			return;
 		}
-		if (ClientInfo[clientId].iTradePartner)
+		if (ClientInfo[client].iTradePartner)
 		{
-			PrintUserCmdText(clientId, L"Error: You are currently in a trade.");
+			PrintUserCmdText(client, L"Error: You are currently in a trade.");
 			return;
 		}
 
-		uint currentSystem;
-		HkGetSystem(clientId, currentSystem);
+		const auto currentSystem = Hk::Player::GetSystem(client);
+		if (currentSystem.has_error())
+		{
+			PrintUserCmdText(client, L"Unable to decipher player location.");
+			return;
+		}
 
 		if (const auto blockedSystems = &global->config->blockedSystemsHashed;
-		    std::find(blockedSystems->begin(), blockedSystems->end(), currentSystem) != blockedSystems->end())
+		    std::find(blockedSystems->begin(), blockedSystems->end(), currentSystem.value()) != blockedSystems->end())
 		{
-			PrintUserCmdText(clientId, L"Error: You are in a blocked system, you are unable to access the bank.");
+			PrintUserCmdText(client, L"Error: You are in a blocked system, you are unable to access the bank.");
 			return;
 		}
 
@@ -409,81 +406,78 @@ namespace Plugins::CashManager
 		{
 			if (global->config->preventTransactionsNearThreshold)
 			{
-				int cash;
-				HkFunc(HkGetCash, clientId, cash);
+				const int cash = Hk::Player::GetCash(client).value();
 
 				if (cash > global->config->cashThreshold)
 				{
-					PrintUserCmdText(clientId,
-					    L"You cannot withdraw more cash. Your current value is dangerously high. "
-					    L"Please deposit money to bring your value back into normal range.");
+					PrintUserCmdText(client, L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal range.");
 					return;
 				}
 			}
 
 			if (const int withdrawAmount = ToInt(GetParam(param, ' ', 1)) - 1)
 			{
-				const CAccount* acc = Players.FindAccountFromClientID(clientId);
-				const auto bank = GetBank(acc->wszAccID);
-				WithdrawMoney(bank, withdrawAmount, clientId);
+				const CAccount* acc = Players.FindAccountFromClientID(client);
+				const auto bank = GetBank(acc->wszAccId);
+				WithdrawMoney(bank, withdrawAmount, client);
 				return;
 			}
 
-			WithdrawMoneyByPassword(clientId, param);
+			WithdrawMoneyByPassword(client, param);
 		}
 		else if (cmd == L"deposit")
 		{
 			const int depositAmount = ToInt(GetParam(param, ' ', 1)) - 1;
-			const CAccount* acc = Players.FindAccountFromClientID(clientId);
-			const auto bank = GetBank(acc->wszAccID);
-			DepositMoney(bank, depositAmount, clientId);
+			const CAccount* acc = Players.FindAccountFromClientID(client);
+			const auto bank = GetBank(acc->wszAccId);
+			DepositMoney(bank, depositAmount, client);
 		}
 
 		else if (cmd == L"password")
 		{
-			const CAccount* acc = Players.FindAccountFromClientID(clientId);
-			const auto bank = GetBank(acc->wszAccID);
+			const CAccount* acc = Players.FindAccountFromClientID(client);
+			const auto bank = GetBank(acc->wszAccId);
 
 			if (GetParam(param, ' ', 2) == L"confirm")
 			{
 				bank->bankPassword = GenerateAccountId();
-				PrintUserCmdText(clientId, L"Your bank account information has been updated.");
-				ShowBankInfo(clientId, bank, true);
+				PrintUserCmdText(client, L"Your bank account information has been updated.");
+				ShowBankInfo(client, bank, true);
 				return;
 			}
 
 			if (bank->bankPassword.empty())
 			{
-				PrintUserCmdText(clientId, L"Your bank currently does not have a password set");
-				PrintUserCmdText(clientId, L"Generating a password means anybody with the password and Bank ID can access your bank");
-				PrintUserCmdText(clientId, L"Are you sure you want to generate a password for this account?");
-				PrintUserCmdText(clientId, L"Please type \"/bank password confirm\" to proceed.");
+				PrintUserCmdText(client, L"Your bank currently does not have a password set");
+				PrintUserCmdText(client, L"Generating a password means anybody with the password and Bank ID can access your bank");
+				PrintUserCmdText(client, L"Are you sure you want to generate a password for this account?");
+				PrintUserCmdText(client, L"Please type \"/bank password confirm\" to proceed.");
 				return;
 			}
-			PrintUserCmdText(clientId, L"This will generate a new password and the previous will be invalid");
-			PrintUserCmdText(clientId,
+			PrintUserCmdText(client, L"This will generate a new password and the previous will be invalid");
+			PrintUserCmdText(client,
 			    L"Your currently set password is " + bank->bankPassword +
 			        L" if you are sure you want to regenerate your password type \"/bank password confirm\". ");
 		}
 		else if (cmd == L"transfer")
 		{
-			TransferMoney(clientId, param);
+			TransferMoney(client, param);
 		}
 		else if (cmd == L"info")
 		{
-			const auto bank = GetBank(clientId);
+			const auto bank = GetBank(client);
 			const bool showPass = GetParam(param, ' ', 1) == L"pass";
-			ShowBankInfo(clientId, bank, showPass);
+			ShowBankInfo(client, bank, showPass);
 		}
 		else
 		{
-			PrintUserCmdText(clientId, L"Here are the available commands for the bank plugin");
-			PrintUserCmdText(clientId, L"\"/bank withdraw \" will withdraw money from your account's bank");
-			PrintUserCmdText(clientId, L"\"/bank deposit\" will deposit money from your character to your bank");
-			PrintUserCmdText(clientId, L"\"/bank withdraw bankID password\" will withdraw money from a specified bank that has a password set up");
-			PrintUserCmdText(clientId, L"\"/bank transfer bankID \" transfer money from your current bank to the target Bank ID");
-			PrintUserCmdText(clientId, L"\"/bank password \" will generate a password for your bank or regen one of you already have one");
-			PrintUserCmdText(clientId, L"\"/bank info \" will display information regarding your current account's bank");
+			PrintUserCmdText(client, L"Here are the available commands for the bank plugin");
+			PrintUserCmdText(client, L"\"/bank withdraw \" will withdraw money from your account's bank");
+			PrintUserCmdText(client, L"\"/bank deposit\" will deposit money from your character to your bank");
+			PrintUserCmdText(client, L"\"/bank withdraw bankID password\" will withdraw money from a specified bank that has a password set up");
+			PrintUserCmdText(client, L"\"/bank transfer bankID \" transfer money from your current bank to the target Bank ID");
+			PrintUserCmdText(client, L"\"/bank password \" will generate a password for your bank or regen one of you already have one");
+			PrintUserCmdText(client, L"\"/bank info \" will display information regarding your current account's bank");
 		}
 	}
 
@@ -535,24 +529,15 @@ namespace Plugins::CashManager
 		return BankCode::Success;
 	}
 
-	bool ShouldSuppressBuy(const void* dummy [[maybe_unused]], const ClientId& clientId)
+	bool ShouldSuppressBuy(const void* dummy [[maybe_unused]], const ClientId& client)
 	{
 		if (!global->config->preventTransactionsNearThreshold)
 			return false;
 
-		float currentValue;
-		{
-			if (HK_ERROR err; (err = HKGetShipValue(clientId, currentValue)) != HKE_OK)
-			{
-				std::wstring errorString = HkErrGetText(err);
-				PrintUserCmdText(clientId, L"ERR:" + errorString);
-				return false;
-			}
-		};
-
+		const auto currentValue = Hk::Player::GetShipValue(client).value();
 		if (global->config->cashThreshold < static_cast<int>(currentValue))
 		{
-			PrintUserCmdText(clientId, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
+			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
 			return true;
 		}
 
@@ -560,10 +545,10 @@ namespace Plugins::CashManager
 	}
 
 	bool ReqAddItem(const uint& goodID [[maybe_unused]], char const* hardpoint [[maybe_unused]], const int& count [[maybe_unused]],
-	    const float& status [[maybe_unused]], const bool& mounted [[maybe_unused]], const uint& clientId)
+	    const float& status [[maybe_unused]], const bool& mounted [[maybe_unused]], const uint& client)
 	{
 		// First value is dummy garbage
-		return ShouldSuppressBuy(&goodID, clientId);
+		return ShouldSuppressBuy(&goodID, client);
 	}
 
 	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
