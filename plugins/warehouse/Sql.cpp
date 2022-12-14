@@ -9,25 +9,25 @@ namespace Plugins::Warehouse
 		if (!global->sql->GetDb().tableExists("bases"))
 		{
 			auto query = global->sql->StartQuery("CREATE TABLE bases ("
-			                        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-			                        "baseId INTEGER NOT NULL CHECK(baseId >= 0));"
-			                        "CREATE TABLE players(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
-			                        "baseId REFERENCES bases(baseId) ON UPDATE CASCADE NOT NULL,"
-			                        "accountId TEXT(32, 32) NOT NULL);"
-			                        "CREATE TABLE items(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
-			                        "quantity INTEGER NOT NULL CHECK(quantity > 0),"
-			                        "playerId INTEGER REFERENCES players(id) ON UPDATE CASCADE NOT NULL,"
-			                        "itemId INTEGER NOT NULL);"
-			                        "CREATE INDEX "
-			                        "IDX_baseId"
-			                        " ON bases(baseId);"
-			                        "CREATE INDEX "
-			                        "IDX_accountId"
-			                        " ON players(accountId);"
-			                        "CREATE INDEX "
-			                        "IDX_item_id"
-			                        " ON items(itemId);"
-			                        ");");
+			                                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			                                     "baseId INTEGER NOT NULL CHECK(baseId >= 0));"
+			                                     "CREATE TABLE players(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
+			                                     "baseId REFERENCES bases(baseId) ON UPDATE CASCADE NOT NULL,"
+			                                     "accountId TEXT(32, 32) NOT NULL);"
+			                                     "CREATE TABLE items(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
+			                                     "quantity INTEGER NOT NULL CHECK(quantity > 0),"
+			                                     "playerId INTEGER REFERENCES players(id) ON UPDATE CASCADE NOT NULL,"
+			                                     "itemId INTEGER NOT NULL);"
+			                                     "CREATE INDEX "
+			                                     "IDX_baseId"
+			                                     " ON bases(baseId);"
+			                                     "CREATE INDEX "
+			                                     "IDX_accountId"
+			                                     " ON players(accountId);"
+			                                     "CREATE INDEX "
+			                                     "IDX_item_id"
+			                                     " ON items(itemId);"
+			                                     ");");
 			query.exec();
 			global->sql->Commit();
 		}
@@ -79,7 +79,7 @@ namespace Plugins::Warehouse
 		global->sql->Commit();
 	}
 
-	std::pair<__int64, __int64> GetOrAddItem(EquipId& item, int64_t playerId, int64_t quantity)
+	WareHouseItem GetOrAddItem(EquipId& item, int64_t playerId, int64_t quantity)
 	{
 		auto itemId = global->sql->StartQuery("SELECT id, quantity FROM items WHERE playerId = ? AND itemId = ?;", false);
 		itemId.bind(1, playerId);
@@ -95,7 +95,12 @@ namespace Plugins::Warehouse
 				AdjustItemCount(currentId, currentQuantity);
 			}
 
-			return {currentId, currentQuantity};
+			return {currentId, item , currentQuantity};
+		}
+
+		if (quantity <= 0)
+		{
+			return {0,0};
 		}
 
 		auto query = global->sql->StartQuery("INSERT INTO items (itemId, quantity, playerId) VALUES(?, ?, ?);");
@@ -105,22 +110,48 @@ namespace Plugins::Warehouse
 		query.exec();
 		global->sql->Commit();
 
-		return {global->sql->GetDb().getLastInsertRowid(), quantity};
+		return {global->sql->GetDb().getLastInsertRowid(), item, quantity};
 	}
 
 	__int64 RemoveItem(EquipId& item, int64_t playerId, __int64 quantity)
 	{
-		const auto [itemId, currentQuantity] = GetOrAddItem(item, playerId, quantity);
-		if (quantity >= currentQuantity)
+		const auto wareHouseItem = GetOrAddItem(item, playerId, quantity);
+		if (quantity >= wareHouseItem.quantity)
 		{
 			auto query = global->sql->StartQuery("DELETE FROM items WHERE id = ?;");
-			query.bind(1, itemId);
+			query.bind(1, wareHouseItem.id);
 			query.exec();
 			global->sql->Commit();
-			return currentQuantity;
+			return wareHouseItem.quantity;
 		}
 
-		AdjustItemCount(itemId, currentQuantity - quantity);
+		AdjustItemCount(wareHouseItem.id, wareHouseItem.quantity - quantity);
 		return quantity;
 	}
-}
+
+	std::optional<WareHouseItem> GetItemById(__int64 itemId, __int64 playerId) 
+	{
+		auto query = global->sql->StartQuery("SELECT id, itemId, quantity FROM items WHERE playerId = ? AND id = ?;", false);
+		query.bind(1, playerId);
+		query.bind(2, itemId);
+		if (!query.executeStep())
+			return std::nullopt;
+
+		WareHouseItem item = { query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64() };
+		return item;
+	}
+
+	std::vector<WareHouseItem> GetAllItemsOnBase(__int64 playerId)
+	{
+		std::vector<WareHouseItem> itemList;
+		auto query = global->sql->StartQuery("SELECT id, itemId, quantity FROM items WHERE playerId = ?;");
+		query.bind(1, playerId);
+		while (query.executeStep())
+		{
+			WareHouseItem item = {query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64()};
+			itemList.emplace_back(item);
+		}
+		return itemList;
+	}
+
+} // namespace Plugins::Warehouse

@@ -18,6 +18,13 @@ namespace Plugins::Warehouse
 		uint costPerStackStore = 0;
 	};
 
+	struct WareHouseItem
+	{
+		__int64 id;
+		uint equipArchId;
+		__int64 quantity;
+	};
+
 	//! Global data for this plugin
 	struct Global final
 	{
@@ -33,7 +40,8 @@ namespace Plugins::Warehouse
 	void CreateSqlTables();
 	int64_t GetOrAddBase(BaseId& base);
 	int64_t GetOrAddPlayer(int64_t baseId, const CAccount* acc);
-	void AdjustItemCount(__int64 itemId, __int64 count);
-	std::pair<__int64, __int64> GetOrAddItem(EquipId& item, int64_t playerId, int64_t quantity = 0);
+	WareHouseItem GetOrAddItem(EquipId& item, int64_t playerId, int64_t quantity = 0);
 	__int64 RemoveItem(EquipId& item, int64_t playerId, __int64 quantity);
-}
+	std::vector<WareHouseItem> GetAllItemsOnBase(__int64 playerId);
+	std::optional<WareHouseItem> GetItemById(__int64 itemId, __int64 playerId);
+} // namespace Plugins::Warehouse
