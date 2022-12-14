@@ -31,6 +31,9 @@
     <Filter Include="FLHook\Features">
       <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\Ext">
+      <UniqueIdentifier>{492eff4d-e1a3-429b-8ee3-47cba5272b03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkHelp.cpp">
@@ -127,6 +130,9 @@
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="..\FLHookSDK\source\Sql.cpp">
+      <Filter>sdk\Ext</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -201,6 +207,21 @@
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\Deps.hpp">
       <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\ext\jpcre2.hpp">
+      <Filter>sdk\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\ext\result.hpp">
+      <Filter>sdk\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\ext\Singleton.h">
+      <Filter>sdk\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\ext\Sql.hpp">
+      <Filter>sdk\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\ext\Wildcard.hpp">
+      <Filter>sdk\Ext</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

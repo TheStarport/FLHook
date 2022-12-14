@@ -177,6 +177,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\FLHookSDK\source\HK.cpp" />
+    <ClCompile Include="..\FLHookSDK\source\Sql.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
     <ClCompile Include="..\source\Features\Logging.cpp" />
@@ -217,6 +218,11 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     <ClInclude Include="..\FLHookSDK\include\Constexpr.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Deps.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Enums.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\ext\jpcre2.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\ext\result.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\ext\Singleton.h" />
+    <ClInclude Include="..\FLHookSDK\include\ext\Sql.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\ext\Wildcard.hpp" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDALib.h" />
