@@ -1,7 +1,7 @@
 #include <FLHook.hpp>
 
 // Common packets are being sent from server to client and from client to server.
-FLPACKET* FLPACKET::Create(uint size, FLPACKET::COMMON kind)
+FLPACKET* FLPACKET::Create(uint size, FLPACKET::CommonPacket kind)
 {
 	auto* packet = static_cast<FLPACKET*>(malloc(size + 6));
 	packet->Size = size + 2;
@@ -12,7 +12,7 @@ FLPACKET* FLPACKET::Create(uint size, FLPACKET::COMMON kind)
 }
 
 // Server packets are being sent only from server to client.
-FLPACKET* FLPACKET::Create(uint size, FLPACKET::SERVER kind)
+FLPACKET* FLPACKET::Create(uint size, FLPACKET::ServerPacket kind)
 {
 	auto* packet = static_cast<FLPACKET*>(malloc(size + 6));
 	packet->Size = size + 2;
@@ -23,7 +23,7 @@ FLPACKET* FLPACKET::Create(uint size, FLPACKET::SERVER kind)
 }
 
 // Client packets are being sent only from client to server. Can't imagine why you ever need to create such a packet at side of server.
-FLPACKET* FLPACKET::Create(uint size, FLPACKET::CLIENT kind)
+FLPACKET* FLPACKET::Create(uint size, FLPACKET::ClientPacket kind)
 {
 	auto* packet = static_cast<FLPACKET*>(malloc(size + 6));
 	packet->Size = size + 2;

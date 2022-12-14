@@ -69,7 +69,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3111A690-73C5-484F-9D51-630B12824971}"
 	ProjectSection(SolutionItems) = preProject
 		..\.clang-format = ..\.clang-format
-		..\vcpkg.json = ..\vcpkg.json
+		..\.gitignore = ..\.gitignore
+		..\FLHookSDK\vcpkg.json = ..\FLHookSDK\vcpkg.json
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wardrobe", "..\plugins\wardrobe\Wardrobe.vcxproj", "{1BB57539-858B-4AB7-994E-401597653E64}"
@@ -297,10 +298,8 @@ Global
 		{AE98299F-0210-4872-96AC-008B5631A165}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{AE98299F-0210-4872-96AC-008B5631A165}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.Release|Win32.ActiveCfg = Release|Win32
-		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.Release|Win32.Build.0 = Release|Win32
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.Release|x64.ActiveCfg = Release|Win32
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
-		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 		{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}.Release|Win32.ActiveCfg = Release|Win32
 		{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}.Release|Win32.Build.0 = Release|Win32

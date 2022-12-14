@@ -199,6 +199,9 @@
     <ClInclude Include="..\FLHookSDK\include\Structs.hpp">
       <Filter>sdk\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Deps.hpp">
+      <Filter>sdk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FLHookSDK\README.md">

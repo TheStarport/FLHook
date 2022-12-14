@@ -8,6 +8,7 @@ Release
 *.vcxproj.user
 *.log
 vcpkg_installed/
+vcpkg.json
 
 !misc/acctpath_patch/bin/*.cfg
 

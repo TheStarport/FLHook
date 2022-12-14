@@ -62,9 +62,12 @@
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <VcpkgTriplet>
     </VcpkgTriplet>
+    <VcpkgInstalledDir>$(SolutionDir)..\FLHookSDK\vcpkg_installed</VcpkgInstalledDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Vcpkg">
     <VcpkgTriplet />
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
@@ -89,7 +92,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>FLHOOK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -145,7 +148,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>FLHOOK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -167,7 +170,8 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(SolutionDir)..\vcpkg\bookstrap-vcpkg.bat
+      <Command>xcopy /s /Y "$(SolutionDir)..\FLHookSDK\vcpkg.json" "$(SolutionDir).."
+$(SolutionDir)..\vcpkg\bootstrap-vcpkg.bat
 $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -211,6 +215,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\Constexpr.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Deps.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Enums.hpp" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h" />

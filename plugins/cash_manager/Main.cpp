@@ -376,8 +376,7 @@ namespace Plugins::CashManager
 	void UserCommandHandler(const ClientId& client, const std::wstring_view& param)
 	{
 		// Checks before we handle any sort of command or process.
-		const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value();
-		if (secs < global->config->minimumTime / 60)
+		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value(); secs < global->config->minimumTime / 60)
 		{
 			PrintUserCmdText(client, L"Error: You cannot interact with the bank. This character is too new.");
 			return;
@@ -534,8 +533,7 @@ namespace Plugins::CashManager
 		if (!global->config->preventTransactionsNearThreshold)
 			return false;
 
-		const auto currentValue = Hk::Player::GetShipValue(client).value();
-		if (global->config->cashThreshold < static_cast<int>(currentValue))
+		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < static_cast<int>(currentValue))
 		{
 			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
 			return true;
