@@ -6,9 +6,9 @@ namespace Plugins::Warehouse
 	{
 		global->sql = SqlManager::GetDatabase("warehouse.sqlite");
 
-		if (!global->sql->GetDb().tableExists("bases"))
+		if (!global->sql->db.tableExists("bases"))
 		{
-			auto query = global->sql->StartQuery("CREATE TABLE bases ("
+			SQLite::Statement query(global->sql->db, "CREATE TABLE bases ("
 			                                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 			                                     "baseId INTEGER NOT NULL CHECK(baseId >= 0));"
 			                                     "CREATE TABLE players(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"
@@ -29,31 +29,29 @@ namespace Plugins::Warehouse
 			                                     " ON items(itemId);"
 			                                     ");");
 			query.exec();
-			global->sql->Commit();
 		}
 	}
 
 	int64_t GetOrAddBase(BaseId& base)
 	{
-		auto baseId = global->sql->StartQuery("SELECT id FROM bases WHERE baseId = ?;", false);
+		SQLite::Statement baseId(global->sql->db, "SELECT id FROM bases WHERE baseId = ?;");
 		baseId.bind(1, base);
 		if (baseId.executeStep())
 		{
 			return baseId.getColumn(0).getInt64();
 		}
 
-		auto query = global->sql->StartQuery("INSERT INTO bases (baseId) VALUES(?);");
+		SQLite::Statement query(global->sql->db, "INSERT INTO bases (baseId) VALUES(?);");
 		query.bind(1, base);
 		query.exec();
-		global->sql->Commit();
 
-		return global->sql->GetDb().getLastInsertRowid();
+		return global->sql->db.getLastInsertRowid();
 	}
 
 	int64_t GetOrAddPlayer(int64_t baseId, const CAccount* acc)
 	{
 		const std::string accName = wstos(acc->wszAccId);
-		auto playerId = global->sql->StartQuery("SELECT id FROM players WHERE baseId = ? AND accountId = ?;", false);
+		SQLite::Statement playerId(global->sql->db, "SELECT id FROM players WHERE baseId = ? AND accountId = ?;");
 		playerId.bind(1, baseId);
 		playerId.bind(2, accName);
 		if (playerId.executeStep())
@@ -61,27 +59,25 @@ namespace Plugins::Warehouse
 			return playerId.getColumn(0).getInt64();
 		}
 
-		auto query = global->sql->StartQuery("INSERT INTO players (baseId, accountId) VALUES(?, ?);");
+		SQLite::Statement query(global->sql->db, "INSERT INTO players (baseId, accountId) VALUES(?, ?);");
 		query.bind(1, baseId);
 		query.bind(2, accName);
 		query.exec();
-		global->sql->Commit();
 
-		return global->sql->GetDb().getLastInsertRowid();
+		return global->sql->db.getLastInsertRowid();
 	}
 
 	void AdjustItemCount(__int64 itemId, __int64 count)
 	{
-		auto query = global->sql->StartQuery("UPDATE items SET quantity = ? WHERE id = ?");
+		SQLite::Statement query(global->sql->db, "UPDATE items SET quantity = ? WHERE id = ?");
 		query.bind(1, count);
 		query.bind(2, itemId);
 		query.exec();
-		global->sql->Commit();
 	}
 
 	WareHouseItem GetOrAddItem(EquipId& item, int64_t playerId, int64_t quantity)
 	{
-		auto itemId = global->sql->StartQuery("SELECT id, quantity FROM items WHERE playerId = ? AND itemId = ?;", false);
+		SQLite::Statement itemId(global->sql->db, "SELECT id, quantity FROM items WHERE playerId = ? AND itemId = ?;");
 		itemId.bind(1, playerId);
 		itemId.bind(2, item);
 		if (itemId.executeStep())
@@ -103,14 +99,13 @@ namespace Plugins::Warehouse
 			return {0,0};
 		}
 
-		auto query = global->sql->StartQuery("INSERT INTO items (itemId, quantity, playerId) VALUES(?, ?, ?);");
+		SQLite::Statement query(global->sql->db, "INSERT INTO items (itemId, quantity, playerId) VALUES(?, ?, ?);");
 		query.bind(1, item);
 		query.bind(2, quantity);
 		query.bind(3, playerId);
 		query.exec();
-		global->sql->Commit();
 
-		return {global->sql->GetDb().getLastInsertRowid(), item, quantity};
+		return {global->sql->db.getLastInsertRowid(), item, quantity};
 	}
 
 	__int64 RemoveItem(EquipId& item, int64_t playerId, __int64 quantity)
@@ -118,10 +113,9 @@ namespace Plugins::Warehouse
 		const auto wareHouseItem = GetOrAddItem(item, playerId, quantity);
 		if (quantity >= wareHouseItem.quantity)
 		{
-			auto query = global->sql->StartQuery("DELETE FROM items WHERE id = ?;");
+			SQLite::Statement query(global->sql->db, "DELETE FROM items WHERE id = ?;");
 			query.bind(1, wareHouseItem.id);
 			query.exec();
-			global->sql->Commit();
 			return wareHouseItem.quantity;
 		}
 
@@ -131,7 +125,7 @@ namespace Plugins::Warehouse
 
 	std::optional<WareHouseItem> GetItemById(__int64 itemId, __int64 playerId) 
 	{
-		auto query = global->sql->StartQuery("SELECT id, itemId, quantity FROM items WHERE playerId = ? AND id = ?;", false);
+		SQLite::Statement query(global->sql->db, "SELECT id, itemId, quantity FROM items WHERE playerId = ? AND id = ?;");
 		query.bind(1, playerId);
 		query.bind(2, itemId);
 		if (!query.executeStep())
@@ -144,7 +138,7 @@ namespace Plugins::Warehouse
 	std::vector<WareHouseItem> GetAllItemsOnBase(__int64 playerId)
 	{
 		std::vector<WareHouseItem> itemList;
-		auto query = global->sql->StartQuery("SELECT id, itemId, quantity FROM items WHERE playerId = ?;");
+		SQLite::Statement query(global->sql->db, "SELECT id, itemId, quantity FROM items WHERE playerId = ?;");
 		query.bind(1, playerId);
 		while (query.executeStep())
 		{

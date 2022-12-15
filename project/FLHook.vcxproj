@@ -68,6 +68,7 @@
     <VcpkgTriplet />
     <VcpkgInstalledDir>
     </VcpkgInstalledDir>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
