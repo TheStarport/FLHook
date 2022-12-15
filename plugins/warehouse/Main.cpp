@@ -259,12 +259,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Warehouse");
+	pi->name("warehouse");
 	pi->shortName("warehouse");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->commands(commands);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 }
