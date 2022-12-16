@@ -68,7 +68,7 @@
     <VcpkgTriplet />
     <VcpkgInstalledDir>
     </VcpkgInstalledDir>
-    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
@@ -145,7 +145,7 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <ExceptionHandling>Async</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -178,7 +178,6 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\FLHookSDK\source\HK.cpp" />
-    <ClCompile Include="..\FLHookSDK\source\Sql.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
     <ClCompile Include="..\source\Features\Logging.cpp" />

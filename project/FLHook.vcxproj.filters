@@ -130,9 +130,6 @@
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\FLHookSDK\source\Sql.cpp">
-      <Filter>sdk\Ext</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">

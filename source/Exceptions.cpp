@@ -42,7 +42,7 @@ typedef BOOL(WINAPI* MINIdUMPWRITEDUMP)(
 
 void WriteMiniDump(SEHException* ex)
 {
-	AddBothLog(false, L"Attempting to write minidump...");
+	AddLog(LogType::Normal, LogLevel::Err, L"Attempting to write minidump...");
 	HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
 	if (hDll)
 	{
@@ -89,7 +89,7 @@ void WriteMiniDump(SEHException* ex)
 				}
 				::CloseHandle(hFile);
 
-				AddBothLog(false, L"Minidump '%s' written.", szDumpPath);
+				AddLog(LogType::Normal, LogLevel::Err, L"Minidump '%s' written.", szDumpPath);
 			}
 		}
 	}
@@ -127,7 +127,7 @@ void AddExceptionInfoLog(SEHException* ex)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
-			AddBothLog(false, L"Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
+			AddLog(LogType::Normal, LogLevel::Trace, L"Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -157,30 +157,34 @@ void AddExceptionInfoLog(SEHException* ex)
 						GetModuleFileName(hModExc, szModName, sizeof(szModName));
 					}
 				}
-				AddBothLog(
-				    false, L"Name=\"%s\" Message=\"%s\" Offset=%x Module=\"%s\"", szName, szMessage, iOffset,
+				AddLog(LogType::Normal,
+				    LogLevel::Trace,
+				    L"Name=\"%s\" Message=\"%s\" Offset=%x Module=\"%s\"",
+				    szName,
+				    szMessage,
+				    iOffset,
 				    strrchr(szModName, '\\') + 1);
 			}
 
 			void* callers[62];
 			int count = CaptureStackBackTrace(0, 62, callers, NULL);
 			for (int i = 0; i < count; i++)
-				AddBothLog(false, L"%08x called from %08X", i, callers[i]);
+				AddLog(LogType::Normal, LogLevel::Trace, L"%08x called from %08X", i, callers[i]);
 		}
 		else
-			AddBothLog(true, L"No exception information available");
+			AddLog(LogType::Normal, LogLevel::Trace, L"No exception information available");
 		if (reg)
 		{
-			AddBothLog(false, L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+			AddLog(LogType::Normal, LogLevel::Trace, L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
 		}
 		else
 		{
-			AddBothLog(true, L"No register information available");
+			AddLog(LogType::Normal, LogLevel::Trace, L"No register information available");
 		}
 	}
 	catch (...)
 	{
-		AddBothLog(true, L"Exception in AddExceptionInfoLog!");
+		AddLog(LogType::Normal, LogLevel::Trace, L"Exception in AddExceptionInfoLog!");
 	}
 }
 

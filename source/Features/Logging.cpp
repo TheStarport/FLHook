@@ -95,6 +95,24 @@ void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
 			PerfTimersLog->log(level, scText);
 			break;
 		case LogType::Normal:
+			switch (level)
+			{
+				case spdlog::level::debug:
+					Console::ConDebug(scText);
+					break;
+				case spdlog::level::info:
+					Console::ConInfo(scText);
+					break;
+				case spdlog::level::warn:
+					Console::ConWarn(scText);
+					break;
+				case spdlog::level::critical:
+				case spdlog::level::err:
+					Console::ConErr(scText);
+					break;
+				default: ;
+			}
+			
 			FLHookLog->log(level, scText);
 			break;
 	}

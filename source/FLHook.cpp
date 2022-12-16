@@ -109,7 +109,7 @@ BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-	AddLog(LogType::Normal, LogLevel::Info, L"!!TOP LEVEL EXCEPTION!!");
+	AddLog(LogType::Normal, LogLevel::Err, L"!!TOP LEVEL EXCEPTION!!");
 	SEHException ex(0, pExceptionInfo);
 	WriteMiniDump(&ex);
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
@@ -485,7 +485,7 @@ void FLHookShutdown()
 	SetUnhandledExceptionFilter(0);
 #endif
 
-	AddLog(LogType::Normal, LogLevel::Info, L"-------------------");
+	AddLog(LogType::Normal, LogLevel::Err, L"-------------------");
 
 	// unload rest
 	DWORD id;

@@ -755,7 +755,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& cmd, const std::
 			}
 			catch (std::exception const& ex)
 			{
-				AddLog(LogType::UserLogCmds, LogLevel::Info, L"exception %s", stows(ex.what()).c_str());
+				AddLog(LogType::UserLogCmds, LogLevel::Err, L"exception %s", stows(ex.what()).c_str());
 			}
 
 			return true;

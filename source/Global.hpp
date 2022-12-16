@@ -36,16 +36,6 @@ const wchar_t* ToLogString(const T& val)
 	return L"<undefined>";
 }
 
-template<typename... Args>
-void AddBothLog(bool bError, std::wstring wStr, Args&&... args)
-{
-	if (bError)
-		AddLog(LogType::Normal, LogLevel::Err, wStr, std::forward<Args>(args)...);
-	else
-		AddLog(LogType::Normal, LogLevel::Info, wStr, std::forward<Args>(args)...);
-	AddLog(LogType::Normal, LogLevel::Debug, wStr, std::forward<Args>(args)...);
-}
-
 // FuncCache
 namespace StartupCache
 {
@@ -335,7 +325,7 @@ class PluginManager : public Singleton<PluginManager>
 						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 				}
 				CATCH_HOOK({
-					AddLog(LogType::Normal, LogLevel::Info, L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(),
+					AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(),
 					    stows(__FUNCTION__).c_str());
 				});
 
@@ -348,7 +338,7 @@ class PluginManager : public Singleton<PluginManager>
 					break;
 			}
 		}
-		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Info, L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
+		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
 
 		if constexpr (!ReturnTypeIsVoid)
 			return ret;

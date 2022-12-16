@@ -325,7 +325,7 @@ namespace IServerImplHook
 		if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) || !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) || !(ui.vDir.y == ui.vDir.y) ||
 		    !(ui.vDir.z == ui.vDir.z) || !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle))
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: NAN found in SPObjUpdate for id=%u", client);
+			AddLog(LogType::Normal, LogLevel::Err, L"ERROR: NAN found in SPObjUpdate for id=%u", client);
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -334,7 +334,7 @@ namespace IServerImplHook
 		float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
 		if (n > 1.21f || n < 0.81f)
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", client);
+			AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Non-normalized quaternion found in SPObjUpdate for id=%u", client);
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -342,7 +342,7 @@ namespace IServerImplHook
 		// Far check
 		if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f || abs(ui.vPos.z) > 1e7f)
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", client);
+			AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Ship position out of bounds in SPObjUpdate for id=%u", client);
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -619,7 +619,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
 	}
 	CATCH_HOOK({
 		AddLog(
-		    LogType::Normal, LogLevel::Info, L"Exception in %s (client=%u (%x))", stows(__FUNCTION__).c_str(), client, Players.GetActiveCharacterName(client));
+		    LogType::Normal, LogLevel::Err, L"Exception in %s (client=%u (%x))", stows(__FUNCTION__).c_str(), client, Players.GetActiveCharacterName(client));
 	})
 
 	return true;
@@ -662,7 +662,7 @@ bool OnConnect__Inner(ClientId client)
 		// the connection.
 		if (client > MaxClientId)
 		{
-			AddLog(LogType::Normal, LogLevel::Info, L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", client);
+			AddLog(LogType::Normal, LogLevel::Warn, L"INFO: Blocking connect in " __FUNCTION__ " due to invalid id, id=%u", client);
 			CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
 			if (!cdpClient)
 				return false;
@@ -861,7 +861,7 @@ bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
 	uint system;
 	pub::Player::GetSystem(client, system);
 	AddLog(LogType::Normal,
-	    LogLevel::Info,
+	    LogLevel::Err,
 	    L"ERROR: Exception in IServerImpl::GoTradelane charname=%s "
 	    "sys=%08x arch=%08x arch2=%08x",
 	    wstos(ToWChar(Players.GetActiveCharacterName(client))).c_str(),

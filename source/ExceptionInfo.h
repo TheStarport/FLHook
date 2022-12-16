@@ -8,6 +8,8 @@
  * http://www.geoffchappell.com/studies/msvc/language/predefined/
  *
  * Modifications based on latest CRT source
+ * Further modifications used from ExceptionalC++ Caphyon Conference
+ * https://ciura.ro/presentations/2021/Conferences/Exceptional%20C++%20-%20Victor%20Ciura%20-%20Meeting%20C++%202021.pdf
  */
 
 #include <windows.h>
@@ -43,17 +45,17 @@ struct __vcrt_ptd
 #endif
 };
 
-extern "C" __vcrt_ptd* __cdecl __vcrt_getptd();
+extern "C" __vcrt_ptd* __cdecl __current_exception_context();
 
 inline const EXCEPTION_RECORD* GetCurrentExceptionRecord()
 {
-	auto p = __vcrt_getptd();
+	auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
 	return (EXCEPTION_RECORD*)p->_curexception;
 }
 
 inline const _CONTEXT* GetCurrentExceptionContext()
 {
-	auto p = __vcrt_getptd();
+	auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
 	return (_CONTEXT*)p->_curcontext;
 }
 
