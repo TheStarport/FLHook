@@ -378,7 +378,7 @@ will_crash:
 		}
 	}
 
-	static double __cdecl Cb_TimingSeconds(__int64& ticks_delta)
+	static double __cdecl Cb_TimingSeconds(int64& ticks_delta)
 	{
 		double seconds = Timing::seconds(ticks_delta);
 		if (seconds < 0 || seconds > 10.0)

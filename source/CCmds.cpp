@@ -582,8 +582,8 @@ void CCmds::CmdServerInfo()
 	GetSystemTime(&st);
 	FILETIME ftNow;
 	SystemTimeToFileTime(&st, &ftNow);
-	__int64 iTimeCreation = (((__int64)ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
-	__int64 iTimeNow = (((__int64)ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
+	int64 iTimeCreation = (((int64)ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
+	int64 iTimeNow = (((int64)ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
 
 	uint iUptime = (uint)((iTimeNow - iTimeCreation) / 10000000);
 	uint iDays = (iUptime / (60 * 60 * 24));

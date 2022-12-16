@@ -235,7 +235,7 @@ namespace Hk::Ini
 		return wcstod(val.c_str(), nullptr);
 	}
 
-	int64_t GetCharacterIniInt64(ClientId client, const std::wstring& name)
+	int64 GetCharacterIniInt64(ClientId client, const std::wstring& name)
 	{
 		const auto val = GetCharacterIniString(client, name);
 		return wcstoll(val.c_str(), nullptr, 10);
