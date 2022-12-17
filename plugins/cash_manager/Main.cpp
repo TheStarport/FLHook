@@ -155,7 +155,7 @@ namespace Plugins::CashManager
 		}
 	}
 
-	std::wstring GenerateAccountId()
+	std::string GenerateBankPassword()
 	{
 		const std::vector letters = {
 		    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
@@ -165,7 +165,7 @@ namespace Plugins::CashManager
 		const std::uniform_int_distribution<std::size_t> randNumber(0, 9);
 		std::stringstream ss;
 		ss << letters[randLetter(r)] << randNumber(r) << randNumber(r) << randNumber(r) << randNumber(r);
-		return stows(ss.str());
+		return ss.str();
 	}
 
 	void Bank::Save()
@@ -439,7 +439,7 @@ namespace Plugins::CashManager
 
 			if (GetParam(param, ' ', 2) == L"confirm")
 			{
-				bank->bankPassword = GenerateAccountId();
+				bank->bankPassword = GenerateBankPassword();
 				PrintUserCmdText(client, L"Your bank account information has been updated.");
 				ShowBankInfo(client, bank, true);
 				return;

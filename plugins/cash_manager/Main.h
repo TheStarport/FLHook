@@ -27,7 +27,7 @@ namespace Plugins::CashManager
 		BankCode PluginCall(ConsumeBankCash, std::wstring accountId, int cashAmount, const std::wstring_view& transactionSource);
 	};
 
-	std::wstring GenerateAccountId();
+	
   
 	struct Config final : Reflectable
 	{
@@ -66,11 +66,13 @@ namespace Plugins::CashManager
 	struct Transaction
 	{
 		// When did this happen?
-		uint64 lastAccessedUnix;
+		uint64 timestamp;
 		// Who accessed the bank?
 		std::wstring accessor;
 		// How much was taken/removed?
-		uint64 amount;
+		int64 amount;
+		// What bank did this involve?
+		std::string bankId;
 	};
 
 	struct Bank
@@ -95,9 +97,11 @@ namespace Plugins::CashManager
 	extern const std::unique_ptr<Global> global;
 
 	void CreateSqlTables();
-	std::optional<Bank> GetBankByIdentifier();
+	std::optional<Bank> GetBankByIdentifier(std::wstring identifier);
 	Bank GetOrCreateBank(CAccount* account);
-	int64 WithdrawCash();
-	void DepositCash();
-	void ListTransactions(int amount = 20);
+	bool WithdrawCash(const Bank& bank, uint withdrawalAmount);
+	bool DepositCash(const Bank& bank, uint depositAmount);
+	std::vector<Transaction> ListTransactions(const Bank& bank, int amount = 20);
+	std::string GenerateBankPassword();
+	bool AddTransaction(const Bank& receiver, std::wstring sender, int64 amount);
 }
