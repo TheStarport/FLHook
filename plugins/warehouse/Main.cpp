@@ -24,7 +24,7 @@ namespace Plugins::Warehouse
 	void UserCmdStoreItem(uint client, const std::wstring_view& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
-		const uint databaseItemId = ToInt(GetParam(param, ' ', 0));
+		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
 
 		if (!databaseItemId)
 		{
@@ -44,7 +44,7 @@ namespace Plugins::Warehouse
 			filteredCargo.emplace_back(info);
 		}
 
-		const int itemCount = ToInt(GetParam(param, ' ', 1));
+		const int itemCount = ToInt(GetParam(param, ' ', 2));
 
 		if (databaseItemId > filteredCargo.size())
 		{
@@ -58,7 +58,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		if (const int cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
+		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
 		{
 			PrintUserCmdText(client, L"Not enough credits. The fee for storing items at this station is %u", global->config.costPerStackStore);
 			return;
@@ -72,7 +72,7 @@ namespace Plugins::Warehouse
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, L"%u %u", wareHouseItem.id, wareHouseItem.quantity);
+		PrintUserCmdText(client, L"Successfully stored %llu item(s) (ID: %llu)", wareHouseItem.quantity, wareHouseItem.id);
 
 		Hk::Player::SaveChar(client);
 	}
@@ -124,7 +124,7 @@ namespace Plugins::Warehouse
 	void UserCmdWithdrawItem(uint client, const std::wstring_view& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
-		const uint databaseItemId = ToInt(GetParam(param, ' ', 0));
+		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
 
 		if (!databaseItemId)
 		{
@@ -135,7 +135,7 @@ namespace Plugins::Warehouse
 		int remainingCargo;
 		const auto cargo = Hk::Player::EnumCargo(client, remainingCargo);
 
-		int itemCount = ToInt(GetParam(param, ' ', 1));
+		int itemCount = ToInt(GetParam(param, ' ', 2));
 
 		if (itemCount <= 0)
 		{
