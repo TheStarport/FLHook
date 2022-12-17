@@ -63,27 +63,22 @@ namespace Plugins::CashManager
 		int transferFee = 0;
 	};
 
-	struct Transaction : Reflectable
+	struct Transaction
 	{
 		// When did this happen?
-		long long lastAccessedUnix = std::chrono::seconds(std::time(nullptr)).count();
+		uint64 lastAccessedUnix;
 		// Who accessed the bank?
 		std::wstring accessor;
 		// How much was taken/removed?
-		long long amount;
+		uint64 amount;
 	};
 
-
-	struct Bank : Reflectable
+	struct Bank
 	{
-		std::wstring accountId = GenerateAccountId();
+		std::wstring accountId;
 		std::wstring bankPassword;
-		long long cash = 0;
-		std::vector<Transaction> transactions;
-
-		// Non-reflectable
-		std::wstring flAccountId;
-		void Save();
+		std::wstring identifier;
+		uint64 cash = 0;
 	};
 
 	//! Global data for this plugin
@@ -94,6 +89,15 @@ namespace Plugins::CashManager
 		// Other fields
 		ReturnCode returnCode = ReturnCode::Default;
 
-		std::map<std::wstring, std::shared_ptr<Bank>> banks;
+		SQLite::Database sql = SqlHelpers::Create("banks.sqlite");
 	};
+
+	extern const std::unique_ptr<Global> global;
+
+	void CreateSqlTables();
+	std::optional<Bank> GetBankByIdentifier();
+	Bank GetOrCreateBank(CAccount* account);
+	int64 WithdrawCash();
+	void DepositCash();
+	void ListTransactions(int amount = 20);
 }
