@@ -73,7 +73,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsg(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_SetDieMsg(ClientId& client, const std::wstring& wscParam)
 {
 	if (!FLHookConfig::i()->general.dieMsg)
 	{
@@ -114,7 +114,7 @@ void UserCmd_SetDieMsg(ClientId& client, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring_view& param)
+void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
 	{
@@ -151,7 +151,7 @@ void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_SetChatFont(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_SetChatFont(ClientId& client, const std::wstring& wscParam)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
 	{
@@ -206,7 +206,7 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ignore(ClientId& client, const std::wstring_view& param)
+void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -267,7 +267,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreID(ClientId& client, const std::wstring_view& param)
+void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -323,7 +323,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(ClientId& client, const std::wstring_view& param)
+void UserCmd_IgnoreList(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -345,7 +345,7 @@ void UserCmd_IgnoreList(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_DelIgnore(ClientId& client, const std::wstring_view& param)
+void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
@@ -419,7 +419,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(ClientId& client, const std::wstring_view& param)
+void UserCmd_AutoBuy(ClientId& client, const std::wstring& param)
 {
 	if (!FLHookConfig::i()->general.autobuy)
 	{
@@ -521,7 +521,7 @@ void UserCmd_AutoBuy(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ids(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
 {
 	wchar_t wszLine[128] = L"";
 	for (auto& player : Hk::Admin::GetPlayers())
@@ -544,14 +544,14 @@ void UserCmd_Ids(ClientId& client, const std::wstring_view& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ID(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_ID(ClientId& client, const std::wstring& wscParam)
 {
 	PrintUserCmdText(client, L"Your client-id: %u", client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_InviteID(ClientId& client, const std::wstring_view& param)
+void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 {
 	std::wstring error[] = {
 	    L"Error: Invalid parameters",
@@ -590,7 +590,7 @@ void UserCmd_InviteID(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(ClientId& client, const std::wstring_view& param)
+void UserCmd_Credits(ClientId& client, const std::wstring& param)
 {
 	PrintUserCmdText(client, L"This server is running FLHook v" + VersionInformation);
 	PrintUserCmdText(client, L"Running plugins:");
@@ -610,7 +610,7 @@ void UserCmd_Credits(ClientId& client, const std::wstring_view& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(ClientId& client, const std::wstring_view& paramView);
+void UserCmd_Help(ClientId& client, const std::wstring& paramView);
 UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
 {
 	return {command, command + L" " + usage, proc, description};
@@ -649,7 +649,7 @@ bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 	return trimmed == cmd;
 }
 
-void UserCmd_Help(ClientId& client, const std::wstring_view& paramView)
+void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 {
 	if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
 	{
@@ -749,7 +749,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& cmd, const std::
 
 			try
 			{
-				const auto view = std::wstring_view(wscParam);
+				const auto view = std::wstring(wscParam);
 				command.proc(client, view);
 				AddLog(LogType::UserLogCmds, LogLevel::Info, L"finished");
 			}

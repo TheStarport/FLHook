@@ -71,7 +71,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
 	 */
-	void UserCmdBountyHunt(ClientId& client, const std::wstring_view& param)
+	void UserCmdBountyHunt(ClientId& client, const std::wstring& param)
 	{
 		if (!global->config->enableBountyHunt)
 			return;
@@ -147,7 +147,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief User Command for /bountyhuntid. Creates a bounty against a specified player.
 	 */
-	void UserCmdBountyHuntID(ClientId& client, const std::wstring_view& param)
+	void UserCmdBountyHuntID(ClientId& client, const std::wstring& param)
 	{
 		if (!global->config->enableBountyHunt)
 			return;

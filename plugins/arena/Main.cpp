@@ -40,8 +40,8 @@ namespace Plugins::Arena
 	void ClearClientInfo(ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	// Client command processing
-	void UserCmd_Conn(ClientId& client, const std::wstring_view& param);
-	void UserCmd_Return(ClientId& client, const std::wstring_view& param);
+	void UserCmd_Conn(ClientId& client, const std::wstring& param);
+	void UserCmd_Return(ClientId& client, const std::wstring& param);
 	const std::vector commands = {{
 	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L""),
 	    CreateUserCommand(L"/return", L"", UserCmd_Return, L""),
@@ -228,7 +228,7 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to switch to the arena system
 	 */
-	void UserCmd_Conn(ClientId& client, const std::wstring_view& param)
+	void UserCmd_Conn(ClientId& client, const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
 		uint system = 0;
@@ -259,7 +259,7 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to return from the arena system.
 	 */
-	void UserCmd_Return(ClientId& client, const std::wstring_view& param)
+	void UserCmd_Return(ClientId& client, const std::wstring& param)
 	{
 		if (!ReadReturnPointForClient(client))
 		{

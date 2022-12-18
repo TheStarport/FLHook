@@ -2,7 +2,7 @@
 
 namespace Plugins::Mark
 {
-	void UserCmd_MarkObj(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MarkObj(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
 		pub::Player::GetShip(client, ship);
@@ -23,7 +23,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkObj(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
 		pub::Player::GetShip(client, ship);
@@ -44,12 +44,12 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& wscParam)
 	{
 		UnMarkAllObjects(client);
 	}
 
-	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
 		pub::Player::GetShip(client, ship);
@@ -81,7 +81,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
 		pub::Player::GetShip(client, ship);
@@ -103,7 +103,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring wscError[] = {
 		    L"Error: Invalid parameters",
@@ -146,7 +146,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_AutoMark(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_AutoMark(ClientId& client, const std::wstring& wscParam)
 	{
 		if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 		{

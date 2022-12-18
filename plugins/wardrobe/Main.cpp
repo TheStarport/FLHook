@@ -9,7 +9,7 @@ namespace Plugins::Wardrobe
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmdShowWardrobe(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdShowWardrobe(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 
@@ -31,7 +31,7 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	void UserCmdChangeCostume(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdChangeCostume(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring type = GetParam(wscParam, ' ', 0);
 		const std::wstring costume = GetParam(wscParam, ' ', 1);

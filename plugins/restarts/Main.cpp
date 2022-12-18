@@ -21,7 +21,7 @@ namespace Plugins::Restart
 
 	/* User Commands */
 
-	void UserCmd_ShowRestarts(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_ShowRestarts(ClientId& client, const std::wstring& wscParam)
 	{
 		if (global->config->availableRestarts.empty())
 		{
@@ -43,7 +43,7 @@ namespace Plugins::Restart
 		}
 	}
 
-	void UserCmd_Restart(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_Restart(ClientId& client, const std::wstring& wscParam)
 	{
 		std::wstring restartTemplate = GetParam(wscParam, ' ', 0);
 		if (!restartTemplate.length())

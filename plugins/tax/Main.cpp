@@ -22,7 +22,7 @@ namespace Plugins::Tax
 		}
 	}
 
-	void UserCmdTax(ClientId& client, const std::wstring_view& param)
+	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
 		uint system = 0;
 		pub::Player::GetSystem(client, system);
@@ -105,7 +105,7 @@ namespace Plugins::Tax
 			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.value().c_str());
 	}
 
-	void UserCmdPay(ClientId& client, const std::wstring_view& param)
+	void UserCmdPay(ClientId& client, const std::wstring& param)
 	{
 		for (auto& it : global->lsttax)
 			if (it.targetId == client)

@@ -377,7 +377,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Gets called when the player types /ping
 	 */
-	void UserCmdPing(ClientId& client, const std::wstring_view& param)
+	void UserCmdPing(ClientId& client, const std::wstring& param)
 	{
 		if (!global->config->allowPing)
 		{

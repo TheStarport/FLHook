@@ -853,7 +853,7 @@ bool InitSurveyInfo(ClientId client)
 // User commands
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Survey(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_Survey(ClientId& client, const std::wstring& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = GetInspect(client);
@@ -894,7 +894,7 @@ void UserCmd_Survey(ClientId& client, const std::wstring_view& wscParam)
 	}
 }
 
-void UserCmd_SetCoords(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_SetCoords(ClientId& client, const std::wstring& wscParam)
 {
 	if (!InitJumpDriveInfo(client))
 	{
@@ -963,7 +963,7 @@ void UserCmd_SetCoords(ClientId& client, const std::wstring_view& wscParam)
 	return;
 }
 
-void UserCmd_ChargeJumpDrive(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_ChargeJumpDrive(ClientId& client, const std::wstring& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = GetInspect(client);
@@ -1018,7 +1018,7 @@ void UserCmd_ChargeJumpDrive(ClientId& client, const std::wstring_view& wscParam
 	return;
 }
 
-void UserCmd_ActivateJumpDrive(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_ActivateJumpDrive(ClientId& client, const std::wstring& wscParam)
 {
 	// If no ship, report a warning
 	IObjInspectImpl* obj = GetInspect(client);

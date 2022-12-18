@@ -22,7 +22,7 @@ namespace Plugins::Template
 	}
 
 	// Demo command
-	void UserCmdTemplate(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdTemplate(ClientId& client, const std::wstring& wscParam)
 	{
 		// Access our config value
 		if (global->config->overrideUserNumber)

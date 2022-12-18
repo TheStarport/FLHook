@@ -101,8 +101,8 @@ namespace Plugins::Message
 	//! A random macro to make things easier
 	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
-	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring_view& wscParam);
-	void UserCmd_SendToLastTarget(ClientId& client, const std::wstring_view& wscParam);
+	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring& wscParam);
+	void UserCmd_SendToLastTarget(ClientId& client, const std::wstring& wscParam);
 }
 
 

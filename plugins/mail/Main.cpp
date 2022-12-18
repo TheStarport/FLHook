@@ -125,7 +125,7 @@ namespace Plugins::Mail
 	/** @ingroup Mail
 	 * @brief Save a msg to disk so that we can inform the receiving character when they log in.
 	 */
-	bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scExtension, const std::wstring_view& wscMsg)
+	bool __stdcall MailSend(const std::wstring& wscCharname, const std::string& scExtension, const std::wstring& wscMsg)
 	{
 		// Get the target player's message file.
 		std::string scFilePath = GetUserFilePath(wscCharname, scExtension);
@@ -194,7 +194,7 @@ namespace Plugins::Mail
 	 */
 	MailCommunicator::MailCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
 	{ // NOLINT(clang-diagnostic-shadow-field)
-		this->SendMail = [](std::wstring character, std::wstring_view msg) {
+		this->SendMail = [](std::wstring character, std::wstring msg) {
 			MailSend(character, global->MSG_LOG, msg);
 		};
 	}
@@ -202,7 +202,7 @@ namespace Plugins::Mail
 	/** @ingroup Mail
 	 * @brief Called when the player types "/mail". 
 	 */
-	void UserCmd_MailShow(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MailShow(ClientId& client, const std::wstring& wscParam)
 	{
 		int iNumberUnreadMsgs = MailCountUnread((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG);
 		int iNumberMsgs = MailCount((const wchar_t*)Players.GetActiveCharacterName(client), global->MSG_LOG);
@@ -237,7 +237,7 @@ namespace Plugins::Mail
 	/** @ingroup Mail
 	 * @brief Called when the player types "/maildel".
 	 */
-	void UserCmd_MailDel(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MailDel(ClientId& client, const std::wstring& wscParam)
 	{
 		if (wscParam.size() == 0)
 		{

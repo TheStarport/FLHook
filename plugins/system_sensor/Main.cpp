@@ -24,7 +24,7 @@ namespace Plugins::SystemSensor
 		});
 	}
 
-	void UserCmd_Net(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_Net(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring wscMode = ToLower(GetParam(wscParam, ' ', 0));
 		if (wscMode.empty())
@@ -59,7 +59,7 @@ namespace Plugins::SystemSensor
 		return;
 	}
 
-	void UserCmd_ShowScan(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_ShowScan(ClientId& client, const std::wstring& wscParam)
 	{
 		std::wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
 
@@ -118,7 +118,7 @@ namespace Plugins::SystemSensor
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void UserCmd_ShowScanID(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_ShowScanID(ClientId& client, const std::wstring& wscParam)
 	{
 		ClientId client2 = ToInt(GetParam(wscParam, ' ', 0));
 

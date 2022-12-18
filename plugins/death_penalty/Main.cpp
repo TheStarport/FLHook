@@ -241,7 +241,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief /dp command. Shows information about death penalty
 	 */
-	void UserCmd_DP(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_DP(ClientId& client, const std::wstring& wscParam)
 	{
 		// If there is no death penalty, no point in having death penalty commands
 		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)

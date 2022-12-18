@@ -21,7 +21,7 @@ namespace Plugins::Warehouse
 		CreateSqlTables();
 	}
 
-	void UserCmdStoreItem(uint client, const std::wstring_view& param, uint base)
+	void UserCmdStoreItem(uint client, const std::wstring& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
 		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
@@ -77,7 +77,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 	}
 
-	void UserCmdGetItems(uint client, const std::wstring_view& param, uint base)
+	void UserCmdGetItems(uint client, const std::wstring& param, uint base)
 	{
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
@@ -94,7 +94,7 @@ namespace Plugins::Warehouse
 			    client, std::to_wstring(i) + L".) " + Hk::Message::GetWStringFromIdS(equip->iIdsName) + L" (" + std::to_wstring(info.iCount) + L")");
 		}
 	}
-	void UserCmdGetWarehouseItems(uint client, const std::wstring_view& param, uint base)
+	void UserCmdGetWarehouseItems(uint client, const std::wstring& param, uint base)
 	{
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
@@ -121,7 +121,7 @@ namespace Plugins::Warehouse
 		}
 	}
 
-	void UserCmdWithdrawItem(uint client, const std::wstring_view& param, uint base)
+	void UserCmdWithdrawItem(uint client, const std::wstring& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
 		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
@@ -193,7 +193,7 @@ namespace Plugins::Warehouse
 		    client, L"Successfully withdrawn Item: " + std::to_wstring(withdrawnQuantity) + L" " + Hk::Message::GetWStringFromIdS(itemArch->iIdsName));
 	}
 
-	void UserCmdWarehouse(ClientId& client, const std::wstring_view& param)
+	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
 	{
 		const std::wstring cmd = GetParam(param, ' ', 0);
 		if (cmd.empty())

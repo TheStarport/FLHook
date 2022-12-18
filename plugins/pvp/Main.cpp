@@ -66,7 +66,7 @@ namespace Plugins::Pvp
 
 	// This method is called when a player types /ffa in an attempt to start a pvp
 	// event
-	void UserCmdStartFreeForAll(ClientId& client, const std::wstring_view& param)
+	void UserCmdStartFreeForAll(ClientId& client, const std::wstring& param)
 	{
 		Error error;
 
@@ -158,7 +158,7 @@ namespace Plugins::Pvp
 	}
 
 	// This method is called when a player types /acceptffa
-	void UserCmd_AcceptFFA(ClientId& client, const std::wstring_view& param)
+	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
 		uint ship;
@@ -259,7 +259,7 @@ namespace Plugins::Pvp
 	}
 
 	// This method is called when a player types /duel in an attempt to start a duel
-	void UserCmdDuel(ClientId& client, const std::wstring_view& param)
+	void UserCmdDuel(ClientId& client, const std::wstring& param)
 	{
 		// Get the object the player is targetting
 		uint ship;
@@ -349,7 +349,7 @@ namespace Plugins::Pvp
 		PrintUserCmdText(clientTarget.value(), L"Type \"/acceptduel\" to accept.");
 	}
 
-	void UserCmdAcceptDuel(ClientId& client, const std::wstring_view& param)
+	void UserCmdAcceptDuel(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
 		uint ship;
@@ -399,7 +399,7 @@ namespace Plugins::Pvp
 		    L"someone, target them and type /duel <amount>");
 	}
 
-	void UserCmd_Cancel(ClientId& client, const std::wstring_view& param)
+	void UserCmd_Cancel(ClientId& client, const std::wstring& param)
 	{
 		processFFA(client);
 		processDuel(client);

@@ -5,92 +5,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring stows(const std::string& scText)
-{
-	int iSize = MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, 0, 0);
-	wchar_t* wszText = new wchar_t[iSize];
-	MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, wszText, iSize);
-	std::wstring wscRet = wszText;
-	delete[] wszText;
-	return wscRet;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string wstos(const std::wstring& text)
-{
-	uint iLen = (uint)text.length() + 1;
-	char* szBuf = new char[iLen];
-	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, szBuf, iLen, 0, 0);
-	std::string scRet = szBuf;
-	delete[] szBuf;
-	return scRet;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::wstring ToLower(std::wstring wscStr)
-{
-	std::transform(wscStr.begin(), wscStr.end(), wscStr.begin(), towlower);
-	return wscStr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string ToLower(std::string scStr)
-{
-	std::transform(scStr.begin(), scStr.end(), scStr.begin(), tolower);
-	return scStr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int ToInt(const std::wstring& wscStr)
-{
-	return wcstoul(wscStr.c_str(), 0, 10);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-uint ToUInt(const std::wstring& wscStr)
-{
-	return wcstoul(wscStr.c_str(), 0, 10);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-float ToFloat(const std::wstring& wscStr)
-{
-	return (float)atof(wstos(wscStr).c_str());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::string itohexs(uint value)
 {
 	char buf[16];
 	sprintf_s(buf, "%08X", value);
 	return buf;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 999.999.999
-
-std::wstring ToMoneyStr(int iCash)
-{
-	int iMillions = iCash / 1000000;
-	int iThousands = (iCash % 1000000) / 1000;
-	int iRest = (iCash % 1000);
-	wchar_t wszBuf[32];
-
-	if (iMillions)
-		swprintf_s(wszBuf, L"%d.%.3d.%.3d", iMillions, abs(iThousands), abs(iRest));
-	else if (iThousands)
-		swprintf_s(wszBuf, L"%d.%.3d", iThousands, abs(iRest));
-	else
-		swprintf_s(wszBuf, L"%d", iRest);
-
-	return wszBuf;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,145 +160,6 @@ std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, cons
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring XMLText(const std::wstring& text)
-{
-	std::wstring wscRet;
-	for (uint i = 0; (i < text.length()); i++)
-	{
-		if (text[i] == '<')
-			wscRet.append(L"&#60;");
-		else if (text[i] == '>')
-			wscRet.append(L"&#62;");
-		else if (text[i] == '&')
-			wscRet.append(L"&#38;");
-		else
-			wscRet.append(1, text[i]);
-	}
-
-	return wscRet;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void WriteProcMem(void* pAddress, const void* pMem, int iSize)
-{
-	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-	DWORD dwOld;
-	VirtualProtectEx(hProc, pAddress, iSize, PAGE_EXECUTE_READWRITE, &dwOld);
-	WriteProcessMemory(hProc, pAddress, pMem, iSize, 0);
-	CloseHandle(hProc);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ReadProcMem(void* pAddress, void* pMem, int iSize)
-{
-	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-	DWORD dwOld;
-	VirtualProtectEx(hProc, pAddress, iSize, PAGE_EXECUTE_READWRITE, &dwOld);
-	ReadProcessMemory(hProc, pAddress, pMem, iSize, 0);
-	CloseHandle(hProc);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::wstring GetParam(const std::wstring_view& wscLine, wchar_t wcSplitChar, uint iPos)
-{
-	uint i, j;
-
-	std::wstring wscResult = L"";
-	for (i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
-	{
-		if (wscLine[j] == wcSplitChar)
-		{
-			while (((j + 1) < wscLine.length()) && (wscLine[j + 1] == wcSplitChar))
-				j++; // skip "whitechar"
-
-			i++;
-			continue;
-		}
-
-		if (i == iPos)
-			wscResult += wscLine[j];
-	}
-
-	return wscResult;
-}
-
-std::wstring GetParam(const std::wstring& wscLine, wchar_t wcSplitChar, uint iPos)
-{
-	return GetParam(std::wstring_view(wscLine), wcSplitChar, iPos);
-}
-
-std::string GetParam(std::string scLine, char cSplitChar, uint iPos)
-{
-	uint i = 0, j = 0;
-
-	std::string scResult;
-	for (i = 0, j = 0; (i <= iPos) && (j < scLine.length()); j++)
-	{
-		if (scLine[j] == cSplitChar)
-		{
-			while (((j + 1) < scLine.length()) && (scLine[j + 1] == cSplitChar))
-				j++; // skip "whitechar"
-
-			i++;
-			continue;
-		}
-
-		if (i == iPos)
-			scResult += scLine[j];
-	}
-
-	return scResult;
-}
-
-/**
-This function is similar to GetParam but instead returns everything
-from the parameter specified by iPos to the end of wscLine.
-
-wscLine - the std::string to get parameters from
-wcSplitChar - the seperator character
-iPos - the parameter number to start from.
-*/
-std::wstring_view GetParamToEnd(const std::wstring_view& wscLine, wchar_t wcSplitChar, uint iPos)
-{
-	for (uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
-	{
-		if (wscLine[j] == wcSplitChar)
-		{
-			while (((j + 1) < wscLine.length()) && (wscLine[j + 1] == wcSplitChar))
-				j++; // skip "whitechar"
-			i++;
-			continue;
-		}
-		if (i == iPos)
-		{
-			return wscLine.substr(j);
-		}
-	}
-	return L"";
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::wstring ReplaceStr(
-    const std::wstring& wscSource, const std::wstring& wscSearchFor, const std::wstring& wscReplaceWith)
-{
-	uint lPos, sPos = 0;
-
-	std::wstring wscResult = wscSource;
-	while ((lPos = (uint)wscResult.find(wscSearchFor, sPos)) != -1)
-	{
-		wscResult.replace(lPos, wscSearchFor.length(), wscReplaceWith);
-		sPos = lPos + wscReplaceWith.length();
-	}
-
-	return wscResult;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 mstime timeInMS()
 {
 	mstime iCount;
@@ -408,37 +188,6 @@ mstime GetTimeInMS()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SwapBytes(void* ptr, uint iLen)
-{
-	if (iLen % 4)
-		return;
-
-	for (uint i = 0; i < iLen; i += 4)
-	{
-		char* ptr1 = (char*)ptr + i;
-		unsigned long temp;
-		memcpy(&temp, ptr1, 4);
-		char* ptr2 = (char*)&temp;
-		memcpy(ptr1, ptr2 + 3, 1);
-		memcpy(ptr1 + 1, ptr2 + 2, 1);
-		memcpy(ptr1 + 2, ptr2 + 1, 1);
-		memcpy(ptr1 + 3, ptr2, 1);
-	}
-}
-
-FARPROC PatchCallAddr(char* hMod, DWORD dwInstallAddress, char* dwHookFunction)
-{
-	DWORD dwRelAddr;
-	ReadProcMem(hMod + dwInstallAddress + 1, &dwRelAddr, 4);
-
-	DWORD dwOffset = (DWORD)dwHookFunction - (DWORD)(hMod + dwInstallAddress + 5);
-	WriteProcMem(hMod + dwInstallAddress + 1, &dwOffset, 4);
-
-	return (FARPROC)(hMod + dwRelAddr + dwInstallAddress + 5);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 BOOL FileExists(LPCTSTR szPath)
 {
 	DWORD dwAttrib = GetFileAttributes(szPath);
@@ -447,40 +196,6 @@ BOOL FileExists(LPCTSTR szPath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
-Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
-*/
-template<typename Str>
-Str Trim(const Str& scIn)
-{
-	if (scIn.empty())
-		return scIn;
-
-	using Char = typename Str::value_type;
-	constexpr auto trimmable = []() constexpr
-	{
-		if constexpr (std::is_same_v<Char, char>)
-			return " \t\n\r";
-		else if constexpr (std::is_same_v<Char, wchar_t>)
-			return L" \t\n\r";
-	}
-	();
-
-	auto start = scIn.find_first_not_of(trimmable);
-	auto end = scIn.find_last_not_of(trimmable);
-
-	return scIn.substr(start, end - start + 1);
-}
-
-std::wstring ViewToWString(const std::wstring_view& sv)
-{
-	return {sv.begin(), sv.end()};
-}
-std::string ViewToString(const std::string_view& sv)
-{
-	return {sv.begin(), sv.end()};
-}
 
 std::wstring GetTimeString(bool bLocalTime)
 {

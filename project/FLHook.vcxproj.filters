@@ -7,9 +7,6 @@
     <Filter Include="AdminCommands">
       <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\Header Files">
-      <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tools">
       <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
     </Filter>
@@ -33,6 +30,9 @@
     </Filter>
     <Filter Include="sdk\Ext">
       <UniqueIdentifier>{492eff4d-e1a3-429b-8ee3-47cba5272b03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\FLCore">
+      <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,9 +88,6 @@
     <ClCompile Include="..\source\FLPacket.cpp">
       <Filter>FLHook</Filter>
     </ClCompile>
-    <ClCompile Include="..\FLHookSDK\source\HK.cpp">
-      <Filter>sdk\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\Features\Logging.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>
@@ -138,73 +135,16 @@
     <ClInclude Include="..\source\CSocket.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreDefs.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreFLServerEXE.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreRemoteClient.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreServer.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreCommon.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreDACom.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCoreDALib.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\st6.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\plugin.h">
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Singleton.h" />
-    <ClInclude Include="..\FLHookSDK\include\__generated.h">
-      <Filter>sdk\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\HookedCallBase.h" />
-    <ClInclude Include="..\FLHookSDK\include\Serialization.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Singleton.h">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Wildcard.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Constexpr.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Enums.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Macros.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\FLHook.hpp">
       <Filter>sdk</Filter>
     </ClInclude>
     <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\HK.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Structs.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Deps.hpp">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\ext\jpcre2.hpp">
       <Filter>sdk\Ext</Filter>
     </ClInclude>
@@ -219,6 +159,60 @@
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\ext\Wildcard.hpp">
       <Filter>sdk\Ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Constexpr.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Deps.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Enums.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Hk.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Macros.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Serialization.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Structs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Typedefs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Tools\Utils.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\__generated.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h">
+      <Filter>sdk\FLCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
+      <Filter>sdk\FLCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -103,7 +103,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Print the current location of your ship
 	 */
-	void UserCmdPos(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdPos(ClientId& client, const std::wstring& wscParam)
 	{
 		const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(client).value(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
@@ -126,7 +126,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Nudge your ship 15 meters on all axis to try and dislodge a stuck ship.
 	 */
-	void UserCmdStuck(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdStuck(ClientId& client, const std::wstring& wscParam)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
@@ -162,7 +162,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Command to remove your current affiliation if applicable.
 	 */
-	void UserCmdDropRep(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdDropRep(ClientId& client, const std::wstring& wscParam)
 	{
 		if (global->config->repDropCost < 0)
 		{
@@ -211,7 +211,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Roll a dice with the specified number of sides, or 6 is not specified.
 	 */
-	void UserCmdDice(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdDice(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
@@ -230,7 +230,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Throw the dice and tell all players within 6 km
 	 */
-	void UserCmdCoin(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdCoin(ClientId& client, const std::wstring& wscParam)
 	{
 		const std::wstring charName = (const wchar_t*)Players.GetActiveCharacterName(client);
 
@@ -244,7 +244,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Activate or deactivate docking lights on your ship.
 	 */
-	void UserCmdLights(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdLights(ClientId& client, const std::wstring& wscParam)
 	{
 		global->mapInfo[client].bLightsOn = !global->mapInfo[client].bLightsOn;
 		SetLights(client, global->mapInfo[client].bLightsOn);
@@ -253,7 +253,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Disable/Enable your shields at will.
 	 */
-	void UserCmdShields(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdShields(ClientId& client, const std::wstring& wscParam)
 	{
 		global->mapInfo[client].bShieldsDown = !global->mapInfo[client].bShieldsDown;
 		PrintUserCmdText(client, L"Shields %s", global->mapInfo[client].bShieldsDown ? L"Disabled" : L"Enabled");

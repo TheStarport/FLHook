@@ -28,7 +28,7 @@ namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_Help(ClientId& client, const std::wstring& wscParam)
 	{
 		PrintUserCmdText(client, L"/kills <player name>");
 		PrintUserCmdText(client, L"/kills$ <player id>");
@@ -37,7 +37,7 @@ namespace Plugins::KillCounter
 	/** @ingroup KillCounter
 	 * @brief Called when a player types "/kills".
 	 */
-	void UserCmd_Kills(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_Kills(ClientId& client, const std::wstring& wscParam)
 	{
 		std::wstring wscClientId = GetParam(wscParam, ' ', 0);
 		int iNumKills;

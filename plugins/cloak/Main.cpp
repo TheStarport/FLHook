@@ -261,7 +261,7 @@ namespace Plugins::Cloak
 	/** @ingroup Cloak
 	 * @brief Is called when the player types /cloak. Sets the cloaking device state accordingly.
 	 */
-	void UserCmd_Cloak(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_Cloak(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship;
 		pub::Player::GetShip(client, ship);

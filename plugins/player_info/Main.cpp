@@ -59,7 +59,7 @@ static int CurrLength(const std::string& scFilePath)
 // USER COMMANDS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ShowInfo(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_ShowInfo(ClientId& client, const std::wstring& wscParam)
 {
 	const wchar_t* wszTargetName = 0;
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 0);
@@ -119,7 +119,7 @@ void UserCmd_ShowInfo(ClientId& client, const std::wstring_view& wscParam)
 	pub::Player::PopUpDialog(client, caption, message, POPUPDIALOG_BUTTONS_CENTER_OK);
 }
 
-void UserCmd_SetInfo(ClientId& client, const std::wstring_view& wscParam)
+void UserCmd_SetInfo(ClientId& client, const std::wstring& wscParam)
 {
 	uint iPara = ToInt(GetParam(wscParam, ' ', 0));
 	const std::wstring& wscCommand = GetParam(wscParam, ' ', 1);

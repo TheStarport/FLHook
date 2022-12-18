@@ -30,7 +30,7 @@ namespace Plugins::Afk
 	/** @ingroup AwayFromKeyboard
 	 * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let anyone who messages them know too.
 	 */
-	void UserCmdAfk(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdAfk(ClientId& client, const std::wstring& wscParam)
 	{
 		global->awayClients.emplace_back(client);
 		const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
@@ -74,7 +74,7 @@ namespace Plugins::Afk
 	 * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
 	 * who messages them know too.
 	 */
-	void UserCmdBack(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmdBack(ClientId& client, const std::wstring& wscParam)
 	{
 		Back(client);
 	}

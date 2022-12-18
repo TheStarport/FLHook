@@ -150,7 +150,7 @@ namespace Plugins::LightControl
 	/** @ingroup LightControl
 	 * @brief Change the item on the Slot Id to the specified item.
 	 */
-	void UserCmdChangeItem(ClientId& client, const std::wstring_view& param)
+	void UserCmdChangeItem(ClientId& client, const std::wstring& param)
 	{
 		if (const auto cash = Hk::Player::GetCash(client); cash.has_value() && cash.value() < global->config->cost)
 		{
@@ -208,7 +208,7 @@ namespace Plugins::LightControl
 	/** @ingroup LightControl
 	 * @brief Custom user command handler.
 	 */
-	void UserCommandHandler(ClientId& client, const std::wstring_view& param) 
+	void UserCommandHandler(ClientId& client, const std::wstring& param) 
 	{
 		if (!IsInValidBase(client))
 			return;

@@ -70,7 +70,7 @@ namespace Plugins::Rename
 		}
 	}
 
-	void UserCmd_MakeTag(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MakeTag(ClientId& client, const std::wstring& wscParam)
 	{
 		if (!global->config->enableTagProtection)
 		{
@@ -98,7 +98,7 @@ namespace Plugins::Rename
 
 		std::wstring tag = GetParam(wscParam, ' ', 0);
 		std::wstring pass = GetParam(wscParam, ' ', 1);
-		std::wstring_view description = GetParamToEnd(wscParam, ' ', 2);
+		std::wstring description = GetParamToEnd(wscParam, ' ', 2);
 
 		if (tag.size() < MinCharacterNameLength)
 		{
@@ -159,7 +159,7 @@ namespace Plugins::Rename
 		SaveSettings();
 	}
 
-	void UserCmd_DropTag(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_DropTag(ClientId& client, const std::wstring& wscParam)
 	{
 		if (!global->config->enableTagProtection)
 		{
@@ -197,7 +197,7 @@ namespace Plugins::Rename
 	}
 
 	// Make tag password
-	void UserCmd_SetTagPass(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_SetTagPass(ClientId& client, const std::wstring& wscParam)
 	{
 		if (global->config->enableTagProtection)
 		{
@@ -370,7 +370,7 @@ namespace Plugins::Rename
 		{ RenameTimer, 5 }
 	};
 
-	void UserCmd_RenameMe(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_RenameMe(ClientId& client, const std::wstring& wscParam)
 	{
 		Error err;
 
@@ -524,7 +524,7 @@ namespace Plugins::Rename
 	}
 
 	/** Process a set the move char code command */
-	void UserCmd_SetMoveCharCode(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_SetMoveCharCode(ClientId& client, const std::wstring& wscParam)
 	{
 		if (!global->config->enableMoveChar)
 		{
@@ -584,7 +584,7 @@ namespace Plugins::Rename
 	/**
 	 Move a character from a remote account into this one.
 	*/
-	void UserCmd_MoveChar(ClientId& client, const std::wstring_view& wscParam)
+	void UserCmd_MoveChar(ClientId& client, const std::wstring& wscParam)
 	{
 		Error err;
 
