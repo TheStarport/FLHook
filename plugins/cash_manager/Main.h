@@ -7,7 +7,7 @@ namespace Plugins::CashManager
 {
 	enum class BankCode
 	{
-		NoBank,
+		InternalServerError,
 		NotEnoughMoney,
 		AboveMaximumTransferThreshold,
 		BelowMinimumTransferThreshold,
@@ -24,7 +24,7 @@ namespace Plugins::CashManager
 		/** @ingroup CashManager
 		 * @brief Withdraw money from the specified accountId.
 		 */
-		BankCode PluginCall(ConsumeBankCash, std::wstring accountId, int cashAmount, const std::wstring_view& transactionSource);
+		BankCode PluginCall(ConsumeBankCash, const CAccount* account, int cashAmount, const std::string& transactionSource);
 	};
 
 	
@@ -77,7 +77,7 @@ namespace Plugins::CashManager
 
 	struct Bank
 	{
-		std::wstring accountId;
+		std::string accountId;
 		std::wstring bankPassword;
 		std::wstring identifier;
 		uint64 cash = 0;
@@ -96,12 +96,19 @@ namespace Plugins::CashManager
 
 	extern const std::unique_ptr<Global> global;
 
-	void CreateSqlTables();
-	std::optional<Bank> GetBankByIdentifier(std::wstring identifier);
-	Bank GetOrCreateBank(CAccount* account);
-	bool WithdrawCash(const Bank& bank, uint withdrawalAmount);
-	bool DepositCash(const Bank& bank, uint depositAmount);
-	std::vector<Transaction> ListTransactions(const Bank& bank, int amount = 20);
-	std::string GenerateBankPassword();
-	bool AddTransaction(const Bank& receiver, std::wstring sender, int64 amount);
+	namespace Sql
+	{
+		void CreateSqlTables();
+		std::optional<Bank> GetBankByIdentifier(std::wstring identifier);
+		Bank GetOrCreateBank(const CAccount* account);
+		bool WithdrawCash(const Bank& bank, int64 withdrawalAmount);
+		bool DepositCash(const Bank& bank, uint depositAmount);
+		bool TransferCash(const Bank& source, const Bank& target, int amount, int fee);
+		std::vector<Transaction> ListTransactions(const Bank& bank, int amount = 20, int skip = 0);
+		int CountTransactions(const Bank& bank);
+		std::wstring SetNewPassword(const Bank& bank);
+		void AddTransaction(const Bank& receiver, const std::string& sender, const int64& amount);
+		int RemoveTransactionsOverSpecifiedDays(uint days);
+		void SetOrClearIdentifier(const Bank& bank, const std::string& identifier);
+	}
 }
