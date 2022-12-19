@@ -198,7 +198,7 @@ namespace Plugins::IPBan
 			global->IPChecked[client] = true;
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
-				AddKickLog(client, L"IP banned");
+				AddKickLog(client, "IP banned");
 				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 15000L);
 			}
 		}
@@ -214,7 +214,7 @@ namespace Plugins::IPBan
 			global->IPChecked[client] = true;
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
-				AddKickLog(client, L"IP banned");
+				AddKickLog(client, "IP banned");
 				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 7000L);
 			}
 		}

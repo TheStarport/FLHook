@@ -390,8 +390,8 @@ namespace Plugins::Message
 					if (global->Info[client].swearWordWarnings > 2)
 					{
 						const std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-						AddLog(LogType::Kick, LogLevel::Info, L"Swearing tempban on %s (%s) reason='%s'", wscCharname.c_str(), 
-						    Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(wscCharname).value()), wscChatMsg.c_str());
+						AddLog(LogType::Kick, LogLevel::Info, wstos(fmt::format(L"Swearing tempban on {} ({}) reason='{}'", wscCharname, 
+						    Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(wscCharname).value()).value(), wscChatMsg.c_str())));
 
 						if (global->tempBanCommunicator)
 							global->tempBanCommunicator->TempBan(wscCharname, 10);

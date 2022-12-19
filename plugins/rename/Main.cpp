@@ -155,7 +155,7 @@ namespace Plugins::Rename
 		global->tagList.tags.emplace_back(data);
 
 		PrintUserCmdText(client, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
-		AddLog(LogType::Normal, LogLevel::Info, L"Tag %s created by %s (%s)", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str());
+		AddLog(LogType::Normal, LogLevel::Info, wstos(fmt::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 		SaveSettings();
 	}
 
@@ -189,7 +189,7 @@ namespace Plugins::Rename
 			    global->tagList.tags.end());
 			SaveSettings();
 			PrintUserCmdText(client, L"OK Tag dropped");
-			AddLog(LogType::Normal, LogLevel::Info, L"Tag %s dropped by %s (%s)", tag.c_str(), wscCharname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str());
+			AddLog(LogType::Normal, LogLevel::Info, wstos(fmt::format(L"Tag {} dropped by {} ({})", tag.c_str(), wscCharname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
 		}
 
@@ -288,20 +288,20 @@ namespace Plugins::Rename
 				// The rename worked. Log it and save the rename time.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
-				    L"User rename %s to %s (%s)",
+				    wstos(fmt::format(L"User rename {} to {} ({})",
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
-				    Hk::Client::GetAccountID(acc).value().c_str());
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 			catch (char* err)
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
-				    L"User rename failed (%s) from %s to %s (%s)",
-				    err,
+				    wstos(fmt::format(L"User rename failed ({}) from {} to {} ({})",
+				    stows(err),
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
-				    Hk::Client::GetAccountID(acc).value().c_str());
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 		}
 
@@ -348,20 +348,20 @@ namespace Plugins::Rename
 				// The move worked. Log it.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
-				    L"Character %s moved from %s to %s",
+				    wstos(fmt::format(L"Character {} moved from {} to {}",
 				    o.movingCharName.c_str(),
 				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
-				    Hk::Client::GetAccountID(acc).value().c_str()); 
+				    Hk::Client::GetAccountID(acc).value().c_str()))); 
 			}
 			catch (char* err)
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
-				    L"Character %s move failed (%s) from %s to %s",
-				    o.movingCharName.c_str(),
-				    err,
+				    wstos(fmt::format(L"Character {} move failed ({}) from {} to {}",
+				    o.movingCharName,
+				    stows(std::string(err)),
 				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
-				    Hk::Client::GetAccountID(acc).value().c_str());
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 		}
 	}

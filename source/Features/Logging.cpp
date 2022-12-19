@@ -60,71 +60,64 @@ bool InitLogs()
 	return true;
 }
 
-void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
+void AddLog(LogType LogType, LogLevel lvl, const std::string& str)
 {
 	auto level = static_cast<spdlog::level::level_enum>(lvl);
-	va_list marker;
-	va_start(marker, wStr);
-
-	wchar_t wszBuf[1024 * 8] = L"";
-
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wStr.c_str(), marker);
-	std::string scText = wstos(wszBuf);
 
 	switch (LogType)
 	{
 		case LogType::Cheater:
-			CheaterLog->log(level, scText);
+			CheaterLog->log(level, str);
 			break;
 		case LogType::Kick:
-			KickLog->log(level, scText);
+			KickLog->log(level, str);
 			break;
 		case LogType::Connects:
-			ConnectsLog->log(level, scText);
+			ConnectsLog->log(level, str);
 			break;
 		case LogType::AdminCmds:
-			AdminCmdsLog->log(level, scText);
+			AdminCmdsLog->log(level, str);
 			break;
 		case LogType::UserLogCmds:
-			UserCmdsLog->log(level, scText);
+			UserCmdsLog->log(level, str);
 			break;
 		case LogType::SocketCmds:
-			SocketCmdsLog->log(level, scText);
+			SocketCmdsLog->log(level, str);
 			break;
 		case LogType::PerfTimers:
-			PerfTimersLog->log(level, scText);
+			PerfTimersLog->log(level, str);
 			break;
 		case LogType::Normal:
 			switch (level)
 			{
 				case spdlog::level::debug:
-					Console::ConDebug(scText);
+					Console::ConDebug(str);
 					break;
 				case spdlog::level::info:
-					Console::ConInfo(scText);
+					Console::ConInfo(str);
 					break;
 				case spdlog::level::warn:
-					Console::ConWarn(scText);
+					Console::ConWarn(str);
 					break;
 				case spdlog::level::critical:
 				case spdlog::level::err:
-					Console::ConErr(scText);
+					Console::ConErr(str);
 					break;
 				default: ;
 			}
 			
-			FLHookLog->log(level, scText);
+			FLHookLog->log(level, str);
 			break;
 	}
 
 	if (lvl == LogLevel::Debug && FLHookDebugLog)
 	{
-		FLHookDebugLog->debug(scText);
+		FLHookDebugLog->debug(str);
 	}
 
 	if (IsDebuggerPresent())
 	{
-		WinDebugLog->debug(scText);
+		WinDebugLog->debug(str);
 	}
 
 	if (lvl == LogLevel::Critical)
@@ -136,34 +129,25 @@ void AddLog(LogType LogType, LogLevel lvl, std::wstring wStr, ...)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HandleCheater(ClientId client, bool bBan, std::wstring wscReason, ...)
+void HandleCheater(ClientId client, bool bBan, std::string reason)
 {
-	wchar_t wszBuf[1024 * 8] = L"";
-	va_list marker;
-	va_start(marker, wscReason);
+	AddCheaterLog(client, reason);
 
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
-
-	AddCheaterLog(client, wszBuf);
-
-	if (wscReason[0] != '#' && Players.GetActiveCharacterName(client))
+	if (reason[0] != '#' && Players.GetActiveCharacterName(client))
 	{
 		std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-
-		wchar_t wszBuf2[500];
-		swprintf_s(wszBuf2, L"Possible cheating detected: %s", character.c_str());
-		Hk::Message::MsgU(wszBuf2);
+		Hk::Message::MsgU(fmt::format(L"Possible cheating detected: {}", character.c_str()));
 	}
 
 	if (bBan)
 		Hk::Player::Ban(client, true);
-	if (wscReason[0] != '#')
+	if (reason[0] != '#')
 		Hk::Player::Kick(client);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
+bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::string& wscReason)
 {
 	ClientId client = Hk::Client::ExtractClientID(player);
 
@@ -182,23 +166,17 @@ bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::ws
 	wscHostName = ClientInfo[client].wscHostname;
 	wscIp = Hk::Admin::GetPlayerIP(client);
 
-	const auto wscCharacterName = Players.GetActiveCharacterName(client);
+	const std::wstring wscCharacterName = Hk::Client::GetCharacterNameByID(client).value();
 
-	AddLog(LogType::Cheater, LogLevel::Info, L"Possible cheating detected (%s) by %s(%s)(%s) [%s %s]", 
-		wscReason.c_str(), wscCharacterName, wscAccountDir.c_str(), wscAccountId.c_str(), wscHostName.c_str(), wscIp.c_str());
+	AddLog(LogType::Cheater, LogLevel::Info, wstos(fmt::format(L"Possible cheating detected ({}) by {}({})({}) [{} {}]", 
+		stows(wscReason), wscCharacterName, wscAccountDir.c_str(), wscAccountId.c_str(), wscHostName.c_str(), wscIp.c_str())));
 	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AddKickLog(ClientId client, std::wstring wscReason, ...)
+bool AddKickLog(ClientId client, const std::string& wscReason)
 {
-	wchar_t wszBuf[1024 * 8] = L"";
-	va_list marker;
-	va_start(marker, wscReason);
-
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
-
 	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 	if (!wszCharname)
 		wszCharname = L"";
@@ -206,20 +184,14 @@ bool AddKickLog(ClientId client, std::wstring wscReason, ...)
 	CAccount* acc = Players.FindAccountFromClientID(client);
 	std::wstring wscAccountDir = Hk::Client::GetAccountDirName(acc);
 
-	AddLog(LogType::Kick, LogLevel::Info, L"Kick (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), Hk::Client::GetAccountID(acc).value().c_str());
+	AddLog(LogType::Kick, LogLevel::Info, wstos(fmt::format(L"Kick ({}): {}({})({})\n", stows(wscReason), wszCharname, wscAccountDir.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
 	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AddConnectLog(ClientId client, std::wstring wscReason, ...)
+bool AddConnectLog(ClientId client, const std::string& wscReason)
 {
-	wchar_t wszBuf[1024 * 8] = L"";
-	va_list marker;
-	va_start(marker, wscReason);
-
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, wscReason.c_str(), marker);
-
 	const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 	if (!wszCharname)
 		wszCharname = L"";
@@ -227,6 +199,6 @@ bool AddConnectLog(ClientId client, std::wstring wscReason, ...)
 	CAccount* acc = Players.FindAccountFromClientID(client);
 	std::wstring wscAccountDir = Hk::Client::GetAccountDirName(acc);
 
-	AddLog(LogType::Connects, LogLevel::Info, L"Connect (%s): %s(%s)(%s)\n", wszBuf, wszCharname, wscAccountDir.c_str(), Hk::Client::GetAccountID(acc).value().c_str());
+	AddLog(LogType::Connects, LogLevel::Info, wstos(fmt::format(L"Connect ({}): {}({})({})\n", stows(wscReason), wszCharname, wscAccountDir.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
 	return true;
 }

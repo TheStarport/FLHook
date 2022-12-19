@@ -34,15 +34,13 @@ HMODULE GetModuleAddr(uint iAddr)
 	#include <string.h>
 
 // based on dbghelp.h
-typedef BOOL(WINAPI* MINIdUMPWRITEDUMP)(
-    HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
-    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
-	CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+typedef BOOL(WINAPI* MINIdUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
     CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
 void WriteMiniDump(SEHException* ex)
 {
-	AddLog(LogType::Normal, LogLevel::Err, L"Attempting to write minidump...");
+	AddLog(LogType::Normal, LogLevel::Err, "Attempting to write minidump...");
 	HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
 	if (hDll)
 	{
@@ -66,8 +64,7 @@ void WriteMiniDump(SEHException* ex)
 			} while (FileExists(szDumpPath));
 
 			// create the file
-			HANDLE hFile = ::CreateFile(
-			    szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE hFile = ::CreateFile(szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
@@ -89,7 +86,7 @@ void WriteMiniDump(SEHException* ex)
 				}
 				::CloseHandle(hFile);
 
-				AddLog(LogType::Normal, LogLevel::Err, L"Minidump '%s' written.", szDumpPath);
+				AddLog(LogType::Normal, LogLevel::Err, fmt::format("Minidump '{}' written.", szDumpPath));
 			}
 		}
 	}
@@ -127,15 +124,13 @@ void AddExceptionInfoLog(SEHException* ex)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
-			AddLog(LogType::Normal, LogLevel::Trace, L"Code=%x Offset=%x Module=\"%s\"", iCode, iOffset, szModName);
+			AddLog(LogType::Normal, LogLevel::Trace, fmt::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
 				const auto* typeArr = &info->pCatchableTypeArray->arrayOfCatchableTypes;
 				const auto* obj = reinterpret_cast<const std::exception*>(exception->ExceptionInformation[1]);
-				const char* szName = info && info->pCatchableTypeArray && info->pCatchableTypeArray->nCatchableTypes
-				    ? (*typeArr)[0]->pType->name
-				    : "";
+				const char* szName = info && info->pCatchableTypeArray && info->pCatchableTypeArray->nCatchableTypes ? (*typeArr)[0]->pType->name : "";
 				int i = 0;
 				for (; i < info->pCatchableTypeArray->nCatchableTypes; i++)
 				{
@@ -159,32 +154,39 @@ void AddExceptionInfoLog(SEHException* ex)
 				}
 				AddLog(LogType::Normal,
 				    LogLevel::Trace,
-				    L"Name=\"%s\" Message=\"%s\" Offset=%x Module=\"%s\"",
-				    szName,
-				    szMessage,
-				    iOffset,
-				    strrchr(szModName, '\\') + 1);
+				    fmt::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", szName, szMessage, iOffset, strrchr(szModName, '\\') + 1));
 			}
 
 			void* callers[62];
 			int count = CaptureStackBackTrace(0, 62, callers, NULL);
 			for (int i = 0; i < count; i++)
-				AddLog(LogType::Normal, LogLevel::Trace, L"%08x called from %08X", i, callers[i]);
+				AddLog(LogType::Normal, LogLevel::Trace, fmt::format("0x{:08X} called from 0x{:08X}", i, callers[i]));
 		}
 		else
-			AddLog(LogType::Normal, LogLevel::Trace, L"No exception information available");
+			AddLog(LogType::Normal, LogLevel::Trace, "No exception information available");
 		if (reg)
 		{
-			AddLog(LogType::Normal, LogLevel::Trace, L"eax=%x ebx=%x ecx=%x edx=%x edi=%x esi=%x ebp=%x eip=%x esp=%x", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+			AddLog(LogType::Normal,
+			    LogLevel::Trace,
+			    fmt::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
+			        reg->Eax,
+			        reg->Ebx,
+			        reg->Ecx,
+			        reg->Edx,
+			        reg->Edi,
+			        reg->Esi,
+			        reg->Ebp,
+			        reg->Eip,
+			        reg->Esp));
 		}
 		else
 		{
-			AddLog(LogType::Normal, LogLevel::Trace, L"No register information available");
+			AddLog(LogType::Normal, LogLevel::Trace, "No register information available");
 		}
 	}
 	catch (...)
 	{
-		AddLog(LogType::Normal, LogLevel::Trace, L"Exception in AddExceptionInfoLog!");
+		AddLog(LogType::Normal, LogLevel::Trace, "Exception in AddExceptionInfoLog!");
 	}
 }
 

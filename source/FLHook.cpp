@@ -109,7 +109,7 @@ BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-	AddLog(LogType::Normal, LogLevel::Err, L"!!TOP LEVEL EXCEPTION!!");
+	AddLog(LogType::Normal, LogLevel::Critical, "!!TOP LEVEL EXCEPTION!!");
 	SEHException ex(0, pExceptionInfo);
 	WriteMiniDump(&ex);
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
@@ -485,7 +485,7 @@ void FLHookShutdown()
 	SetUnhandledExceptionFilter(0);
 #endif
 
-	AddLog(LogType::Normal, LogLevel::Err, L"-------------------");
+	AddLog(LogType::Normal, LogLevel::Err, "-------------------");
 
 	// unload rest
 	DWORD id;
@@ -521,7 +521,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+			AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP, sc->csock.iPort));
 			return true;
 		}
 
@@ -536,7 +536,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (invalid pass)", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+			AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
 			return true;
 		}
 
@@ -769,8 +769,7 @@ void ProcessPendingCommands()
 				if (wscData.length() > (1024 * iMaxKB))
 				{
 					Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
-					AddLog(LogType::Normal, LogLevel::Info, L"socket: socket connection from %s:%d closed (possible ddos attempt)",
-					    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+					AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
 					delete[] szData;
 					lstDelete.push_back(sc);
 					continue;

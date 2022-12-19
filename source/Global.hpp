@@ -129,7 +129,7 @@ inline auto* ToUShort(wchar_t* val)
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                  \
 	}                                                                                           \
 	CATCH_HOOK({                                                                                \
-		AddLog(LogType::Normal, LogLevel::Info, L"ERROR: Exception in " + stows(__FUNCTION__) + L" on server call"); \
+		AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: Exception in {} on server call" __FUNCTION__)); \
 		bool ret = catchArgs;                                                                   \
 		if (!ret)                                                                               \
 		{                                                                                       \
@@ -156,10 +156,7 @@ inline auto* ToUShort(wchar_t* val)
 	{                                                                           \
 		if (ClientInfo[client].bDisconnected)                                 \
 		{                                                                       \
-			AddLog(LogType::Normal, LogLevel::Info,                                      \
-			    L"ERROR: Ignoring disconnected client in " + stows(__FUNCTION__) + L" id=%" \
-			                                                            "u",    \
-			    client);                                                      \
+			AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
 			return;                                                             \
 		};                                                                      \
 	}
@@ -325,8 +322,7 @@ class PluginManager : public Singleton<PluginManager>
 						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 				}
 				CATCH_HOOK({
-					AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Exception in plugin '%s' in %s", stows(plugin.name).c_str(),
-					    stows(__FUNCTION__).c_str());
+					AddLog(LogType::Normal, LogLevel::Err, fmt::format("ERROR: Exception in plugin '{}' in {}", plugin.name, __FUNCTION__));
 				});
 
 				auto code = *plugin.returnCode;
@@ -338,7 +334,7 @@ class PluginManager : public Singleton<PluginManager>
 					break;
 			}
 		}
-		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, L"ERROR: Exception %s", stows(__FUNCTION__).c_str()); });
+		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, fmt::format("ERROR: Exception {}", __FUNCTION__)); });
 
 		if constexpr (!ReturnTypeIsVoid)
 			return ret;

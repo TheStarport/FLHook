@@ -90,7 +90,7 @@ namespace Plugins::ConData
 				if (global->config->lossKick && con.iAverageLoss > global->config->lossKick)
 				{
 					con.lstLoss.clear();
-					AddKickLog(client, L"High loss");
+					AddKickLog(client, "High loss");
 					Hk::Player::MsgAndKick(client, L"High loss", KickTimer);
 					// call tempban plugin
 					if (global->tempBanCommunicator)
@@ -105,7 +105,7 @@ namespace Plugins::ConData
 					if (con.iAveragePing > (global->config->pingKick))
 					{
 						con.lstPing.clear();
-						AddKickLog(client, L"High ping");
+						AddKickLog(client, "High ping");
 						Hk::Player::MsgAndKick(client, L"High ping", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)
@@ -121,7 +121,7 @@ namespace Plugins::ConData
 					if (con.iPingFluctuation > (global->config->fluctKick))
 					{
 						con.lstPing.clear();
-						AddKickLog(client, L"High fluct");
+						AddKickLog(client, "High fluct");
 						Hk::Player::MsgAndKick(client, L"High ping fluctuation", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)
@@ -138,7 +138,7 @@ namespace Plugins::ConData
 					{
 						con.lstObjUpdateIntervalls.clear();
 
-						AddKickLog(client, L"High Lag");
+						AddKickLog(client, "High Lag");
 						Hk::Player::MsgAndKick(client, L"High Lag", KickTimer);
 						// call tempban plugin
 						if (global->tempBanCommunicator)

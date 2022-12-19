@@ -1163,9 +1163,9 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 	try
 	{
 		if (bSocket)
-			AddLog(LogType::SocketCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+			AddLog(LogType::SocketCmds, LogLevel::Info, fmt::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
 
-		AddLog(LogType::AdminCmds, LogLevel::Info, L"%s: %s", wscAdminName.c_str(), wscCmdStr.c_str());
+		AddLog(LogType::AdminCmds, LogLevel::Info, fmt::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
 
 		bId = false;
 		bShortCut = false;
@@ -1422,18 +1422,18 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 		}
 		if (bSocket)
 		{
-			AddLog(LogType::SocketCmds, LogLevel::Info, L"finished");
+			AddLog(LogType::SocketCmds, LogLevel::Info, "finished");
 		}
 		else
 		{
-			AddLog(LogType::AdminCmds, LogLevel::Info, L"finished");
+			AddLog(LogType::AdminCmds, LogLevel::Info, "finished");
 		}
 	}
 	catch (...)
 	{
 		if (bSocket)
-			AddLog(LogType::SocketCmds, LogLevel::Info, L"exception");
-		AddLog(LogType::AdminCmds, LogLevel::Info, L"exception");
+			AddLog(LogType::SocketCmds, LogLevel::Info, "exception");
+		AddLog(LogType::AdminCmds, LogLevel::Info, "exception");
 		Print(L"ERR exception occured");
 	}
 }

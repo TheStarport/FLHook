@@ -745,17 +745,17 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& cmd, const std::
 			}
 
 			std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, L"%s: %s", character.c_str(), cmd.c_str());
+			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(fmt::format(L"{}: {}", character.c_str(), cmd.c_str())));
 
 			try
 			{
 				const auto view = std::wstring(wscParam);
 				command.proc(client, view);
-				AddLog(LogType::UserLogCmds, LogLevel::Info, L"finished");
+				AddLog(LogType::UserLogCmds, LogLevel::Info, "finished");
 			}
 			catch (std::exception const& ex)
 			{
-				AddLog(LogType::UserLogCmds, LogLevel::Err, L"exception %s", stows(ex.what()).c_str());
+				AddLog(LogType::UserLogCmds, LogLevel::Err, fmt::format("exception {}", ex.what()));
 			}
 
 			return true;

@@ -23,7 +23,7 @@ namespace Plugins::Npc
 		{
 			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
 			Console::ConErr(errorMessage);
-			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
+			AddLog(LogType::Normal, LogLevel::Critical, wstos(errorMessage));
 		}
 
 		p.personality = err.value();

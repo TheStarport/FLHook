@@ -50,7 +50,7 @@ namespace Plugins::Tempban
 
 		if (client != -1 && Hk::Player::Kick(client.value()).has_error())
 		{
-			AddLog(LogType::Kick, LogLevel::Info, wscCharname + L" could not be kicked (TempBan Plugin)");
+			AddLog(LogType::Kick, LogLevel::Info, fmt::format("{} could not be kicked (TempBan Plugin)", wstos(wscCharname)));
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
 		}
 		

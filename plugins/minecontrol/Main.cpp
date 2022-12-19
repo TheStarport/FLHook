@@ -498,7 +498,7 @@ namespace Plugins::MiningControl
 						if (Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
-							    L"* fRand=%2.2f fGenericBonus=%2.2f fPlayerBonus=%2.2f fZoneBonus=%2.2f iLootCount=%d LootId=%u/%u CurrentReserve=%0.0f", 
+							    fmt::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}"), 
 							    random, global->config->GenericFactor, fPlayerBonus, fZoneBonus, iLootCount, iLootId, iCrateId,
 							    global->ZoneBonus[zone->iZoneId].CurrentReserve);
 						}
@@ -510,8 +510,8 @@ namespace Plugins::MiningControl
 							if (average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
-								AddLog(LogType::Normal, LogLevel::Info, L"High mining rate charname=%s rate=%0.1f/sec location=%0.0f,%0.0f,%0.0f system=%08x zone=%08x",
-								    CharName.c_str(), average, vPos.x, vPos.y, vPos.z, zone->systemId, zone->iZoneId);
+								AddLog(LogType::Normal, LogLevel::Info, fmt::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
+								    wstos(CharName.c_str()), average, vPos.x, vPos.y, vPos.z, zone->systemId, zone->iZoneId));
 							}
 
 							Clients[client].MineAsteroidSampleStart = time(0) + 30;
