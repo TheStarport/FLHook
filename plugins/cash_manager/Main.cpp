@@ -44,7 +44,7 @@
 #include "Main.h"
 #include "refl.hpp"
 
-constexpr long long SecondsInADay = 86400;
+constexpr int TransactionsPerPage = 10;
 
 // Setup Doxygen Group
 
@@ -213,7 +213,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if(!Sql::TransferCash(bank, targetBank.value(), amount, fee))
+		if (!Sql::TransferCash(bank, targetBank.value(), amount, fee))
 		{
 			PrintUserCmdText(client, L"Internal server error. Failed to transfer cash.");
 			return;
@@ -285,7 +285,9 @@ namespace Plugins::CashManager
 			}
 
 			PrintUserCmdText(client, L"This will generate a new password and the previous will be invalid");
-			PrintUserCmdText(client, L"Your currently set password is %s if you are sure you want to regenerate your password type \"/bank password confirm\". ", bank.bankPassword.c_str());
+			PrintUserCmdText(client,
+			    L"Your currently set password is %s if you are sure you want to regenerate your password type \"/bank password confirm\". ",
+			    bank.bankPassword.c_str());
 		}
 		else if (cmd == L"identifier")
 		{
@@ -315,7 +317,9 @@ namespace Plugins::CashManager
 			{
 				if (const auto value = static_cast<int>(Hk::Player::GetShipValue(client).value()); value > global->config->cashThreshold)
 				{
-					PrintUserCmdText(client, L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal range.");
+					PrintUserCmdText(client,
+					    L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal "
+					    L"range.");
 					return;
 				}
 			}
@@ -346,8 +350,6 @@ namespace Plugins::CashManager
 			const auto bank = Sql::GetOrCreateBank(acc);
 			const auto list = GetParam(param, ' ', 1);
 
-			constexpr int transactionsPerPage = 10;
-
 			if (list == L"list")
 			{
 				int totalTransactions = Sql::CountTransactions(bank);
@@ -357,28 +359,28 @@ namespace Plugins::CashManager
 				{
 					PrintUserCmdText(client,
 					    L"You currently have a total of %u transactions, spanning %u pages. "
-						L"Run this command again, adding a page number to view the desired transactions.",
+					    L"Run this command again, adding a page number to view the desired transactions.",
 					    totalTransactions,
-					    totalTransactions / transactionsPerPage);
+					    totalTransactions / TransactionsPerPage);
 					return;
 				}
 
-				if (page > totalTransactions / transactionsPerPage)
+				if (page > totalTransactions / TransactionsPerPage)
 				{
 					PrintUserCmdText(client, L"Page not found.");
 					return;
 				}
 
-				uint i = page * transactionsPerPage;
-				const auto transactions = Sql::ListTransactions(bank, transactionsPerPage, i);
+				uint i = page * TransactionsPerPage;
+				const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i);
 				for (const auto& transaction : transactions)
 				{
 					PrintUserCmdText(client, L"%u.) %s %llu", i++, transaction.accessor.c_str(), transaction.amount);
 				}
-				return;	
+				return;
 			}
 
-			const auto transactions = Sql::ListTransactions(bank, transactionsPerPage);
+			const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage);
 			if (transactions.empty())
 			{
 				PrintUserCmdText(client, L"You have no transactions for this bank currently.");
@@ -397,12 +399,18 @@ namespace Plugins::CashManager
 		else
 		{
 			PrintUserCmdText(client, L"Here are the available commands for the bank plugin");
-			PrintUserCmdText(client, L"\"/bank withdraw \" will withdraw money from your account's bank");
-			PrintUserCmdText(client, L"\"/bank deposit\" will deposit money from your character to your bank");
-			PrintUserCmdText(client, L"\"/bank withdraw bankID password\" will withdraw money from a specified bank that has a password set up");
-			PrintUserCmdText(client, L"\"/bank transfer bankID \" transfer money from your current bank to the target Bank ID");
-			PrintUserCmdText(client, L"\"/bank password \" will generate a password for your bank or regen one of you already have one");
+			PrintUserCmdText(client, L"\"/bank withdraw <amount>\" will withdraw money from your account's bank");
+			PrintUserCmdText(
+			    client, L"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up");
+
+			PrintUserCmdText(client, L"\"/bank deposit <amount>\" will deposit money from your character to your bank");
+			PrintUserCmdText(client, L"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier");
+			PrintUserCmdText(client, L"\"/bank password \" will regenerate your password");
+			PrintUserCmdText(client,
+			    L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.");
 			PrintUserCmdText(client, L"\"/bank info \" will display information regarding your current account's bank");
+			PrintUserCmdText(client, fmt::format(L"\"/bank transactions \" will display the last {} transactions", TransactionsPerPage));
+			PrintUserCmdText(client, L"\"/bank transactions <list> [page]\" will display the full list of transactions");
 		}
 	}
 
