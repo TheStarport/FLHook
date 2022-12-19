@@ -87,6 +87,7 @@ namespace Plugins::CashManager
 			Console::ConWarn(L"Minimum Transfer is a negative number!");
 		}
 
+		Sql::CreateSqlTables();
 		Sql::RemoveTransactionsOverSpecifiedDays(global->config->eraseTransactionsAfterDaysPassed);
 	}
 
