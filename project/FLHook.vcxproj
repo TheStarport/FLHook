@@ -73,14 +73,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
       <Command>xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
-				xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
-				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-				xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"
-				if "$(FLHOOK_COPY_PATH)" NEQ "" (
-				xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
-				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-				)
-				setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
+xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+if "$(FLHOOK_COPY_PATH)" NEQ "" (
+	xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+)
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
@@ -128,14 +130,16 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
     <CustomBuildStep>
       <Command>xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
-				xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
-				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-				xcopy /y  "$(OutDir)$(TargetName).ini" "$(DistDir)"
-				if "$(FLHOOK_COPY_PATH)" NEQ "" (
-				xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
-				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-				)
-				setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
+xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+if "$(FLHOOK_COPY_PATH)" NEQ "" (
+	xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+)
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>

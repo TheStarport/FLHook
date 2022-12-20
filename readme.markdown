@@ -37,17 +37,10 @@ If you would like the build process to copy FLHook as well as any enabled plugin
 
 1. Install Visual Studio 2019
 2. Clone this repository (`git clone --recursive https://github.com/fl-devs/FLHook.git`)
-3. Open `project\FLHook.sln`
-4. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
-5. Build FLHook.vcxproj twice. The first build will fail, but will cause vcpkg to be initalized.
-
-If vcpkg fails to initialize, open a terminal inside of the vcpkg directory and manually run the following commands:
-```
-./bootstrap-vcpkg.bat
-./vcpkg.exe install integrate
-```
-
-vcpkg can fail to initalize for a number of reasons within Visual Studio, most commonly relating to path or permission issues.
+3. Run `project\vcpkg.bat`
+4. Open `project\FLHook.sln`
+5. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
+6. Build Solution. vcpkg should download a number of dependencies.
 
 ## Contributing and Support
 
