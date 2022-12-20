@@ -311,12 +311,13 @@ namespace IServerImplHook
 
 	void SPMunitionCollision__Inner(const SSPMunitionCollisionInfo& mci, uint)
 	{
-		uint clientTarget;
-
-		TRY_HOOK { clientTarget = Hk::Client::GetClientIdByShip(mci.dwTargetShip).value(); }
+		TRY_HOOK
+		{
+			const auto isClient = Hk::Client::GetClientIdByShip(mci.dwTargetShip);
+			if (isClient.has_value())
+				g_DmgTo = isClient.value();
+		}
 		CATCH_HOOK({})
-
-		g_DmgTo = clientTarget;
 	}
 
 	bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, ClientId client)
@@ -514,8 +515,7 @@ void TerminateTrade__InnerAfter(ClientId client, int accepted)
 	TRY_HOOK
 	{
 		if (accepted)
-		{ // save both chars to prevent cheating in case of
-		  // server crash
+		{ // save both chars to prevent cheating in case of server crash
 			Hk::Player::SaveChar(client);
 			if (ClientInfo[client].iTradePartner)
 				Hk::Player::SaveChar(ClientInfo[client].iTradePartner);
@@ -853,7 +853,7 @@ bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
 	uint system;
 	pub::Player::GetSystem(client, system);
 	AddLog(LogType::Normal, LogLevel::Err, wstos(fmt::format(L"ERROR: Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
-	    ToWChar(Players.GetActiveCharacterName(client)),
+	    Hk::Client::GetCharacterNameByID(client).value(),
 	    system,
 	    gtl.iTradelaneSpaceObj1,
 	    gtl.iTradelaneSpaceObj2)));
@@ -1180,8 +1180,6 @@ uint IClientImpl::CDPClientProxy__GetSendQBytes(ClientId client)
 
 double IClientImpl::CDPClientProxy__GetLinkSaturation(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::CDPClientProxy__GetLinkSaturation(\n\tClientId client = {}\n)", client));
-
 	auto [retVal, skip] = CallPluginsBefore<double>(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, client);
 
 	if (!skip)
@@ -2377,13 +2375,13 @@ void IClientImpl::unknown_91(ClientId client, uint _genArg1)
 	CALL_CLIENT_POSTAMBLE;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(ClientId client, uint _genArg1, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    fmt::format("IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    fmt::format("IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    _genArg1,
 	    _genArg2));
 
 	bool retVal;
@@ -2393,45 +2391,45 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(ClientId client, uchar* 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(ClientId client, uint objHash, int state)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    fmt::format("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
-	    _genArg2)));
+	    objHash,
+	    state));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, _genArg1, _genArg2); }
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(ClientId client, uint objHash, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tClientId client = {}\n\tobjHash = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    objHash,
 	    _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_REQUEST_BEST_PATH(client, _genArg1, _genArg2); }
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_REQUEST_BEST_PATH(client, objHash, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(ClientId client, uint _genArg1, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    _genArg1,
 	    _genArg2)));
 
 	bool retVal;
@@ -2455,13 +2453,13 @@ void IClientImpl::unknown_96(ClientId client, uint _genArg1, uint _genArg2, uint
 	CALL_CLIENT_POSTAMBLE;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(ClientId client, uint _genArg1, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    _genArg1,
 	    _genArg2)));
 
 	bool retVal;
@@ -2471,13 +2469,13 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(ClientId client, 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(ClientId client, uint _genArg1, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    _genArg1,
 	    _genArg2)));
 
 	bool retVal;
@@ -2487,13 +2485,13 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(ClientId client, uchar* _
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(ClientId client, uchar* _genArg1, int _genArg2)
+bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(ClientId client, uint _genArg1, int _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
-	    fmt::ptr(_genArg1),
+	    _genArg1,
 	    _genArg2)));
 
 	bool retVal;
@@ -2641,25 +2639,25 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(ClientId client, uint _genArg1
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* _genArg1, uint _genArg2, char _genArg3)
+bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* characterName, uint _genArg2, char _genArg3)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* _genArg1 = 0x{:08X}\n\tuint _genArg2 = {}\n\tchar _genArg3 = {}\n)",
+	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = \n\tuint _genArg2 = {}\n\tchar _genArg3 = {}\n)",
 	    client,
-	    _genArg1,
+	    std::wstring(characterName),
 	    _genArg2,
 	    ToLogString(_genArg3))));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, _genArg1, _genArg2, _genArg3);
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, characterName, _genArg2, _genArg3);
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_PLAYERLIST(client, _genArg1, _genArg2, _genArg3); }
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_PLAYERLIST(client, characterName, _genArg2, _genArg3); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
-	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, _genArg1, _genArg2, _genArg3);
+	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, characterName, _genArg2, _genArg3);
 
 	return retVal;
 }
@@ -3692,7 +3690,7 @@ namespace IServerImplHook
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
 		    fmt::format("TradeResponse(\n\tunsigned char const* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n\tClientId client = {}\n)",
-		    fmt::ptr(_genArg1),
+		    std::string(reinterpret_cast<char const*>(_genArg1)),
 		    _genArg2,
 		    client));
 
@@ -4140,20 +4138,20 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall SetWeaponGroup(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall SetWeaponGroup(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetWeaponGroup(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("SetWeaponGroup(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
-		    fmt::ptr(_genArg1),
+		    _genArg1,
 		    _genArg2));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup, client, _genArg1, _genArg2);
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.SetWeaponGroup(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.SetWeaponGroup(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4163,34 +4161,33 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall SetVisitedState(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall SetVisitedState(ClientId client, uint objHash, int state)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetVisitedState(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
-		    client,
-		    _genArg1,
-		    _genArg2));
+		    fmt::format("SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
+		    client, objHash,
+		    state));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState, client, _genArg1, _genArg2);
+		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState, client, objHash, state);
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.SetVisitedState(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.SetVisitedState(client, (uchar*)objHash, state); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
-		CallPluginsAfter(HookedCall::IServerImpl__SetVisitedState, client, _genArg1, _genArg2);
+		CallPluginsAfter(HookedCall::IServerImpl__SetVisitedState, client, objHash, state);
 	}
 } // namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall RequestBestPath(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall RequestBestPath(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestBestPath(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4199,7 +4196,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.RequestBestPath(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.RequestBestPath(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4209,11 +4206,11 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall RequestPlayerStats(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall RequestPlayerStats(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestPlayerStats(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("RequestPlayerStats(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4222,7 +4219,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.RequestPlayerStats(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.RequestPlayerStats(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4250,11 +4247,11 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall RequestGroupPositions(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall RequestGroupPositions(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestGroupPositions(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("RequestGroupPositions(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4263,7 +4260,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.RequestGroupPositions(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.RequestGroupPositions(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4273,11 +4270,11 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall SetInterfaceState(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall SetInterfaceState(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetInterfaceState(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("SetInterfaceState(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4286,7 +4283,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.SetInterfaceState(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.SetInterfaceState(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4296,11 +4293,11 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall RequestRankLevel(ClientId client, uchar* _genArg1, int _genArg2)
+	void __stdcall RequestRankLevel(ClientId client, uint _genArg1, int _genArg2)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestRankLevel(\n\tClientId client = {}\n\tuchar* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    fmt::format("RequestRankLevel(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4309,7 +4306,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE { Server.RequestRankLevel(client, _genArg1, _genArg2); }
+			CALL_SERVER_PREAMBLE { Server.RequestRankLevel(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4481,7 +4478,7 @@ namespace IServerImplHook
 		    L"{}\n\tint _genArg1 = {}\n)",
 		    ToLogString(cidFrom),
 		    size,
-		    rdlReader,
+		    fmt::ptr(rdlReader),
 		    ToLogString(cidTo),
 		    _genArg1)));
 
