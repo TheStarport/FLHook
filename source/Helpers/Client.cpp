@@ -270,8 +270,9 @@ namespace Hk::Client
 	cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId)
 	{
 		std::string base;
-		base.reserve(1024);
+		base.resize(1024);
 		pub::GetBaseNickname(base.data(), base.capacity(), baseId);
+		base.resize(1024); // Without calling another core function will result in length not being updated
 
 		if (base.empty())
 			return cpp::fail(Error::InvalidBase);
@@ -284,8 +285,9 @@ namespace Hk::Client
 	cpp::result<const std::wstring, Error> GetSystemNickByID(uint systemId)
 	{
 		std::string system;
-		system.reserve(1024);
+		system.resize(1024);
 		pub::GetSystemNickname(system.data(), system.capacity(), systemId);
+		system.resize(1024); // Without calling another core function will result in length not being updated
 
 		if (system.empty())
 			return cpp::fail(Error::InvalidSystem);
