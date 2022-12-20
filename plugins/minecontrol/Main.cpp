@@ -372,12 +372,12 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief PlayerLaunch hook. Calls ClearClientInfo.
 	 */
-	void __stdcall PlayerLaunch(uint & ship, uint & client) { ClearClientInfo(client); }
+	void PlayerLaunch(uint & ship, uint & client) { ClearClientInfo(client); }
 
 	/** @ingroup MiningControl
 	 * @brief Called when a gun hits something.
 	 */
-	void __stdcall SPMunitionCollision(struct SSPMunitionCollisionInfo const& ci, ClientId& client)
+	void SPMunitionCollision(struct SSPMunitionCollisionInfo const& ci, ClientId& client)
 	{
 		// If this is not a lootable rock, do no other processing.
 		if (ci.dwTargetShip != 0)
@@ -546,7 +546,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Called when an asteriod is mined. We ignore all of the parameters from the client.
 	 */
-	void __stdcall MineAsteroid(uint & iClientSystemId, class Vector const& vPos, uint& iCrateId, uint& iLootId, uint& iCount, ClientId& client)
+	void MineAsteroid(uint & iClientSystemId, class Vector const& vPos, uint& iCrateId, uint& iLootId, uint& iCount, ClientId& client)
 	{
 		Clients[client].PendingMineAsteroidEvents += 4;
 		return;

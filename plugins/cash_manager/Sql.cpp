@@ -18,8 +18,8 @@ namespace Plugins::CashManager::Sql
 		                 "CREATE TABLE transactions(id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
 		                 "timestamp INTEGER NOT NULL AS(UNIXEPOCH()), "
 		                 "amount INTEGER NOT NULL, "
-		                 "accessor TEXT(32, 32) NOT NULL) "
-		                 "bankId TEXT(36, 36) REFERENCES banks(id) ON UPDATE CASCADE NOT NULL;");
+		                 "accessor TEXT(32, 32) NOT NULL, "
+		                 "bankId TEXT(36, 36) REFERENCES banks(id) ON UPDATE CASCADE NOT NULL);");
 
 		global->sql.exec("CREATE INDEX IDX_bankId ON transactions (bankId DESC);");
 	}

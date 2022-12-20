@@ -23,14 +23,13 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
 // Logs
 template<typename T>
-const wchar_t* ToLogString(const T& val)
+std::wstring ToLogString(const T& val)
 {
 	// Get type without reference
 	typedef std::remove_reference_t<decltype(val)> DeclType;
 	if constexpr (std::is_same_v<DeclType, int> || std::is_same_v<DeclType, uint> || std::is_same_v<DeclType, float> || std::is_same_v<DeclType, double>)
 	{
-		const std::wstring str = std::to_wstring(val);
-		return str.c_str();
+		return std::to_wstring(val);
 	}
 
 	return L"<undefined>";
@@ -129,7 +128,7 @@ inline auto* ToUShort(wchar_t* val)
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                  \
 	}                                                                                           \
 	CATCH_HOOK({                                                                                \
-		AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: Exception in {} on server call" __FUNCTION__)); \
+		AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: Exception in {} on server call", __FUNCTION__)); \
 		bool ret = catchArgs;                                                                   \
 		if (!ret)                                                                               \
 		{                                                                                       \

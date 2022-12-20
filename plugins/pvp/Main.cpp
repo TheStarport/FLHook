@@ -424,7 +424,7 @@ namespace Plugins::Pvp
 	int __cdecl DockCall(unsigned int const& ship, unsigned int const& d, int& cancel, enum DOCK_HOST_RESPONSE& response)
 	{
 		const auto client = Hk::Client::GetClientIdByShip(ship);
-		if (Hk::Client::IsValidClientID(client.value()))
+		if (client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
 			processFFA(client.value());
 			processDuel(client.value());

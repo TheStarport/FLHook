@@ -211,11 +211,11 @@ namespace Plugins::SystemSensor
 					std::wstring wscSysName = Hk::Message::GetWStringFromIdS(iSys->strid_name);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
-						Players.GetActiveCharacterName(client),
-						client,
-						wscType.c_str(),
-						wscSysName.c_str(),
-						Hk::Player::GetLocation(client).c_str());
+					    Players.GetActiveCharacterName(client),
+					    client,
+					    wscType.c_str(),
+					    wscSysName.c_str(),
+					    Hk::Player::GetLocation(client).c_str());
 				}
 			}
 			++iter;
@@ -223,10 +223,10 @@ namespace Plugins::SystemSensor
 	}
 
 	// Record jump type.
-	void Dock_Call(unsigned int const& ship, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
+	int Dock_Call(unsigned int const& ship, unsigned int const& iDockTarget, int& iCancel, enum DOCK_HOST_RESPONSE& response)
 	{
 		const auto client = Hk::Client::GetClientIdByShip(ship);
-		if (client && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
+		if (client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
 			uint iTypeId;
 			pub::SpaceObj::GetType(iDockTarget, iTypeId);
@@ -239,6 +239,8 @@ namespace Plugins::SystemSensor
 				global->networks[client.value()].inJumpGate = false;
 			}
 		}
+
+		return 0;
 	}
 
 	void JumpInComplete(SystemId& iSystem, ShipId& ship, ClientId& client)
@@ -273,7 +275,7 @@ REFL_AUTO(type(Config), field(sensors));
 
 DefaultDllMainSettings(LoadSettings)
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("System Sensor");
 	pi->shortName("system_sensor");
