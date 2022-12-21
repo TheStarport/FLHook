@@ -91,10 +91,10 @@ namespace Plugins::CashManager
 		Sql::RemoveTransactionsOverSpecifiedDays(global->config->eraseTransactionsAfterDaysPassed);
 	}
 
-	void WithdrawMoneyFromBank(const Bank& bank, int withdrawal, ClientId client)
+	void WithdrawMoneyFromBank(const Bank& bank, uint withdrawal, ClientId client)
 	{
 		if (const auto currentValue = Hk::Player::GetShipValue(client);
-		    currentValue.has_error() || (global->config->cashThreshold > 0 && currentValue.value() > static_cast<float>(global->config->cashThreshold)))
+		    currentValue.has_error() || (global->config->cashThreshold > 0 && static_cast<uint>(currentValue.value()) > global->config->cashThreshold))
 		{
 			PrintUserCmdText(client, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
 		}
@@ -105,7 +105,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (withdrawal <= 0)
+		if (withdrawal == 0)
 		{
 			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number. %u", bank.cash);
 			return;
@@ -128,15 +128,15 @@ namespace Plugins::CashManager
 		PrintUserCmdText(client, L"Unknown error. Unable to withdraw cash.");
 	}
 
-	void DepositMoney(const Bank& bank, int deposit, ClientId client)
+	void DepositMoney(const Bank& bank, uint deposit, ClientId client)
 	{
-		if (deposit <= 0)
+		if (deposit == 0)
 		{
 			PrintUserCmdText(client, L"Error: Invalid deposit amount, please input a positive number.");
 			return;
 		}
 
-		if (const int playerCash = Hk::Player::GetCash(client).value(); playerCash < deposit)
+		if (const uint playerCash = static_cast<uint>(Hk::Player::GetCash(client).value()); playerCash < deposit)
 		{
 			PrintUserCmdText(client, L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
 			return;
@@ -144,7 +144,7 @@ namespace Plugins::CashManager
 
 		if (Sql::DepositCash(bank, deposit))
 		{
-			Hk::Player::AddCash(client, -deposit);
+			Hk::Player::AddCash(client, -static_cast<int>(deposit));
 			PrintUserCmdText(client, L"Successfully deposited %s credits", ToMoneyStr(deposit).c_str());
 			return;
 		}
@@ -157,9 +157,9 @@ namespace Plugins::CashManager
 	{
 		const auto accountIdentifier = GetParam(param, ' ', 1);
 		const auto password = GetParam(param, ' ', 2);
-		const auto withdrawal = ToInt(GetParam(param, ' ', 3));
+		const auto withdrawal = ToUInt(GetParam(param, ' ', 3));
 
-		if (withdrawal <= 0)
+		if (withdrawal == 0)
 		{
 			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number.");
 			return;
@@ -184,7 +184,7 @@ namespace Plugins::CashManager
 	void TransferMoney(const ClientId client, const std::wstring& param, const Bank& bank)
 	{
 		const auto targetBankIdentifier = GetParam(param, ' ', 1);
-		const auto amount = ToInt(GetParam(param, ' ', 2));
+		const auto amount = ToUInt(GetParam(param, ' ', 2));
 
 		if (targetBankIdentifier.empty() || bank.identifier.empty())
 		{
@@ -192,7 +192,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (amount <= 0)
+		if (amount == 0)
 		{
 			PrintUserCmdText(client, L"Error: Invalid amount, please input a positive number.");
 			return;
@@ -220,7 +220,7 @@ namespace Plugins::CashManager
 		}
 
 		PrintUserCmdText(client, L"Successfully transferred %s credits to %s", ToMoneyStr(amount).c_str(), bank.identifier.c_str());
-		Sql::AddTransaction(bank, fmt::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(amount + fee));
+		Sql::AddTransaction(bank, fmt::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
 	}
 
 	void ShowBankInfo(const ClientId& client, const Bank& bank, bool showPass)
@@ -239,7 +239,7 @@ namespace Plugins::CashManager
 	void UserCommandHandler(const ClientId& client, const std::wstring& param)
 	{
 		// Checks before we handle any sort of command or process.
-		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value(); secs < global->config->minimumTime / 60)
+		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value(); static_cast<uint>(secs) < global->config->minimumTime / 60)
 		{
 			PrintUserCmdText(client, L"Error: You cannot interact with the bank. This character is too new.");
 			return;
@@ -315,7 +315,7 @@ namespace Plugins::CashManager
 		{
 			if (global->config->preventTransactionsNearThreshold)
 			{
-				if (const auto value = static_cast<int>(Hk::Player::GetShipValue(client).value()); value > global->config->cashThreshold)
+				if (const auto value = static_cast<uint>(Hk::Player::GetShipValue(client).value()); value > global->config->cashThreshold)
 				{
 					PrintUserCmdText(client,
 					    L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal "
@@ -424,12 +424,12 @@ namespace Plugins::CashManager
 			return BankCode::CannotWithdrawNegativeNumber;
 		}
 
-		if (cashAmount > global->config->maximumTransfer)
+		if (static_cast<uint>(cashAmount) > global->config->maximumTransfer)
 		{
 			return BankCode::AboveMaximumTransferThreshold;
 		}
 
-		if (cashAmount < global->config->minimumTransfer)
+		if (static_cast<uint>(cashAmount) < global->config->minimumTransfer)
 		{
 			return BankCode::BelowMinimumTransferThreshold;
 		}
@@ -461,7 +461,7 @@ namespace Plugins::CashManager
 		if (!global->config->preventTransactionsNearThreshold)
 			return false;
 
-		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < static_cast<int>(currentValue))
+		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < static_cast<uint>(currentValue))
 		{
 			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
 			return true;

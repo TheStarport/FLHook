@@ -34,17 +34,17 @@ namespace Plugins::CashManager
 		std::string File() override { return "flhook_plugins/cash_manager.json"; }
 
 		//! The minimum transfer amount.
-		int minimumTransfer = 0;
+		uint minimumTransfer = 0;
 		
 		// It is best to set this to a low enough value as to prevent players from
 		// accidentally corrupting their accounts via their value (approximately 2 billion credits)
-		int maximumTransfer = 0;
+		uint maximumTransfer = 0;
 
 		// If someone's cash goes above a threshold, 'lock' the account until they unload some into the bank
 		bool preventTransactionsNearThreshold = false;
 
 		// If the above is true, any amount above this value will cause the character to lock.
-		int cashThreshold = 1'800'000'000;
+		uint cashThreshold = 1'800'000'000;
 
 		// Transfers are not allowed to/from chars in this system.
 		std::vector<std::string> blockedSystems;
@@ -54,13 +54,12 @@ namespace Plugins::CashManager
 		bool cheatDetection = false;
 
 		// Prohibit transfers if the character has not been online for at least this time
-		int minimumTime = 0;
-
+		uint minimumTime = 0;
 		// Remove transaction logs older than the amount of days indicated
-		int eraseTransactionsAfterDaysPassed = 365;
+		uint eraseTransactionsAfterDaysPassed = 365;
 
 		// Cost in credits per transfer
-		int transferFee = 0;
+		uint transferFee = 0;
 	};
 
 	struct Transaction
