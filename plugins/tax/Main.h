@@ -13,7 +13,7 @@ namespace Plugins::Tax
 		uint initiatorId;
 		std::wstring target;
 		std::wstring initiator;
-		int cash;
+		uint cash;
 		bool f1;
 	};
 

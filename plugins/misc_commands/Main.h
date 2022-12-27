@@ -18,7 +18,7 @@ namespace Plugins::MiscCommands
 		std::string File() override { return "flhook_plugins/misc_commands.json"; }
 
 		//! The amount it costs to use the /droprep command. Set to a negative value to disable command.
-		int repDropCost = 0;
+		uint repDropCost = 0;
 		//! The message that will be displayed when the /stuck command is used.
 		std::wstring stuckMessage = L"Attention! Stand Clear. Towing %player";
 		//! The message that will be displayed when the /dice command is used.
