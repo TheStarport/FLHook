@@ -94,7 +94,7 @@ namespace Plugins::CashManager
 	void WithdrawMoneyFromBank(const Bank& bank, uint withdrawal, ClientId client)
 	{
 		if (const auto currentValue = Hk::Player::GetShipValue(client);
-		    currentValue.has_error() || (global->config->cashThreshold > 0 && static_cast<uint>(currentValue.value()) > global->config->cashThreshold))
+		    currentValue.has_error() || (global->config->cashThreshold > 0 && currentValue.value() > global->config->cashThreshold))
 		{
 			PrintUserCmdText(client, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
 		}
@@ -136,7 +136,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (const uint playerCash = static_cast<uint>(Hk::Player::GetCash(client).value()); playerCash < deposit)
+		if (const uint playerCash = Hk::Player::GetCash(client).value(); playerCash < deposit)
 		{
 			PrintUserCmdText(client, L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
 			return;
@@ -315,7 +315,7 @@ namespace Plugins::CashManager
 		{
 			if (global->config->preventTransactionsNearThreshold)
 			{
-				if (const auto value = static_cast<uint>(Hk::Player::GetShipValue(client).value()); value > global->config->cashThreshold)
+				if (const auto value = Hk::Player::GetShipValue(client).value(); value > global->config->cashThreshold)
 				{
 					PrintUserCmdText(client,
 					    L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal "
@@ -461,7 +461,7 @@ namespace Plugins::CashManager
 		if (!global->config->preventTransactionsNearThreshold)
 			return false;
 
-		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < static_cast<uint>(currentValue))
+		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < currentValue)
 		{
 			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
 			return true;
