@@ -42,7 +42,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const int, Error> GetCash(const std::variant<uint, std::wstring>& player)
+	cpp::result<const uint, Error> GetCash(const std::variant<uint, std::wstring>& player)
 	{
 		if (ClientId client = Hk::Client::ExtractClientID(player); client != UINT_MAX)
 		{
@@ -51,7 +51,7 @@ namespace Hk::Player
 
 			int cash;
 			pub::Player::InspectCash(client, cash);
-			return cash;
+			return static_cast<uint>(cash);
 		}
 
 		if (!player.index())
@@ -82,12 +82,12 @@ namespace Hk::Player
 			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			int cash = IniGetI(scCharFileNew, "Player", "money", -1);
+			uint cash = static_cast<uint>(IniGetI(scCharFileNew, "Player", "money", -1));
 			DeleteFile(scCharFileNew.c_str());
 			return cash;
 		}
 
-		return IniGetI(scCharFile, "Player", "money", -1);
+		return static_cast<uint>(IniGetI(scCharFile, "Player", "money", -1));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -937,7 +937,7 @@ namespace Hk::Player
 					buy.iCount = iNewCount;
 			}
 
-			int iCost = ((int)fPrice * buy.iCount);
+			uint iCost = ((uint)fPrice * buy.iCount);
 			if (cash < iCost)
 				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
 			else
@@ -1717,7 +1717,7 @@ namespace Hk::Player
 		return szSystemname;
 	}
 
-	cpp::result<const float, Error> GetShipValue(const std::variant<uint, std::wstring>& player)
+	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client != -1 && !Hk::Client::IsInCharSelectMenu(client))
@@ -1819,7 +1819,7 @@ namespace Hk::Player
 			}
 		}
 
-		return fValue;
+		return static_cast<uint>(fValue);
 	}
 
 	void SaveChar(ClientId client)
