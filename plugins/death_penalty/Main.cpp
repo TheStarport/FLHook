@@ -107,7 +107,7 @@ namespace Plugins::DeathPenalty
 					return;
 				}
 
-				auto dpCredits = static_cast<int>(fValue * fShipFractionOverride(client));
+				auto dpCredits = static_cast<uint>(fValue * fShipFractionOverride(client));
 				if (cash < dpCredits)
 					dpCredits = cash.value();
 
@@ -165,7 +165,7 @@ namespace Plugins::DeathPenalty
 			}
 
 			// Get how much the player owes
-			int iOwed = global->MapClients[client].DeathPenaltyCredits;
+			uint iOwed = global->MapClients[client].DeathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash

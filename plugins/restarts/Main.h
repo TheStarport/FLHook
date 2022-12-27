@@ -17,14 +17,14 @@ namespace Plugins::Restart
 		//! The name of the character file
 		std::wstring characterFile;
 		//! The amount of cash to be saved to the character file
-		int cash;
+		uint cash;
 	};
 
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
 		//! Players with a cash above this value cannot use the restart command.
-		int maxCash = 1000000;
+		uint maxCash = 1000000;
 
 		//! Players with a rank above this value cannot use the restart command.
 		int maxRank = 5;
@@ -36,7 +36,7 @@ namespace Plugins::Restart
 		std::string File() override { return "flhook_plugins/restarts.json"; }
 
 		//! A map of restart names and their cost
-		std::map<std::wstring, int> availableRestarts;
+		std::map<std::wstring, uint> availableRestarts;
 	};
 
 	//! Global data for this plugin

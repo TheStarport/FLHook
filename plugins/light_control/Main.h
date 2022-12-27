@@ -26,7 +26,7 @@ namespace Plugins::LightControl
 		std::vector<std::wstring> lights;
 
 		//! cost per changed item.
-		int cost = 0;
+		uint cost = 0;
 
 		//! Map of bases who offer LightControl
 		std::vector<std::string> bases;

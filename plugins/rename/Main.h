@@ -65,10 +65,10 @@ namespace Plugins::Rename
 		bool enableMoveChar = false;
 
 		//! Cost of the rename in credits
-		int moveCost = 0;
+		uint moveCost = 0;
 
 		//! Cost of the rename in credits
-		int renameCost = 0;
+		uint renameCost = 0;
 
 		//! Rename is not allowed if attempted within the rename time limit (in seconds)
 		int renameTimeLimit = 0;
@@ -80,7 +80,7 @@ namespace Plugins::Rename
 		bool asciiCharNameOnly = false;
 
 		//! The tag making cost
-		int makeTagCost = 2'500'000;
+		uint makeTagCost = 2'500'000;
 	};
 
 	//! Minimum character name length constant
