@@ -282,7 +282,7 @@ namespace IServerImplHook
 			{
 				if (i.character == charName)
 				{
-					Hk::Player::AddCash(charName, i.iAmount);
+					Hk::Player::AddCash(charName, i.uAmount);
 					ClientInfo[client].lstMoneyFix.remove(i);
 					break;
 				}
@@ -458,7 +458,7 @@ void BaseEnter__InnerAfter(uint baseId, ClientId client)
 		{
 			if (i.character == charName)
 			{
-				Hk::Player::AddCash(charName, i.iAmount);
+				Hk::Player::AddCash(charName, i.uAmount);
 				ClientInfo[client].lstMoneyFix.remove(i);
 				break;
 			}

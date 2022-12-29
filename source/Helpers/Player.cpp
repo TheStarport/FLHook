@@ -92,7 +92,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, int iAmount)
+	cpp::result<void, Error> AdjustCash(const std::variant<uint, std::wstring>& player, int iAmount)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
@@ -157,7 +157,7 @@ namespace Hk::Player
 			{
 				if (money.character == characterLower)
 				{
-					money.iAmount += iAmount;
+					money.uAmount += iAmount;
 					bFound = true;
 					break;
 				}
@@ -167,12 +167,22 @@ namespace Hk::Player
 			{
 				MONEY_FIX mf;
 				mf.character = characterLower;
-				mf.iAmount = iAmount;
+				mf.uAmount = iAmount;
 				ClientInfo[client].lstMoneyFix.push_back(mf);
 			}
 		}
 
 		return {};
+	}
+
+	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, uint uAmount)
+	{
+		return AdjustCash(player, static_cast<int>(uAmount));
+	}
+
+	cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring>& player, uint uAmount)
+	{
+		return AdjustCash(player, -static_cast<int>(uAmount));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -937,20 +947,20 @@ namespace Hk::Player
 					buy.iCount = iNewCount;
 			}
 
-			uint iCost = ((uint)fPrice * buy.iCount);
-			if (cash < iCost)
+			uint uCost = ((uint)fPrice * buy.iCount);
+			if (cash < uCost)
 				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
 			else
 			{
-				AddCash(client, -iCost);
-				cash -= iCost;
+				RemoveCash(client, uCost);
+				cash -= uCost;
 				iRemHoldSize -= ((int)eq->fVolume * buy.iCount);
 
 				// add the item, dont use addcargo for performance/bug reasons
 				// assume we only mount multicount goods (missiles, ammo, bots)
 				pub::Player::AddCargo(client, buy.iArchId, buy.iCount, 1, false);
 
-				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount, ToMoneyStr(iCost).c_str());
+				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount, ToMoneyStr(uCost).c_str());
 			}
 		}
 	}

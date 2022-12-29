@@ -31,7 +31,7 @@ void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, int iAmount)
+void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -42,13 +42,13 @@ void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, int iAmou
 		return;
 	}
 
-	Hk::Player::AddCash(player, iAmount - res.value());
+	Hk::Player::AdjustCash(player, iAmount - res.value());
 	CmdGetCash(player);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, int amount)
+void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, uint amount)
 {
 	RIGHT_CHECK(RIGHT_CASH);
 
@@ -1213,11 +1213,11 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			}
 			else if (wscCmd == L"setcash")
 			{
-				CmdSetCash(ArgCharname(1), ArgInt(2));
+				CmdSetCash(ArgCharname(1), ArgUInt(2));
 			}
 			else if (wscCmd == L"addcash")
 			{
-				CmdAddCash(ArgCharname(1), ArgInt(2));
+				CmdAddCash(ArgCharname(1), ArgUInt(2));
 			}
 			else if (wscCmd == L"kick")
 			{
