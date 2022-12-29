@@ -194,7 +194,7 @@ namespace Plugins::LightControl
 			return;
 		}
 
-		err = Hk::Player::AddCash(client, -global->config->cost);
+		err = Hk::Player::RemoveCash(client, global->config->cost);
 		if (err.has_error())
 		{
 			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));

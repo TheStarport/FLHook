@@ -9,7 +9,7 @@ namespace Plugins::Pvp
 	{
 		uint client;
 		uint client2;
-		int amount;
+		uint amount;
 		bool accepted;
 	};
 
@@ -24,8 +24,8 @@ namespace Plugins::Pvp
 	struct FreeForAll
 	{
 		std::map<uint, Contestant> contestants;
-		int entryAmount;
-		int pot;
+		uint entryAmount;
+		uint pot;
 	};
 
 	//! Global data for this plugin
