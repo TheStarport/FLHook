@@ -42,17 +42,11 @@ namespace Plugins::Tax
 		if (!taxAmount.length())
 			PrintUserCmdText(client, L"Error: No valid tax amount!");
 
-		const int taxValue = ToInt(taxAmount);
+		const uint taxValue = ToUInt(taxAmount);
 
 		if (taxValue > global->config->maxTax)
 		{
 			PrintUserCmdText(client, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
-			return;
-		}
-
-		if (taxValue < 0)
-		{
-			PrintUserCmdText(client, L"Error: The tax must be 0 or greater!");
 			return;
 		}
 
@@ -123,7 +117,7 @@ namespace Plugins::Tax
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
 					return;
 				}
-				Hk::Player::AddCash(client, (0 - it.cash));
+				Hk::Player::RemoveCash(client, it.cash);
 				PrintUserCmdText(client, L"You paid the tax.");
 				Hk::Player::AddCash(it.initiatorId, it.cash);
 				const auto characterName = Hk::Client::GetCharacterNameByID(client);

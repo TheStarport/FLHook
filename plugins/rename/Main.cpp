@@ -143,7 +143,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		Hk::Player::AddCash(client, 0 - global->config->makeTagCost);
+		Hk::Player::RemoveCash(client, global->config->makeTagCost);
 
 		TagData data;
 
@@ -509,7 +509,7 @@ namespace Plugins::Rename
 
 		// Remove cash if we're charging for it.
 		if (global->config->renameCost > 0)
-			Hk::Player::AddCash(wscCharname, 0 - global->config->renameCost);
+			Hk::Player::RemoveCash(wscCharname, global->config->renameCost);
 
 		Rename o;
 		o.charName = wscCharname;
@@ -686,7 +686,7 @@ namespace Plugins::Rename
 		// Remove cash if we're charging for it.
 		if (global->config->moveCost > 0)
 		{
-			Hk::Player::AddCash(wscCharname, 0 - global->config->moveCost);
+			Hk::Player::RemoveCash(wscCharname, global->config->moveCost);
 		}
 
 		Hk::Player::SaveChar(wscCharname);

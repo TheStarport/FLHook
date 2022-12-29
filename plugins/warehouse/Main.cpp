@@ -64,7 +64,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		Hk::Player::AddCash(client, -global->config.costPerStackStore);
+		Hk::Player::RemoveCash(client, global->config.costPerStackStore);
 		Hk::Player::RemoveCargo(client, item.iArchId, itemCount);
 
 		const auto account = Hk::Client::GetAccountByClientID(client);
@@ -143,7 +143,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		const int cash = Hk::Player::GetCash(client).value();
+		const uint cash = Hk::Player::GetCash(client).value();
 
 		if (cash < global->config.costPerStackWithdraw)
 		{
@@ -185,7 +185,7 @@ namespace Plugins::Warehouse
 		}
 
 		Hk::Player::AddCargo(client, warehouseItem->equipArchId, withdrawnQuantity, false);
-		Hk::Player::AddCash(client, -global->config.costPerStackWithdraw);
+		Hk::Player::RemoveCash(client, global->config.costPerStackWithdraw);
 
 		Hk::Player::SaveChar(client);
 

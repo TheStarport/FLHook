@@ -165,31 +165,31 @@ namespace Plugins::DeathPenalty
 			}
 
 			// Get how much the player owes
-			uint iOwed = global->MapClients[client].DeathPenaltyCredits;
+			uint uOwed = global->MapClients[client].DeathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash
-			if (iOwed > cash.value())
-				iOwed = cash.value();
+			if (uOwed > cash.value())
+				uOwed = cash.value();
 
 			// If another player has killed the player
 			if (iKillerId != client && global->config->DeathPenaltyFractionKiller)
 			{
-				int iGive = (int)(iOwed * global->config->DeathPenaltyFractionKiller);
-				if (iGive)
+				uint uGive = (uOwed * global->config->DeathPenaltyFractionKiller);
+				if (uGive)
 				{
 					// Reward the killer, print message to them
-					Hk::Player::AddCash(iKillerId, iGive);
-					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(iGive) + L" credits from %s's death penalty.",
+					Hk::Player::AddCash(iKillerId, uGive);
+					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(uGive) + L" credits from %s's death penalty.",
 					    Players.GetActiveCharacterName(client));
 				}
 			}
 
-			if (iOwed)
+			if (uOwed)
 			{
 				// Print message to the player and remove cash
-				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(iOwed) + L" credits.");
-				Hk::Player::AddCash(client, -iOwed);
+				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(uOwed) + L" credits.");
+				Hk::Player::RemoveCash(client, uOwed);
 			}
 		}
 	}
@@ -278,8 +278,8 @@ namespace Plugins::DeathPenalty
 			{
 				float fValue;
 				pub::Player::GetAssetValue(client, fValue);
-				int iOwed = static_cast<int>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
-				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(iOwed) + L" credits.");
+				uint uOwed = static_cast<uint>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
+				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(uOwed) + L" credits.");
 				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");

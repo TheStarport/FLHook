@@ -25,7 +25,7 @@ namespace Plugins::Tax
 		// Reflectable fields	
 		std::vector<std::string> excludedSystems = {};
 		int minplaytimeSec = 0;
-		int maxTax = 300;
+		uint maxTax = 300;
 		MessageColor customColor = MessageColor::LightGreen;
 		MessageFormat customFormat = MessageFormat::Small;
 		std::wstring taxRequestReceived = L"You have received a tax request: Pay %d credits to %s! Type \"/pay\" to pay the tax.";

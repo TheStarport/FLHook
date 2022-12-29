@@ -80,10 +80,10 @@ namespace Plugins::Pvp
 		amountString = ReplaceStr(amountString, L"$", L"");
 
 		// Convert string to uint
-		int amount = ToInt(amountString);
+		uint amount = ToUInt(amountString);
 
 		// Check its a valid amount of cash
-		if (amount <= 0)
+		if (amount == 0)
 		{
 			PrintUserCmdText(client, L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
 			return;
@@ -91,7 +91,7 @@ namespace Plugins::Pvp
 
 		// Check the player can afford it
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-		int cash = 0;
+		uint cash = 0;
 		if (const auto err =  Hk::Player::GetCash(client); err.has_error() )
 		{
 			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
@@ -145,7 +145,7 @@ namespace Plugins::Pvp
 				PrintUserCmdText(client, L"Challenge issued. Waiting for others to accept.");
 				global->freeForAlls[systemId].entryAmount = amount;
 				global->freeForAlls[systemId].pot = amount;
-				Hk::Player::AddCash(characterName, -(amount));
+				Hk::Player::RemoveCash(characterName, amount);
 			}
 			else
 			{
@@ -184,7 +184,7 @@ namespace Plugins::Pvp
 			std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 			// Check the player can afford it
-			int cash = 0;
+			uint cash = 0;
 			if (const auto err = Hk::Player::GetCash(client) ; err.has_error())
 			{
 				PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
@@ -210,7 +210,7 @@ namespace Plugins::Pvp
 				PrintLocalUserCmdText(client, msg, 100000);
 
 				// Deduct cash
-				Hk::Player::AddCash(characterName, -(global->freeForAlls[systemId].entryAmount));
+				Hk::Player::RemoveCash(characterName, global->freeForAlls[systemId].entryAmount);
 			}
 			else
 				PrintUserCmdText(client, L"You have already accepted the FFA.");
@@ -246,7 +246,7 @@ namespace Plugins::Pvp
 
 				// Change cash
 				Hk::Player::AddCash(killer, duel->amount);
-				Hk::Player::AddCash(victim, -(duel->amount));
+				Hk::Player::RemoveCash(victim, duel->amount);
 			}
 			else
 			{
@@ -290,10 +290,10 @@ namespace Plugins::Pvp
 		amountString = ReplaceStr(amountString, L"$", L"");
 
 		// Convert string to uint
-		const int amount = ToInt(amountString);
+		const uint amount = ToUInt(amountString);
 
 		// Check its a valid amount of cash
-		if (amount <= 0)
+		if (amount == 0)
 		{
 			PrintUserCmdText(client,
 			    L"Must specify a cash amount. Usage: /duel "
@@ -305,13 +305,13 @@ namespace Plugins::Pvp
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Check the player can afford it
-		int iCash = 0;
+		uint uCash = 0;
 		if (const auto err = Hk::Player::GetCash(client); err.has_error())
 		{
 			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 			return;
 		}
-		if (amount > 0 && iCash < amount)
+		if (amount > 0 && uCash < amount)
 		{
 			PrintUserCmdText(client, L"You don't have enough credits to issue this challenge.");
 			return;
@@ -374,7 +374,7 @@ namespace Plugins::Pvp
 				// Check the player can afford it
 				Error error;
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-				int cash = 0;
+				uint cash = 0;
 				if (const auto err = Hk::Player::GetCash(client); err.has_error())
 				{
 					PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));

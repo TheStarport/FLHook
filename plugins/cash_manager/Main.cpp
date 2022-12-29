@@ -144,7 +144,7 @@ namespace Plugins::CashManager
 
 		if (Sql::DepositCash(bank, deposit))
 		{
-			Hk::Player::AddCash(client, -static_cast<int>(deposit));
+			Hk::Player::RemoveCash(client, deposit);
 			PrintUserCmdText(client, L"Successfully deposited %s credits", ToMoneyStr(deposit).c_str());
 			return;
 		}

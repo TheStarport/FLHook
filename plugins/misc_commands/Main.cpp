@@ -204,7 +204,7 @@ namespace Plugins::MiscCommands
 		// Remove cash if we're charging for it.
 		if (global->config->repDropCost > 0)
 		{
-			Hk::Player::AddCash(client, 0 - global->config->repDropCost);
+			Hk::Player::RemoveCash(client, global->config->repDropCost);
 		}
 	}
 
