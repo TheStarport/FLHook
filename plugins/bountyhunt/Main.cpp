@@ -179,20 +179,24 @@ namespace Plugins::BountyHunt
 	 */
 	void BhTimeOutCheck()
 	{
-		for (auto& bounty : global->bountyHunt)
+		auto& bounty = global->bountyHunt.begin();
+
+		while (bounty != global->bountyHunt.end()) 
 		{
-			if (bounty.end < timeInMS())
+			if (bounty->end < timeInMS()) 
 			{
-				if (const auto cashError = Hk::Player::AddCash(bounty.target, bounty.cash); cashError.has_error())
+				if (const auto cashError = Hk::Player::AddCash(bounty->target, bounty->cash); cashError.has_error())
 				{
 					Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
 					return;
 				}
 
-				const auto _ = Hk::Message::MsgU(bounty.target + L" was not hunted down and earned " + std::to_wstring(bounty.cash) + L" credits.");
-				RemoveBountyHunt(bounty);
-				BhTimeOutCheck();
-				break;
+				const auto _ = Hk::Message::MsgU(bounty->target + L" was not hunted down and earned " + std::to_wstring(bounty->cash) + L" credits.");
+				bounty = global->bountyHunt.erase(bounty);
+			}
+			else
+			{
+				++bounty;
 			}
 		}
 	}
