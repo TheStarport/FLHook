@@ -4472,15 +4472,8 @@ namespace IServerImplHook
 {
 	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID cidTo, int _genArg1)
 	{
-		AddLog(LogType::Normal,
-		    LogLevel::Debug,
-		    wstos(fmt::format(L"SubmitChat(\n\tCHAT_ID cidFrom = {}\n\tulong size = {}\n\tvoid const* rdlReader = 0x{:08X}\n\tCHAT_ID cidTo = "
-		    L"{}\n\tint _genArg1 = {}\n)",
-		    ToLogString(cidFrom),
-		    size,
-		    fmt::ptr(rdlReader),
-		    ToLogString(cidTo),
-		    _genArg1)));
+
+		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.iId, size, cidTo.iId));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.iId, size, rdlReader, cidTo.iId, _genArg1);
 
