@@ -92,7 +92,7 @@ namespace Plugins::CashManager::Sql
 	// Returns 0 if it failed to withdraw cash, 1 otherwise.
 	bool WithdrawCash(const Bank& bank, int64 withdrawalAmount)
 	{
-		SQLite::Statement transaction(global->sql, "UPDATE banks SET cash = cash - ? WHERE id = ? AND cash - ? > 0 ;");
+		SQLite::Statement transaction(global->sql, "UPDATE banks SET cash = cash - ? WHERE id = ? AND cash - ? >= 0 ;");
 		transaction.bind(1, withdrawalAmount);
 		transaction.bind(2, bank.accountId);
 		transaction.bind(3, withdrawalAmount);

@@ -268,7 +268,7 @@ namespace Plugins::CashManager
 		const CAccount* acc = Players.FindAccountFromClientID(client);
 
 		// Sending money from one bank to another
-		if (const auto cmd = GetParam(param, L' ', 1); cmd == L"transfer")
+		if (const auto cmd = GetParam(param, L' ', 0); cmd == L"transfer")
 		{
 			const auto bank = Sql::GetOrCreateBank(acc);
 			TransferMoney(client, param, bank);
@@ -277,7 +277,7 @@ namespace Plugins::CashManager
 		{
 			const auto bank = Sql::GetOrCreateBank(acc);
 
-			if (GetParam(param, ' ', 2) == L"confirm")
+			if (GetParam(param, ' ', 1) == L"confirm")
 			{
 				Sql::SetNewPassword(bank);
 				ShowBankInfo(client, bank, true);
@@ -324,7 +324,7 @@ namespace Plugins::CashManager
 				}
 			}
 
-			if (const int withdrawAmount = ToInt(GetParam(param, ' ', 1)); withdrawAmount > 0)
+			if (const uint withdrawAmount = ToUInt(GetParam(param, ' ', 1)); withdrawAmount > 0)
 			{
 				const auto bank = Sql::GetOrCreateBank(acc);
 				WithdrawMoneyFromBank(bank, withdrawAmount, client);
@@ -335,7 +335,7 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"deposit")
 		{
-			const int depositAmount = ToInt(GetParam(param, ' ', 1)) - 1;
+			const uint depositAmount = ToUInt(GetParam(param, ' ', 1));
 			const auto bank = Sql::GetOrCreateBank(acc);
 			DepositMoney(bank, depositAmount, client);
 		}
@@ -417,19 +417,19 @@ namespace Plugins::CashManager
 	const std::vector commands = {
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters.")}};
 
-	BankCode __stdcall IpcConsumeBankCash(const CAccount* account, int cashAmount, const std::string& transactionSource)
+	BankCode __stdcall IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
 		if (cashAmount <= 0)
 		{
 			return BankCode::CannotWithdrawNegativeNumber;
 		}
 
-		if (static_cast<uint>(cashAmount) > global->config->maximumTransfer)
+		if (cashAmount > global->config->maximumTransfer)
 		{
 			return BankCode::AboveMaximumTransferThreshold;
 		}
 
-		if (static_cast<uint>(cashAmount) < global->config->minimumTransfer)
+		if (cashAmount < global->config->minimumTransfer)
 		{
 			return BankCode::BelowMinimumTransferThreshold;
 		}
@@ -441,7 +441,7 @@ namespace Plugins::CashManager
 			return BankCode::NotEnoughMoney;
 		}
 
-		const auto fee = cashAmount + global->config->transferFee;
+		const uint fee = cashAmount + global->config->transferFee;
 		if (global->config->transferFee > 0 && static_cast<int64>(bank.cash) - fee < 0)
 		{
 			return BankCode::BankCouldNotAffordTransfer;
