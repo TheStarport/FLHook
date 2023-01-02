@@ -24,7 +24,7 @@ namespace Plugins::CashManager
 		/** @ingroup CashManager
 		 * @brief Withdraw money from the specified accountId.
 		 */
-		BankCode PluginCall(ConsumeBankCash, const CAccount* account, int cashAmount, const std::string& transactionSource);
+		BankCode PluginCall(ConsumeBankCash, const CAccount* account, uint cashAmount, const std::string& transactionSource);
 	};
 
 	
