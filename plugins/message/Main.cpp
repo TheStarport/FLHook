@@ -585,7 +585,7 @@ namespace Plugins::Message
 
 	void UserCmd_SMsg8(ClientId& client, const std::wstring& wscParam) { SendPresetSystemMessage(client, 8); }
 
-	void UserCmd_SMsg9(ClientId& client, const std::wstring& wscParam) { SendPresetSystemMessage(client, 0); }
+	void UserCmd_SMsg9(ClientId& client, const std::wstring& wscParam) { SendPresetSystemMessage(client, 9); }
 
 	/** @ingroup Message
 	 * @brief User Commands for /l0-9
