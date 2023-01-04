@@ -96,7 +96,11 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	void TimerCheckKick()
+	const std::vector<Timer> timers = {
+		{ProcessWardrobeRestarts, 1}
+	};
+
+	void ProcessWardrobeRestarts()
 	{
 		while (!global->pendingRestarts.empty())
 		{
@@ -166,9 +170,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("wardrobe");
 	pi->mayUnload(true);
 	pi->commands(commands);
+	pi->timers(timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 }

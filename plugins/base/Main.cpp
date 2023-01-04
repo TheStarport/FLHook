@@ -376,8 +376,11 @@ void LoadSettingsActual()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const std::vector<Timer> timers = {
+	{PlayerBaseLogicMainLoop, 1}
+};
 
-void TimerCheckKick()
+void PlayerBaseLogicMainLoop()
 {
 	if (load_settings_required)
 	{
@@ -1458,6 +1461,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("base");
 	pi->mayUnload(true);
 	pi->commands(commands);
+	pi->timers(timers);
 	pi->returnCode(&returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -1482,7 +1486,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::FLHook__UserCommand__Process, &UserCmd_Process);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__CShip__Destroy, &CShip_destroy);

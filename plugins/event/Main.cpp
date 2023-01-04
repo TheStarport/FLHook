@@ -91,44 +91,45 @@ namespace Plugins::Event
 		Console::ConInfo(L"NpcMissionSettings loaded [%d]", global->NpcMissions.size());
 	}
 
+	const std::vector<Timer> timers = {
+		{SaveMissionStatus, 100}
+	};
+
 	/** @ingroup Event
 	 * @brief Save mission status every 100 seconds.
 	 */
-	void TimerCheckKick()
+	void SaveMissionStatus()
 	{
-		if ((time(0) % 100) == 0)
+		std::ofstream out("flhook_plugins/event.json");
+
+		nlohmann::json jExport;
+
+		for (auto& mission : global->CargoMissions)
 		{
-			std::ofstream out("flhook_plugins/event.json");
-
-			nlohmann::json jExport;
-
-			for (auto& mission : global->CargoMissions)
-			{
-				nlohmann::json jMission;
-				jMission["nickname"] = mission.nickname;
-				jMission["base"] = mission.base;
-				jMission["item"] = mission.item;
-				jMission["current_amount"] = mission.current_amount;
-				jMission["required_amount"] = mission.required_amount;
-				jExport["CargoMissions"].push_back(jMission);
-			}
-
-			for (auto& mission : global->NpcMissions)
-			{
-				nlohmann::json jMission;
-				jMission["nickname"] = mission.nickname;
-				jMission["system"] = mission.system;
-				jMission["reputation"] = mission.reputation;
-				jMission["sector"] = mission.sector;
-				jMission["current_amount"] = mission.current_amount;
-				jMission["required_amount"] = mission.required_amount;
-				jExport["NpcMissions"].push_back(jMission);
-			}
-
-			out << jExport;
-			out.close();
-
+			nlohmann::json jMission;
+			jMission["nickname"] = mission.nickname;
+			jMission["base"] = mission.base;
+			jMission["item"] = mission.item;
+			jMission["current_amount"] = mission.current_amount;
+			jMission["required_amount"] = mission.required_amount;
+			jExport["CargoMissions"].push_back(jMission);
 		}
+
+		for (auto& mission : global->NpcMissions)
+		{
+			nlohmann::json jMission;
+			jMission["nickname"] = mission.nickname;
+			jMission["system"] = mission.system;
+			jMission["reputation"] = mission.reputation;
+			jMission["sector"] = mission.sector;
+			jMission["current_amount"] = mission.current_amount;
+			jMission["required_amount"] = mission.required_amount;
+			jExport["NpcMissions"].push_back(jMission);
+		}
+
+		out << jExport;
+		out.close();
+
 	}
 
 	/** @ingroup Event
@@ -227,11 +228,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Event");
 	pi->shortName("event");
 	pi->mayUnload(true);
+	pi->timers(timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
