@@ -237,34 +237,11 @@ namespace Plugins::BountyHunt
 		}
 	}
 
-	// Hooks
-	using TimerFunc = void (*)();
-	struct Timer
-	{
-		TimerFunc proc;
-		mstime intervalMs;
-		mstime lastCall;
+	// Timer Hook
+	const std::vector<Timer> timers = {
+	    {BhTimeOutCheck, 60}
 	};
 
-	Timer Timers[] = {
-	    {BhTimeOutCheck, 2017, 0},
-	};
-
-	/** @ingroup BountyHunt
-	 * @brief Calls our BhTimeOutCheck timer.
-	 */
-	int __stdcall Update()
-	{
-		for (uint i = 0; (i < sizeof(Timers) / sizeof(Timer)); i++)
-		{
-			if ((timeInMS() - Timers[i].lastCall) >= Timers[i].intervalMs)
-			{
-				Timers[i].lastCall = timeInMS();
-				Timers[i].proc();
-			}
-		}
-		return 0;
-	}
 
 	/** @ingroup BountyHunt
 	 * @brief Hook for SendDeathMsg to call BillCheck
@@ -329,10 +306,10 @@ DefaultDllMainSettings(LoadSettings)
 	pi->shortName("bountyhunt");
 	pi->mayUnload(false);
 	pi->commands(commands);
+	pi->timers(timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

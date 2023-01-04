@@ -141,7 +141,11 @@ namespace Plugins::Restart
 
 	/* Hooks */
 
-	void OneSecondTimer()
+	const std::vector<Timer> timers = {
+		{ProcessPendingRestarts, 1}
+	};
+
+	void ProcessPendingRestarts()
 	{
 		while (global->pendingRestarts.size())
 		{
@@ -202,9 +206,9 @@ DefaultDllMainSettings(LoadSettings)
 	pi->shortName("restarts");
 	pi->mayUnload(true);
 	pi->commands(commands);
+	pi->timers(timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 }

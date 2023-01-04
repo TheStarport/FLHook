@@ -8,7 +8,11 @@ namespace Plugins::Tempban
 	Check if TempBans exceeded
 	**************************************************************************************************************/
 
-	void TimerCheckKick()
+	const std::vector<Timer> timers = {
+		{ClearExpiredTempbans, 15}
+	};
+
+	void ClearExpiredTempbans()
 	{
 		// timed out tempbans get deleted here
 
@@ -135,10 +139,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name(TempBanCommunicator::pluginName);
 	pi->shortName("tempban");
 	pi->mayUnload(true);
+	pi->timers(timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);

@@ -173,30 +173,31 @@ namespace Plugins::MiningControl
 		}
 	}
 
+	const std::vector<Timer> timers = {
+		{UpdateStatsFile, 60}
+	};
+
 	/** @ingroup MiningControl
 	 * @brief Timer hook to update mining stats to file
 	 */
-	void TimerCheckKick()
+	void UpdateStatsFile()
 	{
-		// Perform 60 second tasks.
-		if ((time(0) % 60) == 0)
+		
+		MiningStats stats;
+		// Recharge the fields
+		for (auto& i : global->ZoneBonus)
 		{
-			MiningStats stats;
-			// Recharge the fields
-			for (auto& i : global->ZoneBonus)
-			{
-				i.second.CurrentReserve += i.second.RechargeRate;
-				if (i.second.CurrentReserve > i.second.MaxReserve)
-					i.second.CurrentReserve = i.second.MaxReserve;
+			i.second.CurrentReserve += i.second.RechargeRate;
+			if (i.second.CurrentReserve > i.second.MaxReserve)
+				i.second.CurrentReserve = i.second.MaxReserve;
 
-				ZoneStats zs;
-				zs.CurrentReserve = i.second.CurrentReserve;
-				zs.Mined = i.second.Mined;
-				zs.Zone = i.second.Zone;
-				stats.Stats.emplace_back(zs);
-			}
-			Serializer::SaveToJson(stats);
+			ZoneStats zs;
+			zs.CurrentReserve = i.second.CurrentReserve;
+			zs.Mined = i.second.Mined;
+			zs.Zone = i.second.Zone;
+			stats.Stats.emplace_back(zs);
 		}
+		Serializer::SaveToJson(stats);
 	}
 
 	/** @ingroup MiningControl
@@ -583,6 +584,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Mine Control");
 	pi->shortName("minecontrol");
 	pi->mayUnload(true);
+	pi->timers(timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
@@ -591,5 +593,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__MineAsteroid, &MineAsteroid);
 	pi->emplaceHook(HookedCall::IServerImpl__SPMunitionCollision, &SPMunitionCollision);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
 }

@@ -78,6 +78,10 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
+	const std::vector<Timer> timers = {
+		{OneSecondTimer, 1}
+	};
+
 	/** @ingroup CrashCatcher
 	 * @brief Action the save times recorded in the above two functions
 	 */
@@ -619,12 +623,12 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Crash Catcher");
 	pi->shortName("CrashCatcher");
 	pi->mayUnload(true);
+	pi->timers(timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);
 	pi->emplaceHook(HookedCall::IServerImpl__JettisonCargo, &JettisonCargo);
 }
