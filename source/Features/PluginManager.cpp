@@ -188,6 +188,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		FreeLibrary(plugin.dll);
 		return;
 	}
+	plugin.timers = std::move(pi->timers_);
 
 	// Clean up the command list
 	pi->commands_.erase(std::remove_if(pi->commands_.begin(), pi->commands_.end(),
