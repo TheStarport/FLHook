@@ -78,14 +78,10 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{OneSecondTimer, 1}
-	};
-
 	/** @ingroup CrashCatcher
 	 * @brief Action the save times recorded in the above two functions
 	 */
-	void OneSecondTimer()
+	void SaveCrashingCharacter()
 	{
 		mstime currTime = GetTimeInMS();
 		for (auto& t : global->mapSaveTimes)
@@ -99,6 +95,10 @@ namespace Plugins::CrashCatcher
 			}
 		}
 	}
+
+	const std::vector<Timer> timers = {
+		{SaveCrashingCharacter, 1}
+	};
 
 	/** @ingroup CrashCatcher
 	 * @brief Originally in Main.cpp of PlayerControl

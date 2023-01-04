@@ -96,10 +96,6 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{ProcessWardrobeRestarts, 1}
-	};
-
 	void ProcessWardrobeRestarts()
 	{
 		while (!global->pendingRestarts.empty())
@@ -138,6 +134,10 @@ namespace Plugins::Wardrobe
 			}
 		}
 	}
+
+	const std::vector<Timer> timers = {
+		{ProcessWardrobeRestarts, 1}
+	};
 
 	void LoadSettings()
 	{

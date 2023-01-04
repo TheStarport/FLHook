@@ -54,14 +54,10 @@ namespace Plugins::CargoDrop
 		global->config = std::make_unique<Config>(config);
 	}
 
-	const std::vector<Timer> timers = {
-		{OneSecondTimer, 1}
-	};
-
 	/** @ingroup CargoDrop
 	 * @brief Timer that checks if a player has disconnected and punished them if so.
 	 */
-	void OneSecondTimer()
+	void DisconnectCheck()
 	{
 		// Disconnecting while interacting checks.
 		for (auto& [client, snd] : global->info)
@@ -140,6 +136,10 @@ namespace Plugins::CargoDrop
 			}
 		}
 	}
+
+	const std::vector<Timer> timers = {
+		{DisconnectCheck, 1}
+	};
 
 	/** @ingroup CargoDrop
 	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.

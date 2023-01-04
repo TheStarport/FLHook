@@ -173,10 +173,6 @@ namespace Plugins::MiningControl
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{UpdateStatsFile, 60}
-	};
-
 	/** @ingroup MiningControl
 	 * @brief Timer hook to update mining stats to file
 	 */
@@ -199,6 +195,10 @@ namespace Plugins::MiningControl
 		}
 		Serializer::SaveToJson(stats);
 	}
+
+	const std::vector<Timer> timers = {
+		{UpdateStatsFile, 60}
+	};
 
 	/** @ingroup MiningControl
 	 * @brief Clear client info when a client connects.
