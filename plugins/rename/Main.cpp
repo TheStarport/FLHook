@@ -305,7 +305,7 @@ namespace Plugins::Rename
 			}
 		}
 
-		while (global->pendingMoves.empty())
+		while (!global->pendingMoves.empty())
 		{
 			Move o = global->pendingMoves.front();
 			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName) != -1)
