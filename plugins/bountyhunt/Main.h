@@ -25,6 +25,9 @@ namespace Plugins::BountyHunt
 		// Reflectable fields
 		bool enableBountyHunt = true;
 		int levelProtect = 0;
+		uint minimalHuntTime = 1;
+		uint maximumHuntTime = 240;
+		uint defaultHuntTime = 30;
 	};
 
 	
