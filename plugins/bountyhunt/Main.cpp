@@ -110,8 +110,8 @@ namespace Plugins::BountyHunt
 			time = 30;
 		}
 
-		int clientCash;
-		pub::Player::InspectCash(client, clientCash);
+		uint clientCash;
+		Hk::Player::GetCash(client, clientCash);
 		if (clientCash < prize)
 		{
 			PrintUserCmdText(client, L"You do not possess enough credits.");
@@ -127,7 +127,7 @@ namespace Plugins::BountyHunt
 			}
 		}
 
-		pub::Player::AdjustCash(client, -prize);
+		Hk::Player::RemoveCash(client, prize);
 		const std::wstring initiator = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		BountyHunt bh;
