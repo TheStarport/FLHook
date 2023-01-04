@@ -8,10 +8,6 @@ namespace Plugins::Tempban
 	Check if TempBans exceeded
 	**************************************************************************************************************/
 
-	const std::vector<Timer> timers = {
-		{ClearExpiredTempbans, 15}
-	};
-
 	void ClearExpiredTempbans()
 	{
 		// timed out tempbans get deleted here
@@ -27,6 +23,10 @@ namespace Plugins::Tempban
 			}
 		}
 	}
+
+	const std::vector<Timer> timers = {
+		{ClearExpiredTempbans, 15}
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

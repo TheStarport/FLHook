@@ -91,10 +91,6 @@ namespace Plugins::Event
 		Console::ConInfo(L"NpcMissionSettings loaded [%d]", global->NpcMissions.size());
 	}
 
-	const std::vector<Timer> timers = {
-		{SaveMissionStatus, 100}
-	};
-
 	/** @ingroup Event
 	 * @brief Save mission status every 100 seconds.
 	 */
@@ -131,6 +127,10 @@ namespace Plugins::Event
 		out.close();
 
 	}
+
+	const std::vector<Timer> timers = {
+		{SaveMissionStatus, 100}
+	};
 
 	/** @ingroup Event
 	 * @brief Hook on ShipDestroyed to see if an NPC mission needs to be updated.

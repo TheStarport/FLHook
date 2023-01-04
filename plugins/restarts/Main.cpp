@@ -140,11 +140,6 @@ namespace Plugins::Restart
 	}
 
 	/* Hooks */
-
-	const std::vector<Timer> timers = {
-		{ProcessPendingRestarts, 1}
-	};
-
 	void ProcessPendingRestarts()
 	{
 		while (global->pendingRestarts.size())
@@ -185,6 +180,10 @@ namespace Plugins::Restart
 			}
 		}
 	}
+
+	const std::vector<Timer> timers = {
+		{ProcessPendingRestarts, 1}
+	};
 
 	// Client command processing
 	const std::vector commands = {{
