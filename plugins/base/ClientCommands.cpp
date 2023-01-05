@@ -209,7 +209,7 @@ void ForceLaunch(ClientId client)
 	if (ship)
 		return;
 
-	uint system = Hk::Player::GetSystem(client).value();
+	SystemId system = Hk::Player::GetSystem(client).value();
 
 	wchar_t buf[200];
 	_snwprintf_s(buf, sizeof(buf), L" ChangeSys %u", system);

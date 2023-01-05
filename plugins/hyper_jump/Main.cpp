@@ -414,7 +414,7 @@ void Timer()
 				// off the fuse by holding the timer.
 				else if (jd.jump_timer == 1)
 				{
-					uint iSystem = Hk::Player::GetSystem(client).value();
+					SystemId iSystem = Hk::Player::GetSystem(client).value();
 					if (iSystem != jd.iTargetSystem)
 						jd.jump_timer = 2;
 				}
@@ -554,7 +554,7 @@ void Timer()
 			{
 				tb.iCheckZonesTimer = tb.iCheckZoneTime;
 				tb.iCheckTestedZones++;
-				uint iSystem = Hk::Player::GetSystem(client).value();
+				SystemId iSystem = Hk::Player::GetSystem(client).value();
 
 				uint ship;
 				pub::Player::GetShip(client, ship);
@@ -593,7 +593,7 @@ void Timer()
 		}
 		else
 		{
-			uint iSystem = Hk::Player::GetSystem(iter.first).value();
+			SystemId iSystem = Hk::Player::GetSystem(iter.first).value();
 			if (tb.iCheckSystemOrBase == iSystem)
 			{
 				if (tb.iCheckZonesTimer > 0)

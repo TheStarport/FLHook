@@ -310,7 +310,7 @@ namespace Plugins::MiscCommands
 			if (client == playerInfo.value().client)
 				continue;
 
-			uint iClientSystem = Hk::Player::GetSystem(client).value();
+			SystemId iClientSystem = Hk::Player::GetSystem(client).value();
 			if (playerInfo.value().iSystem != iClientSystem)
 				continue;
 

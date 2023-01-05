@@ -24,7 +24,7 @@ namespace Plugins::Tax
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
-		uint system = Hk::Player::GetSystem(client).value();
+		SystemId system = Hk::Player::GetSystem(client).value();
 
 		// no-pvp check
 		for (auto const& it : global->excludedsystemsIds)

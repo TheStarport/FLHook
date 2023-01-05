@@ -93,7 +93,7 @@ namespace Plugins::Stats
 			jPlayer["ship"] = (ship) ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
-			uint iSystemId = Hk::Player::GetSystem(lstPlayer.client).value();
+			SystemId iSystemId = Hk::Player::GetSystem(lstPlayer.client).value();
 			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
 			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->strid_name));
 
