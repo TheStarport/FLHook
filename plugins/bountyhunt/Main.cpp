@@ -89,7 +89,7 @@ namespace Plugins::BountyHunt
 			return;
 		}
 
-		const int prize = wcstol(credits.c_str(), nullptr, 10);
+		const uint prize = wcstol(credits.c_str(), nullptr, 10);
 		uint time = wcstol(timeString.c_str(), nullptr, 10);
 		const auto targetId = Hk::Client::GetClientIdFromCharName(target);
 
@@ -118,8 +118,7 @@ namespace Plugins::BountyHunt
 			time = global->config->defaultHuntTime;
 		}
 
-		uint clientCash;
-		Hk::Player::GetCash(client, clientCash);
+		uint clientCash = Hk::Player::GetCash(client).value();
 		if (clientCash < prize)
 		{
 			PrintUserCmdText(client, L"You do not possess enough credits.");
