@@ -72,8 +72,8 @@ void UserCmd_ShowInfo(ClientId& client, const std::wstring& wscParam)
 		uint ship;
 		pub::Player::GetShip(client, ship);
 
-		uint iTargetShip;
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
+
+		uint iTargetShip = Hk::Player::GetTarget(ship).value();
 
 		uint iTargetClientId = GetClientIdByShip(iTargetShip);
 		if (IsValidClientID(iTargetClientId))

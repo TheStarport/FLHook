@@ -1845,8 +1845,7 @@ namespace Hk::Player
 		if (ship.has_error())
 			return cpp::fail(ship.error());
 
-		uint target;
-		pub::SpaceObj::GetTarget(ship.value(), target);
+		uint target = Hk::Player::GetTarget(ship.value()).value();
 		if (!ship)
 			return cpp::fail(Error::NoTargetSelected);
 

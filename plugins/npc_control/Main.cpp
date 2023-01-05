@@ -318,9 +318,9 @@ namespace Plugins::Npc
 		// Destroy targeted ship
 		if (cmds->IsPlayer())
 		{
-			uint ship, target;
+			uint ship;
 			pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship);
-			pub::SpaceObj::GetTarget(ship, target);
+			uint target = Hk::Player::GetTarget(ship).value();
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
@@ -417,8 +417,7 @@ namespace Plugins::Npc
 			pub::Player::GetShip(client, ship);
 			if (ship)
 			{
-				uint target;
-				pub::SpaceObj::GetTarget(ship, target);
+				uint target = Hk::Player::GetTarget(ship).value();
 				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 				{
 					AiFollow(ship, target);
@@ -454,8 +453,7 @@ namespace Plugins::Npc
 		if (ship)
 		{
 			// Is the admin targeting an NPC?
-			uint target;
-			pub::SpaceObj::GetTarget(ship, target);
+			uint target = Hk::Player::GetTarget(ship).value();
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::AI::DirectiveCancelOp cancelOp;

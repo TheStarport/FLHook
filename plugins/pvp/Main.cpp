@@ -259,9 +259,8 @@ namespace Plugins::Pvp
 	{
 		// Get the object the player is targetting
 		uint ship;
-		uint targetShip;
 		pub::Player::GetShip(client, ship);
-		pub::SpaceObj::GetTarget(ship, targetShip);
+		uint targetShip = Hk::Player::GetTarget(ship).value();
 		if (!targetShip)
 		{
 			PrintUserCmdText(client, L"Target is not a ship.");

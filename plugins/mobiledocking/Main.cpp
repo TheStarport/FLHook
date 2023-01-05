@@ -226,8 +226,7 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 			return true;
 
 		// If no target then ignore the request.
-		uint iTargetShip;
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
+		uint iTargetShip = Hk::Player::GetTarget(ship).value();
 		if (!iTargetShip)
 			return true;
 
@@ -300,8 +299,7 @@ int __cdecl Dock_Call(
 	if (client)
 	{
 		// If no target then ignore the request.
-		uint iTargetShip;
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
+		uint iTargetShip = Hk::Player::GetTarget(ship).value();
 		if (!iTargetShip)
 			return 0;
 
