@@ -16,7 +16,7 @@ PlayerBase::PlayerBase(ClientId client, const std::wstring& password, const std:
 	// face the ship and move the base to just in front of the ship
 	uint ship;
 	pub::Player::GetShip(client, ship);
-	pub::SpaceObj::GetSystem(ship, system);
+	SystemId system = Hk::Player::GetSystemByShipId(ship).value();
 	pub::SpaceObj::GetLocation(ship, position, rotation);
 	Rotate180(rotation);
 	TranslateX(position, rotation, 1000);

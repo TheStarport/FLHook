@@ -147,8 +147,7 @@ namespace Plugins::Event
 			uint Affiliation;
 			pub::Reputation::GetAffiliation(Reputation, Affiliation);
 
-			uint System;
-			pub::SpaceObj::GetSystem(cShip->get_id(), System);
+			SystemId System = Hk::Player::GetSystemByShipId(cShip->get_id()).value();
 
 			const Vector position = cShip->get_position();
 			const std::string sector = Hk::Math::VectorToSectorCoord<std::string>(System, position);

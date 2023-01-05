@@ -82,8 +82,7 @@ namespace Plugins::Mark
 				continue;
 			}
 
-			uint iTargetSystem;
-			pub::SpaceObj::GetSystem(global->Mark[client].DelayedSystemMarkedObjects[i], iTargetSystem);
+			SystemId iTargetSystem = Hk::Player::GetSystemByShipId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
 			if (iTargetSystem == iSystemId)
 			{
 				pub::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);

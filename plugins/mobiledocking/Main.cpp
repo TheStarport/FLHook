@@ -80,7 +80,7 @@ void UpdateDockedShips(ClientId client)
 		Universe::IBase* base = Universe::get_base(iBaseId);
 		tgt = base->lSpaceObjId;
 
-		pub::SpaceObj::GetSystem(tgt, system);
+		SystemId system = Hk::Player::GetSystemByShipId(tgt).value();
 		pub::SpaceObj::GetLocation(tgt, pos, rot);
 
 		float rad, brad;
@@ -95,7 +95,7 @@ void UpdateDockedShips(ClientId client)
 	}
 	else
 	{
-		pub::SpaceObj::GetSystem(tgt, system);
+		SystemId system = Hk::Player::GetSystemByShipId(tgt).value();
 		pub::SpaceObj::GetLocation(tgt, pos, rot);
 
 		pos.x += rot.data[0][1] * set_iMobileDockOffset;
@@ -279,7 +279,7 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 		clients[iTargetClientId].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		if (clients[iTargetClientId].iLastBaseId != 0)
 			clients[iTargetClientId].iLastBaseId = Players[iTargetClientId].iLastBaseId;
-		pub::SpaceObj::GetSystem(ship, clients[iTargetClientId].iCarrierSystem);
+		clients[iTargetClientId].iCarrierSystem = Hk::Player::GetSystemByShipId(ship).value();
 		pub::SpaceObj::GetLocation(
 		    ship, clients[iTargetClientId].vCarrierLocation, clients[iTargetClientId].mCarrierLocation);
 		SaveDockInfo(iTargetClientId);
