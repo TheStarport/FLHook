@@ -271,12 +271,12 @@ namespace Plugins::BountyHunt
 		{
 			if (it.targetId == client)
 			{
-				const auto _ = Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
 				if (const auto cashError = Hk::Player::AddCash(it.initiator, it.cash); cashError.has_error())
 				{
 					Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
 					return;
 				}
+				const auto _ = Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
 				RemoveBountyHunt(it);
 				return;
 			}
