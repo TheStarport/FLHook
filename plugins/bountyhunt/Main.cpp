@@ -266,11 +266,7 @@ namespace Plugins::BountyHunt
 		}
 	}
 
-	/** @ingroup BountyHunt
-	 * @brief Hook for Disconnect to see if the player had a bounty on them
-	 */
-	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
-	{
+	void checkIfPlayerFled(ClientId& client) {
 		for (auto& it : global->bountyHunt)
 		{
 			if (it.targetId == client)
@@ -285,6 +281,22 @@ namespace Plugins::BountyHunt
 				return;
 			}
 		}
+	}
+
+	/** @ingroup BountyHunt
+	 * @brief Hook for Disconnect to see if the player had a bounty on them
+	 */
+	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
+	{
+		checkIfPlayerFled(client);
+	}
+
+	/** @ingroup BountyHunt
+	 * @brief Hook for CharacterSelect to see if the player had a bounty on them
+	 */
+	void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client)
+	{
+		checkIfPlayerFled(client);
 	}
 
 	// Client command processing
@@ -325,4 +337,5 @@ DefaultDllMainSettings(LoadSettings)
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect, HookStep::After);
 }
