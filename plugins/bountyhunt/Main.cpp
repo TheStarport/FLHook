@@ -308,7 +308,7 @@ namespace Plugins::BountyHunt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
 
-REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect))
+REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect), field(minimalHuntTime), field(maximumHuntTime), field(defaultHuntTime))
 
 DefaultDllMainSettings(LoadSettings)
 
