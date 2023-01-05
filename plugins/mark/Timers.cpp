@@ -88,7 +88,7 @@ namespace Plugins::Mark
 				Matrix mTemp;
 				Vector vItem, vPlayer;
 				pub::SpaceObj::GetLocation(mark->iObj, vItem, mTemp);
-				SystemId iItemSystem = Hk::Player::GetSystemByShipId(mark->iObj).value();
+				SystemId iItemSystem = Hk::Solar::GetSystemBySpaceId(mark->iObj).value();
 				// for all players
 				struct PlayerData* playerData = 0;
 				while (playerData = Players.traverse_active(playerData))

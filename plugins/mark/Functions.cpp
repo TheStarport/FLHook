@@ -8,7 +8,7 @@ namespace Plugins::Mark
 			return 1;
 
 		SystemId iSystemId = Hk::Player::GetSystem(client).value();
-		SystemId iObjectSystemId = Hk::Player::GetSystemByShipId(iObject).value();
+		SystemId iObjectSystemId = Hk::Solar::GetSystemBySpaceId(iObject).value();
 		if (iSystemId == iObjectSystemId)
 		{
 			for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)

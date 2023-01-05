@@ -376,7 +376,7 @@ void Timer()
 					Matrix mShipDir;
 					pub::SpaceObj::GetLocation(ship, vPosition, mShipDir);
 
-					SystemId iSystemId = Hk::Player::GetSystemByShipId(ship).value();
+					SystemId iSystemId = Hk::Solar::GetSystemBySpaceId(ship).value();
 
 					pub::SpaceObj::DrainShields(ship);
 					SwitchSystem(client, jd.iTargetSystem, jd.vTargetPosition, mShipDir);
@@ -388,7 +388,7 @@ void Timer()
 						struct PlayerData* playerData = 0;
 						while (playerData = Players.traverse_active(playerData))
 						{
-							SystemId iSystemId2 = Hk::Player::GetSystemByShipId(playerData->shipId).value();
+							SystemId iSystemId2 = Hk::Solar::GetSystemBySpaceId(playerData->shipId).value();
 
 							Vector vPosition2;
 							Matrix mShipDir2;

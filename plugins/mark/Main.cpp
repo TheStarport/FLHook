@@ -82,7 +82,7 @@ namespace Plugins::Mark
 				continue;
 			}
 
-			SystemId iTargetSystem = Hk::Player::GetSystemByShipId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
+			SystemId iTargetSystem = Hk::Solar::GetSystemBySpaceId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
 			if (iTargetSystem == iSystemId)
 			{
 				pub::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);
