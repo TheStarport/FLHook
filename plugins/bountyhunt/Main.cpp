@@ -17,7 +17,10 @@
  * @code
  * {
  *     "enableBountyHunt": true,
- *     "levelProtect": 0
+ *     "levelProtect": 0,
+ *     "minimalHuntTime": 1,
+ *     "maximumHuntTime": 240,
+ *     "defaultHuntTime": 30
  * }
  * @endcode
  *
@@ -104,10 +107,15 @@ namespace Plugins::BountyHunt
 			PrintUserCmdText(client, L"Low level players may not be hunted.");
 			return;
 		}
-		if (time < 1 || time > 240)
+
+		// clamp the hunting time to configured range, or set default if not specified
+		if (time)
 		{
-			PrintUserCmdText(client, L"Hunting time: 30 minutes.");
-			time = 30;
+			time = min(global->config->maximumHuntTime, max(global->config->minimalHuntTime, time));
+		}
+		else
+		{
+			time = global->config->defaultHuntTime;
 		}
 
 		int clientCash;
@@ -300,7 +308,7 @@ namespace Plugins::BountyHunt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
 
-REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect))
+REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect), field(minimalHuntTime), field(maximumHuntTime), field(defaultHuntTime))
 
 DefaultDllMainSettings(LoadSettings)
 
