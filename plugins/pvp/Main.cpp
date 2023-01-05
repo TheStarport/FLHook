@@ -50,8 +50,7 @@ namespace Plugins::Pvp
 						while (playerData = Players.traverse_active(playerData))
 						{
 							ClientId client = playerData->iOnlineId;
-							uint systemId = 0;
-							pub::Player::GetSystem(client, systemId);
+							uint systemId = Hk::Player::GetSystem(client).value();
 							if (system == systemId)
 								PrintUserCmdText(client, L"No one has won the FFA.");
 						}
@@ -104,8 +103,7 @@ namespace Plugins::Pvp
 		}
 
 		// Get the player's current system and location in the system.
-		uint systemId;
-		pub::Player::GetSystem(client, systemId);
+		uint systemId = Hk::Player::GetSystem(client).value();
 
 		// Look in FreeForAll map, is an ffa happening in this system already?
 		// If system doesn't have an ongoing ffa
@@ -118,8 +116,7 @@ namespace Plugins::Pvp
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
-				uint clientSystemId = 0;
-				pub::Player::GetSystem(client2, clientSystemId);
+				uint clientSystemId = Hk::Player::GetSystem(client2).value();
 				if (systemId != clientSystemId)
 					continue;
 
@@ -170,8 +167,7 @@ namespace Plugins::Pvp
 		}
 
 		// Get the player's current system and location in the system.
-		uint systemId;
-		pub::Player::GetSystem(client, systemId);
+		uint systemId = Hk::Player::GetSystem(client).value();
 
 		if (global->freeForAlls.find(systemId) == global->freeForAlls.end())
 		{

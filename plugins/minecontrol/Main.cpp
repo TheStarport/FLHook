@@ -397,8 +397,7 @@ namespace Plugins::MiningControl
 		Matrix mRot;
 		pub::SpaceObj::GetLocation(ship, vPos, mRot);
 
-		uint iClientSystemId;
-		pub::Player::GetSystem(client, iClientSystemId);
+		uint iClientSystemId = Hk::Player::GetSystem(client).value();
 		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemId);
 		if (csys)
 		{

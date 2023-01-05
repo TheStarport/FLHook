@@ -7,8 +7,8 @@ namespace Plugins::Mark
 		if (!iObject)
 			return 1;
 
-		uint iSystemId, iObjectSystemId;
-		pub::Player::GetSystem(client, iSystemId);
+		uint iObjectSystemId;
+		uint iSystemId = Hk::Player::GetSystem(client).value();
 		pub::SpaceObj::GetSystem(iObject, iObjectSystemId);
 		if (iSystemId == iObjectSystemId)
 		{

@@ -441,8 +441,7 @@ namespace Plugins::Message
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
-			uint iClientSystemId = 0;
-			pub::Player::GetSystem(client, iClientSystemId);
+			uint iClientSystemId = Hk::Player::GetSystem(client).value();
 
 			if (iSystemId == iClientSystemId)
 				Hk::Message::FMsgSendChat(client, szBuf, iRet);
@@ -921,8 +920,7 @@ namespace Plugins::Message
 		if (global->config->EnableMe)
 		{
 			const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-			uint iSystemId;
-			pub::Player::GetSystem(client, iSystemId);
+			uint iSystemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
 			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
@@ -945,8 +943,7 @@ namespace Plugins::Message
 	{
 		if (global->config->EnableDo)
 		{
-			uint iSystemId;
-			pub::Player::GetSystem(client, iSystemId);
+			uint iSystemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
 			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";

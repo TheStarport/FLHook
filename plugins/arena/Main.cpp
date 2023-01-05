@@ -140,8 +140,7 @@ namespace Plugins::Arena
 			return;
 
 		// No plugin handled it, do it ourselves.
-		unsigned int system;
-		pub::Player::GetSystem(client, system);
+		uint system = Hk::Player::GetSystem(client).value();
 		Universe::IBase* base = Universe::get_base(targetBase);
 
 		pub::Player::ForceLand(client, targetBase); // beam
@@ -231,8 +230,7 @@ namespace Plugins::Arena
 	void UserCmd_Conn(ClientId& client, const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		uint system = 0;
-		pub::Player::GetSystem(client, system);
+		uint system = Hk::Player::GetSystem(client).value();
 		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");

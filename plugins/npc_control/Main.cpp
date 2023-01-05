@@ -291,8 +291,7 @@ namespace Plugins::Npc
 		if (!shipId)
 			return;
 
-		uint iSystem;
-		pub::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), iSystem);
+		uint iSystem = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 
 		Vector position;
 		Matrix rotation;

@@ -1302,8 +1302,7 @@ static void ForcePlayerBaseDock(ClientId client, PlayerBase* base)
 	if (set_plugin_debug > 1)
 		Console::ConInfo(L"ForcePlayerBaseDock client=%u player_base=%u", client, clients[client].player_base);
 
-	uint system;
-	pub::Player::GetSystem(client, system);
+	uint system = Hk::Player::GetSystem(client).value();
 
 	pub::Player::ForceLand(client, proxy_base_id);
 	if (system != base->system)

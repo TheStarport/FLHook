@@ -16,8 +16,7 @@ namespace Plugins::Mark
 				pub::Player::GetShip(client, ship);
 				if (!ship || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
-				uint iSystem;
-				pub::Player::GetSystem(client, iSystem);
+				uint iSystem = Hk::Player::GetSystem(client).value();
 				Vector VClientPos;
 				Matrix MClientOri;
 				pub::SpaceObj::GetLocation(ship, VClientPos, MClientOri);
