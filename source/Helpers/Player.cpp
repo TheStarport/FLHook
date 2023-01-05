@@ -1900,16 +1900,6 @@ namespace Hk::Player
 		return system;
 	}
 
-	cpp::result<const SystemId, Error> GetSystemByShipId(ShipId shipId)
-	{
-		uint system;
-		pub::SpaceObj::GetSystem(shipId, system);
-		if (!system)
-			return cpp::fail(Error::InvalidSystem);
-
-		return system;
-	}
-
 	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
