@@ -103,8 +103,7 @@ void SyncReputationForClientShip(uint ship, ClientId client)
 	int player_rep;
 	pub::SpaceObj::GetRep(ship, player_rep);
 
-	uint system;
-	pub::SpaceObj::GetSystem(ship, system);
+	SystemId system = Hk::Solar::GetSystemBySpaceId(ship).value();
 
 	std::map<uint, PlayerBase*>::iterator base = player_bases.begin();
 	for (; base != player_bases.end(); base++)
