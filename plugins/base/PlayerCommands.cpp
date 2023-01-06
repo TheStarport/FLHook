@@ -1159,8 +1159,7 @@ namespace PlayerCommands
 			return;
 		}
 
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		if (!ship)
 		{
 			PrintUserCmdText(client, L"ERR Not in space");

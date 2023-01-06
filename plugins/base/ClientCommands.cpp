@@ -204,8 +204,7 @@ void SendBaseStatus(PlayerBase* base)
 
 void ForceLaunch(ClientId client)
 {
-	uint ship;
-	pub::Player::GetShip(client, ship);
+	uint ship = Hk::Player::GetShip(client).value();
 	if (ship)
 		return;
 

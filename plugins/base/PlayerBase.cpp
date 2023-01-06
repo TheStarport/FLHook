@@ -14,8 +14,7 @@ PlayerBase::PlayerBase(ClientId client, const std::wstring& password, const std:
 	// Setup the base in the current system and at the location
 	// of the player. Rotate the base so that the docking ports
 	// face the ship and move the base to just in front of the ship
-	uint ship;
-	pub::Player::GetShip(client, ship);
+	uint ship = Hk::Player::GetShip(client).value();
 	SystemId system = Hk::Solar::GetSystemBySpaceId(ship).value();
 	pub::SpaceObj::GetLocation(ship, position, rotation);
 	Rotate180(rotation);
