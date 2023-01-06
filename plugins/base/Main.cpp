@@ -1037,8 +1037,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, ClientId& client)
 		}
 
 		// Prevent player from getting invalid net worth.
-		float fValue;
-		pub::Player::GetAssetValue(client, fValue);
+		float fValue = Hk::Player::GetShipValue(client);
 
 		int iCurrMoney;
 		pub::Player::InspectCash(client, iCurrMoney);

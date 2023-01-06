@@ -939,8 +939,7 @@ namespace PlayerCommands
 
 		if (cmd == L"withdraw")
 		{
-			float fValue;
-			pub::Player::GetAssetValue(client, fValue);
+			float fValue = Hk::Player::GetShipValue(client);
 
 			int iCurrMoney;
 			pub::Player::InspectCash(client, iCurrMoney);
