@@ -1039,8 +1039,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, ClientId& client)
 		// Prevent player from getting invalid net worth.
 		float fValue = Hk::Player::GetShipValue(client);
 
-		int iCurrMoney;
-		pub::Player::InspectCash(client, iCurrMoney);
+		uint iCurrMoney = Hk::Player::GetCash(client);
 		if (fValue + price > 2100000000 || iCurrMoney + price > 2100000000)
 		{
 			PrintUserCmdText(client, L"ERR: Base will not accept goods");
@@ -1115,8 +1114,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 			count = base->market_items[gbi.iGoodId].quantity;
 
 		int price = (int)base->market_items[gbi.iGoodId].price * count;
-		int curr_money;
-		pub::Player::InspectCash(client, curr_money);
+		uint curr_money = Hk::Player::GetCash(client);
 
 		// In theory, these should never be called.
 		if (count == 0 || base->market_items[gbi.iGoodId].min_stock >= base->market_items[gbi.iGoodId].quantity)
