@@ -955,7 +955,7 @@ namespace PlayerCommands
 				return;
 			}
 
-			pub::Player::AdjustCash(client, money);
+			Hk::Player::AddCash(client, money);
 			base->money -= money;
 			base->Save();
 
@@ -978,7 +978,7 @@ namespace PlayerCommands
 				return;
 			}
 
-			pub::Player::AdjustCash(client, 0 - money);
+			Hk::Player::AddCash(client, money);
 			base->money += money;
 			base->Save();
 

@@ -1054,7 +1054,7 @@ void __stdcall GFGoodSell(struct SGFGoodSellInfo const& gsi, ClientId& client)
 			return;
 		}
 
-		pub::Player::AdjustCash(client, price);
+		Hk::Player::AddCash(client, price);
 		base->ChangeMoney(0 - price);
 		base->Save();
 	}
@@ -1134,7 +1134,7 @@ void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 
 		clients[client].stop_buy = false;
 		base->RemoveMarketGood(gbi.iGoodId, count);
-		pub::Player::AdjustCash(client, 0 - price);
+		Hk::Player::RemoveCash(client, price);
 		base->ChangeMoney(price);
 		base->Save();
 	}
