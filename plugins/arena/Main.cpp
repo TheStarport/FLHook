@@ -135,8 +135,7 @@ namespace Plugins::Arena
 		SystemId system = Hk::Player::GetSystem(client).value();
 		Universe::IBase* base = Universe::get_base(targetBase);
 
-		pub::Player::ForceLand(client, targetBase); // beam
-
+		Hk::Player::Beam(client, targetBase);
 		// if not in the same system, emulate F1 charload
 		if (base->systemId != system)
 		{

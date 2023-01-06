@@ -523,7 +523,7 @@ bool __stdcall Cb_Land(IObjInspectImpl* obj, uint base_dock_id, uint base)
 					    L"Land[2] client=%u baseDockId=%u base=%u "
 					    L"player_base=%u\n",
 					    client, base_dock_id, base, clients[client].player_base);
-				pub::Player::ForceLand(client, iProxyBaseId);
+				Hk::Player::Beam(client, iProxyBaseId);
 				return false;
 			}
 		}
@@ -1300,7 +1300,7 @@ static void ForcePlayerBaseDock(ClientId client, PlayerBase* base)
 
 	SystemId system = Hk::Player::GetSystem(client).value();
 
-	pub::Player::ForceLand(client, proxy_base_id);
+	Hk::Player::Beam(client, proxy_base_id);
 	if (system != base->system)
 	{
 		Server.BaseEnter(proxy_base_id, client);

@@ -575,7 +575,7 @@ void Timer()
 					PrintUserCmdText(client, L"Docking iteration %d", tb.iCheckTestedZones);
 
 					const struct Universe::IBase* baseinfo = Universe::get_base(tb.iCheckSystemOrBase);
-					pub::Player::ForceLand(client, baseinfo->iBaseId);
+					Hk::Player::Beam(client, baseinfo->iBaseId);
 					if (iSystem != baseinfo->iSystemId)
 					{
 						Server.BaseEnter(baseinfo->iBaseId, client);

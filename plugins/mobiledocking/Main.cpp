@@ -283,7 +283,7 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 		SaveDockInfo(iTargetClientId);
 
 		// Land the ship on the proxy base.
-		pub::Player::ForceLand(iTargetClientId, iBaseId);
+		Hk::Player::Beam(iTargetClientId, iBaseId);
 		PrintUserCmdText(client, L"Ship docked");
 		return true;
 	}
