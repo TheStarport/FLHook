@@ -441,9 +441,7 @@ float PlayerBase::GetAttitudeTowardsClient(ClientId client)
 	// If an affiliation is defined then use the player's attitude.
 	if (affiliation)
 	{
-		int rep;
-		pub::Player::GetRep(client, rep);
-		pub::Reputation::GetGroupFeelingsTowards(rep, affiliation, attitude);
+		attitude = Hk::Player::GetRep(client).value();
 	}
 
 	return attitude;
