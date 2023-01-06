@@ -93,8 +93,7 @@ namespace Plugins::BountyHunt
 		uint time = wcstol(timeString.c_str(), nullptr, 10);
 		const auto targetId = Hk::Client::GetClientIdFromCharName(target);
 
-		int rankTarget;
-		pub::Player::GetRank(targetId.value(), rankTarget);
+		int rankTarget = Hk::Player::GetRank(targetId.value()).value();
 
 		if (targetId == -1 || Hk::Client::IsInCharSelectMenu(targetId.value()))
 		{

@@ -63,8 +63,7 @@ namespace Plugins::KillCounter
 					PrintUserCmdText(client, L"NPC kills:  %s %i", Hk::Message::GetWStringFromIdS(ship->iIdsName).c_str(), count);
 				}
 			}
-			int rank;
-			pub::Player::GetRank(client, rank);
+			int rank = Hk::Player::GetRank(client).value();
 			PrintUserCmdText(client, L"Total kills: %i", iNumKills);
 			PrintUserCmdText(client, L"Level: %i", rank);
 			return;
@@ -93,8 +92,7 @@ namespace Plugins::KillCounter
 				PrintUserCmdText(client, L"NPC kills:  %s %i", Hk::Message::GetWStringFromIdS(ship->iIdsName).c_str(), count);
 			}
 		}
-		int rank;
-		pub::Player::GetRank(client, rank);
+		int rank = Hk::Player::GetRank(client).value();
 		PrintUserCmdText(client, L"Total kills: %i", iNumKills);
 		PrintUserCmdText(client, L"Level: %i", rank);
 	}

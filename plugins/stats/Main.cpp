@@ -80,8 +80,7 @@ namespace Plugins::Stats
 			jPlayer["name"] = encode(wstos(lstPlayer.character));
 
 			// Add rank
-			int iRank;
-			pub::Player::GetRank(lstPlayer.client, iRank);
+			int iRank = Hk::Player::GetRank(lstPlayer.client).value();
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
