@@ -939,9 +939,9 @@ namespace PlayerCommands
 
 		if (cmd == L"withdraw")
 		{
-			float fValue = Hk::Player::GetShipValue(client);
+			uint fValue = Hk::Player::GetShipValue(client).value();
 
-			uint iCurrMoney = Hk::Player::GetCash(client);
+			uint iCurrMoney = Hk::Player::GetCash(client).value();
 
 			if (fValue + money > 2100000000 || iCurrMoney + money > 2100000000)
 			{
@@ -970,7 +970,7 @@ namespace PlayerCommands
 		}
 		else if (cmd == L"deposit")
 		{
-			uint iCurrMoney = Hk::Player::GetCash(client);
+			uint iCurrMoney = Hk::Player::GetCash(client).value();
 
 			if (money > iCurrMoney || money < 0)
 			{

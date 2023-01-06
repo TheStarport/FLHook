@@ -96,7 +96,7 @@ namespace Plugins::DeathPenalty
 			if (!bExcludedSystem(client))
 			{
 				// Get the players net worth
-				float fValue = Hk::Player::GetShipValue(client);
+				uint fValue = Hk::Player::GetShipValue(client).value();
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
@@ -274,7 +274,7 @@ namespace Plugins::DeathPenalty
 			PrintUserCmdText(client, L"The death penalty is charged immediately when you die.");
 			if (!bExcludedSystem(client))
 			{
-				float fValue = Hk::Player::GetShipValue(client);
+				float fValue = Hk::Player::GetShipValue(client).value();
 				uint uOwed = static_cast<uint>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
 				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(uOwed) + L" credits.");
 				PrintUserCmdText(client,
