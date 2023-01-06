@@ -242,9 +242,8 @@ void Timer()
 	{
 		ClientId client = iter.first;
 
-		uint ship;
-		pub::Player::GetShip(client, ship);
-		if (ship == 0)
+		auto ship = Hk::Player::GetShip(client);
+		if (ship.has_error())
 		{
 			lstOldClients.push_back(client);
 		}
@@ -274,7 +273,7 @@ void Timer()
 
 				Vector dir1;
 				Vector dir2;
-				pub::SpaceObj::GetMotion(ship, dir1, dir2);
+				pub::SpaceObj::GetMotion(ship.value(), dir1, dir2);
 				if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 				{
 					sm.charging_on = false;
@@ -294,7 +293,7 @@ void Timer()
 					// We're done.
 					Vector v;
 					Matrix m;
-					pub::SpaceObj::GetLocation(ship, v, m);
+					pub::SpaceObj::GetLocation(ship.value(), v, m);
 
 					// Fill out the coordinate structure
 					HYPERSPACE_COORDS coords;
@@ -344,9 +343,8 @@ void Timer()
 	{
 		ClientId client = iter.first;
 
-		uint ship;
-		pub::Player::GetShip(client, ship);
-		if (ship == 0)
+		auto ship = Hk::Player::GetShip(client);
+		if (ship.has_error())
 		{
 			lstOldClients.push_back(client);
 		}
@@ -374,11 +372,11 @@ void Timer()
 					// Jump the player's ship
 					Vector vPosition;
 					Matrix mShipDir;
-					pub::SpaceObj::GetLocation(ship, vPosition, mShipDir);
+					pub::SpaceObj::GetLocation(ship.value(), vPosition, mShipDir);
 
-					SystemId iSystemId = Hk::Solar::GetSystemBySpaceId(ship).value();
+					SystemId iSystemId = Hk::Solar::GetSystemBySpaceId(ship.value()).value();
 
-					pub::SpaceObj::DrainShields(ship);
+					pub::SpaceObj::DrainShields(ship.value());
 					SwitchSystem(client, jd.iTargetSystem, jd.vTargetPosition, mShipDir);
 
 					// Find all ships within the jump field including the one
@@ -437,7 +435,7 @@ void Timer()
 					jd.vTargetPosition.x = 0;
 					jd.vTargetPosition.y = 0;
 					jd.vTargetPosition.z = 0;
-					pub::SpaceObj::SetInvincible(ship, false, false, 0);
+					pub::SpaceObj::SetInvincible(ship.value(), false, false, 0);
 					SetFuse(client, 0);
 					StopChargeFuses(client);
 				}
@@ -556,9 +554,6 @@ void Timer()
 				tb.iCheckTestedZones++;
 				SystemId iSystem = Hk::Player::GetSystem(client).value();
 
-				uint ship;
-				pub::Player::GetShip(client, ship);
-
 				// if ship is in base undock it
 				auto base = Hk::Player::GetCurrentBase(client);
 				if (base.value())
@@ -570,7 +565,7 @@ void Timer()
 					SwitchSystem(client, iSystem, pos, ornt);
 				}
 				// if in space dock with specified base.
-				else if (ship)
+				else if (Hk::Player::GetShip(client).has_value())
 				{
 					PrintUserCmdText(client, L"Docking iteration %d", tb.iCheckTestedZones);
 
@@ -613,12 +608,11 @@ void Timer()
 						    client, L"Testing zone %s (%0.0f %0.0f %0.0f) iteration %d", stows(lz.zoneNick).c_str(),
 						    lz.pos.x, lz.pos.y, lz.pos.z, tb.iCheckTestedZones);
 
-						uint ship;
-						pub::Player::GetShip(client, ship);
+						auto ship = Hk::Player::GetShip(client);
 
 						Vector myLocation;
 						Matrix myRot;
-						pub::SpaceObj::GetLocation(ship, myLocation, myRot);
+						pub::SpaceObj::GetLocation(ship.value(), myLocation, myRot);
 
 						RelocateClient(client, lz.pos, myRot);
 						tb.lstCheckZones.pop_front();

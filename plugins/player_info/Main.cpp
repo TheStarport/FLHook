@@ -69,8 +69,7 @@ void UserCmd_ShowInfo(ClientId& client, const std::wstring& wscParam)
 	}
 	else
 	{
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 
 
 		uint iTargetShip = Hk::Player::GetTarget(ship).value();

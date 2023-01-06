@@ -158,8 +158,7 @@ namespace Plugins::Pvp
 	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		if (!ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
@@ -258,8 +257,7 @@ namespace Plugins::Pvp
 	void UserCmdDuel(ClientId& client, const std::wstring& param)
 	{
 		// Get the object the player is targetting
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		uint targetShip = Hk::Player::GetTarget(ship).value();
 		if (!targetShip)
 		{
@@ -347,8 +345,7 @@ namespace Plugins::Pvp
 	void UserCmdAcceptDuel(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		if (!ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");

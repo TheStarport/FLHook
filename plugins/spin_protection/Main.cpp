@@ -29,8 +29,7 @@ namespace Plugins::SpinProtection
 		float targetMass;
 		pub::SpaceObj::GetMass(ci.iColliderObjectId, targetMass);
 
-		uint clientShip;
-		pub::Player::GetShip(client, clientShip);
+		uint clientShip = Hk::Player::GetShip(client).value();
 
 		float clientMass;
 		pub::SpaceObj::GetMass(clientShip, clientMass);

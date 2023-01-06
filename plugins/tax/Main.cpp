@@ -147,8 +147,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship;
-						pub::Player::GetShip(client, ship);
+						uint ship = Hk::Player::GetShip(client).value();
 						if (ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
@@ -168,8 +167,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship;
-						pub::Player::GetShip(client, ship);
+						uint ship = Hk::Player::GetShip(client).value();
 						if (ship)
 						{
 							// F1 -> Kill

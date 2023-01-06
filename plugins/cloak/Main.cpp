@@ -263,9 +263,8 @@ namespace Plugins::Cloak
 	 */
 	void UserCmd_Cloak(ClientId& client, const std::wstring& wscParam)
 	{
-		uint ship;
-		pub::Player::GetShip(client, ship);
-		if (!ship)
+		auto ship = Hk::Player::GetShip(client);
+		if (ship.has_error())
 		{
 			PrintUserCmdText(client, L"Not in space");
 			return;
@@ -290,18 +289,18 @@ namespace Plugins::Cloak
 				{
 					PrintUserCmdText(client, L"Cloaking device will not function on this ship type");
 					global->clientCloakingInfo[client].state = STATE_CLOAK_INVALID;
-					SetState(client, ship, STATE_CLOAK_OFF);
+					SetState(client, ship.value(), STATE_CLOAK_OFF);
 					return;
 				}
 
 				switch (global->clientCloakingInfo[client].state)
 				{
 					case STATE_CLOAK_OFF:
-						SetState(client, ship, STATE_CLOAK_CHARGING);
+						SetState(client, ship.value(), STATE_CLOAK_CHARGING);
 						break;
 					case STATE_CLOAK_CHARGING:
 					case STATE_CLOAK_ON:
-						SetState(client, ship, STATE_CLOAK_OFF);
+						SetState(client, ship.value(), STATE_CLOAK_OFF);
 						break;
 				}
 			}
@@ -329,9 +328,8 @@ namespace Plugins::Cloak
 				return true;
 			}
 
-			uint ship;
-			pub::Player::GetShip(client, ship);
-			if (!ship)
+			auto ship = Hk::Player::GetShip(client);
+			if (ship.has_error())
 			{
 				PrintUserCmdText(client, L"ERR Not in space");
 				return true;
@@ -347,12 +345,12 @@ namespace Plugins::Cloak
 			{
 				case STATE_CLOAK_OFF:
 					global->clientCloakingInfo[client].admin = true;
-					SetState(client, ship, STATE_CLOAK_ON);
+					SetState(client, ship.value(), STATE_CLOAK_ON);
 					break;
 				case STATE_CLOAK_CHARGING:
 				case STATE_CLOAK_ON:
 					global->clientCloakingInfo[client].admin = false;
-					SetState(client, ship, STATE_CLOAK_OFF);
+					SetState(client, ship.value(), STATE_CLOAK_OFF);
 					break;
 			}
 			return true;

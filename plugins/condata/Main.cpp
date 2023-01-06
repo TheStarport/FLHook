@@ -388,12 +388,12 @@ namespace Plugins::ConData
 		uint clientTarget = client;
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
-		uint ship = 0;
+		
 		uint iTarget = 0;
-		pub::Player::GetShip(client, ship);
-		if (ship)
+		auto ship = Hk::Player::GetShip(client);
+		if (ship.has_value())
 		{
-			pub::SpaceObj::GetTarget(ship, iTarget);
+			pub::SpaceObj::GetTarget(ship.value(), iTarget);
 
 			if (iTarget)
 			{

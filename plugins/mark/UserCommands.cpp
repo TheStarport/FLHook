@@ -5,7 +5,7 @@ namespace Plugins::Mark
 	void UserCmd_MarkObj(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
-		pub::Player::GetShip(client, ship);
+		ship = Hk::Player::GetShip(client).value();
 		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		char err = MarkObject(client, iTargetShip);
 		switch (err)
@@ -26,7 +26,7 @@ namespace Plugins::Mark
 	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
-		pub::Player::GetShip(client, ship);
+		ship = Hk::Player::GetShip(client).value();
 		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		char err = UnMarkObject(client, iTargetShip);
 		switch (err)
@@ -52,7 +52,7 @@ namespace Plugins::Mark
 	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
-		pub::Player::GetShip(client, ship);
+		ship = Hk::Player::GetShip(client).value();
 		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 		{
@@ -72,8 +72,7 @@ namespace Plugins::Mark
 			if (global->Mark[groupClient].IgnoreGroupMark)
 				continue;
 
-			uint iClientShip;
-			pub::Player::GetShip(groupClient, iClientShip);
+			uint iClientShip = Hk::Player::GetShip(client).value();
 			if (iClientShip == iTargetShip)
 				continue;
 
@@ -84,7 +83,7 @@ namespace Plugins::Mark
 	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
 		uint ship, iTargetShip;
-		pub::Player::GetShip(client, ship);
+		ship = Hk::Player::GetShip(client).value();
 		pub::SpaceObj::GetTarget(ship, iTargetShip);
 		if (!iTargetShip)
 		{

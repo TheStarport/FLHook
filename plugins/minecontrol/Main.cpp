@@ -390,8 +390,7 @@ namespace Plugins::MiningControl
 		// already.
 		CheckClientSetup(client);
 
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 
 		Vector vPos;
 		Matrix mRot;

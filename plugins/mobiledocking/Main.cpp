@@ -69,7 +69,7 @@ void UpdateDockedShips(ClientId client)
 	Vector pos, vec, bvec;
 	Matrix rot;
 
-	pub::Player::GetShip(client, tgt);
+	tgt = Hk::Player::GetShip(client).value();
 	if (!tgt)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
@@ -199,9 +199,8 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 		uint iDockedClientId = Hk::Client::GetClientIdFromCharName(charname);
 		if (iDockedClientId)
 		{
-			uint ship;
-			pub::Player::GetShip(iDockedClientId, ship);
-			if (!ship)
+			uint ship = Hk::Player::GetShip(iDockedClientId);
+			if (!ship.has_value())
 			{
 				JumpToLocation(
 				    iDockedClientId, clients[iDockedClientId].iCarrierSystem, clients[iDockedClientId].vCarrierLocation,
@@ -219,20 +218,19 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 	else if (wscCmd.find(L"/allowdock") == 0)
 	{
 		// If not in space then ignore the request.
-		uint ship;
-		pub::Player::GetShip(client, ship);
-		if (!ship)
+		auto ship = Hk::Player::GetShip(client).value();
+		if (ship.has_error())
 			return true;
 
 		// If no target then ignore the request.
-		uint iTargetShip = Hk::Player::GetTarget(ship).value();
+		uint iTargetShip = Hk::Player::GetTarget(ship.value()).value();
 		if (!iTargetShip)
 			return true;
 
 		// If target is not player ship or ship is too far away then ignore the
 		// request.
 		uint iTargetClientId = GetClientIdByShip(iTargetShip);
-		if (!iTargetClientId || Distance3DByShip(ship, iTargetShip) > 1000.0f)
+		if (!iTargetClientId || Distance3DByShip(ship.value(), iTargetShip) > 1000.0f)
 		{
 			PrintUserCmdText(client, L"Ship is out of range");
 			return true;
@@ -277,9 +275,9 @@ bool UserCmd_Process(ClientId& client, const std::wstring& wscCmd)
 		clients[iTargetClientId].wscDockedWithCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		if (clients[iTargetClientId].iLastBaseId != 0)
 			clients[iTargetClientId].iLastBaseId = Players[iTargetClientId].iLastBaseId;
-		clients[iTargetClientId].iCarrierSystem = Hk::Solar::GetSystemBySpaceId(ship).value();
+		clients[iTargetClientId].iCarrierSystem = Hk::Solar::GetSystemBySpaceId(ship.value()).value();
 		pub::SpaceObj::GetLocation(
-		    ship, clients[iTargetClientId].vCarrierLocation, clients[iTargetClientId].mCarrierLocation);
+		    ship.value(), clients[iTargetClientId].vCarrierLocation, clients[iTargetClientId].mCarrierLocation);
 		SaveDockInfo(iTargetClientId);
 
 		// Land the ship on the proxy base.

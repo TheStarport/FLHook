@@ -13,7 +13,7 @@ namespace Plugins::Mark
 			while (playerData = Players.traverse_active(playerData))
 			{
 				uint ship, client = playerData->iOnlineId;
-				pub::Player::GetShip(client, ship);
+				ship = Hk::Player::GetShip(client).value();
 				if (!ship || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
 				SystemId iSystem = Hk::Player::GetSystem(client).value();
