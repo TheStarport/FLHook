@@ -560,9 +560,8 @@ void Timer()
 				pub::Player::GetShip(client, ship);
 
 				// if ship is in base undock it
-				uint iBase;
-				pub::Player::GetBase(client, iBase);
-				if (iBase)
+				auto base = Hk::Player::GetCurrentBase(client);
+				if (base.value())
 				{
 					PrintUserCmdText(client, L"Launching iteration %d", tb.iCheckTestedZones);
 

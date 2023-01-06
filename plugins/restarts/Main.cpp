@@ -81,9 +81,8 @@ namespace Plugins::Restart
 		if (!Hk::Client::IsValidClientID(client))
 			return;
 
-		uint iBaseId;
-		pub::Player::GetBase(client, iBaseId);
-		if (!iBaseId)
+		auto base = Hk::Player::GetCurrentBase(client);
+		if (base.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in base");
 			return;

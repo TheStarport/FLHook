@@ -68,12 +68,7 @@ namespace Plugins::Arena
 	 */
 	bool IsDockedClient(unsigned int client)
 	{
-		unsigned int base = 0;
-		pub::Player::GetBase(client, base);
-		if (base)
-			return true;
-
-		return false;
+		return Hk::Player::GetCurrentBase(client).has_value();
 	}
 
 	/** @ingroup Arena
@@ -115,14 +110,11 @@ namespace Plugins::Arena
 	void StoreReturnPointForClient(unsigned int client)
 	{
 		// It's not docked at a custom base, check for a regular base
-		uint base = 0;
-
-		if (!base)
-			pub::Player::GetBase(client, base);
-		if (!base)
+		auto base = Hk::Player::GetCurrentBase(client);
+		if (base.has_error())
 			return;
 
-		Hk::Ini::SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
+		Hk::Ini::SetCharacterIni(client, L"conn.retbase", std::to_wstring(base.value()));
 	}
 
 	/** @ingroup Arena
@@ -168,10 +160,9 @@ namespace Plugins::Arena
 	 */
 	bool CheckReturnDock(unsigned int client, unsigned int target)
 	{
-		unsigned int base = 0;
-		pub::Player::GetBase(client, base);
+		auto base = Hk::Player::GetCurrentBase(client);
 
-		if (base == target)
+		if (base.value() == target)
 			return true;
 
 		return false;

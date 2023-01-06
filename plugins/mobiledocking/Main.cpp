@@ -72,12 +72,11 @@ void UpdateDockedShips(ClientId client)
 	pub::Player::GetShip(client, tgt);
 	if (!tgt)
 	{
-		uint iBaseId;
-		pub::Player::GetBase(client, iBaseId);
-		if (!iBaseId)
+		auto base = Hk::Player::GetCurrentBase(client);
+		if (base.hasError())
 			return;
 
-		Universe::IBase* base = Universe::get_base(iBaseId);
+		Universe::IBase* base = Universe::get_base(base.value());
 		tgt = base->lSpaceObjId;
 
 		SystemId system = Hk::Solar::GetSystemBySpaceId(tgt).value();

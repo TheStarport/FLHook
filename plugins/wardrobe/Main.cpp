@@ -77,9 +77,8 @@ namespace Plugins::Wardrobe
 			return;
 
 		// Check character is in base
-		uint baseId;
-		pub::Player::GetBase(client, baseId);
-		if (!baseId)
+		auto base = Hk::Player::GetCurrentBase(client);
+		if (base.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in base");
 			return;
