@@ -1212,7 +1212,7 @@ namespace PlayerCommands
 				if (ci->iArchId == good && ci->iCount >= (int)quantity)
 				{
 					material_available = true;
-					pub::Player::RemoveCargo(client, ci->iId, quantity);
+					Hk::Player::RemoveCargo(client, ci->iId, quantity);
 				}
 			}
 			if (material_available == false)

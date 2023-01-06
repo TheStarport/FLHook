@@ -263,7 +263,7 @@ void Timer()
 						uint fuel_usage = sm.arch.mapFuelToUsage[item->iArchId];
 						if (item->iCount >= fuel_usage)
 						{
-							pub::Player::RemoveCargo(client, item->sId, fuel_usage);
+							Hk::Player::RemoveCargo(client, item->sId, fuel_usage);
 							sm.curr_charge += sm.arch.charge_rate;
 							sm.charging_on = true;
 							break;
@@ -457,7 +457,7 @@ void Timer()
 						uint fuel_usage = jd.arch.mapFuelToUsage[item->iArchId];
 						if (item->iCount >= fuel_usage)
 						{
-							pub::Player::RemoveCargo(client, item->sId, fuel_usage);
+							Hk::Player::RemoveCargo(client, item->sId, fuel_usage);
 							jd.curr_charge += jd.arch.charge_rate;
 							jd.charging_on = true;
 							break;

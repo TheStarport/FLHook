@@ -137,7 +137,7 @@ namespace Plugins::Cloak
 				uint fuel_usage = info.arch.fuelToUsage[item->iArchId];
 				if (item->iCount >= fuel_usage)
 				{
-					pub::Player::RemoveCargo(client, item->sId, fuel_usage);
+					Hk::Player::RemoveCargo(client, item->sId, fuel_usage);
 					return true;
 				}
 			}
