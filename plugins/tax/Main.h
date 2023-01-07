@@ -20,7 +20,7 @@ namespace Plugins::Tax
 	//! Configurable fields for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/tax.json"; }
+		std::string File() override { return "config/tax.json"; }
 
 		// Reflectable fields	
 		std::vector<std::string> excludedSystems = {};

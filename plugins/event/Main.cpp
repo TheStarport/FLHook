@@ -96,7 +96,7 @@ namespace Plugins::Event
 	 */
 	void SaveMissionStatus()
 	{
-		std::ofstream out("flhook_plugins/event.json");
+		std::ofstream out("config/event.json");
 
 		nlohmann::json jExport;
 

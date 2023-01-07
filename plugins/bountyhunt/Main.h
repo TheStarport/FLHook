@@ -20,7 +20,7 @@ namespace Plugins::BountyHunt
 	//! Configurable fields for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/bountyhunt.json"; }
+		std::string File() override { return "config/bountyhunt.json"; }
 
 		// Reflectable fields
 		bool enableBountyHunt = true;

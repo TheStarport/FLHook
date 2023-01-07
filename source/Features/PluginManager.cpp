@@ -94,7 +94,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 			return adminInterface->Print(L"Plugin %s already loaded, skipping\n", plugin.dllName.c_str());
 	}
 
-	std::wstring pathToDLL = L"./flhook_plugins/" + dllName;
+	std::wstring pathToDLL = L"./plugins/" + dllName;
 
 	FILE* fp;
 	_wfopen_s(&fp, pathToDLL.c_str(), L"r");
@@ -247,7 +247,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 void PluginManager::loadAll(bool startup, CCmds* adminInterface)
 {
 	WIN32_FIND_DATAW findData;
-	HANDLE findPluginsHandle = FindFirstFileW(L"./flhook_plugins/*.dll", &findData);
+	HANDLE findPluginsHandle = FindFirstFileW(L"./plugins/*.dll", &findData);
 
 	do
 	{

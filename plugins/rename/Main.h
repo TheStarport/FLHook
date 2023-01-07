@@ -56,7 +56,7 @@ namespace Plugins::Rename
 	struct Config : Reflectable
 	{
 		//! Json file the config is stored at
-		std::string File() override { return "flhook_plugins/rename.json"; }
+		std::string File() override { return "config/rename.json"; }
 
 		//! Enable Rename
 		bool enableRenameMe = false;

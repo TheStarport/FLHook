@@ -70,7 +70,7 @@ namespace Plugins::ConData
 
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "config/misc_commands.json"; }
+		std::string File() override { return "config/condata.json"; }
 		uint pingKick = 0;
 		uint pingKickFrame = 120;
 		uint fluctKick = 0;

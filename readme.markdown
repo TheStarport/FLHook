@@ -15,7 +15,7 @@ For the purpose of this readme, your Freelancer root installation folder (e.g. b
 ## Plugin Installation
 
 Typically, plugins are distributed as DLL files (or archives with a DLL and configuration files).
-The plugin DLL needs to be in `.\EXE\flhook_plugins`. Verify with the plugin's documentation for additional setup steps.
+The plugin DLL needs to be in `.\EXE\plugins`. Verify with the plugin's documentation for additional setup steps.
 
 ## Configuration
 

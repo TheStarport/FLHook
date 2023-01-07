@@ -15,7 +15,7 @@ namespace Plugins::SpinProtection
 		float spinImpulseMultiplier = -1.0f;
 
 		//! File location of the json config file
-		std::string File() override { return "flhook_plugins/spin_protection.json"; }
+		std::string File() override { return "config/spin_protection.json"; }
 	};
 
 	//! Global data for this plugin

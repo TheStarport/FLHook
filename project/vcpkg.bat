@@ -1,3 +1,4 @@
 xcopy /s /Y "..\FLHookSDK\vcpkg.json" ".."
-../vcpkg/bootstrap-vcpkg.bat
-../vcpkg/vcpkg integrate install
+call "../vcpkg/bootstrap-vcpkg.bat -disableMetrics"
+start /WAIT ../vcpkg/vcpkg integrate install
+pause

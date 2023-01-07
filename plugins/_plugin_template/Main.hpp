@@ -8,7 +8,7 @@ namespace Plugins::Template
 	// Loadable json configuration
 	struct Config : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/template.json"; }
+		std::string File() override { return "config/template.json"; }
 		bool overrideUserNumber = false;
 	};
 

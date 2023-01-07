@@ -59,7 +59,7 @@ namespace Plugins::Npc
 		//! Vector containing Infocard Ids used for naming npcs
 		std::vector<uint> npcInfocardIds {197808};
 		//! The config file we load out of
-		std::string File() override { return "flhook_plugins/npc.json"; }
+		std::string File() override { return "config/npc.json"; }
 	};
 
 	//! Global data for this plugin

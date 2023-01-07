@@ -19,7 +19,7 @@ namespace Plugins::CargoDrop
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/cargo_drop.json"; }
+		std::string File() override { return "config/cargo_drop.json"; }
 
 		// Reflectable fields
 		bool reportDisconnectingPlayers = false;

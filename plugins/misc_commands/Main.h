@@ -15,7 +15,7 @@ namespace Plugins::MiscCommands
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/misc_commands.json"; }
+		std::string File() override { return "config/misc_commands.json"; }
 
 		//! The amount it costs to use the /droprep command. Set to a negative value to disable command.
 		uint repDropCost = 0;

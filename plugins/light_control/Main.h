@@ -19,7 +19,7 @@ namespace Plugins::LightControl
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/light_control.json"; }
+		std::string File() override { return "config/light_control.json"; }
 
 		//! Vector of Available equipment
 		std::vector<uint> lightsHashed;

@@ -35,7 +35,7 @@ namespace Plugins::Mark
 	// Reflectable config
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/mark.json"; }
+		std::string File() override { return "config/mark.json"; }
 
 		float AutoMarkRadiusInM = 2000;
 	};

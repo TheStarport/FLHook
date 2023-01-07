@@ -105,7 +105,7 @@ namespace Plugins::MiningControl
 	struct Config : Reflectable
 	{
 		//! The json file we load out of
-		std::string File() override { return "flhook_plugins/MineControl.json"; }
+		std::string File() override { return "config/MineControl.json"; }
 
 		PlayerBonus playerBonusExample;
 		ZoneBonus zoneBonusExample;
