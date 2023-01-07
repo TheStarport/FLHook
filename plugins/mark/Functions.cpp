@@ -2,6 +2,9 @@
 
 namespace Plugins::Mark
 {
+	const uint UI_SELECT_ADD_SOUND = 2460046221;
+	const uint UI_SELECT_REMOVE_SOUND = 2939827141;
+
 	char MarkObject(ClientId client, uint iObject)
 	{
 		if (!iObject)
@@ -25,8 +28,7 @@ namespace Plugins::Mark
 					return 3; // already marked
 			}
 			global->Mark[client].DelayedSystemMarkedObjects.push_back(iObject);
-			pub::Audio::PlaySoundEffect(client,
-			    2460046221); // CreateID("ui_select_add")
+			Hk::Client::PlaySoundEffect(client, UI_SELECT_ADD_SOUND);
 			return 0;
 		}
 
@@ -44,8 +46,7 @@ namespace Plugins::Mark
 			}
 		}
 		global->Mark[client].MarkedObjects.push_back(iObject);
-		pub::Audio::PlaySoundEffect(client,
-		    2460046221); // CreateID("ui_select_add")
+		Hk::Client::PlaySoundEffect(client, UI_SELECT_ADD_SOUND);
 		return 0;
 	}
 
@@ -64,8 +65,7 @@ namespace Plugins::Mark
 				}
 				global->Mark[client].MarkedObjects.pop_back();
 				Hk::Player::MarkObj(client, iObject, 0);
-				pub::Audio::PlaySoundEffect(client,
-				    2939827141); // CreateID("ui_select_remove")
+				Hk::Client::PlaySoundEffect(client, UI_SELECT_REMOVE_SOUND);
 				return 0;
 			}
 		}
@@ -80,8 +80,7 @@ namespace Plugins::Mark
 				}
 				global->Mark[client].AutoMarkedObjects.pop_back();
 				Hk::Player::MarkObj(client, iObject, 0);
-				pub::Audio::PlaySoundEffect(client,
-				    2939827141); // CreateID("ui_select_remove")
+				Hk::Client::PlaySoundEffect(client, UI_SELECT_REMOVE_SOUND);
 				return 0;
 			}
 		}
@@ -96,8 +95,7 @@ namespace Plugins::Mark
 					    global->Mark[client].DelayedSystemMarkedObjects[global->Mark[client].DelayedSystemMarkedObjects.size() - 1];
 				}
 				global->Mark[client].DelayedSystemMarkedObjects.pop_back();
-				pub::Audio::PlaySoundEffect(client,
-				    2939827141); // CreateID("ui_select_remove")
+				Hk::Client::PlaySoundEffect(client, UI_SELECT_REMOVE_SOUND);
 				return 0;
 			}
 		}
@@ -117,7 +115,6 @@ namespace Plugins::Mark
 		}
 		global->Mark[client].AutoMarkedObjects.clear();
 		global->Mark[client].DelayedSystemMarkedObjects.clear();
-		pub::Audio::PlaySoundEffect(client,
-		    2939827141); // CreateID("ui_select_remove")
+		Hk::Client::PlaySoundEffect(client, UI_SELECT_REMOVE_SOUND);
 	}
 } // namespace Plugins::Mark
