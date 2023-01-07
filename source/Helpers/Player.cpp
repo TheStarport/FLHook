@@ -1949,4 +1949,41 @@ namespace Hk::Player
 
 		return {};
 	}
+
+	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+		int kills;
+		pub::Player::GetNumKills(client, kills);
+		return kills;
+	}
+
+	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		pub::Player::SetNumKills(client, killAmount);
+
+		return {};
+	}
+
+	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		int kills;
+		pub::Player::GetNumKills(client, kills);
+		pub::Player::SetNumKills(client, ++kills);
+
+		return {};
+	}
 } // namespace Hk::Player
