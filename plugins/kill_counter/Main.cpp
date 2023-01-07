@@ -48,7 +48,7 @@ namespace Plugins::KillCounter
 			std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 			const auto lines = Hk::Player::ReadCharFile(wscCharname);
 
-			pub::Player::GetNumKills(client, iNumKills);
+			iNumKills = Hk::Player::GetPvpKills(client).value();
 			PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
 			for (auto& str : lines.value())
 			{
@@ -77,7 +77,7 @@ namespace Plugins::KillCounter
 		}
 
 		const auto lines = Hk::Player::ReadCharFile(wscClientId);
-		pub::Player::GetNumKills(clientPlayer.value(), iNumKills);
+		iNumKills = Hk::Player::GetPvpKills(clientPlayer.value()).value();
 		PrintUserCmdText(client, L"PvP kills: %i", iNumKills);
 		for (auto& str : lines.value())
 		{
@@ -113,10 +113,7 @@ namespace Plugins::KillCounter
 
 				if (killerId.has_value() && killerId.value() != client)
 				{
-					int iNumKills;
-					pub::Player::GetNumKills(killerId.value(), iNumKills);
-					iNumKills++;
-					pub::Player::SetNumKills(killerId.value(), iNumKills);
+					Hk::Player::IncrementPvpKills(killerId.value());
 				}
 			}
 		}
