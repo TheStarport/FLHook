@@ -1043,9 +1043,10 @@ DefaultDllMainSettings(LoadSettings)
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &OneSecondTimer);
+	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 }
