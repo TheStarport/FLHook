@@ -58,7 +58,7 @@ namespace Plugins::Restart
 
 		// Searching restart
 
-		for (const auto& entity : std::filesystem::directory_iterator("flhook_plugins/restart"))
+		for (const auto& entity : std::filesystem::directory_iterator("config/restart"))
 		{
 			if (entity.is_directory() || entity.path().extension().string() != ".fl")
 			{

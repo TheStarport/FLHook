@@ -10,7 +10,7 @@ namespace Plugins::Stats
 	//! Reflectable struct that contains the file path of the config file as well as the file to export stats to
 	struct FileName : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/Stats.json"; }
+		std::string File() override { return "config/stats.json"; }
 		std::string StatsFile = "stats.json";
 		std::string FilePath = "EXPORTS";
 	};

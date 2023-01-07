@@ -8,7 +8,7 @@ namespace Plugins::PurchaseRestrictions
 	//! Config data for this plugin
 	struct Config : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/purchaseRestrictions.json"; }
+		std::string File() override { return "config/purchaseRestrictions.json"; }
 
 		//! Check whether a player is trying to buy items without the correct id
 		bool checkItemRestrictions = false;

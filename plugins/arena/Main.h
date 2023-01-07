@@ -19,7 +19,7 @@ namespace Plugins::Arena
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/arena.json"; }
+		std::string File() override { return "config/arena.json"; }
 
 		// Reflectable fields
 		//! The command to be used to beam to the arena system. Defaults to "arena".

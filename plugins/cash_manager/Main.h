@@ -31,7 +31,7 @@ namespace Plugins::CashManager
   
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/cash_manager.json"; }
+		std::string File() override { return "config/cash_manager.json"; }
 
 		//! The minimum transfer amount.
 		uint minimumTransfer = 0;

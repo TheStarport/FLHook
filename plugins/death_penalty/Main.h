@@ -14,7 +14,7 @@ namespace Plugins::DeathPenalty
 	//! Configurable fields for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/deathpenalty.json"; }
+		std::string File() override { return "config/deathpenalty.json"; }
 
 		// Reflectable fields
 		float DeathPenaltyFraction = 0;

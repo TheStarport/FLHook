@@ -6,7 +6,7 @@ namespace Plugins::Warehouse
 {
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/warehouse.json"; }
+		std::string File() override { return "config/warehouse.json"; }
 
 		std::vector<std::string> restrictedBases;
 		std::vector<uint> restrictedBasesHashed;

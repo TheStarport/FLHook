@@ -45,7 +45,7 @@ namespace Plugins::SystemSensor
 
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/systemSensor.json"; }
+		std::string File() override { return "config/systemSensor.json"; }
 
 		std::vector<ReflectableSensor> sensors;
 	};

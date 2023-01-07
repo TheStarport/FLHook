@@ -54,7 +54,7 @@ void WriteMiniDump(SEHException* ex)
 			time_t tNow = time(0);
 			tm t;
 			localtime_s(&t, &tNow);
-			strftime(szDumpPathFirst, sizeof(szDumpPathFirst), "./flhook_logs/debug/flserver_%d.%m.%Y_%H.%M.%S", &t);
+			strftime(szDumpPathFirst, sizeof(szDumpPathFirst), "./logs/debug/flserver_%d.%m.%Y_%H.%M.%S", &t);
 
 			int n = 1;
 			do

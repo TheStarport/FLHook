@@ -39,7 +39,7 @@ namespace Plugins::Message
 	struct Config : Reflectable
 	{
 		//! The json file we load out of
-		std::string File() override { return "flhook_plugins/message.json"; }
+		std::string File() override { return "config/message.json"; }
 
 		//! Greetings text for when user logins in 
 		std::vector<std::wstring> GreetingBannerLines;

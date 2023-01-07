@@ -95,8 +95,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		WriteProcMem(pAddress, &fpShutdown, 4);
 
 		// create log dirs
-		CreateDirectoryA("./flhook_logs/", NULL);
-		CreateDirectoryA("./flhook_logs/debug", NULL);
+		CreateDirectoryA("./logs/", NULL);
+		CreateDirectoryA("./logs/debug", NULL);
 	}
 	return TRUE;
 }

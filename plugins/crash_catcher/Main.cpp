@@ -38,7 +38,7 @@ namespace Plugins::CrashCatcher
 		_vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
 
 		FILE* log;
-		fopen_s(&log, "flhook_logs\\flhook_crashes.log", "a");
+		fopen_s(&log, "logs\\crashes.log", "a");
 
 		char szBuf[64];
 		time_t tNow = time(nullptr);

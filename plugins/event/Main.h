@@ -27,7 +27,7 @@ namespace Plugins::Event
 	//! Configurable fields for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/event.json"; }
+		std::string File() override { return "config/event.json"; }
 
 		struct NPC_MISSION_REFLECTABLE : Reflectable
 		{

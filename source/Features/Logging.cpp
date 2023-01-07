@@ -19,14 +19,14 @@ bool InitLogs()
 {
 	try
 	{
-		FLHookLog = spdlog::basic_logger_mt<spdlog::async_factory>("FLHook", "flhook_logs/FLHook.log");
-		CheaterLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_cheaters", "flhook_logs/flhook_cheaters.log");
-		KickLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_kicks", "flhook_logs/flhook_kicks.log");
-		ConnectsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "flhook_logs/flhook_connects.log");
-		AdminCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "flhook_logs/flhook_admincmds.log");
-		SocketCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "flhook_logs/flhook_socketcmds.log");
-		UserCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "flhook_logs/flhook_usercmds.log");
-		PerfTimersLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "flhook_logs/flhook_perftimers.log");
+		FLHookLog = spdlog::basic_logger_mt<spdlog::async_factory>("FLHook", "logs/FLHook.log");
+		CheaterLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_cheaters", "logs/flhook_cheaters.log");
+		KickLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_kicks", "logs/flhook_kicks.log");
+		ConnectsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "logs/flhook_connects.log");
+		AdminCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "logs/flhook_admincmds.log");
+		SocketCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "logs/flhook_socketcmds.log");
+		UserCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "logs/flhook_usercmds.log");
+		PerfTimersLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "logs/flhook_perftimers.log");
 
 		spdlog::flush_on(spdlog::level::err);
 		spdlog::flush_every(std::chrono::seconds(3));
@@ -45,7 +45,7 @@ bool InitLogs()
 			localtime_s(&t, &tNow);
 			strftime(szDate, sizeof szDate, "%d.%m.%Y_%H.%M", &t);
 
-			std::string sDebugLog = "./flhook_logs/debug/FLHookDebug_" + (std::string)szDate;
+			std::string sDebugLog = "./logs/debug/FLHookDebug_" + (std::string)szDate;
 			sDebugLog += ".log";
 
 			FLHookDebugLog = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", sDebugLog);
