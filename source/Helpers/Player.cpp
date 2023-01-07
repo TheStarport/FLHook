@@ -1698,25 +1698,6 @@ namespace Hk::Player
 		return {};
 	}
 
-	std::wstring GetLocation(unsigned int client)
-	{
-		uint iSystemId = 0;
-		uint ship = 0;
-		pub::Player::GetSystem(client, iSystemId);
-		pub::Player::GetShip(client, ship);
-		if (!iSystemId || !ship)
-		{
-			PrintUserCmdText(client, L"ERR Not in space");
-			return false;
-		}
-
-		Vector pos;
-		Matrix rot;
-		pub::SpaceObj::GetLocation(ship, pos, rot);
-
-		return Hk::Math::VectorToSectorCoord<std::wstring>(iSystemId, pos);
-	}
-
 	void DelayedKick(ClientId client, uint secs)
 	{
 		mstime kick_time = timeInMS() + (secs * 1000);
