@@ -1048,4 +1048,5 @@ DefaultDllMainSettings(LoadSettings)
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 }
