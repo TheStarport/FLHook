@@ -70,8 +70,7 @@ namespace Plugins::DeathPenalty
 	float fShipFractionOverride(ClientId client)
 	{
 		// Get ShipArchId
-		uint shipArchId;
-		pub::Player::GetShipID(client, shipArchId);
+		uint shipArchId = Hk::Player::GetShipID(client).value();
 
 		// Default return value is the default death penalty fraction
 		float fOverrideValue = global->config->DeathPenaltyFraction;

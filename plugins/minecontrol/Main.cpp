@@ -129,8 +129,7 @@ namespace Plugins::MiningControl
 				shipObj.value()->get_affiliation(iRepGroupId);
 
 			// Get the ship type
-			uint shipId;
-			pub::Player::GetShipID(client, shipId);
+			uint shipId = Hk::Player::GetShipID(client).value();
 
 			// Get the ship cargo so that we can check ids, guns, etc.
 			int remainingHoldSize = 0;
