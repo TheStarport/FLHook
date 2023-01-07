@@ -391,9 +391,7 @@ namespace Plugins::MiningControl
 
 		uint ship = Hk::Player::GetShip(client).value();
 
-		Vector vPos;
-		Matrix mRot;
-		pub::SpaceObj::GetLocation(ship, vPos, mRot);
+		auto [shipPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 
 		SystemId iClientSystemId = Hk::Player::GetSystem(client).value();
 		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemId);
@@ -404,8 +402,8 @@ namespace Plugins::MiningControl
 			{
 				try
 				{
-					const Universe::IZone* zone = cfield->get_lootable_zone(vPos);
-					if (cfield->near_field(vPos) && zone && zone->lootableZone)
+					const Universe::IZone* zone = cfield->get_lootable_zone(shipPosition);
+					if (cfield->near_field(shipPosition) && zone && zone->lootableZone)
 					{
 						ClientData& cd = Clients[client];
 
@@ -420,7 +418,7 @@ namespace Plugins::MiningControl
 
 						// Adjust the bonus based on the zone.
 						float fZoneBonus = 0.25f;
-						if (global->ZoneBonus[zone->iZoneId].Bonus)
+						if (global->ZoneBonus[zone->iZoneId].Bonus != 0.0f)
 							fZoneBonus = global->ZoneBonus[zone->iZoneId].Bonus;
 
 						// If the field is getting mined out, reduce the bonus

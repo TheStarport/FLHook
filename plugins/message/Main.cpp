@@ -157,11 +157,12 @@ namespace Plugins::Message
 
 		if (wscMsg.find(L"#c") != -1)
 		{
-			const auto position = Hk::Solar::GetLocation(client, IdType::Client);
+			const auto location = Hk::Solar::GetLocation(client, IdType::Client);
 			const auto system = Hk::Player::GetSystem(client);
-			if (position.has_value() && system.has_value())
+			const Vector& position = location.value().first;
+			if (location.has_value() && system.has_value())
 			{
-				const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position.value().first);
+				const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position);
 				wscMsg = ReplaceStr(wscMsg, L"#c", curLocation);
 			}
 			else

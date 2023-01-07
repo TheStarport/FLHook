@@ -111,9 +111,7 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		Vector pos;
-		Matrix rot;
-		pub::SpaceObj::GetLocation(playerInfo.value().ship, pos, rot);
+		auto [pos, rot] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 		
 		Vector erot = Hk::Math::MatrixToEuler(rot);
 
@@ -145,9 +143,7 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		Vector pos;
-		Matrix rot;
-		pub::SpaceObj::GetLocation(playerInfo.value().ship, pos, rot);
+		auto [pos, rot] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 		pos.x += 15;
 		pos.y += 15;
 		pos.z += 15;
@@ -289,9 +285,7 @@ namespace Plugins::MiscCommands
 
 		const bool bKillAll = cmds->ArgStr(1) == L"die";
 
-		Vector vFromShipLoc;
-		Matrix mFromShipDir;
-		pub::SpaceObj::GetLocation(playerInfo.value().ship, vFromShipLoc, mFromShipDir);
+		auto [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 
 		pub::Audio::Tryptich music;
 		music.iDunno = 0;
@@ -309,18 +303,14 @@ namespace Plugins::MiscCommands
 			if (client == playerInfo.value().client)
 				continue;
 
-			SystemId iClientSystem = Hk::Player::GetSystem(client).value();
-			if (playerInfo.value().iSystem != iClientSystem)
+			if (playerInfo.value().iSystem != Hk::Player::GetSystem(client).value())
 				continue;
 
 			uint ship = Hk::Player::GetShip(client).value();
 
-			Vector vShipLoc;
-			Matrix mShipDir;
-			pub::SpaceObj::GetLocation(ship, vShipLoc, mShipDir);
-
+			auto [playerPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 			// Is player within scanner range (15K) of the sending char.
-			if (Hk::Math::Distance3D(vShipLoc, vFromShipLoc) > 14999)
+			if (Hk::Math::Distance3D(playerPosition, fromShipPos) > 14999)
 				continue;
 
 			pub::Audio::SetMusic(client, music);

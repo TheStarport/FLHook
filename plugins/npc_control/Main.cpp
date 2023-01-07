@@ -290,9 +290,7 @@ namespace Plugins::Npc
 
 		SystemId iSystem = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 
-		Vector position;
-		Matrix rotation;
-		pub::SpaceObj::GetLocation(shipId, position, rotation);
+		auto [position, rotation] = Hk::Solar::GetLocation(shipId, IdType::Ship).value();
 
 		// Creation counter
 		for (int i = 0; i < Amount; i++)
@@ -345,12 +343,10 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship1 = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
-		if (ship1)
+		auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value());
+		if (ship.has_value())
 		{
-			Vector pos;
-			Matrix rot;
-			pub::SpaceObj::GetLocation(ship1, pos, rot);
+			auto [pos, rot] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
 			for (const auto& npc : global->spawnedNpcs)
 			{

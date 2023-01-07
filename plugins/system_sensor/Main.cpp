@@ -207,9 +207,10 @@ namespace Plugins::SystemSensor
 				if (iSys && enum_integer(iter->second.mode & mode))
 				{
 					std::wstring wscSysName = Hk::Message::GetWStringFromIdS(iSys->strid_name);
-					const auto position = Hk::Solar::GetLocation(client, IdType::Client);
+					const auto location = Hk::Solar::GetLocation(client, IdType::Client);
 					const auto system = Hk::Player::GetSystem(client);
-					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position.value().first);
+					const Vector& position = location.value().first;
+					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
 					    Players.GetActiveCharacterName(client),
