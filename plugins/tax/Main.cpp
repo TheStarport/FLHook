@@ -256,8 +256,8 @@ DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Tax");
-	pi->shortName("Tax");
+	pi->name("tax");
+	pi->shortName("tax");
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);

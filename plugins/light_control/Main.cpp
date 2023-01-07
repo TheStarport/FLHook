@@ -253,8 +253,8 @@ DefaultDllMainSettings(LoadSettings);
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("LightControl");
-	pi->shortName("LightControl");
+	pi->name("lightControl");
+	pi->shortName("lightControl");
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);
