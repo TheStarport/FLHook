@@ -36,7 +36,8 @@ namespace Hk::Solar
 		}
 	}
 
-	cpp::result<float, Error> getMass(uint spaceObjId) { 
+	cpp::result<float, Error> GetMass(uint spaceObjId)
+	{
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!spaceObjId || !system)
@@ -62,7 +63,8 @@ namespace Hk::Solar
 		return std::make_pair(v1, v2);
 	}
 
-	cpp::result<uint, Error> GetType(uint spaceObjId) {
+	cpp::result<uint, Error> GetType(uint spaceObjId)
+	{
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!spaceObjId || !system)
@@ -73,4 +75,4 @@ namespace Hk::Solar
 		pub::SpaceObj::GetType(spaceObjId, type);
 		return type;
 	}
-} // namespace Solar
+} // namespace Hk::Solar
