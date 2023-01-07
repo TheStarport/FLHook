@@ -61,4 +61,16 @@ namespace Hk::Solar
 		pub::SpaceObj::GetMotion(spaceObjId, v1, v2);
 		return std::make_pair(v1, v2);
 	}
+
+	cpp::result<uint, Error> GetType(uint spaceObjId) {
+		uint system;
+		pub::SpaceObj::GetSystem(spaceObjId, system);
+		if (!spaceObjId || !system)
+		{
+			return cpp::fail(Error::InvalidSpaceObjId);
+		}
+		uint type;
+		pub::SpaceObj::GetType(spaceObjId, type);
+		return type;
+	}
 } // namespace Solar

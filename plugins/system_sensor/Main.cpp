@@ -230,9 +230,12 @@ namespace Plugins::SystemSensor
 		const auto client = Hk::Client::GetClientIdByShip(ship);
 		if (client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
-			uint iTypeId;
-			pub::SpaceObj::GetType(iDockTarget, iTypeId);
-			if (iTypeId == OBJ_JUMP_GATE)
+			auto spaceObjType = Hk::Solar::GetType(iDockTarget);
+			if (spaceObjType.has_error())
+			{
+				Console::ConWarn(Hk::Err::ErrGetText(spaceObjType.error()));
+			}
+			if (spaceObjType.value() == OBJ_JUMP_GATE)
 			{
 				global->networks[client.value()].inJumpGate = true;
 			}
