@@ -1828,12 +1828,14 @@ namespace Hk::Player
 
 	cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring>& player)
 	{
-		const auto ship = GetShip(player);
+		ClientId client = Hk::Client::ExtractClientID(player);
+		const auto ship = GetShip(client);
 		if (ship.has_error())
 			return cpp::fail(ship.error());
 
-		uint target = Hk::Player::GetTarget(ship.value()).value();
-		if (!ship)
+		uint target;
+		pub::SpaceObj::GetTarget(ship.value(), target);
+		if (!target)
 			return cpp::fail(Error::NoTargetSelected);
 
 		return target;

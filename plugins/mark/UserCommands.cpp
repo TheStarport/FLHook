@@ -4,11 +4,18 @@ namespace Plugins::Mark
 {
 	void UserCmd_MarkObj(ClientId& client, const std::wstring& wscParam)
 	{
-		auto ship = Hk::Player::GetShip(client);
-		auto iTargetShip = Hk::Player::GetTarget(ship.value());
-		char err = MarkObject(client, iTargetShip.value());
+		auto target = Hk::Player::GetTarget(client);
+		if (target.has_error())
+		{
+			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			return;
+		}
+		char err = MarkObject(client, target.value());
 		switch (err)
 		{
+			case 0:
+				PrintUserCmdText(client, L"OK");
+				break;
 			case 1:
 				PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 				break;
@@ -17,27 +24,29 @@ namespace Plugins::Mark
 				break;
 			case 3:
 				PrintUserCmdText(client, L"Error: Object is already marked.");
-			default:
 				break;
 		}
 	}
 
 	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& wscParam)
 	{
-		auto ship = Hk::Player::GetShip(client);
-		auto iTargetShip = Hk::Player::GetTarget(ship.value());
-		char err = UnMarkObject(client, iTargetShip.value());
+		auto target = Hk::Player::GetTarget(client);
+		if (target.has_error())
+		{
+			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			return;
+		}
+		char err = UnMarkObject(client, target.value());
 		switch (err)
 		{
 			case 0:
-				// PRINT_OK()
+				PrintUserCmdText(client, L"OK");
 				break;
 			case 1:
 				PrintUserCmdText(client, L"Error: You must have something targeted to unmark it.");
 				break;
 			case 2:
 				PrintUserCmdText(client, L"Error: Object is not marked.");
-			default:
 				break;
 		}
 	}
