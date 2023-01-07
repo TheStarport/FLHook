@@ -121,16 +121,15 @@ namespace Plugins::Wardrobe
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("NOTICE: User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
+				AddLog(LogType::Normal, LogLevel::Info, fmt::format("User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
 			}
 			catch (char* err)
 			{
-				AddLog(
-				    LogType::Normal, LogLevel::Info, fmt::format("ERROR: User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
+				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
 			}
 			catch (...)
 			{
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: User {} costume change to {}", wstos(restart.characterName).c_str(), restart.costume));
+				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User {} costume change to {}", wstos(restart.characterName).c_str(), restart.costume));
 			}
 		}
 	}

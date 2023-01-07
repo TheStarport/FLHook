@@ -90,7 +90,7 @@ namespace Plugins::IPBan
 
 					if (FLHookConfig::i()->general.debugMode)
 					{
-						Console::ConInfo(L"NOTICE: Checking for ban on IP %s Login Id1 %s "
+						Console::ConInfo(L"Checking for ban on IP %s Login Id1 %s "
 						                 L"Id2 %s "
 						                 L"Client %d\n",
 						    stows(scThisIP).c_str(), stows(scLoginId).c_str(), stows(scLoginId2).c_str(), client);
@@ -149,7 +149,7 @@ namespace Plugins::IPBan
 		global->ipBans = Serializer::JsonToObject<IPBans>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"NOTICE: Loading IP bans from %s", stows(global->ipBans.File()).c_str());
+			Console::ConInfo(L"Loading IP bans from %s", stows(global->ipBans.File()).c_str());
 
 		Console::ConInfo(L"IP Bans [%u]", global->ipBans.Bans.size());
 	}
@@ -162,7 +162,7 @@ namespace Plugins::IPBan
 		global->loginIdBans = Serializer::JsonToObject<LoginIdBans>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"NOTICE: Loading Login Id bans from %s", stows(global->loginIdBans.File()).c_str());
+			Console::ConInfo(L"Loading Login Id bans from %s", stows(global->loginIdBans.File()).c_str());
 
 		Console::ConInfo(L"Login Id Bans [%u]", global->loginIdBans.Bans.size());
 	}
@@ -175,7 +175,7 @@ namespace Plugins::IPBan
 		global->authenticatedAccounts = Serializer::JsonToObject<AuthenticatedAccounts>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"NOTICE: Loading Authenticated Accounts from %s", stows(global->authenticatedAccounts.File()).c_str());
+			Console::ConInfo(L"Loading Authenticated Accounts from %s", stows(global->authenticatedAccounts.File()).c_str());
 
 		Console::ConInfo(L"Authenticated Accounts [%u]", global->authenticatedAccounts.Accounts.size());
 	}

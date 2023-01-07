@@ -168,15 +168,15 @@ namespace Plugins::Restart
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					flc_encode(scCharFile.c_str(), scCharFile.c_str());
 
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("NOTICE: User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
+				AddLog(LogType::Normal, LogLevel::Info, fmt::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
+				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
 			}
 			catch (...)
 			{
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("ERROR: User restart failed for {}", wstos(restart.characterName)));
+				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User restart failed for {}", wstos(restart.characterName)));
 			}
 		}
 	}

@@ -326,7 +326,7 @@ namespace IServerImplHook
 		if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) || !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) || !(ui.vDir.y == ui.vDir.y) ||
 		    !(ui.vDir.z == ui.vDir.z) || !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle))
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("ERROR: NAN found in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, fmt::format("NAN found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -335,7 +335,7 @@ namespace IServerImplHook
 		float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
 		if (n > 1.21f || n < 0.81f)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("ERROR: Non-normalized quaternion found in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Non-normalized quaternion found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -343,7 +343,7 @@ namespace IServerImplHook
 		// Far check
 		if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f || abs(ui.vPos.z) > 1e7f)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("ERROR: Ship position out of bounds in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Ship position out of bounds in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -852,7 +852,7 @@ bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
 {
 	uint system;
 	pub::Player::GetSystem(client, system);
-	AddLog(LogType::Normal, LogLevel::Err, wstos(fmt::format(L"ERROR: Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
+	AddLog(LogType::Normal, LogLevel::Err, wstos(fmt::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
 	    Hk::Client::GetCharacterNameByID(client).value(),
 	    system,
 	    gtl.iTradelaneSpaceObj1,

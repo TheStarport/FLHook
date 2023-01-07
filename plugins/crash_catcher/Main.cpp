@@ -432,7 +432,7 @@ will_crash:
 				if (global->hModContentAC)
 				{
 					if (FLHookConfig::i()->general.debugMode)
-						Console::ConInfo(L"NOTICE: Installing patches into content.dll");
+						Console::ConInfo(L"Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
 					{
@@ -552,7 +552,7 @@ will_crash:
 			if (global->hModContentAC)
 			{
 				if (FLHookConfig::i()->general.debugMode)
-					Console::ConInfo(L"NOTICE: Uninstalling patches from content.dll");
+					Console::ConInfo(L"Uninstalling patches from content.dll");
 
 				{
 					uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
