@@ -115,8 +115,7 @@ LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
 }
 
-LPTOP_LEVEL_EXCEPTION_FILTER WINAPI
-    Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
+LPTOP_LEVEL_EXCEPTION_FILTER WINAPI Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
 {
 	return NULL;
 }
@@ -170,6 +169,13 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 /**************************************************************************************************************
 init
 **************************************************************************************************************/
+
+const std::array<const char*, 4> PluginLibs = {
+    "pcre2-posix.dll",
+    "pcre2-8.dll",
+    "pcre2-16.dll",
+    "pcre2-32.dll",
+};
 
 void FLHookInit_Pre()
 {
@@ -233,8 +239,14 @@ void FLHookInit_Pre()
 		{
 			for (auto& i : config->plugins.plugins)
 			{
-				PluginManager::i()->load(stows(i), &AdminConsole, true);	
+				PluginManager::i()->load(stows(i), &AdminConsole, true);
 			}
+		}
+
+		// Load required libs that plugins might leverage
+		for (const auto& lib : PluginLibs)
+		{
+			LoadLibrary(lib);
 		}
 
 		Hk::Ini::CharacterInit();
@@ -259,7 +271,7 @@ void FLHookInit_Pre()
 
 				ReadProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 
-				BYTE patch[] = { 0xE9 };
+				BYTE patch[] = {0xE9};
 				WriteProcMem((char*)ernel32 + offset, patch, 1);
 				PatchCallAddr((char*)ernel32, offset, (char*)Cb_SetUnhandledExceptionFilter);
 			}
@@ -333,7 +345,7 @@ bool FLHookInit()
 				adr.sin_port = htons(config->socket.wPort);
 				if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 					throw "unicode: socket-bind failed, port already in "
-						"use?";
+					      "use?";
 
 				if (listen(sWListen, SOMAXCONN) != 0)
 					throw "unicode: socket-listen failed";
@@ -349,14 +361,12 @@ bool FLHookInit()
 				adr.sin_family = AF_INET;
 				adr.sin_port = htons(config->socket.ePort);
 				if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "encrypted: socket-bind failed, port already in "
-						"use?";
+					throw "encrypted: socket-bind failed, port already in use?";
 
 				if (listen(sEListen, SOMAXCONN) != 0)
 					throw "encrypted: socket-listen failed";
 
-				Console::ConInfo(L"socket(encrypted-ascii): socket connection "
-					L"listening");
+				Console::ConInfo(L"socket(encrypted-ascii): socket connection listening");
 			}
 
 			if (config->socket.eWPort > 0)
@@ -368,13 +378,12 @@ bool FLHookInit()
 				adr.sin_port = htons(config->socket.eWPort);
 				if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
 					throw "encrypted-unicode: socket-bind failed, port "
-						"already in use?";
+					      "already in use?";
 
 				if (listen(sEWListen, SOMAXCONN) != 0)
 					throw "encrypted-unicode: socket-listen failed";
 
-				Console::ConInfo(L"socket(encrypted-unicode): socket connection "
-					L"listening");
+				Console::ConInfo(L"socket(encrypted-unicode): socket connection listening");
 			}
 		}
 	}
@@ -515,7 +524,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.Print(L"ERR Please authenticate first");
 			return false;
 		}
-		
+
 		if (wscCmd.length() >= 256)
 		{
 			sc->csock.DoPrint(L"ERR Wrong password");
@@ -536,7 +545,9 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 			sc->csock.DoPrint(L"ERR Wrong password");
 			sc->csock.DoPrint(L"Goodbye.\r");
 			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
+			AddLog(LogType::Normal,
+			    LogLevel::Info,
+			    fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
 			return true;
 		}
 
@@ -548,7 +559,6 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 	}
 	else
 	{
-
 		if (const auto cmd = Trim(wscCmd); cmd == L"eventmode")
 		{
 			if (sc->csock.rights & RIGHT_EVENTMODE)
@@ -594,7 +604,7 @@ void ProcessEvent(std::wstring text, ...)
 check for pending admin commands in console or socket and execute them
 **************************************************************************************************************/
 
-struct timeval tv = { 0, 0 };
+struct timeval tv = {0, 0};
 
 void ProcessPendingCommands()
 {
@@ -632,8 +642,7 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = false;
 				sc->wscPending = L"";
 				lstSockets.push_back(sc);
-				Console::ConInfo(
-				    L"socket(ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+				Console::ConInfo(L"socket(ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 				sc->csock.Print(L"Welcome to FLHook, please authenticate");
 			}
 		}
@@ -659,9 +668,7 @@ void ProcessPendingCommands()
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = false;
 				lstSockets.push_back(sc);
-				Console::ConInfo(
-				    L"socket(unicode): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(),
-				    sc->csock.iPort);
+				Console::ConInfo(L"socket(unicode): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 				sc->csock.Print(L"Welcome to FLHack, please authenticate");
 			}
 		}
@@ -688,9 +695,7 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = true;
 				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
-				Console::ConInfo(
-				    L"socket(encrypted-ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(),
-				    sc->csock.iPort);
+				Console::ConInfo(L"socket(encrypted-ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 				sc->csock.Print(L"Welcome to FLHack, please authenticate");
 			}
 		}
@@ -717,10 +722,7 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = true;
 				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
-				Console::ConInfo(
-				    L"socket(encrypted-unicode): new socket connection "
-				    L"from %s:%d\n",
-				    stows(sc->csock.sIP).c_str(), sc->csock.iPort);
+				Console::ConInfo(L"socket(encrypted-unicode): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
 				sc->csock.Print(L"Welcome to FLHack, please authenticate");
 			}
 		}
@@ -731,7 +733,7 @@ void ProcessPendingCommands()
 			FD_SET fds;
 			FD_ZERO(&fds);
 			FD_SET(sc->csock.s, &fds);
-			struct timeval tv = { 0, 0 };
+			struct timeval tv = {0, 0};
 			if (select(0, &fds, 0, 0, &tv))
 			{ // data to be read
 				ulong lSize;
@@ -769,7 +771,9 @@ void ProcessPendingCommands()
 				if (wscData.length() > (1024 * iMaxKB))
 				{
 					Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
-					AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
+					AddLog(LogType::Normal,
+					    LogLevel::Info,
+					    fmt::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
 					delete[] szData;
 					lstDelete.push_back(sc);
 					continue;
