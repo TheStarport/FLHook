@@ -141,7 +141,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Replace #t and #c tags with current target name and current ship location. Return false if tags cannot be replaced.
 	 */
-	static bool ReplaceMessageTags(ClientId client, ClientInfo& clientData, std::wstring& wscMsg)
+	static bool ReplaceMessageTags(ClientId client, const ClientInfo& clientData, std::wstring& wscMsg)
 	{
 		if (wscMsg.find(L"#t") != -1)
 		{
@@ -157,8 +157,18 @@ namespace Plugins::Message
 
 		if (wscMsg.find(L"#c") != -1)
 		{
-			const std::wstring curLocation = Hk::Player::GetLocation(client);
-			wscMsg = ReplaceStr(wscMsg, L"#c", curLocation);
+			const auto position = Hk::Solar::GetLocation(client, IdType::Client);
+			const auto system = Hk::Player::GetSystem(client);
+			if (position.has_value() && system.has_value())
+			{
+				const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position.value().first);
+				wscMsg = ReplaceStr(wscMsg, L"#c", curLocation);
+			}
+			else
+			{
+				PrintUserCmdText(client, L"ERR Target not available");
+				return false;
+			}
 		}
 
 		return true;
