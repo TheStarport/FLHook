@@ -103,7 +103,7 @@ namespace Plugins::LightControl
 			return 0; 
 		}
 		
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId.value()) == global->config->baseIdHashes.end())
+		if (!global->config->baseIdHashes.empty() && std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId.value()) == global->config->baseIdHashes.end())
 		{
 			PrintUserCmdText(client, L"Light customization is not available at this facility.");
 			return 0;
