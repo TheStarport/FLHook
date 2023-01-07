@@ -12,7 +12,8 @@ namespace Plugins::Stats
 	void LoadSettings()
 	{
 		global->jsonFileName = Serializer::JsonToObject<FileName>();
-		std::filesystem::create_directories(global->jsonFileName.FilePath);
+		if (!std::filesystem::exists(global->jsonFileName.FilePath))
+			std::filesystem::create_directories(global->jsonFileName.FilePath);
 
 		Hk::Message::LoadStringDLLs();
 
@@ -64,7 +65,7 @@ namespace Plugins::Stats
 	// Function to export load and player data to a json file
 	void ExportJSON()
 	{
-		std::ofstream out(global->jsonFileName.FilePath);
+		std::ofstream out(global->jsonFileName.FilePath + "\\" + global->jsonFileName.StatsFile);
 
 		nlohmann::json jExport;
 		jExport["serverload"] = g_iServerLoad;
@@ -118,7 +119,7 @@ namespace Plugins::Stats
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Stats;
-REFL_AUTO(type(FileName), field(FilePath))
+REFL_AUTO(type(FileName), field(FilePath), field(StatsFile))
 
 DefaultDllMainSettings(LoadSettings)
 

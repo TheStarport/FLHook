@@ -11,7 +11,8 @@ namespace Plugins::Stats
 	struct FileName : Reflectable
 	{
 		std::string File() override { return "flhook_plugins/Stats.json"; }
-		std::string FilePath = "EXPORTS\\stats.json";
+		std::string StatsFile = "stats.json";
+		std::string FilePath = "EXPORTS";
 	};
 
 	//! Global data for this plugin
