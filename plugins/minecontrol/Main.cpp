@@ -529,7 +529,7 @@ namespace Plugins::MiningControl
 								pub::Player::SendNNMessage(client, CreateID("insufficient_cargo_space"));
 								return;
 							}
-							pub::Player::AddCargo(iSendToClientId, iLootId, iLootCount, 1.0, false);
+							Hk::Player::AddCargo(iSendToClientId, iLootId, iLootCount, false);
 						}
 						return;
 					}
