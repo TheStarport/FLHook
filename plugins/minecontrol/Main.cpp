@@ -120,7 +120,7 @@ namespace Plugins::MiningControl
 		if (!Clients[client].Setup)
 		{
 			if (global->config->PluginDebug > 1)
-				Console::ConInfo(L"NOTICE: client=%d setup bonuses", client);
+				Console::ConInfo(L"client=%d setup bonuses", client);
 			Clients[client].Setup = true;
 
 			// Get the player affiliation
@@ -136,7 +136,7 @@ namespace Plugins::MiningControl
 			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
 			if (global->config->PluginDebug > 1)
 			{
-				Console::ConInfo(L"NOTICE: client=%d iRepGroupId=%u shipId=%u lstCargo=", client, iRepGroupId, shipId);
+				Console::ConInfo(L"client=%d iRepGroupId=%u shipId=%u lstCargo=", client, iRepGroupId, shipId);
 				for (auto& ci : lstCargo.value())
 				{
 					Console::ConInfo(L"%u ", ci.iArchId);
@@ -161,7 +161,7 @@ namespace Plugins::MiningControl
 					Clients[client].LootShip[iLootId] = i.second.ShipIds;
 					if (global->config->PluginDebug > 1)
 					{
-						Console::ConInfo(L"NOTICE: client=%d LootId=%08x Bonus=%2.2f\n", client, iLootId, fBonus);
+						Console::ConInfo(L"client=%d LootId=%08x Bonus=%2.2f\n", client, iLootId, fBonus);
 					}
 				}
 			}
@@ -231,7 +231,7 @@ namespace Plugins::MiningControl
 		auto config = Serializer::JsonToObject<Config>();
 
 		if (config.PluginDebug)
-			Console::ConInfo(L"NOTICE: generic_factor=%0.0f debug=%d", config.GenericFactor, config.PluginDebug);
+			Console::ConInfo(L"generic_factor=%0.0f debug=%d", config.GenericFactor, config.PluginDebug);
 
 		for (auto& pb : config.PlayerBonus)
 		{
@@ -245,7 +245,7 @@ namespace Plugins::MiningControl
 
 			if (pb.Bonus <= 0.0f)
 			{
-				Console::ConErr(L"ERROR: %s:%0.0f: bonus not valid", stows(pb.Loot).c_str(), pb.Bonus);
+				Console::ConErr(L"%s:%0.0f: bonus not valid", stows(pb.Loot).c_str(), pb.Bonus);
 				continue;
 			}
 
@@ -253,7 +253,7 @@ namespace Plugins::MiningControl
 			pub::Reputation::GetReputationGroup(pb.RepId, pb.Rep.c_str());
 			if (pb.RepId == -1)
 			{
-				Console::ConErr(L"ERROR: %s: reputation not valid", stows(pb.Rep).c_str());
+				Console::ConErr(L"%s: reputation not valid", stows(pb.Rep).c_str());
 				continue;
 			}
 
@@ -262,7 +262,7 @@ namespace Plugins::MiningControl
 				uint ShipId = CreateID(ship.c_str());
 				if (!Archetype::GetShip(ShipId))
 				{
-					Console::ConErr(L"ERROR: %s: ship not valid", stows(ship).c_str());
+					Console::ConErr(L"%s: ship not valid", stows(ship).c_str());
 					continue;
 				}
 				pb.ShipIds.push_back(ShipId);
@@ -277,7 +277,7 @@ namespace Plugins::MiningControl
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
-					Console::ConErr(L"ERROR: %s: item not valid", stows(item).c_str());
+					Console::ConErr(L"%s: item not valid", stows(item).c_str());
 					continue;
 				}
 			}
@@ -296,13 +296,13 @@ namespace Plugins::MiningControl
 						continue;
 					}
 				}
-				Console::ConErr(L"ERROR: %s: ammo not valid", stows(ammo).c_str());
+				Console::ConErr(L"%s: ammo not valid", stows(ammo).c_str());
 			}
 				
 			global->PlayerBonus.insert(std::multimap<uint, PlayerBonus>::value_type(pb.LootId, pb));
 			if (global->config->PluginDebug)
 			{
-				Console::ConInfo(L"NOTICE: mining player bonus LootId: %u Bonus: %2.2f RepId: %u\n",
+				Console::ConInfo(L"mining player bonus LootId: %u Bonus: %2.2f RepId: %u\n",
 				    pb.LootId, pb.Bonus, pb.Rep);
 			}
 		}
@@ -311,13 +311,13 @@ namespace Plugins::MiningControl
 		{
 			if (zb.Zone.empty())
 			{
-				Console::ConErr(L"ERROR: %s: zone not valid", stows(zb.Zone).c_str());
+				Console::ConErr(L"%s: zone not valid", stows(zb.Zone).c_str());
 				continue;
 			}
 
 			if (zb.Bonus <= 0.0f)
 			{
-				Console::ConErr(L"ERROR: %s:%0.0f: bonus not valid", stows(zb.Zone).c_str(), zb.Bonus);
+				Console::ConErr(L"%s:%0.0f: bonus not valid", stows(zb.Zone).c_str(), zb.Bonus);
 				continue;
 			}
 
@@ -335,7 +335,7 @@ namespace Plugins::MiningControl
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(L"NOTICE: zone bonus %s Bonus=%2.2f "
+				Console::ConInfo(L"zone bonus %s Bonus=%2.2f "
 				                 L"ReplacementLootId=%s(%u) "
 				                 L"RechargeRate=%0.0f MaxReserve=%0.0f\n",
 				    stows(zb.Zone).c_str(), zb.Bonus, stows(zb.ReplacementLoot).c_str(), iReplacementLootId, zb.RechargeRate, zb.MaxReserve);

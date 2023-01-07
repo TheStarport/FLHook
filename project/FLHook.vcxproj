@@ -76,11 +76,11 @@
 xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+copy /y  "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
 if "$(FLHOOK_COPY_PATH)" NEQ "" (
 	xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
 	xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-	xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+	copy /y  "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(FLHOOK_COPY_PATH)"
 )
 setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
@@ -133,11 +133,11 @@ $(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
 xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
 xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+copy /y  "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
 if "$(FLHOOK_COPY_PATH)" NEQ "" (
 	xcopy /y  "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
 	xcopy /y  "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-	xcopy /y  "$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+	copy /y  "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(FLHOOK_COPY_PATH)"
 )
 setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
@@ -175,9 +175,8 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>xcopy /s /Y "$(SolutionDir)..\FLHookSDK\vcpkg.json" "$(SolutionDir).."
-$(SolutionDir)..\vcpkg\bootstrap-vcpkg.bat
-$(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

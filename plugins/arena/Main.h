@@ -1,5 +1,5 @@
 #pragma once
-#include "../base/Main.h"
+// #include "../base/Main.h"
 
 #include <FLHook.hpp>
 #include <plugin.h>
@@ -19,7 +19,7 @@ namespace Plugins::Arena
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/arena.json"; }
+		std::string File() override { return "config/arena.json"; }
 
 		// Reflectable fields
 		//! The command to be used to beam to the arena system. Defaults to "arena".
@@ -43,7 +43,7 @@ namespace Plugins::Arena
 	{
 		std::array<ClientState, MaxClientId + 1> transferFlags;
 		//! This plugin can communicate with the base plugin if loaded.
-		BaseCommunicator* baseCommunicator = nullptr;
+		// BaseCommunicator* baseCommunicator = nullptr;
 		//! Return code for the plugin
 		ReturnCode returnCode = ReturnCode::Default;
 		std::unique_ptr<Config> config = nullptr;

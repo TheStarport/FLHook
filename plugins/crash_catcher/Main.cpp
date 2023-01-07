@@ -38,7 +38,7 @@ namespace Plugins::CrashCatcher
 		_vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
 
 		FILE* log;
-		fopen_s(&log, "flhook_logs\\flhook_crashes.log", "a");
+		fopen_s(&log, "logs\\crashes.log", "a");
 
 		char szBuf[64];
 		time_t tNow = time(nullptr);
@@ -432,7 +432,7 @@ will_crash:
 				if (global->hModContentAC)
 				{
 					if (FLHookConfig::i()->general.debugMode)
-						Console::ConInfo(L"NOTICE: Installing patches into content.dll");
+						Console::ConInfo(L"Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
 					{
@@ -552,7 +552,7 @@ will_crash:
 			if (global->hModContentAC)
 			{
 				if (FLHookConfig::i()->general.debugMode)
-					Console::ConInfo(L"NOTICE: Uninstalling patches from content.dll");
+					Console::ConInfo(L"Uninstalling patches from content.dll");
 
 				{
 					uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};

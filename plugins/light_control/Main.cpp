@@ -130,8 +130,8 @@ namespace Plugins::LightControl
 			}
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
-			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
-			PrintUserCmdText(client, L"|    %u: %s", itemNumber++, me.nreplace().c_str());
+			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
+			PrintUserCmdText(client, fmt::format(L"|    {}: {}", itemNumber++, me.nreplace().c_str()));
 		}
 	}
 
@@ -142,7 +142,7 @@ namespace Plugins::LightControl
 	{
 		for (const auto& light : global->config->lights)
 		{
-			auto me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll();
+			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll();
 			PrintUserCmdText(client, me.nreplace());
 		}
 	}
@@ -253,8 +253,8 @@ DefaultDllMainSettings(LoadSettings);
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("LightControl");
-	pi->shortName("LightControl");
+	pi->name("lightControl");
+	pi->shortName("lightControl");
 	pi->mayUnload(true);
 	pi->commands(commands);
 	pi->returnCode(&global->returnCode);

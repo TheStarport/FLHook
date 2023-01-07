@@ -231,7 +231,7 @@ namespace Plugins::Npc
 	 */
 	void LoadSettings()
 	{
-		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_npcs", "flhook_logs/npc.log");
+		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_npcs", "logs/npc.log");
 		auto config = Serializer::JsonToObject<Config>();
 
 		for (auto& [name, npc] : config.npcInfo)
@@ -260,8 +260,6 @@ namespace Plugins::Npc
 	 */
 	void AfterStartup()
 	{
-		LoadSettings();
-
 		for (auto& npc : global->config->startupNpcs)
 			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
 	}
@@ -560,7 +558,7 @@ namespace Plugins::Npc
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Npc;
 
-DefaultDllMainSettings(AfterStartup);
+DefaultDllMainSettings(LoadSettings);
 
 REFL_AUTO(type(Npc), field(shipArch), field(loadout), field(iff), field(infocardId), field(infocard2Id), field(pilot), field(graph));
 REFL_AUTO(type(Fleet), field(name), field(member)) REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation));

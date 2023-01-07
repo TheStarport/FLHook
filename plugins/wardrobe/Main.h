@@ -17,7 +17,7 @@ namespace Plugins::Wardrobe
 	//! Config data for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "flhook_plugins/wardrobe.json"; }
+		std::string File() override { return "config/wardrobe.json"; }
 		//! A map containing the user friendly name of a head and it's actual name in the FL files
 		std::map<std::string, std::string> heads = {{"ExampleHead", "ku_edo_head"}};
 		//! A map containing the user friendly name of a body and it's actual name in the FL files

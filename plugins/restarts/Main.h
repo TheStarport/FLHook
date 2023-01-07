@@ -33,7 +33,7 @@ namespace Plugins::Restart
 		bool enableRestartCost;
 
 		//! File path of the json config file
-		std::string File() override { return "flhook_plugins/restarts.json"; }
+		std::string File() override { return "config/restarts.json"; }
 
 		//! A map of restart names and their cost
 		std::map<std::wstring, uint> availableRestarts;
