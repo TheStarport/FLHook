@@ -60,7 +60,7 @@ namespace Plugins::Arena
 		auto& cmd = const_cast<UserCommand&>(commands[0]);
 		cmd = CreateUserCommand(global->config->wscCommand, cmd.usage, cmd.proc, cmd.description);
 
-		global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+		//global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
 
 	/** @ingroup Arena
@@ -136,8 +136,8 @@ namespace Plugins::Arena
 	void MoveClient(unsigned int client, unsigned int targetBase)
 	{
 		// Ask that another plugin handle the beam.
-		if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
-			return;
+		//if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
+		//	return;
 
 		// No plugin handled it, do it ourselves.
 		unsigned int system;
