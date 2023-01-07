@@ -12,14 +12,14 @@ namespace Plugins::Mark
 			struct PlayerData* playerData = 0;
 			while (playerData = Players.traverse_active(playerData))
 			{
-				uint ship, client = playerData->iOnlineId;
-				ship = Hk::Player::GetShip(client).value();
-				if (!ship || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
+				uint client = playerData->iOnlineId;
+				auto ship = Hk::Player::GetShip(client);
+				if (ship.has_error() || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
 				SystemId iSystem = Hk::Player::GetSystem(client).value();
 				Vector VClientPos;
 				Matrix MClientOri;
-				pub::SpaceObj::GetLocation(ship, VClientPos, MClientOri);
+				pub::SpaceObj::GetLocation(ship.value(), VClientPos, MClientOri);
 
 				for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++)
 				{
