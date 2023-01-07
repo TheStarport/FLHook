@@ -28,7 +28,7 @@ namespace Plugins::Mark
 					pub::SpaceObj::GetLocation(global->Mark[client].AutoMarkedObjects[i], VTargetPos, MTargetOri);
 					if (Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius)
 					{
-						pub::Player::MarkObj(client, global->Mark[client].AutoMarkedObjects[i], 0);
+						Hk::Player::MarkObj(client, global->Mark[client].AutoMarkedObjects[i], 0);
 						global->Mark[client].DelayedAutoMarkedObjects.push_back(global->Mark[client].AutoMarkedObjects[i]);
 						if (i != global->Mark[client].AutoMarkedObjects.size() - 1)
 						{
@@ -58,7 +58,7 @@ namespace Plugins::Mark
 					pub::SpaceObj::GetLocation(global->Mark[client].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
 					if (!(Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius))
 					{
-						pub::Player::MarkObj(client, global->Mark[client].DelayedAutoMarkedObjects[i], 1);
+						Hk::Player::MarkObj(client, global->Mark[client].DelayedAutoMarkedObjects[i], 1);
 						global->Mark[client].AutoMarkedObjects.push_back(global->Mark[client].DelayedAutoMarkedObjects[i]);
 						if (i != global->Mark[client].DelayedAutoMarkedObjects.size() - 1)
 						{

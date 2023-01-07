@@ -1938,4 +1938,15 @@ namespace Hk::Player
 
 		return shipId;
 	}
+
+	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+		pub::Player::MarkObj(client, objId, markStatus);
+
+		return {};
+	}
 } // namespace Hk::Player

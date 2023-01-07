@@ -85,7 +85,7 @@ namespace Plugins::Mark
 			SystemId iTargetSystem = Hk::Solar::GetSystemBySpaceId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
 			if (iTargetSystem == iSystemId)
 			{
-				pub::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);
+				Hk::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);
 				vTempMark.push_back(global->Mark[client].DelayedSystemMarkedObjects[i]);
 				if (i != global->Mark[client].DelayedSystemMarkedObjects.size() - 1)
 				{
@@ -126,7 +126,7 @@ namespace Plugins::Mark
 				global->Mark[client].MarkedObjects.pop_back();
 				continue;
 			}
-			pub::Player::MarkObj(client, global->Mark[client].MarkedObjects[i], 1);
+			Hk::Player::MarkObj(client, global->Mark[client].MarkedObjects[i], 1);
 		}
 	}
 
