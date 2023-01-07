@@ -4,10 +4,9 @@ namespace Plugins::Mark
 {
 	void UserCmd_MarkObj(ClientId& client, const std::wstring& wscParam)
 	{
-		uint ship, iTargetShip;
-		ship = Hk::Player::GetShip(client).value();
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
-		char err = MarkObject(client, iTargetShip);
+		auto ship = Hk::Player::GetShip(client);
+		auto iTargetShip = Hk::Player::GetTarget(ship.value());
+		char err = MarkObject(client, iTargetShip.value());
 		switch (err)
 		{
 			case 1:
@@ -25,10 +24,9 @@ namespace Plugins::Mark
 
 	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& wscParam)
 	{
-		uint ship, iTargetShip;
-		ship = Hk::Player::GetShip(client).value();
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
-		char err = UnMarkObject(client, iTargetShip);
+		auto ship = Hk::Player::GetShip(client);
+		auto iTargetShip = Hk::Player::GetTarget(ship.value());
+		char err = UnMarkObject(client, iTargetShip.value());
 		switch (err)
 		{
 			case 0:
@@ -51,9 +49,9 @@ namespace Plugins::Mark
 
 	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
-		uint ship, iTargetShip;
-		ship = Hk::Player::GetShip(client).value();
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
+		auto ship = Hk::Player::GetShip(client);
+		auto iTargetShip = Hk::Player::GetTarget(ship.value());
+		char err = UnMarkObject(client, iTargetShip.value());
 		if (!iTargetShip)
 		{
 			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
@@ -76,16 +74,16 @@ namespace Plugins::Mark
 			if (iClientShip == iTargetShip)
 				continue;
 
-			MarkObject(groupClient, iTargetShip);
+			MarkObject(groupClient, iTargetShip.value());
 		}
 	}
 
 	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
-		uint ship, iTargetShip;
-		ship = Hk::Player::GetShip(client).value();
-		pub::SpaceObj::GetTarget(ship, iTargetShip);
-		if (!iTargetShip)
+		auto ship = Hk::Player::GetShip(client);
+		auto iTargetShip = Hk::Player::GetTarget(ship.value());
+		char err = UnMarkObject(client, iTargetShip.value());
+		if (iTargetShip.has_error())
 		{
 			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
 			return;
@@ -98,7 +96,7 @@ namespace Plugins::Mark
 
 		for (auto& lstG : lstMembers.value())
 		{
-			UnMarkObject(lstG.client, iTargetShip);
+			UnMarkObject(lstG.client, iTargetShip.value());
 		}
 	}
 

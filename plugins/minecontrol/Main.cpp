@@ -466,12 +466,11 @@ namespace Plugins::MiningControl
 						uint iSendToClientId = client;
 						if (!bNoMiningCombo)
 						{
-							uint iTargetShip;
-							pub::SpaceObj::GetTarget(ship, iTargetShip);
-							if (iTargetShip)
+							auto iTargetShip = Hk::Player::GetTarget(ship);
+							if (iTargetShip.has_value())
 							{
-								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip);
-								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip) < 1000.0f)
+								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip.value());
+								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip.value()) < 1000.0f)
 								{
 									iSendToClientId = iTargetClientId.value();
 								}

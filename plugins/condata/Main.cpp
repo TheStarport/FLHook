@@ -389,24 +389,20 @@ namespace Plugins::ConData
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
 		
-		uint iTarget = 0;
+		
 		auto ship = Hk::Player::GetShip(client);
-		if (ship.has_value())
+		auto iTarget = Hk::Player::GetTarget(ship.value());
+		if (iTarget.has_value())
 		{
-			pub::SpaceObj::GetTarget(ship.value(), iTarget);
-
-			if (iTarget)
-			{
-				const auto id = Hk::Client::GetClientIdByShip(iTarget);
-				if (Hk::Client::IsValidClientID(clientTarget))
-					clientTarget = id.value();
-			}
+			const auto id = Hk::Client::GetClientIdByShip(iTarget.value());
+			if (Hk::Client::IsValidClientID(clientTarget))
+				clientTarget = id.value();
 		}
 
 		auto& con = global->connections[clientTarget];
 
 		std::wstring Response = L"Ping";
-		if (iTarget)
+		if (iTarget.has_value())
 			Response += L" (target)";
 
 		Response += L" :";
