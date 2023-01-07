@@ -46,16 +46,12 @@ namespace Plugins::Npc
 	//! Config data for this plugin
 	struct Config : Reflectable
 	{
-		Npc exampleNpc;
-		Fleet exampleFleet;
-		StartupNpc exampleStartupNpc;
-
 		//! Map of npcs that can be spawned
-		std::map<std::wstring, Npc> npcInfo = {{L"example", exampleNpc}};
+		std::map<std::wstring, Npc> npcInfo = {{L"example", Npc() }};
 		//! Map of fleets that can be spawned
-		std::map<std::wstring, Fleet> fleetInfo = {{L"example", exampleFleet}};
+		std::map<std::wstring, Fleet> fleetInfo = {{L"example", Fleet() }};
 		//! Vector of npcs that are spawned on startup
-		std::vector<StartupNpc> startupNpcs = {exampleStartupNpc};
+		std::vector<StartupNpc> startupNpcs = { StartupNpc() };
 		//! Vector containing Infocard Ids used for naming npcs
 		std::vector<uint> npcInfocardIds {197808};
 		//! The config file we load out of
