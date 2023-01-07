@@ -58,12 +58,11 @@ namespace Plugins::Mark
 
 	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
-		auto ship = Hk::Player::GetShip(client);
-		auto iTargetShip = Hk::Player::GetTarget(ship.value());
-		char err = UnMarkObject(client, iTargetShip.value());
-		if (!iTargetShip)
+		auto target = Hk::Player::GetTarget(client);
+		char err = MarkObject(client, target.value());
+		if (target.has_error())
 		{
-			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 
@@ -74,27 +73,26 @@ namespace Plugins::Mark
 			return;
 		}
 
-		for (const auto& [groupClient, character] : lstMembers.value())
+		for (const auto& [groupClient, _] : lstMembers.value())
 		{
 			if (global->Mark[groupClient].IgnoreGroupMark)
 				continue;
 
 			uint iClientShip = Hk::Player::GetShip(client).value();
-			if (iClientShip == iTargetShip)
+			if (iClientShip == target)
 				continue;
 
-			MarkObject(groupClient, iTargetShip.value());
+			MarkObject(groupClient, target.value());
 		}
 	}
 
 	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
-		auto ship = Hk::Player::GetShip(client);
-		auto iTargetShip = Hk::Player::GetTarget(ship.value());
-		char err = UnMarkObject(client, iTargetShip.value());
-		if (iTargetShip.has_error())
+		auto target = Hk::Player::GetTarget(client);
+		char err = UnMarkObject(client, target.value());
+		if (target.has_error())
 		{
-			PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 		const auto lstMembers = Hk::Player::GetGroupMembers(client);
@@ -103,9 +101,9 @@ namespace Plugins::Mark
 			return;
 		}
 
-		for (auto& lstG : lstMembers.value())
+		for (const auto& [groupClient, _] : lstMembers.value())
 		{
-			UnMarkObject(lstG.client, iTargetShip.value());
+			UnMarkObject(groupClient, target.value());
 		}
 	}
 
