@@ -521,4 +521,13 @@ namespace Hk::Client
 		}
 		return L"";
 	}
+
+	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId) { 
+		if (Hk::Client::IsValidClientID(client))
+		{
+			pub::Audio::PlaySoundEffect(client, soundId);
+			return {};
+		}
+		return cpp::fail(Error::PlayerNotLoggedIn);
+	}
 }

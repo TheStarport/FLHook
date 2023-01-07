@@ -16,17 +16,13 @@ namespace Plugins::Mark
 				auto ship = Hk::Player::GetShip(client);
 				if (ship.has_error() || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
-				SystemId iSystem = Hk::Player::GetSystem(client).value();
-				Vector VClientPos;
-				Matrix MClientOri;
-				pub::SpaceObj::GetLocation(ship.value(), VClientPos, MClientOri);
+
+				auto [clientPosition, _] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
 				for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++)
 				{
-					Vector VTargetPos;
-					Matrix MTargetOri;
-					pub::SpaceObj::GetLocation(global->Mark[client].AutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius)
+					auto [targetPosition, _] = Hk::Solar::GetLocation(global->Mark[client].AutoMarkedObjects[i], IdType::Solar).value();
+					if (Hk::Math::Distance3D(targetPosition, clientPosition) > global->Mark[client].AutoMarkRadius)
 					{
 						Hk::Player::MarkObj(client, global->Mark[client].AutoMarkedObjects[i], 0);
 						global->Mark[client].DelayedAutoMarkedObjects.push_back(global->Mark[client].AutoMarkedObjects[i]);
@@ -53,10 +49,8 @@ namespace Plugins::Mark
 						global->Mark[client].DelayedAutoMarkedObjects.pop_back();
 						continue;
 					}
-					Vector VTargetPos;
-					Matrix MTargetOri;
-					pub::SpaceObj::GetLocation(global->Mark[client].DelayedAutoMarkedObjects[i], VTargetPos, MTargetOri);
-					if (!(Hk::Math::Distance3D(VTargetPos, VClientPos) > global->Mark[client].AutoMarkRadius))
+					auto [targetPosition, _] = Hk::Solar::GetLocation(global->Mark[client].DelayedAutoMarkedObjects[i], IdType::Solar).value();
+					if (!(Hk::Math::Distance3D(targetPosition, clientPosition) > global->Mark[client].AutoMarkRadius))
 					{
 						Hk::Player::MarkObj(client, global->Mark[client].DelayedAutoMarkedObjects[i], 1);
 						global->Mark[client].AutoMarkedObjects.push_back(global->Mark[client].DelayedAutoMarkedObjects[i]);
@@ -81,23 +75,22 @@ namespace Plugins::Mark
 			return;
 
 		mstime tmTimeNow = timeInMS();
-		for (std::list<DELAY_MARK>::iterator mark = global->DelayedMarks.begin(); mark != global->DelayedMarks.end();)
+		for (auto mark = global->DelayedMarks.begin(); mark != global->DelayedMarks.end();)
 		{
 			if (tmTimeNow - mark->time > 50)
 			{
-				Matrix mTemp;
-				Vector vItem, vPlayer;
-				pub::SpaceObj::GetLocation(mark->iObj, vItem, mTemp);
+				auto [itemPosition, _] = Hk::Solar::GetLocation(mark->iObj, IdType::Solar).value();
+
 				SystemId iItemSystem = Hk::Solar::GetSystemBySpaceId(mark->iObj).value();
 				// for all players
-				struct PlayerData* playerData = 0;
-				while (playerData = Players.traverse_active(playerData))
+				struct PlayerData* playerData = nullptr;
+				while ((playerData = Players.traverse_active(playerData)))
 				{
 					ClientId client = playerData->iOnlineId;
 					if (Players[client].systemId == iItemSystem)
 					{
-						pub::SpaceObj::GetLocation(Players[client].shipId, vPlayer, mTemp);
-						if (Hk::Math::Distance3D(vPlayer, vItem) <= LOOT_UNSEEN_RADIUS)
+						auto [playerPosition, _] = Hk::Solar::GetLocation(Players[client].shipId, IdType::Ship).value();
+						if (Hk::Math::Distance3D(playerPosition, itemPosition) <= LOOT_UNSEEN_RADIUS)
 						{
 							MarkObject(client, mark->iObj);
 						}

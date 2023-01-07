@@ -105,9 +105,7 @@ namespace Plugins::CargoDrop
 					if (global->config->lootDisconnectingPlayers && Hk::Player::IsInRange(client, global->config->disconnectingPlayersRange))
 					{
 						const auto system = Hk::Player::GetSystem(client);
-						Vector position = {0.0f, 0.0f, 0.0f};
-						Matrix orientation = {0.0f, 0.0f, 0.0f};
-						pub::SpaceObj::GetLocation(ship.value(), position, orientation);
+						auto [position, _] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 						position.x += 30.0f;
 
 						int remainingHoldSize = 0;
@@ -163,17 +161,14 @@ namespace Plugins::CargoDrop
 			}
 		}
 
-		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * shipSizeEstimate); hullDrop > 0)
+		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
 		{
 			uint ship = Hk::Player::GetShip(clientVictim).value();
-			Vector position {};
-			Matrix orientation {};
-			pub::SpaceObj::GetLocation(ship, position, orientation);
+			auto [position, _]= Hk::Solar::GetLocation(ship, IdType::Ship).value();
 			position.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"Cargo drop in system %08x at %f,%f,%f "
-				                 L"for ship size of shipSizeEst=%d iHullDrop=%d\n",
+				Console::ConInfo(L"Cargo drop in system %08x at %f,%f,%f for ship size of shipSizeEst=%d iHullDrop=%d\n",
 				    system,
 				    position.x,
 				    position.y,

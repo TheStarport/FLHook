@@ -33,7 +33,7 @@ namespace Plugins::SoundManager
 		// Player sound when player logs in
 
 		if (global->config->sound_ids.size())
-			pub::Audio::PlaySoundEffect(client, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
+			Hk::Client::PlaySoundEffect(client, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
 	}
 }
 
