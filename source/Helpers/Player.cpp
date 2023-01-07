@@ -1905,6 +1905,7 @@ namespace Hk::Player
 		return system;
 	}
 
+	// returns ship instance ID
 	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
@@ -1919,5 +1920,22 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotInSpace);
 
 		return ship;
+	}
+
+	// returns Ship Type
+	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring>& player)
+	{
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		uint shipId;
+		pub::Player::GetShipID(client, shipId);
+		if (!shipId)
+			return cpp::fail(Error::PlayerNotInSpace);
+
+		return shipId;
 	}
 } // namespace Hk::Player
