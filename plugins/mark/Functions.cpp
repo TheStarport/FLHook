@@ -7,9 +7,8 @@ namespace Plugins::Mark
 		if (!iObject)
 			return 1;
 
-		uint iSystemId, iObjectSystemId;
-		pub::Player::GetSystem(client, iSystemId);
-		pub::SpaceObj::GetSystem(iObject, iObjectSystemId);
+		SystemId iSystemId = Hk::Player::GetSystem(client).value();
+		SystemId iObjectSystemId = Hk::Solar::GetSystemBySpaceId(iObject).value();
 		if (iSystemId == iObjectSystemId)
 		{
 			for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
@@ -31,7 +30,7 @@ namespace Plugins::Mark
 			return 0;
 		}
 
-		pub::Player::MarkObj(client, iObject, 1);
+		Hk::Player::MarkObj(client, iObject, 1);
 		for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++) // remove from automarked vector
 		{
 			if (global->Mark[client].AutoMarkedObjects[i] == iObject)
@@ -64,7 +63,7 @@ namespace Plugins::Mark
 					global->Mark[client].MarkedObjects[i] = global->Mark[client].MarkedObjects[global->Mark[client].MarkedObjects.size() - 1];
 				}
 				global->Mark[client].MarkedObjects.pop_back();
-				pub::Player::MarkObj(client, iObject, 0);
+				Hk::Player::MarkObj(client, iObject, 0);
 				pub::Audio::PlaySoundEffect(client,
 				    2939827141); // CreateID("ui_select_remove")
 				return 0;
@@ -80,7 +79,7 @@ namespace Plugins::Mark
 					global->Mark[client].AutoMarkedObjects[j] = global->Mark[client].AutoMarkedObjects[global->Mark[client].AutoMarkedObjects.size() - 1];
 				}
 				global->Mark[client].AutoMarkedObjects.pop_back();
-				pub::Player::MarkObj(client, iObject, 0);
+				Hk::Player::MarkObj(client, iObject, 0);
 				pub::Audio::PlaySoundEffect(client,
 				    2939827141); // CreateID("ui_select_remove")
 				return 0;
@@ -109,12 +108,12 @@ namespace Plugins::Mark
 	{
 		for (uint i = 0; i < global->Mark[client].MarkedObjects.size(); i++)
 		{
-			pub::Player::MarkObj(client, (global->Mark[client].MarkedObjects[i]), 0);
+			Hk::Player::MarkObj(client, (global->Mark[client].MarkedObjects[i]), 0);
 		}
 		global->Mark[client].MarkedObjects.clear();
 		for (uint i = 0; i < global->Mark[client].AutoMarkedObjects.size(); i++)
 		{
-			pub::Player::MarkObj(client, (global->Mark[client].AutoMarkedObjects[i]), 0);
+			Hk::Player::MarkObj(client, (global->Mark[client].AutoMarkedObjects[i]), 0);
 		}
 		global->Mark[client].AutoMarkedObjects.clear();
 		global->Mark[client].DelayedSystemMarkedObjects.clear();

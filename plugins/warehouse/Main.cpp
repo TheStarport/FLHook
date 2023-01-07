@@ -205,10 +205,9 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		uint base;
-		pub::Player::GetBase(client, base);
+		auto base = Hk::Player::GetCurrentBase(client);
 
-		if (!base)
+		if (base.has_error())
 		{
 			PrintUserCmdText(client, L"You must be docked in order to use this command.");
 			return;
@@ -216,19 +215,19 @@ namespace Plugins::Warehouse
 
 		if (cmd == L"store")
 		{
-			UserCmdStoreItem(client, param, base);
+			UserCmdStoreItem(client, param, base.value());
 		}
 		else if (cmd == L"list")
 		{
-			UserCmdGetItems(client, param, base);
+			UserCmdGetItems(client, param, base.value());
 		}
 		else if (cmd == L"withdraw")
 		{
-			UserCmdWithdrawItem(client, param, base);
+			UserCmdWithdrawItem(client, param, base.value());
 		}
 		else if (cmd == L"liststored")
 		{
-			UserCmdGetWarehouseItems(client, param, base);
+			UserCmdGetWarehouseItems(client, param, base.value());
 		}
 		else
 		{

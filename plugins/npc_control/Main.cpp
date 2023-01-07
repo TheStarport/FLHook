@@ -284,13 +284,11 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint shipId;
-		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), shipId);
+		uint shipId = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 		if (!shipId)
 			return;
 
-		uint iSystem;
-		pub::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), iSystem);
+		SystemId iSystem = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 
 		Vector position;
 		Matrix rotation;
@@ -317,9 +315,8 @@ namespace Plugins::Npc
 		// Destroy targeted ship
 		if (cmds->IsPlayer())
 		{
-			uint ship, target;
-			pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship);
-			pub::SpaceObj::GetTarget(ship, target);
+			uint ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
+			uint target = Hk::Player::GetTarget(ship).value();
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
@@ -348,8 +345,7 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship1;
-		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship1);
+		uint ship1 = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 		if (ship1)
 		{
 			Vector pos;
@@ -412,12 +408,10 @@ namespace Plugins::Npc
 
 		else
 		{
-			uint ship;
-			pub::Player::GetShip(client, ship);
+			uint ship = Hk::Player::GetShip(client).value();
 			if (ship)
 			{
-				uint target;
-				pub::SpaceObj::GetTarget(ship, target);
+				uint target = Hk::Player::GetTarget(ship).value();
 				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 				{
 					AiFollow(ship, target);
@@ -448,13 +442,11 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship;
-		pub::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value(), ship);
+		uint ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 		if (ship)
 		{
 			// Is the admin targeting an NPC?
-			uint target;
-			pub::SpaceObj::GetTarget(ship, target);
+			uint target = Hk::Player::GetTarget(ship).value();
 			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
 			{
 				pub::AI::DirectiveCancelOp cancelOp;

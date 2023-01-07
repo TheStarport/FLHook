@@ -68,12 +68,7 @@ namespace Plugins::Arena
 	 */
 	bool IsDockedClient(unsigned int client)
 	{
-		unsigned int base = 0;
-		pub::Player::GetBase(client, base);
-		if (base)
-			return true;
-
-		return false;
+		return Hk::Player::GetCurrentBase(client).has_value();
 	}
 
 	/** @ingroup Arena
@@ -115,14 +110,11 @@ namespace Plugins::Arena
 	void StoreReturnPointForClient(unsigned int client)
 	{
 		// It's not docked at a custom base, check for a regular base
-		uint base = 0;
-
-		if (!base)
-			pub::Player::GetBase(client, base);
-		if (!base)
+		auto base = Hk::Player::GetCurrentBase(client);
+		if (base.has_error())
 			return;
 
-		Hk::Ini::SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
+		Hk::Ini::SetCharacterIni(client, L"conn.retbase", std::to_wstring(base.value()));
 	}
 
 	/** @ingroup Arena
@@ -140,12 +132,10 @@ namespace Plugins::Arena
 		//	return;
 
 		// No plugin handled it, do it ourselves.
-		unsigned int system;
-		pub::Player::GetSystem(client, system);
+		SystemId system = Hk::Player::GetSystem(client).value();
 		Universe::IBase* base = Universe::get_base(targetBase);
 
-		pub::Player::ForceLand(client, targetBase); // beam
-
+		Hk::Player::Beam(client, targetBase);
 		// if not in the same system, emulate F1 charload
 		if (base->systemId != system)
 		{
@@ -169,10 +159,9 @@ namespace Plugins::Arena
 	 */
 	bool CheckReturnDock(unsigned int client, unsigned int target)
 	{
-		unsigned int base = 0;
-		pub::Player::GetBase(client, base);
+		auto base = Hk::Player::GetCurrentBase(client);
 
-		if (base == target)
+		if (base.value() == target)
 			return true;
 
 		return false;
@@ -231,8 +220,7 @@ namespace Plugins::Arena
 	void UserCmd_Conn(ClientId& client, const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		uint system = 0;
-		pub::Player::GetSystem(client, system);
+		SystemId system = Hk::Player::GetSystem(client).value();
 		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");

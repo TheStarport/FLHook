@@ -50,8 +50,7 @@ namespace Plugins::Pvp
 						while (playerData = Players.traverse_active(playerData))
 						{
 							ClientId client = playerData->iOnlineId;
-							uint systemId = 0;
-							pub::Player::GetSystem(client, systemId);
+							SystemId systemId = Hk::Player::GetSystem(client).value();
 							if (system == systemId)
 								PrintUserCmdText(client, L"No one has won the FFA.");
 						}
@@ -104,8 +103,7 @@ namespace Plugins::Pvp
 		}
 
 		// Get the player's current system and location in the system.
-		uint systemId;
-		pub::Player::GetSystem(client, systemId);
+		SystemId systemId = Hk::Player::GetSystem(client).value();
 
 		// Look in FreeForAll map, is an ffa happening in this system already?
 		// If system doesn't have an ongoing ffa
@@ -118,8 +116,7 @@ namespace Plugins::Pvp
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
-				uint clientSystemId = 0;
-				pub::Player::GetSystem(client2, clientSystemId);
+				SystemId clientSystemId = Hk::Player::GetSystem(client2).value();
 				if (systemId != clientSystemId)
 					continue;
 
@@ -161,8 +158,7 @@ namespace Plugins::Pvp
 	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		if (!ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
@@ -170,8 +166,7 @@ namespace Plugins::Pvp
 		}
 
 		// Get the player's current system and location in the system.
-		uint systemId;
-		pub::Player::GetSystem(client, systemId);
+		SystemId systemId = Hk::Player::GetSystem(client).value();
 
 		if (global->freeForAlls.find(systemId) == global->freeForAlls.end())
 		{
@@ -262,10 +257,8 @@ namespace Plugins::Pvp
 	void UserCmdDuel(ClientId& client, const std::wstring& param)
 	{
 		// Get the object the player is targetting
-		uint ship;
-		uint targetShip;
-		pub::Player::GetShip(client, ship);
-		pub::SpaceObj::GetTarget(ship, targetShip);
+		uint ship = Hk::Player::GetShip(client).value();
+		uint targetShip = Hk::Player::GetTarget(ship).value();
 		if (!targetShip)
 		{
 			PrintUserCmdText(client, L"Target is not a ship.");
@@ -352,8 +345,7 @@ namespace Plugins::Pvp
 	void UserCmdAcceptDuel(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 		if (!ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");

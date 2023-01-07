@@ -56,8 +56,7 @@ namespace Plugins::DeathPenalty
 	bool bExcludedSystem(ClientId client)
 	{
 		// Get System Id
-		uint iSystemId;
-		pub::Player::GetSystem(client, iSystemId);
+		SystemId iSystemId = Hk::Player::GetSystem(client).value();
 		// Search list for system
 		return (std::find(global->ExcludedSystemsIds.begin(), global->ExcludedSystemsIds.end(), iSystemId) != global->ExcludedSystemsIds.end());
 	}
@@ -71,8 +70,7 @@ namespace Plugins::DeathPenalty
 	float fShipFractionOverride(ClientId client)
 	{
 		// Get ShipArchId
-		uint shipArchId;
-		pub::Player::GetShipID(client, shipArchId);
+		uint shipArchId = Hk::Player::GetShipID(client).value();
 
 		// Default return value is the default death penalty fraction
 		float fOverrideValue = global->config->DeathPenaltyFraction;
@@ -97,8 +95,7 @@ namespace Plugins::DeathPenalty
 			if (!bExcludedSystem(client))
 			{
 				// Get the players net worth
-				float fValue;
-				pub::Player::GetAssetValue(client, fValue);
+				uint fValue = Hk::Player::GetShipValue(client).value();
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
@@ -276,8 +273,7 @@ namespace Plugins::DeathPenalty
 			PrintUserCmdText(client, L"The death penalty is charged immediately when you die.");
 			if (!bExcludedSystem(client))
 			{
-				float fValue;
-				pub::Player::GetAssetValue(client, fValue);
+				float fValue = Hk::Player::GetShipValue(client).value();
 				uint uOwed = static_cast<uint>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
 				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(uOwed) + L" credits.");
 				PrintUserCmdText(client,

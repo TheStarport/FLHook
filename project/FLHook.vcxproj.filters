@@ -121,6 +121,9 @@
     <ClCompile Include="..\source\Helpers\Player.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Helpers\Solar.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
     <ClCompile Include="..\source\Features\Error.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>

@@ -81,8 +81,7 @@ namespace Plugins::Stats
 			jPlayer["name"] = encode(wstos(lstPlayer.character));
 
 			// Add rank
-			int iRank;
-			pub::Player::GetRank(lstPlayer.client, iRank);
+			int iRank = Hk::Player::GetRank(lstPlayer.client).value();
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
@@ -94,8 +93,7 @@ namespace Plugins::Stats
 			jPlayer["ship"] = (ship) ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
-			uint iSystemId;
-			pub::Player::GetSystem(lstPlayer.client, iSystemId);
+			SystemId iSystemId = Hk::Player::GetSystem(lstPlayer.client).value();
 			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
 			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->strid_name));
 

@@ -67,9 +67,8 @@ namespace Plugins::CargoDrop
 				continue;
 
 			// If not in space, do nothing
-			uint shipId;
-			pub::Player::GetShip(client, shipId);
-			if (!shipId)
+			auto ship = Hk::Player::GetShip(client);
+			if (ship.has_error())
 				continue;
 
 			if (ClientInfo[client].tmF1Time || ClientInfo[client].tmF1TimeDisconnect)
@@ -77,7 +76,7 @@ namespace Plugins::CargoDrop
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 				// Drain the ship's shields.
-				pub::SpaceObj::DrainShields(shipId);
+				pub::SpaceObj::DrainShields(ship.value());
 
 				// Simulate an obj update to stop the ship in space.
 				SSPObjUpdateInfo updateInfo {};
@@ -108,7 +107,7 @@ namespace Plugins::CargoDrop
 						const auto system = Hk::Player::GetSystem(client);
 						Vector position = {0.0f, 0.0f, 0.0f};
 						Matrix orientation = {0.0f, 0.0f, 0.0f};
-						pub::SpaceObj::GetLocation(shipId, position, orientation);
+						pub::SpaceObj::GetLocation(ship.value(), position, orientation);
 						position.x += 30.0f;
 
 						int remainingHoldSize = 0;
@@ -130,7 +129,7 @@ namespace Plugins::CargoDrop
 					// Kill if other ships are in scanner range.
 					if (global->config->killDisconnectingPlayers && Hk::Player::IsInRange(client, global->config->disconnectingPlayersRange))
 					{
-						pub::SpaceObj::SetRelativeHealth(shipId, 0.0f);
+						pub::SpaceObj::SetRelativeHealth(ship.value(), 0.0f);
 					}
 				}
 			}
@@ -166,11 +165,10 @@ namespace Plugins::CargoDrop
 
 		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * shipSizeEstimate); hullDrop > 0)
 		{
-			uint shipId;
-			pub::Player::GetShip(clientVictim, shipId);
+			uint ship = Hk::Player::GetShip(clientVictim).value();
 			Vector position {};
 			Matrix orientation {};
-			pub::SpaceObj::GetLocation(shipId, position, orientation);
+			pub::SpaceObj::GetLocation(ship, position, orientation);
 			position.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)

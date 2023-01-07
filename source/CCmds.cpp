@@ -1051,8 +1051,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			uint iTarget;
-			pub::SpaceObj::GetTarget(ship, iTarget);
+			uint iTarget = Hk::Player::GetTarget(ship).value();
 			if (!iTarget)
 				return L"";
 			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
@@ -1076,8 +1075,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			uint iTarget;
-			pub::SpaceObj::GetTarget(ship, iTarget);
+			uint iTarget = Hk::Player::GetTarget(ship).value();
 			if (!iTarget)
 				return L"";
 			auto targetId = Hk::Client::GetClientIdByShip(iTarget);

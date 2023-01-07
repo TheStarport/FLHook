@@ -70,9 +70,8 @@ namespace Plugins::MiscCommands
 
 	static void SetLights(ClientId client, bool bOn)
 	{
-		uint ship;
-		pub::Player::GetShip(client, ship);
-		if (!ship)
+		auto ship = Hk::Player::GetShip(client);
+		if (ship.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in space");
 			return;
@@ -87,7 +86,7 @@ namespace Plugins::MiscCommands
 			{
 				XActivateEquip ActivateEq;
 				ActivateEq.bActivate = bOn;
-				ActivateEq.iSpaceId = ship;
+				ActivateEq.iSpaceId = ship.value();
 				ActivateEq.sId = eq.sId;
 				Server.ActivateEquip(client, ActivateEq);
 				bLights = true;
@@ -310,13 +309,11 @@ namespace Plugins::MiscCommands
 			if (client == playerInfo.value().client)
 				continue;
 
-			uint iClientSystem = 0;
-			pub::Player::GetSystem(client, iClientSystem);
+			SystemId iClientSystem = Hk::Player::GetSystem(client).value();
 			if (playerInfo.value().iSystem != iClientSystem)
 				continue;
 
-			uint ship;
-			pub::Player::GetShip(client, ship);
+			uint ship = Hk::Player::GetShip(client).value();
 
 			Vector vShipLoc;
 			Matrix mShipDir;

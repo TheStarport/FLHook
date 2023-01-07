@@ -138,8 +138,7 @@ namespace Plugins::SystemSensor
 		int iHoldSize;
 		const auto cargo = Hk::Player::EnumCargo(client, iHoldSize);
 
-		unsigned int iSystemId;
-		pub::Player::GetSystem(client, iSystemId);
+		SystemId iSystemId = Hk::Player::GetSystem(client).value();
 
 		// If this is ship has the right equipment and is in the right system then
 		// enable access.
@@ -178,8 +177,7 @@ namespace Plugins::SystemSensor
 
 	static void DumpSensorAccess(ClientId client, const std::wstring& wscType, Mode mode)
 	{
-		unsigned int iSystemId;
-		pub::Player::GetSystem(client, iSystemId);
+		SystemId iSystemId = Hk::Player::GetSystem(client).value();
 
 		// Find the sensor network for this system.
 		auto siter = global->sensorSystem.lower_bound(iSystemId);

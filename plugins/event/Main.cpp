@@ -147,8 +147,7 @@ namespace Plugins::Event
 			uint Affiliation;
 			pub::Reputation::GetAffiliation(Reputation, Affiliation);
 
-			uint System;
-			pub::SpaceObj::GetSystem(cShip->get_id(), System);
+			SystemId System = Hk::Solar::GetSystemBySpaceId(cShip->get_id()).value();
 
 			const Vector position = cShip->get_position();
 			const std::string sector = Hk::Math::VectorToSectorCoord<std::string>(System, position);
@@ -171,12 +170,11 @@ namespace Plugins::Event
 	 */
 	void __stdcall GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
-		uint Base;
-		pub::Player::GetBase(client, Base);
+		auto base = Hk::Player::GetCurrentBase(client);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gbi.iGoodId)
+			if (mission.base == base.value() && mission.item == gbi.iGoodId)
 			{
 				mission.current_amount -= gbi.iCount;
 				if (mission.current_amount < 0)
@@ -190,12 +188,11 @@ namespace Plugins::Event
 	 */
 	void __stdcall GFGoodSell(const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
-		uint Base;
-		pub::Player::GetBase(client, Base);
+		auto base = Hk::Player::GetCurrentBase(client);
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == Base && mission.item == gsi.iArchId && mission.current_amount < mission.required_amount)
+			if (mission.base == base.value() && mission.item == gsi.iArchId && mission.current_amount < mission.required_amount)
 			{
 				int needed = mission.required_amount - mission.current_amount;
 				if (needed > gsi.iCount)

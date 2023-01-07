@@ -129,8 +129,7 @@ namespace Plugins::MiningControl
 				shipObj.value()->get_affiliation(iRepGroupId);
 
 			// Get the ship type
-			uint shipId;
-			pub::Player::GetShipID(client, shipId);
+			uint shipId = Hk::Player::GetShipID(client).value();
 
 			// Get the ship cargo so that we can check ids, guns, etc.
 			int remainingHoldSize = 0;
@@ -390,15 +389,13 @@ namespace Plugins::MiningControl
 		// already.
 		CheckClientSetup(client);
 
-		uint ship;
-		pub::Player::GetShip(client, ship);
+		uint ship = Hk::Player::GetShip(client).value();
 
 		Vector vPos;
 		Matrix mRot;
 		pub::SpaceObj::GetLocation(ship, vPos, mRot);
 
-		uint iClientSystemId;
-		pub::Player::GetSystem(client, iClientSystemId);
+		SystemId iClientSystemId = Hk::Player::GetSystem(client).value();
 		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemId);
 		if (csys)
 		{
@@ -532,7 +529,7 @@ namespace Plugins::MiningControl
 								pub::Player::SendNNMessage(client, CreateID("insufficient_cargo_space"));
 								return;
 							}
-							pub::Player::AddCargo(iSendToClientId, iLootId, iLootCount, 1.0, false);
+							Hk::Player::AddCargo(iSendToClientId, iLootId, iLootCount, false);
 						}
 						return;
 					}

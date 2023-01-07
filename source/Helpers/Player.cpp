@@ -233,35 +233,41 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::wstring& wscBasename)
+	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& baseVar)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
+		uint iBaseId;
 
 		// check if logged in
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		const std::string baseName = wstos(wscBasename);
-		// check if ship in space
-		uint ship = 0;
-		pub::Player::GetShip(client, ship);
-		if (!ship)
-			return cpp::fail(Error::PlayerNotInSpace);
+		//if basename was passed as string
+		if (baseVar.index() == 1) {
+			const std::string baseName = wstos(std::get<std::wstring>(baseVar));
+			// check if ship in space
+			uint ship = 0;
+			pub::Player::GetShip(client, ship);
+			if (!ship)
+				return cpp::fail(Error::PlayerNotInSpace);
 
-		// get base id
-		uint iBaseId;
-
-		if (pub::GetBaseID(iBaseId, baseName.c_str()) == -4)
-		{
-			return cpp::fail(Error::InvalidBase);
+			// get base id
+			if (pub::GetBaseID(iBaseId, baseName.c_str()) == -4)
+			{
+				return cpp::fail(Error::InvalidBase);
+			}
 		}
-
+		else
+		{
+			iBaseId = std::get<uint>(baseVar);
+		}
+		
 		uint iSysId;
 		pub::Player::GetSystem(client, iSysId);
 		Universe::IBase* base = Universe::get_base(iBaseId);
 
 		pub::Player::ForceLand(client, iBaseId); // beam
-
+		
 		// if not in the same system, emulate F1 charload
 		if (base->systemId != iSysId)
 		{
@@ -276,7 +282,7 @@ namespace Hk::Player
 			strcpy_s(cId.szCharFilename, wstos(newFile.substr(0, 14)).c_str());
 			Server.CharacterSelect(cId, client);
 		}
-
+		
 		return {};
 	}
 
@@ -1845,8 +1851,7 @@ namespace Hk::Player
 		if (ship.has_error())
 			return cpp::fail(ship.error());
 
-		uint target;
-		pub::SpaceObj::GetTarget(ship.value(), target);
+		uint target = Hk::Player::GetTarget(ship.value()).value();
 		if (!ship)
 			return cpp::fail(Error::NoTargetSelected);
 
@@ -1900,6 +1905,7 @@ namespace Hk::Player
 		return system;
 	}
 
+	// returns ship instance ID
 	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
@@ -1914,5 +1920,70 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotInSpace);
 
 		return ship;
+	}
+
+	// returns Ship Type
+	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring>& player)
+	{
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		uint shipId;
+		pub::Player::GetShipID(client, shipId);
+		if (!shipId)
+			return cpp::fail(Error::PlayerNotInSpace);
+
+		return shipId;
+	}
+
+	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+		pub::Player::MarkObj(client, objId, markStatus);
+
+		return {};
+	}
+
+	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+		int kills;
+		pub::Player::GetNumKills(client, kills);
+		return kills;
+	}
+
+	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		pub::Player::SetNumKills(client, killAmount);
+
+		return {};
+	}
+
+	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player) {
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == -1)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		int kills;
+		pub::Player::GetNumKills(client, kills);
+		pub::Player::SetNumKills(client, ++kills);
+
+		return {};
 	}
 } // namespace Hk::Player

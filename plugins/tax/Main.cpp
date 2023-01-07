@@ -24,8 +24,7 @@ namespace Plugins::Tax
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
-		uint system = 0;
-		pub::Player::GetSystem(client, system);
+		SystemId system = Hk::Player::GetSystem(client).value();
 
 		// no-pvp check
 		for (auto const& it : global->excludedsystemsIds)
@@ -148,8 +147,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship;
-						pub::Player::GetShip(client, ship);
+						uint ship = Hk::Player::GetShip(client).value();
 						if (ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
@@ -169,8 +167,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship;
-						pub::Player::GetShip(client, ship);
+						uint ship = Hk::Player::GetShip(client).value();
 						if (ship)
 						{
 							// F1 -> Kill
