@@ -266,6 +266,11 @@ namespace Hk::Player
 		pub::Player::GetSystem(client, iSysId);
 		Universe::IBase* base = Universe::get_base(iBaseId);
 
+		if (!base)
+		{
+			return cpp::fail(Error::InvalidBase);
+		}
+
 		pub::Player::ForceLand(client, iBaseId); // beam
 		
 		// if not in the same system, emulate F1 charload
