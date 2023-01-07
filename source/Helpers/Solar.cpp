@@ -34,7 +34,31 @@ namespace Hk::Solar
 			default:
 				return cpp::fail(Error::InvalidIdType);
 		}
+	}
 
-		// return Hk::Math::VectorToSectorCoord<std::wstring>(iSystemId, pos);
+	cpp::result<float, Error> getMass(uint spaceObjId) { 
+		uint system;
+		pub::SpaceObj::GetSystem(spaceObjId, system);
+		if (!spaceObjId || !system)
+		{
+			return cpp::fail(Error::InvalidSpaceObjId);
+		}
+		float mass;
+		pub::SpaceObj::GetMass(spaceObjId, mass);
+
+		return mass;
+	}
+
+	cpp::result<std::pair<Vector, Vector>, Error> GetMotion(uint spaceObjId)
+	{
+		uint system;
+		pub::SpaceObj::GetSystem(spaceObjId, system);
+		if (!spaceObjId || !system)
+		{
+			return cpp::fail(Error::InvalidSpaceObjId);
+		}
+		Vector v1, v2;
+		pub::SpaceObj::GetMotion(spaceObjId, v1, v2);
+		return std::make_pair(v1, v2);
 	}
 } // namespace Solar

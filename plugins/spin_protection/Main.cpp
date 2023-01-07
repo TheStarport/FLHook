@@ -26,13 +26,11 @@ namespace Plugins::SpinProtection
 		if (global->config->spinProtectionMass == -1.0f)
 			return;
 
-		float targetMass;
-		pub::SpaceObj::GetMass(ci.iColliderObjectId, targetMass);
+		float targetMass = Hk::Solar::GetMass(ci.iColliderObjectId).value();
 
 		uint clientShip = Hk::Player::GetShip(client).value();
 
-		float clientMass;
-		pub::SpaceObj::GetMass(clientShip, clientMass);
+		float clientMass = Hk::Solar::GetMass(clientShip).value();
 
 		// Don't do spin protect unless the hit ship is big
 		if (targetMass < global->config->spinProtectionMass)
@@ -43,8 +41,12 @@ namespace Plugins::SpinProtection
 		if (targetMass < clientMass * 2)
 			return;
 
-		Vector V1, V2;
-		pub::SpaceObj::GetMotion(ci.iColliderObjectId, V1, V2);
+		auto motion = Hk::Solar::GetMotion(ci.iColliderObjectId);
+		if (motion.has_error())
+		{
+			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
+		}
+		auto [V1, V2] = motion.value();
 		V1.x *= global->config->spinImpulseMultiplier * clientMass;
 		V1.y *= global->config->spinImpulseMultiplier * clientMass;
 		V1.z *= global->config->spinImpulseMultiplier * clientMass;

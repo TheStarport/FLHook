@@ -36,6 +36,8 @@ namespace Hk::Err
 	    {Error::InvalidRepGroup, L"Invalid reputation group"},
 	    {Error::PluginCannotBeLoaded, L"Plugin cannot be unloaded"},
 	    {Error::PluginNotFound, L"Plugin not found"},
+	    {Error::InvalidIdType, L"Invalid Id Type provided"},
+	    {Error::InvalidSpaceObjId, L"Invalid SpaceObj Id provided"},
 	}};
 
 	std::wstring ErrGetText(Error Err)

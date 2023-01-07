@@ -134,9 +134,13 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		Vector dir1;
-		Vector dir2;
-		pub::SpaceObj::GetMotion(playerInfo.value().ship, dir1, dir2);
+		auto motion = Hk::Solar::GetMotion(playerInfo.value().ship);
+		if (motion.has_error())
+		{
+			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
+		}
+		auto [dir1, dir2] = motion.value();
+
 		if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 		{
 			PrintUserCmdText(client, L"ERR Ship is moving");
