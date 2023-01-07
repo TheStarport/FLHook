@@ -506,7 +506,13 @@ namespace Plugins::MiningControl
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
 								AddLog(LogType::Normal, LogLevel::Info, fmt::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
-								    wstos(CharName.c_str()), average, vPos.x, vPos.y, vPos.z, zone->systemId, zone->iZoneId));
+								        wstos(CharName.c_str()),
+								        average,
+								        shipPosition.x,
+								        shipPosition.y,
+								        shipPosition.z,
+								        zone->systemId,
+								        zone->iZoneId));
 							}
 
 							Clients[client].MineAsteroidSampleStart = time(0) + 30;
