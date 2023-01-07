@@ -207,13 +207,17 @@ namespace Plugins::SystemSensor
 				if (iSys && enum_integer(iter->second.mode & mode))
 				{
 					std::wstring wscSysName = Hk::Message::GetWStringFromIdS(iSys->strid_name);
+					const auto location = Hk::Solar::GetLocation(client, IdType::Client);
+					const auto system = Hk::Player::GetSystem(client);
+					const Vector& position = location.value().first;
+					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position);
 					PrintUserCmdText(iter->first,
 					    L"%s[$%u] %s at %s %s",
 					    Players.GetActiveCharacterName(client),
 					    client,
 					    wscType.c_str(),
 					    wscSysName.c_str(),
-					    Hk::Player::GetLocation(client).c_str());
+					    curLocation.c_str());
 				}
 			}
 			++iter;
@@ -226,9 +230,12 @@ namespace Plugins::SystemSensor
 		const auto client = Hk::Client::GetClientIdByShip(ship);
 		if (client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
 		{
-			uint iTypeId;
-			pub::SpaceObj::GetType(iDockTarget, iTypeId);
-			if (iTypeId == OBJ_JUMP_GATE)
+			auto spaceObjType = Hk::Solar::GetType(iDockTarget);
+			if (spaceObjType.has_error())
+			{
+				Console::ConWarn(Hk::Err::ErrGetText(spaceObjType.error()));
+			}
+			if (spaceObjType.value() == OBJ_JUMP_GATE)
 			{
 				global->networks[client.value()].inJumpGate = true;
 			}

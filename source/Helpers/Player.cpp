@@ -1703,25 +1703,6 @@ namespace Hk::Player
 		return {};
 	}
 
-	std::wstring GetLocation(unsigned int client)
-	{
-		uint iSystemId = 0;
-		uint ship = 0;
-		pub::Player::GetSystem(client, iSystemId);
-		pub::Player::GetShip(client, ship);
-		if (!iSystemId || !ship)
-		{
-			PrintUserCmdText(client, L"ERR Not in space");
-			return false;
-		}
-
-		Vector pos;
-		Matrix rot;
-		pub::SpaceObj::GetLocation(ship, pos, rot);
-
-		return Hk::Math::VectorToSectorCoord<std::wstring>(iSystemId, pos);
-	}
-
 	void DelayedKick(ClientId client, uint secs)
 	{
 		mstime kick_time = timeInMS() + (secs * 1000);
@@ -1852,12 +1833,14 @@ namespace Hk::Player
 
 	cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring>& player)
 	{
-		const auto ship = GetShip(player);
+		ClientId client = Hk::Client::ExtractClientID(player);
+		const auto ship = GetShip(client);
 		if (ship.has_error())
 			return cpp::fail(ship.error());
 
-		uint target = Hk::Player::GetTarget(ship.value()).value();
-		if (!ship)
+		uint target;
+		pub::SpaceObj::GetTarget(ship.value(), target);
+		if (!target)
 			return cpp::fail(Error::NoTargetSelected);
 
 		return target;

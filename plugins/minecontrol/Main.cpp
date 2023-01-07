@@ -391,9 +391,7 @@ namespace Plugins::MiningControl
 
 		uint ship = Hk::Player::GetShip(client).value();
 
-		Vector vPos;
-		Matrix mRot;
-		pub::SpaceObj::GetLocation(ship, vPos, mRot);
+		auto [shipPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 
 		SystemId iClientSystemId = Hk::Player::GetSystem(client).value();
 		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemId);
@@ -404,8 +402,8 @@ namespace Plugins::MiningControl
 			{
 				try
 				{
-					const Universe::IZone* zone = cfield->get_lootable_zone(vPos);
-					if (cfield->near_field(vPos) && zone && zone->lootableZone)
+					const Universe::IZone* zone = cfield->get_lootable_zone(shipPosition);
+					if (cfield->near_field(shipPosition) && zone && zone->lootableZone)
 					{
 						ClientData& cd = Clients[client];
 
@@ -420,7 +418,7 @@ namespace Plugins::MiningControl
 
 						// Adjust the bonus based on the zone.
 						float fZoneBonus = 0.25f;
-						if (global->ZoneBonus[zone->iZoneId].Bonus)
+						if (global->ZoneBonus[zone->iZoneId].Bonus != 0.0f)
 							fZoneBonus = global->ZoneBonus[zone->iZoneId].Bonus;
 
 						// If the field is getting mined out, reduce the bonus
@@ -466,12 +464,11 @@ namespace Plugins::MiningControl
 						uint iSendToClientId = client;
 						if (!bNoMiningCombo)
 						{
-							uint iTargetShip;
-							pub::SpaceObj::GetTarget(ship, iTargetShip);
-							if (iTargetShip)
+							auto iTargetShip = Hk::Player::GetTarget(ship);
+							if (iTargetShip.has_value())
 							{
-								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip);
-								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip) < 1000.0f)
+								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip.value());
+								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip.value()) < 1000.0f)
 								{
 									iSendToClientId = iTargetClientId.value();
 								}
@@ -509,7 +506,13 @@ namespace Plugins::MiningControl
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
 								AddLog(LogType::Normal, LogLevel::Info, fmt::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
-								    wstos(CharName.c_str()), average, vPos.x, vPos.y, vPos.z, zone->systemId, zone->iZoneId));
+								        wstos(CharName.c_str()),
+								        average,
+								        shipPosition.x,
+								        shipPosition.y,
+								        shipPosition.z,
+								        zone->systemId,
+								        zone->iZoneId));
 							}
 
 							Clients[client].MineAsteroidSampleStart = time(0) + 30;
