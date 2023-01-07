@@ -305,7 +305,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientTarget);
+	std::wstring character = Hk::Client::GetCharacterNameByID(clientTarget).value();
 
 	// save to ini
 	GET_USERFILE(scUserFile)
@@ -570,12 +570,12 @@ void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	std::wstring character = (wchar_t*)Players.GetActiveCharacterName(clientTarget);
+	std::wstring character = Hk::Client::GetCharacterNameByID(clientTarget).value();
 
 	std::wstring wscXML = L"<TEXT>/i " + XMLText(character) + L"</TEXT>";
 	char szBuf[0xFFFF];
 	uint iRet;
-	if (!Hk::Message::FMsgEncodeXML(wscXML, szBuf, sizeof szBuf, iRet).has_error())
+	if (Hk::Message::FMsgEncodeXML(wscXML, szBuf, sizeof szBuf, iRet).has_error())
 	{
 		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;
