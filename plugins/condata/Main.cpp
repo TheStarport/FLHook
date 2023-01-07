@@ -330,7 +330,7 @@ namespace Plugins::ConData
 	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		// lag detection
-		if (const auto ins = Hk::Client::GetInspect(client); !ins.value())
+		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
 			return; // ??? 8[
 
 		const mstime tmNow = timeInMS();
