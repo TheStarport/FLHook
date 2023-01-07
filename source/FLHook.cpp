@@ -196,6 +196,13 @@ void FLHookInit_Pre()
 	// start console
 	AllocConsole();
 	SetConsoleTitle("FLHook");
+
+	HWND console = GetConsoleWindow();
+	RECT r;
+	GetWindowRect(console, &r);
+
+	MoveWindow(console, r.left, r.top, 1366, 768, TRUE);
+
 	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 	hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 	hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);

@@ -78,17 +78,17 @@ namespace Plugins::PurchaseRestrictions
 	void BaseEnter(uint& iBaseId, ClientId& client) { global->clientSuppressBuy[client] = false; }
 
 	/// Suppress the buying of goods.
-	bool GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		auto& suppress = global->clientSuppressBuy[client] = false;
 		LogItemsOfInterest(client, gbi.iGoodId, "good-buy");
 
-		if (std::find(global->unbuyableItemsHashed.begin(), global->unbuyableItemsHashed.end(), gbi.iGoodId) == global->unbuyableItemsHashed.end())
+		if (std::find(global->unbuyableItemsHashed.begin(), global->unbuyableItemsHashed.end(), gbi.iGoodId) != global->unbuyableItemsHashed.end())
 		{
 			suppress = true;
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
-			PrintUserCmdText(client, L"ERR Temporarily out of stock");
-			return true;
+			PrintUserCmdText(client,global->config->goodPurchaseDenied);
+			global->returnCode = ReturnCode::SkipAll;
 		}
 
 		/// Check restrictions for the Id that a player has.
@@ -106,7 +106,7 @@ namespace Plugins::PurchaseRestrictions
 						PrintUserCmdText(client, global->config->goodPurchaseDenied);
 						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
-						return true;
+						global->returnCode = ReturnCode::SkipAll;
 					}
 				}
 			}
@@ -116,13 +116,13 @@ namespace Plugins::PurchaseRestrictions
 				const GoodInfo* packageInfo = GoodList::find_by_id(gbi.iGoodId);
 				if (packageInfo->iType != 3)
 				{
-					return false;
+					return;
 				}
 
 				const GoodInfo* hullInfo = GoodList::find_by_id(packageInfo->iHullGoodId);
 				if (hullInfo->iType != 2)
 				{
-					return false;
+					return;
 				}
 
 				if (global->shipItemRestrictionsHashed.find(gbi.iGoodId) != global->shipItemRestrictionsHashed.end() && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId))
@@ -134,75 +134,68 @@ namespace Plugins::PurchaseRestrictions
 						PrintUserCmdText(client, global->config->shipPurchaseDenied);
 						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
-						return true;
+						global->returnCode = ReturnCode::SkipAll;
 					}
 				}
 			}
 		}
-		return false;
 	}
 
 	/// Suppress the buying of goods.
-	bool ReqAddItem(uint& goodId, char const* hardpoint, int& count, float& status, bool& mounted, ClientId& client)
+	void ReqAddItem(uint& goodId, char const* hardpoint, int& count, float& status, bool& mounted, ClientId& client)
 	{
 		LogItemsOfInterest(client, goodId, "add-item");
 		if (global->clientSuppressBuy[client])
 		{
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 
 	/// Suppress the buying of goods.
-	bool ReqChangeCash(int& iMoneyDiff, ClientId& client)
+	void ReqChangeCash(int& iMoneyDiff, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
 			global->clientSuppressBuy[client] = false;
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 
 	/// Suppress ship purchases
-	bool ReqSetCash(int& iMoney, ClientId& client)
+	void ReqSetCash(int& iMoney, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 
 	/// Suppress ship purchases
-	bool ReqEquipment(class EquipDescList const& eqDesc, ClientId& client)
+	void ReqEquipment(class EquipDescList const& eqDesc, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 
 	/// Suppress ship purchases
-	bool ReqShipArch(uint& iArchId, ClientId& client)
+	void ReqShipArch(uint& iArchId, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 
 	/// Suppress ship purchases
-	bool ReqHullStatus(float& fStatus, ClientId& client)
+	void ReqHullStatus(float& fStatus, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
 			global->clientSuppressBuy[client] = false;
-			return true;
+			global->returnCode = ReturnCode::SkipAll;
 		}
-		return false;
 	}
 } // namespace Plugins::PurchaseRestrictions
 
