@@ -21,16 +21,16 @@ namespace Plugins::PurchaseRestrictions
 		std::wstring goodPurchaseDenied = L"You are not authorized to buy this item.";
 
 		//! Items that we log transfers for
-		std::vector<std::string> itemsOfInterest;
+		std::vector<std::string> itemsOfInterest = {"li_gun01_mark01"};
 
 		//! Items that cannot be bought at all.
-		std::vector<std::string> unbuyableItems;
+		std::vector<std::string> unbuyableItems = {"li_gun01_mark01"};
 
 		//! Items that can only be bought with a certain item equipped (item, [ equippedItemsThatAllowPurchase ])
-		std::map<std::string, std::vector<std::string>> goodItemRestrictions;
+		std::map<std::string, std::vector<std::string>> goodItemRestrictions = {{"li_gun01_mark02", {"li_gun01_mark03"}}};
 
 		//! Ships that can only be bought with a certain item equipped (ship, [ equippedItemsThatAllowPurchase ])
-		std::map<std::string, std::vector<std::string>> shipItemRestrictions;
+		std::map<std::string, std::vector<std::string>> shipItemRestrictions = {{"li_fighter", {"li_gun01_mark03"}}};
 	};
 
 	//! Global data for this plugin

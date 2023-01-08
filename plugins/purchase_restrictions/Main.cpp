@@ -20,8 +20,9 @@ namespace Plugins::PurchaseRestrictions
 		if (iter != global->itemsOfInterestHashed.end())
 		{
 			const auto charName = Hk::Client::GetCharacterNameByID(client);
-			AddLog(LogType::Normal, LogLevel::Info, fmt::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), wstos(charName.value()),
-				details.c_str()));
+			AddLog(LogType::Normal,
+			    LogLevel::Info,
+			    fmt::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), wstos(charName.value()), details.c_str()));
 		}
 	}
 
@@ -41,14 +42,14 @@ namespace Plugins::PurchaseRestrictions
 
 		for (const auto& [key, value] : config.goodItemRestrictions)
 		{
-			auto map = global->goodItemRestrictionsHashed[CreateID(key.c_str())] = {};
+			auto& map = global->goodItemRestrictionsHashed[CreateID(key.c_str())] = {};
 			for (const auto& i : value)
 				map.emplace_back(CreateID(i.c_str()));
 		}
 
 		for (const auto& [key, value] : config.shipItemRestrictions)
 		{
-			auto map = global->shipItemRestrictionsHashed[CreateID(key.c_str())] = {};
+			auto& map = global->shipItemRestrictionsHashed[CreateID(key.c_str())] = {};
 			for (const auto& i : value)
 				map.emplace_back(CreateID(i.c_str()));
 		}
@@ -57,25 +58,35 @@ namespace Plugins::PurchaseRestrictions
 
 	/// Check that this client is allowed to buy/mount this piece of equipment or
 	/// ship Return true if the equipment is mounted to allow this good.
-	bool CheckIdEquipRestrictions(ClientId client, uint iGoodId)
+	bool CheckIdEquipRestrictions(ClientId client, uint iGoodId, bool isShip)
 	{
-		const auto validItem = global->goodItemRestrictionsHashed.find(iGoodId);
-		if (validItem == global->goodItemRestrictionsHashed.end())
+		const auto list = isShip ? global->shipItemRestrictionsHashed : global->goodItemRestrictionsHashed;
+
+		const auto validItem = list.find(iGoodId);
+		if (validItem == list.end())
 			return true;
 
-		
 		int remainingHoldSize;
 		const auto cargo = Hk::Player::EnumCargo(client, remainingHoldSize);
 		return std::any_of(cargo.value().begin(), cargo.value().end(), [validItem](const CARGO_INFO& cargo) {
-			return cargo.bMounted && std::find(validItem->second.begin(), validItem->second.end(), cargo.iArchId) == validItem->second.end();
+			return cargo.bMounted && std::find(validItem->second.begin(), validItem->second.end(), cargo.iArchId) != validItem->second.end();
 		});
 	}
 
-	void ClearClientInfo(ClientId& client) { global->clientSuppressBuy[client] = false; }
+	void ClearClientInfo(ClientId& client)
+	{
+		global->clientSuppressBuy[client] = false;
+	}
 
-	void PlayerLaunch(uint& ship, ClientId& client) { global->clientSuppressBuy[client] = false; }
+	void PlayerLaunch(uint& ship, ClientId& client)
+	{
+		global->clientSuppressBuy[client] = false;
+	}
 
-	void BaseEnter(uint& iBaseId, ClientId& client) { global->clientSuppressBuy[client] = false; }
+	void BaseEnter(uint& iBaseId, ClientId& client)
+	{
+		global->clientSuppressBuy[client] = false;
+	}
 
 	/// Suppress the buying of goods.
 	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
@@ -87,7 +98,7 @@ namespace Plugins::PurchaseRestrictions
 		{
 			suppress = true;
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
-			PrintUserCmdText(client,global->config->goodPurchaseDenied);
+			PrintUserCmdText(client, global->config->goodPurchaseDenied);
 			global->returnCode = ReturnCode::SkipAll;
 		}
 
@@ -97,7 +108,7 @@ namespace Plugins::PurchaseRestrictions
 			// Check Item
 			if (global->goodItemRestrictionsHashed.find(gbi.iGoodId) != global->goodItemRestrictionsHashed.end())
 			{
-				if (!CheckIdEquipRestrictions(client, gbi.iGoodId))
+				if (!CheckIdEquipRestrictions(client, gbi.iGoodId, false))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
 					AddLog(LogType::Normal, LogLevel::Info, fmt::format("{} attempting to buy {} without correct Id", wstos(charName.value()), gbi.iGoodId));
@@ -125,10 +136,13 @@ namespace Plugins::PurchaseRestrictions
 					return;
 				}
 
-				if (global->shipItemRestrictionsHashed.find(gbi.iGoodId) != global->shipItemRestrictionsHashed.end() && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId))
+				if (global->shipItemRestrictionsHashed.find(hullInfo->shipGoodId) != global->shipItemRestrictionsHashed.end() &&
+				    !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
-					AddLog(LogType::Normal, LogLevel::Info, fmt::format("{} attempting to buy {} without correct Id", wstos(charName.value()), hullInfo->shipGoodId));
+					AddLog(LogType::Normal,
+					    LogLevel::Info,
+					    fmt::format("{} attempting to buy {} without correct Id", wstos(charName.value()), hullInfo->shipGoodId));
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->shipPurchaseDenied);
@@ -209,8 +223,8 @@ REFL_AUTO(type(Config), field(checkItemRestrictions), field(enforceItemRestricti
 
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Purchase Restrictions");
 	pi->shortName("PurchaseRestrictions");
