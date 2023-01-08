@@ -1,11 +1,45 @@
-// Purchase Restrictions plugin for FLHookPlugin
-// Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb, 2010
+ * @author Cannon. Ported by Raikkonen, Nen and Laz
+ * @defgroup PurchaseRestrictions Purchase Restrictions
+ * @brief
+ * The Purchase Restrictions plugin restricts the purchase of equipment, goods and ships unless the player holds a certain item.
+ *
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *    "checkItemRestrictions": false,
+ *    "enforceItemRestrictions": false,
+ *    "goodItemRestrictions": {
+ *        "li_gun01_mark02": [
+ *            "li_gun01_mark03"
+ *        ]
+ *    },
+ *    "goodPurchaseDenied": "You are not authorized to buy this item.",
+ *    "itemsOfInterest": [
+ *        "li_gun01_mark01"
+ *    ],
+ *    "shipItemRestrictions": {
+ *        "li_fighter": [
+ *            "li_gun01_mark03"
+ *        ]
+ *    },
+ *    "shipPurchaseDenied": "You are not authorized to buy this ship.",
+ *    "unbuyableItems": [
+ *        "li_gun01_mark01"
+ *    ]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
@@ -26,6 +60,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
+	//! Load settings from json file
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
@@ -56,8 +91,8 @@ namespace Plugins::PurchaseRestrictions
 		global->config = std::make_unique<Config>(config);
 	}
 
-	/// Check that this client is allowed to buy/mount this piece of equipment or
-	/// ship Return true if the equipment is mounted to allow this good.
+ 
+	//! Check that this client is allowed to buy/mount this piece of equipment or ship Return true if the equipment is mounted to allow this good.
 	bool CheckIdEquipRestrictions(ClientId client, uint iGoodId, bool isShip)
 	{
 		const auto list = isShip ? global->shipItemRestrictionsHashed : global->goodItemRestrictionsHashed;
@@ -73,22 +108,25 @@ namespace Plugins::PurchaseRestrictions
 		});
 	}
 
+	//! Clear Client Info hook
 	void ClearClientInfo(ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 	}
 
+	//! PlayerLaunch hook
 	void PlayerLaunch(uint& ship, ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 	}
 
+	//! Base Enter hook
 	void BaseEnter(uint& iBaseId, ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 	}
 
-	/// Suppress the buying of goods.
+	//! Suppress the buying of goods.
 	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		auto& suppress = global->clientSuppressBuy[client] = false;
@@ -155,7 +193,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress the buying of goods.
+	//!  Suppress the buying of goods.
 	void ReqAddItem(uint& goodId, char const* hardpoint, int& count, float& status, bool& mounted, ClientId& client)
 	{
 		LogItemsOfInterest(client, goodId, "add-item");
@@ -165,7 +203,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress the buying of goods.
+	//!  Suppress the buying of goods.
 	void ReqChangeCash(int& iMoneyDiff, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
@@ -175,7 +213,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress ship purchases
+	//!  Suppress ship purchases
 	void ReqSetCash(int& iMoney, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
@@ -184,7 +222,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress ship purchases
+	//!  Suppress ship purchases
 	void ReqEquipment(class EquipDescList const& eqDesc, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
@@ -193,7 +231,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress ship purchases
+	//!  Suppress ship purchases
 	void ReqShipArch(uint& iArchId, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
@@ -202,7 +240,7 @@ namespace Plugins::PurchaseRestrictions
 		}
 	}
 
-	/// Suppress ship purchases
+	//!  Suppress ship purchases
 	void ReqHullStatus(float& fStatus, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
