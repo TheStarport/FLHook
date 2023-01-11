@@ -810,86 +810,20 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 {
 	RIGHT_CHECK(RIGHT_BEAMKILL);
 
-	// Fall back to default flhook .beam command
 	try
 	{
-		const auto res = Hk::Player::Beam(player, targetBaseName);
+		const auto base = Hk::Solar::GetBaseByWildcard(targetBaseName);
+		if (base.has_error())
+		{
+			PrintError(base.error());
+			return;
+		}
+
+		const auto res = Hk::Player::Beam(player, base.value()->baseId);
 		if (res.has_error())
 		{
 			PrintError(res.error());
 			return;
-		}
-		else
-		{
-
-			const auto res = Hk::Admin::GetPlayerInfo(player, false);
-			if (res.has_error())
-			{
-				PrintError(res.error());
-				return;
-			}
-
-			if (res.value().ship == 0)
-			{
-				Print(L"ERR Player not in space");
-				return;
-			}
-
-			// Search for an exact match at the start of the name
-			const struct Universe::IBase* baseinfo = Universe::GetFirstBase();
-			while (baseinfo)
-			{
-				std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS);
-				if (ToLower(basename).find(ToLower(targetBaseName)) == 0)
-				{
-					pub::Player::ForceLand(res.value().client, baseinfo->baseId);
-					if (res.value().iSystem != baseinfo->systemId)
-					{
-						Server.BaseEnter(baseinfo->baseId, res.value().client);
-						Server.BaseExit(baseinfo->baseId, res.value().client);
-						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
-						if (charFileName.has_error()) 
-						{
-							return;
-						}
-
-						const auto fileName = charFileName.value() + L".fl";
-						CHARACTER_ID cId;
-						strcpy(cId.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cId, res.value().client);
-					}
-					return;
-				}
-				baseinfo = Universe::GetNextBase();
-			}
-
-			// Exact match failed, try a for an partial match
-			baseinfo = Universe::GetFirstBase();
-			while (baseinfo)
-			{
-				std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS);
-				if (ToLower(basename).find(ToLower(targetBaseName)) != -1)
-				{
-					pub::Player::ForceLand(res.value().client, baseinfo->baseId);
-					if (res.value().iSystem != baseinfo->systemId)
-					{
-						Server.BaseEnter(baseinfo->baseId, res.value().client);
-						Server.BaseExit(baseinfo->baseId, res.value().client);
-						auto charFileName = Hk::Client::GetCharFileName(res.value().character);
-						if (charFileName.has_error())
-						{
-							return;
-						}
-
-						const auto fileName = charFileName.value() + L".fl";
-						CHARACTER_ID cId;
-						strcpy(cId.szCharFilename, wstos(fileName.substr(0, 14)).c_str());
-						Server.CharacterSelect(cId, res.value().client);
-					}
-					return;
-				}
-				baseinfo = Universe::GetNextBase();
-			}
 		}
 	}
 	catch (...)

@@ -75,4 +75,34 @@ namespace Hk::Solar
 		pub::SpaceObj::GetType(spaceObjId, type);
 		return type;
 	}
+
+	cpp::result<Universe::IBase*, Error> GetBaseByWildcard(const std::wstring& targetBaseName) 
+	{
+		// Search for an exact match at the start of the name
+		Universe::IBase* baseinfo = Universe::GetFirstBase();
+		while (baseinfo)
+		{
+			char baseNickname[1024] = "";
+			pub::GetBaseNickname(baseNickname, sizeof(baseNickname), baseinfo->baseId);
+
+			if (std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS);
+			    ToLower(stows(baseNickname)) == ToLower(targetBaseName) || ToLower(basename).find(ToLower(targetBaseName)) == 0)
+			{
+				return baseinfo;
+			}
+			baseinfo = Universe::GetNextBase();
+		}
+
+		// Exact match failed, try a for an partial match
+		baseinfo = Universe::GetFirstBase();
+		while (baseinfo)
+		{
+			if (std::wstring basename = Hk::Message::GetWStringFromIdS(baseinfo->baseIdS); ToLower(basename).find(ToLower(targetBaseName)) != -1)
+			{
+				return baseinfo;
+			}
+			baseinfo = Universe::GetNextBase();
+		}
+		return cpp::fail(Error::InvalidBase);
+	}
 } // namespace Hk::Solar

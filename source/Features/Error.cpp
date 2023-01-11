@@ -8,7 +8,7 @@ namespace Hk::Err
 		std::wstring text;
 	};
 
-	const std::array<ErrorInfo, 29> Errors = {{
+	const std::array<ErrorInfo, 31> Errors = {{
 	    {Error::PlayerNotLoggedIn, L"Player not logged in"},
 	    {Error::CharacterDoesNotExist, L"Char does not exist"},
 	    {Error::CouldNotDecodeCharFile, L"Could not decode charfile"},
@@ -38,6 +38,8 @@ namespace Hk::Err
 	    {Error::PluginNotFound, L"Plugin not found"},
 	    {Error::InvalidIdType, L"Invalid Id Type provided"},
 	    {Error::InvalidSpaceObjId, L"Invalid SpaceObj Id provided"},
+	    {Error::InvalidBase, L"Invalid base provided"},
+	    {Error::InvalidBaseName, L"Invalid Base name"},
 	}};
 
 	std::wstring ErrGetText(Error Err)
