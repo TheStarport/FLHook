@@ -3,6 +3,12 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
+struct Config : Reflectable
+{
+	std::string File() override { return "config/ip_ban.json"; }
+	std::wstring BanMessage = L"You are banned, please contact an administrator";
+};
+
 struct IPBans : Reflectable
 {
 	std::string File() override
@@ -42,6 +48,7 @@ struct AuthenticatedAccounts : Reflectable
 struct Global final
 {
 	ReturnCode returncode = ReturnCode::Default;
+	std::unique_ptr<Config> config = nullptr;
 
 	/// list of bans
 	IPBans ipBans;

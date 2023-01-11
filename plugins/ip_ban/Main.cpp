@@ -183,6 +183,9 @@ namespace Plugins::IPBan
 	/// Reload the ipbans file.
 	void LoadSettings()
 	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+
 		ReloadIPBans();
 		ReloadLoginIdBans();
 		ReloadAuthenticatedAccounts();
@@ -199,7 +202,7 @@ namespace Plugins::IPBan
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
 				AddKickLog(client, "IP banned");
-				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 15000L);
+				Hk::Player::MsgAndKick(client, global->config->BanMessage, 15000L);
 			}
 		}
 	}
@@ -215,7 +218,7 @@ namespace Plugins::IPBan
 			if (IsBanned(client) && !IsAuthenticated(client))
 			{
 				AddKickLog(client, "IP banned");
-				Hk::Player::MsgAndKick(client, L"Your IP is banned, please contact an administrator", 7000L);
+				Hk::Player::MsgAndKick(client, global->config->BanMessage, 7000L);
 			}
 		}
 	}
@@ -308,6 +311,7 @@ using namespace Plugins::IPBan;
 REFL_AUTO(type(IPBans), field(Bans))
 REFL_AUTO(type(LoginIdBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
+REFL_AUTO(type(Config), field(BanMessage))
 
 DefaultDllMainSettings(LoadSettings)
 
@@ -325,4 +329,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString_Callback);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp_Callback);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
 }
