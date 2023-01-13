@@ -260,6 +260,7 @@ namespace Plugins::Npc
 	 */
 	void AfterStartup()
 	{
+		LoadSettings();
 		for (auto& npc : global->config->startupNpcs)
 			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
 	}
@@ -554,7 +555,7 @@ namespace Plugins::Npc
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Npc;
 
-DefaultDllMainSettings(LoadSettings);
+DefaultDllMainSettings(AfterStartup);
 
 REFL_AUTO(type(Npc), field(shipArch), field(loadout), field(iff), field(infocardId), field(infocard2Id), field(pilot), field(graph));
 REFL_AUTO(type(Fleet), field(name), field(member)) REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation));
@@ -571,5 +572,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &AfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
