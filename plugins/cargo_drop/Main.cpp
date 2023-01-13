@@ -114,7 +114,7 @@ namespace Plugins::CargoDrop
 							for (const auto& [id, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 							{
 								if (!mounted &&
-								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), archId) != global->noLootItemsIds.end())
+								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), archId) == global->noLootItemsIds.end())
 								{
 									Hk::Player::RemoveCargo(characterName, id, count);
 									Server.MineAsteroid(system.value(), position, global->cargoDropContainerId, archId, count, client);
