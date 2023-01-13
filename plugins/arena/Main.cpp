@@ -297,5 +297,5 @@ DefaultDllMainSettings(LoadSettings)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 }

@@ -1057,7 +1057,7 @@ DefaultDllMainSettings(LoadSettings)
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 }

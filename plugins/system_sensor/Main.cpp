@@ -289,7 +289,7 @@ DefaultDllMainSettings(LoadSettings)
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo);
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
 	pi->emplaceHook(HookedCall::IServerImpl__GoTradelane, &GoTradelane);
 	pi->emplaceHook(HookedCall::IServerImpl__StopTradelane, &StopTradelane);
