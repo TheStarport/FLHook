@@ -159,6 +159,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 							killType = L"Collision";
 							break;
 						case DamageCause::Gun:
+							killType = L"Gun";
 							break;
 						case DamageCause::MissileTorpedo:
 							killType = L"Missile/Torpedo";
@@ -171,13 +172,16 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						case DamageCause::Mine:
 							killType = L"Mine";
 							break;
+						case DamageCause::Suicide:
+							killType = L"Suicide";
+							break;
 						default: 
-							killType = L"Gun";
+							killType = L"Somehow";
 							;
 					}						
 
 					std::wstring deathMessage;
-					if (client == clientKiller.value())
+					if (client == clientKiller.value() || cause == DamageCause::Suicide)
 					{
 						eventStr += L" type=selfkill";
 						deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
