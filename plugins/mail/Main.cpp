@@ -7,7 +7,7 @@
  *
  * @paragraph cmds Player Commands
  * All commands are prefixed with '/' unless explicitly specified.
- * - mail - Sends mail to a character.
+ * - mail - Shows any mail you have.
  * - maildel - Deletes the specified mail.
  *
  * @paragraph adminCmds Admin Commands

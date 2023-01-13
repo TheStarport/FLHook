@@ -768,7 +768,7 @@ namespace Plugins::Message
 		{
 			if (global->mailCommunicator)
 			{
-				global->mailCommunicator->SendMail(wscTargetCharname, wscMsg);
+				global->mailCommunicator->SendMail(wscTargetCharname, wscCharname + L": " + wscMsg);
 				PrintUserCmdText(client, L"OK message saved to mailbox");
 			}
 			else
