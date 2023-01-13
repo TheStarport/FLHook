@@ -282,7 +282,6 @@ namespace Plugins::MiningControl
 				}
 			}
 				
-
 			for (auto& ammo : pb.Ammo)
 			{
 				uint ItemId = CreateID(ammo.c_str());
@@ -300,7 +299,8 @@ namespace Plugins::MiningControl
 			}
 				
 			global->PlayerBonus.insert(std::multimap<uint, PlayerBonus>::value_type(pb.LootId, pb));
-			if (global->config->PluginDebug)
+
+			if (config.PluginDebug)
 			{
 				Console::ConInfo(L"mining player bonus LootId: %u Bonus: %2.2f RepId: %u\n",
 				    pb.LootId, pb.Bonus, pb.Rep);
