@@ -604,7 +604,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief User Commands for /t0-9
 	 */
-	void UserCmd_TMsg0(ClientId& client, const std::wstring& param)
+	void UserCmd_TMsg(ClientId& client, const std::wstring& param)
 	{
 		long num = GetNumberFromCmd(param);
 		SendPresetToLastTarget(client, num);

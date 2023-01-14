@@ -185,7 +185,7 @@ namespace Plugins::BountyHunt
 	 */
 	void BhTimeOutCheck()
 	{
-		auto& bounty = global->bountyHunt.begin();
+		auto bounty = global->bountyHunt.begin();
 
 		while (bounty != global->bountyHunt.end()) 
 		{
