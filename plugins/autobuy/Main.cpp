@@ -11,12 +11,32 @@ namespace Plugins::Autobuy
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
+	void LoadPlayerAutobuy(ClientId client)
+	{
+		global->autobuyInfo[client].autoBuyMissiles = Hk::Ini::GetCharacterIniBool(client, L"autobuy.missiles");
+		global->autobuyInfo[client].autoBuyMines = Hk::Ini::GetCharacterIniBool(client, L"autobuy.mine");
+		global->autobuyInfo[client].autoBuyTorps = Hk::Ini::GetCharacterIniBool(client, L"autobuy.torp");
+		global->autobuyInfo[client].autoBuyCD = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cd");
+		global->autobuyInfo[client].autoBuyCM = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cm");
+		global->autobuyInfo[client].autoBuyRepairs = Hk::Ini::GetCharacterIniBool(client, L"autobuy.repairs");
+
+	}
+
 	// Put things that are performed on plugin load here!
 	void LoadSettings()
 	{
+		if (!global->config->enableAutobuy)
+		{
+			return;
+		}
 		// Load JSON config
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
+
+		const std::list<PLAYERINFO> players = Hk::Admin::GetPlayers();
+		for (auto& p : players)
+			LoadPlayerAutobuy(p.client);
+
 	}
 
 	int PlayerAutoBuyGetCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
@@ -30,15 +50,26 @@ namespace Plugins::Autobuy
 		return 0;
 	}
 
-	void AddEquipToCart(const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring desc)
+	void AddEquipToCart(const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring_view desc)
 	{
-		item.iCount = MAX_PLAYER_AMMO - PlayerAutoBuyGetCount(cargo, item.iArchId);
+		item.count = MAX_PLAYER_AMMO - PlayerAutoBuyGetCount(cargo, item.archId);
 		item.wscDescription = desc;
 		cart.emplace_back(item);
 	}
 
 	void PlayerAutoBuy(ClientId client, uint iBaseId)
 	{
+
+		if (!global->config->enableAutobuy)
+		{
+			return;
+		}
+		//load player config if not already loaded
+		if (!global->autobuyInfo.contains(client))
+		{
+			LoadPlayerAutobuy(client);
+		}
+
 		// player cargo
 		int iRemHoldSize;
 		const auto cargo = Hk::Player::EnumCargo(client, iRemHoldSize);
@@ -66,16 +97,16 @@ namespace Plugins::Autobuy
 				AUTOBUY_CARTITEM aci;
 				if (item.iArchId == iNanobotsId)
 				{
-					aci.iArchId = iNanobotsId;
-					aci.iCount = ship->iMaxNanobots - item.iCount;
+					aci.archId = iNanobotsId;
+					aci.count = ship->iMaxNanobots - item.iCount;
 					aci.wscDescription = L"Nanobots";
 					lstCart.push_back(aci);
 					bNanobotsFound = true;
 				}
 				else if (item.iArchId == iShieldBatsId)
 				{
-					aci.iArchId = iShieldBatsId;
-					aci.iCount = ship->iMaxShieldBats - item.iCount;
+					aci.archId = iShieldBatsId;
+					aci.count = ship->iMaxShieldBats - item.iCount;
 					aci.wscDescription = L"Shield Batteries";
 					lstCart.push_back(aci);
 					bShieldBattsFound = true;
@@ -85,8 +116,8 @@ namespace Plugins::Autobuy
 			if (!bNanobotsFound)
 			{ // no nanos found -> add all
 				AUTOBUY_CARTITEM aci;
-				aci.iArchId = iNanobotsId;
-				aci.iCount = ship->iMaxNanobots;
+				aci.archId = iNanobotsId;
+				aci.count = ship->iMaxNanobots;
 				aci.wscDescription = L"Nanobots";
 				lstCart.push_back(aci);
 			}
@@ -94,8 +125,8 @@ namespace Plugins::Autobuy
 			if (!bShieldBattsFound)
 			{ // no batts found -> add all
 				AUTOBUY_CARTITEM aci;
-				aci.iArchId = iShieldBatsId;
-				aci.iCount = ship->iMaxShieldBats;
+				aci.archId = iShieldBatsId;
+				aci.count = ship->iMaxShieldBats;
 				aci.wscDescription = L"Shield Batteries";
 				lstCart.push_back(aci);
 			}
@@ -129,7 +160,6 @@ namespace Plugins::Autobuy
 			// check mounted equip
 			for (const auto& mounted : lstMounted)
 			{
-				uint i = mounted.iArchId;
 				AUTOBUY_CARTITEM aci;
 				Archetype::Equipment* eq = Archetype::GetEquipment(mounted.iArchId);
 				auto eqType = Hk::Client::GetEqType(eq);
@@ -174,8 +204,8 @@ namespace Plugins::Autobuy
 		}
 
 		// search base in base-info list
-		BASE_INFO* bi = nullptr;
-		for (auto& base : lstBases)
+		BASE_INFO const* bi = nullptr;
+		for (auto const& base : lstBases)
 		{
 			if (base.baseId == iBaseId)
 			{
@@ -197,14 +227,14 @@ namespace Plugins::Autobuy
 
 		for (auto& buy : lstCart)
 		{
-			if (!buy.iCount || !Arch2Good(buy.iArchId))
+			if (!buy.count || !Arch2Good(buy.archId))
 				continue;
 
 			// check if good is available and if player has the neccessary rep
 			bool bGoodAvailable = false;
 			for (const auto& available : bi->lstMarketMisc)
 			{
-				if (available.iArchId == buy.iArchId)
+				if (available.iArchId == buy.archId)
 				{
 					// get base rep
 					int iSolarRep;
@@ -233,14 +263,14 @@ namespace Plugins::Autobuy
 				continue; // base does not sell this item or bad rep
 
 			float fPrice;
-			if (pub::Market::GetPrice(iBaseId, buy.iArchId, fPrice) == -1)
+			if (pub::Market::GetPrice(iBaseId, buy.archId, fPrice) == -1)
 				continue; // good not available
 
-			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.iArchId);
-			if (iRemHoldSize < (eq->fVolume * buy.iCount))
+			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
+			if (iRemHoldSize < (eq->fVolume * buy.count))
 			{
-				uint iNewCount = (uint)(iRemHoldSize / eq->fVolume);
-				if (!iNewCount)
+				auto newCount = (uint)(iRemHoldSize / eq->fVolume);
+				if (!newCount)
 				{
 					//				PrintUserCmdText(client,
 					// L"Auto-Buy(%s): FAILED! Insufficient cargo space",
@@ -248,29 +278,28 @@ namespace Plugins::Autobuy
 					continue;
 				}
 				else
-					buy.iCount = iNewCount;
+					buy.count = newCount;
 			}
 
-			uint uCost = ((uint)fPrice * buy.iCount);
+			uint uCost = ((uint)fPrice * buy.count);
 			if (cash < uCost)
 				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
 			else
 			{
 				Hk::Player::RemoveCash(client, uCost);
-				iRemHoldSize -= ((int)eq->fVolume * buy.iCount);
+				iRemHoldSize -= ((int)eq->fVolume * buy.count);
 
 				// add the item, dont use addcargo for performance/bug reasons
 				// assume we only mount multicount goods (missiles, ammo, bots)
-				pub::Player::AddCargo(client, buy.iArchId, buy.iCount, 1, false);
+				pub::Player::AddCargo(client, buy.archId, buy.count, 1, false);
 
-				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount, ToMoneyStr(uCost).c_str());
+				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.count, ToMoneyStr(uCost).c_str());
 			}
 		}
 	}
 
-	// Demo command
 	void UserCmdAutobuy(ClientId& client, const std::wstring& param)
-	{ 
+	{
 		if (!global->config->enableAutobuy)
 			return;
 
@@ -316,7 +345,7 @@ namespace Plugins::Autobuy
 			return;
 		}
 
-		if (!autobuyType.length() || !autobuyType.length() || newState.compare(L"on") != 0 && newState.compare(L"off") != 0)
+		if (!autobuyType.length() || !newState.length() || newState.compare(L"on") != 0 && newState.compare(L"off") != 0)
 		{
 			PrintUserCmdText(client, L"ERR invalid parameters");
 			return;

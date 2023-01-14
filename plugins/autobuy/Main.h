@@ -21,8 +21,8 @@ namespace Plugins::Autobuy
 
 	struct AUTOBUY_CARTITEM
 	{
-		uint iArchId;
-		uint iCount;
+		uint archId;
+		uint count;
 		std::wstring wscDescription;
 	};
 
