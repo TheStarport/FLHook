@@ -327,8 +327,8 @@ DefaultDllMainSettings(LoadSettings)
 	pi->name("Bounty Hunt");
 	pi->shortName("bountyhunt");
 	pi->mayUnload(false);
-	pi->commands(commands);
-	pi->timers(timers);
+	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

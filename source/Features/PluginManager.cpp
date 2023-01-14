@@ -179,34 +179,8 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		return;
 	}
 
-	for (const auto& timer : pi->timers_)
-	{
-		if (timer.func)
-			continue;
-
-		adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load", plugin.dllName.c_str());
-		FreeLibrary(plugin.dll);
-		return;
-	}
-	plugin.timers = std::move(pi->timers_);
-
-	// Clean up the command list
-	pi->commands_.erase(std::remove_if(pi->commands_.begin(), pi->commands_.end(),
-	                        [adminInterface, dllName](const UserCommand& cmd) {
-		                        if (cmd.command.empty())
-		                        {
-			                        adminInterface->Print(L"ERR empty command present within %s, ignoring", dllName.c_str());
-			                        return true;
-		                        }
-		                        if (!cmd.proc)
-		                        {
-			                        adminInterface->Print(L"ERR nullptr found in %s command in %s, ignoring", cmd.command.c_str(), dllName.c_str());
-			                        return true;
-		                        }
-		                        return false;
-	                        }),
-	    pi->commands_.end());
-	plugin.commands = std::move(pi->commands_);
+	plugin.timers = pi->timers_;
+	plugin.commands = pi->commands_;
 
 	size_t index = plugins_.size();
 	plugins_.push_back(plugin);
@@ -219,8 +193,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 			continue;
 		}
 
-		const auto& targetHookProps = hookProps_[hook.targetFunction_];
-		if (!targetHookProps.matches(hook.step_))
+		if (const auto& targetHookProps = hookProps_[hook.targetFunction_]; !targetHookProps.matches(hook.step_))
 		{
 			adminInterface->Print(
 			    L"ERR could not bind function %d.%d of plugin %s, step not available", hook.targetFunction_, hook.step_, plugin.dllName.c_str());
@@ -304,12 +277,13 @@ void PluginInfo::addHook(const PluginHook& hook)
 	hooks_.push_back(hook);
 }
 
-void PluginInfo::commands(const std::vector<UserCommand>& cmds)
+void PluginInfo::commands(const std::vector<UserCommand>* cmds)
 {
-	commands_ = cmds;
+	commands_ = const_cast<std::vector<UserCommand>*>(cmds);
+
 }
 
-void PluginInfo::timers(const std::vector<Timer>& timers)
+void PluginInfo::timers(const std::vector<Timer>* timers)
 {
-	timers_ = timers;
+	timers_ = const_cast<std::vector<Timer>*>(timers);
 }

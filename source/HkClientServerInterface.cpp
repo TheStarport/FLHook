@@ -69,12 +69,15 @@ namespace IServerImplHook
 
 		for (PluginData& plugin : PluginManager::ir())
 		{
-			for (auto& timer : plugin.timers)
+			if (plugin.timers)
 			{
-				if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
+				for (auto& timer : *plugin.timers)
 				{
-					timer.lastTime = currentTime;
-					timer.func();
+					if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
+					{
+						timer.lastTime = currentTime;
+						timer.func();
+					}
 				}
 			}
 		}

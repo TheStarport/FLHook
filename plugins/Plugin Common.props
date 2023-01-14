@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)\plugins\$(ProjectName)\</OutDir>
+	<IncludePath>$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
