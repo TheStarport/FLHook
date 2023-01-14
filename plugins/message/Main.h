@@ -42,43 +42,43 @@ namespace Plugins::Message
 		std::string File() override { return "config/message.json"; }
 
 		//! Greetings text for when user logins in 
-		std::vector<std::wstring> GreetingBannerLines;
+		std::vector<std::wstring> greetingBannerLines;
 
 		//! special banner text, on timer
-		std::vector<std::wstring> SpecialBannerLines;
+		std::vector<std::wstring> specialBannerLines;
 
 		//! standard banner text, on timer
-		std::vector<std::wstring> StandardBannerLines;
+		std::vector<std::wstring> standardBannerLines;
 
 		//! Time in second to repeat display of special banner
-		int SpecialBannerTimeout = 5;
+		int specialBannerTimeout = 5;
 
 		//! Time in second to repeat display of standard banner
-		int StandardBannerTimeout = 60;
+		int standardBannerTimeout = 60;
 
 		//! true if we override flhook built in help
-		bool CustomHelp = false;
+		bool customHelp = false;
 
 		//! true if we don't echo mistyped user and admin commands to other players.
-		bool SuppressMistypedCommands = true;
+		bool suppressMistypedCommands = true;
 
 		//! if true support the /showmsg and /setmsg commands. This needs a client hook
-		bool EnableSetMessage = false;
+		bool enableSetMessage = false;
 
 		//! Enable /me command
-		bool EnableMe = true;
+		bool enableMe = true;
 
 		//! Enable /do command
-		bool EnableDo = true;
+		bool enableDo = true;
 
 		//! String that stores the disconnect message for swearing in space
-		std::wstring DisconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
+		std::wstring disconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
 		//! What radius around the player the message should be broadcasted to
-		float DisconnectSwearingInSpaceRange = 5000.0f;
+		float disconnectSwearingInSpaceRange = 5000.0f;
 
 		//! Vector of swear words
-		std::vector<std::wstring> SwearWords;
+		std::vector<std::wstring> swearWords;
 	};
 
 	//! Global data for this plugin
@@ -88,10 +88,10 @@ namespace Plugins::Message
 		std::unique_ptr<Config> config = nullptr;
 
 		//! Cache of preset messages for the online players (by client Id)
-		std::map<uint, ClientInfo> Info;
+		std::map<uint, ClientInfo> info;
 
 		//! This parameter is sent when we send a chat time line so that we don't print a time chat line recursively.
-		bool SendingTime = false;
+		bool sendingTime = false;
 
 		//! Communication to other plugins
 		Plugins::Mail::MailCommunicator* mailCommunicator = nullptr;
