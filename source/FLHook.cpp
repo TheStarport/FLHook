@@ -623,8 +623,11 @@ void ProcessPendingCommands()
 		{
 			std::wstring* pwscCmd = lstConsoleCmds.front();
 			lstConsoleCmds.pop_front();
-			AdminConsole.ExecuteCommandString(Trim(*pwscCmd));
-			delete pwscCmd;
+			if (pwscCmd)
+			{
+				AdminConsole.ExecuteCommandString(Trim(*pwscCmd));
+				delete pwscCmd;
+			}
 		}
 		LeaveCriticalSection(&cs);
 
