@@ -23,19 +23,11 @@ namespace Plugins::Autobuy
 	{
 		uint archId;
 		uint count;
-		std::wstring wscDescription;
-	};
-
-	// Loadable json configuration
-	struct Config final : Reflectable
-	{
-		std::string File() override { return "config/autobuy.json"; }
-		bool enableAutobuy = true;
+		std::wstring description;
 	};
 
 	struct Global final
 	{
-		std::unique_ptr<Config> config = nullptr;
 		std::map<uint, ClientInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 	};
