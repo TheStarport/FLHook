@@ -1,5 +1,13 @@
 {
   "sonarlint.rules": {
+    "c:S5270": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S4423": {
+      "level": "On",
+      "severity": "Critical"
+    },
     "c:S5982": {
       "level": "On",
       "severity": "Critical"
@@ -81,10 +89,6 @@
       "severity": "Critical"
     },
     "c:S5547": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "c:S4423": {
       "level": "On",
       "severity": "Critical"
     },
@@ -853,6 +857,9 @@
       "level": "On",
       "severity": "Blocker"
     },
+    "c:S3715": {
+      "level": "Off"
+    },
     "common-c:FailedUnitTests": {
       "level": "Off"
     },
@@ -905,9 +912,6 @@
       "level": "Off"
     },
     "c:S922": {
-      "level": "Off"
-    },
-    "c:S3715": {
       "level": "Off"
     },
     "c:S116": {
@@ -1040,9 +1044,6 @@
       "level": "Off"
     },
     "c:S2324": {
-      "level": "Off"
-    },
-    "c:S5270": {
       "level": "Off"
     },
     "c:S967": {

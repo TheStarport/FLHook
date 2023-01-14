@@ -1,5 +1,13 @@
 {
   "sonarlint.rules": {
+    "cpp:S3654": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S4423": {
+      "level": "On",
+      "severity": "Critical"
+    },
     "cpp:S5982": {
       "level": "On",
       "severity": "Critical"
@@ -93,10 +101,6 @@
       "severity": "Minor"
     },
     "cpp:S5547": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "cpp:S4423": {
       "level": "On",
       "severity": "Critical"
     },
@@ -628,10 +632,6 @@
     "cpp:S5955": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S3654": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "cpp:S2323": {
       "level": "On",
@@ -1595,6 +1595,51 @@
       "level": "On",
       "severity": "Blocker"
     },
+    "cpp:S3715": {
+      "level": "Off"
+    },
+    "cpp:S6488": {
+      "level": "Off"
+    },
+    "cpp:S6487": {
+      "level": "Off"
+    },
+    "cpp:S6489": {
+      "level": "Off"
+    },
+    "cpp:S6484": {
+      "level": "Off"
+    },
+    "cpp:S6483": {
+      "level": "Off"
+    },
+    "cpp:S5270": {
+      "level": "Off"
+    },
+    "cpp:S6482": {
+      "level": "Off"
+    },
+    "cpp:S6495": {
+      "level": "Off"
+    },
+    "cpp:S6494": {
+      "level": "Off"
+    },
+    "cpp:S6491": {
+      "level": "Off"
+    },
+    "cpp:S6490": {
+      "level": "Off"
+    },
+    "cpp:S6493": {
+      "level": "Off"
+    },
+    "cpp:S6492": {
+      "level": "Off"
+    },
+    "cpp:S6185": {
+      "level": "Off"
+    },
     "common-cpp:FailedUnitTests": {
       "level": "Off"
     },
@@ -1665,9 +1710,6 @@
       "level": "Off"
     },
     "cpp:S922": {
-      "level": "Off"
-    },
-    "cpp:S3715": {
       "level": "Off"
     },
     "cpp:S6427": {
@@ -2097,9 +2139,6 @@
       "level": "Off"
     },
     "cpp:S5275": {
-      "level": "Off"
-    },
-    "cpp:S5270": {
       "level": "Off"
     },
     "cpp:S1749": {

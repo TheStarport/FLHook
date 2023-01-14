@@ -419,108 +419,6 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_AutoBuy(ClientId& client, const std::wstring& param)
-{
-	if (!FLHookConfig::i()->general.autobuy)
-	{
-		PRINT_DISABLED()
-		return;
-	}
-
-	std::wstring error[] = {
-	    L"Error: Invalid parameters",
-	    L"Usage: /autobuy <param> [<on/off>]",
-	    L"<Param>:",
-	    L"   info - display current autobuy-settings",
-	    L"   missiles - enable/disable autobuy for missiles",
-	    L"   torps - enable/disable autobuy for torpedos",
-	    L"   mines - enable/disable autobuy for mines",
-	    L"   cd - enable/disable autobuy for cruise disruptors",
-	    L"   cm - enable/disable autobuy for countermeasures",
-	    L"   reload - enable/disable autobuy for nanobots/shield batteries",
-	    L"   all: enable/disable autobuy for all of the above",
-	    L"Examples:",
-	    L"\"/autobuy missiles on\" enable autobuy for missiles",
-	    L"\"/autobuy all off\" completely disable autobuy",
-	    L"\"/autobuy info\" show autobuy info",
-	};
-
-	std::wstring wscType = ToLower(GetParam(param, ' ', 0));
-	std::wstring wscSwitch = ToLower(GetParam(param, ' ', 1));
-
-	if (!wscType.compare(L"info"))
-	{
-		PrintUserCmdText(client, L"Missiles: %s", ClientInfo[client].bAutoBuyMissiles ? L"On" : L"Off");
-		PrintUserCmdText(client, L"Mine: %s", ClientInfo[client].bAutoBuyMines ? L"On" : L"Off");
-		PrintUserCmdText(client, L"Torpedos: %s", ClientInfo[client].bAutoBuyTorps ? L"On" : L"Off");
-		PrintUserCmdText(client, L"Cruise Disruptors: %s", ClientInfo[client].bAutoBuyCD ? L"On" : L"Off");
-		PrintUserCmdText(client, L"Countermeasures: %s", ClientInfo[client].bAutoBuyCM ? L"On" : L"Off");
-		PrintUserCmdText(client, L"Nanobots/Shield Batteries: %s", ClientInfo[client].bAutoBuyReload ? L"On" : L"Off");
-		return;
-	}
-
-	if (!wscType.length() || !wscSwitch.length() || wscSwitch.compare(L"on") != 0 && wscSwitch.compare(L"off") != 0)
-		PRINT_ERROR()
-
-	GET_USERFILE(scUserFile)
-
-	const auto fileName = Hk::Client::GetCharFileName(client);
-	std::string scSection = "autobuy_" + wstos(fileName.value());
-
-	bool bEnable = !wscSwitch.compare(L"on") ? true : false;
-	if (!wscType.compare(L"all"))
-	{
-		ClientInfo[client].bAutoBuyMissiles = bEnable;
-		ClientInfo[client].bAutoBuyMines = bEnable;
-		ClientInfo[client].bAutoBuyTorps = bEnable;
-		ClientInfo[client].bAutoBuyCD = bEnable;
-		ClientInfo[client].bAutoBuyCM = bEnable;
-		ClientInfo[client].bAutoBuyReload = bEnable;
-		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
-		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
-		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
-		IniWrite(scUserFile, scSection, "cd", bEnable ? "yes" : "no");
-		IniWrite(scUserFile, scSection, "cm", bEnable ? "yes" : "no");
-		IniWrite(scUserFile, scSection, "reload", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"missiles"))
-	{
-		ClientInfo[client].bAutoBuyMissiles = bEnable;
-		IniWrite(scUserFile, scSection, "missiles", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"mines"))
-	{
-		ClientInfo[client].bAutoBuyMines = bEnable;
-		IniWrite(scUserFile, scSection, "mines", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"torps"))
-	{
-		ClientInfo[client].bAutoBuyTorps = bEnable;
-		IniWrite(scUserFile, scSection, "torps", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"cd"))
-	{
-		ClientInfo[client].bAutoBuyCD = bEnable;
-		IniWrite(scUserFile, scSection, "cd", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"cm"))
-	{
-		ClientInfo[client].bAutoBuyCM = bEnable;
-		IniWrite(scUserFile, scSection, "cm", bEnable ? "yes" : "no");
-	}
-	else if (!wscType.compare(L"reload"))
-	{
-		ClientInfo[client].bAutoBuyReload = bEnable;
-		IniWrite(scUserFile, scSection, "reload", bEnable ? "yes" : "no");
-	}
-	else
-		PRINT_ERROR()
-
-	PRINT_OK()
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
 {
 	wchar_t wszLine[128] = L"";
@@ -626,7 +524,6 @@ const std::vector UserCmds = {{
     CreateUserCommand(L"/delignore", L"", UserCmd_DelIgnore, L""),
     CreateUserCommand(L"/ignore", L"", UserCmd_Ignore, L""),
     CreateUserCommand(L"/ignoreid", L"", UserCmd_IgnoreID, L""),
-    CreateUserCommand(L"/autobuy", L"", UserCmd_AutoBuy, L""),
     CreateUserCommand(L"/ids", L"", UserCmd_Ids, L""),
     CreateUserCommand(L"/id", L"", UserCmd_ID, L""),
     CreateUserCommand(L"/i$", L"", UserCmd_InviteID, L""),

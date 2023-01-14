@@ -437,14 +437,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 
 void BaseEnter__Inner(uint baseId, ClientId client)
 {
-	TRY_HOOK
-	{
-		if (FLHookConfig::i()->general.autobuy)
-		{
-			Hk::Player::PlayerAutoBuy(client, baseId);
-		}
-	}
-	CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Info, "Exception in BaseEnter on autobuy"); })
+
 }
 
 void BaseEnter__InnerAfter(uint baseId, ClientId client)

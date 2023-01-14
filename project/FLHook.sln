@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33205.214
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33130.400
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLHook", "FLHook.vcxproj", "{FE6EB3C9-DA22-4492-AEC3-068C9553A623}"
 EndProject
@@ -81,6 +81,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Light Control", "..\plugins\light_control\LightControl.vcxproj", "{737AC6EA-7361-44B9-A15A-6975D1BC1DA4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Warehouse", "..\plugins\warehouse\Warehouse.vcxproj", "{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Autobuy", "..\plugins\autobuy\autobuy.vcxproj", "{681DDE36-BA92-48DB-92E8-4E821B92B4BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -286,6 +288,12 @@ Global
 		{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
 		{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.Release|Win32.ActiveCfg = Release|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.Release|Win32.Build.0 = Release|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.Release|x64.ActiveCfg = Release|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -324,6 +332,7 @@ Global
 		{7D50A30F-3838-4FB7-9966-FD8748E4BE1D} = {632FB3BE-F949-4FDF-8EDC-DA5433451E34}
 		{737AC6EA-7361-44B9-A15A-6975D1BC1DA4} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{A3872352-24F1-4BB6-BFE0-3B9837DDEC3F} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{681DDE36-BA92-48DB-92E8-4E821B92B4BA} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}
