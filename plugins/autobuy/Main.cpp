@@ -13,24 +13,17 @@ namespace Plugins::Autobuy
 
 	void LoadPlayerAutobuy(ClientId client)
 	{
-		global->autobuyInfo[client].autoBuyMissiles = Hk::Ini::GetCharacterIniBool(client, L"autobuy.missiles");
-		global->autobuyInfo[client].autoBuyMines = Hk::Ini::GetCharacterIniBool(client, L"autobuy.mine");
-		global->autobuyInfo[client].autoBuyTorps = Hk::Ini::GetCharacterIniBool(client, L"autobuy.torp");
-		global->autobuyInfo[client].autoBuyCD = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cd");
-		global->autobuyInfo[client].autoBuyCM = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cm");
-		global->autobuyInfo[client].autoBuyRepairs = Hk::Ini::GetCharacterIniBool(client, L"autobuy.repairs");
+		ClientInfo playerAutobuyInfo;
+		playerAutobuyInfo.autoBuyMissiles = Hk::Ini::GetCharacterIniBool(client, L"autobuy.missiles");
+		playerAutobuyInfo.autoBuyMines = Hk::Ini::GetCharacterIniBool(client, L"autobuy.mine");
+		playerAutobuyInfo.autoBuyTorps = Hk::Ini::GetCharacterIniBool(client, L"autobuy.torp");
+		playerAutobuyInfo.autoBuyCD = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cd");
+		playerAutobuyInfo.autoBuyCM = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cm");
+		playerAutobuyInfo.autoBuyRepairs = Hk::Ini::GetCharacterIniBool(client, L"autobuy.repairs");
+		global->autobuyInfo[client] = playerAutobuyInfo;
 	}
 
-	void ClearClientInfo(ClientId client) { global->autobuyInfo.erase(client); }
-
-	// Put things that are performed on plugin load here!
-	void LoadSettings()
-	{
-		const std::list<PLAYERINFO> players = Hk::Admin::GetPlayers();
-		for (auto& p : players)
-			LoadPlayerAutobuy(p.client);
-
-	}
+	void ClearClientInfo(ClientId& client) { global->autobuyInfo.erase(client); }
 
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
@@ -43,16 +36,18 @@ namespace Plugins::Autobuy
 		return 0;
 	}
 
-	void AddEquipToCart(const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring_view desc)
+	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring_view desc)
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
+		item.archId = launcher->iProjectileArchId;
 		item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
 		item.description = desc;
 		cart.emplace_back(item);
 	}
 
-	ClientInfo& LoadAutobuyInfo(ClientId client) {
-		if (global->autobuyInfo.contains(client))
+	ClientInfo& LoadAutobuyInfo(ClientId& client) 
+	{
+		if (!global->autobuyInfo.contains(client))
 		{
 			LoadPlayerAutobuy(client);
 		}
@@ -60,9 +55,8 @@ namespace Plugins::Autobuy
 		return global->autobuyInfo[client];
 	}
 
-	void PlayerAutoBuy(ClientId client, uint iBaseId)
+	void OnBaseEnter(BaseId& baseId, ClientId& client)
 	{
-
 		const ClientInfo& clientInfo = LoadAutobuyInfo(client);
 
 		// player cargo
@@ -74,7 +68,7 @@ namespace Plugins::Autobuy
 		}
 
 		// shopping cart
-		std::list<AUTOBUY_CARTITEM> lstCart;
+		std::list<AUTOBUY_CARTITEM> cartList;
 
 		if (clientInfo.autoBuyRepairs)
 		{
@@ -95,7 +89,7 @@ namespace Plugins::Autobuy
 					aci.archId = nanobotsId;
 					aci.count = ship->iMaxNanobots - item.iCount;
 					aci.description = L"Nanobots";
-					lstCart.push_back(aci);
+					cartList.push_back(aci);
 					nanobotsFound = true;
 				}
 				else if (item.iArchId == shieldBatsId)
@@ -103,7 +97,7 @@ namespace Plugins::Autobuy
 					aci.archId = shieldBatsId;
 					aci.count = ship->iMaxShieldBats - item.iCount;
 					aci.description = L"Shield Batteries";
-					lstCart.push_back(aci);
+					cartList.push_back(aci);
 					shieldBattsFound = true;
 				}
 			}
@@ -114,7 +108,7 @@ namespace Plugins::Autobuy
 				aci.archId = nanobotsId;
 				aci.count = ship->iMaxNanobots;
 				aci.description = L"Nanobots";
-				lstCart.push_back(aci);
+				cartList.push_back(aci);
 			}
 
 			if (!shieldBattsFound)
@@ -123,7 +117,7 @@ namespace Plugins::Autobuy
 				aci.archId = shieldBatsId;
 				aci.count = ship->iMaxShieldBats;
 				aci.description = L"Shield Batteries";
-				lstCart.push_back(aci);
+				cartList.push_back(aci);
 			}
 		}
 
@@ -132,14 +126,14 @@ namespace Plugins::Autobuy
 		{
 			// add mounted equip to a new list and eliminate double equipment(such
 			// as 2x lancer etc)
-			std::list<CARGO_INFO> lstMounted;
+			std::list<CARGO_INFO> mountedList;
 			for (auto& item : cargo.value())
 			{
 				if (!item.bMounted)
 					continue;
 
 				bool bFound = false;
-				for (const auto& mounted : lstMounted)
+				for (const auto& mounted : mountedList)
 				{
 					if (mounted.iArchId == item.iArchId)
 					{
@@ -149,11 +143,11 @@ namespace Plugins::Autobuy
 				}
 
 				if (!bFound)
-					lstMounted.push_back(item);
+					mountedList.push_back(item);
 			}
 
 			// check mounted equip
-			for (const auto& mounted : lstMounted)
+			for (const auto& mounted : mountedList)
 			{
 				AUTOBUY_CARTITEM aci;
 				Archetype::Equipment* eq = Archetype::GetEquipment(mounted.iArchId);
@@ -163,31 +157,31 @@ namespace Plugins::Autobuy
 				{
 					case ET_MINE: {
 						if (clientInfo.autoBuyMines)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Mines");
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Mines");
 
 						break;
 					}
 					case ET_CM: {
 						if (clientInfo.autoBuyCM)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Countermeasures");
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Countermeasures");
 
 						break;
 					}
 					case ET_TORPEDO: {
 						if (clientInfo.autoBuyTorps)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Torpedoes");
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Torpedoes");
 
 						break;
 					}
 					case ET_CD: {
 						if (clientInfo.autoBuyCD)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Cruise Disrupters");
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Cruise Disrupters");
 
 						break;
 					}
 					case ET_MISSILE: {
 						if (clientInfo.autoBuyMissiles)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Missiles");
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Missiles");
 
 						break;
 					}
@@ -202,7 +196,7 @@ namespace Plugins::Autobuy
 		BASE_INFO const* bi = nullptr;
 		for (auto const& base : lstBases)
 		{
-			if (base.baseId == iBaseId)
+			if (base.baseId == baseId)
 			{
 				bi = &base;
 				break;
@@ -220,13 +214,13 @@ namespace Plugins::Autobuy
 
 		auto cash = cashErr.value();
 
-		for (auto& buy : lstCart)
+		for (auto& buy : cartList)
 		{
 			if (!buy.count || !Arch2Good(buy.archId))
 				continue;
 
 			// check if good is available and if player has the neccessary rep
-			bool bGoodAvailable = false;
+			bool goodAvailable = false;
 			for (const auto& available : bi->lstMarketMisc)
 			{
 				if (available.iArchId == buy.archId)
@@ -234,31 +228,31 @@ namespace Plugins::Autobuy
 					// get base rep
 					int iSolarRep;
 					pub::SpaceObj::GetSolarRep(bi->iObjectId, iSolarRep);
-					uint iBaseRep;
-					pub::Reputation::GetAffiliation(iSolarRep, iBaseRep);
-					if (iBaseRep == -1)
+					uint baseRep;
+					pub::Reputation::GetAffiliation(iSolarRep, baseRep);
+					if (baseRep == -1)
 						continue; // rep can't be determined yet(space object not
 						          // created yet?)
 
 					// get player rep
-					int iRepId;
-					pub::Player::GetRep(client, iRepId);
+					int repId;
+					pub::Player::GetRep(client, repId);
 
 					// check if rep is sufficient
-					float fPlayerRep;
-					pub::Reputation::GetGroupFeelingsTowards(iRepId, iBaseRep, fPlayerRep);
+					float playerRep;
+					pub::Reputation::GetGroupFeelingsTowards(repId, baseRep, playerRep);
 					// good rep, allowedto buy
-					if (fPlayerRep >= available.fRep)
-						bGoodAvailable = true;
+					if (playerRep >= available.fRep)
+						goodAvailable = true;
 					break;
 				}
 			}
 
-			if (!bGoodAvailable)
+			if (!goodAvailable)
 				continue; // base does not sell this item or bad rep
 
-			float fPrice;
-			if (pub::Market::GetPrice(iBaseId, buy.archId, fPrice) == -1)
+			float price;
+			if (pub::Market::GetPrice(baseId, buy.archId, price) == -1)
 				continue; // good not available
 
 			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
@@ -272,7 +266,7 @@ namespace Plugins::Autobuy
 					buy.count = newCount;
 			}
 
-			uint uCost = ((uint)fPrice * buy.count);
+			uint uCost = ((uint)price * buy.count);
 			if (cash < uCost)
 				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.description.c_str());
 			else
@@ -281,11 +275,13 @@ namespace Plugins::Autobuy
 				remHoldSize -= ((int)eq->fVolume * buy.count);
 
 				// add the item, dont use addcargo for performance/bug reasons
-				// assume we only mount multicount goods (missiles, ammo, bots)
-				pub::Player::AddCargo(client, buy.archId, buy.count, 1, false);
+				// assume we only mount multicount goods (missiles, ammo, bots
+				Hk::Player::AddCargo(client, buy.archId, buy.count, false);
 
 				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.description.c_str(), buy.count, ToMoneyStr(uCost).c_str());
 			}
+
+			Hk::Player::SaveChar(client);
 		}
 	}
 
@@ -397,6 +393,7 @@ namespace Plugins::Autobuy
 			return;
 		}
 
+		Hk::Player::SaveChar(client);
 		PrintUserCmdText(client, L"OK");
 
 	}
@@ -410,8 +407,6 @@ namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-DefaultDllMainSettings(LoadSettings)
-
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Autobuy");
@@ -422,6 +417,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &PlayerAutoBuy, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &OnBaseEnter, HookStep::After);
 }
