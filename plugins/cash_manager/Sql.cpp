@@ -30,8 +30,8 @@ namespace Plugins::CashManager::Sql
 		    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 		std::random_device dev;
 		std::mt19937 r(dev());
-		const std::uniform_int_distribution<std::size_t> randLetter(0, letters.size() - 1);
-		const std::uniform_int_distribution<std::size_t> randNumber(0, 9);
+		std::uniform_int_distribution<std::size_t> randLetter(0, letters.size() - 1);
+		std::uniform_int_distribution<std::size_t> randNumber(0, 9);
 		std::stringstream ss;
 		ss << letters[randLetter(r)] << randNumber(r) << randNumber(r) << randNumber(r) << randNumber(r);
 		return ss.str();

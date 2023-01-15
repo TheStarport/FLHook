@@ -107,7 +107,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	// Shortened name, all lower case, no spaces. Abbreviation when possible.
 	pi->shortName("$safeprojectname$");
 	pi->mayUnload(true);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

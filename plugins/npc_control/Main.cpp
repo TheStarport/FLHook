@@ -381,7 +381,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to make AI follow target (or admin) until death
 	 */
-	void AdminCmdAIFollow(CCmds* cmds, std::wstring& wscCharname)
+	void AdminCmdAIFollow(CCmds* cmds, std::wstring wscCharname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{

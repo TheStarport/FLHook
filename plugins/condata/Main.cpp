@@ -582,7 +582,7 @@ DefaultDllMainSettings(LoadSettings)
 	pi->name(ConDataCommunicator::pluginName);
 	pi->shortName("condata");
 	pi->mayUnload(true);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

@@ -225,7 +225,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Event");
 	pi->shortName("event");
 	pi->mayUnload(true);
-	pi->timers(timers);
+	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

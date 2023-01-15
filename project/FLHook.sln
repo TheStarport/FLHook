@@ -60,6 +60,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\.clang-format = ..\.clang-format
 		..\.gitignore = ..\.gitignore
+		..\plugins\Plugin Common.props = ..\plugins\Plugin Common.props
 		..\readme.markdown = ..\readme.markdown
 		..\FLHookSDK\vcpkg.json = ..\FLHookSDK\vcpkg.json
 	EndProjectSection
