@@ -72,7 +72,7 @@ namespace Plugins::Message
 	static void LoadMsgs(ClientId client)
 	{
 		if (!global->config->enableSetMessage
-		||   global->info.find(client) != global->info.end())
+		||   global->info.contains(client))
 			return;
 
 		// Load from disk the messages.
@@ -283,8 +283,7 @@ namespace Plugins::Message
 	void LoadSettings()
 	{
 		// For every active player load their msg settings.
-		const std::list<PLAYERINFO> players = Hk::Admin::GetPlayers();
-		for (auto& p : players)
+		for (const auto& p : Hk::Admin::GetPlayers())
 			LoadMsgs(p.client);
 
 		auto config = Serializer::JsonToObject<Config>();
@@ -369,7 +368,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Hook on SubmitChat. Suppresses swearing. Records the last user to PM.
 	 */
-	bool SubmitChat(const ClientId& client, const unsigned long& msgSize, const void** rdlReader, const uint& cIdTo, const int& p2)
+	bool SubmitChat(const ClientId& client, const unsigned long& msgSize, const void** rdlReader, const uint& cIdTo, const int [[maybe_unused]])
 	{
 		// Ignore group join/leave commands
 		if (cIdTo == 0x10004)
@@ -555,7 +554,7 @@ namespace Plugins::Message
 	void UserCmd_RMsg(ClientId& client, const std::wstring& param)
 	{
 		long num = GetNumberFromCmd(param);
-		SendPresetLastPMSender(client, num, param);
+		SendPresetLastPMSender(client, num);
 	}
 
 	/** @ingroup Message
