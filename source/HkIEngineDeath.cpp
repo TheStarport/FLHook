@@ -324,7 +324,7 @@ void BaseDestroyed(uint objectId, ClientId clientBy)
 	pub::SpaceObj::GetDockingTarget(objectId, baseId);
 	Universe::IBase* base = Universe::get_base(baseId);
 
-	char* baseName = "";
+	const char* baseName = "";
 	if (base)
 	{
 		__asm {

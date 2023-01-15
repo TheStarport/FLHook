@@ -10,7 +10,7 @@ void IClientImpl__Startup__Inner(uint, uint)
 		BASE_INFO bi;
 		bi.bDestroyed = false;
 		bi.iObjectId = base->lSpaceObjId;
-		char* szBaseName = "";
+		char const* szBaseName = "";
 		__asm {
             pushad
             mov ecx, [base]
@@ -69,12 +69,15 @@ namespace IServerImplHook
 
 		for (PluginData& plugin : PluginManager::ir())
 		{
-			for (auto& timer : plugin.timers)
+			if (plugin.timers)
 			{
-				if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
+				for (auto& timer : *plugin.timers)
 				{
-					timer.lastTime = currentTime;
-					timer.func();
+					if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
+					{
+						timer.lastTime = currentTime;
+						timer.func();
+					}
 				}
 			}
 		}
@@ -470,10 +473,10 @@ void BaseEnter__InnerAfter(uint baseId, ClientId client)
 		// print to log if the char has too much money
 		if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client)); value.has_value())
 		{
-			if (value.value() > 2100000000.0f)
+			if (value.value() > 2100000000)
 			{
 				std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-				AddLog(LogType::Normal, LogLevel::Err, fmt::format("Possible corrupt ship charname={} asset_value={:.2f}", wstos(charname), value.value()));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("Possible corrupt ship charname={} asset_value={}", wstos(charname), value.value()));
 			}
 		}
 	}
@@ -604,7 +607,9 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
 		}
 	}
 	CATCH_HOOK({
-		AddLog(LogType::Normal, LogLevel::Err, fmt::format("Exception in {} (client={} ({:X}))", __FUNCTION__, client, wstos(Hk::Client::GetCharacterNameByID(client).value())));
+		AddLog(LogType::Normal,
+		    LogLevel::Err,
+		    std::format("Exception in {} (client={} ({}))", __FUNCTION__, client, wstos(Hk::Client::GetCharacterNameByID(client).value())));
 	})
 
 	return true;
@@ -3682,7 +3687,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("TradeResponse(\n\tunsigned char const* _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n\tClientId client = {}\n)",
+		    std::format("TradeResponse(\n\tunsigned char const* _genArg1 = {}\n\tint _genArg2 = {}\n\tClientId client = {}\n)",
 		    std::string(reinterpret_cast<char const*>(_genArg1)),
 		    _genArg2,
 		    client));

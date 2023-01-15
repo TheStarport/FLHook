@@ -124,7 +124,7 @@ void AddExceptionInfoLog(SEHException* ex)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
-			AddLog(LogType::Normal, LogLevel::Trace, fmt::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
+			AddLog(LogType::Normal, LogLevel::Debug, fmt::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -153,21 +153,21 @@ void AddExceptionInfoLog(SEHException* ex)
 					}
 				}
 				AddLog(LogType::Normal,
-				    LogLevel::Trace,
+				    LogLevel::Debug,
 				    fmt::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", szName, szMessage, iOffset, strrchr(szModName, '\\') + 1));
 			}
 
 			void* callers[62];
 			int count = CaptureStackBackTrace(0, 62, callers, NULL);
 			for (int i = 0; i < count; i++)
-				AddLog(LogType::Normal, LogLevel::Trace, fmt::format("0x{:08X} called from 0x{:08X}", i, callers[i]));
+				AddLog(LogType::Normal, LogLevel::Debug, std::vformat("{} called from {:#X}", std::make_format_args(i, callers[i])));
 		}
 		else
-			AddLog(LogType::Normal, LogLevel::Trace, "No exception information available");
+			AddLog(LogType::Normal, LogLevel::Debug, "No exception information available");
 		if (reg)
 		{
 			AddLog(LogType::Normal,
-			    LogLevel::Trace,
+			    LogLevel::Debug,
 			    fmt::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
 			        reg->Eax,
 			        reg->Ebx,

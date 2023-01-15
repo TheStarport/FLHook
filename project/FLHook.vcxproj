@@ -20,13 +20,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <CharacterSet>MultiByte</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Configuration">
     <CharacterSet>MultiByte</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -96,6 +96,10 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <PrecompiledHeader />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <EnableModules>true</EnableModules>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -154,6 +158,10 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       </PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <EnableModules>true</EnableModules>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>

@@ -223,8 +223,8 @@ struct PluginData
 	ReturnCode* returnCode = nullptr;
 	bool resetCode = true;
 	bool paused = false;
-	std::vector<UserCommand> commands;
-	std::vector<Timer> timers;
+	std::vector<UserCommand>* commands;
+	std::vector<Timer>* timers;
 	std::shared_ptr<PluginInfo> pInfo = nullptr;
 };
 

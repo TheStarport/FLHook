@@ -933,8 +933,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Rename");
 	pi->shortName("rename");
 	pi->mayUnload(true);
-	pi->commands(commands);
-	pi->timers(timers);
+	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

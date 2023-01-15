@@ -60,13 +60,13 @@ void TimerCheckKick()
 				continue; // player will be kicked anyway
 			}
 			const auto* config = FLHookConfig::c();
-			if (config->general.antbaseIdle)
+			if (config->general.antiBaseIdle)
 			{ // anti base-idle check
 				uint baseId;
 				pub::Player::GetBase(client, baseId);
 				if (baseId && ClientInfo[client].iBaseEnterTime)
 				{
-					if ((time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antbaseIdle)
+					if ((time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
 					{
 						AddKickLog(client, "Base idling");
 						Hk::Player::MsgAndKick(client, L"Base idling", 10);

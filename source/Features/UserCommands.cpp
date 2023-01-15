@@ -1,18 +1,18 @@
 ﻿#include "Global.hpp"
 
-#define PRINT_ERROR()                                                        \
-	{                                                                        \
+#define PRINT_ERROR()                                                     \
+	{                                                                     \
 		for (uint i = 0; (i < sizeof(error) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, L"%s", error[i].c_str());         \
-		return;                                                              \
+			PrintUserCmdText(client, L"%s", error[i].c_str());            \
+		return;                                                           \
 	}
 #define PRINT_OK() PrintUserCmdText(client, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
-#define GET_USERFILE(a)                                             \
-	std::string a;                                                  \
-	{                                                               \
+#define GET_USERFILE(a)                                          \
+	std::string a;                                               \
+	{                                                            \
 		CAccount* acc = Players.FindAccountFromClientID(client); \
-		std::wstring dir = Hk::Client::GetAccountDirName(acc);                           \
+		std::wstring dir = Hk::Client::GetAccountDirName(acc);   \
 		a = scAcctPath + wstos(dir) + "\\flhookuser.ini";        \
 	}
 
@@ -283,7 +283,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	    L"chat",
 	};
 
-	std::wstring wscClientId = GetParam(param ,' ', 0);
+	std::wstring wscClientId = GetParam(param, ' ', 0);
 	std::wstring wscFlags = ToLower(GetParam(param, ' ', 1));
 
 	if (!wscClientId.length())
@@ -509,13 +509,20 @@ void UserCmd_Credits(ClientId& client, const std::wstring& param)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
-UserCommand CreateUserCommand(const std::wstring& command, const std::wstring& usage, const UserCmdProc& proc, const std::wstring& description)
+UserCommand CreateUserCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage,
+    const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description)
 {
-	return {command, command + L" " + usage, proc, description};
+	return {command, usage, proc, description};
 }
 
-const std::wstring helpUsage = L"[module] [command]";
-const std::wstring helpDescription = L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
+std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds)
+{
+	return cmds;
+}
+
+const std::wstring helpUsage = L"/help [module] [command]";
+const std::wstring helpDescription =
+    L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
 const std::vector UserCmds = {{
     CreateUserCommand(L"/set diemsg", L"", UserCmd_SetDieMsg, L""),
     CreateUserCommand(L"/set diemsgsize", L"", UserCmd_SetDieMsgSize, L""),
@@ -529,21 +536,31 @@ const std::vector UserCmds = {{
     CreateUserCommand(L"/i$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/invite$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/credits", L"", UserCmd_Credits, L""),
-    CreateUserCommand(L"/help", helpUsage, UserCmd_Help, helpDescription),
-    CreateUserCommand(L"/h", helpUsage, UserCmd_Help, helpDescription),
-    CreateUserCommand(L"/?", helpUsage, UserCmd_Help, helpDescription),
+    CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
 }};
 
 bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 {
-	if (cmd.rfind(L'/') == 0)
-	{
-		return userCmd.command == cmd;
-	}
+	const auto isMatch = [&cmd](const std::wstring& subCmd) {
+		if (cmd.rfind(L'/') == 0)
+		{
+			return subCmd == cmd;
+		}
 
-	auto trimmed = userCmd.command;
-	trimmed.erase(0, 1);
-	return trimmed == cmd;
+		auto trimmed = subCmd;
+		trimmed.erase(0, 1);
+		return trimmed == cmd;
+	};
+
+	if (userCmd.command.index() == 0)
+	{
+		return isMatch(std::get<std::wstring>(userCmd.command));
+	}
+	else
+	{
+		const auto& arr = std::get<std::vector<std::wstring>>(userCmd.command);
+		return std::any_of(arr.begin(), arr.end(), isMatch);
+	}
 }
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView)
@@ -555,13 +572,13 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& plugins = PluginManager::ir();
-	if (paramView.empty() || paramView.find_first_not_of(L' ') == std::string::npos)
+	if (paramView.find(L' ') == std::string::npos)
 	{
 		PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
 		PrintUserCmdText(client, L"core");
 		for (const auto& plugin : plugins)
 		{
-			if (plugin.commands.empty())
+			if (!plugin.commands || plugin.commands->empty())
 				continue;
 
 			PrintUserCmdText(client, ToLower(stows(plugin.shortName)));
@@ -569,8 +586,8 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	const auto mod = GetParam(paramView, L' ', 0);
-	const auto cmd = ToLower(Trim(GetParam(paramView, L' ', 1)));
+	const auto mod = GetParam(paramView, L' ', 1);
+	const auto cmd = ToLower(Trim(GetParam(paramView, L' ', 2)));
 
 	if (mod == L"core")
 	{
@@ -578,7 +595,10 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		{
 			for (const auto& i : UserCmds)
 			{
-				PrintUserCmdText(client, i.command);
+				if (i.command.index() == 0)
+					PrintUserCmdText(client, std::get<std::wstring>(i.command));
+				else
+					PrintUserCmdText(client, i.usage);
 			}
 		}
 		else if (const auto& userCommand =
@@ -604,50 +624,94 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	if (cmd.empty())
+	if (plugin->commands)
 	{
-		for (const auto& command : plugin->commands)
+		if (cmd.empty())
 		{
-			PrintUserCmdText(client, command.command);
+			for (const auto& command : *plugin->commands)
+			{
+				if (command.command.index() == 0)
+					PrintUserCmdText(client, std::get<std::wstring>(command.command));
+				else
+					PrintUserCmdText(client, command.usage);
+			}
 		}
-	}
-	else if (const auto& userCommand =
-	             std::find_if(plugin->commands.begin(), plugin->commands.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
-	         userCommand != plugin->commands.end())
-	{
-		PrintUserCmdText(client, userCommand->usage);
-		PrintUserCmdText(client, userCommand->description);
+		else if (const auto& userCommand =
+		             std::find_if(plugin->commands->begin(), plugin->commands->end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		         userCommand != plugin->commands->end())
+		{
+			PrintUserCmdText(client, userCommand->usage);
+			PrintUserCmdText(client, userCommand->description);
+		}
+		else
+		{
+			PrintUserCmdText(client, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+		}
 	}
 	else
 	{
-		PrintUserCmdText(client, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+		PrintUserCmdText(client, fmt::format(L"Module '{}' does not have commands.", stows(plugin->shortName)));
 	}
 }
 
-bool ProcessPluginCommand(ClientId& client, const std::wstring& cmd, const std::vector<UserCommand>& commands)
+bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdString, const std::vector<UserCommand>& commands)
 {
-	const std::wstring cmdLower = ToLower(cmd);
-	for (const auto& command : commands)
+	const std::wstring inputLower = ToLower(originalCmdString);
+	for (const auto& cmdObj : commands)
 	{
-		if (cmdLower.find(command.command) == 0)
+		std::optional<std::wstring> param;
+		if (cmdObj.command.index() == 0)
 		{
-			std::wstring wscParam;
-			if (cmd.length() > command.command.length())
+			const auto& subCmd = std::get<std::wstring>(cmdObj.command);
+
+			// No command match
+			if (inputLower.rfind(subCmd, 0) != 0)
 			{
-				if (cmd[command.command.length()] != ' ')
+				continue;
+			}
+
+			// If the length of the input is greater than the command, check the last character and assert its not a space
+			if (originalCmdString.length() > subCmd.length())
+			{
+				if (originalCmdString[subCmd.length()] != ' ')
 				{
 					continue;
 				}
-				wscParam = cmd.substr(command.command.length() + 1);
+				param = originalCmdString.substr(subCmd.length() + 1);
 			}
+			else
+			{
+				param = L"";
+			}
+		}
+		else
+		{
+			for (const auto& subCmd : std::get<std::vector<std::wstring>>(cmdObj.command))
+			{
+				if (inputLower.rfind(subCmd, 0) != 0 || (originalCmdString.length() > subCmd.length() && originalCmdString[subCmd.length()] != ' '))
+				{
+					continue;
+				}
 
+				param = originalCmdString;
+			}
+		}
+		if (param.has_value())
+		{
 			std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(fmt::format(L"{}: {}", character.c_str(), cmd.c_str())));
+			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(fmt::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
 
 			try
 			{
-				const auto view = std::wstring(wscParam);
-				command.proc(client, view);
+				if (cmdObj.proc.index() == 0)
+				{
+					std::get<UserCmdProc>(cmdObj.proc)(client);
+				}
+				else
+				{
+					std::get<UserCmdProcWithParam>(cmdObj.proc)(client, param.value());
+				}
+
 				AddLog(LogType::UserLogCmds, LogLevel::Info, "finished");
 			}
 			catch (std::exception const& ex)
@@ -682,8 +746,10 @@ bool UserCmd_Process(ClientId client, const std::wstring& wscCmd)
 	const auto& plugins = PluginManager::ir();
 	for (const PluginData& i : plugins)
 	{
-		if (ProcessPluginCommand(client, wscCmd, i.commands))
+		if (i.commands && ProcessPluginCommand(client, wscCmd, *i.commands))
+		{
 			return true;
+		}
 	}
 
 	// In-built commands

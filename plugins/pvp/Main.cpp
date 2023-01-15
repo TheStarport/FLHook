@@ -457,7 +457,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("pvp");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);

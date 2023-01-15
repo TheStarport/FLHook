@@ -49,8 +49,11 @@ namespace Plugins::Afk
 		PrintUserCmdText(client, L"Use the /back command to stop sending automatic replies to PMs.");
 	}
 
-	// This function welcomes the player back and removes their afk status
-	void Back(ClientId client)
+	/** @ingroup AwayFromKeyboard
+	 * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
+	 * who messages them know too.
+	 */
+	void UserCmdBack(ClientId& client)
 	{
 		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), client) != global->awayClients.end())
 		{
@@ -61,22 +64,13 @@ namespace Plugins::Afk
 				PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
 				return;
 			}
+
 			global->awayClients.erase(it);
 			const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 			const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
 			const auto _ = Hk::Message::FMsgS(systemId.value(), message);
 			return;
 		}
-		PrintUserCmdText(client, L"You are not marked as AFK. To do this, use the /afk command.");
-	}
-
-	/** @ingroup AwayFromKeyboard
-	 * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
-	 * who messages them know too.
-	 */
-	void UserCmdBack(ClientId& client, const std::wstring& wscParam)
-	{
-		Back(client);
 	}
 
 	// Clean up when a client disconnects
@@ -90,7 +84,7 @@ namespace Plugins::Afk
 
 	// Hook on chat being sent (This gets called twice with the client and to
 	// swapped
-	void __stdcall Cb_SendChat(ClientId& client, ClientId& to, uint& size, void** rdl)
+	void Cb_SendChat(ClientId& client, ClientId& to, uint& size, void** rdl)
 	{
 		if (const auto it = global->awayClients.begin();
 			Hk::Client::IsValidClientID(to) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
@@ -98,11 +92,11 @@ namespace Plugins::Afk
 	}
 
 	// Hooks on chat being submitted
-	void __stdcall SubmitChat(ClientId& client, unsigned long& lP1, void const** rdlReader, ClientId& to, int& iP2)
+	void SubmitChat(ClientId& client, unsigned long& lP1, void const** rdlReader, ClientId& to, int& iP2)
 	{
 		if (const auto it = global->awayClients.begin();
 			Hk::Client::IsValidClientID(client) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
-			Back(client);
+			    UserCmdBack(client);
 	}
 
 	// Client command processing
@@ -125,7 +119,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("AFK");
 	pi->shortName("afk");
 	pi->mayUnload(true);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);

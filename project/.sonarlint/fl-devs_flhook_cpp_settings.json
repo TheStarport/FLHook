@@ -736,10 +736,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S859": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S1481": {
       "level": "On",
       "severity": "Minor"
@@ -1971,6 +1967,9 @@
       "level": "Off"
     },
     "cpp:S3549": {
+      "level": "Off"
+    },
+    "cpp:S859": {
       "level": "Off"
     },
     "cpp:S853": {

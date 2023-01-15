@@ -256,7 +256,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("tax");
 	pi->shortName("tax");
 	pi->mayUnload(true);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
