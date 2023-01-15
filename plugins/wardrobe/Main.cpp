@@ -100,7 +100,7 @@ namespace Plugins::Wardrobe
 		while (!global->pendingRestarts.empty())
 		{
 			Wardrobe restart = global->pendingRestarts.back();
-			if (Hk::Client::GetClientIdFromCharName(restart.characterName).value() != -1)
+			if (Hk::Client::GetClientIdFromCharName(restart.characterName).has_error())
 				return;
 
 			global->pendingRestarts.pop_back();
