@@ -109,7 +109,7 @@ namespace Plugins::Wardrobe
 			{
 				// Overwrite the existing character file
 				std::string scCharFile = scAcctPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
-				flc_decode(scCharFile.c_str(), scCharFile.c_str());
+				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
 				if (restart.head)
 				{
 					IniWrite(scCharFile, "Player", "head", " " + restart.costume);
@@ -118,7 +118,7 @@ namespace Plugins::Wardrobe
 					IniWrite(scCharFile, "Player", "body", " " + restart.costume);
 
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
-					flc_encode(scCharFile.c_str(), scCharFile.c_str());
+					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
 
 				AddLog(LogType::Normal, LogLevel::Info, fmt::format("User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
 			}

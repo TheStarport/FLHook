@@ -265,11 +265,11 @@ namespace Plugins::Rename
 				// Add a space to the value so the ini file line looks like "<key> =
 				// <value>" otherwise Ioncross Server Operator can't decode the file
 				// correctly
-				flc_decode(o.destFileTemp.c_str(), o.destFileTemp.c_str());
+				FlcDecodeFile(o.destFileTemp.c_str(), o.destFileTemp.c_str());
 				IniWriteW(o.destFileTemp, "Player", "Name", o.newCharName);
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 				{
-					flc_encode(o.destFileTemp.c_str(), o.destFileTemp.c_str());
+					FlcEncodeFile(o.destFileTemp.c_str(), o.destFileTemp.c_str());
 				}
 
 				// Create and delete the character

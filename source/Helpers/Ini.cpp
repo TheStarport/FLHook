@@ -30,17 +30,17 @@ namespace Hk::Ini
 	int __stdcall Cb_UpdateFile(char* filename, wchar_t* savetime, int b)
 	{
 		// Call the original save charfile function
-		int retv;
+		int retv = 0;
 		__asm {
-        pushad
-        mov ecx, [CurrPlayer]
-        push b
-        push savetime
-        push filename
-        mov eax, 0x6d4ccd0
-        call eax
-        mov retv, eax
-        popad
+			pushad
+			mov ecx, [CurrPlayer]
+			push b
+			push savetime
+			push filename
+			mov eax, 0x6d4ccd0
+			call eax
+			mov retv, eax
+			popad
 		}
 
 		// Readd the flhook section.
@@ -49,15 +49,39 @@ namespace Hk::Ini
 			ClientId client = CurrPlayer->iOnlineId;
 
 			std::string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
-			FILE* file;
-			fopen_s(&file, path.c_str(), "a");
-			if (file)
+
+			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
+
+			std::string saveStr;
+			std::fstream saveFile(path.c_str(), std::ios::in | std::ios::app | std::ios::binary);
+			saveFile.seekg(0, std::ios::end);
+			saveStr.reserve(static_cast<uint>(saveFile.tellg()));
+			saveFile.seekg(0, std::ios::beg);
+
+			saveStr.assign((std::istreambuf_iterator<char>(saveFile)), std::istreambuf_iterator<char>());
+			saveFile.seekg(0, std::ios::beg);
+
+			const auto writeFlhookSection = [client](std::string& str) 
 			{
-				fwprintf(file, L"[flhook]\n");
-				for (auto& i : clients[client].lines)
-					fwprintf(file, L"%s = %s\n", i.first.c_str(), i.second.c_str());
-				fclose(file);
+				str += "\n[flhook]\n";
+				for (const auto [key, value] : clients[client].lines)
+				{
+					str += wstos(std::format(L"{} = {}\n", key, value));
+				}
+			};
+
+			if (encryptFiles)
+			{
+				auto decoded = FlcDecode(saveStr);
+				writeFlhookSection(decoded);
+				saveStr = FlcEncode(decoded);
 			}
+			else
+			{
+				writeFlhookSection(saveStr);
+			}
+
+			saveFile.write(saveStr.c_str(), saveStr.size());
 		}
 
 		return retv;
@@ -142,7 +166,7 @@ namespace Hk::Ini
 		if (const std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
 			const std::string scCharFileNew = scCharFile + ".ini";
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			ret = stows(IniGetS(scCharFileNew, "Player", wstos(wscKey), ""));
@@ -171,7 +195,7 @@ namespace Hk::Ini
 		if (std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
 			std::string scCharFileNew = scCharFile + ".ini";
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			IniWrite(scCharFileNew, "Player", wstos(wscKey), wstos(wscValue));
@@ -190,13 +214,13 @@ namespace Hk::Ini
 
 	std::wstring GetCharacterIniString(ClientId client, const std::wstring& name)
 	{
-		if (clients.find(client) == clients.end())
+		if (!clients.contains(client))
 			return L"";
 
 		if (!clients[client].charfilename.length())
 			return L"";
 
-		if (clients[client].lines.find(name) == clients[client].lines.end())
+		if (!clients[client].lines.contains(name))
 			return L"";
 
 		auto line = clients[client].lines[name];
