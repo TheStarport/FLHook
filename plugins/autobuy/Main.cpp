@@ -45,13 +45,14 @@ namespace Plugins::Autobuy
 
 	void AddEquipToCart(const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring_view desc)
 	{
+		// TODO: Update to per-weapon ammo limits once implemented
 		item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
 		item.description = desc;
 		cart.emplace_back(item);
 	}
 
 	ClientInfo& LoadAutobuyInfo(ClientId client) {
-		if (global->autobuyInfo.find(client) != global->autobuyInfo.end())
+		if (global->autobuyInfo.contains(client))
 		{
 			LoadPlayerAutobuy(client);
 		}
@@ -401,8 +402,8 @@ namespace Plugins::Autobuy
 	}
 
 	// Define usable chat commands here
-	const std::vector<UserCommand> commands = {{
-	    {L"/autobuy", L"", UserCmdAutobuy, L"Sets up automatic purchases for consumables."},
+	const std::vector commands = {{
+	    CreateUserCommand(L"/autobuy", L"<consumable type> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
 	}};
 
 }
@@ -416,7 +417,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->name("Autobuy");
 	pi->shortName("autobuy");
 	pi->mayUnload(true);
-	pi->commands(commands);
+	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
