@@ -266,8 +266,7 @@ namespace Plugins::Autobuy
 					buy.count = newCount;
 			}
 
-			uint uCost = ((uint)price * buy.count);
-			if (cash < uCost)
+			if (uint uCost = (static_cast<uint>(price) * buy.count); cash < uCost)
 				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.description.c_str());
 			else
 			{
