@@ -233,10 +233,38 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Bases that will cause crashes if jumped to
+	const std::array<uint, 25> bannedBases = {
+		CreateID("br_m_beryllium_miner"),
+		CreateID("[br_m_hydrocarbon_miner]"),
+		CreateID("[br_m_niobium_miner]"),
+		CreateID("[co_khc_copper_miner]"),
+		CreateID("[co_khc_cobalt_miner]"),
+		CreateID("[co_kt_hydrocarbon_miner]"),
+		CreateID("[co_shi_h-fuel_miner]"),
+		CreateID("[co_shi_water_miner]"),
+		CreateID("[co_ti_water_miner]"),
+		CreateID("[gd_gm_h-fuel_miner]"),
+		CreateID("[gd_im_oxygen_miner]"),
+		CreateID("[gd_im_copper_miner]"),
+		CreateID("[gd_im_silver_miner]"),
+		CreateID("[gd_im_water_miner]"),
+		CreateID("[rh_m_diamond_miner]"),
+		CreateID("intro3_base"),
+		CreateID("intro2_base"),
+		CreateID("intro1_base"),
+		CreateID("st03b_01_base"),
+		CreateID("st02_01_base"),
+		CreateID("st01_02_base"),
+		CreateID("iw02_03_base"),
+		CreateID("rh02_07_base"),
+		CreateID("li04_06_base"),
+		CreateID("li01_15_base"),
+	};
 	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& baseVar)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		uint iBaseId;
+		uint baseId;
 
 		// check if logged in
 		if (client == UINT_MAX)
@@ -252,32 +280,37 @@ namespace Hk::Player
 				return cpp::fail(Error::PlayerNotInSpace);
 
 			// get base id
-			if (pub::GetBaseID(iBaseId, baseName.c_str()) == -4)
+			if (pub::GetBaseID(baseId, baseName.c_str()) == -4)
 			{
-				return cpp::fail(Error::InvalidBase);
+				return cpp::fail(Error::InvalidBaseName);
 			}
 		}
 		else
 		{
-			iBaseId = std::get<uint>(baseVar);
+			baseId = std::get<uint>(baseVar);
+		}
+
+		if (std::ranges::find(bannedBases, baseId) != bannedBases.end())
+		{
+			return cpp::fail(Error::InvalidBaseName);
 		}
 		
 		uint iSysId;
 		pub::Player::GetSystem(client, iSysId);
-		Universe::IBase* base = Universe::get_base(iBaseId);
+		Universe::IBase* base = Universe::get_base(baseId);
 
 		if (!base)
 		{
 			return cpp::fail(Error::InvalidBase);
 		}
 
-		pub::Player::ForceLand(client, iBaseId); // beam
+		pub::Player::ForceLand(client, baseId); // beam
 		
 		// if not in the same system, emulate F1 charload
 		if (base->systemId != iSysId)
 		{
-			Server.BaseEnter(iBaseId, client);
-			Server.BaseExit(iBaseId, client);
+			Server.BaseEnter(baseId, client);
+			Server.BaseExit(baseId, client);
 			auto fileName = Client::GetCharFileName(client);
 			if (fileName.has_error())
 				return cpp::fail(fileName.error());
