@@ -52,13 +52,14 @@ namespace Plugins::Tax
 		const auto characterName = Hk::Client::GetCharacterNameByID(client);
 
 		const auto clientTargetObject = Hk::Player::GetTargetClientID(client);
-		const auto clientTarget = clientTargetObject.value();
+		
 		if (clientTargetObject.has_error())
 		{
 			PrintUserCmdText(client, L"Error: You are not targeting a player.");
 			return;
 		}
 
+		const auto clientTarget = clientTargetObject.value();
 		const auto secs = Hk::Player::GetOnlineTime(client);
 		const auto targetCharacterName = Hk::Client::GetCharacterNameByID(clientTarget);
 		if (secs.has_error() || secs.value() < global->config->minplaytimeSec)
