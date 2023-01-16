@@ -529,7 +529,7 @@ namespace Plugins::ConData
 		{
 			// Find by charname. If this fails, fall through to default behaviour.
 			const auto acc = Hk::Client::GetAccountByCharName(classptr->ArgCharname(1));
-			if (!acc)
+			if (acc.has_error())
 				return false;
 
 			// Logout.
@@ -538,8 +538,7 @@ namespace Plugins::ConData
 			classptr->Print(L"OK");
 
 			// If the client is still active then force the disconnect.
-			const auto client = Hk::Client::GetClientIdFromAccount(acc.value());
-			if (client != -1)
+			if (const auto client = Hk::Client::GetClientIdFromAccount(acc.value()); client.has_value())
 			{
 				classptr->Print(L"Forcing logout on client=%d", client);
 				Players.logout(client.value());
