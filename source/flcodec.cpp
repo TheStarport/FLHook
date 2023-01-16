@@ -19,165 +19,109 @@ Or in Wintendo 32 (get the free lcc compiler):
 
 *******
 EDITED by mc_horst for use in FLHook
+Updated 2022 to use proper C++ syntax and work in memory ~ Laz
 
 */
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-// #include <unistd.h>
-
-#include <errno.h>
-#include <io.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "Global.hpp"
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";
 
-bool flc_decode(const char* ifile, const char* ofile)
+std::string ReadFile(const char* input)
 {
-	int ifd, ofd, i, l, len, rc;
-	char *mem, *buff, c, k, r;
+	std::ifstream file(input, std::ios::binary);
 
-	_sopen_s(&ifd, ifile, O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
+	if (!file.is_open() || !file.good())
+		return {};
 
-	if (ifd == -1)
-		return false;
+	file.unsetf(std::ios::skipws);
 
-	len = _lseek(ifd, 0, SEEK_END);
-	_lseek(ifd, 0, SEEK_SET);
+	std::streampos fileSize;
 
-	mem = (char*)malloc(len + 1);
-	if (mem == NULL)
+	file.seekg(0, std::ios::end);
+	fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	std::string vec;
+	vec.reserve(static_cast<uint>(fileSize));
+
+	vec.insert(vec.begin(), std::istream_iterator<BYTE>(file), std::istream_iterator<BYTE>());
+	return vec;
+}
+
+std::string FlcDecode(std::string& input)
+{
+	if (!input.starts_with("FLS1"))
 	{
-		_close(ifd);
-		return false;
+		return {};
 	}
 
-	rc = _read(ifd, mem, len);
-	/*  if(rc != len)
-	  {
-	          free(mem);
-	          close(ifd);
-	          return false;
-	  } */
+	std::string output;
 
-	_close(ifd);
-
-	if (strncmp(mem, "FLS1", 4) != 0)
+	int i = 0;
+	const int length = input.size() - 4;
+	while (i < length)
 	{
-		free(mem);
-		return false;
-	}
+		auto c = static_cast<byte>(((&input[0]) + 4)[i]);
+		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
+		
+		byte r = c ^ (k | 0x80);
 
-	_sopen_s(&ofd, ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
-	if (ofd == -1)
-	{
-		free(mem);
-		return false;
-	}
-
-	/* skip FLS1 */
-	buff = mem + 4;
-	l = len - 4;
-
-	i = 0;
-	while (i < l)
-	{
-		c = buff[i];
-		k = (gene[i % 4] + i) % 256;
-
-		r = c ^ (k | 0x80);
-
-		rc = _write(ofd, &r, 1);
-		if (rc != 1)
-		{
-			free(mem);
-			_close(ofd);
-			return false;
-		}
+		output += r;
 
 		i++;
 	}
 
-	free(mem);
-	_close(ofd);
+	return output;
+}
+
+std::string FlcEncode(std::string& input)
+{
+	// Create our output vector, start with the magic string.
+	std::string output = {'F', 'L', 'S', '1'};
+
+	const int length = input.size();
+
+	int i = 0;
+	while (i < length)
+	{
+		byte c = (&input[0])[i];
+		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
+
+		byte r = c ^ (k | 0x80);
+
+		output += r;
+
+		i++;
+	}
+
+	return output;
+}
+
+bool EncodeDecode(const char* input, const char* output, bool encode)
+{
+	auto undecodedBytes = ReadFile(input);
+	const auto decodedBytes = encode ? FlcEncode(undecodedBytes) : FlcDecode(undecodedBytes);
+
+	if (decodedBytes.empty())
+	{
+		return false;
+	}
+
+	std::ofstream outputFile(output, std::ios::out | std::ios::binary);
+	outputFile.write((char*)&decodedBytes[0], decodedBytes.size() * sizeof(byte));
+	outputFile.close();
+
 	return true;
 }
 
-bool flc_encode(const char* ifile, const char* ofile)
+bool FlcDecodeFile(const char* input, const char* outputFile)
 {
-	int ifd, ofd, i, l, len, rc;
-	char *mem, *buff, c, k, r;
+	return EncodeDecode(input, outputFile, false);
+}
 
-	_sopen_s(&ifd, ifile, O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
-
-	if (ifd == -1)
-		return false;
-
-	len = _lseek(ifd, 0, SEEK_END);
-	_lseek(ifd, 0, SEEK_SET);
-
-	mem = (char*)malloc(len + 1);
-	memset(mem, 0, len + 1);
-	if (mem == NULL)
-	{
-		_close(ifd);
-		return false;
-	}
-
-	rc = _read(ifd, mem, len);
-	/*  if (rc != len)
-	  {
-	                free(mem);
-	                close(ifd);
-	                return false;
-	  } */
-
-	_close(ifd);
-
-	_sopen_s(&ofd, ofile, O_CREAT | O_TRUNC | O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
-	if (ofd == -1)
-	{
-		free(mem);
-		return false;
-	}
-
-	buff = mem;
-	l = len;
-
-	/* write magic token */
-	rc = _write(ofd, "FLS1", 4);
-	if (rc != 4)
-	{
-		free(mem);
-		_close(ofd);
-		return false;
-	}
-
-	i = 0;
-	while (i < l)
-	{
-		c = buff[i];
-		k = (gene[i % 4] + i) % 256;
-
-		r = c ^ (k | 0x80);
-
-		rc = _write(ofd, &r, 1);
-		if (rc != 1)
-		{
-			free(mem);
-			_close(ofd);
-			return false;
-		}
-
-		i++;
-	}
-	free(mem);
-	_close(ofd);
-	return true;
+bool FlcEncodeFile(const char* input, const char* outputFile)
+{
+	return EncodeDecode(input, outputFile, true);
 }

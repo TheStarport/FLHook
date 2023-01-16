@@ -79,7 +79,7 @@ namespace Hk::Player
 		if (Client::IsEncoded(scCharFile))
 		{
 			const std::string scCharFileNew = scCharFile + ".ini";
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			uint cash = static_cast<uint>(IniGetI(scCharFileNew, "Player", "money", -1));
@@ -127,7 +127,7 @@ namespace Hk::Player
 		{
 			std::string scCharFileNew = scCharFile + ".ini";
 
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			iRet = IniGetI(scCharFileNew, "Player", "money", -1);
@@ -136,7 +136,7 @@ namespace Hk::Player
 			IniWrite(scCharFileNew, "Player", "money", " " + std::to_string(iRet + iAmount));
 
 			if (!FLHookConfig::i()->general.disableCharfileEncryption)
-				if (!flc_encode(scCharFileNew.c_str(), scCharFile.c_str()))
+				if (!FlcEncodeFile(scCharFileNew.c_str(), scCharFile.c_str()))
 					return cpp::fail(Error::CouldNotEncodeCharFile);
 
 			DeleteFile(scCharFileNew.c_str());
@@ -601,7 +601,7 @@ namespace Hk::Player
 		Players.logout(MaxClientId + 1);
 
 		// Decode the backup of the old char and overwrite the new char file
-		if (!flc_decode(scTmpPath.c_str(), scNewCharfilePath.c_str()))
+		if (!FlcDecodeFile(scTmpPath.c_str(), scNewCharfilePath.c_str()))
 		{                                          // file wasn't encoded, thus
 			                                       // simply rename it
 			DeleteFile(scNewCharfilePath.c_str()); // just to get sure...
@@ -626,7 +626,7 @@ namespace Hk::Player
 
 		// Re-encode the char file if needed.
 		if (!FLHookConfig::i()->general.disableCharfileEncryption)
-			if (!flc_encode(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
+			if (!FlcEncodeFile(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
 	
 		return {};
@@ -847,7 +847,7 @@ namespace Hk::Player
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
 			std::string scCharFileNew = scCharFile + ".ini";
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 			scFileToRead = scCharFileNew;
 			bDeleteAfter = true;
@@ -931,7 +931,7 @@ namespace Hk::Player
 		ofs.close();
 		if (bEncode)
 		{
-			flc_encode(scFileToWrite.c_str(), scCharFile.c_str());
+			FlcEncodeFile(scFileToWrite.c_str(), scCharFile.c_str());
 			DeleteFile(scFileToWrite.c_str());
 		}
 		return {};
@@ -1047,7 +1047,7 @@ namespace Hk::Player
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
 			std::string scCharFileNew = scCharFile + ".ini";
-			if (!flc_decode(scCharFile.c_str(), scCharFileNew.c_str()))
+			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			int secs = IniGetI(scCharFileNew, "mPlayer", "total_time_played", 0);

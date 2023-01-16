@@ -158,14 +158,14 @@ namespace Plugins::Restart
 				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
 					throw("copy template");
 
-				flc_decode(scCharFile.c_str(), scCharFile.c_str());
+				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
 				IniWriteW(scCharFile, "Player", "name", restart.characterName);
 				IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
 				IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
 				IniWrite(scCharFile, "Player", "money", std::to_string(restart.cash));
 
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
-					flc_encode(scCharFile.c_str(), scCharFile.c_str());
+					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
 
 				AddLog(LogType::Normal, LogLevel::Info, fmt::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
 			}
