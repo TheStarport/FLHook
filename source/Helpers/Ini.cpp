@@ -52,36 +52,31 @@ namespace Hk::Ini
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
-			std::string saveStr;
-			std::fstream saveFile(path.c_str(), std::ios::in | std::ios::app | std::ios::binary);
-			saveFile.seekg(0, std::ios::end);
-			saveStr.reserve(static_cast<uint>(saveFile.tellg()));
-			saveFile.seekg(0, std::ios::beg);
-
-			saveStr.assign((std::istreambuf_iterator<char>(saveFile)), std::istreambuf_iterator<char>());
-			saveFile.seekg(0, std::ios::beg);
+			std::ofstream saveFile(path.c_str(), std::ios::app | std::ios::binary);
 
 			const auto writeFlhookSection = [client](std::string& str) 
 			{
 				str += "\n[flhook]\n";
-				for (const auto [key, value] : clients[client].lines)
+				for (const auto& [key, value] : clients[client].lines)
 				{
 					str += wstos(std::format(L"{} = {}\n", key, value));
 				}
 			};
 
+			std::string data;
 			if (encryptFiles)
 			{
-				auto decoded = FlcDecode(saveStr);
-				writeFlhookSection(decoded);
-				saveStr = FlcEncode(decoded);
+				writeFlhookSection(data);
+				data = FlcEncode(data);
+				data.erase(0, 4); // Erase the magic string header
 			}
 			else
 			{
-				writeFlhookSection(saveStr);
+				writeFlhookSection(data);
 			}
 
-			saveFile.write(saveStr.c_str(), saveStr.size());
+			saveFile.write(data.c_str(), data.size());
+			saveFile.close();
 		}
 
 		return retv;
@@ -227,7 +222,10 @@ namespace Hk::Ini
 		return line;
 	}
 
-	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) { clients[client].lines[name] = std::move(value); }
+	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) 
+	{ 
+		clients[client].lines[name] = std::move(value);
+	}
 
 	bool GetCharacterIniBool(ClientId client, const std::wstring& name)
 	{
