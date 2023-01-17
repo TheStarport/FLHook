@@ -52,8 +52,6 @@ namespace Hk::Ini
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
-			std::ofstream saveFile(path.c_str(), std::ios::app | std::ios::binary);
-
 			const auto writeFlhookSection = [client](std::string& str) 
 			{
 				str += "\n[flhook]\n";
@@ -63,15 +61,27 @@ namespace Hk::Ini
 				}
 			};
 
+			std::fstream saveFile;
 			std::string data;
 			if (encryptFiles)
 			{
-				writeFlhookSection(data);
-				data = FlcEncode(data);
-				data.erase(0, 4); // Erase the magic string header
+				saveFile.open(path, std::ios::ate | std::ios::in | std::ios::out | std::ios::binary);
+
+				// Copy old version that we plan to rewrite
+				auto size = static_cast<size_t>(saveFile.tellg());
+				std::string buffer(size, ' ');
+				saveFile.seekg(0);
+				saveFile.read(&buffer[0], size); 
+
+				// Reset the file pointer so we can start overwriting
+				saveFile.seekg(0);
+				buffer = FlcDecode(buffer);
+				writeFlhookSection(buffer);
+				data = FlcEncode(buffer);
 			}
 			else
 			{
+				saveFile.open(path, std::ios::app | std::ios::binary);
 				writeFlhookSection(data);
 			}
 
