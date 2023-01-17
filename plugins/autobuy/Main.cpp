@@ -245,7 +245,7 @@ namespace Plugins::Autobuy
 				continue; // good not available
 
 			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
-			if (eq->fVolume == 0.0f && static_cast < float > (remHoldSize) < std::ceil(eq->fVolume * static_cast<float>(buy.count)))
+			if (eq->fVolume != 0.0f && static_cast < float > (remHoldSize) < std::ceil(eq->fVolume * static_cast<float>(buy.count)))
 			{
 				// round to the nearest possible
 				auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->fVolume);
