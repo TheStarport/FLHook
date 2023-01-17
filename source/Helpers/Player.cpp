@@ -769,22 +769,29 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup)
+	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& repGroup)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		uint iRepGroupId;
-		pub::Reputation::GetReputationGroup(iRepGroupId, wstos(wscRepGroup).c_str());
-		if (iRepGroupId == -1)
-			return cpp::fail(Error::InvalidRepGroup);
+		uint repGroupId;
+		if (repGroup.index() == 1)
+		{
+			pub::Reputation::GetReputationGroup(repGroupId, wstos(std::get<std::wstring>(repGroup)).c_str());
+			if (repGroupId == -1)
+				return cpp::fail(Error::InvalidRepGroup);
+		}
+		else
+		{
+			repGroupId = std::get<uint>(repGroup);
+		}
 
-		int iPlayerRep;
-		pub::Player::GetRep(client, iPlayerRep);
-		float fValue;
-		pub::Reputation::GetGroupFeelingsTowards(iPlayerRep, iRepGroupId, fValue);
-		return fValue;
+		int playerRep;
+		pub::Player::GetRep(client, playerRep);
+		float playerFactionRep;
+		pub::Reputation::GetGroupFeelingsTowards(playerRep, repGroupId, playerFactionRep);
+		return playerFactionRep;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
