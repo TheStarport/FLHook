@@ -194,14 +194,13 @@ namespace Plugins::Autobuy
 
 		// search base in base-info list
 		BASE_INFO const* bi = nullptr;
-		for (auto const& base : lstBases)
+
+		if (auto foundBase = std::ranges::find_if(lstBases, [baseId](const BASE_INFO& base) { return base.baseId == baseId; }); 
+			foundBase != lstBases.end())
 		{
-			if (base.baseId == baseId)
-			{
-				bi = &base;
-				break;
-			}
+			bi = std::to_address(foundBase);
 		}
+
 
 		if (!bi)
 			return; // base not found
