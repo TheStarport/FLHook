@@ -52,36 +52,41 @@ namespace Hk::Ini
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
-			std::string saveStr;
-			std::fstream saveFile(path.c_str(), std::ios::in | std::ios::app | std::ios::binary);
-			saveFile.seekg(0, std::ios::end);
-			saveStr.reserve(static_cast<uint>(saveFile.tellg()));
-			saveFile.seekg(0, std::ios::beg);
-
-			saveStr.assign((std::istreambuf_iterator<char>(saveFile)), std::istreambuf_iterator<char>());
-			saveFile.seekg(0, std::ios::beg);
-
 			const auto writeFlhookSection = [client](std::string& str) 
 			{
 				str += "\n[flhook]\n";
-				for (const auto [key, value] : clients[client].lines)
+				for (const auto& [key, value] : clients[client].lines)
 				{
 					str += wstos(std::format(L"{} = {}\n", key, value));
 				}
 			};
 
+			std::fstream saveFile;
+			std::string data;
 			if (encryptFiles)
 			{
-				auto decoded = FlcDecode(saveStr);
-				writeFlhookSection(decoded);
-				saveStr = FlcEncode(decoded);
+				saveFile.open(path, std::ios::ate | std::ios::in | std::ios::out | std::ios::binary);
+
+				// Copy old version that we plan to rewrite
+				auto size = static_cast<size_t>(saveFile.tellg());
+				std::string buffer(size, ' ');
+				saveFile.seekg(0);
+				saveFile.read(&buffer[0], size); 
+
+				// Reset the file pointer so we can start overwriting
+				saveFile.seekg(0);
+				buffer = FlcDecode(buffer);
+				writeFlhookSection(buffer);
+				data = FlcEncode(buffer);
 			}
 			else
 			{
-				writeFlhookSection(saveStr);
+				saveFile.open(path, std::ios::app | std::ios::binary);
+				writeFlhookSection(data);
 			}
 
-			saveFile.write(saveStr.c_str(), saveStr.size());
+			saveFile.write(data.c_str(), data.size());
+			saveFile.close();
 		}
 
 		return retv;
@@ -227,7 +232,10 @@ namespace Hk::Ini
 		return line;
 	}
 
-	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) { clients[client].lines[name] = std::move(value); }
+	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) 
+	{ 
+		clients[client].lines[name] = std::move(value);
+	}
 
 	bool GetCharacterIniBool(ClientId client, const std::wstring& name)
 	{
