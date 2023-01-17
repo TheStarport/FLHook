@@ -31,4 +31,7 @@ namespace Plugins::Autobuy
 		std::map<uint, AutobuyInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 	};
+
+	const std::string nanobot_nickname = "ge_s_repair_01";
+	const std::string shield_battery_nickname = "ge_s_battery_01";
 }

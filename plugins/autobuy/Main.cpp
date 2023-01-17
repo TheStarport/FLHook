@@ -27,16 +27,16 @@ namespace Plugins::Autobuy
 
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
-		for (auto const& cargo : cargoList)
+		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; }); 
+			foundCargo != cargoList.end())
 		{
-			if (cargo.iArchId == itemArchId)
-				return cargo.iCount;
+			return foundCargo->iCount;
 		}
 
 		return 0;
 	}
 
-	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem item, const std::wstring_view desc)
+	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item, const std::wstring_view& desc)
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
 		item.archId = launcher->iProjectileArchId;
@@ -76,9 +76,9 @@ namespace Plugins::Autobuy
 			Archetype::Ship const* ship = Archetype::GetShip(Players[client].shipArchetype);
 
 			uint nanobotsId;
-			pub::GetGoodID(nanobotsId, "ge_s_repair_01");
+			pub::GetGoodID(nanobotsId, nanobot_nickname.c_str());
 			uint shieldBatsId;
-			pub::GetGoodID(shieldBatsId, "ge_s_battery_01");
+			pub::GetGoodID(shieldBatsId, shield_battery_nickname.c_str());
 			bool nanobotsFound = false;
 			bool shieldBattsFound = false;
 			for (auto& item : cargo.value())
@@ -306,7 +306,7 @@ namespace Plugins::Autobuy
 		}
 
 		
-	if (!autobuyType.compare(L"info"))
+	if (autobuyType == L"info")
 		{
 			PrintUserCmdText(client, L"Missiles: %s", autobuyInfo.missiles ? L"On" : L"Off");
 			PrintUserCmdText(client, L"Mines: %s", autobuyInfo.mines ? L"On" : L"Off");
@@ -317,7 +317,7 @@ namespace Plugins::Autobuy
 			return;
 		}
 
-		if (!autobuyType.length() || !newState.length() || (newState != L"on" && newState != L"off"))
+		if (newState.empty() || (newState != L"on" && newState != L"off"))
 		{
 			PrintUserCmdText(client, L"ERR invalid parameters");
 			return;
