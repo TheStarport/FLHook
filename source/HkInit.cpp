@@ -206,13 +206,6 @@ void ClearClientInfo(ClientId client)
 	info->chatSize = CS_DEFAULT;
 	info->chatStyle = CST_DEFAULT;
 
-	info->bAutoBuyMissiles = false;
-	info->bAutoBuyMines = false;
-	info->bAutoBuyTorps = false;
-	info->bAutoBuyCD = false;
-	info->bAutoBuyCM = false;
-	info->bAutoBuyReload = false;
-
 	info->lstIgnore.clear();
 	info->iKillsInARow = 0;
 	info->wscHostname = L"";
@@ -276,28 +269,6 @@ load settings from flhookhuser.ini (specific to character)
 
 void LoadUserCharSettings(ClientId client)
 {
-	auto* info = &ClientInfo[client];
-
-	CAccount* acc = Players.FindAccountFromClientID(client);
-	std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
-
-	// read autobuy
-	auto fileName = Hk::Client::GetCharFileName((wchar_t*)Players.GetActiveCharacterName(client));
-	if (fileName.has_error())
-	{
-		return;
-	}
-
-	std::string scSection = "autobuy_" + wstos(fileName.value());
-
-	info->bAutoBuyMissiles = IniGetB(scUserFile, scSection, "missiles", false);
-	info->bAutoBuyMines = IniGetB(scUserFile, scSection, "mines", false);
-	info->bAutoBuyTorps = IniGetB(scUserFile, scSection, "torps", false);
-	info->bAutoBuyCD = IniGetB(scUserFile, scSection, "cd", false);
-	info->bAutoBuyCM = IniGetB(scUserFile, scSection, "cm", false);
-	info->bAutoBuyReload = IniGetB(scUserFile, scSection, "reload", false);
-
 	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, client);
 }
 

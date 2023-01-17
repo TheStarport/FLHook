@@ -40,7 +40,7 @@ namespace Hk::Solar
 	{
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
-		if (!spaceObjId || !system)
+		if (!system)
 		{
 			return cpp::fail(Error::InvalidSpaceObjId);
 		}
@@ -54,7 +54,7 @@ namespace Hk::Solar
 	{
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
-		if (!spaceObjId || !system)
+		if (!system)
 		{
 			return cpp::fail(Error::InvalidSpaceObjId);
 		}
@@ -67,7 +67,7 @@ namespace Hk::Solar
 	{
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
-		if (!spaceObjId || !system)
+		if (!system)
 		{
 			return cpp::fail(Error::InvalidSpaceObjId);
 		}
@@ -104,5 +104,41 @@ namespace Hk::Solar
 			baseinfo = Universe::GetNextBase();
 		}
 		return cpp::fail(Error::InvalidBase);
+	}
+
+	cpp::result<uint, Error> GetAffiliation(BaseId solarId)
+	{
+		int solarRep;
+		pub::SpaceObj::GetSolarRep(solarId, solarRep);
+		if (solarRep == -1)
+		{
+			return cpp::fail(Error::InvalidBase);
+		}
+
+		uint baseAff;
+	    pub::Reputation::GetAffiliation(solarRep, baseAff);
+		if (baseAff == UINT_MAX)
+		{
+			return cpp::fail(Error::InvalidRepGroup);
+		}
+	    return baseAff;
+	}
+
+	cpp::result<float, Error> GetCommodityPrice(BaseId baseId, GoodId goodId)
+	{
+		float nomPrice;
+		pub::Market::GetNominalPrice(goodId, nomPrice);
+		if (nomPrice == 0.0f)
+		{
+			return cpp::fail(Error::InvalidGood);
+		}
+
+		float price;
+		pub::Market::GetPrice(baseId, goodId, price);
+		if (price == -1)
+		{
+			return cpp::fail(Error::InvalidBase);
+		}
+		return price;
 	}
 } // namespace Hk::Solar

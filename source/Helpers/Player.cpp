@@ -739,275 +739,6 @@ namespace Hk::Player
 		return {};
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	struct AUTOBUY_CARTITEM
-	{
-		uint iArchId;
-		uint iCount;
-		std::wstring wscDescription;
-	};
-
-	int PlayerAutoBuyGetCount(const std::list<CARGO_INFO>& lstCargo, uint iItemArchId)
-	{
-		for (auto const& cargo : lstCargo)
-		{
-			if (cargo.iArchId == iItemArchId)
-				return cargo.iCount;
-		}
-
-		return 0;
-	}
-
-	void AddEquipToCart(const std::list<CARGO_INFO>& cargo, std::list<AUTOBUY_CARTITEM>& cart, AUTOBUY_CARTITEM item, const std::wstring desc) 
-	{
-		item.iCount = MAX_PLAYER_AMMO - PlayerAutoBuyGetCount(cargo, item.iArchId);
-		item.wscDescription = desc;
-		cart.emplace_back(item);
-	}
-
-	void PlayerAutoBuy(ClientId client, uint iBaseId)
-	{
-		// player cargo
-		int iRemHoldSize;
-		const auto cargo = Hk::Player::EnumCargo(client, iRemHoldSize);
-		if ( cargo.has_error())
-		{
-			return;
-		}
-
-		// shopping cart
-		std::list<AUTOBUY_CARTITEM> lstCart;
-
-		if (ClientInfo[client].bAutoBuyReload)
-		{ 
-			// shield bats & nanobots
-			Archetype::Ship* ship = Archetype::GetShip(Players[client].shipArchetype);
-
-			uint iNanobotsId;
-			pub::GetGoodID(iNanobotsId, "ge_s_repair_01");
-			uint iRemNanobots = ship->iMaxNanobots;
-			uint iShieldBatsId;
-			pub::GetGoodID(iShieldBatsId, "ge_s_battery_01");
-			uint iRemShieldBats = ship->iMaxShieldBats;
-			bool bNanobotsFound = false;
-			bool bShieldBattsFound = false;
-			for (auto& item : cargo.value())
-			{
-				AUTOBUY_CARTITEM aci;
-				if (item.iArchId == iNanobotsId)
-				{
-					aci.iArchId = iNanobotsId;
-					aci.iCount = ship->iMaxNanobots - item.iCount;
-					aci.wscDescription = L"Nanobots";
-					lstCart.push_back(aci);
-					bNanobotsFound = true;
-				}
-				else if (item.iArchId == iShieldBatsId)
-				{
-					aci.iArchId = iShieldBatsId;
-					aci.iCount = ship->iMaxShieldBats - item.iCount;
-					aci.wscDescription = L"Shield Batteries";
-					lstCart.push_back(aci);
-					bShieldBattsFound = true;
-				}
-			}
-
-			if (!bNanobotsFound)
-			{ // no nanos found -> add all
-				AUTOBUY_CARTITEM aci;
-				aci.iArchId = iNanobotsId;
-				aci.iCount = ship->iMaxNanobots;
-				aci.wscDescription = L"Nanobots";
-				lstCart.push_back(aci);
-			}
-
-			if (!bShieldBattsFound)
-			{ // no batts found -> add all
-				AUTOBUY_CARTITEM aci;
-				aci.iArchId = iShieldBatsId;
-				aci.iCount = ship->iMaxShieldBats;
-				aci.wscDescription = L"Shield Batteries";
-				lstCart.push_back(aci);
-			}
-		}
-
-		if (ClientInfo[client].bAutoBuyCD || ClientInfo[client].bAutoBuyCM || ClientInfo[client].bAutoBuyMines || ClientInfo[client].bAutoBuyMissiles ||
-		    ClientInfo[client].bAutoBuyTorps)
-		{
-			// add mounted equip to a new list and eliminate double equipment(such
-			// as 2x lancer etc)
-			std::list<CARGO_INFO> lstMounted;
-			for (auto& item : cargo.value())
-			{
-				if (!item.bMounted)
-					continue;
-
-				bool bFound = false;
-				for (auto& mounted : lstMounted)
-				{
-					if (mounted.iArchId == item.iArchId)
-					{
-						bFound = true;
-						break;
-					}
-				}
-
-				if (!bFound)
-					lstMounted.push_back(item);
-			}
-
-			uint iVFTableMines = (uint)hModCommon + ADDR_COMMON_VFTABLE_MINE;
-			uint iVFTableCM = (uint)hModCommon + ADDR_COMMON_VFTABLE_CM;
-			uint iVFTableGun = (uint)hModCommon + ADDR_COMMON_VFTABLE_GUN;
-
-			// check mounted equip
-			for (auto& mounted : lstMounted)
-			{
-				uint i = mounted.iArchId;
-				AUTOBUY_CARTITEM aci;
-				Archetype::Equipment* eq = Archetype::GetEquipment(mounted.iArchId);
-				auto eqType = Hk::Client::GetEqType(eq);
-
-				switch (eqType)
-				{
-					case ET_MINE: 
-					{
-						if (ClientInfo[client].bAutoBuyMines)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Mines");
-
-						break;
-					}
-					case ET_CM: 
-					{
-						if (ClientInfo[client].bAutoBuyCM)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Countermeasures");
-
-						break;
-					}
-					case ET_TORPEDO: 
-					{
-						if (ClientInfo[client].bAutoBuyTorps)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Torpedoes");
-
-						break;
-					}
-					case ET_CD: 
-					{
-						if (ClientInfo[client].bAutoBuyCD)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Cruise Disrupters");
-
-						break;
-					}
-					case ET_MISSILE: 
-					{
-						if (ClientInfo[client].bAutoBuyMissiles)
-							AddEquipToCart(cargo.value(), lstCart, aci, L"Missiles");
-
-						break;
-					}
-
-					default:
-						break;
-				}
-			}
-		}
-
-		// search base in base-info list
-		BASE_INFO* bi = 0;
-		for (auto& base : lstBases)
-		{
-			if (base.baseId == iBaseId)
-			{
-				bi = &base;
-				break;
-			}
-		}
-
-		if (!bi)
-			return; // base not found
-
-		const auto cashErr = GetCash(client);
-		if (cashErr.has_error())
-		{
-			return;
-		}
-
-		auto cash = cashErr.value();
-
-		for (auto& buy : lstCart)
-		{
-			if (!buy.iCount || !Arch2Good(buy.iArchId))
-				continue;
-
-			// check if good is available and if player has the neccessary rep
-			bool bGoodAvailable = false;
-			for (auto& available : bi->lstMarketMisc)
-			{
-				if (available.iArchId == buy.iArchId)
-				{
-					// get base rep
-					int iSolarRep;
-					pub::SpaceObj::GetSolarRep(bi->iObjectId, iSolarRep);
-					uint iBaseRep;
-					pub::Reputation::GetAffiliation(iSolarRep, iBaseRep);
-					if (iBaseRep == -1)
-						continue; // rep can't be determined yet(space object not
-						          // created yet?)
-
-					// get player rep
-					int iRepId;
-					pub::Player::GetRep(client, iRepId);
-
-					// check if rep is sufficient
-					float fPlayerRep;
-					pub::Reputation::GetGroupFeelingsTowards(iRepId, iBaseRep, fPlayerRep);
-					if (fPlayerRep < available.fRep)
-						break; // bad rep, not allowed to buy
-					bGoodAvailable = true;
-					break;
-				}
-			}
-
-			if (!bGoodAvailable)
-				continue; // base does not sell this item or bad rep
-
-			float fPrice;
-			if (pub::Market::GetPrice(iBaseId, buy.iArchId, fPrice) == -1)
-				continue; // good not available
-
-			Archetype::Equipment* eq = Archetype::GetEquipment(buy.iArchId);
-			if (iRemHoldSize < (eq->fVolume * buy.iCount))
-			{
-				uint iNewCount = (uint)(iRemHoldSize / eq->fVolume);
-				if (!iNewCount)
-				{
-					//				PrintUserCmdText(client,
-					// L"Auto-Buy(%s): FAILED! Insufficient cargo space",
-					// (*it4).wscDescription.c_str());
-					continue;
-				}
-				else
-					buy.iCount = iNewCount;
-			}
-
-			uint uCost = ((uint)fPrice * buy.iCount);
-			if (cash < uCost)
-				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.wscDescription.c_str());
-			else
-			{
-				RemoveCash(client, uCost);
-				cash -= uCost;
-				iRemHoldSize -= ((int)eq->fVolume * buy.iCount);
-
-				// add the item, dont use addcargo for performance/bug reasons
-				// assume we only mount multicount goods (missiles, ammo, bots)
-				pub::Player::AddCargo(client, buy.iArchId, buy.iCount, 1, false);
-
-				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.wscDescription.c_str(), buy.iCount, ToMoneyStr(uCost).c_str());
-			}
-		}
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1071,22 +802,29 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup)
+	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& repGroup)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		uint iRepGroupId;
-		pub::Reputation::GetReputationGroup(iRepGroupId, wstos(wscRepGroup).c_str());
-		if (iRepGroupId == -1)
-			return cpp::fail(Error::InvalidRepGroup);
+		uint repGroupId;
+		if (repGroup.index() == 1)
+		{
+			pub::Reputation::GetReputationGroup(repGroupId, wstos(std::get<std::wstring>(repGroup)).c_str());
+			if (repGroupId == -1)
+				return cpp::fail(Error::InvalidRepGroup);
+		}
+		else
+		{
+			repGroupId = std::get<uint>(repGroup);
+		}
 
-		int iPlayerRep;
-		pub::Player::GetRep(client, iPlayerRep);
-		float fValue;
-		pub::Reputation::GetGroupFeelingsTowards(iPlayerRep, iRepGroupId, fValue);
-		return fValue;
+		int playerRep;
+		pub::Player::GetRep(client, playerRep);
+		float playerFactionRep;
+		pub::Reputation::GetGroupFeelingsTowards(playerRep, repGroupId, playerFactionRep);
+		return playerFactionRep;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
