@@ -76,9 +76,9 @@ namespace Plugins::Autobuy
 			Archetype::Ship const* ship = Archetype::GetShip(Players[client].shipArchetype);
 
 			uint nanobotsId;
-			pub::GetGoodID(nanobotsId, nanobot_nickname.c_str());
+			pub::GetGoodID(nanobotsId, global->config->nanobot_nickname.c_str());
 			uint shieldBatsId;
-			pub::GetGoodID(shieldBatsId, shield_battery_nickname.c_str());
+			pub::GetGoodID(shieldBatsId, global->config->shield_battery_nickname.c_str());
 			bool nanobotsFound = false;
 			bool shieldBattsFound = false;
 			for (auto& item : cargo.value())
@@ -200,7 +200,6 @@ namespace Plugins::Autobuy
 		{
 			bi = std::to_address(foundBase);
 		}
-
 
 		if (!bi)
 			return; // base not found
@@ -387,9 +386,19 @@ namespace Plugins::Autobuy
 	    CreateUserCommand(L"/autobuy", L"<consumable type> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
 	}};
 
+	// Load Settings
+	void LoadSettings()
+	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+	}
 }
 
 using namespace Plugins::Autobuy;
+
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname))
+
+DefaultDllMainSettings(LoadSettings)
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -400,6 +409,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &OnBaseEnter, HookStep::After);
 }

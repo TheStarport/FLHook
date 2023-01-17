@@ -26,12 +26,21 @@ namespace Plugins::Autobuy
 		std::wstring description;
 	};
 
+	//! Configurable fields for this plugin
+	struct Config final : Reflectable
+	{
+		std::string File() override { return "config/autobuy.json"; }
+
+		// Reflectable fields
+		std::string nanobot_nickname = "ge_s_repair_01";
+		std::string shield_battery_nickname = "ge_s_battery_01";
+	};
+
 	struct Global final
 	{
+		std::unique_ptr<Config> config = nullptr;
 		std::map<uint, AutobuyInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 	};
 
-	const std::string nanobot_nickname = "ge_s_repair_01";
-	const std::string shield_battery_nickname = "ge_s_battery_01";
 }
