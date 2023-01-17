@@ -1165,15 +1165,15 @@ namespace Hk::Player
 		if (!ifs.is_open())
 			return cpp::fail(Error::UnknownError);
 
-		std::list<std::string> output;
+		std::list<std::wstring> output;
 		std::string scLine;
 		while (getline(ifs, scLine))
-			output.emplace_back(scLine);
+			output.emplace_back(stows(scLine));
 		ifs.close();
 		if (bDeleteAfter)
 			DeleteFile(scFileToRead.c_str());
 
-		return {};
+		return output;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
