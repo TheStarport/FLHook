@@ -6,29 +6,29 @@
 namespace Plugins::Autobuy
 {
 	//! A struct to represent each client
-	class ClientInfo
+	class AutobuyInfo
 	{
 	  public:
-		ClientInfo() = default;
+		AutobuyInfo() = default;
 
-		bool autoBuyMissiles;
-		bool autoBuyMines;
-		bool autoBuyTorps;
-		bool autoBuyCD;
-		bool autoBuyCM;
-		bool autoBuyRepairs;
+		bool missiles;
+		bool mines;
+		bool torps;
+		bool cd;
+		bool cm;
+		bool repairs;
 	};
 
-	struct AUTOBUY_CARTITEM
+	struct AutobuyCartItem
 	{
-		uint archId;
-		uint count;
+		uint archId = 0;
+		uint count = 0;
 		std::wstring description;
 	};
 
 	struct Global final
 	{
-		std::map<uint, ClientInfo> autobuyInfo;
+		std::map<uint, AutobuyInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 	};
 }
