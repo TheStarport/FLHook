@@ -58,7 +58,7 @@ namespace Plugins::Restart
 
 		// Searching restart
 
-		for (const auto& entity : std::filesystem::directory_iterator("config/restart"))
+		for (const auto& entity : std::filesystem::directory_iterator("config\\restart"))
 		{
 			if (entity.is_directory() || entity.path().extension().string() != ".fl")
 			{
@@ -81,8 +81,7 @@ namespace Plugins::Restart
 		if (!Hk::Client::IsValidClientID(client))
 			return;
 
-		auto base = Hk::Player::GetCurrentBase(client);
-		if (base.has_error())
+		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in base");
 			return;
@@ -91,7 +90,7 @@ namespace Plugins::Restart
 		if (global->config->maxRank != 0)
 		{
 			const auto rank = Hk::Player::GetRank(restart.characterName);
-			if (rank.value() == 0 || rank > global->config->maxRank)
+			if (rank.has_error() || rank.value() > global->config->maxRank)
 			{
 				PrintUserCmdText(client,
 				    L"ERR You must create a new char to "
@@ -100,7 +99,7 @@ namespace Plugins::Restart
 			}
 		}
 
-		const auto cash = Hk::Player::GetCash(restart.characterFile);
+		const auto cash = Hk::Player::GetCash(restart.characterName);
 		if (cash.has_error())
 		{
 			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
@@ -144,7 +143,7 @@ namespace Plugins::Restart
 		while (global->pendingRestarts.size())
 		{
 			Restart restart = global->pendingRestarts.back();
-			if (Hk::Client::GetClientIdFromCharName(restart.characterName).value() != -1)
+			if (!Hk::Client::GetClientIdFromCharName(restart.characterName).has_error())
 				return;
 
 			global->pendingRestarts.pop_back();
