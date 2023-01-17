@@ -61,23 +61,23 @@ namespace Plugins::SystemSensor
 
 	void UserCmd_ShowScan(ClientId& client, const std::wstring& wscParam)
 	{
-		std::wstring wscTargetCharname = GetParam(wscParam, ' ', 0);
+		std::wstring targetCharname = GetParam(wscParam, ' ', 0);
 
-		if (wscTargetCharname.size() == 0)
+		if (targetCharname.size() == 0)
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
 			PrintUserCmdText(client, L"Usage: /showscan <charname>");
 			return;
 		}
 
-		const auto iTargetClientId = Hk::Client::GetClientIdFromCharName(wscTargetCharname);
-		if (iTargetClientId.value() == -1)
+		const auto targetClientId = Hk::Client::GetClientIdFromCharName(targetCharname);
+		if (targetClientId.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Target not found");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(targetClientId.error()));
 			return;
 		}
 
-		auto iterTargetClientId = global->networks.find(iTargetClientId.value());
+		auto iterTargetClientId = global->networks.find(targetClientId.value());
 		if (iterTargetClientId == global->networks.end() || !global->networks[client].iAvailableNetworkId || !iterTargetClientId->second.lastScanNetworkId ||
 		    global->networks[client].iAvailableNetworkId != iterTargetClientId->second.lastScanNetworkId)
 		{
@@ -85,16 +85,16 @@ namespace Plugins::SystemSensor
 			return;
 		}
 
-		std::wstring wscEqList;
-		for (auto& ci : iterTargetClientId->second.lstLastScan)
+		std::wstring eqList;
+		for (auto const& ci : iterTargetClientId->second.lstLastScan)
 		{
-			std::string scHardpoint = ci.hardpoint.value;
-			if (scHardpoint.length())
+			std::string hardpoint = ci.hardpoint.value;
+			if (hardpoint.length())
 			{
 				Archetype::Equipment* eq = Archetype::GetEquipment(ci.iArchId);
 				if (eq && eq->iIdsName)
 				{
-					std::wstring wscResult;
+					std::wstring result;
 					switch (Hk::Client::GetEqType(eq))
 					{
 						case ET_GUN:
@@ -103,10 +103,10 @@ namespace Plugins::SystemSensor
 						case ET_CM:
 						case ET_TORPEDO:
 						case ET_OTHER:
-							if (wscEqList.length())
-								wscEqList += L",";
-							wscResult = Hk::Message::GetWStringFromIdS(eq->iIdsName);
-							wscEqList += wscResult;
+							if (eqList.length())
+								eqList += L",";
+							result = Hk::Message::GetWStringFromIdS(eq->iIdsName);
+							eqList += result;
 							break;
 						default:
 							break;
@@ -114,7 +114,7 @@ namespace Plugins::SystemSensor
 				}
 			}
 		}
-		PrintUserCmdText(client, L"%s", wscEqList.c_str());
+		PrintUserCmdText(client, L"%s", eqList.c_str());
 		PrintUserCmdText(client, L"OK");
 	}
 
