@@ -383,7 +383,7 @@ namespace Plugins::Autobuy
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/autobuy", L"<consumable type> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
+	    CreateUserCommand(L"/autobuy", L"<consumable type/info> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
 	}};
 
 	// Load Settings
