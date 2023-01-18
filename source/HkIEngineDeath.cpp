@@ -186,6 +186,11 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						eventStr += L" type=selfkill";
 						deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
 					}
+					else if (cause == DamageCause::Admin)
+					{
+						eventStr += L" type=admin";
+						deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+					}
 					else
 					{
 						eventStr += L" type=player";
