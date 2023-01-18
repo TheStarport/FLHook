@@ -68,6 +68,8 @@ namespace Plugins::MiscCommands
 		}
 	}
 
+	const std::vector<Timer> timers = {{OneSecondTimer, 1}};
+
 	static void SetLights(ClientId client, bool bOn)
 	{
 		auto ship = Hk::Player::GetShip(client);
@@ -381,11 +383,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("MiscCommands");
 	pi->mayUnload(true);
 	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-	pi->emplaceHook(HookedCall::FLHook__TimerNPCAndF1Check, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
