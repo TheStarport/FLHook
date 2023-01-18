@@ -1,14 +1,40 @@
-﻿// PvP Betting Plugin
-// By Raikkonen
+﻿/**
+ * @date Jan, 2023
+ * @author Raikkonen
+ * @defgroup Betting Betting
+ * @brief
+ * A plugin that allows players to place bets and then duel, the winner getting the pot.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - acceptduel - Accepts the current duel request.
+ * - acceptffa - Accept the current ffa request.
+ * - cancel - Cancel the current duel/ffa request.
+ * - duel <amount> - Create a duel request to the targeted player. Winner gets the pot.
+ * - ffa <amount> - Create an ffa and send an invite to everyone in the system. Winner gets the pot.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * This plugin has no configuration file.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no dependencies.
+ */
 
 #include "Main.h"
 
-namespace Plugins::Pvp
+namespace Plugins::Betting
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// If the player who died is in an FreeForAll, mark them as a loser. Also handles
-	// payouts to winner.
+	/** @ingroup Betting
+	 * @brief If the player who died is in an FreeForAll, mark them as a loser. Also handles payouts to winner.
+	 */
 	void processFFA(ClientId client)
 	{
 		for (auto& [system, freeForAll] : global->freeForAlls)
@@ -63,12 +89,11 @@ namespace Plugins::Pvp
 		}
 	}
 
-	// This method is called when a player types /ffa in an attempt to start a pvp
-	// event
+	/** @ingroup Betting
+	 * @brief This method is called when a player types /ffa in an attempt to start a pvp event
+	 */
 	void UserCmdStartFreeForAll(ClientId& client, const std::wstring& param)
 	{
-		Error error;
-
 		// Get entryAmount amount
 		std::wstring amountString = GetParam(param, ' ', 0);
 
@@ -154,7 +179,9 @@ namespace Plugins::Pvp
 			PrintUserCmdText(client, L"There is an FFA already happening in this system.");
 	}
 
-	// This method is called when a player types /acceptffa
+	/** @ingroup Betting
+	 * @brief This method is called when a player types /acceptffa
+	 */
 	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
@@ -174,8 +201,6 @@ namespace Plugins::Pvp
 		}
 		else
 		{
-			Error error;
-
 			std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 			// Check the player can afford it
@@ -212,8 +237,10 @@ namespace Plugins::Pvp
 		}
 	}
 
-	// Removes any duels with this client and handles payouts.
-	void processDuel(ClientId client)
+	/** @ingroup Betting
+	 * @brief Removes any duels with this client and handles payouts.
+	 */
+	void ProcessDuel(ClientId client)
 	{
 		const auto duel = global->duels.begin();
 		while (duel != global->duels.end())
@@ -253,7 +280,9 @@ namespace Plugins::Pvp
 		}
 	}
 
-	// This method is called when a player types /duel in an attempt to start a duel
+	/** @ingroup Betting
+	 * @brief This method is called when a player types /duel in an attempt to start a duel
+	 */
 	void UserCmdDuel(ClientId& client, const std::wstring& param)
 	{
 		// Get the object the player is targetting
@@ -294,7 +323,6 @@ namespace Plugins::Pvp
 			return;
 		}
 
-		Error error;
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Check the player can afford it
@@ -342,6 +370,9 @@ namespace Plugins::Pvp
 		PrintUserCmdText(clientTarget.value(), L"Type \"/acceptduel\" to accept.");
 	}
 
+	/** @ingroup Betting
+	 * @brief This method is called when a player types /acceptduel to accept a duel request.
+	 */
 	void UserCmdAcceptDuel(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
@@ -364,7 +395,6 @@ namespace Plugins::Pvp
 				}
 
 				// Check the player can afford it
-				Error error;
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 				uint cash = 0;
 				if (const auto err = Hk::Player::GetCash(client); err.has_error())
@@ -391,10 +421,13 @@ namespace Plugins::Pvp
 		    L"someone, target them and type /duel <amount>");
 	}
 
+	/** @ingroup Betting
+	 * @brief This method is called when a player types /cancel to cancel a duel/ffa request.
+	 */
 	void UserCmd_Cancel(ClientId& client, const std::wstring& param)
 	{
 		processFFA(client);
-		processDuel(client);
+		ProcessDuel(client);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,48 +435,60 @@ namespace Plugins::Pvp
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	const std::vector commands = {
-	    CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L""),
-	    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L""),
-	    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L""),
-	    CreateUserCommand(L"/duel", L"", UserCmdDuel, L""),
-	    CreateUserCommand(L"/ffa", L"", UserCmdStartFreeForAll, L"")
+		CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L"Accepts the current duel request."),
+	    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L"Accept the current ffa request."),
+	    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L"Cancel the current duel/ffa request."),
+	    CreateUserCommand(L"/duel", L"<amount>", UserCmdDuel, L"Create a duel request to the targeted player. Winner gets the pot."),
+	    CreateUserCommand(L"/ffa", L"<amount>", UserCmdStartFreeForAll, L"Create an ffa and send an invite to everyone in the system. Winner gets the pot.")
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Hooks
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/** @ingroup Betting
+	 * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
+	 */
 	int __cdecl DockCall(unsigned int const& ship, unsigned int const& d, int& cancel, enum DOCK_HOST_RESPONSE& response)
 	{
 		const auto client = Hk::Client::GetClientIdByShip(ship);
 		if (client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
 			processFFA(client.value());
-			processDuel(client.value());
+			ProcessDuel(client.value());
 		}
 		return 0;
 	}
 
+	/** @ingroup Betting
+	 * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
+	 */
 	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		processFFA(client);
-		processDuel(client);
+		ProcessDuel(client);
 	}
 
+	/** @ingroup Betting
+	 * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
+	 */
 	void __stdcall CharacterInfoReq(ClientId& client, bool& p2)
 	{
 		processFFA(client);
-		processDuel(client);
+		ProcessDuel(client);
 	}
 
+	/** @ingroup Betting
+	 * @brief Hook for death to kick player out of duel
+	 */
 	void SendDeathMessage(const std::wstring& message, uint& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
-		processDuel(clientVictim);
+		ProcessDuel(clientVictim);
 		processFFA(clientVictim);
 	}
-} // namespace Plugins::Pvp
+} // namespace Plugins::Betting
 
-using namespace Plugins::Pvp;
+using namespace Plugins::Betting;
 
 DefaultDllMain()
 
@@ -453,8 +498,8 @@ DefaultDllMain()
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("PvP");
-	pi->shortName("pvp");
+	pi->name("Betting");
+	pi->shortName("betting");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->commands(&commands);
