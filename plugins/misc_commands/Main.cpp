@@ -240,6 +240,19 @@ namespace Plugins::MiscCommands
 		PrintLocalUserCmdText(client, wscMsg, 6000.0f);
 	}
 
+	void UserCmdValue(ClientId& client, const std::wstring& wscParam)
+	{
+		auto shipValue = Hk::Player::GetShipValue(client);
+		if (shipValue.has_error())
+		{
+			PrintUserCmdText(client, Hk::Err::ErrGetText(shipValue.error()));
+		}
+		else
+		{
+			PrintUserCmdText(client, stows(fmt::format("{}", shipValue.value())));
+		}
+	}
+
 	/** @ingroup MiscCommands
 	 * @brief Activate or deactivate docking lights on your ship.
 	 */
@@ -267,6 +280,7 @@ namespace Plugins::MiscCommands
 	    CreateUserCommand(L"/droprep", L"", UserCmdDropRep, L""),
 	    CreateUserCommand(L"/dice", L"", UserCmdDice, L""),
 	    CreateUserCommand(L"/coin", L"", UserCmdCoin, L""),
+	    CreateUserCommand(L"/value", L"", UserCmdValue, L""),
 	}};
 
 	/** @} */ // End of user commands
