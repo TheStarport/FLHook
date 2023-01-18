@@ -130,6 +130,9 @@
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Helpers\Time.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">

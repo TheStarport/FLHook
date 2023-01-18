@@ -205,6 +205,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
     <ClCompile Include="..\source\Helpers\Player.cpp" />
     <ClCompile Include="..\source\Helpers\Solar.cpp" />
+    <ClCompile Include="..\source\Helpers\Time.cpp" />
     <ClCompile Include="..\source\HkClientServerInterface.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
     <ClCompile Include="..\source\HkHelp.cpp" />
