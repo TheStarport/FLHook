@@ -18,7 +18,7 @@
  *     "DeathPenaltyFraction": 1.0,
  *     "DeathPenaltyFractionKiller": 1.0,
  *     "ExcludedSystems": ["li01"],
- *     "FractionOverridesByShip": {{"ge_fighter",1.0}}
+ *     "FractionOverridesByShip": {"ge_fighter": 1.0}
  * }
  * @endcode
  *
@@ -41,11 +41,11 @@ namespace Plugins::DeathPenalty
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		for (auto& system : config.ExcludedSystems)
+		for (const auto& system : config.ExcludedSystems)
 			global->ExcludedSystemsIds.push_back(CreateID(system.c_str()));
 
-		for (auto& override : config.FractionOverridesByShip)
-			global->FractionOverridesByShipIds[CreateID(override.first.c_str())] = override.second;
+		for (const auto& [shipNickname, penaltyFraction] : config.FractionOverridesByShip)
+			global->FractionOverridesByShipIds[CreateID(shipNickname.c_str())] = penaltyFraction;
 	}
 
 	void ClearClientInfo(ClientId& client) { global->MapClients.erase(client); }
@@ -53,12 +53,12 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Is the player is a system that is excluded from death penalty?
 	 */
-	bool bExcludedSystem(ClientId client)
+	bool IsInExcludedSystem(ClientId client)
 	{
 		// Get System Id
 		SystemId iSystemId = Hk::Player::GetSystem(client).value();
 		// Search list for system
-		return (std::find(global->ExcludedSystemsIds.begin(), global->ExcludedSystemsIds.end(), iSystemId) != global->ExcludedSystemsIds.end());
+		return std::ranges::find(global->ExcludedSystemsIds, iSystemId) != global->ExcludedSystemsIds.end();
 	}
 
 	
@@ -67,35 +67,40 @@ namespace Plugins::DeathPenalty
 	 * If there is not override it returns the default value defined as
 	 * "DeathPenaltyFraction" in the json file
 	 */
-	float fShipFractionOverride(ClientId client)
+	float GetShipFractionOverride(ClientId client)
 	{
 		// Get ShipArchId
 		uint shipArchId = Hk::Player::GetShipID(client).value();
 
 		// Default return value is the default death penalty fraction
-		float fOverrideValue = global->config->DeathPenaltyFraction;
+		float overrideValue = global->config->DeathPenaltyFraction;
 
 		// See if the ship has an override fraction
-		if (global->FractionOverridesByShipIds.find(shipArchId) != global->FractionOverridesByShipIds.end())
-			fOverrideValue = global->FractionOverridesByShipIds[shipArchId];
+		if (global->FractionOverridesByShipIds.contains(shipArchId))
+			overrideValue = global->FractionOverridesByShipIds[shipArchId];
 
-		return fOverrideValue;
+		return overrideValue;
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
 	 */
-	void __stdcall PlayerLaunch(uint& ship, ClientId& client)
+	void __stdcall PlayerLaunch([[maybe_unused]]const uint& ship, ClientId& client)
 	{
 		// No point in processing anything if there is no death penalty
 		if (global->config->DeathPenaltyFraction > 0.00001f)
 		{
 			// Check to see if the player is in a system that doesn't have death
 			// penalty
-			if (!bExcludedSystem(client))
+			if (!IsInExcludedSystem(client))
 			{
 				// Get the players net worth
-				uint fValue = Hk::Player::GetShipValue(client).value();
+				auto shipValue = Hk::Player::GetShipValue(client);
+				if (shipValue.has_error())
+				{
+					Console::ConWarn(L"Unable to get ship value of undocking player: %s", Hk::Err::ErrGetText(shipValue.error()));
+					return;
+				}
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
@@ -104,7 +109,7 @@ namespace Plugins::DeathPenalty
 					return;
 				}
 
-				auto dpCredits = static_cast<uint>(fValue * fShipFractionOverride(client));
+				auto dpCredits = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
 				if (cash < dpCredits)
 					dpCredits = cash.value();
 
@@ -127,7 +132,7 @@ namespace Plugins::DeathPenalty
 	void LoadUserCharSettings(ClientId& client)
 	{
 		// Get Account directory then flhookuser.ini file
-		CAccount* acc = Players.FindAccountFromClientID(client);
+		const CAccount* acc = Players.FindAccountFromClientID(client);
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
 
@@ -151,7 +156,7 @@ namespace Plugins::DeathPenalty
 			return;
 
 		// Valid client and the ShipArch or System isnt in the excluded list?
-		if (client != -1 && !bExcludedSystem(client))
+		if (client != -1 && !IsInExcludedSystem(client))
 		{
 			// Get the players cash
 			const auto cash = Hk::Player::GetCash(client);
@@ -162,31 +167,31 @@ namespace Plugins::DeathPenalty
 			}
 
 			// Get how much the player owes
-			uint uOwed = global->MapClients[client].DeathPenaltyCredits;
+			uint cashOwed = global->MapClients[client].DeathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash
-			if (uOwed > cash.value())
-				uOwed = cash.value();
+			if (cashOwed > cash.value())
+				cashOwed = cash.value();
 
 			// If another player has killed the player
-			if (iKillerId != client && global->config->DeathPenaltyFractionKiller)
+			if (iKillerId != client && (global->config->DeathPenaltyFractionKiller > 0.0f))
 			{
-				uint uGive = (uOwed * global->config->DeathPenaltyFractionKiller);
-				if (uGive)
+				auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * global->config->DeathPenaltyFractionKiller);
+				if (killerReward)
 				{
 					// Reward the killer, print message to them
-					Hk::Player::AddCash(iKillerId, uGive);
-					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(uGive) + L" credits from %s's death penalty.",
+					Hk::Player::AddCash(iKillerId, killerReward);
+					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(killerReward) + L" credits from %s's death penalty.",
 					    Players.GetActiveCharacterName(client));
 				}
 			}
 
-			if (uOwed)
+			if (cashOwed)
 			{
 				// Print message to the player and remove cash
-				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(uOwed) + L" credits.");
-				Hk::Player::RemoveCash(client, uOwed);
+				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(cashOwed) + L" credits.");
+				Hk::Player::RemoveCash(client, cashOwed);
 			}
 		}
 	}
@@ -194,16 +199,16 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Hook on ShipDestroyed to kick off PenalizeDeath
 	 */
-	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
+	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
 	{
-		if (iKill)
+		if (kill)
 		{
 			// Get client
 			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 			ClientId client = cShip->GetOwnerPlayer();
 
 			// Get Killer Id if there is one
-			uint iKillerId = 0;
+			uint killerId = 0;
 			if (client)
 			{
 				const DamageList* dmg = *_dmg;
@@ -211,21 +216,20 @@ namespace Plugins::DeathPenalty
 				                                                     : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
 				if (inflictor.has_value())
 				{
-					iKillerId = inflictor.value();
+					killerId = inflictor.value();
 				}
+				// Call function to penalize player and reward killer
+				PenalizeDeath(client, killerId);
 			}
-
-			// Call function to penalize player and reward killer
-			PenalizeDeath(client, iKillerId);
 		}
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief This will save whether the player wants to receieve the /dp notice or not to the flhookuser.ini file
 	 */
-	void SaveDPNoticeToCharFile(ClientId client, std::string value)
+	void SaveDPNoticeToCharFile(ClientId client, const std::string& value)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(client);
+		const CAccount* acc = Players.FindAccountFromClientID(client);
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
@@ -271,11 +275,17 @@ namespace Plugins::DeathPenalty
 		else
 		{
 			PrintUserCmdText(client, L"The death penalty is charged immediately when you die.");
-			if (!bExcludedSystem(client))
+			if (!IsInExcludedSystem(client))
 			{
-				float fValue = Hk::Player::GetShipValue(client).value();
-				uint uOwed = static_cast<uint>(fValue * fShipFractionOverride(global->config->DeathPenaltyFraction));
-				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(uOwed) + L" credits.");
+				auto shipValue = Hk::Player::GetShipValue(client);
+				if (shipValue.has_error())
+				{
+					PrintUserCmdText(client, Hk::Err::ErrGetText(shipValue.error()));
+				}
+				auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
+				uint playerCash = Hk::Player::GetCash(client).value();
+
+				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(min(cashOwed,playerCash)) + L" credits.");
 				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");
