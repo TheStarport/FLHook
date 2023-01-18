@@ -114,7 +114,7 @@ namespace Plugins::CargoDrop
 							for (const auto& [id, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 							{
 								if (!mounted &&
-								    std::find(global->noLootItemsIds.begin(), global->noLootItemsIds.end(), archId) == global->noLootItemsIds.end())
+								    std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 								{
 									Hk::Player::RemoveCargo(characterName, id, count);
 									Server.MineAsteroid(system.value(), position, global->cargoDropContainerId, archId, count, client);
@@ -147,25 +147,30 @@ namespace Plugins::CargoDrop
 		if (global->config->hullDropFactor == 0.0f)
 			return;
 
-		std::list<CARGO_INFO> cargo;
-		int remainingHullSize;
-		if (const auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHullSize); cargo.has_error())
+		int remainingHoldSize;
+		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize);
+		if (cargo.has_error())
 			return;
 
-		int shipSizeEstimate = remainingHullSize;
-		for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo)
+		uint ship = Hk::Player::GetShip(clientVictim).value();
+		auto [position, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
+		position.x += 30.0f;
+
+		int shipSizeEstimate = remainingHoldSize;
+		if (global->config->enablePlayerCargoDropOnDeath)
 		{
-			if (!mounted)
+			for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 			{
-				shipSizeEstimate += count;
+				if (!mounted)
+				{
+					shipSizeEstimate += count;
+					if (!mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
+						Server.MineAsteroid(system, position, global->cargoDropContainerId, archId, min(count, global->config->maxPlayerCargoDropCount), clientKiller);
+				}
 			}
 		}
-
 		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
 		{
-			uint ship = Hk::Player::GetShip(clientVictim).value();
-			auto [position, _]= Hk::Solar::GetLocation(ship, IdType::Ship).value();
-			position.x += 30.0f;
 
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(L"Cargo drop in system %08x at %f,%f,%f for ship size of shipSizeEst=%d iHullDrop=%d\n",
@@ -201,7 +206,8 @@ namespace Plugins::CargoDrop
 
 using namespace Plugins::CargoDrop;
 REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
-    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems))
+    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems),
+    field(enablePlayerCargoDropOnDeath), field(maxPlayerCargoDropCount))
 
 DefaultDllMainSettings(LoadSettings)
 
