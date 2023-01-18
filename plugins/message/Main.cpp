@@ -309,18 +309,20 @@ namespace Plugins::Message
 	 */
 	void OneSecondTimer()
 	{
-		if (static int iSpecialBannerTimer = 0; ++iSpecialBannerTimer > global->config->specialBannerTimeout)
+		if (static int specialBannerTimer = 0; ++specialBannerTimer > global->config->specialBannerTimeout)
 		{
-			iSpecialBannerTimer = 0;
+			specialBannerTimer = 0;
 			ShowSpecialBanner();
 		}
 
-		if (static int iStandardBannerTimer = 0; ++iStandardBannerTimer > global->config->standardBannerTimeout)
+		if (static int standardBannerTimer = 0; ++standardBannerTimer > global->config->standardBannerTimeout)
 		{
-			iStandardBannerTimer = 0;
+			standardBannerTimer = 0;
 			ShowStandardBanner();
 		}
 	}
+
+	const std::vector<Timer> timers = {{OneSecondTimer, 1}};
 
 	/** @ingroup Message
 	 * @brief On client disconnect remove any references to this client.
@@ -964,7 +966,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &OneSecondTimer);
 	pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
