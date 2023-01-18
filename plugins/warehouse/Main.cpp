@@ -65,14 +65,14 @@ namespace Plugins::Warehouse
 		}
 
 		Hk::Player::RemoveCash(client, global->config.costPerStackStore);
-		Hk::Player::RemoveCargo(client, item.iArchId, itemCount);
+		Hk::Player::RemoveCargo(client, item.iId, itemCount);
 
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, L"Successfully stored %llu item(s) (ID: %llu)", wareHouseItem.quantity, wareHouseItem.id);
+		PrintUserCmdText(client, std::format("Successfully stored {} item(s) for a total of {} (ID: {})"), itemCount, wareHouseItem.quantity, wareHouseItem.id)));
 
 		Hk::Player::SaveChar(client);
 	}
@@ -201,7 +201,7 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, L"Usage: /warehouse store <itemId> <count>");
 			PrintUserCmdText(client, L"Usage: /warehouse list");
 			PrintUserCmdText(client, L"Usage: /warehouse withdraw <itemId> <count>");
-			PrintUserCmdText(client, L"Usage: /warehouse liststored <itemId> <count>");
+			PrintUserCmdText(client, L"Usage: /warehouse liststored");
 			return;
 		}
 
