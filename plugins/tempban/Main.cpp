@@ -30,7 +30,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> __stdcall TempBan(const std::wstring& wscCharname, uint _duration)
+	cpp::result<void, Error> __stdcall TempBanCallout(const std::wstring& wscCharname, uint _duration)
 	{
 		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
@@ -99,7 +99,7 @@ namespace Plugins::Tempban
 			return;
 		}
 
-		if (const auto err = TempBan(wscCharname, iDuration); err.has_error())
+		if (const auto err = TempBanCallout(wscCharname, iDuration); err.has_error())
 		{
 			classptr->PrintError(err.error());
 		}
@@ -124,7 +124,7 @@ namespace Plugins::Tempban
 
 	void CmdHelp(CCmds* classptr) { classptr->Print(L"tempban <charname>"); }
 
-	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBan; }
+	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBanCallout; }
 } // namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
