@@ -71,10 +71,6 @@ namespace Plugins::Message
 	 */
 	static void LoadMsgs(ClientId client)
 	{
-		if (!global->config->enableSetMessage
-		||   global->info.contains(client))
-			return;
-
 		// Load from disk the messages.
 		for (int iMsgSlot = 0; iMsgSlot < numberOfSlots; iMsgSlot++)
 		{
@@ -102,7 +98,8 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Load the custom message templates and show the greeting banner to the specified player.
 	 */
-	static void PlayerLogin(ClientId client) { 
+	static void PlayerLogin([[maybe_unused]] const std::string_view& charFilename, ClientId& client)
+	{ 
 		LoadMsgs(client);
 		ShowGreetingBanner(client);
 	}
@@ -216,8 +213,10 @@ namespace Plugins::Message
 	void SendPresetLocalMessage(ClientId client, int iMsgSlot)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
-
+		}
 		if (iMsgSlot < 0 || iMsgSlot > 9)
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
@@ -234,8 +233,10 @@ namespace Plugins::Message
 	void SendPresetToLastTarget(ClientId client, int iMsgSlot)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
-
+		}
 		UserCmd_SendToLastTarget(client, GetPresetMessage(client, iMsgSlot));
 	}
 
@@ -245,8 +246,10 @@ namespace Plugins::Message
 	void SendPresetSystemMessage(ClientId client, int iMsgSlot)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
-
+		}
 		Hk::Message::SendSystemChat(client, GetPresetMessage(client, iMsgSlot));
 	}
 
@@ -256,7 +259,10 @@ namespace Plugins::Message
 	void SendPresetLastPMSender(ClientId& client, int msgSlot)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
+		}
 
 		UserCmd_ReplyToLastPMSender(client, GetPresetMessage(client, msgSlot));
 	}
@@ -267,7 +273,10 @@ namespace Plugins::Message
 	void SendPresetGroupMessage(ClientId& client, int iMsgSlot)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
+		}
 
 		Hk::Message::SendGroupChat(client, GetPresetMessage(client, iMsgSlot));
 	}
@@ -507,7 +516,10 @@ namespace Plugins::Message
 	void UserCmd_SetMsg(ClientId& client, const std::wstring& param)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
+		}
 
 		const int iMsgSlot = ToInt(GetParam(param, ' ', 0));
 		const std::wstring wscMsg = GetParamToEnd(ViewToWString(param), ' ', 1);
@@ -521,8 +533,8 @@ namespace Plugins::Message
 
 		Hk::Ini::SetCharacterIni(client, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
 
-		// Reload the character cache
-		LoadMsgs(client);
+		// Update the character cache
+		global->info[client].slot[iMsgSlot] = wscMsg;
 		PrintUserCmdText(client, L"OK");
 	}
 
@@ -532,8 +544,10 @@ namespace Plugins::Message
 	void UserCmd_ShowMsgs(ClientId& client, const std::wstring& param)
 	{
 		if (!global->config->enableSetMessage)
+		{
+			PrintUserCmdText(client, L"Set commands disabled");
 			return;
-
+		}
 		const auto iter = global->info.find(client);
 		if (iter == global->info.end())
 		{
