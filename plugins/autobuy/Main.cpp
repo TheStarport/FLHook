@@ -1,8 +1,32 @@
-﻿// This is a template with the bare minimum to have a functional plugin.
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+﻿/**
+ * @date Unknown
+ * @author unknown (Ported by Aingar 2023)
+ * @defgroup Autobuy Autobuy
+ * @brief
+ * The "Autobuy" plugin allows players to set up automatic purchases of various munition/consumable type items.
+ *
+ * @paragraph cmds Player Commands
+ * All commands are prefixed with '/' unless explicitly specified.
+ * - autobuy info - Lists status of autobuy features for this character.
+ * - autobuy <all/munition type> <on/off> - enables or disables autobuy feature for selected munition types on this character.
+ *
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "nanobot_nickname": "ge_s_repair_01";
+ *     "shield_battery_nickname": "ge_s_battery_01";
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * None
+ */
 
 // Includes
 #include "Main.h"
