@@ -102,9 +102,9 @@ namespace Plugins::PurchaseRestrictions
 			return true;
 
 		int remainingHoldSize;
-		const auto cargo = Hk::Player::EnumCargo(client, remainingHoldSize);
-		return std::any_of(cargo.value().begin(), cargo.value().end(), [validItem](const CARGO_INFO& cargo) {
-			return cargo.bMounted && std::find(validItem->second.begin(), validItem->second.end(), cargo.iArchId) != validItem->second.end();
+		const auto cargoList = Hk::Player::EnumCargo(client, remainingHoldSize);
+		return std::ranges::any_of(cargoList.value(), [validItem](const CARGO_INFO& cargo) {
+			return cargo.bMounted && std::ranges::find(validItem->second, cargo.iArchId) != validItem->second.end();
 		});
 	}
 
@@ -115,13 +115,13 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//! PlayerLaunch hook
-	void PlayerLaunch(uint& ship, ClientId& client)
+	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 	}
 
 	//! Base Enter hook
-	void BaseEnter(uint& iBaseId, ClientId& client)
+	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 	}
@@ -129,10 +129,11 @@ namespace Plugins::PurchaseRestrictions
 	//! Suppress the buying of goods.
 	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
-		auto& suppress = global->clientSuppressBuy[client] = false;
+		global->clientSuppressBuy[client] = false;
+		auto& suppress = global->clientSuppressBuy[client];
 		LogItemsOfInterest(client, gbi.iGoodId, "good-buy");
 
-		if (std::find(global->unbuyableItemsHashed.begin(), global->unbuyableItemsHashed.end(), gbi.iGoodId) != global->unbuyableItemsHashed.end())
+		if (std::ranges::find(global->unbuyableItemsHashed, gbi.iGoodId) != global->unbuyableItemsHashed.end())
 		{
 			suppress = true;
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
@@ -144,7 +145,7 @@ namespace Plugins::PurchaseRestrictions
 		if (global->config->checkItemRestrictions)
 		{
 			// Check Item
-			if (global->goodItemRestrictionsHashed.find(gbi.iGoodId) != global->goodItemRestrictionsHashed.end())
+			if (global->goodItemRestrictionsHashed.contains(gbi.iGoodId))
 			{
 				if (!CheckIdEquipRestrictions(client, gbi.iGoodId, false))
 				{
@@ -174,7 +175,7 @@ namespace Plugins::PurchaseRestrictions
 					return;
 				}
 
-				if (global->shipItemRestrictionsHashed.find(hullInfo->shipGoodId) != global->shipItemRestrictionsHashed.end() &&
+				if (global->shipItemRestrictionsHashed.contains(hullInfo->shipGoodId) &&
 				    !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
@@ -194,7 +195,8 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress the buying of goods.
-	void ReqAddItem(uint& goodId, char const* hardpoint, int& count, float& status, bool& mounted, ClientId& client)
+	void ReqAddItem(const uint& goodId, [[maybe_unused]] char const* hardpoint, [[maybe_unused]] const int& count, [[maybe_unused]] const float& status,
+	    [[maybe_unused]] const bool& mounted, ClientId& client)
 	{
 		LogItemsOfInterest(client, goodId, "add-item");
 		if (global->clientSuppressBuy[client])
@@ -204,7 +206,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress the buying of goods.
-	void ReqChangeCash(int& iMoneyDiff, ClientId& client)
+	void ReqChangeCash([[maybe_unused]]const int& moneyDiff, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -214,7 +216,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqSetCash(int& iMoney, ClientId& client)
+	void ReqSetCash([[maybe_unused]]const int& money, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -223,7 +225,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqEquipment(class EquipDescList const& eqDesc, ClientId& client)
+	void ReqEquipment([[maybe_unused]] class EquipDescList const& eqDesc, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -232,7 +234,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqShipArch(uint& iArchId, ClientId& client)
+	void ReqShipArch([[maybe_unused]]const uint& archId, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -241,7 +243,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqHullStatus(float& fStatus, ClientId& client)
+	void ReqHullStatus([[maybe_unused]]const float& status, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
