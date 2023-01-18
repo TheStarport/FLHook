@@ -28,7 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mark", "..\plugins\mark\mar
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPC Control", "..\plugins\npc_control\npc_control.vcxproj", "{8E6A698F-7CE9-46C8-A21C-ADB5D4862895}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvP", "..\plugins\pvp\pvp.vcxproj", "{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Betting", "..\plugins\betting\betting.vcxproj", "{E7F0886B-C9B4-46CB-AFE4-46ED576C083F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bounty Hunt", "..\plugins\bountyhunt\bountyhunt.vcxproj", "{9CF41A32-523E-4E7F-B941-0B5F9990E0F5}"
 EndProject

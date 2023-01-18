@@ -2,7 +2,7 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-namespace Plugins::Pvp
+namespace Plugins::Betting
 {
 	//! A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
 	struct Duel
