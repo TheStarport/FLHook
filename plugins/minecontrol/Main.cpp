@@ -257,7 +257,7 @@ namespace Plugins::MiningControl
 				continue;
 			}
 
-			for (auto& ship : pb.Ships)
+			for (const auto& ship : pb.Ships)
 			{
 				uint ShipId = CreateID(ship.c_str());
 				if (!Archetype::GetShip(ShipId))
@@ -269,11 +269,11 @@ namespace Plugins::MiningControl
 			}
 				
 
-			for (auto& item : pb.Items)
+			for (const auto& item : pb.Items)
 			{
 				uint ItemId = CreateID(item.c_str());
-				Archetype::Equipment* eq = Archetype::GetEquipment(ItemId);
-				if (Archetype::GetSimple(ItemId) && eq->get_class_type() != Archetype::GUN)
+				if (auto equipment = Archetype::GetEquipment(ItemId);
+					equipment && equipment->get_class_type() != Archetype::GUN)
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
@@ -282,13 +282,13 @@ namespace Plugins::MiningControl
 				}
 			}
 				
-			for (auto& ammo : pb.Ammo)
+			for (const auto& ammo : pb.Ammo)
 			{
 				uint ItemId = CreateID(ammo.c_str());
-				Archetype::Equipment* eq = Archetype::GetEquipment(ItemId);
-				if (eq->get_class_type() == Archetype::GUN)
+				if (auto equipment = Archetype::GetEquipment(ItemId);
+					equipment && equipment->get_class_type() == Archetype::GUN)
 				{
-					Archetype::Gun* gun = (Archetype::Gun*)eq;
+					const Archetype::Gun* gun = static_cast<Archetype::Gun*>(equipment);
 					if (gun->iProjectileArchId && gun->iProjectileArchId != 0xBAADF00D && gun->iProjectileArchId != 0x3E07E70)
 					{
 						pb.AmmoIds.push_back(gun->iProjectileArchId);
@@ -550,22 +550,8 @@ namespace Plugins::MiningControl
 	void MineAsteroid(uint & iClientSystemId, class Vector const& vPos, uint& iCrateId, uint& iLootId, uint& iCount, ClientId& client)
 	{
 		Clients[client].PendingMineAsteroidEvents += 4;
+		global->returnCode = ReturnCode::SkipAll;
 		return;
-	}
-
-	/** @ingroup MiningControl
-	 * @brief Admin command processing.
-	 */
-	bool ExecuteCommandString(CCmds * cmd, const std::wstring& wscCmd)
-	{
-		if (wscCmd == L"printminezones")
-		{
-			global->returnCode = ReturnCode::SkipAll;
-			ZoneUtilities::PrintZones();
-			return true;
-		}
-
-		return false;
 	}
 }
 
