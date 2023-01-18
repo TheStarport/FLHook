@@ -94,8 +94,12 @@ some_error:
 		}
 
 		// get ping
-		DPN_CONNECTION_INFO ci = GetConnectionStats(client).value();
-		pi.connectionInfo = ci;
+		auto ci = GetConnectionStats(client);
+		if (ci.has_error())
+		{
+			AddLog(LogType::Normal, LogLevel::Warn, wstos(Hk::Err::ErrGetText(ci.error())));
+		}
+		pi.connectionInfo = ci.value();
 
 		// get ip
 		pi.wscIP = GetPlayerIP(client);
