@@ -237,7 +237,7 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player)
+	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player, bool returnValueIfNoFile)
 	{
 		static _GetFLName GetFLName = nullptr;
 		if (!GetFLName)
@@ -257,7 +257,7 @@ namespace Hk::Client
 		{
 			GetFLName(buffer.data(), std::get<std::wstring>(player).c_str());
 		}
-		else
+		else if (!returnValueIfNoFile)
 		{
 			return cpp::fail(Error::InvalidClientId);
 		}
@@ -265,6 +265,10 @@ namespace Hk::Client
 		return stows(buffer);
 	}
 
+	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player)
+	{
+		return GetCharFileName(player, false);
+	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId)
