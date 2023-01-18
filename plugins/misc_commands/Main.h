@@ -17,8 +17,9 @@ namespace Plugins::MiscCommands
 	{
 		std::string File() override { return "config/misc_commands.json"; }
 
-		//! The amount it costs to use the /droprep command. Set to a negative value to disable command.
+		//! The amount it costs to use the /droprep command.
 		uint repDropCost = 0;
+		bool enableDropRep = true;
 		//! The message that will be displayed when the /stuck command is used.
 		std::wstring stuckMessage = L"Attention! Stand Clear. Towing %player";
 		//! The message that will be displayed when the /dice command is used.

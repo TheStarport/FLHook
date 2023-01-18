@@ -139,7 +139,7 @@ namespace Plugins::MiscCommands
 		{
 			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
 		}
-		auto [dir1, dir2] = motion.value();
+		const auto & [dir1, dir2] = motion.value();
 
 		if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 		{
@@ -161,18 +161,18 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Command to remove your current affiliation if applicable.
 	 */
-	void UserCmdDropRep(ClientId& client, const std::wstring& wscParam)
+	void UserCmdDropRep(ClientId& client, [[maybe_unused]] const std::wstring& wscParam)
 	{
-		if (global->config->repDropCost < 0)
+		if (!global->config->enableDropRep)
 		{
 			PrintUserCmdText(client, L"Command Disabled");
 			return;
 		}
 
-		std::wstring repGroupNick = Hk::Ini::GetCharacterIniString(client, L"rep_group");
-		if (repGroupNick.length() == 0)
+		auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group");
+		if (repGroupNick.has_error())
 		{
-			PrintUserCmdText(client, L"ERR No affiliation");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(repGroupNick.error()));
 			return;
 		}
 
@@ -191,13 +191,13 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		if (const auto repValue = Hk::Player::GetRep(client, repGroupNick); repValue.has_error())
+		if (const auto repValue = Hk::Player::GetRep(client, repGroupNick.value()); repValue.has_error())
 		{
 			PrintUserCmdText(client, L"ERR %s", Hk::Err::ErrGetText(repValue.error()).c_str());
 			return;
 		}
 
-		Hk::Player::SetRep(client, repGroupNick, 0.599f);
+		Hk::Player::SetRep(client, repGroupNick.value(), 0.599f);
 		PrintUserCmdText(client, L"OK Reputation dropped, logout for change to take effect.");
 
 		// Remove cash if we're charging for it.
@@ -356,7 +356,7 @@ namespace Plugins::MiscCommands
 using namespace Plugins::MiscCommands;
 
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId))
+REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId), field(enableDropRep))
 
 DefaultDllMainSettings(LoadSettings)
 
