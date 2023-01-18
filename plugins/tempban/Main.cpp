@@ -40,19 +40,16 @@ namespace Plugins::Tempban
 		tempban.banDuration = duration;
 
 		CAccount* acc;
-		if (client != -1)
-			acc = Players.FindAccountFromClientID(client.value());
-		else
-		{
-			if (!(acc = Hk::Client::GetAccountByCharName(wscCharname).value()))
-				return cpp::fail(Error::CharacterDoesNotExist);
-		}
+		if (client.has_error() || Hk::Client::GetAccountByCharName(wscCharname).has_error())
+			return cpp::fail(Error::CharacterDoesNotExist);
+
+		acc = Players.FindAccountFromClientID(client.value());
 		const auto wscId = Hk::Client::GetAccountID(acc);
 
 		tempban.accountId = wscId.value();
 		global->TempBans.push_back(tempban);
 
-		if (client != -1 && Hk::Player::Kick(client.value()).has_error())
+		if (client.has_value() && Hk::Player::Kick(client.value()).has_error())
 		{
 			AddLog(LogType::Kick, LogLevel::Info, fmt::format("{} could not be kicked (TempBan Plugin)", wstos(wscCharname)));
 			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
