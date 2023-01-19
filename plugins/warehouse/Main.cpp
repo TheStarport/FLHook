@@ -43,7 +43,7 @@ namespace Plugins::Warehouse
 			filteredCargo.emplace_back(info);
 		}
 
-		const int itemCount = ToInt(GetParam(param, ' ', 2));
+		const int itemCount = max(1, ToInt(GetParam(param, ' ', 2)));
 
 		if (databaseItemId > filteredCargo.size())
 		{
@@ -71,7 +71,7 @@ namespace Plugins::Warehouse
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, std::format(L"Successfully stored {} item(s) for a total of {} (ID: {})", itemCount, wareHouseItem.quantity, wareHouseItem.id));
+		PrintUserCmdText(client, std::format(L"Successfully stored {} item(s) for a total of {}", itemCount, wareHouseItem.quantity, wareHouseItem.id));
 
 		Hk::Player::SaveChar(client);
 	}
@@ -81,16 +81,15 @@ namespace Plugins::Warehouse
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
 
-		int i = 0;
+		int index = 0;
 		for (const auto& info : cargo.value())
 		{
 			if (info.bMounted || info.fStatus < 1.f)
 				continue;
 
 			const auto* equip = Archetype::GetEquipment(info.iArchId);
-			i++;
-			PrintUserCmdText(
-			    client, std::format(L"{}) {} x{}", i, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
+			index++;
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, const std::wstring& param, uint base)
@@ -106,6 +105,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
+		int index = 0;
 		for (const auto& info : itemList)
 		{
 			const auto* equip = Archetype::GetEquipment(info.equipArchId);
@@ -114,17 +114,17 @@ namespace Plugins::Warehouse
 				Console::ConWarn("Item archetype %u no loner exists", info.equipArchId);
 				continue;
 			}
-
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", info.id, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.quantity));
+			index++;
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.quantity));
 		}
 	}
 
 	void UserCmdWithdrawItem(uint client, const std::wstring& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
-		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
+		const uint itemId = ToInt(GetParam(param, ' ', 1));
 
-		if (!databaseItemId)
+		if (!itemId)
 		{
 			PrintUserCmdText(client, L"Error Invalid Item Number");
 			return;
@@ -133,13 +133,7 @@ namespace Plugins::Warehouse
 		int remainingCargo;
 		const auto cargo = Hk::Player::EnumCargo(client, remainingCargo);
 
-		int itemCount = ToInt(GetParam(param, ' ', 2));
-
-		if (itemCount <= 0)
-		{
-			PrintUserCmdText(client, L"Error Invalid Item Quantity");
-			return;
-		}
+		const int itemCount = max(1, ToInt(GetParam(param, ' ', 2)));
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{
@@ -150,15 +144,17 @@ namespace Plugins::Warehouse
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto warehouseItem = GetItemById(databaseItemId, sqlPlayerId);
+		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
 
-		if (!warehouseItem.has_value())
+		if (itemId > itemList.size())
 		{
-			PrintUserCmdText(client, L"Invalid Item Id");
+			PrintUserCmdText(client, L"Error Invalid Item Number");
 			return;
 		}
 
-		const auto itemArch = Archetype::GetEquipment(warehouseItem->equipArchId);
+		WareHouseItem warehouseItem = itemList.at(itemId - 1);
+
+		const auto itemArch = Archetype::GetEquipment(warehouseItem.equipArchId);
 		if (!itemArch)
 		{
 			Console::ConWarn(L"User tried to withdraw an item that no longer exists");
@@ -172,7 +168,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		const auto withdrawnQuantity = RemoveItem(databaseItemId, sqlPlayerId, itemCount);
+		const auto withdrawnQuantity = RemoveItem(warehouseItem.id, sqlPlayerId, itemCount);
 
 		if (withdrawnQuantity == 0)
 		{
@@ -180,7 +176,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		Hk::Player::AddCargo(client, warehouseItem->equipArchId, static_cast<int>(withdrawnQuantity), false);
+		Hk::Player::AddCargo(client, warehouseItem.equipArchId, static_cast<int>(withdrawnQuantity), false);
 		Hk::Player::RemoveCash(client, global->config.costPerStackWithdraw);
 
 		Hk::Player::SaveChar(client);
