@@ -111,7 +111,7 @@ namespace Plugins::Warehouse
 			const auto* equip = Archetype::GetEquipment(info.equipArchId);
 			if (!equip)
 			{
-				Console::ConWarn("Item archetype %u no loner exists", info.equipArchId);
+				Console::ConWarn(std::format("Item archetype {} no loner exists", info.equipArchId));
 				continue;
 			}
 			index++;

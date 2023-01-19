@@ -120,18 +120,6 @@ namespace Plugins::Warehouse
 		return quantity;
 	}
 
-	std::optional<WareHouseItem> GetItemById(int64 itemId, int64 playerId)
-	{
-		SQLite::Statement query(global->sql, "SELECT id, itemId, quantity FROM items WHERE playerId = ? AND id = ?;");
-		query.bind(1, playerId);
-		query.bind(2, itemId);
-		if (!query.executeStep())
-			return std::nullopt;
-
-		WareHouseItem item = {query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64()};
-		return item;
-	}
-
 	std::vector<WareHouseItem> GetAllItemsOnBase(int64 playerId)
 	{
 		std::vector<WareHouseItem> itemList;

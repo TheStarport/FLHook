@@ -43,5 +43,4 @@ namespace Plugins::Warehouse
 	WareHouseItem GetOrAddItem(EquipId& item, int64 playerId, int64 quantity = 0);
 	int64 RemoveItem(const int64& sqlId, int64 playerId, int64 quantity);
 	std::vector<WareHouseItem> GetAllItemsOnBase(int64 playerId);
-	std::optional<WareHouseItem> GetItemById(int64 itemId, int64 playerId);
 } // namespace Plugins::Warehouse
