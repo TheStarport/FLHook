@@ -34,9 +34,8 @@ namespace Plugins::Warehouse
 
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
-		int i = 0;
 		std::vector<CARGO_INFO> filteredCargo;
-		for (auto info : cargo.value())
+		for (auto& info : cargo.value())
 		{
 			if (info.bMounted || info.fStatus < 1.f)
 				continue;
@@ -60,7 +59,7 @@ namespace Plugins::Warehouse
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
 		{
-			PrintUserCmdText(client, L"Not enough credits. The fee for storing items at this station is %u", global->config.costPerStackStore);
+			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
 			return;
 		}
 
@@ -72,18 +71,18 @@ namespace Plugins::Warehouse
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, fmt::format(L"Successfully stored {} item(s) for a total of {} (ID: {})"), itemCount, wareHouseItem.quantity, wareHouseItem.id);
+		PrintUserCmdText(client, std::format(L"Successfully stored {} item(s) for a total of {} (ID: {})", itemCount, wareHouseItem.quantity, wareHouseItem.id));
 
 		Hk::Player::SaveChar(client);
 	}
 
-	void UserCmdGetItems(uint client, const std::wstring& param, uint base)
+	void UserCmdGetItems(uint client, const std::wstring& param,[[maybe_unused]] uint base)
 	{
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
 
 		int i = 0;
-		for (auto info : cargo.value())
+		for (const auto& info : cargo.value())
 		{
 			if (info.bMounted || info.fStatus < 1.f)
 				continue;
@@ -91,7 +90,7 @@ namespace Plugins::Warehouse
 			const auto* equip = Archetype::GetEquipment(info.iArchId);
 			i++;
 			PrintUserCmdText(
-			    client, std::to_wstring(i) + L".) " + Hk::Message::GetWStringFromIdS(equip->iIdsName) + L" (" + std::to_wstring(info.iCount) + L")");
+			    client, std::format(L"{}) {} x{}", i, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, const std::wstring& param, uint base)
@@ -116,8 +115,7 @@ namespace Plugins::Warehouse
 				continue;
 			}
 
-			PrintUserCmdText(
-			    client, std::to_wstring(info.id) + L".) " + Hk::Message::GetWStringFromIdS(equip->iIdsName) + L" (" + std::to_wstring(info.quantity) + L")");
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", info.id, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.quantity));
 		}
 	}
 
@@ -143,11 +141,9 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		const uint cash = Hk::Player::GetCash(client).value();
-
-		if (cash < global->config.costPerStackWithdraw)
+		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{
-			PrintUserCmdText(client, L"Not enough credits. The fee for storing items at this station is %u", global->config.costPerStackWithdraw);
+			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
 			return;
 		}
 
@@ -170,7 +166,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		if (itemArch->fVolume * itemCount >= std::floor(remainingCargo))
+		if (itemArch->fVolume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
 		{
 			PrintUserCmdText(client, L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
 			return;
@@ -190,7 +186,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 
 		PrintUserCmdText(
-		    client, L"Successfully withdrawn Item: " + std::to_wstring(withdrawnQuantity) + L" " + Hk::Message::GetWStringFromIdS(itemArch->iIdsName));
+		    client, std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
 	}
 
 	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
@@ -250,7 +246,7 @@ using namespace Plugins::Warehouse;
 REFL_AUTO(type(Config), field(restrictedBases), field(restrictedItems), field(costPerStackWithdraw), field(costPerStackStore))
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] const DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)
 {
 	return true;
 }
