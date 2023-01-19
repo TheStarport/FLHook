@@ -24,28 +24,24 @@ namespace Plugins::Tax
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
-		SystemId system = Hk::Player::GetSystem(client).value();
-
 		// no-pvp check
-		for (auto const& it : global->excludedsystemsIds)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); 
+			std::ranges::find(global->excludedsystemsIds, system) != global->excludedsystemsIds.end())
 		{
-			if (system == it)
-			{
-				PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
-				return;
-			}
+			PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
+			return;
 		}
 
-		const std::wstring taxAmount = GetParam(param, ' ', 0);
+		const uint taxValue = ToUInt(GetParam(param, ' ', 0));
 
-		if (!taxAmount.length())
+		if (!taxValue)
+		{
 			PrintUserCmdText(client, L"Error: No valid tax amount!");
-
-		const uint taxValue = ToUInt(taxAmount);
+		}
 
 		if (taxValue > global->config->maxTax)
 		{
-			PrintUserCmdText(client, L"Error: Maximum tax value is %u credits.", global->config->maxTax);
+			PrintUserCmdText(client, std::format(L"Error: Maximum tax value is {} credits.", global->config->maxTax));
 			return;
 		}
 
@@ -68,13 +64,10 @@ namespace Plugins::Tax
 			return;
 		}
 
-		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->lsttax)
+		if (std::ranges::find_if(global->lsttax, [clientTarget](const Tax& tax) { return tax.targetId == clientTarget; }) != global->lsttax.end())
 		{
-			if (targetId == clientTarget)
-			{
-				PrintUserCmdText(client, L"Error: There already is a tax request pending for this player.");
-				return;
-			}
+			PrintUserCmdText(client, L"Error: There already is a tax request pending for this player.");
+			return;
 		}
 
 		Tax tax;
@@ -86,17 +79,16 @@ namespace Plugins::Tax
 		std::wstring msg;
 
 		if (taxValue == 0)
+		{
 			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->huntingMessage, characterName.value().c_str());
-		else
-			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.value().c_str());
-
-		Hk::Message::FMsg(clientTarget, msg);
-
-		// send confirmation msg
-		if (taxValue > 0)
-			PrintUserCmdText(client, L"Tax request of %d credits sent to %s!", taxValue, targetCharacterName.value().c_str());
-		else
 			PrintUserCmdText(client, global->config->huntingMessageOriginator, targetCharacterName.value().c_str());
+		}
+		else
+		{
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, global->config->taxRequestReceived, taxValue, characterName.value().c_str());
+			PrintUserCmdText(client, std::format(L"Tax request of {} credits sent to {}!", taxValue, targetCharacterName.value().c_str()));
+		}
+		Hk::Message::FMsg(clientTarget, msg);
 	}
 
 	void UserCmdPay(ClientId& client, const std::wstring& param)
@@ -110,8 +102,8 @@ namespace Plugins::Tax
 					return;
 				}
 
-				const auto cash = Hk::Player::GetCash(client);
-				if (cash.has_error() || cash.value() < it.cash)
+				if (const auto cash = Hk::Player::GetCash(client); 
+					cash.has_error() || cash.value() < it.cash)
 				{
 					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
@@ -121,7 +113,7 @@ namespace Plugins::Tax
 				PrintUserCmdText(client, L"You paid the tax.");
 				Hk::Player::AddCash(it.initiatorId, it.cash);
 				const auto characterName = Hk::Client::GetCharacterNameByID(client);
-				PrintUserCmdText(it.initiatorId, L"%s paid the tax!", characterName.value().c_str());
+				PrintUserCmdText(it.initiatorId, std::format(L"{} paid the tax!", characterName.value().c_str()));
 				RemoveTax(it);
 				Hk::Player::SaveChar(client);
 				Hk::Player::SaveChar(it.initiatorId);
@@ -131,10 +123,11 @@ namespace Plugins::Tax
 		PrintUserCmdText(client, L"Error: No tax request was found that could be accepted!");
 	}
 
-	void TimerF1Check()
+	void timerCheck()
 	{
 		struct PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		playerData = Players.traverse_active(playerData);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
 
@@ -148,8 +141,8 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship = Hk::Player::GetShip(client).value();
-						if (ship && global->config->killDisconnectingPlayers)
+						if (uint ship = Hk::Player::GetShip(client).value(); 
+							ship && global->config->killDisconnectingPlayers)
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
@@ -168,8 +161,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship = Hk::Player::GetShip(client).value();
-						if (ship)
+						if (uint ship = Hk::Player::GetShip(client).value())
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
@@ -182,39 +174,14 @@ namespace Plugins::Tax
 				}
 				continue;
 			}
+
+			playerData = Players.traverse_active(playerData);
 		}
 	}
-
-	// Hooks
-	typedef void (*TimerFunc)();
-	struct TIMER
-	{
-		TimerFunc proc;
-		mstime tmIntervallMS;
-		mstime tmLastCall;
+	// Timer Hook
+	const std::vector<Timer> timers = {
+		{timerCheck, 1}
 	};
-
-	TIMER Timers[] = {
-	    {TimerF1Check, 1000, 0},
-	};
-
-	int __stdcall Update()
-	{
-		for (uint i = 0; (i < sizeof(Timers) / sizeof(TIMER)); i++)
-		{
-			if ((timeInMS() - Timers[i].tmLastCall) >= Timers[i].tmIntervallMS)
-			{
-				Timers[i].tmLastCall = timeInMS();
-				Timers[i].proc();
-			}
-		}
-		return 0;
-	}
-
-	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
-	{
-		TimerF1Check();
-	}
 
 	void UserCmdHelp(ClientId& client, const std::wstring& param)
 	{
@@ -258,10 +225,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("tax");
 	pi->mayUnload(true);
 	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 }
