@@ -72,7 +72,7 @@ namespace Plugins::Warehouse
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, std::format("Successfully stored {} item(s) for a total of {} (ID: {})"), itemCount, wareHouseItem.quantity, wareHouseItem.id)));
+		PrintUserCmdText(client, fmt::format(L"Successfully stored {} item(s) for a total of {} (ID: {})"), itemCount, wareHouseItem.quantity, wareHouseItem.id);
 
 		Hk::Player::SaveChar(client);
 	}
@@ -184,7 +184,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		Hk::Player::AddCargo(client, warehouseItem->equipArchId, withdrawnQuantity, false);
+		Hk::Player::AddCargo(client, warehouseItem->equipArchId, static_cast<int>(withdrawnQuantity), false);
 		Hk::Player::RemoveCash(client, global->config.costPerStackWithdraw);
 
 		Hk::Player::SaveChar(client);
