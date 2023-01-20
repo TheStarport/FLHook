@@ -3,30 +3,25 @@
 #define PRINT_ERROR()                                                     \
 	{                                                                     \
 		for (uint i = 0; (i < sizeof(error) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, L"%s", error[i].c_str());            \
+			PrintUserCmdText(client, std::format(L"{}", error[i]));       \
 		return;                                                           \
 	}
 #define PRINT_OK() PrintUserCmdText(client, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
-#define GET_USERFILE(a)                                          \
-	std::string a;                                               \
-	{                                                            \
-		CAccount* acc = Players.FindAccountFromClientID(client); \
-		std::wstring dir = Hk::Client::GetAccountDirName(acc);   \
-		a = scAcctPath + wstos(dir) + "\\flhookuser.ini";        \
+#define GET_USERFILE(a)                                                  \
+	std::string a;                                                       \
+	{                                                                    \
+		CAccount* acc = Players.FindAccountFromClientID(client);         \
+		std::wstring dir = Hk::Client::GetAccountDirName(acc);           \
+		a = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini"; \
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrintUserCmdText(ClientId client, std::wstring text, ...)
+void PrintUserCmdText(ClientId client, const std::wstring& text)
 {
-	wchar_t wszBuf[1024 * 8] = L"";
-	va_list marker;
-	va_start(marker, text);
-	_vsnwprintf_s(wszBuf, sizeof wszBuf - 1, text.c_str(), marker);
-
-	std::wstring wscXML = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.userCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wszBuf) + L"</TEXT>";
-	Hk::Message::FMsg(client, wscXML);
+	std::wstring xml = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.userCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
+	Hk::Message::FMsg(client, xml);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +313,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	ClientInfo[client].lstIgnore.push_back(ii);
 
 	// send confirmation msg
-	PrintUserCmdText(client, L"OK, \"%s\" added to ignore list", character.c_str());
+	PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,7 +330,7 @@ void UserCmd_IgnoreList(ClientId& client, const std::wstring& param)
 	int i = 1;
 	for (auto& ignore : ClientInfo[client].lstIgnore)
 	{
-		PrintUserCmdText(client, L"%.2u | %s | %s", i, ignore.character.c_str(), ignore.wscFlags.c_str());
+		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.wscFlags));
 		i++;
 	}
 
@@ -421,22 +416,10 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 
 void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
 {
-	wchar_t wszLine[128] = L"";
 	for (auto& player : Hk::Admin::GetPlayers())
 	{
-		wchar_t wszBuf[1024];
-		swprintf_s(wszBuf, L"%s = %u | ", player.character.c_str(), player.client);
-		if (wcslen(wszBuf) + wcslen(wszLine) >= sizeof wszLine / 2)
-		{
-			PrintUserCmdText(client, L"%s", wszLine);
-			wcscpy_s(wszLine, wszBuf);
-		}
-		else
-			wcscat_s(wszLine, wszBuf);
+		PrintUserCmdText(client, std::format(L"{} = {} | ", player.character, player.client));
 	}
-
-	if (wcslen(wszLine))
-		PrintUserCmdText(client, L"%s", wszLine);
 	PrintUserCmdText(client, L"OK");
 }
 
@@ -444,7 +427,7 @@ void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
 
 void UserCmd_ID(ClientId& client, const std::wstring& wscParam)
 {
-	PrintUserCmdText(client, L"Your client-id: %u", client);
+	PrintUserCmdText(client, std::format(L"Your client-id: {}", client));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -500,7 +483,7 @@ void UserCmd_Credits(ClientId& client, const std::wstring& param)
 			continue;
 
 		bRunning = true;
-		PrintUserCmdText(client, L"- %s", stows(plugin.name).c_str());
+		PrintUserCmdText(client, std::format(L"- {}", stows(plugin.name)));
 	}
 	if (!bRunning)
 		PrintUserCmdText(client, L"- none -");
@@ -610,7 +593,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command '%s' not found within module 'Core'", cmd.c_str());
+			PrintUserCmdText(client, std::format(L"Command '{}' not found within module 'Core'", cmd.c_str()));
 		}
 		return;
 	}
@@ -645,12 +628,12 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command '%s' not found within module '%s'", cmd.c_str(), stows(plugin->shortName).c_str());
+			PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, stows(plugin->shortName)));
 		}
 	}
 	else
 	{
-		PrintUserCmdText(client, fmt::format(L"Module '{}' does not have commands.", stows(plugin->shortName)));
+		PrintUserCmdText(client, std::format(L"Module '{}' does not have commands.", stows(plugin->shortName)));
 	}
 }
 
@@ -699,7 +682,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		if (param.has_value())
 		{
 			std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(fmt::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
+			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
 
 			try
 			{
@@ -716,7 +699,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 			}
 			catch (std::exception const& ex)
 			{
-				AddLog(LogType::UserLogCmds, LogLevel::Err, fmt::format("exception {}", ex.what()));
+				AddLog(LogType::UserLogCmds, LogLevel::Err, std::format("exception {}", ex.what()));
 			}
 
 			return true;

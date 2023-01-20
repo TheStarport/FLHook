@@ -3,12 +3,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::DoPrint(const std::wstring& text)
+void CInGame::DoPrint(const std::string& text)
 {
+	std::wstring str = stows(text);
 	wchar_t wszBufSend[1024] = L"";
-	for (uint i = 0; (i <= text.length()); i++)
+	for (uint i = 0; (i <= str.length()); i++)
 	{
-		if (text[i] == '\n' || text[i] == '\0')
+		if (str[i] == '\n' || str[i] == '\0')
 		{
 			if (!wcslen(wszBufSend))
 				break;
@@ -19,7 +20,7 @@ void CInGame::DoPrint(const std::wstring& text)
 			memset(wszBufSend, 0, sizeof(wszBufSend));
 		}
 		else
-			wszBufSend[wcslen(wszBufSend)] = text[i];
+			wszBufSend[wcslen(wszBufSend)] = str[i];
 	}
 }
 

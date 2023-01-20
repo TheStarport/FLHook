@@ -34,11 +34,11 @@ namespace Plugins::Restart
 		{
 			if (global->config->enableRestartCost)
 			{
-				PrintUserCmdText(client, L"%s - $%i", key.c_str(), value);
+				PrintUserCmdText(client, std::format(L"{} - ${}", key, value));
 			}
 			else
 			{
-				PrintUserCmdText(client, L"%s", key.c_str());
+				PrintUserCmdText(client, key);
 			}
 		}
 	}
@@ -151,7 +151,7 @@ namespace Plugins::Restart
 			try
 			{
 				// Overwrite the existing character file
-				std::string scCharFile = scAcctPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string scCharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
 				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
 				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
@@ -166,15 +166,15 @@ namespace Plugins::Restart
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
 
-				AddLog(LogType::Normal, LogLevel::Info, fmt::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
+				AddLog(LogType::Normal, LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
 			}
 			catch (...)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, fmt::format("User restart failed for {}", wstos(restart.characterName)));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("User restart failed for {}", wstos(restart.characterName)));
 			}
 		}
 	}

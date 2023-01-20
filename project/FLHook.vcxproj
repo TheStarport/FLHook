@@ -206,9 +206,9 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Helpers\Player.cpp" />
     <ClCompile Include="..\source\Helpers\Solar.cpp" />
     <ClCompile Include="..\source\Helpers\Time.cpp" />
+    <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp" />
     <ClCompile Include="..\source\HkClientServerInterface.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
-    <ClCompile Include="..\source\HkHelp.cpp" />
     <ClCompile Include="..\source\HkInit.cpp" />
     <ClCompile Include="..\source\HkIChatServer.cpp" />
     <ClCompile Include="..\source\HkIEngineDamage.cpp" />
@@ -224,43 +224,25 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
-    <ClCompile Include="..\source\ZoneUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\FLHookSDK\include\ext\jpcre2.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\ext\result.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\ext\Singleton.h" />
-    <ClInclude Include="..\FLHookSDK\include\ext\Sql.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\ext\Wildcard.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\__generated.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLHook.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\plugin.h" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Constexpr.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Deps.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Enums.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Hk.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Macros.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Serialization.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Structs.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Typedefs.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Tools\Utils.hpp" />
+    <ClInclude Include="..\include\FLHook.hpp" />
+    <ClInclude Include="..\include\plugin.h" />
+    <ClInclude Include="..\include\Tools\Constexpr.hpp" />
+    <ClInclude Include="..\include\Tools\Deps.hpp" />
+    <ClInclude Include="..\include\Tools\Enums.hpp" />
+    <ClInclude Include="..\include\Tools\Hk.hpp" />
+    <ClInclude Include="..\include\Tools\Macros.hpp" />
+    <ClInclude Include="..\include\Tools\Serialization.hpp" />
+    <ClInclude Include="..\include\Tools\Structs.hpp" />
+    <ClInclude Include="..\include\Tools\Typedefs.hpp" />
+    <ClInclude Include="..\include\Tools\Utils.hpp" />
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CSocket.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\FLHookSDK\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

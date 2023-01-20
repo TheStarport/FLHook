@@ -153,11 +153,8 @@ namespace Plugins::Betting
 				else
 				{
 					global->freeForAlls[systemId].contestants[client2].accepted = false;
-					PrintUserCmdText(client2,
-					    L"%s has started a Free-For-All tournament. "
-					    L"Cost to enter is %i credits. Type \"/acceptffa\" to enter.",
-					    characterName.c_str(),
-					    amount);
+					PrintUserCmdText(client2, std::format(L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.",
+					    characterName, amount));
 				}
 			}
 

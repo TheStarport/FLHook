@@ -68,10 +68,10 @@ namespace Plugins::Stats
 		std::ofstream out(global->jsonFileName.FilePath + "\\" + global->jsonFileName.StatsFile);
 
 		nlohmann::json jExport;
-		jExport["serverload"] = g_iServerLoad;
+		jExport["serverload"] = CoreGlobals::c()->serverLoadInMs;
 
 		nlohmann::json jPlayers;
-		const std::list<PLAYERINFO> lstPlayers = Hk::Admin::GetPlayers();
+		const std::list<PlayerInfo> lstPlayers = Hk::Admin::GetPlayers();
 
 		for (auto& lstPlayer : lstPlayers)
 		{

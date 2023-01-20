@@ -70,7 +70,7 @@ namespace Plugins::Event
 			global->CargoMissions.push_back(cargo_mission);
 		}
 
-		for (auto& mission : config.NpcMissions)
+		for (auto const& mission : config.NpcMissions)
 		{
 			if (mission.first == "Example")
 				continue;
@@ -87,8 +87,8 @@ namespace Plugins::Event
 
 		global->config = std::make_unique<Config>(config);
 
-		Console::ConInfo(L"CargoMissionSettings loaded [%d]", global->CargoMissions.size());
-		Console::ConInfo(L"NpcMissionSettings loaded [%d]", global->NpcMissions.size());
+		Console::ConInfo(std::format("CargoMissionSettings loaded [{}]", global->CargoMissions.size()));
+		Console::ConInfo(std::format("NpcMissionSettings loaded [{}]", global->NpcMissions.size()));
 	}
 
 	/** @ingroup Event
@@ -199,11 +199,11 @@ namespace Plugins::Event
 				{
 					mission.current_amount += gsi.iCount;
 					needed = mission.required_amount - mission.current_amount;
-					PrintUserCmdText(client, L"%d units remaining to complete mission objective", needed);
+					PrintUserCmdText(client, std::format(L"{} units remaining to complete mission objective", needed));
 				}
 				else
 				{
-					PrintUserCmdText(client, L"Mission objective completed", needed);
+					PrintUserCmdText(client, L"Mission objective completed");
 				}
 			}
 		}

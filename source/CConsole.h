@@ -7,7 +7,7 @@ class CConsole : public CCmds
 {
   public:
 	CConsole() { this->rights = RIGHT_SUPERADMIN; };
-	EXPORT void DoPrint(const std::wstring& text);
+	EXPORT void DoPrint(const std::string& text);
 	std::wstring GetAdminName();
 };
 

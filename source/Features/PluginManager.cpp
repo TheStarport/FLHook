@@ -72,7 +72,7 @@ cpp::result<void, Error> PluginManager::unload(const std::string& name)
 	if (plugin == end())
 		return cpp::fail(Error::PluginNotFound);
 
-	Console::ConPrint(L"Unloading %s (%s)", stows(plugin->name).c_str(), plugin->dllName.c_str());
+	Console::ConPrint(std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
 	plugins_.erase(plugin);
 	return {};
 }
@@ -91,7 +91,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	for (auto& plugin : plugins_)
 	{
 		if (plugin.dllName == dllName)
-			return adminInterface->Print(L"Plugin %s already loaded, skipping\n", plugin.dllName.c_str());
+			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", wstos(plugin.dllName)));
 	}
 
 	std::wstring pathToDLL = L"./plugins/" + dllName;
@@ -99,7 +99,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	FILE* fp;
 	_wfopen_s(&fp, pathToDLL.c_str(), L"r");
 	if (!fp)
-		return adminInterface->Print(L"ERR plugin %s not found", dllName.c_str());
+		return adminInterface->Print(std::format("ERR plugin {} not found", wstos(dllName)));
 	fclose(fp);
 
 	PluginData plugin;
@@ -107,13 +107,13 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	plugin.dll = LoadLibraryW(pathToDLL.c_str());
 
 	if (!plugin.dll)
-		return adminInterface->Print(L"ERR can't load plugin DLL %s", dllName.c_str());
+		return adminInterface->Print(std::format("ERR can't load plugin DLL {}", wstos(plugin.dllName)));
 
 	auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin.dll, "ExportPluginInfo"));
 
 	if (!getPluginInfo)
 	{
-		adminInterface->Print(L"ERR could not read plugin info (ExportPluginInfo not exported?) for %s", dllName.c_str());
+		adminInterface->Print(std::format("ERR could not read plugin info (ExportPluginInfo not exported?) for {}", wstos(plugin.dllName)));
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -123,43 +123,44 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	if (pi->versionMinor_ == PluginMinorVersion::UNDEFINED || pi->versionMajor_ == PluginMajorVersion::UNDEFINED)
 	{
-		adminInterface->Print(L"ERR plugin does not have defined API version. Unloading.", dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
+		adminInterface->Print(std::format("ERR plugin {} does not have defined API version. Unloading.", wstos(plugin.dllName)));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if (pi->versionMajor_ != CurrentMajorVersion)
 	{
-		adminInterface->Print(
-		    L"ERR incompatible plugin API (major) version for %s: expected %d, got %d", dllName.c_str(), CurrentMajorVersion, pi->versionMajor_);
+		adminInterface->Print(std::format(
+		    "ERR incompatible plugin API (major) version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMajorVersion, (int)pi->versionMajor_));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if ((int)pi->versionMinor_ > (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(
-		    L"ERR incompatible plugin API (minor) version for %s: expected %d or lower, got %d", dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
+		adminInterface->Print(std::format(
+		    "ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if (int(pi->versionMinor_) != (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(L"Warning, incompatible plugin API version for %s: expected %d, got %d", dllName.c_str(), CurrentMinorVersion, pi->versionMinor_);
-		adminInterface->Print(L"Processing will continue, but plugin should be considered unstable.");
+		adminInterface->Print(
+		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
+		adminInterface->Print("Processing will continue, but plugin should be considered unstable.");
 	}
 
 	if (pi->shortName_.empty() || pi->name_.empty())
 	{
-		adminInterface->Print(L"ERR missing name/short name for %s", dllName.c_str());
+		adminInterface->Print(std::format("ERR missing name/short name for {}", wstos(plugin.dllName)));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if (pi->returnCode_ == nullptr)
 	{
-		adminInterface->Print(L"ERR missing return code pointer %s", dllName.c_str());
+		adminInterface->Print(std::format("ERR missing return code pointer {}", wstos(plugin.dllName)));
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -174,7 +175,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	// also not be loaded after FLServer startup
 	if (!plugin.mayUnload && !startup)
 	{
-		adminInterface->Print(L"ERR could not load plugin %s: plugin cannot be unloaded, need server restart to load", plugin.dllName.c_str());
+		adminInterface->Print(std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", wstos(plugin.dllName)));
 		FreeLibrary(plugin.dll);
 		return;
 	}
@@ -189,14 +190,14 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	{
 		if (!hook.hookFunction_)
 		{
-			adminInterface->Print(L"ERR could not load function %d.%d of plugin %s", hook.targetFunction_, hook.step_, plugin.dllName.c_str());
+			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin.dllName)));
 			continue;
 		}
 
 		if (const auto& targetHookProps = hookProps_[hook.targetFunction_]; !targetHookProps.matches(hook.step_))
 		{
 			adminInterface->Print(
-			    L"ERR could not bind function %d.%d of plugin %s, step not available", hook.targetFunction_, hook.step_, plugin.dllName.c_str());
+			    std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin.dllName)));
 			continue;
 		}
 
@@ -214,7 +215,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	plugin.pInfo = std::move(pi);
 
-	adminInterface->Print(L"Plugin %s loaded (%s)", stows(plugin.shortName).c_str(), plugin.dllName.c_str());
+	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin.shortName, wstos(plugin.dllName)));
 }
 
 void PluginManager::loadAll(bool startup, CCmds* adminInterface)

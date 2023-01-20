@@ -91,7 +91,7 @@ namespace Plugins::Message
 			if (line.find(L"<TRA") == 0)
 				Hk::Message::FMsg(client, line);
 			else
-				PrintUserCmdText(client, L"%s", line.c_str());
+				PrintUserCmdText(client, line);
 		}
 	}
 
@@ -118,7 +118,7 @@ namespace Plugins::Message
 				if (line.find(L"<TRA") == 0)
 					Hk::Message::FMsg(client, line);
 				else
-					PrintUserCmdText(client, L"%s", line.c_str());
+					PrintUserCmdText(client, line);
 			}
 			playerData = Players.traverse_active(playerData);
 		}
@@ -144,7 +144,7 @@ namespace Plugins::Message
 			if (global->config->standardBannerLines[curStandardBanner].find(L"<TRA") == 0)
 				Hk::Message::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
 			else
-				PrintUserCmdText(client, L"%s", global->config->standardBannerLines[curStandardBanner].c_str());
+				PrintUserCmdText(client, global->config->standardBannerLines[curStandardBanner].c_str());
 
 			playerData = Players.traverse_active(playerData);
 		}
@@ -409,7 +409,7 @@ namespace Plugins::Message
 						const std::wstring wscCharname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 						AddLog(LogType::Kick,
 						    LogLevel::Info,
-						    wstos(fmt::format(L"Swearing tempban on {} ({}) reason='{}'",
+						    wstos(std::format(L"Swearing tempban on {} ({}) reason='{}'",
 						        wscCharname,
 						        Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(wscCharname).value()).value(),
 						        wscChatMsg.c_str())));
@@ -559,7 +559,7 @@ namespace Plugins::Message
 
 		for (int i = 0; i < numberOfSlots; i++)
 		{
-			PrintUserCmdText(client, L"%d: %s", i, iter->second.slot[i].c_str());
+			PrintUserCmdText(client, std::format(L"{}: {}", i, iter->second.slot[i]));
 		}
 		PrintUserCmdText(client, L"OK");
 	}

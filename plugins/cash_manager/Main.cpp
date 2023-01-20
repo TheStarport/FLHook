@@ -76,15 +76,15 @@ namespace Plugins::CashManager
 
 		if (global->config->transferFee < 0)
 		{
-			Console::ConWarn(L"Transfer Fee is a negative number!");
+			Console::ConWarn("Transfer Fee is a negative number!");
 		}
 		if (global->config->maximumTransfer < 0)
 		{
-			Console::ConWarn(L"Maximum Transfer is a negative number!");
+			Console::ConWarn("Maximum Transfer is a negative number!");
 		}
 		if (global->config->minimumTransfer < 0)
 		{
-			Console::ConWarn(L"Minimum Transfer is a negative number!");
+			Console::ConWarn("Minimum Transfer is a negative number!");
 		}
 
 		Sql::CreateSqlTables();
@@ -101,27 +101,27 @@ namespace Plugins::CashManager
 
 		if (bank.cash < withdrawal)
 		{
-			PrintUserCmdText(client, L"Error: Not enough credits, this bank only has %u", bank.cash);
+			PrintUserCmdText(client, std::format(L"Error: Not enough credits, this bank only has %u", bank.cash));
 			return;
 		}
 
 		if (withdrawal == 0)
 		{
-			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number. %u", bank.cash);
+			PrintUserCmdText(client, std::format(L"Error: Invalid withdraw amount, please input a positive number. {}", bank.cash));
 			return;
 		}
 
 		const int64 fee = static_cast<long long>(withdrawal) + global->config->transferFee;
 		if (global->config->transferFee > 0 && static_cast<int64>(bank.cash) - fee < 0)
 		{
-			PrintUserCmdText(client, L"Error: Not enough cash in bank for withdrawal and fee (%s).", ToMoneyStr(static_cast<int>(fee)).c_str());
+			PrintUserCmdText(client, std::format(L"Error: Not enough cash in bank for withdrawal and fee ({}).", ToMoneyStr(static_cast<int>(fee))));
 			return;
 		}
 
 		if (Sql::WithdrawCash(bank, fee))
 		{
 			Hk::Player::AddCash(client, withdrawal);
-			PrintUserCmdText(client, L"Successfully withdrawn %s credits", ToMoneyStr(withdrawal).c_str());
+			PrintUserCmdText(client, std::format(L"Successfully withdrawn {} credits", ToMoneyStr(withdrawal)));
 			return;
 		}
 
@@ -145,7 +145,7 @@ namespace Plugins::CashManager
 		if (Sql::DepositCash(bank, deposit))
 		{
 			Hk::Player::RemoveCash(client, deposit);
-			PrintUserCmdText(client, L"Successfully deposited %s credits", ToMoneyStr(deposit).c_str());
+			PrintUserCmdText(client, std::format(L"Successfully deposited {} credits", ToMoneyStr(deposit)));
 			return;
 		}
 
@@ -201,8 +201,8 @@ namespace Plugins::CashManager
 		const auto fee = amount + global->config->transferFee;
 		if (static_cast<int64>(bank.cash) - (amount + fee) < 0)
 		{
-			const auto ifFee = L"and fee (%u)";
-			PrintUserCmdText(client, L"Error: Not enough cash in bank for transfer%s.", fee > 0 ? ifFee : L"");
+			const auto ifFee = std::format(L"and fee ({})", amount + fee);
+			PrintUserCmdText(client, std::format(L"Error: Not enough cash in bank for transfer {}.", fee > 0 ? ifFee : L""));
 			return;
 		}
 
@@ -219,16 +219,17 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		PrintUserCmdText(client, L"Successfully transferred %s credits to %s", ToMoneyStr(amount).c_str(), bank.identifier.c_str());
-		Sql::AddTransaction(bank, fmt::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
+		PrintUserCmdText(client, std::format(L"Successfully transferred {} credits to {}", ToMoneyStr(amount), bank.identifier));
+		Sql::AddTransaction(
+		    bank, std::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
 	}
 
 	void ShowBankInfo(const ClientId& client, const Bank& bank, bool showPass)
 	{
 		PrintUserCmdText(client, L"Your Bank Information: ");
-		PrintUserCmdText(client, L"|    Identifier: %s", bank.identifier.empty() ? L"N/A" : bank.identifier.c_str());
-		PrintUserCmdText(client, L"|    Password: %s", showPass ? bank.bankPassword.c_str() : L"*****");
-		PrintUserCmdText(client, L"|    Credits: %s", ToMoneyStr(bank.cash).c_str());
+		PrintUserCmdText(client, std::format(L"|    Identifier: {}", bank.identifier.empty() ? L"N/A" : bank.identifier));
+		PrintUserCmdText(client, std::format(L"|    Password: {}", showPass ? bank.bankPassword : L"*****"));
+		PrintUserCmdText(client, std::format(L"|    Credits: {}", ToMoneyStr(bank.cash)));
 
 		if (!showPass)
 		{
@@ -239,7 +240,8 @@ namespace Plugins::CashManager
 	void UserCommandHandler(const ClientId& client, const std::wstring& param)
 	{
 		// Checks before we handle any sort of command or process.
-		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value(); static_cast<uint>(secs) < global->config->minimumTime / 60)
+		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value();
+		    static_cast<uint>(secs) < global->config->minimumTime / 60)
 		{
 			PrintUserCmdText(client, L"Error: You cannot interact with the bank. This character is too new.");
 			return;
@@ -285,9 +287,8 @@ namespace Plugins::CashManager
 			}
 
 			PrintUserCmdText(client, L"This will generate a new password and the previous will be invalid");
-			PrintUserCmdText(client,
-			    L"Your currently set password is %s if you are sure you want to regenerate your password type \"/bank password confirm\". ",
-			    bank.bankPassword.c_str());
+			PrintUserCmdText(client, std::format(L"Your currently set password is {} if you are sure you want to regenerate your password type \"/bank password confirm\". ",
+			    bank.bankPassword));
 		}
 		else if (cmd == L"identifier")
 		{
@@ -309,7 +310,7 @@ namespace Plugins::CashManager
 			}
 
 			Sql::SetOrClearIdentifier(bank, wstos(identifier));
-			PrintUserCmdText(client, L"Bank identifier set to: %s", identifier.c_str());
+			PrintUserCmdText(client, std::format(L"Bank identifier set to: {}", identifier));
 		}
 		else if (cmd == L"withdraw")
 		{
@@ -358,10 +359,10 @@ namespace Plugins::CashManager
 				if (!page)
 				{
 					PrintUserCmdText(client,
-					    L"You currently have a total of %u transactions, spanning %u pages. "
-					    L"Run this command again, adding a page number to view the desired transactions.",
-					    totalTransactions,
-					    totalTransactions / TransactionsPerPage);
+					    std::format(L"You currently have a total of {} transactions, spanning {} pages. Run this command again, adding a page number to view "
+					                L"the desired transactions.",
+					        totalTransactions,
+					        totalTransactions / TransactionsPerPage));
 					return;
 				}
 
@@ -375,7 +376,7 @@ namespace Plugins::CashManager
 				const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i);
 				for (const auto& transaction : transactions)
 				{
-					PrintUserCmdText(client, L"%u.) %s %llu", i++, transaction.accessor.c_str(), transaction.amount);
+					PrintUserCmdText(client, std::format(L"%{}.) {} {}", i++, transaction.accessor, transaction.amount));
 				}
 				return;
 			}
@@ -388,12 +389,12 @@ namespace Plugins::CashManager
 			}
 
 			int currentTransactions = Sql::CountTransactions(bank);
-			PrintUserCmdText(client, L"Showing you %u of %u total transactions (most recent):", transactions.size(), currentTransactions);
+			PrintUserCmdText(client, std::format(L"Showing you {} of {} total transactions (most recent):", transactions.size(), currentTransactions));
 
 			uint i = 0;
 			for (const auto& transaction : transactions)
 			{
-				PrintUserCmdText(client, L"%u.) %s %llu", ++i, transaction.accessor.c_str(), transaction.amount);
+				PrintUserCmdText(client, std::format(L"{}.) {} {}", ++i, transaction.accessor, transaction.amount));
 			}
 		}
 		else
@@ -407,9 +408,10 @@ namespace Plugins::CashManager
 			PrintUserCmdText(client, L"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier");
 			PrintUserCmdText(client, L"\"/bank password \" will regenerate your password");
 			PrintUserCmdText(client,
-			    L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.");
+			    L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other "
+			    L"accounts.");
 			PrintUserCmdText(client, L"\"/bank info \" will display information regarding your current account's bank");
-			PrintUserCmdText(client, fmt::format(L"\"/bank transactions \" will display the last {} transactions", TransactionsPerPage));
+			PrintUserCmdText(client, std::format(L"\"/bank transactions \" will display the last {} transactions", TransactionsPerPage));
 			PrintUserCmdText(client, L"\"/bank transactions <list> [page]\" will display the full list of transactions");
 		}
 	}
@@ -477,7 +479,10 @@ namespace Plugins::CashManager
 		return ShouldSuppressBuy(&goodID, client);
 	}
 
-	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
+	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
+	{
+		this->ConsumeBankCash = IpcConsumeBankCash;
+	}
 
 } // namespace Plugins::CashManager
 

@@ -114,7 +114,7 @@ namespace Plugins::SystemSensor
 				}
 			}
 		}
-		PrintUserCmdText(client, L"%s", eqList.c_str());
+		PrintUserCmdText(client, eqList);
 		PrintUserCmdText(client, L"OK");
 	}
 
@@ -211,13 +211,12 @@ namespace Plugins::SystemSensor
 					const auto system = Hk::Player::GetSystem(client);
 					const Vector& position = location.value().first;
 					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position);
-					PrintUserCmdText(iter->first,
-					    L"%s[$%u] %s at %s %s",
-					    Players.GetActiveCharacterName(client),
+					PrintUserCmdText(iter->first, std::format(L"{}[${}] {} at {} {}",
+					    Hk::Client::GetCharacterNameByID(client).value(),
 					    client,
-					    wscType.c_str(),
-					    wscSysName.c_str(),
-					    curLocation.c_str());
+					    wscType,
+					    wscSysName,
+					    curLocation));
 				}
 			}
 			++iter;
@@ -233,7 +232,7 @@ namespace Plugins::SystemSensor
 			auto spaceObjType = Hk::Solar::GetType(iDockTarget);
 			if (spaceObjType.has_error())
 			{
-				Console::ConWarn(Hk::Err::ErrGetText(spaceObjType.error()));
+				Console::ConWarn(wstos(Hk::Err::ErrGetText(spaceObjType.error())));
 			}
 			if (spaceObjType.value() == OBJ_JUMP_GATE)
 			{

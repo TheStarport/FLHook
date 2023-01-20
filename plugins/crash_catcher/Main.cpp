@@ -112,7 +112,7 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Exception in RequestBestPath p1={}", p1));
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in RequestBestPath p1={}", p1));
 		}
 	}
 
@@ -128,8 +128,8 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
-			Console::ConErr(L"Crash suppression in GetRoot(child=%08x)", child);
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
+			Console::ConErr(std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
 			return child;
 		}
 	}
@@ -169,7 +169,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"Cb_CrashProc6F8B330(arg1=%08x)", arg1);
+				Console::ConInfo(std::format("Cb_CrashProc6F8B330(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -201,7 +201,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"Cb_CrashProc6F78DD0(arg1=%08x,arg2=%08x)", arg1, arg2);
+				Console::ConInfo(std::format("Cb_CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
 			__asm {
             pushad
             push arg2
@@ -230,7 +230,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"Cb_CrashProc6F671A0(arg1=%08x)", arg1);
+				Console::ConInfo(std::format("Cb_CrashProc6F671A0(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -384,15 +384,15 @@ will_crash:
 		double seconds = Timing::seconds(ticks_delta);
 		if (seconds < 0 || seconds > 10.0)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			Console::ConErr(L"Time delta invalid seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
+			Console::ConErr(std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
 			ticks_delta = 1000000;
 			seconds = Timing::seconds(ticks_delta);
 		}
 		else if (seconds > 1.0)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Time lag detected seconds={:.2f} ticks_delta=%I64i", seconds, ticks_delta));
-			Console::ConErr(L"Time lag detected seconds=%f ticks_delta=%I64i", seconds, ticks_delta);
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
+			Console::ConErr(std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
 		}
 		return seconds;
 	}
@@ -432,7 +432,7 @@ will_crash:
 				if (global->hModContentAC)
 				{
 					if (FLHookConfig::i()->general.debugMode)
-						Console::ConInfo(L"Installing patches into content.dll");
+						Console::ConInfo("Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
 					{
@@ -552,7 +552,7 @@ will_crash:
 			if (global->hModContentAC)
 			{
 				if (FLHookConfig::i()->general.debugMode)
-					Console::ConInfo(L"Uninstalling patches from content.dll");
+					Console::ConInfo("Uninstalling patches from content.dll");
 
 				{
 					uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
@@ -608,7 +608,7 @@ using namespace Plugins::CrashCatcher;
 // Do things when the dll is loaded
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if (fdwReason == DLL_PROCESS_ATTACH && flhookReady)
+	if (fdwReason == DLL_PROCESS_ATTACH && CoreGlobals::c()->flhookReady)
 		Init();
 
 	if (fdwReason == DLL_PROCESS_DETACH)

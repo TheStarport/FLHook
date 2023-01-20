@@ -3,13 +3,13 @@
 #define RIGHT_CHECK(a)               \
 	if (!(this->rights & a))         \
 	{                                \
-		Print(L"ERR No permission"); \
+		Print("ERR No permission"); \
 		return;                      \
 	}
 #define RIGHT_CHECK_SUPERADMIN()             \
 	if (!(this->rights == RIGHT_SUPERADMIN)) \
 	{                                        \
-		Print(L"ERR No permission");         \
+		Print("ERR No permission");         \
 		return;                              \
 	}
 
@@ -26,7 +26,7 @@ void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"cash=%d\nOK\n", res.value());
+	Print(std::format("cash={}\nOK\n", res.value()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::w
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"Player banned");
+	Print("Player banned");
 	CmdKick(player, L"Player banned");
 }
 
@@ -104,7 +104,7 @@ void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ void CCmds::CmdGetClientID(const std::wstring& player)
 		return;
 	}
 
-	Print(L"clientid=%uOK\n", client);
+	Print(std::format("clientid={}\nOK\n", client.value()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std:
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,8 +181,8 @@ void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std:
 		return;
 	}
 
-	Print(L"feelings=%f", res.value());
-	Print(L"OK");
+	Print(std::format("feelings={}", res.value()));
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::ws
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ void CCmds::CmdMsgU(const std::wstring& text)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::w
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +255,7 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 	pub::GetSystemID(systemId, wstos(system).c_str());
 	if (!systemId)
 	{
-		Print(L"Invalid System");
+		Print("Invalid System");
 		return;
 	}
 
@@ -265,7 +265,7 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ void CCmds::CmdFMsgU(const std::wstring& xml)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,14 +296,14 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 		PrintError(cargo.error());	
 	}
 
-	Print(L"remainingholdsize=%d", holdSize);
+	Print(std::format("remainingholdsize={}", holdSize));
 	for (auto& item : cargo.value())
 	{
 		if (!item.bMounted)
-			Print(L"id=%u archid=%u count=%d mission=%u", item.iId, item.iArchId, item.iCount, item.bMission ? 1 : 0);
+			Print(std::format("id={} archid={} count={} mission={}", item.iId, item.iArchId, item.iCount, item.bMission ? 1 : 0));
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint 
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const st
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -348,7 +348,7 @@ void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std:
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -363,7 +363,7 @@ void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -381,10 +381,10 @@ void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 
 	for (const auto& line : res.value())
 	{
-		Print(L"%s", line.c_str());
+		Print(wstos(line));
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -399,17 +399,17 @@ void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, con
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::PrintPlayerInfo(PLAYERINFO& pi)
+void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(L"charname=%s clientid=%u ip=%s host=%s ping=%u base=%s system=%s", pi.character.c_str(), pi.client,
-	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
+	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}", pi.character, pi.client,
+	    pi.wscIP, pi.wscHostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase, pi.wscSystem)));
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -434,17 +434,17 @@ void CCmds::CmdGetPlayers()
 	for (auto& p : Hk::Admin::GetPlayers())
 		PrintPlayerInfo(p);
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::XPrintPlayerInfo(const PLAYERINFO& pi)
+void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(L"Name: %s, Id: %u, IP: %s, Host: %s, Ping: %u, Base: %s, System: %s\n", pi.character.c_str(), pi.client,
-	    pi.wscIP.c_str(), pi.wscHostname.c_str(), pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase.c_str(), pi.wscSystem.c_str());
+	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n", pi.character, pi.client,
+	    pi.wscIP, pi.wscHostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase, pi.wscSystem)));
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -468,7 +468,7 @@ void CCmds::CmdXGetPlayers()
 	for (auto& p : Hk::Admin::GetPlayers())
 		XPrintPlayerInfo(p);
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -477,23 +477,12 @@ void CCmds::CmdGetPlayerIds()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	wchar_t wszLine[128] = L"";
 	for (auto& p : Hk::Admin::GetPlayers())
 	{
-		wchar_t wszBuf[1024];
-		swprintf_s(wszBuf, L"%s = %u | ", p.character.c_str(), p.client);
-		if ((wcslen(wszBuf) + wcslen(wszLine)) >= sizeof(wszLine) / 2)
-		{
-			Print(L"%s", wszLine);
-			wcscpy_s(wszLine, wszBuf);
-		}
-		else
-			wcscat_s(wszLine, wszBuf);
+		Print(std::format("{} = {} | ", wstos(p.character), p.client));
 	}
 
-	if (wcslen(wszLine))
-		Print(L"%s", wszLine);
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -511,7 +500,7 @@ void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 
 	auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-	Print(L"dirname=%s\nOK", dir.c_str());
+	Print(std::format("dirname={}\nOK", wstos(dir)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -527,7 +516,7 @@ void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"filename=%s", res.value());
+	Print(std::format("filename={}", wstos(res.value())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,9 +534,9 @@ void CCmds::CmdIsOnServer(std::wstring player)
 
 	const auto id = Hk::Client::GetClientIdFromAccount(res.value());
 	if (id.has_error())
-		Print(L"onserver=noOK\n");
+		Print("onserver=noOK\n");
 	else
-		Print(L"onserver=yesOK\n");
+		Print("onserver=yesOK\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,10 +551,10 @@ void CCmds::CmdMoneyFixList()
 		ClientId client = playerDb->iOnlineId;
 
 		if (ClientInfo[client].lstMoneyFix.size())
-			Print(L"id=%u", client);
+			Print(std::format("id={}", client));
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -593,11 +582,11 @@ void CCmds::CmdServerInfo()
 	uint iMinutes = (iUptime / 60);
 	iUptime %= (60);
 	uint iSeconds = iUptime;
-	wchar_t wszUptime[16];
-	swprintf_s(wszUptime, L"%.1u:%.2u:%.2u:%.2u", iDays, iHours, iMinutes, iSeconds);
+	std::string time = std::format("{}:{}:{}:{}", iDays, iHours, iMinutes, iSeconds);
 
 	// print
-	Print(L"serverload=%d npcspawn=%s uptime=%sOK\n", g_iServerLoad, g_bNPCDisabled ? L"disabled" : L"enabled", wszUptime);
+	Print(std::format(
+	    "serverload={} npcspawn={} uptime={}OK\n", CoreGlobals::c()->serverLoadInMs, CoreGlobals::c()->disableNpcs ? "disabled" : "enabled", time));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -613,10 +602,10 @@ void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"groupsize=%d", res.value().size());
+	Print(std::format("groupsize={}", res.value().size()));
 	for (auto& m : res.value())
-		Print(L"id=%d charname=%s", m.client, m.character.c_str());
-	Print(L"OK");
+		Print(std::format("id={} charname={}", m.client, wstos(m.character)));
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -631,7 +620,7 @@ void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -647,8 +636,8 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"reservedslot=%sOK\n", res.value() ? L"yes" : L"no");
-	Print(L"OK");
+	Print(std::format("reservedslot={}OK\n", res.value() ? "yes" : "no"));
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -663,7 +652,7 @@ void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, i
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -678,7 +667,7 @@ void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const st
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -694,7 +683,7 @@ void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"rights=%s\nOK\n", res.value().c_str());
+	Print(std::format("rights={}\nOK\n", wstos(res.value())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -709,7 +698,7 @@ void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -719,7 +708,7 @@ void CCmds::CmdLoadPlugins()
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
 	PluginManager::i()->loadAll(false, this);
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -729,7 +718,7 @@ void CCmds::CmdLoadPlugin(const std::wstring& wscPlugin)
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
 	PluginManager::i()->load(wscPlugin, this, false);
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -739,9 +728,9 @@ void CCmds::CmdListPlugins()
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
 	for (const auto& data : PluginManager::ir())
-		Print(L"%s (%s) - %s", stows(data.name).c_str(), stows(data.shortName).c_str(), !data.paused ? L"running" : L"paused");
+		Print(std::format("{} ({}) - {}", data.name, data.shortName, !data.paused ? "running" : "paused"));
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -756,7 +745,7 @@ void CCmds::CmdUnloadPlugin(const std::wstring& wscPlugin)
 		return;
 	}
 
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -769,7 +758,7 @@ void CCmds::CmdRehash()
 	CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 
 	HookRehashed();
-	Print(L"OK");
+	Print("OK");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -789,7 +778,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 	if (target.has_error() || target.value().ship == 0)
 	{
-		Print(L"ERR Player not found or not in space");
+		Print("ERR Player not found or not in space");
 		return;
 	}
 
@@ -798,7 +787,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
-	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
+	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().wscSystem), pos.x, pos.y, pos.z));
 	return;
 }
 
@@ -829,7 +818,7 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 	catch (...)
 	{ // exeption, kick player
 		Hk::Player::Kick(player);
-		Print(L"ERR exception occured, player kicked");
+		Print("ERR exception occured, player kicked");
 	}
 }
 
@@ -850,7 +839,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 	if (target.has_error() || target.value().ship == 0)
 	{
-		Print(L"ERR Player not found or not in space");
+		Print("ERR Player not found or not in space");
 		return;
 	}
 
@@ -859,7 +848,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 400;
 
-	Print(L"Jump to system=%s x=%0.0f y=%0.0f z=%0.0f", target.value().wscSystem.c_str(), pos.x, pos.y, pos.z);
+	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", wstos(target.value().wscSystem), pos.x, pos.y, pos.z));
 	return;
 }
 
@@ -883,7 +872,7 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
-	Print(L"Moving to %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z);
+	Print(std::format("Moving to {:.2f} {:.2f} {:.2f}", pos.x, pos.y, pos.z));
 	Hk::Player::RelocateClient(res.value().client, pos, rot);
 	return;
 }
@@ -892,74 +881,7 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 
 void CCmds::CmdHelp()
 {
-	std::wstring wszHelpMsg = std::wstring(L"[version]\n") + VersionInformation +
-	    L"\n"
-	    L"[commands]\n"
-	    L"getcash <charname>\n"
-	    L"setcash <charname> <amount>\n"
-	    L"addcash <charname> <amount>\n"
-	    L"kick <charname> <reason>\n"
-	    L"ban <charname>\n"
-	    L"unban <charname>\n"
-	    L"beam <charname> <basename>\n"
-	    L"pull <charname>\n"
-	    L"chase <charname>\n"
-	    L"move <x> <y> <z>\n"
-	    L"kill <charname>\n"
-	    L"resetrep <charname>\n"
-	    L"setrep <charname> <repgroup> <value>\n"
-	    L"getrep <charname> <repgroup>\n"
-	    L"readcharfile <charname>\n"
-	    L"writecharfile <charname> <data>\n"
-	    L"enumcargo <charname>\n"
-	    L"addcargo <charname> <good> <count> <mission>\n"
-	    L"removecargo <charname> <id> <count>\n"
-	    L"rename <oldcharname> <newcharname>\n"
-	    L"deletechar <charname>\n"
-	    L"msg <charname> <text>\n"
-	    L"msgs <systemname> <text>\n"
-	    L"msgu <text>\n"
-	    L"fmsg <charname> <xmltext>\n"
-	    L"fmsgs <systemname> <xmltext>\n"
-	    L"fmsgu <xmltext>\n"
-	    L"enumcargo <charname>\n"
-	    L"addcargo <charname> <good> <count> <mission>\n"
-	    L"removecargo <charname> <id> <count>\n"
-	    L"getgroupmembers <charname>\n"
-	    L"getbasestatus <basename>\n"
-	    L"getclientid <charname>\n"
-	    L"getplayerinfo <charname>\n"
-	    L"getplayers\n"
-	    L"xgetplayerinfo <charname>\n"
-	    L"xgetplayers\n"
-	    L"getplayerids\n"
-	    L"help\n"
-	    L"getaccountdirname <charname>\n"
-	    L"getcharfilename <charname>\n"
-	    L"isonserver <charname>\n"
-	    L"serverinfo\n"
-	    L"moneyfixlist\n"
-	    L"savechar <charname>\n"
-	    L"setadmin <charname> <rights>\n"
-	    L"getadmin <charname>\n"
-	    L"deladmin <charname>\n"
-	    L"getreservedslot <charname>\n"
-	    L"setreservedslot <charname> <value>\n"
-	    L"loadplugins\n"
-	    L"loadplugin <plugin filename>\n"
-	    L"listplugins\n"
-	    L"unloadplugin <plugin shortname>\n"
-	    L"pauseplugin <plugin shortname>\n"
-	    L"unpauseplugin <plugin shortname>\n"
-	    L"rehash\n";
-
-	CallPluginsBefore(HookedCall::FLHook__AdminCommand__Help, this);
-
-	Print(L"%s", wszHelpMsg.c_str());
-
-	CallPluginsAfter(HookedCall::FLHook__AdminCommand__Help, this);
-
-	Print(L"OK");
+	// TODO: Reimplement
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1095,9 +1017,9 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 	try
 	{
 		if (bSocket)
-			AddLog(LogType::SocketCmds, LogLevel::Info, fmt::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
+			AddLog(LogType::SocketCmds, LogLevel::Info, std::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
 
-		AddLog(LogType::AdminCmds, LogLevel::Info, fmt::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
+		AddLog(LogType::AdminCmds, LogLevel::Info, std::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
 
 		bId = false;
 		bShortCut = false;
@@ -1108,7 +1030,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 		std::wstring wscCmd = ToLower(GetParam(wscCmdStr, ' ', 0));
 		if (wscCmd.length() == 0)
 		{
-			Print(L"ERR unknown command");
+			Print("ERR unknown command");
 			return;
 		}
 
@@ -1349,7 +1271,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			}
 			else
 			{
-				Print(L"ERR unknown command");
+				Print("ERR unknown command");
 			}
 		}
 		if (bSocket)
@@ -1366,7 +1288,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 		if (bSocket)
 			AddLog(LogType::SocketCmds, LogLevel::Info, "exception");
 		AddLog(LogType::AdminCmds, LogLevel::Info, "exception");
-		Print(L"ERR exception occured");
+		Print("ERR exception occured");
 	}
 }
 
@@ -1412,18 +1334,12 @@ void CCmds::SetRightsByString(const std::string& scRights)
 
 void CCmds::PrintError(Error err)
 {
-	Print(L"ERR %s", Hk::Err::ErrGetText(err).c_str());
+	Print(std::format("ERR: {}", wstos(Hk::Err::ErrGetText(err))));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::Print(std::wstring text, ...)
+void CCmds::Print(const std::string& text)
 {
-	wchar_t wszBuf[1024 * 8] = L"";
-	va_list marker;
-	va_start(marker, text);
-
-	_vsnwprintf_s(wszBuf, sizeof wszBuf / 2 - 1, text.c_str(), marker);
-
-	DoPrint(wszBuf);
+	DoPrint(text);
 }

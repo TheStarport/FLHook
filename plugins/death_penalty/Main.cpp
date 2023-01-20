@@ -48,7 +48,10 @@ namespace Plugins::DeathPenalty
 			global->FractionOverridesByShipIds[CreateID(shipNickname.c_str())] = penaltyFraction;
 	}
 
-	void ClearClientInfo(ClientId& client) { global->MapClients.erase(client); }
+	void ClearClientInfo(ClientId& client)
+	{
+		global->MapClients.erase(client);
+	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Is the player is a system that is excluded from death penalty?
@@ -61,7 +64,6 @@ namespace Plugins::DeathPenalty
 		return std::ranges::find(global->ExcludedSystemsIds, iSystemId) != global->ExcludedSystemsIds.end();
 	}
 
-	
 	/** @ingroup DeathPenalty
 	 * @brief This returns the override for the specific ship as defined in the json file.
 	 * If there is not override it returns the default value defined as
@@ -85,7 +87,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
 	 */
-	void __stdcall PlayerLaunch([[maybe_unused]]const uint& ship, ClientId& client)
+	void __stdcall PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		// No point in processing anything if there is no death penalty
 		if (global->config->DeathPenaltyFraction > 0.00001f)
@@ -98,14 +100,14 @@ namespace Plugins::DeathPenalty
 				auto shipValue = Hk::Player::GetShipValue(client);
 				if (shipValue.has_error())
 				{
-					Console::ConWarn(L"Unable to get ship value of undocking player: %s", Hk::Err::ErrGetText(shipValue.error()));
+					Console::ConWarn(std::format("Unable to get ship value of undocking player: {}", wstos(Hk::Err::ErrGetText(shipValue.error()))));
 					return;
 				}
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
 				{
-					Console::ConWarn(L"Unable to get cash of undocking player: %s", Hk::Err::ErrGetText(cash.error()));
+					Console::ConWarn(std::format("Unable to get cash of undocking player: {}", wstos(Hk::Err::ErrGetText(cash.error()))));
 					return;
 				}
 
@@ -118,8 +120,9 @@ namespace Plugins::DeathPenalty
 
 				// Should we print a death penalty notice?
 				if (global->MapClients[client].bDisplayDPOnLaunch)
-					PrintUserCmdText(client, L"Notice: the death penalty for your ship will be " + ToMoneyStr(global->MapClients[client].DeathPenaltyCredits) +
-					        L" credits.  Type /dp for more information.");
+					PrintUserCmdText(client,
+					    std::format(L"Notice: the death penalty for your ship will be {} credits. Type /dp for more information.",
+					        ToMoneyStr(global->MapClients[client].DeathPenaltyCredits)));
 			}
 			else
 				global->MapClients[client].DeathPenaltyCredits = 0;
@@ -134,7 +137,7 @@ namespace Plugins::DeathPenalty
 		// Get Account directory then flhookuser.ini file
 		const CAccount* acc = Players.FindAccountFromClientID(client);
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
-		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
 		const auto wscFilename = Hk::Client::GetCharFileName(client);
@@ -162,7 +165,7 @@ namespace Plugins::DeathPenalty
 			const auto cash = Hk::Player::GetCash(client);
 			if (cash.has_error())
 			{
-				Console::ConWarn(L"Unable to get cash from client.");
+				Console::ConWarn("Unable to get cash from client.");
 				return;
 			}
 
@@ -182,8 +185,8 @@ namespace Plugins::DeathPenalty
 				{
 					// Reward the killer, print message to them
 					Hk::Player::AddCash(iKillerId, killerReward);
-					PrintUserCmdText(iKillerId, L"Death penalty: given " + ToMoneyStr(killerReward) + L" credits from %s's death penalty.",
-					    Players.GetActiveCharacterName(client));
+					PrintUserCmdText(iKillerId,
+					    std::format(L"Death penalty: given {} credits from {}'s death penalty.", ToMoneyStr(killerReward), Hk::Client::GetCharacterNameByID(client).value()));
 				}
 			}
 
@@ -213,7 +216,7 @@ namespace Plugins::DeathPenalty
 			{
 				const DamageList* dmg = *_dmg;
 				const auto inflictor = dmg->get_cause() == DamageCause::Unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
-				                                                     : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
+				                                                                : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
 				if (inflictor.has_value())
 				{
 					killerId = inflictor.value();
@@ -233,7 +236,7 @@ namespace Plugins::DeathPenalty
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
-			std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+			std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 			std::string scSection = "general_" + wstos(file.value());
 			IniWrite(scUserFile, scSection, "DPnotice", value);
 		}
@@ -247,7 +250,7 @@ namespace Plugins::DeathPenalty
 		// If there is no death penalty, no point in having death penalty commands
 		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)
 		{
-			Console::ConWarn(L"DP Plugin active, but no/too low death penalty fraction is set.");
+			Console::ConWarn("DP Plugin active, but no/too low death penalty fraction is set.");
 			return;
 		}
 
@@ -285,7 +288,7 @@ namespace Plugins::DeathPenalty
 				auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
 				uint playerCash = Hk::Player::GetCash(client).value();
 
-				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(min(cashOwed,playerCash)) + L" credits.");
+				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(min(cashOwed, playerCash)) + L" credits.");
 				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");
@@ -311,8 +314,8 @@ REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionK
 
 DefaultDllMainSettings(LoadSettings)
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Death Penalty");
 	pi->shortName("death_penalty");

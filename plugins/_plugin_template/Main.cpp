@@ -55,17 +55,17 @@ namespace Plugins::Template
 	{
 		if (cmds->ArgStrToEnd(1).length() == 0)
 		{
-			cmds->Print(L"ERR Usage: template <number>");
+			cmds->Print("ERR Usage: template <number>");
 			return;
 		}
 
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
-		cmds->Print(L"Template is %0.0f", number);
+		cmds->Print("Template is %0.0f", number);
 		return;
 	}
 
@@ -73,7 +73,7 @@ namespace Plugins::Template
 	// This is called when an admin does .help
 	void CmdHelp(CCmds* command)
 	{
-		command->Print(L"template <number>");
+		command->Print("template <number>");
 	}
 
 	// Admin command callback. Compare the chat entry to see if it match a command

@@ -45,10 +45,10 @@ namespace Plugins::KillCounter
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(client, L"NPC kills:  %s %i", Hk::Message::GetWStringFromIdS(ship->iIdsName).c_str(), count);
+				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Message::GetWStringFromIdS(ship->iIdsName), count));
 			}
 		}
-		PrintUserCmdText(client, L"Total kills: %i", numKills);
+		PrintUserCmdText(client, std::format(L"Total kills: {}", numKills));
 	}
 
 	/** @ingroup KillCounter
@@ -75,14 +75,14 @@ namespace Plugins::KillCounter
 		}
 
 		int numKills = Hk::Player::GetPvpKills(client).value();
-		PrintUserCmdText(client, L"PvP kills: %i", numKills);
+		PrintUserCmdText(client, std::format(L"PvP kills: {}", numKills));
 		if (global->config->enableNPCKillOutput)
 		{
 			std::wstring printCharname = Hk::Client::GetCharacterNameByID(clientId).value();
 			PrintNPCKills(client, printCharname, numKills);
 		}
 		int rank = Hk::Player::GetRank(client).value();
-		PrintUserCmdText(client, L"Level: %i", rank);
+		PrintUserCmdText(client, std::format(L"Level: {}", rank));
 
 	}
 

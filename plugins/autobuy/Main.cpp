@@ -217,10 +217,10 @@ namespace Plugins::Autobuy
 		}
 
 		// search base in base-info list
-		BASE_INFO const* bi = nullptr;
+		BaseInfo const* bi = nullptr;
 
-		if (auto foundBase = std::ranges::find_if(lstBases, [baseId](const BASE_INFO& base) { return base.baseId == baseId; }); 
-			foundBase != lstBases.end())
+		if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; }); 
+			foundBase != CoreGlobals::c()->allBases.end())
 		{
 			bi = std::to_address(foundBase);
 		}
@@ -276,7 +276,7 @@ namespace Plugins::Autobuy
 				auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->fVolume);
 				if (!newCount)
 				{
-					PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Cargo Space", buy.description.c_str());
+					PrintUserCmdText(client, std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", buy.description));
 					continue;
 				}
 				else
@@ -284,7 +284,7 @@ namespace Plugins::Autobuy
 			}
 
 			if (uint uCost = (static_cast<uint>(goodPrice.value()) * buy.count); cash < uCost)
-				PrintUserCmdText(client, L"Auto-Buy(%s): FAILED! Insufficient Credits", buy.description.c_str());
+				PrintUserCmdText(client, std::format(L"Auto-Buy({}): FAILED! Insufficient Credits", buy.description));
 			else
 			{
 				Hk::Player::RemoveCash(client, uCost);
@@ -294,7 +294,7 @@ namespace Plugins::Autobuy
 				// assume we only mount multicount goods (missiles, ammo, bots
 				Hk::Player::AddCargo(client, buy.archId, buy.count, false);
 
-				PrintUserCmdText(client, L"Auto-Buy(%s): Bought %u unit(s), cost: %s$", buy.description.c_str(), buy.count, ToMoneyStr(uCost).c_str());
+				PrintUserCmdText(client, std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", buy.description, buy.count, ToMoneyStr(uCost)));
 			}
 
 		}
@@ -331,12 +331,12 @@ namespace Plugins::Autobuy
 		
 	if (autobuyType == L"info")
 		{
-			PrintUserCmdText(client, L"Missiles: %s", autobuyInfo.missiles ? L"On" : L"Off");
-			PrintUserCmdText(client, L"Mines: %s", autobuyInfo.mines ? L"On" : L"Off");
-			PrintUserCmdText(client, L"Torpedos: %s", autobuyInfo.torps ? L"On" : L"Off");
-			PrintUserCmdText(client, L"Cruise Disruptors: %s", autobuyInfo.cd ? L"On" : L"Off");
-			PrintUserCmdText(client, L"Countermeasures: %s", autobuyInfo.cm ? L"On" : L"Off");
-			PrintUserCmdText(client, L"Nanobots/Shield Batteries: %s", autobuyInfo.repairs ? L"On" : L"Off");
+			PrintUserCmdText(client, std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.repairs ? L"On" : L"Off"));
 			return;
 		}
 
@@ -423,7 +423,7 @@ using namespace Plugins::Autobuy;
 
 REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

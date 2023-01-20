@@ -86,7 +86,7 @@ void WriteMiniDump(SEHException* ex)
 				}
 				::CloseHandle(hFile);
 
-				AddLog(LogType::Normal, LogLevel::Err, fmt::format("Minidump '{}' written.", szDumpPath));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("Minidump '{}' written.", szDumpPath));
 			}
 		}
 	}
@@ -124,7 +124,7 @@ void AddExceptionInfoLog(SEHException* ex)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, szModName, sizeof(szModName));
 			}
-			AddLog(LogType::Normal, LogLevel::Debug, fmt::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -154,7 +154,7 @@ void AddExceptionInfoLog(SEHException* ex)
 				}
 				AddLog(LogType::Normal,
 				    LogLevel::Debug,
-				    fmt::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", szName, szMessage, iOffset, strrchr(szModName, '\\') + 1));
+				    std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", szName, szMessage, iOffset, strrchr(szModName, '\\') + 1));
 			}
 
 			void* callers[62];
@@ -168,7 +168,7 @@ void AddExceptionInfoLog(SEHException* ex)
 		{
 			AddLog(LogType::Normal,
 			    LogLevel::Debug,
-			    fmt::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
+			    std::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
 			        reg->Eax,
 			        reg->Ebx,
 			        reg->Ecx,

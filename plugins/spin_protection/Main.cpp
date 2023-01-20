@@ -44,7 +44,7 @@ namespace Plugins::SpinProtection
 		auto motion = Hk::Solar::GetMotion(ci.iColliderObjectId);
 		if (motion.has_error())
 		{
-			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
+			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
 		}
 		auto [V1, V2] = motion.value();
 		V1.x *= global->config->spinImpulseMultiplier * clientMass;

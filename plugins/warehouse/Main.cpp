@@ -157,7 +157,7 @@ namespace Plugins::Warehouse
 		const auto itemArch = Archetype::GetEquipment(warehouseItem.equipArchId);
 		if (!itemArch)
 		{
-			Console::ConWarn(L"User tried to withdraw an item that no longer exists");
+			Console::ConWarn("User tried to withdraw an item that no longer exists");
 			PrintUserCmdText(client, L"Internal server error. Item does not exist.");
 			return;
 		}

@@ -5,8 +5,8 @@
     <DistDir>$(SolutionDir)..\dist\$(Configuration)\</DistDir>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)..\FLHookSDK\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\FLHookSDK\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\FLHookSDK\include;$(SolutionDir)..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\FLHookSDK\lib;$(SolutionDir)..\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\int\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>

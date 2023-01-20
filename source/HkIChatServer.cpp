@@ -82,16 +82,16 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 			std::wstring traDataFormat = formatBuf;
 			std::wstring traDataColor;
 			std::wstring traDataSenderColor = L"FFFFFF";
-			if (g_bMsg)
+			if (CoreGlobals::c()->messagePrivate)
 			{
 				traDataColor = L"19BD3A"; // pm chat color
 			}
-			else if (g_bMsgS)
+			else if (CoreGlobals::c()->messageSystem)
 			{
 				traDataSenderColor = L"00FF00";
 				traDataColor = L"E6C684"; // system chat color
 			}
-			else if (g_bMsgU)
+			else if (CoreGlobals::c()->messageUniverse)
 			{
 				traDataSenderColor = L"00FF00";
 				traDataColor = L"FFFFFF"; // universe chat color
@@ -119,6 +119,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 		else
 		{
 			uint sz = size;
+			auto sendChatMsg = CoreGlobals::c()->RCSendChatMsg;
 			__asm {
                 pushad
                 push [rdl]
@@ -127,7 +128,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
                 push [client]
                 mov ecx, [Client]
                 add ecx, 4
-                call [RCSendChatMsg]
+                call [sendChatMsg]
                 popad
 			}
 		}

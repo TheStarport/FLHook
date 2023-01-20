@@ -66,7 +66,7 @@ namespace Plugins::BountyHunt
 			PrintUserCmdText(client, L"Offered Bounty Hunts:");
 			for (auto const& [targetId, initiatorId, target, initiator, cash, end] : global->bountyHunt)
 			{
-				PrintUserCmdText(client, L"Kill %s and earn %u credits (%u minutes left)", target.c_str(), cash, ((end - GetTimeInMS()) / 60000));
+				PrintUserCmdText(client, std::format(L"Kill {} and earn {} credits ({} minutes left)", target, cash, ((end - GetTimeInMS()) / 60000)));
 			}
 		}
 	}
@@ -97,7 +97,7 @@ namespace Plugins::BountyHunt
 
 		if (targetId == -1 || Hk::Client::IsInCharSelectMenu(targetId.value()))
 		{
-			PrintUserCmdText(client, L"%s is not online.", target.c_str());
+			PrintUserCmdText(client, std::format(L"{} is not online.", target));
 			return;
 		}
 
@@ -193,7 +193,7 @@ namespace Plugins::BountyHunt
 			{
 				if (const auto cashError = Hk::Player::AddCash(bounty->target, bounty->cash); cashError.has_error())
 				{
-					Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
+					Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
 
@@ -226,7 +226,7 @@ namespace Plugins::BountyHunt
 				{
 					if (const auto cashError = Hk::Player::AddCash(winnerCharacterName, bounty.cash); cashError.has_error())
 					{
-						Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
+						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
 					const auto _ = Hk::Message::MsgU(
@@ -236,7 +236,7 @@ namespace Plugins::BountyHunt
 				{
 					if (const auto cashError = Hk::Player::AddCash(bounty.initiator, bounty.cash); cashError.has_error())
 					{
-						Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
+						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
 				}
@@ -271,7 +271,7 @@ namespace Plugins::BountyHunt
 			{
 				if (const auto cashError = Hk::Player::AddCash(it.initiator, it.cash); cashError.has_error())
 				{
-					Console::ConWarn(Hk::Err::ErrGetText(cashError.error()));
+					Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
 				const auto _ = Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");

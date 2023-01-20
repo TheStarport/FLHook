@@ -31,7 +31,7 @@ extern FARPROC g_OldGuidedHit;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PATCH_INFO piFLServerEXE = { "flserver.exe",
+PatchInfo piFLServerEXE = { "flserver.exe",
 	                         0x0400000,
 	                         {
 	                             { 0x041B094, &IEngineHook::UpdateTime, 4, 0, false },
@@ -40,7 +40,7 @@ PATCH_INFO piFLServerEXE = { "flserver.exe",
 	                             { 0, 0, 0, 0 } // terminate
 	                         } };
 
-PATCH_INFO piContentDLL = { "content.dll",
+PatchInfo piContentDLL = { "content.dll",
 	                        0x6EA0000,
 	                        {
 	                            { 0x6FB358C, &IEngineHook::DockCall, 4, 0, false },
@@ -48,7 +48,7 @@ PATCH_INFO piContentDLL = { "content.dll",
 	                            { 0, 0, 0, 0 } // terminate
 	                        } };
 
-PATCH_INFO piCommonDLL = { "common.dll",
+PatchInfo piCommonDLL = { "common.dll",
 	                       0x6260000,
 	                       {
 
@@ -59,7 +59,7 @@ PATCH_INFO piCommonDLL = { "common.dll",
 	                           { 0, 0, 0, 0 } // terminate
 	                       } };
 
-PATCH_INFO piServerDLL = { "server.dll",
+PatchInfo piServerDLL = { "server.dll",
 	                       0x6CE0000,
 	                       {
 	                           { 0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false },
@@ -81,15 +81,15 @@ PATCH_INFO piServerDLL = { "server.dll",
 	                           { 0, 0, 0, 0 } // terminate
 	                       } };
 
-PATCH_INFO piRemoteClientDLL = { "remoteclient.dll",
+PatchInfo piRemoteClientDLL = { "remoteclient.dll",
 	                             0x6B30000,
 	                             {
-	                                 { 0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false },
+	                                 { 0x6B6BB80, &SendChat, 4, &(CoreGlobals::i()->RCSendChatMsg), false },
 
 	                                 { 0, 0, 0, 0 } // terminate
 	                             } };
 
-PATCH_INFO piDaLibDLL = { "dalib.dll",
+PatchInfo piDaLibDLL = { "dalib.dll",
 	                      0x65C0000,
 	                      {
 	                          { 0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false },
@@ -99,13 +99,13 @@ PATCH_INFO piDaLibDLL = { "dalib.dll",
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Patch(PATCH_INFO& pi)
+bool Patch(PatchInfo& pi)
 {
 	HMODULE hMod = GetModuleHandle(pi.szBinName);
 	if (!hMod)
 		return false;
 
-	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PATCH_INFO_ENTRY)); i++)
+	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
 	{
 		if (!pi.piEntries[i].pAddress)
 			break;
@@ -128,13 +128,13 @@ bool Patch(PATCH_INFO& pi)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RestorePatch(PATCH_INFO& pi)
+bool RestorePatch(PatchInfo& pi)
 {
 	HMODULE hMod = GetModuleHandle(pi.szBinName);
 	if (!hMod)
 		return false;
 
-	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PATCH_INFO_ENTRY)); i++)
+	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
 	{
 		if (!pi.piEntries[i].pAddress)
 			break;
@@ -150,30 +150,7 @@ bool RestorePatch(PATCH_INFO& pi)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CDPClientProxy** g_cClientProxyArray;
-
-CDPServer* cdpSrv;
-
-IClientImpl* FakeClient;
-IClientImpl* HookClient;
-char* OldClient;
-
-_CRCAntiCheat CRCAntiCheat;
-_CreateChar CreateChar;
-
-std::string scAcctPath;
-
 std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
-
-uint g_iServerLoad = 0;
-uint g_iPlayerCount = 0;
-
-char* g_FLServerDataPtr;
-
-_GetShipInspect GetShipInspect;
-
-std::list<BASE_INFO> lstBases;
-
 char szRepFreeFixOld[5];
 
 /**************************************************************************************************************
@@ -234,11 +211,11 @@ load settings from flhookhuser.ini
 
 void LoadUserSettings(ClientId client)
 {
-	auto* info = &ClientInfo[client];
+	auto info = &ClientInfo[client];
 
-	CAccount* acc = Players.FindAccountFromClientID(client);
+	CAccount const* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+	std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
 	info->dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
@@ -284,7 +261,7 @@ bool InitHookExports()
 	DWORD dwParam[34]; // else release version crashes, dont ask me why...
 	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
 
-	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
+	CoreGlobals::i()->GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
 	// install IServerImpl callbacks in remoteclient.dll
 	auto* pServer = reinterpret_cast<char*>(&Server);
@@ -333,15 +310,16 @@ bool InitHookExports()
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
 	// crc anti-cheat
-	CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
+	auto globals = CoreGlobals::i();
+	globals->CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
 
 	// get CDPServer
 	pAddress = DALIB_ADDR(ADDR_CDPSERVER);
-	ReadProcMem(pAddress, &cdpSrv, 4);
+	ReadProcMem(pAddress, &globals->cdpSrv, 4);
 
 	// read g_FLServerDataPtr(used for serverload calc)
 	pAddress = FLSERVER_ADDR(ADDR_DATAPTR);
-	ReadProcMem(pAddress, &g_FLServerDataPtr, 4);
+	ReadProcMem(pAddress, &globals->g_FLServerDataPtr, 4);
 
 	// some setting relate hooks
 	HookRehashed();
@@ -351,12 +329,12 @@ bool InitHookExports()
 	char* szTemp;
 	ReadProcMem(pAddress, &szTemp, 4);
 	szTemp += 0x10;
-	memcpy(&g_cClientProxyArray, &szTemp, 4);
+	memcpy(&globals->clientProxyArray, &szTemp, 4);
 
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	globals->accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
 	// Load DLLs for strings
 	Hk::Message::LoadStringDLLs();
@@ -374,12 +352,12 @@ bool InitHookExports()
 void PatchClientImpl()
 {
 	// install IClientImpl callback
+	auto globals = CoreGlobals::i();
+	globals->FakeClient = new IClientImpl;
+	globals->HookClient = &Client;
 
-	FakeClient = new IClientImpl;
-	HookClient = &Client;
-
-	memcpy(&OldClient, &Client, 4);
-	WriteProcMem(&Client, FakeClient, 4);
+	memcpy(&globals->OldClient, &Client, 4);
+	WriteProcMem(&Client, globals->FakeClient, 4);
 }
 
 /**************************************************************************************************************
@@ -431,9 +409,6 @@ void UnloadHookExports()
 
 	// plugins
 	PluginManager::i()->unloadAll();
-
-	// help
-	lstHelpEntries.clear();
 }
 
 /**************************************************************************************************************

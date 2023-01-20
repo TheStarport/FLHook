@@ -289,7 +289,7 @@ void FLHookInit_Pre()
 	}
 	catch (char* szError)
 	{
-		Console::ConErr(L"CRITICAL! %s\n", stows(szError).c_str());
+		Console::ConErr(std::format("CRITICAL! {}\n", szError));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -340,7 +340,7 @@ bool FLHookInit()
 				if (listen(sListen, SOMAXCONN) != 0)
 					throw "ascii: socket-listen failed";
 
-				Console::ConInfo(L"socket(ascii): socket connection listening");
+				Console::ConInfo("socket(ascii): socket connection listening");
 			}
 
 			if (config->socket.wPort > 0)
@@ -357,7 +357,7 @@ bool FLHookInit()
 				if (listen(sWListen, SOMAXCONN) != 0)
 					throw "unicode: socket-listen failed";
 
-				Console::ConInfo(L"socket(unicode): socket connection listening");
+				Console::ConInfo("socket(unicode): socket connection listening");
 			}
 
 			if (config->socket.ePort > 0)
@@ -373,7 +373,7 @@ bool FLHookInit()
 				if (listen(sEListen, SOMAXCONN) != 0)
 					throw "encrypted: socket-listen failed";
 
-				Console::ConInfo(L"socket(encrypted-ascii): socket connection listening");
+				Console::ConInfo("socket(encrypted-ascii): socket connection listening");
 			}
 
 			if (config->socket.eWPort > 0)
@@ -390,7 +390,7 @@ bool FLHookInit()
 				if (listen(sEWListen, SOMAXCONN) != 0)
 					throw "encrypted-unicode: socket-listen failed";
 
-				Console::ConInfo(L"socket(encrypted-unicode): socket connection listening");
+				Console::ConInfo("socket(encrypted-unicode): socket connection listening");
 			}
 		}
 	}
@@ -423,7 +423,7 @@ bool FLHookInit()
 			sEWListen = INVALID_SOCKET;
 		}
 
-		Console::ConErr(stows(szError));
+		Console::ConErr(szError);
 		return false;
 	}
 	return true;
@@ -518,8 +518,8 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 {
 	if (!ToLower(wscCmd).find(L"quit"))
 	{ // quit connection
-		sc->csock.DoPrint(L"Goodbye.\r");
-		Console::ConInfo(L"socket: connection closed");
+		sc->csock.DoPrint("Goodbye.\r");
+		Console::ConInfo("socket: connection closed");
 		return true;
 	}
 	else if (!(sc->csock.bAuthed))
@@ -528,16 +528,16 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 		const auto passFind = wscLwr.find(L"pass");
 		if (passFind == std::wstring::npos)
 		{
-			sc->csock.Print(L"ERR Please authenticate first");
+			sc->csock.Print("ERR Please authenticate first");
 			return false;
 		}
 
 		if (wscCmd.length() >= 256)
 		{
-			sc->csock.DoPrint(L"ERR Wrong password");
-			sc->csock.DoPrint(L"Goodbye.\r");
-			Console::ConInfo(L"socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal, LogLevel::Info, fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP, sc->csock.iPort));
+			sc->csock.DoPrint("ERR Wrong password");
+			sc->csock.DoPrint("Goodbye.\r");
+			Console::ConInfo("socket: connection closed (invalid pass)");
+			AddLog(LogType::Normal, LogLevel::Info, std::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP, sc->csock.iPort));
 			return true;
 		}
 
@@ -549,19 +549,19 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 		const auto auth = config->socket.passRightsMap.find(pass);
 		if (auth == config->socket.passRightsMap.end())
 		{
-			sc->csock.DoPrint(L"ERR Wrong password");
-			sc->csock.DoPrint(L"Goodbye.\r");
-			Console::ConInfo(L"socket: connection closed (invalid pass)");
+			sc->csock.DoPrint("ERR Wrong password");
+			sc->csock.DoPrint("Goodbye.\r");
+			Console::ConInfo("socket: connection closed (invalid pass)");
 			AddLog(LogType::Normal,
 			    LogLevel::Info,
-			    fmt::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
+			    std::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
 			return true;
 		}
 
 		sc->csock.bAuthed = true;
 		sc->csock.SetRightsByString(auth->second);
-		sc->csock.Print(L"OK");
-		Console::ConInfo(L"socket: socket authentication successful");
+		sc->csock.Print("OK");
+		Console::ConInfo("socket: socket authentication successful");
 		return false;
 	}
 	else
@@ -570,12 +570,12 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 		{
 			if (sc->csock.rights & RIGHT_EVENTMODE)
 			{
-				sc->csock.Print(L"OK");
+				sc->csock.Print("OK");
 				sc->csock.bEventMode = true;
 			}
 			else
 			{
-				sc->csock.Print(L"ERR No permission");
+				sc->csock.Print("ERR No permission");
 			}
 		}
 		else
@@ -603,7 +603,7 @@ void ProcessEvent(std::wstring text, ...)
 	for (auto& socket : lstSockets)
 	{
 		if (socket->csock.bEventMode)
-			socket->csock.Print(L"%s", text.c_str());
+			socket->csock.Print(wstos(text));
 	}
 }
 
@@ -652,8 +652,8 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = false;
 				sc->wscPending = L"";
 				lstSockets.push_back(sc);
-				Console::ConInfo(L"socket(ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-				sc->csock.Print(L"Welcome to FLHook, please authenticate");
+				Console::ConInfo(std::format("socket(ascii): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
+				sc->csock.Print("Welcome to FLHook, please authenticate");
 			}
 		}
 
@@ -678,8 +678,8 @@ void ProcessPendingCommands()
 				sc->wscPending = L"";
 				sc->csock.bEncrypted = false;
 				lstSockets.push_back(sc);
-				Console::ConInfo(L"socket(unicode): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-				sc->csock.Print(L"Welcome to FLHack, please authenticate");
+				Console::ConInfo(std::format("socket(unicode): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
+				sc->csock.Print("Welcome to FLHack, please authenticate");
 			}
 		}
 
@@ -705,8 +705,8 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = true;
 				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
-				Console::ConInfo(L"socket(encrypted-ascii): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-				sc->csock.Print(L"Welcome to FLHack, please authenticate");
+				Console::ConInfo(std::format("socket(encrypted-ascii): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
+				sc->csock.Print("Welcome to FLHack, please authenticate");
 			}
 		}
 
@@ -732,8 +732,8 @@ void ProcessPendingCommands()
 				sc->csock.bEncrypted = true;
 				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
 				lstSockets.push_back(sc);
-				Console::ConInfo(L"socket(encrypted-unicode): new socket connection from %s:%d", stows(sc->csock.sIP).c_str(), sc->csock.iPort);
-				sc->csock.Print(L"Welcome to FLHack, please authenticate");
+				Console::ConInfo(std::format("socket(encrypted-unicode): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
+				sc->csock.Print("Welcome to FLHack, please authenticate");
 			}
 		}
 
@@ -752,7 +752,7 @@ void ProcessPendingCommands()
 				memset(szData, 0, lSize + 1);
 				if (recv(sc->csock.s, szData, lSize, 0) <= 0)
 				{
-					Console::ConInfo(L"socket: socket connection closed");
+					Console::ConInfo("socket: socket connection closed");
 					delete[] szData;
 					lstDelete.push_back(sc);
 					continue;
@@ -780,10 +780,10 @@ void ProcessPendingCommands()
 					iMaxKB = 500;
 				if (wscData.length() > (1024 * iMaxKB))
 				{
-					Console::ConWarn(L"socket: socket connection closed (possible ddos attempt)");
+					Console::ConWarn("socket: socket connection closed (possible ddos attempt)");
 					AddLog(LogType::Normal,
 					    LogLevel::Info,
-					    fmt::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
+					    std::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
 					delete[] szData;
 					lstDelete.push_back(sc);
 					continue;

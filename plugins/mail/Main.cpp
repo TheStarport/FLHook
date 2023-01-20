@@ -75,7 +75,7 @@ namespace Plugins::Mail
 			IniWrite(scFilePath, "MsgsRead", std::to_string(iMsgSlot), "yes");
 			iLastMsg = iMsgSlot;
 		}
-		PrintUserCmdText(client.value(), L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
+		PrintUserCmdText(client.value(), std::format(L"Viewing #%02d-#%02d of %02d messages", iFirstMsg, iLastMsg, MailCount(wscCharname, scExtension));
 	}
 
 	/** @ingroup Mail
@@ -118,7 +118,7 @@ namespace Plugins::Mail
 		int iUnreadMsgs = MailCountUnread(wscCharname, scExtension);
 		if (iUnreadMsgs > 0)
 		{
-			PrintUserCmdText(client.value(), L"You have %d unread messages. Type /mail to see your messages", iUnreadMsgs);
+			PrintUserCmdText(client.value(), std::format(L"You have {} unread messages. Type /mail to see your messages", iUnreadMsgs));
 		}
 	}
 
@@ -216,9 +216,9 @@ namespace Plugins::Mail
 		if (iFirstMsg == 0)
 		{
 			if (iNumberUnreadMsgs > 0)
-				PrintUserCmdText(client, L"OK You have %d unread messages", iNumberUnreadMsgs);
+				PrintUserCmdText(client, std::format(L"OK You have {} unread messages", iNumberUnreadMsgs));
 			else
-				PrintUserCmdText(client, L"OK You have %d messages", iNumberMsgs);
+				PrintUserCmdText(client, std::format(L"OK You have {} messages", iNumberMsgs));
 			PrintUserCmdText(client,
 			    L"Type /mail 1 to see first message or /mail "
 			    L"<num> to see specified message");
@@ -272,7 +272,7 @@ namespace Plugins::Mail
 	void AdminCmd_SendMail(CCmds* cmds, const std::wstring& wscCharname, const std::wstring& wscMsg)
 	{
 		MailSend(wscCharname, global->MSG_LOG, cmds->GetAdminName() + L": " + wscMsg);
-		cmds->Print(L"OK message saved to mailbox");
+		cmds->Print("OK message saved to mailbox");
 	}
 
 	/** @ingroup Mail

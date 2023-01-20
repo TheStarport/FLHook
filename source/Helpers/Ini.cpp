@@ -48,7 +48,7 @@ namespace Hk::Ini
 		{
 			ClientId client = CurrPlayer->iOnlineId;
 
-			std::string path = scAcctPath + GetAccountDir(client) + "\\" + filename;
+			std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + filename;
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
@@ -104,7 +104,7 @@ namespace Hk::Ini
 
 	void CharacterSelect(CHARACTER_ID const charId, ClientId client)
 	{
-		std::string path = scAcctPath + GetAccountDir(client) + "\\" + charId.szCharFilename;
+		std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + charId.szCharFilename;
 
 		clients[client].charfilename = charId.szCharFilename;
 		clients[client].lines.clear();
@@ -168,7 +168,7 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (const std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (const std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
 			const std::string scCharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
@@ -197,7 +197,7 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
 			std::string scCharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))

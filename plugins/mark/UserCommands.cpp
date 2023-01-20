@@ -124,7 +124,7 @@ namespace Plugins::Mark
 			const auto dir = Hk::Client::GetAccountDirName(acc);
 			if (fileName.has_value())
 			{
-				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+				std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 				std::string scSection = "general_" + wstos(fileName.value());
 				IniWrite(scUserFile, scSection, "automarkenabled", "no");
 				PrintUserCmdText(client, L"Accepting marks from the group");
@@ -138,7 +138,7 @@ namespace Plugins::Mark
 			const auto dir = Hk::Client::GetAccountDirName(acc);
 			if (fileName.has_value())
 			{
-				std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+				std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 				std::string scSection = "general_" + wstos(fileName.value());
 				IniWrite(scUserFile, scSection, "automarkenabled", "yes");
 				PrintUserCmdText(client, L"Ignoring marks from the group");
@@ -191,13 +191,13 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+					std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automark", "yes");
 					if (wscRadius.length())
 						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, L"Automarking turned on within a %g KM radius", global->Mark[client].AutoMarkRadius / 1000);
+				PrintUserCmdText(client, std::format(L"Automarking turned on within a {:.2f} KM radius", global->Mark[client].AutoMarkRadius / 1000));
 			}
 			else if (wscRadius.length())
 			{
@@ -206,11 +206,11 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+					std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);
+				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", fRadius));
 			}
 		}
 		else
@@ -225,14 +225,14 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+					std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automark", "no");
 					if (wscRadius.length())
 						IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				if (wscRadius.length())
-					PrintUserCmdText(client, L"Automarking turned off; radius changed to %g KMs", global->Mark[client].AutoMarkRadius / 1000);
+					PrintUserCmdText(client, std::format(L"Automarking turned off; radius changed to {:.2f} KMs", global->Mark[client].AutoMarkRadius / 1000));
 				else
 					PrintUserCmdText(client, L"Automarking turned off");
 			}
@@ -243,11 +243,11 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+					std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string scSection = "general_" + wstos(fileName.value());
 					IniWrite(scUserFile, scSection, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, L"Radius changed to %g KMs", fRadius);
+				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", fRadius));
 			}
 		}
 	}

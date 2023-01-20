@@ -68,6 +68,7 @@
  * This plugin does not expose any functionality.
  */
 
+#define SPDLOG_USE_STD_FORMAT
 #include "Main.h"
 
 namespace Plugins::Npc
@@ -86,9 +87,9 @@ namespace Plugins::Npc
 
 		if (err.has_error())
 		{
-			std::wstring errorMessage = stows(personality) + L" is not recognised as a pilot name.";
+			std::string errorMessage = personality + " is not recognised as a pilot name.";
 			Console::ConErr(errorMessage);
-			AddLog(LogType::Normal, LogLevel::Critical, wstos(errorMessage));
+			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
 		}
 
 		p.personality = err.value();
@@ -272,7 +273,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -281,7 +282,7 @@ namespace Plugins::Npc
 
 		if (const std::map<std::wstring, Npc>::iterator iter = global->config->npcInfo.find(NpcType); iter == global->config->npcInfo.end())
 		{
-			cmds->Print(L"ERR Wrong NPC name");
+			cmds->Print("ERR Wrong NPC name");
 			return;
 		}
 
@@ -307,7 +308,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -320,7 +321,7 @@ namespace Plugins::Npc
 			{
 				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
 				global->spawnedNpcs.erase(it);
-				cmds->Print(L"OK");
+				cmds->Print("OK");
 				return;
 			}
 		}
@@ -330,7 +331,7 @@ namespace Plugins::Npc
 			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
 		global->spawnedNpcs.clear();
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 	}
 
 	/** @ingroup NPCControl
@@ -340,7 +341,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -364,7 +365,7 @@ namespace Plugins::Npc
 				pub::AI::SubmitDirective(npc, &go);
 			}
 		}
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 		return;
 	}
 
@@ -385,7 +386,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -401,7 +402,7 @@ namespace Plugins::Npc
 			client = Hk::Client::GetClientIdFromCharName(wscCharname).value();
 
 		if (client == -1)
-			cmds->Print(L"%s is not online", wscCharname.c_str());
+			cmds->Print(std::format("{} is not online", wstos(wscCharname)));
 
 		else
 		{
@@ -419,11 +420,11 @@ namespace Plugins::Npc
 					for (const auto& npc : global->spawnedNpcs)
 						AiFollow(ship, npc);
 				}
-				cmds->Print(L"Following %s", wscCharname.c_str());
+				cmds->Print(std::format("Following {}", wstos(wscCharname)));
 			}
 			else
 			{
-				cmds->Print(L"%s is not in space", wscCharname.c_str());
+				cmds->Print(std::format("{} is not in space", wstos(wscCharname)));
 			}
 		}
 	}
@@ -435,7 +436,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -458,7 +459,7 @@ namespace Plugins::Npc
 					pub::AI::SubmitDirective(npc, &cancelOp);
 				}
 			}
-			cmds->Print(L"OK");
+			cmds->Print("OK");
 		}
 	}
 
@@ -469,14 +470,14 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
-		cmds->Print(L"Available NPCs: %d", global->config->npcInfo.size());
+		cmds->Print(std::format("Available NPCs: {}", global->config->npcInfo.size()));
 
 		for (auto& [name, npc] : global->config->npcInfo)
-			cmds->Print(L"|%s", name.c_str());
+			cmds->Print(std::format("|{}", wstos(name)));
 	}
 
 	/** @ingroup NPCControl
@@ -486,14 +487,14 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
-		cmds->Print(L"Available fleets: %d", global->config->fleetInfo.size());
+		cmds->Print(std::format("Available fleets: {}", global->config->fleetInfo.size()));
 
 		for (auto& [name, npc] : global->config->fleetInfo)
-			cmds->Print(L"|%s", name.c_str());
+			cmds->Print(std::format("|{}", wstos(name)));
 	}
 
 	/** @ingroup NPCControl
@@ -503,7 +504,7 @@ namespace Plugins::Npc
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -512,7 +513,7 @@ namespace Plugins::Npc
 				AdminCmdAIMake(cmds, amount, name);
 		else
 		{
-			cmds->Print(L"ERR Wrong Fleet name");
+			cmds->Print("ERR Wrong Fleet name");
 			return;
 		}
 	}
