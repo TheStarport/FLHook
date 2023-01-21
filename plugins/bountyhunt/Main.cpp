@@ -284,7 +284,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for Disconnect to see if the player had a bounty on them
 	 */
-	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		checkIfPlayerFled(client);
 	}
@@ -292,7 +292,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for CharacterSelect to see if the player had a bounty on them
 	 */
-	void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client)
+	void CharacterSelect(std::string& szCharFilename, ClientId& client)
 	{
 		checkIfPlayerFled(client);
 	}

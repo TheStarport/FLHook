@@ -143,7 +143,7 @@ inline auto* ToUShort(wchar_t* val)
 		void* vRet;               \
 		char* tmp;                \
 		memcpy(&tmp, &Client, 4); \
-		memcpy(&Client, &CoreGlobals::i()->OldClient, 4);
+		memcpy(&Client, &OldClient, 4);
 
 #define CALL_CLIENT_POSTAMBLE \
 	__asm { mov [vRet], eax}    \

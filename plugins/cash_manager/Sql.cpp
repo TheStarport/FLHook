@@ -16,7 +16,7 @@ namespace Plugins::CashManager::Sql
 		                 "cash INTEGER NOT NULL DEFAULT(0), "
 		                 "identifier TEXT(12, 12) UNIQUE);"
 		                 "CREATE TABLE transactions(id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
-		                 "timestamp INTEGER NOT NULL AS(UNIXEPOCH()), "
+		                 "timestamp INTEGER NOT NULL, "
 		                 "amount INTEGER NOT NULL, "
 		                 "accessor TEXT(32, 32) NOT NULL, "
 		                 "bankId TEXT(36, 36) REFERENCES banks(id) ON UPDATE CASCADE NOT NULL);");
@@ -160,22 +160,21 @@ namespace Plugins::CashManager::Sql
 
 		while (transactions.executeStep())
 		{
-			Transaction t = {static_cast<uint64>(transactions.getColumn(0).getInt64()),
+			transactionsList.emplace_back(static_cast<uint64>(transactions.getColumn(0).getInt64()),
 			    stows(transactions.getColumn(1).getString()),
 			    transactions.getColumn(2).getInt64(),
-			    bank.accountId};
-
-			transactionsList.emplace_back(t);
+			    bank.accountId);
 		}
 		return transactionsList;
 	}
 
 	void AddTransaction(const Bank& receiver, const std::string& sender, const int64& amount)
 	{
-		SQLite::Statement transaction(global->sql, "INSERT INTO transactions (bankId, accessor, amount) VALUES(?, ?, ?);");
+		SQLite::Statement transaction(global->sql, "INSERT INTO transactions (bankId, accessor, amount, timestamp) VALUES(?, ?, ?, ?);");
 		transaction.bind(1, receiver.accountId);
 		transaction.bind(2, sender);
 		transaction.bind(3, amount);
+		transaction.bind(4, std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 
 		transaction.exec();
 	}

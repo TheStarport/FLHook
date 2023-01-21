@@ -197,7 +197,7 @@ namespace Plugins::Tax
 	    {TimerF1Check, 1000, 0},
 	};
 
-	int __stdcall Update()
+	int Update()
 	{
 		for (uint i = 0; (i < sizeof(Timers) / sizeof(TIMER)); i++)
 		{
@@ -210,7 +210,7 @@ namespace Plugins::Tax
 		return 0;
 	}
 
-	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		TimerF1Check();
 	}

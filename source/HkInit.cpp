@@ -84,7 +84,7 @@ PatchInfo piServerDLL = { "server.dll",
 PatchInfo piRemoteClientDLL = { "remoteclient.dll",
 	                             0x6B30000,
 	                             {
-	                                 { 0x6B6BB80, &SendChat, 4, &(CoreGlobals::i()->RCSendChatMsg), false },
+	                                 { 0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false },
 
 	                                 { 0, 0, 0, 0 } // terminate
 	                             } };
@@ -150,6 +150,14 @@ bool RestorePatch(PatchInfo& pi)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+CDPClientProxy** clientProxyArray;
+CDPServer* cdpSrv;
+IClientImpl* FakeClient;
+IClientImpl* HookClient;
+char* OldClient;
+_CRCAntiCheat CRCAntiCheat;
+char* g_FLServerDataPtr;
+_GetShipInspect GetShipInspect;
 std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
 char szRepFreeFixOld[5];
 
@@ -211,7 +219,7 @@ load settings from flhookhuser.ini
 
 void LoadUserSettings(ClientId client)
 {
-	auto info = &ClientInfo[client];
+	auto* info = &ClientInfo[client];
 
 	CAccount const* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
@@ -261,7 +269,7 @@ bool InitHookExports()
 	DWORD dwParam[34]; // else release version crashes, dont ask me why...
 	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
 
-	CoreGlobals::i()->GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
+	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
 	// install IServerImpl callbacks in remoteclient.dll
 	auto* pServer = reinterpret_cast<char*>(&Server);
@@ -310,16 +318,15 @@ bool InitHookExports()
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
 	// crc anti-cheat
-	auto globals = CoreGlobals::i();
-	globals->CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
+	CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
 
 	// get CDPServer
 	pAddress = DALIB_ADDR(ADDR_CDPSERVER);
-	ReadProcMem(pAddress, &globals->cdpSrv, 4);
+	ReadProcMem(pAddress, &cdpSrv, 4);
 
 	// read g_FLServerDataPtr(used for serverload calc)
 	pAddress = FLSERVER_ADDR(ADDR_DATAPTR);
-	ReadProcMem(pAddress, &globals->g_FLServerDataPtr, 4);
+	ReadProcMem(pAddress, &g_FLServerDataPtr, 4);
 
 	// some setting relate hooks
 	HookRehashed();
@@ -329,12 +336,12 @@ bool InitHookExports()
 	char* szTemp;
 	ReadProcMem(pAddress, &szTemp, 4);
 	szTemp += 0x10;
-	memcpy(&globals->clientProxyArray, &szTemp, 4);
+	memcpy(&clientProxyArray, &szTemp, 4);
 
 	// init variables
 	char szDataPath[MAX_PATH];
 	GetUserDataPath(szDataPath);
-	globals->accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	CoreGlobals::i()->accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
 	// Load DLLs for strings
 	Hk::Message::LoadStringDLLs();
@@ -352,12 +359,11 @@ bool InitHookExports()
 void PatchClientImpl()
 {
 	// install IClientImpl callback
-	auto globals = CoreGlobals::i();
-	globals->FakeClient = new IClientImpl;
-	globals->HookClient = &Client;
+	FakeClient = new IClientImpl;
+	HookClient = &Client;
 
-	memcpy(&globals->OldClient, &Client, 4);
-	WriteProcMem(&Client, globals->FakeClient, 4);
+	memcpy(&OldClient, &Client, 4);
+	WriteProcMem(&Client, FakeClient, 4);
 }
 
 /**************************************************************************************************************

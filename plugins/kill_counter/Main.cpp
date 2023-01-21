@@ -89,7 +89,7 @@ namespace Plugins::KillCounter
 	/** @ingroup KillCounter
 	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
 	 */
-	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
+	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
 	{
 		if (kill == 1)
 		{

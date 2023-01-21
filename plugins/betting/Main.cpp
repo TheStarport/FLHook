@@ -460,7 +460,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
 	 */
-	void __stdcall DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect(ClientId& client, enum EFLConnection& state)
 	{
 		processFFA(client);
 		ProcessDuel(client);
@@ -469,7 +469,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
 	 */
-	void __stdcall CharacterInfoReq(ClientId& client, bool& p2)
+	void CharacterInfoReq(ClientId& client, bool& p2)
 	{
 		processFFA(client);
 		ProcessDuel(client);

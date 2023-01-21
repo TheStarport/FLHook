@@ -115,14 +115,12 @@ namespace Hk::Message
 		uint p2 = 0x00010000;
 		uint p1 = client;
 
-		const auto* hookClient = CoreGlobals::c()->HookClient;
-
 		__asm {
         push [p4]
         push [p3]
         push [p2]
         push [p1]
-        mov ecx, [hookClient]
+        mov ecx, [HookClient]
         add ecx, 4
         call [RCSendChatMsg]
 		}

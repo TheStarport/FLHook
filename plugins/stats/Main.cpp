@@ -106,11 +106,11 @@ namespace Plugins::Stats
 	}
 
 	// Hooks for updating stats
-	void __stdcall DisConnect_AFTER(unsigned int client, enum EFLConnection state) { ExportJSON(); }
+	void DisConnect_AFTER(unsigned int client, enum EFLConnection state) { ExportJSON(); }
 
-	void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client) { ExportJSON(); }
+	void PlayerLaunch_AFTER(uint& ship, ClientId& client) { ExportJSON(); }
 
-	void __stdcall CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client) { ExportJSON(); }
+	void CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client) { ExportJSON(); }
 } // namespace Plugins::Stats
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

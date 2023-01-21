@@ -1,4 +1,5 @@
 #include "Global.hpp"
+#include "Features/Mail.hpp"
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
@@ -84,7 +85,7 @@ namespace IServerImplHook
 
 		auto globals = CoreGlobals::i();
 		char* data;
-		memcpy(&data, globals->g_FLServerDataPtr + 0x40, 4);
+		memcpy(&data, g_FLServerDataPtr + 0x40, 4);
 		memcpy(&globals->serverLoadInMs, data + 0x204, 4);
 		memcpy(&globals->playerCount, data + 0x208, 4);
 	}
@@ -434,6 +435,8 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 			auto pi = Hk::Admin::GetPlayerInfo(client, false);
 			ProcessEvent(L"login char={} accountdirname={} id={} ip={}", charName.c_str(), dir.c_str(), client, pi.value().wscIP.c_str());
+		
+			MailManager::i()->SendMailNotification(client);
 		}
 	}
 	CATCH_HOOK({})
@@ -654,7 +657,7 @@ bool OnConnect__Inner(ClientId client)
 		if (client > MaxClientId)
 		{
 			AddLog(LogType::Normal, LogLevel::Warn, std::format("INFO: Blocking connect in {} due to invalid id, id={}", __FUNCTION__, client));
-			CDPClientProxy* cdpClient = CoreGlobals::c()->clientProxyArray[client - 1];
+			CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 			if (!cdpClient)
 				return false;
 			cdpClient->Disconnect();
@@ -665,7 +668,7 @@ bool OnConnect__Inner(ClientId client)
 		if (ClientInfo[client].tmF1TimeDisconnect > timeInMS())
 		{
 			// manual disconnect
-			CDPClientProxy* cdpClient = CoreGlobals::c()->clientProxyArray[client - 1];
+			CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 			if (!cdpClient)
 				return false;
 			cdpClient->Disconnect();
@@ -898,6 +901,9 @@ void Startup__InnerAfter(const SStartupInfo& si)
 
 	// read base market data from ini
 	LoadBaseMarket();
+
+	// Clean up any mail to chars that no longer exist
+	MailManager::i()->CleanUpOldMail();
 
 	StartupCache::Done();
 

@@ -30,7 +30,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> __stdcall TempBanCallout(const std::wstring& wscCharname, uint _duration)
+	cpp::result<void, Error> TempBanCallout(const std::wstring& wscCharname, uint _duration)
 	{
 		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
@@ -76,7 +76,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
+	void Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
 	{
 		global->returncode = ReturnCode::Default;
 

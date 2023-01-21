@@ -1,4 +1,5 @@
 ﻿#include "Global.hpp"
+#include "Features/Mail.hpp"
 
 #define PRINT_ERROR()                                                     \
 	{                                                                     \
@@ -489,6 +490,91 @@ void UserCmd_Credits(ClientId& client, const std::wstring& param)
 		PrintUserCmdText(client, L"- none -");
 }
 
+void UserCmdDelMail(ClientId& client, const std::wstring& param)
+{
+	// /maildel <id/all> [readonly]
+	const auto str = GetParam(param, ' ', 0);
+	if (str == L"all")
+	{
+		const auto count = MailManager::i()->PurgeAllMail(client, GetParam(param, ' ', 1) == L"readonly");
+		if (count.has_error())
+		{
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", stows(count.error())));
+			return;
+		}
+
+		PrintUserCmdText(client, std::format(L"Deleted {} mail", count.value()));
+	}
+	else
+	{
+		const auto index = ToInt64(str);
+		if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
+		{
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", stows(err.error())));
+			return;
+		}
+
+		PrintUserCmdText(client, L"Mail deleted");
+	}
+}
+
+void UserCmdReadMail(ClientId& client, const std::wstring& param)
+{
+	const auto index = ToInt64(GetParam(param, ' ', 0));
+	if (index <= 0)
+	{
+		PrintUserCmdText(client, L"Id was not provided or was invalid.");
+		return;
+	}
+
+	const auto mail = MailManager::i()->GetMailById(client, index);
+	if (mail.has_error())
+	{
+		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", stows(mail.error())));
+		return;
+	}
+
+	const auto& item = mail.value();
+	PrintUserCmdText(client, std::format(L"From: {}", stows(item.author)));
+	PrintUserCmdText(client, std::format(L"Subject: {}", stows(item.subject)));
+	PrintUserCmdText(client, std::format(L"Date: {:%F %T}", UnixToSysTime(item.timestamp)));
+	PrintUserCmdText(client, stows(item.body));
+}
+
+void UserCmdListMail(ClientId& client, const std::wstring& param)
+{
+	const auto page = ToInt(GetParam(param, ' ', 0));
+	if (page <= 0)
+	{
+		PrintUserCmdText(client, L"Page was not provided or was invalid.");
+		return;
+	}
+
+	const bool unreadOnly = GetParam(param, ' ', 1) == L"unread";
+
+	const auto mail = MailManager::i()->GetMail(client, unreadOnly, page);
+	if (mail.has_error())
+	{
+		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", stows(mail.error())));
+		return;
+	}
+
+	const auto& mailList = mail.value();
+	if (mailList.empty())
+	{
+		PrintUserCmdText(client, L"You have no mail.");
+		return;
+	}
+
+	PrintUserCmdText(client, std::format(L"Printing mail of page {}", mailList.size()));
+	for (const auto& item : mailList)
+	{
+		// |    Id.) Subject (unread) - Author - Time
+		PrintUserCmdText(
+		    client, stows(std::format("|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
@@ -519,6 +605,11 @@ const std::vector UserCmds = {{
     CreateUserCommand(L"/i$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/invite$", L"", UserCmd_InviteID, L""),
     CreateUserCommand(L"/credits", L"", UserCmd_Credits, L""),
+    CreateUserCommand(L"/maildel", L"/maildel <id/all> [readonly]", UserCmdDelMail,
+        L"Delete the specified mail, or if all is provided delete all mail. If all is specified with the param of readonly, unread mail will be preserved."),
+    CreateUserCommand(L"/mailread", L"/mailread <id>", UserCmdReadMail, L"Read the specified mail."),
+    CreateUserCommand(L"/maillist", L"/maillist <page> [unread]", UserCmdListMail,
+        L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
     CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
 }};
 

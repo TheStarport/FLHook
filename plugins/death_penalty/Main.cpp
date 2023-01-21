@@ -87,7 +87,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
 	 */
-	void __stdcall PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		// No point in processing anything if there is no death penalty
 		if (global->config->DeathPenaltyFraction > 0.00001f)
@@ -202,7 +202,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief Hook on ShipDestroyed to kick off PenalizeDeath
 	 */
-	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
+	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
 	{
 		if (kill)
 		{

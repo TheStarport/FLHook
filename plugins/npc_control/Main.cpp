@@ -140,7 +140,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Hook on ship destroyed to remove from our data
 	 */
-	void __stdcall ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
+	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
 	{
 		if (iKill)
 		{
