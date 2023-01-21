@@ -47,6 +47,10 @@ namespace Plugins::SpinProtection
 			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
 		}
 		auto [V1, V2] = motion.value();
+		//crash prevention in case of null vectors
+		if (V1.x == 0.0f && V1.y == 0.0f && V1.z == 0.0f && 
+			V2.x == 0.0f && V2.y == 0.0f && V2.z == 0.0f)
+			return;
 		V1.x *= global->config->spinImpulseMultiplier * clientMass;
 		V1.y *= global->config->spinImpulseMultiplier * clientMass;
 		V1.z *= global->config->spinImpulseMultiplier * clientMass;
