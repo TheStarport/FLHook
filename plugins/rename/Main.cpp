@@ -7,6 +7,7 @@
 // being notified and/or mentioned somewhere.
 
 #include "Main.h"
+#include "Features/Mail.hpp"
 
 namespace Plugins::Rename
 {
@@ -153,8 +154,8 @@ namespace Plugins::Rename
 		data.tag = tag;
 		global->tagList.tags.emplace_back(data);
 
-		PrintUserCmdText(client, L"Created faction tag %s with master password %s", tag.c_str(), pass.c_str());
-		AddLog(LogType::Normal, LogLevel::Info, wstos(fmt::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+		PrintUserCmdText(client, std::format(L"Created faction tag {} with master password {}", tag, pass));
+		AddLog(LogType::Normal, LogLevel::Info, wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 		SaveSettings();
 	}
 
@@ -188,7 +189,7 @@ namespace Plugins::Rename
 			    global->tagList.tags.end());
 			SaveSettings();
 			PrintUserCmdText(client, L"OK Tag dropped");
-			AddLog(LogType::Normal, LogLevel::Info, wstos(fmt::format(L"Tag {} dropped by {} ({})", tag.c_str(), wscCharname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+			AddLog(LogType::Normal, LogLevel::Info, wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), wscCharname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
 		}
 
@@ -220,7 +221,7 @@ namespace Plugins::Rename
 				{
 					data->renamePassword = renamePassword;
 					SaveSettings();
-					PrintUserCmdText(client, L"OK Created rename password %s for tag %s", renamePassword.c_str(), tag.c_str());
+					PrintUserCmdText(client, std::format(L"OK Created rename password {} for tag {}", renamePassword, tag));
 					return;
 				}
 			}
@@ -284,10 +285,13 @@ namespace Plugins::Rename
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
+				// Update any mail references this character had before
+				MailManager::i()->UpdateCharacterName(wstos(o.charName), wstos(o.newCharName));
+
 				// The rename worked. Log it and save the rename time.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
-				    wstos(fmt::format(L"User rename {} to {} ({})",
+				    wstos(std::format(L"User rename {} to {} ({})",
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
 				    Hk::Client::GetAccountID(acc).value().c_str())));
@@ -296,7 +300,7 @@ namespace Plugins::Rename
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
-				    wstos(fmt::format(L"User rename failed ({}) from {} to {} ({})",
+				    wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
 				    stows(err),
 				    o.charName.c_str(),
 				    o.newCharName.c_str(),
@@ -347,7 +351,7 @@ namespace Plugins::Rename
 				// The move worked. Log it.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
-				    wstos(fmt::format(L"Character {} moved from {} to {}",
+				    wstos(std::format(L"Character {} moved from {} to {}",
 				    o.movingCharName.c_str(),
 				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
 				    Hk::Client::GetAccountID(acc).value().c_str()))); 
@@ -356,7 +360,7 @@ namespace Plugins::Rename
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
-				    wstos(fmt::format(L"Character {} move failed ({}) from {} to {}",
+				    wstos(std::format(L"Character {} move failed ({}) from {} to {}",
 				    o.movingCharName,
 				    stows(std::string(err)),
 				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
@@ -472,7 +476,7 @@ namespace Plugins::Rename
 
 		// Read the last time a rename was done on this character
 		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
-		std::string scRenameFile = scAcctPath + wstos(dir) + "\\" + "rename.ini";
+		std::string scRenameFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + "rename.ini";
 		int lastRenameTime = IniGetI(scRenameFile, "General", wstos(wscCharname), 0);
 
 		// If a rename was done recently by this player then reject the request.
@@ -714,7 +718,7 @@ namespace Plugins::Rename
 
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -723,13 +727,13 @@ namespace Plugins::Rename
 		
 		if (acc.has_error())
 		{
-			cmds->Print(L"ERR Charname not found");
+			cmds->Print("ERR Charname not found");
 			return;
 		}
 
 		if (wscCode.length() == 0)
 		{
-			cmds->Print(L"ERR Code too small, set to none to clear.");
+			cmds->Print("ERR Code too small, set to none to clear.");
 			return;
 		}
 
@@ -745,7 +749,7 @@ namespace Plugins::Rename
 		HANDLE hFileFind = FindFirstFile(scPath.c_str(), &FindFileData);
 		if (hFileFind == INVALID_HANDLE_VALUE)
 		{
-			cmds->Print(L"ERR Account directory not found");
+			cmds->Print("ERR Account directory not found");
 			return;
 		}
 
@@ -758,17 +762,17 @@ namespace Plugins::Rename
 			if (wscCode == L"none")
 			{
 				IniWriteW(scMoveCodeFile, "Settings", "Code", L"");
-				cmds->Print(L"OK Movechar code cleared on " + stows(scCharfile) + L"\n");
+				cmds->Print(std::format("OK Movechar code cleared on {} \n", scCharfile));
 			}
 			else
 			{
 				IniWriteW(scMoveCodeFile, "Settings", "Code", wscCode);
-				cmds->Print(L"OK Movechar code set to " + wscCode + L" on " + stows(scCharfile) + L"\n");
+				cmds->Print(std::format("OK Movechar code set to {} on {} \n", wstos(wscCode), scCharfile));
 			}
 		} while (FindNextFile(hFileFind, &FindFileData));
 		FindClose(hFileFind);
 
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 	}
 
 	/// Set the move char code for all characters in the account
@@ -776,7 +780,7 @@ namespace Plugins::Rename
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -785,42 +789,42 @@ namespace Plugins::Rename
 		{
 			int last_access = tag.lastAccess;
 			int days = (curr_time - last_access) / (24 * 3600);
-			cmds->Print(L"tag=%s master_password=%s rename_password=%s last_access=%u days description=%s\n", tag.tag.c_str(), tag.masterPassword.c_str(), tag.renamePassword.c_str(), days,
-			    tag.description.c_str());
+			cmds->Print(wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n", tag.tag, tag.masterPassword, tag.renamePassword, days,
+			    tag.description)));
 		}
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 	}
 
 	void AdminCmd_AddTag(CCmds* cmds, const std::wstring& tag, const std::wstring& password, const std::wstring& description)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
 		if (tag.size() < 3)
 		{
-			cmds->Print(L"ERR Tag too short");
+			cmds->Print("ERR Tag too short");
 			return;
 		}
 
 		if (password.empty())
 		{
-			cmds->Print(L"ERR Password not set");
+			cmds->Print("ERR Password not set");
 			return;
 		}
 
 		if (description.empty())
 		{
-			cmds->Print(L"ERR Description not set");
+			cmds->Print("ERR Description not set");
 			return;
 		}
 
 		// If this tag is in use then reject the request.
 		if (global->tagList.FindTagPartial(tag) == global->tagList.tags.end())
 		{
-			cmds->Print(L"ERR Tag already exists or conflicts with another tag\n");
+			cmds->Print("ERR Tag already exists or conflicts with another tag\n");
 			return;
 		}
 
@@ -830,7 +834,7 @@ namespace Plugins::Rename
 		data.renamePassword = L"";
 		data.lastAccess = static_cast<uint>(time(nullptr));
 		data.description = description;
-		cmds->Print(L"Created faction tag %s with master password %s", tag.c_str(), password.c_str());
+		cmds->Print(wstos(std::format(L"Created faction tag {} with master password {}", tag, password)));
 		global->tagList.tags.emplace_back(data);
 		SaveSettings();
 	}
@@ -839,7 +843,7 @@ namespace Plugins::Rename
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -849,11 +853,11 @@ namespace Plugins::Rename
 			    std::remove_if(global->tagList.tags.begin(), global->tagList.tags.end(), [tag](const TagData& tg) { return tg.tag == tag; }),
 			    global->tagList.tags.end());
 			SaveSettings();
-			cmds->Print(L"OK Tag dropped");
+			cmds->Print("OK Tag dropped");
 			return;
 		}
 
-		cmds->Print(L"ERR tag is invalid");
+		cmds->Print("ERR tag is invalid");
 		return;
 	}
 
@@ -874,10 +878,10 @@ namespace Plugins::Rename
 	/** Admin help command callback */
 	void CmdHelp(CCmds* classptr)
 	{
-		classptr->Print(L"setaccmovecode <charname> <code>");
-		classptr->Print(L"showtags");
-		classptr->Print(L"addtag <tag> <password>");
-		classptr->Print(L"droptag <tag> <password>");
+		classptr->Print("setaccmovecode <charname> <code>");
+		classptr->Print("showtags");
+		classptr->Print("addtag <tag> <password>");
+		classptr->Print("droptag <tag> <password>");
 	}
 
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)

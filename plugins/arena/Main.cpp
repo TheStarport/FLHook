@@ -170,12 +170,12 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void __stdcall CharacterSelect(std::string& szCharFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
+	void CharacterSelect(std::string& szCharFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
 	 */
-	void __stdcall PlayerLaunch_AFTER(uint& ship, ClientId& client)
+	void PlayerLaunch_AFTER(uint& ship, ClientId& client)
 	{
 		if (global->transferFlags[client] == ClientState::Transfer)
 		{

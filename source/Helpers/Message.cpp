@@ -265,7 +265,7 @@ namespace Hk::Message
 		const auto wscSender = Client::GetCharacterNameByID(iFromClientId);
 		if (wscSender.has_error())
 		{
-			Console::ConErr(L"Unable to send private chat message from client %u", iFromClientId);
+			Console::ConErr(std::format("Unable to send private chat message from client {}", iFromClientId));
 			return {};
 		}
 
@@ -320,7 +320,7 @@ namespace Hk::Message
 		const auto wscSender = Client::GetCharacterNameByID(iFromClientId);
 		if (wscSender.has_error())
 		{
-			Console::ConErr(L"Unable to send local system chat message from client %u", iFromClientId);
+			Console::ConErr(std::format("Unable to send local system chat message from client {}", iFromClientId));
 			return;
 		}
 
@@ -427,16 +427,11 @@ namespace Hk::Message
 		return L"";
 	}
 
-	std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring msg, ...) // NOLINT(performance-unnecessary-value-param)
+	std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring& msg)
 	{
-		wchar_t buf[1024 * 8] = L"";
-		va_list marker;
-		va_start(marker, msg);
-		_vsnwprintf_s(buf, sizeof buf - 1, msg.c_str(), marker);
-
 		const uint bgrColor = Math::RgbToBgr(static_cast<uint>(color));
 		const std::wstring tra = Math::UintToHexString(bgrColor, 6, true) + Math::UintToHexString(static_cast<uint>(format), 2);
 
-		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(buf) + L"</TEXT>";
+		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(msg) + L"</TEXT>";
 	}
 } // namespace Hk::Message

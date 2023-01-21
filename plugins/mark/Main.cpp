@@ -176,7 +176,7 @@ namespace Plugins::Mark
 	{
 		const auto* acc = Players.FindAccountFromClientID(client);
 		const auto dir = Hk::Client::GetAccountDirName(acc);
-		const std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		const std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 		const auto fileName = Hk::Client::GetCharFileName(client);
 		const std::string section = "general_" + wstos(fileName.value());
 		global->Mark[client].MarkEverything = IniGetB(userFile, section, "automarkenabled", false);

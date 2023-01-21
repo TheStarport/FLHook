@@ -20,7 +20,7 @@ namespace Plugins::SpinProtection
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void __stdcall SPObjCollision(struct SSPObjCollisionInfo const& ci, ClientId& client)
+	void SPObjCollision(struct SSPObjCollisionInfo const& ci, ClientId& client)
 	{
 		// If spin protection is off, do nothing.
 		if (global->config->spinProtectionMass == -1.0f)
@@ -44,7 +44,7 @@ namespace Plugins::SpinProtection
 		auto motion = Hk::Solar::GetMotion(ci.iColliderObjectId);
 		if (motion.has_error())
 		{
-			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
+			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
 		}
 		auto [V1, V2] = motion.value();
 		//crash prevention in case of null vectors

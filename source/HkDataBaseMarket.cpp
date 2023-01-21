@@ -17,8 +17,8 @@ bool LoadBaseMarket()
 			continue;
 
 		const char* szBaseName = ini.get_value_string();
-		BASE_INFO* biBase = 0;
-		for (auto& base : lstBases)
+		BaseInfo* biBase = 0;
+		for (auto& base : CoreGlobals::i()->allBases)
 		{
 			const char* szBN = base.scBasename.c_str();
 			if (!ToLower(base.scBasename).compare(ToLower(szBaseName)))
@@ -39,7 +39,7 @@ bool LoadBaseMarket()
 
 		do
 		{
-			DATA_MARKETITEM mi;
+			DataMarketItem mi;
 			const char* szEquipName = ini.get_value_string(0);
 			mi.iArchId = CreateID(szEquipName);
 			mi.fRep = ini.get_value_float(2);

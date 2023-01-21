@@ -67,7 +67,7 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 
 		FILE* fTest;
 		fopen_s(&fTest, scCharFile.c_str(), "r");
@@ -121,7 +121,7 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		int iRet;
 		if (Client::IsEncoded(scCharFile))
 		{
@@ -548,8 +548,8 @@ namespace Hk::Player
 			return cpp::fail(oldFileName.error());
 		}
 
-		std::string scNewCharfilePath = scAcctPath + wstos(wscAccountDirname) + "\\" + wstos(newFileName.value()) + ".fl";
-		std::string scOldCharfilePath = scAcctPath + wstos(wscAccountDirname) + "\\" + wstos(oldFileName.value()) + ".fl";
+		std::string scNewCharfilePath = CoreGlobals::c()->accPath + wstos(wscAccountDirname) + "\\" + wstos(newFileName.value()) + ".fl";
+		std::string scOldCharfilePath = CoreGlobals::c()->accPath + wstos(wscAccountDirname) + "\\" + wstos(oldFileName.value()) + ".fl";
 
 		if (bOnlyDelete)
 		{
@@ -715,7 +715,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Hk::Client::GetAccountDirName(acc);
-		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		return IniGetB(scUserFile, "Settings", "ReservedSlot", false);
 	}
@@ -729,7 +729,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scUserFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		if (bReservedSlot)
 			IniWrite(scUserFile, "Settings", "ReservedSlot", "yes");
@@ -829,9 +829,9 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<std::vector<GROUP_MEMBER>, Error> GetGroupMembers(const std::variant<uint, std::wstring>& player)
+	cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring>& player)
 	{
-		std::vector<GROUP_MEMBER> members;
+		std::vector<GroupMember> members;
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		// check if logged in
@@ -844,7 +844,7 @@ namespace Hk::Player
 
 		for (uint i : vMembers)
 		{
-			GROUP_MEMBER gm = {i, (wchar_t*)Players.GetActiveCharacterName(i)};
+			GroupMember gm = {i, (wchar_t*)Players.GetActiveCharacterName(i)};
 			members.push_back(gm);
 		}
 
@@ -881,7 +881,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		std::string scFileToRead;
 		bool bDeleteAfter;
 		if (Hk::Client::IsEncoded(scCharFile))
@@ -938,7 +938,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		std::string scFileToWrite;
 		bool bEncode;
 		if (Hk::Client::IsEncoded(scCharFile))
@@ -1083,7 +1083,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = scAcctPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
 			std::string scCharFileNew = scCharFile + ".ini";

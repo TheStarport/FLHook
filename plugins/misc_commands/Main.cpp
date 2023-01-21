@@ -96,7 +96,7 @@ namespace Plugins::MiscCommands
 		}
 
 		if (bLights)
-			PrintUserCmdText(client, L" Lights %s", bOn ? L"on" : L"off");
+			PrintUserCmdText(client, std::format(L" Lights {}", bOn ? L"on" : L"off"));
 		else
 			PrintUserCmdText(client, L"Light control not available");
 	}
@@ -139,7 +139,7 @@ namespace Plugins::MiscCommands
 		auto motion = Hk::Solar::GetMotion(playerInfo.value().ship);
 		if (motion.has_error())
 		{
-			Console::ConWarn(Hk::Err::ErrGetText(motion.error()));
+			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
 		}
 		const auto & [dir1, dir2] = motion.value();
 
@@ -183,7 +183,7 @@ namespace Plugins::MiscCommands
 		const auto iCash = Hk::Player::GetCash(client);
 		if (iCash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR %s", Hk::Err::ErrGetText(iCash.error()).c_str());
+			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(iCash.error())));
 			return;
 		}
 
@@ -195,7 +195,7 @@ namespace Plugins::MiscCommands
 
 		if (const auto repValue = Hk::Player::GetRep(client, repGroupNick.value()); repValue.has_error())
 		{
-			PrintUserCmdText(client, L"ERR %s", Hk::Err::ErrGetText(repValue.error()).c_str());
+			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(repValue.error())));
 			return;
 		}
 
@@ -251,7 +251,7 @@ namespace Plugins::MiscCommands
 		}
 		else
 		{
-			PrintUserCmdText(client, stows(fmt::format("{}", shipValue.value())));
+			PrintUserCmdText(client, stows(std::format("{}", shipValue.value())));
 		}
 	}
 
@@ -270,7 +270,7 @@ namespace Plugins::MiscCommands
 	void UserCmdShields(ClientId& client, const std::wstring& wscParam)
 	{
 		global->mapInfo[client].bShieldsDown = !global->mapInfo[client].bShieldsDown;
-		PrintUserCmdText(client, L"Shields %s", global->mapInfo[client].bShieldsDown ? L"Disabled" : L"Enabled");
+		PrintUserCmdText(client, std::format(L"Shields {}", global->mapInfo[client].bShieldsDown ? L"Disabled" : L"Enabled"));
 	}
 
 	// Client command processing
@@ -292,14 +292,14 @@ namespace Plugins::MiscCommands
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
 		const auto playerInfo = Hk::Admin::GetPlayerInfo(cmds->GetAdminName(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
 		{
-			cmds->Print(L"ERR Not in space");
+			cmds->Print("ERR Not in space");
 			return;
 		}
 
@@ -346,7 +346,7 @@ namespace Plugins::MiscCommands
 			}
 		}
 
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 		return;
 	}
 

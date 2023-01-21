@@ -54,7 +54,7 @@ namespace Plugins::IPBan
 
 			WIN32_FIND_DATA findFileData;
 
-			std::string scFileSearchPath = scAcctPath + "\\" + wstos(dir) + "\\login_*.ini"; // Looks like DSAM generates this file
+			std::string scFileSearchPath = CoreGlobals::c()->accPath + "\\" + wstos(dir) + "\\login_*.ini"; // Looks like DSAM generates this file
 			HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData);
 			if (hFileFind != INVALID_HANDLE_VALUE)
 			{
@@ -64,7 +64,7 @@ namespace Plugins::IPBan
 					std::string scLoginId;
 					std::string scLoginId2;
 					std::string scThisIP;
-					std::string scFilePath = scAcctPath + wstos(dir) + "\\" + findFileData.cFileName;
+					std::string scFilePath = CoreGlobals::c()->accPath + wstos(dir) + "\\" + findFileData.cFileName;
 					FILE* f;
 					fopen_s(&f, scFilePath.c_str(), "r");
 					if (f)
@@ -82,7 +82,7 @@ namespace Plugins::IPBan
 							}
 							catch (...)
 							{
-								Console::ConErr(L"ERR Corrupt loginid file $0", stows(scFilePath).c_str());
+								Console::ConErr(std::format("ERR Corrupt loginid file {}", scFilePath));
 							}
 						}
 						fclose(f);
@@ -90,10 +90,7 @@ namespace Plugins::IPBan
 
 					if (FLHookConfig::i()->general.debugMode)
 					{
-						Console::ConInfo(L"Checking for ban on IP %s Login Id1 %s "
-						                 L"Id2 %s "
-						                 L"Client %d\n",
-						    stows(scThisIP).c_str(), stows(scLoginId).c_str(), stows(scLoginId2).c_str(), client);
+						Console::ConInfo(std::format("Checking for ban on IP {} Login Id1 {} Id2 {} Client {}\n", scThisIP, scLoginId, scLoginId2, client));
 					}
 
 					// If the login Id has been read then check it to see if it has
@@ -104,9 +101,7 @@ namespace Plugins::IPBan
 						{
 							if (ban == scLoginId || ban == scLoginId2)
 							{
-								Console::ConWarn(L"* Kicking player on Id ban: ip=%s "
-								                 L"id1=%s id2=%s\n",
-								    stows(scThisIP).c_str(), stows(scLoginId).c_str(), stows(scLoginId2).c_str());
+								Console::ConWarn(std::format("* Kicking player on Id ban: ip={} id1={} id2={}\n", scThisIP, scLoginId, scLoginId2));
 								bBannedLoginId = true;
 								break;
 							}
@@ -149,9 +144,9 @@ namespace Plugins::IPBan
 		global->ipBans = Serializer::JsonToObject<IPBans>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"Loading IP bans from %s", stows(global->ipBans.File()).c_str());
+			Console::ConInfo(std::format("Loading IP bans from {}", global->ipBans.File()));
 
-		Console::ConInfo(L"IP Bans [%u]", global->ipBans.Bans.size());
+		Console::ConInfo(std::format("IP Bans [{}]", global->ipBans.Bans.size()));
 	}
 
 	/** @ingroup IPBan
@@ -162,9 +157,9 @@ namespace Plugins::IPBan
 		global->loginIdBans = Serializer::JsonToObject<LoginIdBans>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"Loading Login Id bans from %s", stows(global->loginIdBans.File()).c_str());
+			Console::ConInfo(std::format("Loading Login Id bans from {}", global->loginIdBans.File()));
 
-		Console::ConInfo(L"Login Id Bans [%u]", global->loginIdBans.Bans.size());
+		Console::ConInfo(std::format("Login Id Bans [{}]", global->loginIdBans.Bans.size()));
 	}
 
 	/** @ingroup IPBan
@@ -175,9 +170,9 @@ namespace Plugins::IPBan
 		global->authenticatedAccounts = Serializer::JsonToObject<AuthenticatedAccounts>();
 
 		if (FLHookConfig::i()->general.debugMode)
-			Console::ConInfo(L"Loading Authenticated Accounts from %s", stows(global->authenticatedAccounts.File()).c_str());
+			Console::ConInfo(std::format("Loading Authenticated Accounts from {}", global->authenticatedAccounts.File()));
 
-		Console::ConInfo(L"Authenticated Accounts [%u]", global->authenticatedAccounts.Accounts.size());
+		Console::ConInfo(std::format("Authenticated Accounts [{}]", global->authenticatedAccounts.Accounts.size()));
 	}
 
 	/// Reload the ipbans file.
@@ -240,7 +235,7 @@ namespace Plugins::IPBan
 		ReloadLoginIdBans();
 		ReloadIPBans();
 		ReloadAuthenticatedAccounts();
-		cmds->Print(L"OK");
+		cmds->Print("OK");
 	}
 
 	/** @ingroup IPBan
@@ -250,7 +245,7 @@ namespace Plugins::IPBan
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print(L"ERR No permission");
+			cmds->Print("ERR No permission");
 			return;
 		}
 
@@ -278,8 +273,8 @@ namespace Plugins::IPBan
 	 */
 	void CmdHelp_Callback(CCmds* classptr)
 	{
-		classptr->Print(L"authchar <charname>");
-		classptr->Print(L"reloadbans");
+		classptr->Print("authchar <charname>");
+		classptr->Print("reloadbans");
 	}
 
 	/** @ingroup IPBan

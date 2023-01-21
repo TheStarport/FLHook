@@ -14,8 +14,7 @@ std::string itohexs(uint value)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string IniGetS(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault)
+std::string IniGetS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault)
 {
 	char szRet[2048 * 2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), scDefault.c_str(), szRet, sizeof(szRet), scFile.c_str());
@@ -57,8 +56,7 @@ void IniWrite(const std::string& scFile, const std::string& scApp, const std::st
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWriteW(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue)
+void IniWriteW(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue)
 {
 	std::string scValue = "";
 	for (uint i = 0; (i < wscValue.length()); i++)
@@ -74,8 +72,7 @@ void IniWriteW(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring IniGetWS(
-    const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault)
+std::wstring IniGetWS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault)
 {
 	char szRet[2048 * 2];
 	GetPrivateProfileString(scApp.c_str(), scKey.c_str(), "", szRet, sizeof(szRet), scFile.c_str());
@@ -108,28 +105,6 @@ void IniDelete(const std::string& scFile, const std::string& scApp, const std::s
 void IniDelSection(const std::string& scFile, const std::string& scApp)
 {
 	WritePrivateProfileString(scApp.c_str(), NULL, NULL, scFile.c_str());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void IniGetSection(const std::string& scFile, const std::string& scApp, std::list<INISECTIONVALUE>& lstValues)
-{
-	lstValues.clear();
-	char szBuf[0xFFFF];
-	GetPrivateProfileSection(scApp.c_str(), szBuf, sizeof(szBuf), scFile.c_str());
-	char* szNext = szBuf;
-	while (strlen(szNext) > 0)
-	{
-		INISECTIONVALUE isv;
-		char szKey[0xFFFF] = "";
-		char szValue[0xFFFF] = "";
-		sscanf_s(szNext, "%[^=]=%[^\n]", szKey, std::size(szKey), szValue, std::size(szValue));
-		isv.scKey = szKey;
-		isv.scValue = szValue;
-		lstValues.push_back(isv);
-
-		szNext += strlen(szNext) + 1;
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -75,7 +75,7 @@ namespace Plugins::ConData
 	 */
 	void TimerCheckKick()
 	{
-		if (g_iServerLoad > global->config->kickThreshold)
+		if (CoreGlobals::c()->serverLoadInMs > global->config->kickThreshold)
 		{
 			// for all players
 			struct PlayerData* playerData = nullptr;
@@ -286,7 +286,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief If this is the first tick of the plugin being loaded, reset any connection data. Call any timers also.
 	 */
-	int __stdcall Update()
+	int Update()
 	{
 		static bool firstTime = true;
 		if (firstTime)
@@ -322,12 +322,12 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on PlayerLaunch. Sets tmLastObjUpdate to 0.
 	 */
-	void __stdcall PlayerLaunch(ShipId& ship, ClientId& client) { global->connections[client].tmLastObjUpdate = 0; }
+	void PlayerLaunch(ShipId& ship, ClientId& client) { global->connections[client].tmLastObjUpdate = 0; }
 
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
 	 */
-	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
+	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		// lag detection
 		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
@@ -343,7 +343,7 @@ namespace Plugins::ConData
 			const auto iTimeDiff = static_cast<uint>(tmNow - con.tmLastObjUpdate);
 			const auto iTimestampDiff = static_cast<uint>(tmTimestamp - con.tmLastObjTimestamp);
 			auto iDiff = static_cast<int>(sqrt(pow(static_cast<long double>(static_cast<int>(iTimeDiff) - static_cast<int>(iTimestampDiff)), 2)));
-			iDiff -= g_iServerLoad;
+			iDiff -= CoreGlobals::c()->serverLoadInMs;
 			if (iDiff < 0)
 				iDiff = 0;
 
@@ -503,25 +503,24 @@ namespace Plugins::ConData
 				if (Hk::Client::IsInCharSelectMenu(client))
 					continue;
 
-				CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
+				CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 				if (!cdpClient)
 					continue;
 
 				auto con = global->connections[client];
 
-				int saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
+				auto saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
 				int txqueue = cdpClient->GetSendQSize();
-				classptr->Print(L"charname=%s clientid=%u loss=%u lag=%u pingfluct=%u "
-				                L"saturation=%u txqueue=%u\n",
-				    Players.GetActiveCharacterName(client),
+				classptr->Print(wstos(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
+				    Hk::Client::GetCharacterNameByID(client).value(),
 				    client,
 				    con.iAverageLoss,
 				    con.iLags,
 				    con.iPingFluctuation,
 				    saturation,
-				    txqueue);
+				    txqueue)));
 			}
-			classptr->Print(L"OK");
+			classptr->Print("OK");
 			global->returncode = ReturnCode::SkipAll;
 			return true;
 		}
@@ -535,12 +534,12 @@ namespace Plugins::ConData
 			// Logout.
 			global->returncode = ReturnCode::SkipAll;
 			acc.value()->ForceLogout();
-			classptr->Print(L"OK");
+			classptr->Print("OK");
 
 			// If the client is still active then force the disconnect.
 			if (const auto client = Hk::Client::GetClientIdFromAccount(acc.value()); client.has_value())
 			{
-				classptr->Print(L"Forcing logout on client=%d", client);
+				classptr->Print(std::format("Forcing logout on client={}", client.value()));
 				Players.logout(client.value());
 			}
 			return true;

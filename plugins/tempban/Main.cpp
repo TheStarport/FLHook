@@ -30,7 +30,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> __stdcall TempBanCallout(const std::wstring& wscCharname, uint _duration)
+	cpp::result<void, Error> TempBanCallout(const std::wstring& wscCharname, uint _duration)
 	{
 		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
@@ -51,8 +51,8 @@ namespace Plugins::Tempban
 
 		if (client.has_value() && Hk::Player::Kick(client.value()).has_error())
 		{
-			AddLog(LogType::Kick, LogLevel::Info, fmt::format("{} could not be kicked (TempBan Plugin)", wstos(wscCharname)));
-			Console::ConInfo(wscCharname + L" could not be kicked (TempBan Plugin)");
+			AddLog(LogType::Kick, LogLevel::Info, std::format("{} could not be kicked (TempBan Plugin)", wstos(wscCharname)));
+			Console::ConInfo(std::format("{} could not be kicked", wstos(wscCharname)));
 		}
 		
 		return {};
@@ -76,7 +76,7 @@ namespace Plugins::Tempban
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void __stdcall Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
+	void Login(struct SLoginInfo const& li [[maybe_unused]], unsigned int& client)
 	{
 		global->returncode = ReturnCode::Default;
 
@@ -95,7 +95,7 @@ namespace Plugins::Tempban
 		// right check
 		if (!(classptr->rights & RIGHT_KICKBAN))
 		{
-			classptr->Print(L"ERR No permission");
+			classptr->Print("ERR No permission");
 			return;
 		}
 
@@ -104,7 +104,7 @@ namespace Plugins::Tempban
 			classptr->PrintError(err.error());
 		}
 			
-		classptr->Print(L"OK");
+		classptr->Print("OK");
 	}
 
 	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
@@ -122,7 +122,7 @@ namespace Plugins::Tempban
 		return false;
 	}
 
-	void CmdHelp(CCmds* classptr) { classptr->Print(L"tempban <charname>"); }
+	void CmdHelp(CCmds* classptr) { classptr->Print("tempban <charname>"); }
 
 	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBanCallout; }
 } // namespace Plugins::Tempban

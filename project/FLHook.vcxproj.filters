@@ -10,9 +10,6 @@
     <Filter Include="Tools">
       <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\Tools">
-      <UniqueIdentifier>{eb17067b-6832-4c5d-9174-094efb89822f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FLHook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
     </Filter>
@@ -28,17 +25,14 @@
     <Filter Include="FLHook\Features">
       <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\Ext">
-      <UniqueIdentifier>{492eff4d-e1a3-429b-8ee3-47cba5272b03}</UniqueIdentifier>
+    <Filter Include="sdk\Tools">
+      <UniqueIdentifier>{62d0b77b-91bb-4710-8324-bc544549f6c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\FLCore">
-      <UniqueIdentifier>{2628365d-27aa-463b-a04a-a8cb569b374c}</UniqueIdentifier>
+    <Filter Include="sdk\Features">
+      <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\HkHelp.cpp">
-      <Filter>FLHook</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkInit.cpp">
       <Filter>FLHook</Filter>
     </ClCompile>
@@ -61,7 +55,6 @@
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
-    <ClCompile Include="..\source\ZoneUtilities.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp">
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
@@ -133,6 +126,12 @@
     <ClCompile Include="..\source\Helpers\Time.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp">
+      <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\Mail.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -141,89 +140,45 @@
     <ClInclude Include="..\source\CSocket.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\plugin.h">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\HookedCallBase.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLHook.hpp">
-      <Filter>sdk</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\ext\jpcre2.hpp">
-      <Filter>sdk\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\ext\result.hpp">
-      <Filter>sdk\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\ext\Singleton.h">
-      <Filter>sdk\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\ext\Sql.hpp">
-      <Filter>sdk\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\ext\Wildcard.hpp">
-      <Filter>sdk\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Constexpr.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Deps.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Enums.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Hk.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Macros.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Serialization.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Structs.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Typedefs.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Tools\Utils.hpp">
-      <Filter>sdk\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\__generated.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
-      <Filter>sdk\FLCore</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\FLHookSDK\README.md">
+    <ClInclude Include="..\include\FLHook.hpp">
       <Filter>sdk</Filter>
-    </None>
+    </ClInclude>
+    <ClInclude Include="..\include\plugin.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Constexpr.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Deps.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Enums.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Hk.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Macros.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Serialization.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Structs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Typedefs.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Utils.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\Mail.hpp">
+      <Filter>sdk\Features</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

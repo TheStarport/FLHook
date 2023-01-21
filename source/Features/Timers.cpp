@@ -21,12 +21,12 @@ uint CTimer::stop()
 
 	if (iDelta > iMax && iDelta > iWarning)
 	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, fmt::format("Spent {} ms in {}, longest so far.", iDelta, sFunction));
+		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", iDelta, sFunction));
 		iMax = iDelta;
 	}
 	else if (iDelta > 100)
 	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, fmt::format("Spent {} ms in {}", iDelta, sFunction));
+		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", iDelta, sFunction));
 	}
 
 	return iDelta;
@@ -139,7 +139,7 @@ void TimerNPCAndF1Check()
 		}
 
 		const auto* config = FLHookConfig::c();
-		if (config->general.disableNPCSpawns && (g_iServerLoad >= config->general.disableNPCSpawns))
+		if (config->general.disableNPCSpawns && (CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns))
 			Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
 		else
 			Hk::Admin::ChangeNPCSpawn(false);
@@ -211,7 +211,7 @@ void TimerCheckResolveResults()
 			{
 				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
-					AddKickLog(ip.client, wstos(fmt::format(L"IP/Hostname ban({} matches {})", ip.wscHostname.c_str(), ban.c_str())));
+					AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.wscHostname.c_str(), ban.c_str())));
 					if (config->bans.banAccountOnMatch)
 						Hk::Player::Ban(ip.client, true);
 					Hk::Player::Kick(ip.client);

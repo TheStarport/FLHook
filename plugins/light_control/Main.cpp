@@ -84,10 +84,10 @@ namespace Plugins::LightControl
 		}
 
 		if (!global->config->introMessage1.empty())
-			PrintUserCmdText(client, L"%s", global->config->introMessage1.c_str());
+			PrintUserCmdText(client, global->config->introMessage1);
 
 		if (!global->config->introMessage2.empty())
-			PrintUserCmdText(client, L"%s", global->config->introMessage2.c_str());
+			PrintUserCmdText(client, global->config->introMessage2);
 	}
 
 	/** @ingroup LightControl
@@ -131,7 +131,7 @@ namespace Plugins::LightControl
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
-			PrintUserCmdText(client, fmt::format(L"|    {}: {}", itemNumber++, me.nreplace().c_str()));
+			PrintUserCmdText(client, std::format(L"|    {}: {}", itemNumber++, me.nreplace().c_str()));
 		}
 	}
 
@@ -154,7 +154,7 @@ namespace Plugins::LightControl
 	{
 		if (const auto cash = Hk::Player::GetCash(client); cash.has_value() && cash.value() < global->config->cost)
 		{
-			PrintUserCmdText(client, L"Error: Not enough credits, the cost is %u", global->config->cost);
+			PrintUserCmdText(client, std::format(L"Error: Not enough credits, the cost is {}", global->config->cost));
 			return;
 		}
 
@@ -232,7 +232,7 @@ namespace Plugins::LightControl
 			PrintUserCmdText(client, L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0) 
 			{
-				PrintUserCmdText(client, L"Each light changed will cost %u credits.", global->config->cost);
+				PrintUserCmdText(client, std::format(L"Each light changed will cost {} credits.", global->config->cost));
 			}
 			PrintUserCmdText(client, L"Please log off for light changes to take effect.");
 

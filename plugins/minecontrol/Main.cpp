@@ -120,7 +120,7 @@ namespace Plugins::MiningControl
 		if (!Clients[client].Setup)
 		{
 			if (global->config->PluginDebug > 1)
-				Console::ConInfo(L"client=%d setup bonuses", client);
+				Console::ConInfo(std::format("client={} setup bonuses", client));
 			Clients[client].Setup = true;
 
 			// Get the player affiliation
@@ -136,12 +136,11 @@ namespace Plugins::MiningControl
 			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
 			if (global->config->PluginDebug > 1)
 			{
-				Console::ConInfo(L"client=%d iRepGroupId=%u shipId=%u lstCargo=", client, iRepGroupId, shipId);
+				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} lstCargo=", client, iRepGroupId, shipId));
 				for (auto& ci : lstCargo.value())
 				{
-					Console::ConInfo(L"%u ", ci.iArchId);
+					Console::ConInfo(std::format("{} ", ci.iArchId));
 				}
-				Console::ConPrint(L"");
 			}
 
 			// Check the player bonus list and if this player has the right ship and
@@ -161,7 +160,7 @@ namespace Plugins::MiningControl
 					Clients[client].LootShip[iLootId] = i.second.ShipIds;
 					if (global->config->PluginDebug > 1)
 					{
-						Console::ConInfo(L"client=%d LootId=%08x Bonus=%2.2f\n", client, iLootId, fBonus);
+						Console::ConInfo(std::format("client={} LootId={} Bonus={}\n", client, iLootId, fBonus));
 					}
 				}
 			}
@@ -231,21 +230,20 @@ namespace Plugins::MiningControl
 		auto config = Serializer::JsonToObject<Config>();
 
 		if (config.PluginDebug)
-			Console::ConInfo(L"generic_factor=%0.0f debug=%d", config.GenericFactor, config.PluginDebug);
+			Console::ConInfo(std::format("generic_factor={:.2f} debug={}", config.GenericFactor, config.PluginDebug));
 
 		for (auto& pb : config.PlayerBonus)
 		{
 			pb.LootId = CreateID(pb.Loot.c_str());
 			if (!Archetype::GetEquipment(pb.LootId) && !Archetype::GetSimple(pb.LootId))
 			{
-				Console::ConErr(
-				    L"Item '%s' not valid", stows(pb.Loot).c_str());
+				Console::ConErr(std::format("Item '{}' not valid", pb.Loot));
 				continue;
 			}
 
 			if (pb.Bonus <= 0.0f)
 			{
-				Console::ConErr(L"%s:%0.0f: bonus not valid", stows(pb.Loot).c_str(), pb.Bonus);
+				Console::ConErr(std::format("{}:{:5f}: bonus not valid", pb.Loot, pb.Bonus));
 				continue;
 			}
 
@@ -253,7 +251,7 @@ namespace Plugins::MiningControl
 			pub::Reputation::GetReputationGroup(pb.RepId, pb.Rep.c_str());
 			if (pb.RepId == -1)
 			{
-				Console::ConErr(L"%s: reputation not valid", stows(pb.Rep).c_str());
+				Console::ConErr(std::format("{}: reputation not valid", pb.Rep));
 				continue;
 			}
 
@@ -262,7 +260,7 @@ namespace Plugins::MiningControl
 				uint ShipId = CreateID(ship.c_str());
 				if (!Archetype::GetShip(ShipId))
 				{
-					Console::ConErr(L"%s: ship not valid", stows(ship).c_str());
+					Console::ConErr(std::format("{}: ship not valid", ship));
 					continue;
 				}
 				pb.ShipIds.push_back(ShipId);
@@ -277,7 +275,7 @@ namespace Plugins::MiningControl
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
-					Console::ConErr(L"%s: item not valid", stows(item).c_str());
+					Console::ConErr(std::format("{}: item not valid", item));
 					continue;
 				}
 			}
@@ -295,15 +293,15 @@ namespace Plugins::MiningControl
 						continue;
 					}
 				}
-				Console::ConErr(L"%s: ammo not valid", stows(ammo).c_str());
+				Console::ConErr(std::format("{}: ammo not valid", ammo));
 			}
 				
 			global->PlayerBonus.insert(std::multimap<uint, PlayerBonus>::value_type(pb.LootId, pb));
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(L"mining player bonus LootId: %u Bonus: %2.2f RepId: %u\n",
-				    pb.LootId, pb.Bonus, pb.Rep);
+				Console::ConInfo(std::format("mining player bonus LootId: {} Bonus: {:.2f} RepId: {}\n",
+				    pb.LootId, pb.Bonus, pb.Rep));
 			}
 		}
 
@@ -311,13 +309,13 @@ namespace Plugins::MiningControl
 		{
 			if (zb.Zone.empty())
 			{
-				Console::ConErr(L"%s: zone not valid", stows(zb.Zone).c_str());
+				Console::ConErr(std::format("{}: zone not valid", zb.Zone));
 				continue;
 			}
 
 			if (zb.Bonus <= 0.0f)
 			{
-				Console::ConErr(L"%s:%0.0f: bonus not valid", stows(zb.Zone).c_str(), zb.Bonus);
+				Console::ConErr(std::format("{}:{:.2f}: bonus not valid", zb.Zone, zb.Bonus));
 				continue;
 			}
 
@@ -335,10 +333,8 @@ namespace Plugins::MiningControl
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(L"zone bonus %s Bonus=%2.2f "
-				                 L"ReplacementLootId=%s(%u) "
-				                 L"RechargeRate=%0.0f MaxReserve=%0.0f\n",
-				    stows(zb.Zone).c_str(), zb.Bonus, stows(zb.ReplacementLoot).c_str(), iReplacementLootId, zb.RechargeRate, zb.MaxReserve);
+				Console::ConInfo(std::format("zone bonus {} Bonus={:5f} ReplacementLootId={}({}) RechargeRate={:.2f} MaxReserve={:.2f}\n",
+				    zb.Zone, zb.Bonus, zb.ReplacementLoot, iReplacementLootId, zb.RechargeRate, zb.MaxReserve));
 			}
 		}
 
@@ -493,9 +489,9 @@ namespace Plugins::MiningControl
 						if (Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
-							    fmt::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}"), 
+							    std::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}", 
 							    random, global->config->GenericFactor, fPlayerBonus, fZoneBonus, iLootCount, iLootId, iCrateId,
-							    global->ZoneBonus[zone->iZoneId].CurrentReserve);
+							    global->ZoneBonus[zone->iZoneId].CurrentReserve));
 						}
 
 						Clients[client].MineAsteroidEvents++;
@@ -505,7 +501,7 @@ namespace Plugins::MiningControl
 							if (average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
-								AddLog(LogType::Normal, LogLevel::Info, fmt::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
+								AddLog(LogType::Normal, LogLevel::Info, std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
 								        wstos(CharName.c_str()),
 								        average,
 								        shipPosition.x,

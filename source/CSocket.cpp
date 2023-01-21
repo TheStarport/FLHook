@@ -2,9 +2,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSocket::DoPrint(const std::wstring& textIn)
+void CSocket::DoPrint(const std::string& textIn)
 {
-	std::wstring text(textIn);
+	std::wstring text(stows(textIn));
 	for (uint i = 0; (i < text.length()); i++)
 	{
 		if (text[i] == '\n')

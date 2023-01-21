@@ -1,13 +1,14 @@
 #include "Global.hpp"
+#include "Features/Mail.hpp"
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
 	// load the universe directly before the server becomes internet accessible
-	lstBases.clear();
+	CoreGlobals::i()->allBases.clear();
 	Universe::IBase* base = Universe::GetFirstBase();
 	while (base)
 	{
-		BASE_INFO bi;
+		BaseInfo bi;
 		bi.bDestroyed = false;
 		bi.iObjectId = base->lSpaceObjId;
 		char const* szBaseName = "";
@@ -23,7 +24,7 @@ void IClientImpl__Startup__Inner(uint, uint)
 
 		bi.scBasename = szBaseName;
 		bi.baseId = CreateID(szBaseName);
-		lstBases.push_back(bi);
+		CoreGlobals::i()->allBases.push_back(bi);
 		pub::System::LoadSystem(base->systemId);
 
 		base = Universe::GetNextBase();
@@ -82,10 +83,11 @@ namespace IServerImplHook
 			}
 		}
 
+		auto globals = CoreGlobals::i();
 		char* data;
 		memcpy(&data, g_FLServerDataPtr + 0x40, 4);
-		memcpy(&g_iServerLoad, data + 0x204, 4);
-		memcpy(&g_iPlayerCount, data + 0x208, 4);
+		memcpy(&globals->serverLoadInMs, data + 0x204, 4);
+		memcpy(&globals->playerCount, data + 0x208, 4);
 	}
 
 	CInGame g_Admin;
@@ -176,7 +178,7 @@ namespace IServerImplHook
 			{
 				CAccount* acc = Players.FindAccountFromClientID(cidFrom.iId);
 				std::wstring accDirname = Hk::Client::GetAccountDirName(acc);
-				std::string adminFile = scAcctPath + wstos(accDirname) + "\\flhookadmin.ini";
+				std::string adminFile = CoreGlobals::c()->accPath + wstos(accDirname) + "\\flhookadmin.ini";
 				WIN32_FIND_DATA fd;
 				HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
 				if (hFind != INVALID_HANDLE_VALUE)
@@ -318,7 +320,7 @@ namespace IServerImplHook
 		{
 			const auto isClient = Hk::Client::GetClientIdByShip(mci.dwTargetShip);
 			if (isClient.has_value())
-				g_DmgTo = isClient.value();
+				CoreGlobals::i()->damageToClientId = isClient.value();
 		}
 		CATCH_HOOK({})
 	}
@@ -329,7 +331,7 @@ namespace IServerImplHook
 		if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) || !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) || !(ui.vDir.y == ui.vDir.y) ||
 		    !(ui.vDir.z == ui.vDir.z) || !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle))
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("NAN found in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, std::format("NAN found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -338,7 +340,7 @@ namespace IServerImplHook
 		float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
 		if (n > 1.21f || n < 0.81f)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Non-normalized quaternion found in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Non-normalized quaternion found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -346,7 +348,7 @@ namespace IServerImplHook
 		// Far check
 		if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f || abs(ui.vPos.z) > 1e7f)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, fmt::format("Ship position out of bounds in SPObjUpdate for id={}", client));
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Ship position out of bounds in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
 			return false;
 		}
@@ -421,7 +423,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 				{
 					AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
 
-					Hk::Message::MsgU(fmt::format(L"Possible cheating detected ({})", charName.c_str()));
+					Hk::Message::MsgU(std::format(L"Possible cheating detected ({})", charName.c_str()));
 					Hk::Player::Ban(client, true);
 					Hk::Player::Kick(client);
 					return;
@@ -433,6 +435,8 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 			auto pi = Hk::Admin::GetPlayerInfo(client, false);
 			ProcessEvent(L"login char={} accountdirname={} id={} ip={}", charName.c_str(), dir.c_str(), client, pi.value().wscIP.c_str());
+		
+			MailManager::i()->SendMailNotification(client);
 		}
 	}
 	CATCH_HOOK({})
@@ -588,9 +592,9 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
 				if (abs(gsi.iCount) > cargo.iCount)
 				{
 					const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
-					AddCheaterLog(charName, fmt::format("Sold more good than possible item={} count={}", gsi.iArchId, gsi.iCount));
+					AddCheaterLog(charName, std::format("Sold more good than possible item={} count={}", gsi.iArchId, gsi.iCount));
 
-					Hk::Message::MsgU(fmt::format(L"Possible cheating detected ({})", charName));
+					Hk::Message::MsgU(std::format(L"Possible cheating detected ({})", charName));
 					Hk::Player::Ban(client, true);
 					Hk::Player::Kick(client);
 					return false;
@@ -601,7 +605,7 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
 		if (!legalSell)
 		{
 			const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
-			AddCheaterLog(charName, fmt::format("Sold good player does not have (buggy test), item={}", gsi.iArchId));
+			AddCheaterLog(charName, std::format("Sold good player does not have (buggy test), item={}", gsi.iArchId));
 
 			return false;
 		}
@@ -652,8 +656,8 @@ bool OnConnect__Inner(ClientId client)
 		// the connection.
 		if (client > MaxClientId)
 		{
-			AddLog(LogType::Normal, LogLevel::Warn, fmt::format("INFO: Blocking connect in {} due to invalid id, id={}", __FUNCTION__, client));
-			CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
+			AddLog(LogType::Normal, LogLevel::Warn, std::format("INFO: Blocking connect in {} due to invalid id, id={}", __FUNCTION__, client));
+			CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 			if (!cdpClient)
 				return false;
 			cdpClient->Disconnect();
@@ -664,7 +668,7 @@ bool OnConnect__Inner(ClientId client)
 		if (ClientInfo[client].tmF1TimeDisconnect > timeInMS())
 		{
 			// manual disconnect
-			CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
+			CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 			if (!cdpClient)
 				return false;
 			cdpClient->Disconnect();
@@ -793,7 +797,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 		{
 			if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip).c_str()))
 			{
-				AddKickLog(client, wstos(fmt::format(L"IP/Hostname ban({} matches {})", ip.c_str(), ban.c_str())));
+				AddKickLog(client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.c_str(), ban.c_str())));
 				if (FLHookConfig::i()->bans.banAccountOnMatch)
 					Hk::Player::Ban(client, true);
 				Hk::Player::Kick(client);
@@ -816,7 +820,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 		if (playerCount > (Players.GetMaxPlayerCount() - FLHookConfig::i()->general.reservedSlots))
 		{ // check if player has a reserved slot
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
-			std::string userFile = scAcctPath + wstos(dir) + "\\flhookuser.ini";
+			std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 			bool reserved = IniGetB(userFile, "Settings", "ReservedSlot", false);
 			if (!reserved)
@@ -850,7 +854,7 @@ bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
 {
 	uint system;
 	pub::Player::GetSystem(client, system);
-	AddLog(LogType::Normal, LogLevel::Err, wstos(fmt::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
+	AddLog(LogType::Normal, LogLevel::Err, wstos(std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
 	    Hk::Client::GetCharacterNameByID(client).value(),
 	    system,
 	    gtl.iTradelaneSpaceObj1,
@@ -898,11 +902,14 @@ void Startup__InnerAfter(const SStartupInfo& si)
 	// read base market data from ini
 	LoadBaseMarket();
 
+	// Clean up any mail to chars that no longer exist
+	MailManager::i()->CleanUpOldMail();
+
 	StartupCache::Done();
 
-	Console::ConInfo(L"FLHook Ready");
+	Console::ConInfo("FLHook Ready");
 
-	flhookReady = true;
+	CoreGlobals::i()->flhookReady = true;
 }
 }
 
@@ -910,7 +917,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(ClientId client, XFireWeaponIn
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n\tXFireWeaponInfo& fwi = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n\tXFireWeaponInfo& fwi = {}\n)",
 	    client,
 	    ToLogString(fwi))));
 
@@ -931,7 +938,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(ClientId client, XActivateE
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tClientId client = {}\n\tXActivateEquip& aq = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tClientId client = {}\n\tXActivateEquip& aq = {}\n)",
 	    client,
 	    ToLogString(aq))));
 
@@ -952,7 +959,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(ClientId client, XActivate
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tClientId client = {}\n\tXActivateCruise& aq = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tClientId client = {}\n\tXActivateCruise& aq = {}\n)",
 	    client,
 	    ToLogString(aq))));
 
@@ -973,7 +980,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(ClientId client, XActiv
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tClientId client = {}\n\tXActivateThrusters& aq = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tClientId client = {}\n\tXActivateThrusters& aq = {}\n)",
 	    client,
 	    ToLogString(aq))));
 
@@ -994,7 +1001,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(ClientId client, XSetTarget& st
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tClientId client = {}\n\tXSetTarget& st = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tClientId client = {}\n\tXSetTarget& st = {}\n)",
 	    client,
 	    ToLogString(st))));
 
@@ -1009,7 +1016,7 @@ void IClientImpl::unknown_6(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_6(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_6(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1021,7 +1028,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(ClientId client, XGoTradelane
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tClientId client = {}\n\tXGoTradelane& tl = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tClientId client = {}\n\tXGoTradelane& tl = {}\n)",
 	    client,
 	    ToLogString(tl))));
 
@@ -1036,7 +1043,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(ClientId client, uint shipI
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint archTradelane1 = {}\n\tuint archTradelane2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint archTradelane1 = {}\n\tuint archTradelane2 = {}\n)",
 	    client,
 	    shipId,
 	    archTradelane1,
@@ -1053,7 +1060,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(ClientId client, XJettisonC
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tClientId client = {}\n\tXJettisonCargo& jc = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tClientId client = {}\n\tXJettisonCargo& jc = {}\n)",
 	    client,
 	    ToLogString(jc))));
 
@@ -1086,7 +1093,7 @@ bool IClientImpl::Startup(uint _genArg1, uint _genArg2)
 
 void IClientImpl::nullsub(uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::nullsub(\n\tuint _genArg1 = {}\n)", _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::nullsub(\n\tuint _genArg1 = {}\n)", _genArg1));
 
 	CALL_CLIENT_PREAMBLE { nullsub(_genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -1096,7 +1103,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(ClientId client, FLPACKET_U
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1111,7 +1118,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(ClientId client, FLPACKET_U
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1126,7 +1133,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(ClientId client, FLPAC
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1145,7 +1152,7 @@ void IClientImpl::Shutdown()
 
 bool IClientImpl::CDPClientProxy__Disconnect(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::CDPClientProxy__Disconnect(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__Disconnect(\n\tClientId client = {}\n)", client));
 
 	bool retVal;
 	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__Disconnect(client); }
@@ -1156,7 +1163,7 @@ bool IClientImpl::CDPClientProxy__Disconnect(ClientId client)
 
 uint IClientImpl::CDPClientProxy__GetSendQSize(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::CDPClientProxy__GetSendQSize(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__GetSendQSize(\n\tClientId client = {}\n)", client));
 
 	uint retVal;
 	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetSendQSize(client); }
@@ -1167,7 +1174,7 @@ uint IClientImpl::CDPClientProxy__GetSendQSize(ClientId client)
 
 uint IClientImpl::CDPClientProxy__GetSendQBytes(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::CDPClientProxy__GetSendQBytes(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__GetSendQBytes(\n\tClientId client = {}\n)", client));
 
 	uint retVal;
 	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetSendQBytes(client); }
@@ -1194,7 +1201,7 @@ double IClientImpl::CDPClientProxy__GetLinkSaturation(ClientId client)
 bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArch)
 {
 	AddLog(
-	    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tClientId client = {}\n\tuint shipArch = {}\n)", client, shipArch)));
+	    LogType::Normal, LogLevel::Debug, wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tClientId client = {}\n\tuint shipArch = {}\n)", client, shipArch)));
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH, client, shipArch);
 
@@ -1212,7 +1219,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
 bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float status)
 {
 	AddLog(
-	    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status)));
+	    LogType::Normal, LogLevel::Debug, wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status)));
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS, client, status);
 
@@ -1231,7 +1238,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, FLPAC
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1252,7 +1259,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, FLPACKET_UN
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1271,7 +1278,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, FLPACKET_UN
 
 void IClientImpl::unknown_26(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_26(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_26(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_26(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -1281,7 +1288,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(ClientId client, FLPACKET_UNKN
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n\tFLPACKET_UNKNOWN& _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n\tFLPACKET_UNKNOWN& _genArg2 = {}\n)",
 	    client,
 	    ToLogString(_genArg1),
 	    ToLogString(_genArg2))));
@@ -1303,7 +1310,7 @@ void IClientImpl::unknown_28(ClientId client, uint _genArg1, uint _genArg2, uint
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_28(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_28(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2,
@@ -1317,7 +1324,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(ClientId client, uint _genAr
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1339,7 +1346,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(ClientId client, uint 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1355,7 +1362,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(ClientId client, uint _genAr
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1371,7 +1378,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(ClientId client, uint 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -1386,7 +1393,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(ClientId client, uint _g
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1402,7 +1409,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(ClientId client, 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -1419,7 +1426,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(ClientId cli
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -1434,7 +1441,7 @@ void IClientImpl::unknown_36(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_36(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_36(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1447,7 +1454,7 @@ void IClientImpl::unknown_37(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_37(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_37(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1460,7 +1467,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(ClientId clie
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -1475,7 +1482,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(ClientId client,
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -1492,7 +1499,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(ClientId client, 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -1509,7 +1516,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(ClientId cl
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n)",
 	    client,
 	    _genArg1)));
@@ -1525,7 +1532,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(ClientId client
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -1542,7 +1549,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(ClientId client, 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(\n\tClientId client = {}\n\tuint reason = {}\n)", client, reason)));
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(\n\tClientId client = {}\n\tuint reason = {}\n)", client, reason)));
 
 	bool retVal;
 	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(client, reason); }
@@ -1555,7 +1562,7 @@ void IClientImpl::unknown_44(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_44(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_44(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -1568,7 +1575,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(ClientId client, ui
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -1585,7 +1592,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(ClientId clie
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(\n\tClientId client = {}\n\tuint _genArg1 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(\n\tClientId client = {}\n\tuint _genArg1 = "
 	    L"{}\n)",
 	    client,
 	    _genArg1)));
@@ -1601,7 +1608,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(ClientId client, FLPACKET_CRE
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tClientId client = {}\n\tFLPACKET_CREATESOLAR& solar = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tClientId client = {}\n\tFLPACKET_CREATESOLAR& solar = "
 	    L"{}\n)",
 	    client,
 	    ToLogString(solar))));
@@ -1623,7 +1630,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(ClientId client, FLPACKET_CREA
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tClientId client = {}\n\tFLPACKET_CREATESHIP& ship = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tClientId client = {}\n\tFLPACKET_CREATESHIP& ship = {}\n)",
 	    client,
 	    ToLogString(ship))));
 
@@ -1644,7 +1651,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(ClientId client, FLPACKET_UNKN
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1665,7 +1672,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1686,7 +1693,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_UN
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1707,7 +1714,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(ClientId client, FLPACKET_U
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	        ToLogString(_genArg1))));
 
@@ -1728,7 +1735,7 @@ void IClientImpl::unknown_53(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_53(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_53(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1740,7 +1747,7 @@ void IClientImpl::unknown_54(ClientId client, uint _genArg1, uint _genArg2, uint
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_54(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_54(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2,
@@ -1769,7 +1776,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(ClientId client, FLPACKET_D
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tClientId client = {}\n\tFLPACKET_DESTROYOBJECT& destroy = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tClientId client = {}\n\tFLPACKET_DESTROYOBJECT& destroy = {}\n)",
 	    client,
 	    ToLogString(destroy))));
 
@@ -1790,7 +1797,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(ClientId client, XActivate
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tClientId client = {}\n\tXActivateEquip& aq = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tClientId client = {}\n\tXActivateEquip& aq = {}\n)",
 	    client,
 	    ToLogString(aq))));
 
@@ -1811,7 +1818,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(ClientId client, FLPACK
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1826,7 +1833,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(ClientId client, FLPACKE
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1841,7 +1848,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAND(ClientId client, FLPACKET_LAND& land
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_LAND(\n\tClientId client = {}\n\tFLPACKET_LAND& land = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAND(\n\tClientId client = {}\n\tFLPACKET_LAND& land = {}\n)",
 	    client,
 	    ToLogString(land))));
 
@@ -1856,7 +1863,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(ClientId client, FLPACKET_LAUNCH& 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tClientId client = {}\n\tFLPACKET_LAUNCH& launch = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tClientId client = {}\n\tFLPACKET_LAUNCH& launch = {}\n)",
 	    client,
 	    ToLogString(launch))));
 
@@ -1877,7 +1884,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(ClientId client, bo
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(\n\tClientId client = {}\n\tbool response = {}\n\tuint shipId = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(\n\tClientId client = {}\n\tbool response = {}\n\tuint shipId = {}\n)",
 	    client,
 	    response,
 	    shipId)));
@@ -1899,7 +1906,7 @@ void IClientImpl::unknown_63(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_63(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_63(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1920,7 +1927,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(ClientId client, uint _genA
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -1933,7 +1940,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(ClientId client, uint _genA
 
 bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_USE_ITEM, client, _genArg1);
 
@@ -1952,7 +1959,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(ClientId client, FLPACKET_S
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tClientId client = {}\n\tFLPACKET_SETREPUTATION& rep = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tClientId client = {}\n\tFLPACKET_SETREPUTATION& rep = {}\n)",
 	    client,
 	    ToLogString(rep))));
 
@@ -1973,7 +1980,7 @@ void IClientImpl::unknown_68(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_68(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_68(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -1987,7 +1994,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(ClientId client, uint _genArg1, 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = "
 	    L"{}\n\tuint _genArg3 = {}\n\tuint _genArg4 = {}\n\tuint _genArg5 = {}\n\tuint _genArg6 = {}\n\tuint _genArg7 "
 	    L"= {}\n\tuint _genArg8 = {}\n\tuint _genArg9 = {}\n\tuint _genArg10 = {}\n\tuint _genArg11 = {}\n\tuint "
 	    L"_genArg12 = {}\n\tuint _genArg13 = {}\n\tuint _genArg14 = {}\n\tuint _genArg15 = {}\n\tuint _genArg16 = "
@@ -2103,7 +2110,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(ClientId client, uint _genArg1, 
 
 void IClientImpl::unknown_70(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_70(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_70(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_70(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2113,7 +2120,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(ClientId client, FLPA
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2134,7 +2141,7 @@ void IClientImpl::unknown_72(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_72(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_72(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2146,7 +2153,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(ClientId client, uin
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -2167,7 +2174,7 @@ void IClientImpl::unknown_74(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_74(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_74(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2177,7 +2184,7 @@ void IClientImpl::unknown_74(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 
 void IClientImpl::unknown_75(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_75(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_75(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_75(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2187,7 +2194,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(ClientId client, uint _genArg1, u
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2201,7 +2208,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(ClientId client, uint _genArg1, u
 
 void IClientImpl::unknown_77(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_77(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_77(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_77(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2209,7 +2216,7 @@ void IClientImpl::unknown_77(ClientId client, uint _genArg1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(ClientId client, uint cash)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tClientId client = {}\n\tuint cash = {}\n)", client, cash));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tClientId client = {}\n\tuint cash = {}\n)", client, cash));
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCASH, client, cash);
 
@@ -2226,7 +2233,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(ClientId client, uint cash)
 
 void IClientImpl::unknown_79(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_79(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_79(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_79(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2234,7 +2241,7 @@ void IClientImpl::unknown_79(ClientId client, uint _genArg1)
 
 void IClientImpl::unknown_80(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_80(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_80(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_80(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2242,7 +2249,7 @@ void IClientImpl::unknown_80(ClientId client, uint _genArg1)
 
 void IClientImpl::unknown_81(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_81(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_81(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_81(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2250,7 +2257,7 @@ void IClientImpl::unknown_81(ClientId client, uint _genArg1)
 
 void IClientImpl::unknown_82(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_82(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_82(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_82(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2258,7 +2265,7 @@ void IClientImpl::unknown_82(ClientId client, uint _genArg1)
 
 void IClientImpl::unknown_83(ClientId client, char* _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_83(\n\tClientId client = {}\n\tchar* _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_83(\n\tClientId client = {}\n\tchar* _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_83(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2268,7 +2275,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(ClientId client, uint sh
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint flag = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint flag = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    shipId,
 	    flag,
@@ -2286,7 +2293,7 @@ void IClientImpl::unknown_85(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_85(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_85(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2298,7 +2305,7 @@ void IClientImpl::unknown_86(ClientId client, uint _genArg1, uint _genArg2, uint
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_86(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_86(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2,
@@ -2312,7 +2319,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(ClientId client, uint _
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2328,7 +2335,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(ClientId client, FLPACKET_BURNFU
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tClientId client = {}\n\tFLPACKET_BURNFUSE& burnFuse = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tClientId client = {}\n\tFLPACKET_BURNFUSE& burnFuse = {}\n)",
 	    client,
 	    ToLogString(burnFuse))));
 
@@ -2349,7 +2356,7 @@ void IClientImpl::unknown_89(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_89(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_89(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2359,7 +2366,7 @@ void IClientImpl::unknown_89(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 
 void IClientImpl::unknown_90(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_90(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_90(\n\tClientId client = {}\n)", client));
 
 	CALL_CLIENT_PREAMBLE { unknown_90(client); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2367,7 +2374,7 @@ void IClientImpl::unknown_90(ClientId client)
 
 void IClientImpl::unknown_91(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_91(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_91(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_91(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2377,7 +2384,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(ClientId client, uint _g
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    fmt::format("IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
+	    std::format("IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2));
@@ -2393,7 +2400,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(ClientId client, uint o
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    fmt::format("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
+	    std::format("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
 	    client,
 	    objHash,
 	    state));
@@ -2409,7 +2416,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(ClientId client, uint o
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tClientId client = {}\n\tobjHash = {}\n\tint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tClientId client = {}\n\tobjHash = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    objHash,
 	    _genArg2)));
@@ -2425,7 +2432,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(ClientId client, uin
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2441,7 +2448,7 @@ void IClientImpl::unknown_96(ClientId client, uint _genArg1, uint _genArg2, uint
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_96(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_96(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint _genArg3 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2,
@@ -2455,7 +2462,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(ClientId client, 
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2471,7 +2478,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2487,7 +2494,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(ClientId client, uint
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2503,7 +2510,7 @@ void IClientImpl::unknown_100(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_100(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_100(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2516,7 +2523,7 @@ void IClientImpl::unknown_101(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2526,7 +2533,7 @@ void IClientImpl::unknown_101(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 
 void IClientImpl::unknown_102(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_102(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_102(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_102(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2534,7 +2541,7 @@ void IClientImpl::unknown_102(ClientId client, uint _genArg1)
 
 void IClientImpl::unknown_103(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_103(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_103(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_103(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2544,7 +2551,7 @@ void IClientImpl::unknown_104(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_104(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_104(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2557,7 +2564,7 @@ void IClientImpl::unknown_105(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_105(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_105(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2570,7 +2577,7 @@ void IClientImpl::unknown_106(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_106(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_106(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2583,7 +2590,7 @@ void IClientImpl::unknown_107(ClientId client, uint _genArg1, uint _genArg2)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_107(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::unknown_107(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2596,7 +2603,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(ClientId client, uint _genAr
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)",
 	    client,
 	    _genArg1)));
 
@@ -2609,7 +2616,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(ClientId client, uint _genAr
 
 void IClientImpl::unknown_109(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_109(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_109(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_109(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2619,7 +2626,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(ClientId client, uint _genArg1
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2641,7 +2648,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = \n\tuint _genArg2 = {}\n\tchar _genArg3 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = \n\tuint _genArg2 = {}\n\tchar _genArg3 = {}\n)",
 	    client,
 	    std::wstring(characterName),
 	    _genArg2,
@@ -2662,7 +2669,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
 
 void IClientImpl::unknown_112(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_112(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_112(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_112(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2670,7 +2677,7 @@ void IClientImpl::unknown_112(ClientId client, uint _genArg1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tClientId client = {}\n)", client));
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2, client);
 
@@ -2689,7 +2696,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2711,7 +2718,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2733,7 +2740,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(ClientId client, FLPACKET_U
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
 	    client,
 	    ToLogString(_genArg1))));
 
@@ -2754,7 +2761,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2776,7 +2783,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(ClientId client, uint tar
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tClientId client = {}\n\tuint targetId = {}\n\tuint rank = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tClientId client = {}\n\tuint targetId = {}\n\tuint rank = {}\n)",
 	    client,
 	    targetId,
 	    rank)));
@@ -2798,7 +2805,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint "
 	    L"_genArg2 = {}\n)",
 	    client,
 	    _genArg1,
@@ -2821,7 +2828,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(ClientId client, uint _ge
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)",
 	    client,
 	    _genArg1,
 	    _genArg2)));
@@ -2841,7 +2848,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(ClientId client, uint _ge
 
 void IClientImpl::unknown_121(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_121(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_121(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_121(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2851,7 +2858,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(ClientId client, uint sh
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(\n\tClientId client = {}\n\tuint shipId = {}\n\tVector& formationOffset = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(\n\tClientId client = {}\n\tuint shipId = {}\n\tVector& formationOffset = {}\n)",
 	    client,
 	    shipId,
 	    ToLogString(formationOffset))));
@@ -2867,7 +2874,7 @@ void IClientImpl::unknown_123(ClientId client, uint _genArg1, uint _genArg2, uin
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(fmt::format(L"IClientImpl::unknown_123(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint "
+	    wstos(std::format(L"IClientImpl::unknown_123(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n\tuint "
 	    L"_genArg3 = {}\n\tuint _genArg4 = {}\n\tuint _genArg5 = {}\n\tuint _genArg6 = {}\n)",
 	    client,
 	    _genArg1,
@@ -2883,7 +2890,7 @@ void IClientImpl::unknown_123(ClientId client, uint _genArg1, uint _genArg2, uin
 
 void IClientImpl::unknown_124(ClientId client)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_124(\n\tClientId client = {}\n)", client));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_124(\n\tClientId client = {}\n)", client));
 
 	CALL_CLIENT_PREAMBLE { unknown_124(client); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2891,7 +2898,7 @@ void IClientImpl::unknown_124(ClientId client)
 
 void IClientImpl::unknown_125(ClientId client, uint _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_125(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_125(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 	CALL_CLIENT_PREAMBLE { unknown_125(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
@@ -2899,7 +2906,7 @@ void IClientImpl::unknown_125(ClientId client, uint _genArg1)
 
 int IClientImpl::unknown_126(char* _genArg1)
 {
-	AddLog(LogType::Normal, LogLevel::Debug, fmt::format("IClientImpl::unknown_126(\n\tchar* _genArg1 = {}\n)", _genArg1));
+	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_126(\n\tchar* _genArg1 = {}\n)", _genArg1));
 
 	int retVal;
 	CALL_CLIENT_PREAMBLE { retVal = unknown_126(_genArg1); }
@@ -2912,7 +2919,7 @@ namespace IServerImplHook
 {
 	void __stdcall FireWeapon(ClientId client, XFireWeaponInfo const& fwi)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"FireWeapon(\n\tClientId client = {}\n\tXFireWeaponInfo const& fwi = {}\n)", client, ToLogString(fwi))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"FireWeapon(\n\tClientId client = {}\n\tXFireWeaponInfo const& fwi = {}\n)", client, ToLogString(fwi))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__FireWeapon, client, fwi);
 
@@ -2932,7 +2939,7 @@ namespace IServerImplHook
 {
 	void __stdcall ActivateEquip(ClientId client, XActivateEquip const& aq)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ActivateEquip(\n\tClientId client = {}\n\tXActivateEquip const& aq = {}\n)", client, ToLogString(aq))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ActivateEquip(\n\tClientId client = {}\n\tXActivateEquip const& aq = {}\n)", client, ToLogString(aq))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateEquip, client, aq);
 
@@ -2954,7 +2961,7 @@ namespace IServerImplHook
 {
 	void __stdcall ActivateCruise(ClientId client, XActivateCruise const& ac)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ActivateCruise(\n\tClientId client = {}\n\tXActivateCruise const& ac = {}\n)", client, ToLogString(ac))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ActivateCruise(\n\tClientId client = {}\n\tXActivateCruise const& ac = {}\n)", client, ToLogString(ac))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateCruise, client, ac);
 
@@ -2977,7 +2984,7 @@ namespace IServerImplHook
 	void __stdcall ActivateThrusters(ClientId client, XActivateThrusters const& at)
 	{
 		AddLog(
-		    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ActivateThrusters(\n\tClientId client = {}\n\tXActivateThrusters const& at = {}\n)", client, ToLogString(at))));
+		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"ActivateThrusters(\n\tClientId client = {}\n\tXActivateThrusters const& at = {}\n)", client, ToLogString(at))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateThrusters, client, at);
 
@@ -3001,7 +3008,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"SetTarget(\n\tClientId client = {}\n\tXSetTarget const& st = {}\n)", client, ToLogString(st))));
+		    wstos(std::format(L"SetTarget(\n\tClientId client = {}\n\tXSetTarget const& st = {}\n)", client, ToLogString(st))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTarget, client, st);
 
@@ -3019,7 +3026,7 @@ namespace IServerImplHook
 {
 	void __stdcall TractorObjects(ClientId client, XTractorObjects const& to)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"TractorObjects(\n\tClientId client = {}\n\tXTractorObjects const& to = {}\n)", client, ToLogString(to))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"TractorObjects(\n\tClientId client = {}\n\tXTractorObjects const& to = {}\n)", client, ToLogString(to))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TractorObjects, client, to);
 
@@ -3037,7 +3044,7 @@ namespace IServerImplHook
 {
 	void __stdcall GoTradelane(ClientId client, XGoTradelane const& gt)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"GoTradelane(\n\tClientId client = {}\n\tXGoTradelane const& gt = {}\n)", client, ToLogString(gt))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"GoTradelane(\n\tClientId client = {}\n\tXGoTradelane const& gt = {}\n)", client, ToLogString(gt))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GoTradelane, client, gt);
 
@@ -3059,7 +3066,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
+		    wstos(std::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
 		    client,
 		    shipId,
 		    tradelaneRing1,
@@ -3083,7 +3090,7 @@ namespace IServerImplHook
 {
 	void __stdcall JettisonCargo(ClientId client, XJettisonCargo const& jc)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"JettisonCargo(\n\tClientId client = {}\n\tXJettisonCargo const& jc = {}\n)", client, ToLogString(jc))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"JettisonCargo(\n\tClientId client = {}\n\tXJettisonCargo const& jc = {}\n)", client, ToLogString(jc))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JettisonCargo, client, jc);
 
@@ -3159,7 +3166,7 @@ namespace IServerImplHook
 {
 	void __stdcall DisConnect(ClientId client, EFLConnection conn)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"DisConnect(\n\tClientId client = {}\n\tEFLConnection conn = {}\n)", client, ToLogString(conn))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"DisConnect(\n\tClientId client = {}\n\tEFLConnection conn = {}\n)", client, ToLogString(conn))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DisConnect, client, conn);
 
@@ -3179,7 +3186,7 @@ namespace IServerImplHook
 {
 	void __stdcall OnConnect(ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"OnConnect(\n\tClientId client = {}\n)", client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"OnConnect(\n\tClientId client = {}\n)", client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect, client);
 
@@ -3201,7 +3208,7 @@ namespace IServerImplHook
 {
 	void __stdcall Login(SLoginInfo const& li, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"Login(\n\tSLoginInfo const& li = {}\n\tClientId client = {}\n)", ToLogString(li), client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"Login(\n\tSLoginInfo const& li = {}\n\tClientId client = {}\n)", ToLogString(li), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login, li, client);
 
@@ -3220,7 +3227,7 @@ namespace IServerImplHook
 {
 	void __stdcall CharacterInfoReq(ClientId client, bool _genArg1)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"CharacterInfoReq(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"CharacterInfoReq(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterInfoReq, client, _genArg1);
 
@@ -3243,7 +3250,7 @@ namespace IServerImplHook
 {
 	void __stdcall CharacterSelect(CHARACTER_ID const& cid, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"CharacterSelect(\n\tCHARACTER_ID const& cid = {}\n\tClientId client = {}\n)", ToLogString(cid), client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"CharacterSelect(\n\tCHARACTER_ID const& cid = {}\n\tClientId client = {}\n)", ToLogString(cid), client)));
 
 		std::string charName = cid.szCharFilename;
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect, charName, client);
@@ -3270,7 +3277,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = {}\n\tClientId client = {}\n)",
 		    ToLogString(_genArg1),
 		    client)));
 
@@ -3292,7 +3299,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = {}\n\tClientId client = {}\n)",
 		    ToLogString(_genArg1),
 		    client)));
 
@@ -3312,7 +3319,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqShipArch(uint archId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch, archId, client);
 
@@ -3330,7 +3337,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqHullStatus(float status, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ReqHullStatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqHullStatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus, status, client);
 
@@ -3350,7 +3357,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroups = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroups = {}\n\tClientId client = {}\n)",
 		    ToLogString(collisionGroups),
 		    client)));
 
@@ -3370,7 +3377,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqEquipment(EquipDescList const& edl, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"ReqEquipment(\n\tEquipDescList const& edl = {}\n\tClientId client = {}\n)", ToLogString(edl), client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqEquipment(\n\tEquipDescList const& edl = {}\n\tClientId client = {}\n)", ToLogString(edl), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment, edl, client);
 
@@ -3390,7 +3397,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
+		    wstos(std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
 		    L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
 		    goodId,
 		    stows(std::string(hardpoint)),
@@ -3415,7 +3422,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqRemoveItem(ushort slotId, int count, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqRemoveItem, slotId, count, client);
 
 		if (!skip)
@@ -3434,7 +3441,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
+		    std::format("ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
 		    "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
 		    slotId,
 		    std::string(hardpoint),
@@ -3459,7 +3466,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqSetCash(int cash, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash, cash, client);
 
@@ -3477,7 +3484,7 @@ namespace IServerImplHook
 {
 	void __stdcall ReqChangeCash(int cashAdd, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash, cashAdd, client);
 
@@ -3495,7 +3502,7 @@ namespace IServerImplHook
 {
 	void __stdcall BaseEnter(uint baseId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseEnter, baseId, client);
 
@@ -3518,7 +3525,7 @@ namespace IServerImplHook
 {
 	void __stdcall BaseExit(uint baseId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseExit, baseId, client);
 
@@ -3541,7 +3548,7 @@ namespace IServerImplHook
 {
 	void __stdcall LocationEnter(uint locationId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationEnter, locationId, client);
 
@@ -3559,7 +3566,7 @@ namespace IServerImplHook
 {
 	void __stdcall LocationExit(uint locationId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationExit, locationId, client);
 
@@ -3579,7 +3586,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("BaseInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)",
+		    std::format("BaseInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)",
 		    _genArg1,
 		    _genArg2,
 		    _genArg3));
@@ -3602,7 +3609,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("LocationInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)",
+		    std::format("LocationInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)",
 		    _genArg1,
 		    _genArg2,
 		    _genArg3));
@@ -3623,7 +3630,7 @@ namespace IServerImplHook
 {
 	void __stdcall GFObjSelect(unsigned int _genArg1, unsigned int _genArg2)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("GFObjSelect(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n)", _genArg1, _genArg2));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("GFObjSelect(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n)", _genArg1, _genArg2));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2);
 
@@ -3642,7 +3649,7 @@ namespace IServerImplHook
 	void __stdcall GFGoodVaporized(SGFGoodVaporizedInfo const& gvi, ClientId client)
 	{
 		AddLog(
-		    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& gvi = {}\n\tClientId client = {}\n)", ToLogString(gvi), client)));
+		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& gvi = {}\n\tClientId client = {}\n)", ToLogString(gvi), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized, gvi, client);
 
@@ -3662,7 +3669,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("MissionResponse(\n\tunsigned int _genArg1 = {}\n\tunsigned long _genArg2 = {}\n\tbool _genArg3 = "
+		    std::format("MissionResponse(\n\tunsigned int _genArg1 = {}\n\tunsigned long _genArg2 = {}\n\tbool _genArg3 = "
 		    "{}\n\tClientId client = {}\n)",
 		    _genArg1,
 		    _genArg2,
@@ -3709,7 +3716,7 @@ namespace IServerImplHook
 	void __stdcall GFGoodBuy(SGFGoodBuyInfo const& _genArg1, ClientId client)
 	{
 		AddLog(
-		    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
+		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy, _genArg1, client);
 
@@ -3728,7 +3735,7 @@ namespace IServerImplHook
 	void __stdcall GFGoodSell(SGFGoodSellInfo const& _genArg1, ClientId client)
 	{
 		AddLog(
-		    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
+		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"GFGoodSell(\n\tSGFGoodSellInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodSell, _genArg1, client);
 
@@ -3751,7 +3758,7 @@ namespace IServerImplHook
 {
 	void __stdcall SystemSwitchOutComplete(uint shipId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete, shipId, client);
 
@@ -3770,7 +3777,7 @@ namespace IServerImplHook
 {
 	void __stdcall PlayerLaunch(uint shipId, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PlayerLaunch, shipId, client);
 
@@ -3793,7 +3800,7 @@ namespace IServerImplHook
 {
 	void __stdcall LaunchComplete(uint baseId, uint shipId)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete, baseId, shipId);
 
@@ -3813,7 +3820,7 @@ namespace IServerImplHook
 {
 	void __stdcall JumpInComplete(uint systemId, uint shipId)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete, systemId, shipId);
 
@@ -3834,7 +3841,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("Hail(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tunsigned int _genArg3 = {}\n)",
+		    std::format("Hail(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tunsigned int _genArg3 = {}\n)",
 		    _genArg1,
 		    _genArg2,
 		    _genArg3));
@@ -3878,7 +3885,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& mci = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"SPMunitionCollision(\n\tSSPMunitionCollisionInfo const& mci = {}\n\tClientId client = {}\n)",
 		    ToLogString(mci),
 		    client)));
 
@@ -3903,7 +3910,7 @@ namespace IServerImplHook
 	void __stdcall SPObjCollision(SSPObjCollisionInfo const& oci, ClientId client)
 	{
 		AddLog(
-		    LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"SPObjCollision(\n\tSSPObjCollisionInfo const& oci = {}\n\tClientId client = {}\n)", ToLogString(oci), client)));
+		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"SPObjCollision(\n\tSSPObjCollisionInfo const& oci = {}\n\tClientId client = {}\n)", ToLogString(oci), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjCollision, oci, client);
 
@@ -3923,7 +3930,7 @@ namespace IServerImplHook
 {
 	void __stdcall SPRequestUseItem(SSPUseItem const& ui, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"SPRequestUseItem(\n\tSSPUseItem const& ui = {}\n\tClientId client = {}\n)", ToLogString(ui), client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"SPRequestUseItem(\n\tSSPUseItem const& ui = {}\n\tClientId client = {}\n)", ToLogString(ui), client)));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem, ui, client);
 
@@ -3943,7 +3950,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = "
+		    wstos(std::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = "
 		    L"{}\n\tClientId client = {}\n)",
 		    shipId,
 		    enable,
@@ -3968,7 +3975,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint _genArg1 = {}\n\tulong _genArg2 = {}\n\tClientId client = {}\n)",
+		    std::format("RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint _genArg1 = {}\n\tulong _genArg2 = {}\n\tClientId client = {}\n)",
 		    eventType,
 		    shipId,
 		    dockTarget,
@@ -3994,7 +4001,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint _genArg1 = {}\n\tulong _genArg2 = {}\n\tClientId client = {}\n)",
+		    std::format("RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint _genArg1 = {}\n\tulong _genArg2 = {}\n\tClientId client = {}\n)",
 		    eventType,
 		    shipId,
 		    _genArg1,
@@ -4019,7 +4026,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"MineAsteroid(\n\tuint systemId = {}\n\tVector const& pos = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tVector const& pos = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = {}\n\tClientId client = {}\n)",
 		    systemId,
 		    ToLogString(pos),
 		    crateId,
@@ -4043,7 +4050,7 @@ namespace IServerImplHook
 {
 	void __stdcall RequestCreateShip(ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("RequestCreateShip(\n\tClientId client = {}\n)", client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("RequestCreateShip(\n\tClientId client = {}\n)", client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip, client);
 
@@ -4063,7 +4070,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(fmt::format(L"SPScanCargo(\n\tuint const& _genArg1 = {}\n\tuint const& _genArg2 = {}\n\tuint _genArg3 = {}\n)",
+		    wstos(std::format(L"SPScanCargo(\n\tuint const& _genArg1 = {}\n\tuint const& _genArg2 = {}\n\tuint _genArg3 = {}\n)",
 		    ToLogString(_genArg1),
 		    ToLogString(_genArg2),
 		    _genArg3)));
@@ -4084,7 +4091,7 @@ namespace IServerImplHook
 {
 	void __stdcall SetManeuver(ClientId client, XSetManeuver const& sm)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"SetManeuver(\n\tClientId client = {}\n\tXSetManeuver const& sm = {}\n)", client, ToLogString(sm))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"SetManeuver(\n\tClientId client = {}\n\tXSetManeuver const& sm = {}\n)", client, ToLogString(sm))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver, client, sm);
 
@@ -4102,7 +4109,7 @@ namespace IServerImplHook
 {
 	void __stdcall InterfaceItemUsed(uint _genArg1, uint _genArg2)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("InterfaceItemUsed(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("InterfaceItemUsed(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InterfaceItemUsed, _genArg1, _genArg2);
 
@@ -4120,7 +4127,7 @@ namespace IServerImplHook
 {
 	void __stdcall AbortMission(ClientId client, uint _genArg1)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("AbortMission(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("AbortMission(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AbortMission, client, _genArg1);
 
@@ -4140,7 +4147,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetWeaponGroup(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("SetWeaponGroup(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4163,7 +4170,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
+		    std::format("SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)",
 		    client, objHash,
 		    state));
 
@@ -4185,7 +4192,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4208,7 +4215,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestPlayerStats(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("RequestPlayerStats(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4229,7 +4236,7 @@ namespace IServerImplHook
 {
 	void __stdcall PopupDialog(ClientId client, uint buttonClicked)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, buttonClicked));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, buttonClicked));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopupDialog, client, buttonClicked);
 
@@ -4249,7 +4256,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestGroupPositions(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("RequestGroupPositions(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4272,7 +4279,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("SetInterfaceState(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("SetInterfaceState(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4295,7 +4302,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    fmt::format("RequestRankLevel(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
+		    std::format("RequestRankLevel(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)",
 		    client,
 		    _genArg1,
 		    _genArg2));
@@ -4316,7 +4323,7 @@ namespace IServerImplHook
 {
 	void __stdcall InitiateTrade(ClientId client1, ClientId client2)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("InitiateTrade(\n\tClientId client1 = {}\n\tClientId client2 = {}\n)", client1, client2));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("InitiateTrade(\n\tClientId client1 = {}\n\tClientId client2 = {}\n)", client1, client2));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InitiateTrade, client1, client2);
 
@@ -4336,7 +4343,7 @@ namespace IServerImplHook
 {
 	void __stdcall TerminateTrade(ClientId client, int accepted)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("TerminateTrade(\n\tClientId client = {}\n\tint accepted = {}\n)", client, accepted));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("TerminateTrade(\n\tClientId client = {}\n\tint accepted = {}\n)", client, accepted));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TerminateTrade, client, accepted);
 
@@ -4357,7 +4364,7 @@ namespace IServerImplHook
 {
 	void __stdcall AcceptTrade(ClientId client, bool _genArg1)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("AcceptTrade(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("AcceptTrade(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AcceptTrade, client, _genArg1);
 
@@ -4375,7 +4382,7 @@ namespace IServerImplHook
 {
 	void __stdcall SetTradeMoney(ClientId client, ulong _genArg1)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("SetTradeMoney(\n\tClientId client = {}\n\tulong _genArg1 = {}\n)", client, _genArg1));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("SetTradeMoney(\n\tClientId client = {}\n\tulong _genArg1 = {}\n)", client, _genArg1));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTradeMoney, client, _genArg1);
 
@@ -4393,7 +4400,7 @@ namespace IServerImplHook
 {
 	void __stdcall AddTradeEquip(ClientId client, EquipDesc const& ed)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"AddTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"AddTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AddTradeEquip, client, ed);
 
@@ -4411,7 +4418,7 @@ namespace IServerImplHook
 {
 	void __stdcall DelTradeEquip(ClientId client, EquipDesc const& ed)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(fmt::format(L"DelTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"DelTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DelTradeEquip, client, ed);
 
@@ -4429,7 +4436,7 @@ namespace IServerImplHook
 {
 	void __stdcall RequestTrade(uint _genArg1, uint _genArg2)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("RequestTrade(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("RequestTrade(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestTrade, _genArg1, _genArg2);
 
@@ -4447,7 +4454,7 @@ namespace IServerImplHook
 {
 	void __stdcall StopTradeRequest(ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("StopTradeRequest(\n\tClientId client = {}\n)", client));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("StopTradeRequest(\n\tClientId client = {}\n)", client));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradeRequest, client);
 
@@ -4471,7 +4478,7 @@ namespace IServerImplHook
 	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID cidTo, int _genArg1)
 	{
 
-		AddLog(LogType::Normal, LogLevel::Debug, fmt::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.iId, size, cidTo.iId));
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.iId, size, cidTo.iId));
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.iId, size, rdlReader, cidTo.iId, _genArg1);
 

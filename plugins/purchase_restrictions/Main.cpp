@@ -56,7 +56,7 @@ namespace Plugins::PurchaseRestrictions
 			const auto charName = Hk::Client::GetCharacterNameByID(client);
 			AddLog(LogType::Normal,
 			    LogLevel::Info,
-			    fmt::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), wstos(charName.value()), details.c_str()));
+			    std::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), wstos(charName.value()), details.c_str()));
 		}
 	}
 
@@ -150,7 +150,7 @@ namespace Plugins::PurchaseRestrictions
 				if (!CheckIdEquipRestrictions(client, gbi.iGoodId, false))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
-					AddLog(LogType::Normal, LogLevel::Info, fmt::format("{} attempting to buy {} without correct Id", wstos(charName.value()), gbi.iGoodId));
+					AddLog(LogType::Normal, LogLevel::Info, std::format("{} attempting to buy {} without correct Id", wstos(charName.value()), gbi.iGoodId));
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->goodPurchaseDenied);
@@ -181,7 +181,7 @@ namespace Plugins::PurchaseRestrictions
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
 					AddLog(LogType::Normal,
 					    LogLevel::Info,
-					    fmt::format("{} attempting to buy {} without correct Id", wstos(charName.value()), hullInfo->shipGoodId));
+					    std::format("{} attempting to buy {} without correct Id", wstos(charName.value()), hullInfo->shipGoodId));
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->shipPurchaseDenied);

@@ -173,13 +173,13 @@ namespace Plugins::CargoDrop
 		{
 
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(L"Cargo drop in system %08x at %f,%f,%f for ship size of shipSizeEst=%d iHullDrop=%d\n",
+				Console::ConInfo(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
 				    system,
 				    position.x,
 				    position.y,
 				    position.z,
 				    shipSizeEstimate,
-				    hullDrop);
+				    hullDrop));
 
 			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop1NickNameId, hullDrop, clientKiller);
 			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast<int>(0.5 * hullDrop), clientKiller);

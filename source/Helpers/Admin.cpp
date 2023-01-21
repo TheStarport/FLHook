@@ -6,7 +6,7 @@ namespace Hk::Admin
 {
 	std::wstring GetPlayerIP(ClientId client)
 	{
-		CDPClientProxy const* cdpClient = g_cClientProxyArray[client - 1];
+		CDPClientProxy const* cdpClient = clientProxyArray[client - 1];
 		if (!cdpClient)
 			return L"";
 
@@ -58,14 +58,14 @@ some_error:
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<PLAYERINFO, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu)
+	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		if (client == -1 || (Hk::Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		PLAYERINFO pi;
+		PlayerInfo pi;
 		const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 
 		pi.client = client;
@@ -109,9 +109,9 @@ some_error:
 		return pi;
 	}
 
-	std::list<PLAYERINFO> GetPlayers()
+	std::list<PlayerInfo> GetPlayers()
 	{
-		std::list<PLAYERINFO> lstRet;
+		std::list<PlayerInfo> lstRet;
 		std::wstring wscRet;
 
 		struct PlayerData* playerDb = nullptr;
@@ -136,7 +136,7 @@ some_error:
 		if (client < 1 || client > MaxClientId)
 			return cpp::fail(Error::InvalidClientId);
 
-		CDPClientProxy* cdpClient = g_cClientProxyArray[client - 1];
+		CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 
 		DPN_CONNECTION_INFO ci;
 		if (!cdpClient || !cdpClient->GetConnectionStats(&ci))
@@ -156,7 +156,7 @@ some_error:
 
 		auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-		std::string scAdminFile = scAcctPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 		IniWrite(scAdminFile, "admin", "rights", wstos(wscRights));
 		return {};
 	}
@@ -172,7 +172,7 @@ some_error:
 		}
 
 		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scAdminFile = scAcctPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 
 		WIN32_FIND_DATA fd;
 		HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
@@ -196,20 +196,18 @@ some_error:
 		}
 
 		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scAdminFile = scAcctPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 		DeleteFile(scAdminFile.c_str());
 		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool g_bNPCDisabled = false;
-
 	cpp::result<void, Error> ChangeNPCSpawn(bool bDisable)
 	{
-		if (g_bNPCDisabled && bDisable)
+		if (CoreGlobals::c()->disableNpcs && bDisable)
 			return {};
-		else if (!g_bNPCDisabled && !bDisable)
+		else if (!CoreGlobals::c()->disableNpcs && !bDisable)
 			return {};
 
 		char szJump[1];

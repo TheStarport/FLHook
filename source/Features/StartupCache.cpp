@@ -21,7 +21,7 @@ namespace StartupCache
 	// A fast alternative to the built in read character name function in server.dll
 	static int __stdcall Cb_ReadCharacterName(const char* filename, st6::wstring* str)
 	{
-		Console::ConDebug(L"Read character - " + stows(filename));
+		Console::ConDebug("Read character - " + std::string(filename));
 
 		// If this account/charfile can be found in the character return
 		// then name immediately.
@@ -51,7 +51,7 @@ namespace StartupCache
 		// Open the name cache file and load it into memory.
 		std::string scPath = scBaseAcctPath + "namecache.bin";
 
-		Console::ConInfo(L"Loading character name cache");
+		Console::ConInfo("Loading character name cache");
 		FILE* file;
 		fopen_s(&file, scPath.c_str(), "rb");
 		if (file)
@@ -65,7 +65,7 @@ namespace StartupCache
 			}
 			fclose(file);
 		}
-		Console::ConInfo(L"Loaded %d names", cache.size());
+		Console::ConInfo(std::format("Loaded {} names", cache.size()));
 	}
 
 	static void SaveCache()
@@ -77,7 +77,7 @@ namespace StartupCache
 		fopen_s(&file, scPath.c_str(), "wb");
 		if (file)
 		{
-			Console::ConInfo(L"Saving character name cache");
+			Console::ConInfo("Saving character name cache");
 			for (auto& i : cache)
 			{
 				NameInfo ni {};
@@ -86,12 +86,12 @@ namespace StartupCache
 				wcsncpy_s(ni.name, 25, i.second.c_str(), i.second.size());
 				if (!fwrite(&ni, sizeof(NameInfo), 1, file))
 				{
-					Console::ConErr(L"Saving character name cache failed");
+					Console::ConErr("Saving character name cache failed");
 					break;
 				}
 			}
 			fclose(file);
-			Console::ConInfo(L"Saved %d names", cache.size());
+			Console::ConInfo(std::format("Saved {} names", cache.size()));
 		}
 
 		cache.clear();
