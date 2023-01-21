@@ -72,8 +72,17 @@ cpp::result<void, Error> PluginManager::unload(const std::string& name)
 	if (plugin == end())
 		return cpp::fail(Error::PluginNotFound);
 
+	if (!plugin->mayUnload)
+	{
+		Console::ConWarn("Plugin may not be unloaded.");
+		return {};
+	}
+
+	HMODULE dllAddr = plugin->dll;
+
 	Console::ConPrint(std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
 	plugins_.erase(plugin);
+	FreeLibrary(dllAddr);
 	return {};
 }
 
