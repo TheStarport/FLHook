@@ -80,12 +80,12 @@ class PluginHook
 	friend class PluginManager;
 };
 
-#define PluginCall(name, ...) (__stdcall * (name))(__VA_ARGS__)
+#define PluginCall(name, ...) (* (name))(__VA_ARGS__)
 // Inherit from this to define a IPC (Inter-Plugin Communication) class.
 class DLL PluginCommunicator
 {
   public:
-	using EventSubscription = void(__stdcall*)(int id, void* dataPack);
+	using EventSubscription = void(*)(int id, void* dataPack);
 	void Dispatch(int id, void* dataPack) const;
 	void AddListener(std::string plugin, EventSubscription event);
 

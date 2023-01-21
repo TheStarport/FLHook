@@ -286,7 +286,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief If this is the first tick of the plugin being loaded, reset any connection data. Call any timers also.
 	 */
-	int __stdcall Update()
+	int Update()
 	{
 		static bool firstTime = true;
 		if (firstTime)
@@ -322,12 +322,12 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on PlayerLaunch. Sets tmLastObjUpdate to 0.
 	 */
-	void __stdcall PlayerLaunch(ShipId& ship, ClientId& client) { global->connections[client].tmLastObjUpdate = 0; }
+	void PlayerLaunch(ShipId& ship, ClientId& client) { global->connections[client].tmLastObjUpdate = 0; }
 
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
 	 */
-	void __stdcall SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
+	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		// lag detection
 		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
@@ -503,7 +503,7 @@ namespace Plugins::ConData
 				if (Hk::Client::IsInCharSelectMenu(client))
 					continue;
 
-				CDPClientProxy* cdpClient = CoreGlobals::c()->clientProxyArray[client - 1];
+				CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 				if (!cdpClient)
 					continue;
 

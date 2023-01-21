@@ -373,7 +373,7 @@ namespace Hk::Client
 		pub::Player::GetShip(client, ship);
 		uint iDunno;
 		IObjInspectImpl* inspect;
-		if (!CoreGlobals::c()->GetShipInspect(ship, inspect, iDunno))
+		if (!GetShipInspect(ship, inspect, iDunno))
 			return cpp::fail(Error::InvalidShip);
 		else
 			return inspect;

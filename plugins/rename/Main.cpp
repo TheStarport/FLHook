@@ -7,6 +7,7 @@
 // being notified and/or mentioned somewhere.
 
 #include "Main.h"
+#include "Features/Mail.hpp"
 
 namespace Plugins::Rename
 {
@@ -283,6 +284,9 @@ namespace Plugins::Rename
 					throw "src still exists";
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
+
+				// Update any mail references this character had before
+				MailManager::i()->UpdateCharacterName(wstos(o.charName), wstos(o.newCharName));
 
 				// The rename worked. Log it and save the rename time.
 				AddLog(LogType::Normal,

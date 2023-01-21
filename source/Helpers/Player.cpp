@@ -1019,7 +1019,7 @@ namespace Hk::Player
 		pLaunch.fPos[1] = vDestination.y;
 		pLaunch.fPos[2] = vDestination.z;
 
-		CoreGlobals::c()->HookClient->Send_FLPACKET_SERVER_LAUNCH(client, pLaunch);
+		HookClient->Send_FLPACKET_SERVER_LAUNCH(client, pLaunch);
 
 		uint iSystem;
 		pub::Player::GetSystem(client, iSystem);

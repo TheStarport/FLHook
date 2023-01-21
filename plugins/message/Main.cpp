@@ -54,6 +54,7 @@
  */
 
 #include "Main.h"
+#include "Features/Mail.hpp"
 
 namespace Plugins::Message
 {
@@ -299,7 +300,6 @@ namespace Plugins::Message
 		global->config = std::make_unique<Config>(config);
 
 		// Load our communicators
-		global->mailCommunicator = static_cast<Mail::MailCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Mail::MailCommunicator::pluginName));
 		global->tempBanCommunicator =
 		    static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
@@ -689,40 +689,38 @@ namespace Plugins::Message
 	void UserCmd_PrivateMsg(ClientId& client, const std::wstring& param)
 	{
 		const std::wstring usage = L"Usage: /privatemsg <charname> <messsage> or /pm ...";
-		const std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		const std::wstring& wscTargetCharname = GetParam(param, ' ', 0);
-		const std::wstring wscMsg = GetParamToEnd(param, ' ', 1);
+		const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		const std::wstring& targetCharname = GetParam(param, ' ', 0);
+		const std::wstring msg = GetParamToEnd(param, ' ', 1);
 
-		if (wscCharname.size() == 0 || wscMsg.size() == 0)
+		if (charname.size() == 0 || msg.size() == 0)
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
 			PrintUserCmdText(client, usage);
 			return;
 		}
 
-		if (!Hk::Client::GetAccountByCharName(wscTargetCharname))
+		if (!Hk::Client::GetAccountByCharName(targetCharname))
 		{
 			PrintUserCmdText(client, L"ERR charname does not exist");
 			return;
 		}
 
-		const auto clientId = Hk::Client::GetClientIdFromCharName(wscTargetCharname);
+		const auto clientId = Hk::Client::GetClientIdFromCharName(targetCharname);
 		if (clientId.has_error())
 		{
-			if (global->mailCommunicator)
-			{
-				global->mailCommunicator->SendMail(wscTargetCharname, wscCharname + L": " + wscMsg);
-				PrintUserCmdText(client, L"OK message saved to mailbox");
-			}
-			else
-			{
-				PrintUserCmdText(client, L"ERR: Player offline");
-			}
+			MailManager::MailItem item;
+			item.author = wstos(charname);
+			item.subject = "Private Message";
+			item.body = wstos(msg);
+			MailManager::i()->SendNewMail(targetCharname, item);
+			MailManager::i()->SendMailNotification(targetCharname);
+			PrintUserCmdText(client, L"OK message saved to mailbox");
 		}
 		else
 		{
 			global->info[clientId.value()].lastPmClientId = client;
-			Hk::Message::SendPrivateChat(client, clientId.value(), ViewToWString(wscMsg));
+			Hk::Message::SendPrivateChat(client, clientId.value(), ViewToWString(msg));
 		}
 	}
 

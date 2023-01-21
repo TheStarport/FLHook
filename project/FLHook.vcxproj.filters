@@ -28,6 +28,9 @@
     <Filter Include="sdk\Tools">
       <UniqueIdentifier>{62d0b77b-91bb-4710-8324-bc544549f6c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\Features">
+      <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -126,6 +129,9 @@
     <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Features\Mail.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -170,6 +176,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\Utils.hpp">
       <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\Mail.hpp">
+      <Filter>sdk\Features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

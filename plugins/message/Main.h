@@ -2,7 +2,6 @@
 
 #include <FLHook.hpp>
 #include <plugin.h>
-#include "../mail/Main.h"
 #include "../tempban/Main.h"
 
 namespace Plugins::Message
@@ -94,7 +93,6 @@ namespace Plugins::Message
 		bool sendingTime = false;
 
 		//! Communication to other plugins
-		Plugins::Mail::MailCommunicator* mailCommunicator = nullptr;
 		Plugins::Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 	};
 

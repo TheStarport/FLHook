@@ -119,7 +119,6 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 		else
 		{
 			uint sz = size;
-			auto sendChatMsg = CoreGlobals::c()->RCSendChatMsg;
 			__asm {
                 pushad
                 push [rdl]
@@ -128,7 +127,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
                 push [client]
                 mov ecx, [Client]
                 add ecx, 4
-                call [sendChatMsg]
+                call [RCSendChatMsg]
                 popad
 			}
 		}

@@ -40,12 +40,22 @@ inline int ToInt(const std::wstring& wscStr)
 	return wcstol(wscStr.c_str(), nullptr, 10);
 }
 
+inline int64 ToInt64(const std::wstring& str)
+{
+	return str.empty() ? 0 : wcstoll(str.c_str(), nullptr, 10);
+}
+
 inline uint ToUInt(const std::wstring& wscStr)
 {
 	if (wscStr.find(L"-") != std::wstring::npos) {
 		return 0;
 	}
 	return wcstoul(wscStr.c_str(), nullptr, 10);
+}
+
+inline std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time)
+{
+	return std::chrono::sys_time<std::chrono::seconds> {std::chrono::seconds {time}};
 }
 
 inline std::wstring XMLText(const std::wstring& text)

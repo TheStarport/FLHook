@@ -6,7 +6,7 @@ namespace Hk::Admin
 {
 	std::wstring GetPlayerIP(ClientId client)
 	{
-		CDPClientProxy const* cdpClient = CoreGlobals::c()->clientProxyArray[client - 1];
+		CDPClientProxy const* cdpClient = clientProxyArray[client - 1];
 		if (!cdpClient)
 			return L"";
 
@@ -14,7 +14,7 @@ namespace Hk::Admin
 		char* szP1;
 		char* szIdirectPlay8Address;
 		wchar_t wszHostname[] = L"hostname";
-		memcpy(&szP1, (char*)CoreGlobals::c()->cdpSrv + 4, 4);
+		memcpy(&szP1, (char*)cdpSrv + 4, 4);
 
 		wchar_t wszIP[1024] = L"";
 		long lSize = sizeof(wszIP);
@@ -136,7 +136,7 @@ some_error:
 		if (client < 1 || client > MaxClientId)
 			return cpp::fail(Error::InvalidClientId);
 
-		CDPClientProxy* cdpClient = CoreGlobals::c()->clientProxyArray[client - 1];
+		CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 
 		DPN_CONNECTION_INFO ci;
 		if (!cdpClient || !cdpClient->GetConnectionStats(&ci))

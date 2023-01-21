@@ -610,10 +610,6 @@ namespace IServerImplHook
 
 struct DLL CoreGlobals : Singleton<CoreGlobals>
 {
-	IClientImpl* FakeClient;
-	IClientImpl* HookClient;
-	char* OldClient;
-
 	uint damageToClientId;
 	uint damageToSpaceId;
 
@@ -621,25 +617,27 @@ struct DLL CoreGlobals : Singleton<CoreGlobals>
 	bool messageSystem;
 	bool messageUniverse;
 
-	CDPClientProxy** clientProxyArray;
-	void* pClient;
-
-	_RCSendChatMsg RCSendChatMsg;
-	_CRCAntiCheat CRCAntiCheat;
-
 	std::string accPath;
 
-	CDPServer* cdpSrv;
 	uint serverLoadInMs;
 	uint playerCount;
 	bool disableNpcs;
-	char* g_FLServerDataPtr;
-
-	_GetShipInspect GetShipInspect;
+	
 	std::list<BaseInfo> allBases;
 	
 	bool flhookReady;
 };
+
+extern DLL CDPServer* cdpSrv;
+extern DLL _GetShipInspect GetShipInspect;
+extern DLL char* g_FLServerDataPtr;
+extern DLL CDPClientProxy** clientProxyArray;
+extern DLL void* pClient;
+extern DLL _RCSendChatMsg RCSendChatMsg;
+extern DLL _CRCAntiCheat CRCAntiCheat;
+extern DLL IClientImpl* FakeClient;
+extern DLL IClientImpl* HookClient;
+extern DLL char* OldClient;
 
 extern DLL std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
 

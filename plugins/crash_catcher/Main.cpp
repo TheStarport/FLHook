@@ -59,7 +59,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after a tractor to prevent cargo duplication loss on crash
 	 */
-	void __stdcall TractorObjects(ClientId& client, struct XTractorObjects const& objs)
+	void TractorObjects(ClientId& client, struct XTractorObjects const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
@@ -70,7 +70,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after jettison to reduce chance of duplication on crash
 	 */
-	void __stdcall JettisonCargo(ClientId& client, struct XJettisonCargo const& objs)
+	void JettisonCargo(ClientId& client, struct XJettisonCargo const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
@@ -103,7 +103,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Originally in Main.cpp of PlayerControl
 	 */
-	void __stdcall RequestBestPath(unsigned int p1, DWORD* p2, int p3)
+	void RequestBestPath(unsigned int p1, DWORD* p2, int p3)
 	{
 		global->returncode = ReturnCode::SkipFunctionCall;
 		try

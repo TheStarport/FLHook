@@ -419,7 +419,7 @@ namespace Plugins::CashManager
 	const std::vector commands = {
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters.")}};
 
-	BankCode __stdcall IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
+	BankCode IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
 		if (cashAmount <= 0)
 		{
