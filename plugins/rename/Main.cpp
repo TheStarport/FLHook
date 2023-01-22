@@ -56,6 +56,22 @@ namespace Plugins::Rename
 		return false;
 	}
 
+	bool DeleteCharacter(const std::string& charFilename, ClientId& client)
+	{
+		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
+		const std::string accDir = CoreGlobals::c()->accPath + wstos(dir) + "\\";
+		const std::string renameIniDir = accDir + "rename.ini";
+		const std::string charDir = accDir + charFilename.c_str();
+		if (!std::filesystem::exists(renameIniDir))
+			return true;
+
+		std::wstring charName = IniGetWS(charDir, "Player", "Name", L"");
+
+		IniDelete(renameIniDir, "General", wstos(charName));
+
+		return true;
+	}
+
 	// Update the tag list when a character is selected update the tag list to
 	// indicate that this tag is in use. If a tag is not used after 60 days, remove
 	// it.
@@ -330,6 +346,16 @@ namespace Plugins::Rename
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
+				std::string oldAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(oldAcc));
+
+				if (std::wstring oldCharRenameLimit = IniGetWS(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName), L""); 
+					!oldCharRenameLimit.empty())
+				{
+					std::string newAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(acc));
+					IniWriteW(newAccDir + "\\rename.ini", "General", wstos(o.movingCharName), oldCharRenameLimit);
+					IniDelete(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName));
+				}
+
 				// The move worked. Log it.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
@@ -468,9 +494,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		std::string accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		std::string accPath = CoreGlobals::c()->accPath;
 
 		const auto sourceFile = Hk::Client::GetCharFileName(charname);
 		if (sourceFile.has_error())
@@ -540,12 +564,9 @@ namespace Plugins::Rename
 
 	static bool IsBanned(const std::wstring& charname)
 	{
-		char datapath[MAX_PATH];
-		GetUserDataPath(datapath);
-
 		std::wstring dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByCharName(charname).value());
 
-		std::string banfile = std::string(datapath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
+		std::string banfile = CoreGlobals::c()->accPath + wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
 		FILE* f;
@@ -641,9 +662,7 @@ namespace Plugins::Rename
 		}
 
 		// Copy character file into this account with a temp name.
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		std::string acctPath = CoreGlobals::c()->accPath;
 
 		const auto sourceAcc = Hk::Client::GetAccountByCharName(movingCharName);
 
@@ -668,8 +687,8 @@ namespace Plugins::Rename
 		Move o;
 		o.destinationCharName = charname;
 		o.movingCharName = movingCharName;
-		o.sourceFile = scAcctPath + wstos(sourceDir) + "\\" + wstos(sourceFile.value()) + ".fl";
-		o.destFile = scAcctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.sourceFile = acctPath + wstos(sourceDir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.destFile = acctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
 		global->pendingMoves.emplace_back(o);
 
 		// Delete the move code
@@ -711,13 +730,11 @@ namespace Plugins::Rename
 		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
 
 		// Get the account path.
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		std::string scPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\*.fl";
+		std::string path = CoreGlobals::c()->accPath + "\\*.fl";
 
 		// Open the directory iterator.
 		WIN32_FIND_DATA FindFileData;
-		HANDLE hFileFind = FindFirstFile(scPath.c_str(), &FindFileData);
+		HANDLE hFileFind = FindFirstFile(path.c_str(), &FindFileData);
 		if (hFileFind == INVALID_HANDLE_VALUE)
 		{
 			cmds->Print("ERR Account directory not found");
@@ -727,18 +744,17 @@ namespace Plugins::Rename
 		// Iterate it
 		do
 		{
-			std::string scCharfile = FindFileData.cFileName;
-			std::string scMoveCodeFile =
-			    std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\" + scCharfile.substr(0, scCharfile.size() - 3) + "-movechar.ini";
+			std::string charFile = FindFileData.cFileName;
+			std::string moveCodeFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + charFile.substr(0, charFile.size() - 3) + "-movechar.ini";
 			if (code == L"none")
 			{
-				IniWriteW(scMoveCodeFile, "Settings", "Code", L"");
-				cmds->Print(std::format("OK Movechar code cleared on {} \n", scCharfile));
+				IniWriteW(moveCodeFile, "Settings", "Code", L"");
+				cmds->Print(std::format("OK Movechar code cleared on {} \n", charFile));
 			}
 			else
 			{
-				IniWriteW(scMoveCodeFile, "Settings", "Code", code);
-				cmds->Print(std::format("OK Movechar code set to {} on {} \n", wstos(code), scCharfile));
+				IniWriteW(moveCodeFile, "Settings", "Code", code);
+				cmds->Print(std::format("OK Movechar code set to {} on {} \n", wstos(code), charFile));
 			}
 		} while (FindNextFile(hFileFind, &FindFileData));
 		FindClose(hFileFind);
@@ -915,6 +931,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect_AFTER, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CreateNewCharacter, &CreateNewCharacter);
+	pi->emplaceHook(HookedCall::IServerImpl__DestroyCharacter, &DeleteCharacter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 }
