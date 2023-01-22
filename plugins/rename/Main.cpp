@@ -238,7 +238,7 @@ namespace Plugins::Rename
 		while (!global->pendingRenames.empty())
 		{
 			Rename o = global->pendingRenames.front();
-			if (Hk::Client::GetClientIdFromCharName(o.charName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(o.charName).has_value())
 				return;
 
 			global->pendingRenames.erase(global->pendingRenames.begin());
@@ -256,32 +256,25 @@ namespace Plugins::Rename
 				Hk::Client::LockAccountAccess(acc, true);
 				Hk::Client::UnlockAccountAccess(acc);
 
-				// Move the char file to a temporary one.
-				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFileTemp.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-					throw "move src to temp failed";
-
-				// Decode the char file, update the char name and re-encode it.
-				// Add a space to the value so the ini file line looks like "<key> =
-				// <value>" otherwise Ioncross Server Operator can't decode the file
-				// correctly
-				FlcDecodeFile(o.destFileTemp.c_str(), o.destFileTemp.c_str());
-				IniWriteW(o.destFileTemp, "Player", "Name", o.newCharName);
-				if (!FLHookConfig::i()->general.disableCharfileEncryption)
-				{
-					FlcEncodeFile(o.destFileTemp.c_str(), o.destFileTemp.c_str());
-				}
-
-				// Create and delete the character
-				Hk::Player::DeleteCharacter(acc, o.charName);
-				Hk::Player::NewCharacter(acc, o.newCharName);
-
 				// Move files around
-				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 					throw "move failed";
 				if (std::filesystem::exists(o.sourceFile.c_str()))
 					throw "src still exists";
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
+
+
+				// Decode the char file, update the char name and re-encode it.
+				// Add a space to the value so the ini file line looks like "<key> =
+				// <value>" otherwise Ioncross Server Operator can't decode the file
+				// correctly
+				FlcDecodeFile(o.destFile.c_str(), o.destFile.c_str());
+				IniWriteW(o.destFile, "Player", "Name", o.newCharName);
+				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+				{
+					FlcEncodeFile(o.destFile.c_str(), o.destFile.c_str());
+				}
 
 				// Update any mail references this character had before
 				MailManager::i()->UpdateCharacterName(wstos(o.charName), wstos(o.newCharName));
@@ -309,9 +302,8 @@ namespace Plugins::Rename
 		while (!global->pendingMoves.empty())
 		{
 			Move o = global->pendingMoves.front();
-			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName) != -1)
-				return;
-			if (Hk::Client::GetClientIdFromCharName(o.movingCharName) != -1)
+			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName).has_value()
+			||	Hk::Client::GetClientIdFromCharName(o.movingCharName).has_value())
 				return;
 
 			global->pendingMoves.erase(global->pendingMoves.begin());
@@ -330,16 +322,8 @@ namespace Plugins::Rename
 				Hk::Client::LockAccountAccess(oldAcc, true);
 				Hk::Client::UnlockAccountAccess(oldAcc);
 
-				// Move the char file to a temporary one.
-				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFileTemp.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-					throw "move src to temp failed";
-
-				// Create and delete the character
-				Hk::Player::DeleteCharacter(oldAcc, o.movingCharName);
-				Hk::Player::NewCharacter(acc, o.movingCharName);
-
 				// Move files around
-				if (!::MoveFileExA(o.destFileTemp.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 					throw "move failed";
 				if (std::filesystem::exists(o.sourceFile.c_str()))
 					throw "src still exists";
@@ -371,7 +355,7 @@ namespace Plugins::Rename
 		{ RenameTimer, 5 }
 	};
 
-	void UserCmd_RenameMe(ClientId& client, const std::wstring& param)
+	void UserCmd_Rename(ClientId& client, const std::wstring& param)
 	{
 
 		if (!global->config->enableRename)
@@ -511,7 +495,6 @@ namespace Plugins::Rename
 		o.newCharName = newCharName;
 		o.sourceFile = accPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
 		o.destFile = accPath + wstos(dir) + "\\" + wstos(destFile.value()) + ".fl";
-		o.destFileTemp = accPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl.renaming";
 		global->pendingRenames.emplace_back(o);
 
 		Hk::Player::KickReason(o.charName, L"Updating character, please wait 10 seconds before reconnecting");
@@ -687,7 +670,6 @@ namespace Plugins::Rename
 		o.movingCharName = movingCharName;
 		o.sourceFile = scAcctPath + wstos(sourceDir) + "\\" + wstos(sourceFile.value()) + ".fl";
 		o.destFile = scAcctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
-		o.destFileTemp = scAcctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl.moving";
 		global->pendingMoves.emplace_back(o);
 
 		// Delete the move code
@@ -857,7 +839,7 @@ namespace Plugins::Rename
 	    CreateUserCommand(L"/maketag", L"<tag> <master password> <description>", UserCmd_MakeTag, L"Creates a faction tag and prevents others from creating said tag without a password."),
 	    CreateUserCommand(L"/droptag", L"<tag> <master password>", UserCmd_DropTag, L"Deletes a faction tag"),
 	    CreateUserCommand(L"/tagpass", L"<tag> <master password> <rename password>", UserCmd_SetTagPass, L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
-	    CreateUserCommand(L"/rename", L"<charname> [password]", UserCmd_RenameMe, L"Renames the current character"),
+	    CreateUserCommand(L"/rename", L"<charname> [password]", UserCmd_Rename, L"Renames the current character"),
 	    CreateUserCommand(L"/movechar", L"<charname> <code>", UserCmd_MoveChar, L"Move a character from a remote account into this one"),
 	    CreateUserCommand(L"/movecode", L"<code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
 	}};

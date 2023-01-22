@@ -23,7 +23,6 @@ namespace Plugins::Rename
 
 		std::string sourceFile;
 		std::string destFile;
-		std::string destFileTemp;
 	};
 
 	//! Struct to hold a pending move of a character to a new account
@@ -34,7 +33,6 @@ namespace Plugins::Rename
 
 		std::string sourceFile;
 		std::string destFile;
-		std::string destFileTemp;
 	};
 
 	//! A struct to hold all the tags
