@@ -15,18 +15,16 @@
  * @code
  * {
  *     "CargoMissions": {
- *         "Example Nickname": {
+ *         "Example": {
  *             "base": "li01_01_base",
  *             "current_amount": 0,
  *             "item": "commodity_gold",
- *             "nickname": "Example",
  *             "required_amount": 99
  *         }
  *     },
  *     "NpcMissions": {
- *         "Example Nickname": {
+ *         "Example": {
  *             "current_amount": 0,
- *             "nickname": "Example",
  *             "reputation": "li_n_grp",
  *             "required_amount": 99,
  *             "sector": "D1",
@@ -56,32 +54,36 @@ namespace Plugins::Event
 
 		auto config = Serializer::JsonToObject<Config>();
 		
-		for (auto& cargo : config.CargoMissions)
+		for (const auto& [missionName, cargoMission] : config.CargoMissions)
 		{
-			if (cargo.first == "Example")
+			if (missionName == "Example")
 				continue;
 
 			CARGO_MISSION cargo_mission;
-			cargo_mission.nickname = cargo.second.nickname;
-			cargo_mission.base = CreateID(cargo.second.base.c_str());
-			cargo_mission.item = CreateID(cargo.second.item.c_str());
-			cargo_mission.required_amount = cargo.second.required_amount;
-			cargo_mission.current_amount = cargo.second.current_amount;
+			cargo_mission.nickname = missionName;
+			cargo_mission.base = CreateID(cargoMission.base.c_str());
+			global->nicknameToNameMap[cargo_mission.base] = cargoMission.base;
+			cargo_mission.item = CreateID(cargoMission.item.c_str());
+			global->nicknameToNameMap[cargo_mission.item] = cargoMission.item;
+			cargo_mission.required_amount = cargoMission.required_amount;
+			cargo_mission.current_amount = cargoMission.current_amount;
 			global->CargoMissions.push_back(cargo_mission);
 		}
 
-		for (auto const& mission : config.NpcMissions)
+		for (const auto& [missionName, mission] : config.NpcMissions)
 		{
-			if (mission.first == "Example")
+			if (missionName == "Example")
 				continue;
 
 			NPC_MISSION npc_mission;
-			npc_mission.nickname = mission.second.nickname;
-			npc_mission.system = CreateID(mission.second.system.c_str());
-			npc_mission.sector = mission.second.sector;
-			pub::Reputation::GetReputationGroup(npc_mission.reputation, mission.second.reputation.c_str());
-			npc_mission.required_amount = mission.second.required_amount;
-			npc_mission.current_amount = mission.second.current_amount;
+			npc_mission.nickname = missionName;
+			npc_mission.system = CreateID(mission.system.c_str());
+			global->nicknameToNameMap[npc_mission.system] = mission.system;
+			npc_mission.sector = mission.sector;
+			pub::Reputation::GetReputationGroup(npc_mission.reputation, mission.reputation.c_str());
+			global->nicknameToNameMap[npc_mission.reputation] = mission.reputation;
+			npc_mission.required_amount = mission.required_amount;
+			npc_mission.current_amount = mission.current_amount;
 			global->NpcMissions.push_back(npc_mission);
 		}
 
@@ -96,33 +98,35 @@ namespace Plugins::Event
 	 */
 	void SaveMissionStatus()
 	{
+		if (global->CargoMissions.empty() && global->NpcMissions.empty())
+			return;
 		std::ofstream out("config/event.json");
 
 		nlohmann::json jExport;
 
 		for (auto& mission : global->CargoMissions)
 		{
-			nlohmann::json jMission;
-			jMission["nickname"] = mission.nickname;
-			jMission["base"] = mission.base;
-			jMission["item"] = mission.item;
-			jMission["current_amount"] = mission.current_amount;
-			jMission["required_amount"] = mission.required_amount;
-			jExport["CargoMissions"].push_back(jMission);
+			nlohmann::json jsonMission = {mission.nickname,{
+				{"base", global->nicknameToNameMap[mission.base]},
+			    {"item", global->nicknameToNameMap[mission.item]},
+			    {"current_amount", mission.current_amount},
+			    {"required_amount", mission.required_amount}}
+			};
+			jExport["CargoMissions"].push_back(jsonMission);
 		}
 
 		for (auto& mission : global->NpcMissions)
 		{
-			nlohmann::json jMission;
-			jMission["nickname"] = mission.nickname;
-			jMission["system"] = mission.system;
-			jMission["reputation"] = mission.reputation;
-			jMission["sector"] = mission.sector;
-			jMission["current_amount"] = mission.current_amount;
-			jMission["required_amount"] = mission.required_amount;
-			jExport["NpcMissions"].push_back(jMission);
+			nlohmann::json jsonMission = {mission.nickname,{
+				{"system", global->nicknameToNameMap[mission.system]},
+			    {"reputation", global->nicknameToNameMap[mission.reputation]},
+			    {"sector", mission.sector},
+			    {"current_amount", mission.current_amount},
+			    {"required_amount", mission.required_amount}}
+			};
+			jExport["NpcMissions"].push_back(jsonMission);
 		}
-
+		jExport.unflatten();
 		out << jExport;
 		out.close();
 
@@ -135,7 +139,7 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on ShipDestroyed to see if an NPC mission needs to be updated.
 	 */
-	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& iKill)
 	{
 		if (iKill)
 		{
@@ -158,8 +162,14 @@ namespace Plugins::Event
 				    mission.current_amount < mission.required_amount)
 				{
 					mission.current_amount++;
-					int needed = mission.required_amount = mission.current_amount;
-					// TODO: Print Mission text here in red text once we integrate that function into core
+					auto players = Hk::Admin::GetPlayers();
+					for (const auto& player : players)
+					{
+						if (player.iSystem == System)
+						{
+							PrintUserCmdText(player.client, std::format(L"U got a kill #{} pog", mission.current_amount));
+						}
+					}
 				}
 			}
 		}
