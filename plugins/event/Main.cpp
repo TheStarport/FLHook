@@ -126,9 +126,7 @@ namespace Plugins::Event
 			};
 			jExport["NpcMissions"][mission.nickname] = jsonMission;
 		}
-		//TODO: Make unflatten work, there are no arrays yet it complains :(
-		//jExport.unflatten();
-		out << jExport;
+		out << std::setw(4) << jExport;
 		out.close();
 
 	}
