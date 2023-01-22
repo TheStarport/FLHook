@@ -231,13 +231,10 @@ namespace Plugins::Rename
 			// If this tag is in use then reject the request.
 			if (const auto& data = global->tagList.FindTag(tag); data != global->tagList.tags.end() && masterPassword == data->masterPassword)
 			{
-				if (masterPassword == data->masterPassword)
-				{
-					data->renamePassword = renamePassword;
-					SaveSettings();
-					PrintUserCmdText(client, std::format(L"OK Created rename password {} for tag {}", renamePassword, tag));
-					return;
-				}
+				data->renamePassword = renamePassword;
+				SaveSettings();
+				PrintUserCmdText(client, std::format(L"OK Created rename password {} for tag {}", renamePassword, tag));
+				return;
 			}
 			PrintUserCmdText(client, L"ERR tag or master password are invalid");
 		}
