@@ -435,12 +435,14 @@ class Serializer
 
 		WriteObject(json, t);
 
-		std::filesystem::path folderPath(fileToSave);
-		folderPath.remove_filename();
-		if (!std::filesystem::create_directories(folderPath) && !std::filesystem::exists(folderPath))
+		if (std::filesystem::path folderPath(fileToSave); folderPath.has_root_directory())
 		{
-			Console::ConWarn(std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
-			return;
+			folderPath.remove_filename();
+			if (!std::filesystem::create_directories(folderPath) && !std::filesystem::exists(folderPath))
+			{
+				Console::ConWarn(std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
+				return;
+			}
 		}
 
 		std::ofstream out(fileToSave);
