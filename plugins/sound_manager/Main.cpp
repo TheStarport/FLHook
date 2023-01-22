@@ -45,7 +45,7 @@ using namespace Plugins::SoundManager;
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(sounds))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

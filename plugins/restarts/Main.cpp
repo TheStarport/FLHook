@@ -195,7 +195,7 @@ using namespace Plugins::Restart;
 
 REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(availableRestarts))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

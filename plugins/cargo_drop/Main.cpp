@@ -209,7 +209,7 @@ REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnecti
     field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems),
     field(enablePlayerCargoDropOnDeath), field(maxPlayerCargoDropCount))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

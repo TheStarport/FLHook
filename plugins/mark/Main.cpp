@@ -209,7 +209,7 @@ using namespace Plugins::Mark;
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

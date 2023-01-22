@@ -277,7 +277,7 @@ using namespace Plugins::SystemSensor;
 REFL_AUTO(type(ReflectableSensor), field(equipId), field(systemId), field(networkId));
 REFL_AUTO(type(Config), field(sensors));
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

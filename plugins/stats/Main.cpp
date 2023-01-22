@@ -119,7 +119,7 @@ namespace Plugins::Stats
 using namespace Plugins::Stats;
 REFL_AUTO(type(FileName), field(FilePath), field(StatsFile))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

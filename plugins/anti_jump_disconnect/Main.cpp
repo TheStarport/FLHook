@@ -92,7 +92,7 @@ namespace Plugins::AntiJumpDisconnect
 
 using namespace Plugins::AntiJumpDisconnect;
 
-DefaultDllMain()
+DefaultDllMain();
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
