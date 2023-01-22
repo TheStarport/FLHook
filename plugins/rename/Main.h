@@ -59,7 +59,7 @@ namespace Plugins::Rename
 		std::string File() override { return "config/rename.json"; }
 
 		//! Enable Rename
-		bool enableRenameMe = false;
+		bool enableRename = false;
 
 		//! Enable Moving of Characters
 		bool enableMoveChar = false;
