@@ -106,27 +106,28 @@ namespace Plugins::Event
 
 		for (auto& mission : global->CargoMissions)
 		{
-			nlohmann::json jsonMission = {mission.nickname,{
+			nlohmann::json jsonMission = {
 				{"base", global->nicknameToNameMap[mission.base]},
 			    {"item", global->nicknameToNameMap[mission.item]},
 			    {"current_amount", mission.current_amount},
-			    {"required_amount", mission.required_amount}}
+			    {"required_amount", mission.required_amount}
 			};
-			jExport["CargoMissions"].push_back(jsonMission);
+			jExport["CargoMissions"][mission.nickname] = jsonMission;
 		}
 
 		for (auto& mission : global->NpcMissions)
 		{
-			nlohmann::json jsonMission = {mission.nickname,{
+			nlohmann::json jsonMission = {
 				{"system", global->nicknameToNameMap[mission.system]},
 			    {"reputation", global->nicknameToNameMap[mission.reputation]},
 			    {"sector", mission.sector},
 			    {"current_amount", mission.current_amount},
-			    {"required_amount", mission.required_amount}}
+			    {"required_amount", mission.required_amount}
 			};
-			jExport["NpcMissions"].push_back(jsonMission);
+			jExport["NpcMissions"][mission.nickname] = jsonMission;
 		}
-		jExport.unflatten();
+		//TODO: Make unflatten work, there are no arrays yet it complains :(
+		//jExport.unflatten();
 		out << jExport;
 		out.close();
 
