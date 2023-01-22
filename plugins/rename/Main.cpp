@@ -61,10 +61,10 @@ namespace Plugins::Rename
 		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
 		const std::string accDir = CoreGlobals::c()->accPath + wstos(dir) + "\\";
 		const std::string renameIniDir = accDir + "rename.ini";
-		const std::string charDir = accDir + charFilename.c_str();
 		if (!std::filesystem::exists(renameIniDir))
 			return true;
 
+		const std::string charDir = accDir + charFilename.c_str();
 		std::wstring charName = IniGetWS(charDir, "Player", "Name", L"");
 
 		IniDelete(renameIniDir, "General", wstos(charName));
