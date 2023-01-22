@@ -253,11 +253,11 @@ namespace Hk::Client
 
 			GetFLName(buffer.data(), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
 		}
-		else if (player.index() && GetAccountByCharName(std::get<std::wstring>(player)))
+		else if ((player.index() && GetAccountByCharName(std::get<std::wstring>(player))) || returnValueIfNoFile)
 		{
 			GetFLName(buffer.data(), std::get<std::wstring>(player).c_str());
 		}
-		else if (!returnValueIfNoFile)
+		else
 		{
 			return cpp::fail(Error::InvalidClientId);
 		}
