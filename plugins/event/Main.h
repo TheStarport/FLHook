@@ -33,8 +33,8 @@ namespace Plugins::Event
 		{
 			std::string nickname = "Example";
 			std::string system = "li01";
-			std::string sector = "D1";
-			std::string reputation = "li_n_grp";
+			std::string sector = "D6";
+			std::string reputation = "fc_lr_grp";
 			int required_amount = 99;
 			int current_amount = 0;
 		};
@@ -63,6 +63,8 @@ namespace Plugins::Event
 
 		// Map of repgroup Id to mission structure
 		std::vector<NPC_MISSION> NpcMissions;
+
+		std::map<uint, std::string> nicknameToNameMap;
 
 		// A return code to indicate to FLHook if we want the hook processing to
 		// continue.
