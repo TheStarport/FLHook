@@ -308,7 +308,7 @@ REFL_AUTO(type(LoginIdBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
 REFL_AUTO(type(Config), field(BanMessage))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

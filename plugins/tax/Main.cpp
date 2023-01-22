@@ -247,9 +247,9 @@ namespace Plugins::Tax
 using namespace Plugins::Tax;
 
 REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec), field(maxTax), field(customColor), field(customFormat), field(taxRequestReceived),
-    field(huntingMessage), field(huntingMessageOriginator), field(cannotPay), field(killDisconnectingPlayers)) 
+    field(huntingMessage), field(huntingMessageOriginator), field(cannotPay), field(killDisconnectingPlayers))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

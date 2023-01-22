@@ -124,7 +124,7 @@ using namespace Plugins::KillCounter;
 
 REFL_AUTO(type(Config), field(enableNPCKillOutput))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

@@ -159,7 +159,7 @@ using namespace Plugins::Wardrobe;
 
 REFL_AUTO(type(Config), field(heads), field(bodies))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

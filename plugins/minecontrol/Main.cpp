@@ -559,7 +559,7 @@ REFL_AUTO(type(ZoneStats), field(Zone), field(CurrentReserve), field(Mined))
 REFL_AUTO(type(MiningStats), field(Stats))
 REFL_AUTO(type(Config), field(PlayerBonus), field(ZoneBonus), field(GenericFactor), field(PluginDebug));
 
-DefaultDllMainSettings(LoadSettingsAfterStartup)
+DefaultDllMainSettings(LoadSettingsAfterStartup);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

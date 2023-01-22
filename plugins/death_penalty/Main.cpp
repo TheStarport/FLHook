@@ -312,7 +312,7 @@ using namespace Plugins::DeathPenalty;
 
 REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionKiller), field(ExcludedSystems), field(FractionOverridesByShip))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     // Functions to hook
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

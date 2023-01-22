@@ -112,7 +112,7 @@ namespace Plugins::Afk
 
 using namespace Plugins::Afk;
 
-DefaultDllMain()
+DefaultDllMain();
     // Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

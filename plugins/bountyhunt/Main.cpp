@@ -320,7 +320,7 @@ using namespace Plugins::BountyHunt;
 
 REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect), field(minimalHuntTime), field(maximumHuntTime), field(defaultHuntTime))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

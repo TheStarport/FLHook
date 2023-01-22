@@ -573,7 +573,7 @@ namespace Plugins::ConData
 
 using namespace Plugins::ConData;
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

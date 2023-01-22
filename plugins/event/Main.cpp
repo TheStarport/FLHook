@@ -217,7 +217,7 @@ REFL_AUTO(
     type(Config::NPC_MISSION_REFLECTABLE), field(nickname), field(system), field(sector), field(reputation), field(required_amount), field(current_amount))
 REFL_AUTO(type(Config), field(CargoMissions), field(NpcMissions))
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 /** Functions to hook */
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

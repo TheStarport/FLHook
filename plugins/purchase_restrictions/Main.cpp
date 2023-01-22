@@ -261,7 +261,7 @@ using namespace Plugins::PurchaseRestrictions;
 REFL_AUTO(type(Config), field(checkItemRestrictions), field(enforceItemRestrictions), field(shipPurchaseDenied), field(goodPurchaseDenied),
     field(itemsOfInterest), field(unbuyableItems), field(goodItemRestrictions), field(shipItemRestrictions));
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
     // Functions to hook
     extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)

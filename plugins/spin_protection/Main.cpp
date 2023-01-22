@@ -66,7 +66,7 @@ namespace Plugins::SpinProtection
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::SpinProtection;
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 REFL_AUTO(type(Config), field(spinProtectionMass), field(spinImpulseMultiplier))
 
