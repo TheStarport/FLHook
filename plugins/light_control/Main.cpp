@@ -39,18 +39,26 @@ namespace Plugins::LightControl
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	auto RegexReplace(const jpWide::NumSub& m1, void*, void*)
+	auto RegexReplace(const jpWide::NumSub& m1, const void*, const void*)
 	{
 		return L" " + m1[0];
 	}
-	
+
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
 
-		// Clean empty values? For some reason, we have a bunch of empty items in the JSON array. This will remove them.
-		auto [first, last] = std::ranges::remove(config.lights, L"");
-		config.lights.erase(first, last);
+		if (config.lights.empty())
+		{
+			for (const auto& lights = DataManager::c()->GetLights(); const auto& [id, light] : lights)
+			{
+				config.lights.emplace_back(stows(light.nickname));
+			}
+
+			// Save to populate it!
+			Serializer::SaveToJson(config);
+		}
+
 		// Sort into alphabetical order
 		std::ranges::sort(config.lights);
 
@@ -74,8 +82,7 @@ namespace Plugins::LightControl
 	 */
 	void BaseEnter(const uint& baseId, ClientId& client)
 	{
-		if (!global->config->notifyAvailabilityOnEnter
-		|| std::ranges::find(global->config->baseIdHashes, baseId) == global->config->baseIdHashes.end())
+		if (!global->config->notifyAvailabilityOnEnter || std::ranges::find(global->config->baseIdHashes, baseId) == global->config->baseIdHashes.end())
 		{
 			return;
 		}
@@ -90,16 +97,16 @@ namespace Plugins::LightControl
 	/** @ingroup LightControl
 	 * @brief Returns a baseId if in a valid base.
 	 */
-	uint IsInValidBase(ClientId& client) 
+	uint IsInValidBase(ClientId& client)
 	{
 		const auto baseId = Hk::Player::GetCurrentBase(client);
-		if (baseId.has_error()) 
-		{ 
-			const std::wstring errorString = Hk::Err::ErrGetText(baseId.error()); 
-			PrintUserCmdText(client, L"ERR:" + errorString); 
-			return 0; 
+		if (baseId.has_error())
+		{
+			const std::wstring errorString = Hk::Err::ErrGetText(baseId.error());
+			PrintUserCmdText(client, L"ERR:" + errorString);
+			return 0;
 		}
-		
+
 		if (!global->config->baseIdHashes.empty() && std::ranges::find(global->config->baseIdHashes, baseId.value()) == global->config->baseIdHashes.end())
 		{
 			PrintUserCmdText(client, L"Light customization is not available at this facility.");
@@ -116,20 +123,20 @@ namespace Plugins::LightControl
 	{
 		PrintUserCmdText(client, L"Current light setup:");
 
-		const st6::list<EquipDesc> &eqLst = Players[client].equipDescList.equip;
+		const st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
 		int itemNumber = 1;
-		for (const auto& i : eqLst) 
+		for (const auto& i : eqLst)
 		{
 			const auto& index = std::ranges::find(global->config->lightsHashed, i.iArchId);
-			if (index == global->config->lightsHashed.end()) 
+			if (index == global->config->lightsHashed.end())
 			{
 				continue;
 			}
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
-			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
-			PrintUserCmdText(client, std::format(L"|    {}: {}", itemNumber, me.nreplace().c_str()));
-			itemNumber++;
+			PrintUserCmdText(client,
+			    std::format(
+			        L"|    {}: {}", itemNumber++, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
 		}
 	}
 
@@ -140,8 +147,7 @@ namespace Plugins::LightControl
 	{
 		for (const auto& light : global->config->lights)
 		{
-			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll();
-			PrintUserCmdText(client, me.nreplace());
+			PrintUserCmdText(client, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll().nreplace());
 		}
 	}
 
@@ -163,7 +169,7 @@ namespace Plugins::LightControl
 		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
 		for (const auto& i : eqLst)
 		{
-			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
+			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
@@ -180,9 +186,8 @@ namespace Plugins::LightControl
 		const auto lightId = CreateID(wstos(selectedLight).c_str());
 		const auto& selectedLightEquipDesc = lights[hardPointId];
 
-		const auto light = std::find_if(eqLst.begin(), eqLst.end(), [selectedLightEquipDesc](const EquipDesc& eq) { 
-			return eq.get_id() == selectedLightEquipDesc.get_id();
-		});
+		const auto light =
+		    std::find_if(eqLst.begin(), eqLst.end(), [selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
 
 		light->iArchId = lightId;
 		auto err = Hk::Player::SetEquip(client, eqLst);
@@ -206,12 +211,12 @@ namespace Plugins::LightControl
 	/** @ingroup LightControl
 	 * @brief Custom user command handler.
 	 */
-	void UserCommandHandler(ClientId& client, const std::wstring& param) 
+	void UserCommandHandler(ClientId& client, const std::wstring& param)
 	{
-		if (!IsInValidBase(client) || global->config->lights.empty())
+		if (!IsInValidBase(client))
 			return;
 
-		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change") 
+		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change")
 		{
 			UserCmdChangeItem(client, param);
 		}
@@ -219,27 +224,26 @@ namespace Plugins::LightControl
 		{
 			UserCmdShowSetup(client);
 		}
-		else if (subCommand == L"options") 
+		else if (subCommand == L"options")
 		{
 			UserCmdShowOptions(client);
 		}
-		else 
+		else
 		{
 			PrintUserCmdText(client, L"Usage: /lights show");
 			PrintUserCmdText(client, L"Usage: /lights options");
 			PrintUserCmdText(client, L"Usage: /lights change <Light Point> <Item>");
-			if (global->config->cost > 0) 
+			if (global->config->cost > 0)
 			{
 				PrintUserCmdText(client, std::format(L"Each light changed will cost {} credits.", global->config->cost));
 			}
 			PrintUserCmdText(client, L"Please log off for light changes to take effect.");
-
 		}
 	}
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/lights", L"",UserCommandHandler, L""),
+	    CreateUserCommand(L"/lights", L"", UserCommandHandler, L""),
 	}};
 } // namespace Plugins::LightControl
 

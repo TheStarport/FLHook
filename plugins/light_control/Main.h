@@ -45,6 +45,6 @@ namespace Plugins::LightControl
 
 		ReturnCode returnCode = ReturnCode::Default;
 
-		jpWide::Regex regex = jpWide::Regex(L"(?<=.{2})[A-Z]", "gS");
+		jpWide::Regex regex = jpWide::Regex(L"(?<=.{2})([A-Z])", "g");
 	};
 } // namespace Plugins::LightControl

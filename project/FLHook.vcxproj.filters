@@ -132,6 +132,9 @@
     <ClCompile Include="..\source\Features\Mail.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Data\Lights.cpp">
+      <Filter>FLHook\data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
