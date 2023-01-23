@@ -256,6 +256,11 @@ void FLHookInit_Pre()
 			LoadLibrary(lib);
 		}
 
+		Console::ConInfo("Loading Freelancer INIs");
+		const auto dataManager = DataManager::i();
+
+		dataManager->LoadLights();
+
 		Hk::Ini::CharacterInit();
 		Hk::Personalities::LoadPersonalities();
 
@@ -426,6 +431,7 @@ bool FLHookInit()
 		Console::ConErr(szError);
 		return false;
 	}
+
 	return true;
 }
 

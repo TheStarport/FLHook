@@ -315,11 +315,23 @@ struct LootableZone
 	Vector pos;
 };
 
-/** A map of system id to system info */
-extern DLL std::map<uint, SystemInfo> mapSystems;
+struct Light
+{
+	std::string nickname;
+	uint archId;
+	float bulbSize;
+	float glowSize;
+	float intensity;
+	Vector glowColor;
+	Vector color;
+	Vector minColor;
+	bool dockingLight;
+	bool alwaysOn;
+	float flareConeMin;
+	float flareConeMax;
+	int lightSourceCone;
 
-/** A map of system id to zones */
-extern DLL std::multimap<uint, Zone> zones;
-
-/** A map of system id to jumppoint info */
-extern DLL std::multimap<uint, JumpPoint> jumpPoints;
+	bool blinks;
+	float delay;
+	float blinkDuration;
+};
