@@ -169,7 +169,7 @@ namespace Plugins::LightControl
 		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
 		for (const auto& i : eqLst)
 		{
-			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId) == global->config->lightsHashed.end())
+			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
