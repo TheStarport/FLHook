@@ -49,9 +49,10 @@ namespace Plugins::LightControl
 		auto config = Serializer::JsonToObject<Config>();
 
 		// Clean empty values? For some reason, we have a bunch of empty items in the JSON array. This will remove them.
-		config.lights.erase(std::remove(config.lights.begin(), config.lights.end(), L""), config.lights.end());
+		auto [first, last] = std::ranges::remove(config.lights, L"");
+		config.lights.erase(first, last);
 		// Sort into alphabetical order
-		std::sort(config.lights.begin(), config.lights.end());
+		std::ranges::sort(config.lights);
 
 		global->config = std::make_unique<Config>(config);
 
@@ -73,12 +74,8 @@ namespace Plugins::LightControl
 	 */
 	void BaseEnter(const uint& baseId, ClientId& client)
 	{
-		if (!global->config->notifyAvailabilityOnEnter)
-		{
-			return;
-		}
-
-		if (std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId) == global->config->baseIdHashes.end())
+		if (!global->config->notifyAvailabilityOnEnter
+		|| std::ranges::find(global->config->baseIdHashes, baseId) == global->config->baseIdHashes.end())
 		{
 			return;
 		}
@@ -103,7 +100,7 @@ namespace Plugins::LightControl
 			return 0; 
 		}
 		
-		if (!global->config->baseIdHashes.empty() && std::find(global->config->baseIdHashes.begin(), global->config->baseIdHashes.end(), baseId.value()) == global->config->baseIdHashes.end())
+		if (!global->config->baseIdHashes.empty() && std::ranges::find(global->config->baseIdHashes, baseId.value()) == global->config->baseIdHashes.end())
 		{
 			PrintUserCmdText(client, L"Light customization is not available at this facility.");
 			return 0;
@@ -123,7 +120,7 @@ namespace Plugins::LightControl
 		int itemNumber = 1;
 		for (const auto& i : eqLst) 
 		{
-			const auto& index = std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId);
+			const auto& index = std::ranges::find(global->config->lightsHashed, i.iArchId);
 			if (index == global->config->lightsHashed.end()) 
 			{
 				continue;
@@ -131,7 +128,8 @@ namespace Plugins::LightControl
 
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			auto& me = jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll();
-			PrintUserCmdText(client, std::format(L"|    {}: {}", itemNumber++, me.nreplace().c_str()));
+			PrintUserCmdText(client, std::format(L"|    {}: {}", itemNumber, me.nreplace().c_str()));
+			itemNumber++;
 		}
 	}
 
@@ -165,7 +163,7 @@ namespace Plugins::LightControl
 		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
 		for (const auto& i : eqLst)
 		{
-			if (std::find(global->config->lightsHashed.begin(), global->config->lightsHashed.end(), i.iArchId) == global->config->lightsHashed.end())
+			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
@@ -210,7 +208,7 @@ namespace Plugins::LightControl
 	 */
 	void UserCommandHandler(ClientId& client, const std::wstring& param) 
 	{
-		if (!IsInValidBase(client))
+		if (!IsInValidBase(client) || global->config->lights.empty())
 			return;
 
 		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change") 
