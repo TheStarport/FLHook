@@ -157,18 +157,10 @@ namespace Plugins::Event
 
 			for (auto& mission : global->NpcMissions)
 			{
-				if (Affiliation == mission.reputation && System == mission.system && mission.sector.length() && mission.sector == sector &&
+				if (Affiliation == mission.reputation && System == mission.system && (mission.sector.empty() || mission.sector == sector) &&
 				    mission.current_amount < mission.required_amount)
 				{
 					mission.current_amount++;
-					auto players = Hk::Admin::GetPlayers();
-					for (const auto& player : players)
-					{
-						if (player.iSystem == System)
-						{
-							PrintUserCmdText(player.client, std::format(L"U got a kill #{} pog", mission.current_amount));
-						}
-					}
 				}
 			}
 		}
@@ -238,7 +230,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__Startup, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
