@@ -33,7 +33,7 @@ namespace Plugins::Event
 		{
 			std::string nickname = "Example";
 			std::string system = "li01";
-			std::string sector = "D6";
+			std::string sector = "D-6";
 			std::string reputation = "fc_lr_grp";
 			int required_amount = 99;
 			int current_amount = 0;
