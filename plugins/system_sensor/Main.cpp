@@ -221,12 +221,12 @@ namespace Plugins::SystemSensor
 	}
 
 	// Record jump type.
-	int Dock_Call(unsigned int const& ship, unsigned int const& iDockTarget, const int& iCancel, const enum DOCK_HOST_RESPONSE& response)
+	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const enum DOCK_HOST_RESPONSE& response)
 	{
 		if (const auto client = Hk::Client::GetClientIdByShip(ship); 
-			client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !iCancel)
+			client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !cancel)
 		{
-			auto spaceObjType = Hk::Solar::GetType(iDockTarget);
+			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
 			{
 				Console::ConWarn(wstos(Hk::Err::ErrGetText(spaceObjType.error())));
@@ -244,7 +244,7 @@ namespace Plugins::SystemSensor
 		return 0;
 	}
 
-	void JumpInComplete([[maybe_unused]] SystemId& iSystem, [[maybe_unused]] ShipId& ship, ClientId& client)
+	void JumpInComplete([[maybe_unused]] SystemId& system, [[maybe_unused]] ShipId& ship, ClientId& client)
 	{
 		EnableSensorAccess(client);
 		if (global->networks[client].inJumpGate)
