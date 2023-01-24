@@ -37,7 +37,7 @@ namespace Plugins::IPBan
 		std::string scIP = wstos(wscIP);
 
 		// Check for an IP range match.
-		for (auto& ban : global->ipBans.Bans)
+		for (const auto& ban : global->ipBans.Bans)
 			if (Wildcard::Fit(ban.c_str(), scIP.c_str()))
 				return true;
 		// To avoid plugin comms with DSAce because I ran out of time to make this
@@ -45,44 +45,42 @@ namespace Plugins::IPBan
 		// Read all login Id files in the account and look for the one with a
 		// matching IP to this player. If we find a matching IP then we've got a
 		// login Id we can check.
-		CAccount* acc = Players.FindAccountFromClientID(client);
-		if (acc)
+		if (const CAccount* acc = Players.FindAccountFromClientID(client))
 		{
-			bool bBannedLoginId = false;
+			bool isBannedLoginId = false;
 
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 
 			WIN32_FIND_DATA findFileData;
 
 			std::string scFileSearchPath = CoreGlobals::c()->accPath + "\\" + wstos(dir) + "\\login_*.ini"; // Looks like DSAM generates this file
-			HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData);
-			if (hFileFind != INVALID_HANDLE_VALUE)
+			if (HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData); 
+				hFileFind != INVALID_HANDLE_VALUE)
 			{
 				do
 				{
 					// Read the login Id and IP from the login Id record.
-					std::string scLoginId;
-					std::string scLoginId2;
-					std::string scThisIP;
-					std::string scFilePath = CoreGlobals::c()->accPath + wstos(dir) + "\\" + findFileData.cFileName;
+					std::string loginId;
+					std::string loginId2;
+					std::string thisIP;
+					std::string filePath = CoreGlobals::c()->accPath + wstos(dir) + "\\" + findFileData.cFileName;
 					FILE* f;
-					fopen_s(&f, scFilePath.c_str(), "r");
+					fopen_s(&f, filePath.c_str(), "r");
 					if (f)
 					{
-						char szBuf[200];
-						if (fgets(szBuf, sizeof(szBuf), f) != NULL)
+						if (char szBuf[200]; fgets(szBuf, sizeof(szBuf), f) != nullptr)
 						{
 							std::string sz = szBuf;
 							try
 							{
-								scLoginId = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
-								scThisIP = Trim(GetParam(sz, '\t', 2).substr(3, std::string::npos));
+								loginId = Trim(GetParam(sz, '\t', 1).substr(3, std::string::npos));
+								thisIP = Trim(GetParam(sz, '\t', 2).substr(3, std::string::npos));
 								if (GetParam(sz, '\t', 3).length() > 4)
-									scLoginId2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
+									loginId2 = Trim(GetParam(sz, '\t', 3).substr(4, std::string::npos));
 							}
 							catch (...)
 							{
-								Console::ConErr(std::format("ERR Corrupt loginid file {}", scFilePath));
+								Console::ConErr(std::format("ERR Corrupt loginid file {}", filePath));
 							}
 						}
 						fclose(f);
@@ -90,19 +88,19 @@ namespace Plugins::IPBan
 
 					if (FLHookConfig::i()->general.debugMode)
 					{
-						Console::ConInfo(std::format("Checking for ban on IP {} Login Id1 {} Id2 {} Client {}\n", scThisIP, scLoginId, scLoginId2, client));
+						Console::ConInfo(std::format("Checking for ban on IP {} Login Id1 {} Id2 {} Client {}\n", thisIP, loginId, loginId2, client));
 					}
 
 					// If the login Id has been read then check it to see if it has
 					// been banned
-					if (scThisIP == scIP && scLoginId.length())
+					if (thisIP == scIP && loginId.length())
 					{
-						for (auto& ban : global->loginIdBans.Bans)
+						for (const auto& ban : global->loginIdBans.Bans)
 						{
-							if (ban == scLoginId || ban == scLoginId2)
+							if (ban == loginId || ban == loginId2)
 							{
-								Console::ConWarn(std::format("* Kicking player on Id ban: ip={} id1={} id2={}\n", scThisIP, scLoginId, scLoginId2));
-								bBannedLoginId = true;
+								Console::ConWarn(std::format("* Kicking player on Id ban: ip={} id1={} id2={}\n", thisIP, loginId, loginId2));
+								isBannedLoginId = true;
 								break;
 							}
 						}
@@ -111,7 +109,7 @@ namespace Plugins::IPBan
 				FindClose(hFileFind);
 			}
 
-			if (bBannedLoginId)
+			if (isBannedLoginId)
 				return true;
 		}
 		return false;
@@ -122,18 +120,14 @@ namespace Plugins::IPBan
 	 */
 	static bool IsAuthenticated(ClientId client)
 	{
-		CAccount* acc = Players.FindAccountFromClientID(client);
+		const CAccount* acc = Players.FindAccountFromClientID(client);
 
 		if (!acc)
 			return false;
 
 		std::wstring directory = Hk::Client::GetAccountDirName(acc);
 
-		if (std::find(global->authenticatedAccounts.Accounts.begin(), global->authenticatedAccounts.Accounts.end(), directory) !=
-		    global->authenticatedAccounts.Accounts.end())
-			return true;
-		else
-			return false;
+		return (std::ranges::find(global->authenticatedAccounts.Accounts, directory) != global->authenticatedAccounts.Accounts.end());
 	}
 
 	/** @ingroup IPBan
@@ -189,7 +183,7 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Hook on PlayerLaunch. Checks if player is banned and kicks if so.
 	 */
-	void PlayerLaunch(uint& ship, ClientId& client)
+	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		if (!global->IPChecked[client])
 		{
@@ -205,7 +199,7 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Hook on BaseEnter. Checks if player is banned and kicks if so.
 	 */
-	void BaseEnter(uint& iBaseId, ClientId& client)
+	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
 	{
 		if (!global->IPChecked[client])
 		{
@@ -250,14 +244,13 @@ namespace Plugins::IPBan
 		}
 
 		st6::wstring str((ushort*)wscCharname.c_str());
-		CAccount* acc = Players.FindAccountFromCharacterName(str);
+		const CAccount* acc = Players.FindAccountFromCharacterName(str);
 
 		if (!acc)
 			return;
 
-		std::wstring directory = Hk::Client::GetAccountDirName(acc);
 
-		if (std::find(global->authenticatedAccounts.Accounts.begin(), global->authenticatedAccounts.Accounts.end(), directory) ==
+		if (std::wstring directory = Hk::Client::GetAccountDirName(acc); std::ranges::find(global->authenticatedAccounts.Accounts, directory) ==
 		    global->authenticatedAccounts.Accounts.end())
 				global->authenticatedAccounts.Accounts.emplace_back(directory);
 
@@ -280,15 +273,15 @@ namespace Plugins::IPBan
 	/** @ingroup IPBan
 	 * @brief Admin command callback. Compare the chat entry to see if it match a command
 	 */
-	bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& wscCmd)
+	bool ExecuteCommandString_Callback(CCmds* cmds, const std::wstring& cmd)
 	{
-		if (wscCmd == L"authchar")
+		if (cmd == L"authchar")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_AuthenticateChar(cmds, cmds->ArgStr(1));
 			return true;
 		}
-		else if (wscCmd == L"reloadbans")
+		else if (cmd == L"reloadbans")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmd_ReloadBans(cmds);

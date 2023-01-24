@@ -28,7 +28,7 @@ namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(ClientId& client, const std::wstring& wscParam)
+	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		PrintUserCmdText(client, L"/kills <player name>");
 	}
