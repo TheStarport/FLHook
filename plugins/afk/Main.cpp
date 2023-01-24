@@ -68,7 +68,7 @@ namespace Plugins::Afk
 			global->awayClients.erase(it);
 			const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 			const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
-			const auto _ = Hk::Message::FMsgS(systemId.value(), message);
+			Hk::Message::FMsgS(systemId.value(), message);
 			return;
 		}
 	}
@@ -76,23 +76,20 @@ namespace Plugins::Afk
 	// Clean up when a client disconnects
 	void ClearClientInfo(ClientId& client)
 	{
-		if (const auto it = global->awayClients.begin(); std::find(it, global->awayClients.end(), client) != global->awayClients.end())
-		{
-			global->awayClients.erase(it);
-		}
+		auto [first, last] = std::ranges::remove(global->awayClients, client);
+		global->awayClients.erase(first, last);
 	}
 
 	// Hook on chat being sent (This gets called twice with the client and to
 	// swapped
-	void Cb_SendChat(ClientId& client, ClientId& to, uint& size, void** rdl)
+	void Cb_SendChat(ClientId& client, ClientId& to, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl)
 	{
-		if (const auto it = global->awayClients.begin();
-			Hk::Client::IsValidClientID(to) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
-				PrintUserCmdText(to, L"This user is away from keyboard.");
+		if(std::ranges::find(global->awayClients, to) != global->awayClients.end())
+			PrintUserCmdText(client, L"This user is away from keyboard.");
 	}
 
 	// Hooks on chat being submitted
-	void SubmitChat(ClientId& client, unsigned long& lP1, void const** rdlReader, ClientId& to, int& iP2)
+	void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] void const** rdlReader, [[maybe_unused]] ClientId& to, [[maybe_unused]] const int& iP2)
 	{
 		if (const auto it = global->awayClients.begin();
 			Hk::Client::IsValidClientID(client) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())
@@ -101,7 +98,7 @@ namespace Plugins::Afk
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L"Sets your status to ""Away from Keyboard"". Other players will notified if they try to speak to you."),
+	    CreateUserCommand(L"/afk", L"", UserCmdAfk, L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
 	    CreateUserCommand(L"/back", L"", UserCmdBack, L"Removes the AFK status."),
 	}};
 } // namespace Plugins::AFK

@@ -74,15 +74,15 @@ namespace Plugins::CashManager
 			global->config->blockedSystemsHashed.emplace_back(CreateID(system.c_str()));
 		}
 
-		if (global->config->transferFee < 0)
+		if (!global->config->transferFee)
 		{
 			Console::ConWarn("Transfer Fee is a negative number!");
 		}
-		if (global->config->maximumTransfer < 0)
+		if (!global->config->maximumTransfer)
 		{
 			Console::ConWarn("Maximum Transfer is a negative number!");
 		}
-		if (global->config->minimumTransfer < 0)
+		if (!global->config->minimumTransfer)
 		{
 			Console::ConWarn("Minimum Transfer is a negative number!");
 		}
@@ -260,8 +260,8 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (const auto blockedSystems = &global->config->blockedSystemsHashed;
-		    std::find(blockedSystems->begin(), blockedSystems->end(), currentSystem.value()) != blockedSystems->end())
+		if (const auto &blockedSystems = global->config->blockedSystemsHashed;
+		    std::ranges::find(blockedSystems, currentSystem.value()) != blockedSystems.end())
 		{
 			PrintUserCmdText(client, L"Error: You are in a blocked system, you are unable to access the bank.");
 			return;
@@ -349,9 +349,9 @@ namespace Plugins::CashManager
 		else if (cmd == L"transactions")
 		{
 			const auto bank = Sql::GetOrCreateBank(acc);
-			const auto list = GetParam(param, ' ', 1);
 
-			if (list == L"list")
+			if (const auto list = GetParam(param, ' ', 1); 
+				list == L"list")
 			{
 				int totalTransactions = Sql::CountTransactions(bank);
 				const auto page = ToInt(GetParam(param, ' ', 2));
@@ -373,10 +373,11 @@ namespace Plugins::CashManager
 				}
 
 				uint i = page * TransactionsPerPage;
-				const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i);
-				for (const auto& transaction : transactions)
+				for (const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i); 
+					const auto& transaction : transactions)
 				{
-					PrintUserCmdText(client, std::format(L"%{}.) {} {}", i++, transaction.accessor, transaction.amount));
+					PrintUserCmdText(client, std::format(L"%{}.) {} {}", i, transaction.accessor, transaction.amount));
+					i++;
 				}
 				return;
 			}
@@ -394,7 +395,8 @@ namespace Plugins::CashManager
 			uint i = 0;
 			for (const auto& transaction : transactions)
 			{
-				PrintUserCmdText(client, std::format(L"{}.) {} {}", ++i, transaction.accessor, transaction.amount));
+				i++;
+				PrintUserCmdText(client, std::format(L"{}.) {} {}", i, transaction.accessor, transaction.amount));
 			}
 		}
 		else

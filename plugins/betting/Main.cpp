@@ -37,11 +37,11 @@ namespace Plugins::Betting
 	 */
 	void processFFA(ClientId client)
 	{
-		for (auto& [system, freeForAll] : global->freeForAlls)
+		for (const auto& [system, freeForAll] : global->freeForAlls)
 		{
 			if (global->freeForAlls[system].contestants[client].accepted && !global->freeForAlls[system].contestants[client].loser)
 			{
-				if (global->freeForAlls[system].contestants.find(client) != global->freeForAlls[system].contestants.end())
+				if (global->freeForAlls[system].contestants.contains(client))
 				{
 					global->freeForAlls[system].contestants[client].loser = true;
 					PrintLocalUserCmdText(client, std::wstring(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client))) + L" has been knocked out the FFA.", 100000);
@@ -50,7 +50,7 @@ namespace Plugins::Betting
 				// Is the FreeForAll over?
 				int count = 0;
 				uint contestantId = 0;
-				for (auto& [id, contestant] : global->freeForAlls[system].contestants)
+				for (const auto& [id, contestant] : global->freeForAlls[system].contestants)
 				{
 					if (contestant.loser == false && contestant.accepted == true)
 					{
@@ -72,13 +72,14 @@ namespace Plugins::Betting
 					}
 					else
 					{
-						struct PlayerData* playerData = nullptr;
-						while (playerData = Players.traverse_active(playerData))
+						struct PlayerData* playerData = Players.traverse_active(nullptr);
+						while (playerData)
 						{
-							ClientId client = playerData->iOnlineId;
-							SystemId systemId = Hk::Player::GetSystem(client).value();
-							if (system == systemId)
-								PrintUserCmdText(client, L"No one has won the FFA.");
+							ClientId localClient = playerData->iOnlineId;
+							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); 
+								system == systemId)
+								PrintUserCmdText(localClient, L"No one has won the FFA.");
+							playerData = Players.traverse_active(playerData);
 						}
 					}
 					// Delete event
@@ -132,17 +133,17 @@ namespace Plugins::Betting
 
 		// Look in FreeForAll map, is an ffa happening in this system already?
 		// If system doesn't have an ongoing ffa
-		if (global->freeForAlls.find(systemId) == global->freeForAlls.end())
+		if (!global->freeForAlls.contains(systemId))
 		{
 			// Get a list of other players in the system
 			// Add them and the player into the ffa map
-			struct PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			struct PlayerData* playerData = Players.traverse_active(nullptr);
+			while (playerData)
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
-				SystemId clientSystemId = Hk::Player::GetSystem(client2).value();
-				if (systemId != clientSystemId)
+				if (SystemId clientSystemId = Hk::Player::GetSystem(client2).value(); 
+					systemId != clientSystemId)
 					continue;
 
 				// Add them to the contestants freeForAlls
@@ -156,6 +157,7 @@ namespace Plugins::Betting
 					PrintUserCmdText(client2, std::format(L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.",
 					    characterName, amount));
 				}
+				playerData = Players.traverse_active(playerData);
 			}
 
 			// Are there any other players in this system?
@@ -182,8 +184,7 @@ namespace Plugins::Betting
 	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship = Hk::Player::GetShip(client).value();
-		if (!ship)
+		if (uint ship = Hk::Player::GetShip(client).value(); !ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
 			return;
@@ -192,7 +193,7 @@ namespace Plugins::Betting
 		// Get the player's current system and location in the system.
 		SystemId systemId = Hk::Player::GetSystem(client).value();
 
-		if (global->freeForAlls.find(systemId) == global->freeForAlls.end())
+		if (!global->freeForAlls.contains(systemId))
 		{
 			PrintUserCmdText(client, L"There isn't an FFA in this system. Use /ffa to create one.");
 		}
@@ -251,7 +252,7 @@ namespace Plugins::Betting
 				clientKiller = duel->client;
 
 			if (clientKiller == 0)
-				return;
+				continue;
 
 			if (duel->accepted)
 			{
@@ -336,16 +337,16 @@ namespace Plugins::Betting
 		}
 
 		// Do either players already have a duel?
-		for (auto& duel : global->duels)
+		for (const auto& duel : global->duels)
 		{
 			// Target already has a bet
-			if ((duel.client == clientTarget || duel.client2 == clientTarget))
+			if (duel.client == clientTarget || duel.client2 == clientTarget)
 			{
 				PrintUserCmdText(client, L"This player already has an ongoing duel.");
 				return;
 			}
 			// Player already has a bet
-			if ((duel.client == client || duel.client2 == client))
+			if (duel.client == client || duel.client2 == client)
 			{
 				PrintUserCmdText(client, L"You already have an ongoing duel. Type /cancel");
 				return;
@@ -370,11 +371,10 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief This method is called when a player types /acceptduel to accept a duel request.
 	 */
-	void UserCmdAcceptDuel(ClientId& client, const std::wstring& param)
+	void UserCmdAcceptDuel(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Is player in space?
-		uint ship = Hk::Player::GetShip(client).value();
-		if (!ship)
+		if (uint ship = Hk::Player::GetShip(client).value(); !ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
 			return;
@@ -421,7 +421,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief This method is called when a player types /cancel to cancel a duel/ffa request.
 	 */
-	void UserCmd_Cancel(ClientId& client, const std::wstring& param)
+	void UserCmd_Cancel(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		processFFA(client);
 		ProcessDuel(client);
@@ -446,10 +446,11 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
 	 */
-	int __cdecl DockCall(unsigned int const& ship, unsigned int const& d, int& cancel, enum DOCK_HOST_RESPONSE& response)
+	int __cdecl DockCall(
+	    unsigned int const& ship, [[maybe_unused]] unsigned int const& d, [[maybe_unused]]const int& cancel, [[maybe_unused]] const enum DOCK_HOST_RESPONSE& response)
 	{
-		const auto client = Hk::Client::GetClientIdByShip(ship);
-		if (client.has_value() && Hk::Client::IsValidClientID(client.value()))
+		if (const auto client = Hk::Client::GetClientIdByShip(ship); 
+			client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
 			processFFA(client.value());
 			ProcessDuel(client.value());
@@ -460,7 +461,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
 	 */
-	void DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]]const enum EFLConnection& state)
 	{
 		processFFA(client);
 		ProcessDuel(client);
@@ -469,7 +470,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
 	 */
-	void CharacterInfoReq(ClientId& client, bool& p2)
+	void CharacterInfoReq(ClientId& client, [[maybe_unused]]const bool& p2)
 	{
 		processFFA(client);
 		ProcessDuel(client);
@@ -478,7 +479,8 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for death to kick player out of duel
 	 */
-	void SendDeathMessage(const std::wstring& message, uint& system, ClientId& clientVictim, ClientId& clientKiller)
+	void SendDeathMessage([[maybe_unused]] const std::wstring& message, [[maybe_unused]] const uint& system, ClientId& clientVictim,
+	    [[maybe_unused]] const ClientId& clientKiller)
 	{
 		ProcessDuel(clientVictim);
 		processFFA(clientVictim);
