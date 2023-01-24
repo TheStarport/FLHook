@@ -49,7 +49,7 @@ namespace Plugins::Wardrobe
 		{
 			if (!global->config->heads.contains(wstos(costume)))
 			{
-				PrintUserCmdText(client, L"ERR Head not found. Use \"/show heads\" to get heads.");
+				PrintUserCmdText(client, L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
 				return;
 			}
 			restart.head = true;
@@ -59,7 +59,7 @@ namespace Plugins::Wardrobe
 		{
 			if (!global->config->bodies.contains(wstos(costume)))
 			{
-				PrintUserCmdText(client, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
+				PrintUserCmdText(client, L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
 				return;
 			}
 			restart.head = false;
