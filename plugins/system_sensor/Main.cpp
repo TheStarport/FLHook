@@ -20,7 +20,7 @@ namespace Plugins::SystemSensor
 		std::ranges::for_each(config.sensors, [](const ReflectableSensor& sensor) {
 			Sensor s = {sensor.systemId, sensor.equipId, sensor.networkId};
 			global->sensorEquip.insert(std::multimap<EquipId, Sensor>::value_type(CreateID(sensor.equipId.c_str()), s));
-			global->sensorEquip.insert(std::multimap<SystemId, Sensor>::value_type(CreateID(sensor.systemId.c_str()), s));
+			global->sensorSystem.insert(std::multimap<SystemId, Sensor>::value_type(CreateID(sensor.systemId.c_str()), s));
 		});
 	}
 
@@ -34,7 +34,7 @@ namespace Plugins::SystemSensor
 			return;
 		}
 
-		if (!global->networks[client].iAvailableNetworkId)
+		if (!global->networks[client].availableNetworkId)
 		{
 			PrintUserCmdText(client, L"ERR Sensor network monitoring is not available");
 			global->networks[client].mode = Mode::Off;
@@ -63,10 +63,12 @@ namespace Plugins::SystemSensor
 	{
 		std::wstring targetCharname = GetParam(param, ' ', 0);
 
-		if (targetCharname.size() == 0)
+		if (targetCharname.empty())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /showscan <charname>");
+			PrintUserCmdText(client, L"Usage:");
+			PrintUserCmdText(client, L"/showscan <charname>");
+			PrintUserCmdText(client, L"/showscan$ <playerID>");
 			return;
 		}
 
@@ -77,19 +79,19 @@ namespace Plugins::SystemSensor
 			return;
 		}
 
-		auto iterTargetClientId = global->networks.find(targetClientId.value());
-		if (iterTargetClientId == global->networks.end() || !global->networks[client].iAvailableNetworkId || !iterTargetClientId->second.lastScanNetworkId ||
-		    global->networks[client].iAvailableNetworkId != iterTargetClientId->second.lastScanNetworkId)
+		const auto& [targetSensorClientId, targetSensor] = *global->networks.find(targetClientId.value());
+		if (!targetSensorClientId || !global->networks[client].availableNetworkId || !targetSensor.lastScanNetworkId ||
+		    global->networks[client].availableNetworkId != targetSensor.lastScanNetworkId)
 		{
 			PrintUserCmdText(client, L"ERR Scan data not available");
 			return;
 		}
 
 		std::wstring eqList;
-		for (auto const& ci : iterTargetClientId->second.lstLastScan)
+		for (auto const& ci : targetSensor.lastScanList)
 		{
 			std::string hardpoint = ci.hardpoint.value;
-			if (hardpoint.length())
+			if (!hardpoint.empty())
 			{
 				Archetype::Equipment* eq = Archetype::GetEquipment(ci.iArchId);
 				if (eq && eq->iIdsName)
@@ -161,9 +163,9 @@ namespace Plugins::SystemSensor
 			}
 		}
 
-		if (availableNetworkId != global->networks[client].iAvailableNetworkId)
+		if (availableNetworkId != global->networks[client].availableNetworkId)
 		{
-			global->networks[client].iAvailableNetworkId = availableNetworkId;
+			global->networks[client].availableNetworkId = availableNetworkId;
 			if (availableNetworkId)
 				PrintUserCmdText(client,
 				    L"Connection to tradelane sensor network "
@@ -192,14 +194,14 @@ namespace Plugins::SystemSensor
 
 		// Record the ship's cargo.
 		int holdSize;
-		global->networks[client].lstLastScan = Hk::Player::EnumCargo(client, holdSize).value();
+		global->networks[client].lastScanList = Hk::Player::EnumCargo(client, holdSize).value();
 		global->networks[client].lastScanNetworkId = siter->second.networkId;
 
 		// Notify any players connected to the the sensor network that this ship is
 		// in
 		for (const auto& [playerId, sensor] : global->networks)
 		{
-			if (sensor.iAvailableNetworkId == siter->second.networkId)
+			if (sensor.availableNetworkId == siter->second.networkId)
 			{
 				const Universe::ISystem* system = Universe::get_system(systemId);
 				if (system && enum_integer(sensor.mode & mode))
@@ -263,7 +265,7 @@ namespace Plugins::SystemSensor
 	// Client command processing
 	const std::vector commands = {{
 	    CreateUserCommand(L"/showscan", L"", UserCmd_ShowScan, L""),
-	    CreateUserCommand(L"/showscan$", L"", UserCmd_ShowScan, L""),
+	    CreateUserCommand(L"/showscan$", L"", UserCmd_ShowScanID, L""),
 	    CreateUserCommand(L"/net", L"", UserCmd_Net, L""),
 	}};
 } // namespace Plugins::SystemSensor
