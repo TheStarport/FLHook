@@ -117,8 +117,8 @@ namespace Plugins::BountyHunt
 			time = global->config->defaultHuntTime;
 		}
 
-		uint clientCash = Hk::Player::GetCash(client).value();
-		if (clientCash < prize)
+		if (uint clientCash = Hk::Player::GetCash(client).value(); 
+			clientCash < prize)
 		{
 			PrintUserCmdText(client, L"You do not possess enough credits.");
 			return;
@@ -146,7 +146,7 @@ namespace Plugins::BountyHunt
 
 		global->bountyHunt.push_back(bh);
 
-		const auto _ = Hk::Message::MsgU(
+		Hk::Message::MsgU(
 		    bh.initiator + L" offers " + std::to_wstring(bh.cash) + L" credits for killing " + bh.target + L" in " + std::to_wstring(time) + L" minutes.");
 	}
 
@@ -197,7 +197,7 @@ namespace Plugins::BountyHunt
 					return;
 				}
 
-				const auto _ = Hk::Message::MsgU(bounty->target + L" was not hunted down and earned " + std::to_wstring(bounty->cash) + L" credits.");
+				Hk::Message::MsgU(bounty->target + L" was not hunted down and earned " + std::to_wstring(bounty->cash) + L" credits.");
 				bounty = global->bountyHunt.erase(bounty);
 			}
 			else
@@ -229,7 +229,7 @@ namespace Plugins::BountyHunt
 						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
-					const auto _ = Hk::Message::MsgU(
+					Hk::Message::MsgU(
 					    winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
 				}
 				else
@@ -256,7 +256,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for SendDeathMsg to call BillCheck
 	 */
-	void SendDeathMsg(const std::wstring& msg,const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
+	void SendDeathMsg([[maybe_unused]] const std::wstring& msg, [[maybe_unused]] const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		if (global->config->enableBountyHunt)
 		{
@@ -274,7 +274,7 @@ namespace Plugins::BountyHunt
 					Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
-				const auto _ = Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
+				Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
 				RemoveBountyHunt(it);
 				return;
 			}
@@ -284,7 +284,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for Disconnect to see if the player had a bounty on them
 	 */
-	void DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
 	{
 		checkIfPlayerFled(client);
 	}
@@ -292,7 +292,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for CharacterSelect to see if the player had a bounty on them
 	 */
-	void CharacterSelect(std::string& szCharFilename, ClientId& client)
+	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client)
 	{
 		checkIfPlayerFled(client);
 	}

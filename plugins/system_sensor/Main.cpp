@@ -233,14 +233,8 @@ namespace Plugins::SystemSensor
 			{
 				Console::ConWarn(wstos(Hk::Err::ErrGetText(spaceObjType.error())));
 			}
-			if (spaceObjType.value() == OBJ_JUMP_GATE)
-			{
-				global->networks[client.value()].inJumpGate = true;
-			}
-			else
-			{
-				global->networks[client.value()].inJumpGate = false;
-			}
+
+			global->networks[client.value()].inJumpGate = spaceObjType.value() == OBJ_JUMP_GATE;
 		}
 
 		return 0;
