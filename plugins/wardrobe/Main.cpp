@@ -9,11 +9,11 @@ namespace Plugins::Wardrobe
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmdShowWardrobe(ClientId& client, const std::wstring& wscParam)
+	void UserCmdShowWardrobe(ClientId& client, const std::wstring& param)
 	{
-		const std::wstring type = GetParam(wscParam, ' ', 0);
+		const std::wstring type = GetParam(param, ' ', 0);
 
-		if (ToLower(type) == L"heads")
+		if (ToLower(type) == L"head")
 		{
 			PrintUserCmdText(client, L"Heads:");
 			std::wstring heads;
@@ -21,7 +21,7 @@ namespace Plugins::Wardrobe
 				heads += (stows(name) + L" | ");
 			PrintUserCmdText(client, heads);
 		}
-		else if (ToLower(type) == L"bodies")
+		else if (ToLower(type) == L"body")
 		{
 			PrintUserCmdText(client, L"Bodies:");
 			std::wstring bodies;
@@ -31,12 +31,13 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	void UserCmdChangeCostume(ClientId& client, const std::wstring& wscParam)
+	void UserCmdChangeCostume(ClientId& client, const std::wstring& param)
 	{
-		const std::wstring type = GetParam(wscParam, ' ', 0);
-		const std::wstring costume = GetParam(wscParam, ' ', 1);
 
-		if (!type.length() || !costume.length())
+		const std::wstring type = GetParam(param, ' ', 0);
+		const std::wstring costume = GetParam(param, ' ', 1);
+
+		if (type.empty() || costume.empty())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
 			return;
@@ -46,7 +47,7 @@ namespace Plugins::Wardrobe
 
 		if (ToLower(type) == L"head")
 		{
-			if (global->config->heads.find(wstos(costume)) == global->config->heads.end())
+			if (!global->config->heads.contains(wstos(costume)))
 			{
 				PrintUserCmdText(client, L"ERR Head not found. Use \"/show heads\" to get heads.");
 				return;
@@ -56,7 +57,7 @@ namespace Plugins::Wardrobe
 		}
 		else if (ToLower(type) == L"body")
 		{
-			if (global->config->bodies.find(wstos(costume)) == global->config->bodies.end())
+			if (!global->config->bodies.contains(wstos(costume)))
 			{
 				PrintUserCmdText(client, L"ERR Body not found. Use \"/show bodies\" to get bodies.");
 				return;
@@ -76,17 +77,9 @@ namespace Plugins::Wardrobe
 		if (!Hk::Client::IsValidClientID(client))
 			return;
 
-		// Check character is in base
-		auto base = Hk::Player::GetCurrentBase(client);
-		if (base.has_error())
-		{
-			PrintUserCmdText(client, L"ERR Not in base");
-			return;
-		}
-
 		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		if (CAccount* account = Players.FindAccountFromClientID(client))
+		if (const CAccount* account = Players.FindAccountFromClientID(client))
 		{
 			restart.directory = Hk::Client::GetAccountDirName(account);
 			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
@@ -100,7 +93,7 @@ namespace Plugins::Wardrobe
 		while (!global->pendingRestarts.empty())
 		{
 			Wardrobe restart = global->pendingRestarts.back();
-			if (Hk::Client::GetClientIdFromCharName(restart.characterName).has_error())
+			if (Hk::Client::GetClientIdFromCharName(restart.characterName).has_value())
 				return;
 
 			global->pendingRestarts.pop_back();
@@ -133,6 +126,32 @@ namespace Plugins::Wardrobe
 		}
 	}
 
+	void UserCmdHandle(ClientId& client, const std::wstring& param)
+	{
+		// Check character is in base
+		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
+		{
+			PrintUserCmdText(client, L"ERR Not in base");
+			return;
+		}
+
+		const std::wstring command = GetParam(param, ' ', 0);
+		if (command == L"list")
+		{
+			UserCmdShowWardrobe(client, GetParamToEnd(param, ' ', 1));
+		}
+		else if (command == L"change")
+		{
+			UserCmdChangeCostume(client, GetParamToEnd(param, ' ', 1));
+		}
+		else
+		{
+			PrintUserCmdText(client, L"Command usage:");
+			PrintUserCmdText(client, L"/wardrobe list <head/body> - lists available bodies/heads");
+			PrintUserCmdText(client, L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
+		}
+	}
+
 	const std::vector<Timer> timers = {
 		{ProcessWardrobeRestarts, 1}
 	};
@@ -149,8 +168,7 @@ namespace Plugins::Wardrobe
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/show", L"<heads/bodies>", UserCmdShowWardrobe, L"Shows the available heads or bodies."),
-	    CreateUserCommand(L"/change", L"<head/body> <name>", UserCmdChangeCostume, L"Changes your head/body to the one specified."),
+	    CreateUserCommand(L"/wardrobe", L"<show/change> <head/body> [name]", UserCmdHandle, L"Shows the available heads or bodies."),
 	}};
 
 } // namespace Plugins::Wardrobe
