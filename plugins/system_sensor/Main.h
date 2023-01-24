@@ -29,8 +29,8 @@ namespace Plugins::SystemSensor
 	//! Map of equipment and systems that have sensor networks
 	struct ActiveNetwork
 	{
-		std::list<CARGO_INFO> lstLastScan;
-		NetworkId iAvailableNetworkId = 0;
+		std::list<CARGO_INFO> lastScanList;
+		NetworkId availableNetworkId = 0;
 		NetworkId lastScanNetworkId = 0;
 		bool inJumpGate = false;
 		Mode mode = Mode::Off;
