@@ -63,15 +63,9 @@ namespace Plugins::Tempban
 		CAccount* acc;
 		acc = Players.FindAccountFromClientID(client);
 
-		const auto wscId = Hk::Client::GetAccountID(acc);
+		const auto id = Hk::Client::GetAccountID(acc);
 
-		for (auto& ban : global->TempBans)
-		{
-			if (ban.accountId == wscId.value())
-				return true;
-		}
-
-		return false;
+		return std::ranges::any_of(global->TempBans, [&id](TempbanInfo const& ban) { return ban.accountId == id.value(); });
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,9 +101,9 @@ namespace Plugins::Tempban
 		classptr->Print("OK");
 	}
 
-	bool ExecuteCommandString(CCmds* classptr, const std::wstring& wscCmd)
+	bool ExecuteCommandString(CCmds* classptr, const std::wstring& cmd)
 	{
-		if (wscCmd == L"tempban")
+		if (cmd == L"tempban")
 		{
 			global->returncode = ReturnCode::SkipAll; // do not let other plugins kick in
 			                                          // since we now handle the command
