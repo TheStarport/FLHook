@@ -58,7 +58,7 @@ namespace Plugins::MiscCommands
 		// Drop player shields and keep them down.
 		for (const auto& [id, info] : global->mapInfo)
 		{
-			if (info.bShieldsDown)
+			if (info.shieldsDown)
 			{
 				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(id).value(), false); playerInfo.has_value() && playerInfo.value().ship)
 				{
@@ -70,7 +70,7 @@ namespace Plugins::MiscCommands
 
 	const std::vector<Timer> timers = {{OneSecondTimer, 1}};
 
-	static void SetLights(ClientId client, bool bOn)
+	static void SetLights(ClientId client, bool lightsStatus)
 	{
 		auto ship = Hk::Player::GetShip(client);
 		if (ship.has_error())
@@ -80,14 +80,14 @@ namespace Plugins::MiscCommands
 		}
 
 		bool bLights = false;
-		st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip;
-		for (const auto& eq : eqLst)
+		for (st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip; 
+			const auto& eq : eqLst)
 		{
 			std::string hp = ToLower(eq.szHardPoint.value);
 			if (hp.find("dock") != std::string::npos)
 			{
 				XActivateEquip ActivateEq;
-				ActivateEq.bActivate = bOn;
+				ActivateEq.bActivate = lightsStatus;
 				ActivateEq.iSpaceId = ship.value();
 				ActivateEq.sId = eq.sId;
 				Server.ActivateEquip(client, ActivateEq);
@@ -96,7 +96,7 @@ namespace Plugins::MiscCommands
 		}
 
 		if (bLights)
-			PrintUserCmdText(client, std::format(L" Lights {}", bOn ? L"on" : L"off"));
+			PrintUserCmdText(client, std::format(L" Lights {}", lightsStatus ? L"on" : L"off"));
 		else
 			PrintUserCmdText(client, L"Light control not available");
 	}
@@ -104,7 +104,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Print the current location of your ship
 	 */
-	void UserCmdPos(ClientId& client, const std::wstring& wscParam)
+	void UserCmdPos(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(client).value(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
@@ -125,7 +125,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Nudge your ship 15 meters on all axis to try and dislodge a stuck ship.
 	 */
-	void UserCmdStuck(ClientId& client, const std::wstring& wscParam)
+	void UserCmdStuck(ClientId& client, const std::wstring& param)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
@@ -163,7 +163,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Command to remove your current affiliation if applicable.
 	 */
-	void UserCmdDropRep(ClientId& client, [[maybe_unused]] const std::wstring& wscParam)
+	void UserCmdDropRep(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (!global->config->enableDropRep)
 		{
@@ -212,37 +212,37 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Roll a dice with the specified number of sides, or 6 is not specified.
 	 */
-	void UserCmdDice(ClientId& client, const std::wstring& wscParam)
+	void UserCmdDice(ClientId& client, const std::wstring& param)
 	{
 		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		int max = ToInt(GetParam(wscParam, ' ', 0));
+		int max = ToInt(GetParam(param, ' ', 0));
 		if (max <= 1)
 			max = 6;
 
 		const uint number = rand() % max + 1;
-		std::wstring wscMsg = global->config->diceMessage;
-		wscMsg = ReplaceStr(wscMsg, L"%player", charName);
-		wscMsg = ReplaceStr(wscMsg, L"%number", std::to_wstring(number));
-		wscMsg = ReplaceStr(wscMsg, L"%max", std::to_wstring(max));
-		PrintLocalUserCmdText(client, wscMsg, 6000.0f);
+		std::wstring msg = global->config->diceMessage;
+		msg = ReplaceStr(msg, L"%player", charName);
+		msg = ReplaceStr(msg, L"%number", std::to_wstring(number));
+		msg = ReplaceStr(msg, L"%max", std::to_wstring(max));
+		PrintLocalUserCmdText(client, msg, 6000.0f);
 	}
 
 	/** @ingroup MiscCommands
 	 * @brief Throw the dice and tell all players within 6 km
 	 */
-	void UserCmdCoin(ClientId& client, const std::wstring& wscParam)
+	void UserCmdCoin(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		const std::wstring charName = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		const uint number = (rand() % 2);
-		std::wstring wscMsg = global->config->coinMessage;
-		wscMsg = ReplaceStr(wscMsg, L"%player", charName);
-		wscMsg = ReplaceStr(wscMsg, L"%result", (number == 1) ? L"heads" : L"tails");
-		PrintLocalUserCmdText(client, wscMsg, 6000.0f);
+		std::wstring msg = global->config->coinMessage;
+		msg = ReplaceStr(msg, L"%player", charName);
+		msg = ReplaceStr(msg, L"%result", (number == 1) ? L"heads" : L"tails");
+		PrintLocalUserCmdText(client, msg, 6000.0f);
 	}
 
-	void UserCmdValue(ClientId& client, const std::wstring& wscParam)
+	void UserCmdValue(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		auto shipValue = Hk::Player::GetShipValue(client);
 		if (shipValue.has_error())
@@ -258,19 +258,19 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Activate or deactivate docking lights on your ship.
 	 */
-	void UserCmdLights(ClientId& client, const std::wstring& wscParam)
+	void UserCmdLights(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		global->mapInfo[client].bLightsOn = !global->mapInfo[client].bLightsOn;
-		SetLights(client, global->mapInfo[client].bLightsOn);
+		global->mapInfo[client].lightsOn = !global->mapInfo[client].lightsOn;
+		SetLights(client, global->mapInfo[client].lightsOn);
 	}
 
 	/** @ingroup MiscCommands
 	 * @brief Disable/Enable your shields at will.
 	 */
-	void UserCmdShields(ClientId& client, const std::wstring& wscParam)
+	void UserCmdShields(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		global->mapInfo[client].bShieldsDown = !global->mapInfo[client].bShieldsDown;
-		PrintUserCmdText(client, std::format(L"Shields {}", global->mapInfo[client].bShieldsDown ? L"Disabled" : L"Enabled"));
+		global->mapInfo[client].shieldsDown = !global->mapInfo[client].shieldsDown;
+		PrintUserCmdText(client, std::format(L"Shields {}", global->mapInfo[client].shieldsDown ? L"Disabled" : L"Enabled"));
 	}
 
 	// Client command processing
@@ -305,7 +305,7 @@ namespace Plugins::MiscCommands
 
 		const bool bKillAll = cmds->ArgStr(1) == L"die";
 
-		auto [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
+		const auto& [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 
 		pub::Audio::Tryptich music;
 		music.iDunno = 0;
@@ -328,14 +328,14 @@ namespace Plugins::MiscCommands
 
 			uint ship = Hk::Player::GetShip(client).value();
 
-			auto [playerPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
+			const auto& [playerPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 			// Is player within scanner range (15K) of the sending char.
 			if (Hk::Math::Distance3D(playerPosition, fromShipPos) > 14999)
 				continue;
 
 			pub::Audio::SetMusic(client, music);
 
-			global->mapInfo[client].bShieldsDown = true;
+			global->mapInfo[client].shieldsDown = true;
 
 			if (bKillAll)
 			{
@@ -350,12 +350,12 @@ namespace Plugins::MiscCommands
 		return;
 	}
 
-	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
+	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
 	{
 		if (!cmds->IsPlayer())
 			return false;
 
-		if (wscCmd == L"smiteall")
+		if (cmd == L"smiteall")
 		{
 			global->returncode = ReturnCode::SkipAll;
 			AdminCmdSmiteAll(cmds);
