@@ -136,7 +136,8 @@ namespace Plugins::LightControl
 			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			PrintUserCmdText(client,
 			    std::format(
-			        L"|    {}: {}", itemNumber++, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
+			        L"|    {}: {}", itemNumber, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
+			itemNumber++;
 		}
 	}
 
@@ -187,7 +188,7 @@ namespace Plugins::LightControl
 		const auto& selectedLightEquipDesc = lights[hardPointId];
 
 		const auto light =
-		    std::find_if(eqLst.begin(), eqLst.end(), [selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
+		    std::find_if(eqLst.begin(), eqLst.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
 
 		light->iArchId = lightId;
 		auto err = Hk::Player::SetEquip(client, eqLst);

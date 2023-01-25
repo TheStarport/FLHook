@@ -8,8 +8,8 @@ namespace Plugins::MiscCommands
 	//! The struct that holds client info for this plugin
 	struct MiscClientInfo
 	{
-		bool bLightsOn = false;
-		bool bShieldsDown = false;
+		bool lightsOn = false;
+		bool shieldsDown = false;
 	};
 
 	//! Config data for this plugin
