@@ -226,7 +226,7 @@ namespace Plugins::SystemSensor
 	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const enum DOCK_HOST_RESPONSE& response)
 	{
 		if (const auto client = Hk::Client::GetClientIdByShip(ship); 
-			client.has_value() && (response == PROCEED_DOCK || response == DOCK) && !cancel)
+			client.has_value() && (response == PROCEED_DOCK || response == DOCK) && cancel >= 0)
 		{
 			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
