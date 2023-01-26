@@ -2,7 +2,9 @@
 
 #ifdef SERVER
 	#include <ext/Sql.hpp>
+	#pragma warning(push, 0)
 	#include <ext/jpcre2.hpp>
+	#pragma warning(pop)
 using jp = jpcre2::select<char>;
 using jpWide = jpcre2::select<wchar_t>;
 	#include <ext/result.hpp>
@@ -27,7 +29,9 @@ using jpWide = jpcre2::select<wchar_t>;
 	#endif
 
 	#ifdef PCRE2
+		#pragma warning(push, 0)
 		#include <ext/jpcre2.hpp>
+		#pragma warning(pop)
 using jp = jpcre2::select<char>;
 using jpWide = jpcre2::select<wchar_t>;
 		#pragma comment(lib, "pcre2-8.lib")
