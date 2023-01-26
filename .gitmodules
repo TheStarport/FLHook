@@ -1,6 +1,3 @@
 [submodule "FLHookSDK"]
 	path = FLHookSDK
 	url = https://github.com/fl-devs/FLHookSDK.git
-[submodule "vcpkg"]
-	path = vcpkg
-	url = https://github.com/microsoft/vcpkg.git

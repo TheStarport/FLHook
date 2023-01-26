@@ -165,7 +165,8 @@ namespace Plugins::CargoDrop
 				{
 					shipSizeEstimate += count;
 					if (!mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
-						Server.MineAsteroid(system, position, global->cargoDropContainerId, archId, min(count, global->config->maxPlayerCargoDropCount), clientKiller);
+						Server.MineAsteroid(
+						    system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
 				}
 			}
 		}

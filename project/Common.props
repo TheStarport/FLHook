@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros">
-    <DistDir>$(SolutionDir)..\dist\$(Configuration)\</DistDir>
-  </PropertyGroup>
-  <PropertyGroup>
-    <IncludePath>$(SolutionDir)..\FLHookSDK\include;$(SolutionDir)..\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\FLHookSDK\lib;$(SolutionDir)..\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\int\$(ProjectName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>FLCoreCommon.lib;FLCoreDACom.lib;FLCoreDALib.lib;FLCoreFLServerEXE.lib;FLCoreRemoteClient.lib;FLCoreServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <WarningLevel>Level3</WarningLevel>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <BuildMacro Include="DistDir">
-      <Value>$(DistDir)</Value>
-    </BuildMacro>
-  </ItemGroup>
+	<ImportGroup Label="PropertySheets" />
+	<PropertyGroup Label="UserMacros">
+		<DistDir>$(SolutionDir)..\dist\$(Configuration)\</DistDir>
+	</PropertyGroup>
+	<PropertyGroup>
+		<IncludePath>$(SolutionDir)..\FLHookSDK\include;$(SolutionDir)..\include;$(IncludePath)</IncludePath>
+		<LibraryPath>$(SolutionDir)..\FLHookSDK\lib;$(SolutionDir)..\lib;$(LibraryPath)</LibraryPath>
+		<OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
+		<IntDir>$(SolutionDir)..\int\$(ProjectName)\$(Configuration)\</IntDir>
+	</PropertyGroup>
+	<ItemDefinitionGroup>
+		<Link>
+			<AdditionalDependencies>FLCoreCommon.lib;FLCoreDACom.lib;FLCoreDALib.lib;FLCoreFLServerEXE.lib;FLCoreRemoteClient.lib;FLCoreServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		</Link>
+		<ClCompile>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<WarningLevel>Level3</WarningLevel>
+			<EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+			<PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemGroup>
+		<BuildMacro Include="DistDir">
+			<Value>$(DistDir)</Value>
+		</BuildMacro>
+	</ItemGroup>
 </Project>

@@ -32,10 +32,10 @@ namespace Hk::Math
 	Quaternion MatrixToQuaternion(const Matrix& m)
 	{
 		Quaternion quaternion;
-		quaternion.w = sqrt(max(0, 1 + m.data[0][0] + m.data[1][1] + m.data[2][2])) / 2;
-		quaternion.x = sqrt(max(0, 1 + m.data[0][0] - m.data[1][1] - m.data[2][2])) / 2;
-		quaternion.y = sqrt(max(0, 1 - m.data[0][0] + m.data[1][1] - m.data[2][2])) / 2;
-		quaternion.z = sqrt(max(0, 1 - m.data[0][0] - m.data[1][1] + m.data[2][2])) / 2;
+		quaternion.w = sqrt(std::max(0.0f, 1.0f + m.data[0][0] + m.data[1][1] + m.data[2][2])) / 2;
+		quaternion.x = sqrt(std::max(0.0f, 1.0f + m.data[0][0] - m.data[1][1] - m.data[2][2])) / 2;
+		quaternion.y = sqrt(std::max(0.0f, 1.0f - m.data[0][0] + m.data[1][1] - m.data[2][2])) / 2;
+		quaternion.z = sqrt(std::max(0.0f, 1.0f - m.data[0][0] - m.data[1][1] + m.data[2][2])) / 2;
 		quaternion.x = (float)_copysign(quaternion.x, m.data[2][1] - m.data[1][2]);
 		quaternion.y = (float)_copysign(quaternion.y, m.data[0][2] - m.data[2][0]);
 		quaternion.z = (float)_copysign(quaternion.z, m.data[1][0] - m.data[0][1]);
@@ -54,10 +54,10 @@ namespace Hk::Math
 		int gridRefX = (int)((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
 		int gridRefZ = (int)((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
 
-		gridRefX = min(max(gridRefX, 0), 7);
+		gridRefX = std::min(std::max(gridRefX, 0), 7);
 		char scXPos = 'A' + char(gridRefX);
 
-		gridRefZ = min(max(gridRefZ, 0), 7);
+		gridRefZ = std::min(std::max(gridRefZ, 0), 7);
 		char scZPos = '1' + char(gridRefZ);
 
 		typename Str::value_type szCurrentLocation[100];

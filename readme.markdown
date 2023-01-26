@@ -27,7 +27,7 @@ User commands may be entered in game by every player in chat and can be enabled 
 
 ## Compiling
 
-Starting with version 2.1, Visual Studio 2019 is required. To compile, simply build the solution as normal. The final build will be found in `dist`, whereas intermediate files are located in `int` and `bin`.
+Starting with version 4.0, Visual Studio 2022 is required. To compile, simply build the solution as normal. The final build will be found in `dist`, whereas intermediate files are located in `int` and `bin`.
 
 If you wish to develop a new plugin within the solution, please see our `Plugin Development` section in the [docs](https://docs.flhook.org).
 
@@ -35,9 +35,9 @@ If you would like the build process to copy FLHook as well as any enabled plugin
 
 ### Compiling Instructions
 
-1. Install Visual Studio 2019
-2. Clone this repository (`git clone --recursive https://github.com/fl-devs/FLHook.git`)
-3. Run `project\vcpkg.bat`
+1. Install Visual Studio 2022, required toolchains/modules are: `MSVC v142 (x86), C++ MFC for v142 build tools, C++ ATL for v142 build tools, C++/CLI support for v142 build tools.`
+2. If you don't already have vcpkg installed and setup, do so. Instructions available here: https://github.com/microsoft/vcpkg/tree/master#quick-start-windows - Ensure you do the steps pertaining to Visual Studio.
+3. Clone this repository (`git clone https://github.com/fl-devs/FLHook.git`)
 4. Open `project\FLHook.sln`
 5. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
 6. Build Solution. vcpkg should download a number of dependencies.
@@ -61,4 +61,4 @@ Special thanks to:
 * Nen for testing and plugin development.
 * All those who have worked on FLHook before.
 
-FLHook uses a slightly modified version of `flcodec.c`.
+FLHook uses a heavily modified version of `flcodec.c`.

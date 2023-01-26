@@ -12,6 +12,7 @@
 			<ConformanceMode>true</ConformanceMode>
 			<EnableModules>true</EnableModules>
 			<DisableSpecificWarnings>5222</DisableSpecificWarnings>
+			<PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 		</ClCompile>
 		<Link>
 			<AdditionalDependencies>FLHook.lib;%(AdditionalDependencies)</AdditionalDependencies>

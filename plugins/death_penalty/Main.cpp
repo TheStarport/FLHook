@@ -288,7 +288,7 @@ namespace Plugins::DeathPenalty
 				auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
 				uint playerCash = Hk::Player::GetCash(client).value();
 
-				PrintUserCmdText(client, L"The death penalty for your ship will be " + ToMoneyStr(min(cashOwed, playerCash)) + L" credits.");
+				PrintUserCmdText(client, std::format(L"The death penalty for your ship will be {} credits.", ToMoneyStr(std::min(cashOwed, playerCash))));
 				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");

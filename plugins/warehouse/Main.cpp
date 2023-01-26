@@ -43,7 +43,7 @@ namespace Plugins::Warehouse
 			filteredCargo.emplace_back(info);
 		}
 
-		const int itemCount = max(1, ToInt(GetParam(param, ' ', 2)));
+		const int itemCount = std::max(1, ToInt(GetParam(param, ' ', 2)));
 
 		if (databaseItemId > filteredCargo.size())
 		{
@@ -133,7 +133,7 @@ namespace Plugins::Warehouse
 		int remainingCargo;
 		const auto cargo = Hk::Player::EnumCargo(client, remainingCargo);
 
-		const int itemCount = max(1, ToInt(GetParam(param, ' ', 2)));
+		const int itemCount = std::max(1, ToInt(GetParam(param, ' ', 2)));
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{
