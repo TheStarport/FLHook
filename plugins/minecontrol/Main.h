@@ -7,18 +7,18 @@ namespace Plugins::MiningControl
 	//! A struct that defines a mining bonus to a player if they meet certain criteria
 	struct PlayerBonus : Reflectable
 	{
-		PlayerBonus() : LootId(0), Bonus(0.0f), RepId(-1) {}
+		PlayerBonus() = default;
 
 		//! The loot commodity id this configuration applies to.
 		std::string Loot = "commodity_gold";
-		uint LootId;
+		uint LootId = 0;
 
 		//! The loot bonus multiplier.
-		float Bonus;
+		float Bonus = 0.0f;
 
 		//! The affiliation/reputation of the player
 		std::string Rep = "li_n_grp";
-		uint RepId;
+		uint RepId = -1;
 
 		//! The list of ships that this bonus applies to
 		std::vector<std::string> Ships = {"ge_fighter"};
@@ -36,48 +36,45 @@ namespace Plugins::MiningControl
 	//! A struct that defines a mining bonus for a certain zone in space
 	struct ZoneBonus : Reflectable
 	{
-		ZoneBonus() : Bonus(0.0f), ReplacementLootId(0), RechargeRate(0), CurrentReserve(100000), MaxReserve(50000), Mined(0) {}
+		ZoneBonus() = default;
 
 		std::string Zone = "ExampleZone";
 
 		//! The loot bonus multiplier.
-		float Bonus;
+		float Bonus = 0.0f;
 
 		//! The hash of the item to replace the dropped
 		std::string ReplacementLoot = "commodity_gold";
-		uint ReplacementLootId;
+		uint ReplacementLootId = 0;
 
 		//! The recharge rate of the zone. This is the number of units of ore added to the reserve per minute.
-		float RechargeRate;
+		float RechargeRate = 0;
 
 		//! The current amount of ore in the zone. When this gets low, ore gets harder to mine. When it gets to 0, ore is impossible to mine.
-		float CurrentReserve;
+		float CurrentReserve = 100000;
 
 		//! The maximum limit for the amount of ore in the field
-		float MaxReserve;
+		float MaxReserve = 50000;
 
 		//! The amount of ore that has been mined.
-		float Mined;
+		float Mined = 0;
 	};
 
 	//! A struct to represent each client
 	struct ClientData
 	{
-		ClientData() : Setup(false), Debug(0), PendingMineAsteroidEvents(0), MineAsteroidEvents(0) {}
+		ClientData() = default;
 
-		bool Setup;
+		bool Setup = false;
 		std::map<uint, float> LootBonus;
 		std::map<uint, std::vector<uint>> LootAmmo;
 		std::map<uint, std::vector<uint>> LootShip;
-		int Debug;
+		int Debug = 0;
 
-		int PendingMineAsteroidEvents;
-		int MineAsteroidEvents;
-		time_t MineAsteroidSampleStart;
+		int MineAsteroidEvents = 0;
+		time_t MineAsteroidSampleStart = 0;
 	};
 
-	//! A map to hold all the clients
-	std::map<uint, ClientData> Clients;
 
 
 	//! A struct to hold the current status of a zone so their progress persists across restarts
@@ -120,6 +117,7 @@ namespace Plugins::MiningControl
 	struct Global final
 	{
 		ReturnCode returnCode = ReturnCode::Default;
+		std::map<uint, ClientData> Clients;
 		std::multimap<uint, PlayerBonus> PlayerBonus;
 		std::map<uint, ZoneBonus> ZoneBonus;
 		std::unique_ptr<Config> config = nullptr;
