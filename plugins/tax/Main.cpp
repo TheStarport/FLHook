@@ -10,36 +10,31 @@ namespace Plugins::Tax
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 	// Functions
-	void RemoveTax(const Tax& b)
+	void RemoveTax(const Tax& toRemove)
 	{
-		auto it = global->lsttax.begin();
-		while (it != global->lsttax.end())
-		{
-			if (it->targetId == b.targetId && it->initiatorId == b.initiatorId)
-				global->lsttax.erase(it++);
-			else
-				++it;
-		}
+		auto taxToRemove = std::ranges::find_if(
+		    global->lsttax, [&toRemove](const Tax& tax) { return tax.targetId == toRemove.targetId && tax.initiatorId == toRemove.initiatorId; });
+		global->lsttax.erase(taxToRemove);
 	}
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
-		SystemId system = Hk::Player::GetSystem(client).value();
-
 		// no-pvp check
-		for (auto const& it : global->excludedsystemsIds)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); 
+			std::ranges::find(global->excludedsystemsIds, system) == global->excludedsystemsIds.end())
 		{
-			if (system == it)
-			{
-				PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
-				return;
-			}
+			PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
+			return;
 		}
 
 		const std::wstring taxAmount = GetParam(param, ' ', 0);
 
-		if (!taxAmount.length())
-			PrintUserCmdText(client, L"Error: No valid tax amount!");
+		if (taxAmount.empty())
+		{
+			PrintUserCmdText(client, L"Usage:");
+			PrintUserCmdText(client, L"/tax <credits>");
+		}
+			
 
 		const uint taxValue = ToUInt(taxAmount);
 
@@ -99,7 +94,7 @@ namespace Plugins::Tax
 			PrintUserCmdText(client, std::vformat(global->config->huntingMessageOriginator, std::make_wformat_args(targetCharacterName.value())));
 	}
 
-	void UserCmdPay(ClientId& client, const std::wstring& param)
+	void UserCmdPay(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		for (auto& it : global->lsttax)
 			if (it.targetId == client)
@@ -110,8 +105,7 @@ namespace Plugins::Tax
 					return;
 				}
 
-				const auto cash = Hk::Player::GetCash(client);
-				if (cash.has_error() || cash.value() < it.cash)
+				if (const auto cash = Hk::Player::GetCash(client); cash.has_error() || cash.value() < it.cash)
 				{
 					PrintUserCmdText(client, L"You have not enough money to pay the tax.");
 					PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
@@ -133,8 +127,8 @@ namespace Plugins::Tax
 
 	void TimerF1Check()
 	{
-		struct PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
 
@@ -181,44 +175,19 @@ namespace Plugins::Tax
 				}
 				continue;
 			}
+			playerData = Players.traverse_active(playerData);
 		}
 	}
 
 	// Hooks
-	typedef void (*TimerFunc)();
-	struct TIMER
-	{
-		TimerFunc proc;
-		mstime tmIntervallMS;
-		mstime tmLastCall;
+
+	const std::vector<Timer> timers = {
+	    {TimerF1Check, 1}
 	};
 
-	TIMER Timers[] = {
-	    {TimerF1Check, 1000, 0},
-	};
-
-	int Update()
-	{
-		for (uint i = 0; (i < sizeof(Timers) / sizeof(TIMER)); i++)
-		{
-			if ((timeInMS() - Timers[i].tmLastCall) >= Timers[i].tmIntervallMS)
-			{
-				Timers[i].tmLastCall = timeInMS();
-				Timers[i].proc();
-			}
-		}
-		return 0;
-	}
-
-	void DisConnect(ClientId& client, enum EFLConnection& state)
+	void DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
 	{
 		TimerF1Check();
-	}
-
-	void UserCmdHelp(ClientId& client, const std::wstring& param)
-	{
-		PrintUserCmdText(client, L"/pay <credits>");
-		PrintUserCmdText(client, L"/acc");
 	}
 
 	// Load Settings
@@ -257,10 +226,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("tax");
 	pi->mayUnload(true);
 	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 }
