@@ -163,7 +163,7 @@ namespace Plugins::LightControl
 			return;
 		}
 
-		const int hardPointId = ToInt(GetParam(param, ' ', 1)) - 1;
+		const uint hardPointId = ToUInt(GetParam(param, ' ', 1)) - 1;
 		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 
 		std::vector<EquipDesc> lights;
@@ -178,7 +178,7 @@ namespace Plugins::LightControl
 			lights.emplace_back(i);
 		}
 
-		if (hardPointId < 0 || hardPointId > lights.size())
+		if (hardPointId > lights.size())
 		{
 			PrintUserCmdText(client, L"Error: Invalid light point");
 			return;
