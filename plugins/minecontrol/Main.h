@@ -81,8 +81,8 @@ namespace Plugins::MiningControl
 	struct ZoneStats : Reflectable
 	{
 		std::string Zone;
-		float CurrentReserve;
-		float Mined;
+		float CurrentReserve = 0.0f;
+		float Mined = 0.0f;
 	};
 
 	//! A struct to load in the stats config file across restarts
