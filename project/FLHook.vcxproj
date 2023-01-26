@@ -62,7 +62,8 @@
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <VcpkgTriplet>
     </VcpkgTriplet>
-    <VcpkgInstalledDir>$(SolutionDir)..\FLHookSDK\vcpkg_installed</VcpkgInstalledDir>
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Vcpkg">
     <VcpkgTriplet />

@@ -204,7 +204,7 @@ namespace Plugins::SystemSensor
 			if (sensor.availableNetworkId == siter->second.networkId)
 			{
 				const Universe::ISystem* system = Universe::get_system(systemId);
-				if (system && enum_integer(sensor.mode & mode))
+				if (system && magic_enum::enum_integer(sensor.mode & mode))
 				{
 					std::wstring sysName = Hk::Message::GetWStringFromIdS(system->strid_name);
 					const auto location = Hk::Solar::GetLocation(client, IdType::Client);

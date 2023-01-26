@@ -110,7 +110,7 @@ namespace Plugins::BountyHunt
 		// clamp the hunting time to configured range, or set default if not specified
 		if (time)
 		{
-			time = min(global->config->maximumHuntTime, max(global->config->minimalHuntTime, time));
+			time = std::min(global->config->maximumHuntTime, std::max(global->config->minimalHuntTime, time));
 		}
 		else
 		{

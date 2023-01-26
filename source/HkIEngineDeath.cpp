@@ -142,7 +142,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 				wchar_t systemName[64];
 				swprintf_s(systemName, L"%u", systemId);
 
-				if (!enum_integer(dmg.get_cause()))
+				if (!magic_enum::enum_integer(dmg.get_cause()))
 					dmg = ClientInfo[client].dmgLast;
 
 				DamageCause cause = dmg.get_cause();
