@@ -141,7 +141,7 @@ namespace Plugins::CargoDrop
 	/** @ingroup CargoDrop
 	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.
 	 */
-	void SendDeathMsg(const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
+	void SendDeathMsg([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
 		if (global->config->hullDropFactor == 0.0f)
