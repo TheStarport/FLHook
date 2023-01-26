@@ -161,8 +161,7 @@ namespace Plugins::Tax
 				{
 					if (it.targetId == client)
 					{
-						uint ship = Hk::Player::GetShip(client).value();
-						if (ship)
+						if (uint ship = Hk::Player::GetShip(client).value())
 						{
 							// F1 -> Kill
 							pub::SpaceObj::SetRelativeHealth(ship, 0.0);
@@ -173,7 +172,6 @@ namespace Plugins::Tax
 						break;
 					}
 				}
-				continue;
 			}
 			playerData = Players.traverse_active(playerData);
 		}
