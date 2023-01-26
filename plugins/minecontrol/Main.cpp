@@ -58,38 +58,37 @@
 
 namespace Plugins::MiningControl
 {
-	std::unique_ptr<Global> global = std::make_unique<Global>();
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
 	/** @ingroup MiningControl
 	 * @brief Return true if the cargo list contains the specified good.
 	 */
-	static bool ContainsEquipment(std::list<CARGO_INFO> & lstCargo, uint iArchId)
+	static bool ContainsEquipment(const std::list<CARGO_INFO>& cargoList, uint archId)
 	{
-		for (auto& c : lstCargo)
-			if (c.bMounted && c.iArchId == iArchId)
-				return true;
-		return false;
+		return std::ranges::any_of(cargoList, [archId](const CARGO_INFO& c){
+			return c.bMounted && c.iArchId == archId;
+			});
 	}
 
 	/** @ingroup MiningControl
 	 * @brief Return the factor to modify a mining loot drop by.
 	 */
-	static float GetBonus(uint iRep, uint shipId, std::list<CARGO_INFO> lstCargo, uint iLootId)
+	static float GetBonus(uint reputation, uint shipId, const std::list<CARGO_INFO>& cargoList, uint lootId)
 	{
 		if (!global->PlayerBonus.size())
 			return 0.0f;
 
 		// Get all player bonuses for this commodity.
-		auto start = global->PlayerBonus.lower_bound(iLootId);
-		auto end = global->PlayerBonus.upper_bound(iLootId);
+		auto start = global->PlayerBonus.lower_bound(lootId);
+		auto end = global->PlayerBonus.upper_bound(lootId);
 		for (; start != end; start++)
 		{
 			// Check for matching reputation if reputation is required.
-			if (start->second.RepId != -1 && iRep != start->second.RepId)
+			if (start->second.RepId != -1 && reputation != start->second.RepId)
 				continue;
 
 			// Check for matching ship.
-			if (find(start->second.ShipIds.begin(), start->second.ShipIds.end(), shipId) == start->second.ShipIds.end())
+			if (std::ranges::find(start->second.ShipIds, shipId) == start->second.ShipIds.end())
 				continue;
 
 			// Check that every simple item in the equipment list is present and
@@ -97,7 +96,7 @@ namespace Plugins::MiningControl
 			bool bEquipMatch = true;
 			for (auto item : start->second.ItemIds)
 			{
-				if (!ContainsEquipment(lstCargo, item))
+				if (!ContainsEquipment(cargoList, item))
 				{
 					bEquipMatch = false;
 					break;
@@ -124,9 +123,9 @@ namespace Plugins::MiningControl
 			Clients[client].Setup = true;
 
 			// Get the player affiliation
-			uint iRepGroupId = -1;
+			uint repGroupId = -1;
 			if (const auto shipObj = Hk::Client::GetInspect(client); shipObj.has_value())
-				shipObj.value()->get_affiliation(iRepGroupId);
+				shipObj.value()->get_affiliation(repGroupId);
 
 			// Get the ship type
 			uint shipId = Hk::Player::GetShipID(client).value();
@@ -136,7 +135,7 @@ namespace Plugins::MiningControl
 			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
 			if (global->config->PluginDebug > 1)
 			{
-				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} lstCargo=", client, iRepGroupId, shipId));
+				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} lstCargo=", client, repGroupId, shipId));
 				for (auto& ci : lstCargo.value())
 				{
 					Console::ConInfo(std::format("{} ", ci.iArchId));
@@ -149,18 +148,17 @@ namespace Plugins::MiningControl
 			Clients[client].LootBonus.clear();
 			Clients[client].LootAmmo.clear();
 			Clients[client].LootShip.clear();
-			for (auto& i : global->PlayerBonus)
+			for (const auto& [lootId, playerBonus] : global->PlayerBonus)
 			{
-				uint iLootId = i.first;
-				float fBonus = GetBonus(iRepGroupId, shipId, lstCargo.value(), iLootId);
-				if (fBonus > 0.0f)
+				float bonus = GetBonus(repGroupId, shipId, lstCargo.value(), lootId);
+				if (bonus > 0.0f)
 				{
-					Clients[client].LootBonus[iLootId] = fBonus;
-					Clients[client].LootAmmo[iLootId] = i.second.AmmoIds;
-					Clients[client].LootShip[iLootId] = i.second.ShipIds;
+					Clients[client].LootBonus[lootId] = bonus;
+					Clients[client].LootAmmo[lootId] = playerBonus.AmmoIds;
+					Clients[client].LootShip[lootId] = playerBonus.ShipIds;
 					if (global->config->PluginDebug > 1)
 					{
-						Console::ConInfo(std::format("client={} LootId={} Bonus={}\n", client, iLootId, fBonus));
+						Console::ConInfo(std::format("client={} LootId={} Bonus={}\n", client, lootId, bonus));
 					}
 				}
 			}
@@ -179,16 +177,16 @@ namespace Plugins::MiningControl
 		
 		MiningStats stats;
 		// Recharge the fields
-		for (auto& i : global->ZoneBonus)
+		for (auto& [_, zoneBonus] : global->ZoneBonus)
 		{
-			i.second.CurrentReserve += i.second.RechargeRate;
-			if (i.second.CurrentReserve > i.second.MaxReserve)
-				i.second.CurrentReserve = i.second.MaxReserve;
+			zoneBonus.CurrentReserve += zoneBonus.RechargeRate;
+			if (zoneBonus.CurrentReserve > zoneBonus.MaxReserve)
+				zoneBonus.CurrentReserve = zoneBonus.MaxReserve;
 
 			ZoneStats zs;
-			zs.CurrentReserve = i.second.CurrentReserve;
-			zs.Mined = i.second.Mined;
-			zs.Zone = i.second.Zone;
+			zs.CurrentReserve = zoneBonus.CurrentReserve;
+			zs.Mined = zoneBonus.Mined;
+			zs.Zone = zoneBonus.Zone;
 			stats.Stats.emplace_back(zs);
 		}
 		Serializer::SaveToJson(stats);
@@ -201,7 +199,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Clear client info when a client connects.
 	 */
-	void ClearClientInfo(uint & client)
+	void ClearClientInfo(const uint & client)
 	{
 		Clients[client].Setup = false;
 		Clients[client].LootBonus.clear();
@@ -338,11 +336,11 @@ namespace Plugins::MiningControl
 			}
 		}
 
-		const auto miningStats = Serializer::JsonToObject<MiningStats>();
-		for (auto& zone : miningStats.Stats)
+		for (const auto miningStats = Serializer::JsonToObject<MiningStats>(); 
+			auto& zone : miningStats.Stats)
 		{
 			uint ZoneId = CreateID(zone.Zone.c_str());
-			if (global->ZoneBonus.find(ZoneId) != global->ZoneBonus.end())
+			if (global->ZoneBonus.contains(ZoneId))
 			{
 				global->ZoneBonus[ZoneId].CurrentReserve = zone.CurrentReserve;
 				global->ZoneBonus[ZoneId].Mined = zone.Mined;
@@ -357,18 +355,19 @@ namespace Plugins::MiningControl
 		WriteProcMem((char*)0x62F944E, &patch2, 2);
 		WriteProcMem((char*)0x62F123E, &patch2, 2);
 
-		struct PlayerData* playerData = 0;
-		while (playerData = Players.traverse_active(playerData))
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			uint client = playerData->iOnlineId;
 			ClearClientInfo(client);
+			playerData = Players.traverse_active(playerData);
 		}
 	}
 
 	/** @ingroup MiningControl
 	 * @brief PlayerLaunch hook. Calls ClearClientInfo.
 	 */
-	void PlayerLaunch(uint & ship, uint & client) { ClearClientInfo(client); }
+	void PlayerLaunch([[maybe_unused]] uint & ship, uint & client) { ClearClientInfo(client); }
 
 	/** @ingroup MiningControl
 	 * @brief Called when a gun hits something.
@@ -439,7 +438,7 @@ namespace Plugins::MiningControl
 						}
 						// If this minable commodity was not hit by the right type
 						// of gun, flag as no bonus
-						else if (find(ammolst->second.begin(), ammolst->second.end(), ci.iProjectileArchId) == ammolst->second.end())
+						else if (std::ranges::find(ammolst->second, ci.iProjectileArchId) == ammolst->second.end())
 						{
 							bNoMiningCombo = true;
 							if (cd.Debug)
@@ -457,16 +456,16 @@ namespace Plugins::MiningControl
 
 						// If this ship is has another ship targetted then send the
 						// ore into the cargo hold of the other ship.
-						uint iSendToClientId = client;
+						uint sendToClientId = client;
 						if (!bNoMiningCombo)
 						{
-							auto iTargetShip = Hk::Player::GetTarget(ship);
-							if (iTargetShip.has_value())
+							auto targetShip = Hk::Player::GetTarget(ship);
+							if (targetShip.has_value())
 							{
-								const auto iTargetClientId = Hk::Client::GetClientIdByShip(iTargetShip.value());
-								if (iTargetClientId.value() && Hk::Math::Distance3DByShip(ship, iTargetShip.value()) < 1000.0f)
+								const auto targetClientId = Hk::Client::GetClientIdByShip(targetShip.value());
+								if (targetClientId.value() && Hk::Math::Distance3DByShip(ship, targetShip.value()) < 1000.0f)
 								{
-									iSendToClientId = iTargetClientId.value();
+									sendToClientId = targetClientId.value();
 								}
 							}
 						}
@@ -475,30 +474,29 @@ namespace Plugins::MiningControl
 						const float random = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 						// Calculate the loot drop and drop it.
-						int iLootCount = (int)(random * global->config->GenericFactor * fZoneBonus * fPlayerBonus * zone->lootableZone->dynamic_loot_count2);
+						int lootCount = static_cast<int>(random * global->config->GenericFactor * fZoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamic_loot_count2));
 
 						// Remove this lootCount from the field
-						global->ZoneBonus[zone->iZoneId].CurrentReserve -= iLootCount;
-						global->ZoneBonus[zone->iZoneId].Mined += iLootCount;
+						global->ZoneBonus[zone->iZoneId].CurrentReserve -= static_cast<float>(lootCount);
+						global->ZoneBonus[zone->iZoneId].Mined += static_cast<float>(lootCount);
 						if (global->ZoneBonus[zone->iZoneId].CurrentReserve <= 0)
 						{
 							global->ZoneBonus[zone->iZoneId].CurrentReserve = 0;
-							iLootCount = 0;
+							lootCount = 0;
 						}
 
 						if (Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
 							    std::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}", 
-							    random, global->config->GenericFactor, fPlayerBonus, fZoneBonus, iLootCount, iLootId, iCrateId,
+							    random, global->config->GenericFactor, fPlayerBonus, fZoneBonus, lootCount, iLootId, iCrateId,
 							    global->ZoneBonus[zone->iZoneId].CurrentReserve));
 						}
 
 						Clients[client].MineAsteroidEvents++;
 						if (Clients[client].MineAsteroidSampleStart < time(0))
 						{
-							float average = Clients[client].MineAsteroidEvents / 30.0f;
-							if (average > 2.0f)
+							if (float average = static_cast<float>(Clients[client].MineAsteroidEvents) / 30.0f; average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
 								AddLog(LogType::Normal, LogLevel::Info, std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
@@ -515,20 +513,20 @@ namespace Plugins::MiningControl
 							Clients[client].MineAsteroidEvents = 0;
 						}
 
-						if (iLootCount)
+						if (lootCount)
 						{
 							float fHoldRemaining;
-							pub::Player::GetRemainingHoldSize(iSendToClientId, fHoldRemaining);
-							if (fHoldRemaining < iLootCount)
+							pub::Player::GetRemainingHoldSize(sendToClientId, fHoldRemaining);
+							if (fHoldRemaining < static_cast<float>(lootCount))
 							{
-								iLootCount = (int)fHoldRemaining;
+								lootCount = (int)fHoldRemaining;
 							}
-							if (iLootCount == 0)
+							if (lootCount == 0)
 							{
 								pub::Player::SendNNMessage(client, CreateID("insufficient_cargo_space"));
 								return;
 							}
-							Hk::Player::AddCargo(iSendToClientId, iLootId, iLootCount, false);
+							Hk::Player::AddCargo(sendToClientId, iLootId, lootCount, false);
 						}
 						return;
 					}
@@ -543,7 +541,9 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Called when an asteriod is mined. We ignore all of the parameters from the client.
 	 */
-	void MineAsteroid(uint & iClientSystemId, class Vector const& vPos, uint& iCrateId, uint& iLootId, uint& iCount, ClientId& client)
+	void MineAsteroid([[maybe_unused]] const uint& clientSystemId, [[maybe_unused]] const class Vector& vPos, [[maybe_unused]] const uint& crateId,
+	    [[maybe_unused]] const uint& lootId, [[maybe_unused]] const uint& count,
+	    ClientId& client)
 	{
 		Clients[client].PendingMineAsteroidEvents += 4;
 		global->returnCode = ReturnCode::SkipAll;
