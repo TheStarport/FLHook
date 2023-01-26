@@ -74,19 +74,6 @@ namespace Plugins::CashManager
 			global->config->blockedSystemsHashed.emplace_back(CreateID(system.c_str()));
 		}
 
-		if (!global->config->transferFee)
-		{
-			Console::ConWarn("Transfer Fee is a negative number!");
-		}
-		if (!global->config->maximumTransfer)
-		{
-			Console::ConWarn("Maximum Transfer is a negative number!");
-		}
-		if (!global->config->minimumTransfer)
-		{
-			Console::ConWarn("Minimum Transfer is a negative number!");
-		}
-
 		Sql::CreateSqlTables();
 		Sql::RemoveTransactionsOverSpecifiedDays(global->config->eraseTransactionsAfterDaysPassed);
 	}
