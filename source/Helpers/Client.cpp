@@ -215,11 +215,9 @@ namespace Hk::Client
 
 	cpp::result<ClientId, Error> GetClientIdByShip(const ShipId ship)
 	{
-		for (uint i = 0; i <= MaxClientId; i++)
-		{
-			if (ClientInfo[i].ship == ship || ClientInfo[i].shipOld == ship)
-				return i;
-		}
+		if (auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; }); 
+			foundClient != ClientInfo.end())
+			return std::ranges::distance(ClientInfo.begin(), foundClient);
 
 		return cpp::fail(Error::InvalidShip);
 	}
