@@ -531,7 +531,7 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 	else if (!(sc->csock.bAuthed))
 	{
 		const std::wstring wscLwr = ToLower(wscCmd);
-		const auto passFind = wscLwr.find(L"pass");
+		auto passFind = wscLwr.find(L"pass ");
 		if (passFind == std::wstring::npos)
 		{
 			sc->csock.Print("ERR Please authenticate first");
@@ -549,7 +549,8 @@ bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
 
 		const auto* config = FLHookConfig::c();
 
-		auto pass = wscLwr.substr(passFind + 1);
+		// Remove the string "pass " from the string
+		auto pass = wscCmd.substr(passFind + 5);
 		pass = Trim(pass);
 
 		const auto auth = config->socket.passRightsMap.find(pass);
