@@ -5,6 +5,11 @@
 void CSocket::DoPrint(const std::string& textIn)
 {
 	std::wstring text(stows(textIn));
+	if (!textIn.ends_with("\n"))
+	{
+		text += L"\n";
+	}
+
 	for (uint i = 0; (i < text.length()); i++)
 	{
 		if (text[i] == '\n')
