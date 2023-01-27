@@ -135,6 +135,9 @@
     <ClCompile Include="..\source\Data\Lights.cpp">
       <Filter>FLHook\data</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Debug.cpp">
+      <Filter>FLHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">

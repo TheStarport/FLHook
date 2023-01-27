@@ -190,6 +190,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\source\Data\Lights.cpp" />
+    <ClCompile Include="..\source\Debug.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
     <ClCompile Include="..\source\Features\Logging.cpp" />
