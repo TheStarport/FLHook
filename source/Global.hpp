@@ -201,13 +201,13 @@ inline auto* ToUShort(wchar_t* val)
 class CTimer
 {
   public:
-	EXPORT CTimer(std::string sFunction, uint iWarning);
+	EXPORT CTimer(const std::string& sFunction, uint iWarning);
 	EXPORT void start();
 	EXPORT uint stop();
 
   private:
-	mstime tmStart;
-	uint iMax;
+	mstime tmStart = 0;
+	uint iMax = 0;
 	std::string sFunction;
 	uint iWarning;
 };

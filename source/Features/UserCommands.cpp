@@ -42,8 +42,8 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 	pub::Player::GetSystem(client, iSystem);
 
 	// For all players in system...
-	struct PlayerData* playerDb = 0;
-	while (playerDb = Players.traverse_active(playerDb))
+	struct PlayerData* playerDb = Players.traverse_active(nullptr);
+	while (playerDb)
 	{
 		// Get the this player's current system and location in the system.
 		ClientId client2 = playerDb->iOnlineId;
@@ -64,6 +64,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 			continue;
 
 		PrintUserCmdText(client2, wscMsg);
+		playerDb = Players.traverse_active(playerDb);
 	}
 }
 
@@ -357,7 +358,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 
 	std::wstring wscId = GetParam(param, ' ', 0);
 
-	if (!wscId.length())
+	if (wscId.empty())
 		PRINT_ERROR()
 
 	GET_USERFILE(scUserFile)
@@ -371,7 +372,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	}
 
 	std::list<uint> lstDelete;
-	for (uint j = 1; wscId.length(); j++)
+	for (uint j = 1; !wscId.empty(); j++)
 	{
 		uint iId = ToInt(wscId.c_str());
 		if (!iId || iId > ClientInfo[client].lstIgnore.size())
@@ -387,9 +388,9 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	lstDelete.sort(std::greater<uint>());
 
 	ClientInfo[client].lstIgnore.reverse();
-	for (auto& del : lstDelete)
+	for (const auto& del : lstDelete)
 	{
-		uint iCurId = (uint)ClientInfo[client].lstIgnore.size();
+		uint iCurId = ClientInfo[client].lstIgnore.size();
 		for (auto ignoreIt = ClientInfo[client].lstIgnore.begin(); ignoreIt != ClientInfo[client].lstIgnore.end(); ++ignoreIt)
 		{
 			if (iCurId == del)
@@ -405,7 +406,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	// send confirmation msg
 	IniDelSection(scUserFile, "IgnoreList");
 	int i = 1;
-	for (auto& ignore : ClientInfo[client].lstIgnore)
+	for (const auto& ignore : ClientInfo[client].lstIgnore)
 	{
 		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.wscFlags);
 		i++;
@@ -415,7 +416,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
+void UserCmd_Ids(ClientId& client, [[maybe_unused]] const std::wstring& wscParam)
 {
 	for (auto& player : Hk::Admin::GetPlayers())
 	{
@@ -426,7 +427,7 @@ void UserCmd_Ids(ClientId& client, const std::wstring& wscParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_ID(ClientId& client, const std::wstring& wscParam)
+void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& wscParam)
 {
 	PrintUserCmdText(client, std::format(L"Your client-id: {}", client));
 }
@@ -472,7 +473,7 @@ void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Credits(ClientId& client, const std::wstring& param)
+void UserCmd_Credits(ClientId& client, [[maybe_unused]] const std::wstring& param)
 {
 	PrintUserCmdText(client, L"This server is running FLHook v" + VersionInformation);
 	PrintUserCmdText(client, L"Running plugins:");
@@ -633,7 +634,7 @@ bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 	else
 	{
 		const auto& arr = std::get<std::vector<std::wstring>>(userCmd.command);
-		return std::any_of(arr.begin(), arr.end(), isMatch);
+		return std::ranges::any_of(arr, isMatch);
 	}
 }
 
@@ -676,7 +677,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			}
 		}
 		else if (const auto& userCommand =
-		             std::find_if(UserCmds.begin(), UserCmds.end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		             std::ranges::find_if(UserCmds, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != UserCmds.end())
 		{
 			PrintUserCmdText(client, userCommand->usage);
@@ -690,7 +691,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& plugin =
-	    std::find_if(plugins.begin(), plugins.end(), [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
+	    std::ranges::find_if(plugins, [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
 
 	if (plugin == plugins.end())
 	{
@@ -711,7 +712,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			}
 		}
 		else if (const auto& userCommand =
-		             std::find_if(plugin->commands->begin(), plugin->commands->end(), [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		             std::ranges::find_if(*plugin->commands, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != plugin->commands->end())
 		{
 			PrintUserCmdText(client, userCommand->usage);
@@ -817,8 +818,7 @@ bool UserCmd_Process(ClientId client, const std::wstring& wscCmd)
 	if (pluginSkip)
 		return pluginRet;
 
-	const auto& plugins = PluginManager::ir();
-	for (const PluginData& i : plugins)
+	for (const auto& plugins = PluginManager::ir(); const PluginData& i : plugins)
 	{
 		if (i.commands && ProcessPluginCommand(client, wscCmd, *i.commands))
 		{

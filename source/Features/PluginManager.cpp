@@ -97,7 +97,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	if (dllName.find(L".dll") == std::string::npos)
 		dllName.append(L".dll");
 
-	for (auto& plugin : plugins_)
+	for (const auto& plugin : plugins_)
 	{
 		if (plugin.dllName == dllName)
 			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", wstos(plugin.dllName)));
@@ -127,7 +127,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		return;
 	}
 
-	std::shared_ptr<PluginInfo> pi = std::make_shared<PluginInfo>();
+	auto pi = std::make_shared<PluginInfo>();
 	getPluginInfo(pi.get());
 
 	if (pi->versionMinor_ == PluginMinorVersion::UNDEFINED || pi->versionMajor_ == PluginMajorVersion::UNDEFINED)
@@ -212,7 +212,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 		uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
 		auto& list = pluginHooks_[hookId];
-		list.push_back({hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index});
+		list.emplace_back(hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index);
 		std::sort(list.begin(), list.end());
 	}
 

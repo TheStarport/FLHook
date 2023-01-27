@@ -3,11 +3,8 @@
 
 #include <WS2tcpip.h>
 
-CTimer::CTimer(std::string sFunc, uint iWarn)
+CTimer::CTimer(const std::string& sFunc, uint iWarn) : sFunction(sFunc), iWarning(iWarn)
 {
-	iMax = 0;
-	iWarning = iWarn;
-	sFunction = sFunc;
 }
 
 void CTimer::start()
@@ -17,19 +14,19 @@ void CTimer::start()
 
 uint CTimer::stop()
 {
-	uint iDelta = abs((int)(timeInMS() - tmStart));
+	uint timeDelta = abs((int)(timeInMS() - tmStart));
 
-	if (iDelta > iMax && iDelta > iWarning)
+	if (timeDelta > iMax && timeDelta > iWarning)
 	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", iDelta, sFunction));
-		iMax = iDelta;
+		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
+		iMax = timeDelta;
 	}
-	else if (iDelta > 100)
+	else if (timeDelta > 100)
 	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", iDelta, sFunction));
+		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
 	}
 
-	return iDelta;
+	return timeDelta;
 }
 
 /**************************************************************************************************************
@@ -43,8 +40,8 @@ void TimerCheckKick()
 	TRY_HOOK
 	{
 		// for all players
-		struct PlayerData* playerData = 0;
-		while (playerData = Players.traverse_active(playerData))
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -64,14 +61,12 @@ void TimerCheckKick()
 			{ // anti base-idle check
 				uint baseId;
 				pub::Player::GetBase(client, baseId);
-				if (baseId && ClientInfo[client].iBaseEnterTime)
+				if (baseId && ClientInfo[client].iBaseEnterTime
+				&&	(time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
 				{
-					if ((time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
-					{
-						AddKickLog(client, "Base idling");
-						Hk::Player::MsgAndKick(client, L"Base idling", 10);
-						ClientInfo[client].iBaseEnterTime = 0;
-					}
+					AddKickLog(client, "Base idling");
+					Hk::Player::MsgAndKick(client, L"Base idling", 10);
+					ClientInfo[client].iBaseEnterTime = 0;
 				}
 			}
 
@@ -92,6 +87,7 @@ void TimerCheckKick()
 				else
 					ClientInfo[client].iCharMenuEnterTime = 0;
 			}
+			playerData = Players.traverse_active(playerData);
 		}
 	}
 	CATCH_HOOK({})
@@ -107,8 +103,8 @@ void TimerNPCAndF1Check()
 
 	TRY_HOOK
 	{
-		struct PlayerData* playerData = 0;
-		while (playerData = Players.traverse_active(playerData))
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -136,6 +132,7 @@ void TimerNPCAndF1Check()
 				ClientInfo[client].tmF1TimeDisconnect = 0;
 				continue;
 			}
+			playerData = Players.traverse_active(playerData);
 		}
 
 		const auto* config = FLHookConfig::c();
@@ -200,14 +197,14 @@ void TimerCheckResolveResults()
 	TRY_HOOK
 	{
 		EnterCriticalSection(&csIPResolve);
-		for (auto& ip : g_lstResolveIPsResult)
+		for (const auto& ip : g_lstResolveIPsResult)
 		{
 			if (ip.iConnects != ClientInfo[ip.client].iConnects)
 				continue; // outdated
 
 			// check if banned
-			const auto* config = FLHookConfig::c();
-			for (const auto& ban : config->bans.banWildcardsAndIPs)
+			for (const auto* config = FLHookConfig::c(); 
+				const auto& ban : config->bans.banWildcardsAndIPs)
 			{
 				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{
