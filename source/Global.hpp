@@ -51,7 +51,7 @@ namespace Hk
 		void CharacterShutdown();
 		void CharacterClearClientInfo(ClientId client);
 		void CharacterSelect(CHARACTER_ID const charId, ClientId client);
-	}
+	} // namespace Ini
 
 	namespace Personalities
 	{
@@ -62,9 +62,8 @@ namespace Hk
 	{
 		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
 		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
-	}
-}
-
+	} // namespace Client
+} // namespace Hk
 
 // Death
 void Naked__ShipDestroyed();
@@ -124,18 +123,18 @@ inline auto* ToUShort(wchar_t* val)
 		timer.start();                          \
 		TRY_HOOK                                \
 		{
-#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                  \
-	}                                                                                           \
-	CATCH_HOOK({                                                                                \
+#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                               \
+	}                                                                                                        \
+	CATCH_HOOK({                                                                                             \
 		AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in {} on server call", __FUNCTION__)); \
-		bool ret = catchArgs;                                                                   \
-		if (!ret)                                                                               \
-		{                                                                                       \
-			timer.stop();                                                                       \
-			return rval;                                                                        \
-		}                                                                                       \
-	})                                                                                          \
-	timer.stop();                                                                               \
+		bool ret = catchArgs;                                                                                \
+		if (!ret)                                                                                            \
+		{                                                                                                    \
+			timer.stop();                                                                                    \
+			return rval;                                                                                     \
+		}                                                                                                    \
+	})                                                                                                       \
+	timer.stop();                                                                                            \
 	}
 
 #define CALL_CLIENT_PREAMBLE      \
@@ -146,17 +145,17 @@ inline auto* ToUShort(wchar_t* val)
 		memcpy(&Client, &OldClient, 4);
 
 #define CALL_CLIENT_POSTAMBLE \
-	__asm { mov [vRet], eax}    \
+	__asm { mov [vRet], eax}   \
 	memcpy(&Client, &tmp, 4); \
 	}
 
-#define CHECK_FOR_DISCONNECT                                                    \
-	{                                                                           \
-		if (ClientInfo[client].bDisconnected)                                 \
-		{                                                                       \
+#define CHECK_FOR_DISCONNECT                                                                                                       \
+	{                                                                                                                              \
+		if (ClientInfo[client].bDisconnected)                                                                                      \
+		{                                                                                                                          \
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
-			return;                                                             \
-		};                                                                      \
+			return;                                                                                                                \
+		};                                                                                                                         \
 	}
 
 #define ADDR_UPDATE 0x1BAB4
@@ -319,9 +318,7 @@ class PluginManager : public Singleton<PluginManager>
 					else
 						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 				}
-				CATCH_HOOK({
-					AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin.name, __FUNCTION__));
-				});
+				CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin.name, __FUNCTION__)); });
 
 				auto code = *plugin.returnCode;
 
@@ -350,8 +347,7 @@ auto CallPluginsBefore(HookedCall target, Args&&... args)
 	}
 	else
 	{
-		ReturnType ret =
-		    PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+		ReturnType ret = PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
 		return std::make_tuple(ret, skip);
 	}
 }
@@ -372,3 +368,19 @@ bool CallPluginsOther(HookedCall target, HookStep step, Args&&... args)
 }
 
 using ExportPluginInfoT = void (*)(PluginInfo*);
+
+class DebugTools : public Singleton<DebugTools>
+{
+	using CreateIDType = uint (*)(const char*);
+	static CreateIDType originalCreateId;
+	static PBYTE createIdMemory;
+	static std::map<std::string, uint> hashMap;
+
+	std::allocator<BYTE> allocator;
+
+	static uint CreateIdDetour(const char* str);
+
+  public:
+	DebugTools() = default;
+	void Init();
+};

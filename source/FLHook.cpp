@@ -230,6 +230,9 @@ void FLHookInit_Pre()
 		if (!InitLogs())
 			throw std::runtime_error("Log files cannot be created.");
 
+		// Setup needed debug tools
+		DebugTools::i()->Init();
+
 		// get module handles
 		if (!(hModServer = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
