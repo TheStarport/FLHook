@@ -109,6 +109,8 @@ void AddLog(LogType LogType, LogLevel lvl, const std::string& str)
 			
 			FLHookLog->log(level, str);
 			break;
+		default:
+			break;
 	}
 
 	if (lvl == LogLevel::Debug && FLHookDebugLog)

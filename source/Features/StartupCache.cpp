@@ -26,8 +26,7 @@ namespace StartupCache
 		// If this account/charfile can be found in the character return
 		// then name immediately.
 		std::string acc_path(&filename[acc_path_prefix_length]);
-		auto i = cache.find(acc_path);
-		if (i != cache.end())
+		if (auto i = cache.find(acc_path); i != cache.end())
 		{
 			*str = st6::wstring((ushort*)i->second.c_str());
 			return 1;
@@ -78,12 +77,12 @@ namespace StartupCache
 		if (file)
 		{
 			Console::ConInfo("Saving character name cache");
-			for (auto& i : cache)
+			for (const auto& [charPath, charName] : cache)
 			{
 				NameInfo ni {};
 				memset(&ni, 0, sizeof(ni));
-				strncpy_s(ni.acc_path, 27, i.first.c_str(), i.first.size());
-				wcsncpy_s(ni.name, 25, i.second.c_str(), i.second.size());
+				strncpy_s(ni.acc_path, 27, charPath.c_str(), charPath.size());
+				wcsncpy_s(ni.name, 25, charName.c_str(), charName.size());
 				if (!fwrite(&ni, sizeof(NameInfo), 1, file))
 				{
 					Console::ConErr("Saving character name cache failed");
