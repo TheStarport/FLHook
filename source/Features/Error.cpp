@@ -8,12 +8,11 @@ namespace Hk::Err
 		std::wstring text;
 	};
 
-	const std::array<ErrorInfo, 31> Errors = {{
+	const std::array<ErrorInfo, 30> Errors = {{
 	    {Error::PlayerNotLoggedIn, L"Player not logged in"},
 	    {Error::CharacterDoesNotExist, L"Char does not exist"},
 	    {Error::CouldNotDecodeCharFile, L"Could not decode charfile"},
 	    {Error::CouldNotEncodeCharFile, L"Coult not encode charfile"},
-	    {Error::InvalidBaseName, L"Invalid basename"},
 	    {Error::NoTargetSelected, L"No target selected"},
 	    {Error::TargetIsNotPlayer, L"Target is not a player"},
 	    {Error::PlayerNotDocked, L"Player in space"},
@@ -44,7 +43,7 @@ namespace Hk::Err
 
 	std::wstring ErrGetText(Error Err)
 	{
-		if (const auto err = std::find_if(Errors.begin(), Errors.end(), [Err](const ErrorInfo& e) { return e.Err == Err; }); err != Errors.end())
+		if (const auto err = std::ranges::find_if(Errors, [Err](const ErrorInfo& e) { return e.Err == Err; }); err != Errors.end())
 		{
 			return err->text;
 		}
