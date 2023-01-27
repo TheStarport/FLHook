@@ -59,7 +59,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -67,7 +68,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
