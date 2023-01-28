@@ -78,7 +78,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Returns the specified personality
 	 */
-	pub::AI::SetPersonalityParams MakePersonality(std::string graph, const std::string& personality)
+	pub::AI::SetPersonalityParams MakePersonality(const std::string& graph, const std::string& personality)
 	{
 		pub::AI::SetPersonalityParams p;
 		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
@@ -122,7 +122,7 @@ namespace Plugins::Npc
 		}
 
 		// Is it a FLHook NPC?
-		std::vector<uint>::iterator iter = global->spawnedNpcs.begin();
+		auto iter = global->spawnedNpcs.begin();
 		while (iter != global->spawnedNpcs.end())
 		{
 			if (*iter == ship->get_id())
@@ -130,7 +130,6 @@ namespace Plugins::Npc
 				ship->clear_equip_and_cargo();
 				global->spawnedNpcs.erase(iter);
 				return true;
-				break;
 			}
 			iter++;
 		}
@@ -140,7 +139,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Hook on ship destroyed to remove from our data
 	 */
-	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, uint& iKill)
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, [[maybe_unused]] const DWORD** ecx, const uint& iKill)
 	{
 		if (iKill)
 		{
@@ -152,7 +151,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Function to spawn an NPC
 	 */
-	void CreateNPC(std::wstring& name, Vector position, Matrix rotation, uint systemId, bool varyPosition)
+	void CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, uint systemId, bool varyPosition)
 	{
 		Npc arch = global->config->npcInfo[name];
 
@@ -186,13 +185,13 @@ namespace Plugins::Npc
 		// Define the string used for the scanner name. Because the
 		// following entry is empty, the pilot_name is used. This
 		// can be overriden to display the ship type instead.
-		FmtStr scanner_name(0, 0);
+		FmtStr scanner_name(0, nullptr);
 		scanner_name.begin_mad_lib(0);
 		scanner_name.end_mad_lib();
 
 		// Define the string used for the pilot name. The example
 		// below shows the use of multiple part names.
-		FmtStr pilot_name(0, 0);
+		FmtStr pilot_name(0, nullptr);
 		pilot_name.begin_mad_lib(16163); // ids of "%s0 %s1"
 		if (arch.infocardId != 0)
 		{
@@ -262,14 +261,14 @@ namespace Plugins::Npc
 	void AfterStartup()
 	{
 		LoadSettings();
-		for (auto& npc : global->config->startupNpcs)
+		for (const auto& npc : global->config->startupNpcs)
 			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
 	}
 
 	/** @ingroup NPCControl
 	 * @brief Admin command to make NPCs
 	 */
-	void AdminCmdAIMake(CCmds* cmds, int Amount, std::wstring NpcType)
+	void AdminCmdAIMake(CCmds* cmds, int Amount, const std::wstring& NpcType)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -280,7 +279,7 @@ namespace Plugins::Npc
 		if (!Amount)
 			Amount = 1;
 
-		if (const std::map<std::wstring, Npc>::iterator iter = global->config->npcInfo.find(NpcType); iter == global->config->npcInfo.end())
+		if (const auto& iter = global->config->npcInfo.find(NpcType); iter == global->config->npcInfo.end())
 		{
 			cmds->Print("ERR Wrong NPC name");
 			return;
@@ -318,7 +317,7 @@ namespace Plugins::Npc
 			if (auto const ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
 				if (auto const target = Hk::Player::GetTarget(ship.value()); target.has_value())
 				{
-					if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
 						target.value() && it != global->spawnedNpcs.end())
 					{
 						pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
@@ -413,7 +412,7 @@ namespace Plugins::Npc
 			{
 				if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 				{
-					if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
 					    target.value() && it != global->spawnedNpcs.end())
 					{
 						AiFollow(ship.value(), target.value());
@@ -451,7 +450,7 @@ namespace Plugins::Npc
 			// Is the admin targeting an NPC?
 			if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 			{
-				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
 				    target.value() && it != global->spawnedNpcs.end())
 				{
 					pub::AI::DirectiveCancelOp cancelOp;
@@ -508,7 +507,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to spawn a Fleet
 	 */
-	void AdminCmdAIFleet(CCmds* cmds, std::wstring FleetName)
+	void AdminCmdAIFleet(CCmds* cmds, const std::wstring& FleetName)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -516,7 +515,7 @@ namespace Plugins::Npc
 			return;
 		}
 
-		if (const std::map<std::wstring, Fleet>::iterator iter = global->config->fleetInfo.find(FleetName); iter != global->config->fleetInfo.end())
+		if (const auto& iter = global->config->fleetInfo.find(FleetName); iter != global->config->fleetInfo.end())
 			for (auto const& [name, amount] : iter->second.member)
 				AdminCmdAIMake(cmds, amount, name);
 		else

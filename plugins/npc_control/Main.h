@@ -27,7 +27,7 @@ namespace Plugins::Npc
 	struct Fleet : Reflectable
 	{
 		std::wstring name = L"example";
-		std::map<std::wstring, int> member = {{L"example",5}};
+		std::map<std::wstring, int, std::less<>> member = {{L"example",5}};
 	};
 
 	// A struct that represents an NPC that is spawned on startup
@@ -38,18 +38,18 @@ namespace Plugins::Npc
 		std::vector<float> position = {-33367, 120, -28810};
 		std::vector<float> rotation = {0,0,0};
 
-		uint systemId;
-		Matrix rotationMatrix;
-		Vector positionVector;
+		uint systemId = 0;
+		Matrix rotationMatrix = {0, 0, 0};
+		Vector positionVector = {0, 0, 0};
 	};
 
 	//! Config data for this plugin
 	struct Config : Reflectable
 	{
 		//! Map of npcs that can be spawned
-		std::map<std::wstring, Npc> npcInfo = {{L"example", Npc() }};
+		std::map<std::wstring, Npc, std::less<>> npcInfo = {{L"example", Npc() }};
 		//! Map of fleets that can be spawned
-		std::map<std::wstring, Fleet> fleetInfo = {{L"example", Fleet() }};
+		std::map<std::wstring, Fleet, std::less<>> fleetInfo = {{L"example", Fleet() }};
 		//! Vector of npcs that are spawned on startup
 		std::vector<StartupNpc> startupNpcs = { StartupNpc() };
 		//! Vector containing Infocard Ids used for naming npcs
