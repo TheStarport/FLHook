@@ -3,6 +3,39 @@
 // This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
+/**
+ * @date July, 2022
+ * @author Nekura Mew
+ * @defgroup Tax Tax
+ * @brief
+ * The Tax plugin allows players to issue 'formally' make credit demands and declare hostilities.
+ *
+ * @paragraph cmds Player Commands
+ * -tax <amount> - demand listed amount from the player, for amount equal zero, it declares hostilities.
+ * -pay - submits the demanded payment to the issuing player
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "cannotPay": "This rogue isn't interested in money. Run for cover, they want to kill you!",
+ *     "customColor": 9498256,
+ *     "customFormat": 144,
+ *     "excludedSystems": ["li01", "ku02"],
+ *     "huntingMessage": "You are being hunted by %s. Run for cover, they want to kill you!",
+ *     "huntingMessageOriginator": "Good luck hunting %s !",
+ *     "killDisconnectingPlayers": true,
+ *     "maxTax": 300,
+ *     "minplaytimeSec": 0,
+ *     "taxRequestReceived": "You have received a tax request: Pay %d credits to %s! Type \"/pay\" to pay the tax."
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
