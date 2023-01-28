@@ -41,7 +41,7 @@ namespace Plugins::CashManager
 		uint maximumTransfer = 0;
 
 		// If someone's cash goes above a threshold, 'lock' the account until they unload some into the bank
-		bool preventTransactionsNearThreshold = false;
+		bool depositSurplusOnDock = false;
 
 		// Message displayed when they hit the threshold
 		std::wstring preventTransactionMessage = L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.";
@@ -92,7 +92,6 @@ namespace Plugins::CashManager
 
 		// Other fields
 		ReturnCode returnCode = ReturnCode::Default;
-		std::map<ClientId, bool> clientSuppressTransaction;
 		SQLite::Database sql = SqlHelpers::Create("banks.sqlite");
 	};
 
