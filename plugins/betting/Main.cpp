@@ -181,7 +181,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief This method is called when a player types /acceptffa
 	 */
-	void UserCmd_AcceptFFA(ClientId& client, const std::wstring& param)
+	void UserCmd_AcceptFFA(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Is player in space?
 		if (uint ship = Hk::Player::GetShip(client).value(); !ship)

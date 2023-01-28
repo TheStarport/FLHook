@@ -76,7 +76,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 	}
 
-	void UserCmdGetItems(uint client, const std::wstring& param,[[maybe_unused]] uint base)
+	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param,[[maybe_unused]] uint base)
 	{
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
@@ -92,7 +92,7 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
 		}
 	}
-	void UserCmdGetWarehouseItems(uint client, const std::wstring& param, uint base)
+	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
 	{
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);

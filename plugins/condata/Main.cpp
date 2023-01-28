@@ -47,22 +47,22 @@ namespace Plugins::ConData
 	void ClearConData(ClientId client)
 	{
 		auto con = global->connections[client];
-		con.iAverageLoss = 0;
-		con.iAveragePing = 0;
-		con.iLastLoss = 0;
-		con.iLastPacketsDropped = 0;
-		con.iLastPacketsReceived = 0;
-		con.iLastPacketsSent = 0;
-		con.iPingFluctuation = 0;
-		con.lstLoss.clear();
-		con.lstPing.clear();
-		con.lstObjUpdateIntervalls.clear();
-		con.iLags = 0;
-		con.tmLastObjUpdate = 0;
-		con.tmLastObjTimestamp = 0;
+		con.averageLoss = 0;
+		con.averagePing = 0;
+		con.lastLoss = 0;
+		con.lastPacketsDropped = 0;
+		con.lastPacketsReceived = 0;
+		con.lastPacketsSent = 0;
+		con.pingFluctuation = 0;
+		con.lossList.clear();
+		con.pingList.clear();
+		con.objUpdateIntervalsList.clear();
+		con.lags = 0;
+		con.lastObjUpdate = 0;
+		con.lastObjTimestamp = 0;
 
-		con.bException = false;
-		con.sExceptionReason = "";
+		con.exception = false;
+		con.exceptionReason = "";
 	}
 
 	/** @ingroup Condata
@@ -78,18 +78,18 @@ namespace Plugins::ConData
 		if (CoreGlobals::c()->serverLoadInMs > global->config->kickThreshold)
 		{
 			// for all players
-			struct PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			struct PlayerData* playerData = Players.traverse_active(nullptr);
+			while (playerData)
 			{
 				ClientId client = playerData->iOnlineId ;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
-				auto con = global->connections[client];
+				auto& con = global->connections[client];
 
-				if (global->config->lossKick && con.iAverageLoss > global->config->lossKick)
+				if (global->config->lossKick && con.averageLoss > global->config->lossKick)
 				{
-					con.lstLoss.clear();
+					con.lossList.clear();
 					AddKickLog(client, "High loss");
 					Hk::Player::MsgAndKick(client, L"High loss", KickTimer);
 					// call tempban plugin
@@ -100,54 +100,50 @@ namespace Plugins::ConData
 					}
 				}
 
-				if (global->config->pingKick)
-				{ // check if ping is too high
-					if (con.iAveragePing > (global->config->pingKick))
+				if (global->config->pingKick && 
+					con.averagePing > (global->config->pingKick))
+				{
+					con.pingList.clear();
+					AddKickLog(client, "High ping");
+					Hk::Player::MsgAndKick(client, L"High ping", KickTimer);
+					// call tempban plugin
+					if (global->tempBanCommunicator)
 					{
-						con.lstPing.clear();
-						AddKickLog(client, "High ping");
-						Hk::Player::MsgAndKick(client, L"High ping", KickTimer);
-						// call tempban plugin
-						if (global->tempBanCommunicator)
-						{
-							const auto charName = Hk::Client::GetCharacterNameByID(client);
-							global->tempBanCommunicator->TempBan(charName.value(), 60);
-						}
+						const auto charName = Hk::Client::GetCharacterNameByID(client);
+						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
+					
 				}
 
-				if (global->config->fluctKick)
-				{ // check if ping fluct is too high
-					if (con.iPingFluctuation > (global->config->fluctKick))
+				if (global->config->fluctKick 
+					&& con.pingFluctuation > (global->config->fluctKick))
+				{
+					con.pingList.clear();
+					AddKickLog(client, "High fluct");
+					Hk::Player::MsgAndKick(client, L"High ping fluctuation", KickTimer);
+					// call tempban plugin
+					if (global->tempBanCommunicator)
 					{
-						con.lstPing.clear();
-						AddKickLog(client, "High fluct");
-						Hk::Player::MsgAndKick(client, L"High ping fluctuation", KickTimer);
-						// call tempban plugin
-						if (global->tempBanCommunicator)
-						{
-							const auto charName = Hk::Client::GetCharacterNameByID(client);
-							global->tempBanCommunicator->TempBan(charName.value(), 60);
-						}
+						const auto charName = Hk::Client::GetCharacterNameByID(client);
+						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
+					
 				}
 
-				if (global->config->lagKick)
-				{ // check if lag is too high
-					if (con.iLags > (global->config->lagKick))
-					{
-						con.lstObjUpdateIntervalls.clear();
+				if (global->config->lagKick && con.lags > (global->config->lagKick))
+				{
+					con.objUpdateIntervalsList.clear();
 
-						AddKickLog(client, "High Lag");
-						Hk::Player::MsgAndKick(client, L"High Lag", KickTimer);
-						// call tempban plugin
-						if (global->tempBanCommunicator)
-						{
-							const auto charName = Hk::Client::GetCharacterNameByID(client);
-							global->tempBanCommunicator->TempBan(charName.value(), 60);
-						}
+					AddKickLog(client, "High Lag");
+					Hk::Player::MsgAndKick(client, L"High Lag", KickTimer);
+					// call tempban plugin
+					if (global->tempBanCommunicator)
+					{
+						const auto charName = Hk::Client::GetCharacterNameByID(client);
+						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
 				}
+				playerData = Players.traverse_active(playerData);
 			}
 		}
 
@@ -173,49 +169,47 @@ namespace Plugins::ConData
 	void TimerUpdatePingData()
 	{
 		// for all players
-		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
-			if (client < 1 || client > MaxClientId)
-				continue;
-
-			if (ClientInfo[client].tmF1TimeDisconnect)
-				continue;
-
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
-			if (connectionInfo.has_error())
+			if (client < 1 || client > MaxClientId 
+			|| ClientInfo[client].tmF1TimeDisconnect 
+			|| connectionInfo.has_error())
 				continue;
 
 			auto& con = global->connections[client];
 
 			///////////////////////////////////////////////////////////////
 			// update ping data
-			if (con.lstPing.size() >= global->config->pingKickFrame)
+			if (con.pingList.size() >= global->config->pingKickFrame)
 			{
 				// calculate average ping and ping fluctuation
 				unsigned int lastPing = 0;
-				con.iAveragePing = 0;
-				con.iPingFluctuation = 0;
-				for (const auto& ping : con.lstPing)
+				con.averagePing = 0;
+				con.pingFluctuation = 0;
+				for (const auto& ping : con.pingList)
 				{
-					con.iAveragePing += ping;
+					con.averagePing += ping;
 					if (lastPing != 0)
 					{
-						con.iPingFluctuation += static_cast<uint>(sqrt(pow(static_cast<float>(ping) - static_cast<float>(lastPing), 2)));
+						con.pingFluctuation += static_cast<uint>(sqrt(pow(static_cast<float>(ping) - static_cast<float>(lastPing), 2)));
 					}
 					lastPing = ping;
 				}
 
-				con.iPingFluctuation /= con.lstPing.size();
-				con.iAveragePing /= con.lstPing.size();
+				con.pingFluctuation /= con.pingList.size();
+				con.averagePing /= con.pingList.size();
 			}
 
 			// remove old pingdata
-			while (con.lstPing.size() >= global->config->pingKickFrame)
-				con.lstPing.pop_back();
+			while (con.pingList.size() >= global->config->pingKickFrame)
+				con.pingList.pop_back();
 
-			con.lstPing.push_front(connectionInfo->dwRoundTripLatencyMS);
+			con.pingList.push_front(connectionInfo->dwRoundTripLatencyMS);
+
+			playerData = Players.traverse_active(playerData);
 		}
 	}
 
@@ -226,8 +220,8 @@ namespace Plugins::ConData
 	{
 		// for all players
 		float lossPercentage;
-		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -246,25 +240,25 @@ namespace Plugins::ConData
 
 			///////////////////////////////////////////////////////////////
 			// update loss data
-			if (con.lstLoss.size() >= (global->config->lossKickFrame / (LossInterval / 1000)))
+			if (con.lossList.size() >= (global->config->lossKickFrame / LossInterval))
 			{
 				// calculate average loss
-				con.iAverageLoss = 0;
-				for (const auto& loss : con.lstLoss)
-					con.iAverageLoss += loss;
+				con.averageLoss = 0;
+				for (const auto& loss : con.lossList)
+					con.averageLoss += loss;
 
-				con.iAverageLoss /= con.lstLoss.size();
+				con.averageLoss /= con.lossList.size();
 			}
 
 			// remove old lossdata
-			while (con.lstLoss.size() >= (global->config->lossKickFrame / (LossInterval / 1000)))
-				con.lstLoss.pop_back();
+			while (con.lossList.size() >= (global->config->lossKickFrame / LossInterval))
+				con.lossList.pop_back();
 
 			// sum of Drops = Drops guaranteed + drops non-guaranteed
-			const uint newDrops = (connInfo.dwPacketsRetried + connInfo.dwPacketsDropped) - con.iLastPacketsDropped;
+			const uint newDrops = (connInfo.dwPacketsRetried + connInfo.dwPacketsDropped) - con.lastPacketsDropped;
 
 			// % of Packets Lost = Drops / (sent+received) * 100
-			if (const uint newSent = (connInfo.dwPacketsSentGuaranteed + connInfo.dwPacketsSentNonGuaranteed) - con.iLastPacketsSent;
+			if (const uint newSent = (connInfo.dwPacketsSentGuaranteed + connInfo.dwPacketsSentNonGuaranteed) - con.lastPacketsSent;
 			    newSent > 0) // division by zero check
 				lossPercentage = static_cast<float>(newDrops) / static_cast<float>(newSent) * 100.0f;
 			else
@@ -273,56 +267,22 @@ namespace Plugins::ConData
 			if (lossPercentage > 100)
 				lossPercentage = 100;
 
-			// add last loss to List lstLoss and put current value into iLastLoss
-			con.lstLoss.push_front(con.iLastLoss);
-			con.iLastLoss = static_cast<uint>(lossPercentage);
+			// add last loss to List lossList and put current value into lastLoss
+			con.lossList.push_front(con.lastLoss);
+			con.lastLoss = static_cast<uint>(lossPercentage);
 
 			// Fill new ClientInfo-variables with current values
-			con.iLastPacketsSent = connInfo.dwPacketsSentGuaranteed + connInfo.dwPacketsSentNonGuaranteed;
-			con.iLastPacketsDropped = connInfo.dwPacketsRetried + connInfo.dwPacketsDropped;
+			con.lastPacketsSent = connInfo.dwPacketsSentGuaranteed + connInfo.dwPacketsSentNonGuaranteed;
+			con.lastPacketsDropped = connInfo.dwPacketsRetried + connInfo.dwPacketsDropped;
+
+			playerData = Players.traverse_active(playerData);
 		}
 	}
 
 	/** @ingroup Condata
-	 * @brief If this is the first tick of the plugin being loaded, reset any connection data. Call any timers also.
+	 * @brief Hook on PlayerLaunch. Sets lastObjUpdate to 0.
 	 */
-	int Update()
-	{
-		static bool firstTime = true;
-		if (firstTime)
-		{
-			firstTime = false;
-			// check for logged in players and reset their connection data
-			struct PlayerData* playerData = 0;
-			while (playerData = Players.traverse_active(playerData))
-			{
-				ClientId client = playerData->iOnlineId;
-				if (client < 1 || client > MaxClientId)
-					continue;
-
-				ClearConData(playerData->iOnlineId);
-			}
-		}
-
-		// call timers
-		for (auto& [proc, tmIntervallMS, tmLastCall] : global->timers)
-		{
-			if ((timeInMS() - tmLastCall) >= tmIntervallMS)
-			{
-				tmLastCall = timeInMS();
-				proc();
-			}
-		}
-
-		return 0; // it doesnt matter what we return here since we have set the
-		          // return code to "DEFAULT_RETURNCODE", so FLHook will just ignore
-		          // it
-	}
-
-	/** @ingroup Condata
-	 * @brief Hook on PlayerLaunch. Sets tmLastObjUpdate to 0.
-	 */
-	void PlayerLaunch(ShipId& ship, ClientId& client) { global->connections[client].tmLastObjUpdate = 0; }
+	void PlayerLaunch([[maybe_unused]] ShipId& ship, ClientId& client) { global->connections[client].lastObjUpdate = 0; }
 
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
@@ -333,51 +293,51 @@ namespace Plugins::ConData
 		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
 			return; // ??? 8[
 
-		const mstime tmNow = timeInMS();
-		const auto tmTimestamp = static_cast<mstime>(ui.fTimestamp * 1000);
+		const mstime timeNow = timeInMS();
+		const auto timestamp = static_cast<mstime>(ui.fTimestamp * 1000);
 
 		auto& con = global->connections[client];
 
-		if (global->config->lagDetectionFrame && con.tmLastObjUpdate && (Hk::Client::GetEngineState(client) != ES_TRADELANE) && (ui.cState != 7))
+		if (global->config->lagDetectionFrame && con.lastObjUpdate && (Hk::Client::GetEngineState(client) != ES_TRADELANE) && (ui.cState != 7))
 		{
-			const auto iTimeDiff = static_cast<uint>(tmNow - con.tmLastObjUpdate);
-			const auto iTimestampDiff = static_cast<uint>(tmTimestamp - con.tmLastObjTimestamp);
-			auto iDiff = static_cast<int>(sqrt(pow(static_cast<long double>(static_cast<int>(iTimeDiff) - static_cast<int>(iTimestampDiff)), 2)));
-			iDiff -= CoreGlobals::c()->serverLoadInMs;
-			if (iDiff < 0)
-				iDiff = 0;
+			const auto timeDiff = static_cast<uint>(timeNow - con.lastObjUpdate);
+			const auto timestampDiff = static_cast<uint>(timestamp - con.lastObjTimestamp);
+			auto diff = static_cast<int>(sqrt(pow(static_cast<long double>(static_cast<int>(timeDiff) - static_cast<int>(timestampDiff)), 2)));
+			diff -= CoreGlobals::c()->serverLoadInMs;
+			if (diff < 0)
+				diff = 0;
 
 			uint perc;
-			if (iTimestampDiff != 0)
-				perc = static_cast<uint>(static_cast<float>(iDiff) / static_cast<float>(iTimestampDiff) * 100.0f);
+			if (timestampDiff != 0)
+				perc = static_cast<uint>(static_cast<float>(diff) / static_cast<float>(timestampDiff) * 100.0f);
 			else
 				perc = 0;
 
-			if (con.lstObjUpdateIntervalls.size() >= global->config->lagDetectionFrame)
+			if (con.objUpdateIntervalsList.size() >= global->config->lagDetectionFrame)
 			{
-				uint iLags = 0;
-				for (const auto& iv : con.lstObjUpdateIntervalls)
+				uint lags = 0;
+				for (const auto& iv : con.objUpdateIntervalsList)
 				{
 					if (iv > global->config->lagDetectionMin)
-						iLags++;
+						lags++;
 				}
 
-				con.iLags = (iLags * 100) / global->config->lagDetectionFrame;
-				while (con.lstObjUpdateIntervalls.size() >= global->config->lagDetectionFrame)
-					con.lstObjUpdateIntervalls.pop_front();
+				con.lags = (lags * 100) / global->config->lagDetectionFrame;
+				while (con.objUpdateIntervalsList.size() >= global->config->lagDetectionFrame)
+					con.objUpdateIntervalsList.pop_front();
 			}
 
-			con.lstObjUpdateIntervalls.push_back(perc);
+			con.objUpdateIntervalsList.push_back(perc);
 		}
 
-		con.tmLastObjUpdate = tmNow;
-		con.tmLastObjTimestamp = tmTimestamp;
+		con.lastObjUpdate = timeNow;
+		con.lastObjTimestamp = timestamp;
 	}
 
 	/** @ingroup Condata
 	 * @brief Gets called when the player types /ping
 	 */
-	void UserCmdPing(ClientId& client, const std::wstring& param)
+	void UserCmdPing(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (!global->config->allowPing)
 		{
@@ -391,76 +351,76 @@ namespace Plugins::ConData
 		
 		
 		auto ship = Hk::Player::GetShip(client);
-		auto iTarget = Hk::Player::GetTarget(ship.value());
-		if (iTarget.has_value())
+		auto target = Hk::Player::GetTarget(ship.value());
+		if (target.has_value())
 		{
-			const auto id = Hk::Client::GetClientIdByShip(iTarget.value());
+			const auto id = Hk::Client::GetClientIdByShip(target.value());
 			if (Hk::Client::IsValidClientID(clientTarget))
 				clientTarget = id.value();
 		}
 
-		auto& con = global->connections[clientTarget];
+		const auto& con = global->connections[clientTarget];
 
-		std::wstring Response = L"Ping";
-		if (iTarget.has_value())
-			Response += L" (target)";
+		std::wstring response = L"Ping";
+		if (target.has_value())
+			response += L" (target)";
 
-		Response += L" :";
-		if (con.lstPing.size() < global->config->pingKickFrame)
-			Response += L"n/a Fluct: n/a ";
+		response += L" :";
+		if (con.pingList.size() < global->config->pingKickFrame)
+			response += L"n/a Fluct: n/a ";
 		else
 		{
-			Response += std::to_wstring(con.iAveragePing);
-			Response += L"ms ";
+			response += std::to_wstring(con.averagePing);
+			response += L"ms ";
 			if (global->config->pingKick > 0)
 			{
-				Response += L"(Max: ";
-				Response += std::to_wstring(global->config->pingKick);
-				Response += L"ms) ";
+				response += L"(Max: ";
+				response += std::to_wstring(global->config->pingKick);
+				response += L"ms) ";
 			}
-			Response += L"Fluct: ";
-			Response += std::to_wstring(con.iPingFluctuation);
-			Response += L"ms ";
+			response += L"Fluct: ";
+			response += std::to_wstring(con.pingFluctuation);
+			response += L"ms ";
 			if (global->config->fluctKick > 0)
 			{
-				Response += L"(Max: ";
-				Response += std::to_wstring(global->config->fluctKick);
-				Response += L"ms) ";
+				response += L"(Max: ";
+				response += std::to_wstring(global->config->fluctKick);
+				response += L"ms) ";
 			}
 		}
 
-		Response += L"Loss: ";
-		if (con.lstLoss.size() < (global->config->lossKickFrame / (LossInterval / 1000)))
-			Response += L"n/a ";
+		response += L"Loss: ";
+		if (con.lossList.size() < (global->config->lossKickFrame / LossInterval))
+			response += L"n/a ";
 		else
 		{
-			Response += std::to_wstring(con.iAverageLoss);
-			Response += L"%% ";
+			response += std::to_wstring(con.averageLoss);
+			response += L"%% ";
 			if (global->config->lossKick > 0)
 			{
-				Response += L"(Max: ";
-				Response += std::to_wstring(global->config->lossKick);
-				Response += L"%%) ";
+				response += L"(Max: ";
+				response += std::to_wstring(global->config->lossKick);
+				response += L"%%) ";
 			}
 		}
 
-		Response += L"Lag: ";
-		if (con.lstObjUpdateIntervalls.size() < global->config->lagDetectionFrame)
-			Response += L"n/a";
+		response += L"Lag: ";
+		if (con.objUpdateIntervalsList.size() < global->config->lagDetectionFrame)
+			response += L"n/a";
 		else
 		{
-			Response += std::to_wstring(con.iLags).c_str();
-			Response += L"%% ";
+			response += std::to_wstring(con.lags).c_str();
+			response += L"%% ";
 			if (global->config->lagKick > 0)
 			{
-				Response += L"(Max: ";
-				Response += std::to_wstring(global->config->lagKick);
-				Response += L"%%)";
+				response += L"(Max: ";
+				response += std::to_wstring(global->config->lagKick);
+				response += L"%%)";
 			}
 		}
 
 		// Send the message to the user
-		PrintUserCmdText(client, Response);
+		PrintUserCmdText(client, response);
 	}
 
 	const std::vector commands = {{
@@ -470,23 +430,23 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Receive Exception from inter-plugin communication.
 	 */
-	void ReceiveException(ConnectionDataException exc)
+	void ReceiveExceptionData(const ConnectionDataException& exc)
 	{
-		global->connections[exc.client].bException = exc.bException;
-		global->connections[exc.client].sExceptionReason = exc.sReason;
-		if (!global->connections[exc.client].bException)
+		global->connections[exc.client].exception = exc.isException;
+		global->connections[exc.client].exceptionReason = exc.reason;
+		if (!global->connections[exc.client].exception)
 			ClearConData(exc.client);
 	}
 
 	/** @ingroup Condata
 	 * @brief Receive Connection data from inter-plugin communication.
 	 */
-	void ReceiveConnectionData(ConnectionData cd)
+	void ReceiveConnectionData(ConnectionData& cd)
 	{
-		cd.iAverageLoss = global->connections[cd.client].iAverageLoss;
-		cd.iAveragePing = global->connections[cd.client].iAveragePing;
-		cd.iLags = global->connections[cd.client].iLags;
-		cd.iPingFluctuation = global->connections[cd.client].iPingFluctuation;
+		cd.averageLoss = global->connections[cd.client].averageLoss;
+		cd.averagePing = global->connections[cd.client].averagePing;
+		cd.lags = global->connections[cd.client].lags;
+		cd.pingFluctuation = global->connections[cd.client].pingFluctuation;
 	}
 
 	/** @ingroup Condata
@@ -496,8 +456,8 @@ namespace Plugins::ConData
 	{
 		if (command == L"getstats")
 		{
-			struct PlayerData* playerData = 0;
-			while (playerData = Players.traverse_active(playerData))
+			struct PlayerData* playerData = Players.traverse_active(nullptr);
+			while (playerData)
 			{
 				ClientId client = playerData->iOnlineId;
 				if (Hk::Client::IsInCharSelectMenu(client))
@@ -507,18 +467,20 @@ namespace Plugins::ConData
 				if (!cdpClient)
 					continue;
 
-				auto con = global->connections[client];
+				auto& con = global->connections[client];
 
 				auto saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
 				int txqueue = cdpClient->GetSendQSize();
 				classptr->Print(wstos(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
 				    Hk::Client::GetCharacterNameByID(client).value(),
 				    client,
-				    con.iAverageLoss,
-				    con.iLags,
-				    con.iPingFluctuation,
+				    con.averageLoss,
+				    con.lags,
+				    con.pingFluctuation,
 				    saturation,
 				    txqueue)));
+
+				playerData = Players.traverse_active(playerData);
 			}
 			classptr->Print("OK");
 			global->returncode = ReturnCode::SkipAll;
@@ -551,24 +513,37 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Exposes functions for inter-plugin communication.
 	 */
-	ConDataCommunicator::ConDataCommunicator(std::string plug) : PluginCommunicator(plug)
+	ConDataCommunicator::ConDataCommunicator(const std::string& plug) : PluginCommunicator(plug)
 	{
-		this->ReceiveData = ReceiveData;
-		this->ReceiveException = ReceiveException;
+		this->ReceiveData = ReceiveConnectionData;
+		this->ReceiveException = ReceiveExceptionData;
 	}
 
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-		global->timers = {
-		    {TimerUpdatePingData, 1000, 0},
-		    {TimerUpdateLossData, LossInterval, 0},
-		};
 
 		global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(
 		    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
+
+		// check for logged in players and reset their connection data
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData)
+		{
+			if (ClientId client = playerData->iOnlineId; client < 1 || client > MaxClientId)
+				continue;
+
+			ClearConData(playerData->iOnlineId);
+			playerData = Players.traverse_active(playerData);
+		}
 	}
+
+	const std::vector<Timer> timers = {
+	    {TimerUpdatePingData, 1, 0},
+	    {TimerUpdateLossData, LossInterval, 0},
+	};
+
 } // namespace Plugins::ConData
 
 using namespace Plugins::ConData;
@@ -581,13 +556,13 @@ DefaultDllMainSettings(LoadSettings);
 	pi->shortName("condata");
 	pi->mayUnload(true);
 	pi->commands(&commands);
+	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);
-	pi->emplaceHook(HookedCall::IServerImpl__Update, &Update);
 	pi->emplaceHook(HookedCall::IServerImpl__SPObjUpdate, &SPObjUpdate);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);

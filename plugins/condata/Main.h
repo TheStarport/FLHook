@@ -4,30 +4,30 @@
 #include <FLHook.hpp>
 #include "plugin.h"
 
-constexpr int LossInterval = 4000;
+constexpr int LossInterval = 4;
 
 namespace Plugins::ConData
 {
 	struct ConnectionData
 	{
 		// connection data
-		std::list<uint> lstLoss;
-		uint iLastLoss;
-		uint iAverageLoss;
-		std::list<uint> lstPing;
-		uint iAveragePing;
-		uint iPingFluctuation;
-		uint iLastPacketsSent;
-		uint iLastPacketsReceived;
-		uint iLastPacketsDropped;
-		uint iLags;
-		std::list<uint> lstObjUpdateIntervalls;
-		mstime tmLastObjUpdate;
-		mstime tmLastObjTimestamp;
+		std::list<uint> lossList;
+		uint lastLoss;
+		uint averageLoss;
+		std::list<uint> pingList;
+		uint averagePing;
+		uint pingFluctuation;
+		uint lastPacketsSent;
+		uint lastPacketsReceived;
+		uint lastPacketsDropped;
+		uint lags;
+		std::list<uint> objUpdateIntervalsList;
+		mstime lastObjUpdate;
+		mstime lastObjTimestamp;
 
 		// exception
-		bool bException;
-		std::string sExceptionReason;
+		bool exception;
+		std::string exceptionReason;
 
 		// Client Id (for when receiving data)
 		uint client;
@@ -36,8 +36,8 @@ namespace Plugins::ConData
 	struct ConnectionDataException final
 	{
 		ClientId client;
-		bool bException;
-		std::string sReason;
+		bool isException;
+		std::string reason;
 	};
 
 	// Inter plugin comms
@@ -46,26 +46,17 @@ namespace Plugins::ConData
 	{
 	  public:
 		inline static const char* pluginName = "Advanced Connection Data";
-		explicit ConDataCommunicator(std::string plug);
+		explicit ConDataCommunicator(const std::string& plug);
 
-		Error PluginCall(ReceiveException, ConnectionDataException);
-		Error PluginCall(ReceiveData, ConnectionData);
+		void PluginCall(ReceiveException, const ConnectionDataException&);
+		void PluginCall(ReceiveData, ConnectionData&);
 	};
 
 	//! The struct that holds client info for this plugin
 	struct MiscClientInfo final
 	{
-		bool bLightsOn = false;
-		bool bShieldsDown = false;
-	};
-
-	typedef void (*TimerFunc)();
-
-	struct Timer
-	{
-		TimerFunc proc;
-		mstime tmIntervallMS;
-		mstime tmLastCall;
+		bool lightsOn = false;
+		bool shieldsDown = false;
 	};
 
 	struct Config final : Reflectable
@@ -95,8 +86,6 @@ namespace Plugins::ConData
 
 		ConDataCommunicator* communicator = nullptr;
 		Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
-
-		std::vector<Timer> timers;
 	};
 }; // namespace Plugins::ConData
 
