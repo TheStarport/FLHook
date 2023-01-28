@@ -24,7 +24,7 @@
  * {
  *   "minimumTransfer": 0,
  *   "maximumTransfer": 0,
- *   "preventTransactionsNearThreshold": true,
+ *   "depositSurplusOnDock": true,
  *   "cashThreshold": 1800000000,
  *   "blockedSystems": [],
  *   "cheatDetection": true,
@@ -224,19 +224,26 @@ namespace Plugins::CashManager
 		}
 	}
 
-	//! Should we supress the transaction as they are near the credit threshold?
-	bool ShouldSuppressTransaction(const ClientId& client)
+	void DepositSurplusCash(const ClientId& client)
 	{
-		if (!global->config->preventTransactionsNearThreshold)
-			return false;
+		if (!global->config->depositSurplusOnDock)
+			return;
 
 		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < currentValue)
 		{
-			global->clientSuppressTransaction[client] = true;
-			return true;
+			uint surplusCash = currentValue - global->config->cashThreshold;
+			const CAccount* acc = Players.FindAccountFromClientID(client);
+			if (const auto bank = Sql::GetOrCreateBank(acc); Sql::DepositCash(bank, surplusCash))
+			{
+				Hk::Player::RemoveCash(client, surplusCash);
+				PrintUserCmdText(
+				    client, std::format(L"You have reached maximum credit threshold, surplus of {} credits has been deposited to your bank.", surplusCash));
+				Hk::Player::SaveChar(client);
+				return;
+			}
+			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
+			global->returnCode = ReturnCode::SkipAll;
 		}
-
-		return false;
 	}
 
 	void UserCommandHandler(const ClientId& client, const std::wstring& param)
@@ -316,14 +323,6 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"withdraw")
 		{
-			if (ShouldSuppressTransaction(client))
-			{
-				PrintUserCmdText(client,
-					    L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal "
-					    L"range.");
-					return;
-			}
-
 			if (const uint withdrawAmount = ToUInt(GetParam(param, ' ', 1)); withdrawAmount > 0)
 			{
 				const auto bank = Sql::GetOrCreateBank(acc);
@@ -338,7 +337,7 @@ namespace Plugins::CashManager
 			const uint depositAmount = ToUInt(GetParam(param, ' ', 1));
 			const auto bank = Sql::GetOrCreateBank(acc);
 			DepositMoney(bank, depositAmount, client);
-			ShouldSuppressTransaction(client);
+			DepositSurplusCash(client);
 		}
 		else if (cmd == L"info")
 		{
@@ -460,81 +459,10 @@ namespace Plugins::CashManager
 		return BankCode::InternalServerError;
 	}
 
-	void SupressTransaction(ClientId& client)
-	{
-		if (global->clientSuppressTransaction[client])
-		{
-			PrintUserCmdText(client, global->config->preventTransactionMessage);
-			global->returnCode = ReturnCode::SkipAll;
-		}
-	}
-
-	//! Clear Client Info hook
-	void ClearClientInfo(ClientId& client)
-	{
-		global->clientSuppressTransaction[client] = false;
-	}
-
-	//! PlayerLaunch hook
-	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
-	{
-		global->clientSuppressTransaction[client] = false;
-	}
-
 	//! Base Enter hook
 	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
 	{
-		if (global->config->preventTransactionsNearThreshold)
-			global->clientSuppressTransaction[client] = ShouldSuppressTransaction(client);
-	}
-
-	//!  Suppress the buying of goods.
-	void ReqAddItem([[maybe_unused]] const uint& goodId, [[maybe_unused]] char const* hardpoint, [[maybe_unused]] const int& count, [[maybe_unused]] const float& status,
-	    [[maybe_unused]] const bool& mounted, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//!  Suppress the buying of goods.
-	void ReqChangeCash([[maybe_unused]] const int& moneyDiff, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//!  Suppress ship purchases
-	void ReqSetCash([[maybe_unused]] const int& money, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//!  Suppress ship purchases
-	void ReqEquipment([[maybe_unused]] class EquipDescList const& eqDesc, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//!  Suppress ship purchases
-	void ReqShipArch([[maybe_unused]] const uint& archId, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//!  Suppress ship purchases
-	void ReqHullStatus([[maybe_unused]] const float& status, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//! Suppress the buying of goods.
-	void GFGoodBuy([[maybe_unused]] struct SGFGoodBuyInfo const& gbi, ClientId& client)
-	{
-		SupressTransaction(client);
-	}
-
-	//! Suppress the selling of goods.
-	void GFGoodSell([[maybe_unused]] const struct SGFGoodSellInfo& gsi, ClientId& client)
-	{
-		SupressTransaction(client);
+		DepositSurplusCash(client);
 	}
 
 	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
@@ -547,7 +475,7 @@ namespace Plugins::CashManager
 using namespace Plugins::CashManager;
 
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(minimumTransfer), field(eraseTransactionsAfterDaysPassed), field(blockedSystems), field(preventTransactionsNearThreshold),
+REFL_AUTO(type(Config), field(minimumTransfer), field(eraseTransactionsAfterDaysPassed), field(blockedSystems), field(depositSurplusOnDock),
     field(maximumTransfer), field(cheatDetection), field(minimumTime), field(transferFee), field(cashThreshold));
 
 DefaultDllMainSettings(LoadSettings);
@@ -562,15 +490,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);
-	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &GFGoodSell);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqHullStatus, &ReqHullStatus);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqShipArch, &ReqShipArch);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter, HookStep::After);
 }
