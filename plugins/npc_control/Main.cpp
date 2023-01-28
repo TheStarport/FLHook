@@ -286,13 +286,13 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint shipId = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
-		if (!shipId)
+		const auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value());
+		if (!ship.has_value())
 			return;
 
 		SystemId iSystem = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 
-		auto [position, rotation] = Hk::Solar::GetLocation(shipId, IdType::Ship).value();
+		auto [position, rotation] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
 		// Creation counter
 		for (int i = 0; i < Amount; i++)
@@ -315,15 +315,18 @@ namespace Plugins::Npc
 		// Destroy targeted ship
 		if (cmds->IsPlayer())
 		{
-			uint ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
-			uint target = Hk::Player::GetTarget(ship).value();
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
-			{
-				pub::SpaceObj::Destroy(target, DestroyType::FUSE);
-				global->spawnedNpcs.erase(it);
-				cmds->Print("OK");
-				return;
-			}
+			if (auto const ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
+				if (auto const target = Hk::Player::GetTarget(ship.value()); target.has_value())
+				{
+					if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+						target.value() && it != global->spawnedNpcs.end())
+					{
+						pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
+						global->spawnedNpcs.erase(it);
+						cmds->Print("OK");
+						return;
+					}
+				}
 		}
 
 		// Destroy all ships
@@ -345,8 +348,7 @@ namespace Plugins::Npc
 			return;
 		}
 
-		auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value());
-		if (ship.has_value())
+		if (auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
 		{
 			auto [pos, rot] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
@@ -406,21 +408,24 @@ namespace Plugins::Npc
 
 		else
 		{
-			uint ship = Hk::Player::GetShip(client).value();
-			if (ship)
+			const auto ship = Hk::Player::GetShip(client);
+			if (ship.has_value())
 			{
-				uint target = Hk::Player::GetTarget(ship).value();
-				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+				if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 				{
-					AiFollow(ship, target);
-					global->spawnedNpcs.erase(it);
+					if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+					    target.value() && it != global->spawnedNpcs.end())
+					{
+						AiFollow(ship.value(), target.value());
+						global->spawnedNpcs.erase(it);
+					}
+					else
+					{
+						for (const auto& npc : global->spawnedNpcs)
+							AiFollow(ship.value(), npc);
+					}
+					cmds->Print(std::format("Following {}", wstos(wscCharname)));
 				}
-				else
-				{
-					for (const auto& npc : global->spawnedNpcs)
-						AiFollow(ship, npc);
-				}
-				cmds->Print(std::format("Following {}", wstos(wscCharname)));
 			}
 			else
 			{
@@ -440,15 +445,18 @@ namespace Plugins::Npc
 			return;
 		}
 
-		uint ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
-		if (ship)
+		const auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value());
+		if (ship.has_value())
 		{
 			// Is the admin targeting an NPC?
-			uint target = Hk::Player::GetTarget(ship).value();
-			if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target); target && it != global->spawnedNpcs.end())
+			if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 			{
-				pub::AI::DirectiveCancelOp cancelOp;
-				pub::AI::SubmitDirective(target, &cancelOp);
+				if (const auto it = std::find(global->spawnedNpcs.begin(), global->spawnedNpcs.end(), target.value());
+				    target.value() && it != global->spawnedNpcs.end())
+				{
+					pub::AI::DirectiveCancelOp cancelOp;
+					pub::AI::SubmitDirective(target.value(), &cancelOp);
+				}
 			}
 			// Cancel all NPC actions
 			else
@@ -476,7 +484,7 @@ namespace Plugins::Npc
 
 		cmds->Print(std::format("Available NPCs: {}", global->config->npcInfo.size()));
 
-		for (auto& [name, npc] : global->config->npcInfo)
+		for (auto const& [name, npc] : global->config->npcInfo)
 			cmds->Print(std::format("|{}", wstos(name)));
 	}
 
@@ -493,7 +501,7 @@ namespace Plugins::Npc
 
 		cmds->Print(std::format("Available fleets: {}", global->config->fleetInfo.size()));
 
-		for (auto& [name, npc] : global->config->fleetInfo)
+		for (auto const& [name, npc] : global->config->fleetInfo)
 			cmds->Print(std::format("|{}", wstos(name)));
 	}
 
@@ -509,7 +517,7 @@ namespace Plugins::Npc
 		}
 
 		if (const std::map<std::wstring, Fleet>::iterator iter = global->config->fleetInfo.find(FleetName); iter != global->config->fleetInfo.end())
-			for (auto& [name, amount] : iter->second.member)
+			for (auto const& [name, amount] : iter->second.member)
 				AdminCmdAIMake(cmds, amount, name);
 		else
 		{
