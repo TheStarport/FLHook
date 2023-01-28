@@ -1,5 +1,25 @@
 {
   "sonarlint.rules": {
+    "cpp:S1065": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S2583": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S897": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S1763": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S1481": {
+      "level": "On",
+      "severity": "Minor"
+    },
     "cpp:S3654": {
       "level": "On",
       "severity": "Blocker"
@@ -236,10 +256,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S2583": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S2681": {
       "level": "On",
       "severity": "Major"
@@ -279,10 +295,6 @@
     "cpp:S2637": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S1763": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S3518": {
       "level": "On",
@@ -736,10 +748,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S1481": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "cpp:S977": {
       "level": "On",
       "severity": "Major"
@@ -822,10 +830,6 @@
     "cpp:S1186": {
       "level": "On",
       "severity": "Critical"
-    },
-    "cpp:S1065": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S2275": {
       "level": "On",
@@ -1201,10 +1205,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S6009": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "cpp:S5278": {
       "level": "On",
       "severity": "Major"
@@ -1579,10 +1579,6 @@
       "level": "On",
       "severity": "Critical"
     },
-    "cpp:S897": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5485": {
       "level": "On",
       "severity": "Critical"
@@ -1590,6 +1586,9 @@
     "cpp:S5000": {
       "level": "On",
       "severity": "Blocker"
+    },
+    "cpp:S5536": {
+      "level": "Off"
     },
     "cpp:S3715": {
       "level": "Off"
@@ -1987,9 +1986,6 @@
     "cpp:S856": {
       "level": "Off"
     },
-    "cpp:S5536": {
-      "level": "Off"
-    },
     "cpp:S5419": {
       "level": "Off"
     },
@@ -2135,6 +2131,9 @@
       "level": "Off"
     },
     "cpp:S6007": {
+      "level": "Off"
+    },
+    "cpp:S6009": {
       "level": "Off"
     },
     "cpp:S5275": {
