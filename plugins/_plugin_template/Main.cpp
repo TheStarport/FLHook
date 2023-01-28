@@ -22,20 +22,20 @@ namespace Plugins::Template
 	}
 
 	// Demo command
-	void UserCmdTemplate(ClientId& client, const std::wstring& wscParam)
+	void UserCmdTemplate(ClientId& client, const std::wstring& param)
 	{
 		// Access our config value
 		if (global->config->overrideUserNumber)
 		{
 			std::random_device dev;
 			std::mt19937 rng(dev());
-			const std::uniform_int_distribution<std::mt19937::result_type> dist(1, 6); // distribution in range [1, 1000]
+			std::uniform_int_distribution<std::mt19937::result_type> dist(1, 6); // distribution in range [1, 1000]
 
-			PrintUserCmdText(client, L"The gods decided your number is actually: " +  std::to_wstring(dist(rng)));
+			PrintUserCmdText(client, std::format(L"The gods decided your number is actually: {}", dist(rng)));
 			return;
 		}
 
-		if (const auto number = ToInt(GetParam(wscParam, ' ', 0)); number > 0)
+		if (const auto number = ToInt(GetParam(param, ' ', 0)); number > 0)
 		{
 			PrintUserCmdText(client, L"You put in the following number: " + std::to_wstring(number));
 		}
@@ -46,8 +46,8 @@ namespace Plugins::Template
 	}
 
 	// Define usable chat commands here
-	const std::vector<UserCommand> commands = {{
-	    { L"/template", L"<number>", UserCmdTemplate, L"Outputs a user provided non-zero number." },
+	const std::vector commands = {{
+	    CreateUserCommand(L"/template", L"<number>", UserCmdTemplate, L"Outputs a user provided non-zero number."),
 	}};
 
 	// Demo admin command
@@ -65,7 +65,7 @@ namespace Plugins::Template
 			return;
 		}
 
-		cmds->Print("Template is %0.0f", number);
+		cmds->Print(std::format("Template is {}", number));
 		return;
 	}
 
@@ -77,9 +77,9 @@ namespace Plugins::Template
 	}
 
 	// Admin command callback. Compare the chat entry to see if it match a command
-	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
+	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
 	{
-		if (wscCmd == L"template")
+		if (cmd == L"template")
 		{
 			AdminCmdTemplate(cmds, cmds->ArgFloat(1));
 		}
