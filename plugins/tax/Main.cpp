@@ -1,8 +1,3 @@
-// Tax plugin - July 2022 by Nekura Mew
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
 /**
  * @date July, 2022
  * @author Nekura Mew
