@@ -316,9 +316,8 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"withdraw")
 		{
-			if (global->config->preventTransactionsNearThreshold && ShouldSuppressTransaction(client))
+			if (ShouldSuppressTransaction(client))
 			{
-				global->clientSuppressTransaction[client] = true;
 				PrintUserCmdText(client,
 					    L"You cannot withdraw more cash. Your current value is dangerously high. Please deposit money to bring your value back into normal "
 					    L"range.");
@@ -339,8 +338,7 @@ namespace Plugins::CashManager
 			const uint depositAmount = ToUInt(GetParam(param, ' ', 1));
 			const auto bank = Sql::GetOrCreateBank(acc);
 			DepositMoney(bank, depositAmount, client);
-			if (global->config->preventTransactionsNearThreshold)
-				global->clientSuppressTransaction[client] = ShouldSuppressTransaction(client);
+			ShouldSuppressTransaction(client);
 		}
 		else if (cmd == L"info")
 		{
@@ -491,7 +489,7 @@ namespace Plugins::CashManager
 	}
 
 	//!  Suppress the buying of goods.
-	void ReqAddItem(const uint& goodId, [[maybe_unused]] char const* hardpoint, [[maybe_unused]] const int& count, [[maybe_unused]] const float& status,
+	void ReqAddItem([[maybe_unused]] const uint& goodId, [[maybe_unused]] char const* hardpoint, [[maybe_unused]] const int& count, [[maybe_unused]] const float& status,
 	    [[maybe_unused]] const bool& mounted, ClientId& client)
 	{
 		SupressTransaction(client);
@@ -528,13 +526,13 @@ namespace Plugins::CashManager
 	}
 
 	//! Suppress the buying of goods.
-	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	void GFGoodBuy([[maybe_unused]] struct SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		SupressTransaction(client);
 	}
 
 	//! Suppress the selling of goods.
-	void GFGoodSell(const struct SGFGoodSellInfo& gsi, ClientId& client)
+	void GFGoodSell([[maybe_unused]] const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
 		SupressTransaction(client);
 	}
