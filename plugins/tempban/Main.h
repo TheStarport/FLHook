@@ -18,7 +18,7 @@ namespace Plugins::Tempban
 	{
 	  public:
 		inline static const char* pluginName = "TempBan Plugin by w0dk4";
-		explicit TempBanCommunicator(std::string plug);
+		explicit TempBanCommunicator(const std::string& plug);
 
 		cpp::result<void, Error> PluginCall(TempBan, const std::wstring& characterName, uint duration);
 	};

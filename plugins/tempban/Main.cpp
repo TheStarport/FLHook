@@ -1,4 +1,24 @@
-﻿#include "Main.h"
+﻿/**
+ * @date Jan, 2023
+ * @author Lazrius
+ * @defgroup Tempban Tempban
+ * @brief
+ * The Tempban plugin allows other plugins to temporarily ban players for certain actions.
+ * 
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+*  None
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * TempBanCommunicator: exposes Tempban method with parameters (wstring characterName, durationInMin)
+ */
+
+#include "Main.h"
 
 namespace Plugins::Tempban
 {
@@ -118,7 +138,7 @@ namespace Plugins::Tempban
 
 	void CmdHelp(CCmds* classptr) { classptr->Print("tempban <charname>"); }
 
-	TempBanCommunicator::TempBanCommunicator(std::string plug) : PluginCommunicator(plug) { this->TempBan = TempBanCallout; }
+	TempBanCommunicator::TempBanCommunicator(const std::string& plug) : PluginCommunicator(plug) { this->TempBan = TempBanCallout; }
 } // namespace Plugins::Tempban
 
 using namespace Plugins::Tempban;
