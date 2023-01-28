@@ -133,7 +133,7 @@ namespace Plugins::Arena
 
 		// No plugin handled it, do it ourselves.
 		SystemId system = Hk::Player::GetSystem(client).value();
-		Universe::IBase* base = Universe::get_base(targetBase);
+		const Universe::IBase* base = Universe::get_base(targetBase);
 
 		Hk::Player::Beam(client, targetBase);
 		// if not in the same system, emulate F1 charload
@@ -159,9 +159,7 @@ namespace Plugins::Arena
 	 */
 	bool CheckReturnDock(unsigned int client, unsigned int target)
 	{
-		auto base = Hk::Player::GetCurrentBase(client);
-
-		if (base.value() == target)
+		if (auto base = Hk::Player::GetCurrentBase(client); base.value() == target)
 			return true;
 
 		return false;
@@ -170,12 +168,12 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void CharacterSelect(std::string& szCharFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
+	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
 	 */
-	void PlayerLaunch_AFTER(uint& ship, ClientId& client)
+	void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		if (global->transferFlags[client] == ClientState::Transfer)
 		{
@@ -217,11 +215,11 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to switch to the arena system
 	 */
-	void UserCmd_Conn(ClientId& client, const std::wstring& param)
+	void UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		SystemId system = Hk::Player::GetSystem(client).value();
-		if (system == global->config->restrictedSystemId || system == global->config->targetSystemId)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); 
+			system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
@@ -247,7 +245,7 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to return from the arena system.
 	 */
-	void UserCmd_Return(ClientId& client, const std::wstring& param)
+	void UserCmd_Return(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (!ReadReturnPointForClient(client))
 		{

@@ -34,7 +34,7 @@ namespace Plugins::Tempban
 	{
 		const auto client = Hk::Client::GetClientIdFromCharName(wscCharname);
 
-		mstime duration = 1000 * _duration * 60;
+		mstime duration = 1000 * static_cast<mstime>(_duration) * 60;
 		TempbanInfo tempban;
 		tempban.banStart = timeInMS();
 		tempban.banDuration = duration;
