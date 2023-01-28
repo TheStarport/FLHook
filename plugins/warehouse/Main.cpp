@@ -1,4 +1,32 @@
-﻿// Warehouse Plugin
+﻿/**
+ * @date Jan, 2023
+ * @author Lazrius
+ * @defgroup Warehouse Warehouse
+ * @brief
+ * The Warehouse plugin allows players to deposit and withdraw various commodities and equipment on NPC stations, stored on internal SQL database.
+ *
+ * @paragraph cmds Player Commands
+ * -warehouse store <ID> <count> - deposits specified equipment or commodity into the base warehouse
+ * -warehouse list - lists unmounted equipment and commodities avalable for deposit
+ * -warehouse withdraw <ID> <count> - transfers specified equipment or commodity into your ship cargo hold
+ * -warehouse liststored - lists equipment and commodities deposited
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "costPerStackStore": 100,
+ *     "costPerStackWithdraw": 50,
+ *     "restrictedBases": ["Li01_01_base", "Li01_02_base"],
+ *     "restrictedItems": ["li_gun01_mark01","li_gun01_mark02"]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
@@ -24,7 +52,7 @@ namespace Plugins::Warehouse
 	void UserCmdStoreItem(uint client, const std::wstring& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
-		const uint databaseItemId = ToInt(GetParam(param, ' ', 1));
+		const uint databaseItemId = ToUInt(GetParam(param, ' ', 1));
 
 		if (!databaseItemId)
 		{
@@ -43,7 +71,7 @@ namespace Plugins::Warehouse
 			filteredCargo.emplace_back(info);
 		}
 
-		const int itemCount = std::max(1, ToInt(GetParam(param, ' ', 2)));
+		const uint itemCount = std::max(1u, ToUInt(GetParam(param, ' ', 2)));
 
 		if (databaseItemId > filteredCargo.size())
 		{
@@ -51,7 +79,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 		const auto& item = filteredCargo[databaseItemId - 1];
-		if (itemCount > item.iCount || itemCount <= 0)
+		if (itemCount > item.iCount)
 		{
 			PrintUserCmdText(client, L"Error Invalid Item Quantity");
 			return;
