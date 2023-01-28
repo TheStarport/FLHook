@@ -1,7 +1,32 @@
-// Wardrobe
-// By Raikkonen
-//
-//Ported by Nen 2022
+/**
+ * @date Jan, 2023
+ * @author Raikkonen, ported by Nen
+ * @defgroup Wardrobe Wardrobe
+ * @brief
+ * The Wardrobe plugin allows players to change their body and head models from a defined list of allowed models.
+ *
+ * @paragraph cmds Player Commands
+ * -wardrobe show <head/body> - lists available heads or bodies
+ * -wardrobe change <head/body> - changes your character model to selected head or body
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "bodies": {
+ *         "ExampleBody": "ku_edo_body"
+ *     },
+ *     "heads": {
+ *         "ExampleHead": "ku_edo_head"
+ *     }
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
