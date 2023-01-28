@@ -2529,7 +2529,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& car
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
 	    wstos(std::format(
-	        L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\SObjectCargoUpdate client = {}\n\tuint iDunno1 = {}\n\tuint iDunno2 = {}\n)",
+	        L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint iDunno1 = {}\n\tuint iDunno2 = {}\n)",
 	        cargoUpdate.client,
 	        iDunno1,
 	        iDunno2)));
