@@ -1,12 +1,34 @@
-﻿// Stats Plugin
-// by Raikkonen
+﻿/**
+ * @date Jan 2023
+ * @author Raikkonen
+ * @defgroup Stats Stats
+ * @brief
+ * The Stats plugin collects various statistics and exports them into a JSON for later view.
+ *
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "FilePath": "EXPORTS",
+ *     "StatsFile": "stats.json"
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 // Includes
 #include "Main.h"
 
 namespace Plugins::Stats
 {
-	std::unique_ptr<Global> global = std::make_unique<Global>();
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
 	// Load configuration file
 	void LoadSettings()
@@ -48,7 +70,7 @@ namespace Plugins::Stats
 	}
 
 	// This removes double quotes from player names. This causes invalid json.
-	std::string encode(std::string data)
+	std::string encode(const std::string& data)
 	{
 		std::string scEncoded;
 		scEncoded.reserve(data.size());
@@ -71,9 +93,8 @@ namespace Plugins::Stats
 		jExport["serverload"] = CoreGlobals::c()->serverLoadInMs;
 
 		nlohmann::json jPlayers;
-		const std::list<PlayerInfo> lstPlayers = Hk::Admin::GetPlayers();
 
-		for (auto& lstPlayer : lstPlayers)
+		for (const std::list<PlayerInfo> lstPlayers = Hk::Admin::GetPlayers(); auto& lstPlayer : lstPlayers)
 		{
 			nlohmann::json jPlayer;
 
@@ -89,8 +110,8 @@ namespace Plugins::Stats
 			jPlayer["group"] = groupId ? std::to_string(groupId) : "None";
 
 			// Add ship
-			Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.client].shipArchetype);
-			jPlayer["ship"] = (ship) ? wstos(global->Ships[ship->get_id()]) : "Unknown";
+			const Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.client].shipArchetype);
+			jPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
 			SystemId iSystemId = Hk::Player::GetSystem(lstPlayer.client).value();
@@ -106,11 +127,20 @@ namespace Plugins::Stats
 	}
 
 	// Hooks for updating stats
-	void DisConnect_AFTER(unsigned int client, enum EFLConnection state) { ExportJSON(); }
+	void DisConnect_AFTER([[maybe_unused]] uint client, [[maybe_unused]] enum EFLConnection state)
+	{
+		ExportJSON();
+	}
 
-	void PlayerLaunch_AFTER(uint& ship, ClientId& client) { ExportJSON(); }
+	void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, [[maybe_unused]] ClientId& client)
+	{
+		ExportJSON();
+	}
 
-	void CharacterSelect_AFTER(std::string& szCharFilename, ClientId& client) { ExportJSON(); }
+	void CharacterSelect_AFTER([[maybe_unused]] const std::string& charFilename, [[maybe_unused]] ClientId& client)
+	{
+		ExportJSON();
+	}
 } // namespace Plugins::Stats
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
