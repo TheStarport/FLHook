@@ -40,8 +40,11 @@ namespace Plugins::CashManager
 		// accidentally corrupting their accounts via their value (approximately 2 billion credits)
 		uint maximumTransfer = 0;
 
-		// If someone's cash goes above a threshold, 'lock' the account until they unload some into the bank
+		// If someone's cash goes above a threshold, deposit surplus money.
 		bool depositSurplusOnDock = false;
+		
+		// When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction.
+		uint safetyMargin = 0;
 
 		// Message displayed when they hit the threshold
 		std::wstring preventTransactionMessage = L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.";

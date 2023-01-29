@@ -231,7 +231,7 @@ namespace Plugins::CashManager
 
 		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < currentValue)
 		{
-			uint surplusCash = currentValue - global->config->cashThreshold;
+			uint surplusCash = currentValue - global->config->cashThreshold + global->config->safetyMargin;
 			const CAccount* acc = Players.FindAccountFromClientID(client);
 			if (const auto bank = Sql::GetOrCreateBank(acc); Sql::DepositCash(bank, surplusCash))
 			{
@@ -459,8 +459,12 @@ namespace Plugins::CashManager
 		return BankCode::InternalServerError;
 	}
 
-	//! Base Enter hook
 	void BaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client)
+	{
+		DepositSurplusCash(client);
+	}
+
+	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client)
 	{
 		DepositSurplusCash(client);
 	}
@@ -476,7 +480,7 @@ using namespace Plugins::CashManager;
 
 // REFL_AUTO must be global namespace
 REFL_AUTO(type(Config), field(minimumTransfer), field(eraseTransactionsAfterDaysPassed), field(blockedSystems), field(depositSurplusOnDock),
-    field(maximumTransfer), field(cheatDetection), field(minimumTime), field(transferFee), field(cashThreshold));
+    field(maximumTransfer), field(cheatDetection), field(minimumTime), field(transferFee), field(cashThreshold), field(safetyMargin));
 
 DefaultDllMainSettings(LoadSettings);
 
@@ -491,4 +495,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch, HookStep::After);
 }
