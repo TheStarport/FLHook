@@ -140,7 +140,7 @@ namespace Plugins::CashManager
 	}
 
 	// /bank withdraw account password amount
-	void UserCmdWithdrawMoneyByPassword(const ClientId& client, const std::wstring& param)
+	void UserCmdWithdrawMoneyByPassword(ClientId& client, const std::wstring& param)
 	{
 		const auto accountIdentifier = GetParam(param, ' ', 1);
 		const auto password = GetParam(param, ' ', 2);
@@ -168,7 +168,7 @@ namespace Plugins::CashManager
 	}
 
 	// /bank transfer targetBank amount
-	void TransferMoney(const ClientId client, const std::wstring& param, const Bank& bank)
+	void TransferMoney(ClientId client, const std::wstring& param, const Bank& bank)
 	{
 		const auto targetBankIdentifier = GetParam(param, ' ', 1);
 		const auto amount = ToUInt(GetParam(param, ' ', 2));
@@ -211,7 +211,7 @@ namespace Plugins::CashManager
 		    bank, std::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
 	}
 
-	void ShowBankInfo(const ClientId& client, const Bank& bank, bool showPass)
+	void ShowBankInfo(ClientId& client, const Bank& bank, bool showPass)
 	{
 		PrintUserCmdText(client, L"Your Bank Information: ");
 		PrintUserCmdText(client, std::format(L"|    Identifier: {}", bank.identifier.empty() ? L"N/A" : bank.identifier));
@@ -224,7 +224,7 @@ namespace Plugins::CashManager
 		}
 	}
 
-	void DepositSurplusCash(const ClientId& client)
+	void DepositSurplusCash(ClientId& client)
 	{
 		if (!global->config->depositSurplusOnDock)
 			return;
@@ -246,7 +246,7 @@ namespace Plugins::CashManager
 		}
 	}
 
-	void UserCommandHandler(const ClientId& client, const std::wstring& param)
+	void UserCommandHandler(ClientId& client, const std::wstring& param)
 	{
 		// Checks before we handle any sort of command or process.
 		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value();
@@ -460,7 +460,7 @@ namespace Plugins::CashManager
 	}
 
 	//! Base Enter hook
-	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
+	void BaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client)
 	{
 		DepositSurplusCash(client);
 	}
