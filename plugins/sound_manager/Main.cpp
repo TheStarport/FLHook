@@ -1,18 +1,29 @@
-// Sound Manager Plugin by Raikkonen 2022
-//
-// This plugin plays a random sound loaded from a config file on login. It's a pretty simple plugin
-// and could be expanded to play sounds on other hooks.
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date 2022
+ * @author Raikkonen
+ * @defgroup SoundManager Sound Manager
+ * @brief
+ * The plugin plays a random sound upon player login. To be expanded upon.
+ *
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *	"sounds": ["dock_not_allowed", "dock_granted"]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 // Includes
 #include "Main.h"
-
-// Setup Doxygen Group
-
-/** @defgroup SoundManager Sound Manager */
 
 namespace Plugins::SoundManager
 {
