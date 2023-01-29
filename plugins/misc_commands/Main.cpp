@@ -125,7 +125,7 @@ namespace Plugins::MiscCommands
 	/** @ingroup MiscCommands
 	 * @brief Nudge your ship 15 meters on all axis to try and dislodge a stuck ship.
 	 */
-	void UserCmdStuck(ClientId& client, const std::wstring& param)
+	void UserCmdStuck(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
