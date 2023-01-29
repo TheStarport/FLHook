@@ -1,10 +1,27 @@
-// Spin Protection plugin - Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb 2010
+ * @author Cannon, ported by Raikkonen
+ * @defgroup Stats Stats
+ * @brief
+ * The plugin tries to normalize the multiplayer specific unnatural physics.
+ *
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "spinImpulseMultiplier": -1.0,
+ *     "spinProtectionMass": 180.0
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 // Includes
 #include "Main.h"
