@@ -365,7 +365,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief PlayerLaunch hook. Calls ClearClientInfo.
 	 */
-	void PlayerLaunch([[maybe_unused]] uint & ship, uint & client) { ClearClientInfo(client); }
+	void PlayerLaunch([[maybe_unused]] ShipId& ship, ClientId& client) { ClearClientInfo(client); }
 
 	/** @ingroup MiningControl
 	 * @brief Called when a gun hits something.
@@ -528,9 +528,8 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Called when an asteriod is mined. We ignore all of the parameters from the client.
 	 */
-	void MineAsteroid([[maybe_unused]] const uint& clientSystemId, [[maybe_unused]] const class Vector& vPos, [[maybe_unused]] const uint& crateId,
-	    [[maybe_unused]] const uint& lootId, [[maybe_unused]] const uint& count,
-	    ClientId& client)
+	void MineAsteroid([[maybe_unused]] SystemId& clientSystemId, [[maybe_unused]] const class Vector& vPos, [[maybe_unused]] const uint& crateId,
+	    [[maybe_unused]] const uint& lootId, [[maybe_unused]] const uint& count, [[maybe_unused]] ClientId& client)
 	{
 		global->returnCode = ReturnCode::SkipAll;
 		return;
