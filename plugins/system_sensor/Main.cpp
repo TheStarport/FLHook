@@ -1,13 +1,35 @@
-// System Sensor - Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
-//
-// This file includes code that was not written by me but I can't find
-// the original author (I know they posted on the-starport.net about it)
+/**
+ * @date Feb, 2010
+ * @author Cannon, ported by Raikkonen
+ * @defgroup SystemSensor System Sensor
+ * @brief
+ * The plugin allows players with proper equipment to see player traffic coming through
+ * Trade Lanes and Jump Gates in the system, as well as being able to look up
+ * their equipment and cargo at the time of using them.
+ *
+ * @paragraph cmds Player Commands
+ * -net <all/jumponly/off> - if player has proper equipment, toggles his scanner between showing JG/TL transits, 
+ *   JG transits only, and disabling the feature
+ * -showscan <name> - shows equipment and cargo carried by the specified player
+ * -showscan$ <playerID> - same as above, but using player ID as paramenter, useful for to type difficult names
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "sensors": [
+ *         {"systemId": "Li01",
+ *          "equipId": "li_gun01_mark01",
+ *          "networkId": 1}
+ *          ]
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
