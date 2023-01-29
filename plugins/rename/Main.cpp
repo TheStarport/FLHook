@@ -1,10 +1,39 @@
-// Rename plugin - Feb 2010 by Cannon
-//
-// Ported by Raikkonen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb 2010
+ * @author Cannon, ported by Raikkonen
+ * @defgroup Rename Rename
+ * @brief
+ * The plugin allows players to rename their characters, move them between accounts and 
+ * create password-protected player tags.
+ *
+ * @paragraph cmds Player Commands
+ * maketag <tag> <master password> <description> - registers a tag and creates master password used to manage password used for renames using the tag
+ * droptag <tag> <master password> - deregisters the player tag
+ * tagpass <tag> <master password> <rename password> - sets the password used to apply the tag
+ * rename <name> [password] - renames the character to the specified name, requires password if includes a protected tag
+ * movecode <code> - registers a move code for this character
+ * movechar <name> <code> - moves the selected character onto the account of currently logged-in character.
+ * 
+ * @paragraph adminCmds Admin Commands
+ * None
+ * 
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "asciiCharNameOnly": false,
+ *     "enableMoveChar": true,
+ *     "enableRename": true,
+ *     "enableTagProtection": false,
+ *     "makeTagCost": 2500000,
+ *     "moveCost": 0,
+ *     "renameCost": 0,
+ *     "renameTimeLimit": 0
+ * }
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 #include "Features/Mail.hpp"
