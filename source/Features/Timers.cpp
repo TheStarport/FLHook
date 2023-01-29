@@ -40,8 +40,8 @@ void TimerCheckKick()
 	TRY_HOOK
 	{
 		// for all players
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -87,7 +87,6 @@ void TimerCheckKick()
 				else
 					ClientInfo[client].iCharMenuEnterTime = 0;
 			}
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 	CATCH_HOOK({})
@@ -103,8 +102,8 @@ void TimerNPCAndF1Check()
 
 	TRY_HOOK
 	{
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -132,7 +131,6 @@ void TimerNPCAndF1Check()
 				ClientInfo[client].tmF1TimeDisconnect = 0;
 				continue;
 			}
-			playerData = Players.traverse_active(playerData);
 		}
 
 		const auto* config = FLHookConfig::c();

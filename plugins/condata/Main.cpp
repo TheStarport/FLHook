@@ -78,8 +78,8 @@ namespace Plugins::ConData
 		if (CoreGlobals::c()->serverLoadInMs > global->config->kickThreshold)
 		{
 			// for all players
-			struct PlayerData* playerData = Players.traverse_active(nullptr);
-			while (playerData)
+			struct PlayerData* playerData = nullptr;
+			while (playerData = Players.traverse_active(playerData))
 			{
 				ClientId client = playerData->iOnlineId ;
 				if (client < 1 || client > MaxClientId)
@@ -143,7 +143,7 @@ namespace Plugins::ConData
 						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
 				}
-				playerData = Players.traverse_active(playerData);
+				
 			}
 		}
 
@@ -169,8 +169,8 @@ namespace Plugins::ConData
 	void TimerUpdatePingData()
 	{
 		// for all players
-		PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
@@ -208,8 +208,6 @@ namespace Plugins::ConData
 				con.pingList.pop_back();
 
 			con.pingList.push_front(connectionInfo->dwRoundTripLatencyMS);
-
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 
@@ -221,7 +219,7 @@ namespace Plugins::ConData
 		// for all players
 		float lossPercentage;
 		PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -274,8 +272,6 @@ namespace Plugins::ConData
 			// Fill new ClientInfo-variables with current values
 			con.lastPacketsSent = connInfo.dwPacketsSentGuaranteed + connInfo.dwPacketsSentNonGuaranteed;
 			con.lastPacketsDropped = connInfo.dwPacketsRetried + connInfo.dwPacketsDropped;
-
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 
@@ -456,8 +452,8 @@ namespace Plugins::ConData
 	{
 		if (command == L"getstats")
 		{
-			struct PlayerData* playerData = Players.traverse_active(nullptr);
-			while (playerData)
+			struct PlayerData* playerData = nullptr;
+			while (playerData = Players.traverse_active(playerData))
 			{
 				ClientId client = playerData->iOnlineId;
 				if (Hk::Client::IsInCharSelectMenu(client))
@@ -480,7 +476,7 @@ namespace Plugins::ConData
 				    saturation,
 				    txqueue)));
 
-				playerData = Players.traverse_active(playerData);
+				
 			}
 			classptr->Print("OK");
 			global->returncode = ReturnCode::SkipAll;
@@ -528,14 +524,14 @@ namespace Plugins::ConData
 		    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 
 		// check for logged in players and reset their connection data
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			if (ClientId client = playerData->iOnlineId; client < 1 || client > MaxClientId)
 				continue;
 
 			ClearConData(playerData->iOnlineId);
-			playerData = Players.traverse_active(playerData);
+			
 		}
 	}
 

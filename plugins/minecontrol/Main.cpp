@@ -354,12 +354,11 @@ namespace Plugins::MiningControl
 		WriteProcMem((char*)0x62F944E, &patch2, 2);
 		WriteProcMem((char*)0x62F123E, &patch2, 2);
 
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			uint client = playerData->iOnlineId;
 			ClearClientInfo(client);
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 
