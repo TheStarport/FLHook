@@ -1,10 +1,29 @@
-// Restarts plugin - Feb 2010 by Cannon
-//
-// Ported by Raikkonen & Nen 2022
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+/**
+ * @date Feb 2010
+ * @author Cannon, ported by Raikkonen and Nen
+ * @defgroup Restarts Restarts
+ * @brief
+ * The plugin allows the players to apply a predefined template onto their character (ship, location, reps).
+ *
+ * @paragraph cmds Player Commands
+ * -showrestarts - lists available templates
+ * -restart <restartName> - applies the chosen template onto this character
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * {
+ *     "availableRestarts": {"zoner": 0},
+ *     "enableRestartCost": false,
+ *     "maxCash": 1000000,
+ *     "maxRank": 5
+ * }
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 #include "Main.h"
 
@@ -21,7 +40,7 @@ namespace Plugins::Restart
 
 	/* User Commands */
 
-	void UserCmd_ShowRestarts(ClientId& client, const std::wstring& wscParam)
+	void UserCmd_ShowRestarts(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (global->config->availableRestarts.empty())
 		{
@@ -43,9 +62,9 @@ namespace Plugins::Restart
 		}
 	}
 
-	void UserCmd_Restart(ClientId& client, const std::wstring& wscParam)
+	void UserCmd_Restart(ClientId& client, const std::wstring& param)
 	{
-		std::wstring restartTemplate = GetParam(wscParam, ' ', 0);
+		std::wstring restartTemplate = GetParam(param, ' ', 0);
 		if (!restartTemplate.length())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
@@ -127,7 +146,7 @@ namespace Plugins::Restart
 		else
 			restart.cash = cash.value();
 
-		if (CAccount* acc = Players.FindAccountFromClientID(client))
+		if (const CAccount* acc = Players.FindAccountFromClientID(client))
 		{
 			restart.directory = Hk::Client::GetAccountDirName(acc);
 			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
@@ -155,7 +174,7 @@ namespace Plugins::Restart
 				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
 				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
-					throw("copy template");
+					throw "copy template";
 
 				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
 				IniWriteW(scCharFile, "Player", "name", restart.characterName);
