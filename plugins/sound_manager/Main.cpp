@@ -33,13 +33,13 @@ namespace Plugins::SoundManager
 	{
 		Config conf = Serializer::JsonToObject<Config>();
 
-		for (auto& sound : conf.sounds)
+		for (const auto& sound : conf.sounds)
 			conf.sound_ids.push_back(CreateID(sound.c_str()));
 
 		global->config = std::make_unique<Config>(std::move(conf));
 	}
 
-	void Login(struct SLoginInfo const& li, ClientId& client)
+	void Login([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
 	{
 		// Player sound when player logs in
 
