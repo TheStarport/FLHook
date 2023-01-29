@@ -110,8 +110,8 @@ namespace Plugins::Message
 	 */
 	static void ShowSpecialBanner()
 	{
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 			for (const auto& line : global->config->specialBannerLines)
@@ -121,7 +121,6 @@ namespace Plugins::Message
 				else
 					PrintUserCmdText(client, line);
 			}
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 
@@ -137,8 +136,8 @@ namespace Plugins::Message
 		if (++curStandardBanner >= global->config->standardBannerLines.size())
 			curStandardBanner = 0;
 
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		struct PlayerData* playerData = nullptr;
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 
@@ -146,8 +145,6 @@ namespace Plugins::Message
 				Hk::Message::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
 			else
 				PrintUserCmdText(client, global->config->standardBannerLines[curStandardBanner].c_str());
-
-			playerData = Players.traverse_active(playerData);
 		}
 	}
 
@@ -458,14 +455,14 @@ namespace Plugins::Message
 
 		// Send to all players in system
 		PlayerData* playerData = Players.traverse_active(nullptr);
-		while (playerData)
+		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
 
 			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); iSystemId == iClientSystemId)
 				Hk::Message::FMsgSendChat(client, szBuf, iRet);
 
-			playerData = Players.traverse_active(playerData);
+			
 		}
 	}
 

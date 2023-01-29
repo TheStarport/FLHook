@@ -72,14 +72,13 @@ namespace Plugins::Betting
 					}
 					else
 					{
-						struct PlayerData* playerData = Players.traverse_active(nullptr);
-						while (playerData)
+						struct PlayerData* playerData = nullptr;
+						while (playerData = Players.traverse_active(playerData))
 						{
 							ClientId localClient = playerData->iOnlineId;
 							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); 
 								system == systemId)
 								PrintUserCmdText(localClient, L"No one has won the FFA.");
-							playerData = Players.traverse_active(playerData);
 						}
 					}
 					// Delete event
@@ -137,8 +136,8 @@ namespace Plugins::Betting
 		{
 			// Get a list of other players in the system
 			// Add them and the player into the ffa map
-			struct PlayerData* playerData = Players.traverse_active(nullptr);
-			while (playerData)
+			struct PlayerData* playerData = nullptr;
+			while (playerData = Players.traverse_active(playerData))
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
@@ -157,7 +156,6 @@ namespace Plugins::Betting
 					PrintUserCmdText(client2, std::format(L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.",
 					    characterName, amount));
 				}
-				playerData = Players.traverse_active(playerData);
 			}
 
 			// Are there any other players in this system?
