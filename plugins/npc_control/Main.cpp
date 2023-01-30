@@ -139,9 +139,9 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Hook on ship destroyed to remove from our data
 	 */
-	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, [[maybe_unused]] const DWORD** ecx, const uint& iKill)
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, [[maybe_unused]] const DWORD** ecx, const uint& kill)
 	{
-		if (iKill)
+		if (kill)
 		{
 			CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 			IsFLHookNPC(cShip);
@@ -151,7 +151,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Function to spawn an NPC
 	 */
-	void CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, uint systemId, bool varyPosition)
+	void CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
 	{
 		Npc arch = global->config->npcInfo[name];
 
@@ -268,7 +268,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to make NPCs
 	 */
-	void AdminCmdAIMake(CCmds* cmds, int Amount, const std::wstring& NpcType)
+	void AdminCmdAIMake(CCmds* cmds, int amount, const std::wstring& NpcType)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -276,8 +276,8 @@ namespace Plugins::Npc
 			return;
 		}
 
-		if (!Amount)
-			Amount = 1;
+		if (!amount)
+			amount = 1;
 
 		if (const auto& iter = global->config->npcInfo.find(NpcType); iter == global->config->npcInfo.end())
 		{
@@ -289,14 +289,14 @@ namespace Plugins::Npc
 		if (!ship.has_value())
 			return;
 
-		SystemId iSystem = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
+		SystemId system = Hk::Player::GetSystem(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()).value();
 
 		auto [position, rotation] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
 		// Creation counter
-		for (int i = 0; i < Amount; i++)
+		for (int i = 0; i < amount; i++)
 		{
-			CreateNPC(NpcType, position, rotation, iSystem, true);
+			CreateNPC(NpcType, position, rotation, system, true);
 		}
 	}
 
@@ -383,7 +383,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to make AI follow target (or admin) until death
 	 */
-	void AdminCmdAIFollow(CCmds* cmds, std::wstring wscCharname)
+	void AdminCmdAIFollow(CCmds* cmds, std::wstring charname)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -393,17 +393,17 @@ namespace Plugins::Npc
 
 		// If no player specified follow the admin
 		uint client;
-		if (wscCharname == L"")
+		if (charname == L"")
 		{
 			client = Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value();
-			wscCharname = cmds->GetAdminName();
+			charname = cmds->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			client = Hk::Client::GetClientIdFromCharName(wscCharname).value();
+			client = Hk::Client::GetClientIdFromCharName(charname).value();
 
 		if (client == -1)
-			cmds->Print(std::format("{} is not online", wstos(wscCharname)));
+			cmds->Print(std::format("{} is not online", wstos(charname)));
 
 		else
 		{
@@ -423,12 +423,12 @@ namespace Plugins::Npc
 						for (const auto& npc : global->spawnedNpcs)
 							AiFollow(ship.value(), npc);
 					}
-					cmds->Print(std::format("Following {}", wstos(wscCharname)));
+					cmds->Print(std::format("Following {}", wstos(charname)));
 				}
 			}
 			else
 			{
-				cmds->Print(std::format("{} is not in space", wstos(wscCharname)));
+				cmds->Print(std::format("{} is not in space", wstos(charname)));
 			}
 		}
 	}
@@ -528,25 +528,25 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command processing
 	 */
-	bool ExecuteCommandString(CCmds* cmds, const std::wstring& wscCmd)
+	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
 	{
 		global->returnCode = ReturnCode::SkipAll;
 
-		if (wscCmd == L"aicreate")
+		if (cmd == L"aicreate")
 			AdminCmdAIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
-		else if (wscCmd == L"aidestroy")
+		else if (cmd == L"aidestroy")
 			AdminCmdAIKill(cmds);
-		else if (wscCmd == L"aicancel")
+		else if (cmd == L"aicancel")
 			AdminCmdAICancel(cmds);
-		else if (wscCmd == L"aifollow")
+		else if (cmd == L"aifollow")
 			AdminCmdAIFollow(cmds, cmds->ArgCharname(1));
-		else if (wscCmd == L"aicome")
+		else if (cmd == L"aicome")
 			AdminCmdAICome(cmds);
-		else if (wscCmd == L"aifleet")
+		else if (cmd == L"aifleet")
 			AdminCmdAIFleet(cmds, cmds->ArgStr(1));
-		else if (wscCmd == L"fleetlist")
+		else if (cmd == L"fleetlist")
 			AdminCmdListNPCFleets(cmds);
-		else if (wscCmd == L"npclist")
+		else if (cmd == L"npclist")
 			AdminCmdListNPCs(cmds);
 		else
 		{
