@@ -128,8 +128,8 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
 			</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(SolutionDir)..\vcpkg\bootstrap-vcpkg.bat
-$(SolutionDir)..\vcpkg\vcpkg.exe integrate install</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
