@@ -238,7 +238,7 @@ namespace Plugins::Betting
 	 */
 	void ProcessDuel(ClientId client)
 	{
-		const auto duel = global->duels.begin();
+		auto duel = global->duels.begin();
 		while (duel != global->duels.end())
 		{
 			uint clientKiller = 0;
@@ -250,7 +250,10 @@ namespace Plugins::Betting
 				clientKiller = duel->client;
 
 			if (clientKiller == 0)
+			{
+				duel++;
 				continue;
+			}
 
 			if (duel->accepted)
 			{
@@ -271,7 +274,7 @@ namespace Plugins::Betting
 				PrintUserCmdText(duel->client, L"Duel cancelled.");
 				PrintUserCmdText(duel->client2, L"Duel cancelled.");
 			}
-			global->duels.erase(duel);
+			duel = global->duels.erase(duel);
 			return;
 		}
 	}
