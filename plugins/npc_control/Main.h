@@ -27,7 +27,7 @@ namespace Plugins::Npc
 	struct Fleet : Reflectable
 	{
 		std::wstring name = L"example";
-		std::map<std::wstring, int, std::less<>> member = {{L"example",5}};
+		std::map<std::wstring, int> member = {{L"example",5}};
 	};
 
 	// A struct that represents an NPC that is spawned on startup
