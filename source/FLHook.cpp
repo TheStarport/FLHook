@@ -663,7 +663,7 @@ void ProcessPendingCommands()
 				sc->wscPending = L"";
 				lstSockets.push_back(sc);
 				Console::ConInfo(std::format("socket(ascii): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
-				sc->csock.Print("Welcome to FLHook, please authenticate");
+				sc->csock.Print("Welcome to FLHack, please authenticate");
 			}
 		}
 
@@ -760,9 +760,14 @@ void ProcessPendingCommands()
 				ioctlsocket(sc->csock.s, FIONREAD, &lSize);
 				char* szData = new char[lSize + 1];
 				memset(szData, 0, lSize + 1);
-				if (recv(sc->csock.s, szData, lSize, 0) <= 0)
+				if (int err = recv(sc->csock.s, szData, lSize, 0); err <= 0)
 				{
-					Console::ConInfo("socket: socket connection closed");
+					if (FLHookConfig::c()->general.debugMode)
+					{
+						int wsaLastErr = WSAGetLastError();
+						Console::ConWarn(std::format("Socket Error - recv: {} - WSAGetLastError: {}", err, wsaLastErr));
+					}
+					Console::ConWarn("socket: socket connection closed");
 					delete[] szData;
 					lstDelete.push_back(sc);
 					continue;
