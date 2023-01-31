@@ -118,7 +118,7 @@ void AddLog(LogType LogType, LogLevel lvl, const std::string& str)
 		FLHookDebugLog->debug(str);
 	}
 
-	if (IsDebuggerPresent())
+	if (IsDebuggerPresent() && WinDebugLog)
 	{
 		WinDebugLog->debug(str);
 	}
