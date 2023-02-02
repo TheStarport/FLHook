@@ -231,7 +231,14 @@ namespace Plugins::CashManager
 
 		if (const auto currentValue = Hk::Player::GetShipValue(client).value(); global->config->cashThreshold < currentValue)
 		{
+			uint playerCash = Hk::Player::GetCash(client).value();
 			uint surplusCash = currentValue - global->config->cashThreshold + global->config->safetyMargin;
+
+			if (!playerCash)
+				return;
+			if (playerCash < surplusCash)
+				surplusCash = playerCash;
+
 			const CAccount* acc = Players.FindAccountFromClientID(client);
 			if (const auto bank = Sql::GetOrCreateBank(acc); Sql::DepositCash(bank, surplusCash))
 			{
