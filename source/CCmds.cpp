@@ -586,7 +586,7 @@ void CCmds::CmdServerInfo()
 
 	// print
 	Print(std::format(
-	    "serverload={} npcspawn={} uptime={}OK\n", CoreGlobals::c()->serverLoadInMs, CoreGlobals::c()->disableNpcs ? "disabled" : "enabled", time));
+	    "serverload={} npcspawn={} uptime={}\nOK\n", CoreGlobals::c()->serverLoadInMs, CoreGlobals::c()->disableNpcs ? "disabled" : "enabled", time));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -636,7 +636,7 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(std::format("reservedslot={}OK\n", res.value() ? "yes" : "no"));
+	Print(std::format("reservedslot={}\nOK\n", res.value() ? "yes" : "no"));
 	Print("OK");
 }
 
