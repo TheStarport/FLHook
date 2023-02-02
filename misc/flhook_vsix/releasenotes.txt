@@ -1,2 +1,0 @@
-﻿v1.0
-- Added basic plugin

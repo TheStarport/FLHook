@@ -2,6 +2,7 @@ int
 bin
 dist
 .vs
+.vscode
 Debug
 Release
 *.vcxproj.user
@@ -9,3 +10,18 @@ Release
 vcpkg_installed/
 
 !misc/acctpath_patch/bin/*.cfg
+
+
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+cppastgen
+docs_output

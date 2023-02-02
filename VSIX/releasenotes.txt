@@ -1,0 +1,5 @@
+﻿v1.0
+- Added basic plugin
+
+v1.1
+- Updated to FLHook 4.0
