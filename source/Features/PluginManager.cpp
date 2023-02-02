@@ -65,7 +65,7 @@ PluginManager::~PluginManager()
 
 cpp::result<void, Error> PluginManager::unload(const std::string& name)
 {
-	const auto plugin = std::find_if(begin(), end(), [name](const PluginData& data) {
+	const auto plugin = std::find_if(begin(), end(), [&name](const PluginData& data) {
 		return name == data.shortName;
 	});
 
@@ -81,6 +81,15 @@ cpp::result<void, Error> PluginManager::unload(const std::string& name)
 	HMODULE dllAddr = plugin->dll;
 
 	Console::ConPrint(std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
+
+	for (const auto& hook : plugin->pInfo->hooks_)
+	{
+		uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
+		auto& list = pluginHooks_[hookId];
+
+		std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin().dll == dllAddr; });
+	}
+
 	plugins_.erase(plugin);
 	FreeLibrary(dllAddr);
 	return {};
@@ -193,7 +202,6 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	plugin.commands = pi->commands_;
 
 	size_t index = plugins_.size();
-	plugins_.push_back(plugin);
 
 	for (const auto& hook : pi->hooks_)
 	{
@@ -216,13 +224,8 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		std::sort(list.begin(), list.end());
 	}
 
-	// Allocate some space in our client info block
-	for (auto& i : ClientInfo)
-	{
-		i.mapPluginData[pi.get()] = std::array<uchar, 40>();
-	}
-
 	plugin.pInfo = std::move(pi);
+	plugins_.push_back(plugin);
 
 	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin.shortName, wstos(plugin.dllName)));
 }
