@@ -723,6 +723,22 @@ void CCmds::CmdLoadPlugin(const std::wstring& wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void CCmds::CmdReloadPlugin(const std::wstring& wscPlugin)
+{
+	RIGHT_CHECK(RIGHT_PLUGINS);
+
+	if (const auto err = PluginManager::i()->unload(wstos(wscPlugin)); err.has_error())
+	{
+		PrintError(err.error());
+		return;
+	}
+
+	PluginManager::i()->load(wscPlugin, this, false);
+	Print("OK");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CCmds::CmdListPlugins()
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
@@ -1223,6 +1239,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"loadplugins")
 			{
 				CmdLoadPlugins();
+			}
+			else if (wscCmd == L"reloadplugin")
+			{
+				CmdReloadPlugin(ArgStrToEnd(1));
 			}
 			else if (wscCmd == L"loadplugin")
 			{
