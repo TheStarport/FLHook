@@ -556,13 +556,12 @@ private:
 	void CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights);
 	void CmdGetAdmin(const std::variant<uint, std::wstring>& player);
 	void CmdDelAdmin(const std::variant<uint, std::wstring>& player);
-	void CmdRehash();
-	void CmdUnload(const std::wstring& wscParam);
 
 	void CmdLoadPlugins();
 	void CmdLoadPlugin(const std::wstring& wscPlugin);
 	void CmdListPlugins();
 	void CmdUnloadPlugin(const std::wstring& wscPlugin);
+	void CmdReloadPlugin(const std::wstring& wscPlugin);
 
 	void ExecuteCommandString(const std::wstring& wscCmd);
 	void SetRightsByString(const std::string& scRightStr);
