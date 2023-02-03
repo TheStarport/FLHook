@@ -562,6 +562,7 @@ private:
 	void CmdListPlugins();
 	void CmdUnloadPlugin(const std::wstring& wscPlugin);
 	void CmdReloadPlugin(const std::wstring& wscPlugin);
+	void CmdShutdown();
 
 	void ExecuteCommandString(const std::wstring& wscCmd);
 	void SetRightsByString(const std::string& scRightStr);
