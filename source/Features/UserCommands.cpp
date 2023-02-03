@@ -42,8 +42,8 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 	pub::Player::GetSystem(client, iSystem);
 
 	// For all players in system...
-	struct PlayerData* playerDb = Players.traverse_active(nullptr);
-	while (playerDb)
+	PlayerData* playerDb = nullptr;
+	while (playerDb = Players.traverse_active(playerDb))
 	{
 		// Get the this player's current system and location in the system.
 		ClientId client2 = playerDb->iOnlineId;
@@ -64,7 +64,6 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 			continue;
 
 		PrintUserCmdText(client2, wscMsg);
-		playerDb = Players.traverse_active(playerDb);
 	}
 }
 

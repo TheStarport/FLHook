@@ -545,7 +545,7 @@ void CCmds::CmdMoneyFixList()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	struct PlayerData* playerDb = 0;
+	PlayerData* playerDb = nullptr;
 	while (playerDb = Players.traverse_active(playerDb))
 	{
 		ClientId client = playerDb->iOnlineId;

@@ -817,7 +817,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 		LeaveCriticalSection(&csIPResolve);
 
 		// count players
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		uint playerCount = 0;
 		while ((playerData = Players.traverse_active(playerData)))
 			playerCount++;

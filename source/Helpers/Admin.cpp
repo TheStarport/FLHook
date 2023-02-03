@@ -114,7 +114,7 @@ some_error:
 		std::list<PlayerInfo> lstRet;
 		std::wstring wscRet;
 
-		struct PlayerData* playerDb = nullptr;
+		PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
 			ClientId client = playerDb->iOnlineId;
