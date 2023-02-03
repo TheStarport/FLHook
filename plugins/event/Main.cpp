@@ -53,7 +53,7 @@ namespace Plugins::Event
 		global->NpcMissions.clear();
 
 		auto config = Serializer::JsonToObject<Config>();
-
+		
 		for (const auto& [missionName, cargoMission] : config.CargoMissions)
 		{
 			if (missionName == "Example")
@@ -106,27 +106,34 @@ namespace Plugins::Event
 
 		for (auto& mission : global->CargoMissions)
 		{
-			nlohmann::json jsonMission = {{"base", global->nicknameToNameMap[mission.base]},
+			nlohmann::json jsonMission = {
+				{"base", global->nicknameToNameMap[mission.base]},
 			    {"item", global->nicknameToNameMap[mission.item]},
 			    {"current_amount", mission.current_amount},
-			    {"required_amount", mission.required_amount}};
+			    {"required_amount", mission.required_amount}
+			};
 			jExport["CargoMissions"][mission.nickname] = jsonMission;
 		}
 
 		for (auto& mission : global->NpcMissions)
 		{
-			nlohmann::json jsonMission = {{"system", global->nicknameToNameMap[mission.system]},
+			nlohmann::json jsonMission = {
+				{"system", global->nicknameToNameMap[mission.system]},
 			    {"reputation", global->nicknameToNameMap[mission.reputation]},
 			    {"sector", mission.sector},
 			    {"current_amount", mission.current_amount},
-			    {"required_amount", mission.required_amount}};
+			    {"required_amount", mission.required_amount}
+			};
 			jExport["NpcMissions"][mission.nickname] = jsonMission;
 		}
 		out << std::setw(4) << jExport;
 		out.close();
+
 	}
 
-	const std::vector<Timer> timers = {{SaveMissionStatus, 100}};
+	const std::vector<Timer> timers = {
+		{SaveMissionStatus, 100}
+	};
 
 	/** @ingroup Event
 	 * @brief Hook on ShipDestroyed to see if an NPC mission needs to be updated.

@@ -10,6 +10,7 @@ std::string FLHookConfig::File()
 	return "FLHook.json";
 }
 
+
 void LoadSettings()
 {
 	auto config = Serializer::JsonToObject<FLHookConfig>();
@@ -18,8 +19,7 @@ void LoadSettings()
 	{
 		if (!config.socket.bfCTX)
 			config.socket.bfCTX = static_cast<BLOWFISH_CTX*>(malloc(sizeof(BLOWFISH_CTX)));
-		Blowfish_Init(static_cast<BLOWFISH_CTX*>(config.socket.bfCTX),
-		    reinterpret_cast<unsigned char*>(config.socket.encryptionKey.data()),
+		Blowfish_Init(static_cast<BLOWFISH_CTX*>(config.socket.bfCTX), reinterpret_cast<unsigned char*>(config.socket.encryptionKey.data()),
 		    static_cast<int>(config.socket.encryptionKey.length()));
 	}
 
@@ -33,5 +33,5 @@ void LoadSettings()
 	}
 
 	auto ptr = std::make_unique<FLHookConfig>(config);
-	FLHookConfig::i(&ptr);
+	FLHookConfig::i(&ptr);	
 }

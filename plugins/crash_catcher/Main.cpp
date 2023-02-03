@@ -96,7 +96,9 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	const std::vector<Timer> timers = {{SaveCrashingCharacter, 1}};
+	const std::vector<Timer> timers = {
+		{SaveCrashingCharacter, 1}
+	};
 
 	/** @ingroup CrashCatcher
 	 * @brief Originally in Main.cpp of PlayerControl
@@ -319,9 +321,7 @@ namespace Plugins::CrashCatcher
 
 	void __stdcall Cb_47bc4Naked_Log()
 	{
-		AddLog(LogType::Normal,
-		    LogLevel::Err,
-		    "Exception/Crash in content.dll:0x47bc4 - probably missing formation in faction_props.ini/formations.ini - exiting");
+		AddLog(LogType::Normal, LogLevel::Err, "Exception/Crash in content.dll:0x47bc4 - probably missing formation in faction_props.ini/formations.ini - exiting");
 		exit(-1);
 	}
 
@@ -342,7 +342,10 @@ will_crash:
 	}
 
 	static HMODULE modContentAc = 0; // or whatever value that is
-	void __stdcall Cb_C4800HookNaked() { modContentAc = global->hModContentAC; }
+	void __stdcall Cb_C4800HookNaked()
+	{
+		modContentAc = global->hModContentAC;
+	}
 
 	int Cb_C4800Hook(int* a1, int* a2, int* zone, double* a4, int a5, int a6)
 	{

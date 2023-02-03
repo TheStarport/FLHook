@@ -166,11 +166,10 @@ BOOL GetFuncInfo(ULONG fnAddress, ULONG stackAddress, LPTSTR lpszSymbol)
 	if (SymGetSymFromAddr(GetCurrentProcess(), (ULONG)fnAddress, &dwDisp, pSym))
 	{
 		// Make the symbol readable for humans
-		UnDecorateSymbolName(pSym->Name,
-		    lpszANSIUDSymbol,
-		    BUFFERSIZE,
-		    UNDNAME_COMPLETE | UNDNAME_NO_THISTYPE | UNDNAME_NO_SPECIAL_SYMS | UNDNAME_NO_MEMBER_TYPE | UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS |
-		        UNDNAME_NO_ARGUMENTS);
+		UnDecorateSymbolName(
+		    pSym->Name, lpszANSIUDSymbol, BUFFERSIZE,
+		    UNDNAME_COMPLETE | UNDNAME_NO_THISTYPE | UNDNAME_NO_SPECIAL_SYMS | UNDNAME_NO_MEMBER_TYPE |
+		        UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS | UNDNAME_NO_ARGUMENTS);
 
 		// Symbol information is ANSI string
 		PCSTR2LPTSTR(lpszANSIUDSymbol, lpszUDSymbol);
@@ -226,7 +225,9 @@ LPCTSTR GetFuncName()
 	// obtain a stack trace of the calling function (i.e., omit this one)
 	for (ULONG n = 0; n < 2; n++)
 	{
-		bResult = StackWalk(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &callStack, NULL, NULL, SymFunctionTableAccess, SymGetModuleBase, NULL);
+		bResult = StackWalk(
+		    IMAGE_FILE_MACHINE_I386, hProcess, hThread, &callStack, NULL, NULL, SymFunctionTableAccess,
+		    SymGetModuleBase, NULL);
 	}
 
 	if (bResult && callStack.AddrFrame.Offset != 0)

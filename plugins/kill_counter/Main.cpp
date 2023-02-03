@@ -28,7 +28,10 @@ namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param) { PrintUserCmdText(client, L"/kills <player name>"); }
+	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param)
+	{
+		PrintUserCmdText(client, L"/kills <player name>");
+	}
 
 	void PrintNPCKills(uint client, std::wstring& charFile, int& numKills)
 	{
@@ -55,7 +58,7 @@ namespace Plugins::KillCounter
 	{
 		std::wstring targetCharName = GetParam(wscParam, ' ', 0);
 		uint clientId;
-
+		
 		if (!targetCharName.empty())
 		{
 			const auto clientPlayer = Hk::Client::GetClientIdFromCharName(targetCharName);
@@ -80,6 +83,7 @@ namespace Plugins::KillCounter
 		}
 		int rank = Hk::Player::GetRank(client).value();
 		PrintUserCmdText(client, std::format(L"Level: {}", rank));
+
 	}
 
 	/** @ingroup KillCounter
@@ -94,8 +98,7 @@ namespace Plugins::KillCounter
 			if (ClientId client = cShip->GetOwnerPlayer())
 			{
 				const DamageList* dmg = *_dmg;
-				const auto killerId = Hk::Client::GetClientIdByShip(
-				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				const auto killerId = Hk::Client::GetClientIdByShip(dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 
 				if (killerId.has_value() && killerId.value() != client)
 				{
@@ -115,7 +118,7 @@ namespace Plugins::KillCounter
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 	}
-} // namespace Plugins::KillCounter
+}
 
 using namespace Plugins::KillCounter;
 

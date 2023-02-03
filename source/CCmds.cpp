@@ -1,15 +1,15 @@
 ﻿#include "Global.hpp"
 
-#define RIGHT_CHECK(a)              \
-	if (!(this->rights & a))        \
-	{                               \
+#define RIGHT_CHECK(a)               \
+	if (!(this->rights & a))         \
+	{                                \
 		Print("ERR No permission"); \
-		return;                     \
+		return;                      \
 	}
 #define RIGHT_CHECK_SUPERADMIN()             \
 	if (!(this->rights == RIGHT_SUPERADMIN)) \
 	{                                        \
-		Print("ERR No permission");          \
+		Print("ERR No permission");         \
 		return;                              \
 	}
 
@@ -175,7 +175,7 @@ void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std:
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
 	const auto res = Hk::Player::GetRep(player, repGroup);
-	if (res.has_error())
+	if ( res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -293,7 +293,7 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 	auto cargo = Hk::Player::EnumCargo(player, holdSize);
 	if (cargo.has_error())
 	{
-		PrintError(cargo.error());
+		PrintError(cargo.error());	
 	}
 
 	Print(std::format("remainingholdsize={}", holdSize));
@@ -372,7 +372,7 @@ void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	const auto res = Hk::Player::ReadCharFile(player);
+	const auto res = Hk::Player::ReadCharFile(player); 
 	if (res.has_error())
 	{
 		PrintError(res.error());
@@ -408,14 +408,8 @@ void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}",
-	    pi.character,
-	    pi.client,
-	    pi.wscIP,
-	    pi.wscHostname,
-	    pi.connectionInfo.dwRoundTripLatencyMS,
-	    pi.wscBase,
-	    pi.wscSystem)));
+	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}", pi.character, pi.client,
+	    pi.wscIP, pi.wscHostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase, pi.wscSystem)));
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -449,14 +443,8 @@ void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n",
-	    pi.character,
-	    pi.client,
-	    pi.wscIP,
-	    pi.wscHostname,
-	    pi.connectionInfo.dwRoundTripLatencyMS,
-	    pi.wscBase,
-	    pi.wscSystem)));
+	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n", pi.character, pi.client,
+	    pi.wscIP, pi.wscHostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.wscBase, pi.wscSystem)));
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -538,7 +526,7 @@ void CCmds::CmdIsOnServer(std::wstring player)
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	const auto res = Hk::Client::GetAccountByCharName(player);
-	if (res.has_error())
+	if ( res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -641,7 +629,7 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
-	const auto res = Hk::Player::GetReservedSlot(player);
+	const auto res = Hk::Player::GetReservedSlot(player); 
 	if (res.has_error())
 	{
 		PrintError(res.error());

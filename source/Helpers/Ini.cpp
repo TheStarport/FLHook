@@ -52,7 +52,8 @@ namespace Hk::Ini
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
-			const auto writeFlhookSection = [client](std::string& str) {
+			const auto writeFlhookSection = [client](std::string& str) 
+			{
 				str += "\n[flhook]\n";
 				for (const auto& [key, value] : clients[client].lines)
 				{
@@ -70,7 +71,7 @@ namespace Hk::Ini
 				auto size = static_cast<size_t>(saveFile.tellg());
 				std::string buffer(size, ' ');
 				saveFile.seekg(0);
-				saveFile.read(&buffer[0], size);
+				saveFile.read(&buffer[0], size); 
 
 				// Reset the file pointer so we can start overwriting
 				saveFile.seekg(0);
@@ -231,7 +232,10 @@ namespace Hk::Ini
 		return line;
 	}
 
-	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) { clients[client].lines[name] = std::move(value); }
+	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) 
+	{ 
+		clients[client].lines[name] = std::move(value);
+	}
 
 	bool GetCharacterIniBool(ClientId client, const std::wstring& name)
 	{

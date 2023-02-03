@@ -48,7 +48,8 @@ namespace Plugins::Tax
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
 		// no-pvp check
-		if (SystemId system = Hk::Player::GetSystem(client).value(); std::ranges::find(global->excludedsystemsIds, system) == global->excludedsystemsIds.end())
+		if (SystemId system = Hk::Player::GetSystem(client).value(); 
+			std::ranges::find(global->excludedsystemsIds, system) == global->excludedsystemsIds.end())
 		{
 			PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
 			return;
@@ -61,6 +62,7 @@ namespace Plugins::Tax
 			PrintUserCmdText(client, L"Usage:");
 			PrintUserCmdText(client, L"/tax <credits>");
 		}
+			
 
 		const uint taxValue = ToUInt(taxAmount);
 
@@ -73,7 +75,7 @@ namespace Plugins::Tax
 		const auto characterName = Hk::Client::GetCharacterNameByID(client);
 
 		const auto clientTargetObject = Hk::Player::GetTargetClientID(client);
-
+		
 		if (clientTargetObject.has_error())
 		{
 			PrintUserCmdText(client, L"Error: You are not targeting a player.");
@@ -107,13 +109,9 @@ namespace Plugins::Tax
 		std::wstring msg;
 
 		if (taxValue == 0)
-			msg = Hk::Message::FormatMsg(global->config->customColor,
-			    global->config->customFormat,
-			    std::vformat(global->config->huntingMessage, std::make_wformat_args(characterName.value().c_str())));
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, std::vformat(global->config->huntingMessage, std::make_wformat_args(characterName.value().c_str())));
 		else
-			msg = Hk::Message::FormatMsg(global->config->customColor,
-			    global->config->customFormat,
-			    std::vformat(global->config->taxRequestReceived, std::make_wformat_args(taxValue, characterName.value())));
+			msg = Hk::Message::FormatMsg(global->config->customColor, global->config->customFormat, std::vformat(global->config->taxRequestReceived, std::make_wformat_args(taxValue, characterName.value())));
 
 		Hk::Message::FMsg(clientTarget, msg);
 
@@ -208,9 +206,14 @@ namespace Plugins::Tax
 
 	// Hooks
 
-	const std::vector<Timer> timers = {{TimerF1Check, 1}};
+	const std::vector<Timer> timers = {
+	    {TimerF1Check, 1}
+	};
 
-	void DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const enum EFLConnection& state) { TimerF1Check(); }
+	void DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
+	{
+		TimerF1Check();
+	}
 
 	// Load Settings
 	void LoadSettings()

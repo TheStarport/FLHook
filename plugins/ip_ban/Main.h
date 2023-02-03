@@ -56,6 +56,6 @@ struct Global final
 
 	// Authenticated accounts even if they are banned somehow
 	AuthenticatedAccounts authenticatedAccounts;
-
+	
 	std::map<uint, bool> IPChecked;
 };

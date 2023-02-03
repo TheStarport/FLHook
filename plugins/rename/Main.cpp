@@ -3,7 +3,7 @@
  * @author Cannon, ported by Raikkonen
  * @defgroup Rename Rename
  * @brief
- * The plugin allows players to rename their characters, move them between accounts and
+ * The plugin allows players to rename their characters, move them between accounts and 
  * create password-protected player tags.
  *
  * @paragraph cmds Player Commands
@@ -13,10 +13,10 @@
  * rename <name> [password] - renames the character to the specified name, requires password if includes a protected tag
  * movecode <code> - registers a move code for this character
  * movechar <name> <code> - moves the selected character onto the account of currently logged-in character.
- *
+ * 
  * @paragraph adminCmds Admin Commands
  * None
- *
+ * 
  * @paragraph configuration Configuration
  * @code
  * {
@@ -47,7 +47,10 @@ namespace Plugins::Rename
 		global->config = std::make_unique<Config>(Serializer::JsonToObject<Config>());
 	}
 
-	void SaveSettings() { Serializer::SaveToJson(global->tagList); }
+	void SaveSettings()
+	{
+		Serializer::SaveToJson(global->tagList);
+	}
 
 	bool CreateNewCharacter(SCreateCharacterInfo const& si, ClientId& client)
 	{
@@ -196,9 +199,7 @@ namespace Plugins::Rename
 		global->tagList.tags.emplace_back(data);
 
 		PrintUserCmdText(client, std::format(L"Created faction tag {} with master password {}", tag, pass));
-		AddLog(LogType::Normal,
-		    LogLevel::Info,
-		    wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+		AddLog(LogType::Normal, LogLevel::Info, wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 		SaveSettings();
 	}
 
@@ -226,14 +227,12 @@ namespace Plugins::Rename
 
 		// If this tag is in use then reject the request.
 		if (const auto& data = global->tagList.FindTag(tag); data != global->tagList.tags.end() && pass == data->masterPassword)
-		{
+		{	
 			const auto [first, last] = std::ranges::remove_if(global->tagList.tags, [&tag](const TagData& tg) { return tg.tag == tag; });
 			global->tagList.tags.erase(first, last);
 			SaveSettings();
 			PrintUserCmdText(client, L"OK Tag dropped");
-			AddLog(LogType::Normal,
-			    LogLevel::Info,
-			    wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+			AddLog(LogType::Normal, LogLevel::Info, wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
 		}
 
@@ -307,6 +306,7 @@ namespace Plugins::Rename
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
+
 				// Decode the char file, update the char name and re-encode it.
 				// Add a space to the value so the ini file line looks like "<key> =
 				// <value>" otherwise Ioncross Server Operator can't decode the file
@@ -324,24 +324,28 @@ namespace Plugins::Rename
 				// The rename worked. Log it and save the rename time.
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
-				    wstos(std::format(L"User rename {} to {} ({})", o.charName.c_str(), o.newCharName.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
+				    wstos(std::format(L"User rename {} to {} ({})",
+				    o.charName.c_str(),
+				    o.newCharName.c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 			catch (char* err)
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
 				    wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
-				        stows(err),
-				        o.charName.c_str(),
-				        o.newCharName.c_str(),
-				        Hk::Client::GetAccountID(acc).value().c_str())));
+				    stows(err),
+				    o.charName.c_str(),
+				    o.newCharName.c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 		}
 
 		while (!global->pendingMoves.empty())
 		{
 			Move o = global->pendingMoves.front();
-			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName).has_value() || Hk::Client::GetClientIdFromCharName(o.movingCharName).has_value())
+			if (Hk::Client::GetClientIdFromCharName(o.destinationCharName).has_value()
+			||	Hk::Client::GetClientIdFromCharName(o.movingCharName).has_value())
 				return;
 
 			global->pendingMoves.erase(global->pendingMoves.begin());
@@ -370,8 +374,8 @@ namespace Plugins::Rename
 
 				std::string oldAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(oldAcc));
 
-				if (std::wstring oldCharRenameLimit = IniGetWS(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName), L"");
-				    !oldCharRenameLimit.empty())
+				if (std::wstring oldCharRenameLimit = IniGetWS(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName), L""); 
+					!oldCharRenameLimit.empty())
 				{
 					std::string newAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(acc));
 					IniWriteW(newAccDir + "\\rename.ini", "General", wstos(o.movingCharName), oldCharRenameLimit);
@@ -382,27 +386,30 @@ namespace Plugins::Rename
 				AddLog(LogType::Normal,
 				    LogLevel::Info,
 				    wstos(std::format(L"Character {} moved from {} to {}",
-				        o.movingCharName.c_str(),
-				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
-				        Hk::Client::GetAccountID(acc).value().c_str())));
+				    o.movingCharName.c_str(),
+				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str()))); 
 			}
 			catch (char* err)
 			{
 				AddLog(LogType::Normal,
 				    LogLevel::Err,
 				    wstos(std::format(L"Character {} move failed ({}) from {} to {}",
-				        o.movingCharName,
-				        stows(std::string(err)),
-				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
-				        Hk::Client::GetAccountID(acc).value().c_str())));
+				    o.movingCharName,
+				    stows(std::string(err)),
+				    Hk::Client::GetAccountID(oldAcc).value().c_str(),
+				    Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 		}
 	}
 
-	const std::vector<Timer> timers = {{RenameTimer, 5}};
+	const std::vector<Timer> timers = {
+		{ RenameTimer, 5 }
+	};
 
 	void UserCmd_Rename(ClientId& client, const std::wstring& param)
 	{
+
 		if (!global->config->enableRename)
 		{
 			PrintUserCmdText(client, L"Command disabled");
@@ -506,8 +513,8 @@ namespace Plugins::Rename
 		// If a rename was done recently by this player then reject the request.
 		// I know that time() returns time_t...shouldn't matter for a few years
 		// yet.
-		if (uint lastRenameTime = IniGetI(renameFile, "General", wstos(charname), 0);
-		    (lastRenameTime + 300) < Hk::Time::GetUnix() && (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnix())
+		if (uint lastRenameTime = IniGetI(renameFile, "General", wstos(charname), 0); (lastRenameTime + 300) < Hk::Time::GetUnix()
+		&& (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnix())
 		{
 			PrintUserCmdText(client, L"ERR Rename time limit");
 			return;
@@ -603,6 +610,7 @@ namespace Plugins::Rename
 	*/
 	void UserCmd_MoveChar(ClientId& client, const std::wstring& param)
 	{
+
 		if (!global->config->enableMoveChar)
 		{
 			PrintUserCmdText(client, L"Command disabled");
@@ -730,8 +738,9 @@ namespace Plugins::Rename
 			return;
 		}
 
+		
 		const auto acc = Hk::Client::GetAccountByCharName(charname);
-
+		
 		if (acc.has_error())
 		{
 			cmds->Print("ERR Charname not found");
@@ -793,11 +802,7 @@ namespace Plugins::Rename
 		{
 			auto last_access = static_cast<int>(tag.lastAccess);
 			int days = (curr_time - last_access) / (24 * 3600);
-			cmds->Print(wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n",
-			    tag.tag,
-			    tag.masterPassword,
-			    tag.renamePassword,
-			    days,
+			cmds->Print(wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n", tag.tag, tag.masterPassword, tag.renamePassword, days,
 			    tag.description)));
 		}
 		cmds->Print("OK");
@@ -873,15 +878,12 @@ namespace Plugins::Rename
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/maketag", L"<tag> <master password> <description>", UserCmd_MakeTag,
-	        L"Creates a faction tag and prevents others from creating said tag without a password."),
+	    CreateUserCommand(L"/maketag", L"<tag> <master password> <description>", UserCmd_MakeTag, L"Creates a faction tag and prevents others from creating said tag without a password."),
 	    CreateUserCommand(L"/droptag", L"<tag> <master password>", UserCmd_DropTag, L"Deletes a faction tag"),
-	    CreateUserCommand(L"/tagpass", L"<tag> <master password> <rename password>", UserCmd_SetTagPass,
-	        L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
+	    CreateUserCommand(L"/tagpass", L"<tag> <master password> <rename password>", UserCmd_SetTagPass, L"Set the passwords. Master is to manage the tag. Rename is the password to give to people who you wish to use the tag with the /rename command."),
 	    CreateUserCommand(L"/rename", L"<charname> [password]", UserCmd_Rename, L"Renames the current character"),
 	    CreateUserCommand(L"/movechar", L"<charname> <code>", UserCmd_MoveChar, L"Move a character from a remote account into this one"),
-	    CreateUserCommand(
-	        L"/movecode", L"<code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
+	    CreateUserCommand(L"/movecode", L"<code>", UserCmd_SetMoveCharCode, L"Set the password for this account if you wish to move it's characters to another account"),
 	}};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -939,8 +941,7 @@ namespace Plugins::Rename
 using namespace Plugins::Rename;
 REFL_AUTO(type(TagData), field(tag), field(masterPassword), field(renamePassword), field(lastAccess), field(description));
 REFL_AUTO(type(TagList), field(tags));
-REFL_AUTO(type(Config), field(enableRename), field(enableMoveChar), field(moveCost), field(renameCost), field(renameTimeLimit), field(enableTagProtection),
-    field(asciiCharNameOnly), field(makeTagCost));
+REFL_AUTO(type(Config), field(enableRename), field(enableMoveChar), field(moveCost), field(renameCost), field(renameTimeLimit), field(enableTagProtection), field(asciiCharNameOnly), field(makeTagCost));
 
 DefaultDllMainSettings(LoadSettings);
 

@@ -43,4 +43,4 @@ namespace Plugins::Autobuy
 		ReturnCode returnCode = ReturnCode::Default;
 	};
 
-} // namespace Plugins::Autobuy
+}

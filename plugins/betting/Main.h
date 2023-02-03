@@ -35,4 +35,4 @@ namespace Plugins::Betting
 		std::list<Duel> duels;
 		std::map<uint, FreeForAll> freeForAlls; // uint is iSystemId
 	};
-} // namespace Plugins::Betting
+}

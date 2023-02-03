@@ -94,7 +94,7 @@ void GenerateCertificate()
 	if (!key)
 	{
 		Console::ConWarn(L"Unable to generate 2048-bit RSA key");
-		return;
+		return;	
 	}
 
 	/* Generate the certificate. */

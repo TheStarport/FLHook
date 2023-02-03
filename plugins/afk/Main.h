@@ -14,4 +14,4 @@ namespace Plugins::Afk
 
 		std::vector<uint> awayClients;
 	};
-} // namespace Plugins::Afk
+}

@@ -48,4 +48,4 @@ namespace Plugins::Restart
 		//! A vector of currently pending restarts
 		std::vector<Restart> pendingRestarts;
 	};
-} // namespace Plugins::Restart
+}

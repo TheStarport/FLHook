@@ -131,4 +131,4 @@ namespace Hk::Math
 		stream << std::setfill(L'0') << std::setw(width) << std::hex << number;
 		return stream.str();
 	}
-} // namespace Hk::Math
+}

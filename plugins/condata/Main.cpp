@@ -81,7 +81,7 @@ namespace Plugins::ConData
 			struct PlayerData* playerData = nullptr;
 			while (playerData = Players.traverse_active(playerData))
 			{
-				ClientId client = playerData->iOnlineId;
+				ClientId client = playerData->iOnlineId ;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
@@ -100,7 +100,8 @@ namespace Plugins::ConData
 					}
 				}
 
-				if (global->config->pingKick && con.averagePing > (global->config->pingKick))
+				if (global->config->pingKick && 
+					con.averagePing > (global->config->pingKick))
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High ping");
@@ -111,9 +112,11 @@ namespace Plugins::ConData
 						const auto charName = Hk::Client::GetCharacterNameByID(client);
 						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
+					
 				}
 
-				if (global->config->fluctKick && con.pingFluctuation > (global->config->fluctKick))
+				if (global->config->fluctKick 
+					&& con.pingFluctuation > (global->config->fluctKick))
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High fluct");
@@ -124,6 +127,7 @@ namespace Plugins::ConData
 						const auto charName = Hk::Client::GetCharacterNameByID(client);
 						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
+					
 				}
 
 				if (global->config->lagKick && con.lags > (global->config->lagKick))
@@ -139,6 +143,7 @@ namespace Plugins::ConData
 						global->tempBanCommunicator->TempBan(charName.value(), 60);
 					}
 				}
+				
 			}
 		}
 
@@ -169,7 +174,9 @@ namespace Plugins::ConData
 		{
 			ClientId client = playerData->iOnlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
-			if (client < 1 || client > MaxClientId || ClientInfo[client].tmF1TimeDisconnect || connectionInfo.has_error())
+			if (client < 1 || client > MaxClientId 
+			|| ClientInfo[client].tmF1TimeDisconnect 
+			|| connectionInfo.has_error())
 				continue;
 
 			auto& con = global->connections[client];
@@ -225,6 +232,7 @@ namespace Plugins::ConData
 			if (connectionInfo.has_error())
 				continue;
 			const auto& connInfo = connectionInfo.value();
+
 
 			auto& con = global->connections[client];
 
@@ -336,7 +344,8 @@ namespace Plugins::ConData
 		uint clientTarget = client;
 
 		// If they have a target selected, and that target is a player, get their target's ping instead
-
+		
+		
 		auto ship = Hk::Player::GetShip(client);
 		auto target = Hk::Player::GetTarget(ship.value());
 		if (target.has_value())
@@ -466,6 +475,8 @@ namespace Plugins::ConData
 				    con.pingFluctuation,
 				    saturation,
 				    txqueue)));
+
+				
 			}
 			classptr->Print("OK");
 			global->returncode = ReturnCode::SkipAll;
@@ -520,6 +531,7 @@ namespace Plugins::ConData
 				continue;
 
 			ClearConData(playerData->iOnlineId);
+			
 		}
 	}
 
@@ -534,7 +546,7 @@ using namespace Plugins::ConData;
 
 DefaultDllMainSettings(LoadSettings);
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(ConDataCommunicator::pluginName);
 	pi->shortName("condata");

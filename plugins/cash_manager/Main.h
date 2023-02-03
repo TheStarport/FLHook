@@ -17,7 +17,7 @@ namespace Plugins::CashManager
 	};
 	class CashManagerCommunicator final : public PluginCommunicator
 	{
-	  public:
+	public:
 		inline static const char* pluginName = "Cash Manager";
 		explicit CashManagerCommunicator(const std::string& plugin);
 
@@ -27,20 +27,22 @@ namespace Plugins::CashManager
 		BankCode PluginCall(ConsumeBankCash, const CAccount* account, uint cashAmount, const std::string& transactionSource);
 	};
 
+	
+  
 	struct Config final : Reflectable
 	{
 		std::string File() override { return "config/cash_manager.json"; }
 
 		//! The minimum transfer amount.
 		uint minimumTransfer = 0;
-
+		
 		// It is best to set this to a low enough value as to prevent players from
 		// accidentally corrupting their accounts via their value (approximately 2 billion credits)
 		uint maximumTransfer = 0;
 
 		// If someone's cash goes above a threshold, deposit surplus money.
 		bool depositSurplusOnDock = false;
-
+		
 		// When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction.
 		uint safetyMargin = 0;
 
@@ -112,5 +114,5 @@ namespace Plugins::CashManager
 		void AddTransaction(const Bank& receiver, const std::string& sender, const int64& amount);
 		int RemoveTransactionsOverSpecifiedDays(uint days);
 		void SetOrClearIdentifier(const Bank& bank, const std::string& identifier);
-	} // namespace Sql
-} // namespace Plugins::CashManager
+	}
+}

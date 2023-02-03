@@ -276,7 +276,8 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (const auto& blockedSystems = global->config->blockedSystemsHashed; std::ranges::find(blockedSystems, currentSystem.value()) != blockedSystems.end())
+		if (const auto &blockedSystems = global->config->blockedSystemsHashed;
+		    std::ranges::find(blockedSystems, currentSystem.value()) != blockedSystems.end())
 		{
 			PrintUserCmdText(client, L"Error: You are in a blocked system, you are unable to access the bank.");
 			return;
@@ -302,9 +303,8 @@ namespace Plugins::CashManager
 			}
 
 			PrintUserCmdText(client, L"This will generate a new password and the previous will be invalid");
-			PrintUserCmdText(client,
-			    std::format(L"Your currently set password is {} if you are sure you want to regenerate your password type \"/bank password confirm\". ",
-			        bank.bankPassword));
+			PrintUserCmdText(client, std::format(L"Your currently set password is {} if you are sure you want to regenerate your password type \"/bank password confirm\". ",
+			    bank.bankPassword));
 		}
 		else if (cmd == L"identifier")
 		{
@@ -356,7 +356,8 @@ namespace Plugins::CashManager
 		{
 			const auto bank = Sql::GetOrCreateBank(acc);
 
-			if (const auto list = GetParam(param, ' ', 1); list == L"list")
+			if (const auto list = GetParam(param, ' ', 1); 
+				list == L"list")
 			{
 				int totalTransactions = Sql::CountTransactions(bank);
 				const auto page = ToInt(GetParam(param, ' ', 2));
@@ -378,7 +379,8 @@ namespace Plugins::CashManager
 				}
 
 				uint i = page * TransactionsPerPage;
-				for (const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i); const auto& transaction : transactions)
+				for (const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i); 
+					const auto& transaction : transactions)
 				{
 					PrintUserCmdText(client, std::format(L"%{}.) {} {}", i, transaction.accessor, transaction.amount));
 					i++;
@@ -464,11 +466,20 @@ namespace Plugins::CashManager
 		return BankCode::InternalServerError;
 	}
 
-	void BaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client) { DepositSurplusCash(client); }
+	void BaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client)
+	{
+		DepositSurplusCash(client);
+	}
 
-	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client) { DepositSurplusCash(client); }
+	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client)
+	{
+		DepositSurplusCash(client);
+	}
 
-	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin) { this->ConsumeBankCash = IpcConsumeBankCash; }
+	CashManagerCommunicator::CashManagerCommunicator(const std::string& plugin) : PluginCommunicator(plugin)
+	{
+		this->ConsumeBankCash = IpcConsumeBankCash;
+	}
 
 } // namespace Plugins::CashManager
 

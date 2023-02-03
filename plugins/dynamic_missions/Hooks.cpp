@@ -51,7 +51,7 @@ __declspec(naked) void _HkActTrigger()
 		push [esp+8]
 		call HkActTrigger
 		pop ecx
-		    // original func instructions
+		  // original func instructions
 		push ebx
 		push esi
 		mov esi, [esp + 8 + 4]
@@ -64,7 +64,8 @@ __declspec(naked) void _HkActTrigger()
 
 int __stdcall HkActDebugMsg(ACTION_DEBUGMSG_DATA* action_dbgMsg)
 {
-	wstring msg = L"Mission trigger (" + stows(itos(action_dbgMsg->iTriggerHash)) + L") sent debug msg: " + stows(string(action_dbgMsg->szMessage)) + L"\n";
+	wstring msg = L"Mission trigger (" + stows(itos(action_dbgMsg->iTriggerHash)) + L") sent debug msg: " +
+	    stows(string(action_dbgMsg->szMessage)) + L"\n";
 	ConPrint(msg);
 	HkMsgU(msg);
 
@@ -87,7 +88,7 @@ int __cdecl HkCreateSolar(uint& iSpaceID, pub::SpaceObj::SolarInfo& solarInfo)
 	// hack server.dll so it does not call create solar packet send
 
 	char* serverHackAddress = (char*)hModServer + 0x2A62A;
-	char serverHack[] = {'\xEB'};
+	char serverHack[] = { '\xEB' };
 	WriteProcMem(serverHackAddress, &serverHack, 1);
 
 	// create it
@@ -129,12 +130,13 @@ int __cdecl HkCreateSolar(uint& iSpaceID, pub::SpaceObj::SolarInfo& solarInfo)
 		while (pPD = Players.traverse_active(pPD))
 		{
 			if (pPD->iSystemID == solarInfo.iSystemID)
-				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
+				GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(
+				    pPD->iOnlineID, (FLPACKET_CREATESOLAR&)packetSolar);
 		}
 	}
 
 	// undo the server.dll hack
-	char serverUnHack[] = {'\x74'};
+	char serverUnHack[] = { '\x74' };
 	WriteProcMem(serverHackAddress, &serverUnHack, 1);
 
 	return returnVal;
@@ -160,15 +162,15 @@ EXPORT void LoadSettings()
 
 	// patch singleplayer check in Player pos calculation
 	char* pAddress = ((char*)GetModuleHandle("content.dll") + 0xD3B0D);
-	char szNOP[] = {'\x90', '\x90', '\x90', '\x90', '\x90', '\x90'};
+	char szNOP[] = { '\x90', '\x90', '\x90', '\x90', '\x90', '\x90' };
 	WriteProcMem(pAddress, szNOP, 6);
 
 	// install hook for trigger events
 
 	pAddressTriggerAct = ((char*)GetModuleHandle("content.dll") + 0x182C0);
 	FARPROC fpTF = (FARPROC)_HkActTrigger;
-	char szMovEDX[] = {'\xBA'};
-	char szJmpEDX[] = {'\xFF', '\xE2'};
+	char szMovEDX[] = { '\xBA' };
+	char szJmpEDX[] = { '\xFF', '\xE2' };
 
 	WriteProcMem(pAddressTriggerAct, szMovEDX, 1);
 	WriteProcMem(pAddressTriggerAct + 1, &fpTF, 4);
@@ -194,9 +196,16 @@ EXPORT void LoadSettings()
 
 namespace HkIEngine
 {
-	EXPORT void __stdcall CShip_init(CShip* ship) { returncode = DEFAULT_RETURNCODE; }
 
-	EXPORT void __stdcall CShip_destroy(CShip* ship) { returncode = DEFAULT_RETURNCODE; }
+	EXPORT void __stdcall CShip_init(CShip* ship)
+	{
+		returncode = DEFAULT_RETURNCODE;
+	}
+
+	EXPORT void __stdcall CShip_destroy(CShip* ship)
+	{
+		returncode = DEFAULT_RETURNCODE;
+	}
 } // namespace HkIEngine
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +218,7 @@ HK_ERROR HkTest(uint iTest)
 		return HKE_UNKNOWN_ERROR;
 
 	char* pAddress = (char*)hModContent + 0x114388;
-	pub::Controller::CreateParms params = {pAddress, 1};
+	pub::Controller::CreateParms params = { pAddress, 1 };
 	iControllerID = pub::Controller::Create("Content.dll", "Mission_01a", &params, (pub::Controller::PRIORITY)2);
 	pub::Controller::_SendMessage(iControllerID, 0x1000, 0);
 
@@ -307,7 +316,8 @@ EXPORT PLUGIN_INFO* Get_PluginInfo()
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&LoadSettings, PLUGIN_LoadSettings, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIEngine::CShip_init, PLUGIN_HkIEngine_CShip_init, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&HkIEngine::CShip_destroy, PLUGIN_HkIEngine_CShip_destroy, 0));
-	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
+	p_PI->lstHooks.push_back(
+	    PLUGIN_HOOKINFO((FARPROC*)&ExecuteCommandString_Callback, PLUGIN_ExecuteCommandString_Callback, 0));
 	p_PI->lstHooks.push_back(PLUGIN_HOOKINFO((FARPROC*)&CmdHelp_Callback, PLUGIN_CmdHelp_Callback, 0));
 	return p_PI;
 }

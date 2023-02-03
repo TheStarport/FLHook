@@ -72,4 +72,4 @@ namespace Plugins::Event
 
 		std::unique_ptr<Config> config = nullptr;
 	};
-} // namespace Plugins::Event
+}

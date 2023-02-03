@@ -37,7 +37,7 @@ namespace Plugins::Autobuy
 
 	void LoadPlayerAutobuy(ClientId client)
 	{
-		AutobuyInfo playerAutobuyInfo {};
+		AutobuyInfo playerAutobuyInfo{};
 		playerAutobuyInfo.missiles = Hk::Ini::GetCharacterIniBool(client, L"autobuy.missiles");
 		playerAutobuyInfo.mines = Hk::Ini::GetCharacterIniBool(client, L"autobuy.mines");
 		playerAutobuyInfo.torps = Hk::Ini::GetCharacterIniBool(client, L"autobuy.torps");
@@ -51,8 +51,8 @@ namespace Plugins::Autobuy
 
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
-		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
-		    foundCargo != cargoList.end())
+		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; }); 
+			foundCargo != cargoList.end())
 		{
 			return foundCargo->iCount;
 		}
@@ -60,8 +60,7 @@ namespace Plugins::Autobuy
 		return 0;
 	}
 
-	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
-	    const std::wstring_view& desc)
+	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item, const std::wstring_view& desc)
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
 		item.archId = launcher->iProjectileArchId;
@@ -70,7 +69,7 @@ namespace Plugins::Autobuy
 		cart.emplace_back(item);
 	}
 
-	AutobuyInfo& LoadAutobuyInfo(ClientId& client)
+	AutobuyInfo& LoadAutobuyInfo(ClientId& client) 
 	{
 		if (!global->autobuyInfo.contains(client))
 		{
@@ -146,7 +145,8 @@ namespace Plugins::Autobuy
 			}
 		}
 
-		if (clientInfo.cd || clientInfo.cm || clientInfo.mines || clientInfo.missiles || clientInfo.torps)
+		if (clientInfo.cd || clientInfo.cm || clientInfo.mines ||
+		    clientInfo.missiles || clientInfo.torps)
 		{
 			// add mounted equip to a new list and eliminate double equipment(such
 			// as 2x lancer etc)
@@ -219,8 +219,8 @@ namespace Plugins::Autobuy
 		// search base in base-info list
 		BaseInfo const* bi = nullptr;
 
-		if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; });
-		    foundBase != CoreGlobals::c()->allBases.end())
+		if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; }); 
+			foundBase != CoreGlobals::c()->allBases.end())
 		{
 			bi = std::to_address(foundBase);
 		}
@@ -254,7 +254,7 @@ namespace Plugins::Autobuy
 					const auto playerRep = Hk::Player::GetRep(client, baseRep.value());
 					if (playerRep.has_error())
 						PrintUserCmdText(client, Hk::Err::ErrGetText(playerRep.error()));
-
+					
 					// good rep, allowed to buy
 					if (playerRep.value() >= available.fRep)
 						goodAvailable = true;
@@ -270,7 +270,7 @@ namespace Plugins::Autobuy
 
 			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
 			// will always fail for fVolume == 0, no need to worry about potential div by 0
-			if (static_cast<float>(remHoldSize) < std::ceil(eq->fVolume * static_cast<float>(buy.count)))
+			if (static_cast < float > (remHoldSize) < std::ceil(eq->fVolume * static_cast<float>(buy.count)))
 			{
 				// round to the nearest possible
 				auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->fVolume);
@@ -296,12 +296,14 @@ namespace Plugins::Autobuy
 
 				PrintUserCmdText(client, std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", buy.description, buy.count, ToMoneyStr(uCost)));
 			}
+
 		}
 		Hk::Player::SaveChar(client);
 	}
 
 	void UserCmdAutobuy(ClientId& client, const std::wstring& param)
 	{
+
 		AutobuyInfo& autobuyInfo = LoadAutobuyInfo(client);
 
 		const std::wstring autobuyType = GetParam(param, ' ', 0);
@@ -326,7 +328,8 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, L"|  \"/autobuy info\" show autobuy info");
 		}
 
-		if (autobuyType == L"info")
+		
+	if (autobuyType == L"info")
 		{
 			PrintUserCmdText(client, std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
@@ -400,6 +403,7 @@ namespace Plugins::Autobuy
 
 		Hk::Player::SaveChar(client);
 		PrintUserCmdText(client, L"OK");
+
 	}
 
 	// Define usable chat commands here
@@ -413,7 +417,7 @@ namespace Plugins::Autobuy
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 	}
-} // namespace Plugins::Autobuy
+}
 
 using namespace Plugins::Autobuy;
 

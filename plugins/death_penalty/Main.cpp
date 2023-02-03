@@ -48,7 +48,10 @@ namespace Plugins::DeathPenalty
 			global->FractionOverridesByShipIds[CreateID(shipNickname.c_str())] = penaltyFraction;
 	}
 
-	void ClearClientInfo(ClientId& client) { global->MapClients.erase(client); }
+	void ClearClientInfo(ClientId& client)
+	{
+		global->MapClients.erase(client);
+	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Is the player is a system that is excluded from death penalty?
@@ -183,9 +186,7 @@ namespace Plugins::DeathPenalty
 					// Reward the killer, print message to them
 					Hk::Player::AddCash(iKillerId, killerReward);
 					PrintUserCmdText(iKillerId,
-					    std::format(L"Death penalty: given {} credits from {}'s death penalty.",
-					        ToMoneyStr(killerReward),
-					        Hk::Client::GetCharacterNameByID(client).value()));
+					    std::format(L"Death penalty: given {} credits from {}'s death penalty.", ToMoneyStr(killerReward), Hk::Client::GetCharacterNameByID(client).value()));
 				}
 			}
 
@@ -313,8 +314,8 @@ REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionK
 
 DefaultDllMainSettings(LoadSettings);
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+    // Functions to hook
+    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Death Penalty");
 	pi->shortName("death_penalty");

@@ -12,14 +12,13 @@
  * - shields - De/Reactivate your shields
  * - pos - Prints the current absolute position of your ship
  * - stuck - Nudges the ship 10m away from where they currently are while stationary. Designed to prevent player capital ships from being wedged.
- * - droprep - Lowers the reputation of the current faction you are affiliated with.
+ * - droprep - Lowers the reputation of the current faction you are affiliated with. 
  * - coin - Toss a coin and print the result in local chat.
  * - dice [sides] - Tosses a dice with the specified number of sides, defaulting to 6.
  *
  * @paragraph adminCmds Admin Commands
  * All commands are prefixed with '.' unless explicitly specified.
- * - smiteall [die] - Remove all shields of all players within 15k and plays music. If [die] is specified, then instead of lowering shields, it kills the
- * players.
+ * - smiteall [die] - Remove all shields of all players within 15k and plays music. If [die] is specified, then instead of lowering shields, it kills the players.
  *
  * @paragraph configuration Configuration
  * @code
@@ -61,8 +60,7 @@ namespace Plugins::MiscCommands
 		{
 			if (info.shieldsDown)
 			{
-				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(id).value(), false);
-				    playerInfo.has_value() && playerInfo.value().ship)
+				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(id).value(), false); playerInfo.has_value() && playerInfo.value().ship)
 				{
 					pub::SpaceObj::DrainShields(playerInfo.value().ship);
 				}
@@ -82,7 +80,8 @@ namespace Plugins::MiscCommands
 		}
 
 		bool bLights = false;
-		for (st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip; const auto& eq : eqLst)
+		for (st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip; 
+			const auto& eq : eqLst)
 		{
 			std::string hp = ToLower(eq.szHardPoint.value);
 			if (hp.find("dock") != std::string::npos)
@@ -115,7 +114,7 @@ namespace Plugins::MiscCommands
 		}
 
 		auto [pos, rot] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
-
+		
 		Vector erot = Hk::Math::MatrixToEuler(rot);
 
 		wchar_t buf[100];
@@ -142,7 +141,7 @@ namespace Plugins::MiscCommands
 		{
 			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
 		}
-		const auto& [dir1, dir2] = motion.value();
+		const auto & [dir1, dir2] = motion.value();
 
 		if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 		{

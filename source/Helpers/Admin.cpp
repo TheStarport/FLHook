@@ -292,7 +292,10 @@ some_error:
 		}
 	}
 
-	CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW) { return GetEqObjFromObjRW_(objRW); }
+	CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW)
+	{
+		return GetEqObjFromObjRW_(objRW);
+	}
 
 	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
 	{
@@ -310,7 +313,10 @@ some_error:
 		}
 	}
 
-	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip) { return LightFuse_(ship, iFuseId, fDelay, fLifetime, fSkip); }
+	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
+	{
+		return LightFuse_(ship, iFuseId, fDelay, fLifetime, fSkip);
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -329,5 +335,8 @@ some_error:
 		}
 	}
 
-	bool UnLightFuse(IObjRW* ship, uint iFuseId) { return UnLightFuse_(ship, iFuseId, 0.f); }
+	bool UnLightFuse(IObjRW* ship, uint iFuseId)
+	{
+		return UnLightFuse_(ship, iFuseId, 0.f);
+	}
 } // namespace Hk::Admin

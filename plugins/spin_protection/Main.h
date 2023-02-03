@@ -24,4 +24,4 @@ namespace Plugins::SpinProtection
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returnCode = ReturnCode::Default;
 	};
-} // namespace Plugins::SpinProtection
+}

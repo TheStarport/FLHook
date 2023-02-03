@@ -71,11 +71,11 @@ namespace Plugins::Mark
 
 	extern std::unique_ptr<Global> global;
 
-//! Macros
-#define PRINT_ERROR()                                                        \
+	//! Macros
+	#define PRINT_ERROR()                                                    \
 	{                                                                        \
 		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, wscError[i]);                           \
+			PrintUserCmdText(client, wscError[i]);                        \
 		return;                                                              \
 	}
 } // namespace Plugins::Mark

@@ -33,4 +33,4 @@ namespace Plugins::Wardrobe
 		//! A vector containing the restarts (wardrobe changes) that are currently pending
 		std::vector<Wardrobe> pendingRestarts;
 	};
-} // namespace Plugins::Wardrobe
+}

@@ -23,7 +23,7 @@ namespace Hk::Solar
 					return cpp::fail(Error::PlayerNotInSpace);
 				id = ship;
 			}
-				[[fallthrough]];
+			[[fallthrough]];
 			case IdType::Solar: {
 				Vector pos;
 				Matrix rot;
@@ -76,7 +76,7 @@ namespace Hk::Solar
 		return type;
 	}
 
-	cpp::result<Universe::IBase*, Error> GetBaseByWildcard(const std::wstring& targetBaseName)
+	cpp::result<Universe::IBase*, Error> GetBaseByWildcard(const std::wstring& targetBaseName) 
 	{
 		// Search for an exact match at the start of the name
 		Universe::IBase* baseinfo = Universe::GetFirstBase();
@@ -116,12 +116,12 @@ namespace Hk::Solar
 		}
 
 		uint baseAff;
-		pub::Reputation::GetAffiliation(solarRep, baseAff);
+	    pub::Reputation::GetAffiliation(solarRep, baseAff);
 		if (baseAff == UINT_MAX)
 		{
 			return cpp::fail(Error::InvalidRepGroup);
 		}
-		return baseAff;
+	    return baseAff;
 	}
 
 	cpp::result<float, Error> GetCommodityPrice(BaseId baseId, GoodId goodId)

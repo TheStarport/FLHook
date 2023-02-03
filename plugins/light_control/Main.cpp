@@ -39,7 +39,10 @@ namespace Plugins::LightControl
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	auto RegexReplace(const jpWide::NumSub& m1, const void*, const void*) { return L" " + m1[0]; }
+	auto RegexReplace(const jpWide::NumSub& m1, const void*, const void*)
+	{
+		return L" " + m1[0];
+	}
 
 	void LoadSettings()
 	{

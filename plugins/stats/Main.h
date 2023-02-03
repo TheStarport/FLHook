@@ -24,4 +24,4 @@ namespace Plugins::Stats
 		//! A map containing a shipId and the user friendly name
 		std::map<ShipId, std::wstring> Ships;
 	};
-} // namespace Plugins::Stats
+}

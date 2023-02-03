@@ -105,4 +105,4 @@ namespace Plugins::Mark
 		}
 	}
 
-} // namespace Plugins::Mark
+}

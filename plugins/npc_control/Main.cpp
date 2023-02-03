@@ -317,7 +317,8 @@ namespace Plugins::Npc
 			if (auto const ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
 				if (auto const target = Hk::Player::GetTarget(ship.value()); target.has_value())
 				{
-					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
+					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
+						target.value() && it != global->spawnedNpcs.end())
 					{
 						pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
 						global->spawnedNpcs.erase(it);
@@ -411,7 +412,8 @@ namespace Plugins::Npc
 			{
 				if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 				{
-					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
+					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
+					    target.value() && it != global->spawnedNpcs.end())
 					{
 						AiFollow(ship.value(), target.value());
 						global->spawnedNpcs.erase(it);
@@ -448,7 +450,8 @@ namespace Plugins::Npc
 			// Is the admin targeting an NPC?
 			if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
 			{
-				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
+				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value());
+				    target.value() && it != global->spawnedNpcs.end())
 				{
 					pub::AI::DirectiveCancelOp cancelOp;
 					pub::AI::SubmitDirective(target.value(), &cancelOp);

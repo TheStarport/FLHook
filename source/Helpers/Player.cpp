@@ -3,7 +3,7 @@
 namespace Hk::Player
 {
 	using _FLAntiCheat = void(__stdcall*)();
-	using _FLPossibleCheatingDetected = void(__stdcall*)(int iReason);
+	using _FLPossibleCheatingDetected = void(__stdcall* )(int iReason);
 	constexpr auto AddrAntiCheat1 = 0x70120;
 	constexpr auto AddrAntiCheat2 = 0x6FD20;
 	constexpr auto AddrAntiCheat3 = 0x6FAF0;
@@ -62,7 +62,7 @@ namespace Hk::Player
 			return cpp::fail(acc.error());
 
 		auto dir = Hk::Client::GetAccountDirName(acc.value());
-
+		
 		auto file = Client::GetCharFileName(player);
 		if (file.has_error())
 			return cpp::fail(file.error());
@@ -175,9 +175,15 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, uint uAmount) { return AdjustCash(player, static_cast<int>(uAmount)); }
+	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, uint uAmount)
+	{
+		return AdjustCash(player, static_cast<int>(uAmount));
+	}
 
-	cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring>& player, uint uAmount) { return AdjustCash(player, -static_cast<int>(uAmount)); }
+	cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring>& player, uint uAmount)
+	{
+		return AdjustCash(player, -static_cast<int>(uAmount));
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -229,31 +235,31 @@ namespace Hk::Player
 
 	// Bases that will cause crashes if jumped to
 	const std::array<uint, 25> bannedBases = {
-	    CreateID("br_m_beryllium_miner"),
-	    CreateID("[br_m_hydrocarbon_miner]"),
-	    CreateID("[br_m_niobium_miner]"),
-	    CreateID("[co_khc_copper_miner]"),
-	    CreateID("[co_khc_cobalt_miner]"),
-	    CreateID("[co_kt_hydrocarbon_miner]"),
-	    CreateID("[co_shi_h-fuel_miner]"),
-	    CreateID("[co_shi_water_miner]"),
-	    CreateID("[co_ti_water_miner]"),
-	    CreateID("[gd_gm_h-fuel_miner]"),
-	    CreateID("[gd_im_oxygen_miner]"),
-	    CreateID("[gd_im_copper_miner]"),
-	    CreateID("[gd_im_silver_miner]"),
-	    CreateID("[gd_im_water_miner]"),
-	    CreateID("[rh_m_diamond_miner]"),
-	    CreateID("intro3_base"),
-	    CreateID("intro2_base"),
-	    CreateID("intro1_base"),
-	    CreateID("st03b_01_base"),
-	    CreateID("st02_01_base"),
-	    CreateID("st01_02_base"),
-	    CreateID("iw02_03_base"),
-	    CreateID("rh02_07_base"),
-	    CreateID("li04_06_base"),
-	    CreateID("li01_15_base"),
+		CreateID("br_m_beryllium_miner"),
+		CreateID("[br_m_hydrocarbon_miner]"),
+		CreateID("[br_m_niobium_miner]"),
+		CreateID("[co_khc_copper_miner]"),
+		CreateID("[co_khc_cobalt_miner]"),
+		CreateID("[co_kt_hydrocarbon_miner]"),
+		CreateID("[co_shi_h-fuel_miner]"),
+		CreateID("[co_shi_water_miner]"),
+		CreateID("[co_ti_water_miner]"),
+		CreateID("[gd_gm_h-fuel_miner]"),
+		CreateID("[gd_im_oxygen_miner]"),
+		CreateID("[gd_im_copper_miner]"),
+		CreateID("[gd_im_silver_miner]"),
+		CreateID("[gd_im_water_miner]"),
+		CreateID("[rh_m_diamond_miner]"),
+		CreateID("intro3_base"),
+		CreateID("intro2_base"),
+		CreateID("intro1_base"),
+		CreateID("st03b_01_base"),
+		CreateID("st02_01_base"),
+		CreateID("st01_02_base"),
+		CreateID("iw02_03_base"),
+		CreateID("rh02_07_base"),
+		CreateID("li04_06_base"),
+		CreateID("li01_15_base"),
 	};
 	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& baseVar)
 	{
@@ -264,9 +270,8 @@ namespace Hk::Player
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		// if basename was passed as string
-		if (baseVar.index() == 1)
-		{
+		//if basename was passed as string
+		if (baseVar.index() == 1) {
 			const std::string baseName = wstos(std::get<std::wstring>(baseVar));
 			// check if ship in space
 			uint ship = 0;
@@ -289,7 +294,7 @@ namespace Hk::Player
 		{
 			return cpp::fail(Error::InvalidBaseName);
 		}
-
+		
 		uint iSysId;
 		pub::Player::GetSystem(client, iSysId);
 		Universe::IBase* base = Universe::get_base(baseId);
@@ -300,7 +305,7 @@ namespace Hk::Player
 		}
 
 		pub::Player::ForceLand(client, baseId); // beam
-
+		
 		// if not in the same system, emulate F1 charload
 		if (base->systemId != iSysId)
 		{
@@ -315,7 +320,7 @@ namespace Hk::Player
 			strcpy_s(cId.szCharFilename, wstos(newFile.substr(0, 14)).c_str());
 			Server.CharacterSelect(cId, client);
 		}
-
+		
 		return {};
 	}
 
@@ -445,7 +450,7 @@ namespace Hk::Player
 		}
 
 		if (bMultiCount)
-		{
+		{ 
 			// it's a good that can have multiple units(commodities missile ammo, etc)
 			int ret;
 
@@ -469,7 +474,7 @@ namespace Hk::Player
 		}
 
 		if (iBase)
-		{
+		{ 
 			// player docked on base
 			///////////////////////////////////////////////////
 			// fix, else we get anti-cheat msg when undocking
@@ -656,7 +661,7 @@ namespace Hk::Player
 		if (!FLHookConfig::i()->general.disableCharfileEncryption)
 			if (!FlcEncodeFile(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
-
+	
 		return {};
 	}
 
@@ -733,6 +738,7 @@ namespace Hk::Player
 
 		return {};
 	}
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -913,12 +919,12 @@ namespace Hk::Player
 	cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring wscData)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-
+		
 		if (client == -1)
 		{
 			return cpp::fail(Error::InvalidClientId);
 		}
-
+		
 		const auto acc = Players.FindAccountFromClientID(client);
 		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 		if (!wszCharname)
@@ -1692,8 +1698,7 @@ namespace Hk::Player
 		return shipId;
 	}
 
-	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus)
-	{
+	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus) {
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 		{
@@ -1704,8 +1709,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player)
-	{
+	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player) {
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 		{
@@ -1716,8 +1720,7 @@ namespace Hk::Player
 		return kills;
 	}
 
-	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount)
-	{
+	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount) {
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 		{
@@ -1729,8 +1732,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player)
-	{
+	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player) {
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == -1)
 		{

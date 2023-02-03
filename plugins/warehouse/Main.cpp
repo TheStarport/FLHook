@@ -87,8 +87,7 @@ namespace Plugins::Warehouse
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
 		{
-			PrintUserCmdText(
-			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
+			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
 			return;
 		}
 
@@ -105,7 +104,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 	}
 
-	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param, [[maybe_unused]] uint base)
+	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param,[[maybe_unused]] uint base)
 	{
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
@@ -166,8 +165,7 @@ namespace Plugins::Warehouse
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{
-			PrintUserCmdText(
-			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
+			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
 			return;
 		}
 
@@ -211,8 +209,8 @@ namespace Plugins::Warehouse
 
 		Hk::Player::SaveChar(client);
 
-		PrintUserCmdText(client,
-		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
+		PrintUserCmdText(
+		    client, std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
 	}
 
 	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
@@ -258,7 +256,7 @@ namespace Plugins::Warehouse
 	}
 
 	const std::vector commands = {{
-	    CreateUserCommand(L"/warehouse", L"", UserCmdWarehouse, L""),
+	    CreateUserCommand(L"/warehouse", L"",UserCmdWarehouse, L""),
 	}};
 
 } // namespace Plugins::Warehouse

@@ -58,6 +58,7 @@ namespace Plugins::Wardrobe
 
 	void UserCmdChangeCostume(ClientId& client, const std::wstring& param)
 	{
+
 		const std::wstring type = GetParam(param, ' ', 0);
 		const std::wstring costume = GetParam(param, ' ', 1);
 
@@ -141,9 +142,7 @@ namespace Plugins::Wardrobe
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal,
-				    LogLevel::Err,
-				    std::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
 			}
 			catch (...)
 			{
@@ -178,7 +177,9 @@ namespace Plugins::Wardrobe
 		}
 	}
 
-	const std::vector<Timer> timers = {{ProcessWardrobeRestarts, 1}};
+	const std::vector<Timer> timers = {
+		{ProcessWardrobeRestarts, 1}
+	};
 
 	void LoadSettings()
 	{

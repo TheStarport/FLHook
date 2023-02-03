@@ -7,7 +7,7 @@ void DataManager::LoadLights()
 		return;
 
 	std::vector<std::string> equipmentFiles;
-
+	
 	ini.find_header("Data");
 	while (ini.read_value())
 	{

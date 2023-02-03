@@ -32,7 +32,7 @@ namespace Plugins::MiningControl
 		std::vector<std::string> Ammo = {"missile01_mark01"};
 		std::vector<uint> AmmoIds;
 	};
-
+	
 	//! A struct that defines a mining bonus for a certain zone in space
 	struct ZoneBonus : Reflectable
 	{
@@ -74,6 +74,8 @@ namespace Plugins::MiningControl
 		int MineAsteroidEvents = 0;
 		time_t MineAsteroidSampleStart = 0;
 	};
+
+
 
 	//! A struct to hold the current status of a zone so their progress persists across restarts
 	struct ZoneStats : Reflectable
