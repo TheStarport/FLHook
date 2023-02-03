@@ -315,7 +315,7 @@ namespace Plugins::MiscCommands
 		pub::Audio::SetMusic(playerInfo.value().client, music);
 
 		// For all players in system...
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
 			// Get the this player's current system and location in the system.

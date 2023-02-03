@@ -9,7 +9,7 @@ namespace Plugins::Mark
 			if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 				return;
 
-			struct PlayerData* playerData = 0;
+			PlayerData* playerData = nullptr;
 			while (playerData = Players.traverse_active(playerData))
 			{
 				uint client = playerData->iOnlineId;
@@ -83,7 +83,7 @@ namespace Plugins::Mark
 
 				SystemId iItemSystem = Hk::Solar::GetSystemBySpaceId(mark->iObj).value();
 				// for all players
-				struct PlayerData* playerData = nullptr;
+				PlayerData* playerData = nullptr;
 				while ((playerData = Players.traverse_active(playerData)))
 				{
 					ClientId client = playerData->iOnlineId;

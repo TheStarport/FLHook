@@ -149,7 +149,7 @@ namespace Plugins::Mark
 		{
 			bFirstTime = false;
 			// check for logged in players and reset their connection data
-			struct PlayerData* playerData = 0;
+			PlayerData* playerData = nullptr;
 			while (playerData = Players.traverse_active(playerData))
 				ClearClientMark(playerData->iOnlineId);
 		}

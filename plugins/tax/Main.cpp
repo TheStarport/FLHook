@@ -155,7 +155,7 @@ namespace Plugins::Tax
 
 	void TimerF1Check()
 	{
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;

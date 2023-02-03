@@ -40,7 +40,7 @@ void TimerCheckKick()
 	TRY_HOOK
 	{
 		// for all players
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
@@ -102,7 +102,7 @@ void TimerNPCAndF1Check()
 
 	TRY_HOOK
 	{
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;

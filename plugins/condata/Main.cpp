@@ -169,7 +169,7 @@ namespace Plugins::ConData
 	void TimerUpdatePingData()
 	{
 		// for all players
-		struct PlayerData* playerData = Players.traverse_active(nullptr);
+		struct PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;
@@ -218,7 +218,7 @@ namespace Plugins::ConData
 	{
 		// for all players
 		float lossPercentage;
-		PlayerData* playerData = Players.traverse_active(nullptr);
+		PlayerData* playerData = nullptr;
 		while (playerData = Players.traverse_active(playerData))
 		{
 			ClientId client = playerData->iOnlineId;

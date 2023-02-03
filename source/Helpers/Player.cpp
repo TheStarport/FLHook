@@ -1136,7 +1136,7 @@ namespace Hk::Player
 		pub::Player::GetSystem(client, iSystem);
 
 		// For all players in system...
-		struct PlayerData* playerDb = 0;
+		PlayerData* playerDb = nullptr;
 		while (playerDb = Players.traverse_active(playerDb))
 		{
 			// Get the this player's current system and location in the system.
