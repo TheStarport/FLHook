@@ -1,9 +1,9 @@
-# This is a basic workflow to help you get started with Actions
+# This runs SonarCloud to detect code issues.
 
-name: CI
+name: SonarCloud
 
-on: 
-  pull_request:
+on:
+  push:
     branches: [ master ]
 
 jobs:    
