@@ -454,8 +454,6 @@ class Serializer
 
 		out << json.dump(4);
 		out.close();
-
-		Console::ConInfo(std::format("JSON Serialized - {}", fileToSave));
 	}
 
 	template<typename T>
@@ -524,6 +522,9 @@ class Serializer
 			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
 			AddLog(LogType::Normal, LogLevel::Warn, std::format("Unable to process JSON file [{}] EXCEPTION: {}", fileName, ex.what()));
 		}
+
+		// If we resave the file after processing, it will trim any unrelated data, and any missing fields
+		SaveToJson(ret, fileName);
 
 		return ret;
 	}
