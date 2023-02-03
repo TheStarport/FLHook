@@ -103,7 +103,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Originally in Main.cpp of PlayerControl
 	 */
-	void RequestBestPath(unsigned int p1, DWORD* p2, int p3)
+	void RequestBestPath(ClientId& p1, uint& p2, int& p3)
 	{
 		global->returncode = ReturnCode::SkipFunctionCall;
 		try
