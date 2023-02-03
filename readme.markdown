@@ -1,3 +1,15 @@
+[![Bugs](https://sonarcloud.io/project/overview?id=fl-devs_FLHook&branch=master&metric=bugs)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=code_smells)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=coverage)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=ncloc)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=alert_status)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=security_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=sqale_index)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+
 # FLHook - A Server Improvement for Freelancer
 [![Build](https://github.com/fl-devs/FLHook/actions/workflows/release.yml/badge.svg)](https://github.com/fl-devs/FLHook/releases/latest/download/Release.zip) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/c6wtsBk) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://flhook.org/)
 
