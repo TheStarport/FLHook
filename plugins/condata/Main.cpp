@@ -359,9 +359,9 @@ namespace Plugins::ConData
 
 		std::wstring response = L"Ping";
 		if (target.has_value())
-			response += L" (target)";
+			response += L" (target) ";
 
-		response += L" :";
+		response += L":";
 		if (con.pingList.size() < global->config->pingKickFrame)
 			response += L"n/a Fluct: n/a ";
 		else
@@ -391,12 +391,12 @@ namespace Plugins::ConData
 		else
 		{
 			response += std::to_wstring(con.averageLoss);
-			response += L"%% ";
+			response += L"% ";
 			if (global->config->lossKick > 0)
 			{
 				response += L"(Max: ";
 				response += std::to_wstring(global->config->lossKick);
-				response += L"%%) ";
+				response += L"%) ";
 			}
 		}
 
@@ -406,12 +406,12 @@ namespace Plugins::ConData
 		else
 		{
 			response += std::to_wstring(con.lags).c_str();
-			response += L"%% ";
+			response += L"% ";
 			if (global->config->lagKick > 0)
 			{
 				response += L"(Max: ";
 				response += std::to_wstring(global->config->lagKick);
-				response += L"%%)";
+				response += L"%)";
 			}
 		}
 
