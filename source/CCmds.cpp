@@ -750,19 +750,6 @@ void CCmds::CmdUnloadPlugin(const std::wstring& wscPlugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRehash()
-{
-	RIGHT_CHECK(RIGHT_SETTINGS);
-
-	LoadSettings();
-	CallPluginsAfter(HookedCall::FLHook__LoadSettings);
-
-	HookRehashed();
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /** Chase a player. Only works in system as you'd need a client hook to do across system */
 void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstring>& player)
 {
@@ -1244,10 +1231,6 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"listplugins")
 			{
 				CmdListPlugins();
-			}
-			else if (wscCmd == L"rehash")
-			{
-				CmdRehash();
 			}
 			else if (wscCmd == L"help")
 			{
