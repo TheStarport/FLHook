@@ -31,4 +31,4 @@ namespace Plugins::Tempban
 		ReturnCode returncode = ReturnCode::Default;
 		TempBanCommunicator* communicator = nullptr;
 	};
-}
+} // namespace Plugins::Tempban

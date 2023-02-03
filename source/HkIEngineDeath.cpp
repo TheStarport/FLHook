@@ -21,7 +21,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
 	char xmlBuf[0xFFFF];
 	uint ret;
-	if(Hk::Message::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
+	if (Hk::Message::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
 		return;
 
 	std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->msgStyle.deathMsgStyle);
@@ -92,9 +92,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 			continue;
 		else if ((ClientInfo[client].dieMsg == DIEMSG_SYSTEM) && (systemId == clientSystemId))
 			Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
-		else if (
-		    (ClientInfo[client].dieMsg == DIEMSG_SELF) &&
-		    ((client == clientVictim) || (client == clientKiller)))
+		else if ((ClientInfo[client].dieMsg == DIEMSG_SELF) && ((client == clientVictim) || (client == clientKiller)))
 			Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 		else if (ClientInfo[client].dieMsg == DIEMSG_ALL)
 		{
@@ -175,10 +173,10 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						case DamageCause::Suicide:
 							killType = L"Suicide";
 							break;
-						default: 
+						default:
 							killType = L"Somehow";
 							;
-					}						
+					}
 
 					std::wstring deathMessage;
 					if (client == clientKiller.value() || cause == DamageCause::Suicide)
@@ -232,7 +230,10 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 									ClientId client = playerData->iOnlineId;
 									uint clientSystemId = 0;
 									pub::Player::GetSystem(client, clientSystemId);
-									if (client == clientKiller || ((systemId == clientSystemId) && (((ClientInfo[client].dieMsg == DIEMSG_ALL) || (ClientInfo[client].dieMsg == DIEMSG_SYSTEM)) || !FLHookConfig::i()->general.dieMsg)))
+									if (client == clientKiller ||
+									    ((systemId == clientSystemId) &&
+									        (((ClientInfo[client].dieMsg == DIEMSG_ALL) || (ClientInfo[client].dieMsg == DIEMSG_SYSTEM)) ||
+									            !FLHookConfig::i()->general.dieMsg)))
 										Hk::Message::FMsgSendChat(client, encodeBuf, rval);
 								}
 							}
@@ -262,7 +263,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 							break;
 						default:
 							killType = L"Gun";
-					}			
+					}
 
 					eventStr += L" type=npc";
 					std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextNPC, L"%victim", victimName);
@@ -276,13 +277,15 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 				{
 					eventStr += L" type=suicide";
 
-					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSuicide, L"%victim", victimName); FLHookConfig::i()->general.dieMsg && !deathMessage.empty())
+					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextSuicide, L"%victim", victimName);
+					    FLHookConfig::i()->general.dieMsg && !deathMessage.empty())
 						SendDeathMessage(deathMessage, systemId, client, 0);
 					ProcessEvent(L"%s", eventStr.c_str());
 				}
 				else if (cause == DamageCause::Admin)
 				{
-					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextAdminKill, L"%victim", victimName); FLHookConfig::i()->general.dieMsg && deathMessage.length())
+					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+					    FLHookConfig::i()->general.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemId, client, 0);
 				}
 				else
@@ -343,7 +346,9 @@ void BaseDestroyed(uint objectId, ClientId clientBy)
 		}
 	}
 
-	ProcessEvent(
-	    L"basedestroy basename=%s basehash=%u solarhash=%u by=%s", stows(baseName).c_str(), objectId, baseId,
+	ProcessEvent(L"basedestroy basename=%s basehash=%u solarhash=%u by=%s",
+	    stows(baseName).c_str(),
+	    objectId,
+	    baseId,
 	    ToWChar(Players.GetActiveCharacterName(clientBy)));
 }

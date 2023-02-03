@@ -1,6 +1,5 @@
 ﻿#include "CInGame.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CInGame::DoPrint(const std::string& text)
@@ -14,8 +13,8 @@ void CInGame::DoPrint(const std::string& text)
 			if (!wcslen(wszBufSend))
 				break;
 			wszBufSend[wcslen(wszBufSend)] = '\0';
-			std::wstring wscXML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
-			    XMLText(wszBufSend) + L"</TEXT>";
+			std::wstring wscXML =
+			    std::wstring(L"<TRA data=\"" + FLHookConfig::i()->msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") + XMLText(wszBufSend) + L"</TEXT>";
 			Hk::Message::FMsg(this->client, wscXML);
 			memset(wszBufSend, 0, sizeof(wszBufSend));
 		}

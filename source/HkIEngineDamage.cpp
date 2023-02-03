@@ -43,8 +43,9 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 			if (!AllowPlayerDamage(clientInflictor.value(), client))
 				return 1;
 
-			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-				!ClientInfo[client].bCruiseActivated))
+			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
+			    ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
+			        !ClientInfo[client].bCruiseActivated))
 			{
 				dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
 			}
@@ -82,8 +83,7 @@ however you can't figure out here, which ship is being damaged, that's why i use
 the g_DmgTo variable...
 **************************************************************************************************************/
 
-void __stdcall AddDamageEntry(
-    DamageList* dmgList, unsigned short subObjId, float hitPts, enum DamageEntry::SubObjFate fate)
+void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, enum DamageEntry::SubObjFate fate)
 {
 	if (CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate))
 		return;
@@ -242,7 +242,8 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		// no-pvp check
 		uint systemId;
 		pub::Player::GetSystem(client, systemId);
-		if (std::find(config->general.noPVPSystemsHashed.begin(), config->general.noPVPSystemsHashed.end(), systemId) != config->general.noPVPSystemsHashed.end())
+		if (std::find(config->general.noPVPSystemsHashed.begin(), config->general.noPVPSystemsHashed.end(), systemId) !=
+		    config->general.noPVPSystemsHashed.end())
 			return false;
 	}
 

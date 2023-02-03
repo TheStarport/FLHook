@@ -30,7 +30,6 @@ namespace Plugins::BountyHunt
 		uint defaultHuntTime = 30;
 	};
 
-	
 	//! Global data for this plugin
 	struct Global final
 	{
@@ -38,5 +37,4 @@ namespace Plugins::BountyHunt
 		ReturnCode returnCode = ReturnCode::Default;
 		std::vector<BountyHunt> bountyHunt;
 	};
-}
-
+} // namespace Plugins::BountyHunt

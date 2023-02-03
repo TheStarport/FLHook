@@ -20,10 +20,10 @@ namespace Plugins::CrashCatcher
 		std::map<uint, mstime> mapSaveTimes;
 	};
 
-	#define LOG_EXCEPTION_INTERNAL()								\
-	{																\
-		AddLogInternal("ERROR Exception in %s", __FUNCTION__);		\
-		AddExceptionInfoLog();										\
+#define LOG_EXCEPTION_INTERNAL()                               \
+	{                                                          \
+		AddLogInternal("ERROR Exception in %s", __FUNCTION__); \
+		AddExceptionInfoLog();                                 \
 	};
 } // namespace Plugins::CrashCatcher
 

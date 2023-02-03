@@ -46,7 +46,7 @@ namespace Plugins::SoundManager
 		if (global->config->sound_ids.size())
 			Hk::Client::PlaySoundEffect(client, global->config->sound_ids[rand() % global->config->sound_ids.size()]);
 	}
-}
+} // namespace Plugins::SoundManager
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF

@@ -564,19 +564,13 @@ void ActivateEquip__Inner(ClientId client, const XActivateEquip& aq)
 
 void ActivateCruise__Inner(ClientId client, const XActivateCruise& ac)
 {
-	TRY_HOOK
-	{
-		ClientInfo[client].bCruiseActivated = ac.bActivate;
-	}
+	TRY_HOOK { ClientInfo[client].bCruiseActivated = ac.bActivate; }
 	CATCH_HOOK({})
 }
 
 void ActivateThrusters__Inner(ClientId client, const XActivateThrusters& at)
 {
-	TRY_HOOK
-	{
-		ClientInfo[client].bThrusterActivated = at.bActivate;
-	}
+	TRY_HOOK { ClientInfo[client].bThrusterActivated = at.bActivate; }
 	CATCH_HOOK({})
 }
 
@@ -930,10 +924,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(ClientId client, XFireWeaponIn
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_COMMON_FIREWEAPON(client, fwi);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_FIREWEAPON(client, fwi); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -952,10 +943,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(ClientId client, XActivateE
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_COMMON_ACTIVATEEQUIP(client, aq);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_ACTIVATEEQUIP(client, aq); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -975,10 +963,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(ClientId client, XActivate
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_COMMON_ACTIVATECRUISE(client, aq);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_ACTIVATECRUISE(client, aq); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -998,10 +983,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(ClientId client, XActiv
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(client, aq);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(client, aq); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1017,10 +999,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(ClientId client, XSetTarget& st
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tClientId client = {}\n\tXSetTarget& st = {}\n)", client, ToLogString(st))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_SETTARGET(client, st);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SETTARGET(client, st); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1032,10 +1011,7 @@ void IClientImpl::unknown_6(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_6(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_6(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_6(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1046,10 +1022,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(ClientId client, XGoTradelane
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tClientId client = {}\n\tXGoTradelane& tl = {}\n)", client, ToLogString(tl))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_GOTRADELANE(client, tl);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_GOTRADELANE(client, tl); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1067,10 +1040,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(ClientId client, uint shipI
 	        archTradelane2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_STOPTRADELANE(client, shipId, archTradelane1, archTradelane2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_STOPTRADELANE(client, shipId, archTradelane1, archTradelane2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1083,10 +1053,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(ClientId client, XJettisonC
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tClientId client = {}\n\tXJettisonCargo& jc = {}\n)", client, ToLogString(jc))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_JETTISONCARGO(client, jc);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_JETTISONCARGO(client, jc); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1095,10 +1062,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(ClientId client, XJettisonC
 bool IClientImpl::SendPacket(ClientId client, void* _genArg1)
 {
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = SendPacket(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = SendPacket(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1109,10 +1073,7 @@ bool IClientImpl::Startup(uint _genArg1, uint _genArg2)
 	IClientImpl__Startup__Inner(_genArg1, _genArg2);
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Startup(_genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Startup(_genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1122,10 +1083,7 @@ void IClientImpl::nullsub(uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::nullsub(\n\tuint _genArg1 = {}\n)", _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		nullsub(_genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { nullsub(_genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1137,10 +1095,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(ClientId client, FLPACKET_U
 	        L"IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_LOGINRESPONSE(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_LOGINRESPONSE(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1154,10 +1109,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(ClientId client, FLPACKET_U
 	        L"IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_CHARACTERINFO(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CHARACTERINFO(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1172,10 +1124,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(ClientId client, FLPAC
 	        ToLogString(_genArg1))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_CHARSELECTVERIFIED(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CHARSELECTVERIFIED(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1183,10 +1132,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(ClientId client, FLPAC
 
 void IClientImpl::Shutdown()
 {
-	CALL_CLIENT_PREAMBLE
-	{
-		Shutdown();
-	}
+	CALL_CLIENT_PREAMBLE { Shutdown(); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1195,10 +1141,7 @@ bool IClientImpl::CDPClientProxy__Disconnect(ClientId client)
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__Disconnect(\n\tClientId client = {}\n)", client));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = CDPClientProxy__Disconnect(client);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__Disconnect(client); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1209,10 +1152,7 @@ uint IClientImpl::CDPClientProxy__GetSendQSize(ClientId client)
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__GetSendQSize(\n\tClientId client = {}\n)", client));
 
 	uint retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = CDPClientProxy__GetSendQSize(client);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetSendQSize(client); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1223,10 +1163,7 @@ uint IClientImpl::CDPClientProxy__GetSendQBytes(ClientId client)
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::CDPClientProxy__GetSendQBytes(\n\tClientId client = {}\n)", client));
 
 	uint retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = CDPClientProxy__GetSendQBytes(client);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetSendQBytes(client); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1238,10 +1175,7 @@ double IClientImpl::CDPClientProxy__GetLinkSaturation(ClientId client)
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = CDPClientProxy__GetLinkSaturation(client);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetLinkSaturation(client); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1260,10 +1194,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETSHIPARCH(client, shipArch);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETSHIPARCH(client, shipArch); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1282,10 +1213,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float stat
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETHULLSTATUS(client, status);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETHULLSTATUS(client, status); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1306,10 +1234,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, FLPAC
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1329,10 +1254,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, FLPACKET_UN
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETEQUIPMENT(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETEQUIPMENT(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1345,10 +1267,7 @@ void IClientImpl::unknown_26(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_26(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_26(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_26(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1366,10 +1285,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(ClientId client, FLPACKET_UNKN
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETADDITEM(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETADDITEM(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1388,10 +1304,7 @@ void IClientImpl::unknown_28(ClientId client, uint _genArg1, uint _genArg2, uint
 	        _genArg2,
 	        _genArg3)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_28(client, _genArg1, _genArg2, _genArg3);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_28(client, _genArg1, _genArg2, _genArg3); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1408,10 +1321,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(ClientId client, uint _genAr
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETSTARTROOM(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETSTARTROOM(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1430,10 +1340,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(ClientId client, uint 
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFDESTROYCHARACTER(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFDESTROYCHARACTER(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1449,10 +1356,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(ClientId client, uint _genAr
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFUPDATECHAR(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFUPDATECHAR(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1465,10 +1369,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(ClientId client, uint 
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1484,10 +1385,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(ClientId client, uint _g
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1504,10 +1402,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(ClientId client, 
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1521,10 +1416,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(ClientId cli
 	        L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1536,10 +1428,7 @@ void IClientImpl::unknown_36(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_36(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_36(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_36(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1549,10 +1438,7 @@ void IClientImpl::unknown_37(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_37(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_37(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_37(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1564,10 +1450,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(ClientId clie
 	        std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1584,10 +1467,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(ClientId client,
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1604,10 +1484,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(ClientId client, 
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1623,10 +1500,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(ClientId cl
 	        _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1643,10 +1517,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(ClientId client
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1659,10 +1530,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(ClientId client, 
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(\n\tClientId client = {}\n\tuint reason = {}\n)", client, reason)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(client, reason);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(client, reason); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1674,10 +1542,7 @@ void IClientImpl::unknown_44(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_44(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_44(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_44(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1692,10 +1557,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(ClientId client, ui
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1711,10 +1573,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(ClientId clie
 	        _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1733,10 +1592,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(ClientId client, FLPACKET_CRE
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATESOLAR(client, solar);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATESOLAR(client, solar); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1756,10 +1612,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(ClientId client, FLPACKET_CREA
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATESHIP(client, ship);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATESHIP(client, ship); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1779,10 +1632,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(ClientId client, FLPACKET_UNKN
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATELOOT(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATELOOT(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1802,10 +1652,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATEMINE(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATEMINE(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1825,10 +1672,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_UN
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATEGUIDED(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATEGUIDED(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1848,10 +1692,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(ClientId client, FLPACKET_U
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_CREATECOUNTER(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_CREATECOUNTER(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1866,10 +1707,7 @@ void IClientImpl::unknown_53(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_53(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_53(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_53(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1883,10 +1721,7 @@ void IClientImpl::unknown_54(ClientId client, uint _genArg1, uint _genArg2, uint
 	        _genArg2,
 	        _genArg3)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_54(client, _genArg1, _genArg2, _genArg3);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_54(client, _genArg1, _genArg2, _genArg3); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -1896,10 +1731,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(ClientId client, SSPObjUpdat
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_COMMON_UPDATEOBJECT(client, update);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_UPDATEOBJECT(client, update); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1920,10 +1752,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(ClientId client, FLPACKET_D
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_DESTROYOBJECT(client, destroy);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_DESTROYOBJECT(client, destroy); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1943,10 +1772,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(ClientId client, XActivate
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_ACTIVATEOBJECT(client, aq);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_ACTIVATEOBJECT(client, aq); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -1964,10 +1790,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(ClientId client, FLPACK
 	        ToLogString(_genArg1))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1982,10 +1805,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(ClientId client, FLPACKE
 	        ToLogString(_genArg1))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -1998,10 +1818,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAND(ClientId client, FLPACKET_LAND& land
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAND(\n\tClientId client = {}\n\tFLPACKET_LAND& land = {}\n)", client, ToLogString(land))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_LAND(client, land);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_LAND(client, land); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2018,10 +1835,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(ClientId client, FLPACKET_LAUNCH& 
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_LAUNCH(client, launch);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_LAUNCH(client, launch); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2043,10 +1857,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(ClientId client, bo
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(client, response, shipId);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(client, response, shipId); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2061,20 +1872,14 @@ void IClientImpl::unknown_63(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_63(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_63(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_63(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
 bool IClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(ClientId client, uint objId, DamageList& dmgList)
 {
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_DAMAGEOBJECT(client, objId, dmgList);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_DAMAGEOBJECT(client, objId, dmgList); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2087,10 +1892,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(ClientId client, uint _genA
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_ITEMTRACTORED(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_ITEMTRACTORED(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2106,10 +1908,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(ClientId client, uint _genArg1)
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_USE_ITEM(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_USE_ITEM(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2129,10 +1928,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(ClientId client, FLPACKET_S
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETREPUTATION(client, rep);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETREPUTATION(client, rep); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2147,10 +1943,7 @@ void IClientImpl::unknown_68(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_68(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_68(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_68(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2278,10 +2071,7 @@ void IClientImpl::unknown_70(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_70(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_70(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_70(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2297,10 +2087,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(ClientId client, FLPA
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2315,10 +2102,7 @@ void IClientImpl::unknown_72(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_72(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_72(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_72(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2332,10 +2116,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(ClientId client, uin
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2350,10 +2131,7 @@ void IClientImpl::unknown_74(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_74(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_74(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_74(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2361,10 +2139,7 @@ void IClientImpl::unknown_75(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_75(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_75(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_75(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2376,10 +2151,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(ClientId client, uint _genArg1, u
 	        L"IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_MARKOBJ(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MARKOBJ(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2389,10 +2161,7 @@ void IClientImpl::unknown_77(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_77(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_77(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_77(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2405,10 +2174,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(ClientId client, uint cash)
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SETCASH(client, cash);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SETCASH(client, cash); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2421,10 +2187,7 @@ void IClientImpl::unknown_79(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_79(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_79(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_79(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2432,10 +2195,7 @@ void IClientImpl::unknown_80(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_80(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_80(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_80(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2443,10 +2203,7 @@ void IClientImpl::unknown_81(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_81(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_81(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_81(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2454,10 +2211,7 @@ void IClientImpl::unknown_82(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_82(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_82(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_82(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2465,10 +2219,7 @@ void IClientImpl::unknown_83(ClientId client, char* _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_83(\n\tClientId client = {}\n\tchar* _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_83(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_83(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2485,10 +2236,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(ClientId client, uint sh
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_REQUEST_RETURNED(client, shipId, flag, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_REQUEST_RETURNED(client, shipId, flag, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2500,10 +2248,7 @@ void IClientImpl::unknown_85(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_85(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_85(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_85(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2517,10 +2262,7 @@ void IClientImpl::unknown_86(ClientId client, uint _genArg1, uint _genArg2, uint
 	        _genArg2,
 	        _genArg3)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_86(client, _genArg1, _genArg2, _genArg3);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_86(client, _genArg1, _genArg2, _genArg3); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2528,17 +2270,14 @@ bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& car
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(std::format(
-	        L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint iDunno1 = {}\n\tuint iDunno2 = {}\n)",
-	        cargoUpdate.client,
-	        iDunno1,
-	        iDunno2)));
+	    wstos(
+	        std::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint iDunno1 = {}\n\tuint iDunno2 = {}\n)",
+	            cargoUpdate.client,
+	            iDunno1,
+	            iDunno2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, iDunno1, iDunno2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, iDunno1, iDunno2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2555,10 +2294,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(ClientId client, FLPACKET_BURNFU
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_BURNFUSE(client, burnFuse);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_BURNFUSE(client, burnFuse); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2573,10 +2309,7 @@ void IClientImpl::unknown_89(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_89(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_89(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_89(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2584,10 +2317,7 @@ void IClientImpl::unknown_90(ClientId client)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_90(\n\tClientId client = {}\n)", client));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_90(client);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_90(client); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2595,10 +2325,7 @@ void IClientImpl::unknown_91(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_91(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_91(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_91(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2612,10 +2339,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(ClientId client, uint _g
 	        _genArg2));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_SET_WEAPON_GROUP(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_WEAPON_GROUP(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2629,10 +2353,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(ClientId client, uint o
 	        "IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)", client, objHash, state));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2648,10 +2369,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(ClientId client, uint o
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_REQUEST_BEST_PATH(client, objHash, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_REQUEST_BEST_PATH(client, objHash, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2667,10 +2385,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(ClientId client, uin
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2686,10 +2401,7 @@ void IClientImpl::unknown_96(ClientId client, uint _genArg1, uint _genArg2, uint
 	        _genArg2,
 	        _genArg3)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_96(client, _genArg1, _genArg2, _genArg3);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_96(client, _genArg1, _genArg2, _genArg3); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2703,10 +2415,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(ClientId client, 
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2722,10 +2431,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(ClientId client, uint _ge
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_SET_MISSION_LOG(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_MISSION_LOG(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2741,10 +2447,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(ClientId client, uint
 	        _genArg2)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_SET_INTERFACE_STATE(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_SET_INTERFACE_STATE(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2756,10 +2459,7 @@ void IClientImpl::unknown_100(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_100(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_100(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_100(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2769,10 +2469,7 @@ void IClientImpl::unknown_101(ClientId client, FLPACKET_UNKNOWN& _genArg1)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_101(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_101(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2780,10 +2477,7 @@ void IClientImpl::unknown_102(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_102(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_102(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_102(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2791,10 +2485,7 @@ void IClientImpl::unknown_103(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_103(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_103(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_103(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2804,10 +2495,7 @@ void IClientImpl::unknown_104(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_104(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_104(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_104(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2817,10 +2505,7 @@ void IClientImpl::unknown_105(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_105(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_105(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_105(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2830,10 +2515,7 @@ void IClientImpl::unknown_106(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_106(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_106(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_106(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2843,10 +2525,7 @@ void IClientImpl::unknown_107(ClientId client, uint _genArg1, uint _genArg2)
 	    LogLevel::Debug,
 	    wstos(std::format(L"IClientImpl::unknown_107(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", client, _genArg1, _genArg2)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_107(client, _genArg1, _genArg2);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_107(client, _genArg1, _genArg2); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2857,10 +2536,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(ClientId client, uint _genAr
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1)));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_COMMON_PLAYER_TRADE(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_COMMON_PLAYER_TRADE(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -2870,10 +2546,7 @@ void IClientImpl::unknown_109(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_109(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_109(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_109(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2890,10 +2563,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(ClientId client, uint _genArg1
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_SCANNOTIFY(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_SCANNOTIFY(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2917,10 +2587,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_PLAYERLIST(client, characterName, _genArg2, _genArg3);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_PLAYERLIST(client, characterName, _genArg2, _genArg3); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2933,10 +2600,7 @@ void IClientImpl::unknown_112(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_112(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_112(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_112(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -2948,10 +2612,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(ClientId client)
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_PLAYERLIST_2(client);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_PLAYERLIST_2(client); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2973,10 +2634,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(ClientId client, uint _ge
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_6(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_6(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -2998,10 +2656,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(ClientId client, uint _ge
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_7(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_7(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3021,10 +2676,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(ClientId client, FLPACKET_U
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE(client, _genArg1);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE(client, _genArg1); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3046,10 +2698,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(ClientId client, uint _ge
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_2(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_2(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3069,10 +2718,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(ClientId client, uint tar
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_3(client, targetId, rank);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_3(client, targetId, rank); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3095,10 +2741,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(ClientId client, uint _ge
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_4(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_4(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3120,10 +2763,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(ClientId client, uint _ge
 
 	if (!skip)
 	{
-		CALL_CLIENT_PREAMBLE
-		{
-			retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_5(client, _genArg1, _genArg2);
-		}
+		CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_MISCOBJUPDATE_5(client, _genArg1, _genArg2); }
 		CALL_CLIENT_POSTAMBLE;
 	}
 
@@ -3136,10 +2776,7 @@ void IClientImpl::unknown_121(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_121(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_121(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_121(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -3153,10 +2790,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(ClientId client, uint sh
 	        ToLogString(formationOffset))));
 
 	bool retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = Send_FLPACKET_SERVER_FORMATION_UPDATE(client, shipId, formationOffset);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = Send_FLPACKET_SERVER_FORMATION_UPDATE(client, shipId, formationOffset); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -3176,10 +2810,7 @@ void IClientImpl::unknown_123(ClientId client, uint _genArg1, uint _genArg2, uin
 	        _genArg5,
 	        _genArg6)));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_123(client, _genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_123(client, _genArg1, _genArg2, _genArg3, _genArg4, _genArg5, _genArg6); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -3187,10 +2818,7 @@ void IClientImpl::unknown_124(ClientId client)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_124(\n\tClientId client = {}\n)", client));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_124(client);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_124(client); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -3198,10 +2826,7 @@ void IClientImpl::unknown_125(ClientId client, uint _genArg1)
 {
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_125(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-	CALL_CLIENT_PREAMBLE
-	{
-		unknown_125(client, _genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { unknown_125(client, _genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 }
 
@@ -3210,10 +2835,7 @@ int IClientImpl::unknown_126(char* _genArg1)
 	AddLog(LogType::Normal, LogLevel::Debug, std::format("IClientImpl::unknown_126(\n\tchar* _genArg1 = {}\n)", _genArg1));
 
 	int retVal;
-	CALL_CLIENT_PREAMBLE
-	{
-		retVal = unknown_126(_genArg1);
-	}
+	CALL_CLIENT_PREAMBLE { retVal = unknown_126(_genArg1); }
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
@@ -3233,10 +2855,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.FireWeapon(client, fwi);
-			}
+			CALL_SERVER_PREAMBLE { Server.FireWeapon(client, fwi); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3260,10 +2879,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ActivateEquip(client, aq);
-			}
+			CALL_SERVER_PREAMBLE { Server.ActivateEquip(client, aq); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3287,10 +2903,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ActivateCruise(client, ac);
-			}
+			CALL_SERVER_PREAMBLE { Server.ActivateCruise(client, ac); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3314,10 +2927,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ActivateThrusters(client, at);
-			}
+			CALL_SERVER_PREAMBLE { Server.ActivateThrusters(client, at); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3337,10 +2947,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetTarget(client, st);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetTarget(client, st); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3360,10 +2967,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.TractorObjects(client, to);
-			}
+			CALL_SERVER_PREAMBLE { Server.TractorObjects(client, to); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3385,10 +2989,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.GoTradelane(client, gt);
-			}
+			CALL_SERVER_PREAMBLE { Server.GoTradelane(client, gt); }
 			CALL_SERVER_POSTAMBLE(GoTradelane__Catch(client, gt), );
 		}
 
@@ -3414,10 +3015,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.StopTradelane(client, shipId, tradelaneRing1, tradelaneRing2);
-			}
+			CALL_SERVER_PREAMBLE { Server.StopTradelane(client, shipId, tradelaneRing1, tradelaneRing2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3437,10 +3035,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.JettisonCargo(client, jc);
-			}
+			CALL_SERVER_PREAMBLE { Server.JettisonCargo(client, jc); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3458,10 +3053,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				retVal = Server.Startup(si);
-			}
+			CALL_SERVER_PREAMBLE { retVal = Server.Startup(si); }
 			CALL_SERVER_POSTAMBLE(true, bool());
 		}
 		Startup__InnerAfter(si);
@@ -3482,10 +3074,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.Shutdown();
-			}
+			CALL_SERVER_PREAMBLE { Server.Shutdown(); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		Shutdown__InnerAfter();
@@ -3502,10 +3091,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				retVal = Server.Update();
-			}
+			CALL_SERVER_PREAMBLE { retVal = Server.Update(); }
 			CALL_SERVER_POSTAMBLE(true, int());
 		}
 
@@ -3529,10 +3115,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.DisConnect(client, conn);
-			}
+			CALL_SERVER_PREAMBLE { Server.DisConnect(client, conn); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3553,10 +3136,7 @@ namespace IServerImplHook
 			return;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.OnConnect(client);
-			}
+			CALL_SERVER_PREAMBLE { Server.OnConnect(client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		OnConnect__InnerAfter(client);
@@ -3576,10 +3156,7 @@ namespace IServerImplHook
 
 		if (!skip && Login__InnerBefore(li, client))
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.Login(li, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.Login(li, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		Login__InnerAfter(li, client);
@@ -3603,10 +3180,7 @@ namespace IServerImplHook
 			return;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.CharacterInfoReq(client, _genArg1);
-			}
+			CALL_SERVER_PREAMBLE { Server.CharacterInfoReq(client, _genArg1); }
 			CALL_SERVER_POSTAMBLE(CharacterInfoReq__Catch(client, _genArg1), );
 		}
 
@@ -3632,10 +3206,7 @@ namespace IServerImplHook
 			return;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.CharacterSelect(cid, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.CharacterSelect(cid, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		CharacterSelect__InnerAfter(cid, client);
@@ -3656,10 +3227,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.CreateNewCharacter(_genArg1, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.CreateNewCharacter(_genArg1, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3679,10 +3247,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.DestroyCharacter(_genArg1, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.DestroyCharacter(_genArg1, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3700,10 +3265,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqShipArch(archId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqShipArch(archId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3721,10 +3283,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqHullStatus(status, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqHullStatus(status, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3746,10 +3305,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqCollisionGroups(collisionGroups, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqCollisionGroups(collisionGroups, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3769,10 +3325,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqEquipment(edl, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqEquipment(edl, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3799,10 +3352,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3821,10 +3371,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqRemoveItem(slotId, count, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqRemoveItem(slotId, count, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3851,10 +3398,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqModifyItem(slotId, hardpoint, count, status, mounted, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqModifyItem(slotId, hardpoint, count, status, mounted, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3872,10 +3416,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqSetCash(cash, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqSetCash(cash, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3893,10 +3434,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.ReqChangeCash(cashAdd, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.ReqChangeCash(cashAdd, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3918,10 +3456,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.BaseEnter(baseId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.BaseEnter(baseId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		BaseEnter__InnerAfter(baseId, client);
@@ -3944,10 +3479,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.BaseExit(baseId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.BaseExit(baseId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		BaseExit__InnerAfter(baseId, client);
@@ -3966,10 +3498,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.LocationEnter(locationId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.LocationEnter(locationId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -3987,10 +3516,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.LocationExit(locationId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.LocationExit(locationId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4010,10 +3536,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.BaseInfoRequest(_genArg1, _genArg2, _genArg3);
-			}
+			CALL_SERVER_PREAMBLE { Server.BaseInfoRequest(_genArg1, _genArg2, _genArg3); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4034,10 +3557,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.LocationInfoRequest(_genArg1, _genArg2, _genArg3);
-			}
+			CALL_SERVER_PREAMBLE { Server.LocationInfoRequest(_genArg1, _genArg2, _genArg3); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4056,10 +3576,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.GFObjSelect(_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.GFObjSelect(_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4079,10 +3596,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.GFGoodVaporized(gvi, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.GFGoodVaporized(gvi, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4107,10 +3621,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.MissionResponse(_genArg1, _genArg2, _genArg3, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.MissionResponse(_genArg1, _genArg2, _genArg3, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4133,10 +3644,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.TradeResponse(_genArg1, _genArg2, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.TradeResponse(_genArg1, _genArg2, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4156,10 +3664,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.GFGoodBuy(_genArg1, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.GFGoodBuy(_genArg1, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4184,10 +3689,7 @@ namespace IServerImplHook
 			return;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.GFGoodSell(_genArg1, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.GFGoodSell(_genArg1, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4205,10 +3707,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SystemSwitchOutComplete(shipId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SystemSwitchOutComplete(shipId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		SystemSwitchOutComplete__InnerAfter(shipId, client);
@@ -4231,10 +3730,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.PlayerLaunch(shipId, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.PlayerLaunch(shipId, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		PlayerLaunch__InnerAfter(shipId, client);
@@ -4255,10 +3751,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.LaunchComplete(baseId, shipId);
-			}
+			CALL_SERVER_PREAMBLE { Server.LaunchComplete(baseId, shipId); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4276,10 +3769,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.JumpInComplete(systemId, shipId);
-			}
+			CALL_SERVER_PREAMBLE { Server.JumpInComplete(systemId, shipId); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		JumpInComplete__InnerAfter(systemId, shipId);
@@ -4300,10 +3790,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.Hail(_genArg1, _genArg2, _genArg3);
-			}
+			CALL_SERVER_PREAMBLE { Server.Hail(_genArg1, _genArg2, _genArg3); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4324,10 +3811,7 @@ namespace IServerImplHook
 			return;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPObjUpdate(ui, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPObjUpdate(ui, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4351,10 +3835,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPMunitionCollision(mci, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPMunitionCollision(mci, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4376,10 +3857,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPObjCollision(oci, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPObjCollision(oci, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4399,10 +3877,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPRequestUseItem(ui, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPRequestUseItem(ui, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4427,10 +3902,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPRequestInvincibility(shipId, enable, reason, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPRequestInvincibility(shipId, enable, reason, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4457,10 +3929,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestEvent(eventType, shipId, dockTarget, _genArg1, _genArg2, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestEvent(eventType, shipId, dockTarget, _genArg1, _genArg2, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4485,10 +3954,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestCancel(eventType, shipId, _genArg1, _genArg2, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestCancel(eventType, shipId, _genArg1, _genArg2, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4515,10 +3981,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.MineAsteroid(systemId, pos, crateId, lootId, count, client);
-			}
+			CALL_SERVER_PREAMBLE { Server.MineAsteroid(systemId, pos, crateId, lootId, count, client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4536,10 +3999,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestCreateShip(client);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestCreateShip(client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4562,10 +4022,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SPScanCargo(_genArg1, _genArg2, _genArg3);
-			}
+			CALL_SERVER_PREAMBLE { Server.SPScanCargo(_genArg1, _genArg2, _genArg3); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4585,10 +4042,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetManeuver(client, sm);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetManeuver(client, sm); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4606,10 +4060,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.InterfaceItemUsed(_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.InterfaceItemUsed(_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4627,10 +4078,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.AbortMission(client, _genArg1);
-			}
+			CALL_SERVER_PREAMBLE { Server.AbortMission(client, _genArg1); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4650,10 +4098,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetWeaponGroup(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetWeaponGroup(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4673,10 +4118,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetVisitedState(client, (uchar*)objHash, state);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetVisitedState(client, (uchar*)objHash, state); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4696,10 +4138,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestBestPath(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestBestPath(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4719,10 +4158,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestPlayerStats(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestPlayerStats(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4740,10 +4176,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.PopUpDialog(client, buttonClicked);
-			}
+			CALL_SERVER_PREAMBLE { Server.PopUpDialog(client, buttonClicked); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4763,10 +4196,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestGroupPositions(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestGroupPositions(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4786,10 +4216,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetInterfaceState(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetInterfaceState(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4809,10 +4236,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestRankLevel(client, (uchar*)_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestRankLevel(client, (uchar*)_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4832,10 +4256,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.InitiateTrade(client1, client2);
-			}
+			CALL_SERVER_PREAMBLE { Server.InitiateTrade(client1, client2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4855,10 +4276,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.TerminateTrade(client, accepted);
-			}
+			CALL_SERVER_PREAMBLE { Server.TerminateTrade(client, accepted); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		TerminateTrade__InnerAfter(client, accepted);
@@ -4877,10 +4295,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.AcceptTrade(client, _genArg1);
-			}
+			CALL_SERVER_PREAMBLE { Server.AcceptTrade(client, _genArg1); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4898,10 +4313,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SetTradeMoney(client, _genArg1);
-			}
+			CALL_SERVER_PREAMBLE { Server.SetTradeMoney(client, _genArg1); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4921,10 +4333,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.AddTradeEquip(client, ed);
-			}
+			CALL_SERVER_PREAMBLE { Server.AddTradeEquip(client, ed); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4944,10 +4353,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.DelTradeEquip(client, ed);
-			}
+			CALL_SERVER_PREAMBLE { Server.DelTradeEquip(client, ed); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4965,10 +4371,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.RequestTrade(_genArg1, _genArg2);
-			}
+			CALL_SERVER_PREAMBLE { Server.RequestTrade(_genArg1, _genArg2); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4986,10 +4389,7 @@ namespace IServerImplHook
 
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.StopTradeRequest(client);
-			}
+			CALL_SERVER_PREAMBLE { Server.StopTradeRequest(client); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
@@ -4999,9 +4399,7 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall Dock(uint const& _genArg1, uint const& _genArg2)
-	{
-	}
+	void __stdcall Dock(uint const& _genArg1, uint const& _genArg2) {}
 } // namespace IServerImplHook
 
 namespace IServerImplHook
@@ -5019,10 +4417,7 @@ namespace IServerImplHook
 		g_InSubmitChat = true;
 		if (!skip)
 		{
-			CALL_SERVER_PREAMBLE
-			{
-				Server.SubmitChat(cidFrom, size, rdlReader, cidTo, _genArg1);
-			}
+			CALL_SERVER_PREAMBLE { Server.SubmitChat(cidFrom, size, rdlReader, cidTo, _genArg1); }
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		g_InSubmitChat = false;

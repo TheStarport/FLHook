@@ -114,7 +114,8 @@ cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMai
 		return mail;
 	}
 
-	SQLite::Statement getMail(db, "SELECT id, unread, subject, author, body, timestamp FROM items WHERE characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
+	SQLite::Statement getMail(
+	    db, "SELECT id, unread, subject, author, body, timestamp FROM items WHERE characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
 	getMail.bind(1, characterName);
 	getMail.bind(2, (page - 1) * 15);
 
@@ -206,9 +207,8 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
 
-	SQLite::Statement deleteMail = readMailOnly 
-		? SQLite::Statement(db, "DELETE FROM items WHERE unread = FALSE AND characterName = ?;") 
-		: SQLite::Statement(db, "DELETE FROM items WHERE characterName = ?;");
+	SQLite::Statement deleteMail = readMailOnly ? SQLite::Statement(db, "DELETE FROM items WHERE unread = FALSE AND characterName = ?;")
+	                                            : SQLite::Statement(db, "DELETE FROM items WHERE characterName = ?;");
 	deleteMail.bind(1, characterName);
 
 	try
@@ -307,7 +307,7 @@ void MailManager::CleanUpOldMail()
 			}
 		}
 	}
-    catch (SQLite::Exception ex)
+	catch (SQLite::Exception ex)
 	{
 		AddLog(LogType::Normal, LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}

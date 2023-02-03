@@ -4,7 +4,7 @@ namespace Hk::Client
 {
 	cpp::result<const uint, Error> GetClientID(const std::wstring& character)
 	{
-		if (character.find(L"id ") == std::string::npos) 
+		if (character.find(L"id ") == std::string::npos)
 		{
 			return cpp::fail(Error::InvalidIdString);
 		}
@@ -81,7 +81,6 @@ namespace Hk::Client
 		const auto newCharacter = GetCharacterNameByID(client.value());
 		if (newCharacter.has_error())
 			return cpp::fail(newCharacter.error());
-
 
 		if (ToLower(newCharacter.value()).compare(ToLower(character)) != 0)
 			return cpp::fail(Error::CharacterDoesNotExist);
@@ -215,8 +214,7 @@ namespace Hk::Client
 
 	cpp::result<ClientId, Error> GetClientIdByShip(const ShipId ship)
 	{
-		if (auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; }); 
-			foundClient != ClientInfo.end())
+		if (auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; }); foundClient != ClientInfo.end())
 			return std::ranges::distance(ClientInfo.begin(), foundClient);
 
 		return cpp::fail(Error::InvalidShip);
@@ -263,10 +261,7 @@ namespace Hk::Client
 		return stows(buffer);
 	}
 
-	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player)
-	{
-		return GetCharFileName(player, false);
-	}
+	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player) { return GetCharFileName(player, false); }
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId)
@@ -293,7 +288,7 @@ namespace Hk::Client
 
 		if (system.empty())
 			return cpp::fail(Error::InvalidSystem);
-		
+
 		return stows(system);
 	}
 
@@ -353,7 +348,6 @@ namespace Hk::Client
 		const std::array<char, 2> nop = {'\x90', '\x90'};
 		const std::array<char, 2> jnz = {'\x75', '\x1D'};
 		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
-
 
 		std::array<int, 1024> arr;
 		int size = 256;
@@ -524,7 +518,8 @@ namespace Hk::Client
 		return L"";
 	}
 
-	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId) { 
+	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId)
+	{
 		if (Hk::Client::IsValidClientID(client))
 		{
 			pub::Audio::PlaySoundEffect(client, soundId);
@@ -532,4 +527,4 @@ namespace Hk::Client
 		}
 		return cpp::fail(Error::PlayerNotLoggedIn);
 	}
-}
+} // namespace Hk::Client

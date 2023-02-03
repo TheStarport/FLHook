@@ -88,8 +88,7 @@ void __stdcall HkCb_Elapse_Time(float p1)
 /**************************************************************************************************************
 **************************************************************************************************************/
 
-int __cdecl HkCb_Dock_Call(
-    unsigned int const& uShipID, unsigned int const& uSpaceID, int p3, enum DOCK_HOST_RESPONSE p4)
+int __cdecl HkCb_Dock_Call(unsigned int const& uShipID, unsigned int const& uSpaceID, int p3, enum DOCK_HOST_RESPONSE p4)
 {
 	//	p3 == -1, p4 -> 2 --> Dock Denied!
 	//	p3 == -1, p4 -> 3 --> Dock in Use
@@ -106,10 +105,12 @@ int __cdecl HkCb_Dock_Call(
 	}
 	catch (...)
 	{
-		AddLog(
-		    "Exception in "
-		    "SpaceObj::Dock(uShipID=%08x,uSpaceID=%08x,p3=%d,p4=%d)",
-		    uShipID, uSpaceID, p3, p4);
+		AddLog("Exception in "
+		       "SpaceObj::Dock(uShipID=%08x,uSpaceID=%08x,p3=%d,p4=%d)",
+		    uShipID,
+		    uSpaceID,
+		    p3,
+		    p4);
 	}
 	return 0;
 }

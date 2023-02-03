@@ -19,4 +19,4 @@ namespace Plugins::KillCounter
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returncode = ReturnCode::Default;
 	};
-}
+} // namespace Plugins::KillCounter

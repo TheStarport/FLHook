@@ -65,9 +65,7 @@ namespace Plugins::MiningControl
 	 */
 	static bool ContainsEquipment(const std::list<CARGO_INFO>& cargoList, uint archId)
 	{
-		return std::ranges::any_of(cargoList, [archId](const CARGO_INFO& c){
-			return c.bMounted && c.iArchId == archId;
-			});
+		return std::ranges::any_of(cargoList, [archId](const CARGO_INFO& c) { return c.bMounted && c.iArchId == archId; });
 	}
 
 	/** @ingroup MiningControl
@@ -174,7 +172,6 @@ namespace Plugins::MiningControl
 	 */
 	void UpdateStatsFile()
 	{
-		
 		MiningStats stats;
 		// Recharge the fields
 		for (auto& [_, zoneBonus] : global->ZoneBonus)
@@ -192,14 +189,12 @@ namespace Plugins::MiningControl
 		Serializer::SaveToJson(stats);
 	}
 
-	const std::vector<Timer> timers = {
-		{UpdateStatsFile, 60}
-	};
+	const std::vector<Timer> timers = {{UpdateStatsFile, 60}};
 
 	/** @ingroup MiningControl
 	 * @brief Clear client info when a client connects.
 	 */
-	void ClearClientInfo(const uint & client)
+	void ClearClientInfo(const uint& client)
 	{
 		global->Clients[client].Setup = false;
 		global->Clients[client].LootBonus.clear();
@@ -262,13 +257,11 @@ namespace Plugins::MiningControl
 				}
 				pb.ShipIds.push_back(ShipId);
 			}
-				
 
 			for (const auto& item : pb.Items)
 			{
 				uint ItemId = CreateID(item.c_str());
-				if (auto equipment = Archetype::GetEquipment(ItemId);
-					equipment && equipment->get_class_type() != Archetype::GUN)
+				if (auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() != Archetype::GUN)
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
@@ -276,12 +269,11 @@ namespace Plugins::MiningControl
 					continue;
 				}
 			}
-				
+
 			for (const auto& ammo : pb.Ammo)
 			{
 				uint ItemId = CreateID(ammo.c_str());
-				if (auto equipment = Archetype::GetEquipment(ItemId);
-					equipment && equipment->get_class_type() == Archetype::GUN)
+				if (auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() == Archetype::GUN)
 				{
 					const Archetype::Gun* gun = static_cast<Archetype::Gun*>(equipment);
 					if (gun->iProjectileArchId && gun->iProjectileArchId != 0xBAADF00D && gun->iProjectileArchId != 0x3E07E70)
@@ -292,13 +284,12 @@ namespace Plugins::MiningControl
 				}
 				Console::ConErr(std::format("{}: ammo not valid", ammo));
 			}
-				
+
 			global->PlayerBonus.insert(std::multimap<uint, PlayerBonus>::value_type(pb.LootId, pb));
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(std::format("mining player bonus LootId: {} Bonus: {:.2f} RepId: {}\n",
-				    pb.LootId, pb.Bonus, pb.Rep));
+				Console::ConInfo(std::format("mining player bonus LootId: {} Bonus: {:.2f} RepId: {}\n", pb.LootId, pb.Bonus, pb.Rep));
 			}
 		}
 
@@ -331,12 +322,16 @@ namespace Plugins::MiningControl
 			if (config.PluginDebug)
 			{
 				Console::ConInfo(std::format("zone bonus {} Bonus={:5f} ReplacementLootId={}({}) RechargeRate={:.2f} MaxReserve={:.2f}\n",
-				    zb.Zone, zb.Bonus, zb.ReplacementLoot, iReplacementLootId, zb.RechargeRate, zb.MaxReserve));
+				    zb.Zone,
+				    zb.Bonus,
+				    zb.ReplacementLoot,
+				    iReplacementLootId,
+				    zb.RechargeRate,
+				    zb.MaxReserve));
 			}
 		}
 
-		for (const auto miningStats = Serializer::JsonToObject<MiningStats>(); 
-			auto& zone : miningStats.Stats)
+		for (const auto miningStats = Serializer::JsonToObject<MiningStats>(); auto& zone : miningStats.Stats)
 		{
 			uint ZoneId = CreateID(zone.Zone.c_str());
 			if (global->ZoneBonus.contains(ZoneId))
@@ -461,7 +456,8 @@ namespace Plugins::MiningControl
 						const float random = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 						// Calculate the loot drop and drop it.
-						auto lootCount = static_cast<int>(random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamic_loot_count2));
+						auto lootCount = static_cast<int>(
+						    random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamic_loot_count2));
 
 						// Remove this lootCount from the field
 						global->ZoneBonus[zone->iZoneId].CurrentReserve -= static_cast<float>(lootCount);
@@ -475,9 +471,15 @@ namespace Plugins::MiningControl
 						if (global->Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
-							    std::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}", 
-							    random, global->config->GenericFactor, fPlayerBonus, zoneBonus, lootCount, lootId, crateId,
-							    global->ZoneBonus[zone->iZoneId].CurrentReserve));
+							    std::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}",
+							        random,
+							        global->config->GenericFactor,
+							        fPlayerBonus,
+							        zoneBonus,
+							        lootCount,
+							        lootId,
+							        crateId,
+							        global->ZoneBonus[zone->iZoneId].CurrentReserve));
 						}
 
 						global->Clients[client].MineAsteroidEvents++;
@@ -486,7 +488,9 @@ namespace Plugins::MiningControl
 							if (float average = static_cast<float>(global->Clients[client].MineAsteroidEvents) / 30.0f; average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
-								AddLog(LogType::Normal, LogLevel::Info, std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
+								AddLog(LogType::Normal,
+								    LogLevel::Info,
+								    std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
 								        wstos(CharName.c_str()),
 								        average,
 								        shipPosition.x,
@@ -534,7 +538,7 @@ namespace Plugins::MiningControl
 		global->returnCode = ReturnCode::SkipAll;
 		return;
 	}
-}
+} // namespace Plugins::MiningControl
 
 using namespace Plugins::MiningControl;
 

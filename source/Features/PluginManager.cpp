@@ -65,9 +65,7 @@ PluginManager::~PluginManager()
 
 cpp::result<void, Error> PluginManager::unload(const std::string& name)
 {
-	const auto plugin = std::find_if(begin(), end(), [&name](const PluginData& data) {
-		return name == data.shortName;
-	});
+	const auto plugin = std::find_if(begin(), end(), [&name](const PluginData& data) { return name == data.shortName; });
 
 	if (plugin == end())
 		return cpp::fail(Error::PluginNotFound);
@@ -148,24 +146,28 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	if (pi->versionMajor_ != CurrentMajorVersion)
 	{
-		adminInterface->Print(std::format(
-		    "ERR incompatible plugin API (major) version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMajorVersion, (int)pi->versionMajor_));
+		adminInterface->Print(std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
+		    wstos(plugin.dllName),
+		    (int)CurrentMajorVersion,
+		    (int)pi->versionMajor_));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if ((int)pi->versionMinor_ > (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(std::format(
-		    "ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
+		adminInterface->Print(std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
+		    wstos(plugin.dllName),
+		    (int)CurrentMinorVersion,
+		    (int)pi->versionMinor_));
 		FreeLibrary(plugin.dll);
 		return;
 	}
 
 	if (int(pi->versionMinor_) != (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(
-		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
+		adminInterface->Print(std::format(
+		    "Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
 		adminInterface->Print("Processing will continue, but plugin should be considered unstable.");
 	}
 
@@ -207,14 +209,14 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	{
 		if (!hook.hookFunction_)
 		{
-			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin.dllName)));
+			adminInterface->Print(
+			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin.dllName)));
 			continue;
 		}
 
 		if (const auto& targetHookProps = hookProps_[hook.targetFunction_]; !targetHookProps.matches(hook.step_))
 		{
-			adminInterface->Print(
-			    std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin.dllName)));
+			adminInterface->Print(std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin.dllName)));
 			continue;
 		}
 
@@ -293,7 +295,6 @@ void PluginInfo::addHook(const PluginHook& hook)
 void PluginInfo::commands(const std::vector<UserCommand>* cmds)
 {
 	commands_ = const_cast<std::vector<UserCommand>*>(cmds);
-
 }
 
 void PluginInfo::timers(const std::vector<Timer>* timers)

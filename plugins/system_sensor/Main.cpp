@@ -8,7 +8,7 @@
  * their equipment and cargo at the time of using them.
  *
  * @paragraph cmds Player Commands
- * -net <all/jumponly/off> - if player has proper equipment, toggles his scanner between showing JG/TL transits, 
+ * -net <all/jumponly/off> - if player has proper equipment, toggles his scanner between showing JG/TL transits,
  *   JG transits only, and disabling the feature
  * -showscan <name> - shows equipment and cargo carried by the specified player
  * -showscan$ <playerID> - same as above, but using player ID as paramenter, useful for to type difficult names
@@ -205,8 +205,7 @@ namespace Plugins::SystemSensor
 
 		// Find the sensor network for this system.
 		auto siter = global->sensorSystem.lower_bound(systemId);
-		if (auto send = global->sensorSystem.upper_bound(systemId); 
-			siter == send)
+		if (auto send = global->sensorSystem.upper_bound(systemId); siter == send)
 			return;
 
 		if (global->networks.contains(client))
@@ -233,12 +232,8 @@ namespace Plugins::SystemSensor
 					const auto playerSystem = Hk::Player::GetSystem(client);
 					const Vector& position = location.value().first;
 					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(playerSystem.value(), position);
-					PrintUserCmdText(playerId, std::format(L"{}[${}] {} at {} {}",
-					    Hk::Client::GetCharacterNameByID(client).value(),
-					    client,
-					    type,
-					    sysName,
-					    curLocation));
+					PrintUserCmdText(
+					    playerId, std::format(L"{}[${}] {} at {} {}", Hk::Client::GetCharacterNameByID(client).value(), client, type, sysName, curLocation));
 				}
 			}
 		}
@@ -247,8 +242,7 @@ namespace Plugins::SystemSensor
 	// Record jump type.
 	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const enum DOCK_HOST_RESPONSE& response)
 	{
-		if (const auto client = Hk::Client::GetClientIdByShip(ship); 
-			client.has_value() && (response == PROCEED_DOCK || response == DOCK) && cancel >= 0)
+		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && (response == PROCEED_DOCK || response == DOCK) && cancel >= 0)
 		{
 			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
@@ -297,7 +291,7 @@ REFL_AUTO(type(Config), field(sensors));
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("System Sensor");
 	pi->shortName("system_sensor");

@@ -51,10 +51,7 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& wscParam)
-	{
-		UnMarkAllObjects(client);
-	}
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& wscParam) { UnMarkAllObjects(client); }
 
 	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam)
 	{
@@ -251,4 +248,4 @@ namespace Plugins::Mark
 			}
 		}
 	}
-}
+} // namespace Plugins::Mark

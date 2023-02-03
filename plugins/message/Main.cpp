@@ -100,7 +100,7 @@ namespace Plugins::Message
 	 * @brief Load the custom message templates and show the greeting banner to the specified player.
 	 */
 	static void PlayerLogin([[maybe_unused]] const std::string_view& charFilename, ClientId& client)
-	{ 
+	{
 		LoadMsgs(client);
 		ShowGreetingBanner(client);
 	}
@@ -461,8 +461,6 @@ namespace Plugins::Message
 
 			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); iSystemId == iClientSystemId)
 				Hk::Message::FMsgSendChat(client, szBuf, iRet);
-
-			
 		}
 	}
 
@@ -491,8 +489,8 @@ namespace Plugins::Message
 
 			// Find the ': ' which indicates the end of the sending player name.
 			const size_t iTextStartPos = wscChatMsg.find(L": ");
-			if (iTextStartPos != std::string::npos
-			&& ((wscChatMsg.find(L": /") == iTextStartPos && wscChatMsg.find(L": //") != iTextStartPos) || wscChatMsg.find(L": .") == iTextStartPos))
+			if (iTextStartPos != std::string::npos &&
+			    ((wscChatMsg.find(L": /") == iTextStartPos && wscChatMsg.find(L": //") != iTextStartPos) || wscChatMsg.find(L": .") == iTextStartPos))
 			{
 				return true;
 			}
@@ -910,8 +908,8 @@ namespace Plugins::Message
 	const std::vector commands = {{
 	    CreateUserCommand(L"/setmsg", L"<n> <msg text>", UserCmd_SetMsg, L"Sets a preset message."),
 	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L"Show your preset messages."),
-	    CreateUserCommand(
-	        CmdArr({L"/0", L"/1", L"/2", L"/3", L"/4", L"/5", L"/6", L"/7", L"/8", L"/9"}), L"/<msgNumber>", UserCmd_SMsg, L"Send preset message from slot [0-9]."),
+	    CreateUserCommand(CmdArr({L"/0", L"/1", L"/2", L"/3", L"/4", L"/5", L"/6", L"/7", L"/8", L"/9"}), L"/<msgNumber>", UserCmd_SMsg,
+	        L"Send preset message from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/l0", L"/l1", L"/l2", L"/l3", L"/l4", L"/l5", L"/l6", L"/l7", L"/l8", L"/l9"}), L"/l<msgNumber>", UserCmd_LMsg,
 	        L"Send preset message to local chat from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/r0", L"/r1", L"/r2", L"/r3", L"/r4", L"/r5", L"/r6", L"/r7", L"/r8", L"/r9"}), L"/r<msgNumber>", UserCmd_RMsg,
@@ -948,7 +946,7 @@ REFL_AUTO(type(Config), field(greetingBannerLines), field(specialBannerLines), f
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
+// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Message");

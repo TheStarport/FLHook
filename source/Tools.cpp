@@ -120,7 +120,6 @@ std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, cons
 	GetUserDataPath(szDataPath);
 	std::string scAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
 
-
 	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
 	if (acc.has_error())
 		return "";
@@ -181,9 +180,7 @@ std::wstring GetTimeString(bool bLocalTime)
 		GetSystemTime(&st);
 
 	wchar_t wszBuf[100];
-	_snwprintf_s(
-	    wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute,
-	    st.wSecond);
+	_snwprintf_s(wszBuf, sizeof(wszBuf), L"%04d-%02d-%02d %02d:%02d:%02d ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 	return wszBuf;
 }
 

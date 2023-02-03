@@ -110,9 +110,8 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 				traDataColor = L"19BD3A"; // pm chat color
 
 			std::wstringstream wos;
-			wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>"
-			    << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x" << traDataColor + traDataFormat
-			    << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
+			wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x"
+			    << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
 
 			Hk::Message::FMsg(client, wos.str());
 		}

@@ -22,7 +22,7 @@ namespace Plugins::Tax
 	{
 		std::string File() override { return "config/tax.json"; }
 
-		// Reflectable fields	
+		// Reflectable fields
 		std::vector<std::string> excludedSystems = {};
 		int minplaytimeSec = 0;
 		uint maxTax = 300;
@@ -34,7 +34,7 @@ namespace Plugins::Tax
 		std::wstring cannotPay = L"This rogue isn't interested in money. Run for cover, they want to kill you!";
 		bool killDisconnectingPlayers = true;
 	};
-	
+
 	//! Global data for this plugin
 	struct Global final
 	{
@@ -43,5 +43,4 @@ namespace Plugins::Tax
 		std::list<Tax> lsttax;
 		std::vector<uint> excludedsystemsIds;
 	};
-}
-
+} // namespace Plugins::Tax

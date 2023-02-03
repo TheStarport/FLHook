@@ -137,8 +137,8 @@ namespace Plugins::Restart
 		{
 			if (cash < global->config->availableRestarts[restartTemplate])
 			{
-				PrintUserCmdText(
-				    client, L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash.value()) + L" more credits to use this template");
+				PrintUserCmdText(client,
+				    L"You need $" + std::to_wstring(global->config->availableRestarts[restartTemplate] - cash.value()) + L" more credits to use this template");
 				return;
 			}
 			restart.cash = cash.value() - global->config->availableRestarts[restartTemplate];
@@ -185,7 +185,8 @@ namespace Plugins::Restart
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
 
-				AddLog(LogType::Normal, LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
+				AddLog(
+				    LogType::Normal, LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
 			}
 			catch (char* err)
 			{
@@ -198,9 +199,7 @@ namespace Plugins::Restart
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{ProcessPendingRestarts, 1}
-	};
+	const std::vector<Timer> timers = {{ProcessPendingRestarts, 1}};
 
 	// Client command processing
 	const std::vector commands = {{
@@ -216,7 +215,7 @@ REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost)
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Restarts");
 	pi->shortName("restarts");

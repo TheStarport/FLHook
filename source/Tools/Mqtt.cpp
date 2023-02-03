@@ -34,5 +34,4 @@ std::tuple<mqtt::async_client_ptr, mqtt::connect_options_ptr, mqtt::callback_ptr
 
 void SetupMessageQueue()
 {
-	
 }

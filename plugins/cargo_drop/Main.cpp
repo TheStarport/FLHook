@@ -113,8 +113,7 @@ namespace Plugins::CargoDrop
 						{
 							for (const auto& [id, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 							{
-								if (!mounted &&
-								    std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
+								if (!mounted && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 								{
 									Hk::Player::RemoveCargo(characterName, id, count);
 									Server.MineAsteroid(system.value(), position, global->cargoDropContainerId, archId, count, client);
@@ -134,9 +133,7 @@ namespace Plugins::CargoDrop
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{DisconnectCheck, 1}
-	};
+	const std::vector<Timer> timers = {{DisconnectCheck, 1}};
 
 	/** @ingroup CargoDrop
 	 * @brief Hook for ship destruction. It's easier to hook this than the PlayerDeath one. Drop a percentage of cargo + some loot representing ship bits.
@@ -172,7 +169,6 @@ namespace Plugins::CargoDrop
 		}
 		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
 		{
-
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConInfo(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
 				    system,
@@ -212,7 +208,7 @@ REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnecti
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Cargo Drop");
 	pi->shortName("cargo_drop");

@@ -60,16 +60,13 @@ namespace Plugins::Arena
 		auto& cmd = const_cast<UserCommand&>(commands[0]);
 		cmd = CreateUserCommand(global->config->wscCommand, cmd.usage, cmd.proc, cmd.description);
 
-		//global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+		// global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
 
 	/** @ingroup Arena
 	 * @brief Returns true if the client is docked, returns false otherwise.
 	 */
-	bool IsDockedClient(unsigned int client)
-	{
-		return Hk::Player::GetCurrentBase(client).has_value();
-	}
+	bool IsDockedClient(unsigned int client) { return Hk::Player::GetCurrentBase(client).has_value(); }
 
 	/** @ingroup Arena
 	 * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
@@ -128,7 +125,7 @@ namespace Plugins::Arena
 	void MoveClient(unsigned int client, unsigned int targetBase)
 	{
 		// Ask that another plugin handle the beam.
-		//if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
+		// if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
 		//	return;
 
 		// No plugin handled it, do it ourselves.
@@ -218,8 +215,7 @@ namespace Plugins::Arena
 	void UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		if (SystemId system = Hk::Player::GetSystem(client).value(); 
-			system == global->config->restrictedSystemId || system == global->config->targetSystemId)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
@@ -282,7 +278,7 @@ REFL_AUTO(type(Config), field(command), field(targetBase), field(targetSystem), 
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
+// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Arena");

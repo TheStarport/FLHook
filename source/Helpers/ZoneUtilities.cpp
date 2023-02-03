@@ -2,7 +2,6 @@
 
 namespace Hk::ZoneUtilities
 {
-
 	/** A map of system id to system info */
 	std::map<uint, SystemInfo> mapSystems;
 
@@ -125,8 +124,8 @@ namespace Hk::ZoneUtilities
 	Parse the specified ini file (usually in the data/solar/asteriods) and retrieve
 	the lootable zone details.
 	*/
-	void ZoneUtilities::ReadLootableZone(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick,
-	    const std::string& defaultZoneNick, const std::string& file)
+	void ZoneUtilities::ReadLootableZone(
+	    std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& defaultZoneNick, const std::string& file)
 	{
 		std::string path = "..\\data\\";
 		path += file;
@@ -199,8 +198,7 @@ namespace Hk::ZoneUtilities
 	}
 
 	/** Read the asteroid sections out of the system ini */
-	void ZoneUtilities::ReadSystemLootableZones(
-	    std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
+	void ZoneUtilities::ReadSystemLootableZones(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
 	{
 		std::string path = "..\\data\\universe\\";
 		path += file;
@@ -319,7 +317,7 @@ namespace Hk::ZoneUtilities
 					lz.damage = damage;
 					lz.encounter = encounter;
 					lz.transform = SetupTransform(pos, rotation);
-					allZones.insert({lz.systemId, lz });
+					allZones.insert({lz.systemId, lz});
 				}
 				else if (ini.is_header("Object"))
 				{

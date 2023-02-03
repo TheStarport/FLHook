@@ -61,8 +61,7 @@ void TimerCheckKick()
 			{ // anti base-idle check
 				uint baseId;
 				pub::Player::GetBase(client, baseId);
-				if (baseId && ClientInfo[client].iBaseEnterTime
-				&&	(time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
+				if (baseId && ClientInfo[client].iBaseEnterTime && (time(0) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
 				{
 					AddKickLog(client, "Base idling");
 					Hk::Player::MsgAndKick(client, L"Base idling", 10);
@@ -116,7 +115,7 @@ void TimerNPCAndF1Check()
 			}
 			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
-				ulong dataArray[64] = { 0 };
+				ulong dataArray[64] = {0};
 				dataArray[26] = client;
 
 				__asm {
@@ -163,12 +162,11 @@ void ThreadResolver()
 
 			for (auto& ip : lstMyResolveIPs)
 			{
-				SOCKADDR_IN addr { AF_INET, 2302, {}, { 0 } };
+				SOCKADDR_IN addr {AF_INET, 2302, {}, {0}};
 				InetPtonW(AF_INET, ip.wscIP.c_str(), &addr.sin_addr);
 
 				wchar_t hostbuf[255];
-				GetNameInfoW(
-				    reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
+				GetNameInfoW(reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
 
 				ip.wscHostname = hostbuf;
 			}
@@ -201,8 +199,7 @@ void TimerCheckResolveResults()
 				continue; // outdated
 
 			// check if banned
-			for (const auto* config = FLHookConfig::c(); 
-				const auto& ban : config->bans.banWildcardsAndIPs)
+			for (const auto* config = FLHookConfig::c(); const auto& ban : config->bans.banWildcardsAndIPs)
 			{
 				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
 				{

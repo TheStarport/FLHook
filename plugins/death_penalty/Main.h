@@ -25,7 +25,6 @@ namespace Plugins::DeathPenalty
 
 	struct Global final
 	{
-
 		std::vector<uint> ExcludedSystemsIds;
 		std::map<uint, float> FractionOverridesByShipIds;
 

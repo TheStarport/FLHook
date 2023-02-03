@@ -571,8 +571,9 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	for (const auto& item : mailList)
 	{
 		// |    Id.) Subject (unread) - Author - Time
-		PrintUserCmdText(
-		    client, stows(std::format("|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
+		PrintUserCmdText(client,
+		    stows(std::format(
+		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
 	}
 }
 
@@ -676,8 +677,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 					PrintUserCmdText(client, i.usage);
 			}
 		}
-		else if (const auto& userCommand =
-		             std::ranges::find_if(UserCmds, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		else if (const auto& userCommand = std::ranges::find_if(UserCmds, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != UserCmds.end())
 		{
 			PrintUserCmdText(client, userCommand->usage);
@@ -690,8 +690,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	const auto& plugin =
-	    std::ranges::find_if(plugins, [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
+	const auto& plugin = std::ranges::find_if(plugins, [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
 
 	if (plugin == plugins.end())
 	{
@@ -711,8 +710,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 					PrintUserCmdText(client, command.usage);
 			}
 		}
-		else if (const auto& userCommand =
-		             std::ranges::find_if(*plugin->commands, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+		else if (const auto& userCommand = std::ranges::find_if(*plugin->commands, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
 		         userCommand != plugin->commands->end())
 		{
 			PrintUserCmdText(client, userCommand->usage);

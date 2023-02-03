@@ -150,7 +150,7 @@ namespace Plugins::CashManager::Sql
 		    "WHERE bankId = ? "
 		    "ORDER BY timestamp DESC "
 		    "LIMIT ? "
-			"OFFSET ?;");
+		    "OFFSET ?;");
 
 		transactions.bind(1, bank.accountId);
 		transactions.bind(2, amount);
@@ -185,7 +185,7 @@ namespace Plugins::CashManager::Sql
 		{
 			SQLite::Statement clearQuery(global->sql, "UPDATE banks SET identifier = NULL WHERE id = ?;");
 			clearQuery.bind(1, bank.accountId);
-			return;	
+			return;
 		}
 
 		SQLite::Statement clearQuery(global->sql, "UPDATE banks SET identifier = ? WHERE id = ?;");
@@ -210,4 +210,4 @@ namespace Plugins::CashManager::Sql
 
 		return cleaningQuery.exec();
 	}
-} // namespace Plugins::CashManager
+} // namespace Plugins::CashManager::Sql

@@ -91,7 +91,6 @@ namespace Plugins::PurchaseRestrictions
 		global->config = std::make_unique<Config>(config);
 	}
 
- 
 	//! Check that this client is allowed to buy/mount this piece of equipment or ship Return true if the equipment is mounted to allow this good.
 	bool CheckIdEquipRestrictions(ClientId client, uint iGoodId, bool isShip)
 	{
@@ -103,28 +102,18 @@ namespace Plugins::PurchaseRestrictions
 
 		int remainingHoldSize;
 		const auto cargoList = Hk::Player::EnumCargo(client, remainingHoldSize);
-		return std::ranges::any_of(cargoList.value(), [validItem](const CARGO_INFO& cargo) {
-			return cargo.bMounted && std::ranges::find(validItem->second, cargo.iArchId) != validItem->second.end();
-		});
+		return std::ranges::any_of(cargoList.value(),
+		    [validItem](const CARGO_INFO& cargo) { return cargo.bMounted && std::ranges::find(validItem->second, cargo.iArchId) != validItem->second.end(); });
 	}
 
 	//! Clear Client Info hook
-	void ClearClientInfo(ClientId& client)
-	{
-		global->clientSuppressBuy[client] = false;
-	}
+	void ClearClientInfo(ClientId& client) { global->clientSuppressBuy[client] = false; }
 
 	//! PlayerLaunch hook
-	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client)
-	{
-		global->clientSuppressBuy[client] = false;
-	}
+	void PlayerLaunch([[maybe_unused]] const uint& ship, ClientId& client) { global->clientSuppressBuy[client] = false; }
 
 	//! Base Enter hook
-	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
-	{
-		global->clientSuppressBuy[client] = false;
-	}
+	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client) { global->clientSuppressBuy[client] = false; }
 
 	//! Suppress the buying of goods.
 	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
@@ -175,8 +164,7 @@ namespace Plugins::PurchaseRestrictions
 					return;
 				}
 
-				if (global->shipItemRestrictionsHashed.contains(hullInfo->shipGoodId) &&
-				    !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
+				if (global->shipItemRestrictionsHashed.contains(hullInfo->shipGoodId) && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
 					AddLog(LogType::Normal,
@@ -206,7 +194,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress the buying of goods.
-	void ReqChangeCash([[maybe_unused]]const int& moneyDiff, ClientId& client)
+	void ReqChangeCash([[maybe_unused]] const int& moneyDiff, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -216,7 +204,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqSetCash([[maybe_unused]]const int& money, ClientId& client)
+	void ReqSetCash([[maybe_unused]] const int& money, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -234,7 +222,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqShipArch([[maybe_unused]]const uint& archId, ClientId& client)
+	void ReqShipArch([[maybe_unused]] const uint& archId, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -243,7 +231,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqHullStatus([[maybe_unused]]const float& status, ClientId& client)
+	void ReqHullStatus([[maybe_unused]] const float& status, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -263,8 +251,8 @@ REFL_AUTO(type(Config), field(checkItemRestrictions), field(enforceItemRestricti
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+// Functions to hook
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Purchase Restrictions");
 	pi->shortName("PurchaseRestrictions");

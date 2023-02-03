@@ -31,7 +31,8 @@ namespace Plugins::AntiJumpDisconnect
 
 	void LoadSettings()
 	{
-		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
+		global->tempBanCommunicator =
+		    static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 
 	void ClearClientInfo(ClientId& client) { global->mapInfo[client].bInWrapGate = false; }
@@ -43,7 +44,6 @@ namespace Plugins::AntiJumpDisconnect
 	{
 		if (global->mapInfo[client].bInWrapGate)
 		{
-
 			if (const auto ban = Hk::Player::Kill(client); ban.has_error())
 			{
 				PrintUserCmdText(client, Hk::Err::ErrGetText(ban.error()));
@@ -61,18 +61,12 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on Disconnect. Calls KillBan.
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
-	{
-		KillBan(client);
-	}
+	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state) { KillBan(client); }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on CharacterInfoReq (Character Select screen). Calls KillBan.
 	 */
-	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& p2)
-	{
-		KillBan(client);
-	}
+	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& p2) { KillBan(client); }
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
@@ -85,7 +79,7 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
 	 */
-	void SystemSwitchOutComplete([[maybe_unused]]const ShipId& Ship, ClientId& client) { global->mapInfo[client].bInWrapGate = true; }
+	void SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client) { global->mapInfo[client].bInWrapGate = true; }
 } // namespace Plugins::AntiJumpDisconnect
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

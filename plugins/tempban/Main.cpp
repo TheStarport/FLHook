@@ -4,7 +4,7 @@
  * @defgroup Tempban Tempban
  * @brief
  * The Tempban plugin allows other plugins to temporarily ban players for certain actions.
- * 
+ *
  * @paragraph cmds Player Commands
  * None
  *
@@ -12,7 +12,7 @@
  * None
  *
  * @paragraph configuration Configuration
-*  None
+ *  None
  *
  * @paragraph ipc IPC Interfaces Exposed
  * TempBanCommunicator: exposes Tempban method with parameters (wstring characterName, durationInMin)
@@ -44,9 +44,7 @@ namespace Plugins::Tempban
 		}
 	}
 
-	const std::vector<Timer> timers = {
-		{ClearExpiredTempbans, 15}
-	};
+	const std::vector<Timer> timers = {{ClearExpiredTempbans, 15}};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +72,7 @@ namespace Plugins::Tempban
 			AddLog(LogType::Kick, LogLevel::Info, std::format("{} could not be kicked (TempBan Plugin)", wstos(wscCharname)));
 			Console::ConInfo(std::format("{} could not be kicked", wstos(wscCharname)));
 		}
-		
+
 		return {};
 	}
 
@@ -117,7 +115,7 @@ namespace Plugins::Tempban
 		{
 			classptr->PrintError(err.error());
 		}
-			
+
 		classptr->Print("OK");
 	}
 

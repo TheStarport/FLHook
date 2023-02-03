@@ -65,7 +65,7 @@ std::string FlcDecode(std::string& input)
 	{
 		auto c = static_cast<byte>(((&input[0]) + 4)[i]);
 		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
-		
+
 		byte r = c ^ (k | 0x80);
 
 		output += r;

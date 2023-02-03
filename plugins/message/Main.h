@@ -40,7 +40,7 @@ namespace Plugins::Message
 		//! The json file we load out of
 		std::string File() override { return "config/message.json"; }
 
-		//! Greetings text for when user logins in 
+		//! Greetings text for when user logins in
 		std::vector<std::wstring> greetingBannerLines;
 
 		//! special banner text, on timer
@@ -96,13 +96,9 @@ namespace Plugins::Message
 		Plugins::Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 	};
 
-	//! A random macro to make things easier
-	#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+//! A random macro to make things easier
+#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
 
 	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring& wscParam);
 	void UserCmd_SendToLastTarget(ClientId& client, const std::wstring& wscParam);
-}
-
-
-
-
+} // namespace Plugins::Message

@@ -44,7 +44,9 @@ namespace Plugins::Betting
 				if (global->freeForAlls[system].contestants.contains(client))
 				{
 					global->freeForAlls[system].contestants[client].loser = true;
-					PrintLocalUserCmdText(client, std::wstring(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client))) + L" has been knocked out the FFA.", 100000);
+					PrintLocalUserCmdText(client,
+					    std::wstring(reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client))) + L" has been knocked out the FFA.",
+					    100000);
 				}
 
 				// Is the FreeForAll over?
@@ -67,7 +69,8 @@ namespace Plugins::Betting
 						// Announce and pay winner
 						std::wstring winner = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(contestantId));
 						Hk::Player::AddCash(winner, global->freeForAlls[system].pot);
-						const std::wstring message = winner + L" has won the FFA and receives " + std::to_wstring(global->freeForAlls[system].pot) + L" credits.";
+						const std::wstring message =
+						    winner + L" has won the FFA and receives " + std::to_wstring(global->freeForAlls[system].pot) + L" credits.";
 						PrintLocalUserCmdText(contestantId, message, 100000);
 					}
 					else
@@ -76,8 +79,7 @@ namespace Plugins::Betting
 						while (playerData = Players.traverse_active(playerData))
 						{
 							ClientId localClient = playerData->iOnlineId;
-							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); 
-								system == systemId)
+							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); system == systemId)
 								PrintUserCmdText(localClient, L"No one has won the FFA.");
 						}
 					}
@@ -116,7 +118,7 @@ namespace Plugins::Betting
 		// Check the player can afford it
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 		uint cash = 0;
-		if (const auto err =  Hk::Player::GetCash(client); err.has_error() )
+		if (const auto err = Hk::Player::GetCash(client); err.has_error())
 		{
 			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 			return;
@@ -141,8 +143,7 @@ namespace Plugins::Betting
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
-				if (SystemId clientSystemId = Hk::Player::GetSystem(client2).value(); 
-					systemId != clientSystemId)
+				if (SystemId clientSystemId = Hk::Player::GetSystem(client2).value(); systemId != clientSystemId)
 					continue;
 
 				// Add them to the contestants freeForAlls
@@ -153,8 +154,9 @@ namespace Plugins::Betting
 				else
 				{
 					global->freeForAlls[systemId].contestants[client2].accepted = false;
-					PrintUserCmdText(client2, std::format(L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.",
-					    characterName, amount));
+					PrintUserCmdText(client2,
+					    std::format(
+					        L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.", characterName, amount));
 				}
 			}
 
@@ -201,7 +203,7 @@ namespace Plugins::Betting
 
 			// Check the player can afford it
 			uint cash = 0;
-			if (const auto err = Hk::Player::GetCash(client) ; err.has_error())
+			if (const auto err = Hk::Player::GetCash(client); err.has_error())
 			{
 				PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 				return;
@@ -222,7 +224,8 @@ namespace Plugins::Betting
 				    std::to_wstring(global->freeForAlls[systemId].entryAmount) +
 				        L" credits have been deducted from "
 				        L"your Neural Net account.");
-				const std::wstring msg = characterName + L" has joined the FFA. Pot is now at " + std::to_wstring(global->freeForAlls[systemId].pot) + L" credits.";
+				const std::wstring msg =
+				    characterName + L" has joined the FFA. Pot is now at " + std::to_wstring(global->freeForAlls[systemId].pot) + L" credits.";
 				PrintLocalUserCmdText(client, msg, 100000);
 
 				// Deduct cash
@@ -408,8 +411,8 @@ namespace Plugins::Betting
 				}
 
 				duel.accepted = true;
-				const std::wstring message = characterName + L" has accepted the duel with " + reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(duel.client)) + L" for " +
-				    std::to_wstring(duel.amount) + L" credits.";
+				const std::wstring message = characterName + L" has accepted the duel with " +
+				    reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(duel.client)) + L" for " + std::to_wstring(duel.amount) + L" credits.";
 				PrintLocalUserCmdText(client, message, 10000);
 				return;
 			}
@@ -432,13 +435,11 @@ namespace Plugins::Betting
 	// Client command processing
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const std::vector commands = {
-		CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L"Accepts the current duel request."),
+	const std::vector commands = {CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L"Accepts the current duel request."),
 	    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L"Accept the current ffa request."),
 	    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L"Cancel the current duel/ffa request."),
 	    CreateUserCommand(L"/duel", L"<amount>", UserCmdDuel, L"Create a duel request to the targeted player. Winner gets the pot."),
-	    CreateUserCommand(L"/ffa", L"<amount>", UserCmdStartFreeForAll, L"Create an ffa and send an invite to everyone in the system. Winner gets the pot.")
-	};
+	    CreateUserCommand(L"/ffa", L"<amount>", UserCmdStartFreeForAll, L"Create an ffa and send an invite to everyone in the system. Winner gets the pot.")};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Hooks
@@ -447,11 +448,10 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
 	 */
-	int __cdecl DockCall(
-	    unsigned int const& ship, [[maybe_unused]] unsigned int const& d, [[maybe_unused]]const int& cancel, [[maybe_unused]] const enum DOCK_HOST_RESPONSE& response)
+	int __cdecl DockCall(unsigned int const& ship, [[maybe_unused]] unsigned int const& d, [[maybe_unused]] const int& cancel,
+	    [[maybe_unused]] const enum DOCK_HOST_RESPONSE& response)
 	{
-		if (const auto client = Hk::Client::GetClientIdByShip(ship); 
-			client.has_value() && Hk::Client::IsValidClientID(client.value()))
+		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
 			processFFA(client.value());
 			ProcessDuel(client.value());
@@ -462,7 +462,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]]const enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
 	{
 		processFFA(client);
 		ProcessDuel(client);
@@ -471,7 +471,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
 	 */
-	void CharacterInfoReq(ClientId& client, [[maybe_unused]]const bool& p2)
+	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& p2)
 	{
 		processFFA(client);
 		ProcessDuel(client);

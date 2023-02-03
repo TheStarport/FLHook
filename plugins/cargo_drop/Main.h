@@ -26,7 +26,7 @@ namespace Plugins::CargoDrop
 		bool killDisconnectingPlayers = false;
 		bool lootDisconnectingPlayers = false;
 		bool enablePlayerCargoDropOnDeath = false;
-		int maxPlayerCargoDropCount = 3000; 
+		int maxPlayerCargoDropCount = 3000;
 		float disconnectingPlayersRange = 5000.0f;
 		float hullDropFactor = 0.1f;
 		std::string disconnectMsg = "%player is attempting to engage cloaking device";

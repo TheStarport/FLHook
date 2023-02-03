@@ -17,7 +17,7 @@ namespace IEngineHook
 	extern FARPROC g_OldDestroyCShip;
 	extern FARPROC g_OldLaunchPosition;
 	extern FARPROC g_OldLoadReputationFromCharacterFile;
-} // namespace IEngine
+} // namespace IEngineHook
 
 void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg);
@@ -31,71 +31,69 @@ extern FARPROC g_OldGuidedHit;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PatchInfo piFLServerEXE = { "flserver.exe",
-	                         0x0400000,
-	                         {
-	                             { 0x041B094, &IEngineHook::UpdateTime, 4, 0, false },
-	                             { 0x041BAB0, &IEngineHook::ElapseTime, 4, 0, false },
+PatchInfo piFLServerEXE = {"flserver.exe",
+    0x0400000,
+    {
+        {0x041B094, &IEngineHook::UpdateTime, 4, 0, false},
+        {0x041BAB0, &IEngineHook::ElapseTime, 4, 0, false},
 
-	                             { 0, 0, 0, 0 } // terminate
-	                         } };
+        {0, 0, 0, 0} // terminate
+    }};
 
-PatchInfo piContentDLL = { "content.dll",
-	                        0x6EA0000,
-	                        {
-	                            { 0x6FB358C, &IEngineHook::DockCall, 4, 0, false },
+PatchInfo piContentDLL = {"content.dll",
+    0x6EA0000,
+    {
+        {0x6FB358C, &IEngineHook::DockCall, 4, 0, false},
 
-	                            { 0, 0, 0, 0 } // terminate
-	                        } };
+        {0, 0, 0, 0} // terminate
+    }};
 
-PatchInfo piCommonDLL = { "common.dll",
-	                       0x6260000,
-	                       {
+PatchInfo piCommonDLL = {"common.dll",
+    0x6260000,
+    {
 
-	                           { 0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false },
-	                           { 0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip,
-	                             false },
+        {0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false},
+        {0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip, false},
 
-	                           { 0, 0, 0, 0 } // terminate
-	                       } };
+        {0, 0, 0, 0} // terminate
+    }};
 
-PatchInfo piServerDLL = { "server.dll",
-	                       0x6CE0000,
-	                       {
-	                           { 0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false },
-	                           { 0x6D641EC, &Naked__AddDamageEntry, 4, 0, false },
-	                           { 0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false },
-	                           { 0x6D65448, &Naked__GuidedHit, 4, 0, false },
-	                           { 0x6D67670, &Naked__GuidedHit, 4, 0, false },
-	                           { 0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false },
-	                           { 0x6D672CC, &Naked__DamageHit, 4, 0, false },
-	                           { 0x6D6761C, &Naked__DamageHit, 4, 0, false },
-	                           { 0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false },
-	                           { 0x6D67330, &Naked__DamageHit2, 4, 0, false },
-	                           { 0x6D67680, &Naked__DamageHit2, 4, 0, false },
-	                           { 0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false },
-	                           { 0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition,
-	                             false },
-	                           { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, 0, false },
+PatchInfo piServerDLL = {"server.dll",
+    0x6CE0000,
+    {
+        {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
+        {0x6D641EC, &Naked__AddDamageEntry, 4, 0, false},
+        {0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false},
+        {0x6D65448, &Naked__GuidedHit, 4, 0, false},
+        {0x6D67670, &Naked__GuidedHit, 4, 0, false},
+        {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
+        {0x6D672CC, &Naked__DamageHit, 4, 0, false},
+        {0x6D6761C, &Naked__DamageHit, 4, 0, false},
+        {0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false},
+        {0x6D67330, &Naked__DamageHit2, 4, 0, false},
+        {0x6D67680, &Naked__DamageHit2, 4, 0, false},
+        {0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
+        {0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition, false},
+        {0x6D648E0, &IEngineHook::FreeReputationVibe, 4, 0, false},
 
-	                           { 0, 0, 0, 0 } // terminate
-	                       } };
+        {0, 0, 0, 0} // terminate
+    }};
 
-PatchInfo piRemoteClientDLL = { "remoteclient.dll",
-	                             0x6B30000,
-	                             {
-	                                 { 0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false },
+PatchInfo piRemoteClientDLL = {"remoteclient.dll",
+    0x6B30000,
+    {
+        {0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false},
 
-	                                 { 0, 0, 0, 0 } // terminate
-	                             } };
+        {0, 0, 0, 0} // terminate
+    }};
 
-PatchInfo piDaLibDLL = { "dalib.dll",
-	                      0x65C0000,
-	                      {
-	                          { 0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false },
+PatchInfo piDaLibDLL = {"dalib.dll",
+    0x65C0000,
+    {
+        {0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
 
-	                          { 0, 0, 0, 0 } // terminate
-	                      } };
+        {0, 0, 0, 0} // terminate
+    }};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -290,7 +288,7 @@ bool InitHookExports()
 	Patch(piDaLibDLL);
 
 	// patch rep array free
-	char szNOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
+	char szNOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
 	char* pAddress = ((char*)hModServer + ADDR_SRV_REPARRAYFREE);
 	ReadProcMem(pAddress, szRepFreeFixOld, 5);
 	WriteProcMem(pAddress, szNOPs, 5);
@@ -299,15 +297,15 @@ bool InitHookExports()
 
 	// divert call to house load/save func
 	pAddress = SRV_ADDR(0x679C6);
-	char szDivertJump[] = { '\x6F' };
+	char szDivertJump[] = {'\x6F'};
 
 	WriteProcMem(pAddress, szDivertJump, 1);
 
 	// install hook at new address
 	pAddress = SRV_ADDR(0x78B39);
 
-	char szMovEAX[] = { '\xB8' };
-	char szJMPEAX[] = { '\xFF', '\xE0' };
+	char szMovEAX[] = {'\xB8'};
+	char szJMPEAX[] = {'\xFF', '\xE0'};
 
 	FARPROC fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
@@ -406,10 +404,10 @@ void UnloadHookExports()
 
 	// undivert call to house load/save func
 	pAddress = SRV_ADDR(0x679C6);
-	char szDivertJump[] = { '\x76' };
+	char szDivertJump[] = {'\x76'};
 
 	// anti-death-msg
-	char szOld[] = { '\x74' };
+	char szOld[] = {'\x74'};
 	pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 	WriteProcMem(pAddress, szOld, 1);
 
@@ -429,13 +427,13 @@ void HookRehashed()
 	// anti-deathmsg
 	if (FLHookConfig::i()->general.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
-		char szJMP[] = { '\xEB' };
+		char szJMP[] = {'\xEB'};
 		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(pAddress, szJMP, 1);
 	}
 	else
 	{
-		char szOld[] = { '\x74' };
+		char szOld[] = {'\x74'};
 		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(pAddress, szOld, 1);
 	}
@@ -443,7 +441,7 @@ void HookRehashed()
 	// charfile encyption(doesn't get disabled when unloading FLHook)
 	if (FLHookConfig::i()->general.disableCharfileEncryption)
 	{
-		char szBuf[] = { '\x14', '\xB3' };
+		char szBuf[] = {'\x14', '\xB3'};
 		pAddress = SRV_ADDR(ADDR_DISCFENCR);
 		WriteProcMem(pAddress, szBuf, 2);
 		pAddress = SRV_ADDR(ADDR_DISCFENCR2);
@@ -451,7 +449,7 @@ void HookRehashed()
 	}
 	else
 	{
-		char szBuf[] = { '\xE4', '\xB4' };
+		char szBuf[] = {'\xE4', '\xB4'};
 		pAddress = SRV_ADDR(ADDR_DISCFENCR);
 		WriteProcMem(pAddress, szBuf, 2);
 		pAddress = SRV_ADDR(ADDR_DISCFENCR2);

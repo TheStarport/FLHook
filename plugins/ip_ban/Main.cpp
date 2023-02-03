@@ -54,8 +54,7 @@ namespace Plugins::IPBan
 			WIN32_FIND_DATA findFileData;
 
 			std::string scFileSearchPath = CoreGlobals::c()->accPath + "\\" + wstos(dir) + "\\login_*.ini"; // Looks like DSAM generates this file
-			if (HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData); 
-				hFileFind != INVALID_HANDLE_VALUE)
+			if (HANDLE hFileFind = FindFirstFile(scFileSearchPath.c_str(), &findFileData); hFileFind != INVALID_HANDLE_VALUE)
 			{
 				do
 				{
@@ -116,7 +115,8 @@ namespace Plugins::IPBan
 	}
 
 	/** @ingroup IPBan
-	 * @brief Return true if this client is in in the AuthenticatedAccounts.json file indicating that the client can connect even if they are otherwise on a restricted IP range.
+	 * @brief Return true if this client is in in the AuthenticatedAccounts.json file indicating that the client can connect even if they are otherwise on a
+	 * restricted IP range.
 	 */
 	static bool IsAuthenticated(ClientId client)
 	{
@@ -249,10 +249,9 @@ namespace Plugins::IPBan
 		if (!acc)
 			return;
 
-
-		if (std::wstring directory = Hk::Client::GetAccountDirName(acc); std::ranges::find(global->authenticatedAccounts.Accounts, directory) ==
-		    global->authenticatedAccounts.Accounts.end())
-				global->authenticatedAccounts.Accounts.emplace_back(directory);
+		if (std::wstring directory = Hk::Client::GetAccountDirName(acc);
+		    std::ranges::find(global->authenticatedAccounts.Accounts, directory) == global->authenticatedAccounts.Accounts.end())
+			global->authenticatedAccounts.Accounts.emplace_back(directory);
 
 		return;
 	}

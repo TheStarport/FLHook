@@ -6,17 +6,13 @@
 
 namespace IEngineHook
 {
-
 	/**************************************************************************************************************
 	// ship create & destroy
 	**************************************************************************************************************/
 
 	FARPROC g_OldInitCShip;
 
-	void __stdcall CShip__Init(CShip* ship)
-	{
-		CallPluginsAfter(HookedCall::IEngine__CShip__Init, ship);
-	}
+	void __stdcall CShip__Init(CShip* ship) { CallPluginsAfter(HookedCall::IEngine__CShip__Init, ship); }
 
 	__declspec(naked) void Naked__CShip__Init()
 	{
@@ -31,10 +27,7 @@ namespace IEngineHook
 
 	FARPROC g_OldDestroyCShip;
 
-	void __stdcall CShip__Destroy(CShip* ship)
-	{
-		CallPluginsBefore(HookedCall::IEngine__CShip__Destroy, ship);
-	}
+	void __stdcall CShip__Destroy(CShip* ship) { CallPluginsBefore(HookedCall::IEngine__CShip__Destroy, ship); }
 
 	__declspec(naked) void Naked__CShip__Destroy()
 	{
@@ -145,8 +138,7 @@ namespace IEngineHook
 
 	bool __stdcall LaunchPosition(uint spaceId, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock)
 	{
-		auto [retVal, skip] =
-		    CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
+		auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
 		if (skip)
 			return retVal;
 
@@ -225,4 +217,4 @@ abort_lbl:
 	/**************************************************************************************************************
 	**************************************************************************************************************/
 
-} // namespace IEngine
+} // namespace IEngineHook

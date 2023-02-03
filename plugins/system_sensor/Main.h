@@ -17,7 +17,8 @@ namespace Plugins::SystemSensor
 	struct Sensor final
 	{
 		Sensor() = delete;
-		Sensor(const std::string& systemId, const std::string& equipId, const NetworkId networkId) : systemId(CreateID(systemId.c_str())), equipId(CreateID(equipId.c_str())), networkId(networkId)
+		Sensor(const std::string& systemId, const std::string& equipId, const NetworkId networkId)
+		    : systemId(CreateID(systemId.c_str())), equipId(CreateID(equipId.c_str())), networkId(networkId)
 		{
 		}
 
@@ -57,4 +58,4 @@ namespace Plugins::SystemSensor
 		std::multimap<EquipId, Sensor> sensorEquip;
 		std::multimap<SystemId, Sensor> sensorSystem;
 	};
-}
+} // namespace Plugins::SystemSensor

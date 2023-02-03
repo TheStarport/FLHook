@@ -103,7 +103,7 @@ namespace Plugins::Warehouse
 		SQLite::Statement itemQuery(global->sql, "SELECT quantity FROM items WHERE playerId = ? AND id = ?;");
 		itemQuery.bind(1, playerId);
 		itemQuery.bind(2, sqlId);
-		if(!itemQuery.executeStep())
+		if (!itemQuery.executeStep())
 		{
 			return 0;
 		}

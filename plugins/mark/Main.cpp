@@ -211,7 +211,7 @@ REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Mark plugin");
 	pi->shortName("mark");

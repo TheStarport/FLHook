@@ -24,5 +24,4 @@ namespace Plugins::SoundManager
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returncode = ReturnCode::Default;
 	};
-}
-
+} // namespace Plugins::SoundManager
