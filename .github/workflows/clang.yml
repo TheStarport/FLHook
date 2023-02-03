@@ -1,8 +1,6 @@
 name: clang
 
-on:
-  push:
-    branches: [ master ]
+on: workflow_dispatch
 
 jobs:
   clang:
@@ -23,5 +21,6 @@ jobs:
           author_email: clang-robot@the-starport.net
           message: 'clang-format changes'
           fetch: 'false'
+          new_branch: clang-format
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
