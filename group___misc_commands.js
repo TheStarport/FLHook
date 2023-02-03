@@ -1,10 +1,10 @@
 var group___misc_commands =
 [
-    [ "Plugins::MiscCommands::UserCmdCoin", "group___misc_commands.html#gade4b1b2142d10b8b8fb70fe460a9ab94", null ],
-    [ "Plugins::MiscCommands::UserCmdDice", "group___misc_commands.html#ga892de93830d1bf2e2fe5c3b7c329c41c", null ],
-    [ "Plugins::MiscCommands::UserCmdDropRep", "group___misc_commands.html#ga838fb8dfde882a4922d1a5ba215d39fc", null ],
-    [ "Plugins::MiscCommands::UserCmdLights", "group___misc_commands.html#gaa498be7f4b08eeca679569fc69da6f86", null ],
-    [ "Plugins::MiscCommands::UserCmdPos", "group___misc_commands.html#ga8ac4727b18cf8adbf04caa309d566dac", null ],
-    [ "Plugins::MiscCommands::UserCmdShields", "group___misc_commands.html#gac5434306c6d5317e751f04125fad725c", null ],
-    [ "Plugins::MiscCommands::UserCmdStuck", "group___misc_commands.html#ga8ddb21d3fb8620466b2e22e591e6edb3", null ]
+    [ "Plugins::MiscCommands::UserCmdCoin", "group___misc_commands.html#gae9bcbc80ed08d69ba2cdf0c3d97207af", null ],
+    [ "Plugins::MiscCommands::UserCmdDice", "group___misc_commands.html#ga2e07bddef75d520291dc7cb42aa74fab", null ],
+    [ "Plugins::MiscCommands::UserCmdDropRep", "group___misc_commands.html#gacb3cee6648111fa8832ab656332e1db3", null ],
+    [ "Plugins::MiscCommands::UserCmdLights", "group___misc_commands.html#ga64b7cc4c07742fe75eef7fed7d3a7f4a", null ],
+    [ "Plugins::MiscCommands::UserCmdPos", "group___misc_commands.html#ga042d8060be5810f959b885bd62256ba4", null ],
+    [ "Plugins::MiscCommands::UserCmdShields", "group___misc_commands.html#ga92299577c6fc705c1e3a1c2ba8726a65", null ],
+    [ "Plugins::MiscCommands::UserCmdStuck", "group___misc_commands.html#gae7edf686ed6c5f8e26d315e3a1b5b04e", null ]
 ];

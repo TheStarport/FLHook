@@ -1,9 +1,0 @@
-<map id="Module" name="Module">
-<area shape="rect" id="node1" title=" " alt="" coords="355,5,425,32"/>
-<area shape="rect" id="node2" href="$class_build_module.html" title=" " alt="" coords="5,80,108,107"/>
-<area shape="rect" id="node3" href="$class_core_module.html" title=" " alt="" coords="132,80,232,107"/>
-<area shape="rect" id="node4" href="$class_defense_module.html" title=" " alt="" coords="256,80,380,107"/>
-<area shape="rect" id="node5" href="$class_factory_module.html" title=" " alt="" coords="405,80,522,107"/>
-<area shape="rect" id="node6" href="$class_shield_module.html" title=" " alt="" coords="547,80,657,107"/>
-<area shape="rect" id="node7" href="$class_storage_module.html" title=" " alt="" coords="682,80,802,107"/>
-</map>

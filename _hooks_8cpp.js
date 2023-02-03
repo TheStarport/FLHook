@@ -1,7 +1,5 @@
 var _hooks_8cpp =
 [
-    [ "TRIGGER_ARG", "struct_t_r_i_g_g_e_r___a_r_g.html", "struct_t_r_i_g_g_e_r___a_r_g" ],
-    [ "ACTION_DEBUGMSG_DATA", "struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html", "struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a" ],
     [ "IS_CMD", "_hooks_8cpp.html#a6c78cbe9221ca9b2921d8615a2e863fc", null ],
     [ "__declspec", "_hooks_8cpp.html#a893e9dedd925b9dddb0a16aa8d2fce2d", null ],
     [ "CmdHelp_Callback", "_hooks_8cpp.html#a350dcdeb2ce444fa4c4623931a91b781", null ],

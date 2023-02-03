@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['json_0',['json',['../stats__plugin_2_main_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d',1,'Main.cpp']]]
+  ['networkid_0',['NetworkId',['../namespace_plugins_1_1_system_sensor.html#a404a921f0c46f7ccc946873125e3d3d5',1,'Plugins::SystemSensor']]]
 ];

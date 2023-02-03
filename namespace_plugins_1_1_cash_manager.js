@@ -1,0 +1,47 @@
+var namespace_plugins_1_1_cash_manager =
+[
+    [ "Sql", "namespace_plugins_1_1_cash_manager_1_1_sql.html", [
+      [ "AddTransaction", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a7264a6993768cfb552873a088d8687a3", null ],
+      [ "CountTransactions", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a16e108ac6a8b7f6c706ae45065b92adf", null ],
+      [ "CreateSqlTables", "namespace_plugins_1_1_cash_manager_1_1_sql.html#af7f5728fef4e651843ef086664438a7c", null ],
+      [ "DepositCash", "namespace_plugins_1_1_cash_manager_1_1_sql.html#ac6338d9963418440d15235d3e317efea", null ],
+      [ "GenerateBankPassword", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a6ac256243deaf296ba11d10291bbc309", null ],
+      [ "GetBankByIdentifier", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a7b02610bd7bb9cd746955c19fb9b4dd8", null ],
+      [ "GetOrCreateBank", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a9cf3ec97c4bc659199344126c906810f", null ],
+      [ "ListTransactions", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a3a7ac329b746b952318ce54d077cca5f", null ],
+      [ "RemoveTransactionsOverSpecifiedDays", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a6c34f43f09a31cc13ba43953ad7997bf", null ],
+      [ "SetNewPassword", "namespace_plugins_1_1_cash_manager_1_1_sql.html#abdf4b74ddd29c8e11488d33d87fd95bd", null ],
+      [ "SetOrClearIdentifier", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a81c3b1f1862b78e2f34b69b47f2f98e7", null ],
+      [ "TransferCash", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a97d4f601a03ae77117954e0df012403a", null ],
+      [ "WithdrawCash", "namespace_plugins_1_1_cash_manager_1_1_sql.html#af809af0bb5293a330260b7d8c70e8340", null ],
+      [ "SecondsInADay", "namespace_plugins_1_1_cash_manager_1_1_sql.html#a3e0016e81562dd9f61764c33b35cc984", null ]
+    ] ],
+    [ "Bank", "struct_plugins_1_1_cash_manager_1_1_bank.html", "struct_plugins_1_1_cash_manager_1_1_bank" ],
+    [ "CashManagerCommunicator", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator" ],
+    [ "Config", "struct_plugins_1_1_cash_manager_1_1_config.html", "struct_plugins_1_1_cash_manager_1_1_config" ],
+    [ "Global", "struct_plugins_1_1_cash_manager_1_1_global.html", "struct_plugins_1_1_cash_manager_1_1_global" ],
+    [ "Transaction", "struct_plugins_1_1_cash_manager_1_1_transaction.html", "struct_plugins_1_1_cash_manager_1_1_transaction" ],
+    [ "BankCode", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19", [
+      [ "InternalServerError", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19aecbf01325f1c744e9d7bb586ac2eb5ed", null ],
+      [ "NotEnoughMoney", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a261cca2ac483068d987c38cfa8fd6094", null ],
+      [ "AboveMaximumTransferThreshold", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19af6dfba14ec24816a62d5644b33ee6bb4", null ],
+      [ "BelowMinimumTransferThreshold", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a3fc039d03ce5a7349afd447d9102e968", null ],
+      [ "CannotWithdrawNegativeNumber", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a8216f27354873b98e59a079810d2503b", null ],
+      [ "BankCouldNotAffordTransfer", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a0acf01ca1d1b7d8c68331ec8ce31b391", null ],
+      [ "Success", "namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a505a83f220c02df2f85c3810cd9ceb38", null ]
+    ] ],
+    [ "BaseEnter", "namespace_plugins_1_1_cash_manager.html#a685f47dd3d9f8177d6311a51922282c3", null ],
+    [ "DepositMoney", "namespace_plugins_1_1_cash_manager.html#a93fc7db73d3a1d6a99f00856bb268151", null ],
+    [ "DepositSurplusCash", "namespace_plugins_1_1_cash_manager.html#a16f50e9a6a569670e06af9770178b1eb", null ],
+    [ "GetHumanTime", "namespace_plugins_1_1_cash_manager.html#a1f1b24547f298bc93b2a8d6007a332a1", null ],
+    [ "IpcConsumeBankCash", "namespace_plugins_1_1_cash_manager.html#a2a2a93dc805b94594a5e7d62ad324046", null ],
+    [ "LoadSettings", "namespace_plugins_1_1_cash_manager.html#a6c1acd77a6378acb5febb17dadaa5412", null ],
+    [ "PlayerLaunch", "namespace_plugins_1_1_cash_manager.html#a8a008b6f72530a45c552cb65e143cfa0", null ],
+    [ "ShowBankInfo", "namespace_plugins_1_1_cash_manager.html#a6ec625fc6fbc7864998011d0efed2d6a", null ],
+    [ "TransferMoney", "namespace_plugins_1_1_cash_manager.html#a6aaa8140ea8dff3a2ea4b2afd29695ba", null ],
+    [ "UserCmdWithdrawMoneyByPassword", "namespace_plugins_1_1_cash_manager.html#a438b436d7b834bdd4d93152fb9bb1c49", null ],
+    [ "UserCommandHandler", "namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3", null ],
+    [ "WithdrawMoneyFromBank", "namespace_plugins_1_1_cash_manager.html#af2ce0b03a97f85e54b80346872b22377", null ],
+    [ "commands", "namespace_plugins_1_1_cash_manager.html#aea43bc5c246ceeb42e370642dec5d0d1", null ],
+    [ "global", "namespace_plugins_1_1_cash_manager.html#a3f30a85c1fee2cb52dfad8bbc553cbc9", null ]
+];

@@ -1,128 +1,206 @@
 var annotated_dup =
 [
-    [ "HkIEngine", "namespace_hk_i_engine.html", [
-      [ "LOAD_REP_DATA", "struct_hk_i_engine_1_1_l_o_a_d___r_e_p___d_a_t_a.html", "struct_hk_i_engine_1_1_l_o_a_d___r_e_p___d_a_t_a" ],
-      [ "REP_DATA_LIST", "struct_hk_i_engine_1_1_r_e_p___d_a_t_a___l_i_s_t.html", "struct_hk_i_engine_1_1_r_e_p___d_a_t_a___l_i_s_t" ]
+    [ "Hk", "namespace_hk.html", [
+      [ "Err", "namespace_hk_1_1_err.html", [
+        [ "ErrorInfo", "struct_hk_1_1_err_1_1_error_info.html", "struct_hk_1_1_err_1_1_error_info" ]
+      ] ],
+      [ "Ini", "namespace_hk_1_1_ini.html", [
+        [ "FLHOOK_PLAYER_DATA", "struct_hk_1_1_ini_1_1_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html", "struct_hk_1_1_ini_1_1_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a" ]
+      ] ],
+      [ "Player", "namespace_hk_1_1_player.html", [
+        [ "EQ_ITEM", "struct_hk_1_1_player_1_1_e_q___i_t_e_m.html", "struct_hk_1_1_player_1_1_e_q___i_t_e_m" ]
+      ] ]
     ] ],
-    [ "HkIServerImpl", "namespace_hk_i_server_impl.html", [
-      [ "TIMER", "struct_hk_i_server_impl_1_1_t_i_m_e_r.html", "struct_hk_i_server_impl_1_1_t_i_m_e_r" ],
-      [ "Timer", "struct_hk_i_server_impl_1_1_timer.html", "struct_hk_i_server_impl_1_1_timer" ]
+    [ "IEngineHook", "namespace_i_engine_hook.html", [
+      [ "LOAD_REP_DATA", "struct_i_engine_hook_1_1_l_o_a_d___r_e_p___d_a_t_a.html", "struct_i_engine_hook_1_1_l_o_a_d___r_e_p___d_a_t_a" ],
+      [ "REP_DATA_LIST", "struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t.html", "struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t" ]
     ] ],
     [ "Plugins", "namespace_plugins.html", [
+      [ "Afk", "namespace_plugins_1_1_afk.html", [
+        [ "Global", "struct_plugins_1_1_afk_1_1_global.html", "struct_plugins_1_1_afk_1_1_global" ]
+      ] ],
+      [ "AntiJumpDisconnect", "namespace_plugins_1_1_anti_jump_disconnect.html", [
+        [ "Global", "struct_plugins_1_1_anti_jump_disconnect_1_1_global.html", "struct_plugins_1_1_anti_jump_disconnect_1_1_global" ]
+      ] ],
+      [ "Arena", "namespace_plugins_1_1_arena.html", [
+        [ "Config", "struct_plugins_1_1_arena_1_1_config.html", "struct_plugins_1_1_arena_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_arena_1_1_global.html", "struct_plugins_1_1_arena_1_1_global" ]
+      ] ],
+      [ "Autobuy", "namespace_plugins_1_1_autobuy.html", [
+        [ "AutobuyCartItem", "struct_plugins_1_1_autobuy_1_1_autobuy_cart_item.html", "struct_plugins_1_1_autobuy_1_1_autobuy_cart_item" ],
+        [ "AutobuyInfo", "class_plugins_1_1_autobuy_1_1_autobuy_info.html", "class_plugins_1_1_autobuy_1_1_autobuy_info" ],
+        [ "Config", "struct_plugins_1_1_autobuy_1_1_config.html", "struct_plugins_1_1_autobuy_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_autobuy_1_1_global.html", "struct_plugins_1_1_autobuy_1_1_global" ]
+      ] ],
+      [ "Betting", "namespace_plugins_1_1_betting.html", [
+        [ "Contestant", "struct_plugins_1_1_betting_1_1_contestant.html", "struct_plugins_1_1_betting_1_1_contestant" ],
+        [ "Duel", "struct_plugins_1_1_betting_1_1_duel.html", "struct_plugins_1_1_betting_1_1_duel" ],
+        [ "FreeForAll", "struct_plugins_1_1_betting_1_1_free_for_all.html", "struct_plugins_1_1_betting_1_1_free_for_all" ],
+        [ "Global", "struct_plugins_1_1_betting_1_1_global.html", "struct_plugins_1_1_betting_1_1_global" ]
+      ] ],
+      [ "BountyHunt", "namespace_plugins_1_1_bounty_hunt.html", [
+        [ "BountyHunt", "struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt.html", "struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt" ],
+        [ "Config", "struct_plugins_1_1_bounty_hunt_1_1_config.html", "struct_plugins_1_1_bounty_hunt_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_bounty_hunt_1_1_global.html", "struct_plugins_1_1_bounty_hunt_1_1_global" ]
+      ] ],
+      [ "CargoDrop", "namespace_plugins_1_1_cargo_drop.html", [
+        [ "Config", "struct_plugins_1_1_cargo_drop_1_1_config.html", "struct_plugins_1_1_cargo_drop_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_cargo_drop_1_1_global.html", "struct_plugins_1_1_cargo_drop_1_1_global" ],
+        [ "Info", "class_plugins_1_1_cargo_drop_1_1_info.html", "class_plugins_1_1_cargo_drop_1_1_info" ]
+      ] ],
+      [ "CashManager", "namespace_plugins_1_1_cash_manager.html", [
+        [ "Bank", "struct_plugins_1_1_cash_manager_1_1_bank.html", "struct_plugins_1_1_cash_manager_1_1_bank" ],
+        [ "CashManagerCommunicator", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator" ],
+        [ "Config", "struct_plugins_1_1_cash_manager_1_1_config.html", "struct_plugins_1_1_cash_manager_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_cash_manager_1_1_global.html", "struct_plugins_1_1_cash_manager_1_1_global" ],
+        [ "Transaction", "struct_plugins_1_1_cash_manager_1_1_transaction.html", "struct_plugins_1_1_cash_manager_1_1_transaction" ]
+      ] ],
+      [ "ConData", "namespace_plugins_1_1_con_data.html", [
+        [ "ConDataCommunicator", "class_plugins_1_1_con_data_1_1_con_data_communicator.html", "class_plugins_1_1_con_data_1_1_con_data_communicator" ],
+        [ "Config", "struct_plugins_1_1_con_data_1_1_config.html", "struct_plugins_1_1_con_data_1_1_config" ],
+        [ "ConnectionData", "struct_plugins_1_1_con_data_1_1_connection_data.html", "struct_plugins_1_1_con_data_1_1_connection_data" ],
+        [ "ConnectionDataException", "struct_plugins_1_1_con_data_1_1_connection_data_exception.html", "struct_plugins_1_1_con_data_1_1_connection_data_exception" ],
+        [ "Global", "struct_plugins_1_1_con_data_1_1_global.html", "struct_plugins_1_1_con_data_1_1_global" ],
+        [ "MiscClientInfo", "struct_plugins_1_1_con_data_1_1_misc_client_info.html", "struct_plugins_1_1_con_data_1_1_misc_client_info" ]
+      ] ],
+      [ "CrashCatcher", "namespace_plugins_1_1_crash_catcher.html", [
+        [ "Global", "struct_plugins_1_1_crash_catcher_1_1_global.html", "struct_plugins_1_1_crash_catcher_1_1_global" ]
+      ] ],
+      [ "DeathPenalty", "namespace_plugins_1_1_death_penalty.html", [
+        [ "CLIENT_DATA", "struct_plugins_1_1_death_penalty_1_1_c_l_i_e_n_t___d_a_t_a.html", "struct_plugins_1_1_death_penalty_1_1_c_l_i_e_n_t___d_a_t_a" ],
+        [ "Config", "struct_plugins_1_1_death_penalty_1_1_config.html", "struct_plugins_1_1_death_penalty_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_death_penalty_1_1_global.html", "struct_plugins_1_1_death_penalty_1_1_global" ]
+      ] ],
+      [ "Event", "namespace_plugins_1_1_event.html", [
+        [ "CARGO_MISSION", "struct_plugins_1_1_event_1_1_c_a_r_g_o___m_i_s_s_i_o_n.html", "struct_plugins_1_1_event_1_1_c_a_r_g_o___m_i_s_s_i_o_n" ],
+        [ "Config", "struct_plugins_1_1_event_1_1_config.html", "struct_plugins_1_1_event_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_event_1_1_global.html", "struct_plugins_1_1_event_1_1_global" ],
+        [ "NPC_MISSION", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n" ]
+      ] ],
+      [ "KillCounter", "namespace_plugins_1_1_kill_counter.html", [
+        [ "Config", "struct_plugins_1_1_kill_counter_1_1_config.html", "struct_plugins_1_1_kill_counter_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_kill_counter_1_1_global.html", "struct_plugins_1_1_kill_counter_1_1_global" ]
+      ] ],
+      [ "LightControl", "namespace_plugins_1_1_light_control.html", [
+        [ "Config", "struct_plugins_1_1_light_control_1_1_config.html", "struct_plugins_1_1_light_control_1_1_config" ],
+        [ "EquipmentHardpoint", "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html", "struct_plugins_1_1_light_control_1_1_equipment_hardpoint" ],
+        [ "Global", "struct_plugins_1_1_light_control_1_1_global.html", "struct_plugins_1_1_light_control_1_1_global" ]
+      ] ],
+      [ "Mark", "namespace_plugins_1_1_mark.html", [
+        [ "Config", "struct_plugins_1_1_mark_1_1_config.html", "struct_plugins_1_1_mark_1_1_config" ],
+        [ "DELAY_MARK", "struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k.html", "struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k" ],
+        [ "Global", "struct_plugins_1_1_mark_1_1_global.html", "struct_plugins_1_1_mark_1_1_global" ],
+        [ "MARK_INFO", "struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html", "struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o" ],
+        [ "TIMER", "struct_plugins_1_1_mark_1_1_t_i_m_e_r.html", "struct_plugins_1_1_mark_1_1_t_i_m_e_r" ]
+      ] ],
+      [ "Message", "namespace_plugins_1_1_message.html", [
+        [ "ClientInfo", "class_plugins_1_1_message_1_1_client_info.html", "class_plugins_1_1_message_1_1_client_info" ],
+        [ "Config", "struct_plugins_1_1_message_1_1_config.html", "struct_plugins_1_1_message_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_message_1_1_global.html", "struct_plugins_1_1_message_1_1_global" ]
+      ] ],
+      [ "MiningControl", "namespace_plugins_1_1_mining_control.html", [
+        [ "ClientData", "struct_plugins_1_1_mining_control_1_1_client_data.html", "struct_plugins_1_1_mining_control_1_1_client_data" ],
+        [ "Config", "struct_plugins_1_1_mining_control_1_1_config.html", "struct_plugins_1_1_mining_control_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_mining_control_1_1_global.html", "struct_plugins_1_1_mining_control_1_1_global" ],
+        [ "MiningStats", "struct_plugins_1_1_mining_control_1_1_mining_stats.html", "struct_plugins_1_1_mining_control_1_1_mining_stats" ],
+        [ "PlayerBonus", "struct_plugins_1_1_mining_control_1_1_player_bonus.html", "struct_plugins_1_1_mining_control_1_1_player_bonus" ],
+        [ "ZoneBonus", "struct_plugins_1_1_mining_control_1_1_zone_bonus.html", "struct_plugins_1_1_mining_control_1_1_zone_bonus" ],
+        [ "ZoneStats", "struct_plugins_1_1_mining_control_1_1_zone_stats.html", "struct_plugins_1_1_mining_control_1_1_zone_stats" ]
+      ] ],
       [ "MiscCommands", "namespace_plugins_1_1_misc_commands.html", [
         [ "Config", "struct_plugins_1_1_misc_commands_1_1_config.html", "struct_plugins_1_1_misc_commands_1_1_config" ],
         [ "Global", "struct_plugins_1_1_misc_commands_1_1_global.html", "struct_plugins_1_1_misc_commands_1_1_global" ],
         [ "MiscClientInfo", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html", "struct_plugins_1_1_misc_commands_1_1_misc_client_info" ]
+      ] ],
+      [ "Npc", "namespace_plugins_1_1_npc.html", [
+        [ "Config", "struct_plugins_1_1_npc_1_1_config.html", "struct_plugins_1_1_npc_1_1_config" ],
+        [ "Fleet", "struct_plugins_1_1_npc_1_1_fleet.html", "struct_plugins_1_1_npc_1_1_fleet" ],
+        [ "Global", "struct_plugins_1_1_npc_1_1_global.html", "struct_plugins_1_1_npc_1_1_global" ],
+        [ "Npc", "struct_plugins_1_1_npc_1_1_npc.html", "struct_plugins_1_1_npc_1_1_npc" ],
+        [ "StartupNpc", "struct_plugins_1_1_npc_1_1_startup_npc.html", "struct_plugins_1_1_npc_1_1_startup_npc" ]
+      ] ],
+      [ "PurchaseRestrictions", "namespace_plugins_1_1_purchase_restrictions.html", [
+        [ "Config", "struct_plugins_1_1_purchase_restrictions_1_1_config.html", "struct_plugins_1_1_purchase_restrictions_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_purchase_restrictions_1_1_global.html", "struct_plugins_1_1_purchase_restrictions_1_1_global" ]
+      ] ],
+      [ "Rename", "namespace_plugins_1_1_rename.html", [
+        [ "Config", "struct_plugins_1_1_rename_1_1_config.html", "struct_plugins_1_1_rename_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_rename_1_1_global.html", "struct_plugins_1_1_rename_1_1_global" ],
+        [ "Move", "struct_plugins_1_1_rename_1_1_move.html", "struct_plugins_1_1_rename_1_1_move" ],
+        [ "Rename", "struct_plugins_1_1_rename_1_1_rename.html", "struct_plugins_1_1_rename_1_1_rename" ],
+        [ "TagData", "struct_plugins_1_1_rename_1_1_tag_data.html", "struct_plugins_1_1_rename_1_1_tag_data" ],
+        [ "TagList", "struct_plugins_1_1_rename_1_1_tag_list.html", "struct_plugins_1_1_rename_1_1_tag_list" ]
+      ] ],
+      [ "Restart", "namespace_plugins_1_1_restart.html", [
+        [ "Config", "struct_plugins_1_1_restart_1_1_config.html", "struct_plugins_1_1_restart_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_restart_1_1_global.html", "struct_plugins_1_1_restart_1_1_global" ],
+        [ "Restart", "struct_plugins_1_1_restart_1_1_restart.html", "struct_plugins_1_1_restart_1_1_restart" ]
+      ] ],
+      [ "SoundManager", "namespace_plugins_1_1_sound_manager.html", [
+        [ "Config", "struct_plugins_1_1_sound_manager_1_1_config.html", "struct_plugins_1_1_sound_manager_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_sound_manager_1_1_global.html", "struct_plugins_1_1_sound_manager_1_1_global" ]
+      ] ],
+      [ "SpinProtection", "namespace_plugins_1_1_spin_protection.html", [
+        [ "Config", "struct_plugins_1_1_spin_protection_1_1_config.html", "struct_plugins_1_1_spin_protection_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_spin_protection_1_1_global.html", "struct_plugins_1_1_spin_protection_1_1_global" ]
+      ] ],
+      [ "Stats", "namespace_plugins_1_1_stats.html", [
+        [ "FileName", "struct_plugins_1_1_stats_1_1_file_name.html", "struct_plugins_1_1_stats_1_1_file_name" ],
+        [ "Global", "struct_plugins_1_1_stats_1_1_global.html", "struct_plugins_1_1_stats_1_1_global" ]
+      ] ],
+      [ "SystemSensor", "namespace_plugins_1_1_system_sensor.html", [
+        [ "ActiveNetwork", "struct_plugins_1_1_system_sensor_1_1_active_network.html", "struct_plugins_1_1_system_sensor_1_1_active_network" ],
+        [ "Config", "struct_plugins_1_1_system_sensor_1_1_config.html", "struct_plugins_1_1_system_sensor_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_system_sensor_1_1_global.html", "struct_plugins_1_1_system_sensor_1_1_global" ],
+        [ "ReflectableSensor", "struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html", "struct_plugins_1_1_system_sensor_1_1_reflectable_sensor" ],
+        [ "Sensor", "struct_plugins_1_1_system_sensor_1_1_sensor.html", "struct_plugins_1_1_system_sensor_1_1_sensor" ]
+      ] ],
+      [ "Tax", "namespace_plugins_1_1_tax.html", [
+        [ "Config", "struct_plugins_1_1_tax_1_1_config.html", "struct_plugins_1_1_tax_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_tax_1_1_global.html", "struct_plugins_1_1_tax_1_1_global" ],
+        [ "Tax", "struct_plugins_1_1_tax_1_1_tax.html", "struct_plugins_1_1_tax_1_1_tax" ]
+      ] ],
+      [ "Tempban", "namespace_plugins_1_1_tempban.html", [
+        [ "Global", "struct_plugins_1_1_tempban_1_1_global.html", "struct_plugins_1_1_tempban_1_1_global" ],
+        [ "TempBanCommunicator", "class_plugins_1_1_tempban_1_1_temp_ban_communicator.html", "class_plugins_1_1_tempban_1_1_temp_ban_communicator" ],
+        [ "TempbanInfo", "struct_plugins_1_1_tempban_1_1_tempban_info.html", "struct_plugins_1_1_tempban_1_1_tempban_info" ]
+      ] ],
+      [ "Template", "namespace_plugins_1_1_template.html", [
+        [ "Config", "struct_plugins_1_1_template_1_1_config.html", "struct_plugins_1_1_template_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_template_1_1_global.html", "struct_plugins_1_1_template_1_1_global" ]
+      ] ],
+      [ "Wardrobe", "namespace_plugins_1_1_wardrobe.html", [
+        [ "Config", "struct_plugins_1_1_wardrobe_1_1_config.html", "struct_plugins_1_1_wardrobe_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_wardrobe_1_1_global.html", "struct_plugins_1_1_wardrobe_1_1_global" ],
+        [ "Wardrobe", "struct_plugins_1_1_wardrobe_1_1_wardrobe.html", "struct_plugins_1_1_wardrobe_1_1_wardrobe" ]
+      ] ],
+      [ "Warehouse", "namespace_plugins_1_1_warehouse.html", [
+        [ "Config", "struct_plugins_1_1_warehouse_1_1_config.html", "struct_plugins_1_1_warehouse_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_warehouse_1_1_global.html", "struct_plugins_1_1_warehouse_1_1_global" ],
+        [ "WareHouseItem", "struct_plugins_1_1_warehouse_1_1_ware_house_item.html", "struct_plugins_1_1_warehouse_1_1_ware_house_item" ]
       ] ]
     ] ],
     [ "StartupCache", "namespace_startup_cache.html", [
       [ "NameInfo", "struct_startup_cache_1_1_name_info.html", "struct_startup_cache_1_1_name_info" ]
     ] ],
     [ "__vcrt_ptd", "struct____vcrt__ptd.html", "struct____vcrt__ptd" ],
-    [ "_DPN_CONNECTION_INFO", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o.html", "struct___d_p_n___c_o_n_n_e_c_t_i_o_n___i_n_f_o" ],
     [ "ACTION_DEBUGMSG_DATA", "struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html", "struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a" ],
-    [ "AUTOBUY_CARTITEM", "struct_a_u_t_o_b_u_y___c_a_r_t_i_t_e_m.html", "struct_a_u_t_o_b_u_y___c_a_r_t_i_t_e_m" ],
-    [ "BASE_INFO", "struct_b_a_s_e___i_n_f_o.html", "struct_b_a_s_e___i_n_f_o" ],
-    [ "BaseCommunicator", "class_base_communicator.html", "class_base_communicator" ],
-    [ "BET", "struct_b_e_t.html", "struct_b_e_t" ],
-    [ "BLOWFISH_CTX", "struct_b_l_o_w_f_i_s_h___c_t_x.html", "struct_b_l_o_w_f_i_s_h___c_t_x" ],
-    [ "BOUNTY_HUNT", "struct_b_o_u_n_t_y___h_u_n_t.html", "struct_b_o_u_n_t_y___h_u_n_t" ],
-    [ "BuildModule", "class_build_module.html", "class_build_module" ],
-    [ "CARGO_INFO", "struct_c_a_r_g_o___i_n_f_o.html", "struct_c_a_r_g_o___i_n_f_o" ],
-    [ "CARGO_MISSION", "struct_c_a_r_g_o___m_i_s_s_i_o_n.html", "struct_c_a_r_g_o___m_i_s_s_i_o_n" ],
-    [ "CCmds", "class_c_cmds.html", "class_c_cmds" ],
+    [ "AuthenticatedAccounts", "struct_authenticated_accounts.html", "struct_authenticated_accounts" ],
     [ "CConsole", "class_c_console.html", "class_c_console" ],
-    [ "CInGame", "class_c_in_game.html", "class_c_in_game" ],
-    [ "CLIENT_DATA", "struct_c_l_i_e_n_t___d_a_t_a.html", "struct_c_l_i_e_n_t___d_a_t_a" ],
-    [ "CLIENT_INFO", "struct_c_l_i_e_n_t___i_n_f_o.html", "struct_c_l_i_e_n_t___i_n_f_o" ],
-    [ "CLOAK_ARCH", "struct_c_l_o_a_k___a_r_c_h.html", "struct_c_l_o_a_k___a_r_c_h" ],
-    [ "CLOAK_INFO", "struct_c_l_o_a_k___i_n_f_o.html", "struct_c_l_o_a_k___i_n_f_o" ],
-    [ "ConDataCommunicator", "class_con_data_communicator.html", "class_con_data_communicator" ],
     [ "Config", "struct_config.html", "struct_config" ],
-    [ "CONNECTION_DATA", "struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a.html", "struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a" ],
-    [ "CONNECTION_DATA_EXCEPTION", "struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a___e_x_c_e_p_t_i_o_n.html", "struct_c_o_n_n_e_c_t_i_o_n___d_a_t_a___e_x_c_e_p_t_i_o_n" ],
-    [ "Console", "class_console.html", null ],
-    [ "contestant", "structcontestant.html", "structcontestant" ],
-    [ "CoreModule", "class_core_module.html", "class_core_module" ],
-    [ "CSocket", "class_c_socket.html", "class_c_socket" ],
     [ "CTimer", "class_c_timer.html", "class_c_timer" ],
-    [ "DATA_MARKETITEM", "struct_d_a_t_a___m_a_r_k_e_t_i_t_e_m.html", "struct_d_a_t_a___m_a_r_k_e_t_i_t_e_m" ],
-    [ "DefenseModule", "class_defense_module.html", "class_defense_module" ],
-    [ "DEFERREDJUMPS", "struct_d_e_f_e_r_r_e_d_j_u_m_p_s.html", "struct_d_e_f_e_r_r_e_d_j_u_m_p_s" ],
-    [ "DELAY_MARK", "struct_d_e_l_a_y___m_a_r_k.html", "struct_d_e_l_a_y___m_a_r_k" ],
-    [ "DOCKING_REQUEST", "struct_d_o_c_k_i_n_g___r_e_q_u_e_s_t.html", "struct_d_o_c_k_i_n_g___r_e_q_u_e_s_t" ],
-    [ "EQ_HARDPOINT", "struct_e_q___h_a_r_d_p_o_i_n_t.html", "struct_e_q___h_a_r_d_p_o_i_n_t" ],
-    [ "EQ_ITEM", "struct_e_q___i_t_e_m.html", "struct_e_q___i_t_e_m" ],
-    [ "FactoryModule", "class_factory_module.html", "class_factory_module" ],
-    [ "FFA", "struct_f_f_a.html", "struct_f_f_a" ],
-    [ "FLHOOK_PLAYER_DATA", "struct_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html", "struct_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a" ],
-    [ "GROUP_MEMBER", "struct_g_r_o_u_p___m_e_m_b_e_r.html", "struct_g_r_o_u_p___m_e_m_b_e_r" ],
-    [ "HK_ERROR_INFO", "struct_h_k___e_r_r_o_r___i_n_f_o.html", "struct_h_k___e_r_r_o_r___i_n_f_o" ],
-    [ "HKPLAYERINFO", "struct_h_k_p_l_a_y_e_r_i_n_f_o.html", "struct_h_k_p_l_a_y_e_r_i_n_f_o" ],
-    [ "HookEntry", "struct_hook_entry.html", "struct_hook_entry" ],
-    [ "HYPERSPACE_COORDS", "struct_h_y_p_e_r_s_p_a_c_e___c_o_o_r_d_s.html", "struct_h_y_p_e_r_s_p_a_c_e___c_o_o_r_d_s" ],
-    [ "IGNORE_INFO", "struct_i_g_n_o_r_e___i_n_f_o.html", "struct_i_g_n_o_r_e___i_n_f_o" ],
-    [ "INFO", "struct_i_n_f_o.html", "struct_i_n_f_o" ],
-    [ "INISECTIONVALUE", "struct_i_n_i_s_e_c_t_i_o_n_v_a_l_u_e.html", "struct_i_n_i_s_e_c_t_i_o_n_v_a_l_u_e" ],
-    [ "IsVector", "struct_is_vector.html", null ],
-    [ "IsVector< std::vector< T, A > >", "struct_is_vector_3_01std_1_1vector_3_01_t_00_01_a_01_4_01_4.html", null ],
-    [ "ITEM_INFO", "struct_i_t_e_m___i_n_f_o.html", "struct_i_t_e_m___i_n_f_o" ],
-    [ "JUMPDRIVE", "struct_j_u_m_p_d_r_i_v_e.html", "struct_j_u_m_p_d_r_i_v_e" ],
-    [ "JUMPDRIVE_ARCH", "struct_j_u_m_p_d_r_i_v_e___a_r_c_h.html", "struct_j_u_m_p_d_r_i_v_e___a_r_c_h" ],
-    [ "JUMPPOINT", "class_j_u_m_p_p_o_i_n_t.html", "class_j_u_m_p_p_o_i_n_t" ],
-    [ "LOOTABLE_ZONE", "struct_l_o_o_t_a_b_l_e___z_o_n_e.html", "struct_l_o_o_t_a_b_l_e___z_o_n_e" ],
-    [ "MailCommunicator", "class_mail_communicator.html", "class_mail_communicator" ],
-    [ "MARK_INFO", "struct_m_a_r_k___i_n_f_o.html", "struct_m_a_r_k___i_n_f_o" ],
-    [ "MARKET_ITEM", "struct_m_a_r_k_e_t___i_t_e_m.html", "struct_m_a_r_k_e_t___i_t_e_m" ],
-    [ "Module", "class_module.html", "class_module" ],
-    [ "MONEY_FIX", "struct_m_o_n_e_y___f_i_x.html", "struct_m_o_n_e_y___f_i_x" ],
-    [ "MOVE", "struct_m_o_v_e.html", "struct_m_o_v_e" ],
+    [ "DebugTools", "class_debug_tools.html", "class_debug_tools" ],
+    [ "Global", "struct_global.html", "struct_global" ],
+    [ "IPBans", "struct_i_p_bans.html", "struct_i_p_bans" ],
+    [ "LoginIdBans", "struct_login_id_bans.html", "struct_login_id_bans" ],
     [ "msvc__CatchableType", "structmsvc_____catchable_type.html", "structmsvc_____catchable_type" ],
     [ "msvc__CatchableTypeArray", "structmsvc_____catchable_type_array.html", "structmsvc_____catchable_type_array" ],
     [ "msvc__PMD", "structmsvc_____p_m_d.html", "structmsvc_____p_m_d" ],
     [ "msvc__ThrowInfo", "structmsvc_____throw_info.html", "structmsvc_____throw_info" ],
     [ "msvc__TypeDescriptor", "structmsvc_____type_descriptor.html", "structmsvc_____type_descriptor" ],
-    [ "MULTIKILLMESSAGE", "struct_m_u_l_t_i_k_i_l_l_m_e_s_s_a_g_e.html", "struct_m_u_l_t_i_k_i_l_l_m_e_s_s_a_g_e" ],
-    [ "NEWS_ITEM", "struct_n_e_w_s___i_t_e_m.html", "struct_n_e_w_s___i_t_e_m" ],
-    [ "NPC", "struct_n_p_c.html", "struct_n_p_c" ],
-    [ "NPC_ARCHTYPESSTRUCT", "struct_n_p_c___a_r_c_h_t_y_p_e_s_s_t_r_u_c_t.html", "struct_n_p_c___a_r_c_h_t_y_p_e_s_s_t_r_u_c_t" ],
-    [ "NPC_FLEETSTRUCT", "struct_n_p_c___f_l_e_e_t_s_t_r_u_c_t.html", "struct_n_p_c___f_l_e_e_t_s_t_r_u_c_t" ],
-    [ "NPC_MISSION", "struct_n_p_c___m_i_s_s_i_o_n.html", "struct_n_p_c___m_i_s_s_i_o_n" ],
-    [ "PATCH_INFO", "struct_p_a_t_c_h___i_n_f_o.html", "struct_p_a_t_c_h___i_n_f_o" ],
-    [ "PATCH_INFO_ENTRY", "struct_p_a_t_c_h___i_n_f_o___e_n_t_r_y.html", "struct_p_a_t_c_h___i_n_f_o___e_n_t_r_y" ],
-    [ "PLAYER_BONUS", "struct_p_l_a_y_e_r___b_o_n_u_s.html", "struct_p_l_a_y_e_r___b_o_n_u_s" ],
-    [ "PlayerBase", "class_player_base.html", "class_player_base" ],
     [ "PluginData", "struct_plugin_data.html", "struct_plugin_data" ],
     [ "PluginHookData", "struct_plugin_hook_data.html", "struct_plugin_hook_data" ],
-    [ "PluginInfo", "struct_plugin_info.html", "struct_plugin_info" ],
     [ "PluginManager", "class_plugin_manager.html", "class_plugin_manager" ],
-    [ "RECIPE", "struct_r_e_c_i_p_e.html", "struct_r_e_c_i_p_e" ],
-    [ "Reflectable", "struct_reflectable.html", "struct_reflectable" ],
-    [ "RENAME", "struct_r_e_n_a_m_e.html", "struct_r_e_n_a_m_e" ],
-    [ "REPAIR_ITEM", "struct_r_e_p_a_i_r___i_t_e_m.html", "struct_r_e_p_a_i_r___i_t_e_m" ],
-    [ "RESOLVE_IP", "struct_r_e_s_o_l_v_e___i_p.html", "struct_r_e_s_o_l_v_e___i_p" ],
-    [ "RESTART", "struct_r_e_s_t_a_r_t.html", "struct_r_e_s_t_a_r_t" ],
-    [ "SEHException", "struct_s_e_h_exception.html", "struct_s_e_h_exception" ],
-    [ "SENSOR", "struct_s_e_n_s_o_r.html", "struct_s_e_n_s_o_r" ],
-    [ "Serializer", "class_serializer.html", null ],
-    [ "ShieldModule", "class_shield_module.html", "class_shield_module" ],
-    [ "Singleton", "class_singleton.html", null ],
     [ "SOCKET_CONNECTION", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n" ],
-    [ "SpecialChatIDs", "struct_special_chat_i_ds.html", null ],
-    [ "stHelpEntry", "structst_help_entry.html", "structst_help_entry" ],
-    [ "StorageModule", "class_storage_module.html", "class_storage_module" ],
-    [ "SURVEY", "struct_s_u_r_v_e_y.html", "struct_s_u_r_v_e_y" ],
-    [ "SURVEY_ARCH", "struct_s_u_r_v_e_y___a_r_c_h.html", "struct_s_u_r_v_e_y___a_r_c_h" ],
-    [ "SYSTEMINFO", "struct_s_y_s_t_e_m_i_n_f_o.html", "struct_s_y_s_t_e_m_i_n_f_o" ],
-    [ "TAG_DATA", "struct_t_a_g___d_a_t_a.html", "struct_t_a_g___d_a_t_a" ],
-    [ "TEMPBAN_INFO", "struct_t_e_m_p_b_a_n___i_n_f_o.html", "struct_t_e_m_p_b_a_n___i_n_f_o" ],
-    [ "TempBanCommunicator", "class_temp_ban_communicator.html", "class_temp_ban_communicator" ],
-    [ "TESTBOT", "struct_t_e_s_t_b_o_t.html", "struct_t_e_s_t_b_o_t" ],
-    [ "TIMER", "struct_t_i_m_e_r.html", "struct_t_i_m_e_r" ],
-    [ "TransformMatrix", "struct_transform_matrix.html", "struct_transform_matrix" ],
-    [ "TRIGGER_ARG", "struct_t_r_i_g_g_e_r___a_r_g.html", "struct_t_r_i_g_g_e_r___a_r_g" ],
-    [ "USERCMD", "struct_u_s_e_r_c_m_d.html", "struct_u_s_e_r_c_m_d" ],
-    [ "Wildcard", "class_wildcard.html", null ],
-    [ "ZONE", "struct_z_o_n_e.html", "struct_z_o_n_e" ],
-    [ "ZONE_BONUS", "struct_z_o_n_e___b_o_n_u_s.html", "struct_z_o_n_e___b_o_n_u_s" ]
+    [ "TRIGGER_ARG", "struct_t_r_i_g_g_e_r___a_r_g.html", "struct_t_r_i_g_g_e_r___a_r_g" ]
 ];

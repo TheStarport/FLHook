@@ -1,9 +1,7 @@
 var searchData=
 [
-  ['nameinfo_0',['NameInfo',['../struct_startup_cache_1_1_name_info.html',1,'StartupCache']]],
-  ['news_5fitem_1',['NEWS_ITEM',['../struct_n_e_w_s___i_t_e_m.html',1,'']]],
-  ['npc_2',['NPC',['../struct_n_p_c.html',1,'']]],
-  ['npc_5farchtypesstruct_3',['NPC_ARCHTYPESSTRUCT',['../struct_n_p_c___a_r_c_h_t_y_p_e_s_s_t_r_u_c_t.html',1,'']]],
-  ['npc_5ffleetstruct_4',['NPC_FLEETSTRUCT',['../struct_n_p_c___f_l_e_e_t_s_t_r_u_c_t.html',1,'']]],
-  ['npc_5fmission_5',['NPC_MISSION',['../struct_n_p_c___m_i_s_s_i_o_n.html',1,'']]]
+  ['reflectablesensor_0',['ReflectableSensor',['../struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html',1,'Plugins::SystemSensor']]],
+  ['rename_1',['Rename',['../struct_plugins_1_1_rename_1_1_rename.html',1,'Plugins::Rename']]],
+  ['rep_5fdata_5flist_2',['REP_DATA_LIST',['../struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t.html',1,'IEngineHook']]],
+  ['restart_3',['Restart',['../struct_plugins_1_1_restart_1_1_restart.html',1,'Plugins::Restart']]]
 ];

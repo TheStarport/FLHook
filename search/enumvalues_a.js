@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['normal_0',['Normal',['../_hook_8h.html#af67907baa897e9fb84df0cb89795b87ca5ecbcf0afce98b042f35ec71ba03fa4b',1,'Hook.h']]]
+  ['off_0',['Off',['../namespace_plugins_1_1_system_sensor.html#a5d65f6d572b834ab21c4f44ff083864aad15305d7a4e34e02489c74a5ef542f36',1,'Plugins::SystemSensor']]]
 ];

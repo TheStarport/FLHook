@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['load_5frep_5fdata_0',['LOAD_REP_DATA',['../struct_hk_i_engine_1_1_l_o_a_d___r_e_p___d_a_t_a.html',1,'HkIEngine']]],
-  ['lootable_5fzone_1',['LOOTABLE_ZONE',['../struct_l_o_o_t_a_b_l_e___z_o_n_e.html',1,'']]]
+  ['nameinfo_0',['NameInfo',['../struct_startup_cache_1_1_name_info.html',1,'StartupCache']]],
+  ['npc_1',['Npc',['../struct_plugins_1_1_npc_1_1_npc.html',1,'Plugins::Npc']]],
+  ['npc_5fmission_2',['NPC_MISSION',['../struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html',1,'Plugins::Event']]],
+  ['npc_5fmission_5freflectable_3',['NPC_MISSION_REFLECTABLE',['../struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html',1,'Plugins::Event::Config']]]
 ];

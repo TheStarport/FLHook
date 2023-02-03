@@ -1,10 +1,11 @@
 var searchData=
 [
-  ['recipe_0',['RECIPE',['../struct_r_e_c_i_p_e.html',1,'']]],
-  ['reflectable_1',['Reflectable',['../struct_reflectable.html',1,'']]],
-  ['rename_2',['RENAME',['../struct_r_e_n_a_m_e.html',1,'']]],
-  ['rep_5fdata_5flist_3',['REP_DATA_LIST',['../struct_hk_i_engine_1_1_r_e_p___d_a_t_a___l_i_s_t.html',1,'HkIEngine']]],
-  ['repair_5fitem_4',['REPAIR_ITEM',['../struct_r_e_p_a_i_r___i_t_e_m.html',1,'']]],
-  ['resolve_5fip_5',['RESOLVE_IP',['../struct_r_e_s_o_l_v_e___i_p.html',1,'']]],
-  ['restart_6',['RESTART',['../struct_r_e_s_t_a_r_t.html',1,'']]]
+  ['tagdata_0',['TagData',['../struct_plugins_1_1_rename_1_1_tag_data.html',1,'Plugins::Rename']]],
+  ['taglist_1',['TagList',['../struct_plugins_1_1_rename_1_1_tag_list.html',1,'Plugins::Rename']]],
+  ['tax_2',['Tax',['../struct_plugins_1_1_tax_1_1_tax.html',1,'Plugins::Tax']]],
+  ['tempbancommunicator_3',['TempBanCommunicator',['../class_plugins_1_1_tempban_1_1_temp_ban_communicator.html',1,'Plugins::Tempban']]],
+  ['tempbaninfo_4',['TempbanInfo',['../struct_plugins_1_1_tempban_1_1_tempban_info.html',1,'Plugins::Tempban']]],
+  ['timer_5',['TIMER',['../struct_plugins_1_1_mark_1_1_t_i_m_e_r.html',1,'Plugins::Mark']]],
+  ['transaction_6',['Transaction',['../struct_plugins_1_1_cash_manager_1_1_transaction.html',1,'Plugins::CashManager']]],
+  ['trigger_5farg_7',['TRIGGER_ARG',['../struct_t_r_i_g_g_e_r___a_r_g.html',1,'']]]
 ];

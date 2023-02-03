@@ -1,0 +1,28 @@
+var _message_8cpp =
+[
+    [ "HAS_FLAG", "_message_8cpp.html#af7d49aa0aa1a2a4277d1ae30646e934d", null ],
+    [ "FMsg", "_message_8cpp.html#a20c7f9c62ec4dcf4ed8e7c15a9ceb204", null ],
+    [ "FMsg", "_message_8cpp.html#ae684532b66aa711a19305fae5d3fb1ac", null ],
+    [ "FMsgEncodeXML", "_message_8cpp.html#ad8ffa13d11a236d9e910c32a26ed1d23", null ],
+    [ "FMsgS", "_message_8cpp.html#a3e7f2810a0ace504f8e0ca04ca024008", null ],
+    [ "FMsgSendChat", "_message_8cpp.html#a299fa0cec1e66ccd4de0bec2326d78ab", null ],
+    [ "FMsgU", "_message_8cpp.html#a2e652ea2f394f16bab9d6d6c0f1df4a0", null ],
+    [ "FormatMsg", "_message_8cpp.html#ab3026ceebfa9a22434f48f8aa06550b2", null ],
+    [ "FormatSendChat", "_message_8cpp.html#a57478445b6f963254af396e1e28e7482", null ],
+    [ "GetWStringFromIdS", "_message_8cpp.html#a3041755a8f2f1a1f4a297a96053c58ea", null ],
+    [ "LoadStringDLLs", "_message_8cpp.html#af888c2c78df23d36da3d78de0caed8a4", null ],
+    [ "Msg", "_message_8cpp.html#a3f2a992d649ece4ccc0204bbe3b64dbf", null ],
+    [ "MsgS", "_message_8cpp.html#a4ee37276ea55acaa05a8e697cf028d30", null ],
+    [ "MsgU", "_message_8cpp.html#abaf7bc564a4ecc721f50824259bf4205", null ],
+    [ "SendGroupChat", "_message_8cpp.html#adde46437e769fa96f29943a41d3772a1", null ],
+    [ "SendLocalSystemChat", "_message_8cpp.html#a87d627540440e46f91ee5392014a5e94", null ],
+    [ "SendPrivateChat", "_message_8cpp.html#aab5bd22b6a713c4e76b96d212b740877", null ],
+    [ "SendSystemChat", "_message_8cpp.html#a791baeea9281774233c11d3805c92d5f", null ],
+    [ "SubmitChat", "_message_8cpp.html#a1dc8379ef4be4cda49324b246432c859", null ],
+    [ "UnloadStringDLLs", "_message_8cpp.html#ab151534d35a9ae030164e61031ee1a9d", null ],
+    [ "g_bMsg", "_message_8cpp.html#a4d5f0f5f901e16572ab8ac6e00f56397", null ],
+    [ "g_bMsgS", "_message_8cpp.html#a55f3626ffcc2266036061719cc32f67d", null ],
+    [ "g_bMsgU", "_message_8cpp.html#afbec9ab59c0c00de61b5a36ee2c71837", null ],
+    [ "RCSendChatMsg", "_message_8cpp.html#a949221abcf3bb226654ed527031ee6d6", null ],
+    [ "vDLLs", "_message_8cpp.html#ac293c22b8300e57a47fcd0323b5a517d", null ]
+];

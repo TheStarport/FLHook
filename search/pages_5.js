@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['logging_0',['Logging',['../md_docs__usage__logging.html',1,'']]]
+  ['note_20on_20the_20stl_0',['Note on the STL',['../md_docs__development__note_on_the__s_t_l.html',1,'']]]
 ];

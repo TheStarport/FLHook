@@ -1,19 +1,4 @@
 var searchData=
 [
-  ['right_5fbeamkill_0',['RIGHT_BEAMKILL',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a47eab20c8d7d7966c61dbcf1290f4604',1,'CCmds.h']]],
-  ['right_5fcargo_1',['RIGHT_CARGO',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827afeb704e0ea1b14f42a94342173cc8b9f',1,'CCmds.h']]],
-  ['right_5fcash_2',['RIGHT_CASH',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a726eb107e957a0ba913eb3152cafd0ea',1,'CCmds.h']]],
-  ['right_5fcharacters_3',['RIGHT_CHARACTERS',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a9e688176d6aafb62485256d536642c54',1,'CCmds.h']]],
-  ['right_5feventmode_4',['RIGHT_EVENTMODE',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a6c75844f9bb9c52f2b01ec6724358a84',1,'CCmds.h']]],
-  ['right_5fkickban_5',['RIGHT_KICKBAN',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827ad3bd515d2e35f27821ac6b0a3716ae77',1,'CCmds.h']]],
-  ['right_5fmsg_6',['RIGHT_MSG',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a186d0dd37a599a8661fe1571681747fd',1,'CCmds.h']]],
-  ['right_5fnothing_7',['RIGHT_NOTHING',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a43404527745564b36c3689974d841802',1,'CCmds.h']]],
-  ['right_5fother_8',['RIGHT_OTHER',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a1a42d3e95bdc3f3fc8aa0a535e531653',1,'CCmds.h']]],
-  ['right_5fplugins_9',['RIGHT_PLUGINS',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827accb4641f9be3f119cbddba6530e6731a',1,'CCmds.h']]],
-  ['right_5freputation_10',['RIGHT_REPUTATION',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a1abf560c22ad825d3273155f17a3f645',1,'CCmds.h']]],
-  ['right_5fsettings_11',['RIGHT_SETTINGS',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a0aa7edef3b5b5be904a31564fc2f5804',1,'CCmds.h']]],
-  ['right_5fspecial1_12',['RIGHT_SPECIAL1',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827ac628034b186a217ad2df826e2f29cbe6',1,'CCmds.h']]],
-  ['right_5fspecial2_13',['RIGHT_SPECIAL2',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827ad3a968c6aa7eff3f0e401b3d5d45f033',1,'CCmds.h']]],
-  ['right_5fspecial3_14',['RIGHT_SPECIAL3',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827a927a7e4b3214f209e3598ef60ee95972',1,'CCmds.h']]],
-  ['right_5fsuperadmin_15',['RIGHT_SUPERADMIN',['../_c_cmds_8h.html#aba15db70d29b6f94f702693d62ef9827aca506249f6450de17547ffe547d66b9d',1,'CCmds.h']]]
+  ['return_0',['Return',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a988fd738de9c6d177440c5dcf69e73ce',1,'Plugins::Arena']]]
 ];

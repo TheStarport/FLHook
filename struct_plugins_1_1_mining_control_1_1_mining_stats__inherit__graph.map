@@ -1,0 +1,4 @@
+<map id="Plugins::MiningControl::MiningStats" name="Plugins::MiningControl::MiningStats">
+<area shape="rect" id="node1" title="A struct to load in the stats config file across restarts." alt="" coords="5,79,173,119"/>
+<area shape="rect" id="node2" title=" " alt="" coords="42,5,137,31"/>
+</map>

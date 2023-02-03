@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['diemsgtype_0',['DIEMSGTYPE',['../_hook_8h.html#a376bc7bb12dc21c0b1e3b78e34452924',1,'Hook.h']]]
+  ['clientstate_0',['ClientState',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447',1,'Plugins::Arena']]]
 ];

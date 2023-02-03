@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['wildcardfit_0',['wildcardfit',['../class_wildcard.html#a7ad3d34990d6588bc54e611c22d5f477',1,'Wildcard::wildcardfit(const char *wildcard, const char *test)'],['../class_wildcard.html#a5aa2e05bad3bed87d713bd0b132fffa8',1,'Wildcard::wildcardfit(const char *wildcard, const char *test)']]],
-  ['writeminidump_1',['WriteMiniDump',['../_hook_8h.html#a88a82d64d4b8e5bd51d1db615f93ec71',1,'Hook.h']]],
-  ['writeprocmem_2',['WriteProcMem',['../global_8h.html#a76023770802515a7d9214651783f4c2f',1,'WriteProcMem(void *pAddress, const void *pMem, int iSize):&#160;Tools.cpp'],['../_tools_8cpp.html#a4cbc0bf7a1708c6bd8ac8b99bcb0ba7f',1,'WriteProcMem(void *pAddress, const void *pMem, int iSize):&#160;Tools.cpp']]],
-  ['wstos_3',['wstos',['../global_8h.html#a1d24ea3d58091918fc0562a9e27b7421',1,'wstos(const std::wstring &amp;wscText):&#160;Tools.cpp'],['../_tools_8cpp.html#af795adbaa0b11cf92c4ca6c36ee6319f',1,'wstos(const std::wstring &amp;wscText):&#160;Tools.cpp']]]
+  ['withdrawcash_0',['WithdrawCash',['../namespace_plugins_1_1_cash_manager_1_1_sql.html#af809af0bb5293a330260b7d8c70e8340',1,'Plugins::CashManager::Sql']]],
+  ['withdrawmoneyfrombank_1',['WithdrawMoneyFromBank',['../namespace_plugins_1_1_cash_manager.html#af2ce0b03a97f85e54b80346872b22377',1,'Plugins::CashManager']]],
+  ['writecharfile_2',['WriteCharFile',['../namespace_hk_1_1_player.html#ae042343c096f2e087a84d9f20cde6364',1,'Hk::Player']]],
+  ['writeminidump_3',['WriteMiniDump',['../_exceptions_8cpp.html#ad8d0c713ef632fdfaed66d9bdb1fc23a',1,'Exceptions.cpp']]],
+  ['writetodisk_4',['WriteToDisk',['../_generate_certificate_8cpp.html#ac12aa3812818376b07220d894c3755e7',1,'GenerateCertificate.cpp']]],
+  ['writetoplayerfile_5',['WriteToPlayerFile',['../namespace_hk_1_1_ini.html#a4237f4838f36d49221f70a18a52af0b7',1,'Hk::Ini']]]
 ];

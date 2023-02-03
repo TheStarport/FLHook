@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$class_serializer.html" title=" " alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,88,56"/>
+<area shape="rect" id="node2" href="$class_debug_tools.html" title=" " alt="" coords="147,5,244,31"/>
+<area shape="rect" id="node3" href="$class_plugin_manager.html" title=" " alt="" coords="136,55,255,80"/>
 </map>

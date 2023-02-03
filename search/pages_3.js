@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['event_2dmode_0',['Event-Mode',['../md_docs__usage__event__mode.html',1,'']]]
+  ['ipc_0',['IPC',['../md_docs__development__inter__plugin__communication___i_p_c_.html',1,'']]]
 ];

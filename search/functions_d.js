@@ -1,20 +1,16 @@
 var searchData=
 [
-  ['mailchecklog_0',['MailCheckLog',['../mail__plugin_2_main_8cpp.html#a74301c5bc482d6d4af6be509c5b4f8f6',1,'Main.cpp']]],
-  ['mailcommunicator_1',['MailCommunicator',['../class_mail_communicator.html#ab1eb9878f2578c38ce91830a7dcc0b37',1,'MailCommunicator']]],
-  ['mailcount_2',['MailCount',['../mail__plugin_2_main_8cpp.html#aa0278773ee84cfe76637788bff537f7f',1,'Main.cpp']]],
-  ['mailcountunread_3',['MailCountUnread',['../mail__plugin_2_main_8cpp.html#acb15122a10eadeaf4b9134e72ce086ce',1,'Main.cpp']]],
-  ['maildel_4',['MailDel',['../mail__plugin_2_main_8cpp.html#a2223bd52d6e794a0d748b657cda93a34',1,'Main.cpp']]],
-  ['mailsend_5',['MailSend',['../mail__plugin_2_main_8cpp.html#a02c1825d28a1b5500f151e78dca43008',1,'Main.cpp']]],
-  ['mailshow_6',['MailShow',['../mail__plugin_2_main_8cpp.html#aa3437d03f1921056668e690eda76b74a',1,'Main.cpp']]],
-  ['makelocationid_7',['MakeLocationID',['../pimpship__plugin_2main_8h.html#abe21f141214a211c418790beead119e8',1,'Main.h']]],
-  ['market_5fitem_8',['MARKET_ITEM',['../struct_m_a_r_k_e_t___i_t_e_m.html#a6ebe6974d748b00dc9050db7506a5912',1,'MARKET_ITEM']]],
-  ['matches_9',['matches',['../struct_plugin_manager_1_1_function_hook_props.html#a8aa00ed6e682d29ecee407863d11ee81',1,'PluginManager::FunctionHookProps']]],
-  ['matrixtoeuler_10',['MatrixToEuler',['../_hk_func_tools_8cpp.html#a6dbba5d3e9fccb26bf505ab0b95e7349',1,'MatrixToEuler(const Matrix &amp;mat):&#160;HkFuncTools.cpp'],['../_hook_8h.html#a68743fc766cbbf585a257eb386d77021',1,'MatrixToEuler(const Matrix &amp;mat):&#160;HkFuncTools.cpp']]],
-  ['maypause_11',['mayPause',['../struct_plugin_info.html#af96a04c06318503fd2eb9fa608795da8',1,'PluginInfo']]],
-  ['mayunload_12',['mayUnload',['../struct_plugin_info.html#a966fe5de0818dc0eae09cf8aff3a6a71',1,'PluginInfo']]],
-  ['mineasteroid_13',['MineAsteroid',['../minecontrol__plugin_2_main_8cpp.html#a96720ca51e774798b25a6c0073dac33e',1,'MineAsteroid():&#160;Main.cpp'],['../namespace_hk_i_server_impl.html#abbac889e53eba8c172e5fc0814ee170d',1,'HkIServerImpl::MineAsteroid(uint systemID, Vector const &amp;pos, uint crateID, uint lootID, uint count, uint clientID)']]],
-  ['missionresponse_14',['MissionResponse',['../namespace_hk_i_server_impl.html#a3d0b6e03f525f233dfcd896976b39c49',1,'HkIServerImpl']]],
-  ['module_15',['Module',['../class_module.html#ab026fbb3d94bf610563276afe748a4c8',1,'Module']]],
-  ['moveclient_16',['MoveClient',['../arena__plugin_2_main_8cpp.html#a6638b6e3b1f0615f5f31171353a0f254',1,'Main.cpp']]]
+  ['makepersonality_0',['MakePersonality',['../group___n_p_c_control.html#gaa8c931238e25bd86584ca6334c924a02',1,'Plugins::Npc']]],
+  ['markobj_1',['MarkObj',['../namespace_hk_1_1_player.html#ade5268096d4df47c03c628148c99776b',1,'Hk::Player']]],
+  ['markobject_2',['MarkObject',['../namespace_plugins_1_1_mark.html#a25b44f2211ea1df0bfd406c3694f85fc',1,'Plugins::Mark']]],
+  ['matches_3',['matches',['../struct_plugin_manager_1_1_function_hook_props.html#a8aa00ed6e682d29ecee407863d11ee81',1,'PluginManager::FunctionHookProps']]],
+  ['matrixtoeuler_4',['MatrixToEuler',['../namespace_hk_1_1_math.html#a934ac253c5676017d56b1a3d3189491c',1,'Hk::Math']]],
+  ['matrixtoquaternion_5',['MatrixToQuaternion',['../namespace_hk_1_1_math.html#a3d01e7aea16c48c88d9cd3cf6a1dfe08',1,'Hk::Math']]],
+  ['mineasteroid_6',['MineAsteroid',['../namespace_i_server_impl_hook.html#a91436aa0b6e056c2099b804b82e5c401',1,'IServerImplHook::MineAsteroid()'],['../group___mining_control.html#gadbb0cfe2a801fce312af1548801a0858',1,'Plugins::MiningControl::MineAsteroid()']]],
+  ['missionresponse_7',['MissionResponse',['../namespace_i_server_impl_hook.html#ad752b73950df642666b51751ca748728',1,'IServerImplHook']]],
+  ['moveclient_8',['MoveClient',['../group___arena.html#ga9ef58fbb84984e452d563b784ef598bd',1,'Plugins::Arena']]],
+  ['msg_9',['Msg',['../namespace_hk_1_1_message.html#a3f2a992d649ece4ccc0204bbe3b64dbf',1,'Hk::Message']]],
+  ['msgandkick_10',['MsgAndKick',['../namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746',1,'Hk::Player']]],
+  ['msgs_11',['MsgS',['../namespace_hk_1_1_message.html#a4ee37276ea55acaa05a8e697cf028d30',1,'Hk::Message']]],
+  ['msgu_12',['MsgU',['../namespace_hk_1_1_message.html#abaf7bc564a4ecc721f50824259bf4205',1,'Hk::Message']]]
 ];

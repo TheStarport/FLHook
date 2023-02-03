@@ -1,11 +1,6 @@
 var searchData=
 [
-  ['patch_5finfo_0',['PATCH_INFO',['../struct_p_a_t_c_h___i_n_f_o.html',1,'']]],
-  ['patch_5finfo_5fentry_1',['PATCH_INFO_ENTRY',['../struct_p_a_t_c_h___i_n_f_o___e_n_t_r_y.html',1,'']]],
-  ['player_5fbonus_2',['PLAYER_BONUS',['../struct_p_l_a_y_e_r___b_o_n_u_s.html',1,'']]],
-  ['playerbase_3',['PlayerBase',['../class_player_base.html',1,'']]],
-  ['plugindata_4',['PluginData',['../struct_plugin_data.html',1,'']]],
-  ['pluginhookdata_5',['PluginHookData',['../struct_plugin_hook_data.html',1,'']]],
-  ['plugininfo_6',['PluginInfo',['../struct_plugin_info.html',1,'']]],
-  ['pluginmanager_7',['PluginManager',['../class_plugin_manager.html',1,'']]]
+  ['sensor_0',['Sensor',['../struct_plugins_1_1_system_sensor_1_1_sensor.html',1,'Plugins::SystemSensor']]],
+  ['socket_5fconnection_1',['SOCKET_CONNECTION',['../struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html',1,'']]],
+  ['startupnpc_2',['StartupNpc',['../struct_plugins_1_1_npc_1_1_startup_npc.html',1,'Plugins::Npc']]]
 ];

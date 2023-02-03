@@ -1,0 +1,4 @@
+<map id="Plugins::MiningControl::ZoneStats" name="Plugins::MiningControl::ZoneStats">
+<area shape="rect" id="node1" title="A struct to hold the current status of a zone so their progress persists across restarts." alt="" coords="5,79,173,119"/>
+<area shape="rect" id="node2" title=" " alt="" coords="42,5,137,31"/>
+</map>

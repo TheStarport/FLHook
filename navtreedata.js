@@ -30,26 +30,23 @@ var NAVTREE =
       [ "Logging", "md_docs__usage__logging.html", null ],
       [ "XML Text Reference", "md_docs__usage__x_m_l__text__reference.html", null ],
       [ "Event Mode", "md_docs__usage__event__mode.html", null ],
-      [ "Blowfish Encryption", "md_docs__usage__blowfish__encryption.html", null ],
-      [ "Plugins", "md_docs__usage__plugins.html", [
-        [ "Misc Commands", "md_docs__usage__plugins__misc__commands.html", null ]
-      ] ]
+      [ "Blowfish Encryption", "md_docs__usage__blowfish__encryption.html", null ]
     ] ],
     [ "Plugin Development", null, [
+      [ "Recommended Visual Studio Extensions", "md_docs__development__recommended__visual__studio__extensions.html", null ],
       [ "Note on the STL", "md_docs__development__note_on_the__s_t_l.html", null ],
       [ "Inter-Plugin Communication (IPC)", "md_docs__development__inter__plugin__communication___i_p_c_.html", null ]
     ] ],
     [ "API Documentation", "usergroup0.html", [
-      [ "Modules", "modules.html", "modules" ],
+      [ "Plugins", "modules.html", "modules" ],
       [ "Namespace List", "namespaces.html", [
         [ "Namespace List", "namespaces.html", "namespaces_dup" ],
         [ "Namespace Members", "namespacemembers.html", [
-          [ "All", "namespacemembers.html", null ],
-          [ "Functions", "namespacemembers_func.html", null ],
+          [ "All", "namespacemembers.html", "namespacemembers_dup" ],
+          [ "Functions", "namespacemembers_func.html", "namespacemembers_func" ],
           [ "Variables", "namespacemembers_vars.html", null ],
           [ "Typedefs", "namespacemembers_type.html", null ],
-          [ "Enumerations", "namespacemembers_enum.html", null ],
-          [ "Enumerator", "namespacemembers_eval.html", null ]
+          [ "Enumerations", "namespacemembers_enum.html", null ]
         ] ]
       ] ],
       [ "Class List", "annotated.html", [
@@ -58,10 +55,8 @@ var NAVTREE =
         [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
         [ "Class Members", "functions.html", [
           [ "All", "functions.html", "functions_dup" ],
-          [ "Functions", "functions_func.html", "functions_func" ],
-          [ "Variables", "functions_vars.html", "functions_vars" ],
-          [ "Enumerations", "functions_enum.html", null ],
-          [ "Enumerator", "functions_eval.html", null ]
+          [ "Functions", "functions_func.html", null ],
+          [ "Variables", "functions_vars.html", "functions_vars" ]
         ] ]
       ] ],
       [ "File List", "files.html", [
@@ -69,10 +64,9 @@ var NAVTREE =
         [ "File Members", "globals.html", [
           [ "All", "globals.html", "globals_dup" ],
           [ "Functions", "globals_func.html", "globals_func" ],
-          [ "Variables", "globals_vars.html", "globals_vars" ],
+          [ "Variables", "globals_vars.html", null ],
           [ "Typedefs", "globals_type.html", null ],
           [ "Enumerations", "globals_enum.html", null ],
-          [ "Enumerator", "globals_eval.html", null ],
           [ "Macros", "globals_defs.html", null ]
         ] ]
       ] ]
@@ -82,21 +76,21 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_build_module_8cpp.html",
-"_hk_func_log_8cpp.html#abfcd5eadcbfe9ffc784b78c8753aa244",
-"_hk_init_8cpp.html#a6521a3987b5fbccc0e2f67f7a6821d8e",
-"_hook_8h.html#a6e86e93273ce624d03426515a63855df",
-"_player_commands_8cpp.html#ae2147c966a7c4941d86302aa86320449",
-"base__plugin_2_main_8cpp.html#aff8bc7bc7baa729bb3965535767cad6d",
-"class_core_module.html#a003c73f38a6ae81ae3bc6643b1f2b74f",
-"dir_5e999edde22b7f0e19176695e3133ddf.html",
-"global_8h.html#acc1a54a435b2bc526ba5f549fe82b530",
-"md_docs__usage__blowfish__encryption.html",
-"namespace_hk_i_server_impl.html#a5f262239f75e1715253ab59d6d7c8ce6",
-"pvp__plugin_2_main_8cpp.html#acc40fa4e3895db60244b244d0a22b650",
-"struct_c_l_o_a_k___i_n_f_o.html#ad2270aadf8a7a980847f1c5fd8cadd8d",
-"struct_n_p_c___f_l_e_e_t_s_t_r_u_c_t.html#aec5c2eb1de6845d21ceec0be96783d27",
-"system__sensor__plugin_2_main_8cpp.html#a34e838a8ba465bc3c7835fac8c353fb8"
+"__plugin__template_2_main_8cpp.html",
+"_hk_cb_other_8cpp.html#a7620168d66c1b748b0577fd697ad2a84",
+"_hooks_8cpp.html",
+"_zone_utilities_8cpp.html#adbca67cc6f8e0de599481461058803a0",
+"crash__catcher_2_main_8cpp.html#ae3ff3d49c476bf86782384bd571986ba",
+"group___death_penalty.html#ga35b059f4927fd9ff5bc737f7d0bd7eab",
+"namespace_hk_1_1_client.html#a5a159e3c9547ba1f64cb72c053540a2c",
+"namespace_i_server_impl_hook.html#a619cd9d9fa49314f7840638f67e8ac04",
+"namespace_plugins_1_1_purchase_restrictions.html#a09aae078c06430703795d70562d142cb",
+"rename_2_main_8cpp.html#af7a0e38231a24976d8605c824b10f570",
+"struct_plugins_1_1_autobuy_1_1_global.html#ad650a94861cccbf938056fdaececbb85",
+"struct_plugins_1_1_con_data_1_1_misc_client_info.html",
+"struct_plugins_1_1_message_1_1_config.html#ac6f8343d9a576ae09e0d132d2fa51eee",
+"struct_plugins_1_1_purchase_restrictions_1_1_global.html#a20c40d38ebb626df04700f1ec4ee3fe0",
+"struct_plugins_1_1_tax_1_1_tax.html#a2be39a6718d7c2123cb02492b372abed"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,5 +1,5 @@
 var struct_plugins_1_1_misc_commands_1_1_misc_client_info =
 [
-    [ "bLightsOn", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html#a78c41d7e0a6b647e4918ab3180c23eba", null ],
-    [ "bShieldsDown", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html#a5ab591130d235cca920a02654c1d2b91", null ]
+    [ "lightsOn", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html#a2f63b59f6a3da25a9e343e7f436f2944", null ],
+    [ "shieldsDown", "struct_plugins_1_1_misc_commands_1_1_misc_client_info.html#af6c7506647c512a08cec76ab25412198", null ]
 ];

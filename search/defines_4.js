@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['export_0',['EXPORT',['../blowfish_8h.html#a3472d8cdbb788d5f1815b3522595bc49',1,'EXPORT():&#160;blowfish.h'],['../global_8h.html#a3472d8cdbb788d5f1815b3522595bc49',1,'EXPORT():&#160;global.h']]],
-  ['extended_5fexception_5flogging_1',['EXTENDED_EXCEPTION_LOGGING',['../_hook_8h.html#aa9d394ff0a2f1786bfb45b1938f28127',1,'Hook.h']]]
+  ['has_5fflag_0',['HAS_FLAG',['../_message_8cpp.html#af7d49aa0aa1a2a4277d1ae30646e934d',1,'HAS_FLAG():&#160;Message.cpp'],['../_hk_i_chat_server_8cpp.html#af7d49aa0aa1a2a4277d1ae30646e934d',1,'HAS_FLAG():&#160;HkIChatServer.cpp'],['../message_2_main_8h.html#af7d49aa0aa1a2a4277d1ae30646e934d',1,'HAS_FLAG():&#160;Main.h']]]
 ];
