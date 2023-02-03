@@ -1,30 +1,11 @@
+name: build
+
 on:
   push:
     branches: [ master ]
 
-name: build
-
 jobs:
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: DoozyX/clang-format-lint-action@v0.10
-        with:
-          style: file
-          source: 'source plugins'
-          clangFormatVersion: 11
-          inplace: True
-      - uses: EndBug/add-and-commit@v7
-        with:
-          author_name: Clang Robot
-          author_email: clang-robot@the-starport.net
-          message: 'clang-format changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  build:
+  deploy:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
