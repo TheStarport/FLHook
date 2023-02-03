@@ -764,6 +764,25 @@ void CCmds::CmdUnloadPlugin(const std::wstring& wscPlugin)
 	Print("OK");
 }
 
+void CCmds::CmdShutdown()
+{
+	RIGHT_CHECK(RIGHT_SUPERADMIN);
+
+	Print("Shutting down Server");
+
+	// Kick everyone first and force a save
+	PlayerData* playerDb = nullptr;
+	while (playerDb = Players.traverse_active(playerDb))
+	{
+		Hk::Player::SaveChar(playerDb->iOnlineId);
+		Hk::Player::Kick(playerDb->iOnlineId);
+	}
+
+	auto* unkThis = (void*)0x00426C58;
+	HWND handle = *(HWND*)(*((DWORD*)unkThis + 8) + 32);
+	PostMessageA(handle, WM_CLOSE, 0, 0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Chase a player. Only works in system as you'd need a client hook to do across system */
@@ -1247,6 +1266,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"loadplugin")
 			{
 				CmdLoadPlugin(ArgStrToEnd(1));
+			}
+			else if (wscCmd == L"shutdown")
+			{
+				CmdShutdown();
 			}
 			else if (wscCmd == L"listplugins")
 			{
