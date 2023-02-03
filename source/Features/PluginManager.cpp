@@ -227,6 +227,8 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	plugin.pInfo = std::move(pi);
 	plugins_.push_back(plugin);
 
+	std::sort(plugins_.begin(), plugins_.end(), [](const PluginData& a, const PluginData& b) { return a.name < b.name; });
+
 	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin.shortName, wstos(plugin.dllName)));
 }
 
