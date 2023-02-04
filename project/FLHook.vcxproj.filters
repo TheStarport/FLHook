@@ -186,5 +186,8 @@
     <ClInclude Include="..\include\Features\Mail.hpp">
       <Filter>sdk\Features</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Tools\Concepts.hpp">
+      <Filter>sdk\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -88,7 +88,7 @@ namespace Plugins::CashManager
 
 		if (bank.cash < withdrawal)
 		{
-			PrintUserCmdText(client, std::format(L"Error: Not enough credits, this bank only has %u", bank.cash));
+			PrintUserCmdText(client, std::format(L"Error: Not enough credits, this bank only has {}", bank.cash));
 			return;
 		}
 
@@ -425,7 +425,8 @@ namespace Plugins::CashManager
 	}
 
 	const std::vector commands = {
-	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters.")}};
+	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters. \n"
+		"Laz is a gay.")}};
 
 	BankCode IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
