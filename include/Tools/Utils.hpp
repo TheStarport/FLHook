@@ -108,7 +108,8 @@ inline std::wstring XMLText(const std::wstring& text)
 }
 
 template<typename TStr, typename TChar>
-inline TStr GetParam(const TStr& line, TChar splitChar, uint pos) requires StringRestriction<TStr>
+inline TStr GetParam(const TStr& line, TChar splitChar, uint pos)
+    requires StringRestriction<TStr>
 {
 	uint i, j;
 
@@ -131,7 +132,8 @@ inline TStr GetParam(const TStr& line, TChar splitChar, uint pos) requires Strin
 }
 
 template<typename TString, typename TChar>
-TString GetParamToEnd(const TString& line, TChar splitChar, uint pos) requires StringRestriction<TString>
+TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
+    requires StringRestriction<TString>
 {
 	for (uint i = 0, j = 0; (i <= pos) && (j < line.length()); j++)
 	{
@@ -152,7 +154,8 @@ TString GetParamToEnd(const TString& line, TChar splitChar, uint pos) requires S
 }
 
 template<typename TString, typename TTStr, typename TTTStr>
-TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw) requires StringRestriction<TString>
+TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw)
+    requires StringRestriction<TString>
 {
 	const TString searchFor = searchForRaw;
 	const TString replaceWith = replaceWithRaw;
@@ -210,7 +213,8 @@ inline std::string ToLower(std::string string)
 Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
 */
 template<typename Str>
-Str Trim(const Str& stringInput) requires StringRestriction <Str>
+Str Trim(const Str& stringInput)
+    requires StringRestriction<Str>
 {
 	if (stringInput.empty())
 		return stringInput;
@@ -263,7 +267,8 @@ inline std::string wstos(const std::wstring& text)
 }
 
 template<typename TStr>
-auto strswa(TStr str) requires StringRestriction<TStr>
+auto strswa(TStr str)
+    requires StringRestriction<TStr>
 {
 	if constexpr (std::is_same_v<TStr, std::string>)
 	{
