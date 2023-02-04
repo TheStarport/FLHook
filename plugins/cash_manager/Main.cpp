@@ -426,7 +426,8 @@ namespace Plugins::CashManager
 
 	const std::vector commands = {
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters. \n"
-		"Laz is a gay.")}};
+		"New Line Test \n."
+		"New Line Test2 \n")}};
 
 	BankCode IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
