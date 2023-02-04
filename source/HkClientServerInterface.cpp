@@ -328,8 +328,8 @@ namespace IServerImplHook
 	bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, ClientId client)
 	{
 		// NAN check
-		if (!(ui.vPos.x == ui.vPos.x) || !(ui.vPos.y == ui.vPos.y) || !(ui.vPos.z == ui.vPos.z) || !(ui.vDir.x == ui.vDir.x) || !(ui.vDir.y == ui.vDir.y) ||
-		    !(ui.vDir.z == ui.vDir.z) || !(ui.vDir.w == ui.vDir.w) || !(ui.fThrottle == ui.fThrottle))
+		if (isnan(ui.vPos.x) || isnan(ui.vPos.y) || isnan(ui.vPos.z) || isnan(ui.vDir.w) || isnan(ui.vDir.x) || isnan(ui.vDir.y) || 
+			isnan(ui.vDir.z) || isnan(ui.fThrottle))
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("NAN found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
@@ -337,8 +337,7 @@ namespace IServerImplHook
 		}
 
 		// Denormalized check
-		float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z;
-		if (n > 1.21f || n < 0.81f)
+		if (float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z; n > 1.21f || n < 0.81f)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Non-normalized quaternion found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
