@@ -424,6 +424,7 @@ namespace Plugins::CashManager
 		}
 	}
 
+
 	const std::vector commands = 
 	{
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, 
@@ -440,6 +441,7 @@ namespace Plugins::CashManager
 			,TransactionsPerPage))
 	    }
 	};
+
 
 	BankCode IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
