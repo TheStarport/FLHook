@@ -64,6 +64,7 @@ namespace Plugins::Autobuy
 	void handleRepairs(ClientId& client)
 	{
 		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * (1 - Players[client].fRelativeHealth) / 3);
+		
 		std::set<short> eqToFix;
 
 		for (const auto& item : Players[client].equipDescList.equip)
@@ -75,7 +76,7 @@ namespace Plugins::Autobuy
 			if (!info)
 				continue;
 
-			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) * 0.33f);
+			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) / 3);
 			eqToFix.insert(item.sId);
 		}
 
@@ -84,31 +85,34 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, L"Insufficient Cash");
 			return;
 		}
-
+		
 		PrintUserCmdText(client, std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
 		Hk::Player::RemoveCash(client, repairCost);
-
-		for (auto& item : Players[client].equipDescList.equip)
-		{
-			if (eqToFix.contains(item.sId))
-				item.fHealth = 1.0f;
-		}
 		
-		auto& equip = Players[client].equipDescList.equip;
-
-		if (&equip != &Players[client].lShadowEquipDescList.equip)
-			Players[client].lShadowEquipDescList.equip = equip;
-
-		st6::vector<EquipDesc> eqVector;
-		for (auto& eq : equip)
+		if (!eqToFix.empty())
 		{
-			if (eq.bMounted)
-				eq.fHealth = 1.0f;
-			eqVector.push_back(eq);
+			for (auto& item : Players[client].equipDescList.equip)
+			{
+				if (eqToFix.contains(item.sId))
+					item.fHealth = 1.0f;
+			}
+		
+			auto& equip = Players[client].equipDescList.equip;
+
+			if (&equip != &Players[client].lShadowEquipDescList.equip)
+				Players[client].lShadowEquipDescList.equip = equip;
+
+			st6::vector<EquipDesc> eqVector;
+			for (auto& eq : equip)
+			{
+				if (eq.bMounted)
+					eq.fHealth = 1.0f;
+				eqVector.push_back(eq);
+			}
+
+			HookClient->Send_FLPACKET_SERVER_SETEQUIPMENT(client, eqVector);
 		}
 
-		HookClient->Send_FLPACKET_SERVER_SETEQUIPMENT(client, eqVector);
-		
 		if (auto& playerCollision = Players[client].collisionGroupDesc.data; !playerCollision.empty())
 		{
 			st6::list<XCollision> componentList;

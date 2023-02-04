@@ -3738,7 +3738,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(std::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroupList = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& CollisionGroups = {}\n\tClientId client = {}\n)",
 		        ToLogString(collisionGroups),
 		        client)));
 
