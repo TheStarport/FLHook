@@ -43,6 +43,7 @@ namespace Plugins::Autobuy
 		playerAutobuyInfo.torps = Hk::Ini::GetCharacterIniBool(client, L"autobuy.torps");
 		playerAutobuyInfo.cd = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cd");
 		playerAutobuyInfo.cm = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cm");
+		playerAutobuyInfo.bb = Hk::Ini::GetCharacterIniBool(client, L"autobuy.bb");
 		playerAutobuyInfo.repairs = Hk::Ini::GetCharacterIniBool(client, L"autobuy.repairs");
 		global->autobuyInfo[client] = playerAutobuyInfo;
 	}
@@ -58,6 +59,71 @@ namespace Plugins::Autobuy
 		}
 
 		return 0;
+	}
+
+	void handleRepairs(ClientId& client, Archetype::Ship const* ship)
+	{
+		uint repairCost = 0;
+		std::set<short> eqToFix;
+
+		for (const auto& item : Players[client].equipDescList.equip)
+		{
+			if (!item.bMounted || item.fHealth == 1)
+				continue;
+
+			const GoodInfo* info = GoodList_get()->find_by_archetype(item.iArchId);
+			if (!info)
+				continue;
+
+			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) * 0.33f);
+			eqToFix.insert(item.sId);
+		}
+		for (auto& item : Players[client].equipDescList.equip)
+		{
+			if (eqToFix.contains(item.sId))
+				item.fHealth = 1.0f;
+		}
+
+		if (uint playerCash = Hk::Player::GetCash(client).value(); playerCash < repairCost)
+		{
+			PrintUserCmdText(client, L"Insufficient Cash");
+			return;
+		}
+
+		Hk::Player::RemoveCash(client, repairCost);
+		
+		auto& equip = Players[client].equipDescList.equip;
+
+		if (&equip != &Players[client].lShadowEquipDescList.equip)
+			Players[client].lShadowEquipDescList.equip = equip;
+
+		st6::vector<EquipDesc> eqVector;
+		for (auto& eq : equip)
+		{
+			eq.fHealth = 1.0f;
+			eqVector.push_back(eq);
+		}
+
+		HookClient->Send_FLPACKET_SERVER_SETEQUIPMENT(client, eqVector);
+		
+		if (auto& playerCollision = Players[client].collisionGroupDesc.data; !playerCollision.empty())
+		{
+			st6::list<XCollision> componentList;
+			for (auto& colGrp : playerCollision)
+			{
+				auto* newColGrp = reinterpret_cast<XCollision*>(colGrp.data);
+				newColGrp->componentHP = 1.0f;
+				componentList.push_back(*newColGrp);
+			}
+			PrintUserCmdText(client, std::format(L"Attempting to repair {} components.", playerCollision.size()));
+			HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
+		}
+
+		if (Players[client].fRelativeHealth < 1.0f)
+		{
+			Players[client].fRelativeHealth = 1.0f;
+			HookClient->Send_FLPACKET_SERVER_SETHULLSTATUS(client, 1.0f);
+		}
 	}
 
 	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item, const std::wstring_view& desc)
@@ -83,6 +149,8 @@ namespace Plugins::Autobuy
 	{
 		const AutobuyInfo& clientInfo = LoadAutobuyInfo(client);
 
+		Archetype::Ship const* ship = Archetype::GetShip(Players[client].shipArchetype);
+
 		// player cargo
 		int remHoldSize;
 		const auto cargo = Hk::Player::EnumCargo(client, remHoldSize);
@@ -94,10 +162,9 @@ namespace Plugins::Autobuy
 		// shopping cart
 		std::list<AutobuyCartItem> cartList;
 
-		if (clientInfo.repairs)
+		if (clientInfo.bb)
 		{
 			// shield bats & nanobots
-			Archetype::Ship const* ship = Archetype::GetShip(Players[client].shipArchetype);
 
 			uint nanobotsId;
 			pub::GetGoodID(nanobotsId, global->config->nanobot_nickname.c_str());
@@ -216,6 +283,11 @@ namespace Plugins::Autobuy
 			}
 		}
 
+		if (clientInfo.repairs)
+		{
+			handleRepairs(client, ship);
+		}
+
 		// search base in base-info list
 		BaseInfo const* bi = nullptr;
 
@@ -320,7 +392,8 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, L"|  mines - enable/disable autobuy for mines");
 			PrintUserCmdText(client, L"|  cd - enable/disable autobuy for cruise disruptors");
 			PrintUserCmdText(client, L"|  cm - enable/disable autobuy for countermeasures");
-			PrintUserCmdText(client, L"|  repairs - enable/disable autobuy for nanobots/shield batteries");
+			PrintUserCmdText(client, L"|  bb - enable/disable autobuy for nanobots/shield batteries");
+			PrintUserCmdText(client, L"|  repairs - enable/disable automatic repair of ship and equipment");
 			PrintUserCmdText(client, L"|  all: enable/disable autobuy for all of the above");
 			PrintUserCmdText(client, L"Examples:");
 			PrintUserCmdText(client, L"|  \"/autobuy missiles on\" enable autobuy for missiles");
@@ -336,7 +409,8 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
-			PrintUserCmdText(client, std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.repairs ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.bb ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Repairs: {}", autobuyInfo.repairs ? L"On" : L"Off"));
 			return;
 		}
 
@@ -357,12 +431,14 @@ namespace Plugins::Autobuy
 			autobuyInfo.torps = enable;
 			autobuyInfo.cd = enable;
 			autobuyInfo.cm = enable;
+			autobuyInfo.bb = enable;
 			autobuyInfo.repairs = enable;
 			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.repairs", stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"missiles")
@@ -389,6 +465,11 @@ namespace Plugins::Autobuy
 		{
 			autobuyInfo.cm = enable;
 			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", stows(enable ? "true" : "false"));
+		}
+		else if (autobuyType == L"bb")
+		{
+			autobuyInfo.bb = enable;
+			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"repairs")
 		{

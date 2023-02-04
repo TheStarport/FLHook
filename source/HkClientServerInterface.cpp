@@ -1293,49 +1293,50 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float stat
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, st6::list<XCollision>& collisionGroupList)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)",
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n\tst6::list<XCollisionGroup>& collisionGroupList = {}\n)",
 	        client,
-	        ToLogString(_genArg1))));
+	        ToLogString(collisionGroupList))));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, _genArg1);
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, collisionGroupList);
 
 	if (!skip)
 	{
 		CALL_CLIENT_PREAMBLE
 		{
-			retVal = Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, _genArg1);
+			retVal = Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, collisionGroupList);
 		}
 		CALL_CLIENT_POSTAMBLE;
 	}
 
-	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, _genArg1);
+	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, collisionGroupList);
 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, st6::vector<EquipDesc>& equipmentVector)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(std::format(
-	        L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n\tFLPACKET_UNKNOWN& _genArg1 = {}\n)", client, ToLogString(_genArg1))));
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n\tst6::vector<EquipDesc>& equipmentVector = {}\n)",
+	        client,
+	        ToLogString(equipmentVector))));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, _genArg1);
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, equipmentVector);
 
 	if (!skip)
 	{
 		CALL_CLIENT_PREAMBLE
 		{
-			retVal = Send_FLPACKET_SERVER_SETEQUIPMENT(client, _genArg1);
+			retVal = Send_FLPACKET_SERVER_SETEQUIPMENT(client, equipmentVector);
 		}
 		CALL_CLIENT_POSTAMBLE;
 	}
 
-	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, _genArg1);
+	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, equipmentVector);
 
 	return retVal;
 }
@@ -3737,7 +3738,7 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    wstos(std::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroups = {}\n\tClientId client = {}\n)",
+		    wstos(std::format(L"ReqCollisionGroups(\n\tst6::list<CollisionGroupDesc> const& collisionGroupList = {}\n\tClientId client = {}\n)",
 		        ToLogString(collisionGroups),
 		        client)));
 
