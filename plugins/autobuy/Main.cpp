@@ -61,9 +61,9 @@ namespace Plugins::Autobuy
 		return 0;
 	}
 
-	void handleRepairs(ClientId& client, Archetype::Ship const* ship)
+	void handleRepairs(ClientId& client)
 	{
-		uint repairCost = 0;
+		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * (1 - Players[client].fRelativeHealth) / 3);
 		std::set<short> eqToFix;
 
 		for (const auto& item : Players[client].equipDescList.equip)
@@ -78,11 +78,6 @@ namespace Plugins::Autobuy
 			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) * 0.33f);
 			eqToFix.insert(item.sId);
 		}
-		for (auto& item : Players[client].equipDescList.equip)
-		{
-			if (eqToFix.contains(item.sId))
-				item.fHealth = 1.0f;
-		}
 
 		if (uint playerCash = Hk::Player::GetCash(client).value(); playerCash < repairCost)
 		{
@@ -90,7 +85,14 @@ namespace Plugins::Autobuy
 			return;
 		}
 
+		PrintUserCmdText(client, std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
 		Hk::Player::RemoveCash(client, repairCost);
+
+		for (auto& item : Players[client].equipDescList.equip)
+		{
+			if (eqToFix.contains(item.sId))
+				item.fHealth = 1.0f;
+		}
 		
 		auto& equip = Players[client].equipDescList.equip;
 
@@ -100,7 +102,8 @@ namespace Plugins::Autobuy
 		st6::vector<EquipDesc> eqVector;
 		for (auto& eq : equip)
 		{
-			eq.fHealth = 1.0f;
+			if (eq.bMounted)
+				eq.fHealth = 1.0f;
 			eqVector.push_back(eq);
 		}
 
@@ -118,7 +121,7 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, std::format(L"Attempting to repair {} components.", playerCollision.size()));
 			HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
 		}
-
+		
 		if (Players[client].fRelativeHealth < 1.0f)
 		{
 			Players[client].fRelativeHealth = 1.0f;
@@ -285,7 +288,7 @@ namespace Plugins::Autobuy
 
 		if (clientInfo.repairs)
 		{
-			handleRepairs(client, ship);
+			handleRepairs(client);
 		}
 
 		// search base in base-info list
