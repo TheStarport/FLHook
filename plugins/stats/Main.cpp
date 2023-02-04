@@ -92,7 +92,7 @@ namespace Plugins::Stats
 		nlohmann::json jExport;
 		jExport["serverload"] = CoreGlobals::c()->serverLoadInMs;
 
-		nlohmann::json jPlayers;
+		nlohmann::json jPlayers = nlohmann::json::array();
 
 		for (const std::list<PlayerInfo> lstPlayers = Hk::Admin::GetPlayers(); auto& lstPlayer : lstPlayers)
 		{
