@@ -21,7 +21,8 @@
 
 void PrintUserCmdText(ClientId client, const std::wstring& text)
 {
-	std::wstring xml = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.userCmdStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
+	std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->msgStyle.userCmdStyle, XMLText(text));
+	ReplaceStr(xml, L"\n", L"</TEXT></PARA><TEXT>");
 	Hk::Message::FMsg(client, xml);
 }
 

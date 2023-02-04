@@ -233,6 +233,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Features\Mail.hpp" />
     <ClInclude Include="..\include\FLHook.hpp" />
     <ClInclude Include="..\include\plugin.h" />
+    <ClInclude Include="..\include\Tools\Concepts.hpp" />
     <ClInclude Include="..\include\Tools\Constexpr.hpp" />
     <ClInclude Include="..\include\Tools\Deps.hpp" />
     <ClInclude Include="..\include\Tools\Enums.hpp" />

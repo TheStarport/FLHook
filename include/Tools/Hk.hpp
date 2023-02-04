@@ -17,6 +17,7 @@ extern DLL st6_free_t st6_free;
 #include <ext/Singleton.h>
 
 #include "Structs.hpp"
+#include "Concepts.hpp"
 
 #include "Deps.hpp"
 struct CARGO_INFO;
