@@ -153,6 +153,34 @@ TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
 	return TString();
 }
 
+template<typename TString>
+auto Split(const TString& input, const TString& splitCharacter)
+    requires StringRestriction<TString>
+{
+	auto inputCopy = input;
+	size_t pos = 0;
+	std::vector<TString> tokens;
+	while ((pos = inputCopy.find(splitCharacter)) != TString::npos)
+	{
+		TString token = inputCopy.substr(0, pos);
+		tokens.emplace_back(token);
+		inputCopy.erase(0, pos + splitCharacter.length());
+	}
+
+	if (!inputCopy.empty() && inputCopy.size() != input.size())
+	{
+		tokens.emplace_back(inputCopy);
+	}
+	return tokens;
+}
+
+template<typename TString, typename TChar>
+auto Split(const TString& input, const TChar& splitCharacter)
+    requires StringRestriction<TString>
+{
+	return Split(input, TString(1, splitCharacter));
+}
+
 template<typename TString, typename TTStr, typename TTTStr>
 TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw)
     requires StringRestriction<TString>
