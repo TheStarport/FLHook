@@ -77,7 +77,8 @@ inline int64 ToInt64(const std::wstring& str)
 
 inline uint ToUInt(const std::wstring& wscStr)
 {
-	if (wscStr.find(L"-") != std::wstring::npos) {
+	if (wscStr.find(L"-") != std::wstring::npos)
+	{
 		return 0;
 	}
 	return wcstoul(wscStr.c_str(), nullptr, 10);
@@ -107,44 +108,43 @@ inline std::wstring XMLText(const std::wstring& text)
 }
 
 template<typename TStr, typename TChar>
-inline TStr GetParam(const TStr& line, TChar wcSplitChar, uint iPos)
+inline TStr GetParam(const TStr& line, TChar splitChar, uint pos) requires StringRestriction<TStr>
 {
 	uint i, j;
 
-	TStr wscResult;
-	for (i = 0, j = 0; (i <= iPos) && (j < line.length()); j++)
+	TStr result;
+	for (i = 0, j = 0; (i <= pos) && (j < line.length()); j++)
 	{
-		if (line[j] == wcSplitChar)
+		if (line[j] == splitChar)
 		{
-			while (((j + 1) < line.length()) && (line[j + 1] == wcSplitChar))
+			while (((j + 1) < line.length()) && (line[j + 1] == splitChar))
 				j++; // skip "whitechar"
 
 			i++;
 			continue;
 		}
 
-		if (i == iPos)
-			wscResult += line[j];
+		if (i == pos)
+			result += line[j];
 	}
-
-	return wscResult;
+	return result;
 }
 
 template<typename TString, typename TChar>
-TString GetParamToEnd(const TString& wscLine, TChar wcSplitChar, uint iPos)
+TString GetParamToEnd(const TString& line, TChar splitChar, uint pos) requires StringRestriction<TString>
 {
-	for (uint i = 0, j = 0; (i <= iPos) && (j < wscLine.length()); j++)
+	for (uint i = 0, j = 0; (i <= pos) && (j < line.length()); j++)
 	{
-		if (wscLine[j] == wcSplitChar)
+		if (line[j] == splitChar)
 		{
-			while (((j + 1) < wscLine.length()) && (wscLine[j + 1] == wcSplitChar))
+			while (((j + 1) < line.length()) && (line[j + 1] == splitChar))
 				j++; // skip "whitechar"
 			i++;
 			continue;
 		}
-		if (i == iPos)
+		if (i == pos)
 		{
-			return wscLine.substr(j);
+			return line.substr(j);
 		}
 	}
 
@@ -152,7 +152,7 @@ TString GetParamToEnd(const TString& wscLine, TChar wcSplitChar, uint iPos)
 }
 
 template<typename TString, typename TTStr, typename TTTStr>
-TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw)
+TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw) requires StringRestriction<TString>
 {
 	const TString searchFor = searchForRaw;
 	const TString replaceWith = replaceWithRaw;
@@ -178,79 +178,77 @@ std::wstring ToMoneyStr(T cash)
 	return ss.str();
 }
 
-inline float ToFloat(const std::wstring& wscStr)
+inline float ToFloat(const std::wstring& string)
 {
-	return wcstof(wscStr.c_str(), nullptr);
+	return wcstof(string.c_str(), nullptr);
 }
 
-inline FARPROC PatchCallAddr(char* hMod, DWORD dwInstallAddress, char* dwHookFunction)
+inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, char* hookFunction)
 {
 	DWORD dwRelAddr;
-	ReadProcMem(hMod + dwInstallAddress + 1, &dwRelAddr, 4);
+	ReadProcMem(mod + installAddress + 1, &dwRelAddr, 4);
 
-	DWORD dwOffset = (DWORD)dwHookFunction - (DWORD)(hMod + dwInstallAddress + 5);
-	WriteProcMem(hMod + dwInstallAddress + 1, &dwOffset, 4);
+	DWORD dwOffset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
+	WriteProcMem(mod + installAddress + 1, &dwOffset, 4);
 
-	return (FARPROC)(hMod + dwRelAddr + dwInstallAddress + 5);
+	return (FARPROC)(mod + dwRelAddr + installAddress + 5);
 }
 
-inline std::wstring ToLower(std::wstring wscStr)
+inline std::wstring ToLower(std::wstring string)
 {
-	std::transform(wscStr.begin(), wscStr.end(), wscStr.begin(), towlower);
-	return wscStr;
+	std::transform(string.begin(), string.end(), string.begin(), towlower);
+	return string;
 }
 
-inline std::string ToLower(std::string scStr)
+inline std::string ToLower(std::string string)
 {
-	std::transform(scStr.begin(), scStr.end(), scStr.begin(), tolower);
-	return scStr;
+	std::transform(string.begin(), string.end(), string.begin(), tolower);
+	return string;
 }
 
 /**
 Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
 */
 template<typename Str>
-Str Trim(const Str& scIn)
+Str Trim(const Str& stringInput) requires StringRestriction <Str>
 {
-	if (scIn.empty())
-		return scIn;
+	if (stringInput.empty())
+		return stringInput;
 
 	using Char = typename Str::value_type;
-	constexpr auto trimmable = []() constexpr
-	{
+	constexpr auto trimmable = []() constexpr {
 		if constexpr (std::is_same_v<Char, char>)
 			return " \t\n\r";
 		else if constexpr (std::is_same_v<Char, wchar_t>)
 			return L" \t\n\r";
-	}
-	();
+	}();
 
-	auto start = scIn.find_first_not_of(trimmable);
-	auto end = scIn.find_last_not_of(trimmable);
+	auto start = stringInput.find_first_not_of(trimmable);
+	auto end = stringInput.find_last_not_of(trimmable);
 
 	if (start == end)
-		return scIn;
+		return stringInput;
 
-	return scIn.substr(start, end - start + 1);
+	return stringInput.substr(start, end - start + 1);
 }
 
-inline std::wstring ViewToWString(const std::wstring& sv)
+inline std::wstring ViewToWString(const std::wstring& wstring)
 {
-	return {sv.begin(), sv.end()};
+	return {wstring.begin(), wstring.end()};
 }
 
-inline std::string ViewToString(const std::string_view& sv)
+inline std::string ViewToString(const std::string_view& stringView)
 {
-	return {sv.begin(), sv.end()};
+	return {stringView.begin(), stringView.end()};
 }
 
-inline std::wstring stows(const std::string& scText)
+inline std::wstring stows(const std::string& text)
 {
-	int iSize = MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, 0, 0);
-	wchar_t* wszText = new wchar_t[iSize];
-	MultiByteToWideChar(CP_ACP, 0, scText.c_str(), -1, wszText, iSize);
-	std::wstring wscRet = wszText;
-	delete[] wszText;
+	int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, 0, 0);
+	wchar_t* wideText = new wchar_t[size];
+	MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, wideText, size);
+	std::wstring wscRet = wideText;
+	delete[] wideText;
 	return wscRet;
 }
 
@@ -265,7 +263,7 @@ inline std::string wstos(const std::wstring& text)
 }
 
 template<typename TStr>
-auto strswa(TStr str)
+auto strswa(TStr str) requires StringRestriction<TStr>
 {
 	if constexpr (std::is_same_v<TStr, std::string>)
 	{
@@ -276,4 +274,3 @@ auto strswa(TStr str)
 		return wstos(str);
 	}
 }
-
