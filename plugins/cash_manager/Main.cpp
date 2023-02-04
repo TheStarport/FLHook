@@ -213,10 +213,12 @@ namespace Plugins::CashManager
 
 	void ShowBankInfo(ClientId& client, const Bank& bank, bool showPass)
 	{
-		PrintUserCmdText(client, L"Your Bank Information: ");
-		PrintUserCmdText(client, std::format(L"|    Identifier: {}", bank.identifier.empty() ? L"N/A" : bank.identifier));
-		PrintUserCmdText(client, std::format(L"|    Password: {}", showPass ? bank.bankPassword : L"*****"));
-		PrintUserCmdText(client, std::format(L"|    Credits: {}", ToMoneyStr(bank.cash)));
+		PrintUserCmdText(client, std::format(
+			L"Your Bank Information:\n"
+			"|    Identifier: {} \n"
+			"|    Password: {}\n"
+			"|    Credits: {}",
+			bank.identifier.empty() ? L"N/A" : bank.identifier,showPass ? bank.bankPassword : L"*****",ToMoneyStr(bank.cash)));
 
 		if (!showPass)
 		{
@@ -312,10 +314,11 @@ namespace Plugins::CashManager
 			const auto identifier = GetParam(param, ' ', 1);
 			if (bank.identifier.empty() && identifier.empty())
 			{
-				PrintUserCmdText(client, L"Your bank currently does not have an identifier set");
-				PrintUserCmdText(client, L"Generating an identifier means anybody with the identifier and password can access your bank.");
-				PrintUserCmdText(client, L"Are you sure you want to generate an identifier for this account?");
-				PrintUserCmdText(client, L"Please type \"/bank identifier <your banks identifier>\" to set one.");
+				PrintUserCmdText(client, 
+					L"Your bank currently does not have an identifier set.\n"
+					"Generating an identifier means anybody with the identifier and password can access your bank.\n"
+					"Are you sure you want to generate an identifier for this account?\n"
+					"Please type \"/bank identifier <your banks identifier>\" to set one.");
 				return;
 			}
 
@@ -405,25 +408,40 @@ namespace Plugins::CashManager
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Here are the available commands for the bank plugin");
-			PrintUserCmdText(client, L"\"/bank withdraw <amount>\" will withdraw money from your account's bank");
-			PrintUserCmdText(
-			    client, L"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up");
-
-			PrintUserCmdText(client, L"\"/bank deposit <amount>\" will deposit money from your character to your bank");
-			PrintUserCmdText(client, L"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier");
-			PrintUserCmdText(client, L"\"/bank password \" will regenerate your password");
 			PrintUserCmdText(client,
-			    L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other "
-			    L"accounts.");
-			PrintUserCmdText(client, L"\"/bank info \" will display information regarding your current account's bank");
-			PrintUserCmdText(client, std::format(L"\"/bank transactions \" will display the last {} transactions", TransactionsPerPage));
-			PrintUserCmdText(client, L"\"/bank transactions <list> [page]\" will display the full list of transactions");
+			    std::format(L"Here are the available commands for the bank plugin.\n"
+			                "\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			                "\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			                "\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
+			                "\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
+			                "\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
+			                "\"/bank password \" will regenerate your password.\n"
+			                "\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money "
+			                "from other accounts.\n"
+			                "\"/bank transactions \" will display the last {} transactions.\n"
+			                "\"/bank transactions <list> [page]\" will display the full list of transactions.",
+			        TransactionsPerPage));
 		}
 	}
 
-	const std::vector commands = {
-	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, L"A series of commands for storing money that can be shared among multiple characters. Type /bank in order to see commands and usage")}};
+
+	const std::vector commands = 
+	{
+	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, 
+			std::format(L"A series of commands for storing money that can be shared among multiple characters.\n"
+			"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
+			"\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
+			"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
+			"\"/bank password \" will regenerate your password.\n"
+			"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.\n"
+			"\"/bank transactions \" will display the last {} transactions.\n"
+			"\"/bank transactions <list> [page]\" will display the full list of transactions."
+			,TransactionsPerPage))
+	    }
+	};
+
 
 	BankCode IpcConsumeBankCash(const CAccount* account, uint cashAmount, const std::string& transactionSource)
 	{
