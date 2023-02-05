@@ -4,6 +4,7 @@
 
 #include <Psapi.h>
 #include <iostream>
+#include "Memory/MemoryManager.hpp"
 
 // structs
 struct SOCKET_CONNECTION
@@ -72,10 +73,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 	char szFile[MAX_PATH];
 	GetModuleFileName(0, szFile, sizeof(szFile));
-	std::wstring wscFileName = ToLower(stows(szFile));
 
-	if (wscFileName.find(L"flserver.exe") != -1)
-	{ // start FLHook
+	if (std::wstring wscFileName = ToLower(stows(szFile)); wscFileName.find(L"flserver.exe") != -1)
+	{ 
+		// We need to init our memory hooks before anything is loaded!
+		MemoryManager::i()->InitHook();
+
 		bExecuted = true;
 
 		// redirect IServerImpl::Update

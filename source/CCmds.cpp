@@ -778,9 +778,7 @@ void CCmds::CmdShutdown()
 		Hk::Player::Kick(playerDb->iOnlineId);
 	}
 
-	auto* unkThis = (void*)0x00426C58;
-	HWND handle = *(HWND*)(*((DWORD*)unkThis + 8) + 32);
-	PostMessageA(handle, WM_CLOSE, 0, 0);
+	PostMessageA(GetFLServerHwnd(), WM_CLOSE, 0, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

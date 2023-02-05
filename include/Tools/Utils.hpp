@@ -1,5 +1,11 @@
 #pragma once
 
+inline HWND GetFLServerHwnd()
+{
+	const auto* unkThis = (void*)0x00426C58;
+	return *(HWND*)(*((DWORD*)unkThis + 8) + 32);
+}
+
 inline void SwapBytes(void* ptr, uint iLen)
 {
 	if (iLen % 4)
@@ -105,6 +111,75 @@ inline std::wstring XMLText(const std::wstring& text)
 	}
 
 	return wscRet;
+}
+
+/**
+Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
+*/
+template<typename Str>
+Str Trim(const Str& stringInput)
+    requires StringRestriction<Str>
+{
+	if (stringInput.empty())
+		return stringInput;
+
+	using Char = typename Str::value_type;
+	constexpr auto trimmable = []() constexpr {
+		if constexpr (std::is_same_v<Char, char>)
+			return " \t\n\r";
+		else if constexpr (std::is_same_v<Char, wchar_t>)
+			return L" \t\n\r";
+	}();
+
+	auto start = stringInput.find_first_not_of(trimmable);
+	auto end = stringInput.find_last_not_of(trimmable);
+
+	if (start == end)
+		return stringInput;
+
+	return stringInput.substr(start, end - start + 1);
+}
+
+template<typename TString>
+TString ExpandEnvironmentVariables(const TString& input)
+{
+	std::string accumulator = "";
+	std::string output = "";
+	bool percentFound = false;
+
+	for (uint i = 0; i < input.length(); i++)
+	{
+		const auto ch = input[i];
+		if (ch == '%')
+		{
+			if (percentFound || (input[i + 1] != '%'))
+			{
+				percentFound = !percentFound;
+				if (percentFound)
+					accumulator.clear();
+				else
+				{
+					auto var = std::getenv(accumulator.c_str());
+					accumulator = var ? var : accumulator;
+					output += accumulator;
+				}
+			}
+			else
+			{
+				i++; // Extra percentage sign, escape it.
+			}
+		}
+		else
+		{
+			if (percentFound)
+				accumulator += ch;
+			else
+				output += ch;
+		}
+	}
+
+	TString ret = Trim(output);
+	return ret;
 }
 
 template<typename TStr, typename TChar>
@@ -235,33 +310,6 @@ inline std::string ToLower(std::string string)
 {
 	std::transform(string.begin(), string.end(), string.begin(), tolower);
 	return string;
-}
-
-/**
-Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
-*/
-template<typename Str>
-Str Trim(const Str& stringInput)
-    requires StringRestriction<Str>
-{
-	if (stringInput.empty())
-		return stringInput;
-
-	using Char = typename Str::value_type;
-	constexpr auto trimmable = []() constexpr {
-		if constexpr (std::is_same_v<Char, char>)
-			return " \t\n\r";
-		else if constexpr (std::is_same_v<Char, wchar_t>)
-			return L" \t\n\r";
-	}();
-
-	auto start = stringInput.find_first_not_of(trimmable);
-	auto end = stringInput.find_last_not_of(trimmable);
-
-	if (start == end)
-		return stringInput;
-
-	return stringInput.substr(start, end - start + 1);
 }
 
 inline std::wstring ViewToWString(const std::wstring& wstring)
