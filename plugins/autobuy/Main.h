@@ -16,6 +16,7 @@ namespace Plugins::Autobuy
 		bool torps;
 		bool cd;
 		bool cm;
+		bool bb;
 		bool repairs;
 	};
 
