@@ -397,7 +397,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (client == -1 || Hk::Client::IsInCharSelectMenu(client))
+		if (client == UINT_MAX || Hk::Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		int iHold;
@@ -423,7 +423,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (client == -1 || Hk::Client::IsInCharSelectMenu(client))
+		if (client == UINT_MAX || Hk::Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		// add
@@ -506,7 +506,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if ((client == -1) && player.index() && !Hk::Client::GetAccountByClientID(client))
+		if ((client == UINT_MAX) && player.index() && !Hk::Client::GetAccountByClientID(client))
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		if (!bOnlyDelete && Hk::Client::GetAccountByCharName(wscNewCharname))
@@ -686,7 +686,7 @@ namespace Hk::Player
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		// check if logged in
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint ship;
@@ -747,7 +747,7 @@ namespace Hk::Player
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		// check if logged in
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		INI_Reader ini;
@@ -786,7 +786,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		// check if logged in
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint iRepGroupId;
@@ -805,7 +805,7 @@ namespace Hk::Player
 	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& repGroup)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint repGroupId;
@@ -835,7 +835,7 @@ namespace Hk::Player
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		// check if logged in
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		// hey, at least it works! beware of the VC optimiser.
@@ -920,7 +920,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::InvalidClientId);
 		}
@@ -1030,7 +1030,7 @@ namespace Hk::Player
 	cpp::result<void, Error> InstantDock(ClientId client, uint iDockObj)
 	{
 		// check if logged in
-		if (client == -1)
+		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint ship;
@@ -1336,7 +1336,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if ((client == -1) || Hk::Client::IsInCharSelectMenu(client))
+		if ((client == UINT_MAX) || Hk::Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::CharacterNotSelected);
 
 		// Update FLHook's lists to make anticheat pleased.
@@ -1354,7 +1354,7 @@ namespace Hk::Player
 		}
 
 		FLPACKET* packet = FLPACKET::Create(itemBufSize, FLPACKET::FLPACKET_SERVER_SETEQUIPMENT);
-		FlPacketSetEquipment* pSetEquipment = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
+		auto pSetEquipment = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
 
 		// Add items to packet as array of variable size.
 		uint index = 0;
@@ -1370,7 +1370,7 @@ namespace Hk::Player
 
 			if (uint len = strlen(item.szHardPoint.value); len && item.szHardPoint.value != "BAY")
 			{
-				setEquipItem.szHardPointLen = len + 1; // add 1 for the null - char* is a null-terminated string in C++
+				setEquipItem.szHardPointLen = static_cast<ushort>(len + 1); // add 1 for the null - char* is a null-terminated string in C++
 			}
 			else
 			{
@@ -1378,11 +1378,11 @@ namespace Hk::Player
 			}
 			pSetEquipment->count++;
 
-			byte* buf = (byte*)&setEquipItem;
+			const byte* buf = (byte*)&setEquipItem;
 			for (int i = 0; i < sizeof(SetEquipmentItem); i++)
 				pSetEquipment->items[index++] = buf[i];
 
-			byte* szHardPoint = (byte*)item.szHardPoint.value;
+			const byte* szHardPoint = (byte*)item.szHardPoint.value;
 			for (int i = 0; i < setEquipItem.szHardPointLen; i++)
 				pSetEquipment->items[index++] = szHardPoint[i];
 		}
@@ -1398,7 +1398,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if ((client == -1) || Hk::Client::IsInCharSelectMenu(client))
+		if ((client == UINT_MAX) || Hk::Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::CharacterNotSelected);
 
 		if (!Players[client].iEnteredBase)
@@ -1431,7 +1431,7 @@ namespace Hk::Player
 			AddCargoDocked = (_AddCargoDocked)((char*)hModServer + 0x6EFC0);
 
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1 || Hk::Client::IsInCharSelectMenu(client))
+		if (client == UINT_MAX || Hk::Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint iBase = 0;
@@ -1633,7 +1633,7 @@ namespace Hk::Player
 	cpp::result<const BaseId, Error> GetCurrentBase(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1651,7 +1651,7 @@ namespace Hk::Player
 	cpp::result<const SystemId, Error> GetSystem(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1668,7 +1668,7 @@ namespace Hk::Player
 	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1685,7 +1685,7 @@ namespace Hk::Player
 	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1700,7 +1700,7 @@ namespace Hk::Player
 
 	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus) {
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1711,7 +1711,7 @@ namespace Hk::Player
 
 	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player) {
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1722,7 +1722,7 @@ namespace Hk::Player
 
 	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount) {
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
@@ -1734,7 +1734,7 @@ namespace Hk::Player
 
 	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player) {
 		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client == -1)
+		if (client == UINT_MAX)
 		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
