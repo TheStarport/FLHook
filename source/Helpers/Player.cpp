@@ -524,7 +524,7 @@ namespace Hk::Player
 
 		CAccount* acc;
 		std::wstring oldCharName;
-		if (client != -1)
+		if (client != UINT_MAX)
 		{
 			acc = Players.FindAccountFromClientID(client);
 			oldCharName = (wchar_t*)Players.GetActiveCharacterName(client);
@@ -706,7 +706,7 @@ namespace Hk::Player
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		CAccount* acc;
-		if (client != -1)
+		if (client != UINT_MAX)
 			acc = Players.FindAccountFromClientID(client);
 		else
 			acc = player.index() ? Hk::Client::GetAccountByCharName(std::get<std::wstring>(player)).value() : nullptr;
@@ -859,7 +859,7 @@ namespace Hk::Player
 
 		std::wstring dir;
 		cpp::result<CAccount*, Error> acc;
-		if (client != -1)
+		if (client != UINT_MAX)
 		{
 			acc = Players.FindAccountFromClientID(client);
 			const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
@@ -1492,8 +1492,8 @@ namespace Hk::Player
 
 	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring>& player)
 	{
-		ClientId client = Hk::Client::ExtractClientID(player);
-		if (client != -1 && !Hk::Client::IsInCharSelectMenu(client))
+		if (ClientId client = Hk::Client::ExtractClientID(player); 
+			client != UINT_MAX && !Hk::Client::IsInCharSelectMenu(client))
 		{
 			SaveChar(player);
 			if (!Hk::Client::IsValidClientID(client))

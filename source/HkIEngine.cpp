@@ -105,14 +105,14 @@ namespace IEngineHook
 	/**************************************************************************************************************
 	**************************************************************************************************************/
 
-	int __cdecl DockCall(const uint& shipId, const uint& spaceId, int flags, DOCK_HOST_RESPONSE response)
+	int __cdecl DockCall(const uint& shipId, const uint& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
 	{
-		//	flags == -1, response -> 2 --> Dock Denied!
-		//	flags == -1, response -> 3 --> Dock in Use
-		//	flags != -1, response -> 4 --> Dock ok, proceed (flags Dock Port?)
-		//	flags == -1, response -> 5 --> now DOCK!
+		//	dockPortIndex == -1, response -> 2 --> Dock Denied!
+		//	dockPortIndex == -1, response -> 3 --> Dock in Use
+		//	dockPortIndex != -1, response -> 4 --> Dock ok, proceed (dockPortIndex starts from 0 for docking point 1)
+		//	dockPortIndex == -1, response -> 5 --> now DOCK!
 
-		CallPluginsBefore(HookedCall::IEngine__DockCall, shipId, spaceId, flags, response);
+		CallPluginsBefore(HookedCall::IEngine__DockCall, shipId, spaceId, dockPortIndex, response);
 
 		int retVal = 0;
 		TRY_HOOK
@@ -129,11 +129,11 @@ namespace IEngineHook
 				}
 			}
 			// Actually dock
-			retVal = pub::SpaceObj::Dock(shipId, spaceId, flags, response);
+			retVal = pub::SpaceObj::Dock(shipId, spaceId, dockPortIndex, response);
 		}
 		CATCH_HOOK({})
 
-		CallPluginsAfter(HookedCall::IEngine__DockCall, shipId, spaceId, flags, response);
+		CallPluginsAfter(HookedCall::IEngine__DockCall, shipId, spaceId, dockPortIndex, response);
 
 		return retVal;
 	}
