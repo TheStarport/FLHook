@@ -95,7 +95,7 @@ namespace Plugins::BountyHunt
 
 		int rankTarget = Hk::Player::GetRank(targetId.value()).value();
 
-		if (targetId == -1 || Hk::Client::IsInCharSelectMenu(targetId.value()))
+		if (targetId == UINT_MAX || Hk::Client::IsInCharSelectMenu(targetId.value()))
 		{
 			PrintUserCmdText(client, std::format(L"{} is not online.", target));
 			return;

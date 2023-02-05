@@ -812,7 +812,7 @@ namespace Hk::Player
 		if (repGroup.index() == 1)
 		{
 			pub::Reputation::GetReputationGroup(repGroupId, wstos(std::get<std::wstring>(repGroup)).c_str());
-			if (repGroupId == -1)
+			if (repGroupId == UINT_MAX)
 				return cpp::fail(Error::InvalidRepGroup);
 		}
 		else

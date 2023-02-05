@@ -155,7 +155,7 @@ namespace Plugins::Message
 	{
 		if (wscMsg.find(L"#t") != -1)
 		{
-			if (clientData.targetClientId == -1)
+			if (clientData.targetClientId == UINT_MAX)
 			{
 				PrintUserCmdText(client, L"ERR Target not available");
 				return false;
@@ -621,7 +621,7 @@ namespace Plugins::Message
 
 		const std::wstring wscMsg = GetParamToEnd(param, ' ', 0);
 
-		if (iter->second.lastPmClientId == -1)
+		if (iter->second.lastPmClientId == UINT_MAX)
 		{
 			PrintUserCmdText(client, L"ERR PM sender not available");
 			return;
@@ -670,7 +670,7 @@ namespace Plugins::Message
 
 		const std::wstring wscMsg = GetParamToEnd(param, ' ', 0);
 
-		if (iter->second.targetClientId == -1)
+		if (iter->second.targetClientId == UINT_MAX)
 		{
 			PrintUserCmdText(client, L"ERR PM target not available");
 			return;

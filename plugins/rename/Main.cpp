@@ -178,7 +178,7 @@ namespace Plugins::Rename
 		// Save character and exit if kicked on save.
 		const auto charName = Hk::Client::GetCharacterNameByID(client);
 		Hk::Player::SaveChar(charName.value());
-		if (Hk::Client::GetClientIdFromCharName(charName.value()) == -1)
+		if (Hk::Client::GetClientIdFromCharName(charName.value()) == UINT_MAX)
 			return;
 
 		if (const auto iCash = Hk::Player::GetCash(client); global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)

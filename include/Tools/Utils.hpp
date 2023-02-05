@@ -266,7 +266,7 @@ TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTSt
 	uint lPos, sPos = 0;
 
 	TString result = source;
-	while ((lPos = static_cast<uint>(result.find(searchFor, sPos))) != -1)
+	while ((lPos = static_cast<uint>(result.find(searchFor, sPos))) != UINT_MAX)
 	{
 		result.replace(lPos, searchFor.length(), replaceWith);
 		sPos = lPos + replaceWith.length();
