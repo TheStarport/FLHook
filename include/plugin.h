@@ -69,8 +69,6 @@ class PluginHook
 				break;
 			case HookStep::After:
 				break;
-			case HookStep::Mid:
-				throw std::invalid_argument("Mid hook step is not currently implemented");
 			case HookStep::Count:
 				throw std::invalid_argument("Count is not a valid hook step.");
 			default:;
