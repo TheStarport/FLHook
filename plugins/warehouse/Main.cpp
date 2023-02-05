@@ -79,7 +79,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 		const auto& item = filteredCargo[databaseItemId - 1];
-		if (itemCount > item.iCount)
+		if (itemCount > static_cast<uint>(item.iCount))
 		{
 			PrintUserCmdText(client, L"Error Invalid Item Quantity");
 			return;
