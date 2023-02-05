@@ -18,7 +18,7 @@ namespace Plugins::MiningControl
 
 		//! The affiliation/reputation of the player
 		std::string Rep = "li_n_grp";
-		uint RepId = -1;
+		uint RepId = UINT_MAX;
 
 		//! The list of ships that this bonus applies to
 		std::vector<std::string> Ships = {"ge_fighter"};
