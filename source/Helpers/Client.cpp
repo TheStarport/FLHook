@@ -488,7 +488,7 @@ namespace Hk::Client
 
 	cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player)
 	{
-		if (ClientId client = Hk::Client::ExtractClientID(player); client != -1)
+		if (ClientId client = Hk::Client::ExtractClientID(player); client != UINT_MAX)
 			return Players.FindAccountFromClientID(client);
 
 		if (!player.index())
