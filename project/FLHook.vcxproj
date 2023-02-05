@@ -219,6 +219,8 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\HkIEngineDeath.cpp" />
     <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
     <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
+    <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
+    <ClCompile Include="..\source\Memory\SaveData.cpp" />
     <ClCompile Include="..\source\Tools\Console.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
     <ClCompile Include="..\source\CConsole.cpp" />
@@ -246,6 +248,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\HookedCallBase.h" />
+    <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
     <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CSocket.h" />
