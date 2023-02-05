@@ -1,5 +1,9 @@
 var NAVTREEINDEX8 =
 {
+"namespace_plugins_1_1_npc.html":[2,1,0,4,19],
+"namespace_plugins_1_1_npc.html#a6d8e9e8f29c027a4df47136d8ea19e5b":[2,1,0,4,19,14],
+"namespace_plugins_1_1_npc.html#ad4844bc34d93fe57774077ad21a51813":[2,1,0,4,19,23],
+"namespace_plugins_1_1_purchase_restrictions.html":[2,1,0,4,20],
 "namespace_plugins_1_1_purchase_restrictions.html#a09aae078c06430703795d70562d142cb":[2,1,0,4,20,7],
 "namespace_plugins_1_1_purchase_restrictions.html#a19bc79302af02ba266ba776400ff91a9":[2,1,0,4,20,14],
 "namespace_plugins_1_1_purchase_restrictions.html#a39f3d959e9f6dede3fbb3a18e8d39df0":[2,1,0,4,20,12],
@@ -139,8 +143,8 @@ var NAVTREEINDEX8 =
 "namespacemembers_e.html":[2,1,1,0,5],
 "namespacemembers_enum.html":[2,1,1,4],
 "namespacemembers_f.html":[2,1,1,0,6],
-"namespacemembers_func.html":[2,1,1,1],
 "namespacemembers_func.html":[2,1,1,1,0],
+"namespacemembers_func.html":[2,1,1,1],
 "namespacemembers_func_a.html":[2,1,1,1,1],
 "namespacemembers_func_b.html":[2,1,1,1,2],
 "namespacemembers_func_c.html":[2,1,1,1,3],
@@ -245,9 +249,5 @@ var NAVTREEINDEX8 =
 "rename_2_main_8cpp.html#a9ecc6909e960fd401b7c53d20e128450":[2,3,0,1,23,0,12],
 "rename_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,23,0,10],
 "rename_2_main_8cpp.html#ab49f7801378b1ef442021805a4a46468":[2,3,0,1,23,0,22],
-"rename_2_main_8cpp.html#ab6aafd9a2e00c8c72cfb9fe50b2bf310":[2,3,0,1,23,0,20],
-"rename_2_main_8cpp.html#ac00a42b7287b83c06020c6985ba7e9a5":[2,3,0,1,23,0,25],
-"rename_2_main_8cpp.html#ad35470b1e09828416e287847f0ba0c89":[2,3,0,1,23,0,2],
-"rename_2_main_8cpp.html#adff7c223de7a16cde62d2ce0e92ecd7d":[2,3,0,1,23,0,1],
-"rename_2_main_8cpp.html#af01f8bf5390b8a6f1df33619d00dbca2":[2,3,0,1,23,0,5]
+"rename_2_main_8cpp.html#ab6aafd9a2e00c8c72cfb9fe50b2bf310":[2,3,0,1,23,0,20]
 };

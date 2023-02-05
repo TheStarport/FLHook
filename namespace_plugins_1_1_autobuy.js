@@ -6,6 +6,7 @@ var namespace_plugins_1_1_autobuy =
     [ "Global", "struct_plugins_1_1_autobuy_1_1_global.html", "struct_plugins_1_1_autobuy_1_1_global" ],
     [ "AddEquipToCart", "namespace_plugins_1_1_autobuy.html#ac7dc63d53ddacc60591bd2c13d47114b", null ],
     [ "ClearClientInfo", "namespace_plugins_1_1_autobuy.html#a5417d8cb3542841c0f1480ef6afc3cf7", null ],
+    [ "handleRepairs", "namespace_plugins_1_1_autobuy.html#a30a4ecde68842ad74639a2f319ca4555", null ],
     [ "LoadAutobuyInfo", "namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c", null ],
     [ "LoadPlayerAutobuy", "namespace_plugins_1_1_autobuy.html#a677a0024edd14fd42b02345e5d1d3b95", null ],
     [ "LoadSettings", "namespace_plugins_1_1_autobuy.html#a12eee9a3a9513494b7c2e4e8dc9afbce", null ],

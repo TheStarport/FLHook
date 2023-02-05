@@ -1,6 +1,7 @@
 var class_plugins_1_1_autobuy_1_1_autobuy_info =
 [
     [ "AutobuyInfo", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#aa1bd2ab69275485f04d950038296b5a5", null ],
+    [ "bb", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a84e79b6dabd07f5ab56610c2455dfe53", null ],
     [ "cd", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a37ac844a24f20626ae1484bd04d16934", null ],
     [ "cm", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a497d4dac5df0b3d33d5f57fb918c73ea", null ],
     [ "mines", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#ab0798836c82316dd1baf97fb4e54e8e0", null ],

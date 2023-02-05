@@ -1,5 +1,8 @@
 var NAVTREEINDEX5 =
 {
+"group___crash_catcher.html#gabaea9505cf7987bd095744c679b5bfc9":[2,0,9,5],
+"group___death_penalty.html":[2,0,10],
+"group___death_penalty.html#ga092969dfc5c07af71e2fcd1325afa9db":[2,0,10,2],
 "group___death_penalty.html#ga35b059f4927fd9ff5bc737f7d0bd7eab":[2,0,10,7],
 "group___death_penalty.html#ga4aecd04ba310e4b15c52723f1e61be34":[2,0,10,0],
 "group___death_penalty.html#ga51561fb5a238a0a0623827868bfa1d8a":[2,0,10,3],
@@ -246,8 +249,5 @@ var NAVTREEINDEX5 =
 "namespace_hk_1_1_client.html#a24214e9502e28589b13383bf6a5776f9":[2,1,0,0,1,3],
 "namespace_hk_1_1_client.html#a2a5c9a2978f187dc39d29fb06d50e9b9":[2,1,0,0,1,17],
 "namespace_hk_1_1_client.html#a334441ffa9a01833d26f7491ceda6aee":[2,1,0,0,1,1],
-"namespace_hk_1_1_client.html#a3dd60df47dd1715e3952be0e41ab6ab3":[2,1,0,0,1,22],
-"namespace_hk_1_1_client.html#a4225d173311b16092485ee1edd87b5b9":[2,1,0,0,1,4],
-"namespace_hk_1_1_client.html#a493dccca4f8bef56763a1fcf23b12818":[2,1,0,0,1,14],
-"namespace_hk_1_1_client.html#a4c8153cc0bd10cb5a19ceb2fb06b29c4":[2,1,0,0,1,27]
+"namespace_hk_1_1_client.html#a3dd60df47dd1715e3952be0e41ab6ab3":[2,1,0,0,1,22]
 };

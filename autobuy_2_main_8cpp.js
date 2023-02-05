@@ -3,6 +3,7 @@ var autobuy_2_main_8cpp =
     [ "AddEquipToCart", "autobuy_2_main_8cpp.html#ac7dc63d53ddacc60591bd2c13d47114b", null ],
     [ "ClearClientInfo", "autobuy_2_main_8cpp.html#a5417d8cb3542841c0f1480ef6afc3cf7", null ],
     [ "ExportPluginInfo", "autobuy_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
+    [ "handleRepairs", "autobuy_2_main_8cpp.html#a30a4ecde68842ad74639a2f319ca4555", null ],
     [ "LoadAutobuyInfo", "autobuy_2_main_8cpp.html#ad4f67f84271ffa3bfde4cc2217b6c67c", null ],
     [ "LoadPlayerAutobuy", "autobuy_2_main_8cpp.html#a677a0024edd14fd42b02345e5d1d3b95", null ],
     [ "LoadSettings", "autobuy_2_main_8cpp.html#a12eee9a3a9513494b7c2e4e8dc9afbce", null ],

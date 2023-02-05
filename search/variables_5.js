@@ -28,6 +28,6 @@ var searchData=
   ['exceptionreason_25',['exceptionReason',['../struct_plugins_1_1_con_data_1_1_connection_data.html#ad0b35033119b53a9d8f707d8614076fe',1,'Plugins::ConData::ConnectionData']]],
   ['excludedsystems_26',['ExcludedSystems',['../struct_plugins_1_1_death_penalty_1_1_config.html#ae94fea4ce271061e90bff037674a5826',1,'Plugins::DeathPenalty::Config']]],
   ['excludedsystems_27',['excludedSystems',['../struct_plugins_1_1_tax_1_1_config.html#ac595960c32e388cf27ba164105b32465',1,'Plugins::Tax::Config']]],
-  ['excludedsystemsids_28',['excludedsystemsIds',['../struct_plugins_1_1_tax_1_1_global.html#ac2ba804a1ca3f44ac845981d0d6819b2',1,'Plugins::Tax::Global']]],
-  ['excludedsystemsids_29',['ExcludedSystemsIds',['../struct_plugins_1_1_death_penalty_1_1_global.html#affbc95fa5a4f38d8bc8d262d33ede885',1,'Plugins::DeathPenalty::Global']]]
+  ['excludedsystemsids_28',['ExcludedSystemsIds',['../struct_plugins_1_1_death_penalty_1_1_global.html#affbc95fa5a4f38d8bc8d262d33ede885',1,'Plugins::DeathPenalty::Global']]],
+  ['excludedsystemsids_29',['excludedsystemsIds',['../struct_plugins_1_1_tax_1_1_global.html#ac2ba804a1ca3f44ac845981d0d6819b2',1,'Plugins::Tax::Global']]]
 ];
