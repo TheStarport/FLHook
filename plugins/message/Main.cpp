@@ -111,7 +111,7 @@ namespace Plugins::Message
 	static void ShowSpecialBanner()
 	{
 		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
 			for (const auto& line : global->config->specialBannerLines)
@@ -137,7 +137,7 @@ namespace Plugins::Message
 			curStandardBanner = 0;
 
 		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
 
@@ -455,7 +455,7 @@ namespace Plugins::Message
 
 		// Send to all players in system
 		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
 

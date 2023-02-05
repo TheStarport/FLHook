@@ -82,7 +82,7 @@ namespace Hk::Player
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			uint cash = static_cast<uint>(IniGetI(scCharFileNew, "Player", "money", -1));
+			auto cash = static_cast<uint>(IniGetI(scCharFileNew, "Player", "money", -1));
 			DeleteFile(scCharFileNew.c_str());
 			return cash;
 		}
@@ -135,8 +135,8 @@ namespace Hk::Player
 			// <value>" otherwise IFSO can't decode the file correctly
 			IniWrite(scCharFileNew, "Player", "money", " " + std::to_string(iRet + iAmount));
 
-			if (!FLHookConfig::i()->general.disableCharfileEncryption)
-				if (!FlcEncodeFile(scCharFileNew.c_str(), scCharFile.c_str()))
+			if (!FLHookConfig::i()->general.disableCharfileEncryption
+			 && !FlcEncodeFile(scCharFileNew.c_str(), scCharFile.c_str()))
 					return cpp::fail(Error::CouldNotEncodeCharFile);
 
 			DeleteFile(scCharFileNew.c_str());
@@ -297,7 +297,7 @@ namespace Hk::Player
 		
 		uint iSysId;
 		pub::Player::GetSystem(client, iSysId);
-		Universe::IBase* base = Universe::get_base(baseId);
+		const Universe::IBase* base = Universe::get_base(baseId);
 
 		if (!base)
 		{
@@ -393,7 +393,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, uint iId, int iCount)
+	cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
@@ -409,11 +409,11 @@ namespace Hk::Player
 
 		for (auto& item : cargo.value())
 		{
-			if ((item.iId == iId) && (item.iCount < iCount))
-				iCount = item.iCount; // trying to remove more than actually there
+			if ((item.iId == cargoId) && (item.iCount < count))
+				count = item.iCount; // trying to remove more than actually there
 		}
 
-		pub::Player::RemoveCargo(client, iId, iCount);
+		pub::Player::RemoveCargo(client, cargoId, count);
 		return {};
 	}
 
@@ -455,8 +455,8 @@ namespace Hk::Player
 			int ret;
 
 			// we need to do this, else server or client may crash
-			const auto cargo = EnumCargo(player, ret);
-			for (auto& item : cargo.value())
+			for (const auto cargo = EnumCargo(player, ret); 
+				auto& item : cargo.value())
 			{
 				if ((item.iArchId == iGoodId) && (item.bMission != bMission))
 				{
@@ -658,8 +658,8 @@ namespace Hk::Player
 		IniWrite(scNewCharfilePath, "Player", "Name", scValue);
 
 		// Re-encode the char file if needed.
-		if (!FLHookConfig::i()->general.disableCharfileEncryption)
-			if (!FlcEncodeFile(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
+		if (!FLHookConfig::i()->general.disableCharfileEncryption 
+		 && !FlcEncodeFile(scNewCharfilePath.c_str(), scNewCharfilePath.c_str()))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
 	
 		return {};
@@ -705,7 +705,7 @@ namespace Hk::Player
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		CAccount* acc;
+		const CAccount* acc;
 		if (client != UINT_MAX)
 			acc = Players.FindAccountFromClientID(client);
 		else
@@ -862,8 +862,8 @@ namespace Hk::Player
 		if (client != UINT_MAX)
 		{
 			acc = Players.FindAccountFromClientID(client);
-			const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
-			if (!wszCharname)
+			if (const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client); 
+				!wszCharname)
 				return cpp::fail(Error::CharacterNotSelected);
 
 			dir = Hk::Client::GetAccountDirName(acc.value());
@@ -926,8 +926,8 @@ namespace Hk::Player
 		}
 		
 		const auto acc = Players.FindAccountFromClientID(client);
-		const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client);
-		if (!wszCharname)
+		if (const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client); 
+			!wszCharname)
 			return cpp::fail(Error::CharacterNotSelected);
 
 		auto dir = Hk::Client::GetAccountDirName(acc);
@@ -983,7 +983,7 @@ namespace Hk::Player
 	{
 		try
 		{
-			PlayerData* pd = &Players[client];
+			const PlayerData* pd = &Players[client];
 			char* ACCalcCRC = (char*)hModServer + 0x6FAF0;
 			__asm {
 			pushad
@@ -1003,7 +1003,7 @@ namespace Hk::Player
 	}
 
 	/** Move the client to the specified location */
-	void RelocateClient(ClientId client, Vector vDestination, Matrix mOrientation)
+	void RelocateClient(ClientId client, Vector vDestination, const Matrix& mOrientation)
 	{
 		Quaternion qRotation = Math::MatrixToQuaternion(mOrientation);
 
@@ -1137,7 +1137,7 @@ namespace Hk::Player
 
 		// For all players in system...
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			// Get the this player's current system and location in the system.
 			ClientId client2 = playerDb->iOnlineId;

@@ -42,7 +42,7 @@ namespace Hk::Client
 	cpp::result<const uint, Error> GetClientIdFromAccount(CAccount* acc)
 	{
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			if (playerDb->Account == acc)
 			{
@@ -142,7 +142,7 @@ namespace Hk::Client
 	bool IsValidClientID(ClientId client)
 	{
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			if (playerDb->iOnlineId == client)
 				return true;
@@ -190,7 +190,7 @@ namespace Hk::Client
 
 		uint clientFound = UINT_MAX;
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			const auto characterName = GetCharacterNameByID(playerDb->iOnlineId);
 			if (characterName.has_error())

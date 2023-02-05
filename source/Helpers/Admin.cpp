@@ -115,7 +115,7 @@ some_error:
 		std::wstring wscRet;
 
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->iOnlineId;
 

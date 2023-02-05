@@ -53,7 +53,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 
 	// For all players in system...
 	PlayerData* playerDb = nullptr;
-	while (playerDb = Players.traverse_active(playerDb))
+	while ((playerDb = Players.traverse_active(playerDb)))
 	{
 		// Get the this player's current system and location in the system.
 		ClientId client2 = playerDb->iOnlineId;

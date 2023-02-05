@@ -10,7 +10,7 @@ namespace Plugins::Mark
 				return;
 
 			PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			while ((playerData = Players.traverse_active(playerData)))
 			{
 				uint client = playerData->iOnlineId;
 				auto ship = Hk::Player::GetShip(client);
