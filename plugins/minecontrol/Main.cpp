@@ -246,7 +246,7 @@ namespace Plugins::MiningControl
 
 			pb.RepId = -1;
 			pub::Reputation::GetReputationGroup(pb.RepId, pb.Rep.c_str());
-			if (pb.RepId == -1)
+			if (pb.RepId == UINT_MAX)
 			{
 				Console::ConErr(std::format("{}: reputation not valid", pb.Rep));
 				continue;
