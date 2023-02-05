@@ -1273,7 +1273,7 @@ namespace Hk::Player
 		memcpy(&szObjPtr, &Players, 4);
 		szObjPtr += 0x418 * (client - 1);
 
-		char cRes;
+		char cRes = 0;
 
 		////////////////////////// 1
 		__asm {
