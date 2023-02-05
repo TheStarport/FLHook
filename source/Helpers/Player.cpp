@@ -460,7 +460,7 @@ namespace Hk::Player
 			{
 				if ((item.iArchId == iGoodId) && (item.bMission != bMission))
 				{
-					RemoveCargo(player, item.iId, item.iCount);
+					RemoveCargo(player, static_cast<ushort>(item.iId), item.iCount);
 					iCount += item.iCount;
 				}
 			}
@@ -1176,7 +1176,7 @@ namespace Hk::Player
 	/**
 	Delete a character.
 	*/
-	void DeleteCharacter(CAccount* acc, std::wstring& character)
+	void DeleteCharacter(CAccount* acc, const std::wstring& character)
 	{
 		Hk::Client::LockAccountAccess(acc, true);
 		st6::wstring str((ushort*)character.c_str());
@@ -1426,8 +1426,8 @@ namespace Hk::Player
 	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& scHardpoint, bool bMounted)
 	{
 		typedef bool(__stdcall * _AddCargoDocked)(uint iGoodId, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
-		static _AddCargoDocked AddCargoDocked = 0;
-		if (!AddCargoDocked)
+		static _AddCargoDocked AddCargoDocked = nullptr;
+		if(!AddCargoDocked)
 			AddCargoDocked = (_AddCargoDocked)((char*)hModServer + 0x6EFC0);
 
 		ClientId client = Hk::Client::ExtractClientID(player);
@@ -1584,7 +1584,7 @@ namespace Hk::Player
 					gi = GoodList::find_by_id(gi->iArchId);
 					if (gi)
 					{
-						float* fResaleFactor = (float*)((char*)hModServer + 0x8AE78);
+						auto fResaleFactor = (float*)((char*)hModServer + 0x8AE78);
 						float fItemValue = gi->fPrice * (*fResaleFactor);
 						fValue += fItemValue;
 					}
@@ -1741,7 +1741,8 @@ namespace Hk::Player
 
 		int kills;
 		pub::Player::GetNumKills(client, kills);
-		pub::Player::SetNumKills(client, ++kills);
+		kills++;
+		pub::Player::SetNumKills(client, kills);
 
 		return {};
 	}

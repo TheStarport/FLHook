@@ -78,7 +78,7 @@ namespace Hk
 		 * @returns On success : Client id of the active user of the account.
 		 * @returns On fail : [PlayerNotLoggedIn] The function could not find a client id associated with the account id.
 		 */
-		DLL cpp::result<const uint, Error> GetClientIdFromAccount(CAccount* acc);
+		DLL cpp::result<const uint, Error> GetClientIdFromAccount(const CAccount* acc);
 
 		DLL std::wstring GetAccountIdByClientID(ClientId client);
 
@@ -232,7 +232,7 @@ namespace Hk
 		DLL cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& scHardpoint);
 		DLL cpp::result<void, Error> AntiCheat(ClientId client);
 		DLL void DelayedKick(ClientId client, uint secs);
-		DLL void DeleteCharacter(CAccount* acc, std::wstring& character);
+		DLL void DeleteCharacter(CAccount* acc, const std::wstring& character);
 		DLL cpp::result<void, Error> NewCharacter(CAccount* acc, std::wstring& character);
 		DLL cpp::result<int, Error> GetOnlineTime(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<int, Error> GetRank(const std::variant<uint, std::wstring>& player);

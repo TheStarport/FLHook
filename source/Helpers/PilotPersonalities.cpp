@@ -227,7 +227,7 @@ namespace Hk::Personalities
 			else if (ini.is_value("buzz_distance_to_pass_by"))
 				data.buzz_distance_to_pass_by = ini.get_value_float(0);
 			else if (ini.is_value("buzz_drop_bomb_on_pass_by"))
-				data.buzz_drop_bomb_on_pass_by = ini.get_value_float(0);
+				data.buzz_drop_bomb_on_pass_by = ini.get_value_bool(0);
 			else if (ini.is_value("buzz_pass_by_roll_throttle"))
 				data.buzz_pass_by_roll_throttle = ini.get_value_float(0);
 			else if (ini.is_value("buzz_break_direction_weight"))
@@ -673,7 +673,7 @@ namespace Hk::Personalities
 			else if (ini.is_value("anti_cruise_missile_pre_fire_delay"))
 				data.anti_cruise_missile_pre_fire_delay = ini.get_value_float(0);
 			else if (ini.is_value("missile_launch_allow_out_of_range"))
-				data.missile_launch_allow_out_of_range = ini.get_value_float(0);
+				data.missile_launch_allow_out_of_range = ini.get_value_bool(0);
 			else if (ini.is_value("missile_launch_cone_angle"))
 				data.missile_launch_cone_angle = ini.get_value_float(0);
 			else if (ini.is_value("missile_launch_interval_time"))

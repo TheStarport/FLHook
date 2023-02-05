@@ -13,7 +13,7 @@ namespace Hk::ZoneUtilities
 	std::multimap<uint, JumpPoint> JumpPoints;
 
 	/** Multiply mat1 by mat2 and return the result */
-	static TransformMatrix MultiplyMatrix(TransformMatrix& mat1, TransformMatrix& mat2)
+	static TransformMatrix MultiplyMatrix(const TransformMatrix& mat1, const TransformMatrix& mat2)
 	{
 		TransformMatrix result = {0};
 		for (int i = 0; i < 4; i++)
@@ -24,7 +24,7 @@ namespace Hk::ZoneUtilities
 	}
 
 	/** Setup of transformation matrix using the vector p and the rotation r */
-	static TransformMatrix SetupTransform(Vector& p, Vector& r)
+	static TransformMatrix SetupTransform(const Vector& p, const Vector& r)
 	{
 		// Convert degrees into radians
 
@@ -182,9 +182,9 @@ namespace Hk::ZoneUtilities
 					lz.size.x = lz.size.y = lz.size.z = 0;
 
 					bool exists = false;
-					for (const auto& z : zones)
+					for (const auto& [_, zone] : zones)
 					{
-						if (z.second.zoneNick == zoneNick)
+						if (zone.zoneNick == zoneNick)
 						{
 							exists = true;
 							break;
@@ -212,16 +212,16 @@ namespace Hk::ZoneUtilities
 			{
 				if (ini.is_header("Asteroids"))
 				{
-					std::string file = "";
+					std::string lootableZonefile = "";
 					std::string zoneNick = "";
 					while (ini.read_value())
 					{
 						if (ini.is_value("zone"))
 							zoneNick = ToLower(ini.get_value_string());
 						if (ini.is_value("file"))
-							file = ini.get_value_string();
+							lootableZonefile = ini.get_value_string();
 					}
-					ReadLootableZone(zones, systemNick, zoneNick, file);
+					ReadLootableZone(zones, systemNick, zoneNick, lootableZonefile);
 				}
 			}
 			ini.close();
@@ -248,10 +248,6 @@ namespace Hk::ZoneUtilities
 					Vector rotation = {0, 0, 0};
 					int damage = 0;
 					bool encounter = false;
-					int idsName = 0;
-					std::string idsNameTxt = "";
-					int idsInfo = 0;
-					std::string idsInfoTxt = "";
 
 					while (ini.read_value())
 					{
@@ -290,22 +286,14 @@ namespace Hk::ZoneUtilities
 						{
 							encounter = true;
 						}
-						else if (ini.is_value("ids_name"))
-						{
-							idsName = ini.get_value_int(0);
-						}
-						else if (ini.is_value("ids_info"))
-						{
-							idsInfo = ini.get_value_int(0);
-						}
 					}
 
-					for (auto& z : zones)
+					for (auto& [_, zone] : zones)
 					{
-						if (z.second.zoneNick == zoneNick)
+						if (zone.zoneNick == zoneNick)
 						{
-							z.second.pos = pos;
-							z.second.size = size;
+							zone.pos = pos;
+							zone.size = size;
 							break;
 						}
 					}
@@ -326,8 +314,6 @@ namespace Hk::ZoneUtilities
 					std::string nickname;
 					std::string jumpDestSysNick;
 					bool bIsJump = false;
-					bool bMissionObject = false;
-					bool bDestructible = false;
 
 					while (ini.read_value())
 					{
@@ -496,9 +482,9 @@ namespace Hk::ZoneUtilities
 	*/
 	SystemInfo* ZoneUtilities::GetSystemInfo(uint systemId)
 	{
-		if (mapSystems.find(systemId) != mapSystems.end())
+		if (mapSystems.contains(systemId))
 			return &mapSystems[systemId];
-		return 0;
+		return nullptr;
 	}
 
 	void ZoneUtilities::PrintZones()
@@ -507,20 +493,20 @@ namespace Hk::ZoneUtilities
 		ReadUniverse(&zones);
 
 		Console::ConInfo("Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
-		for (const auto& z : zones)
+		for (const auto& [_, zone] : zones)
 		{
 			Console::ConInfo(std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
-			    z.second.zoneNick,
-			    z.second.lootNick,
-			    z.second.iMinLoot,
-			    z.second.iMaxLoot,
-			    z.second.iLootDifficulty,
-			    z.second.pos.x,
-			    z.second.pos.y,
-			    z.second.pos.z,
-			    z.second.size.x,
-			    z.second.size.y,
-			    z.second.size.z));
+			    zone.zoneNick,
+			    zone.lootNick,
+			    zone.iMinLoot,
+			    zone.iMaxLoot,
+			    zone.iLootDifficulty,
+			    zone.pos.x,
+			    zone.pos.y,
+			    zone.pos.z,
+			    zone.size.x,
+			    zone.size.y,
+			    zone.size.z));
 		}
 		Console::ConInfo(std::format("Zones={}", zones.size()));
 	}

@@ -46,8 +46,7 @@ namespace Hk::Math
 	Str VectorToSectorCoord(uint systemId, Vector vPos)
 	{
 		float scale = 1.0;
-		const Universe::ISystem* iSystem = Universe::get_system(systemId);
-		if (iSystem)
+		if (const Universe::ISystem* iSystem = Universe::get_system(systemId))
 			scale = iSystem->NavMapScale;
 
 		const float fGridSize = 34000.0f / scale;
@@ -69,7 +68,7 @@ namespace Hk::Math
 		return szCurrentLocation;
 	}
 
-#define PI 3.14159265f
+constexpr float PI = std::numbers::pi_v<float>;
 
 	// Convert radians to degrees.
 	float Degrees(float rad)
@@ -86,8 +85,8 @@ namespace Hk::Math
 		}
 
 		// Round to two decimal places here, so %g can display it without decimals.
-		const float frac = modff(rad * 100, &rad);
-		if (frac >= 0.5f)
+		if (const float frac = modff(rad * 100, &rad); 
+			frac >= 0.5f)
 			++rad;
 		else if (frac <= -0.5f)
 			--rad;
@@ -104,7 +103,7 @@ namespace Hk::Math
 		const Vector z = {mat.data[0][2], mat.data[1][2], mat.data[2][2]};
 
 		Vector vec;
-		if (const float h = (float)_hypot(x.x, x.y); h > 1 / 524288.0f)
+		if (const auto h = static_cast<float>(_hypot(x.x, x.y)); h > 1 / 524288.0f)
 		{
 			vec.x = Degrees(atan2f(y.z, z.z));
 			vec.y = Degrees(atan2f(-x.z, h));
