@@ -351,7 +351,7 @@ will_crash:
 	{
 		__try
 		{
-			int res;
+			int res = 0;
 
 			__asm {
             pushad

@@ -62,7 +62,7 @@ some_error:
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
-		if (client == -1 || (Hk::Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
+		if (client == UINT_MAX || (Hk::Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PlayerInfo pi;
@@ -255,8 +255,8 @@ some_error:
 
 	Fuse* GetFuseFromID(uint iFuseId)
 	{
-		int iDunno;
-		Fuse* fuse;
+		int iDunno = 0;
+		Fuse* fuse = nullptr;
 		__asm {
         mov edx, 0x6CFD390
         call edx

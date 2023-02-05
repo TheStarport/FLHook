@@ -402,7 +402,7 @@ namespace Plugins::Npc
 		else
 			client = Hk::Client::GetClientIdFromCharName(charname).value();
 
-		if (client == -1)
+		if (client == UINT_MAX)
 			cmds->Print(std::format("{} is not online", wstos(charname)));
 
 		else
