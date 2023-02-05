@@ -42,7 +42,7 @@ inline void ReadProcMem(void* pAddress, void* pMem, int iSize)
 	CloseHandle(hProc);
 }
 
-inline void Detour(unsigned char* pOFunc, void* pHkFunc, unsigned char* originalData)
+inline void Detour(unsigned char* pOFunc, const void* pHkFunc, unsigned char* originalData)
 {
 	DWORD dwOldProtection = 0; // Create a DWORD for VirtualProtect calls to allow us to write.
 	BYTE bPatch[5];            // We need to change 5 bytes and I'm going to use memcpy so this is the simplest way.
@@ -63,7 +63,7 @@ inline void NopAddress(unsigned int address, unsigned int pSize)
 	VirtualProtect((void*)address, pSize, dwOldProtection, NULL);
 }
 
-inline void UnDetour(unsigned char* pOFunc, unsigned char* originalData)
+inline void UnDetour(unsigned char* pOFunc, const unsigned char* originalData)
 {
 	DWORD dwOldProtection = 0;                                                  // Create a DWORD for VirtualProtect calls to allow us to write.
 	VirtualProtect((void*)pOFunc, 5, PAGE_EXECUTE_READWRITE, &dwOldProtection); // Allow us to write to the memory we need to change
@@ -186,7 +186,8 @@ template<typename TStr, typename TChar>
 inline TStr GetParam(const TStr& line, TChar splitChar, uint pos)
     requires StringRestriction<TStr>
 {
-	uint i, j;
+	uint i;
+	uint j;
 
 	TStr result;
 	for (i = 0, j = 0; (i <= pos) && (j < line.length()); j++)
@@ -289,7 +290,7 @@ inline float ToFloat(const std::wstring& string)
 	return wcstof(string.c_str(), nullptr);
 }
 
-inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, char* hookFunction)
+inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction)
 {
 	DWORD dwRelAddr;
 	ReadProcMem(mod + installAddress + 1, &dwRelAddr, 4);
@@ -325,7 +326,7 @@ inline std::string ViewToString(const std::string_view& stringView)
 inline std::wstring stows(const std::string& text)
 {
 	int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, 0, 0);
-	wchar_t* wideText = new wchar_t[size];
+	auto wideText = new wchar_t[size];
 	MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, wideText, size);
 	std::wstring wscRet = wideText;
 	delete[] wideText;
@@ -335,7 +336,7 @@ inline std::wstring stows(const std::string& text)
 inline std::string wstos(const std::wstring& text)
 {
 	uint iLen = (uint)text.length() + 1;
-	char* szBuf = new char[iLen];
+	auto szBuf = new char[iLen];
 	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, szBuf, iLen, 0, 0);
 	std::string scRet = szBuf;
 	delete[] szBuf;
