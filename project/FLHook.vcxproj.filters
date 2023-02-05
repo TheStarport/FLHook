@@ -31,6 +31,9 @@
     <Filter Include="sdk\Features">
       <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FLHook\Memory">
+      <UniqueIdentifier>{8af08fa1-208a-40a3-8ded-6926df4fe285}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -138,6 +141,12 @@
     <ClCompile Include="..\source\Debug.cpp">
       <Filter>FLHook</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Memory\SaveData.cpp">
+      <Filter>FLHook\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Memory\MemoryManager.cpp">
+      <Filter>FLHook\Memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -188,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\Concepts.hpp">
       <Filter>sdk\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Memory\MemoryManager.hpp">
+      <Filter>FLHook\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
