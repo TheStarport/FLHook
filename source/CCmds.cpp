@@ -308,7 +308,7 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint id, uint count)
+void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort id, uint count)
 {
 	RIGHT_CHECK(RIGHT_CARGO);
 
@@ -465,7 +465,7 @@ void CCmds::CmdXGetPlayers()
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	for (auto& p : Hk::Admin::GetPlayers())
+	for (const auto& p : Hk::Admin::GetPlayers())
 		XPrintPlayerInfo(p);
 
 	Print("OK");
@@ -521,7 +521,7 @@ void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdIsOnServer(std::wstring player)
+void CCmds::CmdIsOnServer(const std::wstring& player)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
@@ -574,13 +574,13 @@ void CCmds::CmdServerInfo()
 	int64 iTimeCreation = (((int64)ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
 	int64 iTimeNow = (((int64)ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
 
-	uint iUptime = (uint)((iTimeNow - iTimeCreation) / 10000000);
+	auto iUptime = static_cast<uint>((iTimeNow - iTimeCreation) / 10000000);
 	uint iDays = (iUptime / (60 * 60 * 24));
 	iUptime %= (60 * 60 * 24);
 	uint iHours = (iUptime / (60 * 60));
 	iUptime %= (60 * 60);
 	uint iMinutes = (iUptime / 60);
-	iUptime %= (60);
+	iUptime %= 60;
 	uint iSeconds = iUptime;
 	std::string time = std::format("{}:{}:{}:{}", iDays, iHours, iMinutes, iSeconds);
 
@@ -657,11 +657,11 @@ void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, i
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& rights)
+void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& playerRights)
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	if (const auto res = Hk::Admin::SetAdmin(player, rights); res.has_error())
+	if (const auto res = Hk::Admin::SetAdmin(player, playerRights); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -790,8 +790,8 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-	if (res.has_error())
+	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
+		res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -851,8 +851,8 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-	if (res.has_error())
+	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
+		res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -915,9 +915,9 @@ std::wstring CCmds::ArgCharname(uint iArg)
 	if (iArg == 1)
 	{
 		if (bId)
-			return wscArg.replace((int)0, (int)0, L"id ");
+			return wscArg.replace(0, 0, L"id ");
 		else if (bShortCut)
-			return wscArg.replace((int)0, (int)0, L"sc ");
+			return wscArg.replace(0, 0, L"sc ");
 		else if (bSelf)
 			return this->GetAdminName();
 		else if (bTarget)
@@ -1161,7 +1161,7 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			}
 			else if (wscCmd == L"removecargo")
 			{
-				CmdRemoveCargo(ArgCharname(1), ArgInt(2), ArgInt(3));
+				CmdRemoveCargo(ArgCharname(1), static_cast<ushort>(ArgInt(2)), ArgInt(3));
 			}
 			else if (wscCmd == L"addcargo")
 			{

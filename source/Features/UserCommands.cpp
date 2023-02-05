@@ -22,7 +22,7 @@
 void PrintUserCmdText(ClientId client, const std::wstring& text)
 {
 	auto newLineChar = text.find(L"\n");
-	if (newLineChar == text.npos)
+	if (newLineChar == std::wstring::npos)
 	{
 		std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->msgStyle.userCmdStyle, XMLText(text));
 		Hk::Message::FMsg(client, xml);
@@ -32,7 +32,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 		//Split text into two strings, one from the beginning to the character before newLineChar, and one after newLineChar till the end.
 		//It will then recursively call itself for each new line char until the original text is all displayed. 
 		PrintUserCmdText(client, text.substr(0, newLineChar - 1));
-		PrintUserCmdText(client, text.substr(newLineChar + 1, text.npos));
+		PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
