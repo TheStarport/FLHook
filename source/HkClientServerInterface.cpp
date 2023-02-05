@@ -125,7 +125,7 @@ namespace IServerImplHook
 			// fix flserver commands and change chat to id so that event logging is
 			// accurate.
 			bool inBuiltCommand = true;
-			g_TextLength = static_cast<uint>(buffer.length());
+			g_TextLength = buffer.length();
 			if (!buffer.find(L"/g "))
 			{
 				cidTo.iId = SpecialChatIds::GROUP;
@@ -176,7 +176,7 @@ namespace IServerImplHook
 
 			else if (buffer[0] == '.')
 			{
-				CAccount* acc = Players.FindAccountFromClientID(cidFrom.iId);
+				const CAccount* acc = Players.FindAccountFromClientID(cidFrom.iId);
 				std::wstring accDirname = Hk::Client::GetAccountDirName(acc);
 				std::string adminFile = CoreGlobals::c()->accPath + wstos(accDirname) + "\\flhookadmin.ini";
 				WIN32_FIND_DATA fd;
@@ -283,7 +283,7 @@ namespace IServerImplHook
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
 			std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
-			for (auto& i : ClientInfo[client].lstMoneyFix)
+			for (const auto& i : ClientInfo[client].lstMoneyFix)
 			{
 				if (i.character == charName)
 				{
@@ -296,7 +296,7 @@ namespace IServerImplHook
 		CATCH_HOOK({})
 	}
 
-	void PlayerLaunch__InnerAfter(uint shipId, ClientId client)
+	void PlayerLaunch__InnerAfter([[maybe_unused]] uint shipId, ClientId client)
 	{
 		TRY_HOOK
 		{
@@ -452,7 +452,7 @@ void BaseEnter__InnerAfter(uint baseId, ClientId client)
 		// adjust cash, this is necessary when cash was added while use was in
 		// charmenu/had other char selected
 		std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
-		for (auto& i : ClientInfo[client].lstMoneyFix)
+		for (const auto& i : ClientInfo[client].lstMoneyFix)
 		{
 			if (i.character == charName)
 			{
@@ -473,13 +473,11 @@ void BaseEnter__InnerAfter(uint baseId, ClientId client)
 		    Hk::Client::GetPlayerSystem(client).value().c_str());
 
 		// print to log if the char has too much money
-		if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client)); value.has_value())
+		if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client)); value.has_value()
+		 && value.value() > 2100000000)
 		{
-			if (value.value() > 2100000000)
-			{
-				std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-				AddLog(LogType::Normal, LogLevel::Err, std::format("Possible corrupt ship charname={} asset_value={}", wstos(charname), value.value()));
-			}
+			std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+			AddLog(LogType::Normal, LogLevel::Err, std::format("Possible corrupt ship charname={} asset_value={}", wstos(charname), value.value()));
 		}
 	}
 	CATCH_HOOK({})
@@ -790,9 +788,6 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 			acc->ForceLogout();
 			return false;
 		}
-
-		if (CallPluginsOther(HookedCall::IServerImpl__Login, HookStep::Mid, li, client))
-			return false;
 
 		// check for ip ban
 		auto ip = Hk::Admin::GetPlayerIP(client);
@@ -3333,9 +3328,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"SetTarget(\n\tClientId client = {}\n\tXSetTarget const& st = {}\n)", client, ToLogString(st))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTarget, client, st);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTarget, client, st); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3356,9 +3351,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"TractorObjects(\n\tClientId client = {}\n\tXTractorObjects const& to = {}\n)", client, ToLogString(to))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TractorObjects, client, to);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TractorObjects, client, to); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3433,9 +3428,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"JettisonCargo(\n\tClientId client = {}\n\tXJettisonCargo const& jc = {}\n)", client, ToLogString(jc))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JettisonCargo, client, jc);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JettisonCargo, client, jc); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3478,9 +3473,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, "Shutdown()");
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3548,8 +3543,8 @@ namespace IServerImplHook
 
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect, client);
 
-		bool innerCheck = OnConnect__Inner(client);
-		if (!innerCheck)
+		if (bool innerCheck = OnConnect__Inner(client); 
+			!innerCheck)
 			return;
 		if (!skip)
 		{
@@ -3572,9 +3567,9 @@ namespace IServerImplHook
 		AddLog(
 		    LogType::Normal, LogLevel::Debug, wstos(std::format(L"Login(\n\tSLoginInfo const& li = {}\n\tClientId client = {}\n)", ToLogString(li), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login, li, client);
 
-		if (!skip && Login__InnerBefore(li, client))
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login, li, client); 
+			!skip && Login__InnerBefore(li, client))
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3598,8 +3593,8 @@ namespace IServerImplHook
 
 		CHECK_FOR_DISCONNECT;
 
-		bool innerCheck = CharacterInfoReq__Inner(client, _genArg1);
-		if (!innerCheck)
+		if (bool innerCheck = CharacterInfoReq__Inner(client, _genArg1); 
+			!innerCheck)
 			return;
 		if (!skip)
 		{
@@ -3627,8 +3622,8 @@ namespace IServerImplHook
 
 		CHECK_FOR_DISCONNECT;
 
-		bool innerCheck = CharacterSelect__Inner(cid, client);
-		if (!innerCheck)
+		if (bool innerCheck = CharacterSelect__Inner(cid, client); 
+			!innerCheck)
 			return;
 		if (!skip)
 		{
@@ -3652,9 +3647,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"CreateNewCharacter(\n\tSCreateCharacterInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CreateNewCharacter, _genArg1, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CreateNewCharacter, _genArg1, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3675,9 +3670,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"DestroyCharacter(\n\tCHARACTER_ID const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DestroyCharacter, _genArg1, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DestroyCharacter, _genArg1, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3696,9 +3691,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch, archId, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch, archId, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3717,9 +3712,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqHullStatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus, status, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus, status, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3742,9 +3737,9 @@ namespace IServerImplHook
 		        ToLogString(collisionGroups),
 		        client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqCollisionGroups, collisionGroups, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqCollisionGroups, collisionGroups, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3765,9 +3760,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"ReqEquipment(\n\tEquipDescList const& edl = {}\n\tClientId client = {}\n)", ToLogString(edl), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment, edl, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment, edl, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3795,9 +3790,9 @@ namespace IServerImplHook
 		        mounted,
 		        client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqAddItem, goodId, hardpoint, count, status, mounted, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqAddItem, goodId, hardpoint, count, status, mounted, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3817,9 +3812,9 @@ namespace IServerImplHook
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
 		    std::format("ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqRemoveItem, slotId, count, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqRemoveItem, slotId, count, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3847,9 +3842,9 @@ namespace IServerImplHook
 		        mounted,
 		        client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqModifyItem, slotId, hardpoint, count, status, mounted, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqModifyItem, slotId, hardpoint, count, status, mounted, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3868,9 +3863,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash, cash, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash, cash, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3889,9 +3884,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash, cashAdd, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash, cashAdd, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3962,9 +3957,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationEnter, locationId, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationEnter, locationId, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -3983,9 +3978,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationExit, locationId, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationExit, locationId, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4006,9 +4001,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("BaseInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)", _genArg1, _genArg2, _genArg3));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseInfoRequest, _genArg1, _genArg2, _genArg3);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseInfoRequest, _genArg1, _genArg2, _genArg3); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4030,9 +4025,9 @@ namespace IServerImplHook
 		    std::format(
 		        "LocationInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)", _genArg1, _genArg2, _genArg3));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationInfoRequest, _genArg1, _genArg2, _genArg3);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LocationInfoRequest, _genArg1, _genArg2, _genArg3); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4052,9 +4047,9 @@ namespace IServerImplHook
 		AddLog(
 		    LogType::Normal, LogLevel::Debug, std::format("GFObjSelect(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n)", _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4075,9 +4070,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"GFGoodVaporized(\n\tSGFGoodVaporizedInfo const& gvi = {}\n\tClientId client = {}\n)", ToLogString(gvi), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized, gvi, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized, gvi, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4103,9 +4098,9 @@ namespace IServerImplHook
 		        _genArg3,
 		        client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MissionResponse, _genArg1, _genArg2, _genArg3, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MissionResponse, _genArg1, _genArg2, _genArg3, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4129,9 +4124,9 @@ namespace IServerImplHook
 		        _genArg2,
 		        client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TradeResponse, _genArg1, _genArg2, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__TradeResponse, _genArg1, _genArg2, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4152,9 +4147,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"GFGoodBuy(\n\tSGFGoodBuyInfo const& _genArg1 = {}\n\tClientId client = {}\n)", ToLogString(_genArg1), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy, _genArg1, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy, _genArg1, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4179,8 +4174,8 @@ namespace IServerImplHook
 
 		CHECK_FOR_DISCONNECT;
 
-		bool innerCheck = GFGoodSell__Inner(_genArg1, client);
-		if (!innerCheck)
+		if (bool innerCheck = GFGoodSell__Inner(_genArg1, client); 
+			!innerCheck)
 			return;
 		if (!skip)
 		{
@@ -4201,9 +4196,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete, shipId, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete, shipId, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4272,9 +4267,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete, systemId, shipId);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete, systemId, shipId); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4296,9 +4291,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("Hail(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tunsigned int _genArg3 = {}\n)", _genArg1, _genArg2, _genArg3));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Hail, _genArg1, _genArg2, _genArg3);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Hail, _genArg1, _genArg2, _genArg3); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4319,8 +4314,8 @@ namespace IServerImplHook
 
 		CHECK_FOR_DISCONNECT;
 
-		bool innerCheck = SPObjUpdate__Inner(ui, client);
-		if (!innerCheck)
+		if (bool innerCheck = SPObjUpdate__Inner(ui, client); 
+			!innerCheck)
 			return;
 		if (!skip)
 		{
@@ -4395,9 +4390,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"SPRequestUseItem(\n\tSSPUseItem const& ui = {}\n\tClientId client = {}\n)", ToLogString(ui), client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem, ui, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem, ui, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4423,9 +4418,9 @@ namespace IServerImplHook
 		        ToLogString(reason),
 		        client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestInvincibility, shipId, enable, reason, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestInvincibility, shipId, enable, reason, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4453,9 +4448,9 @@ namespace IServerImplHook
 		        _genArg2,
 		        client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestEvent, eventType, shipId, dockTarget, _genArg1, _genArg2, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestEvent, eventType, shipId, dockTarget, _genArg1, _genArg2, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4481,9 +4476,9 @@ namespace IServerImplHook
 		        _genArg2,
 		        client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCancel, eventType, shipId, _genArg1, _genArg2, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCancel, eventType, shipId, _genArg1, _genArg2, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4511,9 +4506,9 @@ namespace IServerImplHook
 		        count,
 		        client)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MineAsteroid, systemId, pos, crateId, lootId, count, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__MineAsteroid, systemId, pos, crateId, lootId, count, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4532,9 +4527,8 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("RequestCreateShip(\n\tClientId client = {}\n)", client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip, client);
-
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4558,9 +4552,9 @@ namespace IServerImplHook
 		        ToLogString(_genArg2),
 		        _genArg3)));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPScanCargo, _genArg1, _genArg2, _genArg3);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPScanCargo, _genArg1, _genArg2, _genArg3); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4581,9 +4575,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"SetManeuver(\n\tClientId client = {}\n\tXSetManeuver const& sm = {}\n)", client, ToLogString(sm))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver, client, sm);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver, client, sm); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4602,9 +4596,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("InterfaceItemUsed(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InterfaceItemUsed, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__InterfaceItemUsed, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4623,9 +4617,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("AbortMission(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AbortMission, client, _genArg1);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AbortMission, client, _genArg1); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4646,9 +4640,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("SetWeaponGroup(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4669,9 +4663,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)", client, objHash, state));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState, client, objHash, state);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetVisitedState, client, objHash, state); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4692,9 +4686,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4715,9 +4709,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("RequestPlayerStats(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestPlayerStats, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestPlayerStats, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4736,9 +4730,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, buttonClicked));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopupDialog, client, buttonClicked);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PopupDialog, client, buttonClicked); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4759,9 +4753,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("RequestGroupPositions(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestGroupPositions, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestGroupPositions, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4782,9 +4776,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("SetInterfaceState(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetInterfaceState, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetInterfaceState, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4805,9 +4799,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    std::format("RequestRankLevel(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestRankLevel, client, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestRankLevel, client, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4873,9 +4867,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("AcceptTrade(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AcceptTrade, client, _genArg1);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AcceptTrade, client, _genArg1); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4894,9 +4888,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("SetTradeMoney(\n\tClientId client = {}\n\tulong _genArg1 = {}\n)", client, _genArg1));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTradeMoney, client, _genArg1);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetTradeMoney, client, _genArg1); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4917,9 +4911,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"AddTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AddTradeEquip, client, ed);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__AddTradeEquip, client, ed); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4940,9 +4934,9 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"DelTradeEquip(\n\tClientId client = {}\n\tEquipDesc const& ed = {}\n)", client, ToLogString(ed))));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DelTradeEquip, client, ed);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DelTradeEquip, client, ed); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4961,9 +4955,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("RequestTrade(\n\tuint _genArg1 = {}\n\tuint _genArg2 = {}\n)", _genArg1, _genArg2));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestTrade, _genArg1, _genArg2);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestTrade, _genArg1, _genArg2); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4982,9 +4976,9 @@ namespace IServerImplHook
 	{
 		AddLog(LogType::Normal, LogLevel::Debug, std::format("StopTradeRequest(\n\tClientId client = {}\n)", client));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradeRequest, client);
 
-		if (!skip)
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradeRequest, client); 
+			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
@@ -4999,7 +4993,7 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall Dock(uint const& _genArg1, uint const& _genArg2)
+	void __stdcall Dock([[maybe_unused]] uint const& _genArg1, [[maybe_unused]] uint const& _genArg2)
 	{
 	}
 } // namespace IServerImplHook
