@@ -245,9 +245,9 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 		PRINT_ERROR()
 
 	// check if flags are valid
-	for (uint i = 0; i < flags.length(); i++)
+	for (auto flag : flags)
 	{
-		if (allowedFlags.find_first_of(flags[i]) == -1)
+		if (allowedFlags.find_first_of(flag) == -1)
 			PRINT_ERROR()
 	}
 
@@ -329,7 +329,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_IgnoreList(ClientId& client, const std::wstring& param)
+void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& param)
 {
 	if (!FLHookConfig::i()->userCommands.userCmdIgnore)
 	{
