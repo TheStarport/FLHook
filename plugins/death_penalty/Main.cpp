@@ -159,7 +159,7 @@ namespace Plugins::DeathPenalty
 			return;
 
 		// Valid client and the ShipArch or System isnt in the excluded list?
-		if (client != -1 && !IsInExcludedSystem(client))
+		if (client != UINT_MAX && !IsInExcludedSystem(client))
 		{
 			// Get the players cash
 			const auto cash = Hk::Player::GetCash(client);
