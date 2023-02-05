@@ -215,9 +215,9 @@ namespace Plugins::CashManager
 	{
 		PrintUserCmdText(client, std::format(
 			L"Your Bank Information:\n"
-			"|    Identifier: {} \n"
-			"|    Password: {}\n"
-			"|    Credits: {}",
+			L"|    Identifier: {} \n"
+			L"|    Password: {}\n"
+			L"|    Credits: {}",
 			bank.identifier.empty() ? L"N/A" : bank.identifier,showPass ? bank.bankPassword : L"*****",ToMoneyStr(bank.cash)));
 
 		if (!showPass)
@@ -316,9 +316,9 @@ namespace Plugins::CashManager
 			{
 				PrintUserCmdText(client, 
 					L"Your bank currently does not have an identifier set.\n"
-					"Generating an identifier means anybody with the identifier and password can access your bank.\n"
-					"Are you sure you want to generate an identifier for this account?\n"
-					"Please type \"/bank identifier <your banks identifier>\" to set one.");
+					L"Generating an identifier means anybody with the identifier and password can access your bank.\n"
+					L"Are you sure you want to generate an identifier for this account?\n"
+					L"Please type \"/bank identifier <your banks identifier>\" to set one.");
 				return;
 			}
 
@@ -410,16 +410,16 @@ namespace Plugins::CashManager
 		{
 			PrintUserCmdText(client,
 			    std::format(L"Here are the available commands for the bank plugin.\n"
-			                "\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
-			                "\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
-			                "\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
-			                "\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
-			                "\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
-			                "\"/bank password \" will regenerate your password.\n"
-			                "\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money "
-			                "from other accounts.\n"
-			                "\"/bank transactions \" will display the last {} transactions.\n"
-			                "\"/bank transactions <list> [page]\" will display the full list of transactions.",
+			                L"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			                L"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			                L"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
+			                L"\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
+			                L"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
+			                L"\"/bank password \" will regenerate your password.\n"
+			                L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money "
+			                L"from other accounts.\n"
+			                L"\"/bank transactions \" will display the last {} transactions.\n"
+			                L"\"/bank transactions <list> [page]\" will display the full list of transactions.",
 			        TransactionsPerPage));
 		}
 	}
@@ -429,15 +429,15 @@ namespace Plugins::CashManager
 	{
 	    {CreateUserCommand(L"/bank", L"", UserCommandHandler, 
 			std::format(L"A series of commands for storing money that can be shared among multiple characters.\n"
-			"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
-			"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
-			"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
-			"\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
-			"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
-			"\"/bank password \" will regenerate your password.\n"
-			"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.\n"
-			"\"/bank transactions \" will display the last {} transactions.\n"
-			"\"/bank transactions <list> [page]\" will display the full list of transactions."
+			L"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			L"\"/bank withdraw <amount>\" will withdraw money from your account's bank.\n"
+			L"\"/bank withdraw <identifier> <password> <amount>\" will withdraw money from a specified bank that has a password set up.\n"
+			L"\"/bank deposit <amount>\" will deposit money from your character to your bank.\n"
+			L"\"/bank transfer <identifier> <amount>\" transfer money from your current bank to the target bank's identifier.\n"
+			L"\"/bank password \" will regenerate your password.\n"
+			L"\"/bank identifier \" will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.\n"
+			L"\"/bank transactions \" will display the last {} transactions.\n"
+			L"\"/bank transactions <list> [page]\" will display the full list of transactions."
 			,TransactionsPerPage))
 	    }
 	};
