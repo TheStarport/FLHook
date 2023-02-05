@@ -79,7 +79,7 @@ namespace Plugins::ConData
 		{
 			// for all players
 			struct PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			while ((playerData = Players.traverse_active(playerData)))
 			{
 				ClientId client = playerData->iOnlineId ;
 				if (client < 1 || client > MaxClientId)
@@ -170,7 +170,7 @@ namespace Plugins::ConData
 	{
 		// for all players
 		struct PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
@@ -219,7 +219,7 @@ namespace Plugins::ConData
 		// for all players
 		float lossPercentage;
 		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
 			if (client < 1 || client > MaxClientId)
@@ -453,7 +453,7 @@ namespace Plugins::ConData
 		if (command == L"getstats")
 		{
 			struct PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			while ((playerData = Players.traverse_active(playerData)))
 			{
 				ClientId client = playerData->iOnlineId;
 				if (Hk::Client::IsInCharSelectMenu(client))
@@ -525,7 +525,7 @@ namespace Plugins::ConData
 
 		// check for logged in players and reset their connection data
 		struct PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			if (ClientId client = playerData->iOnlineId; client < 1 || client > MaxClientId)
 				continue;

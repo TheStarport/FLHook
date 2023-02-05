@@ -546,7 +546,7 @@ void CCmds::CmdMoneyFixList()
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	PlayerData* playerDb = nullptr;
-	while (playerDb = Players.traverse_active(playerDb))
+	while ((playerDb = Players.traverse_active(playerDb)))
 	{
 		ClientId client = playerDb->iOnlineId;
 
@@ -772,7 +772,7 @@ void CCmds::CmdShutdown()
 
 	// Kick everyone first and force a save
 	PlayerData* playerDb = nullptr;
-	while (playerDb = Players.traverse_active(playerDb))
+	while ((playerDb = Players.traverse_active(playerDb)))
 	{
 		Hk::Player::SaveChar(playerDb->iOnlineId);
 		Hk::Player::Kick(playerDb->iOnlineId);

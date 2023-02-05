@@ -150,7 +150,7 @@ namespace Plugins::Mark
 			bFirstTime = false;
 			// check for logged in players and reset their connection data
 			PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			while ((playerData = Players.traverse_active(playerData)))
 				ClearClientMark(playerData->iOnlineId);
 		}
 		for (auto& timer : global->Timers)

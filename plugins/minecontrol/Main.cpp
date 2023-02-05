@@ -355,7 +355,7 @@ namespace Plugins::MiningControl
 		WriteProcMem((char*)0x62F123E, &patch2, 2);
 
 		PlayerData* playerData = nullptr;
-		while (playerData = Players.traverse_active(playerData))
+		while ((playerData = Players.traverse_active(playerData)))
 		{
 			uint client = playerData->iOnlineId;
 			ClearClientInfo(client);
