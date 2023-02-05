@@ -211,7 +211,7 @@ namespace Hk
 		DLL cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& base);
 		DLL cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<const std::list<CARGO_INFO>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& iRemainingHoldSize);
-		DLL cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, uint iId, int iCount);
+		DLL cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count);
 		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint iGoodId, int iCount, bool bMission);
 		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, int iCount, bool bMission);
 		DLL cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname, bool bOnlyDelete);
@@ -237,7 +237,7 @@ namespace Hk
 		DLL cpp::result<int, Error> GetOnlineTime(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<int, Error> GetRank(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring>& player);
-		DLL void RelocateClient(ClientId client, Vector vDestination, Matrix mOrientation);
+		DLL void RelocateClient(ClientId client, Vector vDestination, const Matrix& mOrientation);
 		DLL void SaveChar(ClientId client);
 		DLL cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<ClientId, Error> GetTargetClientID(const std::variant<uint, std::wstring>& player);
@@ -249,7 +249,7 @@ namespace Hk
 		DLL cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount);
 		DLL cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player);
-		DLL Error GetSystemByNickname(std::variant<std::string, std::wstring> nickname, uint& system);
+		DLL cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname);
 		DLL CShip* CShipFromShipDestroyed(const DWORD** ecx);
 	} // namespace Player
 

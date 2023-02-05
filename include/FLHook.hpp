@@ -524,7 +524,7 @@ private:
 	void CmdFMsgU(const std::wstring& wscXML);
 
 	void CmdEnumCargo(const std::variant<uint, std::wstring>& player);
-	void CmdRemoveCargo(const std::variant<uint, std::wstring>& player, uint iId, uint iCount);
+	void CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, uint count);
 	void CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, uint iCount, bool iMission);
 
 	void CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname);
@@ -544,7 +544,7 @@ private:
 	void CmdHelp();
 	void CmdGetAccountDirName(const std::variant<uint, std::wstring>& player);
 	void CmdGetCharFileName(const std::variant<uint, std::wstring>& player);
-	void CmdIsOnServer(std::wstring player);
+	void CmdIsOnServer(const std::wstring& player);
 	void CmdMoneyFixList();
 	void CmdServerInfo();
 	void CmdGetGroupMembers(const std::variant<uint, std::wstring>& player);

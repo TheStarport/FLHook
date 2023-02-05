@@ -881,7 +881,7 @@ void Shutdown__InnerAfter()
 
 // The maximum number of players we can support is MaxClientId
 // Add one to the maximum number to allow renames
-int g_MaxPlayers = MaxClientId + 1;
+const int g_MaxPlayers = MaxClientId + 1;
 
 void Startup__Inner(const SStartupInfo& si)
 {
