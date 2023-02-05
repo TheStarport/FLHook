@@ -247,9 +247,9 @@ void PluginManager::loadAll(bool startup, CCmds* adminInterface)
 	} while (FindNextFileW(findPluginsHandle, &findData));
 }
 
-void PluginManager::setProps(HookedCall c, bool b, bool m, bool a)
+void PluginManager::setProps(HookedCall c, bool before, bool after)
 {
-	hookProps_[c] = {b, m, a};
+	hookProps_[c] = {before, after};
 }
 
 void PluginInfo::versionMajor(PluginMajorVersion version)

@@ -271,7 +271,7 @@ class PluginManager : public Singleton<PluginManager>
 
 	void clearData(bool free);
 	void setupProps();
-	void setProps(HookedCall c, bool b, bool m, bool a);
+	void setProps(HookedCall c, bool before, bool after);
 
   public:
 	PluginManager();
