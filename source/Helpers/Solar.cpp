@@ -58,7 +58,8 @@ namespace Hk::Solar
 		{
 			return cpp::fail(Error::InvalidSpaceObjId);
 		}
-		Vector v1, v2;
+		Vector v1;
+		Vector v2;
 		pub::SpaceObj::GetMotion(spaceObjId, v1, v2);
 		return std::make_pair(v1, v2);
 	}

@@ -39,7 +39,7 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> GetClientIdFromAccount(CAccount* acc)
+	cpp::result<const uint, Error> GetClientIdFromAccount(const CAccount* acc)
 	{
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))

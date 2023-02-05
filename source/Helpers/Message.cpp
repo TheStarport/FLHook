@@ -39,7 +39,7 @@ namespace Hk::Message
 	cpp::result<void, Error> MsgS(const std::wstring& wscSystemname, const std::wstring& wscMessage)
 	{
 		uint systemId = 0;
-		if (!((systemId = ToInt(wscSystemname))))
+		if (!(systemId = ToUInt(wscSystemname)))
 		{
 			pub::GetSystemID(systemId, wstos(wscSystemname).c_str());
 			if (!systemId)
@@ -110,7 +110,7 @@ namespace Hk::Message
 
 	void FMsgSendChat(ClientId client, char* szBuf, uint iSize)
 	{
-		uint p4 = (uint)szBuf;
+		auto p4 = (uint)szBuf;
 		uint p3 = iSize;
 		uint p2 = 0x00010000;
 		uint p1 = client;
@@ -204,7 +204,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (auto& ignore : ClientInfo[iToClientId].lstIgnore)
+			for (const auto& ignore : ClientInfo[iToClientId].lstIgnore)
 			{
 				if (!HAS_FLAG(ignore, L"i") && !(ToLower(wscSender).compare(ToLower(ignore.character))))
 					return {}; // ignored
@@ -366,7 +366,7 @@ namespace Hk::Message
 	/** Send a player to group message */
 	void SendGroupChat(uint iFromClientId, const std::wstring& text)
 	{
-		const wchar_t* wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientId);
+		auto wscSender = (const wchar_t*)Players.GetActiveCharacterName(iFromClientId);
 		// Format and send the message a player in this group.
 		auto lstMembers = Hk::Player::GetGroupMembers(wscSender);
 		if (lstMembers.has_error())
