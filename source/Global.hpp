@@ -247,7 +247,8 @@ class PluginManager : public Singleton<PluginManager>
   public:
 	struct FunctionHookProps
 	{
-		bool callBefore = false, callMid = false, callAfter = false;
+		bool callBefore = false;
+		bool callAfter = false;
 
 		bool matches(HookStep s) const
 		{
@@ -257,8 +258,6 @@ class PluginManager : public Singleton<PluginManager>
 					return callBefore;
 				case HookStep::After:
 					return callAfter;
-				case HookStep::Mid:
-					return callMid;
 				default:
 					return false;
 			}
