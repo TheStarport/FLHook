@@ -54,7 +54,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	// send
 	// for all players
 	PlayerData* playerData = nullptr;
-	while (playerData = Players.traverse_active(playerData))
+	while ((playerData = Players.traverse_active(playerData)))
 	{
 		const auto client = playerData->iOnlineId;
 		uint clientSystemId = 0;
@@ -227,7 +227,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 
 								// for all players in system...
 								PlayerData* playerData = nullptr;
-								while (playerData = Players.traverse_active(playerData))
+								while ((playerData = Players.traverse_active(playerData)))
 								{
 									ClientId client = playerData->iOnlineId;
 									uint clientSystemId = 0;

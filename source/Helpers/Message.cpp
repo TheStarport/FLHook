@@ -57,7 +57,7 @@ namespace Hk::Message
 
 		// for all players in system...
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->iOnlineId;
 			uint iClientSystemId = 0;
@@ -186,7 +186,7 @@ namespace Hk::Message
 
 		// for all players
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->iOnlineId;
 			FMsgSendChat(client, szBuf, iRet);
@@ -301,7 +301,7 @@ namespace Hk::Message
 
 		// For all players in system...
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->iOnlineId;
 			uint iClientSystemId = 0;
@@ -337,7 +337,7 @@ namespace Hk::Message
 
 		// For all players in system...
 		PlayerData* playerDb = nullptr;
-		while (playerDb = Players.traverse_active(playerDb))
+		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			// Get the this player's current system and location in the system.
 			ClientId client = playerDb->iOnlineId;

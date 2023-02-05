@@ -73,7 +73,7 @@ namespace Plugins::Betting
 					else
 					{
 						struct PlayerData* playerData = nullptr;
-						while (playerData = Players.traverse_active(playerData))
+						while ((playerData = Players.traverse_active(playerData)))
 						{
 							ClientId localClient = playerData->iOnlineId;
 							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); 
@@ -137,7 +137,7 @@ namespace Plugins::Betting
 			// Get a list of other players in the system
 			// Add them and the player into the ffa map
 			struct PlayerData* playerData = nullptr;
-			while (playerData = Players.traverse_active(playerData))
+			while ((playerData = Players.traverse_active(playerData)))
 			{
 				// Get the this player's current system
 				ClientId client2 = playerData->iOnlineId;
