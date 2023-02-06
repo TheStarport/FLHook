@@ -732,10 +732,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S4999": {
-      "level": "On",
-      "severity": "Blocker"
-    },
     "cpp:S2216": {
       "level": "On",
       "severity": "Major"
@@ -1966,6 +1962,9 @@
       "level": "Off"
     },
     "cpp:S3549": {
+      "level": "Off"
+    },
+    "cpp:S4999": {
       "level": "Off"
     },
     "cpp:S859": {
