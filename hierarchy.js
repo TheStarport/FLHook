@@ -126,9 +126,13 @@ var hierarchy =
     [ "Plugins::Rename::Rename", "struct_plugins_1_1_rename_1_1_rename.html", null ],
     [ "IEngineHook::REP_DATA_LIST", "struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t.html", null ],
     [ "Plugins::Restart::Restart", "struct_plugins_1_1_restart_1_1_restart.html", null ],
+    [ "SaveGameDetour", "class_save_game_detour.html", [
+      [ "MemoryManager", "class_memory_manager.html", null ]
+    ] ],
     [ "Plugins::SystemSensor::Sensor", "struct_plugins_1_1_system_sensor_1_1_sensor.html", null ],
     [ "Singleton", null, [
       [ "DebugTools", "class_debug_tools.html", null ],
+      [ "MemoryManager", "class_memory_manager.html", null ],
       [ "PluginManager", "class_plugin_manager.html", null ]
     ] ],
     [ "SOCKET_CONNECTION", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html", null ],

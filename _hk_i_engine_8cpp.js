@@ -3,7 +3,7 @@ var _hk_i_engine_8cpp =
     [ "__declspec", "_hk_i_engine_8cpp.html#aaa0af5970fbdd43c4199fb2c37bdd09a", null ],
     [ "CShip__Destroy", "_hk_i_engine_8cpp.html#af50e71023f5930ce3af8086201e93946", null ],
     [ "CShip__Init", "_hk_i_engine_8cpp.html#abad0b4354af3d88f36d01af92748a52b", null ],
-    [ "DockCall", "_hk_i_engine_8cpp.html#aa0b8683ad4dbc284dcc58baa95c0a9a8", null ],
+    [ "DockCall", "_hk_i_engine_8cpp.html#ae526a2ed7bae7c2fd5148a9422a29690", null ],
     [ "ElapseTime", "_hk_i_engine_8cpp.html#a27bc1595037a86d3027333c91ae35242", null ],
     [ "FreeReputationVibe", "_hk_i_engine_8cpp.html#af77d4c6923df03c897f4f9898a4f6f8f", null ],
     [ "LaunchPosition", "_hk_i_engine_8cpp.html#acadbce23b44aa71c6df2a71d0bb9c374", null ],

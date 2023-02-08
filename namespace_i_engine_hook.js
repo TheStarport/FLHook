@@ -5,7 +5,7 @@ var namespace_i_engine_hook =
     [ "__declspec", "namespace_i_engine_hook.html#aaa0af5970fbdd43c4199fb2c37bdd09a", null ],
     [ "CShip__Destroy", "namespace_i_engine_hook.html#af50e71023f5930ce3af8086201e93946", null ],
     [ "CShip__Init", "namespace_i_engine_hook.html#abad0b4354af3d88f36d01af92748a52b", null ],
-    [ "DockCall", "namespace_i_engine_hook.html#aa0b8683ad4dbc284dcc58baa95c0a9a8", null ],
+    [ "DockCall", "namespace_i_engine_hook.html#ae526a2ed7bae7c2fd5148a9422a29690", null ],
     [ "ElapseTime", "namespace_i_engine_hook.html#a27bc1595037a86d3027333c91ae35242", null ],
     [ "FreeReputationVibe", "namespace_i_engine_hook.html#af77d4c6923df03c897f4f9898a4f6f8f", null ],
     [ "LaunchPosition", "namespace_i_engine_hook.html#acadbce23b44aa71c6df2a71d0bb9c374", null ],

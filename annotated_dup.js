@@ -193,6 +193,7 @@ var annotated_dup =
     [ "Global", "struct_global.html", "struct_global" ],
     [ "IPBans", "struct_i_p_bans.html", "struct_i_p_bans" ],
     [ "LoginIdBans", "struct_login_id_bans.html", "struct_login_id_bans" ],
+    [ "MemoryManager", "class_memory_manager.html", "class_memory_manager" ],
     [ "msvc__CatchableType", "structmsvc_____catchable_type.html", "structmsvc_____catchable_type" ],
     [ "msvc__CatchableTypeArray", "structmsvc_____catchable_type_array.html", "structmsvc_____catchable_type_array" ],
     [ "msvc__PMD", "structmsvc_____p_m_d.html", "structmsvc_____p_m_d" ],
@@ -201,6 +202,7 @@ var annotated_dup =
     [ "PluginData", "struct_plugin_data.html", "struct_plugin_data" ],
     [ "PluginHookData", "struct_plugin_hook_data.html", "struct_plugin_hook_data" ],
     [ "PluginManager", "class_plugin_manager.html", "class_plugin_manager" ],
+    [ "SaveGameDetour", "class_save_game_detour.html", "class_save_game_detour" ],
     [ "SOCKET_CONNECTION", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n" ],
     [ "TRIGGER_ARG", "struct_t_r_i_g_g_e_r___a_r_g.html", "struct_t_r_i_g_g_e_r___a_r_g" ]
 ];

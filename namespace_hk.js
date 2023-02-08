@@ -31,7 +31,7 @@ var namespace_hk =
       [ "GetCharFileName", "namespace_hk_1_1_client.html#a7dd2f27c98b2026c610ccae67b697464", null ],
       [ "GetClientID", "namespace_hk_1_1_client.html#a8d532358638140e196f0ca682ffda56b", null ],
       [ "GetClientIdByShip", "namespace_hk_1_1_client.html#aaea46624555571252ecb01cf80f47951", null ],
-      [ "GetClientIdFromAccount", "namespace_hk_1_1_client.html#ac46bda5c72b526cbed8611b4eee6bda6", null ],
+      [ "GetClientIdFromAccount", "namespace_hk_1_1_client.html#a8665c6097fc266cfce5deb85e6378b5b", null ],
       [ "GetClientIdFromCharName", "namespace_hk_1_1_client.html#a493dccca4f8bef56763a1fcf23b12818", null ],
       [ "GetEngineState", "namespace_hk_1_1_client.html#a5ad40c2dd818a611f881c0d12b3e74c5", null ],
       [ "GetEqType", "namespace_hk_1_1_client.html#a09429274e8174fc1bb0cd29a1aae8d72", null ],
@@ -58,7 +58,8 @@ var namespace_hk =
       [ "MatrixToQuaternion", "namespace_hk_1_1_math.html#a3d01e7aea16c48c88d9cd3cf6a1dfe08", null ],
       [ "RgbToBgr", "namespace_hk_1_1_math.html#abddd0e7615839729e242a286fa8e8e6c", null ],
       [ "UintToHexString", "namespace_hk_1_1_math.html#a3a4cecdf197334711a8348ec1b627431", null ],
-      [ "VectorToSectorCoord", "namespace_hk_1_1_math.html#aec27062727ee17888c9c41e6379befe4", null ]
+      [ "VectorToSectorCoord", "namespace_hk_1_1_math.html#aec27062727ee17888c9c41e6379befe4", null ],
+      [ "PI", "namespace_hk_1_1_math.html#a74e02dac1b0739d1b2ba0b5568e5f05b", null ]
     ] ],
     [ "Message", "namespace_hk_1_1_message.html", [
       [ "FMsg", "namespace_hk_1_1_message.html#a20c7f9c62ec4dcf4ed8e7c15a9ceb204", null ],

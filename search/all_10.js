@@ -31,7 +31,7 @@ var searchData=
   ['pendingrenames_28',['pendingRenames',['../struct_plugins_1_1_rename_1_1_global.html#aaf8961a29270500f503ce752c4a021be',1,'Plugins::Rename::Global']]],
   ['pendingrestarts_29',['pendingRestarts',['../struct_plugins_1_1_wardrobe_1_1_global.html#ab90ec0db704dc8b5968b3d1362f1431c',1,'Plugins::Wardrobe::Global::pendingRestarts()'],['../struct_plugins_1_1_restart_1_1_global.html#adc2d4df09fabe9ec9b933e57ea88d1ab',1,'Plugins::Restart::Global::pendingRestarts()']]],
   ['perftimerslog_30',['PerfTimersLog',['../_logging_8cpp.html#a65bf25f5b3261f9188f33133baa55993',1,'Logging.cpp']]],
-  ['pi_31',['PI',['../_math_8cpp.html#a598a3330b3c21701223ee0ca14316eca',1,'Math.cpp']]],
+  ['pi_31',['PI',['../namespace_hk_1_1_math.html#a74e02dac1b0739d1b2ba0b5568e5f05b',1,'Hk::Math']]],
   ['picommondll_32',['piCommonDLL',['../_hk_init_8cpp.html#a4fb5b10b37abbc4d6f8f4652ef75782c',1,'HkInit.cpp']]],
   ['picontentdll_33',['piContentDLL',['../_hk_init_8cpp.html#a19fa126e700cbd10470a8e6cef782967',1,'HkInit.cpp']]],
   ['pidalibdll_34',['piDaLibDLL',['../_hk_init_8cpp.html#a083de39f511a1be68481bca65f86e039',1,'HkInit.cpp']]],

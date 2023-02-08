@@ -13,7 +13,7 @@ var _client_8cpp =
     [ "GetCharFileName", "_client_8cpp.html#a7dd2f27c98b2026c610ccae67b697464", null ],
     [ "GetClientID", "_client_8cpp.html#a8d532358638140e196f0ca682ffda56b", null ],
     [ "GetClientIdByShip", "_client_8cpp.html#aaea46624555571252ecb01cf80f47951", null ],
-    [ "GetClientIdFromAccount", "_client_8cpp.html#ac46bda5c72b526cbed8611b4eee6bda6", null ],
+    [ "GetClientIdFromAccount", "_client_8cpp.html#a8665c6097fc266cfce5deb85e6378b5b", null ],
     [ "GetClientIdFromCharName", "_client_8cpp.html#a493dccca4f8bef56763a1fcf23b12818", null ],
     [ "GetEngineState", "_client_8cpp.html#a5ad40c2dd818a611f881c0d12b3e74c5", null ],
     [ "GetEqType", "_client_8cpp.html#a09429274e8174fc1bb0cd29a1aae8d72", null ],

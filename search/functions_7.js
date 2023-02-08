@@ -32,7 +32,7 @@ var searchData=
   ['getcharfilename_29',['GetCharfilename',['../namespace_hk_1_1_ini.html#a2448c8dd941cf110819c0b9fc562ae6f',1,'Hk::Ini']]],
   ['getclientid_30',['GetClientID',['../namespace_hk_1_1_client.html#a8d532358638140e196f0ca682ffda56b',1,'Hk::Client']]],
   ['getclientidbyship_31',['GetClientIdByShip',['../namespace_hk_1_1_client.html#aaea46624555571252ecb01cf80f47951',1,'Hk::Client']]],
-  ['getclientidfromaccount_32',['GetClientIdFromAccount',['../namespace_hk_1_1_client.html#ac46bda5c72b526cbed8611b4eee6bda6',1,'Hk::Client']]],
+  ['getclientidfromaccount_32',['GetClientIdFromAccount',['../namespace_hk_1_1_client.html#a8665c6097fc266cfce5deb85e6378b5b',1,'Hk::Client']]],
   ['getclientidfromcharname_33',['GetClientIdFromCharName',['../namespace_hk_1_1_client.html#a493dccca4f8bef56763a1fcf23b12818',1,'Hk::Client']]],
   ['getcommand_34',['GetCommand',['../source_2_features_2_user_commands_8cpp.html#af33aadff334c078e6a1e6ec153ef590d',1,'UserCommands.cpp']]],
   ['getcommodityprice_35',['GetCommodityPrice',['../namespace_hk_1_1_solar.html#a08f5154b6d22735d52f89c96c05abcec',1,'Hk::Solar']]],

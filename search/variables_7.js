@@ -15,7 +15,7 @@ var searchData=
   ['g_5flastticks_12',['g_LastTicks',['../namespace_i_engine_hook.html#a29a01385d4b307e9c0dbfbf3332c5bce',1,'IEngineHook']]],
   ['g_5flstresolveips_13',['g_lstResolveIPs',['../source_2_features_2_timers_8cpp.html#a2e72d30536750652dcec72bb0267199b',1,'g_lstResolveIPs():&#160;Timers.cpp'],['../_global_8hpp.html#a2e72d30536750652dcec72bb0267199b',1,'g_lstResolveIPs():&#160;Timers.cpp']]],
   ['g_5flstresolveipsresult_14',['g_lstResolveIPsResult',['../source_2_features_2_timers_8cpp.html#a96404a9db6a96ad4eeaffb109d8b270e',1,'g_lstResolveIPsResult():&#160;Timers.cpp'],['../_global_8hpp.html#a96404a9db6a96ad4eeaffb109d8b270e',1,'g_lstResolveIPsResult():&#160;Timers.cpp']]],
-  ['g_5fmaxplayers_15',['g_MaxPlayers',['../namespace_i_server_impl_hook.html#a872db5267889c7688dc10235994629c5',1,'IServerImplHook']]],
+  ['g_5fmaxplayers_15',['g_MaxPlayers',['../namespace_i_server_impl_hook.html#afdd95a547aa2055adc29da923259f09d',1,'IServerImplHook']]],
   ['g_5fnongunhitsbase_16',['g_NonGunHitsBase',['../_hk_i_engine_damage_8cpp.html#afff30bb4490d5f01fc543578e9ed77e8',1,'HkIEngineDamage.cpp']]],
   ['g_5fnongunweaponhitsbaseretaddress_17',['g_NonGunWeaponHitsBaseRetAddress',['../_hk_i_engine_damage_8cpp.html#a1a0e3aeabf1546edcb0e11bc03755c8b',1,'HkIEngineDamage.cpp']]],
   ['g_5folddamagehit_18',['g_OldDamageHit',['../_hk_i_engine_damage_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#adbc33507ab5f99cc504a1bef050fe1d4',1,'g_OldDamageHit():&#160;HkIEngineDamage.cpp']]],

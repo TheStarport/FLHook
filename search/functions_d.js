@@ -6,11 +6,12 @@ var searchData=
   ['matches_3',['matches',['../struct_plugin_manager_1_1_function_hook_props.html#a8aa00ed6e682d29ecee407863d11ee81',1,'PluginManager::FunctionHookProps']]],
   ['matrixtoeuler_4',['MatrixToEuler',['../namespace_hk_1_1_math.html#a934ac253c5676017d56b1a3d3189491c',1,'Hk::Math']]],
   ['matrixtoquaternion_5',['MatrixToQuaternion',['../namespace_hk_1_1_math.html#a3d01e7aea16c48c88d9cd3cf6a1dfe08',1,'Hk::Math']]],
-  ['mineasteroid_6',['MineAsteroid',['../namespace_i_server_impl_hook.html#a91436aa0b6e056c2099b804b82e5c401',1,'IServerImplHook::MineAsteroid()'],['../group___mining_control.html#gadbb0cfe2a801fce312af1548801a0858',1,'Plugins::MiningControl::MineAsteroid()']]],
-  ['missionresponse_7',['MissionResponse',['../namespace_i_server_impl_hook.html#ad752b73950df642666b51751ca748728',1,'IServerImplHook']]],
-  ['moveclient_8',['MoveClient',['../group___arena.html#ga9ef58fbb84984e452d563b784ef598bd',1,'Plugins::Arena']]],
-  ['msg_9',['Msg',['../namespace_hk_1_1_message.html#a3f2a992d649ece4ccc0204bbe3b64dbf',1,'Hk::Message']]],
-  ['msgandkick_10',['MsgAndKick',['../namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746',1,'Hk::Player']]],
-  ['msgs_11',['MsgS',['../namespace_hk_1_1_message.html#a4ee37276ea55acaa05a8e697cf028d30',1,'Hk::Message']]],
-  ['msgu_12',['MsgU',['../namespace_hk_1_1_message.html#abaf7bc564a4ecc721f50824259bf4205',1,'Hk::Message']]]
+  ['memorymanager_6',['MemoryManager',['../class_memory_manager.html#ae925e8ad4d8fe6f0565e9d5729f59593',1,'MemoryManager']]],
+  ['mineasteroid_7',['MineAsteroid',['../namespace_i_server_impl_hook.html#a91436aa0b6e056c2099b804b82e5c401',1,'IServerImplHook::MineAsteroid()'],['../group___mining_control.html#gadbb0cfe2a801fce312af1548801a0858',1,'Plugins::MiningControl::MineAsteroid()']]],
+  ['missionresponse_8',['MissionResponse',['../namespace_i_server_impl_hook.html#ad752b73950df642666b51751ca748728',1,'IServerImplHook']]],
+  ['moveclient_9',['MoveClient',['../group___arena.html#ga9ef58fbb84984e452d563b784ef598bd',1,'Plugins::Arena']]],
+  ['msg_10',['Msg',['../namespace_hk_1_1_message.html#a3f2a992d649ece4ccc0204bbe3b64dbf',1,'Hk::Message']]],
+  ['msgandkick_11',['MsgAndKick',['../namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746',1,'Hk::Player']]],
+  ['msgs_12',['MsgS',['../namespace_hk_1_1_message.html#a4ee37276ea55acaa05a8e697cf028d30',1,'Hk::Message']]],
+  ['msgu_13',['MsgU',['../namespace_hk_1_1_message.html#abaf7bc564a4ecc721f50824259bf4205',1,'Hk::Message']]]
 ];

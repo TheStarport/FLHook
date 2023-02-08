@@ -1,0 +1,4 @@
+<map id="SaveGameDetour" name="SaveGameDetour">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,143,31"/>
+<area shape="rect" id="node2" href="$class_memory_manager.html" title=" " alt="" coords="7,79,141,104"/>
+</map>

@@ -114,7 +114,7 @@ var _hk_client_server_interface_8cpp =
     [ "g_Admin", "_hk_client_server_interface_8cpp.html#ac9c02c089b51790591b9ea12d81dfab8", null ],
     [ "g_CharBefore", "_hk_client_server_interface_8cpp.html#a18cb360d69d72c5e5bb511bc38964df8", null ],
     [ "g_InSubmitChat", "_hk_client_server_interface_8cpp.html#a17d416d07958f7dfd0cd499485823285", null ],
-    [ "g_MaxPlayers", "_hk_client_server_interface_8cpp.html#a872db5267889c7688dc10235994629c5", null ],
+    [ "g_MaxPlayers", "_hk_client_server_interface_8cpp.html#afdd95a547aa2055adc29da923259f09d", null ],
     [ "g_TextLength", "_hk_client_server_interface_8cpp.html#a9dc64c97e477e80c2ba335466ceb6c48", null ],
     [ "g_Timers", "_hk_client_server_interface_8cpp.html#a1b220538d594f5f0065f0a33a361dc27", null ],
     [ "IServerImplEntries", "_hk_client_server_interface_8cpp.html#aaccf5fef346d5101f9da966d0c6f624a", null ]

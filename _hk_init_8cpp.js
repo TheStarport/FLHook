@@ -1,7 +1,7 @@
 var _hk_init_8cpp =
 [
     [ "ClearClientInfo", "_hk_init_8cpp.html#af5e16e57c851001ac8df18982d07e1aa", null ],
-    [ "DockCall", "_hk_init_8cpp.html#aa0b8683ad4dbc284dcc58baa95c0a9a8", null ],
+    [ "DockCall", "_hk_init_8cpp.html#ae526a2ed7bae7c2fd5148a9422a29690", null ],
     [ "ElapseTime", "_hk_init_8cpp.html#a27bc1595037a86d3027333c91ae35242", null ],
     [ "FreeReputationVibe", "_hk_init_8cpp.html#af77d4c6923df03c897f4f9898a4f6f8f", null ],
     [ "HookRehashed", "_hk_init_8cpp.html#aa98ad2cc999b75077da4196e592e6c2e", null ],
