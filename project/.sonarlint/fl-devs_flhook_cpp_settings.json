@@ -1,5 +1,9 @@
 {
   "sonarlint.rules": {
+    "cpp:S5332": {
+      "level": "On",
+      "severity": "Critical"
+    },
     "cpp:S1065": {
       "level": "On",
       "severity": "Major"
@@ -85,10 +89,6 @@
       "severity": "Critical"
     },
     "cpp:S6069": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "cpp:S5332": {
       "level": "On",
       "severity": "Critical"
     },
@@ -1583,6 +1583,12 @@
       "level": "On",
       "severity": "Blocker"
     },
+    "cpp:S3628": {
+      "level": "Off"
+    },
+    "cpp:S6493": {
+      "level": "Off"
+    },
     "cpp:S5536": {
       "level": "Off"
     },
@@ -1620,9 +1626,6 @@
       "level": "Off"
     },
     "cpp:S6490": {
-      "level": "Off"
-    },
-    "cpp:S6493": {
       "level": "Off"
     },
     "cpp:S6492": {
@@ -2109,9 +2112,6 @@
       "level": "Off"
     },
     "cpp:S1227": {
-      "level": "Off"
-    },
-    "cpp:S3628": {
       "level": "Off"
     },
     "cpp:S5298": {
