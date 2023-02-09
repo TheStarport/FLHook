@@ -62,6 +62,7 @@ namespace Plugins::SpinProtection
 		if (motion.has_error())
 		{
 			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
+			return;
 		}
 		auto [V1, V2] = motion.value();
 		//crash prevention in case of null vectors
