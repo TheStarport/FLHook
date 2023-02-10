@@ -204,7 +204,7 @@ void ClearClientInfo(ClientId client)
 	// Reset the dmg list if this client was the inflictor
 	for (auto& i : ClientInfo)
 	{
-		if (i.dmgLast.iInflictorPlayerId == client)
+		if (i.dmgLast.inflictorPlayerId == client)
 			i.dmgLast = dmg;
 	}
 
