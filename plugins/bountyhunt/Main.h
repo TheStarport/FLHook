@@ -25,8 +25,11 @@ namespace Plugins::BountyHunt
 		// Reflectable fields
 		bool enableBountyHunt = true;
 		int levelProtect = 0;
+		//! Minimal time a hunt can be set to, in minutes.
 		uint minimalHuntTime = 1;
+		//! Maximum time a hunt can be set to, in minutes.
 		uint maximumHuntTime = 240;
+		//! Hunt time in minutes, if not explicitly specified.
 		uint defaultHuntTime = 30;
 	};
 

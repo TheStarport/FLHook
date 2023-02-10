@@ -33,7 +33,9 @@ namespace Plugins::Autobuy
 		std::string File() override { return "config/autobuy.json"; }
 
 		// Reflectable fields
+		//! Nickname of the nanobot item being used when performing the automatic purchase
 		std::string nanobot_nickname = "ge_s_repair_01";
+		//! Nickname of the shield battery item being used when performing the automatic purchase
 		std::string shield_battery_nickname = "ge_s_battery_01";
 	};
 
