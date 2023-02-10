@@ -63,9 +63,9 @@ PluginManager::~PluginManager()
 	clearData(false);
 }
 
-cpp::result<void, Error> PluginManager::unload(const std::string& name)
+cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 {
-	const auto plugin = std::find_if(begin(), end(), [&name](const PluginData& data) {
+	const auto plugin = std::ranges::find_if(plugins_, [&name](const PluginData& data) {
 		return name == data.shortName;
 	});
 
@@ -80,6 +80,7 @@ cpp::result<void, Error> PluginManager::unload(const std::string& name)
 
 	HMODULE dllAddr = plugin->dll;
 
+	std::wstring unloadedPluginDll = plugin->dllName;
 	Console::ConPrint(std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
 
 	for (const auto& hook : plugin->pInfo->hooks_)
@@ -92,7 +93,7 @@ cpp::result<void, Error> PluginManager::unload(const std::string& name)
 
 	plugins_.erase(plugin);
 	FreeLibrary(dllAddr);
-	return {};
+	return unloadedPluginDll;
 }
 
 void PluginManager::unloadAll()

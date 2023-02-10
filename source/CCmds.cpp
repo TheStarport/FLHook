@@ -727,13 +727,14 @@ void CCmds::CmdReloadPlugin(const std::wstring& wscPlugin)
 {
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
-	if (const auto err = PluginManager::i()->unload(wstos(wscPlugin)); err.has_error())
+	const auto unloadedPlugin = PluginManager::i()->unload(wstos(wscPlugin));
+	if (unloadedPlugin.has_error())
 	{
-		PrintError(err.error());
+		PrintError(unloadedPlugin.error());
 		return;
 	}
 
-	PluginManager::i()->load(wscPlugin, this, false);
+	PluginManager::i()->load(unloadedPlugin.value(), this, false);
 	Print("OK");
 }
 
