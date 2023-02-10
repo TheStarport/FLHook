@@ -98,6 +98,7 @@ some_error:
 		if (ci.has_error())
 		{
 			AddLog(LogType::Normal, LogLevel::Warn, wstos(Hk::Err::ErrGetText(ci.error())));
+			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		pi.connectionInfo = ci.value();
 

@@ -133,6 +133,10 @@ namespace Plugins::MiningControl
 			// Get the ship cargo so that we can check ids, guns, etc.
 			int remainingHoldSize = 0;
 			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
+			if (lstCargo.has_error())
+			{
+				return;
+			}
 			if (global->config->PluginDebug > 1)
 			{
 				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} lstCargo=", client, repGroupId, shipId));
