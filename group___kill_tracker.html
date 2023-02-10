@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <meta name="generator" content="Doxygen 1.9.6" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FLHook: Member List</title>
+    <title>FLHook: Kill Tracker</title>
     <link href="tabs.css" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="FLServer.ico" type="image/x-icon" />
     <script type="text/javascript" src="jquery.js"></script>
@@ -117,7 +117,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('struct_plugins_1_1_kill_counter_1_1_global.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('group___kill_tracker.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -143,15 +143,98 @@ $(document).ready(function(){initNavTree('struct_plugins_1_1_kill_counter_1_1_gl
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">Plugins::KillCounter::Global Member List</div></div>
+  <div class="headertitle"><div class="title">Kill Tracker</div></div>
 </div><!--header-->
 <div class="contents">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<p>This plugin is used to count pvp kills and save them in the player file. Vanilla doesn't do this by default. Also keeps track of damage taken between players, prints greatest damage contributor. </p>
+<dl class="section date"><dt>Date</dt><dd>Unknown </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>||KOS||Acid (Ported by Raikkonen)</dd></dl>
+<h4><a class="anchor" id="cmds"></a>
+Player Commands</h4>
+<p>All commands are prefixed with '/' unless explicitly specified.</p><ul>
+<li>kills {client} - Shows the pvp kills for a player if a client id is specified, or if not, the player who typed it.</li>
+</ul>
+<h4><a class="anchor" id="adminCmds"></a>
+Admin Commands</h4>
+<p>There are no admin commands in this plugin.</p>
+<h4><a class="anchor" id="configuration"></a>
+Configuration</h4>
+<p>No configuration file is needed.</p>
+<h4><a class="anchor" id="ipc"></a>
+IPC Interfaces Exposed</h4>
+<p>This plugin does not expose any functionality.</p>
+<h4><a class="anchor" id="optional"></a>
+Optional Plugin Dependencies</h4>
+<p>This plugin has no dependencies. </p>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ga9c80f40a2fc4b5cd89c7d37872bc443c" name="ga9c80f40a2fc4b5cd89c7d37872bc443c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9c80f40a2fc4b5cd89c7d37872bc443c">&#9670;&#160;</a></span>ShipDestroyed()</h2>
 
-<p>This is the complete list of members for <a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html">Plugins::KillCounter::Global</a>, including all inherited members.</p>
-<table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html#aed6aef623dc6a9303b65c91a2f788788">config</a></td><td class="entry"><a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html">Plugins::KillCounter::Global</a></td><td class="entry"></td></tr>
-  <tr class="odd"><td class="entry"><a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html#a8f8abd3d8da43e168b37c916654d6a7f">returncode</a></td><td class="entry"><a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html">Plugins::KillCounter::Global</a></td><td class="entry"></td></tr>
-</table></div><!-- contents -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::ShipDestroyed </td>
+          <td>(</td>
+          <td class="paramtype">DamageList **&#160;</td>
+          <td class="paramname"><em>_dmg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const DWORD **&#160;</td>
+          <td class="paramname"><em>ecx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint &amp;&#160;</td>
+          <td class="paramname"><em>kill</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook on ShipDestroyed. Increments the number of kills of a player if there is one. </p>
+
+</div>
+</div>
+<a id="gaa872a1320265bf03a4ad5aca1c312c1c" name="gaa872a1320265bf03a4ad5aca1c312c1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa872a1320265bf03a4ad5aca1c312c1c">&#9670;&#160;</a></span>UserCmd_Kills()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::UserCmd_Kills </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>wscParam</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Called when a player types "/kills". </p>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

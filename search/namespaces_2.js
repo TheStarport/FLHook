@@ -13,7 +13,7 @@ var searchData=
   ['deathpenalty_10',['DeathPenalty',['../namespace_plugins_1_1_death_penalty.html',1,'Plugins']]],
   ['event_11',['Event',['../namespace_plugins_1_1_event.html',1,'Plugins']]],
   ['ipban_12',['IPBan',['../namespace_plugins_1_1_i_p_ban.html',1,'Plugins']]],
-  ['killcounter_13',['KillCounter',['../namespace_plugins_1_1_kill_counter.html',1,'Plugins']]],
+  ['killtracker_13',['KillTracker',['../namespace_plugins_1_1_kill_tracker.html',1,'Plugins']]],
   ['lightcontrol_14',['LightControl',['../namespace_plugins_1_1_light_control.html',1,'Plugins']]],
   ['mark_15',['Mark',['../namespace_plugins_1_1_mark.html',1,'Plugins']]],
   ['message_16',['Message',['../namespace_plugins_1_1_message.html',1,'Plugins']]],

@@ -13,7 +13,7 @@ var modules =
     [ "Death Penalty", "group___death_penalty.html", "group___death_penalty" ],
     [ "Event", "group___event.html", "group___event" ],
     [ "IP Ban", "group___i_p_ban.html", "group___i_p_ban" ],
-    [ "Kill Counter", "group___kill_counter.html", "group___kill_counter" ],
+    [ "Kill Tracker", "group___kill_tracker.html", "group___kill_tracker" ],
     [ "Light Control", "group___light_control.html", "group___light_control" ],
     [ "Mark", "group___mark.html", "group___mark" ],
     [ "Message", "group___message.html", "group___message" ],

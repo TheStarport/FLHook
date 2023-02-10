@@ -236,9 +236,9 @@
 <!-- Node15 -->
 <g id="node16" class="node">
 <title>Node15</title>
-<g id="a_node16"><a xlink:href="struct_plugins_1_1_kill_counter_1_1_config.html" target="_top" xlink:title="Configurable fields for this plugin.">
-<polygon fill="white" stroke="#666666" points="251.5,-1199 139.5,-1199 139.5,-1169 251.5,-1169 251.5,-1199"/>
-<text text-anchor="start" x="147.5" y="-1187" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::KillCounter</text>
+<g id="a_node16"><a xlink:href="struct_plugins_1_1_kill_tracker_1_1_config.html" target="_top" xlink:title="Configurable fields for this plugin.">
+<polygon fill="white" stroke="#666666" points="249.5,-1199 141.5,-1199 141.5,-1169 249.5,-1169 249.5,-1199"/>
+<text text-anchor="start" x="149.5" y="-1187" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::KillTracker</text>
 <text text-anchor="middle" x="195.5" y="-1176" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
 </a>
 </g>
@@ -246,7 +246,7 @@
 <!-- Node0&#45;&gt;Node15 -->
 <g id="edge15" class="edge">
 <title>Node0&#45;&gt;Node15</title>
-<path fill="none" stroke="#63b8ff" d="M39.13,-912.65C46.93,-968.13 71.65,-1124.31 107,-1160 115.76,-1168.84 127.44,-1174.51 139.41,-1178.13"/>
+<path fill="none" stroke="#63b8ff" d="M39.13,-912.65C46.93,-968.13 71.65,-1124.31 107,-1160 116.2,-1169.29 128.63,-1175.08 141.23,-1178.66"/>
 <polygon fill="#63b8ff" stroke="#63b8ff" points="42.59,-912.11 37.76,-902.68 35.65,-913.07 42.59,-912.11"/>
 </g>
 <!-- Node16 -->

@@ -7,6 +7,7 @@ var _client_8cpp =
     [ "GetAccountDirName", "_client_8cpp.html#a4225d173311b16092485ee1edd87b5b9", null ],
     [ "GetAccountID", "_client_8cpp.html#abc10b8f0733099f2d00b7b0bef084e93", null ],
     [ "GetAccountIdByClientID", "_client_8cpp.html#a05cb459bbf3d7ea7f90476b406163b14", null ],
+    [ "getAllPlayersInSystem", "_client_8cpp.html#a5d6879e27483c73930976589ec3a139e", null ],
     [ "GetBaseNickByID", "_client_8cpp.html#aaf0b971eb8f08f6ab10d8295872ff2d6", null ],
     [ "GetCharacterNameByID", "_client_8cpp.html#a610cd899ae0cb5226bee2142c3bc59a8", null ],
     [ "GetCharFileName", "_client_8cpp.html#ad1940321c52229b63edb262e98002851", null ],

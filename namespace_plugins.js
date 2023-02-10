@@ -23,7 +23,7 @@ var namespace_plugins =
       [ "PlayerLaunch", "group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab", null ],
       [ "global", "namespace_plugins_1_1_i_p_ban.html#a97486146ef3222e8eab0c4ca684ba00e", null ]
     ] ],
-    [ "KillCounter", "namespace_plugins_1_1_kill_counter.html", "namespace_plugins_1_1_kill_counter" ],
+    [ "KillTracker", "namespace_plugins_1_1_kill_tracker.html", "namespace_plugins_1_1_kill_tracker" ],
     [ "LightControl", "namespace_plugins_1_1_light_control.html", "namespace_plugins_1_1_light_control" ],
     [ "Mark", "namespace_plugins_1_1_mark.html", "namespace_plugins_1_1_mark" ],
     [ "Message", "namespace_plugins_1_1_message.html", "namespace_plugins_1_1_message" ],

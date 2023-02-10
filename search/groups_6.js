@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kill_20counter_0',['Kill Counter',['../group___kill_counter.html',1,'']]]
+  ['kill_20tracker_0',['Kill Tracker',['../group___kill_tracker.html',1,'']]]
 ];

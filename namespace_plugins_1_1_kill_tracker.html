@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <meta name="generator" content="Doxygen 1.9.6" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FLHook: Plugins::KillCounter Namespace Reference</title>
+    <title>FLHook: Plugins::KillTracker Namespace Reference</title>
     <link href="tabs.css" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="FLServer.ico" type="image/x-icon" />
     <script type="text/javascript" src="jquery.js"></script>
@@ -117,7 +117,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_tracker.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -143,18 +143,150 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.htm
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">Plugins::KillCounter Namespace Reference</div></div>
+  <div class="headertitle"><div class="title">Plugins::KillTracker Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aece6cc8cabec6ac886e1c460ce72cdda" name="aece6cc8cabec6ac886e1c460ce72cdda"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aece6cc8cabec6ac886e1c460ce72cdda">&#9670;&#160;</a></span>LoadSettings()</h2>
+<a id="a65e1bc5acd5ddcc3b344b675c35408c4" name="a65e1bc5acd5ddcc3b344b675c35408c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65e1bc5acd5ddcc3b344b675c35408c4">&#9670;&#160;</a></span>AddDamageEntry()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Plugins::KillCounter::LoadSettings </td>
+          <td class="memname">void Plugins::KillTracker::AddDamageEntry </td>
+          <td>(</td>
+          <td class="paramtype">const DamageList **&#160;</td>
+          <td class="paramname"><em>damageList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ushort &amp;&#160;</td>
+          <td class="paramname"><em>subObjId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float &amp;&#160;</td>
+          <td class="paramname"><em>newHitPoints</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const enum DamageEntry::SubObjFate &amp;&#160;</td>
+          <td class="paramname"><em>fate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8ea43c2eed9c1a02a59868568dc14208" name="a8ea43c2eed9c1a02a59868568dc14208"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ea43c2eed9c1a02a59868568dc14208">&#9670;&#160;</a></span>CharacterSelect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::CharacterSelect </td>
+          <td>(</td>
+          <td class="paramtype">CHARACTER_ID const &amp;&#160;</td>
+          <td class="paramname"><em>cid</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2e331fbe31db656518d8a6c5d36dea69" name="a2e331fbe31db656518d8a6c5d36dea69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e331fbe31db656518d8a6c5d36dea69">&#9670;&#160;</a></span>clearDamageDone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::clearDamageDone </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>inflictor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae10bdd2a8038e3765212befd9ccc90c1" name="ae10bdd2a8038e3765212befd9ccc90c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae10bdd2a8038e3765212befd9ccc90c1">&#9670;&#160;</a></span>clearDamageTaken()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::clearDamageTaken </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>victim</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9b8573369a84493d7cbd4dcf5d6400c8" name="a9b8573369a84493d7cbd4dcf5d6400c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b8573369a84493d7cbd4dcf5d6400c8">&#9670;&#160;</a></span>Disconnect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::Disconnect </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EFLConnection&#160;</td>
+          <td class="paramname"><em>conn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa138ba34d6b61a27e417a1e23b48234e" name="aa138ba34d6b61a27e417a1e23b48234e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa138ba34d6b61a27e417a1e23b48234e">&#9670;&#160;</a></span>LoadSettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::LoadSettings </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -164,14 +296,42 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.htm
 
 </div>
 </div>
-<a id="adfad0470c4e7d5bad0477a3c1f393d75" name="adfad0470c4e7d5bad0477a3c1f393d75"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfad0470c4e7d5bad0477a3c1f393d75">&#9670;&#160;</a></span>PrintNPCKills()</h2>
+<a id="a9de4788f9050f8256eb34a930435159e" name="a9de4788f9050f8256eb34a930435159e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9de4788f9050f8256eb34a930435159e">&#9670;&#160;</a></span>PlayerLaunch()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Plugins::KillCounter::PrintNPCKills </td>
+          <td class="memname">void Plugins::KillTracker::PlayerLaunch </td>
+          <td>(</td>
+          <td class="paramtype">ShipId&#160;</td>
+          <td class="paramname"><em>shipId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae5092925cee194b6ffae856c6345c657" name="ae5092925cee194b6ffae856c6345c657"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5092925cee194b6ffae856c6345c657">&#9670;&#160;</a></span>PrintNPCKills()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::PrintNPCKills </td>
           <td>(</td>
           <td class="paramtype">uint&#160;</td>
           <td class="paramname"><em>client</em>, </td>
@@ -198,14 +358,54 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.htm
 
 </div>
 </div>
-<a id="a01dd1899705d007dc345d1d837d15ff7" name="a01dd1899705d007dc345d1d837d15ff7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01dd1899705d007dc345d1d837d15ff7">&#9670;&#160;</a></span>UserCmd_Help()</h2>
+<a id="a89cae692659382454da9edbc182d2b51" name="a89cae692659382454da9edbc182d2b51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89cae692659382454da9edbc182d2b51">&#9670;&#160;</a></span>SendDeathMessage()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Plugins::KillCounter::UserCmd_Help </td>
+          <td class="memname">void Plugins::KillTracker::SendDeathMessage </td>
+          <td>(</td>
+          <td class="paramtype">const std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const SystemId &amp;&#160;</td>
+          <td class="paramname"><em>system</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientVictim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientKiller</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba8c51676c53900e4082191ef12fe43a" name="aba8c51676c53900e4082191ef12fe43a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba8c51676c53900e4082191ef12fe43a">&#9670;&#160;</a></span>UserCmd_Help()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::UserCmd_Help </td>
           <td>(</td>
           <td class="paramtype">ClientId &amp;&#160;</td>
           <td class="paramname"><em>client</em>, </td>
@@ -227,33 +427,33 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.htm
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a929a62b46682b994bac9641bd8651a53" name="a929a62b46682b994bac9641bd8651a53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a929a62b46682b994bac9641bd8651a53">&#9670;&#160;</a></span>commands</h2>
+<a id="a136a179190bee8c2e4f623a81def0017" name="a136a179190bee8c2e4f623a81def0017"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a136a179190bee8c2e4f623a81def0017">&#9670;&#160;</a></span>commands</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::vector Plugins::KillCounter::commands</td>
+          <td class="memname">const std::vector Plugins::KillTracker::commands</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {{</div>
-<div class="line">        <a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/kills&quot;</span>, L<span class="stringliteral">&quot;[playerName]&quot;</span>, <a class="code hl_function" href="group___kill_counter.html#ga9444d0452907a03597b56cc68a6435d4">UserCmd_Kills</a>, L<span class="stringliteral">&quot;Displays how many pvp kills you (or player you named) have.&quot;</span>),</div>
+<div class="line">        <a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/kills&quot;</span>, L<span class="stringliteral">&quot;[playerName]&quot;</span>, <a class="code hl_function" href="group___kill_tracker.html#gaa872a1320265bf03a4ad5aca1c312c1c">UserCmd_Kills</a>, L<span class="stringliteral">&quot;Displays how many pvp kills you (or player you named) have.&quot;</span>),</div>
 <div class="line">    }}</div>
-<div class="ttc" id="agroup___kill_counter_html_ga9444d0452907a03597b56cc68a6435d4"><div class="ttname"><a href="group___kill_counter.html#ga9444d0452907a03597b56cc68a6435d4">Plugins::KillCounter::UserCmd_Kills</a></div><div class="ttdeci">void UserCmd_Kills(ClientId &amp;client, const std::wstring &amp;wscParam)</div><div class="ttdoc">Called when a player types &quot;/kills&quot;.</div><div class="ttdef"><b>Definition:</b> Main.cpp:57</div></div>
+<div class="ttc" id="agroup___kill_tracker_html_gaa872a1320265bf03a4ad5aca1c312c1c"><div class="ttname"><a href="group___kill_tracker.html#gaa872a1320265bf03a4ad5aca1c312c1c">Plugins::KillTracker::UserCmd_Kills</a></div><div class="ttdeci">void UserCmd_Kills(ClientId &amp;client, const std::wstring &amp;wscParam)</div><div class="ttdoc">Called when a player types &quot;/kills&quot;.</div><div class="ttdef"><b>Definition:</b> Main.cpp:60</div></div>
 <div class="ttc" id="asource_2_features_2_user_commands_8cpp_html_a64120089de88d698057f609bede3cd3a"><div class="ttname"><a href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a></div><div class="ttdeci">UserCommand CreateUserCommand(const std::variant&lt; std::wstring, std::vector&lt; std::wstring &gt; &gt; &amp;command, const std::wstring &amp;usage, const std::variant&lt; UserCmdProc, UserCmdProcWithParam &gt; &amp;proc, const std::wstring &amp;description)</div><div class="ttdef"><b>Definition:</b> UserCommands.cpp:592</div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a6fb22aa7433f51ab3eff930e44b7044c" name="a6fb22aa7433f51ab3eff930e44b7044c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6fb22aa7433f51ab3eff930e44b7044c">&#9670;&#160;</a></span>global</h2>
+<a id="ad80f6961c1ae0808f3397e9446f6063e" name="ad80f6961c1ae0808f3397e9446f6063e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad80f6961c1ae0808f3397e9446f6063e">&#9670;&#160;</a></span>global</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::unique_ptr&lt;<a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html">Global</a>&gt; Plugins::KillCounter::global = std::make_unique&lt;<a class="el" href="struct_plugins_1_1_kill_counter_1_1_global.html">Global</a>&gt;()</td>
+          <td class="memname">const std::unique_ptr&lt;<a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html">Global</a>&gt; Plugins::KillTracker::global = std::make_unique&lt;<a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html">Global</a>&gt;()</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -265,7 +465,7 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_kill_counter.htm
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespace_plugins.html">Plugins</a></li><li class="navelem"><a class="el" href="namespace_plugins_1_1_kill_counter.html">KillCounter</a></li>
+    <li class="navelem"><a class="el" href="namespace_plugins.html">Plugins</a></li><li class="navelem"><a class="el" href="namespace_plugins_1_1_kill_tracker.html">KillTracker</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>

@@ -77,9 +77,9 @@ var annotated_dup =
         [ "Global", "struct_plugins_1_1_event_1_1_global.html", "struct_plugins_1_1_event_1_1_global" ],
         [ "NPC_MISSION", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n" ]
       ] ],
-      [ "KillCounter", "namespace_plugins_1_1_kill_counter.html", [
-        [ "Config", "struct_plugins_1_1_kill_counter_1_1_config.html", "struct_plugins_1_1_kill_counter_1_1_config" ],
-        [ "Global", "struct_plugins_1_1_kill_counter_1_1_global.html", "struct_plugins_1_1_kill_counter_1_1_global" ]
+      [ "KillTracker", "namespace_plugins_1_1_kill_tracker.html", [
+        [ "Config", "struct_plugins_1_1_kill_tracker_1_1_config.html", "struct_plugins_1_1_kill_tracker_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_kill_tracker_1_1_global.html", "struct_plugins_1_1_kill_tracker_1_1_global" ]
       ] ],
       [ "LightControl", "namespace_plugins_1_1_light_control.html", [
         [ "Config", "struct_plugins_1_1_light_control_1_1_config.html", "struct_plugins_1_1_light_control_1_1_config" ],

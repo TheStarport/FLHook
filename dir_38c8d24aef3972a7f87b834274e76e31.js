@@ -15,7 +15,7 @@ var dir_38c8d24aef3972a7f87b834274e76e31 =
     [ "dynamic_missions", "dir_a191491824de4f25401e3a9ab1cf7263.html", "dir_a191491824de4f25401e3a9ab1cf7263" ],
     [ "event", "dir_51a35af32d1709180e0014fa3d7fc71f.html", "dir_51a35af32d1709180e0014fa3d7fc71f" ],
     [ "ip_ban", "dir_3b99d45563f69cedc0a9fd8ebc0eebfd.html", "dir_3b99d45563f69cedc0a9fd8ebc0eebfd" ],
-    [ "kill_counter", "dir_790c3f65e31d8ed97665d127def93ef2.html", "dir_790c3f65e31d8ed97665d127def93ef2" ],
+    [ "kill_tracker", "dir_674bbe98184f990d39b07bb795fe8d0a.html", "dir_674bbe98184f990d39b07bb795fe8d0a" ],
     [ "light_control", "dir_67067475a2fdf44a2ed2517bfafdf7d4.html", "dir_67067475a2fdf44a2ed2517bfafdf7d4" ],
     [ "mark", "dir_8e12fc77aacf43e1506eeb84afc9b603.html", "dir_8e12fc77aacf43e1506eeb84afc9b603" ],
     [ "message", "dir_f0348eb1aaecbc5c1da7e1201fd20b31.html", "dir_f0348eb1aaecbc5c1da7e1201fd20b31" ],

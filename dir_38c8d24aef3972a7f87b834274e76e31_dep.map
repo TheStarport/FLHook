@@ -1,27 +1,27 @@
 <map id="plugins" name="plugins">
-<area shape="rect" id="node2" href="dir_93f8da189241c290854b407a877c2368.html" title="_plugin_template" alt="" coords="3683,27,3818,52"/>
-<area shape="rect" id="node3" href="dir_3cb81cd6d379273a9d1a5ed99fc6ea41.html" title="afk" alt="" coords="3616,27,3659,52"/>
-<area shape="rect" id="node4" href="dir_e37264039f89f262c5d1a8b144c1f26a.html" title="anti_jump_disconnect" alt="" coords="3427,27,3591,52"/>
-<area shape="rect" id="node32" href="dir_6b68dce3c11b84328de13ffc9ad6971b.html" title="tempban" alt="" coords="2669,100,2749,125"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000002_000038.html" title="1" alt="" coords="2764,108,2773,123"/>
-<area shape="rect" id="node5" href="dir_df57beea59c7eba2da8cb53973af8132.html" title="arena" alt="" coords="3344,27,3403,52"/>
-<area shape="rect" id="node6" href="dir_6ff3391edf4364570440f8130c4529d0.html" title="autobuy" alt="" coords="3245,27,3320,52"/>
-<area shape="rect" id="node7" href="dir_5e9a257a737d74ff88f9659a8a7030d9.html" title="betting" alt="" coords="3153,27,3221,52"/>
-<area shape="rect" id="node8" href="dir_419eab14b376b260d16e9187f7926cbb.html" title="bountyhunt" alt="" coords="3032,27,3128,52"/>
-<area shape="rect" id="node9" href="dir_6c8afca0a78d982f2594b37e72bf93c0.html" title="cargo_drop" alt="" coords="2913,27,3007,52"/>
-<area shape="rect" id="node10" href="dir_272d92c666d6092c8388bd4fbf7d0005.html" title="cash_manager" alt="" coords="2771,27,2888,52"/>
-<area shape="rect" id="node11" href="dir_e0daf5c6e4b6441e9f292db2d044648d.html" title="condata" alt="" coords="2672,27,2747,52"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000009_000038.html" title="1" alt="" coords="2713,74,2722,89"/>
-<area shape="rect" id="node12" href="dir_be5ab8491fdffb0e4423b2f3a1aa7fbd.html" title="crash_catcher" alt="" coords="2536,27,2648,52"/>
-<area shape="rect" id="node13" href="dir_beec3d5ea085376863e47e3f32644a47.html" title="death_penalty" alt="" coords="2397,27,2512,52"/>
-<area shape="rect" id="node14" href="dir_a191491824de4f25401e3a9ab1cf7263.html" title="dynamic_missions" alt="" coords="2230,27,2373,52"/>
-<area shape="rect" id="node15" href="dir_51a35af32d1709180e0014fa3d7fc71f.html" title="event" alt="" coords="2147,27,2205,52"/>
-<area shape="rect" id="node16" href="dir_3b99d45563f69cedc0a9fd8ebc0eebfd.html" title="ip_ban" alt="" coords="2057,27,2122,52"/>
-<area shape="rect" id="node17" href="dir_790c3f65e31d8ed97665d127def93ef2.html" title="kill_counter" alt="" coords="1933,27,2032,52"/>
+<area shape="rect" id="node2" href="dir_93f8da189241c290854b407a877c2368.html" title="_plugin_template" alt="" coords="3678,27,3813,52"/>
+<area shape="rect" id="node3" href="dir_3cb81cd6d379273a9d1a5ed99fc6ea41.html" title="afk" alt="" coords="3611,27,3653,52"/>
+<area shape="rect" id="node4" href="dir_e37264039f89f262c5d1a8b144c1f26a.html" title="anti_jump_disconnect" alt="" coords="3422,27,3586,52"/>
+<area shape="rect" id="node32" href="dir_6b68dce3c11b84328de13ffc9ad6971b.html" title="tempban" alt="" coords="2664,100,2744,125"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000002_000038.html" title="1" alt="" coords="2758,108,2768,123"/>
+<area shape="rect" id="node5" href="dir_df57beea59c7eba2da8cb53973af8132.html" title="arena" alt="" coords="3339,27,3397,52"/>
+<area shape="rect" id="node6" href="dir_6ff3391edf4364570440f8130c4529d0.html" title="autobuy" alt="" coords="3240,27,3315,52"/>
+<area shape="rect" id="node7" href="dir_5e9a257a737d74ff88f9659a8a7030d9.html" title="betting" alt="" coords="3147,27,3215,52"/>
+<area shape="rect" id="node8" href="dir_419eab14b376b260d16e9187f7926cbb.html" title="bountyhunt" alt="" coords="3027,27,3123,52"/>
+<area shape="rect" id="node9" href="dir_6c8afca0a78d982f2594b37e72bf93c0.html" title="cargo_drop" alt="" coords="2907,27,3002,52"/>
+<area shape="rect" id="node10" href="dir_272d92c666d6092c8388bd4fbf7d0005.html" title="cash_manager" alt="" coords="2765,27,2883,52"/>
+<area shape="rect" id="node11" href="dir_e0daf5c6e4b6441e9f292db2d044648d.html" title="condata" alt="" coords="2667,27,2741,52"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000009_000038.html" title="1" alt="" coords="2708,74,2717,89"/>
+<area shape="rect" id="node12" href="dir_be5ab8491fdffb0e4423b2f3a1aa7fbd.html" title="crash_catcher" alt="" coords="2531,27,2643,52"/>
+<area shape="rect" id="node13" href="dir_beec3d5ea085376863e47e3f32644a47.html" title="death_penalty" alt="" coords="2392,27,2507,52"/>
+<area shape="rect" id="node14" href="dir_a191491824de4f25401e3a9ab1cf7263.html" title="dynamic_missions" alt="" coords="2225,27,2367,52"/>
+<area shape="rect" id="node15" href="dir_51a35af32d1709180e0014fa3d7fc71f.html" title="event" alt="" coords="2141,27,2200,52"/>
+<area shape="rect" id="node16" href="dir_3b99d45563f69cedc0a9fd8ebc0eebfd.html" title="ip_ban" alt="" coords="2051,27,2117,52"/>
+<area shape="rect" id="node17" href="dir_674bbe98184f990d39b07bb795fe8d0a.html" title="kill_tracker" alt="" coords="1933,27,2027,52"/>
 <area shape="rect" id="node18" href="dir_67067475a2fdf44a2ed2517bfafdf7d4.html" title="light_control" alt="" coords="1806,27,1909,52"/>
 <area shape="rect" id="node19" href="dir_8e12fc77aacf43e1506eeb84afc9b603.html" title="mark" alt="" coords="1725,27,1781,52"/>
 <area shape="rect" id="node20" href="dir_f0348eb1aaecbc5c1da7e1201fd20b31.html" title="message" alt="" coords="1619,27,1701,52"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000024_000038.html" title="1" alt="" coords="2647,95,2656,110"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000024_000038.html" title="1" alt="" coords="2641,95,2650,110"/>
 <area shape="rect" id="node21" href="dir_6b9058d7dbcaa2799e2434b4448c2bb1.html" title="minecontrol" alt="" coords="1495,27,1595,52"/>
 <area shape="rect" id="node22" href="dir_1476ea2b63af23484f180fbefe8bda17.html" title="misc_commands" alt="" coords="1339,27,1471,52"/>
 <area shape="rect" id="node23" href="dir_c0595522ed24604866a16f2538f400a4.html" title="npc_control" alt="" coords="1218,27,1315,52"/>
@@ -35,5 +35,5 @@
 <area shape="rect" id="node31" href="dir_5db75579f42a42586f7a50c564563170.html" title="tax" alt="" coords="251,27,293,52"/>
 <area shape="rect" id="node33" href="dir_d643c5f46465509136328ed8118ca85c.html" title="wardrobe" alt="" coords="144,27,227,52"/>
 <area shape="rect" id="node34" href="dir_84f2740fd9eab9859a47d878cd5f3f0e.html" title="warehouse" alt="" coords="27,27,120,52"/>
-<area shape="rect" id="clust1" href="dir_38c8d24aef3972a7f87b834274e76e31.html" alt="" coords="16,16,3923,136"/>
+<area shape="rect" id="clust1" href="dir_38c8d24aef3972a7f87b834274e76e31.html" alt="" coords="16,16,3917,136"/>
 </map>
