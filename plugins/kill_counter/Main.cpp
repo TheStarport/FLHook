@@ -119,7 +119,6 @@ namespace Plugins::KillCounter
 			{
 				float hpLost = global->lastPlayerHealth[g_DmgTo] - newHitPoints;
 				global->damageArray[inflictor][g_DmgTo] += hpLost;
-				Console::ConPrint(std::format("Current damage count: {}", global->damageArray[inflictor][g_DmgTo]));
 			}
 			global->lastPlayerHealth[g_DmgTo] = newHitPoints;
 		}
@@ -133,7 +132,7 @@ namespace Plugins::KillCounter
 
 	void clearDamageDone(ClientId& inflictor)
 	{
-		for (int i = 0; i < MaxClientId + 1; i++)
+		for (int i = 1; i < MaxClientId + 1; i++)
 			global->damageArray[i][inflictor] = 0.0f;
 	}
 
@@ -144,7 +143,6 @@ namespace Plugins::KillCounter
 			uint greatestInflictorId = 0;
 			float greatestDamageDealt = 0.0f;
 			float totalDamageTaken = 0.0f;
-			Console::ConPrint(std::format("DeathMessage: {}", global->damageArray[1][1]));
 			for (uint inflictorIndex = 1; inflictorIndex < global->damageArray[0].size(); inflictorIndex++)
 			{
 				float damageDealt = global->damageArray[inflictorIndex][clientVictim];
