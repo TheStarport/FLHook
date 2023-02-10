@@ -24,6 +24,10 @@
 
 #include "Main.h"
 
+IMPORT uint g_DmgTo;
+
+const uint SHIELD_HIT = 65521;
+
 namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
@@ -108,6 +112,96 @@ namespace Plugins::KillCounter
 		}
 	}
 
+	void AddDamageEntry(const DamageList** damageList, const ushort& subObjId, const float& newHitPoints, [[maybe_unused]] const enum DamageEntry::SubObjFate& fate)
+	{
+		if (global->config->enableDamageTracking && g_DmgTo && subObjId == 1)
+		{
+			if (const auto& inflictor = (*damageList)->inflictorPlayerId; 
+				inflictor && g_DmgTo)
+			{
+				float hpLost = global->lastPlayerHealth[g_DmgTo] - newHitPoints;
+				global->damageArray[inflictor][g_DmgTo] += hpLost;
+				Console::ConPrint(std::format("Current damage count: {}", global->damageArray[inflictor][g_DmgTo]));
+			}
+			global->lastPlayerHealth[g_DmgTo] = newHitPoints;
+		}
+	}
+
+	void clearDamageTaken(ClientId& victim)
+	{
+		for (auto& damageEntry : global->damageArray[victim])
+			damageEntry = 0.0f;
+	}
+
+	void clearDamageDone(ClientId& inflictor)
+	{
+		for (int i = 0; i < MaxClientId + 1; i++)
+			global->damageArray[i][inflictor] = 0.0f;
+	}
+
+	void SendDeathMessage([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
+	{
+		if (global->config->enableDamageTracking && clientVictim && clientKiller)
+		{
+			uint greatestInflictorId = 0;
+			float greatestDamageDealt = 0.0f;
+			float totalDamageTaken = 0.0f;
+			Console::ConPrint(std::format("DeathMessage: {}", global->damageArray[1][1]));
+			for (uint inflictorIndex = 1; inflictorIndex < global->damageArray[0].size(); inflictorIndex++)
+			{
+				float damageDealt = global->damageArray[inflictorIndex][clientVictim];
+				totalDamageTaken += damageDealt;
+				if (damageDealt > greatestDamageDealt)
+				{
+					greatestDamageDealt = damageDealt;
+					greatestInflictorId = inflictorIndex;
+				}
+			}
+			clearDamageTaken(clientVictim);
+			if (totalDamageTaken == 0.0f || greatestInflictorId == 0)
+				return;
+			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
+			std::wstring greatestInflictorName = Hk::Client::GetCharacterNameByID(greatestInflictorId).value();
+			std::wformat_args templateArgs = std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt/totalDamageTaken) * 100)));
+			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate, templateArgs);
+
+			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
+			Hk::Message::FMsgS(system, greatestDamageMessage);
+		}
+	}
+
+	void Disconnect(ClientId& client, [[maybe_unused]] EFLConnection conn)
+	{
+		if (global->config->enableDamageTracking)
+		{
+			clearDamageTaken(client);
+			clearDamageDone(client);
+		}
+	}
+
+	void PlayerLaunch([[maybe_unused]]ShipId shipId, ClientId& client)
+	{
+		if (global->config->enableDamageTracking)
+		{
+			clearDamageTaken(client);
+			clearDamageDone(client);
+			if (Hk::Client::IsValidClientID(client))
+			{
+				float maxHp = Archetype::GetShip(Hk::Player::GetShipID(client).value())->fHitPoints;
+				global->lastPlayerHealth[client] = maxHp * Players[client].fRelativeHealth;
+			}
+		}
+	}
+
+	void CharacterSelect([[maybe_unused]] CHARACTER_ID const& cid, ClientId& client)
+	{
+		if (global->config->enableDamageTracking)
+		{
+			clearDamageTaken(client);
+			clearDamageDone(client);
+		}
+	}
+
 	const std::vector commands = {{
 	    CreateUserCommand(L"/kills", L"[playerName]", UserCmd_Kills, L"Displays how many pvp kills you (or player you named) have."),
 	}};
@@ -117,12 +211,15 @@ namespace Plugins::KillCounter
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
+
+		for (auto& subArray : global->damageArray)
+			subArray.fill(0.0f);
 	}
 }
 
 using namespace Plugins::KillCounter;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput))
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking))
 
 DefaultDllMainSettings(LoadSettings);
 
@@ -137,4 +234,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &AddDamageEntry, HookStep::After);
+	pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMessage);
+	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &Disconnect);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
 }

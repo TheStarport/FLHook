@@ -5112,7 +5112,7 @@ void PluginManager::setupProps()
 	setProps(HookedCall::IEngine__ShipDestroyed, true, false);
 	setProps(HookedCall::IEngine__BaseDestroyed, true, false);
 	setProps(HookedCall::IEngine__GuidedHit, true, false);
-	setProps(HookedCall::IEngine__AddDamageEntry, true, false);
+	setProps(HookedCall::IEngine__AddDamageEntry, true, true);
 	setProps(HookedCall::IEngine__DamageHit, true, false);
 	setProps(HookedCall::IEngine__AllowPlayerDamage, true, false);
 	setProps(HookedCall::IEngine__SendDeathMessage, true, false);
