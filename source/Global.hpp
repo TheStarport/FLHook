@@ -281,7 +281,7 @@ class PluginManager : public Singleton<PluginManager>
 	void unloadAll();
 
 	void load(const std::wstring& fileName, CCmds*, bool);
-	cpp::result<void, Error> unload(const std::string& shortName);
+	cpp::result<std::wstring, Error> unload(const std::string& shortName);
 
 	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
 	PluginData& pluginAt(size_t index) { return plugins_[index]; }
