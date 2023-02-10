@@ -1,9 +1,10 @@
 ﻿/**
  * @date Unknown
  * @author ||KOS||Acid (Ported by Raikkonen)
- * @defgroup KillCounter Kill Counter
+ * @defgroup KillTracker Kill Tracker
  * @brief
  * This plugin is used to count pvp kills and save them in the player file. Vanilla doesn't do this by default.
+ * Also keeps track of damage taken between players, prints greatest damage contributor.
  *
  * @paragraph cmds Player Commands
  * All commands are prefixed with '/' unless explicitly specified.
@@ -26,7 +27,7 @@
 
 IMPORT uint g_DmgTo;
 
-namespace Plugins::KillCounter
+namespace Plugins::KillTracker
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
@@ -53,7 +54,7 @@ namespace Plugins::KillCounter
 		PrintUserCmdText(client, std::format(L"Total kills: {}", numKills));
 	}
 
-	/** @ingroup KillCounter
+	/** @ingroup KillTracker
 	 * @brief Called when a player types "/kills".
 	 */
 	void UserCmd_Kills(ClientId& client, const std::wstring& wscParam)
@@ -88,7 +89,7 @@ namespace Plugins::KillCounter
 
 	}
 
-	/** @ingroup KillCounter
+	/** @ingroup KillTracker
 	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
 	 */
 	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
@@ -213,7 +214,7 @@ namespace Plugins::KillCounter
 	}
 }
 
-using namespace Plugins::KillCounter;
+using namespace Plugins::KillTracker;
 
 REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking))
 
@@ -221,8 +222,8 @@ DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("Kill Counter");
-	pi->shortName("killcounter");
+	pi->name("Kill Tracker");
+	pi->shortName("killtracker");
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returncode);

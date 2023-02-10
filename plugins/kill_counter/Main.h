@@ -3,12 +3,12 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-namespace Plugins::KillCounter
+namespace Plugins::KillTracker
 {
 	//! Configurable fields for this plugin
 	struct Config final : Reflectable
 	{
-		std::string File() override { return "config/killcounter.json"; }
+		std::string File() override { return "config/killtracker.json"; }
 
 		// Reflectable fields
 		bool enableNPCKillOutput = false;
