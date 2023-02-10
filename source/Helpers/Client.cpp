@@ -532,4 +532,16 @@ namespace Hk::Client
 		}
 		return cpp::fail(Error::PlayerNotLoggedIn);
 	}
+
+	std::vector<uint> getAllPlayersInSystem(SystemId system)
+	{
+		PlayerData* playerData = nullptr;
+		std::vector<uint> playersInSystem;
+		while ((playerData = Players.traverse_active(playerData)))
+		{
+			if (playerData->systemId == system)
+				playersInSystem.push_back(playerData->iOnlineId);
+		}
+		return playersInSystem;
+	}
 }
