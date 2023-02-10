@@ -115,7 +115,7 @@ namespace Plugins::KillCounter
 		if (global->config->enableDamageTracking && g_DmgTo && subObjId == 1)
 		{
 			if (const auto& inflictor = (*damageList)->inflictorPlayerId; 
-				inflictor && g_DmgTo)
+				inflictor && g_DmgTo && inflictor != g_DmgTo)
 			{
 				float hpLost = global->lastPlayerHealth[g_DmgTo] - newHitPoints;
 				global->damageArray[inflictor][g_DmgTo] += hpLost;
