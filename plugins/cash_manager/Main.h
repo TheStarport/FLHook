@@ -36,35 +36,35 @@ namespace Plugins::CashManager
 		//! The minimum transfer amount.
 		uint minimumTransfer = 0;
 		
-		// It is best to set this to a low enough value as to prevent players from
-		// accidentally corrupting their accounts via their value (approximately 2 billion credits)
+		//! It is best to set this to a low enough value as to prevent players from
+		//! accidentally corrupting their accounts via their value (approximately 2 billion credits).
 		uint maximumTransfer = 0;
 
-		// If someone's cash goes above a threshold, deposit surplus money.
+		//! If someone's cash goes above a threshold, deposit surplus money.
 		bool depositSurplusOnDock = false;
 		
-		// When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction.
+		//! When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction.
 		uint safetyMargin = 0;
 
-		// Message displayed when they hit the threshold
+		//! Message displayed when they hit the threshold.
 		std::wstring preventTransactionMessage = L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.";
 
-		// If the above is true, any amount above this value will cause the character to lock.
+		//! If the above is true, any amount above this value will cause the character to lock.
 		uint cashThreshold = 1'800'000'000;
 
-		// Transfers are not allowed to/from chars in this system.
+		//! Transfers are not allowed to/from chars in this system..
 		std::vector<std::string> blockedSystems;
 		std::vector<uint> blockedSystemsHashed;
 
-		//! Enable in dock cash cheat detection
+		//! Enable in dock cash cheat detection.
 		bool cheatDetection = false;
 
-		// Prohibit transfers if the character has not been online for at least this time
+		//! Prohibit transfers if the character has not been online for at least this time.
 		uint minimumTime = 0;
-		// Remove transaction logs older than the amount of days indicated
+		//! Remove transaction logs older than the amount of days indicated.
 		uint eraseTransactionsAfterDaysPassed = 365;
 
-		// Cost in credits per transfer
+		//! Cost in credits per transfer.
 		uint transferFee = 0;
 	};
 
