@@ -136,6 +136,7 @@ namespace Hk
 		DLL cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId);
 		DLL cpp::result<const std::wstring, Error> GetPlayerSystem(ClientId client);
 		DLL cpp::result<const std::wstring, Error> GetSystemNickByID(uint systemId);
+		DLL std::vector<uint> getAllPlayersInSystem(SystemId system);
 		DLL cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool bKick);
 		DLL cpp::result<void, Error> UnlockAccountAccess(CAccount* acc);
 		DLL cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId);
@@ -178,13 +179,13 @@ namespace Hk
 	namespace Message
 	{
 		DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& wscMessage);
-		DLL cpp::result<void, Error> MsgS(const std::wstring& wscSystemname, const std::wstring& wscMessage);
+		DLL cpp::result<void, Error> MsgS(const std::variant<std::wstring, uint>& system, const std::wstring& wscMessage);
 		DLL cpp::result<void, Error> MsgU(const std::wstring& wscMessage);
 		DLL cpp::result<void, Error> FMsgEncodeXML(const std::wstring& wscXml, char* szBuf, uint iSize, uint& iRet);
 		DLL void FMsgSendChat(ClientId client, char* szBuf, uint iSize);
 		DLL cpp::result<void, Error> FMsg(ClientId client, const std::wstring& wscXML);
 		DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML);
-		DLL cpp::result<void, Error> FMsgS(const SystemId id, const std::wstring& wscXML);
+		DLL cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& wscXML);
 		DLL cpp::result<void, Error> FMsgU(const std::wstring& wscXML);
 		DLL std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring& msg);
 		DLL std::wstring GetWStringFromIdS(uint iIdS);
