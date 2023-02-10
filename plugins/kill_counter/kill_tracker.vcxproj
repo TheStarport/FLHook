@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0B2F0DB4-D231-43E7-8FDF-EF311DE6BBC9}</ProjectGuid>
+    <ProjectGuid>{91E8438D-F413-4A2C-8A9B-6CE3544116DB}</ProjectGuid>
     <RootNamespace>kill_counter</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Kill Counter</ProjectName>
+    <ProjectName>Kill Tracker</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -47,7 +47,7 @@
     <TargetName>kill_counter</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
-    <TargetName>kill_counter</TargetName>
+    <TargetName>kill_tracker</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -59,7 +59,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -67,7 +68,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
