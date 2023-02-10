@@ -58,9 +58,9 @@ namespace Plugins::MiscCommands
 		// Drop player shields and keep them down.
 		for (const auto& [id, info] : global->mapInfo)
 		{
-			if (info.shieldsDown)
+			if (auto charName = Hk::Client::GetCharacterNameByID(id); info.shieldsDown && charName.has_value())
 			{
-				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(id).value(), false); playerInfo.has_value() && playerInfo.value().ship)
+				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(charName.value(), false); playerInfo.has_value() && playerInfo.value().ship)
 				{
 					pub::SpaceObj::DrainShields(playerInfo.value().ship);
 				}
