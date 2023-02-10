@@ -26,8 +26,6 @@
 
 IMPORT uint g_DmgTo;
 
-const uint SHIELD_HIT = 65521;
-
 namespace Plugins::KillCounter
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
