@@ -37,6 +37,7 @@ namespace Plugins::Mark
 	{
 		std::string File() override { return "config/mark.json"; }
 
+		//! Radius within which all targets get marked, if autoMark is enabled.
 		float AutoMarkRadiusInM = 2000;
 	};
 

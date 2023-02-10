@@ -141,36 +141,60 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 
 	struct General final : Reflectable
 	{
+		//! Time of invulnerability upon undock in miliseconds.
+		//! Protected player can also not inflict any damage.
 		uint antiDockKill = 4000;
 		uint antiF1 = 0;
+		//! Disable the cruise disrupting effects.
 		bool changeCruiseDisruptorBehaviour = false;
+		//! If true, enables FLHook debug mode.
 		bool debugMode = false;
+		//! If true, player's death renders the default message.
 		bool dieMsg = true;
+		//! If true, it encodes player characters to bini (binary ini)
 		bool disableCharfileEncryption = false;
+		//! If a player disconnects in space, their ship will remain in game world for the time specified, in miliseconds.
 		uint disconnectDelay = 0;
+		//! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
 		uint disableNPCSpawns = 0;
+		//! Broadcasts a message that the player is attempting docking to all players in range
+		//! currently hardcoded to 15K
 		bool dockingMessages = true;
+		//! If true, it uses local time when rendering current time instead of server time,
+		//! in for example, "/time" function.
 		bool localTime = false;
+		//! Maximum amount of players in a group.
 		uint maxGroupSize = 8;
 		bool persistGroup = false;
+		//! Number of slots reserved to specified accounts.
 		uint reservedSlots = 0;
+		//! Global damage multiplier to missile and torpedo type weapons.
 		float torpMissileBaseDamageMultiplier = 1.0f;
 		bool logPerformanceTimers = false;
+		//! If true, sends a copy of submitted commands to the player's chatlog.
 		bool echoCommands = true;
+		//! If true, invalid commands are not echo'ed
 		bool suppressInvalidCommands = true;
 
+
 		std::vector<std::wstring> chatSuppressList;
+		//! Vector of systems where players can't deal damage to one another.
 		std::vector<std::string> noPVPSystems;
 
 		std::vector<uint> noPVPSystemsHashed;
 
+		//! Amount of time spent idly on a base resulting in a server kick, in seconds.
 		uint antiBaseIdle = 600;
+		//! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
 		uint antiCharMenuIdle = 600;
 	};
 
 	struct Plugins final : Reflectable
 	{
+		//! If true, loads all plugins on FLHook startup.
 		bool loadAllPlugins = true;
+		//! Contains a list of plugins to be enabled on startup if loadAllPlugins is false,
+		//! or plugins to be excluded from being loaded on startup if loadAllPlugins is true.
 		std::vector<std::string> plugins = {};
 	};
 

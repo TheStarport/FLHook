@@ -16,6 +16,7 @@ namespace Plugins::ConData
 		uint averageLoss;
 		std::list<uint> pingList;
 		uint averagePing;
+		//! Variation in minimal and maximum ping between client and server.
 		uint pingFluctuation;
 		uint lastPacketsSent;
 		uint lastPacketsReceived;
