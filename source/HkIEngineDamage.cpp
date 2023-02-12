@@ -242,7 +242,7 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		// no-pvp check
 		uint systemId;
 		pub::Player::GetSystem(client, systemId);
-		if (std::find(config->general.noPVPSystemsHashed.begin(), config->general.noPVPSystemsHashed.end(), systemId) != config->general.noPVPSystemsHashed.end())
+		if (std::ranges::find(config->general.noPVPSystemsHashed, systemId) != config->general.noPVPSystemsHashed.end())
 			return false;
 	}
 
@@ -254,7 +254,7 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 
 FARPROC g_OldNonGunWeaponHitsBase;
 
-void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg)
+void __stdcall NonGunWeaponHitsBaseBefore(const char* ECX, [[maybe_unused]] const char* p1, const DamageList* dmg)
 {
 	CSimple* simple;
 	memcpy(&simple, ECX + 0x10, 4);
