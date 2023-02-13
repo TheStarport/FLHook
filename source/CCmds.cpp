@@ -94,6 +94,22 @@ void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void CCmds::CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration)
+{
+	RIGHT_CHECK(RIGHT_KICKBAN);
+
+	if (const auto res = Hk::Player::TempBan(player, duration); res.has_error())
+	{
+		PrintError(res.error());
+		return;
+	}
+
+	Print("Player tempbanned");
+	CmdKick(player, L"Player tempbanned");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_KICKBAN);

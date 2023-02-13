@@ -78,6 +78,7 @@ void Naked__DamageHit2();
 void Naked__DisconnectPacketSent();
 
 // Timers
+void TimerTempBanCheck();
 void TimerCheckKick();
 void TimerNPCAndF1Check();
 void ThreadResolver();

@@ -46,6 +46,7 @@ namespace IServerImplHook
 	    {TimerCheckKick, 1000},
 	    {TimerNPCAndF1Check, 50},
 	    {TimerCheckResolveResults, 0},
+	    {TimerTempBanCheck, 15000},
 	};
 
 	void Update__Inner()
