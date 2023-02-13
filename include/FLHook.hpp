@@ -158,6 +158,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool logPerformanceTimers = false;
 		bool echoCommands = true;
 		bool suppressInvalidCommands = true;
+		bool tempBansEnabled = true;
 
 		std::vector<std::wstring> chatSuppressList;
 		std::vector<std::string> noPVPSystems;
@@ -505,6 +506,7 @@ private:
 
 	void CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason);
 	void CmdBan(const std::variant<uint, std::wstring>& player);
+	void CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration);
 	void CmdUnban(const std::variant<uint, std::wstring>& player);
 
 	void CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscBasename);

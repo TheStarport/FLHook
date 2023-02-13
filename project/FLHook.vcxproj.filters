@@ -147,9 +147,6 @@
     <ClCompile Include="..\source\Memory\MemoryManager.cpp">
       <Filter>FLHook\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\TempBan.hpp">
-      <Filter>sdk\Features</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -203,6 +200,9 @@
     </ClInclude>
     <ClInclude Include="..\source\Memory\MemoryManager.hpp">
       <Filter>FLHook\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\TempBan.hpp">
+      <Filter>sdk\Features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
