@@ -209,6 +209,7 @@ namespace Hk
 		DLL cpp::result<void, Error> Kick(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason);
 		DLL cpp::result<void, Error> Ban(const std::variant<uint, std::wstring>& player, bool bBan);
+		DLL cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring>& player, uint duration);
 		DLL cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& base);
 		DLL cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<const std::list<CARGO_INFO>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& iRemainingHoldSize);

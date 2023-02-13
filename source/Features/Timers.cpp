@@ -2,6 +2,7 @@
 #include <WinSock2.h>
 
 #include <WS2tcpip.h>
+#include "Features/TempBan.hpp"
 
 CTimer::CTimer(const std::string& sFunc, uint iWarn) : sFunction(sFunc), iWarning(iWarn)
 {
@@ -27,6 +28,33 @@ uint CTimer::stop()
 	}
 
 	return timeDelta;
+}
+
+/*************************************************************************************************************
+check if temporary ban has expired
+**************************************************************************************************************/
+
+void TimerTempBanCheck()
+{
+	const auto* config = FLHookConfig::c();
+	if (config->general.tempBansEnabled)
+	{
+		auto timeNow = timeInMS();
+
+		const auto* tempBan = TempBanManager::c();
+		auto it = tempBan->tempBanList.begin();
+		while (it != tempBan->tempBanList.end())
+		{
+			if ((*it).banEnd < timeNow)
+			{
+				it = tempBan->tempBanList.erase(it);
+			}
+			else
+			{
+				it++;
+			}
+		}
+	}
 }
 
 /**************************************************************************************************************
