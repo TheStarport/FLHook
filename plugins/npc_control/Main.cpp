@@ -76,27 +76,6 @@ namespace Plugins::Npc
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
 	/** @ingroup NPCControl
-	 * @brief Returns the specified personality
-	 */
-	pub::AI::SetPersonalityParams MakePersonality(const std::string& graph, const std::string& personality)
-	{
-		pub::AI::SetPersonalityParams p;
-		p.iStateGraph = pub::StateGraph::get_state_graph(graph.c_str(), pub::StateGraph::TYPE_STANDARD);
-		p.bStateId = true;
-		const auto err = Hk::Personalities::GetPersonality(personality);
-
-		if (err.has_error())
-		{
-			std::string errorMessage = personality + " is not recognised as a pilot name.";
-			Console::ConErr(errorMessage);
-			AddLog(LogType::Normal, LogLevel::Critical, errorMessage);
-		}
-
-		p.personality = err.value();
-		return p;
-	}
-
-	/** @ingroup NPCControl
 	 * @brief Returns a random float between two numbers
 	 */
 	float RandomFloatRange(float a, float b) { return ((b - a) * (static_cast<float>(rand()) / RAND_MAX)) + a; }
@@ -211,19 +190,33 @@ namespace Plugins::Npc
 		pub::Reputation::Alloc(si.iRep, scanner_name, pilot_name);
 		pub::Reputation::SetAffiliation(si.iRep, arch.iffId);
 
+		// Get personality
+		pub::AI::SetPersonalityParams personalityParams;
+		personalityParams.iStateGraph = pub::StateGraph::get_state_graph(arch.graph.c_str(), pub::StateGraph::TYPE_STANDARD);
+		personalityParams.bStateId = true;
+		const auto personality = Hk::Personalities::GetPersonality(arch.pilot);
+
+		if (personality.has_error())
+		{
+			std::string errorMessage = arch.pilot + " is not recognised as a pilot name.";
+			AddLog(LogType::Normal, LogLevel::Err, errorMessage);
+			return;
+		}
+
+		personalityParams.personality = personality.value();
+
+		// Create the ship in space
 		uint spaceObj;
 		pub::SpaceObj::Create(spaceObj, si);
 
-		pub::AI::SetPersonalityParams personality = MakePersonality(arch.graph, arch.pilot);
-		pub::AI::SubmitState(spaceObj, &personality);
+		// Add the personality to the space obj
+		pub::AI::SubmitState(spaceObj, &personalityParams);
 
 		global->spawnedNpcs.push_back(spaceObj);
 
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
 		std::string logMessage = "Created " + wstos(name);
 		global->Log->log(level, logMessage);
-
-		return;
 	}
 
 	/** @ingroup NPCControl
