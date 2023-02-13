@@ -1,7 +1,7 @@
 var searchData=
 [
   ['uinttohexstring_0',['UintToHexString',['../namespace_hk_1_1_math.html#a3a4cecdf197334711a8348ec1b627431',1,'Hk::Math']]],
-  ['unload_1',['unload',['../class_plugin_manager.html#ac2c224bdd66393eadb194432b2cb582e',1,'PluginManager']]],
+  ['unload_1',['unload',['../class_plugin_manager.html#af3f083b99e685f8d24c98facdf172487',1,'PluginManager']]],
   ['unloadall_2',['unloadAll',['../class_plugin_manager.html#af269b46ab6d5772cde38830169be75ee',1,'PluginManager']]],
   ['unloadhookexports_3',['UnloadHookExports',['../_hk_init_8cpp.html#a15ef62ec923952a9a020757449d25bf7',1,'UnloadHookExports():&#160;HkInit.cpp'],['../_global_8hpp.html#a15ef62ec923952a9a020757449d25bf7',1,'UnloadHookExports():&#160;HkInit.cpp']]],
   ['unloadstringdlls_4',['UnloadStringDLLs',['../namespace_hk_1_1_message.html#ab151534d35a9ae030164e61031ee1a9d',1,'Hk::Message']]],

@@ -6,7 +6,7 @@ var _hk_i_engine_damage_8cpp =
     [ "DamageHit", "_hk_i_engine_damage_8cpp.html#ae9da275b59d9553f8e2de1217b7cefa2", null ],
     [ "GuidedHit", "_hk_i_engine_damage_8cpp.html#aa9bb4515ed8aca6fc62418c60bdf6750", null ],
     [ "NonGunWeaponHitsBaseAfter", "_hk_i_engine_damage_8cpp.html#acf99e05e5ecc639c72f1261475601914", null ],
-    [ "NonGunWeaponHitsBaseBefore", "_hk_i_engine_damage_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9", null ],
+    [ "NonGunWeaponHitsBaseBefore", "_hk_i_engine_damage_8cpp.html#a18389e9131c4b2388da25910b2685b37", null ],
     [ "g_DmgTo", "_hk_i_engine_damage_8cpp.html#ad5f4c77a9b2a6dafddfbd2f6ddec92c7", null ],
     [ "g_DmgToSpaceId", "_hk_i_engine_damage_8cpp.html#ab568c280d97aacd1e2506f43549b2196", null ],
     [ "g_LastDmgList", "_hk_i_engine_damage_8cpp.html#a9e3ddab65ad9af726c5c9204b8ba96c9", null ],

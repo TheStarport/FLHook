@@ -13,5 +13,5 @@ var searchData=
   ['naked_5f_5fshipdestroyed_10',['Naked__ShipDestroyed',['../_global_8hpp.html#a83c3bbcd9995efecb8219cc8655b0d23',1,'Global.hpp']]],
   ['newcharacter_11',['NewCharacter',['../namespace_hk_1_1_player.html#a51e4184d5ebd99a4f57a48dcc8ee69bb',1,'Hk::Player']]],
   ['nongunweaponhitsbaseafter_12',['NonGunWeaponHitsBaseAfter',['../_hk_i_engine_damage_8cpp.html#acf99e05e5ecc639c72f1261475601914',1,'HkIEngineDamage.cpp']]],
-  ['nongunweaponhitsbasebefore_13',['NonGunWeaponHitsBaseBefore',['../_hk_i_engine_damage_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkIEngineDamage.cpp']]]
+  ['nongunweaponhitsbasebefore_13',['NonGunWeaponHitsBaseBefore',['../_hk_i_engine_damage_8cpp.html#a18389e9131c4b2388da25910b2685b37',1,'NonGunWeaponHitsBaseBefore(const char *ECX, const char *p1, const DamageList *dmg):&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkInit.cpp']]]
 ];

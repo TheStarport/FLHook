@@ -5,7 +5,7 @@ var searchData=
   ['uinttohexstring_2',['UintToHexString',['../namespace_hk_1_1_math.html#a3a4cecdf197334711a8348ec1b627431',1,'Hk::Math']]],
   ['unbuyableitems_3',['unbuyableItems',['../struct_plugins_1_1_purchase_restrictions_1_1_config.html#aa5b2a8b0b1a5be9c7d3bd7ed6bd91faa',1,'Plugins::PurchaseRestrictions::Config']]],
   ['unbuyableitemshashed_4',['unbuyableItemsHashed',['../struct_plugins_1_1_purchase_restrictions_1_1_global.html#ac1f7671f827b95681b0f822c67dd6e2a',1,'Plugins::PurchaseRestrictions::Global']]],
-  ['unload_5',['unload',['../class_plugin_manager.html#ac2c224bdd66393eadb194432b2cb582e',1,'PluginManager']]],
+  ['unload_5',['unload',['../class_plugin_manager.html#af3f083b99e685f8d24c98facdf172487',1,'PluginManager']]],
   ['unloadall_6',['unloadAll',['../class_plugin_manager.html#af269b46ab6d5772cde38830169be75ee',1,'PluginManager']]],
   ['unloadhookexports_7',['UnloadHookExports',['../_global_8hpp.html#a15ef62ec923952a9a020757449d25bf7',1,'UnloadHookExports():&#160;HkInit.cpp'],['../_hk_init_8cpp.html#a15ef62ec923952a9a020757449d25bf7',1,'UnloadHookExports():&#160;HkInit.cpp']]],
   ['unloadstringdlls_8',['UnloadStringDLLs',['../namespace_hk_1_1_message.html#ab151534d35a9ae030164e61031ee1a9d',1,'Hk::Message']]],

@@ -28,7 +28,7 @@ var searchData=
   ['nolootitemsids_25',['noLootItemsIds',['../struct_plugins_1_1_cargo_drop_1_1_global.html#ab18a948617f59e39946e178c3cf157d9',1,'Plugins::CargoDrop::Global']]],
   ['none_26',['None',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6adf97f83acf6453d4a6a4b1070f3754',1,'Plugins::Arena']]],
   ['nongunweaponhitsbaseafter_27',['NonGunWeaponHitsBaseAfter',['../_hk_i_engine_damage_8cpp.html#acf99e05e5ecc639c72f1261475601914',1,'HkIEngineDamage.cpp']]],
-  ['nongunweaponhitsbasebefore_28',['NonGunWeaponHitsBaseBefore',['../_hk_i_engine_damage_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkIEngineDamage.cpp']]],
+  ['nongunweaponhitsbasebefore_28',['NonGunWeaponHitsBaseBefore',['../_hk_i_engine_damage_8cpp.html#a18389e9131c4b2388da25910b2685b37',1,'NonGunWeaponHitsBaseBefore(const char *ECX, const char *p1, const DamageList *dmg):&#160;HkIEngineDamage.cpp'],['../_hk_init_8cpp.html#ac1c85fdc0f7feeff403850370c4692c9',1,'NonGunWeaponHitsBaseBefore(char *ECX, char *p1, DamageList *dmg):&#160;HkInit.cpp']]],
   ['note_20on_20the_20stl_29',['Note on the STL',['../md_docs__development__note_on_the__s_t_l.html',1,'']]],
   ['note_2don_2dthe_2dstl_2emd_30',['Note-on-the-STL.md',['../_note-on-the-_s_t_l_8md.html',1,'']]],
   ['notenoughmoney_31',['NotEnoughMoney',['../namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a261cca2ac483068d987c38cfa8fd6094',1,'Plugins::CashManager']]],
