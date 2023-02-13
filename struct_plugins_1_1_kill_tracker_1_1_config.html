@@ -170,8 +170,10 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a15d88ebe301e91e35046aa7acdba9fa3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#a15d88ebe301e91e35046aa7acdba9fa3">enableNPCKillOutput</a> = false</td></tr>
+<tr class="memdesc:a15d88ebe301e91e35046aa7acdba9fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">If enabled, lists all NPC ship types killed, along with kill counts.  <br /></td></tr>
 <tr class="separator:a15d88ebe301e91e35046aa7acdba9fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af288fbf148b067a4052f6b2238c65469"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#af288fbf148b067a4052f6b2238c65469">enableDamageTracking</a> = false</td></tr>
+<tr class="memdesc:af288fbf148b067a4052f6b2238c65469"><td class="mdescLeft">&#160;</td><td class="mdescRight">If enabled, broadcasts a system message announcing the player with the biggest contribution to the kill.  <br /></td></tr>
 <tr class="separator:af288fbf148b067a4052f6b2238c65469"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bdf530025ae2d35cd878f8f1957b264"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#a7bdf530025ae2d35cd878f8f1957b264">deathDamageTemplate</a> = L&quot;{0} took most hull damage from {1}, {2}%&quot;</td></tr>
 <tr class="separator:a7bdf530025ae2d35cd878f8f1957b264"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,6 +218,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> broadcasted systemwide upon ship's death if enableDamageTracking is true. {0} is replaced with victim's name, {1} with player who dealt the most damage to them, {2} with percentage of hull damage taken byt that player. </p>
 
 </div>
 </div>
@@ -231,6 +234,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>If enabled, broadcasts a system message announcing the player with the biggest contribution to the kill. </p>
+
 </div>
 </div>
 <a id="a15d88ebe301e91e35046aa7acdba9fa3" name="a15d88ebe301e91e35046aa7acdba9fa3"></a>
@@ -244,6 +249,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>If enabled, lists all NPC ship types killed, along with kill counts. </p>
 
 </div>
 </div>

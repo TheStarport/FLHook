@@ -172,14 +172,19 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ad3d3c88f78e8142489a809cc864072b1"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#ad3d3c88f78e8142489a809cc864072b1">maximumTransfer</a> = 0</td></tr>
 <tr class="separator:ad3d3c88f78e8142489a809cc864072b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7bac565ec650ab46d4d709586361762"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#ae7bac565ec650ab46d4d709586361762">depositSurplusOnDock</a> = false</td></tr>
+<tr class="memdesc:ae7bac565ec650ab46d4d709586361762"><td class="mdescLeft">&#160;</td><td class="mdescRight">If someone's cash goes above a threshold, deposit surplus money.  <br /></td></tr>
 <tr class="separator:ae7bac565ec650ab46d4d709586361762"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06fbc9ffefbce873b31101b995051cc4"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a06fbc9ffefbce873b31101b995051cc4">safetyMargin</a> = 0</td></tr>
+<tr class="memdesc:a06fbc9ffefbce873b31101b995051cc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction.  <br /></td></tr>
 <tr class="separator:a06fbc9ffefbce873b31101b995051cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6f89d23144a1dd183a4205bc8360122"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#ae6f89d23144a1dd183a4205bc8360122">preventTransactionMessage</a> = L&quot;Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.&quot;</td></tr>
+<tr class="memdesc:ae6f89d23144a1dd183a4205bc8360122"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_plugins_1_1_message.html">Message</a> displayed when they hit the threshold.  <br /></td></tr>
 <tr class="separator:ae6f89d23144a1dd183a4205bc8360122"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0312f2cfd40d5fdc017b3af8ad0517f1"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a0312f2cfd40d5fdc017b3af8ad0517f1">cashThreshold</a> = 1'800'000'000</td></tr>
+<tr class="memdesc:a0312f2cfd40d5fdc017b3af8ad0517f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the above is true, any amount above this value will cause the character to lock.  <br /></td></tr>
 <tr class="separator:a0312f2cfd40d5fdc017b3af8ad0517f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a367d60593d7c8fe2f9fcc840e6f4e11c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a367d60593d7c8fe2f9fcc840e6f4e11c">blockedSystems</a></td></tr>
+<tr class="memdesc:a367d60593d7c8fe2f9fcc840e6f4e11c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transfers are not allowed to/from chars in this system..  <br /></td></tr>
 <tr class="separator:a367d60593d7c8fe2f9fcc840e6f4e11c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3818e79cd98be856460ec7623a3ece6c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a3818e79cd98be856460ec7623a3ece6c">blockedSystemsHashed</a></td></tr>
 <tr class="separator:a3818e79cd98be856460ec7623a3ece6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -187,10 +192,13 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a7b59e3475b1332247c832d9dc78310be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable in dock cash cheat detection.  <br /></td></tr>
 <tr class="separator:a7b59e3475b1332247c832d9dc78310be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57a4d2643bcfd2d4a0b39f655df97605"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a57a4d2643bcfd2d4a0b39f655df97605">minimumTime</a> = 0</td></tr>
+<tr class="memdesc:a57a4d2643bcfd2d4a0b39f655df97605"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prohibit transfers if the character has not been online for at least this time.  <br /></td></tr>
 <tr class="separator:a57a4d2643bcfd2d4a0b39f655df97605"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f4b1c3060da5750762ca2c1d5306c24"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a5f4b1c3060da5750762ca2c1d5306c24">eraseTransactionsAfterDaysPassed</a> = 365</td></tr>
+<tr class="memdesc:a5f4b1c3060da5750762ca2c1d5306c24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove transaction logs older than the amount of days indicated.  <br /></td></tr>
 <tr class="separator:a5f4b1c3060da5750762ca2c1d5306c24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38d73a7cd76fecee35ea4b0ff954dbd5"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cash_manager_1_1_config.html#a38d73a7cd76fecee35ea4b0ff954dbd5">transferFee</a> = 0</td></tr>
+<tr class="memdesc:a38d73a7cd76fecee35ea4b0ff954dbd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cost in credits per transfer.  <br /></td></tr>
 <tr class="separator:a38d73a7cd76fecee35ea4b0ff954dbd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -232,6 +240,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Transfers are not allowed to/from chars in this system.. </p>
+
 </div>
 </div>
 <a id="a3818e79cd98be856460ec7623a3ece6c" name="a3818e79cd98be856460ec7623a3ece6c"></a>
@@ -259,6 +269,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>If the above is true, any amount above this value will cause the character to lock. </p>
 
 </div>
 </div>
@@ -290,6 +302,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>If someone's cash goes above a threshold, deposit surplus money. </p>
+
 </div>
 </div>
 <a id="a5f4b1c3060da5750762ca2c1d5306c24" name="a5f4b1c3060da5750762ca2c1d5306c24"></a>
@@ -304,6 +318,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Remove transaction logs older than the amount of days indicated. </p>
+
 </div>
 </div>
 <a id="ad3d3c88f78e8142489a809cc864072b1" name="ad3d3c88f78e8142489a809cc864072b1"></a>
@@ -317,6 +333,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>It is best to set this to a low enough value as to prevent players from accidentally corrupting their accounts via their value (approximately 2 billion credits). </p>
 
 </div>
 </div>
@@ -331,6 +348,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Prohibit transfers if the character has not been online for at least this time. </p>
 
 </div>
 </div>
@@ -362,6 +381,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> displayed when they hit the threshold. </p>
+
 </div>
 </div>
 <a id="a06fbc9ffefbce873b31101b995051cc4" name="a06fbc9ffefbce873b31101b995051cc4"></a>
@@ -376,6 +397,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>When safety above kicks in, how much cash should be taken to prevent the mechanism from activating immediately on next transaction. </p>
+
 </div>
 </div>
 <a id="a38d73a7cd76fecee35ea4b0ff954dbd5" name="a38d73a7cd76fecee35ea4b0ff954dbd5"></a>
@@ -389,6 +412,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Cost in credits per transfer. </p>
 
 </div>
 </div>

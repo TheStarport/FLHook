@@ -169,13 +169,17 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a6199ac6870c6f2010ca0d53f2f658dfa"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#a6199ac6870c6f2010ca0d53f2f658dfa">DeathPenaltyFraction</a> = 0</td></tr>
+<tr class="memitem:a6199ac6870c6f2010ca0d53f2f658dfa"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#a6199ac6870c6f2010ca0d53f2f658dfa">DeathPenaltyFraction</a> = 0.0f</td></tr>
+<tr class="memdesc:a6199ac6870c6f2010ca0d53f2f658dfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Percentage of player's worth deducted upon death, where 1.0f stands for all of his worth.  <br /></td></tr>
 <tr class="separator:a6199ac6870c6f2010ca0d53f2f658dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a283607747ac2dc269e0d67bb6abab455"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#a283607747ac2dc269e0d67bb6abab455">DeathPenaltyFractionKiller</a> = 0</td></tr>
+<tr class="memitem:a283607747ac2dc269e0d67bb6abab455"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#a283607747ac2dc269e0d67bb6abab455">DeathPenaltyFractionKiller</a> = 0.0f</td></tr>
+<tr class="memdesc:a283607747ac2dc269e0d67bb6abab455"><td class="mdescLeft">&#160;</td><td class="mdescRight">Percentage of death penalty transferred to the killer, where 1.0f means the killer gets as much as the victim lost.  <br /></td></tr>
 <tr class="separator:a283607747ac2dc269e0d67bb6abab455"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae94fea4ce271061e90bff037674a5826"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#ae94fea4ce271061e90bff037674a5826">ExcludedSystems</a> = {}</td></tr>
+<tr class="memdesc:ae94fea4ce271061e90bff037674a5826"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of system where death penalty/kill reward is disabled in.  <br /></td></tr>
 <tr class="separator:ae94fea4ce271061e90bff037674a5826"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a020ce33e91b50c76d3e01b48f17043eb"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::string, float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_death_penalty_1_1_config.html#a020ce33e91b50c76d3e01b48f17043eb">FractionOverridesByShip</a> = {}</td></tr>
+<tr class="memdesc:a020ce33e91b50c76d3e01b48f17043eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of ship archetypes to a penalty multiplier. For example, {li_elite, 2} causes Defenders to lose twice the amount compared to unlisted ships on death.  <br /></td></tr>
 <tr class="separator:a020ce33e91b50c76d3e01b48f17043eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -214,10 +218,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float Plugins::DeathPenalty::Config::DeathPenaltyFraction = 0</td>
+          <td class="memname">float Plugins::DeathPenalty::Config::DeathPenaltyFraction = 0.0f</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Percentage of player's worth deducted upon death, where 1.0f stands for all of his worth. </p>
 
 </div>
 </div>
@@ -228,10 +234,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float Plugins::DeathPenalty::Config::DeathPenaltyFractionKiller = 0</td>
+          <td class="memname">float Plugins::DeathPenalty::Config::DeathPenaltyFractionKiller = 0.0f</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Percentage of death penalty transferred to the killer, where 1.0f means the killer gets as much as the victim lost. </p>
 
 </div>
 </div>
@@ -247,6 +255,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>List of system where death penalty/kill reward is disabled in. </p>
+
 </div>
 </div>
 <a id="a020ce33e91b50c76d3e01b48f17043eb" name="a020ce33e91b50c76d3e01b48f17043eb"></a>
@@ -260,6 +270,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Map of ship archetypes to a penalty multiplier. For example, {li_elite, 2} causes Defenders to lose twice the amount compared to unlisted ships on death. </p>
 
 </div>
 </div>

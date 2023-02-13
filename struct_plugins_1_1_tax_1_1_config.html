@@ -170,24 +170,34 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ac595960c32e388cf27ba164105b32465"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#ac595960c32e388cf27ba164105b32465">excludedSystems</a> = {}</td></tr>
+<tr class="memdesc:ac595960c32e388cf27ba164105b32465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Systems where demands cannot be made.  <br /></td></tr>
 <tr class="separator:ac595960c32e388cf27ba164105b32465"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f23e399ade0f27a2218379ebb7ecd9f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a5f23e399ade0f27a2218379ebb7ecd9f">minplaytimeSec</a> = 0</td></tr>
+<tr class="memdesc:a5f23e399ade0f27a2218379ebb7ecd9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal playtime in seconds required for a character to be a valid demand target.  <br /></td></tr>
 <tr class="separator:a5f23e399ade0f27a2218379ebb7ecd9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26cd1bc2f3f5de6b62d1cb133da915f2"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a26cd1bc2f3f5de6b62d1cb133da915f2">maxTax</a> = 300</td></tr>
+<tr class="memdesc:a26cd1bc2f3f5de6b62d1cb133da915f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum amount of credits a player can demand from another.  <br /></td></tr>
 <tr class="separator:a26cd1bc2f3f5de6b62d1cb133da915f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12da2fb9f7e1a5f2817af2e46295d3e6"><td class="memItemLeft" align="right" valign="top">MessageColor&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a12da2fb9f7e1a5f2817af2e46295d3e6">customColor</a> = MessageColor::LightGreen</td></tr>
+<tr class="memdesc:a12da2fb9f7e1a5f2817af2e46295d3e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Color of messages that will be broadcasted by this plugin.  <br /></td></tr>
 <tr class="separator:a12da2fb9f7e1a5f2817af2e46295d3e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c725051c2940c7267e60b2d5a875b26"><td class="memItemLeft" align="right" valign="top">MessageFormat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a7c725051c2940c7267e60b2d5a875b26">customFormat</a> = MessageFormat::Small</td></tr>
+<tr class="memdesc:a7c725051c2940c7267e60b2d5a875b26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formatting of the messages broadcasted by this plugin.  <br /></td></tr>
 <tr class="separator:a7c725051c2940c7267e60b2d5a875b26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70c69df184fa232e8a2294b2c4eaf6c7"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a70c69df184fa232e8a2294b2c4eaf6c7">taxRequestReceived</a> = L&quot;You have received a tax request: Pay {} credits to {}! Type \&quot;/pay\&quot; to pay the tax.&quot;</td></tr>
+<tr class="memdesc:a70c69df184fa232e8a2294b2c4eaf6c7"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_plugins_1_1_message.html">Message</a> letting the target know about the size of the demand, as well as informing them on how to comply.  <br /></td></tr>
 <tr class="separator:a70c69df184fa232e8a2294b2c4eaf6c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a610c70e582107e3412ea3b1f414df43d"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a610c70e582107e3412ea3b1f414df43d">huntingMessage</a> = L&quot;You are being hunted by {}. Run for cover, they want to kill you!&quot;</td></tr>
+<tr class="memdesc:a610c70e582107e3412ea3b1f414df43d"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_plugins_1_1_message.html">Message</a> letting the target know they're being attacked.  <br /></td></tr>
 <tr class="separator:a610c70e582107e3412ea3b1f414df43d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a1e60313281044315599c0243f12000"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#a4a1e60313281044315599c0243f12000">huntingMessageOriginator</a> = L&quot;Good luck hunting {} !&quot;</td></tr>
+<tr class="memdesc:a4a1e60313281044315599c0243f12000"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message to the aggressor that the victim has been informed.  <br /></td></tr>
 <tr class="separator:a4a1e60313281044315599c0243f12000"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb84b89b7f03e191eda9ae5b4364a123"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#abb84b89b7f03e191eda9ae5b4364a123">cannotPay</a> = L&quot;This rogue isn't interested in money. Run for cover, they want to kill you!&quot;</td></tr>
+<tr class="memdesc:abb84b89b7f03e191eda9ae5b4364a123"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_plugins_1_1_message.html">Message</a> received if payment attempt is made on.  <br /></td></tr>
 <tr class="separator:abb84b89b7f03e191eda9ae5b4364a123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adca115f720db8fb97d80700a5676f008"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_tax_1_1_config.html#adca115f720db8fb97d80700a5676f008">killDisconnectingPlayers</a> = true</td></tr>
+<tr class="memdesc:adca115f720db8fb97d80700a5676f008"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, kills the players who disconnect while having a demand levied against them.  <br /></td></tr>
 <tr class="separator:adca115f720db8fb97d80700a5676f008"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -231,6 +241,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> received if payment attempt is made on. </p>
+
 </div>
 </div>
 <a id="a12da2fb9f7e1a5f2817af2e46295d3e6" name="a12da2fb9f7e1a5f2817af2e46295d3e6"></a>
@@ -244,6 +256,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Color of messages that will be broadcasted by this plugin. </p>
 
 </div>
 </div>
@@ -259,6 +273,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Formatting of the messages broadcasted by this plugin. </p>
+
 </div>
 </div>
 <a id="ac595960c32e388cf27ba164105b32465" name="ac595960c32e388cf27ba164105b32465"></a>
@@ -272,6 +288,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Systems where demands cannot be made. </p>
 
 </div>
 </div>
@@ -287,6 +305,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> letting the target know they're being attacked. </p>
+
 </div>
 </div>
 <a id="a4a1e60313281044315599c0243f12000" name="a4a1e60313281044315599c0243f12000"></a>
@@ -300,6 +320,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Confirmation message to the aggressor that the victim has been informed. </p>
 
 </div>
 </div>
@@ -315,6 +337,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>If true, kills the players who disconnect while having a demand levied against them. </p>
+
 </div>
 </div>
 <a id="a26cd1bc2f3f5de6b62d1cb133da915f2" name="a26cd1bc2f3f5de6b62d1cb133da915f2"></a>
@@ -328,6 +352,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Maximum amount of credits a player can demand from another. </p>
 
 </div>
 </div>
@@ -343,6 +369,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Minimal playtime in seconds required for a character to be a valid demand target. </p>
+
 </div>
 </div>
 <a id="a70c69df184fa232e8a2294b2c4eaf6c7" name="a70c69df184fa232e8a2294b2c4eaf6c7"></a>
@@ -356,6 +384,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> letting the target know about the size of the demand, as well as informing them on how to comply. </p>
 
 </div>
 </div>
