@@ -4,6 +4,7 @@
  * @defgroup Restarts Restarts
  * @brief
  * The plugin allows the players to apply a predefined template onto their character (ship, location, reps).
+ * Available restarts are stored as .fl files and should be located in EXE/config/restarts
  *
  * @paragraph cmds Player Commands
  * -showrestarts - lists available templates
@@ -76,8 +77,15 @@ namespace Plugins::Restart
 		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Searching restart
+		std::filesystem::path directory = "config\\restarts";
+		if (!std::filesystem::exists(directory))
+		{
+			PrintUserCmdText(client, L"There has been an error with the restarts plugin. Please contact an Administrator.");
+			AddLog(LogType::Normal, LogLevel::Err, "Missing restarts folder in config folder.");
+			return;
+		}
 
-		for (const auto& entity : std::filesystem::directory_iterator("config\\restart"))
+		for (const auto& entity : std::filesystem::directory_iterator(directory))
 		{
 			if (entity.is_directory() || entity.path().extension().string() != ".fl")
 			{
