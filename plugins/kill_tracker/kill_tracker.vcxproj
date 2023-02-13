@@ -44,7 +44,7 @@
     <Import Project="..\Plugin Common.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>kill_counter</TargetName>
+    <TargetName>kill_tracker</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
     <TargetName>kill_tracker</TargetName>
