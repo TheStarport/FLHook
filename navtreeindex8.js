@@ -1,6 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"namespace_plugins_1_1_mark.html#a311db777c6bed2a726c1fef33a7db632":[2,1,0,4,15,28],
 "namespace_plugins_1_1_mark.html#a494c17e45ec73c49cc27a423914e5518":[2,1,0,4,15,20],
 "namespace_plugins_1_1_mark.html#a4e4c9598f27752fa03d542ff91e7b8a6":[2,1,0,4,15,14],
 "namespace_plugins_1_1_mark.html#a6365c285a847728055fb7bc4d65b7f34":[2,1,0,4,15,17],
@@ -35,7 +34,7 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_misc_commands.html#afed849cf36935f4e6e6f0ae4ddaa0f2e":[2,1,0,4,18,16],
 "namespace_plugins_1_1_npc.html":[2,1,0,4,19],
 "namespace_plugins_1_1_npc.html#a6d8e9e8f29c027a4df47136d8ea19e5b":[2,1,0,4,19,14],
-"namespace_plugins_1_1_npc.html#ad4844bc34d93fe57774077ad21a51813":[2,1,0,4,19,23],
+"namespace_plugins_1_1_npc.html#ad4844bc34d93fe57774077ad21a51813":[2,1,0,4,19,22],
 "namespace_plugins_1_1_purchase_restrictions.html":[2,1,0,4,20],
 "namespace_plugins_1_1_purchase_restrictions.html#a09aae078c06430703795d70562d142cb":[2,1,0,4,20,7],
 "namespace_plugins_1_1_purchase_restrictions.html#a19bc79302af02ba266ba776400ff91a9":[2,1,0,4,20,14],
@@ -220,15 +219,15 @@ var NAVTREEINDEX8 =
 "namespacemembers_w.html":[2,1,1,0,22],
 "namespaces.html":[2,1,0],
 "npc__control_2_main_8cpp.html":[2,3,0,1,21,0],
-"npc__control_2_main_8cpp.html#a015f07b79a7865cc6600ea02278ca838":[2,3,0,1,21,0,20],
+"npc__control_2_main_8cpp.html#a015f07b79a7865cc6600ea02278ca838":[2,3,0,1,21,0,19],
 "npc__control_2_main_8cpp.html#a23c1b5fda3e58b1e81ab3125061765ff":[2,3,0,1,21,0,0],
 "npc__control_2_main_8cpp.html#a31f1ee08507a473fe014820aea39a2ee":[2,3,0,1,21,0,12],
 "npc__control_2_main_8cpp.html#a6d8e9e8f29c027a4df47136d8ea19e5b":[2,3,0,1,21,0,10],
-"npc__control_2_main_8cpp.html#a9e0083e5f076ec905c90df65217b0eb3":[2,3,0,1,21,0,23],
+"npc__control_2_main_8cpp.html#a9e0083e5f076ec905c90df65217b0eb3":[2,3,0,1,21,0,22],
 "npc__control_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,21,0,14],
-"npc__control_2_main_8cpp.html#ab01aa49ab42c91bba9c4b7e92b65561e":[2,3,0,1,21,0,22],
-"npc__control_2_main_8cpp.html#ad4844bc34d93fe57774077ad21a51813":[2,3,0,1,21,0,25],
-"npc__control_2_main_8cpp.html#aeb6c19a5c82b9b7afaa63201cf8a7a04":[2,3,0,1,21,0,21],
+"npc__control_2_main_8cpp.html#ab01aa49ab42c91bba9c4b7e92b65561e":[2,3,0,1,21,0,21],
+"npc__control_2_main_8cpp.html#ad4844bc34d93fe57774077ad21a51813":[2,3,0,1,21,0,24],
+"npc__control_2_main_8cpp.html#aeb6c19a5c82b9b7afaa63201cf8a7a04":[2,3,0,1,21,0,20],
 "npc__control_2_main_8h.html":[2,3,0,1,21,1],
 "npc__control_2_main_8h_source.html":[2,3,0,1,21,1],
 "pages.html":[],
@@ -249,5 +248,6 @@ var NAVTREEINDEX8 =
 "purchase__restrictions_2_main_8cpp.html#a39f3d959e9f6dede3fbb3a18e8d39df0":[2,3,0,1,22,0,13],
 "purchase__restrictions_2_main_8cpp.html#a3d3cd4fa23cee6674351a14458bef535":[2,3,0,1,22,0,3],
 "purchase__restrictions_2_main_8cpp.html#a5304f4d285808b94f1db2f638f91f4ea":[2,3,0,1,22,0,6],
-"purchase__restrictions_2_main_8cpp.html#a593c77b9ae5dbfb3051c671fe46bc53c":[2,3,0,1,22,0,14]
+"purchase__restrictions_2_main_8cpp.html#a593c77b9ae5dbfb3051c671fe46bc53c":[2,3,0,1,22,0,14],
+"purchase__restrictions_2_main_8cpp.html#a87c9225bc50a35bfdce1fe829b392414":[2,3,0,1,22,0,12]
 };

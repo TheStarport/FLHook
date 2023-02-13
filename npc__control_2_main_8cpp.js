@@ -17,7 +17,6 @@ var npc__control_2_main_8cpp =
     [ "ExportPluginInfo", "npc__control_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "IsFLHookNPC", "npc__control_2_main_8cpp.html#ga8d57b7bfd0a3ab8e7a55677fc9e0fb56", null ],
     [ "LoadSettings", "npc__control_2_main_8cpp.html#gabae134e620e4fee23d4c990f6883dc5a", null ],
-    [ "MakePersonality", "npc__control_2_main_8cpp.html#gaa8c931238e25bd86584ca6334c924a02", null ],
     [ "RandomFloatRange", "npc__control_2_main_8cpp.html#gae777ffc81db9af16f7ca7b92059a53c6", null ],
     [ "RandomInfocardID", "npc__control_2_main_8cpp.html#ga619ff8bc3c34ea3024b4a52f77657edc", null ],
     [ "REFL_AUTO", "npc__control_2_main_8cpp.html#a015f07b79a7865cc6600ea02278ca838", null ],

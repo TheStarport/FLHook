@@ -1,6 +1,5 @@
 var NAVTREEINDEX6 =
 {
-"namespace_hk_1_1_admin.html":[2,1,0,0,0],
 "namespace_hk_1_1_admin.html#a232028987f6c4ad4fb3cabd4634cef1e":[2,1,0,0,0,12],
 "namespace_hk_1_1_admin.html#a248ac24c4160be4319f1da39543ebb41":[2,1,0,0,0,4],
 "namespace_hk_1_1_admin.html#a373d40a2d805abe6e353a8f8d7f0abee":[2,1,0,0,0,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX6 =
 "namespace_i_server_impl_hook.html#a06a14b71025a613579378f87f211ecda":[2,1,0,3,59],
 "namespace_i_server_impl_hook.html#a0954fa0d68108f03361e85d12d3647b5":[2,1,0,3,68],
 "namespace_i_server_impl_hook.html#a0d92598598d994786ab5fd04fd8bd218":[2,1,0,3,11],
-"namespace_i_server_impl_hook.html#a0e26fa6195ec6fe30277f5d0893cb8bc":[2,1,0,3,36]
+"namespace_i_server_impl_hook.html#a0e26fa6195ec6fe30277f5d0893cb8bc":[2,1,0,3,36],
+"namespace_i_server_impl_hook.html#a0ffe87fa3f3c13b41ed2c81bfcb67d82":[2,1,0,3,77]
 };

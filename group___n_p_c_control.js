@@ -13,7 +13,6 @@ var group___n_p_c_control =
     [ "Plugins::Npc::ExecuteCommandString", "group___n_p_c_control.html#ga4a49985a14863a0f6381e060e8e4cdc4", null ],
     [ "Plugins::Npc::IsFLHookNPC", "group___n_p_c_control.html#ga8d57b7bfd0a3ab8e7a55677fc9e0fb56", null ],
     [ "Plugins::Npc::LoadSettings", "group___n_p_c_control.html#gabae134e620e4fee23d4c990f6883dc5a", null ],
-    [ "Plugins::Npc::MakePersonality", "group___n_p_c_control.html#gaa8c931238e25bd86584ca6334c924a02", null ],
     [ "Plugins::Npc::RandomFloatRange", "group___n_p_c_control.html#gae777ffc81db9af16f7ca7b92059a53c6", null ],
     [ "Plugins::Npc::RandomInfocardID", "group___n_p_c_control.html#ga619ff8bc3c34ea3024b4a52f77657edc", null ],
     [ "Plugins::Npc::ShipDestroyed", "group___n_p_c_control.html#gacd97d28e1393d3304607def2280a6cd9", null ]
