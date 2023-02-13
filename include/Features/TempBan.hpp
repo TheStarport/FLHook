@@ -7,8 +7,7 @@ struct TempBanInfo
 	mstime banEnd;
 };
 
-class TempBanManager
-	//: public Singleton<TempBanManager>
+class TempBanManager : public Singleton<TempBanManager>
 {
 	public:
 		static std::vector<TempBanInfo> tempBanList;
