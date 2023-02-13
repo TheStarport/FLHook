@@ -197,7 +197,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Features\Mail.cpp" />
     <ClCompile Include="..\source\Features\PluginManager.cpp" />
     <ClCompile Include="..\source\Features\StartupCache.cpp" />
-    <ClCompile Include="..\source\Features\TempBan.hpp" />
     <ClCompile Include="..\source\Features\Timers.cpp" />
     <ClCompile Include="..\source\Features\UserCommands.cpp" />
     <ClCompile Include="..\source\FLCodec.cpp" />
@@ -234,6 +233,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Features\Mail.hpp" />
+    <ClInclude Include="..\include\Features\TempBan.hpp" />
     <ClInclude Include="..\include\FLHook.hpp" />
     <ClInclude Include="..\include\plugin.h" />
     <ClInclude Include="..\include\Tools\Concepts.hpp" />

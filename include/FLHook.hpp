@@ -175,6 +175,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool echoCommands = true;
 		//! If true, invalid commands are not echo'ed
 		bool suppressInvalidCommands = true;
+		bool tempBansEnabled = true;
 
 
 		std::vector<std::wstring> chatSuppressList;
@@ -529,6 +530,7 @@ private:
 
 	void CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason);
 	void CmdBan(const std::variant<uint, std::wstring>& player);
+	void CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration);
 	void CmdUnban(const std::variant<uint, std::wstring>& player);
 
 	void CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscBasename);
