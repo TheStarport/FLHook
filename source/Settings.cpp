@@ -32,6 +32,15 @@ void LoadSettings()
 		config.general.noPVPSystemsHashed.emplace_back(systemId);
 	}
 
+	// GiveCash
+	config.general.noGiveCashSystems.clear();
+	for (const auto& system : config.general.noGiveCashSystems)
+	{
+		uint systemId;
+		pub::GetSystemID(systemId, system.c_str());
+		config.general.noGiveCashSystemsHashed.emplace_back(systemId);
+	}
+
 	auto ptr = std::make_unique<FLHookConfig>(config);
 	FLHookConfig::i(&ptr);	
 }

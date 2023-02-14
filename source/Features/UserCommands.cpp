@@ -586,6 +586,239 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	}
 }
 
+//! Process a give cash command
+void UserCmdGiveCash(const uint& clientID, const std::wstring& param)
+{
+	// Get the current character name
+	std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(clientID));
+
+	// Get the parameters from the user command.
+	std::wstring targetCharacter = GetParam(param, L' ', 1);
+	std::wstring paramCash = GetParam(param, L' ', 2);
+	std::wstring paramAnon = GetParam(param, L' ', 3);
+	paramCash = ReplaceStr(paramCash, L".", L"");
+	paramCash = ReplaceStr(paramCash, L",", L"");
+	paramCash = ReplaceStr(paramCash, L"$", L"");
+	const int cash = ToInt(paramCash);
+	if ((!targetCharacter.length() || cash <= 0) || (!paramAnon.empty() && paramAnon != L"anon"))
+	{
+		PrintUserCmdText(clientID, L"Error: Invalid parameters");
+		PrintUserCmdText(clientID, L"Usage: /givecash <charname> <cash> [anon]");
+		return;
+	}
+
+	bool anon = false;
+	if (paramAnon == L"anon")
+		anon = true;
+
+	// Check the target character exists
+	if (Hk::Client::GetAccountByCharName(targetCharacter).has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Character does not exist");
+		return;
+	}
+
+	// Check minimum time online
+	const auto secs = Hk::Player::GetOnlineTime(characterName);
+	if (secs.has_error())
+	{
+		AddLog(LogType::UserLogCmds, LogLevel::Err, std::format("Invalid time online detected for {}", wstos(characterName)));
+		Console::ConErr(std::format("Invalid time online detected for {}", wstos(characterName)));
+	}
+
+	if (secs.value() < FLHookConfig::i()->general.giveCashMinimumTimeOnline)
+	{
+		PrintUserCmdText(clientID, L"Error: Insufficient time online");
+		return;
+	}
+
+	// Check for blocked systems
+
+	const auto clientSystem = Hk::Player::GetSystem(clientID);
+	const auto targetSystem = Hk::Player::GetSystem(targetCharacter);
+
+	if (clientSystem.has_error() || targetSystem.has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Please contact an administrator");
+		AddLog(LogType::UserLogCmds, LogLevel::Err, std::format("Invalid GetSystem() when {} called /givecash", wstos(characterName)));
+		Console::ConErr(std::format("Invalid GetSystem() when {} called /givecash", wstos(characterName)));
+		return;
+	}
+
+	if ((std::ranges::find(FLHookConfig::i()->general.noGiveCashSystemsHashed, clientSystem.value()) !=
+	        FLHookConfig::i()->general.noGiveCashSystemsHashed.end()) ||
+	    (std::ranges::find(FLHookConfig::i()->general.noGiveCashSystemsHashed, targetSystem.value()) !=
+	        FLHookConfig::i()->general.noGiveCashSystemsHashed.end()))
+	{
+		PrintUserCmdText(clientID, L"Cash transfer blocked");
+		return;
+	}
+
+	// Read the current number of credits for the player
+	// and check that the character has enough cash.
+	const auto currentCash = Hk::Player::GetCash(characterName);
+	if (currentCash.has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Getting current cash.");
+		return;
+	}
+	if (currentCash.value() < cash)
+	{
+		PrintUserCmdText(clientID, L"Error: Insufficient credits");
+		return;
+	}
+
+	// Prevent target ship from becoming corrupt.
+	const auto targetValue = Hk::Player::GetShipValue(targetCharacter);
+	if (targetValue.has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Error getting ship value");
+		return;
+	}
+	if ((targetValue.value() + static_cast<float>(cash)) > 2000000000.0f)
+	{
+		PrintUserCmdText(clientID, L"Error: Transfer will exceed credit limit");
+		return;
+	}
+
+	// Calculate the new cash
+	const auto expectedCashTarget = Hk::Player::GetCash(targetCharacter);
+	if (expectedCashTarget.has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Get cash on target player failed");
+		return;
+	}
+	int expectedCash = expectedCashTarget.value() + cash;
+
+	// Do an anticheat check on the receiving character first.
+	const auto targetClientId = Hk::Client::GetClientIdFromCharName(targetCharacter);
+	if (targetClientId.value() && !Hk::Client::IsInCharSelectMenu(targetClientId.value()))
+	{
+		if (Hk::Player::AntiCheat(targetClientId.value()).has_error())
+		{
+			PrintUserCmdText(clientID, L"Error: Transfer failed");
+
+			AddLog(LogType::Cheater,
+			    LogLevel::Info,
+			    std::format("Possible cheating when sending {} credits from {} ({}) to {} ({})",
+			        wstos(ToMoneyStr(cash)),
+			        wstos(characterName),
+			        wstos(Hk::Client::GetAccountIdByClientID(clientID)),
+			        wstos(targetCharacter),
+			        wstos(Hk::Client::GetAccountIdByClientID(targetClientId.value()))));
+			return;
+		}
+		Hk::Player::SaveChar(targetClientId.value());
+	}
+
+	if (targetClientId.value() && (ClientInfo[clientID].iTradePartner || ClientInfo[targetClientId.value()].iTradePartner))
+	{
+		PrintUserCmdText(clientID, L"Error: Trade window open");
+		AddLog(LogType::Normal,
+		    LogLevel::Info,
+		    std::format("Trade window open when sending {} credits from {} ({}) to {} ({}) {} {}",
+		        wstos(ToMoneyStr(cash)),
+		        wstos(characterName),
+		        wstos(Hk::Client::GetAccountIdByClientID(clientID)),
+		        wstos(targetCharacter),
+		        wstos(Hk::Client::GetAccountIdByClientID(targetClientId.value())),
+		        clientID,
+		        targetClientId.value()));
+		return;
+	}
+
+	// Remove cash from current character and save it checking that the
+	// save completes before allowing the cash to be added to the target ship.
+	if (Hk::Player::AddCash(characterName, 0 - cash).has_error())
+	{
+		PrintUserCmdText(clientID, L"Remove cash failed.");
+		return;
+	}
+
+	if (Hk::Player::AntiCheat(clientID).has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Transfer failed");
+		AddLog(LogType::Cheater,
+		    LogLevel::Info,
+		    std::format("Possible cheating when sending {} credits from {} ({}) to {} ({})",
+		        wstos(ToMoneyStr(cash)),
+		        wstos(characterName),
+		        wstos(Hk::Client::GetAccountIdByClientID(clientID)),
+		        wstos(targetCharacter),
+		        wstos(Hk::Client::GetAccountIdByClientID(targetClientId.value()))));
+		return;
+	}
+	Hk::Player::SaveChar(clientID);
+
+	// Add cash to target character
+	if (Hk::Player::AddCash(targetCharacter, cash).has_error())
+	{
+		PrintUserCmdText(clientID, L"Error: Transfer failed");
+		return;
+	}
+	Hk::Player::SaveChar(targetClientId.value());
+
+	// Check that receiving character has the correct amount of cash.
+	if (const auto targetCurrentCash = Hk::Player::GetCash(targetCharacter); !targetCurrentCash.has_error() && targetCurrentCash.value() != expectedCash)
+	{
+		AddLog(LogType::Normal,
+		    LogLevel::Err,
+		    std::format("Cash transfer error when sending {} credits from {} ({}) "
+		                "to {} ({}) current {} credits expected {} credits ",
+		        wstos(ToMoneyStr(cash)),
+		        wstos(characterName),
+		        wstos(Hk::Client::GetAccountIdByClientID(clientID)),
+		        wstos(targetCharacter),
+		        wstos(Hk::Client::GetAccountIdByClientID(targetClientId.value())),
+		        wstos(ToMoneyStr(targetCurrentCash.value())),
+		        wstos(ToMoneyStr(expectedCash))));
+		PrintUserCmdText(clientID, L"Error: Transfer failed");
+		return;
+	}
+
+	// If the target player is online then send them a message saying
+	// telling them that they've received the cash.
+
+	if (targetClientId && !Hk::Client::IsInCharSelectMenu(targetClientId.value()))
+	{
+		const std::wstring msg = L"You have received " + ToMoneyStr(cash) + L" credits from " + (anon ? L"anonymous" : characterName);
+		PrintUserCmdText(targetClientId.value(), std::format(L"{}", msg));
+	}
+
+	AddLog(LogType::Normal,
+	    LogLevel::Info,
+	    std::format("Send {} credits from {} ({}) to {} ({})",
+	        wstos(ToMoneyStr(cash)),
+	        wstos(characterName),
+	        wstos(Hk::Client::GetAccountIdByClientID(clientID)),
+	        wstos(targetCharacter),
+	        wstos(Hk::Client::GetAccountIdByClientID(targetClientId.value()))));
+
+	// A friendly message explaining the transfer.
+	std::wstring msg = L"You have sent " + ToMoneyStr(cash) + L" credits to " + targetCharacter;
+	if (anon)
+		msg += L" anonymously";
+	PrintUserCmdText(clientID, std::format(L"{}", msg));
+	return;
+}
+
+//! Process a give cash command by ID
+void UserCmdGiveCashID(const uint& clientID, const std::wstring& param)
+{
+	std::wstring targetCharacterID = GetParam(param, L' ', 1);
+	std::wstring cash = GetParam(param, L' ', 2);
+	std::wstring anon = GetParam(param, L' ', 3);
+
+	const auto targetCharacterName = Hk::Client::GetCharacterNameByID(ToUInt(targetCharacterID));
+	if (targetCharacterName.has_error())
+	{
+		PrintUserCmdText(clientID, L"Invalid client id. Use /ids to get the correct id.");
+		return;
+	}
+
+	UserCmdGiveCash(clientID, L" " + targetCharacterName.value() + L" " + cash + L" " + anon);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
@@ -622,6 +855,8 @@ const std::vector UserCmds = {{
     CreateUserCommand(L"/maillist", L"/maillist <page> [unread]", UserCmdListMail,
         L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
     CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
+    CreateUserCommand(CmdArr({L"/givecash", L"/gc", L"/sendcash"}), L"/givecash <character> <amount> [anon]", UserCmdGiveCash, L""),
+    CreateUserCommand(CmdArr({L"/givecash$", L"/gc$", L"/sendcash$"}), L"/givecash$ <id> <amount> [anon]", UserCmdGiveCashID, L"")
 }};
 
 bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)

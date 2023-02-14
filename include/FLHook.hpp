@@ -180,9 +180,15 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::vector<std::wstring> chatSuppressList;
 		//! Vector of systems where players can't deal damage to one another.
 		std::vector<std::string> noPVPSystems;
-
 		std::vector<uint> noPVPSystemsHashed;
 
+		//! Vector of systems where a player cannot use /givecash
+		std::vector<std::string> noGiveCashSystems;
+		std::vector<uint> noGiveCashSystemsHashed;
+		
+		//! Minimum time online a player needs to be online to use the /givecash command
+		int giveCashMinimumTimeOnline = 0;
+		
 		//! Amount of time spent idly on a base resulting in a server kick, in seconds.
 		uint antiBaseIdle = 600;
 		//! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
@@ -263,7 +269,8 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
     field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(dockingMessages), field(localTime), field(maxGroupSize),
     field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
-    field(noPVPSystems), field(echoCommands), field(suppressInvalidCommands), field(antiBaseIdle), field(antiCharMenuIdle))
+    field(noPVPSystems), field(echoCommands), field(suppressInvalidCommands), field(antiBaseIdle), field(antiCharMenuIdle), field(noGiveCashSystems),
+    field(giveCashMinimumTimeOnline))
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
 REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
 REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg), field(userCmdStyle),
