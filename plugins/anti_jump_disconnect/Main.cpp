@@ -25,14 +25,11 @@
 // Includes
 #include "Main.h"
 
+constexpr auto TEMPBAN_DURATION = 5;
+
 namespace Plugins::AntiJumpDisconnect
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
-
-	void LoadSettings()
-	{
-		global->tempBanCommunicator = static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
-	}
 
 	void ClearClientInfo(ClientId& client) { global->mapInfo[client].bInWrapGate = false; }
 
@@ -50,11 +47,8 @@ namespace Plugins::AntiJumpDisconnect
 				return;
 			}
 
-			if (global->tempBanCommunicator)
-			{
-				const auto charName = Hk::Client::GetCharacterNameByID(client);
-				global->tempBanCommunicator->TempBan(charName.value(), static_cast<uint>(5));
-			}
+			//tempban for 5 minutes
+			TempBanManager::i()->AddTempBan(client, TEMPBAN_DURATION);
 		}
 	}
 
@@ -103,7 +97,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
 	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tempban/Main.h"
+#include "Features/TempBan.hpp"
 
 #include <FLHook.hpp>
 #include <plugin.h>
@@ -11,9 +11,6 @@ namespace Plugins::AntiJumpDisconnect
 	struct Global final
 	{
 		ReturnCode returncode = ReturnCode::Default;
-
-		//! This plugin communicates with the Temp Ban plugin
-		Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 
 		struct INFO
 		{

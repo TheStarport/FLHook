@@ -1,5 +1,6 @@
 #include "Global.hpp"
 #include "Features/Mail.hpp"
+#include "Features/TempBan.hpp"
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
@@ -3579,6 +3580,12 @@ namespace IServerImplHook
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		Login__InnerAfter(li, client);
+
+		if (TempBanManager::i()->CheckIfTempBanned(client))
+		{
+			Hk::Player::Kick(client);
+			return;
+		}
 
 		CallPluginsAfter(HookedCall::IServerImpl__Login, li, client);
 	}
