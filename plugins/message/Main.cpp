@@ -535,7 +535,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Show preset messages
 	 */
-	void UserCmd_ShowMsgs(ClientId& client, const std::wstring& param)
+	void UserCmd_ShowMsgs(ClientId& client,[[maybe_unused]] const std::wstring& param)
 	{
 		if (!global->config->enableSetMessage)
 		{
@@ -629,7 +629,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Shows the sender of the last PM and the last char targeted
 	 */
-	void UserCmd_ShowLastPMSender(ClientId& client, const std::wstring& param)
+	void UserCmd_ShowLastPMSender(ClientId& client,[[maybe_unused]] const std::wstring& param)
 	{
 		const auto iter = global->info.find(client);
 		if (iter == global->info.end())
@@ -849,7 +849,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Prints the current server time.
 	 */
-	void UserCmd_Time(ClientId& client, const std::wstring& param)
+	void UserCmd_Time(ClientId& client,[[maybe_unused]] const std::wstring& param)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
 		PrintUserCmdText(client, GetTimeString(FLHookConfig::i()->general.localTime));
@@ -939,7 +939,7 @@ namespace Plugins::Message
 using namespace Plugins::Message;
 REFL_AUTO(type(Config), field(greetingBannerLines), field(specialBannerLines), field(standardBannerLines), field(specialBannerTimeout),
     field(standardBannerTimeout), field(customHelp), field(suppressMistypedCommands), field(enableSetMessage), field(enableMe), field(enableDo),
-    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange), field(swearWords))
+    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange), field(swearWords), field(swearingTempBanLength))
 
 DefaultDllMainSettings(LoadSettings);
 
