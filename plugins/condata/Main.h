@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Features/TempBan.hpp"
 #include <FLHook.hpp>
 #include "plugin.h"
 

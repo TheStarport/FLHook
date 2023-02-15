@@ -26,6 +26,7 @@
  */
 
 #include "Main.h"
+#include "Features/TempBan.hpp"
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \

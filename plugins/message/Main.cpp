@@ -55,6 +55,7 @@
 
 #include "Main.h"
 #include "Features/Mail.hpp"
+#include "Features/TempBan.hpp"
 
 namespace Plugins::Message
 {
@@ -408,8 +409,8 @@ namespace Plugins::Message
 						        wscChatMsg.c_str())));
 
 						TempBanManager::i()->AddTempBan(client,
-						    global->config->swearingTempBanLength,
-						    std::format(L"Swearing tempban for {} minutes.", global->config->swearingTempBanLength));
+						    global->config->swearingTempBanDuration,
+						    std::format(L"Swearing tempban for {} minutes.", global->config->swearingTempBanDuration));
 
 						if (global->config->disconnectSwearingInSpaceRange > 0.0f)
 						{
@@ -939,7 +940,7 @@ namespace Plugins::Message
 using namespace Plugins::Message;
 REFL_AUTO(type(Config), field(greetingBannerLines), field(specialBannerLines), field(standardBannerLines), field(specialBannerTimeout),
     field(standardBannerTimeout), field(customHelp), field(suppressMistypedCommands), field(enableSetMessage), field(enableMe), field(enableDo),
-    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange), field(swearWords), field(swearingTempBanLength))
+    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange), field(swearWords), field(swearingTempBanDuration))
 
 DefaultDllMainSettings(LoadSettings);
 

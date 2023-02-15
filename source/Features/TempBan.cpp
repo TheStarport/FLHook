@@ -18,7 +18,6 @@ void TempBanManager::ClearFinishedTempBans()
 	}
 }
 
-
 void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::wstring& banReason)
 {
 	if (!FLHookConfig::i()->general.tempBansEnabled)
