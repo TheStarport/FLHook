@@ -30,8 +30,7 @@ var searchData=
   ['stats_27',['Stats',['../namespace_plugins_1_1_stats.html',1,'Plugins']]],
   ['systemsensor_28',['SystemSensor',['../namespace_plugins_1_1_system_sensor.html',1,'Plugins']]],
   ['tax_29',['Tax',['../namespace_plugins_1_1_tax.html',1,'Plugins']]],
-  ['tempban_30',['Tempban',['../namespace_plugins_1_1_tempban.html',1,'Plugins']]],
-  ['template_31',['Template',['../namespace_plugins_1_1_template.html',1,'Plugins']]],
-  ['wardrobe_32',['Wardrobe',['../namespace_plugins_1_1_wardrobe.html',1,'Plugins']]],
-  ['warehouse_33',['Warehouse',['../namespace_plugins_1_1_warehouse.html',1,'Plugins']]]
+  ['template_30',['Template',['../namespace_plugins_1_1_template.html',1,'Plugins']]],
+  ['wardrobe_31',['Wardrobe',['../namespace_plugins_1_1_wardrobe.html',1,'Plugins']]],
+  ['warehouse_32',['Warehouse',['../namespace_plugins_1_1_warehouse.html',1,'Plugins']]]
 ];

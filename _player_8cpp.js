@@ -55,6 +55,7 @@ var _player_8cpp =
     [ "SetPvpKills", "_player_8cpp.html#a0c459506c469564b7d8768c133539a9f", null ],
     [ "SetRep", "_player_8cpp.html#ab9000615cd0bdd2338a20a51be8fbe22", null ],
     [ "SetReservedSlot", "_player_8cpp.html#aecbc68af44cf31b366c9bf2f11c7be78", null ],
+    [ "TempBan", "_player_8cpp.html#a26f05684ba2d902861139a8fd56953b8", null ],
     [ "WriteCharFile", "_player_8cpp.html#ae042343c096f2e087a84d9f20cde6364", null ],
     [ "AddrAntiCheat1", "_player_8cpp.html#a6607f0fb5cd5cdd1dba5d74514cb465f", null ],
     [ "AddrAntiCheat2", "_player_8cpp.html#a358460693ef0a3b8f15fcb11d3a72f09", null ],

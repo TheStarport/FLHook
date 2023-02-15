@@ -13,5 +13,6 @@ var struct_plugins_1_1_message_1_1_config =
     [ "standardBannerLines", "struct_plugins_1_1_message_1_1_config.html#ad96615779c8b88dfd5664f52d0ba6fe4", null ],
     [ "standardBannerTimeout", "struct_plugins_1_1_message_1_1_config.html#ac6f8343d9a576ae09e0d132d2fa51eee", null ],
     [ "suppressMistypedCommands", "struct_plugins_1_1_message_1_1_config.html#a99fa18d34c0161540dd186b56e81cb9d", null ],
+    [ "swearingTempBanDuration", "struct_plugins_1_1_message_1_1_config.html#a9a86845b2836ee7cafeacb0ce3bc668f", null ],
     [ "swearWords", "struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e", null ]
 ];

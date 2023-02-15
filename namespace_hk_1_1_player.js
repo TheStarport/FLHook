@@ -56,6 +56,7 @@ var namespace_hk_1_1_player =
     [ "SetPvpKills", "namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f", null ],
     [ "SetRep", "namespace_hk_1_1_player.html#ab9000615cd0bdd2338a20a51be8fbe22", null ],
     [ "SetReservedSlot", "namespace_hk_1_1_player.html#aecbc68af44cf31b366c9bf2f11c7be78", null ],
+    [ "TempBan", "namespace_hk_1_1_player.html#a26f05684ba2d902861139a8fd56953b8", null ],
     [ "WriteCharFile", "namespace_hk_1_1_player.html#ae042343c096f2e087a84d9f20cde6364", null ],
     [ "AddrAntiCheat1", "namespace_hk_1_1_player.html#a6607f0fb5cd5cdd1dba5d74514cb465f", null ],
     [ "AddrAntiCheat2", "namespace_hk_1_1_player.html#a358460693ef0a3b8f15fcb11d3a72f09", null ],

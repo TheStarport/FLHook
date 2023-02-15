@@ -26,7 +26,6 @@ var modules =
     [ "Stats", "group___stats.html", null ],
     [ "System Sensor", "group___system_sensor.html", null ],
     [ "Tax", "group___tax.html", null ],
-    [ "Tempban", "group___tempban.html", null ],
     [ "Wardrobe", "group___wardrobe.html", null ],
     [ "Warehouse", "group___warehouse.html", null ]
 ];

@@ -83,6 +83,7 @@ var _global_8hpp =
     [ "TimerCheckKick", "_global_8hpp.html#a3e07380fc498d9fd436873fe81231b12", null ],
     [ "TimerCheckResolveResults", "_global_8hpp.html#a586933d3f4ccf7ed220a265bc01061db", null ],
     [ "TimerNPCAndF1Check", "_global_8hpp.html#a5c70061a05210613845d21b6b958a2c1", null ],
+    [ "TimerTempBanCheck", "_global_8hpp.html#a45998451f6b520e45759652371d82655", null ],
     [ "ToLogString", "_global_8hpp.html#a8478433125234d71b413e709cc579b44", null ],
     [ "ToUShort", "_global_8hpp.html#a6f34d668ea19fec009369165c5275fbc", null ],
     [ "ToUShort", "_global_8hpp.html#a10d462188ee546e38acb10665183eede", null ],

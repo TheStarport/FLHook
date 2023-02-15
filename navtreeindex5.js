@@ -1,9 +1,5 @@
 var NAVTREEINDEX5 =
 {
-"group___condata.html#ga89003600c8d202836aa21e287be640ff":[2,0,8,5],
-"group___condata.html#ga898530f78b8fe58f8cfc698215520d46":[2,0,8,7],
-"group___condata.html#gaa6efc46e48140eca99e363fb6b34dd2a":[2,0,8,8],
-"group___condata.html#gaa9ab4e9c67653346b5dd52eccae817ac":[2,0,8,6],
 "group___condata.html#gab9386993f10c8706199d2dfa4901c6ad":[2,0,8,2],
 "group___condata.html#gae71b3fdaa1fb25940c78d08543827fc7":[2,0,8,11],
 "group___condata.html#gae9b828563a546d1f586b64155108d879":[2,0,8,3],
@@ -130,9 +126,8 @@ var NAVTREEINDEX5 =
 "group___stats.html":[2,0,23],
 "group___system_sensor.html":[2,0,24],
 "group___tax.html":[2,0,25],
-"group___tempban.html":[2,0,26],
-"group___wardrobe.html":[2,0,27],
-"group___warehouse.html":[2,0,28],
+"group___wardrobe.html":[2,0,26],
+"group___warehouse.html":[2,0,27],
 "hierarchy.html":[2,2,2],
 "index.html":[],
 "ip__ban_2_main_8cpp.html":[2,3,0,1,14,0],
@@ -203,10 +198,10 @@ var NAVTREEINDEX5 =
 "md_docs__usage__logging.html":[0,1],
 "md_docs__usage__x_m_l__text__reference.html":[0,2],
 "message_2_main_8cpp.html":[2,3,0,1,18,0],
+"message_2_main_8cpp.html#a1859113aa276dfe23504993041ccb69e":[2,3,0,1,18,0,9],
 "message_2_main_8cpp.html#a7294e24d18f17d58fb523bc4225d5941":[2,3,0,1,18,0,37],
 "message_2_main_8cpp.html#a89713dae136c372a9d18d138e5ce7986":[2,3,0,1,18,0,38],
 "message_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,18,0,3],
-"message_2_main_8cpp.html#ac0b29e19caaf347afbf1fb867192c23a":[2,3,0,1,18,0,9],
 "message_2_main_8cpp.html#af1f4e1d8ea38733e997b5eed9ec26a08":[2,3,0,1,18,0,4],
 "message_2_main_8cpp.html#afb65d0c9431eb715739ee2dca350781a":[2,3,0,1,18,0,36],
 "message_2_main_8h.html":[2,3,0,1,18,1],
@@ -249,5 +244,10 @@ var NAVTREEINDEX5 =
 "misc__commands_2_main_8h_source.html":[2,3,0,1,20,1],
 "modules.html":[2,0],
 "namespace_hk.html":[2,1,0,0],
-"namespace_hk_1_1_admin.html":[2,1,0,0,0]
+"namespace_hk_1_1_admin.html":[2,1,0,0,0],
+"namespace_hk_1_1_admin.html#a232028987f6c4ad4fb3cabd4634cef1e":[2,1,0,0,0,12],
+"namespace_hk_1_1_admin.html#a248ac24c4160be4319f1da39543ebb41":[2,1,0,0,0,4],
+"namespace_hk_1_1_admin.html#a373d40a2d805abe6e353a8f8d7f0abee":[2,1,0,0,0,0],
+"namespace_hk_1_1_admin.html#a3c29a478faa49ec2221c6f8b4488775b":[2,1,0,0,0,9],
+"namespace_hk_1_1_admin.html#a3f50b2eee0e585f2262cebc95f95aebb":[2,1,0,0,0,14]
 };

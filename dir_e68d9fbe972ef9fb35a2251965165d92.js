@@ -5,6 +5,7 @@ var dir_e68d9fbe972ef9fb35a2251965165d92 =
     [ "Mail.cpp", "_mail_8cpp.html", null ],
     [ "PluginManager.cpp", "_plugin_manager_8cpp.html", null ],
     [ "StartupCache.cpp", "_startup_cache_8cpp.html", "_startup_cache_8cpp" ],
+    [ "TempBan.cpp", "_temp_ban_8cpp.html", null ],
     [ "Timers.cpp", "source_2_features_2_timers_8cpp.html", "source_2_features_2_timers_8cpp" ],
     [ "UserCommands.cpp", "source_2_features_2_user_commands_8cpp.html", "source_2_features_2_user_commands_8cpp" ]
 ];

@@ -160,11 +160,6 @@ var annotated_dup =
         [ "Global", "struct_plugins_1_1_tax_1_1_global.html", "struct_plugins_1_1_tax_1_1_global" ],
         [ "Tax", "struct_plugins_1_1_tax_1_1_tax.html", "struct_plugins_1_1_tax_1_1_tax" ]
       ] ],
-      [ "Tempban", "namespace_plugins_1_1_tempban.html", [
-        [ "Global", "struct_plugins_1_1_tempban_1_1_global.html", "struct_plugins_1_1_tempban_1_1_global" ],
-        [ "TempBanCommunicator", "class_plugins_1_1_tempban_1_1_temp_ban_communicator.html", "class_plugins_1_1_tempban_1_1_temp_ban_communicator" ],
-        [ "TempbanInfo", "struct_plugins_1_1_tempban_1_1_tempban_info.html", "struct_plugins_1_1_tempban_1_1_tempban_info" ]
-      ] ],
       [ "Template", "namespace_plugins_1_1_template.html", [
         [ "Config", "struct_plugins_1_1_template_1_1_config.html", "struct_plugins_1_1_template_1_1_config" ],
         [ "Global", "struct_plugins_1_1_template_1_1_global.html", "struct_plugins_1_1_template_1_1_global" ]

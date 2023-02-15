@@ -38,7 +38,6 @@ var namespace_plugins =
     [ "Stats", "namespace_plugins_1_1_stats.html", "namespace_plugins_1_1_stats" ],
     [ "SystemSensor", "namespace_plugins_1_1_system_sensor.html", "namespace_plugins_1_1_system_sensor" ],
     [ "Tax", "namespace_plugins_1_1_tax.html", "namespace_plugins_1_1_tax" ],
-    [ "Tempban", "namespace_plugins_1_1_tempban.html", "namespace_plugins_1_1_tempban" ],
     [ "Template", "namespace_plugins_1_1_template.html", "namespace_plugins_1_1_template" ],
     [ "Wardrobe", "namespace_plugins_1_1_wardrobe.html", "namespace_plugins_1_1_wardrobe" ],
     [ "Warehouse", "namespace_plugins_1_1_warehouse.html", "namespace_plugins_1_1_warehouse" ]

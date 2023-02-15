@@ -52,12 +52,13 @@ var searchData=
   ['strinfo2_49',['StrInfo2',['../namespace_plugins_1_1_arena.html#a8049c0ee7a91eb399e71e1e1d87bbc47',1,'Plugins::Arena']]],
   ['stuckmessage_50',['stuckMessage',['../struct_plugins_1_1_misc_commands_1_1_config.html#a015c3c51e8482df9a05d3e08c8139e85',1,'Plugins::MiscCommands::Config']]],
   ['suppressmistypedcommands_51',['suppressMistypedCommands',['../struct_plugins_1_1_message_1_1_config.html#a99fa18d34c0161540dd186b56e81cb9d',1,'Plugins::Message::Config']]],
-  ['swearwords_52',['swearWords',['../struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e',1,'Plugins::Message::Config']]],
-  ['swearwordwarnings_53',['swearWordWarnings',['../class_plugins_1_1_message_1_1_client_info.html#a995a9d51d37f43d2f87e04854fddf5e9',1,'Plugins::Message::ClientInfo']]],
-  ['swlisten_54',['sWListen',['../_f_l_hook_8cpp.html#a0f489b18b1a5ca31ae801f6b1a4e42bd',1,'FLHook.cpp']]],
-  ['system_55',['system',['../struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html#a655f68147ef92fde0ccff72660cbcbb9',1,'Plugins::Event::NPC_MISSION::system()'],['../struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html#a214b33b627aa3011a5182d40d5f3e032',1,'Plugins::Event::Config::NPC_MISSION_REFLECTABLE::system()'],['../struct_plugins_1_1_npc_1_1_startup_npc.html#af369ef1ab7d0170565eaeb52084e3130',1,'Plugins::Npc::StartupNpc::system()']]],
-  ['systemid_56',['systemId',['../struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html#a15656c556ec01d20159ec761f9defd14',1,'Plugins::SystemSensor::ReflectableSensor::systemId()'],['../struct_plugins_1_1_system_sensor_1_1_sensor.html#aa41ea80ab5a0596d08176f10888a6f9d',1,'Plugins::SystemSensor::Sensor::systemId()'],['../struct_plugins_1_1_npc_1_1_startup_npc.html#a4dcf0587ecb0f52c05e5d31a4e35523a',1,'Plugins::Npc::StartupNpc::systemId()']]],
-  ['sz_57',['sz',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#ab0e009de97e00c99932c66f741ad8313',1,'Hk::Player::EQ_ITEM']]],
-  ['szmessage_58',['szMessage',['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#ab745c4c63d1ff6ce119977feacd1b8aa',1,'ACTION_DEBUGMSG_DATA']]],
-  ['szrepfreefixold_59',['szRepFreeFixOld',['../_hk_init_8cpp.html#a097f5bd21491bd6a9100863bc8331450',1,'HkInit.cpp']]]
+  ['swearingtempbanduration_52',['swearingTempBanDuration',['../struct_plugins_1_1_message_1_1_config.html#a9a86845b2836ee7cafeacb0ce3bc668f',1,'Plugins::Message::Config']]],
+  ['swearwords_53',['swearWords',['../struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e',1,'Plugins::Message::Config']]],
+  ['swearwordwarnings_54',['swearWordWarnings',['../class_plugins_1_1_message_1_1_client_info.html#a995a9d51d37f43d2f87e04854fddf5e9',1,'Plugins::Message::ClientInfo']]],
+  ['swlisten_55',['sWListen',['../_f_l_hook_8cpp.html#a0f489b18b1a5ca31ae801f6b1a4e42bd',1,'FLHook.cpp']]],
+  ['system_56',['system',['../struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html#a655f68147ef92fde0ccff72660cbcbb9',1,'Plugins::Event::NPC_MISSION::system()'],['../struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html#a214b33b627aa3011a5182d40d5f3e032',1,'Plugins::Event::Config::NPC_MISSION_REFLECTABLE::system()'],['../struct_plugins_1_1_npc_1_1_startup_npc.html#af369ef1ab7d0170565eaeb52084e3130',1,'Plugins::Npc::StartupNpc::system()']]],
+  ['systemid_57',['systemId',['../struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html#a15656c556ec01d20159ec761f9defd14',1,'Plugins::SystemSensor::ReflectableSensor::systemId()'],['../struct_plugins_1_1_system_sensor_1_1_sensor.html#aa41ea80ab5a0596d08176f10888a6f9d',1,'Plugins::SystemSensor::Sensor::systemId()'],['../struct_plugins_1_1_npc_1_1_startup_npc.html#a4dcf0587ecb0f52c05e5d31a4e35523a',1,'Plugins::Npc::StartupNpc::systemId()']]],
+  ['sz_58',['sz',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#ab0e009de97e00c99932c66f741ad8313',1,'Hk::Player::EQ_ITEM']]],
+  ['szmessage_59',['szMessage',['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#ab745c4c63d1ff6ce119977feacd1b8aa',1,'ACTION_DEBUGMSG_DATA']]],
+  ['szrepfreefixold_60',['szRepFreeFixOld',['../_hk_init_8cpp.html#a097f5bd21491bd6a9100863bc8331450',1,'HkInit.cpp']]]
 ];

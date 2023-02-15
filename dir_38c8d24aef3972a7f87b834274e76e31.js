@@ -30,7 +30,6 @@ var dir_38c8d24aef3972a7f87b834274e76e31 =
     [ "stats", "dir_7424dc18e30a3bb9316ef45b569ea0b6.html", "dir_7424dc18e30a3bb9316ef45b569ea0b6" ],
     [ "system_sensor", "dir_ad675f14a9b14ad0849db2548d60d996.html", "dir_ad675f14a9b14ad0849db2548d60d996" ],
     [ "tax", "dir_5db75579f42a42586f7a50c564563170.html", "dir_5db75579f42a42586f7a50c564563170" ],
-    [ "tempban", "dir_6b68dce3c11b84328de13ffc9ad6971b.html", "dir_6b68dce3c11b84328de13ffc9ad6971b" ],
     [ "wardrobe", "dir_d643c5f46465509136328ed8118ca85c.html", "dir_d643c5f46465509136328ed8118ca85c" ],
     [ "warehouse", "dir_84f2740fd9eab9859a47d878cd5f3f0e.html", "dir_84f2740fd9eab9859a47d878cd5f3f0e" ]
 ];

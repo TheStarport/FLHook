@@ -54,7 +54,6 @@ var hierarchy =
     [ "Plugins::Stats::Global", "struct_plugins_1_1_stats_1_1_global.html", null ],
     [ "Plugins::SystemSensor::Global", "struct_plugins_1_1_system_sensor_1_1_global.html", null ],
     [ "Plugins::Tax::Global", "struct_plugins_1_1_tax_1_1_global.html", null ],
-    [ "Plugins::Tempban::Global", "struct_plugins_1_1_tempban_1_1_global.html", null ],
     [ "Plugins::Template::Global", "struct_plugins_1_1_template_1_1_global.html", null ],
     [ "Plugins::Wardrobe::Global", "struct_plugins_1_1_wardrobe_1_1_global.html", null ],
     [ "Plugins::Warehouse::Global", "struct_plugins_1_1_warehouse_1_1_global.html", null ],
@@ -74,8 +73,7 @@ var hierarchy =
     [ "Plugins::Event::NPC_MISSION", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html", null ],
     [ "PluginCommunicator", null, [
       [ "Plugins::CashManager::CashManagerCommunicator", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html", null ],
-      [ "Plugins::ConData::ConDataCommunicator", "class_plugins_1_1_con_data_1_1_con_data_communicator.html", null ],
-      [ "Plugins::Tempban::TempBanCommunicator", "class_plugins_1_1_tempban_1_1_temp_ban_communicator.html", null ]
+      [ "Plugins::ConData::ConDataCommunicator", "class_plugins_1_1_con_data_1_1_con_data_communicator.html", null ]
     ] ],
     [ "PluginData", "struct_plugin_data.html", null ],
     [ "PluginHookData", "struct_plugin_hook_data.html", null ],
@@ -137,7 +135,6 @@ var hierarchy =
     ] ],
     [ "SOCKET_CONNECTION", "struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html", null ],
     [ "Plugins::Tax::Tax", "struct_plugins_1_1_tax_1_1_tax.html", null ],
-    [ "Plugins::Tempban::TempbanInfo", "struct_plugins_1_1_tempban_1_1_tempban_info.html", null ],
     [ "Plugins::Mark::TIMER", "struct_plugins_1_1_mark_1_1_t_i_m_e_r.html", null ],
     [ "Plugins::CashManager::Transaction", "struct_plugins_1_1_cash_manager_1_1_transaction.html", null ],
     [ "TRIGGER_ARG", "struct_t_r_i_g_g_e_r___a_r_g.html", null ],

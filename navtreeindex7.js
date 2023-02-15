@@ -1,9 +1,5 @@
 var NAVTREEINDEX7 =
 {
-"namespace_i_server_impl_hook.html#a11d0bb9d730bd9cfe1080f5413e8b9cd":[2,1,0,3,22],
-"namespace_i_server_impl_hook.html#a15c4ecd25039b1ef17f4a86ab84857d3":[2,1,0,3,2],
-"namespace_i_server_impl_hook.html#a161e66da570eafc23f0da8f1ccde668b":[2,1,0,3,45],
-"namespace_i_server_impl_hook.html#a17d416d07958f7dfd0cd499485823285":[2,1,0,3,112],
 "namespace_i_server_impl_hook.html#a18cb360d69d72c5e5bb511bc38964df8":[2,1,0,3,111],
 "namespace_i_server_impl_hook.html#a19754287c70bd7f6e4c0ae38df069f64":[2,1,0,3,80],
 "namespace_i_server_impl_hook.html#a1b220538d594f5f0065f0a33a361dc27":[2,1,0,3,115],
@@ -118,9 +114,8 @@ var NAVTREEINDEX7 =
 "namespace_plugins_1_1_afk.html#ac3f34147f3c9d865dfe059ee6bf60e50":[2,1,0,4,0,7],
 "namespace_plugins_1_1_afk.html#ad423c507d5a916a456bfab9dd1b13dfb":[2,1,0,4,0,2],
 "namespace_plugins_1_1_anti_jump_disconnect.html":[2,1,0,4,1],
-"namespace_plugins_1_1_anti_jump_disconnect.html#a402bac15c0e5edb26845b72c7a2ac20d":[2,1,0,4,1,6],
 "namespace_plugins_1_1_anti_jump_disconnect.html#aa9209b6f752dc0f0e1b83a050210cf6f":[2,1,0,4,1,2],
-"namespace_plugins_1_1_anti_jump_disconnect.html#ad1f4c53d7b528111cacd983cf9ab584b":[2,1,0,4,1,8],
+"namespace_plugins_1_1_anti_jump_disconnect.html#ad1f4c53d7b528111cacd983cf9ab584b":[2,1,0,4,1,7],
 "namespace_plugins_1_1_arena.html":[2,1,0,4,2],
 "namespace_plugins_1_1_arena.html#a01a34b4d2889587850c765180302c942":[2,1,0,4,2,17],
 "namespace_plugins_1_1_arena.html#a0ce5563ec17030250f65c20c59878b40":[2,1,0,4,2,5],
@@ -249,5 +244,10 @@ var NAVTREEINDEX7 =
 "namespace_plugins_1_1_mark.html#a232b02dd221a829cf5a7c417a557ebae":[2,1,0,4,15,19],
 "namespace_plugins_1_1_mark.html#a25b44f2211ea1df0bfd406c3694f85fc":[2,1,0,4,15,13],
 "namespace_plugins_1_1_mark.html#a2bca37fb36ec39785a5d3bc68d9eabc7":[2,1,0,4,15,29],
-"namespace_plugins_1_1_mark.html#a311db777c6bed2a726c1fef33a7db632":[2,1,0,4,15,28]
+"namespace_plugins_1_1_mark.html#a311db777c6bed2a726c1fef33a7db632":[2,1,0,4,15,28],
+"namespace_plugins_1_1_mark.html#a494c17e45ec73c49cc27a423914e5518":[2,1,0,4,15,20],
+"namespace_plugins_1_1_mark.html#a4e4c9598f27752fa03d542ff91e7b8a6":[2,1,0,4,15,14],
+"namespace_plugins_1_1_mark.html#a6365c285a847728055fb7bc4d65b7f34":[2,1,0,4,15,17],
+"namespace_plugins_1_1_mark.html#a72171af8694409314498a81affd290f1":[2,1,0,4,15,25],
+"namespace_plugins_1_1_mark.html#a767ece81b00525bdb7ad8b7dfb0a7839":[2,1,0,4,15,24]
 };

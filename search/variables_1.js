@@ -3,7 +3,7 @@ var searchData=
   ['acc_5fpath_0',['acc_path',['../struct_startup_cache_1_1_name_info.html#aba53897191cb9c26661c718c1baa5dc2',1,'StartupCache::NameInfo']]],
   ['accepted_1',['accepted',['../struct_plugins_1_1_betting_1_1_duel.html#a16fd3030293e1698e2c383e11bb14c08',1,'Plugins::Betting::Duel::accepted()'],['../struct_plugins_1_1_betting_1_1_contestant.html#a09bcaac9b4df3f3ecfdad1c2a8d70e14',1,'Plugins::Betting::Contestant::accepted()']]],
   ['accessor_2',['accessor',['../struct_plugins_1_1_cash_manager_1_1_transaction.html#ab568891099300540d3e362135d06361c',1,'Plugins::CashManager::Transaction']]],
-  ['accountid_3',['accountId',['../struct_plugins_1_1_cash_manager_1_1_bank.html#a96d69861692615a839ef190b7ff5fe3b',1,'Plugins::CashManager::Bank::accountId()'],['../struct_plugins_1_1_tempban_1_1_tempban_info.html#a7969fdbc251723c4f1bdd95917d54227',1,'Plugins::Tempban::TempbanInfo::accountId()']]],
+  ['accountid_3',['accountId',['../struct_plugins_1_1_cash_manager_1_1_bank.html#a96d69861692615a839ef190b7ff5fe3b',1,'Plugins::CashManager::Bank']]],
   ['accounts_4',['Accounts',['../struct_authenticated_accounts.html#a6c7d6984a7d9e03efa4272e56ed81f76',1,'AuthenticatedAccounts']]],
   ['addranticheat1_5',['AddrAntiCheat1',['../namespace_hk_1_1_player.html#a6607f0fb5cd5cdd1dba5d74514cb465f',1,'Hk::Player']]],
   ['addranticheat2_6',['AddrAntiCheat2',['../namespace_hk_1_1_player.html#a358460693ef0a3b8f15fcb11d3a72f09',1,'Hk::Player']]],
