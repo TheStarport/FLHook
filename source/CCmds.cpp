@@ -96,6 +96,12 @@ void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration)
 {
+	if (!FLHookConfig::i()->general.tempBansEnabled)
+	{
+		Print("TempBan disabled");
+		return;
+	}
+
 	RIGHT_CHECK(RIGHT_KICKBAN);
 
 	if (const auto res = Hk::Player::TempBan(player, duration); res.has_error())
@@ -1116,6 +1122,10 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 			else if (wscCmd == L"ban")
 			{
 				CmdBan(ArgCharname(1));
+			}
+			else if (wscCmd == L"tempban")
+			{
+				CmdTempBan(ArgCharname(1), ArgUInt(2));
 			}
 			else if (wscCmd == L"unban")
 			{

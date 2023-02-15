@@ -1,6 +1,7 @@
 #include "Global.hpp"
 #include "Features/TempBan.hpp"
 
+
 namespace Hk::Player
 {
 	using _FLAntiCheat = void(__stdcall*)();
@@ -236,41 +237,28 @@ namespace Hk::Player
 
 	cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring>& player, uint duration)
 	{
-		std::wstring charName;
-
+		uint clientId; 
 		if (player.index() != 0)
 		{
-			charName = std::get<std::wstring>(player);
-		}
-		else
-		{
-			ClientId clientId = std::get<uint>(player);
-			if (const auto isValid = Hk::Client::IsValidClientID(std::get<uint>(player)); !isValid)
+			const auto& charName = std::get<std::wstring>(player);
+			auto client = Hk::Client::GetClientIdFromCharName(charName);
+			if (client.has_error())
 			{
-				return cpp::fail(Error::InvalidClientId);
+				return cpp::fail(client.error());
 			}
-			charName = Hk::Client::GetCharacterNameByID(clientId).value();
-		}
-
-		if (const auto account = Hk::Client::GetAccountByCharName(charName); account.has_error())
-		{
-			return cpp::fail(Error::CharacterDoesNotExist);
+			clientId = client.value();
 		}
 		else
 		{
-			mstime banDuration = 1000 * static_cast<mstime>(duration) * 60;
-			TempBanInfo tempban;
-			tempban.banStart = timeInMS();
-			tempban.banEnd = tempban.banStart + banDuration;
-
-			const auto accId = Hk::Client::GetAccountID(account.value());
-
-			tempban.accountId = accId.value();
-			TempBanManager::tempBanList.push_back(tempban);
-
-			return {};
+			clientId = std::get<uint>(player);
 		}
 
+		if (!Hk::Client::IsValidClientID(clientId))
+			return cpp::fail(Error::InvalidClientId);
+
+		TempBanManager::i()->AddTempBan(clientId, duration);
+
+		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////

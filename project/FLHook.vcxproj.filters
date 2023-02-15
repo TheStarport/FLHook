@@ -147,6 +147,9 @@
     <ClCompile Include="..\source\Memory\MemoryManager.cpp">
       <Filter>FLHook\Memory</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Features\TempBan.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">

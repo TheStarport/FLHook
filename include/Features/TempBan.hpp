@@ -1,14 +1,22 @@
-#include "Global.hpp"
+#include <FLHook.hpp>
 
 struct TempBanInfo
 {
 	std::wstring accountId;
-	mstime banStart;
-	mstime banEnd;
+	mstime banStart = 0;
+	mstime banEnd = 0;
 };
 
-class TempBanManager : public Singleton<TempBanManager>
+class DLL TempBanManager : public Singleton<TempBanManager>
 {
-	public:
-		static std::vector<TempBanInfo> tempBanList;
+  private:
+
+	std::vector<TempBanInfo> tempBanList;
+
+  public:
+
+	void ClearFinishedTempBans();
+	void AddTempBan(ClientId client, uint durationInMin, const std::wstring& reason);
+	void AddTempBan(ClientId client, uint durationInMin);
+	bool CheckIfTempBanned(ClientId client);
 };
