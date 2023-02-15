@@ -2,7 +2,6 @@
 
 #include <FLHook.hpp>
 #include <plugin.h>
-#include "Features/TempBan.hpp"
 
 namespace Plugins::Message
 {
@@ -74,7 +73,7 @@ namespace Plugins::Message
 		std::wstring disconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
 		//! Amount of time in minutes for which to tempban a player in case of swearing
-		uint swearingTempBanLength = 10;
+		uint swearingTempBanDuration = 10;
 
 		//! What radius around the player the message should be broadcasted to
 		float disconnectSwearingInSpaceRange = 5000.0f;

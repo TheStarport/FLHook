@@ -24,8 +24,9 @@
 
 // Includes
 #include "Main.h"
+#include "Features/TempBan.hpp"
 
-constexpr auto TEMPBAN_DURATION = 5;
+constexpr auto TempBanDurationMinutes = 5;
 
 namespace Plugins::AntiJumpDisconnect
 {
@@ -48,7 +49,7 @@ namespace Plugins::AntiJumpDisconnect
 			}
 
 			//tempban for 5 minutes
-			TempBanManager::i()->AddTempBan(client, TEMPBAN_DURATION);
+			TempBanManager::i()->AddTempBan(client, TempBanDurationMinutes);
 		}
 	}
 
