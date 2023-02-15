@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../tempban/Main.h"
+#include "Features/TempBan.hpp"
 #include <FLHook.hpp>
 #include "plugin.h"
 
@@ -86,7 +86,6 @@ namespace Plugins::ConData
 		ConnectionData connections[MaxClientId + 1];
 
 		ConDataCommunicator* communicator = nullptr;
-		Tempban::TempBanCommunicator* tempBanCommunicator = nullptr;
 	};
 }; // namespace Plugins::ConData
 

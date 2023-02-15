@@ -295,10 +295,6 @@ namespace Plugins::Message
 
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-
-		// Load our communicators
-		global->tempBanCommunicator =
-		    static_cast<Tempban::TempBanCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Tempban::TempBanCommunicator::pluginName));
 	}
 
 	/** @ingroup Message
@@ -411,10 +407,9 @@ namespace Plugins::Message
 						        Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(wscCharname).value()).value(),
 						        wscChatMsg.c_str())));
 
-						if (global->tempBanCommunicator)
-							global->tempBanCommunicator->TempBan(wscCharname, 10);
-
-						Hk::Player::DelayedKick(client, 1);
+						TempBanManager::i()->AddTempBan(client,
+						    global->config->swearingTempBanLength,
+						    std::format(L"Swearing tempban for {} minutes.", global->config->swearingTempBanLength));
 
 						if (global->config->disconnectSwearingInSpaceRange > 0.0f)
 						{

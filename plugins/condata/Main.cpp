@@ -91,13 +91,7 @@ namespace Plugins::ConData
 				{
 					con.lossList.clear();
 					AddKickLog(client, "High loss");
-					Hk::Player::MsgAndKick(client, L"High loss", KickTimer);
-					// call tempban plugin
-					if (global->tempBanCommunicator)
-					{
-						const auto charName = Hk::Client::GetCharacterNameByID(client);
-						global->tempBanCommunicator->TempBan(charName.value(), 60);
-					}
+					TempBanManager::i()->AddTempBan(client, 60, L"High loss");
 				}
 
 				if (global->config->pingKick && 
@@ -105,14 +99,7 @@ namespace Plugins::ConData
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High ping");
-					Hk::Player::MsgAndKick(client, L"High ping", KickTimer);
-					// call tempban plugin
-					if (global->tempBanCommunicator)
-					{
-						const auto charName = Hk::Client::GetCharacterNameByID(client);
-						global->tempBanCommunicator->TempBan(charName.value(), 60);
-					}
-					
+					TempBanManager::i()->AddTempBan(client, 60, L"High ping");
 				}
 
 				if (global->config->fluctKick 
@@ -120,14 +107,7 @@ namespace Plugins::ConData
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High fluct");
-					Hk::Player::MsgAndKick(client, L"High ping fluctuation", KickTimer);
-					// call tempban plugin
-					if (global->tempBanCommunicator)
-					{
-						const auto charName = Hk::Client::GetCharacterNameByID(client);
-						global->tempBanCommunicator->TempBan(charName.value(), 60);
-					}
-					
+					TempBanManager::i()->AddTempBan(client, 60, L"High ping fluctuation");
 				}
 
 				if (global->config->lagKick && con.lags > (global->config->lagKick))
@@ -135,15 +115,8 @@ namespace Plugins::ConData
 					con.objUpdateIntervalsList.clear();
 
 					AddKickLog(client, "High Lag");
-					Hk::Player::MsgAndKick(client, L"High Lag", KickTimer);
-					// call tempban plugin
-					if (global->tempBanCommunicator)
-					{
-						const auto charName = Hk::Client::GetCharacterNameByID(client);
-						global->tempBanCommunicator->TempBan(charName.value(), 60);
-					}
+					TempBanManager::i()->AddTempBan(client, 60, L"High lag");
 				}
-				
 			}
 		}
 
@@ -516,9 +489,6 @@ namespace Plugins::ConData
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-
-		global->tempBanCommunicator = static_cast<Plugins::Tempban::TempBanCommunicator*>(
-		    PluginCommunicator::ImportPluginCommunicator(Plugins::Tempban::TempBanCommunicator::pluginName));
 
 		// check for logged in players and reset their connection data
 		struct PlayerData* playerData = nullptr;
