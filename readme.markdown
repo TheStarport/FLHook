@@ -71,6 +71,7 @@ For any and all support, please join the [Discord](https://discord.com/invite/c6
 Special thanks to:
 * FriendlyFire for kicking off the initial rewrite.
 * Nen for testing and plugin development.
+* Aingar for extensive plugin development and code quality improvements.
 * All those who have worked on FLHook before.
 
 FLHook uses a heavily modified version of `flcodec.c`.
