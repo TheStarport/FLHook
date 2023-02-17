@@ -84,6 +84,11 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, L"Error Invalid Item Quantity");
 			return;
 		}
+		if (std::ranges::find(global->config.restrictedItemsHashed, item.iArchId) !=global->config.restrictedItemsHashed.end())
+		{
+			PrintUserCmdText(client, L"Error: This item is restricted from being stored.");
+			return;
+		}
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
 		{
@@ -218,18 +223,24 @@ namespace Plugins::Warehouse
 		const std::wstring cmd = GetParam(param, ' ', 0);
 		if (cmd.empty())
 		{
-			PrintUserCmdText(client, L"Usage: /warehouse store <itemId> <count>");
-			PrintUserCmdText(client, L"Usage: /warehouse list");
-			PrintUserCmdText(client, L"Usage: /warehouse withdraw <itemId> <count>");
-			PrintUserCmdText(client, L"Usage: /warehouse liststored");
+			PrintUserCmdText(client, L"Usage: /warehouse store <itemId> <count> \n"
+			    L"Usage: /warehouse list. \n"
+			    L"Usage: /warehouse withdraw <itemId> <count> \n"
+			    "Usage: /warehouse liststored \n"
+			);
 			return;
 		}
 
 		auto base = Hk::Player::GetCurrentBase(client);
-
 		if (base.has_error())
 		{
 			PrintUserCmdText(client, L"You must be docked in order to use this command.");
+			return;
+		}
+		auto baseVal = base.value();
+		if (std::ranges::find(global->config.restrictedBasesHashed, baseVal) !=global->config.restrictedBasesHashed.end())
+		{
+			PrintUserCmdText(client, L"Error: The base you're attempting to use warehouse on is restricted.");
 			return;
 		}
 
