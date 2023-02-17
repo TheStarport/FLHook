@@ -123,9 +123,21 @@ namespace Plugins::LightControl
 	{
 		PrintUserCmdText(client, L"Current light setup:");
 
+		std::vector<EquipDesc> lights;
 		const st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
-		int itemNumber = 1;
 		for (const auto& i : eqLst)
+		{
+			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
+			{
+				continue;
+			}
+
+			lights.emplace_back(i);
+		}
+		std::ranges::sort(lights, [](const EquipDesc& a, const EquipDesc& b) { return a.get_hardpoint().value < b.get_hardpoint().value; });
+
+		int itemNumber = 1;
+		for (const auto& i : lights)
 		{
 			const auto& index = std::ranges::find(global->config->lightsHashed, i.iArchId);
 			if (index == global->config->lightsHashed.end())
@@ -133,7 +145,7 @@ namespace Plugins::LightControl
 				continue;
 			}
 
-			const auto str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
+			const auto& str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			PrintUserCmdText(client,
 			    std::format(
 			        L"|    {}: {}", itemNumber, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
@@ -163,11 +175,29 @@ namespace Plugins::LightControl
 			return;
 		}
 
-		const uint hardPointId = ToUInt(GetParam(param, ' ', 1)) - 1;
-		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
+		const std::wstring inputParam = (GetParam(param, ' ', 1));
 
+		bool invalidParam = false;
+
+		for (const auto i : inputParam)
+		{
+			if (!(std::isdigit(i) || i == L'-'))
+			{
+				PrintUserCmdText(client,
+				    L"Error: Please input an appropriate light point \n"
+				    L"Example: <1-2-3> or <1> ");
+				return;
+			}
+		}
+		std::vector<std::wstring> hardPointIds = Split(inputParam, L'-');
+		if (hardPointIds.empty())
+			hardPointIds.emplace_back(inputParam);
+	
+
+		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 		std::vector<EquipDesc> lights;
 		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
+
 		for (const auto& i : eqLst)
 		{
 			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
@@ -178,35 +208,40 @@ namespace Plugins::LightControl
 			lights.emplace_back(i);
 		}
 
-		if (hardPointId > lights.size())
+		std::ranges::sort(lights, [](const EquipDesc& a, const EquipDesc& b) { return a.get_hardpoint().value < b.get_hardpoint().value; });
+
+		for (const auto& hardPointIdString : hardPointIds)
 		{
-			PrintUserCmdText(client, L"Error: Invalid light point");
-			return;
+			const auto hardPointId = ToUInt(hardPointIdString) - 1;
+			if (hardPointId > lights.size())
+			{
+				PrintUserCmdText(client, L"Error: Invalid light point");
+				return;
+			}
+
+			const auto lightId = CreateID(wstos(selectedLight).c_str());
+			const auto& selectedLightEquipDesc = lights[hardPointId];
+
+			const auto light = std::find_if(
+			    eqLst.begin(), eqLst.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
+
+			light->iArchId = lightId;
+			auto err = Hk::Player::SetEquip(client, eqLst);
+			if (err.has_error())
+			{
+				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+				return;
+			}
+
+			err = Hk::Player::RemoveCash(client, global->config->cost);
+			if (err.has_error())
+			{
+				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+				return;
+			}
 		}
-
-		const auto lightId = CreateID(wstos(selectedLight).c_str());
-		const auto& selectedLightEquipDesc = lights[hardPointId];
-
-		const auto light =
-		    std::find_if(eqLst.begin(), eqLst.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
-
-		light->iArchId = lightId;
-		auto err = Hk::Player::SetEquip(client, eqLst);
-		if (err.has_error())
-		{
-			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
-			return;
-		}
-
-		err = Hk::Player::RemoveCash(client, global->config->cost);
-		if (err.has_error())
-		{
-			PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
-			return;
-		}
-
 		Hk::Player::SaveChar(client);
-		PrintUserCmdText(client, L"Light successfully changed, when you are finished with all your changes, log off for them to take effect. ");
+		PrintUserCmdText(client, L"Light(s) successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
 
 	/** @ingroup LightControl
@@ -214,11 +249,10 @@ namespace Plugins::LightControl
 	 */
 	void UserCommandHandler(ClientId& client, const std::wstring& param)
 	{
-		if (!IsInValidBase(client))
-			return;
-
 		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change")
 		{
+			if (!IsInValidBase(client))
+				return;
 			UserCmdChangeItem(client, param);
 		}
 		else if (subCommand == L"show")
