@@ -4,6 +4,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <random>
 
 namespace Plugins::Npc
 {
@@ -35,6 +36,7 @@ namespace Plugins::Npc
 	{
 		std::wstring name = L"example";
 		std::string system = "li01";
+		float spawnChance = 1;
 		std::vector<float> position = {-33367, 120, -28810};
 		std::vector<float> rotation = {0,0,0};
 
