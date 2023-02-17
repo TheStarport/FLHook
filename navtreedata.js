@@ -89,8 +89,8 @@ var NAVTREEINDEX =
 "struct_plugins_1_1_autobuy_1_1_autobuy_cart_item.html",
 "struct_plugins_1_1_con_data_1_1_connection_data_exception.html",
 "struct_plugins_1_1_mark_1_1_t_i_m_e_r.html#acf20d460ad963bbac6b92bdabc5092d6",
-"struct_plugins_1_1_npc_1_1_startup_npc.html#af5dde246aa47120434493ee769a9ead9",
-"struct_plugins_1_1_tax_1_1_config.html#a70c69df184fa232e8a2294b2c4eaf6c7"
+"struct_plugins_1_1_npc_1_1_startup_npc.html#af369ef1ab7d0170565eaeb52084e3130",
+"struct_plugins_1_1_tax_1_1_config.html#a610c70e582107e3412ea3b1f414df43d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

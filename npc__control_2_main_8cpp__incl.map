@@ -1,9 +1,10 @@
 <map id="plugins/npc_control/Main.cpp" name="plugins/npc_control/Main.cpp">
-<area shape="rect" id="node1" title=" " alt="" coords="214,5,362,45"/>
-<area shape="rect" id="node2" href="$npc__control_2_main_8h.html" title=" " alt="" coords="255,93,321,119"/>
+<area shape="rect" id="node1" title=" " alt="" coords="286,5,434,45"/>
+<area shape="rect" id="node2" href="$npc__control_2_main_8h.html" title=" " alt="" coords="327,93,393,119"/>
 <area shape="rect" id="node3" title=" " alt="" coords="5,174,104,199"/>
 <area shape="rect" id="node4" title=" " alt="" coords="128,174,203,199"/>
 <area shape="rect" id="node5" title=" " alt="" coords="227,174,349,199"/>
 <area shape="rect" id="node6" title=" " alt="" coords="373,174,491,199"/>
 <area shape="rect" id="node7" title=" " alt="" coords="515,167,656,207"/>
+<area shape="rect" id="node8" title=" " alt="" coords="680,174,752,199"/>
 </map>

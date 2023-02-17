@@ -22,7 +22,7 @@ var npc__control_2_main_8cpp =
     [ "REFL_AUTO", "npc__control_2_main_8cpp.html#a015f07b79a7865cc6600ea02278ca838", null ],
     [ "REFL_AUTO", "npc__control_2_main_8cpp.html#aeb6c19a5c82b9b7afaa63201cf8a7a04", null ],
     [ "REFL_AUTO", "npc__control_2_main_8cpp.html#ab01aa49ab42c91bba9c4b7e92b65561e", null ],
-    [ "REFL_AUTO", "npc__control_2_main_8cpp.html#a9e0083e5f076ec905c90df65217b0eb3", null ],
+    [ "REFL_AUTO", "npc__control_2_main_8cpp.html#a20f426eb8a29c54c38698123d71b2395", null ],
     [ "ShipDestroyed", "npc__control_2_main_8cpp.html#gacd97d28e1393d3304607def2280a6cd9", null ],
     [ "global", "npc__control_2_main_8cpp.html#ad4844bc34d93fe57774077ad21a51813", null ]
 ];
