@@ -84,7 +84,7 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, L"Error Invalid Item Quantity");
 			return;
 		}
-		if (std::ranges::find(global->config.restrictedItemsHashed, item.iArchId) !=global->config.restrictedItemsHashed.end())
+		if (std::ranges::find(global->config.restrictedItemsHashed, item.iArchId) != global->config.restrictedItemsHashed.end())
 		{
 			PrintUserCmdText(client, L"Error: This item is restricted from being stored.");
 			return;
@@ -92,7 +92,8 @@ namespace Plugins::Warehouse
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
 		{
-			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
+			PrintUserCmdText(
+			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
 			return;
 		}
 
@@ -109,7 +110,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 	}
 
-	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param,[[maybe_unused]] uint base)
+	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param, [[maybe_unused]] uint base)
 	{
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
@@ -170,7 +171,8 @@ namespace Plugins::Warehouse
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{
-			PrintUserCmdText(client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
+			PrintUserCmdText(
+			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
 			return;
 		}
 
@@ -214,8 +216,8 @@ namespace Plugins::Warehouse
 
 		Hk::Player::SaveChar(client);
 
-		PrintUserCmdText(
-		    client, std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
+		PrintUserCmdText(client,
+		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
 	}
 
 	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
@@ -223,11 +225,11 @@ namespace Plugins::Warehouse
 		const std::wstring cmd = GetParam(param, ' ', 0);
 		if (cmd.empty())
 		{
-			PrintUserCmdText(client, L"Usage: /warehouse store <itemId> <count> \n"
+			PrintUserCmdText(client,
+			    L"Usage: /warehouse store <itemId> <count> \n"
 			    L"Usage: /warehouse list. \n"
 			    L"Usage: /warehouse withdraw <itemId> <count> \n"
-			    "Usage: /warehouse liststored \n"
-			);
+			    L"Usage: /warehouse liststored \n");
 			return;
 		}
 
@@ -238,7 +240,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 		auto baseVal = base.value();
-		if (std::ranges::find(global->config.restrictedBasesHashed, baseVal) !=global->config.restrictedBasesHashed.end())
+		if (std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
 		{
 			PrintUserCmdText(client, L"Error: The base you're attempting to use warehouse on is restricted.");
 			return;
@@ -267,7 +269,7 @@ namespace Plugins::Warehouse
 	}
 
 	const std::vector commands = {{
-	    CreateUserCommand(L"/warehouse", L"",UserCmdWarehouse, L""),
+	    CreateUserCommand(L"/warehouse", L"", UserCmdWarehouse, L""),
 	}};
 
 } // namespace Plugins::Warehouse
