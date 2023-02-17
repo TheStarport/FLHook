@@ -53,6 +53,7 @@
  *                 120.0,
  *                 -28810.0
  *             ],
+ *			   "spawnChance": 1.0,
  *             "rotation": [
  *                 0.0,
  *                 0.0,
@@ -254,8 +255,31 @@ namespace Plugins::Npc
 	void AfterStartup()
 	{
 		LoadSettings();
+
+		// Initalize for random number generator (new C++ 11 standard)
+		std::random_device rd; // Used to obtain a seed
+		std::mt19937 mt(rd()); //  Mersenne Twister algorithm seeded with the variable above
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		int spawned = 0;
+
 		for (const auto& npc : global->config->startupNpcs)
-			CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
+		{
+			// Check spawn chance is valid
+			if (npc.spawnChance < 0 || npc.spawnChance > 1)
+			{
+				Console::ConErr(std::format("Spawn chance must be between 0 and 1 for NPC {}", wstos(npc.name)));
+				continue;
+			}
+
+			// Spawn NPC if spawn chance allows it
+			if (dist(mt) <= npc.spawnChance)
+			{
+				CreateNPC(npc.name, npc.positionVector, npc.rotationMatrix, npc.systemId, false);
+				spawned++;
+			}
+		}
+
+		Console::ConInfo(std::format("{} NPCs loaded on startup", spawned));
 	}
 
 	/** @ingroup NPCControl
@@ -560,7 +584,7 @@ DefaultDllMainSettings(AfterStartup);
 
 REFL_AUTO(type(Npc), field(shipArch), field(loadout), field(iff), field(infocardId), field(infocard2Id), field(pilot), field(graph));
 REFL_AUTO(type(Fleet), field(name), field(member));
-REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation));
+REFL_AUTO(type(StartupNpc), field(name), field(system), field(position), field(rotation), field(spawnChance));
 REFL_AUTO(type(Config), field(npcInfo), field(fleetInfo), field(startupNpcs), field(npcInfocardIds));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
