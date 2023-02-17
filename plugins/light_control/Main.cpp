@@ -152,7 +152,27 @@ namespace Plugins::LightControl
 			itemNumber++;
 		}
 	}
+	/** @ingroup LightControl
+	 * @brief Shows the lights available to be used.
+	 */
+	void UserCmdListLights(ClientId& client, const std::wstring& param)
+	{
+		const uint pageNumber = ToUInt(GetParam(param, ' ', 1)) - 1;
+		const uint lightsSize = static_cast<int>(global->config->lights.size());
 
+		// +1 the quotient to account for the last page being the remainder.
+		const uint maxPages = global->config->lights.size() / global->config->itemsPerPage + 1;
+		if (pageNumber >= maxPages)
+		{
+			PrintUserCmdText(client, std::format(L"Error, invalid page number, the valid page numbers are any integer between 1 and {}", maxPages));
+			return;
+		}
+		uint j = 0;
+		for (uint i = pageNumber * global->config->itemsPerPage; (i < lightsSize && j < global->config->itemsPerPage); i++, j++)
+		{
+			PrintUserCmdText(client, global->config->lights[i]);
+		}
+	}
 	/** @ingroup LightControl
 	 * @brief Show the options available to the player.
 	 */
@@ -192,7 +212,6 @@ namespace Plugins::LightControl
 		std::vector<std::wstring> hardPointIds = Split(inputParam, L'-');
 		if (hardPointIds.empty())
 			hardPointIds.emplace_back(inputParam);
-	
 
 		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 		std::vector<EquipDesc> lights;
@@ -263,11 +282,17 @@ namespace Plugins::LightControl
 		{
 			UserCmdShowOptions(client);
 		}
+		else if (subCommand == L"list")
+		{
+			UserCmdListLights(client, param);
+		}
 		else
 		{
-			PrintUserCmdText(client, L"Usage: /lights show");
-			PrintUserCmdText(client, L"Usage: /lights options");
-			PrintUserCmdText(client, L"Usage: /lights change <Light Point> <Item>");
+			PrintUserCmdText(client,
+			    L"Usage: /lights show \n"
+			    L"Usage: /lights list <page number> \n"
+			    L"Usage: /lights options \n"
+			    L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0)
 			{
 				PrintUserCmdText(client, std::format(L"Each light changed will cost {} credits.", global->config->cost));
@@ -284,7 +309,8 @@ namespace Plugins::LightControl
 
 using namespace Plugins::LightControl;
 
-REFL_AUTO(type(Config), field(lights), field(cost), field(bases), field(introMessage1), field(introMessage2), field(notifyAvailabilityOnEnter))
+REFL_AUTO(
+    type(Config), field(lights), field(cost), field(bases), field(introMessage1), field(introMessage2), field(notifyAvailabilityOnEnter), field(itemsPerPage))
 DefaultDllMainSettings(LoadSettings);
 
 // Functions to hook
