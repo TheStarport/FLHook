@@ -139,6 +139,7 @@ namespace Plugins::PurchaseRestrictions
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 			PrintUserCmdText(client, global->config->goodPurchaseDenied);
 			global->returnCode = ReturnCode::SkipAll;
+			return;
 		}
 
 		/// Check restrictions for the Id that a player has.
