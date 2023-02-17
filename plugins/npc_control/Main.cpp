@@ -53,7 +53,7 @@
  *                 120.0,
  *                 -28810.0
  *             ],
- *			   "spawnChance": 1.0,
+ *             "spawnChance": 1.0,
  *             "rotation": [
  *                 0.0,
  *                 0.0,
