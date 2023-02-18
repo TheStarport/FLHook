@@ -24,7 +24,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 	auto newLineChar = text.find(L"\n");
 	if (newLineChar == std::wstring::npos)
 	{
-		std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->msgStyle.userCmdStyle, XMLText(text));
+		std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->messages.msgStyle.userCmdStyle, XMLText(text));
 		Hk::Message::FMsg(client, xml);
 	}
 	else
@@ -81,7 +81,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fD
 
 void UserCmd_SetDieMsg(ClientId& client, const std::wstring& wscParam)
 {
-	if (!FLHookConfig::i()->general.dieMsg)
+	if (!FLHookConfig::i()->messages.dieMsg)
 	{
 		PRINT_DISABLED()
 		return;
@@ -809,14 +809,14 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 
 bool UserCmd_Process(ClientId client, const std::wstring& wscCmd)
 {
-	if (const auto& config = FLHookConfig::c(); config->general.echoCommands)
+	if (const auto& config = FLHookConfig::c(); config->messages.echoCommands)
 	{
 		std::wstring lower = ToLower(GetParam(wscCmd, ' ', 0));
 		if ((lower.find(L'/') == 0 || lower.find(L'.') == 0) &&
 		    !(lower == L"/l" || lower == L"/local" || lower == L"/s" || lower == L"/system" || lower == L"/g" || lower == L"/group" || lower == L"/t" ||
 		        lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
 		{
-			const std::wstring wscXML = L"<TRA data=\"" + config->msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmd) + L"</TEXT>";
+			const std::wstring wscXML = L"<TRA data=\"" + config->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(wscCmd) + L"</TEXT>";
 			Hk::Message::FMsg(client, wscXML);
 		}
 	}
