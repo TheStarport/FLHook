@@ -63,7 +63,7 @@ namespace Plugins::Message
 
 	long GetNumberFromCmd(const std::wstring& param)
 	{
-		const auto numStr = param[1];
+		const auto numStr = param[2];
 		wchar_t* _;
 		return std::wcstol(&numStr, &_, 10);
 	}
@@ -74,9 +74,9 @@ namespace Plugins::Message
 	static void LoadMsgs(ClientId client)
 	{
 		// Load from disk the messages.
-		for (int iMsgSlot = 0; iMsgSlot < numberOfSlots; iMsgSlot++)
+		for (int iMsgSlot = 0; iMsgSlot < NumberOfSlots; iMsgSlot++)
 		{
-			global->info[client].slot[iMsgSlot] = Hk::Ini::GetCharacterIniString(client, L"msg." + std::to_wstring(iMsgSlot));
+			global->info[client].slots[iMsgSlot] = Hk::Ini::GetCharacterIniString(client, L"msg." + std::to_wstring(iMsgSlot));
 		}
 
 		// Chat time settings.
@@ -101,7 +101,7 @@ namespace Plugins::Message
 	 * @brief Load the custom message templates and show the greeting banner to the specified player.
 	 */
 	static void PlayerLogin([[maybe_unused]] const std::string_view& charFilename, ClientId& client)
-	{ 
+	{
 		LoadMsgs(client);
 		ShowGreetingBanner(client);
 	}
@@ -192,14 +192,14 @@ namespace Plugins::Message
 	std::wstring GetPresetMessage(ClientId client, int iMsgSlot)
 	{
 		const auto iter = global->info.find(client);
-		if (iter == global->info.end() || iter->second.slot[iMsgSlot].empty())
+		if (iter == global->info.end() || iter->second.slots[iMsgSlot].empty())
 		{
 			PrintUserCmdText(client, L"ERR No message defined");
 			return L"";
 		}
 
 		// Replace the tag #t with name of the targeted player.
-		std::wstring wscMsg = iter->second.slot[iMsgSlot];
+		std::wstring wscMsg = iter->second.slots[iMsgSlot];
 		if (!ReplaceMessageTags(client, iter->second, wscMsg))
 			return L"";
 
@@ -283,7 +283,10 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Clean up when a client disconnects
 	 */
-	void ClearClientInfo(ClientId& client) { global->info.erase(client); }
+	void ClearClientInfo(ClientId& client)
+	{
+		global->info.erase(client);
+	}
 
 	/** @ingroup Message
 	 * @brief This function is called when the admin command rehash is called and when the module is loaded.
@@ -415,7 +418,7 @@ namespace Plugins::Message
 						if (global->config->disconnectSwearingInSpaceRange > 0.0f)
 						{
 							std::wstring wscMsg = global->config->disconnectSwearingInSpaceMsg;
-							wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->general.dieMsg));
+							wscMsg = ReplaceStr(wscMsg, L"%time", GetTimeString(FLHookConfig::i()->messages.dieMsg));
 							wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
 							PrintLocalUserCmdText(client, wscMsg, global->config->disconnectSwearingInSpaceRange);
 						}
@@ -457,8 +460,6 @@ namespace Plugins::Message
 
 			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); iSystemId == iClientSystemId)
 				Hk::Message::FMsgSendChat(client, szBuf, iRet);
-
-			
 		}
 	}
 
@@ -487,8 +488,8 @@ namespace Plugins::Message
 
 			// Find the ': ' which indicates the end of the sending player name.
 			const size_t iTextStartPos = wscChatMsg.find(L": ");
-			if (iTextStartPos != std::string::npos
-			&& ((wscChatMsg.find(L": /") == iTextStartPos && wscChatMsg.find(L": //") != iTextStartPos) || wscChatMsg.find(L": .") == iTextStartPos))
+			if (iTextStartPos != std::string::npos &&
+			    ((wscChatMsg.find(L": /") == iTextStartPos && wscChatMsg.find(L": //") != iTextStartPos) || wscChatMsg.find(L": .") == iTextStartPos))
 			{
 				return true;
 			}
@@ -499,7 +500,8 @@ namespace Plugins::Message
 			// Send time with gray color (BEBEBE) in small text (90) above the chat
 			// line.
 			global->sendingTime = true;
-			Hk::Message::FMsg(client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->general.dieMsg)) + L"</TEXT>");
+			Hk::Message::FMsg(
+			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->messages.dieMsg)) + L"</TEXT>");
 			global->sendingTime = false;
 		}
 		return false;
@@ -519,7 +521,7 @@ namespace Plugins::Message
 		const int iMsgSlot = ToInt(GetParam(param, ' ', 0));
 		const std::wstring wscMsg = GetParamToEnd(ViewToWString(param), ' ', 1);
 
-		if (iMsgSlot < 0 || iMsgSlot > 9 || param.size() == 0)
+		if (iMsgSlot < 0 || iMsgSlot > 9 || wscMsg.empty())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
 			PrintUserCmdText(client, L"Usage: /setmsg <n> <msg text>");
@@ -529,14 +531,14 @@ namespace Plugins::Message
 		Hk::Ini::SetCharacterIni(client, L"msg." + std::to_wstring(iMsgSlot), ViewToWString(wscMsg));
 
 		// Update the character cache
-		global->info[client].slot[iMsgSlot] = wscMsg;
+		global->info[client].slots[iMsgSlot] = wscMsg;
 		PrintUserCmdText(client, L"OK");
 	}
 
 	/** @ingroup Message
 	 * @brief Show preset messages
 	 */
-	void UserCmd_ShowMsgs(ClientId& client,[[maybe_unused]] const std::wstring& param)
+	void UserCmd_ShowMsgs(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (!global->config->enableSetMessage)
 		{
@@ -550,11 +552,29 @@ namespace Plugins::Message
 			return;
 		}
 
-		for (int i = 0; i < numberOfSlots; i++)
+		for (int i = 0; i < NumberOfSlots; i++)
 		{
-			PrintUserCmdText(client, std::format(L"{}: {}", i, iter->second.slot[i]));
+			PrintUserCmdText(client, std::format(L"{}: {}", i, iter->second.slots[i]));
 		}
 		PrintUserCmdText(client, L"OK");
+	}
+
+	/** @ingroup Message
+	 * @brief User Commands for /0-9
+	 */
+	void UserCmd_Msg(ClientId& client, const std::wstring& param)
+	{
+		const auto numStr = param[1];
+		wchar_t* _;
+		long num = std::wcstol(&numStr, &_, 10);
+		if (FLHookConfig::c()->messages.defaultLocalChat)
+		{
+			SendPresetLocalMessage(client, num);
+		}
+		else
+		{
+			SendPresetSystemMessage(client, num);
+		}
 	}
 
 	/** @ingroup Message
@@ -630,7 +650,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Shows the sender of the last PM and the last char targeted
 	 */
-	void UserCmd_ShowLastPMSender(ClientId& client,[[maybe_unused]] const std::wstring& param)
+	void UserCmd_ShowLastPMSender(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		const auto iter = global->info.find(client);
 		if (iter == global->info.end())
@@ -850,7 +870,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief Prints the current server time.
 	 */
-	void UserCmd_Time(ClientId& client,[[maybe_unused]] const std::wstring& param)
+	void UserCmd_Time(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
 		PrintUserCmdText(client, GetTimeString(FLHookConfig::i()->general.localTime));
@@ -867,7 +887,7 @@ namespace Plugins::Message
 			SystemId iSystemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
-			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			wscXMLMsg += charname + L" ";
 			wscXMLMsg += XMLText(ViewToWString(GetParamToEnd(param, ' ', 0)));
 			wscXMLMsg += L"</TEXT>";
@@ -890,7 +910,7 @@ namespace Plugins::Message
 			SystemId iSystemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
-			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+			std::wstring wscXMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			wscXMLMsg += XMLText(ViewToWString(GetParamToEnd(ViewToWString(param), ' ', 0)));
 			wscXMLMsg += L"</TEXT>";
 
@@ -906,8 +926,10 @@ namespace Plugins::Message
 	const std::vector commands = {{
 	    CreateUserCommand(L"/setmsg", L"<n> <msg text>", UserCmd_SetMsg, L"Sets a preset message."),
 	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L"Show your preset messages."),
-	    CreateUserCommand(
-	        CmdArr({L"/0", L"/1", L"/2", L"/3", L"/4", L"/5", L"/6", L"/7", L"/8", L"/9"}), L"/<msgNumber>", UserCmd_SMsg, L"Send preset message from slot [0-9]."),
+	    CreateUserCommand(CmdArr({L"/0", L"/1", L"/2", L"/3", L"/4", L"/5", L"/6", L"/7", L"/8", L"/9"}), L"/<msgNumber>", UserCmd_Msg,
+	        L"Send preset message from slot [0-9]."),
+	    CreateUserCommand(CmdArr({L"/s0", L"/s1", L"/s2", L"/s3", L"/s4", L"/s5", L"/s6", L"/s7", L"/s8", L"/s9"}), L"/s<msgNumber>", UserCmd_SMsg,
+	        L"Send preset message to system chat from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/l0", L"/l1", L"/l2", L"/l3", L"/l4", L"/l5", L"/l6", L"/l7", L"/l8", L"/l9"}), L"/l<msgNumber>", UserCmd_LMsg,
 	        L"Send preset message to local chat from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/r0", L"/r1", L"/r2", L"/r3", L"/r4", L"/r5", L"/r6", L"/r7", L"/r8", L"/r9"}), L"/r<msgNumber>", UserCmd_RMsg,
@@ -945,7 +967,7 @@ REFL_AUTO(type(Config), field(greetingBannerLines), field(specialBannerLines), f
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
+// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Message");

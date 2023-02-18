@@ -312,6 +312,12 @@ namespace Hk::Message
 	/** Send a player to local system message */
 	void SendLocalSystemChat(uint fromClientId, const std::wstring& text)
 	{
+		// Don't even try to send an empty message
+		if (text.empty())
+		{
+			return;
+		}
+
 		const auto wscSender = Client::GetCharacterNameByID(fromClientId);
 		if (wscSender.has_error())
 		{

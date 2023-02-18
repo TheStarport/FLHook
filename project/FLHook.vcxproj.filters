@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="sdk">
-      <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AdminCommands">
       <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
     </Filter>
@@ -12,9 +9,6 @@
     </Filter>
     <Filter Include="FLHook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\data">
-      <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
     </Filter>
     <Filter Include="FLHook\hooks">
       <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
@@ -25,17 +19,23 @@
     <Filter Include="FLHook\Features">
       <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\Tools">
-      <UniqueIdentifier>{62d0b77b-91bb-4710-8324-bc544549f6c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\Features">
-      <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FLHook\Memory">
       <UniqueIdentifier>{8af08fa1-208a-40a3-8ded-6926df4fe285}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\Tools\Serialization">
       <UniqueIdentifier>{87225937-9c94-4d5e-8e3f-ba1236fe0369}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Tools">
+      <UniqueIdentifier>{62d0b77b-91bb-4710-8324-bc544549f6c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Features">
+      <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\Data">
+      <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -43,7 +43,7 @@
       <Filter>FLHook</Filter>
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp">
-      <Filter>FLHook\data</Filter>
+      <Filter>FLHook\Data</Filter>
     </ClCompile>
     <ClCompile Include="..\source\CCmds.cpp">
       <Filter>AdminCommands</Filter>
@@ -139,7 +139,7 @@
       <Filter>FLHook\Features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Data\Lights.cpp">
-      <Filter>FLHook\data</Filter>
+      <Filter>FLHook\Data</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Debug.cpp">
       <Filter>FLHook</Filter>
@@ -166,46 +166,49 @@
     <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\include\FLHook.hpp">
-      <Filter>sdk</Filter>
+      <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\plugin.h">
-      <Filter>sdk</Filter>
+      <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Constexpr.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Deps.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Enums.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Hk.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Macros.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Serialization.hpp">
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Structs.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Typedefs.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Utils.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Features\Mail.hpp">
-      <Filter>sdk\Features</Filter>
+      <Filter>Include\Features</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Concepts.hpp">
-      <Filter>sdk\Tools</Filter>
+      <Filter>Include\Tools</Filter>
     </ClInclude>
     <ClInclude Include="..\source\Memory\MemoryManager.hpp">
       <Filter>FLHook\Memory</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Features\TempBan.hpp">
-      <Filter>sdk\Features</Filter>
+      <Filter>Include\Features</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp">
       <Filter>Include\Tools\Serialization</Filter>

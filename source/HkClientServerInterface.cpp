@@ -119,7 +119,7 @@ namespace IServerImplHook
 
 			// if this is a message in system chat then convert it to local unless
 			// explicitly overriden by the player using /s.
-			if (config->userCommands.defaultLocalChat && cidTo.iId == SpecialChatIds::SYSTEM)
+			if (config->messages.defaultLocalChat && cidTo.iId == SpecialChatIds::SYSTEM)
 			{
 				cidTo.iId = SpecialChatIds::LOCAL;
 			}
@@ -250,7 +250,7 @@ namespace IServerImplHook
 			ProcessEvent(L"{}", eventString.c_str());
 
 			// check if chat should be suppressed for in-built command prefixes
-			if (config->general.suppressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
+			if (config->messages.suppressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
 			{
 				return false;
 			}

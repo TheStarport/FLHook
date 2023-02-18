@@ -427,7 +427,7 @@ void HookRehashed()
 	char* pAddress;
 
 	// anti-deathmsg
-	if (FLHookConfig::i()->general.dieMsg)
+	if (FLHookConfig::i()->messages.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
 		char szJMP[] = { '\xEB' };
 		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
