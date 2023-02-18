@@ -170,17 +170,8 @@ namespace Plugins::LightControl
 		uint j = 0;
 		for (uint i = pageNumber * global->config->itemsPerPage; (i < lightsSize && j < global->config->itemsPerPage); i++, j++)
 		{
-			PrintUserCmdText(client, global->config->lights[i]);
-		}
-	}
-	/** @ingroup LightControl
-	 * @brief Show the options available to the player.
-	 */
-	void UserCmdShowOptions(ClientId& client)
-	{
-		for (const auto& light : global->config->lights)
-		{
-			PrintUserCmdText(client, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(light).setFindAll().nreplace());
+			PrintUserCmdText(
+			    client, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(global->config->lights[i]).setFindAll().nreplace());
 		}
 	}
 
@@ -195,24 +186,25 @@ namespace Plugins::LightControl
 			return;
 		}
 
+		std::vector<std::wstring> hardPointIds;
+
 		const std::wstring inputParam = (GetParam(param, ' ', 1));
-
-		bool invalidParam = false;
-
-		for (const auto i : inputParam)
+		if (inputParam != L"all")
 		{
-			if (!(std::isdigit(i) || i == L'-'))
+			for (const auto i : inputParam)
 			{
-				PrintUserCmdText(client,
-				    L"Error: Please input an appropriate light point \n"
-				    L"Example: <1-2-3> or <1> ");
-				return;
+				if (!(std::isdigit(i) || i == L'-'))
+				{
+					PrintUserCmdText(client,
+					    L"Error: Please input an appropriate light point \n"
+					    L"Example: 1-2-3 , 1 , or all.");
+					return;
+				}
 			}
+			hardPointIds = Split(inputParam, L'-');
+			if (hardPointIds.empty())
+				hardPointIds.emplace_back(inputParam);
 		}
-		std::vector<std::wstring> hardPointIds = Split(inputParam, L'-');
-		if (hardPointIds.empty())
-			hardPointIds.emplace_back(inputParam);
-
 		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 		std::vector<EquipDesc> lights;
 		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
@@ -228,6 +220,15 @@ namespace Plugins::LightControl
 		}
 
 		std::ranges::sort(lights, [](const EquipDesc& a, const EquipDesc& b) { return a.get_hardpoint().value < b.get_hardpoint().value; });
+
+		// if the user inputted all, filling of hardpoint ids will be skipped and thus empty, fill it with all possible hard point indexes.
+		if (hardPointIds.empty())
+		{
+			for (uint i = 1; i < lights.size() + 1; i++)
+			{
+				hardPointIds.emplace_back(std::format(L"{}", i));
+			}
+		}
 
 		for (const auto& hardPointIdString : hardPointIds)
 		{
@@ -280,18 +281,13 @@ namespace Plugins::LightControl
 		}
 		else if (subCommand == L"options")
 		{
-			UserCmdShowOptions(client);
-		}
-		else if (subCommand == L"list")
-		{
 			UserCmdListLights(client, param);
 		}
 		else
 		{
 			PrintUserCmdText(client,
 			    L"Usage: /lights show \n"
-			    L"Usage: /lights list <page number> \n"
-			    L"Usage: /lights options \n"
+			    L"Usage: /lights options <page number> \n"
 			    L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0)
 			{
