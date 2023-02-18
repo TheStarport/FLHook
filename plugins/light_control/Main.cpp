@@ -8,7 +8,7 @@
  * @paragraph cmds Player Commands
  * All commands are prefixed with '/' unless explicitly specified.
  * - lights show - Shows the current equipped lights.
- * - lights options <Page Number> - Shows a page of lights that can be swapped to.
+ * - lights options [Page Number] - Shows a page of lights that can be swapped to.
  * - lights change <Light Point> <Item> - Swap a light.
  *
  * @paragraph adminCmds Admin Commands
@@ -18,11 +18,11 @@
  * @code
  * {
  *     "bases": ["li01_01_base"],
- *     "cost": 123,
+ *     "cost": 0,
  *     "introMessage1": "Light customization facilities are available here.",
  *     "introMessage2": "Type /lights on your console to see options.",
  *     "lights": ["SmallWhite","LargeGreen"],
- *     "itemsPerPage": 10,
+ *     "itemsPerPage": 24,
  *     "notifyAvailabilityOnEnter": false
  * }
  * @endcode
@@ -135,6 +135,7 @@ namespace Plugins::LightControl
 
 			lights.emplace_back(i);
 		}
+
 		if (lights.empty())
 		{
 			PrintUserCmdText(client, L"Error: You have no valid hard points that can be changed. ");
@@ -164,22 +165,35 @@ namespace Plugins::LightControl
 	 */
 	void UserCmdListLights(ClientId& client, const std::wstring& param)
 	{
-		if ( global->config->lights.empty())
+		if (global->config->lights.empty())
 		{
 			PrintUserCmdText(client, L"Error: There are no available options. ");
 			return;
 		}
 
-		const uint pageNumber = ToUInt(GetParam(param, ' ', 1)) - 1;
+		uint pageNumber = 0;
+		if (!GetParam(param, ' ', 1).empty())
+		{
+			pageNumber = ToUInt(GetParam(param, ' ', 1)) - 1;
+		}
+		else
+		{
+			pageNumber = 0;
+		}
+
 		const uint lightsSize = static_cast<int>(global->config->lights.size());
 
 		// +1 the quotient to account for the last page being the remainder.
 		const uint maxPages = global->config->lights.size() / global->config->itemsPerPage + 1;
+
 		if (pageNumber >= maxPages)
 		{
 			PrintUserCmdText(client, std::format(L"Error, invalid page number, the valid page numbers are any integer between 1 and {}", maxPages));
 			return;
 		}
+
+		PrintUserCmdText(client, std::format(L"Displaying {} items from page {} of {}", global->config->itemsPerPage, pageNumber + 1, maxPages));
+
 		uint j = 0;
 		for (uint i = pageNumber * global->config->itemsPerPage; (i < lightsSize && j < global->config->itemsPerPage); i++, j++)
 		{
@@ -248,6 +262,15 @@ namespace Plugins::LightControl
 			}
 		}
 
+		if (Hk::Player::GetCash(client).value() <= global->config->cost * hardPointIds.size())
+		{
+			PrintUserCmdText(client,
+			    std::format(L"This light change require a total {} cash, you only have {} cash.",
+			        global->config->cost * hardPointIds.size(),
+			        Hk::Player::GetCash(client).value()));
+			return;
+		}
+
 		for (const auto& hardPointIdString : hardPointIds)
 		{
 			const auto hardPointId = ToUInt(hardPointIdString) - 1;
@@ -270,14 +293,18 @@ namespace Plugins::LightControl
 				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
+		}
 
-			err = Hk::Player::RemoveCash(client, global->config->cost);
+		if (global->config->cost != 0)
+		{
+			const auto err = Hk::Player::RemoveCash(client, global->config->cost * hardPointIds.size());
 			if (err.has_error())
 			{
 				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
 		}
+
 		Hk::Player::SaveChar(client);
 		PrintUserCmdText(client, L"Light(s) successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
@@ -305,7 +332,7 @@ namespace Plugins::LightControl
 		{
 			PrintUserCmdText(client,
 			    L"Usage: /lights show \n"
-			    L"Usage: /lights options <page number> \n"
+			    L"Usage: /lights options [page number] \n"
 			    L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0)
 			{
