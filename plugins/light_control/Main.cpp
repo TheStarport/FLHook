@@ -8,7 +8,7 @@
  * @paragraph cmds Player Commands
  * All commands are prefixed with '/' unless explicitly specified.
  * - lights show - Shows the current equipped lights.
- * - lights options - Shows what lights you can equip.
+ * - lights options <Page Number> - Shows a page of lights that can be swapped to.
  * - lights change <Light Point> <Item> - Swap a light.
  *
  * @paragraph adminCmds Admin Commands
@@ -22,6 +22,7 @@
  *     "introMessage1": "Light customization facilities are available here.",
  *     "introMessage2": "Type /lights on your console to see options.",
  *     "lights": ["SmallWhite","LargeGreen"],
+ *     "itemsPerPage": 10,
  *     "notifyAvailabilityOnEnter": false
  * }
  * @endcode
@@ -134,6 +135,12 @@ namespace Plugins::LightControl
 
 			lights.emplace_back(i);
 		}
+		if (lights.empty())
+		{
+			PrintUserCmdText(client, L"Error: You have no valid hard points that can be changed. ");
+			return;
+		}
+
 		std::ranges::sort(lights, [](const EquipDesc& a, const EquipDesc& b) { return a.get_hardpoint().value < b.get_hardpoint().value; });
 
 		int itemNumber = 1;
@@ -157,6 +164,12 @@ namespace Plugins::LightControl
 	 */
 	void UserCmdListLights(ClientId& client, const std::wstring& param)
 	{
+		if ( global->config->lights.empty())
+		{
+			PrintUserCmdText(client, L"Error: There are no available options. ");
+			return;
+		}
+
 		const uint pageNumber = ToUInt(GetParam(param, ' ', 1)) - 1;
 		const uint lightsSize = static_cast<int>(global->config->lights.size());
 
@@ -217,6 +230,11 @@ namespace Plugins::LightControl
 			}
 
 			lights.emplace_back(i);
+		}
+		if (lights.empty())
+		{
+			PrintUserCmdText(client, L"Error: You have no valid hard points that can be changed. ");
+			return;
 		}
 
 		std::ranges::sort(lights, [](const EquipDesc& a, const EquipDesc& b) { return a.get_hardpoint().value < b.get_hardpoint().value; });
