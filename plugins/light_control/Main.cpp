@@ -317,7 +317,10 @@ namespace Plugins::LightControl
 		if (const auto subCommand = GetParam(param, ' ', 0); subCommand == L"change")
 		{
 			if (!IsInValidBase(client))
+			{
 				return;
+			}
+
 			UserCmdChangeItem(client, param);
 		}
 		else if (subCommand == L"show")
