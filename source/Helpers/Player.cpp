@@ -209,7 +209,7 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		if (wscReason.length())
-			MsgAndKick(client, wscReason, FLHookConfig::i()->msgStyle.kickMsgPeriod);
+			MsgAndKick(client, wscReason, FLHookConfig::i()->messages.msgStyle.kickMsgPeriod);
 		else
 			Players.FindAccountFromClientID(client)->ForceLogout();
 
@@ -701,7 +701,7 @@ namespace Hk::Player
 	{
 		if (!ClientInfo[client].tmKickTime)
 		{
-			std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->msgStyle.kickMsg, L"%reason", XMLText(wscReason));
+			std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->messages.msgStyle.kickMsg, L"%reason", XMLText(wscReason));
 			Hk::Message::FMsg(client, wscMsg);
 			ClientInfo[client].tmKickTime = timeInMS() + iIntervall;
 		}
