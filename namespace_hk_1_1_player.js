@@ -2,7 +2,7 @@ var namespace_hk_1_1_player =
 [
     [ "EQ_ITEM", "struct_hk_1_1_player_1_1_e_q___i_t_e_m.html", "struct_hk_1_1_player_1_1_e_q___i_t_e_m" ],
     [ "_FLAntiCheat", "namespace_hk_1_1_player.html#a4d3e9a4d580a42c8e73baf8b193933b7", null ],
-    [ "_FLPossibleCheatingDetected", "namespace_hk_1_1_player.html#adadd27966cc3322d541d4ef49d3cec11", null ],
+    [ "_FLPossibleCheatingDetected", "namespace_hk_1_1_player.html#ae2f78e0e29b58b1e4f4833057145dcaf", null ],
     [ "AddCargo", "namespace_hk_1_1_player.html#ab3d993425b7e7dc28467c3187a2bf359", null ],
     [ "AddCargo", "namespace_hk_1_1_player.html#ae76416ed1ec34a8890dc36ccdb5d81d4", null ],
     [ "AddCash", "namespace_hk_1_1_player.html#a799178f08dd948f8d8f326ea22d2483a", null ],
@@ -62,11 +62,6 @@ var namespace_hk_1_1_player =
     [ "AddrAntiCheat2", "namespace_hk_1_1_player.html#a358460693ef0a3b8f15fcb11d3a72f09", null ],
     [ "AddrAntiCheat3", "namespace_hk_1_1_player.html#a1d95ae2bfc01a4c1bfdfce8d7099f87b", null ],
     [ "AddrAntiCheat4", "namespace_hk_1_1_player.html#a24e234ee7c782c06467736809d5f9569", null ],
-    [ "AntiCheat1", "namespace_hk_1_1_player.html#a99557b6bffcbefa96c8744bdf1d62f71", null ],
-    [ "AntiCheat2", "namespace_hk_1_1_player.html#af359760bb367ac0f3895cb01e51caf08", null ],
-    [ "AntiCheat3", "namespace_hk_1_1_player.html#aa43f8a348099cf692803fce9b055b334", null ],
-    [ "AntiCheat4", "namespace_hk_1_1_player.html#ab3e67983db6f8b46113cc7c88e93d9fe", null ],
     [ "bannedBases", "namespace_hk_1_1_player.html#a3958c3ae73901bac0b08e66300027ca0", null ],
-    [ "FLPossibleCheatingDetected", "namespace_hk_1_1_player.html#ab2a56e6c1c15d59de5f5745695f99485", null ],
     [ "PossibleCheatingDetectedAddr", "namespace_hk_1_1_player.html#a90f739cbe9f2d4f65e58b86428785b7d", null ]
 ];

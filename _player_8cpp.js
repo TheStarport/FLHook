@@ -1,7 +1,7 @@
 var _player_8cpp =
 [
     [ "_FLAntiCheat", "_player_8cpp.html#a4d3e9a4d580a42c8e73baf8b193933b7", null ],
-    [ "_FLPossibleCheatingDetected", "_player_8cpp.html#adadd27966cc3322d541d4ef49d3cec11", null ],
+    [ "_FLPossibleCheatingDetected", "_player_8cpp.html#ae2f78e0e29b58b1e4f4833057145dcaf", null ],
     [ "AddCargo", "_player_8cpp.html#ab3d993425b7e7dc28467c3187a2bf359", null ],
     [ "AddCargo", "_player_8cpp.html#ae76416ed1ec34a8890dc36ccdb5d81d4", null ],
     [ "AddCash", "_player_8cpp.html#a799178f08dd948f8d8f326ea22d2483a", null ],
@@ -61,11 +61,6 @@ var _player_8cpp =
     [ "AddrAntiCheat2", "_player_8cpp.html#a358460693ef0a3b8f15fcb11d3a72f09", null ],
     [ "AddrAntiCheat3", "_player_8cpp.html#a1d95ae2bfc01a4c1bfdfce8d7099f87b", null ],
     [ "AddrAntiCheat4", "_player_8cpp.html#a24e234ee7c782c06467736809d5f9569", null ],
-    [ "AntiCheat1", "_player_8cpp.html#a99557b6bffcbefa96c8744bdf1d62f71", null ],
-    [ "AntiCheat2", "_player_8cpp.html#af359760bb367ac0f3895cb01e51caf08", null ],
-    [ "AntiCheat3", "_player_8cpp.html#aa43f8a348099cf692803fce9b055b334", null ],
-    [ "AntiCheat4", "_player_8cpp.html#ab3e67983db6f8b46113cc7c88e93d9fe", null ],
     [ "bannedBases", "_player_8cpp.html#a3958c3ae73901bac0b08e66300027ca0", null ],
-    [ "FLPossibleCheatingDetected", "_player_8cpp.html#ab2a56e6c1c15d59de5f5745695f99485", null ],
     [ "PossibleCheatingDetectedAddr", "_player_8cpp.html#a90f739cbe9f2d4f65e58b86428785b7d", null ]
 ];
