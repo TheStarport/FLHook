@@ -28,8 +28,8 @@ namespace Plugins::LightControl
 		//! cost per changed item.
 		uint cost = 0;
 
-		//For display lights, how many to display.
-		uint itemsPerPage = 25;
+		//!For options command, how many items to display.
+		uint itemsPerPage = 24;
 
 		//! Map of bases who offer LightControl
 		std::vector<std::string> bases;
