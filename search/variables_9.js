@@ -34,6 +34,7 @@ var searchData=
   ['items_31',['Items',['../struct_plugins_1_1_mining_control_1_1_player_bonus.html#a58e1a289377f493276cbd5c1f051404e',1,'Plugins::MiningControl::PlayerBonus']]],
   ['itemsofinterest_32',['itemsOfInterest',['../struct_plugins_1_1_purchase_restrictions_1_1_config.html#a77a21f707872858b55ac948cb781b2c2',1,'Plugins::PurchaseRestrictions::Config']]],
   ['itemsofinteresthashed_33',['itemsOfInterestHashed',['../struct_plugins_1_1_purchase_restrictions_1_1_global.html#adf49069cf240053df3fa26a102888fce',1,'Plugins::PurchaseRestrictions::Global']]],
-  ['itriggerhash_34',['iTriggerHash',['../struct_t_r_i_g_g_e_r___a_r_g.html#a188ee0cbdfac0e2950548c181e3a166f',1,'TRIGGER_ARG::iTriggerHash()'],['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#a1d7dd86146fd3e576db660d861debea2',1,'ACTION_DEBUGMSG_DATA::iTriggerHash()']]],
-  ['itriggerhash2_35',['iTriggerHash2',['../struct_t_r_i_g_g_e_r___a_r_g.html#a6c3a8baf9f61a6fc64012158c0b27880',1,'TRIGGER_ARG']]]
+  ['itemsperpage_34',['itemsPerPage',['../struct_plugins_1_1_light_control_1_1_config.html#ae00a5eeab2a5d1ee5476e1bb7f0a6bb1',1,'Plugins::LightControl::Config']]],
+  ['itriggerhash_35',['iTriggerHash',['../struct_t_r_i_g_g_e_r___a_r_g.html#a188ee0cbdfac0e2950548c181e3a166f',1,'TRIGGER_ARG::iTriggerHash()'],['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#a1d7dd86146fd3e576db660d861debea2',1,'ACTION_DEBUGMSG_DATA::iTriggerHash()']]],
+  ['itriggerhash2_36',['iTriggerHash2',['../struct_t_r_i_g_g_e_r___a_r_g.html#a6c3a8baf9f61a6fc64012158c0b27880',1,'TRIGGER_ARG']]]
 ];

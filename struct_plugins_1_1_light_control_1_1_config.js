@@ -6,6 +6,7 @@ var struct_plugins_1_1_light_control_1_1_config =
     [ "cost", "struct_plugins_1_1_light_control_1_1_config.html#abb0cc5183e9cc39c900e30a256097956", null ],
     [ "introMessage1", "struct_plugins_1_1_light_control_1_1_config.html#a4071debaa1ea709c4cd07ca76ee2f2b2", null ],
     [ "introMessage2", "struct_plugins_1_1_light_control_1_1_config.html#a08fe162c5522d1c03a80ca94ddb2f3da", null ],
+    [ "itemsPerPage", "struct_plugins_1_1_light_control_1_1_config.html#ae00a5eeab2a5d1ee5476e1bb7f0a6bb1", null ],
     [ "lights", "struct_plugins_1_1_light_control_1_1_config.html#a0aba8c6de3cce72f00bea478295ae20f", null ],
     [ "lightsHashed", "struct_plugins_1_1_light_control_1_1_config.html#af980a457e23d12693f661792d22b0d07", null ],
     [ "notifyAvailabilityOnEnter", "struct_plugins_1_1_light_control_1_1_config.html#a106b122e56e1c51d873242e36083e5c1", null ]

@@ -38,10 +38,10 @@ var searchData=
   ['inithookexports_35',['InitHookExports',['../_global_8hpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp'],['../_hk_init_8cpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp']]],
   ['initiatetrade_36',['InitiateTrade',['../namespace_i_server_impl_hook.html#a732222471b8722f81748009bc7afc8ce',1,'IServerImplHook']]],
   ['initiatetrade_5f_5finner_37',['InitiateTrade__Inner',['../namespace_i_server_impl_hook.html#a8a8f2604b6c9bf02562264e52c9df0d1',1,'IServerImplHook']]],
-  ['initiator_38',['initiator',['../struct_plugins_1_1_tax_1_1_tax.html#a2be39a6718d7c2123cb02492b372abed',1,'Plugins::Tax::Tax::initiator()'],['../struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt.html#a075cef3a34d2703c1edf354a29ed5596',1,'Plugins::BountyHunt::BountyHunt::initiator()']]],
+  ['initiator_38',['initiator',['../struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt.html#a075cef3a34d2703c1edf354a29ed5596',1,'Plugins::BountyHunt::BountyHunt::initiator()'],['../struct_plugins_1_1_tax_1_1_tax.html#a2be39a6718d7c2123cb02492b372abed',1,'Plugins::Tax::Tax::initiator()']]],
   ['initiatorid_39',['initiatorId',['../struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt.html#a4a497931a4fbefd6a7b93e1cf28af379',1,'Plugins::BountyHunt::BountyHunt::initiatorId()'],['../struct_plugins_1_1_tax_1_1_tax.html#a73d2e8eaf131e6a2644d9a9b09547b56',1,'Plugins::Tax::Tax::initiatorId()']]],
   ['initlogs_40',['InitLogs',['../_logging_8cpp.html#abfcd5eadcbfe9ffc784b78c8753aa244',1,'Logging.cpp']]],
-  ['initsyminfo_41',['InitSymInfo',['../xtrace_8cpp.html#ac934392258a142a7eefeb0728b1de7ee',1,'InitSymInfo(PCSTR):&#160;xtrace.cpp'],['../xtrace_8h.html#ac934392258a142a7eefeb0728b1de7ee',1,'InitSymInfo(PCSTR):&#160;xtrace.cpp']]],
+  ['initsyminfo_41',['InitSymInfo',['../xtrace_8h.html#ac934392258a142a7eefeb0728b1de7ee',1,'InitSymInfo(PCSTR):&#160;xtrace.cpp'],['../xtrace_8cpp.html#ac934392258a142a7eefeb0728b1de7ee',1,'InitSymInfo(PCSTR):&#160;xtrace.cpp']]],
   ['iniwrite_42',['IniWrite',['../_tools_8cpp.html#a2e83027df25bc2de5bd11676b8672362',1,'Tools.cpp']]],
   ['iniwritew_43',['IniWriteW',['../_tools_8cpp.html#a1743099c3e6f5df716a1320ec075190d',1,'Tools.cpp']]],
   ['injumpgate_44',['inJumpGate',['../struct_plugins_1_1_system_sensor_1_1_active_network.html#a97f96f97c9bd8ff77b43fc0e827da27f',1,'Plugins::SystemSensor::ActiveNetwork']]],
@@ -84,7 +84,8 @@ var searchData=
   ['items_81',['Items',['../struct_plugins_1_1_mining_control_1_1_player_bonus.html#a58e1a289377f493276cbd5c1f051404e',1,'Plugins::MiningControl::PlayerBonus']]],
   ['itemsofinterest_82',['itemsOfInterest',['../struct_plugins_1_1_purchase_restrictions_1_1_config.html#a77a21f707872858b55ac948cb781b2c2',1,'Plugins::PurchaseRestrictions::Config']]],
   ['itemsofinteresthashed_83',['itemsOfInterestHashed',['../struct_plugins_1_1_purchase_restrictions_1_1_global.html#adf49069cf240053df3fa26a102888fce',1,'Plugins::PurchaseRestrictions::Global']]],
-  ['itohexs_84',['itohexs',['../_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb',1,'Tools.cpp']]],
-  ['itriggerhash_85',['iTriggerHash',['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#a1d7dd86146fd3e576db660d861debea2',1,'ACTION_DEBUGMSG_DATA::iTriggerHash()'],['../struct_t_r_i_g_g_e_r___a_r_g.html#a188ee0cbdfac0e2950548c181e3a166f',1,'TRIGGER_ARG::iTriggerHash()']]],
-  ['itriggerhash2_86',['iTriggerHash2',['../struct_t_r_i_g_g_e_r___a_r_g.html#a6c3a8baf9f61a6fc64012158c0b27880',1,'TRIGGER_ARG']]]
+  ['itemsperpage_84',['itemsPerPage',['../struct_plugins_1_1_light_control_1_1_config.html#ae00a5eeab2a5d1ee5476e1bb7f0a6bb1',1,'Plugins::LightControl::Config']]],
+  ['itohexs_85',['itohexs',['../_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb',1,'Tools.cpp']]],
+  ['itriggerhash_86',['iTriggerHash',['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#a1d7dd86146fd3e576db660d861debea2',1,'ACTION_DEBUGMSG_DATA::iTriggerHash()'],['../struct_t_r_i_g_g_e_r___a_r_g.html#a188ee0cbdfac0e2950548c181e3a166f',1,'TRIGGER_ARG::iTriggerHash()']]],
+  ['itriggerhash2_87',['iTriggerHash2',['../struct_t_r_i_g_g_e_r___a_r_g.html#a6c3a8baf9f61a6fc64012158c0b27880',1,'TRIGGER_ARG']]]
 ];

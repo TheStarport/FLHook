@@ -154,7 +154,7 @@ $(document).ready(function(){initNavTree('group___light_control.html',''); initR
 Player Commands</h4>
 <p>All commands are prefixed with '/' unless explicitly specified.</p><ul>
 <li>lights show - Shows the current equipped lights.</li>
-<li>lights options - Shows what lights you can equip.</li>
+<li>lights options [Page Number] - Shows a page of lights that can be swapped to.</li>
 <li>lights change &lt;Light Point&gt;  - Swap a light.</li>
 </ul>
 <h4><a class="anchor" id="adminCmds"></a>
@@ -164,10 +164,11 @@ Admin Commands</h4>
 Configuration</h4>
 <div class="fragment"><div class="line">{</div>
 <div class="line">    <span class="stringliteral">&quot;bases&quot;</span>: [<span class="stringliteral">&quot;li01_01_base&quot;</span>],</div>
-<div class="line">    <span class="stringliteral">&quot;cost&quot;</span>: 123,</div>
+<div class="line">    <span class="stringliteral">&quot;cost&quot;</span>: 0,</div>
 <div class="line">    <span class="stringliteral">&quot;introMessage1&quot;</span>: <span class="stringliteral">&quot;Light customization facilities are available here.&quot;</span>,</div>
 <div class="line">    <span class="stringliteral">&quot;introMessage2&quot;</span>: <span class="stringliteral">&quot;Type /lights on your console to see options.&quot;</span>,</div>
 <div class="line">    <span class="stringliteral">&quot;lights&quot;</span>: [<span class="stringliteral">&quot;SmallWhite&quot;</span>,<span class="stringliteral">&quot;LargeGreen&quot;</span>],</div>
+<div class="line">    <span class="stringliteral">&quot;itemsPerPage&quot;</span>: 24,</div>
 <div class="line">    <span class="stringliteral">&quot;notifyAvailabilityOnEnter&quot;</span>: <span class="keyword">false</span></div>
 <div class="line">}</div>
 </div><!-- fragment --><h4><a class="anchor" id="ipc"></a>
@@ -257,23 +258,33 @@ Optional Plugin Dependencies</h4>
 
 </div>
 </div>
-<a id="gac5b668cb720edb116c3f93606c31dc46" name="gac5b668cb720edb116c3f93606c31dc46"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac5b668cb720edb116c3f93606c31dc46">&#9670;&#160;</a></span>UserCmdShowOptions()</h2>
+<a id="ga0c701250cb6732e92ed7ed102c90b28b" name="ga0c701250cb6732e92ed7ed102c90b28b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0c701250cb6732e92ed7ed102c90b28b">&#9670;&#160;</a></span>UserCmdListLights()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Plugins::LightControl::UserCmdShowOptions </td>
+          <td class="memname">void Plugins::LightControl::UserCmdListLights </td>
           <td>(</td>
           <td class="paramtype">ClientId &amp;&#160;</td>
-          <td class="paramname"><em>client</em></td><td>)</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>param</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Show the options available to the player. </p>
+<p>Shows the lights available to be used. </p>
 
 </div>
 </div>
