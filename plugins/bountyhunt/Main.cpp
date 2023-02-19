@@ -314,8 +314,8 @@ namespace Plugins::BountyHunt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
 
-REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect, AttrMin {0}, AttrMax {100}), field(minimalHuntTime, AttrMin {1}, AttrMax {1400}),
-    field(maximumHuntTime, AttrMin {1}, AttrMax {1400}), field(defaultHuntTime, AttrMin {1}, AttrMax {1400}))
+REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect, AttrMin {0u}, AttrMax {100u}), field(minimalHuntTime, AttrMin {1u}, AttrMax {1400u}),
+    field(maximumHuntTime, AttrMin {1u}, AttrMax {1400u}), field(defaultHuntTime, AttrMin {1u}, AttrMax {1400u}))
 
 DefaultDllMainSettings(LoadSettings);
 
