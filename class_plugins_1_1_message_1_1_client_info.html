@@ -163,19 +163,19 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a51fd33c11886f3a26508250295af774a"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a51fd33c11886f3a26508250295af774a">slot</a> [<a class="el" href="namespace_plugins_1_1_message.html#a9c818c2495aba1b636fa5dea7543658b">numberOfSlots</a>]</td></tr>
-<tr class="memdesc:a51fd33c11886f3a26508250295af774a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slots that contain prewritten messages.  <br /></td></tr>
-<tr class="separator:a51fd33c11886f3a26508250295af774a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac85c78cb1c43cc46778d232c8eda6384"><td class="memItemLeft" align="right" valign="top">std::array&lt; std::wstring, <a class="el" href="namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6">NumberOfSlots</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384">slots</a></td></tr>
+<tr class="memdesc:ac85c78cb1c43cc46778d232c8eda6384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slots that contain prewritten messages.  <br /></td></tr>
+<tr class="separator:ac85c78cb1c43cc46778d232c8eda6384"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a99d8124f61bb4ee3da805c3d2c66541f"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a99d8124f61bb4ee3da805c3d2c66541f">lastPmClientId</a> = -1</td></tr>
 <tr class="memdesc:a99d8124f61bb4ee3da805c3d2c66541f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Client Id of last PM.  <br /></td></tr>
 <tr class="separator:a99d8124f61bb4ee3da805c3d2c66541f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87aa203f296741c781afee3b6451c838"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a87aa203f296741c781afee3b6451c838">targetClientId</a> = -1</td></tr>
 <tr class="memdesc:a87aa203f296741c781afee3b6451c838"><td class="mdescLeft">&#160;</td><td class="mdescRight">Client Id of selected target.  <br /></td></tr>
 <tr class="separator:a87aa203f296741c781afee3b6451c838"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f3a65eaf03d41e5f1b6803c04a2e502"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a0f3a65eaf03d41e5f1b6803c04a2e502">showChatTime</a></td></tr>
+<tr class="memitem:a0f3a65eaf03d41e5f1b6803c04a2e502"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a0f3a65eaf03d41e5f1b6803c04a2e502">showChatTime</a> = false</td></tr>
 <tr class="memdesc:a0f3a65eaf03d41e5f1b6803c04a2e502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current chat time settings.  <br /></td></tr>
 <tr class="separator:a0f3a65eaf03d41e5f1b6803c04a2e502"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa85f5c7c978de5c4ed23d7da8905388"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#aaa85f5c7c978de5c4ed23d7da8905388">greetingShown</a></td></tr>
+<tr class="memitem:aaa85f5c7c978de5c4ed23d7da8905388"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#aaa85f5c7c978de5c4ed23d7da8905388">greetingShown</a> = true</td></tr>
 <tr class="memdesc:aaa85f5c7c978de5c4ed23d7da8905388"><td class="mdescLeft">&#160;</td><td class="mdescRight">True if the login banner has been displayed.  <br /></td></tr>
 <tr class="separator:aaa85f5c7c978de5c4ed23d7da8905388"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a995a9d51d37f43d2f87e04854fddf5e9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_plugins_1_1_message_1_1_client_info.html#a995a9d51d37f43d2f87e04854fddf5e9">swearWordWarnings</a> = 0</td></tr>
@@ -218,7 +218,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool Plugins::Message::ClientInfo::greetingShown</td>
+          <td class="memname">bool Plugins::Message::ClientInfo::greetingShown = true</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -250,7 +250,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool Plugins::Message::ClientInfo::showChatTime</td>
+          <td class="memname">bool Plugins::Message::ClientInfo::showChatTime = false</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -259,14 +259,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a51fd33c11886f3a26508250295af774a" name="a51fd33c11886f3a26508250295af774a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a51fd33c11886f3a26508250295af774a">&#9670;&#160;</a></span>slot</h2>
+<a id="ac85c78cb1c43cc46778d232c8eda6384" name="ac85c78cb1c43cc46778d232c8eda6384"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac85c78cb1c43cc46778d232c8eda6384">&#9670;&#160;</a></span>slots</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::wstring Plugins::Message::ClientInfo::slot[<a class="el" href="namespace_plugins_1_1_message.html#a9c818c2495aba1b636fa5dea7543658b">numberOfSlots</a>]</td>
+          <td class="memname">std::array&lt;std::wstring, <a class="el" href="namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6">NumberOfSlots</a>&gt; Plugins::Message::ClientInfo::slots</td>
         </tr>
       </table>
 </div><div class="memdoc">

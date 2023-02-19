@@ -24,6 +24,7 @@ var message_2_main_8cpp =
     [ "UserCmd_GMsg", "message_2_main_8cpp.html#ga26da7e1f18f118e9bb9bbd2621455af9", null ],
     [ "UserCmd_LMsg", "message_2_main_8cpp.html#gae38fa695d221ddfb05920e59a50ed5c0", null ],
     [ "UserCmd_Me", "message_2_main_8cpp.html#ga867ad8009d01c8c12b05dd9e0adf5a9a", null ],
+    [ "UserCmd_Msg", "message_2_main_8cpp.html#ga060a48785db2a6d0ed99e7c7e380b86e", null ],
     [ "UserCmd_PrivateMsg", "message_2_main_8cpp.html#ga31b66171074cbfa23807344c76378b07", null ],
     [ "UserCmd_PrivateMsgID", "message_2_main_8cpp.html#gacce4d199e7d411603ca5248ec583ea5d", null ],
     [ "UserCmd_ReplyToLastPMSender", "message_2_main_8cpp.html#ga6e67ca8794c48f2c4e09e93576792de8", null ],

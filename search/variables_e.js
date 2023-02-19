@@ -15,5 +15,5 @@ var searchData=
   ['npcinfo_12',['npcInfo',['../struct_plugins_1_1_npc_1_1_config.html#a564ce252fd0dc8c12d8bd6aa6f5eb8e2',1,'Plugins::Npc::Config']]],
   ['npcinfocardids_13',['npcInfocardIds',['../struct_plugins_1_1_npc_1_1_config.html#a4ef903d0a50473ad444fa923461a7ae2',1,'Plugins::Npc::Config']]],
   ['npcmissions_14',['NpcMissions',['../struct_plugins_1_1_event_1_1_config.html#af6ef089ba1c7f5154d5937b07efb1f05',1,'Plugins::Event::Config::NpcMissions()'],['../struct_plugins_1_1_event_1_1_global.html#a85667b96db4b96387ece493a2c258269',1,'Plugins::Event::Global::NpcMissions()']]],
-  ['numberofslots_15',['numberOfSlots',['../namespace_plugins_1_1_message.html#a9c818c2495aba1b636fa5dea7543658b',1,'Plugins::Message']]]
+  ['numberofslots_15',['NumberOfSlots',['../namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6',1,'Plugins::Message']]]
 ];

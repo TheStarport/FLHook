@@ -25,7 +25,7 @@ var searchData=
   ['sid_22',['sId',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#ae8aa500e4a7b758f8d14f58ef185ae31',1,'Hk::Player::EQ_ITEM']]],
   ['sizeoroffset_23',['sizeOrOffset',['../structmsvc_____catchable_type.html#a3693d4703e2196f36245af3a2ce5a7e1',1,'msvc__CatchableType']]],
   ['slisten_24',['sListen',['../_f_l_hook_8cpp.html#a1e9a91aacc5e4435e5af90c8949daefa',1,'FLHook.cpp']]],
-  ['slot_25',['slot',['../class_plugins_1_1_message_1_1_client_info.html#a51fd33c11886f3a26508250295af774a',1,'Plugins::Message::ClientInfo']]],
+  ['slots_25',['slots',['../class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384',1,'Plugins::Message::ClientInfo']]],
   ['smitemusichash_26',['smiteMusicHash',['../struct_plugins_1_1_misc_commands_1_1_global.html#ae10affd1eb332f0477206a43e70389dc',1,'Plugins::MiscCommands::Global']]],
   ['smitemusicid_27',['smiteMusicId',['../struct_plugins_1_1_misc_commands_1_1_config.html#a087d01b98bef9be02b618d883d0f55cb',1,'Plugins::MiscCommands::Config']]],
   ['socketcmdslog_28',['SocketCmdsLog',['../_logging_8cpp.html#aeebc8d4086ecff7d8fe1a3ec2d5fc947',1,'Logging.cpp']]],

@@ -21,6 +21,7 @@ var group___message =
     [ "Plugins::Message::UserCmd_GMsg", "group___message.html#ga26da7e1f18f118e9bb9bbd2621455af9", null ],
     [ "Plugins::Message::UserCmd_LMsg", "group___message.html#gae38fa695d221ddfb05920e59a50ed5c0", null ],
     [ "Plugins::Message::UserCmd_Me", "group___message.html#ga867ad8009d01c8c12b05dd9e0adf5a9a", null ],
+    [ "Plugins::Message::UserCmd_Msg", "group___message.html#ga060a48785db2a6d0ed99e7c7e380b86e", null ],
     [ "Plugins::Message::UserCmd_PrivateMsg", "group___message.html#ga31b66171074cbfa23807344c76378b07", null ],
     [ "Plugins::Message::UserCmd_PrivateMsgID", "group___message.html#gacce4d199e7d411603ca5248ec583ea5d", null ],
     [ "Plugins::Message::UserCmd_ReplyToLastPMSender", "group___message.html#ga6e67ca8794c48f2c4e09e93576792de8", null ],

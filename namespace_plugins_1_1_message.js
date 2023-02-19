@@ -25,6 +25,7 @@ var namespace_plugins_1_1_message =
     [ "UserCmd_GMsg", "group___message.html#ga26da7e1f18f118e9bb9bbd2621455af9", null ],
     [ "UserCmd_LMsg", "group___message.html#gae38fa695d221ddfb05920e59a50ed5c0", null ],
     [ "UserCmd_Me", "group___message.html#ga867ad8009d01c8c12b05dd9e0adf5a9a", null ],
+    [ "UserCmd_Msg", "group___message.html#ga060a48785db2a6d0ed99e7c7e380b86e", null ],
     [ "UserCmd_PrivateMsg", "group___message.html#ga31b66171074cbfa23807344c76378b07", null ],
     [ "UserCmd_PrivateMsgID", "group___message.html#gacce4d199e7d411603ca5248ec583ea5d", null ],
     [ "UserCmd_ReplyToLastPMSender", "group___message.html#ga6e67ca8794c48f2c4e09e93576792de8", null ],
@@ -39,6 +40,6 @@ var namespace_plugins_1_1_message =
     [ "UserCmd_TMsg", "group___message.html#ga40aee0428641d649b0a080b3ffd5a78b", null ],
     [ "commands", "namespace_plugins_1_1_message.html#afb65d0c9431eb715739ee2dca350781a", null ],
     [ "global", "namespace_plugins_1_1_message.html#a7294e24d18f17d58fb523bc4225d5941", null ],
-    [ "numberOfSlots", "namespace_plugins_1_1_message.html#a9c818c2495aba1b636fa5dea7543658b", null ],
+    [ "NumberOfSlots", "namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6", null ],
     [ "timers", "namespace_plugins_1_1_message.html#a89713dae136c372a9d18d138e5ce7986", null ]
 ];
