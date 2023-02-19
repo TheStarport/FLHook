@@ -133,7 +133,7 @@ struct DLL Reflectable
 	virtual std::string File() { return {}; }
 };
 
-#include <Tools/Serialization.hpp>
+#include <Tools/Serialization/Serializer.hpp>
 
 struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 {
