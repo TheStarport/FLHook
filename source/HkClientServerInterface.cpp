@@ -59,7 +59,7 @@ namespace IServerImplHook
 			firstTime = false;
 		}
 
-		const auto currentTime = timeInMS();
+		const auto currentTime = Hk::Time::GetUnixMiliseconds();
 		for (auto& timer : g_Timers)
 		{
 			// This one isn't actually in seconds, but the plugins should be
@@ -360,7 +360,7 @@ namespace IServerImplHook
 	void LaunchComplete__Inner(uint, uint shipId) {TRY_HOOK {ClientId client = Hk::Client::GetClientIdByShip(shipId).value();
 	if (client)
 	{
-		ClientInfo[client].tmSpawnTime = timeInMS(); // save for anti-dockkill
+		ClientInfo[client].tmSpawnTime = Hk::Time::GetUnixMiliseconds(); // save for anti-dockkill
 		                                             // is there spawnprotection?
 		if (FLHookConfig::i()->general.antiDockKill > 0)
 			ClientInfo[client].bSpawnProtected = true;
@@ -635,7 +635,7 @@ bool CharacterInfoReq__Inner(ClientId client, bool)
 			pub::Player::GetShip(client, shipId);
 			if (shipId)
 			{ // in space
-				ClientInfo[client].tmF1Time = timeInMS() + FLHookConfig::i()->general.antiF1;
+				ClientInfo[client].tmF1Time = Hk::Time::GetUnixMiliseconds() + FLHookConfig::i()->general.antiF1;
 				return false;
 			}
 		}
@@ -669,7 +669,7 @@ bool OnConnect__Inner(ClientId client)
 		}
 
 		// If this client is in the anti-F1 timeout then force the disconnect.
-		if (ClientInfo[client].tmF1TimeDisconnect > timeInMS())
+		if (ClientInfo[client].tmF1TimeDisconnect > Hk::Time::GetUnixMiliseconds())
 		{
 			// manual disconnect
 			CDPClientProxy* cdpClient = clientProxyArray[client - 1];

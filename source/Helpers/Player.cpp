@@ -695,7 +695,7 @@ namespace Hk::Player
 		{
 			std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->msgStyle.kickMsg, L"%reason", XMLText(wscReason));
 			Hk::Message::FMsg(client, wscMsg);
-			ClientInfo[client].tmKickTime = timeInMS() + iIntervall;
+			ClientInfo[client].tmKickTime = Hk::Time::GetUnixMiliseconds() + iIntervall;
 		}
 
 		return {};
@@ -1502,7 +1502,7 @@ namespace Hk::Player
 
 	void DelayedKick(ClientId client, uint secs)
 	{
-		mstime kick_time = timeInMS() + (secs * 1000);
+		mstime kick_time = Hk::Time::GetUnixMiliseconds() + (secs * 1000);
 		if (!ClientInfo[client].tmKickTime || ClientInfo[client].tmKickTime > kick_time)
 			ClientInfo[client].tmKickTime = kick_time;
 	}
