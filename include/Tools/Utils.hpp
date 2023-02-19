@@ -90,6 +90,22 @@ inline uint ToUInt(const std::wstring& wscStr)
 	return wcstoul(wscStr.c_str(), nullptr, 10);
 }
 
+//! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
+inline uint MultiplyUIntBySuffix(const std::wstring& valueString)
+{
+	uint value = wcstoul(valueString.c_str(), nullptr, 10);
+	const auto lastChar = valueString.back();
+	if (lastChar == *L"k" || lastChar == *L"K")
+	{
+		return value * 1000;
+	}
+	if (lastChar == *L"m" || lastChar == *L"M")
+	{
+		return value * 1000000;
+	}
+	return value;
+}
+
 inline std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time)
 {
 	return std::chrono::sys_time<std::chrono::seconds> {std::chrono::seconds {time}};

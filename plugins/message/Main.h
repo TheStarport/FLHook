@@ -6,7 +6,7 @@
 namespace Plugins::Message
 {
 	//! Number of auto message slots
-	constexpr int numberOfSlots = 10;
+	constexpr int NumberOfSlots = 10;
 
 	//! A struct to represent each client
 	class ClientInfo
@@ -15,7 +15,7 @@ namespace Plugins::Message
 		ClientInfo() = default;
 
 		//! Slots that contain prewritten messages
-		std::wstring slot[numberOfSlots];
+		std::array<std::wstring, NumberOfSlots> slots;
 
 		//! Client Id of last PM.
 		uint lastPmClientId = -1;
@@ -24,10 +24,10 @@ namespace Plugins::Message
 		uint targetClientId = -1;
 
 		//! Current chat time settings
-		bool showChatTime;
+		bool showChatTime = false;
 
 		//! True if the login banner has been displayed.
-		bool greetingShown;
+		bool greetingShown = true;
 
 		//! Swear word warn level
 		int swearWordWarnings = 0;

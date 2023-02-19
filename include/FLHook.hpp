@@ -21,7 +21,7 @@
 #include "Tools/Utils.hpp"
 
 // Magic Enum Extensions
-using namespace magic_enum::bitwise_operators;  // NOLINT
+using namespace magic_enum::bitwise_operators; // NOLINT
 using namespace magic_enum::ostream_operators; // NOLINT
 
 DLL void ProcessEvent(std::wstring text, ...);
@@ -67,7 +67,7 @@ class DLL DataManager : public Singleton<DataManager>
 	std::map<EquipId, Light> lights;
 
   public:
-	DataManager() 
+	DataManager()
 	{
 		INI_Reader ini;
 		ini.open("freelancer.ini", false);
@@ -84,9 +84,9 @@ class DLL DataManager : public Singleton<DataManager>
 	};
 	DataManager(const DataManager&) = delete;
 
-	#ifdef FLHOOK
+#ifdef FLHOOK
 	void LoadLights();
-	#endif
+#endif
 
 	// Lights
 	const std::map<EquipId, Light>& GetLights() const;
@@ -149,17 +149,14 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool changeCruiseDisruptorBehaviour = false;
 		//! If true, enables FLHook debug mode.
 		bool debugMode = false;
-		//! If true, player's death renders the default message.
-		bool dieMsg = true;
+
 		//! If true, it encodes player characters to bini (binary ini)
 		bool disableCharfileEncryption = false;
 		//! If a player disconnects in space, their ship will remain in game world for the time specified, in miliseconds.
 		uint disconnectDelay = 0;
 		//! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
 		uint disableNPCSpawns = 0;
-		//! Broadcasts a message that the player is attempting docking to all players in range
-		//! currently hardcoded to 15K
-		bool dockingMessages = true;
+
 		//! If true, it uses local time when rendering current time instead of server time,
 		//! in for example, "/time" function.
 		bool localTime = false;
@@ -171,12 +168,8 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		//! Global damage multiplier to missile and torpedo type weapons.
 		float torpMissileBaseDamageMultiplier = 1.0f;
 		bool logPerformanceTimers = false;
-		//! If true, sends a copy of submitted commands to the player's chatlog.
-		bool echoCommands = true;
-		//! If true, invalid commands are not echo'ed
-		bool suppressInvalidCommands = true;
-		bool tempBansEnabled = true;
 
+		bool tempBansEnabled = true;
 
 		std::vector<std::wstring> chatSuppressList;
 		//! Vector of systems where players can't deal damage to one another.
@@ -215,6 +208,27 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
 	};
 
+	struct Message final : Reflectable
+	{
+		MsgStyle msgStyle;
+
+		//! If true, messages will sent only to local ships
+		bool defaultLocalChat = false;
+
+		//! If true, sends a copy of submitted commands to the player's chatlog.
+		bool echoCommands = true;
+
+		//! If true, invalid commands are not echo'ed
+		bool suppressInvalidCommands = true;
+
+		//! If true, player's death renders the default message.
+		bool dieMsg = true;
+
+		//! Broadcasts a message that the player is attempting docking to all players in range
+		//! currently hardcoded to 15K
+		bool dockingMessages = true;
+	};
+
 	struct Socket final : Reflectable
 	{
 		bool activated = false;
@@ -236,7 +250,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool userCmdIgnore = true;
 		bool userCmdHelp = true;
 		uint userCmdMaxIgnoreList = true;
-		bool defaultLocalChat = false;
 	};
 
 	struct MultiKillMessages final : Reflectable
@@ -255,26 +268,27 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 	General general;
 	Plugins plugins;
 	Socket socket;
-	MsgStyle msgStyle;
 	UserCommands userCommands;
 	MultiKillMessages multiKillMessages;
 	Bans bans;
+	Message messages;
 };
 
-REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
-    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(dockingMessages), field(localTime), field(maxGroupSize),
-    field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
-    field(noPVPSystems), field(echoCommands), field(suppressInvalidCommands), field(antiBaseIdle), field(antiCharMenuIdle))
+REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode),
+    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(localTime), field(maxGroupSize), field(persistGroup),
+    field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList), field(noPVPSystems), field(antiBaseIdle), field(antiCharMenuIdle))
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
 REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
-REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg), field(userCmdStyle),
-    field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
+REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg),
+    field(userCmdStyle), field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
     field(deathMsgTextSuicide))
 REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore),
-    field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat))
+    field(userCmdHelp), field(userCmdMaxIgnoreList))
 REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle), field(multiKillMessages))
 REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs))
-REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(msgStyle), field(userCommands), field(multiKillMessages), field(bans))
+REFL_AUTO(type(FLHookConfig::Message), field(msgStyle), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg),
+    field(dockingMessages))
+REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(multiKillMessages), field(userCommands), field(messages), field(bans))
 
 // Use the class to create and send packets of inconstant size.
 #pragma pack(push, 1)
@@ -496,7 +510,7 @@ class FLPACKET
 		FLPACKET_CLIENT_RTCDONE
 	};
 
-		// Common packets are being sent from server to client and from client to server.
+	// Common packets are being sent from server to client and from client to server.
 	DLL static FLPACKET* Create(uint size, CommonPacket kind);
 
 	// Server packets are being sent only from server to client.
@@ -512,9 +526,10 @@ class FLPACKET
 
 class CCmds
 {
-protected:
+  protected:
 	~CCmds() = default;
-private:
+
+  private:
 	bool bId;
 	bool bShortCut;
 	bool bSelf;
@@ -593,9 +608,9 @@ private:
 	void ExecuteCommandString(const std::wstring& wscCmd);
 	void SetRightsByString(const std::string& scRightStr);
 	std::wstring wscCurCmdString;
-	#endif
+#endif
 
-public:
+  public:
 	virtual void DoPrint(const std::string& text) = 0;
 	DLL void PrintError(Error err);
 	DLL std::wstring ArgCharname(uint iArg);
@@ -680,9 +695,9 @@ struct DLL CoreGlobals : Singleton<CoreGlobals>
 	uint serverLoadInMs;
 	uint playerCount;
 	bool disableNpcs;
-	
+
 	std::list<BaseInfo> allBases;
-	
+
 	bool flhookReady;
 };
 
