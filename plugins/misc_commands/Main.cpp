@@ -36,6 +36,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::MiscCommands
 {
@@ -372,7 +373,10 @@ namespace Plugins::MiscCommands
 using namespace Plugins::MiscCommands;
 
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(repDropCost), field(stuckMessage), field(diceMessage), field(coinMessage), field(smiteMusicId), field(enableDropRep))
+REFL_AUTO(type(Config), field(repDropCost, AttrMin {0u}, AttrMax {10000000u}), field(stuckMessage, AttrNotEmptyNotWhiteSpace<std::wstring> {}),
+    field(diceMessage, AttrNotEmptyNotWhiteSpace<std::wstring> {}), field(coinMessage, AttrNotEmptyNotWhiteSpace<std::wstring> {}),
+    field(smiteMusicId, AttrNotEmptyNotWhiteSpace<std::wstring> {}),
+    field(enableDropRep))
 
 DefaultDllMainSettings(LoadSettings);
 

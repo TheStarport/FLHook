@@ -24,6 +24,7 @@
 
 // Includes
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::SoundManager
 {
@@ -54,7 +55,7 @@ namespace Plugins::SoundManager
 
 using namespace Plugins::SoundManager;
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(sounds))
+REFL_AUTO(type(Config), field(sounds, AttrNotEmpty<std::vector<std::string>> {}))
 
 DefaultDllMainSettings(LoadSettings);
 

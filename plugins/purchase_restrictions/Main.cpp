@@ -42,6 +42,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::PurchaseRestrictions
 {
@@ -259,8 +260,11 @@ namespace Plugins::PurchaseRestrictions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins::PurchaseRestrictions;
-REFL_AUTO(type(Config), field(checkItemRestrictions), field(enforceItemRestrictions), field(shipPurchaseDenied), field(goodPurchaseDenied),
-    field(itemsOfInterest), field(unbuyableItems), field(goodItemRestrictions), field(shipItemRestrictions));
+REFL_AUTO(type(Config), field(checkItemRestrictions), field(enforceItemRestrictions), field(shipPurchaseDenied, AttrNotEmptyNotWhiteSpace<std::wstring> {}),
+    field(goodPurchaseDenied, AttrNotEmptyNotWhiteSpace<std::wstring> {}), field(itemsOfInterest, AttrNotEmpty<std::vector<std::string>>{}),
+    field(unbuyableItems, AttrNotEmpty<std::vector<std::string>> {}),
+    field(goodItemRestrictions, AttrNotEmpty<std::map<std::string, std::vector<std::string>>> {}),
+    field(shipItemRestrictions, AttrNotEmpty<std::map<std::string, std::vector<std::string>>> {}));
 
 DefaultDllMainSettings(LoadSettings);
 

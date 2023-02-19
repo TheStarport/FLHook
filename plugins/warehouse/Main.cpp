@@ -29,6 +29,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Warehouse
 {
@@ -280,7 +281,8 @@ namespace Plugins::Warehouse
 
 using namespace Plugins::Warehouse;
 
-REFL_AUTO(type(Config), field(restrictedBases), field(restrictedItems), field(costPerStackWithdraw), field(costPerStackStore))
+REFL_AUTO(type(Config), field(restrictedBases), field(restrictedItems), field(costPerStackWithdraw, AttrMin {0u}, AttrMax {100000u}),
+    field(costPerStackStore, AttrMin {0u}, AttrMax {100000u}))
 
 // Do things when the dll is loaded
 BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] const DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)

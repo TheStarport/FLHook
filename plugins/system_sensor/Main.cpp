@@ -32,6 +32,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::SystemSensor
 {
@@ -293,7 +294,7 @@ namespace Plugins::SystemSensor
 using namespace Plugins::SystemSensor;
 
 REFL_AUTO(type(ReflectableSensor), field(equipId), field(systemId), field(networkId));
-REFL_AUTO(type(Config), field(sensors));
+REFL_AUTO(type(Config), field(sensors, AttrNotEmpty<std::vector<ReflectableSensor>>{}));
 
 DefaultDllMainSettings(LoadSettings);
 
