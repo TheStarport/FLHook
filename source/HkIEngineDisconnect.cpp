@@ -10,7 +10,7 @@ int __stdcall DisconnectPacketSent(ClientId client)
 		pub::Player::GetShip(client, ship);
 		if (FLHookConfig::i()->general.disconnectDelay && ship)
 		{ // in space
-			ClientInfo[client].tmF1TimeDisconnect = timeInMS() + FLHookConfig::i()->general.disconnectDelay;
+			ClientInfo[client].tmF1TimeDisconnect = Hk::Time::GetUnixMiliseconds() + FLHookConfig::i()->general.disconnectDelay;
 			return 0; // don't pass on
 		}
 	}
