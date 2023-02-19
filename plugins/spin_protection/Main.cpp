@@ -25,6 +25,7 @@
 
 // Includes
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::SpinProtection
 {
@@ -76,6 +77,7 @@ namespace Plugins::SpinProtection
 		V2.y *= global->config->spinImpulseMultiplier * clientMass;
 		V2.z *= global->config->spinImpulseMultiplier * clientMass;
 		pub::SpaceObj::AddImpulse(ci.iColliderObjectId, V1, V2);
+
 	}
 } // namespace Plugins::SpinProtection
 
@@ -86,7 +88,7 @@ using namespace Plugins::SpinProtection;
 
 DefaultDllMainSettings(LoadSettings);
 
-REFL_AUTO(type(Config), field(spinProtectionMass), field(spinImpulseMultiplier))
+REFL_AUTO(type(Config), field(spinProtectionMass, AttrMin{0.0f}), field(spinImpulseMultiplier, AttrMin{0.0f}))
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

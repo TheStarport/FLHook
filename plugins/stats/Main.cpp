@@ -25,6 +25,7 @@
 
 // Includes
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Stats
 {
@@ -147,7 +148,7 @@ namespace Plugins::Stats
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Stats;
-REFL_AUTO(type(FileName), field(FilePath), field(StatsFile))
+REFL_AUTO(type(FileName), field(FilePath, AttrNotEmptyNotWhiteSpace<std::string> {}), field(StatsFile, AttrNotEmptyNotWhiteSpace<std::string> {}))
 
 DefaultDllMainSettings(LoadSettings);
 
