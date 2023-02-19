@@ -95,7 +95,7 @@ namespace Plugins::Betting
 	void UserCmdStartFreeForAll(ClientId& client, const std::wstring& param)
 	{
 		// Convert string to uint
-		uint amount = ToMoney(param);
+		uint amount = MultiplyUIntBySuffix(param);
 
 		// Check its a valid amount of cash
 		if (amount == 0)
@@ -293,7 +293,7 @@ namespace Plugins::Betting
 		}
 
 		// Convert string to uint
-		const uint amount = ToMoney(param);
+		const uint amount = MultiplyUIntBySuffix(param);
 
 		// Check its a valid amount of cash
 		if (amount == 0)
