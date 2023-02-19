@@ -80,16 +80,15 @@ namespace Plugins::BountyHunt
 			return;
 
 		const std::wstring target = GetParam(param, ' ', 0);
-		const std::wstring credits = GetParam(param, ' ', 1);
+		const uint prize = ToMoney(GetParam(param, ' ', 1));
 		const std::wstring timeString = GetParam(param, ' ', 2);
-		if (!target.length() || !credits.length())
+		if (!target.length() || prize == 0)
 		{
 			PrintUserCmdText(client, L"Usage: /bountyhunt <playername> <credits> <time>");
 			PrintBountyHunts(client);
 			return;
 		}
 
-		const uint prize = wcstol(credits.c_str(), nullptr, 10);
 		uint time = wcstol(timeString.c_str(), nullptr, 10);
 		const auto targetId = Hk::Client::GetClientIdFromCharName(target);
 
