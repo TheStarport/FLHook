@@ -42,7 +42,7 @@
  */
 
 #include "Main.h"
-#include "refl.hpp"
+#include <Tools/Serialization/Attributes.hpp>
 
 constexpr int TransactionsPerPage = 10;
 
@@ -505,7 +505,7 @@ using namespace Plugins::CashManager;
 REFL_AUTO(type(Config), field(minimumTransfer, AttrMin {0u}), field(eraseTransactionsAfterDaysPassed, AttrMin {1u}), field(blockedSystems),
     field(depositSurplusOnDock), field(maximumTransfer, AttrMin {0u}, AttrMax {1'000'000'000u}), field(cheatDetection),
     field(minimumTime, AttrMin {0u}, AttrMax {1'000'000'000u}), field(transferFee, AttrMin {0u}, AttrMax {10'000'000u}),
-    field(cashThreshold, AttrMin {900'000'000u}, AttrMax {2'000'000'000u}), field(safetyMargin, , AttrMin {0u}, AttrMax {100'000'000u}));
+    field(cashThreshold, AttrMin {900'000'000u}, AttrMax {2'000'000'000u}), field(safetyMargin, AttrMin {0u}, AttrMax {100'000'000u}));
 
 DefaultDllMainSettings(LoadSettings);
 

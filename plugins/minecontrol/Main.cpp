@@ -549,11 +549,11 @@ REFL_AUTO(type(PlayerBonus), field(Loot, AttrNotEmptyNotWhiteSpace<std::string> 
     field(Ships), field(Items), field(Ammo))
 REFL_AUTO(type(ZoneBonus), field(Zone, AttrNotEmptyNotWhiteSpace<std::string> {}), field(Bonus, AttrMin {0.0f}, AttrMax {100.0f}),
     field(ReplacementLoot, AttrNotEmptyNotWhiteSpace<std::string> {}), field(RechargeRate, AttrMin {0.0f}, AttrMax {100'000.0f}),
-    field(CurrentReserve, AttrMin {0.0f}, AttrMax {999'999'999.0f}), field(MaxReserve, AttrMin {0.0f}, AttrMax {999'999'999.0f}), field(MinedAttrMin {0.0f}, AttrMax {999'999'999.f}))
+    field(CurrentReserve, AttrMin {0.0f}, AttrMax {999'999'999.0f}), field(MaxReserve, AttrMin {0.0f}, AttrMax {999'999'999.0f}), field(Mined, AttrMin {0.0f}, AttrMax {999'999'999.f}))
 REFL_AUTO(type(ZoneStats), field(Zone, AttrNotEmptyNotWhiteSpace<std::string> {}), field(CurrentReserve, AttrMin {0.0f}, AttrMax {999'999'999.0f}),
     field(Mined, AttrMin {0.0f}, AttrMax {999'999'999.0f}))
 REFL_AUTO(type(MiningStats), field(Stats))
-REFL_AUTO(type(Config), field(PlayerBonus), field(ZoneBonus), field(GenericFactor, AddrMin {0.0f}, AddrMax {100.0f}), field(PluginDebug));
+REFL_AUTO(type(Config), field(PlayerBonus), field(ZoneBonus), field(GenericFactor, AttrMin{0.0f}, AttrMax{100.0f}), field(PluginDebug));
 
 DefaultDllMainSettings(LoadSettingsAfterStartup);
 

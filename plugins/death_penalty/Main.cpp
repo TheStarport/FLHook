@@ -30,6 +30,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::DeathPenalty
 {
@@ -312,7 +313,7 @@ namespace Plugins::DeathPenalty
 
 using namespace Plugins::DeathPenalty;
 
-REFL_AUTO(type(Config), field(DeathPenaltyFraction, AttrMin {0.0f}, AttrMax {1.0f}), field(DeathPenaltyFractionKillerAttrMin {0.0f}, AttrMax {1.0f}),
+REFL_AUTO(type(Config), field(DeathPenaltyFraction, AttrMin {0.0f}, AttrMax {1.0f}), field(DeathPenaltyFractionKiller, AttrMin {0.0f}, AttrMax {1.0f}),
     field(ExcludedSystems), field(FractionOverridesByShip))
 
 DefaultDllMainSettings(LoadSettings);
