@@ -50,9 +50,9 @@ REFL_AUTO(template((typename T), (AttrMax<T>)), func(Validate));
 
 template<typename T>
     requires StringRestriction<T>
-struct AttrNotEmpty : refl::attr::usage::field
+struct AttrNotEmptyNotWhiteSpace : refl::attr::usage::field
 {
-	explicit constexpr AttrNotEmpty() noexcept
+	explicit constexpr AttrNotEmptyNotWhiteSpace() noexcept
 	{
 		// no impl
 	}
@@ -67,7 +67,7 @@ struct AttrNotEmpty : refl::attr::usage::field
 	}
 };
 
-REFL_AUTO(template((typename T), (AttrNotEmpty<T>)), func(Validate));
+REFL_AUTO(template((typename T), (AttrNotEmptyNotWhiteSpace<T>)), func(Validate));
 
 template<typename T>
     requires StringRestriction<T>
@@ -133,3 +133,23 @@ struct AttrCustom : refl::attr::usage::field
 };
 
 REFL_AUTO(template((typename T, typename Lambda), (AttrCustom<T, Lambda>)), func(Validate));
+
+template<typename T>
+struct AttrNotEmpty : refl::attr::usage::field
+{
+	explicit constexpr AttrNotEmpty() noexcept
+	{
+		// no impl
+	}
+
+	cpp::result<void, std::string> Validate(const T& comp) const
+	{
+		if (comp.empty())
+		{
+			return cpp::fail(std::string("Value was empty"));
+		}
+		return {};
+	}
+};
+
+REFL_AUTO(template((typename T), (AttrNotEmpty<T>)), func(Validate));
