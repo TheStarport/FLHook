@@ -216,7 +216,7 @@ namespace Plugins::KillTracker
 
 using namespace Plugins::KillTracker;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking))
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking, AttrNotEmptyNotWhiteSpace<std::wstring> {}))
 
 DefaultDllMainSettings(LoadSettings);
 
