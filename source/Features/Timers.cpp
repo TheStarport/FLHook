@@ -15,7 +15,7 @@ void CTimer::start()
 
 uint CTimer::stop()
 {
-	auto timeDelta = static_cast<uint>(Hk::Time::GetUnixMiliseconds() - tmStart);
+	auto timeDelta = static_cast<uint>(timeInMS() - tmStart);
 
 	if (FLHookConfig::i()->general.logPerformanceTimers)
 	{

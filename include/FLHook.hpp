@@ -278,7 +278,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		//! multikill message style coded in hex
 		std::wstring multiKillMessageStyle = L"0x1919BD01";
 		//! map of kill numbers to the displayed multikill message
-		std::map<int, std::wstring> multiKillMessages = {{5, L"%player is on a rampage"}, {10, L"%player runs amok"}, {15, L"%player is godlike"}};
+		std::map<uint, std::wstring> multiKillMessageTemplates = {{5, L"player1"}, {10, L"player2"}, {15, L"player3"}};
 	};
 
 	struct Bans final : Reflectable
@@ -297,22 +297,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 	Bans bans;
 	Message messages;
 };
-
-REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode),
-    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(localTime), field(maxGroupSize), field(persistGroup),
-    field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList), field(noPVPSystems), field(antiBaseIdle), field(antiCharMenuIdle))
-REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
-REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
-REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg),
-    field(userCmdStyle), field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
-    field(deathMsgTextSuicide))
-REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore),
-    field(userCmdHelp), field(userCmdMaxIgnoreList))
-REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle), field(multiKillMessages))
-REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs))
-REFL_AUTO(type(FLHookConfig::Message), field(msgStyle), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg),
-    field(dockingMessages))
-REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(multiKillMessages), field(userCommands), field(messages), field(bans))
 
 // Use the class to create and send packets of inconstant size.
 #pragma pack(push, 1)

@@ -37,17 +37,23 @@ void LoadSettings()
 	FLHookConfig::i(&ptr);	
 }
 
-REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), field(dieMsg),
-    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(dockingMessages), field(localTime), field(maxGroupSize),
+#ifndef CORE_REFL
+#define CORE_REFL
+REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode), 
+    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(localTime), field(maxGroupSize),
     field(persistGroup), field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList),
-    field(noPVPSystems), field(echoCommands), field(suppressInvalidCommands), field(antiBaseIdle), field(antiCharMenuIdle))
+    field(noPVPSystems), field(antiBaseIdle), field(antiCharMenuIdle))
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins))
 REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap))
+REFL_AUTO(type(FLHookConfig::Message), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages))
 REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg),
     field(userCmdStyle), field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
     field(deathMsgTextSuicide))
 REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore),
     field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat))
-REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle), field(multiKillMessages))
+REFL_AUTO(type(FLHookConfig::MultiKillMessages), field(active), field(multiKillMessageStyle)
+//	, field(multiKillMessageTemplates)
+)
 REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs))
-REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(msgStyle), field(userCommands), field(multiKillMessages), field(bans))
+REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(messages), field(userCommands), field(multiKillMessages), field(bans))
+#endif
