@@ -90,6 +90,24 @@ inline uint ToUInt(const std::wstring& wscStr)
 	return wcstoul(wscStr.c_str(), nullptr, 10);
 }
 
+inline uint ToMoney(const std::wstring& valueString)
+{
+	uint value = wcstoul(valueString.c_str(), nullptr, 10);
+	if (value == 0)
+	{
+		return 0;
+	}
+	if (valueString.back() == *L"k")
+	{
+		return value * 1000;
+	}
+	if (valueString.back() == *L"m")
+	{
+		return value * 1000000;
+	}
+	return value;
+}
+
 inline std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time)
 {
 	return std::chrono::sys_time<std::chrono::seconds> {std::chrono::seconds {time}};
