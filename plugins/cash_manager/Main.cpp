@@ -144,7 +144,7 @@ namespace Plugins::CashManager
 	{
 		const auto accountIdentifier = GetParam(param, ' ', 1);
 		const auto password = GetParam(param, ' ', 2);
-		const auto withdrawal = ToUInt(GetParam(param, ' ', 3));
+		const auto withdrawal = ToMoney(GetParam(param, ' ', 3));
 
 		if (withdrawal == 0)
 		{
@@ -171,7 +171,7 @@ namespace Plugins::CashManager
 	void TransferMoney(ClientId client, const std::wstring& param, const Bank& bank)
 	{
 		const auto targetBankIdentifier = GetParam(param, ' ', 1);
-		const auto amount = ToUInt(GetParam(param, ' ', 2));
+		const auto amount = ToMoney(GetParam(param, ' ', 2));
 
 		if (targetBankIdentifier.empty() || bank.identifier.empty())
 		{
@@ -333,7 +333,7 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"withdraw")
 		{
-			if (const uint withdrawAmount = ToUInt(GetParam(param, ' ', 1)); withdrawAmount > 0)
+			if (const uint withdrawAmount = ToMoney(GetParam(param, ' ', 1)); withdrawAmount > 0)
 			{
 				const auto bank = Sql::GetOrCreateBank(acc);
 				WithdrawMoneyFromBank(bank, withdrawAmount, client);
@@ -344,7 +344,7 @@ namespace Plugins::CashManager
 		}
 		else if (cmd == L"deposit")
 		{
-			const uint depositAmount = ToUInt(GetParam(param, ' ', 1));
+			const uint depositAmount = ToMoney(GetParam(param, ' ', 1));
 			const auto bank = Sql::GetOrCreateBank(acc);
 			DepositMoney(bank, depositAmount, client);
 			DepositSurplusCash(client);

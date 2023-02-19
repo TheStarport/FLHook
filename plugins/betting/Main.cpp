@@ -94,17 +94,8 @@ namespace Plugins::Betting
 	 */
 	void UserCmdStartFreeForAll(ClientId& client, const std::wstring& param)
 	{
-		// Get entryAmount amount
-		std::wstring amountString = GetParam(param, ' ', 0);
-
-		// Filter out any weird denotion/currency symbols
-		amountString = ReplaceStr(amountString, L".", L"");
-		amountString = ReplaceStr(amountString, L",", L"");
-		amountString = ReplaceStr(amountString, L"$", L"");
-		amountString = ReplaceStr(amountString, L"$", L"");
-
 		// Convert string to uint
-		uint amount = ToUInt(amountString);
+		uint amount = ToMoney(param);
 
 		// Check its a valid amount of cash
 		if (amount == 0)
@@ -301,17 +292,8 @@ namespace Plugins::Betting
 			return;
 		}
 
-		// Get bet amount
-		std::wstring amountString = GetParam(param, ' ', 0);
-
-		// Filter out any weird denotion/currency symbols
-		amountString = ReplaceStr(amountString, L".", L"");
-		amountString = ReplaceStr(amountString, L",", L"");
-		amountString = ReplaceStr(amountString, L"$", L"");
-		amountString = ReplaceStr(amountString, L"$", L"");
-
 		// Convert string to uint
-		const uint amount = ToUInt(amountString);
+		const uint amount = ToMoney(param);
 
 		// Check its a valid amount of cash
 		if (amount == 0)
