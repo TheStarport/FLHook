@@ -37,7 +37,10 @@ namespace Plugins::Arena
 	const auto global = std::make_unique<Global>();
 
 	/// Clear client info when a client connects.
-	void ClearClientInfo(ClientId& client) { global->transferFlags[client] = ClientState::None; }
+	void ClearClientInfo(ClientId& client)
+	{
+		global->transferFlags[client] = ClientState::None;
+	}
 
 	// Client command processing
 	void UserCmd_Conn(ClientId& client, const std::wstring& param);
@@ -60,7 +63,7 @@ namespace Plugins::Arena
 		auto& cmd = const_cast<UserCommand&>(commands[0]);
 		cmd = CreateUserCommand(global->config->wscCommand, cmd.usage, cmd.proc, cmd.description);
 
-		//global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+		// global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
 
 	/** @ingroup Arena
@@ -120,7 +123,10 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief This returns the return base id that is stored in the client's save file.
 	 */
-	unsigned int ReadReturnPointForClient(unsigned int client) { return Hk::Ini::GetCharacterIniUint(client, L"conn.retbase"); }
+	unsigned int ReadReturnPointForClient(unsigned int client)
+	{
+		return Hk::Ini::GetCharacterIniUint(client, L"conn.retbase");
+	}
 
 	/** @ingroup Arena
 	 * @brief Move the specified client to the specified base.
@@ -128,7 +134,7 @@ namespace Plugins::Arena
 	void MoveClient(unsigned int client, unsigned int targetBase)
 	{
 		// Ask that another plugin handle the beam.
-		//if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
+		// if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
 		//	return;
 
 		// No plugin handled it, do it ourselves.
@@ -168,7 +174,10 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client) { global->transferFlags[client] = ClientState::None; }
+	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client)
+	{
+		global->transferFlags[client] = ClientState::None;
+	}
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
@@ -218,8 +227,7 @@ namespace Plugins::Arena
 	void UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		if (SystemId system = Hk::Player::GetSystem(client).value(); 
-			system == global->config->restrictedSystemId || system == global->config->targetSystemId)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); system == global->config->restrictedSystemId || system == global->config->targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
@@ -278,11 +286,12 @@ namespace Plugins::Arena
 
 using namespace Plugins::Arena;
 
-REFL_AUTO(type(Config), field(command), field(targetBase), field(targetSystem), field(restrictedSystem))
+REFL_AUTO(type(Config), field(command, AttrNotEmpty<std::string> {}), field(targetBase, AttrNotEmpty<std::string> {}),
+    field(targetSystem, AttrNotEmpty<std::string> {}), field(restrictedSystem))
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
+// Functions to hook
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Arena");

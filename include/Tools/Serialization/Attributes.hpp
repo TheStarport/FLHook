@@ -59,7 +59,7 @@ struct AttrNotEmpty : refl::attr::usage::field
 
 	cpp::result<void, std::string> Validate(const T& comp) const
 	{
-		if (comp.empty() || std::ranges::all_of([](const auto& c) { return c == " " || c == "\n" || c == "\r" || c == "\t"; }))
+		if (comp.empty() || std::ranges::all_of(comp, [](const auto& c) { return c == ' ' || c == '\n' || c == '\r' || c == '\t'; }))
 		{
 			return cpp::fail(std::string("Value was empty"));
 		}
