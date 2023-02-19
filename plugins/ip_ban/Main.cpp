@@ -299,7 +299,7 @@ using namespace Plugins::IPBan;
 REFL_AUTO(type(IPBans), field(Bans))
 REFL_AUTO(type(LoginIdBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
-REFL_AUTO(type(Config), field(BanMessage))
+REFL_AUTO(type(Config), field(BanMessage, AttrNotEmptyNotWhiteSpace<std::wstring>{}))
 
 DefaultDllMainSettings(LoadSettings);
 

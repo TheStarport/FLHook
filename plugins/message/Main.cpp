@@ -940,7 +940,8 @@ namespace Plugins::Message
 using namespace Plugins::Message;
 REFL_AUTO(type(Config), field(greetingBannerLines), field(specialBannerLines), field(standardBannerLines), field(specialBannerTimeout),
     field(standardBannerTimeout), field(customHelp), field(suppressMistypedCommands), field(enableSetMessage), field(enableMe), field(enableDo),
-    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange), field(swearWords), field(swearingTempBanDuration))
+    field(disconnectSwearingInSpaceMsg), field(disconnectSwearingInSpaceRange, AttrMin {0u}, AttrMax {100'000'000u}), field(swearWords),
+    field(swearingTempBanDuration, AttrMin {0u}, AttrMax {1400u}))
 
 DefaultDllMainSettings(LoadSettings);
 

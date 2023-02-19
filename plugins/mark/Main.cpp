@@ -207,7 +207,7 @@ namespace Plugins::Mark
 using namespace Plugins::Mark;
 
 // REFL_AUTO must be global namespace
-REFL_AUTO(type(Config), field(AutoMarkRadiusInM))
+REFL_AUTO(type(Config), field(AutoMarkRadiusInM, AttrMin {500}, AttrMax {10'000}))
 
 DefaultDllMainSettings(LoadSettings);
 

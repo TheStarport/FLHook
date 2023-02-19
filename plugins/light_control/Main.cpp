@@ -354,8 +354,8 @@ namespace Plugins::LightControl
 
 using namespace Plugins::LightControl;
 
-REFL_AUTO(
-    type(Config), field(lights), field(cost), field(bases), field(introMessage1), field(introMessage2), field(notifyAvailabilityOnEnter), field(itemsPerPage))
+REFL_AUTO(type(Config), field(lights), field(cost, AttrMin {0u}, AttrMax {10'000'000u}), field(bases), field(introMessage1), field(introMessage2),
+    field(notifyAvailabilityOnEnter), field(itemsPerPage, AttrMin {10}, AttrMax {254}))
 DefaultDllMainSettings(LoadSettings);
 
 // Functions to hook
