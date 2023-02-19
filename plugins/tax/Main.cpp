@@ -65,7 +65,7 @@ namespace Plugins::Tax
 		}
 			
 
-		const uint taxValue = ToMoney(taxAmount);
+		const uint taxValue = MultiplyUIntBySuffix(taxAmount);
 
 		if (taxValue > global->config->maxTax)
 		{

@@ -80,7 +80,7 @@ namespace Plugins::BountyHunt
 			return;
 
 		const std::wstring target = GetParam(param, ' ', 0);
-		const uint prize = ToMoney(GetParam(param, ' ', 1));
+		const uint prize = MultiplyUIntBySuffix(GetParam(param, ' ', 1));
 		const std::wstring timeString = GetParam(param, ' ', 2);
 		if (!target.length() || prize == 0)
 		{
