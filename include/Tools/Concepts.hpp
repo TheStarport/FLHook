@@ -9,13 +9,13 @@ template<typename ... T>
 concept AtLeastOne = (sizeof...(T) > 0);
 
 template<typename T>
-concept IsIntegral = std::is_integral_v<T>;
+concept IsNumeric = std::is_integral_v<T> || std::is_floating_point_v<T>;
 
 template<typename T>
-concept IsSignedIntegral = IsIntegral<T> && std::is_signed_v<T>;
+concept IsSignedIntegral = IsNumeric<T> && std::is_signed_v<T>;
 
 template<typename T>
-concept IsUnsignedIntegral = IsIntegral<T> && !IsSignedIntegral<T>;
+concept IsUnsignedIntegral = IsNumeric<T> && !IsSignedIntegral<T>;
 
 template<typename Base, typename Derrived>
 concept IsDerivedFrom = std::derived_from<Derrived, Base>;

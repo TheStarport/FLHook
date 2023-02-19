@@ -4,7 +4,7 @@
 #include <Tools/Concepts.hpp>
 
 template<typename T>
-    requires IsIntegral<T>
+    requires IsNumeric<T>
 struct AttrMin : refl::attr::usage::field
 {
 	const T val;
@@ -26,7 +26,7 @@ struct AttrMin : refl::attr::usage::field
 REFL_AUTO(template((typename T), (AttrMin<T>)), func(Validate));
 
 template<typename T>
-    requires IsIntegral<T>
+    requires IsNumeric<T>
 struct AttrMax : refl::attr::usage::field
 {
 	const T val;
