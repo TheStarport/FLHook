@@ -144,6 +144,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		//! Time of invulnerability upon undock in miliseconds.
 		//! Protected player can also not inflict any damage.
 		uint antiDockKill = 4000;
+		//! Number of miliseconds the player character remains in space after disconnecting.
 		uint antiF1 = 0;
 		//! Disable the cruise disrupting effects.
 		bool changeCruiseDisruptorBehaviour = false;
@@ -162,15 +163,18 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool localTime = false;
 		//! Maximum amount of players in a group.
 		uint maxGroupSize = 8;
+		//! NOT IMPLEMENTED YET: if true, keeps the player in the group if they switch characters within one account.
 		bool persistGroup = false;
 		//! Number of slots reserved to specified accounts.
 		uint reservedSlots = 0;
 		//! Global damage multiplier to missile and torpedo type weapons.
 		float torpMissileBaseDamageMultiplier = 1.0f;
+		//! If true, it logs performance of functions if they take too long to execute.
 		bool logPerformanceTimers = false;
 
 		bool tempBansEnabled = true;
 
+		//! A vector of forbidden words/phrases, which will not be processed and sent to other players
 		std::vector<std::wstring> chatSuppressList;
 		//! Vector of systems where players can't deal damage to one another.
 		std::vector<std::string> noPVPSystems;
@@ -197,14 +201,21 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::wstring msgEchoStyle = L"0x00AA0090";
 		std::wstring deathMsgStyle = L"0x19198C01";
 		std::wstring deathMsgStyleSys = L"0x1919BD01";
+		//! Time in ms between kick message rendering and actual server kick occuring.
 		uint kickMsgPeriod = 5000;
+		//! Kick message content.
 		std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
 		std::wstring userCmdStyle = L"0x00FF0090";
 		std::wstring adminCmdStyle = L"0x00FF0090";
+		//! Death message for admin kills.
 		std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
+		//! Default player to player kill message.
 		std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
+		//! Death message for weapon self-kills.
 		std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
+		//! Death message for player deaths to NPCs.
 		std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
+		//! Death message for environmental deaths.
 		std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
 	};
 
@@ -244,24 +255,37 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 
 	struct UserCommands final : Reflectable
 	{
+		//! Can users use SetDieMsgSize command
 		bool userCmdSetDieMsgSize = true;
+		//! Can users use SetDieMsg command
 		bool userCmdSetDieMsg = true;
+		//! Can users use SetChatFont command
 		bool userCmdSetChatFont = true;
+		//! Can users use Ignore command
 		bool userCmdIgnore = true;
+		//! Can users use Help command
 		bool userCmdHelp = true;
-		uint userCmdMaxIgnoreList = true;
+		//! Maximum size of users added via /ignore command 
+		uint userCmdMaxIgnoreList = 0;
+		//! If true, the default player chat will be local, not system.
+		bool defaultLocalChat = false;
 	};
 
 	struct MultiKillMessages final : Reflectable
 	{
+		//! If true, enables multikill messages
 		bool active = false;
+		//! multikill message style coded in hex
 		std::wstring multiKillMessageStyle = L"0x1919BD01";
-		std::map<std::wstring, int> multiKillMessages = {{L"%player is on a rampage", 5}, {L"%player runs amok", 10}, {L"%player is godlike", 15}};
+		//! map of kill numbers to the displayed multikill message
+		std::map<int, std::wstring> multiKillMessages = {{5, L"%player is on a rampage"}, {10, L"%player runs amok"}, {15, L"%player is godlike"}};
 	};
 
 	struct Bans final : Reflectable
 	{
+		//! If true, apply a vanilla FLServer ban in case of a wildcard/IP match on top of kicking them.
 		bool banAccountOnMatch = false;
+		//! Instantly kicks any player with a matching IP or matching IP range.
 		std::vector<std::wstring> banWildcardsAndIPs;
 	};
 

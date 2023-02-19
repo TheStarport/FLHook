@@ -15,18 +15,20 @@ void CTimer::start()
 
 uint CTimer::stop()
 {
-	uint timeDelta = abs((int)(timeInMS() - tmStart));
+	auto timeDelta = static_cast<uint>(Hk::Time::GetUnixMiliseconds() - tmStart);
 
-	if (timeDelta > iMax && timeDelta > iWarning)
+	if (FLHookConfig::i()->general.logPerformanceTimers)
 	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
-		iMax = timeDelta;
+		if (timeDelta > iMax && timeDelta > iWarning)
+		{
+			AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
+			iMax = timeDelta;
+		}
+		else if (timeDelta > 100)
+		{
+			AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
+		}
 	}
-	else if (timeDelta > 100)
-	{
-		AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
-	}
-
 	return timeDelta;
 }
 

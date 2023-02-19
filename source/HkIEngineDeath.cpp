@@ -212,30 +212,25 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						std::wstring killerName = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
 
 						ClientInfo[clientKiller.value()].iKillsInARow++;
-						for (auto& msg : FLHookConfig::i()->multiKillMessages.multiKillMessages)
+						if (FLHookConfig::i()->multiKillMessages.multiKillMessages.contains(ClientInfo[clientKiller.value()].iKillsInARow))
 						{
-							if (msg.second == ClientInfo[clientKiller.value()].iKillsInARow)
+							std::wstring multiKillMessage = FLHookConfig::i()->multiKillMessages.multiKillMessages[ClientInfo[clientKiller.value()].iKillsInARow];
+							std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->multiKillMessages.multiKillMessageStyle + L"\" mask=\"-1\"/> <TEXT>";
+							xmlMsg += XMLText(ReplaceStr(multiKillMessage, L"%player", killerName));
+							xmlMsg += L"</TEXT>";
+
+							char encodeBuf[0xFFFF];
+							uint rval;
+							if (!Hk::Message::FMsgEncodeXML(xmlMsg, encodeBuf, sizeof(encodeBuf), rval).has_error())
 							{
-								std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->multiKillMessages.multiKillMessageStyle + L"\" mask=\"-1\"/> <TEXT>";
-								xmlMsg += XMLText(ReplaceStr(msg.first, L"%player", killerName));
-								xmlMsg += L"</TEXT>";
-
-								char encodeBuf[0xFFFF];
-								uint rval;
-								if (!Hk::Message::FMsgEncodeXML(xmlMsg, encodeBuf, sizeof(encodeBuf), rval).has_error())
-									break;
-
-								// for all players in system...
-								PlayerData* playerData = nullptr;
-								while ((playerData = Players.traverse_active(playerData)))
+								for (const auto& player : Hk::Client::getAllPlayersInSystem(systemId))
 								{
-									ClientId client = playerData->iOnlineId;
-									uint clientSystemId = 0;
-									pub::Player::GetSystem(client, clientSystemId);
-									if (client == clientKiller || ((systemId == clientSystemId) && (((ClientInfo[client].dieMsg == DIEMSG_ALL) || (ClientInfo[client].dieMsg == DIEMSG_SYSTEM)) || !FLHookConfig::i()->messages.dieMsg)))
-										Hk::Message::FMsgSendChat(client, encodeBuf, rval);
+									if (player == clientKiller ||
+									    (((ClientInfo[player].dieMsg == DIEMSG_ALL) || (ClientInfo[player].dieMsg == DIEMSG_SYSTEM)) ||
+											!FLHookConfig::i()->general.dieMsg))
+										Hk::Message::FMsgSendChat(player, encodeBuf, rval);
 								}
-							}
+							}		
 						}
 					}
 				}

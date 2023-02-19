@@ -424,8 +424,8 @@ will_crash:
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
 				FARPROC fpTimingSeconds = (FARPROC)Cb_TimingSeconds;
-				ReadProcMem((char*)GetModuleHandle(0) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
-				WriteProcMem((char*)GetModuleHandle(0) + 0x1B0A0, &fpTimingSeconds, 4);
+				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
+				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
 				global->hEngBase = GetModuleHandle("engbase.dll");
 				global->hModContentAC = GetModuleHandle("content.dll");
