@@ -163,7 +163,7 @@ namespace Plugins::Tax
 			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;
 
-			if (ClientInfo[client].tmF1Time && (timeInMS() >= ClientInfo[client].tmF1Time)) // f1
+			if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time)) // f1
 			{
 				// tax
 				for (const auto& it : global->lsttax)
@@ -182,7 +182,7 @@ namespace Plugins::Tax
 					}
 				}
 			}
-			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				// tax
 				for (const auto& it : global->lsttax)
