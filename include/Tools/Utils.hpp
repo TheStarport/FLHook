@@ -90,18 +90,16 @@ inline uint ToUInt(const std::wstring& wscStr)
 	return wcstoul(wscStr.c_str(), nullptr, 10);
 }
 
-inline uint ToMoney(const std::wstring& valueString)
+//! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
+inline uint MultiplyUIntBySuffix(const std::wstring& valueString)
 {
 	uint value = wcstoul(valueString.c_str(), nullptr, 10);
-	if (value == 0)
-	{
-		return 0;
-	}
-	if (valueString.back() == *L"k")
+	const auto lastChar = valueString.back();
+	if (lastChar == *L"k" || lastChar == *L"K")
 	{
 		return value * 1000;
 	}
-	if (valueString.back() == *L"m")
+	if (lastChar == *L"m" || lastChar == *L"M")
 	{
 		return value * 1000000;
 	}
