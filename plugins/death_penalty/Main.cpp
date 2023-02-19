@@ -186,7 +186,9 @@ namespace Plugins::DeathPenalty
 					// Reward the killer, print message to them
 					Hk::Player::AddCash(iKillerId, killerReward);
 					PrintUserCmdText(iKillerId,
-					    std::format(L"Death penalty: given {} credits from {}'s death penalty.", ToMoneyStr(killerReward), Hk::Client::GetCharacterNameByID(client).value()));
+					    std::format(L"Death penalty: given {} credits from {}'s death penalty.",
+					        ToMoneyStr(killerReward),
+					        Hk::Client::GetCharacterNameByID(client).value()));
 				}
 			}
 
@@ -310,12 +312,13 @@ namespace Plugins::DeathPenalty
 
 using namespace Plugins::DeathPenalty;
 
-REFL_AUTO(type(Config), field(DeathPenaltyFraction), field(DeathPenaltyFractionKiller), field(ExcludedSystems), field(FractionOverridesByShip))
+REFL_AUTO(type(Config), field(DeathPenaltyFraction, AttrMin {0.0f}, AttrMax {1.0f}), field(DeathPenaltyFractionKillerAttrMin {0.0f}, AttrMax {1.0f}),
+    field(ExcludedSystems), field(FractionOverridesByShip))
 
 DefaultDllMainSettings(LoadSettings);
 
-    // Functions to hook
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+// Functions to hook
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Death Penalty");
 	pi->shortName("death_penalty");
