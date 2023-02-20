@@ -1,6 +1,5 @@
 var NAVTREEINDEX6 =
 {
-"namespace_hk_1_1_admin.html#a8cb5ce484fadfbf3a69ffbde2a7b3bc6":[2,1,0,0,0,7],
 "namespace_hk_1_1_admin.html#a984f801fecafaa070985925731a93b71":[2,1,0,0,0,11],
 "namespace_hk_1_1_admin.html#ab57d8ad78646e6ea203d9cd8839dd0a4":[2,1,0,0,0,8],
 "namespace_hk_1_1_admin.html#ace716c1b5cd102e40024544e0bd581c9":[2,1,0,0,0,1],
@@ -203,7 +202,8 @@ var NAVTREEINDEX6 =
 "namespace_hk_1_1_solar.html#a86786a0225920fa4dd3f26f366229469":[2,1,0,0,8,1],
 "namespace_hk_1_1_solar.html#abbccb4194d79839c2b7ed9dd2d34230b":[2,1,0,0,8,0],
 "namespace_hk_1_1_time.html":[2,1,0,0,9],
-"namespace_hk_1_1_time.html#a4a24bb65cc6c1ce2167e9b6c732d1be7":[2,1,0,0,9,0],
+"namespace_hk_1_1_time.html#a341d82e58bcef3c8f1c6efee3972a10c":[2,1,0,0,9,1],
+"namespace_hk_1_1_time.html#ae6e2648d52bf76ee9895f8706f57ccda":[2,1,0,0,9,0],
 "namespace_hk_1_1_zone_utilities.html":[2,1,0,0,10],
 "namespace_hk_1_1_zone_utilities.html#a20353c883158631074150f0b439694ce":[2,1,0,0,10,0],
 "namespace_hk_1_1_zone_utilities.html#a4760b0f9b944007d2eb88f8390e64e57":[2,1,0,0,10,2],

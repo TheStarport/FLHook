@@ -1,7 +1,6 @@
 var _tools_8cpp =
 [
     [ "FileExists", "_tools_8cpp.html#a137f7dfdfdd18e745d189ddd58ccd790", null ],
-    [ "GetTimeInMS", "_tools_8cpp.html#a170a37739cca08742eddbe20f35497f3", null ],
     [ "GetTimeString", "_tools_8cpp.html#a1d0a0f842f722364bc5bf95a3137e2fa", null ],
     [ "GetUserFilePath", "_tools_8cpp.html#a79d751fc10f2d140100d8d0231968c93", null ],
     [ "ini_get_wstring", "_tools_8cpp.html#a034432cc7b63a5994d36582d309071ea", null ],
@@ -15,6 +14,5 @@ var _tools_8cpp =
     [ "IniGetWS", "_tools_8cpp.html#a7bb0599ad930dc7de6fa49643ed1b3d8", null ],
     [ "IniWrite", "_tools_8cpp.html#a2e83027df25bc2de5bd11676b8672362", null ],
     [ "IniWriteW", "_tools_8cpp.html#a1743099c3e6f5df716a1320ec075190d", null ],
-    [ "itohexs", "_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb", null ],
-    [ "timeInMS", "_tools_8cpp.html#a75ced554e4603541eae6649fde0301b4", null ]
+    [ "itohexs", "_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb", null ]
 ];

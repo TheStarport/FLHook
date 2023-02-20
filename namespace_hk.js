@@ -135,7 +135,8 @@ var namespace_hk =
       [ "GetType", "namespace_hk_1_1_solar.html#a800d56de8b040e569e2f8a5e67451540", null ]
     ] ],
     [ "Time", "namespace_hk_1_1_time.html", [
-      [ "GetUnix", "namespace_hk_1_1_time.html#a4a24bb65cc6c1ce2167e9b6c732d1be7", null ]
+      [ "GetUnixMiliseconds", "namespace_hk_1_1_time.html#ae6e2648d52bf76ee9895f8706f57ccda", null ],
+      [ "GetUnixSeconds", "namespace_hk_1_1_time.html#a341d82e58bcef3c8f1c6efee3972a10c", null ]
     ] ],
     [ "ZoneUtilities", "namespace_hk_1_1_zone_utilities.html", [
       [ "allZones", "namespace_hk_1_1_zone_utilities.html#a20353c883158631074150f0b439694ce", null ],

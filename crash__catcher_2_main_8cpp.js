@@ -17,7 +17,7 @@ var crash__catcher_2_main_8cpp =
     [ "ExportPluginInfo", "crash__catcher_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "Init", "crash__catcher_2_main_8cpp.html#ga761bc2e09ec427ee08bceca2fd9d1730", null ],
     [ "JettisonCargo", "crash__catcher_2_main_8cpp.html#ga9a78a9a763a906524d63c1db1687851a", null ],
-    [ "RequestBestPath", "crash__catcher_2_main_8cpp.html#gabaea9505cf7987bd095744c679b5bfc9", null ],
+    [ "RequestBestPath", "crash__catcher_2_main_8cpp.html#ga372c7be4452cdebe31d2f9467d8d6247", null ],
     [ "SaveCrashingCharacter", "crash__catcher_2_main_8cpp.html#ga941bace72da3162e903b76f615e30cd7", null ],
     [ "Shutdown", "crash__catcher_2_main_8cpp.html#ga96faf94dfa5ce1be460cc2747e4096be", null ],
     [ "TractorObjects", "crash__catcher_2_main_8cpp.html#ga556fd2ad08ce277dfe51b197f7cc5b9f", null ],

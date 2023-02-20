@@ -1,4 +1,5 @@
 var _time_8cpp =
 [
-    [ "GetUnix", "_time_8cpp.html#a4a24bb65cc6c1ce2167e9b6c732d1be7", null ]
+    [ "GetUnixMiliseconds", "_time_8cpp.html#ae6e2648d52bf76ee9895f8706f57ccda", null ],
+    [ "GetUnixSeconds", "_time_8cpp.html#a341d82e58bcef3c8f1c6efee3972a10c", null ]
 ];

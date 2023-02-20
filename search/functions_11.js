@@ -30,7 +30,7 @@ var searchData=
   ['reqremoveitem_27',['ReqRemoveItem',['../namespace_i_server_impl_hook.html#a4a6cecbc10347965ebaebe3d4aa74e42',1,'IServerImplHook']]],
   ['reqsetcash_28',['ReqSetCash',['../namespace_i_server_impl_hook.html#a0954fa0d68108f03361e85d12d3647b5',1,'IServerImplHook::ReqSetCash()'],['../namespace_plugins_1_1_purchase_restrictions.html#a39f3d959e9f6dede3fbb3a18e8d39df0',1,'Plugins::PurchaseRestrictions::ReqSetCash()']]],
   ['reqshiparch_29',['ReqShipArch',['../namespace_i_server_impl_hook.html#ac53e5a1beb0cca3883a79331ee76943f',1,'IServerImplHook::ReqShipArch()'],['../namespace_plugins_1_1_purchase_restrictions.html#a593c77b9ae5dbfb3051c671fe46bc53c',1,'Plugins::PurchaseRestrictions::ReqShipArch()']]],
-  ['requestbestpath_30',['RequestBestPath',['../namespace_i_server_impl_hook.html#a83a6e07bd97b21b4e5bda5a37fec774f',1,'IServerImplHook::RequestBestPath()'],['../group___crash_catcher.html#gabaea9505cf7987bd095744c679b5bfc9',1,'Plugins::CrashCatcher::RequestBestPath()']]],
+  ['requestbestpath_30',['RequestBestPath',['../namespace_i_server_impl_hook.html#a83a6e07bd97b21b4e5bda5a37fec774f',1,'IServerImplHook::RequestBestPath()'],['../group___crash_catcher.html#ga372c7be4452cdebe31d2f9467d8d6247',1,'Plugins::CrashCatcher::RequestBestPath()']]],
   ['requestcancel_31',['RequestCancel',['../namespace_i_server_impl_hook.html#a1ffa0dedb32d8cd5da659374615a961d',1,'IServerImplHook']]],
   ['requestcreateship_32',['RequestCreateShip',['../namespace_i_server_impl_hook.html#a7293446ecabb921d92934db02194a5ac',1,'IServerImplHook']]],
   ['requestevent_33',['RequestEvent',['../namespace_i_server_impl_hook.html#a813d59dd920e597cb94785d90d3a5f2f',1,'IServerImplHook']]],

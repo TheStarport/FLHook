@@ -7,7 +7,6 @@ var NAVTREEINDEX5 =
 "group___crash_catcher.html#ga941bace72da3162e903b76f615e30cd7":[2,0,9,6],
 "group___crash_catcher.html#ga96faf94dfa5ce1be460cc2747e4096be":[2,0,9,7],
 "group___crash_catcher.html#ga9a78a9a763a906524d63c1db1687851a":[2,0,9,4],
-"group___crash_catcher.html#gabaea9505cf7987bd095744c679b5bfc9":[2,0,9,5],
 "group___death_penalty.html":[2,0,10],
 "group___death_penalty.html#ga092969dfc5c07af71e2fcd1325afa9db":[2,0,10,2],
 "group___death_penalty.html#ga35b059f4927fd9ff5bc737f7d0bd7eab":[2,0,10,7],
@@ -249,5 +248,6 @@ var NAVTREEINDEX5 =
 "namespace_hk_1_1_admin.html#a4d0d9c707e8530057b37210702697290":[2,1,0,0,0,3],
 "namespace_hk_1_1_admin.html#a637645ad8205b50b8fad93573f1fdad7":[2,1,0,0,0,10],
 "namespace_hk_1_1_admin.html#a66d864546f267eafbd61660f08fc7a37":[2,1,0,0,0,5],
-"namespace_hk_1_1_admin.html#a6850c777b96dc59b6b7048695ab38e5f":[2,1,0,0,0,13]
+"namespace_hk_1_1_admin.html#a6850c777b96dc59b6b7048695ab38e5f":[2,1,0,0,0,13],
+"namespace_hk_1_1_admin.html#a8cb5ce484fadfbf3a69ffbde2a7b3bc6":[2,1,0,0,0,7]
 };
