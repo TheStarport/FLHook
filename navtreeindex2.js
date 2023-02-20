@@ -214,7 +214,8 @@ var NAVTREEINDEX2 =
 "_plugin_manager_8cpp.html":[2,3,0,2,1,3],
 "_save_data_8cpp.html":[2,3,0,2,3,2],
 "_settings_8cpp.html":[2,3,0,2,31],
-"_settings_8cpp.html#a2b2b548c507e685af53fb7d2e087149e":[2,3,0,2,31,0],
+"_settings_8cpp.html#a2b2b548c507e685af53fb7d2e087149e":[2,3,0,2,31,1],
+"_settings_8cpp.html#aaea01042bef75ded3acf49ff029e718b":[2,3,0,2,31,0],
 "_solar_8cpp.html":[2,3,0,2,2,7],
 "_solar_8cpp.html#a08f5154b6d22735d52f89c96c05abcec":[2,3,0,2,2,7,2],
 "_solar_8cpp.html#a21ecd178f51d0eaabd1c73102270bd2b":[2,3,0,2,2,7,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "_tools_8cpp.html#a80c817d8c72446f130492dbdeafad4b9":[2,3,0,2,32,9],
 "_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb":[2,3,0,2,32,14],
 "_tools_8cpp.html#aa55e9d6361dc276b7f69563acc2bf23b":[2,3,0,2,32,10],
-"_tools_8cpp.html#adfc1c9c815452af7ace213cf5d0b9a88":[2,3,0,2,32,6],
-"_zone_utilities_8cpp.html":[2,3,0,2,2,9]
+"_tools_8cpp.html#adfc1c9c815452af7ace213cf5d0b9a88":[2,3,0,2,32,6]
 };

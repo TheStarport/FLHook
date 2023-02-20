@@ -79,18 +79,18 @@ var NAVTREEINDEX =
 "__plugin__template_2_main_8cpp.html",
 "_hk_cb_other_8cpp.html#a532f2a0ba3e8848489435dd00125a26b",
 "_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aead0af5083200538fe77538ff19b3d0ff3",
-"_zone_utilities_8cpp.html#a20353c883158631074150f0b439694ce",
-"crash__catcher_2_main_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02",
-"group___crash_catcher.html#ga556fd2ad08ce277dfe51b197f7cc5b9f",
-"namespace_hk_1_1_admin.html#a984f801fecafaa070985925731a93b71",
-"namespace_i_server_impl_hook.html#a3407a9aa9a8b095b45af22189fa5c43b",
-"namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6",
-"rename_2_main_8cpp.html#a8e80b3539a6c9920c8ec4e18d492ea8b",
-"struct_plugins_1_1_autobuy_1_1_config.html#a030d7ab65fa4292ec967b262f5d706b6",
-"struct_plugins_1_1_con_data_1_1_global.html#a27a832bd598ef48a6648ee6d6b7bacb9",
-"struct_plugins_1_1_message_1_1_config.html#a1eab3a7bfa50091588726e4adf059388",
-"struct_plugins_1_1_purchase_restrictions_1_1_config.html#a67aa6f5d1f35fe305701254d7e2e0ff8",
-"struct_plugins_1_1_tax_1_1_config.html#abb84b89b7f03e191eda9ae5b4364a123"
+"_zone_utilities_8cpp.html",
+"crash__catcher_2_main_8cpp.html#a3528e5b5a910a01d899426fc806dbd11",
+"group___crash_catcher.html#ga372c7be4452cdebe31d2f9467d8d6247",
+"namespace_hk_1_1_admin.html#a8cb5ce484fadfbf3a69ffbde2a7b3bc6",
+"namespace_i_server_impl_hook.html#a23874be7ded89c2b9dd62106066a38e0",
+"namespace_plugins_1_1_message.html",
+"rename_2_main_8cpp.html#a8756faf6f3bdd1fd58635db8e283466d",
+"struct_plugins_1_1_autobuy_1_1_config.html",
+"struct_plugins_1_1_con_data_1_1_global.html",
+"struct_plugins_1_1_message_1_1_config.html#a1411aa401ee771c56533a4b53b2358af",
+"struct_plugins_1_1_purchase_restrictions_1_1_config.html",
+"struct_plugins_1_1_tax_1_1_config.html#ab8d5460c35c796bced1fc39d374080c4"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
