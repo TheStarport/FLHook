@@ -256,10 +256,9 @@ void FLHookInit_Pre()
 			}
 		}
 
-		// create config folder if it doesn't already
-		if (struct stat sb; stat("config", &sb) != 0)
+		if (!std::filesystem::exists("config"))
 		{
-			_wmkdir(L"config");
+			std::filesystem::create_directory("config");
 		}
 
 		// Load required libs that plugins might leverage
