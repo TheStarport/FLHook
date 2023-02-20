@@ -205,39 +205,6 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemId, client, clientKiller.value());
 					ProcessEvent(L"%s", eventStr.c_str());
-
-					// MultiKillMessages
-					if ((FLHookConfig::i()->multiKillMessages.active) && (client != clientKiller.value()))
-					{
-						std::wstring killerName = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
-
-						ClientInfo[clientKiller.value()].iKillsInARow++;
-						for (auto& msg : FLHookConfig::i()->multiKillMessages.multiKillMessages)
-						{
-							if (msg.second == ClientInfo[clientKiller.value()].iKillsInARow)
-							{
-								std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->multiKillMessages.multiKillMessageStyle + L"\" mask=\"-1\"/> <TEXT>";
-								xmlMsg += XMLText(ReplaceStr(msg.first, L"%player", killerName));
-								xmlMsg += L"</TEXT>";
-
-								char encodeBuf[0xFFFF];
-								uint rval;
-								if (!Hk::Message::FMsgEncodeXML(xmlMsg, encodeBuf, sizeof(encodeBuf), rval).has_error())
-									break;
-
-								// for all players in system...
-								PlayerData* playerData = nullptr;
-								while ((playerData = Players.traverse_active(playerData)))
-								{
-									ClientId client = playerData->iOnlineId;
-									uint clientSystemId = 0;
-									pub::Player::GetSystem(client, clientSystemId);
-									if (client == clientKiller || ((systemId == clientSystemId) && (((ClientInfo[client].dieMsg == DIEMSG_ALL) || (ClientInfo[client].dieMsg == DIEMSG_SYSTEM)) || !FLHookConfig::i()->messages.dieMsg)))
-										Hk::Message::FMsgSendChat(client, encodeBuf, rval);
-								}
-							}
-						}
-					}
 				}
 				else if (dmg.get_inflictor_id())
 				{
