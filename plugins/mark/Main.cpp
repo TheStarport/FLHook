@@ -155,9 +155,9 @@ namespace Plugins::Mark
 		}
 		for (auto& timer : global->Timers)
 		{
-			if (timeInMS() - timer.LastCall >= timer.IntervalMS)
+			if (Hk::Time::GetUnixMiliseconds() - timer.LastCall >= timer.IntervalMS)
 			{
-				timer.LastCall = timeInMS();
+				timer.LastCall = Hk::Time::GetUnixMiliseconds();
 				timer.proc();
 			}
 		}

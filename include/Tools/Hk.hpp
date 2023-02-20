@@ -28,10 +28,8 @@ namespace Hk
 {
 	namespace Time
 	{
-		std::chrono::seconds Unix();
-		std::chrono::milliseconds UnixMilliseconds();
-
-		DLL uint GetUnix();
+		DLL uint GetUnixSeconds();
+		DLL uint GetUnixMiliseconds();
 
 		template<typename T>
 		std::chrono::microseconds ToMicroseconds(T duration)

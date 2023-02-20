@@ -263,7 +263,7 @@ namespace Plugins::ConData
 		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
 			return; // ??? 8[
 
-		const mstime timeNow = timeInMS();
+		const mstime timeNow = Hk::Time::GetUnixMiliseconds();
 		const auto timestamp = static_cast<mstime>(ui.fTimestamp * 1000);
 
 		auto& con = global->connections[client];

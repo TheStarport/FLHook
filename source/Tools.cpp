@@ -135,34 +135,6 @@ std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, cons
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-mstime timeInMS()
-{
-	mstime iCount;
-	QueryPerformanceCounter((LARGE_INTEGER*)&iCount);
-	mstime iFreq;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&iFreq);
-	return 1000 * iCount / iFreq;
-}
-
-/// Use this function to get the ticks since system startup. The FLHook
-/// timeInMS() function seems to report inaccurate time when the FLServer.exe
-/// process freezes (which happens due to other bugs).
-mstime GetTimeInMS()
-{
-	static mstime msBaseTime = 0;
-	static mstime msLastTickCount = 0;
-
-	mstime msCurTime = GetTickCount();
-	// GetTickCount is 32 bits and so wraps around ever 49.5 days
-	// If a wrap around has occurred then
-	if (msCurTime < msLastTickCount)
-		msBaseTime += (2 ^ 32);
-	msLastTickCount = msCurTime;
-	return msBaseTime + msLastTickCount;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 BOOL FileExists(LPCTSTR szPath)
 {
 	DWORD dwAttrib = GetFileAttributes(szPath);

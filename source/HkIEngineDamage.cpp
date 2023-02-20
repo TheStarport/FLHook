@@ -226,14 +226,14 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		// anti-dockkill check
 		if (ClientInfo[clientTarget].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
+			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
 			else
 				ClientInfo[clientTarget].bSpawnProtected = false;
 		}
 		if (ClientInfo[client].bSpawnProtected)
 		{
-			if ((timeInMS() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
+			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
 			else
 				ClientInfo[client].bSpawnProtected = false;

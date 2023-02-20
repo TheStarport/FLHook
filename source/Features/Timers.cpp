@@ -10,7 +10,7 @@ CTimer::CTimer(const std::string& sFunc, uint iWarn) : sFunction(sFunc), iWarnin
 
 void CTimer::start()
 {
-	tmStart = timeInMS();
+	tmStart = Hk::Time::GetUnixMiliseconds();
 }
 
 uint CTimer::stop()
@@ -65,7 +65,7 @@ void TimerCheckKick()
 
 			if (ClientInfo[client].tmKickTime)
 			{
-				if (timeInMS() >= ClientInfo[client].tmKickTime)
+				if (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmKickTime)
 				{
 					Hk::Player::Kick(client); // kick time expired
 					ClientInfo[client].tmKickTime = 0;
@@ -125,12 +125,12 @@ void TimerNPCAndF1Check()
 			if (client < 1 || client > MaxClientId)
 				continue;
 
-			if (ClientInfo[client].tmF1Time && (timeInMS() >= ClientInfo[client].tmF1Time))
+			if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time))
 			{ // f1
 				Server.CharacterInfoReq(client, false);
 				ClientInfo[client].tmF1Time = 0;
 			}
-			else if (ClientInfo[client].tmF1TimeDisconnect && (timeInMS() >= ClientInfo[client].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				ulong dataArray[64] = { 0 };
 				dataArray[26] = client;
