@@ -256,6 +256,12 @@ void FLHookInit_Pre()
 			}
 		}
 
+		// create config folder if it doesn't already
+		if (struct stat sb; stat("config", &sb) != 0)
+		{
+			_wmkdir(L"config");
+		}
+
 		// Load required libs that plugins might leverage
 		for (const auto& lib : PluginLibs)
 		{
