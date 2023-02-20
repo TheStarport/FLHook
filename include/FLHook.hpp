@@ -271,16 +271,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool defaultLocalChat = false;
 	};
 
-	struct MultiKillMessages final : Reflectable
-	{
-		//! If true, enables multikill messages
-		bool active = false;
-		//! multikill message style coded in hex
-		std::wstring multiKillMessageStyle = L"0x1919BD01";
-		//! map of kill numbers to the displayed multikill message
-		std::map<uint, std::wstring> multiKillMessageTemplates = {{5, L"player1"}, {10, L"player2"}, {15, L"player3"}};
-	};
-
 	struct Bans final : Reflectable
 	{
 		//! If true, apply a vanilla FLServer ban in case of a wildcard/IP match on top of kicking them.
@@ -293,7 +283,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 	Plugins plugins;
 	Socket socket;
 	UserCommands userCommands;
-	MultiKillMessages multiKillMessages;
 	Bans bans;
 	Message messages;
 };

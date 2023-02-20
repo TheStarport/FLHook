@@ -205,35 +205,6 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemId, client, clientKiller.value());
 					ProcessEvent(L"%s", eventStr.c_str());
-
-					// MultiKillMessages
-					if ((FLHookConfig::i()->multiKillMessages.active) && (client != clientKiller.value()))
-					{
-						std::wstring killerName = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
-
-						ClientInfo[clientKiller.value()].iKillsInARow++;
-						if (FLHookConfig::i()->multiKillMessages.multiKillMessageTemplates.contains(ClientInfo[clientKiller.value()].iKillsInARow))
-						{
-							std::wstring multiKillMessage =
-							    FLHookConfig::i()->multiKillMessages.multiKillMessageTemplates[ClientInfo[clientKiller.value()].iKillsInARow];
-							std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->multiKillMessages.multiKillMessageStyle + L"\" mask=\"-1\"/> <TEXT>";
-							xmlMsg += XMLText(ReplaceStr(multiKillMessage, L"%player", killerName));
-							xmlMsg += L"</TEXT>";
-
-							char encodeBuf[0xFFFF];
-							uint rval;
-							if (!Hk::Message::FMsgEncodeXML(xmlMsg, encodeBuf, sizeof(encodeBuf), rval).has_error())
-							{
-								for (const auto& player : Hk::Client::getAllPlayersInSystem(systemId))
-								{
-									if (player == clientKiller ||
-									    (((ClientInfo[player].dieMsg == DIEMSG_ALL) || (ClientInfo[player].dieMsg == DIEMSG_SYSTEM)) ||
-											!FLHookConfig::i()->messages.dieMsg))
-										Hk::Message::FMsgSendChat(player, encodeBuf, rval);
-								}
-							}		
-						}
-					}
 				}
 				else if (dmg.get_inflictor_id())
 				{
