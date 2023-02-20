@@ -3,7 +3,7 @@
 
 void TempBanManager::ClearFinishedTempBans()
 {
-	auto timeNow = timeInMS();
+	auto timeNow = Hk::Time::GetUnixMiliseconds();
 	auto it = tempBanList.begin();
 	while (it != tempBanList.end())
 	{
@@ -27,7 +27,7 @@ void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::
     const auto accId = Hk::Client::GetAccountID(account);
 
 	TempBanInfo banInfo;
-	banInfo.banStart = timeInMS();
+	banInfo.banStart = Hk::Time::GetUnixMiliseconds();
 	banInfo.banEnd = banInfo.banStart + (durationInMin * 1000 * 60);
 	banInfo.accountId = accId.value();
 

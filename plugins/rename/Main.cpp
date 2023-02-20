@@ -514,8 +514,8 @@ namespace Plugins::Rename
 		// If a rename was done recently by this player then reject the request.
 		// I know that time() returns time_t...shouldn't matter for a few years
 		// yet.
-		if (uint lastRenameTime = IniGetI(renameFile, "General", wstos(charname), 0); (lastRenameTime + 300) < Hk::Time::GetUnix()
-		&& (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnix())
+		if (uint lastRenameTime = IniGetI(renameFile, "General", wstos(charname), 0); (lastRenameTime + 300) < Hk::Time::GetUnixSeconds()
+		&& (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnixSeconds())
 		{
 			PrintUserCmdText(client, L"ERR Rename time limit");
 			return;
@@ -549,7 +549,7 @@ namespace Plugins::Rename
 		global->pendingRenames.emplace_back(o);
 
 		Hk::Player::KickReason(o.charName, L"Updating character, please wait 10 seconds before reconnecting");
-		IniWrite(renameFile, "General", wstos(o.newCharName), std::to_string(Hk::Time::GetUnix()));
+		IniWrite(renameFile, "General", wstos(o.newCharName), std::to_string(Hk::Time::GetUnixSeconds()));
 	}
 
 	/** Process a set the move char code command */
@@ -798,7 +798,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		const auto curr_time = Hk::Time::GetUnix();
+		const auto curr_time = Hk::Time::GetUnixSeconds();
 		for (const auto& tag : global->tagList.tags)
 		{
 			auto last_access = static_cast<int>(tag.lastAccess);
@@ -846,7 +846,7 @@ namespace Plugins::Rename
 		data.tag = tag;
 		data.masterPassword = password;
 		data.renamePassword = L"";
-		data.lastAccess = Hk::Time::GetUnix();
+		data.lastAccess = Hk::Time::GetUnixSeconds();
 		data.description = description;
 		cmds->Print(wstos(std::format(L"Created faction tag {} with master password {}", tag, password)));
 		global->tagList.tags.emplace_back(data);

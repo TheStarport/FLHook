@@ -59,22 +59,22 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after a tractor to prevent cargo duplication loss on crash
 	 */
-	void TractorObjects(ClientId& client, struct XTractorObjects const& objs)
+	void TractorObjects(ClientId& client, [[maybe_unused]] struct XTractorObjects const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
-			global->mapSaveTimes[client] = GetTimeInMS() + 60000;
+			global->mapSaveTimes[client] = Hk::Time::GetUnixMiliseconds() + 60000;
 		}
 	}
 
 	/** @ingroup CrashCatcher
 	 * @brief Save after jettison to reduce chance of duplication on crash
 	 */
-	void JettisonCargo(ClientId& client, struct XJettisonCargo const& objs)
+	void JettisonCargo(ClientId& client, [[maybe_unused]] struct XJettisonCargo const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
-			global->mapSaveTimes[client] = GetTimeInMS() + 60000;
+			global->mapSaveTimes[client] = Hk::Time::GetUnixMiliseconds() + 60000;
 		}
 	}
 
@@ -83,15 +83,14 @@ namespace Plugins::CrashCatcher
 	 */
 	void SaveCrashingCharacter()
 	{
-		mstime currTime = GetTimeInMS();
-		for (auto& t : global->mapSaveTimes)
+		mstime currTime = Hk::Time::GetUnixMiliseconds();
+		for (auto& [client, saveTime] : global->mapSaveTimes)
 		{
-			ClientId client = t.first;
-			if (t.second != 0 && t.second < currTime)
+			if (saveTime != 0 && saveTime < currTime)
 			{
 				if (Hk::Client::IsValidClientID(client) && !Hk::Client::IsInCharSelectMenu(client))
-					Hk::Player::SaveChar(t.first);
-				t.second = 0;
+					Hk::Player::SaveChar(client);
+				saveTime = 0;
 			}
 		}
 	}
@@ -103,7 +102,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Originally in Main.cpp of PlayerControl
 	 */
-	void RequestBestPath(ClientId& p1, uint& p2, int& p3)
+	void RequestBestPath(ClientId& p1, const uint& p2, const int& p3)
 	{
 		global->returncode = ReturnCode::SkipFunctionCall;
 		try
@@ -134,7 +133,7 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	static FARPROC fpCrashProc1b221Old = 0;
+	static FARPROC fpCrashProc1b221Old = nullptr;
 	/** @ingroup CrashCatcher
 	 * @brief This crash will happen if you have broken path finding or more than 10 connections per system.
 	 */
@@ -152,7 +151,7 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	static FARPROC fpCrashProc1b113470Old = 0;
+	static FARPROC fpCrashProc1b113470Old = nullptr;
 	uint __cdecl Cb_PubZoneSystem(uint system)
 	{
 		int res = pub::Zone::GetSystem(system);
@@ -160,9 +159,9 @@ namespace Plugins::CrashCatcher
 		return res;
 	}
 
-	static void* dwSavedECX = 0;
+	static void* dwSavedECX = nullptr;
 
-	static FARPROC fpCrashProc6F8B330Old = 0;
+	static FARPROC fpCrashProc6F8B330Old = nullptr;
 	char __stdcall Cb_CrashProc6F8B330(int arg1)
 	{
 		int res = 0;
@@ -195,7 +194,7 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	static FARPROC fpCrashProc6F78DD0Old = 0;
+	static FARPROC fpCrashProc6F78DD0Old = nullptr;
 	void __stdcall Cb_CrashProc6F78DD0(int arg1, int arg2)
 	{
 		try
@@ -224,7 +223,7 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	static FARPROC fpCrashProc6F671A0Old = 0;
+	static FARPROC fpCrashProc6F671A0Old = nullptr;
 	void __cdecl Cb_CrashProc6F671A0(int arg1)
 	{
 		try
@@ -341,7 +340,7 @@ will_crash:
 		}
 	}
 
-	static HMODULE modContentAc = 0; // or whatever value that is
+	static HMODULE modContentAc = nullptr; // or whatever value that is
 	void __stdcall Cb_C4800HookNaked()
 	{
 		modContentAc = global->hModContentAC;
@@ -424,8 +423,8 @@ will_crash:
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
 				FARPROC fpTimingSeconds = (FARPROC)Cb_TimingSeconds;
-				ReadProcMem((char*)GetModuleHandle(0) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
-				WriteProcMem((char*)GetModuleHandle(0) + 0x1B0A0, &fpTimingSeconds, 4);
+				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
+				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
 				global->hEngBase = GetModuleHandle("engbase.dll");
 				global->hModContentAC = GetModuleHandle("content.dll");
@@ -498,7 +497,7 @@ will_crash:
 					//}
 
 					// Hook for crash at 0xEB4B5 (confirmed)
-					FARPROC fpHook = (FARPROC)Cb_CrashProc6F8B330Naked;
+					auto fpHook = (FARPROC)Cb_CrashProc6F8B330Naked;
 					ReadProcMem((char*)global->hModContentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
 					WriteProcMem((char*)global->hModContentAC + 0x11C970, &fpHook, 4);
 					WriteProcMem((char*)global->hModContentAC + 0x11CA00, &fpHook, 4);
@@ -547,7 +546,7 @@ will_crash:
 			}
 
 			// Unload the timing patches.
-			WriteProcMem((char*)GetModuleHandle(0) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
+			WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
 
 			if (global->hModContentAC)
 			{
@@ -606,7 +605,7 @@ will_crash:
 using namespace Plugins::CrashCatcher;
 
 // Do things when the dll is loaded
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDLL, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH && CoreGlobals::c()->flhookReady)
 		Init();

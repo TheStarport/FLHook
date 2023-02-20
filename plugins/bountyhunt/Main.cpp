@@ -66,7 +66,7 @@ namespace Plugins::BountyHunt
 			PrintUserCmdText(client, L"Offered Bounty Hunts:");
 			for (auto const& [targetId, initiatorId, target, initiator, cash, end] : global->bountyHunt)
 			{
-				PrintUserCmdText(client, std::format(L"Kill {} and earn {} credits ({} minutes left)", target, cash, ((end - GetTimeInMS()) / 60000)));
+				PrintUserCmdText(client, std::format(L"Kill {} and earn {} credits ({} minutes left)", target, cash, ((end - Hk::Time::GetUnixSeconds()) / 60)));
 			}
 		}
 	}
@@ -136,7 +136,7 @@ namespace Plugins::BountyHunt
 
 		BountyHunt bh;
 		bh.initiatorId = client;
-		bh.end = GetTimeInMS() + (static_cast<mstime>(time) * 60000);
+		bh.end = Hk::Time::GetUnixMiliseconds() + (static_cast<mstime>(time) * 60000);
 		bh.initiator = initiator;
 		bh.cash = prize;
 		bh.target = target;
@@ -187,7 +187,7 @@ namespace Plugins::BountyHunt
 
 		while (bounty != global->bountyHunt.end())
 		{
-			if (bounty->end < timeInMS())
+			if (bounty->end < Hk::Time::GetUnixMiliseconds()) 
 			{
 				if (const auto cashError = Hk::Player::AddCash(bounty->target, bounty->cash); cashError.has_error())
 				{
