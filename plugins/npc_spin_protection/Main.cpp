@@ -26,7 +26,7 @@
 // Includes
 #include "Main.h"
 
-namespace Plugins::SpinProtection
+namespace Plugins::NPCSpinProtection
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
@@ -40,7 +40,7 @@ namespace Plugins::SpinProtection
 	void SPObjCollision(struct SSPObjCollisionInfo const& ci, ClientId& client)
 	{
 		// If spin protection is off, do nothing.
-		if (global->config->spinProtectionMass == -1.0f)
+		if (ci.iColliderObjectId == 0 || global->config->spinProtectionMass == -1.0f)
 			return;
 
 		float targetMass = Hk::Solar::GetMass(ci.iColliderObjectId).value();
@@ -77,12 +77,12 @@ namespace Plugins::SpinProtection
 		V2.z *= global->config->spinImpulseMultiplier * clientMass;
 		pub::SpaceObj::AddImpulse(ci.iColliderObjectId, V1, V2);
 	}
-} // namespace Plugins::SpinProtection
+} // namespace Plugins::NPCSpinProtection
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-using namespace Plugins::SpinProtection;
+using namespace Plugins::NPCSpinProtection;
 
 DefaultDllMainSettings(LoadSettings);
 
