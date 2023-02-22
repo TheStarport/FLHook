@@ -37,6 +37,7 @@
 
 #include "Main.h"
 #include "Features/Mail.hpp"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Rename
 {
@@ -941,7 +942,9 @@ namespace Plugins::Rename
 using namespace Plugins::Rename;
 REFL_AUTO(type(TagData), field(tag), field(masterPassword), field(renamePassword), field(lastAccess), field(description));
 REFL_AUTO(type(TagList), field(tags));
-REFL_AUTO(type(Config), field(enableRename), field(enableMoveChar), field(moveCost), field(renameCost), field(renameTimeLimit), field(enableTagProtection), field(asciiCharNameOnly), field(makeTagCost));
+REFL_AUTO(type(Config), field(enableRename), field(enableMoveChar), field(moveCost, AttrMin {0u}, AttrMax {10000000000u}),
+    field(renameCost, AttrMin {0u}, AttrMax {10000000000u}), field(renameTimeLimit, AttrMin{0}), field(enableTagProtection), field(asciiCharNameOnly),
+    field(makeTagCost, AttrMin {0u}, AttrMax {10000000000u}));
 
 DefaultDllMainSettings(LoadSettings);
 

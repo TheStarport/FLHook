@@ -32,6 +32,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::BountyHunt
 {
@@ -116,8 +117,7 @@ namespace Plugins::BountyHunt
 			time = global->config->defaultHuntTime;
 		}
 
-		if (uint clientCash = Hk::Player::GetCash(client).value(); 
-			clientCash < prize)
+		if (uint clientCash = Hk::Player::GetCash(client).value(); clientCash < prize)
 		{
 			PrintUserCmdText(client, L"You do not possess enough credits.");
 			return;
@@ -186,7 +186,7 @@ namespace Plugins::BountyHunt
 	{
 		auto bounty = global->bountyHunt.begin();
 
-		while (bounty != global->bountyHunt.end()) 
+		while (bounty != global->bountyHunt.end())
 		{
 			if (bounty->end < Hk::Time::GetUnixMiliseconds()) 
 			{
@@ -228,8 +228,7 @@ namespace Plugins::BountyHunt
 						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
-					Hk::Message::MsgU(
-					    winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
+					Hk::Message::MsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
 				}
 				else
 				{
@@ -247,10 +246,7 @@ namespace Plugins::BountyHunt
 	}
 
 	// Timer Hook
-	const std::vector<Timer> timers = {
-	    {BhTimeOutCheck, 60}
-	};
-
+	const std::vector<Timer> timers = {{BhTimeOutCheck, 60}};
 
 	/** @ingroup BountyHunt
 	 * @brief Hook for SendDeathMsg to call BillCheck
@@ -263,7 +259,8 @@ namespace Plugins::BountyHunt
 		}
 	}
 
-	void checkIfPlayerFled(ClientId& client) {
+	void checkIfPlayerFled(ClientId& client)
+	{
 		for (auto& it : global->bountyHunt)
 		{
 			if (it.targetId == client)
@@ -317,11 +314,12 @@ namespace Plugins::BountyHunt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::BountyHunt;
 
-REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect), field(minimalHuntTime), field(maximumHuntTime), field(defaultHuntTime))
+REFL_AUTO(type(Config), field(enableBountyHunt), field(levelProtect, AttrMin {0u}, AttrMax {100u}), field(minimalHuntTime, AttrMin {1u}, AttrMax {1400u}),
+    field(maximumHuntTime, AttrMin {1u}, AttrMax {1400u}), field(defaultHuntTime, AttrMin {1u}, AttrMax {1400u}))
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name("Bounty Hunt");
 	pi->shortName("bountyhunt");

@@ -88,5 +88,3 @@ namespace Plugins::ConData
 	};
 }; // namespace Plugins::ConData
 
-REFL_AUTO(type(Plugins::ConData::Config), field(pingKick), field(pingKickFrame), field(fluctKick), field(lossKick), field(lossKickFrame), field(lagKick),
-    field(lagDetectionFrame), field(lagDetectionMin), field(kickThreshold), field(allowPing))

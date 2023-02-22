@@ -243,7 +243,8 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Tools\Enums.hpp" />
     <ClInclude Include="..\include\Tools\Hk.hpp" />
     <ClInclude Include="..\include\Tools\Macros.hpp" />
-    <ClInclude Include="..\include\Tools\Serialization.hpp" />
+    <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
+    <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
     <ClInclude Include="..\include\Tools\Structs.hpp" />
     <ClInclude Include="..\include\Tools\Typedefs.hpp" />
     <ClInclude Include="..\include\Tools\Utils.hpp" />

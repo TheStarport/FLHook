@@ -27,6 +27,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Restart
 {
@@ -220,7 +221,7 @@ namespace Plugins::Restart
 
 using namespace Plugins::Restart;
 
-REFL_AUTO(type(Config), field(maxCash), field(maxRank), field(enableRestartCost), field(availableRestarts))
+REFL_AUTO(type(Config), field(maxCash,AttrMin{0u}, AttrMax{100000000u}), field(maxRank), field(enableRestartCost), field(availableRestarts, AttrNotEmpty<std::map<std::wstring, uint>>{}))
 
 DefaultDllMainSettings(LoadSettings);
 
