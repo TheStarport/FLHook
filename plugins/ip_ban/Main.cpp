@@ -23,6 +23,7 @@
  * This plugin has no dependencies.
  */
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::IPBan
 {
@@ -299,7 +300,7 @@ using namespace Plugins::IPBan;
 REFL_AUTO(type(IPBans), field(Bans))
 REFL_AUTO(type(LoginIdBans), field(Bans))
 REFL_AUTO(type(AuthenticatedAccounts), field(Accounts))
-REFL_AUTO(type(Config), field(BanMessage))
+REFL_AUTO(type(Config), field(BanMessage, AttrNotEmptyNotWhiteSpace<std::wstring>{}))
 
 DefaultDllMainSettings(LoadSettings);
 

@@ -24,6 +24,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 IMPORT uint g_DmgTo;
 
@@ -216,7 +217,7 @@ namespace Plugins::KillTracker
 
 using namespace Plugins::KillTracker;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking))
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate, AttrNotEmptyNotWhiteSpace<std::wstring> {}), field(enableDamageTracking))
 
 DefaultDllMainSettings(LoadSettings);
 

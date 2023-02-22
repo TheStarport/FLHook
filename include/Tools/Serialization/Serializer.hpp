@@ -6,6 +6,7 @@
 
 #include "refl.hpp"
 #include "FLHook.hpp"
+#include "Attributes.hpp"
 
 template<typename T>
 constexpr auto IsEnum = std::is_enum_v<T>;
@@ -52,9 +53,10 @@ class Serializer
 {
 	template<typename DeclType, typename Json = nlohmann::json, typename Member, typename ReturnVector = std::vector<typename DeclType::value_type>>
 	static ReturnVector ReadVector(Json json, Member member)
+
 	{
-		if constexpr (IsBool<typename DeclType::value_type> ||IsInt<typename DeclType::value_type> || IsBigInt<typename DeclType::value_type>
-			|| IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type>)
+		if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || IsBigInt<typename DeclType::value_type> ||
+		    IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type>)
 		{
 			if (json.is_array())
 			{
@@ -64,10 +66,9 @@ class Serializer
 		}
 		else if constexpr (IsWString<typename DeclType::value_type>)
 		{
-			std::vector<std::string> vectorOfString = json.is_array()
-				? json.get<std::vector<std::string>>()
-				: json[member.name.c_str()].template get<std::vector<std::string>>();
-			
+			std::vector<std::string> vectorOfString =
+			    json.is_array() ? json.get<std::vector<std::string>>() : json[member.name.c_str()].template get<std::vector<std::string>>();
+
 			std::vector<std::wstring> vectorOfWstring;
 			for (auto& i : vectorOfString)
 			{
@@ -77,9 +78,7 @@ class Serializer
 		}
 		else if constexpr (IsReflectable<typename DeclType::value_type>)
 		{
-			auto jArr = json.is_array() 
-				? json.get<nlohmann::json::array_t>()
-				: json[member.name.c_str()].template get<nlohmann::json::array_t>();
+			auto jArr = json.is_array() ? json.get<nlohmann::json::array_t>() : json[member.name.c_str()].template get<nlohmann::json::array_t>();
 
 			auto declArr = std::vector<typename DeclType::value_type>();
 			for (auto iter = jArr.begin(); iter != jArr.end(); ++iter)
@@ -186,7 +185,7 @@ class Serializer
 			*static_cast<std::map<std::wstring, Target>*>(ptr) = wMap;
 		}
 		else
-		{	
+		{
 			static_assert(IsString<StrType>, "Non string passed into HandleMapKey");
 		}
 	}
@@ -404,6 +403,43 @@ class Serializer
 		});
 	}
 
+	template<std::size_t I = 0, typename FuncT, typename... Tp>
+	static typename std::enable_if<I == sizeof...(Tp), void>::type for_each(std::tuple<Tp...>, FuncT) // Unused arguments are given no names.
+	{
+	}
+
+	template<std::size_t I = 0, typename FuncT, typename... Tp>
+	    static typename std::enable_if < I<sizeof...(Tp), void>::type for_each(std::tuple<Tp...> t, FuncT f)
+	{
+		f(std::get<I>(t));
+		for_each<I + 1, FuncT, Tp...>(t, f);
+	}
+
+	template<typename T>
+	static void Validate(T& obj)
+	{
+		constexpr auto type = refl::reflect<T>();
+		refl::util::for_each(type.members, [&type, &obj](auto member) {
+			if (member.is_static || !member.is_writable)
+				return;
+
+			const auto attrs = refl::descriptor::get_attributes(member);
+
+			for_each(attrs, [obj, member](const auto val) {
+				typedef std::remove_reference_t<decltype(val)> DeclType;
+				constexpr auto memberType = refl::reflect<DeclType>();
+				constexpr auto members = refl::descriptor::get_members(memberType);
+				refl::util::apply(members, [val, member, obj](auto func) { 
+					cpp::result<void, std::string> valid = refl::descriptor::invoke(func, val, member(obj));
+					if (valid.has_error())
+					{
+						Console::ConErr(std::format("While trying to create reflectable. Failed to validate {} (reason: {})", std::string(member.name.c_str()), valid.error()));
+					}
+				});
+			});
+		});
+	}
+
   public:
 	/// <summary>
 	/// Save an instance of a class/struct to a JSON file.
@@ -417,8 +453,6 @@ class Serializer
 	template<typename T>
 	inline static void SaveToJson(T& t, std::string fileToSave = "")
 	{
-		static_assert(IsReflectable<T>, "Only classes that inherit from 'Reflectable' can be serialized.");
-
 		// If no file is provided, we can search the class metadata.
 		if (fileToSave.empty())
 		{
@@ -459,8 +493,6 @@ class Serializer
 	template<typename T>
 	inline static T JsonToObject(std::string fileName = "", bool createIfNotExist = true)
 	{
-		static_assert(IsReflectable<T>, "Only classes that inherit from 'Reflectable' can be deserialized.");
-
 		// If we cannot load, we return a default
 		T ret;
 
@@ -506,16 +538,21 @@ class Serializer
 			nlohmann::json json = nlohmann::json::parse(buffer.str());
 
 			ReadObject(json, ret);
+			Validate(ret);
 		}
 		catch (nlohmann::json::parse_error& ex)
 		{
 			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(LogType::Normal, LogLevel::Warn, std::format("Unable to process JSON file [{}]. The JSON could not be parsed. EXCEPTION: {}", fileName, ex.what()));
+			AddLog(LogType::Normal,
+			    LogLevel::Warn,
+			    std::format("Unable to process JSON file [{}]. The JSON could not be parsed. EXCEPTION: {}", fileName, ex.what()));
 		}
 		catch (nlohmann::json::type_error& ex)
 		{
 			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(LogType::Normal, LogLevel::Warn, std::format("Unable to process JSON file [{}]. A type within the JSON object did not match. EXCEPTION: {}", fileName, ex.what()));
+			AddLog(LogType::Normal,
+			    LogLevel::Warn,
+			    std::format("Unable to process JSON file [{}]. A type within the JSON object did not match. EXCEPTION: {}", fileName, ex.what()));
 		}
 		catch (nlohmann::json::exception& ex)
 		{

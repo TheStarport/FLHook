@@ -69,7 +69,10 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief ClearClientInfo hook. Calls ClearConData().
 	 */
-	void ClearClientInfo(ClientId& client) { ClearConData(client); }
+	void ClearClientInfo(ClientId& client)
+	{
+		ClearConData(client);
+	}
 
 	/** @ingroup Condata
 	 * @brief Hook on TimerCheckKick. Checks clients's connections against a threshold and kicks them if they are above it.
@@ -82,7 +85,7 @@ namespace Plugins::ConData
 			struct PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				ClientId client = playerData->iOnlineId ;
+				ClientId client = playerData->iOnlineId;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
@@ -95,16 +98,14 @@ namespace Plugins::ConData
 					TempBanManager::i()->AddTempBan(client, 60, L"High loss");
 				}
 
-				if (global->config->pingKick && 
-					con.averagePing > (global->config->pingKick))
+				if (global->config->pingKick && con.averagePing > (global->config->pingKick))
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High ping");
 					TempBanManager::i()->AddTempBan(client, 60, L"High ping");
 				}
 
-				if (global->config->fluctKick 
-					&& con.pingFluctuation > (global->config->fluctKick))
+				if (global->config->fluctKick && con.pingFluctuation > (global->config->fluctKick))
 				{
 					con.pingList.clear();
 					AddKickLog(client, "High fluct");
@@ -148,9 +149,7 @@ namespace Plugins::ConData
 		{
 			ClientId client = playerData->iOnlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
-			if (client < 1 || client > MaxClientId 
-			|| ClientInfo[client].tmF1TimeDisconnect 
-			|| connectionInfo.has_error())
+			if (client < 1 || client > MaxClientId || ClientInfo[client].tmF1TimeDisconnect || connectionInfo.has_error())
 				continue;
 
 			auto& con = global->connections[client];
@@ -207,7 +206,6 @@ namespace Plugins::ConData
 				continue;
 			const auto& connInfo = connectionInfo.value();
 
-
 			auto& con = global->connections[client];
 
 			///////////////////////////////////////////////////////////////
@@ -252,7 +250,10 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on PlayerLaunch. Sets lastObjUpdate to 0.
 	 */
-	void PlayerLaunch([[maybe_unused]] ShipId& ship, ClientId& client) { global->connections[client].lastObjUpdate = 0; }
+	void PlayerLaunch([[maybe_unused]] ShipId& ship, ClientId& client)
+	{
+		global->connections[client].lastObjUpdate = 0;
+	}
 
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
@@ -446,8 +447,6 @@ namespace Plugins::ConData
 				    con.pingFluctuation,
 				    saturation,
 				    txqueue)));
-
-				
 			}
 			classptr->Print("OK");
 			global->returncode = ReturnCode::SkipAll;
@@ -499,7 +498,6 @@ namespace Plugins::ConData
 				continue;
 
 			ClearConData(playerData->iOnlineId);
-			
 		}
 	}
 
@@ -514,7 +512,12 @@ using namespace Plugins::ConData;
 
 DefaultDllMainSettings(LoadSettings);
 
-    extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+REFL_AUTO(type(Plugins::ConData::Config), field(pingKick, AttrMin {0u}, AttrMax {50000u}), field(pingKickFrame, AttrMin {0u}, AttrMax {50000u}),
+    field(fluctKick, AttrMin {0u}, AttrMax {50000u}), field(lossKick, AttrMin {0u}, AttrMax {50000u}), field(lossKickFrame, AttrMin {0u}, AttrMax {50000u}),
+    field(lagKick, AttrMin {0u}, AttrMax {50000u}), field(lagDetectionFrame, AttrMin {0u}, AttrMax {50000u}),
+    field(lagDetectionMin, AttrMin {0u}, AttrMax {50000u}), field(kickThreshold, AttrMin {0u}, AttrMax {50000u}), field(allowPing));
+
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	pi->name(ConDataCommunicator::pluginName);
 	pi->shortName("condata");

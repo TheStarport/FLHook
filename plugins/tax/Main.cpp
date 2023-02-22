@@ -33,6 +33,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Tax
 {
@@ -240,8 +241,9 @@ namespace Plugins::Tax
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Tax;
 
-REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec), field(maxTax), field(customColor), field(customFormat), field(taxRequestReceived),
-    field(huntingMessage), field(huntingMessageOriginator), field(cannotPay), field(killDisconnectingPlayers))
+REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec, AttrMin {0u}), field(maxTax, AttrMin {0u}), field(customColor), field(customFormat),
+    field(taxRequestReceived, AttrNotEmpty<std::wstring> {}), field(huntingMessage, AttrNotEmpty<std::wstring> {}),
+    field(huntingMessageOriginator, AttrNotEmpty<std::wstring> {}), field(cannotPay, AttrNotEmpty<std::wstring> {}), field(killDisconnectingPlayers))
 
 DefaultDllMainSettings(LoadSettings);
 

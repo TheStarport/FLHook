@@ -34,6 +34,9 @@
     <Filter Include="FLHook\Data">
       <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Tools\Serialization">
+      <UniqueIdentifier>{87225937-9c94-4d5e-8e3f-ba1236fe0369}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -183,9 +186,6 @@
     <ClInclude Include="..\include\Tools\Macros.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\Serialization.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Tools\Structs.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
@@ -206,6 +206,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Features\TempBan.hpp">
       <Filter>Include\Features</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp">
+      <Filter>Include\Tools\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp">
+      <Filter>Include\Tools\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
