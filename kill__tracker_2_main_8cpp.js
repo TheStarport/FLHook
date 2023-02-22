@@ -9,7 +9,7 @@ var kill__tracker_2_main_8cpp =
     [ "LoadSettings", "kill__tracker_2_main_8cpp.html#aa138ba34d6b61a27e417a1e23b48234e", null ],
     [ "PlayerLaunch", "kill__tracker_2_main_8cpp.html#a9de4788f9050f8256eb34a930435159e", null ],
     [ "PrintNPCKills", "kill__tracker_2_main_8cpp.html#ae5092925cee194b6ffae856c6345c657", null ],
-    [ "REFL_AUTO", "kill__tracker_2_main_8cpp.html#a14c4669db1404d4d444f7a8d728f24d7", null ],
+    [ "REFL_AUTO", "kill__tracker_2_main_8cpp.html#ac24f69450287ac8304d0949a08553f08", null ],
     [ "SendDeathMessage", "kill__tracker_2_main_8cpp.html#a89cae692659382454da9edbc182d2b51", null ],
     [ "ShipDestroyed", "kill__tracker_2_main_8cpp.html#ga9c80f40a2fc4b5cd89c7d37872bc443c", null ],
     [ "UserCmd_Help", "kill__tracker_2_main_8cpp.html#aba8c51676c53900e4082191ef12fe43a", null ],

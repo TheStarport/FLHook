@@ -80,17 +80,17 @@ var NAVTREEINDEX =
 "_hk_cb_other_8cpp.html#a532f2a0ba3e8848489435dd00125a26b",
 "_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aead0af5083200538fe77538ff19b3d0ff3",
 "_zone_utilities_8cpp.html",
-"crash__catcher_2_main_8cpp.html#a3528e5b5a910a01d899426fc806dbd11",
-"group___crash_catcher.html#ga372c7be4452cdebe31d2f9467d8d6247",
-"namespace_hk_1_1_admin.html#a8cb5ce484fadfbf3a69ffbde2a7b3bc6",
-"namespace_i_server_impl_hook.html#a23874be7ded89c2b9dd62106066a38e0",
-"namespace_plugins_1_1_message.html",
-"rename_2_main_8cpp.html#a8756faf6f3bdd1fd58635db8e283466d",
-"struct_plugins_1_1_autobuy_1_1_config.html",
-"struct_plugins_1_1_con_data_1_1_global.html",
-"struct_plugins_1_1_message_1_1_config.html#a1411aa401ee771c56533a4b53b2358af",
-"struct_plugins_1_1_purchase_restrictions_1_1_config.html",
-"struct_plugins_1_1_tax_1_1_config.html#ab8d5460c35c796bced1fc39d374080c4"
+"crash__catcher_2_main_8cpp.html#a3225cd98e708a4f50ad0fe6fbc7a7a19",
+"group___crash_catcher.html#ga13e091ab6cdbfcabf9f059df79d5e601",
+"namespace_hk_1_1_client.html",
+"namespace_i_server_impl_hook.html#a436aa68467fbcbd5eccaf2a5434082a7",
+"namespace_plugins_1_1_mining_control.html",
+"rename_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692",
+"struct_plugins_1_1_autobuy_1_1_config.html#a890957fd9eb1736b48e5cefa73305cb7",
+"struct_plugins_1_1_con_data_1_1_global.html#a6b14d434d6a240cd9f2a1e22aed1f45a",
+"struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e",
+"struct_plugins_1_1_purchase_restrictions_1_1_config.html#aa5b2a8b0b1a5be9c7d3bd7ed6bd91faa",
+"struct_plugins_1_1_tax_1_1_config.html#adca115f720db8fb97d80700a5676f008"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

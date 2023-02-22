@@ -12,6 +12,7 @@ var condata_2_main_8cpp =
     [ "PlayerLaunch", "condata_2_main_8cpp.html#ga03ede3def23782335d87ff8e281d47ff", null ],
     [ "ReceiveConnectionData", "condata_2_main_8cpp.html#ga89003600c8d202836aa21e287be640ff", null ],
     [ "ReceiveExceptionData", "condata_2_main_8cpp.html#gaa9ab4e9c67653346b5dd52eccae817ac", null ],
+    [ "REFL_AUTO", "condata_2_main_8cpp.html#aed02e555721b9f56cc03541d1cd8bd60", null ],
     [ "SPObjUpdate", "condata_2_main_8cpp.html#ga898530f78b8fe58f8cfc698215520d46", null ],
     [ "TimerCheckKick", "condata_2_main_8cpp.html#gaa6efc46e48140eca99e363fb6b34dd2a", null ],
     [ "TimerUpdateLossData", "condata_2_main_8cpp.html#ga72aa94a1a6826a4ff383994b650e43bb", null ],

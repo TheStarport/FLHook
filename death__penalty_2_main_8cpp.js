@@ -8,7 +8,7 @@ var death__penalty_2_main_8cpp =
     [ "LoadUserCharSettings", "death__penalty_2_main_8cpp.html#ga092969dfc5c07af71e2fcd1325afa9db", null ],
     [ "PenalizeDeath", "death__penalty_2_main_8cpp.html#ga51561fb5a238a0a0623827868bfa1d8a", null ],
     [ "PlayerLaunch", "death__penalty_2_main_8cpp.html#ga78052b4140f1c4aa61f0afae2646adf5", null ],
-    [ "REFL_AUTO", "death__penalty_2_main_8cpp.html#aa36239374f1440e83af3ae0bef9eaea6", null ],
+    [ "REFL_AUTO", "death__penalty_2_main_8cpp.html#ab456b3d0269464853c76882016305444", null ],
     [ "SaveDPNoticeToCharFile", "death__penalty_2_main_8cpp.html#gaceb875fd2b8caee2c5d0977adb934567", null ],
     [ "ShipDestroyed", "death__penalty_2_main_8cpp.html#gac00f5fcc401d351e5339522557fc7807", null ],
     [ "UserCmd_DP", "death__penalty_2_main_8cpp.html#ga35b059f4927fd9ff5bc737f7d0bd7eab", null ],

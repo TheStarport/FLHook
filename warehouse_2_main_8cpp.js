@@ -2,7 +2,7 @@ var warehouse_2_main_8cpp =
 [
     [ "ExportPluginInfo", "warehouse_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "LoadSettings", "warehouse_2_main_8cpp.html#ae8480cc55f017b84ac3f88f13b8ed7d9", null ],
-    [ "REFL_AUTO", "warehouse_2_main_8cpp.html#aecd0186d42cc973f9209ea697cc00f4f", null ],
+    [ "REFL_AUTO", "warehouse_2_main_8cpp.html#a5cf870a20569e9acdad7a0d73bc3f3d6", null ],
     [ "UserCmdGetItems", "warehouse_2_main_8cpp.html#a464bada262c99486afa3830f0b7b6220", null ],
     [ "UserCmdGetWarehouseItems", "warehouse_2_main_8cpp.html#a4e56a6a27f620462e7e3b2c7140510e9", null ],
     [ "UserCmdStoreItem", "warehouse_2_main_8cpp.html#a6b9304cd83e1ffc2cb7595293a031bb4", null ],

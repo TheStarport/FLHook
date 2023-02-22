@@ -9,7 +9,7 @@ var cash__manager_2_main_8cpp =
     [ "IpcConsumeBankCash", "cash__manager_2_main_8cpp.html#a2a2a93dc805b94594a5e7d62ad324046", null ],
     [ "LoadSettings", "cash__manager_2_main_8cpp.html#a6c1acd77a6378acb5febb17dadaa5412", null ],
     [ "PlayerLaunch", "cash__manager_2_main_8cpp.html#a8a008b6f72530a45c552cb65e143cfa0", null ],
-    [ "REFL_AUTO", "cash__manager_2_main_8cpp.html#a28c9758d33cdc99070048001f2f82499", null ],
+    [ "REFL_AUTO", "cash__manager_2_main_8cpp.html#aae263d05a1e2df0e85cd638a04f1c45f", null ],
     [ "ShowBankInfo", "cash__manager_2_main_8cpp.html#a6ec625fc6fbc7864998011d0efed2d6a", null ],
     [ "TransferMoney", "cash__manager_2_main_8cpp.html#a6aaa8140ea8dff3a2ea4b2afd29695ba", null ],
     [ "UserCmdWithdrawMoneyByPassword", "cash__manager_2_main_8cpp.html#a438b436d7b834bdd4d93152fb9bb1c49", null ],

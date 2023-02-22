@@ -7,6 +7,6 @@ var stats_2_main_8cpp =
     [ "ExportPluginInfo", "stats_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "LoadSettings", "stats_2_main_8cpp.html#a7969a66c7bc23c1e6760e9fdfdb1b56f", null ],
     [ "PlayerLaunch_AFTER", "stats_2_main_8cpp.html#a440f033290c1fbf3f8509c2ff036003e", null ],
-    [ "REFL_AUTO", "stats_2_main_8cpp.html#a1cd314b2560af67aac564d8d5b4853b1", null ],
+    [ "REFL_AUTO", "stats_2_main_8cpp.html#a3df4d98004825fdcdc83e6752859853f", null ],
     [ "global", "stats_2_main_8cpp.html#a3ef65e1cf2dd50395787d12306ebbe4f", null ]
 ];

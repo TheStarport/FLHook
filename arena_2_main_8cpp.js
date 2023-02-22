@@ -9,7 +9,7 @@ var arena_2_main_8cpp =
     [ "MoveClient", "arena_2_main_8cpp.html#ga9ef58fbb84984e452d563b784ef598bd", null ],
     [ "PlayerLaunch_AFTER", "arena_2_main_8cpp.html#ga8ae79c40c4f61f959b2d44c047484b2b", null ],
     [ "ReadReturnPointForClient", "arena_2_main_8cpp.html#ga5bead0778c2898f672b94679e7689090", null ],
-    [ "REFL_AUTO", "arena_2_main_8cpp.html#ac53eb4f5fa1aad685b0c894fda07305e", null ],
+    [ "REFL_AUTO", "arena_2_main_8cpp.html#adb8214433a1c30717bdbdfb6e3bd512c", null ],
     [ "StoreReturnPointForClient", "arena_2_main_8cpp.html#gaba4aed0e9d39651efd4cbd7fbb139672", null ],
     [ "UserCmd_Conn", "arena_2_main_8cpp.html#gab8afad378ba4e1eef7d5387cfbbfd14b", null ],
     [ "UserCmd_Return", "arena_2_main_8cpp.html#ga96737c8e1850a58b4d65928a31fab170", null ],

@@ -9,7 +9,7 @@ var message_2_main_8cpp =
     [ "LoadSettings", "message_2_main_8cpp.html#ga7522eae43499ec781ec58bbcdb8b1a71", null ],
     [ "OneSecondTimer", "message_2_main_8cpp.html#ga16267c443617654057b166c8cb37dd47", null ],
     [ "RedText", "message_2_main_8cpp.html#ga4ddee5b34c081c7f56f9d22f86be895f", null ],
-    [ "REFL_AUTO", "message_2_main_8cpp.html#a1859113aa276dfe23504993041ccb69e", null ],
+    [ "REFL_AUTO", "message_2_main_8cpp.html#ab1c712478d258af225855b88ed62877d", null ],
     [ "SendChat", "message_2_main_8cpp.html#gabbe6a02e9ba1289b576734b1373d3535", null ],
     [ "SendPresetGroupMessage", "message_2_main_8cpp.html#gad1677ce0bae9b7fd6b79b37737c66cca", null ],
     [ "SendPresetLastPMSender", "message_2_main_8cpp.html#gadd23a92be42f80176c4464506009149f", null ],

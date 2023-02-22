@@ -8,7 +8,7 @@ var bountyhunt_2_main_8cpp =
     [ "ExportPluginInfo", "bountyhunt_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "LoadSettings", "bountyhunt_2_main_8cpp.html#a825fde810c61f2040d698db0355e388c", null ],
     [ "PrintBountyHunts", "bountyhunt_2_main_8cpp.html#ga8075e07e25b5820faa014a4dafd892cf", null ],
-    [ "REFL_AUTO", "bountyhunt_2_main_8cpp.html#a9725a7fcb8889c58e383d022cc24f7d7", null ],
+    [ "REFL_AUTO", "bountyhunt_2_main_8cpp.html#a34ba9c7e058fbe0c1c1a7278a81c855f", null ],
     [ "RemoveBountyHunt", "bountyhunt_2_main_8cpp.html#gab794fa83e03f33984a29dda7a6fa9067", null ],
     [ "SendDeathMsg", "bountyhunt_2_main_8cpp.html#ga65b97de8b6036bba24a85440c351e43b", null ],
     [ "UserCmdBountyHunt", "bountyhunt_2_main_8cpp.html#gaccdf26bc14fdeb8a293bc598c3baaa6b", null ],

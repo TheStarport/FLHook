@@ -8,7 +8,7 @@ var purchase__restrictions_2_main_8cpp =
     [ "GFGoodBuy", "purchase__restrictions_2_main_8cpp.html#abdeb2107bcba107b2dea5c7f3b3989c9", null ],
     [ "LoadSettings", "purchase__restrictions_2_main_8cpp.html#a5304f4d285808b94f1db2f638f91f4ea", null ],
     [ "PlayerLaunch", "purchase__restrictions_2_main_8cpp.html#a09aae078c06430703795d70562d142cb", null ],
-    [ "REFL_AUTO", "purchase__restrictions_2_main_8cpp.html#ab0f9f86c640d17ec05e0617764f59f61", null ],
+    [ "REFL_AUTO", "purchase__restrictions_2_main_8cpp.html#a2a90bb2bcc99efffd0fc15625f8f1497", null ],
     [ "ReqAddItem", "purchase__restrictions_2_main_8cpp.html#a8976aa6dbc622b455f347db18fcc3647", null ],
     [ "ReqChangeCash", "purchase__restrictions_2_main_8cpp.html#a90de23a749a6dc5327cd59d4686bb931", null ],
     [ "ReqEquipment", "purchase__restrictions_2_main_8cpp.html#ad20a5b542be23736bde8dfa998a66d23", null ],
