@@ -34,7 +34,6 @@
  * This plugin has no dependencies.
  */
 #include "Main.h"
-
 #include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::LightControl

@@ -24,6 +24,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 IMPORT uint g_DmgTo;
 

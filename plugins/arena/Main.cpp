@@ -31,6 +31,7 @@
  */
 
 #include "Main.h"
+#include <Tools/Serialization/Attributes.hpp>
 
 namespace Plugins::Arena
 {
