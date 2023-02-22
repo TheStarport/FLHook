@@ -119,6 +119,10 @@ var annotated_dup =
         [ "Npc", "struct_plugins_1_1_npc_1_1_npc.html", "struct_plugins_1_1_npc_1_1_npc" ],
         [ "StartupNpc", "struct_plugins_1_1_npc_1_1_startup_npc.html", "struct_plugins_1_1_npc_1_1_startup_npc" ]
       ] ],
+      [ "NPCSpinProtection", "namespace_plugins_1_1_n_p_c_spin_protection.html", [
+        [ "Config", "struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html", "struct_plugins_1_1_n_p_c_spin_protection_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html", "struct_plugins_1_1_n_p_c_spin_protection_1_1_global" ]
+      ] ],
       [ "PurchaseRestrictions", "namespace_plugins_1_1_purchase_restrictions.html", [
         [ "Config", "struct_plugins_1_1_purchase_restrictions_1_1_config.html", "struct_plugins_1_1_purchase_restrictions_1_1_config" ],
         [ "Global", "struct_plugins_1_1_purchase_restrictions_1_1_global.html", "struct_plugins_1_1_purchase_restrictions_1_1_global" ]
@@ -139,10 +143,6 @@ var annotated_dup =
       [ "SoundManager", "namespace_plugins_1_1_sound_manager.html", [
         [ "Config", "struct_plugins_1_1_sound_manager_1_1_config.html", "struct_plugins_1_1_sound_manager_1_1_config" ],
         [ "Global", "struct_plugins_1_1_sound_manager_1_1_global.html", "struct_plugins_1_1_sound_manager_1_1_global" ]
-      ] ],
-      [ "SpinProtection", "namespace_plugins_1_1_spin_protection.html", [
-        [ "Config", "struct_plugins_1_1_spin_protection_1_1_config.html", "struct_plugins_1_1_spin_protection_1_1_config" ],
-        [ "Global", "struct_plugins_1_1_spin_protection_1_1_global.html", "struct_plugins_1_1_spin_protection_1_1_global" ]
       ] ],
       [ "Stats", "namespace_plugins_1_1_stats.html", [
         [ "FileName", "struct_plugins_1_1_stats_1_1_file_name.html", "struct_plugins_1_1_stats_1_1_file_name" ],

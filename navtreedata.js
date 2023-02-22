@@ -85,11 +85,11 @@ var NAVTREEINDEX =
 "namespace_hk_1_1_client.html",
 "namespace_i_server_impl_hook.html#a436aa68467fbcbd5eccaf2a5434082a7",
 "namespace_plugins_1_1_mining_control.html",
-"rename_2_main_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692",
+"rename_2_main_8cpp.html#a6a529e329d97358e3432257b36174099",
 "struct_plugins_1_1_autobuy_1_1_config.html#a890957fd9eb1736b48e5cefa73305cb7",
 "struct_plugins_1_1_con_data_1_1_global.html#a6b14d434d6a240cd9f2a1e22aed1f45a",
 "struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e",
-"struct_plugins_1_1_purchase_restrictions_1_1_config.html#aa5b2a8b0b1a5be9c7d3bd7ed6bd91faa",
+"struct_plugins_1_1_npc_1_1_startup_npc.html#ae179b97c5818dbd206770c4dd7481841",
 "struct_plugins_1_1_tax_1_1_config.html#adca115f720db8fb97d80700a5676f008"
 ];
 

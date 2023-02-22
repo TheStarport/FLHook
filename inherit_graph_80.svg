@@ -394,161 +394,161 @@
 <!-- Node25 -->
 <g id="node26" class="node">
 <title>Node25</title>
-<g id="a_node26"><a xlink:href="struct_plugins_1_1_npc_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="252,-739.5 139,-739.5 139,-720.5 252,-720.5 252,-739.5"/>
-<text text-anchor="middle" x="195.5" y="-727.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Config</text>
+<g id="a_node26"><a xlink:href="struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="270,-740 121,-740 121,-710 270,-710 270,-740"/>
+<text text-anchor="start" x="129" y="-728" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::NPCSpinProtection</text>
+<text text-anchor="middle" x="195.5" y="-717" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node25 -->
 <g id="edge25" class="edge">
 <title>Node0&#45;&gt;Node25</title>
-<path fill="none" stroke="#63b8ff" d="M40.38,-873.37C47.65,-841.98 66.41,-780.81 107,-749 116.18,-741.81 127.49,-737.2 138.89,-734.28"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="36.89,-872.96 38.2,-883.48 43.73,-874.44 36.89,-872.96"/>
+<path fill="none" stroke="#63b8ff" d="M40.69,-873.17C48.32,-842 67.47,-781.73 107,-749 111.25,-745.48 115.97,-742.48 120.95,-739.92"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="37.2,-872.7 38.38,-883.23 44.03,-874.27 37.2,-872.7"/>
 </g>
 <!-- Node26 -->
 <g id="node27" class="node">
 <title>Node26</title>
-<g id="a_node27"><a xlink:href="struct_plugins_1_1_npc_1_1_fleet.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="#666666" points="249,-702.5 142,-702.5 142,-683.5 249,-683.5 249,-702.5"/>
-<text text-anchor="middle" x="195.5" y="-690.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Fleet</text>
+<g id="a_node27"><a xlink:href="struct_plugins_1_1_npc_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="252,-691.5 139,-691.5 139,-672.5 252,-672.5 252,-691.5"/>
+<text text-anchor="middle" x="195.5" y="-679.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Config</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node26 -->
 <g id="edge26" class="edge">
 <title>Node0&#45;&gt;Node26</title>
-<path fill="none" stroke="#63b8ff" d="M38.21,-873.21C42.56,-835.7 57.49,-754.26 107,-712 116.69,-703.72 129.16,-698.8 141.62,-695.93"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="34.71,-873.04 37.17,-883.34 41.67,-873.75 34.71,-873.04"/>
+<path fill="none" stroke="#63b8ff" d="M37.72,-873.1C41.24,-833.87 54.84,-746.42 107,-701 115.91,-693.24 127.24,-688.42 138.77,-685.46"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="34.22,-872.98 36.94,-883.22 41.2,-873.52 34.22,-872.98"/>
 </g>
 <!-- Node27 -->
 <g id="node28" class="node">
 <title>Node27</title>
-<g id="a_node28"><a xlink:href="struct_plugins_1_1_npc_1_1_npc.html" target="_top" xlink:title="A struct that represents an npc that can be spawned.">
-<polygon fill="white" stroke="#666666" points="246,-665.5 145,-665.5 145,-646.5 246,-646.5 246,-665.5"/>
-<text text-anchor="middle" x="195.5" y="-653.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Npc</text>
+<g id="a_node28"><a xlink:href="struct_plugins_1_1_npc_1_1_fleet.html" target="_top" xlink:title=" ">
+<polygon fill="white" stroke="#666666" points="249,-654.5 142,-654.5 142,-635.5 249,-635.5 249,-654.5"/>
+<text text-anchor="middle" x="195.5" y="-642.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Fleet</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node27 -->
 <g id="edge27" class="edge">
 <title>Node0&#45;&gt;Node27</title>
-<path fill="none" stroke="#63b8ff" d="M36.71,-873.15C38.29,-830.16 48.39,-728.08 107,-675 117.37,-665.61 131.26,-660.47 144.92,-657.76"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="33.2,-873.31 36.46,-883.4 40.2,-873.49 33.2,-873.31"/>
+<path fill="none" stroke="#63b8ff" d="M36.34,-873.36C37.12,-828.98 45.56,-720.43 107,-664 116.5,-655.27 129.04,-650.21 141.65,-647.35"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="32.84,-873.4 36.28,-883.42 39.84,-873.44 32.84,-873.4"/>
 </g>
 <!-- Node28 -->
 <g id="node29" class="node">
 <title>Node28</title>
-<g id="a_node29"><a xlink:href="struct_plugins_1_1_npc_1_1_startup_npc.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="#666666" points="264,-628.5 127,-628.5 127,-609.5 264,-609.5 264,-628.5"/>
-<text text-anchor="middle" x="195.5" y="-616.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::StartupNpc</text>
+<g id="a_node29"><a xlink:href="struct_plugins_1_1_npc_1_1_npc.html" target="_top" xlink:title="A struct that represents an npc that can be spawned.">
+<polygon fill="white" stroke="#666666" points="246,-617.5 145,-617.5 145,-598.5 246,-598.5 246,-617.5"/>
+<text text-anchor="middle" x="195.5" y="-605.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::Npc</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node28 -->
 <g id="edge28" class="edge">
 <title>Node0&#45;&gt;Node28</title>
-<path fill="none" stroke="#63b8ff" d="M39.27,-873.44C47.29,-819.58 72.18,-670.92 107,-638 112.65,-632.66 119.43,-628.68 126.68,-625.74"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="35.79,-873.02 37.82,-883.42 42.72,-874.03 35.79,-873.02"/>
+<path fill="none" stroke="#63b8ff" d="M39.05,-873.33C46.63,-817.8 70.81,-661.59 107,-627 117.11,-617.33 130.93,-612.12 144.6,-609.41"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="35.57,-872.93 37.72,-883.3 42.51,-873.85 35.57,-872.93"/>
 </g>
 <!-- Node29 -->
 <g id="node30" class="node">
 <title>Node29</title>
-<g id="a_node30"><a xlink:href="struct_plugins_1_1_purchase_restrictions_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="275.5,-591 115.5,-591 115.5,-561 275.5,-561 275.5,-591"/>
-<text text-anchor="start" x="123.5" y="-579" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::PurchaseRestrictions</text>
-<text text-anchor="middle" x="195.5" y="-568" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
+<g id="a_node30"><a xlink:href="struct_plugins_1_1_npc_1_1_startup_npc.html" target="_top" xlink:title=" ">
+<polygon fill="white" stroke="#666666" points="264,-580.5 127,-580.5 127,-561.5 264,-561.5 264,-580.5"/>
+<text text-anchor="middle" x="195.5" y="-568.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Npc::StartupNpc</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node29 -->
 <g id="edge29" class="edge">
 <title>Node0&#45;&gt;Node29</title>
-<path fill="none" stroke="#63b8ff" d="M38.7,-873.13C45.63,-813.99 68.84,-640.78 107,-601 110.72,-597.12 114.99,-593.84 119.61,-591.05"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="35.19,-873.03 37.53,-883.36 42.14,-873.82 35.19,-873.03"/>
+<path fill="none" stroke="#63b8ff" d="M38.39,-873.06C44.57,-812.15 66.16,-630.24 107,-590 112.65,-584.44 119.52,-580.33 126.9,-577.33"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="34.88,-872.96 37.39,-883.26 41.85,-873.65 34.88,-872.96"/>
 </g>
 <!-- Node30 -->
 <g id="node31" class="node">
 <title>Node30</title>
-<g id="a_node31"><a xlink:href="struct_plugins_1_1_rename_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="263,-542.5 128,-542.5 128,-523.5 263,-523.5 263,-542.5"/>
-<text text-anchor="middle" x="195.5" y="-530.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::Config</text>
+<g id="a_node31"><a xlink:href="struct_plugins_1_1_purchase_restrictions_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="275.5,-543 115.5,-543 115.5,-513 275.5,-513 275.5,-543"/>
+<text text-anchor="start" x="123.5" y="-531" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::PurchaseRestrictions</text>
+<text text-anchor="middle" x="195.5" y="-520" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node30 -->
 <g id="edge30" class="edge">
 <title>Node0&#45;&gt;Node30</title>
-<path fill="none" stroke="#63b8ff" d="M37.82,-873.19C42.61,-807.48 61.26,-598.2 107,-552 112.8,-546.15 119.94,-541.9 127.63,-538.85"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="34.31,-873.19 37.11,-883.41 41.3,-873.68 34.31,-873.19"/>
+<path fill="none" stroke="#63b8ff" d="M37.95,-873.36C43.13,-808.19 62.88,-600.5 107,-553 110.55,-549.18 114.64,-545.93 119.06,-543.16"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="34.44,-873.26 37.17,-883.49 41.42,-873.79 34.44,-873.26"/>
 </g>
 <!-- Node31 -->
 <g id="node32" class="node">
 <title>Node31</title>
-<g id="a_node32"><a xlink:href="struct_plugins_1_1_rename_1_1_tag_data.html" target="_top" xlink:title="Struct to hold a clan/group tag. This contains the passwords used to manage and rename a character to...">
-<polygon fill="white" stroke="#666666" points="267.5,-505.5 123.5,-505.5 123.5,-486.5 267.5,-486.5 267.5,-505.5"/>
-<text text-anchor="middle" x="195.5" y="-493.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::TagData</text>
+<g id="a_node32"><a xlink:href="struct_plugins_1_1_rename_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="263,-494.5 128,-494.5 128,-475.5 263,-475.5 263,-494.5"/>
+<text text-anchor="middle" x="195.5" y="-482.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::Config</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node31 -->
 <g id="edge31" class="edge">
 <title>Node0&#45;&gt;Node31</title>
-<path fill="none" stroke="#63b8ff" d="M37.38,-873.36C40.91,-803.3 56.45,-567.06 107,-515 111.66,-510.2 117.22,-506.48 123.25,-503.61"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="33.88,-873.3 36.89,-883.45 40.87,-873.63 33.88,-873.3"/>
+<path fill="none" stroke="#63b8ff" d="M37.29,-872.79C40.53,-800.71 55.16,-557.66 107,-504 112.83,-497.96 120.1,-493.63 127.93,-490.54"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="33.78,-873.04 36.85,-883.18 40.77,-873.34 33.78,-873.04"/>
 </g>
 <!-- Node32 -->
 <g id="node33" class="node">
 <title>Node32</title>
-<g id="a_node33"><a xlink:href="struct_plugins_1_1_rename_1_1_tag_list.html" target="_top" xlink:title="A struct to hold all the tags.">
-<polygon fill="white" stroke="#666666" points="264.5,-468.5 126.5,-468.5 126.5,-449.5 264.5,-449.5 264.5,-468.5"/>
-<text text-anchor="middle" x="195.5" y="-456.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::TagList</text>
+<g id="a_node33"><a xlink:href="struct_plugins_1_1_rename_1_1_tag_data.html" target="_top" xlink:title="Struct to hold a clan/group tag. This contains the passwords used to manage and rename a character to...">
+<polygon fill="white" stroke="#666666" points="267.5,-457.5 123.5,-457.5 123.5,-438.5 267.5,-438.5 267.5,-457.5"/>
+<text text-anchor="middle" x="195.5" y="-445.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::TagData</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node32 -->
 <g id="edge32" class="edge">
 <title>Node0&#45;&gt;Node32</title>
-<path fill="none" stroke="#63b8ff" d="M37.03,-872.91C39.45,-797.94 51.77,-535.8 107,-478 112.37,-472.38 118.98,-468.23 126.14,-465.19"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="33.53,-873.18 36.73,-883.28 40.52,-873.39 33.53,-873.18"/>
+<path fill="none" stroke="#63b8ff" d="M36.93,-873.35C38.98,-797.72 50.23,-526.67 107,-467 111.61,-462.16 117.14,-458.41 123.15,-455.51"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="33.43,-873.32 36.68,-883.4 40.42,-873.49 33.43,-873.32"/>
 </g>
 <!-- Node33 -->
 <g id="node34" class="node">
 <title>Node33</title>
-<g id="a_node34"><a xlink:href="struct_plugins_1_1_restart_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="260.5,-431.5 130.5,-431.5 130.5,-412.5 260.5,-412.5 260.5,-431.5"/>
-<text text-anchor="middle" x="195.5" y="-419.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Restart::Config</text>
+<g id="a_node34"><a xlink:href="struct_plugins_1_1_rename_1_1_tag_list.html" target="_top" xlink:title="A struct to hold all the tags.">
+<polygon fill="white" stroke="#666666" points="264.5,-420.5 126.5,-420.5 126.5,-401.5 264.5,-401.5 264.5,-420.5"/>
+<text text-anchor="middle" x="195.5" y="-408.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Rename::TagList</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node33 -->
 <g id="edge33" class="edge">
 <title>Node0&#45;&gt;Node33</title>
-<path fill="none" stroke="#63b8ff" d="M36.72,-873.17C38.03,-794.39 46.9,-504.76 107,-441 113.4,-434.21 121.6,-429.56 130.42,-426.42"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="33.22,-873.16 36.58,-883.21 40.22,-873.26 33.22,-873.16"/>
+<path fill="none" stroke="#63b8ff" d="M36.64,-873.21C37.63,-793.3 45.46,-495.53 107,-430 112.43,-424.22 119.17,-419.99 126.48,-416.92"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="33.14,-873.33 36.54,-883.37 40.14,-873.4 33.14,-873.33"/>
 </g>
 <!-- Node34 -->
 <g id="node35" class="node">
 <title>Node34</title>
-<g id="a_node35"><a xlink:href="struct_plugins_1_1_sound_manager_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="261,-394 130,-394 130,-364 261,-364 261,-394"/>
-<text text-anchor="start" x="138" y="-382" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::SoundManager</text>
-<text text-anchor="middle" x="195.5" y="-371" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
+<g id="a_node35"><a xlink:href="struct_plugins_1_1_restart_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="260.5,-383.5 130.5,-383.5 130.5,-364.5 260.5,-364.5 260.5,-383.5"/>
+<text text-anchor="middle" x="195.5" y="-371.5" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::Restart::Config</text>
 </a>
 </g>
 </g>
 <!-- Node0&#45;&gt;Node34 -->
 <g id="edge34" class="edge">
 <title>Node0&#45;&gt;Node34</title>
-<path fill="none" stroke="#63b8ff" d="M36.59,-873.27C37.34,-790.94 44.36,-475.73 107,-404 113.13,-396.98 121.08,-391.87 129.69,-388.16"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="33.09,-873.27 36.52,-883.29 40.09,-873.32 33.09,-873.27"/>
+<path fill="none" stroke="#63b8ff" d="M36.4,-873.26C36.37,-789.5 40.62,-464.47 107,-393 113.35,-386.17 121.53,-381.49 130.33,-378.34"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="32.9,-873.44 36.42,-883.43 39.9,-873.42 32.9,-873.44"/>
 </g>
 <!-- Node35 -->
 <g id="node36" class="node">
 <title>Node35</title>
-<g id="a_node36"><a xlink:href="struct_plugins_1_1_spin_protection_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
-<polygon fill="white" stroke="#666666" points="259.5,-346 131.5,-346 131.5,-316 259.5,-316 259.5,-346"/>
-<text text-anchor="start" x="139.5" y="-334" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::SpinProtection</text>
+<g id="a_node36"><a xlink:href="struct_plugins_1_1_sound_manager_1_1_config.html" target="_top" xlink:title="Config data for this plugin.">
+<polygon fill="white" stroke="#666666" points="261,-346 130,-346 130,-316 261,-316 261,-346"/>
+<text text-anchor="start" x="138" y="-334" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::SoundManager</text>
 <text text-anchor="middle" x="195.5" y="-323" font-family="Helvetica,sans-Serif" font-size="10.00">::Config</text>
 </a>
 </g>
@@ -556,8 +556,8 @@
 <!-- Node0&#45;&gt;Node35 -->
 <g id="edge35" class="edge">
 <title>Node0&#45;&gt;Node35</title>
-<path fill="none" stroke="#63b8ff" d="M36.28,-872.99C35.71,-785.12 37.86,-434.36 107,-355 113.52,-347.52 122.13,-342.26 131.4,-338.6"/>
-<polygon fill="#63b8ff" stroke="#63b8ff" points="32.78,-873.21 36.36,-883.18 39.78,-873.15 32.78,-873.21"/>
+<path fill="none" stroke="#63b8ff" d="M36.3,-873.04C35.84,-785.41 38.4,-435.57 107,-356 113.09,-348.94 121.02,-343.81 129.61,-340.09"/>
+<polygon fill="#63b8ff" stroke="#63b8ff" points="32.8,-873.24 36.38,-883.21 39.8,-873.19 32.8,-873.24"/>
 </g>
 <!-- Node36 -->
 <g id="node37" class="node">
