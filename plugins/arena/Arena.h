@@ -1,5 +1,4 @@
 #pragma once
-// #include "../base/Main.h"
 
 #include <FLHook.hpp>
 #include <plugin.h>

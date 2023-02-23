@@ -5,7 +5,7 @@
 // being notified and/or mentioned somewhere.
 
 // Includes
-#include "Main.hpp"
+#include "PluginTemplate.hpp"
 
 #include <random>
 
