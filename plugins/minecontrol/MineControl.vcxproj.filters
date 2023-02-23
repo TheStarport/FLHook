@@ -10,9 +10,9 @@
     <Text Include="..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h" />
+    <ClInclude Include="MiningControl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MiningControl.cpp" />
   </ItemGroup>
 </Project>

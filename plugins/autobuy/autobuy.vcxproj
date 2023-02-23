@@ -64,7 +64,7 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Autobuy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
@@ -72,7 +72,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h" />
+    <ClInclude Include="Autobuy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

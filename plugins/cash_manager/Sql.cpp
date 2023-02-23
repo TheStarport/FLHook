@@ -1,5 +1,5 @@
 #include <random>
-#include "Main.h"
+#include "CashManager.h"
 
 namespace Plugins::CashManager::Sql
 {

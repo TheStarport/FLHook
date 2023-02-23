@@ -59,7 +59,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
     <Link>
       <AdditionalDependencies>FLHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -70,10 +71,11 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
-      <DisableSpecificWarnings>5222</DisableSpecificWarnings>    </ClCompile>
+      <DisableSpecificWarnings>5222</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="LightControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
@@ -81,7 +83,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h" />
+    <ClInclude Include="LightControl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
