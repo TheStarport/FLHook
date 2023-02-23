@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['savedata_2ecpp_0',['SaveData.cpp',['../_save_data_8cpp.html',1,'']]],
-  ['settings_2ecpp_1',['Settings.cpp',['../_settings_8cpp.html',1,'']]],
-  ['solar_2ecpp_2',['Solar.cpp',['../_solar_8cpp.html',1,'']]],
-  ['sql_2ecpp_3',['Sql.cpp',['../cash__manager_2_sql_8cpp.html',1,'(Global Namespace)'],['../warehouse_2_sql_8cpp.html',1,'(Global Namespace)']]],
-  ['startupcache_2ecpp_4',['StartupCache.cpp',['../_startup_cache_8cpp.html',1,'']]]
+  ['recommended_20visual_20studio_20extensions_2emd_0',['Recommended Visual Studio Extensions.md',['../_recommended_01_visual_01_studio_01_extensions_8md.html',1,'']]],
+  ['rename_2ecpp_1',['Rename.cpp',['../_rename_8cpp.html',1,'']]],
+  ['rename_2eh_2',['Rename.h',['../_rename_8h.html',1,'']]],
+  ['restarts_2ecpp_3',['Restarts.cpp',['../_restarts_8cpp.html',1,'']]],
+  ['restarts_2eh_4',['Restarts.h',['../_restarts_8h.html',1,'']]]
 ];

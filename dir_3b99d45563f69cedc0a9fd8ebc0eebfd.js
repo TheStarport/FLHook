@@ -1,5 +1,5 @@
 var dir_3b99d45563f69cedc0a9fd8ebc0eebfd =
 [
-    [ "Main.cpp", "ip__ban_2_main_8cpp.html", "ip__ban_2_main_8cpp" ],
-    [ "Main.h", "ip__ban_2_main_8h.html", null ]
+    [ "IPBan.cpp", "_i_p_ban_8cpp.html", "_i_p_ban_8cpp" ],
+    [ "IPBan.h", "_i_p_ban_8h.html", null ]
 ];

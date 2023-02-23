@@ -76,21 +76,21 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"__plugin__template_2_main_8cpp.html",
-"_hk_cb_other_8cpp.html#a532f2a0ba3e8848489435dd00125a26b",
-"_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aead0af5083200538fe77538ff19b3d0ff3",
-"_zone_utilities_8cpp.html",
-"crash__catcher_2_main_8cpp.html#a3225cd98e708a4f50ad0fe6fbc7a7a19",
-"group___crash_catcher.html#ga13e091ab6cdbfcabf9f059df79d5e601",
-"namespace_hk_1_1_client.html",
-"namespace_i_server_impl_hook.html#a436aa68467fbcbd5eccaf2a5434082a7",
-"namespace_plugins_1_1_mining_control.html",
-"rename_2_main_8cpp.html#a6a529e329d97358e3432257b36174099",
-"struct_plugins_1_1_autobuy_1_1_config.html#a890957fd9eb1736b48e5cefa73305cb7",
-"struct_plugins_1_1_con_data_1_1_global.html#a6b14d434d6a240cd9f2a1e22aed1f45a",
-"struct_plugins_1_1_message_1_1_config.html#a6ff436568bca6406c0bb4b52fdd76d7e",
-"struct_plugins_1_1_npc_1_1_startup_npc.html#ae179b97c5818dbd206770c4dd7481841",
-"struct_plugins_1_1_tax_1_1_config.html#adca115f720db8fb97d80700a5676f008"
+"_admin_8cpp.html",
+"_f_l_hook_8cpp.html#a1e9a91aacc5e4435e5af90c8949daefa",
+"_hk_client_server_interface_8cpp.html#ac1f22a6a0ef5ccffef54f8f52e4fd67a",
+"_logging_8cpp.html#abfcd5eadcbfe9ffc784b78c8753aa244",
+"_rename_8cpp.html#a942066513b16128d8ac0040691ccd371",
+"class_plugins_1_1_message_1_1_client_info.html",
+"group___death_penalty.html#gac00f5fcc401d351e5339522557fc7807",
+"namespace_hk_1_1_personalities.html#acb5d06fb9e91b2777d2eb418464c3cd8",
+"namespace_plugins_1_1_arena.html#ae95515e7bd3a3942bb61dd67aedb568c",
+"namespace_plugins_1_1_wardrobe.html#ab8a3e7e1177e857226ae10a8d23a3706",
+"struct_plugin_data.html#a22c7b1e4d79de0da38001b71241a4816",
+"struct_plugins_1_1_cash_manager_1_1_transaction.html#a85b4dde3d6031e8f4c88e9e8d08aadaa",
+"struct_plugins_1_1_light_control_1_1_config.html#af980a457e23d12693f661792d22b0d07",
+"struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html",
+"struct_plugins_1_1_stats_1_1_global.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -299,8 +299,8 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_tax.html',''); i
 <div class="line">        <a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/tax&quot;</span>, L<span class="stringliteral">&quot;&quot;</span>, <a class="code hl_function" href="namespace_plugins_1_1_tax.html#abee57f831d6bef467d74debdd76789e4">UserCmdTax</a>, L<span class="stringliteral">&quot;&quot;</span>),</div>
 <div class="line">        <a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/pay&quot;</span>, L<span class="stringliteral">&quot;&quot;</span>, <a class="code hl_function" href="namespace_plugins_1_1_tax.html#a4b70cda0720bdbcb453596950062eec8">UserCmdPay</a>, L<span class="stringliteral">&quot;&quot;</span>),</div>
 <div class="line">    }}</div>
-<div class="ttc" id="anamespace_plugins_1_1_tax_html_a4b70cda0720bdbcb453596950062eec8"><div class="ttname"><a href="namespace_plugins_1_1_tax.html#a4b70cda0720bdbcb453596950062eec8">Plugins::Tax::UserCmdPay</a></div><div class="ttdeci">void UserCmdPay(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Main.cpp:126</div></div>
-<div class="ttc" id="anamespace_plugins_1_1_tax_html_abee57f831d6bef467d74debdd76789e4"><div class="ttname"><a href="namespace_plugins_1_1_tax.html#abee57f831d6bef467d74debdd76789e4">Plugins::Tax::UserCmdTax</a></div><div class="ttdeci">void UserCmdTax(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Main.cpp:49</div></div>
+<div class="ttc" id="anamespace_plugins_1_1_tax_html_a4b70cda0720bdbcb453596950062eec8"><div class="ttname"><a href="namespace_plugins_1_1_tax.html#a4b70cda0720bdbcb453596950062eec8">Plugins::Tax::UserCmdPay</a></div><div class="ttdeci">void UserCmdPay(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Tax.cpp:128</div></div>
+<div class="ttc" id="anamespace_plugins_1_1_tax_html_abee57f831d6bef467d74debdd76789e4"><div class="ttname"><a href="namespace_plugins_1_1_tax.html#abee57f831d6bef467d74debdd76789e4">Plugins::Tax::UserCmdTax</a></div><div class="ttdeci">void UserCmdTax(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Tax.cpp:49</div></div>
 <div class="ttc" id="asource_2_features_2_user_commands_8cpp_html_a64120089de88d698057f609bede3cd3a"><div class="ttname"><a href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a></div><div class="ttdeci">UserCommand CreateUserCommand(const std::variant&lt; std::wstring, std::vector&lt; std::wstring &gt; &gt; &amp;command, const std::wstring &amp;usage, const std::variant&lt; UserCmdProc, UserCmdProcWithParam &gt; &amp;proc, const std::wstring &amp;description)</div><div class="ttdef"><b>Definition:</b> UserCommands.cpp:592</div></div>
 </div><!-- fragment -->
 </div>
@@ -326,15 +326,11 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_tax.html',''); i
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const std::vector&lt;Timer&gt; Plugins::Tax::timers</td>
+          <td class="memname">const std::vector&lt;Timer&gt; Plugins::Tax::timers = {{<a class="el" href="namespace_plugins_1_1_tax.html#a45078b22b27eb938c98c868643455082">TimerF1Check</a>, 1}}</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">        {<a class="code hl_function" href="namespace_plugins_1_1_tax.html#a45078b22b27eb938c98c868643455082">TimerF1Check</a>, 1}</div>
-<div class="line">    }</div>
-<div class="ttc" id="anamespace_plugins_1_1_tax_html_a45078b22b27eb938c98c868643455082"><div class="ttname"><a href="namespace_plugins_1_1_tax.html#a45078b22b27eb938c98c868643455082">Plugins::Tax::TimerF1Check</a></div><div class="ttdeci">void TimerF1Check()</div><div class="ttdef"><b>Definition:</b> Main.cpp:157</div></div>
-</div><!-- fragment -->
+
 </div>
 </div>
 </div><!-- contents -->

@@ -1,12 +1,12 @@
 var searchData=
 [
   ['g_5fadmin_0',['g_Admin',['../namespace_i_server_impl_hook.html#ac9c02c089b51790591b9ea12d81dfab8',1,'IServerImplHook']]],
-  ['g_5fbmsg_1',['g_bMsg',['../_message_8cpp.html#a4d5f0f5f901e16572ab8ac6e00f56397',1,'Message.cpp']]],
-  ['g_5fbmsgs_2',['g_bMsgS',['../_message_8cpp.html#a55f3626ffcc2266036061719cc32f67d',1,'Message.cpp']]],
-  ['g_5fbmsgu_3',['g_bMsgU',['../_message_8cpp.html#afbec9ab59c0c00de61b5a36ee2c71837',1,'Message.cpp']]],
+  ['g_5fbmsg_1',['g_bMsg',['../source_2_helpers_2_message_8cpp.html#a4d5f0f5f901e16572ab8ac6e00f56397',1,'Message.cpp']]],
+  ['g_5fbmsgs_2',['g_bMsgS',['../source_2_helpers_2_message_8cpp.html#a55f3626ffcc2266036061719cc32f67d',1,'Message.cpp']]],
+  ['g_5fbmsgu_3',['g_bMsgU',['../source_2_helpers_2_message_8cpp.html#afbec9ab59c0c00de61b5a36ee2c71837',1,'Message.cpp']]],
   ['g_5fbnpcdisabled_4',['g_bNPCDisabled',['../_admin_8cpp.html#a8d986506f291437b7ec3bc01fec6cbc5',1,'Admin.cpp']]],
   ['g_5fcharbefore_5',['g_CharBefore',['../namespace_i_server_impl_hook.html#a18cb360d69d72c5e5bb511bc38964df8',1,'IServerImplHook']]],
-  ['g_5fdmgto_6',['g_DmgTo',['../kill__tracker_2_main_8cpp.html#afb54fc156234ba508652a054995dc5de',1,'g_DmgTo():&#160;Main.cpp'],['../_hk_i_engine_damage_8cpp.html#ad5f4c77a9b2a6dafddfbd2f6ddec92c7',1,'g_DmgTo():&#160;HkIEngineDamage.cpp']]],
+  ['g_5fdmgto_6',['g_DmgTo',['../_kill_tracker_8cpp.html#afb54fc156234ba508652a054995dc5de',1,'g_DmgTo():&#160;KillTracker.cpp'],['../_hk_i_engine_damage_8cpp.html#ad5f4c77a9b2a6dafddfbd2f6ddec92c7',1,'g_DmgTo():&#160;HkIEngineDamage.cpp']]],
   ['g_5fdmgtospaceid_7',['g_DmgToSpaceId',['../_hk_i_engine_damage_8cpp.html#ab568c280d97aacd1e2506f43549b2196',1,'HkIEngineDamage.cpp']]],
   ['g_5fflserverdataptr_8',['g_FLServerDataPtr',['../_hk_init_8cpp.html#ac4d4539a9c463926503fb7a6db8eabae',1,'HkInit.cpp']]],
   ['g_5finsubmitchat_9',['g_InSubmitChat',['../namespace_i_server_impl_hook.html#a17d416d07958f7dfd0cd499485823285',1,'IServerImplHook']]],

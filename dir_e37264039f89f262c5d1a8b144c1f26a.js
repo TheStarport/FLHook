@@ -1,5 +1,5 @@
 var dir_e37264039f89f262c5d1a8b144c1f26a =
 [
-    [ "Main.cpp", "anti__jump__disconnect_2_main_8cpp.html", "anti__jump__disconnect_2_main_8cpp" ],
-    [ "Main.h", "anti__jump__disconnect_2_main_8h.html", null ]
+    [ "AntiJumpDisconnect.cpp", "_anti_jump_disconnect_8cpp.html", "_anti_jump_disconnect_8cpp" ],
+    [ "AntiJumpDisconnect.h", "_anti_jump_disconnect_8h.html", null ]
 ];

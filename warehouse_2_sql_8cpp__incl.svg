@@ -20,9 +20,9 @@
 <!-- Node2 -->
 <g id="node2" class="node">
 <title>Node2</title>
-<g id="a_node2"><a xlink:href="warehouse_2_main_8h.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="#666666" points="98,-74 48,-74 48,-55 98,-55 98,-74"/>
-<text text-anchor="middle" x="73" y="-62" font-family="Helvetica,sans-Serif" font-size="10.00">Main.h</text>
+<g id="a_node2"><a xlink:href="_warehouse_8h.html" target="_top" xlink:title=" ">
+<polygon fill="white" stroke="#666666" points="113,-74 33,-74 33,-55 113,-55 113,-74"/>
+<text text-anchor="middle" x="73" y="-62" font-family="Helvetica,sans-Serif" font-size="10.00">Warehouse.h</text>
 </a>
 </g>
 </g>

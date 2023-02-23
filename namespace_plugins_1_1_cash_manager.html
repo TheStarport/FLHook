@@ -526,24 +526,21 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_cash_manager.htm
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= </div>
-<div class="line">    {</div>
-<div class="line">        {<a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/bank&quot;</span>, L<span class="stringliteral">&quot;&quot;</span>, <a class="code hl_function" href="namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3">UserCommandHandler</a>, </div>
-<div class="line">            std::format(L<span class="stringliteral">&quot;A series of commands for storing money that can be shared among multiple characters.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;amount&gt;\&quot; will withdraw money from your account&#39;s bank.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;amount&gt;\&quot; will withdraw money from your account&#39;s bank.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;identifier&gt; &lt;password&gt; &lt;amount&gt;\&quot; will withdraw money from a specified bank that has a password set up.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank deposit &lt;amount&gt;\&quot; will deposit money from your character to your bank.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank transfer &lt;identifier&gt; &lt;amount&gt;\&quot; transfer money from your current bank to the target bank&#39;s identifier.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank password \&quot; will regenerate your password.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank identifier \&quot; will allow you set an identifier. This will allow you to make transfers to other banks and access money from other accounts.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank transactions \&quot; will display the last {} transactions.\n&quot;</span></div>
-<div class="line">            L<span class="stringliteral">&quot;\&quot;/bank transactions &lt;list&gt; [page]\&quot; will display the full list of transactions.&quot;</span></div>
-<div class="line">            ,<a class="code hl_variable" href="cash__manager_2_main_8cpp.html#ad5d3127edba63ad87859b93713076c94">TransactionsPerPage</a>))</div>
-<div class="line">        }</div>
-<div class="line">    }</div>
-<div class="ttc" id="acash__manager_2_main_8cpp_html_ad5d3127edba63ad87859b93713076c94"><div class="ttname"><a href="cash__manager_2_main_8cpp.html#ad5d3127edba63ad87859b93713076c94">TransactionsPerPage</a></div><div class="ttdeci">constexpr int TransactionsPerPage</div><div class="ttdef"><b>Definition:</b> Main.cpp:47</div></div>
-<div class="ttc" id="anamespace_plugins_1_1_cash_manager_html_a1a0644d447bb014aef7a32398bd43eb3"><div class="ttname"><a href="namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3">Plugins::CashManager::UserCommandHandler</a></div><div class="ttdeci">void UserCommandHandler(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Main.cpp:258</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {{<a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/bank&quot;</span>, L<span class="stringliteral">&quot;&quot;</span>, <a class="code hl_function" href="namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3">UserCommandHandler</a>,</div>
+<div class="line">        std::format(L<span class="stringliteral">&quot;A series of commands for storing money that can be shared among multiple characters.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;amount&gt;\&quot; will withdraw money from your account&#39;s bank.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;amount&gt;\&quot; will withdraw money from your account&#39;s bank.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank withdraw &lt;identifier&gt; &lt;password&gt; &lt;amount&gt;\&quot; will withdraw money from a specified bank that has a password set up.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank deposit &lt;amount&gt;\&quot; will deposit money from your character to your bank.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank transfer &lt;identifier&gt; &lt;amount&gt;\&quot; transfer money from your current bank to the target bank&#39;s identifier.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank password \&quot; will regenerate your password.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank identifier \&quot; will allow you set an identifier. This will allow you to make transfers to other banks and access money from other &quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;accounts.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank transactions \&quot; will display the last {} transactions.\n&quot;</span></div>
+<div class="line">                    L<span class="stringliteral">&quot;\&quot;/bank transactions &lt;list&gt; [page]\&quot; will display the full list of transactions.&quot;</span>,</div>
+<div class="line">            <a class="code hl_variable" href="_cash_manager_8cpp.html#ad5d3127edba63ad87859b93713076c94">TransactionsPerPage</a>))}}</div>
+<div class="ttc" id="a_cash_manager_8cpp_html_ad5d3127edba63ad87859b93713076c94"><div class="ttname"><a href="_cash_manager_8cpp.html#ad5d3127edba63ad87859b93713076c94">TransactionsPerPage</a></div><div class="ttdeci">constexpr int TransactionsPerPage</div><div class="ttdef"><b>Definition:</b> CashManager.cpp:47</div></div>
+<div class="ttc" id="anamespace_plugins_1_1_cash_manager_html_a1a0644d447bb014aef7a32398bd43eb3"><div class="ttname"><a href="namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3">Plugins::CashManager::UserCommandHandler</a></div><div class="ttdeci">void UserCommandHandler(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> CashManager.cpp:260</div></div>
 <div class="ttc" id="asource_2_features_2_user_commands_8cpp_html_a64120089de88d698057f609bede3cd3a"><div class="ttname"><a href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a></div><div class="ttdeci">UserCommand CreateUserCommand(const std::variant&lt; std::wstring, std::vector&lt; std::wstring &gt; &gt; &amp;command, const std::wstring &amp;usage, const std::variant&lt; UserCmdProc, UserCmdProcWithParam &gt; &amp;proc, const std::wstring &amp;description)</div><div class="ttdef"><b>Definition:</b> UserCommands.cpp:592</div></div>
 </div><!-- fragment -->
 </div>

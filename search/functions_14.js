@@ -67,7 +67,7 @@ var searchData=
   ['usercmd_5funmarkobj_64',['UserCmd_UnMarkObj',['../namespace_plugins_1_1_mark.html#a767ece81b00525bdb7ad8b7dfb0a7839',1,'Plugins::Mark']]],
   ['usercmd_5funmarkobjgroup_65',['UserCmd_UnMarkObjGroup',['../namespace_plugins_1_1_mark.html#a72171af8694409314498a81affd290f1',1,'Plugins::Mark']]],
   ['usercmdacceptduel_66',['UserCmdAcceptDuel',['../group___betting.html#ga568dc3c5846e75ab2cb3e6b71df6968e',1,'Plugins::Betting']]],
-  ['usercmdafk_67',['UserCmdAfk',['../group___away_from_keyboard.html#ga6c98171a3d0d76855664a8af2c3e0593',1,'Plugins::Afk']]],
+  ['usercmdafk_67',['UserCmdAfk',['../group___away_from_keyboard.html#gab0e4f4e82d95db42583e1660eb1f00bb',1,'Plugins::Afk']]],
   ['usercmdautobuy_68',['UserCmdAutobuy',['../namespace_plugins_1_1_autobuy.html#aaf674392115e202e86bcf3773c675ec2',1,'Plugins::Autobuy']]],
   ['usercmdback_69',['UserCmdBack',['../group___away_from_keyboard.html#gabfd571d66bf3885e13802871c600f0e8',1,'Plugins::Afk']]],
   ['usercmdbountyhunt_70',['UserCmdBountyHunt',['../group___bounty_hunt.html#gaccdf26bc14fdeb8a293bc598c3baaa6b',1,'Plugins::BountyHunt']]],

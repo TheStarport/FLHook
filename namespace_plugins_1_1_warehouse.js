@@ -7,7 +7,7 @@ var namespace_plugins_1_1_warehouse =
     [ "CreateSqlTables", "namespace_plugins_1_1_warehouse.html#a628e4be31b4fe64317192772998221ec", null ],
     [ "GetAllItemsOnBase", "namespace_plugins_1_1_warehouse.html#a62c83b43e96c70502d39e6cf6ef3b7a7", null ],
     [ "GetOrAddBase", "namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf", null ],
-    [ "GetOrAddItem", "namespace_plugins_1_1_warehouse.html#a8014e518fe81a840a39fd6db9aa9fe80", null ],
+    [ "GetOrAddItem", "namespace_plugins_1_1_warehouse.html#aead8b917d83f4b4506eb28a66133075b", null ],
     [ "GetOrAddPlayer", "namespace_plugins_1_1_warehouse.html#a046a7b1d60d640684751de3a93e7d887", null ],
     [ "LoadSettings", "namespace_plugins_1_1_warehouse.html#ae8480cc55f017b84ac3f88f13b8ed7d9", null ],
     [ "RemoveItem", "namespace_plugins_1_1_warehouse.html#a96a5093ae4d8462dd7f4cefdfeed044f", null ],

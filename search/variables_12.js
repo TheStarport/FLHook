@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['rcsendchatmsg_0',['RCSendChatMsg',['../_message_8cpp.html#a949221abcf3bb226654ed527031ee6d6',1,'Message.cpp']]],
+  ['rcsendchatmsg_0',['RCSendChatMsg',['../source_2_helpers_2_message_8cpp.html#a949221abcf3bb226654ed527031ee6d6',1,'Message.cpp']]],
   ['readcharname_1',['ReadCharName',['../namespace_startup_cache.html#ac7a5a47cd3fb32ec2872fda299bc6d51',1,'StartupCache']]],
   ['reason_2',['reason',['../struct_plugins_1_1_con_data_1_1_connection_data_exception.html#a867bd5a6101056be514972443f5ae372',1,'Plugins::ConData::ConnectionDataException']]],
   ['rechargerate_3',['RechargeRate',['../struct_plugins_1_1_mining_control_1_1_zone_bonus.html#a284cc6a946541c6c64ba4418cf2cc432',1,'Plugins::MiningControl::ZoneBonus']]],
