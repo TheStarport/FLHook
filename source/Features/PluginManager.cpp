@@ -37,7 +37,7 @@ void PluginManager::clearData(bool free)
 {
 	if (free)
 	{
-		for (auto& p : plugins_)
+		for (const auto& p : plugins_)
 			if (p->mayUnload)
 				FreeLibrary(p->dll);
 	}

@@ -21,7 +21,7 @@ bool UserCmd_Process(ClientId client, const std::wstring& wscCmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
-// Logs
+// Logse
 template<typename T>
 std::wstring ToLogString(const T& val)
 {
@@ -299,8 +299,6 @@ class PluginManager : public Singleton<PluginManager>
 		{
 			for (const auto& hook : pluginHooks_[uint(target) * magic_enum::enum_count<HookStep>() + uint(step)])
 			{
-				const auto e = uint(target) * magic_enum::enum_count<HookStep>() + uint(step);
-				const auto ee = magic_enum::enum_count<HookStep>();
 				const auto& plugin = hook.plugin;
 				if (plugin->paused)
 					continue;
