@@ -70,11 +70,11 @@ namespace IServerImplHook
 			}
 		}
 
-		for (PluginData& plugin : PluginManager::ir())
+		for (std::shared_ptr<PluginData> plugin : PluginManager::ir())
 		{
-			if (plugin.timers)
+			if (plugin->timers)
 			{
-				for (auto& timer : *plugin.timers)
+				for (auto& timer : *plugin->timers)
 				{
 					if ((currentTime - timer.lastTime) >= (timer.intervalInSeconds * 1000))
 					{

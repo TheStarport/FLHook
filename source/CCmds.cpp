@@ -767,7 +767,7 @@ void CCmds::CmdListPlugins()
 	RIGHT_CHECK(RIGHT_PLUGINS);
 
 	for (const auto& data : PluginManager::ir())
-		Print(std::format("{} ({}) - {}", data.name, data.shortName, !data.paused ? "running" : "paused"));
+		Print(std::format("{} ({}) - {}", data->name, data->shortName, !data->paused ? "running" : "paused"));
 
 	Print("OK");
 }

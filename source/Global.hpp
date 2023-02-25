@@ -233,9 +233,7 @@ struct PluginHookData
 	PluginHook::FunctionType* hookFunction;
 	HookStep step;
 	int priority;
-	size_t index;
-
-	[[nodiscard]] const PluginData& plugin() const;
+	std::shared_ptr<PluginData> plugin;
 };
 
 inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs)
@@ -266,8 +264,8 @@ class PluginManager : public Singleton<PluginManager>
 	};
 
   private:
-	std::array<std::vector<PluginHookData>, size_t(HookedCall::Count) * size_t(HookStep::Count)> pluginHooks_;
-	std::vector<PluginData> plugins_;
+	std::array<std::vector<PluginHookData>, uint(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
+	std::vector<std::shared_ptr<PluginData>> plugins_;
 	std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
 
 	void clearData(bool free);
@@ -284,9 +282,6 @@ class PluginManager : public Singleton<PluginManager>
 	void load(const std::wstring& fileName, CCmds*, bool);
 	cpp::result<std::wstring, Error> unload(const std::string& shortName);
 
-	const PluginData& pluginAt(size_t index) const { return plugins_[index]; }
-	PluginData& pluginAt(size_t index) { return plugins_[index]; }
-
 	auto begin() { return plugins_.begin(); }
 	auto end() { return plugins_.end(); }
 	auto begin() const { return plugins_.begin(); }
@@ -302,14 +297,16 @@ class PluginManager : public Singleton<PluginManager>
 		NoVoidReturnType ret {};
 		TRY_HOOK
 		{
-			for (const auto& hook : pluginHooks_[uint(target) * uint(HookStep::Count) + uint(step)])
+			for (const auto& hook : pluginHooks_[uint(target) * magic_enum::enum_count<HookStep>() + uint(step)])
 			{
-				const auto& plugin = hook.plugin();
-				if (plugin.paused)
+				const auto e = uint(target) * magic_enum::enum_count<HookStep>() + uint(step);
+				const auto ee = magic_enum::enum_count<HookStep>();
+				const auto& plugin = hook.plugin;
+				if (plugin->paused)
 					continue;
 
-				if (plugin.resetCode)
-					*plugin.returnCode = ReturnCode::Default;
+				if (plugin->resetCode)
+					*plugin->returnCode = ReturnCode::Default;
 
 				TRY_HOOK
 				{
@@ -318,9 +315,9 @@ class PluginManager : public Singleton<PluginManager>
 					else
 						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 				}
-				CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin.name, __FUNCTION__)); });
+				CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
 
-				auto code = *plugin.returnCode;
+				auto code = *plugin->returnCode;
 
 				if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
 					skipFunctionCall = true;
