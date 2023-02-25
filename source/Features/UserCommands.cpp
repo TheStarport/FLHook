@@ -490,11 +490,11 @@ void UserCmd_Credits(ClientId& client, [[maybe_unused]] const std::wstring& para
 	bool bRunning = false;
 	for (const auto& plugin : PluginManager::ir())
 	{
-		if (plugin.paused)
+		if (plugin->paused)
 			continue;
 
 		bRunning = true;
-		PrintUserCmdText(client, std::format(L"- {}", stows(plugin.name)));
+		PrintUserCmdText(client, std::format(L"- {}", stows(plugin->name)));
 	}
 	if (!bRunning)
 		PrintUserCmdText(client, L"- none -");
@@ -663,10 +663,10 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		PrintUserCmdText(client, L"core");
 		for (const auto& plugin : plugins)
 		{
-			if (!plugin.commands || plugin.commands->empty())
+			if (!plugin->commands || plugin->commands->empty())
 				continue;
 
-			PrintUserCmdText(client, ToLower(stows(plugin.shortName)));
+			PrintUserCmdText(client, ToLower(stows(plugin->shortName)));
 		}
 		return;
 	}
@@ -699,13 +699,16 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	const auto& plugin = std::ranges::find_if(plugins, [&mod](const PluginData& plug) { return ToLower(stows(plug.shortName)) == ToLower(mod); });
+	const auto& pluginIterator =
+	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<PluginData> plug) { return ToLower(stows(plug->shortName)) == ToLower(mod); });
 
-	if (plugin == plugins.end())
+	if (pluginIterator == plugins.end())
 	{
 		PrintUserCmdText(client, L"Command module not found.");
 		return;
 	}
+
+	const auto plugin = *pluginIterator;
 
 	if (plugin->commands)
 	{
@@ -825,9 +828,9 @@ bool UserCmd_Process(ClientId client, const std::wstring& wscCmd)
 	if (pluginSkip)
 		return pluginRet;
 
-	for (const auto& plugins = PluginManager::ir(); const PluginData& i : plugins)
+	for (const auto& plugins = PluginManager::ir(); const std::shared_ptr<PluginData> i : plugins)
 	{
-		if (i.commands && ProcessPluginCommand(client, wscCmd, *i.commands))
+		if (i->commands && ProcessPluginCommand(client, wscCmd, *i->commands))
 		{
 			return true;
 		}

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <FLCore/HookedCall.h>
 
 #include "Tools/Enums.hpp"
 
@@ -69,8 +68,6 @@ class PluginHook
 				break;
 			case HookStep::After:
 				break;
-			case HookStep::Count:
-				throw std::invalid_argument("Count is not a valid hook step.");
 			default:;
 		}
 	}

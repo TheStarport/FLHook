@@ -1,10 +1,5 @@
 ﻿#include "Global.hpp"
 
-const PluginData& PluginHookData::plugin() const
-{
-	return PluginManager::i()->pluginAt(index);
-}
-
 // Map of plugins to their relative communicators, if they have any.
 static std::map<std::string, PluginCommunicator*> pluginCommunicators;
 void PluginCommunicator::ExportPluginCommunicator(PluginCommunicator* communicator)
@@ -43,8 +38,8 @@ void PluginManager::clearData(bool free)
 	if (free)
 	{
 		for (auto& p : plugins_)
-			if (p.mayUnload)
-				FreeLibrary(p.dll);
+			if (p->mayUnload)
+				FreeLibrary(p->dll);
 	}
 	plugins_.clear();
 
@@ -65,12 +60,12 @@ PluginManager::~PluginManager()
 
 cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 {
-	const auto plugin = std::ranges::find_if(plugins_, [&name](const PluginData& data) {
-		return name == data.shortName;
-	});
+	const auto pluginIterator = std::ranges::find_if(plugins_, [&name](const std::shared_ptr<PluginData> data) { return name == data->shortName; });
 
-	if (plugin == end())
+	if (pluginIterator == end())
 		return cpp::fail(Error::PluginNotFound);
+
+	const auto plugin = *pluginIterator;
 
 	if (!plugin->mayUnload)
 	{
@@ -85,13 +80,14 @@ cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 
 	for (const auto& hook : plugin->pInfo->hooks_)
 	{
-		uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
+		const uint hookId = uint(hook.targetFunction_) * uint(magic_enum::enum_count<HookStep>()) + uint(hook.step_);
 		auto& list = pluginHooks_[hookId];
 
-		std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin().dll == dllAddr; });
+		std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin->dll == dllAddr; });
 	}
 
-	plugins_.erase(plugin);
+	plugins_.erase(pluginIterator);
+
 	FreeLibrary(dllAddr);
 	return unloadedPluginDll;
 }
@@ -109,8 +105,8 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	for (const auto& plugin : plugins_)
 	{
-		if (plugin.dllName == dllName)
-			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", wstos(plugin.dllName)));
+		if (plugin->dllName == dllName)
+			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", wstos(plugin->dllName)));
 	}
 
 	std::wstring pathToDLL = L"./plugins/" + dllName;
@@ -121,19 +117,19 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		return adminInterface->Print(std::format("ERR plugin {} not found", wstos(dllName)));
 	fclose(fp);
 
-	PluginData plugin;
-	plugin.dllName = dllName;
-	plugin.dll = LoadLibraryW(pathToDLL.c_str());
+	auto plugin = std::make_shared<PluginData>();
+	plugin->dllName = dllName;
+	plugin->dll = LoadLibraryW(pathToDLL.c_str());
 
-	if (!plugin.dll)
-		return adminInterface->Print(std::format("ERR can't load plugin DLL {}", wstos(plugin.dllName)));
+	if (!plugin->dll)
+		return adminInterface->Print(std::format("ERR can't load plugin DLL {}", wstos(plugin->dllName)));
 
-	auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin.dll, "ExportPluginInfo"));
+	auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin->dll, "ExportPluginInfo"));
 
 	if (!getPluginInfo)
 	{
-		adminInterface->Print(std::format("ERR could not read plugin info (ExportPluginInfo not exported?) for {}", wstos(plugin.dllName)));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR could not read plugin info (ExportPluginInfo not exported?) for {}", wstos(plugin->dllName)));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
@@ -142,95 +138,96 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 
 	if (pi->versionMinor_ == PluginMinorVersion::UNDEFINED || pi->versionMajor_ == PluginMajorVersion::UNDEFINED)
 	{
-		adminInterface->Print(std::format("ERR plugin {} does not have defined API version. Unloading.", wstos(plugin.dllName)));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR plugin {} does not have defined API version. Unloading.", wstos(plugin->dllName)));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
 	if (pi->versionMajor_ != CurrentMajorVersion)
 	{
-		adminInterface->Print(std::format(
-		    "ERR incompatible plugin API (major) version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMajorVersion, (int)pi->versionMajor_));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
+		    wstos(plugin->dllName),
+		    (int)CurrentMajorVersion,
+		    (int)pi->versionMajor_));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
 	if ((int)pi->versionMinor_ > (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(std::format(
-		    "ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
+		    wstos(plugin->dllName),
+		    (int)CurrentMinorVersion,
+		    (int)pi->versionMinor_));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
 	if (int(pi->versionMinor_) != (int)CurrentMinorVersion)
 	{
-		adminInterface->Print(
-		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin.dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
+		adminInterface->Print(std::format(
+		    "Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin->dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
 		adminInterface->Print("Processing will continue, but plugin should be considered unstable.");
 	}
 
 	if (pi->shortName_.empty() || pi->name_.empty())
 	{
-		adminInterface->Print(std::format("ERR missing name/short name for {}", wstos(plugin.dllName)));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR missing name/short name for {}", wstos(plugin->dllName)));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
 	if (pi->returnCode_ == nullptr)
 	{
-		adminInterface->Print(std::format("ERR missing return code pointer {}", wstos(plugin.dllName)));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR missing return code pointer {}", wstos(plugin->dllName)));
+		FreeLibrary(plugin->dll);
 		return;
 	}
 
-	plugin.mayUnload = pi->mayUnload_;
-	plugin.name = pi->name_;
-	plugin.shortName = pi->shortName_;
-	plugin.resetCode = pi->resetCode_;
-	plugin.returnCode = pi->returnCode_;
+	plugin->mayUnload = pi->mayUnload_;
+	plugin->name = pi->name_;
+	plugin->shortName = pi->shortName_;
+	plugin->resetCode = pi->resetCode_;
+	plugin->returnCode = pi->returnCode_;
 
 	// plugins that may not unload are interpreted as crucial plugins that can
 	// also not be loaded after FLServer startup
-	if (!plugin.mayUnload && !startup)
+	if (!plugin->mayUnload && !startup)
 	{
-		adminInterface->Print(std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", wstos(plugin.dllName)));
-		FreeLibrary(plugin.dll);
+		adminInterface->Print(std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", wstos(plugin->dllName)));
+		FreeLibrary(plugin->dll);
 		return;
 	}
-
-	plugin.timers = pi->timers_;
-	plugin.commands = pi->commands_;
-
-	size_t index = plugins_.size();
 
 	for (const auto& hook : pi->hooks_)
 	{
 		if (!hook.hookFunction_)
 		{
-			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin.dllName)));
+			adminInterface->Print(
+			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin->dllName)));
 			continue;
 		}
 
 		if (const auto& targetHookProps = hookProps_[hook.targetFunction_]; !targetHookProps.matches(hook.step_))
 		{
-			adminInterface->Print(
-			    std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin.dllName)));
+			adminInterface->Print(std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin->dllName)));
 			continue;
 		}
-
-		uint hookId = uint(hook.targetFunction_) * uint(HookStep::Count) + uint(hook.step_);
+		uint hookId = uint(hook.targetFunction_) * uint(magic_enum::enum_count<HookStep>()) + uint(hook.step_);
 		auto& list = pluginHooks_[hookId];
-		list.emplace_back(hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, index);
-		std::sort(list.begin(), list.end());
+		PluginHookData data = {hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, plugin};
+		list.emplace_back(std::move(data));
 	}
 
-	plugin.pInfo = std::move(pi);
-	plugins_.push_back(plugin);
+	plugin->timers = pi->timers_;
+	plugin->commands = pi->commands_;
 
-	std::ranges::sort(plugins_, [](const PluginData& a, const PluginData& b) { return a.name < b.name; });
+	plugin->pInfo = std::move(pi);
+	plugins_.emplace_back(plugin);
 
-	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin.shortName, wstos(plugin.dllName)));
+	std::ranges::sort(plugins_, [](const std::shared_ptr<PluginData> a, std::shared_ptr<PluginData> b) { return a->name < b->name; });
+
+	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin->shortName, wstos(plugin->dllName)));
 }
 
 void PluginManager::loadAll(bool startup, CCmds* adminInterface)
@@ -296,7 +293,6 @@ void PluginInfo::addHook(const PluginHook& hook)
 void PluginInfo::commands(const std::vector<UserCommand>* cmds)
 {
 	commands_ = const_cast<std::vector<UserCommand>*>(cmds);
-
 }
 
 void PluginInfo::timers(const std::vector<Timer>* timers)
