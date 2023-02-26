@@ -1,7 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"namespace_plugins_1_1_arena.html#ae95515e7bd3a3942bb61dd67aedb568c":[2,1,0,4,2,7],
-"namespace_plugins_1_1_autobuy.html":[2,1,0,4,3],
 "namespace_plugins_1_1_autobuy.html#a12eee9a3a9513494b7c2e4e8dc9afbce":[2,1,0,4,3,9],
 "namespace_plugins_1_1_autobuy.html#a30a4ecde68842ad74639a2f319ca4555":[2,1,0,4,3,6],
 "namespace_plugins_1_1_autobuy.html#a4045d30d96b74b7b7efecd9cb6262b9a":[2,1,0,4,3,13],
@@ -249,5 +247,7 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_wardrobe.html#a2a4127c69ee859d52481d1c661399bc9":[2,1,0,4,29,6],
 "namespace_plugins_1_1_wardrobe.html#a4186956eab7c426c4e7061bd355222c5":[2,1,0,4,29,9],
 "namespace_plugins_1_1_wardrobe.html#a5a21d79d13935c10ac6b1c5c1a898f23":[2,1,0,4,29,3],
-"namespace_plugins_1_1_wardrobe.html#a89999678bbb68c54cce21cfa7cbf486a":[2,1,0,4,29,7]
+"namespace_plugins_1_1_wardrobe.html#a89999678bbb68c54cce21cfa7cbf486a":[2,1,0,4,29,7],
+"namespace_plugins_1_1_wardrobe.html#ab8a3e7e1177e857226ae10a8d23a3706":[2,1,0,4,29,5],
+"namespace_plugins_1_1_wardrobe.html#ac1c095a0a79979fcff4824c2cae0c368":[2,1,0,4,29,10]
 };

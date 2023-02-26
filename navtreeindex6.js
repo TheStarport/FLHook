@@ -1,7 +1,5 @@
 var NAVTREEINDEX6 =
 {
-"group___death_penalty.html#gac00f5fcc401d351e5339522557fc7807":[2,0,10,6],
-"group___death_penalty.html#gaceb875fd2b8caee2c5d0977adb934567":[2,0,10,5],
 "group___death_penalty.html#gaf9b4ba15e7650780a6425cda07907ce1":[2,0,10,1],
 "group___event.html":[2,0,11],
 "group___event.html#ga779da3cd3769fa3e33757ba37482b88e":[2,0,11,0],
@@ -249,5 +247,7 @@ var NAVTREEINDEX6 =
 "namespace_hk_1_1_personalities.html#aa8b864865476b02dcba1826b9278f42f":[2,1,0,0,6,15],
 "namespace_hk_1_1_personalities.html#aab7c520bf6892895fa6dea36bbd59933":[2,1,0,0,6,20],
 "namespace_hk_1_1_personalities.html#aafadad6e858f8c8217e246f7b684c14f":[2,1,0,0,6,28],
-"namespace_hk_1_1_personalities.html#ac1bc2935cbe4a61511aad95201090d64":[2,1,0,0,6,32]
+"namespace_hk_1_1_personalities.html#ac1bc2935cbe4a61511aad95201090d64":[2,1,0,0,6,32],
+"namespace_hk_1_1_personalities.html#acb5d06fb9e91b2777d2eb418464c3cd8":[2,1,0,0,6,14],
+"namespace_hk_1_1_personalities.html#acf8dde1b2b4cd010e0c612a93c8dd878":[2,1,0,0,6,26]
 };

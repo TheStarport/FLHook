@@ -144,7 +144,6 @@ $(document).ready(function(){initNavTree('struct_plugin_hook_data.html',''); ini
 
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="struct_plugin_hook_data-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">PluginHookData Struct Reference</div></div>
@@ -153,11 +152,6 @@ $(document).ready(function(){initNavTree('struct_plugin_hook_data.html',''); ini
 
 <p><code>#include &lt;<a class="el" href="_global_8hpp_source.html">Global.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:a42e925da1a7204323d04543727b2c459"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="struct_plugin_data.html">PluginData</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugin_hook_data.html#a42e925da1a7204323d04543727b2c459">plugin</a> () const</td></tr>
-<tr class="separator:a42e925da1a7204323d04543727b2c459"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:abca2ec3c46c39f4a76de48bd5fa928e5"><td class="memItemLeft" align="right" valign="top">HookedCall&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugin_hook_data.html#abca2ec3c46c39f4a76de48bd5fa928e5">targetFunction</a></td></tr>
@@ -168,27 +162,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a736b1d38d811dce97ca6dc39e5780d8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ead47185044d07925c0523ec4b0cc14"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugin_hook_data.html#a6ead47185044d07925c0523ec4b0cc14">priority</a></td></tr>
 <tr class="separator:a6ead47185044d07925c0523ec4b0cc14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e2d0e908e9352597bb261ad249e54f8"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugin_hook_data.html#a8e2d0e908e9352597bb261ad249e54f8">index</a></td></tr>
-<tr class="separator:a8e2d0e908e9352597bb261ad249e54f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80053355b97786ff7012122ed5b966c3"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="struct_plugin_data.html">PluginData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugin_hook_data.html#a80053355b97786ff7012122ed5b966c3">plugin</a></td></tr>
+<tr class="separator:a80053355b97786ff7012122ed5b966c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a42e925da1a7204323d04543727b2c459" name="a42e925da1a7204323d04543727b2c459"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42e925da1a7204323d04543727b2c459">&#9670;&#160;</a></span>plugin()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="struct_plugin_data.html">PluginData</a> &amp; PluginHookData::plugin </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <h2 class="groupheader">Member Data Documentation</h2>
 <a id="ad5350a59688e57ea7853c8d238f4579e" name="ad5350a59688e57ea7853c8d238f4579e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad5350a59688e57ea7853c8d238f4579e">&#9670;&#160;</a></span>hookFunction</h2>
@@ -204,14 +180,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a8e2d0e908e9352597bb261ad249e54f8" name="a8e2d0e908e9352597bb261ad249e54f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8e2d0e908e9352597bb261ad249e54f8">&#9670;&#160;</a></span>index</h2>
+<a id="a80053355b97786ff7012122ed5b966c3" name="a80053355b97786ff7012122ed5b966c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80053355b97786ff7012122ed5b966c3">&#9670;&#160;</a></span>plugin</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t PluginHookData::index</td>
+          <td class="memname">std::shared_ptr&lt;<a class="el" href="struct_plugin_data.html">PluginData</a>&gt; PluginHookData::plugin</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -260,9 +236,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following files:<ul>
+<hr/>The documentation for this struct was generated from the following file:<ul>
 <li>source/<a class="el" href="_global_8hpp_source.html">Global.hpp</a></li>
-<li>source/Features/<a class="el" href="_plugin_manager_8cpp.html">PluginManager.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
