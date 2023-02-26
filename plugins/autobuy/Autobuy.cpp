@@ -89,8 +89,11 @@ namespace Plugins::Autobuy
 			return;
 		}
 
-		PrintUserCmdText(client, std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
-		Hk::Player::RemoveCash(client, repairCost);
+		if (repairCost)
+		{
+			PrintUserCmdText(client, std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
+			Hk::Player::RemoveCash(client, repairCost);
+		}
 
 		if (!eqToFix.empty())
 		{
