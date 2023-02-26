@@ -21,7 +21,7 @@ bool UserCmd_Process(ClientId client, const std::wstring& wscCmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
-// Logse
+// Logs
 template<typename T>
 std::wstring ToLogString(const T& val)
 {
