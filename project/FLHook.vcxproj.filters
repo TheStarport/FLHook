@@ -162,8 +162,6 @@
       <Filter>AdminCommands</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />
-    <ClInclude Include="..\source\Singleton.h" />
-    <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\include\FLHook.hpp">
       <Filter>Include</Filter>
