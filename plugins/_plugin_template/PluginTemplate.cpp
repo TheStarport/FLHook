@@ -69,7 +69,6 @@ namespace Plugins::Template
 		return;
 	}
 
-
 	// This is called when an admin does .help
 	void CmdHelp(CCmds* command)
 	{
@@ -85,20 +84,20 @@ namespace Plugins::Template
 		}
 		else
 		{
-			return false;	
+			return false;
 		}
 
 		global->returnCode = ReturnCode::SkipAll;
 		return true;
 	}
 
-}
+} // namespace Plugins::Template
 
 using namespace Plugins::Template;
 
 REFL_AUTO(type(Config), field(overrideUserNumber));
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
