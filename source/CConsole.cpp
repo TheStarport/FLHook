@@ -1,7 +1,5 @@
 ﻿#include "CConsole.h"
 
-#include <wchar.h>
-
 // I hate this
 void CConsole::DoPrint(const std::string& text)
 {

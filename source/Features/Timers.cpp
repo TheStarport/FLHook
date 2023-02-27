@@ -1,5 +1,4 @@
 ﻿#include "Global.hpp"
-#include <WinSock2.h>
 
 #include <WS2tcpip.h>
 #include "Features/TempBan.hpp"
