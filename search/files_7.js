@@ -10,6 +10,5 @@ var searchData=
   ['hkienginedeath_2ecpp_7',['HkIEngineDeath.cpp',['../_hk_i_engine_death_8cpp.html',1,'']]],
   ['hkienginedisconnect_2ecpp_8',['HkIEngineDisconnect.cpp',['../_hk_i_engine_disconnect_8cpp.html',1,'']]],
   ['hkinit_2ecpp_9',['HkInit.cpp',['../_hk_init_8cpp.html',1,'']]],
-  ['hookedcallbase_2eh_10',['HookedCallBase.h',['../_hooked_call_base_8h.html',1,'']]],
-  ['hooks_2ecpp_11',['Hooks.cpp',['../_hooks_8cpp.html',1,'']]]
+  ['hooks_2ecpp_10',['Hooks.cpp',['../_hooks_8cpp.html',1,'']]]
 ];

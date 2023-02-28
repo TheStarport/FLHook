@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jumpgate_0',['JumpGate',['../namespace_plugins_1_1_system_sensor.html#a5d65f6d572b834ab21c4f44ff083864aaf9d251b3926f3ce3f96e6858179705be',1,'Plugins::SystemSensor']]]
+  ['return_0',['Return',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a988fd738de9c6d177440c5dcf69e73ce',1,'Plugins::Arena']]]
 ];

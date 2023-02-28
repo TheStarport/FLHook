@@ -15,7 +15,7 @@ var searchData=
   ['update_12',['Update',['../namespace_i_server_impl_hook.html#afc6977e872134620f540f0c9064ad7ec',1,'IServerImplHook::Update()'],['../group___mark.html#ga2dd3cf850f43ec5ebcee29bd78ff9f55',1,'Plugins::Mark::Update()']]],
   ['update_5f_5finner_13',['Update__Inner',['../namespace_i_server_impl_hook.html#a8f000ee27f25e7b8026c041bff69e884',1,'IServerImplHook']]],
   ['updatestatsfile_14',['UpdateStatsFile',['../group___mining_control.html#ga9f9e92b96ad58fd39d4e0dd1409e7c47',1,'Plugins::MiningControl']]],
-  ['updatetime_15',['UpdateTime',['../namespace_i_engine_hook.html#af914c0f08006b65125c5191072c49e82',1,'IEngineHook::UpdateTime()'],['../_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aea7b33ee0ac8480dff8a93c383634996b7',1,'UpdateTime():&#160;HookedCallBase.h']]],
+  ['updatetime_15',['UpdateTime',['../namespace_i_engine_hook.html#af914c0f08006b65125c5191072c49e82',1,'IEngineHook']]],
   ['usercmd_5facceptffa_16',['UserCmd_AcceptFFA',['../group___betting.html#ga7a300b7912b39f9a636e18b567a3eb1d',1,'Plugins::Betting']]],
   ['usercmd_5fautomark_17',['UserCmd_AutoMark',['../namespace_plugins_1_1_mark.html#a232b02dd221a829cf5a7c417a557ebae',1,'Plugins::Mark']]],
   ['usercmd_5fcancel_18',['UserCmd_Cancel',['../group___betting.html#gab905916dced648ae55a1813d8aacad36',1,'Plugins::Betting']]],
@@ -107,8 +107,6 @@ var searchData=
   ['usercmdwarehouse_104',['UserCmdWarehouse',['../namespace_plugins_1_1_warehouse.html#a5aaf9c35ba8e1fbb86a0b11a4b230fed',1,'Plugins::Warehouse']]],
   ['usercmdwithdrawitem_105',['UserCmdWithdrawItem',['../namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b',1,'Plugins::Warehouse']]],
   ['usercmdwithdrawmoneybypassword_106',['UserCmdWithdrawMoneyByPassword',['../namespace_plugins_1_1_cash_manager.html#a438b436d7b834bdd4d93152fb9bb1c49',1,'Plugins::CashManager']]],
-  ['usercommand_5f_5fhelp_107',['UserCommand__Help',['../_hooked_call_base_8h.html#a5c4ab44b2978baf1a0d0ee75a4f4b895a1d0cacc54c191a4efd0e4542e045dd8c',1,'HookedCallBase.h']]],
-  ['usercommand_5f_5fprocess_108',['UserCommand__Process',['../_hooked_call_base_8h.html#a5c4ab44b2978baf1a0d0ee75a4f4b895a55f5f1a6f66bc55482727e5f6844c1a5',1,'HookedCallBase.h']]],
-  ['usercommandhandler_109',['UserCommandHandler',['../namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3',1,'Plugins::CashManager::UserCommandHandler()'],['../group___light_control.html#ga1a8f3c7c529bcd3461fd3103879b9c68',1,'Plugins::LightControl::UserCommandHandler()']]],
-  ['usercommands_2ecpp_110',['UserCommands.cpp',['../source_2_features_2_user_commands_8cpp.html',1,'(Global Namespace)'],['../plugins_2mark_2_user_commands_8cpp.html',1,'(Global Namespace)']]]
+  ['usercommandhandler_107',['UserCommandHandler',['../namespace_plugins_1_1_cash_manager.html#a1a0644d447bb014aef7a32398bd43eb3',1,'Plugins::CashManager::UserCommandHandler()'],['../group___light_control.html#ga1a8f3c7c529bcd3461fd3103879b9c68',1,'Plugins::LightControl::UserCommandHandler()']]],
+  ['usercommands_2ecpp_108',['UserCommands.cpp',['../source_2_features_2_user_commands_8cpp.html',1,'(Global Namespace)'],['../plugins_2mark_2_user_commands_8cpp.html',1,'(Global Namespace)']]]
 ];

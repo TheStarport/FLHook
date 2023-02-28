@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['elapsetime_0',['ElapseTime',['../_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aead0af5083200538fe77538ff19b3d0ff3',1,'HookedCallBase.h']]]
+  ['jumpgate_0',['JumpGate',['../namespace_plugins_1_1_system_sensor.html#a5d65f6d572b834ab21c4f44ff083864aaf9d251b3926f3ce3f96e6858179705be',1,'Plugins::SystemSensor']]]
 ];

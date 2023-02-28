@@ -30,7 +30,6 @@ var dir_b2f33c71d4aa5e7af42a1ca61ff5af1b =
     [ "HkIEngineDeath.cpp", "_hk_i_engine_death_8cpp.html", "_hk_i_engine_death_8cpp" ],
     [ "HkIEngineDisconnect.cpp", "_hk_i_engine_disconnect_8cpp.html", "_hk_i_engine_disconnect_8cpp" ],
     [ "HkInit.cpp", "_hk_init_8cpp.html", "_hk_init_8cpp" ],
-    [ "HookedCallBase.h", "_hooked_call_base_8h.html", "_hooked_call_base_8h" ],
     [ "Settings.cpp", "_settings_8cpp.html", "_settings_8cpp" ],
     [ "Tools.cpp", "_tools_8cpp.html", "_tools_8cpp" ],
     [ "xtrace.cpp", "xtrace_8cpp.html", "xtrace_8cpp" ],

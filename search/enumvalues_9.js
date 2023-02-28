@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['none_0',['None',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6adf97f83acf6453d4a6a4b1070f3754',1,'Plugins::Arena']]],
-  ['notenoughmoney_1',['NotEnoughMoney',['../namespace_plugins_1_1_cash_manager.html#ad75e73f789cedcf62f7b8ddcb2385a19a261cca2ac483068d987c38cfa8fd6094',1,'Plugins::CashManager']]]
+  ['tradelane_0',['TradeLane',['../namespace_plugins_1_1_system_sensor.html#a5d65f6d572b834ab21c4f44ff083864aaad69b017ddc28874e26267686a812604',1,'Plugins::SystemSensor']]],
+  ['transfer_1',['Transfer',['../namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6950810f0d2bba97a6f710c7b965b84e',1,'Plugins::Arena']]]
 ];

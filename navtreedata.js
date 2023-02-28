@@ -66,7 +66,6 @@ var NAVTREE =
           [ "Functions", "globals_func.html", "globals_func" ],
           [ "Variables", "globals_vars.html", null ],
           [ "Typedefs", "globals_type.html", null ],
-          [ "Enumerations", "globals_enum.html", null ],
           [ "Macros", "globals_defs.html", null ]
         ] ]
       ] ]
@@ -79,18 +78,18 @@ var NAVTREEINDEX =
 "_admin_8cpp.html",
 "_f_l_hook_8cpp.html#a1e9a91aacc5e4435e5af90c8949daefa",
 "_hk_client_server_interface_8cpp.html#ac1f22a6a0ef5ccffef54f8f52e4fd67a",
-"_logging_8cpp.html#abfcd5eadcbfe9ffc784b78c8753aa244",
-"_rename_8cpp.html#a942066513b16128d8ac0040691ccd371",
-"class_plugins_1_1_message_1_1_client_info.html#a0f3a65eaf03d41e5f1b6803c04a2e502",
-"group___death_penalty.html#gaf9b4ba15e7650780a6425cda07907ce1",
-"namespace_hk_1_1_personalities.html#acfebd105c62c79371f5a6e31b9765281",
-"namespace_plugins_1_1_autobuy.html#a12eee9a3a9513494b7c2e4e8dc9afbce",
-"namespace_plugins_1_1_wardrobe.html#ac7d112cc7e345bf179ced6f8d4cb98d8",
-"struct_plugin_data.html#a7329497365831096b4c6bd0399ec1e55",
-"struct_plugins_1_1_cash_manager_1_1_transaction.html#ab568891099300540d3e362135d06361c",
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html",
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html#a1c3df6d954899af4f972458e47b453dd",
-"struct_plugins_1_1_stats_1_1_global.html#a7557de040a2398966d31656d80ebb5b3"
+"_math_8cpp.html#a3d01e7aea16c48c88d9cd3cf6a1dfe08",
+"_solar_8cpp.html#a83116a298733f5140f9f7498f4e0da23",
+"dir_6157071b669ad76ae5c9652315b337ed.html",
+"group___mark.html#gaacd7aa91290036d76109638646018925",
+"namespace_hk_1_1_player.html#a3d2e0df05bd49af222135de918f80f81",
+"namespace_plugins_1_1_cash_manager.html#a438b436d7b834bdd4d93152fb9bb1c49",
+"namespacemembers_enum.html",
+"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html",
+"struct_plugins_1_1_con_data_1_1_connection_data.html#a2693a7595dfc188362f82945872b24a3",
+"struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k.html#a5b19190b89d69646347632d4150824b5",
+"struct_plugins_1_1_npc_1_1_global.html",
+"struct_plugins_1_1_system_sensor_1_1_global.html#ac56bb650759302787301632ebfed1809"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

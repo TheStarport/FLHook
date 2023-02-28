@@ -144,6 +144,6 @@ var searchData=
   ['graph_141',['graph',['../struct_plugins_1_1_npc_1_1_npc.html#ae742acc8e3f57d94d9b3835b4b15133e',1,'Plugins::Npc::Npc']]],
   ['greetingbannerlines_142',['greetingBannerLines',['../struct_plugins_1_1_message_1_1_config.html#ac0359b6c00c2fa8d2962ca9a2e70d928',1,'Plugins::Message::Config']]],
   ['greetingshown_143',['greetingShown',['../class_plugins_1_1_message_1_1_client_info.html#aaa85f5c7c978de5c4ed23d7da8905388',1,'Plugins::Message::ClientInfo']]],
-  ['guidedhit_144',['GuidedHit',['../_hk_i_engine_damage_8cpp.html#aa9bb4515ed8aca6fc62418c60bdf6750',1,'GuidedHit(char *ecx, char *p1, DamageList *dmgList):&#160;HkIEngineDamage.cpp'],['../_hooked_call_base_8h.html#ab494fbb777754bf33710f791b1cfe3aeab47aa31f0b006890b98388d076155ef4',1,'GuidedHit():&#160;HookedCallBase.h']]],
+  ['guidedhit_144',['GuidedHit',['../_hk_i_engine_damage_8cpp.html#aa9bb4515ed8aca6fc62418c60bdf6750',1,'HkIEngineDamage.cpp']]],
   ['gun_145',['gun',['../namespace_hk_1_1_personalities.html#a32de08edd3b451661d38d6162c4bb5ff',1,'Hk::Personalities']]]
 ];
