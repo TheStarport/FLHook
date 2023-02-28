@@ -2,8 +2,6 @@
 
 #include <functional>
 
-#include "Tools/Enums.hpp"
-
 #ifndef DLL
 	#ifndef FLHOOK
 		#define DLL __declspec(dllimport)
