@@ -250,9 +250,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Tools\Utils.hpp" />
     <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\source\HookedCallBase.h" />
     <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
-    <ClInclude Include="..\source\Singleton.h" />
     <ClInclude Include="..\source\CConsole.h" />
     <ClInclude Include="..\source\CSocket.h" />
   </ItemGroup>
