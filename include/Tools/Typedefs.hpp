@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 using uint = unsigned int;
 using uchar = unsigned char;
 using ushort = unsigned short;
@@ -32,6 +34,8 @@ using BLOWFISH_CTX = struct
 	unsigned long P[16 + 2];
 	unsigned long S[4][256];
 };
+
+using BYTE = unsigned char;
 
 using UserCmdProc = void(*)(ClientId& client);
 using UserCmdProcWithParam = void(*)(ClientId& client, const std::wstring& param);
