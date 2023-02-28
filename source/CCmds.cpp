@@ -1047,14 +1047,11 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 {
 	// check if command was sent by a socket connection
 	bool bSocket = false;
-	bool bLocalSocket = false;
 	std::wstring wscAdminName = GetAdminName();
 
 	if (wscAdminName.find(L"Socket connection") == 0)
 	{
 		bSocket = true;
-		if (wscAdminName.find(L"127.0.0.1") != std::wstring::npos)
-			bLocalSocket = true;
 	}
 
 	try

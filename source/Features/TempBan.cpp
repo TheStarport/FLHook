@@ -1,5 +1,5 @@
 #include "Features/TempBan.hpp"
-#include "Global.hpp"
+#include "Tools/Hk.hpp"
 
 void TempBanManager::ClearFinishedTempBans()
 {

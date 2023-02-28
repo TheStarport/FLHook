@@ -55,7 +55,7 @@ have time to provide unpaid support for everyone who uses this code.
                                              -- Paul Kocher
 */
 
-#include "FLHook.hpp"
+#include "Tools/Typedefs.hpp"
 
 #define N 16
 
