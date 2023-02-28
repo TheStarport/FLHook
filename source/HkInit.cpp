@@ -1,5 +1,4 @@
 ﻿#include "Global.hpp"
-#include <process.h>
 
 namespace IEngineHook
 {

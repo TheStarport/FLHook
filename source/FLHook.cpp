@@ -1,9 +1,6 @@
 ﻿#include "Global.hpp"
 #include "CConsole.h"
-#include "CSocket.h"
 
-#include <Psapi.h>
-#include <iostream>
 #include "Memory/MemoryManager.hpp"
 
 // structs

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <refl.hpp>
-#include <Tools/Concepts.hpp>
 
 template<typename T>
     requires IsNumeric<T>

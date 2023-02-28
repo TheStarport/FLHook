@@ -10,8 +10,6 @@ using jpWide = jpcre2::select<wchar_t>;
 	#include <ext/result.hpp>
 	#include <ext/Wildcard.hpp>
 	#include "magic_enum.hpp"
-	#include <nlohmann/json.hpp>
-	#include "refl.hpp"
 
 	#pragma comment(lib, "pcre2-8.lib")
 	#pragma comment(lib, "pcre2-16.lib")

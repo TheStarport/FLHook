@@ -1,5 +1,4 @@
 #pragma once
-#include "Typedefs.hpp"
 
 enum class LogLevel : int
 {

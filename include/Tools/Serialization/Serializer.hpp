@@ -5,8 +5,6 @@
 #include <nlohmann/json.hpp>
 
 #include "refl.hpp"
-#include "FLHook.hpp"
-#include "Attributes.hpp"
 
 template<typename T>
 constexpr auto IsEnum = std::is_enum_v<T>;
