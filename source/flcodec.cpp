@@ -23,8 +23,7 @@ Updated 2022 to use proper C++ syntax and work in memory ~ Laz
 
 */
 
-#include <fstream>
-#include "../include/Tools/Typedefs.hpp"
+#include "Global.hpp"
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";
@@ -64,10 +63,10 @@ std::string FlcDecode(std::string& input)
 	const int length = input.size() - 4;
 	while (i < length)
 	{
-		auto c = static_cast<BYTE>(((&input[0]) + 4)[i]);
-		auto k = static_cast<BYTE>((gene[i % 4] + i) % 256);
+		auto c = static_cast<byte>(((&input[0]) + 4)[i]);
+		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 		
-		BYTE r = c ^ (k | 0x80);
+		byte r = c ^ (k | 0x80);
 
 		output += r;
 
@@ -87,10 +86,10 @@ std::string FlcEncode(std::string& input)
 	int i = 0;
 	while (i < length)
 	{
-		BYTE c = (&input[0])[i];
-		auto k = static_cast<BYTE>((gene[i % 4] + i) % 256);
+		byte c = (&input[0])[i];
+		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
-		BYTE r = c ^ (k | 0x80);
+		byte r = c ^ (k | 0x80);
 
 		output += r;
 
@@ -111,7 +110,7 @@ bool EncodeDecode(const char* input, const char* output, bool encode)
 	}
 
 	std::ofstream outputFile(output, std::ios::out | std::ios::binary);
-	outputFile.write((char*)&decodedBytes[0], decodedBytes.size() * sizeof(BYTE));
+	outputFile.write((char*)&decodedBytes[0], decodedBytes.size() * sizeof(byte));
 	outputFile.close();
 
 	return true;
