@@ -2,6 +2,8 @@
 #include "Features/Mail.hpp"
 #include "Features/TempBan.hpp"
 
+#include <random>
+
 void IClientImpl__Startup__Inner(uint, uint)
 {
 	// load the universe directly before the server becomes internet accessible
@@ -438,6 +440,21 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			ProcessEvent(L"login char={} accountdirname={} id={} ip={}", charName.c_str(), dir.c_str(), client, pi.value().wscIP.c_str());
 
 			MailManager::i()->SendMailNotification(client);
+
+			// Assign their random formation id.
+			// Numbers are between 0-20 (inclusive)
+			// Formations are between 1-29 (inclusive)
+			std::random_device dev;
+			std::mt19937 rng(dev());
+			std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
+			const auto* conf = FLHookConfig::c();
+			std::uniform_int_distribution<std::mt19937::result_type> distForm(0, conf->callsign.allowedFormations.size() - 1);
+
+			auto& ci = ClientInfo[client];
+
+			ci.formationNumber1 = distNum(rng);
+			ci.formationNumber2 = distNum(rng);
+			ci.formationTag = conf->callsign.allowedFormations[distForm(rng)];
 		}
 	}
 	CATCH_HOOK({})
@@ -2186,6 +2203,45 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(ClientId client, uint _genArg1, 
 	        _genArg20,
 	        _genArg21,
 	        _genArg22)));
+
+	const auto& ci = ClientInfo[client];
+	const auto* conf = FLHookConfig::c();
+
+	static std::array<byte, 8> num1RewriteBytes = {0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90};
+
+	const auto content = DWORD(GetModuleHandle("content.dll"));
+	constexpr DWORD factionOffset = 0x6fb632c + 18 - 0x6ea0000;
+	constexpr DWORD numberOffset1 = 0x6eeb49b - 0x6ea0000;
+	constexpr DWORD numberOffset2 = 0x6eeb523 + 1 - 0x6ea0000;
+	constexpr DWORD formationOffset = 0x6fb7524 + 25 - 0x6ea0000;
+
+	auto playerFactionAddr = PVOID(content + factionOffset);
+	auto playerNumber1 = PVOID(content + numberOffset1);
+	auto playerNumber2 = PVOID(content + numberOffset2);
+	auto playerFormation = PCHAR(content + formationOffset); 
+
+	if (!conf->callsign.disableRandomisedFormations)
+	{
+		*(int*)(num1RewriteBytes.data() + 1) = ci.formationNumber1;
+		WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
+		WriteProcMem(playerNumber2, &ci.formationNumber2, 1);
+		DWORD _;
+		VirtualProtect(playerFormation, 2, PAGE_READWRITE, &_);
+		std::sprintf(playerFormation, "%02d", ci.formationTag);
+	}
+
+	if (!conf->callsign.disableUsingAffiliationForCallsign)
+	{
+		if (auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group"); repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
+		{
+			auto val = wstos(repGroupNick.value());
+			WriteProcMem(playerFactionAddr, val.erase(val.size() - 4).c_str(), val.size());
+		}
+		else
+		{
+			WriteProcMem(playerFactionAddr, "player", 6);
+		}
+	}
 
 	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SENDCOMM,
 	    client,
