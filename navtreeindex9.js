@@ -1,6 +1,5 @@
 var NAVTREEINDEX9 =
 {
-"namespacemembers_enum.html":[2,1,1,4],
 "namespacemembers_f.html":[2,1,1,0,6],
 "namespacemembers_func.html":[2,1,1,1,0],
 "namespacemembers_func.html":[2,1,1,1],
@@ -249,5 +248,6 @@ var NAVTREEINDEX9 =
 "struct_plugins_1_1_anti_jump_disconnect_1_1_global.html#a2b328ca9559c44c7e37d323e4686046c":[2,2,0,2,1,0,1],
 "struct_plugins_1_1_anti_jump_disconnect_1_1_global.html#a30ed88859f3f9a9f85dee21e088c1771":[2,1,0,4,1,0,2],
 "struct_plugins_1_1_anti_jump_disconnect_1_1_global.html#a30ed88859f3f9a9f85dee21e088c1771":[2,2,0,2,1,0,2],
-"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html":[2,1,0,4,1,0,0]
+"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html":[2,1,0,4,1,0,0],
+"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html":[2,2,0,2,1,0,0]
 };
