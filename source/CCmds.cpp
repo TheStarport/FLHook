@@ -844,6 +844,12 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 
 	try
 	{
+		if (Trim(targetBaseName).empty())
+		{
+			PrintError(Error::InvalidBaseName);
+			return;
+		}
+
 		const auto base = Hk::Solar::GetBaseByWildcard(targetBaseName);
 		if (base.has_error())
 		{
