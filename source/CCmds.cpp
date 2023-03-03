@@ -861,7 +861,6 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 		if (res.has_error())
 		{
 			PrintError(res.error());
-			return;
 		}
 	}
 	catch (...)
