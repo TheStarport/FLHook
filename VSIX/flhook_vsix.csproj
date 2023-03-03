@@ -51,7 +51,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ProjectTemplates\flhook_plugin_template.zip">
+    <Content Include="ProjectTemplates\_plugin_template.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
