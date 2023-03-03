@@ -19,8 +19,7 @@
   <TemplateContent>
     <Project TargetFileName="PluginTemplate.vcxproj" File="PluginTemplate.vcxproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" TargetFileName="Main.cpp">Main.cpp</ProjectItem>
-      <ProjectItem ReplaceParameters="false" TargetFileName="Main.h">Main.h</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.ini">template.ini</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="Main.hpp">Main.hpp</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>
