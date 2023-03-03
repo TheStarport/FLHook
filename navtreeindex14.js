@@ -1,5 +1,6 @@
 var NAVTREEINDEX14 =
 {
+"struct_plugins_1_1_system_sensor_1_1_global.html#ac56bb650759302787301632ebfed1809":[2,2,0,2,25,2,3],
 "struct_plugins_1_1_system_sensor_1_1_global.html#af2c2e6b1a7615e782bd4c28f4a75edda":[2,2,0,2,25,2,2],
 "struct_plugins_1_1_system_sensor_1_1_global.html#af2c2e6b1a7615e782bd4c28f4a75edda":[2,1,0,4,26,2,2],
 "struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html":[2,1,0,4,26,3],

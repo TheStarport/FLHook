@@ -84,12 +84,12 @@ var NAVTREEINDEX =
 "group___mark.html#gaacd7aa91290036d76109638646018925",
 "namespace_hk_1_1_player.html#a3d2e0df05bd49af222135de918f80f81",
 "namespace_plugins_1_1_cash_manager.html#a438b436d7b834bdd4d93152fb9bb1c49",
-"namespacemembers_f.html",
-"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html#aece8275087acfd4eac4192d2f5619639",
-"struct_plugins_1_1_con_data_1_1_connection_data.html#a27cb5a86255fd452030dd8f1f4dfe8e5",
-"struct_plugins_1_1_mark_1_1_global.html",
-"struct_plugins_1_1_npc_1_1_global.html#a17bbe516bf52d8a0849bd59979dbe218",
-"struct_plugins_1_1_system_sensor_1_1_global.html#af2c2e6b1a7615e782bd4c28f4a75edda"
+"namespacemembers_enum.html",
+"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html",
+"struct_plugins_1_1_con_data_1_1_connection_data.html#a2693a7595dfc188362f82945872b24a3",
+"struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k.html#a5b19190b89d69646347632d4150824b5",
+"struct_plugins_1_1_npc_1_1_global.html",
+"struct_plugins_1_1_system_sensor_1_1_global.html#ac56bb650759302787301632ebfed1809"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
