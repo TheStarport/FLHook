@@ -164,6 +164,8 @@ html {
     --webkit-scrollbar-size: 7px;
     --webkit-scrollbar-padding: 4px;
     --webkit-scrollbar-color: var(--separator-color);
+
+    --index-odd-item-bg-color: rgba(100, 100, 100, 0.06);
 }
 
 @media screen and (max-width: 767px) {
@@ -176,7 +178,7 @@ html {
 }
 
 @media (prefers-color-scheme: dark) {
-    html:not(.light-mode) {
+    html:not(.dark-mode) {
         color-scheme: dark;
 
         --primary-color: #1982d2;
@@ -233,6 +235,8 @@ html {
         --fragment-linenumber-color: #cccccc;
         --fragment-linenumber-background: #35393c;
         --fragment-linenumber-border: #1f1f1f;
+
+        --index-odd-item-bg-color: rgba(100, 100, 100, 0.06);
     }
 }
 
