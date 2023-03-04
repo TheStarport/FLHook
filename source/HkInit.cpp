@@ -288,6 +288,8 @@ bool InitHookExports()
 	Patch(piRemoteClientDLL);
 	Patch(piDaLibDLL);
 
+	DetourSendComm();
+
 	// patch rep array free
 	char szNOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
 	char* pAddress = ((char*)hModServer + ADDR_SRV_REPARRAYFREE);
@@ -395,6 +397,8 @@ void UnloadHookExports()
 	RestorePatch(piServerDLL);
 	RestorePatch(piRemoteClientDLL);
 	RestorePatch(piDaLibDLL);
+
+	UnDetourSendComm();
 
 	// unpatch rep array free
 	pAddress = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);

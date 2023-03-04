@@ -366,9 +366,6 @@ using ExportPluginInfoT = void (*)(PluginInfo*);
 
 class DebugTools : public Singleton<DebugTools>
 {
-	using CreateIDType = uint (*)(const char*);
-	static CreateIDType originalCreateId;
-	static PBYTE createIdMemory;
 	static std::map<std::string, uint> hashMap;
 
 	std::allocator<BYTE> allocator;
@@ -379,3 +376,6 @@ class DebugTools : public Singleton<DebugTools>
 	DebugTools() = default;
 	void Init();
 };
+
+void DetourSendComm();
+void UnDetourSendComm();

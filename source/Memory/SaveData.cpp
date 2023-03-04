@@ -1,5 +1,7 @@
 #include "MemoryManager.hpp"
+#include <Tools/Detour.hpp>
 
+using GetUserDataPathSig = bool (*)(char*);
 bool SaveGameDetour::GetUserDataPathDetour(char* retPtr)
 {
 	const auto* i = dynamic_cast<SaveGameDetour*>(MemoryManager::i());
@@ -49,31 +51,20 @@ std::string SaveGameDetour::GetSaveDataPath() const
 	return trimmed.string();
 }
 
+const auto detour =
+    std::make_unique<FunctionDetour<GetUserDataPathSig>>(GetUserDataPathSig(GetProcAddress(GetModuleHandle("common.dll"), "?GetUserDataPath@@YA_NQAD@Z")));
+
 void SaveGameDetour::InitHook()
 {
-	auto* i = MemoryManager::i();
-
-	byte* bytes = i->Allocate(5);
-	auto origFunc = (GetUserDataPathSig)(GetProcAddress(i->common, "?GetUserDataPath@@YA_NQAD@Z"));
-
-	std::pair<byte*, GetUserDataPathSig> pair {bytes, origFunc};
-
-	dynamic_cast<SaveGameDetour*>(i)->getUserDataPath = pair;
-
-	Detour(PBYTE(origFunc), GetUserDataPathDetour, bytes);
-
+	detour->Detour(GetUserDataPathDetour);
+	
 	path = std::format("{}\0", GetSaveDataPath());
 
 	char arr[255];
 	GetUserDataPath(arr);
-	printf("hi");
 }
 
 void SaveGameDetour::DestroyHook()
 {
-	auto* i = MemoryManager::i();
-	UnDetour(PBYTE(i->getUserDataPath.second), i->getUserDataPath.first);
-
-	i->DeAllocate(i->getUserDataPath.first, 5);
-	i->getUserDataPath = {};
+	detour->UnDetour();
 }
