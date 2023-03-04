@@ -153,6 +153,9 @@
     <ClCompile Include="..\source\Features\TempBan.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Hooks\SendComm.cpp">
+      <Filter>FLHook\hooks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -213,6 +216,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp">
       <Filter>Include\Tools\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\Detour.hpp">
+      <Filter>Include\Tools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

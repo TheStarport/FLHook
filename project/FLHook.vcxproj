@@ -220,6 +220,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\HkIEngineDeath.cpp" />
     <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
     <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
+    <ClCompile Include="..\source\Hooks\SendComm.cpp" />
     <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
     <ClCompile Include="..\source\Memory\SaveData.cpp" />
     <ClCompile Include="..\source\Tools\Console.cpp" />
@@ -240,6 +241,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Tools\Concepts.hpp" />
     <ClInclude Include="..\include\Tools\Constexpr.hpp" />
     <ClInclude Include="..\include\Tools\Deps.hpp" />
+    <ClInclude Include="..\include\Tools\Detour.hpp" />
     <ClInclude Include="..\include\Tools\Enums.hpp" />
     <ClInclude Include="..\include\Tools\Hk.hpp" />
     <ClInclude Include="..\include\Tools\Macros.hpp" />

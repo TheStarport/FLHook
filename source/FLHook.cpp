@@ -74,7 +74,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	if (std::wstring wscFileName = ToLower(stows(szFile)); wscFileName.find(L"flserver.exe") != -1)
 	{ 
 		// We need to init our memory hooks before anything is loaded!
-		MemoryManager::i()->InitHook();
+		MemoryManager::i()->AddHooks();
 
 		bExecuted = true;
 
