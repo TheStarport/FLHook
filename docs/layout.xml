@@ -3,100 +3,112 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
     <tab type="mainpage" visible="yes" title="" />
-    <tab type="usergroup" visible="yes" title="Usage" url="[none]">
-        <tab type="user" visible="true" url="md_docs__usage__administrative__commands.html" title="Administrative Commands" />
-        <tab type="user" visible="true" url="md_docs__usage__logging.html" title="Logging" />
-        <tab type="user" visible="true" url="md_docs__usage__x_m_l__text__reference.html" title="XML Text Reference" />
-        <tab type="user" visible="true" url="md_docs__usage__event__mode.html" title="Event Mode" />
-        <tab type="user" visible="true" url="md_docs__usage__blowfish__encryption.html" title="Blowfish Encryption" />
+    <tab type="usergroup" visible="yes" title="General Usage" url="[none]">
+      <tab type="user" visible="true" url="md_docs__general__usage_1___installation.html" title="Installation" />
+      <tab type="user" visible="true" url="md_docs__general__usage_2___support.html" title="Logging" />
+      <tab type="user" visible="true" url="md_docs__general__usage_3___plugins___logs____configs.html" title="Plugins, Logs, and Configs" />
+      <tab type="user" visible="true" url="md_docs__general__usage_4___admin____user__commands.html" title="Admin and User Commands" />
+      <tab type="user" visible="true" url="md_docs__general__usage_5___logging.html" title="Logging" />
+      <tab type="user" visible="true" url="md_docs__general__usage_6___plugin__architecture.html" title="Plugin Architecture" />
+      <tab type="user" visible="true" url="md_docs__general__usage_7___x_m_l__text__reference.html" title="XML Text Reference" />
     </tab>
-    <tab type="usergroup" visible="yes" title="Plugin Development" url="[none]">
-		<tab type="user" visible="true" url="md_docs__development__recommended__visual__studio__extensions.html" title="Recommended Visual Studio Extensions" />
-        <tab type="user" visible="true" url="md_docs__development__note_on_the__s_t_l.html" title="Note on the STL" />
-        <tab type="user" visible="true" url="md_docs__development__inter__plugin__communication___i_p_c_.html" title="Inter-Plugin Communication (IPC)" />
+    <tab type="usergroup" visible="yes" title="Contributing" url="[none]">
+      <tab type="user" visible="true" url="md_docs__contributing_1___compiling.html" title="Compiling" />
+      <tab type="user" visible="true" url="md_docs__contributing_2___general__information.html" title="General Information" />
+      <tab type="user" visible="true" url="md_docs__contributing_3___contributing__guidelines.html" title="Contributing Guidelines" />
+      <tab type="user" visible="true" url="md_docs__contributing_4___recommended__visual__studio__extensions.html" title="Recommended Visual Studio Extensions" />
+      <tab type="user" visible="true" url="md_docs__contributing_5___g_o_t_c_h_as.html" title="GOTCHAs" />
+      <tab type="usergroup" visible="yes" title="Plugin Development" url="[none]">
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_1___your__first__plugin.html" title="Your First Plugin" />
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_2___hook__list.html" title="Hook List" />
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_3___timers.html" title="Timers" />
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_4___commands____command__vectors.html" title="Commands and Command Vectors" />
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_5___s_q_l.html" title="SQL" />
+        <tab type="user" visible="true" url="md_docs__contributing__plugin__development_6___inter__plugin__communication___i_p_c_.html" title="Inter-Plugin-Communication (IPC)" />
+      </tab>
     </tab>
     <tab type="usergroup" visible="yes" title="API Documentation" intro="">
-        <tab type="modules" visible="yes" title="Plugins" intro="" />
-        <tab type="namespaces" visible="yes" title="">
-            <tab type="namespacelist" visible="yes" title="" intro="" />
-            <tab type="namespacemembers" visible="yes" title="" intro="" />
-        </tab>
-        <tab type="classes" visible="yes" title="">
-            <tab type="classlist" visible="yes" title="" intro="" />
-            <tab type="classindex" visible="$ALPHABETICAL_INDEX" title="" />
-            <tab type="hierarchy" visible="yes" title="" intro="" />
-            <tab type="classmembers" visible="yes" title="" intro="" />
-        </tab>
-        <tab type="files" visible="yes" title="">
-            <tab type="filelist" visible="yes" title="" intro="" />
-            <tab type="globals" visible="yes" title="" intro="" />
-        </tab>
-        <tab type="examples" visible="yes" title="" intro="" />
+      <tab type="modules" visible="yes" title="Plugins" intro="" />
+      <tab type="namespaces" visible="yes" title="">
+        <tab type="namespacelist" visible="yes" title="" intro="" />
+        <tab type="namespacemembers" visible="yes" title="" intro="" />
+      </tab>
+      <tab type="classes" visible="yes" title="">
+        <tab type="classlist" visible="yes" title="" intro="" />
+        <tab type="classindex" visible="$ALPHABETICAL_INDEX" title="" />
+        <tab type="hierarchy" visible="yes" title="" intro="" />
+        <tab type="classmembers" visible="yes" title="" intro="" />
+      </tab>
+      <tab type="files" visible="yes" title="">
+        <tab type="filelist" visible="yes" title="" intro="" />
+        <tab type="globals" visible="yes" title="" intro="" />
+      </tab>
+      <tab type="examples" visible="yes" title="" intro="" />
     </tab>
-</navindex>
+  </navindex>
 
   <!-- Layout definition for a class page -->
   <class>
-    <briefdescription visible="yes"/>
-    <includes visible="$SHOW_HEADERFILE"/>
-    <inheritancegraph visible="$CLASS_GRAPH"/>
-    <collaborationgraph visible="$COLLABORATION_GRAPH"/>
+    <briefdescription visible="yes" />
+    <includes visible="$SHOW_HEADERFILE" />
+    <inheritancegraph visible="$CLASS_GRAPH" />
+    <collaborationgraph visible="$COLLABORATION_GRAPH" />
     <memberdecl>
-      <nestedclasses visible="yes" title=""/>
-      <publictypes title=""/>
-      <services title=""/>
-      <interfaces title=""/>
-      <publicslots title=""/>
-      <signals title=""/>
-      <publicmethods title=""/>
-      <publicstaticmethods title=""/>
-      <publicattributes title=""/>
-      <publicstaticattributes title=""/>
-      <protectedtypes title=""/>
-      <protectedslots title=""/>
-      <protectedmethods title=""/>
-      <protectedstaticmethods title=""/>
-      <protectedattributes title=""/>
-      <protectedstaticattributes title=""/>
-      <packagetypes title=""/>
-      <packagemethods title=""/>
-      <packagestaticmethods title=""/>
-      <packageattributes title=""/>
-      <packagestaticattributes title=""/>
-      <properties title=""/>
-      <events title=""/>
-      <privatetypes title=""/>
-      <privateslots title=""/>
-      <privatemethods title=""/>
-      <privatestaticmethods title=""/>
-      <privateattributes title=""/>
-      <privatestaticattributes title=""/>
-      <friends title=""/>
-      <related title="" subtitle=""/>
-      <membergroups visible="yes"/>
+      <nestedclasses visible="yes" title="" />
+      <publictypes title="" />
+      <services title="" />
+      <interfaces title="" />
+      <publicslots title="" />
+      <signals title="" />
+      <publicmethods title="" />
+      <publicstaticmethods title="" />
+      <publicattributes title="" />
+      <publicstaticattributes title="" />
+      <protectedtypes title="" />
+      <protectedslots title="" />
+      <protectedmethods title="" />
+      <protectedstaticmethods title="" />
+      <protectedattributes title="" />
+      <protectedstaticattributes title="" />
+      <packagetypes title="" />
+      <packagemethods title="" />
+      <packagestaticmethods title="" />
+      <packageattributes title="" />
+      <packagestaticattributes title="" />
+      <properties title="" />
+      <events title="" />
+      <privatetypes title="" />
+      <privateslots title="" />
+      <privatemethods title="" />
+      <privatestaticmethods title="" />
+      <privateattributes title="" />
+      <privatestaticattributes title="" />
+      <friends title="" />
+      <related title="" subtitle="" />
+      <membergroups visible="yes" />
     </memberdecl>
-    <detaileddescription title=""/>
+    <detaileddescription title="" />
     <memberdef>
-      <inlineclasses title=""/>
-      <typedefs title=""/>
-      <enums title=""/>
-      <services title=""/>
-      <interfaces title=""/>
-      <constructors title=""/>
-      <functions title=""/>
-      <related title=""/>
-      <variables title=""/>
-      <properties title=""/>
-      <events title=""/>
+      <inlineclasses title="" />
+      <typedefs title="" />
+      <enums title="" />
+      <services title="" />
+      <interfaces title="" />
+      <constructors title="" />
+      <functions title="" />
+      <related title="" />
+      <variables title="" />
+      <properties title="" />
+      <events title="" />
     </memberdef>
-    <allmemberslink visible="yes"/>
-    <usedfiles visible="$SHOW_USED_FILES"/>
-    <authorsection visible="yes"/>
+    <allmemberslink visible="yes" />
+    <usedfiles visible="$SHOW_USED_FILES" />
+    <authorsection visible="yes" />
   </class>
 
   <!-- Layout definition for a namespace page -->
   <namespace>
-    <briefdescription visible="yes"/>
+    <briefdescription visible="yes" />
     <!--<memberdecl>
       <nestednamespaces visible="yes" title=""/>
       <constantgroups visible="yes" title=""/>
@@ -113,35 +125,35 @@
       <variables title=""/>
       <membergroups visible="yes"/>
     </memberdecl>-->
-    <detaileddescription title=""/>
+    <detaileddescription title="" />
     <memberdef>
-      <inlineclasses title=""/>
-      <typedefs title=""/>
-      <sequences title=""/>
-      <dictionaries title=""/>
-      <enums title=""/>
-      <functions title=""/>
-      <variables title=""/>
+      <inlineclasses title="" />
+      <typedefs title="" />
+      <sequences title="" />
+      <dictionaries title="" />
+      <enums title="" />
+      <functions title="" />
+      <variables title="" />
     </memberdef>
-    <authorsection visible="yes"/>
+    <authorsection visible="yes" />
   </namespace>
 
   <!-- Layout definition for a concept page -->
   <concept>
-    <briefdescription visible="yes"/>
-    <includes visible="$SHOW_HEADERFILE"/>
-    <definition visible="yes" title=""/>
-    <detaileddescription title=""/>
-    <authorsection visible="yes"/>
+    <briefdescription visible="yes" />
+    <includes visible="$SHOW_HEADERFILE" />
+    <definition visible="yes" title="" />
+    <detaileddescription title="" />
+    <authorsection visible="yes" />
   </concept>
 
   <!-- Layout definition for a file page -->
   <file>
-    <briefdescription visible="yes"/>
-    <includes visible="$SHOW_INCLUDE_FILES"/>
-    <includegraph visible="$INCLUDE_GRAPH"/>
-    <includedbygraph visible="$INCLUDED_BY_GRAPH"/>
-    <sourcelink visible="yes"/>
+    <briefdescription visible="yes" />
+    <includes visible="$SHOW_INCLUDE_FILES" />
+    <includegraph visible="$INCLUDE_GRAPH" />
+    <includedbygraph visible="$INCLUDED_BY_GRAPH" />
+    <sourcelink visible="yes" />
     <!--<memberdecl>
       <interfaces visible="yes" title=""/>
       <classes visible="yes" title=""/>
@@ -159,24 +171,24 @@
       <variables title=""/>
       <membergroups visible="yes"/>
     </memberdecl>-->
-    <detaileddescription title=""/>
+    <detaileddescription title="" />
     <memberdef>
-      <inlineclasses title=""/>
-      <defines title=""/>
-      <typedefs title=""/>
-      <sequences title=""/>
-      <dictionaries title=""/>
-      <enums title=""/>
-      <functions title=""/>
-      <variables title=""/>
+      <inlineclasses title="" />
+      <defines title="" />
+      <typedefs title="" />
+      <sequences title="" />
+      <dictionaries title="" />
+      <enums title="" />
+      <functions title="" />
+      <variables title="" />
     </memberdef>
-    <authorsection/>
+    <authorsection />
   </file>
 
   <!-- Layout definition for a group page -->
   <group>
-    <briefdescription visible="no"/>
-    <groupgraph visible="$GROUP_GRAPHS"/>
+    <briefdescription visible="no" />
+    <groupgraph visible="$GROUP_GRAPHS" />
     <!--<memberdecl>
       <nestedgroups visible="yes" title=""/>
       <dirs visible="yes" title=""/>
@@ -201,37 +213,37 @@
       <friends title=""/>
       <membergroups visible="yes"/>
     </memberdecl>-->
-    <detaileddescription title=""/>
+    <detaileddescription title="" />
     <memberdef>
-      <pagedocs/>
-      <inlineclasses title=""/>
-      <defines title=""/>
-      <typedefs title=""/>
-      <sequences title=""/>
-      <dictionaries title=""/>
-      <enums title=""/>
-      <enumvalues title=""/>
-      <functions title=""/>
-      <variables title=""/>
-      <signals title=""/>
-      <publicslots title=""/>
-      <protectedslots title=""/>
-      <privateslots title=""/>
-      <events title=""/>
-      <properties title=""/>
-      <friends title=""/>
+      <pagedocs />
+      <inlineclasses title="" />
+      <defines title="" />
+      <typedefs title="" />
+      <sequences title="" />
+      <dictionaries title="" />
+      <enums title="" />
+      <enumvalues title="" />
+      <functions title="" />
+      <variables title="" />
+      <signals title="" />
+      <publicslots title="" />
+      <protectedslots title="" />
+      <privateslots title="" />
+      <events title="" />
+      <properties title="" />
+      <friends title="" />
     </memberdef>
-    <authorsection visible="yes"/>
+    <authorsection visible="yes" />
   </group>
 
   <!-- Layout definition for a directory page -->
   <directory>
-    <briefdescription visible="yes"/>
-    <directorygraph visible="yes"/>
+    <briefdescription visible="yes" />
+    <directorygraph visible="yes" />
     <memberdecl>
-      <dirs visible="yes"/>
-      <files visible="yes"/>
+      <dirs visible="yes" />
+      <files visible="yes" />
     </memberdecl>
-    <detaileddescription title=""/>
+    <detaileddescription title="" />
   </directory>
 </doxygenlayout>
