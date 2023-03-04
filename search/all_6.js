@@ -53,6 +53,7 @@ var searchData=
   ['freereputationvibe_50',['FreeReputationVibe',['../namespace_i_engine_hook.html#af77d4c6923df03c897f4f9898a4f6f8f',1,'IEngineHook']]],
   ['freereputationvibehook_51',['FreeReputationVibeHook',['../_hk_cb_other_8cpp.html#ac0a612d0f0604c827e1cd71a4e44165f',1,'HkCbOther.cpp']]],
   ['fstatus_52',['fStatus',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#a4a7751a8f4cc0cbc33c897bdacd718cf',1,'Hk::Player::EQ_ITEM']]],
-  ['functionhookprops_53',['FunctionHookProps',['../struct_plugin_manager_1_1_function_hook_props.html',1,'PluginManager']]],
-  ['functions_2ecpp_54',['Functions.cpp',['../_functions_8cpp.html',1,'']]]
+  ['func_53',['func',['../_send_comm_8cpp.html#a5dd008171bc27e4f83dc5ab4f57b2dea',1,'SendComm.cpp']]],
+  ['functionhookprops_54',['FunctionHookProps',['../struct_plugin_manager_1_1_function_hook_props.html',1,'PluginManager']]],
+  ['functions_2ecpp_55',['Functions.cpp',['../_functions_8cpp.html',1,'']]]
 ];

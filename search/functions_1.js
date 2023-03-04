@@ -12,7 +12,7 @@ var searchData=
   ['addcash_9',['AddCash',['../namespace_hk_1_1_player.html#a799178f08dd948f8d8f326ea22d2483a',1,'Hk::Player']]],
   ['addcheaterlog_10',['AddCheaterLog',['../_logging_8cpp.html#affff21a95f9d48977885ae470819b153',1,'Logging.cpp']]],
   ['addconnectlog_11',['AddConnectLog',['../_logging_8cpp.html#ac7131b1626ee8a956768f2fa78eac162',1,'Logging.cpp']]],
-  ['adddamageentry_12',['AddDamageEntry',['../_hk_i_engine_damage_8cpp.html#a0a65e5b93a5dd617c9aafc21bd028e5a',1,'AddDamageEntry():&#160;HkIEngineDamage.cpp'],['../namespace_plugins_1_1_kill_tracker.html#a65e1bc5acd5ddcc3b344b675c35408c4',1,'Plugins::KillTracker::AddDamageEntry()']]],
+  ['adddamageentry_12',['AddDamageEntry',['../namespace_plugins_1_1_kill_tracker.html#a65e1bc5acd5ddcc3b344b675c35408c4',1,'Plugins::KillTracker::AddDamageEntry()'],['../_hk_i_engine_damage_8cpp.html#a0a65e5b93a5dd617c9aafc21bd028e5a',1,'AddDamageEntry():&#160;HkIEngineDamage.cpp']]],
   ['addequip_13',['AddEquip',['../namespace_hk_1_1_player.html#a55d7227dbf82e55408a3cfb1cbd7a31e',1,'Hk::Player::AddEquip(const std::variant&lt; uint, std::wstring &gt; &amp;player, uint iGoodId, const std::string &amp;scHardpoint)'],['../namespace_hk_1_1_player.html#acad649e27b965fd0235d3228ed68a0e3',1,'Hk::Player::AddEquip(const std::variant&lt; uint, std::wstring &gt; &amp;player, uint iGoodId, const std::string &amp;scHardpoint, bool bMounted)']]],
   ['addequiptocart_14',['AddEquipToCart',['../namespace_plugins_1_1_autobuy.html#ac7dc63d53ddacc60591bd2c13d47114b',1,'Plugins::Autobuy']]],
   ['addexceptioninfolog_15',['AddExceptionInfoLog',['../_exceptions_8cpp.html#af80e1ef54a71f1d30a41484f7536fb42',1,'AddExceptionInfoLog(SEHException *ex):&#160;Exceptions.cpp'],['../_exceptions_8cpp.html#a8608f7f659bc25e62bc13823cad7d97b',1,'AddExceptionInfoLog():&#160;Exceptions.cpp']]],
@@ -43,8 +43,7 @@ var searchData=
   ['admincmdtemplate_40',['AdminCmdTemplate',['../namespace_plugins_1_1_template.html#a45d9c6d869f990af3413215eec1e0756',1,'Plugins::Template']]],
   ['afterstartup_41',['AfterStartup',['../group___n_p_c_control.html#ga69a6565717378a41333e31966c16b626',1,'Plugins::Npc']]],
   ['aifollow_42',['AiFollow',['../namespace_plugins_1_1_npc.html#a6d8e9e8f29c027a4df47136d8ea19e5b',1,'Plugins::Npc']]],
-  ['allocate_43',['Allocate',['../class_memory_manager.html#af9053367b475e6e7c7da7941a2852fe6',1,'MemoryManager']]],
-  ['allowplayerdamage_44',['AllowPlayerDamage',['../_global_8hpp.html#adb025c4ab11d21b7c5dd162c93c1287f',1,'AllowPlayerDamage(ClientId client, ClientId clientTarget):&#160;HkIEngineDamage.cpp'],['../_hk_i_engine_damage_8cpp.html#adb025c4ab11d21b7c5dd162c93c1287f',1,'AllowPlayerDamage(ClientId client, ClientId clientTarget):&#160;HkIEngineDamage.cpp']]],
-  ['anticheat_45',['AntiCheat',['../namespace_hk_1_1_player.html#a6f2aa32e1bcee5aeee45cd080df2dc43',1,'Hk::Player']]],
-  ['autobuyinfo_46',['AutobuyInfo',['../class_plugins_1_1_autobuy_1_1_autobuy_info.html#aa1bd2ab69275485f04d950038296b5a5',1,'Plugins::Autobuy::AutobuyInfo']]]
+  ['allowplayerdamage_43',['AllowPlayerDamage',['../_global_8hpp.html#adb025c4ab11d21b7c5dd162c93c1287f',1,'AllowPlayerDamage(ClientId client, ClientId clientTarget):&#160;HkIEngineDamage.cpp'],['../_hk_i_engine_damage_8cpp.html#adb025c4ab11d21b7c5dd162c93c1287f',1,'AllowPlayerDamage(ClientId client, ClientId clientTarget):&#160;HkIEngineDamage.cpp']]],
+  ['anticheat_44',['AntiCheat',['../namespace_hk_1_1_player.html#a6f2aa32e1bcee5aeee45cd080df2dc43',1,'Hk::Player']]],
+  ['autobuyinfo_45',['AutobuyInfo',['../class_plugins_1_1_autobuy_1_1_autobuy_info.html#aa1bd2ab69275485f04d950038296b5a5',1,'Plugins::Autobuy::AutobuyInfo']]]
 ];

@@ -1,10 +1,10 @@
 <map id="source/Global.hpp" name="source/Global.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="3850,5,3989,31"/>
+<area shape="rect" id="node1" title=" " alt="" coords="3955,5,4094,31"/>
 <area shape="rect" id="node2" href="$_c_cmds_8cpp.html" title=" " alt="" coords="5,79,148,104"/>
 <area shape="rect" id="node3" href="$_lights_8cpp.html" title=" " alt="" coords="173,79,343,104"/>
 <area shape="rect" id="node4" href="$_debug_8cpp.html" title=" " alt="" coords="367,79,506,104"/>
 <area shape="rect" id="node5" href="$_exceptions_8cpp.html" title=" " alt="" coords="531,79,697,104"/>
-<area shape="rect" id="node6" href="$_f_l_hook_8cpp.html" title=" " alt="" coords="3507,152,3652,177"/>
+<area shape="rect" id="node6" href="$_f_l_hook_8cpp.html" title=" " alt="" coords="3628,152,3773,177"/>
 <area shape="rect" id="node7" href="$_error_8cpp.html" title=" " alt="" coords="773,79,959,104"/>
 <area shape="rect" id="node8" href="$_logging_8cpp.html" title=" " alt="" coords="984,79,1191,104"/>
 <area shape="rect" id="node9" href="$_mail_8cpp.html" title=" " alt="" coords="1215,79,1399,104"/>
@@ -30,13 +30,14 @@
 <area shape="rect" id="node29" href="$_hk_i_engine_death_8cpp.html" title=" " alt="" coords="5877,79,6079,104"/>
 <area shape="rect" id="node30" href="$_hk_i_engine_disconnect_8cpp.html" title=" " alt="" coords="6103,79,6338,104"/>
 <area shape="rect" id="node31" href="$_hk_init_8cpp.html" title=" " alt="" coords="6363,79,6497,104"/>
-<area shape="rect" id="node32" href="$_memory_manager_8hpp.html" title=" " alt="" coords="6521,79,6787,104"/>
-<area shape="rect" id="node35" href="$_settings_8cpp.html" title=" " alt="" coords="6811,79,6961,104"/>
-<area shape="rect" id="node36" href="$_tools_8cpp.html" title=" " alt="" coords="6985,79,7115,104"/>
-<area shape="rect" id="node37" href="$_console_8cpp.html" title=" " alt="" coords="7139,79,7324,104"/>
-<area shape="rect" id="node38" href="$_generate_certificate_8cpp.html" title=" " alt="" coords="7348,79,7608,104"/>
-<area shape="rect" id="node39" href="$_mqtt_8cpp.html" title=" " alt="" coords="7633,79,7795,104"/>
-<area shape="rect" id="node40" href="$flcodec_8cpp.html" title=" " alt="" coords="7820,79,7963,104"/>
-<area shape="rect" id="node33" href="$_memory_manager_8cpp.html" title=" " alt="" coords="6389,152,6653,177"/>
-<area shape="rect" id="node34" href="$_save_data_8cpp.html" title=" " alt="" coords="6677,152,6895,177"/>
+<area shape="rect" id="node32" href="$_send_comm_8cpp.html" title=" " alt="" coords="6522,79,6738,104"/>
+<area shape="rect" id="node33" href="$_memory_manager_8hpp.html" title=" " alt="" coords="6763,79,7028,104"/>
+<area shape="rect" id="node36" href="$_settings_8cpp.html" title=" " alt="" coords="7053,79,7202,104"/>
+<area shape="rect" id="node37" href="$_tools_8cpp.html" title=" " alt="" coords="7227,79,7356,104"/>
+<area shape="rect" id="node38" href="$_console_8cpp.html" title=" " alt="" coords="7380,79,7565,104"/>
+<area shape="rect" id="node39" href="$_generate_certificate_8cpp.html" title=" " alt="" coords="7589,79,7849,104"/>
+<area shape="rect" id="node40" href="$_mqtt_8cpp.html" title=" " alt="" coords="7874,79,8037,104"/>
+<area shape="rect" id="node41" href="$flcodec_8cpp.html" title=" " alt="" coords="8061,79,8204,104"/>
+<area shape="rect" id="node34" href="$_memory_manager_8cpp.html" title=" " alt="" coords="6630,152,6894,177"/>
+<area shape="rect" id="node35" href="$_save_data_8cpp.html" title=" " alt="" coords="6919,152,7136,177"/>
 </map>

@@ -147,13 +147,47 @@ $(document).ready(function(){initNavTree('_save_data_8cpp.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="_memory_manager_8hpp_source.html">MemoryManager.hpp</a>&quot;</code><br />
+<code>#include &lt;Tools/Detour.hpp&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for SaveData.cpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="_save_data_8cpp__incl.svg" width="228" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="_save_data_8cpp__incl.svg" width="326" height="256"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a07cff542d3140b0d50fe09c7dc559569" name="a07cff542d3140b0d50fe09c7dc559569"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07cff542d3140b0d50fe09c7dc559569">&#9670;&#160;</a></span>GetUserDataPathSig</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="_save_data_8cpp.html#a07cff542d3140b0d50fe09c7dc559569">GetUserDataPathSig</a> =  bool (*)(char*)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a1ecc4a86ef00fd8c8ca4f7bc5b76cefb" name="a1ecc4a86ef00fd8c8ca4f7bc5b76cefb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ecc4a86ef00fd8c8ca4f7bc5b76cefb">&#9670;&#160;</a></span>detour</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const auto detour</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    std::make_unique&lt;FunctionDetour&lt;GetUserDataPathSig&gt;&gt;(<a class="code hl_typedef" href="_save_data_8cpp.html#a07cff542d3140b0d50fe09c7dc559569">GetUserDataPathSig</a>(GetProcAddress(GetModuleHandle(<span class="stringliteral">&quot;common.dll&quot;</span>), <span class="stringliteral">&quot;?GetUserDataPath@@YA_NQAD@Z&quot;</span>)))</div>
+<div class="ttc" id="a_save_data_8cpp_html_a07cff542d3140b0d50fe09c7dc559569"><div class="ttname"><a href="_save_data_8cpp.html#a07cff542d3140b0d50fe09c7dc559569">GetUserDataPathSig</a></div><div class="ttdeci">bool(*)(char *) GetUserDataPathSig</div><div class="ttdef"><b>Definition:</b> SaveData.cpp:4</div></div>
+</div><!-- fragment -->
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

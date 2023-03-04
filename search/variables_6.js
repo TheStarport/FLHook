@@ -21,5 +21,6 @@ var searchData=
   ['fractionoverridesbyshipids_18',['FractionOverridesByShipIds',['../struct_plugins_1_1_death_penalty_1_1_global.html#a0df90860182967782c273f930e3039d9',1,'Plugins::DeathPenalty::Global']]],
   ['freeforalls_19',['freeForAlls',['../struct_plugins_1_1_betting_1_1_global.html#ae92a0a31b47118c64bc549f36088e9de',1,'Plugins::Betting::Global']]],
   ['freefunc_20',['freeFunc',['../struct_a_c_t_i_o_n___d_e_b_u_g_m_s_g___d_a_t_a.html#a03e9c2076f03cffb9b7c0d918c5f1715',1,'ACTION_DEBUGMSG_DATA']]],
-  ['fstatus_21',['fStatus',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#a4a7751a8f4cc0cbc33c897bdacd718cf',1,'Hk::Player::EQ_ITEM']]]
+  ['fstatus_21',['fStatus',['../struct_hk_1_1_player_1_1_e_q___i_t_e_m.html#a4a7751a8f4cc0cbc33c897bdacd718cf',1,'Hk::Player::EQ_ITEM']]],
+  ['func_22',['func',['../_send_comm_8cpp.html#a5dd008171bc27e4f83dc5ab4f57b2dea',1,'SendComm.cpp']]]
 ];

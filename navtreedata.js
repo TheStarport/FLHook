@@ -76,20 +76,20 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_admin_8cpp.html",
-"_f_l_hook_8cpp.html#a1e9a91aacc5e4435e5af90c8949daefa",
-"_hk_client_server_interface_8cpp.html#ac1f22a6a0ef5ccffef54f8f52e4fd67a",
-"_math_8cpp.html#a3d01e7aea16c48c88d9cd3cf6a1dfe08",
-"_solar_8cpp.html#a83116a298733f5140f9f7498f4e0da23",
-"dir_6157071b669ad76ae5c9652315b337ed.html",
-"group___mark.html#gaacd7aa91290036d76109638646018925",
-"namespace_hk_1_1_player.html#a3d2e0df05bd49af222135de918f80f81",
-"namespace_plugins_1_1_cash_manager.html#a438b436d7b834bdd4d93152fb9bb1c49",
-"namespacemembers_enum.html",
-"struct_plugins_1_1_anti_jump_disconnect_1_1_global_1_1_i_n_f_o.html",
-"struct_plugins_1_1_con_data_1_1_connection_data.html#a2693a7595dfc188362f82945872b24a3",
-"struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k.html#a5b19190b89d69646347632d4150824b5",
-"struct_plugins_1_1_npc_1_1_global.html",
-"struct_plugins_1_1_system_sensor_1_1_global.html#ac56bb650759302787301632ebfed1809"
+"_f_l_hook_8cpp.html#a164f305d709baa4c4e2a854c1c36ca82",
+"_hk_client_server_interface_8cpp.html#ab32b85c111a77eeea0c5d084edec6ac6",
+"_mark_8h.html#ae091ed930683a75d54d3ad6fb76be0a5",
+"_send_comm_8cpp.html#a2cf048d2b86c6a995233555ffd847b18",
+"class_plugins_1_1_message_1_1_client_info.html#af7b9991b7e3b2054b420bfe21d2e3c1a",
+"group___i_p_ban.html#gaaccbc2f281e87d0f61410f7dc4b4771f",
+"namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f",
+"namespace_plugins_1_1_betting.html",
+"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b",
+"struct_plugin_hook_data.html#ad5350a59688e57ea7853c8d238f4579e",
+"struct_plugins_1_1_con_data_1_1_config.html#a2c10d807f0603d397dad40c704fd6e7a",
+"struct_plugins_1_1_light_control_1_1_global.html",
+"struct_plugins_1_1_npc_1_1_config.html",
+"struct_plugins_1_1_system_sensor_1_1_active_network.html#a383c8f5a596b1cb19fe67e4b27b9429e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
