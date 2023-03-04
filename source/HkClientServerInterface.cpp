@@ -2,6 +2,8 @@
 #include "Features/Mail.hpp"
 #include "Features/TempBan.hpp"
 
+#include <random>
+
 void IClientImpl__Startup__Inner(uint, uint)
 {
 	// load the universe directly before the server becomes internet accessible
@@ -438,6 +440,21 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			ProcessEvent(L"login char={} accountdirname={} id={} ip={}", charName.c_str(), dir.c_str(), client, pi.value().wscIP.c_str());
 
 			MailManager::i()->SendMailNotification(client);
+
+			// Assign their random formation id.
+			// Numbers are between 0-20 (inclusive)
+			// Formations are between 1-29 (inclusive)
+			std::random_device dev;
+			std::mt19937 rng(dev());
+			std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
+			const auto* conf = FLHookConfig::c();
+			std::uniform_int_distribution<std::mt19937::result_type> distForm(0, conf->callsign.allowedFormations.size() - 1);
+
+			auto& ci = ClientInfo[client];
+
+			ci.formationNumber1 = distNum(rng);
+			ci.formationNumber2 = distNum(rng);
+			ci.formationTag = conf->callsign.allowedFormations[distForm(rng)];
 		}
 	}
 	CATCH_HOOK({})

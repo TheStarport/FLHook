@@ -275,12 +275,25 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::vector<std::wstring> banWildcardsAndIPs;
 	};
 
+	struct Callsign final : Reflectable
+	{
+		//! The mapping of numbers to formations. 1, min = Alpha. 29, max = Yanagi
+		std::vector<int> allowedFormations = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+		
+		//! If true, formations and numbers will not be assigned to ships. All ships will be alpha 1-1.
+		bool disableRandomisedFormations = false;
+
+		//! If true, NPCs will refer to all players as freelancer
+		bool disableUsingAffiliationForCallsign = false;
+	};
+
 	General general;
 	Plugins plugins;
 	Socket socket;
 	UserCommands userCommands;
 	Bans bans;
 	Message messages;
+	Callsign callsign;
 };
 
 // Use the class to create and send packets of inconstant size.

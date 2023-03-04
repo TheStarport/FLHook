@@ -112,7 +112,11 @@ struct CLIENT_INFO
 
 	bool bSpawnProtected;
 	bool bUseServersideHitDetection; // used by AC Plugin
-	std::map<PluginInfo*, std::array<uchar, 40>> mapPluginData;
+
+	// Your randomly assigned formation tag, e.g. Navy Lambda 1-6
+	uint formationNumber1;
+	uint formationNumber2;
+	uint formationTag;
 };
 
 // taken from directplay
