@@ -69,13 +69,6 @@ namespace Plugins::Template
 		return;
 	}
 
-
-	// This is called when an admin does .help
-	void CmdHelp(CCmds* command)
-	{
-		command->Print("template <number>");
-	}
-
 	// Admin command callback. Compare the chat entry to see if it match a command
 	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
 	{
@@ -85,20 +78,20 @@ namespace Plugins::Template
 		}
 		else
 		{
-			return false;	
+			return false;
 		}
 
 		global->returnCode = ReturnCode::SkipAll;
 		return true;
 	}
 
-}
+} // namespace Plugins::Template
 
 using namespace Plugins::Template;
 
 REFL_AUTO(type(Config), field(overrideUserNumber));
 
-DefaultDllMainSettings(LoadSettings)
+DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -113,5 +106,4 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
-	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Help, &CmdHelp);
 }
