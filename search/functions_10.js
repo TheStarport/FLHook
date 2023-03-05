@@ -15,7 +15,7 @@ var searchData=
   ['pluginmanager_12',['PluginManager',['../class_plugin_manager.html#a25f1e568d8d923e4d2a4f777516b4be5',1,'PluginManager']]],
   ['popupdialog_13',['PopupDialog',['../namespace_i_server_impl_hook.html#a6ad038e5d68525a33a5076b404203dd4',1,'IServerImplHook']]],
   ['printbountyhunts_14',['PrintBountyHunts',['../group___bounty_hunt.html#ga8075e07e25b5820faa014a4dafd892cf',1,'Plugins::BountyHunt']]],
-  ['printlocalusercmdtext_15',['PrintLocalUserCmdText',['../source_2_features_2_user_commands_8cpp.html#a9e0e9bd665000677151239b4741a2e4f',1,'UserCommands.cpp']]],
+  ['printlocalusercmdtext_15',['PrintLocalUserCmdText',['../source_2_features_2_user_commands_8cpp.html#a0acdf928129732328a6a345189badd41',1,'UserCommands.cpp']]],
   ['printnpckills_16',['PrintNPCKills',['../namespace_plugins_1_1_kill_tracker.html#ae5092925cee194b6ffae856c6345c657',1,'Plugins::KillTracker']]],
   ['printusercmdtext_17',['PrintUserCmdText',['../source_2_features_2_user_commands_8cpp.html#af456585aa880bf160c006f09850cc5ed',1,'UserCommands.cpp']]],
   ['processduel_18',['ProcessDuel',['../group___betting.html#ga506503cb26099bcd23f4a836ef321985',1,'Plugins::Betting']]],

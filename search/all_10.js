@@ -78,7 +78,7 @@ var searchData=
   ['print_5ferror_75',['PRINT_ERROR',['../source_2_features_2_user_commands_8cpp.html#a5d130408972394bd218e70302644953e',1,'PRINT_ERROR():&#160;UserCommands.cpp'],['../_condata_8cpp.html#a5d130408972394bd218e70302644953e',1,'PRINT_ERROR():&#160;Condata.cpp'],['../_mark_8h.html#a5d130408972394bd218e70302644953e',1,'PRINT_ERROR():&#160;Mark.h']]],
   ['print_5fok_76',['PRINT_OK',['../_condata_8cpp.html#a7bf866f39339afd11e8c1e6a1aafcbb9',1,'PRINT_OK():&#160;Condata.cpp'],['../source_2_features_2_user_commands_8cpp.html#a7bf866f39339afd11e8c1e6a1aafcbb9',1,'PRINT_OK():&#160;UserCommands.cpp']]],
   ['printbountyhunts_77',['PrintBountyHunts',['../group___bounty_hunt.html#ga8075e07e25b5820faa014a4dafd892cf',1,'Plugins::BountyHunt']]],
-  ['printlocalusercmdtext_78',['PrintLocalUserCmdText',['../source_2_features_2_user_commands_8cpp.html#a9e0e9bd665000677151239b4741a2e4f',1,'UserCommands.cpp']]],
+  ['printlocalusercmdtext_78',['PrintLocalUserCmdText',['../source_2_features_2_user_commands_8cpp.html#a0acdf928129732328a6a345189badd41',1,'UserCommands.cpp']]],
   ['printnpckills_79',['PrintNPCKills',['../namespace_plugins_1_1_kill_tracker.html#ae5092925cee194b6ffae856c6345c657',1,'Plugins::KillTracker']]],
   ['printusercmdtext_80',['PrintUserCmdText',['../source_2_features_2_user_commands_8cpp.html#af456585aa880bf160c006f09850cc5ed',1,'UserCommands.cpp']]],
   ['priority_81',['priority',['../struct_plugin_hook_data.html#a6ead47185044d07925c0523ec4b0cc14',1,'PluginHookData']]],

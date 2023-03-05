@@ -1,6 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"namespace_plugins_1_1_betting.html":[2,1,0,4,4],
 "namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15],
 "namespace_plugins_1_1_betting.html#ac0de85a4c73d3d5ab79e6a0e24fea158":[2,1,0,4,4,16],
 "namespace_plugins_1_1_bounty_hunt.html":[2,1,0,4,5],
@@ -120,11 +119,11 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_mark.html#adde9a9dea308846f281fe4a2b062c00a":[2,1,0,4,15,15],
 "namespace_plugins_1_1_mark.html#ae091ed930683a75d54d3ad6fb76be0a5":[2,1,0,4,15,23],
 "namespace_plugins_1_1_message.html":[2,1,0,4,16],
-"namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6":[2,1,0,4,16,40],
-"namespace_plugins_1_1_message.html#a7294e24d18f17d58fb523bc4225d5941":[2,1,0,4,16,39],
-"namespace_plugins_1_1_message.html#a89713dae136c372a9d18d138e5ce7986":[2,1,0,4,16,41],
+"namespace_plugins_1_1_message.html#a3ab474de404b207b564667bf7cf77be6":[2,1,0,4,16,39],
+"namespace_plugins_1_1_message.html#a7294e24d18f17d58fb523bc4225d5941":[2,1,0,4,16,38],
+"namespace_plugins_1_1_message.html#a89713dae136c372a9d18d138e5ce7986":[2,1,0,4,16,40],
 "namespace_plugins_1_1_message.html#af1f4e1d8ea38733e997b5eed9ec26a08":[2,1,0,4,16,6],
-"namespace_plugins_1_1_message.html#afb65d0c9431eb715739ee2dca350781a":[2,1,0,4,16,38],
+"namespace_plugins_1_1_message.html#afb65d0c9431eb715739ee2dca350781a":[2,1,0,4,16,37],
 "namespace_plugins_1_1_mining_control.html":[2,1,0,4,17],
 "namespace_plugins_1_1_mining_control.html#a270882519d64c2850dadbacf8aaf7adc":[2,1,0,4,17,14],
 "namespace_plugins_1_1_mining_control.html#ae3adb1688f1b4adb5908d34ad14bc39c":[2,1,0,4,17,15],
@@ -249,5 +248,6 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_warehouse.html#a628e4be31b4fe64317192772998221ec":[2,1,0,4,30,4],
 "namespace_plugins_1_1_warehouse.html#a62c83b43e96c70502d39e6cf6ef3b7a7":[2,1,0,4,30,5],
 "namespace_plugins_1_1_warehouse.html#a6b9304cd83e1ffc2cb7595293a031bb4":[2,1,0,4,30,13],
-"namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6":[2,1,0,4,30,17]
+"namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6":[2,1,0,4,30,17],
+"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b":[2,1,0,4,30,15]
 };
