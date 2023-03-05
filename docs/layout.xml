@@ -5,7 +5,7 @@
     <tab type="mainpage" visible="yes" title="" />
     <tab type="usergroup" visible="yes" title="General Usage" url="[none]">
       <tab type="user" visible="true" url="md_docs__general__usage_1___installation.html" title="Installation" />
-      <tab type="user" visible="true" url="md_docs__general__usage_2___support.html" title="Logging" />
+      <tab type="user" visible="true" url="md_docs__general__usage_2___support.html" title="Support" />
       <tab type="user" visible="true" url="md_docs__general__usage_3___plugins___logs____configs.html" title="Plugins, Logs, and Configs" />
       <tab type="user" visible="true" url="md_docs__general__usage_4___admin____user__commands.html" title="Admin and User Commands" />
       <tab type="user" visible="true" url="md_docs__general__usage_5___logging.html" title="Logging" />
