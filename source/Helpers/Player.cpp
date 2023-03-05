@@ -293,15 +293,16 @@ namespace Hk::Player
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
+		// check if ship in space
+		uint ship = 0;
+		pub::Player::GetShip(client, ship);
+		if (!ship)
+			return cpp::fail(Error::PlayerNotInSpace);
+
 		// if basename was passed as string
 		if (baseVar.index() == 1)
 		{
 			const std::string baseName = wstos(std::get<std::wstring>(baseVar));
-			// check if ship in space
-			uint ship = 0;
-			pub::Player::GetShip(client, ship);
-			if (!ship)
-				return cpp::fail(Error::PlayerNotInSpace);
 
 			// get base id
 			if (pub::GetBaseID(baseId, baseName.c_str()) == -4)
