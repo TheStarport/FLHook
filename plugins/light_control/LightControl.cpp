@@ -281,6 +281,13 @@ namespace Plugins::LightControl
 			}
 
 			const auto lightId = CreateID(wstos(selectedLight).c_str());
+			if (std::ranges::find(global->config->lightsHashed, lightId) == global->config->lightsHashed.end())
+			{
+				PrintUserCmdText(client, std::format(L"ERR: {} is not a valid option", selectedLight));
+				return;
+			}
+
+
 			const auto& selectedLightEquipDesc = lights[hardPointId];
 
 			const auto light = std::find_if(
