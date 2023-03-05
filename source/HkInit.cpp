@@ -354,6 +354,10 @@ bool InitHookExports()
 		ClearClientInfo(i);
 	}
 
+	// Fix Refire bug
+	std::array<byte, 22> refireBytes = {0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
+	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
+
 	return true;
 }
 
@@ -418,6 +422,10 @@ void UnloadHookExports()
 
 	// plugins
 	PluginManager::i()->unloadAll();
+
+	// Undo refire bug
+	std::array<byte, 22> refireBytes = {0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0};
+	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 }
 
 /**************************************************************************************************************
