@@ -108,13 +108,13 @@ namespace Plugins::Betting
 
 		// Check the player can afford it
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-		uint cash = 0;
-		if (const auto err = Hk::Player::GetCash(client); err.has_error())
+		const auto cash = Hk::Player::GetCash(client);
+		if (cash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
-		if (amount > 0 && cash < amount)
+		if (amount > 0 && cash.value() < amount)
 		{
 			PrintUserCmdText(client, L"You don't have enough credits to create this FFA.");
 			return;
@@ -279,19 +279,18 @@ namespace Plugins::Betting
 	void UserCmdDuel(ClientId& client, const std::wstring& param)
 	{
 		// Get the object the player is targetting
-		uint ship = Hk::Player::GetShip(client).value();
-		uint targetShip = Hk::Player::GetTarget(ship).value();
-		if (!targetShip)
+		const auto targetShip = Hk::Player::GetTarget(client);
+		if (targetShip.has_error())
 		{
-			PrintUserCmdText(client, L"Target is not a ship.");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(targetShip.error()));
 			return;
 		}
 
 		// Check ship is a player
-		const auto clientTarget = Hk::Client::GetClientIdByShip(targetShip);
-		if (!clientTarget.value())
+		const auto clientTarget = Hk::Client::GetClientIdByShip(targetShip.value());
+		if (clientTarget.has_error())
 		{
-			PrintUserCmdText(client, L"Target is not a player.");
+			PrintUserCmdText(client, Hk::Err::ErrGetText(clientTarget.error()));
 			return;
 		}
 
@@ -310,13 +309,13 @@ namespace Plugins::Betting
 		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Check the player can afford it
-		uint uCash = 0;
-		if (const auto err = Hk::Player::GetCash(client); err.has_error())
+		auto const cash = Hk::Player::GetCash(client);
+		if (cash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
+			PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
-		if (amount > 0 && uCash < amount)
+		if (amount > 0 && cash.value() < amount)
 		{
 			PrintUserCmdText(client, L"You don't have enough credits to issue this challenge.");
 			return;
