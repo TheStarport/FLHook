@@ -18,7 +18,6 @@
  *     "cannotPay": "This rogue isn't interested in money. Run for cover, they want to kill you!",
  *     "customColor": 9498256,
  *     "customFormat": 144,
- *     "excludedSystems": ["li01", "ku02"],
  *     "huntingMessage": "You are being hunted by %s. Run for cover, they want to kill you!",
  *     "huntingMessageOriginator": "Good luck hunting %s !",
  *     "killDisconnectingPlayers": true,
@@ -48,8 +47,9 @@ namespace Plugins::Tax
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
 	{
+		const auto& noPvpSystems = FLHookConfig::c()->general.noPVPSystemsHashed;
 		// no-pvp check
-		if (SystemId system = Hk::Player::GetSystem(client).value(); std::ranges::find(global->excludedsystemsIds, system) == global->excludedsystemsIds.end())
+		if (SystemId system = Hk::Player::GetSystem(client).value(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
 		{
 			PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
 			return;
@@ -221,11 +221,6 @@ namespace Plugins::Tax
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-
-		for (auto const& system : config.excludedSystems)
-		{
-			global->excludedsystemsIds.push_back(CreateID(system.c_str()));
-		}
 	}
 
 	// Client command processing
@@ -241,7 +236,7 @@ namespace Plugins::Tax
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Tax;
 
-REFL_AUTO(type(Config), field(excludedSystems), field(minplaytimeSec, AttrMin {0u}), field(maxTax, AttrMin {0u}), field(customColor), field(customFormat),
+REFL_AUTO(type(Config), field(minplaytimeSec, AttrMin {0u}), field(maxTax, AttrMin {0u}), field(customColor), field(customFormat),
     field(taxRequestReceived, AttrNotEmpty<std::wstring> {}), field(huntingMessage, AttrNotEmpty<std::wstring> {}),
     field(huntingMessageOriginator, AttrNotEmpty<std::wstring> {}), field(cannotPay, AttrNotEmpty<std::wstring> {}), field(killDisconnectingPlayers))
 

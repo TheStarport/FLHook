@@ -23,8 +23,6 @@ namespace Plugins::Tax
 		std::string File() override { return "config/tax.json"; }
 
 		// Reflectable fields
-		//! Systems where demands cannot be made.
-		std::vector<std::string> excludedSystems = {};
 		//! Minimal playtime in seconds required for a character to be a valid demand target.
 		int minplaytimeSec = 0;
 		//! Maximum amount of credits a player can demand from another.
