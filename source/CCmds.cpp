@@ -844,6 +844,12 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 
 	try
 	{
+		if (Hk::Player::GetCurrentBase(player).has_value())
+		{
+			Print("Err: Target is currently in a base and unable to be beamed");
+			return;
+		}
+
 		if (Trim(targetBaseName).empty())
 		{
 			PrintError(Error::InvalidBaseName);
