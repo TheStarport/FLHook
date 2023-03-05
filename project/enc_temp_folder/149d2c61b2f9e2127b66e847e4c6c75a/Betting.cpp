@@ -111,7 +111,7 @@ namespace Plugins::Betting
 		const auto cash = Hk::Player::GetCash(client);
 		if (cash.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
+			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 		if (amount > 0 && cash.value() < amount)
@@ -193,13 +193,13 @@ namespace Plugins::Betting
 			std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 			// Check the player can afford it
-			const auto cash = Hk::Player::GetCash(client);
-			if (cash.has_error())
+			uint cash = 0;
+			if (const auto err = Hk::Player::GetCash(client); err.has_error())
 			{
-				PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
+				PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
-			if (global->freeForAlls[systemId].entryAmount > 0 && cash.value() < global->freeForAlls[systemId].entryAmount)
+			if (global->freeForAlls[systemId].entryAmount > 0 && cash < global->freeForAlls[systemId].entryAmount)
 			{
 				PrintUserCmdText(client, L"You don't have enough credits to join this FFA.");
 				return;
@@ -378,14 +378,14 @@ namespace Plugins::Betting
 
 				// Check the player can afford it
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-				const auto cash = Hk::Player::GetCash(client);
-				if (cash.has_error())
+				uint cash = 0;
+				if (const auto err = Hk::Player::GetCash(client); err.has_error())
 				{
-					PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
+					PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(err.error()));
 					return;
 				}
 
-				if (cash.value() < duel.amount)
+				if (cash < duel.amount)
 				{
 					PrintUserCmdText(client, L"You don't have enough credits to accept this challenge");
 					return;
