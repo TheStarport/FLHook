@@ -291,13 +291,14 @@ namespace Hk::Player
 
 		// check if logged in
 		if (client == UINT_MAX)
+		{
 			return cpp::fail(Error::PlayerNotLoggedIn);
-
+		}
 		// check if ship in space
-		uint ship = 0;
-		pub::Player::GetShip(client, ship);
-		if (!ship)
-			return cpp::fail(Error::PlayerNotInSpace);
+		if (const auto ship = Hk::Player::GetShip(client); ship.has_error())
+		{
+			return cpp::fail(ship.error());
+		}
 
 		// if basename was passed as string
 		if (baseVar.index() == 1)
@@ -338,8 +339,9 @@ namespace Hk::Player
 			Server.BaseExit(baseId, client);
 			auto fileName = Client::GetCharFileName(client);
 			if (fileName.has_error())
+			{
 				return cpp::fail(fileName.error());
-
+			}
 			const std::wstring newFile = fileName.value() + L".fl";
 			CHARACTER_ID cId;
 			strcpy_s(cId.szCharFilename, wstos(newFile.substr(0, 14)).c_str());
