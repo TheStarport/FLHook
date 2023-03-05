@@ -287,7 +287,6 @@ namespace Plugins::LightControl
 				return;
 			}
 
-
 			const auto& selectedLightEquipDesc = lights[hardPointId];
 
 			const auto light = std::find_if(
