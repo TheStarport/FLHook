@@ -27,8 +27,7 @@ var searchData=
   ['example2_24',['example2',['../struct_plugins_1_1_event_1_1_config.html#a5d321d2488a3794c5327596b3ee3cda4',1,'Plugins::Event::Config']]],
   ['exception_25',['exception',['../struct_plugins_1_1_con_data_1_1_connection_data.html#a6530de1a6f395ca0b1497b8f24c088c3',1,'Plugins::ConData::ConnectionData']]],
   ['exceptionreason_26',['exceptionReason',['../struct_plugins_1_1_con_data_1_1_connection_data.html#ad0b35033119b53a9d8f707d8614076fe',1,'Plugins::ConData::ConnectionData']]],
-  ['excludedsystems_27',['excludedSystems',['../struct_plugins_1_1_tax_1_1_config.html#ac595960c32e388cf27ba164105b32465',1,'Plugins::Tax::Config']]],
-  ['excludedsystems_28',['ExcludedSystems',['../struct_plugins_1_1_death_penalty_1_1_config.html#ae94fea4ce271061e90bff037674a5826',1,'Plugins::DeathPenalty::Config']]],
-  ['excludedsystemsids_29',['excludedsystemsIds',['../struct_plugins_1_1_tax_1_1_global.html#ac2ba804a1ca3f44ac845981d0d6819b2',1,'Plugins::Tax::Global']]],
-  ['excludedsystemsids_30',['ExcludedSystemsIds',['../struct_plugins_1_1_death_penalty_1_1_global.html#affbc95fa5a4f38d8bc8d262d33ede885',1,'Plugins::DeathPenalty::Global']]]
+  ['excludedsystems_27',['ExcludedSystems',['../struct_plugins_1_1_death_penalty_1_1_config.html#ae94fea4ce271061e90bff037674a5826',1,'Plugins::DeathPenalty::Config']]],
+  ['excludedsystemsids_28',['excludedsystemsIds',['../struct_plugins_1_1_tax_1_1_global.html#ac2ba804a1ca3f44ac845981d0d6819b2',1,'Plugins::Tax::Global']]],
+  ['excludedsystemsids_29',['ExcludedSystemsIds',['../struct_plugins_1_1_death_penalty_1_1_global.html#affbc95fa5a4f38d8bc8d262d33ede885',1,'Plugins::DeathPenalty::Global']]]
 ];

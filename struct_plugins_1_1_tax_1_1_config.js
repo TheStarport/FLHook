@@ -4,7 +4,6 @@ var struct_plugins_1_1_tax_1_1_config =
     [ "cannotPay", "struct_plugins_1_1_tax_1_1_config.html#abb84b89b7f03e191eda9ae5b4364a123", null ],
     [ "customColor", "struct_plugins_1_1_tax_1_1_config.html#a12da2fb9f7e1a5f2817af2e46295d3e6", null ],
     [ "customFormat", "struct_plugins_1_1_tax_1_1_config.html#a7c725051c2940c7267e60b2d5a875b26", null ],
-    [ "excludedSystems", "struct_plugins_1_1_tax_1_1_config.html#ac595960c32e388cf27ba164105b32465", null ],
     [ "huntingMessage", "struct_plugins_1_1_tax_1_1_config.html#a610c70e582107e3412ea3b1f414df43d", null ],
     [ "huntingMessageOriginator", "struct_plugins_1_1_tax_1_1_config.html#a4a1e60313281044315599c0243f12000", null ],
     [ "killDisconnectingPlayers", "struct_plugins_1_1_tax_1_1_config.html#adca115f720db8fb97d80700a5676f008", null ],
