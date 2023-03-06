@@ -225,8 +225,8 @@ namespace Plugins::Tax
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/tax", L"", UserCmdTax, L""),
-	    CreateUserCommand(L"/pay", L"", UserCmdPay, L""),
+	    CreateUserCommand(L"/tax", L"<amount>", UserCmdTax, L"Demand listed amount from your current target."),
+	    CreateUserCommand(L"/pay", L"", UserCmdPay, L"Pays a tax request that has been issued to you."),
 	}};
 
 } // namespace Plugins::Tax

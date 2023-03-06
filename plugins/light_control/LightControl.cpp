@@ -340,8 +340,8 @@ namespace Plugins::LightControl
 		else
 		{
 			PrintUserCmdText(client,
-			    L"Usage: /lights show \n"
-			    L"Usage: /lights options [page number] \n"
+			    L"Usage: /lights show\n"
+			    L"Usage: /lights options [page number]\n"
 			    L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0)
 			{

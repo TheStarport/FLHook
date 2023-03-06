@@ -46,8 +46,8 @@ namespace Plugins::Arena
 	void UserCmd_Conn(ClientId& client, const std::wstring& param);
 	void UserCmd_Return(ClientId& client, const std::wstring& param);
 	const std::vector commands = {{
-	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L""),
-	    CreateUserCommand(L"/return", L"", UserCmd_Return, L""),
+	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L"Sends you to the designated arena system."),
+	    CreateUserCommand(L"/return", L"", UserCmd_Return, L"Returns you to your last docked base."),
 	}};
 
 	/// Load the configuration
