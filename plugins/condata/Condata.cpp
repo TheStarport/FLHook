@@ -392,7 +392,7 @@ namespace Plugins::ConData
 	}
 
 	const std::vector commands = {{
-	    CreateUserCommand(L"/ping", L"", UserCmdPing, L" Gets the ping of your current target, if you have no player as a target it will return your ping."),
+	    CreateUserCommand(L"/ping", L"", UserCmdPing, L"Gets the ping of your current target, if you have no player as a target it will return your ping."),
 	}};
 
 	/** @ingroup Condata
