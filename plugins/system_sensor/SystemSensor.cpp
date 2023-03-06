@@ -284,9 +284,9 @@ namespace Plugins::SystemSensor
 	}
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/showscan", L"", UserCmd_ShowScan, L""),
-	    CreateUserCommand(L"/showscan$", L"", UserCmd_ShowScanID, L""),
-	    CreateUserCommand(L"/net", L"", UserCmd_Net, L""),
+	    CreateUserCommand(L"/showscan", L"<name>", UserCmd_ShowScan, L"Shows equipment and cargo carried by the specified player."),
+	    CreateUserCommand(L"/showscan$", L"<playerID>", UserCmd_ShowScanID, L"Same as /showscan, but using player ID as paramenter, useful for to type difficult names"),
+	    CreateUserCommand(L"/net", L"<all/jumponly/off>", UserCmd_Net, L"Toggles your scanner between off, jump gates only, and both tradelanes and jump gates"),
 	}};
 } // namespace Plugins::SystemSensor
 

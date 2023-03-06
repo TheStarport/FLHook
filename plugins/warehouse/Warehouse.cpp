@@ -227,10 +227,10 @@ namespace Plugins::Warehouse
 		if (cmd.empty())
 		{
 			PrintUserCmdText(client,
-			    L"Usage: /warehouse store <itemId> <count> \n"
-			    L"Usage: /warehouse list. \n"
-			    L"Usage: /warehouse withdraw <itemId> <count> \n"
-			    L"Usage: /warehouse liststored \n");
+			    L"Usage: /warehouse store <itemId> <count> : Stores the item number from /warehouse list and the count if it is a stackable item such as goods.\n"
+			    L"Usage: /warehouse list :Lists any cargo or unmounted equipment that you may store in this base's warehouse.\n"
+			    L"Usage: /warehouse withdraw <itemId> <count> : Withdraws the item number listed from /warehouse liststored and the amount and places it in your cargo.\n"
+			    L"Usage: /warehouse liststored\n : Lists the stored items you have in this base's warehouse. ");
 			return;
 		}
 

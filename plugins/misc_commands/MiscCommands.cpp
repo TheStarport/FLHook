@@ -15,6 +15,7 @@
  * - droprep - Lowers the reputation of the current faction you are affiliated with.
  * - coin - Toss a coin and print the result in local chat.
  * - dice [sides] - Tosses a dice with the specified number of sides, defaulting to 6.
+ * - value - Prints the total value of your ship.
  *
  * @paragraph adminCmds Admin Commands
  * All commands are prefixed with '.' unless explicitly specified.
@@ -278,14 +279,14 @@ namespace Plugins::MiscCommands
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/togglelights", L"", UserCmdLights, L""),
-	    CreateUserCommand(L"/shields", L"", UserCmdShields, L""),
-	    CreateUserCommand(L"/pos", L"", UserCmdPos, L""),
-	    CreateUserCommand(L"/stuck", L"", UserCmdStuck, L""),
-	    CreateUserCommand(L"/droprep", L"", UserCmdDropRep, L""),
-	    CreateUserCommand(L"/dice", L"", UserCmdDice, L""),
-	    CreateUserCommand(L"/coin", L"", UserCmdCoin, L""),
-	    CreateUserCommand(L"/value", L"", UserCmdValue, L""),
+	    CreateUserCommand(L"/togglelights", L"", UserCmdLights, L"Activate optional ship lights"),
+	    CreateUserCommand(L"/shields", L"", UserCmdShields, L"Toggles your shields on or off."),
+	    CreateUserCommand(L"/pos", L"", UserCmdPos, L"Prints the current absolute position of your ship."),
+	    CreateUserCommand(L"/stuck", L"", UserCmdStuck, L"Nudges your ship 10m away from where they currently are while stationary."),
+	    CreateUserCommand(L"/droprep", L"", UserCmdDropRep, L"Lowers your reputation of the current faction you are affiliated with"),
+	    CreateUserCommand(L"/dice", L"[Sides]", UserCmdDice, L"Tosses a dice with the specified number of sides, defaulting to 6."),
+	    CreateUserCommand(L"/coin", L"", UserCmdCoin, L"Toss a coin and print the result in local chat."),
+	    CreateUserCommand(L"/value", L"", UserCmdValue, L"Prints the total value of your ship."),
 	}};
 
 	/** @} */ // End of user commands
