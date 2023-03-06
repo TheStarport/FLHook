@@ -31,7 +31,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 	{
 		// Split text into two strings, one from the beginning to the character before newLineChar, and one after newLineChar till the end.
 		// It will then recursively call itself for each new line char until the original text is all displayed.
-		PrintUserCmdText(client, text.substr(0, newLineChar - 1));
+		PrintUserCmdText(client, text.substr(0, newLineChar));
 		PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
 	}
 }
