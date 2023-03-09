@@ -646,6 +646,61 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	}
 }
 
+void UserCmdGiveCash(ClientId& client, const std::wstring& param)
+{
+	const auto targetPlayer = Hk::Client::GetClientIdFromCharName(GetParam(param, ' ', 0));
+	const auto cash = MultiplyUIntBySuffix(GetParam(param, ' ', 1));
+	const auto clientCash = Hk::Player::GetCash(client);
+
+	if (client == targetPlayer.value())
+	{
+		PrintUserCmdText(client, L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
+		return;
+	}
+
+	if (targetPlayer.has_error())
+	{
+		PrintUserCmdText(client, Hk::Err::ErrGetText(targetPlayer.error()));
+		return;
+	}
+
+	if (clientCash.has_error())
+	{
+		PrintUserCmdText(client, Hk::Err::ErrGetText(clientCash.error()));
+		return;
+	}
+
+	if (cash == 0)
+	{
+		PrintUserCmdText(client, std::format(L"Err: Invalid cash amount."));
+		return;
+	}
+
+	if (clientCash.value() < cash)
+	{
+		PrintUserCmdText(client, std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash.value(), cash));
+		return;
+	}
+
+	const auto removal = Hk::Player::RemoveCash(client, cash);
+	const auto addition = Hk::Player::AddCash(targetPlayer.value(), cash);
+
+	if (removal.has_error())
+	{
+		PrintUserCmdText(client, Hk::Err::ErrGetText(removal.error()));
+		return;
+	}
+
+	if (addition.has_error())
+	{
+		PrintUserCmdText(client, Hk::Err::ErrGetText(addition.error()));
+		return;
+	}
+
+	Hk::Player::SaveChar(client);
+	Hk::Player::SaveChar(targetPlayer.value());
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
@@ -663,8 +718,7 @@ std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds)
 const std::wstring helpUsage = L"/help [module] [command]";
 const std::wstring helpDescription =
     L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
-const std::vector UserCmds = {{
-    CreateUserCommand(L"/set diemsg", L"<all/system/self/none>", UserCmd_SetDieMsg, L""),
+const std::vector UserCmds = {{CreateUserCommand(L"/set diemsg", L"<all/system/self/none>", UserCmd_SetDieMsg, L""),
     CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death messages."),
     CreateUserCommand(L"/set chatfont", L"<small/default/big> <default/bold/italic/underline>", UserCmd_SetChatFont, L"Sets the font of chat."),
     CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L"Lists currently ignored players."),
@@ -688,7 +742,7 @@ const std::vector UserCmds = {{
     CreateUserCommand(L"/maillist", L"/maillist <page> [unread]", UserCmdListMail,
         L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
     CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
-}};
+    CreateUserCommand(L"/givecash", L"<player> <amount>", UserCmdGiveCash, L"Gives specified amount of cash to a target player, target must be online.")}};
 
 bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 {
