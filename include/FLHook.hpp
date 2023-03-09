@@ -683,8 +683,12 @@ DLL extern float g_LastHitPts;
 // namespaces
 namespace IServerImplHook
 {
-	DLL extern bool g_InSubmitChat;
-	DLL extern uint g_TextLength;
+	struct SubmitData
+	{
+		bool inSubmitChat;
+		std::wstring characterName;
+	};
+	const DLL extern std::unique_ptr<SubmitData> chatData;
 } // namespace IServerImplHook
 
 struct DLL CoreGlobals : Singleton<CoreGlobals>
