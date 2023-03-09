@@ -27,6 +27,7 @@ var source_2_features_2_user_commands_8cpp =
     [ "UserCmd_SetDieMsg", "source_2_features_2_user_commands_8cpp.html#a0e69f321543f60ee32784a476d6fdb7a", null ],
     [ "UserCmd_SetDieMsgSize", "source_2_features_2_user_commands_8cpp.html#a055ef691d4cd9f0fd0e8adc5fad2486c", null ],
     [ "UserCmdDelMail", "source_2_features_2_user_commands_8cpp.html#acac6472843e8c8670766c7581073d002", null ],
+    [ "UserCmdGiveCash", "source_2_features_2_user_commands_8cpp.html#aae66b79a4963c00359e9d59d4f0b4702", null ],
     [ "UserCmdListMail", "source_2_features_2_user_commands_8cpp.html#aa47153a89442c55893c9bd3ac3a463ac", null ],
     [ "UserCmdReadMail", "source_2_features_2_user_commands_8cpp.html#adba5039dcdb019f6d3b2cf38cc47f08a", null ],
     [ "helpDescription", "source_2_features_2_user_commands_8cpp.html#a7e0b7a923a1719cd7fb2dae5ab4c8664", null ],

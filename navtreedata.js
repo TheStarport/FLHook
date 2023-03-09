@@ -85,7 +85,7 @@ var NAVTREEINDEX =
 "namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746",
 "namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a",
 "namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf",
-"struct_plugin_hook_data.html#a80053355b97786ff7012122ed5b966c3",
+"struct_plugin_hook_data.html#a736b1d38d811dce97ca6dc39e5780d8d",
 "struct_plugins_1_1_con_data_1_1_config.html#a291d232519674f8bfaa2b30f8509d0e7",
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#ac11e2c066b5b350d90931cd8cd70a38a",
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#af422d62acf53dc2c518846c024821286",
