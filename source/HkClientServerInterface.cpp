@@ -95,8 +95,7 @@ namespace IServerImplHook
 	}
 
 	CInGame g_Admin;
-	bool g_InSubmitChat = false;
-	uint g_TextLength = 0;
+	const std::unique_ptr<SubmitData> chatData = std::make_unique<SubmitData>();
 
 	bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID& cidTo, int)
 	{
@@ -112,12 +111,26 @@ namespace IServerImplHook
 			if (cidTo.iId > SpecialChatIds::GROUP_EVENT || cidTo.iId > SpecialChatIds::PLAYER_MAX && cidTo.iId < SpecialChatIds::SPECIAL_BASE)
 				return false;
 
+			if (cidFrom.iId == 0)
+			{
+				chatData->characterName = L"CONSOLE";
+			}
+			else if (Hk::Client::IsValidClientID(cidFrom.iId))
+			{
+				chatData->characterName = Hk::Client::GetCharacterNameByID(cidFrom.iId).value();
+			}
+			else
+			{
+				chatData->characterName = L"";
+			}
+
 			// extract text from rdlReader
 			BinaryRDLReader rdl;
-			wchar_t wszBuf[1024] = L"";
+			std::wstring buffer;
+			buffer.resize(size);
 			uint iRet1;
-			rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader, size);
-			std::wstring buffer = wszBuf;
+			rdl.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), iRet1, (const char*)rdlReader, size);
+			std::erase(buffer, '\0');
 
 			// if this is a message in system chat then convert it to local unless
 			// explicitly overriden by the player using /s.
@@ -128,56 +141,36 @@ namespace IServerImplHook
 
 			// fix flserver commands and change chat to id so that event logging is
 			// accurate.
-			bool inBuiltCommand = true;
-			g_TextLength = buffer.length();
-			if (!buffer.find(L"/g "))
+			bool foundCommand = false;
+			if (buffer[0] == '/')
 			{
-				cidTo.iId = SpecialChatIds::GROUP;
-				g_TextLength -= 3;
-			}
-			else if (!buffer.find(L"/l "))
-			{
-				cidTo.iId = SpecialChatIds::LOCAL;
-				g_TextLength -= 3;
-			}
-			else if (!buffer.find(L"/s "))
-			{
-				cidTo.iId = SpecialChatIds::SYSTEM;
-				g_TextLength -= 3;
-			}
-			else if (!buffer.find(L"/u "))
-			{
-				cidTo.iId = SpecialChatIds::UNIVERSE;
-				g_TextLength -= 3;
-			}
-			else if (!buffer.find(L"/group "))
-			{
-				cidTo.iId = SpecialChatIds::GROUP;
-				g_TextLength -= 7;
-			}
-			else if (!buffer.find(L"/local "))
-			{
-				cidTo.iId = SpecialChatIds::LOCAL;
-				g_TextLength -= 7;
-			}
-			else if (!buffer.find(L"/system "))
-			{
-				cidTo.iId = SpecialChatIds::SYSTEM;
-				g_TextLength -= 8;
-			}
-			else if (!buffer.find(L"/universe "))
-			{
-				cidTo.iId = SpecialChatIds::UNIVERSE;
-				g_TextLength -= 10;
-			}
-			else
-			{
-				inBuiltCommand = false;
-			}
+				if (buffer[1] == 'g')
+				{
+					foundCommand = true;
+					cidTo.iId = SpecialChatIds::GROUP;
+				}
+				else if (buffer[1] == 's')
+				{
+					foundCommand = true;
+					cidTo.iId = SpecialChatIds::SYSTEM;
+				}
+				else if (buffer[1] == 'l')
+				{
+					foundCommand = true;
+					cidTo.iId = SpecialChatIds::LOCAL;
+				}
+				else if (UserCmd_Process(cidFrom.iId, buffer))
+				{
+					if (FLHookConfig::c()->messages.echoCommands)
+					{
+						const std::wstring XML =
+						    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+						Hk::Message::FMsg(cidFrom.iId, XML);
+					}
 
-			if (UserCmd_Process(cidFrom.iId, buffer))
-				return false;
-
+					return false;
+				}
+			}
 			else if (buffer[0] == '.')
 			{
 				const CAccount* acc = Players.FindAccountFromClientID(cidFrom.iId);
@@ -186,7 +179,14 @@ namespace IServerImplHook
 				WIN32_FIND_DATA fd;
 				HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
 				if (hFind != INVALID_HANDLE_VALUE)
-				{ // is admin
+				{
+					if (FLHookConfig::c()->messages.echoCommands)
+					{
+						const std::wstring XML =
+						    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+						Hk::Message::FMsg(cidFrom.iId, XML);
+					}
+
 					FindClose(hFind);
 					g_Admin.ReadRights(adminFile);
 					g_Admin.client = cidFrom.iId;
@@ -252,9 +252,19 @@ namespace IServerImplHook
 			ProcessEvent(L"{}", eventString.c_str());
 
 			// check if chat should be suppressed for in-built command prefixes
-			if (config->messages.suppressInvalidCommands && !inBuiltCommand && (buffer.rfind(L'/', 0) == 0 || buffer.rfind(L'.', 0) == 0))
+			if (buffer[0] == L'/' || buffer[0] == L'.')
 			{
-				return false;
+				if (FLHookConfig::c()->messages.echoCommands)
+				{
+					const std::wstring XML =
+					    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+					Hk::Message::FMsg(cidFrom.iId, XML);
+				}
+
+				if (config->messages.suppressInvalidCommands && !foundCommand)
+				{
+					return false;
+				}
 			}
 
 			// Check if any other custom prefixes have been added
@@ -5035,7 +5045,7 @@ namespace IServerImplHook
 		bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
 		if (!innerCheck)
 			return;
-		g_InSubmitChat = true;
+		chatData->inSubmitChat = true;
 		if (!skip)
 		{
 			CALL_SERVER_PREAMBLE
@@ -5044,7 +5054,7 @@ namespace IServerImplHook
 			}
 			CALL_SERVER_POSTAMBLE(true, );
 		}
-		g_InSubmitChat = false;
+		chatData->inSubmitChat = false;
 
 		CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.iId, size, rdlReader, cidTo.iId, _genArg1);
 	}
