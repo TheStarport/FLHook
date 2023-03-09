@@ -683,13 +683,14 @@ void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 	}
 
 	const auto removal = Hk::Player::RemoveCash(client, cash);
-	const auto addition = Hk::Player::AddCash(targetPlayer.value(), cash);
 
 	if (removal.has_error())
 	{
 		PrintUserCmdText(client, Hk::Err::ErrGetText(removal.error()));
 		return;
 	}
+	
+	const auto addition = Hk::Player::AddCash(targetPlayer.value(), cash);
 
 	if (addition.has_error())
 	{
