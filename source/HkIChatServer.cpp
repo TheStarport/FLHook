@@ -12,21 +12,23 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 
 	TRY_HOOK
 	{
-		if (IServerImplHook::g_InSubmitChat && (clientTo != 0x10004))
+		if (IServerImplHook::chatData->inSubmitChat && (clientTo != 0x10004))
 		{
-			wchar_t wszBuf[1024] = L"";
+			std::wstring buffer;
+			buffer.resize(size);
 			// extract text from rdlReader
 			BinaryRDLReader r;
 			uint iRet;
-			r.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet, (const char*)rdl, size);
+			r.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), iRet, (const char*)rdl, size);
+			std::erase(buffer, '\0');
 
-			std::wstring buffer = wszBuf;
-			std::wstring sender = buffer.substr(0, buffer.length() - IServerImplHook::g_TextLength - 2);
-			std::wstring text = buffer.substr(buffer.length() - IServerImplHook::g_TextLength);
+			std::wstring sender = IServerImplHook::chatData->characterName;
+			int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
+			std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
 			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientTo & 0xFFFF) != 0))
 			{ // check ignores
-				for (auto& ci : ClientInfo[client].lstIgnore)
+				for (auto const& ci : ClientInfo[client].lstIgnore)
 				{
 					if (HAS_FLAG(ci, L"p") && (clientTo & 0x10000))
 						continue; // no privchat

@@ -878,18 +878,6 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 
 bool UserCmd_Process(ClientId client, const std::wstring& cmd)
 {
-	if (const auto& config = FLHookConfig::c(); config->messages.echoCommands)
-	{
-		std::wstring lower = ToLower(GetParam(cmd, ' ', 0));
-		if ((lower.find(L'/') == 0 || lower.find(L'.') == 0) &&
-		    !(lower == L"/l" || lower == L"/local" || lower == L"/s" || lower == L"/system" || lower == L"/g" || lower == L"/group" || lower == L"/t" ||
-		        lower == L"/target" || lower == L"/r" || lower == L"/reply" || lower.find(L"//") == 0 || lower.find(L'*') == lower.length() - 1))
-		{
-			const std::wstring XML = L"<TRA data=\"" + config->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(cmd) + L"</TEXT>";
-			Hk::Message::FMsg(client, XML);
-		}
-	}
-
 	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, client, cmd);
 	if (pluginSkip)
 		return pluginRet;
