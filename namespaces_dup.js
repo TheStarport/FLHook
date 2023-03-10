@@ -117,11 +117,10 @@ var namespaces_dup =
       [ "TradeResponse", "namespace_i_server_impl_hook.html#ab26592e548d5eae1b053e232950433dc", null ],
       [ "Update", "namespace_i_server_impl_hook.html#afc6977e872134620f540f0c9064ad7ec", null ],
       [ "Update__Inner", "namespace_i_server_impl_hook.html#a8f000ee27f25e7b8026c041bff69e884", null ],
+      [ "chatData", "namespace_i_server_impl_hook.html#adca6ac4c7f5f9871effb3565b1c4e998", null ],
       [ "g_Admin", "namespace_i_server_impl_hook.html#ac9c02c089b51790591b9ea12d81dfab8", null ],
       [ "g_CharBefore", "namespace_i_server_impl_hook.html#a18cb360d69d72c5e5bb511bc38964df8", null ],
-      [ "g_InSubmitChat", "namespace_i_server_impl_hook.html#a17d416d07958f7dfd0cd499485823285", null ],
       [ "g_MaxPlayers", "namespace_i_server_impl_hook.html#afdd95a547aa2055adc29da923259f09d", null ],
-      [ "g_TextLength", "namespace_i_server_impl_hook.html#a9dc64c97e477e80c2ba335466ceb6c48", null ],
       [ "g_Timers", "namespace_i_server_impl_hook.html#a1b220538d594f5f0065f0a33a361dc27", null ]
     ] ],
     [ "Plugins", "namespace_plugins.html", "namespace_plugins" ],

@@ -1,7 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15],
-"namespace_plugins_1_1_betting.html#ac0de85a4c73d3d5ab79e6a0e24fea158":[2,1,0,4,4,16],
 "namespace_plugins_1_1_bounty_hunt.html":[2,1,0,4,5],
 "namespace_plugins_1_1_bounty_hunt.html#a1d4119cd2c12af938d4eee13f4782463":[2,1,0,4,5,16],
 "namespace_plugins_1_1_bounty_hunt.html#a275ff9af8ce430a85c0e4c7e9c813ebc":[2,1,0,4,5,6],
@@ -249,5 +247,7 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_warehouse.html#a62c83b43e96c70502d39e6cf6ef3b7a7":[2,1,0,4,30,5],
 "namespace_plugins_1_1_warehouse.html#a6b9304cd83e1ffc2cb7595293a031bb4":[2,1,0,4,30,13],
 "namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6":[2,1,0,4,30,17],
-"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b":[2,1,0,4,30,15]
+"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b":[2,1,0,4,30,15],
+"namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf":[2,1,0,4,30,6],
+"namespace_plugins_1_1_warehouse.html#a96a5093ae4d8462dd7f4cefdfeed044f":[2,1,0,4,30,10]
 };

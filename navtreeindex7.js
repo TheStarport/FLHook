@@ -1,6 +1,5 @@
 var NAVTREEINDEX7 =
 {
-"namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746":[2,1,0,0,7,41],
 "namespace_hk_1_1_player.html#a13855e37c13bffc07a220fa34a4f55a5":[2,1,0,0,7,16],
 "namespace_hk_1_1_player.html#a15f1ec3fba1ca04fd38f313fce357958":[2,1,0,0,7,47],
 "namespace_hk_1_1_player.html#a16997511326ffb51c0d626e3c34655ac":[2,1,0,0,7,28],
@@ -109,10 +108,9 @@ var NAVTREEINDEX7 =
 "namespace_i_server_impl_hook.html#a11d0bb9d730bd9cfe1080f5413e8b9cd":[2,1,0,3,22],
 "namespace_i_server_impl_hook.html#a15c4ecd25039b1ef17f4a86ab84857d3":[2,1,0,3,2],
 "namespace_i_server_impl_hook.html#a161e66da570eafc23f0da8f1ccde668b":[2,1,0,3,45],
-"namespace_i_server_impl_hook.html#a17d416d07958f7dfd0cd499485823285":[2,1,0,3,112],
-"namespace_i_server_impl_hook.html#a18cb360d69d72c5e5bb511bc38964df8":[2,1,0,3,111],
+"namespace_i_server_impl_hook.html#a18cb360d69d72c5e5bb511bc38964df8":[2,1,0,3,112],
 "namespace_i_server_impl_hook.html#a19754287c70bd7f6e4c0ae38df069f64":[2,1,0,3,80],
-"namespace_i_server_impl_hook.html#a1b220538d594f5f0065f0a33a361dc27":[2,1,0,3,115],
+"namespace_i_server_impl_hook.html#a1b220538d594f5f0065f0a33a361dc27":[2,1,0,3,114],
 "namespace_i_server_impl_hook.html#a1cffe01ca415126475a89d0fa99422b8":[2,1,0,3,42],
 "namespace_i_server_impl_hook.html#a1dc8379ef4be4cda49324b246432c859":[2,1,0,3,100],
 "namespace_i_server_impl_hook.html#a1f90f072a101634b07c006d986b29632":[2,1,0,3,103],
@@ -168,7 +166,6 @@ var NAVTREEINDEX7 =
 "namespace_i_server_impl_hook.html#a99dded4da168e5a3c0e2f88c80418ddd":[2,1,0,3,62],
 "namespace_i_server_impl_hook.html#a9a3cfd9005afcd4fd11e213208d27e79":[2,1,0,3,44],
 "namespace_i_server_impl_hook.html#a9bb41aba668c720c8f09a6f3d73b9f72":[2,1,0,3,81],
-"namespace_i_server_impl_hook.html#a9dc64c97e477e80c2ba335466ceb6c48":[2,1,0,3,114],
 "namespace_i_server_impl_hook.html#aa1b5799c4ee4f19c7cd1e4a2c8146ddd":[2,1,0,3,32],
 "namespace_i_server_impl_hook.html#aa242a1c727aa6ef7e6ce07b9d6d0a821":[2,1,0,3,106],
 "namespace_i_server_impl_hook.html#aa5ac0caebb9c0847badbd451017b8281":[2,1,0,3,85],
@@ -190,7 +187,7 @@ var NAVTREEINDEX7 =
 "namespace_i_server_impl_hook.html#ac85f5f666ae1a3b299442da48ecff7e3":[2,1,0,3,96],
 "namespace_i_server_impl_hook.html#ac88c2a8936f4415ae8cc13b13546715c":[2,1,0,3,5],
 "namespace_i_server_impl_hook.html#ac92e600bfb9dfe631a6f070fad0e615c":[2,1,0,3,6],
-"namespace_i_server_impl_hook.html#ac9c02c089b51790591b9ea12d81dfab8":[2,1,0,3,110],
+"namespace_i_server_impl_hook.html#ac9c02c089b51790591b9ea12d81dfab8":[2,1,0,3,111],
 "namespace_i_server_impl_hook.html#acb37301daa5ccb8ac748afd6162edf68":[2,1,0,3,83],
 "namespace_i_server_impl_hook.html#acd38a99f9960377bdcbb2d0522a9b126":[2,1,0,3,64],
 "namespace_i_server_impl_hook.html#ace9661ad82b51975775de86b17ff0c43":[2,1,0,3,35],
@@ -198,6 +195,7 @@ var NAVTREEINDEX7 =
 "namespace_i_server_impl_hook.html#ad546d1e5cd8a283f97ddb09fee88e2e5":[2,1,0,3,66],
 "namespace_i_server_impl_hook.html#ad752b73950df642666b51751ca748728":[2,1,0,3,53],
 "namespace_i_server_impl_hook.html#ad8220e7266ebc25bf4d41d6d63cb5cbc":[2,1,0,3,41],
+"namespace_i_server_impl_hook.html#adca6ac4c7f5f9871effb3565b1c4e998":[2,1,0,3,110],
 "namespace_i_server_impl_hook.html#adcf41a2ad2180f574d1ca5f3fc197182":[2,1,0,3,27],
 "namespace_i_server_impl_hook.html#add7a53804ab49111b3817bbc24191c96":[2,1,0,3,82],
 "namespace_i_server_impl_hook.html#adff4e00e46cf681c0ec7ae968fbb3221":[2,1,0,3,89],
@@ -249,5 +247,7 @@ var NAVTREEINDEX7 =
 "namespace_plugins_1_1_autobuy.html#ac7dc63d53ddacc60591bd2c13d47114b":[2,1,0,4,3,4],
 "namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c":[2,1,0,4,3,7],
 "namespace_plugins_1_1_autobuy.html#afe75320a9ff4f72cfb5c1f38e591160b":[2,1,0,4,3,11],
-"namespace_plugins_1_1_betting.html":[2,1,0,4,4]
+"namespace_plugins_1_1_betting.html":[2,1,0,4,4],
+"namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15],
+"namespace_plugins_1_1_betting.html#ac0de85a4c73d3d5ab79e6a0e24fea158":[2,1,0,4,4,16]
 };

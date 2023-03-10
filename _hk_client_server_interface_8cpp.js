@@ -111,11 +111,10 @@ var _hk_client_server_interface_8cpp =
     [ "TradeResponse", "_hk_client_server_interface_8cpp.html#ab26592e548d5eae1b053e232950433dc", null ],
     [ "Update", "_hk_client_server_interface_8cpp.html#afc6977e872134620f540f0c9064ad7ec", null ],
     [ "Update__Inner", "_hk_client_server_interface_8cpp.html#a8f000ee27f25e7b8026c041bff69e884", null ],
+    [ "chatData", "_hk_client_server_interface_8cpp.html#adca6ac4c7f5f9871effb3565b1c4e998", null ],
     [ "g_Admin", "_hk_client_server_interface_8cpp.html#ac9c02c089b51790591b9ea12d81dfab8", null ],
     [ "g_CharBefore", "_hk_client_server_interface_8cpp.html#a18cb360d69d72c5e5bb511bc38964df8", null ],
-    [ "g_InSubmitChat", "_hk_client_server_interface_8cpp.html#a17d416d07958f7dfd0cd499485823285", null ],
     [ "g_MaxPlayers", "_hk_client_server_interface_8cpp.html#afdd95a547aa2055adc29da923259f09d", null ],
-    [ "g_TextLength", "_hk_client_server_interface_8cpp.html#a9dc64c97e477e80c2ba335466ceb6c48", null ],
     [ "g_Timers", "_hk_client_server_interface_8cpp.html#a1b220538d594f5f0065f0a33a361dc27", null ],
     [ "IServerImplEntries", "_hk_client_server_interface_8cpp.html#aaccf5fef346d5101f9da966d0c6f624a", null ]
 ];

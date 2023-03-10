@@ -1,7 +1,5 @@
 var NAVTREEINDEX14 =
 {
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a27f68b546625a76ae4ed078494fbd1de":[2,2,0,2,25,0,3],
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a27f68b546625a76ae4ed078494fbd1de":[2,1,0,4,26,0,3],
 "struct_plugins_1_1_system_sensor_1_1_active_network.html#a383c8f5a596b1cb19fe67e4b27b9429e":[2,1,0,4,26,0,2],
 "struct_plugins_1_1_system_sensor_1_1_active_network.html#a383c8f5a596b1cb19fe67e4b27b9429e":[2,2,0,2,25,0,2],
 "struct_plugins_1_1_system_sensor_1_1_active_network.html#a4d126950d05b1d56b7ca7c72ad710dda":[2,2,0,2,25,0,4],
