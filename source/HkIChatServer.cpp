@@ -22,13 +22,13 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 			r.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), iRet, (const char*)rdl, size);
 			std::erase(buffer, '\0');
 
-			std::wstring sender = IServerImplHook::chatData->characterName;
-			int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
-			std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
+			const std::wstring sender = IServerImplHook::chatData->characterName;
+			const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
+			const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
 			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientTo & 0xFFFF) != 0))
 			{ // check ignores
-				for (auto const& ci : ClientInfo[client].lstIgnore)
+				for (const auto& ci : ClientInfo[client].lstIgnore)
 				{
 					if (HAS_FLAG(ci, L"p") && (clientTo & 0x10000))
 						continue; // no privchat
