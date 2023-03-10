@@ -12,7 +12,7 @@ namespace Hk::Ini
 
 	std::string GetAccountDir(ClientId client)
 	{
-		static _GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
+		static _GetFLName GetFLName = (_GetFLName)((char*)server + 0x66370);
 		char dirname[1024];
 		GetFLName(dirname, Players[client].Account->wszAccId);
 		return dirname;
@@ -20,7 +20,7 @@ namespace Hk::Ini
 
 	std::string GetCharfilename(const std::wstring& charname)
 	{
-		static _GetFLName GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
+		static _GetFLName GetFLName = (_GetFLName)((char*)server + 0x66370);
 		char filename[1024];
 		GetFLName(filename, charname.c_str());
 		return filename;
@@ -135,8 +135,8 @@ namespace Hk::Ini
 		if (patched)
 			return;
 
-		PatchCallAddr((char*)hModServer, 0x6c547, (char*)Cb_UpdateFileNaked);
-		PatchCallAddr((char*)hModServer, 0x6c9cd, (char*)Cb_UpdateFileNaked);
+		PatchCallAddr((char*)server, 0x6c547, (char*)Cb_UpdateFileNaked);
+		PatchCallAddr((char*)server, 0x6c9cd, (char*)Cb_UpdateFileNaked);
 
 		patched = true;
 	}
@@ -147,10 +147,10 @@ namespace Hk::Ini
 			return;
 
 		BYTE patch[] = {0xE8, 0x84, 0x07, 0x00, 0x00};
-		WriteProcMem((char*)hModServer + 0x6c547, patch, 5);
+		WriteProcMem((char*)server + 0x6c547, patch, 5);
 
 		BYTE patch2[] = {0xE8, 0xFE, 0x2, 0x00, 0x00};
-		WriteProcMem((char*)hModServer + 0x6c9cd, patch2, 5);
+		WriteProcMem((char*)server + 0x6c9cd, patch2, 5);
 
 		patched = false;
 	}

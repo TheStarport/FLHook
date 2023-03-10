@@ -3,37 +3,21 @@
 
 #include "Memory/MemoryManager.hpp"
 
-// structs
-struct SOCKET_CONNECTION
-{
-	std::wstring wscPending;
-	CSocket csock;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 HANDLE hProcFL = 0;
-HMODULE hModServer = 0;
-HMODULE hModCommon = 0;
-HMODULE hModRemoteClient = 0;
+HMODULE server = 0;
+HMODULE common = 0;
+HMODULE remoteClient = 0;
 HMODULE hMe = 0;
 HMODULE hModDPNet = 0;
 HMODULE hModDaLib = 0;
-HMODULE hModContent = 0;
+HMODULE content = 0;
 HANDLE hConsoleThread;
 
 HANDLE hConsoleIn;
 HANDLE hConsoleOut;
 HANDLE hConsoleErr;
 
-SOCKET sListen = INVALID_SOCKET;
-SOCKET sWListen = INVALID_SOCKET;
-SOCKET sEListen = INVALID_SOCKET;
-SOCKET sEWListen = INVALID_SOCKET;
-
 std::list<std::wstring*> lstConsoleCmds;
-std::list<SOCKET_CONNECTION*> lstSockets;
-std::list<SOCKET_CONNECTION*> lstDelete;
 
 CRITICAL_SECTION cs;
 
@@ -45,8 +29,6 @@ st6_malloc_t st6_malloc;
 st6_free_t st6_free;
 
 bool flhookReady;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Init();
 
@@ -211,12 +193,14 @@ void FLHookInit_Pre()
 	// change version number here:
 	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.0
 	std::string welcomeText = R"(
-  ______ _      _    _             _      _  _    ___  
- |  ____| |    | |  | |           | |    | || |  / _ \ 
- | |__  | |    | |__| | ___   ___ | | __ | || |_| | | |
- |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| | | |
- | |    | |____| |  | | (_) | (_) |   <     | |_| |_| |
- |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)\___/                              
+  ______ _      _    _             _      _  _  __                 _ _           
+ |  ____| |    | |  | |           | |    | || |/_ |               | | |          
+ | |__  | |    | |__| | ___   ___ | | __ | || |_| |    _ __   __ _| | | __ _ ___ 
+ |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| |   | '_ \ / _` | | |/ _` / __|
+ | |    | |____| |  | | (_) | (_) |   <     | |_| |   | |_) | (_| | | | (_| \__ \
+ |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)_|   | .__/ \__,_|_|_|\__,_|___/
+                                                      | |                        
+                                                      |_|                        
                                                                        )";
 	welcomeText += "\n\n";
 	DWORD _;
@@ -234,7 +218,7 @@ void FLHookInit_Pre()
 		DebugTools::i()->Init();
 
 		// get module handles
-		if (!(hModServer = GetModuleHandle("server")))
+		if (!(server = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
 
 		DWORD id;
@@ -313,132 +297,27 @@ void FLHookInit_Pre()
 
 bool FLHookInit()
 {
-	bool bInitHookExports = false;
-
 	try
 	{
 		// get module handles
-		if (!(hModServer = GetModuleHandle("server")))
-			throw "server.dll not loaded";
-		if (!(hModRemoteClient = GetModuleHandle("remoteclient")))
-			throw "remoteclient.dll not loaded";
-		if (!(hModCommon = GetModuleHandle("common")))
-			throw "common.dll not loaded";
-		if (!(hModDPNet = GetModuleHandle("dpnet")))
-			throw "dpnet.dll not loaded";
-		if (!(hModDaLib = GetModuleHandle("dalib")))
-			throw "dalib.dll not loaded";
-		if (!(hModContent = GetModuleHandle("content")))
-			throw "content.dll not loaded";
-		if (!(hMe = GetModuleHandle("FLHook")))
-			throw "FLHook.dll not loaded";
+		server = GetModuleHandle("server");
+		remoteClient = GetModuleHandle("remoteclient");
+		common = GetModuleHandle("common");
+		hModDPNet = GetModuleHandle("dpnet");
+		hModDaLib = GetModuleHandle("dalib");
+		content = GetModuleHandle("content");
+		hMe = GetModuleHandle("FLHook");
 
-		// init hooks
+		// Init Hooks
 		if (!InitHookExports())
 			throw "InitHookExports failed";
 
-		bInitHookExports = true;
-		const auto* config = FLHookConfig::c();
-
-		if (config->socket.activated)
-		{ // listen to socket
-			WSADATA wsa;
-			WSAStartup(MAKEWORD(2, 0), &wsa);
-			if (config->socket.port > 0)
-			{
-				sListen = socket(AF_INET, SOCK_STREAM, 0);
-				sockaddr_in adr;
-				memset(&adr, 0, sizeof(adr));
-				adr.sin_family = AF_INET;
-				adr.sin_port = htons(config->socket.port);
-				if (::bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "ascii: socket-bind failed, port already in use?";
-
-				if (listen(sListen, SOMAXCONN) != 0)
-					throw "ascii: socket-listen failed";
-
-				Console::ConInfo("socket(ascii): socket connection listening");
-			}
-
-			if (config->socket.wPort > 0)
-			{
-				sWListen = socket(AF_INET, SOCK_STREAM, 0);
-				sockaddr_in adr;
-				memset(&adr, 0, sizeof(adr));
-				adr.sin_family = AF_INET;
-				adr.sin_port = htons(config->socket.wPort);
-				if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "unicode: socket-bind failed, port already in "
-					      "use?";
-
-				if (listen(sWListen, SOMAXCONN) != 0)
-					throw "unicode: socket-listen failed";
-
-				Console::ConInfo("socket(unicode): socket connection listening");
-			}
-
-			if (config->socket.ePort > 0)
-			{
-				sEListen = socket(AF_INET, SOCK_STREAM, 0);
-				sockaddr_in adr;
-				memset(&adr, 0, sizeof(adr));
-				adr.sin_family = AF_INET;
-				adr.sin_port = htons(config->socket.ePort);
-				if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "encrypted: socket-bind failed, port already in use?";
-
-				if (listen(sEListen, SOMAXCONN) != 0)
-					throw "encrypted: socket-listen failed";
-
-				Console::ConInfo("socket(encrypted-ascii): socket connection listening");
-			}
-
-			if (config->socket.eWPort > 0)
-			{
-				sEWListen = socket(AF_INET, SOCK_STREAM, 0);
-				sockaddr_in adr;
-				memset(&adr, 0, sizeof(adr));
-				adr.sin_family = AF_INET;
-				adr.sin_port = htons(config->socket.eWPort);
-				if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "encrypted-unicode: socket-bind failed, port "
-					      "already in use?";
-
-				if (listen(sEWListen, SOMAXCONN) != 0)
-					throw "encrypted-unicode: socket-listen failed";
-
-				Console::ConInfo("socket(encrypted-unicode): socket connection listening");
-			}
-		}
+		// Force the singleton to be created
+		FLHookConfig::c();
 	}
 	catch (char* szError)
 	{
-		if (bInitHookExports)
-			UnloadHookExports();
-
-		if (sListen != INVALID_SOCKET)
-		{
-			closesocket(sListen);
-			sListen = INVALID_SOCKET;
-		}
-
-		if (sWListen != INVALID_SOCKET)
-		{
-			closesocket(sWListen);
-			sWListen = INVALID_SOCKET;
-		}
-
-		if (sEListen != INVALID_SOCKET)
-		{
-			closesocket(sEListen);
-			sEListen = INVALID_SOCKET;
-		}
-
-		if (sEWListen != INVALID_SOCKET)
-		{
-			closesocket(sEWListen);
-			sEWListen = INVALID_SOCKET;
-		}
+		UnloadHookExports();
 
 		Console::ConErr(szError);
 		return false;
@@ -461,30 +340,6 @@ void FLHookUnload()
 	SetConsoleCtrlHandler(ConsoleHandler, FALSE);
 	FreeConsole();
 
-	// quit network sockets
-	if (sListen != INVALID_SOCKET)
-		closesocket(sListen);
-	if (sWListen != INVALID_SOCKET)
-		closesocket(sWListen);
-	if (sEListen != INVALID_SOCKET)
-		closesocket(sEListen);
-	if (sEWListen != INVALID_SOCKET)
-		closesocket(sEWListen);
-
-	for (auto i : lstSockets)
-	{
-		closesocket(i->csock.s);
-		delete i;
-	}
-	lstSockets.clear();
-
-	// free blowfish encryption data
-	if (const FLHookConfig* config = FLHookConfig::i(); config->socket.bfCTX)
-	{
-		ZeroMemory(config->socket.bfCTX, sizeof(config->socket.bfCTX));
-		free(config->socket.bfCTX);
-	}
-
 	// misc
 	DeleteCriticalSection(&cs);
 
@@ -505,8 +360,7 @@ void FLHookShutdown()
 
 #ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	// If extended exception logging is in use, restore patched functions
-	HMODULE ernel32 = GetModuleHandle("kernel32.dll");
-	if (ernel32)
+	if (HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
 	{
 		void* dwOrgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
 		if (dwOrgEntry)
@@ -527,111 +381,6 @@ void FLHookShutdown()
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &dwParam, 0, &id);
 }
 
-/**************************************************************************************************************
-process a socket command
-return true -> close socket connection
-**************************************************************************************************************/
-
-bool ProcessSocketCmd(SOCKET_CONNECTION* sc, std::wstring wscCmd)
-{
-	if (!ToLower(wscCmd).find(L"quit"))
-	{ // quit connection
-		sc->csock.DoPrint("Goodbye.\r");
-		Console::ConInfo("socket: connection closed");
-		return true;
-	}
-	else if (!(sc->csock.bAuthed))
-	{
-		const std::wstring wscLwr = ToLower(wscCmd);
-		auto passFind = wscLwr.find(L"pass ");
-		if (passFind == std::wstring::npos)
-		{
-			sc->csock.Print("ERR Please authenticate first");
-			return false;
-		}
-
-		if (wscCmd.length() >= 256)
-		{
-			sc->csock.DoPrint("ERR Wrong password");
-			sc->csock.DoPrint("Goodbye.\r");
-			Console::ConInfo("socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal, LogLevel::Info, std::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP, sc->csock.iPort));
-			return true;
-		}
-
-		const auto* config = FLHookConfig::c();
-
-		// Remove the string "pass " from the string
-		auto pass = wscCmd.substr(passFind + 5);
-		pass = Trim(pass);
-
-		const auto auth = config->socket.passRightsMap.find(pass);
-		if (auth == config->socket.passRightsMap.end())
-		{
-			sc->csock.DoPrint("ERR Wrong password");
-			sc->csock.DoPrint("Goodbye.\r");
-			Console::ConInfo("socket: connection closed (invalid pass)");
-			AddLog(LogType::Normal,
-			    LogLevel::Info,
-			    std::format("socket: socket connection from {}:{} closed (invalid pass)", sc->csock.sIP.c_str(), sc->csock.iPort));
-			return true;
-		}
-
-		sc->csock.bAuthed = true;
-		sc->csock.SetRightsByString(auth->second);
-		sc->csock.Print("OK");
-		Console::ConInfo("socket: socket authentication successful");
-		return false;
-	}
-	else
-	{
-		if (const auto cmd = Trim(wscCmd); cmd == L"eventmode")
-		{
-			if (sc->csock.rights & RIGHT_EVENTMODE)
-			{
-				sc->csock.Print("OK");
-				sc->csock.bEventMode = true;
-			}
-			else
-			{
-				sc->csock.Print("ERR No permission");
-			}
-		}
-		else
-			sc->csock.ExecuteCommandString(cmd);
-
-		return false;
-	}
-}
-
-/**************************************************************************************************************
-send event to all sockets which are in eventmode
-**************************************************************************************************************/
-
-void ProcessEvent(std::wstring text, ...)
-{
-	wchar_t wszBuf[1024] = L"";
-	va_list marker;
-	va_start(marker, text);
-	_vsnwprintf_s(wszBuf, (sizeof(wszBuf) / 2) - 1, text.c_str(), marker);
-
-	text = wszBuf;
-
-	CallPluginsBefore(HookedCall::FLHook__ProcessEvent, static_cast<std::wstring&>(text));
-
-	for (auto& socket : lstSockets)
-	{
-		if (socket->csock.bEventMode)
-			socket->csock.Print(wstos(text));
-	}
-}
-
-/**************************************************************************************************************
-check for pending admin commands in console or socket and execute them
-**************************************************************************************************************/
-
-struct timeval tv = {0, 0};
-
 void ProcessPendingCommands()
 {
 	TRY_HOOK
@@ -649,214 +398,6 @@ void ProcessPendingCommands()
 			}
 		}
 		LeaveCriticalSection(&cs);
-
-		if (sListen != INVALID_SOCKET)
-		{ // check for new ascii socket connections
-			FD_SET fds;
-			FD_ZERO(&fds);
-			FD_SET(sListen, &fds);
-			if (select(0, &fds, 0, 0, &tv))
-			{ // accept new connection
-				sockaddr_in adr;
-
-				int iLen = sizeof(adr);
-				SOCKET s = accept(sListen, (sockaddr*)&adr, &iLen);
-				ulong lNB = 1;
-				ioctlsocket(s, FIONBIO, &lNB);
-				SOCKET_CONNECTION* sc = new SOCKET_CONNECTION;
-				sc->csock.s = s;
-				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
-				sc->csock.iPort = adr.sin_port;
-				sc->csock.bUnicode = false;
-				sc->csock.bEncrypted = false;
-				sc->wscPending = L"";
-				lstSockets.push_back(sc);
-				Console::ConInfo(std::format("socket(ascii): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
-				sc->csock.Print("Welcome to FLHack, please authenticate");
-			}
-		}
-
-		if (sWListen != INVALID_SOCKET)
-		{ // check for new ascii socket connections
-			FD_SET fds;
-			FD_ZERO(&fds);
-			FD_SET(sWListen, &fds);
-			if (select(0, &fds, 0, 0, &tv))
-			{ // accept new connection
-				sockaddr_in adr;
-
-				int iLen = sizeof(adr);
-				SOCKET s = accept(sWListen, (sockaddr*)&adr, &iLen);
-				ulong lNB = 1;
-				ioctlsocket(s, FIONBIO, &lNB);
-				SOCKET_CONNECTION* sc = new SOCKET_CONNECTION;
-				sc->csock.s = s;
-				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
-				sc->csock.iPort = adr.sin_port;
-				sc->csock.bUnicode = true;
-				sc->wscPending = L"";
-				sc->csock.bEncrypted = false;
-				lstSockets.push_back(sc);
-				Console::ConInfo(std::format("socket(unicode): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
-				sc->csock.Print("Welcome to FLHack, please authenticate");
-			}
-		}
-
-		if (sEListen != INVALID_SOCKET)
-		{ // check for new ascii socket connections
-			FD_SET fds;
-			FD_ZERO(&fds);
-			FD_SET(sEListen, &fds);
-			if (select(0, &fds, nullptr, 0, &tv))
-			{ // accept new connection
-				sockaddr_in adr;
-
-				int iLen = sizeof(adr);
-				SOCKET s = accept(sEListen, (sockaddr*)&adr, &iLen);
-				ulong lNB = 1;
-				ioctlsocket(s, FIONBIO, &lNB);
-				SOCKET_CONNECTION* sc = new SOCKET_CONNECTION;
-				sc->csock.s = s;
-				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
-				sc->csock.iPort = adr.sin_port;
-				sc->csock.bUnicode = false;
-				sc->wscPending = L"";
-				sc->csock.bEncrypted = true;
-				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
-				lstSockets.push_back(sc);
-				Console::ConInfo(std::format("socket(encrypted-ascii): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
-				sc->csock.Print("Welcome to FLHack, please authenticate");
-			}
-		}
-
-		if (sEWListen != INVALID_SOCKET)
-		{ // check for new ascii socket connections
-			FD_SET fds;
-			FD_ZERO(&fds);
-			FD_SET(sEWListen, &fds);
-			if (select(0, &fds, 0, 0, &tv))
-			{ // accept new connection
-				sockaddr_in adr;
-
-				int iLen = sizeof(adr);
-				SOCKET s = accept(sEWListen, (sockaddr*)&adr, &iLen);
-				ulong lNB = 1;
-				ioctlsocket(s, FIONBIO, &lNB);
-				SOCKET_CONNECTION* sc = new SOCKET_CONNECTION;
-				sc->csock.s = s;
-				sc->csock.sIP = (std::string)inet_ntoa(adr.sin_addr);
-				sc->csock.iPort = adr.sin_port;
-				sc->csock.bUnicode = true;
-				sc->wscPending = L"";
-				sc->csock.bEncrypted = true;
-				sc->csock.bfc = static_cast<BLOWFISH_CTX*>(FLHookConfig::c()->socket.bfCTX);
-				lstSockets.push_back(sc);
-				Console::ConInfo(std::format("socket(encrypted-unicode): new socket connection from {}:{}", sc->csock.sIP, sc->csock.iPort));
-				sc->csock.Print("Welcome to FLHack, please authenticate");
-			}
-		}
-
-		// check for pending socket-commands
-		for (auto& sc : lstSockets)
-		{
-			FD_SET fds;
-			FD_ZERO(&fds);
-			FD_SET(sc->csock.s, &fds);
-			struct timeval tv = {0, 0};
-			if (select(0, &fds, 0, 0, &tv))
-			{ // data to be read
-				ulong lSize;
-				ioctlsocket(sc->csock.s, FIONREAD, &lSize);
-				char* szData = new char[lSize + 1];
-				memset(szData, 0, lSize + 1);
-				if (int err = recv(sc->csock.s, szData, lSize, 0); err <= 0)
-				{
-					if (FLHookConfig::c()->general.debugMode)
-					{
-						int wsaLastErr = WSAGetLastError();
-						Console::ConWarn(std::format("Socket Error - recv: {} - WSAGetLastError: {}", err, wsaLastErr));
-					}
-					Console::ConWarn("socket: socket connection closed");
-					delete[] szData;
-					lstDelete.push_back(sc);
-					continue;
-				}
-
-				// enqueue commands (terminated by \n)
-				std::wstring wscData;
-				if (sc->csock.bEncrypted)
-				{
-					SwapBytes(szData, lSize);
-					Blowfish_Decrypt(sc->csock.bfc, szData, lSize);
-					SwapBytes(szData, lSize);
-				}
-				if (sc->csock.bUnicode)
-					wscData = std::wstring((wchar_t*)szData, lSize / 2);
-				else
-					wscData = stows(szData);
-
-				std::wstring wscTmp = sc->wscPending + wscData;
-				wscData = wscTmp;
-
-				// check for memory overflow ddos attack
-				uint iMaxKB = 1;
-				if ((sc->csock.bAuthed)) // not authenticated yet
-					iMaxKB = 500;
-				if (wscData.length() > (1024 * iMaxKB))
-				{
-					Console::ConWarn("socket: socket connection closed (possible ddos attempt)");
-					AddLog(LogType::Normal,
-					    LogLevel::Info,
-					    std::format("socket: socket connection from {}:{} closed (possible ddos attempt)", sc->csock.sIP, sc->csock.iPort));
-					delete[] szData;
-					lstDelete.push_back(sc);
-					continue;
-				}
-
-				std::list<std::wstring> lstCmds;
-				std::wstring wscCmd;
-				for (uint i = 0; (i < wscData.length()); i++)
-				{
-					if (!wscData.substr(i, 2).compare(L"\r\n"))
-					{
-						lstCmds.push_back(wscCmd);
-						wscCmd = L"";
-						i++;
-					}
-					else if (wscData[i] == '\n')
-					{
-						lstCmds.push_back(wscCmd);
-						wscCmd = L"";
-					}
-					else
-						wscCmd.append(1, wscData[i]);
-				}
-
-				sc->wscPending = wscCmd;
-
-				// process cmds
-				for (auto& cmd : lstCmds)
-				{
-					if (ProcessSocketCmd(sc, cmd))
-					{
-						lstDelete.push_back(sc);
-						break;
-					}
-				}
-
-				delete[] szData;
-			}
-		}
-
-		// delete closed connections
-		for (auto it = lstDelete.begin(); it != lstDelete.end(); ++it)
-		{
-			closesocket((*it)->csock.s);
-			lstSockets.remove(*it);
-			delete (*it);
-		}
-
-		lstDelete.clear();
 	}
 	CATCH_HOOK({})
 }

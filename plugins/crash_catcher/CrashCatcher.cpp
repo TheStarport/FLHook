@@ -343,7 +343,7 @@ will_crash:
 	static HMODULE modContentAc = nullptr; // or whatever value that is
 	void __stdcall Cb_C4800HookNaked()
 	{
-		modContentAc = global->hModContentAC;
+		modContentAc = global->contentAC;
 	}
 
 	int Cb_C4800Hook(int* a1, int* a2, int* zone, double* a4, int a5, int a6)
@@ -427,15 +427,15 @@ will_crash:
 				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
 				global->hEngBase = GetModuleHandle("engbase.dll");
-				global->hModContentAC = GetModuleHandle("content.dll");
-				if (global->hModContentAC)
+				global->contentAC = GetModuleHandle("content.dll");
+				if (global->contentAC)
 				{
 					if (FLHookConfig::i()->general.debugMode)
 						Console::ConInfo("Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
 					{
-						PatchCallAddr((char*)global->hModContentAC, 0xC608D, (char*)Cb_C4800Hook);
+						PatchCallAddr((char*)global->contentAC, 0xC608D, (char*)Cb_C4800Hook);
 					}
 
 					// Patch for crash at content.dll + c458f ~ adoxa (thanks man)
@@ -450,7 +450,7 @@ will_crash:
 					{
 						// alternative: 0C458F, 8B0482->33C090
 						uchar patch[] = {0x74, 0x11, 0xeb, 0x05};
-						WriteProcMem((char*)global->hModContentAC + 0xC457F, patch, 4);
+						WriteProcMem((char*)global->contentAC + 0xC457F, patch, 4);
 					}
 
 					// Patch for crash at content.dll + 47bc4
@@ -459,8 +459,8 @@ will_crash:
 					// (amongst other stuff). Original Bytes: 8B F8 8B 17 8B CF
 					{
 						uchar patch[] = {0x90, 0xe8}; // nop call
-						WriteProcMem((char*)global->hModContentAC + 0x47bc2, patch, 2);
-						PatchCallAddr((char*)global->hModContentAC, 0x47bc2 + 1, (char*)Cb_47bc4Naked);
+						WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 2);
+						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)Cb_47bc4Naked);
 					}
 
 					// Patch for crash at engbase.dll + 0x0124BD ~ adoxa (thanks
@@ -482,47 +482,47 @@ will_crash:
 					// Hook for crash at 1b221 in server.dll
 					//{
 					//	FARPROC fpHook = (FARPROC)Cb_CrashProc1b221;
-					//	ReadProcMem((char*)hModContentAC + 0x1134f4,
-					//&fpCrashProc1b221Old, 4); WriteProcMem((char*)hModContentAC
+					//	ReadProcMem((char*)contentAC + 0x1134f4,
+					//&fpCrashProc1b221Old, 4); WriteProcMem((char*)contentAC
 					//+
 					// 0x1134f4, &fpHook, 4);
 					//}
 
 					//{
 					//	FARPROC fpHook = (FARPROC)Cb_PubZoneSystem;
-					//	ReadProcMem((char*)hModContentAC + 0x113470,
-					//&fpCrashProc1b113470Old, 4); WriteProcMem((char*)hModContentAC
+					//	ReadProcMem((char*)contentAC + 0x113470,
+					//&fpCrashProc1b113470Old, 4); WriteProcMem((char*)contentAC
 					//+
 					// 0x113470, &fpHook, 4);
 					//}
 
 					// Hook for crash at 0xEB4B5 (confirmed)
 					auto fpHook = (FARPROC)Cb_CrashProc6F8B330Naked;
-					ReadProcMem((char*)global->hModContentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
-					WriteProcMem((char*)global->hModContentAC + 0x11C970, &fpHook, 4);
-					WriteProcMem((char*)global->hModContentAC + 0x11CA00, &fpHook, 4);
+					ReadProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
+					WriteProcMem((char*)global->contentAC + 0x11C970, &fpHook, 4);
+					WriteProcMem((char*)global->contentAC + 0x11CA00, &fpHook, 4);
 
 					// Hook for crash at 0xD8E14 (confirmed)
-					fpCrashProc6F78DD0Old = PatchCallAddr((char*)global->hModContentAC, 0x5ED4B, (char*)Cb_CrashProc6F78DD0Naked);
-					PatchCallAddr((char*)global->hModContentAC, 0xBD96A, (char*)Cb_CrashProc6F78DD0Naked);
+					fpCrashProc6F78DD0Old = PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)Cb_CrashProc6F78DD0Naked);
+					PatchCallAddr((char*)global->contentAC, 0xBD96A, (char*)Cb_CrashProc6F78DD0Naked);
 
 					// Hook for crash at 0xC71AE (confirmed)
-					fpCrashProc6F671A0Old = PatchCallAddr((char*)global->hModContentAC, 0xBDC80, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xBDCF9, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xBE41C, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC67E2, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC6AA5, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC6BE8, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC6F71, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC702A, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC713B, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->hModContentAC, 0xC7180, (char*)Cb_CrashProc6F671A0);
+					fpCrashProc6F671A0Old = PatchCallAddr((char*)global->contentAC, 0xBDC80, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xBDCF9, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xBE41C, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC67E2, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6AA5, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6BE8, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6F71, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC702A, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC713B, (char*)Cb_CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC7180, (char*)Cb_CrashProc6F671A0);
 
 					// Patch the NPC persist distance in MP to 6.5km and patch the
 					// max spawn distance to 6.5km
 					float fDistance = 6500;
-					WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &fDistance, 4);
-					WriteProcMem((char*)global->hModContentAC + 0x58F46, &fDistance, 4);
+					WriteProcMem((char*)global->contentAC + 0xD3D6E, &fDistance, 4);
+					WriteProcMem((char*)global->contentAC + 0x58F46, &fDistance, 4);
 				}
 			}
 		}
@@ -548,19 +548,19 @@ will_crash:
 			// Unload the timing patches.
 			WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
 
-			if (global->hModContentAC)
+			if (global->contentAC)
 			{
 				if (FLHookConfig::i()->general.debugMode)
 					Console::ConInfo("Uninstalling patches from content.dll");
 
 				{
 					uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
-					WriteProcMem((char*)global->hModContentAC + 0xC608D, patch, 5);
+					WriteProcMem((char*)global->contentAC + 0xC608D, patch, 5);
 				}
 
 				{
 					uchar patch[] = {0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF};
-					WriteProcMem((char*)global->hModContentAC + 0x47bc2, patch, 6);
+					WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 6);
 				}
 
 				{
@@ -573,26 +573,26 @@ will_crash:
 					WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 6);
 				}
 
-				// WriteProcMem((char*)hModContentAC + 0x1134f4,
-				// &fpCrashProc1b221Old, 4); WriteProcMem((char*)hModContentAC +
+				// WriteProcMem((char*)contentAC + 0x1134f4,
+				// &fpCrashProc1b221Old, 4); WriteProcMem((char*)contentAC +
 				// 0x113470, &fpCrashProc1b113470Old, 4);
 
-				WriteProcMem((char*)global->hModContentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
-				WriteProcMem((char*)global->hModContentAC + 0x11CA00, &fpCrashProc6F8B330Old, 4);
+				WriteProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
+				WriteProcMem((char*)global->contentAC + 0x11CA00, &fpCrashProc6F8B330Old, 4);
 
-				PatchCallAddr((char*)global->hModContentAC, 0x5ED4B, (char*)fpCrashProc6F78DD0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xBD96A, (char*)fpCrashProc6F78DD0Old);
+				PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)fpCrashProc6F78DD0Old);
+				PatchCallAddr((char*)global->contentAC, 0xBD96A, (char*)fpCrashProc6F78DD0Old);
 
-				PatchCallAddr((char*)global->hModContentAC, 0xBDC80, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xBDCF9, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xBE41C, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC67E2, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC6AA5, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC6BE8, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC6F71, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC702A, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC713B, (char*)fpCrashProc6F671A0Old);
-				PatchCallAddr((char*)global->hModContentAC, 0xC7180, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xBDC80, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xBDCF9, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xBE41C, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC67E2, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC6AA5, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC6BE8, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC6F71, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC702A, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC713B, (char*)fpCrashProc6F671A0Old);
+				PatchCallAddr((char*)global->contentAC, 0xC7180, (char*)fpCrashProc6F671A0Old);
 			}
 		}
 	}

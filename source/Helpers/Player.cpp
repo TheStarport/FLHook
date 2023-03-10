@@ -360,7 +360,7 @@ namespace Hk::Player
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		void* pJmp = (char*)hModServer + 0x7EFA8;
+		void* pJmp = (char*)server + 0x7EFA8;
 		char szNop[2] = {'\x90', '\x90'};
 		char szTestAlAl[2] = {'\x74', '\x44'};
 		WriteProcMem(pJmp, szNop, sizeof(szNop)); // nop the SinglePlayer() check
@@ -1006,7 +1006,7 @@ namespace Hk::Player
 		try
 		{
 			const PlayerData* pd = &Players[client];
-			char* ACCalcCRC = (char*)hModServer + 0x6FAF0;
+			char* ACCalcCRC = (char*)server + 0x6FAF0;
 			__asm {
 			pushad
 			mov ecx, [pd]
@@ -1285,10 +1285,10 @@ namespace Hk::Player
 	// Anti cheat checking code by mc_horst. Will always return okay if the user is in space.
 	cpp::result<void, Error> AntiCheat(ClientId client)
 	{
-		const auto AntiCheat1 = (_FLAntiCheat)((char*)hModServer + AddrAntiCheat1);
-		const auto AntiCheat2 = (_FLAntiCheat)((char*)hModServer + AddrAntiCheat2);
-		const auto AntiCheat3 = (_FLAntiCheat)((char*)hModServer + AddrAntiCheat3);
-		const auto AntiCheat4 = (_FLAntiCheat)((char*)hModServer + AddrAntiCheat4);
+		const auto AntiCheat1 = (_FLAntiCheat)((char*)server + AddrAntiCheat1);
+		const auto AntiCheat2 = (_FLAntiCheat)((char*)server + AddrAntiCheat2);
+		const auto AntiCheat3 = (_FLAntiCheat)((char*)server + AddrAntiCheat3);
+		const auto AntiCheat4 = (_FLAntiCheat)((char*)server + AddrAntiCheat4);
 
 		// Hack to make the linter happy
 		(void)AntiCheat1;
@@ -1457,7 +1457,7 @@ namespace Hk::Player
 		typedef bool(__stdcall * _AddCargoDocked)(uint iGoodId, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
 		static _AddCargoDocked AddCargoDocked = nullptr;
 		if (!AddCargoDocked)
-			AddCargoDocked = (_AddCargoDocked)((char*)hModServer + 0x6EFC0);
+			AddCargoDocked = (_AddCargoDocked)((char*)server + 0x6EFC0);
 
 		ClientId client = Hk::Client::ExtractClientID(player);
 		if (client == UINT_MAX || Hk::Client::IsInCharSelectMenu(client))
@@ -1588,7 +1588,7 @@ namespace Hk::Player
 					}
 					else
 					{
-						float const* fResaleFactor = (float*)((char*)hModServer + 0x8AE7C);
+						float const* fResaleFactor = (float*)((char*)server + 0x8AE7C);
 						fValue += fItemValue * (*fResaleFactor);
 					}
 				}
@@ -1612,7 +1612,7 @@ namespace Hk::Player
 					gi = GoodList::find_by_id(gi->iArchId);
 					if (gi)
 					{
-						auto fResaleFactor = (float*)((char*)hModServer + 0x8AE78);
+						auto fResaleFactor = (float*)((char*)server + 0x8AE78);
 						float fItemValue = gi->fPrice * (*fResaleFactor);
 						fValue += fItemValue;
 					}
@@ -1626,7 +1626,7 @@ namespace Hk::Player
 	void SaveChar(ClientId client)
 	{
 		BYTE patch[] = {0x90, 0x90};
-		WriteProcMem((char*)hModServer + 0x7EFA8, patch, sizeof(patch));
+		WriteProcMem((char*)server + 0x7EFA8, patch, sizeof(patch));
 		pub::Save(client, 1);
 	}
 

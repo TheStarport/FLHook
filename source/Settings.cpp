@@ -15,15 +15,6 @@ void LoadSettings()
 {
 	auto config = Serializer::JsonToObject<FLHookConfig>();
 
-	if (!config.socket.encryptionKey.empty())
-	{
-		if (!config.socket.bfCTX)
-			config.socket.bfCTX = static_cast<BLOWFISH_CTX*>(malloc(sizeof(BLOWFISH_CTX)));
-		Blowfish_Init(static_cast<BLOWFISH_CTX*>(config.socket.bfCTX),
-		    reinterpret_cast<unsigned char*>(config.socket.encryptionKey.data()),
-		    static_cast<int>(config.socket.encryptionKey.length()));
-	}
-
 	// NoPVP
 	config.general.noPVPSystemsHashed.clear();
 	for (const auto& system : config.general.noPVPSystems)
@@ -44,7 +35,6 @@ REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field
     field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList), field(noPVPSystems),
     field(antiBaseIdle), field(antiCharMenuIdle));
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins));
-REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap));
 REFL_AUTO(type(FLHookConfig::Message), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages));
 REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg),
     field(userCmdStyle), field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
@@ -53,5 +43,5 @@ REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userC
     field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat));
 REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs));
 REFL_AUTO(type(FLHookConfig::Callsign), field(allowedFormations), field(disableRandomisedFormations), field(disableUsingAffiliationForCallsign));
-REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(socket), field(messages), field(userCommands), field(bans), field(callsign));
+REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(messages), field(userCommands), field(bans), field(callsign));
 #endif

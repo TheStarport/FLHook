@@ -10,7 +10,6 @@ std::shared_ptr<spdlog::logger> CheaterLog = nullptr;
 std::shared_ptr<spdlog::logger> KickLog = nullptr;
 std::shared_ptr<spdlog::logger> ConnectsLog = nullptr;
 std::shared_ptr<spdlog::logger> AdminCmdsLog = nullptr;
-std::shared_ptr<spdlog::logger> SocketCmdsLog = nullptr;
 std::shared_ptr<spdlog::logger> UserCmdsLog = nullptr;
 std::shared_ptr<spdlog::logger> PerfTimersLog = nullptr;
 std::shared_ptr<spdlog::logger> FLHookDebugLog = nullptr;
@@ -25,7 +24,6 @@ bool InitLogs()
 		KickLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_kicks", "logs/flhook_kicks.log");
 		ConnectsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_connects", "logs/flhook_connects.log");
 		AdminCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_admincmds", "logs/flhook_admincmds.log");
-		SocketCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_socketcmds", "logs/flhook_socketcmds.log");
 		UserCmdsLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_usercmds", "logs/flhook_usercmds.log");
 		PerfTimersLog = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_perftimers", "logs/flhook_perftimers.log");
 
@@ -81,9 +79,6 @@ void AddLog(LogType LogType, LogLevel lvl, const std::string& str)
 			break;
 		case LogType::UserLogCmds:
 			UserCmdsLog->log(level, str);
-			break;
-		case LogType::SocketCmds:
-			SocketCmdsLog->log(level, str);
 			break;
 		case LogType::PerfTimers:
 			PerfTimersLog->log(level, str);

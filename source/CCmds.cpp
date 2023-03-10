@@ -1051,19 +1051,10 @@ std::wstring CCmds::ArgStrToEnd(uint iArg)
 void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 {
 	// check if command was sent by a socket connection
-	bool bSocket = false;
 	std::wstring wscAdminName = GetAdminName();
-
-	if (wscAdminName.find(L"Socket connection") == 0)
-	{
-		bSocket = true;
-	}
 
 	try
 	{
-		if (bSocket)
-			AddLog(LogType::SocketCmds, LogLevel::Info, std::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
-
 		AddLog(LogType::AdminCmds, LogLevel::Info, std::format("{}: {}", wstos(wscAdminName).c_str(), wstos(wscCmdStr).c_str()));
 
 		bId = false;
@@ -1327,19 +1318,11 @@ void CCmds::ExecuteCommandString(const std::wstring& wscCmdStr)
 				Print("ERR unknown command");
 			}
 		}
-		if (bSocket)
-		{
-			AddLog(LogType::SocketCmds, LogLevel::Info, "finished");
-		}
-		else
-		{
-			AddLog(LogType::AdminCmds, LogLevel::Info, "finished");
-		}
+
+		AddLog(LogType::AdminCmds, LogLevel::Info, "finished");
 	}
 	catch (...)
 	{
-		if (bSocket)
-			AddLog(LogType::SocketCmds, LogLevel::Info, "exception");
 		AddLog(LogType::AdminCmds, LogLevel::Info, "exception");
 		Print("ERR exception occured");
 	}

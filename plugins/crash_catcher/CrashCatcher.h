@@ -15,7 +15,7 @@ namespace Plugins::CrashCatcher
 
 		HMODULE hModServerAC;
 		HMODULE hEngBase;
-		HMODULE hModContentAC;
+		HMODULE contentAC;
 
 		std::map<uint, mstime> mapSaveTimes;
 	};

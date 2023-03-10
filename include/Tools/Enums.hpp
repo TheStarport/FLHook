@@ -18,7 +18,6 @@ enum class LogType : int
 	Connects,
 	AdminCmds,
 	UserLogCmds,
-	SocketCmds,
 	PerfTimers
 };
 

@@ -12,17 +12,12 @@
 #include <variant>
 #include <numbers>
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include "WinSock2.h"
-
 #include "Tools/Hk.hpp"
 #include "Tools/Utils.hpp"
 
 // Magic Enum Extensions
 using namespace magic_enum::bitwise_operators; // NOLINT
 using namespace magic_enum::ostream_operators; // NOLINT
-
-DLL void ProcessEvent(std::wstring text, ...);
 
 // Tools
 class DLL Console
@@ -109,12 +104,12 @@ DLL void AddLog(LogType LogType, LogLevel lvl, const std::string& str);
 
 // variables
 extern DLL HANDLE hProcFL;
-extern DLL HMODULE hModServer;
-extern DLL HMODULE hModCommon;
-extern DLL HMODULE hModRemoteClient;
+extern DLL HMODULE server;
+extern DLL HMODULE common;
+extern DLL HMODULE remoteClient;
 extern DLL HMODULE hModDPNet;
 extern DLL HMODULE hModDaLib;
-extern DLL HMODULE hModContent;
+extern DLL HMODULE content;
 extern DLL FARPROC fpOldUpdate;
 
 // A base class/struct used for denoting that a class can be scanned.
@@ -236,19 +231,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool dockingMessages = true;
 	};
 
-	struct Socket final : Reflectable
-	{
-		bool activated = false;
-		int port = 1919;
-		int wPort = 1920;
-		int ePort = 1921;
-		int eWPort = 1922;
-		std::string encryptionKey = "SomeRandomKey000";
-
-		void* bfCTX = nullptr;
-		std::map<std::wstring, std::string> passRightsMap = {{L"SuperSecret", "superadmin"}};
-	};
-
 	struct UserCommands final : Reflectable
 	{
 		//! Can users use SetDieMsgSize command
@@ -289,7 +271,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 
 	General general;
 	Plugins plugins;
-	Socket socket;
 	UserCommands userCommands;
 	Bans bans;
 	Message messages;
@@ -641,28 +622,6 @@ class CInGame final : public CCmds
 	DLL bool IsPlayer() override { return true; }
 };
 
-class CSocket final : public CCmds
-{
-  public:
-	SOCKET s;
-	BLOWFISH_CTX* bfc;
-	bool bAuthed;
-	bool bEventMode;
-	bool bUnicode;
-	bool bEncrypted;
-	std::string sIP;
-	ushort iPort;
-
-	CSocket()
-	{
-		bAuthed = false;
-		bEventMode = false;
-		bUnicode = false;
-	}
-	DLL void DoPrint(const std::string& text) override;
-	DLL std::wstring GetAdminName() override;
-};
-
 // FuncLog
 
 DLL bool InitLogs();
@@ -729,7 +688,3 @@ DLL std::string FlcEncode(std::string& input);
 DLL bool EncodeDecode(const char* input, const char* output, bool encode);
 DLL bool FlcDecodeFile(const char* input, const char* outputFile);
 DLL bool FlcEncodeFile(const char* input, const char* outputFile);
-
-DLL void Blowfish_Init(BLOWFISH_CTX* ctx, unsigned char* key, int keyLen);
-DLL char Blowfish_Encrypt(BLOWFISH_CTX* ctx, void* ptr, unsigned long dataLen);
-DLL char Blowfish_Decrypt(BLOWFISH_CTX* ctx, void* ptr, unsigned long dataLen);

@@ -137,7 +137,7 @@ void TimerNPCAndF1Check()
 				__asm {
                     pushad
                     lea ecx, dataArray
-                    mov eax, [hModRemoteClient]
+                    mov eax, [remoteClient]
                     add eax, ADDR_RC_DISCONNECT
                     call eax ; disconncet
                     popad

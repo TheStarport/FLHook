@@ -133,10 +133,6 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					return;
 				}
 
-				std::wstring eventStr;
-				eventStr.reserve(256);
-				eventStr = L"kill";
-
 				uint systemId;
 				pub::Player::GetSystem(client, systemId);
 				wchar_t systemName[64];
@@ -149,7 +145,6 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 				const auto clientKiller = Hk::Client::GetClientIdByShip(dmg.get_inflictor_id());
 
 				std::wstring victimName = ToWChar(Players.GetActiveCharacterName(client));
-				eventStr += L" victim=" + victimName;
 				if (clientKiller.has_value())
 				{
 					std::wstring killType;
@@ -183,19 +178,15 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					std::wstring deathMessage;
 					if (client == clientKiller.value() || cause == DamageCause::Suicide)
 					{
-						eventStr += L" type=selfkill";
 						deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
 					}
 					else if (cause == DamageCause::Admin)
 					{
-						eventStr += L" type=admin";
 						deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
 					}
 					else
 					{
-						eventStr += L" type=player";
 						std::wstring wscKiller = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
-						eventStr += L" by=" + wscKiller;
 
 						deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
 						deathMessage = ReplaceStr(deathMessage, L"%killer", wscKiller);
@@ -204,7 +195,6 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					deathMessage = ReplaceStr(deathMessage, L"%type", killType);
 					if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemId, client, clientKiller.value());
-					ProcessEvent(L"%s", eventStr.c_str());
 				}
 				else if (dmg.get_inflictor_id())
 				{
@@ -231,22 +221,17 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 							killType = L"Gun";
 					}			
 
-					eventStr += L" type=npc";
 					std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextNPC, L"%victim", victimName);
 					deathMessage = ReplaceStr(deathMessage, L"%type", killType);
 
 					if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
 						SendDeathMessage(deathMessage, systemId, client, 0);
-					ProcessEvent(L"%s", eventStr.c_str());
 				}
 				else if (cause == DamageCause::Suicide)
 				{
-					eventStr += L" type=suicide";
-
 					if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextSuicide, L"%victim", victimName);
 					    FLHookConfig::i()->messages.dieMsg && !deathMessage.empty())
 						SendDeathMessage(deathMessage, systemId, client, 0);
-					ProcessEvent(L"%s", eventStr.c_str());
 				}
 				else if (cause == DamageCause::Admin)
 				{
@@ -311,8 +296,4 @@ void BaseDestroyed(uint objectId, ClientId clientBy)
             popad
 		}
 	}
-
-	ProcessEvent(
-	    L"basedestroy basename=%s basehash=%u solarhash=%u by=%s", stows(baseName).c_str(), objectId, baseId,
-	    ToWChar(Players.GetActiveCharacterName(clientBy)));
 }

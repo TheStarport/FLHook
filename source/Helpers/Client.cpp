@@ -226,7 +226,7 @@ namespace Hk::Client
 
 	std::wstring GetAccountDirName(const CAccount* acc)
 	{
-		const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(hModServer) + 0x66370);
+		const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(server) + 0x66370);
 
 		char szDir[1024] = "";
 		GetFLName(szDir, acc->wszAccId);
@@ -239,7 +239,7 @@ namespace Hk::Client
 	{
 		static _GetFLName GetFLName = nullptr;
 		if (!GetFLName)
-			GetFLName = (_GetFLName)((char*)hModServer + 0x66370);
+			GetFLName = (_GetFLName)((char*)server + 0x66370);
 
 		std::string buffer;
 		buffer.reserve(1024);
@@ -397,18 +397,18 @@ namespace Hk::Client
 
 	EquipmentType GetEqType(Archetype::Equipment* eq)
 	{
-		uint iVFTableMine = (uint)hModCommon + ADDR_COMMON_VFTABLE_MINE;
-		uint iVFTableCM = (uint)hModCommon + ADDR_COMMON_VFTABLE_CM;
-		uint iVFTableGun = (uint)hModCommon + ADDR_COMMON_VFTABLE_GUN;
-		uint iVFTableShieldGen = (uint)hModCommon + ADDR_COMMON_VFTABLE_SHIELDGEN;
-		uint iVFTableThruster = (uint)hModCommon + ADDR_COMMON_VFTABLE_THRUSTER;
-		uint iVFTableShieldBat = (uint)hModCommon + ADDR_COMMON_VFTABLE_SHIELDBAT;
-		uint iVFTableNanoBot = (uint)hModCommon + ADDR_COMMON_VFTABLE_NANOBOT;
-		uint iVFTableMunition = (uint)hModCommon + ADDR_COMMON_VFTABLE_MUNITION;
-		uint iVFTableEngine = (uint)hModCommon + ADDR_COMMON_VFTABLE_ENGINE;
-		uint iVFTableScanner = (uint)hModCommon + ADDR_COMMON_VFTABLE_SCANNER;
-		uint iVFTableTractor = (uint)hModCommon + ADDR_COMMON_VFTABLE_TRACTOR;
-		uint iVFTableLight = (uint)hModCommon + ADDR_COMMON_VFTABLE_LIGHT;
+		uint iVFTableMine = (uint)common + ADDR_COMMON_VFTABLE_MINE;
+		uint iVFTableCM = (uint)common + ADDR_COMMON_VFTABLE_CM;
+		uint iVFTableGun = (uint)common + ADDR_COMMON_VFTABLE_GUN;
+		uint iVFTableShieldGen = (uint)common + ADDR_COMMON_VFTABLE_SHIELDGEN;
+		uint iVFTableThruster = (uint)common + ADDR_COMMON_VFTABLE_THRUSTER;
+		uint iVFTableShieldBat = (uint)common + ADDR_COMMON_VFTABLE_SHIELDBAT;
+		uint iVFTableNanoBot = (uint)common + ADDR_COMMON_VFTABLE_NANOBOT;
+		uint iVFTableMunition = (uint)common + ADDR_COMMON_VFTABLE_MUNITION;
+		uint iVFTableEngine = (uint)common + ADDR_COMMON_VFTABLE_ENGINE;
+		uint iVFTableScanner = (uint)common + ADDR_COMMON_VFTABLE_SCANNER;
+		uint iVFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
+		uint iVFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
 
 		uint iVFTable = *((uint*)eq);
 		if (iVFTable == iVFTableGun)

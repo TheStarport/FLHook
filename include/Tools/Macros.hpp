@@ -14,10 +14,10 @@
 	#define EXTERN
 #endif
 
-#define SRV_ADDR(a) ((char*)hModServer + (a))
+#define SRV_ADDR(a) ((char*)server + (a))
 #define DALIB_ADDR(a) ((char*)hModDaLib + (a))
 #define FLSERVER_ADDR(a) ((char*)hProcFL + (a))
-#define CONTENT_ADDR(a) ((char*)hModContent + (a))
+#define CONTENT_ADDR(a) ((char*)content + (a))
 
 #ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	#pragma warning(disable : 4091)

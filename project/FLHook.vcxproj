@@ -227,8 +227,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\CCmds.cpp" />
     <ClCompile Include="..\source\CConsole.cpp" />
     <ClCompile Include="..\source\CInGame.cpp" />
-    <ClCompile Include="..\source\CSocket.cpp" />
-    <ClCompile Include="..\source\blowfish.cpp" />
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
@@ -254,7 +252,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
     <ClInclude Include="..\source\CConsole.h" />
-    <ClInclude Include="..\source\CSocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

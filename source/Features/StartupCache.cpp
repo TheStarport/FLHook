@@ -104,14 +104,14 @@ namespace StartupCache
 			const BYTE patch[] = {
 				0x5f, 0x5e, 0x5d, 0x5b, 0x81, 0xC4, 0x08, 0x11, 0x00, 0x00, 0xC2, 0x04, 0x00
 			}; // pop regs, restore esp, ret 4
-			WriteProcMem((char*)hModServer + 0x76b3e, patch, 13);
+			WriteProcMem((char*)server + 0x76b3e, patch, 13);
 		}
 
 		// Hook the read character name and replace it with the caching version
-		PatchCallAddr((char*)hModServer, 0x717be, (char*)Cb_ReadCharacterName);
+		PatchCallAddr((char*)server, 0x717be, (char*)Cb_ReadCharacterName);
 
 		// Keep a reference to the old read character name function.
-		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(hModServer) + 0x72fe0);
+		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(server) + 0x72fe0);
 
 		// Calculate our base path
 		char szDataPath[MAX_PATH];
@@ -131,13 +131,13 @@ namespace StartupCache
 		// Restore admin and banned file checks
 		{
 			BYTE patch[] = { 0x8b, 0x35, 0xc0, 0x4b, 0xd6, 0x06, 0x6a, 0x00, 0x68, 0xB0, 0xB8, 0xD6, 0x06 };
-			WriteProcMem((char*)hModServer + 0x76b3e, patch, 13);
+			WriteProcMem((char*)server + 0x76b3e, patch, 13);
 		}
 
 		// Unhook the read character name function.
 		{
 			BYTE patch[] = { 0xe8, 0x1d, 0x18, 0x00, 0x00 };
-			WriteProcMem((char*)hModServer + 0x717be, patch, 5);
+			WriteProcMem((char*)server + 0x717be, patch, 5);
 		}
 	}
 } // namespace StartupCache

@@ -54,9 +54,6 @@
     <ClCompile Include="..\source\CInGame.cpp">
       <Filter>AdminCommands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\CSocket.cpp">
-      <Filter>AdminCommands</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
@@ -83,7 +80,6 @@
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\FLCodec.cpp" />
-    <ClCompile Include="..\source\blowfish.cpp" />
     <ClCompile Include="..\source\FLPacket.cpp">
       <Filter>FLHook</Filter>
     </ClCompile>
@@ -159,9 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
-      <Filter>AdminCommands</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\CSocket.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ExceptionInfo.h" />

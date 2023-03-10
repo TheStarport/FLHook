@@ -196,61 +196,6 @@ namespace IServerImplHook
 				}
 			}
 
-			std::wstring eventString;
-			eventString.reserve(256);
-			eventString = L"chat";
-			eventString += L" from=";
-			if (cidFrom.iId == SpecialChatIds::CONSOLE)
-				eventString += L"console";
-			else
-			{
-				const auto* fromName = ToWChar(Players.GetActiveCharacterName(cidFrom.iId));
-				if (!fromName)
-					eventString += L"unknown";
-				else
-					eventString += fromName;
-			}
-
-			eventString += L" id=";
-			eventString += std::to_wstring(cidFrom.iId);
-
-			eventString += L" type=";
-			if (cidTo.iId == SpecialChatIds::UNIVERSE)
-				eventString += L"universe";
-			else if (cidTo.iId == SpecialChatIds::GROUP)
-			{
-				eventString += L"group";
-				eventString += L" grpidto=";
-				eventString += std::to_wstring(Players.GetGroupID(cidFrom.iId));
-			}
-			else if (cidTo.iId == SpecialChatIds::SYSTEM)
-				eventString += L"system";
-			else if (cidTo.iId == SpecialChatIds::LOCAL)
-				eventString += L"local";
-			else
-			{
-				eventString += L"player";
-				eventString += L" to=";
-
-				if (cidTo.iId == SpecialChatIds::CONSOLE)
-					eventString += L"console";
-				else
-				{
-					const auto* toName = ToWChar(Players.GetActiveCharacterName(cidTo.iId));
-					if (!toName)
-						eventString += L"unknown";
-					else
-						eventString += toName;
-				}
-
-				eventString += L" idto=";
-				eventString += std::to_wstring(cidTo.iId);
-			}
-
-			eventString += L" text=";
-			eventString += buffer;
-			ProcessEvent(L"{}", eventString.c_str());
-
 			// check if chat should be suppressed for in-built command prefixes
 			if (buffer[0] == L'/' || buffer[0] == L'.')
 			{
@@ -317,12 +262,6 @@ namespace IServerImplHook
 			if (!ClientInfo[client].iLastExitedBaseId)
 			{
 				ClientInfo[client].iLastExitedBaseId = 1;
-
-				// event
-				ProcessEvent(L"spawn char={} id={} system={}",
-				    ToWChar(Players.GetActiveCharacterName(client)),
-				    client,
-				    Hk::Client::GetPlayerSystem(client).value().c_str());
 			}
 		}
 		CATCH_HOOK({})
@@ -369,23 +308,24 @@ namespace IServerImplHook
 		return true;
 	}
 
-	void LaunchComplete__Inner(uint, uint shipId) {TRY_HOOK {ClientId client = Hk::Client::GetClientIdByShip(shipId).value();
-	if (client)
+	void LaunchComplete__Inner(uint, uint shipId) 
 	{
-		ClientInfo[client].tmSpawnTime = Hk::Time::GetUnixMiliseconds(); // save for anti-dockkill
-		                                             // is there spawnprotection?
-		if (FLHookConfig::i()->general.antiDockKill > 0)
-			ClientInfo[client].bSpawnProtected = true;
-		else
-			ClientInfo[client].bSpawnProtected = false;
-	}
+		TRY_HOOK {
+			ClientId client = Hk::Client::GetClientIdByShip(shipId).value();
 
-	// event
-	ProcessEvent(L"launch char={} id={} base={} system={}", ToWChar(Players.GetActiveCharacterName(client)), client,
-	    Hk::Client::GetBaseNickByID(ClientInfo[client].iLastExitedBaseId).value().c_str(), Hk::Client::GetPlayerSystem(client).value().c_str());
-} // namespace IServerImplHook
-CATCH_HOOK({})
-}
+			if (client)
+			{
+				ClientInfo[client].tmSpawnTime = Hk::Time::GetUnixMiliseconds(); // save for anti-dockkill
+																// is there spawnprotection?
+				if (FLHookConfig::i()->general.antiDockKill > 0)
+					ClientInfo[client].bSpawnProtected = true;
+				else
+					ClientInfo[client].bSpawnProtected = false;
+			}
+
+		}
+		CATCH_HOOK({});
+	}
 
 std::wstring g_CharBefore;
 bool CharacterSelect__Inner(const CHARACTER_ID& cid, ClientId client)
@@ -447,7 +387,6 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			CAccount* acc = Players.FindAccountFromClientID(client);
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 			auto pi = Hk::Admin::GetPlayerInfo(client, false);
-			ProcessEvent(L"login char={} accountdirname={} id={} ip={}", charName.c_str(), dir.c_str(), client, pi.value().wscIP.c_str());
 
 			MailManager::i()->SendMailNotification(client);
 
@@ -494,13 +433,6 @@ void BaseEnter__InnerAfter(uint baseId, ClientId client)
 		// anti base-idle
 		ClientInfo[client].iBaseEnterTime = static_cast<uint>(time(0));
 
-		// event
-		ProcessEvent(L"baseenter char={} id={} base={} system={}",
-		    ToWChar(Players.GetActiveCharacterName(client)),
-		    client,
-		    Hk::Client::GetBaseNickByID(baseId).value().c_str(),
-		    Hk::Client::GetPlayerSystem(client).value().c_str());
-
 		// print to log if the char has too much money
 		if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client)); value.has_value()
 		 && value.value() > 2100000000)
@@ -524,15 +456,7 @@ void BaseExit__Inner(uint baseId, ClientId client)
 
 void BaseExit__InnerAfter(uint baseId, ClientId client)
 {
-	TRY_HOOK
-	{
-		ProcessEvent(L"baseexit char={} id={} base={} system={}",
-		    ToWChar(Players.GetActiveCharacterName(client)),
-		    client,
-		    Hk::Client::GetBaseNickByID(baseId).value().c_str(),
-		    Hk::Client::GetPlayerSystem(client).value().c_str());
-	}
-	CATCH_HOOK({})
+	// TODO: implement base exit event
 }
 
 void TerminateTrade__InnerAfter(ClientId client, int accepted)
@@ -718,9 +642,7 @@ void OnConnect__InnerAfter(ClientId client)
 {
 	TRY_HOOK
 	{
-		// event
-		std::wstring ip = Hk::Admin::GetPlayerIP(client);
-		ProcessEvent(L"connect id={} ip={}", client, ip.c_str());
+		// TODO: implement event for OnConnect
 	}
 	CATCH_HOOK({})
 }
@@ -733,8 +655,7 @@ void DisConnect__Inner(ClientId client, EFLConnection)
 		ClientInfo[client].lstMoneyFix.clear();
 		ClientInfo[client].iTradePartner = 0;
 
-		const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
-		ProcessEvent(L"disconnect char={} id={}", charName, client);
+		// TODO: implement event for disconnect
 	}
 }
 
@@ -746,11 +667,7 @@ void JumpInComplete__InnerAfter(uint systemId, uint shipId)
 		if (client.has_error())
 			return;
 
-		// event
-		ProcessEvent(L"jumpin char={} id={} system={}",
-		    ToWChar(Players.GetActiveCharacterName(client.value())),
-		    client,
-		    Hk::Client::GetSystemNickByID(systemId).value().c_str());
+		// TODO: Implement event for jump in 
 	}
 	CATCH_HOOK({})
 }
@@ -760,18 +677,16 @@ void SystemSwitchOutComplete__InnerAfter(uint, ClientId client)
 	TRY_HOOK
 	{
 		const auto system = Hk::Client::GetPlayerSystem(client);
-		ProcessEvent(L"switchout char={} id={} system={}", ToWChar(Players.GetActiveCharacterName(client)), client, system.value().c_str());
+		// TODO: Implement event for switch out
 	}
 	CATCH_HOOK({})
 }
 
 bool Login__InnerBefore(const SLoginInfo& li, ClientId client)
 {
-	// The startup cache disables reading of the banned file. Check this manually on
-	// login and boot the player if they are banned.
+	// The startup cache disables reading of the banned file. Check this manually on login and boot the player if they are banned.
 
-	CAccount* acc = Players.FindAccountFromClientID(client);
-	if (acc)
+	if (CAccount* acc = Players.FindAccountFromClientID(client))
 	{
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 
@@ -912,7 +827,7 @@ void Startup__Inner(const SStartupInfo& si)
 	FLHookInit_Pre();
 
 	// Startup the server with this number of players.
-	char* address = (reinterpret_cast<char*>(hModServer) + ADDR_SRV_PLAYERDBMAXPLAYERSPATCH);
+	char* address = (reinterpret_cast<char*>(server) + ADDR_SRV_PLAYERDBMAXPLAYERSPATCH);
 	char nop[] = {'\x90'};
 	char movECX[] = {'\xB9'};
 	WriteProcMem(address, movECX, sizeof(movECX));
@@ -926,7 +841,7 @@ void Startup__InnerAfter(const SStartupInfo& si)
 {
 	// Patch to set maximum number of players to connect. This is normally
 	// less than MaxClientId
-	char* address = (reinterpret_cast<char*>(hModServer) + ADDR_SRV_PLAYERDBMAXPLAYERS);
+	char* address = (reinterpret_cast<char*>(server) + ADDR_SRV_PLAYERDBMAXPLAYERS);
 	WriteProcMem(address, reinterpret_cast<const void*>(&si.iMaxPlayers), sizeof(g_MaxPlayers));
 
 	// read base market data from ini

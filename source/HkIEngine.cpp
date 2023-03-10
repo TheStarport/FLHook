@@ -56,7 +56,7 @@ namespace IEngineHook
 		__asm {
         mov eax, p1
         push eax
-        mov eax, [hModServer]
+        mov eax, [server]
         add eax, 0x65C20
         call eax
         add esp, 4

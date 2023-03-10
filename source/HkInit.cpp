@@ -292,7 +292,7 @@ bool InitHookExports()
 
 	// patch rep array free
 	char szNOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
-	char* pAddress = ((char*)hModServer + ADDR_SRV_REPARRAYFREE);
+	char* pAddress = ((char*)server + ADDR_SRV_REPARRAYFREE);
 	ReadProcMem(pAddress, szRepFreeFixOld, 5);
 	WriteProcMem(pAddress, szNOPs, 5);
 
@@ -319,7 +319,7 @@ bool InitHookExports()
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
 	// crc anti-cheat
-	CRCAntiCheat = (_CRCAntiCheat)((char*)hModServer + ADDR_CRCANTICHEAT);
+	CRCAntiCheat = (_CRCAntiCheat)((char*)server + ADDR_CRCANTICHEAT);
 
 	// get CDPServer
 	pAddress = DALIB_ADDR(ADDR_CDPSERVER);
@@ -333,7 +333,7 @@ bool InitHookExports()
 	HookRehashed();
 
 	// get client proxy array, used to retrieve player pings/ips
-	pAddress = (char*)hModRemoteClient + ADDR_CPLIST;
+	pAddress = (char*)remoteClient + ADDR_CPLIST;
 	char* szTemp;
 	ReadProcMem(pAddress, &szTemp, 4);
 	szTemp += 0x10;

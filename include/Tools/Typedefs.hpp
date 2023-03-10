@@ -29,12 +29,6 @@ using _CRCAntiCheat = void(__stdcall*)();
 using _GetFLName = int(__cdecl*)(char* szBuf, const wchar_t* wszStr);
 using _GetShipInspect = bool(__cdecl*)(uint& ship, class IObjInspectImpl*& inspect, uint& iDunno);
 
-using BLOWFISH_CTX = struct
-{
-	unsigned long P[16 + 2];
-	unsigned long S[4][256];
-};
-
 using BYTE = unsigned char;
 
 using UserCmdProc = void(*)(ClientId& client);
