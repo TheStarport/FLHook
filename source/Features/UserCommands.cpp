@@ -652,15 +652,15 @@ void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 	const auto cash = MultiplyUIntBySuffix(GetParam(param, ' ', 1));
 	const auto clientCash = Hk::Player::GetCash(client);
 
-	if (client == targetPlayer.value())
-	{
-		PrintUserCmdText(client, L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
-		return;
-	}
-
 	if (targetPlayer.has_error())
 	{
 		PrintUserCmdText(client, Hk::Err::ErrGetText(targetPlayer.error()));
+		return;
+	}
+
+	if (client == targetPlayer.value())
+	{
+		PrintUserCmdText(client, L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
 		return;
 	}
 
