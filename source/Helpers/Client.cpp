@@ -155,7 +155,7 @@ namespace Hk::Client
 
 	cpp::result<const std::wstring, Error> GetCharacterNameByID(ClientId& client)
 	{
-		if (!IsValidClientID(client))
+		if (!IsValidClientID(client) || IsInCharSelectMenu(client))
 			return cpp::fail(Error::InvalidClientId);
 
 		return reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
