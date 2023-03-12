@@ -2,6 +2,7 @@
 #include "CConsole.h"
 
 #include "Memory/MemoryManager.hpp"
+#include <Features/MessageHandler.hpp>
 
 HANDLE hProcFL = 0;
 HMODULE server = 0;
@@ -152,11 +153,13 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 init
 **************************************************************************************************************/
 
-const std::array<const char*, 4> PluginLibs = {
+const std::array<const char*, 6> PluginLibs = {
     "pcre2-posix.dll",
     "pcre2-8.dll",
     "pcre2-16.dll",
     "pcre2-32.dll",
+	"libcrypto-3.dll",
+	"libssl-3.dll",
 };
 
 void FLHookInit_Pre()
@@ -223,7 +226,10 @@ void FLHookInit_Pre()
 
 		DWORD id;
 		hConsoleThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ReadConsoleEvents), nullptr, 0, &id);
-		PluginManager::i();
+
+		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
+		// so we want to make sure the service is up
+		MessageHandler::i();
 
 		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
 		{

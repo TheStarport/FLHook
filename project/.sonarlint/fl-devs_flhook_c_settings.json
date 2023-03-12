@@ -1,5 +1,13 @@
 {
   "sonarlint.rules": {
+    "c:S5816": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "c:S128": {
+      "level": "On",
+      "severity": "Blocker"
+    },
     "c:S5332": {
       "level": "On",
       "severity": "Critical"
@@ -53,10 +61,6 @@
       "severity": "Major"
     },
     "c:S5813": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "c:S5816": {
       "level": "On",
       "severity": "Major"
     },
@@ -315,10 +319,6 @@
     "c:S1854": {
       "level": "On",
       "severity": "Major"
-    },
-    "c:S128": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "c:S905": {
       "level": "On",
@@ -857,6 +857,9 @@
       "level": "On",
       "severity": "Blocker"
     },
+    "c:S1005": {
+      "level": "Off"
+    },
     "c:S953": {
       "level": "Off"
     },
@@ -948,9 +951,6 @@
       "level": "Off"
     },
     "c:S1908": {
-      "level": "Off"
-    },
-    "c:S1005": {
       "level": "Off"
     },
     "c:S1917": {

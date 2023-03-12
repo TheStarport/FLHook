@@ -37,6 +37,15 @@
     <Filter Include="Include\Tools\Serialization">
       <UniqueIdentifier>{87225937-9c94-4d5e-8e3f-ba1236fe0369}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FLHook\Helpers\Utility">
+      <UniqueIdentifier>{6a3b6eb0-6e95-4175-831b-ec68592b15f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Tools\External">
+      <UniqueIdentifier>{90905a1e-aa4a-4101-9a3a-ac6db2daa2e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Tools\External\AMQP">
+      <UniqueIdentifier>{5b529d7c-012d-4b53-8ef1-ccf2fe077921}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -152,6 +161,9 @@
     <ClCompile Include="..\source\Hooks\SendComm.cpp">
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Features\MessageHandler.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">
@@ -209,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\Detour.hpp">
       <Filter>Include\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\MessageHandler.hpp">
+      <Filter>Include\Features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
