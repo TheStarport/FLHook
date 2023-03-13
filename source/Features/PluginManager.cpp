@@ -2,6 +2,7 @@
 
 // Map of plugins to their relative communicators, if they have any.
 static std::map<std::string, PluginCommunicator*> pluginCommunicators;
+
 void PluginCommunicator::ExportPluginCommunicator(PluginCommunicator* communicator)
 {
 	pluginCommunicators[communicator->plugin] = communicator;
@@ -20,7 +21,7 @@ void PluginCommunicator::AddListener(const std::string plugin, EventSubscription
 	this->listeners[plugin] = event;
 }
 
-PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(const std::string plugin, PluginCommunicator::EventSubscription subscription)
+PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(const std::string plugin, EventSubscription subscription)
 {
 	const auto el = pluginCommunicators.find(plugin);
 	if (el == pluginCommunicators.end())
@@ -80,7 +81,7 @@ cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 
 	for (const auto& hook : plugin->pInfo->hooks_)
 	{
-		const uint hookId = uint(hook.targetFunction_) * uint(magic_enum::enum_count<HookStep>()) + uint(hook.step_);
+		const uint hookId = static_cast<uint>(hook.targetFunction_) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step_);
 		auto& list = pluginHooks_[hookId];
 
 		std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin->dll == dllAddr; });
@@ -109,7 +110,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", wstos(plugin->dllName)));
 	}
 
-	std::wstring pathToDLL = L"./plugins/" + dllName;
+	const std::wstring pathToDLL = L"./plugins/" + dllName;
 
 	FILE* fp;
 	_wfopen_s(&fp, pathToDLL.c_str(), L"r");
@@ -124,7 +125,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	if (!plugin->dll)
 		return adminInterface->Print(std::format("ERR can't load plugin DLL {}", wstos(plugin->dllName)));
 
-	auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin->dll, "ExportPluginInfo"));
+	const auto getPluginInfo = reinterpret_cast<ExportPluginInfoT>(GetProcAddress(plugin->dll, "ExportPluginInfo"));
 
 	if (!getPluginInfo)
 	{
@@ -146,27 +147,30 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	if (pi->versionMajor_ != CurrentMajorVersion)
 	{
 		adminInterface->Print(std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
-		    wstos(plugin->dllName),
-		    (int)CurrentMajorVersion,
-		    (int)pi->versionMajor_));
+			wstos(plugin->dllName),
+			static_cast<int>(CurrentMajorVersion),
+			static_cast<int>(pi->versionMajor_)));
 		FreeLibrary(plugin->dll);
 		return;
 	}
 
-	if ((int)pi->versionMinor_ > (int)CurrentMinorVersion)
+	if (static_cast<int>(pi->versionMinor_) > static_cast<int>(CurrentMinorVersion))
 	{
 		adminInterface->Print(std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
-		    wstos(plugin->dllName),
-		    (int)CurrentMinorVersion,
-		    (int)pi->versionMinor_));
+			wstos(plugin->dllName),
+			static_cast<int>(CurrentMinorVersion),
+			static_cast<int>(pi->versionMinor_)));
 		FreeLibrary(plugin->dll);
 		return;
 	}
 
-	if (int(pi->versionMinor_) != (int)CurrentMinorVersion)
+	if (static_cast<int>(pi->versionMinor_) != static_cast<int>(CurrentMinorVersion))
 	{
 		adminInterface->Print(std::format(
-		    "Warning, incompatible plugin API version for {}: expected {}, got {}", wstos(plugin->dllName), (int)CurrentMinorVersion, (int)pi->versionMinor_));
+			"Warning, incompatible plugin API version for {}: expected {}, got {}",
+			wstos(plugin->dllName),
+			static_cast<int>(CurrentMinorVersion),
+			static_cast<int>(pi->versionMinor_)));
 		adminInterface->Print("Processing will continue, but plugin should be considered unstable.");
 	}
 
@@ -204,7 +208,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 		if (!hook.hookFunction_)
 		{
 			adminInterface->Print(
-			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin->dllName)));
+				std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), wstos(plugin->dllName)));
 			continue;
 		}
 
@@ -213,7 +217,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 			adminInterface->Print(std::format("ERR could not bind function. plugin: {}, step not available", wstos(plugin->dllName)));
 			continue;
 		}
-		uint hookId = uint(hook.targetFunction_) * uint(magic_enum::enum_count<HookStep>()) + uint(hook.step_);
+		uint hookId = static_cast<uint>(hook.targetFunction_) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step_);
 		auto& list = pluginHooks_[hookId];
 		PluginHookData data = {hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, plugin};
 		list.emplace_back(std::move(data));
@@ -233,7 +237,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 void PluginManager::loadAll(bool startup, CCmds* adminInterface)
 {
 	WIN32_FIND_DATAW findData;
-	HANDLE findPluginsHandle = FindFirstFileW(L"./plugins/*.dll", &findData);
+	const HANDLE findPluginsHandle = FindFirstFileW(L"./plugins/*.dll", &findData);
 
 	do
 	{
@@ -241,7 +245,6 @@ void PluginManager::loadAll(bool startup, CCmds* adminInterface)
 			break;
 
 		load(findData.cFileName, adminInterface, startup);
-
 	} while (FindNextFileW(findPluginsHandle, &findData));
 }
 

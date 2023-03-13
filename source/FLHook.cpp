@@ -5,14 +5,14 @@
 #include <Features/MessageHandler.hpp>
 #include <Features/Logger.hpp>
 
-HANDLE hProcFL = 0;
-HMODULE server = 0;
-HMODULE common = 0;
-HMODULE remoteClient = 0;
-HMODULE hMe = 0;
-HMODULE hModDPNet = 0;
-HMODULE hModDaLib = 0;
-HMODULE content = 0;
+HANDLE hProcFL = nullptr;
+HMODULE server = nullptr;
+HMODULE common = nullptr;
+HMODULE remoteClient = nullptr;
+HMODULE hMe = nullptr;
+HMODULE hModDPNet = nullptr;
+HMODULE hModDaLib = nullptr;
+HMODULE content = nullptr;
 
 bool bExecuted = false;
 
@@ -31,7 +31,7 @@ FARPROC fpOldUpdate;
 
 namespace IServerImplHook
 {
-	bool __stdcall Startup(SStartupInfo const& si);
+	bool __stdcall Startup(const SStartupInfo& si);
 	void __stdcall Shutdown();
 	int __stdcall Update();
 } // namespace IServerImplHook
@@ -42,34 +42,34 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		return TRUE;
 
 	char File[MAX_PATH];
-	GetModuleFileName(0, File, sizeof(File));
+	GetModuleFileName(nullptr, File, sizeof(File));
 
-	if (std::wstring FileName = ToLower(stows(File)); FileName.find(L"flserver.exe") != -1)
-	{ 
+	if (const std::wstring FileName = ToLower(stows(File)); FileName.find(L"flserver.exe") != -1)
+	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
 
 		bExecuted = true;
 
 		// redirect IServerImpl::Update
-		FARPROC fpLoop = (FARPROC)IServerImplHook::Update;
-		void* address = (void*)((char*)GetModuleHandle(0) + ADDR_UPDATE);
+		const auto fpLoop = IServerImplHook::Update;
+		auto address = (char*)GetModuleHandle(nullptr) + ADDR_UPDATE;
 		ReadProcMem(address, &fpOldUpdate, 4);
 		WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook
-		FARPROC fpStartup = (FARPROC)IServerImplHook::Startup;
-		address = (void*)((char*)GetModuleHandle(0) + ADDR_STARTUP);
+		const auto fpStartup = (FARPROC)IServerImplHook::Startup;
+		address = static_cast<void*>((char*)GetModuleHandle(0) + ADDR_STARTUP);
 		WriteProcMem(address, &fpStartup, 4);
 
 		// install shutdown hook
-		FARPROC fpShutdown = (FARPROC)IServerImplHook::Shutdown;
-		address = (void*)((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
+		const auto fpShutdown = (FARPROC)IServerImplHook::Shutdown;
+		address = static_cast<void*>((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
 		WriteProcMem(address, &fpShutdown, 4);
 
 		// create log dirs
-		CreateDirectoryA("./logs/", NULL);
-		CreateDirectoryA("./logs/debug", NULL);
+		CreateDirectoryA("./logs/", nullptr);
+		CreateDirectoryA("./logs/debug", nullptr);
 	}
 	return TRUE;
 }
@@ -88,9 +88,9 @@ LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
 	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
 }
 
-LPTOP_LEVEL_EXCEPTION_FILTER WINAPI Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
+LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
 {
-	return NULL;
+	return nullptr;
 }
 
 /**************************************************************************************************************
@@ -98,17 +98,17 @@ init
 **************************************************************************************************************/
 
 const std::array<const char*, 6> PluginLibs = {
-    "pcre2-posix.dll",
-    "pcre2-8.dll",
-    "pcre2-16.dll",
-    "pcre2-32.dll",
+	"pcre2-posix.dll",
+	"pcre2-8.dll",
+	"pcre2-16.dll",
+	"pcre2-32.dll",
 	"libcrypto-3.dll",
 	"libssl-3.dll",
 };
 
 void FLHookInit_Pre()
 {
-	hProcFL = GetModuleHandle(0);
+	hProcFL = GetModuleHandle(nullptr);
 
 	// Get direct pointers to malloc and free for st6 to prevent debug heap
 	// issues
@@ -175,24 +175,24 @@ void FLHookInit_Pre()
 		PatchClientImpl();
 
 		// Install our own exception handler to automatically log minidumps.
-		::SetUnhandledExceptionFilter(FLHookTopLevelFilter);
+		SetUnhandledExceptionFilter(FLHookTopLevelFilter);
 
 		// Hook the kernel SetUnhandledExceptionFilter function to prevent
 		// newer versions of the crt disabling our filter function if a buffer
 		// overrun is detected.
-		HMODULE ernel32 = LoadLibrary("kernel32.dll");
+		const HMODULE ernel32 = LoadLibrary("kernel32.dll");
 		if (ernel32)
 		{
 			void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
 			if (orgEntry)
 			{
-				DWORD offset = (char*)orgEntry - (char*)ernel32;
+				const DWORD offset = static_cast<char*>(orgEntry) - (char*)ernel32;
 
 				ReadProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 
-				BYTE patch[] = {0xE9};
+				const BYTE patch[] = {0xE9};
 				WriteProcMem((char*)ernel32 + offset, patch, 1);
-				PatchCallAddr((char*)ernel32, offset, (char*)Cb_SetUnhandledExceptionFilter);
+				PatchCallAddr((char*)ernel32, offset, (char*)SetUnhandledExceptionFilter);
 			}
 		}
 
@@ -260,34 +260,34 @@ void FLHookShutdown()
 	TerminateThread(hThreadResolver, 0);
 
 	// unload update hook
-	void* address = (void*)((char*)hProcFL + ADDR_UPDATE);
+	auto* address = static_cast<void*>((char*)hProcFL + ADDR_UPDATE);
 	WriteProcMem(address, &fpOldUpdate, 4);
 
 	// unload hooks
 	UnloadHookExports();
 
 	// If extended exception logging is in use, restore patched functions
-	if (HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
+	if (const HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
 	{
 		void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
 		if (orgEntry)
 		{
-			DWORD offset = (char*)orgEntry - (char*)ernel32;
+			const DWORD offset = static_cast<char*>(orgEntry) - (char*)ernel32;
 			WriteProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 		}
 	}
 	// And restore the default exception filter.
-	SetUnhandledExceptionFilter(0);
+	SetUnhandledExceptionFilter(nullptr);
 
 	// unload rest
 	DWORD id;
 	DWORD dwParam;
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &dwParam, 0, &id);
+	CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &dwParam, 0, &id);
 }
 
 void ProcessPendingCommands()
 {
-	auto logger = Logger::i();
+	const auto logger = Logger::i();
 	auto cmd = logger->GetCommand();
 	while (cmd.has_value())
 	{

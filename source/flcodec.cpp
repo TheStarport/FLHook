@@ -44,7 +44,7 @@ std::string ReadFile(const char* input)
 	file.seekg(0, std::ios::beg);
 
 	std::string vec;
-	vec.reserve(static_cast<uint>(fileSize));
+	vec.reserve(fileSize);
 
 	vec.insert(vec.begin(), std::istream_iterator<BYTE>(file), std::istream_iterator<BYTE>());
 	return vec;
@@ -63,10 +63,10 @@ std::string FlcDecode(std::string& input)
 	const int length = input.size() - 4;
 	while (i < length)
 	{
-		auto c = static_cast<byte>(((&input[0]) + 4)[i]);
-		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
-		
-		byte r = c ^ (k | 0x80);
+		const auto c = static_cast<byte>(((&input[0]) + 4)[i]);
+		const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
+
+		const byte r = c ^ (k | 0x80);
 
 		output += r;
 
@@ -81,15 +81,15 @@ std::string FlcEncode(std::string& input)
 	// Create our output vector, start with the magic string.
 	std::string output = {'F', 'L', 'S', '1'};
 
-	const int length = input.size();
+	const uint length = input.size();
 
 	int i = 0;
 	while (i < length)
 	{
-		byte c = (&input[0])[i];
-		auto k = static_cast<byte>((gene[i % 4] + i) % 256);
+		const byte c = (&input[0])[i];
+		const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
-		byte r = c ^ (k | 0x80);
+		const byte r = c ^ (k | 0x80);
 
 		output += r;
 
@@ -110,7 +110,7 @@ bool EncodeDecode(const char* input, const char* output, bool encode)
 	}
 
 	std::ofstream outputFile(output, std::ios::out | std::ios::binary);
-	outputFile.write((char*)&decodedBytes[0], decodedBytes.size() * sizeof(byte));
+	outputFile.write(&decodedBytes[0], decodedBytes.size() * sizeof(byte));
 	outputFile.close();
 
 	return true;

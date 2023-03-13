@@ -149,7 +149,7 @@ namespace Plugins::CargoDrop
 		if (cargo.has_error())
 			return;
 
-		uint ship = Hk::Player::GetShip(clientVictim).value();
+		const uint ship = Hk::Player::GetShip(clientVictim).value();
 		auto [position, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 		position.x += 30.0f;
 

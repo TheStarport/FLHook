@@ -17,7 +17,7 @@ bool LoadBaseMarket()
 			continue;
 
 		const char* BaseName = ini.get_value_string();
-		BaseInfo* biBase = 0;
+		BaseInfo* biBase = nullptr;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{
 			const char* BN = base.scBasename.c_str();

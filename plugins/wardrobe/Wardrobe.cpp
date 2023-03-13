@@ -155,7 +155,7 @@ namespace Plugins::Wardrobe
 	void UserCmdHandle(ClientId& client, const std::wstring& param)
 	{
 		// Check character is in base
-		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
+		if (const auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in base");
 			return;

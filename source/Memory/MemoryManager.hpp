@@ -9,14 +9,14 @@ class SaveGameDetour
 	static bool GetUserDataPathDetour(char* retPtr);
 	std::string GetSaveDataPath() const;
 
-  protected:
+protected:
 	void InitHook();
 	void DestroyHook();
 };
 
 class MemoryManager final : public SaveGameDetour, public Singleton<MemoryManager>
 {
-  public:
+public:
 	MemoryManager() = default;
 	void AddHooks();
 	void RemoveHooks();

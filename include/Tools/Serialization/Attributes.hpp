@@ -3,11 +3,13 @@
 #include <refl.hpp>
 
 template<typename T>
-    requires IsNumeric<T>
+	requires IsNumeric<T>
 struct AttrMin : refl::attr::usage::field
 {
 	const T val;
-	explicit constexpr AttrMin(T v) noexcept : val(v)
+
+	explicit constexpr AttrMin(T v) noexcept
+		: val(v)
 	{
 		// no impl
 	}
@@ -25,18 +27,19 @@ struct AttrMin : refl::attr::usage::field
 REFL_AUTO(template((typename T), (AttrMin<T>)), func(Validate));
 
 template<typename T>
-    requires IsNumeric<T>
+	requires IsNumeric<T>
 struct AttrMax : refl::attr::usage::field
 {
 	const T val;
-	
-	explicit constexpr AttrMax(T v) noexcept : val(v)
+
+	explicit constexpr AttrMax(T v) noexcept
+		: val(v)
 	{
 		// no impl
 	}
 
-	cpp::result<void, std::string> Validate(const T& comp) const 
-	{ 
+	cpp::result<void, std::string> Validate(const T& comp) const
+	{
 		if (comp <= val)
 		{
 			return {};
@@ -48,7 +51,7 @@ struct AttrMax : refl::attr::usage::field
 REFL_AUTO(template((typename T), (AttrMax<T>)), func(Validate));
 
 template<typename T>
-    requires StringRestriction<T>
+	requires StringRestriction<T>
 struct AttrNotEmptyNotWhiteSpace : refl::attr::usage::field
 {
 	explicit constexpr AttrNotEmptyNotWhiteSpace() noexcept
@@ -69,11 +72,13 @@ struct AttrNotEmptyNotWhiteSpace : refl::attr::usage::field
 REFL_AUTO(template((typename T), (AttrNotEmptyNotWhiteSpace<T>)), func(Validate));
 
 template<typename T>
-    requires StringRestriction<T>
+	requires StringRestriction<T>
 struct AttrMaxLength : refl::attr::usage::field
 {
 	const uint val;
-	explicit constexpr AttrMaxLength(uint v) noexcept : val(v)
+
+	explicit constexpr AttrMaxLength(uint v) noexcept
+		: val(v)
 	{
 		// no impl
 	}
@@ -91,11 +96,13 @@ struct AttrMaxLength : refl::attr::usage::field
 REFL_AUTO(template((typename T), (AttrMaxLength<T>)), func(Validate));
 
 template<typename T>
-    requires StringRestriction<T>
+	requires StringRestriction<T>
 struct AttrMinLength : refl::attr::usage::field
 {
 	const uint val;
-	explicit constexpr AttrMinLength(uint v) noexcept : val(v)
+
+	explicit constexpr AttrMinLength(uint v) noexcept
+		: val(v)
 	{
 		// no impl
 	}
@@ -123,7 +130,9 @@ template<typename T, typename Lambda>
 struct AttrCustom : refl::attr::usage::field
 {
 	Lambda func;
-	explicit constexpr AttrCustom(const Lambda& l) noexcept : func(l)
+
+	explicit constexpr AttrCustom(const Lambda& l) noexcept
+		: func(l)
 	{
 		// no impl
 	}

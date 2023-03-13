@@ -1,17 +1,17 @@
 #pragma once
 
 #ifndef DLL
-	#ifndef FLHOOK
+#ifndef FLHOOK
 		#define DLL __declspec(dllimport)
-	#else
-		#define DLL __declspec(dllexport)
-	#endif
+#else
+#define DLL __declspec(dllexport)
+#endif
 #endif
 
 #ifndef FLHOOK
 	#define EXTERN extern
 #else
-	#define EXTERN
+#define EXTERN
 #endif
 
 #define SRV_ADDR(a) ((char*)server + (a))
@@ -20,12 +20,15 @@
 #define CONTENT_ADDR(a) ((char*)content + (a))
 
 #ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
-	#pragma warning(disable : 4091)
-	#include <DbgHelp.h>
+#pragma warning(disable : 4091)
+#include <DbgHelp.h>
 
 struct SEHException
 {
-	SEHException(uint code, EXCEPTION_POINTERS* ep) : code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord) {}
+	SEHException(uint code, EXCEPTION_POINTERS* ep)
+		: code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord)
+	{
+	}
 
 	SEHException() = default;
 
@@ -39,11 +42,11 @@ struct SEHException
 DLL void WriteMiniDump(SEHException* ex);
 DLL void AddExceptionInfoLog();
 DLL void AddExceptionInfoLog(SEHException* ex);
-	#define TRY_HOOK \
+#define TRY_HOOK \
 		try          \
 		{            \
 			_set_se_translator(SEHException::Translator);
-	#define CATCH_HOOK(e)                                                                                                                \
+#define CATCH_HOOK(e)                                                                                                                \
 		}                                                                                                                                \
 		catch (SEHException & ex)                                                                                                        \
 		{                                                                                                                                \
@@ -64,7 +67,7 @@ DLL void AddExceptionInfoLog(SEHException* ex);
 			AddExceptionInfoLog(0);                                                                                                      \
 		}
 
-	#define LOG_EXCEPTION                                                                                  \
+#define LOG_EXCEPTION                                                                                  \
 		{                                                                                                  \
 			AddLog(LogType::Normal, LogLevel::Err, std::format("ERROR Exception in {}", __FUNCTION__)); \
 			AddExceptionInfoLog();                                                                         \

@@ -94,7 +94,7 @@ namespace Plugins::Rename
 			return true;
 
 		const std::string charDir = accDir + charFilename.c_str();
-		std::wstring charName = IniGetWS(charDir, "Player", "Name", L"");
+		const std::wstring charName = IniGetWS(charDir, "Player", "Name", L"");
 
 		IniDelete(renameIniDir, "General", wstos(charName));
 
@@ -223,9 +223,9 @@ namespace Plugins::Rename
 			return;
 		}
 
-		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 		std::wstring tag = GetParam(param, ' ', 0);
-		std::wstring pass = GetParam(param, ' ', 1);
+		const std::wstring pass = GetParam(param, ' ', 1);
 
 		// If this tag is in use then reject the request.
 		if (const auto& data = global->tagList.FindTag(tag); data != global->tagList.tags.end() && pass == data->masterPassword)
@@ -571,7 +571,7 @@ namespace Plugins::Rename
 			return;
 		}
 
-		if (std::wstring code = Trim(GetParam(param, L' ', 0)); code == L"none")
+		if (const std::wstring code = Trim(GetParam(param, L' ', 0)); code == L"none")
 		{
 			IniWriteW(scFile, "Settings", "Code", L"");
 			PrintUserCmdText(client, L"OK Movechar code cleared");
@@ -586,9 +586,9 @@ namespace Plugins::Rename
 
 	static bool IsBanned(const std::wstring& charname)
 	{
-		std::wstring dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByCharName(charname).value());
+		const std::wstring dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByCharName(charname).value());
 
-		std::string banfile = CoreGlobals::c()->accPath + wstos(dir) + "\\banned";
+		const std::string banfile = CoreGlobals::c()->accPath + wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
 		FILE* f;
@@ -747,14 +747,14 @@ namespace Plugins::Rename
 			return;
 		}
 
-		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
+		const std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
 
 		// Get the account path.
-		std::string path = CoreGlobals::c()->accPath + "\\*.fl";
+		const std::string path = CoreGlobals::c()->accPath + "\\*.fl";
 
 		// Open the directory iterator.
 		WIN32_FIND_DATA FindFileData;
-		HANDLE hFileFind = FindFirstFile(path.c_str(), &FindFileData);
+		const HANDLE hFileFind = FindFirstFile(path.c_str(), &FindFileData);
 		if (hFileFind == INVALID_HANDLE_VALUE)
 		{
 			cmds->Print("ERR Account directory not found");
@@ -794,7 +794,7 @@ namespace Plugins::Rename
 		const auto curr_time = Hk::Time::GetUnixSeconds();
 		for (const auto& tag : global->tagList.tags)
 		{
-			auto last_access = static_cast<int>(tag.lastAccess);
+			const auto last_access = static_cast<int>(tag.lastAccess);
 			int days = (curr_time - last_access) / (24 * 3600);
 			cmds->Print(wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n",
 			    tag.tag,

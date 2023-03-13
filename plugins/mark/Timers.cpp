@@ -74,7 +74,7 @@ namespace Plugins::Mark
 		if (!global->DelayedMarks.size())
 			return;
 
-		mstime tmTimeNow = Hk::Time::GetUnixMiliseconds();
+		const mstime tmTimeNow = Hk::Time::GetUnixMiliseconds();
 		for (auto mark = global->DelayedMarks.begin(); mark != global->DelayedMarks.end();)
 		{
 			if (tmTimeNow - mark->time > 50)

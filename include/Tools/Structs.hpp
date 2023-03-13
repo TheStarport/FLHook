@@ -145,7 +145,7 @@ typedef struct _DPN_CONNECTION_INFO
 	DWORD dwBytesReceivedNonGuaranteed;
 	DWORD dwPacketsReceivedNonGuaranteed;
 	DWORD dwMessagesReceived;
-} DPN_CONNECTION_INFO, *PDPN_CONNECTION_INFO;
+} DPN_CONNECTION_INFO,* PDPN_CONNECTION_INFO;
 
 struct PlayerInfo
 {
@@ -268,7 +268,7 @@ struct Zone
 
 class JumpPoint
 {
-  public:
+public:
 	/** The system nickname */
 	std::string sysNick;
 

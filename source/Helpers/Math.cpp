@@ -36,9 +36,9 @@ namespace Hk::Math
 		quaternion.x = sqrt(std::max(0.0f, 1.0f + m.data[0][0] - m.data[1][1] - m.data[2][2])) / 2;
 		quaternion.y = sqrt(std::max(0.0f, 1.0f - m.data[0][0] + m.data[1][1] - m.data[2][2])) / 2;
 		quaternion.z = sqrt(std::max(0.0f, 1.0f - m.data[0][0] - m.data[1][1] + m.data[2][2])) / 2;
-		quaternion.x = (float)_copysign(quaternion.x, m.data[2][1] - m.data[1][2]);
-		quaternion.y = (float)_copysign(quaternion.y, m.data[0][2] - m.data[2][0]);
-		quaternion.z = (float)_copysign(quaternion.z, m.data[1][0] - m.data[0][1]);
+		quaternion.x = static_cast<float>(_copysign(quaternion.x, m.data[2][1] - m.data[1][2]));
+		quaternion.y = static_cast<float>(_copysign(quaternion.y, m.data[0][2] - m.data[2][0]));
+		quaternion.z = static_cast<float>(_copysign(quaternion.z, m.data[1][0] - m.data[0][1]));
 		return quaternion;
 	}
 
@@ -50,14 +50,14 @@ namespace Hk::Math
 			scale = iSystem->NavMapScale;
 
 		const float fGridSize = 34000.0f / scale;
-		int gridRefX = (int)((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
-		int gridRefZ = (int)((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
+		int gridRefX = static_cast<int>((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
+		int gridRefZ = static_cast<int>((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
 
 		gridRefX = std::min(std::max(gridRefX, 0), 7);
-		char scXPos = 'A' + char(gridRefX);
+		char scXPos = 'A' + static_cast<char>(gridRefX);
 
 		gridRefZ = std::min(std::max(gridRefZ, 0), 7);
-		char scZPos = '1' + char(gridRefZ);
+		char scZPos = '1' + static_cast<char>(gridRefZ);
 
 		typename Str::value_type CurrentLocation[100];
 		if constexpr (std::is_same_v<Str, std::string>)
@@ -68,7 +68,7 @@ namespace Hk::Math
 		return CurrentLocation;
 	}
 
-constexpr float PI = std::numbers::pi_v<float>;
+	constexpr float PI = std::numbers::pi_v<float>;
 
 	// Convert radians to degrees.
 	float Degrees(float rad)
@@ -85,7 +85,7 @@ constexpr float PI = std::numbers::pi_v<float>;
 		}
 
 		// Round to two decimal places here, so %g can display it without decimals.
-		if (const float frac = modff(rad * 100, &rad); 
+		if (const float frac = modff(rad * 100, &rad);
 			frac >= 0.5f)
 			++rad;
 		else if (frac <= -0.5f)

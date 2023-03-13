@@ -16,7 +16,7 @@ class Logger : public Singleton<Logger>
 
 	void GetConsoleInput(std::stop_token st);
 
-  public:
+public:
 	Logger();
 	~Logger();
 

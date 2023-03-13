@@ -26,7 +26,7 @@ template<typename T>
 std::wstring ToLogString(const T& val)
 {
 	// Get type without reference
-	typedef std::remove_reference_t<decltype(val)> DeclType;
+	using DeclType = std::remove_reference_t<decltype(val)>;
 	if constexpr (std::is_same_v<DeclType, int> || std::is_same_v<DeclType, uint> || std::is_same_v<DeclType, float> || std::is_same_v<DeclType, double>)
 	{
 		return std::to_wstring(val);
@@ -50,7 +50,7 @@ namespace Hk
 		void CharacterInit();
 		void CharacterShutdown();
 		void CharacterClearClientInfo(ClientId client);
-		void CharacterSelect(CHARACTER_ID const charId, ClientId client);
+		void CharacterSelect(CHARACTER_ID charId, ClientId client);
 	} // namespace Ini
 
 	namespace Personalities
@@ -63,7 +63,7 @@ namespace Hk
 		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
 		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
 	} // namespace Client
-} // namespace Hk
+}     // namespace Hk
 
 // Death
 void Naked__ShipDestroyed();
@@ -104,6 +104,7 @@ inline auto* ToWChar(const ushort* val)
 {
 	return reinterpret_cast<const wchar_t*>(val);
 }
+
 inline auto* ToWChar(ushort* val)
 {
 	return reinterpret_cast<wchar_t*>(val);
@@ -113,6 +114,7 @@ inline auto* ToUShort(const wchar_t* val)
 {
 	return reinterpret_cast<const ushort*>(val);
 }
+
 inline auto* ToUShort(wchar_t* val)
 {
 	return reinterpret_cast<ushort*>(val);
@@ -200,12 +202,12 @@ inline auto* ToUShort(wchar_t* val)
 
 class CTimer
 {
-  public:
+public:
 	EXPORT CTimer(const std::string& sFunction, uint iWarning);
 	EXPORT void start();
 	EXPORT uint stop();
 
-  private:
+private:
 	mstime tmStart = 0;
 	uint iMax = 0;
 	std::string sFunction;
@@ -243,7 +245,7 @@ inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs)
 
 class PluginManager : public Singleton<PluginManager>
 {
-  public:
+public:
 	struct FunctionHookProps
 	{
 		bool callBefore = false;
@@ -263,8 +265,8 @@ class PluginManager : public Singleton<PluginManager>
 		}
 	};
 
-  private:
-	std::array<std::vector<PluginHookData>, uint(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
+private:
+	std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
 	std::vector<std::shared_ptr<PluginData>> plugins_;
 	std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
 
@@ -272,7 +274,7 @@ class PluginManager : public Singleton<PluginManager>
 	void setupProps();
 	void setProps(HookedCall c, bool before, bool after);
 
-  public:
+public:
 	PluginManager();
 	~PluginManager();
 
@@ -294,36 +296,36 @@ class PluginManager : public Singleton<PluginManager>
 		constexpr bool ReturnTypeIsVoid = std::is_same_v<ReturnType, void>;
 		using NoVoidReturnType = std::conditional_t<ReturnTypeIsVoid, int, ReturnType>;
 
-		NoVoidReturnType ret {};
+		NoVoidReturnType ret{};
 		TRY_HOOK
-		{
-			for (const auto& hook : pluginHooks_[uint(target) * magic_enum::enum_count<HookStep>() + uint(step)])
 			{
-				const auto& plugin = hook.plugin;
-				if (plugin->paused)
-					continue;
-
-				if (plugin->resetCode)
-					*plugin->returnCode = ReturnCode::Default;
-
-				TRY_HOOK
+				for (const auto& hook : pluginHooks_[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
 				{
-					if constexpr (ReturnTypeIsVoid)
-						reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
-					else
-						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+					const auto& plugin = hook.plugin;
+					if (plugin->paused)
+						continue;
+
+					if (plugin->resetCode)
+						*plugin->returnCode = ReturnCode::Default;
+
+					TRY_HOOK
+						{
+							if constexpr (ReturnTypeIsVoid)
+								reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+							else
+								ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+						}
+					CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
+
+					auto code = *plugin->returnCode;
+
+					if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
+						skipFunctionCall = true;
+
+					if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
+						break;
 				}
-				CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
-
-				auto code = *plugin->returnCode;
-
-				if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
-					skipFunctionCall = true;
-
-				if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
-					break;
 			}
-		}
 		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception {}", __FUNCTION__)); });
 
 		if constexpr (!ReturnTypeIsVoid)
@@ -372,7 +374,7 @@ class DebugTools : public Singleton<DebugTools>
 
 	static uint CreateIdDetour(const char* str);
 
-  public:
+public:
 	DebugTools() = default;
 	void Init();
 };

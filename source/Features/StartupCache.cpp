@@ -6,7 +6,7 @@ namespace StartupCache
 	static int chars_loaded = 0;
 
 	// The original function read charname function
-	typedef int(__stdcall* _ReadCharacterName)(const char* filename, st6::wstring* str);
+	using _ReadCharacterName = int(__stdcall*)(const char* filename, st6::wstring* str);
 	_ReadCharacterName ReadCharName;
 
 	// map of acc_char_path to char name
@@ -19,14 +19,14 @@ namespace StartupCache
 	static int acc_path_prefix_length = 0;
 
 	// A fast alternative to the built in read character name function in server.dll
-	static int __stdcall Cb_ReadCharacterName(const char* filename, st6::wstring* str)
+	static int __stdcall ReadCharacterName(const char* filename, st6::wstring* str)
 	{
 		Console::ConDebug("Read character - " + std::string(filename));
 
 		// If this account/charfile can be found in the character return
 		// then name immediately.
-		std::string acc_path(&filename[acc_path_prefix_length]);
-		if (auto i = cache.find(acc_path); i != cache.end())
+		const std::string acc_path(&filename[acc_path_prefix_length]);
+		if (const auto i = cache.find(acc_path); i != cache.end())
 		{
 			*str = st6::wstring((ushort*)i->second.c_str());
 			return 1;
@@ -55,11 +55,11 @@ namespace StartupCache
 		fopen_s(&file, scPath.c_str(), "rb");
 		if (file)
 		{
-			NameInfo ni {};
+			NameInfo ni{};
 			while (fread(&ni, sizeof(NameInfo), 1, file))
 			{
 				std::string acc_path(ni.acc_path);
-				std::wstring name(ni.name);
+				const std::wstring name(ni.name);
 				cache[acc_path] = name;
 			}
 			fclose(file);
@@ -79,7 +79,7 @@ namespace StartupCache
 			Console::ConInfo("Saving character name cache");
 			for (const auto& [charPath, charName] : cache)
 			{
-				NameInfo ni {};
+				NameInfo ni{};
 				memset(&ni, 0, sizeof(ni));
 				strncpy_s(ni.acc_path, 27, charPath.c_str(), charPath.size());
 				wcsncpy_s(ni.name, 25, charName.c_str(), charName.size());
@@ -108,7 +108,7 @@ namespace StartupCache
 		}
 
 		// Hook the read character name and replace it with the caching version
-		PatchCallAddr((char*)server, 0x717be, (char*)Cb_ReadCharacterName);
+		PatchCallAddr((char*)server, 0x717be, (char*)ReadCharacterName);
 
 		// Keep a reference to the old read character name function.
 		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(server) + 0x72fe0);
@@ -130,13 +130,13 @@ namespace StartupCache
 
 		// Restore admin and banned file checks
 		{
-			BYTE patch[] = { 0x8b, 0x35, 0xc0, 0x4b, 0xd6, 0x06, 0x6a, 0x00, 0x68, 0xB0, 0xB8, 0xD6, 0x06 };
+			const BYTE patch[] = {0x8b, 0x35, 0xc0, 0x4b, 0xd6, 0x06, 0x6a, 0x00, 0x68, 0xB0, 0xB8, 0xD6, 0x06};
 			WriteProcMem((char*)server + 0x76b3e, patch, 13);
 		}
 
 		// Unhook the read character name function.
 		{
-			BYTE patch[] = { 0xe8, 0x1d, 0x18, 0x00, 0x00 };
+			const BYTE patch[] = {0xe8, 0x1d, 0x18, 0x00, 0x00};
 			WriteProcMem((char*)server + 0x717be, patch, 5);
 		}
 	}

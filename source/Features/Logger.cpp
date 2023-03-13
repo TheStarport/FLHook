@@ -21,7 +21,7 @@ void Logger::GetConsoleInput(std::stop_token st)
 			if (cmd[cmd.length() - 1] == '\r')
 				cmd = cmd.substr(0, cmd.length() - 1);
 
-			if (!cmd.empty()) 
+			if (!cmd.empty())
 			{
 				queue.push(cmd);
 			}
@@ -35,7 +35,7 @@ Logger::Logger()
 	AllocConsole();
 	SetConsoleTitle("FLHook");
 
-	HWND console = GetConsoleWindow();
+	const HWND console = GetConsoleWindow();
 	RECT r;
 	GetWindowRect(console, &r);
 
@@ -59,7 +59,7 @@ Logger::Logger()
                                                                        )";
 	welcomeText += "\n\n";
 	DWORD _;
-	WriteConsole(consoleOutput, welcomeText.c_str(), DWORD(welcomeText.length()), &_, nullptr);
+	WriteConsole(consoleOutput, welcomeText.c_str(), static_cast<DWORD>(welcomeText.length()), &_, nullptr);
 
 	consoleThread = std::jthread(&Logger::GetConsoleInput, this);
 }

@@ -197,7 +197,7 @@ void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std:
 	RIGHT_CHECK(RIGHT_REPUTATION);
 
 	const auto res = Hk::Player::GetRep(player, repGroup);
-	if ( res.has_error())
+	if (res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -315,7 +315,7 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 	auto cargo = Hk::Player::EnumCargo(player, holdSize);
 	if (cargo.has_error())
 	{
-		PrintError(cargo.error());	
+		PrintError(cargo.error());
 	}
 
 	Print(std::format("remainingholdsize={}", holdSize));
@@ -394,7 +394,7 @@ void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_CHARACTERS);
 
-	const auto res = Hk::Player::ReadCharFile(player); 
+	const auto res = Hk::Player::ReadCharFile(player);
 	if (res.has_error())
 	{
 		PrintError(res.error());
@@ -430,8 +430,14 @@ void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}", pi.character, pi.client,
-	    pi.IP, pi.Hostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.Base, pi.System)));
+	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}",
+		pi.character,
+		pi.client,
+		pi.IP,
+		pi.Hostname,
+		pi.connectionInfo.dwRoundTripLatencyMS,
+		pi.Base,
+		pi.System)));
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -465,8 +471,14 @@ void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 {
 	RIGHT_CHECK(RIGHT_OTHER);
 
-	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n", pi.character, pi.client,
-	    pi.IP, pi.Hostname, pi.connectionInfo.dwRoundTripLatencyMS, pi.Base, pi.System)));
+	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n",
+		pi.character,
+		pi.client,
+		pi.IP,
+		pi.Hostname,
+		pi.connectionInfo.dwRoundTripLatencyMS,
+		pi.Base,
+		pi.System)));
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -520,7 +532,7 @@ void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	auto dir = Hk::Client::GetAccountDirName(acc.value());
+	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 
 	Print(std::format("dirname={}\nOK", wstos(dir)));
 }
@@ -548,7 +560,7 @@ void CCmds::CmdIsOnServer(const std::wstring& player)
 	RIGHT_CHECK(RIGHT_OTHER);
 
 	const auto res = Hk::Client::GetAccountByCharName(player);
-	if ( res.has_error())
+	if (res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -593,8 +605,8 @@ void CCmds::CmdServerInfo()
 	GetSystemTime(&st);
 	FILETIME ftNow;
 	SystemTimeToFileTime(&st, &ftNow);
-	int64 iTimeCreation = (((int64)ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
-	int64 iTimeNow = (((int64)ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
+	const int64 iTimeCreation = (static_cast<int64>(ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
+	const int64 iTimeNow = (static_cast<int64>(ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
 
 	auto iUptime = static_cast<uint>((iTimeNow - iTimeCreation) / 10000000);
 	uint iDays = (iUptime / (60 * 60 * 24));
@@ -608,7 +620,10 @@ void CCmds::CmdServerInfo()
 
 	// print
 	Print(std::format(
-	    "serverload={} npcspawn={} uptime={}\nOK\n", CoreGlobals::c()->serverLoadInMs, CoreGlobals::c()->disableNpcs ? "disabled" : "enabled", time));
+		"serverload={} npcspawn={} uptime={}\nOK\n",
+		CoreGlobals::c()->serverLoadInMs,
+		CoreGlobals::c()->disableNpcs ? "disabled" : "enabled",
+		time));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -651,7 +666,7 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 {
 	RIGHT_CHECK(RIGHT_SETTINGS);
 
-	const auto res = Hk::Player::GetReservedSlot(player); 
+	const auto res = Hk::Player::GetReservedSlot(player);
 	if (res.has_error())
 	{
 		PrintError(res.error());
@@ -831,7 +846,6 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pos.y += 100;
 
 	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().System), pos.x, pos.y, pos.z));
-	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -864,7 +878,8 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 		}
 	}
 	catch (...)
-	{ // exeption, kick player
+	{
+		// exeption, kick player
 		Hk::Player::Kick(player);
 		Print("ERR exception occured, player kicked");
 	}
@@ -897,7 +912,6 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	pos.y += 400;
 
 	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", wstos(target.value().System), pos.x, pos.y, pos.z));
-	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -922,7 +936,6 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 	pos.z = z;
 	Print(std::format("Moving to {:.2f} {:.2f} {:.2f}", pos.x, pos.y, pos.z));
 	Hk::Player::RelocateClient(res.value().client, pos, rot);
-	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -942,11 +955,11 @@ std::wstring CCmds::ArgCharname(uint iArg)
 	{
 		if (bId)
 			return Arg.replace(0, 0, L"id ");
-		else if (bShortCut)
+		if (bShortCut)
 			return Arg.replace(0, 0, L"sc ");
-		else if (bSelf)
+		if (bSelf)
 			return this->GetAdminName();
-		else if (bTarget)
+		if (bTarget)
 		{
 			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
 			if (client.has_error())
@@ -955,7 +968,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			uint iTarget = Hk::Player::GetTarget(ship).value();
+			const uint iTarget = Hk::Player::GetTarget(ship).value();
 			if (!iTarget)
 				return L"";
 			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
@@ -968,9 +981,9 @@ std::wstring CCmds::ArgCharname(uint iArg)
 	{
 		if (Arg == L">s")
 			return this->GetAdminName();
-		else if (Arg.find(L">i") == 0)
+		if (Arg.find(L">i") == 0)
 			return L"id " + Arg.substr(2);
-		else if (Arg == L">t")
+		if (Arg == L">t")
 		{
 			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
 			if (client.has_error())
@@ -979,7 +992,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			uint iTarget = Hk::Player::GetTarget(ship).value();
+			const uint iTarget = Hk::Player::GetTarget(ship).value();
 			if (!iTarget)
 				return L"";
 			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
@@ -987,8 +1000,7 @@ std::wstring CCmds::ArgCharname(uint iArg)
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
 		}
-		else
-			return Arg;
+		return Arg;
 	}
 }
 
@@ -996,14 +1008,14 @@ std::wstring CCmds::ArgCharname(uint iArg)
 
 int CCmds::ArgInt(uint iArg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
 
 	return ToInt(Arg);
 }
 
 uint CCmds::ArgUInt(uint iArg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
 
 	return ToUInt(Arg);
 }
@@ -1012,7 +1024,7 @@ uint CCmds::ArgUInt(uint iArg)
 
 float CCmds::ArgFloat(uint iArg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
 	return ToFloat(Arg);
 }
 
@@ -1051,7 +1063,7 @@ std::wstring CCmds::ArgStrToEnd(uint iArg)
 void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 {
 	// check if command was sent by a socket connection
-	std::wstring AdminName = GetAdminName();
+	const std::wstring AdminName = GetAdminName();
 
 	try
 	{
@@ -1070,7 +1082,7 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 			return;
 		}
 
-		size_t Cmd_pos = CmdStr.find(Cmd);
+		const size_t Cmd_pos = CmdStr.find(Cmd);
 
 		if (Cmd[Cmd.length() - 1] == '$')
 		{

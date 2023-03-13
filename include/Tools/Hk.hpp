@@ -269,7 +269,7 @@ namespace Hk
 	{
 		DLL cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key);
 		DLL cpp::result<void, Error> WriteToPlayerFile(
-		    const std::variant<uint, std::wstring>& player, const std::wstring& Key, const std::wstring& Value);
+			const std::variant<uint, std::wstring>& player, const std::wstring& Key, const std::wstring& Value);
 
 		DLL void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value);
 		DLL std::wstring GetCharacterIniString(ClientId client, const std::wstring& name);
@@ -300,7 +300,7 @@ namespace Hk
 
 	namespace Err
 	{
-		DLL std::wstring ErrGetText(Error Err);
+		DLL std::wstring ErrGetText(Error err);
 	}
 
 	namespace Personalities
@@ -312,7 +312,7 @@ namespace Hk
 	{
 		DLL void ReadUniverse(std::multimap<uint, LootableZone, std::less<>>* zones);
 		DLL void ReadLootableZone(
-		    std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& defaultZoneNick, const std::string& file);
+			std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& defaultZoneNick, const std::string& file);
 		DLL void ReadSystemLootableZones(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file);
 		DLL void ReadSystemZones(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file);
 		DLL bool InZone(uint systemId, const Vector& pos, Zone& rlz);
@@ -320,4 +320,4 @@ namespace Hk
 		DLL SystemInfo* GetSystemInfo(uint systemId);
 		DLL void PrintZones();
 	} // namespace ZoneUtilities
-} // namespace Hk
+}     // namespace Hk

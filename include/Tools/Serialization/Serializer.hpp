@@ -29,10 +29,12 @@ template<typename>
 struct IsVector : std::false_type
 {
 };
+
 template<typename T, typename A>
 struct IsVector<std::vector<T, A>> : std::true_type
 {
 };
+
 template<typename T, typename TT>
 constexpr auto IsVectorOfType = std::is_same_v<T, std::vector<TT>>;
 
@@ -40,10 +42,12 @@ template<typename>
 struct IsMap : std::false_type
 {
 };
+
 template<typename T, typename A>
 struct IsMap<std::map<T, A>> : std::true_type
 {
 };
+
 template<typename T, typename TT, typename TTT>
 constexpr auto IsMapOfType = std::is_same_v<T, std::map<TT, TTT>>;
 
@@ -54,18 +58,18 @@ class Serializer
 
 	{
 		if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || IsBigInt<typename DeclType::value_type> ||
-		    IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type>)
+			IsFloat<typename DeclType::value_type> || IsString<typename DeclType::value_type>)
 		{
 			if (json.is_array())
 			{
-				return json.get<std::vector<typename DeclType::value_type>>();
+				return json.template get<std::vector<typename DeclType::value_type>>();
 			}
 			return json[member.name.c_str()].template get<std::vector<typename DeclType::value_type>>();
 		}
 		else if constexpr (IsWString<typename DeclType::value_type>)
 		{
-			std::vector<std::string> vectorOfString =
-			    json.is_array() ? json.get<std::vector<std::string>>() : json[member.name.c_str()].template get<std::vector<std::string>>();
+			const std::vector<std::string> vectorOfString =
+				json.is_array() ? json.template get<std::vector<std::string>>() : json[member.name.c_str()].template get<std::vector<std::string>>();
 
 			std::vector<std::wstring> vectorOfWstring;
 			for (auto& i : vectorOfString)
@@ -76,7 +80,7 @@ class Serializer
 		}
 		else if constexpr (IsReflectable<typename DeclType::value_type>)
 		{
-			auto jArr = json.is_array() ? json.get<nlohmann::json::array_t>() : json[member.name.c_str()].template get<nlohmann::json::array_t>();
+			auto jArr = json.is_array() ? json.template get<nlohmann::json::array_t>() : json[member.name.c_str()].template get<nlohmann::json::array_t>();
 
 			auto declArr = std::vector<typename DeclType::value_type>();
 			for (auto iter = jArr.begin(); iter != jArr.end(); ++iter)
@@ -149,7 +153,7 @@ class Serializer
 		}
 		else if constexpr (IsWString<Target>)
 		{
-			std::map<std::string, std::string> mapOfString = json[member.name.c_str()].template get<std::map<std::string, std::string>>();
+			const std::map<std::string, std::string> mapOfString = json[member.name.c_str()].template get<std::map<std::string, std::string>>();
 			if constexpr (IsWString<StrType>)
 			{
 				std::map<std::wstring, std::wstring> mapOfWstring(mapOfString.size());
@@ -237,177 +241,180 @@ class Serializer
 	{
 		constexpr auto type = refl::reflect<T>();
 
-		refl::util::for_each(type.members, [&type, &obj, &json](auto member) {
-			// We ignore static and constant values.
-			// Not going to report this as there are use cases where you might want to store constant/static data with
-			// the regular
-			if (member.is_static || !member.is_writable)
-				return;
+		refl::util::for_each(type.members,
+			[&type, &obj, &json](auto member) {
+				// We ignore static and constant values.
+				// Not going to report this as there are use cases where you might want to store constant/static data with
+				// the regular
+				if (member.is_static || !member.is_writable)
+					return;
 
-			// Get our type with the reference removed
-			typedef std::remove_reference_t<decltype(member(obj))> DeclType;
+				// Get our type with the reference removed
+				using DeclType = std::remove_reference_t<decltype(member(obj))>;
 
-			void* ptr = PVOID(std::addressof(obj.*member.pointer));
+				auto ptr = static_cast<PVOID>(std::addressof(obj.*member.pointer));
 
-			// Key if our json key exists. If it doesn't we don't care.
-			if (!json.contains(member.name.c_str()))
-			{
-				// Not found
-				return;
-			}
-
-			if constexpr (IsAnyValidType<DeclType>)
-			{
-				ReadType<DeclType>(json, ptr, member);
-			}
-			else if constexpr (IsVector<DeclType>::value)
-			{
-				*static_cast<std::vector<typename DeclType::value_type>*>(ptr) = ReadVector<DeclType>(json, member);
-			}
-			else if constexpr (IsMap<DeclType>::value)
-			{
-				typedef std::remove_const<DeclType::value_type::first_type>::type MapType;
-				if constexpr (IsWString<MapType> || IsString<MapType>)
+				// Key if our json key exists. If it doesn't we don't care.
+				if (!json.contains(member.name.c_str()))
 				{
-					ReadMap<MapType, DeclType::value_type::second_type>(json, ptr, member);
+					// Not found
+					return;
+				}
+
+				if constexpr (IsAnyValidType<DeclType>)
+				{
+					ReadType<DeclType>(json, ptr, member);
+				}
+				else if constexpr (IsVector<DeclType>::value)
+				{
+					*static_cast<std::vector<typename DeclType::value_type>*>(ptr) = ReadVector<DeclType>(json, member);
+				}
+				else if constexpr (IsMap<DeclType>::value)
+				{
+					using MapType = std::remove_const_t<typename DeclType::value_type::first_type>;
+					if constexpr (IsWString<MapType> || IsString<MapType>)
+					{
+						ReadMap<MapType, DeclType::value_type::second_type>(json, ptr, member);
+					}
+					else
+					{
+						static_assert(!IsWString<MapType> && !IsString<MapType>, "Key in reflectable map is not a string or wide string.");
+					}
 				}
 				else
 				{
-					static_assert(!IsWString<MapType> && !IsString<MapType>, "Key in reflectable map is not a string or wide string.");
+					static_assert(!IsMap<DeclType>::value, "Non-reflectable property present on reflectable object.");
 				}
-			}
-			else
-			{
-				static_assert(!IsMap<DeclType>::value, "Non-reflectable property present on reflectable object.");
-			}
-		});
+			});
 	}
 
 	template<typename T>
 	static void WriteObject(nlohmann::json& json, T& obj)
 	{
 		constexpr auto type = refl::reflect<T>();
-		refl::util::for_each(type.members, [&type, &obj, &json](auto member) {
-			// We ignore static and constant values.
-			// Not going to report this as there are use cases where you might want to store constant/static data with
-			// the regular
-			if (member.is_static || !member.is_writable)
-				return;
+		refl::util::for_each(type.members,
+			[&type, &obj, &json](auto member) {
+				// We ignore static and constant values.
+				// Not going to report this as there are use cases where you might want to store constant/static data with
+				// the regular
+				if (member.is_static || !member.is_writable)
+					return;
 
-			// Get our type with the reference removed
-			typedef std::remove_reference_t<decltype(member(obj))> DeclType;
-			if constexpr (IsBool<DeclType> || IsInt<DeclType> || IsFloat<DeclType> || IsString<DeclType> || IsWString<DeclType> || IsBigInt<DeclType>)
-			{
-				if constexpr (IsWString<DeclType>)
+				// Get our type with the reference removed
+				using DeclType = std::remove_reference_t<decltype(member(obj))>;
+				if constexpr (IsBool<DeclType> || IsInt<DeclType> || IsFloat<DeclType> || IsString<DeclType> || IsWString<DeclType> || IsBigInt<DeclType>)
 				{
-					json[member.name.c_str()] = wstos(member(obj));
-				}
-				else
-				{
-					json[member.name.c_str()] = member(obj);
-				}
-			}
-			else if constexpr (IsReflectable<DeclType>)
-			{
-				auto reflectableJson = nlohmann::json::object();
-				WriteObject(reflectableJson, member(obj));
-				json[member.name.c_str()] = reflectableJson;
-			}
-			else if constexpr (IsVector<DeclType>::value)
-			{
-				if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || IsFloat<typename DeclType::value_type> ||
-				    IsString<typename DeclType::value_type> || IsWString<typename DeclType::value_type> || IsBigInt<typename DeclType::value_type>)
-				{
-					if constexpr (IsWString<typename DeclType::value_type>)
+					if constexpr (IsWString<DeclType>)
 					{
-						std::vector<std::string> vectorOfStrings;
-						for (std::wstring& i : member(obj))
-						{
-							vectorOfStrings.emplace_back(wstos(i));
-						}
-						json[member.name.c_str()] = vectorOfStrings;
+						json[member.name.c_str()] = wstos(member(obj));
 					}
 					else
 					{
 						json[member.name.c_str()] = member(obj);
 					}
 				}
-				else if constexpr (IsReflectable<typename DeclType::value_type>)
+				else if constexpr (IsReflectable<DeclType>)
 				{
-					std::vector<nlohmann::json::object_t> objects;
-					auto arr = member(obj);
-					for (auto& i : arr)
-					{
-						auto newObj = nlohmann::json::object();
-						WriteObject(newObj, i);
-						objects.emplace_back(newObj);
-					}
-					json[member.name.c_str()] = objects;
+					auto reflectableJson = nlohmann::json::object();
+					WriteObject(reflectableJson, member(obj));
+					json[member.name.c_str()] = reflectableJson;
 				}
-				else
+				else if constexpr (IsVector<DeclType>::value)
 				{
-					static_assert(IsReflectable<typename DeclType::value_type>, "Non-reflectable property present on reflectable object.");
-				}
-			}
-			else if constexpr (IsMap<DeclType>::value)
-			{
-				constexpr bool IsWide = std::is_same_v<class std::basic_string<wchar_t, struct std::char_traits<wchar_t>, class std::allocator<wchar_t>> const,
-				    DeclType::value_type::first_type>;
-				constexpr bool IsNotWide = std::is_same_v<class std::basic_string<char, struct std::char_traits<char>, class std::allocator<char>> const,
-				    DeclType::value_type::first_type>;
-
-				static_assert(IsWide || IsNotWide, "Non-reflectable property present on reflectable object.");
-
-				if constexpr (IsReflectable<typename DeclType::value_type::second_type>)
-				{
-					auto map = member(obj);
-					std::map<std::string, nlohmann::json::object_t> objects;
-					for (auto& i : map)
+					if constexpr (IsBool<typename DeclType::value_type> || IsInt<typename DeclType::value_type> || IsFloat<typename DeclType::value_type> ||
+						IsString<typename DeclType::value_type> || IsWString<typename DeclType::value_type> || IsBigInt<typename DeclType::value_type>)
 					{
-						auto newObj = nlohmann::json::object();
-						WriteObject(newObj, i.second);
-						if constexpr (IsWide)
+						if constexpr (IsWString<typename DeclType::value_type>)
 						{
-							objects[wstos(i.first)] = newObj;
+							std::vector<std::string> vectorOfStrings;
+							for (std::wstring& i : member(obj))
+							{
+								vectorOfStrings.emplace_back(wstos(i));
+							}
+							json[member.name.c_str()] = vectorOfStrings;
 						}
 						else
 						{
-							objects[i.first] = newObj;
+							json[member.name.c_str()] = member(obj);
 						}
 					}
-					json[member.name.c_str()] = objects;
-				}
-				else
-				{
-					if constexpr (IsWide)
+					else if constexpr (IsReflectable<typename DeclType::value_type>)
 					{
-						std::map<std::string, typename DeclType::value_type::second_type> map;
-						for (const auto& [key, value] : member(obj))
+						std::vector<nlohmann::json::object_t> objects;
+						auto arr = member(obj);
+						for (auto& i : arr)
 						{
-							map[wstos(key)] = value;
+							auto newObj = nlohmann::json::object();
+							WriteObject(newObj, i);
+							objects.emplace_back(newObj);
 						}
-						json[member.name.c_str()] = map;
+						json[member.name.c_str()] = objects;
 					}
 					else
 					{
-						json[member.name.c_str()] = member(obj);
+						static_assert(IsReflectable<typename DeclType::value_type>, "Non-reflectable property present on reflectable object.");
 					}
 				}
-			}
-			else
-			{
-				static_assert(!IsMap<DeclType>::value, "Non-reflectable property present on reflectable object.");
-			}
-		});
+				else if constexpr (IsMap<DeclType>::value)
+				{
+					constexpr bool IsWide = std::is_same_v<const class std::basic_string<wchar_t, struct std::char_traits<wchar_t>, class std::allocator<
+							wchar_t>>,
+						typename DeclType::value_type::first_type>;
+					constexpr bool IsNotWide = std::is_same_v<const class std::basic_string<char, struct std::char_traits<char>, class std::allocator<char>>,
+						typename DeclType::value_type::first_type>;
+
+					static_assert(IsWide || IsNotWide, "Non-reflectable property present on reflectable object.");
+
+					if constexpr (IsReflectable<typename DeclType::value_type::second_type>)
+					{
+						auto map = member(obj);
+						std::map<std::string, nlohmann::json::object_t> objects;
+						for (auto& i : map)
+						{
+							auto newObj = nlohmann::json::object();
+							WriteObject(newObj, i.second);
+							if constexpr (IsWide)
+							{
+								objects[wstos(i.first)] = newObj;
+							}
+							else
+							{
+								objects[i.first] = newObj;
+							}
+						}
+						json[member.name.c_str()] = objects;
+					}
+					else
+					{
+						if constexpr (IsWide)
+						{
+							std::map<std::string, typename DeclType::value_type::second_type> map;
+							for (const auto& [key, value] : member(obj))
+							{
+								map[wstos(key)] = value;
+							}
+							json[member.name.c_str()] = map;
+						}
+						else
+						{
+							json[member.name.c_str()] = member(obj);
+						}
+					}
+				}
+				else
+				{
+					static_assert(!IsMap<DeclType>::value, "Non-reflectable property present on reflectable object.");
+				}
+			});
 	}
 
 	template<std::size_t I = 0, typename FuncT, typename... Tp>
-	static typename std::enable_if<I == sizeof...(Tp), void>::type for_each(std::tuple<Tp...>, FuncT) // Unused arguments are given no names.
+	static std::enable_if_t<I == sizeof...(Tp), void> for_each(std::tuple<Tp...>, FuncT) // Unused arguments are given no names.
 	{
 	}
 
 	template<std::size_t I = 0, typename FuncT, typename... Tp>
-	    static typename std::enable_if < I<sizeof...(Tp), void>::type for_each(std::tuple<Tp...> t, FuncT f)
+	static std::enable_if_t<I < sizeof...(Tp), void> for_each(std::tuple<Tp...> t, FuncT f)
 	{
 		f(std::get<I>(t));
 		for_each<I + 1, FuncT, Tp...>(t, f);
@@ -417,28 +424,33 @@ class Serializer
 	static void Validate(T& obj)
 	{
 		constexpr auto type = refl::reflect<T>();
-		refl::util::for_each(type.members, [&type, &obj](auto member) {
-			if (member.is_static || !member.is_writable)
-				return;
+		refl::util::for_each(type.members,
+			[&type, &obj](auto member) {
+				if (member.is_static || !member.is_writable)
+					return;
 
-			const auto attrs = refl::descriptor::get_attributes(member);
+				const auto attrs = refl::descriptor::get_attributes(member);
 
-			for_each(attrs, [obj, member](const auto val) {
-				typedef std::remove_reference_t<decltype(val)> DeclType;
-				constexpr auto memberType = refl::reflect<DeclType>();
-				constexpr auto members = refl::descriptor::get_members(memberType);
-				refl::util::apply(members, [val, member, obj](auto func) { 
-					cpp::result<void, std::string> valid = refl::descriptor::invoke(func, val, member(obj));
-					if (valid.has_error())
-					{
-						Console::ConErr(std::format("While trying to create reflectable. Failed to validate {} (reason: {})", std::string(member.name.c_str()), valid.error()));
-					}
-				});
+				for_each(attrs,
+					[obj, member](const auto val) {
+						using DeclType = std::remove_reference_t<decltype(val)>;
+						constexpr auto memberType = refl::reflect<DeclType>();
+						constexpr auto members = refl::descriptor::get_members(memberType);
+						refl::util::apply(members,
+							[val, member, obj](auto func) {
+								const cpp::result<void, std::string> valid = refl::descriptor::invoke(func, val, member(obj));
+								if (valid.has_error())
+								{
+									Console::ConErr(std::format("While trying to create reflectable. Failed to validate {} (reason: {})",
+										std::string(member.name.c_str()),
+										valid.error()));
+								}
+							});
+					});
 			});
-		});
 	}
 
-  public:
+public:
 	/// <summary>
 	/// Save an instance of a class/struct to a JSON file.
 	/// Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
@@ -449,7 +461,7 @@ class Serializer
 	/// <param name="fileToSave">Where you would like to save the file. Defaults to empty string. If empty, the class
 	/// meta data will be used.</param>
 	template<typename T>
-	inline static void SaveToJson(T& t, std::string fileToSave = "")
+	static void SaveToJson(T& t, std::string fileToSave = "")
 	{
 		// If no file is provided, we can search the class metadata.
 		if (fileToSave.empty())
@@ -470,7 +482,7 @@ class Serializer
 		if (std::filesystem::path folderPath(fileToSave); folderPath.has_root_directory())
 		{
 			folderPath.remove_filename();
-			if (!std::filesystem::create_directories(folderPath) && !std::filesystem::exists(folderPath))
+			if (!create_directories(folderPath) && !exists(folderPath))
 			{
 				Console::ConWarn(std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
 				return;
@@ -489,7 +501,7 @@ class Serializer
 	}
 
 	template<typename T>
-	inline static T JsonToObject(std::string fileName = "", bool createIfNotExist = true)
+	static T JsonToObject(std::string fileName = "", bool createIfNotExist = true)
 	{
 		// If we cannot load, we return a default
 		T ret;
@@ -542,15 +554,15 @@ class Serializer
 		{
 			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
 			AddLog(LogType::Normal,
-			    LogLevel::Warn,
-			    std::format("Unable to process JSON file [{}]. The JSON could not be parsed. EXCEPTION: {}", fileName, ex.what()));
+				LogLevel::Warn,
+				std::format("Unable to process JSON file [{}]. The JSON could not be parsed. EXCEPTION: {}", fileName, ex.what()));
 		}
 		catch (nlohmann::json::type_error& ex)
 		{
 			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
 			AddLog(LogType::Normal,
-			    LogLevel::Warn,
-			    std::format("Unable to process JSON file [{}]. A type within the JSON object did not match. EXCEPTION: {}", fileName, ex.what()));
+				LogLevel::Warn,
+				std::format("Unable to process JSON file [{}]. A type within the JSON object did not match. EXCEPTION: {}", fileName, ex.what()));
 		}
 		catch (nlohmann::json::exception& ex)
 		{

@@ -24,14 +24,14 @@ float IniGetF(const std::string& File, const std::string& App, const std::string
 	char Default[16];
 	sprintf_s(Default, "%f", fDefault);
 	GetPrivateProfileString(App.c_str(), Key.c_str(), Default, Ret, sizeof(Ret), File.c_str());
-	return (float)atof(Ret);
+	return static_cast<float>(atof(Ret));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool IniGetB(const std::string& File, const std::string& App, const std::string& Key, bool bDefault)
 {
-	std::string val = ToLower(IniGetS(File, App, Key, bDefault ? "true" : "false"));
+	const std::string val = ToLower(IniGetS(File, App, Key, bDefault ? "true" : "false"));
 	return val.compare("yes") == 0 || val.compare("true") == 0 ? true : false;
 }
 
@@ -49,10 +49,10 @@ void IniWriteW(const std::string& File, const std::string& App, const std::strin
 	std::string Value = "";
 	for (uint i = 0; (i < Value.length()); i++)
 	{
-		char cHiByte = Value[i] >> 8;
-		char cLoByte = Value[i] & 0xFF;
+		const char cHiByte = Value[i] >> 8;
+		const char cLoByte = Value[i] & 0xFF;
 		char Buf[8];
-		sprintf_s(Buf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+		sprintf_s(Buf, "%02X%02X", static_cast<uint>(cHiByte) & 0xFF, static_cast<uint>(cLoByte) & 0xFF);
 		Value += Buf;
 	}
 	WritePrivateProfileString(App.c_str(), Key.c_str(), Value.c_str(), File.c_str());
@@ -64,7 +64,7 @@ std::wstring IniGetWS(const std::string& File, const std::string& App, const std
 {
 	char Ret[2048 * 2];
 	GetPrivateProfileString(App.c_str(), Key.c_str(), "", Ret, sizeof(Ret), File.c_str());
-	std::string Value = Ret;
+	const std::string Value = Ret;
 	if (!Value.length())
 		return Default;
 
@@ -74,7 +74,7 @@ std::wstring IniGetWS(const std::string& File, const std::string& App, const std
 	while (sscanf_s(Value.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 	{
 		Value = Value.substr(4);
-		wchar_t wChar = (wchar_t)((lHiByte << 8) | lLoByte);
+		wchar_t wChar = static_cast<wchar_t>((lHiByte << 8) | lLoByte);
 		Value.append(1, wChar);
 	}
 
@@ -87,7 +87,7 @@ std::wstring IniGetWS(const std::string& File, const std::string& App, const std
 void IniDelete(const std::string& File, const std::string& App, const std::string& Key)
 {
 	// TODO: DELETE ME, fix referneces
-	WritePrivateProfileString(App.c_str(), Key.c_str(), NULL, File.c_str());
+	WritePrivateProfileString(App.c_str(), Key.c_str(), nullptr, File.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ void IniDelete(const std::string& File, const std::string& App, const std::strin
 void IniDelSection(const std::string& File, const std::string& App)
 {
 	// TODO: DELETE ME, fix referneces
-	WritePrivateProfileString(App.c_str(), NULL, NULL, File.c_str());
+	WritePrivateProfileString(App.c_str(), nullptr, nullptr, File.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,14 +109,13 @@ std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, cons
 	// init variables
 	char DataPath[MAX_PATH];
 	GetUserDataPath(DataPath);
-	std::string AcctPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
-
+	const std::string AcctPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
 
 	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
 	if (acc.has_error())
 		return "";
 
-	auto dir = Hk::Client::GetAccountDirName(acc.value());
+	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 	const auto file = Hk::Client::GetCharFileName(player);
 	if (file.has_error())
 		return "";
@@ -136,7 +135,14 @@ std::wstring GetTimeString(bool bLocalTime)
 
 	wchar_t wBuf[100];
 	_snwprintf_s(
-	    wBuf, sizeof(wBuf), L"%04d-%02d-%02d %02d:%02d:%02d ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute,
-	    st.wSecond);
+		wBuf,
+		sizeof(wBuf),
+		L"%04d-%02d-%02d %02d:%02d:%02d ",
+		st.wYear,
+		st.wMonth,
+		st.wDay,
+		st.wHour,
+		st.wMinute,
+		st.wSecond);
 	return wBuf;
 }

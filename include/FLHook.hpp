@@ -1,8 +1,5 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
-
-#define _WINSOCKAPI_
 #include <Windows.h>
 #include <string>
 #include <set>
@@ -27,24 +24,24 @@ class DLL Console
 	// Might use more later?
 	enum class ConsoleColor
 	{
-		BLUE = 0x0001,
-		GREEN = 0x0002,
-		CYAN = BLUE | GREEN,
-		RED = 0x0004,
-		PURPLE = RED | BLUE,
-		YELLOW = RED | GREEN,
-		WHITE = RED | BLUE | GREEN,
+		Blue = 0x0001,
+		Green = 0x0002,
+		Cyan = Blue | Green,
+		Red = 0x0004,
+		Purple = Red | Blue,
+		Yellow = Red | Green,
+		White = Red | Blue | Green,
 
-		STRONG_BLUE = 0x0008 | BLUE,
-		STRONG_GREEN = 0x0008 | GREEN,
-		STRONG_CYAN = 0x0008 | CYAN,
-		STRONG_RED = 0x0008 | RED,
-		STRONG_PURPLE = 0x0008 | PURPLE,
-		STRONG_YELLOW = 0x0008 | YELLOW,
-		STRONG_WHITE = 0x0008 | WHITE,
+		StrongBlue = 0x0008 | Blue,
+		StrongGreen = 0x0008 | Green,
+		StrongCyan = 0x0008 | Cyan,
+		StrongRed = 0x0008 | Red,
+		StrongPurple = 0x0008 | Purple,
+		StrongYellow = 0x0008 | Yellow,
+		StrongWhite = 0x0008 | White,
 	};
 
-  public:
+public:
 	// String
 	static void ConPrint(const std::string& str);
 	static void ConErr(const std::string& str);
@@ -55,11 +52,11 @@ class DLL Console
 
 class DLL DataManager : public Singleton<DataManager>
 {
-  private:
+private:
 	std::string dataPath;
 	std::map<EquipId, Light> lights;
 
-  public:
+public:
 	DataManager()
 	{
 		INI_Reader ini;
@@ -77,9 +74,9 @@ class DLL DataManager : public Singleton<DataManager>
 	};
 	DataManager(const DataManager&) = delete;
 
-#ifdef FLHOOK
+	#ifdef FLHOOK
 	void LoadLights();
-#endif
+	#endif
 
 	// Lights
 	const std::map<EquipId, Light>& GetLights() const;
@@ -257,8 +254,8 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 	struct Callsign final : Reflectable
 	{
 		//! The mapping of numbers to formations. 1, min = Alpha. 29, max = Yanagi
-		std::vector<int> allowedFormations = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
-		
+		std::vector<int> allowedFormations = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+
 		//! If true, formations and numbers will not be assigned to ships. All ships will be alpha 1-1.
 		bool disableRandomisedFormations = false;
 
@@ -276,15 +273,15 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 
 // Use the class to create and send packets of inconstant size.
 #pragma pack(push, 1)
-class FLPACKET
+class FlPacket
 {
-  private:
-	uint Size;
+private:
+	uint size = 0;
 
 	byte kind;
 	byte type;
 
-  public:
+public:
 	// This is content of your packet. You may want to reinterpretate it as pointer to packet data struct for convenience.
 	byte content[1];
 
@@ -495,13 +492,13 @@ class FLPACKET
 	};
 
 	// Common packets are being sent from server to client and from client to server.
-	DLL static FLPACKET* Create(uint size, CommonPacket kind);
+	DLL static FlPacket* Create(uint size, CommonPacket kind);
 
 	// Server packets are being sent only from server to client.
-	DLL static FLPACKET* Create(uint size, ServerPacket kind);
+	DLL static FlPacket* Create(uint size, ServerPacket kind);
 
 	// Client packets are being sent only from client to server. Can't imagine why you ever need to create such a packet at side of server.
-	DLL static FLPACKET* Create(uint size, ClientPacket kind);
+	DLL static FlPacket* Create(uint size, ClientPacket kind);
 
 	// Returns true if sent succesfully, false if not. Frees memory allocated for packet.
 	DLL bool SendTo(ClientId client);
@@ -510,18 +507,18 @@ class FLPACKET
 
 class CCmds
 {
-  protected:
+protected:
 	~CCmds() = default;
 
-  private:
+private:
 	bool bId;
 	bool bShortCut;
 	bool bSelf;
 	bool bTarget;
 
-  public:
+public:
 	DWORD rights;
-#ifdef FLHOOK
+	#ifdef FLHOOK
 	// commands
 	void CmdGetCash(const std::variant<uint, std::wstring>& player);
 	void CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmount);
@@ -592,9 +589,9 @@ class CCmds
 	void ExecuteCommandString(const std::wstring& Cmd);
 	void SetRightsByString(const std::string& RightStr);
 	std::wstring CurCmdString;
-#endif
+	#endif
 
-  public:
+public:
 	virtual void DoPrint(const std::string& text) = 0;
 	DLL void PrintError(Error err);
 	DLL std::wstring ArgCharname(uint iArg);
@@ -610,7 +607,7 @@ class CCmds
 
 class CInGame final : public CCmds
 {
-  public:
+public:
 	uint client;
 	std::wstring AdminName;
 	DLL void DoPrint(const std::string& text) override;
@@ -644,6 +641,7 @@ namespace IServerImplHook
 		bool inSubmitChat;
 		std::wstring characterName;
 	};
+
 	const DLL extern std::unique_ptr<SubmitData> chatData;
 } // namespace IServerImplHook
 

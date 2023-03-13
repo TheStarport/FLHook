@@ -65,7 +65,7 @@ namespace Plugins::Restart
 
 	void UserCmd_Restart(ClientId& client, const std::wstring& param)
 	{
-		std::wstring restartTemplate = GetParam(param, ' ', 0);
+		const std::wstring restartTemplate = GetParam(param, ' ', 0);
 		if (!restartTemplate.length())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
@@ -77,7 +77,7 @@ namespace Plugins::Restart
 		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Searching restart
-		std::filesystem::path directory = "config\\restarts";
+		const std::filesystem::path directory = "config\\restarts";
 		if (!std::filesystem::exists(directory))
 		{
 			PrintUserCmdText(client, L"There has been an error with the restarts plugin. Please contact an Administrator.");
@@ -108,7 +108,7 @@ namespace Plugins::Restart
 		if (!Hk::Client::IsValidClientID(client))
 			return;
 
-		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
+		if (const auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
 			PrintUserCmdText(client, L"ERR Not in base");
 			return;

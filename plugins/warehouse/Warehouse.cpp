@@ -188,7 +188,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		WareHouseItem warehouseItem = itemList.at(itemId - 1);
+		const WareHouseItem warehouseItem = itemList.at(itemId - 1);
 
 		const auto itemArch = Archetype::GetEquipment(warehouseItem.equipArchId);
 		if (!itemArch)
@@ -240,7 +240,7 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, L"You must be docked in order to use this command.");
 			return;
 		}
-		auto baseVal = base.value();
+		const auto baseVal = base.value();
 		if (std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
 		{
 			PrintUserCmdText(client, L"Error: The base you're attempting to use warehouse on is restricted.");

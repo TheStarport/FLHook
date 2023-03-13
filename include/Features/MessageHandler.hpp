@@ -26,9 +26,9 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
 	void onError(AMQP::Connection* connection, const char* message) override;
 	void onClosed(AMQP::Connection* connection) override;
 
-  public:
+public:
 	explicit MessageHandler();
-	~MessageHandler() noexcept;
+	~MessageHandler() noexcept override;
 
 	enum class Queue
 	{

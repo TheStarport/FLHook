@@ -78,7 +78,7 @@ namespace Plugins::MiningControl
 
 		// Get all player bonuses for this commodity.
 		auto start = global->PlayerBonus.lower_bound(lootId);
-		auto end = global->PlayerBonus.upper_bound(lootId);
+		const auto end = global->PlayerBonus.upper_bound(lootId);
 		for (; start != end; start++)
 		{
 			// Check for matching reputation if reputation is required.
@@ -92,7 +92,7 @@ namespace Plugins::MiningControl
 			// Check that every simple item in the equipment list is present and
 			// mounted.
 			bool bEquipMatch = true;
-			for (auto item : start->second.ItemIds)
+			for (const auto item : start->second.ItemIds)
 			{
 				if (!ContainsEquipment(cargoList, item))
 				{
@@ -218,7 +218,7 @@ namespace Plugins::MiningControl
 
 		// Patch Archetype::GetEquipment & Archetype::GetShip to suppress annoying
 		// warnings flserver-errors.log
-		unsigned char patch1[] = {0x90, 0x90};
+		const unsigned char patch1[] = {0x90, 0x90};
 		WriteProcMem((char*)0x62F327E, &patch1, 2);
 		WriteProcMem((char*)0x62F944E, &patch1, 2);
 		WriteProcMem((char*)0x62F123E, &patch1, 2);
@@ -265,7 +265,7 @@ namespace Plugins::MiningControl
 			for (const auto& item : pb.Items)
 			{
 				uint ItemId = CreateID(item.c_str());
-				if (auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() != Archetype::GUN)
+				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() != Archetype::GUN)
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
@@ -276,8 +276,8 @@ namespace Plugins::MiningControl
 
 			for (const auto& ammo : pb.Ammo)
 			{
-				uint ItemId = CreateID(ammo.c_str());
-				if (auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() == Archetype::GUN)
+				const uint ItemId = CreateID(ammo.c_str());
+				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() == Archetype::GUN)
 				{
 					const Archetype::Gun* gun = static_cast<Archetype::Gun*>(equipment);
 					if (gun->iProjectileArchId && gun->iProjectileArchId != 0xBAADF00D && gun->iProjectileArchId != 0x3E07E70)
@@ -348,7 +348,7 @@ namespace Plugins::MiningControl
 		global->config = std::make_unique<Config>(config);
 
 		// Remove patch now that we've finished loading.
-		unsigned char patch2[] = {0xFF, 0x12};
+		const unsigned char patch2[] = {0xFF, 0x12};
 		WriteProcMem((char*)0x62F327E, &patch2, 2);
 		WriteProcMem((char*)0x62F944E, &patch2, 2);
 		WriteProcMem((char*)0x62F123E, &patch2, 2);

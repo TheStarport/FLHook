@@ -27,7 +27,7 @@ struct __vcrt_ptd
 	void* _curexcspec;              // for handling exceptions thrown from std::unexpected
 	int _cxxReThrow;                // true if it's a rethrown C++ exception
 
-#if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRId
+	#if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRId
 	void* _pExitContext;
 	void* _pUnwindContext;
 	void* _pFrameInfoChain;
@@ -40,23 +40,23 @@ struct __vcrt_ptd
 	                         // unwind represents the current unwind state that
 	                         // is resumed to during collided unwind and used to
 	                         // look for handlers of the throwing dtor.
-#elif defined _M_IX86
+	#elif defined _M_IX86
 	void* _pFrameInfoChain;
-#endif
+	#endif
 };
 
 extern "C" __vcrt_ptd* __cdecl __current_exception_context();
 
 inline const EXCEPTION_RECORD* GetCurrentExceptionRecord()
 {
-	auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
-	return (EXCEPTION_RECORD*)p->_curexception;
+	const auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
+	return static_cast<EXCEPTION_RECORD*>(p->_curexception);
 }
 
 inline const _CONTEXT* GetCurrentExceptionContext()
 {
-	auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
-	return (_CONTEXT*)p->_curcontext;
+	const auto p = (__vcrt_ptd*)(((BYTE*)__current_exception_context()) - offsetof(__vcrt_ptd, _curcontext));
+	return static_cast<_CONTEXT*>(p->_curcontext);
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ struct msvc__PMD
 	int vdisp;
 };
 
-typedef void (*msvc__PMFN)(void);
+using msvc__PMFN = void(*)(void);
 
 #pragma warning(disable : 4200)
 #pragma pack(push, _TypeDescriptor, 8)
@@ -107,7 +107,7 @@ struct msvc__ThrowInfo
 {
 	unsigned int attributes;
 	msvc__PMFN pmfnUnwind;
-	int(__cdecl* pForwardCompat)(...);
+	int (__cdecl* pForwardCompat)(...);
 	msvc__CatchableTypeArray* pCatchableTypeArray;
 };
 

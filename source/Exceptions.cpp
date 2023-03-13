@@ -2,13 +2,13 @@
 #include "ExceptionInfo.h"
 
 #ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
-	#include <psapi.h>
+#include <psapi.h>
 
 HMODULE GetModuleAddr(uint iAddr)
 {
 	HMODULE hModArr[1024];
 	DWORD iArrSizeNeeded;
-	HANDLE hProcess = GetCurrentProcess();
+	const HANDLE hProcess = GetCurrentProcess();
 	if (EnumProcessModules(hProcess, hModArr, sizeof(hModArr), &iArrSizeNeeded))
 	{
 		if (iArrSizeNeeded > sizeof(hModArr))
@@ -19,39 +19,39 @@ HMODULE GetModuleAddr(uint iAddr)
 			MODULEINFO mi;
 			if (GetModuleInformation(hProcess, hModArr[i], &mi, sizeof(mi)))
 			{
-				if (((uint)mi.lpBaseOfDll) < iAddr && (uint)mi.lpBaseOfDll + (uint)mi.SizeOfImage > iAddr)
+				if (((uint)mi.lpBaseOfDll) < iAddr && (uint)mi.lpBaseOfDll + static_cast<uint>(mi.SizeOfImage) > iAddr)
 				{
 					return hModArr[i];
 				}
 			}
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
-	#include "dbghelp.h"
+#include "dbghelp.h"
 
-	#include <string.h>
+#include <string.h>
 
 // based on dbghelp.h
-typedef BOOL(WINAPI* MINIdUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
-    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+using MINIdUMPWRITEDUMP = BOOL(WINAPI*)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
+	PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+	PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
 void WriteMiniDump(SEHException* ex)
 {
 	AddLog(LogType::Normal, LogLevel::Err, "Attempting to write minidump...");
-	HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
+	const HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
 	if (hDll)
 	{
-		MINIdUMPWRITEDUMP pDump = (MINIdUMPWRITEDUMP)::GetProcAddress(hDll, "MiniDumpWriteDump");
+		const auto pDump = (MINIdUMPWRITEDUMP)GetProcAddress(hDll, "MiniDumpWriteDump");
 		if (pDump)
 		{
 			// put the dump file in the flhook logs/debug directory
 			char DumpPath[_MAX_PATH];
 			char DumpPathFirst[_MAX_PATH];
 
-			time_t tNow = time(0);
+			const time_t tNow = time(nullptr);
 			tm t;
 			localtime_s(&t, &tNow);
 			strftime(DumpPathFirst, sizeof(DumpPathFirst), "./logs/debug/flserver_%d.%m.%Y_%H.%M.%S", &t);
@@ -64,7 +64,7 @@ void WriteMiniDump(SEHException* ex)
 			} while (FileExists(DumpPath));
 
 			// create the file
-			HANDLE hFile = ::CreateFile(DumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			const HANDLE hFile = ::CreateFile(DumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
@@ -72,19 +72,19 @@ void WriteMiniDump(SEHException* ex)
 
 				if (ex)
 				{
-					ExInfo.ThreadId = ::GetCurrentThreadId();
+					ExInfo.ThreadId = GetCurrentThreadId();
 					EXCEPTION_POINTERS ep;
 					ep.ContextRecord = &ex->context;
 					ep.ExceptionRecord = &ex->record;
 					ExInfo.ExceptionPointers = &ep;
 					ExInfo.ClientPointers = NULL;
-					pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL);
+					pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, nullptr, nullptr);
 				}
 				else
 				{
-					pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, NULL, NULL, NULL);
+					pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, nullptr, nullptr, nullptr);
 				}
-				::CloseHandle(hFile);
+				CloseHandle(hFile);
 
 				AddLog(LogType::Normal, LogLevel::Err, std::format("Minidump '{}' written.", DumpPath));
 			}
@@ -92,13 +92,13 @@ void WriteMiniDump(SEHException* ex)
 	}
 }
 
-	#include "ExceptionInfo.h"
-	#include "dbghelp.h"
+#include "ExceptionInfo.h"
+#include "dbghelp.h"
 
-	#include <Psapi.h>
-	#include <io.h>
-	#include <shlwapi.h>
-	#include <string.h>
+#include <Psapi.h>
+#include <io.h>
+#include <shlwapi.h>
+#include <string.h>
 
 void AddExceptionInfoLog(SEHException* ex)
 {
@@ -109,8 +109,8 @@ void AddExceptionInfoLog(SEHException* ex)
 	}
 	try
 	{
-		EXCEPTION_RECORD const* exception = &ex->record;
-		_CONTEXT const* reg = &ex->context;
+		const EXCEPTION_RECORD* exception = &ex->record;
+		const _CONTEXT* reg = &ex->context;
 
 		if (exception)
 		{
@@ -153,12 +153,12 @@ void AddExceptionInfoLog(SEHException* ex)
 					}
 				}
 				AddLog(LogType::Normal,
-				    LogLevel::Debug,
-				    std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", Name, Message, iOffset, strrchr(ModName, '\\') + 1));
+					LogLevel::Debug,
+					std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", Name, Message, iOffset, strrchr(ModName, '\\') + 1));
 			}
 
 			void* callers[62];
-			int count = CaptureStackBackTrace(0, 62, callers, NULL);
+			const int count = CaptureStackBackTrace(0, 62, callers, nullptr);
 			for (int i = 0; i < count; i++)
 				AddLog(LogType::Normal, LogLevel::Debug, std::vformat("{} called from {:#X}", std::make_format_args(i, callers[i])));
 		}
@@ -167,17 +167,17 @@ void AddExceptionInfoLog(SEHException* ex)
 		if (reg)
 		{
 			AddLog(LogType::Normal,
-			    LogLevel::Debug,
-			    std::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
-			        reg->Eax,
-			        reg->Ebx,
-			        reg->Ecx,
-			        reg->Edx,
-			        reg->Edi,
-			        reg->Esi,
-			        reg->Ebp,
-			        reg->Eip,
-			        reg->Esp));
+				LogLevel::Debug,
+				std::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
+					reg->Eax,
+					reg->Ebx,
+					reg->Ecx,
+					reg->Edx,
+					reg->Edi,
+					reg->Esi,
+					reg->Ebp,
+					reg->Eip,
+					reg->Esp));
 		}
 		else
 		{

@@ -55,7 +55,7 @@ namespace Plugins::Autobuy
 
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
-		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
+		if (const auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
 		    foundCargo != cargoList.end())
 		{
 			return foundCargo->iCount;
@@ -83,7 +83,7 @@ namespace Plugins::Autobuy
 			eqToFix.insert(item.sId);
 		}
 
-		if (uint playerCash = Hk::Player::GetCash(client).value(); playerCash < repairCost)
+		if (const uint playerCash = Hk::Player::GetCash(client).value(); playerCash < repairCost)
 		{
 			PrintUserCmdText(client, L"Insufficient Cash");
 			return;
@@ -122,7 +122,7 @@ namespace Plugins::Autobuy
 		if (auto& playerCollision = Players[client].collisionGroupDesc.data; !playerCollision.empty())
 		{
 			st6::list<XCollision> componentList;
-			for (auto& colGrp : playerCollision)
+			for (const auto& colGrp : playerCollision)
 			{
 				auto* newColGrp = reinterpret_cast<XCollision*>(colGrp.data);
 				newColGrp->componentHP = 1.0f;
@@ -433,7 +433,7 @@ namespace Plugins::Autobuy
 		const auto fileName = Hk::Client::GetCharFileName(client);
 		std::string Section = "autobuy_" + wstos(fileName.value());
 
-		bool enable = newState == L"on";
+		const bool enable = newState == L"on";
 		if (autobuyType == L"all")
 		{
 			autobuyInfo.missiles = enable;

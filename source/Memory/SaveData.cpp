@@ -2,6 +2,7 @@
 #include <Tools/Detour.hpp>
 
 using GetUserDataPathSig = bool (*)(char*);
+
 bool SaveGameDetour::GetUserDataPathDetour(char* retPtr)
 {
 	const auto* i = dynamic_cast<SaveGameDetour*>(MemoryManager::i());
@@ -38,9 +39,9 @@ std::string SaveGameDetour::GetSaveDataPath() const
 			throw std::runtime_error("SavePath was not defined, but INI key existed within dacom.ini");
 		}
 
-		if (!std::filesystem::exists(trimmed))
+		if (!exists(trimmed))
 		{
-			std::filesystem::create_directories(trimmed);
+			create_directories(trimmed);
 		}
 	}
 	catch (const std::exception& ex)
@@ -52,12 +53,12 @@ std::string SaveGameDetour::GetSaveDataPath() const
 }
 
 const auto detour =
-    std::make_unique<FunctionDetour<GetUserDataPathSig>>(GetUserDataPathSig(GetProcAddress(GetModuleHandle("common.dll"), "?GetUserDataPath@@YA_NQAD@Z")));
+	std::make_unique<FunctionDetour<GetUserDataPathSig>>(GetUserDataPathSig(GetProcAddress(GetModuleHandle("common.dll"), "?GetUserDataPath@@YA_NQAD@Z")));
 
 void SaveGameDetour::InitHook()
 {
 	detour->Detour(GetUserDataPathDetour);
-	
+
 	path = std::format("{}\0", GetSaveDataPath());
 
 	char arr[255];

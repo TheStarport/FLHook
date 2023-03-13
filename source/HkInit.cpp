@@ -5,7 +5,7 @@ namespace IEngineHook
 	void __cdecl UpdateTime(double interval);
 	void __stdcall ElapseTime(float interval);
 	int __cdecl DockCall(const uint& shipId, const uint& spaceId, int flags, DOCK_HOST_RESPONSE response);
-	int __cdecl FreeReputationVibe(int const& p1);
+	int __cdecl FreeReputationVibe(const int& p1);
 
 	void Naked__CShip__Init();
 	void Naked__CShip__Destroy();
@@ -30,77 +30,77 @@ extern FARPROC g_OldGuidedHit;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PatchInfo piFLServerEXE = { "flserver.exe",
-	                         0x0400000,
-	                         {
-	                             { 0x041B094, &IEngineHook::UpdateTime, 4, 0, false },
-	                             { 0x041BAB0, &IEngineHook::ElapseTime, 4, 0, false },
+PatchInfo piFLServerEXE = {"flserver.exe",
+                           0x0400000,
+                           {
+	                           {0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false},
+	                           {0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false},
 
-	                             { 0, 0, 0, 0 } // terminate
-	                         } };
+	                           {0, nullptr, 0, nullptr} // terminate
+                           }};
 
-PatchInfo piContentDLL = { "content.dll",
-	                        0x6EA0000,
-	                        {
-	                            { 0x6FB358C, &IEngineHook::DockCall, 4, 0, false },
+PatchInfo piContentDLL = {"content.dll",
+                          0x6EA0000,
+                          {
+	                          {0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false},
 
-	                            { 0, 0, 0, 0 } // terminate
-	                        } };
+	                          {0, nullptr, 0, nullptr} // terminate
+                          }};
 
-PatchInfo piCommonDLL = { "common.dll",
-	                       0x6260000,
-	                       {
+PatchInfo piCommonDLL = {"common.dll",
+                         0x6260000,
+                         {
 
-	                           { 0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false },
-	                           { 0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip,
-	                             false },
+	                         {0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false},
+	                         {0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip,
+	                          false},
 
-	                           { 0, 0, 0, 0 } // terminate
-	                       } };
+	                         {0, nullptr, 0, nullptr} // terminate
+                         }};
 
-PatchInfo piServerDLL = { "server.dll",
-	                       0x6CE0000,
-	                       {
-	                           { 0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false },
-	                           { 0x6D641EC, &Naked__AddDamageEntry, 4, 0, false },
-	                           { 0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false },
-	                           { 0x6D65448, &Naked__GuidedHit, 4, 0, false },
-	                           { 0x6D67670, &Naked__GuidedHit, 4, 0, false },
-	                           { 0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false },
-	                           { 0x6D672CC, &Naked__DamageHit, 4, 0, false },
-	                           { 0x6D6761C, &Naked__DamageHit, 4, 0, false },
-	                           { 0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false },
-	                           { 0x6D67330, &Naked__DamageHit2, 4, 0, false },
-	                           { 0x6D67680, &Naked__DamageHit2, 4, 0, false },
-	                           { 0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false },
-	                           { 0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition,
-	                             false },
-	                           { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, 0, false },
+PatchInfo piServerDLL = {"server.dll",
+                         0x6CE0000,
+                         {
+	                         {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
+	                         {0x6D641EC, &Naked__AddDamageEntry, 4, nullptr, false},
+	                         {0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false},
+	                         {0x6D65448, &Naked__GuidedHit, 4, nullptr, false},
+	                         {0x6D67670, &Naked__GuidedHit, 4, nullptr, false},
+	                         {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
+	                         {0x6D672CC, &Naked__DamageHit, 4, nullptr, false},
+	                         {0x6D6761C, &Naked__DamageHit, 4, nullptr, false},
+	                         {0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false},
+	                         {0x6D67330, &Naked__DamageHit2, 4, nullptr, false},
+	                         {0x6D67680, &Naked__DamageHit2, 4, nullptr, false},
+	                         {0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
+	                         {0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition,
+	                          false},
+	                         {0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false},
 
-	                           { 0, 0, 0, 0 } // terminate
-	                       } };
+	                         {0, nullptr, 0, nullptr} // terminate
+                         }};
 
-PatchInfo piRemoteClientDLL = { "remoteclient.dll",
-	                             0x6B30000,
-	                             {
-	                                 { 0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false },
+PatchInfo piRemoteClientDLL = {"remoteclient.dll",
+                               0x6B30000,
+                               {
+	                               {0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false},
 
-	                                 { 0, 0, 0, 0 } // terminate
-	                             } };
+	                               {0, nullptr, 0, nullptr} // terminate
+                               }};
 
-PatchInfo piDaLibDLL = { "dalib.dll",
-	                      0x65C0000,
-	                      {
-	                          { 0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false },
+PatchInfo piDaLibDLL = {"dalib.dll",
+                        0x65C0000,
+                        {
+	                        {0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
 
-	                          { 0, 0, 0, 0 } // terminate
-	                      } };
+	                        {0, nullptr, 0, nullptr} // terminate
+                        }};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Patch(PatchInfo& pi)
 {
-	HMODULE hMod = GetModuleHandle(pi.BinName);
+	const HMODULE hMod = GetModuleHandle(pi.BinName);
 	if (!hMod)
 		return false;
 
@@ -129,7 +129,7 @@ bool Patch(PatchInfo& pi)
 
 bool RestorePatch(PatchInfo& pi)
 {
-	HMODULE hMod = GetModuleHandle(pi.BinName);
+	const HMODULE hMod = GetModuleHandle(pi.BinName);
 	if (!hMod)
 		return false;
 
@@ -168,7 +168,7 @@ void ClearClientInfo(ClientId client)
 {
 	auto* info = &ClientInfo[client];
 
-	info->dieMsg = DIEMSG_ALL;
+	info->dieMsg = DiemsgAll;
 	info->ship = 0;
 	info->shipOld = 0;
 	info->tmSpawnTime = 0;
@@ -184,7 +184,7 @@ void ClearClientInfo(ClientId client)
 	info->tmF1Time = 0;
 	info->tmF1TimeDisconnect = 0;
 
-	DamageList dmg;
+	const DamageList dmg;
 	info->dmgLast = dmg;
 	info->dieMsgSize = CS_DEFAULT;
 	info->chatSize = CS_DEFAULT;
@@ -220,17 +220,17 @@ void LoadUserSettings(ClientId client)
 {
 	auto* info = &ClientInfo[client];
 
-	CAccount const* acc = Players.FindAccountFromClientID(client);
-	std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+	const CAccount* acc = Players.FindAccountFromClientID(client);
+	const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+	const std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
-	info->dieMsg = (DIEMSGTYPE)IniGetI(userFile, "settings", "DieMsg", DIEMSG_ALL);
-	info->dieMsgSize = (CHATSIZE)IniGetI(userFile, "settings", "DieMsgSize", CS_DEFAULT);
+	info->dieMsg = static_cast<DIEMSGTYPE>(IniGetI(userFile, "settings", "DieMsg", DiemsgAll));
+	info->dieMsgSize = static_cast<CHATSIZE>(IniGetI(userFile, "settings", "DieMsgSize", CS_DEFAULT));
 
 	// read chatstyle settings
-	info->chatSize = (CHATSIZE)IniGetI(userFile, "settings", "ChatSize", CS_DEFAULT);
-	info->chatStyle = (CHATSTYLE)IniGetI(userFile, "settings", "ChatStyle", CST_DEFAULT);
+	info->chatSize = static_cast<CHATSIZE>(IniGetI(userFile, "settings", "ChatSize", CS_DEFAULT));
+	info->chatStyle = static_cast<CHATSTYLE>(IniGetI(userFile, "settings", "ChatStyle", CST_DEFAULT));
 
 	// read ignorelist
 	info->Ignore.clear();
@@ -266,7 +266,7 @@ bool InitHookExports()
 	InitializeCriticalSection(&csIPResolve);
 	DWORD dwId;
 	DWORD dwParam[34]; // else release version crashes, dont ask me why...
-	hThreadResolver = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
+	hThreadResolver = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
 
 	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
@@ -291,7 +291,7 @@ bool InitHookExports()
 	DetourSendComm();
 
 	// patch rep array free
-	char NOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
+	const char NOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
 	char* address = ((char*)server + ADDR_SRV_REPARRAYFREE);
 	ReadProcMem(address, RepFreeFixOld, 5);
 	WriteProcMem(address, NOPs, 5);
@@ -300,17 +300,17 @@ bool InitHookExports()
 
 	// divert call to house load/save func
 	address = SRV_ADDR(0x679C6);
-	char DivertJump[] = { '\x6F' };
+	const char DivertJump[] = {'\x6F'};
 
 	WriteProcMem(address, DivertJump, 1);
 
 	// install hook at new address
 	address = SRV_ADDR(0x78B39);
 
-	char MovEAX[] = { '\xB8' };
-	char JMPEAX[] = { '\xFF', '\xE0' };
+	const char MovEAX[] = {'\xB8'};
+	const char JMPEAX[] = {'\xFF', '\xE0'};
 
-	FARPROC fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
+	const auto fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
 	WriteProcMem(address, MovEAX, 1);
 	WriteProcMem(address + 1, &fpLoadRepFromCharFile, 4);
@@ -355,11 +355,11 @@ bool InitHookExports()
 	}
 
 	// Fix Refire bug
-	std::array<byte, 22> refireBytes = {0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
+	const std::array<byte, 22> refireBytes = {0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB};
 	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 
 	// Enable undocking announcer regardless of distance
-	std::array<byte, 1> undockAnnouncerBytes = {0xEB};
+	const std::array<byte, 1> undockAnnouncerBytes = {0xEB};
 	WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
 
 	return true;
@@ -384,13 +384,13 @@ void UnloadHookExports()
 	char* address;
 
 	// uninstall IServerImpl callbacks in remoteclient.dll
-	char* pServer = (char*)&Server;
+	auto pServer = (char*)&Server;
 	if (pServer)
 	{
 		memcpy(&pServer, pServer, 4);
 		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
-			void* address = (void*)((char*)pServer + IServerImplEntries[i].dwRemoteAddress);
+			const auto address = pServer + IServerImplEntries[i].dwRemoteAddress;
 			WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}
@@ -417,10 +417,10 @@ void UnloadHookExports()
 
 	// undivert call to house load/save func
 	address = SRV_ADDR(0x679C6);
-	char DivertJump[] = { '\x76' };
+	char DivertJump[] = {'\x76'};
 
 	// anti-death-msg
-	char Old[] = { '\x74' };
+	const char Old[] = {'\x74'};
 	address = SRV_ADDR(ADDR_ANTIdIEMSG);
 	WriteProcMem(address, Old, 1);
 
@@ -428,11 +428,11 @@ void UnloadHookExports()
 	PluginManager::i()->unloadAll();
 
 	// Undo refire bug
-	std::array<byte, 22> refireBytes = {0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0};
+	const std::array<byte, 22> refireBytes = {0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0};
 	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 
 	// undocking announcer regardless of distance
-	std::array<byte, 1> undockAnnouncerBytes = {0x74};
+	const std::array<byte, 1> undockAnnouncerBytes = {0x74};
 	WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
 }
 
@@ -447,14 +447,15 @@ void HookRehashed()
 
 	// anti-deathmsg
 	if (FLHookConfig::i()->messages.dieMsg)
-	{ // disables the "old" "A Player has died: ..." messages
-		char JMP[] = { '\xEB' };
+	{
+		// disables the "old" "A Player has died: ..." messages
+		const char JMP[] = {'\xEB'};
 		address = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(address, JMP, 1);
 	}
 	else
 	{
-		char Old[] = { '\x74' };
+		const char Old[] = {'\x74'};
 		address = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(address, Old, 1);
 	}
@@ -462,7 +463,7 @@ void HookRehashed()
 	// charfile encyption(doesn't get disabled when unloading FLHook)
 	if (FLHookConfig::i()->general.disableCharfileEncryption)
 	{
-		char Buf[] = { '\x14', '\xB3' };
+		const char Buf[] = {'\x14', '\xB3'};
 		address = SRV_ADDR(ADDR_DISCFENCR);
 		WriteProcMem(address, Buf, 2);
 		address = SRV_ADDR(ADDR_DISCFENCR2);
@@ -470,7 +471,7 @@ void HookRehashed()
 	}
 	else
 	{
-		char Buf[] = { '\xE4', '\xB4' };
+		const char Buf[] = {'\xE4', '\xB4'};
 		address = SRV_ADDR(ADDR_DISCFENCR);
 		WriteProcMem(address, Buf, 2);
 		address = SRV_ADDR(ADDR_DISCFENCR2);
@@ -480,15 +481,16 @@ void HookRehashed()
 	// maximum group size
 	if (FLHookConfig::i()->general.maxGroupSize > 0)
 	{
-		char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
+		const char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
 		WriteProcMem(address, &cNewGroupSize, 1);
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
 		WriteProcMem(address, &cNewGroupSize, 1);
 	}
 	else
-	{ // default
-		char cNewGroupSize = 8;
+	{
+		// default
+		const char cNewGroupSize = 8;
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
 		WriteProcMem(address, &cNewGroupSize, 1);
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);

@@ -2,10 +2,10 @@
 
 void MemoryManager::AddHooks()
 {
-	SaveGameDetour::InitHook();
+	InitHook();
 }
 
 void MemoryManager::RemoveHooks()
 {
-	SaveGameDetour::DestroyHook();
+	DestroyHook();
 }

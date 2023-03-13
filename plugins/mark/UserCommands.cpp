@@ -10,7 +10,7 @@ namespace Plugins::Mark
 			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
 			return;
 		}
-		char err = MarkObject(client, target.value());
+		const char err = MarkObject(client, target.value());
 		switch (err)
 		{
 			case 0:
@@ -36,7 +36,7 @@ namespace Plugins::Mark
 			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
 			return;
 		}
-		char err = UnMarkObject(client, target.value());
+		const char err = UnMarkObject(client, target.value());
 		switch (err)
 		{
 			case 0:

@@ -3,7 +3,7 @@
 
 void TempBanManager::ClearFinishedTempBans()
 {
-	auto timeNow = Hk::Time::GetUnixMiliseconds();
+	const auto timeNow = Hk::Time::GetUnixMiliseconds();
 	auto it = tempBanList.begin();
 	while (it != tempBanList.end())
 	{
@@ -13,7 +13,7 @@ void TempBanManager::ClearFinishedTempBans()
 		}
 		else
 		{
-			it++;
+			++it;
 		}
 	}
 }
@@ -23,8 +23,8 @@ void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::
 	if (!FLHookConfig::i()->general.tempBansEnabled)
 		return;
 
-	auto account = Hk::Client::GetAccountByClientID(client);
-    const auto accId = Hk::Client::GetAccountID(account);
+	const auto account = Hk::Client::GetAccountByClientID(client);
+	const auto accId = Hk::Client::GetAccountID(account);
 
 	TempBanInfo banInfo;
 	banInfo.banStart = Hk::Time::GetUnixMiliseconds();
@@ -39,7 +39,7 @@ void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::
 	{
 		Hk::Player::Kick(client);
 	}
-	
+
 	tempBanList.push_back(banInfo);
 }
 
@@ -56,5 +56,5 @@ bool TempBanManager::CheckIfTempBanned(ClientId client)
 	CAccount* acc = Players.FindAccountFromClientID(client);
 	const auto id = Hk::Client::GetAccountID(acc);
 
-	return std::ranges::any_of(tempBanList, [&id](TempBanInfo const& ban) { return ban.accountId == id.value(); });
+	return std::ranges::any_of(tempBanList, [&id](const TempBanInfo& ban) { return ban.accountId == id.value(); });
 }

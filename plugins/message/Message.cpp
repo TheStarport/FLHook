@@ -566,7 +566,7 @@ namespace Plugins::Message
 	{
 		const auto numStr = param[1];
 		wchar_t* _;
-		long num = std::wcstol(&numStr, &_, 10);
+		const long num = std::wcstol(&numStr, &_, 10);
 		if (FLHookConfig::c()->messages.defaultLocalChat)
 		{
 			SendPresetLocalMessage(client, num);
@@ -582,7 +582,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_RMsg(ClientId& client, const std::wstring& param)
 	{
-		long num = GetNumberFromCmd(param);
+		const long num = GetNumberFromCmd(param);
 		SendPresetLastPMSender(client, num);
 	}
 
@@ -591,7 +591,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_SMsg(ClientId& client, const std::wstring& param)
 	{
-		long num = GetNumberFromCmd(param);
+		const long num = GetNumberFromCmd(param);
 		SendPresetSystemMessage(client, num);
 	}
 
@@ -600,7 +600,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_LMsg(ClientId& client, const std::wstring& param)
 	{
-		long num = GetNumberFromCmd(param);
+		const long num = GetNumberFromCmd(param);
 		SendPresetLocalMessage(client, num);
 	}
 
@@ -609,7 +609,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_GMsg(ClientId& client, const std::wstring& param)
 	{
-		long num = GetNumberFromCmd(param);
+		const long num = GetNumberFromCmd(param);
 		SendPresetGroupMessage(client, num);
 	}
 
@@ -618,7 +618,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_TMsg(ClientId& client, const std::wstring& param)
 	{
-		long num = GetNumberFromCmd(param);
+		const long num = GetNumberFromCmd(param);
 		SendPresetToLastTarget(client, num);
 	}
 
@@ -746,7 +746,7 @@ namespace Plugins::Message
 		const std::wstring& clientId = GetParam(param, ' ', 0);
 		const std::wstring msg = GetParamToEnd(param, ' ', 1);
 
-		uint iToClientId = ToInt(clientId);
+		const uint iToClientId = ToInt(clientId);
 		if (!Hk::Client::IsValidClientID(iToClientId) || Hk::Client::IsInCharSelectMenu(iToClientId))
 		{
 			PrintUserCmdText(client, L"ERR Invalid client-id");
@@ -762,7 +762,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_FactionMsg(ClientId& client, const std::wstring& param)
 	{
-		std::wstring sender = (const wchar_t*)Players.GetActiveCharacterName(client);
+		const std::wstring sender = (const wchar_t*)Players.GetActiveCharacterName(client);
 		const std::wstring& charnamePrefix = GetParam(param, ' ', 0);
 		const std::wstring& msg = GetParamToEnd(param, ' ', 1);
 

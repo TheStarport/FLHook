@@ -27,9 +27,9 @@ namespace Hk::ZoneUtilities
 	{
 		// Convert degrees into radians
 
-		float ax = r.x * (static_cast<float>(std::numbers::pi) / 180);
-		float ay = r.y * (static_cast<float>(std::numbers::pi) / 180);
-		float az = r.z * (static_cast<float>(std::numbers::pi) / 180);
+		const float ax = r.x * (static_cast<float>(std::numbers::pi) / 180);
+		const float ay = r.y * (static_cast<float>(std::numbers::pi) / 180);
+		const float az = r.z * (static_cast<float>(std::numbers::pi) / 180);
 
 		// Initial matrix
 		TransformMatrix smat = {0};
@@ -125,7 +125,7 @@ namespace Hk::ZoneUtilities
 	the lootable zone details.
 	*/
 	void ZoneUtilities::ReadLootableZone(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick,
-	    const std::string& defaultZoneNick, const std::string& file)
+		const std::string& defaultZoneNick, const std::string& file)
 	{
 		std::string path = "..\\data\\";
 		path += file;
@@ -199,7 +199,7 @@ namespace Hk::ZoneUtilities
 
 	/** Read the asteroid sections out of the system ini */
 	void ZoneUtilities::ReadSystemLootableZones(
-	    std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
+		std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
 	{
 		std::string path = "..\\data\\universe\\";
 		path += file;
@@ -306,7 +306,7 @@ namespace Hk::ZoneUtilities
 					lz.damage = damage;
 					lz.encounter = encounter;
 					lz.transform = SetupTransform(pos, rotation);
-					allZones.insert({lz.systemId, lz });
+					allZones.insert({lz.systemId, lz});
 				}
 				else if (ini.is_header("Object"))
 				{
@@ -416,19 +416,19 @@ namespace Hk::ZoneUtilities
 	{
 		// For each zone in the system test that pos is inside the
 		// zone.
-		auto start = allZones.lower_bound(system);
-		auto end = allZones.upper_bound(system);
+		const auto start = allZones.lower_bound(system);
+		const auto end = allZones.upper_bound(system);
 		for (auto i = start; i != end; ++i)
 		{
 			const Zone& lz = i->second;
 			/** Transform the point pos onto coordinate system defined by matrix m
 			 */
-			float x = pos.x * lz.transform.d[0][0] + pos.y * lz.transform.d[1][0] + pos.z * lz.transform.d[2][0] + lz.transform.d[3][0];
-			float y = pos.x * lz.transform.d[0][1] + pos.y * lz.transform.d[1][1] + pos.z * lz.transform.d[2][1] + lz.transform.d[3][1];
-			float z = pos.x * lz.transform.d[0][2] + pos.y * lz.transform.d[1][2] + pos.z * lz.transform.d[2][2] + lz.transform.d[3][2];
+			const float x = pos.x * lz.transform.d[0][0] + pos.y * lz.transform.d[1][0] + pos.z * lz.transform.d[2][0] + lz.transform.d[3][0];
+			const float y = pos.x * lz.transform.d[0][1] + pos.y * lz.transform.d[1][1] + pos.z * lz.transform.d[2][1] + lz.transform.d[3][1];
+			const float z = pos.x * lz.transform.d[0][2] + pos.y * lz.transform.d[1][2] + pos.z * lz.transform.d[2][2] + lz.transform.d[3][2];
 
 			// If r is less than/equal to 1 then the point is inside the ellipsoid.
-			float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
+			const float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
 			if (result <= 1)
 			{
 				rlz = lz;
@@ -449,20 +449,20 @@ namespace Hk::ZoneUtilities
 	{
 		// For each zone in the system test that pos is inside the
 		// zone.
-		auto start = allZones.lower_bound(system);
-		auto end = allZones.upper_bound(system);
+		const auto start = allZones.lower_bound(system);
+		const auto end = allZones.upper_bound(system);
 		for (auto i = start; i != end; ++i)
 		{
 			const Zone& lz = i->second;
 
 			/** Transform the point pos onto coordinate system defined by matrix m
 			 */
-			float x = pos.x * lz.transform.d[0][0] + pos.y * lz.transform.d[1][0] + pos.z * lz.transform.d[2][0] + lz.transform.d[3][0];
-			float y = pos.x * lz.transform.d[0][1] + pos.y * lz.transform.d[1][1] + pos.z * lz.transform.d[2][1] + lz.transform.d[3][1];
-			float z = pos.x * lz.transform.d[0][2] + pos.y * lz.transform.d[1][2] + pos.z * lz.transform.d[2][2] + lz.transform.d[3][2];
+			const float x = pos.x * lz.transform.d[0][0] + pos.y * lz.transform.d[1][0] + pos.z * lz.transform.d[2][0] + lz.transform.d[3][0];
+			const float y = pos.x * lz.transform.d[0][1] + pos.y * lz.transform.d[1][1] + pos.z * lz.transform.d[2][1] + lz.transform.d[3][1];
+			const float z = pos.x * lz.transform.d[0][2] + pos.y * lz.transform.d[1][2] + pos.z * lz.transform.d[2][2] + lz.transform.d[3][2];
 
 			// If r is less than/equal to 1 then the point is inside the ellipsoid.
-			float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
+			const float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
 			if (result <= 1 && lz.damage > 250)
 			{
 				rlz = lz;
@@ -495,17 +495,17 @@ namespace Hk::ZoneUtilities
 		for (const auto& [_, zone] : zones)
 		{
 			Console::ConInfo(std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
-			    zone.zoneNick,
-			    zone.lootNick,
-			    zone.iMinLoot,
-			    zone.iMaxLoot,
-			    zone.iLootDifficulty,
-			    zone.pos.x,
-			    zone.pos.y,
-			    zone.pos.z,
-			    zone.size.x,
-			    zone.size.y,
-			    zone.size.z));
+				zone.zoneNick,
+				zone.lootNick,
+				zone.iMinLoot,
+				zone.iMaxLoot,
+				zone.iLootDifficulty,
+				zone.pos.x,
+				zone.pos.y,
+				zone.pos.z,
+				zone.size.x,
+				zone.size.y,
+				zone.size.z));
 		}
 		Console::ConInfo(std::format("Zones={}", zones.size()));
 	}

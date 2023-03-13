@@ -40,7 +40,7 @@ namespace Plugins::Tax
 	// Functions
 	void RemoveTax(const Tax& toRemove)
 	{
-		auto taxToRemove = std::ranges::find_if(
+		const auto taxToRemove = std::ranges::find_if(
 		    global->tax, [&toRemove](const Tax& tax) { return tax.targetId == toRemove.targetId && tax.initiatorId == toRemove.initiatorId; });
 		global->tax.erase(taxToRemove);
 	}

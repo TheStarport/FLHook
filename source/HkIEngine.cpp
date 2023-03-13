@@ -6,7 +6,6 @@
 
 namespace IEngineHook
 {
-
 	/**************************************************************************************************************
 	// ship create & destroy
 	**************************************************************************************************************/
@@ -21,12 +20,12 @@ namespace IEngineHook
 	__declspec(naked) void Naked__CShip__Init()
 	{
 		__asm {
-        push ecx
-        push [esp+8]
-        call g_OldInitCShip
-        call CShip__Init
-        ret 4
-		}
+			push ecx
+			push [esp+8]
+			call g_OldInitCShip
+			call CShip__Init
+			ret 4
+			}
 	}
 
 	FARPROC g_OldDestroyCShip;
@@ -39,28 +38,28 @@ namespace IEngineHook
 	__declspec(naked) void Naked__CShip__Destroy()
 	{
 		__asm {
-        push ecx
-        push ecx
-        call CShip__Destroy
-        pop ecx
-        jmp g_OldDestroyCShip
-		}
+			push ecx
+			push ecx
+			call CShip__Destroy
+			pop ecx
+			jmp g_OldDestroyCShip
+			}
 	}
 
 	/**************************************************************************************************************
 	// flserver memory leak bugfix
 	**************************************************************************************************************/
 
-	int __cdecl FreeReputationVibe(int const& p1)
+	int __cdecl FreeReputationVibe(const int& p1)
 	{
 		__asm {
-        mov eax, p1
-        push eax
-        mov eax, [server]
-        add eax, 0x65C20
-        call eax
-        add esp, 4
-		}
+			mov eax, p1
+			push eax
+			mov eax, [server]
+			add eax, 0x65C20
+			call eax
+			add esp, 4
+			}
 
 		return Reputation::Vibe::Free(p1);
 	}
@@ -83,6 +82,7 @@ namespace IEngineHook
 	uint g_LastTicks = 0;
 
 	static void* dummy;
+
 	void __stdcall ElapseTime(float interval)
 	{
 		CallPluginsBefore(HookedCall::IEngine__ElapseTime, interval);
@@ -93,10 +93,10 @@ namespace IEngineHook
 		CallPluginsAfter(HookedCall::IEngine__ElapseTime, interval);
 
 		// low server load missile jitter bug fix
-		uint curLoad = GetTickCount() - g_LastTicks;
+		const uint curLoad = GetTickCount() - g_LastTicks;
 		if (curLoad < 5)
 		{
-			uint fakeLoad = 5 - curLoad;
+			const uint fakeLoad = 5 - curLoad;
 			Sleep(fakeLoad);
 		}
 		g_LastTicks = GetTickCount();
@@ -116,21 +116,21 @@ namespace IEngineHook
 
 		int retVal = 0;
 		TRY_HOOK
-		{
-			// Print out a message when a player ship docks.
-			if (FLHookConfig::c()->messages.dockingMessages && response == PROCEED_DOCK)
 			{
-				const auto client = Hk::Client::GetClientIdByShip(shipId);
-				if (client.has_value())
+				// Print out a message when a player ship docks.
+				if (FLHookConfig::c()->messages.dockingMessages && response == PROCEED_DOCK)
 				{
-					std::wstring Msg = L"Traffic control alert: %player has requested to dock";
-					Msg = ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
-					PrintLocalUserCmdText(client.value(), Msg, 15000);
+					const auto client = Hk::Client::GetClientIdByShip(shipId);
+					if (client.has_value())
+					{
+						std::wstring Msg = L"Traffic control alert: %player has requested to dock";
+						Msg = ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
+						PrintLocalUserCmdText(client.value(), Msg, 15000);
+					}
 				}
+				// Actually dock
+				retVal = pub::SpaceObj::Dock(shipId, spaceId, dockPortIndex, response);
 			}
-			// Actually dock
-			retVal = pub::SpaceObj::Dock(shipId, spaceId, dockPortIndex, response);
-		}
 		CATCH_HOOK({})
 
 		CallPluginsAfter(HookedCall::IEngine__DockCall, shipId, spaceId, dockPortIndex, response);
@@ -146,7 +146,7 @@ namespace IEngineHook
 	bool __stdcall LaunchPosition(uint spaceId, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock)
 	{
 		auto [retVal, skip] =
-		    CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
+			CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
 		if (skip)
 			return retVal;
 
@@ -155,17 +155,17 @@ namespace IEngineHook
 
 	__declspec(naked) void Naked__LaunchPosition()
 	{
-		__asm { 
-        push ecx // 4
-        push [esp+8+8] // 8
-        push [esp+12+4] // 12
-        push [esp+16+0] // 16
-        push ecx
-        push [ecx+176]
-        call LaunchPosition	
-        pop ecx
-        ret 0x0C
-		}
+		__asm {
+			push ecx        // 4
+			push [esp+8+8]  // 8
+			push [esp+12+4] // 12
+			push [esp+16+0] // 16
+			push ecx
+			push [ecx+176]
+			call LaunchPosition
+			pop ecx
+			ret 0x0C
+			}
 	}
 
 	/**************************************************************************************************************
@@ -209,20 +209,19 @@ namespace IEngineHook
 	__declspec(naked) void Naked__LoadReputationFromCharacterFile()
 	{
 		__asm {
-        push ecx // save ecx because thiscall
-        push [esp+4+4+8] // rep data
-        push ecx // rep data list
-        call LoadReputationFromCharacterFile
-        pop ecx // recover ecx
-        test al, al
-        jz abort_lbl
-        jmp [g_OldLoadReputationFromCharacterFile]
-abort_lbl:
-        ret 0x0C
-		}
+			push ecx         // save ecx because thiscall
+			push [esp+4+4+8] // rep data
+			push ecx         // rep data list
+			call LoadReputationFromCharacterFile
+			pop ecx // recover ecx
+			test al, al
+			jz abort_lbl
+			jmp [g_OldLoadReputationFromCharacterFile]
+			abort_lbl:
+			ret 0x0C
+			}
 	}
 
 	/**************************************************************************************************************
 	**************************************************************************************************************/
-
 } // namespace IEngine

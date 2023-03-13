@@ -6,7 +6,7 @@ class DLL MailManager : public Singleton<MailManager>
 {
 	std::string GetCharacterName(const std::variant<uint, std::wstring>& character) const;
 
-  public:
+public:
 	struct MailItem
 	{
 		int64 id;
@@ -18,7 +18,7 @@ class DLL MailManager : public Singleton<MailManager>
 		std::string characterName;
 	};
 
-  private:
+private:
 	SQLite::Database db = SqlHelpers::Create("mail.sqlite");
 
 	enum class ErrorTypes
@@ -33,15 +33,15 @@ class DLL MailManager : public Singleton<MailManager>
 	constexpr std::string GetErrorCode(ErrorTypes err) const
 	{
 		std::vector<std::string> errors = {"Invalid character name or client id",
-		    "Subject cannot be longer than 32 characters.",
-		    "Author cannot be longer than 36 characters.",
-		    "Body cannot be longer than 255 characters.",
-		    "Mail id was not found."
+		                                   "Subject cannot be longer than 32 characters.",
+		                                   "Author cannot be longer than 36 characters.",
+		                                   "Body cannot be longer than 255 characters.",
+		                                   "Mail id was not found."
 		};
-		return errors[(int)err];
+		return errors[static_cast<int>(err)];
 	}
 
-  public:
+public:
 	MailManager();
 
 	/// <summary>

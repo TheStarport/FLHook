@@ -5,10 +5,10 @@
 
 class CConsole : public CCmds
 {
-  public:
+public:
 	CConsole() { this->rights = RIGHT_SUPERADMIN; };
-	EXPORT void DoPrint(const std::string& text);
-	std::wstring GetAdminName();
+	EXPORT void DoPrint(const std::string& text) override;
+	std::wstring GetAdminName() override;
 };
 
 #endif

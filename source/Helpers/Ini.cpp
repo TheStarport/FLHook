@@ -2,32 +2,33 @@
 
 namespace Hk::Ini
 {
-	struct FLHOOK_PLAYER_DATA
+	struct FlhookPlayerData
 	{
 		std::string charfilename;
 		std::map<std::wstring, std::wstring> lines;
 	};
 
-	std::map<uint, FLHOOK_PLAYER_DATA> clients;
+	std::map<uint, FlhookPlayerData> clients;
 
 	std::string GetAccountDir(ClientId client)
 	{
-		static _GetFLName GetFLName = (_GetFLName)((char*)server + 0x66370);
+		static auto GetFLName = (_GetFLName)((char*)server + 0x66370);
 		char dirname[1024];
-		GetFLName(dirname, Players[client].Account->wAccId);
+		GetFLName(dirname, Players[client].Account->AccId);
 		return dirname;
 	}
 
 	std::string GetCharfilename(const std::wstring& charname)
 	{
-		static _GetFLName GetFLName = (_GetFLName)((char*)server + 0x66370);
+		static auto GetFLName = (_GetFLName)((char*)server + 0x66370);
 		char filename[1024];
 		GetFLName(filename, charname.c_str());
 		return filename;
 	}
 
-	static PlayerData* CurrPlayer;
-	int __stdcall Cb_UpdateFile(char* filename, wchar_t* savetime, int b)
+	static PlayerData* currPlayer;
+
+	int __stdcall UpdateFile(char* filename, wchar_t* savetime, int b)
 	{
 		// Call the original save charfile function
 		int retv = 0;
@@ -41,19 +42,18 @@ namespace Hk::Ini
 			call eax
 			mov retv, eax
 			popad
-		}
+			}
 
 		// Readd the flhook section.
 		if (retv)
 		{
-			ClientId client = CurrPlayer->iOnlineId;
+			ClientId client = currPlayer->iOnlineId;
 
 			std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + filename;
 
 			const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
-			const auto writeFlhookSection = [client](std::string& str) 
-			{
+			const auto writeFlhookSection = [client](std::string& str) {
 				str += "\n[flhook]\n";
 				for (const auto& [key, value] : clients[client].lines)
 				{
@@ -71,7 +71,7 @@ namespace Hk::Ini
 				auto size = static_cast<size_t>(saveFile.tellg());
 				std::string buffer(size, ' ');
 				saveFile.seekg(0);
-				saveFile.read(&buffer[0], size); 
+				saveFile.read(&buffer[0], size);
 
 				// Reset the file pointer so we can start overwriting
 				saveFile.seekg(0);
@@ -92,19 +92,19 @@ namespace Hk::Ini
 		return retv;
 	}
 
-	__declspec(naked) void Cb_UpdateFileNaked()
+	__declspec(naked) void UpdateFileNaked()
 	{
 		__asm {
-        mov CurrPlayer, ecx
-        jmp Cb_UpdateFile
-		}
+			mov CurrPlayer, ecx
+			jmp UpdateFile
+			}
 	}
 
 	void CharacterClearClientInfo(ClientId client) { clients.erase(client); }
 
-	void CharacterSelect(CHARACTER_ID const charId, ClientId client)
+	void CharacterSelect(const CHARACTER_ID charId, ClientId client)
 	{
-		std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + charId.CharFilename;
+		const std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + charId.CharFilename;
 
 		clients[client].charfilename = charId.CharFilename;
 		clients[client].lines.clear();
@@ -129,14 +129,15 @@ namespace Hk::Ini
 	}
 
 	static bool patched = false;
+
 	void CharacterInit()
 	{
 		clients.clear();
 		if (patched)
 			return;
 
-		PatchCallAddr((char*)server, 0x6c547, (char*)Cb_UpdateFileNaked);
-		PatchCallAddr((char*)server, 0x6c9cd, (char*)Cb_UpdateFileNaked);
+		PatchCallAddr((char*)server, 0x6c547, (char*)UpdateFileNaked);
+		PatchCallAddr((char*)server, 0x6c9cd, (char*)UpdateFileNaked);
 
 		patched = true;
 	}
@@ -146,10 +147,10 @@ namespace Hk::Ini
 		if (!patched)
 			return;
 
-		BYTE patch[] = {0xE8, 0x84, 0x07, 0x00, 0x00};
+		const BYTE patch[] = {0xE8, 0x84, 0x07, 0x00, 0x00};
 		WriteProcMem((char*)server + 0x6c547, patch, 5);
 
-		BYTE patch2[] = {0xE8, 0xFE, 0x2, 0x00, 0x00};
+		const BYTE patch2[] = {0xE8, 0xFE, 0x2, 0x00, 0x00};
 		WriteProcMem((char*)server + 0x6c9cd, patch2, 5);
 
 		patched = false;
@@ -158,17 +159,17 @@ namespace Hk::Ini
 	cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key)
 	{
 		std::wstring ret;
-		const auto client = Hk::Client::ExtractClientID(player);
-		const auto acc = Hk::Client::GetAccountByClientID(client);
-		auto dir = Hk::Client::GetAccountDirName(acc);
+		const auto client = Client::ExtractClientID(player);
+		const auto acc = Client::GetAccountByClientID(client);
+		const auto dir = Client::GetAccountDirName(acc);
 
-		auto file = Hk::Client::GetCharFileName(player);
+		auto file = Client::GetCharFileName(player);
 		if (file.has_error())
 		{
 			return cpp::fail(file.error());
 		}
 
-		if (const std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (const std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(scCharFile))
 		{
 			const std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
@@ -187,17 +188,17 @@ namespace Hk::Ini
 
 	cpp::result<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key, const std::wstring& Value)
 	{
-		const auto client = Hk::Client::ExtractClientID(player);
-		const auto acc = Hk::Client::GetAccountByClientID(client);
-		auto dir = Hk::Client::GetAccountDirName(acc);
+		const auto client = Client::ExtractClientID(player);
+		const auto acc = Client::GetAccountByClientID(client);
+		const auto dir = Client::GetAccountDirName(acc);
 
-		auto file = Hk::Client::GetCharFileName(player);
+		auto file = Client::GetCharFileName(player);
 		if (file.has_error())
 		{
 			return cpp::fail(file.error());
 		}
 
-		if (std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(scCharFile))
 		{
 			std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
@@ -232,8 +233,8 @@ namespace Hk::Ini
 		return line;
 	}
 
-	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) 
-	{ 
+	void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value)
+	{
 		clients[client].lines[name] = std::move(value);
 	}
 

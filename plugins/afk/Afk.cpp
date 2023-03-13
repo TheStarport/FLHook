@@ -83,7 +83,7 @@ namespace Plugins::Afk
 
 	// Hook on chat being sent (This gets called twice with the client and to
 	// swapped
-	void Cb_SendChat(ClientId& client, ClientId& to, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl)
+	void SendChat(ClientId& client, ClientId& to, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl)
 	{
 		if (std::ranges::find(global->awayClients, to) != global->awayClients.end())
 			PrintUserCmdText(client, L"This user is away from keyboard.");
@@ -123,6 +123,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-	pi->emplaceHook(HookedCall::IChat__SendChat, &Cb_SendChat);
+	pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 }

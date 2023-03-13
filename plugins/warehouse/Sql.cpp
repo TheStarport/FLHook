@@ -72,7 +72,7 @@ namespace Plugins::Warehouse
 		itemId.bind(2, item);
 		if (itemId.executeStep())
 		{
-			auto currentId = itemId.getColumn(0).getInt64();
+			const auto currentId = itemId.getColumn(0).getInt64();
 			auto currentQuantity = itemId.getColumn(1).getInt64();
 
 			if (quantity > 0)

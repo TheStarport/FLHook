@@ -6,7 +6,7 @@ namespace Hk::Admin
 {
 	std::wstring GetPlayerIP(ClientId client)
 	{
-		CDPClientProxy const* cdpClient = clientProxyArray[client - 1];
+		const CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 		if (!cdpClient)
 			return L"";
 
@@ -20,38 +20,38 @@ namespace Hk::Admin
 		long lSize = sizeof(wIP);
 		long lDataType = 1;
 		__asm {
-        push 0                          ; dwFlags
-        lea edx, IdirectPlay8Address
-        push edx                        ; address 
-        mov edx, [cdpClient]
-        mov edx, [edx+8]
-        push edx                        ; dpnid
-        mov eax, [P1]
-        push eax
-        mov ecx, [eax]
-        call ord ptr[ecx + 0x28]      ; GetClientAddress
-        cmp eax, 0
-        jnz some_error
+			push 0 ; dwFlags
+			lea edx, IdirectPlay8Address
+			push edx ; address
+			mov edx, [cdpClient]
+			mov edx, [edx+8]
+			push edx ; dpnid
+			mov eax, [P1]
+			push eax
+			mov ecx, [eax]
+			call ord ptr[ecx + 0x28] ; GetClientAddress
+			cmp eax, 0
+			jnz some_error
 
-        lea eax, lDataType
-        push eax
-        lea eax, lSize
-        push eax
-        lea eax, wIP
-        push eax
-        lea eax, wHostname
-        push eax
-        mov ecx, [IdirectPlay8Address]
-        push ecx
-        mov ecx, [ecx]
-        call ord ptr[ecx+0x40]        ; GetComponentByName
+			lea eax, lDataType
+			push eax
+			lea eax, lSize
+			push eax
+			lea eax, wIP
+			push eax
+			lea eax, wHostname
+			push eax
+			mov ecx, [IdirectPlay8Address]
+			push ecx
+			mov ecx, [ecx]
+			call ord ptr[ecx+0x40] ; GetComponentByName
 
-        mov ecx, [IdirectPlay8Address]
-        push ecx
-        mov ecx, [ecx]
-        call ord ptr[ecx+0x08]        ; Release
-some_error:
-		}
+			mov ecx, [IdirectPlay8Address]
+			push ecx
+			mov ecx, [ecx]
+			call ord ptr[ecx+0x08] ; Release
+			some_error:
+			}
 
 		return wIP;
 	}
@@ -60,9 +60,9 @@ some_error:
 
 	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu)
 	{
-		ClientId client = Hk::Client::ExtractClientID(player);
+		ClientId client = Client::ExtractClientID(player);
 
-		if (client == UINT_MAX || (Hk::Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
+		if (client == UINT_MAX || (Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PlayerInfo pi;
@@ -97,7 +97,7 @@ some_error:
 		auto ci = GetConnectionStats(client);
 		if (ci.has_error())
 		{
-			AddLog(LogType::Normal, LogLevel::Warn, wstos(Hk::Err::ErrGetText(ci.error())));
+			AddLog(LogType::Normal, LogLevel::Warn, wstos(Err::ErrGetText(ci.error())));
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		pi.connectionInfo = ci.value();
@@ -120,7 +120,7 @@ some_error:
 		{
 			ClientId client = playerDb->iOnlineId;
 
-			if (Hk::Client::IsInCharSelectMenu(client))
+			if (Client::IsInCharSelectMenu(client))
 				continue;
 
 			auto pi = GetPlayerInfo(client, false);
@@ -145,17 +145,18 @@ some_error:
 
 		return ci;
 	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights)
 	{
-		auto acc = Hk::Client::ExtractAccount(player);
+		auto acc = Client::ExtractAccount(player);
 		if (acc.has_error())
 		{
 			return cpp::fail(Error::CharacterDoesNotExist);
 		}
 
-		auto dir = Hk::Client::GetAccountDirName(acc.value());
+		const auto dir = Client::GetAccountDirName(acc.value());
 
 		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 		IniWrite(scAdminFile, "admin", "rights", wstos(Rights));
@@ -166,13 +167,13 @@ some_error:
 
 	cpp::result<std::wstring, Error> GetAdmin(const std::variant<uint, std::wstring>& player)
 	{
-		auto acc = Hk::Client::ExtractAccount(player);
+		auto acc = Client::ExtractAccount(player);
 		if (acc.has_error())
 		{
 			return cpp::fail(acc.error());
 		}
 
-		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
+		const std::wstring dir = Client::GetAccountDirName(acc.value());
 		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 
 		WIN32_FIND_DATA fd;
@@ -190,13 +191,13 @@ some_error:
 
 	cpp::result<void, Error> DelAdmin(const std::variant<uint, std::wstring>& player)
 	{
-		auto acc = Hk::Client::ExtractAccount(player);
+		auto acc = Client::ExtractAccount(player);
 		if (acc.has_error())
 		{
 			return cpp::fail(acc.error());
 		}
 
-		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
+		const std::wstring dir = Client::GetAccountDirName(acc.value());
 		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 		DeleteFile(scAdminFile.c_str());
 		return {};
@@ -208,7 +209,7 @@ some_error:
 	{
 		if (CoreGlobals::c()->disableNpcs && bDisable)
 			return {};
-		else if (!CoreGlobals::c()->disableNpcs && !bDisable)
+		if (!CoreGlobals::c()->disableNpcs && !bDisable)
 			return {};
 
 		char Jump[1];
@@ -246,7 +247,7 @@ some_error:
 		float curHealth;
 		float maxHealth;
 
-		Universe::IBase const* base = Universe::get_base(baseId);
+		const Universe::IBase* base = Universe::get_base(baseId);
 		pub::SpaceObj::GetHealth(base->lSpaceObjId, curHealth, maxHealth);
 		BaseHealth bh = {curHealth, maxHealth};
 		return bh;
@@ -259,20 +260,20 @@ some_error:
 		int iDunno = 0;
 		Fuse* fuse = nullptr;
 		__asm {
-        mov edx, 0x6CFD390
-        call edx
+			mov edx, 0x6CFD390
+			call edx
 
-        lea ecx, iFuseId
-        push ecx
-        lea ecx, iDunno
-        push ecx
-        mov ecx, eax
-        mov edx, 0x6D15D10
-        call edx
-        mov edx, [iDunno]
-        mov edi, [edx+0x10]
-        mov fuse, edi
-		}
+			lea ecx, iFuseId
+			push ecx
+			lea ecx, iDunno
+			push ecx
+			mov ecx, eax
+			mov edx, 0x6D15D10
+			call edx
+			mov edx, [iDunno]
+			mov edi, [edx+0x10]
+			mov fuse, edi
+			}
 		return fuse;
 	}
 
@@ -282,15 +283,15 @@ some_error:
 	__declspec(naked) CEqObj* __stdcall GetEqObjFromObjRW_(struct IObjRW* objRW)
 	{
 		__asm {
-        push ecx
-        push edx
-        mov ecx, [esp+12]
-        mov edx, [ecx]
-        call ord ptr[edx+0x150]
-        pop edx
-        pop ecx
-        ret 4
-		}
+			push ecx
+			push edx
+			mov ecx, [esp+12]
+			mov edx, [ecx]
+			call ord ptr[edx+0x150]
+			pop edx
+			pop ecx
+			ret 4
+			}
 	}
 
 	CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW)
@@ -301,17 +302,17 @@ some_error:
 	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
 	{
 		__asm {
-        lea eax, [esp+8] // iFuseId
-        push [esp+20] // fSkip
-        push [esp+16] // fDelay
-        push 0 // SUBOBJ_Id_NONE
-        push eax
-        push [esp+32] // fLifetime
-        mov ecx, [esp+24]
-        mov eax, [ecx]
-        call [eax+0x1E4]
-        ret 20
-		}
+			lea eax, [esp+8] // iFuseId
+			push [esp+20]    // fSkip
+			push [esp+16]    // fDelay
+			push 0           // SUBOBJ_Id_NONE
+			push eax
+			push [esp+32] // fLifetime
+			mov ecx, [esp+24]
+			mov eax, [ecx]
+			call [eax+0x1E4]
+			ret 20
+			}
 	}
 
 	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
@@ -325,15 +326,15 @@ some_error:
 	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseId, float fDunno)
 	{
 		__asm {
-        mov ecx, [esp+4]
-        lea eax, [esp+8] // iFuseId
-        push [esp+12] // fDunno
-        push 0 // SUBOBJ_Id_NONE
-        push eax // iFuseId
-        mov eax, [ecx]
-        call [eax+0x1E8]
-        ret 12
-		}
+			mov ecx, [esp+4]
+			lea eax, [esp+8] // iFuseId
+			push [esp+12]    // fDunno
+			push 0           // SUBOBJ_Id_NONE
+			push eax         // iFuseId
+			mov eax, [ecx]
+			call [eax+0x1E8]
+			ret 12
+			}
 	}
 
 	bool UnLightFuse(IObjRW* ship, uint iFuseId)

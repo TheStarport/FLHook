@@ -147,7 +147,7 @@ namespace Plugins::Arena
 		{
 			Server.BaseEnter(targetBase, client);
 			Server.BaseExit(targetBase, client);
-			std::wstring CharFileName;
+			const std::wstring CharFileName;
 			const auto charFileName = Hk::Client::GetCharFileName(client);
 
 			if (charFileName.has_error())

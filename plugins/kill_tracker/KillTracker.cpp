@@ -42,7 +42,7 @@ namespace Plugins::KillTracker
 		{
 			if (std::wstring lineName = Trim(GetParam(str, '=', 0)); lineName == L"ship_type_killed")
 			{
-				uint shipArchId = ToUInt(GetParam(str, '=', 1));
+				const uint shipArchId = ToUInt(GetParam(str, '=', 1));
 				int count = ToInt(GetParam(str, ',', 1).c_str());
 				numKills += count;
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
@@ -59,7 +59,7 @@ namespace Plugins::KillTracker
 	 */
 	void UserCmd_Kills(ClientId& client, const std::wstring& Param)
 	{
-		std::wstring targetCharName = GetParam(Param, ' ', 0);
+		const std::wstring targetCharName = GetParam(Param, ' ', 0);
 		uint clientId;
 
 		if (!targetCharName.empty())
@@ -118,7 +118,7 @@ namespace Plugins::KillTracker
 		{
 			if (const auto& inflictor = (*damageList)->inflictorPlayerId; inflictor && g_DmgTo && inflictor != g_DmgTo)
 			{
-				float hpLost = global->lastPlayerHealth[g_DmgTo] - newHitPoints;
+				const float hpLost = global->lastPlayerHealth[g_DmgTo] - newHitPoints;
 				global->damageArray[inflictor][g_DmgTo] += hpLost;
 			}
 			global->lastPlayerHealth[g_DmgTo] = newHitPoints;
@@ -146,7 +146,7 @@ namespace Plugins::KillTracker
 			float totalDamageTaken = 0.0f;
 			for (uint inflictorIndex = 1; inflictorIndex < global->damageArray[0].size(); inflictorIndex++)
 			{
-				float damageDealt = global->damageArray[inflictorIndex][clientVictim];
+				const float damageDealt = global->damageArray[inflictorIndex][clientVictim];
 				totalDamageTaken += damageDealt;
 				if (damageDealt > greatestDamageDealt)
 				{
@@ -159,7 +159,7 @@ namespace Plugins::KillTracker
 				return;
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
 			std::wstring greatestInflictorName = Hk::Client::GetCharacterNameByID(greatestInflictorId).value();
-			std::wformat_args templateArgs =
+			const std::wformat_args templateArgs =
 			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100)));
 			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate, templateArgs);
 
@@ -185,7 +185,7 @@ namespace Plugins::KillTracker
 			clearDamageDone(client);
 			if (Hk::Client::IsValidClientID(client))
 			{
-				float maxHp = Archetype::GetShip(Hk::Player::GetShipID(client).value())->fHitPoints;
+				const float maxHp = Archetype::GetShip(Hk::Player::GetShipID(client).value())->fHitPoints;
 				global->lastPlayerHealth[client] = maxHp * Players[client].fRelativeHealth;
 			}
 		}

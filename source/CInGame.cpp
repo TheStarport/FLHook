@@ -5,7 +5,7 @@
 
 void CInGame::DoPrint(const std::string& text)
 {
-	std::wstring str = stows(text);
+	const std::wstring str = stows(text);
 	wchar_t wBufSend[1024] = L"";
 	for (uint i = 0; (i <= str.length()); i++)
 	{
@@ -15,7 +15,7 @@ void CInGame::DoPrint(const std::string& text)
 				break;
 			wBufSend[wcslen(wBufSend)] = '\0';
 			std::wstring XML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
-			    XMLText(wBufSend) + L"</TEXT>";
+				XMLText(wBufSend) + L"</TEXT>";
 			Hk::Message::FMsg(this->client, XML);
 			memset(wBufSend, 0, sizeof(wBufSend));
 		}

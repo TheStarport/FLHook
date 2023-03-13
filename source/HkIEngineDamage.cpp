@@ -22,34 +22,36 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 		return rval;
 
 	TRY_HOOK
-	{
-		char* p;
-		memcpy(&p, ecx + 0x10, 4);
-		uint client;
-		memcpy(&client, p + 0xB4, 4);
-		uint spaceId;
-		memcpy(&spaceId, p + 0xB0, 4);
+		{
+			char* p;
+			memcpy(&p, ecx + 0x10, 4);
+			uint client;
+			memcpy(&client, p + 0xB4, 4);
+			uint spaceId;
+			memcpy(&spaceId, p + 0xB0, 4);
 
-		g_DmgTo = client;
-		g_DmgToSpaceId = spaceId;
-		if (client)
-		{ // a player was hit
-			uint inflictorShip;
-			memcpy(&inflictorShip, p1 + 4, 4);
-			const auto clientInflictor = Hk::Client::GetClientIdByShip(inflictorShip);
-			if (clientInflictor.has_error())
-				return 0; // hit by npc
-
-			if (!AllowPlayerDamage(clientInflictor.value(), client))
-				return 1;
-
-			if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-				!ClientInfo[client].bCruiseActivated))
+			g_DmgTo = client;
+			g_DmgToSpaceId = spaceId;
+			if (client)
 			{
-				dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
+				// a player was hit
+				uint inflictorShip;
+				memcpy(&inflictorShip, p1 + 4, 4);
+				const auto clientInflictor = Hk::Client::GetClientIdByShip(inflictorShip);
+				if (clientInflictor.has_error())
+					return 0; // hit by npc
+
+				if (!AllowPlayerDamage(clientInflictor.value(), client))
+					return 1;
+
+				if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause()
+						== DamageCause::UnkDisrupter) &&
+					!ClientInfo[client].bCruiseActivated))
+				{
+					dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
+				}
 			}
 		}
-	}
 	CATCH_HOOK({})
 
 	return 0;
@@ -58,22 +60,22 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 __declspec(naked) void Naked__GuidedHit()
 {
 	__asm {
-        mov eax, [esp+4]
-        mov edx, [esp+8]
-        push ecx
-        push edx
-        push eax
-        push ecx
-        call GuidedHit
-        pop ecx
-        cmp eax, 1
-        jnz go_ahead
-        mov edx, [esp] ; suppress
-        add esp, 0Ch
-        jmp edx
-go_ahead:
-        jmp [g_OldGuidedHit]
-	}
+		mov eax, [esp+4]
+		mov edx, [esp+8]
+		push ecx
+		push edx
+		push eax
+		push ecx
+		call GuidedHit
+		pop ecx
+		cmp eax, 1
+		jnz go_ahead
+		mov edx, [esp] ; suppress
+		add esp, 0Ch
+		jmp edx
+		go_ahead:
+		jmp [g_OldGuidedHit]
+		}
 }
 
 /**************************************************************************************************************
@@ -83,7 +85,7 @@ the g_DmgTo variable...
 **************************************************************************************************************/
 
 void __stdcall AddDamageEntry(
-    DamageList* dmgList, unsigned short subObjId, float hitPts, enum DamageEntry::SubObjFate fate)
+	DamageList* dmgList, unsigned short subObjId, float hitPts, enum DamageEntry::SubObjFate fate)
 {
 	if (CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate))
 		return;
@@ -122,24 +124,24 @@ void __stdcall AddDamageEntry(
 		dmgList->add_damage_entry(subObjId, hitPts, fate);
 
 	TRY_HOOK
-	{
-		g_LastDmgList = *dmgList; // save
-
-		// check for base kill (when hull health = 0)
-		if (hitPts == 0 && subObjId == 1)
 		{
-			uint type;
-			pub::SpaceObj::GetType(g_DmgToSpaceId, type);
-			const auto clientKiller = Hk::Client::GetClientIdByShip(dmgList->get_inflictor_id());
-			if (clientKiller.has_value() && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
-				BaseDestroyed(g_DmgToSpaceId, clientKiller.value());
-		}
+			g_LastDmgList = *dmgList; // save
 
-		if (g_DmgTo && subObjId == 1) // only save hits on the hull (subObjId=1)
-		{
-			ClientInfo[g_DmgTo].dmgLast = *dmgList;
+			// check for base kill (when hull health = 0)
+			if (hitPts == 0 && subObjId == 1)
+			{
+				uint type;
+				pub::SpaceObj::GetType(g_DmgToSpaceId, type);
+				const auto clientKiller = Hk::Client::GetClientIdByShip(dmgList->get_inflictor_id());
+				if (clientKiller.has_value() && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
+					BaseDestroyed(g_DmgToSpaceId, clientKiller.value());
+			}
+
+			if (g_DmgTo && subObjId == 1) // only save hits on the hull (subObjId=1)
+			{
+				ClientInfo[g_DmgTo].dmgLast = *dmgList;
+			}
 		}
-	}
 	CATCH_HOOK({})
 
 	CallPluginsAfter(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate);
@@ -151,15 +153,15 @@ void __stdcall AddDamageEntry(
 __declspec(naked) void Naked__AddDamageEntry()
 {
 	__asm {
-        push [esp+0Ch]
-        push [esp+0Ch]
-        push [esp+0Ch]
-        push ecx
-        call AddDamageEntry
-        mov eax, [esp]
-        add esp, 10h
-        jmp eax
-	}
+		push [esp+0Ch]
+		push [esp+0Ch]
+		push [esp+0Ch]
+		push ecx
+		call AddDamageEntry
+		mov eax, [esp]
+		add esp, 10h
+		jmp eax
+		}
 }
 
 /**************************************************************************************************************
@@ -173,40 +175,40 @@ void __stdcall DamageHit(char* ecx)
 	CallPluginsBefore(HookedCall::IEngine__DamageHit, ecx);
 
 	TRY_HOOK
-	{
-		char* p;
-		memcpy(&p, ecx + 0x10, 4);
-		uint client;
-		memcpy(&client, p + 0xB4, 4);
-		uint spaceId;
-		memcpy(&spaceId, p + 0xB0, 4);
+		{
+			char* p;
+			memcpy(&p, ecx + 0x10, 4);
+			uint client;
+			memcpy(&client, p + 0xB4, 4);
+			uint spaceId;
+			memcpy(&spaceId, p + 0xB0, 4);
 
-		g_DmgTo = client;
-		g_DmgToSpaceId = spaceId;
-	}
+			g_DmgTo = client;
+			g_DmgToSpaceId = spaceId;
+		}
 	CATCH_HOOK({})
 }
 
 __declspec(naked) void Naked__DamageHit()
 {
 	__asm {
-        push ecx
-        push ecx
-        call DamageHit
-        pop ecx
-        jmp [g_OldDamageHit]
-	}
+		push ecx
+		push ecx
+		call DamageHit
+		pop ecx
+		jmp [g_OldDamageHit]
+		}
 }
 
 __declspec(naked) void Naked__DamageHit2()
 {
 	__asm {
-        push ecx
-        push ecx
-        call DamageHit
-        pop ecx
-        jmp [g_OldDamageHit2]
-	}
+		push ecx
+		push ecx
+		call DamageHit
+		pop ecx
+		jmp [g_OldDamageHit2]
+		}
 }
 
 /**************************************************************************************************************
@@ -228,15 +230,13 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		{
 			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
-			else
-				ClientInfo[clientTarget].bSpawnProtected = false;
+			ClientInfo[clientTarget].bSpawnProtected = false;
 		}
 		if (ClientInfo[client].bSpawnProtected)
 		{
 			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
-			else
-				ClientInfo[client].bSpawnProtected = false;
+			ClientInfo[client].bSpawnProtected = false;
 		}
 
 		// no-pvp check
@@ -273,26 +273,26 @@ ulong g_NonGunWeaponHitsBaseRetAddress;
 __declspec(naked) void Naked__NonGunWeaponHitsBase()
 {
 	__asm {
-        mov eax, [esp+4]
-        mov edx, [esp+8]
-        push ecx
-        push edx
-        push eax
-        push ecx
-        call NonGunWeaponHitsBaseBefore
-        pop ecx
+		mov eax, [esp+4]
+		mov edx, [esp+8]
+		push ecx
+		push edx
+		push eax
+		push ecx
+		call NonGunWeaponHitsBaseBefore
+		pop ecx
 
-        mov eax, [esp]
-        mov [g_NonGunWeaponHitsBaseRetAddress], eax
-        lea eax, return_here
-        mov [esp], eax
-        jmp [g_OldNonGunWeaponHitsBase]
-return_here:
-        pushad
-        call NonGunWeaponHitsBaseAfter
-        popad
-        jmp [g_NonGunWeaponHitsBaseRetAddress]
-	}
+		mov eax, [esp]
+		mov [g_NonGunWeaponHitsBaseRetAddress], eax
+		lea eax, return_here
+		mov [esp], eax
+		jmp [g_OldNonGunWeaponHitsBase]
+		return_here:
+		pushad
+		call NonGunWeaponHitsBaseAfter
+		popad
+		jmp [g_NonGunWeaponHitsBaseRetAddress]
+		}
 }
 
 ///////////////////////////

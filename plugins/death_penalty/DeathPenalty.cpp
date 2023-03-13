@@ -72,7 +72,7 @@ namespace Plugins::DeathPenalty
 	float GetShipFractionOverride(ClientId client)
 	{
 		// Get ShipArchId
-		uint shipArchId = Hk::Player::GetShipID(client).value();
+		const uint shipArchId = Hk::Player::GetShipID(client).value();
 
 		// Default return value is the default death penalty fraction
 		float overrideValue = global->config->DeathPenaltyFraction;
@@ -136,7 +136,7 @@ namespace Plugins::DeathPenalty
 	{
 		// Get Account directory then flhookuser.ini file
 		const CAccount* acc = Players.FindAccountFromClientID(client);
-		std::wstring dir = Hk::Client::GetAccountDirName(acc);
+		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
@@ -180,7 +180,7 @@ namespace Plugins::DeathPenalty
 			// If another player has killed the player
 			if (iKillerId != client && (global->config->DeathPenaltyFractionKiller > 0.0f))
 			{
-				auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * global->config->DeathPenaltyFractionKiller);
+				const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * global->config->DeathPenaltyFractionKiller);
 				if (killerReward)
 				{
 					// Reward the killer, print message to them
@@ -235,7 +235,7 @@ namespace Plugins::DeathPenalty
 	void SaveDPNoticeToCharFile(ClientId client, const std::string& value)
 	{
 		const CAccount* acc = Players.FindAccountFromClientID(client);
-		std::wstring dir = Hk::Client::GetAccountDirName(acc);
+		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
 			std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
@@ -287,8 +287,8 @@ namespace Plugins::DeathPenalty
 				{
 					PrintUserCmdText(client, Hk::Err::ErrGetText(shipValue.error()));
 				}
-				auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
-				uint playerCash = Hk::Player::GetCash(client).value();
+				const auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
+				const uint playerCash = Hk::Player::GetCash(client).value();
 
 				PrintUserCmdText(client, std::format(L"The death penalty for your ship will be {} credits.", ToMoneyStr(std::min(cashOwed, playerCash))));
 				PrintUserCmdText(client,

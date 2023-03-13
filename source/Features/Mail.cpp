@@ -28,13 +28,13 @@ MailManager::MailManager()
 	}
 
 	db.exec("CREATE TABLE items ("
-	        "id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,"
-	        "unread INTEGER(1, 1) NOT NULL CHECK(unread IN(0, 1)),"
-	        "subject TEXT(36, 36) NOT NULL,"
-	        "author TEXT(36, 36) NOT NULL,"
-	        "body TEXT(255, 255) NOT NULL,"
-	        "timestamp INTEGER NOT NULL,"
-	        "characterName TEXT(36, 36) NOT NULL);");
+		"id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,"
+		"unread INTEGER(1, 1) NOT NULL CHECK(unread IN(0, 1)),"
+		"subject TEXT(36, 36) NOT NULL,"
+		"author TEXT(36, 36) NOT NULL,"
+		"body TEXT(255, 255) NOT NULL,"
+		"timestamp INTEGER NOT NULL,"
+		"characterName TEXT(36, 36) NOT NULL);");
 
 	db.exec("CREATE INDEX IDX_characterName ON items (characterName DESC);");
 }
@@ -85,7 +85,7 @@ cpp::result<void, std::string> MailManager::SendNewMail(const std::variant<uint,
 using namespace std::string_literals;
 
 cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMail(
-    const std::variant<uint, std::wstring>& character, const bool& ignoreRead, const int& page)
+	const std::variant<uint, std::wstring>& character, const bool& ignoreRead, const int& page)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -96,7 +96,8 @@ cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMai
 	if (ignoreRead)
 	{
 		SQLite::Statement getUnreadMail(
-		    db, "SELECT id, subject, author, body, timestamp FROM items WHERE unread = TRUE AND characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
+			db,
+			"SELECT id, subject, author, body, timestamp FROM items WHERE unread = TRUE AND characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
 		getUnreadMail.bind(1, characterName);
 		getUnreadMail.bind(2, (page - 1) * 15);
 
@@ -104,17 +105,18 @@ cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMai
 		while (getUnreadMail.executeStep())
 		{
 			mail.emplace_back(getUnreadMail.getColumn(0).getInt64(),
-			    true,
-			    getUnreadMail.getColumn(1).getString(),
-			    getUnreadMail.getColumn(2).getString(),
-			    getUnreadMail.getColumn(3).getString(),
-			    getUnreadMail.getColumn(4).getInt64());
+				true,
+				getUnreadMail.getColumn(1).getString(),
+				getUnreadMail.getColumn(2).getString(),
+				getUnreadMail.getColumn(3).getString(),
+				getUnreadMail.getColumn(4).getInt64());
 		}
 
 		return mail;
 	}
 
-	SQLite::Statement getMail(db, "SELECT id, unread, subject, author, body, timestamp FROM items WHERE characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
+	SQLite::Statement getMail(db,
+		"SELECT id, unread, subject, author, body, timestamp FROM items WHERE characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
 	getMail.bind(1, characterName);
 	getMail.bind(2, (page - 1) * 15);
 
@@ -122,11 +124,11 @@ cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMai
 	while (getMail.executeStep())
 	{
 		mail.emplace_back(getMail.getColumn(0).getInt64(),
-		    static_cast<bool>(getMail.getColumn(1).getInt()),
-		    getMail.getColumn(2).getString(),
-		    getMail.getColumn(3).getString(),
-		    getMail.getColumn(4).getString(),
-		    getMail.getColumn(5).getInt64());
+			static_cast<bool>(getMail.getColumn(1).getInt()),
+			getMail.getColumn(2).getString(),
+			getMail.getColumn(3).getString(),
+			getMail.getColumn(4).getString(),
+			getMail.getColumn(5).getInt64());
 	}
 
 	return mail;
@@ -154,11 +156,11 @@ cpp::result<MailManager::MailItem, std::string> MailManager::GetMailById(const s
 		}
 
 		mail = MailItem(index,
-		    static_cast<bool>(getMail.getColumn(0).getInt()),
-		    getMail.getColumn(1).getString(),
-		    getMail.getColumn(2).getString(),
-		    getMail.getColumn(3).getString(),
-		    getMail.getColumn(4).getInt64());
+			static_cast<bool>(getMail.getColumn(0).getInt()),
+			getMail.getColumn(1).getString(),
+			getMail.getColumn(2).getString(),
+			getMail.getColumn(3).getString(),
+			getMail.getColumn(4).getInt64());
 
 		SQLite::Statement markRead(db, "UPDATE items SET unread = FALSE WHERE id = ?;");
 		markRead.bind(1, index);
@@ -206,8 +208,8 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
 
-	SQLite::Statement deleteMail = readMailOnly 
-		? SQLite::Statement(db, "DELETE FROM items WHERE unread = FALSE AND characterName = ?;") 
+	SQLite::Statement deleteMail = readMailOnly
+		? SQLite::Statement(db, "DELETE FROM items WHERE unread = FALSE AND characterName = ?;")
 		: SQLite::Statement(db, "DELETE FROM items WHERE characterName = ?;");
 	deleteMail.bind(1, characterName);
 
@@ -307,7 +309,7 @@ void MailManager::CleanUpOldMail()
 			}
 		}
 	}
-    catch (SQLite::Exception ex)
+	catch (SQLite::Exception ex)
 	{
 		AddLog(LogType::Normal, LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}

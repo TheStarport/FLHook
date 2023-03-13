@@ -3,7 +3,7 @@
 // Very hacky way to call non-header function
 namespace IServerImplHook
 {
-	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, void const* rdlReader, CHAT_ID cidTo, int _genArg1);
+	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int _genArg1);
 }
 
 bool g_bMsg;
@@ -16,7 +16,7 @@ namespace Hk::Message
 {
 	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message)
 	{
-		ClientId client = Hk::Client::ExtractClientID(player);
+		ClientId client = Client::ExtractClientID(player);
 
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
@@ -41,7 +41,7 @@ namespace Hk::Message
 		uint systemId = 0;
 		if (!system.index())
 		{
-			std::wstring systemName = std::get<std::wstring>(system);
+			const auto systemName = std::get<std::wstring>(system);
 			pub::GetSystemID(systemId, wstos(systemName).c_str());
 		}
 		else
@@ -60,7 +60,7 @@ namespace Hk::Message
 
 		// for all players in system...
 
-		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
+		for (const auto player : Client::getAllPlayersInSystem(systemId))
 		{
 			const CHAT_ID ciClient = {player};
 			IServerImplHook::SubmitChat(ci, ret, buffer, ciClient, -1);
@@ -113,14 +113,14 @@ namespace Hk::Message
 		uint p1 = client;
 
 		__asm {
-        push [p4]
-        push [p3]
-        push [p2]
-        push [p1]
-        mov ecx, [HookClient]
-        add ecx, 4
-        call [RCSendChatMsg]
-		}
+			push [p4]
+			push [p3]
+			push [p2]
+			push [p1]
+			mov ecx, [HookClient]
+			add ecx, 4
+			call [RCSendChatMsg]
+			}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ namespace Hk::Message
 
 	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xmring)
 	{
-		ClientId client = Hk::Client::ExtractClientID(player);
+		ClientId client = Client::ExtractClientID(player);
 
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
@@ -153,7 +153,7 @@ namespace Hk::Message
 		uint systemId = 0;
 		if (!system.index())
 		{
-			std::wstring systemName = std::get<std::wstring>(system);
+			const auto systemName = std::get<std::wstring>(system);
 			pub::GetSystemID(systemId, wstos(systemName).c_str());
 		}
 		else
@@ -167,7 +167,7 @@ namespace Hk::Message
 			return cpp::fail(err.error());
 
 		// for all players in system...
-		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
+		for (const auto player : Client::getAllPlayersInSystem(systemId))
 		{
 			FMsgSendChat(player, Buf, iRet);
 		}
@@ -202,7 +202,7 @@ namespace Hk::Message
 	refuses to send if necessary. */
 	cpp::result<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
 	{
-#define HAS_FLAG(a, b) ((a).Flags.find(b) != -1)
+		#define HAS_FLAG(a, b) ((a).Flags.find(b) != -1)
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
@@ -210,8 +210,9 @@ namespace Hk::Message
 			{
 				if (!HAS_FLAG(ignore, L"i") && !(ToLower(sender).compare(ToLower(ignore.character))))
 					return {}; // ignored
-				else if (HAS_FLAG(ignore, L"i") && (ToLower(sender).find(ToLower(ignore.character)) != -1))
-					return {}; // ignored
+				if (HAS_FLAG(ignore, L"i") && (ToLower(sender).find(ToLower(ignore.character)) != -1))
+					return {};
+				// ignored
 			}
 		}
 
@@ -248,12 +249,12 @@ namespace Hk::Message
 		}
 
 		wchar_t wFormatBuf[8];
-		swprintf(wFormatBuf, _countof(wFormatBuf), L"%02X", (long)cFormat);
+		swprintf(wFormatBuf, _countof(wFormatBuf), L"%02X", cFormat);
 		const std::wstring TRADataFormat = wFormatBuf;
 		const std::wstring TRADataSenderColor = L"FFFFFF"; // white
 
 		const std::wstring XML = L"<TRA data=\"0x" + TRADataSenderColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(sender) +
-		    L": </TEXT>" + L"<TRA data=\"0x" + textColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
+			L": </TEXT>" + L"<TRA data=\"0x" + textColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
 
 		if (const auto err = FMsg(toClientId, XML); err.has_error())
 			return cpp::fail(err.error());
@@ -273,7 +274,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (auto const& ignore : ClientInfo[toClientId].Ignore)
+			for (const auto& ignore : ClientInfo[toClientId].Ignore)
 			{
 				if (HAS_FLAG(ignore, L"p"))
 					return {};
@@ -302,7 +303,7 @@ namespace Hk::Message
 		pub::Player::GetSystem(fromClientId, systemId);
 
 		// For all players in system...
-		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
+		for (const auto player : Client::getAllPlayersInSystem(systemId))
 		{
 			// Send the message a player in this system.
 			FormatSendChat(player, Sender, text, L"E6C684");
@@ -337,7 +338,7 @@ namespace Hk::Message
 		pub::SpaceObj::GetLocation(iFromShip, vFromShipLoc, mFromShipDir);
 
 		// For all players in system...
-		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
+		for (auto player : Client::getAllPlayersInSystem(systemId))
 		{
 			uint ship;
 			pub::Player::GetShip(player, ship);
@@ -361,7 +362,7 @@ namespace Hk::Message
 	{
 		auto Sender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
 		// Format and send the message a player in this group.
-		auto Members = Hk::Player::GetGroupMembers(Sender);
+		auto Members = Player::GetGroupMembers(Sender);
 		if (Members.has_error())
 		{
 			return;
@@ -386,8 +387,9 @@ namespace Hk::Message
 	{
 		UnloadStringDLLs();
 
-		HINSTANCE hDLL = LoadLibraryEx("resources.dll", nullptr,
-		    LOAD_LIBRARY_AS_DATAFILE); // typically resources.dll
+		HINSTANCE hDLL = LoadLibraryEx("resources.dll",
+			nullptr,
+			LOAD_LIBRARY_AS_DATAFILE); // typically resources.dll
 		if (hDLL)
 			vDLLs.push_back(hDLL);
 

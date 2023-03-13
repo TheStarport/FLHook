@@ -21,10 +21,9 @@
 
 void PrintUserCmdText(ClientId client, const std::wstring& text)
 {
-	auto newLineChar = text.find(L"\n");
-	if (newLineChar == std::wstring::npos)
+	if (const auto newLineChar = text.find(L"\n"); newLineChar == std::wstring::npos)
 	{
-		std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->messages.msgStyle.userCmdStyle, XMLText(text));
+		const std::wstring xml = std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->messages.msgStyle.userCmdStyle, XMLText(text));
 		Hk::Message::FMsg(client, xml);
 	}
 	else
@@ -35,6 +34,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 		PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Print message to all ships within the specific number of meters of the
@@ -88,14 +88,14 @@ void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /set diemsg <param>\n"
-	                                     L"<param>: all,system,self or none";
+		L"Usage: /set diemsg <param>\n"
+		L"<param>: all,system,self or none";
 
-	std::wstring dieMsgParam = ToLower(GetParam(param, ' ', 0));
+	const std::wstring dieMsgParam = ToLower(GetParam(param, ' ', 0));
 
 	DIEMSGTYPE dieMsg;
 	if (dieMsgParam == L"all")
-		dieMsg = DIEMSG_ALL;
+		dieMsg = DiemsgAll;
 	else if (dieMsgParam == L"system")
 		dieMsg = DIEMSG_SYSTEM;
 	else if (dieMsgParam == L"none")
@@ -130,10 +130,10 @@ void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /set diemsgsize <size>\n"
-	                                     L"<size>: small, default";
+		L"Usage: /set diemsgsize <size>\n"
+		L"<size>: small, default";
 
-	std::wstring dieMsgSizeParam = ToLower(GetParam(param, ' ', 0));
+	const std::wstring dieMsgSizeParam = ToLower(GetParam(param, ' ', 0));
 
 	CHATSIZE dieMsgSize;
 	if (!dieMsgSizeParam.compare(L"small"))
@@ -168,12 +168,12 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /set chatfont <size> <style>\n"
-	                                     L"<size>: small, default or big\n"
-	                                     L"<style>: default, bold, italic or underline";
+		L"Usage: /set chatfont <size> <style>\n"
+		L"<size>: small, default or big\n"
+		L"<style>: default, bold, italic or underline";
 
-	std::wstring chatSizeParam = ToLower(GetParam(param, ' ', 0));
-	std::wstring chatStyleParam = ToLower(GetParam(param, ' ', 1));
+	const std::wstring chatSizeParam = ToLower(GetParam(param, ' ', 0));
+	const std::wstring chatStyleParam = ToLower(GetParam(param, ' ', 1));
 
 	CHATSIZE chatSize;
 	if (!chatSizeParam.compare(L"small"))
@@ -227,23 +227,23 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /ignore <charname> [<flags>]\n"
-	                                     L"<charname>: character name which should be ignored(case insensitive)\n"
-	                                     L"<flags>: combination of the following flags:\n"
-	                                     L" p - only affect private chat\n"
-	                                     L" i - <charname> may match partially\n"
-	                                     L"Examples:\n"
-	                                     L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude\n"
-	                                     L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX\n"
-	                                     L"\"/ignore idiot i\" ignores all chatmessages from players whose \n"
-	                                     L"charname contain \"idiot\" (e.g. \"[XYZ]IdIOT\", \"MrIdiot\", etc)\n"
-	                                     L"\"/ignore Fool pi\" ignores all private-chatmessages from players \n"
-	                                     L"whose charname contain \"fool\"";
+		L"Usage: /ignore <charname> [<flags>]\n"
+		L"<charname>: character name which should be ignored(case insensitive)\n"
+		L"<flags>: combination of the following flags:\n"
+		L" p - only affect private chat\n"
+		L" i - <charname> may match partially\n"
+		L"Examples:\n"
+		L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude\n"
+		L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX\n"
+		L"\"/ignore idiot i\" ignores all chatmessages from players whose \n"
+		L"charname contain \"idiot\" (e.g. \"[XYZ]IdIOT\", \"MrIdiot\", etc)\n"
+		L"\"/ignore Fool pi\" ignores all private-chatmessages from players \n"
+		L"whose charname contain \"fool\"";
 
-	std::wstring allowedFlags = L"pi";
+	const std::wstring allowedFlags = L"pi";
 
-	std::wstring character = GetParam(param, ' ', 0);
-	std::wstring flags = ToLower(GetParam(param, ' ', 1));
+	const std::wstring character = GetParam(param, ' ', 0);
+	const std::wstring flags = ToLower(GetParam(param, ' ', 1));
 
 	if (character.empty())
 	{
@@ -252,7 +252,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	}
 
 	// check if flags are valid
-	for (auto flag : flags)
+	for (const auto flag : flags)
 	{
 		if (allowedFlags.find_first_of(flag) == -1)
 		{
@@ -269,7 +269,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].Ignore.size() + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].Ignore.size()) + 1), character + L" " + flags);
 
 	// save in ClientInfo
 	IgnoreInfo ii;
@@ -292,13 +292,13 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /ignoreid <client-id> [<flags>]\n"
-	                                     L"<client-id>: client-id of character which should be ignored\n"
-	                                     L"<flags>: if \"p\"(without quotation marks) then only affect private\n"
-	                                     L"chat";
+		L"Usage: /ignoreid <client-id> [<flags>]\n"
+		L"<client-id>: client-id of character which should be ignored\n"
+		L"<flags>: if \"p\"(without quotation marks) then only affect private\n"
+		L"chat";
 
-	std::wstring clientId = GetParam(param, ' ', 0);
-	std::wstring flags = ToLower(GetParam(param, ' ', 1));
+	const std::wstring clientId = GetParam(param, ' ', 0);
+	const std::wstring flags = ToLower(GetParam(param, ' ', 1));
 
 	if (!clientId.length() || !flags.empty() && flags.compare(L"p") != 0)
 	{
@@ -323,7 +323,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].Ignore.size() + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].Ignore.size()) + 1), character + L" " + flags);
 
 	// save in ClientInfo
 	IgnoreInfo ii;
@@ -368,8 +368,8 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	}
 
 	static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-	                                     L"Usage: /delignore <id> [<id2> <id3> ...]\n"
-	                                     L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
+		L"Usage: /delignore <id> [<id2> <id3> ...]\n"
+		L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
 
 	std::wstring idToDelete = GetParam(param, ' ', 0);
 
@@ -382,7 +382,8 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	GET_USERFILE(scUserFile)
 
 	if (!idToDelete.compare(L"*"))
-	{ // delete all
+	{
+		// delete all
 		IniDelSection(scUserFile, "IgnoreList");
 		ClientInfo[client].Ignore.clear();
 		PRINT_OK()
@@ -454,7 +455,7 @@ void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& param)
 
 void Invite_Player(ClientId& client, const std::wstring& characterName)
 {
-	std::wstring XML = L"<TEXT>/i " + XMLText(characterName) + L"</TEXT>";
+	const std::wstring XML = L"<TEXT>/i " + XMLText(characterName) + L"</TEXT>";
 	char Buf[0xFFFF];
 	uint iRet;
 	if (Hk::Message::FMsgEncodeXML(XML, Buf, sizeof Buf, iRet).has_error())
@@ -493,7 +494,7 @@ void UserCmd_Invite(ClientId& client, const std::wstring& param)
 
 void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 {
-	std::wstring invitedClientId = GetParam(param, ' ', 0);
+	const std::wstring invitedClientId = GetParam(param, ' ', 0);
 
 	if (invitedClientId.empty())
 	{
@@ -641,8 +642,13 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	{
 		// |    Id.) Subject (unread) - Author - Time
 		PrintUserCmdText(client,
-		    stows(std::format(
-		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
+			stows(std::format(
+				"|    {}.) {} {}- {} - {:%F %T}",
+				item.id,
+				item.subject,
+				item.unread ? "(unread) " : "",
+				item.author,
+				UnixToSysTime(item.timestamp))));
 	}
 }
 
@@ -689,7 +695,7 @@ void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 		PrintUserCmdText(client, Hk::Err::ErrGetText(removal.error()));
 		return;
 	}
-	
+
 	const auto addition = Hk::Player::AddCash(targetPlayer.value(), cash);
 
 	if (addition.has_error())
@@ -705,8 +711,9 @@ void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
+
 UserCommand CreateUserCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage,
-    const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description)
+	const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description)
 {
 	return {command, usage, proc, description};
 }
@@ -718,32 +725,56 @@ std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds)
 
 const std::wstring helpUsage = L"/help [module] [command]";
 const std::wstring helpDescription =
-    L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
+	L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
 const std::vector UserCmds = {{CreateUserCommand(L"/set diemsg", L"<all/system/self/none>", UserCmd_SetDieMsg, L""),
-    CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death messages."),
-    CreateUserCommand(L"/set chatfont", L"<small/default/big> <default/bold/italic/underline>", UserCmd_SetChatFont, L"Sets the font of chat."),
-    CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L"Lists currently ignored players."),
-    CreateUserCommand(L"/delignore", L"<id/*> [<id2> <id3...]", UserCmd_DelIgnore, L"Removes specified entries form ignore list, '*' clears the whole list."),
-    CreateUserCommand(L"/ignore", L"<name> [flags]", UserCmd_Ignore,
-        L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
-    CreateUserCommand(
-        L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID, L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat."),
-    CreateUserCommand(L"/ids", L"", UserCmd_Ids, L"List all player IDs."),
-    CreateUserCommand(L"/id", L"", UserCmd_ID, L"Lists your player ID."),
-    CreateUserCommand(L"/invite", L"[name]", UserCmd_Invite, L"Sends a group invite to a player with the specified name, or target, if no name is provided."),
-    CreateUserCommand(L"/invite$", L"<id>", UserCmd_InviteID, L"Sends a group invite to a player with the specified ID."),
-    CreateUserCommand(L"/i", L"[name]", UserCmd_Invite, L"Shortcut for /invite"),
-    CreateUserCommand(L"/i$", L"<id>", UserCmd_InviteID, L"Shortcut for /invite$"),
-    CreateUserCommand(L"/factioninvite", L"<name>", UserCmd_FactionInvite, L"Send a group invite to online members of the specified tag."),
-    CreateUserCommand(L"/fi", L"<name>", UserCmd_FactionInvite, L"Shortcut for /factioninvite."),
-    CreateUserCommand(L"/flhookinfo", L"", UserCmd_FLHookInfo, L""),
-    CreateUserCommand(L"/maildel", L"/maildel <id/all> [readonly]", UserCmdDelMail,
-        L"Delete the specified mail, or if all is provided delete all mail. If all is specified with the param of readonly, unread mail will be preserved."),
-    CreateUserCommand(L"/mailread", L"/mailread <id>", UserCmdReadMail, L"Read the specified mail."),
-    CreateUserCommand(L"/maillist", L"/maillist <page> [unread]", UserCmdListMail,
-        L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
-    CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
-    CreateUserCommand(L"/givecash", L"<player> <amount>", UserCmdGiveCash, L"Gives specified amount of cash to a target player, target must be online.")}};
+                               CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death messages."),
+                               CreateUserCommand(L"/set chatfont",
+	                               L"<small/default/big> <default/bold/italic/underline>",
+	                               UserCmd_SetChatFont,
+	                               L"Sets the font of chat."),
+                               CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L"Lists currently ignored players."),
+                               CreateUserCommand(L"/delignore",
+	                               L"<id/*> [<id2> <id3...]",
+	                               UserCmd_DelIgnore,
+	                               L"Removes specified entries form ignore list, '*' clears the whole list."),
+                               CreateUserCommand(L"/ignore",
+	                               L"<name> [flags]",
+	                               UserCmd_Ignore,
+	                               L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
+                               CreateUserCommand(
+	                               L"/ignoreid",
+	                               L"<client-id> [flags]",
+	                               UserCmd_IgnoreID,
+	                               L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat."),
+                               CreateUserCommand(L"/ids", L"", UserCmd_Ids, L"List all player IDs."),
+                               CreateUserCommand(L"/id", L"", UserCmd_ID, L"Lists your player ID."),
+                               CreateUserCommand(L"/invite",
+	                               L"[name]",
+	                               UserCmd_Invite,
+	                               L"Sends a group invite to a player with the specified name, or target, if no name is provided."),
+                               CreateUserCommand(L"/invite$", L"<id>", UserCmd_InviteID, L"Sends a group invite to a player with the specified ID."),
+                               CreateUserCommand(L"/i", L"[name]", UserCmd_Invite, L"Shortcut for /invite"),
+                               CreateUserCommand(L"/i$", L"<id>", UserCmd_InviteID, L"Shortcut for /invite$"),
+                               CreateUserCommand(L"/factioninvite",
+	                               L"<name>",
+	                               UserCmd_FactionInvite,
+	                               L"Send a group invite to online members of the specified tag."),
+                               CreateUserCommand(L"/fi", L"<name>", UserCmd_FactionInvite, L"Shortcut for /factioninvite."),
+                               CreateUserCommand(L"/flhookinfo", L"", UserCmd_FLHookInfo, L""),
+                               CreateUserCommand(L"/maildel",
+	                               L"/maildel <id/all> [readonly]",
+	                               UserCmdDelMail,
+	                               L"Delete the specified mail, or if all is provided delete all mail. If all is specified with the param of readonly, unread mail will be preserved."),
+                               CreateUserCommand(L"/mailread", L"/mailread <id>", UserCmdReadMail, L"Read the specified mail."),
+                               CreateUserCommand(L"/maillist",
+	                               L"/maillist <page> [unread]",
+	                               UserCmdListMail,
+	                               L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
+                               CreateUserCommand(CmdArr({L"/help", L"/h", L"/?"}), helpUsage, UserCmd_Help, helpDescription),
+                               CreateUserCommand(L"/givecash",
+	                               L"<player> <amount>",
+	                               UserCmdGiveCash,
+	                               L"Gives specified amount of cash to a target player, target must be online.")}};
 
 bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 {
@@ -762,11 +793,8 @@ bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 	{
 		return isMatch(std::get<std::wstring>(userCmd.command));
 	}
-	else
-	{
-		const auto& arr = std::get<std::vector<std::wstring>>(userCmd.command);
-		return std::ranges::any_of(arr, isMatch);
-	}
+	const auto& arr = std::get<std::vector<std::wstring>>(userCmd.command);
+	return std::ranges::any_of(arr, isMatch);
 }
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView)
@@ -808,7 +836,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			}
 		}
 		else if (const auto& userCommand = std::ranges::find_if(UserCmds, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
-		         userCommand != UserCmds.end())
+			userCommand != UserCmds.end())
 		{
 			PrintUserCmdText(client, userCommand->usage);
 			PrintUserCmdText(client, userCommand->description);
@@ -821,7 +849,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& pluginIterator =
-	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<PluginData> plug) { return ToLower(stows(plug->shortName)) == ToLower(mod); });
+		std::ranges::find_if(plugins, [&mod](const std::shared_ptr<PluginData> plug) { return ToLower(stows(plug->shortName)) == ToLower(mod); });
 
 	if (pluginIterator == plugins.end())
 	{
@@ -844,7 +872,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			}
 		}
 		else if (const auto& userCommand = std::ranges::find_if(*plugin->commands, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
-		         userCommand != plugin->commands->end())
+			userCommand != plugin->commands->end())
 		{
 			PrintUserCmdText(client, userCommand->usage);
 			PrintUserCmdText(client, userCommand->description);
@@ -904,7 +932,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		}
 		if (param.has_value())
 		{
-			std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
+			const std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
 			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
 
 			try
@@ -920,7 +948,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 
 				AddLog(LogType::UserLogCmds, LogLevel::Info, "finished");
 			}
-			catch (std::exception const& ex)
+			catch (const std::exception& ex)
 			{
 				AddLog(LogType::UserLogCmds, LogLevel::Err, std::format("exception {}", ex.what()));
 			}

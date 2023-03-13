@@ -7,7 +7,7 @@ const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<Func
 
 int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costume, uint infocardId, uint* a5, int a6, uint infocardId2, float a8, bool a9)
 {
-	if (const CShip* ship = (CShip*)CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT); ship && ship->is_player())
+	if (const CShip* ship = static_cast<CShip*>(CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT)); ship && ship->is_player())
 	{
 		const auto client = ship->GetOwnerPlayer();
 
@@ -22,10 +22,10 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 		constexpr DWORD numberOffset2 = 0x6eeb523 + 1 - 0x6ea0000;
 		constexpr DWORD formationOffset = 0x6fb7524 + 25 - 0x6ea0000;
 
-		auto playerFactionAddr = PVOID(content + factionOffset);
-		auto playerNumber1 = PVOID(content + numberOffset1);
-		auto playerNumber2 = PVOID(content + numberOffset2);
-		auto playerFormation = PCHAR(content + formationOffset);
+		const auto playerFactionAddr = PVOID(content + factionOffset);
+		const auto playerNumber1 = PVOID(content + numberOffset1);
+		const auto playerNumber2 = PVOID(content + numberOffset2);
+		const auto playerFormation = PCHAR(content + formationOffset);
 
 		if (!conf->callsign.disableRandomisedFormations)
 		{
@@ -52,7 +52,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 	}
 
 	func->UnDetour();
-	int res = func->GetOriginalFunc()(fromShipId, toShipId, voiceId, costume, infocardId, a5, a6, infocardId2, a8, a9);
+	const int res = func->GetOriginalFunc()(fromShipId, toShipId, voiceId, costume, infocardId, a5, a6, infocardId2, a8, a9);
 	func->Detour(SendComm);
 	return res;
 }

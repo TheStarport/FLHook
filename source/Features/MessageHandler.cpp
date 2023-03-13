@@ -20,7 +20,7 @@ MessageHandler::MessageHandler()
 	connectHandle->once<uvw::ConnectEvent>([this](const uvw::ConnectEvent&, uvw::TCPHandle& tcp) {
 		// Authenticate with the RabbitMQ cluster.
 		connection = std::make_unique<AMQP::Connection>(this, AMQP::Login("guest", "guest"), "/");
-		
+
 		// Start reading from the socket.
 		connectHandle->read();
 	});
@@ -49,9 +49,9 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 
 	channel = std::make_unique<AMQP::Channel>(conn);
 
-	magic_enum::enum_for_each<MessageHandler::Queue>([this](auto val) {
-		constexpr MessageHandler::Queue queue = val;
-		this->channel->declareQueue(std::string(magic_enum::enum_name<MessageHandler::Queue>(queue)), AMQP::durable);
+	magic_enum::enum_for_each<Queue>([this](auto val) {
+		constexpr Queue queue = val;
+		this->channel->declareQueue(std::string(magic_enum::enum_name<Queue>(queue)), AMQP::durable);
 	});
 }
 
@@ -70,7 +70,7 @@ MessageHandler::~MessageHandler() = default;
 
 void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
 {
-	if (onMessageCallbacks.find(queue) == onMessageCallbacks.end())
+	if (!onMessageCallbacks.contains(queue))
 	{
 		onMessageCallbacks[queue] = {callback};
 		if (onFail.has_value())
@@ -83,28 +83,28 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 		}
 
 		channel->consume(queue)
-		    .onSuccess([queue]() { 
-				Console::ConInfo(std::format("successfulled subscribed to {}", queue)); 
-			})
-		    .onReceived([this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered) {
-			    const auto callbacks = onMessageCallbacks.find(queue);
-			    for (const auto& cb : callbacks->second)
-			    {
-				    if (cb(message))
-				    {
-					    channel->ack(deliveryTag);
-					    return;
-				    }
-			    }
-		    })
-		    .onError([this, queue](const char* msg) {
-			    Console::ConWarn(std::format("connection terminated with {} - {}", queue, std::string(msg)));
-			    const auto callbacks = onFailCallbacks.find(queue);
-			    for (const auto& cb : callbacks->second)
-			    {
-				    cb(msg);
-			    }
-		    });
+		       .onSuccess([queue]() {
+			       Console::ConInfo(std::format("successfulled subscribed to {}", queue));
+		       })
+		       .onReceived([this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered) {
+			       const auto callbacks = onMessageCallbacks.find(queue);
+			       for (const auto& cb : callbacks->second)
+			       {
+				       if (cb(message))
+				       {
+					       channel->ack(deliveryTag);
+					       return;
+				       }
+			       }
+		       })
+		       .onError([this, queue](const char* msg) {
+			       Console::ConWarn(std::format("connection terminated with {} - {}", queue, std::string(msg)));
+			       const auto callbacks = onFailCallbacks.find(queue);
+			       for (const auto& cb : callbacks->second)
+			       {
+				       cb(msg);
+			       }
+		       });
 
 		return;
 	}

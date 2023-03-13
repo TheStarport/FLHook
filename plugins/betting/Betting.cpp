@@ -175,7 +175,7 @@ namespace Plugins::Betting
 	void UserCmd_AcceptFFA(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Is player in space?
-		if (uint ship = Hk::Player::GetShip(client).value(); !ship)
+		if (const uint ship = Hk::Player::GetShip(client).value(); !ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
 			return;
@@ -306,7 +306,7 @@ namespace Plugins::Betting
 			return;
 		}
 
-		std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
+		const std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
 		// Check the player can afford it
 		auto const cash = Hk::Player::GetCash(client);
@@ -359,7 +359,7 @@ namespace Plugins::Betting
 	void UserCmdAcceptDuel(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Is player in space?
-		if (uint ship = Hk::Player::GetShip(client).value(); !ship)
+		if (const uint ship = Hk::Player::GetShip(client).value(); !ship)
 		{
 			PrintUserCmdText(client, L"You must be in space to accept this.");
 			return;
@@ -377,7 +377,7 @@ namespace Plugins::Betting
 				}
 
 				// Check the player can afford it
-				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
+				const std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
 				{

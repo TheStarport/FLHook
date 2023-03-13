@@ -1,32 +1,32 @@
 #pragma once
 
 #ifdef SERVER
-	#include <ext/Sql.hpp>
-	#pragma warning(push, 0)
-	#include <ext/jpcre2.hpp>
-	#pragma warning(pop)
+#include <ext/Sql.hpp>
+#pragma warning(push, 0)
+#include <ext/jpcre2.hpp>
+#pragma warning(pop)
 using jp = jpcre2::select<char>;
 using jpWide = jpcre2::select<wchar_t>;
-	#include <ext/result.hpp>
-	#include <ext/Wildcard.hpp>
-	#include "magic_enum.hpp"
+#include <ext/result.hpp>
+#include <ext/Wildcard.hpp>
+#include "magic_enum.hpp"
 
-	#pragma comment(lib, "pcre2-8.lib")
-	#pragma comment(lib, "pcre2-16.lib")
-	#pragma comment(lib, "pcre2-32.lib")
-	#pragma comment(lib, "pcre2-posix.lib")
+#pragma comment(lib, "pcre2-8.lib")
+#pragma comment(lib, "pcre2-16.lib")
+#pragma comment(lib, "pcre2-32.lib")
+#pragma comment(lib, "pcre2-posix.lib")
 #else
-	#ifdef FMT
+#ifdef FMT
 		#include "fmt/core.h"
 		#include "fmt/format.h"
 		#include "fmt/xchar.h"
-	#endif
+#endif
 
-	#ifdef SQL
+#ifdef SQL
 		#include <ext/Sql.hpp>
-	#endif
+#endif
 
-	#ifdef PCRE2
+#ifdef PCRE2
 		#pragma warning(push, 0)
 		#include <ext/jpcre2.hpp>
 		#pragma warning(pop)
@@ -36,26 +36,26 @@ using jpWide = jpcre2::select<wchar_t>;
 		#pragma comment(lib, "pcre2-16.lib")
 		#pragma comment(lib, "pcre2-32.lib")
 		#pragma comment(lib, "pcre2-posix.lib")
-	#endif
+#endif
 
-	#ifdef RESULT
+#ifdef RESULT
 		#include <ext/result.hpp>
-	#endif
+#endif
 
-	#ifdef WILDCARD
+#ifdef WILDCARD
 		#include <ext/Wildcard.hpp>
-	#endif
+#endif
 
-	#ifdef ENUM
+#ifdef ENUM
 		#include "magic_enum.hpp"
-	#endif
+#endif
 
-	#ifdef JSON
+#ifdef JSON
 		#include <nlohmann/json.hpp>
-	#endif
+#endif
 
-	#ifdef REFL
+#ifdef REFL
 		#include "refl.hpp"
-	#endif
+#endif
 
 #endif

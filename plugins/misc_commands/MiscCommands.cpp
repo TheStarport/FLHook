@@ -330,7 +330,7 @@ namespace Plugins::MiscCommands
 			if (playerInfo.value().iSystem != Hk::Player::GetSystem(client).value())
 				continue;
 
-			uint ship = Hk::Player::GetShip(client).value();
+			const uint ship = Hk::Player::GetShip(client).value();
 
 			const auto& [playerPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 			// Is player within scanner range (15K) of the sending char.

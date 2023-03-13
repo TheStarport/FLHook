@@ -41,7 +41,7 @@ namespace Plugins::CrashCatcher
 		fopen_s(&log, "logs\\crashes.log", "a");
 
 		char Buf[64];
-		time_t tNow = time(nullptr);
+		const time_t tNow = time(nullptr);
 		tm t;
 		localtime_s(&t, &tNow);
 		strftime(Buf, sizeof(Buf), "%d.%m.%Y %H:%M:%S", &t);
@@ -83,7 +83,7 @@ namespace Plugins::CrashCatcher
 	 */
 	void SaveCrashingCharacter()
 	{
-		mstime currTime = Hk::Time::GetUnixMiliseconds();
+		const mstime currTime = Hk::Time::GetUnixMiliseconds();
 		for (auto& [client, saveTime] : global->mapSaveTimes)
 		{
 			if (saveTime != 0 && saveTime < currTime)
@@ -117,7 +117,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief GetRoot hook to stop crashes at engbase.dll offset 0x000124bd
 	 */
-	struct CObject* __cdecl Cb_GetRoot(struct CObject* child)
+	struct CObject* __cdecl GetRoot(struct CObject* child)
 	{
 		try
 		{
@@ -135,7 +135,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief This crash will happen if you have broken path finding or more than 10 connections per system.
 	 */
-	int __cdecl Cb_CrashProc1b221(unsigned int const& system, struct pub::System::ConnectionEnumerator& conn, int type)
+	int __cdecl CrashProc1b221(unsigned int const& system, struct pub::System::ConnectionEnumerator& conn, int type)
 	{
 		__try
 		{
@@ -150,9 +150,9 @@ namespace Plugins::CrashCatcher
 	}
 
 	static FARPROC fpCrashProc1b113470Old = nullptr;
-	uint __cdecl Cb_PubZoneSystem(uint system)
+	uint __cdecl PubZoneSystem(uint system)
 	{
-		int res = pub::Zone::GetSystem(system);
+		const int res = pub::Zone::GetSystem(system);
 		// AddLog(LogType::Normal, LogLevel::Info,L"pub::Zone::GetSystem %u %u", system, res);
 		return res;
 	}
@@ -160,13 +160,13 @@ namespace Plugins::CrashCatcher
 	static void* dwSavedECX = nullptr;
 
 	static FARPROC fpCrashProc6F8B330Old = nullptr;
-	char __stdcall Cb_CrashProc6F8B330(int arg1)
+	char __stdcall CrashProc6F8B330(int arg1)
 	{
 		int res = 0;
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cb_CrashProc6F8B330(arg1={:#X})", arg1));
+				Console::ConInfo(std::format("CrashProc6F8B330(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -184,21 +184,21 @@ namespace Plugins::CrashCatcher
 		return res;
 	}
 
-	__declspec(naked) void Cb_CrashProc6F8B330Naked()
+	__declspec(naked) void CrashProc6F8B330Naked()
 	{
 		__asm {
         mov dwSavedECX, ecx
-        jmp Cb_CrashProc6F8B330
+        jmp CrashProc6F8B330
 		}
 	}
 
 	static FARPROC fpCrashProc6F78DD0Old = nullptr;
-	void __stdcall Cb_CrashProc6F78DD0(int arg1, int arg2)
+	void __stdcall CrashProc6F78DD0(int arg1, int arg2)
 	{
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cb_CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
+				Console::ConInfo(std::format("CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
 			__asm {
             pushad
             push arg2
@@ -213,21 +213,21 @@ namespace Plugins::CrashCatcher
 			LOG_EXCEPTION_INTERNAL()
 		}
 	}
-	__declspec(naked) void Cb_CrashProc6F78DD0Naked()
+	__declspec(naked) void CrashProc6F78DD0Naked()
 	{
 		__asm {
         mov dwSavedECX, ecx
-        jmp Cb_CrashProc6F78DD0
+        jmp CrashProc6F78DD0
 		}
 	}
 
 	static FARPROC fpCrashProc6F671A0Old = nullptr;
-	void __cdecl Cb_CrashProc6F671A0(int arg1)
+	void __cdecl CrashProc6F671A0(int arg1)
 	{
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cb_CrashProc6F671A0(arg1={:#X})", arg1));
+				Console::ConInfo(std::format("CrashProc6F671A0(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -284,7 +284,7 @@ namespace Plugins::CrashCatcher
 		return data;
 	}
 
-	__declspec(naked) void Cb_EngBase124BDNaked()
+	__declspec(naked) void EngBase124BDNaked()
 	{
 		__asm {
         push eax
@@ -294,7 +294,7 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	const DWORD __stdcall Cb_EngBase11a6dNaked_Log(const BYTE* data)
+	const DWORD __stdcall EngBase11a6dNaked_Log(const BYTE* data)
 	{
 		__try
 		{
@@ -307,16 +307,16 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	__declspec(naked) void Cb_EngBase11a6dNaked()
+	__declspec(naked) void EngBase11a6dNaked()
 	{
 		__asm {
         push eax
-        call Cb_EngBase11a6dNaked_Log
+        call EngBase11a6dNaked_Log
         ret 8
 		}
 	}
 
-	void __stdcall Cb_47bc4Naked_Log()
+	void __stdcall 47bc4Naked_Log()
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Err,
@@ -324,7 +324,7 @@ namespace Plugins::CrashCatcher
 		exit(-1);
 	}
 
-	__declspec(naked) void Cb_47bc4Naked()
+	__declspec(naked) void 47bc4Naked()
 	{
 		__asm {
         test eax, eax
@@ -334,19 +334,19 @@ namespace Plugins::CrashCatcher
         mov ecx, edi
         ret
 will_crash:
-        call Cb_47bc4Naked_Log
+        call 47bc4Naked_Log
         xor ecx, ecx
         ret
 		}
 	}
 
 	static HMODULE modContentAc = nullptr; // or whatever value that is
-	void __stdcall Cb_C4800HookNaked()
+	void __stdcall C4800HookNaked()
 	{
 		modContentAc = global->contentAC;
 	}
 
-	int Cb_C4800Hook(int* a1, int* a2, int* zone, double* a4, int a5, int a6)
+	int C4800Hook(int* a1, int* a2, int* zone, double* a4, int a5, int a6)
 	{
 		__try
 		{
@@ -360,7 +360,7 @@ will_crash:
             push zone
             push a2
             push a1
-			mov eax, [Cb_C4800HookNaked]
+			mov eax, [C4800HookNaked]
             add eax, 0xC4800
             call eax
             add esp, 24
@@ -378,7 +378,7 @@ will_crash:
 		}
 	}
 
-	static double __cdecl Cb_TimingSeconds(int64& ticks_delta)
+	static double __cdecl TimingSeconds(int64& ticks_delta)
 	{
 		double seconds = Timing::seconds(ticks_delta);
 		if (seconds < 0 || seconds > 10.0)
@@ -412,17 +412,17 @@ will_crash:
 				{
 					// Patch the NPC visibility distance in MP to 6.5km (default
 					// is 2.5km)
-					float fDistance = 6500.0f * 6500.0f;
+					const float fDistance = 6500.0f * 6500.0f;
 					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &fDistance, 4);
 
-					FARPROC fpHook = (FARPROC)Cb_GetRoot;
+					const FARPROC fpHook = (FARPROC)GetRoot;
 					ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
 					WriteProcMem((char*)global->hModServerAC + 0x84018, &fpHook, 4);
 				}
 
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
-				FARPROC fpTimingSeconds = (FARPROC)Cb_TimingSeconds;
+				const FARPROC fpTimingSeconds = (FARPROC)TimingSeconds;
 				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
 				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
@@ -435,7 +435,7 @@ will_crash:
 
 					// Patch for crash at content.dll + blarg
 					{
-						PatchCallAddr((char*)global->contentAC, 0xC608D, (char*)Cb_C4800Hook);
+						PatchCallAddr((char*)global->contentAC, 0xC608D, (char*)C4800Hook);
 					}
 
 					// Patch for crash at content.dll + c458f ~ adoxa (thanks man)
@@ -449,7 +449,7 @@ will_crash:
 					// client-side.
 					{
 						// alternative: 0C458F, 8B0482->33C090
-						uchar patch[] = {0x74, 0x11, 0xeb, 0x05};
+						const uchar patch[] = {0x74, 0x11, 0xeb, 0x05};
 						WriteProcMem((char*)global->contentAC + 0xC457F, patch, 4);
 					}
 
@@ -458,30 +458,30 @@ will_crash:
 					// What's missing contains the from, to and cargo entries
 					// (amongst other stuff). Original Bytes: 8B F8 8B 17 8B CF
 					{
-						uchar patch[] = {0x90, 0xe8}; // nop call
+						const uchar patch[] = {0x90, 0xe8}; // nop call
 						WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 2);
-						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)Cb_47bc4Naked);
+						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)47bc4Naked);
 					}
 
 					// Patch for crash at engbase.dll + 0x0124BD ~ adoxa (thanks
 					// man) This is caused by a bad cmp.
 					{
-						uchar patch[] = {0xe8};
+						const uchar patch[] = {0xe8};
 						WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 1);
-						PatchCallAddr((char*)global->hEngBase, 0x0124BD, (char*)Cb_EngBase124BDNaked);
+						PatchCallAddr((char*)global->hEngBase, 0x0124BD, (char*)EngBase124BDNaked);
 					}
 
 					// Patch for crash at engbase.dll + 0x011a6d
 					// This is caused by a bad cmp I suspect
 					{
-						uchar patch[] = {0x90, 0xe9}; // nop jmpr
+						const uchar patch[] = {0x90, 0xe9}; // nop jmpr
 						WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 2);
-						PatchCallAddr((char*)global->hEngBase, 0x011a6d + 1, (char*)Cb_EngBase11a6dNaked);
+						PatchCallAddr((char*)global->hEngBase, 0x011a6d + 1, (char*)EngBase11a6dNaked);
 					}
 
 					// Hook for crash at 1b221 in server.dll
 					//{
-					//	FARPROC fpHook = (FARPROC)Cb_CrashProc1b221;
+					//	FARPROC fpHook = (FARPROC)CrashProc1b221;
 					//	ReadProcMem((char*)contentAC + 0x1134f4,
 					//&fpCrashProc1b221Old, 4); WriteProcMem((char*)contentAC
 					//+
@@ -489,7 +489,7 @@ will_crash:
 					//}
 
 					//{
-					//	FARPROC fpHook = (FARPROC)Cb_PubZoneSystem;
+					//	FARPROC fpHook = (FARPROC)PubZoneSystem;
 					//	ReadProcMem((char*)contentAC + 0x113470,
 					//&fpCrashProc1b113470Old, 4); WriteProcMem((char*)contentAC
 					//+
@@ -497,30 +497,30 @@ will_crash:
 					//}
 
 					// Hook for crash at 0xEB4B5 (confirmed)
-					auto fpHook = (FARPROC)Cb_CrashProc6F8B330Naked;
+					const auto fpHook = (FARPROC)CrashProc6F8B330Naked;
 					ReadProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
 					WriteProcMem((char*)global->contentAC + 0x11C970, &fpHook, 4);
 					WriteProcMem((char*)global->contentAC + 0x11CA00, &fpHook, 4);
 
 					// Hook for crash at 0xD8E14 (confirmed)
-					fpCrashProc6F78DD0Old = PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)Cb_CrashProc6F78DD0Naked);
-					PatchCallAddr((char*)global->contentAC, 0xBD96A, (char*)Cb_CrashProc6F78DD0Naked);
+					fpCrashProc6F78DD0Old = PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)CrashProc6F78DD0Naked);
+					PatchCallAddr((char*)global->contentAC, 0xBD96A, (char*)CrashProc6F78DD0Naked);
 
 					// Hook for crash at 0xC71AE (confirmed)
-					fpCrashProc6F671A0Old = PatchCallAddr((char*)global->contentAC, 0xBDC80, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xBDCF9, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xBE41C, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC67E2, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC6AA5, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC6BE8, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC6F71, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC702A, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC713B, (char*)Cb_CrashProc6F671A0);
-					PatchCallAddr((char*)global->contentAC, 0xC7180, (char*)Cb_CrashProc6F671A0);
+					fpCrashProc6F671A0Old = PatchCallAddr((char*)global->contentAC, 0xBDC80, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xBDCF9, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xBE41C, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC67E2, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6AA5, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6BE8, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC6F71, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC702A, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC713B, (char*)CrashProc6F671A0);
+					PatchCallAddr((char*)global->contentAC, 0xC7180, (char*)CrashProc6F671A0);
 
 					// Patch the NPC persist distance in MP to 6.5km and patch the
 					// max spawn distance to 6.5km
-					float fDistance = 6500;
+					const float fDistance = 6500;
 					WriteProcMem((char*)global->contentAC + 0xD3D6E, &fDistance, 4);
 					WriteProcMem((char*)global->contentAC + 0x58F46, &fDistance, 4);
 				}
@@ -554,22 +554,22 @@ will_crash:
 					Console::ConInfo("Uninstalling patches from content.dll");
 
 				{
-					uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
+					const uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
 					WriteProcMem((char*)global->contentAC + 0xC608D, patch, 5);
 				}
 
 				{
-					uchar patch[] = {0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF};
+					const uchar patch[] = {0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF};
 					WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 6);
 				}
 
 				{
-					uchar patch[] = {0x8B, 0x40, 0x10, 0x85, 0xc0};
+					const uchar patch[] = {0x8B, 0x40, 0x10, 0x85, 0xc0};
 					WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 5);
 				}
 
 				{
-					uchar patch[] = {0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00};
+					const uchar patch[] = {0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00};
 					WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 6);
 				}
 

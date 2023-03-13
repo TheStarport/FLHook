@@ -4,7 +4,7 @@ namespace Hk::Client
 {
 	cpp::result<const uint, Error> GetClientID(const std::wstring& character)
 	{
-		if (character.find(L"id ") == std::string::npos) 
+		if (character.find(L"id ") == std::string::npos)
 		{
 			return cpp::fail(Error::InvalidIdString);
 		}
@@ -25,9 +25,7 @@ namespace Hk::Client
 					resolvedId = GetClientIdFromCharName(character);
 					if (resolvedId.has_value())
 						return resolvedId.value();
-
-					else
-						return cpp::fail(Error::PlayerNotLoggedIn);
+					return cpp::fail(Error::PlayerNotLoggedIn);
 				}
 
 				return cpp::fail(resolvedId.error());
@@ -82,7 +80,6 @@ namespace Hk::Client
 		if (newCharacter.has_error())
 			return cpp::fail(newCharacter.error());
 
-
 		if (ToLower(newCharacter.value()).compare(ToLower(character)) != 0)
 			return cpp::fail(Error::CharacterDoesNotExist);
 
@@ -109,7 +106,7 @@ namespace Hk::Client
 		if (!f)
 			return false;
 
-		char Magic[] = "FLS1";
+		const char Magic[] = "FLS1";
 		char File[sizeof(Magic)] = "";
 		fread(File, 1, sizeof(Magic), f);
 		if (!strncmp(Magic, File, sizeof(Magic) - 1))
@@ -123,7 +120,7 @@ namespace Hk::Client
 
 	bool IsInCharSelectMenu(const uint& player)
 	{
-		ClientId client = Hk::Client::ExtractClientID(player);
+		ClientId client = ExtractClientID(player);
 		if (client == UINT_MAX)
 			return false;
 
@@ -133,8 +130,7 @@ namespace Hk::Client
 		pub::Player::GetSystem(client, iSystem);
 		if (!iBase && !iSystem)
 			return true;
-		else
-			return false;
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +211,7 @@ namespace Hk::Client
 
 	cpp::result<ClientId, Error> GetClientIdByShip(const ShipId ship)
 	{
-		if (auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; }); 
+		if (const auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; });
 			foundClient != ClientInfo.end())
 			return std::ranges::distance(ClientInfo.begin(), foundClient);
 
@@ -244,7 +240,7 @@ namespace Hk::Client
 		std::string buffer;
 		buffer.reserve(1024);
 
-		if (ClientId client = Hk::Client::ExtractClientID(player); client != UINT_MAX)
+		if (ClientId client = ExtractClientID(player); client != UINT_MAX)
 		{
 			if (const auto character = GetCharacterNameByID(client); character.has_error())
 				return cpp::fail(character.error());
@@ -267,6 +263,7 @@ namespace Hk::Client
 	{
 		return GetCharFileName(player, false);
 	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId)
@@ -293,7 +290,7 @@ namespace Hk::Client
 
 		if (system.empty())
 			return cpp::fail(Error::InvalidSystem);
-		
+
 		return stows(system);
 	}
 
@@ -354,7 +351,6 @@ namespace Hk::Client
 		const std::array<char, 2> jnz = {'\x75', '\x1D'};
 		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
 
-
 		std::array<int, 1024> arr;
 		int size = 256;
 		pub::Market::GetCommoditiesForSale(baseId, reinterpret_cast<uint* const>(arr.data()), &size);
@@ -363,6 +359,7 @@ namespace Hk::Client
 		for (int i = 0; (i < size); i++)
 			Items.push_back(arr[i]);
 	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<IObjInspectImpl*, Error> GetInspect(ClientId client)
@@ -373,8 +370,7 @@ namespace Hk::Client
 		IObjInspectImpl* inspect;
 		if (!GetShipInspect(ship, inspect, iDunno))
 			return cpp::fail(Error::InvalidShip);
-		else
-			return inspect;
+		return inspect;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,74 +379,71 @@ namespace Hk::Client
 	{
 		if (ClientInfo[client].bTradelane)
 			return ES_TRADELANE;
-		else if (ClientInfo[client].bCruiseActivated)
+		if (ClientInfo[client].bCruiseActivated)
 			return ES_CRUISE;
-		else if (ClientInfo[client].bThrusterActivated)
+		if (ClientInfo[client].bThrusterActivated)
 			return ES_THRUSTER;
-		else if (!ClientInfo[client].bEngineKilled)
+		if (!ClientInfo[client].bEngineKilled)
 			return ES_ENGINE;
-		else
-			return ES_KILLED;
+		return ES_KILLED;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	EquipmentType GetEqType(Archetype::Equipment* eq)
 	{
-		uint iVFTableMine = (uint)common + ADDR_COMMON_VFTABLE_MINE;
-		uint iVFTableCM = (uint)common + ADDR_COMMON_VFTABLE_CM;
-		uint iVFTableGun = (uint)common + ADDR_COMMON_VFTABLE_GUN;
-		uint iVFTableShieldGen = (uint)common + ADDR_COMMON_VFTABLE_SHIELDGEN;
-		uint iVFTableThruster = (uint)common + ADDR_COMMON_VFTABLE_THRUSTER;
-		uint iVFTableShieldBat = (uint)common + ADDR_COMMON_VFTABLE_SHIELDBAT;
-		uint iVFTableNanoBot = (uint)common + ADDR_COMMON_VFTABLE_NANOBOT;
-		uint iVFTableMunition = (uint)common + ADDR_COMMON_VFTABLE_MUNITION;
-		uint iVFTableEngine = (uint)common + ADDR_COMMON_VFTABLE_ENGINE;
-		uint iVFTableScanner = (uint)common + ADDR_COMMON_VFTABLE_SCANNER;
-		uint iVFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
-		uint iVFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
+		const uint iVFTableMine = (uint)common + ADDR_COMMON_VFTABLE_MINE;
+		const uint iVFTableCM = (uint)common + ADDR_COMMON_VFTABLE_CM;
+		const uint iVFTableGun = (uint)common + ADDR_COMMON_VFTABLE_GUN;
+		const uint iVFTableShieldGen = (uint)common + ADDR_COMMON_VFTABLE_SHIELDGEN;
+		const uint iVFTableThruster = (uint)common + ADDR_COMMON_VFTABLE_THRUSTER;
+		const uint iVFTableShieldBat = (uint)common + ADDR_COMMON_VFTABLE_SHIELDBAT;
+		const uint iVFTableNanoBot = (uint)common + ADDR_COMMON_VFTABLE_NANOBOT;
+		const uint iVFTableMunition = (uint)common + ADDR_COMMON_VFTABLE_MUNITION;
+		const uint iVFTableEngine = (uint)common + ADDR_COMMON_VFTABLE_ENGINE;
+		const uint iVFTableScanner = (uint)common + ADDR_COMMON_VFTABLE_SCANNER;
+		const uint iVFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
+		const uint iVFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
 
-		uint iVFTable = *((uint*)eq);
+		const uint iVFTable = *((uint*)eq);
 		if (iVFTable == iVFTableGun)
 		{
-			Archetype::Gun const* gun = (Archetype::Gun*)eq;
+			const Archetype::Gun* gun = static_cast<Archetype::Gun*>(eq);
 			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->iProjectileArchId);
 			int iMissile;
 			memcpy(&iMissile, (char*)eqAmmo + 0x90, 4);
-			uint iGunType = gun->get_hp_type_by_index(0);
+			const uint iGunType = gun->get_hp_type_by_index(0);
 			if (iGunType == 36)
 				return ET_TORPEDO;
-			else if (iGunType == 35)
+			if (iGunType == 35)
 				return ET_CD;
-			else if (iMissile)
+			if (iMissile)
 				return ET_MISSILE;
-			else
-				return ET_GUN;
+			return ET_GUN;
 		}
-		else if (iVFTable == iVFTableCM)
+		if (iVFTable == iVFTableCM)
 			return ET_CM;
-		else if (iVFTable == iVFTableShieldGen)
+		if (iVFTable == iVFTableShieldGen)
 			return ET_SHIELDGEN;
-		else if (iVFTable == iVFTableThruster)
+		if (iVFTable == iVFTableThruster)
 			return ET_THRUSTER;
-		else if (iVFTable == iVFTableShieldBat)
+		if (iVFTable == iVFTableShieldBat)
 			return ET_SHIELDBAT;
-		else if (iVFTable == iVFTableNanoBot)
+		if (iVFTable == iVFTableNanoBot)
 			return ET_NANOBOT;
-		else if (iVFTable == iVFTableMunition)
+		if (iVFTable == iVFTableMunition)
 			return ET_MUNITION;
-		else if (iVFTable == iVFTableMine)
+		if (iVFTable == iVFTableMine)
 			return ET_MINE;
-		else if (iVFTable == iVFTableEngine)
+		if (iVFTable == iVFTableEngine)
 			return ET_ENGINE;
-		else if (iVFTable == iVFTableLight)
+		if (iVFTable == iVFTableLight)
 			return ET_LIGHT;
-		else if (iVFTable == iVFTableScanner)
+		if (iVFTable == iVFTableScanner)
 			return ET_SCANNER;
-		else if (iVFTable == iVFTableTractor)
+		if (iVFTable == iVFTableTractor)
 			return ET_TRACTOR;
-		else
-			return ET_OTHER;
+		return ET_OTHER;
 	}
 
 	uint ExtractClientID(const std::variant<uint, std::wstring>& player)
@@ -488,7 +481,7 @@ namespace Hk::Client
 
 	cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player)
 	{
-		if (ClientId client = Hk::Client::ExtractClientID(player); client != UINT_MAX)
+		if (ClientId client = ExtractClientID(player); client != UINT_MAX)
 			return Players.FindAccountFromClientID(client);
 
 		if (!player.index())
@@ -505,7 +498,7 @@ namespace Hk::Client
 
 	CAccount* GetAccountByClientID(ClientId client)
 	{
-		if (!Hk::Client::IsValidClientID(client))
+		if (!IsValidClientID(client))
 			return nullptr;
 
 		return Players.FindAccountFromClientID(client);
@@ -513,9 +506,9 @@ namespace Hk::Client
 
 	std::wstring GetAccountIdByClientID(ClientId client)
 	{
-		if (Hk::Client::IsValidClientID(client))
+		if (IsValidClientID(client))
 		{
-			CAccount const* acc = GetAccountByClientID(client);
+			const CAccount* acc = GetAccountByClientID(client);
 			if (acc && acc->wAccId)
 			{
 				return acc->wAccId;
@@ -524,8 +517,9 @@ namespace Hk::Client
 		return L"";
 	}
 
-	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId) { 
-		if (Hk::Client::IsValidClientID(client))
+	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId)
+	{
+		if (IsValidClientID(client))
 		{
 			pub::Audio::PlaySoundEffect(client, soundId);
 			return {};

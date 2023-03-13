@@ -89,7 +89,7 @@ namespace Plugins::Npc
 	 */
 	uint RandomInfocardID()
 	{
-		int randomIndex = rand() % global->config->npcInfocardIds.size();
+		const int randomIndex = rand() % global->config->npcInfocardIds.size();
 		return global->config->npcInfocardIds.at(randomIndex);
 	}
 

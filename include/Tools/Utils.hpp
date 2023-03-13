@@ -13,10 +13,10 @@ inline void SwapBytes(void* ptr, uint iLen)
 
 	for (uint i = 0; i < iLen; i += 4)
 	{
-		char* ptr1 = (char*)ptr + i;
+		char* ptr1 = static_cast<char*>(ptr) + i;
 		unsigned long temp;
 		memcpy(&temp, ptr1, 4);
-		char* ptr2 = (char*)&temp;
+		const auto ptr2 = (char*)&temp;
 		memcpy(ptr1, ptr2 + 3, 1);
 		memcpy(ptr1 + 1, ptr2 + 2, 1);
 		memcpy(ptr1 + 2, ptr2 + 1, 1);
@@ -26,19 +26,19 @@ inline void SwapBytes(void* ptr, uint iLen)
 
 inline void WriteProcMem(void* address, const void* pMem, int iSize)
 {
-	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
+	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
 	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
-	WriteProcessMemory(hProc, address, pMem, iSize, 0);
+	WriteProcessMemory(hProc, address, pMem, iSize, nullptr);
 	CloseHandle(hProc);
 }
 
 inline void ReadProcMem(void* address, void* pMem, int iSize)
 {
-	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
+	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
 	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
-	ReadProcessMemory(hProc, address, pMem, iSize, 0);
+	ReadProcessMemory(hProc, address, pMem, iSize, nullptr);
 	CloseHandle(hProc);
 }
 
@@ -64,7 +64,7 @@ inline uint ToUInt(const std::wstring& Str)
 //! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
 inline uint MultiplyUIntBySuffix(const std::wstring& valueString)
 {
-	uint value = wcstoul(valueString.c_str(), nullptr, 10);
+	const uint value = wcstoul(valueString.c_str(), nullptr, 10);
 	const auto lastChar = valueString.back();
 	if (lastChar == *L"k" || lastChar == *L"K")
 	{
@@ -79,7 +79,7 @@ inline uint MultiplyUIntBySuffix(const std::wstring& valueString)
 
 inline std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time)
 {
-	return std::chrono::sys_time<std::chrono::seconds> {std::chrono::seconds {time}};
+	return std::chrono::sys_time<std::chrono::seconds>{std::chrono::seconds{time}};
 }
 
 inline std::wstring XMLText(const std::wstring& text)
@@ -105,7 +105,7 @@ Remove leading and trailing spaces from the std::string  ~FlakCommon by Motah.
 */
 template<typename Str>
 Str Trim(const Str& stringInput)
-    requires StringRestriction<Str>
+	requires StringRestriction<Str>
 {
 	if (stringInput.empty())
 		return stringInput;
@@ -170,8 +170,8 @@ TString ExpandEnvironmentVariables(const TString& input)
 }
 
 template<typename TStr, typename TChar>
-inline TStr GetParam(const TStr& line, TChar splitChar, uint pos)
-    requires StringRestriction<TStr>
+TStr GetParam(const TStr& line, TChar splitChar, uint pos)
+	requires StringRestriction<TStr>
 {
 	uint i;
 	uint j;
@@ -196,7 +196,7 @@ inline TStr GetParam(const TStr& line, TChar splitChar, uint pos)
 
 template<typename TString, typename TChar>
 TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
-    requires StringRestriction<TString>
+	requires StringRestriction<TString>
 {
 	for (uint i = 0, j = 0; (i <= pos) && (j < line.length()); j++)
 	{
@@ -218,7 +218,7 @@ TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
 
 template<typename TString>
 auto Split(const TString& input, const TString& splitCharacter)
-    requires StringRestriction<TString>
+	requires StringRestriction<TString>
 {
 	auto inputCopy = input;
 	size_t pos = 0;
@@ -239,14 +239,14 @@ auto Split(const TString& input, const TString& splitCharacter)
 
 template<typename TString, typename TChar>
 auto Split(const TString& input, const TChar& splitCharacter)
-    requires StringRestriction<TString>
+	requires StringRestriction<TString>
 {
 	return Split(input, TString(1, splitCharacter));
 }
 
 template<typename TString, typename TTStr, typename TTTStr>
 TString ReplaceStr(const TString& source, const TTStr& searchForRaw, const TTTStr& replaceWithRaw)
-    requires StringRestriction<TString>
+	requires StringRestriction<TString>
 {
 	const TString searchFor = searchForRaw;
 	const TString replaceWith = replaceWithRaw;
@@ -282,7 +282,7 @@ inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFu
 	DWORD dwRelAddr;
 	ReadProcMem(mod + installAddress + 1, &dwRelAddr, 4);
 
-	DWORD offset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
+	const DWORD offset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
 	WriteProcMem(mod + installAddress + 1, &offset, 4);
 
 	return (FARPROC)(mod + dwRelAddr + installAddress + 5);
@@ -312,8 +312,8 @@ inline std::string ViewToString(const std::string_view& stringView)
 
 inline std::wstring stows(const std::string& text)
 {
-	int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, 0, 0);
-	auto wideText = new wchar_t[size];
+	const int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, nullptr, 0);
+	const auto wideText = new wchar_t[size];
 	MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, wideText, size);
 	std::wstring Ret = wideText;
 	delete[] wideText;
@@ -322,9 +322,9 @@ inline std::wstring stows(const std::string& text)
 
 inline std::string wstos(const std::wstring& text)
 {
-	uint iLen = (uint)text.length() + 1;
-	auto Buf = new char[iLen];
-	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, Buf, iLen, 0, 0);
+	const uint iLen = text.length() + 1;
+	const auto Buf = new char[iLen];
+	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, Buf, iLen, nullptr, nullptr);
 	std::string Ret = Buf;
 	delete[] Buf;
 	return scRet;
@@ -332,7 +332,7 @@ inline std::string wstos(const std::wstring& text)
 
 template<typename TStr>
 auto strswa(TStr str)
-    requires StringRestriction<TStr>
+	requires StringRestriction<TStr>
 {
 	if constexpr (std::is_same_v<TStr, std::string>)
 	{

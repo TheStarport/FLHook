@@ -84,7 +84,7 @@ namespace Plugins::SystemSensor
 
 	void UserCmd_Shoan(ClientId& client, const std::wstring& param)
 	{
-		std::wstring targetCharname = GetParam(param, ' ', 0);
+		const std::wstring targetCharname = GetParam(param, ' ', 0);
 
 		if (targetCharname.empty())
 		{
@@ -211,8 +211,8 @@ namespace Plugins::SystemSensor
 		SystemId systemId = Hk::Player::GetSystem(client).value();
 
 		// Find the sensor network for this system.
-		auto siter = global->sensorSystem.lower_bound(systemId);
-		if (auto send = global->sensorSystem.upper_bound(systemId); siter == send)
+		const auto siter = global->sensorSystem.lower_bound(systemId);
+		if (const auto send = global->sensorSystem.upper_bound(systemId); siter == send)
 			return;
 
 		if (global->networks.contains(client))

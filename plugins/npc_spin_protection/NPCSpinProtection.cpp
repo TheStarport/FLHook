@@ -43,15 +43,15 @@ namespace Plugins::NPCSpinProtection
 		if (ci.iColliderObjectId == 0 || global->config->spinProtectionMass == -1.0f)
 			return;
 
-		float targetMass = Hk::Solar::GetMass(ci.iColliderObjectId).value();
+		const float targetMass = Hk::Solar::GetMass(ci.iColliderObjectId).value();
 
 		// Don't do spin protect unless the hit ship is big
 		if (targetMass < global->config->spinProtectionMass)
 			return;
 
-		uint clientShip = Hk::Player::GetShip(client).value();
+		const uint clientShip = Hk::Player::GetShip(client).value();
 
-		float clientMass = Hk::Solar::GetMass(clientShip).value();
+		const float clientMass = Hk::Solar::GetMass(clientShip).value();
 
 		// Don't do spin protect unless the hit ship is 2 times larger than the
 		// hitter

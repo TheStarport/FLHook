@@ -3,11 +3,11 @@
 #include <functional>
 
 #ifndef DLL
-	#ifndef FLHOOK
+#ifndef FLHOOK
 		#define DLL __declspec(dllimport)
-	#else
+#else
 		#define DLL __declspec(dllexport)
-	#endif
+#endif
 #endif
 
 struct UserCommand
@@ -28,7 +28,7 @@ std::string cat(Ts&&... args)
 
 DLL std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds);
 DLL UserCommand CreateUserCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage,
-    const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description);
+	const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description);
 
 struct Timer
 {
@@ -44,19 +44,19 @@ const std::wstring VersionInformation = std::to_wstring(static_cast<int>(Current
 
 class PluginHook
 {
-  public:
+public:
 	using FunctionType = void();
 
-  private:
+private:
 	HookedCall targetFunction_;
 	FunctionType* hookFunction_;
 	HookStep step_;
 	int priority_;
 
-  public:
+public:
 	template<typename Func>
 	PluginHook(HookedCall targetFunction, Func* hookFunction, HookStep step = HookStep::Before, int priority = 0)
-	    : targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
+		: targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
 	{
 		switch (step)
 		{
@@ -66,7 +66,7 @@ class PluginHook
 				break;
 			case HookStep::After:
 				break;
-			default:;
+			default: ;
 		}
 	}
 
@@ -74,21 +74,26 @@ class PluginHook
 };
 
 #define PluginCall(name, ...) (* (name))(__VA_ARGS__)
+
 // Inherit from this to define a IPC (Inter-Plugin Communication) class.
 class DLL PluginCommunicator
 {
-  public:
+public:
 	using EventSubscription = void(*)(int id, void* dataPack);
 	void Dispatch(int id, void* dataPack) const;
 	void AddListener(std::string plugin, EventSubscription event);
 
 	std::string plugin;
-	explicit PluginCommunicator(std::string plugin) : plugin(std::move(plugin)) {}
+
+	explicit PluginCommunicator(std::string plugin)
+		: plugin(std::move(plugin))
+	{
+	}
 
 	static void ExportPluginCommunicator(PluginCommunicator* communicator);
-	static PluginCommunicator* ImportPluginCommunicator(std::string plugin, PluginCommunicator::EventSubscription subscription = nullptr);
+	static PluginCommunicator* ImportPluginCommunicator(std::string plugin, EventSubscription subscription = nullptr);
 
-  private:
+private:
 	std::map<std::string, EventSubscription> listeners;
 };
 
@@ -105,7 +110,7 @@ struct PluginInfo
 	DLL void commands(const std::vector<UserCommand>*);
 	DLL void timers(const std::vector<Timer>*);
 
-#ifdef FLHOOK
+	#ifdef FLHOOK
 	template<typename... Args>
 	void addHook(Args&&... args)
 	{
@@ -120,12 +125,12 @@ struct PluginInfo
 	std::list<PluginHook> hooks_;
 	std::vector<UserCommand>* commands_;
 	std::vector<Timer>* timers_;
-#else
+	#else
 	template<typename... Args>
 	void emplaceHook(Args&&... args)
 	{
 		PluginHook ph(std::forward<Args>(args)...);
 		addHook(ph);
 	}
-#endif
+	#endif
 };

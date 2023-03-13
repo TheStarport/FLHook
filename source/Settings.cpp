@@ -29,19 +29,56 @@ void LoadSettings()
 }
 
 #ifndef CORE_REFL
-	#define CORE_REFL
-REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode),
-    field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(localTime), field(maxGroupSize), field(persistGroup),
-    field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList), field(noPVPSystems),
-    field(antiBaseIdle), field(antiCharMenuIdle));
+#define CORE_REFL
+REFL_AUTO(type(FLHookConfig::General),
+	field(antiDockKill),
+	field(antiF1),
+	field(changeCruiseDisruptorBehaviour),
+	field(debugMode),
+	field(disableCharfileEncryption),
+	field(disconnectDelay),
+	field(disableNPCSpawns),
+	field(localTime),
+	field(maxGroupSize),
+	field(persistGroup),
+	field(reservedSlots),
+	field(torpMissileBaseDamageMultiplier),
+	field(logPerformanceTimers),
+	field(chatSuppressList),
+	field(noPVPSystems),
+	field(antiBaseIdle),
+	field(antiCharMenuIdle));
+
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins));
+
 REFL_AUTO(type(FLHookConfig::Message), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages));
-REFL_AUTO(type(FLHookConfig::MsgStyle), field(msgEchoStyle), field(deathMsgStyle), field(deathMsgStyleSys), field(kickMsgPeriod), field(kickMsg),
-    field(userCmdStyle), field(adminCmdStyle), field(deathMsgTextAdminKill), field(deathMsgTextPlayerKill), field(deathMsgTextSelfKill), field(deathMsgTextNPC),
-    field(deathMsgTextSuicide));
-REFL_AUTO(type(FLHookConfig::UserCommands), field(userCmdSetDieMsg), field(userCmdSetDieMsgSize), field(userCmdSetChatFont), field(userCmdIgnore),
-    field(userCmdHelp), field(userCmdMaxIgnoreList), field(defaultLocalChat));
+
+REFL_AUTO(type(FLHookConfig::MsgStyle),
+	field(msgEchoStyle),
+	field(deathMsgStyle),
+	field(deathMsgStyleSys),
+	field(kickMsgPeriod),
+	field(kickMsg),
+	field(userCmdStyle),
+	field(adminCmdStyle),
+	field(deathMsgTextAdminKill),
+	field(deathMsgTextPlayerKill),
+	field(deathMsgTextSelfKill),
+	field(deathMsgTextNPC),
+	field(deathMsgTextSuicide));
+
+REFL_AUTO(type(FLHookConfig::UserCommands),
+	field(userCmdSetDieMsg),
+	field(userCmdSetDieMsgSize),
+	field(userCmdSetChatFont),
+	field(userCmdIgnore),
+	field(userCmdHelp),
+	field(userCmdMaxIgnoreList),
+	field(defaultLocalChat));
+
 REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcardsAndIPs));
+
 REFL_AUTO(type(FLHookConfig::Callsign), field(allowedFormations), field(disableRandomisedFormations), field(disableUsingAffiliationForCallsign));
+
 REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(messages), field(userCommands), field(bans), field(callsign));
 #endif

@@ -42,7 +42,7 @@ namespace Plugins::Stats
 
 		// Load in shiparch.ini to generate Ids based off the nickname and generate
 		// ship names via ids_name
-		std::string shiparchfile = "..\\data\\ships\\shiparch.ini";
+		const std::string shiparchfile = "..\\data\\ships\\shiparch.ini";
 
 		INI_Reader ini;
 		if (ini.open(shiparchfile.c_str(), false))
@@ -103,11 +103,11 @@ namespace Plugins::Stats
 			jPlayer["name"] = encode(wstos(Player.character));
 
 			// Add rank
-			int iRank = Hk::Player::GetRank(Player.client).value();
+			const int iRank = Hk::Player::GetRank(Player.client).value();
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
-			int groupId = Players.GetGroupID(Player.client);
+			const int groupId = Players.GetGroupID(Player.client);
 			jPlayer["group"] = groupId ? std::to_string(groupId) : "None";
 
 			// Add ship

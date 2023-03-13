@@ -61,7 +61,7 @@ enum class Error
 
 enum DIEMSGTYPE
 {
-	DIEMSG_ALL = 0,
+	DiemsgAll = 0,
 	DIEMSG_SYSTEM = 1,
 	DIEMSG_NONE = 2,
 	DIEMSG_SELF = 3,
@@ -164,7 +164,7 @@ enum class ReturnCode
 
 inline ReturnCode operator&(ReturnCode a, ReturnCode b)
 {
-	return ReturnCode(static_cast<uint>(a) & static_cast<uint>(b));
+	return static_cast<ReturnCode>(static_cast<uint>(a) & static_cast<uint>(b));
 }
 
 enum class HookStep

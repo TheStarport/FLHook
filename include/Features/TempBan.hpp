@@ -9,10 +9,10 @@ struct TempBanInfo
 
 class DLL TempBanManager : public Singleton<TempBanManager>
 {
-  private:
+private:
 	std::vector<TempBanInfo> tempBanList;
 
-  public:
+public:
 	void ClearFinishedTempBans();
 	void AddTempBan(ClientId client, uint durationInMin, const std::wstring& reason);
 	void AddTempBan(ClientId client, uint durationInMin);
