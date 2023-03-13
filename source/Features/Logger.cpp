@@ -15,7 +15,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 	}
 }
 
-void Logger::GetConsoleInput(std::stop_token st) const
+void Logger::GetConsoleInput(std::stop_token st)
 {
 	while (!st.stop_requested())
 	{
@@ -29,7 +29,10 @@ void Logger::GetConsoleInput(std::stop_token st) const
 			if (cmd[cmd.length() - 1] == '\r')
 				cmd = cmd.substr(0, cmd.length() - 1);
 
-			// TODO: Add string to thread safe queue
+			if (!cmd.empty()) 
+			{
+				queue.push(cmd);
+			}
 		}
 	}
 }
@@ -73,4 +76,15 @@ Logger::~Logger()
 {
 	SetConsoleCtrlHandler(ConsoleHandler, FALSE);
 	FreeConsole();
+}
+
+std::optional<std::string> Logger::GetCommand()
+{
+	if (queue.empty())
+		return {};
+
+	std::string ret;
+	const auto val = queue.try_pop(ret);
+
+	return ret;
 }

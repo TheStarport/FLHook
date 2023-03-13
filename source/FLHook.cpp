@@ -302,21 +302,11 @@ void FLHookShutdown()
 
 void ProcessPendingCommands()
 {
-	TRY_HOOK
+	auto logger = Logger::i();
+	auto cmd = logger->GetCommand();
+	while (cmd.has_value())
 	{
-		// check for new console commands
-		EnterCriticalSection(&cs);
-		while (!lstConsoleCmds.empty())
-		{
-			std::wstring* pwscCmd = lstConsoleCmds.front();
-			lstConsoleCmds.pop_front();
-			if (pwscCmd)
-			{
-				AdminConsole.ExecuteCommandString(Trim(*pwscCmd));
-				delete pwscCmd;
-			}
-		}
-		LeaveCriticalSection(&cs);
+		AdminConsole.ExecuteCommandString(cmd);
+		cmd = logger->GetCommand();
 	}
-	CATCH_HOOK({})
 }

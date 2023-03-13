@@ -2,7 +2,8 @@
 
 #include <ext/Singleton.h>
 #include <thread>
-#include <list>
+#include <concurrent_queue.h>
+#include <optional>
 
 class Logger : public Singleton<Logger>
 {
@@ -10,11 +11,13 @@ class Logger : public Singleton<Logger>
 	HANDLE consoleOutput;
 
 	std::jthread consoleThread;
-	std::list<std::wstring> consoleCommands;
+	concurrency::concurrent_queue<std::string> queue;
 
-	void GetConsoleInput(std::stop_token st) const;
+	void GetConsoleInput(std::stop_token st);
 
   public:
 	Logger();
 	~Logger();
+
+	std::optional<std::string> GetCommand();
 };
