@@ -46,6 +46,9 @@
     <Filter Include="Include\Tools\External\AMQP">
       <UniqueIdentifier>{5b529d7c-012d-4b53-8ef1-ccf2fe077921}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\SDK">
+      <UniqueIdentifier>{96e52e53-6bc7-4fea-8e78-b3bd4fefe5a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -224,6 +227,30 @@
     </ClInclude>
     <ClInclude Include="..\include\Features\MessageHandler.hpp">
       <Filter>Include\Features</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
+      <Filter>Include\SDK</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -917,9 +917,9 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 	Vector pos{};
 	Matrix rot{};
 	pub::SpaceObj::GetLocation(res.value().ship, pos, rot);
-	pos.v.x = x;
-	pos.v.y = y;
-	pos.v.z = z;
+	pos.x = x;
+	pos.y = y;
+	pos.z = z;
 	Print(std::format("Moving to {:.2f} {:.2f} {:.2f}", pos.x, pos.y, pos.z));
 	Hk::Player::RelocateClient(res.value().client, pos, rot);
 	return;

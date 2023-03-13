@@ -233,6 +233,14 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
     <ClInclude Include="..\include\Features\Mail.hpp" />
     <ClInclude Include="..\include\Features\MessageHandler.hpp" />
     <ClInclude Include="..\include\Features\TempBan.hpp" />
