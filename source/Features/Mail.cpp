@@ -286,7 +286,7 @@ void MailManager::SendMailNotification(const std::variant<uint, std::wstring>& c
 	const auto mailCount = GetUnreadMail(client);
 	if (mailCount.has_error())
 	{
-		Console::ConErr(mailCount.error());
+		Logger::i()->Log(LogLevel::Err, mailCount.error());
 	}
 	else if (mailCount.value() > 0)
 	{
@@ -311,6 +311,6 @@ void MailManager::CleanUpOldMail()
 	}
 	catch (SQLite::Exception ex)
 	{
-		AddLog(LogType::Normal, LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
+		Logger::i()->Log(LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}
 }

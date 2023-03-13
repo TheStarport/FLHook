@@ -21,12 +21,12 @@ uint CTimer::stop()
 	{
 		if (timeDelta > iMax && timeDelta > iWarning)
 		{
-			AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
+			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
 			iMax = timeDelta;
 		}
 		else if (timeDelta > 100)
 		{
-			AddLog(LogType::PerfTimers, LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
+			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
 		}
 	}
 	return timeDelta;
@@ -81,7 +81,7 @@ void TimerCheckKick()
 					if (baseId && ClientInfo[client].iBaseEnterTime
 						&& (time(nullptr) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
 					{
-						AddKickLog(client, "Base idling");
+						//AddKickLog(client, "Base idling");
 						Hk::Player::MsgAndKick(client, L"Base idling", 10);
 						ClientInfo[client].iBaseEnterTime = 0;
 					}
@@ -96,7 +96,7 @@ void TimerCheckKick()
 							ClientInfo[client].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
 						else if ((time(nullptr) - ClientInfo[client].iCharMenuEnterTime) >= config->general.antiCharMenuIdle)
 						{
-							AddKickLog(client, "Charmenu idling");
+							//AddKickLog(client, "Charmenu idling");
 							Hk::Player::Kick(client);
 							ClientInfo[client].iCharMenuEnterTime = 0;
 						}
@@ -230,7 +230,7 @@ void TimerCheckResolveResults()
 				{
 					if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.Hostname).c_str()))
 					{
-						AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.Hostname.c_str(), ban.c_str())));
+						//AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.Hostname.c_str(), ban.c_str())));
 						if (config->bans.banAccountOnMatch)
 							Hk::Player::Ban(ip.client, true);
 						Hk::Player::Kick(ip.client);

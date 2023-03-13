@@ -61,7 +61,7 @@ namespace Plugins::NPCSpinProtection
 		auto motion = Hk::Solar::GetMotion(ci.iColliderObjectId);
 		if (motion.has_error())
 		{
-			Console::ConWarn(wstos(Hk::Err::ErrGetText(motion.error())));
+			Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(motion.error())));
 			return;
 		}
 		auto [V1, V2] = motion.value();

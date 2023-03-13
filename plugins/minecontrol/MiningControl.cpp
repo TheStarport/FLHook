@@ -117,7 +117,7 @@ namespace Plugins::MiningControl
 		if (!global->Clients[client].Setup)
 		{
 			if (global->config->PluginDebug > 1)
-				Console::ConInfo(std::format("client={} setup bonuses", client));
+				Logger::i()->Log(LogLevel::Info, std::format("client={} setup bonuses", client));
 			global->Clients[client].Setup = true;
 
 			// Get the player affiliation
@@ -137,10 +137,10 @@ namespace Plugins::MiningControl
 			}
 			if (global->config->PluginDebug > 1)
 			{
-				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
+				Logger::i()->Log(LogLevel::Info, std::format("client={} iRepGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
 				for (auto& ci : Cargo.value())
 				{
-					Console::ConInfo(std::format("{} ", ci.archId));
+					Logger::i()->Log(LogLevel::Info, std::format("{} ", ci.archId));
 				}
 			}
 
@@ -160,7 +160,7 @@ namespace Plugins::MiningControl
 					global->Clients[client].LootShip[lootId] = playerBonus.ShipIds;
 					if (global->config->PluginDebug > 1)
 					{
-						Console::ConInfo(std::format("client={} LootId={} Bonus={}\n", client, lootId, bonus));
+						Logger::i()->Log(LogLevel::Info, std::format("client={} LootId={} Bonus={}\n", client, lootId, bonus));
 					}
 				}
 			}
@@ -226,20 +226,20 @@ namespace Plugins::MiningControl
 		auto config = Serializer::JsonToObject<Config>();
 
 		if (config.PluginDebug)
-			Console::ConInfo(std::format("generic_factor={:.2f} debug={}", config.GenericFactor, config.PluginDebug));
+			Logger::i()->Log(LogLevel::Info, std::format("generic_factor={:.2f} debug={}", config.GenericFactor, config.PluginDebug));
 
 		for (auto& pb : config.PlayerBonus)
 		{
 			pb.LootId = CreateID(pb.Loot.c_str());
 			if (!Archetype::GetEquipment(pb.LootId) && !Archetype::GetSimple(pb.LootId))
 			{
-				Console::ConErr(std::format("Item '{}' not valid", pb.Loot));
+				Logger::i()->Log(LogLevel::Err, std::format("Item '{}' not valid", pb.Loot));
 				continue;
 			}
 
 			if (pb.Bonus <= 0.0f)
 			{
-				Console::ConErr(std::format("{}:{:5f}: bonus not valid", pb.Loot, pb.Bonus));
+				Logger::i()->Log(LogLevel::Err, std::format("{}:{:5f}: bonus not valid", pb.Loot, pb.Bonus));
 				continue;
 			}
 
@@ -247,7 +247,7 @@ namespace Plugins::MiningControl
 			pub::Reputation::GetReputationGroup(pb.RepId, pb.Rep.c_str());
 			if (pb.RepId == UINT_MAX)
 			{
-				Console::ConErr(std::format("{}: reputation not valid", pb.Rep));
+				Logger::i()->Log(LogLevel::Err, std::format("{}: reputation not valid", pb.Rep));
 				continue;
 			}
 
@@ -256,7 +256,7 @@ namespace Plugins::MiningControl
 				uint ShipId = CreateID(ship.c_str());
 				if (!Archetype::GetShip(ShipId))
 				{
-					Console::ConErr(std::format("{}: ship not valid", ship));
+					Logger::i()->Log(LogLevel::Err, std::format("{}: ship not valid", ship));
 					continue;
 				}
 				pb.ShipIds.push_back(ShipId);
@@ -269,7 +269,7 @@ namespace Plugins::MiningControl
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
-					Console::ConErr(std::format("{}: item not valid", item));
+					Logger::i()->Log(LogLevel::Err, std::format("{}: item not valid", item));
 					continue;
 				}
 			}
@@ -286,14 +286,14 @@ namespace Plugins::MiningControl
 						continue;
 					}
 				}
-				Console::ConErr(std::format("{}: ammo not valid", ammo));
+				Logger::i()->Log(LogLevel::Err, std::format("{}: ammo not valid", ammo));
 			}
 
 			global->PlayerBonus.insert(std::multimap<uint, PlayerBonus>::value_type(pb.LootId, pb));
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(std::format("mining player bonus LootId: {} Bonus: {:.2f} RepId: {}\n", pb.LootId, pb.Bonus, pb.Rep));
+				Logger::i()->Log(LogLevel::Info, std::format("mining player bonus LootId: {} Bonus: {:.2f} RepId: {}\n", pb.LootId, pb.Bonus, pb.Rep));
 			}
 		}
 
@@ -301,13 +301,13 @@ namespace Plugins::MiningControl
 		{
 			if (zb.Zone.empty())
 			{
-				Console::ConErr(std::format("{}: zone not valid", zb.Zone));
+				Logger::i()->Log(LogLevel::Err, std::format("{}: zone not valid", zb.Zone));
 				continue;
 			}
 
 			if (zb.Bonus <= 0.0f)
 			{
-				Console::ConErr(std::format("{}:{:.2f}: bonus not valid", zb.Zone, zb.Bonus));
+				Logger::i()->Log(LogLevel::Err, std::format("{}:{:.2f}: bonus not valid", zb.Zone, zb.Bonus));
 				continue;
 			}
 
@@ -325,7 +325,7 @@ namespace Plugins::MiningControl
 
 			if (config.PluginDebug)
 			{
-				Console::ConInfo(std::format("zone bonus {} Bonus={:5f} ReplacementLootId={}({}) RechargeRate={:.2f} MaxReserve={:.2f}\n",
+				Logger::i()->Log(LogLevel::Info, std::format("zone bonus {} Bonus={:5f} ReplacementLootId={}({}) RechargeRate={:.2f} MaxReserve={:.2f}\n",
 				    zb.Zone,
 				    zb.Bonus,
 				    zb.ReplacementLoot,

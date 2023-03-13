@@ -70,14 +70,14 @@ cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 
 	if (!plugin->mayUnload)
 	{
-		Console::ConWarn("Plugin may not be unloaded.");
+		Logger::i()->Log(LogLevel::Warn, "Plugin may not be unloaded.");
 		return {};
 	}
 
 	HMODULE dllAddr = plugin->dll;
 
 	std::wstring unloadedPluginDll = plugin->dllName;
-	Console::ConPrint(std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
+	Logger::i()->Log(LogLevel::Info, std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
 
 	for (const auto& hook : plugin->pInfo->hooks_)
 	{

@@ -3,9 +3,45 @@
 #include <Windows.h>
 #include <string>
 
+#include "FLHook.hpp"
+#include "Tools/Utils.hpp"
+
+enum class ConsoleColor
+{
+	Blue = 0x0001,
+	Green = 0x0002,
+	Cyan = Blue | Green,
+	Red = 0x0004,
+	Purple = Red | Blue,
+	Yellow = Red | Green,
+	White = Red | Blue | Green,
+
+	StrongBlue = 0x0008 | Blue,
+	StrongGreen = 0x0008 | Green,
+	StrongCyan = 0x0008 | Cyan,
+	StrongRed = 0x0008 | Red,
+	StrongPurple = 0x0008 | Purple,
+	StrongYellow = 0x0008 | Yellow,
+	StrongWhite = 0x0008 | White,
+};
+
 BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 {
 	return dwCtrlType == CTRL_CLOSE_EVENT;
+}
+
+void Logger::SetLogSource(void* addr)
+{
+	if (HMODULE dll; RtlPcToFileHeader(addr, (void**)&dll))
+	{
+		CHAR maxPath[MAX_PATH];
+		// If successful, prepend
+		if (GetModuleFileName(dll, maxPath, MAX_PATH))
+		{
+			const std::string path = maxPath;
+			logPrefix = std::string("(") + wstos(GetTimeString(FLHookConfig::i()->general.localTime)) + path.substr(path.find_last_of("\\") + 1) + ") ";
+		}
+	}
 }
 
 void Logger::GetConsoleInput(std::stop_token st)
@@ -28,6 +64,39 @@ void Logger::GetConsoleInput(std::stop_token st)
 			}
 		}
 	}
+}
+
+void Logger::PrintToConsole(LogLevel level, const std::string& str) const
+{
+	switch (level)
+	{
+		case LogLevel::Trace: {
+			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::Blue));
+			break;
+		}
+		case LogLevel::Debug: {
+			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::Green));
+			break;
+		}
+		case LogLevel::Info: {
+			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongCyan));
+			break;
+		}
+		case LogLevel::Warn: {
+			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongYellow));
+			break;
+		}
+		case LogLevel::Err: {
+			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongRed));
+			break;
+		}
+	}
+
+	ulong _;
+	WriteConsole(consoleInput, str.c_str(), str.length(), &_, nullptr);
+
+	// Reset
+	SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::White));
 }
 
 Logger::Logger()
@@ -69,6 +138,31 @@ Logger::~Logger()
 {
 	SetConsoleCtrlHandler(ConsoleHandler, FALSE);
 	FreeConsole();
+}
+
+void Logger::Log(LogFile file, LogLevel level, const std::string& str)
+{
+	if (logPrefix.empty())
+	{
+		SetLogSource(_ReturnAddress());
+	}
+
+	const std::string log = logPrefix + str + "\n";
+	logPrefix.clear();
+
+	PrintToConsole(level, log);
+
+	// TODO: Finish setting up log files
+	if (file == LogFile::ConsoleOnly)
+	{
+		return;
+	}
+}
+
+void Logger::Log(LogLevel level, const std::string& str)
+{
+	SetLogSource(_ReturnAddress());
+	Log(LogFile::Default, level, str);
 }
 
 std::optional<std::string> Logger::GetCommand()

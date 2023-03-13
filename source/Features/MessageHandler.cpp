@@ -5,7 +5,7 @@
 
 MessageHandler::MessageHandler()
 {
-	Console::ConInfo("Attempting connection to RabbitMQ");
+	Logger::i()->Log(LogLevel::Info, "Attempting connection to RabbitMQ");
 
 	loop = uvw::Loop::getDefault();
 	connectHandle = loop->resource<uvw::TCPHandle>();
@@ -13,7 +13,7 @@ MessageHandler::MessageHandler()
 	connectHandle->once<uvw::ErrorEvent>([](const uvw::ErrorEvent& event, uvw::TCPHandle&) {
 		// Just die on error, the message director always needs a connection to RabbitMQ.
 		// TODO: Add proper error handling and reconnects in the event of connection loss
-		Console::ConErr(std::format("Socket error: {}", event.what()));
+		Logger::i()->Log(LogLevel::Err, std::format("Socket error: {}", event.what()));
 		throw std::runtime_error("Unable to connect to socket");
 	});
 
@@ -44,7 +44,7 @@ void MessageHandler::onData(AMQP::Connection* conn, const char* data, size_t siz
 
 void MessageHandler::onReady(AMQP::Connection* conn)
 {
-	Console::ConInfo("Connected to RabbitMQ!");
+	Logger::i()->Log(LogLevel::Info, "Connected to RabbitMQ!");
 	isInitalizing = false;
 
 	channel = std::make_unique<AMQP::Channel>(conn);
@@ -58,7 +58,7 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 void MessageHandler::onError(AMQP::Connection* conn, const char* message)
 {
 	isInitalizing = false;
-	Console::ConErr(std::format("AMQP error: {}", message));
+	Logger::i()->Log(LogLevel::Err, std::format("AMQP error: {}", message));
 }
 
 void MessageHandler::onClosed(AMQP::Connection* conn)
@@ -84,7 +84,7 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 
 		channel->consume(queue)
 		       .onSuccess([queue]() {
-			       Console::ConInfo(std::format("successfulled subscribed to {}", queue));
+			       Logger::i()->Log(LogLevel::Info, std::format("successfulled subscribed to {}", queue));
 		       })
 		       .onReceived([this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered) {
 			       const auto callbacks = onMessageCallbacks.find(queue);
@@ -98,7 +98,7 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 			       }
 		       })
 		       .onError([this, queue](const char* msg) {
-			       Console::ConWarn(std::format("connection terminated with {} - {}", queue, std::string(msg)));
+			       Logger::i()->Log(LogLevel::Warn, std::format("connection terminated with {} - {}", queue, std::string(msg)));
 			       const auto callbacks = onFailCallbacks.find(queue);
 			       for (const auto& cb : callbacks->second)
 			       {

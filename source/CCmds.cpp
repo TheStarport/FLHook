@@ -954,8 +954,6 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 
 	try
 	{
-		AddLog(LogType::AdminCmds, LogLevel::Info, std::format("{}: {}", wstos(AdminName).c_str(), wstos(CmdStr).c_str()));
-
 		bId = false;
 		bShortCut = false;
 		bSelf = false;
@@ -1217,12 +1215,10 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 				Print("ERR unknown command");
 			}
 		}
-
-		AddLog(LogType::AdminCmds, LogLevel::Info, "finished");
 	}
 	catch (...)
 	{
-		AddLog(LogType::AdminCmds, LogLevel::Info, "exception");
+		Logger::i()->Log(LogLevel::Err, "exception");
 		Print("ERR exception occured");
 	}
 }

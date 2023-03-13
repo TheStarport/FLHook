@@ -40,7 +40,7 @@ using MINIdUMPWRITEDUMP = BOOL(WINAPI*)(HANDLE hProcess, DWORD dwPid, HANDLE hFi
 
 void WriteMiniDump(SEHException* ex)
 {
-	AddLog(LogType::Normal, LogLevel::Err, "Attempting to write minidump...");
+	Logger::i()->Log(LogLevel::Err, "Attempting to write minidump...");
 	const HMODULE hDll = ::LoadLibrary("DBGHELP.DLL");
 	if (hDll)
 	{
@@ -86,7 +86,7 @@ void WriteMiniDump(SEHException* ex)
 				}
 				CloseHandle(hFile);
 
-				AddLog(LogType::Normal, LogLevel::Err, std::format("Minidump '{}' written.", DumpPath));
+				Logger::i()->Log(LogLevel::Err, std::format("Minidump '{}' written.", DumpPath));
 			}
 		}
 	}
@@ -124,7 +124,7 @@ void AddExceptionInfoLog(SEHException* ex)
 				iOffset = iAddr - (uint)hModExc;
 				GetModuleFileName(hModExc, ModName, sizeof(ModName));
 			}
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, ModName));
+			Logger::i()->Log(LogLevel::Debug, std::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, ModName));
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -152,22 +152,19 @@ void AddExceptionInfoLog(SEHException* ex)
 						GetModuleFileName(hModExc, ModName, sizeof(ModName));
 					}
 				}
-				AddLog(LogType::Normal,
-					LogLevel::Debug,
-					std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", Name, Message, iOffset, strrchr(ModName, '\\') + 1));
+				Logger::i()->Log(LogLevel::Debug, std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", Name, Message, iOffset, strrchr(ModName, '\\') + 1));
 			}
 
 			void* callers[62];
 			const int count = CaptureStackBackTrace(0, 62, callers, nullptr);
 			for (int i = 0; i < count; i++)
-				AddLog(LogType::Normal, LogLevel::Debug, std::vformat("{} called from {:#X}", std::make_format_args(i, callers[i])));
+				Logger::i()->Log(LogLevel::Debug, std::vformat("{} called from {:#X}", std::make_format_args(i, callers[i])));
 		}
 		else
-			AddLog(LogType::Normal, LogLevel::Debug, "No exception information available");
+			Logger::i()->Log(LogLevel::Debug, "No exception information available");
 		if (reg)
 		{
-			AddLog(LogType::Normal,
-				LogLevel::Debug,
+			Logger::i()->Log(LogLevel::Debug,
 				std::format("eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
 					reg->Eax,
 					reg->Ebx,
@@ -181,12 +178,12 @@ void AddExceptionInfoLog(SEHException* ex)
 		}
 		else
 		{
-			AddLog(LogType::Normal, LogLevel::Trace, "No register information available");
+			Logger::i()->Log(LogLevel::Trace, "No register information available");
 		}
 	}
 	catch (...)
 	{
-		AddLog(LogType::Normal, LogLevel::Trace, "Exception in AddExceptionInfoLog!");
+		Logger::i()->Log(LogLevel::Trace, "Exception in AddExceptionInfoLog!");
 	}
 }
 

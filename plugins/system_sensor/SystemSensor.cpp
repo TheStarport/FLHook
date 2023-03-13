@@ -254,7 +254,7 @@ namespace Plugins::SystemSensor
 			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
 			{
-				Console::ConWarn(wstos(Hk::Err::ErrGetText(spaceObjType.error())));
+				Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(spaceObjType.error())));
 			}
 
 			global->networks[client.value()].inJumpGate = spaceObjType.value() == OBJ_JUMP_GATE;

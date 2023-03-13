@@ -146,7 +146,7 @@ namespace Plugins::Warehouse
 			const auto* equip = Archetype::GetEquipment(info.equipArchId);
 			if (!equip)
 			{
-				Console::ConWarn(std::format("Item archetype {} no loner exists", info.equipArchId));
+				Logger::i()->Log(LogLevel::Warn, std::format("Item archetype {} no loner exists", info.equipArchId));
 				continue;
 			}
 			index++;
@@ -193,7 +193,7 @@ namespace Plugins::Warehouse
 		const auto itemArch = Archetype::GetEquipment(warehouseItem.equipArchId);
 		if (!itemArch)
 		{
-			Console::ConWarn("User tried to withdraw an item that no longer exists");
+			Logger::i()->Log(LogLevel::Warn, "User tried to withdraw an item that no longer exists");
 			PrintUserCmdText(client, L"Internal server error. Item does not exist.");
 			return;
 		}

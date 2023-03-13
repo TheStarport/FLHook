@@ -4,9 +4,6 @@
     <Filter Include="AdminCommands">
       <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{725352eb-0714-42cf-b8a8-00a148ad6a86}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FLHook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
     </Filter>
@@ -85,18 +82,12 @@
     <ClCompile Include="..\source\HkIChatServer.cpp">
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Tools\Console.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\HkClientServerInterface.cpp">
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\source\FLCodec.cpp" />
     <ClCompile Include="..\source\FLPacket.cpp">
       <Filter>FLHook</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\Features\Logging.cpp">
-      <Filter>FLHook\Features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Features\PluginManager.cpp">
       <Filter>FLHook\Features</Filter>

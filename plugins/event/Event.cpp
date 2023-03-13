@@ -89,8 +89,8 @@ namespace Plugins::Event
 
 		global->config = std::make_unique<Config>(config);
 
-		Console::ConInfo(std::format("CargoMissionSettings loaded [{}]", global->CargoMissions.size()));
-		Console::ConInfo(std::format("NpcMissionSettings loaded [{}]", global->NpcMissions.size()));
+		Logger::i()->Log(LogLevel::Info, std::format("CargoMissionSettings loaded [{}]", global->CargoMissions.size()));
+		Logger::i()->Log(LogLevel::Info, std::format("NpcMissionSettings loaded [{}]", global->NpcMissions.size()));
 	}
 
 	/** @ingroup Event

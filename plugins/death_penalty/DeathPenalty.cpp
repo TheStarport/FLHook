@@ -100,14 +100,14 @@ namespace Plugins::DeathPenalty
 				auto shipValue = Hk::Player::GetShipValue(client);
 				if (shipValue.has_error())
 				{
-					Console::ConWarn(std::format("Unable to get ship value of undocking player: {}", wstos(Hk::Err::ErrGetText(shipValue.error()))));
+					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get ship value of undocking player: {}", wstos(Hk::Err::ErrGetText(shipValue.error()))));
 					return;
 				}
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
 				{
-					Console::ConWarn(std::format("Unable to get cash of undocking player: {}", wstos(Hk::Err::ErrGetText(cash.error()))));
+					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get cash of undocking player: {}", wstos(Hk::Err::ErrGetText(cash.error()))));
 					return;
 				}
 
@@ -165,7 +165,7 @@ namespace Plugins::DeathPenalty
 			const auto cash = Hk::Player::GetCash(client);
 			if (cash.has_error())
 			{
-				Console::ConWarn("Unable to get cash from client.");
+				Logger::i()->Log(LogLevel::Warn, "Unable to get cash from client.");
 				return;
 			}
 
@@ -252,7 +252,7 @@ namespace Plugins::DeathPenalty
 		// If there is no death penalty, no point in having death penalty commands
 		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)
 		{
-			Console::ConWarn("DP Plugin active, but no/too low death penalty fraction is set.");
+			Logger::i()->Log(LogLevel::Warn, "DP Plugin active, but no/too low death penalty fraction is set.");
 			return;
 		}
 

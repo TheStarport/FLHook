@@ -129,7 +129,7 @@ inline auto* ToUShort(wchar_t* val)
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                               \
 	}                                                                                                        \
 	CATCH_HOOK({                                                                                             \
-		AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in {} on server call", __FUNCTION__)); \
+		Logger::i()->Log(LogLevel::Err, std::format("Exception in {} on server call", __FUNCTION__)); \
 		bool ret = catchArgs;                                                                                \
 		if (!ret)                                                                                            \
 		{                                                                                                    \
@@ -156,7 +156,7 @@ inline auto* ToUShort(wchar_t* val)
 	{                                                                                                                              \
 		if (ClientInfo[client].bDisconnected)                                                                                      \
 		{                                                                                                                          \
-			AddLog(LogType::Normal, LogLevel::Err, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
+			Logger::i()->Log(LogLevel::Debug, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
 			return;                                                                                                                \
 		};                                                                                                                         \
 	}
@@ -315,7 +315,7 @@ public:
 							else
 								ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
 						}
-					CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
+					CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
 
 					auto code = *plugin->returnCode;
 
@@ -326,7 +326,7 @@ public:
 						break;
 				}
 			}
-		CATCH_HOOK({ AddLog(LogType::Normal, LogLevel::Err, std::format("Exception {}", __FUNCTION__)); });
+		CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format("Exception {}", __FUNCTION__)); });
 
 		if constexpr (!ReturnTypeIsVoid)
 			return ret;

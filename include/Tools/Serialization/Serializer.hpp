@@ -2,6 +2,7 @@
 #define SERIALIZE
 
 #include <fstream>
+#include <Features/Logger.hpp>
 #include <nlohmann/json.hpp>
 
 #include "refl.hpp"
@@ -155,23 +156,23 @@ class Serializer
 		{
 			const std::map<std::string, std::string> mapOfString = json[member.name.c_str()].template get<std::map<std::string, std::string>>();
 			if constexpr (IsWString<StrType>)
-			{
-				std::map<std::wstring, std::wstring> mapOfWstring(mapOfString.size());
-				for (auto& i : mapOfString)
-				{
-					mapOfWstring[stows(i.first)] = stows(i.second);
-				}
-				*static_cast<std::map<std::wstring, std::wstring>*>(ptr) = mapOfWstring;
-			}
-			else
-			{
-				std::map<std::string, std::wstring> mapOfWstring(mapOfString.size());
-				for (auto& i : mapOfString)
-				{
-					mapOfWstring[i.first] = stows(i.second);
-				}
-				*static_cast<std::map<std::string, std::wstring>*>(ptr) = mapOfWstring;
-			}
+            {
+                std::map<std::wstring, std::wstring> mapOfWstring(mapOfString.size());
+                for (auto& i : mapOfString)
+                {
+                    mapOfWstring[stows(i.first)] = stows(i.second);
+                }
+                *static_cast<std::map<std::wstring, std::wstring>*>(ptr) = mapOfWstring;
+            }
+            else
+            {
+                std::map<std::string, std::wstring> mapOfWstring(mapOfString.size());
+                for (auto& i : mapOfString)
+                {
+                    mapOfWstring[i.first] = stows(i.second);
+                }
+                *static_cast<std::map<std::string, std::wstring>*>(ptr) = mapOfWstring;
+            }
 		}
 		// The next two handle all primitive types
 		else if constexpr (IsString<StrType>)
@@ -441,7 +442,7 @@ class Serializer
 								const cpp::result<void, std::string> valid = refl::descriptor::invoke(func, val, member(obj));
 								if (valid.has_error())
 								{
-									Console::ConErr(std::format("While trying to create reflectable. Failed to validate {} (reason: {})",
+									Logger::i()->Log(LogLevel::Err, std::format("While trying to create reflectable. Failed to validate {} (reason: {})",
 										std::string(member.name.c_str()),
 										valid.error()));
 								}
@@ -469,7 +470,7 @@ public:
 			fileToSave = dynamic_cast<Reflectable&>(t).File();
 			if (fileToSave.empty())
 			{
-				Console::ConErr("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
+				Logger::i()->Log(LogLevel::Err, "While trying to serialize, a file, both the metadata of the class and fileName were empty.");
 				throw std::invalid_argument("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
 			}
 		}
@@ -484,7 +485,7 @@ public:
 			folderPath.remove_filename();
 			if (!create_directories(folderPath) && !exists(folderPath))
 			{
-				Console::ConWarn(std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
+				Logger::i()->Log(LogLevel::Warn, std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
 				return;
 			}
 		}
@@ -492,7 +493,7 @@ public:
 		std::ofstream out(fileToSave);
 		if (!out.good() || !out.is_open())
 		{
-			Console::ConWarn(std::format("Unable to open {} for writing.", fileToSave));
+			Logger::i()->Log(LogLevel::Warn, std::format("Unable to open {} for writing.", fileToSave));
 			return;
 		}
 
@@ -513,7 +514,7 @@ public:
 			if (fileName.empty())
 			{
 				std::string err = "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
-				Console::ConErr(err);
+				Logger::i()->Log(LogLevel::Err, err);
 				throw std::invalid_argument(err);
 			}
 		}
@@ -521,7 +522,7 @@ public:
 		bool exists = std::filesystem::exists(fileName);
 		if (!exists && !createIfNotExist)
 		{
-			Console::ConErr(std::format("Couldn't load JSON File ({})", fileName));
+			Logger::i()->Log(LogLevel::Err, std::format("Couldn't load JSON File ({})", fileName));
 			return ret;
 		}
 
@@ -535,7 +536,7 @@ public:
 		std::ifstream file(fileName);
 		if (!file || !file.is_open() || !file.good())
 		{
-			Console::ConWarn(std::format("Unable to open JSON file {}", fileName));
+			Logger::i()->Log(LogLevel::Warn, std::format("Unable to open JSON file {}", fileName));
 			return ret;
 		}
 
@@ -552,22 +553,15 @@ public:
 		}
 		catch (nlohmann::json::parse_error& ex)
 		{
-			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(LogType::Normal,
-				LogLevel::Warn,
-				std::format("Unable to process JSON file [{}]. The JSON could not be parsed. EXCEPTION: {}", fileName, ex.what()));
+			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 		catch (nlohmann::json::type_error& ex)
 		{
-			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(LogType::Normal,
-				LogLevel::Warn,
-				std::format("Unable to process JSON file [{}]. A type within the JSON object did not match. EXCEPTION: {}", fileName, ex.what()));
+			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 		catch (nlohmann::json::exception& ex)
 		{
-			Console::ConErr("Unable to process JSON. It could not be parsed. See log for more detail.");
-			AddLog(LogType::Normal, LogLevel::Warn, std::format("Unable to process JSON file [{}] EXCEPTION: {}", fileName, ex.what()));
+			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 
 		// If we resave the file after processing, it will trim any unrelated data, and any missing fields

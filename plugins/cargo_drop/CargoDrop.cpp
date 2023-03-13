@@ -170,7 +170,7 @@ namespace Plugins::CargoDrop
 		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
+				Logger::i()->Log(LogLevel::Info, std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
 				    system,
 				    position.x,
 				    position.y,

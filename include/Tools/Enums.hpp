@@ -1,15 +1,5 @@
 #pragma once
 
-enum class LogLevel : int
-{
-	Trace,
-	Debug,
-	Info,
-	Warn,
-	Err,
-	Critical
-};
-
 enum class LogType : int
 {
 	Normal,

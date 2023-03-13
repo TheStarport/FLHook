@@ -270,7 +270,7 @@ namespace Plugins::Npc
 			// Check spawn chance is valid
 			if (npc.spawnChance < 0 || npc.spawnChance > 1)
 			{
-				Console::ConErr(std::format("Spawn chance must be between 0 and 1 for NPC {}", wstos(npc.name)));
+				Logger::i()->Log(LogLevel::Err, std::format("Spawn chance must be between 0 and 1 for NPC {}", wstos(npc.name)));
 				continue;
 			}
 
@@ -282,7 +282,7 @@ namespace Plugins::Npc
 			}
 		}
 
-		Console::ConInfo(std::format("{} NPCs loaded on startup", spawned));
+		Logger::i()->Log(LogLevel::Info, std::format("{} NPCs loaded on startup", spawned));
 	}
 
 	/** @ingroup NPCControl

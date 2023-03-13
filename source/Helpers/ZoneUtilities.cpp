@@ -491,10 +491,10 @@ namespace Hk::ZoneUtilities
 		std::multimap<uint, LootableZone, std::less<>> zones;
 		ReadUniverse(&zones);
 
-		Console::ConInfo("Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
+		Logger::i()->Log(LogLevel::Info, "Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
 		for (const auto& [_, zone] : zones)
 		{
-			Console::ConInfo(std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
+			Logger::i()->Log(LogLevel::Info, std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
 				zone.zoneNick,
 				zone.lootNick,
 				zone.iMinLoot,
@@ -507,6 +507,6 @@ namespace Hk::ZoneUtilities
 				zone.size.y,
 				zone.size.z));
 		}
-		Console::ConInfo(std::format("Zones={}", zones.size()));
+		Logger::i()->Log(LogLevel::Info, std::format("Zones={}", zones.size()));
 	}
 } // namespace Hk::ZoneUtilities

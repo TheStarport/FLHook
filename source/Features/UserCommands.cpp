@@ -933,7 +933,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		if (param.has_value())
 		{
 			const std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			AddLog(LogType::UserLogCmds, LogLevel::Info, wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
+			Logger::i()->Log(LogLevel::Info, wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
 
 			try
 			{
@@ -946,11 +946,11 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 					std::get<UserCmdProcWithParam>(cmdObj.proc)(client, param.value());
 				}
 
-				AddLog(LogType::UserLogCmds, LogLevel::Info, "finished");
+				Logger::i()->Log(LogLevel::Info, "finished");
 			}
 			catch (const std::exception& ex)
 			{
-				AddLog(LogType::UserLogCmds, LogLevel::Err, std::format("exception {}", ex.what()));
+				Logger::i()->Log(LogLevel::Err, std::format("exception {}", ex.what()));
 			}
 
 			return true;

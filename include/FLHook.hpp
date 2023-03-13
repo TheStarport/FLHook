@@ -17,40 +17,6 @@
 using namespace magic_enum::bitwise_operators; // NOLINT
 using namespace magic_enum::ostream_operators; // NOLINT
 
-// Tools
-class DLL Console
-{
-	static void Log(const std::string& str, void* addr);
-
-	// Might use more later?
-	enum class ConsoleColor
-	{
-		Blue = 0x0001,
-		Green = 0x0002,
-		Cyan = Blue | Green,
-		Red = 0x0004,
-		Purple = Red | Blue,
-		Yellow = Red | Green,
-		White = Red | Blue | Green,
-
-		StrongBlue = 0x0008 | Blue,
-		StrongGreen = 0x0008 | Green,
-		StrongCyan = 0x0008 | Cyan,
-		StrongRed = 0x0008 | Red,
-		StrongPurple = 0x0008 | Purple,
-		StrongYellow = 0x0008 | Yellow,
-		StrongWhite = 0x0008 | White,
-	};
-
-public:
-	// String
-	static void ConPrint(const std::string& str);
-	static void ConErr(const std::string& str);
-	static void ConWarn(const std::string& str);
-	static void ConInfo(const std::string& str);
-	static void ConDebug(const std::string& str);
-};
-
 class DLL DataManager : public Singleton<DataManager>
 {
 private:
@@ -95,7 +61,6 @@ DLL std::wstring IniGetWS(const std::string& File, const std::string& App, const
 DLL float IniGetF(const std::string& File, const std::string& App, const std::string& Key, float def);
 DLL std::wstring GetTimeString(bool bLocalTime);
 DLL std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& Extension);
-DLL void AddLog(LogType LogType, LogLevel lvl, const std::string& str);
 
 // variables
 extern DLL HANDLE hProcFL;
@@ -618,8 +583,6 @@ public:
 };
 
 // FuncLog
-
-DLL bool InitLogs();
 
 DLL void HandleCheater(ClientId client, bool bBan, const std::string& reason);
 DLL bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::string& reason);

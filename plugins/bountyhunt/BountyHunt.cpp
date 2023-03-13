@@ -192,7 +192,7 @@ namespace Plugins::BountyHunt
 			{
 				if (const auto cashError = Hk::Player::AddCash(bounty->target, bounty->cash); cashError.has_error())
 				{
-					Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
+					Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
 
@@ -225,7 +225,7 @@ namespace Plugins::BountyHunt
 				{
 					if (const auto cashError = Hk::Player::AddCash(winnerCharacterName, bounty.cash); cashError.has_error())
 					{
-						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
+						Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
 					Hk::Message::MsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
@@ -234,7 +234,7 @@ namespace Plugins::BountyHunt
 				{
 					if (const auto cashError = Hk::Player::AddCash(bounty.initiator, bounty.cash); cashError.has_error())
 					{
-						Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
+						Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
 				}
@@ -267,7 +267,7 @@ namespace Plugins::BountyHunt
 			{
 				if (const auto cashError = Hk::Player::AddCash(it.initiator, it.cash); cashError.has_error())
 				{
-					Console::ConWarn(wstos(Hk::Err::ErrGetText(cashError.error())));
+					Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
 				Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");

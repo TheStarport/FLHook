@@ -97,7 +97,7 @@ namespace Hk::Admin
 		auto ci = GetConnectionStats(client);
 		if (ci.has_error())
 		{
-			AddLog(LogType::Normal, LogLevel::Warn, wstos(Err::ErrGetText(ci.error())));
+			Logger::i()->Log(LogLevel::Warn, wstos(Err::ErrGetText(ci.error())));
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		pi.connectionInfo = ci.value();

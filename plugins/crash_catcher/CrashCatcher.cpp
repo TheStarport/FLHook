@@ -126,7 +126,7 @@ namespace Plugins::CrashCatcher
 		catch (...)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
-			Console::ConErr(std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
+			Logger::i()->Log(LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
 			return child;
 		}
 	}
@@ -166,7 +166,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("CrashProc6F8B330(arg1={:#X})", arg1));
+				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F8B330(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -198,7 +198,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
+				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
 			__asm {
             pushad
             push arg2
@@ -227,7 +227,7 @@ namespace Plugins::CrashCatcher
 		try
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("CrashProc6F671A0(arg1={:#X})", arg1));
+				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F671A0(arg1={:#X})", arg1));
 			__asm {
             pushad
             push arg1
@@ -384,14 +384,14 @@ will_crash:
 		if (seconds < 0 || seconds > 10.0)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			Console::ConErr(std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
+			Logger::i()->Log(LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
 			ticks_delta = 1000000;
 			seconds = Timing::seconds(ticks_delta);
 		}
 		else if (seconds > 1.0)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			Console::ConErr(std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
+			Logger::i()->Log(LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
 		}
 		return seconds;
 	}
@@ -431,7 +431,7 @@ will_crash:
 				if (global->contentAC)
 				{
 					if (FLHookConfig::i()->general.debugMode)
-						Console::ConInfo("Installing patches into content.dll");
+						Logger::i()->Log(LogLevel::Info, "Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
 					{
@@ -551,7 +551,7 @@ will_crash:
 			if (global->contentAC)
 			{
 				if (FLHookConfig::i()->general.debugMode)
-					Console::ConInfo("Uninstalling patches from content.dll");
+					Logger::i()->Log(LogLevel::Info, "Uninstalling patches from content.dll");
 
 				{
 					const uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};

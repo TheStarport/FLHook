@@ -268,7 +268,7 @@ namespace Hk::Message
 		const auto Sender = Client::GetCharacterNameByID(fromClientId);
 		if (Sender.has_error())
 		{
-			Console::ConErr(std::format("Unable to send private chat message from client {}", fromClientId));
+			Logger::i()->Log(LogLevel::Err, std::format("Unable to send private chat message from client {}", fromClientId));
 			return {};
 		}
 
@@ -322,7 +322,7 @@ namespace Hk::Message
 		const auto Sender = Client::GetCharacterNameByID(fromClientId);
 		if (Sender.has_error())
 		{
-			Console::ConErr(std::format("Unable to send local system chat message from client {}", fromClientId));
+			Logger::i()->Log(LogLevel::Err, std::format("Unable to send local system chat message from client {}", fromClientId));
 			return;
 		}
 

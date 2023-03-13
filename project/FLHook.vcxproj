@@ -194,7 +194,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
     <ClCompile Include="..\source\Features\Logger.cpp" />
-    <ClCompile Include="..\source\Features\Logging.cpp" />
     <ClCompile Include="..\source\Features\Mail.cpp" />
     <ClCompile Include="..\source\Features\MessageHandler.cpp" />
     <ClCompile Include="..\source\Features\PluginManager.cpp" />
@@ -225,7 +224,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Hooks\SendComm.cpp" />
     <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
     <ClCompile Include="..\source\Memory\SaveData.cpp" />
-    <ClCompile Include="..\source\Tools\Console.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
     <ClCompile Include="..\source\CConsole.cpp" />
     <ClCompile Include="..\source\CInGame.cpp" />

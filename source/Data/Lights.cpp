@@ -116,7 +116,7 @@ void DataManager::LoadLights()
 		}
 	}
 
-	Console::ConInfo(std::format("Loaded {} Lights.", lights.size()));
+	Logger::i()->Log(LogLevel::Info, std::format("Loaded {} Lights.", lights.size()));
 }
 
 const std::map<EquipId, Light>& DataManager::GetLights() const

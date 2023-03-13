@@ -98,10 +98,6 @@ void FLHookInit_Pre()
 		// Load our settings before anything that might need access to debug mode
 		LoadSettings();
 
-		// Initialize the log files and throw exception if there is a problem
-		if (!InitLogs())
-			throw std::runtime_error("Log files cannot be created.");
-
 		// Setup needed debug tools
 		DebugTools::i()->Init();
 
@@ -136,7 +132,7 @@ void FLHookInit_Pre()
 			LoadLibrary(lib);
 		}
 
-		Console::ConInfo("Loading Freelancer INIs");
+		Logger::i()->Log(LogLevel::Info, "Loading Freelancer INIs");
 		const auto dataManager = DataManager::i();
 
 		dataManager->LoadLights();
@@ -150,12 +146,12 @@ void FLHookInit_Pre()
 	}
 	catch (char* Error)
 	{
-		Console::ConErr(std::format("CRITICAL! {}\n", Error));
+		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", Error));
 		exit(EXIT_FAILURE);
 	}
 	catch (std::filesystem::filesystem_error error)
 	{
-		Console::ConErr(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what()));
+		Logger::i()->Log(LogLevel::Err, std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what()));
 	}
 }
 
@@ -183,7 +179,7 @@ bool FLHookInit()
 	{
 		UnloadHookExports();
 
-		Console::ConErr(Error);
+		Logger::i()->Log(LogLevel::Err, Error);
 		return false;
 	}
 
