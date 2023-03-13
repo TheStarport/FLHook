@@ -8,7 +8,7 @@ void IClientImpl__Startup__Inner(uint, uint)
 {
 	// load the universe directly before the server becomes internet accessible
 	CoreGlobals::i()->allBases.clear();
-	Universe::IBase* base = Universe::GetFirstBase();
+	const Universe::IBase* base = Universe::GetFirstBase();
 	while (base)
 	{
 		BaseInfo bi;
@@ -348,7 +348,7 @@ bool CharacterSelect__Inner(const CHARACTER_ID& cid, ClientId client)
 	return true;
 }
 
-void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
+void CharacterSelect__InnerAfter([[maybe_unused]] const CHARACTER_ID& cId, unsigned int client)
 {
 	TRY_HOOK
 	{
@@ -384,7 +384,7 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 			}
 
 			// event
-			CAccount* acc = Players.FindAccountFromClientID(client);
+			const CAccount* acc = Players.FindAccountFromClientID(client);
 			std::wstring dir = Hk::Client::GetAccountDirName(acc);
 			auto pi = Hk::Admin::GetPlayerInfo(client, false);
 
@@ -409,11 +409,12 @@ void CharacterSelect__InnerAfter(const CHARACTER_ID& cId, unsigned int client)
 	CATCH_HOOK({})
 }
 
-void BaseEnter__Inner(uint baseId, ClientId client)
+void BaseEnter__Inner([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
 {
+	// TODO: implement base enter event
 }
 
-void BaseEnter__InnerAfter(uint baseId, ClientId client)
+void BaseEnter__InnerAfter([[maybe_unused]] uint baseId, ClientId client)
 {
 	TRY_HOOK
 	{
@@ -454,7 +455,7 @@ void BaseExit__Inner(uint baseId, ClientId client)
 	CATCH_HOOK({})
 }
 
-void BaseExit__InnerAfter(uint baseId, ClientId client)
+void BaseExit__InnerAfter([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
 {
 	// TODO: implement base exit event
 }
@@ -638,7 +639,7 @@ bool OnConnect__Inner(ClientId client)
 	return true;
 }
 
-void OnConnect__InnerAfter(ClientId client)
+void OnConnect__InnerAfter([[maybe_unused]] ClientId client)
 {
 	TRY_HOOK
 	{
@@ -787,7 +788,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 	return true;
 }
 
-void GoTradelane__Inner(ClientId client, const XGoTradelane& gtl)
+void GoTradelane__Inner(ClientId client, [[maybe_unused]] const XGoTradelane& gtl)
 {
 	if (client <= MaxClientId && client > 0)
 		ClientInfo[client].bTradelane = true;
