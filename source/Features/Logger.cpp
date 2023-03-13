@@ -4,15 +4,7 @@
 
 BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
 {
-	switch (dwCtrlType)
-	{
-		case CTRL_CLOSE_EVENT: {
-			return TRUE;
-		}
-		default:
-			return FALSE;
-		break;
-	}
+	return dwCtrlType == CTRL_CLOSE_EVENT;
 }
 
 void Logger::GetConsoleInput(std::stop_token st)
@@ -84,7 +76,8 @@ std::optional<std::string> Logger::GetCommand()
 		return {};
 
 	std::string ret;
-	const auto val = queue.try_pop(ret);
+	if (const auto val = queue.try_pop(ret); !val)
+		return {};
 
 	return ret;
 }

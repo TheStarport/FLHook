@@ -4,6 +4,7 @@
 #include <thread>
 #include <concurrent_queue.h>
 #include <optional>
+#include <string>
 
 class Logger : public Singleton<Logger>
 {

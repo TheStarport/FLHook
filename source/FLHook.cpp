@@ -14,8 +14,6 @@ HMODULE hModDPNet = 0;
 HMODULE hModDaLib = 0;
 HMODULE content = 0;
 
-CRITICAL_SECTION cs;
-
 bool bExecuted = false;
 
 CConsole AdminConsole;
@@ -24,8 +22,6 @@ st6_malloc_t st6_malloc;
 st6_free_t st6_free;
 
 bool flhookReady;
-
-bool Init();
 
 /**************************************************************************************************************
 DllMain
@@ -81,7 +77,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 /**************************************************************************************************************
 Replace FLServer's exception handler with our own.
 **************************************************************************************************************/
-#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
+// TODO: Move exception to exception handler class
 BYTE oldSetUnhandledExceptionFilter[5];
 
 LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
@@ -96,7 +92,6 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_E
 {
 	return NULL;
 }
-#endif
 
 /**************************************************************************************************************
 init
@@ -180,7 +175,6 @@ void FLHookInit_Pre()
 
 		PatchClientImpl();
 
-#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 		// Install our own exception handler to automatically log minidumps.
 		::SetUnhandledExceptionFilter(FLHookTopLevelFilter);
 
@@ -202,7 +196,6 @@ void FLHookInit_Pre()
 				PatchCallAddr((char*)ernel32, offset, (char*)Cb_SetUnhandledExceptionFilter);
 			}
 		}
-#endif
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 	}
@@ -277,7 +270,6 @@ void FLHookShutdown()
 	// unload hooks
 	UnloadHookExports();
 
-#ifndef DISABLE_EXTENDED_EXCEPTION_LOGGING
 	// If extended exception logging is in use, restore patched functions
 	if (HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
 	{
@@ -290,9 +282,6 @@ void FLHookShutdown()
 	}
 	// And restore the default exception filter.
 	SetUnhandledExceptionFilter(0);
-#endif
-
-	AddLog(LogType::Normal, LogLevel::Err, "-------------------");
 
 	// unload rest
 	DWORD id;
