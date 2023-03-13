@@ -3,6 +3,7 @@
 
 #include "Memory/MemoryManager.hpp"
 #include <Features/MessageHandler.hpp>
+#include <Features/Logger.hpp>
 
 HANDLE hProcFL = 0;
 HMODULE server = 0;
@@ -12,13 +13,6 @@ HMODULE hMe = 0;
 HMODULE hModDPNet = 0;
 HMODULE hModDaLib = 0;
 HMODULE content = 0;
-HANDLE hConsoleThread;
-
-HANDLE hConsoleIn;
-HANDLE hConsoleOut;
-HANDLE hConsoleErr;
-
-std::list<std::wstring*> lstConsoleCmds;
 
 CRITICAL_SECTION cs;
 
@@ -105,51 +99,6 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI Cb_SetUnhandledExceptionFilter(LPTOP_LEVEL_E
 #endif
 
 /**************************************************************************************************************
-thread that reads console input
-**************************************************************************************************************/
-
-void __stdcall ReadConsoleEvents()
-{
-	while (true)
-	{
-		DWORD dwBytesRead;
-		std::string cmd;
-		cmd.resize(1024);
-		if (ReadConsole(hConsoleIn, cmd.data(), cmd.size(), &dwBytesRead, nullptr))
-		{
-			if (cmd[cmd.length() - 1] == '\n')
-				cmd = cmd.substr(0, cmd.length() - 1);
-			if (cmd[cmd.length() - 1] == '\r')
-				cmd = cmd.substr(0, cmd.length() - 1);
-
-			std::wstring wscCmd = stows(cmd);
-			EnterCriticalSection(&cs);
-			auto pwscCmd = new std::wstring;
-			*pwscCmd = wscCmd;
-			lstConsoleCmds.push_back(pwscCmd);
-			LeaveCriticalSection(&cs);
-		}
-	}
-}
-
-/**************************************************************************************************************
-handles console events
-**************************************************************************************************************/
-
-BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
-{
-	switch (dwCtrlType)
-	{
-		case CTRL_CLOSE_EVENT: {
-			return TRUE;
-		}
-		break;
-	}
-
-	return FALSE;
-}
-
-/**************************************************************************************************************
 init
 **************************************************************************************************************/
 
@@ -178,36 +127,6 @@ void FLHookInit_Pre()
 		st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(dll, "free"));
 	}
 
-	// start console
-	AllocConsole();
-	SetConsoleTitle("FLHook");
-
-	HWND console = GetConsoleWindow();
-	RECT r;
-	GetWindowRect(console, &r);
-
-	MoveWindow(console, r.left, r.top, 1366, 768, TRUE);
-
-	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
-	hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
-	hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	hConsoleErr = GetStdHandle(STD_ERROR_HANDLE);
-
-	// change version number here:
-	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.0
-	std::string welcomeText = R"(
-  ______ _      _    _             _      _  _  __                 _ _           
- |  ____| |    | |  | |           | |    | || |/_ |               | | |          
- | |__  | |    | |__| | ___   ___ | | __ | || |_| |    _ __   __ _| | | __ _ ___ 
- |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| |   | '_ \ / _` | | |/ _` / __|
- | |    | |____| |  | | (_) | (_) |   <     | |_| |   | |_) | (_| | | | (_| \__ \
- |_|    |______|_|  |_|\___/ \___/|_|\_\    |_(_)_|   | .__/ \__,_|_|_|\__,_|___/
-                                                      | |                        
-                                                      |_|                        
-                                                                       )";
-	welcomeText += "\n\n";
-	DWORD _;
-	WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), welcomeText.c_str(), DWORD(welcomeText.length()), &_, nullptr);
 	try
 	{
 		// Load our settings before anything that might need access to debug mode
@@ -223,9 +142,6 @@ void FLHookInit_Pre()
 		// get module handles
 		if (!(server = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
-
-		DWORD id;
-		hConsoleThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ReadConsoleEvents), nullptr, 0, &id);
 
 		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
 		// so we want to make sure the service is up
@@ -341,10 +257,7 @@ void FLHookUnload()
 	// bad but working..
 	Sleep(1000);
 
-	// unload console
-	TerminateThread(hConsoleThread, 0);
-	SetConsoleCtrlHandler(ConsoleHandler, FALSE);
-	FreeConsole();
+	Logger::del();
 
 	// misc
 	DeleteCriticalSection(&cs);
