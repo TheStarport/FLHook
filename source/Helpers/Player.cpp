@@ -148,7 +148,7 @@ namespace Hk::Player
 		{ // money fix in case player logs in with this account
 			bool bFound = false;
 			std::wstring characterLower = ToLower(character);
-			for (auto& money : ClientInfo[client].lstMoneyFix)
+			for (auto& money : ClientInfo[client].MoneyFix)
 			{
 				if (money.character == characterLower)
 				{
@@ -163,7 +163,7 @@ namespace Hk::Player
 				MONEY_FIX mf;
 				mf.character = characterLower;
 				mf.uAmount = iAmount;
-				ClientInfo[client].lstMoneyFix.push_back(mf);
+				ClientInfo[client].MoneyFix.push_back(mf);
 			}
 		}
 
@@ -221,8 +221,8 @@ namespace Hk::Player
 		if (id.has_error())
 			return cpp::fail(id.error());
 
-		st6::wstring flStr((ushort*)id.value().c_str());
-		Players.BanAccount(flStr, bBan);
+		st6::wstring fr((ushort*)id.value().c_str());
+		Players.BanAccount(fr, bBan);
 		return {};
 	}
 
@@ -400,11 +400,11 @@ namespace Hk::Player
 		memcpy(&ClassPtr, &Players, 4);
 		ClassPtr += 0x418 * (client - 1);
 
-		EQ_ITEM* eqLst;
-		memcpy(&eqLst, ClassPtr + 0x27C, 4);
 		EQ_ITEM* eq;
-		eq = eqLst->next;
-		while (eq != eqLst)
+		memcpy(&eq, ClassPtr + 0x27C, 4);
+		EQ_ITEM* eq;
+		eq = eq->next;
+		while (eq != eq)
 		{
 			CARGO_INFO ci = {eq->sId, (int)eq->iCount, eq->iGoodId, eq->fStatus, eq->bMission, eq->bMounted, eq->hardpoint};
 			cargo.push_back(ci);
@@ -1141,8 +1141,8 @@ namespace Hk::Player
 	/// Return true if this player is within the specified distance of any other player.
 	bool IsInRange(ClientId client, float fDistance)
 	{
-		const auto lstMembers = GetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(client));
-		if (lstMembers.has_error())
+		const auto Members = GetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(client));
+		if (Members.has_error())
 		{
 			return false;
 		}
@@ -1177,7 +1177,7 @@ namespace Hk::Player
 
 			// Ignore players who are in your group.
 			bool bGrouped = false;
-			for (auto& gm : lstMembers.value())
+			for (auto& gm : Members.value())
 			{
 				if (gm.client == client2)
 				{
@@ -1534,13 +1534,13 @@ namespace Hk::Player
 
 		uint iBaseId = 0;
 
-		const auto lstCharFile = ReadCharFile(player);
-		if (lstCharFile.has_error())
+		const auto CharFile = ReadCharFile(player);
+		if (CharFile.has_error())
 		{
-			return cpp::fail(lstCharFile.error());
+			return cpp::fail(CharFile.error());
 		}
 
-		for (const auto& line : lstCharFile.value())
+		for (const auto& line : CharFile.value())
 		{
 			std::wstring Key = Trim(line.substr(0, line.find(L"=")));
 			if (Key == L"base" || Key == L"last_base")
@@ -1561,7 +1561,7 @@ namespace Hk::Player
 			}
 		}
 
-		for (const auto& line : lstCharFile.value())
+		for (const auto& line : CharFile.value())
 		{
 			std::wstring Key = Trim(line.substr(0, line.find(L"=")));
 			if (Key == L"cargo" || Key == L"equip")

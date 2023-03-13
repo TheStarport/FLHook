@@ -135,7 +135,7 @@ namespace Plugins::Autobuy
 		if (Players[client].fRelativeHealth < 1.0f)
 		{
 			Players[client].fRelativeHealth = 1.0f;
-			HookClient->Send_FLPACKET_SERVER_SETHULLSTATUS(client, 1.0f);
+			HookClient->Send_FLPACKET_SERVER_SETHULATUS(client, 1.0f);
 		}
 	}
 
@@ -328,7 +328,7 @@ namespace Plugins::Autobuy
 
 			// check if good is available and if player has the neccessary rep
 			bool goodAvailable = false;
-			for (const auto& available : bi->lstMarketMisc)
+			for (const auto& available : bi->MarketMisc)
 			{
 				if (available.iArchId == buy.archId)
 				{

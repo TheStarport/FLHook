@@ -161,8 +161,8 @@ void TimerNPCAndF1Check()
 **************************************************************************************************************/
 
 CRITICAL_SECTION csIPResolve;
-std::list<RESOLVE_IP> g_lstResolveIPs;
-std::list<RESOLVE_IP> g_lstResolveIPsResult;
+std::list<RESOLVE_IP> g_ResolveIPs;
+std::list<RESOLVE_IP> g_ResolveIPsResult;
 HANDLE hThreadResolver;
 
 void ThreadResolver()
@@ -172,11 +172,11 @@ void ThreadResolver()
 		while (true)
 		{
 			EnterCriticalSection(&csIPResolve);
-			std::list<RESOLVE_IP> lstMyResolveIPs = g_lstResolveIPs;
-			g_lstResolveIPs.clear();
+			std::list<RESOLVE_IP> MyResolveIPs = g_ResolveIPs;
+			g_ResolveIPs.clear();
 			LeaveCriticalSection(&csIPResolve);
 
-			for (auto& ip : lstMyResolveIPs)
+			for (auto& ip : MyResolveIPs)
 			{
 				SOCKADDR_IN addr { AF_INET, 2302, {}, { 0 } };
 				InetPtonW(AF_INET, ip.IP.c_str(), &addr.sin_addr);
@@ -189,10 +189,10 @@ void ThreadResolver()
 			}
 
 			EnterCriticalSection(&csIPResolve);
-			for (auto& ip : lstMyResolveIPs)
+			for (auto& ip : MyResolveIPs)
 			{
 				if (ip.Hostname.length())
-					g_lstResolveIPsResult.push_back(ip);
+					g_ResolveIPsResult.push_back(ip);
 			}
 			LeaveCriticalSection(&csIPResolve);
 
@@ -210,7 +210,7 @@ void TimerCheckResolveResults()
 	TRY_HOOK
 	{
 		EnterCriticalSection(&csIPResolve);
-		for (const auto& ip : g_lstResolveIPsResult)
+		for (const auto& ip : g_ResolveIPsResult)
 		{
 			if (ip.iConnects != ClientInfo[ip.client].iConnects)
 				continue; // outdated
@@ -230,7 +230,7 @@ void TimerCheckResolveResults()
 			ClientInfo[ip.client].Hostname = ip.Hostname;
 		}
 
-		g_lstResolveIPsResult.clear();
+		g_ResolveIPsResult.clear();
 		LeaveCriticalSection(&csIPResolve);
 	}
 	CATCH_HOOK({})

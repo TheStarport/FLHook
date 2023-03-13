@@ -92,8 +92,8 @@ extern HookEntry IServerImplEntries[73];
 bool LoadBaseMarket();
 
 extern CRITICAL_SECTION csIPResolve;
-extern std::list<RESOLVE_IP> g_lstResolveIPs;
-extern std::list<RESOLVE_IP> g_lstResolveIPsResult;
+extern std::list<RESOLVE_IP> g_ResolveIPs;
+extern std::list<RESOLVE_IP> g_ResolveIPsResult;
 extern HANDLE hThreadResolver;
 
 // help

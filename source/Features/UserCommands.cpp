@@ -261,7 +261,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 		}
 	}
 
-	if (ClientInfo[client].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].Ignore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
 		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
@@ -269,13 +269,13 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].lstIgnore.size() + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].Ignore.size() + 1), character + L" " + flags);
 
 	// save in ClientInfo
-	IGNORE_INFO ii;
+	IgnoreInfo ii;
 	ii.character = character;
 	ii.Flags = flags;
-	ClientInfo[client].lstIgnore.push_back(ii);
+	ClientInfo[client].Ignore.push_back(ii);
 
 	// send confirmation msg
 	PRINT_OK()
@@ -306,7 +306,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	if (ClientInfo[client].lstIgnore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].Ignore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
 		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
@@ -323,13 +323,13 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].lstIgnore.size() + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string((int)ClientInfo[client].Ignore.size() + 1), character + L" " + flags);
 
 	// save in ClientInfo
-	IGNORE_INFO ii;
+	IgnoreInfo ii;
 	ii.character = character;
 	ii.Flags = flags;
-	ClientInfo[client].lstIgnore.push_back(ii);
+	ClientInfo[client].Ignore.push_back(ii);
 
 	// send confirmation msg
 	PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
@@ -347,7 +347,7 @@ void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& p
 
 	PrintUserCmdText(client, L"Id | Charactername | Flags");
 	int i = 1;
-	for (auto& ignore : ClientInfo[client].lstIgnore)
+	for (auto& ignore : ClientInfo[client].Ignore)
 	{
 		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.Flags));
 		i++;
@@ -384,47 +384,47 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	if (!idToDelete.compare(L"*"))
 	{ // delete all
 		IniDelSection(scUserFile, "IgnoreList");
-		ClientInfo[client].lstIgnore.clear();
+		ClientInfo[client].Ignore.clear();
 		PRINT_OK()
 		return;
 	}
 
-	std::list<uint> lstDelete;
+	std::list<uint> Delete;
 	for (uint j = 1; !idToDelete.empty(); j++)
 	{
 		uint iId = ToInt(idToDelete.c_str());
-		if (!iId || iId > ClientInfo[client].lstIgnore.size())
+		if (!iId || iId > ClientInfo[client].Ignore.size())
 		{
 			PrintUserCmdText(client, L"Error: Invalid Id");
 			return;
 		}
 
-		lstDelete.push_back(iId);
+		Delete.push_back(iId);
 		idToDelete = GetParam(param, ' ', j);
 	}
 
-	lstDelete.sort(std::greater<uint>());
+	Delete.sort(std::greater<uint>());
 
-	ClientInfo[client].lstIgnore.reverse();
-	for (const auto& del : lstDelete)
+	ClientInfo[client].Ignore.reverse();
+	for (const auto& del : Delete)
 	{
-		uint iCurId = ClientInfo[client].lstIgnore.size();
-		for (auto ignoreIt = ClientInfo[client].lstIgnore.begin(); ignoreIt != ClientInfo[client].lstIgnore.end(); ++ignoreIt)
+		uint iCurId = ClientInfo[client].Ignore.size();
+		for (auto ignoreIt = ClientInfo[client].Ignore.begin(); ignoreIt != ClientInfo[client].Ignore.end(); ++ignoreIt)
 		{
 			if (iCurId == del)
 			{
-				ClientInfo[client].lstIgnore.erase(ignoreIt);
+				ClientInfo[client].Ignore.erase(ignoreIt);
 				break;
 			}
 			iCurId--;
 		}
 	}
-	ClientInfo[client].lstIgnore.reverse();
+	ClientInfo[client].Ignore.reverse();
 
 	// send confirmation msg
 	IniDelSection(scUserFile, "IgnoreList");
 	int i = 1;
-	for (const auto& ignore : ClientInfo[client].lstIgnore)
+	for (const auto& ignore : ClientInfo[client].Ignore)
 	{
 		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.Flags);
 		i++;

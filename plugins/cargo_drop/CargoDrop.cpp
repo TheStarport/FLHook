@@ -3,7 +3,7 @@
  * @author Cannon (Ported by Raikkonen 2022)
  * @defgroup CargoDrop Cargo Drop
  * @brief
- * The "Cargo Drop" plugin handles consequences to a player who disconnects whilst in space.
+ * The "Cargo Drop" plugin handles consequences to a player who disconnects whi in space.
  *
  * @paragraph cmds Player Commands
  * There are no player commands in this plugin.

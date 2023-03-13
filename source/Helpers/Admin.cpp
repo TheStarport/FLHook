@@ -22,14 +22,14 @@ namespace Hk::Admin
 		__asm {
         push 0                          ; dwFlags
         lea edx, IdirectPlay8Address
-        push edx                        ; pAddress 
+        push edx                        ; address 
         mov edx, [cdpClient]
         mov edx, [edx+8]
         push edx                        ; dpnid
         mov eax, [P1]
         push eax
         mov ecx, [eax]
-        call dword ptr[ecx + 0x28]      ; GetClientAddress
+        call ord ptr[ecx + 0x28]      ; GetClientAddress
         cmp eax, 0
         jnz some_error
 
@@ -44,12 +44,12 @@ namespace Hk::Admin
         mov ecx, [IdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
-        call dword ptr[ecx+0x40]        ; GetComponentByName
+        call ord ptr[ecx+0x40]        ; GetComponentByName
 
         mov ecx, [IdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
-        call dword ptr[ecx+0x08]        ; Release
+        call ord ptr[ecx+0x08]        ; Release
 some_error:
 		}
 
@@ -112,7 +112,7 @@ some_error:
 
 	std::list<PlayerInfo> GetPlayers()
 	{
-		std::list<PlayerInfo> lstRet;
+		std::list<PlayerInfo> Ret;
 		std::wstring Ret;
 
 		PlayerData* playerDb = nullptr;
@@ -125,9 +125,9 @@ some_error:
 
 			auto pi = GetPlayerInfo(client, false);
 			auto a = std::move(pi).value();
-			lstRet.emplace_back(a);
+			Ret.emplace_back(a);
 		}
-		return lstRet;
+		return Ret;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,10 +224,10 @@ some_error:
 			Cmp[0] = '\xF9';
 		}
 
-		void* pAddress = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS1);
-		WriteProcMem(pAddress, &Jump, 1);
-		pAddress = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
-		WriteProcMem(pAddress, &Cmp, 1);
+		void* address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS1);
+		WriteProcMem(address, &Jump, 1);
+		address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
+		WriteProcMem(address, &Cmp, 1);
 		g_bNPCDisabled = bDisable;
 		return {};
 	}
@@ -286,7 +286,7 @@ some_error:
         push edx
         mov ecx, [esp+12]
         mov edx, [ecx]
-        call dword ptr[edx+0x150]
+        call ord ptr[edx+0x150]
         pop edx
         pop ecx
         ret 4

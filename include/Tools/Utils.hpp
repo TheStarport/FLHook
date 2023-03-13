@@ -24,21 +24,21 @@ inline void SwapBytes(void* ptr, uint iLen)
 	}
 }
 
-inline void WriteProcMem(void* pAddress, const void* pMem, int iSize)
+inline void WriteProcMem(void* address, const void* pMem, int iSize)
 {
 	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-	DWORD dwOld;
-	VirtualProtectEx(hProc, pAddress, iSize, PAGE_EXECUTE_READWRITE, &dwOld);
-	WriteProcessMemory(hProc, pAddress, pMem, iSize, 0);
+	DWORD old;
+	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
+	WriteProcessMemory(hProc, address, pMem, iSize, 0);
 	CloseHandle(hProc);
 }
 
-inline void ReadProcMem(void* pAddress, void* pMem, int iSize)
+inline void ReadProcMem(void* address, void* pMem, int iSize)
 {
 	HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-	DWORD dwOld;
-	VirtualProtectEx(hProc, pAddress, iSize, PAGE_EXECUTE_READWRITE, &dwOld);
-	ReadProcessMemory(hProc, pAddress, pMem, iSize, 0);
+	DWORD old;
+	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
+	ReadProcessMemory(hProc, address, pMem, iSize, 0);
 	CloseHandle(hProc);
 }
 
@@ -282,8 +282,8 @@ inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFu
 	DWORD dwRelAddr;
 	ReadProcMem(mod + installAddress + 1, &dwRelAddr, 4);
 
-	DWORD dwOffset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
-	WriteProcMem(mod + installAddress + 1, &dwOffset, 4);
+	DWORD offset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
+	WriteProcMem(mod + installAddress + 1, &offset, 4);
 
 	return (FARPROC)(mod + dwRelAddr + installAddress + 5);
 }

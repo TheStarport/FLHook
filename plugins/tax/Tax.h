@@ -48,7 +48,7 @@ namespace Plugins::Tax
 	{
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returnCode = ReturnCode::Default;
-		std::list<Tax> lsttax;
+		std::list<Tax> tax;
 		std::vector<uint> excludedsystemsIds;
 	};
 } // namespace Plugins::Tax

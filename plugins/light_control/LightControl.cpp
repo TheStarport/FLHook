@@ -125,8 +125,8 @@ namespace Plugins::LightControl
 		PrintUserCmdText(client, L"Current light setup:");
 
 		std::vector<EquipDesc> lights;
-		const st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
-		for (const auto& i : eqLst)
+		const st6::list<EquipDesc>& eq = Players[client].equipDescList.equip;
+		for (const auto& i : eq)
 		{
 			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
 			{
@@ -234,9 +234,9 @@ namespace Plugins::LightControl
 		}
 		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 		std::vector<EquipDesc> lights;
-		st6::list<EquipDesc>& eqLst = Players[client].equipDescList.equip;
+		st6::list<EquipDesc>& eq = Players[client].equipDescList.equip;
 
-		for (const auto& i : eqLst)
+		for (const auto& i : eq)
 		{
 			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
 			{
@@ -290,10 +290,10 @@ namespace Plugins::LightControl
 			const auto& selectedLightEquipDesc = lights[hardPointId];
 
 			const auto light = std::find_if(
-			    eqLst.begin(), eqLst.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
+			    eq.begin(), eq.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
 
 			light->iArchId = lightId;
-			auto err = Hk::Player::SetEquip(client, eqLst);
+			auto err = Hk::Player::SetEquip(client, eq);
 			if (err.has_error())
 			{
 				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));

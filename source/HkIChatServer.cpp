@@ -28,7 +28,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 
 			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientTo & 0xFFFF) != 0))
 			{ // check ignores
-				for (const auto& ci : ClientInfo[client].lstIgnore)
+				for (const auto& ci : ClientInfo[client].Ignore)
 				{
 					if (HAS_FLAG(ci, L"p") && (clientTo & 0x10000))
 						continue; // no privchat

@@ -242,12 +242,12 @@ namespace IServerImplHook
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
 			std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
-			for (const auto& i : ClientInfo[client].lstMoneyFix)
+			for (const auto& i : ClientInfo[client].MoneyFix)
 			{
 				if (i.character == charName)
 				{
 					Hk::Player::AddCash(charName, i.uAmount);
-					ClientInfo[client].lstMoneyFix.remove(i);
+					ClientInfo[client].MoneyFix.remove(i);
 					break;
 				}
 			}
@@ -364,13 +364,13 @@ void CharacterSelect__InnerAfter([[maybe_unused]] const CHARACTER_ID& cId, unsig
 				    L"\"/help\" in chat.");
 
 			int iHold;
-			auto lstCargo = Hk::Player::EnumCargo(client, iHold);
-			if (lstCargo.has_error())
+			auto Cargo = Hk::Player::EnumCargo(client, iHold);
+			if (Cargo.has_error())
 			{
 				Hk::Player::Kick(client);
 				return;
 			}
-			for (const auto& cargo : lstCargo.value())
+			for (const auto& cargo : Cargo.value())
 			{
 				if (cargo.iCount < 0)
 				{
@@ -421,12 +421,12 @@ void BaseEnter__InnerAfter([[maybe_unused]] uint baseId, ClientId client)
 		// adjust cash, this is necessary when cash was added while use was in
 		// charmenu/had other char selected
 		std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
-		for (const auto& i : ClientInfo[client].lstMoneyFix)
+		for (const auto& i : ClientInfo[client].MoneyFix)
 		{
 			if (i.character == charName)
 			{
 				Hk::Player::AddCash(charName, i.uAmount);
-				ClientInfo[client].lstMoneyFix.remove(i);
+				ClientInfo[client].MoneyFix.remove(i);
 				break;
 			}
 		}
@@ -492,9 +492,9 @@ void ActivateEquip__Inner(ClientId client, const XActivateEquip& aq)
 	TRY_HOOK
 	{
 		int _;
-		const auto lstCargo = Hk::Player::EnumCargo(client, _);
+		const auto Cargo = Hk::Player::EnumCargo(client, _);
 
-		for (auto& cargo : lstCargo.value())
+		for (auto& cargo : Cargo.value())
 		{
 			if (cargo.iId == aq.sId)
 			{
@@ -538,9 +538,9 @@ bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
 		// anti-cheat check
 
 		int _;
-		const auto lstCargo = Hk::Player::EnumCargo(client, _);
+		const auto Cargo = Hk::Player::EnumCargo(client, _);
 		bool legalSell = false;
-		for (const auto& cargo : lstCargo.value())
+		for (const auto& cargo : Cargo.value())
 		{
 			if (cargo.iArchId == gsi.iArchId)
 			{
@@ -653,7 +653,7 @@ void DisConnect__Inner(ClientId client, EFLConnection)
 	if (client <= MaxClientId && client > 0 && !ClientInfo[client].bDisconnected)
 	{
 		ClientInfo[client].bDisconnected = true;
-		ClientInfo[client].lstMoneyFix.clear();
+		ClientInfo[client].MoneyFix.clear();
 		ClientInfo[client].iTradePartner = 0;
 
 		// TODO: implement event for disconnect
@@ -702,8 +702,8 @@ bool Login__InnerBefore(const SLoginInfo& li, ClientId client)
 			fclose(file);
 
 			// Ban the player
-			st6::wstring flStr((ushort*)acc->wAccId);
-			Players.BanAccount(flStr, true);
+			st6::wstring fr((ushort*)acc->wAccId);
+			Players.BanAccount(fr, true);
 
 			// Kick them
 			acc->ForceLogout();
@@ -752,7 +752,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 		RESOLVE_IP rip = {client, ClientInfo[client].iConnects, ip};
 
 		EnterCriticalSection(&csIPResolve);
-		g_lstResolveIPs.push_back(rip);
+		g_ResolveIPs.push_back(rip);
 		LeaveCriticalSection(&csIPResolve);
 
 		// count players
@@ -1211,24 +1211,24 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float status)
+bool IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(ClientId client, float status)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status)));
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status)));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS, client, status);
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULATUS, client, status);
 
 	if (!skip)
 	{
 		CALL_CLIENT_PREAMBLE
 		{
-			retVal = Send_FLPACKET_SERVER_SETHULLSTATUS(client, status);
+			retVal = Send_FLPACKET_SERVER_SETHULATUS(client, status);
 		}
 		CALL_CLIENT_POSTAMBLE;
 	}
 
-	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS, client, status);
+	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULATUS, client, status);
 
 	return retVal;
 }
@@ -3659,22 +3659,22 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall ReqHullStatus(float status, ClientId client)
+	void __stdcall ReqHulatus(float status, ClientId client)
 	{
-		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqHullStatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client)));
+		AddLog(LogType::Normal, LogLevel::Debug, wstos(std::format(L"ReqHulatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client)));
 
 
-		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHullStatus, status, client); 
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHulatus, status, client); 
 			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
-				Server.ReqHullStatus(status, client);
+				Server.ReqHulatus(status, client);
 			}
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
-		CallPluginsAfter(HookedCall::IServerImpl__ReqHullStatus, status, client);
+		CallPluginsAfter(HookedCall::IServerImpl__ReqHulatus, status, client);
 	}
 } // namespace IServerImplHook
 
@@ -4995,7 +4995,7 @@ HookEntry IServerImplEntries[] = {
     {FARPROC(IServerImplHook::CreateNewCharacter), 0x058, nullptr},
     {FARPROC(IServerImplHook::DestroyCharacter), 0x05C, nullptr},
     {FARPROC(IServerImplHook::ReqShipArch), 0x064, nullptr},
-    {FARPROC(IServerImplHook::ReqHullStatus), 0x068, nullptr},
+    {FARPROC(IServerImplHook::ReqHulatus), 0x068, nullptr},
     {FARPROC(IServerImplHook::ReqCollisionGroups), 0x06C, nullptr},
     {FARPROC(IServerImplHook::ReqEquipment), 0x070, nullptr},
     {FARPROC(IServerImplHook::ReqAddItem), 0x078, nullptr},
@@ -5083,7 +5083,7 @@ void PluginManager::setupProps()
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATETHRUSTERS, true, true);
 	setProps(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, true, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH, true, true);
-	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULLSTATUS, true, true);
+	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULATUS, true, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, true, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, true, true);
 	setProps(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETADDITEM, true, true);
@@ -5136,7 +5136,7 @@ void PluginManager::setupProps()
 	setProps(HookedCall::IServerImpl__CreateNewCharacter, true, true);
 	setProps(HookedCall::IServerImpl__DestroyCharacter, true, true);
 	setProps(HookedCall::IServerImpl__ReqShipArch, true, true);
-	setProps(HookedCall::IServerImpl__ReqHullStatus, true, true);
+	setProps(HookedCall::IServerImpl__ReqHulatus, true, true);
 	setProps(HookedCall::IServerImpl__ReqCollisionGroups, true, true);
 	setProps(HookedCall::IServerImpl__ReqEquipment, true, true);
 	setProps(HookedCall::IServerImpl__ReqAddItem, true, true);

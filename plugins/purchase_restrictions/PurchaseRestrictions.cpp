@@ -241,7 +241,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqHullStatus([[maybe_unused]] const float& status, ClientId& client)
+	void ReqHulatus([[maybe_unused]] const float& status, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{
@@ -278,7 +278,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__ReqAddItem, &ReqAddItem);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqChangeCash, &ReqChangeCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqEquipment, &ReqEquipment);
-	pi->emplaceHook(HookedCall::IServerImpl__ReqHullStatus, &ReqHullStatus);
+	pi->emplaceHook(HookedCall::IServerImpl__ReqHulatus, &ReqHulatus);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqSetCash, &ReqSetCash);
 	pi->emplaceHook(HookedCall::IServerImpl__ReqShipArch, &ReqShipArch);
 }

@@ -95,27 +95,27 @@ namespace Plugins::Stats
 
 		nlohmann::json jPlayers = nlohmann::json::array();
 
-		for (const std::list<PlayerInfo> lstPlayers = Hk::Admin::GetPlayers(); auto& lstPlayer : lstPlayers)
+		for (const std::list<PlayerInfo> Players = Hk::Admin::GetPlayers(); auto& Player : Players)
 		{
 			nlohmann::json jPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(wstos(lstPlayer.character));
+			jPlayer["name"] = encode(wstos(Player.character));
 
 			// Add rank
-			int iRank = Hk::Player::GetRank(lstPlayer.client).value();
+			int iRank = Hk::Player::GetRank(Player.client).value();
 			jPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
-			int groupId = Players.GetGroupID(lstPlayer.client);
+			int groupId = Players.GetGroupID(Player.client);
 			jPlayer["group"] = groupId ? std::to_string(groupId) : "None";
 
 			// Add ship
-			const Archetype::Ship* ship = Archetype::GetShip(Players[lstPlayer.client].shipArchetype);
+			const Archetype::Ship* ship = Archetype::GetShip(Players[Player.client].shipArchetype);
 			jPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "Unknown";
 
 			// Add system
-			SystemId iSystemId = Hk::Player::GetSystem(lstPlayer.client).value();
+			SystemId iSystemId = Hk::Player::GetSystem(Player.client).value();
 			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
 			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->strid_name));
 

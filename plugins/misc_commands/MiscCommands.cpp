@@ -85,7 +85,7 @@ namespace Plugins::MiscCommands
 		}
 
 		bool bLights = false;
-		for (st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip; const auto& eq : eqLst)
+		for (st6::list<EquipDesc> const& eq = Players[client].equipDescList.equip; const auto& eq : eq)
 		{
 			std::string hp = ToLower(eq.HardPoint.value);
 			if (hp.find("dock") != std::string::npos)

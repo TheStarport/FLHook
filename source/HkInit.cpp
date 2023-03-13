@@ -106,10 +106,10 @@ bool Patch(PatchInfo& pi)
 
 	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
 	{
-		if (!pi.piEntries[i].pAddress)
+		if (!pi.piEntries[i].address)
 			break;
 
-		char* pAddress = (char*)hMod + (pi.piEntries[i].pAddress - pi.pBaseAddress);
+		char* address = (char*)hMod + (pi.piEntries[i].address - pi.pBaseAddress);
 		if (!pi.piEntries[i].pOldValue)
 		{
 			pi.piEntries[i].pOldValue = new char[pi.piEntries[i].iSize];
@@ -118,8 +118,8 @@ bool Patch(PatchInfo& pi)
 		else
 			pi.piEntries[i].bAlloced = false;
 
-		ReadProcMem(pAddress, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
-		WriteProcMem(pAddress, &pi.piEntries[i].pNewValue, pi.piEntries[i].iSize);
+		ReadProcMem(address, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
+		WriteProcMem(address, &pi.piEntries[i].pNewValue, pi.piEntries[i].iSize);
 	}
 
 	return true;
@@ -135,11 +135,11 @@ bool RestorePatch(PatchInfo& pi)
 
 	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
 	{
-		if (!pi.piEntries[i].pAddress)
+		if (!pi.piEntries[i].address)
 			break;
 
-		char* pAddress = (char*)hMod + (pi.piEntries[i].pAddress - pi.pBaseAddress);
-		WriteProcMem(pAddress, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
+		char* address = (char*)hMod + (pi.piEntries[i].address - pi.pBaseAddress);
+		WriteProcMem(address, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
 		if (pi.piEntries[i].bAlloced)
 			delete[] pi.piEntries[i].pOldValue;
 	}
@@ -172,7 +172,7 @@ void ClearClientInfo(ClientId client)
 	info->ship = 0;
 	info->shipOld = 0;
 	info->tmSpawnTime = 0;
-	info->lstMoneyFix.clear();
+	info->MoneyFix.clear();
 	info->iTradePartner = 0;
 	info->iBaseEnterTime = 0;
 	info->iCharMenuEnterTime = 0;
@@ -190,7 +190,7 @@ void ClearClientInfo(ClientId client)
 	info->chatSize = CS_DEFAULT;
 	info->chatStyle = CST_DEFAULT;
 
-	info->lstIgnore.clear();
+	info->Ignore.clear();
 	info->iKillsInARow = 0;
 	info->Hostname = L"";
 	info->bEngineKilled = false;
@@ -222,28 +222,28 @@ void LoadUserSettings(ClientId client)
 
 	CAccount const* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+	std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
-	info->dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
-	info->dieMsgSize = (CHATSIZE)IniGetI(scUserFile, "settings", "DieMsgSize", CS_DEFAULT);
+	info->dieMsg = (DIEMSGTYPE)IniGetI(userFile, "settings", "DieMsg", DIEMSG_ALL);
+	info->dieMsgSize = (CHATSIZE)IniGetI(userFile, "settings", "DieMsgSize", CS_DEFAULT);
 
 	// read chatstyle settings
-	info->chatSize = (CHATSIZE)IniGetI(scUserFile, "settings", "ChatSize", CS_DEFAULT);
-	info->chatStyle = (CHATSTYLE)IniGetI(scUserFile, "settings", "ChatStyle", CST_DEFAULT);
+	info->chatSize = (CHATSIZE)IniGetI(userFile, "settings", "ChatSize", CS_DEFAULT);
+	info->chatStyle = (CHATSTYLE)IniGetI(userFile, "settings", "ChatStyle", CST_DEFAULT);
 
 	// read ignorelist
-	info->lstIgnore.clear();
+	info->Ignore.clear();
 	for (int i = 1;; i++)
 	{
-		std::wstring Ignore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
+		std::wstring Ignore = IniGetWS(userFile, "IgnoreList", std::to_string(i), L"");
 		if (!Ignore.length())
 			break;
 
-		IGNORE_INFO ii;
+		IgnoreInfo ii;
 		ii.character = GetParam(Ignore, ' ', 0);
 		ii.Flags = GetParam(Ignore, ' ', 1);
-		info->lstIgnore.push_back(ii);
+		info->Ignore.push_back(ii);
 	}
 }
 
@@ -275,9 +275,9 @@ bool InitHookExports()
 	memcpy(&pServer, pServer, 4);
 	for (uint i = 0; i < std::size(IServerImplEntries); i++)
 	{
-		char* pAddress = pServer + IServerImplEntries[i].dwRemoteAddress;
-		ReadProcMem(pAddress, &IServerImplEntries[i].fpOldProc, 4);
-		WriteProcMem(pAddress, &IServerImplEntries[i].fpProc, 4);
+		char* address = pServer + IServerImplEntries[i].dwRemoteAddress;
+		ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
+		WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
 	}
 
 	// patch it
@@ -292,29 +292,29 @@ bool InitHookExports()
 
 	// patch rep array free
 	char NOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
-	char* pAddress = ((char*)server + ADDR_SRV_REPARRAYFREE);
-	ReadProcMem(pAddress, RepFreeFixOld, 5);
-	WriteProcMem(pAddress, NOPs, 5);
+	char* address = ((char*)server + ADDR_SRV_REPARRAYFREE);
+	ReadProcMem(address, RepFreeFixOld, 5);
+	WriteProcMem(address, NOPs, 5);
 
 	// patch flserver so it can better handle faulty house entries in char files
 
 	// divert call to house load/save func
-	pAddress = SRV_ADDR(0x679C6);
+	address = SRV_ADDR(0x679C6);
 	char DivertJump[] = { '\x6F' };
 
-	WriteProcMem(pAddress, DivertJump, 1);
+	WriteProcMem(address, DivertJump, 1);
 
 	// install hook at new address
-	pAddress = SRV_ADDR(0x78B39);
+	address = SRV_ADDR(0x78B39);
 
 	char MovEAX[] = { '\xB8' };
 	char JMPEAX[] = { '\xFF', '\xE0' };
 
 	FARPROC fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
-	WriteProcMem(pAddress, MovEAX, 1);
-	WriteProcMem(pAddress + 1, &fpLoadRepFromCharFile, 4);
-	WriteProcMem(pAddress + 5, JMPEAX, 2);
+	WriteProcMem(address, MovEAX, 1);
+	WriteProcMem(address + 1, &fpLoadRepFromCharFile, 4);
+	WriteProcMem(address + 5, JMPEAX, 2);
 
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
@@ -322,20 +322,20 @@ bool InitHookExports()
 	CRCAntiCheat = (_CRCAntiCheat)((char*)server + ADDR_CRCANTICHEAT);
 
 	// get CDPServer
-	pAddress = DALIB_ADDR(ADDR_CDPSERVER);
-	ReadProcMem(pAddress, &cdpSrv, 4);
+	address = DALIB_ADDR(ADDR_CDPSERVER);
+	ReadProcMem(address, &cdpSrv, 4);
 
 	// read g_FLServerDataPtr(used for serverload calc)
-	pAddress = FLSERVER_ADDR(ADDR_DATAPTR);
-	ReadProcMem(pAddress, &g_FLServerDataPtr, 4);
+	address = FLSERVER_ADDR(ADDR_DATAPTR);
+	ReadProcMem(address, &g_FLServerDataPtr, 4);
 
 	// some setting relate hooks
 	HookRehashed();
 
 	// get client proxy array, used to retrieve player pings/ips
-	pAddress = (char*)remoteClient + ADDR_CPLIST;
+	address = (char*)remoteClient + ADDR_CPLIST;
 	char* Temp;
-	ReadProcMem(pAddress, &Temp, 4);
+	ReadProcMem(address, &Temp, 4);
 	Temp += 0x10;
 	memcpy(&clientProxyArray, &Temp, 4);
 
@@ -381,7 +381,7 @@ uninstall the callback hooks
 
 void UnloadHookExports()
 {
-	char* pAddress;
+	char* address;
 
 	// uninstall IServerImpl callbacks in remoteclient.dll
 	char* pServer = (char*)&Server;
@@ -390,8 +390,8 @@ void UnloadHookExports()
 		memcpy(&pServer, pServer, 4);
 		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
-			void* pAddress = (void*)((char*)pServer + IServerImplEntries[i].dwRemoteAddress);
-			WriteProcMem(pAddress, &IServerImplEntries[i].fpOldProc, 4);
+			void* address = (void*)((char*)pServer + IServerImplEntries[i].dwRemoteAddress);
+			WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}
 
@@ -409,20 +409,20 @@ void UnloadHookExports()
 	UnDetourSendComm();
 
 	// unpatch rep array free
-	pAddress = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
-	WriteProcMem(pAddress, RepFreeFixOld, 5);
+	address = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
+	WriteProcMem(address, RepFreeFixOld, 5);
 
 	// unpatch flserver so it can better handle faulty house entries in char
 	// files
 
 	// undivert call to house load/save func
-	pAddress = SRV_ADDR(0x679C6);
+	address = SRV_ADDR(0x679C6);
 	char DivertJump[] = { '\x76' };
 
 	// anti-death-msg
 	char Old[] = { '\x74' };
-	pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-	WriteProcMem(pAddress, Old, 1);
+	address = SRV_ADDR(ADDR_ANTIdIEMSG);
+	WriteProcMem(address, Old, 1);
 
 	// plugins
 	PluginManager::i()->unloadAll();
@@ -443,55 +443,55 @@ sometimes adjustments need to be made after a rehash
 
 void HookRehashed()
 {
-	char* pAddress;
+	char* address;
 
 	// anti-deathmsg
 	if (FLHookConfig::i()->messages.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
 		char JMP[] = { '\xEB' };
-		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(pAddress, JMP, 1);
+		address = SRV_ADDR(ADDR_ANTIdIEMSG);
+		WriteProcMem(address, JMP, 1);
 	}
 	else
 	{
 		char Old[] = { '\x74' };
-		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(pAddress, Old, 1);
+		address = SRV_ADDR(ADDR_ANTIdIEMSG);
+		WriteProcMem(address, Old, 1);
 	}
 
 	// charfile encyption(doesn't get disabled when unloading FLHook)
 	if (FLHookConfig::i()->general.disableCharfileEncryption)
 	{
 		char Buf[] = { '\x14', '\xB3' };
-		pAddress = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(pAddress, Buf, 2);
-		pAddress = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(pAddress, Buf, 2);
+		address = SRV_ADDR(ADDR_DISCFENCR);
+		WriteProcMem(address, Buf, 2);
+		address = SRV_ADDR(ADDR_DISCFENCR2);
+		WriteProcMem(address, Buf, 2);
 	}
 	else
 	{
 		char Buf[] = { '\xE4', '\xB4' };
-		pAddress = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(pAddress, Buf, 2);
-		pAddress = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(pAddress, Buf, 2);
+		address = SRV_ADDR(ADDR_DISCFENCR);
+		WriteProcMem(address, Buf, 2);
+		address = SRV_ADDR(ADDR_DISCFENCR2);
+		WriteProcMem(address, Buf, 2);
 	}
 
 	// maximum group size
 	if (FLHookConfig::i()->general.maxGroupSize > 0)
 	{
 		char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
-		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
-		WriteProcMem(pAddress, &cNewGroupSize, 1);
-		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
-		WriteProcMem(pAddress, &cNewGroupSize, 1);
+		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
+		WriteProcMem(address, &cNewGroupSize, 1);
+		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
+		WriteProcMem(address, &cNewGroupSize, 1);
 	}
 	else
 	{ // default
 		char cNewGroupSize = 8;
-		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
-		WriteProcMem(pAddress, &cNewGroupSize, 1);
-		pAddress = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
-		WriteProcMem(pAddress, &cNewGroupSize, 1);
+		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
+		WriteProcMem(address, &cNewGroupSize, 1);
+		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
+		WriteProcMem(address, &cNewGroupSize, 1);
 	}
 }

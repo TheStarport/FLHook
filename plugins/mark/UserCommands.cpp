@@ -66,14 +66,14 @@ namespace Plugins::Mark
 			return;
 		}
 
-		const auto lstMembers = Hk::Player::GetGroupMembers(client);
+		const auto Members = Hk::Player::GetGroupMembers(client);
 
-		if (lstMembers.has_error())
+		if (Members.has_error())
 		{
 			return;
 		}
 
-		for (const auto& [groupClient, _] : lstMembers.value())
+		for (const auto& [groupClient, _] : Members.value())
 		{
 			if (global->Mark[groupClient].IgnoreGroupMark)
 				continue;
@@ -95,13 +95,13 @@ namespace Plugins::Mark
 			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
 			return;
 		}
-		const auto lstMembers = Hk::Player::GetGroupMembers(client);
-		if (lstMembers.has_error())
+		const auto Members = Hk::Player::GetGroupMembers(client);
+		if (Members.has_error())
 		{
 			return;
 		}
 
-		for (const auto& [groupClient, _] : lstMembers.value())
+		for (const auto& [groupClient, _] : Members.value())
 		{
 			UnMarkObject(groupClient, target.value());
 		}

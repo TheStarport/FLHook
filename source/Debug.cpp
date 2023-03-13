@@ -21,14 +21,14 @@ uint DebugTools::CreateIdDetour(const char* str)
 	uint hash = CreateID(str);
 	detour->Detour(CreateIdDetour);
 
-	std::string fullStr = str;
-	if (hashMap.contains(fullStr))
+	std::string fulr = str;
+	if (hashMap.contains(fulr))
 	{
 		return hash;
 	}
 
-	hashMap[fullStr] = hash;
-	hashList->log(spdlog::level::debug, std::format("{}  {:#X}  {}", hash, hash, fullStr));
+	hashMap[fulr] = hash;
+	hashList->log(spdlog::level::debug, std::format("{}  {:#X}  {}", hash, hash, fulr));
 
 	return hash;
 }

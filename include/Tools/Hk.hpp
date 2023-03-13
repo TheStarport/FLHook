@@ -138,7 +138,7 @@ namespace Hk
 		DLL cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool bKick);
 		DLL cpp::result<void, Error> UnlockAccountAccess(CAccount* acc);
 		DLL cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId);
-		DLL void GetItemsForSale(uint baseId, std::list<uint>& lstItems);
+		DLL void GetItemsForSale(uint baseId, std::list<uint>& Items);
 		DLL cpp::result<IObjInspectImpl*, Error> GetInspect(ClientId client);
 		DLL EngineState GetEngineState(ClientId client);
 		DLL EquipmentType GetEqType(Archetype::Equipment* eq);

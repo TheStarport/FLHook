@@ -36,7 +36,7 @@ struct MONEY_FIX
 };
 
 // ignore
-struct IGNORE_INFO
+struct IgnoreInfo
 {
 	std::wstring character;
 	std::wstring Flags;
@@ -61,7 +61,7 @@ struct CLIENT_INFO
 	DamageList dmgLast;
 
 	// money cmd
-	std::list<MONEY_FIX> lstMoneyFix;
+	std::list<MONEY_FIX> MoneyFix;
 
 	// anticheat
 	uint iTradePartner;
@@ -89,7 +89,7 @@ struct CLIENT_INFO
 	mstime tmF1TimeDisconnect;
 
 	// ignore usercommand
-	std::list<IGNORE_INFO> lstIgnore;
+	std::list<IgnoreInfo> Ignore;
 
 	// user settings
 	DIEMSGTYPE dieMsg;
@@ -168,7 +168,7 @@ struct BaseHealth
 
 struct PatchInfoEntry
 {
-	ulong pAddress;
+	ulong address;
 	void* pNewValue;
 	uint iSize;
 	void* pOldValue;
@@ -195,7 +195,7 @@ struct BaseInfo
 	std::string Basename;
 	uint iObjectId;
 	bool bDestroyed;
-	std::list<DataMarketItem> lstMarketMisc;
+	std::list<DataMarketItem> MarketMisc;
 };
 
 struct GroupMember

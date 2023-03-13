@@ -33,7 +33,7 @@ bool LoadBaseMarket()
 
 		ini.read_value();
 
-		biBase->lstMarketMisc.clear();
+		biBase->MarketMisc.clear();
 		if (!ini.is_value("MarketGood"))
 			continue;
 
@@ -43,7 +43,7 @@ bool LoadBaseMarket()
 			const char* EquipName = ini.get_value_string(0);
 			mi.iArchId = CreateID(EquipName);
 			mi.fRep = ini.get_value_float(2);
-			biBase->lstMarketMisc.push_back(mi);
+			biBase->MarketMisc.push_back(mi);
 		} while (ini.read_value());
 	}
 

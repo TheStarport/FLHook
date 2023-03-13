@@ -53,19 +53,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// redirect IServerImpl::Update
 		FARPROC fpLoop = (FARPROC)IServerImplHook::Update;
-		void* pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_UPDATE);
-		ReadProcMem(pAddress, &fpOldUpdate, 4);
-		WriteProcMem(pAddress, &fpLoop, 4);
+		void* address = (void*)((char*)GetModuleHandle(0) + ADDR_UPDATE);
+		ReadProcMem(address, &fpOldUpdate, 4);
+		WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook
 		FARPROC fpStartup = (FARPROC)IServerImplHook::Startup;
-		pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_STARTUP);
-		WriteProcMem(pAddress, &fpStartup, 4);
+		address = (void*)((char*)GetModuleHandle(0) + ADDR_STARTUP);
+		WriteProcMem(address, &fpStartup, 4);
 
 		// install shutdown hook
 		FARPROC fpShutdown = (FARPROC)IServerImplHook::Shutdown;
-		pAddress = (void*)((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
-		WriteProcMem(pAddress, &fpShutdown, 4);
+		address = (void*)((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
+		WriteProcMem(address, &fpShutdown, 4);
 
 		// create log dirs
 		CreateDirectoryA("./logs/", NULL);
@@ -108,7 +108,6 @@ const std::array<const char*, 6> PluginLibs = {
 
 void FLHookInit_Pre()
 {
-	InitializeCriticalSection(&cs);
 	hProcFL = GetModuleHandle(0);
 
 	// Get direct pointers to malloc and free for st6 to prevent debug heap
@@ -184,10 +183,10 @@ void FLHookInit_Pre()
 		HMODULE ernel32 = LoadLibrary("kernel32.dll");
 		if (ernel32)
 		{
-			void* dwOrgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
-			if (dwOrgEntry)
+			void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
+			if (orgEntry)
 			{
-				DWORD offset = (char*)dwOrgEntry - (char*)ernel32;
+				DWORD offset = (char*)orgEntry - (char*)ernel32;
 
 				ReadProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 
@@ -252,9 +251,6 @@ void FLHookUnload()
 
 	Logger::del();
 
-	// misc
-	DeleteCriticalSection(&cs);
-
 	// finish
 	FreeLibraryAndExitThread(hMe, 0);
 }
@@ -264,8 +260,8 @@ void FLHookShutdown()
 	TerminateThread(hThreadResolver, 0);
 
 	// unload update hook
-	void* pAddress = (void*)((char*)hProcFL + ADDR_UPDATE);
-	WriteProcMem(pAddress, &fpOldUpdate, 4);
+	void* address = (void*)((char*)hProcFL + ADDR_UPDATE);
+	WriteProcMem(address, &fpOldUpdate, 4);
 
 	// unload hooks
 	UnloadHookExports();
@@ -273,10 +269,10 @@ void FLHookShutdown()
 	// If extended exception logging is in use, restore patched functions
 	if (HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
 	{
-		void* dwOrgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
-		if (dwOrgEntry)
+		void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
+		if (orgEntry)
 		{
-			DWORD offset = (char*)dwOrgEntry - (char*)ernel32;
+			DWORD offset = (char*)orgEntry - (char*)ernel32;
 			WriteProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
 		}
 	}

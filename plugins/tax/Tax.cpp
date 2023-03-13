@@ -41,8 +41,8 @@ namespace Plugins::Tax
 	void RemoveTax(const Tax& toRemove)
 	{
 		auto taxToRemove = std::ranges::find_if(
-		    global->lsttax, [&toRemove](const Tax& tax) { return tax.targetId == toRemove.targetId && tax.initiatorId == toRemove.initiatorId; });
-		global->lsttax.erase(taxToRemove);
+		    global->tax, [&toRemove](const Tax& tax) { return tax.targetId == toRemove.targetId && tax.initiatorId == toRemove.initiatorId; });
+		global->tax.erase(taxToRemove);
 	}
 
 	void UserCmdTax(ClientId& client, const std::wstring& param)
@@ -90,7 +90,7 @@ namespace Plugins::Tax
 			return;
 		}
 
-		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->lsttax)
+		for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : global->tax)
 		{
 			if (targetId == clientTarget)
 			{
@@ -103,7 +103,7 @@ namespace Plugins::Tax
 		tax.initiatorId = client;
 		tax.targetId = clientTarget;
 		tax.cash = taxValue;
-		global->lsttax.push_back(tax);
+		global->tax.push_back(tax);
 
 		std::wstring msg;
 
@@ -127,7 +127,7 @@ namespace Plugins::Tax
 
 	void UserCmdPay(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		for (auto& it : global->lsttax)
+		for (auto& it : global->tax)
 			if (it.targetId == client)
 			{
 				if (it.cash == 0)
@@ -169,7 +169,7 @@ namespace Plugins::Tax
 			if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time)) // f1
 			{
 				// tax
-				for (const auto& it : global->lsttax)
+				for (const auto& it : global->tax)
 				{
 					if (it.targetId == client)
 					{
@@ -188,7 +188,7 @@ namespace Plugins::Tax
 			else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
 			{
 				// tax
-				for (const auto& it : global->lsttax)
+				for (const auto& it : global->tax)
 				{
 					if (it.targetId == client)
 					{

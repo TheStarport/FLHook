@@ -88,12 +88,12 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgEncodeXML(const std::wstring& xmlString, char* buffer, uint size, uint& ret)
+	cpp::result<void, Error> FMsgEncodeXML(const std::wstring& xmring, char* buffer, uint size, uint& ret)
 	{
 		XMLReader rdr;
 		RenderDisplayList rdl;
 		std::wstring Msg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
-		Msg += xmlString;
+		Msg += xmring;
 		Msg += L"<PARA/><POP/></RDL>\x000A\x000A";
 		if (!rdr.read_buffer(rdl, (const char*)Msg.c_str(), Msg.length() * 2))
 			return cpp::fail(Error::WrongXmlSyntax);
@@ -125,30 +125,30 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xmlString)
+	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xmring)
 	{
 		char Buf[0xFFFF];
 		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
 		FMsgSendChat(client, Buf, iRet);
 		return {};
 	}
 
-	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xmlString)
+	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xmring)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		return FMsg(client, xmlString);
+		return FMsg(client, xmring);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& xmlString)
+	cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& xmring)
 	{
 		uint systemId = 0;
 		if (!system.index())
@@ -163,7 +163,7 @@ namespace Hk::Message
 		// encode xml std::string
 		char Buf[0xFFFF];
 		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
 		// for all players in system...
@@ -177,12 +177,12 @@ namespace Hk::Message
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgU(const std::wstring& xmlString)
+	cpp::result<void, Error> FMsgU(const std::wstring& xmring)
 	{
 		// encode xml std::string
 		char Buf[0xFFFF];
 		uint iRet;
-		const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet);
+		const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet);
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -206,7 +206,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (const auto& ignore : ClientInfo[toClientId].lstIgnore)
+			for (const auto& ignore : ClientInfo[toClientId].Ignore)
 			{
 				if (!HAS_FLAG(ignore, L"i") && !(ToLower(sender).compare(ToLower(ignore.character))))
 					return {}; // ignored
@@ -273,7 +273,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (auto const& ignore : ClientInfo[toClientId].lstIgnore)
+			for (auto const& ignore : ClientInfo[toClientId].Ignore)
 			{
 				if (HAS_FLAG(ignore, L"p"))
 					return {};
@@ -361,13 +361,13 @@ namespace Hk::Message
 	{
 		auto Sender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
 		// Format and send the message a player in this group.
-		auto lstMembers = Hk::Player::GetGroupMembers(Sender);
-		if (lstMembers.has_error())
+		auto Members = Hk::Player::GetGroupMembers(Sender);
+		if (Members.has_error())
 		{
 			return;
 		}
 
-		for (const auto& gm : lstMembers.value())
+		for (const auto& gm : Members.value())
 		{
 			FormatSendChat(gm.client, Sender, text, L"FF7BFF");
 		}

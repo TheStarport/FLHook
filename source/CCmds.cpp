@@ -572,7 +572,7 @@ void CCmds::CmdMoneyFixList()
 	{
 		ClientId client = playerDb->iOnlineId;
 
-		if (ClientInfo[client].lstMoneyFix.size())
+		if (ClientInfo[client].MoneyFix.size())
 			Print(std::format("id={}", client));
 	}
 

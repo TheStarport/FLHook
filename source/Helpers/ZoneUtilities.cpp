@@ -2,7 +2,6 @@
 
 namespace Hk::ZoneUtilities
 {
-
 	/** A map of system id to system info */
 	std::map<uint, SystemInfo> mapSystems;
 
@@ -492,7 +491,7 @@ namespace Hk::ZoneUtilities
 		std::multimap<uint, LootableZone, std::less<>> zones;
 		ReadUniverse(&zones);
 
-		Console::ConInfo("Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, Po, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
+		Console::ConInfo("Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
 		for (const auto& [_, zone] : zones)
 		{
 			Console::ConInfo(std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",

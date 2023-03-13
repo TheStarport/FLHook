@@ -130,15 +130,15 @@ namespace Plugins::MiningControl
 
 			// Get the ship cargo so that we can check ids, guns, etc.
 			int remainingHoldSize = 0;
-			const auto lstCargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
-			if (lstCargo.has_error())
+			const auto Cargo = Hk::Player::EnumCargo((const wchar_t*)Players.GetActiveCharacterName(client), remainingHoldSize);
+			if (Cargo.has_error())
 			{
 				return;
 			}
 			if (global->config->PluginDebug > 1)
 			{
-				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} lstCargo=", client, repGroupId, shipId));
-				for (auto& ci : lstCargo.value())
+				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
+				for (auto& ci : Cargo.value())
 				{
 					Console::ConInfo(std::format("{} ", ci.iArchId));
 				}
@@ -152,7 +152,7 @@ namespace Plugins::MiningControl
 			global->Clients[client].LootShip.clear();
 			for (const auto& [lootId, playerBonus] : global->PlayerBonus)
 			{
-				float bonus = GetBonus(repGroupId, shipId, lstCargo.value(), lootId);
+				float bonus = GetBonus(repGroupId, shipId, Cargo.value(), lootId);
 				if (bonus > 0.0f)
 				{
 					global->Clients[client].LootBonus[lootId] = bonus;
@@ -419,9 +419,9 @@ namespace Plugins::MiningControl
 
 						// If no mining bonus entry for this commodity is found,
 						// flag as no bonus
-						auto ammolst = cd.LootAmmo.find(lootId);
+						auto ammo = cd.LootAmmo.find(lootId);
 						bool miningBonusEligible = true;
-						if (ammolst == cd.LootAmmo.end())
+						if (ammo == cd.LootAmmo.end())
 						{
 							miningBonusEligible = false;
 							if (cd.Debug)
@@ -429,7 +429,7 @@ namespace Plugins::MiningControl
 						}
 						// If this minable commodity was not hit by the right type
 						// of gun, flag as no bonus
-						else if (std::ranges::find(ammolst->second, ci.iProjectileArchId) == ammolst->second.end())
+						else if (std::ranges::find(ammo->second, ci.iProjectileArchId) == ammo->second.end())
 						{
 							miningBonusEligible = false;
 							if (cd.Debug)
