@@ -82,7 +82,7 @@ namespace Plugins::ConData
 		if (CoreGlobals::c()->serverLoadInMs > global->config->kickThreshold)
 		{
 			// for all players
-			struct PlayerData* playerData = nullptr;
+			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
 				ClientId client = playerData->iOnlineId;
@@ -144,7 +144,7 @@ namespace Plugins::ConData
 	void TimerUpdatePingData()
 	{
 		// for all players
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
 			ClientId client = playerData->iOnlineId;
@@ -258,7 +258,7 @@ namespace Plugins::ConData
 	/** @ingroup Condata
 	 * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
 	 */
-	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
+	void SPObjUpdate(SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		// lag detection
 		if (const auto ins = Hk::Client::GetInspect(client); ins.has_error())
@@ -424,7 +424,7 @@ namespace Plugins::ConData
 	{
 		if (command == L"getstats")
 		{
-			struct PlayerData* playerData = nullptr;
+			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
 				ClientId client = playerData->iOnlineId;
@@ -491,7 +491,7 @@ namespace Plugins::ConData
 		global->config = std::make_unique<Config>(config);
 
 		// check for logged in players and reset their connection data
-		struct PlayerData* playerData = nullptr;
+		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
 			if (ClientId client = playerData->iOnlineId; client < 1 || client > MaxClientId)

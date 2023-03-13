@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 
-class Logger : public Singleton<Logger>
+class Logger final : public Singleton<Logger>
 {
 	HANDLE consoleInput;
 	HANDLE consoleOutput;

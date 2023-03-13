@@ -39,7 +39,7 @@ namespace Plugins::SoundManager
 		global->config = std::make_unique<Config>(std::move(conf));
 	}
 
-	void Login([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
+	void Login([[maybe_unused]] SLoginInfo const& li, ClientId& client)
 	{
 		// Player sound when player logs in
 

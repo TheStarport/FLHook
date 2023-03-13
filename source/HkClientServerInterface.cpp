@@ -13,20 +13,20 @@ void IClientImpl__Startup__Inner(uint, uint)
 	{
 		BaseInfo bi;
 		bi.bDestroyed = false;
-		bi.iObjectId = base->lSpaceObjId;
-		auto BaseName = "";
+		bi.iObjectId = base->spaceObjId;
+		auto baseName = "";
 		__asm {
 			pushad
 			mov ecx, [base]
 			mov eax, [base]
 			mov eax, [eax]
 			call [eax+4]
-			mov [BaseName], eax
+			mov [baseName], eax
 			popad
 			}
 
-		bi.scBasename = BaseName;
-		bi.baseId = CreateID(BaseName);
+		bi.baseName = baseName;
+		bi.baseId = CreateID(baseName);
 		CoreGlobals::i()->allBases.push_back(bi);
 		pub::System::LoadSystem(base->systemId);
 
@@ -104,21 +104,21 @@ namespace IServerImplHook
 				const auto* config = FLHookConfig::i();
 
 				// Group join/leave commands are not parsed
-				if (cidTo.iId == SpecialChatIds::GROUP_EVENT)
+				if (cidTo.id == SpecialChatIds::GROUP_EVENT)
 					return true;
 
 				// Anything outside normal bounds is aborted to prevent crashes
-				if (cidTo.iId > SpecialChatIds::GROUP_EVENT || cidTo.iId > SpecialChatIds::PLAYER_MAX && cidTo.iId<SpecialChatIds::SPECIAL_BASE)
+			    if (cidTo.id > SpecialChatIds::GROUP_EVENT || cidTo.id > SpecialChatIds::PLAYER_MAX && cidTo.id < SpecialChatIds::SPECIAL_BASE)
 				return false;
 
 			
-					if (cidFrom.iId == 0)
+					if (cidFrom.id == 0)
 					{
 						chatData->characterName = L"CONSOLE";
 					}
-					else if (Hk::Client::IsValidClientID(cidFrom.iId))
+			        else if (Hk::Client::IsValidClientID(cidFrom.id))
 					{
-						chatData->characterName = Hk::Client::GetCharacterNameByID(cidFrom.iId).value();
+				        chatData->characterName = Hk::Client::GetCharacterNameByID(cidFrom.id).value();
 					}
 					else
 					{
@@ -135,9 +135,9 @@ namespace IServerImplHook
 
 				// if this is a message in system chat then convert it to local unless
 				// explicitly overriden by the player using /s.
-				if (config->messages.defaultLocalChat && cidTo.iId == SpecialChatIds::SYSTEM)
+			    if (config->messages.defaultLocalChat && cidTo.id == SpecialChatIds::SYSTEM)
 				{
-					cidTo.iId = SpecialChatIds::LOCAL;
+				        cidTo.id = SpecialChatIds::LOCAL;
 				}
 
 				// fix flserver commands and change chat to id so that event logging is
@@ -148,25 +148,25 @@ namespace IServerImplHook
 					if (buffer[1] == 'g')
 					{
 						foundCommand = true;
-						cidTo.iId = SpecialChatIds::GROUP;
+					cidTo.id = SpecialChatIds::GROUP;
 					}
 					else if (buffer[1] == 's')
 					{
 						foundCommand = true;
-						cidTo.iId = SpecialChatIds::SYSTEM;
+					cidTo.id = SpecialChatIds::SYSTEM;
 					}
 					else if (buffer[1] == 'l')
 					{
 						foundCommand = true;
-						cidTo.iId = SpecialChatIds::LOCAL;
+					cidTo.id = SpecialChatIds::LOCAL;
 					}
-					else if (UserCmd_Process(cidFrom.iId, buffer))
+				    else if (UserCmd_Process(cidFrom.id, buffer))
 					{
 						if (FLHookConfig::c()->messages.echoCommands)
 						{
 							const std::wstring XML =
 								L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
-							Hk::Message::FMsg(cidFrom.iId, XML);
+						Hk::Message::FMsg(cidFrom.id, XML);
 						}
 
 						return false;
@@ -174,7 +174,7 @@ namespace IServerImplHook
 				}
 				else if (buffer[0] == '.')
 				{
-					const CAccount* acc = Players.FindAccountFromClientID(cidFrom.iId);
+				    const CAccount* acc = Players.FindAccountFromClientID(cidFrom.id);
 					const std::wstring accDirname = Hk::Client::GetAccountDirName(acc);
 					const std::string adminFile = CoreGlobals::c()->accPath + wstos(accDirname) + "\\flhookadmin.ini";
 					WIN32_FIND_DATA fd;
@@ -185,13 +185,13 @@ namespace IServerImplHook
 						{
 							const std::wstring XML =
 								L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
-							Hk::Message::FMsg(cidFrom.iId, XML);
+						Hk::Message::FMsg(cidFrom.id, XML);
 						}
 
 						FindClose(hFind);
 						g_Admin.ReadRights(adminFile);
-						g_Admin.client = cidFrom.iId;
-						g_Admin.AdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.iId));
+					    g_Admin.client = cidFrom.id;
+					    g_Admin.AdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.id));
 						g_Admin.ExecuteCommandString(buffer.data() + 1);
 						return false;
 					}
@@ -204,7 +204,7 @@ namespace IServerImplHook
 					{
 						const std::wstring XML =
 							L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
-						Hk::Message::FMsg(cidFrom.iId, XML);
+					    Hk::Message::FMsg(cidFrom.id, XML);
 					}
 
 					if (config->messages.suppressInvalidCommands && !foundCommand)
@@ -272,7 +272,7 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 			{
-				const auto isClient = Hk::Client::GetClientIdByShip(mci.dwTargetShip);
+				const auto isClient = Hk::Client::GetClientIdByShip(mci.targetShip);
 				if (isClient.has_value())
 					CoreGlobals::i()->damageToClientId = isClient.value();
 			}
@@ -282,8 +282,8 @@ namespace IServerImplHook
 	bool SPObjUpdate__Inner(const SSPObjUpdateInfo& ui, ClientId client)
 	{
 		// NAN check
-		if (isnan(ui.vPos.x) || isnan(ui.vPos.y) || isnan(ui.vPos.z) || isnan(ui.vDir.w) || isnan(ui.vDir.x) || isnan(ui.vDir.y) ||
-			isnan(ui.vDir.z) || isnan(ui.fThrottle))
+		if (isnan(ui.pos.x) || isnan(ui.pos.y) || isnan(ui.pos.z) || isnan(ui.dir.w) || isnan(ui.dir.x) || isnan(ui.dir.y) ||
+			isnan(ui.dir.z) || isnan(ui.throttle))
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("NAN found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
@@ -291,7 +291,7 @@ namespace IServerImplHook
 		}
 
 		// Denormalized check
-		if (const float n = ui.vDir.w * ui.vDir.w + ui.vDir.x * ui.vDir.x + ui.vDir.y * ui.vDir.y + ui.vDir.z * ui.vDir.z; n > 1.21f || n < 0.81f)
+		if (const float n = ui.dir.w * ui.dir.w + ui.dir.x * ui.dir.x + ui.dir.y * ui.dir.y + ui.dir.z * ui.dir.z; n > 1.21f || n < 0.81f)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Non-normalized quaternion found in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
@@ -299,7 +299,7 @@ namespace IServerImplHook
 		}
 
 		// Far check
-		if (abs(ui.vPos.x) > 1e7f || abs(ui.vPos.y) > 1e7f || abs(ui.vPos.z) > 1e7f)
+		if (abs(ui.pos.x) > 1e7f || abs(ui.pos.y) > 1e7f || abs(ui.pos.z) > 1e7f)
 		{
 			AddLog(LogType::Normal, LogLevel::Err, std::format("Ship position out of bounds in SPObjUpdate for id={}", client));
 			Hk::Player::Kick(client);
@@ -374,7 +374,7 @@ namespace IServerImplHook
 					}
 					for (const auto& cargo : Cargo.value())
 					{
-						if (cargo.iCount < 0)
+						if (cargo.count < 0)
 						{
 							AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
 
@@ -499,15 +499,15 @@ namespace IServerImplHook
 
 				for (auto& cargo : Cargo.value())
 				{
-					if (cargo.iId == aq.sId)
+				    if (cargo.id == aq.id)
 					{
-						Archetype::Equipment* eq = Archetype::GetEquipment(cargo.iArchId);
+						Archetype::Equipment* eq = Archetype::GetEquipment(cargo.archId);
 						const EquipmentType eqType = Hk::Client::GetEqType(eq);
 
 						if (eqType == ET_ENGINE)
 						{
-							ClientInfo[client].bEngineKilled = !aq.bActivate;
-							if (!aq.bActivate)
+							ClientInfo[client].bEngineKilled = !aq.activate;
+							if (!aq.activate)
 								ClientInfo[client].bCruiseActivated = false; // enginekill enabled
 						}
 					}
@@ -520,7 +520,7 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 			{
-				ClientInfo[client].bCruiseActivated = ac.bActivate;
+				ClientInfo[client].bCruiseActivated = ac.activate;
 			}
 		CATCH_HOOK({})
 	}
@@ -529,7 +529,7 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 			{
-				ClientInfo[client].bThrusterActivated = at.bActivate;
+				ClientInfo[client].bThrusterActivated = at.activate;
 			}
 		CATCH_HOOK({})
 	}
@@ -545,13 +545,13 @@ namespace IServerImplHook
 				bool legalSell = false;
 				for (const auto& cargo : Cargo.value())
 				{
-					if (cargo.iArchId == gsi.iArchId)
+					if (cargo.archId == gsi.archId)
 					{
 						legalSell = true;
-						if (abs(gsi.iCount) > cargo.iCount)
+						if (abs(gsi.count) > cargo.count)
 						{
 							const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
-							AddCheaterLog(charName, std::format("Sold more good than possible item={} count={}", gsi.iArchId, gsi.iCount));
+							AddCheaterLog(charName, std::format("Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
 							Hk::Message::MsgU(std::format(L"Possible cheating detected ({})", charName));
 							Hk::Player::Ban(client, true);
@@ -564,7 +564,7 @@ namespace IServerImplHook
 				if (!legalSell)
 				{
 					const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
-					AddCheaterLog(charName, std::format("Sold good player does not have (buggy test), item={}", gsi.iArchId));
+					AddCheaterLog(charName, std::format("Sold good player does not have (buggy test), item={}", gsi.archId));
 
 					return false;
 				}
@@ -707,7 +707,7 @@ namespace IServerImplHook
 				fclose(file);
 
 				// Ban the player
-				st6::wstring fr(static_cast<ushort*>(acc->wAccId));
+				st6::wstring fr(reinterpret_cast<ushort*>(acc->accId));
 				Players.BanAccount(fr, true);
 
 				// Kick them
@@ -733,7 +733,7 @@ namespace IServerImplHook
 				// Kick the player if the account Id doesn't exist. This is caused
 				// by a duplicate log on.
 				CAccount* acc = Players.FindAccountFromClientID(client);
-				if (acc && !acc->wAccId)
+				if (acc && !acc->accId)
 				{
 					acc->ForceLogout();
 					return false;
@@ -809,8 +809,8 @@ namespace IServerImplHook
 			wstos(std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
 				Hk::Client::GetCharacterNameByID(client).value(),
 				system,
-				gtl.iTradelaneSpaceObj1,
-				gtl.iTradelaneSpaceObj2)));
+				gtl.tradelaneSpaceObj1,
+				gtl.tradelaneSpaceObj2)));
 		return true;
 	}
 
@@ -849,7 +849,7 @@ namespace IServerImplHook
 		// Patch to set maximum number of players to connect. This is normally
 		// less than MaxClientId
 		char* address = (reinterpret_cast<char*>(server) + ADDR_SRV_PLAYERDBMAXPLAYERS);
-		WriteProcMem(address, reinterpret_cast<const void*>(&si.iMaxPlayers), sizeof(g_MaxPlayers));
+		WriteProcMem(address, &si.maxPlayers, sizeof(g_MaxPlayers));
 
 		// read base market data from ini
 		LoadBaseMarket();
@@ -1223,7 +1223,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(ClientId client, float status)
+bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float status)
 {
 	AddLog(LogType::Normal,
 		LogLevel::Debug,
@@ -1235,7 +1235,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(ClientId client, float status)
 	{
 		CALL_CLIENT_PREAMBLE
 			{
-				retVal = Send_FLPACKET_SERVER_SETHULATUS(client, status);
+			    retVal = Send_FLPACKET_SERVER_SETHULLSTATUS(client, status);
 			}
 			CALL_CLIENT_POSTAMBLE;
 	}
@@ -2496,20 +2496,20 @@ void IClientImpl::unknown_86(ClientId client, uint _genArg1, uint _genArg2, uint
 		CALL_CLIENT_POSTAMBLE;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint iDunno1, uint iDunno2)
+bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint idunno1, uint idunno2)
 {
 	AddLog(LogType::Normal,
 		LogLevel::Debug,
 		wstos(std::format(
-			L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint iDunno1 = {}\n\tuint iDunno2 = {}\n)",
+			L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint idunno1 = {}\n\tuint idunno2 = {}\n)",
 			cargoUpdate.client,
-			iDunno1,
-			iDunno2)));
+			idunno1,
+			idunno2)));
 
 	bool retVal;
 	CALL_CLIENT_PREAMBLE
 		{
-			retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, iDunno1, iDunno2);
+			retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, idunno1, idunno2);
 		}
 		CALL_CLIENT_POSTAMBLE;
 
@@ -3607,7 +3607,7 @@ namespace IServerImplHook
 			LogLevel::Debug,
 			wstos(std::format(L"CharacterSelect(\n\tCHARACTER_ID const& cid = {}\n\tClientId client = {}\n)", ToLogString(cid), client)));
 
-		std::string charName = cid.CharFilename;
+		std::string charName = cid.charFilename;
 		const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect, charName, client);
 
 		CHECK_FOR_DISCONNECT;
@@ -3704,7 +3704,7 @@ namespace IServerImplHook
 		{
 			CALL_SERVER_PREAMBLE
 				{
-					Server.ReqHulatus(status, client);
+					Server.ReqHullStatus(status, client);
 				}
 			CALL_SERVER_POSTAMBLE(true,);
 		}
@@ -4955,9 +4955,9 @@ namespace IServerImplHook
 		AddLog(
 			LogType::Normal,
 			LogLevel::Debug,
-			std::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.iId, size, cidTo.iId));
+			std::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.iId, size, rdlReader, cidTo.iId, _genArg1);
+		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, _genArg1);
 
 		const bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
 		if (!innerCheck)
@@ -4973,7 +4973,7 @@ namespace IServerImplHook
 		}
 		chatData->inSubmitChat = false;
 
-		CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.iId, size, rdlReader, cidTo.iId, _genArg1);
+		CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, _genArg1);
 	}
 } // namespace IServerImplHook
 

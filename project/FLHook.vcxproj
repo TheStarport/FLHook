@@ -193,6 +193,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Debug.cpp" />
     <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
+    <ClCompile Include="..\source\Features\Logger.cpp" />
     <ClCompile Include="..\source\Features\Logging.cpp" />
     <ClCompile Include="..\source\Features\Mail.cpp" />
     <ClCompile Include="..\source\Features\MessageHandler.cpp" />

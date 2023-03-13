@@ -1,15 +1,15 @@
 ﻿#include "Global.hpp"
 
-#define RIGHT_CHECK(a)               \
-	if (!(this->rights & a))         \
-	{                                \
+#define RIGHT_CHECK(a)              \
+	if (!(this->rights & a))        \
+	{                               \
 		Print("ERR No permission"); \
-		return;                      \
+		return;                     \
 	}
 #define RIGHT_CHECK_SUPERADMIN()             \
 	if (!(this->rights == RIGHT_SUPERADMIN)) \
 	{                                        \
-		Print("ERR No permission");         \
+		Print("ERR No permission");          \
 		return;                              \
 	}
 
@@ -17,8 +17,6 @@
 
 void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_CASH);
-
 	const auto res = Hk::Player::GetCash(player);
 	if (res.has_error())
 	{
@@ -33,8 +31,6 @@ void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmount)
 {
-	RIGHT_CHECK(RIGHT_CASH);
-
 	const auto res = Hk::Player::GetCash(player);
 	if (res.has_error())
 	{
@@ -50,8 +46,6 @@ void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmo
 
 void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, uint amount)
 {
-	RIGHT_CHECK(RIGHT_CASH);
-
 	if (const auto res = Hk::Player::AddCash(player, amount); res.has_error())
 	{
 		PrintError(res.error());
@@ -65,8 +59,6 @@ void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, uint amou
 
 void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& reason)
 {
-	RIGHT_CHECK(RIGHT_KICKBAN);
-
 	if (const auto res = Hk::Player::KickReason(player, reason); res.has_error())
 	{
 		PrintError(res.error());
@@ -80,8 +72,6 @@ void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::w
 
 void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_KICKBAN);
-
 	if (const auto res = Hk::Player::Ban(player, true); res.has_error())
 	{
 		PrintError(res.error());
@@ -102,8 +92,6 @@ void CCmds::CmdTempBan(const std::variant<uint, std::wstring>& player, uint dura
 		return;
 	}
 
-	RIGHT_CHECK(RIGHT_KICKBAN);
-
 	if (const auto res = Hk::Player::TempBan(player, duration); res.has_error())
 	{
 		PrintError(res.error());
@@ -118,8 +106,6 @@ void CCmds::CmdTempBan(const std::variant<uint, std::wstring>& player, uint dura
 
 void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_KICKBAN);
-
 	if (const auto res = Hk::Player::Ban(player, false); res.has_error())
 	{
 		PrintError(res.error());
@@ -133,8 +119,6 @@ void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdGetClientID(const std::wstring& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	auto client = Hk::Client::GetClientIdFromCharName(player);
 	if (client.has_error())
 	{
@@ -149,8 +133,6 @@ void CCmds::CmdGetClientID(const std::wstring& player)
 
 void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_BEAMKILL);
-
 	if (const auto res = Hk::Player::Kill(player); res.has_error())
 	{
 		PrintError(res.error());
@@ -164,8 +146,6 @@ void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_REPUTATION);
-
 	if (const auto res = Hk::Player::ResetRep(player); res.has_error())
 	{
 		PrintError(res.error());
@@ -179,8 +159,6 @@ void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup, float value)
 {
-	RIGHT_CHECK(RIGHT_REPUTATION);
-
 	if (const auto res = Hk::Player::SetRep(player, repGroup, value); res.has_error())
 	{
 		PrintError(res.error());
@@ -194,8 +172,6 @@ void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std:
 
 void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup)
 {
-	RIGHT_CHECK(RIGHT_REPUTATION);
-
 	const auto res = Hk::Player::GetRep(player, repGroup);
 	if (res.has_error())
 	{
@@ -211,8 +187,6 @@ void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std:
 
 void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& text)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	if (const auto res = Hk::Message::Msg(player, text); res.has_error())
 	{
 		PrintError(res.error());
@@ -226,8 +200,6 @@ void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::ws
 
 void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	if (const auto res = Hk::Message::MsgS(system, text); res.has_error())
 	{
 		PrintError(res.error());
@@ -241,8 +213,6 @@ void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 
 void CCmds::CmdMsgU(const std::wstring& text)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	if (const auto res = Hk::Message::MsgU(text); res.has_error())
 	{
 		PrintError(res.error());
@@ -256,8 +226,6 @@ void CCmds::CmdMsgU(const std::wstring& text)
 
 void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xml)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	if (const auto res = Hk::Message::FMsg(player, xml); res.has_error())
 	{
 		PrintError(res.error());
@@ -271,8 +239,6 @@ void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::w
 
 void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	uint systemId;
 	pub::GetSystemID(systemId, wstos(system).c_str());
 	if (!systemId)
@@ -294,8 +260,6 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 
 void CCmds::CmdFMsgU(const std::wstring& xml)
 {
-	RIGHT_CHECK(RIGHT_MSG);
-
 	if (const auto res = Hk::Message::FMsgU(xml); res.has_error())
 	{
 		PrintError(res.error());
@@ -309,8 +273,6 @@ void CCmds::CmdFMsgU(const std::wstring& xml)
 
 void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_CARGO);
-
 	int holdSize = 0;
 	auto cargo = Hk::Player::EnumCargo(player, holdSize);
 	if (cargo.has_error())
@@ -321,8 +283,8 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 	Print(std::format("remainingholdsize={}", holdSize));
 	for (auto& item : cargo.value())
 	{
-		if (!item.bMounted)
-			Print(std::format("id={} archid={} count={} mission={}", item.iId, item.iArchId, item.iCount, item.bMission ? 1 : 0));
+		if (!item.mounted)
+			Print(std::format("id={} archid={} count={} mission={}", item.id, item.archId, item.count, item.mission ? 1 : 0));
 	}
 
 	Print("OK");
@@ -332,8 +294,6 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort id, uint count)
 {
-	RIGHT_CHECK(RIGHT_CARGO);
-
 	if (const auto res = Hk::Player::RemoveCargo(player, id, count); res.has_error())
 	{
 		PrintError(res.error());
@@ -347,8 +307,6 @@ void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushor
 
 void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, uint count, bool mission)
 {
-	RIGHT_CHECK(RIGHT_CARGO);
-
 	if (const auto res = Hk::Player::AddCargo(player, good, count, mission); res.has_error())
 	{
 		PrintError(res.error());
@@ -362,8 +320,6 @@ void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const st
 
 void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& newName)
 {
-	RIGHT_CHECK(RIGHT_CHARACTERS);
-
 	if (const auto res = Hk::Player::Rename(player, newName, false); res.has_error())
 	{
 		PrintError(res.error());
@@ -377,8 +333,6 @@ void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std:
 
 void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_CHARACTERS);
-
 	if (const auto res = Hk::Player::Rename(player, L"", true); res.has_error())
 	{
 		PrintError(res.error());
@@ -392,8 +346,6 @@ void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_CHARACTERS);
-
 	const auto res = Hk::Player::ReadCharFile(player);
 	if (res.has_error())
 	{
@@ -413,8 +365,6 @@ void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& data)
 {
-	RIGHT_CHECK(RIGHT_CHARACTERS);
-
 	if (const auto res = Hk::Player::WriteCharFile(player, data); res.has_error())
 	{
 		PrintError(res.error());
@@ -428,22 +378,18 @@ void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, con
 
 void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}",
-		pi.character,
-		pi.client,
-		pi.IP,
-		pi.Hostname,
-		pi.connectionInfo.dwRoundTripLatencyMS,
-		pi.Base,
-		pi.System)));
+	    pi.character,
+	    pi.client,
+	    pi.IP,
+	    pi.Hostname,
+	    pi.connectionInfo.dwRoundTripLatencyMS,
+	    pi.Base,
+	    pi.System)));
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto res = Hk::Admin::GetPlayerInfo(player, false);
 	if (res.has_error())
 	{
@@ -457,8 +403,6 @@ void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdGetPlayers()
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	for (auto& p : Hk::Admin::GetPlayers())
 		PrintPlayerInfo(p);
 
@@ -469,22 +413,18 @@ void CCmds::CmdGetPlayers()
 
 void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n",
-		pi.character,
-		pi.client,
-		pi.IP,
-		pi.Hostname,
-		pi.connectionInfo.dwRoundTripLatencyMS,
-		pi.Base,
-		pi.System)));
+	    pi.character,
+	    pi.client,
+	    pi.IP,
+	    pi.Hostname,
+	    pi.connectionInfo.dwRoundTripLatencyMS,
+	    pi.Base,
+	    pi.System)));
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto res = Hk::Admin::GetPlayerInfo(player, false);
 	if (res.has_error())
 	{
@@ -497,8 +437,6 @@ void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdXGetPlayers()
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	for (const auto& p : Hk::Admin::GetPlayers())
 		XPrintPlayerInfo(p);
 
@@ -509,8 +447,6 @@ void CCmds::CmdXGetPlayers()
 
 void CCmds::CmdGetPlayerIds()
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	for (auto& p : Hk::Admin::GetPlayers())
 	{
 		Print(std::format("{} = {} | ", wstos(p.character), p.client));
@@ -523,8 +459,6 @@ void CCmds::CmdGetPlayerIds()
 
 void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
 	if (acc.has_error())
 	{
@@ -541,8 +475,6 @@ void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto res = Hk::Client::GetCharFileName(player);
 	if (res.has_error())
 	{
@@ -557,8 +489,6 @@ void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdIsOnServer(const std::wstring& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto res = Hk::Client::GetAccountByCharName(player);
 	if (res.has_error())
 	{
@@ -577,12 +507,10 @@ void CCmds::CmdIsOnServer(const std::wstring& player)
 
 void CCmds::CmdMoneyFixList()
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	PlayerData* playerDb = nullptr;
 	while ((playerDb = Players.traverse_active(playerDb)))
 	{
-		ClientId client = playerDb->iOnlineId;
+		ClientId client = playerDb->onlineId;
 
 		if (ClientInfo[client].MoneyFix.size())
 			Print(std::format("id={}", client));
@@ -595,8 +523,6 @@ void CCmds::CmdMoneyFixList()
 
 void CCmds::CmdServerInfo()
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	// calculate uptime
 	FILETIME ftCreation;
 	FILETIME ft;
@@ -620,18 +546,13 @@ void CCmds::CmdServerInfo()
 
 	// print
 	Print(std::format(
-		"serverload={} npcspawn={} uptime={}\nOK\n",
-		CoreGlobals::c()->serverLoadInMs,
-		CoreGlobals::c()->disableNpcs ? "disabled" : "enabled",
-		time));
+	    "serverload={} npcspawn={} uptime={}\nOK\n", CoreGlobals::c()->serverLoadInMs, CoreGlobals::c()->disableNpcs ? "disabled" : "enabled", time));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	const auto res = Hk::Player::GetGroupMembers(player);
 	if (res.has_error())
 	{
@@ -649,8 +570,6 @@ void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_OTHER);
-
 	if (const auto res = Hk::Player::SaveChar(player); res.has_error())
 	{
 		PrintError(res.error());
@@ -664,8 +583,6 @@ void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK(RIGHT_SETTINGS);
-
 	const auto res = Hk::Player::GetReservedSlot(player);
 	if (res.has_error())
 	{
@@ -681,8 +598,6 @@ void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int reservedSlot)
 {
-	RIGHT_CHECK(RIGHT_SETTINGS);
-
 	if (const auto res = Hk::Player::SetReservedSlot(player, reservedSlot ? true : false); res.has_error())
 	{
 		PrintError(res.error());
@@ -696,8 +611,6 @@ void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, i
 
 void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& playerRights)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
 	if (const auto res = Hk::Admin::SetAdmin(player, playerRights); res.has_error())
 	{
 		PrintError(res.error());
@@ -711,8 +624,6 @@ void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const st
 
 void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
 	const auto res = Hk::Admin::GetAdmin(player);
 	if (res.has_error())
 	{
@@ -727,8 +638,6 @@ void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
 	if (const auto res = Hk::Admin::DelAdmin(player); res.has_error())
 	{
 		PrintError(res.error());
@@ -742,8 +651,6 @@ void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdLoadPlugins()
 {
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
 	PluginManager::i()->loadAll(false, this);
 	Print("OK");
 }
@@ -752,8 +659,6 @@ void CCmds::CmdLoadPlugins()
 
 void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 {
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
 	PluginManager::i()->load(Plugin, this, false);
 	Print("OK");
 }
@@ -762,8 +667,6 @@ void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 
 void CCmds::CmdReloadPlugin(const std::wstring& Plugin)
 {
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
 	const auto unloadedPlugin = PluginManager::i()->unload(wstos(Plugin));
 	if (unloadedPlugin.has_error())
 	{
@@ -779,8 +682,6 @@ void CCmds::CmdReloadPlugin(const std::wstring& Plugin)
 
 void CCmds::CmdListPlugins()
 {
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
 	for (const auto& data : PluginManager::ir())
 		Print(std::format("{} ({}) - {}", data->name, data->shortName, !data->paused ? "running" : "paused"));
 
@@ -791,8 +692,6 @@ void CCmds::CmdListPlugins()
 
 void CCmds::CmdUnloadPlugin(const std::wstring& Plugin)
 {
-	RIGHT_CHECK(RIGHT_PLUGINS);
-
 	if (const auto res = PluginManager::i()->unload(wstos(Plugin)); res.has_error())
 	{
 		PrintError(res.error());
@@ -804,16 +703,14 @@ void CCmds::CmdUnloadPlugin(const std::wstring& Plugin)
 
 void CCmds::CmdShutdown()
 {
-	RIGHT_CHECK(RIGHT_SUPERADMIN);
-
 	Print("Shutting down Server");
 
 	// Kick everyone first and force a save
 	PlayerData* playerDb = nullptr;
 	while ((playerDb = Players.traverse_active(playerDb)))
 	{
-		Hk::Player::SaveChar(playerDb->iOnlineId);
-		Hk::Player::Kick(playerDb->iOnlineId);
+		Hk::Player::SaveChar(playerDb->onlineId);
+		Hk::Player::Kick(playerDb->onlineId);
 	}
 
 	PostMessageA(GetFLServerHwnd(), WM_CLOSE, 0, 0);
@@ -824,10 +721,7 @@ void CCmds::CmdShutdown()
 /** Chase a player. Only works in system as you'd need a client hook to do across system */
 void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
-	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-		res.has_error())
+	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -854,8 +748,6 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
  * selection algorithm */
 void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& targetBaseName)
 {
-	RIGHT_CHECK(RIGHT_BEAMKILL);
-
 	try
 	{
 		if (Trim(targetBaseName).empty())
@@ -890,10 +782,7 @@ void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::w
 /** Pull a player to you. Only works in system as you'd need a client hook to move their system **/
 void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstring>& player)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
-	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-		res.has_error())
+	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -919,8 +808,6 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 /** Move to location */
 void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 {
-	RIGHT_CHECK_SUPERADMIN();
-
 	const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
 	if (res.has_error())
 	{
@@ -928,8 +815,8 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 		return;
 	}
 
-	Vector pos{};
-	Matrix rot{};
+	Vector pos {};
+	Matrix rot {};
 	pub::SpaceObj::GetLocation(res.value().ship, pos, rot);
 	pos.x = x;
 	pos.y = y;
@@ -1344,38 +1231,7 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 
 void CCmds::SetRightsByString(const std::string& Rights)
 {
-	rights = RIGHT_NOTHING;
-	std::string RightStr = ToLower(scRights);
-	if (scRightStr.find("superadmin") != -1)
-		rights |= RIGHT_SUPERADMIN;
-	if (scRightStr.find("cash") != -1)
-		rights |= RIGHT_CASH;
-	if (scRightStr.find("kickban") != -1)
-		rights |= RIGHT_KICKBAN;
-	if (scRightStr.find("beamkill") != -1)
-		rights |= RIGHT_BEAMKILL;
-	if (scRightStr.find("msg") != -1)
-		rights |= RIGHT_MSG;
-	if (scRightStr.find("other") != -1)
-		rights |= RIGHT_OTHER;
-	if (scRightStr.find("cargo") != -1)
-		rights |= RIGHT_CARGO;
-	if (scRightStr.find("characters") != -1)
-		rights |= RIGHT_CHARACTERS;
-	if (scRightStr.find("settings") != -1)
-		rights |= RIGHT_SETTINGS;
-	if (scRightStr.find("reputation") != -1)
-		rights |= RIGHT_REPUTATION;
-	if (scRightStr.find("plugins") != -1)
-		rights |= RIGHT_PLUGINS;
-	if (scRightStr.find("eventmode") != -1)
-		rights |= RIGHT_EVENTMODE;
-	if (scRightStr.find("special1") != -1)
-		rights |= RIGHT_SPECIAL1;
-	if (scRightStr.find("special2") != -1)
-		rights |= RIGHT_SPECIAL2;
-	if (scRightStr.find("special3") != -1)
-		rights |= RIGHT_SPECIAL3;
+	// TODO: Implement admin rights
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

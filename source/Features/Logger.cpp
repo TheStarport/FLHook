@@ -1,3 +1,4 @@
+#include <functional>
 #include <Features/Logger.hpp>
 #include <Windows.h>
 #include <string>
@@ -59,9 +60,9 @@ Logger::Logger()
                                                                        )";
 	welcomeText += "\n\n";
 	DWORD _;
-	WriteConsole(consoleOutput, welcomeText.c_str(), static_cast<DWORD>(welcomeText.length()), &_, nullptr);
+	WriteConsole(consoleOutput, welcomeText.c_str(), welcomeText.length(), &_, nullptr);
 
-	consoleThread = std::jthread(&Logger::GetConsoleInput, this);
+	consoleThread = std::jthread(std::bind_front(&Logger::GetConsoleInput, this));
 }
 
 Logger::~Logger()

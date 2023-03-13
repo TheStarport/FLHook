@@ -58,7 +58,7 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on Disconnect. Calls KillBan.
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
 		KillBan(client);
 	}

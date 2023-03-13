@@ -1,5 +1,5 @@
 ﻿/**
- * @date Unknown
+ * @date unknown
  * @author M0tah (Ported by Raikkonen)
  * @defgroup Mark Mark
  * @brief
@@ -167,7 +167,7 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on Disconnect. CallsClearClientMark.
 	 */
-	void DisConnect(ClientId& client, enum EFLConnection& p2)
+	void DisConnect(ClientId& client, EFLConnection& p2)
 	{
 		ClearClientMark(client);
 	}

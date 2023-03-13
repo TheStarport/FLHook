@@ -37,7 +37,7 @@ namespace Plugins::NPCSpinProtection
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void SPObjCollision(struct SSPObjCollisionInfo const& ci, ClientId& client)
+	void SPObjCollision(SSPObjCollisionInfo const& ci, ClientId& client)
 	{
 		// If spin protection is off, do nothing.
 		if (ci.iColliderObjectId == 0 || global->config->spinProtectionMass == -1.0f)

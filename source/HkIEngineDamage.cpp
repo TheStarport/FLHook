@@ -85,7 +85,7 @@ the g_DmgTo variable...
 **************************************************************************************************************/
 
 void __stdcall AddDamageEntry(
-	DamageList* dmgList, unsigned short subObjId, float hitPts, enum DamageEntry::SubObjFate fate)
+	DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate)
 {
 	if (CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate))
 		return;
@@ -133,7 +133,7 @@ void __stdcall AddDamageEntry(
 				uint type;
 				pub::SpaceObj::GetType(g_DmgToSpaceId, type);
 				const auto clientKiller = Hk::Client::GetClientIdByShip(dmgList->get_inflictor_id());
-				if (clientKiller.has_value() && type & (OBJ_DOCKING_RING | OBJ_STATION | OBJ_WEAPONS_PLATFORM))
+				if (clientKiller.has_value() && type & static_cast<uint>(ObjectType::DockingRing | ObjectType::Station | ObjectType::WeaponPlatform))
 					BaseDestroyed(g_DmgToSpaceId, clientKiller.value());
 			}
 

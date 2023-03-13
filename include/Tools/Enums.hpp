@@ -56,7 +56,7 @@ enum class Error
 	PluginNotFound,
 	InvalidIdType,
 	InvalidSpaceObjId,
-	UnknownError = 1000,
+	unknownError = 1000,
 };
 
 enum DIEMSGTYPE
@@ -109,26 +109,6 @@ enum EquipmentType
 	ET_SCANNER,
 	ET_TRACTOR,
 	ET_LIGHT
-};
-
-enum CCMDS_RIGHTS
-{
-	RIGHT_NOTHING = 0,
-	RIGHT_SUPERADMIN = 0xFFFFFFFF,
-	RIGHT_MSG = (1 << 0),
-	RIGHT_KICKBAN = (1 << 1),
-	RIGHT_EVENTMODE = (1 << 2),
-	RIGHT_CASH = (1 << 3),
-	RIGHT_BEAMKILL = (1 << 4),
-	RIGHT_REPUTATION = (1 << 5),
-	RIGHT_CARGO = (1 << 6),
-	RIGHT_CHARACTERS = (1 << 7),
-	RIGHT_SETTINGS = (1 << 8),
-	RIGHT_PLUGINS = (1 << 9),
-	RIGHT_OTHER = (1 << 10),
-	RIGHT_SPECIAL1 = (1 << 11),
-	RIGHT_SPECIAL2 = (1 << 12),
-	RIGHT_SPECIAL3 = (1 << 13),
 };
 
 enum class PluginMajorVersion

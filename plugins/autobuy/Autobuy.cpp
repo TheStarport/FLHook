@@ -1,5 +1,5 @@
 ﻿/**
- * @date Unknown
+ * @date unknown
  * @author unknown (Ported by Aingar 2023)
  * @defgroup Autobuy Autobuy
  * @brief
@@ -53,12 +53,12 @@ namespace Plugins::Autobuy
 		global->autobuyInfo.erase(client);
 	}
 
-	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
+	int PlayerGetAmmoCount(const std::list<CargoInfo>& cargoList, uint itemArchId)
 	{
-		if (const auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
+		if (const auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CargoInfo& cargo) { return cargo.archId == itemArchId; });
 		    foundCargo != cargoList.end())
 		{
-			return foundCargo->iCount;
+			return foundCargo->count;
 		}
 
 		return 0;
@@ -72,7 +72,7 @@ namespace Plugins::Autobuy
 
 		for (const auto& item : Players[client].equipDescList.equip)
 		{
-			if (!item.bMounted || item.fHealth == 1)
+			if (!item.mounted || item.fHealth == 1)
 				continue;
 
 			const GoodInfo* info = GoodList_get()->find_by_archetype(item.iArchId);
@@ -80,7 +80,7 @@ namespace Plugins::Autobuy
 				continue;
 
 			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) / 3);
-			eqToFix.insert(item.sId);
+			eqToFix.insert(item.id);
 		}
 
 		if (const uint playerCash = Hk::Player::GetCash(client).value(); playerCash < repairCost)
@@ -99,7 +99,7 @@ namespace Plugins::Autobuy
 		{
 			for (auto& item : Players[client].equipDescList.equip)
 			{
-				if (eqToFix.contains(item.sId))
+				if (eqToFix.contains(item.id))
 					item.fHealth = 1.0f;
 			}
 
@@ -111,7 +111,7 @@ namespace Plugins::Autobuy
 			st6::vector<EquipDesc> eqVector;
 			for (auto& eq : equip)
 			{
-				if (eq.bMounted)
+				if (eq.mounted)
 					eq.fHealth = 1.0f;
 				eqVector.push_back(eq);
 			}
@@ -125,7 +125,7 @@ namespace Plugins::Autobuy
 			for (const auto& colGrp : playerCollision)
 			{
 				auto* newColGrp = reinterpret_cast<XCollision*>(colGrp.data);
-				newColGrp->componentHP = 1.0f;
+				newColGrp->componentHp = 1.0f;
 				componentList.push_back(*newColGrp);
 			}
 			PrintUserCmdText(client, std::format(L"Attempting to repair {} components.", playerCollision.size()));
@@ -139,7 +139,7 @@ namespace Plugins::Autobuy
 		}
 	}
 
-	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
+	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CargoInfo>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
 	    const std::wstring_view& desc)
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
@@ -189,18 +189,18 @@ namespace Plugins::Autobuy
 			for (auto& item : cargo.value())
 			{
 				AutobuyCartItem aci;
-				if (item.iArchId == nanobotsId)
+				if (item.archId == nanobotsId)
 				{
 					aci.archId = nanobotsId;
-					aci.count = ship->iMaxNanobots - item.iCount;
+					aci.count = ship->iMaxNanobots - item.count;
 					aci.description = L"Nanobots";
 					cartList.push_back(aci);
 					nanobotsFound = true;
 				}
-				else if (item.iArchId == shieldBatsId)
+				else if (item.archId == shieldBatsId)
 				{
 					aci.archId = shieldBatsId;
-					aci.count = ship->iMaxShieldBats - item.iCount;
+					aci.count = ship->iMaxShieldBats - item.count;
 					aci.description = L"Shield Batteries";
 					cartList.push_back(aci);
 					shieldBattsFound = true;
@@ -230,16 +230,16 @@ namespace Plugins::Autobuy
 		{
 			// add mounted equip to a new list and eliminate double equipment(such
 			// as 2x lancer etc)
-			std::list<CARGO_INFO> mountedList;
+			std::list<CargoInfo> mountedList;
 			for (auto& item : cargo.value())
 			{
-				if (!item.bMounted)
+				if (!item.mounted)
 					continue;
 
 				bool found = false;
 				for (const auto& mounted : mountedList)
 				{
-					if (mounted.iArchId == item.iArchId)
+					if (mounted.archId == item.archId)
 					{
 						found = true;
 						break;
@@ -254,7 +254,7 @@ namespace Plugins::Autobuy
 			for (const auto& mounted : mountedList)
 			{
 				AutobuyCartItem aci;
-				Archetype::Equipment* eq = Archetype::GetEquipment(mounted.iArchId);
+				Archetype::Equipment* eq = Archetype::GetEquipment(mounted.archId);
 				auto eqType = Hk::Client::GetEqType(eq);
 
 				switch (eqType)

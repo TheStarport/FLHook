@@ -217,7 +217,7 @@ namespace Plugins::DeathPenalty
 			if (client)
 			{
 				const DamageList* dmg = *_dmg;
-				const auto inflictor = dmg->get_cause() == DamageCause::Unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
+				const auto inflictor = dmg->get_cause() == DamageCause::unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
 				                                                                : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
 				if (inflictor.has_value())
 				{

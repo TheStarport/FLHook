@@ -167,6 +167,9 @@
     <ClCompile Include="..\source\Features\MessageHandler.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Features\Logger.cpp">
+      <Filter>FLHook\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\CConsole.h">

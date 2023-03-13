@@ -2,100 +2,99 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string IniGetS(const std::string& File, const std::string& App, const std::string& Key, const std::string& Default)
+std::string IniGetS(const std::string& file, const std::string& app, const std::string& key, const std::string& def)
 {
-	char Ret[2048 * 2];
-	GetPrivateProfileString(App.c_str(), Key.c_str(), Default.c_str(), Ret, sizeof(Ret), File.c_str());
-	return Ret;
+	char ret[2048 * 2];
+	GetPrivateProfileString(app.c_str(), key.c_str(), def.c_str(), ret, sizeof(ret), file.c_str());
+	return ret;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int IniGetI(const std::string& File, const std::string& App, const std::string& Key, int iDefault)
+int IniGetI(const std::string& file, const std::string& app, const std::string& key, int def)
 {
-	return GetPrivateProfileInt(App.c_str(), Key.c_str(), iDefault, File.c_str());
+	return GetPrivateProfileInt(app.c_str(), key.c_str(), def, file.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float IniGetF(const std::string& File, const std::string& App, const std::string& Key, float fDefault)
+float IniGetF(const std::string& file, const std::string& app, const std::string& key, float def)
 {
-	char Ret[2048 * 2];
-	char Default[16];
-	sprintf_s(Default, "%f", fDefault);
-	GetPrivateProfileString(App.c_str(), Key.c_str(), Default, Ret, sizeof(Ret), File.c_str());
-	return static_cast<float>(atof(Ret));
+	char ret[2048 * 2];
+	char defaultVal[16];
+	sprintf_s(defaultVal, "%f", def);
+	GetPrivateProfileString(app.c_str(), key.c_str(), defaultVal, ret, sizeof(ret), file.c_str());
+	return static_cast<float>(atof(ret));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool IniGetB(const std::string& File, const std::string& App, const std::string& Key, bool bDefault)
+bool IniGetB(const std::string& file, const std::string& app, const std::string& key, const bool def)
 {
-	const std::string val = ToLower(IniGetS(File, App, Key, bDefault ? "true" : "false"));
-	return val.compare("yes") == 0 || val.compare("true") == 0 ? true : false;
+	const std::string val = ToLower(IniGetS(file, app, key, def ? "true" : "false"));
+	return val == "yes" || val == "true";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWrite(const std::string& File, const std::string& App, const std::string& Key, const std::string& Value)
+void IniWrite(const std::string& file, const std::string& app, const std::string& key, const std::string& Value)
 {
-	WritePrivateProfileString(App.c_str(), Key.c_str(), Value.c_str(), File.c_str());
+	WritePrivateProfileString(app.c_str(), key.c_str(), Value.c_str(), file.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniWriteW(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Value)
+void IniWriteW(const std::string& file, const std::string& app, const std::string& key, const std::wstring& value)
 {
-	std::string Value = "";
-	for (uint i = 0; (i < Value.length()); i++)
+	std::string newValue;
+	for (uint i = 0; (i < value.length()); i++)
 	{
-		const char cHiByte = Value[i] >> 8;
-		const char cLoByte = Value[i] & 0xFF;
+		const char cHiByte = value[i] >> 8;
+		const char cLoByte = value[i] & 0xFF;
 		char Buf[8];
 		sprintf_s(Buf, "%02X%02X", static_cast<uint>(cHiByte) & 0xFF, static_cast<uint>(cLoByte) & 0xFF);
-		Value += Buf;
+		newValue += Buf;
 	}
-	WritePrivateProfileString(App.c_str(), Key.c_str(), Value.c_str(), File.c_str());
+	WritePrivateProfileString(app.c_str(), key.c_str(), newValue.c_str(), file.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring IniGetWS(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Default)
+std::wstring IniGetWS(const std::string& file, const std::string& app, const std::string& key, const std::wstring& def)
 {
-	char Ret[2048 * 2];
-	GetPrivateProfileString(App.c_str(), Key.c_str(), "", Ret, sizeof(Ret), File.c_str());
-	const std::string Value = Ret;
-	if (!Value.length())
-		return Default;
+	char ret[2048 * 2];
+	GetPrivateProfileString(app.c_str(), key.c_str(), "", ret, sizeof(ret), file.c_str());
+	const std::string value = ret;
+	if (!value.length())
+		return def;
 
-	std::wstring Value = L"";
+	std::wstring newValue;
 	long lHiByte;
 	long lLoByte;
-	while (sscanf_s(Value.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	while (sscanf_s(value.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
 	{
-		Value = Value.substr(4);
-		wchar_t wChar = static_cast<wchar_t>((lHiByte << 8) | lLoByte);
-		Value.append(1, wChar);
+		newValue = newValue.substr(4);
+		const wchar_t wChar = static_cast<wchar_t>((lHiByte << 8) | lLoByte);
+		newValue.append(1, wChar);
 	}
 
-	return Value;
+	return newValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-[]
-void IniDelete(const std::string& File, const std::string& App, const std::string& Key)
+void IniDelete(const std::string& file, const std::string& app, const std::string& key)
 {
 	// TODO: DELETE ME, fix referneces
-	WritePrivateProfileString(App.c_str(), Key.c_str(), nullptr, File.c_str());
+	WritePrivateProfileString(app.c_str(), key.c_str(), nullptr, file.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void IniDelSection(const std::string& File, const std::string& App)
+void IniDelSection(const std::string& file, const std::string& app)
 {
 	// TODO: DELETE ME, fix referneces
-	WritePrivateProfileString(App.c_str(), nullptr, nullptr, File.c_str());
+	WritePrivateProfileString(app.c_str(), nullptr, nullptr, file.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +103,7 @@ void IniDelSection(const std::string& File, const std::string& App)
 Determine the path name of a file in the charname account directory with the
 provided extension. The resulting path is returned in the path parameter.
 */
-std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& Extension)
+std::string GetUserfilePath(const std::variant<uint, std::wstring>& player, const std::string& Extension)
 {
 	// init variables
 	char DataPath[MAX_PATH];

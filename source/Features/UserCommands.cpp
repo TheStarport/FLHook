@@ -56,7 +56,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float dista
 	while ((playerDb = Players.traverse_active(playerDb)))
 	{
 		// Get the this player's current system and location in the system.
-		ClientId client2 = playerDb->iOnlineId;
+		ClientId client2 = playerDb->onlineId;
 		uint iSystem2 = 0;
 		pub::Player::GetSystem(client2, iSystem2);
 		if (iSystem != iSystem2)
@@ -465,9 +465,9 @@ void Invite_Player(ClientId& client, const std::wstring& characterName)
 	}
 
 	CHAT_ID cId;
-	cId.iId = client;
+	cId.id = client;
 	CHAT_ID cIdTo;
-	cIdTo.iId = 0x00010001;
+	cIdTo.id = 0x00010001;
 	Server.SubmitChat(cId, iRet, Buf, cIdTo, -1);
 }
 

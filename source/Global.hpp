@@ -98,7 +98,7 @@ extern HANDLE hThreadResolver;
 
 // help
 
-void IClientImpl__Startup__Inner(uint iDunno, uint iDunno2);
+void IClientImpl__Startup__Inner(uint idunno, uint idunno2);
 
 inline auto* ToWChar(const ushort* val)
 {

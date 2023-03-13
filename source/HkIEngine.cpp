@@ -118,7 +118,7 @@ namespace IEngineHook
 		TRY_HOOK
 			{
 				// Print out a message when a player ship docks.
-				if (FLHookConfig::c()->messages.dockingMessages && response == PROCEED_DOCK)
+				if (FLHookConfig::c()->messages.dockingMessages && response == DOCK_HOST_RESPONSE::ProceedDock)
 				{
 					const auto client = Hk::Client::GetClientIdByShip(shipId);
 					if (client.has_value())
@@ -143,7 +143,7 @@ namespace IEngineHook
 
 	FARPROC g_OldLaunchPosition;
 
-	bool __stdcall LaunchPosition(uint spaceId, struct CEqObj& obj, Vector& position, Matrix& orientation, int dock)
+	bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock)
 	{
 		auto [retVal, skip] =
 			CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
@@ -179,7 +179,7 @@ namespace IEngineHook
 
 	struct REP_DATA_LIST
 	{
-		uint iDunno;
+		uint idunno;
 		LOAD_REP_DATA* begin;
 		LOAD_REP_DATA* end;
 	};

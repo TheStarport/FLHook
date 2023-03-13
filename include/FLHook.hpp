@@ -1,5 +1,6 @@
 #pragma once
 
+#include <WinSock2.h>
 #include <Windows.h>
 #include <string>
 #include <set>
@@ -83,15 +84,15 @@ public:
 	cpp::result<const Light&, Error> FindLightByHash(EquipId hash) const;
 };
 
-DLL std::string IniGetS(const std::string& File, const std::string& App, const std::string& Key, const std::string& Default);
-DLL int IniGetI(const std::string& File, const std::string& App, const std::string& Key, int iDefault);
-DLL bool IniGetB(const std::string& File, const std::string& App, const std::string& Key, bool bDefault);
+DLL std::string IniGetS(const std::string& file, const std::string& app, const std::string& key, const std::string& def);
+DLL int IniGetI(const std::string& File, const std::string& App, const std::string& Key, int def);
+DLL bool IniGetB(const std::string& File, const std::string& App, const std::string& Key, bool def);
 DLL void IniWrite(const std::string& File, const std::string& App, const std::string& Key, const std::string& Value);
 DLL void IniDelSection(const std::string& File, const std::string& App);
 DLL void IniDelete(const std::string& File, const std::string& App, const std::string& Key);
-DLL void IniWriteW(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Value);
-DLL std::wstring IniGetWS(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Default);
-DLL float IniGetF(const std::string& File, const std::string& App, const std::string& Key, float fDefault);
+DLL void IniWriteW(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& value);
+DLL std::wstring IniGetWS(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& def);
+DLL float IniGetF(const std::string& File, const std::string& App, const std::string& Key, float def);
 DLL std::wstring GetTimeString(bool bLocalTime);
 DLL std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& Extension);
 DLL void AddLog(LogType LogType, LogLevel lvl, const std::string& str);
@@ -517,7 +518,7 @@ private:
 	bool bTarget;
 
 public:
-	DWORD rights;
+	ulong rights;
 	#ifdef FLHOOK
 	// commands
 	void CmdGetCash(const std::variant<uint, std::wstring>& player);

@@ -59,7 +59,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after a tractor to prevent cargo duplication loss on crash
 	 */
-	void TractorObjects(ClientId& client, [[maybe_unused]] struct XTractorObjects const& objs)
+	void TractorObjects(ClientId& client, [[maybe_unused]] XTractorObjects const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
@@ -70,7 +70,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Save after jettison to reduce chance of duplication on crash
 	 */
-	void JettisonCargo(ClientId& client, [[maybe_unused]] struct XJettisonCargo const& objs)
+	void JettisonCargo(ClientId& client, [[maybe_unused]] XJettisonCargo const& objs)
 	{
 		if (global->mapSaveTimes[client] == 0)
 		{
@@ -117,7 +117,7 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief GetRoot hook to stop crashes at engbase.dll offset 0x000124bd
 	 */
-	struct CObject* __cdecl GetRoot(struct CObject* child)
+	CObject* __cdecl GetRoot(CObject* child)
 	{
 		try
 		{
@@ -135,11 +135,11 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief This crash will happen if you have broken path finding or more than 10 connections per system.
 	 */
-	int __cdecl CrashProc1b221(unsigned int const& system, struct pub::System::ConnectionEnumerator& conn, int type)
+	int __cdecl CrashProc1b221(unsigned int const& system, pub::System::ConnectionEnumerator& conn, int type)
 	{
 		__try
 		{
-			return pub::System::EnumerateConnections(system, conn, (enum ConnectionType)type);
+			return pub::System::EnumerateConnections(system, conn, (ConnectionType)type);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{

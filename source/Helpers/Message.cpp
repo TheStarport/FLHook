@@ -190,7 +190,7 @@ namespace Hk::Message
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			ClientId client = playerDb->iOnlineId;
+			ClientId client = playerDb->onlineId;
 			FMsgSendChat(client, Buf, iRet);
 		}
 

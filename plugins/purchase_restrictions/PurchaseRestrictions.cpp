@@ -103,7 +103,7 @@ namespace Plugins::PurchaseRestrictions
 		int remainingHoldSize;
 		const auto cargoList = Hk::Player::EnumCargo(client, remainingHoldSize);
 		return std::ranges::any_of(cargoList.value(),
-		    [validItem](const CARGO_INFO& cargo) { return cargo.bMounted && std::ranges::find(validItem->second, cargo.iArchId) != validItem->second.end(); });
+		    [validItem](const CargoInfo& cargo) { return cargo.mounted && std::ranges::find(validItem->second, cargo.archId) != validItem->second.end(); });
 	}
 
 	//! Clear Client Info hook
@@ -125,7 +125,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//! Suppress the buying of goods.
-	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	void GFGoodBuy(SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		global->clientSuppressBuy[client] = false;
 		auto& suppress = global->clientSuppressBuy[client];
@@ -223,7 +223,7 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//!  Suppress ship purchases
-	void ReqEquipment([[maybe_unused]] class EquipDescList const& eqDesc, ClientId& client)
+	void ReqEquipment([[maybe_unused]] EquipDescList const& eqDesc, ClientId& client)
 	{
 		if (global->clientSuppressBuy[client])
 		{

@@ -26,12 +26,11 @@ void CInGame::DoPrint(const std::string& text)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::ReadRights(const std::string& AdminFile)
+void CInGame::ReadRights(const std::string& adminFile)
 {
-	rights = RIGHT_NOTHING;
-	std::string Rights = IniGetS(scAdminFile, "admin", "rights", "");
+	const std::string rights = IniGetS(adminFile, "admin", "rights", "");
 
-	SetRightsByString(scRights);
+	SetRightsByString(rights);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

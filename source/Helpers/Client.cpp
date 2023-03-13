@@ -42,9 +42,9 @@ namespace Hk::Client
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			if (playerDb->Account == acc)
+			if (playerDb->account == acc)
 			{
-				return playerDb->iOnlineId;
+				return playerDb->onlineId;
 			}
 		}
 
@@ -90,19 +90,19 @@ namespace Hk::Client
 
 	cpp::result<const std::wstring, Error> GetAccountID(CAccount* acc)
 	{
-		if (acc && acc->wAccId)
-			return acc->wAccId;
+		if (acc && acc->accId)
+			return acc->accId;
 
 		return cpp::fail(Error::CannotGetAccount);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool IsEncoded(const std::string& Filename)
+	bool IsEncoded(const std::string& fileName)
 	{
 		bool bRet = false;
 		FILE* f;
-		fopen_s(&f, scFilename.c_str(), "r");
+		fopen_s(&f, fileName.c_str(), "r");
 		if (!f)
 			return false;
 
@@ -140,7 +140,7 @@ namespace Hk::Client
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			if (playerDb->iOnlineId == client)
+			if (playerDb->onlineId == client)
 				return true;
 		}
 
@@ -164,7 +164,7 @@ namespace Hk::Client
 		if (const std::wstring characterLower = ToLower(character); characterLower.find(L"id ") == 0)
 		{
 			uint iId = 0;
-			sanf_s(characterLower.c_str(), L"id %u", &iId);
+			swscanf_s(characterLower.c_str(), L"id %u", &iId);
 			if (!IsValidClientID(iId))
 				return cpp::fail(Error::InvalidClientId);
 
@@ -188,14 +188,14 @@ namespace Hk::Client
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			const auto characterName = GetCharacterNameByID(playerDb->iOnlineId);
+			const auto characterName = GetCharacterNameByID(playerDb->onlineId);
 			if (characterName.has_error())
 				continue;
 
 			if (ToLower(characterName.value()).find(ShortcutLower) != -1)
 			{
 				if (clientFound == UINT_MAX)
-					clientFound = playerDb->iOnlineId;
+					clientFound = playerDb->onlineId;
 				else
 					return cpp::fail(Error::AmbiguousShortcut);
 			}
@@ -225,7 +225,7 @@ namespace Hk::Client
 		const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(server) + 0x66370);
 
 		char Dir[1024] = "";
-		GetFLName(Dir, acc->wAccId);
+		GetFLName(Dir, acc->accId);
 		return stows(Dir);
 	}
 
@@ -366,9 +366,9 @@ namespace Hk::Client
 	{
 		uint ship;
 		pub::Player::GetShip(client, ship);
-		uint iDunno;
+		uint idunno;
 		IObjInspectImpl* inspect;
-		if (!GetShipInspect(ship, inspect, iDunno))
+		if (!GetShipInspect(ship, inspect, idunno))
 			return cpp::fail(Error::InvalidShip);
 		return inspect;
 	}
@@ -409,7 +409,7 @@ namespace Hk::Client
 		if (iVFTable == iVFTableGun)
 		{
 			const Archetype::Gun* gun = static_cast<Archetype::Gun*>(eq);
-			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->iProjectileArchId);
+			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
 			int iMissile;
 			memcpy(&iMissile, (char*)eqAmmo + 0x90, 4);
 			const uint iGunType = gun->get_hp_type_by_index(0);
@@ -509,9 +509,9 @@ namespace Hk::Client
 		if (IsValidClientID(client))
 		{
 			const CAccount* acc = GetAccountByClientID(client);
-			if (acc && acc->wAccId)
+			if (acc && acc->accId)
 			{
-				return acc->wAccId;
+				return acc->accId;
 			}
 		}
 		return L"";
@@ -534,7 +534,7 @@ namespace Hk::Client
 		while ((playerData = Players.traverse_active(playerData)))
 		{
 			if (playerData->systemId == system)
-				playersInSystem.push_back(playerData->iOnlineId);
+				playersInSystem.push_back(playerData->onlineId);
 		}
 		return playersInSystem;
 	}

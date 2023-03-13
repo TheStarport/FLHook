@@ -116,7 +116,7 @@ namespace Plugins::SystemSensor
 			std::string hardpoint = ci.hardpoint.value;
 			if (!hardpoint.empty())
 			{
-				Archetype::Equipment* eq = Archetype::GetEquipment(ci.iArchId);
+				Archetype::Equipment* eq = Archetype::GetEquipment(ci.archId);
 				if (eq && eq->iIdsName)
 				{
 					std::wstring result;
@@ -173,10 +173,10 @@ namespace Plugins::SystemSensor
 		uint availableNetworkId = 0;
 		for (auto& ci : cargo.value())
 		{
-			if (ci.bMounted)
+			if (ci.mounted)
 			{
-				auto start = global->sensorEquip.lower_bound(ci.iArchId);
-				auto end = global->sensorEquip.upper_bound(ci.iArchId);
+				auto start = global->sensorEquip.lower_bound(ci.archId);
+				auto end = global->sensorEquip.upper_bound(ci.archId);
 				while (start != end)
 				{
 					if (start->second.systemId == systemId)
@@ -234,7 +234,7 @@ namespace Plugins::SystemSensor
 				const Universe::ISystem* system = Universe::get_system(systemId);
 				if (system && magic_enum::enum_integer(sensor.mode & mode))
 				{
-					std::wstring sysName = Hk::Message::GetWStringFromIdS(system->strid_name);
+					std::wstring sysName = Hk::Message::GetWStringFromIdS(system->idsName);
 					const auto location = Hk::Solar::GetLocation(client, IdType::Client);
 					const auto playerSystem = Hk::Player::GetSystem(client);
 					const Vector& position = location.value().first;
@@ -247,9 +247,9 @@ namespace Plugins::SystemSensor
 	}
 
 	// Record jump type.
-	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const enum DOCK_HOST_RESPONSE& response)
+	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const DOCK_HOST_RESPONSE& response)
 	{
-		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && (response == PROCEED_DOCK || response == DOCK) && cancel >= 0)
+		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && (response == ProceedDock || response == Dock) && cancel >= 0)
 		{
 			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
@@ -273,7 +273,7 @@ namespace Plugins::SystemSensor
 		}
 	}
 
-	void GoTradelane(ClientId& client, [[maybe_unused]] struct XGoTradelane const& xgt)
+	void GoTradelane(ClientId& client, [[maybe_unused]] XGoTradelane const& xgt)
 	{
 		DumpSensorAccess(client, L"entered tradelane", Mode::TradeLane);
 	}

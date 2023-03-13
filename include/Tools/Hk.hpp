@@ -5,10 +5,6 @@
 #include "Constexpr.hpp"
 #include "Macros.hpp"
 
-extern DLL st6_malloc_t st6_malloc;
-extern DLL st6_free_t st6_free;
-#define ST6_ALLOCATION_DEFINED
-
 #include "FLCore/FLCoreCommon.h"
 #include "FLCore/FLCoreServer.h"
 #include "FLCore/FLCoreRemoteClient.h"
@@ -20,7 +16,7 @@ extern DLL st6_free_t st6_free;
 #include "Concepts.hpp"
 
 #include "Deps.hpp"
-struct CARGO_INFO;
+struct CargoInfo;
 
 #pragma once
 
@@ -165,9 +161,9 @@ namespace Hk
 		 */
 		DLL Quaternion MatrixToQuaternion(const Matrix& m);
 		template<typename Str>
-		Str VectorToSectorCoord(uint systemId, Vector vPos);
-		template DLL std::string VectorToSectorCoord(uint systemId, Vector vPos);
-		template DLL std::wstring VectorToSectorCoord(uint systemId, Vector vPos);
+		Str VectorToSectorCoord(uint systemId, Vector pos);
+		template DLL std::string VectorToSectorCoord(uint systemId, Vector pos);
+		template DLL std::wstring VectorToSectorCoord(uint systemId, Vector pos);
 		DLL float Degrees(float rad);
 		DLL Vector MatrixToEuler(const Matrix& mat);
 		DLL uint RgbToBgr(uint color);
@@ -210,7 +206,7 @@ namespace Hk
 		DLL cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring>& player, uint duration);
 		DLL cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& base);
 		DLL cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring>& player);
-		DLL cpp::result<const std::list<CARGO_INFO>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& iRemainingHoldSize);
+		DLL cpp::result<const std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& iRemainingHoldSize);
 		DLL cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count);
 		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint iGoodId, int iCount, bool bMission);
 		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& Good, int iCount, bool bMission);
@@ -295,7 +291,7 @@ namespace Hk
 		DLL Fuse* GetFuseFromID(uint iFuseId);
 		DLL bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip);
 		DLL bool UnLightFuse(IObjRW* ship, uint iFuseId);
-		DLL CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW);
+		DLL CEqObj* GetEqObjFromObjRW(IObjRW* objRW);
 	} // namespace Admin
 
 	namespace Err

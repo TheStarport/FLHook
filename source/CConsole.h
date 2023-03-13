@@ -6,7 +6,7 @@
 class CConsole : public CCmds
 {
 public:
-	CConsole() { this->rights = RIGHT_SUPERADMIN; };
+	CConsole() { this->rights = 0; };
 	EXPORT void DoPrint(const std::string& text) override;
 	std::wstring GetAdminName() override;
 };

@@ -63,10 +63,10 @@ namespace Plugins::Warehouse
 
 		int _;
 		const auto cargo = Hk::Player::EnumCargo(client, _);
-		std::vector<CARGO_INFO> filteredCargo;
+		std::vector<CargoInfo> filteredCargo;
 		for (auto& info : cargo.value())
 		{
-			if (info.bMounted || info.fStatus < 1.f)
+			if (info.mounted || info.status < 1.f)
 				continue;
 
 			filteredCargo.emplace_back(info);
@@ -80,12 +80,12 @@ namespace Plugins::Warehouse
 			return;
 		}
 		const auto& item = filteredCargo[databaseItemId - 1];
-		if (itemCount > static_cast<uint>(item.iCount))
+		if (itemCount > static_cast<uint>(item.count))
 		{
 			PrintUserCmdText(client, L"Error Invalid Item Quantity");
 			return;
 		}
-		if (std::ranges::find(global->config.restrictedItemsHashed, item.iArchId) != global->config.restrictedItemsHashed.end())
+		if (std::ranges::find(global->config.restrictedItemsHashed, item.archId) != global->config.restrictedItemsHashed.end())
 		{
 			PrintUserCmdText(client, L"Error: This item is restricted from being stored.");
 			return;
@@ -99,12 +99,12 @@ namespace Plugins::Warehouse
 		}
 
 		Hk::Player::RemoveCash(client, global->config.costPerStackStore);
-		Hk::Player::RemoveCargo(client, item.iId, itemCount);
+		Hk::Player::RemoveCargo(client, item.id, itemCount);
 
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto wareHouseItem = GetOrAddItem(item.iArchId, sqlPlayerId, itemCount);
+		const auto wareHouseItem = GetOrAddItem(item.archId, sqlPlayerId, itemCount);
 
 		PrintUserCmdText(client, std::format(L"Successfully stored {} item(s) for a total of {}", itemCount, wareHouseItem.quantity, wareHouseItem.id));
 
@@ -119,12 +119,12 @@ namespace Plugins::Warehouse
 		int index = 0;
 		for (const auto& info : cargo.value())
 		{
-			if (info.bMounted || info.fStatus < 1.f)
+			if (info.mounted || info.status < 1.f)
 				continue;
 
-			const auto* equip = Archetype::GetEquipment(info.iArchId);
+			const auto* equip = Archetype::GetEquipment(info.archId);
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.count));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)

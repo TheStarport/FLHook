@@ -20,8 +20,7 @@ bool LoadBaseMarket()
 		BaseInfo* biBase = nullptr;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{
-			const char* BN = base.scBasename.c_str();
-			if (!ToLower(base.scBasename).compare(ToLower(BaseName)))
+			if (ToLower(base.baseName) != ToLower(BaseName))
 			{
 				biBase = &base;
 				break;

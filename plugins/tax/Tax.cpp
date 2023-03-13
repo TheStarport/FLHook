@@ -23,7 +23,7 @@
  *     "killDisconnectingPlayers": true,
  *     "maxTax": 300,
  *     "minplaytimeSec": 0,
- *     "taxRequestReceived": "You have received a tax request: Pay %d credits to %s! Type \"/pay\" to pay the tax."
+ *     "taxRequestReceived": "You have received a tax request: Pay %d credits to %s! type \"/pay\" to pay the tax."
  * }
  * @endcode
  *
@@ -211,7 +211,7 @@ namespace Plugins::Tax
 
 	const std::vector<Timer> timers = {{TimerF1Check, 1}};
 
-	void DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
+	void DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
 		TimerF1Check();
 	}

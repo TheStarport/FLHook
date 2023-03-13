@@ -312,9 +312,9 @@ namespace Plugins::MiscCommands
 		const auto& [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 
 		pub::Audio::Tryptich music;
-		music.iDunno = 0;
-		music.iDunno2 = 0;
-		music.iDunno3 = 0;
+		music.idunno = 0;
+		music.idunno2 = 0;
+		music.idunno3 = 0;
 		music.iMusicId = global->smiteMusicHash;
 		pub::Audio::SetMusic(playerInfo.value().client, music);
 

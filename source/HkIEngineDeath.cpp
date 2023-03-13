@@ -56,7 +56,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	PlayerData* playerData = nullptr;
 	while ((playerData = Players.traverse_active(playerData)))
 	{
-		const auto client = playerData->iOnlineId;
+		const auto client = playerData->onlineId;
 		uint clientSystemId = 0;
 		pub::Player::GetSystem(client, clientSystemId);
 

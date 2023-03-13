@@ -97,7 +97,7 @@ namespace Plugins::Arena
 		for (const auto& item : cargo.value())
 		{
 			bool flag = false;
-			pub::IsCommodity(item.iArchId, flag);
+			pub::IsCommodity(item.archId, flag);
 
 			// Some commodity present.
 			if (flag)
@@ -155,7 +155,7 @@ namespace Plugins::Arena
 
 			auto fileName = charFileName.value() + L".fl";
 			CHARACTER_ID cId;
-			strcpy_s(cId.CharFilename, wstos(CharFileName.substr(0, 14)).c_str());
+			strcpy_s(cId.charFilename, wstos(CharFileName.substr(0, 14)).c_str());
 			Server.CharacterSelect(cId, client);
 		}
 	}

@@ -43,15 +43,15 @@ namespace Hk::Math
 	}
 
 	template<typename Str>
-	Str VectorToSectorCoord(uint systemId, Vector vPos)
+	Str VectorToSectorCoord(uint systemId, Vector pos)
 	{
 		float scale = 1.0;
 		if (const Universe::ISystem* iSystem = Universe::get_system(systemId))
-			scale = iSystem->NavMapScale;
+			scale = iSystem->navMapScale;
 
 		const float fGridSize = 34000.0f / scale;
-		int gridRefX = static_cast<int>((vPos.x + (fGridSize * 5)) / fGridSize) - 1;
-		int gridRefZ = static_cast<int>((vPos.z + (fGridSize * 5)) / fGridSize) - 1;
+		int gridRefX = static_cast<int>((pos.x + (fGridSize * 5)) / fGridSize) - 1;
+		int gridRefZ = static_cast<int>((pos.z + (fGridSize * 5)) / fGridSize) - 1;
 
 		gridRefX = std::min(std::max(gridRefX, 0), 7);
 		char scXPos = 'A' + static_cast<char>(gridRefX);

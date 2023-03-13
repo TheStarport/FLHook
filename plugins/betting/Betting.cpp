@@ -75,7 +75,7 @@ namespace Plugins::Betting
 					}
 					else
 					{
-						struct PlayerData* playerData = nullptr;
+						PlayerData* playerData = nullptr;
 						while ((playerData = Players.traverse_active(playerData)))
 						{
 							ClientId localClient = playerData->iOnlineId;
@@ -129,7 +129,7 @@ namespace Plugins::Betting
 		{
 			// Get a list of other players in the system
 			// Add them and the player into the ffa map
-			struct PlayerData* playerData = nullptr;
+			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
 				// Get the this player's current system
@@ -430,7 +430,7 @@ namespace Plugins::Betting
 	 * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
 	 */
 	int __cdecl DockCall(unsigned int const& ship, [[maybe_unused]] unsigned int const& d, [[maybe_unused]] const int& cancel,
-	    [[maybe_unused]] const enum DOCK_HOST_RESPONSE& response)
+	    [[maybe_unused]] const DOCK_HOST_RESPONSE& response)
 	{
 		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
@@ -443,7 +443,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
 		processFFA(client);
 		ProcessDuel(client);

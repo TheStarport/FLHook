@@ -27,4 +27,4 @@ namespace Plugins::CrashCatcher
 	};
 } // namespace Plugins::CrashCatcher
 
-IMPORT struct CObject* __cdecl GetRoot(struct CObject const*);
+IMPORT CObject* __cdecl GetRoot(CObject const*);

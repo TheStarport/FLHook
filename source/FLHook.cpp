@@ -18,8 +18,8 @@ bool bExecuted = false;
 
 CConsole AdminConsole;
 
-st6_malloc_t st6_malloc;
-st6_free_t st6_free;
+const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "malloc"));
+const st6_free_t st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "free"));
 
 bool flhookReady;
 
@@ -42,7 +42,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		return TRUE;
 
 	char File[MAX_PATH];
-	GetModuleFileName(nullptr, File, sizeof(File));
+	GetModuleFileName(nullptr, File, sizeof File);
 
 	if (const std::wstring FileName = ToLower(stows(File)); FileName.find(L"flserver.exe") != -1)
 	{
@@ -53,18 +53,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// redirect IServerImpl::Update
 		const auto fpLoop = IServerImplHook::Update;
-		auto address = (char*)GetModuleHandle(nullptr) + ADDR_UPDATE;
+		auto address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_UPDATE;
 		ReadProcMem(address, &fpOldUpdate, 4);
 		WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook
-		const auto fpStartup = (FARPROC)IServerImplHook::Startup;
-		address = static_cast<void*>((char*)GetModuleHandle(0) + ADDR_STARTUP);
+		const auto fpStartup = reinterpret_cast<FARPROC>(IServerImplHook::Startup);
+		address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_STARTUP;
 		WriteProcMem(address, &fpStartup, 4);
 
 		// install shutdown hook
-		const auto fpShutdown = (FARPROC)IServerImplHook::Shutdown;
-		address = static_cast<void*>((char*)GetModuleHandle(0) + ADDR_SHUTDOWN);
+		const auto fpShutdown = reinterpret_cast<FARPROC>(IServerImplHook::Shutdown);
+		address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_SHUTDOWN;
 		WriteProcMem(address, &fpShutdown, 4);
 
 		// create log dirs
@@ -74,24 +74,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return TRUE;
 }
 
-/**************************************************************************************************************
-Replace FLServer's exception handler with our own.
-**************************************************************************************************************/
-// TODO: Move exception to exception handler class
-BYTE oldSetUnhandledExceptionFilter[5];
-
-LONG WINAPI FLHookTopLevelFilter(struct _EXCEPTION_POINTERS* pExceptionInfo)
-{
-	AddLog(LogType::Normal, LogLevel::Critical, "!!TOP LEVEL EXCEPTION!!");
-	SEHException ex(0, pExceptionInfo);
-	WriteMiniDump(&ex);
-	return EXCEPTION_EXECUTE_HANDLER; // EXCEPTION_CONTINUE_SEARCH;
-}
-
-LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
-{
-	return nullptr;
-}
+// TODO: Reimplement exception handling
 
 /**************************************************************************************************************
 init
@@ -109,17 +92,6 @@ const std::array<const char*, 6> PluginLibs = {
 void FLHookInit_Pre()
 {
 	hProcFL = GetModuleHandle(nullptr);
-
-	// Get direct pointers to malloc and free for st6 to prevent debug heap
-	// issues
-	{
-		const auto dll = GetModuleHandle(TEXT("msvcrt.dll"));
-		if (!dll)
-			throw std::runtime_error("msvcrt.dll");
-
-		st6_malloc = reinterpret_cast<st6_malloc_t>(GetProcAddress(dll, "malloc"));
-		st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(dll, "free"));
-	}
 
 	try
 	{
@@ -173,28 +145,6 @@ void FLHookInit_Pre()
 		Hk::Personalities::LoadPersonalities();
 
 		PatchClientImpl();
-
-		// Install our own exception handler to automatically log minidumps.
-		SetUnhandledExceptionFilter(FLHookTopLevelFilter);
-
-		// Hook the kernel SetUnhandledExceptionFilter function to prevent
-		// newer versions of the crt disabling our filter function if a buffer
-		// overrun is detected.
-		const HMODULE ernel32 = LoadLibrary("kernel32.dll");
-		if (ernel32)
-		{
-			void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
-			if (orgEntry)
-			{
-				const DWORD offset = static_cast<char*>(orgEntry) - (char*)ernel32;
-
-				ReadProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
-
-				const BYTE patch[] = {0xE9};
-				WriteProcMem((char*)ernel32 + offset, patch, 1);
-				PatchCallAddr((char*)ernel32, offset, (char*)SetUnhandledExceptionFilter);
-			}
-		}
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 	}
@@ -266,19 +216,6 @@ void FLHookShutdown()
 	// unload hooks
 	UnloadHookExports();
 
-	// If extended exception logging is in use, restore patched functions
-	if (const HMODULE ernel32 = GetModuleHandle("kernel32.dll"))
-	{
-		void* orgEntry = GetProcAddress(ernel32, "SetUnhandledExceptionFilter");
-		if (orgEntry)
-		{
-			const DWORD offset = static_cast<char*>(orgEntry) - (char*)ernel32;
-			WriteProcMem((char*)ernel32 + offset, oldSetUnhandledExceptionFilter, 5);
-		}
-	}
-	// And restore the default exception filter.
-	SetUnhandledExceptionFilter(nullptr);
-
 	// unload rest
 	DWORD id;
 	DWORD dwParam;
@@ -291,7 +228,8 @@ void ProcessPendingCommands()
 	auto cmd = logger->GetCommand();
 	while (cmd.has_value())
 	{
-		AdminConsole.ExecuteCommandString(cmd);
+		// TODO: Reimplement admin command
+		//AdminConsole.ExecuteCommandString(cmd);
 		cmd = logger->GetCommand();
 	}
 }

@@ -29,7 +29,7 @@ namespace Hk::Admin
 			mov eax, [P1]
 			push eax
 			mov ecx, [eax]
-			call ord ptr[ecx + 0x28] ; GetClientAddress
+			call dword ptr[ecx + 0x28] ; GetClientAddress
 			cmp eax, 0
 			jnz some_error
 
@@ -44,14 +44,14 @@ namespace Hk::Admin
 			mov ecx, [IdirectPlay8Address]
 			push ecx
 			mov ecx, [ecx]
-			call ord ptr[ecx+0x40] ; GetComponentByName
+			call dword ptr[ecx+0x40] ; GetComponentByName
 
 			mov ecx, [IdirectPlay8Address]
 			push ecx
 			mov ecx, [ecx]
-			call ord ptr[ecx+0x08] ; Release
+			call dword ptr[ecx+0x08] ; Release
 			some_error:
-			}
+		}
 
 		return wIP;
 	}
@@ -112,22 +112,21 @@ namespace Hk::Admin
 
 	std::list<PlayerInfo> GetPlayers()
 	{
-		std::list<PlayerInfo> Ret;
-		std::wstring Ret;
+		std::list<PlayerInfo> ret;
 
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
-			ClientId client = playerDb->iOnlineId;
+			ClientId client = playerDb->onlineId;
 
 			if (Client::IsInCharSelectMenu(client))
 				continue;
 
 			auto pi = GetPlayerInfo(client, false);
 			auto a = std::move(pi).value();
-			Ret.emplace_back(a);
+			ret.emplace_back(a);
 		}
-		return Ret;
+		return ret;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,8 +157,8 @@ namespace Hk::Admin
 
 		const auto dir = Client::GetAccountDirName(acc.value());
 
-		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
-		IniWrite(scAdminFile, "admin", "rights", wstos(Rights));
+		const std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		IniWrite(adminFile, "admin", "rights", wstos(Rights));
 		return {};
 	}
 
@@ -174,17 +173,18 @@ namespace Hk::Admin
 		}
 
 		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 
+		// TODO: Replace WinApi call
 		WIN32_FIND_DATA fd;
-		HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
+		HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
 		if (hFind == INVALID_HANDLE_VALUE)
 		{
 			return cpp::fail(Error::NoAdmin);
 		}
 
 		FindClose(hFind);
-		return stows(IniGetS(scAdminFile, "admin", "rights", ""));
+		return stows(IniGetS(adminFile, "admin", "rights", ""));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,9 +197,10 @@ namespace Hk::Admin
 			return cpp::fail(acc.error());
 		}
 
+		// TODO: Replace WinApi call
 		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
-		DeleteFile(scAdminFile.c_str());
+		std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		DeleteFile(adminFile.c_str());
 		return {};
 	}
 
@@ -248,7 +249,7 @@ namespace Hk::Admin
 		float maxHealth;
 
 		const Universe::IBase* base = Universe::get_base(baseId);
-		pub::SpaceObj::GetHealth(base->lSpaceObjId, curHealth, maxHealth);
+		pub::SpaceObj::GetHealth(base->spaceObjId, curHealth, maxHealth);
 		BaseHealth bh = {curHealth, maxHealth};
 		return bh;
 	}
@@ -257,7 +258,7 @@ namespace Hk::Admin
 
 	Fuse* GetFuseFromID(uint iFuseId)
 	{
-		int iDunno = 0;
+		int idunno = 0;
 		Fuse* fuse = nullptr;
 		__asm {
 			mov edx, 0x6CFD390
@@ -265,36 +266,36 @@ namespace Hk::Admin
 
 			lea ecx, iFuseId
 			push ecx
-			lea ecx, iDunno
+			lea ecx, idunno
 			push ecx
 			mov ecx, eax
 			mov edx, 0x6D15D10
 			call edx
-			mov edx, [iDunno]
+			mov edx, [idunno]
 			mov edi, [edx+0x10]
 			mov fuse, edi
-			}
+		}
 		return fuse;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/// Return the CEqObj from the IObjRW
-	__declspec(naked) CEqObj* __stdcall GetEqObjFromObjRW_(struct IObjRW* objRW)
+	__declspec(naked) CEqObj* __stdcall GetEqObjFromObjRW_(IObjRW* objRW)
 	{
 		__asm {
 			push ecx
 			push edx
 			mov ecx, [esp+12]
 			mov edx, [ecx]
-			call ord ptr[edx+0x150]
+			call dword ptr[edx+0x150]
 			pop edx
 			pop ecx
 			ret 4
-			}
+		}
 	}
 
-	CEqObj* GetEqObjFromObjRW(struct IObjRW* objRW)
+	CEqObj* GetEqObjFromObjRW(IObjRW* objRW)
 	{
 		return GetEqObjFromObjRW_(objRW);
 	}
@@ -303,16 +304,16 @@ namespace Hk::Admin
 	{
 		__asm {
 			lea eax, [esp+8] // iFuseId
-			push [esp+20]    // fSkip
-			push [esp+16]    // fDelay
-			push 0           // SUBOBJ_Id_NONE
+			push [esp+20] // fSkip
+			push [esp+16] // fDelay
+			push 0 // SUBOBJ_Id_NONE
 			push eax
 			push [esp+32] // fLifetime
 			mov ecx, [esp+24]
 			mov eax, [ecx]
 			call [eax+0x1E4]
 			ret 20
-			}
+		}
 	}
 
 	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
@@ -323,18 +324,18 @@ namespace Hk::Admin
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Returns true if a fuse was unlit
-	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseId, float fDunno)
+	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseId, float fdunno)
 	{
 		__asm {
 			mov ecx, [esp+4]
 			lea eax, [esp+8] // iFuseId
-			push [esp+12]    // fDunno
-			push 0           // SUBOBJ_Id_NONE
-			push eax         // iFuseId
+			push [esp+12] // fdunno
+			push 0 // SUBOBJ_Id_NONE
+			push eax // iFuseId
 			mov eax, [ecx]
 			call [eax+0x1E8]
 			ret 12
-			}
+		}
 	}
 
 	bool UnLightFuse(IObjRW* ship, uint iFuseId)

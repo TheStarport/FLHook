@@ -162,7 +162,7 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodBuy to see if a cargo mission needs to be updated.
 	 */
-	void GFGoodBuy(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	void GFGoodBuy(SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
 
@@ -180,7 +180,7 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on GFGoodSell to see if a cargo mission needs to be updated.
 	 */
-	void GFGoodSell(const struct SGFGoodSellInfo& gsi, ClientId& client)
+	void GFGoodSell(const SGFGoodSellInfo& gsi, ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
 

@@ -1,5 +1,9 @@
 {
   "sonarlint.rules": {
+    "c:S2612": {
+      "level": "On",
+      "severity": "Major"
+    },
     "c:S5816": {
       "level": "On",
       "severity": "Major"
@@ -51,10 +55,6 @@
     "c:S5443": {
       "level": "On",
       "severity": "Critical"
-    },
-    "c:S2612": {
-      "level": "On",
-      "severity": "Major"
     },
     "c:S5814": {
       "level": "On",

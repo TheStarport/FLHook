@@ -38,7 +38,7 @@ bool FlPacket::SendTo(ClientId client)
 {
 	CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 
-	// We don't include first 4 bytes directly in packet, it is info about size. Type and kind are already included.
+	// We don't include first 4 bytes directly in packet, it is info about size. type and kind are already included.
 	const bool result = cdpClient->Send((byte*)this + 4, size);
 
 	// No mistakes, free allocated memory.

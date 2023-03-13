@@ -84,8 +84,8 @@ namespace Plugins::CargoDrop
 				updateInfo.fTimestamp = static_cast<float>(snd.lastTimestamp);
 				updateInfo.cState = 0;
 				updateInfo.fThrottle = 0;
-				updateInfo.vPos = snd.lastPosition;
-				updateInfo.vDir = snd.lastDirection;
+				updateInfo.pos = snd.lastPosition;
+				updateInfo.dir = snd.lastDirection;
 				Server.SPObjUpdate(updateInfo, client);
 
 				if (!snd.f1DisconnectProcessed)
@@ -194,11 +194,11 @@ namespace Plugins::CargoDrop
 	/** @ingroup CargoDrop
 	 * @brief Hook on SPObjUpdate, used to get the timestamp from the player. Used to figure out if the player has disconnected in the timer.
 	 */
-	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
+	void SPObjUpdate(SSPObjUpdateInfo const& ui, ClientId& client)
 	{
 		global->info[client].lastTimestamp = ui.fTimestamp;
-		global->info[client].lastPosition = ui.vPos;
-		global->info[client].lastDirection = ui.vDir;
+		global->info[client].lastPosition = ui.pos;
+		global->info[client].lastDirection = ui.dir;
 	}
 } // namespace Plugins::CargoDrop
 

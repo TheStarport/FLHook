@@ -20,7 +20,7 @@
  *     "bases": ["li01_01_base"],
  *     "cost": 0,
  *     "introMessage1": "Light customization facilities are available here.",
- *     "introMessage2": "Type /lights on your console to see options.",
+ *     "introMessage2": "type /lights on your console to see options.",
  *     "lights": ["SmallWhite","LargeGreen"],
  *     "itemsPerPage": 24,
  *     "notifyAvailabilityOnEnter": false

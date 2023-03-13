@@ -16,7 +16,7 @@ namespace Hk::Err
 		{Error::NoTargetSelected, L"No target selected"},
 		{Error::TargetIsNotPlayer, L"Target is not a player"},
 		{Error::PlayerNotDocked, L"Player in space"},
-		{Error::UnknownError, L"Unknown error"},
+		{Error::unknownError, L"unknown error"},
 		{Error::InvalidClientId, L"Invalid client id"},
 		{Error::InvalidIdString, L"Invalid id std::string"},
 		{Error::InvalidSystem, L"Invalid system"},

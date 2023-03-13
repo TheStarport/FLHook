@@ -1,5 +1,5 @@
 ﻿/**
- * @date Unknown
+ * @date unknown
  * @author ||KOS||Acid (Ported by Raikkonen)
  * @defgroup KillTracker Kill Tracker
  * @brief
@@ -101,7 +101,7 @@ namespace Plugins::KillTracker
 			{
 				const DamageList* dmg = *_dmg;
 				const auto killerId = Hk::Client::GetClientIdByShip(
-				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				    dmg->get_cause() == DamageCause::unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 
 				if (killerId.has_value() && killerId.value() != client)
 				{
@@ -112,7 +112,7 @@ namespace Plugins::KillTracker
 	}
 
 	void AddDamageEntry(
-	    const DamageList** damageList, const ushort& subObjId, const float& newHitPoints, [[maybe_unused]] const enum DamageEntry::SubObjFate& fate)
+	    const DamageList** damageList, const ushort& subObjId, const float& newHitPoints, [[maybe_unused]] const DamageEntry::SubObjFate& fate)
 	{
 		if (global->config->enableDamageTracking && g_DmgTo && subObjId == 1)
 		{

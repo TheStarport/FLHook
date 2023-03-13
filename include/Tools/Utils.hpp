@@ -315,19 +315,19 @@ inline std::wstring stows(const std::string& text)
 	const int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, nullptr, 0);
 	const auto wideText = new wchar_t[size];
 	MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, wideText, size);
-	std::wstring Ret = wideText;
+	std::wstring ret = wideText;
 	delete[] wideText;
-	return Ret;
+	return ret;
 }
 
 inline std::string wstos(const std::wstring& text)
 {
-	const uint iLen = text.length() + 1;
-	const auto Buf = new char[iLen];
-	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, Buf, iLen, nullptr, nullptr);
-	std::string Ret = Buf;
-	delete[] Buf;
-	return scRet;
+	const uint len = text.length() + 1;
+	const auto buf = new char[len];
+	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, buf, len, nullptr, nullptr);
+	std::string ret = buf;
+	delete[] buf;
+	return ret;
 }
 
 template<typename TStr>

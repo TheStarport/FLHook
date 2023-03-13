@@ -112,7 +112,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		PrintUserCmdText(client, L"Unknown error. Unable to withdraw cash.");
+		PrintUserCmdText(client, L"unknown error. Unable to withdraw cash.");
 	}
 
 	void DepositMoney(const Bank& bank, uint deposit, ClientId client)
@@ -136,7 +136,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		PrintUserCmdText(client, L"Unknown Error. Unable to deposit cash.");
+		PrintUserCmdText(client, L"unknown Error. Unable to deposit cash.");
 	}
 
 	// /bank withdraw account password amount

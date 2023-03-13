@@ -9,14 +9,14 @@ struct HookEntry
 	FARPROC fpOldProc;
 };
 
-struct CARGO_INFO
+struct CargoInfo
 {
-	uint iId;
-	int iCount;
-	uint iArchId;
-	float fStatus;
-	bool bMission;
-	bool bMounted;
+	uint id;
+	int count;
+	uint archId;
+	float status;
+	bool mission;
+	bool mounted;
 	CacheString hardpoint;
 };
 
@@ -192,7 +192,7 @@ struct DataMarketItem
 struct BaseInfo
 {
 	uint baseId;
-	std::string Basename;
+	std::string baseName;
 	uint iObjectId;
 	bool bDestroyed;
 	std::list<DataMarketItem> MarketMisc;

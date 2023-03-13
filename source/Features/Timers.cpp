@@ -59,7 +59,7 @@ void TimerCheckKick()
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				ClientId client = playerData->iOnlineId;
+				ClientId client = playerData->onlineId;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
@@ -122,7 +122,7 @@ void TimerNPCAndF1Check()
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				ClientId client = playerData->iOnlineId;
+				ClientId client = playerData->onlineId;
 				if (client < 1 || client > MaxClientId)
 					continue;
 

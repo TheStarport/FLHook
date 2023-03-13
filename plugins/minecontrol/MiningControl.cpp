@@ -63,15 +63,15 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Return true if the cargo list contains the specified good.
 	 */
-	static bool ContainsEquipment(const std::list<CARGO_INFO>& cargoList, uint archId)
+	static bool ContainsEquipment(const std::list<CargoInfo>& cargoList, uint archId)
 	{
-		return std::ranges::any_of(cargoList, [archId](const CARGO_INFO& c) { return c.bMounted && c.iArchId == archId; });
+		return std::ranges::any_of(cargoList, [archId](const CargoInfo& c) { return c.mounted && c.archId == archId; });
 	}
 
 	/** @ingroup MiningControl
 	 * @brief Return the factor to modify a mining loot drop by.
 	 */
-	static float GetBonus(uint reputation, uint shipId, const std::list<CARGO_INFO>& cargoList, uint lootId)
+	static float GetBonus(uint reputation, uint shipId, const std::list<CargoInfo>& cargoList, uint lootId)
 	{
 		if (!global->PlayerBonus.size())
 			return 0.0f;
@@ -140,7 +140,7 @@ namespace Plugins::MiningControl
 				Console::ConInfo(std::format("client={} iRepGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
 				for (auto& ci : Cargo.value())
 				{
-					Console::ConInfo(std::format("{} ", ci.iArchId));
+					Console::ConInfo(std::format("{} ", ci.archId));
 				}
 			}
 
@@ -372,7 +372,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Called when a gun hits something.
 	 */
-	void SPMunitionCollision(struct SSPMunitionCollisionInfo const& ci, ClientId& client)
+	void SPMunitionCollision(SSPMunitionCollisionInfo const& ci, ClientId& client)
 	{
 		// If this is not a lootable rock, do no other processing.
 		if (ci.dwTargetShip != 0)
@@ -410,8 +410,8 @@ namespace Plugins::MiningControl
 						// If the field is getting mined out, reduce the bonus
 						zoneBonus *= global->ZoneBonus[zone->iZoneId].CurrentReserve / global->ZoneBonus[zone->iZoneId].MaxReserve;
 
-						uint lootId = zone->lootableZone->dynamic_loot_commodity;
-						uint crateId = zone->lootableZone->dynamic_loot_container;
+						uint lootId = zone->lootableZone->dynamicLootCommodity;
+						uint crateId = zone->lootableZone->dynamicLootContainer;
 
 						// Change the commodity if appropriate.
 						if (global->ZoneBonus[zone->iZoneId].ReplacementLootId)
@@ -464,7 +464,7 @@ namespace Plugins::MiningControl
 
 						// Calculate the loot drop and drop it.
 						auto lootCount = static_cast<int>(
-						    random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamic_loot_count2));
+						    random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamicLootCount2));
 
 						// Remove this lootCount from the field
 						global->ZoneBonus[zone->iZoneId].CurrentReserve -= static_cast<float>(lootCount);
@@ -539,7 +539,7 @@ namespace Plugins::MiningControl
 	/** @ingroup MiningControl
 	 * @brief Called when an asteriod is mined. We ignore all of the parameters from the client.
 	 */
-	void MineAsteroid([[maybe_unused]] SystemId& clientSystemId, [[maybe_unused]] const class Vector& vPos, [[maybe_unused]] const uint& crateId,
+	void MineAsteroid([[maybe_unused]] SystemId& clientSystemId, [[maybe_unused]] const Vector& pos, [[maybe_unused]] const uint& crateId,
 	    [[maybe_unused]] const uint& lootId, [[maybe_unused]] const uint& count, [[maybe_unused]] ClientId& client)
 	{
 		global->returnCode = ReturnCode::SkipAll;

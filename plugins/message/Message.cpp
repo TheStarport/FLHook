@@ -324,7 +324,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief On client disconnect remove any references to this client.
 	 */
-	void DisConnect(ClientId& client, const enum EFLConnection [[maybe_unused]])
+	void DisConnect(ClientId& client, const EFLConnection [[maybe_unused]])
 	{
 		auto iter = global->info.begin();
 		while (iter != global->info.end())
@@ -357,7 +357,7 @@ namespace Plugins::Message
 	/** @ingroup Message
 	 * @brief When a char selects a target and the target is a player ship then record the target's client.
 	 */
-	void SetTarget(const ClientId& uClientId, struct XSetTarget const& p2)
+	void SetTarget(const ClientId& uClientId, XSetTarget const& p2)
 	{
 		// The iSpaceId *appears* to represent a player ship Id when it is
 		// targeted but this might not be the case. Also note that

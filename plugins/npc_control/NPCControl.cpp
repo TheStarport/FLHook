@@ -154,15 +154,15 @@ namespace Plugins::Npc
 
 		if (varyPosition)
 		{
-			si.vPos.x = position.x + RandomFloatRange(0, 1000);
-			si.vPos.y = position.y + RandomFloatRange(0, 1000);
-			si.vPos.z = position.z + RandomFloatRange(0, 2000);
+			si.pos.x = position.x + RandomFloatRange(0, 1000);
+			si.pos.y = position.y + RandomFloatRange(0, 1000);
+			si.pos.z = position.z + RandomFloatRange(0, 2000);
 		}
 		else
 		{
-			si.vPos.x = position.x;
-			si.vPos.y = position.y;
-			si.vPos.z = position.z;
+			si.pos.x = position.x;
+			si.pos.y = position.y;
+			si.pos.z = position.z;
 		}
 
 		// Define the string used for the scanner name. Because the
@@ -197,7 +197,7 @@ namespace Plugins::Npc
 		// Get personality
 		pub::AI::SetPersonalityParams personalityParams;
 		personalityParams.iStateGraph = pub::StateGraph::get_state_graph(arch.graph.c_str(), pub::StateGraph::TYPE_STANDARD);
-		personalityParams.bStateId = true;
+		personalityParams.stateId = true;
 		const auto personality = Hk::Personalities::GetPersonality(arch.pilot);
 
 		if (personality.has_error())
@@ -339,7 +339,7 @@ namespace Plugins::Npc
 				{
 					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 					{
-						pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
+						pub::SpaceObj::Destroy(target.value(), DestroyType::Fuse);
 						global->spawnedNpcs.erase(it);
 						cmds->Print("OK");
 						return;
@@ -349,7 +349,7 @@ namespace Plugins::Npc
 
 		// Destroy all ships
 		for (const auto& npc : global->spawnedNpcs)
-			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
+			pub::SpaceObj::Destroy(npc, DestroyType::Fuse);
 
 		global->spawnedNpcs.clear();
 		cmds->Print("OK");
@@ -377,10 +377,10 @@ namespace Plugins::Npc
 
 				pub::AI::DirectiveGotoOp go;
 				go.iGotoType = 1;
-				go.vPos = pos;
-				go.vPos.x = pos.x + RandomFloatRange(0, 500);
-				go.vPos.y = pos.y + RandomFloatRange(0, 500);
-				go.vPos.z = pos.z + RandomFloatRange(0, 500);
+				go.pos = pos;
+				go.pos.x = pos.x + RandomFloatRange(0, 500);
+				go.pos.y = pos.y + RandomFloatRange(0, 500);
+				go.pos.z = pos.z + RandomFloatRange(0, 500);
 				go.fRange = 0;
 				pub::AI::SubmitDirective(npc, &go);
 			}

@@ -112,12 +112,12 @@ namespace Plugins::Stats
 
 			// Add ship
 			const Archetype::Ship* ship = Archetype::GetShip(Players[Player.client].shipArchetype);
-			jPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "Unknown";
+			jPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "unknown";
 
 			// Add system
 			SystemId iSystemId = Hk::Player::GetSystem(Player.client).value();
 			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
-			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->strid_name));
+			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->idsName));
 
 			jPlayers.push_back(jPlayer);
 		}
@@ -128,7 +128,7 @@ namespace Plugins::Stats
 	}
 
 	// Hooks for updating stats
-	void DisConnect_AFTER([[maybe_unused]] uint client, [[maybe_unused]] enum EFLConnection state)
+	void DisConnect_AFTER([[maybe_unused]] uint client, [[maybe_unused]] EFLConnection state)
 	{
 		ExportJSON();
 	}

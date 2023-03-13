@@ -1,5 +1,5 @@
 /**
- * @date Unknown
+ * @date unknown
  * @author ||KOS||Acid (Ported by Raikkonen 2022)
  * @defgroup BountyHunt Bounty Hunt
  * @brief
@@ -280,7 +280,7 @@ namespace Plugins::BountyHunt
 	/** @ingroup BountyHunt
 	 * @brief Hook for Disconnect to see if the player had a bounty on them
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]] const enum EFLConnection& state)
+	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
 		checkIfPlayerFled(client);
 	}

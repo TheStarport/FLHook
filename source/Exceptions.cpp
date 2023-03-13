@@ -61,7 +61,7 @@ void WriteMiniDump(SEHException* ex)
 			{
 				sprintf_s(DumpPath, "%s-%d.dmp", DumpPathFirst, n);
 				n++;
-			} while (FileExists(DumpPath));
+			} while (std::filesystem::exists(DumpPath));
 
 			// create the file
 			const HANDLE hFile = ::CreateFile(DumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
