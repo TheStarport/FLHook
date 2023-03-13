@@ -34,7 +34,7 @@ namespace Plugins::Arena
 		uint targetBaseId;
 		uint targetSystemId;
 		uint restrictedSystemId;
-		std::wstring wscCommand;
+		std::wstring Command;
 	};
 
 	//! Global data for this plugin

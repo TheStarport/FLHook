@@ -123,9 +123,9 @@ namespace IEngineHook
 				const auto client = Hk::Client::GetClientIdByShip(shipId);
 				if (client.has_value())
 				{
-					std::wstring wscMsg = L"Traffic control alert: %player has requested to dock";
-					wscMsg = ReplaceStr(wscMsg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
-					PrintLocalUserCmdText(client.value(), wscMsg, 15000);
+					std::wstring Msg = L"Traffic control alert: %player has requested to dock";
+					Msg = ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
+					PrintLocalUserCmdText(client.value(), Msg, 15000);
 				}
 			}
 			// Actually dock

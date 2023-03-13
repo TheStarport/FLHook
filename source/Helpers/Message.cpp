@@ -24,13 +24,13 @@ namespace Hk::Message
 		const CHAT_ID ci = {0};
 		const CHAT_ID ciClient = {client};
 
-		const std::wstring wscXML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
+		const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
 		uint iRet;
-		char szBuf[1024];
-		if (const auto err = FMsgEncodeXML(wscXML, szBuf, sizeof(szBuf), iRet); err.has_error())
+		char Buf[1024];
+		if (const auto err = FMsgEncodeXML(XML, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
-		IServerImplHook::SubmitChat(ci, iRet, szBuf, ciClient, -1);
+		IServerImplHook::SubmitChat(ci, iRet, Buf, ciClient, -1);
 		return {};
 	}
 
@@ -78,11 +78,11 @@ namespace Hk::Message
 
 		const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + XMLText(message) + L"</TEXT>";
 		uint iRet;
-		char szBuf[1024];
-		if (const auto err = FMsgEncodeXML(xml, szBuf, sizeof(szBuf), iRet); err.has_error())
+		char Buf[1024];
+		if (const auto err = FMsgEncodeXML(xml, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
-		IServerImplHook::SubmitChat(ci, iRet, szBuf, ciClient, -1);
+		IServerImplHook::SubmitChat(ci, iRet, Buf, ciClient, -1);
 		return {};
 	}
 
@@ -92,10 +92,10 @@ namespace Hk::Message
 	{
 		XMLReader rdr;
 		RenderDisplayList rdl;
-		std::wstring wscMsg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
-		wscMsg += xmlString;
-		wscMsg += L"<PARA/><POP/></RDL>\x000A\x000A";
-		if (!rdr.read_buffer(rdl, (const char*)wscMsg.c_str(), wscMsg.length() * 2))
+		std::wstring Msg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
+		Msg += xmlString;
+		Msg += L"<PARA/><POP/></RDL>\x000A\x000A";
+		if (!rdr.read_buffer(rdl, (const char*)Msg.c_str(), Msg.length() * 2))
 			return cpp::fail(Error::WrongXmlSyntax);
 
 		BinaryRDLWriter rdlwrite;
@@ -127,12 +127,12 @@ namespace Hk::Message
 
 	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xmlString)
 	{
-		char szBuf[0xFFFF];
+		char Buf[0xFFFF];
 		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmlString, szBuf, sizeof(szBuf), iRet); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
-		FMsgSendChat(client, szBuf, iRet);
+		FMsgSendChat(client, Buf, iRet);
 		return {};
 	}
 
@@ -161,15 +161,15 @@ namespace Hk::Message
 			systemId = std::get<uint>(system);
 		}
 		// encode xml std::string
-		char szBuf[0xFFFF];
+		char Buf[0xFFFF];
 		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmlString, szBuf, sizeof(szBuf), iRet); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet); err.has_error())
 			return cpp::fail(err.error());
 
 		// for all players in system...
 		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
 		{
-			FMsgSendChat(player, szBuf, iRet);
+			FMsgSendChat(player, Buf, iRet);
 		}
 
 		return {};
@@ -180,9 +180,9 @@ namespace Hk::Message
 	cpp::result<void, Error> FMsgU(const std::wstring& xmlString)
 	{
 		// encode xml std::string
-		char szBuf[0xFFFF];
+		char Buf[0xFFFF];
 		uint iRet;
-		const auto err = FMsgEncodeXML(xmlString, szBuf, sizeof(szBuf), iRet);
+		const auto err = FMsgEncodeXML(xmlString, Buf, sizeof(Buf), iRet);
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -191,7 +191,7 @@ namespace Hk::Message
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->iOnlineId;
-			FMsgSendChat(client, szBuf, iRet);
+			FMsgSendChat(client, Buf, iRet);
 		}
 
 		return {};
@@ -202,7 +202,7 @@ namespace Hk::Message
 	refuses to send if necessary. */
 	cpp::result<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
 	{
-#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+#define HAS_FLAG(a, b) ((a).Flags.find(b) != -1)
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
@@ -247,15 +247,15 @@ namespace Hk::Message
 				break;
 		}
 
-		wchar_t wszFormatBuf[8];
-		swprintf(wszFormatBuf, _countof(wszFormatBuf), L"%02X", (long)cFormat);
-		const std::wstring wscTRADataFormat = wszFormatBuf;
-		const std::wstring wscTRADataSenderColor = L"FFFFFF"; // white
+		wchar_t wFormatBuf[8];
+		swprintf(wFormatBuf, _countof(wFormatBuf), L"%02X", (long)cFormat);
+		const std::wstring TRADataFormat = wFormatBuf;
+		const std::wstring TRADataSenderColor = L"FFFFFF"; // white
 
-		const std::wstring wscXML = L"<TRA data=\"0x" + wscTRADataSenderColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(sender) +
-		    L": </TEXT>" + L"<TRA data=\"0x" + textColor + wscTRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
+		const std::wstring XML = L"<TRA data=\"0x" + TRADataSenderColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(sender) +
+		    L": </TEXT>" + L"<TRA data=\"0x" + textColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
 
-		if (const auto err = FMsg(toClientId, wscXML); err.has_error())
+		if (const auto err = FMsg(toClientId, XML); err.has_error())
 			return cpp::fail(err.error());
 
 		return {};
@@ -264,8 +264,8 @@ namespace Hk::Message
 	/** Send a player to player message */
 	cpp::result<void, Error> SendPrivateChat(uint fromClientId, uint toClientId, const std::wstring& text)
 	{
-		const auto wscSender = Client::GetCharacterNameByID(fromClientId);
-		if (wscSender.has_error())
+		const auto Sender = Client::GetCharacterNameByID(fromClientId);
+		if (Sender.has_error())
 		{
 			Console::ConErr(std::format("Unable to send private chat message from client {}", fromClientId));
 			return {};
@@ -281,11 +281,11 @@ namespace Hk::Message
 		}
 
 		// Send the message to both the sender and receiver.
-		auto err = FormatSendChat(toClientId, wscSender.value(), text, L"19BD3A");
+		auto err = FormatSendChat(toClientId, Sender.value(), text, L"19BD3A");
 		if (err.has_error())
 			return cpp::fail(err.error());
 
-		err = FormatSendChat(fromClientId, wscSender.value(), text, L"19BD3A");
+		err = FormatSendChat(fromClientId, Sender.value(), text, L"19BD3A");
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -295,7 +295,7 @@ namespace Hk::Message
 	/** Send a player to system message */
 	void SendSystemChat(uint fromClientId, const std::wstring& text)
 	{
-		const std::wstring wscSender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
+		const std::wstring Sender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
 
 		// Get the player's current system.
 		uint systemId;
@@ -305,7 +305,7 @@ namespace Hk::Message
 		for (auto player : Hk::Client::getAllPlayersInSystem(systemId))
 		{
 			// Send the message a player in this system.
-			FormatSendChat(player, wscSender, text, L"E6C684");
+			FormatSendChat(player, Sender, text, L"E6C684");
 		}
 	}
 
@@ -318,8 +318,8 @@ namespace Hk::Message
 			return;
 		}
 
-		const auto wscSender = Client::GetCharacterNameByID(fromClientId);
-		if (wscSender.has_error())
+		const auto Sender = Client::GetCharacterNameByID(fromClientId);
+		if (Sender.has_error())
 		{
 			Console::ConErr(std::format("Unable to send local system chat message from client {}", fromClientId));
 			return;
@@ -352,16 +352,16 @@ namespace Hk::Message
 				continue;
 
 			// Send the message a player in this system.
-			FormatSendChat(player, wscSender.value(), text, L"FF8F40");
+			FormatSendChat(player, Sender.value(), text, L"FF8F40");
 		}
 	}
 
 	/** Send a player to group message */
 	void SendGroupChat(uint fromClientId, const std::wstring& text)
 	{
-		auto wscSender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
+		auto Sender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
 		// Format and send the message a player in this group.
-		auto lstMembers = Hk::Player::GetGroupMembers(wscSender);
+		auto lstMembers = Hk::Player::GetGroupMembers(Sender);
 		if (lstMembers.has_error())
 		{
 			return;
@@ -369,7 +369,7 @@ namespace Hk::Message
 
 		for (const auto& gm : lstMembers.value())
 		{
-			FormatSendChat(gm.client, wscSender, text, L"FF7BFF");
+			FormatSendChat(gm.client, Sender, text, L"FF7BFF");
 		}
 	}
 
@@ -415,8 +415,8 @@ namespace Hk::Message
 
 	std::wstring GetWStringFromIdS(uint iIdS)
 	{
-		if (wchar_t wszBuf[1024]; LoadStringW(vDLLs[iIdS >> 16], iIdS & 0xFFFF, wszBuf, 1024))
-			return wszBuf;
+		if (wchar_t wBuf[1024]; LoadStringW(vDLLs[iIdS >> 16], iIdS & 0xFFFF, wBuf, 1024))
+			return wBuf;
 		return L"";
 	}
 

@@ -125,7 +125,7 @@ namespace Plugins::Wardrobe
 			try
 			{
 				// Overwrite the existing character file
-				std::string scCharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string CharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
 				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
 				if (restart.head)
 				{

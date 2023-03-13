@@ -87,7 +87,7 @@ namespace Plugins::MiscCommands
 		bool bLights = false;
 		for (st6::list<EquipDesc> const& eqLst = Players[client].equipDescList.equip; const auto& eq : eqLst)
 		{
-			std::string hp = ToLower(eq.szHardPoint.value);
+			std::string hp = ToLower(eq.HardPoint.value);
 			if (hp.find("dock") != std::string::npos)
 			{
 				XActivateEquip ActivateEq;
@@ -131,7 +131,7 @@ namespace Plugins::MiscCommands
 	 */
 	void UserCmdStuck(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		std::wstring wscCharname = (const wchar_t*)Players.GetActiveCharacterName(client);
+		std::wstring Charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
 		const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(client).value(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
@@ -159,9 +159,9 @@ namespace Plugins::MiscCommands
 		pos.z += 15;
 		Hk::Player::RelocateClient(client, pos, rot);
 
-		std::wstring wscMsg = global->config->stuckMessage;
-		wscMsg = ReplaceStr(wscMsg, L"%player", wscCharname);
-		PrintLocalUserCmdText(client, wscMsg, 6000.0f);
+		std::wstring Msg = global->config->stuckMessage;
+		Msg = ReplaceStr(Msg, L"%player", Charname);
+		PrintLocalUserCmdText(client, Msg, 6000.0f);
 	}
 
 	/** @ingroup MiscCommands

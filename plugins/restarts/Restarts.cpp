@@ -178,9 +178,9 @@ namespace Plugins::Restart
 			try
 			{
 				// Overwrite the existing character file
-				std::string scCharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
-				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
-				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
+				std::string CharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string TimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
+				std::string TimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
 					throw "copy template";
 

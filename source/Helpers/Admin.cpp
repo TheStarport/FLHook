@@ -11,22 +11,22 @@ namespace Hk::Admin
 			return L"";
 
 		// get ip
-		char* szP1;
-		char* szIdirectPlay8Address;
-		wchar_t wszHostname[] = L"hostname";
-		memcpy(&szP1, (char*)cdpSrv + 4, 4);
+		char* P1;
+		char* IdirectPlay8Address;
+		wchar_t wHostname[] = L"hostname";
+		memcpy(&P1, (char*)cdpSrv + 4, 4);
 
-		wchar_t wszIP[1024] = L"";
-		long lSize = sizeof(wszIP);
+		wchar_t wIP[1024] = L"";
+		long lSize = sizeof(wIP);
 		long lDataType = 1;
 		__asm {
         push 0                          ; dwFlags
-        lea edx, szIdirectPlay8Address
+        lea edx, IdirectPlay8Address
         push edx                        ; pAddress 
         mov edx, [cdpClient]
         mov edx, [edx+8]
         push edx                        ; dpnid
-        mov eax, [szP1]
+        mov eax, [P1]
         push eax
         mov ecx, [eax]
         call dword ptr[ecx + 0x28]      ; GetClientAddress
@@ -37,23 +37,23 @@ namespace Hk::Admin
         push eax
         lea eax, lSize
         push eax
-        lea eax, wszIP
+        lea eax, wIP
         push eax
-        lea eax, wszHostname
+        lea eax, wHostname
         push eax
-        mov ecx, [szIdirectPlay8Address]
+        mov ecx, [IdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
         call dword ptr[ecx+0x40]        ; GetComponentByName
 
-        mov ecx, [szIdirectPlay8Address]
+        mov ecx, [IdirectPlay8Address]
         push ecx
         mov ecx, [ecx]
         call dword ptr[ecx+0x08]        ; Release
 some_error:
 		}
 
-		return wszIP;
+		return wIP;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,11 @@ some_error:
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PlayerInfo pi;
-		const wchar_t* wszActiveCharname = (wchar_t*)Players.GetActiveCharacterName(client);
+		const wchar_t* wActiveCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 
 		pi.client = client;
-		pi.character = wszActiveCharname ? wszActiveCharname : L"";
-		pi.wscBase = pi.wscSystem = L"";
+		pi.character = wActiveCharname ? wActiveCharname : L"";
+		pi.Base = pi.System = L"";
 
 		uint iBase = 0;
 		uint iSystem = 0;
@@ -80,16 +80,16 @@ some_error:
 
 		if (iBase)
 		{
-			char szBasename[1024] = "";
-			pub::GetBaseNickname(szBasename, sizeof(szBasename), iBase);
-			pi.wscBase = stows(szBasename);
+			char Basename[1024] = "";
+			pub::GetBaseNickname(Basename, sizeof(Basename), iBase);
+			pi.Base = stows(Basename);
 		}
 
 		if (iSystem)
 		{
-			char szSystemname[1024] = "";
-			pub::GetSystemNickname(szSystemname, sizeof(szSystemname), iSystem);
-			pi.wscSystem = stows(szSystemname);
+			char Systemname[1024] = "";
+			pub::GetSystemNickname(Systemname, sizeof(Systemname), iSystem);
+			pi.System = stows(Systemname);
 			pi.iSystem = iSystem;
 		}
 
@@ -103,9 +103,9 @@ some_error:
 		pi.connectionInfo = ci.value();
 
 		// get ip
-		pi.wscIP = GetPlayerIP(client);
+		pi.IP = GetPlayerIP(client);
 
-		pi.wscHostname = ClientInfo[client].wscHostname;
+		pi.Hostname = ClientInfo[client].Hostname;
 
 		return pi;
 	}
@@ -113,7 +113,7 @@ some_error:
 	std::list<PlayerInfo> GetPlayers()
 	{
 		std::list<PlayerInfo> lstRet;
-		std::wstring wscRet;
+		std::wstring Ret;
 
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
@@ -147,7 +147,7 @@ some_error:
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights)
+	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights)
 	{
 		auto acc = Hk::Client::ExtractAccount(player);
 		if (acc.has_error())
@@ -157,8 +157,8 @@ some_error:
 
 		auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
-		IniWrite(scAdminFile, "admin", "rights", wstos(wscRights));
+		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		IniWrite(scAdminFile, "admin", "rights", wstos(Rights));
 		return {};
 	}
 
@@ -173,7 +173,7 @@ some_error:
 		}
 
 		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 
 		WIN32_FIND_DATA fd;
 		HANDLE hFind = FindFirstFile(scAdminFile.c_str(), &fd);
@@ -197,7 +197,7 @@ some_error:
 		}
 
 		std::wstring dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scAdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string AdminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
 		DeleteFile(scAdminFile.c_str());
 		return {};
 	}
@@ -211,33 +211,33 @@ some_error:
 		else if (!CoreGlobals::c()->disableNpcs && !bDisable)
 			return {};
 
-		char szJump[1];
-		char szCmp[1];
+		char Jump[1];
+		char Cmp[1];
 		if (bDisable)
 		{
-			szJump[0] = '\xEB';
-			szCmp[0] = '\xFF';
+			Jump[0] = '\xEB';
+			Cmp[0] = '\xFF';
 		}
 		else
 		{
-			szJump[0] = '\x75';
-			szCmp[0] = '\xF9';
+			Jump[0] = '\x75';
+			Cmp[0] = '\xF9';
 		}
 
 		void* pAddress = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS1);
-		WriteProcMem(pAddress, &szJump, 1);
+		WriteProcMem(pAddress, &Jump, 1);
 		pAddress = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
-		WriteProcMem(pAddress, &szCmp, 1);
+		WriteProcMem(pAddress, &Cmp, 1);
 		g_bNPCDisabled = bDisable;
 		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& wscBasename)
+	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& Basename)
 	{
 		uint baseId = 0;
-		pub::GetBaseID(baseId, wstos(wscBasename).c_str());
+		pub::GetBaseID(baseId, wstos(Basename).c_str());
 		if (!baseId)
 		{
 			return cpp::fail(Error::InvalidBaseName);

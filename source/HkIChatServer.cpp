@@ -4,7 +4,7 @@
 called when chat-text is being sent to a player, we reformat it(/set chatfont)
 **************************************************************************************************************/
 
-#define HAS_FLAG(a, b) ((a).wscFlags.find(b) != -1)
+#define HAS_FLAG(a, b) ((a).Flags.find(b) != -1)
 
 void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl)
 {
@@ -120,11 +120,11 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 		}
 		else
 		{
-			uint sz = size;
+			uint  = size;
 			__asm {
                 pushad
                 push [rdl]
-                push [sz]
+                push []
                 push [clientTo]
                 push [client]
                 mov ecx, [Client]

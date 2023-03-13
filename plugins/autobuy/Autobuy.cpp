@@ -431,7 +431,7 @@ namespace Plugins::Autobuy
 		}
 
 		const auto fileName = Hk::Client::GetCharFileName(client);
-		std::string scSection = "autobuy_" + wstos(fileName.value());
+		std::string Section = "autobuy_" + wstos(fileName.value());
 
 		bool enable = newState == L"on";
 		if (autobuyType == L"all")

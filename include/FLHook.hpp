@@ -86,20 +86,17 @@ class DLL DataManager : public Singleton<DataManager>
 	cpp::result<const Light&, Error> FindLightByHash(EquipId hash) const;
 };
 
-DLL std::string IniGetS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scDefault);
-DLL int IniGetI(const std::string& scFile, const std::string& scApp, const std::string& scKey, int iDefault);
-DLL bool IniGetB(const std::string& scFile, const std::string& scApp, const std::string& scKey, bool bDefault);
-DLL void IniWrite(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::string& scValue);
-DLL void IniDelSection(const std::string& scFile, const std::string& scApp);
-DLL void IniDelete(const std::string& scFile, const std::string& scApp, const std::string& scKey);
-DLL void IniWriteW(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscValue);
-DLL std::wstring IniGetWS(const std::string& scFile, const std::string& scApp, const std::string& scKey, const std::wstring& wscDefault);
-DLL float IniGetF(const std::string& scFile, const std::string& scApp, const std::string& scKey, float fDefault);
-DLL BOOL FileExists(LPCTSTR szPath);
-DLL void ini_write_wstring(FILE* file, const std::string& parmname, const std::wstring& in);
-DLL void ini_get_wstring(INI_Reader& ini, std::wstring& wscValue);
+DLL std::string IniGetS(const std::string& File, const std::string& App, const std::string& Key, const std::string& Default);
+DLL int IniGetI(const std::string& File, const std::string& App, const std::string& Key, int iDefault);
+DLL bool IniGetB(const std::string& File, const std::string& App, const std::string& Key, bool bDefault);
+DLL void IniWrite(const std::string& File, const std::string& App, const std::string& Key, const std::string& Value);
+DLL void IniDelSection(const std::string& File, const std::string& App);
+DLL void IniDelete(const std::string& File, const std::string& App, const std::string& Key);
+DLL void IniWriteW(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Value);
+DLL std::wstring IniGetWS(const std::string& File, const std::string& App, const std::string& Key, const std::wstring& Default);
+DLL float IniGetF(const std::string& File, const std::string& App, const std::string& Key, float fDefault);
 DLL std::wstring GetTimeString(bool bLocalTime);
-DLL std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& scExtension);
+DLL std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& Extension);
 DLL void AddLog(LogType LogType, LogLevel lvl, const std::string& str);
 
 // variables
@@ -530,36 +527,36 @@ class CCmds
 	void CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmount);
 	void CmdAddCash(const std::variant<uint, std::wstring>& player, uint iAmount);
 
-	void CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason);
+	void CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& Reason);
 	void CmdBan(const std::variant<uint, std::wstring>& player);
 	void CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration);
 	void CmdUnban(const std::variant<uint, std::wstring>& player);
 
-	void CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& wscBasename);
-	void CmdChase(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player);
-	void CmdPull(std::wstring wscAdminName, const std::variant<uint, std::wstring>& player);
-	void CmdMove(std::wstring wscAdminName, float x, float y, float z);
+	void CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& Basename);
+	void CmdChase(std::wstring AdminName, const std::variant<uint, std::wstring>& player);
+	void CmdPull(std::wstring AdminName, const std::variant<uint, std::wstring>& player);
+	void CmdMove(std::wstring AdminName, float x, float y, float z);
 	void CmdKill(const std::variant<uint, std::wstring>& player);
 	void CmdResetRep(const std::variant<uint, std::wstring>& player);
-	void CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue);
-	void CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup);
+	void CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& RepGroup, float fValue);
+	void CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& RepGroup);
 
 	void CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& text);
-	void CmdMsgS(const std::wstring& wscSystemname, const std::wstring& text);
+	void CmdMsgS(const std::wstring& Systemname, const std::wstring& text);
 	void CmdMsgU(const std::wstring& text);
-	void CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML);
-	void CmdFMsgS(const std::wstring& wscSystemname, const std::wstring& wscXML);
-	void CmdFMsgU(const std::wstring& wscXML);
+	void CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& XML);
+	void CmdFMsgS(const std::wstring& Systemname, const std::wstring& XML);
+	void CmdFMsgU(const std::wstring& XML);
 
 	void CmdEnumCargo(const std::variant<uint, std::wstring>& player);
 	void CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, uint count);
-	void CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, uint iCount, bool iMission);
+	void CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& Good, uint iCount, bool iMission);
 
-	void CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname);
+	void CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& NewCharname);
 	void CmdDeleteChar(const std::variant<uint, std::wstring>& player);
 
 	void CmdReadCharFile(const std::variant<uint, std::wstring>& player);
-	void CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscData);
+	void CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& Data);
 
 	void CmdGetClientID(const std::wstring& player);
 	void PrintPlayerInfo(PlayerInfo& pi);
@@ -581,20 +578,20 @@ class CCmds
 
 	void CmdGetReservedSlot(const std::variant<uint, std::wstring>& player);
 	void CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int iReservedSlot);
-	void CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights);
+	void CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights);
 	void CmdGetAdmin(const std::variant<uint, std::wstring>& player);
 	void CmdDelAdmin(const std::variant<uint, std::wstring>& player);
 
 	void CmdLoadPlugins();
-	void CmdLoadPlugin(const std::wstring& wscPlugin);
+	void CmdLoadPlugin(const std::wstring& Plugin);
 	void CmdListPlugins();
-	void CmdUnloadPlugin(const std::wstring& wscPlugin);
-	void CmdReloadPlugin(const std::wstring& wscPlugin);
+	void CmdUnloadPlugin(const std::wstring& Plugin);
+	void CmdReloadPlugin(const std::wstring& Plugin);
 	void CmdShutdown();
 
-	void ExecuteCommandString(const std::wstring& wscCmd);
-	void SetRightsByString(const std::string& scRightStr);
-	std::wstring wscCurCmdString;
+	void ExecuteCommandString(const std::wstring& Cmd);
+	void SetRightsByString(const std::string& RightStr);
+	std::wstring CurCmdString;
 #endif
 
   public:
@@ -615,9 +612,9 @@ class CInGame final : public CCmds
 {
   public:
 	uint client;
-	std::wstring wscAdminName;
+	std::wstring AdminName;
 	DLL void DoPrint(const std::string& text) override;
-	DLL void ReadRights(const std::string& scIniFile);
+	DLL void ReadRights(const std::string& IniFile);
 	DLL std::wstring GetAdminName() override;
 	DLL bool IsPlayer() override { return true; }
 };
@@ -631,10 +628,10 @@ DLL bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std
 DLL bool AddKickLog(ClientId client, const std::string& reason);
 DLL bool AddConnectLog(ClientId client, const std::string& reason);
 
-DLL void UserCmd_SetDieMsg(ClientId& client, const std::wstring& wscParam);
-DLL void UserCmd_SetChatFont(ClientId& client, const std::wstring& wscParam);
+DLL void UserCmd_SetDieMsg(ClientId& client, const std::wstring& Param);
+DLL void UserCmd_SetChatFont(ClientId& client, const std::wstring& Param);
 DLL void PrintUserCmdText(ClientId client, const std::wstring& text);
-DLL void PrintLocalUserCmdText(ClientId client, const std::wstring& wscMsg, float fDistance);
+DLL void PrintLocalUserCmdText(ClientId client, const std::wstring& Msg, float fDistance);
 
 DLL extern bool g_NonGunHitsBase;
 DLL extern float g_LastHitPts;

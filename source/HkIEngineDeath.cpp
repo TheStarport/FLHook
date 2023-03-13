@@ -1,8 +1,8 @@
 ﻿#include "Global.hpp"
 
-std::wstring SetSizeToSmall(const std::wstring& wscDataFormat)
+std::wstring SetSizeToSmall(const std::wstring& DataFormat)
 {
-	return wscDataFormat.substr(0, 8) + L"90";
+	return DataFormat.substr(0, 8) + L"90";
 }
 
 /**************************************************************************************************************
@@ -46,9 +46,9 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	std::wstring xmlMsgSmallSys = L"<TRA data=\"" + styleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsgSmallSys += XMLText(msg);
 	xmlMsgSmallSys += L"</TEXT>";
-	char szBufSmallSys[0xFFFF];
+	char BufSmallSys[0xFFFF];
 	uint retSmallSys;
-	if (Hk::Message::FMsgEncodeXML(xmlMsgSmallSys, szBufSmallSys, sizeof(szBufSmallSys), retSmallSys).has_error())
+	if (Hk::Message::FMsgEncodeXML(xmlMsgSmallSys, BufSmallSys, sizeof(BufSmallSys), retSmallSys).has_error())
 		return;
 
 	// send
@@ -68,7 +68,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 		{
 			sendXmlBuf = bufSmall;
 			sendXmlRet = retSmall;
-			sendXmlBufSys = szBufSmallSys;
+			sendXmlBufSys = BufSmallSys;
 			sendXmlSysRet = retSmallSys;
 		}
 		else
@@ -186,10 +186,10 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 					}
 					else
 					{
-						std::wstring wscKiller = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
+						std::wstring Killer = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
 
 						deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
-						deathMessage = ReplaceStr(deathMessage, L"%killer", wscKiller);
+						deathMessage = ReplaceStr(deathMessage, L"%killer", Killer);
 					}
 
 					deathMessage = ReplaceStr(deathMessage, L"%type", killType);

@@ -46,13 +46,13 @@ namespace Plugins::Mark
 	void UnMarkAllObjects(ClientId client);
 	char UnMarkObject(ClientId client, uint iObject);
 
-	void UserCmd_AutoMark(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_MarkObj(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& wscParam);
-	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& wscParam);
+	void UserCmd_AutoMark(ClientId& client, const std::wstring& Param);
+	void UserCmd_MarkObj(ClientId& client, const std::wstring& Param);
+	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& Param);
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& Param);
+	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& Param);
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& Param);
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& Param);
 
 	void TimerMarkDelay();
 	void TimerSpaceObjMark();
@@ -75,8 +75,8 @@ namespace Plugins::Mark
 //! Macros
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
-		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, wscError[i]);                           \
+		for (uint i = 0; (i < sizeof(Error) / sizeof(std::wstring)); i++) \
+			PrintUserCmdText(client, Error[i]);                           \
 		return;                                                              \
 	}
 } // namespace Plugins::Mark

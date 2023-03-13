@@ -14,19 +14,19 @@ void IClientImpl__Startup__Inner(uint, uint)
 		BaseInfo bi;
 		bi.bDestroyed = false;
 		bi.iObjectId = base->lSpaceObjId;
-		char const* szBaseName = "";
+		char const* BaseName = "";
 		__asm {
             pushad
             mov ecx, [base]
             mov eax, [base]
             mov eax, [eax]
             call [eax+4]
-            mov [szBaseName], eax
+            mov [BaseName], eax
             popad
 		}
 
-		bi.scBasename = szBaseName;
-		bi.baseId = CreateID(szBaseName);
+		bi.scBasename = BaseName;
+		bi.baseId = CreateID(BaseName);
 		CoreGlobals::i()->allBases.push_back(bi);
 		pub::System::LoadSystem(base->systemId);
 
@@ -190,7 +190,7 @@ namespace IServerImplHook
 					FindClose(hFind);
 					g_Admin.ReadRights(adminFile);
 					g_Admin.client = cidFrom.iId;
-					g_Admin.wscAdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.iId));
+					g_Admin.AdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.iId));
 					g_Admin.ExecuteCommandString(buffer.data() + 1);
 					return false;
 				}
@@ -691,10 +691,10 @@ bool Login__InnerBefore(const SLoginInfo& li, ClientId client)
 	{
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
+		char DataPath[MAX_PATH];
+		GetUserDataPath(DataPath);
 
-		std::string path = std::string(szDataPath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
+		std::string path = std::string(DataPath) + "\\Accts\\MultiPlayer\\" + wstos(dir) + "\\banned";
 
 		FILE* file = fopen(path.c_str(), "r");
 		if (file)
@@ -702,7 +702,7 @@ bool Login__InnerBefore(const SLoginInfo& li, ClientId client)
 			fclose(file);
 
 			// Ban the player
-			st6::wstring flStr((ushort*)acc->wszAccId);
+			st6::wstring flStr((ushort*)acc->wAccId);
 			Players.BanAccount(flStr, true);
 
 			// Kick them
@@ -728,7 +728,7 @@ bool Login__InnerAfter(const SLoginInfo& li, ClientId client)
 		// Kick the player if the account Id doesn't exist. This is caused
 		// by a duplicate log on.
 		CAccount* acc = Players.FindAccountFromClientID(client);
-		if (acc && !acc->wszAccId)
+		if (acc && !acc->wAccId)
 		{
 			acc->ForceLogout();
 			return false;
@@ -3568,7 +3568,7 @@ namespace IServerImplHook
 		    LogLevel::Debug,
 		    wstos(std::format(L"CharacterSelect(\n\tCHARACTER_ID const& cid = {}\n\tClientId client = {}\n)", ToLogString(cid), client)));
 
-		std::string charName = cid.szCharFilename;
+		std::string charName = cid.CharFilename;
 		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect, charName, client);
 
 		CHECK_FOR_DISCONNECT;

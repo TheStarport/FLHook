@@ -30,8 +30,8 @@
 
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
-		for (uint i = 0; (i < sizeof(wscError) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, wscError[i]);                           \
+		for (uint i = 0; (i < sizeof(Error) / sizeof(std::wstring)); i++) \
+			PrintUserCmdText(client, Error[i]);                           \
 		return;                                                              \
 	}
 #define PRINT_OK() PrintUserCmdText(client, L"OK");

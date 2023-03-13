@@ -93,15 +93,15 @@ namespace Hk::Client
 
 	cpp::result<const std::wstring, Error> GetAccountID(CAccount* acc)
 	{
-		if (acc && acc->wszAccId)
-			return acc->wszAccId;
+		if (acc && acc->wAccId)
+			return acc->wAccId;
 
 		return cpp::fail(Error::CannotGetAccount);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool IsEncoded(const std::string& scFilename)
+	bool IsEncoded(const std::string& Filename)
 	{
 		bool bRet = false;
 		FILE* f;
@@ -109,10 +109,10 @@ namespace Hk::Client
 		if (!f)
 			return false;
 
-		char szMagic[] = "FLS1";
-		char szFile[sizeof(szMagic)] = "";
-		fread(szFile, 1, sizeof(szMagic), f);
-		if (!strncmp(szMagic, szFile, sizeof(szMagic) - 1))
+		char Magic[] = "FLS1";
+		char File[sizeof(Magic)] = "";
+		fread(File, 1, sizeof(Magic), f);
+		if (!strncmp(Magic, File, sizeof(Magic) - 1))
 			bRet = true;
 		fclose(f);
 
@@ -168,7 +168,7 @@ namespace Hk::Client
 		if (const std::wstring characterLower = ToLower(character); characterLower.find(L"id ") == 0)
 		{
 			uint iId = 0;
-			swscanf_s(characterLower.c_str(), L"id %u", &iId);
+			sanf_s(characterLower.c_str(), L"id %u", &iId);
 			if (!IsValidClientID(iId))
 				return cpp::fail(Error::InvalidClientId);
 
@@ -180,13 +180,13 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& wscShortcut)
+	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& Shortcut)
 	{
-		std::wstring wscShortcutLower = ToLower(wscShortcut);
-		if (wscShortcutLower.find(L"sc ") != 0)
+		std::wstring ShortcutLower = ToLower(Shortcut);
+		if (ShortcutLower.find(L"sc ") != 0)
 			return cpp::fail(Error::InvalidShortcutString);
 
-		wscShortcutLower = wscShortcutLower.substr(3);
+		ShortcutLower = ShortcutLower.substr(3);
 
 		uint clientFound = UINT_MAX;
 		PlayerData* playerDb = nullptr;
@@ -196,7 +196,7 @@ namespace Hk::Client
 			if (characterName.has_error())
 				continue;
 
-			if (ToLower(characterName.value()).find(wscShortcutLower) != -1)
+			if (ToLower(characterName.value()).find(ShortcutLower) != -1)
 			{
 				if (clientFound == UINT_MAX)
 					clientFound = playerDb->iOnlineId;
@@ -228,9 +228,9 @@ namespace Hk::Client
 	{
 		const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(server) + 0x66370);
 
-		char szDir[1024] = "";
-		GetFLName(szDir, acc->wszAccId);
-		return stows(szDir);
+		char Dir[1024] = "";
+		GetFLName(Dir, acc->wAccId);
+		return stows(Dir);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,9 +516,9 @@ namespace Hk::Client
 		if (Hk::Client::IsValidClientID(client))
 		{
 			CAccount const* acc = GetAccountByClientID(client);
-			if (acc && acc->wszAccId)
+			if (acc && acc->wAccId)
 			{
-				return acc->wszAccId;
+				return acc->wAccId;
 			}
 		}
 		return L"";

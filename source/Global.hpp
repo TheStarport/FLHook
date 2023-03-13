@@ -17,7 +17,7 @@ void LoadUserCharSettings(ClientId client);
 void ClearClientInfo(ClientId client);
 void LoadUserSettings(ClientId client);
 
-bool UserCmd_Process(ClientId client, const std::wstring& wscCmd);
+bool UserCmd_Process(ClientId client, const std::wstring& Cmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 

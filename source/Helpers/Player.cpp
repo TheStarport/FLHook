@@ -63,7 +63,7 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 
 		FILE* fTest;
 		fopen_s(&fTest, scCharFile.c_str(), "r");
@@ -74,7 +74,7 @@ namespace Hk::Player
 
 		if (Client::IsEncoded(scCharFile))
 		{
-			const std::string scCharFileNew = scCharFile + ".ini";
+			const std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
@@ -117,11 +117,11 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		int iRet;
 		if (Client::IsEncoded(scCharFile))
 		{
-			std::string scCharFileNew = scCharFile + ".ini";
+			std::string CharFileNew = scCharFile + ".ini";
 
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
@@ -194,15 +194,15 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason)
+	cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& Reason)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		if (wscReason.length())
-			MsgAndKick(client, wscReason, FLHookConfig::i()->messages.msgStyle.kickMsgPeriod);
+		if (Reason.length())
+			MsgAndKick(client, Reason, FLHookConfig::i()->messages.msgStyle.kickMsgPeriod);
 		else
 			Players.FindAccountFromClientID(client)->ForceLogout();
 
@@ -344,7 +344,7 @@ namespace Hk::Player
 			}
 			const std::wstring newFile = fileName.value() + L".fl";
 			CHARACTER_ID cId;
-			strcpy_s(cId.szCharFilename, wstos(newFile.substr(0, 14)).c_str());
+			strcpy_s(cId.CharFilename, wstos(newFile.substr(0, 14)).c_str());
 			Server.CharacterSelect(cId, client);
 		}
 
@@ -361,11 +361,11 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		void* pJmp = (char*)server + 0x7EFA8;
-		char szNop[2] = {'\x90', '\x90'};
-		char szTestAlAl[2] = {'\x74', '\x44'};
-		WriteProcMem(pJmp, szNop, sizeof(szNop)); // nop the SinglePlayer() check
+		char Nop[2] = {'\x90', '\x90'};
+		char TestAlAl[2] = {'\x74', '\x44'};
+		WriteProcMem(pJmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
 		pub::Save(client, 1);
-		WriteProcMem(pJmp, szTestAlAl, sizeof(szTestAlAl)); // restore
+		WriteProcMem(pJmp, TestAlAl, sizeof(TestAlAl)); // restore
 
 		return {};
 	}
@@ -381,7 +381,7 @@ namespace Hk::Player
 		uint iGoodId;
 		CacheString hardpoint;
 		bool bMounted;
-		char sz[3];
+		char [3];
 		float fStatus;
 		uint iCount;
 		bool bMission;
@@ -396,12 +396,12 @@ namespace Hk::Player
 
 		std::list<CARGO_INFO> cargo;
 
-		char* szClassPtr;
-		memcpy(&szClassPtr, &Players, 4);
-		szClassPtr += 0x418 * (client - 1);
+		char* ClassPtr;
+		memcpy(&ClassPtr, &Players, 4);
+		ClassPtr += 0x418 * (client - 1);
 
 		EQ_ITEM* eqLst;
-		memcpy(&eqLst, szClassPtr + 0x27C, 4);
+		memcpy(&eqLst, ClassPtr + 0x27C, 4);
 		EQ_ITEM* eq;
 		eq = eqLst->next;
 		while (eq != eqLst)
@@ -515,11 +515,11 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, int iCount, bool bMission)
+	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& Good, int iCount, bool bMission)
 	{
-		uint iGoodId = ToInt(wscGood.c_str());
+		uint iGoodId = ToInt(Good.c_str());
 		if (!iGoodId)
-			pub::GetGoodID(iGoodId, wstos(wscGood).c_str());
+			pub::GetGoodID(iGoodId, wstos(Good).c_str());
 		if (!iGoodId)
 			return cpp::fail(Error::InvalidGood);
 
@@ -528,20 +528,20 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname, bool bOnlyDelete)
+	cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& NewCharname, bool bOnlyDelete)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
 		if ((client == UINT_MAX) && player.index() && !Hk::Client::GetAccountByClientID(client))
 			return cpp::fail(Error::CharacterDoesNotExist);
 
-		if (!bOnlyDelete && Hk::Client::GetAccountByCharName(wscNewCharname))
+		if (!bOnlyDelete && Hk::Client::GetAccountByCharName(NewCharname))
 			return cpp::fail(Error::AlreadyExists);
 
-		if (!bOnlyDelete && (wscNewCharname.length() > 23))
+		if (!bOnlyDelete && (NewCharname.length() > 23))
 			return cpp::fail(Error::CharacterNameTooLong);
 
-		if (!bOnlyDelete && !wscNewCharname.length())
+		if (!bOnlyDelete && !NewCharname.length())
 			return cpp::fail(Error::CharacterNameTooShort);
 
 		INI_Reader ini;
@@ -561,8 +561,8 @@ namespace Hk::Player
 			acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player)).value();
 		}
 
-		const std::wstring wscAccountDirname = Hk::Client::GetAccountDirName(acc);
-		const auto newFileName = Hk::Client::GetCharFileName(wscNewCharname);
+		const std::wstring AccountDirname = Hk::Client::GetAccountDirName(acc);
+		const auto newFileName = Hk::Client::GetCharFileName(NewCharname);
 		if (newFileName.has_error())
 		{
 			return cpp::fail(newFileName.error());
@@ -574,8 +574,8 @@ namespace Hk::Player
 			return cpp::fail(oldFileName.error());
 		}
 
-		std::string scNewCharfilePath = CoreGlobals::c()->accPath + wstos(wscAccountDirname) + "\\" + wstos(newFileName.value()) + ".fl";
-		std::string scOldCharfilePath = CoreGlobals::c()->accPath + wstos(wscAccountDirname) + "\\" + wstos(oldFileName.value()) + ".fl";
+		std::string NewCharfilePath = CoreGlobals::c()->accPath + wstos(AccountDirname) + "\\" + wstos(newFileName.value()) + ".fl";
+		std::string OldCharfilePath = CoreGlobals::c()->accPath + wstos(AccountDirname) + "\\" + wstos(oldFileName.value()) + ".fl";
 
 		if (bOnlyDelete)
 		{
@@ -591,7 +591,7 @@ namespace Hk::Player
 		Hk::Client::UnlockAccountAccess(acc);
 
 		// Copy existing char file into tmp
-		std::string scTmpPath = scOldCharfilePath + ".tmp";
+		std::string TmpPath = scOldCharfilePath + ".tmp";
 		DeleteFile(scTmpPath.c_str());
 		CopyFile(scOldCharfilePath.c_str(), scTmpPath.c_str(), FALSE);
 
@@ -601,12 +601,12 @@ namespace Hk::Player
 
 		// Emulate char create
 		SLoginInfo logindata;
-		wcsncpy_s(logindata.wszAccount, Hk::Client::GetAccountID(acc).value().c_str(), 36);
+		wcsncpy_s(logindata.wAccount, Hk::Client::GetAccountID(acc).value().c_str(), 36);
 		Players.login(logindata, MaxClientId + 1);
 
 		SCreateCharacterInfo newcharinfo;
-		wcsncpy_s(newcharinfo.wszCharname, wscNewCharname.c_str(), 23);
-		newcharinfo.wszCharname[23] = 0;
+		wcsncpy_s(newcharinfo.wCharname, NewCharname.c_str(), 23);
+		newcharinfo.wCharname[23] = 0;
 
 		newcharinfo.iNickName = 0;
 		newcharinfo.iBase = 0;
@@ -656,7 +656,7 @@ namespace Hk::Player
 		newcharinfo.iDunno[14] = 65536;
 		newcharinfo.iDunno[15] = 65538;
 		Server.CreateNewCharacter(newcharinfo, MaxClientId + 1);
-		SaveChar(wscNewCharname);
+		SaveChar(NewCharname);
 		Players.logout(MaxClientId + 1);
 
 		// Decode the backup of the old char and overwrite the new char file
@@ -672,14 +672,14 @@ namespace Hk::Player
 		// Add a space to the value so the ini file line looks like "<key> =
 		// <value>" otherwise Ioncross Server Operator can't decode the file
 		// correctly
-		std::string scValue = " ";
-		for (uint i = 0; (i < wscNewCharname.length()); i++)
+		std::string Value = " ";
+		for (uint i = 0; (i < NewCharname.length()); i++)
 		{
-			char cHiByte = wscNewCharname[i] >> 8;
-			char cLoByte = wscNewCharname[i] & 0xFF;
-			char szBuf[8];
-			sprintf_s(szBuf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
-			scValue += szBuf;
+			char cHiByte = NewCharname[i] >> 8;
+			char cLoByte = NewCharname[i] & 0xFF;
+			char Buf[8];
+			sprintf_s(Buf, "%02X%02X", ((uint)cHiByte) & 0xFF, ((uint)cLoByte) & 0xFF);
+			scValue += Buf;
 		}
 		IniWrite(scNewCharfilePath, "Player", "Name", scValue);
 
@@ -692,12 +692,12 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& wscReason, uint iIntervall)
+	cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& Reason, uint iIntervall)
 	{
 		if (!ClientInfo[client].tmKickTime)
 		{
-			std::wstring wscMsg = ReplaceStr(FLHookConfig::i()->messages.msgStyle.kickMsg, L"%reason", XMLText(wscReason));
-			Hk::Message::FMsg(client, wscMsg);
+			std::wstring Msg = ReplaceStr(FLHookConfig::i()->messages.msgStyle.kickMsg, L"%reason", XMLText(Reason));
+			Hk::Message::FMsg(client, Msg);
 			ClientInfo[client].tmKickTime = Hk::Time::GetUnixMiliseconds() + iIntervall;
 		}
 
@@ -740,7 +740,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Hk::Client::GetAccountDirName(acc);
-		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		return IniGetB(scUserFile, "Settings", "ReservedSlot", false);
 	}
@@ -754,7 +754,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Hk::Client::GetAccountDirName(acc.value());
-		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		if (bReservedSlot)
 			IniWrite(scUserFile, "Settings", "ReservedSlot", "yes");
@@ -792,10 +792,10 @@ namespace Hk::Player
 			if (ini.is_value("house"))
 			{
 				float fRep = ini.get_value_float(0);
-				const char* szRepGroupName = ini.get_value_string(1);
+				const char* RepGroupName = ini.get_value_string(1);
 
 				uint iRepGroupId;
-				pub::Reputation::GetReputationGroup(iRepGroupId, szRepGroupName);
+				pub::Reputation::GetReputationGroup(iRepGroupId, RepGroupName);
 				pub::Reputation::SetReputation(iPlayerRep, iRepGroupId, fRep);
 			}
 		}
@@ -806,7 +806,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue)
+	cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& RepGroup, float fValue)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 		// check if logged in
@@ -814,7 +814,7 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint iRepGroupId;
-		pub::Reputation::GetReputationGroup(iRepGroupId, wstos(wscRepGroup).c_str());
+		pub::Reputation::GetReputationGroup(iRepGroupId, wstos(RepGroup).c_str());
 		if (iRepGroupId == -1)
 			return cpp::fail(Error::InvalidRepGroup);
 
@@ -886,7 +886,7 @@ namespace Hk::Player
 		if (client != UINT_MAX)
 		{
 			acc = Players.FindAccountFromClientID(client);
-			if (const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client); !wszCharname)
+			if (const wchar_t* wCharname = (wchar_t*)Players.GetActiveCharacterName(client); !wCharname)
 				return cpp::fail(Error::CharacterNotSelected);
 
 			dir = Hk::Client::GetAccountDirName(acc.value());
@@ -904,12 +904,12 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
-		std::string scFileToRead;
+		std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string FileToRead;
 		bool bDeleteAfter;
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
-			std::string scCharFileNew = scCharFile + ".ini";
+			std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 			scFileToRead = scCharFileNew;
@@ -927,7 +927,7 @@ namespace Hk::Player
 			return cpp::fail(Error::UnknownError);
 
 		std::list<std::wstring> output;
-		std::string scLine;
+		std::string Line;
 		while (getline(ifs, scLine))
 			output.emplace_back(stows(scLine));
 		ifs.close();
@@ -939,7 +939,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring wscData)
+	cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring Data)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
@@ -949,7 +949,7 @@ namespace Hk::Player
 		}
 
 		const auto acc = Players.FindAccountFromClientID(client);
-		if (const wchar_t* wszCharname = (wchar_t*)Players.GetActiveCharacterName(client); !wszCharname)
+		if (const wchar_t* wCharname = (wchar_t*)Players.GetActiveCharacterName(client); !wCharname)
 			return cpp::fail(Error::CharacterNotSelected);
 
 		auto dir = Hk::Client::GetAccountDirName(acc);
@@ -960,8 +960,8 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
-		std::string scFileToWrite;
+		std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string FileToWrite;
 		bool bEncode;
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
@@ -980,15 +980,15 @@ namespace Hk::Player
 			return cpp::fail(Error::UnknownError);
 
 		size_t iPos;
-		while ((iPos = wscData.find(L"\\n")) != -1)
+		while ((iPos = Data.find(L"\\n")) != -1)
 		{
-			std::wstring wscLine = wscData.substr(0, iPos);
-			ofs << wstos(wscLine) << std::endl;
-			wscData.erase(0, iPos + 2);
+			std::wstring Line = Data.substr(0, iPos);
+			ofs << wstos(Line) << std::endl;
+			Data.erase(0, iPos + 2);
 		}
 
-		if (wscData.length())
-			ofs << wstos(wscData);
+		if (Data.length())
+			ofs << wstos(Data);
 
 		ofs.close();
 		if (bEncode)
@@ -1105,10 +1105,10 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
 		if (Hk::Client::IsEncoded(scCharFile))
 		{
-			std::string scCharFileNew = scCharFile + ".ini";
+			std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
@@ -1221,12 +1221,12 @@ namespace Hk::Player
 
 		// Emulate char create by logging in.
 		SLoginInfo logindata;
-		wcsncpy_s(logindata.wszAccount, Hk::Client::GetAccountID(acc).value().c_str(), 36);
+		wcsncpy_s(logindata.wAccount, Hk::Client::GetAccountID(acc).value().c_str(), 36);
 		Players.login(logindata, Players.GetMaxPlayerCount() + 1);
 
 		SCreateCharacterInfo newcharinfo;
-		wcsncpy_s(newcharinfo.wszCharname, character.c_str(), 23);
-		newcharinfo.wszCharname[23] = 0;
+		wcsncpy_s(newcharinfo.wCharname, character.c_str(), 23);
+		newcharinfo.wCharname[23] = 0;
 
 		newcharinfo.iNickName = 0;
 		newcharinfo.iBase = 0;
@@ -1302,14 +1302,14 @@ namespace Hk::Player
 			return {};
 		}
 
-		char* szObjPtr;
-		memcpy(&szObjPtr, &Players, 4);
-		szObjPtr += 0x418 * (client - 1);
+		char* ObjPtr;
+		memcpy(&ObjPtr, &Players, 4);
+		ObjPtr += 0x418 * (client - 1);
 
 		char cRes = 0;
 
 		__asm {
-			mov ecx, [szObjPtr]
+			mov ecx, [ObjPtr]
 			call [AntiCheat1]
 			mov [cRes], al
 		}
@@ -1321,7 +1321,7 @@ namespace Hk::Player
 		}
 
 		__asm {
-			mov ecx, [szObjPtr]
+			mov ecx, [ObjPtr]
 			call [AntiCheat2]
 			mov [cRes], al
 		}
@@ -1335,7 +1335,7 @@ namespace Hk::Player
 		ulong lRet = 0;
 		ulong lCompare = 0;
 		__asm {
-			mov ecx, [szObjPtr]
+			mov ecx, [ObjPtr]
 			mov eax, [ecx+0x320]
 			mov [lCompare], eax
 			call [AntiCheat3]
@@ -1349,7 +1349,7 @@ namespace Hk::Player
 		}
 
 		__asm {
-			mov ecx, [szObjPtr]
+			mov ecx, [ObjPtr]
 			call [AntiCheat4]
 			mov [cRes], al
 		}
@@ -1379,7 +1379,7 @@ namespace Hk::Player
 		uint itemBufSize = 2;
 		for (const auto& item : equip)
 		{
-			itemBufSize += sizeof(SetEquipmentItem) + strlen(item.szHardPoint.value) + 1;
+			itemBufSize += sizeof(SetEquipmentItem) + strlen(item.HardPoint.value) + 1;
 		}
 
 		FLPACKET* packet = FLPACKET::Create(itemBufSize, FLPACKET::FLPACKET_SERVER_SETEQUIPMENT);
@@ -1397,13 +1397,13 @@ namespace Hk::Player
 			setEquipItem.bMounted = item.bMounted;
 			setEquipItem.bMission = item.bMission;
 
-			if (uint len = strlen(item.szHardPoint.value); len && item.szHardPoint.value != "BAY")
+			if (uint len = strlen(item.HardPoint.value); len && item.HardPoint.value != "BAY")
 			{
-				setEquipItem.szHardPointLen = static_cast<ushort>(len + 1); // add 1 for the null - char* is a null-terminated string in C++
+				setEquipItem.HardPointLen = static_cast<ushort>(len + 1); // add 1 for the null - char* is a null-terminated string in C++
 			}
 			else
 			{
-				setEquipItem.szHardPointLen = 0;
+				setEquipItem.HardPointLen = 0;
 			}
 			pSetEquipment->count++;
 
@@ -1411,9 +1411,9 @@ namespace Hk::Player
 			for (int i = 0; i < sizeof(SetEquipmentItem); i++)
 				pSetEquipment->items[index++] = buf[i];
 
-			const byte* szHardPoint = (byte*)item.szHardPoint.value;
-			for (int i = 0; i < setEquipItem.szHardPointLen; i++)
-				pSetEquipment->items[index++] = szHardPoint[i];
+			const byte* HardPoint = (byte*)item.HardPoint.value;
+			for (int i = 0; i < setEquipItem.HardPointLen; i++)
+				pSetEquipment->items[index++] = HardPoint[i];
 		}
 
 		if (packet->SendTo(client))
@@ -1423,7 +1423,7 @@ namespace Hk::Player
 		return cpp::fail(Error::UnknownError);
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& scHardpoint)
+	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& Hardpoint)
 	{
 		ClientId client = Hk::Client::ExtractClientID(player);
 
@@ -1452,7 +1452,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& scHardpoint, bool bMounted)
+	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& Hardpoint, bool bMounted)
 	{
 		typedef bool(__stdcall * _AddCargoDocked)(uint iGoodId, CacheString * &hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
 		static _AddCargoDocked AddCargoDocked = nullptr;
@@ -1514,9 +1514,9 @@ namespace Hk::Player
 	{
 		uint iSystemId;
 		pub::Player::GetSystem(client, iSystemId);
-		char szSystemname[1024] = "";
-		pub::GetSystemNickname(szSystemname, sizeof(szSystemname), iSystemId);
-		return szSystemname;
+		char Systemname[1024] = "";
+		pub::GetSystemNickname(Systemname, sizeof(Systemname), iSystemId);
+		return Systemname;
 	}
 
 	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring>& player)
@@ -1542,8 +1542,8 @@ namespace Hk::Player
 
 		for (const auto& line : lstCharFile.value())
 		{
-			std::wstring wscKey = Trim(line.substr(0, line.find(L"=")));
-			if (wscKey == L"base" || wscKey == L"last_base")
+			std::wstring Key = Trim(line.substr(0, line.find(L"=")));
+			if (Key == L"base" || Key == L"last_base")
 			{
 				int iFindEqual = line.find(L"=");
 				if (iFindEqual == -1)
@@ -1563,8 +1563,8 @@ namespace Hk::Player
 
 		for (const auto& line : lstCharFile.value())
 		{
-			std::wstring wscKey = Trim(line.substr(0, line.find(L"=")));
-			if (wscKey == L"cargo" || wscKey == L"equip")
+			std::wstring Key = Trim(line.substr(0, line.find(L"=")));
+			if (Key == L"cargo" || Key == L"equip")
 			{
 				int iFindEqual = line.find(L"=");
 				if (iFindEqual == -1)
@@ -1593,7 +1593,7 @@ namespace Hk::Player
 					}
 				}
 			}
-			else if (wscKey == L"money")
+			else if (Key == L"money")
 			{
 				int iFindEqual = line.find(L"=");
 				if (iFindEqual == -1)
@@ -1603,7 +1603,7 @@ namespace Hk::Player
 				uint fItemValue = ToUInt(Trim(line.substr(iFindEqual + 1)));
 				fValue += fItemValue;
 			}
-			else if (wscKey == L"ship_archetype")
+			else if (Key == L"ship_archetype")
 			{
 				uint shipArchId = ToUInt(Trim(line.substr(line.find(L"=") + 1, line.length())));
 				const GoodInfo* gi = GoodList_get()->find_by_ship_arch(shipArchId);

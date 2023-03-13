@@ -30,27 +30,27 @@ namespace Plugins::CrashCatcher
 	/** @ingroup CrashCatcher
 	 * @brief Need to use our own logging functions since the nature of this plugin isn't compatible with FLHook's standard logging functionality.
 	 */
-	void AddLogInternal(const char* szString, ...)
+	void AddLogInternal(const char* String, ...)
 	{
-		char szBufString[1024];
+		char BufString[1024];
 		va_list marker;
-		va_start(marker, szString);
-		_vsnprintf_s(szBufString, sizeof(szBufString) - 1, szString, marker);
+		va_start(marker, String);
+		_vsnprintf_s(BufString, sizeof(BufString) - 1, String, marker);
 
 		FILE* log;
 		fopen_s(&log, "logs\\crashes.log", "a");
 
-		char szBuf[64];
+		char Buf[64];
 		time_t tNow = time(nullptr);
 		tm t;
 		localtime_s(&t, &tNow);
-		strftime(szBuf, sizeof(szBuf), "%d.%m.%Y %H:%M:%S", &t);
-		fprintf(log, "[%s] %s\n", szBuf, szBufString);
+		strftime(Buf, sizeof(Buf), "%d.%m.%Y %H:%M:%S", &t);
+		fprintf(log, "[%s] %s\n", Buf, BufString);
 		fflush(log);
 
 		if (IsDebuggerPresent())
 		{
-			OutputDebugString(("[LOG] " + std::string(szBufString) + "\n").c_str());
+			OutputDebugString(("[LOG] " + std::string(BufString) + "\n").c_str());
 		}
 
 		fclose(log);

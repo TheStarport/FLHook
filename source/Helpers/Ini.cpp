@@ -14,7 +14,7 @@ namespace Hk::Ini
 	{
 		static _GetFLName GetFLName = (_GetFLName)((char*)server + 0x66370);
 		char dirname[1024];
-		GetFLName(dirname, Players[client].Account->wszAccId);
+		GetFLName(dirname, Players[client].Account->wAccId);
 		return dirname;
 	}
 
@@ -104,9 +104,9 @@ namespace Hk::Ini
 
 	void CharacterSelect(CHARACTER_ID const charId, ClientId client)
 	{
-		std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + charId.szCharFilename;
+		std::string path = CoreGlobals::c()->accPath + GetAccountDir(client) + "\\" + charId.CharFilename;
 
-		clients[client].charfilename = charId.szCharFilename;
+		clients[client].charfilename = charId.CharFilename;
 		clients[client].lines.clear();
 
 		// Read the flhook section so that we can rewrite after the save so that it isn't lost
@@ -155,7 +155,7 @@ namespace Hk::Ini
 		patched = false;
 	}
 
-	cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey)
+	cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key)
 	{
 		std::wstring ret;
 		const auto client = Hk::Client::ExtractClientID(player);
@@ -168,24 +168,24 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (const std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (const std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
-			const std::string scCharFileNew = scCharFile + ".ini";
+			const std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			ret = stows(IniGetS(scCharFileNew, "Player", wstos(wscKey), ""));
+			ret = stows(IniGetS(scCharFileNew, "Player", wstos(Key), ""));
 			DeleteFile(scCharFileNew.c_str());
 		}
 		else
 		{
-			ret = stows(IniGetS(scCharFile, "Player", wstos(wscKey), ""));
+			ret = stows(IniGetS(scCharFile, "Player", wstos(Key), ""));
 		}
 
 		return ret;
 	}
 
-	cpp::result<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey, const std::wstring& wscValue)
+	cpp::result<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key, const std::wstring& Value)
 	{
 		const auto client = Hk::Client::ExtractClientID(player);
 		const auto acc = Hk::Client::GetAccountByClientID(client);
@@ -197,13 +197,13 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (std::string scCharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
+		if (std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Hk::Client::IsEncoded(scCharFile))
 		{
-			std::string scCharFileNew = scCharFile + ".ini";
+			std::string CharFileNew = scCharFile + ".ini";
 			if (!FlcDecodeFile(scCharFile.c_str(), scCharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			IniWrite(scCharFileNew, "Player", wstos(wscKey), wstos(wscValue));
+			IniWrite(scCharFileNew, "Player", wstos(Key), wstos(Value));
 
 			// keep decoded
 			DeleteFile(scCharFile.c_str());
@@ -211,7 +211,7 @@ namespace Hk::Ini
 		}
 		else
 		{
-			IniWrite(scCharFile, "Player", wstos(wscKey), wstos(wscValue));
+			IniWrite(scCharFile, "Player", wstos(Key), wstos(Value));
 		}
 
 		return {};

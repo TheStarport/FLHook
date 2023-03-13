@@ -66,7 +66,7 @@ namespace Plugins::CashManager::Sql
 
 	Bank GetOrCreateBank(const CAccount* account)
 	{
-		const auto accountIdString = wstos(account->wszAccId);
+		const auto accountIdString = wstos(account->wAccId);
 		SQLite::Statement findExistingQuery(global->sql, "SELECT bankPassword, identifier, cash FROM banks WHERE id = ?");
 		findExistingQuery.bind(1, accountIdString);
 

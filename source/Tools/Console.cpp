@@ -10,11 +10,11 @@ void Console::Log(const std::string& str, void* addr)
 	// Get DLL Name
 	if (HMODULE hmod; RtlPcToFileHeader(addr, (void**)&hmod))
 	{
-		CHAR sz[MAX_PATH];
+		CHAR [MAX_PATH];
 		// If successful, prepend
-		if (GetModuleFileName(hmod, sz, MAX_PATH))
+		if (GetModuleFileName(hmod, , MAX_PATH))
 		{
-			std::string path = sz;
+			std::string path = ;
 			text = std::string("(") + wstos(GetTimeString(FLHookConfig::i()->general.localTime)) + path.substr(path.find_last_of("\\") + 1) + ") " + text;
 		}
 	}

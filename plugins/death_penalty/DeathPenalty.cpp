@@ -137,12 +137,12 @@ namespace Plugins::DeathPenalty
 		// Get Account directory then flhookuser.ini file
 		const CAccount* acc = Players.FindAccountFromClientID(client);
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
-		std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
-		const auto wscFilename = Hk::Client::GetCharFileName(client);
-		std::string scFilename = wstos(wscFilename.value());
-		std::string scSection = "general_" + scFilename;
+		const auto Filename = Hk::Client::GetCharFileName(client);
+		std::string Filename = wstos(Filename.value());
+		std::string Section = "general_" + scFilename;
 
 		// read death penalty settings
 		CLIENT_DATA c;
@@ -238,8 +238,8 @@ namespace Plugins::DeathPenalty
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
-			std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-			std::string scSection = "general_" + wstos(file.value());
+			std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+			std::string Section = "general_" + wstos(file.value());
 			IniWrite(scUserFile, scSection, "DPnotice", value);
 		}
 	}
@@ -247,7 +247,7 @@ namespace Plugins::DeathPenalty
 	/** @ingroup DeathPenalty
 	 * @brief /dp command. Shows information about death penalty
 	 */
-	void UserCmd_DP(ClientId& client, const std::wstring& wscParam)
+	void UserCmd_DP(ClientId& client, const std::wstring& Param)
 	{
 		// If there is no death penalty, no point in having death penalty commands
 		if (std::abs(global->config->DeathPenaltyFraction) < 0.0001f)
@@ -256,8 +256,8 @@ namespace Plugins::DeathPenalty
 			return;
 		}
 
-		const auto param = ViewToWString(wscParam);
-		if (wscParam.length()) // Arguments passed
+		const auto param = ViewToWString(Param);
+		if (Param.length()) // Arguments passed
 		{
 			if (ToLower(Trim(param)) == L"off")
 			{

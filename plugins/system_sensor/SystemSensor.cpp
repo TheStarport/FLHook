@@ -10,8 +10,8 @@
  * @paragraph cmds Player Commands
  * -net <all/jumponly/off> - if player has proper equipment, toggles his scanner between showing JG/TL transits,
  *   JG transits only, and disabling the feature
- * -showscan <name> - shows equipment and cargo carried by the specified player
- * -showscan$ <playerID> - same as above, but using player ID as paramenter, useful for to type difficult names
+ * -shoan <name> - shows equipment and cargo carried by the specified player
+ * -shoan$ <playerID> - same as above, but using player ID as paramenter, useful for to type difficult names
  *
  * @paragraph adminCmds Admin Commands
  * None
@@ -82,7 +82,7 @@ namespace Plugins::SystemSensor
 		return;
 	}
 
-	void UserCmd_ShowScan(ClientId& client, const std::wstring& param)
+	void UserCmd_Shoan(ClientId& client, const std::wstring& param)
 	{
 		std::wstring targetCharname = GetParam(param, ' ', 0);
 
@@ -90,8 +90,8 @@ namespace Plugins::SystemSensor
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
 			PrintUserCmdText(client, L"Usage:");
-			PrintUserCmdText(client, L"/showscan <charname>");
-			PrintUserCmdText(client, L"/showscan$ <playerID>");
+			PrintUserCmdText(client, L"/shoan <charname>");
+			PrintUserCmdText(client, L"/shoan$ <playerID>");
 			return;
 		}
 
@@ -143,7 +143,7 @@ namespace Plugins::SystemSensor
 		PrintUserCmdText(client, L"OK");
 	}
 
-	void UserCmd_ShowScanID(ClientId& client, const std::wstring& param)
+	void UserCmd_ShoanID(ClientId& client, const std::wstring& param)
 	{
 		ClientId client2 = ToInt(GetParam(param, ' ', 0));
 
@@ -152,7 +152,7 @@ namespace Plugins::SystemSensor
 		if (Hk::Client::IsValidClientID(client2))
 			targetCharname = (wchar_t*)Players.GetActiveCharacterName(client2);
 
-		UserCmd_ShowScan(client, targetCharname);
+		UserCmd_Shoan(client, targetCharname);
 	}
 
 	void ClearClientInfo(ClientId& client)
@@ -284,8 +284,8 @@ namespace Plugins::SystemSensor
 	}
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/showscan", L"<name>", UserCmd_ShowScan, L"Shows equipment and cargo carried by the specified player."),
-	    CreateUserCommand(L"/showscan$", L"<playerID>", UserCmd_ShowScanID, L"Same as /showscan, but using player ID as paramenter, useful for to type difficult names"),
+	    CreateUserCommand(L"/shoan", L"<name>", UserCmd_Shoan, L"Shows equipment and cargo carried by the specified player."),
+	    CreateUserCommand(L"/shoan$", L"<playerID>", UserCmd_ShoanID, L"Same as /shoan, but using player ID as paramenter, useful for to type difficult names"),
 	    CreateUserCommand(L"/net", L"<all/jumponly/off>", UserCmd_Net, L"Toggles your scanner between off, jump gates only, and both tradelanes and jump gates"),
 	}};
 } // namespace Plugins::SystemSensor

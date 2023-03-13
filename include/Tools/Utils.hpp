@@ -42,9 +42,9 @@ inline void ReadProcMem(void* pAddress, void* pMem, int iSize)
 	CloseHandle(hProc);
 }
 
-inline int ToInt(const std::wstring& wscStr)
+inline int ToInt(const std::wstring& Str)
 {
-	return wcstol(wscStr.c_str(), nullptr, 10);
+	return wcstol(Str.c_str(), nullptr, 10);
 }
 
 inline int64 ToInt64(const std::wstring& str)
@@ -52,13 +52,13 @@ inline int64 ToInt64(const std::wstring& str)
 	return str.empty() ? 0 : wcstoll(str.c_str(), nullptr, 10);
 }
 
-inline uint ToUInt(const std::wstring& wscStr)
+inline uint ToUInt(const std::wstring& Str)
 {
-	if (wscStr.find(L"-") != std::wstring::npos)
+	if (Str.find(L"-") != std::wstring::npos)
 	{
 		return 0;
 	}
-	return wcstoul(wscStr.c_str(), nullptr, 10);
+	return wcstoul(Str.c_str(), nullptr, 10);
 }
 
 //! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
@@ -84,20 +84,20 @@ inline std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time)
 
 inline std::wstring XMLText(const std::wstring& text)
 {
-	std::wstring wscRet;
+	std::wstring Ret;
 	for (uint i = 0; (i < text.length()); i++)
 	{
 		if (text[i] == '<')
-			wscRet.append(L"&#60;");
+			Ret.append(L"&#60;");
 		else if (text[i] == '>')
-			wscRet.append(L"&#62;");
+			Ret.append(L"&#62;");
 		else if (text[i] == '&')
-			wscRet.append(L"&#38;");
+			Ret.append(L"&#38;");
 		else
-			wscRet.append(1, text[i]);
+			Ret.append(1, text[i]);
 	}
 
-	return wscRet;
+	return Ret;
 }
 
 /**
@@ -315,18 +315,18 @@ inline std::wstring stows(const std::string& text)
 	int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, 0, 0);
 	auto wideText = new wchar_t[size];
 	MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, wideText, size);
-	std::wstring wscRet = wideText;
+	std::wstring Ret = wideText;
 	delete[] wideText;
-	return wscRet;
+	return Ret;
 }
 
 inline std::string wstos(const std::wstring& text)
 {
 	uint iLen = (uint)text.length() + 1;
-	auto szBuf = new char[iLen];
-	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, szBuf, iLen, 0, 0);
-	std::string scRet = szBuf;
-	delete[] szBuf;
+	auto Buf = new char[iLen];
+	WideCharToMultiByte(CP_ACP, 0, text.c_str(), -1, Buf, iLen, 0, 0);
+	std::string Ret = Buf;
+	delete[] Buf;
 	return scRet;
 }
 

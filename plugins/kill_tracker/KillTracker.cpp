@@ -57,9 +57,9 @@ namespace Plugins::KillTracker
 	/** @ingroup KillTracker
 	 * @brief Called when a player types "/kills".
 	 */
-	void UserCmd_Kills(ClientId& client, const std::wstring& wscParam)
+	void UserCmd_Kills(ClientId& client, const std::wstring& Param)
 	{
-		std::wstring targetCharName = GetParam(wscParam, ' ', 0);
+		std::wstring targetCharName = GetParam(Param, ' ', 0);
 		uint clientId;
 
 		if (!targetCharName.empty())

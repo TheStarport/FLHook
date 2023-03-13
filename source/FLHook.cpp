@@ -41,10 +41,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	if (bExecuted)
 		return TRUE;
 
-	char szFile[MAX_PATH];
-	GetModuleFileName(0, szFile, sizeof(szFile));
+	char File[MAX_PATH];
+	GetModuleFileName(0, File, sizeof(File));
 
-	if (std::wstring wscFileName = ToLower(stows(szFile)); wscFileName.find(L"flserver.exe") != -1)
+	if (std::wstring FileName = ToLower(stows(File)); FileName.find(L"flserver.exe") != -1)
 	{ 
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
@@ -199,9 +199,9 @@ void FLHookInit_Pre()
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 	}
-	catch (char* szError)
+	catch (char* Error)
 	{
-		Console::ConErr(std::format("CRITICAL! {}\n", szError));
+		Console::ConErr(std::format("CRITICAL! {}\n", Error));
 		exit(EXIT_FAILURE);
 	}
 	catch (std::filesystem::filesystem_error error)
@@ -230,11 +230,11 @@ bool FLHookInit()
 		// Force the singleton to be created
 		FLHookConfig::c();
 	}
-	catch (char* szError)
+	catch (char* Error)
 	{
 		UnloadHookExports();
 
-		Console::ConErr(szError);
+		Console::ConErr(Error);
 		return false;
 	}
 

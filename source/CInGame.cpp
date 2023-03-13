@@ -6,30 +6,30 @@
 void CInGame::DoPrint(const std::string& text)
 {
 	std::wstring str = stows(text);
-	wchar_t wszBufSend[1024] = L"";
+	wchar_t wBufSend[1024] = L"";
 	for (uint i = 0; (i <= str.length()); i++)
 	{
 		if (str[i] == '\n' || str[i] == '\0')
 		{
-			if (!wcslen(wszBufSend))
+			if (!wcslen(wBufSend))
 				break;
-			wszBufSend[wcslen(wszBufSend)] = '\0';
-			std::wstring wscXML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
-			    XMLText(wszBufSend) + L"</TEXT>";
-			Hk::Message::FMsg(this->client, wscXML);
-			memset(wszBufSend, 0, sizeof(wszBufSend));
+			wBufSend[wcslen(wBufSend)] = '\0';
+			std::wstring XML = std::wstring(L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.adminCmdStyle + L"\" mask=\"-1\"/><TEXT>") +
+			    XMLText(wBufSend) + L"</TEXT>";
+			Hk::Message::FMsg(this->client, XML);
+			memset(wBufSend, 0, sizeof(wBufSend));
 		}
 		else
-			wszBufSend[wcslen(wszBufSend)] = str[i];
+			wBufSend[wcslen(wBufSend)] = str[i];
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CInGame::ReadRights(const std::string& scAdminFile)
+void CInGame::ReadRights(const std::string& AdminFile)
 {
 	rights = RIGHT_NOTHING;
-	std::string scRights = IniGetS(scAdminFile, "admin", "rights", "");
+	std::string Rights = IniGetS(scAdminFile, "admin", "rights", "");
 
 	SetRightsByString(scRights);
 }
@@ -38,5 +38,5 @@ void CInGame::ReadRights(const std::string& scAdminFile)
 
 std::wstring CInGame::GetAdminName()
 {
-	return wscAdminName;
+	return AdminName;
 }

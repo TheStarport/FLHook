@@ -274,7 +274,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	// save in ClientInfo
 	IGNORE_INFO ii;
 	ii.character = character;
-	ii.wscFlags = flags;
+	ii.Flags = flags;
 	ClientInfo[client].lstIgnore.push_back(ii);
 
 	// send confirmation msg
@@ -328,7 +328,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	// save in ClientInfo
 	IGNORE_INFO ii;
 	ii.character = character;
-	ii.wscFlags = flags;
+	ii.Flags = flags;
 	ClientInfo[client].lstIgnore.push_back(ii);
 
 	// send confirmation msg
@@ -349,7 +349,7 @@ void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& p
 	int i = 1;
 	for (auto& ignore : ClientInfo[client].lstIgnore)
 	{
-		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.wscFlags));
+		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.Flags));
 		i++;
 	}
 
@@ -426,7 +426,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	int i = 1;
 	for (const auto& ignore : ClientInfo[client].lstIgnore)
 	{
-		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.wscFlags);
+		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.Flags);
 		i++;
 	}
 	PRINT_OK()
@@ -455,9 +455,9 @@ void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& param)
 void Invite_Player(ClientId& client, const std::wstring& characterName)
 {
 	std::wstring XML = L"<TEXT>/i " + XMLText(characterName) + L"</TEXT>";
-	char szBuf[0xFFFF];
+	char Buf[0xFFFF];
 	uint iRet;
-	if (Hk::Message::FMsgEncodeXML(XML, szBuf, sizeof szBuf, iRet).has_error())
+	if (Hk::Message::FMsgEncodeXML(XML, Buf, sizeof Buf, iRet).has_error())
 	{
 		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;
@@ -467,7 +467,7 @@ void Invite_Player(ClientId& client, const std::wstring& characterName)
 	cId.iId = client;
 	CHAT_ID cIdTo;
 	cIdTo.iId = 0x00010001;
-	Server.SubmitChat(cId, iRet, szBuf, cIdTo, -1);
+	Server.SubmitChat(cId, iRet, Buf, cIdTo, -1);
 }
 
 void UserCmd_Invite(ClientId& client, const std::wstring& param)

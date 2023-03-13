@@ -57,7 +57,7 @@ namespace Plugins::Rename
 		if (global->config->enableTagProtection)
 		{
 			// If this ship name starts with a restricted tag then the ship may only be created using rename and the faction password
-			const std::wstring charName(si.wszCharname);
+			const std::wstring charName(si.wCharname);
 			if (const auto& tag = global->tagList.FindTagPartial(charName); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 			{
 				Server.CharacterInfoReq(client, true);
@@ -74,7 +74,7 @@ namespace Plugins::Rename
 
 		if (global->config->asciiCharNameOnly)
 		{
-			const std::wstring charname(si.wszCharname);
+			const std::wstring charname(si.wCharname);
 			for (const wchar_t ch : charname)
 			{
 				if (ch & 0xFF80)
@@ -564,7 +564,7 @@ namespace Plugins::Rename
 		}
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		std::string scFile = GetUserFilePath(charname, "-movechar.ini");
+		std::string File = GetUserFilePath(charname, "-movechar.ini");
 		if (scFile.empty())
 		{
 			PrintUserCmdText(client, L"ERR Character does not exist");
@@ -630,7 +630,7 @@ namespace Plugins::Rename
 
 		// Get the target account directory.
 		std::wstring movingCharName = Trim(GetParam(param, L' ', 0));
-		std::string scFile = GetUserFilePath(movingCharName, "-movechar.ini");
+		std::string File = GetUserFilePath(movingCharName, "-movechar.ini");
 		if (scFile.empty())
 		{
 			PrintUserCmdText(client, L"ERR Character does not exist");

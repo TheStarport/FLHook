@@ -12,7 +12,7 @@ namespace StartupCache
 	// map of acc_char_path to char name
 	static std::map<std::string, std::wstring> cache;
 
-	static std::string scBaseAcctPath;
+	static std::string BaseAcctPath;
 
 	// length of the user data path + accts\multiplayer to remove so that
 	// we can search only for the acc_char_path
@@ -48,7 +48,7 @@ namespace StartupCache
 	static void LoadCache()
 	{
 		// Open the name cache file and load it into memory.
-		std::string scPath = scBaseAcctPath + "namecache.bin";
+		std::string Path = scBaseAcctPath + "namecache.bin";
 
 		Console::ConInfo("Loading character name cache");
 		FILE* file;
@@ -70,7 +70,7 @@ namespace StartupCache
 	static void SaveCache()
 	{
 		// Save the name cache file
-		std::string scPath = scBaseAcctPath + "namecache.bin";
+		std::string Path = scBaseAcctPath + "namecache.bin";
 
 		FILE* file;
 		fopen_s(&file, scPath.c_str(), "wb");
@@ -114,9 +114,9 @@ namespace StartupCache
 		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(server) + 0x72fe0);
 
 		// Calculate our base path
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		scBaseAcctPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+		char DataPath[MAX_PATH];
+		GetUserDataPath(DataPath);
+		scBaseAcctPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
 		acc_path_prefix_length = scBaseAcctPath.length();
 
 		// Load the cache

@@ -48,23 +48,23 @@ void WriteMiniDump(SEHException* ex)
 		if (pDump)
 		{
 			// put the dump file in the flhook logs/debug directory
-			char szDumpPath[_MAX_PATH];
-			char szDumpPathFirst[_MAX_PATH];
+			char DumpPath[_MAX_PATH];
+			char DumpPathFirst[_MAX_PATH];
 
 			time_t tNow = time(0);
 			tm t;
 			localtime_s(&t, &tNow);
-			strftime(szDumpPathFirst, sizeof(szDumpPathFirst), "./logs/debug/flserver_%d.%m.%Y_%H.%M.%S", &t);
+			strftime(DumpPathFirst, sizeof(DumpPathFirst), "./logs/debug/flserver_%d.%m.%Y_%H.%M.%S", &t);
 
 			int n = 1;
 			do
 			{
-				sprintf_s(szDumpPath, "%s-%d.dmp", szDumpPathFirst, n);
+				sprintf_s(DumpPath, "%s-%d.dmp", DumpPathFirst, n);
 				n++;
-			} while (FileExists(szDumpPath));
+			} while (FileExists(DumpPath));
 
 			// create the file
-			HANDLE hFile = ::CreateFile(szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE hFile = ::CreateFile(DumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
@@ -86,7 +86,7 @@ void WriteMiniDump(SEHException* ex)
 				}
 				::CloseHandle(hFile);
 
-				AddLog(LogType::Normal, LogLevel::Err, std::format("Minidump '{}' written.", szDumpPath));
+				AddLog(LogType::Normal, LogLevel::Err, std::format("Minidump '{}' written.", DumpPath));
 			}
 		}
 	}
@@ -118,30 +118,30 @@ void AddExceptionInfoLog(SEHException* ex)
 			uint iAddr = (uint)exception->ExceptionAddress;
 			uint iOffset = 0;
 			HMODULE hModExc = GetModuleAddr(iAddr);
-			char szModName[MAX_PATH] = "";
+			char ModName[MAX_PATH] = "";
 			if (hModExc)
 			{
 				iOffset = iAddr - (uint)hModExc;
-				GetModuleFileName(hModExc, szModName, sizeof(szModName));
+				GetModuleFileName(hModExc, ModName, sizeof(ModName));
 			}
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, szModName));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Code={:X} Offset={:X} Module=\"{}\"", iCode, iOffset, ModName));
 			if (iCode == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
 			{
 				const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
 				const auto* typeArr = &info->pCatchableTypeArray->arrayOfCatchableTypes;
 				const auto* obj = reinterpret_cast<const std::exception*>(exception->ExceptionInformation[1]);
-				const char* szName = info && info->pCatchableTypeArray && info->pCatchableTypeArray->nCatchableTypes ? (*typeArr)[0]->pType->name : "";
+				const char* Name = info && info->pCatchableTypeArray && info->pCatchableTypeArray->nCatchableTypes ? (*typeArr)[0]->pType->name : "";
 				int i = 0;
 				for (; i < info->pCatchableTypeArray->nCatchableTypes; i++)
 				{
 					if (!strcmp(".?AVexception@@", (*typeArr)[i]->pType->name))
 						break;
 				}
-				const char* szMessage = i != info->pCatchableTypeArray->nCatchableTypes ? obj->what() : "";
+				const char* Message = i != info->pCatchableTypeArray->nCatchableTypes ? obj->what() : "";
 				// C++ exceptions are triggered by RaiseException in kernel32,
 				// so use ebp to get the return address
 				iOffset = 0;
-				szModName[0] = 0;
+				ModName[0] = 0;
 				if (reg)
 				{
 					iAddr = *((*((uint**)reg->Ebp)) + 1);
@@ -149,12 +149,12 @@ void AddExceptionInfoLog(SEHException* ex)
 					if (hModExc)
 					{
 						iOffset = iAddr - (uint)hModExc;
-						GetModuleFileName(hModExc, szModName, sizeof(szModName));
+						GetModuleFileName(hModExc, ModName, sizeof(ModName));
 					}
 				}
 				AddLog(LogType::Normal,
 				    LogLevel::Debug,
-				    std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", szName, szMessage, iOffset, strrchr(szModName, '\\') + 1));
+				    std::format("Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"", Name, Message, iOffset, strrchr(ModName, '\\') + 1));
 			}
 
 			void* callers[62];

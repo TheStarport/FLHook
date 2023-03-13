@@ -39,7 +39,7 @@ struct MONEY_FIX
 struct IGNORE_INFO
 {
 	std::wstring character;
-	std::wstring wscFlags;
+	std::wstring Flags;
 };
 
 // resolver
@@ -47,8 +47,8 @@ struct RESOLVE_IP
 {
 	ClientId client;
 	uint iConnects;
-	std::wstring wscIP;
-	std::wstring wscHostname;
+	std::wstring IP;
+	std::wstring Hostname;
 };
 
 struct CLIENT_INFO
@@ -108,7 +108,7 @@ struct CLIENT_INFO
 	uint iGroupId;
 
 	// other
-	std::wstring wscHostname;
+	std::wstring Hostname;
 
 	bool bSpawnProtected;
 	bool bUseServersideHitDetection; // used by AC Plugin
@@ -151,13 +151,13 @@ struct PlayerInfo
 {
 	uint client;
 	std::wstring character;
-	std::wstring wscBase;
-	std::wstring wscSystem;
+	std::wstring Base;
+	std::wstring System;
 	uint iSystem;
 	uint ship;
 	DPN_CONNECTION_INFO connectionInfo;
-	std::wstring wscIP;
-	std::wstring wscHostname;
+	std::wstring IP;
+	std::wstring Hostname;
 };
 
 struct BaseHealth
@@ -177,7 +177,7 @@ struct PatchInfoEntry
 
 struct PatchInfo
 {
-	const char* szBinName;
+	const char* BinName;
 	ulong pBaseAddress;
 
 	PatchInfoEntry piEntries[128];
@@ -192,7 +192,7 @@ struct DataMarketItem
 struct BaseInfo
 {
 	uint baseId;
-	std::string scBasename;
+	std::string Basename;
 	uint iObjectId;
 	bool bDestroyed;
 	std::list<DataMarketItem> lstMarketMisc;

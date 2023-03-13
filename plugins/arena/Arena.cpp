@@ -54,14 +54,14 @@ namespace Plugins::Arena
 	void LoadSettings()
 	{
 		Config conf = Serializer::JsonToObject<Config>();
-		conf.wscCommand = L"/" + stows(conf.command);
+		conf.Command = L"/" + stows(conf.command);
 		conf.restrictedSystemId = CreateID(conf.restrictedSystem.c_str());
 		conf.targetBaseId = CreateID(conf.targetBase.c_str());
 		conf.targetSystemId = CreateID(conf.targetSystem.c_str());
 		global->config = std::make_unique<Config>(std::move(conf));
 
 		auto& cmd = const_cast<UserCommand&>(commands[0]);
-		cmd = CreateUserCommand(global->config->wscCommand, cmd.usage, cmd.proc, cmd.description);
+		cmd = CreateUserCommand(global->config->Command, cmd.usage, cmd.proc, cmd.description);
 
 		// global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
 	}
@@ -147,7 +147,7 @@ namespace Plugins::Arena
 		{
 			Server.BaseEnter(targetBase, client);
 			Server.BaseExit(targetBase, client);
-			std::wstring wscCharFileName;
+			std::wstring CharFileName;
 			const auto charFileName = Hk::Client::GetCharFileName(client);
 
 			if (charFileName.has_error())
@@ -155,7 +155,7 @@ namespace Plugins::Arena
 
 			auto fileName = charFileName.value() + L".fl";
 			CHARACTER_ID cId;
-			strcpy_s(cId.szCharFilename, wstos(wscCharFileName.substr(0, 14)).c_str());
+			strcpy_s(cId.CharFilename, wstos(CharFileName.substr(0, 14)).c_str());
 			Server.CharacterSelect(cId, client);
 		}
 	}

@@ -126,7 +126,7 @@ namespace Hk
 
 		DLL cpp::result<const std::wstring, Error> GetCharacterNameByID(ClientId& client);
 		DLL cpp::result<const uint, Error> ResolveID(const std::wstring& player);
-		DLL cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& wscShortcut);
+		DLL cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& Shortcut);
 		DLL cpp::result<ClientId, Error> GetClientIdByShip(ShipId ship);
 		DLL std::wstring GetAccountDirName(const CAccount* acc);
 		DLL cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player);
@@ -176,20 +176,20 @@ namespace Hk
 
 	namespace Message
 	{
-		DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& wscMessage);
-		DLL cpp::result<void, Error> MsgS(const std::variant<std::wstring, uint>& system, const std::wstring& wscMessage);
-		DLL cpp::result<void, Error> MsgU(const std::wstring& wscMessage);
-		DLL cpp::result<void, Error> FMsgEncodeXML(const std::wstring& wscXml, char* szBuf, uint iSize, uint& iRet);
-		DLL void FMsgSendChat(ClientId client, char* szBuf, uint iSize);
-		DLL cpp::result<void, Error> FMsg(ClientId client, const std::wstring& wscXML);
-		DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& wscXML);
-		DLL cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& wscXML);
-		DLL cpp::result<void, Error> FMsgU(const std::wstring& wscXML);
+		DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& Message);
+		DLL cpp::result<void, Error> MsgS(const std::variant<std::wstring, uint>& system, const std::wstring& Message);
+		DLL cpp::result<void, Error> MsgU(const std::wstring& Message);
+		DLL cpp::result<void, Error> FMsgEncodeXML(const std::wstring& Xml, char* Buf, uint iSize, uint& iRet);
+		DLL void FMsgSendChat(ClientId client, char* Buf, uint iSize);
+		DLL cpp::result<void, Error> FMsg(ClientId client, const std::wstring& XML);
+		DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& XML);
+		DLL cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& XML);
+		DLL cpp::result<void, Error> FMsgU(const std::wstring& XML);
 		DLL std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring& msg);
 		DLL std::wstring GetWStringFromIdS(uint iIdS);
 		DLL void LoadStringDLLs();
 		DLL void UnloadStringDLLs();
-		DLL cpp::result<void, Error> FormatSendChat(uint iToClientId, const std::wstring& wscSender, const std::wstring& text, const std::wstring& textColor);
+		DLL cpp::result<void, Error> FormatSendChat(uint iToClientId, const std::wstring& Sender, const std::wstring& text, const std::wstring& textColor);
 		DLL void SendGroupChat(uint iFromClientId, const std::wstring& text);
 		DLL void SendLocalSystemChat(uint iFromClientId, const std::wstring& text);
 		DLL cpp::result<void, Error> SendPrivateChat(uint iFromClientId, uint iToClientId, const std::wstring& text);
@@ -205,7 +205,7 @@ namespace Hk
 		DLL cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring>& player, uint uAmount);
 		DLL cpp::result<void, Error> AdjustCash(const std::variant<uint, std::wstring>& player, int iAmount);
 		DLL cpp::result<void, Error> Kick(const std::variant<uint, std::wstring>& player);
-		DLL cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& wscReason);
+		DLL cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& Reason);
 		DLL cpp::result<void, Error> Ban(const std::variant<uint, std::wstring>& player, bool bBan);
 		DLL cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring>& player, uint duration);
 		DLL cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& base);
@@ -213,23 +213,23 @@ namespace Hk
 		DLL cpp::result<const std::list<CARGO_INFO>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& iRemainingHoldSize);
 		DLL cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count);
 		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint iGoodId, int iCount, bool bMission);
-		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& wscGood, int iCount, bool bMission);
-		DLL cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& wscNewCharname, bool bOnlyDelete);
-		DLL cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& wscReason, uint iIntervall);
+		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& Good, int iCount, bool bMission);
+		DLL cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& NewCharname, bool bOnlyDelete);
+		DLL cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& Reason, uint iIntervall);
 		DLL cpp::result<void, Error> Kill(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<bool, Error> GetReservedSlot(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> SetReservedSlot(const std::variant<uint, std::wstring>& player, bool bReservedSlot);
 		DLL cpp::result<void, Error> ResetRep(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring>& player);
-		DLL cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& wscRepGroup, float fValue);
+		DLL cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& RepGroup, float fValue);
 		DLL cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& repGroup);
 		DLL cpp::result<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring>& player);
-		DLL cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring wscData);
+		DLL cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring Data);
 		DLL cpp::result<void, Error> PlayerRecalculateCRC(ClientId client);
 		DLL std::string GetPlayerSystemS(ClientId client);
 		DLL bool IsInRange(ClientId client, float fDistance);
 		DLL cpp::result<void, Error> SetEquip(const std::variant<uint, std::wstring>& player, const st6::list<EquipDesc>& equip);
-		DLL cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& scHardpoint);
+		DLL cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& Hardpoint);
 		DLL cpp::result<void, Error> AntiCheat(ClientId client);
 		DLL void DelayedKick(ClientId client, uint secs);
 		DLL void DeleteCharacter(CAccount* acc, const std::wstring& character);
@@ -267,9 +267,9 @@ namespace Hk
 
 	namespace Ini
 	{
-		DLL cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& wscKey);
+		DLL cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring>& player, const std::wstring& Key);
 		DLL cpp::result<void, Error> WriteToPlayerFile(
-		    const std::variant<uint, std::wstring>& player, const std::wstring& wscKey, const std::wstring& wscValue);
+		    const std::variant<uint, std::wstring>& player, const std::wstring& Key, const std::wstring& Value);
 
 		DLL void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value);
 		DLL std::wstring GetCharacterIniString(ClientId client, const std::wstring& name);
@@ -287,11 +287,11 @@ namespace Hk
 		DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu);
 		DLL std::list<PlayerInfo> GetPlayers();
 		DLL cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client);
-		DLL cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& wscRights);
+		DLL cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights);
 		DLL cpp::result<std::wstring, Error> GetAdmin(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> DelAdmin(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> ChangeNPCSpawn(bool bDisable);
-		DLL cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& wscBasename);
+		DLL cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& Basename);
 		DLL Fuse* GetFuseFromID(uint iFuseId);
 		DLL bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip);
 		DLL bool UnLightFuse(IObjRW* ship, uint iFuseId);

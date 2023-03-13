@@ -59,13 +59,13 @@ namespace Hk::Math
 		gridRefZ = std::min(std::max(gridRefZ, 0), 7);
 		char scZPos = '1' + char(gridRefZ);
 
-		typename Str::value_type szCurrentLocation[100];
+		typename Str::value_type CurrentLocation[100];
 		if constexpr (std::is_same_v<Str, std::string>)
-			_snprintf_s(szCurrentLocation, sizeof(szCurrentLocation), "%c-%c", scXPos, scZPos);
+			_snprintf_s(CurrentLocation, sizeof(CurrentLocation), "%c-%c", scXPos, scZPos);
 		else
-			_snwprintf_s(szCurrentLocation, sizeof(szCurrentLocation), L"%C-%C", scXPos, scZPos);
+			_snwprintf_s(CurrentLocation, sizeof(CurrentLocation), L"%C-%C", scXPos, scZPos);
 
-		return szCurrentLocation;
+		return CurrentLocation;
 	}
 
 constexpr float PI = std::numbers::pi_v<float>;

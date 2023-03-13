@@ -179,19 +179,19 @@ void ThreadResolver()
 			for (auto& ip : lstMyResolveIPs)
 			{
 				SOCKADDR_IN addr { AF_INET, 2302, {}, { 0 } };
-				InetPtonW(AF_INET, ip.wscIP.c_str(), &addr.sin_addr);
+				InetPtonW(AF_INET, ip.IP.c_str(), &addr.sin_addr);
 
 				wchar_t hostbuf[255];
 				GetNameInfoW(
 				    reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
 
-				ip.wscHostname = hostbuf;
+				ip.Hostname = hostbuf;
 			}
 
 			EnterCriticalSection(&csIPResolve);
 			for (auto& ip : lstMyResolveIPs)
 			{
-				if (ip.wscHostname.length())
+				if (ip.Hostname.length())
 					g_lstResolveIPsResult.push_back(ip);
 			}
 			LeaveCriticalSection(&csIPResolve);
@@ -219,15 +219,15 @@ void TimerCheckResolveResults()
 			for (const auto* config = FLHookConfig::c(); 
 				const auto& ban : config->bans.banWildcardsAndIPs)
 			{
-				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.wscHostname).c_str()))
+				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.Hostname).c_str()))
 				{
-					AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.wscHostname.c_str(), ban.c_str())));
+					AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.Hostname.c_str(), ban.c_str())));
 					if (config->bans.banAccountOnMatch)
 						Hk::Player::Ban(ip.client, true);
 					Hk::Player::Kick(ip.client);
 				}
 			}
-			ClientInfo[ip.client].wscHostname = ip.wscHostname;
+			ClientInfo[ip.client].Hostname = ip.Hostname;
 		}
 
 		g_lstResolveIPsResult.clear();

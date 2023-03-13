@@ -100,7 +100,7 @@ PatchInfo piDaLibDLL = { "dalib.dll",
 
 bool Patch(PatchInfo& pi)
 {
-	HMODULE hMod = GetModuleHandle(pi.szBinName);
+	HMODULE hMod = GetModuleHandle(pi.BinName);
 	if (!hMod)
 		return false;
 
@@ -129,7 +129,7 @@ bool Patch(PatchInfo& pi)
 
 bool RestorePatch(PatchInfo& pi)
 {
-	HMODULE hMod = GetModuleHandle(pi.szBinName);
+	HMODULE hMod = GetModuleHandle(pi.BinName);
 	if (!hMod)
 		return false;
 
@@ -158,7 +158,7 @@ _CRCAntiCheat CRCAntiCheat;
 char* g_FLServerDataPtr;
 _GetShipInspect GetShipInspect;
 std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
-char szRepFreeFixOld[5];
+char RepFreeFixOld[5];
 
 /**************************************************************************************************************
 clear the clientinfo
@@ -192,7 +192,7 @@ void ClearClientInfo(ClientId client)
 
 	info->lstIgnore.clear();
 	info->iKillsInARow = 0;
-	info->wscHostname = L"";
+	info->Hostname = L"";
 	info->bEngineKilled = false;
 	info->bThrusterActivated = false;
 	info->bTradelane = false;
@@ -222,7 +222,7 @@ void LoadUserSettings(ClientId client)
 
 	CAccount const* acc = Players.FindAccountFromClientID(client);
 	std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	std::string scUserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+	std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
 	info->dieMsg = (DIEMSGTYPE)IniGetI(scUserFile, "settings", "DieMsg", DIEMSG_ALL);
@@ -236,13 +236,13 @@ void LoadUserSettings(ClientId client)
 	info->lstIgnore.clear();
 	for (int i = 1;; i++)
 	{
-		std::wstring wscIgnore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
-		if (!wscIgnore.length())
+		std::wstring Ignore = IniGetWS(scUserFile, "IgnoreList", std::to_string(i), L"");
+		if (!Ignore.length())
 			break;
 
 		IGNORE_INFO ii;
-		ii.character = GetParam(wscIgnore, ' ', 0);
-		ii.wscFlags = GetParam(wscIgnore, ' ', 1);
+		ii.character = GetParam(Ignore, ' ', 0);
+		ii.Flags = GetParam(Ignore, ' ', 1);
 		info->lstIgnore.push_back(ii);
 	}
 }
@@ -291,30 +291,30 @@ bool InitHookExports()
 	DetourSendComm();
 
 	// patch rep array free
-	char szNOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
+	char NOPs[] = { '\x90', '\x90', '\x90', '\x90', '\x90' };
 	char* pAddress = ((char*)server + ADDR_SRV_REPARRAYFREE);
-	ReadProcMem(pAddress, szRepFreeFixOld, 5);
-	WriteProcMem(pAddress, szNOPs, 5);
+	ReadProcMem(pAddress, RepFreeFixOld, 5);
+	WriteProcMem(pAddress, NOPs, 5);
 
 	// patch flserver so it can better handle faulty house entries in char files
 
 	// divert call to house load/save func
 	pAddress = SRV_ADDR(0x679C6);
-	char szDivertJump[] = { '\x6F' };
+	char DivertJump[] = { '\x6F' };
 
-	WriteProcMem(pAddress, szDivertJump, 1);
+	WriteProcMem(pAddress, DivertJump, 1);
 
 	// install hook at new address
 	pAddress = SRV_ADDR(0x78B39);
 
-	char szMovEAX[] = { '\xB8' };
-	char szJMPEAX[] = { '\xFF', '\xE0' };
+	char MovEAX[] = { '\xB8' };
+	char JMPEAX[] = { '\xFF', '\xE0' };
 
 	FARPROC fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
-	WriteProcMem(pAddress, szMovEAX, 1);
+	WriteProcMem(pAddress, MovEAX, 1);
 	WriteProcMem(pAddress + 1, &fpLoadRepFromCharFile, 4);
-	WriteProcMem(pAddress + 5, szJMPEAX, 2);
+	WriteProcMem(pAddress + 5, JMPEAX, 2);
 
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
@@ -334,15 +334,15 @@ bool InitHookExports()
 
 	// get client proxy array, used to retrieve player pings/ips
 	pAddress = (char*)remoteClient + ADDR_CPLIST;
-	char* szTemp;
-	ReadProcMem(pAddress, &szTemp, 4);
-	szTemp += 0x10;
-	memcpy(&clientProxyArray, &szTemp, 4);
+	char* Temp;
+	ReadProcMem(pAddress, &Temp, 4);
+	Temp += 0x10;
+	memcpy(&clientProxyArray, &Temp, 4);
 
 	// init variables
-	char szDataPath[MAX_PATH];
-	GetUserDataPath(szDataPath);
-	CoreGlobals::i()->accPath = std::string(szDataPath) + "\\Accts\\MultiPlayer\\";
+	char DataPath[MAX_PATH];
+	GetUserDataPath(DataPath);
+	CoreGlobals::i()->accPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
 
 	// Load DLLs for strings
 	Hk::Message::LoadStringDLLs();
@@ -410,19 +410,19 @@ void UnloadHookExports()
 
 	// unpatch rep array free
 	pAddress = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
-	WriteProcMem(pAddress, szRepFreeFixOld, 5);
+	WriteProcMem(pAddress, RepFreeFixOld, 5);
 
 	// unpatch flserver so it can better handle faulty house entries in char
 	// files
 
 	// undivert call to house load/save func
 	pAddress = SRV_ADDR(0x679C6);
-	char szDivertJump[] = { '\x76' };
+	char DivertJump[] = { '\x76' };
 
 	// anti-death-msg
-	char szOld[] = { '\x74' };
+	char Old[] = { '\x74' };
 	pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-	WriteProcMem(pAddress, szOld, 1);
+	WriteProcMem(pAddress, Old, 1);
 
 	// plugins
 	PluginManager::i()->unloadAll();
@@ -448,33 +448,33 @@ void HookRehashed()
 	// anti-deathmsg
 	if (FLHookConfig::i()->messages.dieMsg)
 	{ // disables the "old" "A Player has died: ..." messages
-		char szJMP[] = { '\xEB' };
+		char JMP[] = { '\xEB' };
 		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(pAddress, szJMP, 1);
+		WriteProcMem(pAddress, JMP, 1);
 	}
 	else
 	{
-		char szOld[] = { '\x74' };
+		char Old[] = { '\x74' };
 		pAddress = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(pAddress, szOld, 1);
+		WriteProcMem(pAddress, Old, 1);
 	}
 
 	// charfile encyption(doesn't get disabled when unloading FLHook)
 	if (FLHookConfig::i()->general.disableCharfileEncryption)
 	{
-		char szBuf[] = { '\x14', '\xB3' };
+		char Buf[] = { '\x14', '\xB3' };
 		pAddress = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(pAddress, szBuf, 2);
+		WriteProcMem(pAddress, Buf, 2);
 		pAddress = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(pAddress, szBuf, 2);
+		WriteProcMem(pAddress, Buf, 2);
 	}
 	else
 	{
-		char szBuf[] = { '\xE4', '\xB4' };
+		char Buf[] = { '\xE4', '\xB4' };
 		pAddress = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(pAddress, szBuf, 2);
+		WriteProcMem(pAddress, Buf, 2);
 		pAddress = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(pAddress, szBuf, 2);
+		WriteProcMem(pAddress, Buf, 2);
 	}
 
 	// maximum group size

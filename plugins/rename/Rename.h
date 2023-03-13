@@ -40,9 +40,9 @@ namespace Plugins::Rename
 	{
 		std::string File() override
 		{
-			char szDataPath[MAX_PATH];
-			GetUserDataPath(szDataPath);
-			return std::string(szDataPath) + R"(\Accts\MultiPlayer\tags.json)";
+			char DataPath[MAX_PATH];
+			GetUserDataPath(DataPath);
+			return std::string(DataPath) + R"(\Accts\MultiPlayer\tags.json)";
 		}
 
 		std::vector<TagData> tags;

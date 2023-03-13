@@ -145,7 +145,7 @@ namespace Plugins::Npc
 		si.shipArchetype = arch.shipArchId;
 		si.mOrientation = rotation;
 		si.iLoadout = arch.loadoutId;
-		si.iLook1 = CreateID("li_newscaster_head_gen_hat");
+		si.iLook1 = CreateID("li_neaster_head_gen_hat");
 		si.iLook2 = CreateID("pl_female1_journeyman_body");
 		si.iComm = CreateID("comm_br_darcy_female");
 		si.iPilotVoice = CreateID("pilot_f_leg_f01a");

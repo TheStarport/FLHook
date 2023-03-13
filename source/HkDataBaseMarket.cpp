@@ -16,12 +16,12 @@ bool LoadBaseMarket()
 		if (!ini.is_value("base"))
 			continue;
 
-		const char* szBaseName = ini.get_value_string();
+		const char* BaseName = ini.get_value_string();
 		BaseInfo* biBase = 0;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{
-			const char* szBN = base.scBasename.c_str();
-			if (!ToLower(base.scBasename).compare(ToLower(szBaseName)))
+			const char* BN = base.scBasename.c_str();
+			if (!ToLower(base.scBasename).compare(ToLower(BaseName)))
 			{
 				biBase = &base;
 				break;
@@ -40,8 +40,8 @@ bool LoadBaseMarket()
 		do
 		{
 			DataMarketItem mi;
-			const char* szEquipName = ini.get_value_string(0);
-			mi.iArchId = CreateID(szEquipName);
+			const char* EquipName = ini.get_value_string(0);
+			mi.iArchId = CreateID(EquipName);
 			mi.fRep = ini.get_value_float(2);
 			biBase->lstMarketMisc.push_back(mi);
 		} while (ini.read_value());

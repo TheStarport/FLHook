@@ -384,11 +384,11 @@ namespace Plugins::Message
 
 		// Extract text from rdlReader
 		BinaryRDLReader rdl;
-		wchar_t wszBuf[1024];
+		wchar_t wBuf[1024];
 		uint iRet1;
-		rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)*rdlReader, msgSize);
+		rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), iRet1, (const char*)*rdlReader, msgSize);
 
-		const std::wstring chatMsg = ToLower(wszBuf);
+		const std::wstring chatMsg = ToLower(wBuf);
 
 		if (const bool isGroup = (cIdTo == 0x10003 || !chatMsg.find(L"/g ") || !chatMsg.find(L"/group ")); !isGroup)
 		{
@@ -447,9 +447,9 @@ namespace Plugins::Message
 	 */
 	void RedText(const std::wstring& XMLMsg, uint systemId)
 	{
-		char szBuf[0x1000];
+		char Buf[0x1000];
 		uint iRet;
-		if (const auto err = Hk::Message::FMsgEncodeXML(XMLMsg, szBuf, sizeof(szBuf), iRet); err.has_error())
+		if (const auto err = Hk::Message::FMsgEncodeXML(XMLMsg, Buf, sizeof(Buf), iRet); err.has_error())
 			return;
 
 		// Send to all players in system
@@ -459,7 +459,7 @@ namespace Plugins::Message
 			ClientId client = playerData->iOnlineId;
 
 			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); systemId == iClientSystemId)
-				Hk::Message::FMsgSendChat(client, szBuf, iRet);
+				Hk::Message::FMsgSendChat(client, Buf, iRet);
 		}
 	}
 
@@ -480,11 +480,11 @@ namespace Plugins::Message
 		{
 			// Extract text from rdlReader
 			BinaryRDLReader rdl;
-			wchar_t wszBuf[1024];
+			wchar_t wBuf[1024];
 			uint iRet1;
 			const void* rdlReader2 = *rdlReader;
-			rdl.extract_text_from_buffer((unsigned short*)wszBuf, sizeof(wszBuf), iRet1, (const char*)rdlReader2, msgSize);
-			std::wstring chatMsg = wszBuf;
+			rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), iRet1, (const char*)rdlReader2, msgSize);
+			std::wstring chatMsg = wBuf;
 
 			// Find the ': ' which indicates the end of the sending player name.
 			const size_t textStartPos = chatMsg.find(L": ");

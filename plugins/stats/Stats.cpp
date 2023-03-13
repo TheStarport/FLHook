@@ -73,7 +73,7 @@ namespace Plugins::Stats
 	// This removes double quotes from player names. This causes invalid json.
 	std::string encode(const std::string& data)
 	{
-		std::string scEncoded;
+		std::string Encoded;
 		scEncoded.reserve(data.size());
 		for (char pos : data)
 		{
