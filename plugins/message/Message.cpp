@@ -114,7 +114,7 @@ namespace Plugins::Message
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 			for (const auto& line : global->config->specialBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
@@ -140,7 +140,7 @@ namespace Plugins::Message
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 
 			if (global->config->standardBannerLines[curStandardBanner].find(L"<TRA") == 0)
 				Hk::Message::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
@@ -362,7 +362,7 @@ namespace Plugins::Message
 		// The iSpaceId *appears* to represent a player ship Id when it is
 		// targeted but this might not be the case. Also note that
 		// GetClientIdByShip returns 0 on failure not -1.
-		const auto targetClientId = Hk::Client::GetClientIdByShip(p2.iSpaceId);
+		const auto targetClientId = Hk::Client::GetClientIdByShip(p2.spaceId);
 		if (targetClientId.has_value())
 		{
 			const auto iter = global->info.find(uClientId);
@@ -404,7 +404,7 @@ namespace Plugins::Message
 					if (global->info[client].swearWordWarnings > 2)
 					{
 						const std::wstring charname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-						AddLog(LogType::Kick,
+						Logger::i()->Log(
 						    LogLevel::Info,
 						    wstos(std::format(L"Swearing tempban on {} ({}) reason='{}'",
 						        charname,
@@ -456,7 +456,7 @@ namespace Plugins::Message
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 
 			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); systemId == iClientSystemId)
 				Hk::Message::FMsgSendChat(client, Buf, iRet);

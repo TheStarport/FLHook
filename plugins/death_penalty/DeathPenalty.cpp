@@ -111,21 +111,21 @@ namespace Plugins::DeathPenalty
 					return;
 				}
 
-				auto dpCredits = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
-				if (cash < dpCredits)
-					dpCredits = cash.value();
+				auto penaltyCredits = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
+				if (cash < penaltyCredits)
+					penaltyCredits = cash.value();
 
 				// Calculate what the death penalty would be upon death
-				global->MapClients[client].DeathPenaltyCredits = dpCredits;
+				global->MapClients[client].deathPenaltyCredits = penaltyCredits;
 
 				// Should we print a death penalty notice?
-				if (global->MapClients[client].bDisplayDPOnLaunch)
+				if (global->MapClients[client].displayDPOnLaunch)
 					PrintUserCmdText(client,
 					    std::format(L"Notice: the death penalty for your ship will be {} credits. Type /dp for more information.",
-					        ToMoneyStr(global->MapClients[client].DeathPenaltyCredits)));
+					        ToMoneyStr(global->MapClients[client].deathPenaltyCredits)));
 			}
 			else
-				global->MapClients[client].DeathPenaltyCredits = 0;
+				global->MapClients[client].deathPenaltyCredits = 0;
 		}
 	}
 
@@ -137,23 +137,23 @@ namespace Plugins::DeathPenalty
 		// Get Account directory then flhookuser.ini file
 		const CAccount* acc = Players.FindAccountFromClientID(client);
 		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-		std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
-		const auto Filename = Hk::Client::GetCharFileName(client);
-		std::string Filename = wstos(Filename.value());
-		std::string Section = "general_" + scFilename;
+		const auto charFilename = Hk::Client::GetCharFileName(client);
+		std::string filename = wstos(charFilename.value());
+		std::string Section = "general_" + filename;
 
 		// read death penalty settings
-		CLIENT_DATA c;
-		c.bDisplayDPOnLaunch = IniGetB(scUserFile, scSection, "DPnotice", true);
-		global->MapClients[client] = c;
+		CLIENT_DATA clientData;
+		clientData.displayDPOnLaunch = IniGetB(userFile, filename, "DPnotice", true);
+		global->MapClients[client] = clientData;
 	}
 
 	/** @ingroup DeathPenalty
 	 * @brief Apply the death penalty on a player death
 	 */
-	void PenalizeDeath(ClientId client, uint iKillerId)
+	void PenalizeDeath(ClientId client, uint killerId)
 	{
 		if (global->config->DeathPenaltyFraction < 0.00001f)
 			return;
@@ -170,7 +170,7 @@ namespace Plugins::DeathPenalty
 			}
 
 			// Get how much the player owes
-			uint cashOwed = global->MapClients[client].DeathPenaltyCredits;
+			uint cashOwed = global->MapClients[client].deathPenaltyCredits;
 
 			// If the amount the player owes is more than they have, set the
 			// amount to their total cash
@@ -178,14 +178,14 @@ namespace Plugins::DeathPenalty
 				cashOwed = cash.value();
 
 			// If another player has killed the player
-			if (iKillerId != client && (global->config->DeathPenaltyFractionKiller > 0.0f))
+			if (killerId != client && (global->config->DeathPenaltyFractionKiller > 0.0f))
 			{
 				const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * global->config->DeathPenaltyFractionKiller);
 				if (killerReward)
 				{
 					// Reward the killer, print message to them
-					Hk::Player::AddCash(iKillerId, killerReward);
-					PrintUserCmdText(iKillerId,
+					Hk::Player::AddCash(killerId, killerReward);
+					PrintUserCmdText(killerId,
 					    std::format(L"Death penalty: given {} credits from {}'s death penalty.",
 					        ToMoneyStr(killerReward),
 					        Hk::Client::GetCharacterNameByID(client).value()));
@@ -217,7 +217,7 @@ namespace Plugins::DeathPenalty
 			if (client)
 			{
 				const DamageList* dmg = *_dmg;
-				const auto inflictor = dmg->get_cause() == DamageCause::unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
+				const auto inflictor = dmg->get_cause() == DamageCause::Unknown ? Hk::Client::GetClientIdByShip(ClientInfo[client].dmgLast.get_inflictor_id())
 				                                                                : Hk::Client::GetClientIdByShip(dmg->get_inflictor_id());
 				if (inflictor.has_value())
 				{
@@ -238,9 +238,9 @@ namespace Plugins::DeathPenalty
 		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
-			std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-			std::string Section = "general_" + wstos(file.value());
-			IniWrite(scUserFile, scSection, "DPnotice", value);
+			std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+			std::string section = "general_" + wstos(file.value());
+			IniWrite(userFile, section, "DPnotice", value);
 		}
 	}
 
@@ -261,13 +261,13 @@ namespace Plugins::DeathPenalty
 		{
 			if (ToLower(Trim(param)) == L"off")
 			{
-				global->MapClients[client].bDisplayDPOnLaunch = false;
+				global->MapClients[client].displayDPOnLaunch = false;
 				SaveDPNoticeToCharFile(client, "no");
 				PrintUserCmdText(client, L"Death penalty notices disabled.");
 			}
 			else if (ToLower(Trim(param)) == L"on")
 			{
-				global->MapClients[client].bDisplayDPOnLaunch = true;
+				global->MapClients[client].displayDPOnLaunch = true;
 				SaveDPNoticeToCharFile(client, "yes");
 				PrintUserCmdText(client, L"Death penalty notices enabled.");
 			}

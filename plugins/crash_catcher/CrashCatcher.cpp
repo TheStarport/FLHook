@@ -109,7 +109,7 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, std::format("Exception in RequestBestPath p1={}", p1));
+			Logger::i()->Log(LogLevel::Err, std::format("Exception in RequestBestPath p1={}", p1));
 		}
 	}
 
@@ -125,8 +125,7 @@ namespace Plugins::CrashCatcher
 		}
 		catch (...)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
-			Logger::i()->Log(LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->iArchId));
+			Logger::i()->Log(LogLevel::Err, std::format("Crash suppression in GetRoot(child={})", child->get_archetype()->archId));
 			return child;
 		}
 	}
@@ -316,15 +315,15 @@ namespace Plugins::CrashCatcher
 		}
 	}
 
-	void __stdcall 47bc4Naked_Log()
+	void __stdcall Cb_47bc4Naked_Log()
 	{
-		AddLog(LogType::Normal,
+		Logger::i()->Log(
 		    LogLevel::Err,
-		    "Exception/Crash in content.dll:0x47bc4 - probably missing formation in faction_props.ini/formations.ini - exiting");
+		    "Exception/Crash in content.dll:0xCb_47bc4 - probably missing formation in faction_props.ini/formations.ini - exiting");
 		exit(-1);
 	}
 
-	__declspec(naked) void 47bc4Naked()
+	__declspec(naked) void Cb_47bc4Naked()
 	{
 		__asm {
         test eax, eax
@@ -334,7 +333,7 @@ namespace Plugins::CrashCatcher
         mov ecx, edi
         ret
 will_crash:
-        call 47bc4Naked_Log
+        call Cb_47bc4Naked_Log
         xor ecx, ecx
         ret
 		}
@@ -378,20 +377,18 @@ will_crash:
 		}
 	}
 
-	static double __cdecl TimingSeconds(int64& ticks_delta)
+	static double __cdecl TimingSeconds(int64& ticksDelta)
 	{
-		double seconds = Timing::seconds(ticks_delta);
+		double seconds = Timing::seconds(ticksDelta);
 		if (seconds < 0 || seconds > 10.0)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			Logger::i()->Log(LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			ticks_delta = 1000000;
-			seconds = Timing::seconds(ticks_delta);
+			Logger::i()->Log(LogLevel::Err, std::format("Time delta invalid seconds={:.2f} ticksDelta={}", seconds, ticksDelta));
+			ticksDelta = 1000000;
+			seconds = Timing::seconds(ticksDelta);
 		}
 		else if (seconds > 1.0)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
-			Logger::i()->Log(LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticks_delta={}", seconds, ticks_delta));
+			Logger::i()->Log(LogLevel::Err, std::format("Time lag detected seconds={:.2f} ticksDelta={}", seconds, ticksDelta));
 		}
 		return seconds;
 	}
@@ -453,14 +450,14 @@ will_crash:
 						WriteProcMem((char*)global->contentAC + 0xC457F, patch, 4);
 					}
 
-					// Patch for crash at content.dll + 47bc4
+					// Patch for crash at content.dll + Cb_47bc4
 					// This appears to be related to NPCs and/or their chatter.
 					// What's missing contains the from, to and cargo entries
 					// (amongst other stuff). Original Bytes: 8B F8 8B 17 8B CF
 					{
 						const uchar patch[] = {0x90, 0xe8}; // nop call
 						WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 2);
-						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)47bc4Naked);
+						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)Cb_47bc4Naked);
 					}
 
 					// Patch for crash at engbase.dll + 0x0124BD ~ adoxa (thanks

@@ -7,8 +7,8 @@ namespace Plugins::DeathPenalty
 {
 	struct CLIENT_DATA
 	{
-		bool bDisplayDPOnLaunch = true;
-		uint DeathPenaltyCredits = 0;
+		bool displayDPOnLaunch = true;
+		uint deathPenaltyCredits = 0;
 	};
 
 	//! Configurable fields for this plugin

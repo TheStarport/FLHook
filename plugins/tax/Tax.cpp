@@ -161,7 +161,7 @@ namespace Plugins::Tax
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 
 			if (ClientInfo[client].tmF1TimeDisconnect)
 				continue;

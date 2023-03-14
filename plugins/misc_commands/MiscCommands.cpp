@@ -87,13 +87,13 @@ namespace Plugins::MiscCommands
 		bool bLights = false;
 		for (st6::list<EquipDesc> const& eq = Players[client].equipDescList.equip; const auto& eq : eq)
 		{
-			std::string hp = ToLower(eq.HardPoint.value);
+			std::string hp = ToLower(eq.hardPoint.value);
 			if (hp.find("dock") != std::string::npos)
 			{
 				XActivateEquip ActivateEq;
-				ActivateEq.bActivate = lightsStatus;
-				ActivateEq.iSpaceId = ship.value();
-				ActivateEq.sId = eq.sId;
+				ActivateEq.activate = lightsStatus;
+				ActivateEq.spaceId = ship.value();
+				ActivateEq.id = eq.id;
 				Server.ActivateEquip(client, ActivateEq);
 				bLights = true;
 			}
@@ -312,10 +312,10 @@ namespace Plugins::MiscCommands
 		const auto& [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 
 		pub::Audio::Tryptich music;
-		music.idunno = 0;
-		music.idunno2 = 0;
-		music.idunno3 = 0;
-		music.iMusicId = global->smiteMusicHash;
+		music.dunno = 0;
+		music.dunno2 = 0;
+		music.dunno3 = 0;
+		music.musicId = global->smiteMusicHash;
 		pub::Audio::SetMusic(playerInfo.value().client, music);
 
 		// For all players in system...
@@ -323,7 +323,7 @@ namespace Plugins::MiscCommands
 		while ((playerData = Players.traverse_active(playerData)))
 		{
 			// Get the this player's current system and location in the system.
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 			if (client == playerInfo.value().client)
 				continue;
 

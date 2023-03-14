@@ -151,7 +151,7 @@ namespace Plugins::Mark
 			// check for logged in players and reset their connection data
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
-				ClearClientMark(playerData->iOnlineId);
+				ClearClientMark(playerData->onlineId);
 		}
 		for (auto& timer : global->Timers)
 		{

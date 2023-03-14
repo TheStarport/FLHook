@@ -128,7 +128,7 @@ namespace Plugins::LightControl
 		const st6::list<EquipDesc>& eq = Players[client].equipDescList.equip;
 		for (const auto& i : eq)
 		{
-			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
+			if (std::ranges::find(global->config->lightsHashed, i.archId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
@@ -147,7 +147,7 @@ namespace Plugins::LightControl
 		int itemNumber = 1;
 		for (const auto& i : lights)
 		{
-			const auto& index = std::ranges::find(global->config->lightsHashed, i.iArchId);
+			const auto& index = std::ranges::find(global->config->lightsHashed, i.archId);
 			if (index == global->config->lightsHashed.end())
 			{
 				continue;
@@ -238,7 +238,7 @@ namespace Plugins::LightControl
 
 		for (const auto& i : eq)
 		{
-			if (std::ranges::find(global->config->lightsHashed, i.iArchId) == global->config->lightsHashed.end())
+			if (std::ranges::find(global->config->lightsHashed, i.archId) == global->config->lightsHashed.end())
 			{
 				continue;
 			}
@@ -292,7 +292,7 @@ namespace Plugins::LightControl
 			const auto light = std::find_if(
 			    eq.begin(), eq.end(), [&selectedLightEquipDesc](const EquipDesc& eq) { return eq.get_id() == selectedLightEquipDesc.get_id(); });
 
-			light->iArchId = lightId;
+			light->archId = lightId;
 			auto err = Hk::Player::SetEquip(client, eq);
 			if (err.has_error())
 			{

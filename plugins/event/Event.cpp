@@ -168,9 +168,9 @@ namespace Plugins::Event
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == base.value() && mission.item == gbi.iGoodId)
+			if (mission.base == base.value() && mission.item == gbi.goodId)
 			{
-				mission.current_amount -= gbi.iCount;
+				mission.current_amount -= gbi.count;
 				if (mission.current_amount < 0)
 					mission.current_amount = 0;
 			}
@@ -186,12 +186,12 @@ namespace Plugins::Event
 
 		for (auto& mission : global->CargoMissions)
 		{
-			if (mission.base == base.value() && mission.item == gsi.iArchId && mission.current_amount < mission.required_amount)
+			if (mission.base == base.value() && mission.item == gsi.archId && mission.current_amount < mission.required_amount)
 			{
 				int needed = mission.required_amount - mission.current_amount;
-				if (needed > gsi.iCount)
+				if (needed > gsi.count)
 				{
-					mission.current_amount += gsi.iCount;
+					mission.current_amount += gsi.count;
 					needed = mission.required_amount - mission.current_amount;
 					PrintUserCmdText(client, std::format(L"{} units remaining to complete mission objective", needed));
 				}

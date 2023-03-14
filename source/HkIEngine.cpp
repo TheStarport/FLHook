@@ -179,7 +179,7 @@ namespace IEngineHook
 
 	struct REP_DATA_LIST
 	{
-		uint idunno;
+		uint dunno;
 		LOAD_REP_DATA* begin;
 		LOAD_REP_DATA* end;
 	};

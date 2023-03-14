@@ -57,7 +57,7 @@ namespace Plugins::Rename
 		if (global->config->enableTagProtection)
 		{
 			// If this ship name starts with a restricted tag then the ship may only be created using rename and the faction password
-			const std::wstring charName(si.wCharname);
+			const std::wstring charName(si.charname);
 			if (const auto& tag = global->tagList.FindTagPartial(charName); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 			{
 				Server.CharacterInfoReq(client, true);
@@ -74,7 +74,7 @@ namespace Plugins::Rename
 
 		if (global->config->asciiCharNameOnly)
 		{
-			const std::wstring charname(si.wCharname);
+			const std::wstring charname(si.charname);
 			for (const wchar_t ch : charname)
 			{
 				if (ch & 0xFF80)
@@ -199,7 +199,7 @@ namespace Plugins::Rename
 		global->tagList.tags.emplace_back(data);
 
 		PrintUserCmdText(client, std::format(L"Created faction tag {} with master password {}", tag, pass));
-		AddLog(LogType::Normal,
+		Logger::i()->Log(
 		    LogLevel::Info,
 		    wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 		SaveSettings();
@@ -234,7 +234,7 @@ namespace Plugins::Rename
 			global->tagList.tags.erase(first, last);
 			SaveSettings();
 			PrintUserCmdText(client, L"OK Tag dropped");
-			AddLog(LogType::Normal,
+			Logger::i()->Log(
 			    LogLevel::Info,
 			    wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
@@ -325,13 +325,13 @@ namespace Plugins::Rename
 				MailManager::i()->UpdateCharacterName(wstos(o.charName), wstos(o.newCharName));
 
 				// The rename worked. Log it and save the rename time.
-				AddLog(LogType::Normal,
+				Logger::i()->Log(
 				    LogLevel::Info,
 				    wstos(std::format(L"User rename {} to {} ({})", o.charName.c_str(), o.newCharName.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal,
+				Logger::i()->Log(
 				    LogLevel::Err,
 				    wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
 				        stows(err),
@@ -382,8 +382,8 @@ namespace Plugins::Rename
 				}
 
 				// The move worked. Log it.
-				AddLog(LogType::Normal,
-				    LogLevel::Info,
+				Logger::i()->Log(
+					LogLevel::Info,
 				    wstos(std::format(L"Character {} moved from {} to {}",
 				        o.movingCharName.c_str(),
 				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
@@ -391,7 +391,7 @@ namespace Plugins::Rename
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal,
+				Logger::i()->Log(
 				    LogLevel::Err,
 				    wstos(std::format(L"Character {} move failed ({}) from {} to {}",
 				        o.movingCharName,
@@ -564,8 +564,8 @@ namespace Plugins::Rename
 		}
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-		std::string File = GetUserFilePath(charname, "-movechar.ini");
-		if (scFile.empty())
+		std::string file = GetUserFilePath(charname, "-movechar.ini");
+		if (file.empty())
 		{
 			PrintUserCmdText(client, L"ERR Character does not exist");
 			return;
@@ -573,12 +573,12 @@ namespace Plugins::Rename
 
 		if (const std::wstring code = Trim(GetParam(param, L' ', 0)); code == L"none")
 		{
-			IniWriteW(scFile, "Settings", "Code", L"");
+			IniWriteW(file, "Settings", "Code", L"");
 			PrintUserCmdText(client, L"OK Movechar code cleared");
 		}
 		else
 		{
-			IniWriteW(scFile, "Settings", "Code", code);
+			IniWriteW(file, "Settings", "Code", code);
 			PrintUserCmdText(client, L"OK Movechar code set to " + code);
 		}
 		return;
@@ -630,8 +630,8 @@ namespace Plugins::Rename
 
 		// Get the target account directory.
 		std::wstring movingCharName = Trim(GetParam(param, L' ', 0));
-		std::string File = GetUserFilePath(movingCharName, "-movechar.ini");
-		if (scFile.empty())
+		std::string file = GetUserFilePath(movingCharName, "-movechar.ini");
+		if (file.empty())
 		{
 			PrintUserCmdText(client, L"ERR Character does not exist");
 			return;
@@ -639,7 +639,7 @@ namespace Plugins::Rename
 
 		// Check the move char code.
 		std::wstring code = Trim(GetParam(param, L' ', 1));
-		if (std::wstring targetCode = IniGetWS(scFile, "Settings", "Code", L""); targetCode != code)
+		if (std::wstring targetCode = IniGetWS(file, "Settings", "Code", L""); targetCode != code)
 		{
 			PrintUserCmdText(client, L"ERR Move character access denied");
 			return;
@@ -676,7 +676,7 @@ namespace Plugins::Rename
 
 		// Check there is room in this account.
 		CAccount const* acc = Players.FindAccountFromClientID(client);
-		if (acc && acc->iNumberOfCharacters >= 5)
+		if (acc && acc->numberOfCharacters >= 5)
 		{
 			PrintUserCmdText(client, L"ERR Too many characters in account");
 			return;
@@ -713,7 +713,7 @@ namespace Plugins::Rename
 		global->pendingMoves.emplace_back(o);
 
 		// Delete the move code
-		::DeleteFileA(scFile.c_str());
+		::DeleteFileA(file.c_str());
 
 		// Kick
 		Hk::Player::KickReason(o.destinationCharName, L"Moving character, please wait 10 seconds before reconnecting");

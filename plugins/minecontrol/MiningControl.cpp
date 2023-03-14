@@ -265,7 +265,7 @@ namespace Plugins::MiningControl
 			for (const auto& item : pb.Items)
 			{
 				uint ItemId = CreateID(item.c_str());
-				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() != Archetype::GUN)
+				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() != Archetype::ClassType::Gun)
 					pb.ItemIds.push_back(ItemId);
 				else
 				{
@@ -277,12 +277,12 @@ namespace Plugins::MiningControl
 			for (const auto& ammo : pb.Ammo)
 			{
 				const uint ItemId = CreateID(ammo.c_str());
-				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() == Archetype::GUN)
+				if (const auto equipment = Archetype::GetEquipment(ItemId); equipment && equipment->get_class_type() == Archetype::ClassType::Gun)
 				{
 					const Archetype::Gun* gun = static_cast<Archetype::Gun*>(equipment);
-					if (gun->iProjectileArchId && gun->iProjectileArchId != 0xBAADF00D && gun->iProjectileArchId != 0x3E07E70)
+					if (gun->projectileArchId && gun->projectileArchId != 0xBAADF00D && gun->projectileArchId != 0x3E07E70)
 					{
-						pb.AmmoIds.push_back(gun->iProjectileArchId);
+						pb.AmmoIds.push_back(gun->projectileArchId);
 						continue;
 					}
 				}
@@ -356,7 +356,7 @@ namespace Plugins::MiningControl
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			uint client = playerData->iOnlineId;
+			uint client = playerData->onlineId;
 			ClearClientInfo(client);
 		}
 	}
@@ -375,7 +375,7 @@ namespace Plugins::MiningControl
 	void SPMunitionCollision(SSPMunitionCollisionInfo const& ci, ClientId& client)
 	{
 		// If this is not a lootable rock, do no other processing.
-		if (ci.dwTargetShip != 0)
+		if (ci.targetShip != 0)
 			return;
 
 		global->returnCode = ReturnCode::SkipAll;
@@ -404,18 +404,18 @@ namespace Plugins::MiningControl
 
 						// Adjust the bonus based on the zone.
 						float zoneBonus = 0.25f;
-						if (global->ZoneBonus[zone->iZoneId].Bonus != 0.0f)
-							zoneBonus = global->ZoneBonus[zone->iZoneId].Bonus;
+						if (global->ZoneBonus[zone->zoneId].Bonus != 0.0f)
+							zoneBonus = global->ZoneBonus[zone->zoneId].Bonus;
 
 						// If the field is getting mined out, reduce the bonus
-						zoneBonus *= global->ZoneBonus[zone->iZoneId].CurrentReserve / global->ZoneBonus[zone->iZoneId].MaxReserve;
+						zoneBonus *= global->ZoneBonus[zone->zoneId].CurrentReserve / global->ZoneBonus[zone->zoneId].MaxReserve;
 
 						uint lootId = zone->lootableZone->dynamicLootCommodity;
 						uint crateId = zone->lootableZone->dynamicLootContainer;
 
 						// Change the commodity if appropriate.
-						if (global->ZoneBonus[zone->iZoneId].ReplacementLootId)
-							lootId = global->ZoneBonus[zone->iZoneId].ReplacementLootId;
+						if (global->ZoneBonus[zone->zoneId].ReplacementLootId)
+							lootId = global->ZoneBonus[zone->zoneId].ReplacementLootId;
 
 						// If no mining bonus entry for this commodity is found,
 						// flag as no bonus
@@ -429,7 +429,7 @@ namespace Plugins::MiningControl
 						}
 						// If this minable commodity was not hit by the right type
 						// of gun, flag as no bonus
-						else if (std::ranges::find(ammo->second, ci.iProjectileArchId) == ammo->second.end())
+						else if (std::ranges::find(ammo->second, ci.projectileArchId) == ammo->second.end())
 						{
 							miningBonusEligible = false;
 							if (cd.Debug)
@@ -467,11 +467,11 @@ namespace Plugins::MiningControl
 						    random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamicLootCount2));
 
 						// Remove this lootCount from the field
-						global->ZoneBonus[zone->iZoneId].CurrentReserve -= static_cast<float>(lootCount);
-						global->ZoneBonus[zone->iZoneId].Mined += static_cast<float>(lootCount);
-						if (global->ZoneBonus[zone->iZoneId].CurrentReserve <= 0)
+						global->ZoneBonus[zone->zoneId].CurrentReserve -= static_cast<float>(lootCount);
+						global->ZoneBonus[zone->zoneId].Mined += static_cast<float>(lootCount);
+						if (global->ZoneBonus[zone->zoneId].CurrentReserve <= 0)
 						{
-							global->ZoneBonus[zone->iZoneId].CurrentReserve = 0;
+							global->ZoneBonus[zone->zoneId].CurrentReserve = 0;
 							lootCount = 0;
 						}
 
@@ -486,7 +486,7 @@ namespace Plugins::MiningControl
 							        lootCount,
 							        lootId,
 							        crateId,
-							        global->ZoneBonus[zone->iZoneId].CurrentReserve));
+							        global->ZoneBonus[zone->zoneId].CurrentReserve));
 						}
 
 						global->Clients[client].MineAsteroidEvents++;
@@ -495,8 +495,8 @@ namespace Plugins::MiningControl
 							if (float average = static_cast<float>(global->Clients[client].MineAsteroidEvents) / 30.0f; average > 2.0f)
 							{
 								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
-								AddLog(LogType::Normal,
-								    LogLevel::Info,
+								Logger::i()->Log(
+									LogLevel::Info,
 								    std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
 								        wstos(CharName.c_str()),
 								        average,
@@ -504,7 +504,7 @@ namespace Plugins::MiningControl
 								        shipPosition.y,
 								        shipPosition.z,
 								        zone->systemId,
-								        zone->iZoneId));
+								        zone->zoneId));
 							}
 
 							global->Clients[client].MineAsteroidSampleStart = time(0) + 30;

@@ -78,7 +78,7 @@ namespace Plugins::Betting
 						PlayerData* playerData = nullptr;
 						while ((playerData = Players.traverse_active(playerData)))
 						{
-							ClientId localClient = playerData->iOnlineId;
+							ClientId localClient = playerData->onlineId;
 							if (SystemId systemId = Hk::Player::GetSystem(localClient).value(); system == systemId)
 								PrintUserCmdText(localClient, L"No one has won the FFA.");
 						}
@@ -133,7 +133,7 @@ namespace Plugins::Betting
 			while ((playerData = Players.traverse_active(playerData)))
 			{
 				// Get the this player's current system
-				ClientId client2 = playerData->iOnlineId;
+				ClientId client2 = playerData->onlineId;
 				if (SystemId clientSystemId = Hk::Player::GetSystem(client2).value(); systemId != clientSystemId)
 					continue;
 

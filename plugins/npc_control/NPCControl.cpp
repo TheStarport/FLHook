@@ -140,17 +140,17 @@ namespace Plugins::Npc
 
 		pub::SpaceObj::ShipInfo si;
 		memset(&si, 0, sizeof(si));
-		si.iFlag = 1;
-		si.iSystem = systemId;
+		si.flag = 1;
+		si.system = systemId;
 		si.shipArchetype = arch.shipArchId;
-		si.mOrientation = rotation;
-		si.iLoadout = arch.loadoutId;
-		si.iLook1 = CreateID("li_neaster_head_gen_hat");
-		si.iLook2 = CreateID("pl_female1_journeyman_body");
-		si.iComm = CreateID("comm_br_darcy_female");
-		si.iPilotVoice = CreateID("pilot_f_leg_f01a");
-		si.iHealth = -1;
-		si.iLevel = 19;
+		si.orientation = rotation;
+		si.loadout = arch.loadoutId;
+		si.look1 = CreateID("li_neaster_head_gen_hat");
+		si.look2 = CreateID("pl_female1_journeyman_body");
+		si.comm = CreateID("comm_br_darcy_female");
+		si.pilotVoice = CreateID("pilot_f_leg_f01a");
+		si.health = -1;
+		si.level = 19;
 
 		if (varyPosition)
 		{
@@ -191,19 +191,19 @@ namespace Plugins::Npc
 		}
 		pilot_name.end_mad_lib();
 
-		pub::Reputation::Alloc(si.iRep, scanner_name, pilot_name);
-		pub::Reputation::SetAffiliation(si.iRep, arch.iffId);
+		pub::Reputation::Alloc(si.rep, scanner_name, pilot_name);
+		pub::Reputation::SetAffiliation(si.rep, arch.iffId);
 
 		// Get personality
 		pub::AI::SetPersonalityParams personalityParams;
-		personalityParams.iStateGraph = pub::StateGraph::get_state_graph(arch.graph.c_str(), pub::StateGraph::TYPE_STANDARD);
+		personalityParams.stateGraph = pub::StateGraph::get_state_graph(arch.graph.c_str(), pub::StateGraph::TYPE_STANDARD);
 		personalityParams.stateId = true;
 		const auto personality = Hk::Personalities::GetPersonality(arch.pilot);
 
 		if (personality.has_error())
 		{
 			std::string errorMessage = arch.pilot + " is not recognised as a pilot name.";
-			AddLog(LogType::Normal, LogLevel::Err, errorMessage);
+			Logger::i()->Log(LogLevel::Err, errorMessage);
 			return;
 		}
 
@@ -288,7 +288,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to make NPCs
 	 */
-	void AdminCmdAIMake(CCmds* cmds, int amount, const std::wstring& NpcType)
+	void AdminCmdAIMake(CCmds* cmds, int amount, const std::wstring& npcType)
 	{
 		if (!(cmds->rights & RIGHT_SUPERADMIN))
 		{
@@ -299,7 +299,7 @@ namespace Plugins::Npc
 		if (!amount)
 			amount = 1;
 
-		if (const auto& iter = global->config->npcInfo.find(NpcType); iter == global->config->npcInfo.end())
+		if (const auto& iter = global->config->npcInfo.find(npcType); iter == global->config->npcInfo.end())
 		{
 			cmds->Print("ERR Wrong NPC name");
 			return;
@@ -316,7 +316,7 @@ namespace Plugins::Npc
 		// Creation counter
 		for (int i = 0; i < amount; i++)
 		{
-			CreateNPC(NpcType, position, rotation, system, true);
+			CreateNPC(npcType, position, rotation, system, true);
 		}
 	}
 
@@ -376,12 +376,12 @@ namespace Plugins::Npc
 				pub::AI::SubmitDirective(npc, &cancelOP);
 
 				pub::AI::DirectiveGotoOp go;
-				go.iGotoType = 1;
+				go.gotoType = 1;
 				go.pos = pos;
 				go.pos.x = pos.x + RandomFloatRange(0, 500);
 				go.pos.y = pos.y + RandomFloatRange(0, 500);
 				go.pos.z = pos.z + RandomFloatRange(0, 500);
-				go.fRange = 0;
+				go.range = 0;
 				pub::AI::SubmitDirective(npc, &go);
 			}
 		}
@@ -394,8 +394,8 @@ namespace Plugins::Npc
 		pub::AI::DirectiveCancelOp cancelOP;
 		pub::AI::SubmitDirective(npc, &cancelOP);
 		pub::AI::DirectiveFollowOp testOP;
-		testOP.iFollowSpaceObj = ship;
-		testOP.fMaxDistance = 100;
+		testOP.followSpaceObj = ship;
+		testOP.maxDistance = 100;
 		pub::AI::SubmitDirective(npc, &testOP);
 	}
 

@@ -258,7 +258,7 @@ namespace Hk::Admin
 
 	Fuse* GetFuseFromID(uint iFuseId)
 	{
-		int idunno = 0;
+		int dunno = 0;
 		Fuse* fuse = nullptr;
 		__asm {
 			mov edx, 0x6CFD390
@@ -266,12 +266,12 @@ namespace Hk::Admin
 
 			lea ecx, iFuseId
 			push ecx
-			lea ecx, idunno
+			lea ecx, dunno
 			push ecx
 			mov ecx, eax
 			mov edx, 0x6D15D10
 			call edx
-			mov edx, [idunno]
+			mov edx, [dunno]
 			mov edi, [edx+0x10]
 			mov fuse, edi
 		}

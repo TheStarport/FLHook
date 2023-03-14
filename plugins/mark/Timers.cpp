@@ -12,7 +12,7 @@ namespace Plugins::Mark
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				uint client = playerData->iOnlineId;
+				uint client = playerData->onlineId;
 				auto ship = Hk::Player::GetShip(client);
 				if (ship.has_error() || global->Mark[client].AutoMarkRadius <= 0.0f) // docked or does not want any marking
 					continue;
@@ -86,7 +86,7 @@ namespace Plugins::Mark
 				PlayerData* playerData = nullptr;
 				while ((playerData = Players.traverse_active(playerData)))
 				{
-					ClientId client = playerData->iOnlineId;
+					ClientId client = playerData->onlineId;
 					if (Players[client].systemId == iItemSystem)
 					{
 						auto [playerPosition, _] = Hk::Solar::GetLocation(Players[client].shipId, IdType::Ship).value();

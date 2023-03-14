@@ -154,9 +154,9 @@ namespace Plugins::Arena
 				return;
 
 			auto fileName = charFileName.value() + L".fl";
-			CHARACTER_ID cId;
-			strcpy_s(cId.charFilename, wstos(CharFileName.substr(0, 14)).c_str());
-			Server.CharacterSelect(cId, client);
+			CHARACTER_ID charId;
+			strcpy_s(charId.charFilename, wstos(CharFileName.substr(0, 14)).c_str());
+			Server.CharacterSelect(charId, client);
 		}
 	}
 

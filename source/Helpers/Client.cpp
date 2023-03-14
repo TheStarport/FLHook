@@ -366,9 +366,9 @@ namespace Hk::Client
 	{
 		uint ship;
 		pub::Player::GetShip(client, ship);
-		uint idunno;
+		uint dunno;
 		IObjInspectImpl* inspect;
-		if (!GetShipInspect(ship, inspect, idunno))
+		if (!GetShipInspect(ship, inspect, dunno))
 			return cpp::fail(Error::InvalidShip);
 		return inspect;
 	}

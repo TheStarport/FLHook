@@ -2337,18 +2337,18 @@ void IClientImpl::unknown_86(ClientId client, uint _genArg1, uint _genArg2, uint
 	CALL_CLIENT_POSTAMBLE;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint idunno1, uint idunno2)
+bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint dunno1, uint dunno2)
 {
 	Logger::i()->Log(LogLevel::Trace, wstos(
-	        std::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint idunno1 = {}\n\tuint idunno2 = {}\n)",
+	        std::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint dunno1 = {}\n\tuint dunno2 = {}\n)",
 	            cargoUpdate.client,
-	            idunno1,
-	            idunno2)));
+	            dunno1,
+	            dunno2)));
 
 	bool retVal;
 	CALL_CLIENT_PREAMBLE
 	{
-		retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, idunno1, idunno2);
+		retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, dunno1, dunno2);
 	}
 	CALL_CLIENT_POSTAMBLE;
 

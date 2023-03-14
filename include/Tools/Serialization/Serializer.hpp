@@ -417,7 +417,7 @@ class Serializer
 	template<std::size_t I = 0, typename FuncT, typename... Tp>
 	static std::enable_if_t<I < sizeof...(Tp), void> for_each(std::tuple<Tp...> type, FuncT func)
 	{
-		f(std::get<I>(type));
+		func(std::get<I>(type));
 		for_each<I + 1, FuncT, Tp...>(type, func);
 	}
 

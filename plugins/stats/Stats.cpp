@@ -73,16 +73,16 @@ namespace Plugins::Stats
 	// This removes double quotes from player names. This causes invalid json.
 	std::string encode(const std::string& data)
 	{
-		std::string Encoded;
-		scEncoded.reserve(data.size());
+		std::string encoded;
+		encoded.reserve(data.size());
 		for (char pos : data)
 		{
 			if (pos == '\"')
-				scEncoded.append("&quot;");
+				encoded.append("&quot;");
 			else
-				scEncoded.append(1, pos);
+				encoded.append(1, pos);
 		}
-		return scEncoded;
+		return encoded;
 	}
 
 	// Function to export load and player data to a json file
@@ -90,40 +90,40 @@ namespace Plugins::Stats
 	{
 		std::ofstream out(global->jsonFileName.FilePath + "\\" + global->jsonFileName.StatsFile);
 
-		nlohmann::json jExport;
-		jExport["serverload"] = CoreGlobals::c()->serverLoadInMs;
+		nlohmann::json jsonExport;
+		jsonExport["serverload"] = CoreGlobals::c()->serverLoadInMs;
 
-		nlohmann::json jPlayers = nlohmann::json::array();
+		nlohmann::json jsonPlayers = nlohmann::json::array();
 
-		for (const std::list<PlayerInfo> Players = Hk::Admin::GetPlayers(); auto& Player : Players)
+		for (const std::list<PlayerInfo> PlayersList = Hk::Admin::GetPlayers(); auto& player : PlayersList)
 		{
-			nlohmann::json jPlayer;
+			nlohmann::json jsonPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(wstos(Player.character));
+			jsonPlayer["name"] = encode(wstos(player.character));
 
 			// Add rank
-			const int iRank = Hk::Player::GetRank(Player.client).value();
-			jPlayer["rank"] = std::to_string(iRank);
+			const int iRank = Hk::Player::GetRank(player.client).value();
+			jsonPlayer["rank"] = std::to_string(iRank);
 
 			// Add group
-			const int groupId = Players.GetGroupID(Player.client);
-			jPlayer["group"] = groupId ? std::to_string(groupId) : "None";
+			const int groupId = Players.GetGroupID(player.client);
+			jsonPlayer["group"] = groupId ? std::to_string(groupId) : "None";
 
 			// Add ship
-			const Archetype::Ship* ship = Archetype::GetShip(Players[Player.client].shipArchetype);
-			jPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "unknown";
+			const Archetype::Ship* ship = Archetype::GetShip(Players[player.client].shipArchetype);
+			jsonPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "unknown";
 
 			// Add system
-			SystemId iSystemId = Hk::Player::GetSystem(Player.client).value();
-			const Universe::ISystem* iSys = Universe::get_system(iSystemId);
-			jPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(iSys->idsName));
+			SystemId systemId = Hk::Player::GetSystem(player.client).value();
+			const Universe::ISystem* system = Universe::get_system(systemId);
+			jsonPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(system->idsName));
 
-			jPlayers.push_back(jPlayer);
+			jsonPlayers.push_back(jsonPlayer);
 		}
 
-		jExport["players"] = jPlayers;
-		out << jExport;
+		jsonExport["players"] = jsonPlayers;
+		out << jsonExport;
 		out.close();
 	}
 

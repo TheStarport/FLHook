@@ -66,7 +66,7 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on CharacterInfoReq (Character Select screen). Calls KillBan.
 	 */
-	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& p2)
+	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2)
 	{
 		KillBan(client);
 	}
@@ -74,7 +74,7 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
 	 */
-	void JumpInComplete([[maybe_unused]] const SystemId& System, [[maybe_unused]] const ShipId& Ship, ClientId& client)
+	void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client)
 	{
 		global->mapInfo[client].bInWrapGate = false;
 	}

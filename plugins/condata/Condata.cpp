@@ -85,7 +85,7 @@ namespace Plugins::ConData
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				ClientId client = playerData->iOnlineId;
+				ClientId client = playerData->onlineId;
 				if (client < 1 || client > MaxClientId)
 					continue;
 
@@ -127,7 +127,7 @@ namespace Plugins::ConData
 		// but will not allow character selection on them.
 		for (uint client = Players.GetMaxPlayerCount() + 1; client <= MaxClientId; client++)
 		{
-			if (Players[client].iOnlineId)
+			if (Players[client].onlineId)
 			{
 				if (CAccount* acc = Players.FindAccountFromClientID(client))
 				{
@@ -147,7 +147,7 @@ namespace Plugins::ConData
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
 			if (client < 1 || client > MaxClientId || ClientInfo[client].tmF1TimeDisconnect || connectionInfo.has_error())
 				continue;
@@ -194,7 +194,7 @@ namespace Plugins::ConData
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			ClientId client = playerData->iOnlineId;
+			ClientId client = playerData->onlineId;
 			if (client < 1 || client > MaxClientId)
 				continue;
 
@@ -265,11 +265,11 @@ namespace Plugins::ConData
 			return; // ??? 8[
 
 		const mstime timeNow = Hk::Time::GetUnixMiliseconds();
-		const auto timestamp = static_cast<mstime>(ui.fTimestamp * 1000);
+		const auto timestamp = static_cast<mstime>(ui.timestamp * 1000);
 
 		auto& con = global->connections[client];
 
-		if (global->config->lagDetectionFrame && con.lastObjUpdate && (Hk::Client::GetEngineState(client) != ES_TRADELANE) && (ui.cState != 7))
+		if (global->config->lagDetectionFrame && con.lastObjUpdate && (Hk::Client::GetEngineState(client) != ES_TRADELANE) && (ui.state != 7))
 		{
 			const auto timeDiff = static_cast<uint>(timeNow - con.lastObjUpdate);
 			const auto timestampDiff = static_cast<uint>(timestamp - con.lastObjTimestamp);
@@ -427,7 +427,7 @@ namespace Plugins::ConData
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))
 			{
-				ClientId client = playerData->iOnlineId;
+				ClientId client = playerData->onlineId;
 				if (Hk::Client::IsInCharSelectMenu(client))
 					continue;
 
@@ -494,10 +494,10 @@ namespace Plugins::ConData
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))
 		{
-			if (ClientId client = playerData->iOnlineId; client < 1 || client > MaxClientId)
+			if (ClientId client = playerData->onlineId; client < 1 || client > MaxClientId)
 				continue;
 
-			ClearConData(playerData->iOnlineId);
+			ClearConData(playerData->onlineId);
 		}
 	}
 

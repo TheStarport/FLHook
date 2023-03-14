@@ -48,7 +48,7 @@ namespace Plugins::KillTracker
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Message::GetWStringFromIdS(ship->iIdsName), count));
+				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Message::GetWStringFromIdS(ship->idsName), count));
 			}
 		}
 		PrintUserCmdText(client, std::format(L"Total kills: {}", numKills));
@@ -57,9 +57,9 @@ namespace Plugins::KillTracker
 	/** @ingroup KillTracker
 	 * @brief Called when a player types "/kills".
 	 */
-	void UserCmd_Kills(ClientId& client, const std::wstring& Param)
+	void UserCmd_Kills(ClientId& client, const std::wstring& params)
 	{
-		const std::wstring targetCharName = GetParam(Param, ' ', 0);
+		const std::wstring targetCharName = GetParam(params, ' ', 0);
 		uint clientId;
 
 		if (!targetCharName.empty())
@@ -91,7 +91,7 @@ namespace Plugins::KillTracker
 	/** @ingroup KillTracker
 	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
 	 */
-	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
+	void ShipDestroyed(DamageList** dmgList, const DWORD** ecx, const uint& kill)
 	{
 		if (kill == 1)
 		{
@@ -99,9 +99,9 @@ namespace Plugins::KillTracker
 
 			if (ClientId client = cShip->GetOwnerPlayer())
 			{
-				const DamageList* dmg = *_dmg;
+				const DamageList* dmg = *dmgList;
 				const auto killerId = Hk::Client::GetClientIdByShip(
-				    dmg->get_cause() == DamageCause::unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 
 				if (killerId.has_value() && killerId.value() != client)
 				{
@@ -125,13 +125,13 @@ namespace Plugins::KillTracker
 		}
 	}
 
-	void clearDamageTaken(ClientId& victim)
+	void ClearDamageTaken(ClientId& victim)
 	{
 		for (auto& damageEntry : global->damageArray[victim])
 			damageEntry = 0.0f;
 	}
 
-	void clearDamageDone(ClientId& inflictor)
+	void ClearDamageDone(ClientId& inflictor)
 	{
 		for (int i = 1; i < MaxClientId + 1; i++)
 			global->damageArray[i][inflictor] = 0.0f;
@@ -154,7 +154,7 @@ namespace Plugins::KillTracker
 					greatestInflictorId = inflictorIndex;
 				}
 			}
-			clearDamageTaken(clientVictim);
+			ClearDamageTaken(clientVictim);
 			if (totalDamageTaken == 0.0f || greatestInflictorId == 0)
 				return;
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
@@ -172,8 +172,8 @@ namespace Plugins::KillTracker
 	{
 		if (global->config->enableDamageTracking)
 		{
-			clearDamageTaken(client);
-			clearDamageDone(client);
+			ClearDamageTaken(client);
+			ClearDamageDone(client);
 		}
 	}
 
@@ -181,12 +181,12 @@ namespace Plugins::KillTracker
 	{
 		if (global->config->enableDamageTracking)
 		{
-			clearDamageTaken(client);
-			clearDamageDone(client);
+			ClearDamageTaken(client);
+			ClearDamageDone(client);
 			if (Hk::Client::IsValidClientID(client))
 			{
-				const float maxHp = Archetype::GetShip(Hk::Player::GetShipID(client).value())->fHitPoints;
-				global->lastPlayerHealth[client] = maxHp * Players[client].fRelativeHealth;
+				const float maxHp = Archetype::GetShip(Hk::Player::GetShipID(client).value())->hitPoints;
+				global->lastPlayerHealth[client] = maxHp * Players[client].relativeHealth;
 			}
 		}
 	}
@@ -195,8 +195,8 @@ namespace Plugins::KillTracker
 	{
 		if (global->config->enableDamageTracking)
 		{
-			clearDamageTaken(client);
-			clearDamageDone(client);
+			ClearDamageTaken(client);
+			ClearDamageDone(client);
 		}
 	}
 

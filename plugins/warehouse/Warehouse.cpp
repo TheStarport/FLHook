@@ -38,13 +38,13 @@ namespace Plugins::Warehouse
 	void LoadSettings()
 	{
 		global->config = Serializer::JsonToObject<Config>();
-		for (const auto& i : global->config.restrictedItems)
+		for (const auto& item : global->config.restrictedItems)
 		{
-			global->config.restrictedItemsHashed.emplace_back(CreateID(i.c_str()));
+			global->config.restrictedItemsHashed.emplace_back(CreateID(item.c_str()));
 		}
-		for (const auto& i : global->config.restrictedBases)
+		for (const auto& base : global->config.restrictedBases)
 		{
-			global->config.restrictedBasesHashed.emplace_back(CreateID(i.c_str()));
+			global->config.restrictedBasesHashed.emplace_back(CreateID(base.c_str()));
 		}
 
 		CreateSqlTables();
@@ -124,7 +124,7 @@ namespace Plugins::Warehouse
 
 			const auto* equip = Archetype::GetEquipment(info.archId);
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.count));
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->idsName), info.count));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
@@ -150,7 +150,7 @@ namespace Plugins::Warehouse
 				continue;
 			}
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.quantity));
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->idsName), info.quantity));
 		}
 	}
 
@@ -198,7 +198,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		if (itemArch->fVolume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
+		if (itemArch->volume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
 		{
 			PrintUserCmdText(client, L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
 			return;
@@ -218,7 +218,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 
 		PrintUserCmdText(client,
-		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->iIdsName), std::to_wstring(withdrawnQuantity)));
+		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->idsName), std::to_wstring(withdrawnQuantity)));
 	}
 
 	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
