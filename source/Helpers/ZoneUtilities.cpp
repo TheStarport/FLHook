@@ -140,9 +140,9 @@ namespace Hk::ZoneUtilities
 					std::string zoneNick = defaultZoneNick;
 					std::string crateNick = "";
 					std::string lootNick = "";
-					int iMinLoot = 0;
-					int iMaxLoot = 0;
-					uint iLootDifficulty = 0;
+					int minLoot = 0;
+					int maxLoot = 0;
+					uint lootDifficulty = 0;
 					while (ini.read_value())
 					{
 						if (ini.is_value("zone"))
@@ -159,12 +159,12 @@ namespace Hk::ZoneUtilities
 						}
 						else if (ini.is_value("dynamic_loot_count"))
 						{
-							iMinLoot = ini.get_value_int(0);
-							iMaxLoot = ini.get_value_int(1);
+							minLoot = ini.get_value_int(0);
+							maxLoot = ini.get_value_int(1);
 						}
 						else if (ini.is_value("dynamic_loot_difficulty"))
 						{
-							iLootDifficulty = ini.get_value_int(0);
+							lootDifficulty = ini.get_value_int(0);
 						}
 					}
 
@@ -172,11 +172,11 @@ namespace Hk::ZoneUtilities
 					lz.systemId = CreateID(systemNick.c_str());
 					lz.zoneNick = zoneNick;
 					lz.lootNick = lootNick;
-					lz.iLootId = CreateID(lootNick.c_str());
-					lz.iCrateId = CreateID(crateNick.c_str());
-					lz.iMinLoot = iMinLoot;
-					lz.iMaxLoot = iMaxLoot;
-					lz.iLootDifficulty = iLootDifficulty;
+					lz.lootId = CreateID(lootNick.c_str());
+					lz.crateId = CreateID(crateNick.c_str());
+					lz.minLoot = minLoot;
+					lz.maxLoot = maxLoot;
+					lz.lootDifficulty = lootDifficulty;
 					lz.pos.x = lz.pos.y = lz.pos.z = 0;
 					lz.size.x = lz.size.y = lz.size.z = 0;
 
@@ -333,10 +333,10 @@ namespace Hk::ZoneUtilities
 						jp.sysNick = systemNick;
 						jp.jumpNick = nickname;
 						jp.jumpDestSysNick = jumpDestSysNick;
-						jp.System = CreateID(systemNick.c_str());
+						jp.system = CreateID(systemNick.c_str());
 						jp.jumpId = CreateID(nickname.c_str());
 						jp.jumpDestSysId = CreateID(jumpDestSysNick.c_str());
-						JumpPoints.insert({jp.System, jp});
+						JumpPoints.insert({jp.system, jp});
 					}
 				}
 			}
@@ -497,9 +497,9 @@ namespace Hk::ZoneUtilities
 			Logger::i()->Log(LogLevel::Info, std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
 				zone.zoneNick,
 				zone.lootNick,
-				zone.iMinLoot,
-				zone.iMaxLoot,
-				zone.iLootDifficulty,
+				zone.minLoot,
+				zone.maxLoot,
+				zone.lootDifficulty,
 				zone.pos.x,
 				zone.pos.y,
 				zone.pos.z,

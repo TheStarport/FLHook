@@ -78,12 +78,12 @@ void TimerCheckKick()
 					// anti base-idle check
 					uint baseId;
 					pub::Player::GetBase(client, baseId);
-					if (baseId && ClientInfo[client].iBaseEnterTime
-						&& (time(nullptr) - ClientInfo[client].iBaseEnterTime) >= config->general.antiBaseIdle)
+					if (baseId && ClientInfo[client].baseEnterTime
+						&& (time(nullptr) - ClientInfo[client].baseEnterTime) >= config->general.antiBaseIdle)
 					{
-						//AddKickLog(client, "Base idling");
+						//AddKickLog(client, "base idling");
 						Hk::Player::MsgAndKick(client, L"Base idling", 10);
-						ClientInfo[client].iBaseEnterTime = 0;
+						ClientInfo[client].baseEnterTime = 0;
 					}
 				}
 
@@ -92,17 +92,17 @@ void TimerCheckKick()
 					// anti charmenu-idle check
 					if (Hk::Client::IsInCharSelectMenu(client))
 					{
-						if (!ClientInfo[client].iCharMenuEnterTime)
-							ClientInfo[client].iCharMenuEnterTime = static_cast<uint>(time(nullptr));
-						else if ((time(nullptr) - ClientInfo[client].iCharMenuEnterTime) >= config->general.antiCharMenuIdle)
+						if (!ClientInfo[client].charMenuEnterTime)
+							ClientInfo[client].charMenuEnterTime = static_cast<uint>(time(nullptr));
+						else if ((time(nullptr) - ClientInfo[client].charMenuEnterTime) >= config->general.antiCharMenuIdle)
 						{
 							//AddKickLog(client, "Charmenu idling");
 							Hk::Player::Kick(client);
-							ClientInfo[client].iCharMenuEnterTime = 0;
+							ClientInfo[client].charMenuEnterTime = 0;
 						}
 					}
 					else
-						ClientInfo[client].iCharMenuEnterTime = 0;
+						ClientInfo[client].charMenuEnterTime = 0;
 				}
 			}
 		}
@@ -194,13 +194,13 @@ void ThreadResolver()
 						0,
 						0);
 
-					ip.Hostname = hostbuf;
+					ip.hostname = hostbuf;
 				}
 
 				EnterCriticalSection(&csIPResolve);
 				for (auto& ip : MyResolveIPs)
 				{
-					if (ip.Hostname.length())
+					if (ip.hostname.length())
 						g_ResolveIPsResult.push_back(ip);
 				}
 				LeaveCriticalSection(&csIPResolve);
@@ -221,22 +221,22 @@ void TimerCheckResolveResults()
 			EnterCriticalSection(&csIPResolve);
 			for (const auto& ip : g_ResolveIPsResult)
 			{
-				if (ip.iConnects != ClientInfo[ip.client].iConnects)
+				if (ip.connects != ClientInfo[ip.client].connects)
 					continue; // outdated
 
 				// check if banned
 				for (const auto* config = FLHookConfig::c();
 				     const auto& ban : config->bans.banWildcardsAndIPs)
 				{
-					if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.Hostname).c_str()))
+					if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.hostname).c_str()))
 					{
-						//AddKickLog(ip.client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.Hostname.c_str(), ban.c_str())));
+						//AddKickLog(ip.client, wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
 						if (config->bans.banAccountOnMatch)
 							Hk::Player::Ban(ip.client, true);
 						Hk::Player::Kick(ip.client);
 					}
 				}
-				ClientInfo[ip.client].Hostname = ip.Hostname;
+				ClientInfo[ip.client].hostname = ip.hostname;
 			}
 
 			g_ResolveIPsResult.clear();

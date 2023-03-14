@@ -46,7 +46,7 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 
 				if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour && ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause()
 						== DamageCause::UnkDisrupter) &&
-					!ClientInfo[client].bCruiseActivated))
+					!ClientInfo[client].cruiseActivated))
 				{
 					dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
 				}
@@ -226,17 +226,17 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 	if (clientTarget)
 	{
 		// anti-dockkill check
-		if (ClientInfo[clientTarget].bSpawnProtected)
+		if (ClientInfo[clientTarget].spawnProtected)
 		{
 			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
-			ClientInfo[clientTarget].bSpawnProtected = false;
+			ClientInfo[clientTarget].spawnProtected = false;
 		}
-		if (ClientInfo[client].bSpawnProtected)
+		if (ClientInfo[client].spawnProtected)
 		{
 			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
-			ClientInfo[client].bSpawnProtected = false;
+			ClientInfo[client].spawnProtected = false;
 		}
 
 		// no-pvp check

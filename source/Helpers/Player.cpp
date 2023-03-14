@@ -12,15 +12,15 @@ namespace Hk::Player
 	constexpr auto AddrAntiCheat4 = 0x6FAA0;
 	constexpr auto PossibleCheatingDetectedAddr = 0x6F570;
 
-	cpp::result<void, Error> AddToGroup(ClientId client, uint iGroupId)
+	cpp::result<void, Error> AddToGroup(ClientId client, uint groupId)
 	{
 		if (!Client::IsValidClientID(client))
 			return cpp::fail(Error::InvalidClientId);
 
-		if (const uint groupId = Players.GetGroupID(client); groupId == iGroupId)
+		if (const uint groupId = Players.GetGroupID(client); groupId == groupId)
 			return cpp::fail(Error::InvalidGroupId);
 
-		CPlayerGroup* group = CPlayerGroup::FromGroupID(iGroupId);
+		CPlayerGroup* group = CPlayerGroup::FromGroupID(groupId);
 		if (!group)
 			return cpp::fail(Error::InvalidGroupId);
 
@@ -1045,9 +1045,9 @@ namespace Hk::Player
 
 		HookClient->Send_FLPACKET_SERVER_LAUNCH(client, launchPacket);
 
-		uint iSystem;
-		pub::Player::GetSystem(client, iSystem);
-		pub::SpaceObj::Relocate(ClientInfo[client].ship, iSystem, vDestination, mOrientation);
+		uint system;
+		pub::Player::GetSystem(client, system);
+		pub::SpaceObj::Relocate(ClientInfo[client].ship, system, vDestination, mOrientation);
 	}
 
 	/** Dock the client immediately */
@@ -1062,11 +1062,11 @@ namespace Hk::Player
 		if (!ship)
 			return cpp::fail(Error::PlayerNotInSpace);
 
-		uint iSystem;
+		uint system;
 		uint iSystem2;
-		pub::SpaceObj::GetSystem(ship, iSystem);
+		pub::SpaceObj::GetSystem(ship, system);
 		pub::SpaceObj::GetSystem(iDockObj, iSystem2);
-		if (iSystem != iSystem2)
+		if (system != iSystem2)
 		{
 			return cpp::fail(Error::PlayerNotInSpace);
 		}
@@ -1153,8 +1153,8 @@ namespace Hk::Player
 		Matrix rot;
 		pub::SpaceObj::GetLocation(ship, pos, rot);
 
-		uint iSystem;
-		pub::Player::GetSystem(client, iSystem);
+		uint system;
+		pub::Player::GetSystem(client, system);
 
 		// For all players in system...
 		PlayerData* playerDb = nullptr;
@@ -1164,7 +1164,7 @@ namespace Hk::Player
 			ClientId client2 = playerDb->onlineId;
 			uint iSystem2 = 0;
 			pub::Player::GetSystem(client2, iSystem2);
-			if (iSystem != iSystem2)
+			if (system != iSystem2)
 				continue;
 
 			uint ship2;

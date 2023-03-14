@@ -173,14 +173,14 @@ void ClearClientInfo(ClientId client)
 	info->shipOld = 0;
 	info->tmSpawnTime = 0;
 	info->MoneyFix.clear();
-	info->iTradePartner = 0;
-	info->iBaseEnterTime = 0;
-	info->iCharMenuEnterTime = 0;
-	info->bCruiseActivated = false;
+	info->tradePartner = 0;
+	info->baseEnterTime = 0;
+	info->charMenuEnterTime = 0;
+	info->cruiseActivated = false;
 	info->tmKickTime = 0;
-	info->iLastExitedBaseId = 0;
-	info->bDisconnected = false;
-	info->bCharSelected = false;
+	info->lastExitedBaseId = 0;
+	info->disconnected = false;
+	info->charSelected = false;
 	info->tmF1Time = 0;
 	info->tmF1TimeDisconnect = 0;
 
@@ -192,13 +192,13 @@ void ClearClientInfo(ClientId client)
 
 	info->Ignore.clear();
 	info->iKillsInARow = 0;
-	info->Hostname = L"";
-	info->bEngineKilled = false;
-	info->bThrusterActivated = false;
-	info->bTradelane = false;
-	info->iGroupId = 0;
+	info->hostname = L"";
+	info->engineKilled = false;
+	info->thrusterActivated = false;
+	info->tradelane = false;
+	info->groupId = 0;
 
-	info->bSpawnProtected = false;
+	info->spawnProtected = false;
 
 	// Reset the dmg list if this client was the inflictor
 	for (auto& i : ClientInfo)
@@ -242,7 +242,7 @@ void LoadUserSettings(ClientId client)
 
 		IgnoreInfo ii;
 		ii.character = GetParam(Ignore, ' ', 0);
-		ii.Flags = GetParam(Ignore, ' ', 1);
+		ii.flags = GetParam(Ignore, ' ', 1);
 		info->Ignore.push_back(ii);
 	}
 }
@@ -275,7 +275,7 @@ bool InitHookExports()
 	memcpy(&pServer, pServer, 4);
 	for (uint i = 0; i < std::size(IServerImplEntries); i++)
 	{
-		char* address = pServer + IServerImplEntries[i].dwRemoteAddress;
+		char* address = pServer + IServerImplEntries[i].remoteAddress;
 		ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
 	}
@@ -350,7 +350,7 @@ bool InitHookExports()
 	// clear ClientInfo
 	for (uint i = 0; i < ClientInfo.size(); i++)
 	{
-		ClientInfo[i].iConnects = 0; // only set to 0 on start
+		ClientInfo[i].connects = 0; // only set to 0 on start
 		ClearClientInfo(i);
 	}
 
@@ -390,7 +390,7 @@ void UnloadHookExports()
 		memcpy(&pServer, pServer, 4);
 		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
-			const auto address = pServer + IServerImplEntries[i].dwRemoteAddress;
+			const auto address = pServer + IServerImplEntries[i].remoteAddress;
 			WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}

@@ -234,10 +234,10 @@ namespace IServerImplHook
 		{
 			ClientInfo[client].ship = shipId;
 			ClientInfo[client].iKillsInARow = 0;
-			ClientInfo[client].bCruiseActivated = false;
-			ClientInfo[client].bThrusterActivated = false;
-			ClientInfo[client].bEngineKilled = false;
-			ClientInfo[client].bTradelane = false;
+			ClientInfo[client].cruiseActivated = false;
+			ClientInfo[client].thrusterActivated = false;
+			ClientInfo[client].engineKilled = false;
+			ClientInfo[client].tradelane = false;
 
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
@@ -259,9 +259,9 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			if (!ClientInfo[client].iLastExitedBaseId)
+			if (!ClientInfo[client].lastExitedBaseId)
 			{
-				ClientInfo[client].iLastExitedBaseId = 1;
+				ClientInfo[client].lastExitedBaseId = 1;
 			}
 		}
 		CATCH_HOOK({})
@@ -319,9 +319,9 @@ namespace IServerImplHook
 				ClientInfo[client].tmSpawnTime = Hk::Time::GetUnixMiliseconds(); // save for anti-dockkill
 				// is there spawnprotection?
 				if (FLHookConfig::i()->general.antiDockKill > 0)
-					ClientInfo[client].bSpawnProtected = true;
+					ClientInfo[client].spawnProtected = true;
 				else
-					ClientInfo[client].bSpawnProtected = false;
+					ClientInfo[client].spawnProtected = false;
 			}
 		}
 		CATCH_HOOK({});
@@ -335,8 +335,8 @@ namespace IServerImplHook
 		{
 			const wchar_t* charName = ToWChar(Players.GetActiveCharacterName(client));
 			g_CharBefore = charName ? ToWChar(Players.GetActiveCharacterName(client)) : L"";
-			ClientInfo[client].iLastExitedBaseId = 0;
-			ClientInfo[client].iTradePartner = 0;
+			ClientInfo[client].lastExitedBaseId = 0;
+			ClientInfo[client].tradePartner = 0;
 		}
 		catch (...)
 		{
@@ -433,7 +433,7 @@ namespace IServerImplHook
 			}
 
 			// anti base-idle
-			ClientInfo[client].iBaseEnterTime = static_cast<uint>(time(nullptr));
+			ClientInfo[client].baseEnterTime = static_cast<uint>(time(nullptr));
 
 			// print to log if the char has too much money
 			if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client));
@@ -450,8 +450,8 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			ClientInfo[client].iBaseEnterTime = 0;
-			ClientInfo[client].iLastExitedBaseId = baseId;
+			ClientInfo[client].baseEnterTime = 0;
+			ClientInfo[client].lastExitedBaseId = baseId;
 		}
 		CATCH_HOOK({})
 	}
@@ -469,13 +469,13 @@ namespace IServerImplHook
 			{
 				// save both chars to prevent cheating in case of server crash
 				Hk::Player::SaveChar(client);
-				if (ClientInfo[client].iTradePartner)
-					Hk::Player::SaveChar(ClientInfo[client].iTradePartner);
+				if (ClientInfo[client].tradePartner)
+					Hk::Player::SaveChar(ClientInfo[client].tradePartner);
 			}
 
-			if (ClientInfo[client].iTradePartner)
-				ClientInfo[ClientInfo[client].iTradePartner].iTradePartner = 0;
-			ClientInfo[client].iTradePartner = 0;
+			if (ClientInfo[client].tradePartner)
+				ClientInfo[ClientInfo[client].tradePartner].tradePartner = 0;
+			ClientInfo[client].tradePartner = 0;
 		}
 		CATCH_HOOK({})
 	}
@@ -484,8 +484,8 @@ namespace IServerImplHook
 	{
 		if (client1 <= MaxClientId && client2 <= MaxClientId)
 		{
-			ClientInfo[client1].iTradePartner = client2;
-			ClientInfo[client2].iTradePartner = client1;
+			ClientInfo[client1].tradePartner = client2;
+			ClientInfo[client2].tradePartner = client1;
 		}
 	}
 
@@ -505,9 +505,9 @@ namespace IServerImplHook
 
 					if (eqType == ET_ENGINE)
 					{
-						ClientInfo[client].bEngineKilled = !aq.activate;
+						ClientInfo[client].engineKilled = !aq.activate;
 						if (!aq.activate)
-							ClientInfo[client].bCruiseActivated = false; // enginekill enabled
+							ClientInfo[client].cruiseActivated = false; // enginekill enabled
 					}
 				}
 			}
@@ -519,7 +519,7 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			ClientInfo[client].bCruiseActivated = ac.activate;
+			ClientInfo[client].cruiseActivated = ac.activate;
 		}
 		CATCH_HOOK({})
 	}
@@ -528,7 +528,7 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			ClientInfo[client].bThrusterActivated = at.activate;
+			ClientInfo[client].thrusterActivated = at.activate;
 		}
 		CATCH_HOOK({})
 	}
@@ -580,8 +580,8 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			if (!ClientInfo[client].bCharSelected)
-				ClientInfo[client].bCharSelected = true;
+			if (!ClientInfo[client].charSelected)
+				ClientInfo[client].charSelected = true;
 			else
 			{
 				// pushed f1
@@ -634,7 +634,7 @@ namespace IServerImplHook
 				return false;
 			}
 
-			ClientInfo[client].iConnects++;
+			ClientInfo[client].connects++;
 			ClearClientInfo(client);
 		}
 		CATCH_HOOK({})
@@ -653,11 +653,11 @@ namespace IServerImplHook
 
 	void DisConnect__Inner(ClientId client, EFLConnection)
 	{
-		if (client <= MaxClientId && client > 0 && !ClientInfo[client].bDisconnected)
+		if (client <= MaxClientId && client > 0 && !ClientInfo[client].disconnected)
 		{
-			ClientInfo[client].bDisconnected = true;
+			ClientInfo[client].disconnected = true;
 			ClientInfo[client].MoneyFix.clear();
-			ClientInfo[client].iTradePartner = 0;
+			ClientInfo[client].tradePartner = 0;
 
 			// TODO: implement event for disconnect
 		}
@@ -744,7 +744,7 @@ namespace IServerImplHook
 			{
 				if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip).c_str()))
 				{
-					//AddKickLog(client, wstos(std::format(L"IP/Hostname ban({} matches {})", ip.c_str(), ban.c_str())));
+					//AddKickLog(client, wstos(std::format(L"IP/hostname ban({} matches {})", ip.c_str(), ban.c_str())));
 					if (FLHookConfig::i()->bans.banAccountOnMatch)
 						Hk::Player::Ban(client, true);
 					Hk::Player::Kick(client);
@@ -752,7 +752,7 @@ namespace IServerImplHook
 			}
 
 			// resolve
-			const RESOLVE_IP rip = {client, ClientInfo[client].iConnects, ip};
+			const RESOLVE_IP rip = {client, ClientInfo[client].connects, ip};
 
 			EnterCriticalSection(&csIPResolve);
 			g_ResolveIPs.push_back(rip);
@@ -795,7 +795,7 @@ namespace IServerImplHook
 	void GoTradelane__Inner(ClientId client, [[maybe_unused]] const XGoTradelane& gtl)
 	{
 		if (client <= MaxClientId && client > 0)
-			ClientInfo[client].bTradelane = true;
+			ClientInfo[client].tradelane = true;
 	}
 
 	bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
@@ -814,7 +814,7 @@ namespace IServerImplHook
 	void StopTradelane__Inner(ClientId client, uint, uint, uint)
 	{
 		if (client <= MaxClientId && client > 0)
-			ClientInfo[client].bTradelane = false;
+			ClientInfo[client].tradelane = false;
 	}
 
 	void Shutdown__InnerAfter()

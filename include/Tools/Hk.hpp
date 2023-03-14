@@ -194,7 +194,7 @@ namespace Hk
 
 	namespace Player
 	{
-		DLL cpp::result<void, Error> AddToGroup(ClientId client, uint iGroupId);
+		DLL cpp::result<void, Error> AddToGroup(ClientId client, uint groupId);
 		DLL cpp::result<const uint, Error> GetGroupID(ClientId client);
 		DLL cpp::result<const uint, Error> GetCash(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, uint uAmount);

@@ -202,7 +202,7 @@ namespace Hk::Message
 	refuses to send if necessary. */
 	cpp::result<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
 	{
-		#define HAS_FLAG(a, b) ((a).Flags.find(b) != -1)
+		#define HAS_FLAG(a, b) ((a).flags.find(b) != -1)
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{

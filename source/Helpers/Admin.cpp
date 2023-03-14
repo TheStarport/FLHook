@@ -70,27 +70,27 @@ namespace Hk::Admin
 
 		pi.client = client;
 		pi.character = wActiveCharname ? wActiveCharname : L"";
-		pi.Base = pi.System = L"";
+		pi.baseName = pi.systemName = L"";
 
 		uint iBase = 0;
-		uint iSystem = 0;
+		uint system = 0;
 		pub::Player::GetBase(client, iBase);
-		pub::Player::GetSystem(client, iSystem);
+		pub::Player::GetSystem(client, system);
 		pub::Player::GetShip(client, pi.ship);
 
 		if (iBase)
 		{
 			char Basename[1024] = "";
 			pub::GetBaseNickname(Basename, sizeof(Basename), iBase);
-			pi.Base = stows(Basename);
+			pi.baseName = stows(Basename);
 		}
 
-		if (iSystem)
+		if (system)
 		{
 			char Systemname[1024] = "";
-			pub::GetSystemNickname(Systemname, sizeof(Systemname), iSystem);
-			pi.System = stows(Systemname);
-			pi.iSystem = iSystem;
+			pub::GetSystemNickname(Systemname, sizeof(Systemname), system);
+			pi.systemName = stows(Systemname);
+			pi.system = system;
 		}
 
 		// get ping
@@ -105,7 +105,7 @@ namespace Hk::Admin
 		// get ip
 		pi.IP = GetPlayerIP(client);
 
-		pi.Hostname = ClientInfo[client].Hostname;
+		pi.hostname = ClientInfo[client].hostname;
 
 		return pi;
 	}

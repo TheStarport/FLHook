@@ -5,7 +5,7 @@
 struct HookEntry
 {
 	FARPROC fpProc;
-	long dwRemoteAddress;
+	long remoteAddress;
 	FARPROC fpOldProc;
 };
 
@@ -39,16 +39,16 @@ struct MONEY_FIX
 struct IgnoreInfo
 {
 	std::wstring character;
-	std::wstring Flags;
+	std::wstring flags;
 };
 
 // resolver
 struct RESOLVE_IP
 {
 	ClientId client;
-	uint iConnects;
+	uint connects;
 	std::wstring IP;
-	std::wstring Hostname;
+	std::wstring hostname;
 };
 
 struct CLIENT_INFO
@@ -64,27 +64,27 @@ struct CLIENT_INFO
 	std::list<MONEY_FIX> MoneyFix;
 
 	// anticheat
-	uint iTradePartner;
+	uint tradePartner;
 
 	// change cruise disruptor behaviour
-	bool bCruiseActivated;
-	bool bThrusterActivated;
-	bool bEngineKilled;
-	bool bTradelane;
+	bool cruiseActivated;
+	bool thrusterActivated;
+	bool engineKilled;
+	bool tradelane;
 
 	// idle kicks
-	uint iBaseEnterTime;
-	uint iCharMenuEnterTime;
+	uint baseEnterTime;
+	uint charMenuEnterTime;
 
 	// msg, wait and kick
 	mstime tmKickTime;
 
 	// eventmode
-	uint iLastExitedBaseId;
-	bool bDisconnected;
+	uint lastExitedBaseId;
+	bool disconnected;
 
 	// f1 laming
-	bool bCharSelected;
+	bool charSelected;
 	mstime tmF1Time;
 	mstime tmF1TimeDisconnect;
 
@@ -102,16 +102,16 @@ struct CLIENT_INFO
 	uint iKillsInARow;
 
 	// bans
-	uint iConnects; // incremented when player connects
+	uint connects; // incremented when player connects
 
 	// Group
-	uint iGroupId;
+	uint groupId;
 
 	// other
-	std::wstring Hostname;
+	std::wstring hostname;
 
-	bool bSpawnProtected;
-	bool bUseServersideHitDetection; // used by AC Plugin
+	bool spawnProtected;
+	bool useServersideHitDetection; // used by AC Plugin
 
 	// Your randomly assigned formation tag, e.g. Navy Lambda 1-6
 	uint formationNumber1;
@@ -151,13 +151,13 @@ struct PlayerInfo
 {
 	uint client;
 	std::wstring character;
-	std::wstring Base;
-	std::wstring System;
-	uint iSystem;
+	std::wstring baseName;
+	std::wstring systemName;
+	uint system;
 	uint ship;
 	DPN_CONNECTION_INFO connectionInfo;
 	std::wstring IP;
-	std::wstring Hostname;
+	std::wstring hostname;
 };
 
 struct BaseHealth
@@ -279,7 +279,7 @@ public:
 	std::string jumpDestSysNick;
 
 	/** The id of the system for this jump point. */
-	uint System;
+	uint system;
 
 	/** The id of the jump point. */
 	uint jumpId;
@@ -298,19 +298,19 @@ struct LootableZone
 
 	/** The nickname and arch id of the loot dropped by the asteroids */
 	std::string lootNick;
-	uint iLootId;
+	uint lootId;
 
 	/** The arch id of the crate the loot is dropped in */
-	uint iCrateId;
+	uint crateId;
 
 	/** The minimum number of loot items to drop */
-	uint iMinLoot;
+	uint minLoot;
 
 	/** The maximum number of loot items to drop */
-	uint iMaxLoot;
+	uint maxLoot;
 
 	/** The drop difficultly */
-	uint iLootDifficulty;
+	uint lootDifficulty;
 
 	/** The lootable zone ellipsoid size */
 	Vector size;

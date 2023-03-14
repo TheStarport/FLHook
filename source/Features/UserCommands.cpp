@@ -48,8 +48,8 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float dista
 	Matrix rot;
 	pub::SpaceObj::GetLocation(ship, pos, rot);
 
-	uint iSystem;
-	pub::Player::GetSystem(client, iSystem);
+	uint system;
+	pub::Player::GetSystem(client, system);
 
 	// For all players in system...
 	PlayerData* playerDb = nullptr;
@@ -59,7 +59,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float dista
 		ClientId client2 = playerDb->onlineId;
 		uint iSystem2 = 0;
 		pub::Player::GetSystem(client2, iSystem2);
-		if (iSystem != iSystem2)
+		if (system != iSystem2)
 			continue;
 
 		uint ship2;
@@ -274,7 +274,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	// save in ClientInfo
 	IgnoreInfo ii;
 	ii.character = character;
-	ii.Flags = flags;
+	ii.flags = flags;
 	ClientInfo[client].Ignore.push_back(ii);
 
 	// send confirmation msg
@@ -328,7 +328,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	// save in ClientInfo
 	IgnoreInfo ii;
 	ii.character = character;
-	ii.Flags = flags;
+	ii.flags = flags;
 	ClientInfo[client].Ignore.push_back(ii);
 
 	// send confirmation msg
@@ -345,11 +345,11 @@ void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& p
 		return;
 	}
 
-	PrintUserCmdText(client, L"Id | Charactername | Flags");
+	PrintUserCmdText(client, L"Id | Charactername | flags");
 	int i = 1;
 	for (auto& ignore : ClientInfo[client].Ignore)
 	{
-		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.Flags));
+		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.flags));
 		i++;
 	}
 
@@ -427,7 +427,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	int i = 1;
 	for (const auto& ignore : ClientInfo[client].Ignore)
 	{
-		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.Flags);
+		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.flags);
 		i++;
 	}
 	PRINT_OK()

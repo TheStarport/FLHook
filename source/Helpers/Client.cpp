@@ -377,13 +377,13 @@ namespace Hk::Client
 
 	EngineState GetEngineState(ClientId client)
 	{
-		if (ClientInfo[client].bTradelane)
+		if (ClientInfo[client].tradelane)
 			return ES_TRADELANE;
-		if (ClientInfo[client].bCruiseActivated)
+		if (ClientInfo[client].cruiseActivated)
 			return ES_CRUISE;
-		if (ClientInfo[client].bThrusterActivated)
+		if (ClientInfo[client].thrusterActivated)
 			return ES_THRUSTER;
-		if (!ClientInfo[client].bEngineKilled)
+		if (!ClientInfo[client].engineKilled)
 			return ES_ENGINE;
 		return ES_KILLED;
 	}

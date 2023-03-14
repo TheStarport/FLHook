@@ -154,7 +154,7 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CHECK_FOR_DISCONNECT                                                                                                       \
 	{                                                                                                                              \
-		if (ClientInfo[client].bDisconnected)                                                                                      \
+		if (ClientInfo[client].disconnected)                                                                                      \
 		{                                                                                                                          \
 			Logger::i()->Log(LogLevel::Debug, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
 			return;                                                                                                                \

@@ -382,10 +382,10 @@ void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 	    pi.character,
 	    pi.client,
 	    pi.IP,
-	    pi.Hostname,
+	    pi.hostname,
 	    pi.connectionInfo.dwRoundTripLatencyMS,
-	    pi.Base,
-	    pi.System)));
+	    pi.baseName,
+	    pi.systemName)));
 }
 
 void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -417,10 +417,10 @@ void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 	    pi.character,
 	    pi.client,
 	    pi.IP,
-	    pi.Hostname,
+	    pi.hostname,
 	    pi.connectionInfo.dwRoundTripLatencyMS,
-	    pi.Base,
-	    pi.System)));
+	    pi.baseName,
+	    pi.systemName)));
 }
 
 void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
@@ -739,7 +739,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
-	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().System), pos.x, pos.y, pos.z));
+	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().systemName), pos.x, pos.y, pos.z));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -800,7 +800,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 400;
 
-	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", wstos(target.value().System), pos.x, pos.y, pos.z));
+	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", wstos(target.value().systemName), pos.x, pos.y, pos.z));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
