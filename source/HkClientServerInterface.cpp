@@ -12,8 +12,8 @@ void IClientImpl__Startup__Inner(uint, uint)
 	while (base)
 	{
 		BaseInfo bi;
-		bi.bDestroyed = false;
-		bi.iObjectId = base->spaceObjId;
+		bi.destroyed = false;
+		bi.objectId = base->spaceObjId;
 		auto baseName = "";
 		__asm {
 			pushad

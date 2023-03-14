@@ -169,32 +169,32 @@ struct BaseHealth
 struct PatchInfoEntry
 {
 	ulong address;
-	void* pNewValue;
-	uint iSize;
-	void* pOldValue;
-	bool bAlloced;
+	void* newValue;
+	uint size;
+	void* oldValue;
+	bool allocated;
 };
 
 struct PatchInfo
 {
 	const char* BinName;
-	ulong pBaseAddress;
+	ulong baseAddress;
 
 	PatchInfoEntry piEntries[128];
 };
 
 struct DataMarketItem
 {
-	uint iArchId;
-	float fRep;
+	uint archId;
+	float rep;
 };
 
 struct BaseInfo
 {
 	uint baseId;
 	std::string baseName;
-	uint iObjectId;
-	bool bDestroyed;
+	uint objectId;
+	bool destroyed;
 	std::list<DataMarketItem> MarketMisc;
 };
 

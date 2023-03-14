@@ -40,8 +40,8 @@ bool LoadBaseMarket()
 		{
 			DataMarketItem mi;
 			const char* EquipName = ini.get_value_string(0);
-			mi.iArchId = CreateID(EquipName);
-			mi.fRep = ini.get_value_float(2);
+			mi.archId = CreateID(EquipName);
+			mi.rep = ini.get_value_float(2);
 			biBase->MarketMisc.push_back(mi);
 		} while (ini.read_value());
 	}

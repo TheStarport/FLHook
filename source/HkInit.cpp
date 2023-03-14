@@ -109,17 +109,17 @@ bool Patch(PatchInfo& pi)
 		if (!pi.piEntries[i].address)
 			break;
 
-		char* address = (char*)hMod + (pi.piEntries[i].address - pi.pBaseAddress);
-		if (!pi.piEntries[i].pOldValue)
+		char* address = (char*)hMod + (pi.piEntries[i].address - pi.baseAddress);
+		if (!pi.piEntries[i].oldValue)
 		{
-			pi.piEntries[i].pOldValue = new char[pi.piEntries[i].iSize];
-			pi.piEntries[i].bAlloced = true;
+			pi.piEntries[i].oldValue = new char[pi.piEntries[i].size];
+			pi.piEntries[i].allocated = true;
 		}
 		else
-			pi.piEntries[i].bAlloced = false;
+			pi.piEntries[i].allocated = false;
 
-		ReadProcMem(address, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
-		WriteProcMem(address, &pi.piEntries[i].pNewValue, pi.piEntries[i].iSize);
+		ReadProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
+		WriteProcMem(address, &pi.piEntries[i].newValue, pi.piEntries[i].size);
 	}
 
 	return true;
@@ -138,10 +138,10 @@ bool RestorePatch(PatchInfo& pi)
 		if (!pi.piEntries[i].address)
 			break;
 
-		char* address = (char*)hMod + (pi.piEntries[i].address - pi.pBaseAddress);
-		WriteProcMem(address, pi.piEntries[i].pOldValue, pi.piEntries[i].iSize);
-		if (pi.piEntries[i].bAlloced)
-			delete[] pi.piEntries[i].pOldValue;
+		char* address = (char*)hMod + (pi.piEntries[i].address - pi.baseAddress);
+		WriteProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
+		if (pi.piEntries[i].allocated)
+			delete[] pi.piEntries[i].oldValue;
 	}
 
 	return true;

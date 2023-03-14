@@ -66,20 +66,20 @@ namespace Plugins::Autobuy
 
 	void handleRepairs(ClientId& client)
 	{
-		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * (1 - Players[client].fRelativeHealth) / 3);
+		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->hitPoints * (1 - Players[client].relativeHealth) / 3);
 
 		std::set<short> eqToFix;
 
 		for (const auto& item : Players[client].equipDescList.equip)
 		{
-			if (!item.mounted || item.fHealth == 1)
+			if (!item.mounted || item.health == 1)
 				continue;
 
-			const GoodInfo* info = GoodList_get()->find_by_archetype(item.iArchId);
+			const GoodInfo* info = GoodList_get()->find_by_archetype(item.archId);
 			if (!info)
 				continue;
 
-			repairCost += static_cast<uint>(info->fPrice * (1.0f - item.fHealth) / 3);
+			repairCost += static_cast<uint>(info->price * (1.0f - item.health) / 3);
 			eqToFix.insert(item.id);
 		}
 
@@ -100,7 +100,7 @@ namespace Plugins::Autobuy
 			for (auto& item : Players[client].equipDescList.equip)
 			{
 				if (eqToFix.contains(item.id))
-					item.fHealth = 1.0f;
+					item.health = 1.0f;
 			}
 
 			auto& equip = Players[client].equipDescList.equip;
@@ -112,7 +112,7 @@ namespace Plugins::Autobuy
 			for (auto& eq : equip)
 			{
 				if (eq.mounted)
-					eq.fHealth = 1.0f;
+					eq.health = 1.0f;
 				eqVector.push_back(eq);
 			}
 
@@ -122,7 +122,7 @@ namespace Plugins::Autobuy
 		if (auto& playerCollision = Players[client].collisionGroupDesc.data; !playerCollision.empty())
 		{
 			st6::list<XCollision> componentList;
-			for (const auto& colGrp : playerCollision)
+			for (auto& colGrp : playerCollision)
 			{
 				auto* newColGrp = reinterpret_cast<XCollision*>(colGrp.data);
 				newColGrp->componentHp = 1.0f;
@@ -132,10 +132,10 @@ namespace Plugins::Autobuy
 			HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
 		}
 
-		if (Players[client].fRelativeHealth < 1.0f)
+		if (Players[client].relativeHealth < 1.0f)
 		{
-			Players[client].fRelativeHealth = 1.0f;
-			HookClient->Send_FLPACKET_SERVER_SETHULATUS(client, 1.0f);
+			Players[client].relativeHealth = 1.0f;
+			HookClient->Send_FLPACKET_SERVER_SETHULLSTATUS(client, 1.0f);
 		}
 	}
 
@@ -143,7 +143,7 @@ namespace Plugins::Autobuy
 	    const std::wstring_view& desc)
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
-		item.archId = launcher->iProjectileArchId;
+		item.archId = launcher->projectileArchId;
 		item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
 		item.description = desc;
 		cart.emplace_back(item);
@@ -192,7 +192,7 @@ namespace Plugins::Autobuy
 				if (item.archId == nanobotsId)
 				{
 					aci.archId = nanobotsId;
-					aci.count = ship->iMaxNanobots - item.count;
+					aci.count = ship->maxNanobots - item.count;
 					aci.description = L"Nanobots";
 					cartList.push_back(aci);
 					nanobotsFound = true;
@@ -200,7 +200,7 @@ namespace Plugins::Autobuy
 				else if (item.archId == shieldBatsId)
 				{
 					aci.archId = shieldBatsId;
-					aci.count = ship->iMaxShieldBats - item.count;
+					aci.count = ship->maxShieldBats - item.count;
 					aci.description = L"Shield Batteries";
 					cartList.push_back(aci);
 					shieldBattsFound = true;
@@ -211,7 +211,7 @@ namespace Plugins::Autobuy
 			{ // no nanos found -> add all
 				AutobuyCartItem aci;
 				aci.archId = nanobotsId;
-				aci.count = ship->iMaxNanobots;
+				aci.count = ship->maxNanobots;
 				aci.description = L"Nanobots";
 				cartList.push_back(aci);
 			}
@@ -220,7 +220,7 @@ namespace Plugins::Autobuy
 			{ // no batts found -> add all
 				AutobuyCartItem aci;
 				aci.archId = shieldBatsId;
-				aci.count = ship->iMaxShieldBats;
+				aci.count = ship->maxShieldBats;
 				aci.description = L"Shield Batteries";
 				cartList.push_back(aci);
 			}
@@ -330,9 +330,9 @@ namespace Plugins::Autobuy
 			bool goodAvailable = false;
 			for (const auto& available : bi->MarketMisc)
 			{
-				if (available.iArchId == buy.archId)
+				if (available.archId == buy.archId)
 				{
-					auto baseRep = Hk::Solar::GetAffiliation(bi->iObjectId);
+					auto baseRep = Hk::Solar::GetAffiliation(bi->objectId);
 					if (baseRep.has_error())
 						PrintUserCmdText(client, Hk::Err::ErrGetText(baseRep.error()));
 
@@ -341,7 +341,7 @@ namespace Plugins::Autobuy
 						PrintUserCmdText(client, Hk::Err::ErrGetText(playerRep.error()));
 
 					// good rep, allowed to buy
-					if (playerRep.value() >= available.fRep)
+					if (playerRep.value() >= available.rep)
 						goodAvailable = true;
 					break;
 				}
@@ -354,11 +354,11 @@ namespace Plugins::Autobuy
 				continue; // good not available
 
 			const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
-			// will always fail for fVolume == 0, no need to worry about potential div by 0
-			if (static_cast<float>(remHoldSize) < std::ceil(eq->fVolume * static_cast<float>(buy.count)))
+			// will always fail for volume == 0, no need to worry about potential div by 0
+			if (static_cast<float>(remHoldSize) < std::ceil(eq->volume * static_cast<float>(buy.count)))
 			{
 				// round to the nearest possible
-				auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->fVolume);
+				auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->volume);
 				if (!newCount)
 				{
 					PrintUserCmdText(client, std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", buy.description));
@@ -373,7 +373,7 @@ namespace Plugins::Autobuy
 			else
 			{
 				Hk::Player::RemoveCash(client, uCost);
-				remHoldSize -= ((int)eq->fVolume * buy.count);
+				remHoldSize -= ((int)eq->volume * buy.count);
 
 				// add the item, dont use addcargo for performance/bug reasons
 				// assume we only mount multicount goods (missiles, ammo, bots
