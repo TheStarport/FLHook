@@ -4562,35 +4562,34 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall Dock([[maybe_unused]] const uint& _genArg1, [[maybe_unused]] const uint& _genArg2)
+	void __stdcall Dock([[maybe_unused]] const uint& genArg1, [[maybe_unused]] const uint& genArg2)
 	{
 	}
 } // namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int _genArg1)
+	void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
 	{
 		Logger::i()->Log(LogLevel::Trace, 
 		    std::format("SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
-		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, _genArg1);
+		auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
 
-		const bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, _genArg1);
-		if (!innerCheck)
+		if (const bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, genArg1); !innerCheck)
 			return;
 		chatData->inSubmitChat = true;
 		if (!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
-				Server.SubmitChat(cidFrom, size, rdlReader, cidTo, _genArg1);
+				Server.SubmitChat(cidFrom, size, rdlReader, cidTo, genArg1);
 			}
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 		chatData->inSubmitChat = false;
 
-		CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, _genArg1);
+		CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
 	}
 } // namespace IServerImplHook
 

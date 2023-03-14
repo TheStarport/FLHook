@@ -36,15 +36,15 @@ namespace IServerImplHook
 	int __stdcall Update();
 } // namespace IServerImplHook
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)
 {
 	if (bExecuted)
 		return TRUE;
 
-	char File[MAX_PATH];
-	GetModuleFileName(nullptr, File, sizeof File);
+	char file[MAX_PATH];
+	GetModuleFileName(nullptr, file, sizeof file);
 
-	if (const std::wstring FileName = ToLower(stows(File)); FileName.find(L"flserver.exe") != -1)
+	if (const std::wstring fileName = ToLower(stows(file)); fileName.find(L"flserver.exe") != -1)
 	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
@@ -115,9 +115,9 @@ void FLHookInit_Pre()
 		}
 		else
 		{
-			for (auto& i : config->plugins.plugins)
+			for (auto& plugin : config->plugins.plugins)
 			{
-				PluginManager::i()->load(stows(i), &AdminConsole, true);
+				PluginManager::i()->load(stows(plugin), &AdminConsole, true);
 			}
 		}
 
@@ -144,9 +144,9 @@ void FLHookInit_Pre()
 
 		CallPluginsAfter(HookedCall::FLHook__LoadSettings);
 	}
-	catch (char* Error)
+	catch (char* error)
 	{
-		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", Error));
+		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", error));
 		exit(EXIT_FAILURE);
 	}
 	catch (std::filesystem::filesystem_error error)
@@ -175,11 +175,11 @@ bool FLHookInit()
 		// Force the singleton to be created
 		FLHookConfig::c();
 	}
-	catch (char* Error)
+	catch (char* error)
 	{
 		UnloadHookExports();
 
-		Logger::i()->Log(LogLevel::Err, Error);
+		Logger::i()->Log(LogLevel::Err, error);
 		return false;
 	}
 

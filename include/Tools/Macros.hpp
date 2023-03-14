@@ -41,11 +41,11 @@ DLL void AddExceptionInfoLog(SEHException* ex);
 			_set_se_translator(SEHException::Translator);
 #define CATCH_HOOK(e)                                                                                                                \
 		}                                                                                                                                \
-		catch (SEHException & ex)                                                                                                        \
+		catch ([[maybe_unused]] SEHException & exc)                                                                                      \
 		{                                                                                                                                \
 			e;                                                                                                                           \
 		}                                                                                                                                \
-		catch (std::exception & ex)                                                                                                      \
+		catch ([[maybe_unused]] std::exception & exc)                                                                                    \
 		{                                                                                                                                \
 			e;                                                                                                                           \
 		}                                                                                                                                \

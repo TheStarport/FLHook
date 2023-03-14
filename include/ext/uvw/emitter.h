@@ -154,7 +154,7 @@ class Emitter {
 
     template<typename E>
     Handler<E> &handler() noexcept {
-        auto id = type<E>();
+        const auto id = type<E>();
 
         if(!handlers.count(id)) {
             handlers[id] = std::make_unique<Handler<E>>();

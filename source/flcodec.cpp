@@ -44,7 +44,7 @@ std::string ReadFile(const char* input)
 	file.seekg(0, std::ios::beg);
 
 	std::string vec;
-	vec.reserve(fileSize);
+	vec.reserve(static_cast<uint>(fileSize));
 
 	vec.insert(vec.begin(), std::istream_iterator<BYTE>(file), std::istream_iterator<BYTE>());
 	return vec;
@@ -83,7 +83,7 @@ std::string FlcEncode(std::string& input)
 
 	const uint length = input.size();
 
-	int i = 0;
+	uint i = 0;
 	while (i < length)
 	{
 		const byte c = (&input[0])[i];

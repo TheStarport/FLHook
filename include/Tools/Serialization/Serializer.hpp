@@ -81,10 +81,10 @@ class Serializer
 		}
 		else if constexpr (IsReflectable<typename DeclType::value_type>)
 		{
-			auto jArr = json.is_array() ? json.template get<nlohmann::json::array_t>() : json[member.name.c_str()].template get<nlohmann::json::array_t>();
+			auto jsonArr = json.is_array() ? json.template get<nlohmann::json::array_t>() : json[member.name.c_str()].template get<nlohmann::json::array_t>();
 
 			auto declArr = std::vector<typename DeclType::value_type>();
-			for (auto iter = jArr.begin(); iter != jArr.end(); ++iter)
+			for (auto iter = jsonArr.begin(); iter != jsonArr.end(); ++iter)
 			{
 				typename DeclType::value_type reflectable;
 				ReadObject(*iter, reflectable);
@@ -104,12 +104,12 @@ class Serializer
 	{
 		if constexpr (IsReflectable<Target>)
 		{
-			nlohmann::json::object_t jObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
+			nlohmann::json::object_t jsonObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
 			if constexpr (IsWString<StrType>)
 			{
 				auto declMap = std::map<std::wstring, Target>();
 
-				for (auto& i : jObj)
+				for (auto& i : jsonObj)
 				{
 					Target reflectable;
 					ReadObject(i.second, reflectable);
@@ -121,7 +121,7 @@ class Serializer
 			{
 				auto declMap = std::map<std::string, Target>();
 
-				for (auto& i : jObj)
+				for (auto& i : jsonObj)
 				{
 					Target reflectable;
 					ReadObject(i.second, reflectable);
@@ -132,11 +132,11 @@ class Serializer
 		}
 		else if constexpr (IsVector<Target>::value)
 		{
-			nlohmann::json::object_t jObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
+			nlohmann::json::object_t jsonObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
 			if constexpr (IsWString<StrType>)
 			{
 				auto declMap = std::map<std::wstring, Target>();
-				for (auto& i : jObj)
+				for (auto& i : jsonObj)
 				{
 					declMap[stows(i.first)] = ReadVector<Target>(json, member);
 				}
@@ -145,7 +145,7 @@ class Serializer
 			else
 			{
 				auto declMap = std::map<std::string, Target>();
-				for (auto& i : jObj)
+				for (auto& i : jsonObj)
 				{
 					declMap[i.first] = ReadVector<Target>(i.second, member);
 				}
@@ -222,9 +222,9 @@ class Serializer
 		}
 		else if constexpr (IsReflectable<DeclType>)
 		{
-			nlohmann::json jObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
+			nlohmann::json jsonObj = json[member.name.c_str()].template get<nlohmann::json::object_t>();
 			DeclType reflectable;
-			ReadObject(jObj, reflectable);
+			ReadObject(jsonObj, reflectable);
 			*static_cast<DeclType*>(ptr) = reflectable;
 		}
 		else if constexpr (IsVector<DeclType>::value)
@@ -415,10 +415,10 @@ class Serializer
 	}
 
 	template<std::size_t I = 0, typename FuncT, typename... Tp>
-	static std::enable_if_t<I < sizeof...(Tp), void> for_each(std::tuple<Tp...> t, FuncT f)
+	static std::enable_if_t<I < sizeof...(Tp), void> for_each(std::tuple<Tp...> type, FuncT func)
 	{
-		f(std::get<I>(t));
-		for_each<I + 1, FuncT, Tp...>(t, f);
+		f(std::get<I>(type));
+		for_each<I + 1, FuncT, Tp...>(type, func);
 	}
 
 	template<typename T>
@@ -462,12 +462,12 @@ public:
 	/// <param name="fileToSave">Where you would like to save the file. Defaults to empty string. If empty, the class
 	/// meta data will be used.</param>
 	template<typename T>
-	static void SaveToJson(T& t, std::string fileToSave = "")
+	static void SaveToJson(T& type, std::string fileToSave = "")
 	{
 		// If no file is provided, we can search the class metadata.
 		if (fileToSave.empty())
 		{
-			fileToSave = dynamic_cast<Reflectable&>(t).File();
+			fileToSave = dynamic_cast<Reflectable&>(type).File();
 			if (fileToSave.empty())
 			{
 				Logger::i()->Log(LogLevel::Err, "While trying to serialize, a file, both the metadata of the class and fileName were empty.");
@@ -478,7 +478,7 @@ public:
 		// Create our JSON object to write
 		auto json = nlohmann::json::object();
 
-		WriteObject(json, t);
+		WriteObject(json, type);
 
 		if (std::filesystem::path folderPath(fileToSave); folderPath.has_root_directory())
 		{
@@ -551,15 +551,15 @@ public:
 			ReadObject(json, ret);
 			Validate(ret);
 		}
-		catch (nlohmann::json::parse_error& ex)
+		catch ([[maybe_unused]] nlohmann::json::parse_error& exc)
 		{
 			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
-		catch (nlohmann::json::type_error& ex)
+		catch ([[maybe_unused]] nlohmann::json::type_error& exc)
 		{
 			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
-		catch (nlohmann::json::exception& ex)
+		catch ([[maybe_unused]] nlohmann::json::exception& exc)
 		{
 			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
