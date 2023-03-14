@@ -115,7 +115,7 @@ namespace Plugins::CargoDrop
 							{
 								if (!mounted && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 								{
-									Hk::Player::RemoveCargo(characterName, id, count);
+									Hk::Player::RemoveCargo(characterName, static_cast<ushort>(id), count);
 									Server.MineAsteroid(system.value(), position, global->cargoDropContainerId, archId, count, client);
 								}
 							}

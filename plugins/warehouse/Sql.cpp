@@ -127,8 +127,7 @@ namespace Plugins::Warehouse
 		query.bind(1, playerId);
 		while (query.executeStep())
 		{
-			WareHouseItem item = {query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64()};
-			itemList.emplace_back(item);
+			itemList.emplace_back(query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64());
 		}
 		return itemList;
 	}

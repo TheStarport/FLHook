@@ -83,7 +83,7 @@ namespace Plugins::BountyHunt
 		const std::wstring target = GetParam(param, ' ', 0);
 		const uint prize = MultiplyUIntBySuffix(GetParam(param, ' ', 1));
 		const std::wstring timeString = GetParam(param, ' ', 2);
-		if (!target.length() || prize == 0)
+		if (target.empty() || prize == 0)
 		{
 			PrintUserCmdText(client, L"Usage: /bountyhunt <playername> <credits> <time>");
 			PrintBountyHunts(client);
@@ -123,9 +123,9 @@ namespace Plugins::BountyHunt
 			return;
 		}
 
-		for (const auto& bh : global->bountyHunt)
+		for (const auto& bountyHunt : global->bountyHunt)
 		{
-			if (bh.initiatorId == client && bh.targetId == targetId)
+			if (bountyHunt.initiatorId == client && bountyHunt.targetId == targetId)
 			{
 				PrintUserCmdText(client, L"You already have a bounty on this player.");
 				return;
@@ -135,18 +135,18 @@ namespace Plugins::BountyHunt
 		Hk::Player::RemoveCash(client, prize);
 		const std::wstring initiator = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		BountyHunt bh;
-		bh.initiatorId = client;
-		bh.end = Hk::Time::GetUnixMiliseconds() + (static_cast<mstime>(time) * 60000);
-		bh.initiator = initiator;
-		bh.cash = prize;
-		bh.target = target;
-		bh.targetId = targetId.value();
+		BountyHunt bountyHunt;
+		bountyHunt.initiatorId = client;
+		bountyHunt.end = Hk::Time::GetUnixMiliseconds() + (static_cast<mstime>(time) * 60000);
+		bountyHunt.initiator = initiator;
+		bountyHunt.cash = prize;
+		bountyHunt.target = target;
+		bountyHunt.targetId = targetId.value();
 
-		global->bountyHunt.push_back(bh);
+		global->bountyHunt.push_back(bountyHunt);
 
-		Hk::Message::MsgU(
-		    bh.initiator + L" offers " + std::to_wstring(bh.cash) + L" credits for killing " + bh.target + L" in " + std::to_wstring(time) + L" minutes.");
+		Hk::Message::MsgU(bountyHunt.initiator + L" offers " + std::to_wstring(bountyHunt.cash) + L" credits for killing " + bountyHunt.target + L" in " +
+		    std::to_wstring(time) + L" minutes.");
 	}
 
 	/** @ingroup BountyHunt
@@ -259,7 +259,7 @@ namespace Plugins::BountyHunt
 		}
 	}
 
-	void checkIfPlayerFled(ClientId& client)
+	void CheckIfPlayerFled(ClientId& client)
 	{
 		for (auto& it : global->bountyHunt)
 		{
@@ -282,7 +282,7 @@ namespace Plugins::BountyHunt
 	 */
 	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
-		checkIfPlayerFled(client);
+		CheckIfPlayerFled(client);
 	}
 
 	/** @ingroup BountyHunt
@@ -290,7 +290,7 @@ namespace Plugins::BountyHunt
 	 */
 	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client)
 	{
-		checkIfPlayerFled(client);
+		CheckIfPlayerFled(client);
 	}
 
 	// Client command processing

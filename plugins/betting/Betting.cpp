@@ -35,7 +35,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief If the player who died is in an FreeForAll, mark them as a loser. Also handles payouts to winner.
 	 */
-	void processFFA(ClientId client)
+	void ProcessFFA(ClientId client)
 	{
 		for (const auto& [system, freeForAll] : global->freeForAlls)
 		{
@@ -172,7 +172,7 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief This method is called when a player types /acceptffa
 	 */
-	void UserCmd_AcceptFFA(ClientId& client, [[maybe_unused]] const std::wstring& param)
+	void UserCmdAcceptFFA(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Is player in space?
 		if (const uint ship = Hk::Player::GetShip(client).value(); !ship)
@@ -406,9 +406,9 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief This method is called when a player types /cancel to cancel a duel/ffa request.
 	 */
-	void UserCmd_Cancel(ClientId& client, [[maybe_unused]] const std::wstring& param)
+	void UserCmdCancel(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		processFFA(client);
+		ProcessFFA(client);
 		ProcessDuel(client);
 	}
 
@@ -417,8 +417,8 @@ namespace Plugins::Betting
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	const std::vector commands = {CreateUserCommand(L"/acceptduel", L"", UserCmdAcceptDuel, L"Accepts the current duel request."),
-	    CreateUserCommand(L"/acceptffa", L"", UserCmd_AcceptFFA, L"Accept the current ffa request."),
-	    CreateUserCommand(L"/cancel", L"", UserCmd_Cancel, L"Cancel the current duel/ffa request."),
+	    CreateUserCommand(L"/acceptffa", L"", UserCmdAcceptFFA, L"Accept the current ffa request."),
+	    CreateUserCommand(L"/cancel", L"", UserCmdCancel, L"Cancel the current duel/ffa request."),
 	    CreateUserCommand(L"/duel", L"<amount>", UserCmdDuel, L"Create a duel request to the targeted player. Winner gets the pot."),
 	    CreateUserCommand(L"/ffa", L"<amount>", UserCmdStartFreeForAll, L"Create an ffa and send an invite to everyone in the system. Winner gets the pot.")};
 
@@ -429,12 +429,12 @@ namespace Plugins::Betting
 	/** @ingroup Betting
 	 * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
 	 */
-	int __cdecl DockCall(unsigned int const& ship, [[maybe_unused]] unsigned int const& d, [[maybe_unused]] const int& cancel,
+	int __cdecl DockCall(unsigned int const& ship, [[maybe_unused]] unsigned int const& dock, [[maybe_unused]] const int& cancel,
 	    [[maybe_unused]] const DOCK_HOST_RESPONSE& response)
 	{
 		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && Hk::Client::IsValidClientID(client.value()))
 		{
-			processFFA(client.value());
+			ProcessFFA(client.value());
 			ProcessDuel(client.value());
 		}
 		return 0;
@@ -445,16 +445,16 @@ namespace Plugins::Betting
 	 */
 	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
-		processFFA(client);
+		ProcessFFA(client);
 		ProcessDuel(client);
 	}
 
 	/** @ingroup Betting
 	 * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
 	 */
-	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& p2)
+	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2)
 	{
-		processFFA(client);
+		ProcessFFA(client);
 		ProcessDuel(client);
 	}
 
@@ -465,7 +465,7 @@ namespace Plugins::Betting
 	    [[maybe_unused]] const ClientId& clientKiller)
 	{
 		ProcessDuel(clientVictim);
-		processFFA(clientVictim);
+		ProcessFFA(clientVictim);
 	}
 } // namespace Plugins::Betting
 

@@ -99,7 +99,7 @@ namespace Plugins::Warehouse
 		}
 
 		Hk::Player::RemoveCash(client, global->config.costPerStackStore);
-		Hk::Player::RemoveCargo(client, item.id, itemCount);
+		Hk::Player::RemoveCargo(client, static_cast<ushort>(item.id), itemCount);
 
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
@@ -240,8 +240,8 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, L"You must be docked in order to use this command.");
 			return;
 		}
-		const auto baseVal = base.value();
-		if (std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
+		if (const auto baseVal = base.value(); 
+			std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
 		{
 			PrintUserCmdText(client, L"Error: The base you're attempting to use warehouse on is restricted.");
 			return;
