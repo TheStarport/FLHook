@@ -1,4 +1,6 @@
 #include "Global.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 namespace Hk::Math
 {
@@ -31,41 +33,33 @@ namespace Hk::Math
 
 	Quaternion MatrixToQuaternion(const Matrix& m)
 	{
-		Quaternion quaternion;
-		quaternion.w = sqrt(std::max(0.0f, 1.0f + m.data[0][0] + m.data[1][1] + m.data[2][2])) / 2;
-		quaternion.x = sqrt(std::max(0.0f, 1.0f + m.data[0][0] - m.data[1][1] - m.data[2][2])) / 2;
-		quaternion.y = sqrt(std::max(0.0f, 1.0f - m.data[0][0] + m.data[1][1] - m.data[2][2])) / 2;
-		quaternion.z = sqrt(std::max(0.0f, 1.0f - m.data[0][0] - m.data[1][1] + m.data[2][2])) / 2;
-		quaternion.x = static_cast<float>(_copysign(quaternion.x, m.data[2][1] - m.data[1][2]));
-		quaternion.y = static_cast<float>(_copysign(quaternion.y, m.data[0][2] - m.data[2][0]));
-		quaternion.z = static_cast<float>(_copysign(quaternion.z, m.data[1][0] - m.data[0][1]));
-		return quaternion;
+		return Quaternion (glm::quat_cast(m));
 	}
 
 	template<typename Str>
 	Str VectorToSectorCoord(uint systemId, Vector pos)
 	{
 		float scale = 1.0;
-		if (const Universe::ISystem* iSystem = Universe::get_system(systemId))
-			scale = iSystem->navMapScale;
+		if (const Universe::ISystem* system = Universe::get_system(systemId))
+			scale = system->navMapScale;
 
-		const float fGridSize = 34000.0f / scale;
-		int gridRefX = static_cast<int>((pos.x + (fGridSize * 5)) / fGridSize) - 1;
-		int gridRefZ = static_cast<int>((pos.z + (fGridSize * 5)) / fGridSize) - 1;
+		const float gridSize = 34000.0f / scale;
+		int gridRefX = static_cast<int>((pos.x + (gridSize * 5)) / gridSize) - 1;
+		int gridRefZ = static_cast<int>((pos.z + (gridSize * 5)) / gridSize) - 1;
 
 		gridRefX = std::min(std::max(gridRefX, 0), 7);
-		char scXPos = 'A' + static_cast<char>(gridRefX);
+		char xPos = 'A' + static_cast<char>(gridRefX);
 
 		gridRefZ = std::min(std::max(gridRefZ, 0), 7);
-		char scZPos = '1' + static_cast<char>(gridRefZ);
+		char zPos = '1' + static_cast<char>(gridRefZ);
 
-		typename Str::value_type CurrentLocation[100];
+		Str currentLocation;
 		if constexpr (std::is_same_v<Str, std::string>)
-			_snprintf_s(CurrentLocation, sizeof(CurrentLocation), "%c-%c", scXPos, scZPos);
+			currentLocation = std::format("{}-{}", xPos, zPos);
 		else
-			_snwprintf_s(CurrentLocation, sizeof(CurrentLocation), L"%C-%C", scXPos, scZPos);
+			currentLocation = std::format(L"{}-{}", xPos, zPos);
 
-		return CurrentLocation;
+		return currentLocation;
 	}
 
 	constexpr float PI = std::numbers::pi_v<float>;
@@ -98,24 +92,10 @@ namespace Hk::Math
 	// Freelancer does for the save game.
 	Vector MatrixToEuler(const Matrix& mat)
 	{
-		const Vector x = {mat.data[0][0], mat.data[1][0], mat.data[2][0]};
-		const Vector y = {mat.data[0][1], mat.data[1][1], mat.data[2][1]};
-		const Vector z = {mat.data[0][2], mat.data[1][2], mat.data[2][2]};
-
-		Vector vec;
-		if (const auto h = static_cast<float>(_hypot(x.x, x.y)); h > 1 / 524288.0f)
-		{
-			vec.x = Degrees(atan2f(y.z, z.z));
-			vec.y = Degrees(atan2f(-x.z, h));
-			vec.z = Degrees(atan2f(x.y, x.x));
-		}
-		else
-		{
-			vec.x = Degrees(atan2f(-z.y, y.y));
-			vec.y = Degrees(atan2f(-x.z, h));
-			vec.z = 0;
-		}
-		return vec;
+		const Quaternion quat(glm::quat_cast(mat));
+		const auto vec = glm::eulerAngles(quat);
+		const Vector eulerVector = {vec.x, vec.y, vec.z};
+		return eulerVector;
 	}
 
 	uint RgbToBgr(uint color) { return (color & 0xFF000000) | ((color & 0xFF0000) >> 16) | (color & 0x00FF00) | ((color & 0x0000FF) << 16); };
