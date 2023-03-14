@@ -125,29 +125,27 @@ namespace Plugins::Wardrobe
 			try
 			{
 				// Overwrite the existing character file
-				std::string CharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
-				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
+				std::string charFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				FlcDecodeFile(charFile.c_str(), charFile.c_str());
 				if (restart.head)
 				{
-					IniWrite(scCharFile, "Player", "head", " " + restart.costume);
+					IniWrite(charFile, "Player", "head", " " + restart.costume);
 				}
 				else
-					IniWrite(scCharFile, "Player", "body", " " + restart.costume);
+					IniWrite(charFile, "Player", "body", " " + restart.costume);
 
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
-					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
+					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
-				AddLog(LogType::Normal, LogLevel::Info, std::format("User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
+				Logger::i()->Log(LogLevel::Info, std::format("User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal,
-				    LogLevel::Err,
-				    std::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
+				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
 			}
 			catch (...)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, std::format("User {} costume change to {}", wstos(restart.characterName).c_str(), restart.costume));
+				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {}", wstos(restart.characterName).c_str(), restart.costume));
 			}
 		}
 	}

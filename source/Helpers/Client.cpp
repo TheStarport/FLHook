@@ -124,11 +124,11 @@ namespace Hk::Client
 		if (client == UINT_MAX)
 			return false;
 
-		uint iBase = 0;
-		uint iSystem = 0;
-		pub::Player::GetBase(client, iBase);
-		pub::Player::GetSystem(client, iSystem);
-		if (!iBase && !iSystem)
+		uint base = 0;
+		uint system = 0;
+		pub::Player::GetBase(client, base);
+		pub::Player::GetSystem(client, system);
+		if (!base && !system)
 			return true;
 		return false;
 	}

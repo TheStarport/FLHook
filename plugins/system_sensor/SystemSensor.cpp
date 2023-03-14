@@ -117,7 +117,7 @@ namespace Plugins::SystemSensor
 			if (!hardpoint.empty())
 			{
 				Archetype::Equipment* eq = Archetype::GetEquipment(ci.archId);
-				if (eq && eq->iIdsName)
+				if (eq && eq->idsName)
 				{
 					std::wstring result;
 					switch (Hk::Client::GetEqType(eq))
@@ -130,7 +130,7 @@ namespace Plugins::SystemSensor
 						case ET_OTHER:
 							if (eqList.length())
 								eqList += L",";
-							result = Hk::Message::GetWStringFromIdS(eq->iIdsName);
+							result = Hk::Message::GetWStringFromIdS(eq->idsName);
 							eqList += result;
 							break;
 						default:
@@ -249,7 +249,8 @@ namespace Plugins::SystemSensor
 	// Record jump type.
 	int Dock_Call(unsigned int const& ship, unsigned int const& dockTarget, const int& cancel, const DOCK_HOST_RESPONSE& response)
 	{
-		if (const auto client = Hk::Client::GetClientIdByShip(ship); client.has_value() && (response == ProceedDock || response == Dock) && cancel >= 0)
+		if (const auto client = Hk::Client::GetClientIdByShip(ship);
+		    client.has_value() && (response == DOCK_HOST_RESPONSE::ProceedDock || response == DOCK_HOST_RESPONSE::Dock) && cancel >= 0)
 		{
 			auto spaceObjType = Hk::Solar::GetType(dockTarget);
 			if (spaceObjType.has_error())
@@ -257,7 +258,7 @@ namespace Plugins::SystemSensor
 				Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(spaceObjType.error())));
 			}
 
-			global->networks[client.value()].inJumpGate = spaceObjType.value() == OBJ_JUMP_GATE;
+			global->networks[client.value()].inJumpGate = (spaceObjType.value() == static_cast<uint>(ObjectType::JumpGate));
 		}
 
 		return 0;

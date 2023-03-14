@@ -94,21 +94,21 @@ namespace Plugins::ConData
 				if (global->config->lossKick && con.averageLoss > global->config->lossKick)
 				{
 					con.lossList.clear();
-					AddKickLog(client, "High loss");
+					//AddKickLog(client, "High loss");
 					TempBanManager::i()->AddTempBan(client, 60, L"High loss");
 				}
 
 				if (global->config->pingKick && con.averagePing > (global->config->pingKick))
 				{
 					con.pingList.clear();
-					AddKickLog(client, "High ping");
+					//AddKickLog(client, "High ping");
 					TempBanManager::i()->AddTempBan(client, 60, L"High ping");
 				}
 
 				if (global->config->fluctKick && con.pingFluctuation > (global->config->fluctKick))
 				{
 					con.pingList.clear();
-					AddKickLog(client, "High fluct");
+					//AddKickLog(client, "High fluct");
 					TempBanManager::i()->AddTempBan(client, 60, L"High ping fluctuation");
 				}
 
@@ -116,7 +116,7 @@ namespace Plugins::ConData
 				{
 					con.objUpdateIntervalsList.clear();
 
-					AddKickLog(client, "High Lag");
+					//AddKickLog(client, "High Lag");
 					TempBanManager::i()->AddTempBan(client, 60, L"High lag");
 				}
 			}

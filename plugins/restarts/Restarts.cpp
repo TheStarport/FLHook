@@ -81,7 +81,7 @@ namespace Plugins::Restart
 		if (!std::filesystem::exists(directory))
 		{
 			PrintUserCmdText(client, L"There has been an error with the restarts plugin. Please contact an Administrator.");
-			AddLog(LogType::Normal, LogLevel::Err, "Missing restarts folder in config folder.");
+			Logger::i()->Log(LogLevel::Err, "Missing restarts folder in config folder.");
 			return;
 		}
 
@@ -178,31 +178,30 @@ namespace Plugins::Restart
 			try
 			{
 				// Overwrite the existing character file
-				std::string CharFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
-				std::string TimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
-				std::string TimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
-				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
+				std::string charFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string timeStampDesc = IniGetS(charFile, "Player", "description", "");
+				std::string timeStamp = IniGetS(charFile, "Player", "tstamp", "0");
+				if (!::CopyFileA(restart.restartFile.c_str(), charFile.c_str(), FALSE))
 					throw "copy template";
 
-				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
-				IniWriteW(scCharFile, "Player", "name", restart.characterName);
-				IniWrite(scCharFile, "Player", "description", scTimeStampDesc);
-				IniWrite(scCharFile, "Player", "tstamp", scTimeStamp);
-				IniWrite(scCharFile, "Player", "money", std::to_string(restart.cash));
+				FlcDecodeFile(charFile.c_str(), charFile.c_str());
+				IniWriteW(charFile, "Player", "name", restart.characterName);
+				IniWrite(charFile, "Player", "description", timeStampDesc);
+				IniWrite(charFile, "Player", "tstamp", timeStamp);
+				IniWrite(charFile, "Player", "money", std::to_string(restart.cash));
 
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
-					FlcEncodeFile(scCharFile.c_str(), scCharFile.c_str());
+					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
-				AddLog(
-				    LogType::Normal, LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
+				Logger::i()->Log(LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
 			}
 			catch (char* err)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, std::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
+				Logger::i()->Log(LogLevel::Err, std::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
 			}
 			catch (...)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, std::format("User restart failed for {}", wstos(restart.characterName)));
+				Logger::i()->Log(LogLevel::Err, std::format("User restart failed for {}", wstos(restart.characterName)));
 			}
 		}
 	}

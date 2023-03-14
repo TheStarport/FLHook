@@ -40,7 +40,7 @@ namespace Plugins::Warehouse
 
 	int64 GetOrAddPlayer(int64 baseId, const CAccount* acc)
 	{
-		const std::string accName = wstos(acc->wAccId);
+		const std::string accName = wstos(acc->accId);
 		SQLite::Statement playerId(global->sql, "SELECT id FROM players WHERE baseId = ? AND accountId = ?;");
 		playerId.bind(1, baseId);
 		playerId.bind(2, accName);

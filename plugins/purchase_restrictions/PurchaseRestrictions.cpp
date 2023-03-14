@@ -48,14 +48,13 @@ namespace Plugins::PurchaseRestrictions
 	const auto global = std::make_unique<Global>();
 
 	//! Log items of interest so we can see what cargo cheats people are using.
-	static void LogItemsOfInterest(ClientId& client, uint iGoodId, const std::string& details)
+	static void LogItemsOfInterest(ClientId& client, uint goodId, const std::string& details)
 	{
-		const auto iter = global->itemsOfInterestHashed.find(iGoodId);
+		const auto iter = global->itemsOfInterestHashed.find(goodId);
 		if (iter != global->itemsOfInterestHashed.end())
 		{
 			const auto charName = Hk::Client::GetCharacterNameByID(client);
-			AddLog(LogType::Normal,
-			    LogLevel::Info,
+			Logger::i()->Log(LogLevel::Info,
 			    std::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), wstos(charName.value()), details.c_str()));
 		}
 	}
@@ -92,11 +91,11 @@ namespace Plugins::PurchaseRestrictions
 	}
 
 	//! Check that this client is allowed to buy/mount this piece of equipment or ship Return true if the equipment is mounted to allow this good.
-	bool CheckIdEquipRestrictions(ClientId client, uint iGoodId, bool isShip)
+	bool CheckIdEquipRestrictions(ClientId client, uint goodId, bool isShip)
 	{
 		const auto list = isShip ? global->shipItemRestrictionsHashed : global->goodItemRestrictionsHashed;
 
-		const auto validItem = list.find(iGoodId);
+		const auto validItem = list.find(goodId);
 		if (validItem == list.end())
 			return true;
 
@@ -129,9 +128,9 @@ namespace Plugins::PurchaseRestrictions
 	{
 		global->clientSuppressBuy[client] = false;
 		auto& suppress = global->clientSuppressBuy[client];
-		LogItemsOfInterest(client, gbi.iGoodId, "good-buy");
+		LogItemsOfInterest(client, gbi.goodId, "good-buy");
 
-		if (std::ranges::find(global->unbuyableItemsHashed, gbi.iGoodId) != global->unbuyableItemsHashed.end())
+		if (std::ranges::find(global->unbuyableItemsHashed, gbi.goodId) != global->unbuyableItemsHashed.end())
 		{
 			suppress = true;
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
@@ -144,12 +143,13 @@ namespace Plugins::PurchaseRestrictions
 		if (global->config->checkItemRestrictions)
 		{
 			// Check Item
-			if (global->goodItemRestrictionsHashed.contains(gbi.iGoodId))
+			if (global->goodItemRestrictionsHashed.contains(gbi.goodId))
 			{
-				if (!CheckIdEquipRestrictions(client, gbi.iGoodId, false))
+				if (!CheckIdEquipRestrictions(client, gbi.goodId, false))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
-					AddLog(LogType::Normal, LogLevel::Info, std::format("{} attempting to buy {} without correct Id", wstos(charName.value()), gbi.iGoodId));
+					Logger::i()->Log(LogLevel::Info, 
+						std::format("{} attempting to buy {} without correct Id", wstos(charName.value()), gbi.goodId));
 					if (global->config->enforceItemRestrictions)
 					{
 						PrintUserCmdText(client, global->config->goodPurchaseDenied);
@@ -162,14 +162,14 @@ namespace Plugins::PurchaseRestrictions
 			else
 			{
 				// Check Ship
-				const GoodInfo* packageInfo = GoodList::find_by_id(gbi.iGoodId);
-				if (packageInfo->iType != 3)
+				const GoodInfo* packageInfo = GoodList::find_by_id(gbi.goodId);
+				if (packageInfo->type != GoodInfo::Type::Ship)
 				{
 					return;
 				}
 
-				const GoodInfo* hullInfo = GoodList::find_by_id(packageInfo->iHullGoodId);
-				if (hullInfo->iType != 2)
+				const GoodInfo* hullInfo = GoodList::find_by_id(packageInfo->hullGoodId);
+				if (hullInfo->type != GoodInfo::Type::Hull)
 				{
 					return;
 				}
@@ -177,8 +177,7 @@ namespace Plugins::PurchaseRestrictions
 				if (global->shipItemRestrictionsHashed.contains(hullInfo->shipGoodId) && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
 				{
 					const auto charName = Hk::Client::GetCharacterNameByID(client);
-					AddLog(LogType::Normal,
-					    LogLevel::Info,
+					Logger::i()->Log(LogLevel::Info,
 					    std::format("{} attempting to buy {} without correct Id", wstos(charName.value()), hullInfo->shipGoodId));
 					if (global->config->enforceItemRestrictions)
 					{

@@ -40,10 +40,10 @@ namespace Plugins::NPCSpinProtection
 	void SPObjCollision(SSPObjCollisionInfo const& ci, ClientId& client)
 	{
 		// If spin protection is off, do nothing.
-		if (ci.iColliderObjectId == 0 || global->config->spinProtectionMass == -1.0f)
+		if (ci.colliderObjectId == 0 || global->config->spinProtectionMass == -1.0f)
 			return;
 
-		const float targetMass = Hk::Solar::GetMass(ci.iColliderObjectId).value();
+		const float targetMass = Hk::Solar::GetMass(ci.colliderObjectId).value();
 
 		// Don't do spin protect unless the hit ship is big
 		if (targetMass < global->config->spinProtectionMass)
@@ -58,7 +58,7 @@ namespace Plugins::NPCSpinProtection
 		if (targetMass < clientMass * 2)
 			return;
 
-		auto motion = Hk::Solar::GetMotion(ci.iColliderObjectId);
+		auto motion = Hk::Solar::GetMotion(ci.colliderObjectId);
 		if (motion.has_error())
 		{
 			Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(motion.error())));
@@ -74,7 +74,7 @@ namespace Plugins::NPCSpinProtection
 		V2.x *= global->config->spinImpulseMultiplier * clientMass;
 		V2.y *= global->config->spinImpulseMultiplier * clientMass;
 		V2.z *= global->config->spinImpulseMultiplier * clientMass;
-		pub::SpaceObj::AddImpulse(ci.iColliderObjectId, V1, V2);
+		pub::SpaceObj::AddImpulse(ci.colliderObjectId, V1, V2);
 	}
 } // namespace Plugins::NPCSpinProtection
 

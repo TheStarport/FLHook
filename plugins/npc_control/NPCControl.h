@@ -41,7 +41,7 @@ namespace Plugins::Npc
 		std::vector<float> rotation = {0, 0, 0};
 
 		uint systemId = 0;
-		Matrix rotationMatrix = {0, 0, 0};
+		Matrix rotationMatrix = {Vector(0, 0, 0), Vector(0, 0, 0), Vector(0, 0, 0)};
 		Vector positionVector = {0, 0, 0};
 	};
 
