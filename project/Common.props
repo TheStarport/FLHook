@@ -19,6 +19,8 @@
 			<WarningLevel>Level3</WarningLevel>
 			<EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
 			<PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>PCH.hpp</PrecompiledHeaderFile>
 		</ClCompile>
 	</ItemDefinitionGroup>
 	<ItemGroup>

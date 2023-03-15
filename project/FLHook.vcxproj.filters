@@ -46,6 +46,9 @@
     <Filter Include="Include\SDK">
       <UniqueIdentifier>{96e52e53-6bc7-4fea-8e78-b3bd4fefe5a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Contracts">
+      <UniqueIdentifier>{ea7c21e6-c5a1-4536-b914-2e7e0abba0d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -243,6 +246,9 @@
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
       <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Contracts\ICoreServer.hpp">
+      <Filter>Contracts</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

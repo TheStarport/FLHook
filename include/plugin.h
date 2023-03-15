@@ -1,14 +1,5 @@
 #pragma once
 
-#include <functional>
-
-#ifndef DLL
-#ifndef FLHOOK
-		#define DLL __declspec(dllimport)
-#else
-		#define DLL __declspec(dllexport)
-#endif
-#endif
 
 struct UserCommand
 {
@@ -18,18 +9,6 @@ struct UserCommand
 	std::wstring description;
 };
 
-template<typename... Ts>
-std::string cat(Ts&&... args)
-{
-	std::ostringstream oss;
-	(oss << ... << std::forward<Ts>(args));
-	return oss.str();
-}
-
-DLL std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds);
-DLL UserCommand CreateUserCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage,
-	const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description);
-
 struct Timer
 {
 	std::function<void()> func;
@@ -38,24 +17,21 @@ struct Timer
 };
 
 constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::VERSION_04;
-constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_00;
+constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_01;
 
 const std::wstring VersionInformation = std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion));
 
-class PluginHook
+struct PluginHook
 {
-public:
 	using FunctionType = void();
 
-private:
 	HookedCall targetFunction_;
 	FunctionType* hookFunction_;
 	HookStep step_;
 	int priority_;
 
-public:
 	template<typename Func>
-	PluginHook(HookedCall targetFunction, Func* hookFunction, HookStep step = HookStep::Before, int priority = 0)
+	PluginHook(const HookedCall targetFunction, Func* hookFunction, const HookStep step = HookStep::Before, const int priority = 0)
 		: targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
 	{
 		switch (step)
@@ -99,38 +75,71 @@ private:
 
 struct PluginInfo
 {
-	DLL void versionMajor(PluginMajorVersion version);
-	DLL void versionMinor(PluginMinorVersion version);
-	DLL void name(const char* name);
-	DLL void shortName(const char* shortName);
-	DLL void mayUnload(bool unload);
-	DLL void autoResetCode(bool reset);
-	DLL void returnCode(ReturnCode* returnCode);
-	DLL void addHook(const PluginHook& hook);
-	DLL void commands(const std::vector<UserCommand>*);
-	DLL void timers(const std::vector<Timer>*);
+	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
+	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
+	std::string name;
+	std::string shortName;
+	bool mayUnload;
+};
 
-	#ifdef FLHOOK
-	template<typename... Args>
-	void addHook(Args&&... args)
+class DLL Plugin
+{
+	friend PluginManager;
+
+	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
+	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
+
+	std::string name;
+	std::string shortName;
+	bool mayUnload;
+
+	std::vector<PluginHook> hooks;
+	std::vector<UserCommand> commands;
+
+protected:
+	ReturnCode returnCode = ReturnCode::Default;
+	
+	std::vector<Timer> timers;
+
+  public:
+	explicit Plugin(const PluginInfo& info)
 	{
-		addHook(PluginHook(std::forward<Args>(args)...));
+		name = info.name;
+		shortName = info.shortName;
+		mayUnload = info.mayUnload;
+		versionMajor = info.versionMajor;
+		versionMinor = info.versionMinor;
 	}
 
-	PluginMajorVersion versionMajor_ = PluginMajorVersion::UNDEFINED;
-	PluginMinorVersion versionMinor_ = PluginMinorVersion::UNDEFINED;
-	std::string name_, shortName_;
-	bool mayUnload_ = false, resetCode_ = true;
-	ReturnCode* returnCode_ = nullptr;
-	std::list<PluginHook> hooks_;
-	std::vector<UserCommand>* commands_;
-	std::vector<Timer>* timers_;
-	#else
+	virtual ~Plugin() = default;
+	Plugin& operator=(const Plugin&&) = delete;
+	Plugin& operator=(const Plugin&) = delete;
+
 	template<typename... Args>
-	void emplaceHook(Args&&... args)
+	void EmplaceHook(Args&&... args)
 	{
 		PluginHook ph(std::forward<Args>(args)...);
-		addHook(ph);
+		if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction_ == ph.targetFunction_ && ph.step_ == hook.step_; }) != hooks.end())
+		{
+			return;
+		}
+		
+		hooks.emplace_back(ph);
 	}
-	#endif
+
+	void RemoveHook(HookedCall target, HookStep step)
+	{
+		std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction_ == target && step == hook.step_; });
+	}
+
+	void AddCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage, UserCmdProc proc, const std::wstring& description)
+	{
+		commands.emplace_back(UserCommand(command, usage, proc, description));
+	}
+
+	void RemoveCommand(const std::wstring& cmd)
+	{
+		std::erase_if(
+		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring>(userCommand.command) == cmd; });
+	}
 };
