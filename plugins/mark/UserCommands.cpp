@@ -78,15 +78,15 @@ namespace Plugins::Mark
 			if (global->Mark[groupClient].IgnoreGroupMark)
 				continue;
 
-			uint iClientShip = Hk::Player::GetShip(client).value();
-			if (iClientShip == target)
+			uint clientShip = Hk::Player::GetShip(client).value();
+			if (clientShip == target)
 				continue;
 
 			MarkObject(groupClient, target.value());
 		}
 	}
 
-	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& Param)
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& param)
 	{
 		auto target = Hk::Player::GetTarget(client);
 		char err = UnMarkObject(client, target.value());
@@ -107,14 +107,10 @@ namespace Plugins::Mark
 		}
 	}
 
-	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& Param)
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& paramStr)
 	{
-		const std::wstring Error[] = {
-		    L"Error: Invalid parameters",
-		    L"Usage: /ignoregroupmarks <on|off>",
-		};
 
-		const auto param = ViewToWString(Param);
+		const auto param = ViewToWString(paramStr);
 
 		if (ToLower(param) == L"off")
 		{
@@ -146,11 +142,13 @@ namespace Plugins::Mark
 		}
 		else
 		{
-			PRINT_ERROR();
+			PrintUserCmdText(client,
+			    L"Error: Invalid parameters\n"
+			    L"Usage: /ignoregroupmarks <on|off>");
 		}
 	}
 
-	void UserCmd_AutoMark(ClientId& client, const std::wstring& Param)
+	void UserCmd_AutoMark(ClientId& client, const std::wstring& param)
 	{
 		if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 		{
@@ -158,32 +156,29 @@ namespace Plugins::Mark
 			return;
 		}
 
-		std::wstring Error[] = {
-		    L"Error: Invalid parameters",
-		    L"Usage: /automark <on|off> [radius in KM]",
-		};
+		std::wstring enabled = ToLower(GetParam(param, ' ', 0));
 
-		std::wstring Enabled = ToLower(GetParam(Param, ' ', 0));
-
-		if (!Param.length() || (Enabled != L"on" && Enabled != L"off"))
+		if (param.empty() || (enabled != L"on" && enabled != L"off"))
 		{
-			PRINT_ERROR();
+			PrintUserCmdText(client,
+			    L"Error: Invalid parameters\n"
+			    L"Usage: /automark <on|off> [radius in KM]");
 			return;
 		}
 
-		std::wstring Radius = GetParam(Param, ' ', 1);
-		float fRadius = 0.0f;
-		if (Radius.length())
+		std::wstring radiusString = GetParam(param, ' ', 1);
+		float radius = 0.0f;
+		if (!radiusString.empty())
 		{
-			fRadius = ToFloat(Radius);
+			radius = ToFloat(radiusString);
 		}
 
 		// I think this section could be done better, but I can't think of it now..
 		if (!global->Mark[client].MarkEverything)
 		{
-			if (Radius.length())
-				global->Mark[client].AutoMarkRadius = fRadius * 1000;
-			if (Enabled == L"on") // AutoMark is being enabled
+			if (!radiusString.empty())
+				global->Mark[client].AutoMarkRadius = radius * 1000;
+			if (enabled == L"on") // AutoMark is being enabled
 			{
 				global->Mark[client].MarkEverything = true;
 				CAccount const* acc = Players.FindAccountFromClientID(client);
@@ -194,12 +189,12 @@ namespace Plugins::Mark
 					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string section = "general_" + wstos(fileName.value());
 					IniWrite(userFile, section, "automark", "yes");
-					if (Radius.length())
+					if (!radiusString.empty())
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				PrintUserCmdText(client, std::format(L"Automarking turned on within a {:.2f} KM radius", global->Mark[client].AutoMarkRadius / 1000));
 			}
-			else if (Radius.length())
+			else if (!radiusString.empty())
 			{
 				CAccount const* acc = Players.FindAccountFromClientID(client);
 				const auto fileName = Hk::Client::GetCharFileName(client);
@@ -210,14 +205,14 @@ namespace Plugins::Mark
 					std::string section = "general_" + wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", fRadius));
+				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));
 			}
 		}
 		else
 		{
-			if (Radius.length())
-				global->Mark[client].AutoMarkRadius = fRadius * 1000;
-			if (Enabled == L"off") // AutoMark is being disabled
+			if (!radiusString.empty())
+				global->Mark[client].AutoMarkRadius = radius * 1000;
+			if (enabled == L"off") // AutoMark is being disabled
 			{
 				global->Mark[client].MarkEverything = false;
 				CAccount const* acc = Players.FindAccountFromClientID(client);
@@ -228,15 +223,15 @@ namespace Plugins::Mark
 					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
 					std::string section = "general_" + wstos(fileName.value());
 					IniWrite(userFile, section, "automark", "no");
-					if (Radius.length())
+					if (!radiusString.empty())
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				if (Radius.length())
+				if (!radiusString.empty())
 					PrintUserCmdText(client, std::format(L"Automarking turned off; radius changed to {:.2f} KMs", global->Mark[client].AutoMarkRadius / 1000));
 				else
 					PrintUserCmdText(client, L"Automarking turned off");
 			}
-			else if (Radius.length())
+			else if (!radiusString.empty())
 			{
 				CAccount const* acc = Players.FindAccountFromClientID(client);
 				const auto fileName = Hk::Client::GetCharFileName(client);
@@ -247,7 +242,7 @@ namespace Plugins::Mark
 					std::string section = "general_" + wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", fRadius));
+				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));
 			}
 		}
 	}

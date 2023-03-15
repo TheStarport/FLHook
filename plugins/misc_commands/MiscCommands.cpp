@@ -84,7 +84,7 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		bool bLights = false;
+		bool lights = false;
 		for (st6::list<EquipDesc> const& eq = Players[client].equipDescList.equip; const auto& eq : eq)
 		{
 			std::string hp = ToLower(eq.hardPoint.value);
@@ -95,11 +95,11 @@ namespace Plugins::MiscCommands
 				ActivateEq.spaceId = ship.value();
 				ActivateEq.id = eq.id;
 				Server.ActivateEquip(client, ActivateEq);
-				bLights = true;
+				lights = true;
 			}
 		}
 
-		if (bLights)
+		if (lights)
 			PrintUserCmdText(client, std::format(L" Lights {}", lightsStatus ? L"on" : L"off"));
 		else
 			PrintUserCmdText(client, L"Light control not available");
@@ -184,14 +184,14 @@ namespace Plugins::MiscCommands
 
 		// Read the current number of credits for the player
 		// and check that the character has enough cash.
-		const auto iCash = Hk::Player::GetCash(client);
-		if (iCash.has_error())
+		const auto cash = Hk::Player::GetCash(client);
+		if (cash.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(iCash.error())));
+			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(cash.error())));
 			return;
 		}
 
-		if (global->config->repDropCost > 0 && iCash < global->config->repDropCost)
+		if (global->config->repDropCost > 0 && cash < global->config->repDropCost)
 		{
 			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;
@@ -307,7 +307,7 @@ namespace Plugins::MiscCommands
 			return;
 		}
 
-		const bool bKillAll = cmds->ArgStr(1) == L"die";
+		const bool killAll = cmds->ArgStr(1) == L"die";
 
 		const auto& [fromShipPos, _] = Hk::Solar::GetLocation(playerInfo.value().ship, IdType::Ship).value();
 
@@ -341,7 +341,7 @@ namespace Plugins::MiscCommands
 
 			global->mapInfo[client].shieldsDown = true;
 
-			if (bKillAll)
+			if (killAll)
 			{
 				if (const auto obj = Hk::Client::GetInspect(client); obj.has_value())
 				{

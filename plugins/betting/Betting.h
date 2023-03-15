@@ -33,6 +33,6 @@ namespace Plugins::Betting
 	{
 		ReturnCode returnCode = ReturnCode::Default;
 		std::list<Duel> duels;
-		std::map<uint, FreeForAll> freeForAlls; // uint is iSystemId
+		std::map<uint, FreeForAll> freeForAlls; // uint is systemId
 	};
 } // namespace Plugins::Betting

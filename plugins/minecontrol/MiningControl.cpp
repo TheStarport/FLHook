@@ -91,18 +91,18 @@ namespace Plugins::MiningControl
 
 			// Check that every simple item in the equipment list is present and
 			// mounted.
-			bool bEquipMatch = true;
+			bool equipMatch = true;
 			for (const auto item : start->second.ItemIds)
 			{
 				if (!ContainsEquipment(cargoList, item))
 				{
-					bEquipMatch = false;
+					equipMatch = false;
 					break;
 				}
 			}
 
 			// This is a match.
-			if (bEquipMatch)
+			if (equipMatch)
 				return start->second.Bonus;
 		}
 
@@ -137,7 +137,7 @@ namespace Plugins::MiningControl
 			}
 			if (global->config->PluginDebug > 1)
 			{
-				Logger::i()->Log(LogLevel::Info, std::format("client={} iRepGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
+				Logger::i()->Log(LogLevel::Info, std::format("client={} repGroupId={} shipId={} Cargo=", client, repGroupId, shipId));
 				for (auto& ci : Cargo.value())
 				{
 					Logger::i()->Log(LogLevel::Info, std::format("{} ", ci.archId));
@@ -180,13 +180,13 @@ namespace Plugins::MiningControl
 		// Recharge the fields
 		for (auto& [_, zoneBonus] : global->ZoneBonus)
 		{
-			zoneBonus.CurrentReserve += zoneBonus.RechargeRate;
-			if (zoneBonus.CurrentReserve > zoneBonus.MaxReserve)
-				zoneBonus.CurrentReserve = zoneBonus.MaxReserve;
+			zoneBonus.currentReserve += zoneBonus.RechargeRate;
+			if (zoneBonus.currentReserve > zoneBonus.MaxReserve)
+				zoneBonus.currentReserve = zoneBonus.MaxReserve;
 
 			ZoneStats zs;
-			zs.CurrentReserve = zoneBonus.CurrentReserve;
-			zs.Mined = zoneBonus.Mined;
+			zs.currentReserve = zoneBonus.currentReserve;
+			zs.mined = zoneBonus.mined;
 			zs.Zone = zoneBonus.Zone;
 			stats.Stats.emplace_back(zs);
 		}
@@ -311,7 +311,7 @@ namespace Plugins::MiningControl
 				continue;
 			}
 
-			uint iReplacementLootId = 0;
+			uint replacementLootId = 0;
 			if (!zb.ReplacementLoot.empty())
 				zb.ReplacementLootId = CreateID(zb.ReplacementLoot.c_str());
 
@@ -329,7 +329,7 @@ namespace Plugins::MiningControl
 				    zb.Zone,
 				    zb.Bonus,
 				    zb.ReplacementLoot,
-				    iReplacementLootId,
+				    replacementLootId,
 				    zb.RechargeRate,
 				    zb.MaxReserve));
 			}
@@ -340,8 +340,8 @@ namespace Plugins::MiningControl
 			uint ZoneId = CreateID(zone.Zone.c_str());
 			if (global->ZoneBonus.contains(ZoneId))
 			{
-				global->ZoneBonus[ZoneId].CurrentReserve = zone.CurrentReserve;
-				global->ZoneBonus[ZoneId].Mined = zone.Mined;
+				global->ZoneBonus[ZoneId].currentReserve = zone.currentReserve;
+				global->ZoneBonus[ZoneId].mined = zone.mined;
 			}
 		}
 
@@ -388,8 +388,8 @@ namespace Plugins::MiningControl
 
 		auto [shipPosition, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
 
-		SystemId iClientSystemId = Hk::Player::GetSystem(client).value();
-		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(iClientSystemId);
+		SystemId clientSystemId = Hk::Player::GetSystem(client).value();
+		CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(clientSystemId);
 		if (csys)
 		{
 			// Find asteroid field that matches the best.
@@ -408,7 +408,7 @@ namespace Plugins::MiningControl
 							zoneBonus = global->ZoneBonus[zone->zoneId].Bonus;
 
 						// If the field is getting mined out, reduce the bonus
-						zoneBonus *= global->ZoneBonus[zone->zoneId].CurrentReserve / global->ZoneBonus[zone->zoneId].MaxReserve;
+						zoneBonus *= global->ZoneBonus[zone->zoneId].currentReserve / global->ZoneBonus[zone->zoneId].MaxReserve;
 
 						uint lootId = zone->lootableZone->dynamicLootCommodity;
 						uint crateId = zone->lootableZone->dynamicLootContainer;
@@ -439,9 +439,9 @@ namespace Plugins::MiningControl
 						// If either no mining gun was used in the shot, or the
 						// character isn't using a valid mining combo for this
 						// commodity, set bonus to *0.5
-						float fPlayerBonus = 0.5f;
+						float playerBonus = 0.5f;
 						if (miningBonusEligible)
-							fPlayerBonus = cd.LootBonus[lootId];
+							playerBonus = cd.LootBonus[lootId];
 
 						// If this ship is has another ship targetted then send the
 						// ore into the cargo hold of the other ship.
@@ -464,29 +464,29 @@ namespace Plugins::MiningControl
 
 						// Calculate the loot drop and drop it.
 						auto lootCount = static_cast<int>(
-						    random * global->config->GenericFactor * zoneBonus * fPlayerBonus * static_cast<float>(zone->lootableZone->dynamicLootCount2));
+						    random * global->config->GenericFactor * zoneBonus * playerBonus * static_cast<float>(zone->lootableZone->dynamicLootCount2));
 
 						// Remove this lootCount from the field
-						global->ZoneBonus[zone->zoneId].CurrentReserve -= static_cast<float>(lootCount);
-						global->ZoneBonus[zone->zoneId].Mined += static_cast<float>(lootCount);
-						if (global->ZoneBonus[zone->zoneId].CurrentReserve <= 0)
+						global->ZoneBonus[zone->zoneId].currentReserve -= static_cast<float>(lootCount);
+						global->ZoneBonus[zone->zoneId].mined += static_cast<float>(lootCount);
+						if (global->ZoneBonus[zone->zoneId].currentReserve <= 0)
 						{
-							global->ZoneBonus[zone->zoneId].CurrentReserve = 0;
+							global->ZoneBonus[zone->zoneId].currentReserve = 0;
 							lootCount = 0;
 						}
 
 						if (global->Clients[client].Debug)
 						{
 							PrintUserCmdText(client,
-							    std::format(L"* fRand={} fGenericBonus={} fPlayerBonus={} fZoneBonus{} iLootCount={} LootId={}/{} CurrentReserve={:.1f}",
+							    std::format(L"* fRand={} genericBonus={} playerBonus={} zoneBonus{} lootCount={} lootId={}/{} currentReserve={:.1f}",
 							        random,
 							        global->config->GenericFactor,
-							        fPlayerBonus,
+							        playerBonus,
 							        zoneBonus,
 							        lootCount,
 							        lootId,
 							        crateId,
-							        global->ZoneBonus[zone->zoneId].CurrentReserve));
+							        global->ZoneBonus[zone->zoneId].currentReserve));
 						}
 
 						global->Clients[client].MineAsteroidEvents++;
@@ -494,11 +494,11 @@ namespace Plugins::MiningControl
 						{
 							if (float average = static_cast<float>(global->Clients[client].MineAsteroidEvents) / 30.0f; average > 2.0f)
 							{
-								std::wstring CharName = (const wchar_t*)Players.GetActiveCharacterName(client);
+								std::wstring charName = (const wchar_t*)Players.GetActiveCharacterName(client);
 								Logger::i()->Log(
 									LogLevel::Info,
 								    std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
-								        wstos(CharName.c_str()),
+								        wstos(charName.c_str()),
 								        average,
 								        shipPosition.x,
 								        shipPosition.y,
@@ -550,8 +550,8 @@ namespace Plugins::MiningControl
 using namespace Plugins::MiningControl;
 
 REFL_AUTO(type(PlayerBonus), field(Loot), field(Bonus), field(Rep), field(Ships), field(Items), field(Ammo))
-REFL_AUTO(type(ZoneBonus), field(Zone), field(Bonus), field(ReplacementLoot), field(RechargeRate), field(CurrentReserve), field(MaxReserve), field(Mined))
-REFL_AUTO(type(ZoneStats), field(Zone), field(CurrentReserve), field(Mined))
+REFL_AUTO(type(ZoneBonus), field(Zone), field(Bonus), field(ReplacementLoot), field(RechargeRate), field(currentReserve), field(MaxReserve), field(mined))
+REFL_AUTO(type(ZoneStats), field(Zone), field(currentReserve), field(mined))
 REFL_AUTO(type(MiningStats), field(Stats))
 REFL_AUTO(type(Config), field(PlayerBonus), field(ZoneBonus), field(GenericFactor), field(PluginDebug));
 

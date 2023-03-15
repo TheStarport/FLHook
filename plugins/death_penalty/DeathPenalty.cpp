@@ -59,9 +59,9 @@ namespace Plugins::DeathPenalty
 	bool IsInExcludedSystem(ClientId client)
 	{
 		// Get System Id
-		SystemId iSystemId = Hk::Player::GetSystem(client).value();
+		SystemId systemId = Hk::Player::GetSystem(client).value();
 		// Search list for system
-		return std::ranges::find(global->ExcludedSystemsIds, iSystemId) != global->ExcludedSystemsIds.end();
+		return std::ranges::find(global->ExcludedSystemsIds, systemId) != global->ExcludedSystemsIds.end();
 	}
 
 	/** @ingroup DeathPenalty

@@ -131,17 +131,17 @@ namespace Plugins::Event
 	/** @ingroup Event
 	 * @brief Hook on ShipDestroyed to see if an NPC mission needs to be updated.
 	 */
-	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& iKill)
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& kill)
 	{
-		if (iKill)
+		if (kill)
 		{
 			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
 
-			int Reputation;
-			pub::SpaceObj::GetRep(cShip->get_id(), Reputation);
+			int reputation;
+			pub::SpaceObj::GetRep(cShip->get_id(), reputation);
 
-			uint Affiliation;
-			pub::Reputation::GetAffiliation(Reputation, Affiliation);
+			uint affiliation;
+			pub::Reputation::GetAffiliation(reputation, affiliation);
 
 			SystemId System = Hk::Solar::GetSystemBySpaceId(cShip->get_id()).value();
 
@@ -150,7 +150,7 @@ namespace Plugins::Event
 
 			for (auto& mission : global->NpcMissions)
 			{
-				if (Affiliation == mission.reputation && System == mission.system && (mission.sector.empty() || mission.sector == sector) &&
+				if (affiliation == mission.reputation && System == mission.system && (mission.sector.empty() || mission.sector == sector) &&
 				    mission.current_amount < mission.required_amount)
 				{
 					mission.current_amount++;

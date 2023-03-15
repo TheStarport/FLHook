@@ -359,7 +359,7 @@ namespace Plugins::Message
 	 */
 	void SetTarget(const ClientId& uClientId, XSetTarget const& p2)
 	{
-		// The iSpaceId *appears* to represent a player ship Id when it is
+		// The spaceId *appears* to represent a player ship Id when it is
 		// targeted but this might not be the case. Also note that
 		// GetClientIdByShip returns 0 on failure not -1.
 		const auto targetClientId = Hk::Client::GetClientIdByShip(p2.spaceId);
@@ -385,8 +385,8 @@ namespace Plugins::Message
 		// Extract text from rdlReader
 		BinaryRDLReader rdl;
 		wchar_t wBuf[1024];
-		uint iRet1;
-		rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), iRet1, (const char*)*rdlReader, msgSize);
+		uint ret1;
+		rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), ret1, (const char*)*rdlReader, msgSize);
 
 		const std::wstring chatMsg = ToLower(wBuf);
 
@@ -447,9 +447,9 @@ namespace Plugins::Message
 	 */
 	void RedText(const std::wstring& XMLMsg, uint systemId)
 	{
-		char Buf[0x1000];
-		uint iRet;
-		if (const auto err = Hk::Message::FMsgEncodeXML(XMLMsg, Buf, sizeof(Buf), iRet); err.has_error())
+		char buf[0x1000];
+		uint retVal;
+		if (const auto err = Hk::Message::FMsgEncodeXML(XMLMsg, buf, sizeof(buf), retVal); err.has_error())
 			return;
 
 		// Send to all players in system
@@ -458,8 +458,8 @@ namespace Plugins::Message
 		{
 			ClientId client = playerData->onlineId;
 
-			if (SystemId iClientSystemId = Hk::Player::GetSystem(client).value(); systemId == iClientSystemId)
-				Hk::Message::FMsgSendChat(client, Buf, iRet);
+			if (SystemId clientSystemId = Hk::Player::GetSystem(client).value(); systemId == clientSystemId)
+				Hk::Message::FMsgSendChat(client, buf, retVal);
 		}
 	}
 
@@ -480,11 +480,11 @@ namespace Plugins::Message
 		{
 			// Extract text from rdlReader
 			BinaryRDLReader rdl;
-			wchar_t wBuf[1024];
-			uint iRet1;
+			wchar_t buf[1024];
+			uint ret1;
 			const void* rdlReader2 = *rdlReader;
-			rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), iRet1, (const char*)rdlReader2, msgSize);
-			std::wstring chatMsg = wBuf;
+			rdl.extract_text_from_buffer((unsigned short*)buf, sizeof(buf), ret1, (const char*)rdlReader2, msgSize);
+			std::wstring chatMsg = buf;
 
 			// Find the ': ' which indicates the end of the sending player name.
 			const size_t textStartPos = chatMsg.find(L": ");
@@ -746,15 +746,15 @@ namespace Plugins::Message
 		const std::wstring& clientId = GetParam(param, ' ', 0);
 		const std::wstring msg = GetParamToEnd(param, ' ', 1);
 
-		const uint iToClientId = ToInt(clientId);
-		if (!Hk::Client::IsValidClientID(iToClientId) || Hk::Client::IsInCharSelectMenu(iToClientId))
+		const uint toClientId = ToInt(clientId);
+		if (!Hk::Client::IsValidClientID(toClientId) || Hk::Client::IsInCharSelectMenu(toClientId))
 		{
 			PrintUserCmdText(client, L"ERR Invalid client-id");
 			return;
 		}
 
-		global->info[iToClientId].lastPmClientId = client;
-		Hk::Message::SendPrivateChat(client, iToClientId, ViewToWString(msg));
+		global->info[toClientId].lastPmClientId = client;
+		Hk::Message::SendPrivateChat(client, toClientId, ViewToWString(msg));
 	}
 
 	/** @ingroup Message
@@ -773,23 +773,23 @@ namespace Plugins::Message
 			return;
 		}
 
-		bool bSenderReceived = false;
-		bool bMsgSent = false;
+		bool senderReceived = false;
+		bool msgSent = false;
 		for (const auto& player : Hk::Admin::GetPlayers())
 		{
 			if (ToLower(player.character).find(ToLower(charnamePrefix)) == std::string::npos)
 				continue;
 
 			if (player.client == client)
-				bSenderReceived = true;
+				senderReceived = true;
 
 			Hk::Message::FormatSendChat(player.client, sender, ViewToWString(msg), L"FF7BFF");
-			bMsgSent = true;
+			msgSent = true;
 		}
-		if (!bSenderReceived)
+		if (!senderReceived)
 			Hk::Message::FormatSendChat(client, sender, ViewToWString(msg), L"FF7BFF");
 
-		if (bMsgSent == false)
+		if (msgSent == false)
 			PrintUserCmdText(client, L"ERR No chars found");
 	}
 
@@ -799,11 +799,11 @@ namespace Plugins::Message
 	void UserCmd_SetChatTime(ClientId& client, const std::wstring& param)
 	{
 		const std::wstring param1 = ToLower(GetParam(param, ' ', 0));
-		bool bShowChatTime = false;
+		bool showChatTime = false;
 		if (!param1.compare(L"on"))
-			bShowChatTime = true;
+			showChatTime = true;
 		else if (!param1.compare(L"off"))
-			bShowChatTime = false;
+			showChatTime = false;
 		else
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
@@ -812,11 +812,11 @@ namespace Plugins::Message
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
-		Hk::Ini::SetCharacterIni(client, L"msg.chat_time", bShowChatTime ? L"true" : L"false");
+		Hk::Ini::SetCharacterIni(client, L"msg.chat_time", showChatTime ? L"true" : L"false");
 
 		// Update the client cache.
 		if (const auto iter = global->info.find(client); iter != global->info.end())
-			iter->second.showChatTime = bShowChatTime;
+			iter->second.showChatTime = showChatTime;
 
 		// Send confirmation msg
 		PrintUserCmdText(client, L"OK");

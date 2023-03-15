@@ -103,8 +103,8 @@ namespace Plugins::Stats
 			jsonPlayer["name"] = encode(wstos(player.character));
 
 			// Add rank
-			const int iRank = Hk::Player::GetRank(player.client).value();
-			jsonPlayer["rank"] = std::to_string(iRank);
+			const int rank = Hk::Player::GetRank(player.client).value();
+			jsonPlayer["rank"] = std::to_string(rank);
 
 			// Add group
 			const int groupId = Players.GetGroupID(player.client);

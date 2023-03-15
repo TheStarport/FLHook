@@ -51,13 +51,13 @@ namespace Plugins::MiningControl
 		float RechargeRate = 0;
 
 		//! The current amount of ore in the zone. When this gets low, ore gets harder to mine. When it gets to 0, ore is impossible to mine.
-		float CurrentReserve = 100000;
+		float currentReserve = 100000;
 
 		//! The maximum limit for the amount of ore in the field
 		float MaxReserve = 50000;
 
 		//! The amount of ore that has been mined.
-		float Mined = 0;
+		float mined = 0;
 	};
 
 	//! A struct to represent each client
@@ -79,8 +79,8 @@ namespace Plugins::MiningControl
 	struct ZoneStats : Reflectable
 	{
 		std::string Zone;
-		float CurrentReserve = 0.0f;
-		float Mined = 0.0f;
+		float currentReserve = 0.0f;
+		float mined = 0.0f;
 	};
 
 	//! A struct to load in the stats config file across restarts

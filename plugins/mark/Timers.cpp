@@ -79,20 +79,20 @@ namespace Plugins::Mark
 		{
 			if (tmTimeNow - mark->time > 50)
 			{
-				auto [itemPosition, _] = Hk::Solar::GetLocation(mark->iObj, IdType::Solar).value();
+				auto [itemPosition, _] = Hk::Solar::GetLocation(mark->objId, IdType::Solar).value();
 
-				SystemId iItemSystem = Hk::Solar::GetSystemBySpaceId(mark->iObj).value();
+				SystemId itemSystem = Hk::Solar::GetSystemBySpaceId(mark->objId).value();
 				// for all players
 				PlayerData* playerData = nullptr;
 				while ((playerData = Players.traverse_active(playerData)))
 				{
 					ClientId client = playerData->onlineId;
-					if (Players[client].systemId == iItemSystem)
+					if (Players[client].systemId == itemSystem)
 					{
 						auto [playerPosition, _] = Hk::Solar::GetLocation(Players[client].shipId, IdType::Ship).value();
 						if (Hk::Math::Distance3D(playerPosition, itemPosition) <= LOOT_UNSEEN_RADIUS)
 						{
-							MarkObject(client, mark->iObj);
+							MarkObject(client, mark->objId);
 						}
 					}
 				}

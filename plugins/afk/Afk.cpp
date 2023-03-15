@@ -91,7 +91,7 @@ namespace Plugins::Afk
 
 	// Hooks on chat being submitted
 	void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] void const** rdlReader, [[maybe_unused]] ClientId& to,
-	    [[maybe_unused]] const int& iP2)
+	    [[maybe_unused]] const int& dunno)
 	{
 		if (const auto it = global->awayClients.begin();
 		    Hk::Client::IsValidClientID(client) && std::find(it, global->awayClients.end(), client) != global->awayClients.end())

@@ -21,7 +21,7 @@ namespace Plugins::Mark
 
 	struct DELAY_MARK
 	{
-		uint iObj;
+		uint objId;
 		mstime time;
 	};
 
@@ -42,17 +42,17 @@ namespace Plugins::Mark
 	};
 
 	// Functions
-	char MarkObject(ClientId client, uint iObject);
+	char MarkObject(ClientId client, uint object);
 	void UnMarkAllObjects(ClientId client);
-	char UnMarkObject(ClientId client, uint iObject);
+	char UnMarkObject(ClientId client, uint object);
 
-	void UserCmd_AutoMark(ClientId& client, const std::wstring& Param);
-	void UserCmd_MarkObj(ClientId& client, const std::wstring& Param);
-	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& Param);
-	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& Param);
-	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& Param);
-	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& Param);
-	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& Param);
+	void UserCmd_AutoMark(ClientId& client, const std::wstring& param);
+	void UserCmd_MarkObj(ClientId& client, const std::wstring& param);
+	void UserCmd_MarkObjGroup(ClientId& client, const std::wstring& param);
+	void UserCmd_SetIgnoreGroupMark(ClientId& client, const std::wstring& param);
+	void UserCmd_UnMarkObj(ClientId& client, const std::wstring& param);
+	void UserCmd_UnMarkObjGroup(ClientId& client, const std::wstring& param);
+	void UserCmd_UnMarkAllObj(ClientId& client, const std::wstring& param);
 
 	void TimerMarkDelay();
 	void TimerSpaceObjMark();

@@ -181,7 +181,7 @@ namespace Plugins::Rename
 		if (Hk::Client::GetClientIdFromCharName(charName.value()) == UINT_MAX)
 			return;
 
-		if (const auto iCash = Hk::Player::GetCash(client); global->config->makeTagCost > 0 && iCash < global->config->makeTagCost)
+		if (const auto cash = Hk::Player::GetCash(client); global->config->makeTagCost > 0 && cash < global->config->makeTagCost)
 		{
 			PrintUserCmdText(client, L"ERR Insufficient credits");
 			return;

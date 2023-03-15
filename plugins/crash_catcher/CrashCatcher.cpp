@@ -156,7 +156,7 @@ namespace Plugins::CrashCatcher
 		return res;
 	}
 
-	static void* dwSavedECX = nullptr;
+	static void* savedECX = nullptr;
 
 	static FARPROC fpCrashProc6F8B330Old = nullptr;
 	char __stdcall CrashProc6F8B330(int arg1)
@@ -169,7 +169,7 @@ namespace Plugins::CrashCatcher
 			__asm {
             pushad
             push arg1
-            mov ecx, dwSavedECX
+            mov ecx, savedECX
             call [fpCrashProc6F8B330Old]
             mov [res], eax
             popad
@@ -186,7 +186,7 @@ namespace Plugins::CrashCatcher
 	__declspec(naked) void CrashProc6F8B330Naked()
 	{
 		__asm {
-        mov dwSavedECX, ecx
+        mov savedECX, ecx
         jmp CrashProc6F8B330
 		}
 	}
@@ -202,7 +202,7 @@ namespace Plugins::CrashCatcher
             pushad
             push arg2
             push arg1
-            mov ecx, dwSavedECX
+            mov ecx, savedECX
             call [fpCrashProc6F78DD0Old]
             popad
 			}
@@ -215,7 +215,7 @@ namespace Plugins::CrashCatcher
 	__declspec(naked) void CrashProc6F78DD0Naked()
 	{
 		__asm {
-        mov dwSavedECX, ecx
+        mov savedECX, ecx
         jmp CrashProc6F78DD0
 		}
 	}
@@ -400,9 +400,9 @@ will_crash:
 	{
 		try
 		{
-			if (!global->bPatchInstalled)
+			if (!global->patchInstalled)
 			{
-				global->bPatchInstalled = true;
+				global->patchInstalled = true;
 
 				global->hModServerAC = GetModuleHandle("server.dll");
 				if (global->hModServerAC)
@@ -420,7 +420,7 @@ will_crash:
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
 				const FARPROC fpTimingSeconds = (FARPROC)TimingSeconds;
-				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
+				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
 				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
 				global->hEngBase = GetModuleHandle("engbase.dll");
@@ -534,7 +534,7 @@ will_crash:
 	 */
 	void Shutdown()
 	{
-		if (global->bPatchInstalled)
+		if (global->patchInstalled)
 		{
 			// Unhook getroot
 			if (global->hModServerAC)
@@ -543,7 +543,7 @@ will_crash:
 			}
 
 			// Unload the timing patches.
-			WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->fpOldTimingSeconds, 4);
+			WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
 
 			if (global->contentAC)
 			{

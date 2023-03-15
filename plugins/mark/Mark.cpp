@@ -60,7 +60,7 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on JumpInComplete. This marks objects in the new system (for example, a group member might have marked in when they were out of system).
 	 */
-	void JumpInComplete(uint& iSystemId, uint& ship)
+	void JumpInComplete(uint& systemId, uint& ship)
 	{
 		const auto err = Hk::Client::GetClientIdByShip(ship);
 		if (!err.has_error())
@@ -82,8 +82,8 @@ namespace Plugins::Mark
 				continue;
 			}
 
-			SystemId iTargetSystem = Hk::Solar::GetSystemBySpaceId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
-			if (iTargetSystem == iSystemId)
+			SystemId targetSystem = Hk::Solar::GetSystemBySpaceId(global->Mark[client].DelayedSystemMarkedObjects[i]).value();
+			if (targetSystem == systemId)
 			{
 				Hk::Player::MarkObj(client, global->Mark[client].DelayedSystemMarkedObjects[i], 1);
 				vTempMark.push_back(global->Mark[client].DelayedSystemMarkedObjects[i]);
@@ -107,7 +107,7 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on LaunchComplete. Sets all the objects in the system to be marked.
 	 */
-	void LaunchComplete([[maybe_unused]] BaseId& iBaseId, ShipId& ship)
+	void LaunchComplete([[maybe_unused]] BaseId& baseId, ShipId& ship)
 	{
 		const auto err = Hk::Client::GetClientIdByShip(ship);
 		if (!err.has_error())
@@ -133,7 +133,7 @@ namespace Plugins::Mark
 	/** @ingroup Mark
 	 * @brief Hook on BaseEnter. Clear marked objects.
 	 */
-	void BaseEnter(uint& iBaseId, ClientId& client)
+	void BaseEnter([[maybe_unused]] uint& baseId, ClientId& client)
 	{
 		global->Mark[client].AutoMarkedObjects.clear();
 		global->Mark[client].DelayedAutoMarkedObjects.clear();
@@ -144,10 +144,10 @@ namespace Plugins::Mark
 	 */
 	int Update()
 	{
-		static bool bFirstTime = true;
-		if (bFirstTime)
+		static bool firstRun = true;
+		if (firstRun)
 		{
-			bFirstTime = false;
+			firstRun = false;
 			// check for logged in players and reset their connection data
 			PlayerData* playerData = nullptr;
 			while ((playerData = Players.traverse_active(playerData)))

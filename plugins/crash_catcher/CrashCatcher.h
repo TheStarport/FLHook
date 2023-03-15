@@ -10,8 +10,8 @@ namespace Plugins::CrashCatcher
 	{
 		ReturnCode returncode = ReturnCode::Default;
 
-		bool bPatchInstalled = false;
-		FARPROC fpOldTimingSeconds = 0;
+		bool patchInstalled = false;
+		FARPROC oldTimingSeconds = nullptr;
 
 		HMODULE hModServerAC;
 		HMODULE hEngBase;
