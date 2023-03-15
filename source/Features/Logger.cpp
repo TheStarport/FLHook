@@ -71,32 +71,32 @@ void Logger::PrintToConsole(LogLevel level, const std::string& str) const
 	switch (level)
 	{
 		case LogLevel::Trace: {
-			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::Blue));
+			SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Blue));
 			break;
 		}
 		case LogLevel::Debug: {
-			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::Green));
+			SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Green));
 			break;
 		}
 		case LogLevel::Info: {
-			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongCyan));
+			SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongCyan));
 			break;
 		}
 		case LogLevel::Warn: {
-			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongYellow));
+			SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongYellow));
 			break;
 		}
 		case LogLevel::Err: {
-			SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::StrongRed));
+			SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongRed));
 			break;
 		}
 	}
 
 	ulong _;
-	WriteConsole(consoleInput, str.c_str(), str.length(), &_, nullptr);
+	WriteConsole(consoleOutput, str.c_str(), str.length(), &_, nullptr);
 
 	// Reset
-	SetConsoleTextAttribute(consoleInput, static_cast<WORD>(ConsoleColor::White));
+	SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
 }
 
 Logger::Logger()
