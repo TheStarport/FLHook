@@ -29,7 +29,7 @@ void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmount)
+void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint amount)
 {
 	const auto res = Hk::Player::GetCash(player);
 	if (res.has_error())
@@ -38,7 +38,7 @@ void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint iAmo
 		return;
 	}
 
-	Hk::Player::AdjustCash(player, iAmount - res.value());
+	Hk::Player::AdjustCash(player, amount - res.value());
 	CmdGetCash(player);
 }
 
@@ -292,9 +292,9 @@ void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort id, uint count)
+void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, uint count)
 {
-	if (const auto res = Hk::Player::RemoveCargo(player, id, count); res.has_error())
+	if (const auto res = Hk::Player::RemoveCargo(player, cargoId, count); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -534,15 +534,15 @@ void CCmds::CmdServerInfo()
 	const int64 iTimeCreation = (static_cast<int64>(ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
 	const int64 iTimeNow = (static_cast<int64>(ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
 
-	auto iUptime = static_cast<uint>((iTimeNow - iTimeCreation) / 10000000);
-	uint iDays = (iUptime / (60 * 60 * 24));
-	iUptime %= (60 * 60 * 24);
-	uint iHours = (iUptime / (60 * 60));
-	iUptime %= (60 * 60);
-	uint iMinutes = (iUptime / 60);
-	iUptime %= 60;
-	uint iSeconds = iUptime;
-	std::string time = std::format("{}:{}:{}:{}", iDays, iHours, iMinutes, iSeconds);
+	auto uptime = static_cast<uint>((iTimeNow - iTimeCreation) / 10000000);
+	uint days = (uptime / (60 * 60 * 24));
+	uptime %= (60 * 60 * 24);
+	uint hours = (uptime / (60 * 60));
+	uptime %= (60 * 60);
+	uint minutes = (uptime / 60);
+	uptime %= 60;
+	uint seconds = uptime;
+	std::string time = std::format("{}:{}:{}:{}", days, hours, minutes, seconds);
 
 	// print
 	Print(std::format(
@@ -665,9 +665,9 @@ void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdReloadPlugin(const std::wstring& Plugin)
+void CCmds::CmdReloadPlugin(const std::wstring& pluginName)
 {
-	const auto unloadedPlugin = PluginManager::i()->unload(wstos(Plugin));
+	const auto unloadedPlugin = PluginManager::i()->unload(wstos(pluginName));
 	if (unloadedPlugin.has_error())
 	{
 		PrintError(unloadedPlugin.error());
@@ -690,9 +690,9 @@ void CCmds::CmdListPlugins()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::CmdUnloadPlugin(const std::wstring& Plugin)
+void CCmds::CmdUnloadPlugin(const std::wstring& pluginName)
 {
-	if (const auto res = PluginManager::i()->unload(wstos(Plugin)); res.has_error())
+	if (const auto res = PluginManager::i()->unload(wstos(pluginName)); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -834,11 +834,11 @@ void CCmds::CmdHelp()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring CCmds::ArgCharname(uint iArg)
+std::wstring CCmds::ArgCharname(uint arg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	std::wstring Arg = GetParam(CurCmdString, ' ', arg);
 
-	if (iArg == 1)
+	if (arg == 1)
 	{
 		if (bId)
 			return Arg.replace(0, 0, L"id ");
@@ -893,48 +893,48 @@ std::wstring CCmds::ArgCharname(uint iArg)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CCmds::ArgInt(uint iArg)
+int CCmds::ArgInt(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
 
 	return ToInt(Arg);
 }
 
-uint CCmds::ArgUInt(uint iArg)
+uint CCmds::ArgUInt(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
 
 	return ToUInt(Arg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float CCmds::ArgFloat(uint iArg)
+float CCmds::ArgFloat(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
 	return ToFloat(Arg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring CCmds::ArgStr(uint iArg)
+std::wstring CCmds::ArgStr(uint arg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', iArg);
+	std::wstring Arg = GetParam(CurCmdString, ' ', arg);
 
 	return Arg;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring CCmds::ArgStrToEnd(uint iArg)
+std::wstring CCmds::ArgStrToEnd(uint arg)
 {
-	for (uint i = 0, iCurArg = 0; (i < CurCmdString.length()); i++)
+	for (uint i = 0, curArg = 0; (i < CurCmdString.length()); i++)
 	{
 		if (CurCmdString[i] == ' ')
 		{
-			iCurArg++;
+			curArg++;
 
-			if (iCurArg == iArg)
+			if (curArg == arg)
 				return CurCmdString.substr(i + 1);
 
 			while (((i + 1) < CurCmdString.length()) && (CurCmdString[i + 1] == ' '))
@@ -947,7 +947,7 @@ std::wstring CCmds::ArgStrToEnd(uint iArg)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
+void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 {
 	// check if command was sent by a socket connection
 	const std::wstring AdminName = GetAdminName();
@@ -958,255 +958,255 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 		bShortCut = false;
 		bSelf = false;
 		bTarget = false;
-		CurCmdString = CmdStr;
+		CurCmdString = cmdStr;
 
-		std::wstring Cmd = ToLower(GetParam(CmdStr, ' ', 0));
-		if (Cmd.length() == 0)
+		std::wstring cmd = ToLower(GetParam(cmdStr, ' ', 0));
+		if (cmd.length() == 0)
 		{
 			Print("ERR unknown command");
 			return;
 		}
 
-		const size_t Cmd_pos = CmdStr.find(Cmd);
+		const size_t Cmd_pos = cmdStr.find(cmd);
 
-		if (Cmd[Cmd.length() - 1] == '$')
+		if (cmd[cmd.length() - 1] == '$')
 		{
 			bId = true;
-			Cmd.erase(Cmd.length() - 1, 1);
+			cmd.erase(cmd.length() - 1, 1);
 		}
-		else if (Cmd[Cmd.length() - 1] == '&')
+		else if (cmd[cmd.length() - 1] == '&')
 		{
 			bShortCut = true;
-			Cmd.erase(Cmd.length() - 1, 1);
+			cmd.erase(cmd.length() - 1, 1);
 		}
-		else if (Cmd[Cmd.length() - 1] == '!')
+		else if (cmd[cmd.length() - 1] == '!')
 		{
 			bSelf = true;
-			CurCmdString.insert(Cmd_pos + Cmd.length() - 1, L" ");
-			Cmd.erase(Cmd.length() - 1, 1);
+			CurCmdString.insert(Cmd_pos + cmd.length() - 1, L" ");
+			cmd.erase(cmd.length() - 1, 1);
 		}
-		else if (Cmd[Cmd.length() - 1] == '?')
+		else if (cmd[cmd.length() - 1] == '?')
 		{
 			bTarget = true;
-			CurCmdString.insert(Cmd_pos + Cmd.length() - 1, L" ");
-			Cmd.erase(Cmd.length() - 1, 1);
+			CurCmdString.insert(Cmd_pos + cmd.length() - 1, L" ");
+			cmd.erase(cmd.length() - 1, 1);
 		}
 
-		if (const bool plugins = CallPluginsBefore(HookedCall::FLHook__AdminCommand__Process, this, Cmd); !plugins)
+		if (const bool plugins = CallPluginsBefore(HookedCall::FLHook__AdminCommand__Process, this, cmd); !plugins)
 		{
-			if (Cmd == L"getcash")
+			if (cmd == L"getcash")
 			{
 				CmdGetCash(ArgCharname(1));
 			}
-			else if (Cmd == L"setcash")
+			else if (cmd == L"setcash")
 			{
 				CmdSetCash(ArgCharname(1), ArgUInt(2));
 			}
-			else if (Cmd == L"addcash")
+			else if (cmd == L"addcash")
 			{
 				CmdAddCash(ArgCharname(1), ArgUInt(2));
 			}
-			else if (Cmd == L"kick")
+			else if (cmd == L"kick")
 			{
 				CmdKick(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"ban")
+			else if (cmd == L"ban")
 			{
 				CmdBan(ArgCharname(1));
 			}
-			else if (Cmd == L"tempban")
+			else if (cmd == L"tempban")
 			{
 				CmdTempBan(ArgCharname(1), ArgUInt(2));
 			}
-			else if (Cmd == L"unban")
+			else if (cmd == L"unban")
 			{
 				CmdUnban(ArgCharname(1));
 			}
-			else if (Cmd == L"getclientid")
+			else if (cmd == L"getclientid")
 			{
 				CmdGetClientID(ArgCharname(1));
 			}
-			else if (Cmd == L"beam")
+			else if (cmd == L"beam")
 			{
 				CmdBeam(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"kill")
+			else if (cmd == L"kill")
 			{
 				CmdKill(ArgCharname(1));
 			}
-			else if (Cmd == L"resetrep")
+			else if (cmd == L"resetrep")
 			{
 				CmdResetRep(ArgCharname(1));
 			}
-			else if (Cmd == L"setrep")
+			else if (cmd == L"setrep")
 			{
 				CmdSetRep(ArgCharname(1), ArgStr(2), ArgFloat(3));
 			}
-			else if (Cmd == L"getrep")
+			else if (cmd == L"getrep")
 			{
 				CmdGetRep(ArgCharname(1), ArgStr(2));
 			}
-			else if (Cmd == L"msg")
+			else if (cmd == L"msg")
 			{
 				CmdMsg(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"msgs")
+			else if (cmd == L"msgs")
 			{
 				CmdMsgS(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"msgu")
+			else if (cmd == L"msgu")
 			{
 				CmdMsgU(ArgStrToEnd(1));
 			}
-			else if (Cmd == L"fmsg")
+			else if (cmd == L"fmsg")
 			{
 				CmdFMsg(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"fmsgs")
+			else if (cmd == L"fmsgs")
 			{
 				CmdFMsgS(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"fmsgu")
+			else if (cmd == L"fmsgu")
 			{
 				CmdFMsgU(ArgStrToEnd(1));
 			}
-			else if (Cmd == L"enumcargo")
+			else if (cmd == L"enumcargo")
 			{
 				CmdEnumCargo(ArgCharname(1));
 			}
-			else if (Cmd == L"removecargo")
+			else if (cmd == L"removecargo")
 			{
 				CmdRemoveCargo(ArgCharname(1), static_cast<ushort>(ArgInt(2)), ArgInt(3));
 			}
-			else if (Cmd == L"addcargo")
+			else if (cmd == L"addcargo")
 			{
 				CmdAddCargo(ArgCharname(1), ArgStr(2), ArgInt(3), ArgInt(4));
 			}
-			else if (Cmd == L"rename")
+			else if (cmd == L"rename")
 			{
 				CmdRename(ArgCharname(1), ArgStr(2));
 			}
-			else if (Cmd == L"deletechar")
+			else if (cmd == L"deletechar")
 			{
 				CmdDeleteChar(ArgCharname(1));
 			}
-			else if (Cmd == L"readcharfile")
+			else if (cmd == L"readcharfile")
 			{
 				CmdReadCharFile(ArgCharname(1));
 			}
-			else if (Cmd == L"writecharfile")
+			else if (cmd == L"writecharfile")
 			{
 				CmdWriteCharFile(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"getplayerinfo")
+			else if (cmd == L"getplayerinfo")
 			{
 				CmdGetPlayerInfo(ArgCharname(1));
 			}
-			else if (Cmd == L"getplayers")
+			else if (cmd == L"getplayers")
 			{
 				CmdGetPlayers();
 			}
-			else if (Cmd == L"xgetplayerinfo")
+			else if (cmd == L"xgetplayerinfo")
 			{
 				CmdXGetPlayerInfo(ArgCharname(1));
 			}
-			else if (Cmd == L"xgetplayers")
+			else if (cmd == L"xgetplayers")
 			{
 				CmdXGetPlayers();
 			}
-			else if (Cmd == L"getplayerids")
+			else if (cmd == L"getplayerids")
 			{
 				CmdGetPlayerIds();
 			}
-			else if (Cmd == L"getaccountdirname")
+			else if (cmd == L"getaccountdirname")
 			{
 				CmdGetAccountDirName(ArgCharname(1));
 			}
-			else if (Cmd == L"getcharfilename")
+			else if (cmd == L"getcharfilename")
 			{
 				CmdGetCharFileName(ArgCharname(1));
 			}
-			else if (Cmd == L"savechar")
+			else if (cmd == L"savechar")
 			{
 				CmdSaveChar(ArgCharname(1));
 			}
-			else if (Cmd == L"isonserver")
+			else if (cmd == L"isonserver")
 			{
 				CmdIsOnServer(ArgCharname(1));
 			}
-			else if (Cmd == L"moneyfixlist")
+			else if (cmd == L"moneyfixlist")
 			{
 				CmdMoneyFixList();
 			}
-			else if (Cmd == L"serverinfo")
+			else if (cmd == L"serverinfo")
 			{
 				CmdServerInfo();
 			}
-			else if (Cmd == L"getgroupmembers")
+			else if (cmd == L"getgroupmembers")
 			{
 				CmdGetGroupMembers(ArgCharname(1));
 			}
-			else if (Cmd == L"getreservedslot")
+			else if (cmd == L"getreservedslot")
 			{
 				CmdGetReservedSlot(ArgCharname(1));
 			}
-			else if (Cmd == L"setreservedslot")
+			else if (cmd == L"setreservedslot")
 			{
 				CmdSetReservedSlot(ArgCharname(1), ArgInt(2));
 			}
-			else if (Cmd == L"setadmin")
+			else if (cmd == L"setadmin")
 			{
 				CmdSetAdmin(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"getadmin")
+			else if (cmd == L"getadmin")
 			{
 				CmdGetAdmin(ArgCharname(1));
 			}
-			else if (Cmd == L"deladmin")
+			else if (cmd == L"deladmin")
 			{
 				CmdDelAdmin(ArgCharname(1));
 			}
-			else if (Cmd == L"unloadplugin")
+			else if (cmd == L"unloadplugin")
 			{
 				CmdUnloadPlugin(ArgStrToEnd(1));
 			}
-			else if (Cmd == L"loadplugins")
+			else if (cmd == L"loadplugins")
 			{
 				CmdLoadPlugins();
 			}
-			else if (Cmd == L"reloadplugin")
+			else if (cmd == L"reloadplugin")
 			{
 				CmdReloadPlugin(ArgStrToEnd(1));
 			}
-			else if (Cmd == L"loadplugin")
+			else if (cmd == L"loadplugin")
 			{
 				CmdLoadPlugin(ArgStrToEnd(1));
 			}
-			else if (Cmd == L"shutdown")
+			else if (cmd == L"shutdown")
 			{
 				CmdShutdown();
 			}
-			else if (Cmd == L"listplugins")
+			else if (cmd == L"listplugins")
 			{
 				CmdListPlugins();
 			}
-			else if (Cmd == L"help")
+			else if (cmd == L"help")
 			{
 				CmdHelp();
 			}
-			else if (Cmd == L"move")
+			else if (cmd == L"move")
 			{
 				CmdMove(AdminName, ArgFloat(1), ArgFloat(2), ArgFloat(3));
 			}
-			else if (Cmd == L"chase")
+			else if (cmd == L"chase")
 			{
 				CmdChase(AdminName, ArgCharname(1));
 			}
-			else if (Cmd == L"beam")
+			else if (cmd == L"beam")
 			{
 				CmdBeam(ArgCharname(1), ArgStrToEnd(2));
 			}
-			else if (Cmd == L"pull")
+			else if (cmd == L"pull")
 			{
 				CmdPull(AdminName, ArgCharname(1));
 			}
@@ -1225,7 +1225,7 @@ void CCmds::ExecuteCommandString(const std::wstring& CmdStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::SetRightsByString(const std::string& Rights)
+void CCmds::SetRightsByString(const std::string& rights)
 {
 	// TODO: Implement admin rights
 }
