@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "MemoryManager.hpp"
 #include <Tools/Detour.hpp>
 
@@ -69,3 +70,4 @@ void SaveGameDetour::DestroyHook()
 {
 	detour->UnDetour();
 }
+

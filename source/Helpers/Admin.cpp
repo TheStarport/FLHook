@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 bool g_bNPCDisabled;
@@ -343,3 +344,4 @@ namespace Hk::Admin
 		return UnLightFuse_(ship, fuseId, 0.f);
 	}
 } // namespace Hk::Admin
+

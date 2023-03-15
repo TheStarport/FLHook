@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 namespace StartupCache
@@ -142,3 +143,4 @@ namespace StartupCache
 		}
 	}
 } // namespace StartupCache
+

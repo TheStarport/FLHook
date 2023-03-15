@@ -1,6 +1,5 @@
 #pragma once
 
-
 struct UserCommand
 {
 	std::variant<std::wstring, std::vector<std::wstring>> command;
@@ -32,7 +31,7 @@ struct PluginHook
 
 	template<typename Func>
 	PluginHook(const HookedCall targetFunction, Func* hookFunction, const HookStep step = HookStep::Before, const int priority = 0)
-		: targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
+	    : targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
 	{
 		switch (step)
 		{
@@ -42,34 +41,31 @@ struct PluginHook
 				break;
 			case HookStep::After:
 				break;
-			default: ;
+			default:;
 		}
 	}
 
 	friend class PluginManager;
 };
 
-#define PluginCall(name, ...) (* (name))(__VA_ARGS__)
+#define PluginCall(name, ...) (*(name))(__VA_ARGS__)
 
 // Inherit from this to define a IPC (Inter-Plugin Communication) class.
 class DLL PluginCommunicator
 {
-public:
-	using EventSubscription = void(*)(int id, void* dataPack);
+  public:
+	using EventSubscription = void (*)(int id, void* dataPack);
 	void Dispatch(int id, void* dataPack) const;
 	void AddListener(std::string plugin, EventSubscription event);
 
 	std::string plugin;
 
-	explicit PluginCommunicator(std::string plugin)
-		: plugin(std::move(plugin))
-	{
-	}
+	explicit PluginCommunicator(std::string plugin) : plugin(std::move(plugin)) {}
 
 	static void ExportPluginCommunicator(PluginCommunicator* communicator);
 	static PluginCommunicator* ImportPluginCommunicator(std::string plugin, EventSubscription subscription = nullptr);
 
-private:
+  private:
 	std::map<std::string, EventSubscription> listeners;
 };
 
@@ -95,10 +91,12 @@ class DLL Plugin
 
 	std::vector<PluginHook> hooks;
 	std::vector<UserCommand> commands;
+	HMODULE dll = nullptr;
+	std::string dllName;
 
-protected:
+  protected:
 	ReturnCode returnCode = ReturnCode::Default;
-	
+
 	std::vector<Timer> timers;
 
   public:
@@ -119,11 +117,12 @@ protected:
 	void EmplaceHook(Args&&... args)
 	{
 		PluginHook ph(std::forward<Args>(args)...);
-		if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction_ == ph.targetFunction_ && ph.step_ == hook.step_; }) != hooks.end())
+		if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction_ == ph.targetFunction_ && ph.step_ == hook.step_; }) !=
+		    hooks.end())
 		{
 			return;
 		}
-		
+
 		hooks.emplace_back(ph);
 	}
 
@@ -132,7 +131,8 @@ protected:
 		std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction_ == target && step == hook.step_; });
 	}
 
-	void AddCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage, UserCmdProc proc, const std::wstring& description)
+	void AddCommand(
+	    const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage, UserCmdProc proc, const std::wstring& description)
 	{
 		commands.emplace_back(UserCommand(command, usage, proc, description));
 	}
@@ -143,3 +143,9 @@ protected:
 		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring>(userCommand.command) == cmd; });
 	}
 };
+
+#define SetupPlugin(type, info)                                               \
+	extern "C" EXPORT std::shared_ptr<(type)> PluginFactory() \
+	{                                                                         \
+		return std::move(std::make_shared<TPlugin>(info))                     \
+	}

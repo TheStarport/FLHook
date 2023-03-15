@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 void DataManager::LoadLights()
@@ -134,3 +135,4 @@ cpp::result<const Light&, Error> DataManager::FindLightByHash(EquipId hash) cons
 
 	return light->second;
 }
+

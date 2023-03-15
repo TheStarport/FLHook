@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 #include "Features/TempBan.hpp"
 
@@ -1780,3 +1781,4 @@ namespace Hk::Player
 		return {};
 	}
 } // namespace Hk::Player
+

@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 namespace Hk::Client
@@ -539,3 +540,4 @@ namespace Hk::Client
 		return playersInSystem;
 	}
 }
+

@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 namespace Hk::Personalities
@@ -850,3 +851,4 @@ namespace Hk::Personalities
 		Logger::i()->Log(LogLevel::Info, std::format("Parsed Pilot Population: {} personalities", pilots.size()));
 	}
 } // namespace Hk::Personalities
+

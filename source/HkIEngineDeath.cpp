@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& DataFormat)
 {
@@ -299,3 +300,4 @@ void BaseDestroyed(uint objectId, ClientId clientBy)
 			}
 	}
 }
+

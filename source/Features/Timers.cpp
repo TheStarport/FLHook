@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 #include <WS2tcpip.h>
 #include "Features/TempBan.hpp"
@@ -246,3 +247,4 @@ void TimerCheckResolveResults()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

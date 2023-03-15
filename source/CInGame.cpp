@@ -1,4 +1,5 @@
-﻿#include "CInGame.h"
+#include "PCH.hpp"
+#include "CInGame.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,3 +40,4 @@ std::wstring CInGame::GetAdminName()
 {
 	return adminName;
 }
+

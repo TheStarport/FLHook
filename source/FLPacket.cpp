@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include <FLHook.hpp>
 
 // Common packets are being sent from server to client and from client to server.
@@ -46,3 +47,4 @@ bool FlPacket::SendTo(ClientId client)
 
 	return result;
 }
+

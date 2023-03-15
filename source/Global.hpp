@@ -214,28 +214,13 @@ private:
 	uint warning;
 };
 
-struct PluginData
-{
-	std::string name;
-	std::string shortName;
-	HMODULE dll = nullptr;
-	std::wstring dllName;
-	bool mayUnload = false;
-	ReturnCode* returnCode = nullptr;
-	bool resetCode = true;
-	bool paused = false;
-	std::vector<UserCommand>* commands;
-	std::vector<Timer>* timers;
-	std::shared_ptr<PluginInfo> pluginInfo = nullptr;
-};
-
 struct PluginHookData
 {
 	HookedCall targetFunction;
 	PluginHook::FunctionType* hookFunction;
 	HookStep step;
 	int priority;
-	std::shared_ptr<PluginData> plugin;
+	std::weak_ptr<Plugin> plugin;
 };
 
 inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs)
@@ -267,30 +252,30 @@ public:
 
 private:
 	std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
-	std::vector<std::shared_ptr<PluginData>> plugins_;
+	std::vector<std::shared_ptr<Plugin>> plugins;
 	std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
 
-	void clearData(bool free);
+	void ClearData(bool free);
 	void setupProps();
-	void setProps(HookedCall c, bool before, bool after);
+	void SetProps(HookedCall c, bool before, bool after);
 
 public:
 	PluginManager();
 	~PluginManager();
 
-	void loadAll(bool, CCmds*);
-	void unloadAll();
+	void LoadAll(bool, CCmds*);
+	void UnloadAll();
 
-	void load(const std::wstring& fileName, CCmds*, bool);
-	cpp::result<std::wstring, Error> unload(const std::string& shortName);
+	void Load(const std::string& fileName, CCmds*, bool);
+	cpp::result<std::string, Error> Unload(const std::string& shortName);
 
-	auto begin() { return plugins_.begin(); }
-	auto end() { return plugins_.end(); }
-	auto begin() const { return plugins_.begin(); }
-	auto end() const { return plugins_.end(); }
+	auto begin() { return plugins.begin(); }
+	auto end() { return plugins.end(); }
+	auto begin() const { return plugins.begin(); }
+	auto end() const { return plugins.end(); }
 
 	template<typename ReturnType, typename... Args>
-	ReturnType callPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
+	ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
 	{
 		using PluginCallType = ReturnType(Args...);
 		constexpr bool ReturnTypeIsVoid = std::is_same_v<ReturnType, void>;
@@ -339,12 +324,12 @@ auto CallPluginsBefore(HookedCall target, Args&&... args)
 	bool skip = false;
 	if constexpr (std::is_same_v<ReturnType, void>)
 	{
-		PluginManager::i()->callPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+		PluginManager::i()->CallPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
 		return skip;
 	}
 	else
 	{
-		ReturnType ret = PluginManager::i()->callPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+		ReturnType ret = PluginManager::i()->CallPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
 		return std::make_tuple(ret, skip);
 	}
 }
@@ -352,20 +337,21 @@ auto CallPluginsBefore(HookedCall target, Args&&... args)
 template<typename... Args>
 void CallPluginsAfter(HookedCall target, Args&&... args)
 {
-	bool dontCare = false;
-	PluginManager::i()->callPlugins<void>(target, HookStep::After, dontCare, std::forward<Args>(args)...);
+	bool _ = false;
+	PluginManager::i()->CallPlugins<void>(target, HookStep::After, _, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 bool CallPluginsOther(HookedCall target, HookStep step, Args&&... args)
 {
 	bool skip = false;
-	PluginManager::i()->callPlugins<void>(target, step, skip, std::forward<Args>(args)...);
+	PluginManager::i()->CallPlugins<void>(target, step, skip, std::forward<Args>(args)...);
 	return skip;
 }
 
-using ExportPluginInfoT = void (*)(PluginInfo*);
+using PluginFactoryT = std::shared_ptr<Plugin>(*)();
 
+// TODO: Move this to its own CPP file and use the Detour class
 class DebugTools : public Singleton<DebugTools>
 {
 	static std::map<std::string, uint> hashMap;

@@ -1,4 +1,5 @@
-﻿#include "CConsole.h"
+#include "PCH.hpp"
+#include "CConsole.h"
 
 // I hate this
 void CConsole::DoPrint(const std::string& text)
@@ -10,3 +11,4 @@ std::wstring CConsole::GetAdminName()
 {
 	return L"Admin console";
 }
+

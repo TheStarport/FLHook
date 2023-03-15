@@ -1,4 +1,5 @@
-﻿/*
+#include "PCH.hpp"
+/*
 Freelancer .FL Savegame encode/decoder
 
 Credits to Sherlog <sherlog@t-online.de> for finding out the algorithm
@@ -125,3 +126,4 @@ bool FlcEncodeFile(const char* input, const char* outputFile)
 {
 	return EncodeDecode(input, outputFile, true);
 }
+

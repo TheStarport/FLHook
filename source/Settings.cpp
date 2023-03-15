@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 #include <refl.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,3 +83,4 @@ REFL_AUTO(type(FLHookConfig::Callsign), field(allowedFormations), field(disableR
 
 REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(messages), field(userCommands), field(bans), field(callsign));
 #endif
+

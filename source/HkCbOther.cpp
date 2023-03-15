@@ -1,4 +1,5 @@
-﻿#include "hook.h"
+#include "PCH.hpp"
+#include "hook.h"
 
 #define ISERVER_LOG() \
 	if (set_bDebug)   \
@@ -143,3 +144,4 @@ __declspec(naked) void _HkCb_LaunchPos()
 		ret 0x0C
 	}
 }
+

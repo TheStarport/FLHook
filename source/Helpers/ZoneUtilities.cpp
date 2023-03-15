@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 namespace Hk::ZoneUtilities
 {
@@ -510,3 +511,4 @@ namespace Hk::ZoneUtilities
 		Logger::i()->Log(LogLevel::Info, std::format("Zones={}", zones.size()));
 	}
 } // namespace Hk::ZoneUtilities
+

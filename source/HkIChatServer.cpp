@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)
@@ -136,3 +137,4 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 	}
 	CATCH_HOOK({})
 }
+

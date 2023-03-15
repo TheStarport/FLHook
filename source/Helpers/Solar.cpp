@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 namespace Hk::Solar
@@ -143,3 +144,4 @@ namespace Hk::Solar
 		return price;
 	}
 } // namespace Hk::Solar
+

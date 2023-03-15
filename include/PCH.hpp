@@ -16,6 +16,21 @@
 #include <functional>
 #include <optional>
 
+// TODO: Split up the following and reorganize
+
+#include "Tools/Typedefs.hpp"
+#include "Tools/Enums.hpp"
+#include "Tools/Constexpr.hpp"
+#include "Tools/Macros.hpp"
+
+#include "FLCore/FLCoreCommon.h"
+#include "FLCore/FLCoreServer.h"
+#include "FLCore/FLCoreRemoteClient.h"
+#include "FLCore/FLCoreDALib.h"
+
+#include "Tools/Structs.hpp"
+#include "Tools/Concepts.hpp"
+
 #include <magic_enum.hpp>
 #include <ext/Singleton.h>
 #include <ext/Sql.hpp>
@@ -23,27 +38,13 @@
 #include <ext/result.hpp>
 #include <ext/Wildcard.hpp>
 
-// TODO: Split up the following and reoganize
-#include "Typedefs.hpp"
-#include "Enums.hpp"
-#include "Constexpr.hpp"
-#include "Macros.hpp"
-
-#include "FLCore/FLCoreCommon.h"
-#include "FLCore/FLCoreServer.h"
-#include "FLCore/FLCoreRemoteClient.h"
-#include "FLCore/FLCoreDALib.h"
-
-#include "Structs.hpp"
-#include "Concepts.hpp"
-
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")
 #pragma comment(lib, "pcre2-32.lib")
 #pragma comment(lib, "pcre2-posix.lib")
 
-using jp = jpcre2::select<char>;
-using jpWide = jpcre2::select<wchar_t>;
+using Jp = jpcre2::select<char>;
+using JpWide = jpcre2::select<wchar_t>;
 
 #ifndef DLL
 	#ifndef FLHOOK

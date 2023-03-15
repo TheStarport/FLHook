@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include <Global.hpp>
 #include <Tools/Detour.hpp>
 #include <Tools/Typedefs.hpp>
@@ -66,3 +67,4 @@ void UnDetourSendComm()
 {
 	func->UnDetour();
 }
+

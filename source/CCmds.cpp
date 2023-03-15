@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 #define RIGHT_CHECK(a)              \
 	if (!(this->rights & a))        \
@@ -651,7 +652,7 @@ void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdLoadPlugins()
 {
-	PluginManager::i()->loadAll(false, this);
+	PluginManager::i()->LoadAll(false, this);
 	Print("OK");
 }
 
@@ -659,7 +660,7 @@ void CCmds::CmdLoadPlugins()
 
 void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 {
-	PluginManager::i()->load(Plugin, this, false);
+	PluginManager::i()->Load(Plugin, this, false);
 	Print("OK");
 }
 
@@ -667,14 +668,14 @@ void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 
 void CCmds::CmdReloadPlugin(const std::wstring& pluginName)
 {
-	const auto unloadedPlugin = PluginManager::i()->unload(wstos(pluginName));
+	const auto unloadedPlugin = PluginManager::i()->Unload(wstos(pluginName));
 	if (unloadedPlugin.has_error())
 	{
 		PrintError(unloadedPlugin.error());
 		return;
 	}
 
-	PluginManager::i()->load(unloadedPlugin.value(), this, false);
+	PluginManager::i()->Load(unloadedPlugin.value(), this, false);
 	Print("OK");
 }
 
@@ -692,7 +693,7 @@ void CCmds::CmdListPlugins()
 
 void CCmds::CmdUnloadPlugin(const std::wstring& pluginName)
 {
-	if (const auto res = PluginManager::i()->unload(wstos(pluginName)); res.has_error())
+	if (const auto res = PluginManager::i()->Unload(wstos(pluginName)); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -1243,3 +1244,4 @@ void CCmds::Print(const std::string& text)
 {
 	DoPrint(text);
 }
+

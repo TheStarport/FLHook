@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include <functional>
 #include <Features/Logger.hpp>
 #include <Windows.h>
@@ -176,3 +177,4 @@ std::optional<std::string> Logger::GetCommand()
 
 	return ret;
 }
+

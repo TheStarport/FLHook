@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 #define SPDLOG_USE_STD_FORMAT
@@ -46,3 +47,4 @@ void DebugTools::Init()
 
 	detour->Detour(CreateIdDetour);
 };
+

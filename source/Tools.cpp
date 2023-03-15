@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -145,3 +146,4 @@ std::wstring GetTimeString(bool localTime)
 		st.wSecond);
 	return buf;
 }
+

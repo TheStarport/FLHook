@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Global.hpp"
 
 namespace Hk::Ini
@@ -274,3 +275,4 @@ namespace Hk::Ini
 		return wcstoll(val.c_str(), nullptr, 10);
 	}
 } // namespace Hk::Ini
+

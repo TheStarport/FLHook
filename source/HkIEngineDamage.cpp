@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;
@@ -296,3 +297,4 @@ __declspec(naked) void Naked__NonGunWeaponHitsBase()
 }
 
 ///////////////////////////
+

@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Features/Mail.hpp"
 #include "Global.hpp"
 
@@ -314,3 +315,4 @@ void MailManager::CleanUpOldMail()
 		Logger::i()->Log(LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}
 }
+

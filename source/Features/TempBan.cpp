@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "Features/TempBan.hpp"
 #include "Tools/Hk.hpp"
 
@@ -58,3 +59,4 @@ bool TempBanManager::CheckIfTempBanned(ClientId client)
 
 	return std::ranges::any_of(tempBanList, [&id](const TempBanInfo& ban) { return ban.accountId == id.value(); });
 }
+

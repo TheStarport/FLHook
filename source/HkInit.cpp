@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 namespace IEngineHook
 {
@@ -424,7 +425,7 @@ void UnloadHookExports()
 	WriteProcMem(address, Old, 1);
 
 	// plugins
-	PluginManager::i()->unloadAll();
+	PluginManager::i()->UnloadAll();
 
 	// Undo refire bug
 	const std::array<byte, 22> refireBytes = {0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0};
@@ -496,3 +497,4 @@ void HookRehashed()
 		WriteProcMem(address, &cNewGroupSize, 1);
 	}
 }
+

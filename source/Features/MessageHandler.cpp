@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include <FLHook.hpp>
 #include "Features/MessageHandler.hpp"
 
@@ -115,3 +116,4 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 		onFailCallbacks[queue].emplace_back(onFail.value());
 	}
 }
+

@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 #include "CConsole.h"
 
 #include "Memory/MemoryManager.hpp"
@@ -111,13 +112,13 @@ void FLHookInit_Pre()
 
 		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
 		{
-			PluginManager::i()->loadAll(true, &AdminConsole);
+			PluginManager::i()->LoadAll(true, &AdminConsole);
 		}
 		else
 		{
 			for (auto& plugin : config->plugins.plugins)
 			{
-				PluginManager::i()->load(stows(plugin), &AdminConsole, true);
+				PluginManager::i()->Load(stows(plugin), &AdminConsole, true);
 			}
 		}
 
@@ -229,3 +230,4 @@ void ProcessPendingCommands()
 		cmd = logger->GetCommand();
 	}
 }
+

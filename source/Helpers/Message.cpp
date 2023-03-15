@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include <Global.hpp>
 
 // Very hacky way to call non-header function
@@ -430,3 +431,4 @@ namespace Hk::Message
 		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(msg) + L"</TEXT>";
 	}
 } // namespace Hk::Message
+

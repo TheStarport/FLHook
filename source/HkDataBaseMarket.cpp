@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 bool LoadBaseMarket()
 {
@@ -49,3 +50,4 @@ bool LoadBaseMarket()
 	ini.close();
 	return true;
 }
+

@@ -40,7 +40,7 @@ namespace Plugins::LightControl
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	auto RegexReplace(const jpWide::NumSub& m1, const void*, const void*)
+	auto RegexReplace(const JpWide::NumSub& m1, const void*, const void*)
 	{
 		return L" " + m1[0];
 	}
@@ -156,7 +156,7 @@ namespace Plugins::LightControl
 			const auto& str = global->config->lights[std::distance(global->config->lightsHashed.begin(), index)];
 			PrintUserCmdText(client,
 			    std::format(
-			        L"|    {}: {}", itemNumber, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
+			        L"|    {}: {}", itemNumber, JpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(str).setFindAll().nreplace()));
 			itemNumber++;
 		}
 	}
@@ -198,7 +198,7 @@ namespace Plugins::LightControl
 		for (uint i = pageNumber * global->config->itemsPerPage; (i < lightsSize && j < global->config->itemsPerPage); i++, j++)
 		{
 			PrintUserCmdText(
-			    client, jpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(global->config->lights[i]).setFindAll().nreplace());
+			    client, JpWide::MatchEvaluator(RegexReplace).setRegexObject(&global->regex).setSubject(global->config->lights[i]).setFindAll().nreplace());
 		}
 	}
 

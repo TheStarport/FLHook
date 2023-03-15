@@ -247,8 +247,5 @@
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\Contracts\ICoreServer.hpp">
-      <Filter>Contracts</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

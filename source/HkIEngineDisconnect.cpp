@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,3 +43,4 @@ __declspec(naked) void Naked__DisconnectPacketSent()
 		jmp eax
 		}
 }
+

@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 #include "Features/Mail.hpp"
 
 #define PRINT_ERROR()                                                     \
@@ -976,3 +977,4 @@ bool UserCmd_Process(ClientId client, const std::wstring& cmd)
 	// In-built commands
 	return ProcessPluginCommand(client, cmd, UserCmds);
 }
+

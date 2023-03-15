@@ -1,4 +1,5 @@
-﻿#include "Global.hpp"
+#include "PCH.hpp"
+#include "Global.hpp"
 
 namespace Hk::Err
 {
@@ -51,3 +52,4 @@ namespace Hk::Err
 		return L"No error text available";
 	}
 } // namespace Hk::Err
+

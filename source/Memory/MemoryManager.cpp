@@ -1,3 +1,4 @@
+#include "PCH.hpp"
 #include "MemoryManager.hpp"
 
 void MemoryManager::AddHooks()
@@ -9,3 +10,4 @@ void MemoryManager::RemoveHooks()
 {
 	DestroyHook();
 }
+
