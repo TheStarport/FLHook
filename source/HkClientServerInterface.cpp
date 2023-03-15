@@ -128,8 +128,8 @@ namespace IServerImplHook
 			BinaryRDLReader rdl;
 			std::wstring buffer;
 			buffer.resize(size);
-			uint iRet1;
-			rdl.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), iRet1, static_cast<const char*>(rdlReader), size);
+			uint ret1;
+			rdl.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), ret1, static_cast<const char*>(rdlReader), size);
 			std::erase(buffer, '\0');
 
 			// if this is a message in system chat then convert it to local unless
@@ -190,7 +190,7 @@ namespace IServerImplHook
 					FindClose(hFind);
 					g_Admin.ReadRights(adminFile);
 					g_Admin.client = cidFrom.id;
-					g_Admin.AdminName = ToWChar(Players.GetActiveCharacterName(cidFrom.id));
+					g_Admin.adminName = ToWChar(Players.GetActiveCharacterName(cidFrom.id));
 					g_Admin.ExecuteCommandString(buffer.data() + 1);
 					return false;
 				}
@@ -233,7 +233,7 @@ namespace IServerImplHook
 		TRY_HOOK
 		{
 			ClientInfo[client].ship = shipId;
-			ClientInfo[client].iKillsInARow = 0;
+			ClientInfo[client].killsInARow = 0;
 			ClientInfo[client].cruiseActivated = false;
 			ClientInfo[client].thrusterActivated = false;
 			ClientInfo[client].engineKilled = false;
@@ -364,14 +364,14 @@ namespace IServerImplHook
 					    L"To get a list of available commands, type "
 					    L"\"/help\" in chat.");
 
-				int iHold;
-				auto Cargo = Hk::Player::EnumCargo(client, iHold);
-				if (Cargo.has_error())
+				int hold;
+				auto cargoList = Hk::Player::EnumCargo(client, hold);
+				if (cargoList.has_error())
 				{
 					Hk::Player::Kick(client);
 					return;
 				}
-				for (const auto& cargo : Cargo.value())
+				for (const auto& cargo : cargoList.value())
 				{
 					if (cargo.count < 0)
 					{

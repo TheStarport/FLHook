@@ -208,8 +208,8 @@ namespace Hk
 		DLL cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<const std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& remainingHoldSize);
 		DLL cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count);
-		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint iGoodId, int count, bool mission);
-		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& Good, int count, bool mission);
+		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint goodId, int count, bool mission);
+		DLL cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, int count, bool mission);
 		DLL cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& newCharname, bool onlyDelete);
 		DLL cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& Reason, uint interval);
 		DLL cpp::result<void, Error> Kill(const std::variant<uint, std::wstring>& player);
@@ -225,7 +225,7 @@ namespace Hk
 		DLL std::string GetPlayerSystemS(ClientId client);
 		DLL bool IsInRange(ClientId client, float distance);
 		DLL cpp::result<void, Error> SetEquip(const std::variant<uint, std::wstring>& player, const st6::list<EquipDesc>& equip);
-		DLL cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint iGoodId, const std::string& hardpoint);
+		DLL cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint goodId, const std::string& hardpoint);
 		DLL cpp::result<void, Error> AntiCheat(ClientId client);
 		DLL void DelayedKick(ClientId client, uint secs);
 		DLL void DeleteCharacter(CAccount* acc, const std::wstring& character);
@@ -280,17 +280,17 @@ namespace Hk
 	namespace Admin
 	{
 		DLL std::wstring GetPlayerIP(ClientId client);
-		DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu);
+		DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool alsoCharmenu);
 		DLL std::list<PlayerInfo> GetPlayers();
 		DLL cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client);
-		DLL cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights);
+		DLL cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& rights);
 		DLL cpp::result<std::wstring, Error> GetAdmin(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<void, Error> DelAdmin(const std::variant<uint, std::wstring>& player);
-		DLL cpp::result<void, Error> ChangeNPCSpawn(bool bDisable);
-		DLL cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& Basename);
-		DLL Fuse* GetFuseFromID(uint iFuseId);
-		DLL bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip);
-		DLL bool UnLightFuse(IObjRW* ship, uint iFuseId);
+		DLL cpp::result<void, Error> ChangeNPCSpawn(bool disable);
+		DLL cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& basename);
+		DLL Fuse* GetFuseFromID(uint fuseId);
+		DLL bool LightFuse(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip);
+		DLL bool UnLightFuse(IObjRW* ship, uint fuseId);
 		DLL CEqObj* GetEqObjFromObjRW(IObjRW* objRW);
 	} // namespace Admin
 

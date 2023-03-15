@@ -312,7 +312,7 @@ namespace Hk::ZoneUtilities
 				{
 					std::string nickname;
 					std::string jumpDestSysNick;
-					bool bIsJump = false;
+					bool isJump = false;
 
 					while (ini.read_value())
 					{
@@ -322,12 +322,12 @@ namespace Hk::ZoneUtilities
 						}
 						else if (ini.is_value("goto"))
 						{
-							bIsJump = true;
+							isJump = true;
 							jumpDestSysNick = ini.get_value_string(0);
 						}
 					}
 
-					if (bIsJump)
+					if (isJump)
 					{
 						JumpPoint jp;
 						jp.sysNick = systemNick;

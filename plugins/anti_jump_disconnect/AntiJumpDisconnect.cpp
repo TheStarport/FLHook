@@ -34,7 +34,7 @@ namespace Plugins::AntiJumpDisconnect
 
 	void ClearClientInfo(ClientId& client)
 	{
-		global->mapInfo[client].bInWrapGate = false;
+		global->mapInfo[client].inWarpGate = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
@@ -42,7 +42,7 @@ namespace Plugins::AntiJumpDisconnect
 	 */
 	void KillBan(ClientId& client)
 	{
-		if (global->mapInfo[client].bInWrapGate)
+		if (global->mapInfo[client].inWarpGate)
 		{
 			if (const auto ban = Hk::Player::Kill(client); ban.has_error())
 			{
@@ -76,7 +76,7 @@ namespace Plugins::AntiJumpDisconnect
 	 */
 	void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client)
 	{
-		global->mapInfo[client].bInWrapGate = false;
+		global->mapInfo[client].inWarpGate = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
@@ -84,7 +84,7 @@ namespace Plugins::AntiJumpDisconnect
 	 */
 	void SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client)
 	{
-		global->mapInfo[client].bInWrapGate = true;
+		global->mapInfo[client].inWarpGate = true;
 	}
 } // namespace Plugins::AntiJumpDisconnect
 

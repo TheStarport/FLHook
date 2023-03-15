@@ -6,12 +6,12 @@ inline HWND GetFLServerHwnd()
 	return *(HWND*)(*((DWORD*)unkThis + 8) + 32);
 }
 
-inline void SwapBytes(void* ptr, uint iLen)
+inline void SwapBytes(void* ptr, uint len)
 {
-	if (iLen % 4)
+	if (len % 4)
 		return;
 
-	for (uint i = 0; i < iLen; i += 4)
+	for (uint i = 0; i < len; i += 4)
 	{
 		char* ptr1 = static_cast<char*>(ptr) + i;
 		unsigned long temp;
@@ -24,27 +24,27 @@ inline void SwapBytes(void* ptr, uint iLen)
 	}
 }
 
-inline void WriteProcMem(void* address, const void* pMem, int iSize)
+inline void WriteProcMem(void* address, const void* mem, int size)
 {
 	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
-	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
-	WriteProcessMemory(hProc, address, pMem, iSize, nullptr);
+	VirtualProtectEx(hProc, address, size, PAGE_EXECUTE_READWRITE, &old);
+	WriteProcessMemory(hProc, address, mem, size, nullptr);
 	CloseHandle(hProc);
 }
 
-inline void ReadProcMem(void* address, void* pMem, int iSize)
+inline void ReadProcMem(void* address, void* mem, int size)
 {
 	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
-	VirtualProtectEx(hProc, address, iSize, PAGE_EXECUTE_READWRITE, &old);
-	ReadProcessMemory(hProc, address, pMem, iSize, nullptr);
+	VirtualProtectEx(hProc, address, size, PAGE_EXECUTE_READWRITE, &old);
+	ReadProcessMemory(hProc, address, mem, size, nullptr);
 	CloseHandle(hProc);
 }
 
-inline int ToInt(const std::wstring& Str)
+inline int ToInt(const std::wstring& str)
 {
-	return wcstol(Str.c_str(), nullptr, 10);
+	return wcstol(str.c_str(), nullptr, 10);
 }
 
 inline int64 ToInt64(const std::wstring& str)
@@ -52,13 +52,13 @@ inline int64 ToInt64(const std::wstring& str)
 	return str.empty() ? 0 : wcstoll(str.c_str(), nullptr, 10);
 }
 
-inline uint ToUInt(const std::wstring& Str)
+inline uint ToUInt(const std::wstring& str)
 {
-	if (Str.find(L"-") != std::wstring::npos)
+	if (str.find(L"-") != std::wstring::npos)
 	{
 		return 0;
 	}
-	return wcstoul(Str.c_str(), nullptr, 10);
+	return wcstoul(str.c_str(), nullptr, 10);
 }
 
 //! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
@@ -279,13 +279,13 @@ inline float ToFloat(const std::wstring& string)
 
 inline FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction)
 {
-	DWORD dwRelAddr;
-	ReadProcMem(mod + installAddress + 1, &dwRelAddr, 4);
+	DWORD relAddr;
+	ReadProcMem(mod + installAddress + 1, &relAddr, 4);
 
 	const DWORD offset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
 	WriteProcMem(mod + installAddress + 1, &offset, 4);
 
-	return (FARPROC)(mod + dwRelAddr + installAddress + 5);
+	return (FARPROC)(mod + relAddr + installAddress + 5);
 }
 
 inline std::wstring ToLower(std::wstring string)

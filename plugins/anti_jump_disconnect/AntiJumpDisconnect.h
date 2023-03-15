@@ -12,7 +12,7 @@ namespace Plugins::AntiJumpDisconnect
 
 		struct INFO
 		{
-			bool bInWrapGate;
+			bool inWarpGate;
 		};
 
 		//! Map of client ids and whether they are in a gate or not

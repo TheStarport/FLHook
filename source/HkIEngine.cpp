@@ -173,8 +173,8 @@ namespace IEngineHook
 
 	struct LOAD_REP_DATA
 	{
-		uint iRepId;
-		float fAttitude;
+		uint repId;
+		float attitude;
 	};
 
 	struct REP_DATA_LIST
@@ -187,14 +187,14 @@ namespace IEngineHook
 	bool __stdcall LoadReputationFromCharacterFile(REP_DATA_LIST* savedReps, LOAD_REP_DATA* repToSave)
 	{
 		// check of the rep id is valid
-		if (repToSave->iRepId == 0xFFFFFFFF)
+		if (repToSave->repId == 0xFFFFFFFF)
 			return false; // rep id not valid!
 
 		LOAD_REP_DATA* repIt = savedReps->begin;
 
 		while (repIt != savedReps->end)
 		{
-			if (repIt->iRepId == repToSave->iRepId)
+			if (repIt->repId == repToSave->repId)
 				return false; // we already saved this rep!
 
 			repIt++;

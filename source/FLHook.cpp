@@ -14,7 +14,7 @@ HMODULE hModDPNet = nullptr;
 HMODULE hModDaLib = nullptr;
 HMODULE content = nullptr;
 
-bool bExecuted = false;
+bool executed = false;
 
 CConsole AdminConsole;
 
@@ -38,7 +38,7 @@ namespace IServerImplHook
 
 BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)
 {
-	if (bExecuted)
+	if (executed)
 		return TRUE;
 
 	char file[MAX_PATH];
@@ -49,7 +49,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
 
-		bExecuted = true;
+		executed = true;
 
 		// redirect IServerImpl::Update
 		const auto fpLoop = IServerImplHook::Update;
@@ -214,8 +214,8 @@ void FLHookShutdown()
 
 	// unload rest
 	DWORD id;
-	DWORD dwParam;
-	CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &dwParam, 0, &id);
+	DWORD param;
+	CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &param, 0, &id);
 }
 
 void ProcessPendingCommands()

@@ -124,18 +124,18 @@ std::string GetUserfilePath(const std::variant<uint, std::wstring>& player, cons
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring GetTimeString(bool bLocalTime)
+std::wstring GetTimeString(bool localTime)
 {
 	SYSTEMTIME st;
-	if (bLocalTime)
+	if (localTime)
 		GetLocalTime(&st);
 	else
 		GetSystemTime(&st);
 
-	wchar_t wBuf[100];
+	wchar_t buf[100];
 	_snwprintf_s(
-		wBuf,
-		sizeof(wBuf),
+		buf,
+		sizeof(buf),
 		L"%04d-%02d-%02d %02d:%02d:%02d ",
 		st.wYear,
 		st.wMonth,
@@ -143,5 +143,5 @@ std::wstring GetTimeString(bool bLocalTime)
 		st.wHour,
 		st.wMinute,
 		st.wSecond);
-	return wBuf;
+	return buf;
 }

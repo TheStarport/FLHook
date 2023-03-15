@@ -89,7 +89,7 @@ struct CLIENT_INFO
 	mstime tmF1TimeDisconnect;
 
 	// ignore usercommand
-	std::list<IgnoreInfo> Ignore;
+	std::list<IgnoreInfo> ignoreInfoList;
 
 	// user settings
 	DIEMSGTYPE dieMsg;
@@ -99,7 +99,7 @@ struct CLIENT_INFO
 	CHATSTYLE chatStyle;
 
 	// MultiKillMessages
-	uint iKillsInARow;
+	uint killsInARow;
 
 	// bans
 	uint connects; // incremented when player connects
@@ -122,29 +122,29 @@ struct CLIENT_INFO
 // taken from directplay
 typedef struct _DPN_CONNECTION_INFO
 {
-	DWORD dwSize;
-	DWORD dwRoundTripLatencyMS;
-	DWORD dwThroughputBPS;
-	DWORD dwPeakThroughputBPS;
-	DWORD dwBytesSentGuaranteed;
-	DWORD dwPacketsSentGuaranteed;
-	DWORD dwBytesSentNonGuaranteed;
-	DWORD dwPacketsSentNonGuaranteed;
-	DWORD dwBytesRetried;
-	DWORD dwPacketsRetried;
-	DWORD dwBytesDropped;
-	DWORD dwPacketsDropped;
-	DWORD dwMessagesTransmittedHighPriority;
-	DWORD dwMessagesTimedOutHighPriority;
-	DWORD dwMessagesTransmittedNormalPriority;
-	DWORD dwMessagesTimedOutNormalPriority;
-	DWORD dwMessagesTransmittedLowPriority;
-	DWORD dwMessagesTimedOutLowPriority;
-	DWORD dwBytesReceivedGuaranteed;
-	DWORD dwPacketsReceivedGuaranteed;
-	DWORD dwBytesReceivedNonGuaranteed;
-	DWORD dwPacketsReceivedNonGuaranteed;
-	DWORD dwMessagesReceived;
+	DWORD size;
+	DWORD roundTripLatencyMS;
+	DWORD throughputBPS;
+	DWORD peakThroughputBPS;
+	DWORD bytesSentGuaranteed;
+	DWORD packetsSentGuaranteed;
+	DWORD bytesSentNonGuaranteed;
+	DWORD packetsSentNonGuaranteed;
+	DWORD bytesRetried;
+	DWORD packetsRetried;
+	DWORD bytesDropped;
+	DWORD packetsDropped;
+	DWORD messagesTransmittedHighPriority;
+	DWORD messagesTimedOutHighPriority;
+	DWORD messagesTransmittedNormalPriority;
+	DWORD messagesTimedOutNormalPriority;
+	DWORD messagesTransmittedLowPriority;
+	DWORD messagesTimedOutLowPriority;
+	DWORD bytesReceivedGuaranteed;
+	DWORD packetsReceivedGuaranteed;
+	DWORD bytesReceivedNonGuaranteed;
+	DWORD packetsReceivedNonGuaranteed;
+	DWORD messagesReceived;
 } DPN_CONNECTION_INFO,* PDPN_CONNECTION_INFO;
 
 struct PlayerInfo

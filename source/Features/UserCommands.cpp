@@ -57,9 +57,9 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float dista
 	{
 		// Get the this player's current system and location in the system.
 		ClientId client2 = playerDb->onlineId;
-		uint iSystem2 = 0;
-		pub::Player::GetSystem(client2, iSystem2);
-		if (system != iSystem2)
+		uint system2 = 0;
+		pub::Player::GetSystem(client2, system2);
+		if (system != system2)
 			continue;
 
 		uint ship2;
@@ -261,7 +261,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 		}
 	}
 
-	if (ClientInfo[client].Ignore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
 		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
@@ -269,13 +269,13 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].Ignore.size()) + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].ignoreInfoList.size()) + 1), character + L" " + flags);
 
 	// save in ClientInfo
 	IgnoreInfo ii;
 	ii.character = character;
 	ii.flags = flags;
-	ClientInfo[client].Ignore.push_back(ii);
+	ClientInfo[client].ignoreInfoList.push_back(ii);
 
 	// send confirmation msg
 	PRINT_OK()
@@ -306,7 +306,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	if (ClientInfo[client].Ignore.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+	if (ClientInfo[client].ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
 	{
 		PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
 		return;
@@ -323,13 +323,13 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 
 	// save to ini
 	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].Ignore.size()) + 1), character + L" " + flags);
+	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].ignoreInfoList.size()) + 1), character + L" " + flags);
 
 	// save in ClientInfo
 	IgnoreInfo ii;
 	ii.character = character;
 	ii.flags = flags;
-	ClientInfo[client].Ignore.push_back(ii);
+	ClientInfo[client].ignoreInfoList.push_back(ii);
 
 	// send confirmation msg
 	PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
@@ -347,7 +347,7 @@ void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& p
 
 	PrintUserCmdText(client, L"Id | Charactername | flags");
 	int i = 1;
-	for (auto& ignore : ClientInfo[client].Ignore)
+	for (auto& ignore : ClientInfo[client].ignoreInfoList)
 	{
 		PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.flags));
 		i++;
@@ -385,7 +385,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	{
 		// delete all
 		IniDelSection(scUserFile, "IgnoreList");
-		ClientInfo[client].Ignore.clear();
+		ClientInfo[client].ignoreInfoList.clear();
 		PRINT_OK()
 		return;
 	}
@@ -393,39 +393,39 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	std::list<uint> Delete;
 	for (uint j = 1; !idToDelete.empty(); j++)
 	{
-		uint iId = ToInt(idToDelete.c_str());
-		if (!iId || iId > ClientInfo[client].Ignore.size())
+		uint id = ToInt(idToDelete.c_str());
+		if (!id || id > ClientInfo[client].ignoreInfoList.size())
 		{
 			PrintUserCmdText(client, L"Error: Invalid Id");
 			return;
 		}
 
-		Delete.push_back(iId);
+		Delete.push_back(id);
 		idToDelete = GetParam(param, ' ', j);
 	}
 
 	Delete.sort(std::greater<uint>());
 
-	ClientInfo[client].Ignore.reverse();
+	ClientInfo[client].ignoreInfoList.reverse();
 	for (const auto& del : Delete)
 	{
-		uint iCurId = ClientInfo[client].Ignore.size();
-		for (auto ignoreIt = ClientInfo[client].Ignore.begin(); ignoreIt != ClientInfo[client].Ignore.end(); ++ignoreIt)
+		uint currId = ClientInfo[client].ignoreInfoList.size();
+		for (auto ignoreIt = ClientInfo[client].ignoreInfoList.begin(); ignoreIt != ClientInfo[client].ignoreInfoList.end(); ++ignoreIt)
 		{
-			if (iCurId == del)
+			if (currId == del)
 			{
-				ClientInfo[client].Ignore.erase(ignoreIt);
+				ClientInfo[client].ignoreInfoList.erase(ignoreIt);
 				break;
 			}
-			iCurId--;
+			currId--;
 		}
 	}
-	ClientInfo[client].Ignore.reverse();
+	ClientInfo[client].ignoreInfoList.reverse();
 
 	// send confirmation msg
 	IniDelSection(scUserFile, "IgnoreList");
 	int i = 1;
-	for (const auto& ignore : ClientInfo[client].Ignore)
+	for (const auto& ignore : ClientInfo[client].ignoreInfoList)
 	{
 		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.flags);
 		i++;
@@ -456,9 +456,9 @@ void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& param)
 void Invite_Player(ClientId& client, const std::wstring& characterName)
 {
 	const std::wstring XML = L"<TEXT>/i " + XMLText(characterName) + L"</TEXT>";
-	char Buf[0xFFFF];
-	uint iRet;
-	if (Hk::Message::FMsgEncodeXML(XML, Buf, sizeof Buf, iRet).has_error())
+	char buf[0xFFFF];
+	uint retVal;
+	if (Hk::Message::FMsgEncodeXML(XML, buf, sizeof buf, retVal).has_error())
 	{
 		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;
@@ -468,7 +468,7 @@ void Invite_Player(ClientId& client, const std::wstring& characterName)
 	cId.id = client;
 	CHAT_ID cIdTo;
 	cIdTo.id = 0x00010001;
-	Server.SubmitChat(cId, iRet, Buf, cIdTo, -1);
+	Server.SubmitChat(cId, retVal, buf, cIdTo, -1);
 }
 
 void UserCmd_Invite(ClientId& client, const std::wstring& param)
@@ -548,16 +548,16 @@ void UserCmd_FLHookInfo(ClientId& client, [[maybe_unused]] const std::wstring& p
 	PrintUserCmdText(client, L"This server is running FLHook v" + VersionInformation);
 	PrintUserCmdText(client, L"Running plugins:");
 
-	bool bRunning = false;
+	bool running = false;
 	for (const auto& plugin : PluginManager::ir())
 	{
 		if (plugin->paused)
 			continue;
 
-		bRunning = true;
+		running = true;
 		PrintUserCmdText(client, std::format(L"- {}", stows(plugin->name)));
 	}
-	if (!bRunning)
+	if (!running)
 		PrintUserCmdText(client, L"- none -");
 }
 

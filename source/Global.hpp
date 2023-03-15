@@ -203,15 +203,15 @@ constexpr uint ADDR_COMMON_VFTABLE_ENGINE = 0x139AAC;
 class CTimer
 {
 public:
-	EXPORT CTimer(const std::string& sFunction, uint iWarning);
+	EXPORT CTimer(const std::string& function, uint warning);
 	EXPORT void start();
 	EXPORT uint stop();
 
 private:
 	mstime tmStart = 0;
-	uint iMax = 0;
-	std::string sFunction;
-	uint iWarning;
+	uint max = 0;
+	std::string function;
+	uint warning;
 };
 
 struct PluginData
@@ -226,7 +226,7 @@ struct PluginData
 	bool paused = false;
 	std::vector<UserCommand>* commands;
 	std::vector<Timer>* timers;
-	std::shared_ptr<PluginInfo> pInfo = nullptr;
+	std::shared_ptr<PluginInfo> pluginInfo = nullptr;
 };
 
 struct PluginHookData

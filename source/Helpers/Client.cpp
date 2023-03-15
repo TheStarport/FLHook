@@ -100,20 +100,20 @@ namespace Hk::Client
 
 	bool IsEncoded(const std::string& fileName)
 	{
-		bool bRet = false;
+		bool retVal = false;
 		FILE* f;
 		fopen_s(&f, fileName.c_str(), "r");
 		if (!f)
 			return false;
 
-		const char Magic[] = "FLS1";
-		char File[sizeof(Magic)] = "";
-		fread(File, 1, sizeof(Magic), f);
-		if (!strncmp(Magic, File, sizeof(Magic) - 1))
-			bRet = true;
+		const char magic[] = "FLS1";
+		char file[sizeof(magic)] = "";
+		fread(file, 1, sizeof(magic), f);
+		if (!strncmp(magic, file, sizeof(magic) - 1))
+			retVal = true;
 		fclose(f);
 
-		return bRet;
+		return retVal;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,12 +163,12 @@ namespace Hk::Client
 	{
 		if (const std::wstring characterLower = ToLower(character); characterLower.find(L"id ") == 0)
 		{
-			uint iId = 0;
-			swscanf_s(characterLower.c_str(), L"id %u", &iId);
-			if (!IsValidClientID(iId))
+			uint id = 0;
+			swscanf_s(characterLower.c_str(), L"id %u", &id);
+			if (!IsValidClientID(id))
 				return cpp::fail(Error::InvalidClientId);
 
-			return iId;
+			return id;
 		}
 
 		return cpp::fail(Error::InvalidIdString);
@@ -178,11 +178,11 @@ namespace Hk::Client
 
 	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& shortcut)
 	{
-		std::wstring ShortcutLower = ToLower(shortcut);
-		if (ShortcutLower.find(L"sc ") != 0)
+		std::wstring shortcutLower = ToLower(shortcut);
+		if (shortcutLower.find(L"sc ") != 0)
 			return cpp::fail(Error::InvalidShortcutString);
 
-		ShortcutLower = ShortcutLower.substr(3);
+		shortcutLower = shortcutLower.substr(3);
 
 		uint clientFound = UINT_MAX;
 		PlayerData* playerDb = nullptr;
@@ -192,7 +192,7 @@ namespace Hk::Client
 			if (characterName.has_error())
 				continue;
 
-			if (ToLower(characterName.value()).find(ShortcutLower) != -1)
+			if (ToLower(characterName.value()).find(shortcutLower) != -1)
 			{
 				if (clientFound == UINT_MAX)
 					clientFound = playerDb->onlineId;
@@ -392,56 +392,56 @@ namespace Hk::Client
 
 	EquipmentType GetEqType(Archetype::Equipment* eq)
 	{
-		const uint iVFTableMine = (uint)common + ADDR_COMMON_VFTABLE_MINE;
-		const uint iVFTableCM = (uint)common + ADDR_COMMON_VFTABLE_CM;
-		const uint iVFTableGun = (uint)common + ADDR_COMMON_VFTABLE_GUN;
-		const uint iVFTableShieldGen = (uint)common + ADDR_COMMON_VFTABLE_SHIELDGEN;
-		const uint iVFTableThruster = (uint)common + ADDR_COMMON_VFTABLE_THRUSTER;
-		const uint iVFTableShieldBat = (uint)common + ADDR_COMMON_VFTABLE_SHIELDBAT;
-		const uint iVFTableNanoBot = (uint)common + ADDR_COMMON_VFTABLE_NANOBOT;
-		const uint iVFTableMunition = (uint)common + ADDR_COMMON_VFTABLE_MUNITION;
-		const uint iVFTableEngine = (uint)common + ADDR_COMMON_VFTABLE_ENGINE;
-		const uint iVFTableScanner = (uint)common + ADDR_COMMON_VFTABLE_SCANNER;
-		const uint iVFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
-		const uint iVFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
+		const uint VFTableMine = (uint)common + ADDR_COMMON_VFTABLE_MINE;
+		const uint VFTableCM = (uint)common + ADDR_COMMON_VFTABLE_CM;
+		const uint VFTableGun = (uint)common + ADDR_COMMON_VFTABLE_GUN;
+		const uint VFTableShieldGen = (uint)common + ADDR_COMMON_VFTABLE_SHIELDGEN;
+		const uint VFTableThruster = (uint)common + ADDR_COMMON_VFTABLE_THRUSTER;
+		const uint VFTableShieldBat = (uint)common + ADDR_COMMON_VFTABLE_SHIELDBAT;
+		const uint VFTableNanoBot = (uint)common + ADDR_COMMON_VFTABLE_NANOBOT;
+		const uint VFTableMunition = (uint)common + ADDR_COMMON_VFTABLE_MUNITION;
+		const uint VFTableEngine = (uint)common + ADDR_COMMON_VFTABLE_ENGINE;
+		const uint VFTableScanner = (uint)common + ADDR_COMMON_VFTABLE_SCANNER;
+		const uint VFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
+		const uint VFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
 
-		const uint iVFTable = *((uint*)eq);
-		if (iVFTable == iVFTableGun)
+		const uint VFTable = *((uint*)eq);
+		if (VFTable == VFTableGun)
 		{
 			const Archetype::Gun* gun = static_cast<Archetype::Gun*>(eq);
 			Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
-			int iMissile;
-			memcpy(&iMissile, (char*)eqAmmo + 0x90, 4);
-			const uint iGunType = gun->get_hp_type_by_index(0);
-			if (iGunType == 36)
+			int missile;
+			memcpy(&missile, (char*)eqAmmo + 0x90, 4);
+			const uint gunType = gun->get_hp_type_by_index(0);
+			if (gunType == 36)
 				return ET_TORPEDO;
-			if (iGunType == 35)
+			if (gunType == 35)
 				return ET_CD;
-			if (iMissile)
+			if (missile)
 				return ET_MISSILE;
 			return ET_GUN;
 		}
-		if (iVFTable == iVFTableCM)
+		if (VFTable == VFTableCM)
 			return ET_CM;
-		if (iVFTable == iVFTableShieldGen)
+		if (VFTable == VFTableShieldGen)
 			return ET_SHIELDGEN;
-		if (iVFTable == iVFTableThruster)
+		if (VFTable == VFTableThruster)
 			return ET_THRUSTER;
-		if (iVFTable == iVFTableShieldBat)
+		if (VFTable == VFTableShieldBat)
 			return ET_SHIELDBAT;
-		if (iVFTable == iVFTableNanoBot)
+		if (VFTable == VFTableNanoBot)
 			return ET_NANOBOT;
-		if (iVFTable == iVFTableMunition)
+		if (VFTable == VFTableMunition)
 			return ET_MUNITION;
-		if (iVFTable == iVFTableMine)
+		if (VFTable == VFTableMine)
 			return ET_MINE;
-		if (iVFTable == iVFTableEngine)
+		if (VFTable == VFTableEngine)
 			return ET_ENGINE;
-		if (iVFTable == iVFTableLight)
+		if (VFTable == VFTableLight)
 			return ET_LIGHT;
-		if (iVFTable == iVFTableScanner)
+		if (VFTable == VFTableScanner)
 			return ET_SCANNER;
-		if (iVFTable == iVFTableTractor)
+		if (VFTable == VFTableTractor)
 			return ET_TRACTOR;
 		return ET_OTHER;
 	}

@@ -477,10 +477,10 @@ protected:
 	~CCmds() = default;
 
 private:
-	bool bId;
-	bool bShortCut;
-	bool bSelf;
-	bool bTarget;
+	bool id;
+	bool shortCut;
+	bool self;
+	bool target;
 
 public:
 	ulong rights;
@@ -554,7 +554,7 @@ public:
 
 	void ExecuteCommandString(const std::wstring& Cmd);
 	void SetRightsByString(const std::string& rightStr);
-	std::wstring CurCmdString;
+	std::wstring currCmdString;
 	#endif
 
 public:
@@ -575,16 +575,16 @@ class CInGame final : public CCmds
 {
 public:
 	uint client;
-	std::wstring AdminName;
+	std::wstring adminName;
 	DLL void DoPrint(const std::string& text) override;
-	DLL void ReadRights(const std::string& IniFile);
+	DLL void ReadRights(const std::string& iniFile);
 	DLL std::wstring GetAdminName() override;
 	DLL bool IsPlayer() override { return true; }
 };
 
 // FuncLog
 
-DLL void HandleCheater(ClientId client, bool bBan, const std::string& reason);
+DLL void HandleCheater(ClientId client, bool ban, const std::string& reason);
 DLL bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::string& reason);
 DLL bool AddKickLog(ClientId client, const std::string& reason);
 DLL bool AddConnectLog(ClientId client, const std::string& reason);
@@ -633,7 +633,7 @@ extern DLL CDPServer* cdpSrv;
 extern DLL _GetShipInspect GetShipInspect;
 extern DLL char* g_FLServerDataPtr;
 extern DLL CDPClientProxy** clientProxyArray;
-extern DLL void* pClient;
+extern DLL void* client;
 extern DLL _RCSendChatMsg RCSendChatMsg;
 extern DLL _CRCAntiCheat CRCAntiCheat;
 extern DLL IClientImpl* FakeClient;

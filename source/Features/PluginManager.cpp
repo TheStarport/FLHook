@@ -79,7 +79,7 @@ cpp::result<std::wstring, Error> PluginManager::unload(const std::string& name)
 	std::wstring unloadedPluginDll = plugin->dllName;
 	Logger::i()->Log(LogLevel::Info, std::format("Unloading {} ({})", plugin->name, wstos(plugin->dllName)));
 
-	for (const auto& hook : plugin->pInfo->hooks_)
+	for (const auto& hook : plugin->pluginInfo->hooks_)
 	{
 		const uint hookId = static_cast<uint>(hook.targetFunction_) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step_);
 		auto& list = pluginHooks_[hookId];
@@ -226,7 +226,7 @@ void PluginManager::load(const std::wstring& fileName, CCmds* adminInterface, bo
 	plugin->timers = pi->timers_;
 	plugin->commands = pi->commands_;
 
-	plugin->pInfo = std::move(pi);
+	plugin->pluginInfo = std::move(pi);
 	plugins_.emplace_back(plugin);
 
 	std::ranges::sort(plugins_, [](const std::shared_ptr<PluginData> a, std::shared_ptr<PluginData> b) { return a->name < b->name; });

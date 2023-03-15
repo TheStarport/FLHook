@@ -383,7 +383,7 @@ void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 	    pi.client,
 	    pi.IP,
 	    pi.hostname,
-	    pi.connectionInfo.dwRoundTripLatencyMS,
+	    pi.connectionInfo.roundTripLatencyMS,
 	    pi.baseName,
 	    pi.systemName)));
 }
@@ -418,7 +418,7 @@ void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 	    pi.client,
 	    pi.IP,
 	    pi.hostname,
-	    pi.connectionInfo.dwRoundTripLatencyMS,
+	    pi.connectionInfo.roundTripLatencyMS,
 	    pi.baseName,
 	    pi.systemName)));
 }
@@ -531,10 +531,10 @@ void CCmds::CmdServerInfo()
 	GetSystemTime(&st);
 	FILETIME ftNow;
 	SystemTimeToFileTime(&st, &ftNow);
-	const int64 iTimeCreation = (static_cast<int64>(ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
-	const int64 iTimeNow = (static_cast<int64>(ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
+	const int64 timeCreation = (static_cast<int64>(ftCreation.dwHighDateTime) << 32) + ftCreation.dwLowDateTime;
+	const int64 timeNow = (static_cast<int64>(ftNow.dwHighDateTime) << 32) + ftNow.dwLowDateTime;
 
-	auto uptime = static_cast<uint>((iTimeNow - iTimeCreation) / 10000000);
+	auto uptime = static_cast<uint>((timeNow - timeCreation) / 10000000);
 	uint days = (uptime / (60 * 60 * 24));
 	uptime %= (60 * 60 * 24);
 	uint hours = (uptime / (60 * 60));
@@ -836,17 +836,17 @@ void CCmds::CmdHelp()
 
 std::wstring CCmds::ArgCharname(uint arg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', arg);
+	std::wstring Arg = GetParam(currCmdString, ' ', arg);
 
 	if (arg == 1)
 	{
-		if (bId)
+		if (id)
 			return Arg.replace(0, 0, L"id ");
-		if (bShortCut)
+		if (shortCut)
 			return Arg.replace(0, 0, L"sc ");
-		if (bSelf)
+		if (self)
 			return this->GetAdminName();
-		if (bTarget)
+		if (target)
 		{
 			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
 			if (client.has_error())
@@ -855,10 +855,10 @@ std::wstring CCmds::ArgCharname(uint arg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			const uint iTarget = Hk::Player::GetTarget(ship).value();
-			if (!iTarget)
+			const uint target = Hk::Player::GetTarget(ship).value();
+			if (!target)
 				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -879,10 +879,10 @@ std::wstring CCmds::ArgCharname(uint arg)
 			pub::Player::GetShip(client.value(), ship);
 			if (!ship)
 				return L"";
-			const uint iTarget = Hk::Player::GetTarget(ship).value();
-			if (!iTarget)
+			const uint target = Hk::Player::GetTarget(ship).value();
+			if (!target)
 				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -895,14 +895,14 @@ std::wstring CCmds::ArgCharname(uint arg)
 
 int CCmds::ArgInt(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
+	const std::wstring Arg = GetParam(currCmdString, ' ', arg);
 
 	return ToInt(Arg);
 }
 
 uint CCmds::ArgUInt(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
+	const std::wstring Arg = GetParam(currCmdString, ' ', arg);
 
 	return ToUInt(Arg);
 }
@@ -911,7 +911,7 @@ uint CCmds::ArgUInt(uint arg)
 
 float CCmds::ArgFloat(uint arg)
 {
-	const std::wstring Arg = GetParam(CurCmdString, ' ', arg);
+	const std::wstring Arg = GetParam(currCmdString, ' ', arg);
 	return ToFloat(Arg);
 }
 
@@ -919,7 +919,7 @@ float CCmds::ArgFloat(uint arg)
 
 std::wstring CCmds::ArgStr(uint arg)
 {
-	std::wstring Arg = GetParam(CurCmdString, ' ', arg);
+	std::wstring Arg = GetParam(currCmdString, ' ', arg);
 
 	return Arg;
 }
@@ -928,16 +928,16 @@ std::wstring CCmds::ArgStr(uint arg)
 
 std::wstring CCmds::ArgStrToEnd(uint arg)
 {
-	for (uint i = 0, curArg = 0; (i < CurCmdString.length()); i++)
+	for (uint i = 0, curArg = 0; (i < currCmdString.length()); i++)
 	{
-		if (CurCmdString[i] == ' ')
+		if (currCmdString[i] == ' ')
 		{
 			curArg++;
 
 			if (curArg == arg)
-				return CurCmdString.substr(i + 1);
+				return currCmdString.substr(i + 1);
 
-			while (((i + 1) < CurCmdString.length()) && (CurCmdString[i + 1] == ' '))
+			while (((i + 1) < currCmdString.length()) && (currCmdString[i + 1] == ' '))
 				i++; // skip "whitechar"
 		}
 	}
@@ -954,11 +954,11 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 
 	try
 	{
-		bId = false;
-		bShortCut = false;
-		bSelf = false;
-		bTarget = false;
-		CurCmdString = cmdStr;
+		id = false;
+		shortCut = false;
+		self = false;
+		target = false;
+		currCmdString = cmdStr;
 
 		std::wstring cmd = ToLower(GetParam(cmdStr, ' ', 0));
 		if (cmd.length() == 0)
@@ -967,28 +967,28 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 			return;
 		}
 
-		const size_t Cmd_pos = cmdStr.find(cmd);
+		const size_t cmd_pos = cmdStr.find(cmd);
 
 		if (cmd[cmd.length() - 1] == '$')
 		{
-			bId = true;
+			id = true;
 			cmd.erase(cmd.length() - 1, 1);
 		}
 		else if (cmd[cmd.length() - 1] == '&')
 		{
-			bShortCut = true;
+			shortCut = true;
 			cmd.erase(cmd.length() - 1, 1);
 		}
 		else if (cmd[cmd.length() - 1] == '!')
 		{
-			bSelf = true;
-			CurCmdString.insert(Cmd_pos + cmd.length() - 1, L" ");
+			self = true;
+			currCmdString.insert(cmd_pos + cmd.length() - 1, L" ");
 			cmd.erase(cmd.length() - 1, 1);
 		}
 		else if (cmd[cmd.length() - 1] == '?')
 		{
-			bTarget = true;
-			CurCmdString.insert(Cmd_pos + cmd.length() - 1, L" ");
+			target = true;
+			currCmdString.insert(cmd_pos + cmd.length() - 1, L" ");
 			cmd.erase(cmd.length() - 1, 1);
 		}
 

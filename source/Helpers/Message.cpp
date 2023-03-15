@@ -25,12 +25,12 @@ namespace Hk::Message
 		const CHAT_ID ciClient = {client};
 
 		const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
-		uint iRet;
-		char Buf[1024];
-		if (const auto err = FMsgEncodeXML(XML, Buf, sizeof(Buf), iRet); err.has_error())
+		uint retVal;
+		char buf[1024];
+		if (const auto err = FMsgEncodeXML(XML, buf, sizeof(buf), retVal); err.has_error())
 			return cpp::fail(err.error());
 
-		IServerImplHook::SubmitChat(ci, iRet, Buf, ciClient, -1);
+		IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
 		return {};
 	}
 
@@ -51,9 +51,9 @@ namespace Hk::Message
 
 		// prepare xml
 		const std::wstring xml = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
-		uint ret;
+		uint retVal;
 		char buffer[1024];
-		if (const auto err = FMsgEncodeXML(xml, buffer, sizeof(buffer), ret); err.has_error())
+		if (const auto err = FMsgEncodeXML(xml, buffer, sizeof(buffer), retVal); err.has_error())
 			return cpp::fail(err.error());
 
 		const CHAT_ID ci = {0};
@@ -63,7 +63,7 @@ namespace Hk::Message
 		for (const auto player : Client::getAllPlayersInSystem(systemId))
 		{
 			const CHAT_ID ciClient = {player};
-			IServerImplHook::SubmitChat(ci, ret, buffer, ciClient, -1);
+			IServerImplHook::SubmitChat(ci, retVal, buffer, ciClient, -1);
 		}
 
 		return {};
@@ -77,12 +77,12 @@ namespace Hk::Message
 		const CHAT_ID ciClient = {0x00010000};
 
 		const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + XMLText(message) + L"</TEXT>";
-		uint iRet;
-		char Buf[1024];
-		if (const auto err = FMsgEncodeXML(xml, Buf, sizeof(Buf), iRet); err.has_error())
+		uint retVal;
+		char buf[1024];
+		if (const auto err = FMsgEncodeXML(xml, buf, sizeof(buf), retVal); err.has_error())
 			return cpp::fail(err.error());
 
-		IServerImplHook::SubmitChat(ci, iRet, Buf, ciClient, -1);
+		IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
 		return {};
 	}
 
@@ -92,10 +92,10 @@ namespace Hk::Message
 	{
 		XMLReader rdr;
 		RenderDisplayList rdl;
-		std::wstring Msg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
-		Msg += xmring;
-		Msg += L"<PARA/><POP/></RDL>\x000A\x000A";
-		if (!rdr.read_buffer(rdl, (const char*)Msg.c_str(), Msg.length() * 2))
+		std::wstring msg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
+		msg += xmring;
+		msg += L"<PARA/><POP/></RDL>\x000A\x000A";
+		if (!rdr.read_buffer(rdl, (const char*)msg.c_str(), msg.length() * 2))
 			return cpp::fail(Error::WrongXmlSyntax);
 
 		BinaryRDLWriter rdlwrite;
@@ -206,7 +206,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (const auto& ignore : ClientInfo[toClientId].Ignore)
+			for (const auto& ignore : ClientInfo[toClientId].ignoreInfoList)
 			{
 				if (!HAS_FLAG(ignore, L"i") && !(ToLower(sender).compare(ToLower(ignore.character))))
 					return {}; // ignored
@@ -274,7 +274,7 @@ namespace Hk::Message
 
 		if (FLHookConfig::i()->userCommands.userCmdIgnore)
 		{
-			for (const auto& ignore : ClientInfo[toClientId].Ignore)
+			for (const auto& ignore : ClientInfo[toClientId].ignoreInfoList)
 			{
 				if (HAS_FLAG(ignore, L"p"))
 					return {};
@@ -330,12 +330,12 @@ namespace Hk::Message
 		uint systemId;
 		pub::Player::GetSystem(fromClientId, systemId);
 
-		uint iFromShip;
-		pub::Player::GetShip(fromClientId, iFromShip);
+		uint fromShip;
+		pub::Player::GetShip(fromClientId, fromShip);
 
-		Vector vFromShipLoc;
-		Matrix mFromShipDir;
-		pub::SpaceObj::GetLocation(iFromShip, vFromShipLoc, mFromShipDir);
+		Vector fromShipLoc;
+		Matrix fromShipDir;
+		pub::SpaceObj::GetLocation(fromShip, fromShipLoc, fromShipDir);
 
 		// For all players in system...
 		for (auto player : Client::getAllPlayersInSystem(systemId))
@@ -343,13 +343,13 @@ namespace Hk::Message
 			uint ship;
 			pub::Player::GetShip(player, ship);
 
-			Vector vShipLoc;
-			Matrix mShipDir;
-			pub::SpaceObj::GetLocation(ship, vShipLoc, mShipDir);
+			Vector shipLoc;
+			Matrix shipDir;
+			pub::SpaceObj::GetLocation(ship, shipLoc, shipDir);
 
 			// Cheat in the distance calculation. Ignore the y-axis
 			// Is player within scanner range (15K) of the sending char.
-			if (static_cast<float>(sqrt(pow(vShipLoc.x - vFromShipLoc.x, 2) + pow(vShipLoc.z - vFromShipLoc.z, 2))) > 14999.0f)
+			if (static_cast<float>(sqrt(pow(shipLoc.x - fromShipLoc.x, 2) + pow(shipLoc.z - fromShipLoc.z, 2))) > 14999.0f)
 				continue;
 
 			// Send the message a player in this system.
@@ -415,10 +415,10 @@ namespace Hk::Message
 		}
 	}
 
-	std::wstring GetWStringFromIdS(uint iIdS)
+	std::wstring GetWStringFromIdS(uint idS)
 	{
-		if (wchar_t wBuf[1024]; LoadStringW(vDLLs[iIdS >> 16], iIdS & 0xFFFF, wBuf, 1024))
-			return wBuf;
+		if (wchar_t buf[1024]; LoadStringW(vDLLs[idS >> 16], idS & 0xFFFF, buf, 1024))
+			return buf;
 		return L"";
 	}
 

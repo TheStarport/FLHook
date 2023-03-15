@@ -37,5 +37,5 @@ void CInGame::ReadRights(const std::string& adminFile)
 
 std::wstring CInGame::GetAdminName()
 {
-	return AdminName;
+	return adminName;
 }

@@ -25,9 +25,9 @@ enum class ConsoleColor
 	StrongWhite = 0x0008 | White,
 };
 
-BOOL WINAPI ConsoleHandler(DWORD dwCtrlType)
+BOOL WINAPI ConsoleHandler(DWORD ctrlType)
 {
-	return dwCtrlType == CTRL_CLOSE_EVENT;
+	return ctrlType == CTRL_CLOSE_EVENT;
 }
 
 void Logger::SetLogSource(void* addr)
@@ -48,10 +48,10 @@ void Logger::GetConsoleInput(std::stop_token st)
 {
 	while (!st.stop_requested())
 	{
-		DWORD dwBytesRead;
+		DWORD bytesRead;
 		std::string cmd;
 		cmd.resize(1024);
-		if (ReadConsole(consoleInput, cmd.data(), cmd.size(), &dwBytesRead, nullptr))
+		if (ReadConsole(consoleInput, cmd.data(), cmd.size(), &bytesRead, nullptr))
 		{
 			if (cmd[cmd.length() - 1] == '\n')
 				cmd = cmd.substr(0, cmd.length() - 1);

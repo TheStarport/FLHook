@@ -3,8 +3,8 @@
 #include <WS2tcpip.h>
 #include "Features/TempBan.hpp"
 
-CTimer::CTimer(const std::string& sFunc, uint iWarn)
-	: sFunction(sFunc), iWarning(iWarn)
+CTimer::CTimer(const std::string& func, uint warn)
+	: function(func), warning(warn)
 {
 }
 
@@ -19,14 +19,14 @@ uint CTimer::stop()
 
 	if (FLHookConfig::i()->general.logPerformanceTimers)
 	{
-		if (timeDelta > iMax && timeDelta > iWarning)
+		if (timeDelta > max && timeDelta > warning)
 		{
-			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, sFunction));
-			iMax = timeDelta;
+			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, function));
+			max = timeDelta;
 		}
 		else if (timeDelta > 100)
 		{
-			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, sFunction));
+			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, function));
 		}
 	}
 	return timeDelta;

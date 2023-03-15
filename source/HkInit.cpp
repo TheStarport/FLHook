@@ -190,8 +190,8 @@ void ClearClientInfo(ClientId client)
 	info->chatSize = CS_DEFAULT;
 	info->chatStyle = CST_DEFAULT;
 
-	info->Ignore.clear();
-	info->iKillsInARow = 0;
+	info->ignoreInfoList.clear();
+	info->killsInARow = 0;
 	info->hostname = L"";
 	info->engineKilled = false;
 	info->thrusterActivated = false;
@@ -233,17 +233,17 @@ void LoadUserSettings(ClientId client)
 	info->chatStyle = static_cast<CHATSTYLE>(IniGetI(userFile, "settings", "ChatStyle", CST_DEFAULT));
 
 	// read ignorelist
-	info->Ignore.clear();
+	info->ignoreInfoList.clear();
 	for (int i = 1;; i++)
 	{
-		std::wstring Ignore = IniGetWS(userFile, "IgnoreList", std::to_string(i), L"");
-		if (!Ignore.length())
+		std::wstring ignoreList = IniGetWS(userFile, "IgnoreList", std::to_string(i), L"");
+		if (ignoreList.empty())
 			break;
 
 		IgnoreInfo ii;
-		ii.character = GetParam(Ignore, ' ', 0);
-		ii.flags = GetParam(Ignore, ' ', 1);
-		info->Ignore.push_back(ii);
+		ii.character = GetParam(ignoreList, ' ', 0);
+		ii.flags = GetParam(ignoreList, ' ', 1);
+		info->ignoreInfoList.push_back(ii);
 	}
 }
 
@@ -264,18 +264,18 @@ bool InitHookExports()
 {
 	// init critial sections
 	InitializeCriticalSection(&csIPResolve);
-	DWORD dwId;
-	DWORD dwParam[34]; // else release version crashes, dont ask me why...
-	hThreadResolver = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &dwParam, 0, &dwId);
+	DWORD id;
+	DWORD param[34]; // else release version crashes, dont ask me why...
+	hThreadResolver = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)ThreadResolver, &param, 0, &id);
 
 	GetShipInspect = (_GetShipInspect)SRV_ADDR(ADDR_SRV_GETINSPECT);
 
 	// install IServerImpl callbacks in remoteclient.dll
-	auto* pServer = reinterpret_cast<char*>(&Server);
-	memcpy(&pServer, pServer, 4);
+	auto* serverPointer = reinterpret_cast<char*>(&Server);
+	memcpy(&serverPointer, serverPointer, 4);
 	for (uint i = 0; i < std::size(IServerImplEntries); i++)
 	{
-		char* address = pServer + IServerImplEntries[i].remoteAddress;
+		char* address = serverPointer + IServerImplEntries[i].remoteAddress;
 		ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
 	}
@@ -384,13 +384,12 @@ void UnloadHookExports()
 	char* address;
 
 	// uninstall IServerImpl callbacks in remoteclient.dll
-	auto pServer = (char*)&Server;
-	if (pServer)
+	if (auto serverAddr = (char*)&Server)
 	{
-		memcpy(&pServer, pServer, 4);
+		memcpy(&serverAddr, serverAddr, 4);
 		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
-			const auto address = pServer + IServerImplEntries[i].remoteAddress;
+			const auto address = serverAddr + IServerImplEntries[i].remoteAddress;
 			WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}

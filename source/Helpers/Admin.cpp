@@ -13,14 +13,14 @@ namespace Hk::Admin
 		// get ip
 		char* P1;
 		char* IdirectPlay8Address;
-		wchar_t wHostname[] = L"hostname";
+		wchar_t hostname[] = L"hostname";
 		memcpy(&P1, (char*)cdpSrv + 4, 4);
 
 		wchar_t wIP[1024] = L"";
-		long lSize = sizeof(wIP);
-		long lDataType = 1;
+		long sizeofIP = sizeof(wIP);
+		long dataType = 1;
 		__asm {
-			push 0 ; dwFlags
+			push 0 ; flags
 			lea edx, IdirectPlay8Address
 			push edx ; address
 			mov edx, [cdpClient]
@@ -33,13 +33,13 @@ namespace Hk::Admin
 			cmp eax, 0
 			jnz some_error
 
-			lea eax, lDataType
+			lea eax, dataType
 			push eax
-			lea eax, lSize
+			lea eax, sizeofIP
 			push eax
 			lea eax, wIP
 			push eax
-			lea eax, wHostname
+			lea eax, hostname
 			push eax
 			mov ecx, [IdirectPlay8Address]
 			push ecx
@@ -58,30 +58,30 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool bAlsoCharmenu)
+	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool alsoCharmenu)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
-		if (client == UINT_MAX || (Client::IsInCharSelectMenu(client) && !bAlsoCharmenu))
+		if (client == UINT_MAX || (Client::IsInCharSelectMenu(client) && !alsoCharmenu))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PlayerInfo pi;
-		const wchar_t* wActiveCharname = (wchar_t*)Players.GetActiveCharacterName(client);
+		const wchar_t* activeCharname = (wchar_t*)Players.GetActiveCharacterName(client);
 
 		pi.client = client;
-		pi.character = wActiveCharname ? wActiveCharname : L"";
+		pi.character = activeCharname ? activeCharname : L"";
 		pi.baseName = pi.systemName = L"";
 
-		uint iBase = 0;
+		uint base = 0;
 		uint system = 0;
-		pub::Player::GetBase(client, iBase);
+		pub::Player::GetBase(client, base);
 		pub::Player::GetSystem(client, system);
 		pub::Player::GetShip(client, pi.ship);
 
-		if (iBase)
+		if (base)
 		{
 			char Basename[1024] = "";
-			pub::GetBaseNickname(Basename, sizeof(Basename), iBase);
+			pub::GetBaseNickname(Basename, sizeof(Basename), base);
 			pi.baseName = stows(Basename);
 		}
 
@@ -147,7 +147,7 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& Rights)
+	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& rights)
 	{
 		auto acc = Client::ExtractAccount(player);
 		if (acc.has_error())
@@ -158,7 +158,7 @@ namespace Hk::Admin
 		const auto dir = Client::GetAccountDirName(acc.value());
 
 		const std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
-		IniWrite(adminFile, "admin", "rights", wstos(Rights));
+		IniWrite(adminFile, "admin", "rights", wstos(rights));
 		return {};
 	}
 
@@ -206,40 +206,40 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> ChangeNPCSpawn(bool bDisable)
+	cpp::result<void, Error> ChangeNPCSpawn(bool disable)
 	{
-		if (CoreGlobals::c()->disableNpcs && bDisable)
+		if (CoreGlobals::c()->disableNpcs && disable)
 			return {};
-		if (!CoreGlobals::c()->disableNpcs && !bDisable)
+		if (!CoreGlobals::c()->disableNpcs && !disable)
 			return {};
 
-		char Jump[1];
-		char Cmp[1];
-		if (bDisable)
+		char jump[1];
+		char cmp[1];
+		if (disable)
 		{
-			Jump[0] = '\xEB';
-			Cmp[0] = '\xFF';
+			jump[0] = '\xEB';
+			cmp[0] = '\xFF';
 		}
 		else
 		{
-			Jump[0] = '\x75';
-			Cmp[0] = '\xF9';
+			jump[0] = '\x75';
+			cmp[0] = '\xF9';
 		}
 
 		void* address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS1);
-		WriteProcMem(address, &Jump, 1);
+		WriteProcMem(address, &jump, 1);
 		address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
-		WriteProcMem(address, &Cmp, 1);
-		g_bNPCDisabled = bDisable;
+		WriteProcMem(address, &cmp, 1);
+		g_bNPCDisabled = disable;
 		return {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& Basename)
+	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& basename)
 	{
 		uint baseId = 0;
-		pub::GetBaseID(baseId, wstos(Basename).c_str());
+		pub::GetBaseID(baseId, wstos(basename).c_str());
 		if (!baseId)
 		{
 			return cpp::fail(Error::InvalidBaseName);
@@ -256,7 +256,7 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Fuse* GetFuseFromID(uint iFuseId)
+	Fuse* GetFuseFromID(uint fuseId)
 	{
 		int dunno = 0;
 		Fuse* fuse = nullptr;
@@ -264,7 +264,7 @@ namespace Hk::Admin
 			mov edx, 0x6CFD390
 			call edx
 
-			lea ecx, iFuseId
+			lea ecx, fuseId
 			push ecx
 			lea ecx, dunno
 			push ecx
@@ -300,15 +300,15 @@ namespace Hk::Admin
 		return GetEqObjFromObjRW_(objRW);
 	}
 
-	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
+	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)
 	{
 		__asm {
-			lea eax, [esp+8] // iFuseId
-			push [esp+20] // fSkip
-			push [esp+16] // fDelay
+			lea eax, [esp+8] // fuseId
+			push [esp+20] // skip
+			push [esp+16] // delay
 			push 0 // SUBOBJ_Id_NONE
 			push eax
-			push [esp+32] // fLifetime
+			push [esp+32] // lifetime
 			mov ecx, [esp+24]
 			mov eax, [ecx]
 			call [eax+0x1E4]
@@ -316,30 +316,30 @@ namespace Hk::Admin
 		}
 	}
 
-	bool LightFuse(IObjRW* ship, uint iFuseId, float fDelay, float fLifetime, float fSkip)
+	bool LightFuse(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)
 	{
-		return LightFuse_(ship, iFuseId, fDelay, fLifetime, fSkip);
+		return LightFuse_(ship, fuseId, delay, lifetime, skip);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Returns true if a fuse was unlit
-	__declspec(naked) bool __stdcall UnLightFuse_(IObjRW* ship, uint iFuseId, float fdunno)
+	__declspec(naked) bool __stdcall UnLightFuse_([[maybe_unused]] const IObjRW* ship, [[maybe_unused]] uint fuseId, [[maybe_unused]] float dunno)
 	{
 		__asm {
 			mov ecx, [esp+4]
-			lea eax, [esp+8] // iFuseId
+			lea eax, [esp+8] // fuseId
 			push [esp+12] // fdunno
 			push 0 // SUBOBJ_Id_NONE
-			push eax // iFuseId
+			push eax // fuseId
 			mov eax, [ecx]
 			call [eax+0x1E8]
 			ret 12
 		}
 	}
 
-	bool UnLightFuse(IObjRW* ship, uint iFuseId)
+	bool UnLightFuse(IObjRW* ship, uint fuseId)
 	{
-		return UnLightFuse_(ship, iFuseId, 0.f);
+		return UnLightFuse_(ship, fuseId, 0.f);
 	}
 } // namespace Hk::Admin

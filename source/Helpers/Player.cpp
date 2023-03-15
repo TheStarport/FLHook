@@ -5,7 +5,7 @@
 namespace Hk::Player
 {
 	using _FLAntiCheat = void(__stdcall*)();
-	using _FLPossibleCheatingDetected = void(__stdcall*)(int iReason);
+	using _FLPossibleCheatingDetected = void(__stdcall*)(int reason);
 	constexpr auto AddrAntiCheat1 = 0x70120;
 	constexpr auto AddrAntiCheat2 = 0x6FD20;
 	constexpr auto AddrAntiCheat3 = 0x6FAF0;
@@ -118,7 +118,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 
 		const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
-		int iRet;
+		int retVal;
 		if (Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
@@ -126,10 +126,10 @@ namespace Hk::Player
 			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			iRet = IniGetI(charFileNew, "Player", "money", -1);
+			retVal = IniGetI(charFileNew, "Player", "money", -1);
 			// Add a space to the value so the ini file line looks like "<key> =
 			// <value>" otherwise IFSO can't decode the file correctly
-			IniWrite(charFileNew, "Player", "money", " " + std::to_string(iRet + amount));
+			IniWrite(charFileNew, "Player", "money", " " + std::to_string(retVal + amount));
 
 			if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlcEncodeFile(charFileNew.c_str(), charFile.c_str()))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
@@ -138,28 +138,28 @@ namespace Hk::Player
 		}
 		else
 		{
-			iRet = IniGetI(charFile, "Player", "money", -1);
+			retVal = IniGetI(charFile, "Player", "money", -1);
 			// Add a space to the value so the ini file line looks like "<key> =
 			// <value>" otherwise IFSO can't decode the file correctly
-			IniWrite(charFile, "Player", "money", " " + std::to_string(iRet + amount));
+			IniWrite(charFile, "Player", "money", " " + std::to_string(retVal + amount));
 		}
 
 		if (client != UINT_MAX)
 		{
 			// money fix in case player logs in with this account
-			bool bFound = false;
+			bool found = false;
 			const std::wstring characterLower = ToLower(character);
 			for (auto& money : ClientInfo[client].MoneyFix)
 			{
 				if (money.character == characterLower)
 				{
 					money.uAmount += amount;
-					bFound = true;
+					found = true;
 					break;
 				}
 			}
 
-			if (!bFound)
+			if (!found)
 			{
 				MONEY_FIX mf;
 				mf.character = characterLower;
@@ -323,8 +323,8 @@ namespace Hk::Player
 			return cpp::fail(Error::InvalidBaseName);
 		}
 
-		uint iSysId;
-		pub::Player::GetSystem(client, iSysId);
+		uint sysId;
+		pub::Player::GetSystem(client, sysId);
 		const Universe::IBase* base = Universe::get_base(baseId);
 
 		if (!base)
@@ -335,7 +335,7 @@ namespace Hk::Player
 		pub::Player::ForceLand(client, baseId); // beam
 
 		// if not in the same system, emulate F1 charload
-		if (base->systemId != iSysId)
+		if (base->systemId != sysId)
 		{
 			Server.BaseEnter(baseId, client);
 			Server.BaseExit(baseId, client);
@@ -362,12 +362,12 @@ namespace Hk::Player
 		if (client == UINT_MAX)
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		void* pJmp = (char*)server + 0x7EFA8;
+		void* jmp = (char*)server + 0x7EFA8;
 		const char Nop[2] = {'\x90', '\x90'};
 		const char TestAlAl[2] = {'\x74', '\x44'};
-		WriteProcMem(pJmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
+		WriteProcMem(jmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
 		pub::Save(client, 1);
-		WriteProcMem(pJmp, TestAlAl, sizeof(TestAlAl)); // restore
+		WriteProcMem(jmp, TestAlAl, sizeof(TestAlAl)); // restore
 
 		return {};
 	}
@@ -428,8 +428,8 @@ namespace Hk::Player
 		if (client == UINT_MAX || Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
-		int iHold;
-		const auto cargo = EnumCargo(player, iHold);
+		int hold;
+		const auto cargo = EnumCargo(player, hold);
 		if (cargo.has_error())
 		{
 			return cpp::fail(cargo.error());
@@ -1033,15 +1033,15 @@ namespace Hk::Player
 
 		FLPACKET_LAUNCH launchPacket;
 		launchPacket.ship = ClientInfo[client].ship;
-		launchPacket.iBase = 0;
-		launchPacket.iState = 0xFFFFFFFF;
-		launchPacket.fRotate[0] = rotation.w;
-		launchPacket.fRotate[1] = rotation.x;
-		launchPacket.fRotate[2] = rotation.y;
-		launchPacket.fRotate[3] = rotation.z;
-		launchPacket.fPos[0] = destination.x;
-		launchPacket.fPos[1] = destination.y;
-		launchPacket.fPos[2] = destination.z;
+		launchPacket.base = 0;
+		launchPacket.state = 0xFFFFFFFF;
+		launchPacket.rotate[0] = rotation.w;
+		launchPacket.rotate[1] = rotation.x;
+		launchPacket.rotate[2] = rotation.y;
+		launchPacket.rotate[3] = rotation.z;
+		launchPacket.pos[0] = destination.x;
+		launchPacket.pos[1] = destination.y;
+		launchPacket.pos[2] = destination.z;
 
 		HookClient->Send_FLPACKET_SERVER_LAUNCH(client, launchPacket);
 
@@ -1162,9 +1162,9 @@ namespace Hk::Player
 		{
 			// Get the this player's current system and location in the system.
 			ClientId client2 = playerDb->onlineId;
-			uint iSystem2 = 0;
-			pub::Player::GetSystem(client2, iSystem2);
-			if (system != iSystem2)
+			uint system2 = 0;
+			pub::Player::GetSystem(client2, system2);
+			if (system != system2)
 				continue;
 
 			uint ship2;
@@ -1383,7 +1383,7 @@ namespace Hk::Player
 		}
 
 		FlPacket* packet = FlPacket::Create(itemBufSize, FlPacket::FLPACKET_SERVER_SETEQUIPMENT);
-		const auto pSetEquipment = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
+		const auto setEquipmentPacket = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
 
 		// Add items to packet as array of variable size.
 		uint index = 0;
@@ -1405,15 +1405,15 @@ namespace Hk::Player
 			{
 				setEquipItem.hardPointLen = 0;
 			}
-			pSetEquipment->count++;
+			setEquipmentPacket->count++;
 
 			const byte* buf = (byte*)&setEquipItem;
 			for (int i = 0; i < sizeof(SetEquipmentItem); i++)
-				pSetEquipment->items[index++] = buf[i];
+				setEquipmentPacket->items[index++] = buf[i];
 
 			const byte* hardPoint = (byte*)item.hardPoint.value;
 			for (int i = 0; i < setEquipItem.hardPointLen; i++)
-				pSetEquipment->items[index++] = hardPoint[i];
+				setEquipmentPacket->items[index++] = hardPoint[i];
 		}
 
 		if (packet->SendTo(client))
@@ -1452,9 +1452,9 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint goodId, const std::string& hardpoint, bool mounted)
+	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player,[[maybe_unused]] uint goodId, const std::string& hardpoint, bool mounted)
 	{
-		using _AddCargoDocked = bool(__stdcall *)(uint iGoodId, CacheString* & hardpoint, int iNumItems, float fHealth, int bMounted, int bMission, uint iOne);
+		using _AddCargoDocked = bool(__stdcall *)(uint goodId, CacheString* & hardpoint, int numItems, float health, int mounted, int mission, uint one);
 		static _AddCargoDocked addCargoDocked = nullptr;
 		if (!addCargoDocked)
 			addCargoDocked = (_AddCargoDocked)((char*)server + 0x6EFC0);
@@ -1483,14 +1483,14 @@ namespace Hk::Player
 		int one = 1;
 		int mountedAsInt = mounted;
 		float health = 1;
-		CacheString* pHP = &hardpointCache;
+		CacheString* hardpointPointer = &hardpointCache;
 		__asm {
 			push one
 			push mountedAsInt
 			push one
 			push health
 			push one
-			push pHP
+			push hardpointPointer
 			push goodId
 			mov ecx, pd
 			call addCargoDocked
@@ -1546,18 +1546,18 @@ namespace Hk::Player
 			std::wstring key = Trim(line.substr(0, line.find(L"=")));
 			if (key == L"base" || key == L"last_base")
 			{
-				const int iFindEqual = line.find(L"=");
-				if (iFindEqual == -1)
+				const int findEqual = line.find(L"=");
+				if (findEqual == -1)
 				{
 					continue;
 				}
 
-				if ((iFindEqual + 1) >= static_cast<int>(line.size()))
+				if ((findEqual + 1) >= static_cast<int>(line.size()))
 				{
 					continue;
 				}
 
-				baseId = CreateID(wstos(Trim(line.substr(iFindEqual + 1))).c_str());
+				baseId = CreateID(wstos(Trim(line.substr(findEqual + 1))).c_str());
 				break;
 			}
 		}
@@ -1567,25 +1567,25 @@ namespace Hk::Player
 			std::wstring key = Trim(line.substr(0, line.find(L"=")));
 			if (key == L"cargo" || key == L"equip")
 			{
-				const int iFindEqual = line.find(L"=");
-				if (iFindEqual == -1)
+				const int findEqual = line.find(L"=");
+				if (findEqual == -1)
 				{
 					continue;
 				}
-				const int iFindComma = line.find(L",", iFindEqual);
-				if (iFindComma == -1)
+				const int findComma = line.find(L",", findEqual);
+				if (findComma == -1)
 				{
 					continue;
 				}
-				const uint iGoodId = ToUInt(Trim(line.substr(iFindEqual + 1, iFindComma)));
-				const uint iGoodCount = ToUInt(Trim(line.substr(iFindComma + 1, line.find(L",", iFindComma + 1))));
+				const uint goodId = ToUInt(Trim(line.substr(findEqual + 1, findComma)));
+				const uint goodCount = ToUInt(Trim(line.substr(findComma + 1, line.find(L",", findComma + 1))));
 
 				float itemValue;
-				if (pub::Market::GetPrice(baseId, Arch2Good(iGoodId), itemValue) == 0)
+				if (pub::Market::GetPrice(baseId, Arch2Good(goodId), itemValue) == 0)
 				{
-					if (arch_is_combinable(iGoodId))
+					if (arch_is_combinable(goodId))
 					{
-						value += itemValue * static_cast<float>(iGoodCount);
+						value += itemValue * static_cast<float>(goodCount);
 					}
 					else
 					{
