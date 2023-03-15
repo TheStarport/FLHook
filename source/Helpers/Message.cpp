@@ -127,12 +127,12 @@ namespace Hk::Message
 
 	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xmring)
 	{
-		char Buf[0xFFFF];
-		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet); err.has_error())
+		char buf[0xFFFF];
+		uint ret;
+		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret); err.has_error())
 			return cpp::fail(err.error());
 
-		FMsgSendChat(client, Buf, iRet);
+		FMsgSendChat(client, buf, ret);
 		return {};
 	}
 
@@ -161,15 +161,15 @@ namespace Hk::Message
 			systemId = std::get<uint>(system);
 		}
 		// encode xml std::string
-		char Buf[0xFFFF];
-		uint iRet;
-		if (const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet); err.has_error())
+		char buf[0xFFFF];
+		uint ret;
+		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret); err.has_error())
 			return cpp::fail(err.error());
 
 		// for all players in system...
 		for (const auto player : Client::getAllPlayersInSystem(systemId))
 		{
-			FMsgSendChat(player, Buf, iRet);
+			FMsgSendChat(player, buf, ret);
 		}
 
 		return {};
@@ -180,9 +180,9 @@ namespace Hk::Message
 	cpp::result<void, Error> FMsgU(const std::wstring& xmring)
 	{
 		// encode xml std::string
-		char Buf[0xFFFF];
-		uint iRet;
-		const auto err = FMsgEncodeXML(xmring, Buf, sizeof(Buf), iRet);
+		char buf[0xFFFF];
+		uint ret;
+		const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret);
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -191,7 +191,7 @@ namespace Hk::Message
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			ClientId client = playerDb->onlineId;
-			FMsgSendChat(client, Buf, iRet);
+			FMsgSendChat(client, buf, ret);
 		}
 
 		return {};

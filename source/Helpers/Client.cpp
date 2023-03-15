@@ -176,9 +176,9 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& Shortcut)
+	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& shortcut)
 	{
-		std::wstring ShortcutLower = ToLower(Shortcut);
+		std::wstring ShortcutLower = ToLower(shortcut);
 		if (ShortcutLower.find(L"sc ") != 0)
 			return cpp::fail(Error::InvalidShortcutString);
 
@@ -308,7 +308,7 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool bKick)
+	cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool kick)
 	{
 		const std::array<char, 1> jmp = {'\xEB'};
 		const std::array<char, 1> jbe = {'\x76'};
@@ -319,11 +319,11 @@ namespace Hk::Client
 
 		st6::wstring fr((ushort*)accountId.value().c_str());
 
-		if (!bKick)
+		if (!kick)
 			WriteProcMem((void*)0x06D52A6A, jmp.data(), 1);
 
 		Players.LockAccountAccess(fr); // also kicks player on this account
-		if (!bKick)
+		if (!kick)
 			WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
 
 		return {};
@@ -344,9 +344,9 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void GetItemsForSale(uint baseId, std::list<uint>& Items)
+	void GetItemsForSale(uint baseId, std::list<uint>& items)
 	{
-		Items.clear();
+		items.clear();
 		const std::array<char, 2> nop = {'\x90', '\x90'};
 		const std::array<char, 2> jnz = {'\x75', '\x1D'};
 		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
@@ -357,7 +357,7 @@ namespace Hk::Client
 		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), jnz.data(), 2);
 
 		for (int i = 0; (i < size); i++)
-			Items.push_back(arr[i]);
+			items.push_back(arr[i]);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
