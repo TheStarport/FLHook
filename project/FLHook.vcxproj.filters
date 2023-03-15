@@ -66,7 +66,6 @@
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
-    <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp">
       <Filter>FLHook\hooks</Filter>
     </ClCompile>
@@ -166,7 +165,6 @@
     <ClInclude Include="..\source\CConsole.h">
       <Filter>AdminCommands</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\include\FLHook.hpp">
       <Filter>Include</Filter>

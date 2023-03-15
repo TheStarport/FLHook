@@ -191,7 +191,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
   <ItemGroup>
     <ClCompile Include="..\source\Data\Lights.cpp" />
     <ClCompile Include="..\source\Debug.cpp" />
-    <ClCompile Include="..\source\Exceptions.cpp" />
     <ClCompile Include="..\source\Features\Error.cpp" />
     <ClCompile Include="..\source\Features\Logger.cpp" />
     <ClCompile Include="..\source\Features\Mail.cpp" />
@@ -257,7 +256,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Tools\Structs.hpp" />
     <ClInclude Include="..\include\Tools\Typedefs.hpp" />
     <ClInclude Include="..\include\Tools\Utils.hpp" />
-    <ClInclude Include="..\source\ExceptionInfo.h" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
     <ClInclude Include="..\source\CConsole.h" />
