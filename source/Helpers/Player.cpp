@@ -154,7 +154,7 @@ namespace Hk::Player
 			{
 				if (money.character == characterLower)
 				{
-					money.uAmount += amount;
+					money.amount += amount;
 					found = true;
 					break;
 				}
@@ -164,7 +164,7 @@ namespace Hk::Player
 			{
 				MONEY_FIX mf;
 				mf.character = characterLower;
-				mf.uAmount = amount;
+				mf.amount = amount;
 				ClientInfo[client].MoneyFix.push_back(mf);
 			}
 		}

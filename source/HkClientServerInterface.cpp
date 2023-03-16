@@ -247,7 +247,7 @@ namespace IServerImplHook
 			{
 				if (i.character == charName)
 				{
-					Hk::Player::AddCash(charName, i.uAmount);
+					Hk::Player::AddCash(charName, i.amount);
 					ClientInfo[client].MoneyFix.remove(i);
 					break;
 				}
@@ -427,7 +427,7 @@ namespace IServerImplHook
 			{
 				if (i.character == charName)
 				{
-					Hk::Player::AddCash(charName, i.uAmount);
+					Hk::Player::AddCash(charName, i.amount);
 					ClientInfo[client].MoneyFix.remove(i);
 					break;
 				}

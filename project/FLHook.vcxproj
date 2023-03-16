@@ -223,7 +223,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
     <ClCompile Include="..\source\Memory\SaveData.cpp" />
     <ClCompile Include="..\source\CCmds.cpp" />
-    <ClCompile Include="..\source\CConsole.cpp" />
     <ClCompile Include="..\source\CInGame.cpp" />
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
@@ -239,6 +238,11 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
     <ClInclude Include="..\include\Actions\Actions.hpp" />
+    <ClInclude Include="..\include\Actions\CargoManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\ChatActions.hpp" />
+    <ClInclude Include="..\include\Actions\PlayerManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\RepManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\ShipManipulation.hpp" />
     <ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
     <ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
     <ClInclude Include="..\include\Defs\FLPacket.hpp" />
@@ -253,7 +257,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Helpers\FlCodec.hpp" />
     <ClInclude Include="..\include\Helpers\Ini.hpp" />
     <ClInclude Include="..\include\Helpers\Math.hpp" />
-    <ClInclude Include="..\include\Helpers\Message.hpp" />
+    <ClInclude Include="..\include\Helpers\Chat.hpp" />
     <ClInclude Include="..\include\Helpers\Personalities.hpp" />
     <ClInclude Include="..\include\Helpers\Player.hpp" />
     <ClInclude Include="..\include\Helpers\Solar.hpp" />
@@ -272,7 +276,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Tools\Utils.hpp" />
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
-    <ClInclude Include="..\source\CConsole.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -830,7 +830,7 @@ void CCmds::CmdMove(std::wstring adminName, float x, float y, float z)
 
 void CCmds::CmdHelp()
 {
-	// TODO: Reimplement
+	// TODO: Reimplement CCmds Helper
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

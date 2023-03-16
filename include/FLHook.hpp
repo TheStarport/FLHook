@@ -66,15 +66,8 @@ public:
 	void CmdFMsgS(const std::wstring& systemName, const std::wstring& XML);
 	void CmdFMsgU(const std::wstring& XML);
 
-	void CmdEnumCargo(const std::variant<uint, std::wstring>& player);
 	void CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, uint count);
 	void CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, uint count, bool mission);
-
-	void CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& newCharname);
-	void CmdDeleteChar(const std::variant<uint, std::wstring>& player);
-
-	void CmdReadCharFile(const std::variant<uint, std::wstring>& player);
-	void CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& data);
 
 	void CmdGetClientID(const std::wstring& player);
 	void PrintPlayerInfo(PlayerInfo& pi);
@@ -108,7 +101,6 @@ public:
 	void CmdShutdown();
 
 	void ExecuteCommandString(const std::wstring& Cmd);
-	void SetRightsByString(const std::string& rightStr);
 	std::wstring currCmdString;
 	#endif
 

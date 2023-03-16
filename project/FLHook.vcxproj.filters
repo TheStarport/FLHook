@@ -69,9 +69,6 @@
     <ClCompile Include="..\source\CCmds.cpp">
       <Filter>AdminCommands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\CConsole.cpp">
-      <Filter>AdminCommands</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\CInGame.cpp">
       <Filter>AdminCommands</Filter>
     </ClCompile>
@@ -174,9 +171,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source\CConsole.h">
-      <Filter>AdminCommands</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\Global.hpp" />
     <ClInclude Include="..\include\FLHook.hpp">
       <Filter>Include</Filter>
@@ -253,7 +247,7 @@
     <ClInclude Include="..\include\Helpers\Time.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Helpers\Message.hpp">
+    <ClInclude Include="..\include\Helpers\Chat.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Helpers\Client.hpp">
@@ -299,6 +293,21 @@
       <Filter>Include\Features</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Actions\Actions.hpp">
+      <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\ShipManipulation.hpp">
+      <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\RepManipulation.hpp">
+      <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\ChatActions.hpp">
+      <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\CargoManipulation.hpp">
+      <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\PlayerManipulation.hpp">
       <Filter>Include\Actions</Filter>
     </ClInclude>
   </ItemGroup>

@@ -22,7 +22,7 @@ struct CargoInfo
 struct MONEY_FIX
 {
 	std::wstring character;
-	uint uAmount;
+	uint amount;
 
 	bool operator==(MONEY_FIX mf1) const
 	{
