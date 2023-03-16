@@ -52,6 +52,12 @@
     <Filter Include="Include\Helpers">
       <UniqueIdentifier>{f247d53e-edef-4b93-8896-97695980a070}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Defs">
+      <UniqueIdentifier>{0c8fdf3f-457c-4de8-bb7d-ddc221a6283c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Actions">
+      <UniqueIdentifier>{bd406fdf-6bea-420a-8fa6-6ef55eff6ee2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -181,9 +187,6 @@
     <ClInclude Include="..\include\Tools\Constexpr.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\Deps.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Tools\Enums.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
@@ -282,6 +285,21 @@
     </ClInclude>
     <ClInclude Include="..\include\Helpers\FlCodec.hpp">
       <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\FLPacket.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\FLHookConfig.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\CoreGlobals.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\DataManager.hpp">
+      <Filter>Include\Features</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Actions\Actions.hpp">
+      <Filter>Include\Actions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

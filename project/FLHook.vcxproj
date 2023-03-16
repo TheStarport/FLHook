@@ -238,6 +238,11 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
+    <ClInclude Include="..\include\Actions\Actions.hpp" />
+    <ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
+    <ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
+    <ClInclude Include="..\include\Defs\FLPacket.hpp" />
+    <ClInclude Include="..\include\Features\DataManager.hpp" />
     <ClInclude Include="..\include\Features\Mail.hpp" />
     <ClInclude Include="..\include\Features\MessageHandler.hpp" />
     <ClInclude Include="..\include\Features\TempBan.hpp" />
@@ -257,7 +262,6 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\plugin.h" />
     <ClInclude Include="..\include\Tools\Concepts.hpp" />
     <ClInclude Include="..\include\Tools\Constexpr.hpp" />
-    <ClInclude Include="..\include\Tools\Deps.hpp" />
     <ClInclude Include="..\include\Tools\Detour.hpp" />
     <ClInclude Include="..\include\Tools\Enums.hpp" />
     <ClInclude Include="..\include\Tools\Macros.hpp" />

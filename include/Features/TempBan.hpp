@@ -1,3 +1,4 @@
+#pragma once
 #include <FLHook.hpp>
 
 struct TempBanInfo

@@ -7,6 +7,18 @@
 
 #include "refl.hpp"
 
+// A base class/struct used for denoting that a class can be scanned.
+// Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
+// Reflectables are interepreted as headers of the provided name.
+// Circular references are not handled and will crash.
+// Marking a field as reflectable without properly initalizing it will crash upon attempted deserialization.
+// Ensure that the default CTOR initalizes all fields.
+struct DLL Reflectable
+{
+	virtual ~Reflectable() = default;
+	virtual std::string File() { return {}; }
+};
+
 template<typename T>
 constexpr auto IsEnum = std::is_enum_v<T>;
 template<typename T>
