@@ -1,5 +1,8 @@
 #pragma once
 
+using UserCmdProc = std::function<void(ClientId& client)>;
+using UserCmdProcWithParam = std::function<void(ClientId& client, const std::wstring& param)>;
+
 struct UserCommand
 {
 	std::variant<std::wstring, std::vector<std::wstring>> command;
@@ -24,14 +27,14 @@ struct PluginHook
 {
 	using FunctionType = void();
 
-	HookedCall targetFunction_;
-	FunctionType* hookFunction_;
-	HookStep step_;
-	int priority_;
+	HookedCall targetFunction;
+	FunctionType* hookFunction;
+	HookStep step;
+	int priority;
 
 	template<typename Func>
 	PluginHook(const HookedCall targetFunction, Func* hookFunction, const HookStep step = HookStep::Before, const int priority = 0)
-	    : targetFunction_(targetFunction), hookFunction_(reinterpret_cast<FunctionType*>(hookFunction)), step_(step), priority_(priority)
+	    : targetFunction(targetFunction), hookFunction(reinterpret_cast<FunctionType*>(hookFunction)), step(step), priority(priority)
 	{
 		switch (step)
 		{
@@ -71,11 +74,18 @@ class DLL PluginCommunicator
 
 struct PluginInfo
 {
-	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
-	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 	std::string name;
 	std::string shortName;
+	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
+	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 	bool mayUnload;
+
+	PluginInfo() = delete;
+	PluginInfo(
+	    const std::string& name, const std::string& shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
+	    : name(name), shortName(shortName), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
+	{
+	}
 };
 
 class DLL Plugin
@@ -117,7 +127,7 @@ class DLL Plugin
 	void EmplaceHook(Args&&... args)
 	{
 		PluginHook ph(std::forward<Args>(args)...);
-		if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction_ == ph.targetFunction_ && ph.step_ == hook.step_; }) !=
+		if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction == ph.targetFunction && ph.step == hook.step; }) !=
 		    hooks.end())
 		{
 			return;
@@ -128,7 +138,7 @@ class DLL Plugin
 
 	void RemoveHook(HookedCall target, HookStep step)
 	{
-		std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction_ == target && step == hook.step_; });
+		std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction == target && step == hook.step; });
 	}
 
 	void AddCommand(
@@ -144,8 +154,17 @@ class DLL Plugin
 	}
 };
 
-#define SetupPlugin(type, info)                                               \
-	extern "C" EXPORT std::shared_ptr<(type)> PluginFactory() \
-	{                                                                         \
-		return std::move(std::make_shared<TPlugin>(info))                     \
+#define SetupPlugin(type, info)                             \
+	extern "C" EXPORT std::shared_ptr<type> PluginFactory() \
+	{                                                       \
+		return std::move(std::make_shared<type>(info));      \
+	}
+
+#define Cmd(func)                      \
+	[this](const ClientId& clientId) { \
+		func(clientId);                \
+	}
+#define CmdP(func)                                                \
+	[this](const ClientId& clientId, const std::wstring& param) { \
+		func(clientId, param);                                    \
 	}

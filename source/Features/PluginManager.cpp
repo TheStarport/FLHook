@@ -82,7 +82,7 @@ cpp::result<std::string, Error> PluginManager::Unload(const std::string& name)
 
 	for (const auto& hook : plugin->hooks)
 	{
-		const uint hookId = static_cast<uint>(hook.targetFunction_) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step_);
+		const uint hookId = static_cast<uint>(hook.targetFunction) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step);
 		auto& list = pluginHooks_[hookId];
 
 		std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin.lock()->dll == dllAddr; });
@@ -193,20 +193,20 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 
 	for (const auto& hook : plugin->hooks)
 	{
-		if (!hook.hookFunction_)
+		if (!hook.hookFunction)
 		{
-			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step_), dllName));
+			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
 			continue;
 		}
 
-		if (const auto& targetHookProps = hookProps_[hook.targetFunction_]; !targetHookProps.matches(hook.step_))
+		if (const auto& targetHookProps = hookProps_[hook.targetFunction]; !targetHookProps.matches(hook.step))
 		{
 			adminInterface->Print(std::format("ERR could not bind function. plugin: {}, step not available", dllName));
 			continue;
 		}
-		uint hookId = static_cast<uint>(hook.targetFunction_) * magic_enum::enum_count<HookStep>() + static_cast<uint>(hook.step_);
+		uint hookId = static_cast<uint>(hook.targetFunction) * magic_enum::enum_count<HookStep>() + static_cast<uint>(hook.step);
 		auto& list = pluginHooks_[hookId];
-		PluginHookData data = {hook.targetFunction_, hook.hookFunction_, hook.step_, hook.priority_, plugin};
+		PluginHookData data = {hook.targetFunction, hook.hookFunction, hook.step, hook.priority, plugin};
 		list.emplace_back(std::move(data));
 	}
 

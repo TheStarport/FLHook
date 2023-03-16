@@ -2,6 +2,7 @@
 
 #include <string>
 
+class Plugin;
 using uint = unsigned int;
 using uchar = unsigned char;
 using ushort = unsigned short;
@@ -30,6 +31,3 @@ using _GetFLName = int(__cdecl*)(char* buf, const wchar_t* str);
 using _GetShipInspect = bool(__cdecl*)(uint& ship, class IObjInspectImpl*& inspect, uint& dunno);
 
 using BYTE = unsigned char;
-
-using UserCmdProc = void(*)(ClientId& client);
-using UserCmdProcWithParam = void(*)(ClientId& client, const std::wstring& param);

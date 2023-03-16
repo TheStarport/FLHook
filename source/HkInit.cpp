@@ -1,5 +1,4 @@
 #include "PCH.hpp"
-#include "Global.hpp"
 
 namespace IEngineHook
 {
