@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 #include "Global.hpp"
-#include "CConsole.h"
 
 #include "Memory/MemoryManager.hpp"
 #include <Features/MessageHandler.hpp>
@@ -16,8 +15,6 @@ HMODULE hModDaLib = nullptr;
 HMODULE content = nullptr;
 
 bool executed = false;
-
-CConsole AdminConsole;
 
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "malloc"));
 const st6_free_t st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "free"));

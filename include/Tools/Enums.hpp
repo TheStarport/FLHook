@@ -46,7 +46,7 @@ enum class Error
 	PluginNotFound,
 	InvalidIdType,
 	InvalidSpaceObjId,
-	unknownError = 1000,
+	UnknownError = 1000,
 };
 
 enum DIEMSGTYPE

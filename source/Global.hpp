@@ -21,20 +21,6 @@ bool UserCmd_Process(ClientId client, const std::wstring& Cmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
-// Logs
-template<typename T>
-std::wstring ToLogString(const T& val)
-{
-	// Get type without reference
-	using DeclType = std::remove_reference_t<decltype(val)>;
-	if constexpr (std::is_same_v<DeclType, int> || std::is_same_v<DeclType, uint> || std::is_same_v<DeclType, float> || std::is_same_v<DeclType, double>)
-	{
-		return std::to_wstring(val);
-	}
-
-	return L"<undefined>";
-}
-
 // FuncCache
 namespace StartupCache
 {

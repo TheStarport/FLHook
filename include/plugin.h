@@ -152,6 +152,8 @@ class DLL Plugin
 		std::erase_if(
 		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring>(userCommand.command) == cmd; });
 	}
+
+	[[nodiscard]] auto GetCommands() const { return std::make_pair(commands.begin(), commands.end()); }
 };
 
 #define SetupPlugin(type, info)                             \

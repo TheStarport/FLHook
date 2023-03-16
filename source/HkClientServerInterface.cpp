@@ -3,7 +3,10 @@
 #include "Features/Mail.hpp"
 #include "Features/TempBan.hpp"
 
-#include <random>
+#include "plugin.h"
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Exceptions/InputException.hpp"
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
@@ -160,16 +163,27 @@ namespace IServerImplHook
 					foundCommand = true;
 					cidTo.id = SpecialChatIds::LOCAL;
 				}
-				else if (UserCmd_Process(cidFrom.id, buffer))
+				else
 				{
-					if (FLHookConfig::c()->messages.echoCommands)
+					try
 					{
-						const std::wstring XML =
-						    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
-						Hk::Message::FMsg(cidFrom.id, XML);
-					}
+						if (UserCmdProcess(cidFrom.id, buffer))
+						{
+							if (FLHookConfig::c()->messages.echoCommands)
+							{
+								const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+								    XMLText(buffer) + L"</TEXT>";
+								Hk::Message::FMsg(cidFrom.id, XML);
+							}
 
-					return false;
+							return false;
+						}
+					}
+				    catch (const InputException& ex)
+				    {
+						PrintUserCmdText(cidFrom.id, stows(ex.what()));
+						return false;
+				    }
 				}
 			}
 			else if (buffer[0] == '.')

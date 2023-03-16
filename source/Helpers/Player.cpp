@@ -927,7 +927,7 @@ namespace Hk::Player
 		std::ifstream ifs;
 		ifs.open(fileToRead.c_str(), std::ios_base::in);
 		if (!ifs.is_open())
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 
 		std::list<std::wstring> output;
 		std::string Line;
@@ -980,7 +980,7 @@ namespace Hk::Player
 		std::ofstream ofs;
 		ofs.open(fileToWrite.c_str(), std::ios_base::out);
 		if (!ofs.is_open())
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 
 		size_t pos;
 		while ((pos = data.find(L"\\n")) != -1)
@@ -1318,7 +1318,7 @@ namespace Hk::Player
 		{
 			// kick
 			Kick(client);
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 		}
 
 		__asm {
@@ -1330,7 +1330,7 @@ namespace Hk::Player
 		if (res != 0)
 		{
 			Kick(client);
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 		}
 
 		ulong retVal = 0;
@@ -1346,7 +1346,7 @@ namespace Hk::Player
 		if (retVal > compare)
 		{
 			Kick(client);
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 		}
 
 		__asm {
@@ -1358,7 +1358,7 @@ namespace Hk::Player
 		if (res != 0)
 		{
 			Kick(client);
-			return cpp::fail(Error::unknownError);
+			return cpp::fail(Error::UnknownError);
 		}
 	}
 
@@ -1421,7 +1421,7 @@ namespace Hk::Player
 		{
 			return {};
 		}
-		return cpp::fail(Error::unknownError);
+		return cpp::fail(Error::UnknownError);
 	}
 
 	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint goodId, const std::string& hardpoint)
@@ -1528,7 +1528,7 @@ namespace Hk::Player
 			SaveChar(player);
 			if (!Client::IsValidClientID(client))
 			{
-				return cpp::fail(Error::unknownError);
+				return cpp::fail(Error::UnknownError);
 			}
 		}
 

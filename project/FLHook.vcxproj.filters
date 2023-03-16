@@ -34,9 +34,6 @@
     <Filter Include="Include\Tools\Serialization">
       <UniqueIdentifier>{87225937-9c94-4d5e-8e3f-ba1236fe0369}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FLHook\Helpers\Utility">
-      <UniqueIdentifier>{6a3b6eb0-6e95-4175-831b-ec68592b15f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\Tools\External">
       <UniqueIdentifier>{90905a1e-aa4a-4101-9a3a-ac6db2daa2e7}</UniqueIdentifier>
     </Filter>
@@ -58,6 +55,12 @@
     <Filter Include="Include\Actions">
       <UniqueIdentifier>{bd406fdf-6bea-420a-8fa6-6ef55eff6ee2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Exceptions">
+      <UniqueIdentifier>{b179b450-5e3f-443b-bd15-09cef2f0e47d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FLHook\Exceptions">
+      <UniqueIdentifier>{bd9ce818-f423-48ec-b2fb-7a06c8d1749d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -67,9 +70,6 @@
       <Filter>FLHook\Data</Filter>
     </ClCompile>
     <ClCompile Include="..\source\CCmds.cpp">
-      <Filter>AdminCommands</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\CInGame.cpp">
       <Filter>AdminCommands</Filter>
     </ClCompile>
     <ClCompile Include="..\source\FLHook.cpp" />
@@ -130,9 +130,6 @@
     <ClCompile Include="..\source\Helpers\Solar.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\Error.cpp">
-      <Filter>FLHook\Features</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
@@ -168,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="..\source\Features\Logger.cpp">
       <Filter>FLHook\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp">
+      <Filter>FLHook\Exceptions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -268,9 +268,6 @@
     <ClInclude Include="..\include\Helpers\Admin.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Helpers\Error.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Helpers\Personalities.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
@@ -309,6 +306,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Actions\PlayerManipulation.hpp">
       <Filter>Include\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exceptions\InputException.hpp">
+      <Filter>Include\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp">
+      <Filter>Include\Exceptions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

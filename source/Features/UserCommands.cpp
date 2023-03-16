@@ -1,5 +1,10 @@
 #include "PCH.hpp"
+
+#include <Features/Logger.hpp>
+
 #include "Global.hpp"
+#include "plugin.h"
+#include "Defs/FLHookConfig.hpp"
 #include "Features/Mail.hpp"
 
 #define PRINT_ERROR()                                                     \
@@ -889,15 +894,16 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 }
 
-bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdString, const std::vector<UserCommand>& commands)
+bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdString, 
+	std::vector<UserCommand>::const_iterator commandStart, const std::vector<UserCommand>::const_iterator commandEnd)
 {
 	const std::wstring inputLower = ToLower(originalCmdString);
-	for (const auto& cmdObj : commands)
+	while (commandStart++ != commandEnd)
 	{
 		std::optional<std::wstring> param;
-		if (cmdObj.command.index() == 0)
+		if (commandStart->command.index() == 0)
 		{
-			const auto& subCmd = std::get<std::wstring>(cmdObj.command);
+			const auto& subCmd = std::get<std::wstring>(commandStart->command);
 
 			// No command match
 			if (inputLower.rfind(subCmd, 0) != 0)
@@ -921,7 +927,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		}
 		else
 		{
-			for (const auto& subCmd : std::get<std::vector<std::wstring>>(cmdObj.command))
+			for (const auto& subCmd : std::get<std::vector<std::wstring>>(commandStart->command))
 			{
 				if (inputLower.rfind(subCmd, 0) != 0 || (originalCmdString.length() > subCmd.length() && originalCmdString[subCmd.length()] != ' '))
 				{
@@ -938,13 +944,13 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 
 			try
 			{
-				if (cmdObj.proc.index() == 0)
+				if (commandStart->proc.index() == 0)
 				{
-					std::get<UserCmdProc>(cmdObj.proc)(client);
+					std::get<UserCmdProc>(commandStart->proc)(client);
 				}
 				else
 				{
-					std::get<UserCmdProcWithParam>(cmdObj.proc)(client, param.value());
+					std::get<UserCmdProcWithParam>(commandStart->proc)(client, param.value());
 				}
 
 				Logger::i()->Log(LogLevel::Info, "finished");
@@ -960,21 +966,20 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 	return false;
 };
 
-bool UserCmd_Process(ClientId client, const std::wstring& cmd)
+bool UserCmdProcess(ClientId client, const std::wstring& cmd)
 {
-	auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, client, cmd);
-	if (pluginSkip)
+	if (auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, client, cmd); pluginSkip)
 		return pluginRet;
 
-	for (const auto& plugins = PluginManager::ir(); const std::shared_ptr<PluginData> i : plugins)
+	for (const auto& plugins = PluginManager::ir(); const std::weak_ptr<Plugin> i : plugins)
 	{
-		if (i->commands && ProcessPluginCommand(client, cmd, *i->commands))
+		if (const auto [begin, end] = i.lock()->GetCommands(); begin != end && ProcessPluginCommand(client, cmd, begin, end))
 		{
 			return true;
 		}
 	}
 
 	// In-built commands
-	return ProcessPluginCommand(client, cmd, UserCmds);
+	return ProcessPluginCommand(client, cmd, UserCmds.begin(), UserCmds.end());
 }
 
