@@ -628,9 +628,3 @@ extern DLL IClientImpl* HookClient;
 extern DLL char* OldClient;
 
 extern DLL std::array<CLIENT_INFO, MaxClientId + 1> ClientInfo;
-
-DLL std::string FlcDecode(std::string& input);
-DLL std::string FlcEncode(std::string& input);
-DLL bool EncodeDecode(const char* input, const char* output, bool encode);
-DLL bool FlcDecodeFile(const char* input, const char* outputFile);
-DLL bool FlcEncodeFile(const char* input, const char* outputFile);

@@ -24,12 +24,13 @@ Updated 2022 to use proper C++ syntax and work in memory ~ Laz
 
 */
 
-#include "Global.hpp"
+#include "Helpers/FlCodec.hpp"
+
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";
 
-std::string ReadFile(const char* input)
+std::string FlCodec::ReadFile(const std::string& input)
 {
 	std::ifstream file(input, std::ios::binary);
 
@@ -51,7 +52,7 @@ std::string ReadFile(const char* input)
 	return vec;
 }
 
-std::string FlcDecode(std::string& input)
+std::string FlCodec::Decode(const std::string& input)
 {
 	if (!input.starts_with("FLS1"))
 	{
@@ -77,7 +78,7 @@ std::string FlcDecode(std::string& input)
 	return output;
 }
 
-std::string FlcEncode(std::string& input)
+std::string FlCodec::Encode(const std::string& input)
 {
 	// Create our output vector, start with the magic string.
 	std::string output = {'F', 'L', 'S', '1'};
@@ -87,7 +88,7 @@ std::string FlcEncode(std::string& input)
 	uint i = 0;
 	while (i < length)
 	{
-		const byte c = (&input[0])[i];
+		const byte c = (input.data())[i];
 		const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
 		const byte r = c ^ (k | 0x80);
@@ -100,10 +101,10 @@ std::string FlcEncode(std::string& input)
 	return output;
 }
 
-bool EncodeDecode(const char* input, const char* output, bool encode)
+bool FlCodec::EncodeDecode(const std::string& input, const std::string& output, bool encode)
 {
 	auto undecodedBytes = ReadFile(input);
-	const auto decodedBytes = encode ? FlcEncode(undecodedBytes) : FlcDecode(undecodedBytes);
+	const auto decodedBytes = encode ? Encode(undecodedBytes) : Decode(undecodedBytes);
 
 	if (decodedBytes.empty())
 	{
@@ -111,19 +112,18 @@ bool EncodeDecode(const char* input, const char* output, bool encode)
 	}
 
 	std::ofstream outputFile(output, std::ios::out | std::ios::binary);
-	outputFile.write(&decodedBytes[0], decodedBytes.size() * sizeof(byte));
+	outputFile.write(decodedBytes.data(), static_cast<std::streamsize>(decodedBytes.size()) * sizeof(byte));
 	outputFile.close();
 
 	return true;
 }
 
-bool FlcDecodeFile(const char* input, const char* outputFile)
+bool FlCodec::DecodeFile(const std::string& input, const std::string& outputFile)
 {
 	return EncodeDecode(input, outputFile, false);
 }
 
-bool FlcEncodeFile(const char* input, const char* outputFile)
+bool FlCodec::EncodeFile(const std::string& input, const std::string& outputFile)
 {
 	return EncodeDecode(input, outputFile, true);
 }
-

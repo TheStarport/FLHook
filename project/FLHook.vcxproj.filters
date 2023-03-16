@@ -49,6 +49,9 @@
     <Filter Include="Contracts">
       <UniqueIdentifier>{ea7c21e6-c5a1-4536-b914-2e7e0abba0d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Helpers">
+      <UniqueIdentifier>{f247d53e-edef-4b93-8896-97695980a070}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -184,9 +187,6 @@
     <ClInclude Include="..\include\Tools\Enums.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\Hk.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Tools\Macros.hpp">
       <Filter>Include\Tools</Filter>
     </ClInclude>
@@ -246,6 +246,42 @@
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
       <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Time.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Message.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Client.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Math.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Player.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Solar.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Ini.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Admin.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Error.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\Personalities.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp">
+      <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\FlCodec.hpp">
+      <Filter>Include\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

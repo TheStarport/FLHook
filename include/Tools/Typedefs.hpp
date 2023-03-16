@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 class Plugin;
 using uint = unsigned int;
 using uchar = unsigned char;

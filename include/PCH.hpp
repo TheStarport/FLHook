@@ -15,6 +15,7 @@
 #include <thread>
 #include <functional>
 #include <optional>
+#include <fstream>
 
 // TODO: Split up the following and reorganize
 
