@@ -61,6 +61,9 @@
     <Filter Include="FLHook\Exceptions">
       <UniqueIdentifier>{bd9ce818-f423-48ec-b2fb-7a06c8d1749d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Defs\FLConfigData">
+      <UniqueIdentifier>{9178612a-831c-4d60-ae0c-f5b4d288641b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -312,6 +315,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp">
       <Filter>Include\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\ShipArchDefs.hpp">
+      <Filter>Include\Defs\FLConfigData</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp">
+      <Filter>Include\Defs\FLConfigData</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

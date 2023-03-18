@@ -245,6 +245,8 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
     <ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
     <ClInclude Include="..\include\Defs\FLPacket.hpp" />
+    <ClInclude Include="..\include\Defs\ShipArchDefs.hpp" />
+    <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\include\Exceptions\InputException.hpp" />
     <ClInclude Include="..\include\Features\DataManager.hpp" />
