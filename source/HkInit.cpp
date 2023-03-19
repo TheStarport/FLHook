@@ -329,8 +329,47 @@ bool InitHookExports()
 	address = FLSERVER_ADDR(ADDR_DATAPTR);
 	ReadProcMem(address, &g_FLServerDataPtr, 4);
 
-	// some setting relate hooks
-	HookRehashed();
+	// anti-deathmsg
+	if (FLHookConfig::i()->messages.dieMsg)
+	{
+		// disables the "old" "A Player has died: ..." messages
+		const char JMP[] = {'\xEB'};
+	}
+	else
+	{
+		const char Old[] = {'\x74'};
+	}
+	address = SRV_ADDR(ADDR_ANTIdIEMSG);
+	WriteProcMem(address, JMP, 1);
+
+	// charfile encyption(doesn't get disabled when unloading FLHook)
+	if (FLHookConfig::i()->general.disableCharfileEncryption)
+	{
+		const char Buf[] = {'\x14', '\xB3'};
+	}
+	else
+	{
+		const char Buf[] = {'\xE4', '\xB4'};
+	}
+	address = SRV_ADDR(ADDR_DISCFENCR);
+	WriteProcMem(address, Buf, 2);
+	address = SRV_ADDR(ADDR_DISCFENCR2);
+	WriteProcMem(address, Buf, 2);
+
+	// maximum group size
+	if (FLHookConfig::i()->general.maxGroupSize > 0)
+	{
+		const char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
+	}
+	else
+	{
+		// default
+		const char cNewGroupSize = 8;
+	}
+	address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
+	WriteProcMem(address, &cNewGroupSize, 1);
+	address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
+	WriteProcMem(address, &cNewGroupSize, 1);
 
 	// get client proxy array, used to retrieve player pings/ips
 	address = (char*)remoteClient + ADDR_CPLIST;
@@ -442,58 +481,6 @@ sometimes adjustments need to be made after a rehash
 
 void HookRehashed()
 {
-	char* address;
-
-	// anti-deathmsg
-	if (FLHookConfig::i()->messages.dieMsg)
-	{
-		// disables the "old" "A Player has died: ..." messages
-		const char JMP[] = {'\xEB'};
-		address = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(address, JMP, 1);
-	}
-	else
-	{
-		const char Old[] = {'\x74'};
-		address = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(address, Old, 1);
-	}
-
-	// charfile encyption(doesn't get disabled when unloading FLHook)
-	if (FLHookConfig::i()->general.disableCharfileEncryption)
-	{
-		const char Buf[] = {'\x14', '\xB3'};
-		address = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(address, Buf, 2);
-		address = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(address, Buf, 2);
-	}
-	else
-	{
-		const char Buf[] = {'\xE4', '\xB4'};
-		address = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(address, Buf, 2);
-		address = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(address, Buf, 2);
-	}
-
-	// maximum group size
-	if (FLHookConfig::i()->general.maxGroupSize > 0)
-	{
-		const char cNewGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
-		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
-		WriteProcMem(address, &cNewGroupSize, 1);
-		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
-		WriteProcMem(address, &cNewGroupSize, 1);
-	}
-	else
-	{
-		// default
-		const char cNewGroupSize = 8;
-		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
-		WriteProcMem(address, &cNewGroupSize, 1);
-		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
-		WriteProcMem(address, &cNewGroupSize, 1);
-	}
+	
 }
 

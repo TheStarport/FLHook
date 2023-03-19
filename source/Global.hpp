@@ -11,7 +11,6 @@ void ProcessPendingCommands();
 void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
-void HookRehashed();
 void LoadUserCharSettings(ClientId client);
 
 void ClearClientInfo(ClientId client);
