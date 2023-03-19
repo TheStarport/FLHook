@@ -50,11 +50,11 @@ void IniWriteW(const std::string& file, const std::string& app, const std::strin
 	std::string newValue;
 	for (uint i = 0; (i < value.length()); i++)
 	{
-		const char cHiByte = value[i] >> 8;
-		const char cLoByte = value[i] & 0xFF;
-		char Buf[8];
-		sprintf_s(Buf, "%02X%02X", static_cast<uint>(cHiByte) & 0xFF, static_cast<uint>(cLoByte) & 0xFF);
-		newValue += Buf;
+		const char highByte = value[i] >> 8;
+		const char lowByte = value[i] & 0xFF;
+		char buf[8];
+		sprintf_s(buf, "%02X%02X", static_cast<uint>(highByte) & 0xFF, static_cast<uint>(lowByte) & 0xFF);
+		newValue += buf;
 	}
 	WritePrivateProfileString(app.c_str(), key.c_str(), newValue.c_str(), file.c_str());
 }
@@ -70,12 +70,12 @@ std::wstring IniGetWS(const std::string& file, const std::string& app, const std
 		return def;
 
 	std::wstring newValue;
-	long lHiByte;
-	long lLoByte;
-	while (sscanf_s(value.c_str(), "%02X%02X", &lHiByte, &lLoByte) == 2)
+	long highByte;
+	long lowByte;
+	while (sscanf_s(value.c_str(), "%02X%02X", &highByte, &lowByte) == 2)
 	{
 		newValue = newValue.substr(4);
-		const wchar_t wChar = static_cast<wchar_t>((lHiByte << 8) | lLoByte);
+		const wchar_t wChar = static_cast<wchar_t>((highByte << 8) | lowByte);
 		newValue.append(1, wChar);
 	}
 
