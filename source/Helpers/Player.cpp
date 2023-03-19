@@ -346,9 +346,9 @@ namespace Hk::Player
 				return cpp::fail(fileName.error());
 			}
 			const std::wstring newFile = fileName.value() + L".fl";
-			CHARACTER_ID cId;
-			strcpy_s(cId.charFilename, wstos(newFile.substr(0, 14)).c_str());
-			Server.CharacterSelect(cId, client);
+			CHARACTER_ID charId;
+			strcpy_s(charId.charFilename, wstos(newFile.substr(0, 14)).c_str());
+			Server.CharacterSelect(charId, client);
 		}
 
 		return {};

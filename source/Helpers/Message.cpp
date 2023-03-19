@@ -217,18 +217,18 @@ namespace Hk::Message
 			}
 		}
 
-		uchar cFormat;
+		uchar format;
 		// adjust chatsize
 		switch (ClientInfo[toClientId].chatSize)
 		{
 			case CS_SMALL:
-				cFormat = 0x90;
+				format = 0x90;
 				break;
 			case CS_BIG:
-				cFormat = 0x10;
+				format = 0x10;
 				break;
 			default:
-				cFormat = 0x00;
+				format = 0x00;
 				break;
 		}
 
@@ -236,21 +236,21 @@ namespace Hk::Message
 		switch (ClientInfo[toClientId].chatStyle)
 		{
 			case CST_BOLD:
-				cFormat += 0x01;
+				format += 0x01;
 				break;
 			case CST_ITALIC:
-				cFormat += 0x02;
+				format += 0x02;
 				break;
 			case CST_UNDERLINE:
-				cFormat += 0x04;
+				format += 0x04;
 				break;
 			default:
-				cFormat += 0x00;
+				format += 0x00;
 				break;
 		}
 
 		wchar_t wFormatBuf[8];
-		swprintf(wFormatBuf, _countof(wFormatBuf), L"%02X", cFormat);
+		swprintf(wFormatBuf, _countof(wFormatBuf), L"%02X", format);
 		const std::wstring TRADataFormat = wFormatBuf;
 		const std::wstring TRADataSenderColor = L"FFFFFF"; // white
 

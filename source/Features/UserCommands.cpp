@@ -470,11 +470,11 @@ void Invite_Player(ClientId& client, const std::wstring& characterName)
 		return;
 	}
 
-	CHAT_ID cId;
-	cId.id = client;
-	CHAT_ID cIdTo;
-	cIdTo.id = 0x00010001;
-	Server.SubmitChat(cId, retVal, buf, cIdTo, -1);
+	CHAT_ID chatId;
+	chatId.id = client;
+	CHAT_ID chatIdTo;
+	chatIdTo.id = 0x00010001;
+	Server.SubmitChat(chatId, retVal, buf, chatIdTo, -1);
 }
 
 void UserCmd_Invite(ClientId& client, const std::wstring& param)

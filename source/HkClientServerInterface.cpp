@@ -364,7 +364,7 @@ namespace IServerImplHook
 		return true;
 	}
 
-	void CharacterSelect__InnerAfter([[maybe_unused]] const CHARACTER_ID& cId, unsigned int client)
+	void CharacterSelect__InnerAfter([[maybe_unused]] const CHARACTER_ID& charId, unsigned int client)
 	{
 		TRY_HOOK
 		{
