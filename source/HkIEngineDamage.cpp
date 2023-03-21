@@ -104,7 +104,7 @@ void __stdcall AddDamageEntry(
 			return;
 	}
 
-	if (g_NonGunHitsBase && (dmgList->get_cause() == DamageCause::CruiseDisrupter))
+	if (g_NonGunHitsBase && (dmgList->get_cause() == DamageCause::MissileTorpedo))
 	{
 		const float damage = g_LastHitPts - hitPts;
 		hitPts = g_LastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
