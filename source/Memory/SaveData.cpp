@@ -2,6 +2,8 @@
 #include "MemoryManager.hpp"
 #include <Tools/Detour.hpp>
 
+#include "Tools/Utils.hpp"
+
 using GetUserDataPathSig = bool (*)(char*);
 
 bool SaveGameDetour::GetUserDataPathDetour(char* retPtr)

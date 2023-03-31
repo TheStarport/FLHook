@@ -1,5 +1,9 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Chat.hpp"
+#include "Helpers/Client.hpp"
+#include "Tools/Utils.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& DataFormat)
 {
@@ -22,7 +26,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
 	char xmlBuf[0xFFFF];
 	uint ret;
-	if (Hk::Message::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
+	if (Hk::Chat::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
 		return;
 
 	std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->messages.msgStyle.deathMsgStyle);
@@ -31,7 +35,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSmall += L"</TEXT>";
 	char bufSmall[0xFFFF];
 	uint retSmall;
-	if (Hk::Message::FMsgEncodeXML(xmlMsgSmall, bufSmall, sizeof(bufSmall), retSmall).has_error())
+	if (Hk::Chat::FMsgEncodeXML(xmlMsgSmall, bufSmall, sizeof(bufSmall), retSmall).has_error())
 		return;
 
 	// sys
@@ -40,7 +44,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSys += L"</TEXT>";
 	char bufSys[0xFFFF];
 	uint retSys;
-	if (Hk::Message::FMsgEncodeXML(xmlMsgSys, bufSys, sizeof(bufSys), retSys).has_error())
+	if (Hk::Chat::FMsgEncodeXML(xmlMsgSys, bufSys, sizeof(bufSys), retSys).has_error())
 		return;
 
 	std::wstring styleSmallSys = SetSizeToSmall(FLHookConfig::i()->messages.msgStyle.deathMsgStyleSys);
@@ -49,7 +53,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSmallSys += L"</TEXT>";
 	char BufSmallSys[0xFFFF];
 	uint retSmallSys;
-	if (Hk::Message::FMsgEncodeXML(xmlMsgSmallSys, BufSmallSys, sizeof(BufSmallSys), retSmallSys).has_error())
+	if (Hk::Chat::FMsgEncodeXML(xmlMsgSmallSys, BufSmallSys, sizeof(BufSmallSys), retSmallSys).has_error())
 		return;
 
 	// send
@@ -84,26 +88,26 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 		{
 			// /set diemsg disabled, thus send to all
 			if (systemId == clientSystemId)
-				Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
+				Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 			else
-				Hk::Message::FMsgSendChat(client, sendXmlBuf, sendXmlRet);
+				Hk::Chat::FMsgSendChat(client, sendXmlBuf, sendXmlRet);
 			continue;
 		}
 
 		if (ClientInfo[client].dieMsg == DIEMSG_NONE)
 			continue;
 		if ((ClientInfo[client].dieMsg == DIEMSG_SYSTEM) && (systemId == clientSystemId))
-			Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
+			Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 		else if (
 			(ClientInfo[client].dieMsg == DIEMSG_SELF) &&
 			((client == clientVictim) || (client == clientKiller)))
-			Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
+			Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 		else if (ClientInfo[client].dieMsg == DiemsgAll)
 		{
 			if (systemId == clientSystemId)
-				Hk::Message::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
+				Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 			else
-				Hk::Message::FMsgSendChat(client, sendXmlBuf, sendXmlRet);
+				Hk::Chat::FMsgSendChat(client, sendXmlBuf, sendXmlRet);
 		}
 	}
 }

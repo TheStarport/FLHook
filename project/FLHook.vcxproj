@@ -94,7 +94,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <PrecompiledHeader />
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -155,7 +155,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -188,6 +188,10 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\PCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\source\Data\Lights.cpp" />
     <ClCompile Include="..\source\Debug.cpp" />
     <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp" />
@@ -205,7 +209,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClCompile Include="..\source\Helpers\Client.cpp" />
     <ClCompile Include="..\source\Helpers\Ini.cpp" />
     <ClCompile Include="..\source\Helpers\Math.cpp" />
-    <ClCompile Include="..\source\Helpers\Message.cpp" />
+    <ClCompile Include="..\source\Helpers\Chat.cpp" />
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
     <ClCompile Include="..\source\Helpers\Player.cpp" />
     <ClCompile Include="..\source\Helpers\Solar.cpp" />
@@ -265,6 +269,7 @@ setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"</Command>
     <ClInclude Include="..\include\Helpers\Solar.hpp" />
     <ClInclude Include="..\include\Helpers\Time.hpp" />
     <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp" />
+    <ClInclude Include="..\include\PCH.hpp" />
     <ClInclude Include="..\include\plugin.h" />
     <ClInclude Include="..\include\Tools\Concepts.hpp" />
     <ClInclude Include="..\include\Tools\Constexpr.hpp" />

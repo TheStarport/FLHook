@@ -1,5 +1,9 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Chat.hpp"
+#include "Tools/Utils.hpp"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)
@@ -117,7 +121,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 			wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x"
 			    << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
 
-			Hk::Message::FMsg(client, wos.str());
+			Hk::Chat::FMsg(client, wos.str());
 		}
 		else
 		{

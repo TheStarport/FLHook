@@ -38,7 +38,7 @@ namespace Plugins::Stats
 		if (!std::filesystem::exists(global->jsonFileName.FilePath))
 			std::filesystem::create_directories(global->jsonFileName.FilePath);
 
-		Hk::Message::LoadStringDLLs();
+		Hk::Chat::LoadStringDLLs();
 
 		// Load in shiparch.ini to generate Ids based off the nickname and generate
 		// ship names via ids_name
@@ -57,7 +57,7 @@ namespace Plugins::Stats
 						if (ini.is_value("nickname"))
 						{
 							uint shiphash = CreateID(ini.get_value_string(0));
-							global->Ships[shiphash] = Hk::Message::GetWStringFromIdS(idsname);
+							global->Ships[shiphash] = Hk::Chat::GetWStringFromIdS(idsname);
 						}
 						if (ini.is_value("ids_name"))
 						{
@@ -117,7 +117,7 @@ namespace Plugins::Stats
 			// Add system
 			SystemId systemId = Hk::Player::GetSystem(player.client).value();
 			const Universe::ISystem* system = Universe::get_system(systemId);
-			jsonPlayer["system"] = wstos(Hk::Message::GetWStringFromIdS(system->idsName));
+			jsonPlayer["system"] = wstos(Hk::Chat::GetWStringFromIdS(system->idsName));
 
 			jsonPlayers.push_back(jsonPlayer);
 		}

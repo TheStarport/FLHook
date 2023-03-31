@@ -1,5 +1,7 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Defs/CoreGlobals.hpp"
+#include "Tools/Utils.hpp"
 
 bool LoadBaseMarket()
 {

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "FLHook.hpp"
+#include "Defs/FLHookConfig.hpp"
 #include "Tools/Utils.hpp"
 
 enum class ConsoleColor

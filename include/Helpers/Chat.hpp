@@ -17,4 +17,8 @@ namespace Hk::Chat
 	DLL void SendLocalSystemChat(uint fromClientId, const std::wstring& text);
 	DLL cpp::result<void, Error> SendPrivateChat(uint fromClientId, uint toClientId, const std::wstring& text);
 	DLL void SendSystemChat(uint fromClientId, const std::wstring& text);
+	DLL void FMsgSendChat(ClientId client, char* buffer, uint size);
+	// TODO: Move DLL loading and IDS accessing to its own class
+	DLL void UnloadStringDLLs();
+	DLL void LoadStringDLLs();
 }

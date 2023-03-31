@@ -1,5 +1,13 @@
 #include "PCH.hpp"
 
+#include "Global.hpp"
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Admin.hpp"
+#include "Helpers/Chat.hpp"
+#include "Helpers/Client.hpp"
+#include "Tools/Utils.hpp"
+
 namespace IEngineHook
 {
 	void __cdecl UpdateTime(double interval);
@@ -371,7 +379,7 @@ bool InitHookExports()
 	CoreGlobals::i()->accPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
 
 	// Load DLLs for strings
-	Hk::Message::LoadStringDLLs();
+	Hk::Chat::LoadStringDLLs();
 
 	// clear ClientInfo
 	for (uint i = 0; i < ClientInfo.size(); i++)

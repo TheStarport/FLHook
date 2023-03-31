@@ -1,6 +1,10 @@
 #include "PCH.hpp"
 #include "Features/TempBan.hpp"
-#include "Tools/Hk.hpp"
+
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Time.hpp"
 
 void TempBanManager::ClearFinishedTempBans()
 {

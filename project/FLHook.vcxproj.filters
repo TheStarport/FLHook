@@ -124,7 +124,7 @@
     <ClCompile Include="..\source\Helpers\Math.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Message.cpp">
+    <ClCompile Include="..\source\Helpers\Chat.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Helpers\Player.cpp">
@@ -172,6 +172,7 @@
     <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp">
       <Filter>FLHook\Exceptions</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\PCH.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\Global.hpp" />
@@ -321,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp">
       <Filter>Include\Defs\FLConfigData</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PCH.hpp">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

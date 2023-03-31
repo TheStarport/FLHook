@@ -124,7 +124,7 @@ namespace Plugins::Warehouse
 
 			const auto* equip = Archetype::GetEquipment(info.archId);
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->idsName), info.count));
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.count));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
@@ -150,7 +150,7 @@ namespace Plugins::Warehouse
 				continue;
 			}
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->idsName), info.quantity));
+			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.quantity));
 		}
 	}
 
@@ -218,7 +218,7 @@ namespace Plugins::Warehouse
 		Hk::Player::SaveChar(client);
 
 		PrintUserCmdText(client,
-		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Message::GetWStringFromIdS(itemArch->idsName), std::to_wstring(withdrawnQuantity)));
+		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Chat::GetWStringFromIdS(itemArch->idsName), std::to_wstring(withdrawnQuantity)));
 	}
 
 	void UserCmdWarehouse(ClientId& client, const std::wstring& param)

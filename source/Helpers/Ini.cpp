@@ -1,5 +1,10 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/FlCodec.hpp"
+#include "Tools/Utils.hpp"
 
 namespace Hk::Ini
 {
@@ -76,9 +81,9 @@ namespace Hk::Ini
 
 				// Reset the file pointer so we can start overwriting
 				saveFile.seekg(0);
-				buffer = FlcDecode(buffer);
+				buffer = FlCodec::Decode(buffer);
 				writeFlhookSection(buffer);
-				data = FlcEncode(buffer);
+				data = FlCodec::Encode(buffer);
 			}
 			else
 			{
@@ -173,7 +178,7 @@ namespace Hk::Ini
 		if (const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
-			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			ret = stows(IniGetS(charFileNew, "Player", wstos(Key), ""));
@@ -202,7 +207,7 @@ namespace Hk::Ini
 		if (const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
-			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			IniWrite(charFileNew, "Player", wstos(Key), wstos(Value));

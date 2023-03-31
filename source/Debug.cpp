@@ -7,6 +7,8 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include <Tools/Detour.hpp>
 
+#include "Defs/FLHookConfig.hpp"
+
 using CreateIDType = uint (*)(const char*);
 std::map<std::string, uint> DebugTools::hashMap;
 

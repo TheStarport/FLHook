@@ -3,6 +3,7 @@
 #include "Features/MessageHandler.hpp"
 
 #include <magic_enum.hpp>
+#include <Features/Logger.hpp>
 
 MessageHandler::MessageHandler()
 {
@@ -85,7 +86,7 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 
 		channel->consume(queue)
 		       .onSuccess([queue]() {
-			       Logger::i()->Log(LogLevel::Info, std::format("successfulled subscribed to {}", queue));
+			       Logger::i()->Log(LogLevel::Info, std::format("successfully subscribed to {}", queue));
 		       })
 		       .onReceived([this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered) {
 			       const auto callbacks = onMessageCallbacks.find(queue);

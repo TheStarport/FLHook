@@ -3,6 +3,10 @@
 #include <Tools/Detour.hpp>
 #include <Tools/Typedefs.hpp>
 
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Ini.hpp"
+#include "Tools/Utils.hpp"
+
 using SendCommType = int(__cdecl*)(uint, uint, uint, const Costume*, uint, uint*, int, uint, float, bool);
 const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<FunctionDetour<SendCommType>>(pub::SpaceObj::SendComm);
 

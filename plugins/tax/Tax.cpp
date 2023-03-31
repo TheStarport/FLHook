@@ -108,15 +108,15 @@ namespace Plugins::Tax
 		std::wstring msg;
 
 		if (taxValue == 0)
-			msg = Hk::Message::FormatMsg(global->config->customColor,
+			msg = Hk::Chat::FormatMsg(global->config->customColor,
 			    global->config->customFormat,
 			    std::vformat(global->config->huntingMessage, std::make_wformat_args(characterName.value().c_str())));
 		else
-			msg = Hk::Message::FormatMsg(global->config->customColor,
+			msg = Hk::Chat::FormatMsg(global->config->customColor,
 			    global->config->customFormat,
 			    std::vformat(global->config->taxRequestReceived, std::make_wformat_args(taxValue, characterName.value())));
 
-		Hk::Message::FMsg(clientTarget, msg);
+		Hk::Chat::FMsg(clientTarget, msg);
 
 		// send confirmation msg
 		if (taxValue > 0)

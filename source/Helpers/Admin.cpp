@@ -1,5 +1,10 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Helpers/Admin.hpp"
+
+#include "Defs/CoreGlobals.hpp"
+#include "Helpers/Client.hpp"
+#include "Tools/Utils.hpp"
 
 bool g_bNPCDisabled;
 
@@ -98,7 +103,7 @@ namespace Hk::Admin
 		auto ci = GetConnectionStats(client);
 		if (ci.has_error())
 		{
-			Logger::i()->Log(LogLevel::Warn, wstos(Err::ErrGetText(ci.error())));
+			Logger::i()->Log(LogLevel::Warn, "Invalid client ID provided when getting connection stats");
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		pi.connectionInfo = ci.value();

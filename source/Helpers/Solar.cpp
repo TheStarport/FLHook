@@ -1,5 +1,7 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Helpers/Chat.hpp"
+#include "Tools/Utils.hpp"
 
 namespace Hk::Solar
 {
@@ -87,7 +89,7 @@ namespace Hk::Solar
 			char baseNickname[1024] = "";
 			pub::GetBaseNickname(baseNickname, sizeof(baseNickname), baseinfo->baseId);
 
-			if (const std::wstring basename = Message::GetWStringFromIdS(baseinfo->baseIdS);
+			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS);
 				ToLower(stows(baseNickname)) == ToLower(targetBaseName) || ToLower(basename).find(ToLower(targetBaseName)) == 0)
 			{
 				return baseinfo;
@@ -99,7 +101,7 @@ namespace Hk::Solar
 		baseinfo = Universe::GetFirstBase();
 		while (baseinfo)
 		{
-			if (const std::wstring basename = Message::GetWStringFromIdS(baseinfo->baseIdS); ToLower(basename).find(ToLower(targetBaseName)) != -1)
+			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS); ToLower(basename).find(ToLower(targetBaseName)) != -1)
 			{
 				return baseinfo;
 			}

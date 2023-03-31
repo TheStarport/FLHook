@@ -153,7 +153,10 @@ class DLL Plugin
 		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring>(userCommand.command) == cmd; });
 	}
 
-	[[nodiscard]] auto GetCommands() const { return std::make_pair(commands.begin(), commands.end()); }
+	[[nodiscard]] std::string_view GetName() const { return name; }
+	[[nodiscard]] std::string_view GetShortName() const { return shortName; }
+	[[nodiscard]] auto& GetCommands() const { return commands; }
+	[[nodiscard]] auto& GetTimers() { return timers; }
 };
 
 #define SetupPlugin(type, info)                             \

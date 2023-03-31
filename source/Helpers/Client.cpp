@@ -1,6 +1,10 @@
 #include "PCH.hpp"
 #include "Global.hpp"
 
+#include "Helpers/Client.hpp"
+
+#include "Tools/Utils.hpp"
+
 namespace Hk::Client
 {
 	cpp::result<const uint, Error> GetClientID(const std::wstring& character)

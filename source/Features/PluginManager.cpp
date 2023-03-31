@@ -99,7 +99,7 @@ void PluginManager::UnloadAll()
 	ClearData(true);
 }
 
-void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, bool startup)
+void PluginManager::Load(const std::string& fileName, bool startup)
 {
 	std::string dllName = fileName;
 	if (dllName.find(".dll") == std::string::npos)
@@ -108,28 +108,29 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 	for (const auto& plugin : plugins)
 	{
 		if (plugin->dllName == dllName)
-			return adminInterface->Print(std::format("Plugin {} already loaded, skipping\n", plugin->dllName));
+			return Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("Plugin {} already loaded, skipping\n", plugin->dllName));
 	}
 
 	const std::string pathToDLL = "./plugins/" + dllName;
 
-	// TODO: remove references to capi
-	FILE* fp;
-	fopen_s(&fp, pathToDLL.c_str(), "r");
-	if (!fp)
-		return adminInterface->Print(std::format("ERR plugin {} not found", dllName));
-	fclose(fp);
-	
+	if (!std::filesystem::exists(pathToDLL))
+	{
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR plugin {} not found", dllName));
+		return;
+	}
+
 	HMODULE dll = LoadLibrary(pathToDLL.c_str());
 
 	if (!dll)
-		return adminInterface->Print(std::format("ERR can't load plugin DLL {}", dllName));
+	{
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR can't load plugin DLL {}", dllName));
+	}
 
 	const auto pluginFactory = reinterpret_cast<PluginFactoryT>(GetProcAddress(dll, "PluginFactory"));
 
 	if (!pluginFactory)
 	{
-		adminInterface->Print(std::format("ERR could not create plugin instance for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR could not create plugin instance for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -140,44 +141,49 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 
 	if (plugin->versionMinor == PluginMinorVersion::UNDEFINED || plugin->versionMajor == PluginMajorVersion::UNDEFINED)
 	{
-		adminInterface->Print(std::format("ERR plugin {} does not have defined API version. Unloading.", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR plugin {} does not have defined API version. Unloading.", dllName));
 		FreeLibrary(dll);
 		return;
 	}
 
 	if (plugin->versionMajor != CurrentMajorVersion)
 	{
-		adminInterface->Print(std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
-			dllName,
-			static_cast<int>(CurrentMajorVersion),
-		    static_cast<int>(plugin->versionMajor)));
+		Logger::i()->Log(LogFile::ConsoleOnly,
+		    LogLevel::Info,
+		    std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
+		        dllName,
+		        static_cast<int>(CurrentMajorVersion),
+		        static_cast<int>(plugin->versionMajor)));
 		FreeLibrary(dll);
 		return;
 	}
 
 	if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
 	{
-		adminInterface->Print(std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
-			dllName,
-			static_cast<int>(CurrentMinorVersion),
-		    static_cast<int>(plugin->versionMinor)));
+		Logger::i()->Log(LogFile::ConsoleOnly,
+		    LogLevel::Info,
+		    std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
+		        dllName,
+		        static_cast<int>(CurrentMinorVersion),
+		        static_cast<int>(plugin->versionMinor)));
 		FreeLibrary(dll);
 		return;
 	}
 
 	if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
 	{
-		adminInterface->Print(std::format(
-			"Warning, incompatible plugin API version for {}: expected {}, got {}",
-			dllName,
-			static_cast<int>(CurrentMinorVersion),
-		    static_cast<int>(plugin->versionMinor)));
-		adminInterface->Print("Processing will continue, but plugin should be considered unstable.");
+		Logger::i()->Log(LogFile::ConsoleOnly,
+		    LogLevel::Info,
+		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}",
+		        dllName,
+		        static_cast<int>(CurrentMinorVersion),
+		        static_cast<int>(plugin->versionMinor)));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, "Processing will continue, but plugin should be considered unstable.");
 	}
 
 	if (plugin->shortName.empty() || plugin->name.empty())
 	{
-		adminInterface->Print(std::format("ERR missing name/short name for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR missing name/short name for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -186,7 +192,8 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 	// also not be loaded after FLServer startup
 	if (!plugin->mayUnload && !startup)
 	{
-		adminInterface->Print(std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
+		Logger::i()->Log(
+		    LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -195,18 +202,21 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 	{
 		if (!hook.hookFunction)
 		{
-			adminInterface->Print(std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
+			Logger::i()->Log(LogFile::ConsoleOnly,
+			    LogLevel::Warn,
+			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
 			continue;
 		}
 
 		if (const auto& targetHookProps = hookProps_[hook.targetFunction]; !targetHookProps.matches(hook.step))
 		{
-			adminInterface->Print(std::format("ERR could not bind function. plugin: {}, step not available", dllName));
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR could not bind function. plugin: {}, step not available", dllName));
 			continue;
 		}
+
 		uint hookId = static_cast<uint>(hook.targetFunction) * magic_enum::enum_count<HookStep>() + static_cast<uint>(hook.step);
-		auto& list = pluginHooks_[hookId];
-		PluginHookData data = {hook.targetFunction, hook.hookFunction, hook.step, hook.priority, plugin};
+		std::vector<PluginHookData>& list = pluginHooks_[hookId];
+		PluginHookData data = { hook.targetFunction, hook.hookFunction, hook.step, hook.priority, plugin };
 		list.emplace_back(std::move(data));
 	}
 
@@ -214,10 +224,10 @@ void PluginManager::Load(const std::string& fileName, CCmds* adminInterface, boo
 
 	std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, std::shared_ptr<Plugin>& b) { return a->name < b->name; });
 
-	adminInterface->Print(std::format("Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
+	Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
 }
 
-void PluginManager::LoadAll(bool startup, CCmds* adminInterface)
+void PluginManager::LoadAll(bool startup)
 {
 	WIN32_FIND_DATA findData;
 	const HANDLE findPluginsHandle = FindFirstFile("./plugins/*.dll", &findData);
@@ -227,7 +237,7 @@ void PluginManager::LoadAll(bool startup, CCmds* adminInterface)
 		if (findPluginsHandle == INVALID_HANDLE_VALUE)
 			break;
 
-		Load(findData.cFileName, adminInterface, startup);
+		Load(findData.cFileName, startup);
 	} while (FindNextFile(findPluginsHandle, &findData));
 }
 

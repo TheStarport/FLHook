@@ -1,6 +1,8 @@
 #pragma once
 
 #include <FLHook.hpp>
+#include "plugin.h"
+#include "Features/Logger.hpp"
 
 bool FLHookInit();
 void FLHookInit_Pre();
@@ -20,7 +22,7 @@ bool UserCmd_Process(ClientId client, const std::wstring& Cmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
-// FuncCache
+// TODO: Move to class with ctor and dtor
 namespace StartupCache
 {
 	void Init();
@@ -40,6 +42,7 @@ namespace Hk
 
 	namespace Personalities
 	{
+		// TODO: Move to DataManager
 		void LoadPersonalities();
 	}
 
@@ -48,7 +51,10 @@ namespace Hk
 		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
 		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
 	} // namespace Client
-}     // namespace Hk
+} // namespace Hk
+
+// TODO: Move to user command processing class!
+bool UserCmdProcess(ClientId client, const std::wstring& cmd);
 
 // Death
 void Naked__ShipDestroyed();
@@ -111,18 +117,18 @@ inline auto* ToUShort(wchar_t* val)
 		timer.start();                          \
 		TRY_HOOK                                \
 		{
-#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                               \
-	}                                                                                                        \
-	CATCH_HOOK({                                                                                             \
+#define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                        \
+	}                                                                                                 \
+	CATCH_HOOK({                                                                                      \
 		Logger::i()->Log(LogLevel::Err, std::format("Exception in {} on server call", __FUNCTION__)); \
-		bool ret = catchArgs;                                                                                \
-		if (!ret)                                                                                            \
-		{                                                                                                    \
-			timer.stop();                                                                                    \
-			return rval;                                                                                     \
-		}                                                                                                    \
-	})                                                                                                       \
-	timer.stop();                                                                                            \
+		bool ret = catchArgs;                                                                         \
+		if (!ret)                                                                                     \
+		{                                                                                             \
+			timer.stop();                                                                             \
+			return rval;                                                                              \
+		}                                                                                             \
+	})                                                                                                \
+	timer.stop();                                                                                     \
 	}
 
 #define CALL_CLIENT_PREAMBLE      \
@@ -137,13 +143,13 @@ inline auto* ToUShort(wchar_t* val)
 	memcpy(&Client, &tmp, 4); \
 	}
 
-#define CHECK_FOR_DISCONNECT                                                                                                       \
-	{                                                                                                                              \
-		if (ClientInfo[client].disconnected)                                                                                      \
-		{                                                                                                                          \
+#define CHECK_FOR_DISCONNECT                                                                                                  \
+	{                                                                                                                         \
+		if (ClientInfo[client].disconnected)                                                                                  \
+		{                                                                                                                     \
 			Logger::i()->Log(LogLevel::Debug, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
-			return;                                                                                                                \
-		};                                                                                                                         \
+			return;                                                                                                           \
+		};                                                                                                                    \
 	}
 
 constexpr uint ADDR_UPDATE = 0x1BAB4;
@@ -155,19 +161,19 @@ constexpr uint ADDR_DISCFENCR2 = 0x6BFA6;
 constexpr uint ADDR_CRCANTICHEAT = 0x6FAF0;
 constexpr uint ADDR_RCSENDCHAT = 0x7F30;
 constexpr uint ADDR_CPLIST = 0x43D74;
-constexpr uint ADDR_CDPSERVER = 0xA284;          // 065CA284
-constexpr uint ADDR_CREATECHAR = 0x6B790;        // 06D4B790
-constexpr uint ADDR_FLNEW = 0x80012;             // 06D60012
-constexpr uint ADDR_SERVERFLSERVER = 0x1BC90;    // 0041BC90
-constexpr uint ADDR_DISABLENPCSPAWNS1 = 0x5987B; // 06EF987B
-constexpr uint ADDR_DISABLENPCSPAWNS2 = 0x59CD3; // 06EF9CD3
-constexpr uint ADDR_DATAPTR = 0x277EC;           // 004277EC
-constexpr uint ADDR_RC_DISCONNECT = 0x93E0;      // 06B393E0
-constexpr uint ADDR_DALIB_DISC_SUPPRESS = 0x49C6;// 065C49C6
-constexpr uint ADDR_SRV_GETCOMMODITIES = 0x32EC2;// 06D12EC2
-constexpr uint ADDR_SRV_MAXGROUPSIZE = 0x3A068;  // 06D1A068
-constexpr uint ADDR_SRV_MAXGROUPSIZE2 = 0x3A46E; // 06D1A46E
-constexpr uint ADDR_SRV_GETINSPECT = 0x206C0;    // 06D006C0
+constexpr uint ADDR_CDPSERVER = 0xA284;           // 065CA284
+constexpr uint ADDR_CREATECHAR = 0x6B790;         // 06D4B790
+constexpr uint ADDR_FLNEW = 0x80012;              // 06D60012
+constexpr uint ADDR_SERVERFLSERVER = 0x1BC90;     // 0041BC90
+constexpr uint ADDR_DISABLENPCSPAWNS1 = 0x5987B;  // 06EF987B
+constexpr uint ADDR_DISABLENPCSPAWNS2 = 0x59CD3;  // 06EF9CD3
+constexpr uint ADDR_DATAPTR = 0x277EC;            // 004277EC
+constexpr uint ADDR_RC_DISCONNECT = 0x93E0;       // 06B393E0
+constexpr uint ADDR_DALIB_DISC_SUPPRESS = 0x49C6; // 065C49C6
+constexpr uint ADDR_SRV_GETCOMMODITIES = 0x32EC2; // 06D12EC2
+constexpr uint ADDR_SRV_MAXGROUPSIZE = 0x3A068;   // 06D1A068
+constexpr uint ADDR_SRV_MAXGROUPSIZE2 = 0x3A46E;  // 06D1A46E
+constexpr uint ADDR_SRV_GETINSPECT = 0x206C0;     // 06D006C0
 constexpr uint ADDR_SRV_PLAYERDBMAXPLAYERSPATCH = 0x64BC3;
 constexpr uint ADDR_SRV_PLAYERDBMAXPLAYERS = 0xB0264;
 constexpr uint ADDR_SRV_REPARRAYFREE = 0x7F3F0;
@@ -187,12 +193,12 @@ constexpr uint ADDR_COMMON_VFTABLE_ENGINE = 0x139AAC;
 
 class CTimer
 {
-public:
+  public:
 	EXPORT CTimer(const std::string& function, uint warning);
 	EXPORT void start();
 	EXPORT uint stop();
 
-private:
+  private:
 	mstime tmStart = 0;
 	uint max = 0;
 	std::string function;
@@ -215,7 +221,7 @@ inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs)
 
 class PluginManager : public Singleton<PluginManager>
 {
-public:
+  public:
 	struct FunctionHookProps
 	{
 		bool callBefore = false;
@@ -235,7 +241,7 @@ public:
 		}
 	};
 
-private:
+  private:
 	std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
 	std::vector<std::shared_ptr<Plugin>> plugins;
 	std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
@@ -244,61 +250,66 @@ private:
 	void setupProps();
 	void SetProps(HookedCall c, bool before, bool after);
 
-public:
+  public:
 	PluginManager();
 	~PluginManager();
 
-	void LoadAll(bool, CCmds*);
+	void LoadAll(bool);
 	void UnloadAll();
 
-	void Load(const std::string& fileName, CCmds*, bool);
+	void Load(const std::string& fileName, bool);
 	cpp::result<std::string, Error> Unload(const std::string& shortName);
 
 	auto begin() { return plugins.begin(); }
 	auto end() { return plugins.end(); }
-	auto begin() const { return plugins.begin(); }
-	auto end() const { return plugins.end(); }
+	[[nodiscard]] auto begin() const { return plugins.begin(); }
+	[[nodiscard]] auto end() const { return plugins.end(); }
 
 	template<typename ReturnType, typename... Args>
 	ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
 	{
 		using PluginCallType = ReturnType(Args...);
-		constexpr bool ReturnTypeIsVoid = std::is_same_v<ReturnType, void>;
-		using NoVoidReturnType = std::conditional_t<ReturnTypeIsVoid, int, ReturnType>;
+		constexpr bool returnTypeIsVoid = std::is_same_v<ReturnType, void>;
+		using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
 
-		NoVoidReturnType ret{};
+		NoVoidReturnType ret {};
 		TRY_HOOK
+		{
+			for (const PluginHookData& hook : pluginHooks_[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
 			{
-				for (const auto& hook : pluginHooks_[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
+				if (hook.plugin.expired())
 				{
-					const auto& plugin = hook.plugin;
-					if (plugin->paused)
-						continue;
-
-					if (plugin->resetCode)
-						*plugin->returnCode = ReturnCode::Default;
-
-					TRY_HOOK
-						{
-							if constexpr (ReturnTypeIsVoid)
-								reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
-							else
-								ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
-						}
-					CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format("Exception in plugin '{}' in {}", plugin->name, __FUNCTION__)); });
-
-					auto code = *plugin->returnCode;
-
-					if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
-						skipFunctionCall = true;
-
-					if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
-						break;
+					continue;
 				}
+
+				const auto& plugin = hook.plugin.lock();
+
+				plugin->returnCode = ReturnCode::Default;
+
+				TRY_HOOK
+				{
+					if constexpr (returnTypeIsVoid)
+						reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+					else
+						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+				}
+				CATCH_HOOK({
+					Logger::i()->Log(LogLevel::Err,
+					    std::format("Exception in plugin '{}' in {}-{}", plugin->name, magic_enum::enum_name(target), magic_enum::enum_name(step)));
+				})
+
+				const auto code = plugin->returnCode;
+
+				if ((code & ReturnCode::SkipFunctionCall) != ReturnCode::Default)
+					skipFunctionCall = true;
+
+				if ((code & ReturnCode::SkipPlugins) != ReturnCode::Default)
+					break;
 			}
+		}
 		CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format("Exception {}", __FUNCTION__)); });
 
-		if constexpr (!ReturnTypeIsVoid)
+		if constexpr (!returnTypeIsVoid)
 			return ret;
 	}
 };
@@ -334,7 +345,7 @@ bool CallPluginsOther(HookedCall target, HookStep step, Args&&... args)
 	return skip;
 }
 
-using PluginFactoryT = std::shared_ptr<Plugin>(*)();
+using PluginFactoryT = std::shared_ptr<Plugin> (*)();
 
 // TODO: Move this to its own CPP file and use the Detour class
 class DebugTools : public Singleton<DebugTools>
@@ -345,7 +356,7 @@ class DebugTools : public Singleton<DebugTools>
 
 	static uint CreateIdDetour(const char* str);
 
-public:
+  public:
 	DebugTools() = default;
 	void Init();
 };

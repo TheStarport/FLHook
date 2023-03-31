@@ -48,7 +48,7 @@ namespace Plugins::KillTracker
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Message::GetWStringFromIdS(ship->idsName), count));
+				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Chat::GetWStringFromIdS(ship->idsName), count));
 			}
 		}
 		PrintUserCmdText(client, std::format(L"Total kills: {}", numKills));
@@ -163,8 +163,8 @@ namespace Plugins::KillTracker
 			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100)));
 			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate, templateArgs);
 
-			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
-			Hk::Message::FMsgS(system, greatestDamageMessage);
+			greatestDamageMessage = Hk::Chat::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
+			Hk::Chat::FMsgS(system, greatestDamageMessage);
 		}
 	}
 

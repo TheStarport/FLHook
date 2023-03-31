@@ -1,6 +1,18 @@
 #include "PCH.hpp"
 #include "Global.hpp"
 #include "Features/TempBan.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Player.hpp"
+
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Defs/FLPacket.hpp"
+#include "Helpers/Chat.hpp"
+#include "Helpers/FlCodec.hpp"
+#include "Helpers/Ini.hpp"
+#include "Helpers/Math.hpp"
+#include "Helpers/Time.hpp"
+#include "Tools/Utils.hpp"
 
 
 namespace Hk::Player
@@ -76,7 +88,7 @@ namespace Hk::Player
 		if (Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
-			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			auto cash = static_cast<uint>(IniGetI(charFileNew, "Player", "money", -1));
@@ -124,7 +136,7 @@ namespace Hk::Player
 		{
 			const std::string charFileNew = charFile + ".ini";
 
-			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			retVal = IniGetI(charFileNew, "Player", "money", -1);
@@ -132,7 +144,7 @@ namespace Hk::Player
 			// <value>" otherwise IFSO can't decode the file correctly
 			IniWrite(charFileNew, "Player", "money", " " + std::to_string(retVal + amount));
 
-			if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlcEncodeFile(charFileNew.c_str(), charFile.c_str()))
+			if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(charFileNew.c_str(), charFile.c_str()))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
 
 			DeleteFile(charFileNew.c_str());
@@ -662,7 +674,7 @@ namespace Hk::Player
 		Players.logout(MaxClientId + 1);
 
 		// Decode the backup of the old char and overwrite the new char file
-		if (!FlcDecodeFile(tmpPath.c_str(), NewCharfilePath.c_str()))
+		if (!FlCodec::DecodeFile(tmpPath.c_str(), NewCharfilePath.c_str()))
 		{
 			// file wasn't encoded, thus
 			// simply rename it
@@ -687,7 +699,7 @@ namespace Hk::Player
 		IniWrite(NewCharfilePath, "Player", "Name", value);
 
 		// Re-encode the char file if needed.
-		if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlcEncodeFile(NewCharfilePath.c_str(), NewCharfilePath.c_str()))
+		if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(NewCharfilePath.c_str(), NewCharfilePath.c_str()))
 			return cpp::fail(Error::CouldNotEncodeCharFile);
 
 		return {};
@@ -700,7 +712,7 @@ namespace Hk::Player
 		if (!ClientInfo[client].tmKickTime)
 		{
 			const std::wstring Msg = ReplaceStr(FLHookConfig::i()->messages.msgStyle.kickMsg, L"%reason", XMLText(reason));
-			Message::FMsg(client, Msg);
+			Chat::FMsg(client, Msg);
 			ClientInfo[client].tmKickTime = Time::GetUnixMiliseconds() + interval;
 		}
 
@@ -913,7 +925,7 @@ namespace Hk::Player
 		if (Client::IsEncoded(charFile))
 		{
 			std::string charFileNew = charFile + ".ini";
-			if (!FlcDecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 			fileToRead = charFileNew;
 			deleteAfter = true;
@@ -996,7 +1008,7 @@ namespace Hk::Player
 		ofs.close();
 		if (encode)
 		{
-			FlcEncodeFile(fileToWrite.c_str(), charFile.c_str());
+			FlCodec::EncodeFile(fileToWrite.c_str(), charFile.c_str());
 			DeleteFile(fileToWrite.c_str());
 		}
 		return {};
@@ -1112,7 +1124,7 @@ namespace Hk::Player
 		if (Client::IsEncoded(CharFile))
 		{
 			const std::string CharFileNew = CharFile + ".ini";
-			if (!FlcDecodeFile(CharFile.c_str(), CharFileNew.c_str()))
+			if (!FlCodec::DecodeFile(CharFile.c_str(), CharFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
 			int secs = IniGetI(CharFileNew, "mPlayer", "total_time_played", 0);

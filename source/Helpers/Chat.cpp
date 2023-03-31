@@ -1,5 +1,14 @@
 #include "PCH.hpp"
-#include <Global.hpp>
+
+#include "Global.hpp"
+
+#include "Helpers/Chat.hpp"
+
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Math.hpp"
+#include "Helpers/Player.hpp"
+#include "Tools/Utils.hpp"
 
 // Very hacky way to call non-header function
 namespace IServerImplHook
@@ -13,7 +22,7 @@ bool g_bMsgS;
 
 _RCSendChatMsg RCSendChatMsg;
 
-namespace Hk::Message
+namespace Hk::Chat
 {
 	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message)
 	{
@@ -363,7 +372,7 @@ namespace Hk::Message
 	{
 		auto Sender = (const wchar_t*)Players.GetActiveCharacterName(fromClientId);
 		// Format and send the message a player in this group.
-		auto Members = Player::GetGroupMembers(Sender);
+		auto Members = Hk::Player::GetGroupMembers(Sender);
 		if (Members.has_error())
 		{
 			return;
@@ -430,5 +439,5 @@ namespace Hk::Message
 
 		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(msg) + L"</TEXT>";
 	}
-} // namespace Hk::Message
+} // namespace Hk::Chat
 

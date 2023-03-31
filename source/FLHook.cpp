@@ -5,6 +5,10 @@
 #include <Features/MessageHandler.hpp>
 #include <Features/Logger.hpp>
 
+#include "Defs/FLHookConfig.hpp"
+#include "Features/DataManager.hpp"
+#include "Tools/Utils.hpp"
+
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
 HMODULE common = nullptr;
@@ -99,23 +103,24 @@ void FLHookInit_Pre()
 		// Setup needed debug tools
 		DebugTools::i()->Init();
 
+		// TODO: Move module handles to FLCoreGlobals
 		// get module handles
 		if (!(server = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
 
 		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
-		// so we want to make sure the service is up
+		// so we want to make sure the service is up at startup time
 		MessageHandler::i();
 
 		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
 		{
-			PluginManager::i()->LoadAll(true, &AdminConsole);
+			PluginManager::i()->LoadAll(true);
 		}
 		else
 		{
 			for (auto& plugin : config->plugins.plugins)
 			{
-				PluginManager::i()->Load(stows(plugin), &AdminConsole, true);
+				PluginManager::i()->Load(plugin, true);
 			}
 		}
 
@@ -147,7 +152,7 @@ void FLHookInit_Pre()
 		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", error));
 		exit(EXIT_FAILURE);
 	}
-	catch (std::filesystem::filesystem_error error)
+	catch (std::filesystem::filesystem_error& error)
 	{
 		Logger::i()->Log(LogLevel::Err, std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what()));
 	}

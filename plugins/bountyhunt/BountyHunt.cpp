@@ -145,7 +145,7 @@ namespace Plugins::BountyHunt
 
 		global->bountyHunt.push_back(bountyHunt);
 
-		Hk::Message::MsgU(bountyHunt.initiator + L" offers " + std::to_wstring(bountyHunt.cash) + L" credits for killing " + bountyHunt.target + L" in " +
+		Hk::Chat::MsgU(bountyHunt.initiator + L" offers " + std::to_wstring(bountyHunt.cash) + L" credits for killing " + bountyHunt.target + L" in " +
 		    std::to_wstring(time) + L" minutes.");
 	}
 
@@ -196,7 +196,7 @@ namespace Plugins::BountyHunt
 					return;
 				}
 
-				Hk::Message::MsgU(bounty->target + L" was not hunted down and earned " + std::to_wstring(bounty->cash) + L" credits.");
+				Hk::Chat::MsgU(bounty->target + L" was not hunted down and earned " + std::to_wstring(bounty->cash) + L" credits.");
 				bounty = global->bountyHunt.erase(bounty);
 			}
 			else
@@ -217,7 +217,7 @@ namespace Plugins::BountyHunt
 			{
 				if (killer == 0 || client == killer)
 				{
-					Hk::Message::MsgU(L"The hunt for " + bounty.target + L" still goes on.");
+					Hk::Chat::MsgU(L"The hunt for " + bounty.target + L" still goes on.");
 					continue;
 				}
 
@@ -228,7 +228,7 @@ namespace Plugins::BountyHunt
 						Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 						return;
 					}
-					Hk::Message::MsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
+					Hk::Chat::MsgU(winnerCharacterName + L" has killed " + bounty.target + L" and earned " + std::to_wstring(bounty.cash) + L" credits.");
 				}
 				else
 				{
@@ -270,7 +270,7 @@ namespace Plugins::BountyHunt
 					Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(cashError.error())));
 					return;
 				}
-				Hk::Message::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
+				Hk::Chat::MsgU(L"The coward " + it.target + L" has fled. " + it.initiator + L" has been refunded.");
 				RemoveBountyHunt(it);
 				return;
 			}

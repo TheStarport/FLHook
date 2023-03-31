@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Features/DataManager.hpp"
 
 void DataManager::LoadLights()
 {

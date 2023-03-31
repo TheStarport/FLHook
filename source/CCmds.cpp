@@ -1,5 +1,13 @@
 #include "PCH.hpp"
 #include "Global.hpp"
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Helpers/Admin.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Chat.hpp"
+#include "Helpers/Solar.hpp"
+#include "Tools/Utils.hpp"
 
 #define RIGHT_CHECK(a)              \
 	if (!(this->rights & a))        \
@@ -188,7 +196,7 @@ void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std:
 
 void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& text)
 {
-	if (const auto res = Hk::Message::Msg(player, text); res.has_error())
+	if (const auto res = Hk::Chat::Msg(player, text); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -201,7 +209,7 @@ void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::ws
 
 void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 {
-	if (const auto res = Hk::Message::MsgS(system, text); res.has_error())
+	if (const auto res = Hk::Chat::MsgS(system, text); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -214,7 +222,7 @@ void CCmds::CmdMsgS(const std::wstring& system, const std::wstring& text)
 
 void CCmds::CmdMsgU(const std::wstring& text)
 {
-	if (const auto res = Hk::Message::MsgU(text); res.has_error())
+	if (const auto res = Hk::Chat::MsgU(text); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -227,7 +235,7 @@ void CCmds::CmdMsgU(const std::wstring& text)
 
 void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xml)
 {
-	if (const auto res = Hk::Message::FMsg(player, xml); res.has_error())
+	if (const auto res = Hk::Chat::FMsg(player, xml); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -248,7 +256,7 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 		return;
 	}
 
-	if (const auto res = Hk::Message::FMsgS(systemId, xml); res.has_error())
+	if (const auto res = Hk::Chat::FMsgS(systemId, xml); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -261,31 +269,10 @@ void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 
 void CCmds::CmdFMsgU(const std::wstring& xml)
 {
-	if (const auto res = Hk::Message::FMsgU(xml); res.has_error())
+	if (const auto res = Hk::Chat::FMsgU(xml); res.has_error())
 	{
 		PrintError(res.error());
 		return;
-	}
-
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdEnumCargo(const std::variant<uint, std::wstring>& player)
-{
-	int holdSize = 0;
-	auto cargo = Hk::Player::EnumCargo(player, holdSize);
-	if (cargo.has_error())
-	{
-		PrintError(cargo.error());
-	}
-
-	Print(std::format("remainingholdsize={}", holdSize));
-	for (auto& item : cargo.value())
-	{
-		if (!item.mounted)
-			Print(std::format("id={} archid={} count={} mission={}", item.id, item.archId, item.count, item.mission ? 1 : 0));
 	}
 
 	Print("OK");
@@ -309,64 +296,6 @@ void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushor
 void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, uint count, bool mission)
 {
 	if (const auto res = Hk::Player::AddCargo(player, good, count, mission); res.has_error())
-	{
-		PrintError(res.error());
-		return;
-	}
-
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdRename(const std::variant<uint, std::wstring>& player, const std::wstring& newName)
-{
-	if (const auto res = Hk::Player::Rename(player, newName, false); res.has_error())
-	{
-		PrintError(res.error());
-		return;
-	}
-
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdDeleteChar(const std::variant<uint, std::wstring>& player)
-{
-	if (const auto res = Hk::Player::Rename(player, L"", true); res.has_error())
-	{
-		PrintError(res.error());
-		return;
-	}
-
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdReadCharFile(const std::variant<uint, std::wstring>& player)
-{
-	const auto res = Hk::Player::ReadCharFile(player);
-	if (res.has_error())
-	{
-		PrintError(res.error());
-		return;
-	}
-
-	for (const auto& line : res.value())
-	{
-		Print(wstos(line));
-	}
-
-	Print("OK");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CCmds::CmdWriteCharFile(const std::variant<uint, std::wstring>& player, const std::wstring& data)
-{
-	if (const auto res = Hk::Player::WriteCharFile(player, data); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -652,7 +581,7 @@ void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
 
 void CCmds::CmdLoadPlugins()
 {
-	PluginManager::i()->LoadAll(false, this);
+	PluginManager::i()->LoadAll(false);
 	Print("OK");
 }
 
@@ -660,7 +589,7 @@ void CCmds::CmdLoadPlugins()
 
 void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 {
-	PluginManager::i()->Load(Plugin, this, false);
+	PluginManager::i()->Load(wstos(Plugin), false);
 	Print("OK");
 }
 
@@ -675,7 +604,7 @@ void CCmds::CmdReloadPlugin(const std::wstring& pluginName)
 		return;
 	}
 
-	PluginManager::i()->Load(unloadedPlugin.value(), this, false);
+	PluginManager::i()->Load(unloadedPlugin.value(), false);
 	Print("OK");
 }
 
@@ -684,7 +613,7 @@ void CCmds::CmdReloadPlugin(const std::wstring& pluginName)
 void CCmds::CmdListPlugins()
 {
 	for (const auto& data : PluginManager::ir())
-		Print(std::format("{} ({}) - {}", data->name, data->shortName, !data->paused ? "running" : "paused"));
+		Print(std::format("{} ({})", data->GetName(), data->GetShortName()));
 
 	Print("OK");
 }
@@ -846,10 +775,10 @@ std::wstring CCmds::ArgCharname(uint arg)
 		if (shortCut)
 			return Arg.replace(0, 0, L"sc ");
 		if (self)
-			return this->GetAdminName();
+			return L"";
 		if (target)
 		{
-			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			auto client = Hk::Client::GetClientIdFromCharName(L"");
 			if (client.has_error())
 				return L"";
 			uint ship;
@@ -868,12 +797,12 @@ std::wstring CCmds::ArgCharname(uint arg)
 
 	{
 		if (Arg == L">s")
-			return this->GetAdminName();
+			return L"";
 		if (Arg.find(L">i") == 0)
 			return L"id " + Arg.substr(2);
 		if (Arg == L">t")
 		{
-			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
+			auto client = Hk::Client::GetClientIdFromCharName(L"");
 			if (client.has_error())
 				return L"";
 			uint ship;
@@ -951,7 +880,7 @@ std::wstring CCmds::ArgStrToEnd(uint arg)
 void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 {
 	// check if command was sent by a socket connection
-	const std::wstring AdminName = GetAdminName();
+	const std::wstring AdminName = L"";
 
 	try
 	{
@@ -1071,10 +1000,6 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 			{
 				CmdFMsgU(ArgStrToEnd(1));
 			}
-			else if (cmd == L"enumcargo")
-			{
-				CmdEnumCargo(ArgCharname(1));
-			}
 			else if (cmd == L"removecargo")
 			{
 				CmdRemoveCargo(ArgCharname(1), static_cast<ushort>(ArgInt(2)), ArgInt(3));
@@ -1082,22 +1007,6 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 			else if (cmd == L"addcargo")
 			{
 				CmdAddCargo(ArgCharname(1), ArgStr(2), ArgInt(3), ArgInt(4));
-			}
-			else if (cmd == L"rename")
-			{
-				CmdRename(ArgCharname(1), ArgStr(2));
-			}
-			else if (cmd == L"deletechar")
-			{
-				CmdDeleteChar(ArgCharname(1));
-			}
-			else if (cmd == L"readcharfile")
-			{
-				CmdReadCharFile(ArgCharname(1));
-			}
-			else if (cmd == L"writecharfile")
-			{
-				CmdWriteCharFile(ArgCharname(1), ArgStrToEnd(2));
 			}
 			else if (cmd == L"getplayerinfo")
 			{
@@ -1226,22 +1135,13 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CCmds::SetRightsByString(const std::string& rights)
-{
-	// TODO: Implement admin rights
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CCmds::PrintError(Error err)
 {
-	Print(std::format("ERR: {}", wstos(Hk::Err::ErrGetText(err))));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CCmds::Print(const std::string& text)
 {
-	DoPrint(text);
 }
 

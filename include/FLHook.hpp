@@ -105,7 +105,6 @@ public:
 	#endif
 
 public:
-	virtual void DoPrint(const std::string& text) = 0;
 	DLL void PrintError(Error err);
 	DLL std::wstring ArgCharname(uint arg);
 	DLL int ArgInt(uint arg);
@@ -114,7 +113,6 @@ public:
 	DLL std::wstring ArgStr(uint arg);
 	DLL std::wstring ArgStrToEnd(uint arg);
 	DLL void Print(const std::string& text);
-	DLL virtual std::wstring GetAdminName() { return L""; };
 	DLL virtual bool IsPlayer() { return false; }
 };
 
@@ -123,18 +121,8 @@ class CInGame final : public CCmds
 public:
 	uint client;
 	std::wstring adminName;
-	DLL void DoPrint(const std::string& text) override;
-	DLL void ReadRights(const std::string& iniFile);
-	DLL std::wstring GetAdminName() override;
 	DLL bool IsPlayer() override { return true; }
 };
-
-// FuncLog
-
-DLL void HandleCheater(ClientId client, bool ban, const std::string& reason);
-DLL bool AddCheaterLog(const std::variant<uint, std::wstring>& player, const std::string& reason);
-DLL bool AddKickLog(ClientId client, const std::string& reason);
-DLL bool AddConnectLog(ClientId client, const std::string& reason);
 
 DLL void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param);
 DLL void UserCmd_SetChatFont(ClientId& client, const std::wstring& param);

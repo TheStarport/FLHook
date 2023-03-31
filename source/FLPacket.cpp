@@ -1,5 +1,7 @@
 #include "PCH.hpp"
-#include <FLHook.hpp>
+
+#include "FLHook.hpp"
+#include "Defs/FLPacket.hpp"
 
 // Common packets are being sent from server to client and from client to server.
 FlPacket* FlPacket::Create(uint size, CommonPacket kind)

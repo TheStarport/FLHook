@@ -91,7 +91,7 @@ namespace Plugins::Message
 		for (const auto& line : global->config->greetingBannerLines)
 		{
 			if (line.find(L"<TRA") == 0)
-				Hk::Message::FMsg(client, line);
+				Hk::Chat::FMsg(client, line);
 			else
 				PrintUserCmdText(client, line);
 		}
@@ -118,7 +118,7 @@ namespace Plugins::Message
 			for (const auto& line : global->config->specialBannerLines)
 			{
 				if (line.find(L"<TRA") == 0)
-					Hk::Message::FMsg(client, line);
+					Hk::Chat::FMsg(client, line);
 				else
 					PrintUserCmdText(client, line);
 			}
@@ -143,7 +143,7 @@ namespace Plugins::Message
 			ClientId client = playerData->onlineId;
 
 			if (global->config->standardBannerLines[curStandardBanner].find(L"<TRA") == 0)
-				Hk::Message::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
+				Hk::Chat::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
 			else
 				PrintUserCmdText(client, global->config->standardBannerLines[curStandardBanner].c_str());
 		}
@@ -223,7 +223,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		Hk::Message::SendLocalSystemChat(client, GetPresetMessage(client, msgSlot));
+		Hk::Chat::SendLocalSystemChat(client, GetPresetMessage(client, msgSlot));
 	}
 
 	/** @ingroup Message
@@ -249,7 +249,7 @@ namespace Plugins::Message
 			PrintUserCmdText(client, L"Set commands disabled");
 			return;
 		}
-		Hk::Message::SendSystemChat(client, GetPresetMessage(client, msgSlot));
+		Hk::Chat::SendSystemChat(client, GetPresetMessage(client, msgSlot));
 	}
 
 	/** @ingroup Message
@@ -277,7 +277,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		Hk::Message::SendGroupChat(client, GetPresetMessage(client, msgSlot));
+		Hk::Chat::SendGroupChat(client, GetPresetMessage(client, msgSlot));
 	}
 
 	/** @ingroup Message
@@ -449,7 +449,7 @@ namespace Plugins::Message
 	{
 		char buf[0x1000];
 		uint retVal;
-		if (const auto err = Hk::Message::FMsgEncodeXML(XMLMsg, buf, sizeof(buf), retVal); err.has_error())
+		if (const auto err = Hk::Chat::FMsgEncodeXML(XMLMsg, buf, sizeof(buf), retVal); err.has_error())
 			return;
 
 		// Send to all players in system
@@ -459,7 +459,7 @@ namespace Plugins::Message
 			ClientId client = playerData->onlineId;
 
 			if (SystemId clientSystemId = Hk::Player::GetSystem(client).value(); systemId == clientSystemId)
-				Hk::Message::FMsgSendChat(client, buf, retVal);
+				Hk::Chat::FMsgSendChat(client, buf, retVal);
 		}
 	}
 
@@ -500,7 +500,7 @@ namespace Plugins::Message
 			// Send time with gray color (BEBEBE) in small text (90) above the chat
 			// line.
 			global->sendingTime = true;
-			Hk::Message::FMsg(
+			Hk::Chat::FMsg(
 			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->messages.dieMsg)) + L"</TEXT>");
 			global->sendingTime = false;
 		}
@@ -644,7 +644,7 @@ namespace Plugins::Message
 		}
 
 		global->info[iter->second.lastPmClientId].lastPmClientId = client;
-		Hk::Message::SendPrivateChat(client, iter->second.lastPmClientId, ViewToWString(msg));
+		Hk::Chat::SendPrivateChat(client, iter->second.lastPmClientId, ViewToWString(msg));
 	}
 
 	/** @ingroup Message
@@ -693,7 +693,7 @@ namespace Plugins::Message
 		}
 
 		global->info[iter->second.targetClientId].lastPmClientId = client;
-		Hk::Message::SendPrivateChat(client, iter->second.targetClientId, ViewToWString(msg));
+		Hk::Chat::SendPrivateChat(client, iter->second.targetClientId, ViewToWString(msg));
 	}
 
 	/** @ingroup Message
@@ -733,7 +733,7 @@ namespace Plugins::Message
 		else
 		{
 			global->info[clientId.value()].lastPmClientId = client;
-			Hk::Message::SendPrivateChat(client, clientId.value(), ViewToWString(msg));
+			Hk::Chat::SendPrivateChat(client, clientId.value(), ViewToWString(msg));
 		}
 	}
 
@@ -754,7 +754,7 @@ namespace Plugins::Message
 		}
 
 		global->info[toClientId].lastPmClientId = client;
-		Hk::Message::SendPrivateChat(client, toClientId, ViewToWString(msg));
+		Hk::Chat::SendPrivateChat(client, toClientId, ViewToWString(msg));
 	}
 
 	/** @ingroup Message
@@ -783,11 +783,11 @@ namespace Plugins::Message
 			if (player.client == client)
 				senderReceived = true;
 
-			Hk::Message::FormatSendChat(player.client, sender, ViewToWString(msg), L"FF7BFF");
+			Hk::Chat::FormatSendChat(player.client, sender, ViewToWString(msg), L"FF7BFF");
 			msgSent = true;
 		}
 		if (!senderReceived)
-			Hk::Message::FormatSendChat(client, sender, ViewToWString(msg), L"FF7BFF");
+			Hk::Chat::FormatSendChat(client, sender, ViewToWString(msg), L"FF7BFF");
 
 		if (msgSent == false)
 			PrintUserCmdText(client, L"ERR No chars found");

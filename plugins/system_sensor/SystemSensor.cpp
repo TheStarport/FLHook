@@ -130,7 +130,7 @@ namespace Plugins::SystemSensor
 						case ET_OTHER:
 							if (eqList.length())
 								eqList += L",";
-							result = Hk::Message::GetWStringFromIdS(eq->idsName);
+							result = Hk::Chat::GetWStringFromIdS(eq->idsName);
 							eqList += result;
 							break;
 						default:
@@ -234,7 +234,7 @@ namespace Plugins::SystemSensor
 				const Universe::ISystem* system = Universe::get_system(systemId);
 				if (system && magic_enum::enum_integer(sensor.mode & mode))
 				{
-					std::wstring sysName = Hk::Message::GetWStringFromIdS(system->idsName);
+					std::wstring sysName = Hk::Chat::GetWStringFromIdS(system->idsName);
 					const auto location = Hk::Solar::GetLocation(client, IdType::Client);
 					const auto playerSystem = Hk::Player::GetSystem(client);
 					const Vector& position = location.value().first;

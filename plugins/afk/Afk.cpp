@@ -46,7 +46,7 @@ namespace Plugins::Afk
 	{
 		awayClients.emplace_back(client);
 		const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-		const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" is now away from keyboard.");
+		const auto message = Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" is now away from keyboard.");
 
 		const auto systemId = Hk::Player::GetSystem(client);
 
@@ -56,7 +56,7 @@ namespace Plugins::Afk
 			return;
 		}
 
-		Hk::Message::FMsgS(systemId.value(), message);
+		Hk::Chat::FMsgS(systemId.value(), message);
 
 		PrintUserCmdText(client, L"Use the /back command to stop sending automatic replies to PMs.");
 	}
@@ -79,8 +79,8 @@ namespace Plugins::Afk
 
 			awayClients.erase(it);
 			const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-			const auto message = Hk::Message::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
-			Hk::Message::FMsgS(systemId.value(), message);
+			const auto message = Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
+			Hk::Chat::FMsgS(systemId.value(), message);
 			return;
 		}
 	}

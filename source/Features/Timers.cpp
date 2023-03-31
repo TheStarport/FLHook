@@ -1,8 +1,17 @@
 #include "PCH.hpp"
-#include "Global.hpp"
 
 #include <WS2tcpip.h>
+
+#include "Global.hpp"
+
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
 #include "Features/TempBan.hpp"
+#include "Helpers/Admin.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Time.hpp"
+#include "Tools/Utils.hpp"
 
 CTimer::CTimer(const std::string& func, uint warn)
 	: function(func), warning(warn)
