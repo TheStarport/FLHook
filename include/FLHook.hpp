@@ -148,7 +148,6 @@ extern DLL CDPServer* cdpSrv;
 extern DLL _GetShipInspect GetShipInspect;
 extern DLL char* g_FLServerDataPtr;
 extern DLL CDPClientProxy** clientProxyArray;
-extern DLL void* client;
 extern DLL _RCSendChatMsg RCSendChatMsg;
 extern DLL _CRCAntiCheat CRCAntiCheat;
 extern DLL IClientImpl* FakeClient;
