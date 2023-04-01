@@ -29,5 +29,10 @@
 			</Command>
 		</PostBuildEvent>
 	</ItemDefinitionGroup>
-	<ItemGroup />
+	<ItemGroup>
+		<ClCompile Include="..\..\include\PCH.cpp">
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+		</ClCompile>
+	</ItemGroup>
 </Project>

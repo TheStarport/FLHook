@@ -58,13 +58,13 @@ DLL void AddExceptionInfoLog(SEHException* ex);
 		{                                                                                                  \
 		}
 
-#define DefaultDllMain(x)                                                                                                   \
+#define DefaultDllMain(x, xx)                                                                                               \
 	BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE dll, [[maybe_unused]] DWORD reason, [[maybe_unused]] LPVOID reserved)    \
 	{                                                                                                                       \
-		if (CoreGlobals::c()->flhookReady && reason == DLL_PROCESS_ATTACH)                                                  \
+		if (xx reason == DLL_PROCESS_ATTACH)                                                  \
 		{                                                                                                                   \
 			x;                                                                                                              \
 		}                                                                                                                   \
 		return true;                                                                                                        \
 	}
-#define DefaultDllMainSettings(loadSettings) DefaultDllMain(loadSettings())
+#define DefaultDllMainSettings(loadSettings) DefaultDllMain(loadSettings(), CoreGlobals::c()->flhookReady &&)

@@ -24,15 +24,19 @@
 #include "PCH.hpp"
 #include "Afk.h"
 
-#include "Tools/Hk.hpp"
+#include <Features/Logger.hpp>
+
+#include "Helpers/Chat.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Client.hpp"
 
 namespace Plugins::Afk
 {
 	AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info)
 	{
-		EmplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-		EmplaceHook(HookedCall::IChat__SendChat, &SendChat);
-		EmplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
+		EmplaceHook(HookedCall::FLHook__ClearClientInfo, &AfkPlugin::ClearClientInfo, HookStep::After);
+		EmplaceHook(HookedCall::IChat__SendChat, &AfkPlugin::SendChat);
+		EmplaceHook(HookedCall::IServerImpl__SubmitChat, &AfkPlugin::SubmitChat);
 
 		AddCommand(L"/afk", L"", Cmd(UserCmdAfk), L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you.");
 		AddCommand(L"/back", L"", Cmd(UserCmdBack), L"Removes the AFK status.");
@@ -52,7 +56,7 @@ namespace Plugins::Afk
 
 		if (systemId.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
+			//PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
 			return;
 		}
 
@@ -73,7 +77,7 @@ namespace Plugins::Afk
 
 			if (systemId.has_error())
 			{
-				PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
+				//PrintUserCmdText(client, Hk::Err::ErrGetText(systemId.error()));
 				return;
 			}
 
@@ -103,6 +107,12 @@ namespace Plugins::Afk
 		if (const auto it = awayClients.begin();
 		    Hk::Client::IsValidClientID(client) && std::find(it, awayClients.end(), client) != awayClients.end())
 			UserCmdBack(client);
+	}
+
+	void AfkPlugin::ClearClientInfo(ClientId& client)
+	{
+		auto [first, last] = std::ranges::remove(awayClients, client);
+		awayClients.erase(first, last);
 	}
 
 	// Client command processing

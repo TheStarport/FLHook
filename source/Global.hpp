@@ -208,7 +208,7 @@ class CTimer
 struct PluginHookData
 {
 	HookedCall targetFunction;
-	PluginHook::FunctionType* hookFunction;
+	PluginHook::FunctionType hookFunction;
 	HookStep step;
 	int priority;
 	std::weak_ptr<Plugin> plugin;
@@ -268,7 +268,7 @@ class PluginManager : public Singleton<PluginManager>
 	template<typename ReturnType, typename... Args>
 	ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
 	{
-		using PluginCallType = ReturnType(Args...);
+		using PluginCallType = ReturnType (__thiscall*)(void*, Args...);
 		constexpr bool returnTypeIsVoid = std::is_same_v<ReturnType, void>;
 		using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
 
@@ -288,10 +288,11 @@ class PluginManager : public Singleton<PluginManager>
 
 				TRY_HOOK
 				{
+					void* pluginRaw = plugin.get();
 					if constexpr (returnTypeIsVoid)
-						reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+						reinterpret_cast<PluginCallType>(hook.hookFunction)(pluginRaw, std::forward<Args>(args)...);
 					else
-						ret = reinterpret_cast<PluginCallType*>(hook.hookFunction)(std::forward<Args>(args)...);
+						ret = reinterpret_cast<PluginCallType>(hook.hookFunction)(pluginRaw, std::forward<Args>(args)...);
 				}
 				CATCH_HOOK({
 					Logger::i()->Log(LogLevel::Err,

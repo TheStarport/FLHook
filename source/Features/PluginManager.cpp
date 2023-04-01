@@ -115,7 +115,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	if (!std::filesystem::exists(pathToDLL))
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR plugin {} not found", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR plugin {} not found", dllName));
 		return;
 	}
 
@@ -123,14 +123,14 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	if (!dll)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR can't load plugin DLL {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR can't load plugin DLL {}", dllName));
 	}
 
 	const auto pluginFactory = reinterpret_cast<PluginFactoryT>(GetProcAddress(dll, "PluginFactory"));
 
 	if (!pluginFactory)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR could not create plugin instance for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR could not create plugin instance for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -141,7 +141,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	if (plugin->versionMinor == PluginMinorVersion::UNDEFINED || plugin->versionMajor == PluginMajorVersion::UNDEFINED)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR plugin {} does not have defined API version. Unloading.", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR plugin {} does not have defined API version. Unloading.", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -149,7 +149,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	if (plugin->versionMajor != CurrentMajorVersion)
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
-		    LogLevel::Info,
+		    LogLevel::Err,
 		    std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMajorVersion),
@@ -161,7 +161,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
-		    LogLevel::Info,
+		    LogLevel::Err,
 		    std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMinorVersion),
@@ -173,7 +173,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
-		    LogLevel::Info,
+		    LogLevel::Warn,
 		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMinorVersion),
@@ -183,7 +183,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	if (plugin->shortName.empty() || plugin->name.empty())
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR missing name/short name for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR missing name/short name for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -193,7 +193,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	if (!plugin->mayUnload && !startup)
 	{
 		Logger::i()->Log(
-		    LogFile::ConsoleOnly, LogLevel::Info, std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
+		    LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -203,7 +203,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 		if (!hook.hookFunction)
 		{
 			Logger::i()->Log(LogFile::ConsoleOnly,
-			    LogLevel::Warn,
+			    LogLevel::Err,
 			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
 			continue;
 		}

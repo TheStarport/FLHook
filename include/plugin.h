@@ -25,17 +25,19 @@ const std::wstring VersionInformation = std::to_wstring(static_cast<int>(Current
 
 struct PluginHook
 {
-	using FunctionType = void();
+	using FunctionType = void (*)(void*);
 
 	HookedCall targetFunction;
-	FunctionType* hookFunction;
+	FunctionType hookFunction;
 	HookStep step;
 	int priority;
 
 	template<typename Func>
-	PluginHook(const HookedCall targetFunction, Func* hookFunction, const HookStep step = HookStep::Before, const int priority = 0)
-	    : targetFunction(targetFunction), hookFunction(reinterpret_cast<FunctionType*>(hookFunction)), step(step), priority(priority)
+	PluginHook(const HookedCall targetFunction, Func hookFunc, const HookStep step = HookStep::Before, const int priority = 0)
+	    : targetFunction(targetFunction), step(step), priority(priority)
 	{
+		// This is dumb. We have to cast it to a pointer reference, then dereference it. If we don't we get a type error.
+		hookFunction = *reinterpret_cast<FunctionType*>(&hookFunc);
 		switch (step)
 		{
 			case HookStep::Before:
@@ -81,17 +83,17 @@ struct PluginInfo
 	bool mayUnload;
 
 	PluginInfo() = delete;
-	PluginInfo(
-	    const std::string& name, const std::string& shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
-	    : name(name), shortName(shortName), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
+	PluginInfo(std::string name, std::string shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
+	    : name(std::move(name)), shortName(std::move(shortName)), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
 	{
 	}
 };
 
 class DLL Plugin
 {
+#ifdef FLHOOK
 	friend PluginManager;
-
+#endif
 	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
 	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 
@@ -159,10 +161,11 @@ class DLL Plugin
 	[[nodiscard]] auto& GetTimers() { return timers; }
 };
 
-#define SetupPlugin(type, info)                             \
-	extern "C" EXPORT std::shared_ptr<type> PluginFactory() \
-	{                                                       \
-		return std::move(std::make_shared<type>(info));      \
+#define SetupPlugin(type, info)                                             \
+	EXPORT std::shared_ptr<type> PluginFactory()                            \
+	{                                                                       \
+		__pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
+		return std::move(std::make_shared<type>(info));                     \
 	}
 
 #define Cmd(func)                      \
