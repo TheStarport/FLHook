@@ -139,36 +139,39 @@ namespace IServerImplHook
 				cidTo.iId = SpecialChatIds::LOCAL;
 			}
 
-			// fix flserver commands and change chat to id so that event logging is
-			// accurate.
+			// fix flserver commands and change chat to id so that event logging is accurate.
 			bool foundCommand = false;
 			if (buffer[0] == '/')
 			{
-				if (buffer[1] == 'g')
-				{
-					foundCommand = true;
-					cidTo.iId = SpecialChatIds::GROUP;
-				}
-				else if (buffer[1] == 's')
-				{
-					foundCommand = true;
-					cidTo.iId = SpecialChatIds::SYSTEM;
-				}
-				else if (buffer[1] == 'l')
-				{
-					foundCommand = true;
-					cidTo.iId = SpecialChatIds::LOCAL;
-				}
-				else if (UserCmd_Process(cidFrom.iId, buffer))
+				if (UserCmd_Process(cidFrom.iId, buffer))
 				{
 					if (FLHookConfig::c()->messages.echoCommands)
 					{
-						const std::wstring XML =
+						const std::wstring xml =
 						    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
-						Hk::Message::FMsg(cidFrom.iId, XML);
+						Hk::Message::FMsg(cidFrom.iId, xml);
 					}
 
 					return false;
+				}
+
+				if (buffer.length() == 2 || buffer[2] == ' ')
+				{
+					if (buffer[1] == 'g')
+					{
+						foundCommand = true;
+						cidTo.iId = SpecialChatIds::GROUP;
+					}
+					else if (buffer[1] == 's')
+					{
+						foundCommand = true;
+						cidTo.iId = SpecialChatIds::SYSTEM;
+					}
+					else if (buffer[1] == 'l')
+					{
+						foundCommand = true;
+						cidTo.iId = SpecialChatIds::LOCAL;
+					}
 				}
 			}
 			else if (buffer[0] == '.')
