@@ -1,0 +1,16 @@
+name: Changelog
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:    
+  scan-for-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Looking for changelog update"
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          file-pattern: "CHANGELOG.md"
+          skip-label: "No Updates?"
+          failure-message: "Expected CHANGELOG.md to have an update"
