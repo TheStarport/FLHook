@@ -17,7 +17,7 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
 
       - name: Extract information from CHANGELOG.md
-        id: extract-changelog
+        id: extract_changelog
         shell: bash
         run: |
           res=$''
@@ -35,6 +35,8 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
+          echo "::set-output name=version::$(version)"
+          echo "::set-output name=res::$(res)"
       
       - run: vcpkg integrate install
 
@@ -52,8 +54,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.date.outputs.date }}
-          release_name: "${{ env.version }} | ${{ steps.date.outputs.date }}"
-          body: ${{ env.res }}
+          release_name: "${{ steps.extract_changelog.outputs.version }} | ${{ steps.date.outputs.date }}"
+          body: ${{ steps.extract_changelog.outputs.res }}
           draft: false
           prerelease: false
       
