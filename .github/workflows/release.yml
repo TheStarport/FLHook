@@ -25,6 +25,25 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
 
+      - name: Extract information from CHANGELOG.md
+        id: extract-changelog
+        run: |
+          res=$''
+          changelog="$(cat CHANGELOG.md)"
+          while read -r line; do    
+            if [[ "$line" =~ ^##[[:space:]][[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+ ]]; then
+              if [ -z "$version" ]; then
+                version=${line:2}
+              else
+                break
+              fi
+            else
+              if [ ! -z "$version" ]; then
+                res+="${line//\r@Q}\n"
+              fi
+            fi
+          done < CHANGELOG.md
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -32,9 +51,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.date.outputs.date }}
-          release_name: ${{ steps.date.outputs.date }}
-          body: |
-            This is a release of FLHook automatically generated after a commit to the main branch. "Release.zip" contains a compiled copy of FLHook and it's plugins.
+          release_name: "${{ env.version }} | ${{ steps.date.outputs.date }}"
+          body: ${{ env.res }}
           draft: false
           prerelease: false
       
