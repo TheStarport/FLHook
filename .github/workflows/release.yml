@@ -35,8 +35,10 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
-          echo ::set-output name=version::"$version"
-          echo ::set-output name=res::"$res"
+          echo -e ::set-output name=version::"$version"
+          echo -e ::set-output name=res::"$res"
+          echo -e "Version: $version"
+          echo -e "Body: $res"
       
       - run: vcpkg integrate install
 
@@ -55,7 +57,8 @@ jobs:
         with:
           tag_name: ${{ steps.date.outputs.date }}
           release_name: "${{ steps.extract_changelog.outputs.version }} | ${{ steps.date.outputs.date }}"
-          body: ${{ steps.extract_changelog.outputs.res }}
+          body: |
+            "${{ steps.extract_changelog.outputs.res }}"
           draft: false
           prerelease: false
       
