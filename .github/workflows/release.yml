@@ -11,12 +11,14 @@ jobs:
       body: ${{ steps.body.outputs.body }}
       version: ${{ steps.version.outputs.version }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
       - id: extract_changelog
         name: Extract information from CHANGELOG.md
         shell: bash
         run: |
           res=$''
-          changelog="$(cat CHANGELOG.md)"
           while read -r line; do    
             if [[ "$line" =~ ^##[[:space:]][[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+ ]]; then
               if [ -z "$version" ]; then
