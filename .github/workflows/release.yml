@@ -32,8 +32,8 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
-          echo -e "version=$version" >> $GITHUB_OUTPUT
-          echo -e "body=$res" >> $GITHUB_OUTPUT  
+          echo -e -- "version=$version" >> $GITHUB_OUTPUT
+          echo -e -- "body=$res" >> $GITHUB_OUTPUT  
 
   deploy:
     runs-on: windows-latest
