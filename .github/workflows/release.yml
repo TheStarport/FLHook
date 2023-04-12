@@ -5,19 +5,14 @@ on:
     branches: [ master ]
 
 jobs:
-  deploy:
+  setup-outputs:
     runs-on: windows-latest
+    outputs:
+      body: ${{ steps.body.outputs.body }}
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
-
-      - name: Extract information from CHANGELOG.md
-        id: extract_changelog
+      - id: extract_changelog
+        name: Extract information from CHANGELOG.md
         shell: bash
         run: |
           res=$''
@@ -35,10 +30,20 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
-          echo -e ::set-output name=version::"$version"
-          echo -e ::set-output name=res::"$res"
-          echo -e "Version: $version"
-          echo -e "Body: $res"
+          echo -e "version=$version" >> $GITHUB_OUTPUT
+          echo -e "body=$res" >> $GITHUB_OUTPUT  
+
+  deploy:
+    runs-on: windows-latest
+    needs: setup-outputs
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
       
       - run: vcpkg integrate install
 
@@ -56,9 +61,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.date.outputs.date }}
-          release_name: "${{ steps.extract_changelog.outputs.version }} | ${{ steps.date.outputs.date }}"
+          release_name: "${{ needs.setup-outputs.outputs.version }} | ${{ steps.date.outputs.date }}"
           body: |
-            "${{ steps.extract_changelog.outputs.res }}"
+            "${{ needs.setup-outputs.body }}"
           draft: false
           prerelease: false
       
