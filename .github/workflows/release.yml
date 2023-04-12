@@ -5,20 +5,23 @@ on:
     branches: [ master ]
 
 jobs:
-  setup-outputs:
-    runs-on: ubuntu-latest
-    outputs:
-      body: ${{ steps.body.outputs.body }}
-      version: ${{ steps.version.outputs.version }}
+  deploy:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: false
-      - id: extract_changelog
-        name: Extract information from CHANGELOG.md
+          submodules: true
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
+
+      - name: Extract information from CHANGELOG.md
+        id: extract_changelog
         shell: bash
         run: |
           res=$''
+          changelog="$(cat CHANGELOG.md)"
           while read -r line; do    
             if [[ "$line" =~ ^##[[:space:]][[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+ ]]; then
               if [ -z "$version" ]; then
@@ -33,19 +36,7 @@ jobs:
             fi
           done < CHANGELOG.md
           echo -e "version=$version" >> $GITHUB_OUTPUT
-          echo -e "body<<EOF"$'\n'"$res"$'\n'EOF >> $GITHUB_OUTPUT
-
-  deploy:
-    runs-on: windows-latest
-    needs: setup-outputs
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
+          echo -e "body=$res" >> $GITHUB_OUTPUT
       
       - run: vcpkg integrate install
 
@@ -63,9 +54,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.date.outputs.date }}
-          release_name: "${{ needs.setup-outputs.outputs.version }} | ${{ steps.date.outputs.date }}"
+          release_name: "${{ steps.extract_changelog.outputs.version }} | ${{ steps.date.outputs.date }}"
           body: |
-            "${{ needs.setup-outputs.body }}"
+            "${{ steps.extract_changelog.outputs.body }}"
           draft: false
           prerelease: false
       
