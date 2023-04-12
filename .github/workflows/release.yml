@@ -36,7 +36,7 @@ jobs:
             fi
           done < CHANGELOG.md
           echo -e "version<<EOF"$'\n'"$version"$'\n'EOF >> $GITHUB_OUTPUT
-          echo -e "body<<EOF"$'\n'$res$'\n'EOF >> $GITHUB_OUTPUT
+          echo -e body<<EOF$'\n'$res$'\n'EOF >> $GITHUB_OUTPUT
       
       - run: vcpkg integrate install
 
