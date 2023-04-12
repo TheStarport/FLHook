@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup-outputs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     outputs:
       body: ${{ steps.body.outputs.body }}
       version: ${{ steps.version.outputs.version }}
@@ -32,8 +32,8 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
-          echo -e -- "version=$version" >> $GITHUB_OUTPUT
-          echo -e -- "body=$res" >> $GITHUB_OUTPUT  
+          echo -e "version=$version" >> $GITHUB_OUTPUT
+          echo -e "body<<EOF"$'\n'"$res"$'\n'EOF >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: windows-latest
