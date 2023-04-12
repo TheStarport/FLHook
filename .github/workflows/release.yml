@@ -35,8 +35,8 @@ jobs:
               fi
             fi
           done < CHANGELOG.md
-          echo "::set-output name=version::$(version)"
-          echo "::set-output name=res::$(res)"
+          echo ::set-output name=version::"$version"
+          echo ::set-output name=res::"$res"
       
       - run: vcpkg integrate install
 
