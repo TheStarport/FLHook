@@ -132,7 +132,9 @@ namespace Plugins::Warehouse
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(baseId);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		if (param == L"all")
+
+		const auto paramCheck = GetParam(param, ' ', 1);
+		if (paramCheck == L"all")
 		{
 			const auto baseMap = GetAllBases(sqlPlayerId);
 			if (baseMap.empty())
@@ -150,7 +152,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
+		const auto itemList = GetAllItemsOnBase(sqlPlayerId, baseId);
 		if (itemList.empty())
 		{
 			PrintUserCmdText(client, L"You have no items stored at this warehouse.");
@@ -197,7 +199,7 @@ namespace Plugins::Warehouse
 		const auto account = Hk::Client::GetAccountByClientID(client);
 		const auto sqlBaseId = GetOrAddBase(base);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
+		const auto itemList = GetAllItemsOnBase(sqlPlayerId, sqlBaseId);
 
 		if (itemId > itemList.size())
 		{

@@ -120,12 +120,13 @@ namespace Plugins::Warehouse
 		return quantity;
 	}
 
-	std::vector<WareHouseItem> GetAllItemsOnBase(int64 playerId, int64 baseId)
+	std::vector<WareHouseItem> GetAllItemsOnBase(int64 sqlPlayerId, int64 flBaseId)
 	{
 		std::vector<WareHouseItem> itemList;
-		SQLite::Statement query(global->sql, "SELECT id, itemId, quantity FROM items WHERE playerId = ? AND baseId = ? ;");
-		query.bind(1, playerId);
-		query.bind(2, baseId);
+		SQLite::Statement query(global->sql, "SELECT items.id, itemId, quantity FROM items INNER JOIN players "
+									   "ON items.playerId = players.id WHERE players.id = ? AND baseId = ? ;");
+		query.bind(1, sqlPlayerId);
+		query.bind(2, flBaseId);
 		while (query.executeStep())
 		{
 			WareHouseItem item = {query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64()};
@@ -138,13 +139,19 @@ namespace Plugins::Warehouse
 	{
 		std::map<int64, std::vector<WareHouseItem>> basesWithItems;
 
-		SQLite::Statement query(global->sql, "SELECT baseId FROM players WHERE playerId = ?;");
+		SQLite::Statement query(global->sql, "SELECT bases.baseId FROM bases INNER JOIN "
+									   "players ON players.baseId = bases.id WHERE players.id = ?;");
 		query.bind(1, playerId);
 
 		while (query.executeStep())
 		{
 			int64 baseId = query.getColumn(0).getInt64();
-			basesWithItems[baseId] = GetAllItemsOnBase(playerId, baseId);
+			auto itemsOnBase = GetAllItemsOnBase(playerId, baseId);
+
+			if (!itemsOnBase.empty())
+			{
+				basesWithItems[baseId] = itemsOnBase;
+			}
 		}
 
 		return basesWithItems;
