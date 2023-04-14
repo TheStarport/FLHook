@@ -74,7 +74,7 @@ cpp::result<void, std::string> MailManager::SendNewMail(const std::variant<uint,
 	{
 		newMailQuery.exec();
 	}
-	catch (SQLite::Exception ex)
+	catch (SQLite::Exception& ex)
 	{
 		return cpp::fail(ex.getErrorStr());
 	}
@@ -165,7 +165,7 @@ cpp::result<MailManager::MailItem, std::string> MailManager::GetMailById(const s
 		markRead.exec();
 		return mail;
 	}
-	catch (SQLite::Exception ex)
+	catch (SQLite::Exception& ex)
 	{
 		return cpp::fail(ex.getErrorStr());
 	}
@@ -190,7 +190,7 @@ cpp::result<void, std::string> MailManager::DeleteMail(const std::variant<uint, 
 			return cpp::fail(GetErrorCode(ErrorTypes::MailIdNotFound));
 		}
 	}
-	catch (SQLite::Exception ex)
+	catch (SQLite::Exception& ex)
 	{
 		return cpp::fail(ex.getErrorStr());
 	}
@@ -221,7 +221,7 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 
 		return count;
 	}
-	catch (SQLite::Exception ex)
+	catch (SQLite::Exception& ex)
 	{
 		return cpp::fail(ex.getErrorStr());
 	}
@@ -248,7 +248,7 @@ cpp::result<int64, std::string> MailManager::UpdateCharacterName(const std::stri
 
 		return count;
 	}
-	catch (SQLite::Exception ex)
+	catch (SQLite::Exception& ex)
 	{
 		return cpp::fail(ex.getErrorStr());
 	}
@@ -307,7 +307,7 @@ void MailManager::CleanUpOldMail()
 			}
 		}
 	}
-    catch (SQLite::Exception ex)
+    catch (SQLite::Exception& ex)
 	{
 		AddLog(LogType::Normal, LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}
