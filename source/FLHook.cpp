@@ -305,7 +305,7 @@ void FLHookInit_Pre()
 		Console::ConErr(std::format("CRITICAL! {}\n", szError));
 		exit(EXIT_FAILURE);
 	}
-	catch (std::filesystem::filesystem_error error)
+	catch (std::filesystem::filesystem_error& error)
 	{
 		Console::ConErr(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what()));
 	}
