@@ -120,17 +120,34 @@ namespace Plugins::Warehouse
 		return quantity;
 	}
 
-	std::vector<WareHouseItem> GetAllItemsOnBase(int64 playerId)
+	std::vector<WareHouseItem> GetAllItemsOnBase(int64 playerId, int64 baseId)
 	{
 		std::vector<WareHouseItem> itemList;
-		SQLite::Statement query(global->sql, "SELECT id, itemId, quantity FROM items WHERE playerId = ?;");
+		SQLite::Statement query(global->sql, "SELECT id, itemId, quantity FROM items WHERE playerId = ? AND baseId = ? ;");
 		query.bind(1, playerId);
+		query.bind(2, baseId);
 		while (query.executeStep())
 		{
 			WareHouseItem item = {query.getColumn(0).getInt64(), query.getColumn(1).getUInt(), query.getColumn(2).getInt64()};
 			itemList.emplace_back(item);
 		}
 		return itemList;
+	}
+
+	std::map<int64, std::vector<WareHouseItem>> GetAllBases(int64 playerId)
+	{
+		std::map<int64, std::vector<WareHouseItem>> basesWithItems;
+
+		SQLite::Statement query(global->sql, "SELECT baseId FROM players WHERE playerId = ?;");
+		query.bind(1, playerId);
+
+		while (query.executeStep())
+		{
+			int64 baseId = query.getColumn(0).getInt64();
+			basesWithItems[baseId] = GetAllItemsOnBase(playerId, baseId);
+		}
+
+		return basesWithItems;
 	}
 
 } // namespace Plugins::Warehouse
