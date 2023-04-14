@@ -46,7 +46,6 @@ namespace Plugins::Warehouse
 		{
 			global->config.restrictedBasesHashed.emplace_back(CreateID(i.c_str()));
 		}
-
 		CreateSqlTables();
 	}
 
@@ -127,13 +126,31 @@ namespace Plugins::Warehouse
 			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Message::GetWStringFromIdS(equip->iIdsName), info.iCount));
 		}
 	}
-	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
+
+	void UserCmdGetWarehouseItems(uint client, const std::wstring& param, uint baseId)
 	{
 		const auto account = Hk::Client::GetAccountByClientID(client);
-		const auto sqlBaseId = GetOrAddBase(base);
+		const auto sqlBaseId = GetOrAddBase(baseId);
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
+		if (param == L"all")
+		{
+			const auto baseMap = GetAllBases(sqlPlayerId);
+			if (baseMap.empty())
+			{
+				PrintUserCmdText(client, L"You have no items stored anywhere.");
+				return;
+			}
 
+			for (auto& i : baseMap)
+			{
+				const auto base = Universe::get_base(static_cast<uint>(i.first));
+				const auto baseName = Hk::Message::GetWStringFromIdS(base->baseIdS);
+				PrintUserCmdText(client, std::format(L"{} : {} item(s)", baseName, i.second.size()));
+			}
+			return;
+		}
+
+		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
 		if (itemList.empty())
 		{
 			PrintUserCmdText(client, L"You have no items stored at this warehouse.");
@@ -227,10 +244,13 @@ namespace Plugins::Warehouse
 		if (cmd.empty())
 		{
 			PrintUserCmdText(client,
-			    L"Usage: /warehouse store <itemId> <count> : Stores the item number from /warehouse list and the count if it is a stackable item such as goods.\n"
+			    L"Usage: /warehouse store <itemId> <count> : Stores the item number from /warehouse list and the count if it is a stackable item such as "
+			    L"goods.\n"
 			    L"Usage: /warehouse list :Lists any cargo or unmounted equipment that you may store in this base's warehouse.\n"
-			    L"Usage: /warehouse withdraw <itemId> <count> : Withdraws the item number listed from /warehouse liststored and the amount and places it in your cargo.\n"
-			    L"Usage: /warehouse liststored\n : Lists the stored items you have in this base's warehouse. ");
+			    L"Usage: /warehouse withdraw <itemId> <count> : Withdraws the item number listed from /warehouse liststored and the amount and places it in "
+			    L"your cargo.\n"
+			    L"Usage: /warehouse liststored [all]: Lists the stored items you have in this base's warehouse. Stating all will show all bases you have items "
+			    L"on.");
 			return;
 		}
 
