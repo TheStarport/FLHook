@@ -215,7 +215,7 @@ namespace Plugins::Warehouse
 			return;
 		}
 
-		if (itemArch->fVolume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
+		if (itemArch->fVolume * static_cast<float>(itemCount) > std::floor(remainingCargo))
 		{
 			PrintUserCmdText(client, L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
 			return;
