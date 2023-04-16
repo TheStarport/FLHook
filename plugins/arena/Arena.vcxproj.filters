@@ -2,8 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Arena.cpp" />
+    <ClCompile Include="..\..\include\PCH.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Arena.h" />
+    <ClInclude Include="Arena.hpp" />
   </ItemGroup>
 </Project>

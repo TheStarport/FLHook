@@ -29,41 +29,42 @@
  * @paragraph optional Optional Plugin Dependencies
  * This plugin uses the "Base" plugin.
  */
+#include "PCH.hpp"
+#include "Arena.hpp"
+#include "FLHook.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/Error.hpp"
+#include "Helpers/Ini.hpp"
 
-#include "Arena.h"
-
-namespace Plugins::Arena
+namespace Plugins
 {
-	const auto global = std::make_unique<Global>();
-
-	/// Clear client info when a client connects.
-	void ClearClientInfo(ClientId& client)
+	Arena::Arena(const PluginInfo& info) : Plugin(info)
 	{
-		global->transferFlags[client] = ClientState::None;
+		EmplaceHook(HookedCall::FLHook__LoadSettings, &Arena::LoadSettings, HookStep::After);
+		EmplaceHook(HookedCall::IServerImpl__CharacterSelect, &Arena::CharacterSelect);
+		EmplaceHook(HookedCall::IServerImpl__PlayerLaunch, &Arena::PlayerLaunch_AFTER, HookStep::After);
+		EmplaceHook(HookedCall::FLHook__ClearClientInfo, &Arena::ClearClientInfo, HookStep::After);
+	
+		AddCommand(L"/return", L"", CmdP(UserCmd_Return), L"Returns you to your last docked base.");
 	}
 
-	// Client command processing
-	void UserCmd_Conn(ClientId& client, const std::wstring& param);
-	void UserCmd_Return(ClientId& client, const std::wstring& param);
-	const std::vector commands = {{
-	    CreateUserCommand(L"/arena", L"", UserCmd_Conn, L"Sends you to the designated arena system."),
-	    CreateUserCommand(L"/return", L"", UserCmd_Return, L"Returns you to your last docked base."),
-	}};
+	/// Clear client info when a client connects.
+	void Arena::ClearClientInfo(ClientId& client)
+	{
+		transferFlags[client] = ClientState::None;
+	}
 
 	/// Load the configuration
-	void LoadSettings()
+	void Arena::LoadSettings()
 	{
-		Config conf = Serializer::JsonToObject<Config>();
-		conf.Command = L"/" + stows(conf.command);
-		conf.restrictedSystemId = CreateID(conf.restrictedSystem.c_str());
-		conf.targetBaseId = CreateID(conf.targetBase.c_str());
-		conf.targetSystemId = CreateID(conf.targetSystem.c_str());
-		global->config = std::make_unique<Config>(std::move(conf));
+		config = Serializer::JsonToObject<Config>();
+		command = L"/" + stows(config.command);
+		restrictedSystemId = CreateID(config.restrictedSystem.c_str());
+		targetBaseId = CreateID(config.targetBase.c_str());
+		targetSystemId = CreateID(config.targetSystem.c_str());
 
-		auto& cmd = const_cast<UserCommand&>(commands[0]);
-		cmd = CreateUserCommand(global->config->Command, cmd.usage, cmd.proc, cmd.description);
-
-		// global->baseCommunicator = static_cast<BaseCommunicator*>(PluginCommunicator::ImportPluginCommunicator(BaseCommunicator::pluginName));
+		AddCommand(command, L"", CmdP(UserCmd_Conn), L"Sends you to the designated arena system.");
 	}
 
 	/** @ingroup Arena
@@ -174,38 +175,38 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
 	 */
-	void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client)
+	void Arena::CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client)
 	{
-		global->transferFlags[client] = ClientState::None;
+		transferFlags[client] = ClientState::None;
 	}
 
 	/** @ingroup Arena
 	 * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
 	 */
-	void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client)
+	void Arena::PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client)
 	{
-		if (global->transferFlags[client] == ClientState::Transfer)
+		if (transferFlags[client] == ClientState::Transfer)
 		{
 			if (!ValidateCargo(client))
 			{
-				PrintUserCmdText(client, StrInfo2);
+				PrintUserCmdText(client, cargoErrorText);
 				return;
 			}
 
-			global->transferFlags[client] = ClientState::None;
-			MoveClient(client, global->config->targetBaseId);
+			transferFlags[client] = ClientState::None;
+			MoveClient(client, targetBaseId);
 			return;
 		}
 
-		if (global->transferFlags[client] == ClientState::Return)
+		if (transferFlags[client] == ClientState::Return)
 		{
 			if (!ValidateCargo(client))
 			{
-				PrintUserCmdText(client, StrInfo2);
+				PrintUserCmdText(client, cargoErrorText);
 				return;
 			}
 
-			global->transferFlags[client] = ClientState::None;
+			transferFlags[client] = ClientState::None;
 			const unsigned int returnPoint = ReadReturnPointForClient(client);
 
 			if (!returnPoint)
@@ -224,10 +225,10 @@ namespace Plugins::Arena
 	/** @ingroup Arena
 	 * @brief Used to switch to the arena system
 	 */
-	void UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param)
+	void Arena::UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Prohibit jump if in a restricted system or in the target system
-		if (SystemId system = Hk::Player::GetSystem(client).value(); system == global->config->restrictedSystemId || system == global->config->targetSystemId)
+		if (SystemId system = Hk::Player::GetSystem(client).value(); system == restrictedSystemId || system == targetSystemId)
 		{
 			PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
 			return;
@@ -235,25 +236,25 @@ namespace Plugins::Arena
 
 		if (!IsDockedClient(client))
 		{
-			PrintUserCmdText(client, StrInfo1);
+			PrintUserCmdText(client, dockErrorText);
 			return;
 		}
 
 		if (!ValidateCargo(client))
 		{
-			PrintUserCmdText(client, StrInfo2);
+			PrintUserCmdText(client, cargoErrorText);
 			return;
 		}
 
 		StoreReturnPointForClient(client);
 		PrintUserCmdText(client, L"Redirecting undock to Arena.");
-		global->transferFlags[client] = ClientState::Transfer;
+		transferFlags[client] = ClientState::Transfer;
 	}
 
 	/** @ingroup Arena
 	 * @brief Used to return from the arena system.
 	 */
-	void UserCmd_Return(ClientId& client, [[maybe_unused]] const std::wstring& param)
+	void Arena::UserCmd_Return(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		if (!ReadReturnPointForClient(client))
 		{
@@ -263,11 +264,11 @@ namespace Plugins::Arena
 
 		if (!IsDockedClient(client))
 		{
-			PrintUserCmdText(client, StrInfo1);
+			PrintUserCmdText(client, dockErrorText);
 			return;
 		}
 
-		if (!CheckReturnDock(client, global->config->targetBaseId))
+		if (!CheckReturnDock(client, targetBaseId))
 		{
 			PrintUserCmdText(client, L"Not in correct base");
 			return;
@@ -275,33 +276,20 @@ namespace Plugins::Arena
 
 		if (!ValidateCargo(client))
 		{
-			PrintUserCmdText(client, StrInfo2);
+			PrintUserCmdText(client, cargoErrorText);
 			return;
 		}
 
 		PrintUserCmdText(client, L"Redirecting undock to previous base");
-		global->transferFlags[client] = ClientState::Return;
+		transferFlags[client] = ClientState::Return;
 	}
-} // namespace Plugins::Arena
+} // namespace Plugins
 
-using namespace Plugins::Arena;
+using namespace Plugins;
 
-REFL_AUTO(type(Config), field(command), field(targetBase), field(targetSystem), field(restrictedSystem))
+// REFL_AUTO(type(Config), field(command), field(targetBase), field(targetSystem), field(restrictedSystem))
 
-DefaultDllMainSettings(LoadSettings);
+DefaultDllMain();
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
-{
-	pi->name("Arena");
-	pi->shortName("arena");
-	pi->mayUnload(true);
-	pi->commands(&commands);
-	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch_AFTER, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-}
+const PluginInfo Info("Arena", "arena", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+SetupPlugin(Arena, Info);

@@ -22,15 +22,16 @@
  */
 
 #include "PCH.hpp"
-#include "Afk.h"
+#include "Afk.hpp"
 
 #include <Features/Logger.hpp>
 
 #include "Helpers/Chat.hpp"
 #include "Helpers/Player.hpp"
 #include "Helpers/Client.hpp"
+#include "FLHook.hpp"
 
-namespace Plugins::Afk
+namespace Plugins
 {
 	AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info)
 	{
@@ -116,13 +117,13 @@ namespace Plugins::Afk
 	}
 
 	// Client command processing
-} // namespace Plugins::Afk
+} // namespace Plugins
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FLHOOK STUFF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace Plugins::Afk;
+using namespace Plugins;
 
 DefaultDllMain();
 

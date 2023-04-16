@@ -1,10 +1,9 @@
 #pragma once
 
 // Includes
-#include <FLHook.hpp>
 #include <plugin.h>
 
-namespace Plugins::Afk
+namespace Plugins
 {
 	class AfkPlugin final : public Plugin
 	{
@@ -22,12 +21,12 @@ namespace Plugins::Afk
 		 */
 		void UserCmdBack(ClientId& client);
 
+
 	  public:
 		explicit AfkPlugin(const PluginInfo& info);
-
 		void ClearClientInfo(ClientId& client);
 		void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
 		void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] void const** rdlReader, [[maybe_unused]] ClientId& to,
 		    [[maybe_unused]] const int& dunno);
 	};
-} // namespace Plugins::Afk
+} // namespace Plugins

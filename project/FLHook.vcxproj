@@ -1,79 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup Label="ProjectConfigurations">
-		<ProjectConfiguration Include="ReleaseWithDebug|Win32">
-			<Configuration>ReleaseWithDebug</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="Release|Win32">
-			<Configuration>Release</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-	</ItemGroup>
-	<PropertyGroup Label="Globals">
-		<ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>
-		<RootNamespace>FLHook</RootNamespace>
-		<Keyword>Win32Proj</Keyword>
-		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-	</PropertyGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-		<CharacterSet>MultiByte</CharacterSet>
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<PlatformToolset>v143</PlatformToolset>
-		<UseOfMfc>Static</UseOfMfc>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Configuration">
-		<CharacterSet>MultiByte</CharacterSet>
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<PlatformToolset>v143</PlatformToolset>
-		<UseOfMfc>Static</UseOfMfc>
-	</PropertyGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-	<ImportGroup Label="ExtensionSettings">
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-		<Import Project="Common.props" />
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-		<Import Project="Common.props" />
-	</ImportGroup>
-	<PropertyGroup Label="UserMacros" />
-	<PropertyGroup>
-		<_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-		<LinkIncremental>false</LinkIncremental>
-		<GenerateManifest>true</GenerateManifest>
-		<IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
-		<LinkIncremental>false</LinkIncremental>
-		<GenerateManifest>true</GenerateManifest>
-		<IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
-	</PropertyGroup>
-	<PropertyGroup Label="Vcpkg">
-		<VcpkgEnableManifest>true</VcpkgEnableManifest>
-	</PropertyGroup>
-	<PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-		<VcpkgTriplet>
-		</VcpkgTriplet>
-		<VcpkgInstalledDir>
-		</VcpkgInstalledDir>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Vcpkg">
-		<VcpkgTriplet />
-		<VcpkgInstalledDir>
-		</VcpkgInstalledDir>
-		<VcpkgUseStatic>false</VcpkgUseStatic>
-	</PropertyGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-		<CustomBuildStep>
-			<Command>
+  <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="ReleaseWithDebug|Win32">
+      <Configuration>ReleaseWithDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>
+    <RootNamespace>FLHook</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="Common.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="Common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgTriplet>
+    </VcpkgTriplet>
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Vcpkg">
+    <VcpkgTriplet />
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CustomBuildStep>
+      <Command>
 				xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
 				xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
 				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
@@ -86,41 +87,41 @@
 				)
 				setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"
 			</Command>
-			<Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
-		</CustomBuildStep>
-		<ClCompile>
-			<Optimization>MaxSpeed</Optimization>
-			<InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-			<WholeProgramOptimization>true</WholeProgramOptimization>
-			<ExceptionHandling>Async</ExceptionHandling>
-			<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<ConformanceMode>true</ConformanceMode>
-			<EnableModules>true</EnableModules>
-			<DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
-		</ClCompile>
-		<Link>
-			<AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<SubSystem>Windows</SubSystem>
-			<OptimizeReferences>true</OptimizeReferences>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<RandomizedBaseAddress>false</RandomizedBaseAddress>
-			<DataExecutionPrevention>false</DataExecutionPrevention>
-			<TargetMachine>MachineX86</TargetMachine>
-		</Link>
-		<PostBuildEvent />
-		<PreLinkEvent>
-			<Command>
-			</Command>
-		</PreLinkEvent>
-		<PostBuildEvent>
-			<Command>
+      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <EnableModules>true</EnableModules>
+      <DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent />
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <PostBuildEvent>
+      <Command>
 				IF "%FL_PATH%"=="" exit 0
 				robocopy $(SolutionDir)../dist/Release %FL_PATH%\\EXE  "*.dll" /is /E /e
 				if ERRORLEVEL GTR 5 goto HandleError
@@ -128,15 +129,15 @@
 				:HandleError
 				exit %ERRORLEVEL%
 			</Command>
-		</PostBuildEvent>
-		<PreBuildEvent>
-			<Command>
-			</Command>
-		</PreBuildEvent>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
-		<CustomBuildStep>
-			<Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
+    <CustomBuildStep>
+      <Command>
 				xcopy /y  "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\FLHookSDK\lib\"
 				xcopy /y  "$(OutDir)$(TargetName).dll" "$(DistDir)"
 				xcopy /y  "$(OutDir)$(TargetName).pdb" "$(DistDir)"
@@ -149,146 +150,159 @@
 				)
 				setx FLHOOK_SDK_PATH "$(SolutionDir)..\FLHookSDK\\"
 			</Command>
-			<Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
-		</CustomBuildStep>
-		<ClCompile>
-			<Optimization>Disabled</Optimization>
-			<InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-			<WholeProgramOptimization>false</WholeProgramOptimization>
-			<ExceptionHandling>Async</ExceptionHandling>
-			<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<ConformanceMode>true</ConformanceMode>
-			<EnableModules>true</EnableModules>
-			<DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
-		</ClCompile>
-		<Link>
-			<AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<SubSystem>Windows</SubSystem>
-			<OptimizeReferences>true</OptimizeReferences>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<RandomizedBaseAddress>false</RandomizedBaseAddress>
-			<DataExecutionPrevention>false</DataExecutionPrevention>
-			<TargetMachine>MachineX86</TargetMachine>
-		</Link>
-		<PostBuildEvent />
-		<PreLinkEvent>
-			<Command>
-			</Command>
-		</PreLinkEvent>
-		<PostBuildEvent>
-			<Command>
-			</Command>
-		</PostBuildEvent>
-		<PreBuildEvent>
-			<Command>
-			</Command>
-		</PreBuildEvent>
-	</ItemDefinitionGroup>
-	<ItemGroup>
-		<ClCompile Include="..\include\PCH.cpp">
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-		</ClCompile>
-		<ClCompile Include="..\source\Data\Lights.cpp" />
-		<ClCompile Include="..\source\Debug.cpp" />
-		<ClCompile Include="..\source\Exceptions\ErrorInfo.cpp" />
-		<ClCompile Include="..\source\Features\Logger.cpp" />
-		<ClCompile Include="..\source\Features\Mail.cpp" />
-		<ClCompile Include="..\source\Features\MessageHandler.cpp" />
-		<ClCompile Include="..\source\Features\PluginManager.cpp" />
-		<ClCompile Include="..\source\Features\StartupCache.cpp" />
-		<ClCompile Include="..\source\Features\TempBan.cpp" />
-		<ClCompile Include="..\source\Features\Timers.cpp" />
-		<ClCompile Include="..\source\Features\UserCommands.cpp" />
-		<ClCompile Include="..\source\FLCodec.cpp" />
-		<ClCompile Include="..\source\FLPacket.cpp" />
-		<ClCompile Include="..\source\Helpers\Admin.cpp" />
-		<ClCompile Include="..\source\Helpers\Client.cpp" />
-		<ClCompile Include="..\source\Helpers\Ini.cpp" />
-		<ClCompile Include="..\source\Helpers\Math.cpp" />
-		<ClCompile Include="..\source\Helpers\Chat.cpp" />
-		<ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
-		<ClCompile Include="..\source\Helpers\Player.cpp" />
-		<ClCompile Include="..\source\Helpers\Solar.cpp" />
-		<ClCompile Include="..\source\Helpers\Time.cpp" />
-		<ClCompile Include="..\source\Helpers\ZoneUtilities.cpp" />
-		<ClCompile Include="..\source\HkClientServerInterface.cpp" />
-		<ClCompile Include="..\source\HkIEngine.cpp" />
-		<ClCompile Include="..\source\HkInit.cpp" />
-		<ClCompile Include="..\source\HkIChatServer.cpp" />
-		<ClCompile Include="..\source\HkIEngineDamage.cpp" />
-		<ClCompile Include="..\source\HkIEngineDeath.cpp" />
-		<ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
-		<ClCompile Include="..\source\HkDataBaseMarket.cpp" />
-		<ClCompile Include="..\source\Hooks\SendComm.cpp" />
-		<ClCompile Include="..\source\Memory\MemoryManager.cpp" />
-		<ClCompile Include="..\source\Memory\SaveData.cpp" />
-		<ClCompile Include="..\source\CCmds.cpp" />
-		<ClCompile Include="..\source\FLHook.cpp" />
-		<ClCompile Include="..\source\Settings.cpp" />
-		<ClCompile Include="..\source\Tools.cpp" />
-	</ItemGroup>
-	<ItemGroup>
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
-		<ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
-		<ClInclude Include="..\include\Actions\Actions.hpp" />
-		<ClInclude Include="..\include\Actions\CargoManipulation.hpp" />
-		<ClInclude Include="..\include\Actions\ChatActions.hpp" />
-		<ClInclude Include="..\include\Actions\PlayerManipulation.hpp" />
-		<ClInclude Include="..\include\Actions\RepManipulation.hpp" />
-		<ClInclude Include="..\include\Actions\ShipManipulation.hpp" />
-		<ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
-		<ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
-		<ClInclude Include="..\include\Defs\FLPacket.hpp" />
-		<ClInclude Include="..\include\Defs\ShipArchDefs.hpp" />
-		<ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
-		<ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
-		<ClInclude Include="..\include\Exceptions\InputException.hpp" />
-		<ClInclude Include="..\include\Features\DataManager.hpp" />
-		<ClInclude Include="..\include\Features\Mail.hpp" />
-		<ClInclude Include="..\include\Features\MessageHandler.hpp" />
-		<ClInclude Include="..\include\Features\TempBan.hpp" />
-		<ClInclude Include="..\include\FLHook.hpp" />
-		<ClInclude Include="..\include\Helpers\Admin.hpp" />
-		<ClInclude Include="..\include\Helpers\Client.hpp" />
-		<ClInclude Include="..\include\Helpers\FlCodec.hpp" />
-		<ClInclude Include="..\include\Helpers\Ini.hpp" />
-		<ClInclude Include="..\include\Helpers\Math.hpp" />
-		<ClInclude Include="..\include\Helpers\Chat.hpp" />
-		<ClInclude Include="..\include\Helpers\Personalities.hpp" />
-		<ClInclude Include="..\include\Helpers\Player.hpp" />
-		<ClInclude Include="..\include\Helpers\Solar.hpp" />
-		<ClInclude Include="..\include\Helpers\Time.hpp" />
-		<ClInclude Include="..\include\Helpers\ZoneUtilities.hpp" />
-		<ClInclude Include="..\include\PCH.hpp" />
-		<ClInclude Include="..\include\plugin.h" />
-		<ClInclude Include="..\include\Tools\Concepts.hpp" />
-		<ClInclude Include="..\include\Tools\Constexpr.hpp" />
-		<ClInclude Include="..\include\Tools\Detour.hpp" />
-		<ClInclude Include="..\include\Tools\Enums.hpp" />
-		<ClInclude Include="..\include\Tools\Macros.hpp" />
-		<ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
-		<ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
-		<ClInclude Include="..\include\Tools\Structs.hpp" />
-		<ClInclude Include="..\include\Tools\Typedefs.hpp" />
-		<ClInclude Include="..\include\Tools\Utils.hpp" />
-		<ClInclude Include="..\source\Global.hpp" />
-		<ClInclude Include="..\source\Memory\MemoryManager.hpp" />
-	</ItemGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-	<ImportGroup Label="ExtensionTargets">
-	</ImportGroup>
+      <Outputs>$(SolutionDir)..\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>FLHOOK;SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <EnableModules>true</EnableModules>
+      <DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent />
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\include\PCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\source\Data\Lights.cpp" />
+    <ClCompile Include="..\source\Debug.cpp" />
+    <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp" />
+    <ClCompile Include="..\source\Features\Logger.cpp" />
+    <ClCompile Include="..\source\Features\Mail.cpp" />
+    <ClCompile Include="..\source\Features\MessageHandler.cpp" />
+    <ClCompile Include="..\source\Features\PluginManager.cpp" />
+    <ClCompile Include="..\source\Features\StartupCache.cpp" />
+    <ClCompile Include="..\source\Features\TempBan.cpp" />
+    <ClCompile Include="..\source\Features\Timers.cpp" />
+    <ClCompile Include="..\source\Features\UserCommands.cpp" />
+    <ClCompile Include="..\source\FLCodec.cpp" />
+    <ClCompile Include="..\source\FLPacket.cpp" />
+    <ClCompile Include="..\source\Helpers\Admin.cpp" />
+    <ClCompile Include="..\source\Helpers\Client.cpp" />
+    <ClCompile Include="..\source\Helpers\Error.cpp" />
+    <ClCompile Include="..\source\Helpers\Ini.cpp" />
+    <ClCompile Include="..\source\Helpers\Math.cpp" />
+    <ClCompile Include="..\source\Helpers\Chat.cpp" />
+    <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
+    <ClCompile Include="..\source\Helpers\Player.cpp" />
+    <ClCompile Include="..\source\Helpers\Solar.cpp" />
+    <ClCompile Include="..\source\Helpers\Time.cpp" />
+    <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp" />
+    <ClCompile Include="..\source\HkClientServerInterface.cpp" />
+    <ClCompile Include="..\source\HkIEngine.cpp" />
+    <ClCompile Include="..\source\HkInit.cpp" />
+    <ClCompile Include="..\source\HkIChatServer.cpp" />
+    <ClCompile Include="..\source\HkIEngineDamage.cpp" />
+    <ClCompile Include="..\source\HkIEngineDeath.cpp" />
+    <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
+    <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
+    <ClCompile Include="..\source\Hooks\SendComm.cpp" />
+    <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
+    <ClCompile Include="..\source\Memory\SaveData.cpp" />
+    <ClCompile Include="..\source\CCmds.cpp" />
+    <ClCompile Include="..\source\FLHook.cpp" />
+    <ClCompile Include="..\source\Settings.cpp" />
+    <ClCompile Include="..\source\Tools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
+    <ClInclude Include="..\include\Actions\Actions.hpp" />
+    <ClInclude Include="..\include\Actions\CargoManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\ChatActions.hpp" />
+    <ClInclude Include="..\include\Actions\PlayerManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\RepManipulation.hpp" />
+    <ClInclude Include="..\include\Actions\ShipManipulation.hpp" />
+    <ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
+    <ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
+    <ClInclude Include="..\include\Defs\FLPacket.hpp" />
+    <ClInclude Include="..\include\Defs\ShipArchDefs.hpp" />
+    <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
+    <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
+    <ClInclude Include="..\include\Exceptions\InputException.hpp" />
+    <ClInclude Include="..\include\Features\DataManager.hpp" />
+    <ClInclude Include="..\include\Features\Mail.hpp" />
+    <ClInclude Include="..\include\Features\MessageHandler.hpp" />
+    <ClInclude Include="..\include\Features\TempBan.hpp" />
+    <ClInclude Include="..\include\FLHook.hpp" />
+    <ClInclude Include="..\include\Helpers\Admin.hpp" />
+    <ClInclude Include="..\include\Helpers\Client.hpp" />
+    <ClInclude Include="..\include\Helpers\Error.hpp" />
+    <ClInclude Include="..\include\Helpers\FlCodec.hpp" />
+    <ClInclude Include="..\include\Helpers\Ini.hpp" />
+    <ClInclude Include="..\include\Helpers\Math.hpp" />
+    <ClInclude Include="..\include\Helpers\Chat.hpp" />
+    <ClInclude Include="..\include\Helpers\Personalities.hpp" />
+    <ClInclude Include="..\include\Helpers\Player.hpp" />
+    <ClInclude Include="..\include\Helpers\Solar.hpp" />
+    <ClInclude Include="..\include\Helpers\Time.hpp" />
+    <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp" />
+    <ClInclude Include="..\include\PCH.hpp" />
+    <ClInclude Include="..\include\plugin.h" />
+    <ClInclude Include="..\include\Tools\Concepts.hpp" />
+    <ClInclude Include="..\include\Tools\Constexpr.hpp" />
+    <ClInclude Include="..\include\Tools\Detour.hpp" />
+    <ClInclude Include="..\include\Tools\Enums.hpp" />
+    <ClInclude Include="..\include\Tools\Macros.hpp" />
+    <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
+    <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
+    <ClInclude Include="..\include\Tools\Structs.hpp" />
+    <ClInclude Include="..\include\Tools\Typedefs.hpp" />
+    <ClInclude Include="..\include\Tools\Utils.hpp" />
+    <ClInclude Include="..\source\Global.hpp" />
+    <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+  </Target>
 </Project>

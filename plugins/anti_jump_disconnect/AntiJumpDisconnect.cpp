@@ -23,26 +23,37 @@
  */
 
 // Includes
-#include "AntiJumpDisconnect.h"
+#include "PCH.hpp"
+#include "AntiJumpDisconnect.hpp"
 #include "Features/TempBan.hpp"
+#include "FLHook.hpp"
+#include "Helpers/Error.hpp"
+#include "Helpers/Player.hpp"
 
 constexpr auto TempBanDurationMinutes = 5;
 
-namespace Plugins::AntiJumpDisconnect
+namespace Plugins
 {
-	const std::unique_ptr<Global> global = std::make_unique<Global>();
-
-	void ClearClientInfo(ClientId& client)
+	AntiJumpDisconnect::AntiJumpDisconnect(const PluginInfo& info) : Plugin(info)
 	{
-		global->mapInfo[client].inWarpGate = false;
+		EmplaceHook(HookedCall::FLHook__ClearClientInfo, &AntiJumpDisconnect::ClearClientInfo, HookStep::After);
+		EmplaceHook(HookedCall::IServerImpl__DisConnect, &AntiJumpDisconnect::Disconnect);
+		EmplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &AntiJumpDisconnect::CharacterInfoReq);
+		EmplaceHook(HookedCall::IServerImpl__JumpInComplete, &AntiJumpDisconnect::JumpInComplete);
+		EmplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &AntiJumpDisconnect::SystemSwitchOutComplete);
+	}
+
+	void AntiJumpDisconnect::ClearClientInfo(ClientId& client)
+	{
+		mapInfo[client] = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Kills and possibly bans the player. This depends on if the Temp Ban plugin is active.
 	 */
-	void KillBan(ClientId& client)
+	void AntiJumpDisconnect::KillIfInJumpTunnel(ClientId& client)
 	{
-		if (global->mapInfo[client].inWarpGate)
+		if (mapInfo[client])
 		{
 			if (const auto ban = Hk::Player::Kill(client); ban.has_error())
 			{
@@ -58,53 +69,41 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on Disconnect. Calls KillBan.
 	 */
-	void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
+	void AntiJumpDisconnect::Disconnect(ClientId& client, [[maybe_unused]] const EFLConnection& state)
 	{
-		KillBan(client);
+		KillIfInJumpTunnel(client);
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on CharacterInfoReq (Character Select screen). Calls KillBan.
 	 */
-	void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2)
+	void AntiJumpDisconnect::CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2)
 	{
-		KillBan(client);
+		KillIfInJumpTunnel(client);
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
 	 */
-	void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client)
+	void AntiJumpDisconnect::JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client)
 	{
-		global->mapInfo[client].inWarpGate = false;
+		mapInfo[client] = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
 	 */
-	void SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client)
+	void AntiJumpDisconnect::SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client)
 	{
-		global->mapInfo[client].inWarpGate = true;
+		mapInfo[client] = true;
 	}
-} // namespace Plugins::AntiJumpDisconnect
+} // namespace Plugins
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace Plugins::AntiJumpDisconnect;
+using namespace Plugins;
 
 DefaultDllMain();
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
-{
-	pi->name("Anti Jump Disconnect Plugin by Cannon");
-	pi->shortName("anti_jump_disconnect");
-	pi->mayUnload(true);
-	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
-	pi->emplaceHook(HookedCall::IServerImpl__CharacterInfoReq, &CharacterInfoReq);
-	pi->emplaceHook(HookedCall::IServerImpl__JumpInComplete, &JumpInComplete);
-	pi->emplaceHook(HookedCall::IServerImpl__SystemSwitchOutComplete, &SystemSwitchOutComplete);
-}
+const PluginInfo Info("AFK", "afk", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+SetupPlugin(AntiJumpDisconnect, Info);
