@@ -122,7 +122,7 @@ namespace IEngineHook
 		TRY_HOOK
 			{
 				// Print out a message when a player ship docks.
-				if (FLHookConfig::c()->messages.dockingMessages && response == DOCK_HOST_RESPONSE::ProceedDock)
+				if (FLHookConfig::c()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::ProceedDock)
 				{
 					const auto client = Hk::Client::GetClientIdByShip(shipId);
 					if (client.has_value())

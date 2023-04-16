@@ -20,7 +20,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
 	// encode xml std::string(default and small)
 	// non-sys
-	std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsg += XMLText(msg);
 	xmlMsg += L"</TEXT>";
 
@@ -29,7 +29,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	if (Hk::Chat::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
 		return;
 
-	std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->messages.msgStyle.deathMsgStyle);
+	std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle);
 	std::wstring xmlMsgSmall = std::wstring(L"<TRA data=\"") + styleSmall + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsgSmall += XMLText(msg);
 	xmlMsgSmall += L"</TEXT>";
@@ -39,7 +39,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 		return;
 
 	// sys
-	std::wstring xmlMsgSys = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
+	std::wstring xmlMsgSys = L"<TRA data=\"" + FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsgSys += XMLText(msg);
 	xmlMsgSys += L"</TEXT>";
 	char bufSys[0xFFFF];
@@ -47,7 +47,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	if (Hk::Chat::FMsgEncodeXML(xmlMsgSys, bufSys, sizeof(bufSys), retSys).has_error())
 		return;
 
-	std::wstring styleSmallSys = SetSizeToSmall(FLHookConfig::i()->messages.msgStyle.deathMsgStyleSys);
+	std::wstring styleSmallSys = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys);
 	std::wstring xmlMsgSmallSys = L"<TRA data=\"" + styleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsgSmallSys += XMLText(msg);
 	xmlMsgSmallSys += L"</TEXT>";
@@ -184,22 +184,22 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 						std::wstring deathMessage;
 						if (client == clientKiller.value() || cause == DamageCause::Suicide)
 						{
-							deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
+							deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
 						}
 						else if (cause == DamageCause::Admin)
 						{
-							deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+							deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
 						}
 						else
 						{
 							std::wstring Killer = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
 
-							deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
+							deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
 							deathMessage = ReplaceStr(deathMessage, L"%killer", Killer);
 						}
 
 						deathMessage = ReplaceStr(deathMessage, L"%type", killType);
-						if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
+						if (FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
 							SendDeathMessage(deathMessage, systemId, client, clientKiller.value());
 					}
 					else if (dmg.get_inflictor_id())
@@ -227,28 +227,28 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 								killType = L"Gun";
 						}
 
-						std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextNPC, L"%victim", victimName);
+						std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextNPC, L"%victim", victimName);
 						deathMessage = ReplaceStr(deathMessage, L"%type", killType);
 
-						if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
+						if (FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
 							SendDeathMessage(deathMessage, systemId, client, 0);
 					}
 					else if (cause == DamageCause::Suicide)
 					{
-						if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextSuicide, L"%victim", victimName);
-							FLHookConfig::i()->messages.dieMsg && !deathMessage.empty())
+						if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSuicide, L"%victim", victimName);
+							FLHookConfig::i()->chatConfig.dieMsg && !deathMessage.empty())
 							SendDeathMessage(deathMessage, systemId, client, 0);
 					}
 					else if (cause == DamageCause::Admin)
 					{
-						if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->messages.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
-							FLHookConfig::i()->messages.dieMsg && deathMessage.length())
+						if (std::wstring deathMessage = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+							FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
 							SendDeathMessage(deathMessage, systemId, client, 0);
 					}
 					else
 					{
 						std::wstring deathMessage = L"Death: " + victimName + L" has died";
-						if (FLHookConfig::i()->messages.dieMsg && deathMessage.length())
+						if (FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
 							SendDeathMessage(deathMessage, systemId, client, 0);
 					}
 				}

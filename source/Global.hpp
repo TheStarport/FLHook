@@ -69,6 +69,7 @@ void Naked__DamageHit2();
 void Naked__DisconnectPacketSent();
 
 // Timers
+void PublishServerStats();
 void TimerTempBanCheck();
 void TimerCheckKick();
 void TimerNPCAndF1Check();
@@ -83,8 +84,8 @@ extern HookEntry IServerImplEntries[73];
 bool LoadBaseMarket();
 
 extern CRITICAL_SECTION csIPResolve;
-extern std::list<RESOLVE_IP> g_ResolveIPs;
-extern std::list<RESOLVE_IP> g_ResolveIPsResult;
+extern std::list<RESOLVE_IP> resolveIPs;
+extern std::list<RESOLVE_IP> resolveIPsResult;
 extern HANDLE hThreadResolver;
 
 // help
@@ -113,8 +114,8 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CALL_SERVER_PREAMBLE                    \
 	{                                           \
-		static CTimer timer(__FUNCTION__, 100); \
-		timer.start();                          \
+		static PerfTimer timer(__FUNCTION__, 100); \
+		timer.Start();                          \
 		TRY_HOOK                                \
 		{
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                        \
@@ -124,11 +125,11 @@ inline auto* ToUShort(wchar_t* val)
 		bool ret = catchArgs;                                                                         \
 		if (!ret)                                                                                     \
 		{                                                                                             \
-			timer.stop();                                                                             \
+			timer.Stop();                                                                             \
 			return rval;                                                                              \
 		}                                                                                             \
 	})                                                                                                \
-	timer.stop();                                                                                     \
+	timer.Stop();                                                                                     \
 	}
 
 #define CALL_CLIENT_PREAMBLE      \
@@ -191,12 +192,12 @@ constexpr uint ADDR_COMMON_VFTABLE_NANOBOT = 0x1399D0;
 constexpr uint ADDR_COMMON_VFTABLE_MUNITION = 0x139CE8;
 constexpr uint ADDR_COMMON_VFTABLE_ENGINE = 0x139AAC;
 
-class CTimer
+class PerfTimer
 {
   public:
-	EXPORT CTimer(const std::string& function, uint warning);
-	EXPORT void start();
-	EXPORT uint stop();
+	EXPORT PerfTimer(const std::string& function, uint warning);
+	EXPORT void Start();
+	EXPORT uint Stop();
 
   private:
 	mstime tmStart = 0;

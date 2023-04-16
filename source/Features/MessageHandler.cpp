@@ -5,8 +5,15 @@
 #include <magic_enum.hpp>
 #include <Features/Logger.hpp>
 
+#include "Defs/FLHookConfig.hpp"
+
 MessageHandler::MessageHandler()
 {
+	if (!FLHookConfig::i()->messageQueue.enableQueues)
+	{
+		return;
+	}
+
 	Logger::i()->Log(LogLevel::Info, "Attempting connection to RabbitMQ");
 
 	loop = uvw::Loop::getDefault();
@@ -50,11 +57,6 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 	isInitalizing = false;
 
 	channel = std::make_unique<AMQP::Channel>(conn);
-
-	magic_enum::enum_for_each<Queue>([this](auto val) {
-		constexpr Queue queue = val;
-		this->channel->declareQueue(std::string(magic_enum::enum_name<Queue>(queue)), AMQP::durable);
-	});
 }
 
 void MessageHandler::onError(AMQP::Connection* conn, const char* message)
@@ -72,6 +74,11 @@ MessageHandler::~MessageHandler() = default;
 
 void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
 {
+	if (!FLHookConfig::i()->messageQueue.enableQueues)
+	{
+		return;
+	}
+
 	if (!onMessageCallbacks.contains(queue))
 	{
 		onMessageCallbacks[queue] = {callback};
@@ -116,5 +123,20 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 	{
 		onFailCallbacks[queue].emplace_back(onFail.value());
 	}
+}
+
+void MessageHandler::DeclareQueue(const std::string& queue, const int flags) const
+{
+	channel->declareQueue(queue, flags);
+}
+
+void MessageHandler::DeclareExchange(const std::string& exchange, const AMQP::ExchangeType type, const int flags) const
+{
+	channel->declareExchange(exchange, type, flags);
+}
+
+void MessageHandler::Publish(const std::string& jsonData, const std::string& exchange, const std::string& queue) const
+{
+	channel->publish(exchange, queue, jsonData);
 }
 

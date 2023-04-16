@@ -32,9 +32,12 @@ public:
 
 	enum class Queue
 	{
-		Test
+		ServerStats,
 	};
 
-	static std::string QueueToStr(Queue queue) { return std::string(magic_enum::enum_name<Queue>(queue)); }
+	static std::string QueueToStr(const Queue queue) { return std::string(magic_enum::enum_name<Queue>(queue)); }
 	void Subscribe(const std::string& queue, QueueOnData callback, std::optional<QueueOnFail> onFail = std::nullopt);
+	void Publish(const std::string& jsonData, const std::string& exchange = "", const std::string& queue = "") const;
+	void DeclareQueue(const std::string& queue, int flags = 0) const;
+	void DeclareExchange(const std::string& exchange, AMQP::ExchangeType type = AMQP::fanout, int flags = 0) const;
 };

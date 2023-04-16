@@ -173,9 +173,6 @@
       <Filter>FLHook\Exceptions</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PCH.cpp" />
-    <ClCompile Include="..\source\Helpers\Error.cpp">
-      <Filter>FLHook\Helpers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\Global.hpp" />
@@ -329,11 +326,8 @@
     <ClInclude Include="..\include\PCH.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Helpers\Error.hpp">
-      <Filter>Include\Helpers</Filter>
+    <ClInclude Include="..\include\Defs\ServerStats.hpp">
+      <Filter>Include\Defs</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

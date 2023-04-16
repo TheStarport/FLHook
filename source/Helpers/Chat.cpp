@@ -208,7 +208,7 @@ namespace Hk::Chat
 	}
 
 	/** Format a chat std::string in accordance with the receiver's preferences and
-	send it. Will check that the receiver accepts messages from sender and
+	send it. Will check that the receiver accepts chatConfig from sender and
 	refuses to send if necessary. */
 	cpp::result<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
 	{

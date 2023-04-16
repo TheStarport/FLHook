@@ -104,13 +104,16 @@ void FLHookInit_Pre()
 		DebugTools::i()->Init();
 
 		// TODO: Move module handles to FLCoreGlobals
-		// get module handles
 		if (!(server = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
 
 		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
 		// so we want to make sure the service is up at startup time
-		MessageHandler::i();
+		if (FLHookConfig::i()->messageQueue.enableQueues)
+		{
+			MessageHandler::i()->DeclareExchange(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats));
+			Timer::Add(PublishServerStats, 30000);
+		}
 
 		if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
 		{
@@ -173,16 +176,20 @@ bool FLHookInit()
 
 		// Init Hooks
 		if (!InitHookExports())
-			throw "InitHookExports failed";
+			throw std::runtime_error("InitHookExports failed");
 
-		// Force the singleton to be created
-		FLHookConfig::c();
+		// Setup timers
+		Timer::Add(ProcessPendingCommands, 50);
+		Timer::Add(TimerCheckKick, 50);
+		Timer::Add(TimerNPCAndF1Check, 1000);
+		Timer::Add(TimerCheckResolveResults, 0);
+		Timer::Add(TimerTempBanCheck, 15000);
 	}
-	catch (char* error)
+	catch (std::runtime_error& err)
 	{
 		UnloadHookExports();
 
-		Logger::i()->Log(LogLevel::Err, error);
+		Logger::i()->Log(LogLevel::Err, err.what());
 		return false;
 	}
 

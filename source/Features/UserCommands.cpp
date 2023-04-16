@@ -37,7 +37,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 	if (const auto newLineChar = text.find(L"\n"); newLineChar == std::wstring::npos)
 	{
 		const std::wstring xml =
-		    std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->messages.msgStyle.userCmdStyle, XMLText(text));
+		    std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, XMLText(text));
 		Hk::Chat::FMsg(client, xml);
 	}
 	else
@@ -95,7 +95,7 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float dista
 
 void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
 {
-	if (!FLHookConfig::i()->messages.dieMsg)
+	if (!FLHookConfig::i()->chatConfig.dieMsg)
 	{
 		PRINT_DISABLED()
 		return;
@@ -692,14 +692,14 @@ const std::wstring helpUsage = L"/help [module] [command]";
 const std::wstring helpDescription =
     L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
 const std::vector UserCmds = {{CreateUserCommand(L"/set diemsg", L"<all/system/self/none>", UserCmd_SetDieMsg, L""),
-    CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death messages."),
+    CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death chatConfig."),
     CreateUserCommand(L"/set chatfont", L"<small/default/big> <default/bold/italic/underline>", UserCmd_SetChatFont, L"Sets the font of chat."),
     CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L"Lists currently ignored players."),
     CreateUserCommand(L"/delignore", L"<id/*> [<id2> <id3...]", UserCmd_DelIgnore, L"Removes specified entries form ignore list, '*' clears the whole list."),
     CreateUserCommand(L"/ignore", L"<name> [flags]", UserCmd_Ignore,
-        L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
+        L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
     CreateUserCommand(
-        L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID, L"Suppresses chat messages from the specified player. Flag 'p' only suppresses private chat."),
+        L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID, L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat."),
     CreateUserCommand(L"/ids", L"", UserCmd_Ids, L"List all player IDs."),
     CreateUserCommand(L"/id", L"", UserCmd_ID, L"Lists your player ID."),
     CreateUserCommand(L"/invite", L"[name]", UserCmd_Invite, L"Sends a group invite to a player with the specified name, or target, if no name is provided."),

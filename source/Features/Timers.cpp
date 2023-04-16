@@ -1,11 +1,14 @@
 #include "PCH.hpp"
 
 #include <WS2tcpip.h>
+#include <Psapi.h>
 
 #include "Global.hpp"
 
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
+#include "Defs/ServerStats.hpp"
+#include "Features/MessageHandler.hpp"
 #include "Features/TempBan.hpp"
 #include "Helpers/Admin.hpp"
 #include "Helpers/Client.hpp"
@@ -13,17 +16,16 @@
 #include "Helpers/Time.hpp"
 #include "Tools/Utils.hpp"
 
-CTimer::CTimer(const std::string& func, uint warn)
-	: function(func), warning(warn)
+PerfTimer::PerfTimer(const std::string& func, uint warn) : function(func), warning(warn)
 {
 }
 
-void CTimer::start()
+void PerfTimer::Start()
 {
 	tmStart = Hk::Time::GetUnixMiliseconds();
 }
 
-uint CTimer::stop()
+uint PerfTimer::Stop()
 {
 	auto timeDelta = static_cast<uint>(Hk::Time::GetUnixMiliseconds() - tmStart);
 
@@ -42,10 +44,76 @@ uint CTimer::stop()
 	return timeDelta;
 }
 
-/*************************************************************************************************************
-check if temporary ban has expired
-**************************************************************************************************************/
+std::vector<std::unique_ptr<Timer>> Timer::timers;
 
+template<typename T, typename... U>
+DWORD GetAddress(std::function<T(U...)> f)
+{
+	typedef T(FnType)(U...);
+	auto** fnPointer = f.template target<FnType*>();
+	return reinterpret_cast<DWORD>(*fnPointer);
+}
+
+void Timer::Add(std::function<void()> function, uint interval)
+{
+	if (std::ranges::any_of(timers, [function](const std::unique_ptr<Timer>& existing) { return GetAddress(function) == GetAddress(existing->func); }))
+	{
+		return;
+	}
+
+	timers.emplace_back(std::make_unique<Timer>(function, interval));
+}
+
+void Timer::Remove(const std::function<void()>& func)
+{
+	const auto timer = std::ranges::find_if(timers, [func](const std::unique_ptr<Timer>& existing) { return GetAddress(func) == GetAddress(existing->func); });
+	if (timer == timers.end())
+	{
+		return;
+	}
+
+	timers.erase(timer);
+}
+
+// -- Timers
+
+//! Fanout Player stats to subscribers
+void PublishServerStats()
+{
+	ServerStats stats;
+	const auto globals = CoreGlobals::c();
+
+	stats.npcsEnabled = !globals->disableNpcs;
+	stats.serverLoad = globals->serverLoadInMs;
+
+	PROCESS_MEMORY_COUNTERS memCounter;
+	GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+	stats.memoryUsage = memCounter.WorkingSetSize;
+
+	PlayerData* pd = nullptr;
+	for (pd = Players.traverse_active(pd); pd; pd = Players.traverse_active(pd))
+	{
+		const auto info = Hk::Admin::GetPlayerInfo(pd->onlineId, false);
+		if (info.has_error())
+		{
+			continue;
+		}
+
+		ServerStats::Player player;
+		player.clientId = pd->onlineId;
+		player.playerName = wstos(info.value().character);
+		player.systemName = wstos(info.value().systemName);
+		player.systemNick = Universe::get_system(info.value().system)->nickname;
+		player.ipAddress = wstos(info.value().IP);
+
+		stats.players.emplace_back(player);
+	}
+
+	const auto json = Serializer::ObjToJson(stats);
+	MessageHandler::i()->Publish(json.dump(), MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats), "");
+}
+
+//! check if temporary ban has expired
 void TimerTempBanCheck()
 {
 	const auto* config = FLHookConfig::c();
@@ -55,67 +123,63 @@ void TimerTempBanCheck()
 	}
 }
 
-/**************************************************************************************************************
-check if players should be kicked
-**************************************************************************************************************/
-
+//!check if players should be kicked
 void TimerCheckKick()
 {
 	CallPluginsBefore(HookedCall::FLHook__TimerCheckKick);
 
 	TRY_HOOK
+	{
+		// for all players
+		PlayerData* playerData = nullptr;
+		while ((playerData = Players.traverse_active(playerData)))
 		{
-			// for all players
-			PlayerData* playerData = nullptr;
-			while ((playerData = Players.traverse_active(playerData)))
+			ClientId client = playerData->onlineId;
+			if (client < 1 || client > MaxClientId)
+				continue;
+
+			if (ClientInfo[client].tmKickTime)
 			{
-				ClientId client = playerData->onlineId;
-				if (client < 1 || client > MaxClientId)
-					continue;
-
-				if (ClientInfo[client].tmKickTime)
+				if (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmKickTime)
 				{
-					if (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmKickTime)
-					{
-						Hk::Player::Kick(client); // kick time expired
-						ClientInfo[client].tmKickTime = 0;
-					}
-					continue; // player will be kicked anyway
+					Hk::Player::Kick(client); // kick time expired
+					ClientInfo[client].tmKickTime = 0;
 				}
-				const auto* config = FLHookConfig::c();
-				if (config->general.antiBaseIdle)
+				continue; // player will be kicked anyway
+			}
+			const auto* config = FLHookConfig::c();
+			if (config->general.antiBaseIdle)
+			{
+				// anti base-idle check
+				uint baseId;
+				pub::Player::GetBase(client, baseId);
+				if (baseId && ClientInfo[client].baseEnterTime && (time(nullptr) - ClientInfo[client].baseEnterTime) >= config->general.antiBaseIdle)
 				{
-					// anti base-idle check
-					uint baseId;
-					pub::Player::GetBase(client, baseId);
-					if (baseId && ClientInfo[client].baseEnterTime
-						&& (time(nullptr) - ClientInfo[client].baseEnterTime) >= config->general.antiBaseIdle)
-					{
-						//AddKickLog(client, "base idling");
-						Hk::Player::MsgAndKick(client, L"Base idling", 10);
-						ClientInfo[client].baseEnterTime = 0;
-					}
-				}
-
-				if (config->general.antiCharMenuIdle)
-				{
-					// anti charmenu-idle check
-					if (Hk::Client::IsInCharSelectMenu(client))
-					{
-						if (!ClientInfo[client].charMenuEnterTime)
-							ClientInfo[client].charMenuEnterTime = static_cast<uint>(time(nullptr));
-						else if ((time(nullptr) - ClientInfo[client].charMenuEnterTime) >= config->general.antiCharMenuIdle)
-						{
-							//AddKickLog(client, "Charmenu idling");
-							Hk::Player::Kick(client);
-							ClientInfo[client].charMenuEnterTime = 0;
-						}
-					}
-					else
-						ClientInfo[client].charMenuEnterTime = 0;
+					// AddKickLog(client, "base idling");
+					Hk::Player::MsgAndKick(client, L"Base idling", 10);
+					ClientInfo[client].baseEnterTime = 0;
 				}
 			}
+
+			if (config->general.antiCharMenuIdle)
+			{
+				// anti charmenu-idle check
+				if (Hk::Client::IsInCharSelectMenu(client))
+				{
+					if (!ClientInfo[client].charMenuEnterTime)
+						ClientInfo[client].charMenuEnterTime = static_cast<uint>(time(nullptr));
+					else if ((time(nullptr) - ClientInfo[client].charMenuEnterTime) >= config->general.antiCharMenuIdle)
+					{
+						// AddKickLog(client, "Charmenu idling");
+						Hk::Player::Kick(client);
+						ClientInfo[client].charMenuEnterTime = 0;
+					}
+				}
+				else
+					ClientInfo[client].charMenuEnterTime = 0;
+			}
 		}
+	}
 	CATCH_HOOK({})
 }
 
@@ -128,45 +192,45 @@ void TimerNPCAndF1Check()
 	CallPluginsBefore(HookedCall::FLHook__TimerNPCAndF1Check);
 
 	TRY_HOOK
+	{
+		PlayerData* playerData = nullptr;
+		while ((playerData = Players.traverse_active(playerData)))
 		{
-			PlayerData* playerData = nullptr;
-			while ((playerData = Players.traverse_active(playerData)))
+			ClientId client = playerData->onlineId;
+			if (client < 1 || client > MaxClientId)
+				continue;
+
+			if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time))
 			{
-				ClientId client = playerData->onlineId;
-				if (client < 1 || client > MaxClientId)
-					continue;
+				// f1
+				Server.CharacterInfoReq(client, false);
+				ClientInfo[client].tmF1Time = 0;
+			}
+			else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
+			{
+				ulong dataArray[64] = {0};
+				dataArray[26] = client;
 
-				if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time))
-				{
-					// f1
-					Server.CharacterInfoReq(client, false);
-					ClientInfo[client].tmF1Time = 0;
-				}
-				else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
-				{
-					ulong dataArray[64] = {0};
-					dataArray[26] = client;
-
-					__asm {
+				__asm {
 						pushad
 						lea ecx, dataArray
 						mov eax, [remoteClient]
 						add eax, ADDR_RC_DISCONNECT
 						call eax ; disconncet
 						popad
-						}
-
-					ClientInfo[client].tmF1TimeDisconnect = 0;
-					continue;
 				}
-			}
 
-			const auto* config = FLHookConfig::c();
-			if (config->general.disableNPCSpawns && (CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns))
-				Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
-			else
-				Hk::Admin::ChangeNPCSpawn(false);
+				ClientInfo[client].tmF1TimeDisconnect = 0;
+				continue;
+			}
 		}
+
+		const auto* config = FLHookConfig::c();
+		if (config->general.disableNPCSpawns && (CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns))
+			Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
+		else
+			Hk::Admin::ChangeNPCSpawn(false);
+	}
 	CATCH_HOOK({})
 }
 
@@ -174,50 +238,43 @@ void TimerNPCAndF1Check()
 **************************************************************************************************************/
 
 CRITICAL_SECTION csIPResolve;
-std::list<RESOLVE_IP> g_ResolveIPs;
-std::list<RESOLVE_IP> g_ResolveIPsResult;
+std::list<RESOLVE_IP> resolveIPs;
+std::list<RESOLVE_IP> resolveIPsResult;
 HANDLE hThreadResolver;
 
 void ThreadResolver()
 {
 	TRY_HOOK
+	{
+		while (true)
 		{
-			while (true)
+			EnterCriticalSection(&csIPResolve);
+			std::list<RESOLVE_IP> ips = resolveIPs;
+			resolveIPs.clear();
+			LeaveCriticalSection(&csIPResolve);
+
+			for (auto& [client, connects, IP, hostname] : ips)
 			{
-				EnterCriticalSection(&csIPResolve);
-				std::list<RESOLVE_IP> MyResolveIPs = g_ResolveIPs;
-				g_ResolveIPs.clear();
-				LeaveCriticalSection(&csIPResolve);
+				SOCKADDR_IN addr {AF_INET, 2302, {}, {0}};
+				InetPtonW(AF_INET, IP.c_str(), &addr.sin_addr);
 
-				for (auto& ip : MyResolveIPs)
-				{
-					SOCKADDR_IN addr{AF_INET, 2302, {}, {0}};
-					InetPtonW(AF_INET, ip.IP.c_str(), &addr.sin_addr);
+				wchar_t hostbuf[255];
+				GetNameInfoW(reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
 
-					wchar_t hostbuf[255];
-					GetNameInfoW(
-						reinterpret_cast<const SOCKADDR*>(&addr),
-						sizeof(addr),
-						hostbuf,
-						std::size(hostbuf),
-						nullptr,
-						0,
-						0);
-
-					ip.hostname = hostbuf;
-				}
-
-				EnterCriticalSection(&csIPResolve);
-				for (auto& ip : MyResolveIPs)
-				{
-					if (ip.hostname.length())
-						g_ResolveIPsResult.push_back(ip);
-				}
-				LeaveCriticalSection(&csIPResolve);
-
-				Sleep(50);
+				hostname = hostbuf;
 			}
+
+			EnterCriticalSection(&csIPResolve);
+			for (auto& ip : ips)
+			{
+				if (ip.hostname.length())
+					resolveIPsResult.push_back(ip);
+			}
+			LeaveCriticalSection(&csIPResolve);
+
+			Sleep(50);
 		}
+	}
 	CATCH_HOOK({})
 }
 
@@ -227,33 +284,31 @@ void ThreadResolver()
 void TimerCheckResolveResults()
 {
 	TRY_HOOK
+	{
+		EnterCriticalSection(&csIPResolve);
+		for (const auto& [client, connects, IP, hostname] : resolveIPsResult)
 		{
-			EnterCriticalSection(&csIPResolve);
-			for (const auto& ip : g_ResolveIPsResult)
+			if (connects != ClientInfo[client].connects)
+				continue; // outdated
+
+			// check if banned
+			for (const auto* config = FLHookConfig::c(); const auto& ban : config->bans.banWildcardsAndIPs)
 			{
-				if (ip.connects != ClientInfo[ip.client].connects)
-					continue; // outdated
-
-				// check if banned
-				for (const auto* config = FLHookConfig::c();
-				     const auto& ban : config->bans.banWildcardsAndIPs)
+				if (Wildcard::Fit(wstos(ban).c_str(), wstos(hostname).c_str()))
 				{
-					if (Wildcard::Fit(wstos(ban).c_str(), wstos(ip.hostname).c_str()))
-					{
-						//AddKickLog(ip.client, wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
-						if (config->bans.banAccountOnMatch)
-							Hk::Player::Ban(ip.client, true);
-						Hk::Player::Kick(ip.client);
-					}
+					// AddKickLog(ip.client, wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
+					if (config->bans.banAccountOnMatch)
+						Hk::Player::Ban(client, true);
+					Hk::Player::Kick(client);
 				}
-				ClientInfo[ip.client].hostname = ip.hostname;
 			}
-
-			g_ResolveIPsResult.clear();
-			LeaveCriticalSection(&csIPResolve);
+			ClientInfo[client].hostname = hostname;
 		}
+
+		resolveIPsResult.clear();
+		LeaveCriticalSection(&csIPResolve);
+	}
 	CATCH_HOOK({})
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

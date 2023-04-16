@@ -338,9 +338,9 @@ bool InitHookExports()
 	ReadProcMem(address, &g_FLServerDataPtr, 4);
 
 	// anti-deathmsg
-	if (FLHookConfig::i()->messages.dieMsg)
+	if (FLHookConfig::i()->chatConfig.dieMsg)
 	{
-		// disables the "old" "A Player has died: ..." messages
+		// disables the "old" "A Player has died: ..." chatConfig
 		const char JMP[] = {'\xEB'};
 		address = SRV_ADDR(ADDR_ANTIdIEMSG);
 		WriteProcMem(address, JMP, 1);

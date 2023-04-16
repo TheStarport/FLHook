@@ -6,6 +6,15 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 {
 	std::string File() override;
 
+	struct Debug final : Reflectable
+	{
+		//! If true, enables FLHook debug mode, also enabled debug level logs
+		bool debugMode = false;
+
+		//! If true, any log statement made at a 'Trace', will be allowed.
+		bool logTraceLevel = false;
+	};
+
 	struct General final : Reflectable
 	{
 		//! Time of invulnerability upon undock in milliseconds.
@@ -15,8 +24,6 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		uint antiF1 = 0;
 		//! Disable the cruise disrupting effects.
 		bool changeCruiseDisruptorBehaviour = false;
-		//! If true, enables FLHook debug mode.
-		bool debugMode = false;
 
 		//! If true, it encodes player characters to bini (binary ini)
 		bool disableCharfileEncryption = false;
@@ -86,11 +93,32 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
 	};
 
-	struct Message final : Reflectable
+	struct MessageQueue final : Reflectable
+	{
+		//! Enable FLHook Message Queues - See setup: https://docs.flhook.org/
+		bool enableQueues = true;
+
+		//! The hostname of your RabbitMQ instance
+		std::string hostName = "localhost";
+
+		//! The port of your RabbitMQ instance
+		int port = 5672;
+
+		//! The username to connect to RabbitMQ
+		std::string username = "guest";
+
+		//! The password to connect to RabbitMQ
+		std::string password = "guest";
+
+		//! If true FLHook will communicate with RabbitMQ over AMPQS, using a SSL connection.
+		bool ensureSecureConnection = false;
+	};
+
+	struct ChatConfig final : Reflectable
 	{
 		MsgStyle msgStyle;
 
-		//! If true, messages will sent only to local ships
+		//! If true, chatConfig will sent only to local ships
 		bool defaultLocalChat = false;
 
 		//! If true, sends a copy of submitted commands to the player's chatlog.
@@ -145,10 +173,12 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool disableUsingAffiliationForCallsign = false;
 	};
 
+	Debug debug;
 	General general;
 	Plugins plugins;
+	MessageQueue messageQueue;
 	UserCommands userCommands;
 	Bans bans;
-	Message messages;
+	ChatConfig chatConfig;
 	Callsign callsign;
 };

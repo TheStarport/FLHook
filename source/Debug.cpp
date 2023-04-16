@@ -38,7 +38,7 @@ uint DebugTools::CreateIdDetour(const char* str)
 
 void DebugTools::Init()
 {
-	if (!FLHookConfig::i()->general.debugMode)
+	if (!FLHookConfig::i()->debug.debugMode)
 	{
 		return;
 	}

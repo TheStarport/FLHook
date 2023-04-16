@@ -465,6 +465,16 @@ class Serializer
 	}
 
 public:
+	template<typename T>
+	static auto ObjToJson(T& type)
+	{
+		auto json = nlohmann::json::object();
+
+		WriteObject(json, type);
+
+		return json;
+	}
+
 	/// <summary>
 	/// Save an instance of a class/struct to a JSON file.
 	/// Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.
@@ -489,9 +499,7 @@ public:
 		}
 
 		// Create our JSON object to write
-		auto json = nlohmann::json::object();
-
-		WriteObject(json, type);
+		const auto json = ObjToJson(type);
 
 		if (std::filesystem::path folderPath(fileToSave); folderPath.has_root_directory())
 		{

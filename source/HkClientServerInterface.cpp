@@ -57,14 +57,6 @@ bool IClientImpl::DispatchMsgs()
 
 namespace IServerImplHook
 {
-	Timer g_Timers[] = {
-	    {ProcessPendingCommands, 50},
-	    {TimerCheckKick, 1000},
-	    {TimerNPCAndF1Check, 50},
-	    {TimerCheckResolveResults, 0},
-	    {TimerTempBanCheck, 15000},
-	};
-
 	void Update__Inner()
 	{
 		static bool firstTime = true;
@@ -75,13 +67,13 @@ namespace IServerImplHook
 		}
 
 		const auto currentTime = Hk::Time::GetUnixMiliseconds();
-		for (auto& timer : g_Timers)
+		for (auto& timer : Timer::timers)
 		{
 			// This one isn't actually in seconds, but the plugins should be
-			if ((currentTime - timer.lastTime) >= timer.intervalInSeconds)
+			if ((currentTime - timer->lastTime) >= timer->intervalInSeconds)
 			{
-				timer.lastTime = currentTime;
-				timer.func();
+				timer->lastTime = currentTime;
+				timer->func();
 			}
 		}
 
@@ -150,7 +142,7 @@ namespace IServerImplHook
 
 			// if this is a message in system chat then convert it to local unless
 			// explicitly overriden by the player using /s.
-			if (config->messages.defaultLocalChat && cidTo.id == SpecialChatIds::SYSTEM)
+			if (config->chatConfig.defaultLocalChat && cidTo.id == SpecialChatIds::SYSTEM)
 			{
 				cidTo.id = SpecialChatIds::LOCAL;
 			}
@@ -181,9 +173,9 @@ namespace IServerImplHook
 					{
 						if (UserCmdProcess(cidFrom.id, buffer))
 						{
-							if (FLHookConfig::c()->messages.echoCommands)
+							if (FLHookConfig::c()->chatConfig.echoCommands)
 							{
-								const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+								const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
 								    XMLText(buffer) + L"</TEXT>";
 								Hk::Chat::FMsg(cidFrom.id, XML);
 							}
@@ -207,10 +199,10 @@ namespace IServerImplHook
 				const HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
 				if (hFind != INVALID_HANDLE_VALUE)
 				{
-					if (FLHookConfig::c()->messages.echoCommands)
+					if (FLHookConfig::c()->chatConfig.echoCommands)
 					{
 						const std::wstring XML =
-						    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+						    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
 						Hk::Chat::FMsg(cidFrom.id, XML);
 					}
 
@@ -225,14 +217,14 @@ namespace IServerImplHook
 			// check if chat should be suppressed for in-built command prefixes
 			if (buffer[0] == L'/' || buffer[0] == L'.')
 			{
-				if (FLHookConfig::c()->messages.echoCommands)
+				if (FLHookConfig::c()->chatConfig.echoCommands)
 				{
 					const std::wstring XML =
-					    L"<TRA data=\"" + FLHookConfig::c()->messages.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+					    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
 					Hk::Chat::FMsg(cidFrom.id, XML);
 				}
 
-				if (config->messages.suppressInvalidCommands && !foundCommand)
+				if (config->chatConfig.suppressInvalidCommands && !foundCommand)
 				{
 					return false;
 				}
@@ -781,7 +773,7 @@ namespace IServerImplHook
 			const RESOLVE_IP rip = {client, ClientInfo[client].connects, ip};
 
 			EnterCriticalSection(&csIPResolve);
-			g_ResolveIPs.push_back(rip);
+			resolveIPs.push_back(rip);
 			LeaveCriticalSection(&csIPResolve);
 
 			// count players

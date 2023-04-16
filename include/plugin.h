@@ -16,6 +16,13 @@ struct Timer
 	std::function<void()> func;
 	mstime intervalInSeconds;
 	mstime lastTime = 0;
+
+	#ifdef FLHOOK
+	static std::vector<std::unique_ptr<Timer>> timers;
+	#endif
+
+	DLL static void Add(std::function<void()> function, uint interval);
+	DLL static void Remove(const std::function<void()>& func);
 };
 
 constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::VERSION_04;

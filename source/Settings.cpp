@@ -33,11 +33,14 @@ void LoadSettings()
 
 #ifndef CORE_REFL
 #define CORE_REFL
+REFL_AUTO(type(FLHookConfig::Debug),
+	field(debugMode),
+	field(logTraceLevel));
+
 REFL_AUTO(type(FLHookConfig::General),
 	field(antiDockKill),
 	field(antiF1),
 	field(changeCruiseDisruptorBehaviour),
-	field(debugMode),
 	field(disableCharfileEncryption),
 	field(disconnectDelay),
 	field(disableNPCSpawns),
@@ -54,7 +57,9 @@ REFL_AUTO(type(FLHookConfig::General),
 
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins));
 
-REFL_AUTO(type(FLHookConfig::Message), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages));
+REFL_AUTO(type(FLHookConfig::MessageQueue), field(enableQueues), field(ensureSecureConnection), field(username), field(password), field(port));
+
+REFL_AUTO(type(FLHookConfig::ChatConfig), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages));
 
 REFL_AUTO(type(FLHookConfig::MsgStyle),
 	field(msgEchoStyle),
@@ -83,6 +88,6 @@ REFL_AUTO(type(FLHookConfig::Bans), field(banAccountOnMatch), field(banWildcards
 
 REFL_AUTO(type(FLHookConfig::Callsign), field(allowedFormations), field(disableRandomisedFormations), field(disableUsingAffiliationForCallsign));
 
-REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(messages), field(userCommands), field(bans), field(callsign));
+REFL_AUTO(type(FLHookConfig), field(general), field(plugins), field(messageQueue), field(userCommands), field(bans), field(chatConfig), field(callsign));
 #endif
 
