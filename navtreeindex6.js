@@ -1,5 +1,6 @@
 var NAVTREEINDEX6 =
 {
+"group___i_p_ban.html#gaaccbc2f281e87d0f61410f7dc4b4771f":[2,0,12,0],
 "group___i_p_ban.html#gabb899eb1e225b47542693b5f18e7179d":[2,0,12,3],
 "group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab":[2,0,12,6],
 "group___kill_tracker.html":[2,0,13],
@@ -248,6 +249,5 @@ var NAVTREEINDEX6 =
 "namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb":[2,1,0,0,6,12],
 "namespace_hk_1_1_player.html":[2,1,0,0,7],
 "namespace_hk_1_1_player.html#a04116fc50c4deecc4a14841e20736708":[2,1,0,0,7,37],
-"namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f":[2,1,0,0,7,53],
-"namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746":[2,1,0,0,7,41]
+"namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f":[2,1,0,0,7,53]
 };

@@ -86,7 +86,7 @@ var searchData=
   ['usercmddroprep_83',['UserCmdDropRep',['../group___misc_commands.html#gacb3cee6648111fa8832ab656332e1db3',1,'Plugins::MiscCommands']]],
   ['usercmdduel_84',['UserCmdDuel',['../group___betting.html#gaef9f6756adeaa638b3c7c9bfac568af3',1,'Plugins::Betting']]],
   ['usercmdgetitems_85',['UserCmdGetItems',['../namespace_plugins_1_1_warehouse.html#a464bada262c99486afa3830f0b7b6220',1,'Plugins::Warehouse']]],
-  ['usercmdgetwarehouseitems_86',['UserCmdGetWarehouseItems',['../namespace_plugins_1_1_warehouse.html#a4e56a6a27f620462e7e3b2c7140510e9',1,'Plugins::Warehouse']]],
+  ['usercmdgetwarehouseitems_86',['UserCmdGetWarehouseItems',['../namespace_plugins_1_1_warehouse.html#a3b3366795afcf8edea7f00cda9db6988',1,'Plugins::Warehouse']]],
   ['usercmdgivecash_87',['UserCmdGiveCash',['../source_2_features_2_user_commands_8cpp.html#aae66b79a4963c00359e9d59d4f0b4702',1,'UserCommands.cpp']]],
   ['usercmdhandle_88',['UserCmdHandle',['../namespace_plugins_1_1_wardrobe.html#a2a4127c69ee859d52481d1c661399bc9',1,'Plugins::Wardrobe']]],
   ['usercmdlights_89',['UserCmdLights',['../group___misc_commands.html#ga64b7cc4c07742fe75eef7fed7d3a7f4a',1,'Plugins::MiscCommands']]],

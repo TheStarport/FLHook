@@ -4,7 +4,7 @@ var _warehouse_8cpp =
     [ "LoadSettings", "_warehouse_8cpp.html#ae8480cc55f017b84ac3f88f13b8ed7d9", null ],
     [ "REFL_AUTO", "_warehouse_8cpp.html#a5cf870a20569e9acdad7a0d73bc3f3d6", null ],
     [ "UserCmdGetItems", "_warehouse_8cpp.html#a464bada262c99486afa3830f0b7b6220", null ],
-    [ "UserCmdGetWarehouseItems", "_warehouse_8cpp.html#a4e56a6a27f620462e7e3b2c7140510e9", null ],
+    [ "UserCmdGetWarehouseItems", "_warehouse_8cpp.html#a3b3366795afcf8edea7f00cda9db6988", null ],
     [ "UserCmdStoreItem", "_warehouse_8cpp.html#a6b9304cd83e1ffc2cb7595293a031bb4", null ],
     [ "UserCmdWarehouse", "_warehouse_8cpp.html#a5aaf9c35ba8e1fbb86a0b11a4b230fed", null ],
     [ "UserCmdWithdrawItem", "_warehouse_8cpp.html#a7a25f357257eafffcee4c0589d8abd3b", null ],

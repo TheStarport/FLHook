@@ -1,5 +1,6 @@
 var NAVTREEINDEX7 =
 {
+"namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746":[2,1,0,0,7,41],
 "namespace_hk_1_1_player.html#a13855e37c13bffc07a220fa34a4f55a5":[2,1,0,0,7,16],
 "namespace_hk_1_1_player.html#a15f1ec3fba1ca04fd38f313fce357958":[2,1,0,0,7,47],
 "namespace_hk_1_1_player.html#a16997511326ffb51c0d626e3c34655ac":[2,1,0,0,7,28],
@@ -248,6 +249,5 @@ var NAVTREEINDEX7 =
 "namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c":[2,1,0,4,3,7],
 "namespace_plugins_1_1_autobuy.html#afe75320a9ff4f72cfb5c1f38e591160b":[2,1,0,4,3,11],
 "namespace_plugins_1_1_betting.html":[2,1,0,4,4],
-"namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15],
-"namespace_plugins_1_1_betting.html#ac0de85a4c73d3d5ab79e6a0e24fea158":[2,1,0,4,4,16]
+"namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15]
 };

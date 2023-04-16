@@ -192,8 +192,26 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_warehouse.html',
 
 </div>
 </div>
-<a id="a62c83b43e96c70502d39e6cf6ef3b7a7" name="a62c83b43e96c70502d39e6cf6ef3b7a7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62c83b43e96c70502d39e6cf6ef3b7a7">&#9670;&#160;</a></span>GetAllItemsOnBase()</h2>
+<a id="ad5694bb70ccdf017122a2f2e4468fdcd" name="ad5694bb70ccdf017122a2f2e4468fdcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5694bb70ccdf017122a2f2e4468fdcd">&#9670;&#160;</a></span>GetAllBases()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt; int64, std::vector&lt; <a class="el" href="struct_plugins_1_1_warehouse_1_1_ware_house_item.html">WareHouseItem</a> &gt; &gt; Plugins::Warehouse::GetAllBases </td>
+          <td>(</td>
+          <td class="paramtype">int64&#160;</td>
+          <td class="paramname"><em>playerId</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abae2ce816c3ece07dcaed58eda4b1607" name="abae2ce816c3ece07dcaed58eda4b1607"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abae2ce816c3ece07dcaed58eda4b1607">&#9670;&#160;</a></span>GetAllItemsOnBase()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -202,8 +220,18 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_warehouse.html',
           <td class="memname">std::vector&lt; <a class="el" href="struct_plugins_1_1_warehouse_1_1_ware_house_item.html">WareHouseItem</a> &gt; Plugins::Warehouse::GetAllItemsOnBase </td>
           <td>(</td>
           <td class="paramtype">int64&#160;</td>
-          <td class="paramname"><em>playerId</em></td><td>)</td>
+          <td class="paramname"><em>sqlPlayerId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int64&#160;</td>
+          <td class="paramname"><em>flBaseId</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -375,8 +403,8 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_warehouse.html',
 
 </div>
 </div>
-<a id="a4e56a6a27f620462e7e3b2c7140510e9" name="a4e56a6a27f620462e7e3b2c7140510e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e56a6a27f620462e7e3b2c7140510e9">&#9670;&#160;</a></span>UserCmdGetWarehouseItems()</h2>
+<a id="a3b3366795afcf8edea7f00cda9db6988" name="a3b3366795afcf8edea7f00cda9db6988"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b3366795afcf8edea7f00cda9db6988">&#9670;&#160;</a></span>UserCmdGetWarehouseItems()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -397,7 +425,7 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_warehouse.html',
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint&#160;</td>
-          <td class="paramname"><em>base</em>&#160;</td>
+          <td class="paramname"><em>baseId</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -520,7 +548,7 @@ $(document).ready(function(){initNavTree('namespace_plugins_1_1_warehouse.html',
 <b>Initial value:</b><div class="fragment"><div class="line">= {{</div>
 <div class="line">        <a class="code hl_function" href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a>(L<span class="stringliteral">&quot;/warehouse&quot;</span>, L<span class="stringliteral">&quot;&quot;</span>, <a class="code hl_function" href="namespace_plugins_1_1_warehouse.html#a5aaf9c35ba8e1fbb86a0b11a4b230fed">UserCmdWarehouse</a>, L<span class="stringliteral">&quot;&quot;</span>),</div>
 <div class="line">    }}</div>
-<div class="ttc" id="anamespace_plugins_1_1_warehouse_html_a5aaf9c35ba8e1fbb86a0b11a4b230fed"><div class="ttname"><a href="namespace_plugins_1_1_warehouse.html#a5aaf9c35ba8e1fbb86a0b11a4b230fed">Plugins::Warehouse::UserCmdWarehouse</a></div><div class="ttdeci">void UserCmdWarehouse(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Warehouse.cpp:224</div></div>
+<div class="ttc" id="anamespace_plugins_1_1_warehouse_html_a5aaf9c35ba8e1fbb86a0b11a4b230fed"><div class="ttname"><a href="namespace_plugins_1_1_warehouse.html#a5aaf9c35ba8e1fbb86a0b11a4b230fed">Plugins::Warehouse::UserCmdWarehouse</a></div><div class="ttdeci">void UserCmdWarehouse(ClientId &amp;client, const std::wstring &amp;param)</div><div class="ttdef"><b>Definition:</b> Warehouse.cpp:243</div></div>
 <div class="ttc" id="asource_2_features_2_user_commands_8cpp_html_a64120089de88d698057f609bede3cd3a"><div class="ttname"><a href="source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a">CreateUserCommand</a></div><div class="ttdeci">UserCommand CreateUserCommand(const std::variant&lt; std::wstring, std::vector&lt; std::wstring &gt; &gt; &amp;command, const std::wstring &amp;usage, const std::variant&lt; UserCmdProc, UserCmdProcWithParam &gt; &amp;proc, const std::wstring &amp;description)</div><div class="ttdef"><b>Definition:</b> UserCommands.cpp:708</div></div>
 </div><!-- fragment -->
 </div>
