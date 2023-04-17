@@ -74,15 +74,16 @@ namespace Plugins::AntiJumpDisconnect
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
 	 */
-	void JumpInComplete([[maybe_unused]] const SystemId& System, [[maybe_unused]] const ShipId& Ship, ClientId& client)
+	void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship)
 	{
+		ClientId& client = Hk::Client::GetClientIdByShip(ship).value();
 		global->mapInfo[client].bInWrapGate = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
 	 */
-	void SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client)
+	void SystemSwitchOutComplete([[maybe_unused]] const ShipId& ship, ClientId& client)
 	{
 		global->mapInfo[client].bInWrapGate = true;
 	}
