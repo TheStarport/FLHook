@@ -29,6 +29,7 @@
 #include "FLHook.hpp"
 #include "Helpers/Error.hpp"
 #include "Helpers/Player.hpp"
+#include "Helpers/Client.hpp"
 
 constexpr auto TempBanDurationMinutes = 5;
 
@@ -85,15 +86,16 @@ namespace Plugins
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on JumpInComplete. Sets the "In Gate" variable to false.
 	 */
-	void AntiJumpDisconnect::JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client)
+	void AntiJumpDisconnect::JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship)
 	{
+		ClientId& client = Hk::Client::GetClientIdByShip(ship).value();
 		mapInfo[client] = false;
 	}
 
 	/** @ingroup AntiJumpDisconnect
 	 * @brief Hook on SystemSwitchOutComplete. Sets the "In Gate" variable to true.
 	 */
-	void AntiJumpDisconnect::SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client)
+	void AntiJumpDisconnect::SystemSwitchOutComplete([[maybe_unused]] const ShipId& ship, ClientId& client)
 	{
 		mapInfo[client] = true;
 	}
