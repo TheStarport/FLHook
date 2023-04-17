@@ -10,7 +10,7 @@ namespace Plugins
 		void KillIfInJumpTunnel(ClientId& client);
 		void Disconnect(ClientId& client, [[maybe_unused]] const EFLConnection& state);
 		void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2);
-		void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship, ClientId& client);
+		void JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship);
 		void SystemSwitchOutComplete([[maybe_unused]] const ShipId& Ship, ClientId& client);
 	public:
 		explicit AntiJumpDisconnect(const PluginInfo& info);
