@@ -111,7 +111,7 @@ void FLHookInit_Pre()
 		// so we want to make sure the service is up at startup time
 		if (FLHookConfig::i()->messageQueue.enableQueues)
 		{
-			MessageHandler::i()->DeclareExchange(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats));
+			MessageHandler::i()->DeclareExchange(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats), AMQP::fanout, AMQP::durable);
 			Timer::Add(PublishServerStats, 30000);
 		}
 
@@ -153,7 +153,7 @@ void FLHookInit_Pre()
 	catch (char* error)
 	{
 		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", error));
-		exit(EXIT_FAILURE);
+		std::quick_exit(EXIT_FAILURE);
 	}
 	catch (std::filesystem::filesystem_error& error)
 	{
