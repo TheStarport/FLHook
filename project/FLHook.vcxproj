@@ -105,7 +105,7 @@
       <DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -168,7 +168,7 @@
       <DisableSpecificWarnings>5222; 4251 </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -234,6 +234,7 @@
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
+    <ClCompile Include="..\source\Tools\CommandLineParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
@@ -276,6 +277,7 @@
     <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp" />
     <ClInclude Include="..\include\PCH.hpp" />
     <ClInclude Include="..\include\plugin.h" />
+    <ClInclude Include="..\include\Tools\CommandLineParser.hpp" />
     <ClInclude Include="..\include\Tools\Concepts.hpp" />
     <ClInclude Include="..\include\Tools\Constexpr.hpp" />
     <ClInclude Include="..\include\Tools\Detour.hpp" />

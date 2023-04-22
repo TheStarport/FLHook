@@ -6,6 +6,7 @@
 
 #include "FLHook.hpp"
 #include "Defs/FLHookConfig.hpp"
+#include "Tools/CommandLineParser.hpp"
 #include "Tools/Utils.hpp"
 
 enum class ConsoleColor
@@ -103,22 +104,28 @@ void Logger::PrintToConsole(LogLevel level, const std::string& str) const
 
 Logger::Logger()
 {
-	// start console
-	AllocConsole();
-	SetConsoleTitle("FLHook");
+	if (const CommandLineParser cmd; cmd.CmdOptionExists("-noconsole"))
+	{
+		consoleAllocated = false;
+	}
+	else
+	{
+		AllocConsole();
+		SetConsoleTitle("FLHook");
 
-	const HWND console = GetConsoleWindow();
-	RECT r;
-	GetWindowRect(console, &r);
+		const HWND console = GetConsoleWindow();
+		RECT r;
+		GetWindowRect(console, &r);
 
-	MoveWindow(console, r.left, r.top, 1366, 768, TRUE);
+		MoveWindow(console, r.left, r.top, 1366, 768, TRUE);
+	}
 
 	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 	consoleInput = GetStdHandle(STD_INPUT_HANDLE);
 	consoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	// change version number here:
-	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.0
+	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.1
 	std::string welcomeText = R"(
   ______ _      _    _             _      _  _  __                 _ _           
  |  ____| |    | |  | |           | |    | || |/_ |               | | |          

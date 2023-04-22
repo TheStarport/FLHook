@@ -64,6 +64,9 @@
     <Filter Include="Include\Defs\FLConfigData">
       <UniqueIdentifier>{9178612a-831c-4d60-ae0c-f5b4d288641b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FLHook\Tools">
+      <UniqueIdentifier>{bf83692e-f0f0-4526-856d-e9b33fcade06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -173,6 +176,9 @@
       <Filter>FLHook\Exceptions</Filter>
     </ClCompile>
     <ClCompile Include="..\include\PCH.cpp" />
+    <ClCompile Include="..\source\Tools\CommandLineParser.cpp">
+      <Filter>FLHook\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\Global.hpp" />
@@ -328,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Defs\ServerStats.hpp">
       <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\CommandLineParser.hpp">
+      <Filter>Include\Tools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
