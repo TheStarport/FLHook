@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 #include <functional>
+#include <iostream>
 #include <Features/Logger.hpp>
 #include <Windows.h>
 #include <string>
@@ -95,8 +96,15 @@ void Logger::PrintToConsole(LogLevel level, const std::string& str) const
 		}
 	}
 
-	ulong _;
-	WriteConsole(consoleOutput, str.c_str(), str.length(), &_, nullptr);
+	if (consoleAllocated)
+	{
+		ulong _;
+		WriteConsole(consoleOutput, str.c_str(), str.length(), &_, nullptr);
+	}
+	else
+	{
+		std::cout << str << std::endl << std::flush;	
+	}
 
 	// Reset
 	SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
