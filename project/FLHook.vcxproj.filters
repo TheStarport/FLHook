@@ -179,6 +179,9 @@
     <ClCompile Include="..\source\Tools\CommandLineParser.cpp">
       <Filter>FLHook\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Tools\ThreadScheduler.cpp">
+      <Filter>FLHook\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\Global.hpp" />
@@ -337,6 +340,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\CommandLineParser.hpp">
       <Filter>Include\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Tools\ThreadScheduler.hpp">
+      <Filter>Include\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ext\Singleton.h">
+      <Filter>Include\Tools\External</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

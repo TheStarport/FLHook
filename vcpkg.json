@@ -39,6 +39,10 @@
     {
       "name": "libuv",
       "version>=": "1.44.2"
+    },
+    {
+      "name" : "concurrencpp",
+      "version>=" : "0.1.5"
     }
   ]
 }

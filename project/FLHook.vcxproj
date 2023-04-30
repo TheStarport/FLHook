@@ -235,6 +235,7 @@
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Tools\CommandLineParser.cpp" />
+    <ClCompile Include="..\source\Tools\ThreadScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
@@ -259,6 +260,7 @@
     <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\include\Exceptions\InputException.hpp" />
+    <ClInclude Include="..\include\ext\Singleton.h" />
     <ClInclude Include="..\include\Features\DataManager.hpp" />
     <ClInclude Include="..\include\Features\Mail.hpp" />
     <ClInclude Include="..\include\Features\MessageHandler.hpp" />
@@ -286,6 +288,7 @@
     <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
     <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
     <ClInclude Include="..\include\Tools\Structs.hpp" />
+    <ClInclude Include="..\include\Tools\ThreadScheduler.hpp" />
     <ClInclude Include="..\include\Tools\Typedefs.hpp" />
     <ClInclude Include="..\include\Tools\Utils.hpp" />
     <ClInclude Include="..\source\Global.hpp" />

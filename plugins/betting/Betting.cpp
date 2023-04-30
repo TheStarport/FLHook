@@ -26,6 +26,7 @@
  * This plugin has no dependencies.
  */
 
+#include "PCH.hpp"
 #include "Betting.h"
 
 namespace Plugins::Betting
