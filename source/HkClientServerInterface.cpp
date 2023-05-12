@@ -230,6 +230,12 @@ namespace IServerImplHook
 				}
 			}
 
+			if (foundCommand)
+			{
+				// Trim the first two characters
+				buffer.erase(0, 2);
+			}
+
 			// Check if any other custom prefixes have been added
 			if (!config->general.chatSuppressList.empty())
 			{
