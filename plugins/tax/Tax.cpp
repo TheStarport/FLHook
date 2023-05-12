@@ -216,6 +216,22 @@ namespace Plugins::Tax
 		TimerF1Check();
 	}
 
+	void CreateGuided(ClientId client, FLPACKET_CREATEGUIDED& createGuided)
+	{
+		const auto& ownerPlayer = Hk::Client::GetClientIdByShip(createGuided.iOwner);
+		if (ownerPlayer.has_error())
+			return;
+
+		const auto& target = Hk::Player::GetTarget(ownerPlayer.value());
+		if (target.has_value())
+			return;
+
+		auto projectile = reinterpret_cast<CGuided*>(CObject::Find(createGuided.iProjectileId, CObject::CGUIDED_OBJECT));
+
+		Console::ConPrint("Neutralizing missile\n");
+		projectile->set_target(nullptr);
+	}
+
 	// Load Settings
 	void LoadSettings()
 	{
@@ -253,5 +269,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, &CreateGuided, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 }

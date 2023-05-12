@@ -1841,7 +1841,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_CREATEGUIDED& _genArg1)
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
