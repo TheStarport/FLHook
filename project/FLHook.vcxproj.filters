@@ -182,6 +182,9 @@
     <ClCompile Include="..\source\Tools\ThreadScheduler.cpp">
       <Filter>FLHook\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Features\AdminCommandProcessor.cpp">
+      <Filter>AdminCommands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\Global.hpp" />
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ext\Singleton.h">
       <Filter>Include\Tools\External</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp">
+      <Filter>Include\Features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

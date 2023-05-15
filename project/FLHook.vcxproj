@@ -199,6 +199,7 @@
     <ClCompile Include="..\source\Data\Lights.cpp" />
     <ClCompile Include="..\source\Debug.cpp" />
     <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp" />
+    <ClCompile Include="..\source\Features\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\source\Features\Logger.cpp" />
     <ClCompile Include="..\source\Features\Mail.cpp" />
     <ClCompile Include="..\source\Features\MessageHandler.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\include\Exceptions\InputException.hpp" />
     <ClInclude Include="..\include\ext\Singleton.h" />
+    <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Features\DataManager.hpp" />
     <ClInclude Include="..\include\Features\Mail.hpp" />
     <ClInclude Include="..\include\Features\MessageHandler.hpp" />
