@@ -3,7 +3,6 @@
 #include <any>
 #include <nlohmann/json_fwd.hpp>
 
-
 using namespace std::string_view_literals;
 class AdminCommandProcessor
 {
@@ -58,20 +57,26 @@ class AdminCommandProcessor
 			return std::apply(lambda, arg);
 		}
 	};
+	std::map<std::string, std::vector<std::string_view>> credentialsMap;
 
-	constexpr static std::array<std::string_view, 2> commands = {
-	    "GetCash"sv,
-	    "SetCash"sv,
-	};
 
-	const std::array<cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params),
-	    2 > funcs = {
-	    wrapper<decltype(&AdminCommandProcessor::GetCash), &AdminCommandProcessor::GetCash>::ProcessParam,
-	    wrapper<decltype(&AdminCommandProcessor::SetCash), &AdminCommandProcessor::SetCash>::ProcessParam};
+#define AddCommand(func) wrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam
 
 	cpp::result<nlohmann::json, nlohmann::json> SetCash(std::string_view characterName, uint amount);
 	cpp::result<nlohmann::json, nlohmann::json> GetCash(std::string_view characterName);
+	cpp::result<nlohmann::json, nlohmann::json> KickPlayer(std::string_view characterName, std::string_view reason);
+	cpp::result<nlohmann::json, nlohmann::json> BanPlayer(std::string_view characterName);
 
+	//Commands and functions MUST be in the same order as compile time iteration assumes same indexes. 
+	constexpr static std::array<std::string_view, 4> commands = {"getcash"sv, "setcash"sv, "kick"sv, "ban"sv};
+	const std::array<cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params), 4> funcs = {
+	    AddCommand(GetCash),
+	    AddCommand(SetCash),
+	    AddCommand(KickPlayer),
+	    AddCommand(BanPlayer)
+	};
+
+#undef AddCommand
 
   public:
 	template<int N>
