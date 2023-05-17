@@ -139,9 +139,6 @@
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Time.cpp">
-      <Filter>FLHook\Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
@@ -184,6 +181,15 @@
     </ClCompile>
     <ClCompile Include="..\source\Features\AdminCommandProcessor.cpp">
       <Filter>AdminCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Tools\MemUtil.cpp">
+      <Filter>FLHook\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Tools\StringUtil.cpp">
+      <Filter>FLHook\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Tools\TimeUtil.cpp">
+      <Filter>FLHook\Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

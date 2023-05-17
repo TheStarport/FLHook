@@ -4,7 +4,7 @@
 
 #include "Defs/CoreGlobals.hpp"
 #include "Helpers/Client.hpp"
-#include "Tools/Utils.hpp"
+
 
 bool g_bNPCDisabled;
 
@@ -233,9 +233,9 @@ namespace Hk::Admin
 		}
 
 		void* address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS1);
-		WriteProcMem(address, &jump, 1);
+		MemUtils::WriteProcMem(address, &jump, 1);
 		address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
-		WriteProcMem(address, &cmp, 1);
+		MemUtils::WriteProcMem(address, &cmp, 1);
 		g_bNPCDisabled = disable;
 		return {};
 	}

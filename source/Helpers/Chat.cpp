@@ -8,7 +8,7 @@
 #include "Helpers/Client.hpp"
 #include "Helpers/Math.hpp"
 #include "Helpers/Player.hpp"
-#include "Tools/Utils.hpp"
+
 
 // Very hacky way to call non-header function
 namespace IServerImplHook

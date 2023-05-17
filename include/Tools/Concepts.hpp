@@ -4,6 +4,9 @@
 template<typename T>
 concept StringRestriction = std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>;
 
+template<typename T>
+concept IsView = std::is_same_v<std::string_view, T> || std::is_same_v<std::wstring_view, T>;
+
 template<typename... T>
 concept AtLeastOne = (sizeof...(T) > 0);
 

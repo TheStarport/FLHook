@@ -8,7 +8,7 @@
 #include "FLHook.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Tools/CommandLineParser.hpp"
-#include "Tools/Utils.hpp"
+
 
 enum class ConsoleColor
 {

@@ -15,7 +15,7 @@
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
 #include "Helpers/Time.hpp"
-#include "Tools/Utils.hpp"
+
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
@@ -858,9 +858,9 @@ namespace IServerImplHook
 		char* address = (reinterpret_cast<char*>(server) + ADDR_SRV_PLAYERDBMAXPLAYERSPATCH);
 		const char nop[] = {'\x90'};
 		const char movECX[] = {'\xB9'};
-		WriteProcMem(address, movECX, sizeof(movECX));
-		WriteProcMem(address + 1, &g_MaxPlayers, sizeof(g_MaxPlayers));
-		WriteProcMem(address + 5, nop, sizeof(nop));
+		MemUtils::WriteProcMem(address, movECX, sizeof(movECX));
+		MemUtils::WriteProcMem(address + 1, &g_MaxPlayers, sizeof(g_MaxPlayers));
+		MemUtils::WriteProcMem(address + 5, nop, sizeof(nop));
 
 		StartupCache::Init();
 	}
@@ -870,7 +870,7 @@ namespace IServerImplHook
 		// Patch to set maximum number of players to connect. This is normally
 		// less than MaxClientId
 		char* address = (reinterpret_cast<char*>(server) + ADDR_SRV_PLAYERDBMAXPLAYERS);
-		WriteProcMem(address, &si.maxPlayers, sizeof(g_MaxPlayers));
+		MemUtils::WriteProcMem(address, &si.maxPlayers, sizeof(g_MaxPlayers));
 
 		// read base market data from ini
 		LoadBaseMarket();

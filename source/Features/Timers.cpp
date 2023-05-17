@@ -14,7 +14,7 @@
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
 #include "Helpers/Time.hpp"
-#include "Tools/Utils.hpp"
+
 
 PerfTimer::PerfTimer(const std::string& func, uint warn) : function(func), warning(warn)
 {

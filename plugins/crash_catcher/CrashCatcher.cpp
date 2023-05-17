@@ -410,18 +410,18 @@ will_crash:
 					// Patch the NPC visibility distance in MP to 6.5km (default
 					// is 2.5km)
 					const float fDistance = 6500.0f * 6500.0f;
-					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &fDistance, 4);
+					MemUtils::WriteProcMem((char*)global->hModServerAC + 0x86AEC, &fDistance, 4);
 
 					const FARPROC fpHook = (FARPROC)GetRoot;
-					ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
-					WriteProcMem((char*)global->hModServerAC + 0x84018, &fpHook, 4);
+					MemUtils::ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
+					MemUtils::WriteProcMem((char*)global->hModServerAC + 0x84018, &fpHook, 4);
 				}
 
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
 				const FARPROC fpTimingSeconds = (FARPROC)TimingSeconds;
-				ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
-				WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
+				MemUtils::ReadProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
+				MemUtils::WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &fpTimingSeconds, 4);
 
 				global->hEngBase = GetModuleHandle("engbase.dll");
 				global->contentAC = GetModuleHandle("content.dll");
@@ -447,7 +447,7 @@ will_crash:
 					{
 						// alternative: 0C458F, 8B0482->33C090
 						const uchar patch[] = {0x74, 0x11, 0xeb, 0x05};
-						WriteProcMem((char*)global->contentAC + 0xC457F, patch, 4);
+						MemUtils::WriteProcMem((char*)global->contentAC + 0xC457F, patch, 4);
 					}
 
 					// Patch for crash at content.dll + Cb_47bc4
@@ -456,7 +456,7 @@ will_crash:
 					// (amongst other stuff). Original Bytes: 8B F8 8B 17 8B CF
 					{
 						const uchar patch[] = {0x90, 0xe8}; // nop call
-						WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 2);
+						MemUtils::WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 2);
 						PatchCallAddr((char*)global->contentAC, 0x47bc2 + 1, (char*)Cb_47bc4Naked);
 					}
 
@@ -464,7 +464,7 @@ will_crash:
 					// man) This is caused by a bad cmp.
 					{
 						const uchar patch[] = {0xe8};
-						WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 1);
+						MemUtils::WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 1);
 						PatchCallAddr((char*)global->hEngBase, 0x0124BD, (char*)EngBase124BDNaked);
 					}
 
@@ -472,32 +472,32 @@ will_crash:
 					// This is caused by a bad cmp I suspect
 					{
 						const uchar patch[] = {0x90, 0xe9}; // nop jmpr
-						WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 2);
+						MemUtils::WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 2);
 						PatchCallAddr((char*)global->hEngBase, 0x011a6d + 1, (char*)EngBase11a6dNaked);
 					}
 
 					// Hook for crash at 1b221 in server.dll
 					//{
 					//	FARPROC fpHook = (FARPROC)CrashProc1b221;
-					//	ReadProcMem((char*)contentAC + 0x1134f4,
-					//&fpCrashProc1b221Old, 4); WriteProcMem((char*)contentAC
+					//	MemUtils::ReadProcMem((char*)contentAC + 0x1134f4,
+					//&fpCrashProc1b221Old, 4); MemUtils::WriteProcMem((char*)contentAC
 					//+
 					// 0x1134f4, &fpHook, 4);
 					//}
 
 					//{
 					//	FARPROC fpHook = (FARPROC)PubZoneSystem;
-					//	ReadProcMem((char*)contentAC + 0x113470,
-					//&fpCrashProc1b113470Old, 4); WriteProcMem((char*)contentAC
+					//	MemUtils::ReadProcMem((char*)contentAC + 0x113470,
+					//&fpCrashProc1b113470Old, 4); MemUtils::WriteProcMem((char*)contentAC
 					//+
 					// 0x113470, &fpHook, 4);
 					//}
 
 					// Hook for crash at 0xEB4B5 (confirmed)
 					const auto fpHook = (FARPROC)CrashProc6F8B330Naked;
-					ReadProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
-					WriteProcMem((char*)global->contentAC + 0x11C970, &fpHook, 4);
-					WriteProcMem((char*)global->contentAC + 0x11CA00, &fpHook, 4);
+					MemUtils::ReadProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0x11C970, &fpHook, 4);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0x11CA00, &fpHook, 4);
 
 					// Hook for crash at 0xD8E14 (confirmed)
 					fpCrashProc6F78DD0Old = PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)CrashProc6F78DD0Naked);
@@ -518,8 +518,8 @@ will_crash:
 					// Patch the NPC persist distance in MP to 6.5km and patch the
 					// max spawn distance to 6.5km
 					const float fDistance = 6500;
-					WriteProcMem((char*)global->contentAC + 0xD3D6E, &fDistance, 4);
-					WriteProcMem((char*)global->contentAC + 0x58F46, &fDistance, 4);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0xD3D6E, &fDistance, 4);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0x58F46, &fDistance, 4);
 				}
 			}
 		}
@@ -539,11 +539,11 @@ will_crash:
 			// Unhook getroot
 			if (global->hModServerAC)
 			{
-				WriteProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
+				MemUtils::WriteProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
 			}
 
 			// Unload the timing patches.
-			WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
+			MemUtils::WriteProcMem((char*)GetModuleHandle(nullptr) + 0x1B0A0, &global->oldTimingSeconds, 4);
 
 			if (global->contentAC)
 			{
@@ -552,30 +552,30 @@ will_crash:
 
 				{
 					const uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
-					WriteProcMem((char*)global->contentAC + 0xC608D, patch, 5);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0xC608D, patch, 5);
 				}
 
 				{
 					const uchar patch[] = {0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF};
-					WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 6);
+					MemUtils::WriteProcMem((char*)global->contentAC + 0x47bc2, patch, 6);
 				}
 
 				{
 					const uchar patch[] = {0x8B, 0x40, 0x10, 0x85, 0xc0};
-					WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 5);
+					MemUtils::WriteProcMem((char*)global->hEngBase + 0x0124BD, patch, 5);
 				}
 
 				{
 					const uchar patch[] = {0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00};
-					WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 6);
+					MemUtils::WriteProcMem((char*)global->hEngBase + 0x011a6d, patch, 6);
 				}
 
-				// WriteProcMem((char*)contentAC + 0x1134f4,
-				// &fpCrashProc1b221Old, 4); WriteProcMem((char*)contentAC +
+				// MemUtils::WriteProcMem((char*)contentAC + 0x1134f4,
+				// &fpCrashProc1b221Old, 4); MemUtils::WriteProcMem((char*)contentAC +
 				// 0x113470, &fpCrashProc1b113470Old, 4);
 
-				WriteProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
-				WriteProcMem((char*)global->contentAC + 0x11CA00, &fpCrashProc6F8B330Old, 4);
+				MemUtils::WriteProcMem((char*)global->contentAC + 0x11C970, &fpCrashProc6F8B330Old, 4);
+				MemUtils::WriteProcMem((char*)global->contentAC + 0x11CA00, &fpCrashProc6F8B330Old, 4);
 
 				PatchCallAddr((char*)global->contentAC, 0x5ED4B, (char*)fpCrashProc6F78DD0Old);
 				PatchCallAddr((char*)global->contentAC, 0xBD96A, (char*)fpCrashProc6F78DD0Old);

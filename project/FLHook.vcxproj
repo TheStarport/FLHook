@@ -218,7 +218,6 @@
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
     <ClCompile Include="..\source\Helpers\Player.cpp" />
     <ClCompile Include="..\source\Helpers\Solar.cpp" />
-    <ClCompile Include="..\source\Helpers\Time.cpp" />
     <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp" />
     <ClCompile Include="..\source\HkClientServerInterface.cpp" />
     <ClCompile Include="..\source\HkIEngine.cpp" />
@@ -236,7 +235,10 @@
     <ClCompile Include="..\source\Settings.cpp" />
     <ClCompile Include="..\source\Tools.cpp" />
     <ClCompile Include="..\source\Tools\CommandLineParser.cpp" />
+    <ClCompile Include="..\source\Tools\MemUtil.cpp" />
+    <ClCompile Include="..\source\Tools\StringUtil.cpp" />
     <ClCompile Include="..\source\Tools\ThreadScheduler.cpp" />
+    <ClCompile Include="..\source\Tools\TimeUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />

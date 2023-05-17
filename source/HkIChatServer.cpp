@@ -3,7 +3,7 @@
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Chat.hpp"
-#include "Tools/Utils.hpp"
+
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)

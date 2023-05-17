@@ -4,7 +4,7 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Client.hpp"
 #include "Helpers/FlCodec.hpp"
-#include "Tools/Utils.hpp"
+
 
 namespace Hk::Ini
 {
@@ -154,10 +154,10 @@ namespace Hk::Ini
 			return;
 
 		const BYTE patch[] = {0xE8, 0x84, 0x07, 0x00, 0x00};
-		WriteProcMem((char*)server + 0x6c547, patch, 5);
+		MemUtils::WriteProcMem((char*)server + 0x6c547, patch, 5);
 
 		const BYTE patch2[] = {0xE8, 0xFE, 0x2, 0x00, 0x00};
-		WriteProcMem((char*)server + 0x6c9cd, patch2, 5);
+		MemUtils::WriteProcMem((char*)server + 0x6c9cd, patch2, 5);
 
 		patched = false;
 	}

@@ -5,7 +5,7 @@
 
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Ini.hpp"
-#include "Tools/Utils.hpp"
+
 
 using SendCommType = int(__cdecl*)(uint, uint, uint, const Costume*, uint, uint*, int, uint, float, bool);
 const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<FunctionDetour<SendCommType>>(pub::SpaceObj::SendComm);
@@ -35,8 +35,8 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 		if (!conf->callsign.disableRandomisedFormations)
 		{
 			*(int*)(num1RewriteBytes.data() + 1) = ci.formationNumber1;
-			WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
-			WriteProcMem(playerNumber2, &ci.formationNumber2, 1);
+			MemUtils::WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
+			MemUtils::WriteProcMem(playerNumber2, &ci.formationNumber2, 1);
 			DWORD _;
 			VirtualProtect(playerFormation, 2, PAGE_READWRITE, &_);
 			std::sprintf(playerFormation, "%02d", ci.formationTag);
@@ -47,11 +47,11 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 			if (auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group"); repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
 			{
 				auto val = wstos(repGroupNick.value());
-				WriteProcMem(playerFactionAddr, val.erase(val.size() - 4).c_str(), val.size());
+				MemUtils::WriteProcMem(playerFactionAddr, val.erase(val.size() - 4).c_str(), val.size());
 			}
 			else
 			{
-				WriteProcMem(playerFactionAddr, "player", 6);
+				MemUtils::WriteProcMem(playerFactionAddr, "player", 6);
 			}
 		}
 	}

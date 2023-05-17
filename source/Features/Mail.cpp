@@ -2,7 +2,7 @@
 #include "Features/Mail.hpp"
 #include "Global.hpp"
 #include "Helpers/Client.hpp"
-#include "Tools/Utils.hpp"
+
 
 std::string MailManager::GetCharacterName(const std::variant<uint, std::wstring>& character) const
 {

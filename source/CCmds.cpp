@@ -7,7 +7,7 @@
 #include "Helpers/Player.hpp"
 #include "Helpers/Chat.hpp"
 #include "Helpers/Solar.hpp"
-#include "Tools/Utils.hpp"
+
 
 #define RIGHT_CHECK(a)              \
 	if (!(this->rights & a))        \

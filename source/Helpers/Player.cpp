@@ -12,7 +12,7 @@
 #include "Helpers/Ini.hpp"
 #include "Helpers/Math.hpp"
 #include "Helpers/Time.hpp"
-#include "Tools/Utils.hpp"
+
 
 
 namespace Hk::Player
@@ -378,9 +378,9 @@ namespace Hk::Player
 		void* jmp = (char*)server + 0x7EFA8;
 		const char Nop[2] = {'\x90', '\x90'};
 		const char TestAlAl[2] = {'\x74', '\x44'};
-		WriteProcMem(jmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
+		MemUtils::WriteProcMem(jmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
 		pub::Save(client, 1);
-		WriteProcMem(jmp, TestAlAl, sizeof(TestAlAl)); // restore
+		MemUtils::WriteProcMem(jmp, TestAlAl, sizeof(TestAlAl)); // restore
 
 		return {};
 	}
@@ -1640,7 +1640,7 @@ namespace Hk::Player
 	void SaveChar(ClientId client)
 	{
 		const BYTE patch[] = {0x90, 0x90};
-		WriteProcMem((char*)server + 0x7EFA8, patch, sizeof(patch));
+		MemUtils::WriteProcMem((char*)server + 0x7EFA8, patch, sizeof(patch));
 		pub::Save(client, 1);
 	}
 

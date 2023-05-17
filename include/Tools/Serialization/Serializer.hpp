@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "refl.hpp"
-#include "Tools/Utils.hpp"
+
 
 // A base class/struct used for denoting that a class can be scanned.
 // Reflectable values are int, uint, bool, float, string, Reflectable, and std::vectors of the previous types.

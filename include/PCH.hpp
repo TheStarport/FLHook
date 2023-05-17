@@ -31,6 +31,7 @@
 
 #include "Tools/Structs.hpp"
 #include "Tools/Concepts.hpp"
+#include "Tools/Utils.hpp"
 
 #include <magic_enum.hpp>
 #include <ext/Singleton.h>

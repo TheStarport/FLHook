@@ -3,7 +3,7 @@
 
 #include "Helpers/Client.hpp"
 
-#include "Tools/Utils.hpp"
+
 
 namespace Hk::Client
 {
@@ -325,11 +325,11 @@ namespace Hk::Client
 		st6::wstring fr((ushort*)accountId.value().c_str());
 
 		if (!kick)
-			WriteProcMem((void*)0x06D52A6A, jmp.data(), 1);
+			MemUtils::WriteProcMem((void*)0x06D52A6A, jmp.data(), 1);
 
 		Players.LockAccountAccess(fr); // also kicks player on this account
 		if (!kick)
-			WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
+			MemUtils::WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
 
 		return {};
 	}
@@ -354,12 +354,12 @@ namespace Hk::Client
 		items.clear();
 		const std::array<char, 2> nop = {'\x90', '\x90'};
 		const std::array<char, 2> jnz = {'\x75', '\x1D'};
-		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
+		MemUtils::WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
 
 		std::array<int, 1024> arr;
 		int size = 256;
 		pub::Market::GetCommoditiesForSale(baseId, reinterpret_cast<uint* const>(arr.data()), &size);
-		WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), jnz.data(), 2);
+		MemUtils::WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), jnz.data(), 2);
 
 		for (int i = 0; (i < size); i++)
 			items.push_back(arr[i]);

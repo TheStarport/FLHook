@@ -7,7 +7,7 @@
 
 #include "Defs/FLHookConfig.hpp"
 #include "Features/DataManager.hpp"
-#include "Tools/Utils.hpp"
+
 
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
@@ -56,18 +56,18 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 		// redirect IServerImpl::Update
 		const auto fpLoop = IServerImplHook::Update;
 		auto address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_UPDATE;
-		ReadProcMem(address, &fpOldUpdate, 4);
-		WriteProcMem(address, &fpLoop, 4);
+		MemUtils::ReadProcMem(address, &fpOldUpdate, 4);
+		MemUtils::WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook
 		const auto fpStartup = reinterpret_cast<FARPROC>(IServerImplHook::Startup);
 		address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_STARTUP;
-		WriteProcMem(address, &fpStartup, 4);
+		MemUtils::WriteProcMem(address, &fpStartup, 4);
 
 		// install shutdown hook
 		const auto fpShutdown = reinterpret_cast<FARPROC>(IServerImplHook::Shutdown);
 		address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_SHUTDOWN;
-		WriteProcMem(address, &fpShutdown, 4);
+		MemUtils::WriteProcMem(address, &fpShutdown, 4);
 
 		// create log dirs
 		CreateDirectoryA("./logs/", nullptr);
@@ -82,7 +82,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 init
 **************************************************************************************************************/
 
-const std::array<const char*, 6> PluginLibs = {
+const std::array PluginLibs = {
 	"pcre2-posix.dll",
 	"pcre2-8.dll",
 	"pcre2-16.dll",
@@ -217,7 +217,7 @@ void FLHookShutdown()
 
 	// unload update hook
 	auto* address = static_cast<void*>((char*)hProcFL + ADDR_UPDATE);
-	WriteProcMem(address, &fpOldUpdate, 4);
+	MemUtils::WriteProcMem(address, &fpOldUpdate, 4);
 
 	// unload hooks
 	UnloadHookExports();

@@ -219,9 +219,9 @@ namespace Plugins::MiningControl
 		// Patch Archetype::GetEquipment & Archetype::GetShip to suppress annoying
 		// warnings flserver-errors.log
 		const unsigned char patch1[] = {0x90, 0x90};
-		WriteProcMem((char*)0x62F327E, &patch1, 2);
-		WriteProcMem((char*)0x62F944E, &patch1, 2);
-		WriteProcMem((char*)0x62F123E, &patch1, 2);
+		MemUtils::WriteProcMem((char*)0x62F327E, &patch1, 2);
+		MemUtils::WriteProcMem((char*)0x62F944E, &patch1, 2);
+		MemUtils::WriteProcMem((char*)0x62F123E, &patch1, 2);
 
 		auto config = Serializer::JsonToObject<Config>();
 
@@ -349,9 +349,9 @@ namespace Plugins::MiningControl
 
 		// Remove patch now that we've finished loading.
 		const unsigned char patch2[] = {0xFF, 0x12};
-		WriteProcMem((char*)0x62F327E, &patch2, 2);
-		WriteProcMem((char*)0x62F944E, &patch2, 2);
-		WriteProcMem((char*)0x62F123E, &patch2, 2);
+		MemUtils::WriteProcMem((char*)0x62F327E, &patch2, 2);
+		MemUtils::WriteProcMem((char*)0x62F944E, &patch2, 2);
+		MemUtils::WriteProcMem((char*)0x62F123E, &patch2, 2);
 
 		PlayerData* playerData = nullptr;
 		while ((playerData = Players.traverse_active(playerData)))

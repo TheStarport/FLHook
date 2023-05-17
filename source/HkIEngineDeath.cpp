@@ -3,7 +3,7 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
-#include "Tools/Utils.hpp"
+
 
 std::wstring SetSizeToSmall(const std::wstring& DataFormat)
 {

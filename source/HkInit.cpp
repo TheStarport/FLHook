@@ -6,7 +6,7 @@
 #include "Helpers/Admin.hpp"
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
-#include "Tools/Utils.hpp"
+
 
 namespace IEngineHook
 {
@@ -127,7 +127,7 @@ bool Patch(PatchInfo& pi)
 			pi.piEntries[i].allocated = false;
 
 		ReadProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
-		WriteProcMem(address, &pi.piEntries[i].newValue, pi.piEntries[i].size);
+		MemUtils::WriteProcMem(address, &pi.piEntries[i].newValue, pi.piEntries[i].size);
 	}
 
 	return true;
@@ -147,7 +147,7 @@ bool RestorePatch(PatchInfo& pi)
 			break;
 
 		char* address = (char*)hMod + (pi.piEntries[i].address - pi.baseAddress);
-		WriteProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
+		MemUtils::WriteProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
 		if (pi.piEntries[i].allocated)
 			delete[] pi.piEntries[i].oldValue;
 	}
@@ -285,7 +285,7 @@ bool InitHookExports()
 	{
 		char* address = serverPointer + IServerImplEntries[i].remoteAddress;
 		ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
-		WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
+		MemUtils::WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
 	}
 
 	// patch it
@@ -302,7 +302,7 @@ bool InitHookExports()
 	const char NOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
 	char* address = ((char*)server + ADDR_SRV_REPARRAYFREE);
 	ReadProcMem(address, RepFreeFixOld, 5);
-	WriteProcMem(address, NOPs, 5);
+	MemUtils::WriteProcMem(address, NOPs, 5);
 
 	// patch flserver so it can better handle faulty house entries in char files
 
@@ -310,7 +310,7 @@ bool InitHookExports()
 	address = SRV_ADDR(0x679C6);
 	const char DivertJump[] = {'\x6F'};
 
-	WriteProcMem(address, DivertJump, 1);
+	MemUtils::WriteProcMem(address, DivertJump, 1);
 
 	// install hook at new address
 	address = SRV_ADDR(0x78B39);
@@ -320,9 +320,9 @@ bool InitHookExports()
 
 	const auto fpLoadRepFromCharFile = (FARPROC)IEngineHook::Naked__LoadReputationFromCharacterFile;
 
-	WriteProcMem(address, MovEAX, 1);
-	WriteProcMem(address + 1, &fpLoadRepFromCharFile, 4);
-	WriteProcMem(address + 5, JMPEAX, 2);
+	MemUtils::WriteProcMem(address, MovEAX, 1);
+	MemUtils::WriteProcMem(address + 1, &fpLoadRepFromCharFile, 4);
+	MemUtils::WriteProcMem(address + 5, JMPEAX, 2);
 
 	IEngineHook::g_OldLoadReputationFromCharacterFile = (FARPROC)SRV_ADDR(0x78B40);
 
@@ -343,7 +343,7 @@ bool InitHookExports()
 		// disables the "old" "A Player has died: ..." chatConfig
 		const char JMP[] = {'\xEB'};
 		address = SRV_ADDR(ADDR_ANTIdIEMSG);
-		WriteProcMem(address, JMP, 1);
+		MemUtils::WriteProcMem(address, JMP, 1);
 	}
 
 	// charfile encyption(doesn't get disabled when unloading FLHook)
@@ -351,9 +351,9 @@ bool InitHookExports()
 	{
 		const char Buf[] = {'\x14', '\xB3'};
 		address = SRV_ADDR(ADDR_DISCFENCR);
-		WriteProcMem(address, Buf, 2);
+		MemUtils::WriteProcMem(address, Buf, 2);
 		address = SRV_ADDR(ADDR_DISCFENCR2);
-		WriteProcMem(address, Buf, 2);
+		MemUtils::WriteProcMem(address, Buf, 2);
 	}
 
 	// maximum group size
@@ -361,9 +361,9 @@ bool InitHookExports()
 	{
 		const char newGroupSize = FLHookConfig::i()->general.maxGroupSize & 0xFF;
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE);
-		WriteProcMem(address, &newGroupSize, 1);
+		MemUtils::WriteProcMem(address, &newGroupSize, 1);
 		address = SRV_ADDR(ADDR_SRV_MAXGROUPSIZE2);
-		WriteProcMem(address, &newGroupSize, 1);
+		MemUtils::WriteProcMem(address, &newGroupSize, 1);
 	}
 
 	// get client proxy array, used to retrieve player pings/ips
@@ -390,11 +390,11 @@ bool InitHookExports()
 
 	// Fix Refire bug
 	const std::array<byte, 22> refireBytes = {0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB};
-	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
+	MemUtils::WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 
 	// Enable undocking announcer regardless of distance
 	const std::array<byte, 1> undockAnnouncerBytes = {0xEB};
-	WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
+	MemUtils::WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
 
 	return true;
 }
@@ -406,7 +406,7 @@ void PatchClientImpl()
 	HookClient = &Client;
 
 	memcpy(&OldClient, &Client, 4);
-	WriteProcMem(&Client, FakeClient, 4);
+	MemUtils::WriteProcMem(&Client, FakeClient, 4);
 }
 
 /**************************************************************************************************************
@@ -424,7 +424,7 @@ void UnloadHookExports()
 		for (uint i = 0; i < std::size(IServerImplEntries); i++)
 		{
 			const auto address = serverAddr + IServerImplEntries[i].remoteAddress;
-			WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
+			MemUtils::WriteProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		}
 	}
 
@@ -443,7 +443,7 @@ void UnloadHookExports()
 
 	// unpatch rep array free
 	address = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
-	WriteProcMem(address, RepFreeFixOld, 5);
+	MemUtils::WriteProcMem(address, RepFreeFixOld, 5);
 
 	// unpatch flserver so it can better handle faulty house entries in char
 	// files
@@ -455,16 +455,16 @@ void UnloadHookExports()
 	// anti-death-msg
 	const char Old[] = {'\x74'};
 	address = SRV_ADDR(ADDR_ANTIdIEMSG);
-	WriteProcMem(address, Old, 1);
+	MemUtils::WriteProcMem(address, Old, 1);
 
 	// plugins
 	PluginManager::i()->UnloadAll();
 
 	// Undo refire bug
 	const std::array<byte, 22> refireBytes = {0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0};
-	WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
+	MemUtils::WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 
 	// undocking announcer regardless of distance
 	const std::array<byte, 1> undockAnnouncerBytes = {0x74};
-	WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
+	MemUtils::WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
 }
