@@ -59,22 +59,53 @@ class AdminCommandProcessor
 	};
 	std::map<std::string, std::vector<std::string_view>> credentialsMap;
 
-
 #define AddCommand(func) wrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam
 
 	cpp::result<nlohmann::json, nlohmann::json> SetCash(std::string_view characterName, uint amount);
 	cpp::result<nlohmann::json, nlohmann::json> GetCash(std::string_view characterName);
 	cpp::result<nlohmann::json, nlohmann::json> KickPlayer(std::string_view characterName, std::string_view reason);
 	cpp::result<nlohmann::json, nlohmann::json> BanPlayer(std::string_view characterName);
+	cpp::result<nlohmann::json, nlohmann::json> TempbanPlayer(std::string_view characterName, uint duration);
+	cpp::result<nlohmann::json, nlohmann::json> UnBanPlayer(std::string_view characterName);
+	cpp::result<nlohmann::json, nlohmann::json> GetClientId(std::string_view characterName);
+	cpp::result<nlohmann::json, nlohmann::json> KillPlayer(std::string_view characterName);
+	cpp::result<nlohmann::json, nlohmann::json> SetRep(std::string_view characterName, const std::wstring& repGroup, float value);
+	cpp::result<nlohmann::json, nlohmann::json> ResetRep(std::string_view characterName, const std::wstring& repGroup);
+	cpp::result<nlohmann::json, nlohmann::json> GetRep(std::string_view characterName, const std::wstring& repGroup);
+	cpp::result<nlohmann::json, nlohmann::json> MessagePlayer(std::string_view characterName, const std::wstring& text);
+	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(const std::wstring& systemName, const std::wstring& text);
+	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(const std::wstring text);
 
-	//Commands and functions MUST be in the same order as compile time iteration assumes same indexes. 
-	constexpr static std::array<std::string_view, 4> commands = {"getcash"sv, "setcash"sv, "kick"sv, "ban"sv};
-	const std::array<cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params), 4> funcs = {
+	// Commands and functions MUST be in the same order as compile time iteration assumes same indexes.
+	constexpr static std::array<std::string_view, 14> commands = {"getcash"sv,
+	    "setcash"sv,
+	    "kick"sv,
+	    "ban"sv,
+	    "tempban"sv,
+	    "unban"sv,
+	    "getclientId"sv,
+	    "killplayer"sv,
+	    "resetrep"sv,
+	    "getrep"sv,
+	    "messageplayer"sv,
+	    "messagesystem"sv,
+	    "messageuniverse"sv};
+
+	const std::array<cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params), 14> funcs = {
 	    AddCommand(GetCash),
 	    AddCommand(SetCash),
 	    AddCommand(KickPlayer),
-	    AddCommand(BanPlayer)
-	};
+	    AddCommand(BanPlayer),
+	    AddCommand(TempbanPlayer),
+	    AddCommand(UnBanPlayer),
+	    AddCommand(GetClientId),
+	    AddCommand(KillPlayer),
+	    AddCommand(SetRep),
+	    AddCommand(ResetRep),
+	    AddCommand(GetRep),
+	    AddCommand(MessagePlayer),
+	    AddCommand(SendSystemMessage),
+	    AddCommand(SendUniverseMessage)};
 
 #undef AddCommand
 

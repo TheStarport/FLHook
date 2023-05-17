@@ -1,11 +1,11 @@
 #include "PCH.hpp"
 #include <ranges>
 #include "Features/AdminCommandProcessor.hpp"
-
 #include <nlohmann/json.hpp>
-
+#include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
 #include "Tools/Utils.hpp"
+#include "Helpers/Chat.hpp"
 
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
@@ -52,6 +52,102 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std
 		return nlohmann::json {{"err", res.error()}};
 	}
 	return nlohmann::json {{"res", std::format("{} has been successfully banned.", characterName)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer(std::string_view characterName, uint duration)
+{
+	if (const auto res = Hk::Player::Ban(stows(ViewToString(characterName)), true); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("{} has been successfully banned. for duration of {}", characterName, duration)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnBanPlayer(std::string_view characterName)
+{
+	if (const auto res = Hk::Player::Ban(stows(ViewToString(characterName)), false); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("{} has been successfully unbanned.", characterName)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetClientId(std::string_view characterName)
+{
+	auto client = Hk::Client::GetClientIdFromCharName(stows(ViewToString(characterName)));
+	if (client.has_error())
+	{
+		return nlohmann::json {{"err", client.error()}};
+	}
+	return nlohmann::json {{"res", client.value()}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KillPlayer(std::string_view characterName)
+{
+	const auto res = Hk::Player::Kill(stows(ViewToString(characterName)));
+	if (res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("{} successfully killed", characterName)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::string_view characterName, const std::wstring& repGroup, float value)
+{
+	const auto res = Hk::Player::SetRep(stows(ViewToString(characterName)), repGroup, value);
+	if (res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+
+	return nlohmann::json {{"res", std::format("{}'s reputation with {} set to {}", characterName, wstos(repGroup), value)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std::string_view characterName, const std::wstring& repGroup)
+{
+	if (const auto res = Hk::Player::ResetRep(stows(ViewToString(characterName))); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("{}'rep to {} reset", characterName, wstos(repGroup))}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::string_view characterName, const std::wstring& repGroup)
+{
+	const auto res = Hk::Player::GetRep(stows(ViewToString(characterName)), repGroup);
+
+	if (res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, wstos(repGroup), res.value())}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MessagePlayer(std::string_view characterName, const std::wstring& text)
+{
+	if (const auto res = Hk::Chat::Msg(stows(ViewToString(characterName)), text); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("Message sent to {} successfully sent", characterName)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMessage(const std::wstring& systemName, const std::wstring& text)
+{
+	if (const auto res = Hk::Chat::MsgS(systemName, text); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseMessage(const std::wstring text)
+{
+	if (const auto res = Hk::Chat::MsgU(text); res.has_error())
+	{
+		return nlohmann::json {{"err", res.error()}};
+	}
+	return nlohmann::json {{"res", std::format("Message Sent to Server.")}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::string_view characterName, uint amount)
