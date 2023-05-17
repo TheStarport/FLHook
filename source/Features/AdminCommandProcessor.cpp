@@ -4,7 +4,6 @@
 #include <nlohmann/json.hpp>
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
-
 #include "Helpers/Chat.hpp"
 
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
@@ -30,7 +29,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::
 	{
 		return cpp::fail(nlohmann::json {{"err", res.error()}});
 	}
-	return nlohmann::json {{"res", std::format("{} has been set {} credits.", characterName, res.value())}};
+	return nlohmann::json {{"res", std::format("{} has been set {} credits.", characterName, res.value()), {characterName, res.value}}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(std::string_view characterName, std::string_view reason)
@@ -41,7 +40,8 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(st
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{} has been successfully kicked. Reason: {}", characterName, reason)}};
+	return nlohmann::json {
+	    {"res", std::format("{} has been successfully kicked. Reason: {}", characterName, reason)}, {"KickedCharacter", characterName}, {"reason", reason}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std::string_view characterName)
@@ -51,7 +51,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{} has been successfully banned.", characterName)}};
+	return nlohmann::json {{"res", std::format("{} has been successfully banned.", characterName)}, {"BannedCharacter", characterName}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer(std::string_view characterName, uint duration)
@@ -60,7 +60,9 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{} has been successfully banned. for duration of {}", characterName, duration)}};
+	return nlohmann::json {{"res", std::format("{} has been successfully banned. for duration of {}", characterName, duration)},
+	    {"characterName", characterName},
+	    {"duration", duration}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnBanPlayer(std::string_view characterName)
@@ -79,7 +81,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetClientId(s
 	{
 		return nlohmann::json {{"err", client.error()}};
 	}
-	return nlohmann::json {{"res", client.value()}};
+	return nlohmann::json {{"res", client.value()}, {characterName, client.value()}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KillPlayer(std::string_view characterName)
@@ -105,11 +107,13 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::s
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std::string_view characterName, const std::wstring& repGroup)
 {
-	if (const auto res = Hk::Player::ResetRep(stows(ViewToString(characterName))); res.has_error())
+	const auto res = Hk::Player::ResetRep(stows(ViewToString(characterName)));
+	if (res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{}'rep to {} reset", characterName, wstos(repGroup))}};
+	return nlohmann::json {
+	    {"res", std::format("{}'rep to {} reset", characterName, wstos(repGroup))}, {"repGroup", repGroup}, {"characterName", characterName}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::string_view characterName, const std::wstring& repGroup)
@@ -120,7 +124,10 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::s
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, wstos(repGroup), res.value())}};
+	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, wstos(repGroup), res.value())},
+	    {"repGroup", repGroup},
+	    {"reputation", res.value()},
+	    {"characterName", characterName}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MessagePlayer(std::string_view characterName, const std::wstring& text)
@@ -129,7 +136,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MessagePlayer
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("Message sent to {} successfully sent", characterName)}};
+	return nlohmann::json {{"res", std::format("Message sent to {} successfully sent", characterName)}, {"receiver", characterName}, {"message", text}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMessage(const std::wstring& systemName, const std::wstring& text)
@@ -138,7 +145,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMes
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}};
+	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}, {"systemName", systemName}, {"message", text}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseMessage(const std::wstring text)
@@ -147,7 +154,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseM
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("Message Sent to Server.")}};
+	return nlohmann::json {{"res", std::format("Message Sent to Server.")}, {"message"}, text};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::string_view characterName, uint amount)
@@ -164,5 +171,5 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::
 	{
 		return cpp::fail(nlohmann::json {{"err", res.error()}});
 	}
-	return nlohmann::json {{"res", std::format("{} cash set to {} credits", characterName, amount)}};
-}
+	return nlohmann::json {{"res", std::format("{} cash set to {} credits", characterName, amount)}, {"characterName", characterName}, {"amount", amount}};
+};
