@@ -59,6 +59,6 @@ var searchData=
   ['storereturnpointforclient_56',['StoreReturnPointForClient',['../group___arena.html#gaba4aed0e9d39651efd4cbd7fbb139672',1,'Plugins::Arena']]],
   ['submitchat_57',['SubmitChat',['../namespace_i_server_impl_hook.html#a1dc8379ef4be4cda49324b246432c859',1,'IServerImplHook::SubmitChat()'],['../namespace_plugins_1_1_afk.html#a25378f497136711fac6282d0ddf2a0b6',1,'Plugins::Afk::SubmitChat()'],['../group___message.html#ga6e49df30741af21a4492cfa333f6108f',1,'Plugins::Message::SubmitChat()']]],
   ['submitchat_5f_5finner_58',['SubmitChat__Inner',['../namespace_i_server_impl_hook.html#af684798526e954f931c427807f4cdfea',1,'IServerImplHook']]],
-  ['systemswitchoutcomplete_59',['SystemSwitchOutComplete',['../namespace_i_server_impl_hook.html#a66ccf8f4d6d0214685ae243008ab1520',1,'IServerImplHook::SystemSwitchOutComplete()'],['../group___anti_jump_disconnect.html#ga4e280d602db4134e12665312d5fae509',1,'Plugins::AntiJumpDisconnect::SystemSwitchOutComplete()']]],
+  ['systemswitchoutcomplete_59',['SystemSwitchOutComplete',['../namespace_i_server_impl_hook.html#a66ccf8f4d6d0214685ae243008ab1520',1,'IServerImplHook::SystemSwitchOutComplete()'],['../group___anti_jump_disconnect.html#gad0ea70d249b8a18a43e3671c55e158ad',1,'Plugins::AntiJumpDisconnect::SystemSwitchOutComplete()']]],
   ['systemswitchoutcomplete_5f_5finnerafter_60',['SystemSwitchOutComplete__InnerAfter',['../namespace_i_server_impl_hook.html#a1f90f072a101634b07c006d986b29632',1,'IServerImplHook']]]
 ];
