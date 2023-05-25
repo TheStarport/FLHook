@@ -1720,24 +1720,24 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_CREATEGUIDED& guided)
 {
 	Logger::i()->Log(LogLevel::Trace,
 	    wstos(std::format(
 	        L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n)", client)));
 
-	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, _genArg1);
+	auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, guided);
 
 	if (!skip)
 	{
 		CALL_CLIENT_PREAMBLE
 		{
-			retVal = Send_FLPACKET_SERVER_CREATEGUIDED(client, _genArg1);
+			retVal = Send_FLPACKET_SERVER_CREATEGUIDED(client, guided);
 		}
 		CALL_CLIENT_POSTAMBLE;
 	}
 
-	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, _genArg1);
+	CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, guided);
 
 	return retVal;
 }
@@ -1854,7 +1854,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(ClientId client, XActivate
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& systemSwitchOut)
 {
 	Logger::i()->Log(LogLevel::Trace,
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tClientId client = {}\n)",
@@ -1863,14 +1863,14 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(ClientId client, FLPACK
 	bool retVal;
 	CALL_CLIENT_PREAMBLE
 	{
-		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, _genArg1);
+		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, systemSwitchOut);
 	}
 	CALL_CLIENT_POSTAMBLE;
 
 	return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(ClientId client, FLPACKET_SYSTEM_SWITCH_IN& systemSwitchIn)
 {
 	Logger::i()->Log(LogLevel::Trace,
 	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tClientId client = {}\n)",
@@ -1879,7 +1879,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(ClientId client, FLPACKE
 	bool retVal;
 	CALL_CLIENT_PREAMBLE
 	{
-		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, _genArg1);
+		retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, systemSwitchIn);
 	}
 	CALL_CLIENT_POSTAMBLE;
 
