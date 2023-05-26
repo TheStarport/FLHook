@@ -36,16 +36,14 @@ namespace Plugins::CargoDrop
 		int maxPlayerCargoDropCount = 3000; 
 		//! Distance used to decide if report/player death should occur based on proximity to other players.
 		float disconnectingPlayersRange = 5000.0f;
-		//! Ratio of ship's unused cargo space to 'ship parts' commodities left behind on death, specified in hullDrop1NickName and hullDrop2NickName.
+		//! Ratio of ship's mass space to 'ship parts' commodities left behind on death, specified in playerOnDeathCargo. The number of items dropped of each type is equal to ship mass multiplied by hullDropFactor.
 		float hullDropFactor = 0.1f;
 		//! Message broadcasted to nearby players upon disconnect if reportDisconnectingPlayers is true.
 		std::string disconnectMsg = "%player is attempting to engage cloaking device";
 		//! Nickname of loot container model containing cargo/ship parts left behind upon death/disconnection.
 		std::string cargoDropContainer = "lootcrate_ast_loot_metal";
-		//! Ship parts commodity left behind on death if hullDropFactor is above zero.
-		std::string hullDrop1NickName = "commodity_super_alloys";
-		//! Ship parts commodity left behind on death if hullDropFactor is above zero.
-		std::string hullDrop2NickName = "commodity_engine_components";
+		//! Contains a list of nicknames of items that will always be dropped into space when a player is destroyed if hullDropFactor is above zero.
+		std::vector<std::string> playerOnDeathCargo = {"commodity_super_alloys", "commodity_engine_components"};
 		//! Contains a list of nicknames of items that will not be dropped into space under any circumstances.
 		std::vector<std::string> noLootItems = {};
 	};
@@ -61,9 +59,13 @@ namespace Plugins::CargoDrop
 		std::map<uint, Info> info;
 		//! The id of the container to drop
 		uint cargoDropContainerId;
-		//! These two ids are commodities to represent the ship after destruction
-		uint hullDrop1NickNameId;
-		uint hullDrop2NickNameId;
+		//! This id is for commodities to represent the ship after destruction
+		std::vector<uint> playerOnDeathCargo;
+
+		//uint hullDrop1NickNameId;
+		//uint hullDrop2NickNameId;
+		//uint hullDrop3NickNameId;
+
 		//! Items we don't want to be looted
 		std::vector<uint> noLootItemsIds;
 	};
