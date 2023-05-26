@@ -17,8 +17,7 @@
  *   "cargoDropContainer": "lootcrate_ast_loot_metal",
  *   "disconnectMsg": "%player is attempting to engage cloaking device",
  *   "disconnectingPlayersRange": 5000.0,
- *   "hullDrop1NickName": "commodity_super_alloys",
- *   "hullDrop2NickName": "commodity_engine_components",
+ *   "playerOnDeathCargo": ["commodity_super_alloys", "commodity_engine_components"]
  *   "hullDropFactor": 0.1,
  *   "killDisconnectingPlayers": true,
  *   "lootDisconnectingPlayers": true,
@@ -44,9 +43,8 @@ namespace Plugins::CargoDrop
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
-		global->cargoDropContainerId = CreateID(config.cargoDropContainer.c_str());
-		global->hullDrop1NickNameId = CreateID(config.hullDrop1NickName.c_str());
-		global->hullDrop2NickNameId = CreateID(config.hullDrop2NickName.c_str());
+		for (const auto& cargo : config.playerOnDeathCargo)
+			global->playerOnDeathCargo.push_back(CreateID(cargo.c_str()));
 
 		for (const auto& noLootItem : config.noLootItems)
 			global->noLootItemsIds.push_back(CreateID(noLootItem.c_str()));
@@ -145,41 +143,40 @@ namespace Plugins::CargoDrop
 			return;
 
 		int remainingHoldSize;
-		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize);
+		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize); 
 		if (cargo.has_error())
 			return;
-
-		uint ship = Hk::Player::GetShip(clientVictim).value();
-		auto [position, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
+				
+		auto ship = Archetype::GetShip(Hk::Player::GetShipID(clientVictim).value());
+		auto [position, _] = Hk::Solar::GetLocation(Hk::Player::GetShip(clientVictim).value(), IdType::Ship).value();
 		position.x += 30.0f;
 
-		int shipSizeEstimate = remainingHoldSize;
 		if (global->config->enablePlayerCargoDropOnDeath)
 		{
 			for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 			{
 				if (!mounted)
 				{
-					shipSizeEstimate += count;
 					if (!mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 						Server.MineAsteroid(
 						    system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
 				}
 			}
 		}
-		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
+		if (const auto hullDropTotal = static_cast<int>(global->config->hullDropFactor * static_cast<float>(ship->fMass)); hullDropTotal > 0)
 		{
 			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
+				Console::ConDebug(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
 				    system,
 				    position.x,
 				    position.y,
 				    position.z,
-				    shipSizeEstimate,
-				    hullDrop));
+				    ship->fMass,
+				    hullDropTotal));
 
-			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop1NickNameId, hullDrop, clientKiller);
-			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast<int>(0.5 * hullDrop), clientKiller);
+			for (const auto& cargo : global->playerOnDeathCargo)
+				Server.MineAsteroid(system, position, global->cargoDropContainerId, cargo, static_cast<int>(hullDropTotal), clientKiller);
+
 		}
 	}
 
@@ -206,7 +203,8 @@ namespace Plugins::CargoDrop
 
 using namespace Plugins::CargoDrop;
 REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
-    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems),
+    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(playerOnDeathCargo),
+    field(noLootItems),
     field(enablePlayerCargoDropOnDeath), field(maxPlayerCargoDropCount))
 
 DefaultDllMainSettings(LoadSettings);
