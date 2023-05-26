@@ -3,7 +3,7 @@
  * @author Cannon (Ported by Raikkonen 2022)
  * @defgroup CargoDrop Cargo Drop
  * @brief
- * The "Cargo Drop" plugin handles consequences to a player who disconnects whilst in space.
+ * The "Cargo Drop" plugin handles consequences for a player who disconnects whilst in space and allows servers to ensure that cargo items are dropped on player death rather than lost. Is also allows server owners to set additional commodities that are spawned as loot when a player ship dies based on hull mass (i.e. salvage).
  *
  * @paragraph cmds Player Commands
  * There are no player commands in this plugin.
