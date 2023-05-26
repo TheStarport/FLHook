@@ -61,11 +61,6 @@ namespace Plugins::CargoDrop
 		uint cargoDropContainerId;
 		//! This id is for commodities to represent the ship after destruction
 		std::vector<uint> playerOnDeathCargo;
-
-		//uint hullDrop1NickNameId;
-		//uint hullDrop2NickNameId;
-		//uint hullDrop3NickNameId;
-
 		//! Items we don't want to be looted
 		std::vector<uint> noLootItemsIds;
 	};
