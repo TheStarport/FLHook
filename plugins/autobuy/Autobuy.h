@@ -18,6 +18,7 @@ namespace Plugins::Autobuy
 		bool cm;
 		bool bb;
 		bool repairs;
+		bool shells;
 	};
 
 	struct AutobuyCartItem
