@@ -45,6 +45,7 @@ namespace Plugins::Autobuy
 		playerAutobuyInfo.cm = Hk::Ini::GetCharacterIniBool(client, L"autobuy.cm");
 		playerAutobuyInfo.bb = Hk::Ini::GetCharacterIniBool(client, L"autobuy.bb");
 		playerAutobuyInfo.repairs = Hk::Ini::GetCharacterIniBool(client, L"autobuy.repairs");
+		playerAutobuyInfo.shells = Hk::Ini::GetCharacterIniBool(client, L"autobuy.shells");
 		global->autobuyInfo[client] = playerAutobuyInfo;
 	}
 
@@ -226,7 +227,7 @@ namespace Plugins::Autobuy
 			}
 		}
 
-		if (clientInfo.cd || clientInfo.cm || clientInfo.mines || clientInfo.missiles || clientInfo.torps)
+		if (clientInfo.cd || clientInfo.cm || clientInfo.mines || clientInfo.missiles || clientInfo.torps || clientInfo.shells)
 		{
 			// add mounted equip to a new list and eliminate double equipment(such
 			// as 2x lancer etc)
@@ -286,6 +287,12 @@ namespace Plugins::Autobuy
 					case ET_MISSILE: {
 						if (clientInfo.missiles)
 							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Missiles");
+
+						break;
+					}
+					case ET_GUN: {
+						if (clientInfo.shells)
+							AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo.value(), cartList, aci, L"Shells");
 
 						break;
 					}
@@ -401,6 +408,7 @@ namespace Plugins::Autobuy
 			PrintUserCmdText(client, L"|  missiles - enable/disable autobuy for missiles");
 			PrintUserCmdText(client, L"|  torps - enable/disable autobuy for torpedos");
 			PrintUserCmdText(client, L"|  mines - enable/disable autobuy for mines");
+			PrintUserCmdText(client, L"|  shells - enable/disable autobuy for shells and miscellaneous ammo");
 			PrintUserCmdText(client, L"|  cd - enable/disable autobuy for cruise disruptors");
 			PrintUserCmdText(client, L"|  cm - enable/disable autobuy for countermeasures");
 			PrintUserCmdText(client, L"|  bb - enable/disable autobuy for nanobots/shield batteries");
@@ -416,6 +424,7 @@ namespace Plugins::Autobuy
 		{
 			PrintUserCmdText(client, std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
+			PrintUserCmdText(client, std::format(L"Shells: {}", autobuyInfo.shells ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
 			PrintUserCmdText(client, std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
@@ -438,6 +447,7 @@ namespace Plugins::Autobuy
 		{
 			autobuyInfo.missiles = enable;
 			autobuyInfo.mines = enable;
+			autobuyInfo.shells = enable;
 			autobuyInfo.torps = enable;
 			autobuyInfo.cd = enable;
 			autobuyInfo.cm = enable;
@@ -445,6 +455,7 @@ namespace Plugins::Autobuy
 			autobuyInfo.repairs = enable;
 			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.shells", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", stows(enable ? "true" : "false"));
 			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", stows(enable ? "true" : "false"));
@@ -460,6 +471,11 @@ namespace Plugins::Autobuy
 		{
 			autobuyInfo.mines = enable;
 			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", stows(enable ? "true" : "false"));
+		}
+		else if (autobuyType == L"shells")
+		{
+			autobuyInfo.mines = enable;
+			Hk::Ini::SetCharacterIni(client, L"autobuy.shells", stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"torps")
 		{
