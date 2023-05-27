@@ -41,7 +41,7 @@ class AdminCommandProcessor
 	        AddCommand("getrep", GetRep),
 	        AddCommand("msg", MessagePlayer),
 	        AddCommand("msgs", SendSystemMessage),
-	        AddCommand("msgu", SendUniverseMessage)
+	        AddCommand("msgu", SendUniverseMessage),
 	    }
 	};	    
 

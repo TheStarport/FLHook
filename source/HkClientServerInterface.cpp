@@ -64,7 +64,7 @@ namespace IServerImplHook
 			firstTime = false;
 		}
 
-		const auto currentTime = Hk::Time::GetUnixMiliseconds();
+		const auto currentTime = TimeUtils::UnixMilliseconds();
 		for (auto& timer : Timer::timers)
 		{
 			// This one isn't actually in seconds, but the plugins should be
