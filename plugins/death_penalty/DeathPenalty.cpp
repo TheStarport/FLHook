@@ -259,13 +259,13 @@ namespace Plugins::DeathPenalty
 		const auto param = ViewToWString(Param);
 		if (Param.length()) // Arguments passed
 		{
-			if (ToLower(Trim(param)) == L"off")
+			if (StringUtils::ToLower(Trim(param)) == L"off")
 			{
 				global->MapClients[client].displayDPOnLaunch = false;
 				SaveDPNoticeToCharFile(client, "no");
 				PrintUserCmdText(client, L"Death penalty notices disabled.");
 			}
-			else if (ToLower(Trim(param)) == L"on")
+			else if (StringUtils::ToLower(Trim(param)) == L"on")
 			{
 				global->MapClients[client].displayDPOnLaunch = true;
 				SaveDPNoticeToCharFile(client, "yes");

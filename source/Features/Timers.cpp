@@ -13,8 +13,6 @@
 #include "Helpers/Admin.hpp"
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
-#include "Helpers/Time.hpp"
-
 
 PerfTimer::PerfTimer(const std::string& func, uint warn) : function(func), warning(warn)
 {
@@ -22,12 +20,12 @@ PerfTimer::PerfTimer(const std::string& func, uint warn) : function(func), warni
 
 void PerfTimer::Start()
 {
-	tmStart = Hk::Time::GetUnixMiliseconds();
+	tmStart = TimeUtils::UnixMilliseconds();
 }
 
 uint PerfTimer::Stop()
 {
-	auto timeDelta = static_cast<uint>(Hk::Time::GetUnixMiliseconds() - tmStart);
+	auto timeDelta = static_cast<uint>(TimeUtils::UnixMilliseconds() - tmStart);
 
 	if (FLHookConfig::i()->general.logPerformanceTimers)
 	{
@@ -87,7 +85,7 @@ void PublishServerStats()
 	stats.serverLoad = globals->serverLoadInMs;
 
 	PROCESS_MEMORY_COUNTERS memCounter;
-	GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+	GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);
 	stats.memoryUsage = memCounter.WorkingSetSize;
 
 	PlayerData* pd = nullptr;
@@ -140,7 +138,7 @@ void TimerCheckKick()
 
 			if (ClientInfo[client].tmKickTime)
 			{
-				if (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmKickTime)
+				if (TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmKickTime)
 				{
 					Hk::Player::Kick(client); // kick time expired
 					ClientInfo[client].tmKickTime = 0;
@@ -153,7 +151,7 @@ void TimerCheckKick()
 				// anti base-idle check
 				uint baseId;
 				pub::Player::GetBase(client, baseId);
-				if (baseId && ClientInfo[client].baseEnterTime && (time(nullptr) - ClientInfo[client].baseEnterTime) >= config->general.antiBaseIdle)
+				if (baseId && ClientInfo[client].baseEnterTime && time(nullptr) - ClientInfo[client].baseEnterTime >= config->general.antiBaseIdle)
 				{
 					// AddKickLog(client, "base idling");
 					Hk::Player::MsgAndKick(client, L"Base idling", 10);
@@ -168,7 +166,7 @@ void TimerCheckKick()
 				{
 					if (!ClientInfo[client].charMenuEnterTime)
 						ClientInfo[client].charMenuEnterTime = static_cast<uint>(time(nullptr));
-					else if ((time(nullptr) - ClientInfo[client].charMenuEnterTime) >= config->general.antiCharMenuIdle)
+					else if (time(nullptr) - ClientInfo[client].charMenuEnterTime >= config->general.antiCharMenuIdle)
 					{
 						// AddKickLog(client, "Charmenu idling");
 						Hk::Player::Kick(client);
@@ -200,13 +198,13 @@ void TimerNPCAndF1Check()
 			if (client < 1 || client > MaxClientId)
 				continue;
 
-			if (ClientInfo[client].tmF1Time && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1Time))
+			if (ClientInfo[client].tmF1Time && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1Time)
 			{
 				// f1
 				Server.CharacterInfoReq(client, false);
 				ClientInfo[client].tmF1Time = 0;
 			}
-			else if (ClientInfo[client].tmF1TimeDisconnect && (Hk::Time::GetUnixMiliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
+			else if (ClientInfo[client].tmF1TimeDisconnect && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1TimeDisconnect)
 			{
 				ulong dataArray[64] = {0};
 				dataArray[26] = client;
@@ -226,7 +224,7 @@ void TimerNPCAndF1Check()
 		}
 
 		const auto* config = FLHookConfig::c();
-		if (config->general.disableNPCSpawns && (CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns))
+		if (config->general.disableNPCSpawns && CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns)
 			Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
 		else
 			Hk::Admin::ChangeNPCSpawn(false);
@@ -259,7 +257,7 @@ void ThreadResolver()
 				InetPtonW(AF_INET, IP.c_str(), &addr.sin_addr);
 
 				wchar_t hostbuf[255];
-				GetNameInfoW(reinterpret_cast<const SOCKADDR*>(&addr), sizeof(addr), hostbuf, std::size(hostbuf), nullptr, 0, 0);
+				GetNameInfoW(reinterpret_cast<const SOCKADDR*>(&addr), sizeof addr, hostbuf, std::size(hostbuf), nullptr, 0, 0);
 
 				hostname = hostbuf;
 			}

@@ -49,7 +49,7 @@ namespace Plugins::SystemSensor
 
 	void UserCmd_Net(ClientId& client, const std::wstring& param)
 	{
-		const std::wstring mode = ToLower(GetParam(param, ' ', 0));
+		const std::wstring mode = StringUtils::ToLower(GetParam(param, ' ', 0));
 		if (mode.empty())
 		{
 			PrintUserCmdText(client, L"ERR Invalid parameters");
@@ -145,7 +145,7 @@ namespace Plugins::SystemSensor
 
 	void UserCmd_ShoanID(ClientId& client, const std::wstring& param)
 	{
-		ClientId client2 = ToInt(GetParam(param, ' ', 0));
+		ClientId client2 = StringUtils::ToInt(GetParam(param, ' ', 0));
 
 		std::wstring targetCharname = L"";
 

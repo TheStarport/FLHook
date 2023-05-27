@@ -142,8 +142,8 @@ namespace Hk::Ini
 		if (patched)
 			return;
 
-		PatchCallAddr((char*)server, 0x6c547, (char*)UpdateFileNaked);
-		PatchCallAddr((char*)server, 0x6c9cd, (char*)UpdateFileNaked);
+		MemUtils::PatchCallAddr((char*)server, 0x6c547, (char*)UpdateFileNaked);
+		MemUtils::PatchCallAddr((char*)server, 0x6c9cd, (char*)UpdateFileNaked);
 
 		patched = true;
 	}

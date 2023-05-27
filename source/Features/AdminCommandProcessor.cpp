@@ -1,4 +1,5 @@
 // ReSharper disable CppMemberFunctionMayBeConst
+// ReSharper disable CppMemberFunctionMayBeStatic
 #include "PCH.hpp"
 #include <ranges>
 #include "Features/AdminCommandProcessor.hpp"
@@ -7,28 +8,16 @@
 #include "Helpers/Player.hpp"
 #include "Helpers/Chat.hpp"
 
-template<>
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MatchCommand<0>(AdminCommandProcessor* processor, std::string_view cmd,
-	const std::vector<std::string>& paramVector) const
-{
-	// The original command was not found, we now search our plugins
-
-
-	// No matching command was found.
-	return cpp::fail(nlohmann::json {"err", "Command not found."});
-}
-
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
-	auto fullCommand = commandString | std::ranges::views::split(' ') |
-	    std::ranges::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+	auto params = StringUtils::GetParams(commandString, ' ');
 
-	const auto command = fullCommand.front();
+	auto command = params.front();
 
-	std::vector<std::string> params(fullCommand.begin(), fullCommand.end());
-	params.erase(params.begin()); // Remove the first item which is the command
+	std::vector<std::string> paramsFiltered(params.begin(), params.end());
+	paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-	auto json = MatchCommand<commands.size()>(this, command, params);
+	auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::string_view characterName)
@@ -157,7 +146,9 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMes
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}, {"systemName", systemName}, {"message", text}};
+
+	std::string name = StringUtils::wstos(systemName);
+	return nlohmann::json {{"res", std::format("Message successfully sent to {}", name)}, {"systemName", name}, {"message", text}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseMessage(const std::wstring text)

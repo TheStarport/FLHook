@@ -14,8 +14,6 @@
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
-#include "Helpers/Time.hpp"
-
 
 void IClientImpl__Startup__Inner(uint, uint)
 {
@@ -176,7 +174,7 @@ namespace IServerImplHook
 							if (FLHookConfig::c()->chatConfig.echoCommands)
 							{
 								const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-								    XMLText(buffer) + L"</TEXT>";
+								    StringUtils::XmlText(buffer) + L"</TEXT>";
 								Hk::Chat::FMsg(cidFrom.id, XML);
 							}
 
@@ -202,7 +200,7 @@ namespace IServerImplHook
 					if (FLHookConfig::c()->chatConfig.echoCommands)
 					{
 						const std::wstring XML =
-						    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+						    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(buffer) + L"</TEXT>";
 						Hk::Chat::FMsg(cidFrom.id, XML);
 					}
 
@@ -220,7 +218,7 @@ namespace IServerImplHook
 				if (FLHookConfig::c()->chatConfig.echoCommands)
 				{
 					const std::wstring XML =
-					    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + XMLText(buffer) + L"</TEXT>";
+					    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(buffer) + L"</TEXT>";
 					Hk::Chat::FMsg(cidFrom.id, XML);
 				}
 
@@ -239,7 +237,7 @@ namespace IServerImplHook
 			// Check if any other custom prefixes have been added
 			if (!config->general.chatSuppressList.empty())
 			{
-				const auto lcBuffer = ToLower(buffer);
+				const auto lcBuffer = StringUtils::ToLower(buffer);
 				for (const auto& chat : config->general.chatSuppressList)
 				{
 					if (lcBuffer.rfind(chat, 0) == 0)
@@ -265,7 +263,7 @@ namespace IServerImplHook
 
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
-			std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
+			std::wstring charName = StringUtils::ToLower(ToWChar(Players.GetActiveCharacterName(client)));
 			for (const auto& i : ClientInfo[client].MoneyFix)
 			{
 				if (i.character == charName)
@@ -445,7 +443,7 @@ namespace IServerImplHook
 		{
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
-			std::wstring charName = ToLower(ToWChar(Players.GetActiveCharacterName(client)));
+			std::wstring charName = StringUtils::ToLower(ToWChar(Players.GetActiveCharacterName(client)));
 			for (const auto& i : ClientInfo[client].MoneyFix)
 			{
 				if (i.character == charName)
@@ -614,7 +612,7 @@ namespace IServerImplHook
 				if (shipId)
 				{
 					// in space
-					ClientInfo[client].tmF1Time = Hk::Time::GetUnixMiliseconds() + FLHookConfig::i()->general.antiF1;
+					ClientInfo[client].tmF1Time = TimeUtils::UnixMilliseconds() + FLHookConfig::i()->general.antiF1;
 					return false;
 				}
 			}
@@ -648,7 +646,7 @@ namespace IServerImplHook
 			}
 
 			// If this client is in the anti-F1 timeout then force the disconnect.
-			if (ClientInfo[client].tmF1TimeDisconnect > Hk::Time::GetUnixMiliseconds())
+			if (ClientInfo[client].tmF1TimeDisconnect > TimeUtils::UnixMilliseconds())
 			{
 				// manual disconnect
 				CDPClientProxy* cdpClient = clientProxyArray[client - 1];

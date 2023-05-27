@@ -20,7 +20,7 @@ namespace Hk::Client
 			resolvedId = ResolveShortCut(character);
 			if (resolvedId.has_error())
 			{
-				if ((resolvedId.error() == Error::AmbiguousShortcut) || (resolvedId.error() == Error::NoMatchingPlayer))
+				if (resolvedId.error() == Error::AmbiguousShortcut || resolvedId.error() == Error::NoMatchingPlayer)
 				{
 					return cpp::fail(resolvedId.error());
 				}
@@ -85,7 +85,7 @@ namespace Hk::Client
 		if (newCharacter.has_error())
 			return cpp::fail(newCharacter.error());
 
-		if (ToLower(newCharacter.value()).compare(ToLower(character)) != 0)
+		if (StringUtils::ToLower(newCharacter.value()) == StringUtils::ToLower(character))
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		return client;
@@ -112,9 +112,9 @@ namespace Hk::Client
 			return false;
 
 		const char magic[] = "FLS1";
-		char file[sizeof(magic)] = "";
-		fread(file, 1, sizeof(magic), f);
-		if (!strncmp(magic, file, sizeof(magic) - 1))
+		char file[sizeof magic] = "";
+		fread(file, 1, sizeof magic, f);
+		if (!strncmp(magic, file, sizeof magic - 1))
 			retVal = true;
 		fclose(f);
 
@@ -166,7 +166,7 @@ namespace Hk::Client
 
 	cpp::result<const uint, Error> ResolveID(const std::wstring& character)
 	{
-		if (const std::wstring characterLower = ToLower(character); characterLower.find(L"id ") == 0)
+		if (const std::wstring characterLower = StringUtils::ToLower(character); characterLower.find(L"id ") == 0)
 		{
 			uint id = 0;
 			swscanf_s(characterLower.c_str(), L"id %u", &id);
@@ -183,7 +183,7 @@ namespace Hk::Client
 
 	cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& shortcut)
 	{
-		std::wstring shortcutLower = ToLower(shortcut);
+		std::wstring shortcutLower = StringUtils::ToLower(shortcut);
 		if (shortcutLower.find(L"sc ") != 0)
 			return cpp::fail(Error::InvalidShortcutString);
 
@@ -197,7 +197,7 @@ namespace Hk::Client
 			if (characterName.has_error())
 				continue;
 
-			if (ToLower(characterName.value()).find(shortcutLower) != -1)
+			if (StringUtils::ToLower(characterName.value()).find(shortcutLower) != -1)
 			{
 				if (clientFound == UINT_MAX)
 					clientFound = playerDb->onlineId;
@@ -361,7 +361,7 @@ namespace Hk::Client
 		pub::Market::GetCommoditiesForSale(baseId, reinterpret_cast<uint* const>(arr.data()), &size);
 		MemUtils::WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), jnz.data(), 2);
 
-		for (int i = 0; (i < size); i++)
+		for (int i = 0; i < size; i++)
 			items.push_back(arr[i]);
 	}
 
@@ -410,7 +410,7 @@ namespace Hk::Client
 		const uint VFTableTractor = (uint)common + ADDR_COMMON_VFTABLE_TRACTOR;
 		const uint VFTableLight = (uint)common + ADDR_COMMON_VFTABLE_LIGHT;
 
-		const uint VFTable = *((uint*)eq);
+		const uint VFTable = *(uint*)eq;
 		if (VFTable == VFTableGun)
 		{
 			const Archetype::Gun* gun = static_cast<Archetype::Gun*>(eq);

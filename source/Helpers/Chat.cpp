@@ -34,7 +34,7 @@ namespace Hk::Chat
 		const CHAT_ID ci = {0};
 		const CHAT_ID ciClient = {client};
 
-		const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
+		const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buf[1024];
 		if (const auto err = FMsgEncodeXML(XML, buf, sizeof(buf), retVal); err.has_error())
@@ -60,7 +60,7 @@ namespace Hk::Chat
 		}
 
 		// prepare xml
-		const std::wstring xml = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + XMLText(message) + L"</TEXT>";
+		const std::wstring xml = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buffer[1024];
 		if (const auto err = FMsgEncodeXML(xml, buffer, sizeof(buffer), retVal); err.has_error())
@@ -86,7 +86,7 @@ namespace Hk::Chat
 		const CHAT_ID ci = {0};
 		const CHAT_ID ciClient = {0x00010000};
 
-		const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + XMLText(message) + L"</TEXT>";
+		const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buf[1024];
 		if (const auto err = FMsgEncodeXML(xml, buf, sizeof(buf), retVal); err.has_error())
@@ -218,9 +218,9 @@ namespace Hk::Chat
 		{
 			for (const auto& ignore : ClientInfo[toClientId].ignoreInfoList)
 			{
-				if (!HAS_FLAG(ignore, L"i") && !(ToLower(sender).compare(ToLower(ignore.character))))
+				if (!HAS_FLAG(ignore, L"i") && !(StringUtils::ToLower(sender).compare(StringUtils::ToLower(ignore.character))))
 					return {}; // ignored
-				if (HAS_FLAG(ignore, L"i") && (ToLower(sender).find(ToLower(ignore.character)) != -1))
+				if (HAS_FLAG(ignore, L"i") && (StringUtils::ToLower(sender).find(StringUtils::ToLower(ignore.character)) != -1))
 					return {};
 				// ignored
 			}
@@ -263,8 +263,8 @@ namespace Hk::Chat
 		const std::wstring TRADataFormat = wFormatBuf;
 		const std::wstring TRADataSenderColor = L"FFFFFF"; // white
 
-		const std::wstring XML = L"<TRA data=\"0x" + TRADataSenderColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(sender) +
-			L": </TEXT>" + L"<TRA data=\"0x" + textColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + XMLText(text) + L"</TEXT>";
+		const std::wstring XML = L"<TRA data=\"0x" + TRADataSenderColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(sender) +
+			L": </TEXT>" + L"<TRA data=\"0x" + textColor + TRADataFormat + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(text) + L"</TEXT>";
 
 		if (const auto err = FMsg(toClientId, XML); err.has_error())
 			return cpp::fail(err.error());
@@ -437,7 +437,7 @@ namespace Hk::Chat
 		const uint bgrColor = Math::RgbToBgr(static_cast<uint>(color));
 		const std::wstring tra = Math::UintToHexString(bgrColor, 6, true) + Math::UintToHexString(static_cast<uint>(format), 2);
 
-		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + XMLText(msg) + L"</TEXT>";
+		return L"<TRA data=\"" + tra + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(msg) + L"</TEXT>";
 	}
 } // namespace Hk::Chat
 

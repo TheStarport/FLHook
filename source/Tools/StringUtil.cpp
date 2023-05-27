@@ -1,11 +1,11 @@
 #include "PCH.hpp"
 
-int StringUtils::ToInt(const std::wstring& str)
+int StringUtils::StringUtils::ToInt(const std::wstring& str)
 {
 	return wcstol(str.c_str(), nullptr, 10);
 }
 
-int64 StringUtils::ToInt64(const std::wstring& str)
+int64 StringUtils::StringUtils::ToInt64(const std::wstring& str)
 {
 	return str.empty() ? 0 : wcstoll(str.c_str(), nullptr, 10);
 }

@@ -23,7 +23,7 @@ bool LoadBaseMarket()
 		BaseInfo* biBase = nullptr;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{
-			if (ToLower(base.baseName) != ToLower(BaseName))
+			if (StringUtils::ToLower(base.baseName) != StringUtils::ToLower(BaseName))
 			{
 				biBase = &base;
 				break;

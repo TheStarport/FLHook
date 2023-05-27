@@ -96,8 +96,8 @@ namespace Plugins::CargoDrop
 					if (global->config->reportDisconnectingPlayers)
 					{
 						std::wstring msg = StringUtils::stows(global->config->disconnectMsg);
-						msg = ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
-						msg = ReplaceStr(msg, L"%player", characterName);
+						msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
+						msg = StringUtils::ReplaceStr(msg, L"%player", characterName);
 						PrintLocalUserCmdText(client, msg, global->config->disconnectingPlayersRange);
 					}
 

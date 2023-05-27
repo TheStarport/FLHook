@@ -87,7 +87,7 @@ namespace Plugins::MiscCommands
 		bool lights = false;
 		for (st6::list<EquipDesc> const& eq = Players[client].equipDescList.equip; const auto& eq : eq)
 		{
-			std::string hp = ToLower(eq.hardPoint.value);
+			std::string hp = StringUtils::ToLower(eq.hardPoint.value);
 			if (hp.find("dock") != std::string::npos)
 			{
 				XActivateEquip ActivateEq;
@@ -160,7 +160,7 @@ namespace Plugins::MiscCommands
 		Hk::Player::RelocateClient(client, pos, rot);
 
 		std::wstring Msg = global->config->stuckMessage;
-		Msg = ReplaceStr(Msg, L"%player", Charname);
+		Msg = StringUtils::ReplaceStr(Msg, L"%player", Charname);
 		PrintLocalUserCmdText(client, Msg, 6000.0f);
 	}
 
@@ -220,15 +220,15 @@ namespace Plugins::MiscCommands
 	{
 		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		int max = ToInt(GetParam(param, ' ', 0));
+		int max = StringUtils::ToInt(GetParam(param, ' ', 0));
 		if (max <= 1)
 			max = 6;
 
 		const uint number = rand() % max + 1;
 		std::wstring msg = global->config->diceMessage;
-		msg = ReplaceStr(msg, L"%player", charName);
-		msg = ReplaceStr(msg, L"%number", std::to_wstring(number));
-		msg = ReplaceStr(msg, L"%max", std::to_wstring(max));
+		msg = StringUtils::ReplaceStr(msg, L"%player", charName);
+		msg = StringUtils::ReplaceStr(msg, L"%number", std::to_wstring(number));
+		msg = StringUtils::ReplaceStr(msg, L"%max", std::to_wstring(max));
 		PrintLocalUserCmdText(client, msg, 6000.0f);
 	}
 
@@ -241,8 +241,8 @@ namespace Plugins::MiscCommands
 
 		const uint number = (rand() % 2);
 		std::wstring msg = global->config->coinMessage;
-		msg = ReplaceStr(msg, L"%player", charName);
-		msg = ReplaceStr(msg, L"%result", (number == 1) ? L"heads" : L"tails");
+		msg = StringUtils::ReplaceStr(msg, L"%player", charName);
+		msg = StringUtils::ReplaceStr(msg, L"%result", (number == 1) ? L"heads" : L"tails");
 		PrintLocalUserCmdText(client, msg, 6000.0f);
 	}
 

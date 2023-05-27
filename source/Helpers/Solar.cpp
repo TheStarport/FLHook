@@ -90,7 +90,7 @@ namespace Hk::Solar
 			pub::GetBaseNickname(baseNickname, sizeof(baseNickname), baseinfo->baseId);
 
 			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS);
-				ToLower(StringUtils::stows(baseNickname)) == ToLower(targetBaseName) || ToLower(basename).find(ToLower(targetBaseName)) == 0)
+				StringUtils::ToLower(StringUtils::stows(baseNickname)) == StringUtils::ToLower(targetBaseName) || StringUtils::ToLower(basename).find(StringUtils::ToLower(targetBaseName)) == 0)
 			{
 				return baseinfo;
 			}
@@ -101,7 +101,7 @@ namespace Hk::Solar
 		baseinfo = Universe::GetFirstBase();
 		while (baseinfo)
 		{
-			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS); ToLower(basename).find(ToLower(targetBaseName)) != -1)
+			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS); StringUtils::ToLower(basename).find(StringUtils::ToLower(targetBaseName)) != -1)
 			{
 				return baseinfo;
 			}

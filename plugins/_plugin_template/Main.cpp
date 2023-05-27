@@ -35,7 +35,7 @@ namespace Plugins::Template
 			return;
 		}
 
-		if (const auto number = ToInt(GetParam(param, ' ', 0)); number > 0)
+		if (const auto number = StringUtils::ToInt(GetParam(param, ' ', 0)); number > 0)
 		{
 			PrintUserCmdText(client, L"You put in the following number: " + std::to_wstring(number));
 		}

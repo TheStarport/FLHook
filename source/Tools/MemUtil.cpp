@@ -33,7 +33,7 @@ void MemUtils::WriteProcMem(void* address, const void* mem, uint size)
 	CloseHandle(hProc);
 }
 
-void MemUtils::ReadProcMem(void* address, void* mem, uint size)
+void MemUtils::MemUtils::ReadProcMem(void* address, void* mem, uint size)
 {
 	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
@@ -42,10 +42,10 @@ void MemUtils::ReadProcMem(void* address, void* mem, uint size)
 	CloseHandle(hProc);
 }
 
-FARPROC MemUtils::PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction)
+FARPROC MemUtils::MemUtils::PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction)
 {
 	DWORD relAddr;
-	MemUtils::ReadProcMem(mod + installAddress + 1, &relAddr, 4);
+	MemUtils::MemUtils::ReadProcMem(mod + installAddress + 1, &relAddr, 4);
 
 	const DWORD offset = (DWORD)hookFunction - (DWORD)(mod + installAddress + 5);
 	MemUtils::WriteProcMem(mod + installAddress + 1, &offset, 4);

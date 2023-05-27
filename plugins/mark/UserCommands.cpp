@@ -112,7 +112,7 @@ namespace Plugins::Mark
 
 		const auto param = ViewToWString(paramStr);
 
-		if (ToLower(param) == L"off")
+		if (StringUtils::ToLower(param) == L"off")
 		{
 			global->Mark[client].IgnoreGroupMark = false;
 			CAccount const* acc = Players.FindAccountFromClientID(client);
@@ -126,7 +126,7 @@ namespace Plugins::Mark
 				PrintUserCmdText(client, L"Accepting marks from the group");
 			}
 		}
-		else if (ToLower(param) == L"on")
+		else if (StringUtils::ToLower(param) == L"on")
 		{
 			global->Mark[client].IgnoreGroupMark = true;
 			CAccount const* acc = Players.FindAccountFromClientID(client);
@@ -156,7 +156,7 @@ namespace Plugins::Mark
 			return;
 		}
 
-		std::wstring enabled = ToLower(GetParam(param, ' ', 0));
+		std::wstring enabled = StringUtils::ToLower(GetParam(param, ' ', 0));
 
 		if (param.empty() || (enabled != L"on" && enabled != L"off"))
 		{

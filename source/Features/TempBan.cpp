@@ -4,11 +4,10 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
-#include "Helpers/Time.hpp"
 
 void TempBanManager::ClearFinishedTempBans()
 {
-	const auto timeNow = Hk::Time::GetUnixMiliseconds();
+	const auto timeNow = TimeUtils::UnixMilliseconds();
 	auto it = tempBanList.begin();
 	while (it != tempBanList.end())
 	{
@@ -32,7 +31,7 @@ void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::
 	const auto accId = Hk::Client::GetAccountID(account);
 
 	TempBanInfo banInfo;
-	banInfo.banStart = Hk::Time::GetUnixMiliseconds();
+	banInfo.banStart = TimeUtils::UnixMilliseconds();
 	banInfo.banEnd = banInfo.banStart + (durationInMin * 1000 * 60);
 	banInfo.accountId = accId.value();
 

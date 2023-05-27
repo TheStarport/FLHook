@@ -157,7 +157,7 @@ namespace Plugins::Warehouse
 	void UserCmdWithdrawItem(uint client, const std::wstring& param, uint base)
 	{
 		// This is a generated number to allow players to select the item they want to store.
-		const uint itemId = ToInt(GetParam(param, ' ', 1));
+		const uint itemId = StringUtils::ToInt(GetParam(param, ' ', 1));
 
 		if (!itemId)
 		{
@@ -168,7 +168,7 @@ namespace Plugins::Warehouse
 		int remainingCargo;
 		const auto cargo = Hk::Player::EnumCargo(client, remainingCargo);
 
-		const int itemCount = std::max(1, ToInt(GetParam(param, ' ', 2)));
+		const int itemCount = std::max(1, StringUtils::ToInt(GetParam(param, ' ', 2)));
 
 		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
 		{

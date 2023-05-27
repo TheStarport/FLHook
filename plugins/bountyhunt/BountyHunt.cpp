@@ -167,7 +167,7 @@ namespace Plugins::BountyHunt
 			return;
 		}
 
-		ClientId clientTarget = ToInt(target);
+		ClientId clientTarget = StringUtils::ToInt(target);
 		if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
 		{
 			PrintUserCmdText(client, L"Error: Invalid client id.");

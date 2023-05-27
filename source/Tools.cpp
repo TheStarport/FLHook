@@ -34,7 +34,7 @@ float IniGetF(const std::string& file, const std::string& app, const std::string
 
 bool IniGetB(const std::string& file, const std::string& app, const std::string& key, const bool def)
 {
-	const std::string val = ToLower(IniGetS(file, app, key, def ? "true" : "false"));
+	const std::string val = StringUtils::ToLower(IniGetS(file, app, key, def ? "true" : "false"));
 	return val == "yes" || val == "true";
 }
 

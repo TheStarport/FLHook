@@ -38,9 +38,9 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 				{
 					if (HAS_FLAG(ci, L"p") && (clientTo & 0x10000))
 						continue; // no privchat
-					else if (!HAS_FLAG(ci, L"i") && !(ToLower(sender).compare(ToLower(ci.character))))
+					else if (!HAS_FLAG(ci, L"i") && !(StringUtils::ToLower(sender).compare(StringUtils::ToLower(ci.character))))
 						return; // ignored
-					else if (HAS_FLAG(ci, L"i") && (ToLower(sender).find(ToLower(ci.character)) != -1))
+					else if (HAS_FLAG(ci, L"i") && (StringUtils::ToLower(sender).find(StringUtils::ToLower(ci.character)) != -1))
 						return; // ignored
 				}
 			}
@@ -118,8 +118,8 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 				traDataColor = L"19BD3A"; // pm chat color
 
 			std::wstringstream wos;
-			wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << XMLText(sender) << L": </TEXT>" << L"<TRA data =\"0x"
-			    << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << XMLText(text) + L"</TEXT>";
+			wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << StringUtils::XmlText(sender) << L": </TEXT>" << L"<TRA data =\"0x"
+			    << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << StringUtils::XmlText(text) + L"</TEXT>";
 
 			Hk::Chat::FMsg(client, wos.str());
 		}

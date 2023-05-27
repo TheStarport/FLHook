@@ -25,7 +25,7 @@ class AdminCommandProcessor
 	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(const std::wstring& systemName, const std::wstring& text);
 	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(const std::wstring text);
 
-	const std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
+	const inline static std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
 	{
 	    {
 	        AddCommand("getcash", GetCash),
@@ -48,9 +48,9 @@ class AdminCommandProcessor
 #undef AddCommand
 
 	template<int N>
-	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector) const
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
 	{
-		if (const auto command = std::get<N - 1>(processor->commands); command.first == cmd)
+		if (const auto command = std::get<N - 1>(commands); command.first == cmd)
 		{
 			return command.second(*processor, paramVector);
 		}
@@ -59,8 +59,13 @@ class AdminCommandProcessor
 
 	template<>
 	// ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>([[maybe_unused]] AdminCommandProcessor* processor, [[maybe_unused]] std::string_view cmd,
-	    [[maybe_unused]] const std::vector<std::string>& paramVector) const;
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
+	{
+		// The original command was not found, we now search our plugins
+
+		// No matching command was found.
+		return cpp::fail(nlohmann::json {"err", "Command not found."});
+	}
 
 public:
 	void ProcessCommand(std::string_view commandString);

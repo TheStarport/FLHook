@@ -12,9 +12,9 @@ uint TimeUtils::UnixSeconds()
 	return static_cast<uint>(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
 }
 
-auto TimeUtils::UnixToSysTime(const int64 time)
+sys_time<seconds> TimeUtils::UnixToSysTime(int64 time)
 {
-	return sys_time {seconds{time}};
+	return sys_time {seconds {time}};
 }
 
 std::string TimeUtils::HumanReadableTime(seconds dur)

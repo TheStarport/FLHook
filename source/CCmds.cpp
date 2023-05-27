@@ -827,7 +827,7 @@ int CCmds::ArgInt(uint arg)
 {
 	const std::wstring Arg = GetParam(currCmdString, ' ', arg);
 
-	return ToInt(Arg);
+	return StringUtils::ToInt(Arg);
 }
 
 uint CCmds::ArgUInt(uint arg)
@@ -890,7 +890,7 @@ void CCmds::ExecuteCommandString(const std::wstring& cmdStr)
 		target = false;
 		currCmdString = cmdStr;
 
-		std::wstring cmd = ToLower(GetParam(cmdStr, ' ', 0));
+		std::wstring cmd = StringUtils::ToLower(GetParam(cmdStr, ' ', 0));
 		if (cmd.length() == 0)
 		{
 			Print("ERR unknown command");

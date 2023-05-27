@@ -232,7 +232,7 @@ namespace Plugins::LightControl
 			if (hardPointIds.empty())
 				hardPointIds.emplace_back(inputParam);
 		}
-		const std::wstring selectedLight = ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
+		const std::wstring selectedLight = StringUtils::ReplaceStr(ViewToWString(GetParamToEnd(param, ' ', 2)), L" ", L"");
 		std::vector<EquipDesc> lights;
 		st6::list<EquipDesc>& eq = Players[client].equipDescList.equip;
 

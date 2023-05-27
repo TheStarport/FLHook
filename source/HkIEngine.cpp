@@ -128,7 +128,7 @@ namespace IEngineHook
 					if (client.has_value())
 					{
 						std::wstring Msg = L"Traffic control alert: %player has requested to dock";
-						Msg = ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
+						Msg = StringUtils::ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
 						PrintLocalUserCmdText(client.value(), Msg, 15000);
 					}
 				}

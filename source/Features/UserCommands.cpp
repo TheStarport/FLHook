@@ -37,7 +37,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 	if (const auto newLineChar = text.find(L"\n"); newLineChar == std::wstring::npos)
 	{
 		const std::wstring xml =
-		    std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, XMLText(text));
+		    std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, StringUtils::XmlText(text));
 		Hk::Chat::FMsg(client, xml);
 	}
 	else
@@ -105,7 +105,7 @@ void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
 	                                     L"Usage: /set diemsg <param>\n"
 	                                     L"<param>: all,system,self or none";
 
-	const std::wstring dieMsgParam = ToLower(GetParam(param, ' ', 0));
+	const std::wstring dieMsgParam = StringUtils::ToLower(GetParam(param, ' ', 0));
 
 	DIEMSGTYPE dieMsg;
 	if (dieMsgParam == L"all")
@@ -147,7 +147,7 @@ void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
 	                                     L"Usage: /set diemsgsize <size>\n"
 	                                     L"<size>: small, default";
 
-	const std::wstring dieMsgSizeParam = ToLower(GetParam(param, ' ', 0));
+	const std::wstring dieMsgSizeParam = StringUtils::ToLower(GetParam(param, ' ', 0));
 
 	CHATSIZE dieMsgSize;
 	if (!dieMsgSizeParam.compare(L"small"))
@@ -186,8 +186,8 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
 	                                     L"<size>: small, default or big\n"
 	                                     L"<style>: default, bold, italic or underline";
 
-	const std::wstring chatSizeParam = ToLower(GetParam(param, ' ', 0));
-	const std::wstring chatStyleParam = ToLower(GetParam(param, ' ', 1));
+	const std::wstring chatSizeParam = StringUtils::ToLower(GetParam(param, ' ', 0));
+	const std::wstring chatStyleParam = StringUtils::ToLower(GetParam(param, ' ', 1));
 
 	CHATSIZE chatSize;
 	if (!chatSizeParam.compare(L"small"))
@@ -257,7 +257,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	const std::wstring allowedFlags = L"pi";
 
 	const std::wstring character = GetParam(param, ' ', 0);
-	const std::wstring flags = ToLower(GetParam(param, ' ', 1));
+	const std::wstring flags = StringUtils::ToLower(GetParam(param, ' ', 1));
 
 	if (character.empty())
 	{
@@ -312,7 +312,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	                                     L"chat";
 
 	const std::wstring clientId = GetParam(param, ' ', 0);
-	const std::wstring flags = ToLower(GetParam(param, ' ', 1));
+	const std::wstring flags = StringUtils::ToLower(GetParam(param, ' ', 1));
 
 	if (!clientId.length() || !flags.empty() && flags.compare(L"p") != 0)
 	{
@@ -326,7 +326,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	ClientId clientTarget = ToInt(clientId);
+	ClientId clientTarget = StringUtils::ToInt(clientId);
 	if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
 	{
 		PrintUserCmdText(client, L"Error: Invalid client-id");
@@ -407,7 +407,7 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	std::list<uint> Delete;
 	for (uint j = 1; !idToDelete.empty(); j++)
 	{
-		uint id = ToInt(idToDelete.c_str());
+		uint id = StringUtils::ToInt(idToDelete.c_str());
 		if (!id || id > ClientInfo[client].ignoreInfoList.size())
 		{
 			PrintUserCmdText(client, L"Error: Invalid Id");
@@ -469,7 +469,7 @@ void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& param)
 
 void Invite_Player(ClientId& client, const std::wstring& characterName)
 {
-	const std::wstring XML = L"<TEXT>/i " + XMLText(characterName) + L"</TEXT>";
+	const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
 	char buf[0xFFFF];
 	uint retVal;
 	if (Hk::Chat::FMsgEncodeXML(XML, buf, sizeof buf, retVal).has_error())
@@ -516,7 +516,7 @@ void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	ClientId clientTarget = ToInt(invitedClientId);
+	ClientId clientTarget = StringUtils::ToInt(invitedClientId);
 	if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
 	{
 		PrintUserCmdText(client, L"Error: Invalid client-id");
@@ -528,7 +528,7 @@ void UserCmd_InviteID(ClientId& client, const std::wstring& param)
 
 void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
 {
-	const std::wstring& charnamePrefix = ToLower(GetParam(param, ' ', 0));
+	const std::wstring& charnamePrefix = StringUtils::ToLower(GetParam(param, ' ', 0));
 
 	bool msgSent = false;
 
@@ -541,7 +541,7 @@ void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
 
 	for (const auto& player : Hk::Admin::GetPlayers())
 	{
-		if (ToLower(player.character).find(charnamePrefix) == std::string::npos)
+		if (StringUtils::ToLower(player.character).find(charnamePrefix) == std::string::npos)
 			continue;
 
 		if (player.client == client)
@@ -572,7 +572,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 	}
 	else
 	{
-		const auto index = ToInt64(str);
+		const auto index = StringUtils::ToInt64(str);
 		if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
 		{
 			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", StringUtils::stows(err.error())));
@@ -585,7 +585,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 
 void UserCmdReadMail(ClientId& client, const std::wstring& param)
 {
-	const auto index = ToInt64(GetParam(param, ' ', 0));
+	const auto index = StringUtils::ToInt64(GetParam(param, ' ', 0));
 	if (index <= 0)
 	{
 		PrintUserCmdText(client, L"Id was not provided or was invalid.");
@@ -602,13 +602,13 @@ void UserCmdReadMail(ClientId& client, const std::wstring& param)
 	const auto& item = mail.value();
 	PrintUserCmdText(client, std::format(L"From: {}", StringUtils::stows(item.author)));
 	PrintUserCmdText(client, std::format(L"Subject: {}", StringUtils::stows(item.subject)));
-	PrintUserCmdText(client, std::format(L"Date: {:%F %T}", UnixToSysTime(item.timestamp)));
+	PrintUserCmdText(client, std::format(L"Date: {:%F %T}", TimeUtils::UnixToSysTime(item.timestamp)));
 	PrintUserCmdText(client, StringUtils::stows(item.body));
 }
 
 void UserCmdListMail(ClientId& client, const std::wstring& param)
 {
-	const auto page = ToInt(GetParam(param, ' ', 0));
+	const auto page = StringUtils::ToInt(GetParam(param, ' ', 0));
 	if (page <= 0)
 	{
 		PrintUserCmdText(client, L"Page was not provided or was invalid.");
@@ -637,14 +637,14 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 		// |    Id.) Subject (unread) - Author - Time
 		PrintUserCmdText(client,
 		    StringUtils::stows(std::format(
-		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
+		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, TimeUtils::UnixToSysTime(item.timestamp))));
 	}
 }
 
 void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 {
 	const auto targetPlayer = Hk::Client::GetClientIdFromCharName(GetParam(param, ' ', 0));
-	const auto cash = MultiplyUIntBySuffix(GetParam(param, ' ', 1));
+	const auto cash = StringUtils::MultiplyUIntBySuffix(GetParam(param, ' ', 1));
 	const auto clientCash = Hk::Player::GetCash(client);
 
 	if (client == targetPlayer.value())
@@ -755,13 +755,13 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			if (const auto commands = plugin->GetCommands(); commands.empty())
 				continue;
 
-			PrintUserCmdText(client, ToLower(StringUtils::stows(std::string(plugin->GetShortName()))));
+			PrintUserCmdText(client, StringUtils::ToLower(StringUtils::stows(std::string(plugin->GetShortName()))));
 		}
 		return;
 	}
 
 	const auto mod = GetParam(paramView, L' ', 1);
-	const auto cmd = ToLower(Trim(GetParam(paramView, L' ', 2)));
+	const auto cmd = StringUtils::ToLower(StringUtils::Trim(GetParam(paramView, L' ', 2)));
 
 	if (mod == L"core")
 	{
@@ -789,7 +789,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& pluginIterator =
-	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<Plugin> plug) { return ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == ToLower(mod); });
+	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<Plugin> plug) { return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod); });
 
 	if (pluginIterator == plugins.end())
 	{
@@ -824,7 +824,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 
 bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdString, const std::vector<UserCommand>& commands)
 {
-	const std::wstring inputLower = ToLower(originalCmdString);
+	const std::wstring inputLower = StringUtils::ToLower(originalCmdString);
 	for (const auto& command : commands)
 	{
 		std::optional<std::wstring> param;

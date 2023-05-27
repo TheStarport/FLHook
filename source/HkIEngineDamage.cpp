@@ -2,7 +2,6 @@
 #include "Global.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Helpers/Client.hpp"
-#include "Helpers/Time.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;
@@ -232,13 +231,13 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		// anti-dockkill check
 		if (ClientInfo[clientTarget].spawnProtected)
 		{
-			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
+			if ((TimeUtils::UnixMilliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target is protected
 			ClientInfo[clientTarget].spawnProtected = false;
 		}
 		if (ClientInfo[client].spawnProtected)
 		{
-			if ((Hk::Time::GetUnixMiliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
+			if ((TimeUtils::UnixMilliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
 				return false; // target may not shoot
 			ClientInfo[client].spawnProtected = false;
 		}

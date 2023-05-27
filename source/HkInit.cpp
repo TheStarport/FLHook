@@ -126,7 +126,7 @@ bool Patch(PatchInfo& pi)
 		else
 			pi.piEntries[i].allocated = false;
 
-		ReadProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
+		MemUtils::ReadProcMem(address, pi.piEntries[i].oldValue, pi.piEntries[i].size);
 		MemUtils::WriteProcMem(address, &pi.piEntries[i].newValue, pi.piEntries[i].size);
 	}
 
@@ -284,7 +284,7 @@ bool InitHookExports()
 	for (uint i = 0; i < std::size(IServerImplEntries); i++)
 	{
 		char* address = serverPointer + IServerImplEntries[i].remoteAddress;
-		ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
+		MemUtils::ReadProcMem(address, &IServerImplEntries[i].fpOldProc, 4);
 		MemUtils::WriteProcMem(address, &IServerImplEntries[i].fpProc, 4);
 	}
 
@@ -301,7 +301,7 @@ bool InitHookExports()
 	// patch rep array free
 	const char NOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
 	char* address = ((char*)server + ADDR_SRV_REPARRAYFREE);
-	ReadProcMem(address, RepFreeFixOld, 5);
+	MemUtils::ReadProcMem(address, RepFreeFixOld, 5);
 	MemUtils::WriteProcMem(address, NOPs, 5);
 
 	// patch flserver so it can better handle faulty house entries in char files
@@ -331,11 +331,11 @@ bool InitHookExports()
 
 	// get CDPServer
 	address = DALIB_ADDR(ADDR_CDPSERVER);
-	ReadProcMem(address, &cdpSrv, 4);
+	MemUtils::ReadProcMem(address, &cdpSrv, 4);
 
 	// read g_FLServerDataPtr(used for serverload calc)
 	address = FLSERVER_ADDR(ADDR_DATAPTR);
-	ReadProcMem(address, &g_FLServerDataPtr, 4);
+	MemUtils::ReadProcMem(address, &g_FLServerDataPtr, 4);
 
 	// anti-deathmsg
 	if (FLHookConfig::i()->chatConfig.dieMsg)
@@ -369,7 +369,7 @@ bool InitHookExports()
 	// get client proxy array, used to retrieve player pings/ips
 	address = (char*)remoteClient + ADDR_CPLIST;
 	char* Temp;
-	ReadProcMem(address, &Temp, 4);
+	MemUtils::ReadProcMem(address, &Temp, 4);
 	Temp += 0x10;
 	memcpy(&clientProxyArray, &Temp, 4);
 

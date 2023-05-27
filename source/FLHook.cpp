@@ -46,7 +46,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 	char file[MAX_PATH];
 	GetModuleFileName(nullptr, file, sizeof file);
 
-	if (const std::wstring fileName = ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != -1)
+	if (const std::wstring fileName = StringUtils::ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != -1)
 	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
@@ -56,7 +56,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 		// redirect IServerImpl::Update
 		const auto fpLoop = IServerImplHook::Update;
 		auto address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_UPDATE;
-		MemUtils::ReadProcMem(address, &fpOldUpdate, 4);
+		MemUtils::MemUtils::ReadProcMem(address, &fpOldUpdate, 4);
 		MemUtils::WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook

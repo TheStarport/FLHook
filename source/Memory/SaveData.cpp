@@ -23,17 +23,17 @@ std::string SaveGameDetour::GetSaveDataPath() const
 
 	ini.find_header("DACOM");
 
-	std::string saveDataPath = ExpandEnvironmentVariables(std::string(R"(%UserProfile%\My Documents\My Games\Freelancer)"));
+	std::string saveDataPath = StringUtils::ExpandEnvironmentVariables(std::string(R"(%UserProfile%\My Documents\My Games\Freelancer)"));
 
 	while (ini.read_value())
 	{
 		if (ini.is_value("SavePath"))
 		{
-			saveDataPath = ExpandEnvironmentVariables(std::string(ini.get_value_string()));
+			saveDataPath = StringUtils::ExpandEnvironmentVariables(std::string(ini.get_value_string()));
 		}
 	}
 
-	const std::filesystem::path trimmed = Trim(saveDataPath);
+	const std::filesystem::path trimmed = StringUtils::Trim(saveDataPath);
 
 	try
 	{
@@ -49,7 +49,7 @@ std::string SaveGameDetour::GetSaveDataPath() const
 	}
 	catch (const std::exception& ex)
 	{
-		MessageBox(GetFLServerHwnd(), ex.what(), "Unable to handle SavePath", MB_ICONERROR);
+		MessageBox(MemUtils::GetFlServerHwnd(), ex.what(), "Unable to handle SavePath", MB_ICONERROR);
 	}
 
 	return trimmed.string();

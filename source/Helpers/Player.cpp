@@ -11,9 +11,6 @@
 #include "Helpers/FlCodec.hpp"
 #include "Helpers/Ini.hpp"
 #include "Helpers/Math.hpp"
-#include "Helpers/Time.hpp"
-
-
 
 namespace Hk::Player
 {
@@ -161,7 +158,7 @@ namespace Hk::Player
 		{
 			// money fix in case player logs in with this account
 			bool found = false;
-			const std::wstring characterLower = ToLower(character);
+			const std::wstring characterLower = StringUtils::ToLower(character);
 			for (auto& money : ClientInfo[client].MoneyFix)
 			{
 				if (money.character == characterLower)
@@ -531,7 +528,7 @@ namespace Hk::Player
 
 	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, int count, bool mission)
 	{
-		uint goodId = ToInt(good.c_str());
+		uint goodId = StringUtils::ToInt(good.c_str());
 		if (!goodId)
 			pub::GetGoodID(goodId, StringUtils::wstos(good).c_str());
 		if (!goodId)
@@ -711,9 +708,9 @@ namespace Hk::Player
 	{
 		if (!ClientInfo[client].tmKickTime)
 		{
-			const std::wstring Msg = ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", XMLText(reason));
+			const std::wstring Msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason));
 			Chat::FMsg(client, Msg);
-			ClientInfo[client].tmKickTime = Time::GetUnixMiliseconds() + interval;
+			ClientInfo[client].tmKickTime = TimeUtils::UnixMilliseconds() + interval;
 		}
 
 		return {};
@@ -1104,7 +1101,7 @@ namespace Hk::Player
 			return cpp::fail(rank.error());
 		}
 
-		return rank.value().length() ? ToInt(rank.value()) : 0;
+		return rank.value().length() ? StringUtils::ToInt(rank.value()) : 0;
 	}
 
 	/// Get online time.
@@ -1519,7 +1516,7 @@ namespace Hk::Player
 
 	void DelayedKick(ClientId client, uint secs)
 	{
-		const mstime kick_time = Time::GetUnixMiliseconds() + (secs * 1000);
+		const mstime kick_time = TimeUtils::UnixSeconds() + secs;
 		if (!ClientInfo[client].tmKickTime || ClientInfo[client].tmKickTime > kick_time)
 			ClientInfo[client].tmKickTime = kick_time;
 	}
@@ -1556,7 +1553,7 @@ namespace Hk::Player
 
 		for (const auto& line : CharFile.value())
 		{
-			std::wstring key = Trim(line.substr(0, line.find(L"=")));
+			std::wstring key = StringUtils::Trim(line.substr(0, line.find(L"=")));
 			if (key == L"base" || key == L"last_base")
 			{
 				const int findEqual = line.find(L"=");
@@ -1570,14 +1567,14 @@ namespace Hk::Player
 					continue;
 				}
 
-				baseId = CreateID(StringUtils::wstos(Trim(line.substr(findEqual + 1))).c_str());
+				baseId = CreateID(StringUtils::wstos(StringUtils::Trim(line.substr(findEqual + 1))).c_str());
 				break;
 			}
 		}
 
 		for (const auto& line : CharFile.value())
 		{
-			std::wstring key = Trim(line.substr(0, line.find(L"=")));
+			std::wstring key = StringUtils::Trim(line.substr(0, line.find(L"=")));
 			if (key == L"cargo" || key == L"equip")
 			{
 				const int findEqual = line.find(L"=");
@@ -1590,8 +1587,8 @@ namespace Hk::Player
 				{
 					continue;
 				}
-				const uint goodId = ToUInt(Trim(line.substr(findEqual + 1, findComma)));
-				const uint goodCount = ToUInt(Trim(line.substr(findComma + 1, line.find(L",", findComma + 1))));
+				const uint goodId = StringUtils::ToUInt(StringUtils::Trim(line.substr(findEqual + 1, findComma)));
+				const uint goodCount = StringUtils::ToUInt(StringUtils::Trim(line.substr(findComma + 1, line.find(L",", findComma + 1))));
 
 				float itemValue;
 				if (pub::Market::GetPrice(baseId, Arch2Good(goodId), itemValue) == 0)
@@ -1614,12 +1611,12 @@ namespace Hk::Player
 				{
 					continue;
 				}
-				const uint itemValue = ToUInt(Trim(line.substr(findEqual + 1)));
+				const uint itemValue = StringUtils::ToUInt(StringUtils::Trim(line.substr(findEqual + 1)));
 				value += itemValue;
 			}
 			else if (key == L"ship_archetype")
 			{
-				const uint shipArchId = ToUInt(Trim(line.substr(line.find(L"=") + 1, line.length())));
+				const uint shipArchId = StringUtils::ToUInt(StringUtils::Trim(line.substr(line.find(L"=") + 1, line.length())));
 				const GoodInfo* gi = GoodList_get()->find_by_ship_arch(shipArchId);
 				if (gi)
 				{

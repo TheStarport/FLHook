@@ -38,7 +38,7 @@ namespace Plugins::Wardrobe
 	{
 		const std::wstring type = GetParam(param, ' ', 0);
 
-		if (ToLower(type) == L"head")
+		if (StringUtils::ToLower(type) == L"head")
 		{
 			PrintUserCmdText(client, L"Heads:");
 			std::wstring heads;
@@ -46,7 +46,7 @@ namespace Plugins::Wardrobe
 				heads += (StringUtils::stows(name) + L" | ");
 			PrintUserCmdText(client, heads);
 		}
-		else if (ToLower(type) == L"body")
+		else if (StringUtils::ToLower(type) == L"body")
 		{
 			PrintUserCmdText(client, L"Bodies:");
 			std::wstring bodies;
@@ -69,7 +69,7 @@ namespace Plugins::Wardrobe
 
 		Wardrobe restart;
 
-		if (ToLower(type) == L"head")
+		if (StringUtils::ToLower(type) == L"head")
 		{
 			if (!global->config->heads.contains(StringUtils::wstos(costume)))
 			{
@@ -79,7 +79,7 @@ namespace Plugins::Wardrobe
 			restart.head = true;
 			restart.costume = global->config->heads[StringUtils::wstos(costume)];
 		}
-		else if (ToLower(type) == L"body")
+		else if (StringUtils::ToLower(type) == L"body")
 		{
 			if (!global->config->bodies.contains(StringUtils::wstos(costume)))
 			{

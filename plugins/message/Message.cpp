@@ -163,7 +163,7 @@ namespace Plugins::Message
 			}
 
 			const auto targetName = Hk::Client::GetCharacterNameByID(clientData.targetClientId);
-			msg = ReplaceStr(msg, L"#t", targetName.value());
+			msg = StringUtils::ReplaceStr(msg, L"#t", targetName.value());
 		}
 
 		if (msg.find(L"#c") != -1)
@@ -174,7 +174,7 @@ namespace Plugins::Message
 			if (location.has_value() && system.has_value())
 			{
 				const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(system.value(), position);
-				msg = ReplaceStr(msg, L"#c", curLocation);
+				msg = StringUtils::ReplaceStr(msg, L"#c", curLocation);
 			}
 			else
 			{
@@ -388,7 +388,7 @@ namespace Plugins::Message
 		uint ret1;
 		rdl.extract_text_from_buffer((unsigned short*)wBuf, sizeof(wBuf), ret1, (const char*)*rdlReader, msgSize);
 
-		const std::wstring chatMsg = ToLower(wBuf);
+		const std::wstring chatMsg = StringUtils::ToLower(wBuf);
 
 		if (const bool isGroup = (cIdTo == 0x10003 || !chatMsg.find(L"/g ") || !chatMsg.find(L"/group ")); !isGroup)
 		{
@@ -418,8 +418,8 @@ namespace Plugins::Message
 						if (global->config->disconnectSwearingInSpaceRange > 0.0f)
 						{
 							std::wstring msg = global->config->disconnectSwearingInSpaceMsg;
-							msg = ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->messages.dieMsg));
-							msg = ReplaceStr(msg, L"%player", charname);
+							msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->messages.dieMsg));
+							msg = StringUtils::ReplaceStr(msg, L"%player", charname);
 							PrintLocalUserCmdText(client, msg, global->config->disconnectSwearingInSpaceRange);
 						}
 					}
@@ -501,7 +501,7 @@ namespace Plugins::Message
 			// line.
 			global->sendingTime = true;
 			Hk::Chat::FMsg(
-			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + XMLText(GetTimeString(FLHookConfig::i()->messages.dieMsg)) + L"</TEXT>");
+			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(GetTimeString(FLHookConfig::i()->messages.dieMsg)) + L"</TEXT>");
 			global->sendingTime = false;
 		}
 		return false;
@@ -518,7 +518,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		const int msgSlot = ToInt(GetParam(param, ' ', 0));
+		const int msgSlot = StringUtils::ToInt(GetParam(param, ' ', 0));
 		const std::wstring msg = GetParamToEnd(ViewToWString(param), ' ', 1);
 
 		if (msgSlot < 0 || msgSlot > 9 || msg.empty())
@@ -746,7 +746,7 @@ namespace Plugins::Message
 		const std::wstring& clientId = GetParam(param, ' ', 0);
 		const std::wstring msg = GetParamToEnd(param, ' ', 1);
 
-		const uint toClientId = ToInt(clientId);
+		const uint toClientId = StringUtils::ToInt(clientId);
 		if (!Hk::Client::IsValidClientID(toClientId) || Hk::Client::IsInCharSelectMenu(toClientId))
 		{
 			PrintUserCmdText(client, L"ERR Invalid client-id");
@@ -777,7 +777,7 @@ namespace Plugins::Message
 		bool msgSent = false;
 		for (const auto& player : Hk::Admin::GetPlayers())
 		{
-			if (ToLower(player.character).find(ToLower(charnamePrefix)) == std::string::npos)
+			if (StringUtils::ToLower(player.character).find(StringUtils::ToLower(charnamePrefix)) == std::string::npos)
 				continue;
 
 			if (player.client == client)
@@ -798,7 +798,7 @@ namespace Plugins::Message
 	 */
 	void UserCmd_SetChatTime(ClientId& client, const std::wstring& param)
 	{
-		const std::wstring param1 = ToLower(GetParam(param, ' ', 0));
+		const std::wstring param1 = StringUtils::ToLower(GetParam(param, ' ', 0));
 		bool showChatTime = false;
 		if (!param1.compare(L"on"))
 			showChatTime = true;
@@ -844,7 +844,7 @@ namespace Plugins::Message
 			// Encode message using the death message style (red text).
 			std::wstring XMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			XMLMsg += charname + L" ";
-			XMLMsg += XMLText(ViewToWString(GetParamToEnd(param, ' ', 0)));
+			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(param, ' ', 0)));
 			XMLMsg += L"</TEXT>";
 
 			RedText(XMLMsg, systemId);
@@ -866,7 +866,7 @@ namespace Plugins::Message
 
 			// Encode message using the death message style (red text).
 			std::wstring XMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-			XMLMsg += XMLText(ViewToWString(GetParamToEnd(ViewToWString(param), ' ', 0)));
+			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(ViewToWString(param), ' ', 0)));
 			XMLMsg += L"</TEXT>";
 
 			RedText(XMLMsg, systemId);

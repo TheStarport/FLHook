@@ -111,7 +111,7 @@ namespace StartupCache
 		}
 
 		// Hook the read character name and replace it with the caching version
-		PatchCallAddr((char*)server, 0x717be, (char*)ReadCharacterName);
+		MemUtils::PatchCallAddr((char*)server, 0x717be, (char*)ReadCharacterName);
 
 		// Keep a reference to the old read character name function.
 		ReadCharName = reinterpret_cast<_ReadCharacterName>(reinterpret_cast<char*>(server) + 0x72fe0);

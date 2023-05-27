@@ -1,6 +1,8 @@
 #pragma once
 #include <ranges>
 
+#include "TemplateHelpers.hpp"
+
 class TimeUtils
 {
   public:
@@ -40,7 +42,7 @@ public:
 	static void WriteProcMem(void* address, const void* mem, uint size);
 	static void ReadProcMem(void* address, void* mem, uint size);
 
-	FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction);
+	static FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction);
 };
 
 class StringUtils
@@ -131,20 +133,44 @@ public:
 	}
 
 	template<typename TStr, typename TChar>
-	static auto GetParams(const TStr& line, TChar splitChar)
-	    requires StringRestriction<TStr> || IsView<TStr>
+	static auto GetParams(TStr line, TChar splitChar)
 	{
-		return line
-			| std::ranges::views::split(splitChar)
-			| std::ranges::views::transform([](auto&& rng) { return std::string_view(&*rng.begin(), std::ranges::distance(rng)); });
+		return line | std::ranges::views::split(splitChar) |
+		    std::ranges::views::transform([](auto&& rng) { return TStr(&*rng.begin(), std::ranges::distance(rng)); });
+	}
+
+	template<typename TTransformView, typename TViewType = typename first_template_type<typename first_template_type<TTransformView>::type_t>::type_t>
+	static TViewType GetParamToEnd(TTransformView view, uint pos)
+	{
+		if (pos == 0)
+		{
+			return TViewType();
+		}
+
+		// If specified pos is over the max amount of items return an empty string
+		if (static_cast<int>(pos) >= std::distance(view.begin(), view.end()))
+		{
+			return TViewType();
+		}
+
+		auto offset = view.begin();
+		std::advance(offset, pos);
+
+		auto newRange = std::ranges::views::counted(offset, std::distance(offset, view.end()));
+		auto finalRange = newRange | std::ranges::views::take(std::distance(offset, view.end())) | std::ranges::views::join;
+		return TViewType(&*finalRange.begin(), std::ranges::distance(finalRange) + 1);
 	}
 
 	template<typename TString, typename TChar>
-	static TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
-	    requires StringRestriction<TString> || IsView<TString>
+	static TString GetParamToEnd(TString line, TChar splitChar, uint pos)
 	{
+		if (pos == 0)
+		{
+			return line;
+		}
+
 		auto params = GetParams(line, splitChar);
-		
+		return GetParamToEnd(params, pos);
 	}
 
 	template<typename TString, typename TTStr, typename TTTStr>
