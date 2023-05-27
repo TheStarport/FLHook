@@ -122,7 +122,7 @@ std::string GetUserfilePath(const std::variant<uint, std::wstring>& player, cons
 	if (file.has_error())
 		return "";
 
-	return AcctPath + wstos(dir) + "\\" + wstos(file.value()) + Extension;
+	return AcctPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + Extension;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

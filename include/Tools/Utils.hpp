@@ -37,8 +37,8 @@ public:
 
 	static HWND GetFlServerHwnd();
 	static void SwapBytes(void* ptr, uint len);
-	static void MemUtils::WriteProcMem(void* address, const void* mem, int size);
-	static void MemUtils::ReadProcMem(void* address, void* mem, int size);
+	static void WriteProcMem(void* address, const void* mem, uint size);
+	static void ReadProcMem(void* address, void* mem, uint size);
 
 	FARPROC PatchCallAddr(char* mod, DWORD installAddress, const char* hookFunction);
 };
@@ -60,8 +60,8 @@ public:
 	static std::wstring ToLower(std::wstring string);
 	static std::string ToLower(std::string string);
 	static std::wstring ViewToWString(const std::wstring& wstring);
-	static std::string StringUtils::ViewToString(const std::string_view& stringView);
-	static std::wstring StringUtils::stows(const std::string& text);
+	static std::string ViewToString(const std::string_view& stringView);
+	static std::wstring stows(const std::string& text);
 	static std::string wstos(const std::wstring& text);
 
 	template<typename Str>
@@ -89,7 +89,7 @@ public:
 	}
 
 	template<typename TString>
-	TString ExpandEnvironmentVariables(const TString& input)
+	static TString ExpandEnvironmentVariables(const TString& input)
 	{
 		std::string accumulator = "";
 		std::string output = "";
@@ -141,8 +141,9 @@ public:
 
 	template<typename TString, typename TChar>
 	static TString GetParamToEnd(const TString& line, TChar splitChar, uint pos)
-	    requires StringRestriction<TString>
+	    requires StringRestriction<TString> || IsView<TString>
 	{
+		auto params = GetParams(line, splitChar);
 		
 	}
 
@@ -175,16 +176,16 @@ public:
 	}
 
 	template<typename TStr>
-	auto strswa(TStr str)
+	static auto strswa(TStr str)
 	    requires StringRestriction<TStr>
 	{
 		if constexpr (std::is_same_v<TStr, std::string>)
 		{
-			return StringUtils::stows(str);
+			return stows(str);
 		}
 		else
 		{
-			return wstos(str);
+			return StringUtils::wstos(str);
 		}
 	}
 };

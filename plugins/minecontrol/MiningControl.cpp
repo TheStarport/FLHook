@@ -498,7 +498,7 @@ namespace Plugins::MiningControl
 								Logger::i()->Log(
 									LogLevel::Info,
 								    std::format("High mining rate charname={} rate={:.1f}/sec location={:.1f},{:.1f},{:.1f} system={} zone={}",
-								        wstos(charName.c_str()),
+								        StringUtils::wstos(charName.c_str()),
 								        average,
 								        shipPosition.x,
 								        shipPosition.y,

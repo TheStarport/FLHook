@@ -163,8 +163,8 @@ namespace Hk::Admin
 
 		const auto dir = Client::GetAccountDirName(acc.value());
 
-		const std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
-		IniWrite(adminFile, "admin", "rights", wstos(rights));
+		const std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
+		IniWrite(adminFile, "admin", "rights", StringUtils::wstos(rights));
 		return {};
 	}
 
@@ -179,7 +179,7 @@ namespace Hk::Admin
 		}
 
 		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
 
 		// TODO: Replace WinApi call
 		WIN32_FIND_DATA fd;
@@ -205,7 +205,7 @@ namespace Hk::Admin
 
 		// TODO: Replace WinApi call
 		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string adminFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookadmin.ini";
+		std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
 		DeleteFile(adminFile.c_str());
 		return {};
 	}
@@ -245,7 +245,7 @@ namespace Hk::Admin
 	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& basename)
 	{
 		uint baseId = 0;
-		pub::GetBaseID(baseId, wstos(basename).c_str());
+		pub::GetBaseID(baseId, StringUtils::wstos(basename).c_str());
 		if (!baseId)
 		{
 			return cpp::fail(Error::InvalidBaseName);

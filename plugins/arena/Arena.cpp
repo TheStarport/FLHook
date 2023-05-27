@@ -156,7 +156,7 @@ namespace Plugins
 
 			auto fileName = charFileName.value() + L".fl";
 			CHARACTER_ID charId;
-			strcpy_s(charId.charFilename, wstos(CharFileName.substr(0, 14)).c_str());
+			strcpy_s(charId.charFilename, StringUtils::wstos(CharFileName.substr(0, 14)).c_str());
 			Server.CharacterSelect(charId, client);
 		}
 	}

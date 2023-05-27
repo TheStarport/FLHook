@@ -11,7 +11,7 @@ CommandLineParser::CommandLineParser()
 
 	for (int i = 1; i < argc; ++i)
 	{
-		tokens.emplace_back(wstos(argv[i]));
+		tokens.emplace_back(StringUtils::wstos(argv[i]));
 	}
 }
 

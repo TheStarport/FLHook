@@ -143,7 +143,7 @@ namespace Plugins::MiscCommands
 		auto motion = Hk::Solar::GetMotion(playerInfo.value().ship);
 		if (motion.has_error())
 		{
-			Logger::i()->Log(LogLevel::Warn, wstos(Hk::Err::ErrGetText(motion.error())));
+			Logger::i()->Log(LogLevel::Warn, StringUtils::wstos(Hk::Err::ErrGetText(motion.error())));
 		}
 		const auto& [dir1, dir2] = motion.value();
 

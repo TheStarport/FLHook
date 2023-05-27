@@ -249,7 +249,7 @@ void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::w
 void CCmds::CmdFMsgS(const std::wstring& system, const std::wstring& xml)
 {
 	uint systemId;
-	pub::GetSystemID(systemId, wstos(system).c_str());
+	pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
 	if (!systemId)
 	{
 		Print("Invalid System");
@@ -308,7 +308,7 @@ void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const st
 
 void CCmds::PrintPlayerInfo(PlayerInfo& pi)
 {
-	Print(wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}",
+	Print(StringUtils::wstos(std::format(L"charname={} clientid={} ip={} host={} ping={} base={} system={}",
 	    pi.character,
 	    pi.client,
 	    pi.IP,
@@ -343,7 +343,7 @@ void CCmds::CmdGetPlayers()
 
 void CCmds::XPrintPlayerInfo(const PlayerInfo& pi)
 {
-	Print(wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n",
+	Print(StringUtils::wstos(std::format(L"Name: {}, Id: {}, IP: {}, Host: {}, Ping: {}, Base: {}, System: {}\n",
 	    pi.character,
 	    pi.client,
 	    pi.IP,
@@ -379,7 +379,7 @@ void CCmds::CmdGetPlayerIds()
 {
 	for (auto& p : Hk::Admin::GetPlayers())
 	{
-		Print(std::format("{} = {} | ", wstos(p.character), p.client));
+		Print(std::format("{} = {} | ", StringUtils::wstos(p.character), p.client));
 	}
 
 	Print("OK");
@@ -398,7 +398,7 @@ void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
 
 	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-	Print(std::format("dirname={}\nOK", wstos(dir)));
+	Print(std::format("dirname={}\nOK", StringUtils::wstos(dir)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,7 +412,7 @@ void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(std::format("filename={}", wstos(res.value())));
+	Print(std::format("filename={}", StringUtils::wstos(res.value())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -492,7 +492,7 @@ void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
 
 	Print(std::format("groupsize={}", res.value().size()));
 	for (auto& m : res.value())
-		Print(std::format("id={} charname={}", m.client, wstos(m.character)));
+		Print(std::format("id={} charname={}", m.client, StringUtils::wstos(m.character)));
 	Print("OK");
 }
 
@@ -561,7 +561,7 @@ void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
 		return;
 	}
 
-	Print(std::format("rights={}\nOK\n", wstos(res.value())));
+	Print(std::format("rights={}\nOK\n", StringUtils::wstos(res.value())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -589,7 +589,7 @@ void CCmds::CmdLoadPlugins()
 
 void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 {
-	PluginManager::i()->Load(wstos(Plugin), false);
+	PluginManager::i()->Load(StringUtils::wstos(Plugin), false);
 	Print("OK");
 }
 
@@ -597,7 +597,7 @@ void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 
 void CCmds::CmdReloadPlugin(const std::wstring& pluginName)
 {
-	const auto unloadedPlugin = PluginManager::i()->Unload(wstos(pluginName));
+	const auto unloadedPlugin = PluginManager::i()->Unload(StringUtils::wstos(pluginName));
 	if (unloadedPlugin.has_error())
 	{
 		PrintError(unloadedPlugin.error());
@@ -622,7 +622,7 @@ void CCmds::CmdListPlugins()
 
 void CCmds::CmdUnloadPlugin(const std::wstring& pluginName)
 {
-	if (const auto res = PluginManager::i()->Unload(wstos(pluginName)); res.has_error())
+	if (const auto res = PluginManager::i()->Unload(StringUtils::wstos(pluginName)); res.has_error())
 	{
 		PrintError(res.error());
 		return;
@@ -669,7 +669,7 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
-	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().systemName), pos.x, pos.y, pos.z));
+	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -730,7 +730,7 @@ void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstrin
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 400;
 
-	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", wstos(target.value().systemName), pos.x, pos.y, pos.z));
+	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

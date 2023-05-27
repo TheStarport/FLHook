@@ -406,7 +406,7 @@ namespace Plugins::Message
 						const std::wstring charname = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 						Logger::i()->Log(
 						    LogLevel::Info,
-						    wstos(std::format(L"Swearing tempban on {} ({}) reason='{}'",
+						    StringUtils::wstos(std::format(L"Swearing tempban on {} ({}) reason='{}'",
 						        charname,
 						        Hk::Client::GetAccountID(Hk::Client::GetAccountByCharName(charname).value()).value(),
 						        chatMsg.c_str())));
@@ -723,9 +723,9 @@ namespace Plugins::Message
 		if (clientId.has_error())
 		{
 			MailManager::MailItem item;
-			item.author = wstos(charname);
+			item.author = StringUtils::wstos(charname);
 			item.subject = "Private Message";
-			item.body = wstos(msg);
+			item.body = StringUtils::wstos(msg);
 			MailManager::i()->SendNewMail(targetCharname, item);
 			MailManager::i()->SendMailNotification(targetCharname);
 			PrintUserCmdText(client, L"OK message saved to mailbox");

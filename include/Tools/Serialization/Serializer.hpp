@@ -320,7 +320,7 @@ class Serializer
 				{
 					if constexpr (IsWString<DeclType>)
 					{
-						json[member.name.c_str()] = wstos(member(obj));
+						json[member.name.c_str()] = StringUtils::wstos(member(obj));
 					}
 					else
 					{
@@ -343,7 +343,7 @@ class Serializer
 							std::vector<std::string> vectorOfStrings;
 							for (std::wstring& i : member(obj))
 							{
-								vectorOfStrings.emplace_back(wstos(i));
+								vectorOfStrings.emplace_back(StringUtils::wstos(i));
 							}
 							json[member.name.c_str()] = vectorOfStrings;
 						}
@@ -389,7 +389,7 @@ class Serializer
 							WriteObject(newObj, i.second);
 							if constexpr (IsWide)
 							{
-								objects[wstos(i.first)] = newObj;
+								objects[StringUtils::wstos(i.first)] = newObj;
 							}
 							else
 							{
@@ -405,7 +405,7 @@ class Serializer
 							std::map<std::string, typename DeclType::value_type::second_type> map;
 							for (const auto& [key, value] : member(obj))
 							{
-								map[wstos(key)] = value;
+								map[StringUtils::wstos(key)] = value;
 							}
 							json[member.name.c_str()] = map;
 						}

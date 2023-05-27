@@ -230,7 +230,7 @@ void LoadUserSettings(ClientId client)
 
 	const CAccount* acc = Players.FindAccountFromClientID(client);
 	const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	const std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+	const std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 
 	// read diemsg settings
 	info->dieMsg = static_cast<DIEMSGTYPE>(IniGetI(userFile, "settings", "DieMsg", DiemsgAll));

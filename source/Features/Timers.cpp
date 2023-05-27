@@ -101,10 +101,10 @@ void PublishServerStats()
 
 		ServerStats::Player player;
 		player.clientId = pd->onlineId;
-		player.playerName = wstos(info.value().character);
-		player.systemName = wstos(info.value().systemName);
+		player.playerName = StringUtils::wstos(info.value().character);
+		player.systemName = StringUtils::wstos(info.value().systemName);
 		player.systemNick = Universe::get_system(info.value().system)->nickname;
-		player.ipAddress = wstos(info.value().IP);
+		player.ipAddress = StringUtils::wstos(info.value().IP);
 
 		stats.players.emplace_back(player);
 	}
@@ -294,9 +294,9 @@ void TimerCheckResolveResults()
 			// check if banned
 			for (const auto* config = FLHookConfig::c(); const auto& ban : config->bans.banWildcardsAndIPs)
 			{
-				if (Wildcard::Fit(wstos(ban).c_str(), wstos(hostname).c_str()))
+				if (Wildcard::Fit(StringUtils::wstos(ban).c_str(), StringUtils::wstos(hostname).c_str()))
 				{
-					// AddKickLog(ip.client, wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
+					// AddKickLog(ip.client, StringUtils::wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
 					if (config->bans.banAccountOnMatch)
 						Hk::Player::Ban(client, true);
 					Hk::Player::Kick(client);

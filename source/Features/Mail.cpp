@@ -13,14 +13,14 @@ std::string MailManager::GetCharacterName(const std::variant<uint, std::wstring>
 		if (name.has_error())
 			return "";
 
-		return wstos(name.value());
+		return StringUtils::wstos(name.value());
 	}
 
 	// Validate that the name is correct
 	if (const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(character)); acc.has_error())
 		return "";
 
-	return wstos(std::get<std::wstring>(character));
+	return StringUtils::wstos(std::get<std::wstring>(character));
 }
 
 MailManager::MailManager()

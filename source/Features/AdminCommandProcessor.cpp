@@ -41,7 +41,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::
 	{
 		return cpp::fail(nlohmann::json {{"err", res.error()}});
 	}
-	return nlohmann::json {{"res", std::format("{} has been set {} credits.", characterName, res.value()), {characterName, res.value}}};
+	return nlohmann::json {{"res", std::format("{} has been set {} credits.", characterName, res.value()), {characterName, res.value() }}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(std::string_view characterName, std::string_view reason)
@@ -114,7 +114,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::s
 		return nlohmann::json {{"err", res.error()}};
 	}
 
-	return nlohmann::json {{"res", std::format("{}'s reputation with {} set to {}", characterName, wstos(repGroup), value)}};
+	return nlohmann::json {{"res", std::format("{}'s reputation with {} set to {}", characterName, StringUtils::wstos(repGroup), value)}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std::string_view characterName, const std::wstring& repGroup)
@@ -125,7 +125,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std:
 		return nlohmann::json {{"err", res.error()}};
 	}
 	return nlohmann::json {
-	    {"res", std::format("{}'rep to {} reset", characterName, wstos(repGroup))}, {"repGroup", repGroup}, {"characterName", characterName}};
+	    {"res", std::format("{}'rep to {} reset", characterName, StringUtils::wstos(repGroup))}, {"repGroup", repGroup}, {"characterName", characterName}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::string_view characterName, const std::wstring& repGroup)
@@ -136,7 +136,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::s
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, wstos(repGroup), res.value())},
+	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, StringUtils::wstos(repGroup), res.value())},
 	    {"repGroup", repGroup},
 	    {"reputation", res.value()},
 	    {"characterName", characterName}};

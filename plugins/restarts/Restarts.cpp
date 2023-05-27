@@ -91,7 +91,7 @@ namespace Plugins::Restart
 			{
 				continue;
 			}
-			if (entity.path().filename().string() == wstos(restartTemplate + L".fl"))
+			if (entity.path().filename().string() == StringUtils::wstos(restartTemplate + L".fl"))
 			{
 				restart.restartFile = entity.path().string();
 			}
@@ -178,7 +178,7 @@ namespace Plugins::Restart
 			try
 			{
 				// Overwrite the existing character file
-				std::string charFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(restart.directory) + "\\" + StringUtils::wstos(restart.characterFile) + ".fl";
 				std::string timeStampDesc = IniGetS(charFile, "Player", "description", "");
 				std::string timeStamp = IniGetS(charFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.restartFile.c_str(), charFile.c_str(), FALSE))
@@ -193,15 +193,15 @@ namespace Plugins::Restart
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
-				Logger::i()->Log(LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), wstos(restart.characterName).c_str()));
+				Logger::i()->Log(LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), StringUtils::wstos(restart.characterName).c_str()));
 			}
 			catch (char* err)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("User restart failed ({}) for {}", err, wstos(restart.characterName).c_str()));
+				Logger::i()->Log(LogLevel::Err, std::format("User restart failed ({}) for {}", err, StringUtils::wstos(restart.characterName).c_str()));
 			}
 			catch (...)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("User restart failed for {}", wstos(restart.characterName)));
+				Logger::i()->Log(LogLevel::Err, std::format("User restart failed for {}", StringUtils::wstos(restart.characterName)));
 			}
 		}
 	}

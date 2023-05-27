@@ -40,7 +40,7 @@ namespace Plugins::CashManager::Sql
 	std::optional<Bank> GetBankByIdentifier(std::wstring identifier)
 	{
 		SQLite::Statement findExistingQuery(global->sql, "SELECT id, bankPassword, cash FROM banks WHERE identifier = ?");
-		findExistingQuery.bind(1, wstos(identifier));
+		findExistingQuery.bind(1, StringUtils::wstos(identifier));
 
 		if (!findExistingQuery.executeStep())
 		{
@@ -66,7 +66,7 @@ namespace Plugins::CashManager::Sql
 
 	Bank GetOrCreateBank(const CAccount* account)
 	{
-		const auto accountIdString = wstos(account->accId);
+		const auto accountIdString = StringUtils::wstos(account->accId);
 		SQLite::Statement findExistingQuery(global->sql, "SELECT bankPassword, identifier, cash FROM banks WHERE id = ?");
 		findExistingQuery.bind(1, accountIdString);
 

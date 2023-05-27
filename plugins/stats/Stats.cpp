@@ -100,7 +100,7 @@ namespace Plugins::Stats
 			nlohmann::json jsonPlayer;
 
 			// Add name
-			jsonPlayer["name"] = encode(wstos(player.character));
+			jsonPlayer["name"] = encode(StringUtils::wstos(player.character));
 
 			// Add rank
 			const int rank = Hk::Player::GetRank(player.client).value();
@@ -112,12 +112,12 @@ namespace Plugins::Stats
 
 			// Add ship
 			const Archetype::Ship* ship = Archetype::GetShip(Players[player.client].shipArchetype);
-			jsonPlayer["ship"] = ship ? wstos(global->Ships[ship->get_id()]) : "unknown";
+			jsonPlayer["ship"] = ship ? StringUtils::wstos(global->Ships[ship->get_id()]) : "unknown";
 
 			// Add system
 			SystemId systemId = Hk::Player::GetSystem(player.client).value();
 			const Universe::ISystem* system = Universe::get_system(systemId);
-			jsonPlayer["system"] = wstos(Hk::Chat::GetWStringFromIdS(system->idsName));
+			jsonPlayer["system"] = StringUtils::wstos(Hk::Chat::GetWStringFromIdS(system->idsName));
 
 			jsonPlayers.push_back(jsonPlayer);
 		}

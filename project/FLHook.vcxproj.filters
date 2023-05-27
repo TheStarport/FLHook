@@ -359,6 +359,8 @@
     <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp">
       <Filter>Include\Features</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\TemplateHelpers.hpp" />
+    <ClInclude Include="..\include\Tools\TemplateHelpers.hpp">
+      <Filter>FLHook\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

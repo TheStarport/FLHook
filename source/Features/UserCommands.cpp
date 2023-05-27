@@ -27,7 +27,7 @@
 	{                                                                    \
 		CAccount* acc = Players.FindAccountFromClientID(client);         \
 		std::wstring dir = Hk::Client::GetAccountDirName(acc);           \
-		a = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini"; \
+		a = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini"; \
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -867,7 +867,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		if (param.has_value())
 		{
 			const std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			Logger::i()->Log(LogLevel::Info, wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
+			Logger::i()->Log(LogLevel::Info, StringUtils::wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
 
 			try
 			{

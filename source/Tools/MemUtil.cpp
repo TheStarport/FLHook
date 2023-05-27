@@ -24,7 +24,7 @@ void MemUtils::SwapBytes(void* ptr, uint len)
 	}
 }
 
-void MemUtils::MemUtils::WriteProcMem(void* address, const void* mem, int size)
+void MemUtils::WriteProcMem(void* address, const void* mem, uint size)
 {
 	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;
@@ -33,7 +33,7 @@ void MemUtils::MemUtils::WriteProcMem(void* address, const void* mem, int size)
 	CloseHandle(hProc);
 }
 
-void MemUtils::MemUtils::ReadProcMem(void* address, void* mem, int size)
+void MemUtils::ReadProcMem(void* address, void* mem, uint size)
 {
 	const HANDLE hProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	DWORD old;

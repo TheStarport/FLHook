@@ -12,7 +12,7 @@ const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<Func
 
 int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costume, uint infocardId, uint* a5, int a6, uint infocardId2, float a8, bool a9)
 {
-	if (const CShip* ship = static_cast<CShip*>(CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT)); ship && ship->is_player())
+	if (const CShip* ship = dynamic_cast<CShip*>(CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT)); ship && ship->is_player())
 	{
 		const auto client = ship->GetOwnerPlayer();
 
@@ -46,7 +46,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 		{
 			if (auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group"); repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
 			{
-				auto val = wstos(repGroupNick.value());
+				auto val = StringUtils::wstos(repGroupNick.value());
 				MemUtils::WriteProcMem(playerFactionAddr, val.erase(val.size() - 4).c_str(), val.size());
 			}
 			else

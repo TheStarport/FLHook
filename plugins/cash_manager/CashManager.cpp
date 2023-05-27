@@ -208,7 +208,7 @@ namespace Plugins::CashManager
 
 		PrintUserCmdText(client, std::format(L"Successfully transferred {} credits to {}", ToMoneyStr(amount), bank.identifier));
 		Sql::AddTransaction(
-		    bank, std::format("Bank {} -> Bank {}", wstos(bank.identifier), wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
+		    bank, std::format("Bank {} -> Bank {}", StringUtils::wstos(bank.identifier), StringUtils::wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
 	}
 
 	void ShowBankInfo(ClientId& client, const Bank& bank, bool showPass)
@@ -330,7 +330,7 @@ namespace Plugins::CashManager
 				return;
 			}
 
-			Sql::SetOrClearIdentifier(bank, wstos(identifier));
+			Sql::SetOrClearIdentifier(bank, StringUtils::wstos(identifier));
 			PrintUserCmdText(client, std::format(L"Bank identifier set to: {}", identifier));
 		}
 		else if (cmd == L"withdraw")

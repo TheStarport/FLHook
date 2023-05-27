@@ -52,7 +52,7 @@ namespace Hk::Chat
 		if (!system.index())
 		{
 			const auto systemName = std::get<std::wstring>(system);
-			pub::GetSystemID(systemId, wstos(systemName).c_str());
+			pub::GetSystemID(systemId, StringUtils::wstos(systemName).c_str());
 		}
 		else
 		{
@@ -164,7 +164,7 @@ namespace Hk::Chat
 		if (!system.index())
 		{
 			const auto systemName = std::get<std::wstring>(system);
-			pub::GetSystemID(systemId, wstos(systemName).c_str());
+			pub::GetSystemID(systemId, StringUtils::wstos(systemName).c_str());
 		}
 		else
 		{

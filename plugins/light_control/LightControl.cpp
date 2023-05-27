@@ -73,7 +73,7 @@ namespace Plugins::LightControl
 
 		for (const auto& light : config.lights)
 		{
-			uint lightIdHash = CreateID(wstos(light).c_str());
+			uint lightIdHash = CreateID(StringUtils::wstos(light).c_str());
 			global->config->lightsHashed.emplace_back(lightIdHash);
 		}
 	}
@@ -280,7 +280,7 @@ namespace Plugins::LightControl
 				return;
 			}
 
-			const auto lightId = CreateID(wstos(selectedLight).c_str());
+			const auto lightId = CreateID(StringUtils::wstos(selectedLight).c_str());
 			if (std::ranges::find(global->config->lightsHashed, lightId) == global->config->lightsHashed.end())
 			{
 				PrintUserCmdText(client, std::format(L"ERR: {} is not a valid option", selectedLight));

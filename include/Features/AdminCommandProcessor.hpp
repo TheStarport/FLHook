@@ -25,7 +25,7 @@ class AdminCommandProcessor
 	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(const std::wstring& systemName, const std::wstring& text);
 	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(const std::wstring text);
 
-	const static std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
+	const std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
 	{
 	    {
 	        AddCommand("getcash", GetCash),
@@ -50,7 +50,7 @@ class AdminCommandProcessor
 	template<int N>
 	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector) const
 	{
-		if (const auto command = std::get<N - 1>(commands); command.first == cmd)
+		if (const auto command = std::get<N - 1>(processor->commands); command.first == cmd)
 		{
 			return command.second(*processor, paramVector);
 		}

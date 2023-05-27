@@ -76,7 +76,7 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
 
 		// TODO: Remove capi references
 		FILE* fTest;
@@ -130,7 +130,7 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
 		int retVal;
 		if (Client::IsEncoded(charFile))
 		{
@@ -318,7 +318,7 @@ namespace Hk::Player
 		// if basename was passed as string
 		if (baseVar.index() == 1)
 		{
-			const std::string baseName = wstos(std::get<std::wstring>(baseVar));
+			const std::string baseName = StringUtils::wstos(std::get<std::wstring>(baseVar));
 
 			// get base id
 			if (pub::GetBaseID(baseId, baseName.c_str()) == -4)
@@ -359,7 +359,7 @@ namespace Hk::Player
 			}
 			const std::wstring newFile = fileName.value() + L".fl";
 			CHARACTER_ID charId;
-			strcpy_s(charId.charFilename, wstos(newFile.substr(0, 14)).c_str());
+			strcpy_s(charId.charFilename, StringUtils::wstos(newFile.substr(0, 14)).c_str());
 			Server.CharacterSelect(charId, client);
 		}
 
@@ -533,7 +533,7 @@ namespace Hk::Player
 	{
 		uint goodId = ToInt(good.c_str());
 		if (!goodId)
-			pub::GetGoodID(goodId, wstos(good).c_str());
+			pub::GetGoodID(goodId, StringUtils::wstos(good).c_str());
 		if (!goodId)
 			return cpp::fail(Error::InvalidGood);
 
@@ -588,8 +588,8 @@ namespace Hk::Player
 			return cpp::fail(oldFileName.error());
 		}
 
-		std::string NewCharfilePath = CoreGlobals::c()->accPath + wstos(AccountDirname) + "\\" + wstos(newFileName.value()) + ".fl";
-		std::string OldCharfilePath = CoreGlobals::c()->accPath + wstos(AccountDirname) + "\\" + wstos(oldFileName.value()) + ".fl";
+		std::string NewCharfilePath = CoreGlobals::c()->accPath + StringUtils::wstos(AccountDirname) + "\\" + StringUtils::wstos(newFileName.value()) + ".fl";
+		std::string OldCharfilePath = CoreGlobals::c()->accPath + StringUtils::wstos(AccountDirname) + "\\" + StringUtils::wstos(oldFileName.value()) + ".fl";
 
 		if (onlyDelete)
 		{
@@ -755,7 +755,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Client::GetAccountDirName(acc);
-		const std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		const std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 
 		return IniGetB(userFile, "Settings", "ReservedSlot", false);
 	}
@@ -769,7 +769,7 @@ namespace Hk::Player
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		const auto dir = Client::GetAccountDirName(acc.value());
-		const std::string UserFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		const std::string UserFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 
 		if (reservedSlot)
 			IniWrite(UserFile, "Settings", "ReservedSlot", "yes");
@@ -829,7 +829,7 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		uint repGroupId;
-		pub::Reputation::GetReputationGroup(repGroupId, wstos(repGroup).c_str());
+		pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(repGroup).c_str());
 		if (repGroupId == -1)
 			return cpp::fail(Error::InvalidRepGroup);
 
@@ -850,7 +850,7 @@ namespace Hk::Player
 		uint repGroupId;
 		if (repGroup.index() == 1)
 		{
-			pub::Reputation::GetReputationGroup(repGroupId, wstos(std::get<std::wstring>(repGroup)).c_str());
+			pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(std::get<std::wstring>(repGroup)).c_str());
 			if (repGroupId == UINT_MAX)
 				return cpp::fail(Error::InvalidRepGroup);
 		}
@@ -919,7 +919,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
 		std::string fileToRead;
 		bool deleteAfter;
 		if (Client::IsEncoded(charFile))
@@ -975,7 +975,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
 		std::string fileToWrite;
 		bool encode;
 		if (Client::IsEncoded(charFile))
@@ -998,12 +998,12 @@ namespace Hk::Player
 		while ((pos = data.find(L"\\n")) != -1)
 		{
 			std::wstring line = data.substr(0, pos);
-			ofs << wstos(line) << std::endl;
+			ofs << StringUtils::wstos(line) << std::endl;
 			data.erase(0, pos + 2);
 		}
 
 		if (data.length())
-			ofs << wstos(data);
+			ofs << StringUtils::wstos(data);
 
 		ofs.close();
 		if (encode)
@@ -1120,7 +1120,7 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		const std::string CharFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl";
+		const std::string CharFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
 		if (Client::IsEncoded(CharFile))
 		{
 			const std::string CharFileNew = CharFile + ".ini";
@@ -1137,7 +1137,7 @@ namespace Hk::Player
 	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname)
 	{
 		uint system = 0;
-		const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : wstos(std::get<std::wstring>(nickname));
+		const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : StringUtils::wstos(std::get<std::wstring>(nickname));
 		pub::GetSystemID(system, nick.c_str());
 		if (!system)
 			return cpp::fail(Error::InvalidSystem);
@@ -1570,7 +1570,7 @@ namespace Hk::Player
 					continue;
 				}
 
-				baseId = CreateID(wstos(Trim(line.substr(findEqual + 1))).c_str());
+				baseId = CreateID(StringUtils::wstos(Trim(line.substr(findEqual + 1))).c_str());
 				break;
 			}
 		}

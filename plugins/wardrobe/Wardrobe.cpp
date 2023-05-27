@@ -71,23 +71,23 @@ namespace Plugins::Wardrobe
 
 		if (ToLower(type) == L"head")
 		{
-			if (!global->config->heads.contains(wstos(costume)))
+			if (!global->config->heads.contains(StringUtils::wstos(costume)))
 			{
 				PrintUserCmdText(client, L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
 				return;
 			}
 			restart.head = true;
-			restart.costume = global->config->heads[wstos(costume)];
+			restart.costume = global->config->heads[StringUtils::wstos(costume)];
 		}
 		else if (ToLower(type) == L"body")
 		{
-			if (!global->config->bodies.contains(wstos(costume)))
+			if (!global->config->bodies.contains(StringUtils::wstos(costume)))
 			{
 				PrintUserCmdText(client, L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
 				return;
 			}
 			restart.head = false;
-			restart.costume = global->config->bodies[wstos(costume)];
+			restart.costume = global->config->bodies[StringUtils::wstos(costume)];
 		}
 		else
 		{
@@ -125,7 +125,7 @@ namespace Plugins::Wardrobe
 			try
 			{
 				// Overwrite the existing character file
-				std::string charFile = CoreGlobals::c()->accPath + wstos(restart.directory) + "\\" + wstos(restart.characterFile) + ".fl";
+				std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(restart.directory) + "\\" + StringUtils::wstos(restart.characterFile) + ".fl";
 				FlcDecodeFile(charFile.c_str(), charFile.c_str());
 				if (restart.head)
 				{
@@ -137,15 +137,15 @@ namespace Plugins::Wardrobe
 				if (!FLHookConfig::i()->general.disableCharfileEncryption)
 					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
-				Logger::i()->Log(LogLevel::Info, std::format("User {} costume change to {}", wstos(restart.characterFile).c_str(), restart.costume));
+				Logger::i()->Log(LogLevel::Info, std::format("User {} costume change to {}", StringUtils::wstos(restart.characterFile).c_str(), restart.costume));
 			}
 			catch (char* err)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {} ({})", wstos(restart.characterName).c_str(), restart.costume, err));
+				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {} ({})", StringUtils::wstos(restart.characterName).c_str(), restart.costume, err));
 			}
 			catch (...)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {}", wstos(restart.characterName).c_str(), restart.costume));
+				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {}", StringUtils::wstos(restart.characterName).c_str(), restart.costume));
 			}
 		}
 	}

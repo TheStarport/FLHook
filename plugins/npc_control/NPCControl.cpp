@@ -219,7 +219,7 @@ namespace Plugins::Npc
 		global->spawnedNpcs.push_back(spaceObj);
 
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
-		std::string logMessage = "Created " + wstos(name);
+		std::string logMessage = "Created " + StringUtils::wstos(name);
 		global->Log->log(level, logMessage);
 	}
 
@@ -270,7 +270,7 @@ namespace Plugins::Npc
 			// Check spawn chance is valid
 			if (npc.spawnChance < 0 || npc.spawnChance > 1)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("Spawn chance must be between 0 and 1 for NPC {}", wstos(npc.name)));
+				Logger::i()->Log(LogLevel::Err, std::format("Spawn chance must be between 0 and 1 for NPC {}", StringUtils::wstos(npc.name)));
 				continue;
 			}
 
@@ -422,7 +422,7 @@ namespace Plugins::Npc
 			client = Hk::Client::GetClientIdFromCharName(charname).value();
 
 		if (client == UINT_MAX)
-			cmds->Print(std::format("{} is not online", wstos(charname)));
+			cmds->Print(std::format("{} is not online", StringUtils::wstos(charname)));
 
 		else
 		{
@@ -441,12 +441,12 @@ namespace Plugins::Npc
 						for (const auto& npc : global->spawnedNpcs)
 							AiFollow(ship.value(), npc);
 					}
-					cmds->Print(std::format("Following {}", wstos(charname)));
+					cmds->Print(std::format("Following {}", StringUtils::wstos(charname)));
 				}
 			}
 			else
 			{
-				cmds->Print(std::format("{} is not in space", wstos(charname)));
+				cmds->Print(std::format("{} is not in space", StringUtils::wstos(charname)));
 			}
 		}
 	}
@@ -501,7 +501,7 @@ namespace Plugins::Npc
 		cmds->Print(std::format("Available NPCs: {}", global->config->npcInfo.size()));
 
 		for (auto const& [name, npc] : global->config->npcInfo)
-			cmds->Print(std::format("|{}", wstos(name)));
+			cmds->Print(std::format("|{}", StringUtils::wstos(name)));
 	}
 
 	/** @ingroup NPCControl
@@ -518,7 +518,7 @@ namespace Plugins::Npc
 		cmds->Print(std::format("Available fleets: {}", global->config->fleetInfo.size()));
 
 		for (auto const& [name, npc] : global->config->fleetInfo)
-			cmds->Print(std::format("|{}", wstos(name)));
+			cmds->Print(std::format("|{}", StringUtils::wstos(name)));
 	}
 
 	/** @ingroup NPCControl

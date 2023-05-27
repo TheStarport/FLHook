@@ -100,14 +100,14 @@ namespace Plugins::DeathPenalty
 				auto shipValue = Hk::Player::GetShipValue(client);
 				if (shipValue.has_error())
 				{
-					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get ship value of undocking player: {}", wstos(Hk::Err::ErrGetText(shipValue.error()))));
+					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get ship value of undocking player: {}", StringUtils::wstos(Hk::Err::ErrGetText(shipValue.error()))));
 					return;
 				}
 
 				const auto cash = Hk::Player::GetCash(client);
 				if (cash.has_error())
 				{
-					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get cash of undocking player: {}", wstos(Hk::Err::ErrGetText(cash.error()))));
+					Logger::i()->Log(LogLevel::Warn, std::format("Unable to get cash of undocking player: {}", StringUtils::wstos(Hk::Err::ErrGetText(cash.error()))));
 					return;
 				}
 
@@ -137,11 +137,11 @@ namespace Plugins::DeathPenalty
 		// Get Account directory then flhookuser.ini file
 		const CAccount* acc = Players.FindAccountFromClientID(client);
 		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-		std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
+		std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 
 		// Get char filename and save setting to flhookuser.ini
 		const auto charFilename = Hk::Client::GetCharFileName(client);
-		std::string filename = wstos(charFilename.value());
+		std::string filename = StringUtils::wstos(charFilename.value());
 		std::string Section = "general_" + filename;
 
 		// read death penalty settings
@@ -238,8 +238,8 @@ namespace Plugins::DeathPenalty
 		const std::wstring dir = Hk::Client::GetAccountDirName(acc);
 		if (const auto file = Hk::Client::GetCharFileName(client); file.has_value())
 		{
-			std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-			std::string section = "general_" + wstos(file.value());
+			std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+			std::string section = "general_" + StringUtils::wstos(file.value());
 			IniWrite(userFile, section, "DPnotice", value);
 		}
 	}

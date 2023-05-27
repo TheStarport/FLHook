@@ -439,7 +439,7 @@ namespace Plugins::ConData
 
 				auto saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
 				int txqueue = cdpClient->GetSendQSize();
-				classptr->Print(wstos(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
+				classptr->Print(StringUtils::wstos(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
 				    Hk::Client::GetCharacterNameByID(client).value(),
 				    client,
 				    con.averageLoss,

@@ -88,7 +88,7 @@ namespace Plugins::Rename
 	bool DeleteCharacter(const std::string& charFilename, ClientId& client)
 	{
 		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
-		const std::string accDir = CoreGlobals::c()->accPath + wstos(dir) + "\\";
+		const std::string accDir = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\";
 		const std::string renameIniDir = accDir + "rename.ini";
 		if (!std::filesystem::exists(renameIniDir))
 			return true;
@@ -96,7 +96,7 @@ namespace Plugins::Rename
 		const std::string charDir = accDir + charFilename.c_str();
 		const std::wstring charName = IniGetWS(charDir, "Player", "Name", L"");
 
-		IniDelete(renameIniDir, "General", wstos(charName));
+		IniDelete(renameIniDir, "General", StringUtils::wstos(charName));
 
 		return true;
 	}
@@ -201,7 +201,7 @@ namespace Plugins::Rename
 		PrintUserCmdText(client, std::format(L"Created faction tag {} with master password {}", tag, pass));
 		Logger::i()->Log(
 		    LogLevel::Info,
-		    wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+		    StringUtils::wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 		SaveSettings();
 	}
 
@@ -236,7 +236,7 @@ namespace Plugins::Rename
 			PrintUserCmdText(client, L"OK Tag dropped");
 			Logger::i()->Log(
 			    LogLevel::Info,
-			    wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
+			    StringUtils::wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
 		}
 
@@ -322,18 +322,18 @@ namespace Plugins::Rename
 				}
 
 				// Update any mail references this character had before
-				MailManager::i()->UpdateCharacterName(wstos(o.charName), wstos(o.newCharName));
+				MailManager::i()->UpdateCharacterName(StringUtils::wstos(o.charName), StringUtils::wstos(o.newCharName));
 
 				// The rename worked. Log it and save the rename time.
 				Logger::i()->Log(
 				    LogLevel::Info,
-				    wstos(std::format(L"User rename {} to {} ({})", o.charName.c_str(), o.newCharName.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
+				    StringUtils::wstos(std::format(L"User rename {} to {} ({})", o.charName.c_str(), o.newCharName.c_str(), Hk::Client::GetAccountID(acc).value().c_str())));
 			}
 			catch (char* err)
 			{
 				Logger::i()->Log(
 				    LogLevel::Err,
-				    wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
+				    StringUtils::wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
 				        StringUtils::stows(err),
 				        o.charName.c_str(),
 				        o.newCharName.c_str(),
@@ -371,20 +371,20 @@ namespace Plugins::Rename
 				if (!std::filesystem::exists(o.destFile.c_str()))
 					throw "dest does not exist";
 
-				std::string oldAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(oldAcc));
+				std::string oldAccDir = CoreGlobals::c()->accPath + StringUtils::wstos(Hk::Client::GetAccountDirName(oldAcc));
 
-				if (std::wstring oldCharRenameLimit = IniGetWS(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName), L"");
+				if (std::wstring oldCharRenameLimit = IniGetWS(oldAccDir + "\\rename.ini", "General", StringUtils::wstos(o.movingCharName), L"");
 				    !oldCharRenameLimit.empty())
 				{
-					std::string newAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(acc));
-					IniWriteW(newAccDir + "\\rename.ini", "General", wstos(o.movingCharName), oldCharRenameLimit);
-					IniDelete(oldAccDir + "\\rename.ini", "General", wstos(o.movingCharName));
+					std::string newAccDir = CoreGlobals::c()->accPath + StringUtils::wstos(Hk::Client::GetAccountDirName(acc));
+					IniWriteW(newAccDir + "\\rename.ini", "General", StringUtils::wstos(o.movingCharName), oldCharRenameLimit);
+					IniDelete(oldAccDir + "\\rename.ini", "General", StringUtils::wstos(o.movingCharName));
 				}
 
 				// The move worked. Log it.
 				Logger::i()->Log(
 					LogLevel::Info,
-				    wstos(std::format(L"Character {} moved from {} to {}",
+				    StringUtils::wstos(std::format(L"Character {} moved from {} to {}",
 				        o.movingCharName.c_str(),
 				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
 				        Hk::Client::GetAccountID(acc).value().c_str())));
@@ -393,7 +393,7 @@ namespace Plugins::Rename
 			{
 				Logger::i()->Log(
 				    LogLevel::Err,
-				    wstos(std::format(L"Character {} move failed ({}) from {} to {}",
+				    StringUtils::wstos(std::format(L"Character {} move failed ({}) from {} to {}",
 				        o.movingCharName,
 				        StringUtils::stows(std::string(err)),
 				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
@@ -504,12 +504,12 @@ namespace Plugins::Rename
 
 		// Read the last time a rename was done on this character
 		const auto dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByClientID(client));
-		std::string renameFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + "rename.ini";
+		std::string renameFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + "rename.ini";
 
 		// If a rename was done recently by this player then reject the request.
 		// I know that time() returns time_t...shouldn't matter for a few years
 		// yet.
-		if (uint lastRenameTime = IniGetI(renameFile, "General", wstos(charname), 0);
+		if (uint lastRenameTime = IniGetI(renameFile, "General", StringUtils::wstos(charname), 0);
 		    (lastRenameTime + 300) < Hk::Time::GetUnixSeconds() && (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnixSeconds())
 		{
 			PrintUserCmdText(client, L"ERR Rename time limit");
@@ -539,12 +539,12 @@ namespace Plugins::Rename
 		Rename o;
 		o.charName = charname;
 		o.newCharName = newCharName;
-		o.sourceFile = accPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
-		o.destFile = accPath + wstos(dir) + "\\" + wstos(destFile.value()) + ".fl";
+		o.sourceFile = accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(sourceFile.value()) + ".fl";
+		o.destFile = accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(destFile.value()) + ".fl";
 		global->pendingRenames.emplace_back(o);
 
 		Hk::Player::KickReason(o.charName, L"Updating character, please wait 10 seconds before reconnecting");
-		IniWrite(renameFile, "General", wstos(o.newCharName), std::to_string(Hk::Time::GetUnixSeconds()));
+		IniWrite(renameFile, "General", StringUtils::wstos(o.newCharName), std::to_string(Hk::Time::GetUnixSeconds()));
 	}
 
 	/** Process a set the move char code command */
@@ -588,7 +588,7 @@ namespace Plugins::Rename
 	{
 		const std::wstring dir = Hk::Client::GetAccountDirName(Hk::Client::GetAccountByCharName(charname).value());
 
-		const std::string banfile = CoreGlobals::c()->accPath + wstos(dir) + "\\banned";
+		const std::string banfile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\banned";
 
 		// Prevent ships from banned accounts from being moved.
 		FILE* f;
@@ -708,8 +708,8 @@ namespace Plugins::Rename
 		Move o;
 		o.destinationCharName = charname;
 		o.movingCharName = movingCharName;
-		o.sourceFile = acctPath + wstos(sourceDir) + "\\" + wstos(sourceFile.value()) + ".fl";
-		o.destFile = acctPath + wstos(dir) + "\\" + wstos(sourceFile.value()) + ".fl";
+		o.sourceFile = acctPath + StringUtils::wstos(sourceDir) + "\\" + StringUtils::wstos(sourceFile.value()) + ".fl";
+		o.destFile = acctPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(sourceFile.value()) + ".fl";
 		global->pendingMoves.emplace_back(o);
 
 		// Delete the move code
@@ -765,7 +765,7 @@ namespace Plugins::Rename
 		do
 		{
 			std::string charFile = FindFileData.cFileName;
-			std::string moveCodeFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + charFile.substr(0, charFile.size() - 3) + "-movechar.ini";
+			std::string moveCodeFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + charFile.substr(0, charFile.size() - 3) + "-movechar.ini";
 			if (code == L"none")
 			{
 				IniWriteW(moveCodeFile, "Settings", "Code", L"");
@@ -774,7 +774,7 @@ namespace Plugins::Rename
 			else
 			{
 				IniWriteW(moveCodeFile, "Settings", "Code", code);
-				cmds->Print(std::format("OK Movechar code set to {} on {} \n", wstos(code), charFile));
+				cmds->Print(std::format("OK Movechar code set to {} on {} \n", StringUtils::wstos(code), charFile));
 			}
 		} while (FindNextFile(hFileFind, &FindFileData));
 		FindClose(hFileFind);
@@ -796,7 +796,7 @@ namespace Plugins::Rename
 		{
 			const auto last_access = static_cast<int>(tag.lastAccess);
 			int days = (curr_time - last_access) / (24 * 3600);
-			cmds->Print(wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n",
+			cmds->Print(StringUtils::wstos(std::format(L"tag={} master_password={} rename_password={} last_access={} days description={}\n",
 			    tag.tag,
 			    tag.masterPassword,
 			    tag.renamePassword,
@@ -845,7 +845,7 @@ namespace Plugins::Rename
 		data.renamePassword = L"";
 		data.lastAccess = Hk::Time::GetUnixSeconds();
 		data.description = description;
-		cmds->Print(wstos(std::format(L"Created faction tag {} with master password {}", tag, password)));
+		cmds->Print(StringUtils::wstos(std::format(L"Created faction tag {} with master password {}", tag, password)));
 		global->tagList.tags.emplace_back(data);
 		SaveSettings();
 	}

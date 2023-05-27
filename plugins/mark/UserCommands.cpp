@@ -120,8 +120,8 @@ namespace Plugins::Mark
 			const auto dir = Hk::Client::GetAccountDirName(acc);
 			if (fileName.has_value())
 			{
-				std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-				std::string section = "general_" + wstos(fileName.value());
+				std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+				std::string section = "general_" + StringUtils::wstos(fileName.value());
 				IniWrite(userFile, section, "automarkenabled", "no");
 				PrintUserCmdText(client, L"Accepting marks from the group");
 			}
@@ -134,8 +134,8 @@ namespace Plugins::Mark
 			const auto dir = Hk::Client::GetAccountDirName(acc);
 			if (fileName.has_value())
 			{
-				std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-				std::string section = "general_" + wstos(fileName.value());
+				std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+				std::string section = "general_" + StringUtils::wstos(fileName.value());
 				IniWrite(userFile, section, "automarkenabled", "yes");
 				PrintUserCmdText(client, L"Ignoring marks from the group");
 			}
@@ -186,8 +186,8 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-					std::string section = "general_" + wstos(fileName.value());
+					std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automark", "yes");
 					if (!radiusString.empty())
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
@@ -201,8 +201,8 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-					std::string section = "general_" + wstos(fileName.value());
+					std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));
@@ -220,8 +220,8 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-					std::string section = "general_" + wstos(fileName.value());
+					std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automark", "no");
 					if (!radiusString.empty())
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
@@ -238,8 +238,8 @@ namespace Plugins::Mark
 				const auto dir = Hk::Client::GetAccountDirName(acc);
 				if (fileName.has_value())
 				{
-					std::string userFile = CoreGlobals::c()->accPath + wstos(dir) + "\\flhookuser.ini";
-					std::string section = "general_" + wstos(fileName.value());
+					std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));

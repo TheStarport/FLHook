@@ -63,7 +63,7 @@ namespace Hk::Ini
 				str += "\n[flhook]\n";
 				for (const auto& [key, value] : clients[client].lines)
 				{
-					str += wstos(std::format(L"{} = {}\n", key, value));
+					str += StringUtils::wstos(std::format(L"{} = {}\n", key, value));
 				}
 			};
 
@@ -175,18 +175,18 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
+		if (const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
 			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			ret = StringUtils::stows(IniGetS(charFileNew, "Player", wstos(Key), ""));
+			ret = StringUtils::stows(IniGetS(charFileNew, "Player", StringUtils::wstos(Key), ""));
 			DeleteFile(charFileNew.c_str());
 		}
 		else
 		{
-			ret = StringUtils::stows(IniGetS(charFile, "Player", wstos(Key), ""));
+			ret = StringUtils::stows(IniGetS(charFile, "Player", StringUtils::wstos(Key), ""));
 		}
 
 		return ret;
@@ -204,13 +204,13 @@ namespace Hk::Ini
 			return cpp::fail(file.error());
 		}
 
-		if (const std::string charFile = CoreGlobals::c()->accPath + wstos(dir) + "\\" + wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
+		if (const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl"; Client::IsEncoded(charFile))
 		{
 			const std::string charFileNew = charFile + ".ini";
 			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			IniWrite(charFileNew, "Player", wstos(Key), wstos(Value));
+			IniWrite(charFileNew, "Player", StringUtils::wstos(Key), StringUtils::wstos(Value));
 
 			// keep decoded
 			DeleteFile(charFile.c_str());
@@ -218,7 +218,7 @@ namespace Hk::Ini
 		}
 		else
 		{
-			IniWrite(charFile, "Player", wstos(Key), wstos(Value));
+			IniWrite(charFile, "Player", StringUtils::wstos(Key), StringUtils::wstos(Value));
 		}
 
 		return {};
