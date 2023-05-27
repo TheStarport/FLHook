@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.4
+
+- Update autobuy to cover miscellaneous ammo types if they are present (HP_GUN).
+
 ## 4.0.3
 
 - Fixed exceptions on JumpInComplete hook due to improper parameter count.
