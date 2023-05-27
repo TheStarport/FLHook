@@ -1,65 +1,14 @@
 #pragma once
 
-#include <any>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 
-using namespace std::string_view_literals;
+#include "Tools/TemplateHelpers.hpp"
+
 class AdminCommandProcessor
 {
-	template<class T>
-	T transform_arg(std::string const& s);
-	template<>
-	static std::string transform_arg(std::string const& s)
-	{
-		return s;
-	};
-	template<>
-	static double transform_arg(std::string const& s)
-	{
-		return atof(s.c_str());
-	}
-	template<>
-	static int transform_arg(std::string const& s)
-	{
-		return atoi(s.c_str());
-	}
-	template<>
-	static float transform_arg(std::string const& s)
-	{
-		return atof(s.c_str());
-	}
+	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap;
 
-	template<typename... Args, std::size_t... Is>
-	static auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments)
-	{
-		return std::make_tuple(transform_arg<Args>(arguments[Is])...);
-	}
-
-	template<typename... Args>
-	static auto create_tuple(const std::vector<std::string>& arguments)
-	{
-		return create_tuple_impl<Args...>(std::index_sequence_for<Args...> {}, arguments);
-	}
-
-	template<typename F, F f>
-	class wrapper;
-
-	template<class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
-	class wrapper<Ret (Cl::*)(Args...), func>
-	{
-	  public:
-		static Ret ProcessParam(Cl cl, const std::vector<std::string>& params)
-		{
-			auto arg = create_tuple<Args...>(params);
-			auto lambda = std::function<Ret(Args...)> {[=](Args... args) mutable {
-				return (cl.*func)(args...);
-			}};
-			return std::apply(lambda, arg);
-		}
-	};
-	std::map<std::string, std::vector<std::string_view>> credentialsMap;
-
-#define AddCommand(func) wrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam
+#define AddCommand(str, func) { std::string_view(str), wrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam }
 
 	cpp::result<nlohmann::json, nlohmann::json> SetCash(std::string_view characterName, uint amount);
 	cpp::result<nlohmann::json, nlohmann::json> GetCash(std::string_view characterName);
@@ -76,57 +25,43 @@ class AdminCommandProcessor
 	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(const std::wstring& systemName, const std::wstring& text);
 	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(const std::wstring text);
 
-	// Commands and functions MUST be in the same order as compile time iteration assumes same indexes.
-	constexpr static std::array<std::string_view, 14> commands = {"getcash"sv,
-	    "setcash"sv,
-	    "kick"sv,
-	    "ban"sv,
-	    "tempban"sv,
-	    "unban"sv,
-	    "getclientId"sv,
-	    "killplayer"sv,
-	    "resetrep"sv,
-	    "getrep"sv,
-	    "messageplayer"sv,
-	    "messagesystem"sv,
-	    "messageuniverse"sv};
-
-	const std::array<cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params), 14> funcs = {
-	    AddCommand(GetCash),
-	    AddCommand(SetCash),
-	    AddCommand(KickPlayer),
-	    AddCommand(BanPlayer),
-	    AddCommand(TempbanPlayer),
-	    AddCommand(UnBanPlayer),
-	    AddCommand(GetClientId),
-	    AddCommand(KillPlayer),
-	    AddCommand(SetRep),
-	    AddCommand(ResetRep),
-	    AddCommand(GetRep),
-	    AddCommand(MessagePlayer),
-	    AddCommand(SendSystemMessage),
-	    AddCommand(SendUniverseMessage)};
+	const static std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
+	{
+	    {
+	        AddCommand("getcash", GetCash),
+	        AddCommand("setcash", SetCash),
+	        AddCommand("kick", KickPlayer),
+	        AddCommand("ban", BanPlayer),
+	        AddCommand("tempban", TempbanPlayer),
+	        AddCommand("unban", UnBanPlayer),
+	        AddCommand("getclient", GetClientId),
+	        AddCommand("kill", KillPlayer),
+	        AddCommand("setrep", SetRep),
+	        AddCommand("resetrep", ResetRep),
+	        AddCommand("getrep", GetRep),
+	        AddCommand("msg", MessagePlayer),
+	        AddCommand("msgs", SendSystemMessage),
+	        AddCommand("msgu", SendUniverseMessage)
+	    }
+	};	    
 
 #undef AddCommand
 
-  public:
 	template<int N>
-	void MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string> paramVector)
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector) const
 	{
-		const auto command = std::get<N - 1>(processor->commands);
-		const auto func = std::get<N - 1>(processor->funcs);
-		if (command == cmd)
+		if (const auto command = std::get<N - 1>(commands); command.first == cmd)
 		{
-			func(*processor, paramVector);
-			return;
+			return command.second(*processor, paramVector);
 		}
-		MatchCommand<N - 1>(processor, cmd, paramVector);
+		return MatchCommand<N - 1>(processor, cmd, paramVector);
 	}
 
 	template<>
-	void MatchCommand<0>(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string> paramVector)
-	{
-	}
+	// ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>([[maybe_unused]] AdminCommandProcessor* processor, [[maybe_unused]] std::string_view cmd,
+	    [[maybe_unused]] const std::vector<std::string>& paramVector) const;
 
-	void ProcessCommand(std::string_view command);
+public:
+	void ProcessCommand(std::string_view commandString);
 };

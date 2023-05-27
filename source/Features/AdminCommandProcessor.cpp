@@ -6,6 +6,17 @@
 #include "Helpers/Player.hpp"
 #include "Helpers/Chat.hpp"
 
+template<>
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MatchCommand<0>(AdminCommandProcessor* processor, std::string_view cmd,
+	const std::vector<std::string>& paramVector) const
+{
+	// The original command was not found, we now search our plugins
+
+
+	// No matching command was found.
+	return cpp::fail(nlohmann::json {"err", "Command not found."});
+}
+
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
 	auto fullCommand = commandString | std::ranges::views::split(' ') |
@@ -16,7 +27,7 @@ void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 	std::vector<std::string> params(fullCommand.begin(), fullCommand.end());
 	params.erase(params.begin()); // Remove the first item which is the command
 
-	MatchCommand<commands.size()>(this, command, params);
+	auto json = MatchCommand<commands.size()>(this, command, params);
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::string_view characterName)

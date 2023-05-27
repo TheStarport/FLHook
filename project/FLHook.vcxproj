@@ -292,6 +292,7 @@
     <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
     <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
     <ClInclude Include="..\include\Tools\Structs.hpp" />
+    <ClInclude Include="..\include\Tools\TemplateHelpers.hpp" />
     <ClInclude Include="..\include\Tools\ThreadScheduler.hpp" />
     <ClInclude Include="..\include\Tools\Typedefs.hpp" />
     <ClInclude Include="..\include\Tools\Utils.hpp" />
