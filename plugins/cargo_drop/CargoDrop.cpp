@@ -162,7 +162,7 @@ namespace Plugins::CargoDrop
 				}
 			}
 		}
-		if (const auto hullDropTotal = static_cast<int>(global->config->hullDropFactor * static_cast<float>(ship->fMass)); hullDropTotal > 0)
+		if (const auto hullDropTotal = int(global->config->hullDropFactor * static_cast<float>(ship->fMass)); hullDropTotal > 0)
 		{
 			if (FLHookConfig::i()->general.debugMode)
 				Console::ConDebug(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
@@ -174,7 +174,7 @@ namespace Plugins::CargoDrop
 				    hullDropTotal));
 
 			for (const auto& cargo : global->playerOnDeathCargo)
-				Server.MineAsteroid(system, position, global->cargoDropContainerId, cargo, static_cast<int>(hullDropTotal), clientKiller);
+				Server.MineAsteroid(system, position, global->cargoDropContainerId, cargo, int(hullDropTotal), clientKiller);
 
 		}
 	}
