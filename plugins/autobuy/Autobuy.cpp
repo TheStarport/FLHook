@@ -474,7 +474,7 @@ namespace Plugins::Autobuy
 		}
 		else if (autobuyType == L"shells")
 		{
-			autobuyInfo.mines = enable;
+			autobuyInfo.shells = enable;
 			Hk::Ini::SetCharacterIni(client, L"autobuy.shells", stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"torps")
