@@ -185,7 +185,7 @@ namespace IServerImplHook
 					}
 					catch (const InputException& ex)
 					{
-						PrintUserCmdText(cidFrom.id, stows(ex.what()));
+						PrintUserCmdText(cidFrom.id, StringUtils::stows(ex.what()));
 						return false;
 					}
 				}
@@ -3593,7 +3593,7 @@ namespace IServerImplHook
 		    wstos(std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
 		                      L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
 		        goodId,
-		        stows(std::string(hardpoint)),
+		        StringUtils::stows(std::string(hardpoint)),
 		        count,
 		        status,
 		        mounted,

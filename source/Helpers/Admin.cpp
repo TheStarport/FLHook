@@ -88,14 +88,14 @@ namespace Hk::Admin
 		{
 			char Basename[1024] = "";
 			pub::GetBaseNickname(Basename, sizeof(Basename), base);
-			pi.baseName = stows(Basename);
+			pi.baseName = StringUtils::stows(Basename);
 		}
 
 		if (system)
 		{
 			char Systemname[1024] = "";
 			pub::GetSystemNickname(Systemname, sizeof(Systemname), system);
-			pi.systemName = stows(Systemname);
+			pi.systemName = StringUtils::stows(Systemname);
 			pi.system = system;
 		}
 
@@ -190,7 +190,7 @@ namespace Hk::Admin
 		}
 
 		FindClose(hFind);
-		return stows(IniGetS(adminFile, "admin", "rights", ""));
+		return StringUtils::stows(IniGetS(adminFile, "admin", "rights", ""));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////

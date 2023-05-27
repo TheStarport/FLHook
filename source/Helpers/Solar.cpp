@@ -90,7 +90,7 @@ namespace Hk::Solar
 			pub::GetBaseNickname(baseNickname, sizeof(baseNickname), baseinfo->baseId);
 
 			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS);
-				ToLower(stows(baseNickname)) == ToLower(targetBaseName) || ToLower(basename).find(ToLower(targetBaseName)) == 0)
+				ToLower(StringUtils::stows(baseNickname)) == ToLower(targetBaseName) || ToLower(basename).find(ToLower(targetBaseName)) == 0)
 			{
 				return baseinfo;
 			}

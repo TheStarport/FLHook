@@ -48,7 +48,7 @@ namespace Plugins::CashManager::Sql
 		}
 
 		return std::make_optional<Bank>({findExistingQuery.getColumn(0).getString(),
-		    stows(findExistingQuery.getColumn(1).getString()),
+		    StringUtils::stows(findExistingQuery.getColumn(1).getString()),
 		    identifier,
 		    static_cast<uint64>(findExistingQuery.getColumn(2).getInt64())});
 	}
@@ -61,7 +61,7 @@ namespace Plugins::CashManager::Sql
 		replacePassword.bind(1, newPass);
 		replacePassword.bind(2, bank.accountId);
 
-		return stows(newPass);
+		return StringUtils::stows(newPass);
 	}
 
 	Bank GetOrCreateBank(const CAccount* account)
@@ -74,8 +74,8 @@ namespace Plugins::CashManager::Sql
 		if (findExistingQuery.executeStep())
 		{
 			return {accountIdString,
-			    stows(findExistingQuery.getColumn(0).getString()),
-			    stows(findExistingQuery.getColumn(1).getString()),
+			    StringUtils::stows(findExistingQuery.getColumn(0).getString()),
+			    StringUtils::stows(findExistingQuery.getColumn(1).getString()),
 			    static_cast<uint64>(findExistingQuery.getColumn(2).getInt64())};
 		}
 
@@ -86,7 +86,7 @@ namespace Plugins::CashManager::Sql
 		createBankQuery.bind(2, password);
 		createBankQuery.exec();
 
-		return {accountIdString, stows(password), L"", 0};
+		return {accountIdString, StringUtils::stows(password), L"", 0};
 	}
 
 	// Returns 0 if it failed to withdraw cash, 1 otherwise.
@@ -161,7 +161,7 @@ namespace Plugins::CashManager::Sql
 		while (transactions.executeStep())
 		{
 			transactionsList.emplace_back(static_cast<uint64>(transactions.getColumn(0).getInt64()),
-			    stows(transactions.getColumn(1).getString()),
+			    StringUtils::stows(transactions.getColumn(1).getString()),
 			    transactions.getColumn(2).getInt64(),
 			    bank.accountId);
 		}

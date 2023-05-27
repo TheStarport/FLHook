@@ -126,7 +126,7 @@ namespace Hk::Ini
 					std::wstring tag;
 					while (ini.read_value())
 					{
-						clients[client].lines[stows(ini.get_name_ptr())] = stows(ini.get_value_string());
+						clients[client].lines[StringUtils::stows(ini.get_name_ptr())] = StringUtils::stows(ini.get_value_string());
 					}
 				}
 			}
@@ -181,12 +181,12 @@ namespace Hk::Ini
 			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			ret = stows(IniGetS(charFileNew, "Player", wstos(Key), ""));
+			ret = StringUtils::stows(IniGetS(charFileNew, "Player", wstos(Key), ""));
 			DeleteFile(charFileNew.c_str());
 		}
 		else
 		{
-			ret = stows(IniGetS(charFile, "Player", wstos(Key), ""));
+			ret = StringUtils::stows(IniGetS(charFile, "Player", wstos(Key), ""));
 		}
 
 		return ret;

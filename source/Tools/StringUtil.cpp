@@ -74,12 +74,12 @@ std::wstring StringUtils::ViewToWString(const std::wstring& wstring)
 	return {wstring.begin(), wstring.end()};
 }
 
-std::string StringUtils::ViewToString(const std::string_view& stringView)
+std::string StringUtils::StringUtils::ViewToString(const std::string_view& stringView)
 {
 	return {stringView.begin(), stringView.end()};
 }
 
-std::wstring StringUtils::stows(const std::string& text)
+std::wstring StringUtils::StringUtils::stows(const std::string& text)
 {
 	const int size = MultiByteToWideChar(CP_ACP, 0, text.c_str(), -1, nullptr, 0);
 	const auto wideText = new wchar_t[size];

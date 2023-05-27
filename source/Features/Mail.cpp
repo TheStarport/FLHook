@@ -234,7 +234,7 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 
 cpp::result<int64, std::string> MailManager::UpdateCharacterName(const std::string& oldCharacterName, const std::string& newCharacterName)
 {
-	if (const auto acc = Hk::Client::GetAccountByCharName(stows(newCharacterName)); acc.has_error())
+	if (const auto acc = Hk::Client::GetAccountByCharName(StringUtils::stows(newCharacterName)); acc.has_error())
 	{
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
@@ -304,7 +304,7 @@ void MailManager::CleanUpOldMail()
 		SQLite::Statement getAllUniqueCharacterNames(db, "SELECT characterName FROM items GROUP BY characterName;");
 		while (getAllUniqueCharacterNames.executeStep())
 		{
-			const auto name = stows(getAllUniqueCharacterNames.getColumn(0));
+			const auto name = StringUtils::stows(getAllUniqueCharacterNames.getColumn(0));
 			const auto acc = Hk::Client::GetAccountByCharName(name);
 			if (acc.has_error())
 			{

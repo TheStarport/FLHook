@@ -231,7 +231,7 @@ namespace Hk::Client
 
 		char Dir[1024] = "";
 		GetFLName(Dir, acc->accId);
-		return stows(Dir);
+		return StringUtils::stows(Dir);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ namespace Hk::Client
 			return cpp::fail(Error::InvalidClientId);
 		}
 
-		return stows(buffer);
+		return StringUtils::stows(buffer);
 	}
 
 	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player)
@@ -281,7 +281,7 @@ namespace Hk::Client
 		if (base.empty())
 			return cpp::fail(Error::InvalidBase);
 
-		return stows(base);
+		return StringUtils::stows(base);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +296,7 @@ namespace Hk::Client
 		if (system.empty())
 			return cpp::fail(Error::InvalidSystem);
 
-		return stows(system);
+		return StringUtils::stows(system);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////

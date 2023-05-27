@@ -95,7 +95,7 @@ namespace Plugins::CargoDrop
 					// Send disconnect report to all ships in scanner range.
 					if (global->config->reportDisconnectingPlayers)
 					{
-						std::wstring msg = stows(global->config->disconnectMsg);
+						std::wstring msg = StringUtils::stows(global->config->disconnectMsg);
 						msg = ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
 						msg = ReplaceStr(msg, L"%player", characterName);
 						PrintLocalUserCmdText(client, msg, global->config->disconnectingPlayersRange);

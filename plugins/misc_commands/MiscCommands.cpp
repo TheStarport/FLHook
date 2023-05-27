@@ -255,7 +255,7 @@ namespace Plugins::MiscCommands
 		}
 		else
 		{
-			PrintUserCmdText(client, stows(std::format("{}", shipValue.value())));
+			PrintUserCmdText(client, StringUtils::stows(std::format("{}", shipValue.value())));
 		}
 	}
 

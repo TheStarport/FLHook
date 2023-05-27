@@ -334,7 +334,7 @@ namespace Plugins::Rename
 				Logger::i()->Log(
 				    LogLevel::Err,
 				    wstos(std::format(L"User rename failed ({}) from {} to {} ({})",
-				        stows(err),
+				        StringUtils::stows(err),
 				        o.charName.c_str(),
 				        o.newCharName.c_str(),
 				        Hk::Client::GetAccountID(acc).value().c_str())));
@@ -395,7 +395,7 @@ namespace Plugins::Rename
 				    LogLevel::Err,
 				    wstos(std::format(L"Character {} move failed ({}) from {} to {}",
 				        o.movingCharName,
-				        stows(std::string(err)),
+				        StringUtils::stows(std::string(err)),
 				        Hk::Client::GetAccountID(oldAcc).value().c_str(),
 				        Hk::Client::GetAccountID(acc).value().c_str())));
 			}

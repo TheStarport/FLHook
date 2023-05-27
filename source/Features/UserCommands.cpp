@@ -564,7 +564,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 		const auto count = MailManager::i()->PurgeAllMail(client, GetParam(param, ' ', 1) == L"readonly");
 		if (count.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", stows(count.error())));
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", StringUtils::stows(count.error())));
 			return;
 		}
 
@@ -575,7 +575,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 		const auto index = ToInt64(str);
 		if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", stows(err.error())));
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", StringUtils::stows(err.error())));
 			return;
 		}
 
@@ -595,15 +595,15 @@ void UserCmdReadMail(ClientId& client, const std::wstring& param)
 	const auto mail = MailManager::i()->GetMailById(client, index);
 	if (mail.has_error())
 	{
-		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", stows(mail.error())));
+		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", StringUtils::stows(mail.error())));
 		return;
 	}
 
 	const auto& item = mail.value();
-	PrintUserCmdText(client, std::format(L"From: {}", stows(item.author)));
-	PrintUserCmdText(client, std::format(L"Subject: {}", stows(item.subject)));
+	PrintUserCmdText(client, std::format(L"From: {}", StringUtils::stows(item.author)));
+	PrintUserCmdText(client, std::format(L"Subject: {}", StringUtils::stows(item.subject)));
 	PrintUserCmdText(client, std::format(L"Date: {:%F %T}", UnixToSysTime(item.timestamp)));
-	PrintUserCmdText(client, stows(item.body));
+	PrintUserCmdText(client, StringUtils::stows(item.body));
 }
 
 void UserCmdListMail(ClientId& client, const std::wstring& param)
@@ -620,7 +620,7 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	const auto mail = MailManager::i()->GetMail(client, unreadOnly, page);
 	if (mail.has_error())
 	{
-		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", stows(mail.error())));
+		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", StringUtils::stows(mail.error())));
 		return;
 	}
 
@@ -636,7 +636,7 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	{
 		// |    Id.) Subject (unread) - Author - Time
 		PrintUserCmdText(client,
-		    stows(std::format(
+		    StringUtils::stows(std::format(
 		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, UnixToSysTime(item.timestamp))));
 	}
 }
@@ -755,7 +755,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			if (const auto commands = plugin->GetCommands(); commands.empty())
 				continue;
 
-			PrintUserCmdText(client, ToLower(stows(std::string(plugin->GetShortName()))));
+			PrintUserCmdText(client, ToLower(StringUtils::stows(std::string(plugin->GetShortName()))));
 		}
 		return;
 	}
@@ -789,7 +789,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& pluginIterator =
-	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<Plugin> plug) { return ToLower(stows(std::string(plug->GetShortName()))) == ToLower(mod); });
+	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<Plugin> plug) { return ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == ToLower(mod); });
 
 	if (pluginIterator == plugins.end())
 	{
@@ -818,7 +818,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 	else
 	{
-		PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, stows(std::string(plugin->GetShortName()))));
+		PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, StringUtils::stows(std::string(plugin->GetShortName()))));
 	}
 }
 

@@ -53,7 +53,7 @@ namespace Plugins::LightControl
 		{
 			for (const auto& lights = DataManager::c()->GetLights(); const auto& [id, light] : lights)
 			{
-				config.lights.emplace_back(stows(light.nickname));
+				config.lights.emplace_back(StringUtils::stows(light.nickname));
 			}
 
 			// Save to populate it!

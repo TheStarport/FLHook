@@ -60,8 +60,8 @@ public:
 	static std::wstring ToLower(std::wstring string);
 	static std::string ToLower(std::string string);
 	static std::wstring ViewToWString(const std::wstring& wstring);
-	static std::string ViewToString(const std::string_view& stringView);
-	static std::wstring stows(const std::string& text);
+	static std::string StringUtils::ViewToString(const std::string_view& stringView);
+	static std::wstring StringUtils::stows(const std::string& text);
 	static std::string wstos(const std::wstring& text);
 
 	template<typename Str>
@@ -180,7 +180,7 @@ public:
 	{
 		if constexpr (std::is_same_v<TStr, std::string>)
 		{
-			return stows(str);
+			return StringUtils::stows(str);
 		}
 		else
 		{

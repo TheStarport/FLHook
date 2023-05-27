@@ -43,7 +43,7 @@ namespace Plugins::Wardrobe
 			PrintUserCmdText(client, L"Heads:");
 			std::wstring heads;
 			for (const auto& [name, id] : global->config->heads)
-				heads += (stows(name) + L" | ");
+				heads += (StringUtils::stows(name) + L" | ");
 			PrintUserCmdText(client, heads);
 		}
 		else if (ToLower(type) == L"body")
@@ -51,7 +51,7 @@ namespace Plugins::Wardrobe
 			PrintUserCmdText(client, L"Bodies:");
 			std::wstring bodies;
 			for (const auto& [name, id] : global->config->bodies)
-				bodies += (stows(name) + L" | ");
+				bodies += (StringUtils::stows(name) + L" | ");
 			PrintUserCmdText(client, bodies);
 		}
 	}

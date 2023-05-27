@@ -944,7 +944,7 @@ namespace Hk::Player
 		std::list<std::wstring> output;
 		std::string Line;
 		while (getline(ifs, Line))
-			output.emplace_back(stows(Line));
+			output.emplace_back(StringUtils::stows(Line));
 		ifs.close();
 		if (deleteAfter)
 			DeleteFile(fileToRead.c_str());

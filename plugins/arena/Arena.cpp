@@ -59,7 +59,7 @@ namespace Plugins
 	void Arena::LoadSettings()
 	{
 		config = Serializer::JsonToObject<Config>();
-		command = L"/" + stows(config.command);
+		command = L"/" + StringUtils::stows(config.command);
 		restrictedSystemId = CreateID(config.restrictedSystem.c_str());
 		targetBaseId = CreateID(config.targetBase.c_str());
 		targetSystemId = CreateID(config.targetSystem.c_str());

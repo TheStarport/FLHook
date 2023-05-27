@@ -443,48 +443,48 @@ namespace Plugins::Autobuy
 			autobuyInfo.cm = enable;
 			autobuyInfo.bb = enable;
 			autobuyInfo.repairs = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", stows(enable ? "true" : "false"));
-			Hk::Ini::SetCharacterIni(client, L"autobuy.repairs", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", StringUtils::stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.repairs", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"missiles")
 		{
 			autobuyInfo.missiles = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.missiles", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"mines")
 		{
 			autobuyInfo.mines = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.mines", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"torps")
 		{
 			autobuyInfo.torps = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.torps", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"cd")
 		{
 			autobuyInfo.cd = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.cd", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"cm")
 		{
 			autobuyInfo.cm = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.cm", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"bb")
 		{
 			autobuyInfo.bb = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.bb", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else if (autobuyType == L"repairs")
 		{
 			autobuyInfo.repairs = enable;
-			Hk::Ini::SetCharacterIni(client, L"autobuy.repairs", stows(enable ? "true" : "false"));
+			Hk::Ini::SetCharacterIni(client, L"autobuy.repairs", StringUtils::stows(enable ? "true" : "false"));
 		}
 		else
 		{

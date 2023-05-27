@@ -88,7 +88,7 @@ class Serializer
 			std::vector<std::wstring> vectorOfWstring;
 			for (auto& i : vectorOfString)
 			{
-				vectorOfWstring.emplace_back(stows(i));
+				vectorOfWstring.emplace_back(StringUtils::stows(i));
 			}
 			return vectorOfWstring;
 		}
@@ -126,7 +126,7 @@ class Serializer
 				{
 					Target reflectable;
 					ReadObject(i.second, reflectable);
-					declMap[stows(i.first)] = reflectable;
+					declMap[StringUtils::stows(i.first)] = reflectable;
 				}
 				*static_cast<std::map<std::wstring, Target>*>(ptr) = declMap;
 			}
@@ -151,7 +151,7 @@ class Serializer
 				auto declMap = std::map<std::wstring, Target>();
 				for (auto& i : jsonObj)
 				{
-					declMap[stows(i.first)] = ReadVector<Target>(json, member);
+					declMap[StringUtils::stows(i.first)] = ReadVector<Target>(json, member);
 				}
 				*static_cast<std::map<std::wstring, Target>*>(ptr) = declMap;
 			}
@@ -173,7 +173,7 @@ class Serializer
                 std::map<std::wstring, std::wstring> mapOfWstring;
                 for (auto& i : mapOfString)
                 {
-                    mapOfWstring[stows(i.first)] = stows(i.second);
+                    mapOfWstring[StringUtils::stows(i.first)] = StringUtils::stows(i.second);
                 }
                 *static_cast<std::map<std::wstring, std::wstring>*>(ptr) = mapOfWstring;
             }
@@ -182,7 +182,7 @@ class Serializer
                 std::map<std::string, std::wstring> mapOfWstring;
                 for (auto& i : mapOfString)
                 {
-                    mapOfWstring[i.first] = stows(i.second);
+                    mapOfWstring[i.first] = StringUtils::stows(i.second);
                 }
                 *static_cast<std::map<std::string, std::wstring>*>(ptr) = mapOfWstring;
             }
@@ -197,7 +197,7 @@ class Serializer
 			std::map<std::string, Target> sMap = json[member.name.c_str()].template get<std::map<std::string, Target>>();
 			std::map<std::wstring, Target> wMap;
 			for (const auto& [key, value] : sMap)
-				wMap[stows(key)] = value;
+				wMap[StringUtils::stows(key)] = value;
 			*static_cast<std::map<std::wstring, Target>*>(ptr) = wMap;
 		}
 		else
@@ -231,7 +231,7 @@ class Serializer
 		}
 		else if constexpr (IsWString<DeclType>)
 		{
-			*static_cast<std::wstring*>(ptr) = stows(json[member.name.c_str()].template get<std::string>());
+			*static_cast<std::wstring*>(ptr) = StringUtils::stows(json[member.name.c_str()].template get<std::string>());
 		}
 		else if constexpr (IsReflectable<DeclType>)
 		{

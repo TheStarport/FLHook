@@ -46,7 +46,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 	char file[MAX_PATH];
 	GetModuleFileName(nullptr, file, sizeof file);
 
-	if (const std::wstring fileName = ToLower(stows(file)); fileName.find(L"flserver.exe") != -1)
+	if (const std::wstring fileName = ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != -1)
 	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
