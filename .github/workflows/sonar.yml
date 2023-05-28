@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ master ]
   push:
-    branches: [ master ]
+    branches: [ master, 4.1-pallas ]
 
 jobs:    
   build:
