@@ -1,5 +1,7 @@
 var NAVTREEINDEX13 =
 {
+"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#a5a2bc0acd33e8a5f45ccb08834353376":[2,2,0,2,19,1,1],
+"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#a5a2bc0acd33e8a5f45ccb08834353376":[2,1,0,4,20,1,1],
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#af422d62acf53dc2c518846c024821286":[2,2,0,2,19,1,0],
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#af422d62acf53dc2c518846c024821286":[2,1,0,4,20,1,0],
 "struct_plugins_1_1_npc_1_1_config.html":[2,2,0,2,18,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX13 =
 "struct_plugins_1_1_stats_1_1_global.html#ae67eec20c3c48203c160b57fd114c1fb":[2,1,0,4,25,1,2],
 "struct_plugins_1_1_stats_1_1_global.html#ae67eec20c3c48203c160b57fd114c1fb":[2,2,0,2,24,1,2],
 "struct_plugins_1_1_system_sensor_1_1_active_network.html":[2,1,0,4,26,0],
-"struct_plugins_1_1_system_sensor_1_1_active_network.html":[2,2,0,2,25,0],
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a02bf9e455d3f93271145b05dda82fa30":[2,2,0,2,25,0,0],
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a02bf9e455d3f93271145b05dda82fa30":[2,1,0,4,26,0,0]
+"struct_plugins_1_1_system_sensor_1_1_active_network.html":[2,2,0,2,25,0]
 };

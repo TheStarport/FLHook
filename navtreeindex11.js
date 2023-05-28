@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"struct_plugins_1_1_con_data_1_1_config.html#a1cf45095ed611822e24d51aad019633f":[2,1,0,4,8,1,6],
+"struct_plugins_1_1_con_data_1_1_config.html#a1cf45095ed611822e24d51aad019633f":[2,2,0,2,8,1,6],
 "struct_plugins_1_1_con_data_1_1_config.html#a291d232519674f8bfaa2b30f8509d0e7":[2,1,0,4,8,1,3],
 "struct_plugins_1_1_con_data_1_1_config.html#a291d232519674f8bfaa2b30f8509d0e7":[2,2,0,2,8,1,3],
 "struct_plugins_1_1_con_data_1_1_config.html#a2c10d807f0603d397dad40c704fd6e7a":[2,1,0,4,8,1,8],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a5d3cfe1a3087b4892c292f7b39341236":[2,1,0,4,14,1,3],
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a5d3cfe1a3087b4892c292f7b39341236":[2,2,0,2,13,1,3],
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a83ff69bd443bd9094e059693d6a6e8f8":[2,1,0,4,14,1,2],
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a83ff69bd443bd9094e059693d6a6e8f8":[2,2,0,2,13,1,2],
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4":[2,2,0,2,13,1,4],
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4":[2,1,0,4,14,1,4]
+"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a83ff69bd443bd9094e059693d6a6e8f8":[2,2,0,2,13,1,2]
 };

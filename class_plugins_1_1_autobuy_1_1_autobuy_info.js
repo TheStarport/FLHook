@@ -7,5 +7,6 @@ var class_plugins_1_1_autobuy_1_1_autobuy_info =
     [ "mines", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#ab0798836c82316dd1baf97fb4e54e8e0", null ],
     [ "missiles", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a7753a2d84f9f423079d065d084ffe945", null ],
     [ "repairs", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a0e359935afc82135124fde2fde74fae4", null ],
+    [ "shells", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#a173c8dfa68de4126fd6871381dcfa79c", null ],
     [ "torps", "class_plugins_1_1_autobuy_1_1_autobuy_info.html#af0cc11d6fab37a089c4fa0324d3fa451", null ]
 ];

@@ -1,5 +1,7 @@
 var NAVTREEINDEX12 =
 {
+"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4":[2,2,0,2,13,1,4],
+"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4":[2,1,0,4,14,1,4],
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#ac11e2c066b5b350d90931cd8cd70a38a":[2,1,0,4,14,1,0],
 "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#ac11e2c066b5b350d90931cd8cd70a38a":[2,2,0,2,13,1,0],
 "struct_plugins_1_1_light_control_1_1_global.html":[2,2,0,2,13,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX12 =
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html#ac3d46e537d1bd95ebb3b6a591fbd54c8":[2,1,0,4,20,0,0],
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html#ac3d46e537d1bd95ebb3b6a591fbd54c8":[2,2,0,2,19,0,0],
 "struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html":[2,2,0,2,19,1],
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html":[2,1,0,4,20,1],
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#a5a2bc0acd33e8a5f45ccb08834353376":[2,2,0,2,19,1,1],
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#a5a2bc0acd33e8a5f45ccb08834353376":[2,1,0,4,20,1,1]
+"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html":[2,1,0,4,20,1]
 };

@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"group___i_p_ban.html#ga957de83ac423a476b4c30b3830f29e43":[2,0,12,5],
+"group___i_p_ban.html#ga9f403fe739de471046a7bd9451ef61e6":[2,0,12,1],
 "group___i_p_ban.html#gaaccbc2f281e87d0f61410f7dc4b4771f":[2,0,12,0],
 "group___i_p_ban.html#gabb899eb1e225b47542693b5f18e7179d":[2,0,12,3],
 "group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab":[2,0,12,6],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "namespace_hk_1_1_personalities.html#ae8b5764eaa241ee7859a10473a4b2e13":[2,1,0,0,6,2],
 "namespace_hk_1_1_personalities.html#af29fd5d0e88d39f25f9b2bf148d1a8cd":[2,1,0,0,6,31],
 "namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb":[2,1,0,0,6,12],
-"namespace_hk_1_1_player.html":[2,1,0,0,7],
-"namespace_hk_1_1_player.html#a04116fc50c4deecc4a14841e20736708":[2,1,0,0,7,37],
-"namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f":[2,1,0,0,7,53]
+"namespace_hk_1_1_player.html":[2,1,0,0,7]
 };

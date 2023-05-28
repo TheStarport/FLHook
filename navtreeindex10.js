@@ -1,5 +1,7 @@
 var NAVTREEINDEX10 =
 {
+"struct_plugin_hook_data.html":[2,2,0,21],
+"struct_plugin_hook_data.html#a6ead47185044d07925c0523ec4b0cc14":[2,2,0,21,2],
 "struct_plugin_hook_data.html#a736b1d38d811dce97ca6dc39e5780d8d":[2,2,0,21,3],
 "struct_plugin_hook_data.html#a80053355b97786ff7012122ed5b966c3":[2,2,0,21,1],
 "struct_plugin_hook_data.html#abca2ec3c46c39f4a76de48bd5fa928e5":[2,2,0,21,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX10 =
 "struct_plugins_1_1_con_data_1_1_config.html":[2,2,0,2,8,1],
 "struct_plugins_1_1_con_data_1_1_config.html":[2,1,0,4,8,1],
 "struct_plugins_1_1_con_data_1_1_config.html#a11eab949aeed789d56727a0ef864fb6c":[2,2,0,2,8,1,1],
-"struct_plugins_1_1_con_data_1_1_config.html#a11eab949aeed789d56727a0ef864fb6c":[2,1,0,4,8,1,1],
-"struct_plugins_1_1_con_data_1_1_config.html#a1cf45095ed611822e24d51aad019633f":[2,1,0,4,8,1,6],
-"struct_plugins_1_1_con_data_1_1_config.html#a1cf45095ed611822e24d51aad019633f":[2,2,0,2,8,1,6]
+"struct_plugins_1_1_con_data_1_1_config.html#a11eab949aeed789d56727a0ef864fb6c":[2,1,0,4,8,1,1]
 };

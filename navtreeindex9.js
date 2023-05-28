@@ -1,5 +1,7 @@
 var NAVTREEINDEX9 =
 {
+"namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf":[2,1,0,4,30,7],
+"namespace_plugins_1_1_warehouse.html#a96a5093ae4d8462dd7f4cefdfeed044f":[2,1,0,4,30,11],
 "namespace_plugins_1_1_warehouse.html#ab0cf1a70b67f930d76eef50e432bdd0e":[2,1,0,4,30,3],
 "namespace_plugins_1_1_warehouse.html#abae2ce816c3ece07dcaed58eda4b1607":[2,1,0,4,30,6],
 "namespace_plugins_1_1_warehouse.html#ad5694bb70ccdf017122a2f2e4468fdcd":[2,1,0,4,30,5],
@@ -10,8 +12,8 @@ var NAVTREEINDEX9 =
 "namespace_startup_cache.html#a9576219cbc480ea6435fbb741fd99777":[2,1,0,5,2],
 "namespace_startup_cache.html#aa5c5564fc7d448774689e161c1c17dec":[2,1,0,5,3],
 "namespace_startup_cache.html#ac7a5a47cd3fb32ec2872fda299bc6d51":[2,1,0,5,4],
-"namespacemembers.html":[2,1,1,0],
 "namespacemembers.html":[2,1,1,0,0],
+"namespacemembers.html":[2,1,1,0],
 "namespacemembers_a.html":[2,1,1,0,1],
 "namespacemembers_b.html":[2,1,1,0,2],
 "namespacemembers_c.html":[2,1,1,0,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX9 =
 "struct_plugin_data.html#aa4303eb0a7473eaa8e9f1c47c1cad625":[2,2,0,20,8],
 "struct_plugin_data.html#acf3e0b6400754aec2585ac47d82114af":[2,2,0,20,3],
 "struct_plugin_data.html#af66bd3358794a923a9ae4429d656cb05":[2,2,0,20,9],
-"struct_plugin_data.html#af9c25777caf4f9558587addce8c51d7b":[2,2,0,20,5],
-"struct_plugin_hook_data.html":[2,2,0,21],
-"struct_plugin_hook_data.html#a6ead47185044d07925c0523ec4b0cc14":[2,2,0,21,2]
+"struct_plugin_data.html#af9c25777caf4f9558587addce8c51d7b":[2,2,0,20,5]
 };

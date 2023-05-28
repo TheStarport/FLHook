@@ -1,5 +1,7 @@
 var NAVTREEINDEX5 =
 {
+"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384":[2,1,0,4,16,0,4],
+"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384":[2,2,0,2,15,0,4],
 "class_plugins_1_1_message_1_1_client_info.html#af7b9991b7e3b2054b420bfe21d2e3c1a":[2,2,0,2,15,0,0],
 "class_plugins_1_1_message_1_1_client_info.html#af7b9991b7e3b2054b420bfe21d2e3c1a":[2,1,0,4,16,0,0],
 "class_save_game_detour.html":[2,2,0,23],
@@ -121,8 +123,8 @@ var NAVTREEINDEX5 =
 "globals_defs.html":[2,3,1,4],
 "globals_e.html":[2,3,1,0,5],
 "globals_f.html":[2,3,1,0,6],
-"globals_func.html":[2,3,1,1,0],
 "globals_func.html":[2,3,1,1],
+"globals_func.html":[2,3,1,1,0],
 "globals_func_a.html":[2,3,1,1,1],
 "globals_func_b.html":[2,3,1,1,2],
 "globals_func_c.html":[2,3,1,1,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX5 =
 "group___event.html#gaffe299dab0499b42b870d8be3d170f90":[2,0,11,1],
 "group___i_p_ban.html":[2,0,12],
 "group___i_p_ban.html#ga13d1bdeedeaaf4dc0daf32a54e844ac9":[2,0,12,4],
-"group___i_p_ban.html#ga93cdcddc3cd0833db4917192d3ade83b":[2,0,12,2],
-"group___i_p_ban.html#ga957de83ac423a476b4c30b3830f29e43":[2,0,12,5],
-"group___i_p_ban.html#ga9f403fe739de471046a7bd9451ef61e6":[2,0,12,1]
+"group___i_p_ban.html#ga93cdcddc3cd0833db4917192d3ade83b":[2,0,12,2]
 };
