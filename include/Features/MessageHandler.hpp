@@ -1,11 +1,14 @@
 #pragma once
 
+#pragma warning(push, 0)
+#pragma warning(disable: 4244)
 #include <amqpcpp.h>
 #include <ext/uvw.hpp>
 #include <memory>
 #include <vector>
 #include <ext/Singleton.h>
 #include <thread>
+#pragma warning(pop)
 
 class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<MessageHandler>
 {

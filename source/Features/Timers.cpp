@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include <WS2tcpip.h>
 #include <Psapi.h>
 
 #include "Global.hpp"

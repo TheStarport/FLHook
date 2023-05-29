@@ -1,8 +1,6 @@
 #include "PCH.hpp"
-#include <FLHook.hpp>
-#include "Features/MessageHandler.hpp"
 
-#include <magic_enum.hpp>
+#include "Features/MessageHandler.hpp"
 #include <Features/Logger.hpp>
 
 #include "Defs/FLHookConfig.hpp"

@@ -338,7 +338,7 @@ namespace IServerImplHook
 
 			if (client)
 			{
-				ClientInfo[client].tmSpawnTime = Hk::Time::GetUnixMiliseconds(); // save for anti-dockkill
+				ClientInfo[client].tmSpawnTime = TimeUtils::UnixMilliseconds(); // save for anti-dockkill
 				// is there spawnprotection?
 				if (FLHookConfig::i()->general.antiDockKill > 0)
 					ClientInfo[client].spawnProtected = true;
