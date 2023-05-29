@@ -173,8 +173,8 @@ namespace Plugins::CargoDrop
 				    ship->fMass,
 				    hullDropTotal));
 
-			for (const auto& cargo : global->playerOnDeathCargo)
-				Server.MineAsteroid(system, position, global->cargoDropContainerId, cargo, int(hullDropTotal), clientKiller);
+			for (const auto& playerCargo : global->playerOnDeathCargo)
+				Server.MineAsteroid(system, position, global->cargoDropContainerId, playerCargo, int(hullDropTotal), clientKiller);
 
 		}
 	}
