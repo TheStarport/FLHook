@@ -70,9 +70,7 @@ public:
 	//! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
 	static uint MultiplyUIntBySuffix(std::wstring_view valueString);
 	static std::wstring XmlText(std::wstring_view text);
-
-	static std::wstring ViewToWString(const std::wstring& wstring);
-	static std::string ViewToString(const std::string_view& stringView);
+	
 	static std::wstring stows(const std::string& text);
 	static std::string wstos(const std::wstring& text);
 

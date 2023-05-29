@@ -10,14 +10,14 @@
 
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
-	//auto params = StringUtils::GetParams(commandString, ' ');
+	auto params = StringUtils::GetParams(commandString, ' ');
 
-	//auto command = params.front();
+	auto command = params.front();
 
-	//std::vector<std::string> paramsFiltered(params.begin(), params.end());
-	//paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
+	std::vector<std::string> paramsFiltered(params.begin(), params.end());
+	paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-	//auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
+	auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::string_view characterName)
@@ -25,7 +25,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::
 	// TODO: Rights Check.
 	// TODO: Get HK functions to respect views.
 
-	const auto res = Hk::Player::GetCash(StringUtils::stows(StringUtils::ViewToString(characterName)));
+	const auto res = Hk::Player::GetCash(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
 		return cpp::fail(nlohmann::json {{"err", res.error()}});
@@ -37,7 +37,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(st
 {
 	// Rights Check
 
-	if (const auto res = Hk::Player::KickReason(StringUtils::stows(StringUtils::ViewToString(characterName)), StringUtils::stows(StringUtils::ViewToString(reason))); res.has_error())
+	if (const auto res = Hk::Player::KickReason(StringUtils::stows(std::string(characterName)), StringUtils::stows(std::string(reason))); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
@@ -48,7 +48,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(st
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std::string_view characterName)
 {
 	// Rights Check
-	if (const auto res = Hk::Player::Ban(StringUtils::StringUtils::stows(StringUtils::ViewToString(characterName)), true); res.has_error())
+	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), true); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
@@ -57,7 +57,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer(std::string_view characterName, uint duration)
 {
-	if (const auto res = Hk::Player::Ban(StringUtils::stows(StringUtils::ViewToString(characterName)), true); res.has_error())
+	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), true); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
@@ -68,7 +68,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnBanPlayer(std::string_view characterName)
 {
-	if (const auto res = Hk::Player::Ban(StringUtils::stows(StringUtils::ViewToString(characterName)), false); res.has_error())
+	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), false); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
@@ -77,7 +77,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnBanPlayer(s
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetClientId(std::string_view characterName)
 {
-	auto client = Hk::Client::GetClientIdFromCharName(StringUtils::stows(StringUtils::ViewToString(characterName)));
+	auto client = Hk::Client::GetClientIdFromCharName(StringUtils::stows(std::string(characterName)));
 	if (client.has_error())
 	{
 		return nlohmann::json {{"err", client.error()}};
@@ -87,7 +87,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetClientId(s
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KillPlayer(std::string_view characterName)
 {
-	const auto res = Hk::Player::Kill(StringUtils::stows(StringUtils::ViewToString(characterName)));
+	const auto res = Hk::Player::Kill(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
@@ -97,7 +97,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KillPlayer(st
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::string_view characterName, const std::wstring& repGroup, float value)
 {
-	const auto res = Hk::Player::SetRep(StringUtils::stows(StringUtils::ViewToString(characterName)), repGroup, value);
+	const auto res = Hk::Player::SetRep(StringUtils::stows(std::string(characterName)), repGroup, value);
 	if (res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
@@ -108,7 +108,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::s
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std::string_view characterName, const std::wstring& repGroup)
 {
-	const auto res = Hk::Player::ResetRep(StringUtils::stows(StringUtils::ViewToString(characterName)));
+	const auto res = Hk::Player::ResetRep(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
@@ -119,7 +119,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std:
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::string_view characterName, const std::wstring& repGroup)
 {
-	const auto res = Hk::Player::GetRep(StringUtils::stows(StringUtils::ViewToString(characterName)), repGroup);
+	const auto res = Hk::Player::GetRep(StringUtils::stows(std::string(characterName)), repGroup);
 
 	if (res.has_error())
 	{
@@ -133,25 +133,24 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::s
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MessagePlayer(std::string_view characterName, const std::wstring& text)
 {
-	if (const auto res = Hk::Chat::Msg(StringUtils::stows(StringUtils::ViewToString(characterName)), text); res.has_error())
+	if (const auto res = Hk::Chat::Msg(StringUtils::stows(std::string(characterName)), text); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
 	return nlohmann::json {{"res", std::format("Message sent to {} successfully sent", characterName)}, {"receiver", characterName}, {"message", text}};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMessage(const std::wstring& systemName, const std::wstring& text)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMessage(std::string_view systemName, const std::wstring& text)
 {
-	if (const auto res = Hk::Chat::MsgS(systemName, text); res.has_error())
+	if (const auto res = Hk::Chat::MsgS(std::string(systemName), text); res.has_error())
 	{
 		return nlohmann::json {{"err", res.error()}};
 	}
-
-	std::string name = StringUtils::wstos(systemName);
-	return nlohmann::json {{"res", std::format("Message successfully sent to {}", name)}, {"systemName", name}, {"message", text}};
+	
+	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}, {"systemName", systemName}, {"message", text}};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseMessage(const std::wstring text)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseMessage(std::wstring_view text)
 {
 	if (const auto res = Hk::Chat::MsgU(text); res.has_error())
 	{
@@ -163,13 +162,13 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseM
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::string_view characterName, uint amount)
 {
 	// Rights check here.
-	const auto playerInitialCash = Hk::Player::GetCash(StringUtils::stows(StringUtils::ViewToString(characterName)));
+	const auto playerInitialCash = Hk::Player::GetCash(StringUtils::stows(std::string(characterName)));
 
 	if (playerInitialCash.has_error())
 	{
 		return cpp::fail(nlohmann::json {{"err", playerInitialCash.error()}});
 	}
-	const auto res = Hk::Player::AdjustCash(StringUtils::stows(StringUtils::ViewToString(characterName)), amount - playerInitialCash.value());
+	const auto res = Hk::Player::AdjustCash(StringUtils::stows(std::string(characterName)), amount - playerInitialCash.value());
 	if (res.has_error())
 	{
 		return cpp::fail(nlohmann::json {{"err", res.error()}});

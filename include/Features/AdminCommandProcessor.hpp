@@ -6,7 +6,7 @@ class AdminCommandProcessor
 {
 	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap;
 
-#define AddCommand(str, func) { std::string_view(str), wrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam }
+#define AddCommand(str, func) { std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam }
 
 	cpp::result<nlohmann::json, nlohmann::json> SetCash(std::string_view characterName, uint amount);
 	cpp::result<nlohmann::json, nlohmann::json> GetCash(std::string_view characterName);
@@ -20,8 +20,8 @@ class AdminCommandProcessor
 	cpp::result<nlohmann::json, nlohmann::json> ResetRep(std::string_view characterName, const std::wstring& repGroup);
 	cpp::result<nlohmann::json, nlohmann::json> GetRep(std::string_view characterName, const std::wstring& repGroup);
 	cpp::result<nlohmann::json, nlohmann::json> MessagePlayer(std::string_view characterName, const std::wstring& text);
-	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(const std::wstring& systemName, const std::wstring& text);
-	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(const std::wstring text);
+	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(std::string_view systemName, const std::wstring& text);
+	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(std::wstring_view text);
 
 	const inline static std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
 	{

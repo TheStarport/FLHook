@@ -3,8 +3,8 @@
 namespace Hk::Chat
 {
 	DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message);
-	DLL cpp::result<void, Error> MsgS(const std::variant<std::wstring, uint>& system, const std::wstring& message);
-	DLL cpp::result<void, Error> MsgU(const std::wstring& message);
+	DLL cpp::result<void, Error> MsgS(const std::variant<std::string, uint>& system, const std::wstring& message);
+	DLL cpp::result<void, Error> MsgU(std::wstring_view message);
 	DLL cpp::result<void, Error> FMsgEncodeXML(const std::wstring& xml, char* buf, uint size, uint& ret);
 	DLL cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xml);
 	DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& XML);

@@ -46,13 +46,13 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> MsgS(const std::variant<std::wstring, uint>& system, const std::wstring& message)
+	cpp::result<void, Error> MsgS(const std::variant<std::string, uint>& system, const std::wstring& message)
 	{
 		uint systemId = 0;
 		if (!system.index())
 		{
-			const auto systemName = std::get<std::wstring>(system);
-			pub::GetSystemID(systemId, StringUtils::wstos(systemName).c_str());
+			const auto systemName = std::get<std::string>(system);
+			pub::GetSystemID(systemId, systemName.c_str());
 		}
 		else
 		{
@@ -81,7 +81,7 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> MsgU(const std::wstring& message)
+	cpp::result<void, Error> MsgU(std::wstring_view message)
 	{
 		const CHAT_ID ci = {0};
 		const CHAT_ID ciClient = {0x00010000};
