@@ -518,7 +518,7 @@ namespace Plugins::Message
 			return;
 		}
 
-		const int msgSlot = StringUtils::ToInt(GetParam(param, ' ', 0));
+		const int msgSlot = StringUtils::Cast<int>(GetParam(param, ' ', 0));
 		const std::wstring msg = GetParamToEnd(ViewToWString(param), ' ', 1);
 
 		if (msgSlot < 0 || msgSlot > 9 || msg.empty())
@@ -746,7 +746,7 @@ namespace Plugins::Message
 		const std::wstring& clientId = GetParam(param, ' ', 0);
 		const std::wstring msg = GetParamToEnd(param, ' ', 1);
 
-		const uint toClientId = StringUtils::ToInt(clientId);
+		const uint toClientId = StringUtils::Cast<int>(clientId);
 		if (!Hk::Client::IsValidClientID(toClientId) || Hk::Client::IsInCharSelectMenu(toClientId))
 		{
 			PrintUserCmdText(client, L"ERR Invalid client-id");

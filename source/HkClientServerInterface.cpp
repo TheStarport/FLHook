@@ -207,7 +207,7 @@ namespace IServerImplHook
 					FindClose(hFind);
 					g_Admin.client = cidFrom.id;
 					g_Admin.adminName = ToWChar(Players.GetActiveCharacterName(cidFrom.id));
-					g_Admin.ExecuteCommandString(buffer.data() + 1);
+					//g_Admin.ExecuteCommandString(buffer.data() + 1);
 					return false;
 				}
 			}
@@ -261,9 +261,8 @@ namespace IServerImplHook
 			ClientInfo[client].engineKilled = false;
 			ClientInfo[client].tradelane = false;
 
-			// adjust cash, this is necessary when cash was added while use was in
-			// charmenu/had other char selected
-			std::wstring charName = StringUtils::ToLower(ToWChar(Players.GetActiveCharacterName(client)));
+			// adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
+			std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).value());
 			for (const auto& i : ClientInfo[client].MoneyFix)
 			{
 				if (i.character == charName)
@@ -443,7 +442,7 @@ namespace IServerImplHook
 		{
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
-			std::wstring charName = StringUtils::ToLower(ToWChar(Players.GetActiveCharacterName(client)));
+			std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).value());
 			for (const auto& i : ClientInfo[client].MoneyFix)
 			{
 				if (i.character == charName)

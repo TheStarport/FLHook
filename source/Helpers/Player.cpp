@@ -528,7 +528,7 @@ namespace Hk::Player
 
 	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, int count, bool mission)
 	{
-		uint goodId = StringUtils::ToInt(good.c_str());
+		uint goodId = StringUtils::Cast<int>(good);
 		if (!goodId)
 			pub::GetGoodID(goodId, StringUtils::wstos(good).c_str());
 		if (!goodId)
@@ -1101,7 +1101,7 @@ namespace Hk::Player
 			return cpp::fail(rank.error());
 		}
 
-		return rank.value().length() ? StringUtils::ToInt(rank.value()) : 0;
+		return rank.value().length() ? StringUtils::Cast<int>(rank.value()) : 0;
 	}
 
 	/// Get online time.
@@ -1587,8 +1587,8 @@ namespace Hk::Player
 				{
 					continue;
 				}
-				const uint goodId = StringUtils::ToUInt(StringUtils::Trim(line.substr(findEqual + 1, findComma)));
-				const uint goodCount = StringUtils::ToUInt(StringUtils::Trim(line.substr(findComma + 1, line.find(L",", findComma + 1))));
+				const uint goodId = StringUtils::Cast<uint>(StringUtils::Trim(line.substr(findEqual + 1, findComma)));
+				const uint goodCount = StringUtils::Cast<uint>(StringUtils::Trim(line.substr(findComma + 1, line.find(L",", findComma + 1))));
 
 				float itemValue;
 				if (pub::Market::GetPrice(baseId, Arch2Good(goodId), itemValue) == 0)
@@ -1611,12 +1611,12 @@ namespace Hk::Player
 				{
 					continue;
 				}
-				const uint itemValue = StringUtils::ToUInt(StringUtils::Trim(line.substr(findEqual + 1)));
+				const uint itemValue = StringUtils::Cast<uint>(StringUtils::Trim(line.substr(findEqual + 1)));
 				value += itemValue;
 			}
 			else if (key == L"ship_archetype")
 			{
-				const uint shipArchId = StringUtils::ToUInt(StringUtils::Trim(line.substr(line.find(L"=") + 1, line.length())));
+				const uint shipArchId = StringUtils::Cast<uint>(StringUtils::Trim(line.substr(line.find(L"=") + 1, line.length())));
 				const GoodInfo* gi = GoodList_get()->find_by_ship_arch(shipArchId);
 				if (gi)
 				{

@@ -10,14 +10,14 @@
 
 void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
-	auto params = StringUtils::GetParams(commandString, ' ');
+	//auto params = StringUtils::GetParams(commandString, ' ');
 
-	auto command = params.front();
+	//auto command = params.front();
 
-	std::vector<std::string> paramsFiltered(params.begin(), params.end());
-	paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
+	//std::vector<std::string> paramsFiltered(params.begin(), params.end());
+	//paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-	auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
+	//auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::string_view characterName)

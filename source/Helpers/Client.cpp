@@ -142,11 +142,18 @@ namespace Hk::Client
 
 	bool IsValidClientID(ClientId client)
 	{
+		if (client == 0 || client >= 255)
+		{
+			return false;
+		}
+
 		PlayerData* playerDb = nullptr;
 		while ((playerDb = Players.traverse_active(playerDb)))
 		{
 			if (playerDb->onlineId == client)
+			{
 				return true;
+			}
 		}
 
 		return false;

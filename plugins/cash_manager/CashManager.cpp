@@ -364,7 +364,7 @@ namespace Plugins::CashManager
 			if (const auto list = GetParam(param, ' ', 1); list == L"list")
 			{
 				int totalTransactions = Sql::CountTransactions(bank);
-				const auto page = StringUtils::ToInt(GetParam(param, ' ', 2));
+				const auto page = StringUtils::Cast<int>(GetParam(param, ' ', 2));
 
 				if (!page)
 				{

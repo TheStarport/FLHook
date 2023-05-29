@@ -1,7 +1,9 @@
 #pragma once
+#include <iostream>
 #include <ranges>
+#include <Features/Logger.hpp>
 
-#include "TemplateHelpers.hpp"
+#include "Concepts.hpp"
 
 class TimeUtils
 {
@@ -50,25 +52,54 @@ class StringUtils
 public:
 	StringUtils() = delete;
 
-	static int ToInt(const std::wstring& str);
-	static int64 ToInt64(const std::wstring& str);
-	static uint ToUInt(const std::wstring& str);
+	template<typename Ret, typename Str>
+	    requires(IsStringView<Str> || StringRestriction<Str>) && (std::is_integral_v<Ret> || std::is_floating_point_v<Ret>)
+	static Ret Cast(Str str)
+	{
+		if (!IsAscii(str))
+		{
+			return Ret();
+		}
+
+		Ret ret;
+		std::conditional_t<std::is_same_v<std::string, Str> || std::is_same_v<std::string_view, Str>, std::string_view, std::wstring_view> input = str;
+		std::from_chars(reinterpret_cast<const char*>(str.data()), reinterpret_cast<const char*>(str.data() + str.size()), ret);
+		return ret; // TODO: Add trace log for failure to convert
+	}
 
 	//! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
-	static uint MultiplyUIntBySuffix(const std::wstring& valueString);
-	static std::wstring XmlText(const std::wstring& text);
+	static uint MultiplyUIntBySuffix(std::wstring_view valueString);
+	static std::wstring XmlText(std::wstring_view text);
 
-	static float ToFloat(const std::wstring& string);
-	static std::wstring ToLower(std::wstring string);
-	static std::string ToLower(std::string string);
 	static std::wstring ViewToWString(const std::wstring& wstring);
 	static std::string ViewToString(const std::string_view& stringView);
 	static std::wstring stows(const std::string& text);
 	static std::string wstos(const std::wstring& text);
 
 	template<typename Str>
+		requires StringRestriction<Str> || IsStringView<Str>
+	static bool IsAscii(Str str)
+	{
+		return !std::any_of(str.begin(), str.end(), [](auto c) { return static_cast<unsigned char>(c) > 127; });
+	}
+
+	template<typename Str, typename ReturnStr = std::conditional_t<std::is_same_v<Str, std::string> || std::is_same_v<Str, std::string_view>, std::string, std::wstring>>
+	    requires IsStringView<Str> || StringRestriction<Str>
+	static ReturnStr ToLower(Str str)
+	{
+		ReturnStr retStr;
+		retStr.reserve(str.size());
+
+		// If we are a string view we need to convert it back.
+		// String views use an explicit constructor
+		auto before = ReturnStr(str);
+		std::ranges::copy(before | std::ranges::views::transform([](auto c) { return std::tolower(c); }), std::back_inserter(retStr));
+		return retStr;
+	}
+
+	template<typename Str>
 	static Str Trim(const Str& stringInput)
-	    requires StringRestriction<Str> || IsView<Str>
+	    requires StringRestriction<Str> || IsStringView<Str>
 	{
 		if (stringInput.empty())
 			return stringInput;
@@ -130,6 +161,34 @@ public:
 
 		TString ret = Trim(output);
 		return ret;
+	}
+
+private:
+	template<typename TTransformView, typename ViewType>
+	static ViewType GetParam(TTransformView view, int pos)
+	{
+		if (pos >= 0)
+		{
+			throw std::invalid_argument("GetParam pos must be positive");
+		}
+
+		if (pos >= std::distance(view.begin(), view.end()))
+		{
+			return ViewType();
+		}
+
+		return *std::ranges::get<0>(std::ranges::subrange {std::next(view.begin(), pos), view.end()});
+	}
+
+public:
+	static std::wstring_view GetParam(IsConvertibleRangeOf<std::wstring_view> auto view, int pos)
+	{
+		return GetParam<decltype(view), std::wstring_view>(view, pos);
+	}
+
+	static std::string_view GetParam(IsConvertibleRangeOf<std::string_view> auto view, int pos)
+	{
+		return GetParam<decltype(view), std::string_view>(view, pos);
 	}
 
 	template<typename TStr, typename TChar>

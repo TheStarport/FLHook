@@ -145,7 +145,7 @@ namespace Plugins::SystemSensor
 
 	void UserCmd_ShoanID(ClientId& client, const std::wstring& param)
 	{
-		ClientId client2 = StringUtils::ToInt(GetParam(param, ' ', 0));
+		ClientId client2 = StringUtils::Cast<int>(GetParam(param, ' ', 0));
 
 		std::wstring targetCharname = L"";
 

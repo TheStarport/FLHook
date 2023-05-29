@@ -564,7 +564,7 @@ namespace Hk::Personalities
 
 	void GetDifficulty(INI_Reader& ini, int& difficulty)
 	{
-		const std::string str = StringUtils::ToLower(ini.get_value_string(0));
+		const std::string str = StringUtils::ToLower(std::string(ini.get_value_string(0)));
 		if (str == "easiest")
 			difficulty = 0;
 		else if (str == "easy")
@@ -592,11 +592,11 @@ namespace Hk::Personalities
 			if (ini.is_value("nickname"))
 				nick = ini.get_value_string();
 			else if (ini.is_value("allow_player_targeting"))
-				data.allow_player_targeting = StringUtils::ToLower(ini.get_value_string()) == "true";
+				data.allow_player_targeting = ini.get_value_bool(0);
 			else if (ini.is_value("force_attack_formation"))
-				data.force_attack_formation = StringUtils::ToLower(ini.get_value_string()) == "true";
+				data.force_attack_formation = ini.get_value_bool(0);
 			else if (ini.is_value("force_attack_formation_used"))
-				data.force_attack_formation_used = StringUtils::ToLower(ini.get_value_string()) == "true";
+				data.force_attack_formation_used = ini.get_value_bool(0);
 			else if (ini.is_value("combat_drift_distance"))
 				data.combat_drift_distance = ini.get_value_float(0);
 			else if (ini.is_value("flee_scene_threat_style"))
@@ -605,7 +605,7 @@ namespace Hk::Personalities
 			}
 			else if (ini.is_value("field_targeting"))
 			{
-				const std::string str = StringUtils::ToLower(ini.get_value_string(0));
+				const std::string str = StringUtils::ToLower(std::string(ini.get_value_string()));
 				if (str == "never")
 					data.field_targeting = 0;
 				else if (str == "low_density")
@@ -616,7 +616,7 @@ namespace Hk::Personalities
 					data.field_targeting = 3;
 			}
 			else if (ini.is_value("flee_no_weapons_style"))
-				data.flee_no_weapons_style = StringUtils::ToLower(ini.get_value_string()) == "true";
+				data.flee_no_weapons_style = ini.get_value_bool(0);
 			else if (ini.is_value("target_toughness_preference"))
 			{
 				GetDifficulty(ini, data.target_toughness_preference);

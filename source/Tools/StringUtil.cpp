@@ -1,27 +1,8 @@
 #include "PCH.hpp"
 
-int StringUtils::StringUtils::ToInt(const std::wstring& str)
+uint StringUtils::MultiplyUIntBySuffix(std::wstring_view valueString)
 {
-	return wcstol(str.c_str(), nullptr, 10);
-}
-
-int64 StringUtils::StringUtils::ToInt64(const std::wstring& str)
-{
-	return str.empty() ? 0 : wcstoll(str.c_str(), nullptr, 10);
-}
-
-uint StringUtils::ToUInt(const std::wstring& str)
-{
-	if (str.find(L'-') != std::wstring::npos)
-	{
-		return 0;
-	}
-	return wcstoul(str.c_str(), nullptr, 10);
-}
-
-uint StringUtils::MultiplyUIntBySuffix(const std::wstring& valueString)
-{
-	const uint value = wcstoul(valueString.c_str(), nullptr, 10);
+	const uint value = Cast<uint>(valueString);
 	const auto lastChar = valueString.back();
 	if (lastChar == *L"k" || lastChar == *L"K")
 	{
@@ -34,7 +15,7 @@ uint StringUtils::MultiplyUIntBySuffix(const std::wstring& valueString)
 	return value;
 }
 
-std::wstring StringUtils::XmlText(const std::wstring& text)
+std::wstring StringUtils::XmlText(std::wstring_view text)
 {
 	std::wstring ret;
 	for (uint i = 0; (i < text.length()); i++)
@@ -50,23 +31,6 @@ std::wstring StringUtils::XmlText(const std::wstring& text)
 	}
 
 	return ret;
-}
-
-float StringUtils::ToFloat(const std::wstring& string)
-{
-	return wcstof(string.c_str(), nullptr);
-}
-
-std::wstring StringUtils::ToLower(std::wstring string)
-{
-	std::ranges::transform(string, string.begin(), towlower);
-	return string;
-}
-
-std::string StringUtils::ToLower(std::string string)
-{
-	std::ranges::transform(string, string.begin(), tolower);
-	return string;
 }
 
 std::wstring StringUtils::ViewToWString(const std::wstring& wstring)

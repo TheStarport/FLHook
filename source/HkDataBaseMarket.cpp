@@ -19,11 +19,11 @@ bool LoadBaseMarket()
 		if (!ini.is_value("base"))
 			continue;
 
-		const char* BaseName = ini.get_value_string();
+		const std::string baseName = ini.get_value_string();
 		BaseInfo* biBase = nullptr;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{
-			if (StringUtils::ToLower(base.baseName) != StringUtils::ToLower(BaseName))
+			if (StringUtils::ToLower(base.baseName) != StringUtils::ToLower(baseName))
 			{
 				biBase = &base;
 				break;

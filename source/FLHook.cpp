@@ -46,7 +46,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 	char file[MAX_PATH];
 	GetModuleFileName(nullptr, file, sizeof file);
 
-	if (const std::wstring fileName = StringUtils::ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != -1)
+	if (const std::wstring fileName = StringUtils::ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != std::wstring::npos)
 	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
@@ -56,7 +56,7 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 		// redirect IServerImpl::Update
 		const auto fpLoop = IServerImplHook::Update;
 		auto address = reinterpret_cast<char*>(GetModuleHandle(nullptr)) + ADDR_UPDATE;
-		MemUtils::MemUtils::ReadProcMem(address, &fpOldUpdate, 4);
+		MemUtils::ReadProcMem(address, &fpOldUpdate, 4);
 		MemUtils::WriteProcMem(address, &fpLoop, 4);
 
 		// install startup hook
@@ -106,6 +106,12 @@ void FLHookInit_Pre()
 		// TODO: Move module handles to FLCoreGlobals
 		if (!(server = GetModuleHandle("server")))
 			throw std::runtime_error("server.dll not loaded");
+
+				std::wstring_view a = L"123";
+		std::string_view b = "123";
+
+		StringUtils::Cast<int>(a);
+		StringUtils::Cast<int>(b);
 
 		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
 		// so we want to make sure the service is up at startup time

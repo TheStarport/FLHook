@@ -30,6 +30,7 @@
 #include "FLCore/FLCoreRemoteClient.h"
 #include "FLCore/FLCoreDALib.h"
 
+#include "Tools/TemplateHelpers.hpp"
 #include "Tools/Structs.hpp"
 #include "Tools/Concepts.hpp"
 #include "Tools/Utils.hpp"

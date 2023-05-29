@@ -153,15 +153,15 @@ namespace Hk::ZoneUtilities
 					{
 						if (ini.is_value("zone"))
 						{
-							zoneNick = StringUtils::ToLower(ini.get_value_string());
+							zoneNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						}
 						else if (ini.is_value("dynamic_loot_container"))
 						{
-							crateNick = StringUtils::ToLower(ini.get_value_string());
+							crateNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						}
 						else if (ini.is_value("dynamic_loot_commodity"))
 						{
-							lootNick = StringUtils::ToLower(ini.get_value_string());
+							lootNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						}
 						else if (ini.is_value("dynamic_loot_count"))
 						{
@@ -222,7 +222,7 @@ namespace Hk::ZoneUtilities
 					while (ini.read_value())
 					{
 						if (ini.is_value("zone"))
-							zoneNick = StringUtils::ToLower(ini.get_value_string());
+							zoneNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						if (ini.is_value("file"))
 							lootableZonefile = ini.get_value_string();
 					}
@@ -258,7 +258,7 @@ namespace Hk::ZoneUtilities
 					{
 						if (ini.is_value("nickname"))
 						{
-							zoneNick = StringUtils::ToLower(ini.get_value_string());
+							zoneNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						}
 						else if (ini.is_value("pos"))
 						{
@@ -324,7 +324,7 @@ namespace Hk::ZoneUtilities
 					{
 						if (ini.is_value("nickname"))
 						{
-							nickname = StringUtils::ToLower(ini.get_value_string());
+							nickname = StringUtils::ToLower(std::string(ini.get_value_string()));
 						}
 						else if (ini.is_value("goto"))
 						{
@@ -370,7 +370,7 @@ namespace Hk::ZoneUtilities
 					while (ini.read_value())
 					{
 						if (ini.is_value("nickname"))
-							systemNick = StringUtils::ToLower(ini.get_value_string());
+							systemNick = StringUtils::ToLower(std::string(ini.get_value_string()));
 						if (ini.is_value("file"))
 							file = ini.get_value_string();
 						if (ini.is_value("NavMapScale"))

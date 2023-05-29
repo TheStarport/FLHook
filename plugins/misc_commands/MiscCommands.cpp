@@ -220,7 +220,7 @@ namespace Plugins::MiscCommands
 	{
 		const std::wstring charName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
-		int max = StringUtils::ToInt(GetParam(param, ' ', 0));
+		int max = StringUtils::Cast<int>(GetParam(param, ' ', 0));
 		if (max <= 1)
 			max = 6;
 

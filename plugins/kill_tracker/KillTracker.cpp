@@ -43,7 +43,7 @@ namespace Plugins::KillTracker
 			if (std::wstring lineName = Trim(GetParam(str, '=', 0)); lineName == L"ship_type_killed")
 			{
 				const uint shipArchId = ToUInt(GetParam(str, '=', 1));
-				int count = StringUtils::ToInt(GetParam(str, ',', 1).c_str());
+				int count = StringUtils::Cast<int>(GetParam(str, ',', 1).c_str());
 				numKills += count;
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)

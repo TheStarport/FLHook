@@ -3,34 +3,34 @@
 template<class T>
 T transform_arg(std::string const& s);
 template<>
-static std::string transform_arg(std::string const& s)
+inline std::string transform_arg(std::string const& s)
 {
 	return s;
 };
 template<>
-static double transform_arg(std::string const& s)
+inline double transform_arg(std::string const& s)
 {
 	return atof(s.c_str());
 }
 template<>
-static int transform_arg(std::string const& s)
+inline int transform_arg(std::string const& s)
 {
 	return atoi(s.c_str());
 }
 template<>
-static float transform_arg(std::string const& s)
+inline float transform_arg(std::string const& s)
 {
 	return atof(s.c_str());
 }
 
 template<typename... Args, std::size_t... Is>
-static auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments)
+auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments)
 {
 	return std::make_tuple(transform_arg<Args>(arguments[Is])...);
 }
 
 template<typename... Args>
-static auto create_tuple(const std::vector<std::string>& arguments)
+auto create_tuple(const std::vector<std::string>& arguments)
 {
 	return create_tuple_impl<Args...>(std::index_sequence_for<Args...> {}, arguments);
 }

@@ -247,10 +247,11 @@ void LoadUserSettings(ClientId client)
 		std::wstring ignoreList = IniGetWS(userFile, "IgnoreList", std::to_string(i), L"");
 		if (ignoreList.empty())
 			break;
-
+		
 		IgnoreInfo ii;
-		ii.character = GetParam(ignoreList, ' ', 0);
-		ii.flags = GetParam(ignoreList, ' ', 1);
+		const auto params = StringUtils::GetParams(ignoreList, ' ');
+		ii.character = StringUtils::GetParam(params, 0);
+		ii.flags = StringUtils::GetParam(params, 1);
 		info->ignoreInfoList.push_back(ii);
 	}
 }
