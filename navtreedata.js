@@ -86,10 +86,10 @@ var NAVTREEINDEX =
 "namespace_plugins_1_1_betting.html",
 "namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf",
 "struct_plugin_hook_data.html",
-"struct_plugins_1_1_con_data_1_1_config.html#a1cf45095ed611822e24d51aad019633f",
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4",
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html#a5a2bc0acd33e8a5f45ccb08834353376",
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a02bf9e455d3f93271145b05dda82fa30"
+"struct_plugins_1_1_con_data_1_1_config.html#a2c10d807f0603d397dad40c704fd6e7a",
+"struct_plugins_1_1_light_control_1_1_global.html",
+"struct_plugins_1_1_npc_1_1_config.html",
+"struct_plugins_1_1_system_sensor_1_1_active_network.html#a383c8f5a596b1cb19fe67e4b27b9429e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

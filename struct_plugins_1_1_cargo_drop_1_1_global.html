@@ -169,11 +169,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:abe3e9618d612ef2c8d1cf08488a104d4"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cargo_drop_1_1_global.html#abe3e9618d612ef2c8d1cf08488a104d4">cargoDropContainerId</a></td></tr>
 <tr class="memdesc:abe3e9618d612ef2c8d1cf08488a104d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The id of the container to drop.  <br /></td></tr>
 <tr class="separator:abe3e9618d612ef2c8d1cf08488a104d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36648047768d5f7b58d58cd7f8d95b4c"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cargo_drop_1_1_global.html#a36648047768d5f7b58d58cd7f8d95b4c">hullDrop1NickNameId</a></td></tr>
-<tr class="memdesc:a36648047768d5f7b58d58cd7f8d95b4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">These two ids are commodities to represent the ship after destruction.  <br /></td></tr>
-<tr class="separator:a36648047768d5f7b58d58cd7f8d95b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf8f11c7a1c21455497579cfbe1af91"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cargo_drop_1_1_global.html#a8cf8f11c7a1c21455497579cfbe1af91">hullDrop2NickNameId</a></td></tr>
-<tr class="separator:a8cf8f11c7a1c21455497579cfbe1af91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf406591bbe4c1b37881e17390861a0c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cargo_drop_1_1_global.html#adf406591bbe4c1b37881e17390861a0c">playerOnDeathCargo</a></td></tr>
+<tr class="memdesc:adf406591bbe4c1b37881e17390861a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This id is for commodities to represent the ship after destruction.  <br /></td></tr>
+<tr class="separator:adf406591bbe4c1b37881e17390861a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab18a948617f59e39946e178c3cf157d9"><td class="memItemLeft" align="right" valign="top">std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_cargo_drop_1_1_global.html#ab18a948617f59e39946e178c3cf157d9">noLootItemsIds</a></td></tr>
 <tr class="memdesc:ab18a948617f59e39946e178c3cf157d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Items we don't want to be looted.  <br /></td></tr>
 <tr class="separator:ab18a948617f59e39946e178c3cf157d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -213,36 +211,6 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a36648047768d5f7b58d58cd7f8d95b4c" name="a36648047768d5f7b58d58cd7f8d95b4c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36648047768d5f7b58d58cd7f8d95b4c">&#9670;&#160;</a></span>hullDrop1NickNameId</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint Plugins::CargoDrop::Global::hullDrop1NickNameId</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>These two ids are commodities to represent the ship after destruction. </p>
-
-</div>
-</div>
-<a id="a8cf8f11c7a1c21455497579cfbe1af91" name="a8cf8f11c7a1c21455497579cfbe1af91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8cf8f11c7a1c21455497579cfbe1af91">&#9670;&#160;</a></span>hullDrop2NickNameId</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint Plugins::CargoDrop::Global::hullDrop2NickNameId</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="aa7232f09edb63f5bc2ba267469c09292" name="aa7232f09edb63f5bc2ba267469c09292"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa7232f09edb63f5bc2ba267469c09292">&#9670;&#160;</a></span>info</h2>
 
@@ -272,6 +240,22 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Items we don't want to be looted. </p>
+
+</div>
+</div>
+<a id="adf406591bbe4c1b37881e17390861a0c" name="adf406591bbe4c1b37881e17390861a0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf406591bbe4c1b37881e17390861a0c">&#9670;&#160;</a></span>playerOnDeathCargo</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;uint&gt; Plugins::CargoDrop::Global::playerOnDeathCargo</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This id is for commodities to represent the ship after destruction. </p>
 
 </div>
 </div>

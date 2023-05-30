@@ -147,7 +147,7 @@ $(document).ready(function(){initNavTree('group___cargo_drop.html',''); initResi
 </div><!--header-->
 <div class="contents">
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>The "Cargo Drop" plugin handles consequences to a player who disconnects whilst in space. </p>
+<p>The "Cargo Drop" plugin handles consequences for a player who disconnects whilst in space and allows servers to ensure that cargo items are dropped on player death rather than lost. Is also allows server owners to set additional commodities that are spawned as loot when a player ship dies based on hull mass (i.e. salvage). </p>
 <dl class="section date"><dt>Date</dt><dd>Feb 2010 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Cannon (Ported by Raikkonen 2022)</dd></dl>
 <h4><a class="anchor" id="cmds"></a>
@@ -162,8 +162,7 @@ Configuration</h4>
 <div class="line">  <span class="stringliteral">&quot;cargoDropContainer&quot;</span>: <span class="stringliteral">&quot;lootcrate_ast_loot_metal&quot;</span>,</div>
 <div class="line">  <span class="stringliteral">&quot;disconnectMsg&quot;</span>: <span class="stringliteral">&quot;%player is attempting to engage cloaking device&quot;</span>,</div>
 <div class="line">  <span class="stringliteral">&quot;disconnectingPlayersRange&quot;</span>: 5000.0,</div>
-<div class="line">  <span class="stringliteral">&quot;hullDrop1NickName&quot;</span>: <span class="stringliteral">&quot;commodity_super_alloys&quot;</span>,</div>
-<div class="line">  <span class="stringliteral">&quot;hullDrop2NickName&quot;</span>: <span class="stringliteral">&quot;commodity_engine_components&quot;</span>,</div>
+<div class="line">  <span class="stringliteral">&quot;playerOnDeathCargo&quot;</span>: [<span class="stringliteral">&quot;commodity_super_alloys&quot;</span>, <span class="stringliteral">&quot;commodity_engine_components&quot;</span>]</div>
 <div class="line">  <span class="stringliteral">&quot;hullDropFactor&quot;</span>: 0.1,</div>
 <div class="line">  <span class="stringliteral">&quot;killDisconnectingPlayers&quot;</span>: <span class="keyword">true</span>,</div>
 <div class="line">  <span class="stringliteral">&quot;lootDisconnectingPlayers&quot;</span>: <span class="keyword">true</span>,</div>
