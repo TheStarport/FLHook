@@ -3,7 +3,9 @@
  * @author Cannon (Ported by Raikkonen 2022)
  * @defgroup CargoDrop Cargo Drop
  * @brief
- * The "Cargo Drop" plugin handles consequences to a player who disconnects whilst in space.
+ * The "Cargo Drop" plugin handles consequences for a player who disconnects whilst in space and allows servers to ensure that cargo items are dropped on player
+ * death rather than lost. Is also allows server owners to set additional commodities that are spawned as loot when a player ship dies based on hull mass (i.e.
+ * salvage).
  *
  * @paragraph cmds Player Commands
  * There are no player commands in this plugin.
@@ -17,8 +19,7 @@
  *   "cargoDropContainer": "lootcrate_ast_loot_metal",
  *   "disconnectMsg": "%player is attempting to engage cloaking device",
  *   "disconnectingPlayersRange": 5000.0,
- *   "hullDrop1NickName": "commodity_super_alloys",
- *   "hullDrop2NickName": "commodity_engine_components",
+ *   "playerOnDeathCargo": ["commodity_super_alloys", "commodity_engine_components"]
  *   "hullDropFactor": 0.1,
  *   "killDisconnectingPlayers": true,
  *   "lootDisconnectingPlayers": true,
@@ -44,12 +45,15 @@ namespace Plugins::CargoDrop
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
-		global->cargoDropContainerId = CreateID(config.cargoDropContainer.c_str());
-		global->hullDrop1NickNameId = CreateID(config.hullDrop1NickName.c_str());
-		global->hullDrop2NickNameId = CreateID(config.hullDrop2NickName.c_str());
+		for (const auto& cargo : config.playerOnDeathCargo)
+		{
+			global->playerOnDeathCargo.push_back(CreateID(cargo.c_str()));
+		}
 
 		for (const auto& noLootItem : config.noLootItems)
+		{
 			global->noLootItemsIds.push_back(CreateID(noLootItem.c_str()));
+		}
 
 		global->config = std::make_unique<Config>(config);
 	}
@@ -141,45 +145,46 @@ namespace Plugins::CargoDrop
 	void SendDeathMsg([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
-		if (global->config->hullDropFactor == 0.0f)
+		
+		if (global->config->hullDropFactor == 0.0f || !global->config->enablePlayerCargoDropOnDeath) 
+		{
 			return;
+		}
 
 		int remainingHoldSize;
 		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize);
 		if (cargo.has_error())
+		{
 			return;
+		}
 
-		uint ship = Hk::Player::GetShip(clientVictim).value();
-		auto [position, _] = Hk::Solar::GetLocation(ship, IdType::Ship).value();
+		auto ship = Archetype::GetShip(Hk::Player::GetShipID(clientVictim).value());
+		auto [position, _] = Hk::Solar::GetLocation(Hk::Player::GetShip(clientVictim).value(), IdType::Ship).value();
 		position.x += 30.0f;
 
-		int shipSizeEstimate = remainingHoldSize;
-		if (global->config->enablePlayerCargoDropOnDeath)
+		for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 		{
-			for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
+			if (!mounted && !mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 			{
-				if (!mounted)
-				{
-					shipSizeEstimate += count;
-					if (!mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
-						Server.MineAsteroid(
-						    system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
-				}
+				Server.MineAsteroid(
+				    system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
 			}
 		}
-		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
-		{
-			if (FLHookConfig::i()->general.debugMode)
-				Console::ConInfo(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} iHullDrop={}\n",
-				    system,
-				    position.x,
-				    position.y,
-				    position.z,
-				    shipSizeEstimate,
-				    hullDrop));
 
-			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop1NickNameId, hullDrop, clientKiller);
-			Server.MineAsteroid(system, position, global->cargoDropContainerId, global->hullDrop2NickNameId, static_cast<int>(0.5 * hullDrop), clientKiller);
+		if (const auto hullDropTotal = int(global->config->hullDropFactor * float(ship->fMass)); hullDropTotal > 0)
+		{
+			Console::ConDebug(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipMass={} iHullDrop={}\n",
+			    system,
+			    position.x,
+			    position.y,
+			    position.z,
+			    ship->fMass,
+			    hullDropTotal));
+
+			for (const auto& playerCargo : global->playerOnDeathCargo)
+			{
+				Server.MineAsteroid(system, position, global->cargoDropContainerId, playerCargo, int(hullDropTotal), clientKiller);
+			}
 		}
 	}
 
@@ -206,8 +211,8 @@ namespace Plugins::CargoDrop
 
 using namespace Plugins::CargoDrop;
 REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
-    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(hullDrop1NickName), field(hullDrop2NickName), field(noLootItems),
-    field(enablePlayerCargoDropOnDeath), field(maxPlayerCargoDropCount))
+    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(playerOnDeathCargo), field(noLootItems), field(enablePlayerCargoDropOnDeath),
+    field(maxPlayerCargoDropCount))
 
 DefaultDllMainSettings(LoadSettings);
 
