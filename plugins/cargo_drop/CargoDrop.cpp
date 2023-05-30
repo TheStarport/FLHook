@@ -3,7 +3,9 @@
  * @author Cannon (Ported by Raikkonen 2022)
  * @defgroup CargoDrop Cargo Drop
  * @brief
- * The "Cargo Drop" plugin handles consequences for a player who disconnects whilst in space and allows servers to ensure that cargo items are dropped on player death rather than lost. Is also allows server owners to set additional commodities that are spawned as loot when a player ship dies based on hull mass (i.e. salvage).
+ * The "Cargo Drop" plugin handles consequences for a player who disconnects whilst in space and allows servers to ensure that cargo items are dropped on player
+ * death rather than lost. Is also allows server owners to set additional commodities that are spawned as loot when a player ship dies based on hull mass (i.e.
+ * salvage).
  *
  * @paragraph cmds Player Commands
  * There are no player commands in this plugin.
@@ -139,43 +141,46 @@ namespace Plugins::CargoDrop
 	void SendDeathMsg([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		// If player ship loot dropping is enabled then check for a loot drop.
-		if (global->config->hullDropFactor == 0.0f)
+		
+		if (global->config->hullDropFactor == 0.0f || !global->config->enablePlayerCargoDropOnDeath) 
+		{
 			return;
+		}
 
 		int remainingHoldSize;
-		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize); 
+		auto cargo = Hk::Player::EnumCargo(clientVictim, remainingHoldSize);
 		if (cargo.has_error())
+		{
 			return;
-				
+		}
+
 		auto ship = Archetype::GetShip(Hk::Player::GetShipID(clientVictim).value());
 		auto [position, _] = Hk::Solar::GetLocation(Hk::Player::GetShip(clientVictim).value(), IdType::Ship).value();
 		position.x += 30.0f;
 
-		if (global->config->enablePlayerCargoDropOnDeath)
+		for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
 		{
-			for (const auto& [iId, count, archId, status, mission, mounted, hardpoint] : cargo.value())
+			if (!mounted && !mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
 			{
-				if (!mounted && !mission && std::ranges::find(global->noLootItemsIds, archId) == global->noLootItemsIds.end())
-
-				{
-					Server.MineAsteroid(system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
-				}
+				Server.MineAsteroid(
+				    system, position, global->cargoDropContainerId, archId, std::min(count, global->config->maxPlayerCargoDropCount), clientKiller);
 			}
 		}
+
 		if (const auto hullDropTotal = int(global->config->hullDropFactor * float(ship->fMass)); hullDropTotal > 0)
 		{
-			if (FLHookConfig::i()->general.debugMode)
-				Console::ConDebug(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipMass={} iHullDrop={}\n",
-				    system,
-				    position.x,
-				    position.y,
-				    position.z,
-				    ship->fMass,
-				    hullDropTotal));
+			Console::ConDebug(std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipMass={} iHullDrop={}\n",
+			    system,
+			    position.x,
+			    position.y,
+			    position.z,
+			    ship->fMass,
+			    hullDropTotal));
 
 			for (const auto& playerCargo : global->playerOnDeathCargo)
+			{
 				Server.MineAsteroid(system, position, global->cargoDropContainerId, playerCargo, int(hullDropTotal), clientKiller);
-
+			}
 		}
 	}
 
@@ -202,9 +207,8 @@ namespace Plugins::CargoDrop
 
 using namespace Plugins::CargoDrop;
 REFL_AUTO(type(Config), field(reportDisconnectingPlayers), field(killDisconnectingPlayers), field(lootDisconnectingPlayers), field(disconnectingPlayersRange),
-    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(playerOnDeathCargo),
-    field(noLootItems),
-    field(enablePlayerCargoDropOnDeath), field(maxPlayerCargoDropCount))
+    field(hullDropFactor), field(disconnectMsg), field(cargoDropContainer), field(playerOnDeathCargo), field(noLootItems), field(enablePlayerCargoDropOnDeath),
+    field(maxPlayerCargoDropCount))
 
 DefaultDllMainSettings(LoadSettings);
 
