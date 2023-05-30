@@ -46,10 +46,14 @@ namespace Plugins::CargoDrop
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		for (const auto& cargo : config.playerOnDeathCargo)
+		{
 			global->playerOnDeathCargo.push_back(CreateID(cargo.c_str()));
+		}
 
 		for (const auto& noLootItem : config.noLootItems)
+		{
 			global->noLootItemsIds.push_back(CreateID(noLootItem.c_str()));
+		}
 
 		global->config = std::make_unique<Config>(config);
 	}
