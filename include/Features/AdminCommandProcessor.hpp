@@ -8,25 +8,35 @@ class AdminCommandProcessor
 
 #define AddCommand(str, func) { std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam }
 
-	cpp::result<nlohmann::json, nlohmann::json> SetCash(std::string_view characterName, uint amount);
-	cpp::result<nlohmann::json, nlohmann::json> GetCash(std::string_view characterName);
-	cpp::result<nlohmann::json, nlohmann::json> KickPlayer(std::string_view characterName, std::string_view reason);
-	cpp::result<nlohmann::json, nlohmann::json> BanPlayer(std::string_view characterName);
-	cpp::result<nlohmann::json, nlohmann::json> TempbanPlayer(std::string_view characterName, uint duration);
-	cpp::result<nlohmann::json, nlohmann::json> UnBanPlayer(std::string_view characterName);
-	cpp::result<nlohmann::json, nlohmann::json> GetClientId(std::string_view characterName);
-	cpp::result<nlohmann::json, nlohmann::json> KillPlayer(std::string_view characterName);
-	cpp::result<nlohmann::json, nlohmann::json> SetRep(std::string_view characterName, const std::wstring& repGroup, float value);
-	cpp::result<nlohmann::json, nlohmann::json> ResetRep(std::string_view characterName, const std::wstring& repGroup);
-	cpp::result<nlohmann::json, nlohmann::json> GetRep(std::string_view characterName, const std::wstring& repGroup);
-	cpp::result<nlohmann::json, nlohmann::json> MessagePlayer(std::string_view characterName, const std::wstring& text);
-	cpp::result<nlohmann::json, nlohmann::json> SendSystemMessage(std::string_view systemName, const std::wstring& text);
-	cpp::result<nlohmann::json, nlohmann::json> SendUniverseMessage(std::wstring_view text);
+	#define ReturnType cpp::result<nlohmann::json, nlohmann::json>
 
-	const inline static std::array<std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 14> commands = 
-	{
-	    {
-	        AddCommand("getcash", GetCash),
+	ReturnType SetCash(std::string_view characterName, uint amount);
+	ReturnType GetCash(std::string_view characterName);
+	ReturnType KickPlayer(std::string_view characterName, std::string_view reason);
+	ReturnType BanPlayer(std::string_view characterName);
+	ReturnType TempbanPlayer(std::string_view characterName, uint duration);
+	ReturnType UnBanPlayer(std::string_view characterName);
+	ReturnType GetClientId(std::string_view characterName);
+	ReturnType KillPlayer(std::string_view characterName);
+	ReturnType SetRep(std::string_view characterName, const std::wstring& repGroup, float value);
+	ReturnType ResetRep(std::string_view characterName, const std::wstring& repGroup);
+	ReturnType GetRep(std::string_view characterName, const std::wstring& repGroup);
+	ReturnType MessagePlayer(std::string_view characterName, const std::wstring& text);
+	ReturnType SendSystemMessage(std::string_view systemName, const std::wstring& text);
+	ReturnType SendUniverseMessage(std::wstring_view text);
+	ReturnType ListCargo(std::string_view characterName);
+	ReturnType AddCargo(std::string_view characterName, const std::wstring& good, uint count, bool mission);
+	ReturnType RenameChar(std::string_view characterName, const std::wstring& newName);
+	ReturnType DeleteChar(std::string_view characterName);
+	ReturnType ReadCharFile(std::string_view characterName);
+	ReturnType WriteCharFile(std::string_view characterName,const std::wstring& data);
+	ReturnType GetPlayerInfo(std::string_view characterName);
+
+#undef ReturnType
+
+	const inline static std::array<
+	    std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 20>
+	    commands = {{AddCommand("getcash", GetCash),
 	        AddCommand("setcash", SetCash),
 	        AddCommand("kick", KickPlayer),
 	        AddCommand("ban", BanPlayer),
@@ -40,8 +50,15 @@ class AdminCommandProcessor
 	        AddCommand("msg", MessagePlayer),
 	        AddCommand("msgs", SendSystemMessage),
 	        AddCommand("msgu", SendUniverseMessage),
+	        AddCommand("listcargo", ListCargo),
+	        AddCommand("addcargo", AddCargo),
+	        AddCommand("renamechar", RenameChar),
+	        AddCommand("deletechar", DeleteChar),
+	        AddCommand("writecharfile", WriteCharFile),
+	        AddCommand("getplayerinfo", GetPlayerInfo)
 	    }
-	};	    
+	};
+
 
 #undef AddCommand
 

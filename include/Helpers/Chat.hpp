@@ -1,5 +1,6 @@
 #pragma once
 //TODO: Reimplement DLL loader and De-loader.
+//TODO: Make HK functions accept string views
 namespace Hk::Chat
 {
 	DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message);

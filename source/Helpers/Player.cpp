@@ -888,7 +888,7 @@ namespace Hk::Player
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	//TODO: Make this return just a single string.
 	cpp::result<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
