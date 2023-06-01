@@ -2,13 +2,57 @@
 
 #include <nlohmann/json.hpp>
 
-class AdminCommandProcessor
+class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 {
-	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap;
+public:
+	enum class DefaultRoles
+	{
+		SuperAdmin,
+		Cash,
+		Expel,
+		Reputation,
+		Info,
+		Cargo,
+		Message,
+		Character
+	};
 
-#define AddCommand(str, func) { std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam }
+	enum class AllowedContext
+	{
+		Reset = 0,
+		GameOnly = 1,
+		ConsoleOnly = 2,
+		ExternalOnly = 4,
+		GameAndConsole = GameOnly | ConsoleOnly,
+		GameAndExternal = GameOnly | ExternalOnly,
+		ConsoleAndExternal = ConsoleOnly | ExternalOnly,
+		All = GameOnly | ConsoleOnly | ExternalOnly,
+	};
 
-	#define ReturnType cpp::result<nlohmann::json, nlohmann::json>
+private:
+	// Current user, changes every command invocation.
+	std::string_view currentUser = "";
+	AllowedContext currentContext = AllowedContext::GameOnly;
+
+	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap = 
+	{
+		{ "console", { magic_enum::enum_name(DefaultRoles::SuperAdmin) }, }
+	};
+
+#define AddCommand(str, func, context, requiredRole)                                                                                                \
+	{                                                                                                                                   \
+		std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole) \
+	}
+
+#define ReturnType cpp::result<nlohmann::json, nlohmann::json>
+
+	struct CommandInfo
+	{
+		std::string_view cmd;
+		ReturnType (*func)(AdminCommandProcessor cl, const std::vector<std::string>& params);
+		AllowedContext allowedContext;
+		std::string_view requiredRole;
+	};
 
 	ReturnType SetCash(std::string_view characterName, uint amount);
 	ReturnType GetCash(std::string_view characterName);
@@ -29,46 +73,51 @@ class AdminCommandProcessor
 	ReturnType RenameChar(std::string_view characterName, const std::wstring& newName);
 	ReturnType DeleteChar(std::string_view characterName);
 	ReturnType ReadCharFile(std::string_view characterName);
-	ReturnType WriteCharFile(std::string_view characterName,const std::wstring& data);
+	ReturnType WriteCharFile(std::string_view characterName, const std::wstring& data);
 	ReturnType GetPlayerInfo(std::string_view characterName);
 
 #undef ReturnType
 
-	const inline static std::array<
-	    std::pair<std::string_view, cpp::result<nlohmann::json, nlohmann::json> (*)(AdminCommandProcessor cl, const std::vector<std::string>& params)>, 20>
-	    commands = {{AddCommand("getcash", GetCash),
-	        AddCommand("setcash", SetCash),
-	        AddCommand("kick", KickPlayer),
-	        AddCommand("ban", BanPlayer),
-	        AddCommand("tempban", TempbanPlayer),
-	        AddCommand("unban", UnBanPlayer),
-	        AddCommand("getclient", GetClientId),
-	        AddCommand("kill", KillPlayer),
-	        AddCommand("setrep", SetRep),
-	        AddCommand("resetrep", ResetRep),
-	        AddCommand("getrep", GetRep),
-	        AddCommand("msg", MessagePlayer),
-	        AddCommand("msgs", SendSystemMessage),
-	        AddCommand("msgu", SendUniverseMessage),
-	        AddCommand("listcargo", ListCargo),
-	        AddCommand("addcargo", AddCargo),
-	        AddCommand("renamechar", RenameChar),
-	        AddCommand("deletechar", DeleteChar),
-	        AddCommand("writecharfile", WriteCharFile),
-	        AddCommand("getplayerinfo", GetPlayerInfo)
-	    }
-	};
-
+	constexpr inline static std::array<CommandInfo, 20> commands = {{
+		AddCommand("getcash", GetCash, All, Cash),
+	    AddCommand("setcash", SetCash, All, Cash),
+	    AddCommand("kick", KickPlayer, All, Expel),
+	    AddCommand("ban", BanPlayer, All, Expel),
+	    AddCommand("tempban", TempbanPlayer, All, Expel),
+	    AddCommand("unban", UnBanPlayer, All, Expel),
+	    AddCommand("getclient", GetClientId, All, Info),
+	    AddCommand("kill", KillPlayer, All, Expel),
+	    AddCommand("setrep", SetRep, All, Reputation),
+	    AddCommand("resetrep", ResetRep, All, Reputation),
+	    AddCommand("getrep", GetRep, All, Reputation),
+	    AddCommand("msg", MessagePlayer, All, Message),
+	    AddCommand("msgs", SendSystemMessage, All, Message),
+	    AddCommand("msgu", SendUniverseMessage, All, Message),
+	    AddCommand("listcargo", ListCargo, All, Cargo),
+	    AddCommand("addcargo", AddCargo, All, Cargo),
+	    AddCommand("renamechar", RenameChar, All, Character),
+	    AddCommand("deletechar", DeleteChar, All, Character),
+	    AddCommand("writecharfile", WriteCharFile, ExternalOnly, Character),
+	    AddCommand("getplayerinfo", GetPlayerInfo, All, Info)
+	}};
 
 #undef AddCommand
+
+	cpp::result<void, std::string_view> Validate(AllowedContext context, std::string_view requiredRole);
 
 	template<int N>
 	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
 	{
-		if (const auto command = std::get<N - 1>(commands); command.first == cmd)
+		if (const CommandInfo command = std::get<N - 1>(commands); command.cmd == cmd)
 		{
-			return command.second(*processor, paramVector);
+			if (const auto validation = Validate(command.allowedContext, command.requiredRole); validation.has_error())
+			{
+				return cpp::fail(nlohmann::json {{"err", validation.error()}});
+			}
+
+			return command.func(*processor, paramVector);
 		}
+
 		return MatchCommand<N - 1>(processor, cmd, paramVector);
 	}
 
@@ -79,9 +128,10 @@ class AdminCommandProcessor
 		// The original command was not found, we now search our plugins
 
 		// No matching command was found.
-		return cpp::fail(nlohmann::json {"err", "Command not found."});
+		return cpp::fail(nlohmann::json {{"err", std::format("ERR: Command not found. ({})", cmd)}});
 	}
 
-public:
-	void ProcessCommand(std::string_view commandString);
+  public:
+	cpp::result<nlohmann::json, nlohmann::json> ProcessCommand(std::string_view commandString);
+	void SetCurrentUser(std::string_view user, AllowedContext context);
 };

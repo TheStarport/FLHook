@@ -75,7 +75,7 @@ namespace IServerImplHook
 			}
 		}
 
-		for (const std::shared_ptr<Plugin> plugin : PluginManager::ir())
+		for (const auto plugin : *PluginManager::i())
 		{
 			auto timers = plugin->GetTimers();
 			if (timers.empty())

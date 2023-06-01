@@ -24,7 +24,6 @@ class Singleton
 		}
 		return i.get();
 	}
-	static T& ir(std::unique_ptr<T>* o = nullptr) { return *i(o); }
 
 	static const T* c() { return i(); }
 	static void del() { i(nullptr, true); }

@@ -758,12 +758,12 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	const auto& plugins = PluginManager::ir();
+	const auto& plugins = PluginManager::i();
 	if (paramView.find(L' ') == std::string::npos)
 	{
 		PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
 		PrintUserCmdText(client, L"core");
-		for (const auto& plugin : plugins)
+		for (const auto plugin : *plugins)
 		{
 			if (const auto commands = plugin->GetCommands(); commands.empty())
 				continue;
@@ -803,9 +803,9 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& pluginIterator =
-	    std::ranges::find_if(plugins, [&mod](const std::shared_ptr<Plugin> plug) { return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod); });
+	    std::ranges::find_if(*plugins, [&mod](const std::shared_ptr<Plugin> plug) { return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod); });
 
-	if (pluginIterator == plugins.end())
+	if (pluginIterator == plugins->end())
 	{
 		PrintUserCmdText(client, L"Command module not found.");
 		return;
@@ -912,7 +912,7 @@ bool UserCmdProcess(ClientId client, const std::wstring& cmd)
 	if (auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, client, cmd); pluginSkip)
 		return pluginRet;
 
-	for (const auto& plugins = PluginManager::ir(); const std::weak_ptr<Plugin> i : plugins)
+	for (const auto& plugins = PluginManager::i(); const std::weak_ptr<Plugin> i : *plugins)
 	{
 		if (const auto commands = i.lock()->GetCommands(); ProcessPluginCommand(client, cmd, commands))
 		{

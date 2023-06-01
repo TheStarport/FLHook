@@ -6,6 +6,7 @@
 #include <Features/Logger.hpp>
 
 #include "Defs/FLHookConfig.hpp"
+#include "Features/AdminCommandProcessor.hpp"
 #include "Features/DataManager.hpp"
 
 
@@ -231,7 +232,7 @@ void FLHookShutdown()
 	// unload rest
 	DWORD id;
 	DWORD param;
-	CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FLHookUnload, &param, 0, &id);
+	CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(FLHookUnload), &param, 0, &id);
 }
 
 void ProcessPendingCommands()
@@ -240,8 +241,18 @@ void ProcessPendingCommands()
 	auto cmd = logger->GetCommand();
 	while (cmd.has_value())
 	{
-		// TODO: Reimplement admin command
-		//AdminConsole.ExecuteCommandString(cmd);
+		const auto processor = AdminCommandProcessor::i();
+		processor->SetCurrentUser("console", AdminCommandProcessor::AllowedContext::ConsoleOnly);
+		if (const auto response  = AdminCommandProcessor::i()->ProcessCommand(cmd.value()); response.has_error())
+		{
+			const auto e = response.error();
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, response.error()["err"].get<std::string>());
+		}
+		else
+		{
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response.value()["res"]);
+		}
+
 		cmd = logger->GetCommand();
 	}
 }

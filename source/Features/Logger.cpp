@@ -191,6 +191,6 @@ std::optional<std::string> Logger::GetCommand()
 	if (const auto val = queue.try_pop(ret); !val)
 		return {};
 
-	return ret;
+	return StringUtils::Trim(ret);
 }
 

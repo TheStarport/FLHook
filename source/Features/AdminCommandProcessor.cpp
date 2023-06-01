@@ -10,7 +10,7 @@
 #include "Helpers/Player.hpp"
 #include "Helpers/Chat.hpp"
 
-void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 {
 	auto params = StringUtils::GetParams(commandString, ' ');
 
@@ -19,7 +19,47 @@ void AdminCommandProcessor::ProcessCommand(std::string_view commandString)
 	std::vector<std::string> paramsFiltered(params.begin(), params.end());
 	paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-	auto json = MatchCommand<commands.size()>(this, command, paramsFiltered);
+	auto res = MatchCommand<commands.size()>(this, command, paramsFiltered);
+
+	// After matching reset perms
+	currentContext = AllowedContext::Reset;
+	currentUser = "";
+
+	return res;
+}
+
+void AdminCommandProcessor::SetCurrentUser(const std::string_view user, const AllowedContext context)
+{
+	currentUser = user;
+	currentContext = context;
+}
+
+cpp::result<void, std::string_view> AdminCommandProcessor::Validate(const AllowedContext context, std::string_view requiredRole)
+{
+	using namespace magic_enum::bitwise_operators;
+	constexpr std::string_view invalidPerms = "ERR: No permission.";
+	constexpr std::string_view invalidCommand = "ERR: Command not found.";
+
+	// If the current context does not allow command
+	if (static_cast<int>(currentContext & context) == 0)
+	{
+		return cpp::fail(invalidCommand);
+	}
+
+	const auto credentials = credentialsMap.find(currentUser.data());
+	if (credentials == credentialsMap.end())
+	{
+		// Some how got here and not authenticated!
+		return cpp::fail(invalidPerms);
+	}
+
+	if (std::ranges::find(credentials->second, requiredRole) == credentials->second.end() && std::ranges::find(credentials->second, magic_enum::enum_name(DefaultRoles::SuperAdmin)) == credentials->second.end())
+	{
+		return cpp::fail(invalidPerms);
+	}
+
+	// All good!
+	return {};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::string_view characterName, uint amount)
@@ -34,7 +74,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::
 	const auto res = Hk::Player::AdjustCash(StringUtils::stows(std::string(characterName)), amount - playerInitialCash.value());
 	if (res.has_error())
 	{
-		return cpp::fail(nlohmann::json {{"err", res.error()}});
+		return cpp::fail(nlohmann::json {{"err", magic_enum::enum_name(res.error())}});
 	}
 	return nlohmann::json {{"res", std::format("{} cash set to {} credits", characterName, amount)}, {"characterName", characterName}, {"amount", amount}};
 };
@@ -47,9 +87,13 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::
 	const auto res = Hk::Player::GetCash(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
-		return cpp::fail(nlohmann::json {{"err", res.error()}});
+		return cpp::fail(nlohmann::json {{"err", magic_enum::enum_name(res.error())}});
 	}
-	return nlohmann::json {{"res", std::format("{} has been set {} credits.", characterName, res.value()), {characterName, res.value()}}};
+
+	return nlohmann::json
+	{
+		{"res", std::format("{} has been set {} credits.", characterName, res.value())}, { characterName, res.value() }
+	};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(std::string_view characterName, std::string_view reason)
@@ -58,7 +102,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(st
 
 	if (const auto res = Hk::Player::KickReason(StringUtils::stows(std::string(characterName)), StringUtils::stows(std::string(reason))); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {
 	    {"res", std::format("{} has been successfully kicked. Reason: {}", characterName, reason)}, {"KickedCharacter", characterName}, {"reason", reason}};
@@ -69,7 +113,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::BanPlayer(std
 	// Rights Check
 	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), true); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("{} has been successfully banned.", characterName)}, {"BannedCharacter", characterName}};
 }
@@ -78,7 +122,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::TempbanPlayer
 {
 	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), true); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("{} has been successfully banned. for duration of {}", characterName, duration)},
 	    {"characterName", characterName},
@@ -89,7 +133,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnBanPlayer(s
 {
 	if (const auto res = Hk::Player::Ban(StringUtils::stows(std::string(characterName)), false); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("{} has been successfully unbanned.", characterName)}};
 }
@@ -109,7 +153,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KillPlayer(st
 	const auto res = Hk::Player::Kill(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("{} successfully killed", characterName)}};
 }
@@ -119,7 +163,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRep(std::s
 	const auto res = Hk::Player::SetRep(StringUtils::stows(std::string(characterName)), repGroup, value);
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 
 	return nlohmann::json {{"res", std::format("{}'s reputation with {} set to {}", characterName, StringUtils::wstos(repGroup), value)}};
@@ -130,7 +174,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std:
 	const auto res = Hk::Player::ResetRep(StringUtils::stows(std::string(characterName)));
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {
 	    {"res", std::format("{}'rep to {} reset", characterName, StringUtils::wstos(repGroup))}, {"repGroup", repGroup}, {"characterName", characterName}};
@@ -142,7 +186,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::s
 
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("{}'reputation to {} is {}", characterName, StringUtils::wstos(repGroup), res.value())},
 	    {"repGroup", repGroup},
@@ -154,7 +198,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::MessagePlayer
 {
 	if (const auto res = Hk::Chat::Msg(StringUtils::stows(std::string(characterName)), text); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("Message sent to {} successfully sent", characterName)}, {"receiver", characterName}, {"message", text}};
 }
@@ -163,7 +207,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendSystemMes
 {
 	if (const auto res = Hk::Chat::MsgS(std::string(systemName), text); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 
 	return nlohmann::json {{"res", std::format("Message successfully sent to {}", systemName)}, {"systemName", systemName}, {"message", text}};
@@ -173,7 +217,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SendUniverseM
 {
 	if (const auto res = Hk::Chat::MsgU(text); res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	return nlohmann::json {{"res", std::format("Message Sent to Server.")}, {"message"}, text};
 }
@@ -213,9 +257,9 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::AddCargo(std:
 
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
-	return nlohmann::json {{"res", std::format("{} units of {} has been added to {}'s cargo", count, good, characterName)}};
+	return nlohmann::json {{"res", std::format("{} units of {} has been added to {}'s cargo", count, StringUtils::wstos(good), characterName)}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::RenameChar(std::string_view characterName, const std::wstring& newName)
@@ -223,9 +267,9 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::RenameChar(st
 	const auto res = Hk::Player::Rename(StringUtils::stows(std::string(characterName)), newName, false);
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
-	return nlohmann::json {{"res", std::format("{} has been renamed to{}", characterName, newName)}};
+	return nlohmann::json {{"res", std::format("{} has been renamed to{}", characterName,  StringUtils::wstos(newName))}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::DeleteChar(std::string_view characterName)
@@ -234,7 +278,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::DeleteChar(st
 
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 
 	return nlohmann::json {{"res", std::format("{} has been successfully deleted", characterName)}};
@@ -246,7 +290,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ReadCharFile(
 
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 
 	std::wstring charFile;
@@ -258,7 +302,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::WriteCharFile
 	const auto res = Hk::Player::WriteCharFile(StringUtils::stows(std::string(characterName)), data);
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 
 	return nlohmann::json {{"res", std::format("Char file of {}, saved", characterName)}};
@@ -269,7 +313,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetPlayerInfo
 	const auto res = Hk::Admin::GetPlayerInfo(StringUtils::stows(std::string(characterName)), false);
 	if (res.has_error())
 	{
-		return nlohmann::json {{"err", res.error()}};
+		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
 	auto obj = nlohmann::json::object();
 
@@ -290,4 +334,3 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetPlayerInfo
 	    res.value().systemName);
 	return obj;
 }
-

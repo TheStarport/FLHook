@@ -1,3 +1,4 @@
+// ReSharper disable CppClangTidyClangDiagnosticReturnStackAddress
 #pragma once
 
 #include "Utils.hpp"
@@ -31,6 +32,13 @@ template<>
 inline const std::string& TransformArg(std::string_view s)
 {
 	return std::string(s);
+}
+
+template<>
+inline bool TransformArg(std::string_view s)
+{
+	const auto lower = StringUtils::ToLower(s);
+	return lower == "true" || lower == "yes";
 }
 
 template<typename... Args, std::size_t... Is>

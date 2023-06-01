@@ -103,20 +103,24 @@ public:
 			return stringInput;
 
 		using Char = typename Str::value_type;
+
+		// Reallocate the str to remove needless null terminators
+		Str nullRemoved = stringInput.data();
+		
 		constexpr auto trimmable = []() constexpr {
 			if constexpr (std::is_same_v<Char, char>)
-				return " \t\n\r";
+				return std::string_view(" \t\n\r");
 			else if constexpr (std::is_same_v<Char, wchar_t>)
-				return L" \t\n\r";
+				return std::wstring_view(L" \t\n\r");
 		}();
 
-		auto start = stringInput.find_first_not_of(trimmable);
-		auto end = stringInput.find_last_not_of(trimmable);
+		auto start = nullRemoved.find_last_not_of(trimmable);
+		auto end = nullRemoved.find_last_of(trimmable);
 
-		if (start == end)
-			return stringInput;
+		if (start >= end)
+			return nullRemoved;
 
-		return stringInput.substr(start, end - start + 1);
+		return nullRemoved.substr(0, start + 1);
 	}
 
 	template<typename TString>
@@ -240,10 +244,13 @@ public:
 		uint lPos, sPos = 0;
 
 		TString result = source;
-		while ((lPos = static_cast<uint>(result.find(searchFor, sPos))) != UINT_MAX)
+		while ((lPos = static_cast<uint>(result.find(searchFor, sPos))) !=	UINT_MAX)
 		{
 			result.replace(lPos, searchFor.length(), replaceWith);
 			sPos = lPos + replaceWith.length();
+
+			if (lPos == sPos)
+				break;
 		}
 
 		return result;

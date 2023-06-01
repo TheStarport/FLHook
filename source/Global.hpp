@@ -266,6 +266,7 @@ class PluginManager : public Singleton<PluginManager>
 	[[nodiscard]] auto begin() const { return plugins.begin(); }
 	[[nodiscard]] auto end() const { return plugins.end(); }
 
+
 	template<typename ReturnType, typename... Args>
 	ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
 	{
