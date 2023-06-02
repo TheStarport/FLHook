@@ -508,35 +508,6 @@
 //
 //	Print("OK");
 //}
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//void CCmds::CmdGetReservedSlot(const std::variant<uint, std::wstring>& player)
-//{
-//	const auto res = Hk::Player::GetReservedSlot(player);
-//	if (res.has_error())
-//	{
-//		PrintError(res.error());
-//		return;
-//	}
-//
-//	Print(std::format("reservedslot={}\nOK\n", res.value() ? "yes" : "no"));
-//	Print("OK");
-//}
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//void CCmds::CmdSetReservedSlot(const std::variant<uint, std::wstring>& player, int reservedSlot)
-//{
-//	if (const auto res = Hk::Player::SetReservedSlot(player, reservedSlot ? true : false); res.has_error())
-//	{
-//		PrintError(res.error());
-//		return;
-//	}
-//
-//	Print("OK");
-//}
-//
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& playerRights)

@@ -779,26 +779,6 @@ namespace IServerImplHook
 			resolveIPs.push_back(rip);
 			LeaveCriticalSection(&csIPResolve);
 
-			// count players
-			PlayerData* playerData = nullptr;
-			uint playerCount = 0;
-			while ((playerData = Players.traverse_active(playerData)))
-				playerCount++;
-
-			if (playerCount > (Players.GetMaxPlayerCount() - FLHookConfig::i()->general.reservedSlots))
-			{
-				// check if player has a reserved slot
-				const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-				const std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
-
-				const bool reserved = IniGetB(userFile, "Settings", "ReservedSlot", false);
-				if (!reserved)
-				{
-					Hk::Player::Kick(client);
-					return false;
-				}
-			}
-
 			LoadUserSettings(client);
 
 			// AddConnectLog(client, StringUtils::wstos(ip));

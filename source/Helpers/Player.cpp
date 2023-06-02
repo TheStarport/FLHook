@@ -738,46 +738,6 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<bool, Error> GetReservedSlot(const std::variant<uint, std::wstring>& player)
-	{
-		ClientId client = Client::ExtractClientID(player);
-
-		const CAccount* acc;
-		if (client != UINT_MAX)
-			acc = Players.FindAccountFromClientID(client);
-		else
-			acc = player.index() ? Client::GetAccountByCharName(std::get<std::wstring>(player)).value() : nullptr;
-
-		if (!acc)
-			return cpp::fail(Error::CharacterDoesNotExist);
-
-		const auto dir = Client::GetAccountDirName(acc);
-		const std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
-
-		return IniGetB(userFile, "Settings", "ReservedSlot", false);
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	cpp::result<void, Error> SetReservedSlot(const std::variant<uint, std::wstring>& player, bool reservedSlot)
-	{
-		auto acc = Client::ExtractAccount(player);
-		if (acc.has_error())
-			return cpp::fail(Error::CharacterDoesNotExist);
-
-		const auto dir = Client::GetAccountDirName(acc.value());
-		const std::string UserFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
-
-		if (reservedSlot)
-			IniWrite(UserFile, "Settings", "ReservedSlot", "yes");
-		else
-			IniWrite(UserFile, "Settings", "ReservedSlot", "no");
-
-		return {};
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	cpp::result<void, Error> ResetRep(const std::variant<uint, std::wstring>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);

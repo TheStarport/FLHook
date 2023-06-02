@@ -39,8 +39,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		uint maxGroupSize = 8;
 		//! NOT IMPLEMENTED YET: if true, keeps the player in the group if they switch characters within one account.
 		bool persistGroup = false;
-		//! Number of slots reserved to specified accounts.
-		uint reservedSlots = 0;
+
 		//! Global damage multiplier to missile and torpedo type weapons.
 		float torpMissileBaseDamageMultiplier = 1.0f;
 		//! If true, it logs performance of functions if they take too long to execute.

@@ -21,8 +21,6 @@ namespace Hk::Player
 	DLL cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& newCharname, bool onlyDelete);
 	DLL cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& Reason, uint interval);
 	DLL cpp::result<void, Error> Kill(const std::variant<uint, std::wstring>& player);
-	DLL cpp::result<bool, Error> GetReservedSlot(const std::variant<uint, std::wstring>& player);
-	DLL cpp::result<void, Error> SetReservedSlot(const std::variant<uint, std::wstring>& player, bool reservedSlot);
 	DLL cpp::result<void, Error> ResetRep(const std::variant<uint, std::wstring>& player);
 	DLL cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring>& player);
 	DLL cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup, float value);

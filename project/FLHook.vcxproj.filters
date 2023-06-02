@@ -326,9 +326,6 @@
     <ClInclude Include="..\include\Actions\CargoManipulation.hpp">
       <Filter>Include\Actions</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Actions\PlayerManipulation.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Exceptions\InputException.hpp">
       <Filter>Include\Exceptions</Filter>
     </ClInclude>
