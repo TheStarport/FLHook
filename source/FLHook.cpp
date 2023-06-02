@@ -256,4 +256,3 @@ void ProcessPendingCommands()
 		cmd = logger->GetCommand();
 	}
 }
-

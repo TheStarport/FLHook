@@ -99,6 +99,7 @@ void PluginManager::UnloadAll()
 	ClearData(true);
 }
 
+//TODO: Let this return a bool or error type.
 void PluginManager::Load(const std::string& fileName, bool startup)
 {
 	std::string dllName = fileName;

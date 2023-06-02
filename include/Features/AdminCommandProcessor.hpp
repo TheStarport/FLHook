@@ -4,7 +4,7 @@
 
 class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 {
-public:
+  public:
 	enum class DefaultRoles
 	{
 		SuperAdmin,
@@ -14,7 +14,9 @@ public:
 		Info,
 		Cargo,
 		Message,
-		Character
+		Character,
+		Plugin,
+		Movement
 	};
 
 	enum class AllowedContext
@@ -29,19 +31,20 @@ public:
 		All = GameOnly | ConsoleOnly | ExternalOnly,
 	};
 
-private:
+  private:
 	// Current user, changes every command invocation.
 	std::string_view currentUser = "";
 	AllowedContext currentContext = AllowedContext::GameOnly;
 
-	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap = 
-	{
-		{ "console", { magic_enum::enum_name(DefaultRoles::SuperAdmin) }, }
-	};
+	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap = {{
+	    "console",
+	    {magic_enum::enum_name(DefaultRoles::SuperAdmin)},
+	}};
 
-#define AddCommand(str, func, context, requiredRole)                                                                                                \
-	{                                                                                                                                   \
-		std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole) \
+#define AddCommand(str, func, context, requiredRole)                                                                                     \
+	{                                                                                                                                    \
+		std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, \
+		    AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole)                                                   \
 	}
 
 #define ReturnType cpp::result<nlohmann::json, nlohmann::json>
@@ -75,10 +78,23 @@ private:
 	ReturnType ReadCharFile(std::string_view characterName);
 	ReturnType WriteCharFile(std::string_view characterName, const std::wstring& data);
 	ReturnType GetPlayerInfo(std::string_view characterName);
+	ReturnType GetAllPlayerInfo();
+	ReturnType GetGroupMembers(std::string_view characterName);
+	ReturnType AddRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType DeleteRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType SetRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType LoadPlugin(const std::vector<std::wstring>& pluginNames);
+	ReturnType UnloadPlugin(const std::vector<std::wstring>& pluginNames);
+	ReturnType ReloadPlugin(const std::vector<std::wstring>& pluginNames);
+	ReturnType ListPlugins();
+	ReturnType Chase(std::wstring_view characterName);
+	ReturnType Beam(std::wstring_view characterName, const std::wstring& baseName);
+	ReturnType Pull(const std::wstring& characterName);
+	ReturnType Move(const std::wstring& characterName, Vector position);
 
 #undef ReturnType
 
-	constexpr inline static std::array<CommandInfo, 20> commands = {{
+	constexpr inline static std::array<CommandInfo, 33> commands = {{
 		AddCommand("getcash", GetCash, All, Cash),
 	    AddCommand("setcash", SetCash, All, Cash),
 	    AddCommand("kick", KickPlayer, All, Expel),
@@ -98,7 +114,20 @@ private:
 	    AddCommand("renamechar", RenameChar, All, Character),
 	    AddCommand("deletechar", DeleteChar, All, Character),
 	    AddCommand("writecharfile", WriteCharFile, ExternalOnly, Character),
-	    AddCommand("getplayerinfo", GetPlayerInfo, All, Info)
+	    AddCommand("getplayerinfo", GetPlayerInfo, All, Info),
+	    AddCommand("getallplayerinfo", GetAllPlayerInfo, ExternalOnly, Info),
+	    AddCommand("getgroupmembers", GetGroupMembers, ConsoleAndExternal, Info),
+	    AddCommand("addroles", AddRoles, All, SuperAdmin),
+	    AddCommand("deleteroles", DeleteRoles, All, SuperAdmin),
+	    AddCommand("setroles", AddRoles, All, SuperAdmin),
+	    AddCommand("loadplugin", LoadPlugin, All, Plugin),
+	    AddCommand("unloadplugin", UnloadPlugin, All, Plugin),
+	    AddCommand("reloadplugin", ReloadPlugin, All, Plugin),
+	    AddCommand("listplugins", ListPlugins, All, Info ),
+	    AddCommand("chase", Chase,GameOnly, Movement ),
+	    AddCommand("beam", Beam, All,  Movement),
+	    AddCommand("pull", Pull, All, Movement),
+	    AddCommand("move", Move, GameOnly, Movement)
 	}};
 
 #undef AddCommand
@@ -106,7 +135,8 @@ private:
 	cpp::result<void, std::string_view> Validate(AllowedContext context, std::string_view requiredRole);
 
 	template<int N>
-	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(
+	    AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
 	{
 		if (const CommandInfo command = std::get<N - 1>(commands); command.cmd == cmd)
 		{
@@ -123,13 +153,16 @@ private:
 
 	template<>
 	// ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>(AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
+	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>(
+	    AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
 	{
 		// The original command was not found, we now search our plugins
 
 		// No matching command was found.
 		return cpp::fail(nlohmann::json {{"err", std::format("ERR: Command not found. ({})", cmd)}});
 	}
+
+	nlohmann::json::object_t GeneratePlayerInfoObj(const PlayerInfo& player);
 
   public:
 	cpp::result<nlohmann::json, nlohmann::json> ProcessCommand(std::string_view commandString);

@@ -5,7 +5,6 @@
 #include "Defs/CoreGlobals.hpp"
 #include "Helpers/Client.hpp"
 
-
 bool g_bNPCDisabled;
 
 namespace Hk::Admin
@@ -153,65 +152,6 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& rights)
-	{
-		auto acc = Client::ExtractAccount(player);
-		if (acc.has_error())
-		{
-			return cpp::fail(Error::CharacterDoesNotExist);
-		}
-
-		const auto dir = Client::GetAccountDirName(acc.value());
-
-		const std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
-		IniWrite(adminFile, "admin", "rights", StringUtils::wstos(rights));
-		return {};
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	cpp::result<std::wstring, Error> GetAdmin(const std::variant<uint, std::wstring>& player)
-	{
-		auto acc = Client::ExtractAccount(player);
-		if (acc.has_error())
-		{
-			return cpp::fail(acc.error());
-		}
-
-		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
-
-		// TODO: Replace WinApi call
-		WIN32_FIND_DATA fd;
-		HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
-		if (hFind == INVALID_HANDLE_VALUE)
-		{
-			return cpp::fail(Error::NoAdmin);
-		}
-
-		FindClose(hFind);
-		return StringUtils::stows(IniGetS(adminFile, "admin", "rights", ""));
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	cpp::result<void, Error> DelAdmin(const std::variant<uint, std::wstring>& player)
-	{
-		auto acc = Client::ExtractAccount(player);
-		if (acc.has_error())
-		{
-			return cpp::fail(acc.error());
-		}
-
-		// TODO: Replace WinApi call
-		const std::wstring dir = Client::GetAccountDirName(acc.value());
-		std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookadmin.ini";
-		DeleteFile(adminFile.c_str());
-		return {};
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	cpp::result<void, Error> ChangeNPCSpawn(bool disable)
 	{
 		if (CoreGlobals::c()->disableNpcs && disable)
@@ -306,6 +246,18 @@ namespace Hk::Admin
 		return GetEqObjFromObjRW_(objRW);
 	}
 
+	cpp::result<void, Error> AddRole(const std::wstring& characterName, const std::wstring& role)
+	{
+	}
+
+	cpp::result<void, Error> RemoveRole(const std::wstring& characterName, const std::wstring& role)
+	{
+	}
+
+	cpp::result<void, Error> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles)
+	{
+	}
+
 	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)
 	{
 		__asm {
@@ -349,4 +301,3 @@ namespace Hk::Admin
 		return UnLightFuse_(ship, fuseId, 0.f);
 	}
 } // namespace Hk::Admin
-

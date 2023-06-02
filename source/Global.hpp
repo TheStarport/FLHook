@@ -44,7 +44,7 @@ namespace Hk
 	{
 		// TODO: Move to DataManager
 		void LoadPersonalities();
-	}
+	} // namespace Personalities
 
 	namespace Client
 	{
@@ -112,11 +112,11 @@ inline auto* ToUShort(wchar_t* val)
 	return reinterpret_cast<ushort*>(val);
 }
 
-#define CALL_SERVER_PREAMBLE                    \
-	{                                           \
+#define CALL_SERVER_PREAMBLE                       \
+	{                                              \
 		static PerfTimer timer(__FUNCTION__, 100); \
-		timer.Start();                          \
-		TRY_HOOK                                \
+		timer.Start();                             \
+		TRY_HOOK                                   \
 		{
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                        \
 	}                                                                                                 \
@@ -222,6 +222,8 @@ inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs)
 
 class PluginManager : public Singleton<PluginManager>
 {
+	friend class AdminCommandProcessor;
+
   public:
 	struct FunctionHookProps
 	{
@@ -244,6 +246,7 @@ class PluginManager : public Singleton<PluginManager>
 
   private:
 	std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
+	//TODO: Add a getter function of a const ref so other classes can look at thi list of plugins. 
 	std::vector<std::shared_ptr<Plugin>> plugins;
 	std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
 
@@ -266,11 +269,10 @@ class PluginManager : public Singleton<PluginManager>
 	[[nodiscard]] auto begin() const { return plugins.begin(); }
 	[[nodiscard]] auto end() const { return plugins.end(); }
 
-
 	template<typename ReturnType, typename... Args>
 	ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
 	{
-		using PluginCallType = ReturnType (__thiscall*)(void*, Args...);
+		using PluginCallType = ReturnType(__thiscall*)(void*, Args...);
 		constexpr bool returnTypeIsVoid = std::is_same_v<ReturnType, void>;
 		using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
 
