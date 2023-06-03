@@ -7,7 +7,6 @@
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
 
-
 namespace IEngineHook
 {
 	void __cdecl UpdateTime(double interval);
@@ -24,7 +23,7 @@ namespace IEngineHook
 	extern FARPROC g_OldDestroyCShip;
 	extern FARPROC g_OldLaunchPosition;
 	extern FARPROC g_OldLoadReputationFromCharacterFile;
-} // namespace IEngine
+} // namespace IEngineHook
 
 void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 void __stdcall NonGunWeaponHitsBaseBefore(char* ECX, char* p1, DamageList* dmg);
@@ -39,70 +38,68 @@ extern FARPROC g_OldGuidedHit;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PatchInfo piFLServerEXE = {"flserver.exe",
-                           0x0400000,
-                           {
-	                           {0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false},
-	                           {0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false},
+    0x0400000,
+    {
+        {0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false},
+        {0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false},
 
-	                           {0, nullptr, 0, nullptr} // terminate
-                           }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 PatchInfo piContentDLL = {"content.dll",
-                          0x6EA0000,
-                          {
-	                          {0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false},
+    0x6EA0000,
+    {
+        {0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false},
 
-	                          {0, nullptr, 0, nullptr} // terminate
-                          }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 PatchInfo piCommonDLL = {"common.dll",
-                         0x6260000,
-                         {
+    0x6260000,
+    {
 
-	                         {0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false},
-	                         {0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip,
-	                          false},
+        {0x0639C138, &IEngineHook::Naked__CShip__Init, 4, &IEngineHook::g_OldInitCShip, false},
+        {0x0639C064, &IEngineHook::Naked__CShip__Destroy, 4, &IEngineHook::g_OldDestroyCShip, false},
 
-	                         {0, nullptr, 0, nullptr} // terminate
-                         }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 PatchInfo piServerDLL = {"server.dll",
-                         0x6CE0000,
-                         {
-	                         {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
-	                         {0x6D641EC, &Naked__AddDamageEntry, 4, nullptr, false},
-	                         {0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false},
-	                         {0x6D65448, &Naked__GuidedHit, 4, nullptr, false},
-	                         {0x6D67670, &Naked__GuidedHit, 4, nullptr, false},
-	                         {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
-	                         {0x6D672CC, &Naked__DamageHit, 4, nullptr, false},
-	                         {0x6D6761C, &Naked__DamageHit, 4, nullptr, false},
-	                         {0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false},
-	                         {0x6D67330, &Naked__DamageHit2, 4, nullptr, false},
-	                         {0x6D67680, &Naked__DamageHit2, 4, nullptr, false},
-	                         {0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
-	                         {0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition,
-	                          false},
-	                         {0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false},
+    0x6CE0000,
+    {
+        {0x6D67274, &Naked__ShipDestroyed, 4, &g_OldShipDestroyed, false},
+        {0x6D641EC, &Naked__AddDamageEntry, 4, nullptr, false},
+        {0x6D67320, &Naked__GuidedHit, 4, &g_OldGuidedHit, false},
+        {0x6D65448, &Naked__GuidedHit, 4, nullptr, false},
+        {0x6D67670, &Naked__GuidedHit, 4, nullptr, false},
+        {0x6D653F4, &Naked__DamageHit, 4, &g_OldDamageHit, false},
+        {0x6D672CC, &Naked__DamageHit, 4, nullptr, false},
+        {0x6D6761C, &Naked__DamageHit, 4, nullptr, false},
+        {0x6D65458, &Naked__DamageHit2, 4, &g_OldDamageHit2, false},
+        {0x6D67330, &Naked__DamageHit2, 4, nullptr, false},
+        {0x6D67680, &Naked__DamageHit2, 4, nullptr, false},
+        {0x6D67668, &Naked__NonGunWeaponHitsBase, 4, &g_OldNonGunWeaponHitsBase, false},
+        {0x6D6420C, &IEngineHook::Naked__LaunchPosition, 4, &IEngineHook::g_OldLaunchPosition, false},
+        {0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false},
 
-	                         {0, nullptr, 0, nullptr} // terminate
-                         }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 PatchInfo piRemoteClientDLL = {"remoteclient.dll",
-                               0x6B30000,
-                               {
-	                               {0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false},
+    0x6B30000,
+    {
+        {0x6B6BB80, &SendChat, 4, &RCSendChatMsg, false},
 
-	                               {0, nullptr, 0, nullptr} // terminate
-                               }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 PatchInfo piDaLibDLL = {"dalib.dll",
-                        0x65C0000,
-                        {
-	                        {0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
+    0x65C0000,
+    {
+        {0x65C4BEC, &Naked__DisconnectPacketSent, 4, &g_OldDisconnectPacketSent, false},
 
-	                        {0, nullptr, 0, nullptr} // terminate
-                        }};
+        {0, nullptr, 0, nullptr} // terminate
+    }};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -176,11 +173,13 @@ void ClearClientInfo(ClientId client)
 {
 	auto* info = &ClientInfo[client];
 
+	info->characterName = L"";
+
 	info->dieMsg = DiemsgAll;
 	info->ship = 0;
 	info->shipOld = 0;
 	info->tmSpawnTime = 0;
-	info->MoneyFix.clear();
+	info->moneyFix.clear();
 	info->tradePartner = 0;
 	info->baseEnterTime = 0;
 	info->charMenuEnterTime = 0;
@@ -188,7 +187,7 @@ void ClearClientInfo(ClientId client)
 	info->tmKickTime = 0;
 	info->lastExitedBaseId = 0;
 	info->disconnected = false;
-	info->charSelected = false;
+	info->characterName = L"";
 	info->tmF1Time = 0;
 	info->tmF1TimeDisconnect = 0;
 
@@ -221,7 +220,7 @@ void ClearClientInfo(ClientId client)
 }
 
 /**************************************************************************************************************
-load settings from flhookhuser.ini
+load settings from accData.json
 **************************************************************************************************************/
 
 void LoadUserSettings(ClientId client)
@@ -230,39 +229,48 @@ void LoadUserSettings(ClientId client)
 
 	const CAccount* acc = Players.FindAccountFromClientID(client);
 	const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-	const std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
+	const std::wstring userFile = std::format(L"{}{}\\accData.json", CoreGlobals::c()->accPath, dir);
 
-	// read diemsg settings
-	info->dieMsg = static_cast<DIEMSGTYPE>(IniGetI(userFile, "settings", "DieMsg", DiemsgAll));
-	info->dieMsgSize = static_cast<CHATSIZE>(IniGetI(userFile, "settings", "DieMsgSize", CS_DEFAULT));
+	try
+	{
+		std::wifstream ifs(userFile);
+		std::wstring fileData((std::istreambuf_iterator(ifs)), (std::istreambuf_iterator<wchar_t>()));
+		info->accountData = nlohmann::json::parse(fileData);
+	}
+	catch (nlohmann::json::exception& ex)
+	{
+		// TODO: Log to a special error file
+		Logger::i()->Log(
+		    LogLevel::Err, std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
+	}
 
-	// read chatstyle settings
-	info->chatSize = static_cast<CHATSIZE>(IniGetI(userFile, "settings", "ChatSize", CS_DEFAULT));
-	info->chatStyle = static_cast<CHATSTYLE>(IniGetI(userFile, "settings", "ChatStyle", CST_DEFAULT));
+	auto settings = info->accountData.value("settings", nlohmann::json::object());
+
+	info->dieMsg = settings.value("dieMsg", DiemsgAll);
+	info->dieMsgSize = settings.value("dieMsgSize", CS_DEFAULT);
+	info->chatSize = settings.value("chatSize", CS_DEFAULT);
+	info->chatStyle = settings.value("chatStyle", CST_DEFAULT);
 
 	// read ignorelist
 	info->ignoreInfoList.clear();
-	for (int i = 1;; i++)
+
+	for (const auto ignoreList = settings.value("ignoreList", nlohmann::json::object()); const auto& [key, value] : ignoreList.items())
 	{
-		std::wstring ignoreList = IniGetWS(userFile, "IgnoreList", std::to_string(i), L"");
-		if (ignoreList.empty())
-			break;
-		
-		IgnoreInfo ii;
-		const auto params = StringUtils::GetParams(ignoreList, ' ');
-		ii.character = StringUtils::GetParam(params, 0);
-		ii.flags = StringUtils::GetParam(params, 1);
-		info->ignoreInfoList.push_back(ii);
+		try
+		{
+			IgnoreInfo ii;
+			ii.character = StringUtils::stows(key);
+			ii.flags = value;
+			info->ignoreInfoList.emplace_back(ii);
+		}
+		catch (...)
+		{
+			Logger::i()->Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file ({}): {}", userFile));
+		}
 	}
-}
 
-/**************************************************************************************************************
-load settings from flhookhuser.ini (specific to character)
-**************************************************************************************************************/
-
-void LoadUserCharSettings(ClientId client)
-{
-	CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, client);
+	// Don't know if this is a reference or copy - write again to be safe
+	info->accountData["settings"] = settings;
 }
 
 /**************************************************************************************************************
@@ -385,12 +393,14 @@ bool InitHookExports()
 	// clear ClientInfo
 	for (uint i = 0; i < ClientInfo.size(); i++)
 	{
+		ClientInfo[i].client = i;   // Set every client id struct to know of its own id
 		ClientInfo[i].connects = 0; // only set to 0 on start
 		ClearClientInfo(i);
 	}
 
 	// Fix Refire bug
-	const std::array<byte, 22> refireBytes = {0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB};
+	const std::array<byte, 22> refireBytes = {
+	    0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB};
 	MemUtils::WriteProcMem(SRV_ADDR(0x02C057), refireBytes.data(), 22);
 
 	// Enable undocking announcer regardless of distance
@@ -468,4 +478,15 @@ void UnloadHookExports()
 	// undocking announcer regardless of distance
 	const std::array<byte, 1> undockAnnouncerBytes = {0x74};
 	MemUtils::WriteProcMem(SRV_ADDR(0x173da), undockAnnouncerBytes.data(), 1);
+}
+
+void CLIENT_INFO::SaveAccountData()
+{
+	const CAccount* acc = Players.FindAccountFromClientID(client);
+	const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+	const std::wstring userFile = std::format(L"{}{}\\accData.json", CoreGlobals::c()->accPath, dir);
+
+	const auto content = accountData.dump(4);
+	std::ofstream of(userFile);
+	of.write(content.c_str(), content.size());
 }

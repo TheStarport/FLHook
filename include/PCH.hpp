@@ -18,7 +18,7 @@
 #include <fstream>
 #include <tuple>
 
-// TODO: Split up the following and reorganize
+#include <nlohmann/json.hpp>
 
 #include "Tools/Typedefs.hpp"
 #include "Tools/Enums.hpp"

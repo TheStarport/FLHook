@@ -13,7 +13,6 @@
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
 
-
 #define PRINT_ERROR()                                                     \
 	{                                                                     \
 		for (uint i = 0; (i < sizeof(error) / sizeof(std::wstring)); i++) \
@@ -22,13 +21,6 @@
 	}
 #define PRINT_OK() PrintUserCmdText(client, L"OK");
 #define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
-#define GET_USERFILE(a)                                                  \
-	std::string a;                                                       \
-	{                                                                    \
-		CAccount* acc = Players.FindAccountFromClientID(client);         \
-		std::wstring dir = Hk::Client::GetAccountDirName(acc);           \
-		a = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini"; \
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -123,12 +115,11 @@ void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	// save to ini
-	GET_USERFILE(scUserFile)
-	IniWrite(scUserFile, "settings", "DieMsg", std::to_string(dieMsg));
+	const auto info = &ClientInfo[client];
+	info->accountData["settings"]["dieMsg"] = std::to_string(dieMsg);
+	info->SaveAccountData();
 
-	// save in ClientInfo
-	ClientInfo[client].dieMsg = dieMsg;
+	info->dieMsg = dieMsg;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -162,12 +153,11 @@ void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	// save to ini
-	GET_USERFILE(scUserFile)
-	IniWrite(scUserFile, "Settings", "DieMsgSize", std::to_string(dieMsgSize));
+	const auto info = &ClientInfo[client];
+	info->accountData["settings"]["dieMsgSize"] = std::to_string(dieMsgSize);
+	info->SaveAccountData();
 
-	// save in ClientInfo
-	ClientInfo[client].dieMsgSize = dieMsgSize;
+	info->dieMsgSize = dieMsgSize;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -221,13 +211,13 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
 	}
 
 	// save to ini
-	GET_USERFILE(scUserFile)
-	IniWrite(scUserFile, "settings", "ChatSize", std::to_string(chatSize));
-	IniWrite(scUserFile, "settings", "ChatStyle", std::to_string(chatStyle));
+	const auto info = &ClientInfo[client];
+	info->accountData["settings"]["chatStyle"] = std::to_string(chatStyle);
+	info->accountData["settings"]["chatSize"] = std::to_string(chatSize);
+	info->SaveAccountData();
 
-	// save in ClientInfo
-	ClientInfo[client].chatSize = chatSize;
-	ClientInfo[client].chatStyle = chatStyle;
+	info->chatSize = chatSize;
+	info->chatStyle = chatStyle;
 
 	// send confirmation msg
 	PRINT_OK()
@@ -272,7 +262,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	// check if flags are valid
 	for (const auto flag : flags)
 	{
-		if (allowedFlags.find_first_of(flag) == -1)
+		if (allowedFlags.find_first_of(flag) == std::string::npos)
 		{
 			PrintUserCmdText(client, errorMsg);
 			return;
@@ -286,14 +276,17 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	}
 
 	// save to ini
-	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].ignoreInfoList.size()) + 1), std::format(L"{} {}", character, flags));
+	const auto info = &ClientInfo[client];
+	auto& list = info->accountData["settings"]["ignoreList"];
+	list[StringUtils::wstos(std::wstring(character))] = flags;
+
+	info->SaveAccountData();
 
 	// save in ClientInfo
 	IgnoreInfo ii;
 	ii.character = character;
 	ii.flags = flags;
-	ClientInfo[client].ignoreInfoList.push_back(ii);
+	info->ignoreInfoList.push_back(ii);
 
 	// send confirmation msg
 	PRINT_OK()
@@ -341,8 +334,11 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 	std::wstring character = Hk::Client::GetCharacterNameByID(clientTarget).value();
 
 	// save to ini
-	GET_USERFILE(scUserFile)
-	IniWriteW(scUserFile, "IgnoreList", std::to_string(static_cast<int>(ClientInfo[client].ignoreInfoList.size()) + 1), character + L" " + flags);
+	const auto info = &ClientInfo[client];
+	auto& list = info->accountData["settings"]["ignoreList"];
+	list[StringUtils::wstos(std::wstring(character))] = flags;
+
+	info->SaveAccountData();
 
 	// save in ClientInfo
 	IgnoreInfo ii;
@@ -399,14 +395,12 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 		return;
 	}
 
-	GET_USERFILE(scUserFile)
-
-	if (!idToDelete.compare(L"*"))
+	const auto info = &ClientInfo[client];
+	if (idToDelete == L"*")
 	{
-		// delete all
-		IniDelSection(scUserFile, "IgnoreList");
-		ClientInfo[client].ignoreInfoList.clear();
-		PRINT_OK()
+		info->accountData["settings"]["ignoreList"] = nlohmann::json::object();
+		info->SaveAccountData();
+		PRINT_OK();
 		return;
 	}
 
@@ -443,13 +437,16 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 	ClientInfo[client].ignoreInfoList.reverse();
 
 	// send confirmation msg
-	IniDelSection(scUserFile, "IgnoreList");
+	auto newList = nlohmann::json::object();
 	int i = 1;
 	for (const auto& ignore : ClientInfo[client].ignoreInfoList)
 	{
-		IniWriteW(scUserFile, "IgnoreList", std::to_string(i), ignore.character + L" " + ignore.flags);
+		newList[StringUtils::wstos(ignore.character)] = ignore.flags;
 		i++;
 	}
+
+	info->accountData["settings"]["ignoreList"] = newList;
+	info->SaveAccountData();
 	PRINT_OK()
 }
 
@@ -648,8 +645,12 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	{
 		// |    Id.) Subject (unread) - Author - Time
 		PrintUserCmdText(client,
-		    StringUtils::stows(std::format(
-		        "|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? "(unread) " : "", item.author, TimeUtils::UnixToSysTime(item.timestamp))));
+		    StringUtils::stows(std::format("|    {}.) {} {}- {} - {:%F %T}",
+		        item.id,
+		        item.subject,
+		        item.unread ? "(unread) " : "",
+		        item.author,
+		        TimeUtils::UnixToSysTime(item.timestamp))));
 	}
 }
 
@@ -711,8 +712,8 @@ const std::vector UserCmds = {{CreateUserCommand(L"/set diemsg", L"<all/system/s
     CreateUserCommand(L"/delignore", L"<id/*> [<id2> <id3...]", UserCmd_DelIgnore, L"Removes specified entries form ignore list, '*' clears the whole list."),
     CreateUserCommand(L"/ignore", L"<name> [flags]", UserCmd_Ignore,
         L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
-    CreateUserCommand(
-        L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID, L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat."),
+    CreateUserCommand(L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID,
+        L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat."),
     CreateUserCommand(L"/ids", L"", UserCmd_Ids, L"List all player IDs."),
     CreateUserCommand(L"/id", L"", UserCmd_ID, L"Lists your player ID."),
     CreateUserCommand(L"/invite", L"[name]", UserCmd_Invite, L"Sends a group invite to a player with the specified name, or target, if no name is provided."),
@@ -802,8 +803,9 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		return;
 	}
 
-	const auto& pluginIterator =
-	    std::ranges::find_if(*plugins, [&mod](const std::shared_ptr<Plugin> plug) { return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod); });
+	const auto& pluginIterator = std::ranges::find_if(*plugins, [&mod](const std::shared_ptr<Plugin> plug) {
+		return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod);
+	});
 
 	if (pluginIterator == plugins->end())
 	{

@@ -159,7 +159,7 @@ namespace Hk::Player
 			// money fix in case player logs in with this account
 			bool found = false;
 			const std::wstring characterLower = StringUtils::ToLower(character);
-			for (auto& money : ClientInfo[client].MoneyFix)
+			for (auto& money : ClientInfo[client].moneyFix)
 			{
 				if (money.character == characterLower)
 				{
@@ -174,7 +174,7 @@ namespace Hk::Player
 				MONEY_FIX mf;
 				mf.character = characterLower;
 				mf.amount = amount;
-				ClientInfo[client].MoneyFix.push_back(mf);
+				ClientInfo[client].moneyFix.push_back(mf);
 			}
 		}
 

@@ -10,6 +10,7 @@
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Exceptions/InputException.hpp"
+#include "Features/AdminCommandProcessor.hpp"
 #include "Helpers/Admin.hpp"
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
@@ -100,7 +101,6 @@ namespace IServerImplHook
 		memcpy(&globals->playerCount, data + 0x208, 4);
 	}
 
-	CInGame g_Admin;
 	const std::unique_ptr<SubmitData> chatData = std::make_unique<SubmitData>();
 
 	bool SubmitChat__Inner(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID& cidTo, int)
@@ -167,49 +167,32 @@ namespace IServerImplHook
 				}
 				else
 				{
-					try
+					if (UserCmdProcess(cidFrom.id, buffer))
 					{
-						if (UserCmdProcess(cidFrom.id, buffer))
+						if (FLHookConfig::c()->chatConfig.echoCommands)
 						{
-							if (FLHookConfig::c()->chatConfig.echoCommands)
-							{
-								const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-								    StringUtils::XmlText(buffer) + L"</TEXT>";
-								Hk::Chat::FMsg(cidFrom.id, XML);
-							}
-
-							return false;
+							const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+							    StringUtils::XmlText(buffer) + L"</TEXT>";
+							Hk::Chat::FMsg(cidFrom.id, XML);
 						}
-					}
-					catch (const InputException& ex)
-					{
-						PrintUserCmdText(cidFrom.id, StringUtils::stows(ex.what()));
+
 						return false;
 					}
 				}
 			}
 			else if (buffer[0] == '.')
 			{
-				const CAccount* acc = Players.FindAccountFromClientID(cidFrom.id);
-				const std::wstring accDirname = Hk::Client::GetAccountDirName(acc);
-				const std::string adminFile = CoreGlobals::c()->accPath + StringUtils::wstos(accDirname) + "\\flhookadmin.ini";
-				WIN32_FIND_DATA fd;
-				const HANDLE hFind = FindFirstFile(adminFile.c_str(), &fd);
-				if (hFind != INVALID_HANDLE_VALUE)
+				if (FLHookConfig::c()->chatConfig.echoCommands)
 				{
-					if (FLHookConfig::c()->chatConfig.echoCommands)
-					{
-						const std::wstring XML =
-						    L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(buffer) + L"</TEXT>";
-						Hk::Chat::FMsg(cidFrom.id, XML);
-					}
-
-					FindClose(hFind);
-					g_Admin.client = cidFrom.id;
-					g_Admin.adminName = ToWChar(Players.GetActiveCharacterName(cidFrom.id));
-					//g_Admin.ExecuteCommandString(buffer.data() + 1);
-					return false;
+					const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+					    StringUtils::XmlText(buffer) + L"</TEXT>";
+					Hk::Chat::FMsg(cidFrom.id, XML);
 				}
+
+				auto processor = AdminCommandProcessor::i();
+				processor->SetCurrentUser(Hk::Client::GetCharacterNameByID(cidFrom.id).value(), AdminCommandProcessor::AllowedContext::GameOnly);
+				processor->ProcessCommand(std::wstring_view(buffer.begin() + 1, buffer.end()));
+				return false;
 			}
 
 			// check if chat should be suppressed for in-built command prefixes
@@ -263,12 +246,12 @@ namespace IServerImplHook
 
 			// adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
 			std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).value());
-			for (const auto& i : ClientInfo[client].MoneyFix)
+			for (const auto& i : ClientInfo[client].moneyFix)
 			{
 				if (i.character == charName)
 				{
 					Hk::Player::AddCash(charName, i.amount);
-					ClientInfo[client].MoneyFix.remove(i);
+					ClientInfo[client].moneyFix.remove(i);
 					break;
 				}
 			}
@@ -354,10 +337,12 @@ namespace IServerImplHook
 	{
 		try
 		{
-			const wchar_t* charName = ToWChar(Players.GetActiveCharacterName(client));
-			g_CharBefore = charName ? ToWChar(Players.GetActiveCharacterName(client)) : L"";
-			ClientInfo[client].lastExitedBaseId = 0;
-			ClientInfo[client].tradePartner = 0;
+			const auto info = &ClientInfo[client];
+			auto charName = Hk::Client::GetCharacterNameByID(client).value();
+			g_CharBefore = charName ? charName : L"";
+			info->lastExitedBaseId = 0;
+			info->tradePartner = 0;
+			info->characterName = charName;
 		}
 		catch (...)
 		{
@@ -376,9 +361,9 @@ namespace IServerImplHook
 		{
 			std::wstring charName = ToWChar(Players.GetActiveCharacterName(client));
 
-			if (g_CharBefore.compare(charName) != 0)
+			if (g_CharBefore != charName)
 			{
-				LoadUserCharSettings(client);
+				CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, client);
 
 				if (FLHookConfig::i()->userCommands.userCmdHelp)
 					PrintUserCmdText(client,
@@ -443,12 +428,12 @@ namespace IServerImplHook
 			// adjust cash, this is necessary when cash was added while use was in
 			// charmenu/had other char selected
 			std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).value());
-			for (const auto& i : ClientInfo[client].MoneyFix)
+			for (const auto& i : ClientInfo[client].moneyFix)
 			{
 				if (i.character == charName)
 				{
 					Hk::Player::AddCash(charName, i.amount);
-					ClientInfo[client].MoneyFix.remove(i);
+					ClientInfo[client].moneyFix.remove(i);
 					break;
 				}
 			}
@@ -601,8 +586,8 @@ namespace IServerImplHook
 	{
 		TRY_HOOK
 		{
-			if (!ClientInfo[client].charSelected)
-				ClientInfo[client].charSelected = true;
+			if (!ClientInfo[client].charMenuEnterTime)
+				ClientInfo[client].characterName = Hk::Client::GetCharacterNameByID(client).value();
 			else
 			{
 				// pushed f1
@@ -677,7 +662,7 @@ namespace IServerImplHook
 		if (client <= MaxClientId && client > 0 && !ClientInfo[client].disconnected)
 		{
 			ClientInfo[client].disconnected = true;
-			ClientInfo[client].MoneyFix.clear();
+			ClientInfo[client].moneyFix.clear();
 			ClientInfo[client].tradePartner = 0;
 
 			// TODO: implement event for disconnect
@@ -773,12 +758,14 @@ namespace IServerImplHook
 			}
 
 			// resolve
-			const RESOLVE_IP rip = {client, ClientInfo[client].connects, ip};
+			const RESOLVE_IP rip = { client, ClientInfo[client].connects, ip };
 
 			EnterCriticalSection(&csIPResolve);
 			resolveIPs.push_back(rip);
 			LeaveCriticalSection(&csIPResolve);
 
+			// TODO: Move almost all loading and character state functions to a global class for proper management,
+			// bonus points for proper threading support / accessors @Nen
 			LoadUserSettings(client);
 
 			// AddConnectLog(client, StringUtils::wstos(ip));
