@@ -18,7 +18,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 {
 	CallPluginsBefore(HookedCall::IEngine__SendDeathMessage, msg, systemId, clientVictim, clientKiller);
 
-	// encode xml std::string(default and small)
+	// encode xml std::wstring(default and small)
 	// non-sys
 	std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 	xmlMsg += StringUtils::XmlText(msg);
@@ -26,7 +26,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
 	char xmlBuf[0xFFFF];
 	uint ret;
-	if (Hk::Chat::FMsgEncodeXML(xmlMsg, xmlBuf, sizeof(xmlBuf), ret).has_error())
+	if (Hk::Chat::FMsgEncodeXml(xmlMsg, xmlBuf, sizeof xmlBuf, ret).has_error())
 		return;
 
 	std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle);
@@ -35,7 +35,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSmall += L"</TEXT>";
 	char bufSmall[0xFFFF];
 	uint retSmall;
-	if (Hk::Chat::FMsgEncodeXML(xmlMsgSmall, bufSmall, sizeof(bufSmall), retSmall).has_error())
+	if (Hk::Chat::FMsgEncodeXml(xmlMsgSmall, bufSmall, sizeof bufSmall, retSmall).has_error())
 		return;
 
 	// sys
@@ -44,7 +44,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSys += L"</TEXT>";
 	char bufSys[0xFFFF];
 	uint retSys;
-	if (Hk::Chat::FMsgEncodeXML(xmlMsgSys, bufSys, sizeof(bufSys), retSys).has_error())
+	if (Hk::Chat::FMsgEncodeXml(xmlMsgSys, bufSys, sizeof bufSys, retSys).has_error())
 		return;
 
 	std::wstring styleSmallSys = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys);
@@ -53,7 +53,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 	xmlMsgSmallSys += L"</TEXT>";
 	char BufSmallSys[0xFFFF];
 	uint retSmallSys;
-	if (Hk::Chat::FMsgEncodeXML(xmlMsgSmallSys, BufSmallSys, sizeof(BufSmallSys), retSmallSys).has_error())
+	if (Hk::Chat::FMsgEncodeXml(xmlMsgSmallSys, BufSmallSys, sizeof BufSmallSys, retSmallSys).has_error())
 		return;
 
 	// send
@@ -69,7 +69,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 		int sendXmlRet;
 		char* sendXmlBufSys;
 		int sendXmlSysRet;
-		if (FLHookConfig::i()->userCommands.userCmdSetDieMsgSize && (ClientInfo[client].dieMsgSize == CS_SMALL))
+		if (FLHookConfig::i()->userCommands.userCmdSetDieMsgSize && ClientInfo[client].dieMsgSize == CS_SMALL)
 		{
 			sendXmlBuf = bufSmall;
 			sendXmlRet = retSmall;
@@ -96,11 +96,11 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
 		if (ClientInfo[client].dieMsg == DIEMSG_NONE)
 			continue;
-		if ((ClientInfo[client].dieMsg == DIEMSG_SYSTEM) && (systemId == clientSystemId))
+		if (ClientInfo[client].dieMsg == DIEMSG_SYSTEM && systemId == clientSystemId)
 			Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 		else if (
-			(ClientInfo[client].dieMsg == DIEMSG_SELF) &&
-			((client == clientVictim) || (client == clientKiller)))
+			ClientInfo[client].dieMsg == DIEMSG_SELF &&
+			(client == clientVictim || client == clientKiller))
 			Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
 		else if (ClientInfo[client].dieMsg == DiemsgAll)
 		{

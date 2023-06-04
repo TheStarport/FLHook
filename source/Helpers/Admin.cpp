@@ -22,7 +22,7 @@ namespace Hk::Admin
 		memcpy(&P1, (char*)cdpSrv + 4, 4);
 
 		wchar_t wIP[1024] = L"";
-		long sizeofIP = sizeof(wIP);
+		long sizeofIP = sizeof wIP;
 		long dataType = 1;
 		__asm {
 			push 0 ; flags
@@ -63,7 +63,7 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool alsoCharmenu)
+	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -86,14 +86,14 @@ namespace Hk::Admin
 		if (base)
 		{
 			char Basename[1024] = "";
-			pub::GetBaseNickname(Basename, sizeof(Basename), base);
+			pub::GetBaseNickname(Basename, sizeof Basename, base);
 			pi.baseName = StringUtils::stows(Basename);
 		}
 
 		if (system)
 		{
 			char Systemname[1024] = "";
-			pub::GetSystemNickname(Systemname, sizeof(Systemname), system);
+			pub::GetSystemNickname(Systemname, sizeof Systemname, system);
 			pi.systemName = StringUtils::stows(Systemname);
 			pi.system = system;
 		}
@@ -102,7 +102,7 @@ namespace Hk::Admin
 		auto ci = GetConnectionStats(client);
 		if (ci.has_error())
 		{
-			Logger::i()->Log(LogLevel::Warn, "Invalid client ID provided when getting connection stats");
+			Logger::i()->Log(LogLevel::Warn, L"Invalid client ID provided when getting connection stats");
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		pi.connectionInfo = ci.value();

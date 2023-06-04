@@ -4,10 +4,10 @@
 
 class SaveGameDetour
 {
-	std::string path;
+	std::wstring path;
 
 	static bool GetUserDataPathDetour(char* retPtr);
-	std::string GetSaveDataPath() const;
+	std::wstring GetSaveDataPath() const;
 
 protected:
 	void InitHook();

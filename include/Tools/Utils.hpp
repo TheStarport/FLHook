@@ -13,7 +13,7 @@ class TimeUtils
 	DLL static std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time);
 	DLL static uint UnixSeconds();
 	DLL static uint64 UnixMilliseconds();
-	DLL static std::string HumanReadableTime(std::chrono::seconds dur);
+	DLL static std::wstring HumanReadableTime(std::chrono::seconds dur);
 
 	template<typename T>
 	static std::chrono::microseconds ToMicroseconds(T duration) { return std::chrono::duration_cast<std::chrono::microseconds>(duration); }
@@ -62,7 +62,7 @@ public:
 		}
 
 		Ret ret;
-		std::conditional_t<std::is_same_v<std::string, Str> || std::is_same_v<std::string_view, Str>, std::string_view, std::wstring_view> input = str;
+		std::conditional_t<std::is_same_v<std::wstring, Str> || std::is_same_v<std::wstring_view, Str>, std::wstring_view, std::wstring_view> input = str;
 		std::from_chars(reinterpret_cast<const char*>(str.data()), reinterpret_cast<const char*>(str.data() + str.size()), ret);
 		return ret; // TODO: Add trace log for failure to convert
 	}
@@ -109,7 +109,7 @@ public:
 		
 		constexpr auto trimmable = []() constexpr {
 			if constexpr (std::is_same_v<Char, char>)
-				return std::string_view(" \t\n\r");
+				return std::wstring_view(L" \t\n\r");
 			else if constexpr (std::is_same_v<Char, wchar_t>)
 				return std::wstring_view(L" \t\n\r");
 		}();
@@ -123,11 +123,10 @@ public:
 		return nullRemoved.substr(0, start + 1);
 	}
 
-	template<typename TString>
-	static TString ExpandEnvironmentVariables(const TString& input)
+	static std::wstring ExpandEnvironmentVariables(const std::wstring& input)
 	{
-		std::string accumulator = "";
-		std::string output = "";
+		std::string accumulator;
+		std::string output;
 		bool percentFound = false;
 
 		for (uint i = 0; i < input.length(); i++)
@@ -135,7 +134,7 @@ public:
 			const auto ch = input[i];
 			if (ch == '%')
 			{
-				if (percentFound || (input[i + 1] != '%'))
+				if (percentFound || input[i + 1] != '%')
 				{
 					percentFound = !percentFound;
 					if (percentFound)
@@ -161,7 +160,8 @@ public:
 			}
 		}
 
-		TString ret = Trim(output);
+
+		auto ret = Trim(stows(output));
 		return ret;
 	}
 
@@ -186,11 +186,6 @@ public:
 	static std::wstring_view GetParam(IsConvertibleRangeOf<std::wstring_view> auto view, int pos)
 	{
 		return GetParam<decltype(view), std::wstring_view>(view, pos);
-	}
-
-	static std::string_view GetParam(IsConvertibleRangeOf<std::string_view> auto view, int pos)
-	{
-		return GetParam<decltype(view), std::string_view>(view, pos);
 	}
 
 	template<typename TStr, typename TChar>
@@ -269,7 +264,7 @@ public:
 	static auto strswa(TStr str)
 	    requires StringRestriction<TStr>
 	{
-		if constexpr (std::is_same_v<TStr, std::string>)
+		if constexpr (std::is_same_v<TStr, std::wstring>)
 		{
 			return stows(str);
 		}

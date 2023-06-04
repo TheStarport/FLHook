@@ -30,7 +30,7 @@ Updated 2022 to use proper C++ syntax and work in memory ~ Laz
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";
 
-std::string FlCodec::ReadFile(const std::string& input)
+std::wstring FlCodec::ReadFile(const std::wstring& input)
 {
 	std::ifstream file(input, std::ios::binary);
 
@@ -45,27 +45,27 @@ std::string FlCodec::ReadFile(const std::string& input)
 	fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	std::string vec;
+	std::wstring vec;
 	vec.reserve(static_cast<uint>(fileSize));
 
 	vec.insert(vec.begin(), std::istream_iterator<BYTE>(file), std::istream_iterator<BYTE>());
 	return vec;
 }
 
-std::string FlCodec::Decode(const std::string& input)
+std::wstring FlCodec::Decode(const std::wstring_view input)
 {
-	if (!input.starts_with("FLS1"))
+	if (!input.starts_with(L"FLS1"))
 	{
 		return {};
 	}
 
-	std::string output;
+	std::wstring output;
 
 	int i = 0;
 	const int length = input.size() - 4;
 	while (i < length)
 	{
-		const auto c = static_cast<byte>(((&input[0]) + 4)[i]);
+		const auto c = static_cast<byte>((&input[0] + 4)[i]);
 		const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
 		const byte r = c ^ (k | 0x80);
@@ -78,17 +78,17 @@ std::string FlCodec::Decode(const std::string& input)
 	return output;
 }
 
-std::string FlCodec::Encode(const std::string& input)
+std::wstring FlCodec::Encode(std::wstring_view input)
 {
 	// Create our output vector, start with the magic string.
-	std::string output = {'F', 'L', 'S', '1'};
+	std::wstring output = {'F', 'L', 'S', '1'};
 
 	const uint length = input.size();
 
 	uint i = 0;
 	while (i < length)
 	{
-		const byte c = (input.data())[i];
+		const byte c = input.data()[i];
 		const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
 		const byte r = c ^ (k | 0x80);
@@ -101,7 +101,7 @@ std::string FlCodec::Encode(const std::string& input)
 	return output;
 }
 
-bool FlCodec::EncodeDecode(const std::string& input, const std::string& output, bool encode)
+bool FlCodec::EncodeDecode(const std::wstring& input, const std::wstring& output, bool encode)
 {
 	auto undecodedBytes = ReadFile(input);
 	const auto decodedBytes = encode ? Encode(undecodedBytes) : Decode(undecodedBytes);
@@ -111,19 +111,19 @@ bool FlCodec::EncodeDecode(const std::string& input, const std::string& output, 
 		return false;
 	}
 
-	std::ofstream outputFile(output, std::ios::out | std::ios::binary);
+	std::wofstream outputFile(output, std::ios::out | std::ios::binary);
 	outputFile.write(decodedBytes.data(), static_cast<std::streamsize>(decodedBytes.size()) * sizeof(byte));
 	outputFile.close();
 
 	return true;
 }
 
-bool FlCodec::DecodeFile(const std::string& input, const std::string& outputFile)
+bool FlCodec::DecodeFile(const std::wstring& input, const std::wstring& outputFile)
 {
 	return EncodeDecode(input, outputFile, false);
 }
 
-bool FlCodec::EncodeFile(const std::string& input, const std::string& outputFile)
+bool FlCodec::EncodeFile(const std::wstring& input, const std::wstring& outputFile)
 {
 	return EncodeDecode(input, outputFile, true);
 }

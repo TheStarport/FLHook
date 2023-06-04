@@ -1,16 +1,6 @@
 #include "PCH.hpp"
 #include "Global.hpp"
 #include "Features/TempBan.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/Player.hpp"
-
-#include "Defs/CoreGlobals.hpp"
-#include "Defs/FLHookConfig.hpp"
-#include "Defs/FLPacket.hpp"
-#include "Helpers/Chat.hpp"
-#include "Helpers/FlCodec.hpp"
-#include "Helpers/Ini.hpp"
-#include "Helpers/Math.hpp"
 
 namespace Hk::Player
 {
@@ -48,7 +38,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> GetCash(const std::variant<uint, std::wstring>& player)
+	cpp::result<const uint, Error> GetCash(const std::variant<uint, std::wstring_view>& player)
 	{
 		if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX)
 		{
@@ -63,7 +53,7 @@ namespace Hk::Player
 		if (!player.index())
 			return cpp::fail(Error::InvalidClientId);
 
-		const auto acc = Client::GetAccountByCharName(std::get<std::wstring>(player));
+		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player));
 		if (acc.has_error())
 			return cpp::fail(acc.error());
 
@@ -73,32 +63,35 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
+		const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
 
 		// TODO: Remove capi references
 		FILE* fTest;
-		fopen_s(&fTest, charFile.c_str(), "r");
+		_wfopen_s(&fTest, charFile.c_str(), L"r");
 		if (!fTest)
 			return cpp::fail(Error::CharacterDoesNotExist);
+
 		fclose(fTest);
 
 		if (Client::IsEncoded(charFile))
 		{
-			const std::string charFileNew = charFile + ".ini";
-			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
+			const std::wstring charFileNew = std::format(L"{}.ini", charFile);
+			if (FlCodec::Decode(charFile).empty())
+			{
 				return cpp::fail(Error::CouldNotDecodeCharFile);
+			}
 
-			auto cash = static_cast<uint>(IniGetI(charFileNew, "Player", "money", -1));
-			DeleteFile(charFileNew.c_str());
+			auto cash = static_cast<uint>(IniGetI(charFileNew, L"Player", L"money", -1));
+			DeleteFileW(charFileNew.c_str());
 			return cash;
 		}
 
-		return static_cast<uint>(IniGetI(charFile, "Player", "money", -1));
+		return static_cast<uint>(IniGetI(charFile, L"Player", L"money", -1));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> AdjustCash(const std::variant<uint, std::wstring>& player, int amount)
+	cpp::result<void, Error> AdjustCash(const std::variant<uint, std::wstring_view>& player, int amount)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -116,8 +109,8 @@ namespace Hk::Player
 			return cpp::fail(Error::InvalidClientId);
 		}
 
-		const auto& character = std::get<std::wstring>(player);
-		const auto acc = Client::GetAccountByCharName(std::get<std::wstring>(player));
+		const auto& character = std::get<std::wstring_view>(player);
+		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player));
 		if (acc.has_error())
 			return cpp::fail(acc.error());
 
@@ -127,31 +120,31 @@ namespace Hk::Player
 		if (file.has_error())
 			return cpp::fail(file.error());
 
-		const std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
+		const std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
 		int retVal;
 		if (Client::IsEncoded(charFile))
 		{
-			const std::string charFileNew = charFile + ".ini";
+			const std::wstring charFileNew = charFile + L".ini";
 
-			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
+			if (!FlCodec::DecodeFile(charFile, charFileNew))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			retVal = IniGetI(charFileNew, "Player", "money", -1);
+			retVal = IniGetI(charFileNew, L"Player", L"money", -1);
 			// Add a space to the value so the ini file line looks like "<key> =
 			// <value>" otherwise IFSO can't decode the file correctly
-			IniWrite(charFileNew, "Player", "money", " " + std::to_string(retVal + amount));
+			IniWrite(charFileNew, L"Player", L"money", L" " + std::to_wstring(retVal + amount));
 
-			if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(charFileNew.c_str(), charFile.c_str()))
+			if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(charFileNew, charFile))
 				return cpp::fail(Error::CouldNotEncodeCharFile);
 
-			DeleteFile(charFileNew.c_str());
+			DeleteFileW(charFileNew.c_str());
 		}
 		else
 		{
-			retVal = IniGetI(charFile, "Player", "money", -1);
+			retVal = IniGetI(charFile, L"Player", L"money", -1);
 			// Add a space to the value so the ini file line looks like "<key> =
 			// <value>" otherwise IFSO can't decode the file correctly
-			IniWrite(charFile, "Player", "money", " " + std::to_string(retVal + amount));
+			IniWrite(charFile, L"Player", L"money", L" " + std::to_wstring(retVal + amount));
 		}
 
 		if (client != UINT_MAX)
@@ -181,19 +174,19 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring>& player, uint amount)
+	cpp::result<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount)
 	{
 		return AdjustCash(player, static_cast<int>(amount));
 	}
 
-	cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring>& player, uint amount)
+	cpp::result<void, Error> RemoveCash(const std::variant<uint, std::wstring_view>& player, uint amount)
 	{
 		return AdjustCash(player, -static_cast<int>(amount));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Kick(const std::variant<uint, std::wstring>& player)
+	cpp::result<void, Error> Kick(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -205,7 +198,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring>& player, const std::wstring& reason)
+	cpp::result<void, Error> KickReason(const std::variant<uint, std::wstring_view>& player, std::wstring_view reason)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -222,7 +215,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Ban(const std::variant<uint, std::wstring>& player, bool ban)
+	cpp::result<void, Error> Ban(const std::variant<uint, std::wstring_view>& player, bool ban)
 	{
 		auto acc = Client::ExtractAccount(player);
 		if (acc.has_error())
@@ -239,12 +232,12 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring>& player, uint duration)
+	cpp::result<void, Error> TempBan(const std::variant<uint, std::wstring_view>& player, uint duration)
 	{
 		uint clientId;
 		if (player.index() != 0)
 		{
-			const auto& charName = std::get<std::wstring>(player);
+			const auto& charName = std::get<std::wstring_view>(player);
 			auto client = Client::GetClientIdFromCharName(charName);
 			if (client.has_error())
 			{
@@ -296,7 +289,7 @@ namespace Hk::Player
 		CreateID("li01_15_base"),
 	};
 
-	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& baseVar)
+	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& baseVar)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		uint baseId;
@@ -315,7 +308,7 @@ namespace Hk::Player
 		// if basename was passed as string
 		if (baseVar.index() == 1)
 		{
-			const std::string baseName = StringUtils::wstos(std::get<std::wstring>(baseVar));
+			const std::string baseName = StringUtils::wstos(std::wstring(std::get<std::wstring_view>(baseVar)));
 
 			// get base id
 			if (pub::GetBaseID(baseId, baseName.c_str()) == -4)
@@ -365,7 +358,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring>& player)
+	cpp::result<void, Error> SaveChar(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -375,9 +368,9 @@ namespace Hk::Player
 		void* jmp = (char*)server + 0x7EFA8;
 		const char Nop[2] = {'\x90', '\x90'};
 		const char TestAlAl[2] = {'\x74', '\x44'};
-		MemUtils::WriteProcMem(jmp, Nop, sizeof(Nop)); // nop the SinglePlayer() check
+		MemUtils::WriteProcMem(jmp, Nop, sizeof Nop); // nop the SinglePlayer() check
 		pub::Save(client, 1);
-		MemUtils::WriteProcMem(jmp, TestAlAl, sizeof(TestAlAl)); // restore
+		MemUtils::WriteProcMem(jmp, TestAlAl, sizeof TestAlAl); // restore
 
 		return {};
 	}
@@ -399,7 +392,7 @@ namespace Hk::Player
 		bool mission;
 	};
 
-	cpp::result<const std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring>& player, int& remainingHoldSize)
+	cpp::result<const std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -431,7 +424,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, int count)
+	cpp::result<void, Error> RemoveCargo(const std::variant<uint, std::wstring_view>& player, ushort cargoId, int count)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -447,7 +440,7 @@ namespace Hk::Player
 
 		for (auto& item : cargo.value())
 		{
-			if ((item.id == cargoId) && (item.count < count))
+			if (item.id == cargoId && item.count < count)
 				count = item.count; // trying to remove more than actually there
 		}
 
@@ -457,7 +450,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, uint goodId, int count, bool mission)
+	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring_view>& player, uint goodId, int count, bool mission)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -495,7 +488,7 @@ namespace Hk::Player
 			// we need to do this, else server or client may crash
 			for (const auto cargo = EnumCargo(player, ret); auto& item : cargo.value())
 			{
-				if ((item.archId == goodId) && (item.mission != mission))
+				if (item.archId == goodId && item.mission != mission)
 				{
 					RemoveCargo(player, static_cast<ushort>(item.id), item.count);
 					count += item.count;
@@ -506,7 +499,7 @@ namespace Hk::Player
 		}
 		else
 		{
-			for (int i = 0; (i < count); i++)
+			for (int i = 0; i < count; i++)
 				pub::Player::AddCargo(client, goodId, 1, 1, mission);
 		}
 
@@ -526,7 +519,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, int count, bool mission)
+	cpp::result<void, Error> AddCargo(const std::variant<uint, std::wstring_view>& player, const std::wstring& good, int count, bool mission)
 	{
 		uint goodId = StringUtils::Cast<int>(good);
 		if (!goodId)
@@ -539,24 +532,24 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Rename(const std::variant<uint, std::wstring>& player, const std::wstring& newCharname, bool onlyDelete)
+	cpp::result<void, Error> Rename(const std::variant<uint, std::wstring_view>& player, const std::wstring& newCharname, bool onlyDelete)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
-		if ((client == UINT_MAX) && player.index() && !Client::GetAccountByClientID(client))
+		if (client == UINT_MAX && player.index() && !Client::GetAccountByClientID(client))
 			return cpp::fail(Error::CharacterDoesNotExist);
 
 		if (!onlyDelete && Client::GetAccountByCharName(newCharname))
 			return cpp::fail(Error::AlreadyExists);
 
-		if (!onlyDelete && (newCharname.length() > 23))
+		if (!onlyDelete && newCharname.length() > 23)
 			return cpp::fail(Error::CharacterNameTooLong);
 
 		if (!onlyDelete && !newCharname.length())
 			return cpp::fail(Error::CharacterNameTooShort);
 
 		INI_Reader ini;
-		if (!onlyDelete && !(ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false)))
+		if (!onlyDelete && !ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false))
 			return cpp::fail(Error::MpNewCharacterFileNotFoundOrInvalid);
 
 		CAccount* acc;
@@ -568,8 +561,8 @@ namespace Hk::Player
 		}
 		else
 		{
-			oldCharName = std::get<std::wstring>(player);
-			acc = Client::GetAccountByCharName(std::get<std::wstring>(player)).value();
+			oldCharName = std::get<std::wstring_view>(player);
+			acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).value();
 		}
 
 		const std::wstring AccountDirname = Client::GetAccountDirName(acc);
@@ -585,8 +578,8 @@ namespace Hk::Player
 			return cpp::fail(oldFileName.error());
 		}
 
-		std::string NewCharfilePath = CoreGlobals::c()->accPath + StringUtils::wstos(AccountDirname) + "\\" + StringUtils::wstos(newFileName.value()) + ".fl";
-		std::string OldCharfilePath = CoreGlobals::c()->accPath + StringUtils::wstos(AccountDirname) + "\\" + StringUtils::wstos(oldFileName.value()) + ".fl";
+		std::wstring NewCharfilePath = CoreGlobals::c()->accPath + (AccountDirname) + L"\\" + (newFileName.value()) + L".fl";
+		std::wstring OldCharfilePath = CoreGlobals::c()->accPath + (AccountDirname) + L"\\" + (oldFileName.value()) + L".fl";
 
 		if (onlyDelete)
 		{
@@ -602,9 +595,9 @@ namespace Hk::Player
 		Client::UnlockAccountAccess(acc);
 
 		// Copy existing char file into tmp
-		std::string tmpPath = OldCharfilePath + ".tmp";
-		DeleteFile(tmpPath.c_str());
-		CopyFile(OldCharfilePath.c_str(), tmpPath.c_str(), FALSE);
+		std::wstring tmpPath = OldCharfilePath + L".tmp";
+		DeleteFileW(tmpPath.c_str());
+		CopyFileW(OldCharfilePath.c_str(), tmpPath.c_str(), FALSE);
 
 		// Delete existing char otherwise a rename of the char in slot 5 fails.
 		st6::wstring str((ushort*)oldCharName.c_str());
@@ -671,32 +664,32 @@ namespace Hk::Player
 		Players.logout(MaxClientId + 1);
 
 		// Decode the backup of the old char and overwrite the new char file
-		if (!FlCodec::DecodeFile(tmpPath.c_str(), NewCharfilePath.c_str()))
+		if (!FlCodec::DecodeFile(tmpPath, NewCharfilePath))
 		{
 			// file wasn't encoded, thus
 			// simply rename it
-			DeleteFile(NewCharfilePath.c_str()); // just to get sure...
-			CopyFile(tmpPath.c_str(), NewCharfilePath.c_str(), FALSE);
+			DeleteFileW(NewCharfilePath.c_str()); // just to get sure...
+			CopyFileW(tmpPath.c_str(), NewCharfilePath.c_str(), FALSE);
 		}
-		DeleteFile(tmpPath.c_str());
+		DeleteFileW(tmpPath.c_str());
 
 		// Update the char name in the new char file.
 		// Add a space to the value so the ini file line looks like "<key> =
 		// <value>" otherwise Ioncross Server Operator can't decode the file
 		// correctly
-		std::string value = " ";
-		for (uint i = 0; (i < newCharname.length()); i++)
+		std::wstring value = L" ";
+		for (uint i = 0; i < newCharname.length(); i++)
 		{
 			char hiByte = newCharname[i] >> 8;
 			char loByte = newCharname[i] & 0xFF;
-			char buf[8];
-			sprintf_s(buf, "%02X%02X", static_cast<uint>(hiByte) & 0xFF, static_cast<uint>(loByte) & 0xFF);
+			wchar_t buf[8];
+			swprintf_s(buf, L"%02X%02X", static_cast<uint>(hiByte) & 0xFF, static_cast<uint>(loByte) & 0xFF);
 			value += buf;
 		}
-		IniWrite(NewCharfilePath, "Player", "Name", value);
+		IniWrite(NewCharfilePath, L"Player", L"Name", value);
 
 		// Re-encode the char file if needed.
-		if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(NewCharfilePath.c_str(), NewCharfilePath.c_str()))
+		if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(NewCharfilePath, NewCharfilePath))
 			return cpp::fail(Error::CouldNotEncodeCharFile);
 
 		return {};
@@ -704,12 +697,12 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring& reason, uint interval)
+	cpp::result<void, Error> MsgAndKick(ClientId client, const std::wstring_view reason, uint interval)
 	{
 		if (!ClientInfo[client].tmKickTime)
 		{
-			const std::wstring Msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason));
-			Chat::FMsg(client, Msg);
+			const std::wstring msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason));
+			Chat::FMsg(client, msg);
 			ClientInfo[client].tmKickTime = TimeUtils::UnixMilliseconds() + interval;
 		}
 
@@ -718,7 +711,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> Kill(const std::variant<uint, std::wstring>& player)
+	cpp::result<void, Error> Kill(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -738,7 +731,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> ResetRep(const std::variant<uint, std::wstring>& player)
+	cpp::result<void, Error> ResetRep(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -778,7 +771,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup, float value)
+	cpp::result<void, Error> SetRep(const std::variant<uint, std::wstring_view>& player, const std::wstring& repGroup, float value)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		// check if logged in
@@ -798,7 +791,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring>& player, const std::variant<uint, std::wstring>& repGroup)
+	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -807,7 +800,7 @@ namespace Hk::Player
 		uint repGroupId;
 		if (repGroup.index() == 1)
 		{
-			pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(std::get<std::wstring>(repGroup)).c_str());
+			pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(std::wstring(std::get<std::wstring_view>(repGroup))).c_str());
 			if (repGroupId == UINT_MAX)
 				return cpp::fail(Error::InvalidRepGroup);
 		}
@@ -825,7 +818,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring>& player)
+	cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring_view>& player)
 	{
 		std::vector<GroupMember> members;
 		ClientId client = Client::ExtractClientID(player);
@@ -849,7 +842,7 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//TODO: Make this return just a single string.
-	cpp::result<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring>& player)
+	cpp::result<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -876,14 +869,17 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
-		std::string fileToRead;
+		std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+		std::wstring fileToRead;
 		bool deleteAfter;
 		if (Client::IsEncoded(charFile))
 		{
-			std::string charFileNew = charFile + ".ini";
-			if (!FlCodec::DecodeFile(charFile.c_str(), charFileNew.c_str()))
+			std::wstring charFileNew = charFile + L".ini";
+			if (!FlCodec::DecodeFile(charFile, charFileNew))
+			{
 				return cpp::fail(Error::CouldNotDecodeCharFile);
+			}
+
 			fileToRead = charFileNew;
 			deleteAfter = true;
 		}
@@ -893,25 +889,25 @@ namespace Hk::Player
 			deleteAfter = false;
 		}
 
-		std::ifstream ifs;
+		std::wifstream ifs;
 		ifs.open(fileToRead.c_str(), std::ios_base::in);
 		if (!ifs.is_open())
 			return cpp::fail(Error::UnknownError);
 
 		std::list<std::wstring> output;
-		std::string Line;
+		std::wstring Line;
 		while (getline(ifs, Line))
-			output.emplace_back(StringUtils::stows(Line));
+			output.emplace_back(Line);
 		ifs.close();
 		if (deleteAfter)
-			DeleteFile(fileToRead.c_str());
+			DeleteFileW(fileToRead.c_str());
 
 		return output;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring>& player, std::wstring data)
+	cpp::result<void, Error> WriteCharFile(const std::variant<uint, std::wstring_view>& player, std::wstring data)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -932,12 +928,12 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
-		std::string fileToWrite;
+		std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+		std::wstring fileToWrite;
 		bool encode;
 		if (Client::IsEncoded(charFile))
 		{
-			fileToWrite = charFile + ".ini";
+			fileToWrite = charFile + L".ini";
 			encode = true;
 		}
 		else
@@ -965,8 +961,8 @@ namespace Hk::Player
 		ofs.close();
 		if (encode)
 		{
-			FlCodec::EncodeFile(fileToWrite.c_str(), charFile.c_str());
-			DeleteFile(fileToWrite.c_str());
+			FlCodec::EncodeFile(fileToWrite, charFile);
+			DeleteFileW(fileToWrite.c_str());
 		}
 		return {};
 	}
@@ -1053,9 +1049,9 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> GetRank(const std::variant<uint, std::wstring>& player)
+	cpp::result<int, Error> GetRank(const std::variant<uint, std::wstring_view>& player)
 	{
-		auto rank = Ini::GetFromPlayerFile(player, L"rank");
+		auto rank = IniUtils::i()->GetFromPlayerFile(player, L"rank");
 		if (rank.has_error())
 		{
 			return cpp::fail(rank.error());
@@ -1065,7 +1061,7 @@ namespace Hk::Player
 	}
 
 	/// Get online time.
-	cpp::result<int, Error> GetOnlineTime(const std::variant<uint, std::wstring>& player)
+	cpp::result<int, Error> GetOnlineTime(const std::variant<uint, std::wstring_view>& player)
 	{
 		const auto client = Client::ExtractClientID(player);
 		const auto acc = Client::GetAccountByClientID(client);
@@ -1077,27 +1073,29 @@ namespace Hk::Player
 			return cpp::fail(file.error());
 		}
 
-		const std::string CharFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\" + StringUtils::wstos(file.value()) + ".fl";
-		if (Client::IsEncoded(CharFile))
+		const std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+		if (Client::IsEncoded(charFile))
 		{
-			const std::string CharFileNew = CharFile + ".ini";
-			if (!FlCodec::DecodeFile(CharFile.c_str(), CharFileNew.c_str()))
+			const std::wstring charFileNew = charFile + L".ini";
+			if (!FlCodec::DecodeFile(charFile, charFileNew))
 				return cpp::fail(Error::CouldNotDecodeCharFile);
 
-			int secs = IniGetI(CharFileNew, "mPlayer", "total_time_played", 0);
-			DeleteFile(CharFileNew.c_str());
+			int secs = IniGetI(charFileNew, L"mPlayer", L"total_time_played", 0);
+			DeleteFileW(charFileNew.c_str());
 			return secs;
 		}
-		return IniGetI(CharFile, "mPlayer", "total_time_played", 0);
+		return IniGetI(charFile, L"mPlayer", L"total_time_played", 0);
 	}
 
-	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname)
+	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)
 	{
 		uint system = 0;
-		const std::string nick = nickname.index() == 0 ? std::get<std::string>(nickname) : StringUtils::wstos(std::get<std::wstring>(nickname));
+		const std::string nick = nickname.index() == 0 ? StringUtils::wstos(std::wstring(std::get<std::wstring_view>(nickname))) : std::string(std::get<std::string_view>(nickname));
 		pub::GetSystemID(system, nick.c_str());
 		if (!system)
+		{
 			return cpp::fail(Error::InvalidSystem);
+		}
 
 		return system;
 	}
@@ -1331,11 +1329,11 @@ namespace Hk::Player
 		}
 	}
 
-	cpp::result<void, Error> SetEquip(const std::variant<uint, std::wstring>& player, const st6::list<EquipDesc>& equip)
+	cpp::result<void, Error> SetEquip(const std::variant<uint, std::wstring_view>& player, const st6::list<EquipDesc>& equip)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
-		if ((client == UINT_MAX) || Client::IsInCharSelectMenu(client))
+		if (client == UINT_MAX || Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::CharacterNotSelected);
 
 		// Update FLHook's lists to make anticheat pleased.
@@ -1393,22 +1391,22 @@ namespace Hk::Player
 		return cpp::fail(Error::UnknownError);
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player, uint goodId, const std::string& hardpoint)
+	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player, uint goodId, const std::wstring& hardpoint)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
-		if ((client == UINT_MAX) || Client::IsInCharSelectMenu(client))
+		if (client == UINT_MAX || Client::IsInCharSelectMenu(client))
 			return cpp::fail(Error::CharacterNotSelected);
 
 		if (!Players[client].enteredBase)
 		{
 			Players[client].enteredBase = Players[client].baseId;
-			Server.ReqAddItem(goodId, hardpoint.c_str(), 1, 1.0f, true, client);
+			Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, client);
 			Players[client].enteredBase = 0;
 		}
 		else
 		{
-			Server.ReqAddItem(goodId, hardpoint.c_str(), 1, 1.0f, true, client);
+			Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, client);
 		}
 
 		// Add to check-list which is being compared to the users equip-list when
@@ -1422,7 +1420,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring>& player,[[maybe_unused]] uint goodId, const std::string& hardpoint, bool mounted)
+	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player,[[maybe_unused]] uint goodId, const std::wstring& hardpoint, bool mounted)
 	{
 		using _AddCargoDocked = bool(__stdcall *)(uint goodId, CacheString* & hardpoint, int numItems, float health, int mounted, int mission, uint one);
 		static _AddCargoDocked addCargoDocked = nullptr;
@@ -1446,9 +1444,9 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		PlayerData* pd = &Players[client];
-		const char* p = hardpoint.c_str();
+		const auto p = StringUtils::wstos(hardpoint);
 		CacheString hardpointCache;
-		hardpointCache.value = StringAlloc(p, false);
+		hardpointCache.value = StringAlloc(p.c_str(), false);
 
 		int one = 1;
 		int mountedAsInt = mounted;
@@ -1481,16 +1479,16 @@ namespace Hk::Player
 			ClientInfo[client].tmKickTime = kick_time;
 	}
 
-	std::string GetPlayerSystemS(ClientId client)
+	std::wstring GetPlayerSystemS(ClientId client)
 	{
 		uint systemId;
 		pub::Player::GetSystem(client, systemId);
 		char Systemname[1024] = "";
-		pub::GetSystemNickname(Systemname, sizeof(Systemname), systemId);
-		return Systemname;
+		pub::GetSystemNickname(Systemname, sizeof Systemname, systemId);
+		return StringUtils::stows(Systemname);
 	}
 
-	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring>& player)
+	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring_view>& player)
 	{
 		if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX && !Client::IsInCharSelectMenu(client))
 		{
@@ -1522,7 +1520,7 @@ namespace Hk::Player
 					continue;
 				}
 
-				if ((findEqual + 1) >= static_cast<int>(line.size()))
+				if (findEqual + 1 >= static_cast<int>(line.size()))
 				{
 					continue;
 				}
@@ -1560,7 +1558,7 @@ namespace Hk::Player
 					else
 					{
 						const float* resaleFactor = (float*)((char*)server + 0x8AE7C);
-						value += itemValue * (*resaleFactor);
+						value += itemValue * *resaleFactor;
 					}
 				}
 			}
@@ -1584,7 +1582,7 @@ namespace Hk::Player
 					if (gi)
 					{
 						const auto resaleFactor = (float*)((char*)server + 0x8AE78);
-						const float itemValue = gi->price * (*resaleFactor);
+						const float itemValue = gi->price * *resaleFactor;
 						value += itemValue;
 					}
 				}
@@ -1597,11 +1595,11 @@ namespace Hk::Player
 	void SaveChar(ClientId client)
 	{
 		const BYTE patch[] = {0x90, 0x90};
-		MemUtils::WriteProcMem((char*)server + 0x7EFA8, patch, sizeof(patch));
+		MemUtils::WriteProcMem((char*)server + 0x7EFA8, patch, sizeof patch);
 		pub::Save(client, 1);
 	}
 
-	cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring>& player)
+	cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		const auto ship = GetShip(client);
@@ -1616,7 +1614,7 @@ namespace Hk::Player
 		return target;
 	}
 
-	cpp::result<ClientId, Error> GetTargetClientID(const std::variant<uint, std::wstring>& player)
+	cpp::result<ClientId, Error> GetTargetClientID(const std::variant<uint, std::wstring_view>& player)
 	{
 		const auto target = GetTarget(player);
 		if (target.has_error())
@@ -1629,7 +1627,7 @@ namespace Hk::Player
 		return targetClientId;
 	}
 
-	cpp::result<const BaseId, Error> GetCurrentBase(const std::variant<uint, std::wstring>& player)
+	cpp::result<const BaseId, Error> GetCurrentBase(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1647,7 +1645,7 @@ namespace Hk::Player
 		return cpp::fail(Error::PlayerNotDocked);
 	}
 
-	cpp::result<const SystemId, Error> GetSystem(const std::variant<uint, std::wstring>& player)
+	cpp::result<const SystemId, Error> GetSystem(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1664,7 +1662,7 @@ namespace Hk::Player
 	}
 
 	// returns ship instance ID
-	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring>& player)
+	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1681,7 +1679,7 @@ namespace Hk::Player
 	}
 
 	// returns Ship type
-	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring>& player)
+	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1697,7 +1695,7 @@ namespace Hk::Player
 		return shipId;
 	}
 
-	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring>& player, uint objId, int markStatus)
+	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring_view>& player, uint objId, int markStatus)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1709,7 +1707,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring>& player)
+	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1721,7 +1719,7 @@ namespace Hk::Player
 		return kills;
 	}
 
-	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring>& player, int killAmount)
+	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring_view>& player, int killAmount)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
@@ -1734,7 +1732,7 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player)
+	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)

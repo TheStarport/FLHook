@@ -24,7 +24,7 @@
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'" Label="Configuration">
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>Static</UseOfMfc>
@@ -212,7 +212,8 @@
     <ClCompile Include="..\source\FLPacket.cpp" />
     <ClCompile Include="..\source\Helpers\Admin.cpp" />
     <ClCompile Include="..\source\Helpers\Client.cpp" />
-    <ClCompile Include="..\source\Helpers\Ini.cpp" />
+    <ClCompile Include="..\source\Helpers\FileUtils.cpp" />
+    <ClCompile Include="..\source\Helpers\IniUtils.cpp" />
     <ClCompile Include="..\source\Helpers\Math.cpp" />
     <ClCompile Include="..\source\Helpers\Chat.cpp" />
     <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
@@ -271,8 +272,9 @@
     <ClInclude Include="..\include\FLHook.hpp" />
     <ClInclude Include="..\include\Helpers\Admin.hpp" />
     <ClInclude Include="..\include\Helpers\Client.hpp" />
+    <ClInclude Include="..\include\Helpers\FileUtils.hpp" />
     <ClInclude Include="..\include\Helpers\FlCodec.hpp" />
-    <ClInclude Include="..\include\Helpers\Ini.hpp" />
+    <ClInclude Include="..\include\Helpers\IniUtils.hpp" />
     <ClInclude Include="..\include\Helpers\Math.hpp" />
     <ClInclude Include="..\include\Helpers\Chat.hpp" />
     <ClInclude Include="..\include\Helpers\Personalities.hpp" />

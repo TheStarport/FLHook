@@ -24,9 +24,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrintUserCmdText(ClientId client, const std::wstring& text)
+void PrintUserCmdText(ClientId client, std::wstring_view text)
 {
-	if (const auto newLineChar = text.find(L"\n"); newLineChar == std::wstring::npos)
+	if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
 	{
 		const std::wstring xml =
 		    std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, StringUtils::XmlText(text));
@@ -45,7 +45,7 @@ void PrintUserCmdText(ClientId client, const std::wstring& text)
 
 /// Print message to all ships within the specific number of meters of the
 /// player.
-void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float distance)
+void PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float distance)
 {
 	uint ship;
 	pub::Player::GetShip(client, ship);
@@ -262,7 +262,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 	// check if flags are valid
 	for (const auto flag : flags)
 	{
-		if (allowedFlags.find_first_of(flag) == std::string::npos)
+		if (allowedFlags.find_first_of(flag) == std::wstring::npos)
 		{
 			PrintUserCmdText(client, errorMsg);
 			return;
@@ -475,7 +475,7 @@ void InvitePlayer(ClientId& client, const std::wstring_view& characterName)
 	const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
 	char buf[0xFFFF];
 	uint retVal;
-	if (Hk::Chat::FMsgEncodeXML(XML, buf, sizeof buf, retVal).has_error())
+	if (Hk::Chat::FMsgEncodeXml(XML, buf, sizeof buf, retVal).has_error())
 	{
 		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;
@@ -547,7 +547,7 @@ void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
 
 	for (const auto& player : Hk::Admin::GetPlayers())
 	{
-		if (StringUtils::ToLower(player.character).find(charnamePrefix) == std::string::npos)
+		if (StringUtils::ToLower(player.character).find(charnamePrefix) == std::wstring::npos)
 			continue;
 
 		if (player.client == client)
@@ -571,7 +571,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 		const auto count = MailManager::i()->PurgeAllMail(client, StringUtils::GetParam(params, 1) == L"readonly");
 		if (count.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", StringUtils::stows(count.error())));
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", count.error()));
 			return;
 		}
 
@@ -582,7 +582,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
 		const auto index = StringUtils::Cast<int64>(str);
 		if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", StringUtils::stows(err.error())));
+			PrintUserCmdText(client, std::format(L"Error deleting mail: {}", err.error()));
 			return;
 		}
 
@@ -603,15 +603,15 @@ void UserCmdReadMail(ClientId& client, const std::wstring& param)
 	const auto mail = MailManager::i()->GetMailById(client, index);
 	if (mail.has_error())
 	{
-		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", StringUtils::stows(mail.error())));
+		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", mail.error()));
 		return;
 	}
 
 	const auto& item = mail.value();
-	PrintUserCmdText(client, std::format(L"From: {}", StringUtils::stows(item.author)));
-	PrintUserCmdText(client, std::format(L"Subject: {}", StringUtils::stows(item.subject)));
+	PrintUserCmdText(client, std::format(L"From: {}", item.author));
+	PrintUserCmdText(client, std::format(L"Subject: {}", item.subject));
 	PrintUserCmdText(client, std::format(L"Date: {:%F %T}", TimeUtils::UnixToSysTime(item.timestamp)));
-	PrintUserCmdText(client, StringUtils::stows(item.body));
+	PrintUserCmdText(client, item.body);
 }
 
 void UserCmdListMail(ClientId& client, const std::wstring& param)
@@ -629,7 +629,7 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	const auto mail = MailManager::i()->GetMail(client, unreadOnly, page);
 	if (mail.has_error())
 	{
-		PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", StringUtils::stows(mail.error())));
+		PrintUserCmdText(client, std::format(L"Error retrieving mail: {}", mail.error()));
 		return;
 	}
 
@@ -644,19 +644,14 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
 	for (const auto& item : mailList)
 	{
 		// |    Id.) Subject (unread) - Author - Time
-		PrintUserCmdText(client,
-		    StringUtils::stows(std::format("|    {}.) {} {}- {} - {:%F %T}",
-		        item.id,
-		        item.subject,
-		        item.unread ? "(unread) " : "",
-		        item.author,
-		        TimeUtils::UnixToSysTime(item.timestamp))));
+		PrintUserCmdText(client, std::format(L"|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? L"(unread) " : L"", item.author, 
+			TimeUtils::UnixToSysTime(item.timestamp)));
 	}
 }
 
 void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 {
-	auto params = StringUtils::GetParams(param, ' ');
+	auto params = StringUtils::GetParams(param, L' ');
 	const auto targetPlayer = Hk::Client::GetClientIdFromCharName(std::wstring(StringUtils::GetParam(params, 0)));
 	const auto cash = StringUtils::MultiplyUIntBySuffix(StringUtils::GetParam(params, 1));
 	const auto clientCash = Hk::Player::GetCash(client);
@@ -691,13 +686,13 @@ void UserCmdGiveCash(ClientId& client, const std::wstring& param)
 
 void UserCmd_Help(ClientId& client, const std::wstring& paramView);
 
-UserCommand CreateUserCommand(const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage,
+UserCommand CreateUserCommand(const std::variant<std::wstring_view, std::vector<std::wstring_view>>& command, const std::wstring& usage,
     const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description)
 {
 	return {command, usage, proc, description};
 }
 
-std::vector<std::wstring> CmdArr(std::initializer_list<std::wstring> cmds)
+std::vector<std::wstring_view> CmdArr(std::initializer_list<std::wstring_view> cmds)
 {
 	return cmds;
 }
@@ -732,22 +727,22 @@ const std::vector UserCmds = {{CreateUserCommand(L"/set diemsg", L"<all/system/s
 
 bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
 {
-	const auto isMatch = [&cmd](const std::wstring& subCmd) {
+	const auto isMatch = [&cmd](std::wstring_view subCmd) {
 		if (cmd.rfind(L'/') == 0)
 		{
 			return subCmd == cmd;
 		}
 
-		auto trimmed = subCmd;
-		trimmed.erase(0, 1);
+		const auto trimmed = subCmd.substr(1, subCmd.size() - 1);
 		return trimmed == cmd;
 	};
 
 	if (userCmd.command.index() == 0)
 	{
-		return isMatch(std::get<std::wstring>(userCmd.command));
+		return isMatch(std::get<std::wstring_view>(userCmd.command));
 	}
-	const auto& arr = std::get<std::vector<std::wstring>>(userCmd.command);
+
+	const auto& arr = std::get<std::vector<std::wstring_view>>(userCmd.command);
 	return std::ranges::any_of(arr, isMatch);
 }
 
@@ -760,7 +755,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& plugins = PluginManager::i();
-	if (paramView.find(L' ') == std::string::npos)
+	if (paramView.find(L' ') == std::wstring::npos)
 	{
 		PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
 		PrintUserCmdText(client, L"core");
@@ -769,7 +764,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			if (const auto commands = plugin->GetCommands(); commands.empty())
 				continue;
 
-			PrintUserCmdText(client, StringUtils::ToLower(StringUtils::stows(std::string(plugin->GetShortName()))));
+			PrintUserCmdText(client, StringUtils::ToLower(std::wstring(plugin->GetShortName())));
 		}
 		return;
 	}
@@ -785,7 +780,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 			for (const auto& i : UserCmds)
 			{
 				if (i.command.index() == 0)
-					PrintUserCmdText(client, std::get<std::wstring>(i.command));
+					PrintUserCmdText(client, std::get<std::wstring_view>(i.command));
 				else
 					PrintUserCmdText(client, i.usage);
 			}
@@ -804,7 +799,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 
 	const auto& pluginIterator = std::ranges::find_if(*plugins, [&mod](const std::shared_ptr<Plugin> plug) {
-		return StringUtils::ToLower(StringUtils::stows(std::string(plug->GetShortName()))) == StringUtils::ToLower(mod);
+		return StringUtils::ToLower(std::wstring(plug->GetShortName())) == StringUtils::ToLower(mod);
 	});
 
 	if (pluginIterator == plugins->end())
@@ -821,7 +816,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 		for (const auto& [command, usage, proc, description] : commands)
 		{
 			if (command.index() == 0)
-				PrintUserCmdText(client, std::get<std::wstring>(command));
+				PrintUserCmdText(client, std::get<std::wstring_view>(command));
 			else
 				PrintUserCmdText(client, usage);
 		}
@@ -834,7 +829,7 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
 	}
 	else
 	{
-		PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, StringUtils::stows(std::string(plugin->GetShortName()))));
+		PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
 	}
 }
 
@@ -846,7 +841,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		std::optional<std::wstring> param;
 		if (command.command.index() == 0)
 		{
-			const auto& subCmd = std::get<std::wstring>(command.command);
+			const auto& subCmd = std::get<std::wstring_view>(command.command);
 
 			// No command match
 			if (inputLower.rfind(subCmd, 0) != 0)
@@ -870,7 +865,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		}
 		else
 		{
-			for (const auto& subCmd : std::get<std::vector<std::wstring>>(command.command))
+			for (const auto& subCmd : std::get<std::vector<std::wstring_view>>(command.command))
 			{
 				if (inputLower.rfind(subCmd, 0) != 0 || (originalCmdString.length() > subCmd.length() && originalCmdString[subCmd.length()] != ' '))
 				{
@@ -883,7 +878,7 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 		if (param.has_value())
 		{
 			const std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-			Logger::i()->Log(LogLevel::Info, StringUtils::wstos(std::format(L"{}: {}", character.c_str(), originalCmdString.c_str())));
+			Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, originalCmdString));
 
 			try
 			{
@@ -896,11 +891,11 @@ bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdStrin
 					std::get<UserCmdProcWithParam>(command.proc)(client, param.value());
 				}
 
-				Logger::i()->Log(LogLevel::Info, "finished");
+				Logger::i()->Log(LogLevel::Info, L"finished");
 			}
 			catch (const std::exception& ex)
 			{
-				Logger::i()->Log(LogLevel::Err, std::format("exception {}", ex.what()));
+				Logger::i()->Log(LogLevel::Err, std::format(L"exception {}", StringUtils::stows(ex.what())));
 			}
 
 			return true;

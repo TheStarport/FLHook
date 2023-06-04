@@ -25,7 +25,8 @@ enum class Error
 	TargetIsNotPlayer,
 	CouldNotDecodeCharFile,
 	CouldNotEncodeCharFile,
-	NoAdmin,
+	NotAdmin,
+	MissingRequiredRole,
 	WrongXmlSyntax,
 	InvalidClientId,
 	InvalidGood,
@@ -46,6 +47,7 @@ enum class Error
 	PluginNotFound,
 	InvalidIdType,
 	InvalidSpaceObjId,
+	FileNotFound,
 	UnknownError = 1000,
 };
 

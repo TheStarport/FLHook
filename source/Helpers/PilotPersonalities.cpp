@@ -4,25 +4,25 @@
 
 namespace Hk::Personalities
 {
-	std::map<std::string, pub::AI::Personality> pilots;
-	std::map<std::string, pub::AI::Personality::EvadeDodgeUseStruct> evadeDodge;
-	std::map<std::string, pub::AI::Personality::EvadeBreakUseStruct> evadeBreak;
-	std::map<std::string, pub::AI::Personality::BuzzHeadTowardUseStruct> buzzHead;
-	std::map<std::string, pub::AI::Personality::BuzzPassByUseStruct> buzzPass;
-	std::map<std::string, pub::AI::Personality::TrailUseStruct> trail;
-	std::map<std::string, pub::AI::Personality::StrafeUseStruct> strafe;
-	std::map<std::string, pub::AI::Personality::EngineKillUseStruct> engineKill;
-	std::map<std::string, pub::AI::Personality::RepairUseStruct> repair;
-	std::map<std::string, pub::AI::Personality::GunUseStruct> gun;
-	std::map<std::string, pub::AI::Personality::MissileUseStruct> missile;
-	std::map<std::string, pub::AI::Personality::MineUseStruct> mine;
-	std::map<std::string, pub::AI::Personality::MissileReactionStruct> missileReaction;
-	std::map<std::string, pub::AI::Personality::DamageReactionStruct> damageReaction;
-	std::map<std::string, pub::AI::Personality::CountermeasureUseStruct> cm;
-	std::map<std::string, pub::AI::Personality::FormationUseStruct> formation;
-	std::map<std::string, pub::AI::Personality::JobStruct> job;
+	std::map<std::wstring, pub::AI::Personality> pilots;
+	std::map<std::wstring, pub::AI::Personality::EvadeDodgeUseStruct> evadeDodge;
+	std::map<std::wstring, pub::AI::Personality::EvadeBreakUseStruct> evadeBreak;
+	std::map<std::wstring, pub::AI::Personality::BuzzHeadTowardUseStruct> buzzHead;
+	std::map<std::wstring, pub::AI::Personality::BuzzPassByUseStruct> buzzPass;
+	std::map<std::wstring, pub::AI::Personality::TrailUseStruct> trail;
+	std::map<std::wstring, pub::AI::Personality::StrafeUseStruct> strafe;
+	std::map<std::wstring, pub::AI::Personality::EngineKillUseStruct> engineKill;
+	std::map<std::wstring, pub::AI::Personality::RepairUseStruct> repair;
+	std::map<std::wstring, pub::AI::Personality::GunUseStruct> gun;
+	std::map<std::wstring, pub::AI::Personality::MissileUseStruct> missile;
+	std::map<std::wstring, pub::AI::Personality::MineUseStruct> mine;
+	std::map<std::wstring, pub::AI::Personality::MissileReactionStruct> missileReaction;
+	std::map<std::wstring, pub::AI::Personality::DamageReactionStruct> damageReaction;
+	std::map<std::wstring, pub::AI::Personality::CountermeasureUseStruct> cm;
+	std::map<std::wstring, pub::AI::Personality::FormationUseStruct> formation;
+	std::map<std::wstring, pub::AI::Personality::JobStruct> job;
 
-	cpp::result<pub::AI::Personality, Error> GetPersonality(const std::string& pilotNickname)
+	cpp::result<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname)
 	{
 		const auto& pilot = pilots.find(pilotNickname);
 		if (pilot == pilots.end())
@@ -102,7 +102,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			evadeDodge[std::move(nick)] = data;
+			evadeDodge[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadEvadeBreak(INI_Reader& ini)
@@ -147,7 +147,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			evadeBreak[std::move(nick)] = data;
+			evadeBreak[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadBuzzHead(INI_Reader& ini)
@@ -210,7 +210,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			buzzHead[std::move(nick)] = data;
+			buzzHead[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadBuzzPass(INI_Reader& ini)
@@ -243,7 +243,7 @@ namespace Hk::Personalities
 					data.buzz_pass_by_style_weight[0] = ini.get_value_float(1);
 				else if (str == "break_away")
 					data.buzz_pass_by_style_weight[1] = ini.get_value_float(1);
-				else if (str == "engine_kill")
+				else if (str == "engine_kil")
 					data.buzz_pass_by_style_weight[2] = ini.get_value_float(1);
 			}
 			else if (ini.is_value("buzz_pass_by_roll_throttle"))
@@ -253,7 +253,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			buzzPass[std::move(nick)] = data;
+			buzzPass[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadTrail(INI_Reader& ini)
@@ -282,7 +282,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			trail[std::move(nick)] = data;
+			trail[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadStrafe(INI_Reader& ini)
@@ -303,7 +303,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			strafe[std::move(nick)] = data;
+			strafe[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadEngineKill(INI_Reader& ini)
@@ -328,7 +328,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			engineKill[std::move(nick)] = data;
+			engineKill[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadRepair(INI_Reader& ini)
@@ -355,7 +355,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			repair[std::move(nick)] = data;
+			repair[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadGun(INI_Reader& ini)
@@ -394,7 +394,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			gun[std::move(nick)] = data;
+			gun[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadMine(INI_Reader& ini)
@@ -408,14 +408,14 @@ namespace Hk::Personalities
 				nick = ini.get_value_string();
 			else if (ini.is_value("mine_launch_cone_angle"))
 				data.mine_launch_cone_angle = ini.get_value_float(0);
-			else if (ini.is_value("mine_launch_interval"))
+			else if (ini.is_value("mine_launch_interva"))
 				data.mine_launch_interval = ini.get_value_float(0);
 			else if (ini.is_value("mine_launch_range"))
 				data.mine_launch_range = ini.get_value_float(0);
 		}
 
 		if (!nick.empty())
-			mine[std::move(nick)] = data;
+			mine[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadMissileReaction(INI_Reader& ini)
@@ -438,7 +438,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			missileReaction[std::move(nick)] = data;
+			missileReaction[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadDamageReaction(INI_Reader& ini)
@@ -479,7 +479,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			damageReaction[std::move(nick)] = data;
+			damageReaction[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadCM(INI_Reader& ini)
@@ -498,7 +498,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			cm[std::move(nick)] = data;
+			cm[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadFormation(INI_Reader& ini)
@@ -559,7 +559,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			formation[std::move(nick)] = data;
+			formation[StringUtils::stows(nick)] = data;
 	}
 
 	void GetDifficulty(INI_Reader& ini, int& difficulty)
@@ -569,7 +569,7 @@ namespace Hk::Personalities
 			difficulty = 0;
 		else if (str == "easy")
 			difficulty = 1;
-		else if (str == "equal")
+		else if (str == "equa")
 			difficulty = 2;
 		else if (str == "hard")
 			difficulty = 3;
@@ -642,7 +642,7 @@ namespace Hk::Personalities
 					data.loot_preference |= 2;
 				if (str.find("LT_POTIONS"))
 					data.loot_preference |= 4;
-				if (str.find("LT_ALL"))
+				if (str.find("LT_AL"))
 					data.loot_preference = 7;
 				if (str.find("LT_NONE"))
 					data.loot_preference = 0;
@@ -654,7 +654,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			job[std::move(nick)] = data;
+			job[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadMissile(INI_Reader& ini)
@@ -687,7 +687,7 @@ namespace Hk::Personalities
 		}
 
 		if (!nick.empty())
-			missile[std::move(nick)] = data;
+			missile[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadPilot(INI_Reader& ini)
@@ -701,87 +701,87 @@ namespace Hk::Personalities
 				nick = ini.get_value_string();
 			if (ini.is_value("gun_id"))
 			{
-				if (const auto entity = gun.find(ini.get_value_string()); entity != gun.end())
+				if (const auto entity = gun.find(StringUtils::stows(ini.get_value_string())); entity != gun.end())
 					data.GunUse = entity->second;
 			}
 			else if (ini.is_value("missile_id"))
 			{
-				if (const auto entity = missile.find(ini.get_value_string()); entity != missile.end())
+				if (const auto entity = missile.find(StringUtils::stows(ini.get_value_string())); entity != missile.end())
 					data.MissileUse = entity->second;
 			}
 			else if (ini.is_value("evade_dodge_id"))
 			{
-				if (const auto entity = evadeDodge.find(ini.get_value_string()); entity != evadeDodge.end())
+				if (const auto entity = evadeDodge.find(StringUtils::stows(ini.get_value_string())); entity != evadeDodge.end())
 					data.EvadeDodgeUse = entity->second;
 			}
 			else if (ini.is_value("evade_break_id"))
 			{
-				if (const auto entity = evadeBreak.find(ini.get_value_string()); entity != evadeBreak.end())
+				if (const auto entity = evadeBreak.find(StringUtils::stows(ini.get_value_string())); entity != evadeBreak.end())
 					data.EvadeBreakUse = entity->second;
 			}
 			else if (ini.is_value("buzz_head_toward_id"))
 			{
-				if (const auto entity = buzzHead.find(ini.get_value_string()); entity != buzzHead.end())
+				if (const auto entity = buzzHead.find(StringUtils::stows(ini.get_value_string())); entity != buzzHead.end())
 					data.BuzzHeadTowardUse = entity->second;
 			}
 			else if (ini.is_value("buzz_pass_by_id"))
 			{
-				if (const auto entity = buzzPass.find(ini.get_value_string()); entity != buzzPass.end())
+				if (const auto entity = buzzPass.find(StringUtils::stows(ini.get_value_string())); entity != buzzPass.end())
 					data.BuzzPassByUse = entity->second;
 			}
 			else if (ini.is_value("trail_id"))
 			{
-				if (const auto entity = trail.find(ini.get_value_string()); entity != trail.end())
+				if (const auto entity = trail.find(StringUtils::stows(ini.get_value_string())); entity != trail.end())
 					data.TrailUse = entity->second;
 			}
 			else if (ini.is_value("strafe_id"))
 			{
-				if (const auto entity = strafe.find(ini.get_value_string()); entity != strafe.end())
+				if (const auto entity = strafe.find(StringUtils::stows(ini.get_value_string())); entity != strafe.end())
 					data.StrafeUse = entity->second;
 			}
 			else if (ini.is_value("engine_kill_id"))
 			{
-				if (const auto entity = engineKill.find(ini.get_value_string()); entity != engineKill.end())
+				if (const auto entity = engineKill.find(StringUtils::stows(ini.get_value_string())); entity != engineKill.end())
 					data.EngineKillUse = entity->second;
 			}
 			else if (ini.is_value("mine_id"))
 			{
-				if (const auto entity = mine.find(ini.get_value_string()); entity != mine.end())
+				if (const auto entity = mine.find(StringUtils::stows(ini.get_value_string())); entity != mine.end())
 					data.MineUse = entity->second;
 			}
 			else if (ini.is_value("countermeasure_id"))
 			{
-				if (const auto entity = cm.find(ini.get_value_string()); entity != cm.end())
+				if (const auto entity = cm.find(StringUtils::stows(ini.get_value_string())); entity != cm.end())
 					data.CountermeasureUse = entity->second;
 			}
 			else if (ini.is_value("damage_reaction_id"))
 			{
-				if (const auto entity = damageReaction.find(ini.get_value_string()); entity != damageReaction.end())
+				if (const auto entity = damageReaction.find(StringUtils::stows(ini.get_value_string())); entity != damageReaction.end())
 					data.DamageReaction = entity->second;
 			}
 			else if (ini.is_value("missile_reaction_id"))
 			{
-				if (const auto entity = missileReaction.find(ini.get_value_string()); entity != missileReaction.end())
+				if (const auto entity = missileReaction.find(StringUtils::stows(ini.get_value_string())); entity != missileReaction.end())
 					data.MissileReaction = entity->second;
 			}
 			else if (ini.is_value("formation_id"))
 			{
-				if (const auto entity = formation.find(ini.get_value_string()); entity != formation.end())
+				if (const auto entity = formation.find(StringUtils::stows(ini.get_value_string())); entity != formation.end())
 					data.FormationUse = entity->second;
 			}
 			else if (ini.is_value("repair_id"))
 			{
-				if (const auto entity = repair.find(ini.get_value_string()); entity != repair.end())
+				if (const auto entity = repair.find(StringUtils::stows(ini.get_value_string())); entity != repair.end())
 					data.RepairUse = entity->second;
 			}
 			else if (ini.is_value("job_id"))
 			{
-				if (const auto entity = job.find(ini.get_value_string()); entity != job.end())
+				if (const auto entity = job.find(StringUtils::stows(ini.get_value_string())); entity != job.end())
 					data.Job = entity->second;
 			}
 		}
 
-		pilots[std::move(nick)] = data;
+		pilots[StringUtils::stows(nick)] = data;
 	}
 
 	void LoadPersonalities()
@@ -805,11 +805,11 @@ namespace Hk::Personalities
 		INI_Reader ini;
 		if (!ini.open(R"(..\DATA\MISSIONS\pilots_population.ini)", false))
 		{
-			Logger::i()->Log(LogLevel::Warn, "Unable to parse pilot_population");
+			Logger::i()->Log(LogLevel::Warn, L"Unable to parse pilot_population");
 			return;
 		}
 
-		Logger::i()->Log(LogLevel::Info, "Parsing Pilot Population");
+		Logger::i()->Log(LogLevel::Info, L"Parsing Pilot Population");
 
 		while (ini.read_header())
 		{
@@ -849,7 +849,7 @@ namespace Hk::Personalities
 				LoadPilot(ini);
 		}
 
-		Logger::i()->Log(LogLevel::Info, std::format("Parsed Pilot Population: {} personalities", pilots.size()));
+		Logger::i()->Log(LogLevel::Info, std::format(L"Parsed Pilot Population: {} personalities", pilots.size()));
 	}
 } // namespace Hk::Personalities
 

@@ -32,7 +32,7 @@ void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::
 
 	TempBanInfo banInfo;
 	banInfo.banStart = TimeUtils::UnixMilliseconds();
-	banInfo.banEnd = banInfo.banStart + (durationInMin * 1000 * 60);
+	banInfo.banEnd = banInfo.banStart + durationInMin * 1000 * 60;
 	banInfo.accountId = accId.value();
 
 	if (!banReason.empty())

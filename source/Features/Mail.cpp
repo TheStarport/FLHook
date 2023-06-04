@@ -4,23 +4,23 @@
 #include "Helpers/Client.hpp"
 
 
-std::string MailManager::GetCharacterName(const std::variant<uint, std::wstring>& character) const
+std::wstring MailManager::GetCharacterName(const std::variant<uint, std::wstring_view>& character) const
 {
 	// If character is uint
 	if (!character.index())
 	{
 		const auto name = Hk::Client::GetCharacterNameByID(std::get<uint>(character));
 		if (name.has_error())
-			return "";
+			return L""; // TODO: Get error
 
-		return StringUtils::wstos(name.value());
+		return name.value();
 	}
 
 	// Validate that the name is correct
-	if (const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(character)); acc.has_error())
-		return "";
+	if (const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring_view>(character)); acc.has_error())
+		return L"";
 
-	return StringUtils::wstos(std::get<std::wstring>(character));
+	return std::get<std::wstring_view>(character);
 }
 
 MailManager::MailManager()
@@ -42,7 +42,7 @@ MailManager::MailManager()
 	db.exec("CREATE INDEX IDX_characterName ON items (characterName DESC);");
 }
 
-cpp::result<void, std::string> MailManager::SendNewMail(const std::variant<uint, std::wstring>& character, const MailItem& item) const
+cpp::result<void, std::wstring> MailManager::SendNewMail(const std::variant<uint, std::wstring_view>& character, const MailItem& item) const
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -87,8 +87,8 @@ cpp::result<void, std::string> MailManager::SendNewMail(const std::variant<uint,
 
 using namespace std::string_literals;
 
-cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMail(
-	const std::variant<uint, std::wstring>& character, const bool& ignoreRead, const int& page)
+cpp::result<std::vector<MailManager::MailItem>, std::wstring> MailManager::GetMail(
+	const std::variant<uint, std::wstring_view>& character, const bool& ignoreRead, const int& page)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -137,7 +137,7 @@ cpp::result<std::vector<MailManager::MailItem>, std::string> MailManager::GetMai
 	return mail;
 }
 
-cpp::result<MailManager::MailItem, std::string> MailManager::GetMailById(const std::variant<uint, std::wstring>& character, const int64& index)
+cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const std::variant<uint, std::wstring_view>& character, const int64& index)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -176,7 +176,7 @@ cpp::result<MailManager::MailItem, std::string> MailManager::GetMailById(const s
 	}
 }
 
-cpp::result<void, std::string> MailManager::DeleteMail(const std::variant<uint, std::wstring>& character, const int64& index) const
+cpp::result<void, std::wstring> MailManager::DeleteMail(const std::variant<uint, std::wstring_view>& character, const int64& index) const
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -203,7 +203,7 @@ cpp::result<void, std::string> MailManager::DeleteMail(const std::variant<uint, 
 	return {};
 }
 
-cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uint, std::wstring>& character, const bool& readMailOnly)
+cpp::result<int64, std::wstring> MailManager::PurgeAllMail(const std::variant<uint, std::wstring_view>& character, const bool& readMailOnly)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -221,7 +221,7 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 		int count = deleteMail.exec();
 		if (!count)
 		{
-			return cpp::fail("No mail to delete.");
+			return cpp::fail(L"No mail to delete.");
 		}
 
 		return count;
@@ -232,7 +232,7 @@ cpp::result<int64, std::string> MailManager::PurgeAllMail(const std::variant<uin
 	}
 }
 
-cpp::result<int64, std::string> MailManager::UpdateCharacterName(const std::string& oldCharacterName, const std::string& newCharacterName)
+cpp::result<int64, std::wstring> MailManager::UpdateCharacterName(const std::wstring& oldCharacterName, const std::wstring& newCharacterName)
 {
 	if (const auto acc = Hk::Client::GetAccountByCharName(StringUtils::stows(newCharacterName)); acc.has_error())
 	{
@@ -259,7 +259,7 @@ cpp::result<int64, std::string> MailManager::UpdateCharacterName(const std::stri
 	}
 }
 
-cpp::result<int64, std::string> MailManager::GetUnreadMail(const std::variant<uint, std::wstring>& character)
+cpp::result<int64, std::wstring> MailManager::GetUnreadMail(const std::variant<uint, std::wstring_view>& character)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -278,7 +278,7 @@ cpp::result<int64, std::string> MailManager::GetUnreadMail(const std::variant<ui
 	return 0;
 }
 
-void MailManager::SendMailNotification(const std::variant<uint, std::wstring>& character)
+void MailManager::SendMailNotification(const std::variant<uint, std::wstring_view>& character)
 {
 	const auto client = Hk::Client::ExtractClientID(character);
 	if (client == UINT_MAX)
@@ -314,7 +314,7 @@ void MailManager::CleanUpOldMail()
 	}
 	catch (SQLite::Exception ex)
 	{
-		Logger::i()->Log(LogLevel::Err, std::format("Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
+		Logger::i()->Log(LogLevel::Err, std::format(L"Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
 	}
 }
 

@@ -20,7 +20,7 @@ namespace Hk::Client
 	 * @returns On success : current client Id associated with that character name
 	 * @returns On fail : [CharacterDoesNotExist] The function could not find a client id associated with this character name.
 	 */
-	DLL cpp::result<const uint, Error> GetClientIdFromCharName(const std::wstring& character);
+	DLL cpp::result<const uint, Error> GetClientIdFromCharName(std::wstring_view character);
 
 	/**
 	 * Checks to see if the client Id is valid
@@ -36,7 +36,7 @@ namespace Hk::Client
 	 * @returns On success : the account Id for that character
 	 * @returns On fail : [CharacterDoesNotExist] The function could not find the account id associated with this character name.
 	 */
-	DLL cpp::result<CAccount*, Error> GetAccountByCharName(const std::wstring& character);
+	DLL cpp::result<CAccount*, Error> GetAccountByCharName(std::wstring_view character);
 
 	/**
 	 * Gets the account id in a wide string
@@ -52,7 +52,7 @@ namespace Hk::Client
 	 * @returns On success : wide string of account Id
 	 * @returns On fail : [CannotGetAccount] The function could not find the account.
 	 */
-	DLL bool IsEncoded(const std::string& fileName);
+	DLL bool IsEncoded(const std::wstring& fileName);
 
 	DLL bool IsInCharSelectMenu(const uint& player);
 
@@ -61,8 +61,8 @@ namespace Hk::Client
 	DLL cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& shortcut);
 	DLL cpp::result<ClientId, Error> GetClientIdByShip(ShipId ship);
 	DLL std::wstring GetAccountDirName(const CAccount* acc);
-	DLL cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player);
-	DLL cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player, bool returnValueIfNoFile);
+	DLL cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring_view>& player);
+	DLL cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring_view>& player, bool returnValueIfNoFile);
 	DLL cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId);
 	DLL cpp::result<const std::wstring, Error> GetPlayerSystem(ClientId client);
 	DLL cpp::result<const std::wstring, Error> GetSystemNickByID(uint systemId);

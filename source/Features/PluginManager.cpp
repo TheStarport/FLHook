@@ -2,7 +2,7 @@
 #include "Global.hpp"
 
 // Map of plugins to their relative communicators, if they have any.
-static std::map<std::string, PluginCommunicator*> pluginCommunicators;
+static std::map<std::wstring, PluginCommunicator*> pluginCommunicators;
 
 void PluginCommunicator::ExportPluginCommunicator(PluginCommunicator* communicator)
 {
@@ -17,12 +17,12 @@ void PluginCommunicator::Dispatch(int id, void* dataPack) const
 	}
 }
 
-void PluginCommunicator::AddListener(const std::string plugin, EventSubscription event)
+void PluginCommunicator::AddListener(const std::wstring plugin, EventSubscription event)
 {
 	this->listeners[plugin] = event;
 }
 
-PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(const std::string plugin, EventSubscription subscription)
+PluginCommunicator* PluginCommunicator::ImportPluginCommunicator(const std::wstring plugin, EventSubscription subscription)
 {
 	const auto el = pluginCommunicators.find(plugin);
 	if (el == pluginCommunicators.end())
@@ -60,7 +60,7 @@ PluginManager::~PluginManager()
 	ClearData(false);
 }
 
-cpp::result<std::string, Error> PluginManager::Unload(const std::string& name)
+cpp::result<std::wstring, Error> PluginManager::Unload(const std::wstring& name)
 {
 	const auto pluginIterator = std::ranges::find_if(plugins, [&name](const std::shared_ptr<Plugin>& data) { return name == data->shortName; });
 
@@ -71,14 +71,14 @@ cpp::result<std::string, Error> PluginManager::Unload(const std::string& name)
 
 	if (!plugin->mayUnload)
 	{
-		Logger::i()->Log(LogLevel::Warn, "Plugin may not be unloaded.");
+		Logger::i()->Log(LogLevel::Warn, L"Plugin may not be unloaded.");
 		return {};
 	}
 
 	HMODULE dllAddr = plugin->dll;
 
-	std::string unloadedPluginDll = plugin->dllName;
-	Logger::i()->Log(LogLevel::Info, std::format("Unloading {} ({})", plugin->name, plugin->dllName));
+	std::wstring unloadedPluginDll = plugin->dllName;
+	Logger::i()->Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
 
 	for (const auto& hook : plugin->hooks)
 	{
@@ -100,38 +100,38 @@ void PluginManager::UnloadAll()
 }
 
 //TODO: Let this return a bool or error type.
-void PluginManager::Load(const std::string& fileName, bool startup)
+void PluginManager::Load(const std::wstring& fileName, bool startup)
 {
-	std::string dllName = fileName;
-	if (dllName.find(".dll") == std::string::npos)
-		dllName.append(".dll");
+	std::wstring dllName = fileName;
+	if (dllName.find(L".dll") == std::wstring::npos)
+		dllName.append(L".dll");
 
 	for (const auto& plugin : plugins)
 	{
 		if (plugin->dllName == dllName)
-			return Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("Plugin {} already loaded, skipping\n", plugin->dllName));
+			return Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
 	}
 
-	const std::string pathToDLL = "./plugins/" + dllName;
+	const std::wstring pathToDLL = L"./plugins/" + dllName;
 
 	if (!std::filesystem::exists(pathToDLL))
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR plugin {} not found", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
 		return;
 	}
 
-	HMODULE dll = LoadLibrary(pathToDLL.c_str());
+	HMODULE dll = LoadLibraryW(pathToDLL.c_str());
 
 	if (!dll)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR can't load plugin DLL {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR can't load plugin DLL {}", dllName));
 	}
 
 	const auto pluginFactory = reinterpret_cast<PluginFactoryT>(GetProcAddress(dll, "PluginFactory"));
 
 	if (!pluginFactory)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR could not create plugin instance for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not create plugin instance for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -142,7 +142,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	if (plugin->versionMinor == PluginMinorVersion::UNDEFINED || plugin->versionMajor == PluginMajorVersion::UNDEFINED)
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR plugin {} does not have defined API version. Unloading.", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -151,7 +151,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
 		    LogLevel::Err,
-		    std::format("ERR incompatible plugin API (major) version for {}: expected {}, got {}",
+		    std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMajorVersion),
 		        static_cast<int>(plugin->versionMajor)));
@@ -163,7 +163,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
 		    LogLevel::Err,
-		    std::format("ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
+		    std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMinorVersion),
 		        static_cast<int>(plugin->versionMinor)));
@@ -175,16 +175,16 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	{
 		Logger::i()->Log(LogFile::ConsoleOnly,
 		    LogLevel::Warn,
-		    std::format("Warning, incompatible plugin API version for {}: expected {}, got {}",
+		    std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
 		        dllName,
 		        static_cast<int>(CurrentMinorVersion),
 		        static_cast<int>(plugin->versionMinor)));
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, "Processing will continue, but plugin should be considered unstable.");
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, L"Processing will continue, but plugin should be considered unstable.");
 	}
 
 	if (plugin->shortName.empty() || plugin->name.empty())
 	{
-		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR missing name/short name for {}", dllName));
+		Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR missing name/short name for {}", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -194,7 +194,7 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 	if (!plugin->mayUnload && !startup)
 	{
 		Logger::i()->Log(
-		    LogFile::ConsoleOnly, LogLevel::Err, std::format("ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
+		    LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
 		FreeLibrary(dll);
 		return;
 	}
@@ -205,13 +205,13 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 		{
 			Logger::i()->Log(LogFile::ConsoleOnly,
 			    LogLevel::Err,
-			    std::format("ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
+			    std::format(L"ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
 			continue;
 		}
 
 		if (const auto& targetHookProps = hookProps_[hook.targetFunction]; !targetHookProps.matches(hook.step))
 		{
-			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format("ERR could not bind function. plugin: {}, step not available", dllName));
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format(L"ERR could not bind function. plugin: {}, step not available", dllName));
 			continue;
 		}
 
@@ -225,13 +225,13 @@ void PluginManager::Load(const std::string& fileName, bool startup)
 
 	std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, std::shared_ptr<Plugin>& b) { return a->name < b->name; });
 
-	Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format("Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
+	Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
 }
 
 void PluginManager::LoadAll(bool startup)
 {
-	WIN32_FIND_DATA findData;
-	const HANDLE findPluginsHandle = FindFirstFile("./plugins/*.dll", &findData);
+	WIN32_FIND_DATAW findData;
+	const HANDLE findPluginsHandle = FindFirstFileW(L"./plugins/*.dll", &findData);
 
 	do
 	{
@@ -239,7 +239,7 @@ void PluginManager::LoadAll(bool startup)
 			break;
 
 		Load(findData.cFileName, startup);
-	} while (FindNextFile(findPluginsHandle, &findData));
+	} while (FindNextFileW(findPluginsHandle, &findData));
 }
 
 void PluginManager::SetProps(HookedCall c, bool before, bool after)

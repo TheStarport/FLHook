@@ -11,12 +11,12 @@
 
 namespace SqlHelpers
 {
-	inline SQLite::Database Create(const std::string_view& path)
+	inline SQLite::Database Create(const std::wstring_view& path)
 	{
 		char dataPath[MAX_PATH];
 		GetUserDataPath(dataPath);
 
-		const auto dir = std::format("{}\\{}", dataPath, path);
+		const auto dir = std::format(L"{}\\{}", StringUtils::stows(dataPath), path);
 
 		return {dir, SQLite::OPEN_CREATE | SQLite::OPEN_READWRITE};
 	};

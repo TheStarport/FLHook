@@ -1,15 +1,14 @@
 #pragma once
-//TODO: Reimplement DLL loader and De-loader.
-//TODO: Make HK functions accept string views
+//TODO: Reimplement DLL loader and De-loader
 namespace Hk::Chat
 {
-	DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message);
-	DLL cpp::result<void, Error> MsgS(const std::variant<std::string, uint>& system, const std::wstring& message);
+	DLL cpp::result<void, Error> Msg(const std::variant<uint, std::wstring_view>& player, const std::wstring& message);
+	DLL cpp::result<void, Error> MsgS(const std::variant<std::wstring_view, uint>& system, const std::wstring& message);
 	DLL cpp::result<void, Error> MsgU(std::wstring_view message);
-	DLL cpp::result<void, Error> FMsgEncodeXML(const std::wstring& xml, char* buf, uint size, uint& ret);
-	DLL cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xml);
-	DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& XML);
-	DLL cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& XML);
+	DLL cpp::result<void, Error> FMsgEncodeXml(std::wstring_view xml, char* buf, uint size, uint& ret);
+	DLL cpp::result<void, Error> FMsg(ClientId client, std::wstring_view xml);
+	DLL cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring_view>& player, std::wstring_view XML);
+	DLL cpp::result<void, Error> FMsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view XML);
 	DLL cpp::result<void, Error> FMsgU(const std::wstring& xml);
 	DLL std::wstring FormatMsg(MessageColor color, MessageFormat format, const std::wstring& msg);
 	DLL std::wstring GetWStringFromIdS(uint idS);

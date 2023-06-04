@@ -19,7 +19,7 @@ bool LoadBaseMarket()
 		if (!ini.is_value("base"))
 			continue;
 
-		const std::string baseName = ini.get_value_string();
+		const std::wstring baseName = StringUtils::stows(ini.get_value_string());
 		BaseInfo* biBase = nullptr;
 		for (auto& base : CoreGlobals::i()->allBases)
 		{

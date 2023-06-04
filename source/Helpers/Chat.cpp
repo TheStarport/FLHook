@@ -24,7 +24,7 @@ _RCSendChatMsg RCSendChatMsg;
 
 namespace Hk::Chat
 {
-	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring>& player, const std::wstring& message)
+	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring_view>& player, const std::wstring& message)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -37,7 +37,7 @@ namespace Hk::Chat
 		const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buf[1024];
-		if (const auto err = FMsgEncodeXML(XML, buf, sizeof(buf), retVal); err.has_error())
+		if (const auto err = FMsgEncodeXml(XML, buf, sizeof buf, retVal); err.has_error())
 			return cpp::fail(err.error());
 
 		IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
@@ -46,13 +46,13 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> MsgS(const std::variant<std::string, uint>& system, const std::wstring& message)
+	cpp::result<void, Error> MsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view message)
 	{
 		uint systemId = 0;
 		if (!system.index())
 		{
-			const auto systemName = std::get<std::string>(system);
-			pub::GetSystemID(systemId, systemName.c_str());
+			const auto systemName = std::get<std::wstring_view>(system);
+			pub::GetSystemID(systemId, StringUtils::wstos(std::wstring(systemName)).c_str());
 		}
 		else
 		{
@@ -63,7 +63,7 @@ namespace Hk::Chat
 		const std::wstring xml = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buffer[1024];
-		if (const auto err = FMsgEncodeXML(xml, buffer, sizeof(buffer), retVal); err.has_error())
+		if (const auto err = FMsgEncodeXml(xml, buffer, sizeof buffer, retVal); err.has_error())
 			return cpp::fail(err.error());
 
 		const CHAT_ID ci = {0};
@@ -89,7 +89,7 @@ namespace Hk::Chat
 		const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
 		uint retVal;
 		char buf[1024];
-		if (const auto err = FMsgEncodeXML(xml, buf, sizeof(buf), retVal); err.has_error())
+		if (const auto err = FMsgEncodeXml(xml, buf, sizeof buf, retVal); err.has_error())
 			return cpp::fail(err.error());
 
 		IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
@@ -139,14 +139,14 @@ namespace Hk::Chat
 	{
 		char buf[0xFFFF];
 		uint ret;
-		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret); err.has_error())
 			return cpp::fail(err.error());
 
 		FMsgSendChat(client, buf, ret);
 		return {};
 	}
 
-	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xmring)
+	cpp::result<void, Error> FMsg(const std::variant<uint, std::wstring_view>& player, std::wstring_view xmring)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -158,22 +158,22 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgS(const std::variant<std::wstring, uint>& system, const std::wstring& xmring)
+	cpp::result<void, Error> FMsgS(const std::variant<std::wstring_view, uint>& system, const std::wstring& xmring)
 	{
 		uint systemId = 0;
 		if (!system.index())
 		{
-			const auto systemName = std::get<std::wstring>(system);
-			pub::GetSystemID(systemId, StringUtils::wstos(systemName).c_str());
+			const auto systemName = std::get<std::wstring_view>(system);
+			pub::GetSystemID(systemId, StringUtils::wstos(std::wstring(systemName)).c_str());
 		}
 		else
 		{
 			systemId = std::get<uint>(system);
 		}
-		// encode xml std::string
+		// encode xml std::wstring
 		char buf[0xFFFF];
 		uint ret;
-		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret); err.has_error())
+		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret); err.has_error())
 			return cpp::fail(err.error());
 
 		// for all players in system...
@@ -189,10 +189,10 @@ namespace Hk::Chat
 
 	cpp::result<void, Error> FMsgU(const std::wstring& xmring)
 	{
-		// encode xml std::string
+		// encode xml std::wstring
 		char buf[0xFFFF];
 		uint ret;
-		const auto err = FMsgEncodeXML(xmring, buf, sizeof(buf), ret);
+		const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret);
 		if (err.has_error())
 			return cpp::fail(err.error());
 
@@ -207,7 +207,7 @@ namespace Hk::Chat
 		return {};
 	}
 
-	/** Format a chat std::string in accordance with the receiver's preferences and
+	/** Format a chat std::wstring in accordance with the receiver's preferences and
 	send it. Will check that the receiver accepts chatConfig from sender and
 	refuses to send if necessary. */
 	cpp::result<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
@@ -218,9 +218,9 @@ namespace Hk::Chat
 		{
 			for (const auto& ignore : ClientInfo[toClientId].ignoreInfoList)
 			{
-				if (!HAS_FLAG(ignore, L"i") && !(StringUtils::ToLower(sender).compare(StringUtils::ToLower(ignore.character))))
+				if (!HAS_FLAG(ignore, L"i") && !StringUtils::ToLower(sender).compare(StringUtils::ToLower(ignore.character)))
 					return {}; // ignored
-				if (HAS_FLAG(ignore, L"i") && (StringUtils::ToLower(sender).find(StringUtils::ToLower(ignore.character)) != -1))
+				if (HAS_FLAG(ignore, L"i") && StringUtils::ToLower(sender).find(StringUtils::ToLower(ignore.character)) != -1)
 					return {};
 				// ignored
 			}
@@ -278,7 +278,7 @@ namespace Hk::Chat
 		const auto Sender = Client::GetCharacterNameByID(fromClientId);
 		if (Sender.has_error())
 		{
-			Logger::i()->Log(LogLevel::Err, std::format("Unable to send private chat message from client {}", fromClientId));
+			Logger::i()->Log(LogLevel::Err, std::format(L"Unable to send private chat message from client {}", fromClientId));
 			return {};
 		}
 
@@ -332,7 +332,7 @@ namespace Hk::Chat
 		const auto Sender = Client::GetCharacterNameByID(fromClientId);
 		if (Sender.has_error())
 		{
-			Logger::i()->Log(LogLevel::Err, std::format("Unable to send local system chat message from client {}", fromClientId));
+			Logger::i()->Log(LogLevel::Err, std::format(L"Unable to send local system chat message from client {}", fromClientId));
 			return;
 		}
 
@@ -397,11 +397,9 @@ namespace Hk::Chat
 	{
 		UnloadStringDLLs();
 
-		HINSTANCE hDLL = LoadLibraryEx("resources.dll",
-			nullptr,
-			LOAD_LIBRARY_AS_DATAFILE); // typically resources.dll
-		if (hDLL)
-			vDLLs.push_back(hDLL);
+		HINSTANCE hDll = LoadLibraryExW(L"resources.dll", nullptr, LOAD_LIBRARY_AS_DATAFILE); // typically resources.dll
+		if (hDll)
+			vDLLs.push_back(hDll);
 
 		INI_Reader ini;
 		if (ini.open("freelancer.ini", false))
@@ -414,9 +412,9 @@ namespace Hk::Chat
 					{
 						if (ini.is_value("DLL"))
 						{
-							hDLL = LoadLibraryEx(ini.get_value_string(0), nullptr, LOAD_LIBRARY_AS_DATAFILE);
-							if (hDLL)
-								vDLLs.push_back(hDLL);
+							hDll = LoadLibraryExA(ini.get_value_string(0), nullptr, LOAD_LIBRARY_AS_DATAFILE);
+							if (hDll)
+								vDLLs.push_back(hDll);
 						}
 					}
 				}

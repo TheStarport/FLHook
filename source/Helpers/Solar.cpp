@@ -87,7 +87,7 @@ namespace Hk::Solar
 		while (baseinfo)
 		{
 			char baseNickname[1024] = "";
-			pub::GetBaseNickname(baseNickname, sizeof(baseNickname), baseinfo->baseId);
+			pub::GetBaseNickname(baseNickname, sizeof baseNickname, baseinfo->baseId);
 
 			if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS);
 				StringUtils::ToLower(StringUtils::stows(baseNickname)) == StringUtils::ToLower(targetBaseName) || StringUtils::ToLower(basename).find(StringUtils::ToLower(targetBaseName)) == 0)

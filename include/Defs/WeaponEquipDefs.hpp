@@ -5,19 +5,19 @@ namespace WeaponEquip
 {
 	struct Gun
 	{
-		std::string nickname;
+		std::wstring nickname;
 		int ids_name;
 		int ids_info;
 
-		std::string DA_archetype;
-		std::string material_library;
+		std::wstring DA_archetype;
+		std::wstring material_library;
 
-		std::string Hp_child;
+		std::wstring Hp_child;
 
 		float hit_pts;
 		float explosion_resistance;
 
-		std::string debris_type;
+		std::wstring debris_type;
 
 		float parent_impulse;
 		float child_impulse;
@@ -25,22 +25,22 @@ namespace WeaponEquip
 		float volume;
 		float mass;
 
-		std::string hp_gun_type;
+		std::wstring hp_gun_type;
 
 		int damage_per_fire;
 		int power_usage;
 		float refire_delay;
 		float muzzle_velocity;
 
-		std::string use_animation;
+		std::wstring use_animation;
 
 		float toughness;
-		std::string flash_particle_name;
+		std::wstring flash_particle_name;
 		float flash_radius;
-		std::string light_anim;
+		std::wstring light_anim;
 
-		std::string projectile_archetype;
-		std::string seperation_exploson;
+		std::wstring projectile_archetype;
+		std::wstring seperation_exploson;
 
 		bool auto_turret;
 		float turn_rate;
@@ -51,8 +51,8 @@ namespace WeaponEquip
 
 	struct Munition
 	{
-		std::string nickname;
-		std::string hp_type;
+		std::wstring nickname;
+		std::wstring hp_type;
 
 		bool requires_ammo;
 		float hit_pts;
@@ -60,10 +60,10 @@ namespace WeaponEquip
 		float hull_damage;
 		int energy_damage;
 
-		std::string weapon_type;
-		std::string one_shot_sound;
-		std::string munition_hit_effect;
-		std::string const_effect;
+		std::wstring weapon_type;
+		std::wstring one_shot_sound;
+		std::wstring munition_hit_effect;
+		std::wstring const_effect;
 
 		float lifetime;
 		bool force_gun_ori;

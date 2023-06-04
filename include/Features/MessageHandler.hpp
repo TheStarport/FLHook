@@ -19,8 +19,8 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
 	std::shared_ptr<uvw::TCPHandle> connectHandle;
 	std::unique_ptr<AMQP::Connection> connection;
 	std::unique_ptr<AMQP::Channel> channel;
-	std::map<std::string, std::vector<QueueOnData>> onMessageCallbacks;
-	std::map<std::string, std::vector<QueueOnFail>> onFailCallbacks;
+	std::map<std::wstring, std::vector<QueueOnData>> onMessageCallbacks;
+	std::map<std::wstring, std::vector<QueueOnFail>> onFailCallbacks;
 	std::atomic_bool isInitalizing = true;
 	std::jthread runner;
 
@@ -38,9 +38,9 @@ public:
 		ServerStats,
 	};
 
-	static std::string QueueToStr(const Queue queue) { return std::string(magic_enum::enum_name<Queue>(queue)); }
-	void Subscribe(const std::string& queue, QueueOnData callback, std::optional<QueueOnFail> onFail = std::nullopt);
-	void Publish(const std::string& jsonData, const std::string& exchange = "", const std::string& queue = "") const;
-	void DeclareQueue(const std::string& queue, int flags = 0) const;
-	void DeclareExchange(const std::string& exchange, AMQP::ExchangeType type = AMQP::fanout, int flags = 0) const;
+	static std::wstring_view QueueToStr(const Queue queue) { return magic_enum::enum_name<Queue>(queue); }
+	void Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail = std::nullopt);
+	void Publish(const std::wstring& jsonData, const std::wstring& exchange = L"", const std::wstring& queue = L"") const;
+	void DeclareQueue(const std::wstring& queue, int flags = 0) const;
+	void DeclareExchange(const std::wstring& exchange, AMQP::ExchangeType type = AMQP::fanout, int flags = 0) const;
 };

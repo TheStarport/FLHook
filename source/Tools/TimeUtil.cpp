@@ -17,7 +17,7 @@ sys_time<seconds> TimeUtils::UnixToSysTime(int64 time)
 	return sys_time {seconds {time}};
 }
 
-std::string TimeUtils::HumanReadableTime(seconds dur)
+std::wstring TimeUtils::HumanReadableTime(seconds dur)
 {
 	using Days = duration<int, std::ratio<86400>>;
 	const auto d = duration_cast<Days>(dur);
@@ -33,7 +33,7 @@ std::string TimeUtils::HumanReadableTime(seconds dur)
 	const auto mc = m.count();
 	const auto sc = s.count();
 
-	std::stringstream ss;
+	std::wstringstream ss;
 	ss.fill('0');
 	if (dc)
 	{

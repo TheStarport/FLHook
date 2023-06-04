@@ -2,7 +2,6 @@
 
 class DLL DataManager : public Singleton<DataManager>
 {
-  private:
 	std::string dataPath;
 	std::map<EquipId, Light> lights;
 

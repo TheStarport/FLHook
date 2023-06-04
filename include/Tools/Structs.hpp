@@ -122,7 +122,7 @@ struct DataMarketItem
 struct BaseInfo
 {
 	uint baseId;
-	std::string baseName;
+	std::wstring baseName;
 	uint objectId;
 	bool destroyed;
 	std::list<DataMarketItem> MarketMisc;
@@ -155,7 +155,7 @@ struct SpecialChatIds
 struct SystemInfo
 {
 	/** The system nickname */
-	std::string sysNick;
+	std::wstring sysNick;
 
 	/** The system id */
 	uint systemId;
@@ -172,10 +172,10 @@ struct TransformMatrix
 struct Zone
 {
 	/** The system nickname */
-	std::string sysNick;
+	std::wstring sysNick;
 
 	/** The zone nickname */
-	std::string zoneNick;
+	std::wstring zoneNick;
 
 	/** The id of the system for this zone */
 	uint systemId;
@@ -200,13 +200,13 @@ class JumpPoint
 {
 public:
 	/** The system nickname */
-	std::string sysNick;
+	std::wstring sysNick;
 
 	/** The jump point nickname */
-	std::string jumpNick;
+	std::wstring jumpNick;
 
 	/** The jump point destination system nickname */
-	std::string jumpDestSysNick;
+	std::wstring jumpDestSysNick;
 
 	/** The id of the system for this jump point. */
 	uint system;
@@ -221,13 +221,13 @@ public:
 struct LootableZone
 {
 	/** The zone nickname */
-	std::string zoneNick;
+	std::wstring zoneNick;
 
 	/** The id of the system for this lootable zone */
 	uint systemId;
 
 	/** The nickname and arch id of the loot dropped by the asteroids */
-	std::string lootNick;
+	std::wstring lootNick;
 	uint lootId;
 
 	/** The arch id of the crate the loot is dropped in */
@@ -251,7 +251,7 @@ struct LootableZone
 
 struct Light
 {
-	std::string nickname;
+	std::wstring nickname;
 	uint archId;
 	float bulbSize;
 	float glowSize;

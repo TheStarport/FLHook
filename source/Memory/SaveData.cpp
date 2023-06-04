@@ -11,25 +11,25 @@ bool SaveGameDetour::GetUserDataPathDetour(char* retPtr)
 	const auto* i = dynamic_cast<SaveGameDetour*>(MemoryManager::i());
 
 	const auto len = i->path.size();
-	strncpy(retPtr, i->path.c_str(), len + 1);
+	wcsncpy(reinterpret_cast<wchar_t*>(retPtr), i->path.c_str(), len + 1);
 
 	return true;
 }
 
-std::string SaveGameDetour::GetSaveDataPath() const
+std::wstring SaveGameDetour::GetSaveDataPath() const
 {
 	INI_Reader ini;
 	ini.open("dacom.ini", false);
 
 	ini.find_header("DACOM");
 
-	std::string saveDataPath = StringUtils::ExpandEnvironmentVariables(std::string(R"(%UserProfile%\My Documents\My Games\Freelancer)"));
+	std::wstring saveDataPath = StringUtils::ExpandEnvironmentVariables(std::wstring(LR"(%UserProfile%\My Documents\My Games\Freelancer)"));
 
 	while (ini.read_value())
 	{
 		if (ini.is_value("SavePath"))
 		{
-			saveDataPath = StringUtils::ExpandEnvironmentVariables(std::string(ini.get_value_string()));
+			saveDataPath = StringUtils::ExpandEnvironmentVariables(StringUtils::stows(std::string(ini.get_value_string())));
 		}
 	}
 
@@ -49,20 +49,20 @@ std::string SaveGameDetour::GetSaveDataPath() const
 	}
 	catch (const std::exception& ex)
 	{
-		MessageBox(MemUtils::GetFlServerHwnd(), ex.what(), "Unable to handle SavePath", MB_ICONERROR);
+		MessageBoxA(MemUtils::GetFlServerHwnd(), ex.what(), "Unable to handle SavePath", MB_ICONERROR);
 	}
 
-	return trimmed.string();
+	return trimmed.wstring();
 }
 
 const auto detour =
-	std::make_unique<FunctionDetour<GetUserDataPathSig>>(GetUserDataPathSig(GetProcAddress(GetModuleHandle("common.dll"), "?GetUserDataPath@@YA_NQAD@Z")));
+	std::make_unique<FunctionDetour<GetUserDataPathSig>>(GetUserDataPathSig(GetProcAddress(GetModuleHandle(L"common.dll"), "?GetUserDataPath@@YA_NQAD@Z")));
 
 void SaveGameDetour::InitHook()
 {
 	detour->Detour(GetUserDataPathDetour);
 
-	path = std::format("{}\0", GetSaveDataPath());
+	path = std::format(L"{}\0", GetSaveDataPath());
 
 	char arr[255];
 	GetUserDataPath(arr);

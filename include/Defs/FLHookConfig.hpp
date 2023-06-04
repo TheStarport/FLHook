@@ -4,7 +4,7 @@
 
 struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 {
-	std::string File() override;
+	std::wstring File() override;
 
 	struct Debug final : Reflectable
 	{
@@ -50,7 +50,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		//! A vector of forbidden words/phrases, which will not be processed and sent to other players
 		std::vector<std::wstring> chatSuppressList;
 		//! Vector of systems where players can't deal damage to one another.
-		std::vector<std::string> noPVPSystems;
+		std::vector<std::wstring> noPVPSystems;
 
 		std::vector<uint> noPVPSystemsHashed;
 
@@ -66,7 +66,7 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool loadAllPlugins = true;
 		//! Contains a list of plugins to be enabled on startup if loadAllPlugins is false,
 		//! or plugins to be excluded from being loaded on startup if loadAllPlugins is true.
-		std::vector<std::string> plugins = {};
+		std::vector<std::wstring> plugins = {};
 	};
 
 	struct MsgStyle final : Reflectable
@@ -98,16 +98,16 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		bool enableQueues = true;
 
 		//! The hostname of your RabbitMQ instance
-		std::string hostName = "localhost";
+		std::wstring hostName = L"localhost";
 
 		//! The port of your RabbitMQ instance
 		int port = 5672;
 
 		//! The username to connect to RabbitMQ
-		std::string username = "guest";
+		std::wstring username = L"guest";
 
 		//! The password to connect to RabbitMQ
-		std::string password = "guest";
+		std::wstring password = L"guest";
 
 		//! If true FLHook will communicate with RabbitMQ over AMPQS, using a SSL connection.
 		bool ensureSecureConnection = false;

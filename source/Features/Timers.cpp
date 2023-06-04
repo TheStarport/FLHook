@@ -13,7 +13,7 @@
 #include "Helpers/Client.hpp"
 #include "Helpers/Player.hpp"
 
-PerfTimer::PerfTimer(const std::string& func, uint warn) : function(func), warning(warn)
+PerfTimer::PerfTimer(const std::wstring& func, uint warn) : function(func), warning(warn)
 {
 }
 
@@ -30,12 +30,12 @@ uint PerfTimer::Stop()
 	{
 		if (timeDelta > max && timeDelta > warning)
 		{
-			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}, longest so far.", timeDelta, function));
+			Logger::i()->Log(LogLevel::Info, std::format(L"Spent {} ms in {}, longest so far.", timeDelta, function));
 			max = timeDelta;
 		}
 		else if (timeDelta > 100)
 		{
-			Logger::i()->Log(LogLevel::Info, std::format("Spent {} ms in {}", timeDelta, function));
+			Logger::i()->Log(LogLevel::Info, std::format(L"Spent {} ms in {}", timeDelta, function));
 		}
 	}
 	return timeDelta;
@@ -98,16 +98,16 @@ void PublishServerStats()
 
 		ServerStats::Player player;
 		player.clientId = pd->onlineId;
-		player.playerName = StringUtils::wstos(info.value().character);
-		player.systemName = StringUtils::wstos(info.value().systemName);
-		player.systemNick = Universe::get_system(info.value().system)->nickname;
-		player.ipAddress = StringUtils::wstos(info.value().IP);
+		player.playerName = info.value().character;
+		player.systemName = info.value().systemName;
+		player.systemNick = StringUtils::stows(Universe::get_system(info.value().system)->nickname);
+		player.ipAddress = info.value().IP;
 
 		stats.players.emplace_back(player);
 	}
 
 	const auto json = Serializer::ObjToJson(stats);
-	MessageHandler::i()->Publish(json.dump(), MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats), "");
+	MessageHandler::i()->Publish(StringUtils::stows(json.dump()), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
 }
 
 //! check if temporary ban has expired

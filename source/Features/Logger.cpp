@@ -38,12 +38,12 @@ void Logger::SetLogSource(void* addr)
 {
 	if (HMODULE dll; RtlPcToFileHeader(addr, (void**)&dll))
 	{
-		CHAR maxPath[MAX_PATH];
+		WCHAR maxPath[MAX_PATH];
 		// If successful, prepend
-		if (GetModuleFileName(dll, maxPath, MAX_PATH))
+		if (GetModuleFileNameW(dll, maxPath, MAX_PATH))
 		{
-			const std::string path = maxPath;
-			logPrefix = std::string("(") + StringUtils::wstos(GetTimeString(FLHookConfig::i()->general.localTime)) + path.substr(path.find_last_of("\\") + 1) + ") ";
+			const std::wstring path = maxPath;
+			logPrefix = std::wstring(L"(L") + GetTimeString(FLHookConfig::i()->general.localTime) + path.substr(path.find_last_of(L"\\") + 1) + L") ";
 		}
 	}
 }
@@ -53,7 +53,7 @@ void Logger::GetConsoleInput(std::stop_token st)
 	while (!st.stop_requested())
 	{
 		DWORD bytesRead;
-		std::string cmd;
+		std::wstring cmd;
 		cmd.resize(1024);
 		if (ReadConsole(consoleInput, cmd.data(), cmd.size(), &bytesRead, nullptr))
 		{
@@ -70,7 +70,7 @@ void Logger::GetConsoleInput(std::stop_token st)
 	}
 }
 
-void Logger::PrintToConsole(LogLevel level, const std::string& str) const
+void Logger::PrintToConsole(LogLevel level, std::wstring_view str) const
 {
 	switch (level)
 	{
@@ -99,11 +99,11 @@ void Logger::PrintToConsole(LogLevel level, const std::string& str) const
 	if (consoleAllocated)
 	{
 		ulong _;
-		WriteConsole(consoleOutput, str.c_str(), str.length(), &_, nullptr);
+		WriteConsoleW(consoleOutput, str.data(), str.length(), &_, nullptr);
 	}
 	else
 	{
-		std::cout << str << std::endl << std::flush;	
+		std::wcout << str << std::endl << std::flush;	
 	}
 
 	// Reset
@@ -112,14 +112,14 @@ void Logger::PrintToConsole(LogLevel level, const std::string& str) const
 
 Logger::Logger()
 {
-	if (const CommandLineParser cmd; cmd.CmdOptionExists("-noconsole"))
+	if (const CommandLineParser cmd; cmd.CmdOptionExists(L"-noconsole"))
 	{
 		consoleAllocated = false;
 	}
 	else
 	{
 		AllocConsole();
-		SetConsoleTitle("FLHook");
+		SetConsoleTitleW(L"FLHook");
 
 		const HWND console = GetConsoleWindow();
 		RECT r;
@@ -134,7 +134,7 @@ Logger::Logger()
 
 	// change version number here:
 	// https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.1
-	std::string welcomeText = R"(
+	std::wstring welcomeText = LR"(
   ______ _      _    _             _      _  _  __                 _ _           
  |  ____| |    | |  | |           | |    | || |/_ |               | | |          
  | |__  | |    | |__| | ___   ___ | | __ | || |_| |    _ __   __ _| | | __ _ ___ 
@@ -144,7 +144,7 @@ Logger::Logger()
                                                       | |                        
                                                       |_|                        
                                                                        )";
-	welcomeText += "\n\n";
+	welcomeText += L"\n\n";
 	DWORD _;
 	WriteConsole(consoleOutput, welcomeText.c_str(), welcomeText.length(), &_, nullptr);
 
@@ -157,14 +157,14 @@ Logger::~Logger()
 	FreeConsole();
 }
 
-void Logger::Log(LogFile file, LogLevel level, const std::string& str)
+void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
 {
 	if (logPrefix.empty())
 	{
 		SetLogSource(_ReturnAddress());
 	}
 
-	const std::string log = logPrefix + str + "\n";
+	const std::wstring log = std::format(L"{}{}\n", logPrefix, str);
 	logPrefix.clear();
 
 	PrintToConsole(level, log);
@@ -176,18 +176,18 @@ void Logger::Log(LogFile file, LogLevel level, const std::string& str)
 	}
 }
 
-void Logger::Log(LogLevel level, const std::string& str)
+void Logger::Log(LogLevel level, std::wstring_view str)
 {
 	SetLogSource(_ReturnAddress());
 	Log(LogFile::Default, level, str);
 }
 
-std::optional<std::string> Logger::GetCommand()
+std::optional<std::wstring> Logger::GetCommand()
 {
 	if (queue.empty())
 		return {};
 
-	std::string ret;
+	std::wstring ret;
 	if (const auto val = queue.try_pop(ret); !val)
 		return {};
 

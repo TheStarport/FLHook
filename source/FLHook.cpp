@@ -21,8 +21,8 @@ HMODULE content = nullptr;
 
 bool executed = false;
 
-const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "malloc"));
-const st6_free_t st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(GetModuleHandle("msvcrt.dll"), "free"));
+const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
+const st6_free_t st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "free"));
 
 bool flhookReady;
 
@@ -44,10 +44,10 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 	if (executed)
 		return TRUE;
 
-	char file[MAX_PATH];
+	wchar_t file[MAX_PATH];
 	GetModuleFileName(nullptr, file, sizeof file);
 
-	if (const std::wstring fileName = StringUtils::ToLower(StringUtils::stows(file)); fileName.find(L"flserver.exe") != std::wstring::npos)
+	if (const std::wstring fileName = StringUtils::ToLower(std::wstring(file)); fileName.find(L"flserver.exe") != std::wstring::npos)
 	{
 		// We need to init our memory hooks before anything is loaded!
 		MemoryManager::i()->AddHooks();
@@ -72,7 +72,6 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 
 		// create log dirs
 		CreateDirectoryA("./logs/", nullptr);
-		CreateDirectoryA("./logs/debug", nullptr);
 	}
 	return TRUE;
 }
@@ -105,20 +104,14 @@ void FLHookInit_Pre()
 		DebugTools::i()->Init();
 
 		// TODO: Move module handles to FLCoreGlobals
-		if (!(server = GetModuleHandle("server")))
+		if (!(server = GetModuleHandle(L"server")))
 			throw std::runtime_error("server.dll not loaded");
-
-				std::wstring_view a = L"123";
-		std::string_view b = "123";
-
-		StringUtils::Cast<int>(a);
-		StringUtils::Cast<int>(b);
 
 		// Init our message service, this is a blocking call and some plugins might want to setup their own queues, 
 		// so we want to make sure the service is up at startup time
 		if (FLHookConfig::i()->messageQueue.enableQueues)
 		{
-			MessageHandler::i()->DeclareExchange(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats), AMQP::fanout, AMQP::durable);
+			MessageHandler::i()->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
 			Timer::Add(PublishServerStats, 30000);
 		}
 
@@ -134,23 +127,24 @@ void FLHookInit_Pre()
 			}
 		}
 
-		if (!std::filesystem::exists("config"))
+		if (!std::filesystem::exists(L"config"))
 		{
-			std::filesystem::create_directory("config");
+			std::filesystem::create_directory(L"config");
 		}
 
 		// Load required libs that plugins might leverage
 		for (const auto& lib : PluginLibs)
 		{
-			LoadLibrary(lib);
+			LoadLibraryA(lib);
 		}
 
-		Logger::i()->Log(LogLevel::Info, "Loading Freelancer INIs");
+		Logger::i()->Log(LogLevel::Info, L"Loading Freelancer INIs");
 		const auto dataManager = DataManager::i();
 
 		dataManager->LoadLights();
 
-		Hk::Ini::CharacterInit();
+		// Force constructor to run
+		Hk::IniUtils::i();
 		Hk::Personalities::LoadPersonalities();
 
 		PatchClientImpl();
@@ -159,12 +153,12 @@ void FLHookInit_Pre()
 	}
 	catch (char* error)
 	{
-		Logger::i()->Log(LogLevel::Err, std::format("CRITICAL! {}\n", error));
+		Logger::i()->Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
 		std::quick_exit(EXIT_FAILURE);
 	}
 	catch (std::filesystem::filesystem_error& error)
 	{
-		Logger::i()->Log(LogLevel::Err, std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what()));
+		Logger::i()->Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
 	}
 }
 
@@ -173,13 +167,13 @@ bool FLHookInit()
 	try
 	{
 		// get module handles
-		server = GetModuleHandle("server");
-		remoteClient = GetModuleHandle("remoteclient");
-		common = GetModuleHandle("common");
-		hModDPNet = GetModuleHandle("dpnet");
-		hModDaLib = GetModuleHandle("dalib");
-		content = GetModuleHandle("content");
-		hMe = GetModuleHandle("FLHook");
+		server = GetModuleHandle(L"server");
+		remoteClient = GetModuleHandle(L"remoteclient");
+		common = GetModuleHandle(L"common");
+		hModDPNet = GetModuleHandle(L"dpnet");
+		hModDaLib = GetModuleHandle(L"dalib");
+		content = GetModuleHandle(L"content");
+		hMe = GetModuleHandle(L"FLHook");
 
 		// Init Hooks
 		if (!InitHookExports())
@@ -196,7 +190,7 @@ bool FLHookInit()
 	{
 		UnloadHookExports();
 
-		Logger::i()->Log(LogLevel::Err, err.what());
+		Logger::i()->Log(LogLevel::Err, StringUtils::stows(err.what()));
 		return false;
 	}
 
@@ -242,11 +236,11 @@ void ProcessPendingCommands()
 	while (cmd.has_value())
 	{
 		const auto processor = AdminCommandProcessor::i();
-		processor->SetCurrentUser("console", AdminCommandProcessor::AllowedContext::ConsoleOnly);
+		processor->SetCurrentUser(L"console", AdminCommandProcessor::AllowedContext::ConsoleOnly);
 		if (const auto response  = AdminCommandProcessor::i()->ProcessCommand(cmd.value()); response.has_error())
 		{
 			const auto e = response.error();
-			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, response.error()["err"].get<std::string>());
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, response.error()["err"].get<std::wstring>());
 		}
 		else
 		{

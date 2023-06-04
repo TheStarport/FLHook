@@ -32,22 +32,22 @@ class DLL Logger final : public Singleton<Logger>
 	HANDLE consoleOutput;
 
 	std::jthread consoleThread;
-	concurrency::concurrent_queue<std::string> queue;
+	concurrency::concurrent_queue<std::wstring> queue;
 
 	// The DLL name + timestamp of where the log request came from
-	std::string logPrefix;
+	std::wstring logPrefix;
 
 	void SetLogSource(void* addr);
 
 	void GetConsoleInput(std::stop_token st);
-	void PrintToConsole(LogLevel level, const std::string& str) const;
+	void PrintToConsole(LogLevel level, std::wstring_view str) const;
 
 public:
 	Logger();
 	~Logger();
 
-	void Log(LogFile file, LogLevel level, const std::string& str);
-	void Log(LogLevel level, const std::string& str);
+	void Log(LogFile file, LogLevel level, std::wstring_view str);
+	void Log(LogLevel level, std::wstring_view str);
 
-	std::optional<std::string> GetCommand();
+	std::optional<std::wstring> GetCommand();
 };

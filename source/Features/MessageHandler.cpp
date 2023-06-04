@@ -12,7 +12,7 @@ MessageHandler::MessageHandler()
 		return;
 	}
 
-	Logger::i()->Log(LogLevel::Info, "Attempting connection to RabbitMQ");
+	Logger::i()->Log(LogLevel::Info, L"Attempting connection to RabbitMQ");
 
 	loop = uvw::Loop::getDefault();
 	connectHandle = loop->resource<uvw::TCPHandle>();
@@ -20,7 +20,7 @@ MessageHandler::MessageHandler()
 	connectHandle->once<uvw::ErrorEvent>([](const uvw::ErrorEvent& event, uvw::TCPHandle&) {
 		// Just die on error, the message director always needs a connection to RabbitMQ.
 		// TODO: Add proper error handling and reconnects in the event of connection loss
-		Logger::i()->Log(LogLevel::Err, std::format("Socket error: {}", event.what()));
+		Logger::i()->Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
 		throw std::runtime_error("Unable to connect to socket");
 	});
 
@@ -51,7 +51,7 @@ void MessageHandler::onData(AMQP::Connection* conn, const char* data, size_t siz
 
 void MessageHandler::onReady(AMQP::Connection* conn)
 {
-	Logger::i()->Log(LogLevel::Info, "Connected to RabbitMQ!");
+	Logger::i()->Log(LogLevel::Info, L"Connected to RabbitMQ!");
 	isInitalizing = false;
 
 	channel = std::make_unique<AMQP::Channel>(conn);
@@ -60,7 +60,7 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 void MessageHandler::onError(AMQP::Connection* conn, const char* message)
 {
 	isInitalizing = false;
-	Logger::i()->Log(LogLevel::Err, std::format("AMQP error: {}", message));
+	Logger::i()->Log(LogLevel::Err, std::format(L"AMQP error: {}", StringUtils::stows(message)));
 }
 
 void MessageHandler::onClosed(AMQP::Connection* conn)
@@ -70,7 +70,7 @@ void MessageHandler::onClosed(AMQP::Connection* conn)
 
 MessageHandler::~MessageHandler() = default;
 
-void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
+void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
 {
 	if (!FLHookConfig::i()->messageQueue.enableQueues)
 	{
@@ -89,9 +89,9 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 			onFailCallbacks[queue] = {};
 		}
 
-		channel->consume(queue)
+		channel->consume(StringUtils::wstos(queue))
 		       .onSuccess([queue]() {
-			       Logger::i()->Log(LogLevel::Info, std::format("successfully subscribed to {}", queue));
+			       Logger::i()->Log(LogLevel::Info, std::format(L"successfully subscribed to {}", queue));
 		       })
 		       .onReceived([this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered) {
 			       const auto callbacks = onMessageCallbacks.find(queue);
@@ -105,7 +105,7 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 			       }
 		       })
 		       .onError([this, queue](const char* msg) {
-			       Logger::i()->Log(LogLevel::Warn, std::format("connection terminated with {} - {}", queue, std::string(msg)));
+			       Logger::i()->Log(LogLevel::Warn, std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
 			       const auto callbacks = onFailCallbacks.find(queue);
 			       for (const auto& cb : callbacks->second)
 			       {
@@ -123,18 +123,18 @@ void MessageHandler::Subscribe(const std::string& queue, QueueOnData callback, s
 	}
 }
 
-void MessageHandler::DeclareQueue(const std::string& queue, const int flags) const
+void MessageHandler::DeclareQueue(const std::wstring& queue, const int flags) const
 {
-	channel->declareQueue(queue, flags);
+	channel->declareQueue(StringUtils::wstos(queue), flags);
 }
 
-void MessageHandler::DeclareExchange(const std::string& exchange, const AMQP::ExchangeType type, const int flags) const
+void MessageHandler::DeclareExchange(const std::wstring& exchange, const AMQP::ExchangeType type, const int flags) const
 {
-	channel->declareExchange(exchange, type, flags);
+	channel->declareExchange(StringUtils::wstos(exchange), type, flags);
 }
 
-void MessageHandler::Publish(const std::string& jsonData, const std::string& exchange, const std::string& queue) const
+void MessageHandler::Publish(const std::wstring& jsonData, const std::wstring& exchange, const std::wstring& queue) const
 {
-	channel->publish(exchange, queue, jsonData);
+	channel->publish(StringUtils::wstos(exchange), StringUtils::wstos(queue), StringUtils::wstos(jsonData));
 }
 

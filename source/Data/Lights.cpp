@@ -37,8 +37,9 @@ void DataManager::LoadLights()
 			{
 				if (ini.is_value("nickname"))
 				{
-					light.nickname = ini.get_value_string();
-					light.archId = CreateID(light.nickname.c_str());
+					std::string nick = ini.get_value_string();
+					light.nickname = StringUtils::stows(nick);
+					light.archId = CreateID(nick.c_str());
 				}
 				else if (ini.is_value("inherit"))
 				{
@@ -118,7 +119,7 @@ void DataManager::LoadLights()
 		}
 	}
 
-	Logger::i()->Log(LogLevel::Info, std::format("Loaded {} Lights.", lights.size()));
+	Logger::i()->Log(LogLevel::Info, std::format(L"Loaded {} Lights.", lights.size()));
 }
 
 const std::map<EquipId, Light>& DataManager::GetLights() const

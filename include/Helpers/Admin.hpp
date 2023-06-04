@@ -3,7 +3,7 @@
 namespace Hk::Admin
 {
 	DLL std::wstring GetPlayerIP(ClientId client);
-	DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring>& player, bool alsoCharmenu);
+	DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu);
 	DLL std::list<PlayerInfo> GetPlayers();
 	DLL cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client);
 	DLL cpp::result<void, Error> ChangeNPCSpawn(bool disable);

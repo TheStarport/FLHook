@@ -121,7 +121,7 @@
     <ClCompile Include="..\source\Helpers\Client.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Ini.cpp">
+    <ClCompile Include="..\source\Helpers\IniUtils.cpp">
       <Filter>FLHook\Helpers</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Helpers\Math.cpp">
@@ -190,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="..\source\Tools\TimeUtil.cpp">
       <Filter>FLHook\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Helpers\FileUtils.cpp">
+      <Filter>FLHook\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -284,7 +287,7 @@
     <ClInclude Include="..\include\Helpers\Solar.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Helpers\Ini.hpp">
+    <ClInclude Include="..\include\Helpers\IniUtils.hpp">
       <Filter>Include\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Helpers\Admin.hpp">
@@ -358,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Tools\TemplateHelpers.hpp">
       <Filter>FLHook\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Helpers\FileUtils.hpp">
+      <Filter>Include\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

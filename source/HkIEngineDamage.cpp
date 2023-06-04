@@ -106,7 +106,7 @@ void __stdcall AddDamageEntry(
 			return;
 	}
 
-	if (g_NonGunHitsBase && (dmgList->get_cause() == DamageCause::MissileTorpedo))
+	if (g_NonGunHitsBase && dmgList->get_cause() == DamageCause::MissileTorpedo)
 	{
 		const float damage = g_LastHitPts - hitPts;
 		hitPts = g_LastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
@@ -231,13 +231,13 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 		// anti-dockkill check
 		if (ClientInfo[clientTarget].spawnProtected)
 		{
-			if ((TimeUtils::UnixMilliseconds() - ClientInfo[clientTarget].tmSpawnTime) <= config->general.antiDockKill)
+			if (TimeUtils::UnixMilliseconds() - ClientInfo[clientTarget].tmSpawnTime <= config->general.antiDockKill)
 				return false; // target is protected
 			ClientInfo[clientTarget].spawnProtected = false;
 		}
 		if (ClientInfo[client].spawnProtected)
 		{
-			if ((TimeUtils::UnixMilliseconds() - ClientInfo[client].tmSpawnTime) <= config->general.antiDockKill)
+			if (TimeUtils::UnixMilliseconds() - ClientInfo[client].tmSpawnTime <= config->general.antiDockKill)
 				return false; // target may not shoot
 			ClientInfo[client].spawnProtected = false;
 		}

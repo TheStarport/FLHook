@@ -11,6 +11,7 @@ class CLIENT_INFO
 
 	uint client;
 	std::wstring characterName;
+	std::wstring characterFile;
 
 	// kill msgs
 	uint ship;
@@ -78,19 +79,18 @@ class CLIENT_INFO
 
 // Magic Enum Extensions
 using namespace magic_enum::bitwise_operators; // NOLINT
-using namespace magic_enum::ostream_operators; // NOLINT
 
-DLL std::string IniGetS(const std::string& file, const std::string& app, const std::string& key, const std::string& def);
-DLL int IniGetI(const std::string& file, const std::string& app, const std::string& key, int def);
-DLL bool IniGetB(const std::string& file, const std::string& app, const std::string& key, bool def);
-DLL void IniWrite(const std::string& file, const std::string& app, const std::string& key, const std::string& value);
-DLL void IniDelSection(const std::string& file, const std::string& app);
-DLL void IniDelete(const std::string& file, const std::string& app, const std::string& key);
-DLL void IniWriteW(const std::string& file, const std::string& app, const std::string& key, const std::wstring& value);
-DLL std::wstring IniGetWS(const std::string& file, const std::string& app, const std::string& key, const std::wstring& def);
-DLL float IniGetF(const std::string& file, const std::string& app, const std::string& key, float def);
+DLL std::wstring IniGetS(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& def);
+DLL int IniGetI(const std::wstring& file, const std::wstring& app, const std::wstring& key, int def);
+DLL bool IniGetB(const std::wstring& file, const std::wstring& app, const std::wstring& key, bool def);
+DLL void IniWrite(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& value);
+DLL void IniDelSection(const std::wstring& file, const std::wstring& app);
+DLL void IniDelete(const std::wstring& file, const std::wstring& app, const std::wstring& key);
+DLL void IniWriteW(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& value);
+DLL std::wstring IniGetWS(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& def);
+DLL float IniGetF(const std::wstring& file, const std::wstring& app, const std::wstring& key, float def);
 DLL std::wstring GetTimeString(bool localTime);
-DLL std::string GetUserFilePath(const std::variant<uint, std::wstring>& player, const std::string& extension);
+DLL std::wstring GetUserFilePath(const std::variant<uint, std::wstring_view>& player, const std::wstring& extension);
 
 // variables
 extern DLL HANDLE hProcFL;
@@ -104,8 +104,8 @@ extern DLL FARPROC fpOldUpdate;
 
 DLL void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param);
 DLL void UserCmd_SetChatFont(ClientId& client, const std::wstring& param);
-DLL void PrintUserCmdText(ClientId client, const std::wstring& text);
-DLL void PrintLocalUserCmdText(ClientId client, const std::wstring& msg, float distance);
+DLL void PrintUserCmdText(ClientId client, std::wstring_view text);
+DLL void PrintLocalUserCmdText(ClientId client, std::wstring_view msg, float distance);
 
 DLL extern bool g_NonGunHitsBase;
 DLL extern float g_LastHitPts;

@@ -18,7 +18,7 @@ uint StringUtils::MultiplyUIntBySuffix(std::wstring_view valueString)
 std::wstring StringUtils::XmlText(std::wstring_view text)
 {
 	std::wstring ret;
-	for (uint i = 0; (i < text.length()); i++)
+	for (uint i = 0; i < text.length(); i++)
 	{
 		if (text[i] == '<')
 			ret.append(L"&#60;");

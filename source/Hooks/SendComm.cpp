@@ -1,11 +1,7 @@
 #include "PCH.hpp"
 #include <Global.hpp>
+
 #include <Tools/Detour.hpp>
-#include <Tools/Typedefs.hpp>
-
-#include "Defs/FLHookConfig.hpp"
-#include "Helpers/Ini.hpp"
-
 
 using SendCommType = int(__cdecl*)(uint, uint, uint, const Costume*, uint, uint*, int, uint, float, bool);
 const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<FunctionDetour<SendCommType>>(pub::SpaceObj::SendComm);
@@ -21,7 +17,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 
 		static std::array<byte, 8> num1RewriteBytes = {0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90};
 
-		const auto content = DWORD(GetModuleHandle("content.dll"));
+		const auto content = DWORD(GetModuleHandle(L"content.dll"));
 		constexpr DWORD factionOffset = 0x6fb632c + 18 - 0x6ea0000;
 		constexpr DWORD numberOffset1 = 0x6eeb49b - 0x6ea0000;
 		constexpr DWORD numberOffset2 = 0x6eeb523 + 1 - 0x6ea0000;
@@ -44,7 +40,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 
 		if (!conf->callsign.disableUsingAffiliationForCallsign)
 		{
-			if (auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group"); repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
+			if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client, L"rep_group"); repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
 			{
 				auto val = StringUtils::wstos(repGroupNick.value());
 				MemUtils::WriteProcMem(playerFactionAddr, val.erase(val.size() - 4).c_str(), val.size());

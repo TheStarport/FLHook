@@ -176,8 +176,8 @@ namespace Hk::ZoneUtilities
 
 					LootableZone lz;
 					lz.systemId = CreateID(systemNick.c_str());
-					lz.zoneNick = zoneNick;
-					lz.lootNick = lootNick;
+					lz.zoneNick = StringUtils::stows(zoneNick);
+					lz.lootNick = StringUtils::stows(lootNick);
 					lz.lootId = CreateID(lootNick.c_str());
 					lz.crateId = CreateID(crateNick.c_str());
 					lz.minLoot = minLoot;
@@ -189,7 +189,7 @@ namespace Hk::ZoneUtilities
 					bool exists = false;
 					for (const auto& [_, zone] : zones)
 					{
-						if (zone.zoneNick == zoneNick)
+						if (zone.zoneNick == lz.zoneNick)
 						{
 							exists = true;
 							break;
@@ -207,7 +207,7 @@ namespace Hk::ZoneUtilities
 	void ZoneUtilities::ReadSystemLootableZones(
 		std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
 	{
-		std::string path = "..\\data\\universe\\";
+		std::string path = R"(..\data\universe\)";
 		path += file;
 
 		INI_Reader ini;
@@ -237,7 +237,7 @@ namespace Hk::ZoneUtilities
 	 specified file and calcuate the lootable zone transformation matrix */
 	void ZoneUtilities::ReadSystemZones(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
 	{
-		std::string path = "..\\data\\universe\\";
+		std::string path = R"(..\data\universe\)";
 		path += file;
 
 		INI_Reader ini;
@@ -247,7 +247,7 @@ namespace Hk::ZoneUtilities
 			{
 				if (ini.is_header("zone"))
 				{
-					std::string zoneNick = "";
+					std::wstring zoneNick = L"";
 					Vector size = {0, 0, 0};
 					Vector pos = {0, 0, 0};
 					Vector rotation = {0, 0, 0};
@@ -258,7 +258,7 @@ namespace Hk::ZoneUtilities
 					{
 						if (ini.is_value("nickname"))
 						{
-							zoneNick = StringUtils::ToLower(std::string(ini.get_value_string()));
+							zoneNick = StringUtils::stows(StringUtils::ToLower(std::string(ini.get_value_string())));
 						}
 						else if (ini.is_value("pos"))
 						{
@@ -293,7 +293,7 @@ namespace Hk::ZoneUtilities
 						}
 					}
 
-					for (auto& [_, zone] : zones)
+					for (auto& zone : zones | std::views::values)
 					{
 						if (zone.zoneNick == zoneNick)
 						{
@@ -304,7 +304,7 @@ namespace Hk::ZoneUtilities
 					}
 
 					Zone lz;
-					lz.sysNick = systemNick;
+					lz.sysNick = StringUtils::stows(systemNick);
 					lz.zoneNick = zoneNick;
 					lz.systemId = CreateID(systemNick.c_str());
 					lz.size = size;
@@ -336,9 +336,9 @@ namespace Hk::ZoneUtilities
 					if (isJump)
 					{
 						JumpPoint jp;
-						jp.sysNick = systemNick;
-						jp.jumpNick = nickname;
-						jp.jumpDestSysNick = jumpDestSysNick;
+						jp.sysNick = StringUtils::stows(systemNick);
+						jp.jumpNick = StringUtils::stows(nickname);
+						jp.jumpDestSysNick = StringUtils::stows(jumpDestSysNick);
 						jp.system = CreateID(systemNick.c_str());
 						jp.jumpId = CreateID(nickname.c_str());
 						jp.jumpDestSysId = CreateID(jumpDestSysNick.c_str());
@@ -358,7 +358,7 @@ namespace Hk::ZoneUtilities
 		// Read all system ini files again this time extracting zone size/postion
 		// information for the zone list.
 		INI_Reader ini;
-		if (ini.open("..\\data\\universe\\universe.ini", false))
+		if (ini.open(R"(..\data\universe\universe.ini)", false))
 		{
 			while (ini.read_header())
 			{
@@ -380,7 +380,7 @@ namespace Hk::ZoneUtilities
 						ReadSystemLootableZones(*zones, systemNick, file);
 
 					SystemInfo sysInfo;
-					sysInfo.sysNick = systemNick;
+					sysInfo.sysNick = StringUtils::stows(systemNick);
 					sysInfo.systemId = CreateID(systemNick.c_str());
 					sysInfo.scale = scale;
 					mapSystems[sysInfo.systemId] = sysInfo;
@@ -391,7 +391,7 @@ namespace Hk::ZoneUtilities
 
 		// Read all system ini files again this time extracting zone size/postion
 		// information for the lootable zone list.
-		if (ini.open("..\\data\\universe\\universe.ini", false))
+		if (ini.open(R"(..\data\universe\universe.ini)", false))
 		{
 			while (ini.read_header())
 			{
@@ -497,10 +497,10 @@ namespace Hk::ZoneUtilities
 		std::multimap<uint, LootableZone, std::less<>> zones;
 		ReadUniverse(&zones);
 
-		Logger::i()->Log(LogLevel::Info, "Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
+		Logger::i()->Log(LogLevel::Info, L"Zone, Commodity, MinLoot, MaxLoot, Difficultly, PosX, PosY, PosZ, SizeX, SizeY, SizeZ, IdsName, IdsInfo, Bonus\n");
 		for (const auto& [_, zone] : zones)
 		{
-			Logger::i()->Log(LogLevel::Info, std::format("{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
+			Logger::i()->Log(LogLevel::Info, std::format(L"{}, {}, {}, {}, {}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}, {:.0f}\n",
 				zone.zoneNick,
 				zone.lootNick,
 				zone.minLoot,
@@ -513,7 +513,7 @@ namespace Hk::ZoneUtilities
 				zone.size.y,
 				zone.size.z));
 		}
-		Logger::i()->Log(LogLevel::Info, std::format("Zones={}", zones.size()));
+		Logger::i()->Log(LogLevel::Info, std::format(L"Zones={}", zones.size()));
 	}
 } // namespace Hk::ZoneUtilities
 

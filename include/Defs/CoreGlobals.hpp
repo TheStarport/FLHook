@@ -9,7 +9,7 @@ struct DLL CoreGlobals : Singleton<CoreGlobals>
 	bool messageSystem {};
 	bool messageUniverse {};
 
-	std::string accPath;
+	std::wstring accPath;
 
 	uint serverLoadInMs {};
 	uint playerCount {};

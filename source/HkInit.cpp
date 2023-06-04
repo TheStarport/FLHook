@@ -105,11 +105,11 @@ PatchInfo piDaLibDLL = {"dalib.dll",
 
 bool Patch(PatchInfo& pi)
 {
-	const HMODULE hMod = GetModuleHandle(pi.BinName);
+	const HMODULE hMod = GetModuleHandleA(pi.BinName);
 	if (!hMod)
 		return false;
 
-	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
+	for (uint i = 0; i < sizeof pi.piEntries / sizeof(PatchInfoEntry); i++)
 	{
 		if (!pi.piEntries[i].address)
 			break;
@@ -134,11 +134,11 @@ bool Patch(PatchInfo& pi)
 
 bool RestorePatch(PatchInfo& pi)
 {
-	const HMODULE hMod = GetModuleHandle(pi.BinName);
+	const HMODULE hMod = GetModuleHandleA(pi.BinName);
 	if (!hMod)
 		return false;
 
-	for (uint i = 0; (i < sizeof(pi.piEntries) / sizeof(PatchInfoEntry)); i++)
+	for (uint i = 0; i < sizeof pi.piEntries / sizeof(PatchInfoEntry); i++)
 	{
 		if (!pi.piEntries[i].address)
 			break;
@@ -174,6 +174,7 @@ void ClearClientInfo(ClientId client)
 	auto* info = &ClientInfo[client];
 
 	info->characterName = L"";
+	info->characterFile = L"";
 
 	info->dieMsg = DiemsgAll;
 	info->ship = 0;
@@ -214,7 +215,7 @@ void ClearClientInfo(ClientId client)
 			i.dmgLast = dmg;
 	}
 
-	Hk::Ini::CharacterClearClientInfo(client);
+	Hk::IniUtils::i()->CharacterClearClientInfo(client);
 
 	CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, client);
 }
@@ -260,12 +261,12 @@ void LoadUserSettings(ClientId client)
 		{
 			IgnoreInfo ii;
 			ii.character = StringUtils::stows(key);
-			ii.flags = value;
+			ii.flags = value.get<std::wstring>();
 			info->ignoreInfoList.emplace_back(ii);
 		}
 		catch (...)
 		{
-			Logger::i()->Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file ({}): {}", userFile));
+			Logger::i()->Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
 		}
 	}
 
@@ -309,7 +310,7 @@ bool InitHookExports()
 
 	// patch rep array free
 	const char NOPs[] = {'\x90', '\x90', '\x90', '\x90', '\x90'};
-	char* address = ((char*)server + ADDR_SRV_REPARRAYFREE);
+	char* address = (char*)server + ADDR_SRV_REPARRAYFREE;
 	MemUtils::ReadProcMem(address, RepFreeFixOld, 5);
 	MemUtils::WriteProcMem(address, NOPs, 5);
 
@@ -385,7 +386,7 @@ bool InitHookExports()
 	// init variables
 	char DataPath[MAX_PATH];
 	GetUserDataPath(DataPath);
-	CoreGlobals::i()->accPath = std::string(DataPath) + "\\Accts\\MultiPlayer\\";
+	CoreGlobals::i()->accPath = StringUtils::stows(std::format("{}\\Accts\\MultiPlayer\\", std::string(DataPath)));
 
 	// Load DLLs for strings
 	Hk::Chat::LoadStringDLLs();
@@ -453,7 +454,7 @@ void UnloadHookExports()
 	UnDetourSendComm();
 
 	// unpatch rep array free
-	address = ((char*)GetModuleHandle("server.dll") + ADDR_SRV_REPARRAYFREE);
+	address = (char*)GetModuleHandleW(L"server.dll") + ADDR_SRV_REPARRAYFREE;
 	MemUtils::WriteProcMem(address, RepFreeFixOld, 5);
 
 	// unpatch flserver so it can better handle faulty house entries in char

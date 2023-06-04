@@ -4,10 +4,10 @@ struct ServerStats : Reflectable
 {
 	struct Player : Reflectable
 	{
-		std::string playerName;
-		std::string systemName;
-		std::string systemNick;
-		std::string ipAddress;
+		std::wstring playerName;
+		std::wstring systemName;
+		std::wstring systemNick;
+		std::wstring ipAddress;
 		uint clientId;
 	};
 

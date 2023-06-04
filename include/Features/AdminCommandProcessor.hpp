@@ -1,5 +1,6 @@
 #pragma once
 
+#include <codecvt>
 #include <nlohmann/json.hpp>
 
 class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
@@ -33,17 +34,17 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 
   private:
 	// Current user, changes every command invocation.
-	std::string_view currentUser = "";
+	std::wstring_view currentUser = L"";
 	AllowedContext currentContext = AllowedContext::GameOnly;
 
-	std::unordered_map<std::string, std::vector<std::string_view>> credentialsMap = {{
-	    "console",
-	    {magic_enum::enum_name(DefaultRoles::SuperAdmin)},
+	std::unordered_map<std::wstring, std::vector<std::wstring_view>> credentialsMap = {{
+	    L"console",
+	    { magic_enum::enum_name(DefaultRoles::SuperAdmin) },
 	}};
 
 #define AddCommand(str, func, context, requiredRole)                                                                                     \
 	{                                                                                                                                    \
-		std::string_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, \
+		std::wstring_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, \
 		    AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole)                                                   \
 	}
 
@@ -51,38 +52,38 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 
 	struct CommandInfo
 	{
-		std::string_view cmd;
-		ReturnType (*func)(AdminCommandProcessor cl, const std::vector<std::string>& params);
+		std::wstring_view cmd;
+		ReturnType (*func)(AdminCommandProcessor cl, const std::vector<std::wstring>& params);
 		AllowedContext allowedContext;
-		std::string_view requiredRole;
+		std::wstring_view requiredRole;
 	};
 
-	ReturnType SetCash(std::string_view characterName, uint amount);
-	ReturnType GetCash(std::string_view characterName);
-	ReturnType KickPlayer(std::string_view characterName, std::string_view reason);
-	ReturnType BanPlayer(std::string_view characterName);
-	ReturnType TempbanPlayer(std::string_view characterName, uint duration);
-	ReturnType UnBanPlayer(std::string_view characterName);
-	ReturnType GetClientId(std::string_view characterName);
-	ReturnType KillPlayer(std::string_view characterName);
-	ReturnType SetRep(std::string_view characterName, const std::wstring& repGroup, float value);
-	ReturnType ResetRep(std::string_view characterName, const std::wstring& repGroup);
-	ReturnType GetRep(std::string_view characterName, const std::wstring& repGroup);
-	ReturnType MessagePlayer(std::string_view characterName, const std::wstring& text);
-	ReturnType SendSystemMessage(std::string_view systemName, const std::wstring& text);
+	ReturnType SetCash(std::wstring_view characterName, uint amount);
+	ReturnType GetCash(std::wstring_view characterName);
+	ReturnType KickPlayer(std::wstring_view characterName, std::wstring_view reason);
+	ReturnType BanPlayer(std::wstring_view characterName);
+	ReturnType TempbanPlayer(std::wstring_view characterName, uint duration);
+	ReturnType UnBanPlayer(std::wstring_view characterName);
+	ReturnType GetClientId(std::wstring_view characterName);
+	ReturnType KillPlayer(std::wstring_view characterName);
+	ReturnType SetRep(std::wstring_view characterName, const std::wstring& repGroup, float value);
+	ReturnType ResetRep(std::wstring_view characterName, const std::wstring& repGroup);
+	ReturnType GetRep(std::wstring_view characterName, const std::wstring& repGroup);
+	ReturnType MessagePlayer(std::wstring_view characterName, const std::wstring& text);
+	ReturnType SendSystemMessage(std::wstring_view systemName, const std::wstring& text);
 	ReturnType SendUniverseMessage(std::wstring_view text);
-	ReturnType ListCargo(std::string_view characterName);
-	ReturnType AddCargo(std::string_view characterName, const std::wstring& good, uint count, bool mission);
-	ReturnType RenameChar(std::string_view characterName, const std::wstring& newName);
-	ReturnType DeleteChar(std::string_view characterName);
-	ReturnType ReadCharFile(std::string_view characterName);
-	ReturnType WriteCharFile(std::string_view characterName, const std::wstring& data);
-	ReturnType GetPlayerInfo(std::string_view characterName);
+	ReturnType ListCargo(std::wstring_view characterName);
+	ReturnType AddCargo(std::wstring_view characterName, const std::wstring& good, uint count, bool mission);
+	ReturnType RenameChar(std::wstring_view characterName, const std::wstring& newName);
+	ReturnType DeleteChar(std::wstring_view characterName);
+	ReturnType ReadCharFile(std::wstring_view characterName);
+	ReturnType WriteCharFile(std::wstring_view characterName, const std::wstring& data);
+	ReturnType GetPlayerInfo(std::wstring_view characterName);
 	ReturnType GetAllPlayerInfo();
-	ReturnType GetGroupMembers(std::string_view characterName);
-	ReturnType AddRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
-	ReturnType DeleteRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
-	ReturnType SetRoles(std::string_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType GetGroupMembers(std::wstring_view characterName);
+	ReturnType AddRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType DeleteRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
+	ReturnType SetRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
 	ReturnType LoadPlugin(const std::vector<std::wstring>& pluginNames);
 	ReturnType UnloadPlugin(const std::vector<std::wstring>& pluginNames);
 	ReturnType ReloadPlugin(const std::vector<std::wstring>& pluginNames);
@@ -95,48 +96,48 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 #undef ReturnType
 
 	constexpr inline static std::array<CommandInfo, 33> commands = {{
-		AddCommand("getcash", GetCash, All, Cash),
-	    AddCommand("setcash", SetCash, All, Cash),
-	    AddCommand("kick", KickPlayer, All, Expel),
-	    AddCommand("ban", BanPlayer, All, Expel),
-	    AddCommand("tempban", TempbanPlayer, All, Expel),
-	    AddCommand("unban", UnBanPlayer, All, Expel),
-	    AddCommand("getclient", GetClientId, All, Info),
-	    AddCommand("kill", KillPlayer, All, Expel),
-	    AddCommand("setrep", SetRep, All, Reputation),
-	    AddCommand("resetrep", ResetRep, All, Reputation),
-	    AddCommand("getrep", GetRep, All, Reputation),
-	    AddCommand("msg", MessagePlayer, All, Message),
-	    AddCommand("msgs", SendSystemMessage, All, Message),
-	    AddCommand("msgu", SendUniverseMessage, All, Message),
-	    AddCommand("listcargo", ListCargo, All, Cargo),
-	    AddCommand("addcargo", AddCargo, All, Cargo),
-	    AddCommand("renamechar", RenameChar, All, Character),
-	    AddCommand("deletechar", DeleteChar, All, Character),
-	    AddCommand("writecharfile", WriteCharFile, ExternalOnly, Character),
-	    AddCommand("getplayerinfo", GetPlayerInfo, All, Info),
-	    AddCommand("getallplayerinfo", GetAllPlayerInfo, ExternalOnly, Info),
-	    AddCommand("getgroupmembers", GetGroupMembers, ConsoleAndExternal, Info),
-	    AddCommand("addroles", AddRoles, All, SuperAdmin),
-	    AddCommand("deleteroles", DeleteRoles, All, SuperAdmin),
-	    AddCommand("setroles", AddRoles, All, SuperAdmin),
-	    AddCommand("loadplugin", LoadPlugin, All, Plugin),
-	    AddCommand("unloadplugin", UnloadPlugin, All, Plugin),
-	    AddCommand("reloadplugin", ReloadPlugin, All, Plugin),
-	    AddCommand("listplugins", ListPlugins, All, Info ),
-	    AddCommand("chase", Chase,GameOnly, Movement ),
-	    AddCommand("beam", Beam, All,  Movement),
-	    AddCommand("pull", Pull, All, Movement),
-	    AddCommand("move", Move, GameOnly, Movement)
+		AddCommand(L"getcash", GetCash, All, Cash),
+	    AddCommand(L"setcash", SetCash, All, Cash),
+	    AddCommand(L"kick", KickPlayer, All, Expel),
+	    AddCommand(L"ban", BanPlayer, All, Expel),
+	    AddCommand(L"tempban", TempbanPlayer, All, Expel),
+	    AddCommand(L"unban", UnBanPlayer, All, Expel),
+	    AddCommand(L"getclient", GetClientId, All, Info),
+	    AddCommand(L"kill", KillPlayer, All, Expel),
+	    AddCommand(L"setrep", SetRep, All, Reputation),
+	    AddCommand(L"resetrep", ResetRep, All, Reputation),
+	    AddCommand(L"getrep", GetRep, All, Reputation),
+	    AddCommand(L"msg", MessagePlayer, All, Message),
+	    AddCommand(L"msgs", SendSystemMessage, All, Message),
+	    AddCommand(L"msgu", SendUniverseMessage, All, Message),
+	    AddCommand(L"listcargo", ListCargo, All, Cargo),
+	    AddCommand(L"addcargo", AddCargo, All, Cargo),
+	    AddCommand(L"renamechar", RenameChar, All, Character),
+	    AddCommand(L"deletechar", DeleteChar, All, Character),
+	    AddCommand(L"writecharfile", WriteCharFile, ExternalOnly, Character),
+	    AddCommand(L"getplayerinfo", GetPlayerInfo, All, Info),
+	    AddCommand(L"getallplayerinfo", GetAllPlayerInfo, ExternalOnly, Info),
+	    AddCommand(L"getgroupmembers", GetGroupMembers, ConsoleAndExternal, Info),
+	    AddCommand(L"addroles", AddRoles, All, SuperAdmin),
+	    AddCommand(L"deleteroles", DeleteRoles, All, SuperAdmin),
+	    AddCommand(L"setroles", AddRoles, All, SuperAdmin),
+	    AddCommand(L"loadplugin", LoadPlugin, All, Plugin),
+	    AddCommand(L"unloadplugin", UnloadPlugin, All, Plugin),
+	    AddCommand(L"reloadplugin", ReloadPlugin, All, Plugin),
+	    AddCommand(L"listplugins", ListPlugins, All, Info ),
+	    AddCommand(L"chase", Chase, GameOnly, Movement ),
+	    AddCommand(L"beam", Beam, All,  Movement),
+	    AddCommand(L"pull", Pull, All, Movement),
+	    AddCommand(L"move", Move, GameOnly, Movement)
 	}};
 
 #undef AddCommand
 
-	cpp::result<void, std::string_view> Validate(AllowedContext context, std::string_view requiredRole);
+	cpp::result<void, std::wstring_view> Validate(AllowedContext context, std::wstring_view requiredRole);
 
 	template<int N>
 	cpp::result<nlohmann::json, nlohmann::json> MatchCommand(
-	    AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
+	    AdminCommandProcessor* processor, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
 	{
 		if (const CommandInfo command = std::get<N - 1>(commands); command.cmd == cmd)
 		{
@@ -154,17 +155,17 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 	template<>
 	// ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
 	cpp::result<nlohmann::json, nlohmann::json> MatchCommand<0>(
-	    AdminCommandProcessor* processor, std::string_view cmd, const std::vector<std::string>& paramVector)
+	    AdminCommandProcessor* processor, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
 	{
 		// The original command was not found, we now search our plugins
 
 		// No matching command was found.
-		return cpp::fail(nlohmann::json {{"err", std::format("ERR: Command not found. ({})", cmd)}});
+		return cpp::fail(nlohmann::json {{"err", std::format(L"ERR: Command not found. ({})", cmd)}});
 	}
 
 	nlohmann::json::object_t GeneratePlayerInfoObj(const PlayerInfo& player);
 
   public:
-	cpp::result<nlohmann::json, nlohmann::json> ProcessCommand(std::string_view commandString);
-	void SetCurrentUser(std::string_view user, AllowedContext context);
+	cpp::result<nlohmann::json, nlohmann::json> ProcessCommand(std::wstring_view commandString);
+	void SetCurrentUser(std::wstring_view user, AllowedContext context);
 };

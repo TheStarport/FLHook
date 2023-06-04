@@ -1,3 +1,4 @@
+// ReSharper disable CppClangTidyClangDiagnosticReservedMacroIdentifier
 #pragma once
 #pragma warning(push, 0)
 
@@ -18,7 +19,17 @@
 #include <fstream>
 #include <tuple>
 
+#define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
+#define MAGIC_ENUM_USING_ALIAS_STRING using string = std::wstring;
+#include <ext/magic_enum.hpp>
+
 #include <nlohmann/json.hpp>
+
+#include <ext/Singleton.h>
+#include <ext/jpcre2.hpp>
+#include <ext/result.hpp>
+#include <ext/Wildcard.hpp>
+#include <ext/inipp.hpp>
 
 #include "Tools/Typedefs.hpp"
 #include "Tools/Enums.hpp"
@@ -35,12 +46,25 @@
 #include "Tools/Concepts.hpp"
 #include "Tools/Utils.hpp"
 
-#include <magic_enum.hpp>
-#include <ext/Singleton.h>
+#include "Defs/CoreGlobals.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Defs/WeaponEquipDefs.hpp"
+#include "Defs/ShipArchDefs.hpp"
+#include "Defs/FLPacket.hpp"
+
+#include "Helpers/Admin.hpp"
+#include "Helpers/Chat.hpp"
+#include "Helpers/Client.hpp"
+#include "Helpers/FileUtils.hpp"
+#include "Helpers/FlCodec.hpp"
+#include "Helpers/IniUtils.hpp"
+#include "Helpers/Math.hpp"
+#include "Helpers/Personalities.hpp"
+#include "Helpers/Player.hpp"
+#include "Helpers/Solar.hpp"
+#include "Helpers/ZoneUtilities.hpp"
+
 #include <ext/Sql.hpp>
-#include <ext/jpcre2.hpp>
-#include <ext/result.hpp>
-#include <ext/Wildcard.hpp>
 
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")

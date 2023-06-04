@@ -9,9 +9,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string FLHookConfig::File()
+std::wstring FLHookConfig::File()
 {
-	return "FLHook.json";
+	return L"FLHook.json";
 }
 
 void LoadSettings()
@@ -23,7 +23,7 @@ void LoadSettings()
 	for (const auto& system : config.general.noPVPSystems)
 	{
 		uint systemId;
-		pub::GetSystemID(systemId, system.c_str());
+		pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
 		config.general.noPVPSystemsHashed.emplace_back(systemId);
 	}
 

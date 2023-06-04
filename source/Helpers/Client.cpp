@@ -9,7 +9,7 @@ namespace Hk::Client
 {
 	cpp::result<const uint, Error> GetClientID(const std::wstring& character)
 	{
-		if (character.find(L"id ") == std::string::npos)
+		if (character.find(L"id ") == std::wstring::npos)
 		{
 			return cpp::fail(Error::InvalidIdString);
 		}
@@ -58,9 +58,9 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<CAccount*, Error> GetAccountByCharName(const std::wstring& character)
+	cpp::result<CAccount*, Error> GetAccountByCharName(std::wstring_view character)
 	{
-		st6::wstring fr((ushort*)character.c_str());
+		st6::wstring fr((ushort*)character.data(), character.size());
 		CAccount* acc = Players.FindAccountFromCharacterName(fr);
 
 		if (!acc)
@@ -71,22 +71,30 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> GetClientIdFromCharName(const std::wstring& character)
+	cpp::result<const uint, Error> GetClientIdFromCharName(std::wstring_view character)
 	{
 		const auto acc = GetAccountByCharName(character);
 		if (acc.has_error())
+		{
 			return cpp::fail(acc.error());
+		}
 
 		const auto client = GetClientIdFromAccount(acc.value());
 		if (client.has_error())
+		{
 			return cpp::fail(client.error());
+		}
 
 		const auto newCharacter = GetCharacterNameByID(client.value());
 		if (newCharacter.has_error())
+		{
 			return cpp::fail(newCharacter.error());
+		}
 
 		if (StringUtils::ToLower(newCharacter.value()) == StringUtils::ToLower(character))
+		{
 			return cpp::fail(Error::CharacterDoesNotExist);
+		}
 
 		return client;
 	}
@@ -96,25 +104,27 @@ namespace Hk::Client
 	cpp::result<const std::wstring, Error> GetAccountID(CAccount* acc)
 	{
 		if (acc && acc->accId)
+		{
 			return acc->accId;
+		}
 
 		return cpp::fail(Error::CannotGetAccount);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool IsEncoded(const std::string& fileName)
+	bool IsEncoded(const std::wstring& fileName)
 	{
 		bool retVal = false;
 		FILE* f;
-		fopen_s(&f, fileName.c_str(), "r");
+		_wfopen_s(&f, fileName.c_str(), L"r");
 		if (!f)
 			return false;
 
-		const char magic[] = "FLS1";
-		char file[sizeof magic] = "";
+		const wchar_t magic[] = L"FLS1";
+		wchar_t file[sizeof magic] = L"";
 		fread(file, 1, sizeof magic, f);
-		if (!strncmp(magic, file, sizeof magic - 1))
+		if (!wcsncmp(magic, file, sizeof magic - 1))
 			retVal = true;
 		fclose(f);
 
@@ -171,7 +181,7 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> ResolveID(const std::wstring& character)
+	cpp::result<const uint, Error> ResolveID(std::wstring_view character)
 	{
 		if (const std::wstring characterLower = StringUtils::ToLower(character); characterLower.find(L"id ") == 0)
 		{
@@ -243,13 +253,13 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player, bool returnValueIfNoFile)
+	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring_view>& player, bool returnValueIfNoFile)
 	{
 		static _GetFLName GetFLName = nullptr;
 		if (!GetFLName)
 			GetFLName = (_GetFLName)((char*)server + 0x66370);
 
-		std::string buffer;
+		std::wstring buffer;
 		buffer.reserve(1024);
 
 		if (ClientId client = ExtractClientID(player); client != UINT_MAX)
@@ -257,21 +267,21 @@ namespace Hk::Client
 			if (const auto character = GetCharacterNameByID(client); character.has_error())
 				return cpp::fail(character.error());
 
-			GetFLName(buffer.data(), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
+			GetFLName(reinterpret_cast<char*>(buffer.data()), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
 		}
-		else if ((player.index() && GetAccountByCharName(std::get<std::wstring>(player))) || returnValueIfNoFile)
+		else if ((player.index() && GetAccountByCharName(std::get<std::wstring_view>(player))) || returnValueIfNoFile)
 		{
-			GetFLName(buffer.data(), std::get<std::wstring>(player).c_str());
+			GetFLName(reinterpret_cast<char*>(buffer.data()), std::get<std::wstring_view>(player).data());
 		}
 		else
 		{
 			return cpp::fail(Error::InvalidClientId);
 		}
 
-		return StringUtils::stows(buffer);
+		return buffer;
 	}
 
-	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring>& player)
+	cpp::result<const std::wstring, Error> GetCharFileName(const std::variant<uint, std::wstring_view>& player)
 	{
 		return GetCharFileName(player, false);
 	}
@@ -280,30 +290,30 @@ namespace Hk::Client
 
 	cpp::result<const std::wstring, Error> GetBaseNickByID(uint baseId)
 	{
-		std::string base;
+		std::wstring base;
 		base.resize(1024);
-		pub::GetBaseNickname(base.data(), base.capacity(), baseId);
+		pub::GetBaseNickname(reinterpret_cast<char*>(base.data()), base.capacity(), baseId);
 		base.resize(1024); // Without calling another core function will result in length not being updated
 
 		if (base.empty())
 			return cpp::fail(Error::InvalidBase);
 
-		return StringUtils::stows(base);
+		return base;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cpp::result<const std::wstring, Error> GetSystemNickByID(uint systemId)
 	{
-		std::string system;
+		std::wstring system;
 		system.resize(1024);
-		pub::GetSystemNickname(system.data(), system.capacity(), systemId);
+		pub::GetSystemNickname(reinterpret_cast<char*>(system.data()), system.capacity(), systemId);
 		system.resize(1024); // Without calling another core function will result in length not being updated
 
 		if (system.empty())
 			return cpp::fail(Error::InvalidSystem);
 
-		return StringUtils::stows(system);
+		return system;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -458,7 +468,7 @@ namespace Hk::Client
 		return ET_OTHER;
 	}
 
-	uint ExtractClientID(const std::variant<uint, std::wstring>& player)
+	uint ExtractClientID(const std::variant<uint, std::wstring_view>& player)
 	{
 		// If index is 0, we just use the client Id we are given
 		if (!player.index())
@@ -468,7 +478,7 @@ namespace Hk::Client
 		}
 
 		// Otherwise we have a character name
-		const std::wstring characterName = std::get<std::wstring>(player);
+		const std::wstring_view characterName = std::get<std::wstring_view>(player);
 
 		// Check if its an id string
 		if (characterName.rfind(L"id ", 0) != std::wstring::npos)
@@ -491,7 +501,7 @@ namespace Hk::Client
 		return client.value();
 	}
 
-	cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player)
+	cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring_view>& player)
 	{
 		if (ClientId client = ExtractClientID(player); client != UINT_MAX)
 			return Players.FindAccountFromClientID(client);
@@ -499,7 +509,7 @@ namespace Hk::Client
 		if (!player.index())
 			return nullptr;
 
-		const auto acc = GetAccountByCharName(std::get<std::wstring>(player));
+		const auto acc = GetAccountByCharName(std::get<std::wstring_view>(player));
 		if (acc.has_error())
 		{
 			return cpp::fail(acc.error());

@@ -8,7 +8,7 @@ template<typename T>
 concept IsStringView = std::is_same_v<std::string_view, T> || std::is_same_v<std::wstring_view, T>;
 
 template<typename... T>
-concept AtLeastOne = (sizeof...(T) > 0);
+concept AtLeastOne = sizeof...(T) > 0;
 
 template<typename T>
 concept IsNumeric = std::is_integral_v<T> || std::is_floating_point_v<T>;

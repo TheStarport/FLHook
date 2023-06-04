@@ -31,15 +31,6 @@ namespace StartupCache
 
 namespace Hk
 {
-	namespace Ini
-	{
-		// Ini processing functions
-		void CharacterInit();
-		void CharacterShutdown();
-		void CharacterClearClientInfo(ClientId client);
-		void CharacterSelect(CHARACTER_ID charId, ClientId client);
-	} // namespace Ini
-
 	namespace Personalities
 	{
 		// TODO: Move to DataManager
@@ -48,8 +39,8 @@ namespace Hk
 
 	namespace Client
 	{
-		uint ExtractClientID(const std::variant<uint, std::wstring>& player);
-		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring>& player);
+		uint ExtractClientID(const std::variant<uint, std::wstring_view>& player);
+		cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring_view>& player);
 	} // namespace Client
 } // namespace Hk
 
@@ -114,14 +105,14 @@ inline auto* ToUShort(wchar_t* val)
 
 #define CALL_SERVER_PREAMBLE                       \
 	{                                              \
-		static PerfTimer timer(__FUNCTION__, 100); \
+		static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100); \
 		timer.Start();                             \
 		TRY_HOOK                                   \
 		{
 #define CALL_SERVER_POSTAMBLE(catchArgs, rval)                                                        \
 	}                                                                                                 \
 	CATCH_HOOK({                                                                                      \
-		Logger::i()->Log(LogLevel::Err, std::format("Exception in {} on server call", __FUNCTION__)); \
+		Logger::i()->Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
 		bool ret = catchArgs;                                                                         \
 		if (!ret)                                                                                     \
 		{                                                                                             \
@@ -148,7 +139,7 @@ inline auto* ToUShort(wchar_t* val)
 	{                                                                                                                         \
 		if (ClientInfo[client].disconnected)                                                                                  \
 		{                                                                                                                     \
-			Logger::i()->Log(LogLevel::Debug, std::format("Ignoring disconnected client in {} id={}", __FUNCTION__, client)); \
+			Logger::i()->Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
 			return;                                                                                                           \
 		};                                                                                                                    \
 	}
@@ -195,14 +186,14 @@ constexpr uint ADDR_COMMON_VFTABLE_ENGINE = 0x139AAC;
 class PerfTimer
 {
   public:
-	EXPORT PerfTimer(const std::string& function, uint warning);
+	EXPORT PerfTimer(const std::wstring& function, uint warning);
 	EXPORT void Start();
 	EXPORT uint Stop();
 
   private:
 	mstime tmStart = 0;
 	uint max = 0;
-	std::string function;
+	std::wstring function;
 	uint warning;
 };
 
@@ -261,8 +252,8 @@ class PluginManager : public Singleton<PluginManager>
 	void LoadAll(bool);
 	void UnloadAll();
 
-	void Load(const std::string& fileName, bool);
-	cpp::result<std::string, Error> Unload(const std::string& shortName);
+	void Load(const std::wstring& fileName, bool);
+	cpp::result<std::wstring, Error> Unload(const std::wstring& shortName);
 
 	auto begin() { return plugins.begin(); }
 	auto end() { return plugins.end(); }
@@ -300,7 +291,7 @@ class PluginManager : public Singleton<PluginManager>
 				}
 				CATCH_HOOK({
 					Logger::i()->Log(LogLevel::Err,
-					    std::format("Exception in plugin '{}' in {}-{}", plugin->name, magic_enum::enum_name(target), magic_enum::enum_name(step)));
+					    std::format(L"Exception in plugin '{}' in {}-{}", plugin->name, magic_enum::enum_name(target), magic_enum::enum_name(step)));
 				})
 
 				const auto code = plugin->returnCode;
@@ -312,7 +303,7 @@ class PluginManager : public Singleton<PluginManager>
 					break;
 			}
 		}
-		CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format("Exception {}", __FUNCTION__)); });
+		CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
 
 		if constexpr (!returnTypeIsVoid)
 			return ret;

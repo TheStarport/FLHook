@@ -12,19 +12,19 @@
 //#define RIGHT_CHECK(a)              \
 //	if (!(this->rights & a))        \
 //	{                               \
-//		Print("ERR No permission"); \
+//		Print(L"ERR No permission"); \
 //		return;                     \
 //	}
 //#define RIGHT_CHECK_SUPERADMIN()             \
 //	if (!(this->rights == RIGHT_SUPERADMIN)) \
 //	{                                        \
-//		Print("ERR No permission");          \
+//		Print(L"ERR No permission");          \
 //		return;                              \
 //	}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetCash(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetCash(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Player::GetCash(player);
 //	if (res.has_error())
@@ -33,12 +33,12 @@
 //		return;
 //	}
 //
-//	Print(std::format("cash={}\nOK\n", res.value()));
+//	Print(std::format(L"cash={}\nOK\n", res.value()));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdSetCash(const std::variant<uint, std::wstring>& player, uint amount)
+//void CCmds::CmdSetCash(const std::variant<uint, std::wstring_view>& player, uint amount)
 //{
 //	const auto res = Hk::Player::GetCash(player);
 //	if (res.has_error())
@@ -53,7 +53,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdAddCash(const std::variant<uint, std::wstring>& player, uint amount)
+//void CCmds::CmdAddCash(const std::variant<uint, std::wstring_view>& player, uint amount)
 //{
 //	if (const auto res = Hk::Player::AddCash(player, amount); res.has_error())
 //	{
@@ -66,7 +66,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdKick(const std::variant<uint, std::wstring>& player, const std::wstring& reason)
+//void CCmds::CmdKick(const std::variant<uint, std::wstring_view>& player, const std::wstring& reason)
 //{
 //	if (const auto res = Hk::Player::KickReason(player, reason); res.has_error())
 //	{
@@ -74,12 +74,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdBan(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdBan(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Player::Ban(player, true); res.has_error())
 //	{
@@ -87,17 +87,17 @@
 //		return;
 //	}
 //
-//	Print("Player banned");
+//	Print(L"Player banned");
 //	CmdKick(player, L"Player banned");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdTempBan(const std::variant<uint, std::wstring>& player, uint duration)
+//void CCmds::CmdTempBan(const std::variant<uint, std::wstring_view>& player, uint duration)
 //{
 //	if (!FLHookConfig::i()->general.tempBansEnabled)
 //	{
-//		Print("TempBan disabled");
+//		Print(L"TempBan disabled");
 //		return;
 //	}
 //
@@ -107,13 +107,13 @@
 //		return;
 //	}
 //
-//	Print("Player tempbanned");
+//	Print(L"Player tempbanned");
 //	CmdKick(player, L"Player tempbanned");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdUnban(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdUnban(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Player::Ban(player, false); res.has_error())
 //	{
@@ -121,7 +121,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,12 +135,12 @@
 //		return;
 //	}
 //
-//	Print(std::format("clientid={}\nOK\n", client.value()));
+//	Print(std::format(L"clientid={}\nOK\n", client.value()));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdKill(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdKill(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Player::Kill(player); res.has_error())
 //	{
@@ -148,12 +148,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdResetRep(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdResetRep(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Player::ResetRep(player); res.has_error())
 //	{
@@ -161,12 +161,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdSetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup, float value)
+//void CCmds::CmdSetRep(const std::variant<uint, std::wstring_view>& player, const std::wstring& repGroup, float value)
 //{
 //	if (const auto res = Hk::Player::SetRep(player, repGroup, value); res.has_error())
 //	{
@@ -174,12 +174,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetRep(const std::variant<uint, std::wstring>& player, const std::wstring& repGroup)
+//void CCmds::CmdGetRep(const std::variant<uint, std::wstring_view>& player, const std::wstring& repGroup)
 //{
 //	const auto res = Hk::Player::GetRep(player, repGroup);
 //	if (res.has_error())
@@ -188,13 +188,13 @@
 //		return;
 //	}
 //
-//	Print(std::format("feelings={}", res.value()));
-//	Print("OK");
+//	Print(std::format(L"feelings={}", res.value()));
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdMsg(const std::variant<uint, std::wstring>& player, const std::wstring& text)
+//void CCmds::CmdMsg(const std::variant<uint, std::wstring_view>& player, const std::wstring& text)
 //{
 //	if (const auto res = Hk::Chat::Msg(player, text); res.has_error())
 //	{
@@ -202,7 +202,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +215,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,12 +228,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdFMsg(const std::variant<uint, std::wstring>& player, const std::wstring& xml)
+//void CCmds::CmdFMsg(const std::variant<uint, std::wstring_view>& player, const std::wstring& xml)
 //{
 //	if (const auto res = Hk::Chat::FMsg(player, xml); res.has_error())
 //	{
@@ -241,7 +241,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,7 +252,7 @@
 //	pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
 //	if (!systemId)
 //	{
-//		Print("Invalid System");
+//		Print(L"Invalid System");
 //		return;
 //	}
 //
@@ -262,7 +262,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,12 +275,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring>& player, ushort cargoId, uint count)
+//void CCmds::CmdRemoveCargo(const std::variant<uint, std::wstring_view>& player, ushort cargoId, uint count)
 //{
 //	if (const auto res = Hk::Player::RemoveCargo(player, cargoId, count); res.has_error())
 //	{
@@ -288,12 +288,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdAddCargo(const std::variant<uint, std::wstring>& player, const std::wstring& good, uint count, bool mission)
+//void CCmds::CmdAddCargo(const std::variant<uint, std::wstring_view>& player, const std::wstring& good, uint count, bool mission)
 //{
 //	if (const auto res = Hk::Player::AddCargo(player, good, count, mission); res.has_error())
 //	{
@@ -301,7 +301,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@
 //	    pi.systemName)));
 //}
 //
-//void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetPlayerInfo(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Admin::GetPlayerInfo(player, false);
 //	if (res.has_error())
@@ -336,7 +336,7 @@
 //	for (auto& p : Hk::Admin::GetPlayers())
 //		PrintPlayerInfo(p);
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@
 //	    pi.systemName)));
 //}
 //
-//void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdXGetPlayerInfo(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Admin::GetPlayerInfo(player, false);
 //	if (res.has_error())
@@ -370,7 +370,7 @@
 //	for (const auto& p : Hk::Admin::GetPlayers())
 //		XPrintPlayerInfo(p);
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,17 +379,17 @@
 //{
 //	for (auto& p : Hk::Admin::GetPlayers())
 //	{
-//		Print(std::format("{} = {} | ", StringUtils::wstos(p.character), p.client));
+//		Print(std::format(L"{} = {} | ", StringUtils::wstos(p.character), p.client));
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetAccountDirName(const std::variant<uint, std::wstring_view>& player)
 //{
-//	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring>(player));
+//	const auto acc = Hk::Client::GetAccountByCharName(std::get<std::wstring_view>(player));
 //	if (acc.has_error())
 //	{
 //		PrintError(acc.error());
@@ -398,12 +398,12 @@
 //
 //	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 //
-//	Print(std::format("dirname={}\nOK", StringUtils::wstos(dir)));
+//	Print(std::format(L"dirname={}\nOK", StringUtils::wstos(dir)));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetCharFileName(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Client::GetCharFileName(player);
 //	if (res.has_error())
@@ -412,7 +412,7 @@
 //		return;
 //	}
 //
-//	Print(std::format("filename={}", StringUtils::wstos(res.value())));
+//	Print(std::format(L"filename={}", StringUtils::wstos(res.value())));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,9 +428,9 @@
 //
 //	const auto id = Hk::Client::GetClientIdFromAccount(res.value());
 //	if (id.has_error())
-//		Print("onserver=noOK\n");
+//		Print(L"onserver=noOK\n");
 //	else
-//		Print("onserver=yesOK\n");
+//		Print(L"onserver=yesOK\n");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -443,10 +443,10 @@
 //		ClientId client = playerDb->onlineId;
 //
 //		if (ClientInfo[client].MoneyFix.size())
-//			Print(std::format("id={}", client));
+//			Print(std::format(L"id={}", client));
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -472,7 +472,7 @@
 //	uint minutes = (uptime / 60);
 //	uptime %= 60;
 //	uint seconds = uptime;
-//	std::string time = std::format("{}:{}:{}:{}", days, hours, minutes, seconds);
+//	std::wstring time = std::format(L"{}:{}:{}:{}", days, hours, minutes, seconds);
 //
 //	// print
 //	Print(std::format(
@@ -481,7 +481,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetGroupMembers(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Player::GetGroupMembers(player);
 //	if (res.has_error())
@@ -490,15 +490,15 @@
 //		return;
 //	}
 //
-//	Print(std::format("groupsize={}", res.value().size()));
+//	Print(std::format(L"groupsize={}", res.value().size()));
 //	for (auto& m : res.value())
-//		Print(std::format("id={} charname={}", m.client, StringUtils::wstos(m.character)));
-//	Print("OK");
+//		Print(std::format(L"id={} charname={}", m.client, StringUtils::wstos(m.character)));
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdSaveChar(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdSaveChar(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Player::SaveChar(player); res.has_error())
 //	{
@@ -506,11 +506,11 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring>& player, const std::wstring& playerRights)
+//void CCmds::CmdSetAdmin(const std::variant<uint, std::wstring_view>& player, const std::wstring& playerRights)
 //{
 //	if (const auto res = Hk::Admin::SetAdmin(player, playerRights); res.has_error())
 //	{
@@ -518,12 +518,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdGetAdmin(const std::variant<uint, std::wstring_view>& player)
 //{
 //	const auto res = Hk::Admin::GetAdmin(player);
 //	if (res.has_error())
@@ -532,12 +532,12 @@
 //		return;
 //	}
 //
-//	Print(std::format("rights={}\nOK\n", StringUtils::wstos(res.value())));
+//	Print(std::format(L"rights={}\nOK\n", StringUtils::wstos(res.value())));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdDelAdmin(const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Admin::DelAdmin(player); res.has_error())
 //	{
@@ -545,7 +545,7 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -553,7 +553,7 @@
 //void CCmds::CmdLoadPlugins()
 //{
 //	PluginManager::i()->LoadAll(false);
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -561,7 +561,7 @@
 //void CCmds::CmdLoadPlugin(const std::wstring& Plugin)
 //{
 //	PluginManager::i()->Load(StringUtils::wstos(Plugin), false);
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -576,7 +576,7 @@
 //	}
 //
 //	PluginManager::i()->Load(unloadedPlugin.value(), false);
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -584,9 +584,9 @@
 //void CCmds::CmdListPlugins()
 //{
 //	for (const auto& data : PluginManager::ir())
-//		Print(std::format("{} ({})", data->GetName(), data->GetShortName()));
+//		Print(std::format(L"{} ({})", data->GetName(), data->GetShortName()));
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -599,12 +599,12 @@
 //		return;
 //	}
 //
-//	Print("OK");
+//	Print(L"OK");
 //}
 //
 //void CCmds::CmdShutdown()
 //{
-//	Print("Shutting down Server");
+//	Print(L"Shutting down Server");
 //
 //	// Kick everyone first and force a save
 //	PlayerData* playerDb = nullptr;
@@ -620,7 +620,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///** Chase a player. Only works in system as you'd need a client hook to do across system */
-//void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false); res.has_error())
 //	{
@@ -631,7 +631,7 @@
 //	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 //	if (target.has_error() || target.value().ship == 0)
 //	{
-//		Print("ERR Player not found or not in space");
+//		Print(L"ERR Player not found or not in space");
 //		return;
 //	}
 //
@@ -640,14 +640,14 @@
 //	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 //	pos.y += 100;
 //
-//	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
+//	Print(std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///** Beam admin to a base. Works across systems but needs improvement of the path
 // * selection algorithm */
-//void CCmds::CmdBeam(const std::variant<uint, std::wstring>& player, const std::wstring& targetBaseName)
+//void CCmds::CmdBeam(const std::variant<uint, std::wstring_view>& player, const std::wstring& targetBaseName)
 //{
 //	try
 //	{
@@ -674,14 +674,14 @@
 //	{
 //		// exeption, kick player
 //		Hk::Player::Kick(player);
-//		Print("ERR exception occured, player kicked");
+//		Print(L"ERR exception occured, player kicked");
 //	}
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///** Pull a player to you. Only works in system as you'd need a client hook to move their system **/
-//void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstring>& player)
+//void CCmds::CmdPull(std::wstring adminName, const std::variant<uint, std::wstring_view>& player)
 //{
 //	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false); res.has_error())
 //	{
@@ -692,7 +692,7 @@
 //	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 //	if (target.has_error() || target.value().ship == 0)
 //	{
-//		Print("ERR Player not found or not in space");
+//		Print(L"ERR Player not found or not in space");
 //		return;
 //	}
 //
@@ -701,7 +701,7 @@
 //	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 //	pos.y += 400;
 //
-//	Print(std::format("Jump to system={} x={:.2f} y={:.2f} z={:.2f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
+//	Print(std::format(L"Jump to system={} x={:.2f} y={:.2f} z={:.2f}", StringUtils::wstos(target.value().systemName), pos.x, pos.y, pos.z));
 //}
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -722,7 +722,7 @@
 //	pos.x = x;
 //	pos.y = y;
 //	pos.z = z;
-//	Print(std::format("Moving to {:.2f} {:.2f} {:.2f}", pos.x, pos.y, pos.z));
+//	Print(std::format(L"Moving to {:.2f} {:.2f} {:.2f}", pos.x, pos.y, pos.z));
 //	Hk::Player::RelocateClient(res.value().client, pos, rot);
 //}
 //
@@ -864,7 +864,7 @@
 //		std::wstring cmd = StringUtils::ToLower(GetParam(cmdStr, ' ', 0));
 //		if (cmd.length() == 0)
 //		{
-//			Print("ERR unknown command");
+//			Print(L"ERR unknown command");
 //			return;
 //		}
 //
@@ -1093,14 +1093,14 @@
 //			}
 //			elseq
 //			{
-//				Print("ERR unknown command");
+//				Print(L"ERR unknown command");
 //			}
 //		}
 //	}
 //	catch (...)
 //	{
 //		Logger::i()->Log(LogLevel::Err, "exception");
-//		Print("ERR exception occured");
+//		Print(L"ERR exception occured");
 //	}
 //}
 //
@@ -1112,7 +1112,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//void CCmds::Print(const std::string& text)
+//void CCmds::Print(const std::wstring& text)
 //{
 //}
 //

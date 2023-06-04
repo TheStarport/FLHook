@@ -17,7 +17,7 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 
 	TRY_HOOK
 	{
-		if (IServerImplHook::chatData->inSubmitChat && (clientTo != 0x10004))
+		if (IServerImplHook::chatData->inSubmitChat && clientTo != 0x10004)
 		{
 			std::wstring buffer;
 			buffer.resize(size);
@@ -31,16 +31,16 @@ void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl
 			const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
 			const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
-			if (FLHookConfig::i()->userCommands.userCmdIgnore && ((clientTo & 0xFFFF) != 0))
+			if (FLHookConfig::i()->userCommands.userCmdIgnore && (clientTo & 0xFFFF) != 0)
 			{
 				// check ignores
 				for (const auto& ci : ClientInfo[client].ignoreInfoList)
 				{
-					if (HAS_FLAG(ci, L"p") && (clientTo & 0x10000))
+					if (HAS_FLAG(ci, L'p') && clientTo & 0x10000)
 						continue; // no privchat
-					else if (!HAS_FLAG(ci, L"i") && !(StringUtils::ToLower(sender).compare(StringUtils::ToLower(ci.character))))
+					else if (!HAS_FLAG(ci, L'i') && !StringUtils::ToLower(sender).compare(StringUtils::ToLower(ci.character)))
 						return; // ignored
-					else if (HAS_FLAG(ci, L"i") && (StringUtils::ToLower(sender).find(StringUtils::ToLower(ci.character)) != -1))
+					else if (HAS_FLAG(ci, L'i') && StringUtils::ToLower(sender).find(StringUtils::ToLower(ci.character)) != -1)
 						return; // ignored
 				}
 			}

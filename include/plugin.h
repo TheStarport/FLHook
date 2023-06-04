@@ -5,7 +5,7 @@ using UserCmdProcWithParam = std::function<void(ClientId& client, const std::wst
 
 struct UserCommand
 {
-	std::variant<std::wstring, std::vector<std::wstring>> command;
+	std::variant<std::wstring_view, std::vector<std::wstring_view>> command;
 	std::wstring usage;
 	std::variant<UserCmdProc, UserCmdProcWithParam> proc;
 	std::wstring description;
@@ -68,29 +68,29 @@ class DLL PluginCommunicator
   public:
 	using EventSubscription = void (*)(int id, void* dataPack);
 	void Dispatch(int id, void* dataPack) const;
-	void AddListener(std::string plugin, EventSubscription event);
+	void AddListener(std::wstring plugin, EventSubscription event);
 
-	std::string plugin;
+	std::wstring plugin;
 
-	explicit PluginCommunicator(std::string plugin) : plugin(std::move(plugin)) {}
+	explicit PluginCommunicator(std::wstring plugin) : plugin(std::move(plugin)) {}
 
 	static void ExportPluginCommunicator(PluginCommunicator* communicator);
-	static PluginCommunicator* ImportPluginCommunicator(std::string plugin, EventSubscription subscription = nullptr);
+	static PluginCommunicator* ImportPluginCommunicator(std::wstring plugin, EventSubscription subscription = nullptr);
 
   private:
-	std::map<std::string, EventSubscription> listeners;
+	std::map<std::wstring, EventSubscription> listeners;
 };
 
 struct PluginInfo
 {
-	std::string name;
-	std::string shortName;
+	std::wstring name;
+	std::wstring shortName;
 	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
 	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 	bool mayUnload;
 
 	PluginInfo() = delete;
-	PluginInfo(std::string name, std::string shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
+	PluginInfo(std::wstring name, std::wstring shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
 	    : name(std::move(name)), shortName(std::move(shortName)), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
 	{
 	}
@@ -104,14 +104,14 @@ class DLL Plugin
 	PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
 	PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 
-	std::string name;
-	std::string shortName;
+	std::wstring name;
+	std::wstring shortName;
 	bool mayUnload;
 
 	std::vector<PluginHook> hooks;
 	std::vector<UserCommand> commands;
 	HMODULE dll = nullptr;
-	std::string dllName;
+	std::wstring dllName;
 
   protected:
 	ReturnCode returnCode = ReturnCode::Default;
@@ -151,7 +151,7 @@ class DLL Plugin
 	}
 
 	void AddCommand(
-	    const std::variant<std::wstring, std::vector<std::wstring>>& command, const std::wstring& usage, UserCmdProc proc, const std::wstring& description)
+	    const std::variant<std::wstring_view, std::vector<std::wstring_view>>& command, const std::wstring& usage, UserCmdProc proc, const std::wstring& description)
 	{
 		commands.emplace_back(UserCommand(command, usage, proc, description));
 	}
@@ -159,11 +159,11 @@ class DLL Plugin
 	void RemoveCommand(const std::wstring& cmd)
 	{
 		std::erase_if(
-		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring>(userCommand.command) == cmd; });
+		    commands, [cmd](const UserCommand& userCommand) { return !userCommand.command.index() && std::get<std::wstring_view>(userCommand.command) == cmd; });
 	}
 
-	[[nodiscard]] std::string_view GetName() const { return name; }
-	[[nodiscard]] std::string_view GetShortName() const { return shortName; }
+	[[nodiscard]] std::wstring_view GetName() const { return name; }
+	[[nodiscard]] std::wstring_view GetShortName() const { return shortName; }
 	[[nodiscard]] auto& GetCommands() const { return commands; }
 	[[nodiscard]] auto& GetTimers() { return timers; }
 };

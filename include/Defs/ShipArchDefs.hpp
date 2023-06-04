@@ -11,13 +11,13 @@ namespace ShipArch
 		int ids_info3;
 
 		int ship_class;
-		std::string nick_name;
+		std::wstring nick_name;
 
 		std::vector<int> LODranges;
 
-		std::string msg_id_prefix;
-		std::string mission_property;
-		std::string TYPE;
+		std::wstring msg_id_prefix;
+		std::wstring mission_property;
+		std::wstring TYPE;
 
 		float mass;
 		int hold_size;
@@ -35,14 +35,14 @@ namespace ShipArch
 		int shield_battery_limit;
 		float hit_points;
 
-		std::string DA_archetype;
+		std::wstring DA_archetype;
 
 		// TODO: Ditto for material library;
 
-		std::string envmap_material;
-		std::string cockpit;
-		std::string pilot_mesh;
-		std::string explosion_arch;
+		std::wstring envmap_material;
+		std::wstring cockpit;
+		std::wstring pilot_mesh;
+		std::wstring explosion_arch;
 
 		// Surface hit effects as well..
 
@@ -54,8 +54,8 @@ namespace ShipArch
 		float strafe_force;
 		float strafe_power_usage;
 
-		std::string HpTractor_Source;
-		std::string shield_link;
+		std::wstring HpTractor_Source;
+		std::wstring shield_link;
 
 		// TODO: hp_type struct.
 		std::vector<int> hp_type;
@@ -63,27 +63,27 @@ namespace ShipArch
 
 	struct CollisionGroup
 	{
-		std::string obj;
+		std::wstring obj;
 
 		float parent_impulse;
 		float child_impulse;
 
-		std::string debris_type;
-		std::string dmg_hp;
-		std::string dmg_obj;
+		std::wstring debris_type;
+		std::wstring dmg_hp;
+		std::wstring dmg_obj;
 
-		std::string separation_explosion;
+		std::wstring separation_explosion;
 		float mass;
-		std::string type;
+		std::wstring type;
 		float hit_pts;
 		bool root_health_proxy;
 	};
 
 	struct Simple
 	{
-		std::string nickname;
-		std::string DA_archetype;
-		std::string material_library;
+		std::wstring nickname;
+		std::wstring DA_archetype;
+		std::wstring material_library;
 
 		float mass;
 

@@ -9,10 +9,6 @@
       "version>=": "10.40"
     },
     {
-      "name": "magic-enum",
-      "version>=": "0.8.0"
-    },
-    {
       "name": "nlohmann-json",
       "version>=": "3.10.5#3"
     },

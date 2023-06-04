@@ -17,7 +17,7 @@
 struct DLL Reflectable
 {
 	virtual ~Reflectable() = default;
-	virtual std::string File() { return {}; }
+	virtual std::wstring File() { return {}; }
 };
 
 template<typename T>
@@ -485,7 +485,7 @@ public:
 	/// <param name="fileToSave">Where you would like to save the file. Defaults to empty string. If empty, the class
 	/// meta data will be used.</param>
 	template<typename T>
-	static void SaveToJson(T& type, std::string fileToSave = "")
+	static void SaveToJson(T& type, std::wstring fileToSave = L"")
 	{
 		// If no file is provided, we can search the class metadata.
 		if (fileToSave.empty())
@@ -493,7 +493,7 @@ public:
 			fileToSave = dynamic_cast<Reflectable&>(type).File();
 			if (fileToSave.empty())
 			{
-				Logger::i()->Log(LogLevel::Err, "While trying to serialize, a file, both the metadata of the class and fileName were empty.");
+				Logger::i()->Log(LogLevel::Err, L"While trying to serialize, a file, both the metadata of the class and fileName were empty.");
 				throw std::invalid_argument("While trying to serialize, a file, both the metadata of the class and fileName were empty.");
 			}
 		}
@@ -506,7 +506,7 @@ public:
 			folderPath.remove_filename();
 			if (!create_directories(folderPath) && !exists(folderPath))
 			{
-				Logger::i()->Log(LogLevel::Warn, std::format("Unable to create directories for {} when serializing json.", folderPath.string()));
+				Logger::i()->Log(LogLevel::Warn, std::format(L"Unable to create directories for {} when serializing json.", folderPath.wstring()));
 				return;
 			}
 		}
@@ -514,7 +514,7 @@ public:
 		std::ofstream out(fileToSave);
 		if (!out.good() || !out.is_open())
 		{
-			Logger::i()->Log(LogLevel::Warn, std::format("Unable to open {} for writing.", fileToSave));
+			Logger::i()->Log(LogLevel::Warn, std::format(L"Unable to open {} for writing.", fileToSave));
 			return;
 		}
 
@@ -523,7 +523,7 @@ public:
 	}
 
 	template<typename T>
-	static T JsonToObject(std::string fileName = "", bool createIfNotExist = true)
+	static T JsonToObject(std::wstring fileName = L"", bool createIfNotExist = true)
 	{
 		// If we cannot load, we return a default
 		T ret;
@@ -535,7 +535,7 @@ public:
 			if (fileName.empty())
 			{
 				std::string err = "While trying to deserialize, a file, both the metadata of the class and fileName were empty.";
-				Logger::i()->Log(LogLevel::Err, err);
+				Logger::i()->Log(LogLevel::Err, StringUtils::stows(err));
 				throw std::invalid_argument(err);
 			}
 		}
@@ -543,7 +543,7 @@ public:
 		bool exists = std::filesystem::exists(fileName);
 		if (!exists && !createIfNotExist)
 		{
-			Logger::i()->Log(LogLevel::Err, std::format("Couldn't load JSON File ({})", fileName));
+			Logger::i()->Log(LogLevel::Err, std::format(L"Couldn't load JSON File ({})", fileName));
 			return ret;
 		}
 
@@ -557,7 +557,7 @@ public:
 		std::ifstream file(fileName);
 		if (!file || !file.is_open() || !file.good())
 		{
-			Logger::i()->Log(LogLevel::Warn, std::format("Unable to open JSON file {}", fileName));
+			Logger::i()->Log(LogLevel::Warn, std::format(L"Unable to open JSON file {}", fileName));
 			return ret;
 		}
 
@@ -574,15 +574,15 @@ public:
 		}
 		catch ([[maybe_unused]] nlohmann::json::parse_error& exc)
 		{
-			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
+			Logger::i()->Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 		catch ([[maybe_unused]] nlohmann::json::type_error& exc)
 		{
-			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
+			Logger::i()->Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 		catch ([[maybe_unused]] nlohmann::json::exception& exc)
 		{
-			Logger::i()->Log(LogLevel::Err, "Unable to process JSON. It could not be parsed. See log for more detail.");
+			Logger::i()->Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
 		}
 
 		// If we resave the file after processing, it will trim any unrelated data, and any missing fields

@@ -23,7 +23,7 @@ namespace Hk::Math
 	DLL Quaternion MatrixToQuaternion(const Matrix& m);
 	template<typename Str>
 	Str VectorToSectorCoord(uint systemId, Vector pos);
-	template DLL std::string VectorToSectorCoord(uint systemId, Vector pos);
+	template DLL std::wstring VectorToSectorCoord(uint systemId, Vector pos);
 	template DLL std::wstring VectorToSectorCoord(uint systemId, Vector pos);
 	DLL float Degrees(float rad);
 	DLL Vector MatrixToEuler(const Matrix& mat);
