@@ -37,8 +37,12 @@
       "version>=": "1.44.2"
     },
     {
-      "name" : "concurrencpp",
-      "version>=" : "0.1.5"
+      "name": "concurrencpp",
+      "version>=": "0.1.5"
+    },
+    {
+      "name": "sqlite-orm",
+      "version>=": "1.7.1"
     }
   ]
 }
