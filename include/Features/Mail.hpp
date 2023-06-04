@@ -4,9 +4,9 @@
 
 class DLL MailManager : public Singleton<MailManager>
 {
-	[[nodiscard]] std::wstring_view GetCharacterName(const std::variant<uint, std::wstring_view>& character) const;
+	[[nodiscard]] std::wstring_view GetCharacterName(const std::variant<uint, std::wstring_view>& character);
 
-public:
+  public:
 	struct MailItem
 	{
 		int64 id;
@@ -18,8 +18,21 @@ public:
 		std::wstring characterName;
 	};
 
-private:
-	SQLite::Database db = SqlHelpers::Create(L"mail.sqlite");
+  private:
+	sqlite_orm::internal::storage_t<sqlite_orm::internal::table_t<MailItem,
+	    sqlite_orm::internal::column_t<MailItem, long long, const long long& (MailItem::*)() const, void (MailItem::*)(long long),
+	        sqlite_orm::internal::primary_key_t<>>,
+	    sqlite_orm::internal::column_t<MailItem, bool, const bool& (MailItem::*)() const, void (MailItem::*)(bool)>,
+	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
+	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
+	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
+	    sqlite_orm::internal::column_t<MailItem, long long, const long long& (MailItem::*)() const, void (MailItem::*)(long long)>,
+	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>>>
+	    storage = sqlite_orm::make_storage(StringUtils::wstos(FileUtils::SaveDataPath()) + "mail.db",
+	        sqlite_orm::make_table("mailItems", sqlite_orm::make_column("id", &MailItem::id, sqlite_orm::primary_key()),
+	            sqlite_orm::make_column("unread", &MailItem::unread), sqlite_orm::make_column("subject", &MailItem::subject),
+	            sqlite_orm::make_column("author", &MailItem::author), sqlite_orm::make_column("body", &MailItem::body),
+	            sqlite_orm::make_column("timestamp", &MailItem::timestamp), sqlite_orm::make_column("characterName", &MailItem::characterName)));
 
 	enum class ErrorTypes
 	{
@@ -33,15 +46,14 @@ private:
 	constexpr std::wstring GetErrorCode(ErrorTypes err) const
 	{
 		std::vector<std::wstring> errors = {L"Invalid character name or client id",
-		                                   L"Subject cannot be longer than 32 characters.",
-		                                   L"Author cannot be longer than 36 characters.",
-		                                   L"Body cannot be longer than 255 characters.",
-		                                   L"Mail id was not found."
-		};
+		    L"Subject cannot be longer than 32 characters.",
+		    L"Author cannot be longer than 36 characters.",
+		    L"Body cannot be longer than 255 characters.",
+		    L"Mail id was not found."};
 		return errors[static_cast<int>(err)];
 	}
 
-public:
+  public:
 	MailManager();
 
 	/// <summary>
@@ -50,7 +62,7 @@ public:
 	/// <param name="character">If a uint specified, it calculates to the id of the online user. Otherwise a string is used for their character name.</param>
 	/// <param name="item">The preconstructed mail object.</param>
 	/// <returns>Nothing in the event of success, otherwise an std::wstring of an err</returns>
-	cpp::result<void, std::wstring> SendNewMail(const std::variant<uint, std::wstring_view>& character, const MailItem& item) const;
+	cpp::result<void, std::wstring> SendNewMail(const std::variant<uint, std::wstring_view>& character, const MailItem& item);
 
 	/// <summary>
 	/// Gets a list of mail from the target character, ordered by most recent.
@@ -75,7 +87,7 @@ public:
 	/// <param name="character">If a uint specified, it calculates to the id of the online user. Otherwise a string is used for their character name.</param>
 	/// <param name="index">The mail item number.</param>
 	/// <returns>Nothing in the event of success, otherwise an std::wstring of an err</returns>
-	cpp::result<void, std::wstring> DeleteMail(const std::variant<uint, std::wstring_view>& character, const int64& index) const;
+	cpp::result<void, std::wstring> DeleteMail(const std::variant<uint, std::wstring_view>& character, const int64& index);
 
 	/// <summary>
 	/// Delete all mail on the character specified
@@ -98,7 +110,7 @@ public:
 	/// </summary>
 	/// <param name="character">The client id or character name.</param>
 	// <returns>An int64 listing the number of mail items that are unread in the event of success, otherwise an std::wstring of an err</returns>
-	cpp::result<int64, std::wstring> GetUnreadMail(const std::variant<uint, std::wstring_view>& character);
+	cpp::result<int64, std::wstring> GetUnreadMailCount(const std::variant<uint, std::wstring_view>& character);
 
 	/// <summary>
 	/// Informs the user if they have unread mail.

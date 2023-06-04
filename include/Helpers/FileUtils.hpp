@@ -10,4 +10,5 @@ class FileUtils
 
 	static cpp::result<std::wstring, Error> ReadCharacterFile(std::wstring_view characterName);
 	static cpp::result<void, Error> WriteCharacterFile(std::wstring_view characterName, std::wstring_view newFileData);
+	static std::wstring SaveDataPath();
 };

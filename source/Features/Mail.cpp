@@ -3,8 +3,9 @@
 #include "Global.hpp"
 #include "Helpers/Client.hpp"
 
+using namespace sqlite_orm;
 
-std::wstring MailManager::GetCharacterName(const std::variant<uint, std::wstring_view>& character) const
+std::wstring_view MailManager::GetCharacterName(const std::variant<uint, std::wstring_view>& character)
 {
 	// If character is uint
 	if (!character.index())
@@ -25,24 +26,10 @@ std::wstring MailManager::GetCharacterName(const std::variant<uint, std::wstring
 
 MailManager::MailManager()
 {
-	if (db.tableExists("items"))
-	{
-		return;
-	}
-
-	db.exec("CREATE TABLE items ("
-		"id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,"
-		"unread INTEGER(1, 1) NOT NULL CHECK(unread IN(0, 1)),"
-		"subject TEXT(36, 36) NOT NULL,"
-		"author TEXT(36, 36) NOT NULL,"
-		"body TEXT(255, 255) NOT NULL,"
-		"timestamp INTEGER NOT NULL,"
-		"characterName TEXT(36, 36) NOT NULL);");
-
-	db.exec("CREATE INDEX IDX_characterName ON items (characterName DESC);");
+	storage.sync_schema(true);
 }
 
-cpp::result<void, std::wstring> MailManager::SendNewMail(const std::variant<uint, std::wstring_view>& character, const MailItem& item) const
+cpp::result<void, std::wstring> MailManager::SendNewMail(const std::variant<uint, std::wstring_view>& character, const MailItem& item)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -65,30 +52,14 @@ cpp::result<void, std::wstring> MailManager::SendNewMail(const std::variant<uint
 		return cpp::fail(GetErrorCode(ErrorTypes::BodyTooLong));
 	}
 
-	SQLite::Statement newMailQuery(db, "INSERT INTO items (unread, subject, author, body, characterName, timestamp) VALUES(?, ?, ?, ?, ?, ?)");
-	newMailQuery.bind(1, item.unread);
-	newMailQuery.bind(2, item.subject);
-	newMailQuery.bind(3, item.author);
-	newMailQuery.bind(4, item.body);
-	newMailQuery.bind(5, characterName);
-	newMailQuery.bind(6, item.timestamp);
-
-	try
-	{
-		newMailQuery.exec();
-	}
-	catch (SQLite::Exception ex)
-	{
-		return cpp::fail(ex.getErrorStr());
-	}
-
+	storage.insert(item);
 	return {};
 }
 
 using namespace std::string_literals;
 
 cpp::result<std::vector<MailManager::MailItem>, std::wstring> MailManager::GetMail(
-	const std::variant<uint, std::wstring_view>& character, const bool& ignoreRead, const int& page)
+    const std::variant<uint, std::wstring_view>& character, const bool& ignoreRead, const int& page)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -98,43 +69,13 @@ cpp::result<std::vector<MailManager::MailItem>, std::wstring> MailManager::GetMa
 
 	if (ignoreRead)
 	{
-		SQLite::Statement getUnreadMail(
-			db,
-			"SELECT id, subject, author, body, timestamp FROM items WHERE unread = TRUE AND characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
-		getUnreadMail.bind(1, characterName);
-		getUnreadMail.bind(2, (page - 1) * 15);
-
-		std::vector<MailItem> mail;
-		while (getUnreadMail.executeStep())
-		{
-			mail.emplace_back(getUnreadMail.getColumn(0).getInt64(),
-				true,
-				getUnreadMail.getColumn(1).getString(),
-				getUnreadMail.getColumn(2).getString(),
-				getUnreadMail.getColumn(3).getString(),
-				getUnreadMail.getColumn(4).getInt64());
-		}
-
-		return mail;
+		return storage.get_all<MailItem>(where(::c(&MailItem::unread) == true && ::c(&MailItem::characterName) == character),
+		    order_by(&MailItem::timestamp).desc(),
+		    limit(15, offset((page - 1) * 15)));
 	}
 
-	SQLite::Statement getMail(db,
-		"SELECT id, unread, subject, author, body, timestamp FROM items WHERE characterName = ? ORDER BY timestamp DESC LIMIT 15 OFFSET ?;");
-	getMail.bind(1, characterName);
-	getMail.bind(2, (page - 1) * 15);
-
-	std::vector<MailItem> mail;
-	while (getMail.executeStep())
-	{
-		mail.emplace_back(getMail.getColumn(0).getInt64(),
-			static_cast<bool>(getMail.getColumn(1).getInt()),
-			getMail.getColumn(2).getString(),
-			getMail.getColumn(3).getString(),
-			getMail.getColumn(4).getString(),
-			getMail.getColumn(5).getInt64());
-	}
-
-	return mail;
+	return storage.get_all<MailItem>(
+	    where(::c(&MailItem::characterName) == character), order_by(&MailItem::timestamp).desc(), limit(15, offset((page - 1) * 15)));
 }
 
 cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const std::variant<uint, std::wstring_view>& character, const int64& index)
@@ -144,39 +85,17 @@ cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const 
 	{
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
+	auto mail = storage.get<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::id) == index));
 
-	SQLite::Statement getMail(db, "SELECT unread, subject, author, body, timestamp FROM items WHERE characterName = ? AND id = ?;");
-	getMail.bind(1, characterName);
-	getMail.bind(2, index);
+	mail.unread = false;
+	storage.update(mail);
 
-	MailItem mail;
+	// storage.update_all(set(assign(&MailItem::unread,false) , where(::c(&MailItem::id == index))));
 
-	try
-	{
-		if (!getMail.executeStep())
-		{
-			return cpp::fail(GetErrorCode(ErrorTypes::MailIdNotFound));
-		}
-
-		mail = MailItem(index,
-			static_cast<bool>(getMail.getColumn(0).getInt()),
-			getMail.getColumn(1).getString(),
-			getMail.getColumn(2).getString(),
-			getMail.getColumn(3).getString(),
-			getMail.getColumn(4).getInt64());
-
-		SQLite::Statement markRead(db, "UPDATE items SET unread = FALSE WHERE id = ?;");
-		markRead.bind(1, index);
-		markRead.exec();
-		return mail;
-	}
-	catch (SQLite::Exception ex)
-	{
-		return cpp::fail(ex.getErrorStr());
-	}
+	return mail;
 }
 
-cpp::result<void, std::wstring> MailManager::DeleteMail(const std::variant<uint, std::wstring_view>& character, const int64& index) const
+cpp::result<void, std::wstring> MailManager::DeleteMail(const std::variant<uint, std::wstring_view>& character, const int64& index)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
@@ -184,21 +103,7 @@ cpp::result<void, std::wstring> MailManager::DeleteMail(const std::variant<uint,
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
 
-	SQLite::Statement deleteMail(db, "DELETE FROM items WHERE id = ? AND characterName = ?;");
-	deleteMail.bind(1, index);
-	deleteMail.bind(2, characterName);
-
-	try
-	{
-		if (!deleteMail.exec())
-		{
-			return cpp::fail(GetErrorCode(ErrorTypes::MailIdNotFound));
-		}
-	}
-	catch (SQLite::Exception ex)
-	{
-		return cpp::fail(ex.getErrorStr());
-	}
+	storage.remove<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::id) == index));
 
 	return {};
 }
@@ -211,71 +116,37 @@ cpp::result<int64, std::wstring> MailManager::PurgeAllMail(const std::variant<ui
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
 
-	SQLite::Statement deleteMail = readMailOnly
-		? SQLite::Statement(db, "DELETE FROM items WHERE unread = FALSE AND characterName = ?;")
-		: SQLite::Statement(db, "DELETE FROM items WHERE characterName = ?;");
-	deleteMail.bind(1, characterName);
-
-	try
+	if (readMailOnly == true)
 	{
-		int count = deleteMail.exec();
-		if (!count)
-		{
-			return cpp::fail(L"No mail to delete.");
-		}
-
+		auto count = storage.count<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::unread) == false));
+		storage.remove_all<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::unread) == false));
 		return count;
 	}
-	catch (SQLite::Exception ex)
-	{
-		return cpp::fail(ex.getErrorStr());
-	}
+	auto count = storage.count<MailItem>(where(::c(&MailItem::characterName) == characterName));
+	storage.remove_all<MailItem>(where(::c(&MailItem::characterName) == characterName));
+	return count;
 }
 
 cpp::result<int64, std::wstring> MailManager::UpdateCharacterName(const std::wstring& oldCharacterName, const std::wstring& newCharacterName)
 {
-	if (const auto acc = Hk::Client::GetAccountByCharName(StringUtils::stows(newCharacterName)); acc.has_error())
+	if (const auto acc = Hk::Client::GetAccountByCharName(newCharacterName); acc.has_error())
 	{
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
 
-	SQLite::Statement updateName(db, "UPDATE items SET characterName = ? WHERE characterName = ?;");
-	updateName.bind(1, newCharacterName);
-	updateName.bind(2, oldCharacterName);
+	storage.update_all(set(::c(&MailItem::characterName) = newCharacterName), where(::c(&MailItem::characterName) == oldCharacterName));
 
-	try
-	{
-		int count = updateName.exec();
-		if (!count)
-		{
-			return cpp::fail(GetErrorCode(ErrorTypes::MailIdNotFound));
-		}
-
-		return count;
-	}
-	catch (SQLite::Exception ex)
-	{
-		return cpp::fail(ex.getErrorStr());
-	}
+	return storage.count<MailItem>(where(::c(&MailItem::characterName) == newCharacterName));
 }
 
-cpp::result<int64, std::wstring> MailManager::GetUnreadMail(const std::variant<uint, std::wstring_view>& character)
+cpp::result<int64, std::wstring> MailManager::GetUnreadMailCount(const std::variant<uint, std::wstring_view>& character)
 {
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
-
-	SQLite::Statement count(db, "SELECT COUNT(*) FROM items WHERE characterName = ?;");
-	count.bind(1, characterName);
-
-	if (count.executeStep())
-	{
-		return count.getColumn(0).getInt64();
-	}
-
-	return 0;
+	return storage.count<MailItem>(where(::c(&MailItem::characterName) == characterName));
 }
 
 void MailManager::SendMailNotification(const std::variant<uint, std::wstring_view>& character)
@@ -286,7 +157,7 @@ void MailManager::SendMailNotification(const std::variant<uint, std::wstring_vie
 		return;
 	}
 
-	const auto mailCount = GetUnreadMail(client);
+	const auto mailCount = GetUnreadMailCount(client);
 	if (mailCount.has_error())
 	{
 		Logger::i()->Log(LogLevel::Err, mailCount.error());
@@ -299,22 +170,14 @@ void MailManager::SendMailNotification(const std::variant<uint, std::wstring_vie
 
 void MailManager::CleanUpOldMail()
 {
-	try
+	auto mails = storage.get_all<MailItem>();
+
+	for (auto& m : mails)
 	{
-		SQLite::Statement getAllUniqueCharacterNames(db, "SELECT characterName FROM items GROUP BY characterName;");
-		while (getAllUniqueCharacterNames.executeStep())
+		const auto acc = Hk::Client::GetAccountByCharName(m.characterName);
+		if (acc.has_error())
 		{
-			const auto name = StringUtils::stows(getAllUniqueCharacterNames.getColumn(0));
-			const auto acc = Hk::Client::GetAccountByCharName(name);
-			if (acc.has_error())
-			{
-				PurgeAllMail(name, false);
-			}
+			PurgeAllMail(m.characterName, false);
 		}
 	}
-	catch (SQLite::Exception ex)
-	{
-		Logger::i()->Log(LogLevel::Err, std::format(L"Unable to perform mail cleanup. Err: {}", ex.getErrorStr()));
-	}
 }
-

@@ -84,6 +84,13 @@ cpp::result<void, Error> FileUtils::WriteCharacterFile(std::wstring_view charact
 	}
 	else
 	{
-		BufferToFile(charFile, newFileData);	
+		BufferToFile(charFile, newFileData);
 	}
+}
+
+std::wstring FileUtils::SaveDataPath()
+{
+	char dataPath[MAX_PATH];
+	GetUserDataPath(dataPath);
+	return StringUtils::stows(std::string(dataPath) + "\\Accts\\MultiPlayer\\");
 }

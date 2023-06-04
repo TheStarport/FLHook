@@ -68,3 +68,12 @@ DLL void AddExceptionInfoLog(SEHException* ex);
 		return true;                                                                                                        \
 	}
 #define DefaultDllMainSettings(loadSettings) DefaultDllMain(loadSettings(), CoreGlobals::c()->flhookReady &&)
+
+#define DeduceClassType(variableName, type, value)   \
+  private:                                           \
+	static auto DeduceType##variableName()           \
+	{                                                \
+		return value;                                \
+	}                                                \
+	using type = std::invoke_result_t<decltype(DeduceType##variableName)>; \
+	type variableName = DeduceType##variableName()

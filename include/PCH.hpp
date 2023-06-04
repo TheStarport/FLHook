@@ -30,6 +30,7 @@
 #include <ext/result.hpp>
 #include <ext/Wildcard.hpp>
 #include <ext/inipp.hpp>
+#include <sqlite_orm/sqlite_orm.h>
 
 #include "Tools/Typedefs.hpp"
 #include "Tools/Enums.hpp"
@@ -63,8 +64,6 @@
 #include "Helpers/Player.hpp"
 #include "Helpers/Solar.hpp"
 #include "Helpers/ZoneUtilities.hpp"
-
-#include <ext/Sql.hpp>
 
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")
