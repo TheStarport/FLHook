@@ -57,7 +57,7 @@ namespace Hk::Client
 	DLL bool IsInCharSelectMenu(const uint& player);
 
 	DLL cpp::result<const std::wstring, Error> GetCharacterNameByID(ClientId& client);
-	DLL cpp::result<const uint, Error> ResolveID(const std::wstring& player);
+	DLL cpp::result<const uint, Error> ResolveID(std::wstring_view player);
 	DLL cpp::result<ClientId, Error> ResolveShortCut(const std::wstring& shortcut);
 	DLL cpp::result<ClientId, Error> GetClientIdByShip(ShipId ship);
 	DLL std::wstring GetAccountDirName(const CAccount* acc);

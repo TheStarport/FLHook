@@ -1,8 +1,5 @@
 #pragma once
 
-#include <codecvt>
-#include <nlohmann/json.hpp>
-
 class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 {
   public:
@@ -81,21 +78,21 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 	ReturnType GetPlayerInfo(std::wstring_view characterName);
 	ReturnType GetAllPlayerInfo();
 	ReturnType GetGroupMembers(std::wstring_view characterName);
-	ReturnType AddRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
-	ReturnType DeleteRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
-	ReturnType SetRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles);
-	ReturnType LoadPlugin(const std::vector<std::wstring>& pluginNames);
-	ReturnType UnloadPlugin(const std::vector<std::wstring>& pluginNames);
-	ReturnType ReloadPlugin(const std::vector<std::wstring>& pluginNames);
+	ReturnType AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles);
+	ReturnType DeleteRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles);
+	ReturnType SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles);
+	ReturnType LoadPlugin(const std::vector<std::wstring_view>& pluginNames);
+	ReturnType UnloadPlugin(const std::vector<std::wstring_view>& pluginNames);
+	ReturnType ReloadPlugin(const std::vector<std::wstring_view>& pluginNames);
 	ReturnType ListPlugins();
 	ReturnType Chase(std::wstring_view characterName);
 	ReturnType Beam(std::wstring_view characterName, const std::wstring& baseName);
 	ReturnType Pull(const std::wstring& characterName);
-	ReturnType Move(const std::wstring& characterName, Vector position);
+	//ReturnType Move(const std::wstring& characterName, Vector position);
 
 #undef ReturnType
 
-	constexpr inline static std::array<CommandInfo, 33> commands = {{
+	constexpr inline static std::array<CommandInfo, 32> commands = {{
 		AddCommand(L"getcash", GetCash, All, Cash),
 	    AddCommand(L"setcash", SetCash, All, Cash),
 	    AddCommand(L"kick", KickPlayer, All, Expel),
@@ -128,7 +125,7 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 	    AddCommand(L"chase", Chase, GameOnly, Movement ),
 	    AddCommand(L"beam", Beam, All,  Movement),
 	    AddCommand(L"pull", Pull, All, Movement),
-	    AddCommand(L"move", Move, GameOnly, Movement)
+	    //AddCommand(L"move", Move, GameOnly, Movement)
 	}};
 
 #undef AddCommand

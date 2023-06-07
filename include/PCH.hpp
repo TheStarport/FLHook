@@ -2,6 +2,9 @@
 #pragma once
 #pragma warning(push, 0)
 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+
 #include <WinSock2.h>
 #include <Windows.h>
 #include <string>
@@ -30,7 +33,6 @@
 #include <ext/result.hpp>
 #include <ext/Wildcard.hpp>
 #include <ext/inipp.hpp>
-#include <sqlite_orm/sqlite_orm.h>
 
 #include "Tools/Typedefs.hpp"
 #include "Tools/Enums.hpp"
@@ -46,6 +48,8 @@
 #include "Tools/Structs.hpp"
 #include "Tools/Concepts.hpp"
 #include "Tools/Utils.hpp"
+
+#include <sqlite_orm/sqlite_orm.h>
 
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"

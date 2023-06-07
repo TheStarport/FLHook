@@ -2,7 +2,7 @@
 
 namespace Hk
 {
-	class DLL IniUtils : public Singleton<IniUtils>
+	class DLL IniUtils final : public Singleton<IniUtils>
 	{
 		static std::wstring GetIniValue(const std::wstring& data, const std::wstring& section, const std::wstring& key);
 

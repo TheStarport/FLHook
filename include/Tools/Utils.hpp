@@ -4,6 +4,7 @@
 #include <Features/Logger.hpp>
 
 #include "Concepts.hpp"
+#include <Tools/TemplateHelpers.hpp>
 
 class TimeUtils
 {
@@ -195,7 +196,7 @@ public:
 		    std::ranges::views::transform([](auto&& rng) { return TStr(&*rng.begin(), std::ranges::distance(rng)); });
 	}
 
-	template<typename TTransformView, typename TViewType = typename first_template_type<typename first_template_type<TTransformView>::type_t>::type_t>
+	template<typename TTransformView, typename TViewType = FirstTemplateType<FirstTemplateType<TTransformView>>>
 	static TViewType GetParamToEnd(TTransformView view, uint pos)
 	{
 		if (pos == 0)

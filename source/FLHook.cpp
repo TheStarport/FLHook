@@ -244,7 +244,7 @@ void ProcessPendingCommands()
 		}
 		else
 		{
-			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response.value()["res"]);
+			Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response.value()["res"].get<std::wstring>());
 		}
 
 		cmd = logger->GetCommand();

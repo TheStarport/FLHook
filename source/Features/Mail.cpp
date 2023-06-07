@@ -69,13 +69,13 @@ cpp::result<std::vector<MailManager::MailItem>, std::wstring> MailManager::GetMa
 
 	if (ignoreRead)
 	{
-		return storage.get_all<MailItem>(where(::c(&MailItem::unread) == true && ::c(&MailItem::characterName) == character),
+		return storage.get_all<MailItem>(where(::c(&MailItem::unread) == true && ::c(&MailItem::characterName) == characterName),
 		    order_by(&MailItem::timestamp).desc(),
 		    limit(15, offset((page - 1) * 15)));
 	}
 
 	return storage.get_all<MailItem>(
-	    where(::c(&MailItem::characterName) == character), order_by(&MailItem::timestamp).desc(), limit(15, offset((page - 1) * 15)));
+	    where(::c(&MailItem::characterName) == characterName), order_by(&MailItem::timestamp).desc(), limit(15, offset((page - 1) * 15)));
 }
 
 cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const std::variant<uint, std::wstring_view>& character, const int64& index)
@@ -85,12 +85,11 @@ cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const 
 	{
 		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
 	}
+
 	auto mail = storage.get<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::id) == index));
 
 	mail.unread = false;
-	storage.update(mail);
-
-	// storage.update_all(set(assign(&MailItem::unread,false) , where(::c(&MailItem::id == index))));
+	storage.update_all(set(::c(&MailItem::unread) = mail.unread), where(::c(&MailItem::id) == mail.id));
 
 	return mail;
 }
@@ -172,7 +171,7 @@ void MailManager::CleanUpOldMail()
 {
 	auto mails = storage.get_all<MailItem>();
 
-	for (auto& m : mails)
+	for (auto m : mails)
 	{
 		const auto acc = Hk::Client::GetAccountByCharName(m.characterName);
 		if (acc.has_error())

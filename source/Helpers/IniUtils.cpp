@@ -48,7 +48,7 @@ namespace Hk
 			call eax
 			mov retv, eax
 			popad
-			}
+		}
 
 		// Readd the flhook section.
 		if (retv)
@@ -106,9 +106,12 @@ namespace Hk
 			}
 	}
 
-	void CharacterClearClientInfo(ClientId client) { clients.erase(client); }
+	void IniUtils::CharacterClearClientInfo(ClientId client)
+	{
+		clients.erase(client);
+	}
 
-	void CharacterSelect(const CHARACTER_ID charId, ClientId client)
+	void IniUtils::CharacterSelect(const CHARACTER_ID charId, ClientId client)
 	{
 		const auto fileName = StringUtils::stows(std::string(charId.charFilename));
 		const std::wstring path = std::format(L"{}{}\\{}", CoreGlobals::c()->accPath, GetAccountDir(client), fileName);

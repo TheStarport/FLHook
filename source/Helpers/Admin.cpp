@@ -248,14 +248,17 @@ namespace Hk::Admin
 
 	cpp::result<void, Error> AddRole(const std::wstring& characterName, const std::wstring& role)
 	{
+		return {};
 	}
 
 	cpp::result<void, Error> RemoveRole(const std::wstring& characterName, const std::wstring& role)
 	{
+		return {};
 	}
 
 	cpp::result<void, Error> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles)
 	{
+		return {};
 	}
 
 	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)

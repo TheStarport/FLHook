@@ -60,7 +60,7 @@ PluginManager::~PluginManager()
 	ClearData(false);
 }
 
-cpp::result<std::wstring, Error> PluginManager::Unload(const std::wstring& name)
+cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 {
 	const auto pluginIterator = std::ranges::find_if(plugins, [&name](const std::shared_ptr<Plugin>& data) { return name == data->shortName; });
 
@@ -100,9 +100,9 @@ void PluginManager::UnloadAll()
 }
 
 //TODO: Let this return a bool or error type.
-void PluginManager::Load(const std::wstring& fileName, bool startup)
+void PluginManager::Load(std::wstring_view fileName, bool startup)
 {
-	std::wstring dllName = fileName;
+	std::wstring dllName = std::wstring(fileName);
 	if (dllName.find(L".dll") == std::wstring::npos)
 		dllName.append(L".dll");
 

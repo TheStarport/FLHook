@@ -86,6 +86,8 @@ cpp::result<void, Error> FileUtils::WriteCharacterFile(std::wstring_view charact
 	{
 		BufferToFile(charFile, newFileData);
 	}
+
+	return {};
 }
 
 std::wstring FileUtils::SaveDataPath()

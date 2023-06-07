@@ -1,7 +1,5 @@
 #pragma once
 
-#include <FLHook.hpp>
-
 class DLL MailManager : public Singleton<MailManager>
 {
 	[[nodiscard]] std::wstring_view GetCharacterName(const std::variant<uint, std::wstring_view>& character);
@@ -9,8 +7,8 @@ class DLL MailManager : public Singleton<MailManager>
   public:
 	struct MailItem
 	{
-		int64 id;
-		bool unread = true;
+		int64 id{};
+		bool unread{};
 		std::wstring subject;
 		std::wstring author;
 		std::wstring body;
@@ -19,20 +17,24 @@ class DLL MailManager : public Singleton<MailManager>
 	};
 
   private:
-	sqlite_orm::internal::storage_t<sqlite_orm::internal::table_t<MailItem,
-	    sqlite_orm::internal::column_t<MailItem, long long, const long long& (MailItem::*)() const, void (MailItem::*)(long long),
-	        sqlite_orm::internal::primary_key_t<>>,
-	    sqlite_orm::internal::column_t<MailItem, bool, const bool& (MailItem::*)() const, void (MailItem::*)(bool)>,
-	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
-	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
-	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>,
-	    sqlite_orm::internal::column_t<MailItem, long long, const long long& (MailItem::*)() const, void (MailItem::*)(long long)>,
-	    sqlite_orm::internal::column_t<MailItem, std::wstring, const std::wstring& (MailItem::*)() const, void (MailItem::*)(std::wstring)>>>
-	    storage = sqlite_orm::make_storage(StringUtils::wstos(FileUtils::SaveDataPath()) + "mail.db",
-	        sqlite_orm::make_table("mailItems", sqlite_orm::make_column("id", &MailItem::id, sqlite_orm::primary_key()),
-	            sqlite_orm::make_column("unread", &MailItem::unread), sqlite_orm::make_column("subject", &MailItem::subject),
-	            sqlite_orm::make_column("author", &MailItem::author), sqlite_orm::make_column("body", &MailItem::body),
-	            sqlite_orm::make_column("timestamp", &MailItem::timestamp), sqlite_orm::make_column("characterName", &MailItem::characterName)));
+	sqlite_orm::internal::storage_t<sqlite_orm::internal::table_t<MailItem, false, sqlite_orm::internal::column_t<long long MailItem::*,
+			sqlite_orm::internal::empty_setter, sqlite_orm::internal::primary_key_with_autoincrement<sqlite_orm::internal::primary_key_t<>>>,
+		sqlite_orm::internal::column_t<bool MailItem::*, sqlite_orm::internal::empty_setter, sqlite_orm::internal::default_t<bool>>,
+		sqlite_orm::internal::column_t<
+			std::wstring MailItem::*, sqlite_orm::internal::empty_setter>, sqlite_orm::internal::column_t<std::wstring MailItem::*,
+			sqlite_orm::internal::empty_setter>, sqlite_orm::internal::column_t<std::wstring MailItem::*, sqlite_orm::internal::empty_setter>,
+		sqlite_orm::internal::column_t<long long MailItem::*, sqlite_orm::internal::empty_setter>, sqlite_orm::internal::column_t<std::wstring MailItem::*,
+			sqlite_orm::internal::empty_setter>>> storage =
+		sqlite_orm::make_storage(
+			StringUtils::wstos(FileUtils::SaveDataPath()) + "mail.db",
+			sqlite_orm::make_table("mailItems",
+				sqlite_orm::make_column("id", &MailItem::id, sqlite_orm::primary_key().autoincrement()),
+				sqlite_orm::make_column("unread", &MailItem::unread, sqlite_orm::default_value(true)),
+				sqlite_orm::make_column("subject", &MailItem::subject),
+				sqlite_orm::make_column("author", &MailItem::author),
+				sqlite_orm::make_column("body", &MailItem::body),
+				sqlite_orm::make_column("timestamp", &MailItem::timestamp),
+				sqlite_orm::make_column("characterName", &MailItem::characterName)));
 
 	enum class ErrorTypes
 	{
@@ -43,7 +45,7 @@ class DLL MailManager : public Singleton<MailManager>
 		MailIdNotFound
 	};
 
-	constexpr std::wstring GetErrorCode(ErrorTypes err) const
+	[[nodiscard]] static constexpr std::wstring GetErrorCode(ErrorTypes err)
 	{
 		std::vector<std::wstring> errors = {L"Invalid character name or client id",
 		    L"Subject cannot be longer than 32 characters.",

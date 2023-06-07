@@ -369,11 +369,22 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetGroupMembe
 	return arr;
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::AddRoles(std::wstring_view characterName, const std::vector<std::wstring>& roles)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
 {
+	return {};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::LoadPlugin(const std::vector<std::wstring>& pluginNames)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+{
+	return {};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::DeleteRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+{
+	return {};
+}
+
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::LoadPlugin(const std::vector<std::wstring_view>& pluginNames)
 {
 	if (pluginNames.empty())
 	{
@@ -394,7 +405,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::LoadPlugin(co
 	return nlohmann::json {{"res", "plugin(s) successfully loaded"}};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnloadPlugin(const std::vector<std::wstring>& pluginNames)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnloadPlugin(const std::vector<std::wstring_view>& pluginNames)
 {
 	if (pluginNames.empty())
 	{
@@ -414,7 +425,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::UnloadPlugin(
 	return nlohmann::json {{"res", "plugin(s) successfully unloaded"}};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ReloadPlugin(const std::vector<std::wstring>& pluginNames)
+cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ReloadPlugin(const std::vector<std::wstring_view>& pluginNames)
 {
 	if (pluginNames.empty())
 	{
@@ -542,29 +553,29 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Pull(const st
 	return nlohmann::json {{"res", std::format(L"player {} pulled to {} at {},{},{}", characterName, currentUser, pos.x, pos.y, pos.z)}};
 }
 
-cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Move(const std::wstring& characterName, Vector position)
-{
-	std::wstring targetPlayer;
-
-	if (characterName == L"me")
-	{
-		targetPlayer = currentUser;
-	}
-	else
-	{
-		targetPlayer = characterName;
-	}
-
-	const auto target = Hk::Admin::GetPlayerInfo(targetPlayer, false);
-	if (target.has_error() || target.value().ship == 0)
-	{
-		return nlohmann::json {{"err", "Player not found or not in space"}};
-	}
-	Vector pos;
-	Matrix orientation;
-
-	pub::SpaceObj::GetLocation(target.value().ship, pos,orientation);
-	pos = position;
-	Hk::Player::RelocateClient(target.value().client, pos, orientation);
-	return nlohmann::json {{"res", std::format(L"player {} moved to {},{},{}", characterName, pos.x, pos.y, pos.z)}};
-}
+//cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Move(const std::wstring& characterName, Vector position)
+//{
+//	std::wstring targetPlayer;
+//
+//	if (characterName == L"me")
+//	{
+//		targetPlayer = currentUser;
+//	}
+//	else
+//	{
+//		targetPlayer = characterName;
+//	}
+//
+//	const auto target = Hk::Admin::GetPlayerInfo(targetPlayer, false);
+//	if (target.has_error() || target.value().ship == 0)
+//	{
+//		return nlohmann::json {{"err", "Player not found or not in space"}};
+//	}
+//	Vector pos;
+//	Matrix orientation;
+//
+//	pub::SpaceObj::GetLocation(target.value().ship, pos,orientation);
+//	pos = position;
+//	Hk::Player::RelocateClient(target.value().client, pos, orientation);
+//	return nlohmann::json {{"res", std::format(L"player {} moved to {},{},{}", characterName, pos.x, pos.y, pos.z)}};
+//}

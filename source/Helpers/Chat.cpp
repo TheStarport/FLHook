@@ -24,7 +24,7 @@ _RCSendChatMsg RCSendChatMsg;
 
 namespace Hk::Chat
 {
-	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring_view>& player, const std::wstring& message)
+	cpp::result<void, Error> Msg(const std::variant<uint, std::wstring_view>& player, std::wstring_view message)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -98,7 +98,7 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgEncodeXML(const std::wstring& xmring, char* buffer, uint size, uint& ret)
+	cpp::result<void, Error> FMsgEncodeXml(std::wstring_view xmring, char* buffer, uint size, uint& ret)
 	{
 		XMLReader rdr;
 		RenderDisplayList rdl;
@@ -135,11 +135,11 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsg(ClientId client, const std::wstring& xmring)
+	cpp::result<void, Error> FMsg(ClientId client, std::wstring_view xmring)
 	{
 		char buf[0xFFFF];
 		uint ret;
-		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret); err.has_error())
+		if (const auto err = FMsgEncodeXml(xmring, buf, sizeof buf, ret); err.has_error())
 			return cpp::fail(err.error());
 
 		FMsgSendChat(client, buf, ret);
@@ -158,7 +158,7 @@ namespace Hk::Chat
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> FMsgS(const std::variant<std::wstring_view, uint>& system, const std::wstring& xmring)
+	cpp::result<void, Error> FMsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view xmring)
 	{
 		uint systemId = 0;
 		if (!system.index())
@@ -173,7 +173,7 @@ namespace Hk::Chat
 		// encode xml std::wstring
 		char buf[0xFFFF];
 		uint ret;
-		if (const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret); err.has_error())
+		if (const auto err = FMsgEncodeXml(xmring, buf, sizeof buf, ret); err.has_error())
 			return cpp::fail(err.error());
 
 		// for all players in system...
@@ -192,7 +192,7 @@ namespace Hk::Chat
 		// encode xml std::wstring
 		char buf[0xFFFF];
 		uint ret;
-		const auto err = FMsgEncodeXML(xmring, buf, sizeof buf, ret);
+		const auto err = FMsgEncodeXml(xmring, buf, sizeof buf, ret);
 		if (err.has_error())
 			return cpp::fail(err.error());
 

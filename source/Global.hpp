@@ -252,8 +252,8 @@ class PluginManager : public Singleton<PluginManager>
 	void LoadAll(bool);
 	void UnloadAll();
 
-	void Load(const std::wstring& fileName, bool);
-	cpp::result<std::wstring, Error> Unload(const std::wstring& shortName);
+	void Load(std::wstring_view fileName, bool);
+	cpp::result<std::wstring, Error> Unload(std::wstring_view shortName);
 
 	auto begin() { return plugins.begin(); }
 	auto end() { return plugins.end(); }
