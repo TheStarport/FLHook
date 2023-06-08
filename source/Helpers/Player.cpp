@@ -28,40 +28,40 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<const uint, Error> GetGroupID(ClientId client)
+	Action<uint> GetGroupID(ClientId client)
 	{
 		if (!Client::IsValidClientID(client))
-			return cpp::fail(Error::InvalidClientId);
+			return {cpp::fail(Error::InvalidClientId)};
 
-		return Players.GetGroupID(client);
+		return {Players.GetGroupID(client)};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<const uint, Error> GetCash(const std::variant<uint, std::wstring_view>& player)
+	Action<uint> GetCash(const std::variant<uint, std::wstring_view>& player)
 	{
 		if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX)
 		{
 			if (Client::IsInCharSelectMenu(client))
-				return cpp::fail(Error::CharacterNotSelected);
+				return {cpp::fail(Error::CharacterNotSelected)};
 
 			int cash;
 			pub::Player::InspectCash(client, cash);
-			return static_cast<uint>(cash);
+			return {cash};
 		}
 
 		if (!player.index())
-			return cpp::fail(Error::InvalidClientId);
+			return {cpp::fail(Error::InvalidClientId)};
 
-		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player));
+		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).Raw();
 		if (acc.has_error())
-			return cpp::fail(acc.error());
+			return {cpp::fail(acc.error())};
 
 		const auto dir = Client::GetAccountDirName(acc.value());
 
-		auto file = Client::GetCharFileName(player);
+		auto file = Client::GetCharFileName(player).Raw();
 		if (file.has_error())
-			return cpp::fail(file.error());
+			return {cpp::fail(file.error())};
 
 		const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
 
@@ -69,7 +69,7 @@ namespace Hk::Player
 		FILE* fTest;
 		_wfopen_s(&fTest, charFile.c_str(), L"r");
 		if (!fTest)
-			return cpp::fail(Error::CharacterDoesNotExist);
+			return {cpp::fail(Error::CharacterDoesNotExist)};
 
 		fclose(fTest);
 
@@ -78,15 +78,15 @@ namespace Hk::Player
 			const std::wstring charFileNew = std::format(L"{}.ini", charFile);
 			if (FlCodec::Decode(charFile).empty())
 			{
-				return cpp::fail(Error::CouldNotDecodeCharFile);
+				return {cpp::fail(Error::CouldNotDecodeCharFile)};
 			}
 
 			auto cash = static_cast<uint>(IniGetI(charFileNew, L"Player", L"money", -1));
 			DeleteFileW(charFileNew.c_str());
-			return cash;
+			return {cash};
 		}
 
-		return static_cast<uint>(IniGetI(charFile, L"Player", L"money", -1));
+		return {static_cast<uint>(IniGetI(charFile, L"Player", L"money", -1))};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ namespace Hk::Player
 		}
 
 		const auto& character = std::get<std::wstring_view>(player);
-		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player));
+		const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).Raw();
 		if (acc.has_error())
 			return cpp::fail(acc.error());
 
@@ -221,7 +221,7 @@ namespace Hk::Player
 		if (acc.has_error())
 			return cpp::fail(Error::CharacterDoesNotExist);
 
-		auto id = Client::GetAccountID(acc.value());
+		auto id = Client::GetAccountID(acc.value()).Raw();
 		if (id.has_error())
 			return cpp::fail(id.error());
 
@@ -238,7 +238,7 @@ namespace Hk::Player
 		if (player.index() != 0)
 		{
 			const auto& charName = std::get<std::wstring_view>(player);
-			auto client = Client::GetClientIdFromCharName(charName);
+			auto client = Client::GetClientIdFromCharName(charName).Raw();
 			if (client.has_error())
 			{
 				return cpp::fail(client.error());
@@ -262,31 +262,31 @@ namespace Hk::Player
 
 	// Bases that will cause crashes if jumped to
 	const std::array BannedBases = {
-		CreateID("br_m_beryllium_miner"),
-		CreateID("[br_m_hydrocarbon_miner]"),
-		CreateID("[br_m_niobium_miner]"),
-		CreateID("[co_khc_copper_miner]"),
-		CreateID("[co_khc_cobalt_miner]"),
-		CreateID("[co_kt_hydrocarbon_miner]"),
-		CreateID("[co_shi_h-fuel_miner]"),
-		CreateID("[co_shi_water_miner]"),
-		CreateID("[co_ti_water_miner]"),
-		CreateID("[gd_gm_h-fuel_miner]"),
-		CreateID("[gd_im_oxygen_miner]"),
-		CreateID("[gd_im_copper_miner]"),
-		CreateID("[gd_im_silver_miner]"),
-		CreateID("[gd_im_water_miner]"),
-		CreateID("[rh_m_diamond_miner]"),
-		CreateID("intro3_base"),
-		CreateID("intro2_base"),
-		CreateID("intro1_base"),
-		CreateID("st03b_01_base"),
-		CreateID("st02_01_base"),
-		CreateID("st01_02_base"),
-		CreateID("iw02_03_base"),
-		CreateID("rh02_07_base"),
-		CreateID("li04_06_base"),
-		CreateID("li01_15_base"),
+	    CreateID("br_m_beryllium_miner"),
+	    CreateID("[br_m_hydrocarbon_miner]"),
+	    CreateID("[br_m_niobium_miner]"),
+	    CreateID("[co_khc_copper_miner]"),
+	    CreateID("[co_khc_cobalt_miner]"),
+	    CreateID("[co_kt_hydrocarbon_miner]"),
+	    CreateID("[co_shi_h-fuel_miner]"),
+	    CreateID("[co_shi_water_miner]"),
+	    CreateID("[co_ti_water_miner]"),
+	    CreateID("[gd_gm_h-fuel_miner]"),
+	    CreateID("[gd_im_oxygen_miner]"),
+	    CreateID("[gd_im_copper_miner]"),
+	    CreateID("[gd_im_silver_miner]"),
+	    CreateID("[gd_im_water_miner]"),
+	    CreateID("[rh_m_diamond_miner]"),
+	    CreateID("intro3_base"),
+	    CreateID("intro2_base"),
+	    CreateID("intro1_base"),
+	    CreateID("st03b_01_base"),
+	    CreateID("st02_01_base"),
+	    CreateID("st01_02_base"),
+	    CreateID("iw02_03_base"),
+	    CreateID("rh02_07_base"),
+	    CreateID("li04_06_base"),
+	    CreateID("li01_15_base"),
 	};
 
 	cpp::result<void, Error> Beam(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& baseVar)
@@ -300,7 +300,7 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 		}
 		// check if ship in space
-		if (const auto ship = GetShip(client); ship.has_error())
+		if (const auto ship = GetShip(client).Raw(); ship.has_error())
 		{
 			return cpp::fail(ship.error());
 		}
@@ -342,7 +342,7 @@ namespace Hk::Player
 		{
 			Server.BaseEnter(baseId, client);
 			Server.BaseExit(baseId, client);
-			auto fileName = Client::GetCharFileName(client);
+			auto fileName = Client::GetCharFileName(client).Raw();
 			if (fileName.has_error())
 			{
 				return cpp::fail(fileName.error());
@@ -392,12 +392,12 @@ namespace Hk::Player
 		bool mission;
 	};
 
-	cpp::result<const std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
+	Action<std::list<CargoInfo>> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
 		if (client == UINT_MAX || Client::IsInCharSelectMenu(client))
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {(cpp::fail(Error::PlayerNotLoggedIn))};
 
 		std::list<CargoInfo> cargo;
 
@@ -419,7 +419,7 @@ namespace Hk::Player
 		float remainingHold;
 		pub::Player::GetRemainingHoldSize(client, remainingHold);
 		remainingHoldSize = static_cast<int>(remainingHold);
-		return cargo;
+		return {cargo};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +432,7 @@ namespace Hk::Player
 			return cpp::fail(Error::PlayerNotLoggedIn);
 
 		int hold;
-		const auto cargo = EnumCargo(player, hold);
+		const auto cargo = EnumCargo(player, hold).Raw();
 		if (cargo.has_error())
 		{
 			return cpp::fail(cargo.error());
@@ -486,7 +486,7 @@ namespace Hk::Player
 			int ret;
 
 			// we need to do this, else server or client may crash
-			for (const auto cargo = EnumCargo(player, ret); auto& item : cargo.value())
+			for (const auto cargo = EnumCargo(player, ret).Raw(); auto& item : cargo.value())
 			{
 				if (item.archId == goodId && item.mission != mission)
 				{
@@ -539,7 +539,7 @@ namespace Hk::Player
 		if (client == UINT_MAX && player.index() && !Client::GetAccountByClientID(client))
 			return cpp::fail(Error::CharacterDoesNotExist);
 
-		if (!onlyDelete && Client::GetAccountByCharName(newCharname))
+		if (!onlyDelete && Client::GetAccountByCharName(newCharname).Raw())
 			return cpp::fail(Error::AlreadyExists);
 
 		if (!onlyDelete && newCharname.length() > 23)
@@ -562,17 +562,17 @@ namespace Hk::Player
 		else
 		{
 			oldCharName = std::get<std::wstring_view>(player);
-			acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).value();
+			acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).Raw().value();
 		}
 
 		const std::wstring AccountDirname = Client::GetAccountDirName(acc);
-		const auto newFileName = Client::GetCharFileName(newCharname);
+		const auto newFileName = Client::GetCharFileName(newCharname).Raw();
 		if (newFileName.has_error())
 		{
 			return cpp::fail(newFileName.error());
 		}
 
-		const auto oldFileName = Client::GetCharFileName(oldCharName);
+		const auto oldFileName = Client::GetCharFileName(oldCharName).Raw();
 		if (oldFileName.has_error())
 		{
 			return cpp::fail(oldFileName.error());
@@ -605,7 +605,7 @@ namespace Hk::Player
 
 		// Emulate char create
 		SLoginInfo logindata;
-		wcsncpy_s(logindata.account, Client::GetAccountID(acc).value().c_str(), 36);
+		wcsncpy_s(logindata.account, Client::GetAccountID(acc).Raw().value().c_str(), 36);
 		Players.login(logindata, MaxClientId + 1);
 
 		SCreateCharacterInfo newcharinfo;
@@ -791,18 +791,18 @@ namespace Hk::Player
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<float, Error> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup)
+	Action<float> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 
 		uint repGroupId;
 		if (repGroup.index() == 1)
 		{
 			pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(std::wstring(std::get<std::wstring_view>(repGroup))).c_str());
 			if (repGroupId == UINT_MAX)
-				return cpp::fail(Error::InvalidRepGroup);
+				return {cpp::fail(Error::InvalidRepGroup)};
 		}
 		else
 		{
@@ -813,19 +813,19 @@ namespace Hk::Player
 		pub::Player::GetRep(client, playerRep);
 		float playerFactionRep;
 		pub::Reputation::GetGroupFeelingsTowards(playerRep, repGroupId, playerFactionRep);
-		return playerFactionRep;
+		return {playerFactionRep};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring_view>& player)
+	Action<std::vector<GroupMember>> GetGroupMembers(const std::variant<uint, std::wstring_view>& player)
 	{
 		std::vector<GroupMember> members;
 		ClientId client = Client::ExtractClientID(player);
 
 		// check if logged in
 		if (client == UINT_MAX)
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 
 		// hey, at least it works! beware of the VC optimiser.
 		st6::vector<uint> vMembers;
@@ -837,12 +837,12 @@ namespace Hk::Player
 			members.push_back(gm);
 		}
 
-		return members;
+		return {members};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//TODO: Make this return just a single string.
-	cpp::result<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring_view>& player)
+	// TODO: Make this return just a single string.
+	Action<std::list<std::wstring>> ReadCharFile(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
@@ -851,8 +851,8 @@ namespace Hk::Player
 		if (client != UINT_MAX)
 		{
 			acc = Players.FindAccountFromClientID(client);
-			if (const wchar_t* wCharname = (wchar_t*)Players.GetActiveCharacterName(client); !wCharname)
-				return cpp::fail(Error::CharacterNotSelected);
+			if (auto charName = Client::GetCharacterNameByID(client); charName.Raw().has_error())
+				return {cpp::fail(Error::CharacterNotSelected)};
 
 			dir = Client::GetAccountDirName(acc.value());
 		}
@@ -860,13 +860,13 @@ namespace Hk::Player
 		{
 			acc = Client::ExtractAccount(player);
 			if (!acc)
-				return cpp::fail(Error::CharacterDoesNotExist);
+				return {cpp::fail(Error::CharacterDoesNotExist)};
 		}
 
-		auto file = Client::GetCharFileName(player);
+		auto file = Client::GetCharFileName(player).Raw();
 		if (file.has_error())
 		{
-			return cpp::fail(file.error());
+			return {cpp::fail(file.error())};
 		}
 
 		std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
@@ -877,7 +877,7 @@ namespace Hk::Player
 			std::wstring charFileNew = charFile + L".ini";
 			if (!FlCodec::DecodeFile(charFile, charFileNew))
 			{
-				return cpp::fail(Error::CouldNotDecodeCharFile);
+				return {cpp::fail(Error::CouldNotDecodeCharFile)};
 			}
 
 			fileToRead = charFileNew;
@@ -892,7 +892,7 @@ namespace Hk::Player
 		std::wifstream ifs;
 		ifs.open(fileToRead.c_str(), std::ios_base::in);
 		if (!ifs.is_open())
-			return cpp::fail(Error::UnknownError);
+			return {cpp::fail(Error::UnknownError)};
 
 		std::list<std::wstring> output;
 		std::wstring Line;
@@ -902,7 +902,7 @@ namespace Hk::Player
 		if (deleteAfter)
 			DeleteFileW(fileToRead.c_str());
 
-		return output;
+		return {output};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -922,7 +922,7 @@ namespace Hk::Player
 
 		auto dir = Client::GetAccountDirName(acc);
 
-		const auto file = Client::GetCharFileName(player);
+		const auto file = Client::GetCharFileName(player).Raw();
 		if (file.has_error())
 		{
 			return cpp::fail(file.error());
@@ -982,7 +982,7 @@ namespace Hk::Player
 				mov ecx, [pd]
 				mov[ecx + 320h], eax
 				popad
-				}
+			}
 		}
 		catch (...)
 		{
@@ -1049,28 +1049,28 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> GetRank(const std::variant<uint, std::wstring_view>& player)
+	Action<int> GetRank(const std::variant<uint, std::wstring_view>& player)
 	{
 		auto rank = IniUtils::i()->GetFromPlayerFile(player, L"rank");
 		if (rank.has_error())
 		{
-			return cpp::fail(rank.error());
+			return {cpp::fail(rank.error())};
 		}
 
-		return rank.value().length() ? StringUtils::Cast<int>(rank.value()) : 0;
+		return {rank.value().length() ? StringUtils::Cast<int>(rank.value()) : 0};
 	}
 
 	/// Get online time.
-	cpp::result<int, Error> GetOnlineTime(const std::variant<uint, std::wstring_view>& player)
+	Action<int> GetOnlineTime(const std::variant<uint, std::wstring_view>& player)
 	{
 		const auto client = Client::ExtractClientID(player);
 		const auto acc = Client::GetAccountByClientID(client);
 		const auto dir = Client::GetAccountDirName(acc);
 
-		const auto file = Client::GetCharFileName(player);
+		const auto file = Client::GetCharFileName(player).Raw();
 		if (file.has_error())
 		{
-			return cpp::fail(file.error());
+			return {cpp::fail(file.error())};
 		}
 
 		const std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
@@ -1078,26 +1078,27 @@ namespace Hk::Player
 		{
 			const std::wstring charFileNew = charFile + L".ini";
 			if (!FlCodec::DecodeFile(charFile, charFileNew))
-				return cpp::fail(Error::CouldNotDecodeCharFile);
+				return {cpp::fail(Error::CouldNotDecodeCharFile)};
 
 			int secs = IniGetI(charFileNew, L"mPlayer", L"total_time_played", 0);
 			DeleteFileW(charFileNew.c_str());
-			return secs;
+			return {secs};
 		}
-		return IniGetI(charFile, L"mPlayer", L"total_time_played", 0);
+		return {IniGetI(charFile, L"mPlayer", L"total_time_played", 0)};
 	}
 
-	cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)
+	Action<uint> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)
 	{
 		uint system = 0;
-		const std::string nick = nickname.index() == 0 ? StringUtils::wstos(std::wstring(std::get<std::wstring_view>(nickname))) : std::string(std::get<std::string_view>(nickname));
+		const std::string nick =
+		    nickname.index() == 0 ? StringUtils::wstos(std::wstring(std::get<std::wstring_view>(nickname))) : std::string(std::get<std::string_view>(nickname));
 		pub::GetSystemID(system, nick.c_str());
 		if (!system)
 		{
-			return cpp::fail(Error::InvalidSystem);
+			return {cpp::fail(Error::InvalidSystem)};
 		}
 
-		return system;
+		return {system};
 	}
 
 	CShip* CShipFromShipDestroyed(const DWORD** ecx)
@@ -1108,7 +1109,7 @@ namespace Hk::Player
 	/// Return true if this player is within the specified distance of any other player.
 	bool IsInRange(ClientId client, float distance)
 	{
-		const auto Members = GetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(client));
+		const auto Members = GetGroupMembers((const wchar_t*)Players.GetActiveCharacterName(client)).Raw();
 		if (Members.has_error())
 		{
 			return false;
@@ -1188,7 +1189,7 @@ namespace Hk::Player
 
 		// Emulate char create by logging in.
 		SLoginInfo logindata;
-		wcsncpy_s(logindata.account, Client::GetAccountID(acc).value().c_str(), 36);
+		wcsncpy_s(logindata.account, Client::GetAccountID(acc).Raw().value().c_str(), 36);
 		Players.login(logindata, Players.GetMaxPlayerCount() + 1);
 
 		SCreateCharacterInfo newcharinfo;
@@ -1264,7 +1265,7 @@ namespace Hk::Player
 		(void)AntiCheat4;
 
 		// Check if ship in space
-		if (const auto ship = GetShip(client); ship.has_value())
+		if (const auto ship = GetShip(client).Raw(); ship.has_value())
 		{
 			return {};
 		}
@@ -1279,7 +1280,7 @@ namespace Hk::Player
 			mov ecx, [objPtr]
 			call [AntiCheat1]
 			mov [res], al
-			}
+		}
 
 		if (res != 0)
 		{
@@ -1292,7 +1293,7 @@ namespace Hk::Player
 			mov ecx, [objPtr]
 			call [AntiCheat2]
 			mov [res], al
-			}
+		}
 
 		if (res != 0)
 		{
@@ -1308,7 +1309,7 @@ namespace Hk::Player
 			mov [compare], eax
 			call [AntiCheat3]
 			mov [retVal], eax
-			}
+		}
 
 		if (retVal > compare)
 		{
@@ -1320,7 +1321,7 @@ namespace Hk::Player
 			mov ecx, [objPtr]
 			call [AntiCheat4]
 			mov [res], al
-			}
+		}
 
 		if (res != 0)
 		{
@@ -1420,9 +1421,10 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player,[[maybe_unused]] uint goodId, const std::wstring& hardpoint, bool mounted)
+	cpp::result<void, Error> AddEquip(
+	    const std::variant<uint, std::wstring_view>& player, [[maybe_unused]] uint goodId, const std::wstring& hardpoint, bool mounted)
 	{
-		using _AddCargoDocked = bool(__stdcall *)(uint goodId, CacheString* & hardpoint, int numItems, float health, int mounted, int mission, uint one);
+		using _AddCargoDocked = bool(__stdcall*)(uint goodId, CacheString * &hardpoint, int numItems, float health, int mounted, int mission, uint one);
 		static _AddCargoDocked addCargoDocked = nullptr;
 		if (!addCargoDocked)
 			addCargoDocked = (_AddCargoDocked)((char*)server + 0x6EFC0);
@@ -1462,10 +1464,9 @@ namespace Hk::Player
 			push goodId
 			mov ecx, pd
 			call addCargoDocked
-			}
+		}
 
-		if (base)
-			Server.BaseEnter(base, client);
+		if (base) Server.BaseEnter(base, client);
 		if (location)
 			Server.LocationEnter(location, client);
 
@@ -1488,14 +1489,14 @@ namespace Hk::Player
 		return StringUtils::stows(Systemname);
 	}
 
-	cpp::result<const uint, Error> GetShipValue(const std::variant<uint, std::wstring_view>& player)
+	Action<uint> GetShipValue(const std::variant<uint, std::wstring_view>& player)
 	{
 		if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX && !Client::IsInCharSelectMenu(client))
 		{
 			SaveChar(player);
 			if (!Client::IsValidClientID(client))
 			{
-				return cpp::fail(Error::UnknownError);
+				return {cpp::fail(Error::UnknownError)};
 			}
 		}
 
@@ -1503,10 +1504,10 @@ namespace Hk::Player
 
 		uint baseId = 0;
 
-		const auto CharFile = ReadCharFile(player);
+		const auto CharFile = ReadCharFile(player).Raw();
 		if (CharFile.has_error())
 		{
-			return cpp::fail(CharFile.error());
+			return {cpp::fail(CharFile.error())};
 		}
 
 		for (const auto& line : CharFile.value())
@@ -1589,7 +1590,7 @@ namespace Hk::Player
 			}
 		}
 
-		return static_cast<uint>(value);
+		return {value};
 	}
 
 	void SaveChar(ClientId client)
@@ -1599,100 +1600,100 @@ namespace Hk::Player
 		pub::Save(client, 1);
 	}
 
-	cpp::result<const ShipId, Error> GetTarget(const std::variant<uint, std::wstring_view>& player)
+	Action<ShipId> GetTarget(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
-		const auto ship = GetShip(client);
+		const auto ship = GetShip(client).Raw();
 		if (ship.has_error())
-			return cpp::fail(ship.error());
+			return {cpp::fail(ship.error())};
 
 		uint target;
 		pub::SpaceObj::GetTarget(ship.value(), target);
 		if (!target)
-			return cpp::fail(Error::NoTargetSelected);
+			return {cpp::fail(Error::NoTargetSelected)};
 
-		return target;
+		return {target};
 	}
 
-	cpp::result<ClientId, Error> GetTargetClientID(const std::variant<uint, std::wstring_view>& player)
+	Action<ClientId> GetTargetClientID(const std::variant<uint, std::wstring_view>& player)
 	{
-		const auto target = GetTarget(player);
+		const auto target = GetTarget(player).Raw();
 		if (target.has_error())
-			return cpp::fail(target.error());
+			return {cpp::fail(target.error())};
 
-		auto targetClientId = Client::GetClientIdByShip(target.value());
+		auto targetClientId = Client::GetClientIdByShip(target.value()).Raw();
 		if (targetClientId.has_error())
-			return cpp::fail(Error::TargetIsNotPlayer);
+			return {cpp::fail(Error::TargetIsNotPlayer)};
 
-		return targetClientId;
+		return {targetClientId};
 	}
 
-	cpp::result<const BaseId, Error> GetCurrentBase(const std::variant<uint, std::wstring_view>& player)
+	Action<BaseId> GetCurrentBase(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 
 		uint base;
 		pub::Player::GetBase(client, base);
 		if (base)
 		{
-			return base;
+			return {base};
 		}
 
-		return cpp::fail(Error::PlayerNotDocked);
+		return {cpp::fail(Error::PlayerNotDocked)};
 	}
 
-	cpp::result<const SystemId, Error> GetSystem(const std::variant<uint, std::wstring_view>& player)
+	Action<SystemId> GetSystem(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 
 		uint system;
 		pub::Player::GetSystem(client, system);
 		if (!system)
-			return cpp::fail(Error::InvalidSystem);
+			return {cpp::fail(Error::InvalidSystem)};
 
-		return system;
+		return {system};
 	}
 
 	// returns ship instance ID
-	cpp::result<const ShipId, Error> GetShip(const std::variant<uint, std::wstring_view>& player)
+	Action<ShipId> GetShip(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 
 		uint ship;
 		pub::Player::GetShip(client, ship);
 		if (!ship)
-			return cpp::fail(Error::PlayerNotInSpace);
+			return {cpp::fail(Error::PlayerNotInSpace)};
 
-		return ship;
+		return {ship};
 	}
 
 	// returns Ship type
-	cpp::result<const uint, Error> GetShipID(const std::variant<uint, std::wstring_view>& player)
+	Action<uint> GetShipID(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 
 		uint shipId;
 		pub::Player::GetShipID(client, shipId);
 		if (!shipId)
-			return cpp::fail(Error::PlayerNotInSpace);
+			return {cpp::fail(Error::PlayerNotInSpace)};
 
-		return shipId;
+		return {shipId};
 	}
 
 	cpp::result<void, Error> MarkObj(const std::variant<uint, std::wstring_view>& player, uint objId, int markStatus)
@@ -1707,16 +1708,16 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> GetPvpKills(const std::variant<uint, std::wstring_view>& player)
+	Action<int> GetPvpKills(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 		int kills;
 		pub::Player::GetNumKills(client, kills);
-		return kills;
+		return {kills};
 	}
 
 	cpp::result<void, Error> SetPvpKills(const std::variant<uint, std::wstring_view>& player, int killAmount)
@@ -1732,12 +1733,12 @@ namespace Hk::Player
 		return {};
 	}
 
-	cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring_view>& player)
+	Action<int> IncrementPvpKills(const std::variant<uint, std::wstring_view>& player)
 	{
 		ClientId client = Client::ExtractClientID(player);
 		if (client == UINT_MAX)
 		{
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 
 		int kills;
@@ -1745,7 +1746,6 @@ namespace Hk::Player
 		kills++;
 		pub::Player::SetNumKills(client, kills);
 
-		return {};
+		return {0};
 	}
 } // namespace Hk::Player
-

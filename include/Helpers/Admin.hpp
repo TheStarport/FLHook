@@ -3,11 +3,11 @@
 namespace Hk::Admin
 {
 	DLL std::wstring GetPlayerIP(ClientId client);
-	DLL cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu);
+	DLL Action<PlayerInfo> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu);
 	DLL std::list<PlayerInfo> GetPlayers();
-	DLL cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client);
+	DLL Action<DPN_CONNECTION_INFO> GetConnectionStats(ClientId client);
 	DLL cpp::result<void, Error> ChangeNPCSpawn(bool disable);
-	DLL cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& basename);
+	DLL Action<BaseHealth> GetBaseStatus(const std::wstring& basename);
 	DLL Fuse* GetFuseFromID(uint fuseId);
 	DLL bool LightFuse(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip);
 	DLL bool UnLightFuse(IObjRW* ship, uint fuseId);

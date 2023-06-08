@@ -63,12 +63,12 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
+	Action<PlayerInfo> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
 	{
 		ClientId client = Client::ExtractClientID(player);
 
 		if (client == UINT_MAX || (Client::IsInCharSelectMenu(client) && !alsoCharmenu))
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 
 		PlayerInfo pi;
 		const wchar_t* activeCharname = (wchar_t*)Players.GetActiveCharacterName(client);
@@ -99,11 +99,11 @@ namespace Hk::Admin
 		}
 
 		// get ping
-		auto ci = GetConnectionStats(client);
+		auto ci = GetConnectionStats(client).Raw();
 		if (ci.has_error())
 		{
 			Logger::i()->Log(LogLevel::Warn, L"Invalid client ID provided when getting connection stats");
-			return cpp::fail(Error::PlayerNotLoggedIn);
+			return {cpp::fail(Error::PlayerNotLoggedIn)};
 		}
 		pi.connectionInfo = ci.value();
 
@@ -112,7 +112,7 @@ namespace Hk::Admin
 
 		pi.hostname = ClientInfo[client].hostname;
 
-		return pi;
+		return {pi};
 	}
 
 	std::list<PlayerInfo> GetPlayers()
@@ -127,27 +127,25 @@ namespace Hk::Admin
 			if (Client::IsInCharSelectMenu(client))
 				continue;
 
-			auto pi = GetPlayerInfo(client, false);
-			auto a = std::move(pi).value();
-			ret.emplace_back(a);
+			ret.emplace_back(GetPlayerInfo(client, false).Unwrap());
 		}
 		return ret;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client)
+	Action<DPN_CONNECTION_INFO> GetConnectionStats(ClientId client)
 	{
 		if (client < 1 || client > MaxClientId)
-			return cpp::fail(Error::InvalidClientId);
+			return {cpp::fail(Error::InvalidClientId)};
 
 		CDPClientProxy* cdpClient = clientProxyArray[client - 1];
 
 		DPN_CONNECTION_INFO ci;
 		if (!cdpClient || !cdpClient->GetConnectionStats(&ci))
-			return cpp::fail(Error::InvalidClientId);
+			return {cpp::fail(Error::InvalidClientId)};
 
-		return ci;
+		return {ci};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,13 +180,13 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<BaseHealth, Error> GetBaseStatus(const std::wstring& basename)
+	Action<BaseHealth> GetBaseStatus(const std::wstring& basename)
 	{
 		uint baseId = 0;
 		pub::GetBaseID(baseId, StringUtils::wstos(basename).c_str());
 		if (!baseId)
 		{
-			return cpp::fail(Error::InvalidBaseName);
+			return {cpp::fail(Error::InvalidBaseName)};
 		}
 
 		float curHealth;
@@ -197,7 +195,7 @@ namespace Hk::Admin
 		const Universe::IBase* base = Universe::get_base(baseId);
 		pub::SpaceObj::GetHealth(base->spaceObjId, curHealth, maxHealth);
 		BaseHealth bh = {curHealth, maxHealth};
-		return bh;
+		return {bh};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////

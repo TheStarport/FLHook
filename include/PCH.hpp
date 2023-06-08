@@ -48,6 +48,7 @@
 #include "Tools/Structs.hpp"
 #include "Tools/Concepts.hpp"
 #include "Tools/Utils.hpp"
+#include "Exceptions/Action.hpp"
 
 #include <sqlite_orm/sqlite_orm.h>
 

@@ -63,17 +63,8 @@ cpp::result<void, std::wstring_view> AdminCommandProcessor::Validate(const Allow
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::SetCash(std::wstring_view characterName, uint amount)
 {
 	// Rights check here.
-	const auto playerInitialCash = Hk::Player::GetCash(characterName);
-
-	if (playerInitialCash.has_error())
-	{
-		return cpp::fail(nlohmann::json {{"err", playerInitialCash.error()}});
-	}
-	const auto res = Hk::Player::AdjustCash(characterName, amount - playerInitialCash.value());
-	if (res.has_error())
-	{
-		return cpp::fail(nlohmann::json {{"err", magic_enum::enum_name(res.error())}});
-	}
+	const auto playerInitialCash = Hk::Player::GetCash(characterName).Handle();
+	const auto res = Hk::Player::AdjustCash(characterName, amount - playerInitialCash);
 	return nlohmann::json {{"res", std::format(L"{} cash set to {} credits", characterName, amount)}, {"characterName", characterName}, {"amount", amount}};
 };
 
@@ -81,14 +72,8 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetCash(std::
 {
 	// TODO: Rights Check.
 	// TODO: Get HK functions to respect views.
-
-	const auto res = Hk::Player::GetCash(characterName);
-	if (res.has_error())
-	{
-		return cpp::fail(nlohmann::json {{"err", magic_enum::enum_name(res.error())}});
-	}
-
-	return nlohmann::json {{"res", std::format(L"{} has been set {} credits.", characterName, res.value())}, {characterName, res.value()}};
+	const auto res = Hk::Player::GetCash(characterName).Handle();
+	return nlohmann::json {{"res", std::format(L"{} has been set {} credits.", characterName, res)}, {characterName, res}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::KickPlayer(std::wstring_view characterName, std::wstring_view reason)
@@ -171,8 +156,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::ResetRep(std:
 	{
 		return nlohmann::json {{"err", magic_enum::enum_name(res.error())}};
 	}
-	return nlohmann::json {
-	    {"res", std::format(L"{}'rep to {} reset", characterName, repGroup)}, {"repGroup", repGroup}, {"characterName", characterName}};
+	return nlohmann::json {{"res", std::format(L"{}'rep to {} reset", characterName, repGroup)}, {"repGroup", repGroup}, {"characterName", characterName}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::GetRep(std::wstring_view characterName, const std::wstring& repGroup)
@@ -528,7 +512,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Beam(std::wst
 		return nlohmann::json {{"err", res.error()}};
 	}
 
-	return nlohmann::json {{"res", std::format(L"{} beamed to {}", targetPlayer,  base.value()->baseId)}};
+	return nlohmann::json {{"res", std::format(L"{} beamed to {}", targetPlayer, base.value()->baseId)}};
 }
 
 cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Pull(const std::wstring& characterName)
@@ -553,7 +537,7 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Pull(const st
 	return nlohmann::json {{"res", std::format(L"player {} pulled to {} at {},{},{}", characterName, currentUser, pos.x, pos.y, pos.z)}};
 }
 
-//cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Move(const std::wstring& characterName, Vector position)
+// cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Move(const std::wstring& characterName, Vector position)
 //{
 //	std::wstring targetPlayer;
 //
@@ -578,4 +562,4 @@ cpp::result<nlohmann::json, nlohmann::json> AdminCommandProcessor::Pull(const st
 //	pos = position;
 //	Hk::Player::RelocateClient(target.value().client, pos, orientation);
 //	return nlohmann::json {{"res", std::format(L"player {} moved to {},{},{}", characterName, pos.x, pos.y, pos.z)}};
-//}
+// }
