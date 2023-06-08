@@ -5,7 +5,7 @@ cpp::result<std::wstring, Error> FileUtils::FileToBuffer(const std::wstring& fil
 	// No file, no processing
 	if (!std::filesystem::exists(fileLocation))
 	{
-		return cpp::fail(Error::FileNotFound);
+		return {cpp::fail(Error::FileNotFound)};
 	}
 
 	std::wstring buffer;
@@ -29,18 +29,18 @@ void FileUtils::BufferToFile(const std::wstring& fileLocation, const std::wstrin
 
 cpp::result<std::wstring, Error> FileUtils::ReadCharacterFile(std::wstring_view characterName)
 {
-	const auto acc = Hk::Client::GetAccountByCharName(characterName);
+	const auto acc = Hk::Client::GetAccountByCharName(characterName).Raw();
 	if (acc.has_error())
 	{
-		return cpp::fail(acc.error());
+		return {cpp::fail(acc.error())};
 	}
 
 	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-	auto file = Hk::Client::GetCharFileName(characterName);
+	auto file = Hk::Client::GetCharFileName(characterName).Raw();
 	if (file.has_error())
 	{
-		return cpp::fail(file.error());
+		return {cpp::fail(file.error())};
 	}
 
 	const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
@@ -48,7 +48,7 @@ cpp::result<std::wstring, Error> FileUtils::ReadCharacterFile(std::wstring_view 
 	auto buffer = FileToBuffer(charFile);
 	if (buffer.has_error())
 	{
-		return cpp::fail(buffer.error());
+		return {cpp::fail(buffer.error())};
 	}
 
 	const auto str = buffer.value();
@@ -60,20 +60,20 @@ cpp::result<std::wstring, Error> FileUtils::ReadCharacterFile(std::wstring_view 
 	return FlCodec::Decode(str);
 }
 
-cpp::result<void, Error> FileUtils::WriteCharacterFile(std::wstring_view characterName, std::wstring_view newFileData)
+Action<void> FileUtils::WriteCharacterFile(std::wstring_view characterName, std::wstring_view newFileData)
 {
-	const auto acc = Hk::Client::GetAccountByCharName(characterName);
+	const auto acc = Hk::Client::GetAccountByCharName(characterName).Raw();
 	if (acc.has_error())
 	{
-		return cpp::fail(acc.error());
+		return {cpp::fail(acc.error())};
 	}
 
 	const auto dir = Hk::Client::GetAccountDirName(acc.value());
 
-	auto file = Hk::Client::GetCharFileName(characterName);
+	auto file = Hk::Client::GetCharFileName(characterName).Raw();
 	if (file.has_error())
 	{
-		return cpp::fail(file.error());
+		return {cpp::fail(file.error())};
 	}
 
 	const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
@@ -87,7 +87,7 @@ cpp::result<void, Error> FileUtils::WriteCharacterFile(std::wstring_view charact
 		BufferToFile(charFile, newFileData);
 	}
 
-	return {};
+	return {{}};
 }
 
 std::wstring FileUtils::SaveDataPath()

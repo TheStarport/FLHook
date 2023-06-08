@@ -25,6 +25,9 @@ concept IsDerivedFrom = std::derived_from<Derived, Base>;
 template<typename Base, typename Derived>
 concept IsBaseOf = std::is_base_of_v<Base, Derived>;
 
+template<typename T, typename TT>
+concept IsSameAs = std::is_same_v<T, TT>;
+
 template<class T, class InnerType>
 concept IsConvertibleRangeOf = requires(T&& t)
 {

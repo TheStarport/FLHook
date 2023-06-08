@@ -132,7 +132,7 @@ cpp::result<const Light&, Error> DataManager::FindLightByHash(EquipId hash) cons
 	const auto light = lights.find(hash);
 	if (light == lights.end())
 	{
-		return cpp::fail(Error::NicknameNotFound);
+		return {cpp::fail(Error::NicknameNotFound)};
 	}
 
 	return light->second;

@@ -475,7 +475,7 @@ void InvitePlayer(ClientId& client, const std::wstring_view& characterName)
 	const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
 	char buf[0xFFFF];
 	uint retVal;
-	if (Hk::Chat::FMsgEncodeXml(XML, buf, sizeof buf, retVal).has_error())
+	if (Hk::Chat::FMsgEncodeXml(XML, buf, sizeof buf, retVal).Raw().has_error())
 	{
 		PrintUserCmdText(client, L"Error: Could not encode XML");
 		return;

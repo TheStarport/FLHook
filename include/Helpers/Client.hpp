@@ -67,9 +67,9 @@ namespace Hk::Client
 	DLL Action<std::wstring> GetPlayerSystem(ClientId client);
 	DLL Action<std::wstring> GetSystemNickByID(uint systemId);
 	DLL std::vector<uint> getAllPlayersInSystem(SystemId system);
-	DLL cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool kick);
-	DLL cpp::result<void, Error> UnlockAccountAccess(CAccount* acc);
-	DLL cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId);
+	DLL Action<void> LockAccountAccess(CAccount* acc, bool kick);
+	DLL Action<void> UnlockAccountAccess(CAccount* acc);
+	DLL Action<void> PlaySoundEffect(ClientId client, uint soundId);
 	DLL void GetItemsForSale(uint baseId, std::list<uint>& items);
 	DLL Action<IObjInspectImpl*> GetInspect(ClientId client);
 	DLL EngineState GetEngineState(ClientId client);

@@ -40,20 +40,20 @@ cpp::result<void, std::wstring_view> AdminCommandProcessor::Validate(const Allow
 	// If the current context does not allow command
 	if (static_cast<int>(currentContext & context) == 0)
 	{
-		return cpp::fail(invalidCommand);
+		return {cpp::fail(invalidCommand)};
 	}
 
 	const auto credentials = credentialsMap.find(currentUser.data());
 	if (credentials == credentialsMap.end())
 	{
 		// Some how got here and not authenticated!
-		return cpp::fail(invalidPerms);
+		return {cpp::fail(invalidPerms)};
 	}
 
 	if (std::ranges::find(credentials->second, requiredRole) == credentials->second.end() &&
 	    std::ranges::find(credentials->second, SuperAdminRole) == credentials->second.end())
 	{
-		return cpp::fail(invalidPerms);
+		return {cpp::fail(invalidPerms)};
 	}
 
 	// All good!

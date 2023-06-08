@@ -34,22 +34,22 @@ cpp::result<void, std::wstring> MailManager::SendNewMail(const std::variant<uint
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	if (item.subject.length() > 32)
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::SubjectTooLong));
+		return {cpp::fail(GetErrorCode(ErrorTypes::SubjectTooLong))};
 	}
 
 	if (item.author.length() > 36)
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::AuthorTooLong));
+		return {cpp::fail(GetErrorCode(ErrorTypes::AuthorTooLong))};
 	}
 
 	if (item.body.length() > 255)
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::BodyTooLong));
+		return {cpp::fail(GetErrorCode(ErrorTypes::BodyTooLong))};
 	}
 
 	storage.insert(item);
@@ -64,7 +64,7 @@ cpp::result<std::vector<MailManager::MailItem>, std::wstring> MailManager::GetMa
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	if (ignoreRead)
@@ -83,7 +83,7 @@ cpp::result<MailManager::MailItem, std::wstring> MailManager::GetMailById(const 
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	auto mail = storage.get<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::id) == index));
@@ -99,7 +99,7 @@ cpp::result<void, std::wstring> MailManager::DeleteMail(const std::variant<uint,
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	storage.remove<MailItem>(where(::c(&MailItem::characterName) == characterName && ::c(&MailItem::id) == index));
@@ -112,7 +112,7 @@ cpp::result<int64, std::wstring> MailManager::PurgeAllMail(const std::variant<ui
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	if (readMailOnly == true)
@@ -130,7 +130,7 @@ cpp::result<int64, std::wstring> MailManager::UpdateCharacterName(const std::wst
 {
 	if (const auto acc = Hk::Client::GetAccountByCharName(newCharacterName); acc.has_error())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 
 	storage.update_all(set(::c(&MailItem::characterName) = newCharacterName), where(::c(&MailItem::characterName) == oldCharacterName));
@@ -143,7 +143,7 @@ cpp::result<int64, std::wstring> MailManager::GetUnreadMailCount(const std::vari
 	const auto characterName = GetCharacterName(character);
 	if (characterName.empty())
 	{
-		return cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter));
+		return {cpp::fail(GetErrorCode(ErrorTypes::InvalidCharacter))};
 	}
 	return storage.count<MailItem>(where(::c(&MailItem::characterName) == characterName));
 }

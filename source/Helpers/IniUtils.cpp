@@ -194,13 +194,13 @@ namespace Hk
 		const auto characterData = FileUtils::ReadCharacterFile(characterName);
 		if (characterData.has_error())
 		{
-			return cpp::fail(characterData.error());
+			return {cpp::fail(characterData.error())};
 		}
 
 		return GetIniValue(characterData.value(), L"Player", key);
 	}
 
-	cpp::result<void, Error> IniUtils::WriteToPlayerFile(
+	Action<void> IniUtils::WriteToPlayerFile(
 	    const std::variant<uint, std::wstring_view>& player, const std::wstring& key, const std::wstring& value)
 	{
 		const auto characterName = player.index() == 0
@@ -210,7 +210,7 @@ namespace Hk
 		auto characterData = FileUtils::ReadCharacterFile(characterName);
 		if (characterData.has_error())
 		{
-			return cpp::fail(characterData.error());
+			return {cpp::fail(characterData.error())};
 		}
 
 		std::wstringstream wss(characterData.value());

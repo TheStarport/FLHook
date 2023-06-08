@@ -17,7 +17,7 @@ namespace Hk
 #endif
 
 		cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key) const;
-		cpp::result<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key, const std::wstring& value);
+		Action<void> WriteToPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key, const std::wstring& value);
 
 		void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value);
 		std::wstring GetCharacterIniString(ClientId client, const std::wstring& name);

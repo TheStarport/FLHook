@@ -6,13 +6,13 @@ namespace Hk::Admin
 	DLL Action<PlayerInfo> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu);
 	DLL std::list<PlayerInfo> GetPlayers();
 	DLL Action<DPN_CONNECTION_INFO> GetConnectionStats(ClientId client);
-	DLL cpp::result<void, Error> ChangeNPCSpawn(bool disable);
+	DLL Action<void> ChangeNPCSpawn(bool disable);
 	DLL Action<BaseHealth> GetBaseStatus(const std::wstring& basename);
 	DLL Fuse* GetFuseFromID(uint fuseId);
 	DLL bool LightFuse(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip);
 	DLL bool UnLightFuse(IObjRW* ship, uint fuseId);
 	DLL CEqObj* GetEqObjFromObjRW(IObjRW* objRW);
-	DLL cpp::result<void, Error> AddRole(const std::wstring& characterName, const std::wstring& role);
-	DLL cpp::result<void, Error> RemoveRole(const std::wstring& characterName, const std::wstring& role);
-	DLL cpp::result<void, Error> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles);
+	DLL Action<void> AddRole(const std::wstring& characterName, const std::wstring& role);
+	DLL Action<void> RemoveRole(const std::wstring& characterName, const std::wstring& role);
+	DLL Action<void> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles);
 }

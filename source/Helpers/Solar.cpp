@@ -10,7 +10,7 @@ namespace Hk::Solar
 		uint system;
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!system)
-			return cpp::fail(Error::InvalidSystem);
+			return {cpp::fail(Error::InvalidSystem)};
 
 		return system;
 	}
@@ -23,7 +23,7 @@ namespace Hk::Solar
 				uint ship = 0;
 				pub::Player::GetShip(id, ship);
 				if (!ship)
-					return cpp::fail(Error::PlayerNotInSpace);
+					return {cpp::fail(Error::PlayerNotInSpace)};
 				id = ship;
 			}
 				[[fallthrough]];
@@ -35,7 +35,7 @@ namespace Hk::Solar
 				break;
 			}
 			default:
-				return cpp::fail(Error::InvalidIdType);
+				return {cpp::fail(Error::InvalidIdType)};
 		}
 	}
 
@@ -45,7 +45,7 @@ namespace Hk::Solar
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!system)
 		{
-			return cpp::fail(Error::InvalidSpaceObjId);
+			return {cpp::fail(Error::InvalidSpaceObjId)};
 		}
 		float mass;
 		pub::SpaceObj::GetMass(spaceObjId, mass);
@@ -59,7 +59,7 @@ namespace Hk::Solar
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!system)
 		{
-			return cpp::fail(Error::InvalidSpaceObjId);
+			return {cpp::fail(Error::InvalidSpaceObjId)};
 		}
 		Vector v1;
 		Vector v2;
@@ -73,7 +73,7 @@ namespace Hk::Solar
 		pub::SpaceObj::GetSystem(spaceObjId, system);
 		if (!system)
 		{
-			return cpp::fail(Error::InvalidSpaceObjId);
+			return {cpp::fail(Error::InvalidSpaceObjId)};
 		}
 		uint type;
 		pub::SpaceObj::GetType(spaceObjId, type);
@@ -107,7 +107,7 @@ namespace Hk::Solar
 			}
 			baseinfo = Universe::GetNextBase();
 		}
-		return cpp::fail(Error::InvalidBase);
+		return {cpp::fail(Error::InvalidBase)};
 	}
 
 	cpp::result<uint, Error> GetAffiliation(BaseId solarId)
@@ -116,14 +116,14 @@ namespace Hk::Solar
 		pub::SpaceObj::GetSolarRep(solarId, solarRep);
 		if (solarRep == -1)
 		{
-			return cpp::fail(Error::InvalidBase);
+			return {cpp::fail(Error::InvalidBase)};
 		}
 
 		uint baseAff;
 		pub::Reputation::GetAffiliation(solarRep, baseAff);
 		if (baseAff == UINT_MAX)
 		{
-			return cpp::fail(Error::InvalidRepGroup);
+			return {cpp::fail(Error::InvalidRepGroup)};
 		}
 		return baseAff;
 	}
@@ -134,14 +134,14 @@ namespace Hk::Solar
 		pub::Market::GetNominalPrice(goodId, nomPrice);
 		if (nomPrice == 0.0f)
 		{
-			return cpp::fail(Error::InvalidGood);
+			return {cpp::fail(Error::InvalidGood)};
 		}
 
 		float price;
 		pub::Market::GetPrice(baseId, goodId, price);
 		if (price == -1)
 		{
-			return cpp::fail(Error::InvalidBase);
+			return {cpp::fail(Error::InvalidBase)};
 		}
 		return price;
 	}

@@ -20,7 +20,7 @@ struct AttrMin : refl::attr::usage::field
 		{
 			return {};
 		}
-		return cpp::fail(std::string("Value was below minimum threshold"));
+		return {cpp::fail(std::string("Value was below minimum threshold"))};
 	}
 };
 
@@ -44,7 +44,7 @@ struct AttrMax : refl::attr::usage::field
 		{
 			return {};
 		}
-		return cpp::fail(std::string("Value was above maximum threshold"));
+		return {cpp::fail(std::string("Value was above maximum threshold"))};
 	}
 };
 
@@ -63,7 +63,7 @@ struct AttrNotEmptyNotWhiteSpace : refl::attr::usage::field
 	{
 		if (comp.empty() || std::ranges::all_of(comp, [](const auto& c) { return c == ' ' || c == '\n' || c == '\r' || c == '\t'; }))
 		{
-			return cpp::fail(std::string("Value was empty"));
+			return {cpp::fail(std::string("Value was empty"))};
 		}
 		return {};
 	}
@@ -87,7 +87,7 @@ struct AttrMaxLength : refl::attr::usage::field
 	{
 		if (comp.length() > val)
 		{
-			return cpp::fail(std::format("Value {} was above max of {}", comp.length(), val));
+			return {cpp::fail(std::format("Value {} was above max of {}", comp.length(), val))};
 		}
 		return {};
 	}
@@ -111,7 +111,7 @@ struct AttrMinLength : refl::attr::usage::field
 	{
 		if (comp.length() < val)
 		{
-			return cpp::fail(std::format("Value {} was below max of {}", comp.length(), val));
+			return {cpp::fail(std::format("Value {} was below max of {}", comp.length(), val))};
 		}
 		return {};
 	}
@@ -154,7 +154,7 @@ struct AttrNotEmpty : refl::attr::usage::field
 	{
 		if (comp.empty())
 		{
-			return cpp::fail(std::string("Value was empty"));
+			return {cpp::fail(std::string("Value was empty"))};
 		}
 		return {};
 	}

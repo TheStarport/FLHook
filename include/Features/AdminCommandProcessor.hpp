@@ -140,7 +140,7 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 		{
 			if (const auto validation = Validate(command.allowedContext, command.requiredRole); validation.has_error())
 			{
-				return cpp::fail(nlohmann::json {{"err", validation.error()}});
+				return {cpp::fail(nlohmann::json {{"err", validation.error()}})};
 			}
 
 			return command.func(*processor, paramVector);
@@ -157,7 +157,7 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 		// The original command was not found, we now search our plugins
 
 		// No matching command was found.
-		return cpp::fail(nlohmann::json {{"err", std::format(L"ERR: Command not found. ({})", cmd)}});
+		return {cpp::fail(nlohmann::json {{"err", std::format(L"ERR: Command not found. ({})", cmd)}})};
 	}
 
 	nlohmann::json::object_t GeneratePlayerInfoObj(const PlayerInfo& player);

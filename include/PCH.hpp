@@ -39,16 +39,19 @@
 #include "Tools/Constexpr.hpp"
 #include "Tools/Macros.hpp"
 
+#include "Tools/TemplateHelpers.hpp"
+#include "Tools/Concepts.hpp"
+#include "Exceptions/Action.hpp"
+
 #include "FLCore/FLCoreCommon.h"
 #include "FLCore/FLCoreServer.h"
 #include "FLCore/FLCoreRemoteClient.h"
 #include "FLCore/FLCoreDALib.h"
 
-#include "Tools/TemplateHelpers.hpp"
 #include "Tools/Structs.hpp"
-#include "Tools/Concepts.hpp"
+
 #include "Tools/Utils.hpp"
-#include "Exceptions/Action.hpp"
+
 
 #include <sqlite_orm/sqlite_orm.h>
 

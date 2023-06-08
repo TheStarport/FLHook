@@ -27,7 +27,7 @@ namespace Hk::Personalities
 		const auto& pilot = pilots.find(pilotNickname);
 		if (pilot == pilots.end())
 		{
-			return cpp::fail(Error::NicknameNotFound);
+			return {cpp::fail(Error::NicknameNotFound)};
 		}
 
 		return pilot->second;

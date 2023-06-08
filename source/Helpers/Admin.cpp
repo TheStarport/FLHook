@@ -150,12 +150,12 @@ namespace Hk::Admin
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> ChangeNPCSpawn(bool disable)
+	Action<void> ChangeNPCSpawn(bool disable)
 	{
 		if (CoreGlobals::c()->disableNpcs && disable)
-			return {};
+			return {{}};
 		if (!CoreGlobals::c()->disableNpcs && !disable)
-			return {};
+			return {{}};
 
 		char jump[1];
 		char cmp[1];
@@ -175,7 +175,7 @@ namespace Hk::Admin
 		address = CONTENT_ADDR(ADDR_DISABLENPCSPAWNS2);
 		MemUtils::WriteProcMem(address, &cmp, 1);
 		g_bNPCDisabled = disable;
-		return {};
+		return {{}};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,19 +244,20 @@ namespace Hk::Admin
 		return GetEqObjFromObjRW_(objRW);
 	}
 
-	cpp::result<void, Error> AddRole(const std::wstring& characterName, const std::wstring& role)
+	// TODO: implement role based commands
+	Action<void> AddRole(const std::wstring& characterName, const std::wstring& role)
 	{
-		return {};
+		return {{}};
 	}
 
-	cpp::result<void, Error> RemoveRole(const std::wstring& characterName, const std::wstring& role)
+	Action<void> RemoveRole(const std::wstring& characterName, const std::wstring& role)
 	{
-		return {};
+		return {{}};
 	}
 
-	cpp::result<void, Error> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles)
+	Action<void> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles)
 	{
-		return {};
+		return {{}};
 	}
 
 	__declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)

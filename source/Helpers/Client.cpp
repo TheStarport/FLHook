@@ -11,7 +11,7 @@ namespace Hk::Client
 	{
 		if (character.find(L"id ") == std::wstring::npos)
 		{
-			return cpp::fail(Error::InvalidIdString);
+			return {cpp::fail(Error::InvalidIdString)};
 		}
 
 		auto resolvedId = ResolveID(character).Raw();
@@ -22,7 +22,7 @@ namespace Hk::Client
 			{
 				if (resolvedId.error() == Error::AmbiguousShortcut || resolvedId.error() == Error::NoMatchingPlayer)
 				{
-					return cpp::fail(resolvedId.error());
+					return {cpp::fail(resolvedId.error())};
 				}
 
 				if (resolvedId.error() == Error::InvalidShortcutString)
@@ -30,10 +30,10 @@ namespace Hk::Client
 					resolvedId = GetClientIdFromCharName(character).Raw();
 					if (resolvedId.has_value())
 						return resolvedId.value();
-					return cpp::fail(Error::PlayerNotLoggedIn);
+					return {cpp::fail(Error::PlayerNotLoggedIn)};
 				}
 
-				return cpp::fail(resolvedId.error());
+				return {cpp::fail(resolvedId.error())};
 			}
 		}
 
@@ -330,14 +330,14 @@ namespace Hk::Client
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> LockAccountAccess(CAccount* acc, bool kick)
+	Action<void> LockAccountAccess(CAccount* acc, bool kick)
 	{
 		const std::array<char, 1> jmp = {'\xEB'};
 		const std::array<char, 1> jbe = {'\x76'};
 
 		const auto accountId = GetAccountID(acc).Raw();
 		if (accountId.has_error())
-			return cpp::fail(accountId.error());
+			return {cpp::fail(accountId.error())};
 
 		st6::wstring fr((ushort*)accountId.value().c_str());
 
@@ -348,20 +348,20 @@ namespace Hk::Client
 		if (!kick)
 			MemUtils::WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
 
-		return {};
+		return {{}};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	cpp::result<void, Error> UnlockAccountAccess(CAccount* acc)
+	Action<void> UnlockAccountAccess(CAccount* acc)
 	{
 		const auto accountId = GetAccountID(acc).Raw();
 		if (accountId.has_error())
-			return cpp::fail(accountId.error());
+			return {cpp::fail(accountId.error())};
 
 		st6::wstring fr((ushort*)accountId.value().c_str());
 		Players.UnlockAccountAccess(fr);
-		return {};
+		return {{}};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,7 +512,7 @@ namespace Hk::Client
 		const auto acc = GetAccountByCharName(std::get<std::wstring_view>(player)).Raw();
 		if (acc.has_error())
 		{
-			return cpp::fail(acc.error());
+			return {cpp::fail(acc.error())};
 		}
 
 		return acc.value();
@@ -539,14 +539,14 @@ namespace Hk::Client
 		return L"";
 	}
 
-	cpp::result<void, Error> PlaySoundEffect(ClientId client, uint soundId)
+	Action<void> PlaySoundEffect(ClientId client, uint soundId)
 	{
 		if (IsValidClientID(client))
 		{
 			pub::Audio::PlaySoundEffect(client, soundId);
-			return {};
+			return {{}};
 		}
-		return cpp::fail(Error::PlayerNotLoggedIn);
+		return {cpp::fail(Error::PlayerNotLoggedIn)};
 	}
 
 	std::vector<uint> getAllPlayersInSystem(SystemId system)

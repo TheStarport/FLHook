@@ -65,7 +65,7 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 	const auto pluginIterator = std::ranges::find_if(plugins, [&name](const std::shared_ptr<Plugin>& data) { return name == data->shortName; });
 
 	if (pluginIterator == end())
-		return cpp::fail(Error::PluginNotFound);
+		return {cpp::fail(Error::PluginNotFound)};
 
 	const auto plugin = pluginIterator->get();
 
