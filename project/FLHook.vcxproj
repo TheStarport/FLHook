@@ -262,8 +262,10 @@
     <ClInclude Include="..\include\Defs\ServerStats.hpp" />
     <ClInclude Include="..\include\Defs\ShipArchDefs.hpp" />
     <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
+    <ClInclude Include="..\include\Exceptions\Action.hpp" />
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
-    <ClInclude Include="..\include\Exceptions\InputException.hpp" />
+    <ClInclude Include="..\include\Exceptions\GameException.hpp" />
+    <ClInclude Include="..\include\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\include\ext\Singleton.h" />
     <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Features\DataManager.hpp" />

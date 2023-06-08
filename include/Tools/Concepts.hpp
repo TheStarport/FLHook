@@ -31,3 +31,6 @@ concept IsConvertibleRangeOf = requires(T&& t)
 	requires std::convertible_to<std::remove_cvref_t<decltype(*std::ranges::begin(t))>, InnerType>;
     std::ranges::end(t);
 };
+
+template<typename T>
+concept RequireParamterlessConstructor = std::is_default_constructible_v<T>;

@@ -329,9 +329,6 @@
     <ClInclude Include="..\include\Actions\CargoManipulation.hpp">
       <Filter>Include\Actions</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Exceptions\InputException.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp">
       <Filter>Include\Exceptions</Filter>
     </ClInclude>
@@ -364,6 +361,15 @@
     </ClInclude>
     <ClInclude Include="..\include\Helpers\FileUtils.hpp">
       <Filter>Include\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exceptions\Action.hpp">
+      <Filter>Include\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exceptions\GameException.hpp">
+      <Filter>Include\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Exceptions\UnsupportedException.hpp">
+      <Filter>Include\Exceptions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

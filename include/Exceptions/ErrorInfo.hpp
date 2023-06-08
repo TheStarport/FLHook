@@ -2,7 +2,7 @@
 
 class DLL ErrorInfo
 {
-	const inline static std::map<Error, std::wstring_view> errors = {{
+	const inline static std::map<Error, std::wstring_view> Errors = {{
 	    {Error::PlayerNotLoggedIn, L"Player not logged in"},
 	    {Error::CharacterDoesNotExist, L"Char does not exist"},
 	    {Error::CouldNotDecodeCharFile, L"Could not decode charfile"},
@@ -12,7 +12,7 @@ class DLL ErrorInfo
 	    {Error::PlayerNotDocked, L"Player in space"},
 	    {Error::UnknownError, L"unknown error"},
 	    {Error::InvalidClientId, L"Invalid client id"},
-	    {Error::InvalidIdString, L"Invalid id std::wstring"},
+	    {Error::InvalidIdString, L"Invalid id string"},
 	    {Error::InvalidSystem, L"Invalid system"},
 	    {Error::PlayerNotInSpace, L"Player not in space"},
 	    {Error::NotAdmin, L"Player is not an admin"},
@@ -25,7 +25,7 @@ class DLL ErrorInfo
 	    {Error::CharacterNameTooShort, L"Charname is too short"},
 	    {Error::AmbiguousShortcut, L"Ambiguous shortcut"},
 	    {Error::NoMatchingPlayer, L"No matching player"},
-	    {Error::InvalidShortcutString, L"Invalid shortcut std::wstring"},
+	    {Error::InvalidShortcutString, L"Invalid shortcut string"},
 	    {Error::MpNewCharacterFileNotFoundOrInvalid, L"mpnewcharacter.fl not found or invalid"},
 	    {Error::InvalidRepGroup, L"Invalid reputation group"},
 	    {Error::PluginCannotBeLoaded, L"Plugin cannot be unloaded"},

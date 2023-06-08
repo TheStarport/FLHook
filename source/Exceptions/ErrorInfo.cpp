@@ -3,7 +3,7 @@
 
 std::wstring_view ErrorInfo::GetText(const Error err)
 {
-	if (const auto errInfo = errors.find(err); errInfo != errors.end())
+	if (const auto errInfo = Errors.find(err); errInfo != Errors.end())
 	{
 		return errInfo->second;
 	}
