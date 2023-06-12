@@ -265,6 +265,7 @@
     <ClInclude Include="..\include\Exceptions\Action.hpp" />
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\include\Exceptions\GameException.hpp" />
+    <ClInclude Include="..\include\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\include\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\include\ext\Singleton.h" />
     <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp" />
