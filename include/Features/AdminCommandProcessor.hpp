@@ -83,8 +83,6 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
         std::wstring Pull(const std::wstring& characterName);
         std::wstring Move(const std::wstring& characterName, Vector position);
 
-#undef std::wstring
-
         constexpr inline static std::array<CommandInfo, 29> commands = {
             {AddCommand(L"getcash", GetCash, All, Cash),
              AddCommand(L"setcash", SetCash, All, Cash),

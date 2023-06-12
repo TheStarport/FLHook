@@ -163,7 +163,7 @@ std::wstring AdminCommandProcessor::ListCargo(std::wstring_view characterName)
 std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, const std::wstring& good, uint count, bool mission)
 {
     Hk::Player::AddCargo(characterName, good, count, mission).Handle();
-    std::format(L"{} units of {} has been added to {}'s cargo", count, good, characterName);
+    return std::format(L"{} units of {} has been added to {}'s cargo", count, good, characterName);
 }
 
 std::wstring AdminCommandProcessor::RenameChar(std::wstring_view characterName, const std::wstring& newName)
