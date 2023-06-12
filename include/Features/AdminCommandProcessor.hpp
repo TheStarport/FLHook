@@ -22,11 +22,7 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
             Reset = 0,
             GameOnly = 1,
             ConsoleOnly = 2,
-            ExternalOnly = 4,
             GameAndConsole = GameOnly | ConsoleOnly,
-            GameAndExternal = GameOnly | ExternalOnly,
-            ConsoleAndExternal = ConsoleOnly | ExternalOnly,
-            All = GameOnly | ConsoleOnly | ExternalOnly,
         };
 
     private:
@@ -81,38 +77,38 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
         std::wstring Chase(std::wstring_view characterName);
         std::wstring Beam(std::wstring_view characterName, const std::wstring& baseName);
         std::wstring Pull(const std::wstring& characterName);
-        std::wstring Move(const std::wstring& characterName, Vector position);
+        // std::wstring Move(const std::wstring& characterName, Vector position);
 
         constexpr inline static std::array<CommandInfo, 29> commands = {
-            {AddCommand(L"getcash", GetCash, All, Cash),
-             AddCommand(L"setcash", SetCash, All, Cash),
-             AddCommand(L"kick", KickPlayer, All, Expel),
-             AddCommand(L"ban", BanPlayer, All, Expel),
-             AddCommand(L"tempban", TempbanPlayer, All, Expel),
-             AddCommand(L"unban", UnBanPlayer, All, Expel),
-             AddCommand(L"getclient", GetClientId, All, Info),
-             AddCommand(L"kill", KillPlayer, All, Expel),
-             AddCommand(L"setrep", SetRep, All, Reputation),
-             AddCommand(L"resetrep", ResetRep, All, Reputation),
-             AddCommand(L"getrep", GetRep, All, Reputation),
-             AddCommand(L"msg", MessagePlayer, All, Message),
-             AddCommand(L"msgs", SendSystemMessage, All, Message),
-             AddCommand(L"msgu", SendUniverseMessage, All, Message),
-             AddCommand(L"listcargo", ListCargo, All, Cargo),
-             AddCommand(L"addcargo", AddCargo, All, Cargo),
-             AddCommand(L"renamechar", RenameChar, All, Character),
-             AddCommand(L"deletechar", DeleteChar, All, Character),
-             AddCommand(L"getplayerinfo", GetPlayerInfo, All, Info),
-             AddCommand(L"addroles", AddRoles, All, SuperAdmin),
-             AddCommand(L"deleteroles", DeleteRoles, All, SuperAdmin),
-             AddCommand(L"setroles", AddRoles, All, SuperAdmin),
-             AddCommand(L"loadplugin", LoadPlugin, All, Plugin),
-             AddCommand(L"unloadplugin", UnloadPlugin, All, Plugin),
-             AddCommand(L"reloadplugin", ReloadPlugin, All, Plugin),
-             AddCommand(L"listplugins", ListPlugins, All, Info),
+            {AddCommand(L"getcash", GetCash, GameAndConsole, Cash),
+             AddCommand(L"setcash", SetCash, GameAndConsole, Cash),
+             AddCommand(L"kick", KickPlayer, GameAndConsole, Expel),
+             AddCommand(L"ban", BanPlayer, GameAndConsole, Expel),
+             AddCommand(L"tempban", TempbanPlayer, GameAndConsole, Expel),
+             AddCommand(L"unban", UnBanPlayer, GameAndConsole, Expel),
+             AddCommand(L"getclient", GetClientId, GameAndConsole, Info),
+             AddCommand(L"kill", KillPlayer, GameAndConsole, Expel),
+             AddCommand(L"setrep", SetRep, GameAndConsole, Reputation),
+             AddCommand(L"resetrep", ResetRep, GameAndConsole, Reputation),
+             AddCommand(L"getrep", GetRep, GameAndConsole, Reputation),
+             AddCommand(L"msg", MessagePlayer, GameAndConsole, Message),
+             AddCommand(L"msgs", SendSystemMessage, GameAndConsole, Message),
+             AddCommand(L"msgu", SendUniverseMessage, GameAndConsole, Message),
+             AddCommand(L"listcargo", ListCargo, GameAndConsole, Cargo),
+             AddCommand(L"addcargo", AddCargo, GameAndConsole, Cargo),
+             AddCommand(L"renamechar", RenameChar, GameAndConsole, Character),
+             AddCommand(L"deletechar", DeleteChar, GameAndConsole, Character),
+             AddCommand(L"getplayerinfo", GetPlayerInfo, GameAndConsole, Info),
+             AddCommand(L"addroles", AddRoles, GameAndConsole, SuperAdmin),
+             AddCommand(L"deleteroles", DeleteRoles, GameAndConsole, SuperAdmin),
+             AddCommand(L"setroles", AddRoles, GameAndConsole, SuperAdmin),
+             AddCommand(L"loadplugin", LoadPlugin, GameAndConsole, Plugin),
+             AddCommand(L"unloadplugin", UnloadPlugin, GameAndConsole, Plugin),
+             AddCommand(L"reloadplugin", ReloadPlugin, GameAndConsole, Plugin),
+             AddCommand(L"listplugins", ListPlugins, GameAndConsole, Info),
              AddCommand(L"chase", Chase, GameOnly, Movement),
-             AddCommand(L"beam", Beam, All, Movement),
-             AddCommand(L"pull", Pull, All, Movement)}
+             AddCommand(L"beam", Beam, GameAndConsole, Movement),
+             AddCommand(L"pull", Pull, GameAndConsole, Movement)}
   // AddCommand(L"move", Move, GameOnly, Movement)
         };
 
