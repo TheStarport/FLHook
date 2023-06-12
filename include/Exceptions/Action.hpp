@@ -41,12 +41,12 @@ class Action
 
             if (result.has_error())
             {
-                if (func == std::nullopt)
+                if (!func.has_value())
                 {
                     throw GameException(L"An error has occurred.", result.error());
                 }
 
-                if (!func(result.error(), L"An error has occurred."))
+                if (!func.value()(result.error(), ErrorInfo::GetText(result.error())))
                 {
                     throw StopProcessingException();
                 }

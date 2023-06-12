@@ -126,7 +126,7 @@ namespace IServerImplHook
             }
             else if (Hk::Client::IsValidClientID(cidFrom.id))
             {
-                chatData->characterName = Hk::Client::GetCharacterNameByID(cidFrom.id).Handle();
+                chatData->characterName = Hk::Client::GetCharacterNameByID(cidFrom.id).Unwrap();
             }
             else
             {

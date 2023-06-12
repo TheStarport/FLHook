@@ -154,7 +154,7 @@ std::wstring AdminCommandProcessor::ListCargo(std::wstring_view characterName)
             continue;
         }
 
-        res += std::format(L"id={} archid={} count={} mission={} \n", i, item.archId, item.count, item.mission ? 1 : 0);
+        res += std::format(L"id={} archid={} count={} mission={} \n", item.id, item.archId, item.count, item.mission ? 1 : 0);
     }
 
     return res;
