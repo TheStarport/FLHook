@@ -49,7 +49,7 @@ If you would like the build process to copy FLHook as well as any enabled plugin
 
 1. Install Visual Studio 2022, required toolchains/modules are: `MSVC v142 (x86), C++ MFC for v142 build tools, C++ ATL for v142 build tools, C++/CLI support for v142 build tools.`
 2. If you don't already have vcpkg installed and setup, do so. Instructions available here: https://github.com/microsoft/vcpkg/tree/master#quick-start-windows - Ensure you do the steps pertaining to Visual Studio.
-3. Clone this repository (`git clone https://github.com/fl-devs/FLHook.git`)
+3. Clone this repository (`git clone https://github.com/TheStarport/FLHook.git`)
 4. Open `project\FLHook.sln`
 5. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
 6. Build Solution. vcpkg should download a number of dependencies.
