@@ -3,78 +3,78 @@
 // TODO: Rename, and find more appropriate file/location
 class CLIENT_INFO
 {
-  public:
-	void SaveAccountData();
+    public:
+        void SaveAccountData();
 
-	// JSON object of various keys and custom data. Some of these will map directly on to members of this class, others are by accessor only.
-	nlohmann::json accountData;
+        // JSON object of various keys and custom data. Some of these will map directly on to members of this class, others are by accessor only.
+        nlohmann::json accountData;
 
-	uint client;
-	std::wstring characterName;
-	std::wstring characterFile;
+        uint client;
+        std::wstring characterName;
+        std::wstring characterFile;
 
-	// kill msgs
-	uint ship;
-	uint shipOld;
-	mstime tmSpawnTime;
+        // kill msgs
+        uint ship;
+        uint shipOld;
+        mstime tmSpawnTime;
 
-	DamageList dmgLast;
+        DamageList dmgLast;
 
-	// money cmd
-	std::list<MONEY_FIX> moneyFix;
+        // money cmd
+        std::list<MONEY_FIX> moneyFix;
 
-	// anticheat
-	uint tradePartner;
+        // anticheat
+        uint tradePartner;
 
-	// change cruise disruptor behaviour
-	bool cruiseActivated;
-	bool thrusterActivated;
-	bool engineKilled;
-	bool tradelane;
+        // change cruise disruptor behaviour
+        bool cruiseActivated;
+        bool thrusterActivated;
+        bool engineKilled;
+        bool tradelane;
 
-	// idle kicks
-	uint baseEnterTime;
-	uint charMenuEnterTime;
+        // idle kicks
+        uint baseEnterTime;
+        uint charMenuEnterTime;
 
-	// msg, wait and kick
-	mstime tmKickTime;
+        // msg, wait and kick
+        mstime tmKickTime;
 
-	// eventmode
-	uint lastExitedBaseId;
-	bool disconnected;
+        // eventmode
+        uint lastExitedBaseId;
+        bool disconnected;
 
-	// f1 laming
-	mstime tmF1Time;
-	mstime tmF1TimeDisconnect;
+        // f1 laming
+        mstime tmF1Time;
+        mstime tmF1TimeDisconnect;
 
-	// ignore usercommand
-	std::list<IgnoreInfo> ignoreInfoList;
+        // ignore usercommand
+        std::list<IgnoreInfo> ignoreInfoList;
 
-	// user settings
-	DIEMSGTYPE dieMsg;
-	CHATSIZE dieMsgSize;
-	CHATSTYLE dieMsgStyle;
-	CHATSIZE chatSize;
-	CHATSTYLE chatStyle;
+        // user settings
+        DIEMSGTYPE dieMsg;
+        CHATSIZE dieMsgSize;
+        CHATSTYLE dieMsgStyle;
+        CHATSIZE chatSize;
+        CHATSTYLE chatStyle;
 
-	// MultiKillMessages
-	uint killsInARow;
+        // MultiKillMessages
+        uint killsInARow;
 
-	// bans
-	uint connects; // incremented when player connects
+        // bans
+        uint connects; // incremented when player connects
 
-	// Group
-	uint groupId;
+        // Group
+        uint groupId;
 
-	// other
-	std::wstring hostname;
+        // other
+        std::wstring hostname;
 
-	bool spawnProtected;
+        bool spawnProtected;
 
-	// Your randomly assigned formation tag, e.g. Navy Lambda 1-6
-	uint formationNumber1;
-	uint formationNumber2;
-	uint formationTag;
+        // Your randomly assigned formation tag, e.g. Navy Lambda 1-6
+        uint formationNumber1;
+        uint formationNumber2;
+        uint formationTag;
 };
 
 // Magic Enum Extensions
@@ -113,13 +113,15 @@ DLL extern float g_LastHitPts;
 // namespaces
 namespace IServerImplHook
 {
-	struct SubmitData
-	{
-		bool inSubmitChat;
-		std::wstring characterName;
-	};
+    struct SubmitData
+    {
+            bool inSubmitChat;
+            std::wstring characterName;
+    };
 
-	const DLL extern std::unique_ptr<SubmitData> chatData;
+    // If the namespace is not set, resharper specifically will fail to determine types correctly. I do not know why.
+
+    const DLL extern std::unique_ptr<IServerImplHook::SubmitData> chatData;
 } // namespace IServerImplHook
 
 extern DLL CDPServer* cdpSrv;
