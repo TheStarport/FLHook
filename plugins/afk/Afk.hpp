@@ -5,28 +5,42 @@
 
 namespace Plugins
 {
-	class AfkPlugin final : public Plugin
-	{
-		std::vector<uint> awayClients;
+    class AfkPlugin final : public Plugin, public AbstractUserCommandProcessor
+    {
+            std::vector<uint> awayClients;
 
-		/** @ingroup AwayFromKeyboard
-		 * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
-		 * anyone who messages them know too.
-		 */
-		void UserCmdAfk(ClientId& client);
+            /**
+             * @ingroup AwayFromKeyboard
+             * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
+             * anyone who messages them know too.
+             */
+            void UserCmdAfk(ClientId& client);
 
-		/** @ingroup AwayFromKeyboard
-		 * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
-		 * who messages them know too.
-		 */
-		void UserCmdBack(ClientId& client);
+            /**
+             * @ingroup AwayFromKeyboard
+             * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
+             * who messages them know too.
+             */
+            void UserCmdBack(ClientId& client);
 
+            constexpr inline static std::wstring_view afkDescription =
+                L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you.";
 
-	  public:
-		explicit AfkPlugin(const PluginInfo& info);
-		void ClearClientInfo(ClientId& client);
-		void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
-		void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] void const** rdlReader, [[maybe_unused]] ClientId& to,
-		    [[maybe_unused]] const int& dunno);
-	};
+            constexpr inline static std::array<UserCommandInfo<AfkPlugin>, 2> commands = {
+                {
+                 AddUserCommand(AfkPlugin, L "afk", UserCmdAfk, L"", afkDescription),
+                 AddUserCommand(AfkPlugin, L "back", UserCmdBack, L"", L"Removes the AFK status."),
+                 }
+            }; // namespace Plugins
+
+            SetupUserCommandHandler(AfkPlugin, commands);
+
+            void ClearClientInfo(ClientId& client);
+            void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
+            void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader, [[maybe_unused]] ClientId& to,
+                            [[maybe_unused]] const int& dunno);
+
+        public:
+            explicit AfkPlugin(const PluginInfo& info);
+    };
 } // namespace Plugins

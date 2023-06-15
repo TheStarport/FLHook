@@ -1,6 +1,8 @@
 #pragma once
 
-class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
+#include "AbstractAdminCommandProcessor.hpp"
+
+class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, public AbstractAdminCommandProcessor
 {
     public:
         enum class DefaultRoles
@@ -144,5 +146,6 @@ class AdminCommandProcessor : public Singleton<AdminCommandProcessor>
 
     public:
         std::wstring ProcessCommand(std::wstring_view commandString);
+        std::wstring ProcessCommand(std::wstring_view cmd, const std::vector<std::wstring>& paramVector) override;
         void SetCurrentUser(std::wstring_view user, AllowedContext context);
 };

@@ -6,7 +6,7 @@
 #include <Features/MessageHandler.hpp>
 
 #include "Defs/FLHookConfig.hpp"
-#include "Features/AdminCommandProcessor.hpp"
+#include "Features/CommandProcessors/AdminCommandProcessor.hpp"
 #include "Features/DataManager.hpp"
 
 HANDLE hProcFL = nullptr;

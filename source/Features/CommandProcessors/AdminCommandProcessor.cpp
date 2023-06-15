@@ -2,7 +2,7 @@
 // ReSharper disable CppMemberFunctionMayBeStatic
 #include "PCH.hpp"
 
-#include "Features/AdminCommandProcessor.hpp"
+#include "Features/CommandProcessors/AdminCommandProcessor.hpp"
 #include "Global.hpp"
 
 std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandString)
@@ -14,13 +14,18 @@ std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandStri
     std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-    auto res = MatchCommand<commands.size()>(this, command, paramsFiltered);
+    auto res = ProcessCommand(command, paramsFiltered);
 
     // After matching reset perms
     currentContext = AllowedContext::Reset;
     currentUser = L"";
 
     return res;
+}
+
+std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+{
+    return MatchCommand<commands.size()>(this, cmd, paramVector);
 }
 
 void AdminCommandProcessor::SetCurrentUser(const std::wstring_view user, const AllowedContext context)

@@ -5,21 +5,29 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Features/Mail.hpp"
 #include "Global.hpp"
-#include "Helpers/Admin.hpp"
-#include "Helpers/Chat.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/Math.hpp"
-#include "Helpers/Player.hpp"
 #include "plugin.h"
 
-#define PRINT_ERROR()                                                     \
-    {                                                                     \
-        for (uint i = 0; (i < sizeof(error) / sizeof(std::wstring)); i++) \
-            PrintUserCmdText(client, std::format(L"{}", error[i]));       \
-        return;                                                           \
-    }
-#define PRINT_OK()       PrintUserCmdText(client, L"OK");
-#define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
+#include <Features/CommandProcessors/UserCommandProcessor.hpp>
+
+bool UserCommandProcessor::ProcessCommand(ClientId client, std::wstring_view commandString)
+{
+    auto params = StringUtils::GetParams(commandString, ' ');
+
+    auto command = params.front();
+
+    std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
+    paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
+
+    const std::wstring character = Hk::Client::GetCharacterNameByID(client).Unwrap();
+    Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, commandString));
+
+    return ProcessCommand(client, command, paramsFiltered);
+}
+
+bool UserCommandProcessor::ProcessCommand(ClientId client, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+{
+    return MatchCommand<commands.size()>(this, client, cmd, paramVector);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -878,94 +886,4 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
     {
         PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
     }
-}
-
-bool ProcessPluginCommand(ClientId& client, const std::wstring& originalCmdString, const std::vector<UserCommand>& commands)
-{
-    const std::wstring inputLower = StringUtils::ToLower(originalCmdString);
-    for (const auto& command : commands)
-    {
-        std::optional<std::wstring> param;
-        if (command.command.index() == 0)
-        {
-            const auto& subCmd = std::get<std::wstring_view>(command.command);
-
-            // No command match
-            if (inputLower.rfind(subCmd, 0) != 0)
-            {
-                continue;
-            }
-
-            // If the length of the input is greater than the command, check the last character and assert its not a space
-            if (originalCmdString.length() > subCmd.length())
-            {
-                if (originalCmdString[subCmd.length()] != ' ')
-                {
-                    continue;
-                }
-                param = originalCmdString.substr(subCmd.length() + 1);
-            }
-            else
-            {
-                param = L"";
-            }
-        }
-        else
-        {
-            for (const auto& subCmd : std::get<std::vector<std::wstring_view>>(command.command))
-            {
-                if (inputLower.rfind(subCmd, 0) != 0 || (originalCmdString.length() > subCmd.length() && originalCmdString[subCmd.length()] != ' '))
-                {
-                    continue;
-                }
-
-                param = originalCmdString;
-            }
-        }
-        if (param.has_value())
-        {
-            const std::wstring character = (wchar_t*)Players.GetActiveCharacterName(client);
-            Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, originalCmdString));
-
-            try
-            {
-                if (command.proc.index() == 0)
-                {
-                    std::get<UserCmdProc>(command.proc)(client);
-                }
-                else
-                {
-                    std::get<UserCmdProcWithParam>(command.proc)(client, param.value());
-                }
-
-                Logger::i()->Log(LogLevel::Info, L"finished");
-            }
-            catch (const std::exception& ex)
-            {
-                Logger::i()->Log(LogLevel::Err, std::format(L"exception {}", StringUtils::stows(ex.what())));
-            }
-
-            return true;
-        }
-    }
-    return false;
-};
-
-bool UserCmdProcess(ClientId client, const std::wstring& cmd)
-{
-    if (auto [pluginRet, pluginSkip] = CallPluginsBefore<bool>(HookedCall::FLHook__UserCommand__Process, client, cmd); pluginSkip)
-    {
-        return pluginRet;
-    }
-
-    for (const auto& plugins = PluginManager::i(); const std::weak_ptr<Plugin> i : *plugins)
-    {
-        if (const auto commands = i.lock()->GetCommands(); ProcessPluginCommand(client, cmd, commands))
-        {
-            return true;
-        }
-    }
-
-    // In-built commands
-    return ProcessPluginCommand(client, cmd, UserCmds);
 }

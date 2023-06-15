@@ -8,7 +8,8 @@
 
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
-#include "Features/AdminCommandProcessor.hpp"
+#include "Features/CommandProcessors/AdminCommandProcessor.hpp"
+#include "Features/CommandProcessors/UserCommandProcessor.hpp"
 #include "Helpers/Admin.hpp"
 #include "Helpers/Chat.hpp"
 #include "Helpers/Client.hpp"
@@ -148,38 +149,38 @@ namespace IServerImplHook
                 cidTo.id = SpecialChatIds::LOCAL;
             }
 
-            // fix flserver commands and change chat to id so that event logging is
-            // accurate.
+            // fix flserver commands and change chat to id so that event logging is accurate.
             bool foundCommand = false;
             if (buffer[0] == '/')
             {
-                if (buffer[1] == 'g')
+                if (UserCommandProcessor::i()->ProcessCommand(cidFrom.id, std::wstring_view(buffer)))
                 {
-                    foundCommand = true;
-                    cidTo.id = SpecialChatIds::GROUP;
-                }
-                else if (buffer[1] == 's')
-                {
-                    foundCommand = true;
-                    cidTo.id = SpecialChatIds::SYSTEM;
-                }
-                else if (buffer[1] == 'l')
-                {
-                    foundCommand = true;
-                    cidTo.id = SpecialChatIds::LOCAL;
-                }
-                else
-                {
-                    if (UserCmdProcess(cidFrom.id, buffer))
+                    if (FLHookConfig::c()->chatConfig.echoCommands)
                     {
-                        if (FLHookConfig::c()->chatConfig.echoCommands)
-                        {
-                            const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-                                                     StringUtils::XmlText(buffer) + L"</TEXT>";
-                            Hk::Chat::FMsg(cidFrom.id, XML);
-                        }
+                        const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                                                 StringUtils::XmlText(buffer) + L"</TEXT>";
+                        Hk::Chat::FMsg(cidFrom.id, xml);
+                    }
 
-                        return false;
+                    return false;
+                }
+
+                if (buffer[2] == L' ')
+                {
+                    if (buffer[1] == 'g')
+                    {
+                        foundCommand = true;
+                        cidTo.id = SpecialChatIds::GROUP;
+                    }
+                    else if (buffer[1] == 's')
+                    {
+                        foundCommand = true;
+                        cidTo.id = SpecialChatIds::SYSTEM;
+                    }
+                    else if (buffer[1] == 'l')
+                    {
+                        foundCommand = true;
+                        cidTo.id = SpecialChatIds::LOCAL;
                     }
                 }
             }
@@ -199,7 +200,7 @@ namespace IServerImplHook
             }
 
             // check if chat should be suppressed for in-built command prefixes
-            if (buffer[0] == L'/' || buffer[0] == L'.')
+            if (buffer[0] == L'/')
             {
                 if (FLHookConfig::c()->chatConfig.echoCommands)
                 {

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="AdminCommands">
-      <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FLHook">
       <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
     </Filter>
@@ -52,9 +49,6 @@
     <Filter Include="Include\Defs">
       <UniqueIdentifier>{0c8fdf3f-457c-4de8-bb7d-ddc221a6283c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Actions">
-      <UniqueIdentifier>{bd406fdf-6bea-420a-8fa6-6ef55eff6ee2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\Exceptions">
       <UniqueIdentifier>{b179b450-5e3f-443b-bd15-09cef2f0e47d}</UniqueIdentifier>
     </Filter>
@@ -67,6 +61,12 @@
     <Filter Include="FLHook\Tools">
       <UniqueIdentifier>{bf83692e-f0f0-4526-856d-e9b33fcade06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FLHook\Features\CommandProcessors">
+      <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Features\CommandProcessors">
+      <UniqueIdentifier>{0d8c86e9-12ff-48df-8807-1738bc93b43e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\HkInit.cpp">
@@ -74,9 +74,6 @@
     </ClCompile>
     <ClCompile Include="..\source\HkDataBaseMarket.cpp">
       <Filter>FLHook\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\CCmds.cpp">
-      <Filter>AdminCommands</Filter>
     </ClCompile>
     <ClCompile Include="..\source\FLHook.cpp" />
     <ClCompile Include="..\source\Settings.cpp" />
@@ -110,9 +107,6 @@
       <Filter>FLHook\Features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Features\Timers.cpp">
-      <Filter>FLHook\Features</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\Features\UserCommands.cpp">
       <Filter>FLHook\Features</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Helpers\Admin.cpp">
@@ -179,9 +173,6 @@
     <ClCompile Include="..\source\Tools\ThreadScheduler.cpp">
       <Filter>FLHook\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\AdminCommandProcessor.cpp">
-      <Filter>AdminCommands</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\Tools\MemUtil.cpp">
       <Filter>FLHook\Tools</Filter>
     </ClCompile>
@@ -193,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="..\source\Helpers\FileUtils.cpp">
       <Filter>FLHook\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\CommandProcessors\AdminCommandProcessor.cpp">
+      <Filter>FLHook\Features\CommandProcessors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Features\CommandProcessors\UserCommandProcessor.cpp">
+      <Filter>FLHook\Features\CommandProcessors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -314,21 +311,6 @@
     <ClInclude Include="..\include\Features\DataManager.hpp">
       <Filter>Include\Features</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Actions\Actions.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Actions\ShipManipulation.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Actions\RepManipulation.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Actions\ChatActions.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Actions\CargoManipulation.hpp">
-      <Filter>Include\Actions</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp">
       <Filter>Include\Exceptions</Filter>
     </ClInclude>
@@ -353,9 +335,6 @@
     <ClInclude Include="..\include\ext\Singleton.h">
       <Filter>Include\Tools\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Features\AdminCommandProcessor.hpp">
-      <Filter>Include\Features</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Tools\TemplateHelpers.hpp">
       <Filter>FLHook\Tools</Filter>
     </ClInclude>
@@ -373,6 +352,18 @@
     </ClInclude>
     <ClInclude Include="..\include\Exceptions\StopProcessingException.hpp">
       <Filter>Include\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\CommandProcessors\AdminCommandProcessor.hpp">
+      <Filter>Include\Features\CommandProcessors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\CommandProcessors\UserCommandProcessor.hpp">
+      <Filter>Include\Features\CommandProcessors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\CommandProcessors\AbstractAdminCommandProcessor.hpp">
+      <Filter>Include\Features\CommandProcessors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Features\CommandProcessors\AbstractUserCommandProcessor.hpp">
+      <Filter>Include\Features\CommandProcessors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

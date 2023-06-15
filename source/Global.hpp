@@ -43,9 +43,6 @@ namespace Hk
     } // namespace Client
 } // namespace Hk
 
-// TODO: Move to user command processing class!
-bool UserCmdProcess(ClientId client, const std::wstring& cmd);
-
 // Death
 void Naked__ShipDestroyed();
 
@@ -198,6 +195,7 @@ inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs) { re
 class PluginManager : public Singleton<PluginManager>
 {
         friend class AdminCommandProcessor;
+        friend class UserCommandProcessor;
 
     public:
         struct FunctionHookProps
@@ -217,10 +215,12 @@ class PluginManager : public Singleton<PluginManager>
         };
 
     private:
-        std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks_;
+        std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks;
         // TODO: Add a getter function of a const ref so other classes can look at thi list of plugins.
         std::vector<std::shared_ptr<Plugin>> plugins;
-        std::unordered_map<HookedCall, FunctionHookProps> hookProps_;
+        std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
+        std::vector<std::weak_ptr<AbstractAdminCommandProcessor>> adminCommands;
+        std::unordered_map<HookedCall, FunctionHookProps> hookProps;
 
         void ClearData(bool free);
         void setupProps();
@@ -238,11 +238,13 @@ class PluginManager : public Singleton<PluginManager>
 
         auto begin() { return plugins.begin(); }
         auto end() { return plugins.end(); }
+
         [[nodiscard]]
         auto begin() const
         {
             return plugins.begin();
         }
+
         [[nodiscard]]
         auto end() const
         {
@@ -259,7 +261,7 @@ class PluginManager : public Singleton<PluginManager>
             NoVoidReturnType ret{};
             TRY_HOOK
             {
-                for (const PluginHookData& hook : pluginHooks_[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
+                for (const PluginHookData& hook : pluginHooks[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
                 {
                     if (hook.plugin.expired())
                     {
@@ -321,7 +323,7 @@ auto CallPluginsBefore(HookedCall target, Args&&... args)
     }
     else
     {
-        ReturnType ret = PluginManager::i()->CallPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        auto ret = PluginManager::i()->CallPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
         return std::make_tuple(ret, skip);
     }
 }

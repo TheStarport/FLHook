@@ -4,82 +4,86 @@
 #include "Utils.hpp"
 
 // Default transform arg - assume is integral or floating point and straight cast it
-template<class T>
+template <class T>
 T TransformArg(std::wstring_view s)
 {
-	return StringUtils::Cast<T>(s);
+    return StringUtils::Cast<T>(s);
 }
 
-template<>
+template <>
 inline std::wstring_view TransformArg(std::wstring_view s)
 {
-	return s;
+    return s;
 }
 
-template<>
+template <>
 inline const std::wstring& TransformArg(std::wstring_view s)
 {
-	return std::wstring(s);
+    return std::wstring(s);
 }
 
-template<>
+template <>
 inline bool TransformArg(std::wstring_view s)
 {
-	const auto lower = StringUtils::ToLower(s);
-	return lower == L"true" || lower == L"yes" || lower == L"1";
+    const auto lower = StringUtils::ToLower(s);
+    return lower == L"true" || lower == L"yes" || lower == L"1";
 }
 
 template <>
 inline const std::vector<std::wstring_view>& TransformArg(std::wstring_view s)
 {
-	std::vector<std::wstring_view> views;
-	auto params = StringUtils::GetParams(s, L' ');
-	for (const auto& i : params)
-	{
-		views.emplace_back(i);
-	}
+    std::vector<std::wstring_view> views;
+    auto params = StringUtils::GetParams(s, L' ');
+    for (const auto& i : params)
+    {
+        views.emplace_back(i);
+    }
 
-	return views;
+    return views;
 }
 
-template<typename... Args, std::size_t... Is>
+template <typename... Args, std::size_t... Is>
 auto CreateTupleImpl(std::index_sequence<Is...>, const std::vector<std::wstring>& arguments)
 {
-	return std::make_tuple(TransformArg<Args>(arguments[Is])...);
+    return std::make_tuple(TransformArg<Args>(arguments[Is])...);
 }
 
-template<typename... Args>
+template <typename... Args>
 auto CreateTuple(const std::vector<std::wstring>& arguments)
 {
-	return CreateTupleImpl<Args...>(std::index_sequence_for<Args...> {}, arguments);
+    return CreateTupleImpl<Args...>(std::index_sequence_for<Args...>{}, arguments);
 }
 
-template<typename F, F f>
+template <typename F, F f>
 class ClassFunctionWrapper;
 
-template<class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
+template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
-  public:
-	static Ret ProcessParam(Cl cl, const std::vector<std::wstring>& params)
-	{
-		auto arg = CreateTuple<Args...>(params);
-		auto lambda = std::function<Ret(Args...)> {[=](Args... args) mutable {
-			return (cl.*func)(args...);
-		}};
-		return std::apply(lambda, arg);
-	}
+    public:
+        static Ret ProcessParam(Cl cl, const std::vector<std::wstring>& params)
+        {
+            auto arg = CreateTuple<Args...>(params);
+            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(args...); } };
+            return std::apply(lambda, arg);
+        }
+
+        static Ret ProcessUserCommand(Cl cl, ClientId client, const std::vector<std::wstring>& params)
+        {
+            auto arg = CreateTuple<Args...>(params);
+            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(client, args...); } };
+            return std::apply(lambda, arg);
+        }
 };
 
-template<typename T>
+template <typename T>
 struct first_template_type;
 
-
-template<template<typename T, typename...> class t, typename T, typename... Args>
+template <template <typename T, typename...> class t, typename T, typename... Args>
 struct first_template_type<t<T, Args...>>
 {
-	typedef T type;
+        typedef T Type;
 };
 
-template<typename T>
-using FirstTemplateType = typename first_template_type<T>::type;
+template <typename T>
+using FirstTemplateType = typename first_template_type<T>::Type;

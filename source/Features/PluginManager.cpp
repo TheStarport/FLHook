@@ -46,7 +46,7 @@ void PluginManager::ClearData(bool free)
     }
     plugins.clear();
 
-    for (auto& p : pluginHooks_)
+    for (auto& p : pluginHooks)
     {
         p.clear();
     }
@@ -85,7 +85,7 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
     for (const auto& hook : plugin->hooks)
     {
         const uint hookId = static_cast<uint>(hook.targetFunction) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step);
-        auto& list = pluginHooks_[hookId];
+        auto& list = pluginHooks[hookId];
 
         std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin.lock()->dll == dllAddr; });
     }
@@ -98,10 +98,9 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 
 void PluginManager::UnloadAll() { ClearData(true); }
 
-// TODO: Let this return a bool or error type.
 bool PluginManager::Load(std::wstring_view fileName, bool startup)
 {
-    std::wstring dllName = std::wstring(fileName);
+    auto dllName = std::wstring(fileName);
     if (dllName.find(L".dll") == std::wstring::npos)
     {
         dllName.append(L".dll");
@@ -213,21 +212,32 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
             continue;
         }
 
-        if (const auto& targetHookProps = hookProps_[hook.targetFunction]; !targetHookProps.matches(hook.step))
+        if (const auto& targetHookProps = hookProps[hook.targetFunction]; !targetHookProps.matches(hook.step))
         {
             Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format(L"ERR could not bind function. plugin: {}, step not available", dllName));
             continue;
         }
 
         uint hookId = static_cast<uint>(hook.targetFunction) * magic_enum::enum_count<HookStep>() + static_cast<uint>(hook.step);
-        std::vector<PluginHookData>& list = pluginHooks_[hookId];
+        std::vector<PluginHookData>& list = pluginHooks[hookId];
         PluginHookData data = { hook.targetFunction, hook.hookFunction, hook.step, hook.priority, plugin };
         list.emplace_back(std::move(data));
     }
 
     plugins.emplace_back(plugin);
 
-    std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, std::shared_ptr<Plugin>& b) { return a->name < b->name; });
+    const std::weak_ptr weakRef = plugins.back();
+    if (const auto userCmdPtr = std::dynamic_pointer_cast<AbstractUserCommandProcessor>(weakRef.lock()); userCmdPtr)
+    {
+        userCommands.emplace_back(std::weak_ptr(userCmdPtr));
+    }
+
+    if (const auto userCmdPtr = std::dynamic_pointer_cast<AbstractAdminCommandProcessor>(weakRef.lock()); userCmdPtr)
+    {
+        adminCommands.emplace_back(std::weak_ptr(userCmdPtr));
+    }
+
+    std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->name < b->name; });
 
     Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
     return true;
@@ -250,4 +260,4 @@ void PluginManager::LoadAll(bool startup)
     while (FindNextFileW(findPluginsHandle, &findData));
 }
 
-void PluginManager::SetProps(HookedCall c, bool before, bool after) { hookProps_[c] = { before, after }; }
+void PluginManager::SetProps(HookedCall c, bool before, bool after) { hookProps[c] = { before, after }; }
