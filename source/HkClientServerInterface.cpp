@@ -165,7 +165,7 @@ namespace IServerImplHook
                     return false;
                 }
 
-                if (buffer[2] == L' ')
+                if (buffer.length() > 2 && buffer[2] == L' ')
                 {
                     if (buffer[1] == 'g')
                     {
