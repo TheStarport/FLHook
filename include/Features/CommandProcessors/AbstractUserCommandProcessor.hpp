@@ -2,7 +2,8 @@
 
 class AbstractUserCommandProcessor
 {
-        static void PrintOk(ClientId client) { PrintUserCmdText(client, L"OK"); }
+protected:
+    static void PrintOk(ClientId client) { PrintUserCmdText(client, L"OK"); }
 
     public:
         virtual ~AbstractUserCommandProcessor() = default;

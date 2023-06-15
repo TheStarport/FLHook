@@ -29,9 +29,7 @@ bool UserCommandProcessor::ProcessCommand(ClientId client, std::wstring_view cmd
     return MatchCommand<commands.size()>(this, client, cmd, paramVector);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PrintUserCmdText(ClientId client, std::wstring_view text)
+void UserCommandProcessor::PrintUserCmdText(ClientId client, std::wstring_view text)
 {
     if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
     {
@@ -48,11 +46,9 @@ void PrintUserCmdText(ClientId client, std::wstring_view text)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /// Print message to all ships within the specific number of meters of the
 /// player.
-void PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float distance)
+void UserCommandProcessor::PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float distance)
 {
     uint ship;
     pub::Player::GetShip(client, ship);
@@ -94,13 +90,11 @@ void PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float d
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::SetDieMessage(ClientId& client, const std::wstring& param)
 {
     if (!FLHookConfig::i()->chatConfig.dieMsg)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"command disabled");
         return;
     }
 
@@ -141,16 +135,14 @@ void UserCmd_SetDieMsg(ClientId& client, const std::wstring& param)
     info->dieMsg = dieMsg;
 
     // send confirmation msg
-    PRINT_OK()
+    PrintOk(client);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::SetDieMessageFontSize(ClientId& client, const std::wstring& param)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"command disabled");
         return;
     }
 
@@ -183,16 +175,13 @@ void UserCmd_SetDieMsgSize(ClientId& client, const std::wstring& param)
     info->dieMsgSize = dieMsgSize;
 
     // send confirmation msg
-    PRINT_OK()
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::SetChatFont(ClientId& client, std::wstring_view fontSize, std::wstring_view fontType)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"command disabled");
         return;
     }
 
@@ -200,21 +189,16 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
                                          L"Usage: /set chatfont <size> <style>\n"
                                          L"<size>: small, default or big\n"
                                          L"<style>: default, bold, italic or underline";
-
-    auto params = StringUtils::GetParams(param, ' ');
-    const std::wstring chatSizeParam = StringUtils::ToLower(StringUtils::GetParam(params, 0));
-    const std::wstring chatStyleParam = StringUtils::ToLower(StringUtils::GetParam(params, 1));
-
     CHATSIZE chatSize;
-    if (!chatSizeParam.compare(L"small"))
+    if (fontSize == L"small")
     {
         chatSize = CS_SMALL;
     }
-    else if (!chatSizeParam.compare(L"default"))
+    else if (fontSize == L"default")
     {
         chatSize = CS_DEFAULT;
     }
-    else if (!chatSizeParam.compare(L"big"))
+    else if (fontSize == L"big")
     {
         chatSize = CS_BIG;
     }
@@ -225,19 +209,19 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
     }
 
     CHATSTYLE chatStyle;
-    if (!chatStyleParam.compare(L"default"))
+    if (fontType == L"default")
     {
         chatStyle = CST_DEFAULT;
     }
-    else if (!chatStyleParam.compare(L"bold"))
+    else if (fontType == L"bold")
     {
         chatStyle = CST_BOLD;
     }
-    else if (!chatStyleParam.compare(L"italic"))
+    else if (fontType == L"italic")
     {
         chatStyle = CST_ITALIC;
     }
-    else if (!chatStyleParam.compare(L"underline"))
+    else if (fontType == L"underline")
     {
         chatStyle = CST_UNDERLINE;
     }
@@ -257,16 +241,14 @@ void UserCmd_SetChatFont(ClientId& client, const std::wstring& param)
     info->chatStyle = chatStyle;
 
     // send confirmation msg
-    PRINT_OK()
+    PrintOk(client);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_Ignore(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::IgnoreUser(ClientId& client, std::wstring_view ignoredUser, std::wstring_view flags)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PRINT_DISABLED()
+
         return;
     }
 
@@ -286,11 +268,7 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
 
     const std::wstring allowedFlags = L"pi";
 
-    auto params = StringUtils::GetParams(param, ' ');
-    auto character = StringUtils::GetParam(params, 0);
-    const std::wstring flags = StringUtils::ToLower(StringUtils::GetParam(params, 1));
-
-    if (character.empty())
+    if (ignoredUser.empty())
     {
         PrintUserCmdText(client, errorMsg);
         return;
@@ -315,27 +293,23 @@ void UserCmd_Ignore(ClientId& client, const std::wstring& param)
     // save to ini
     const auto info = &ClientInfo[client];
     auto& list = info->accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(character))] = flags;
+    list[StringUtils::wstos(std::wstring(ignoredUser))] = flags;
 
     info->SaveAccountData();
 
-    // save in ClientInfo
     IgnoreInfo ii;
-    ii.character = character;
+    ii.character = ignoredUser;
     ii.flags = flags;
     info->ignoreInfoList.push_back(ii);
 
-    // send confirmation msg
-    PRINT_OK()
+    PrintOk(client);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::IgnoreClientId(ClientId& client, ClientId ignoredClient, std::wstring_view flags)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"Command disabled");
         return;
     }
 
@@ -345,11 +319,7 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
                                          L"<flags>: if \"p\"(without quotation marks) then only affect private\n"
                                          L"chat";
 
-    auto params = StringUtils::GetParams(param, ' ');
-    auto clientId = StringUtils::GetParam(params, 0);
-    const std::wstring flags = StringUtils::ToLower(StringUtils::GetParam(params, 1));
-
-    if (!clientId.length() || !flags.empty() && flags != L"p")
+    if (ignoredClient == UINT_MAX || !flags.empty() && flags != L"p")
     {
         PrintUserCmdText(client, errorMsg);
         return;
@@ -361,14 +331,13 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
         return;
     }
 
-    ClientId clientTarget = StringUtils::Cast<uint>(clientId);
-    if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
+    if (!Hk::Client::IsValidClientID(ignoredClient) || Hk::Client::IsInCharSelectMenu(ignoredClient))
     {
         PrintUserCmdText(client, L"Error: Invalid client-id");
         return;
     }
 
-    std::wstring character = Hk::Client::GetCharacterNameByID(clientTarget).Handle();
+    std::wstring character = Hk::Client::GetCharacterNameByID(ignoredClient).Handle();
 
     // save to ini
     const auto info = &ClientInfo[client];
@@ -377,23 +346,19 @@ void UserCmd_IgnoreID(ClientId& client, const std::wstring& param)
 
     info->SaveAccountData();
 
-    // save in ClientInfo
     IgnoreInfo ii;
     ii.character = character;
     ii.flags = flags;
     ClientInfo[client].ignoreInfoList.push_back(ii);
 
-    // send confirmation msg
     PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& param)
+void UserCommandProcessor::GetIgnoreList(ClientId& client)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"command disabled");
         return;
     }
 
@@ -404,61 +369,50 @@ void UserCmd_IgnoreList(ClientId& client, [[maybe_unused]] const std::wstring& p
         PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.flags));
         i++;
     }
-
-    // send confirmation msg
-    PRINT_OK()
+    PrintOk(client);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::RemoveFromIgnored(ClientId& client, std::vector<std::wstring_view> charactersToRemove)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"Command disabled");
         return;
     }
 
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /delignore <id> [<id2> <id3> ...]\n"
                                          L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
-
-    auto params = StringUtils::GetParams(param, ' ');
-    auto idToDelete = StringUtils::GetParam(params, 0);
-
-    if (idToDelete.empty())
+    if (charactersToRemove.empty())
     {
         PrintUserCmdText(client, errorMsg);
         return;
     }
 
     const auto info = &ClientInfo[client];
-    if (idToDelete == L"*")
+    if (charactersToRemove.front() == L"all")
     {
         info->accountData["settings"]["ignoreList"] = nlohmann::json::object();
         info->SaveAccountData();
-        PRINT_OK();
+        PrintOk(client);
         return;
     }
 
-    std::list<uint> Delete;
-    for (uint j = 1; !idToDelete.empty(); j++)
+    std::vector<uint> idsToBeDeleted;
+    for (auto name : charactersToRemove)
     {
-        uint id = StringUtils::Cast<int>(idToDelete);
+        uint id = StringUtils::Cast<uint>(name);
         if (!id || id > ClientInfo[client].ignoreInfoList.size())
         {
             PrintUserCmdText(client, L"Error: Invalid Id");
             return;
         }
 
-        Delete.push_back(id);
-        idToDelete = StringUtils::GetParam(params, j);
+        idsToBeDeleted.push_back(id);
     }
 
-    Delete.sort(std::greater<uint>());
-
     ClientInfo[client].ignoreInfoList.reverse();
-    for (const auto& del : Delete)
+    for (const auto& del : idsToBeDeleted)
     {
         uint currId = ClientInfo[client].ignoreInfoList.size();
         for (auto ignoreIt = ClientInfo[client].ignoreInfoList.begin(); ignoreIt != ClientInfo[client].ignoreInfoList.end(); ++ignoreIt)
@@ -484,12 +438,10 @@ void UserCmd_DelIgnore(ClientId& client, const std::wstring& param)
 
     info->accountData["settings"]["ignoreList"] = newList;
     info->SaveAccountData();
-    PRINT_OK()
+    PrintOk(client);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void UserCmd_Ids(ClientId& client, [[maybe_unused]] const std::wstring& param)
+void UserCommandProcessor::GetClientIds(ClientId& client)
 {
     for (auto& player : Hk::Admin::GetPlayers())
     {
@@ -498,40 +450,40 @@ void UserCmd_Ids(ClientId& client, [[maybe_unused]] const std::wstring& param)
     PrintUserCmdText(client, L"OK");
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void UserCommandProcessor::GetSelfClientId(ClientId& client) { PrintUserCmdText(client, std::format(L"Your client-id: {}", client)); }
 
-void UserCmd_ID(ClientId& client, [[maybe_unused]] const std::wstring& param) { PrintUserCmdText(client, std::format(L"Your client-id: {}", client)); }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void InvitePlayer(ClientId& client, const std::wstring_view& characterName)
+//TODO: Move to utils.
+void UserCommandProcessor::InvitePlayer(ClientId& client, const std::wstring_view& characterName)
 {
     const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
-    char buf[0xFFFF];
+
+    // Allocates a stack-sized std::array once per run-time and clear every invocation.
+    static std::array<char, USHRT_MAX> buf{};
+    std::fill_n(buf, buf.size(), 0);
+
     uint retVal;
-    if (Hk::Chat::FMsgEncodeXml(XML, buf, sizeof buf, retVal).Raw().has_error())
+    if (Hk::Chat::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
     {
         PrintUserCmdText(client, L"Error: Could not encode XML");
         return;
     }
-
+    // Mimics Freelancer's ingame invite system by using their chatID and chat commands from pressing the invite target button.
     CHAT_ID chatId;
     chatId.id = client;
     CHAT_ID chatIdTo;
     chatIdTo.id = 0x00010001;
-    Server.SubmitChat(chatId, retVal, buf, chatIdTo, -1);
+    Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 }
 
-void UserCmd_Invite(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::InvitePlayerByName(ClientId& client, std::wstring_view invitee)
 {
-    if (!param.empty())
+    if (!invitee.empty())
     {
-        auto params = StringUtils::GetParams(param, ' ');
-        const auto characterName = StringUtils::GetParam(params, 0);
-        auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(characterName)).Raw();
+ 
+        auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(invitee)).Raw();
         if (inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
         {
-            InvitePlayer(client, characterName);
+            InvitePlayer(client, invitee);
         }
     }
     else
@@ -544,35 +496,31 @@ void UserCmd_Invite(ClientId& client, const std::wstring& param)
     }
 }
 
-void UserCmd_InviteID(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::InvitePlayerById(ClientId& client, ClientId inviteeId)
 {
-    auto params = StringUtils::GetParams(param, ' ');
-    auto invitedClientId = StringUtils::GetParam(params, 0);
 
-    if (invitedClientId.empty())
+    if (inviteeId == UINT_MAX)
     {
         PrintUserCmdText(client, L"Error: Invalid parameters\nUsage: /i$ <client-id>");
         return;
     }
 
-    ClientId clientTarget = StringUtils::Cast<int>(invitedClientId);
-    if (!Hk::Client::IsValidClientID(clientTarget) || Hk::Client::IsInCharSelectMenu(clientTarget))
+   
+    if (!Hk::Client::IsValidClientID(inviteeId) || Hk::Client::IsInCharSelectMenu(inviteeId))
     {
         PrintUserCmdText(client, L"Error: Invalid client-id");
         return;
     }
 
-    InvitePlayer(client, Hk::Client::GetCharacterNameByID(clientTarget).Unwrap());
+    InvitePlayer(client, Hk::Client::GetCharacterNameByID(inviteeId).Unwrap());
 }
 
-void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::FactionInvite(ClientId& client, std::wstring_view factionTag)
 {
-    auto params = StringUtils::GetParams(param, ' ');
-    const std::wstring& charnamePrefix = StringUtils::ToLower(StringUtils::GetParam(params, 0));
 
     bool msgSent = false;
 
-    if (charnamePrefix.size() < 3)
+    if (factionTag.size() < 3)
     {
         PrintUserCmdText(client, L"ERR Invalid parameters");
         PrintUserCmdText(client, L"Usage: /factioninvite <tag> or /fi ...");
@@ -581,7 +529,7 @@ void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
 
     for (const auto& player : Hk::Admin::GetPlayers())
     {
-        if (StringUtils::ToLower(player.character).find(charnamePrefix) == std::wstring::npos)
+        if (StringUtils::ToLower(player.character).find(factionTag) == std::wstring::npos)
         {
             continue;
         }
@@ -601,14 +549,11 @@ void UserCmd_FactionInvite(ClientId& client, const std::wstring& param)
     }
 }
 
-void UserCmdDelMail(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::DeleteMail(ClientId& client, const std::wstring_view mailID, const std::wstring_view readOnlyDel)
 {
-    auto params = StringUtils::GetParams(param, ' ');
-    // /maildel <id/all> [readonly]
-    const auto str = StringUtils::GetParam(params, 0);
-    if (str == L"all")
+    if (mailID == L"all")
     {
-        const auto count = MailManager::i()->PurgeAllMail(client, StringUtils::GetParam(params, 1) == L"readonly");
+        const auto count = MailManager::i()->PurgeAllMail(client, readOnlyDel == L"readonly");
         if (count.has_error())
         {
             PrintUserCmdText(client, std::format(L"Error deleting mail: {}", count.error()));
@@ -619,7 +564,7 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
     }
     else
     {
-        const auto index = StringUtils::Cast<int64>(str);
+        const auto index = StringUtils::Cast<int64>(mailID);
         if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
         {
             PrintUserCmdText(client, std::format(L"Error deleting mail: {}", err.error()));
@@ -630,17 +575,15 @@ void UserCmdDelMail(ClientId& client, const std::wstring& param)
     }
 }
 
-void UserCmdReadMail(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::ReadMail(ClientId& client, uint mailId)
 {
-    auto params = StringUtils::GetParams(param, ' ');
-    const auto index = StringUtils::Cast<int64>(StringUtils::GetParam(params, 0));
-    if (index <= 0)
+    if (mailId <= 0)
     {
         PrintUserCmdText(client, L"Id was not provided or was invalid.");
         return;
     }
 
-    const auto mail = MailManager::i()->GetMailById(client, index);
+    const auto mail = MailManager::i()->GetMailById(client, mailId);
     if (mail.has_error())
     {
         PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", mail.error()));
@@ -654,19 +597,18 @@ void UserCmdReadMail(ClientId& client, const std::wstring& param)
     PrintUserCmdText(client, item.body);
 }
 
-void UserCmdListMail(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::ListMail(ClientId& client, int pageNumber, std::wstring_view unread)
 {
-    auto params = StringUtils::GetParams(param, ' ');
-    const auto page = StringUtils::Cast<int>(StringUtils::GetParam(params, 0));
-    if (page <= 0)
+
+    if (pageNumber <= 0)
     {
         PrintUserCmdText(client, L"Page was not provided or was invalid.");
         return;
     }
 
-    const bool unreadOnly = StringUtils::GetParam(params, 1) == L"unread";
+    const bool unreadOnly = (unread == L"unread");
 
-    const auto mail = MailManager::i()->GetMail(client, unreadOnly, page);
+    const auto mail = MailManager::i()->GetMail(client, unreadOnly, pageNumber);
     if (mail.has_error())
     {
         PrintUserCmdText(client, std::format(L"Error retrieving mail: {}", mail.error()));
@@ -694,11 +636,12 @@ void UserCmdListMail(ClientId& client, const std::wstring& param)
     }
 }
 
-void UserCmdGiveCash(ClientId& client, const std::wstring& param)
+//TODO: Implement GiveCash Target and by ID
+void UserCommandProcessor::GiveCash(ClientId& client, std::wstring_view characterName, std::wstring_view amount)
 {
-    auto params = StringUtils::GetParams(param, L' ');
-    const auto targetPlayer = Hk::Client::GetClientIdFromCharName(std::wstring(StringUtils::GetParam(params, 0))).Unwrap();
-    const auto cash = StringUtils::MultiplyUIntBySuffix(StringUtils::GetParam(params, 1));
+
+    const auto targetPlayer = Hk::Client::GetClientIdFromCharName(characterName).Unwrap();
+    const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
     const auto clientCash = Hk::Player::GetCash(client).Unwrap();
 
     if (client == targetPlayer)
