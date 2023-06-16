@@ -118,21 +118,25 @@ namespace Hk::Client
     bool IsEncoded(const std::wstring& fileName)
     {
         bool retVal = false;
-        FILE* f;
-        _wfopen_s(&f, fileName.c_str(), L"r");
+
+        auto f = std::wifstream(fileName);
+
+
         if (!f)
         {
             return false;
         }
 
+        //TODO: For Laz: put a comment explaining what exactly is going on here. 
         const wchar_t magic[] = L"FLS1";
         wchar_t file[sizeof magic] = L"";
-        fread(file, 1, sizeof magic, f);
+        f.read(0, sizeof magic);
         if (!wcsncmp(magic, file, sizeof magic - 1))
         {
             retVal = true;
         }
-        fclose(f);
+
+        f.close();
 
         return retVal;
     }

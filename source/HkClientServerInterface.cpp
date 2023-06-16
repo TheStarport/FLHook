@@ -724,20 +724,15 @@ namespace IServerImplHook
             GetUserDataPath(DataPath);
 
             const std::wstring path = std::format(L"{}\\Accts\\MultiPlayer\\{}\\banned", StringUtils::stows(std::string(DataPath)), dir);
-            ;
 
-            FILE* file = _wfopen(path.c_str(), L"r");
-            if (file)
+            if (std::filesystem::exists(path))
             {
-                fclose(file);
-
                 // Ban the player
                 st6::wstring fr(reinterpret_cast<ushort*>(acc->accId));
                 Players.BanAccount(fr, true);
 
                 // Kick them
                 acc->ForceLogout();
-
                 return false;
             }
         }

@@ -81,16 +81,10 @@ namespace Hk::Player
         }
 
         const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
-
-        // TODO: Remove capi references
-        FILE* fTest;
-        _wfopen_s(&fTest, charFile.c_str(), L"r");
-        if (!fTest)
+        if (std::filesystem::exists(charFile))
         {
             return { cpp::fail(Error::CharacterDoesNotExist) };
         }
-
-        fclose(fTest);
 
         if (Client::IsEncoded(charFile))
         {

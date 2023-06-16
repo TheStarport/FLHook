@@ -31,7 +31,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddUserCommand(UserCommandProcessor, L"/setchatfont", SetChatFont, L"setchatfont", L"sets the font style and size of the chat"),
              AddUserCommand(UserCommandProcessor, L"/ignore", IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
              AddUserCommand(UserCommandProcessor, L"getignorelist", GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
-             AddUserCommand(UserCommandProcessor, L"/unignore", RemoveFromIgnored, L"/unignore <names, .. >",
+             AddUserCommand(UserCommandProcessor, L"/unignore", RemoveFromIgnored, L"/unignore <name ...>",
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
              AddUserCommand(UserCommandProcessor, L"/invite", InvitePlayerByName, L"/invite name", L"invites specified player to group"),
              AddUserCommand(UserCommandProcessor, L"finv", FactionInvite, L"/finv tag", L"invites players that match the listed tag in their name"),
