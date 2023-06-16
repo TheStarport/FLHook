@@ -24,9 +24,21 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void ListMail(ClientId& client, int pageNumber, std::wstring_view unread);
         void GiveCash(ClientId& client, std::wstring_view characterName, std::wstring_view amount);
 
-
-        constexpr inline static std::array<UserCommandInfo<UserCommandProcessor>, 1> commands = {
-            AddUserCommand(UserCommandProcessor, L "ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
+        constexpr inline static std::array<UserCommandInfo<UserCommandProcessor>, 13> commands = {
+            {AddUserCommand(UserCommandProcessor, L"ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
+             AddUserCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L "/setdiemsgsize", L"Sets the text size of death chatConfig."),
+             AddUserCommand(UserCommandProcessor, L"/setdiemsg", SetDieMessage, L"/setdiemsg", L" insert help text here"),
+             AddUserCommand(UserCommandProcessor, L"/setchatfont", SetChatFont, L"setchatfont", L"sets the font style and size of the chat"),
+             AddUserCommand(UserCommandProcessor, L"/ignore", IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
+             AddUserCommand(UserCommandProcessor, L"getignorelist", GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
+             AddUserCommand(UserCommandProcessor, L"/unignore", RemoveFromIgnored, L"/unignore <names, .. >",
+             L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
+             AddUserCommand(UserCommandProcessor, L"/invite", InvitePlayerByName, L"/invite name", L"invites specified player to group"),
+             AddUserCommand(UserCommandProcessor, L"finv", FactionInvite, L"/finv tag", L"invites players that match the listed tag in their name"),
+             AddUserCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail ", L"deletes specified mail"),
+             AddUserCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail id", L"prints specified mail."),
+             AddUserCommand(UserCommandProcessor, L"/listmail", ListMail, L"listmail page", L"lists the mails of the specified page."),
+             AddUserCommand(UserCommandProcessor, L"/givecash", GiveCash, L"/givecash target amount", L"gives speicified amount of cash to named target")}
         };
 
         template <int N>
