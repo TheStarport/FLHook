@@ -17,9 +17,8 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
 
     // encode xml std::wstring(default and small)
     // non-sys
-    std::wstring xmlMsg = L"<TRA data=\"" + FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-    xmlMsg += StringUtils::XmlText(msg);
-    xmlMsg += L"</TEXT>";
+    const auto xmlMsg =
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
 
     char xmlBuf[0xFFFF];
     uint ret;
@@ -28,10 +27,9 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
         return;
     }
 
-    std::wstring styleSmall = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle);
-    std::wstring xmlMsgSmall = std::wstring(L"<TRA data=\"") + styleSmall + L"\" mask=\"-1\"/> <TEXT>";
-    xmlMsgSmall += StringUtils::XmlText(msg);
-    xmlMsgSmall += L"</TEXT>";
+    const auto xmlMsgSmall = std::format(
+        L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle), StringUtils::XmlText(msg));
+
     char bufSmall[0xFFFF];
     uint retSmall;
     if (Hk::Chat::FMsgEncodeXml(xmlMsgSmall, bufSmall, sizeof bufSmall, retSmall).Raw().has_error())
@@ -40,9 +38,9 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
     }
 
     // sys
-    std::wstring xmlMsgSys = L"<TRA data=\"" + FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys + L"\" mask=\"-1\"/> <TEXT>";
-    xmlMsgSys += StringUtils::XmlText(msg);
-    xmlMsgSys += L"</TEXT>";
+    const auto xmlMsgSys =
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
+
     char bufSys[0xFFFF];
     uint retSys;
     if (Hk::Chat::FMsgEncodeXml(xmlMsgSys, bufSys, sizeof bufSys, retSys).Raw().has_error())
@@ -50,10 +48,9 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
         return;
     }
 
-    std::wstring styleSmallSys = SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys);
-    std::wstring xmlMsgSmallSys = L"<TRA data=\"" + styleSmallSys + L"\" mask=\"-1\"/> <TEXT>";
-    xmlMsgSmallSys += StringUtils::XmlText(msg);
-    xmlMsgSmallSys += L"</TEXT>";
+    const auto xmlMsgSmallSys =
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
+
     char BufSmallSys[0xFFFF];
     uint retSmallSys;
     if (Hk::Chat::FMsgEncodeXml(xmlMsgSmallSys, BufSmallSys, sizeof BufSmallSys, retSmallSys).Raw().has_error())
